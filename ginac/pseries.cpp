@@ -755,17 +755,34 @@ ex mul::series(const relational & r, int order, unsigned options) const
  *  @param deg  truncation order of series calculation */
 ex pseries::power_const(const numeric &p, int deg) const
 {
-	int i;
+	// method:
+	// let A(x) be this series and for the time being let it start with a
+	// constant (later we'll generalize):
+	//     A(x) = a_0 + a_1*x + a_2*x^2 + ...
+	// We want to compute
+	//     C(x) = A(x)^p
+	//     C(x) = c_0 + c_1*x + c_2*x^2 + ...
+	// Taking the derivative on both sides and multiplying with A(x) one
+	// immediately arrives at
+	//     C'(x)*A(x) = p*C(x)*A'(x)
+	// Multiplying this out and comparing coefficients we get the recurrence
+	// formula
+	//     c_i = (i*p*a_i*c_0 + ((i-1)*p-1)*a_{i-1}*c_1 + ...
+	//                    ... + (p-(i-1))*a_1*c_{i-1})/(a_0*i)
+	// which can easily be solved given the starting value c_0 = (a_0)^p.
+	// For the more general case where the leading coefficient of A(x) is not
+	// a constant, just consider A2(x) = A(x)*x^m, with some integer m and
+	// repeat the above derivation.  The leading power of C2(x) = A2(x)^2 is
+	// then of course x^(p*m) but the recurrence formula still holds.
 	const symbol *s = static_cast<symbol *>(var.bp);
 	int ldeg = ldegree(*s);
 	
-	// Calculate coefficients of powered series
+	// Compute coefficients of the powered series
 	exvector co;
 	co.reserve(deg);
-	ex co0;
-	co.push_back(co0 = power(coeff(*s, ldeg), p));
+	co.push_back(power(coeff(*s, ldeg), p));
 	bool all_sums_zero = true;
-	for (i=1; i<deg; ++i) {
+	for (int i=1; i<deg; ++i) {
 		ex sum = _ex0();
 		for (int j=1; j<=i; ++j) {
 			ex c = coeff(*s, j + ldeg);
@@ -777,13 +794,13 @@ ex pseries::power_const(const numeric &p, int deg) const
 		}
 		if (!sum.is_zero())
 			all_sums_zero = false;
-		co.push_back(co0 * sum / numeric(i));
+		co.push_back(sum / coeff(*s, ldeg) / numeric(i));
 	}
 	
 	// Construct new series (of non-zero coefficients)
 	epvector new_seq;
 	bool higher_order = false;
-	for (i=0; i<deg; ++i) {
+	for (int i=0; i<deg; ++i) {
 		if (!co[i].is_zero())
 			new_seq.push_back(expair(co[i], numeric(i) + p * ldeg));
 		if (is_order_function(co[i])) {
@@ -814,12 +831,20 @@ ex power::series(const relational & r, int order, unsigned options) const
 {
 	ex e;
 	if (!is_ex_exactly_of_type(basis, pseries)) {
-		// Basis is not a series, may there be a singulary?
-		if (!exponent.info(info_flags::negint))
+		// Basis is not a series, may there be a singularity?
+		bool must_expand_basis = false;
+		try {
+			basis.subs(r);
+		} catch (pole_error) {
+			must_expand_basis = true;
+		}
+		
+		// Is the expression of type something^(-int)?
+		if (!must_expand_basis && !exponent.info(info_flags::negint))
 			return basic::series(r, order, options);
 		
-		// Expression is of type something^(-int), check for singularity
-		if (!basis.subs(r).is_zero())
+		// Is the expression of type 0^something?
+		if (!must_expand_basis && !basis.subs(r).is_zero())
 			return basic::series(r, order, options);
 		
 		// Singularity encountered, expand basis into series
