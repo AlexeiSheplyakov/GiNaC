@@ -3193,9 +3193,9 @@ bool ex::find(const ex & pattern, lst & found);
 @end example
 
 works a bit like @code{has()} but it doesn't stop upon finding the first
-match. Instead, it appends all found matches to the specified list. If there
-are multiple occurrences of the same expression, it is entered only once to
-the list. @code{find()} returns false if no matches were found (in
+match. Instead, it inserts all found matches into the specified list. If
+there are multiple occurrences of the same expression, it is entered only
+once to the list. @code{find()} returns false if no matches were found (in
 @command{ginsh}, it returns an empty list):
 
 @example
