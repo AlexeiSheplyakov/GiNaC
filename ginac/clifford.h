@@ -25,6 +25,8 @@
 
 #include "indexed.h"
 #include "tensor.h"
+#include "symbol.h"
+#include "idx.h"
 
 namespace GiNaC {
 
@@ -41,11 +43,11 @@ class clifford : public indexed
 	// other constructors
 public:
 	clifford(const ex & b, unsigned char rl = 0);
-	clifford(const ex & b, const ex & mu, unsigned char rl = 0);
+	clifford(const ex & b, const ex & mu,  const ex & metr, unsigned char rl = 0);
 
 	// internal constructors
-	clifford(unsigned char rl, const exvector & v, bool discardable = false);
-	clifford(unsigned char rl, std::auto_ptr<exvector> vp);
+	clifford(unsigned char rl, const exvector & v, bool discardable = false,  const ex & metr = lorentz_g(varidx((new symbol)->setflag(status_flags::dynallocated), 4),varidx((new symbol)->setflag(status_flags::dynallocated), 4)));
+	clifford(unsigned char rl, std::auto_ptr<exvector> vp,  const ex & metr = lorentz_g(varidx((new symbol)->setflag(status_flags::dynallocated),4),varidx((new symbol)->setflag(status_flags::dynallocated),4)));
 
 	// functions overriding virtual functions from base classes
 protected:
@@ -59,6 +61,9 @@ protected:
 	// non-virtual functions in this class
 public:
 	unsigned char get_representation_label() const {return representation_label;}
+ 	ex get_metric() const {return metric;}
+ 	ex get_metric(const ex & i, const ex & j) const;
+ 	bool same_metric(const ex & other) const;
 
 protected:
 	void do_print_dflt(const print_dflt & c, unsigned level) const;
@@ -67,6 +72,7 @@ protected:
 	// member variables
 private:
 	unsigned char representation_label; /**< Representation label to distinguish independent spin lines */
+ 	ex metric;
 };
 
 
@@ -82,10 +88,29 @@ protected:
 };
 
 
-/** This class represents the Dirac gamma Lorentz vector. */
-class diracgamma : public tensor
+/** This class represents the Clifford algebra generators (units). */
+class cliffordunit : public tensor
 {
-	GINAC_DECLARE_REGISTERED_CLASS(diracgamma, tensor)
+	GINAC_DECLARE_REGISTERED_CLASS(cliffordunit, tensor)
+
+	  // other constructors
+protected:
+        cliffordunit(unsigned ti) : inherited(ti) {}
+                                                                                                    
+	// functions overriding virtual functions from base classes
+public:
+	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
+	// non-virtual functions in this class
+protected:
+	void do_print(const print_context & c, unsigned level) const;
+	void do_print_latex(const print_latex & c, unsigned level) const;
+};
+
+
+/** This class represents the Dirac gamma Lorentz vector. */
+class diracgamma : public cliffordunit
+{
+	GINAC_DECLARE_REGISTERED_CLASS(diracgamma, cliffordunit)
 
 	// functions overriding virtual functions from base classes
 public:
@@ -160,6 +185,14 @@ template<> inline bool is_exactly_a<clifford>(const basic & obj)
  *  @return newly constructed object */
 ex dirac_ONE(unsigned char rl = 0);
 
+/** Create a Clifford unit object.
+ *
+ *  @param mu Index (must be of class varidx or a derived class)
+ *  @param metr Metric (must be of class tensor or a derived class)
+ *  @param rl Representation label
+ *  @return newly constructed Clifford unit object */
+ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl = 0);
+
 /** Create a Dirac gamma object.
  *
  *  @param mu Index (must be of class varidx or a derived class)
@@ -207,6 +240,33 @@ ex dirac_trace(const ex & e, unsigned char rl = 0, const ex & trONE = 4);
  *  order. This is not necessarily the most simple form but it will allow
  *  to check two expressions for equality. */
 ex canonicalize_clifford(const ex & e);
+
+/** Automorphism of the Clifford algebra, simply changes signs of all 
+ *  clifford units. */
+ex clifford_prime (const ex &e) ;
+
+/** Main anti-automorphism of the Clifford algebra: make reversion 
+ * and changes signs of all clifford units*/
+inline ex clifford_bar(const ex &e) { return clifford_prime(e.conjugate());};
+
+/** Reversion of the Clifford algebra, coinsides with the conjugate() */
+inline ex clifford_star(const ex &e) {  return e.conjugate();};
+
+ex delete_ONE (const ex &e);
+
+/** Calculation of the norm in the Clifford algebra */
+ex clifford_norm(const ex &e) ; 
+
+/** Calculation of the inverse in the Clifford algebra */
+ex clifford_inverse(const ex &e) ; 
+
+/** List or vector conversion into the Clifford vector 
+ *  @param v List or vector of coordinates
+ *  @param mu Index (must be of class varidx or a derived class)
+ *  @param metr Metric (must be of class tensor or a derived class) 
+ *  @param rl Representation label
+ *  @return Clifford vector with given components */
+ex lst_to_clifford(const ex &v, const ex &mu,  const ex &metr, unsigned char rl = 0) ;
 
 } // namespace GiNaC
 
