@@ -745,7 +745,7 @@ ex mul::expand(unsigned options) const
  *  pointer, if sequence is unchanged. */
 epvector * mul::expandchildren(unsigned options) const
 {
-	epvector::const_iterator last = seq.end();
+	const epvector::const_iterator last = seq.end();
 	epvector::const_iterator cit = seq.begin();
 	while (cit!=last) {
 		const ex & factor = recombine_pair_to_ex(*cit);

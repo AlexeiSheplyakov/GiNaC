@@ -1466,7 +1466,7 @@ bool expairseq::is_canonical() const
  *  if no members were changed. */
 epvector * expairseq::expandchildren(unsigned options) const
 {
-	epvector::const_iterator last = seq.end();
+	const epvector::const_iterator last = seq.end();
 	epvector::const_iterator cit = seq.begin();
 	while (cit!=last) {
 		const ex &expanded_ex = cit->rest.expand(options);

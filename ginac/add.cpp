@@ -445,7 +445,7 @@ expair add::split_ex_to_pair(const ex & e) const
 {
 	if (is_ex_exactly_of_type(e,mul)) {
 		const mul &mulref(ex_to<mul>(e));
-		ex numfactor = mulref.overall_coeff;
+		const ex &numfactor = mulref.overall_coeff;
 		mul *mulcopyp = new mul(mulref);
 		mulcopyp->overall_coeff = _ex1;
 		mulcopyp->clearflag(status_flags::evaluated);
@@ -462,7 +462,7 @@ expair add::combine_ex_with_coeff_to_pair(const ex & e,
 	GINAC_ASSERT(is_exactly_a<numeric>(c));
 	if (is_ex_exactly_of_type(e, mul)) {
 		const mul &mulref(ex_to<mul>(e));
-		ex numfactor = mulref.overall_coeff;
+		const ex &numfactor = mulref.overall_coeff;
 		mul *mulcopyp = new mul(mulref);
 		mulcopyp->overall_coeff = _ex1;
 		mulcopyp->clearflag(status_flags::evaluated);
@@ -501,7 +501,7 @@ ex add::recombine_pair_to_ex(const expair & p) const
 	if (ex_to<numeric>(p.coeff).is_equal(_num1))
 		return p.rest;
 	else
-		return p.rest*p.coeff;
+		return (new mul(p.rest,p.coeff))->setflag(status_flags::dynallocated);
 }
 
 ex add::expand(unsigned options) const
