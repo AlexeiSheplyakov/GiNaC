@@ -19,9 +19,9 @@ dnl (don't we all *love* M4?)...
 
 GINACLIB_MAJOR_VERSION=0
 GINACLIB_MINOR_VERSION=9
-GINACLIB_MICRO_VERSION=3
-GINACLIB_INTERFACE_AGE=0
-GINACLIB_BINARY_AGE=0
+GINACLIB_MICRO_VERSION=4
+GINACLIB_INTERFACE_AGE=1
+GINACLIB_BINARY_AGE=1
 GINACLIB_VERSION=$GINACLIB_MAJOR_VERSION.$GINACLIB_MINOR_VERSION.$GINACLIB_MICRO_VERSION
 
 AC_SUBST(GINACLIB_MAJOR_VERSION)
@@ -107,8 +107,19 @@ dnl Make sure all the necessary new-style headers are installed on the system.
 dnl If one of them cannot be found the system is probably not ANSI-conform
 dnl enough so trying the .h-style headers is a waste of time.
 AC_CHECK_HEADERS(iostream vector map string list typeinfo iterator stdexcept algorithm, ,
-  AC_MSG_ERROR(need to have ANSI compliant headers))
+  AC_MSG_ERROR([need to have ANSI compliant headers]))
+dnl We need the sstream header.  But since g++-2.95.n, n<3  does not provide
+dnl it, we must fall back to strstream, which, however, suffers from fixed
+dnl buffer sizes.  So the fallback may produce a crippled library. NB: this
+dnl fallback will disappear in future versions.
 AC_CHECK_HEADERS(sstream strstream)
+if test "x${ac_cv_header_sstream}" = "xno"; then
+  if test "x${ac_cv_header_strstream}" = "xno"; then
+    AC_MSG_ERROR([I could not find the <sstream> or <strstream> header.])
+  else
+    GINAC_WARNING([I could not find <sstream>.  <strstream> may cause trouble.])
+  fi
+fi
 
 dnl We need to have Bruno Haible's CLN installed.
 dnl (CLN versions >= 1.1.0 must have installed cln.m4 at a visible place,

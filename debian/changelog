@@ -1,9 +1,9 @@
-ginac (0.9.3-1) unstable; urgency=low
+ginac (0.9.4-1) unstable; urgency=low
 
   * New upstream release.
   * Remove build-dependency on libstdc++-dev; closes: #105952.
 
- -- Richard Kreckel <kreckel@ginac.de>  Thu, 16 Aug 2001 21:05:27 +0200
+ -- Richard Kreckel <kreckel@ginac.de>  Thu, 20 Sep 2001 19:15:27 +0200
 
 ginac (0.9.0-1) unstable; urgency=low
 
