@@ -953,47 +953,181 @@ $\sin 2x$
 @cindex hierarchy of classes
 
 @cindex atom
-Symbols are for symbolic manipulation what atoms are for chemistry.  You
-can declare objects of class @code{symbol} as any other object simply by
-saying @code{symbol x,y;}.  There is, however, a catch in here having to
-do with the fact that C++ is a compiled language.  The information about
-the symbol's name is thrown away by the compiler but at a later stage
-you may want to print expressions holding your symbols.  In order to
-avoid confusion GiNaC's symbols are able to know their own name.  This
-is accomplished by declaring its name for output at construction time in
-the fashion @code{symbol x("x");}.  If you declare a symbol using the
-default constructor (i.e. without string argument) the system will deal
-out a unique name.  That name may not be suitable for printing but for
-internal routines when no output is desired it is often enough.  We'll
-come across examples of such symbols later in this tutorial.
+Symbolic indeterminates, or @dfn{symbols} for short, are for symbolic
+manipulation what atoms are for chemistry.
 
-This implies that the strings passed to symbols at construction time may
-not be used for comparing two of them.  It is perfectly legitimate to
-write @code{symbol x("x"),y("x");} but it is likely to lead into
-trouble.  Here, @code{x} and @code{y} are different symbols and
-statements like @code{x-y} will not be simplified to zero although the
-output @code{x-x} looks funny.  Such output may also occur when there
-are two different symbols in two scopes, for instance when you call a
-function that declares a symbol with a name already existent in a symbol
-in the calling function.  Again, comparing them (using @code{operator==}
-for instance) will always reveal their difference.  Watch out, please.
+A typical symbol definition looks like this:
+@example
+symbol x("x");
+@end example
+
+This definition actually contains three very different things:
+@itemize
+@item a C++ variable named @code{x}
+@item a @code{symbol} object stored in this C++ variable; this object
+  represents the symbol in a GiNaC expression
+@item the string @code{"x"} which is the name of the symbol, used (almost)
+  exclusively for printing expressions holding the symbol
+@end itemize
+
+Symbols have an explicit name, supplied as a string during construction,
+because in C++, variable names can't be used as values, and the C++ compiler
+throws them away during compilation.
+
+It is possible to omit the symbol name in the definition:
+@example
+symbol x;
+@end example
+
+In this case, GiNaC will assign the symbol an internal, unique name of the
+form @code{symbolNNN}. This won't affect the usability of the symbol but
+the output of your calculations will become more readable if you give your
+symbols sensible names (for intermediate expressions that are only used
+internally such anonymous symbols can be quite useful, however).
+
+Now, here is one important property of GiNaC that differentiates it from
+other computer algebra programs you may have used: GiNaC does @emph{not} use
+the names of symbols to tell them apart, but a (hidden) serial number that
+is unique for each newly created @code{symbol} object. In you want to use
+one and the same symbol in different places in your program, you must only
+create one @code{symbol} object and pass that around. If you create another
+symbol, even if it has the same name, GiNaC will treat it as a different
+indeterminate.
+
+Observe:
+@example
+ex f(int n)
+@{
+    symbol x("x");
+    return pow(x, n);
+@}
+
+int main()
+@{
+    symbol x("x");
+    ex e = f(6);
+
+    cout << e << endl;
+     // prints "x^6" which looks right, but...
+
+    cout << e.degree(x) << endl;
+     // ...this doesn't work. The symbol "x" here is different from the one
+     // in f() and in the expression returned by f(). Consequently, it
+     // prints "0".
+@}
+@end example
+
+One possibility to ensure that @code{f()} and @code{main()} use the same
+symbol is to pass the symbol as an argument to @code{f()}:
+@example
+ex f(int n, const ex & x)
+@{
+    return pow(x, n);
+@}
+
+int main()
+@{
+    symbol x("x");
+
+    // Now, f() uses the same symbol.
+    ex e = f(6, x);
+
+    cout << e.degree(x) << endl;
+     // prints "6", as expected
+@}
+@end example
+
+Another possibility would be to define a global symbol @code{x} that is used
+by both @code{f()} and @code{main()}. If you are using global symbols and
+multiple compilation units you must take special care, however. Suppose
+that you have a header file @file{globals.h} in your program that defines
+a @code{symbol x("x");}. In this case, every unit that includes
+@file{globals.h} would also get its own definition of @code{x} (because
+header files are just inlined into the source code by the C++ preprocessor),
+and hence you would again end up with multiple equally-named, but different,
+symbols. Instead, the @file{globals.h} header should only contain a
+@emph{declaration} like @code{extern symbol x;}, with the definition of
+@code{x} moved into a C++ source file such as @file{globals.cpp}.
+
+A different approach to ensuring that symbols used in different parts of
+your program are identical is to create them with a @emph{factory} function
+like this one:
+@example
+const symbol & get_symbol(const string & s)
+@{
+    static map<string, symbol> directory;
+    map<string, symbol>::iterator i = directory.find(s);
+    if (i != directory.end())
+        return i->second;
+    else
+        return directory.insert(make_pair(s, symbol(s))).first->second;
+@}
+@end example
+
+This function returns one newly constructed symbol for each name that is
+passed in, and it returns the same symbol when called multiple times with
+the same name. Using this symbol factory, we can rewrite our example like
+this:
+@example
+ex f(int n)
+@{
+    return pow(get_symbol("x"), n);
+@}
+
+int main()
+@{
+    ex e = f(6);
+
+    // Both calls of get_symbol("x") yield the same symbol.
+    cout << e.degree(get_symbol("x")) << endl;
+     // prints "6"
+@}
+@end example
+
+Instead of creating symbols from strings we could also have
+@code{get_symbol()} take, for example, an integer number as its argument.
+In this case, we would probably want to give the generated symbols names
+that include this number, which can be accomplished with the help of an
+@code{ostringstream}.
+
+In general, if you're getting weird results from GiNaC such as an expression
+@samp{x-x} that is not simplified to zero, you should check your symbol
+definitions.
+
+As we said, the names of symbols primarily serve for purposes of expression
+output. But there are actually two instances where GiNaC uses the names for
+identifying symbols: When constructing an expression from a string, and when
+recreating an expression from an archive (@pxref{Input/Output}).
+
+In addition to its name, a symbol may contain a special string that is used
+in LaTeX output:
+@example
+symbol x("x", "\\Box");
+@end example
+
+This creates a symbol that is printed as "@code{x}" in normal output, but
+as "@code{\Box}" in LaTeX code (@xref{Input/Output}, for more
+information about the different output formats of expressions in GiNaC).
+GiNaC automatically creates proper LaTeX code for symbols having names of
+greek letters (@samp{alpha}, @samp{mu}, etc.).
+
+@cindex @code{subs()}
+Symbols in GiNaC can't be assigned values. If you need to store results of
+calculations and give them a name, use C++ variables of type @code{ex}.
+If you want to replace a symbol in an expression with something else, you
+can invoke the expression's @code{.subs()} method
+(@pxref{Substituting Expressions}).
 
 @cindex @code{realsymbol()}
-Symbols are expected to stand in for complex values by default, i.e. they live
+By default, symbols are expected to stand in for complex values, i.e. they live
 in the complex domain.  As a consequence, operations like complex conjugation,
-for example (see @ref{Complex Conjugation}), do @emph{not} evaluate if applied
+for example (@pxref{Complex Conjugation}), do @emph{not} evaluate if applied
 to such symbols. Likewise @code{log(exp(x))} does not evaluate to @code{x},
 because of the unknown imaginary part of @code{x}.
 On the other hand, if you are sure that your symbols will hold only real values, you
 would like to have such functions evaluated. Therefore GiNaC allows you to specify
 the domain of the symbol. Instead of @code{symbol x("x");} you can write
 @code{realsymbol x("x");} to tell GiNaC that @code{x} stands in for real values.
-
-@cindex @code{subs()}
-Although symbols can be assigned expressions for internal reasons, you
-should not do it (and we are not going to tell you how it is done).  If
-you want to replace a symbol with something else in an expression, you
-can use the expression's @code{.subs()} method (@pxref{Substituting Expressions}).
 
 
 @node Numbers, Constants, Symbols, Basic Concepts
@@ -1204,6 +1338,120 @@ can be applied is listed in the following table.
 @tab @dots{}an exact (complex) rational number (such as @math{2/3+7/2*I})
 @end multitable
 @end cartouche
+
+@subsection Numeric functions
+
+The following functions can be applied to @code{numeric} objects and will be
+evaluated immediately:
+
+@cartouche
+@multitable @columnfractions .30 .70
+@item @strong{Name} @tab @strong{Function}
+@item @code{inverse(z)}
+@tab returns @math{1/z}
+@cindex @code{inverse()} (numeric)
+@item @code{pow(a, b)}
+@tab exponentiation @math{a^b}
+@item @code{abs(z)}
+@tab absolute value
+@item @code{real(z)}
+@tab real part
+@cindex @code{real()}
+@item @code{imag(z)}
+@tab imaginary part
+@cindex @code{imag()}
+@item @code{csgn(z)}
+@tab complex sign (returns an @code{int})
+@item @code{numer(z)}
+@tab numerator of rational or complex rational number
+@item @code{denom(z)}
+@tab denominator of rational or complex rational number
+@item @code{sqrt(z)}
+@tab square root
+@item @code{isqrt(n)}
+@tab integer square root
+@cindex @code{isqrt()}
+@item @code{sin(z)}
+@tab sine
+@item @code{cos(z)}
+@tab cosine
+@item @code{tan(z)}
+@tab tangent
+@item @code{asin(z)}
+@tab inverse sine
+@item @code{acos(z)}
+@tab inverse cosine
+@item @code{atan(z)}
+@tab inverse tangent
+@item @code{atan(y, x)}
+@tab inverse tangent with two arguments
+@item @code{sinh(z)}
+@tab hyperbolic sine
+@item @code{cosh(z)}
+@tab hyperbolic cosine
+@item @code{tanh(z)}
+@tab hyperbolic tangent
+@item @code{asinh(z)}
+@tab inverse hyperbolic sine
+@item @code{acosh(z)}
+@tab inverse hyperbolic cosine
+@item @code{atanh(z)}
+@tab inverse hyperbolic tangent
+@item @code{exp(z)}
+@tab exponential function
+@item @code{log(z)}
+@tab natural logarithm
+@item @code{Li2(z)}
+@tab dilogarithm
+@item @code{zeta(z)}
+@tab Riemann's zeta function
+@item @code{tgamma(z)}
+@tab gamma function
+@item @code{lgamma(z)}
+@tab logarithm of gamma function
+@item @code{psi(z)}
+@tab psi (digamma) function
+@item @code{psi(n, z)}
+@tab derivatives of psi function (polygamma functions)
+@item @code{factorial(n)}
+@tab factorial function @math{n!}
+@item @code{doublefactorial(n)}
+@tab double factorial function @math{n!!}
+@cindex @code{doublefactorial()}
+@item @code{binomial(n, k)}
+@tab binomial coefficients
+@item @code{bernoulli(n)}
+@tab Bernoulli numbers
+@cindex @code{bernoulli()}
+@item @code{fibonacci(n)}
+@tab Fibonacci numbers
+@cindex @code{fibonacci()}
+@item @code{mod(a, b)}
+@tab modulus in positive representation (in the range @code{[0, abs(b)-1]} with the sign of b, or zero)
+@cindex @code{mod()}
+@item @code{smod(a, b)}
+@tab modulus in symmetric representation (in the range @code{[-iquo(abs(b)-1, 2), iquo(abs(b), 2)]})
+@cindex @code{smod()}
+@item @code{irem(a, b)}
+@tab integer remainder (has the sign of @math{a}, or is zero)
+@cindex @code{irem()}
+@item @code{irem(a, b, q)}
+@tab integer remainder and quotient, @code{irem(a, b, q) == a-q*b}
+@item @code{iquo(a, b)}
+@tab integer quotient
+@cindex @code{iquo()}
+@item @code{iquo(a, b, r)}
+@tab integer quotient and remainder, @code{r == a-iquo(a, b)*b}
+@item @code{gcd(a, b)}
+@tab greatest common divisor
+@item @code{lcm(a, b)}
+@tab least common multiple
+@end multitable
+@end cartouche
+
+Most of these functions are also available as symbolic functions that can be
+used in expressions (@pxref{Mathematical functions}) or, like @code{gcd()},
+as polynomial algorithms.
 
 @subsection Converting numbers
 
@@ -1785,7 +2033,7 @@ file.  By default, GiNaC uses a heuristic to automatically select an
 algorithm that is likely (but not guaranteed) to give the result most
 quickly.
 
-@cindex @code{inverse()}
+@cindex @code{inverse()} (matrix)
 @cindex @code{solve()}
 Matrices may also be inverted using the @code{ex matrix::inverse()}
 method and linear systems may be solved with:
@@ -3115,7 +3363,7 @@ table:
 @multitable @columnfractions .30 .70
 @item @strong{Flag} @tab @strong{Returns true if the object is@dots{}}
 @item @code{numeric}
-@tab @dots{}a number (same as @code{is_<numeric>(...)})
+@tab @dots{}a number (same as @code{is_a<numeric>(...)})
 @item @code{real}
 @tab @dots{}a real integer, rational or float (i.e. is not complex)
 @item @code{rational}
@@ -4395,7 +4643,7 @@ constants, functions and indexed objects as well:
 
 @example
 @{
-    symbol a("a"), b("b"), c("c");
+    symbol a("a"), b("b"), c("c"), x("x");
     idx i(symbol("i"), 3);
 
     ex e = pow(sin(x) - cos(x), 4);
@@ -5002,9 +5250,9 @@ GiNaC contains the following predefined mathematical functions:
 @item @code{psi(n, x)}
 @tab derivatives of psi function (polygamma functions)
 @item @code{factorial(n)}
-@tab factorial function
+@tab factorial function @math{n!}
 @cindex @code{factorial()}
-@item @code{binomial(n, m)}
+@item @code{binomial(n, k)}
 @tab binomial coefficients
 @cindex @code{binomial()}
 @item @code{Order(x)}
