@@ -1,4 +1,4 @@
-$maxargs=13;
+$maxargs=14;
 
 sub generate_seq {
 	my ($seq_template,$n)=@_;
