@@ -1643,7 +1643,7 @@ taken, and the expression to replace it with. After @code{sp.add(A, B, 0)},
 @code{simplify_indexed()} will replace all scalar products of indexed
 objects that have the symbols @code{A} and @code{B} as base expressions
 with the single value 0. The number, type and dimension of the indices
-doesn't matter; @samp{A~mu~nu*B.mu.nu} would also be replaced by 0.
+don't matter; @samp{A~mu~nu*B.mu.nu} would also be replaced by 0.
 
 @cindex @code{expand()}
 The example above also illustrates a feature of the @code{expand()} method:
@@ -1783,7 +1783,7 @@ It is output as @samp{eps}:
 @}
 @end example
 
-The matrix representation of the spinor metric is @code{[[ [[ 0, 1 ]], [[ -1, 0 ]]}.
+The matrix representation of the spinor metric is @code{[[ [[ 0, 1 ]], [[ -1, 0 ]] ]]}.
 
 @cindex @code{epsilon_tensor()}
 @cindex @code{lorentz_eps()}
