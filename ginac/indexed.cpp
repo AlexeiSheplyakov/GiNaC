@@ -668,29 +668,6 @@ try_again:
 				}
 			}
 
-			// Contraction of symmetric with antisymmetric object is zero
-			if (num_dummies > 1
-			 && ex_to<symmetry>(ex_to<indexed>(*it1).symtree).has_symmetry()
-			 && ex_to<symmetry>(ex_to<indexed>(*it2).symtree).has_symmetry()) {
-
-				// Check all pairs of dummy indices
-				for (unsigned idx1=0; idx1<num_dummies-1; idx1++) {
-					for (unsigned idx2=idx1+1; idx2<num_dummies; idx2++) {
-
-						// Try and swap the index pair and check whether the
-						// relative sign changed
-						lst subs_lst(dummy[idx1].op(0), dummy[idx2].op(0)), repl_lst(dummy[idx2].op(0), dummy[idx1].op(0));
-						ex swapped1 = it1->subs(subs_lst, repl_lst);
-						ex swapped2 = it2->subs(subs_lst, repl_lst);
-						if (it1->is_equal(swapped1) && it2->is_equal(-swapped2)
-						 || it1->is_equal(-swapped1) && it2->is_equal(swapped2)) {
-							free_indices.clear();
-							return _ex0();
-						}
-					}
-				}
-			}
-
 			// Try to contract the first one with the second one
 			contracted = it1->op(0).bp->contract_with(it1, it2, v);
 			if (!contracted) {
@@ -748,6 +725,19 @@ contraction_done:
 		r = non_commutative ? ex(ncmul(v, true)) : ex(mul(v));
 	else
 		r = e;
+
+	// The result should be symmetric with respect to exchange of dummy
+	// indices, so if the symmetrization vanishes, the whole expression is
+	// zero. This detects things like eps.i.j.k * p.j * p.k = 0.
+	if (local_dummy_indices.size() >= 2) {
+		lst dummy_syms;
+		for (int i=0; i<local_dummy_indices.size(); i++)
+			dummy_syms.append(local_dummy_indices[i].op(0));
+		if (r.symmetrize(dummy_syms).is_zero()) {
+			free_indices.clear();
+			return _ex0();
+		}
+	}
 
 	// Dummy index renaming
 	r = rename_dummy_indices(r, dummy_indices, local_dummy_indices);

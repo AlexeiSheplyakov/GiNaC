@@ -48,6 +48,9 @@ public:
 	clifford(unsigned char rl, exvector * vp); // vp will be deleted
 
 	// functions overriding virtual functions from base classes
+public:
+	void print(const print_context & c, unsigned level = 0) const;
+
 protected:
 	bool match_same_type(const basic & other) const;
 	ex simplify_ncmul(const exvector & v) const;

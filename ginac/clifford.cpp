@@ -29,6 +29,7 @@
 #include "symmetry.h"
 #include "lst.h"
 #include "relational.h"
+#include "mul.h"
 #include "print.h"
 #include "archive.h"
 #include "debugmsg.h"
@@ -83,7 +84,7 @@ clifford::clifford(const ex & b, unsigned char rl) : inherited(b), representatio
 clifford::clifford(const ex & b, const ex & mu, unsigned char rl) : inherited(b, mu), representation_label(rl)
 {
 	debugmsg("clifford constructor from ex,ex", LOGLEVEL_CONSTRUCT);
-	GINAC_ASSERT(is_ex_of_type(mu, varidx));
+	GINAC_ASSERT(is_a<varidx>(mu));
 	tinfo_key = TINFO_clifford;
 }
 
@@ -147,6 +148,26 @@ bool clifford::match_same_type(const basic & other) const
 	return representation_label == o.representation_label;
 }
 
+void clifford::print(const print_context & c, unsigned level = 0) const
+{
+	if (!is_a<diracgamma5>(seq[0]) && !is_a<diracgamma>(seq[0]) && !is_a<diracone>(seq[0])) {
+
+		// dirac_slash() object is printed differently
+		if (is_a<print_tree>(c))
+			inherited::print(c, level);
+		else if (is_a<print_latex>(c)) {
+			c.s << "{";
+			seq[0].print(c, level);
+			c.s << "\\hspace{-1.0ex}/}";
+		} else {
+			seq[0].print(c, level);
+			c.s << "\\";
+		}
+
+	} else
+		inherited::print(c, level);
+}
+
 DEFAULT_COMPARE(diracone)
 DEFAULT_COMPARE(diracgamma)
 DEFAULT_COMPARE(diracgamma5)
@@ -155,15 +176,31 @@ DEFAULT_PRINT_LATEX(diracone, "ONE", "\\mathbb{1}")
 DEFAULT_PRINT_LATEX(diracgamma, "gamma", "\\gamma")
 DEFAULT_PRINT_LATEX(diracgamma5, "gamma5", "{\\gamma^5}")
 
+/** This function decomposes gamma~mu -> (1, mu) and a\ -> (a.ix, ix) */
+static void base_and_index(const ex & c, ex & b, ex & i)
+{
+	GINAC_ASSERT(is_a<clifford>(c));
+	GINAC_ASSERT(c.nops() == 2);
+
+	if (is_a<diracgamma>(c.op(0))) { // proper dirac gamma object
+		i = c.op(1);
+		b = _ex1();
+	} else { // slash object, generate new dummy index
+		varidx ix((new symbol)->setflag(status_flags::dynallocated), ex_to<idx>(c.op(1)).get_dim());
+		b = indexed(c.op(0), ix.toggle_variance());
+		i = ix;
+	}
+}
+
 /** Contraction of a gamma matrix with something else. */
 bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const
 {
-	GINAC_ASSERT(is_ex_of_type(*self, clifford));
-	GINAC_ASSERT(is_ex_of_type(*other, indexed));
-	GINAC_ASSERT(is_ex_of_type(self->op(0), diracgamma));
+	GINAC_ASSERT(is_a<clifford>(*self));
+	GINAC_ASSERT(is_a<indexed>(*other));
+	GINAC_ASSERT(is_a<diracgamma>(self->op(0)));
 	unsigned char rl = ex_to<clifford>(*self).get_representation_label();
 
-	if (is_ex_of_type(*other, clifford)) {
+	if (is_a<clifford>(*other)) {
 
 		ex dim = ex_to<idx>(self->op(1)).get_dim();
 
@@ -175,18 +212,33 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 
 		// gamma~mu gamma~alpha gamma.mu = (2-dim) gamma~alpha
 		} else if (other - self == 2
-		        && is_ex_of_type(self[1], clifford)) {
+		        && is_a<clifford>(self[1])) {
 			*self = 2 - dim;
 			*other = _ex1();
 			return true;
 
 		// gamma~mu gamma~alpha gamma~beta gamma.mu = 4 g~alpha~beta + (dim-4) gamam~alpha gamma~beta
 		} else if (other - self == 3
-		        && is_ex_of_type(self[1], clifford)
-		        && is_ex_of_type(self[2], clifford)) {
-			*self = 4 * lorentz_g(self[1].op(1), self[2].op(1)) * dirac_ONE(rl) + (dim - 4) * self[1] * self[2];
+		        && is_a<clifford>(self[1])
+		        && is_a<clifford>(self[2])) {
+			ex b1, i1, b2, i2;
+			base_and_index(self[1], b1, i1);
+			base_and_index(self[2], b2, i2);
+			*self = 4 * lorentz_g(i1, i2) * b1 * b2 * dirac_ONE(rl) + (dim - 4) * self[1] * self[2];
 			self[1] = _ex1();
 			self[2] = _ex1();
+			*other = _ex1();
+			return true;
+
+		// gamma~mu gamma~alpha gamma~beta gamma~delta gamma.mu = -2 gamma~delta gamma~beta gamma~alpha - (dim-4) gamam~alpha gamma~beta gamma~delta
+		} else if (other - self == 4
+		        && is_a<clifford>(self[1])
+		        && is_a<clifford>(self[2])
+		        && is_a<clifford>(self[3])) {
+			*self = -2 * self[3] * self[2] * self[1] - (dim - 4) * self[1] * self[2] * self[3];
+			self[1] = _ex1();
+			self[2] = _ex1();
+			self[3] = _ex1();
 			*other = _ex1();
 			return true;
 
@@ -196,7 +248,7 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 		} else {
 			exvector::iterator it = self + 1, next_to_last = other - 1;
 			while (it != other) {
-				if (!is_ex_of_type(*it, clifford))
+				if (!is_a<clifford>(*it))
 					return false;
 				++it;
 			}
@@ -229,7 +281,7 @@ ex clifford::simplify_ncmul(const exvector & v) const
 	// Remove superfluous ONEs
 	exvector::const_iterator cit = v.begin(), citend = v.end();
 	while (cit != citend) {
-		if (!is_ex_of_type(cit->op(0), diracone))
+		if (!is_a<diracone>(cit->op(0)))
 			s.push_back(*cit);
 		cit++;
 	}
@@ -244,7 +296,7 @@ ex clifford::simplify_ncmul(const exvector & v) const
 			exvector::iterator it = next_to_last;
 			while (true) {
 				exvector::iterator it2 = it + 1;
-				if (!is_ex_of_type(it->op(0), diracgamma5) && is_ex_of_type(it2->op(0), diracgamma5)) {
+				if (!is_a<diracgamma5>(it->op(0)) && is_a<diracgamma5>(it2->op(0))) {
 					it->swap(*it2);
 					sign = -sign;
 					something_changed = true;
@@ -260,7 +312,7 @@ ex clifford::simplify_ncmul(const exvector & v) const
 	}
 
 	// Remove squares of gamma5
-	while (s.size() >= 2 && is_ex_of_type(s[0].op(0), diracgamma5) && is_ex_of_type(s[1].op(0), diracgamma5)) {
+	while (s.size() >= 2 && is_a<diracgamma5>(s[0].op(0)) && is_a<diracgamma5>(s[1].op(0))) {
 		s.erase(s.begin(), s.begin() + 2);
 		something_changed = true;
 	}
@@ -271,11 +323,20 @@ ex clifford::simplify_ncmul(const exvector & v) const
 		while (it != itend) {
 			ex & a = it[0];
 			ex & b = it[1];
-			if (is_ex_of_type(a.op(0), diracgamma) && is_ex_of_type(b.op(0), diracgamma)) {
+			if (is_a<diracgamma>(a.op(0)) && is_a<diracgamma>(b.op(0))) {
 				const ex & ia = a.op(1);
 				const ex & ib = b.op(1);
-				if (ia.is_equal(ib)) {
+				if (ia.is_equal(ib)) { // gamma~alpha gamma~alpha -> g~alpha~alpha
 					a = lorentz_g(ia, ib);
+					b = dirac_ONE(representation_label);
+					something_changed = true;
+				}
+			} else if (!is_a<diracgamma>(a.op(0)) && !is_a<diracgamma>(b.op(0))) {
+				const ex & ba = a.op(0);
+				const ex & bb = b.op(0);
+				if (ba.is_equal(bb)) { // a\ a\ -> a^2
+					varidx ix((new symbol)->setflag(status_flags::dynallocated), ex_to<idx>(a.op(1)).get_dim());
+					a = indexed(ba, ix) * indexed(bb, ix.toggle_variance());
 					b = dirac_ONE(representation_label);
 					something_changed = true;
 				}
@@ -313,7 +374,7 @@ ex dirac_ONE(unsigned char rl)
 
 ex dirac_gamma(const ex & mu, unsigned char rl)
 {
-	if (!is_ex_of_type(mu, varidx))
+	if (!is_a<varidx>(mu))
 		throw(std::invalid_argument("index of Dirac gamma must be of type varidx"));
 
 	return clifford(diracgamma(), mu, rl);
@@ -336,8 +397,10 @@ ex dirac_gamma7(unsigned char rl)
 
 ex dirac_slash(const ex & e, const ex & dim, unsigned char rl)
 {
-	varidx mu((new symbol)->setflag(status_flags::dynallocated), dim);
-	return indexed(e, mu.toggle_variance()) * dirac_gamma(mu, rl);
+	// Slashed vectors are actually stored as a clifford object with the
+	// vector as its base expression and a (dummy) index that just serves
+	// for storing the space dimensionality
+	return clifford(e, varidx(0, dim), rl);
 }
 
 /** Check whether a given tinfo key (as returned by return_type_tinfo()
@@ -392,10 +455,10 @@ static ex trace_string(exvector::const_iterator ix, unsigned num)
 
 ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 {
-	if (is_ex_of_type(e, clifford)) {
+	if (is_a<clifford>(e)) {
 
 		if (ex_to<clifford>(e).get_representation_label() == rl
-		 && is_ex_of_type(e.op(0), diracone))
+		 && is_a<diracone>(e.op(0)))
 			return trONE;
 		else
 			return _ex0();
@@ -420,11 +483,11 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 
 		// Expand product, if necessary
 		ex e_expanded = e.expand();
-		if (!is_ex_of_type(e_expanded, ncmul))
+		if (!is_a<ncmul>(e_expanded))
 			return dirac_trace(e_expanded, rl, trONE);
 
 		// gamma5 gets moved to the front so this check is enough
-		bool has_gamma5 = is_ex_of_type(e.op(0).op(0), diracgamma5);
+		bool has_gamma5 = is_a<diracgamma5>(e.op(0).op(0));
 		unsigned num = e.nops();
 
 		if (has_gamma5) {
@@ -435,15 +498,20 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 				return _ex0();
 
 			// Tr gamma5 gamma.mu gamma.nu gamma.rho gamma.sigma = 4I * epsilon(mu, nu, rho, sigma)
-			if (num == 5)
-				return trONE * I * eps0123(e.op(1).op(1), e.op(2).op(1), e.op(3).op(1), e.op(4).op(1));
+			if (num == 5) {
+				ex b1, i1, b2, i2, b3, i3, b4, i4;
+				base_and_index(e.op(1), b1, i1);
+				base_and_index(e.op(2), b2, i2);
+				base_and_index(e.op(3), b3, i3);
+				base_and_index(e.op(4), b4, i4);
+				return trONE * I * (eps0123(i1, i2, i3, i4) * b1 * b2 * b3 * b4).simplify_indexed();
+			}
 
 	   		// Tr gamma5 S_2k =
 			//   I/4! * epsilon0123.mu1.mu2.mu3.mu4 * Tr gamma.mu1 gamma.mu2 gamma.mu3 gamma.mu4 S_2k
-			exvector ix;
-			ix.reserve(num - 1);
+			exvector ix(num-1), bv(num-1);
 			for (unsigned i=1; i<num; i++)
-				ix.push_back(e.op(i).op(1));
+				base_and_index(e.op(i), bv[i-1], ix[i-1]);
 			num--;
 			int *iv = new int[num];
 			ex result;
@@ -472,7 +540,7 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 				}
 			}
 			delete[] iv;
-			return trONE * I * result;
+			return trONE * I * result * mul(bv);
 
 		} else { // no gamma5
 
@@ -481,15 +549,18 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 				return _ex0();
 
 			// Tr gamma.mu gamma.nu = 4 g.mu.nu
-			if (num == 2)
-				return trONE * lorentz_g(e.op(0).op(1), e.op(1).op(1));
+			if (num == 2) {
+				ex b1, i1, b2, i2;
+				base_and_index(e.op(0), b1, i1);
+				base_and_index(e.op(1), b2, i2);
+				return trONE * (lorentz_g(i1, i2) * b1 * b2).simplify_indexed();
+			}
 
-			exvector iv;
-			iv.reserve(num);
+			exvector iv(num), bv(num);
 			for (unsigned i=0; i<num; i++)
-				iv.push_back(e.op(i).op(1));
+				base_and_index(e.op(i), bv[i], iv[i]);
 
-			return trONE * trace_string(iv.begin(), num);
+			return trONE * (trace_string(iv.begin(), num) * mul(bv)).simplify_indexed();
 		}
 
 	} else if (e.nops() > 0) {
@@ -518,11 +589,11 @@ ex canonicalize_clifford(const ex & e)
 
 			// Expand product, if necessary
 			ex rhs_expanded = rhs.expand();
-			if (!is_ex_of_type(rhs_expanded, ncmul)) {
+			if (!is_a<ncmul>(rhs_expanded)) {
 				srl.let_op(i) = (lhs == canonicalize_clifford(rhs_expanded));
 				continue;
 
-			} else if (!is_ex_of_type(rhs.op(0), clifford))
+			} else if (!is_a<clifford>(rhs.op(0)))
 				continue;
 
 			exvector v;
@@ -532,12 +603,15 @@ ex canonicalize_clifford(const ex & e)
 
 			// Stupid recursive bubble sort because we only want to swap adjacent gammas
 			exvector::iterator it = v.begin(), next_to_last = v.end() - 1;
-			if (is_ex_of_type(it->op(0), diracgamma5))
+			if (is_a<diracgamma5>(it->op(0)))
 				++it;
 			while (it != next_to_last) {
-				if (it[0].op(1).compare(it[1].op(1)) > 0) {
+				if (it[0].compare(it[1]) > 0) {
 					ex save0 = it[0], save1 = it[1];
-					it[0] = lorentz_g(it[0].op(1), it[1].op(1));
+					ex b1, i1, b2, i2;
+					base_and_index(it[0], b1, i1);
+					base_and_index(it[1], b2, i2);
+					it[0] = (lorentz_g(i1, i2) * b1 * b2).simplify_indexed();
 					it[1] = _ex2();
 					ex sum = ncmul(v);
 					it[0] = save1;
@@ -551,7 +625,7 @@ ex canonicalize_clifford(const ex & e)
 next_sym:	;
 		}
 	}
-	return aux.subs(srl);
+	return aux.subs(srl).simplify_indexed();
 }
 
 } // namespace GiNaC

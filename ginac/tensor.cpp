@@ -514,6 +514,44 @@ bool tensepsilon::contract_with(exvector::iterator self, exvector::iterator othe
 		*self = sign * M.determinant().simplify_indexed();
 		*other = _ex1();
 		return true;
+
+	} else if (other->return_type() == return_types::commutative) {
+
+#if 0
+		// This handles eps.i.j.k * p.j * p.k = 0
+		// Maybe something like this should go to simplify_indexed() because
+		// such relations are true for any antisymmetric tensors...
+		exvector c;
+
+		// Handle all indices of the epsilon tensor
+		for (int i=0; i<num; i++) {
+			ex idx = self->op(i+1);
+
+			// Look whether there's a contraction with this index
+			exvector::const_iterator ait, aitend = v.end();
+			for (ait = v.begin(); ait != aitend; ait++) {
+				if (ait == self)
+					continue;
+				if (is_a<indexed>(*ait) && ait->return_type() == return_types::commutative && ex_to<indexed>(*ait).has_dummy_index_for(idx) && ait->nops() == 2) {
+
+					// Yes, did we already have another contraction with the same base expression?
+					ex base = ait->op(0);
+					if (std::find_if(c.begin(), c.end(), bind2nd(ex_is_equal(), base)) == c.end()) {
+
+						// No, add the base expression to the list
+						c.push_back(base);
+
+					} else {
+
+						// Yes, the contraction is zero
+						*self = _ex0();
+						*other = _ex0();
+						return true;
+					}
+				}
+			}
+		}
+#endif
 	}
 
 	return false;
