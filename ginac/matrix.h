@@ -77,9 +77,9 @@ protected:
     
     // non-virtual functions in this class
 public:
-    unsigned rows() const            //! get number of rows.
+    unsigned rows(void) const        //! get number of rows.
         { return row; }
-    unsigned cols() const            //! get number of columns.
+    unsigned cols(void) const        //! get number of columns.
         { return col; }
     matrix add(const matrix & other) const;
     matrix sub(const matrix & other) const;
@@ -87,7 +87,7 @@ public:
     const ex & operator() (unsigned ro, unsigned co) const;
     matrix & set(unsigned ro, unsigned co, ex value);
     matrix transpose(void) const;
-    ex determinant(bool normalized=true) const;
+    ex determinant(void) const;
     ex trace(void) const;
     ex charpoly(const ex & lambda) const;
     matrix inverse(void) const;
@@ -144,8 +144,8 @@ inline unsigned cols(const matrix & m)
 inline matrix transpose(const matrix & m)
 { return m.transpose(); }
 
-inline ex determinant(const matrix & m, bool normalized=true)
-{ return m.determinant(normalized); }
+inline ex determinant(const matrix & m)
+{ return m.determinant(); }
 
 inline ex trace(const matrix & m)
 { return m.trace(); }

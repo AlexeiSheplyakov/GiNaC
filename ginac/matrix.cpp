@@ -250,14 +250,12 @@ ex matrix::eval(int level) const
     debugmsg("matrix eval",LOGLEVEL_MEMBER_FUNCTION);
     
     // check if we have to do anything at all
-    if ((level==1)&&(flags & status_flags::evaluated)) {
+    if ((level==1)&&(flags & status_flags::evaluated))
         return *this;
-    }
     
     // emergency break
-    if (level == -max_recursion_level) {
+    if (level == -max_recursion_level)
         throw (std::runtime_error("matrix::eval(): recursion limit exceeded"));
-    }
     
     // eval() entry by entry
     exvector m2(row*col);
@@ -278,9 +276,8 @@ ex matrix::evalf(int level) const
     debugmsg("matrix evalf",LOGLEVEL_MEMBER_FUNCTION);
         
     // check if we have to do anything at all
-    if (level==1) {
+    if (level==1)
         return *this;
-    }
     
     // emergency break
     if (level == -max_recursion_level) {
@@ -336,9 +333,8 @@ int matrix::compare_same_type(const basic & other) const
  *  @exception logic_error (incompatible matrices) */
 matrix matrix::add(const matrix & other) const
 {
-    if (col != other.col || row != other.row) {
+    if (col != other.col || row != other.row)
         throw (std::logic_error("matrix::add(): incompatible matrices"));
-    }
     
     exvector sum(this->m);
     exvector::iterator i;
@@ -351,14 +347,14 @@ matrix matrix::add(const matrix & other) const
     return matrix(row,col,sum);
 }
 
+
 /** Difference of matrices.
  *
  *  @exception logic_error (incompatible matrices) */
 matrix matrix::sub(const matrix & other) const
 {
-    if (col != other.col || row != other.row) {
+    if (col != other.col || row != other.row)
         throw (std::logic_error("matrix::sub(): incompatible matrices"));
-    }
     
     exvector dif(this->m);
     exvector::iterator i;
@@ -371,14 +367,14 @@ matrix matrix::sub(const matrix & other) const
     return matrix(row,col,dif);
 }
 
+
 /** Product of matrices.
  *
  *  @exception logic_error (incompatible matrices) */
 matrix matrix::mul(const matrix & other) const
 {
-    if (col != other.row) {
+    if (col != other.row)
         throw (std::logic_error("matrix::mul(): incompatible matrices"));
-    }
     
     exvector prod(row*other.col);
     for (unsigned i=0; i<row; ++i) {
@@ -391,6 +387,7 @@ matrix matrix::mul(const matrix & other) const
     return matrix(row, other.col, prod);
 }
 
+
 /** operator() to access elements.
  *
  *  @param ro row of element
@@ -398,26 +395,26 @@ matrix matrix::mul(const matrix & other) const
  *  @exception range_error (index out of range) */
 const ex & matrix::operator() (unsigned ro, unsigned co) const
 {
-    if (ro<0 || ro>=row || co<0 || co>=col) {
+    if (ro<0 || ro>=row || co<0 || co>=col)
         throw (std::range_error("matrix::operator(): index out of range"));
-    }
     
     return m[ro*col+co];
 }
+
 
 /** Set individual elements manually.
  *
  *  @exception range_error (index out of range) */
 matrix & matrix::set(unsigned ro, unsigned co, ex value)
 {
-    if (ro<0 || ro>=row || co<0 || co>=col) {
+    if (ro<0 || ro>=row || co<0 || co>=col)
         throw (std::range_error("matrix::set(): index out of range"));
-    }
     
     ensure_if_modifiable();
     m[ro*col+co] = value;
     return *this;
 }
+
 
 /** Transposed of an m x n matrix, producing a new n x m matrix object that
  *  represents the transposed. */
@@ -432,79 +429,71 @@ matrix matrix::transpose(void) const
     return matrix(col,row,trans);
 }
 
-/*  Leverrier algorithm for large matrices having at least one symbolic entry.
- *  This routine is only called internally by matrix::determinant(). The
- *  algorithm is very bad for symbolic matrices since it returns expressions
- *  that are quite hard to expand. */
-/*ex matrix::determinant_symbolic_leverrier(const matrix & M)
- *{
- *    GINAC_ASSERT(M.rows()==M.cols());  // cannot happen, just in case...
- *    
- *    matrix B(M);
- *    matrix I(M.row, M.col);
- *    ex c=B.trace();
- *    for (unsigned i=1; i<M.row; ++i) {
- *        for (unsigned j=0; j<M.row; ++j)
- *            I.m[j*M.col+j] = c;
- *        B = M.mul(B.sub(I));
- *        c = B.trace()/ex(i+1);
- *    }
- *    if (M.row%2) {
- *        return c;
- *    } else {
- *        return -c;
- *    }
- *}*/
 
 /** Determinant of square matrix.  This routine doesn't actually calculate the
  *  determinant, it only implements some heuristics about which algorithm to
- *  call.  When the parameter for normalization is explicitly turned off this
- *  method does not normalize its result at the end, which might imply that
- *  the symbolic 2x2 matrix [[a/(a-b),1],[b/(a-b),1]] is not immediatly
- *  recognized to be unity.  (This is Mathematica's default behaviour, it
- *  should be used with care.)
+ *  call.  If all the elements of the matrix are elements of an integral domain
+ *  the determinant is also in that integral domain and the result is expanded
+ *  only.  If one or more elements are from a quotient field the determinant is
+ *  usually also in that quotient field and the result is normalized before it
+ *  is returned.  This implies that the determinant of the symbolic 2x2 matrix
+ *  [[a/(a-b),1],[b/(a-b),1]] is returned as unity.  (In this respect, it
+ *  behaves like MapleV and unlike Mathematica.)
  *
- *  @param     normalized may be set to false if no normalization of the
- *             result is desired (i.e. to force Mathematica behavior, Maple
- *             does normalize the result).
  *  @return    the determinant as a new expression
  *  @exception logic_error (matrix not square) */
-ex matrix::determinant(bool normalized) const
+ex matrix::determinant(void) const
 {
-    if (row != col) {
+    if (row != col)
         throw (std::logic_error("matrix::determinant(): matrix not square"));
-    }
-
-    // check, if there are non-numeric entries in the matrix:
+    GINAC_ASSERT(row*col==m.capacity());
+    
+    ex det;
+    bool numeric_flag = true;
+    bool normal_flag = false;
     for (exvector::const_iterator r=m.begin(); r!=m.end(); ++r) {
-        if (!(*r).info(info_flags::numeric)) {
-            if (normalized)
-                // return determinant_symbolic_minor().normal();
-                return determinant_symbolic_minor().normal();
-            else
-                return determinant_symbolic_perm();
-        }
+        if (!(*r).info(info_flags::numeric))
+            numeric_flag = false;
+        if ((*r).info(info_flags::rational_function) &&
+            !(*r).info(info_flags::crational_polynomial))
+            normal_flag = true;
     }
-    // if it turns out that all elements are numeric
-    return determinant_numeric();
+    
+    if (numeric_flag)
+        det = determinant_numeric();
+    else
+        if (normal_flag)
+            det = determinant_symbolic_minor().normal();
+        else
+            det = determinant_symbolic_minor();
+    
+    return det;
 }
 
-/** Trace of a matrix.
+
+/** Trace of a matrix.  The result is normalized if it is in some quotient
+ *  field and expanded only otherwise.  This implies that the trace of the
+ *  symbolic 2x2 matrix [[a/(a-b),x],[y,b/(b-a)]] is recognized to be unity.
  *
  *  @return    the sum of diagonal elements
  *  @exception logic_error (matrix not square) */
 ex matrix::trace(void) const
 {
-    if (row != col) {
+    if (row != col)
         throw (std::logic_error("matrix::trace(): matrix not square"));
-    }
+    GINAC_ASSERT(row*col==m.capacity());
     
     ex tr;
     for (unsigned r=0; r<col; ++r)
         tr += m[r*col+r];
-
-    return tr;
+    
+    if (tr.info(info_flags::rational_function) &&
+        !tr.info(info_flags::crational_polynomial))
+        return tr.normal();
+    else
+        return tr.expand();
 }
+
 
 /** Characteristic Polynomial.  The characteristic polynomial of a matrix M is
  *  defined as the determiant of (M - lambda * 1) where 1 stands for the unit
@@ -516,9 +505,8 @@ ex matrix::trace(void) const
  *  @see       matrix::determinant() */
 ex matrix::charpoly(const ex & lambda) const
 {
-    if (row != col) {
+    if (row != col)
         throw (std::logic_error("matrix::charpoly(): matrix not square"));
-    }
     
     matrix M(*this);
     for (unsigned r=0; r<col; ++r)
@@ -527,6 +515,7 @@ ex matrix::charpoly(const ex & lambda) const
     return (M.determinant());
 }
 
+
 /** Inverse of this matrix.
  *
  *  @return    the inverted matrix
@@ -534,9 +523,8 @@ ex matrix::charpoly(const ex & lambda) const
  *  @exception runtime_error (singular matrix) */
 matrix matrix::inverse(void) const
 {
-    if (row != col) {
+    if (row != col)
         throw (std::logic_error("matrix::inverse(): matrix not square"));
-    }
     
     matrix tmp(row,col);
     // set tmp to the unit matrix
@@ -572,6 +560,7 @@ matrix matrix::inverse(void) const
     }
     return tmp;
 }
+
 
 // superfluous helper function
 void matrix::ffe_swap(unsigned r1, unsigned c1, unsigned r2 ,unsigned c2)
@@ -801,6 +790,7 @@ matrix matrix::old_solve(const matrix & v) const
     return matrix(v.row, v.col, sol);
 }
 
+
 // protected
 
 /** Determinant of purely numeric matrix, using pivoting.
@@ -826,29 +816,56 @@ ex matrix::determinant_numeric(void) const
             }
         }
     }
+    
     return det;
 }
+
+
+/*  Leverrier algorithm for large matrices having at least one symbolic entry.
+ *  This routine is only called internally by matrix::determinant(). The
+ *  algorithm is very bad for symbolic matrices since it returns expressions
+ *  that are quite hard to expand. */
+/*ex matrix::determinant_symbolic_leverrier(const matrix & M)
+ *{
+ *    GINAC_ASSERT(M.rows()==M.cols());  // cannot happen, just in case...
+ *    
+ *    matrix B(M);
+ *    matrix I(M.row, M.col);
+ *    ex c=B.trace();
+ *    for (unsigned i=1; i<M.row; ++i) {
+ *        for (unsigned j=0; j<M.row; ++j)
+ *            I.m[j*M.col+j] = c;
+ *        B = M.mul(B.sub(I));
+ *        c = B.trace()/ex(i+1);
+ *    }
+ *    if (M.row%2) {
+ *        return c;
+ *    } else {
+ *        return -c;
+ *    }
+ *}*/
+
 
 /** Recursive determinant for small matrices having at least one symbolic
  *  entry.  The basic algorithm, known as Laplace-expansion, is enhanced by
  *  some bookkeeping to avoid calculation of the same submatrices ("minors")
  *  more than once.  According to W.M.Gentleman and S.C.Johnson this algorithm
- *  is better than elimination schemes for sparse multivariate polynomials and
- *  also for dense univariate polynomials once the dimesion becomes larger
- *  than 7.
+ *  is better than elimination schemes for matrices of sparse multivariate
+ *  polynomials and also for matrices of dense univariate polynomials if the
+ *  matrix' dimesion is larger than 7.
  *
  *  @see matrix::determinant() */
 ex matrix::determinant_symbolic_minor(void) const
 {
-    // for small matrices the algorithm does not make sense:
+    // for small matrices the algorithm does not make any sense:
     if (this->row==1)
         return m[0];
     if (this->row==2)
-        return (m[0]*m[3]-m[2]*m[1]);
+        return (m[0]*m[3]-m[2]*m[1]).expand();
     if (this->row==3)
-        return ((m[4]*m[8]-m[5]*m[7])*m[0]-
-                (m[1]*m[8]-m[2]*m[7])*m[3]+
-                (m[1]*m[5]-m[4]*m[2])*m[6]);
+        return (m[0]*m[4]*m[8]-m[0]*m[5]*m[7]-
+                m[1]*m[3]*m[8]+m[2]*m[3]*m[7]+
+                m[1]*m[5]*m[6]-m[2]*m[4]*m[6]).expand();
     
     // This algorithm can best be understood by looking at a naive
     // implementation of Laplace-expansion, like this one:
@@ -873,7 +890,7 @@ ex matrix::determinant_symbolic_minor(void) const
     //     else
     //         det += m[r1*col] * minorM.determinant_symbolic_minor();
     // }
-    // return det;
+    // return det.expand();
     // What happens is that while proceeding down many of the minors are
     // computed more than once.  In particular, there are binomial(n,k)
     // kxk minors and each one is computed factorial(n-k) times.  Therefore
@@ -882,15 +899,18 @@ ex matrix::determinant_symbolic_minor(void) const
     // calculated in step c-1.  We therefore only have to store at most 
     // 2*binomial(n,n/2) minors.
     
+    // Unique flipper counter for partitioning into minors
+    vector<unsigned> Pkey;
+    Pkey.reserve(this->col);
+    // key for minor determinant (a subpartition of Pkey)
+    vector<unsigned> Mkey;
+    Mkey.reserve(this->col-1);
     // we store our subminors in maps, keys being the rows they arise from
     typedef map<vector<unsigned>,class ex> Rmap;
     typedef map<vector<unsigned>,class ex>::value_type Rmap_value;
-    Rmap A, B;
+    Rmap A;
+    Rmap B;
     ex det;
-    vector<unsigned> Pkey;    // Unique flipper counter for partitioning into minors
-    Pkey.reserve(this->col);
-    vector<unsigned> Mkey;    // key for minor determinant (a subpartition of Pkey)
-    Mkey.reserve(this->col-1);
     // initialize A with last column:
     for (unsigned r=0; r<this->col; ++r) {
         Pkey.erase(Pkey.begin(),Pkey.end());
@@ -922,7 +942,9 @@ ex matrix::determinant_symbolic_minor(void) const
                 else
                     det += m[Pkey[r]*this->col+c]*A[Mkey];
             }
-            // Store the new determinant at its place in B:
+            // prevent build-up of deep nesting of expressions saves some time:
+            det = det.expand();
+            // store the new determinant at its place in B:
             B.insert(Rmap_value(Pkey,det));
             // increment our strange flipper counter
             for (fc=this->col-c; fc>0; --fc) {
@@ -934,13 +956,14 @@ ex matrix::determinant_symbolic_minor(void) const
                 for (unsigned j=fc; j<this->col-c; ++j)
                     Pkey[j] = Pkey[j-1]+1;
         } while(fc);
-        // change the role of A and B:
+        // next column, so change the role of A and B:
         A = B;
         B.clear();
     }
     
     return det;
 }
+
 
 /** Determinant built by application of the full permutation group.  This
  *  routine is only called internally by matrix::determinant(). */
@@ -965,6 +988,7 @@ ex matrix::determinant_symbolic_perm(void) const
     return det;
 }
 
+
 /** Perform the steps of an ordinary Gaussian elimination to bring the matrix
  *  into an upper echelon form.
  *
@@ -987,8 +1011,10 @@ int matrix::gauss_elimination(void)
                 this->m[r2*col+c] = _ex0();
         }
     }
+    
     return sign;
 }
+
 
 /** Partial pivoting method.
  *  Usual pivoting (symbolic==false) returns the index to the element with the

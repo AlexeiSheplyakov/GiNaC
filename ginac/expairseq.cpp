@@ -1545,8 +1545,8 @@ bool expairseq::is_canonical() const
 
 epvector * expairseq::expandchildren(unsigned options) const
 {
-    epvector::const_iterator last=seq.end();
-    epvector::const_iterator cit=seq.begin();
+    epvector::const_iterator last = seq.end();
+    epvector::const_iterator cit = seq.begin();
     while (cit!=last) {
         const ex & expanded_ex=(*cit).rest.expand(options);
         if (!are_ex_trivially_equal((*cit).rest,expanded_ex)) {

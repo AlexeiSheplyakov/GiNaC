@@ -656,25 +656,25 @@ ex mul::expand(unsigned options) const
     intvector positions_of_adds;
     intvector number_of_add_operands;
 
-    epvector * expanded_seqp=expandchildren(options);
+    epvector * expanded_seqp = expandchildren(options);
 
     const epvector & expanded_seq = expanded_seqp==0 ? seq : *expanded_seqp;
 
     positions_of_adds.resize(expanded_seq.size());
     number_of_add_operands.resize(expanded_seq.size());
 
-    int number_of_adds=0;
-    int number_of_expanded_terms=1;
+    int number_of_adds = 0;
+    int number_of_expanded_terms = 1;
 
-    unsigned current_position=0;
-    epvector::const_iterator last=expanded_seq.end();
+    unsigned current_position = 0;
+    epvector::const_iterator last = expanded_seq.end();
     for (epvector::const_iterator cit=expanded_seq.begin(); cit!=last; ++cit) {
         if (is_ex_exactly_of_type((*cit).rest,add)&&
             (ex_to_numeric((*cit).coeff).is_equal(_num1()))) {
-            positions_of_adds[number_of_adds]=current_position;
-            const add & expanded_addref=ex_to_add((*cit).rest);
-            unsigned addref_nops=expanded_addref.nops();
-            number_of_add_operands[number_of_adds]=addref_nops;
+            positions_of_adds[number_of_adds] = current_position;
+            const add & expanded_addref = ex_to_add((*cit).rest);
+            unsigned addref_nops = expanded_addref.nops();
+            number_of_add_operands[number_of_adds] = addref_nops;
             number_of_expanded_terms *= addref_nops;
             number_of_adds++;
         }
@@ -759,11 +759,11 @@ ex mul::expand(unsigned options) const
 
 epvector * mul::expandchildren(unsigned options) const
 {
-    epvector::const_iterator last=seq.end();
-    epvector::const_iterator cit=seq.begin();
+    epvector::const_iterator last = seq.end();
+    epvector::const_iterator cit = seq.begin();
     while (cit!=last) {
-        const ex & factor=recombine_pair_to_ex(*cit);
-        const ex & expanded_factor=factor.expand(options);
+        const ex & factor = recombine_pair_to_ex(*cit);
+        const ex & expanded_factor = factor.expand(options);
         if (!are_ex_trivially_equal(factor,expanded_factor)) {
 
             // something changed, copy seq, eval and return it
@@ -771,7 +771,7 @@ epvector * mul::expandchildren(unsigned options) const
             s->reserve(seq.size());
 
             // copy parts of seq which are known not to have changed
-            epvector::const_iterator cit2=seq.begin();
+            epvector::const_iterator cit2 = seq.begin();
             while (cit2!=cit) {
                 s->push_back(*cit2);
                 ++cit2;

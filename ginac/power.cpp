@@ -554,8 +554,8 @@ unsigned power::return_type_tinfo(void) const
 
 ex power::expand(unsigned options) const
 {
-    ex expanded_basis=basis.expand(options);
-
+    ex expanded_basis = basis.expand(options);
+    
     if (!is_ex_exactly_of_type(exponent,numeric)||
         !ex_to_numeric(exponent).is_integer()) {
         if (are_ex_trivially_equal(basis,expanded_basis)) {
@@ -565,19 +565,19 @@ ex power::expand(unsigned options) const
                     setflag(status_flags::dynallocated);
         }
     }
-
+    
     // integer numeric exponent
     const numeric & num_exponent=ex_to_numeric(exponent);
     int int_exponent = num_exponent.to_int();
-
+    
     if (int_exponent > 0 && is_ex_exactly_of_type(expanded_basis,add)) {
         return expand_add(ex_to_add(expanded_basis), int_exponent);
     }
-
+    
     if (is_ex_exactly_of_type(expanded_basis,mul)) {
         return expand_mul(ex_to_mul(expanded_basis), num_exponent);
     }
-
+    
     // cannot expand further
     if (are_ex_trivially_equal(basis,expanded_basis)) {
         return this->hold();
@@ -600,12 +600,11 @@ ex power::expand(unsigned options) const
 ex power::expand_add(const add & a, int n) const
 {
     // expand a^n where a is an add and n is an integer
-
-    if (n==2) {
-        return expand_add_2(a);
-    }
     
-    int m=a.nops();
+    if (n==2)
+        return expand_add_2(a);
+    
+    int m = a.nops();
     exvector sum;
     sum.reserve((n+1)*(m-1));
     intvector k(m-1);
@@ -618,7 +617,7 @@ ex power::expand_add(const add & a, int n) const
         k_cum[l]=0;
         upper_limit[l]=n;
     }
-
+    
     while (1) {
         exvector term;
         term.reserve(m+1);
@@ -634,7 +633,7 @@ ex power::expand_add(const add & a, int n) const
                 term.push_back(power(b,k[l]));
             }
         }
-
+        
         const ex & b=a.op(l);
         GINAC_ASSERT(!is_ex_exactly_of_type(b,add));
         GINAC_ASSERT(!is_ex_exactly_of_type(b,power)||
@@ -645,7 +644,7 @@ ex power::expand_add(const add & a, int n) const
         } else {
             term.push_back(power(b,n-k_cum[m-2]));
         }
-
+        
         numeric f=binomial(numeric(n),numeric(k[0]));
         for (l=1; l<m-1; l++) {
             f=f*binomial(numeric(n-k_cum[l-1]),numeric(k[l]));

@@ -91,7 +91,7 @@ add::add(const ex & lh, const ex & rh)
 {
     debugmsg("add constructor from ex,ex",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_add;
-    overall_coeff=_ex0();
+    overall_coeff = _ex0();
     construct_from_2_ex(lh,rh);
     GINAC_ASSERT(is_canonical());
 }
@@ -100,7 +100,7 @@ add::add(const exvector & v)
 {
     debugmsg("add constructor from exvector",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_add;
-    overall_coeff=_ex0();
+    overall_coeff = _ex0();
     construct_from_exvector(v);
     GINAC_ASSERT(is_canonical());
 }
@@ -126,7 +126,7 @@ add::add(const epvector & v)
 {
     debugmsg("add constructor from epvector",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_add;
-    overall_coeff=_ex0();
+    overall_coeff = _ex0();
     construct_from_epvector(v);
     GINAC_ASSERT(is_canonical());
 }
@@ -135,7 +135,7 @@ add::add(const epvector & v, const ex & oc)
 {
     debugmsg("add constructor from epvector,ex",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_add;
-    overall_coeff=oc;
+    overall_coeff = oc;
     construct_from_epvector(v);
     GINAC_ASSERT(is_canonical());
 }
@@ -145,7 +145,7 @@ add::add(epvector * vp, const ex & oc)
     debugmsg("add constructor from epvector *,ex",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_add;
     GINAC_ASSERT(vp!=0);
-    overall_coeff=oc;
+    overall_coeff = oc;
     construct_from_epvector(*vp);
     delete vp;
     GINAC_ASSERT(is_canonical());
@@ -309,9 +309,9 @@ bool add::info(unsigned inf) const
 
 int add::degree(const symbol & s) const
 {
-    int deg=INT_MIN;
+    int deg = INT_MIN;
     if (!overall_coeff.is_equal(_ex0())) {
-        deg=0;
+        deg = 0;
     }
     int cur_deg;
     for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
@@ -323,13 +323,13 @@ int add::degree(const symbol & s) const
 
 int add::ldegree(const symbol & s) const
 {
-    int deg=INT_MAX;
+    int deg = INT_MAX;
     if (!overall_coeff.is_equal(_ex0())) {
-        deg=0;
+        deg = 0;
     }
     int cur_deg;
     for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
-        cur_deg=(*cit).rest.ldegree(s);
+        cur_deg = (*cit).rest.ldegree(s);
         if (cur_deg<deg) deg=cur_deg;
     }
     return deg;
@@ -365,7 +365,7 @@ ex add::eval(int level) const
         return (new add(evaled_seqp,overall_coeff))->
                    setflag(status_flags::dynallocated);
     }
-
+    
 #ifdef DO_GINAC_ASSERT
     for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
         GINAC_ASSERT(!is_ex_exactly_of_type((*cit).rest,add));
@@ -375,13 +375,13 @@ ex add::eval(int level) const
         GINAC_ASSERT(!is_ex_exactly_of_type((*cit).rest,numeric));
     }
 #endif // def DO_GINAC_ASSERT
-
+    
     if (flags & status_flags::evaluated) {
         GINAC_ASSERT(seq.size()>0);
         GINAC_ASSERT((seq.size()>1)||!overall_coeff.is_equal(_ex0()));
         return *this;
     }
-
+    
     int seq_size=seq.size();
     if (seq_size==0) {
         // +(;c) -> c
@@ -528,7 +528,7 @@ ex add::recombine_pair_to_ex(const expair & p) const
 
 ex add::expand(unsigned options) const
 {
-    epvector * vp=expandchildren(options);
+    epvector * vp = expandchildren(options);
     if (vp==0) {
         return *this;
     }

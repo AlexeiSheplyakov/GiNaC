@@ -229,9 +229,9 @@ ex & basic::let_op(int i)
 
 ex basic::operator[](const ex & index) const
 {
-    if (is_exactly_of_type(*index.bp,numeric)) {
+    if (is_exactly_of_type(*index.bp,numeric))
         return op(static_cast<const numeric &>(*index.bp).to_int());
-    }
+    
     throw(std::invalid_argument("non-numeric indices not supported by this type"));
 }
 
@@ -240,6 +240,8 @@ ex basic::operator[](int i) const
     return op(i);
 }
 
+/** Search ocurrences.  An object  'has' an expression if it is the expression
+ *  itself or one of the children 'has' it. */
 bool basic::has(const ex & other) const
 {
     GINAC_ASSERT(other.bp!=0);
@@ -283,6 +285,7 @@ ex basic::eval(int level) const
     return this->hold();
 }
 
+/** Evaluate object numerically. */
 ex basic::evalf(int level) const
 {
     return *this;
