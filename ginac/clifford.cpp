@@ -155,7 +155,7 @@ DEFAULT_ARCHIVING(diracgammaR)
 
 ex clifford::get_metric(const ex & i, const ex & j) const
 {
-	return indexed(metric, symmetric2(), i, j);
+	return indexed(metric, i, j);
 }
 
 bool clifford::same_metric(const ex & other) const
@@ -213,8 +213,10 @@ void clifford::do_print_latex(const print_latex & c, unsigned level) const
 		c.s << "{";
 		seq[0].print(c, level);
 		c.s << "\\hspace{-1.0ex}/}";
-	} else
+	} else {
+		c.s << "\\clifford[" << int(representation_label) << "]";
 		this->print_dispatch<inherited>(c, level);
+	}
 }
 
 DEFAULT_COMPARE(diracone)
@@ -224,7 +226,7 @@ DEFAULT_COMPARE(diracgamma5)
 DEFAULT_COMPARE(diracgammaL)
 DEFAULT_COMPARE(diracgammaR)
 
-DEFAULT_PRINT_LATEX(diracone, "ONE", "\\mathbb{1}")
+DEFAULT_PRINT_LATEX(diracone, "ONE", "\\mathbf{1}")
 DEFAULT_PRINT_LATEX(cliffordunit, "e", "e")
 DEFAULT_PRINT_LATEX(diracgamma, "gamma", "\\gamma")
 DEFAULT_PRINT_LATEX(diracgamma5, "gamma5", "{\\gamma^5}")
@@ -937,14 +939,15 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 }
 
 
-ex canonicalize_clifford(const ex & e)
+ex canonicalize_clifford(const ex & e_)
 {
 	pointer_to_map_function fcn(canonicalize_clifford);
 
-	if (is_a<matrix>(e)    // || is_a<pseries>(e) || is_a<integral>(e)
-		|| is_a<lst>(e)) {
-		return e.map(fcn);
+	if (is_a<matrix>(e_)    // || is_a<pseries>(e) || is_a<integral>(e)
+		|| is_a<lst>(e_)) {
+		return e_.map(fcn);
 	} else {
+		ex e=simplify_indexed(e_);
 		// Scan for any ncmul objects
 		exmap srl;
 		ex aux = e.to_rational(srl);
@@ -1004,8 +1007,8 @@ ex clifford_prime(const ex & e)
 	pointer_to_map_function fcn(clifford_prime);
 	if (is_a<clifford>(e) && is_a<cliffordunit>(e.op(0))) {
 		return -e;
-	} else if (is_a<add>(e) || is_a<ncmul>(e)  // || is_a<pseries>(e) || is_a<integral>(e)
-			|| is_a<matrix>(e) || is_a<lst>(e)) {
+	} else if (is_a<add>(e) || is_a<ncmul>(e) || is_a<mul>(e) //|| is_a<pseries>(e) || is_a<integral>(e)
+			   || is_a<matrix>(e) || is_a<lst>(e)) {
 		return e.map(fcn);
 	} else if (is_a<power>(e)) {
 		return pow(clifford_prime(e.op(0)), e.op(1));
@@ -1013,13 +1016,16 @@ ex clifford_prime(const ex & e)
 		return e;
 }
 
-ex remove_dirac_ONE(const ex & e)
+ex remove_dirac_ONE(const ex & e,  unsigned char rl)
 {
-	pointer_to_map_function fcn(remove_dirac_ONE);
-	if (is_a<clifford>(e) && is_a<diracone>(e.op(0))) {
-		return 1;
+	pointer_to_map_function_1arg<unsigned char> fcn(remove_dirac_ONE, rl);
+	if (is_a<clifford>(e) && ex_to<clifford>(e).get_representation_label() >= rl) {
+		if (is_a<diracone>(e.op(0)))
+			return 1;
+		else
+			throw(std::invalid_argument("Expression is a non-scalar Clifford number!"));
 	} else if (is_a<add>(e) || is_a<ncmul>(e) || is_a<mul>(e)  // || is_a<pseries>(e) || is_a<integral>(e)
-			|| is_a<matrix>(e) || is_a<lst>(e)) {
+			   || is_a<matrix>(e) || is_a<lst>(e)) {
 		return e.map(fcn);
 	} else if (is_a<power>(e)) {
 		return pow(remove_dirac_ONE(e.op(0)), e.op(1));
@@ -1043,37 +1049,43 @@ ex clifford_inverse(const ex & e)
 
 ex lst_to_clifford(const ex & v, const ex & mu, const ex & metr, unsigned char rl)
 {
-	unsigned min, max;
 	if (!ex_to<idx>(mu).is_dim_numeric())
 		throw(std::invalid_argument("Index should have a numeric dimension"));
-	unsigned dim = (ex_to<numeric>(ex_to<idx>(mu).get_dim())).to_int();
-	ex c = clifford_unit(mu, metr, rl);
+	ex e = clifford_unit(mu, metr, rl);
+	return lst_to_clifford(v, e);
+}
 
-	if (is_a<matrix>(v)) {
-		if (ex_to<matrix>(v).cols() > ex_to<matrix>(v).rows()) {
-			min = ex_to<matrix>(v).rows();
-			max = ex_to<matrix>(v).cols();
-		} else {
-			min = ex_to<matrix>(v).cols();
-			max = ex_to<matrix>(v).rows();
-		}
-		if (min == 1) {
-			if (dim == max)
-				if (is_a<varidx>(mu)) // need to swap variance
-					return indexed(v, ex_to<varidx>(mu).toggle_variance()) * c;
+ex lst_to_clifford(const ex & v, const ex & e) {
+	unsigned min, max;
+
+	if (is_a<clifford>(e)) {
+		varidx mu = ex_to<varidx>(e.op(1));
+		unsigned dim = (ex_to<numeric>(mu.get_dim())).to_int();
+
+		if (is_a<matrix>(v)) {
+			if (ex_to<matrix>(v).cols() > ex_to<matrix>(v).rows()) {
+				min = ex_to<matrix>(v).rows();
+				max = ex_to<matrix>(v).cols();
+			} else {
+				min = ex_to<matrix>(v).cols();
+				max = ex_to<matrix>(v).rows();
+			}
+			if (min == 1) {
+				if (dim == max)
+					return indexed(v, ex_to<varidx>(mu).toggle_variance()) * e;
 				else
-					return indexed(v, mu) * c;
+					throw(std::invalid_argument("Dimensions of vector and clifford unit mismatch"));
+			} else
+				throw(std::invalid_argument("First argument should be a vector vector"));
+		} else if (is_a<lst>(v)) {
+			if (dim == ex_to<lst>(v).nops())
+				return indexed(matrix(dim, 1, ex_to<lst>(v)), ex_to<varidx>(mu).toggle_variance()) * e;
 			else
-				throw(std::invalid_argument("Dimensions of vector and clifford unit mismatch"));
+				throw(std::invalid_argument("List length and dimension of clifford unit mismatch"));
 		} else
-			throw(std::invalid_argument("First argument should be a vector vector"));
-	} else if (is_a<lst>(v)) {
-		if (dim == ex_to<lst>(v).nops())
-			return indexed(matrix(dim, 1, ex_to<lst>(v)), ex_to<varidx>(mu).toggle_variance()) * c;
-		else
-			throw(std::invalid_argument("List length and dimension of clifford unit mismatch"));
+			throw(std::invalid_argument("Cannot construct from anything but list or vector"));
 	} else
-		throw(std::invalid_argument("Cannot construct from anything but list or vector"));
+		throw(std::invalid_argument("The second argument should be a Clifford unit"));
 }
  
 /** Auxiliary structure to define a function for striping one Clifford unit
@@ -1133,7 +1145,7 @@ static ex get_clifford_comp(const ex & e, const ex & c)
 }
 
 
-lst clifford_to_lst (const ex & e, const ex & c, bool algebraic)
+lst clifford_to_lst(const ex & e, const ex & c, bool algebraic)
 {
 	GINAC_ASSERT(is_a<clifford>(c));
 	varidx mu = ex_to<varidx>(c.op(1));
@@ -1143,7 +1155,8 @@ lst clifford_to_lst (const ex & e, const ex & c, bool algebraic)
 
 	if (algebraic) // check if algebraic method is applicable
 		for (unsigned int i = 0; i < D; i++) 
-			if (pow(c.subs(mu == i), 2) == 0)
+			if (pow(c.subs(mu == i), 2).is_zero() 
+				or (not is_a<numeric>(pow(c.subs(mu == i), 2))))
 				algebraic = false;
 	lst V; 
 	if (algebraic) 
@@ -1162,22 +1175,26 @@ lst clifford_to_lst (const ex & e, const ex & c, bool algebraic)
 
 ex clifford_moebius_map(const ex & a, const ex & b, const ex & c, const ex & d, const ex & v, const ex & G, unsigned char rl)
 {
-	ex x, D;
-	if (is_a<indexed>(G)) 
-		D = ex_to<varidx>(G.op(1)).get_dim();
-	else if (is_a<matrix>(G)) 
-		D = ex_to<matrix>(G).rows();
-	else
-		throw(std::invalid_argument("metric should be an indexed object or matrix"));
+	ex x, D, cu;
 	
-	varidx mu((new symbol)->setflag(status_flags::dynallocated), D);
-		   
 	if (! is_a<matrix>(v) && ! is_a<lst>(v))
 		throw(std::invalid_argument("parameter v should be either vector or list"));
+	
+	if (is_a<clifford>(G)) {
+		cu = G;
+	} else {
+		if (is_a<indexed>(G)) 
+			D = ex_to<varidx>(G.op(1)).get_dim();
+		else if (is_a<matrix>(G)) 
+			D = ex_to<matrix>(G).rows(); 
+		else throw(std::invalid_argument("metric should be an indexed object, matrix, or a Clifford unit"));
+		
+		varidx mu((new symbol)->setflag(status_flags::dynallocated), D);
+		cu = clifford_unit(mu, G, rl);
+	}
 
-	x = lst_to_clifford(v, mu, G, rl);
+	x = lst_to_clifford(v, cu); 
 	ex e = simplify_indexed(canonicalize_clifford((a * x + b) * clifford_inverse(c * x + d)));
-	ex cu = clifford_unit(mu, G);
 	return clifford_to_lst(e, cu, false);
 }
 

@@ -1943,7 +1943,8 @@ ex diag_matrix(const lst & l);
 ex unit_matrix(unsigned x);
 ex unit_matrix(unsigned r, unsigned c);
 ex symbolic_matrix(unsigned r, unsigned c, const string & base_name);
-ex symbolic_matrix(unsigned r, unsigned c, const string & base_name, const string & tex_base_name);
+ex symbolic_matrix(unsigned r, unsigned c, const string & base_name,
+                   const string & tex_base_name);
 @end example
 
 @code{diag_matrix()} constructs a diagonal matrix given the list of diagonal
@@ -2113,7 +2114,8 @@ Matrices may also be inverted using the @code{ex matrix::inverse()}
 method and linear systems may be solved with:
 
 @example
-matrix matrix::solve(const matrix & vars, const matrix & rhs, unsigned algo=solve_algo::automatic) const;
+matrix matrix::solve(const matrix & vars, const matrix & rhs,
+                     unsigned algo=solve_algo::automatic) const;
 @end example
 
 Assuming the matrix object this method is applied on is an @code{m}
@@ -2784,7 +2786,8 @@ dimensions:
 @example
 ex epsilon_tensor(const ex & i1, const ex & i2);
 ex epsilon_tensor(const ex & i1, const ex & i2, const ex & i3);
-ex lorentz_eps(const ex & i1, const ex & i2, const ex & i3, const ex & i4, bool pos_sig = false);
+ex lorentz_eps(const ex & i1, const ex & i2, const ex & i3, const ex & i4,
+               bool pos_sig = false);
 @end example
 
 The first two functions create an epsilon tensor in 2 or 3 Euclidean
@@ -3084,7 +3087,8 @@ To calculate the trace of an expression containing strings of Dirac gammas
 you use one of the functions
 
 @example
-ex dirac_trace(const ex & e, const std::set<unsigned char> & rls, const ex & trONE = 4);
+ex dirac_trace(const ex & e, const std::set<unsigned char> & rls,
+               const ex & trONE = 4);
 ex dirac_trace(const ex & e, const lst & rll, const ex & trONE = 4);
 ex dirac_trace(const ex & e, unsigned char rl = 0, const ex & trONE = 4);
 @end example
@@ -3097,13 +3101,18 @@ element, which defaults to 4.
 
 The @code{dirac_trace()} function is a linear functional that is equal to the
 ordinary matrix trace only in @math{D = 4} dimensions. In particular, the
-functional is not cyclic in @math{D != 4} dimensions when acting on
+functional is not cyclic in
+@tex $D \ne 4$
+@end tex
+dimensions when acting on
 expressions containing @samp{gamma5}, so it's not a proper trace. This
 @samp{gamma5} scheme is described in greater detail in
 @cite{The Role of gamma5 in Dimensional Regularization}.
 
 The value of the trace itself is also usually different in 4 and in
-@math{D != 4} dimensions:
+@tex $D \ne 4$
+@end tex
+dimensions:
 
 @example
 @{
@@ -3175,17 +3184,26 @@ A generic Clifford algebra, i.e. a
 $2^n$
 @end tex
 dimensional algebra with
-generators @samp{e~k} satisfying the identities 
-@samp{e~i e~j + e~j e~i = B(i, j)} for some matrix (@code{metric})
-@math{B(i, j)}, which may be non-symmetric. Such generators are created
-by the function
+generators 
+@tex $e_k$
+@end tex 
+satisfying the identities 
+@tex
+$e_i e_j + e_j e_i = M(i, j) $
+@end tex
+@ifnottex
+e~i e~j + e~j e~i = M(i, j)
+@end ifnottex
+for some matrix (@code{metric})
+@math{M(i, j)}, which may be non-symmetric and containing symbolic
+entries. Such generators are created by the function
 
 @example
     ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl = 0);
 @end example
 
 where @code{mu} should be a @code{varidx} class object indexing the
-generators, @code{metr} defines the metric @math{B(i, j)} and can be
+generators, @code{metr} defines the metric @math{M(i, j)} and can be
 represented by a square @code{matrix}, @code{tensormetric} or @code{indexed} class
 object, optional parameter @code{rl} allows to distinguish different
 Clifford algebras (which will commute with each other). Note that the call
@@ -3193,11 +3211,11 @@ Clifford algebras (which will commute with each other). Note that the call
 @code{dirac_gamma(mu)}. The method @code{clifford::get_metric()} returns a
 metric defining this Clifford number.
 
-If the matrix @math{B(i, j)} is in fact symmetric you may prefer to create
+If the matrix @math{M(i, j)} is in fact symmetric you may prefer to create
 the Clifford algebra units with a call like that
 
 @example
-    ex e = clifford_unit(mu, indexed(B, sy_symm(), i, j));
+    ex e = clifford_unit(mu, indexed(M, sy_symm(), i, j));
 @end example
 
 since this may yield some further automatic simplifications.
@@ -3208,20 +3226,25 @@ ways. For example
 @example
 @{
     ... 
-    varidx nu(symbol("nu"), 3);
-    matrix M(3, 3) = 1, 0, 0,
-                     0,-1, 0,
-                     0, 0, 0;
+    varidx nu(symbol("nu"), 4);
+    realsymbol s("s");
+    ex M = diag_matrix(lst(1, -1, 0, s));
     ex e = clifford_unit(nu, M);
     ex e0 = e.subs(nu == 0);
     ex e1 = e.subs(nu == 1);
     ex e2 = e.subs(nu == 2);
+    ex e3 = e.subs(nu == 3);
     ...
 @}
 @end example
 
-will produce three generators of a Clifford algebra with properties
-@code{pow(e0, 2) = 1},  @code{pow(e1, 2) = -1} and   @code{pow(e2, 2) = 0}. 
+will produce four anti-commuting generators of a Clifford algebra with properties
+@tex
+$e_0^2=1 $, $e_1^2=-1$,  $e_2^2=0$ and $e_3^2=s$.
+@end tex
+@ifnottex
+@code{pow(e0, 2) = 1},  @code{pow(e1, 2) = -1},   @code{pow(e2, 2) = 0} and   @code{pow(e3, 2) = s}. 
+@end ifnottex
 
 @cindex @code{lst_to_clifford()}
 A similar effect can be achieved from the function
@@ -3229,23 +3252,40 @@ A similar effect can be achieved from the function
 @example
     ex lst_to_clifford(const ex & v, const ex & mu,  const ex & metr,
                        unsigned char rl = 0);
+    ex lst_to_clifford(const ex & v, const ex & e);
 @end example
 
-which converts a list or vector @samp{v = (v~0, v~1, ..., v~n)} into
-the Clifford number @samp{v~0 e.0 + v~1 e.1 + ... + v~n e.n} with @samp{e.k}
-being created by @code{clifford_unit(mu, metr, rl)}. The previous code
-may be rewritten with the help of @code{lst_to_clifford()} as follows
+which converts a list or vector 
+@tex
+$v = (v^0, v^1, ..., v^n)$
+@end tex
+@ifnottex
+@samp{v = (v~0, v~1, ..., v~n)} 
+@end ifnottex
+into the
+Clifford number 
+@tex
+$v^0 e_0 + v^1 e_1 + ... + v^n e_n$
+@end tex
+@ifnottex
+@samp{v~0 e.0 + v~1 e.1 + ... + v~n e.n}
+@end ifnottex
+with @samp{e.k}
+directly supplied in the second form of the procedure. In the first form
+the Clifford unit @samp{e.k} is generated by the call of
+@code{clifford_unit(mu, metr, rl)}. The previous code may be rewritten
+with the help of @code{lst_to_clifford()} as follows
 
 @example
 @{
     ...
-    varidx nu(symbol("nu"), 3);
-    matrix M(3, 3) = 1, 0, 0,
-                     0,-1, 0,
-                     0, 0, 0;
-    ex e0 = lst_to_clifford(lst(1, 0, 0), nu, M);
-    ex e1 = lst_to_clifford(lst(0, 1, 0), nu, M);
-    ex e2 = lst_to_clifford(lst(0, 0, 1), nu, M);
+    varidx nu(symbol("nu"), 4);
+    realsymbol s("s");
+    ex M = diag_matrix(lst(1, -1, 0, s));
+    ex e0 = lst_to_clifford(lst(1, 0, 0, 0), nu, M);
+    ex e1 = lst_to_clifford(lst(0, 1, 0, 0), nu, M);
+    ex e2 = lst_to_clifford(lst(0, 0, 1, 0), nu, M);
+    ex e3 = lst_to_clifford(lst(0, 0, 0, 1), nu, M);
   ...
 @}
 @end example
@@ -3258,12 +3298,30 @@ There is the inverse function
 @end example
 
 which takes an expression @code{e} and tries to find a list
-@samp{v = (v~0, v~1, ..., v~n)} such that @samp{e = v~0 c.0 + v~1 c.1 + ...
-+ v~n c.n} with respect to the given Clifford units @code{c} and none of
-@samp{v~k} contains the Clifford units @code{c} (of course, this
+@tex
+$v = (v^0, v^1, ..., v^n)$
+@end tex
+@ifnottex
+@samp{v = (v~0, v~1, ..., v~n)} 
+@end ifnottex
+such that 
+@tex
+$e = v^0 c_0 + v^1 c_1 + ... + v^n c_n$
+@end tex
+@ifnottex
+@samp{e = v~0 c.0 + v~1 c.1 + ... + v~n c.n}
+@end ifnottex
+with respect to the given Clifford units @code{c} and with none of the
+@samp{v~k} containing Clifford units @code{c} (of course, this
 may be impossible). This function can use an @code{algebraic} method
-(default) or a symbolic one. With the @code{algebraic} method @samp{v~k} are calculated as
-@samp{(e c.k + c.k e)/pow(c.k, 2)}.  If @samp{pow(c.k, 2) = 0} for some @samp{k}
+(default) or a symbolic one. With the @code{algebraic} method the @samp{v~k} are calculated as
+@tex
+$(e c_k + c_k e)/c_k^2$. If $c_k^2$
+@end tex
+@ifnottex
+@samp{(e c.k + c.k e)/pow(c.k, 2)}.   If @samp{pow(c.k, 2)} 
+@end ifnottex
+is zero or is not a @code{numeric} for some @samp{k}
 then the method will be automatically changed to symbolic. The same effect
 is obtained by the assignment (@code{algebraic = false}) in the procedure call.
 
@@ -3290,10 +3348,16 @@ in a product. These functions correspond to the notations
 @tex
 $e^*$
 @end tex
+@ifnottex
+e*
+@end ifnottex
 and
 @tex
 $\overline{e}$
 @end tex
+@ifnottex
+@code{\bar@{e@}}
+@end ifnottex
 used in Clifford algebra textbooks.
 
 @cindex @code{clifford_norm()}
@@ -3306,10 +3370,12 @@ The function
 @cindex @code{clifford_inverse()}
 calculates the norm of a Clifford number from the expression
 @tex
-$||e||^2 = e\overline{e}$
+$||e||^2 = e\overline{e}$.
 @end tex
-. The inverse of a Clifford expression is returned
-by the function
+@ifnottex
+@code{||e||^2 = e \bar@{e@}}
+@end ifnottex
+ The inverse of a Clifford expression is returned by the function
 
 @example
     ex clifford_inverse(const ex & e);
@@ -3317,12 +3383,18 @@ by the function
 
 which calculates it as 
 @tex
-$e^{-1} = e/||e||^2$
+$e^{-1} = \overline{e}/||e||^2$.
 @end tex
-. If
+@ifnottex
+@math{e^@{-1@} = \bar@{e@}/||e||^2}
+@end ifnottex
+ If
 @tex
 $||e|| = 0$
 @end tex
+@ifnottex
+@math{||e||=0}
+@end ifnottex
 then an exception is raised.
 
 @cindex @code{remove_dirac_ONE()}
@@ -3343,17 +3415,53 @@ The last provided function is
 @cindex @code{clifford_moebius_map()}
 @example
     ex clifford_moebius_map(const ex & a, const ex & b, const ex & c,
-                            const ex & d, const ex & v, const ex & G, unsigned char rl = 0);
-    ex clifford_moebius_map(const ex & M, const ex & v, const ex & G, unsigned char rl = 0);
+                            const ex & d, const ex & v, const ex & G,
+                            unsigned char rl = 0);
+    ex clifford_moebius_map(const ex & M, const ex & v, const ex & G,
+                            unsigned char rl = 0);
 @end example 
 
-It takes a list or vector @code{v} and makes the Moebius
-(conformal or linear-fractional) transformation @samp{v ->
-(av+b)/(cv+d)} defined by the matrix @samp{M = [[a, b], [c, d]]}. The
-parameter @code{G} defines the metric of the surrounding
-(pseudo-)Euclidean space. The returned value of this function is a list
+It takes a list or vector @code{v} and makes the Moebius (conformal or
+linear-fractional) transformation @samp{v -> (av+b)/(cv+d)} defined by
+the matrix @samp{M = [[a, b], [c, d]]}. The parameter @code{G} defines
+the metric of the surrounding (pseudo-)Euclidean space. This can be a
+matrix or a Clifford unit, in the later case the parameter @code{rl} is
+ignored even if supplied.  The returned value of this function is a list
 of components of the resulting vector.
 
+LaTeX output for Clifford units looks like @code{\clifford[1]@{e@}^@{@{\nu@}@}},
+where @code{1} is the @code{representation_label} and @code{\nu} is the
+index of the corresponding unit. This provides a flexible typesetting
+with a suitable defintion of the @code{\clifford} command. For example, the
+definition 
+@example
+    \newcommand@{\clifford@}[1][]@{@}
+@end example
+typesets all Clifford units identically, while the alternative definition
+@example
+    \newcommand@{\clifford@}[2][]@{\ifcase #1 #2\or \tilde@{#2@} \or \breve@{#2@} \fi@}
+@end example
+prints units with @code{representation_label=0} as 
+@tex
+$e$,
+@end tex
+@ifnottex
+@code{e},
+@end ifnottex
+with @code{representation_label=1} as 
+@tex
+$\tilde{e}$
+@end tex
+@ifnottex
+@code{\tilde@{e@}}
+@end ifnottex
+ and with @code{representation_label=2} as 
+@tex
+$\breve{e}$.
+@end tex
+@ifnottex
+@code{\breve@{e@}}.
+@end ifnottex
 
 @cindex @code{color} (class)
 @subsection Color algebra
@@ -4817,9 +4925,11 @@ together with @code{find()}:
 
 @example
 > a=expand((sin(x)+sin(y))*(1+p+q)*(1+d));
-d*p*sin(x)+p*sin(x)+q*d*sin(x)+q*sin(y)+d*sin(x)+q*d*sin(y)+sin(y)+d*sin(y)+q*sin(x)+d*sin(y)*p+sin(x)+sin(y)*p
+d*p*sin(x)+p*sin(x)+q*d*sin(x)+q*sin(y)+d*sin(x)+q*d*sin(y)+sin(y)+d*sin(y)
++q*sin(x)+d*sin(y)*p+sin(x)+sin(y)*p
 > collect(a,@{p,q@});
-d*sin(x)+(d*sin(x)+sin(y)+d*sin(y)+sin(x))*p+(d*sin(x)+sin(y)+d*sin(y)+sin(x))*q+sin(y)+d*sin(y)+sin(x)
+d*sin(x)+(d*sin(x)+sin(y)+d*sin(y)+sin(x))*p
++(d*sin(x)+sin(y)+d*sin(y)+sin(x))*q+sin(y)+d*sin(y)+sin(x)
 > collect(a,find(a,sin($1)));
 (1+q+d+q*d+d*p+p)*sin(y)+(1+q+d+q*d+d*p+p)*sin(x)
 > collect(a,@{find(a,sin($1)),p,q@});
@@ -5808,7 +5918,8 @@ matrix operations that comes in handy when a system of linear equations
 needs to be solved:
 
 @example
-ex lsolve(const ex &eqns, const ex &symbols, unsigned options=solve_algo::automatic);
+ex lsolve(const ex & eqns, const ex & symbols,
+          unsigned options = solve_algo::automatic);
 @end example
 
 Here, @code{eqns} is a @code{lst} of equalities (i.e. class
@@ -5887,7 +5998,8 @@ format to the default, use the @code{dflt} manipulator:
 
 @example
     // ...
-    cout << latex;            // all output to cout will be in LaTeX format from now on
+    cout << latex;            // all output to cout will be in LaTeX format from
+                              // now on
     cout << e << endl;        // prints '4.5 i+\frac@{3@}@{2@} x^@{2@}'
     cout << sin(x/2) << endl; // prints '\sin(\frac@{1@}@{2@} x)'
     cout << dflt;             // revert to default output format
@@ -5978,7 +6090,8 @@ For example, the code snippet
 will print
 
 @example
-    @{(-\ln(\circ))@}+@{(-\gamma_E)@} \circ+@{(\frac@{1@}@{12@} \pi^@{2@})@} \circ^@{2@}+\mathcal@{O@}(\circ^@{3@})
+    @{(-\ln(\circ))@}+@{(-\gamma_E)@} \circ+@{(\frac@{1@}@{12@} \pi^@{2@})@} \circ^@{2@}
+    +\mathcal@{O@}(\circ^@{3@})
 @end example
 
 @cindex @code{index_dimensions}
@@ -6806,7 +6919,8 @@ int main()
     // our own one
     set_print_func<power, print_latex>(my_print_power_as_latex);
 
-    // this prints "-1+@{@{(y+x)@}@}\uparrow@{2@}-3 \frac@{@{x@}\uparrow@{3@}@}@{@{y@}\uparrow@{2@}@}"
+    // this prints "-1+@{@{(y+x)@}@}\uparrow@{2@}-3 \frac@{@{x@}\uparrow@{3@}@}@{@{y@}
+    //              \uparrow@{2@}@}"
     cout << e << endl;
 @}
 @end example
@@ -7150,7 +7264,8 @@ inline bool operator==(const sprod_s & lhs, const sprod_s & rhs)
 
 inline bool operator<(const sprod_s & lhs, const sprod_s & rhs)
 @{
-    return lhs.left.compare(rhs.left) < 0 ? true : lhs.right.compare(rhs.right) < 0;
+    return lhs.left.compare(rhs.left) < 0
+           ? true : lhs.right.compare(rhs.right) < 0;
 @}
 @end example
 
@@ -8208,7 +8323,8 @@ For packages configured using GNU automake, GiNaC also provides
 a macro to automate the process of checking for GiNaC.
 
 @example
-AM_PATH_GINAC([@var{MINIMUM-VERSION}, [@var{ACTION-IF-FOUND} [, @var{ACTION-IF-NOT-FOUND}]]])
+AM_PATH_GINAC([@var{MINIMUM-VERSION}, [@var{ACTION-IF-FOUND}
+              [, @var{ACTION-IF-NOT-FOUND}]]])
 @end example
 
 This macro:

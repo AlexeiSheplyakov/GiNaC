@@ -341,9 +341,10 @@ static unsigned clifford_check6(const matrix & A)
 	// lst_to_clifford() and clifford_inverse()  check
 	symbol x("x"), y("y"), t("t"), z("z");
 	
-	e = lst_to_clifford(lst(t, x, y, z), mu, G) * lst_to_clifford(lst(1, 2, 3, 4), nu, G);
+	ex c = clifford_unit(nu, G, 1);
+	e = lst_to_clifford(lst(t, x, y, z), mu, G, 1) * lst_to_clifford(lst(1, 2, 3, 4), c);
 	e1 = clifford_inverse(e);
-	result += check_equal((e*e1).simplify_indexed().normal(), dirac_ONE());
+	result += check_equal((e*e1).simplify_indexed().normal(), dirac_ONE(1));
 
 	return result;
 }

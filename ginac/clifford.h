@@ -191,7 +191,7 @@ ex dirac_ONE(unsigned char rl = 0);
 /** Create a Clifford unit object.
  *
  *  @param mu Index (must be of class varidx or a derived class)
- *  @param metr Metric (should be of class tensmetric or a derived class, or a symmetric matrix)
+ *  @param metr Metric (should be of class tensmetric or a derived class, or a matrix)
  *  @param rl Representation label
  *  @return newly constructed Clifford unit object */
 ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl = 0);
@@ -275,8 +275,13 @@ inline ex clifford_bar(const ex & e) { return clifford_prime(e.conjugate()); }
 /** Reversion of the Clifford algebra, coincides with the conjugate(). */
 inline ex clifford_star(const ex & e) { return e.conjugate(); }
 
-/** Replaces all dirac_ONE's in e with 1 (effectively removing them). */
-ex remove_dirac_ONE(const ex & e);
+/** Replaces dirac_ONE's (with a representation_label no less than rl) in e with 1.
+ *  For the default value rl = 0 remove all of them. Aborts if e contains any 
+ *  clifford_unit with representation_label to be removed.
+ *  
+ *  @param e Expression to be processed
+ *  @param rl Value of representation label */
+ex remove_dirac_ONE(const ex & e, unsigned char rl = 0);
 
 /** Calculation of the norm in the Clifford algebra. */
 ex clifford_norm(const ex & e);
@@ -288,10 +293,12 @@ ex clifford_inverse(const ex & e);
  *
  *  @param v List or vector of coordinates
  *  @param mu Index (must be of class varidx or a derived class)
- *  @param metr Metric (should be of class tensmetric or a derived class, or a symmetric matrix)
+ *  @param metr Metric (should be of class tensmetric or a derived class, or a matrix)
  *  @param rl Representation label
+ *  @param e Clifford unit object
  *  @return Clifford vector with given components */
 ex lst_to_clifford(const ex & v, const ex & mu,  const ex & metr, unsigned char rl = 0);
+ex lst_to_clifford(const ex & v, const ex & e);
 
 /** An inverse function to lst_to_clifford(). For given Clifford vector extracts
  *  its components with respect to given Clifford unit. Obtained components may 
@@ -301,7 +308,8 @@ ex lst_to_clifford(const ex & v, const ex & mu,  const ex & metr, unsigned char 
  *  
  *  @param e Clifford expression to be decomposed into components
  *  @param c Clifford unit defining the metric for splitting (should have numeric dimension of indices)
- *  @param algebraic Use algebraic or symbolic algorithm for extractions */
+ *  @param algebraic Use algebraic or symbolic algorithm for extractions 
+ *  @return List of components of a Clifford vector*/
 lst clifford_to_lst(const ex & e, const ex & c, bool algebraic=true);
 
 /** Calculations of Moebius transformations (conformal map) defined by a 2x2 Clifford matrix
@@ -315,8 +323,9 @@ lst clifford_to_lst(const ex & e, const ex & c, bool algebraic=true);
  *  @param c (2,1) entry of the defining matrix
  *  @param d (2,2) entry of the defining matrix
  *  @param v Vector to be transformed
- *  @param G Metric of the surrounding space
- *  @param rl Representation label */
+ *  @param G Metric of the surrounding space, may be a Clifford unit then the next parameter is ignored
+ *  @param rl Representation label 
+ *  @return List of components of the transformed vector*/
 ex clifford_moebius_map(const ex & a, const ex & b, const ex & c, const ex & d, const ex & v, const ex & G, unsigned char rl = 0);
 
 /** The second form of Moebius transformations defined by a 2x2 Clifford matrix M
@@ -324,8 +333,9 @@ ex clifford_moebius_map(const ex & a, const ex & b, const ex & c, const ex & d, 
  * 
  *  @param M the defining matrix
  *  @param v Vector to be transformed
- *  @param G Metric of the surrounding space
- *  @param rl Representation label */
+ *  @param G Metric of the surrounding space, may be a Clifford unit then the next parameter is ignored
+ *  @param rl Representation label 
+ *  @return List of components of the transformed vector*/
 ex clifford_moebius_map(const ex & M, const ex & v, const ex & G, unsigned char rl = 0);
 
 } // namespace GiNaC
