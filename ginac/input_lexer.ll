@@ -111,6 +111,10 @@ Digits			ginac_yylval = (long)Digits; return T_DIGITS;
 
 			/* numbers */
 {D}+			|
+"#"{D}+"R"{AN}+		|
+"#b"([01])+		|
+"#o"[0-7]+		|
+"#x"[0-9a-fA-F]+	|
 {D}+"."{D}*({E})?	|
 {D}*"."{D}+({E})?	|
 {D}+{E}			ginac_yylval = numeric(yytext); return T_NUMBER;
