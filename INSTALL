@@ -71,10 +71,8 @@ COMMON PROBLEMS
 Problems with CLN
 -----------------
 
-You should use at least CLN V1.0.3, since during the development of
+You should use at least CLN-1.1, since during the development of
 GiNaC various bugs have been discovered and fixed in earlier versions.
-To protect you, the "configure" script checks for a feature that was
-added in V1.0.3 so it won't continue with earlier versions anyhow.
 Please install CLN properly on your system before continuing with
 GiNaC.
 

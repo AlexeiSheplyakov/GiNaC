@@ -667,7 +667,7 @@ ex mul::expand(unsigned options) const
 	int number_of_adds = 0;
 	epvector non_adds;
 	non_adds.reserve(expanded_seq.size());
-	epvector::const_iterator cit=expanded_seq.begin();
+	epvector::const_iterator cit = expanded_seq.begin();
 	epvector::const_iterator last = expanded_seq.end();
 	ex last_expanded=_ex1();
 	while (cit!=last) {
@@ -676,10 +676,10 @@ ex mul::expand(unsigned options) const
 			++number_of_adds;
 			if (is_ex_exactly_of_type(last_expanded,add)) {
 				// expand adds
-				add const & add1=ex_to_add(last_expanded);
-				add const & add2=ex_to_add((*cit).rest);
-				int n1=add1.nops();
-				int n2=add2.nops();
+				const add & add1 = ex_to_add(last_expanded);
+				const add & add2 = ex_to_add((*cit).rest);
+				int n1 = add1.nops();
+				int n2 = add2.nops();
 				exvector distrseq;
 				distrseq.reserve(n1*n2);
 				for (int i1=0; i1<n1; ++i1) {
@@ -687,10 +687,10 @@ ex mul::expand(unsigned options) const
 						distrseq.push_back(add1.op(i1)*add2.op(i2));
 					}
 				}
-				last_expanded=(new add(distrseq))->setflag(status_flags::dynallocated | status_flags::expanded);
+				last_expanded = (new add(distrseq))->setflag(status_flags::dynallocated | status_flags::expanded);
 			} else {
 				non_adds.push_back(split_ex_to_pair(last_expanded));
-				last_expanded=(*cit).rest;
+				last_expanded = (*cit).rest;
 			}
 		} else {
 			non_adds.push_back(*cit);
@@ -699,102 +699,23 @@ ex mul::expand(unsigned options) const
 	}
 
 	if (is_ex_exactly_of_type(last_expanded,add)) {
-		//ex factors=(new mul(non_adds,overall_coeff))->
-		//	       setflag(status_flags::dynallocated | status_flags::expanded);
-		add const & finaladd=ex_to_add(last_expanded);
+		add const & finaladd = ex_to_add(last_expanded);
 		exvector distrseq;
-		int n=finaladd.nops();
+		int n = finaladd.nops();
 		distrseq.reserve(n);
 		for (int i=0; i<n; ++i) {
-			//distrseq.push_back(factors*finaladd.op(i));
-			epvector factors=non_adds;
+			epvector factors = non_adds;
 			factors.push_back(split_ex_to_pair(finaladd.op(i)));
 			distrseq.push_back((new mul(factors,overall_coeff))->setflag(status_flags::dynallocated | status_flags::expanded));
 		}
 		return ((new add(distrseq))->
-		       setflag(status_flags::dynallocated | status_flags::expanded));
+		        setflag(status_flags::dynallocated | status_flags::expanded));
 	}
 	non_adds.push_back(split_ex_to_pair(last_expanded));
 	return (new mul(non_adds,overall_coeff))->
-	       setflag(status_flags::dynallocated | status_flags::expanded);
+	        setflag(status_flags::dynallocated | status_flags::expanded);
 }
 
-/*
-ex mul::expand(unsigned options) const
-{
-	if (flags & status_flags::expanded)
-		return *this;
-	
-	exvector sub_expanded_seq;
-	intvector positions_of_adds;
-	intvector number_of_add_operands;
-	
-	epvector * expanded_seqp = expandchildren(options);
-	
-	const epvector & expanded_seq = expanded_seqp==0 ? seq : *expanded_seqp;
-	
-	positions_of_adds.resize(expanded_seq.size());
-	number_of_add_operands.resize(expanded_seq.size());
-	
-	int number_of_adds = 0;
-	int number_of_expanded_terms = 1;
-	
-	unsigned current_position = 0;
-	epvector::const_iterator last = expanded_seq.end();
-	for (epvector::const_iterator cit = expanded_seq.begin(); cit!=last; ++cit) {
-		if (is_ex_exactly_of_type((*cit).rest,add) &&
-			((*cit).coeff.is_equal(_ex1()))) {
-			positions_of_adds[number_of_adds] = current_position;
-			const add & expanded_addref = ex_to_add((*cit).rest);
-			unsigned addref_nops = expanded_addref.nops();
-			number_of_add_operands[number_of_adds] = addref_nops;
-			number_of_expanded_terms *= addref_nops;
-			++number_of_adds;
-		}
-		++current_position;
-	}
-	
-	if (number_of_adds==0) {
-		if (expanded_seqp==0)
-			return this->setflag(status_flags::expanded);
-		else
-			return ((new mul(expanded_seqp,overall_coeff))->
-			       setflag(status_flags::dynallocated | status_flags::expanded));
-	}
-	
-	exvector distrseq;
-	distrseq.reserve(number_of_expanded_terms);
-	
-	intvector k;
-	k.resize(number_of_adds, 0);
-	
-	for (;;) {
-		epvector term;
-		term = expanded_seq;
-		for (int l=0; l<number_of_adds; ++l) {
-			const add & addref = ex_to_add(expanded_seq[positions_of_adds[l]].rest);
-			GINAC_ASSERT(term[positions_of_adds[l]].coeff.compare(_ex1())==0);
-			term[positions_of_adds[l]]=split_ex_to_pair(addref.op(k[l]));
-		}
-		distrseq.push_back((new mul(term,overall_coeff))->
-		                    setflag(status_flags::dynallocated | status_flags::expanded));
-		
-		// increment k[]
-		int l = number_of_adds-1;
-		while ((l>=0) && ((++k[l])>=number_of_add_operands[l])) {
-			k[l] = 0;    
-			--l;
-		}
-		if (l < 0) break;
-	}
-	
-	if (expanded_seqp!=0)
-		delete expanded_seqp;
-	
-	return (new add(distrseq))->setflag(status_flags::dynallocated |
-										status_flags::expanded);
-}
-*/
   
 //////////
 // new virtual functions which can be overridden by derived classes

@@ -44,36 +44,24 @@
 #include "debugmsg.h"
 #include "utils.h"
 
-// CLN should not pollute the global namespace, hence we include it here
-// instead of in some header file where it would propagate to other parts.
-// Also, we only need a subset of CLN, so we don't include the complete cln.h:
-#ifdef HAVE_CLN_CLN_H
-#include <cln/cl_output.h>
-#include <cln/cl_integer_io.h>
-#include <cln/cl_integer_ring.h>
-#include <cln/cl_rational_io.h>
-#include <cln/cl_rational_ring.h>
-#include <cln/cl_lfloat_class.h>
-#include <cln/cl_lfloat_io.h>
-#include <cln/cl_real_io.h>
-#include <cln/cl_real_ring.h>
-#include <cln/cl_complex_io.h>
-#include <cln/cl_complex_ring.h>
-#include <cln/cl_numtheory.h>
-#else  // def HAVE_CLN_CLN_H
-#include <cl_output.h>
-#include <cl_integer_io.h>
-#include <cl_integer_ring.h>
-#include <cl_rational_io.h>
-#include <cl_rational_ring.h>
-#include <cl_lfloat_class.h>
-#include <cl_lfloat_io.h>
-#include <cl_real_io.h>
-#include <cl_real_ring.h>
-#include <cl_complex_io.h>
-#include <cl_complex_ring.h>
-#include <cl_numtheory.h>
-#endif  // def HAVE_CLN_CLN_H
+// CLN should pollute the global namespace as little as possible.  Hence, we
+// include most of it here and include only the part needed for properly
+// declaring cln::cl_number in numeric.h.  This can only be safely done in
+// namespaced versions of CLN, i.e. version > 1.1.0.  Also, we only need a
+// subset of CLN, so we don't include the complete <cln/cln.h> but only the
+// essential stuff:
+#include <cln/output.h>
+#include <cln/integer_io.h>
+#include <cln/integer_ring.h>
+#include <cln/rational_io.h>
+#include <cln/rational_ring.h>
+#include <cln/lfloat_class.h>
+#include <cln/lfloat_io.h>
+#include <cln/real_io.h>
+#include <cln/real_ring.h>
+#include <cln/complex_io.h>
+#include <cln/complex_ring.h>
+#include <cln/numtheory.h>
 
 #ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
@@ -92,8 +80,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(numeric, basic)
 numeric::numeric() : basic(TINFO_numeric)
 {
 	debugmsg("numeric default constructor", LOGLEVEL_CONSTRUCT);
-	value = new ::cl_N;
-	*value = ::cl_I(0);
+	value = cln::cl_I(0);
 	calchash();
 	setflag(status_flags::evaluated |
 	        status_flags::expanded |
@@ -127,12 +114,11 @@ const numeric & numeric::operator=(const numeric & other)
 void numeric::copy(const numeric & other)
 {
 	basic::copy(other);
-	value = new ::cl_N(*other.value);
+	value = other.value;
 }
 
 void numeric::destroy(bool call_parent)
 {
-	delete value;
 	if (call_parent) basic::destroy(call_parent);
 }
 
@@ -147,8 +133,13 @@ numeric::numeric(int i) : basic(TINFO_numeric)
 	debugmsg("numeric constructor from int",LOGLEVEL_CONSTRUCT);
 	// Not the whole int-range is available if we don't cast to long
 	// first.  This is due to the behaviour of the cl_I-ctor, which
-	// emphasizes efficiency:
-	value = new ::cl_I((long) i);
+	// emphasizes efficiency.  However, if the integer is small enough, 
+	// i.e. satisfies cl_immediate_p(), we save space and dereferences by
+	// using an immediate type:
+	if (cln::cl_immediate_p(i))
+		value = cln::cl_I(i);
+	else
+		value = cln::cl_I((long) i);
 	calchash();
 	setflag(status_flags::evaluated |
 	        status_flags::expanded |
@@ -161,8 +152,13 @@ numeric::numeric(unsigned int i) : basic(TINFO_numeric)
 	debugmsg("numeric constructor from uint",LOGLEVEL_CONSTRUCT);
 	// Not the whole uint-range is available if we don't cast to ulong
 	// first.  This is due to the behaviour of the cl_I-ctor, which
-	// emphasizes efficiency:
-	value = new ::cl_I((unsigned long)i);
+	// emphasizes efficiency.  However, if the integer is small enough, 
+	// i.e. satisfies cl_immediate_p(), we save space and dereferences by
+	// using an immediate type:
+	if (cln::cl_immediate_p(i))
+		value = cln::cl_I(i);
+	else
+		value = cln::cl_I((unsigned long) i);
 	calchash();
 	setflag(status_flags::evaluated |
 	        status_flags::expanded |
@@ -173,7 +169,7 @@ numeric::numeric(unsigned int i) : basic(TINFO_numeric)
 numeric::numeric(long i) : basic(TINFO_numeric)
 {
 	debugmsg("numeric constructor from long",LOGLEVEL_CONSTRUCT);
-	value = new ::cl_I(i);
+	value = cln::cl_I(i);
 	calchash();
 	setflag(status_flags::evaluated |
 	        status_flags::expanded |
@@ -184,7 +180,7 @@ numeric::numeric(long i) : basic(TINFO_numeric)
 numeric::numeric(unsigned long i) : basic(TINFO_numeric)
 {
 	debugmsg("numeric constructor from ulong",LOGLEVEL_CONSTRUCT);
-	value = new ::cl_I(i);
+	value = cln::cl_I(i);
 	calchash();
 	setflag(status_flags::evaluated |
 	        status_flags::expanded |
@@ -199,8 +195,7 @@ numeric::numeric(long numer, long denom) : basic(TINFO_numeric)
 	debugmsg("numeric constructor from long/long",LOGLEVEL_CONSTRUCT);
 	if (!denom)
 		throw std::overflow_error("division by zero");
-	value = new ::cl_I(numer);
-	*value = *value / ::cl_I(denom);
+	value = cln::cl_I(numer) / cln::cl_I(denom);
 	calchash();
 	setflag(status_flags::evaluated |
 	        status_flags::expanded |
@@ -214,8 +209,7 @@ numeric::numeric(double d) : basic(TINFO_numeric)
 	// We really want to explicitly use the type cl_LF instead of the
 	// more general cl_F, since that would give us a cl_DF only which
 	// will not be promoted to cl_LF if overflow occurs:
-	value = new cl_N;
-	*value = cl_float(d, cl_default_float_format);
+	value = cln::cl_float(d, cln::default_float_format);
 	calchash();
 	setflag(status_flags::evaluated |
 	        status_flags::expanded |
@@ -227,7 +221,7 @@ numeric::numeric(double d) : basic(TINFO_numeric)
 numeric::numeric(const char *s) : basic(TINFO_numeric)
 {
 	debugmsg("numeric constructor from string",LOGLEVEL_CONSTRUCT);
-	value = new ::cl_N(0);
+	cln::cl_N ctorval = 0;
 	// parse complex numbers (functional but not completely safe, unfortunately
 	// std::string does not understand regexpese):
 	// ss should represent a simple sum like 2+5*I
@@ -266,15 +260,16 @@ numeric::numeric(const char *s) : basic(TINFO_numeric)
 		// we would not be save from over-/underflows.
 		if (strchr(cs, '.'))
 			if (imaginary)
-				*value = *value + ::complex(cl_I(0),::cl_LF(cs));
+				ctorval = ctorval + cln::complex(cln::cl_I(0),cln::cl_LF(cs));
 			else
-				*value = *value + ::cl_LF(cs);
+				ctorval = ctorval + cln::cl_LF(cs);
 		else
 			if (imaginary)
-				*value = *value + ::complex(cl_I(0),::cl_R(cs));
+				ctorval = ctorval + cln::complex(cln::cl_I(0),cln::cl_R(cs));
 			else
-				*value = *value + ::cl_R(cs);
+				ctorval = ctorval + cln::cl_R(cs);
 	} while(delim != std::string::npos);
+	value = ctorval;
 	calchash();
 	setflag(status_flags::evaluated |
 			status_flags::expanded |
@@ -283,10 +278,10 @@ numeric::numeric(const char *s) : basic(TINFO_numeric)
 
 /** Ctor from CLN types.  This is for the initiated user or internal use
  *  only. */
-numeric::numeric(const cl_N & z) : basic(TINFO_numeric)
+numeric::numeric(const cln::cl_N & z) : basic(TINFO_numeric)
 {
 	debugmsg("numeric constructor from cl_N", LOGLEVEL_CONSTRUCT);
-	value = new ::cl_N(z);
+	value = z;
 	calchash();
 	setflag(status_flags::evaluated |
 	        status_flags::expanded |
@@ -301,7 +296,7 @@ numeric::numeric(const cl_N & z) : basic(TINFO_numeric)
 numeric::numeric(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
 	debugmsg("numeric constructor from archive_node", LOGLEVEL_CONSTRUCT);
-	value = new ::cl_N;
+	cln::cl_N ctorval = 0;
 
 	// Read number as string
 	std::string str;
@@ -311,26 +306,27 @@ numeric::numeric(const archive_node &n, const lst &sym_lst) : inherited(n, sym_l
 #else
 		std::istrstream s(str.c_str(), str.size() + 1);
 #endif
-		::cl_idecoded_float re, im;
+		cln::cl_idecoded_float re, im;
 		char c;
 		s.get(c);
 		switch (c) {
 			case 'R':    // Integer-decoded real number
 				s >> re.sign >> re.mantissa >> re.exponent;
-				*value = re.sign * re.mantissa * ::expt(cl_float(2.0, cl_default_float_format), re.exponent);
+				ctorval = re.sign * re.mantissa * cln::expt(cln::cl_float(2.0, cln::default_float_format), re.exponent);
 				break;
 			case 'C':    // Integer-decoded complex number
 				s >> re.sign >> re.mantissa >> re.exponent;
 				s >> im.sign >> im.mantissa >> im.exponent;
-				*value = ::complex(re.sign * re.mantissa * ::expt(cl_float(2.0, cl_default_float_format), re.exponent),
-								 im.sign * im.mantissa * ::expt(cl_float(2.0, cl_default_float_format), im.exponent));
+				ctorval = cln::complex(re.sign * re.mantissa * cln::expt(cln::cl_float(2.0, cln::default_float_format), re.exponent),
+				                       im.sign * im.mantissa * cln::expt(cln::cl_float(2.0, cln::default_float_format), im.exponent));
 				break;
 			default:    // Ordinary number
 				s.putback(c);
-				s >> *value;
+				s >> ctorval;
 				break;
 		}
 	}
+	value = ctorval;
 	calchash();
 	setflag(status_flags::evaluated |
 	        status_flags::expanded |
@@ -356,17 +352,17 @@ void numeric::archive(archive_node &n) const
 	std::ostrstream s(buf, 1024);
 #endif
 	if (this->is_crational())
-		s << *value;
+		s << cln::the<cln::cl_N>(value);
 	else {
 		// Non-rational numbers are written in an integer-decoded format
 		// to preserve the precision
 		if (this->is_real()) {
-			cl_idecoded_float re = integer_decode_float(The(::cl_F)(*value));
+			cln::cl_idecoded_float re = cln::integer_decode_float(cln::the<cln::cl_F>(value));
 			s << "R";
 			s << re.sign << " " << re.mantissa << " " << re.exponent;
 		} else {
-			cl_idecoded_float re = integer_decode_float(The(::cl_F)(::realpart(*value)));
-			cl_idecoded_float im = integer_decode_float(The(::cl_F)(::imagpart(*value)));
+			cln::cl_idecoded_float re = cln::integer_decode_float(cln::the<cln::cl_F>(cln::realpart(cln::the<cln::cl_N>(value))));
+			cln::cl_idecoded_float im = cln::integer_decode_float(cln::the<cln::cl_F>(cln::imagpart(cln::the<cln::cl_N>(value))));
 			s << "C";
 			s << re.sign << " " << re.mantissa << " " << re.exponent << " ";
 			s << im.sign << " " << im.mantissa << " " << im.exponent;
@@ -397,21 +393,22 @@ basic * numeric::duplicate() const
 /** Helper function to print a real number in a nicer way than is CLN's
  *  default.  Instead of printing 42.0L0 this just prints 42.0 to ostream os
  *  and instead of 3.99168L7 it prints 3.99168E7.  This is fine in GiNaC as
- *  long as it only uses cl_LF and no other floating point types.
+ *  long as it only uses cl_LF and no other floating point types that we might
+ *  want to visibly distinguish from cl_LF.
  *
  *  @see numeric::print() */
-static void print_real_number(std::ostream & os, const cl_R & num)
+static void print_real_number(std::ostream & os, const cln::cl_R & num)
 {
-	cl_print_flags ourflags;
-	if (::instanceof(num, ::cl_RA_ring)) {
+	cln::cl_print_flags ourflags;
+	if (cln::instanceof(num, cln::cl_RA_ring)) {
 		// case 1: integer or rational, nothing special to do:
-		::print_real(os, ourflags, num);
+		cln::print_real(os, ourflags, num);
 	} else {
 		// case 2: float
 		// make CLN believe this number has default_float_format, so it prints
 		// 'E' as exponent marker instead of 'L':
-		ourflags.default_float_format = ::cl_float_format(The(::cl_F)(num));
-		::print_real(os, ourflags, num);
+		ourflags.default_float_format = cln::float_format(cln::the<cln::cl_F>(num));
+		cln::print_real(os, ourflags, num);
 	}
 	return;
 }
@@ -423,34 +420,36 @@ static void print_real_number(std::ostream & os, const cl_R & num)
 void numeric::print(std::ostream & os, unsigned upper_precedence) const
 {
 	debugmsg("numeric print", LOGLEVEL_PRINT);
-	if (this->is_real()) {
+	cln::cl_R r = cln::realpart(cln::the<cln::cl_N>(value));
+	cln::cl_R i = cln::imagpart(cln::the<cln::cl_N>(value));
+	if (cln::zerop(i)) {
 		// case 1, real:  x  or  -x
 		if ((precedence<=upper_precedence) && (!this->is_nonneg_integer())) {
 			os << "(";
-			print_real_number(os, The(::cl_R)(*value));
+			print_real_number(os, r);
 			os << ")";
 		} else {
-			print_real_number(os, The(::cl_R)(*value));
+			print_real_number(os, r);
 		}
 	} else {
-		// case 2, imaginary:  y*I  or  -y*I
-		if (::realpart(*value) == 0) {
-			if ((precedence<=upper_precedence) && (::imagpart(*value) < 0)) {
-				if (::imagpart(*value) == -1) {
+		if (cln::zerop(r)) {
+			// case 2, imaginary:  y*I  or  -y*I
+			if ((precedence<=upper_precedence) && (i < 0)) {
+				if (i == -1) {
 					os << "(-I)";
 				} else {
 					os << "(";
-					print_real_number(os, The(::cl_R)(::imagpart(*value)));
+					print_real_number(os, i);
 					os << "*I)";
 				}
 			} else {
-				if (::imagpart(*value) == 1) {
+				if (i == 1) {
 					os << "I";
 				} else {
-					if (::imagpart (*value) == -1) {
+					if (i == -1) {
 						os << "-I";
 					} else {
-						print_real_number(os, The(::cl_R)(::imagpart(*value)));
+						print_real_number(os, i);
 						os << "*I";
 					}
 				}
@@ -459,20 +458,20 @@ void numeric::print(std::ostream & os, unsigned upper_precedence) const
 			// case 3, complex:  x+y*I  or  x-y*I  or  -x+y*I  or  -x-y*I
 			if (precedence <= upper_precedence)
 				os << "(";
-			print_real_number(os, The(::cl_R)(::realpart(*value)));
-			if (::imagpart(*value) < 0) {
-				if (::imagpart(*value) == -1) {
+			print_real_number(os, r);
+			if (i < 0) {
+				if (i == -1) {
 					os << "-I";
 				} else {
-					print_real_number(os, The(::cl_R)(::imagpart(*value)));
+					print_real_number(os, i);
 					os << "*I";
 				}
 			} else {
-				if (::imagpart(*value) == 1) {
+				if (i == 1) {
 					os << "+I";
 				} else {
 					os << "+";
-					print_real_number(os, The(::cl_R)(::imagpart(*value)));
+					print_real_number(os, i);
 					os << "*I";
 				}
 			}
@@ -488,14 +487,14 @@ void numeric::printraw(std::ostream & os) const
 	// The method printraw doesn't do much, it simply uses CLN's operator<<()
 	// for output, which is ugly but reliable. e.g: 2+2i
 	debugmsg("numeric printraw", LOGLEVEL_PRINT);
-	os << "numeric(" << *value << ")";
+	os << "numeric(" << cln::the<cln::cl_N>(value) << ")";
 }
 
 
 void numeric::printtree(std::ostream & os, unsigned indent) const
 {
 	debugmsg("numeric printtree", LOGLEVEL_PRINT);
-	os << std::string(indent,' ') << *value
+	os << std::string(indent,' ') << cln::the<cln::cl_N>(value)
 	   << " (numeric): "
 	   << "hash=" << hashvalue
 	   << " (0x" << std::hex << hashvalue << std::dec << ")"
@@ -506,31 +505,31 @@ void numeric::printtree(std::ostream & os, unsigned indent) const
 void numeric::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
 {
 	debugmsg("numeric print csrc", LOGLEVEL_PRINT);
-	ios::fmtflags oldflags = os.flags();
-	os.setf(ios::scientific);
+	std::ios::fmtflags oldflags = os.flags();
+	os.setf(std::ios::scientific);
 	if (this->is_rational() && !this->is_integer()) {
 		if (compare(_num0()) > 0) {
 			os << "(";
 			if (type == csrc_types::ctype_cl_N)
-				os << "cl_F(\"" << numer().evalf() << "\")";
+				os << "cln::cl_F(\"" << numer().evalf() << "\")";
 			else
 				os << numer().to_double();
 		} else {
 			os << "-(";
 			if (type == csrc_types::ctype_cl_N)
-				os << "cl_F(\"" << -numer().evalf() << "\")";
+				os << "cln::cl_F(\"" << -numer().evalf() << "\")";
 			else
 				os << -numer().to_double();
 		}
 		os << "/";
 		if (type == csrc_types::ctype_cl_N)
-			os << "cl_F(\"" << denom().evalf() << "\")";
+			os << "cln::cl_F(\"" << denom().evalf() << "\")";
 		else
 			os << denom().to_double();
 		os << ")";
 	} else {
 		if (type == csrc_types::ctype_cl_N)
-			os << "cl_F(\"" << evalf() << "\")";
+			os << "cln::cl_F(\"" << evalf() << "\")";
 		else
 			os << to_double();
 	}
@@ -629,7 +628,8 @@ ex numeric::eval(int level) const
 ex numeric::evalf(int level) const
 {
 	// level can safely be discarded for numeric objects.
-	return numeric(::cl_float(1.0, ::cl_default_float_format) * (*value));  // -> CLN
+	return numeric(cln::cl_float(1.0, cln::default_float_format) *
+				   (cln::the<cln::cl_N>(value)));
 }
 
 // protected
@@ -647,12 +647,8 @@ int numeric::compare_same_type(const basic & other) const
 {
 	GINAC_ASSERT(is_exactly_of_type(other, numeric));
 	const numeric & o = static_cast<numeric &>(const_cast<basic &>(other));
-
-	if (*value == *o.value) {
-		return 0;
-	}
-
-	return compare(o);    
+	
+	return this->compare(o);
 }
 
 
@@ -670,7 +666,7 @@ unsigned numeric::calchash(void) const
 	// Use CLN's hashcode.  Warning: It depends only on the number's value, not
 	// its type or precision (i.e. a true equivalence relation on numbers).  As
 	// a consequence, 3 and 3.0 share the same hashvalue.
-	return (hashvalue = cl_equal_hashcode(*value) | 0x80000000U);
+	return (hashvalue = cln::equal_hashcode(cln::the<cln::cl_N>(value)) | 0x80000000U);
 }
 
 
@@ -688,148 +684,185 @@ unsigned numeric::calchash(void) const
 
 /** Numerical addition method.  Adds argument to *this and returns result as
  *  a new numeric object. */
-numeric numeric::add(const numeric & other) const
+const numeric numeric::add(const numeric & other) const
 {
-	return numeric((*value)+(*other.value));
+	// Efficiency shortcut: trap the neutral element by pointer.
+	static const numeric * _num0p = &_num0();
+	if (this==_num0p)
+		return other;
+	else if (&other==_num0p)
+		return *this;
+	
+	return numeric(cln::the<cln::cl_N>(value)+cln::the<cln::cl_N>(other.value));
 }
+
 
 /** Numerical subtraction method.  Subtracts argument from *this and returns
  *  result as a new numeric object. */
-numeric numeric::sub(const numeric & other) const
+const numeric numeric::sub(const numeric & other) const
 {
-	return numeric((*value)-(*other.value));
+	return numeric(cln::the<cln::cl_N>(value)-cln::the<cln::cl_N>(other.value));
 }
+
 
 /** Numerical multiplication method.  Multiplies *this and argument and returns
  *  result as a new numeric object. */
-numeric numeric::mul(const numeric & other) const
+const numeric numeric::mul(const numeric & other) const
 {
-	static const numeric * _num1p=&_num1();
-	if (this==_num1p) {
+	// Efficiency shortcut: trap the neutral element by pointer.
+	static const numeric * _num1p = &_num1();
+	if (this==_num1p)
 		return other;
-	} else if (&other==_num1p) {
+	else if (&other==_num1p)
 		return *this;
-	}
-	return numeric((*value)*(*other.value));
+	
+	return numeric(cln::the<cln::cl_N>(value)*cln::the<cln::cl_N>(other.value));
 }
+
 
 /** Numerical division method.  Divides *this by argument and returns result as
  *  a new numeric object.
  *
  *  @exception overflow_error (division by zero) */
-numeric numeric::div(const numeric & other) const
+const numeric numeric::div(const numeric & other) const
 {
-	if (::zerop(*other.value))
+	if (cln::zerop(cln::the<cln::cl_N>(other.value)))
 		throw std::overflow_error("numeric::div(): division by zero");
-	return numeric((*value)/(*other.value));
+	return numeric(cln::the<cln::cl_N>(value)/cln::the<cln::cl_N>(other.value));
 }
 
-numeric numeric::power(const numeric & other) const
+
+const numeric numeric::power(const numeric & other) const
 {
+	// Efficiency shortcut: trap the neutral exponent by pointer.
 	static const numeric * _num1p = &_num1();
 	if (&other==_num1p)
 		return *this;
-	if (::zerop(*value)) {
-		if (::zerop(*other.value))
+	
+	if (cln::zerop(cln::the<cln::cl_N>(value))) {
+		if (cln::zerop(cln::the<cln::cl_N>(other.value)))
 			throw std::domain_error("numeric::eval(): pow(0,0) is undefined");
-		else if (::zerop(::realpart(*other.value)))
+		else if (cln::zerop(cln::realpart(cln::the<cln::cl_N>(other.value))))
 			throw std::domain_error("numeric::eval(): pow(0,I) is undefined");
-		else if (::minusp(::realpart(*other.value)))
+		else if (cln::minusp(cln::realpart(cln::the<cln::cl_N>(other.value))))
 			throw std::overflow_error("numeric::eval(): division by zero");
 		else
 			return _num0();
 	}
-	return numeric(::expt(*value,*other.value));
+	return numeric(cln::expt(cln::the<cln::cl_N>(value),cln::the<cln::cl_N>(other.value)));
 }
 
-/** Inverse of a number. */
-numeric numeric::inverse(void) const
-{
-	if (::zerop(*value))
-		throw std::overflow_error("numeric::inverse(): division by zero");
-	return numeric(::recip(*value));  // -> CLN
-}
 
 const numeric & numeric::add_dyn(const numeric & other) const
 {
-	return static_cast<const numeric &>((new numeric((*value)+(*other.value)))->
+	// Efficiency shortcut: trap the neutral element by pointer.
+	static const numeric * _num0p = &_num0();
+	if (this==_num0p)
+		return other;
+	else if (&other==_num0p)
+		return *this;
+	
+	return static_cast<const numeric &>((new numeric(cln::the<cln::cl_N>(value)+cln::the<cln::cl_N>(other.value)))->
 										setflag(status_flags::dynallocated));
 }
+
 
 const numeric & numeric::sub_dyn(const numeric & other) const
 {
-	return static_cast<const numeric &>((new numeric((*value)-(*other.value)))->
+	return static_cast<const numeric &>((new numeric(cln::the<cln::cl_N>(value)-cln::the<cln::cl_N>(other.value)))->
 										setflag(status_flags::dynallocated));
 }
+
 
 const numeric & numeric::mul_dyn(const numeric & other) const
 {
-	static const numeric * _num1p=&_num1();
-	if (this==_num1p) {
+	// Efficiency shortcut: trap the neutral element by pointer.
+	static const numeric * _num1p = &_num1();
+	if (this==_num1p)
 		return other;
-	} else if (&other==_num1p) {
+	else if (&other==_num1p)
 		return *this;
-	}
-	return static_cast<const numeric &>((new numeric((*value)*(*other.value)))->
+	
+	return static_cast<const numeric &>((new numeric(cln::the<cln::cl_N>(value)*cln::the<cln::cl_N>(other.value)))->
 										setflag(status_flags::dynallocated));
 }
+
 
 const numeric & numeric::div_dyn(const numeric & other) const
 {
-	if (::zerop(*other.value))
+	if (cln::zerop(cln::the<cln::cl_N>(other.value)))
 		throw std::overflow_error("division by zero");
-	return static_cast<const numeric &>((new numeric((*value)/(*other.value)))->
+	return static_cast<const numeric &>((new numeric(cln::the<cln::cl_N>(value)/cln::the<cln::cl_N>(other.value)))->
 										setflag(status_flags::dynallocated));
 }
 
+
 const numeric & numeric::power_dyn(const numeric & other) const
 {
+	// Efficiency shortcut: trap the neutral exponent by pointer.
 	static const numeric * _num1p=&_num1();
 	if (&other==_num1p)
 		return *this;
-	if (::zerop(*value)) {
-		if (::zerop(*other.value))
+	
+	if (cln::zerop(cln::the<cln::cl_N>(value))) {
+		if (cln::zerop(cln::the<cln::cl_N>(other.value)))
 			throw std::domain_error("numeric::eval(): pow(0,0) is undefined");
-		else if (::zerop(::realpart(*other.value)))
+		else if (cln::zerop(cln::realpart(cln::the<cln::cl_N>(other.value))))
 			throw std::domain_error("numeric::eval(): pow(0,I) is undefined");
-		else if (::minusp(::realpart(*other.value)))
+		else if (cln::minusp(cln::realpart(cln::the<cln::cl_N>(other.value))))
 			throw std::overflow_error("numeric::eval(): division by zero");
 		else
 			return _num0();
 	}
-	return static_cast<const numeric &>((new numeric(::expt(*value,*other.value)))->
-										setflag(status_flags::dynallocated));
+	return static_cast<const numeric &>((new numeric(cln::expt(cln::the<cln::cl_N>(value),cln::the<cln::cl_N>(other.value))))->
+	                                     setflag(status_flags::dynallocated));
 }
+
 
 const numeric & numeric::operator=(int i)
 {
 	return operator=(numeric(i));
 }
 
+
 const numeric & numeric::operator=(unsigned int i)
 {
 	return operator=(numeric(i));
 }
+
 
 const numeric & numeric::operator=(long i)
 {
 	return operator=(numeric(i));
 }
 
+
 const numeric & numeric::operator=(unsigned long i)
 {
 	return operator=(numeric(i));
 }
+
 
 const numeric & numeric::operator=(double d)
 {
 	return operator=(numeric(d));
 }
 
+
 const numeric & numeric::operator=(const char * s)
 {
 	return operator=(numeric(s));
 }
+
+
+/** Inverse of a number. */
+const numeric numeric::inverse(void) const
+{
+	if (cln::zerop(cln::the<cln::cl_N>(value)))
+		throw std::overflow_error("numeric::inverse(): division by zero");
+	return numeric(cln::recip(cln::the<cln::cl_N>(value)));
+}
+
 
 /** Return the complex half-plane (left or right) in which the number lies.
  *  csgn(x)==0 for x==0, csgn(x)==1 for Re(x)>0 or Re(x)=0 and Im(x)>0,
@@ -838,20 +871,22 @@ const numeric & numeric::operator=(const char * s)
  *  @see numeric::compare(const numeric & other) */
 int numeric::csgn(void) const
 {
-	if (this->is_zero())
+	if (cln::zerop(cln::the<cln::cl_N>(value)))
 		return 0;
-	if (!::zerop(::realpart(*value))) {
-		if (::plusp(::realpart(*value)))
+	cln::cl_R r = cln::realpart(cln::the<cln::cl_N>(value));
+	if (!cln::zerop(r)) {
+		if (cln::plusp(r))
 			return 1;
 		else
 			return -1;
 	} else {
-		if (::plusp(::imagpart(*value)))
+		if (cln::plusp(cln::imagpart(cln::the<cln::cl_N>(value))))
 			return 1;
 		else
 			return -1;
 	}
 }
+
 
 /** This method establishes a canonical order on all numbers.  For complex
  *  numbers this is not possible in a mathematically consistent way but we need
@@ -863,134 +898,152 @@ int numeric::csgn(void) const
 int numeric::compare(const numeric & other) const
 {
 	// Comparing two real numbers?
-	if (this->is_real() && other.is_real())
-		// Yes, just compare them
-		return ::cl_compare(The(::cl_R)(*value), The(::cl_R)(*other.value));    
+	if (cln::instanceof(value, cln::cl_R_ring) &&
+		cln::instanceof(other.value, cln::cl_R_ring))
+		// Yes, so just cln::compare them
+		return cln::compare(cln::the<cln::cl_R>(value), cln::the<cln::cl_R>(other.value));
 	else {
-		// No, first compare real parts
-		cl_signean real_cmp = ::cl_compare(::realpart(*value), ::realpart(*other.value));
+		// No, first cln::compare real parts...
+		cl_signean real_cmp = cln::compare(cln::realpart(cln::the<cln::cl_N>(value)), cln::realpart(cln::the<cln::cl_N>(other.value)));
 		if (real_cmp)
 			return real_cmp;
-
-		return ::cl_compare(::imagpart(*value), ::imagpart(*other.value));
+		// ...and then the imaginary parts.
+		return cln::compare(cln::imagpart(cln::the<cln::cl_N>(value)), cln::imagpart(cln::the<cln::cl_N>(other.value)));
 	}
 }
 
+
 bool numeric::is_equal(const numeric & other) const
 {
-	return (*value == *other.value);
+	return cln::equal(cln::the<cln::cl_N>(value),cln::the<cln::cl_N>(other.value));
 }
+
 
 /** True if object is zero. */
 bool numeric::is_zero(void) const
 {
-	return ::zerop(*value);  // -> CLN
+	return cln::zerop(cln::the<cln::cl_N>(value));
 }
+
 
 /** True if object is not complex and greater than zero. */
 bool numeric::is_positive(void) const
 {
 	if (this->is_real())
-		return ::plusp(The(::cl_R)(*value));  // -> CLN
+		return cln::plusp(cln::the<cln::cl_R>(value));
 	return false;
 }
+
 
 /** True if object is not complex and less than zero. */
 bool numeric::is_negative(void) const
 {
 	if (this->is_real())
-		return ::minusp(The(::cl_R)(*value));  // -> CLN
+		return cln::minusp(cln::the<cln::cl_R>(value));
 	return false;
 }
+
 
 /** True if object is a non-complex integer. */
 bool numeric::is_integer(void) const
 {
-	return ::instanceof(*value, ::cl_I_ring);  // -> CLN
+	return cln::instanceof(value, cln::cl_I_ring);
 }
+
 
 /** True if object is an exact integer greater than zero. */
 bool numeric::is_pos_integer(void) const
 {
-	return (this->is_integer() && ::plusp(The(::cl_I)(*value)));  // -> CLN
+	return (this->is_integer() && cln::plusp(cln::the<cln::cl_I>(value)));
 }
+
 
 /** True if object is an exact integer greater or equal zero. */
 bool numeric::is_nonneg_integer(void) const
 {
-	return (this->is_integer() && !::minusp(The(::cl_I)(*value)));  // -> CLN
+	return (this->is_integer() && !cln::minusp(cln::the<cln::cl_I>(value)));
 }
+
 
 /** True if object is an exact even integer. */
 bool numeric::is_even(void) const
 {
-	return (this->is_integer() && ::evenp(The(::cl_I)(*value)));  // -> CLN
+	return (this->is_integer() && cln::evenp(cln::the<cln::cl_I>(value)));
 }
+
 
 /** True if object is an exact odd integer. */
 bool numeric::is_odd(void) const
 {
-	return (this->is_integer() && ::oddp(The(::cl_I)(*value)));  // -> CLN
+	return (this->is_integer() && cln::oddp(cln::the<cln::cl_I>(value)));
 }
+
 
 /** Probabilistic primality test.
  *
  *  @return  true if object is exact integer and prime. */
 bool numeric::is_prime(void) const
 {
-	return (this->is_integer() && ::isprobprime(The(::cl_I)(*value)));  // -> CLN
+	return (this->is_integer() && cln::isprobprime(cln::the<cln::cl_I>(value)));
 }
+
 
 /** True if object is an exact rational number, may even be complex
  *  (denominator may be unity). */
 bool numeric::is_rational(void) const
 {
-	return ::instanceof(*value, ::cl_RA_ring);  // -> CLN
+	return cln::instanceof(value, cln::cl_RA_ring);
 }
+
 
 /** True if object is a real integer, rational or float (but not complex). */
 bool numeric::is_real(void) const
 {
-	return ::instanceof(*value, ::cl_R_ring);  // -> CLN
+	return cln::instanceof(value, cln::cl_R_ring);
 }
+
 
 bool numeric::operator==(const numeric & other) const
 {
-	return (*value == *other.value);  // -> CLN
+	return equal(cln::the<cln::cl_N>(value), cln::the<cln::cl_N>(other.value));
 }
+
 
 bool numeric::operator!=(const numeric & other) const
 {
-	return (*value != *other.value);  // -> CLN
+	return !equal(cln::the<cln::cl_N>(value), cln::the<cln::cl_N>(other.value));
 }
+
 
 /** True if object is element of the domain of integers extended by I, i.e. is
  *  of the form a+b*I, where a and b are integers. */
 bool numeric::is_cinteger(void) const
 {
-	if (::instanceof(*value, ::cl_I_ring))
+	if (cln::instanceof(value, cln::cl_I_ring))
 		return true;
 	else if (!this->is_real()) {  // complex case, handle n+m*I
-		if (::instanceof(::realpart(*value), ::cl_I_ring) &&
-		    ::instanceof(::imagpart(*value), ::cl_I_ring))
+		if (cln::instanceof(cln::realpart(cln::the<cln::cl_N>(value)), cln::cl_I_ring) &&
+		    cln::instanceof(cln::imagpart(cln::the<cln::cl_N>(value)), cln::cl_I_ring))
 			return true;
 	}
 	return false;
 }
 
+
 /** True if object is an exact rational number, may even be complex
  *  (denominator may be unity). */
 bool numeric::is_crational(void) const
 {
-	if (::instanceof(*value, ::cl_RA_ring))
+	if (cln::instanceof(value, cln::cl_RA_ring))
 		return true;
 	else if (!this->is_real()) {  // complex case, handle Q(i):
-		if (::instanceof(::realpart(*value), ::cl_RA_ring) &&
-		    ::instanceof(::imagpart(*value), ::cl_RA_ring))
+		if (cln::instanceof(cln::realpart(cln::the<cln::cl_N>(value)), cln::cl_RA_ring) &&
+		    cln::instanceof(cln::imagpart(cln::the<cln::cl_N>(value)), cln::cl_RA_ring))
 			return true;
 	}
 	return false;
 }
+
 
 /** Numerical comparison: less.
  *
@@ -998,9 +1051,10 @@ bool numeric::is_crational(void) const
 bool numeric::operator<(const numeric & other) const
 {
 	if (this->is_real() && other.is_real())
-		return (The(::cl_R)(*value) < The(::cl_R)(*other.value));  // -> CLN
+		return (cln::the<cln::cl_R>(value) < cln::the<cln::cl_R>(other.value));
 	throw std::invalid_argument("numeric::operator<(): complex inequality");
 }
+
 
 /** Numerical comparison: less or equal.
  *
@@ -1008,10 +1062,10 @@ bool numeric::operator<(const numeric & other) const
 bool numeric::operator<=(const numeric & other) const
 {
 	if (this->is_real() && other.is_real())
-		return (The(::cl_R)(*value) <= The(::cl_R)(*other.value));  // -> CLN
+		return (cln::the<cln::cl_R>(value) <= cln::the<cln::cl_R>(other.value));
 	throw std::invalid_argument("numeric::operator<=(): complex inequality");
-	return false;  // make compiler shut up
 }
+
 
 /** Numerical comparison: greater.
  *
@@ -1019,9 +1073,10 @@ bool numeric::operator<=(const numeric & other) const
 bool numeric::operator>(const numeric & other) const
 {
 	if (this->is_real() && other.is_real())
-		return (The(::cl_R)(*value) > The(::cl_R)(*other.value));  // -> CLN
+		return (cln::the<cln::cl_R>(value) > cln::the<cln::cl_R>(other.value));
 	throw std::invalid_argument("numeric::operator>(): complex inequality");
 }
+
 
 /** Numerical comparison: greater or equal.
  *
@@ -1029,9 +1084,10 @@ bool numeric::operator>(const numeric & other) const
 bool numeric::operator>=(const numeric & other) const
 {
 	if (this->is_real() && other.is_real())
-		return (The(::cl_R)(*value) >= The(::cl_R)(*other.value));  // -> CLN
+		return (cln::the<cln::cl_R>(value) >= cln::the<cln::cl_R>(other.value));
 	throw std::invalid_argument("numeric::operator>=(): complex inequality");
 }
+
 
 /** Converts numeric types to machine's int.  You should check with
  *  is_integer() if the number is really an integer before calling this method.
@@ -1039,8 +1095,9 @@ bool numeric::operator>=(const numeric & other) const
 int numeric::to_int(void) const
 {
 	GINAC_ASSERT(this->is_integer());
-	return ::cl_I_to_int(The(::cl_I)(*value));  // -> CLN
+	return cln::cl_I_to_int(cln::the<cln::cl_I>(value));
 }
+
 
 /** Converts numeric types to machine's long.  You should check with
  *  is_integer() if the number is really an integer before calling this method.
@@ -1048,27 +1105,30 @@ int numeric::to_int(void) const
 long numeric::to_long(void) const
 {
 	GINAC_ASSERT(this->is_integer());
-	return ::cl_I_to_long(The(::cl_I)(*value));  // -> CLN
+	return cln::cl_I_to_long(cln::the<cln::cl_I>(value));
 }
+
 
 /** Converts numeric types to machine's double. You should check with is_real()
  *  if the number is really not complex before calling this method. */
 double numeric::to_double(void) const
 {
 	GINAC_ASSERT(this->is_real());
-	return ::cl_double_approx(::realpart(*value));  // -> CLN
+	return cln::double_approx(cln::realpart(cln::the<cln::cl_N>(value)));
 }
+
 
 /** Real part of a number. */
 const numeric numeric::real(void) const
 {
-	return numeric(::realpart(*value));  // -> CLN
+	return numeric(cln::realpart(cln::the<cln::cl_N>(value)));
 }
+
 
 /** Imaginary part of a number. */
 const numeric numeric::imag(void) const
 {
-	return numeric(::imagpart(*value));  // -> CLN
+	return numeric(cln::imagpart(cln::the<cln::cl_N>(value)));
 }
 
 
@@ -1081,27 +1141,28 @@ const numeric numeric::numer(void) const
 	if (this->is_integer())
 		return numeric(*this);
 	
-	else if (::instanceof(*value, ::cl_RA_ring))
-		return numeric(::numerator(The(::cl_RA)(*value)));
+	else if (cln::instanceof(value, cln::cl_RA_ring))
+		return numeric(cln::numerator(cln::the<cln::cl_RA>(value)));
 	
 	else if (!this->is_real()) {  // complex case, handle Q(i):
-		cl_R r = ::realpart(*value);
-		cl_R i = ::imagpart(*value);
-		if (::instanceof(r, ::cl_I_ring) && ::instanceof(i, ::cl_I_ring))
-		    return numeric(*this);
-		if (::instanceof(r, ::cl_I_ring) && ::instanceof(i, ::cl_RA_ring))
-		    return numeric(::complex(r*::denominator(The(::cl_RA)(i)), ::numerator(The(::cl_RA)(i))));
-		if (::instanceof(r, ::cl_RA_ring) && ::instanceof(i, ::cl_I_ring))
-		    return numeric(::complex(::numerator(The(::cl_RA)(r)), i*::denominator(The(::cl_RA)(r))));
-		if (::instanceof(r, ::cl_RA_ring) && ::instanceof(i, ::cl_RA_ring)) {
-		    cl_I s = ::lcm(::denominator(The(::cl_RA)(r)), ::denominator(The(::cl_RA)(i)));
-		    return numeric(::complex(::numerator(The(::cl_RA)(r))*(exquo(s,::denominator(The(::cl_RA)(r)))),
-			                         ::numerator(The(::cl_RA)(i))*(exquo(s,::denominator(The(::cl_RA)(i))))));
+		const cln::cl_RA r = cln::the<cln::cl_RA>(cln::realpart(cln::the<cln::cl_N>(value)));
+		const cln::cl_RA i = cln::the<cln::cl_RA>(cln::imagpart(cln::the<cln::cl_N>(value)));
+		if (cln::instanceof(r, cln::cl_I_ring) && cln::instanceof(i, cln::cl_I_ring))
+			return numeric(*this);
+		if (cln::instanceof(r, cln::cl_I_ring) && cln::instanceof(i, cln::cl_RA_ring))
+			return numeric(cln::complex(r*cln::denominator(i), cln::numerator(i)));
+		if (cln::instanceof(r, cln::cl_RA_ring) && cln::instanceof(i, cln::cl_I_ring))
+			return numeric(cln::complex(cln::numerator(r), i*cln::denominator(r)));
+		if (cln::instanceof(r, cln::cl_RA_ring) && cln::instanceof(i, cln::cl_RA_ring)) {
+			const cln::cl_I s = cln::lcm(cln::denominator(r), cln::denominator(i));
+			return numeric(cln::complex(cln::numerator(r)*(cln::exquo(s,cln::denominator(r))),
+			   	   	                    cln::numerator(i)*(cln::exquo(s,cln::denominator(i)))));
 		}
 	}
 	// at least one float encountered
 	return numeric(*this);
 }
+
 
 /** Denominator.  Computes the denominator of rational numbers, common integer
  *  denominator of complex if real and imaginary part are both rational numbers
@@ -1111,24 +1172,25 @@ const numeric numeric::denom(void) const
 	if (this->is_integer())
 		return _num1();
 	
-	if (instanceof(*value, ::cl_RA_ring))
-		return numeric(::denominator(The(::cl_RA)(*value)));
+	if (instanceof(value, cln::cl_RA_ring))
+		return numeric(cln::denominator(cln::the<cln::cl_RA>(value)));
 	
 	if (!this->is_real()) {  // complex case, handle Q(i):
-		cl_R r = ::realpart(*value);
-		cl_R i = ::imagpart(*value);
-		if (::instanceof(r, ::cl_I_ring) && ::instanceof(i, ::cl_I_ring))
+		const cln::cl_RA r = cln::the<cln::cl_RA>(cln::realpart(cln::the<cln::cl_N>(value)));
+		const cln::cl_RA i = cln::the<cln::cl_RA>(cln::imagpart(cln::the<cln::cl_N>(value)));
+		if (cln::instanceof(r, cln::cl_I_ring) && cln::instanceof(i, cln::cl_I_ring))
 			return _num1();
-		if (::instanceof(r, ::cl_I_ring) && ::instanceof(i, ::cl_RA_ring))
-			return numeric(::denominator(The(::cl_RA)(i)));
-		if (::instanceof(r, ::cl_RA_ring) && ::instanceof(i, ::cl_I_ring))
-			return numeric(::denominator(The(::cl_RA)(r)));
-		if (::instanceof(r, ::cl_RA_ring) && ::instanceof(i, ::cl_RA_ring))
-			return numeric(::lcm(::denominator(The(::cl_RA)(r)), ::denominator(The(::cl_RA)(i))));
+		if (cln::instanceof(r, cln::cl_I_ring) && cln::instanceof(i, cln::cl_RA_ring))
+			return numeric(cln::denominator(i));
+		if (cln::instanceof(r, cln::cl_RA_ring) && cln::instanceof(i, cln::cl_I_ring))
+			return numeric(cln::denominator(r));
+		if (cln::instanceof(r, cln::cl_RA_ring) && cln::instanceof(i, cln::cl_RA_ring))
+			return numeric(cln::lcm(cln::denominator(r), cln::denominator(i)));
 	}
 	// at least one float encountered
 	return _num1();
 }
+
 
 /** Size in binary notation.  For integers, this is the smallest n >= 0 such
  *  that -2^n <= x < 2^n. If x > 0, this is the unique n > 0 such that
@@ -1139,9 +1201,18 @@ const numeric numeric::denom(void) const
 int numeric::int_length(void) const
 {
 	if (this->is_integer())
-		return ::integer_length(The(::cl_I)(*value));  // -> CLN
+		return cln::integer_length(cln::the<cln::cl_I>(value));
 	else
 		return 0;
+}
+
+
+/** Returns a new CLN object of type cl_N, representing the value of *this.
+ *  This method is useful for casting when mixing GiNaC and CLN in one project.
+ */
+numeric::operator cln::cl_N() const
+{
+	return cln::cl_N(cln::the<cln::cl_N>(value));
 }
 
 
@@ -1161,7 +1232,7 @@ const numeric some_numeric;
 const std::type_info & typeid_numeric = typeid(some_numeric);
 /** Imaginary unit.  This is not a constant but a numeric since we are
  *  natively handing complex numbers anyways. */
-const numeric I = numeric(::complex(cl_I(0),cl_I(1)));
+const numeric I = numeric(cln::complex(cln::cl_I(0),cln::cl_I(1)));
 
 
 /** Exponential function.
@@ -1169,7 +1240,7 @@ const numeric I = numeric(::complex(cl_I(0),cl_I(1)));
  *  @return  arbitrary precision numerical exp(x). */
 const numeric exp(const numeric & x)
 {
-	return ::exp(*x.value);  // -> CLN
+	return cln::exp(cln::cl_N(x));
 }
 
 
@@ -1182,7 +1253,7 @@ const numeric log(const numeric & z)
 {
 	if (z.is_zero())
 		throw pole_error("log(): logarithmic pole",0);
-	return ::log(*z.value);  // -> CLN
+	return cln::log(cln::cl_N(z));
 }
 
 
@@ -1191,7 +1262,7 @@ const numeric log(const numeric & z)
  *  @return  arbitrary precision numerical sin(x). */
 const numeric sin(const numeric & x)
 {
-	return ::sin(*x.value);  // -> CLN
+	return cln::sin(cln::cl_N(x));
 }
 
 
@@ -1200,7 +1271,7 @@ const numeric sin(const numeric & x)
  *  @return  arbitrary precision numerical cos(x). */
 const numeric cos(const numeric & x)
 {
-	return ::cos(*x.value);  // -> CLN
+	return cln::cos(cln::cl_N(x));
 }
 
 
@@ -1209,7 +1280,7 @@ const numeric cos(const numeric & x)
  *  @return  arbitrary precision numerical tan(x). */
 const numeric tan(const numeric & x)
 {
-	return ::tan(*x.value);  // -> CLN
+	return cln::tan(cln::cl_N(x));
 }
 	
 
@@ -1218,7 +1289,7 @@ const numeric tan(const numeric & x)
  *  @return  arbitrary precision numerical asin(x). */
 const numeric asin(const numeric & x)
 {
-	return ::asin(*x.value);  // -> CLN
+	return cln::asin(cln::cl_N(x));
 }
 
 
@@ -1227,7 +1298,7 @@ const numeric asin(const numeric & x)
  *  @return  arbitrary precision numerical acos(x). */
 const numeric acos(const numeric & x)
 {
-	return ::acos(*x.value);  // -> CLN
+	return cln::acos(cln::cl_N(x));
 }
 	
 
@@ -1242,7 +1313,7 @@ const numeric atan(const numeric & x)
 	    x.real().is_zero() &&
 	    abs(x.imag()).is_equal(_num1()))
 		throw pole_error("atan(): logarithmic pole",0);
-	return ::atan(*x.value);  // -> CLN
+	return cln::atan(cln::cl_N(x));
 }
 
 
@@ -1254,7 +1325,8 @@ const numeric atan(const numeric & x)
 const numeric atan(const numeric & y, const numeric & x)
 {
 	if (x.is_real() && y.is_real())
-		return ::atan(::realpart(*x.value), ::realpart(*y.value));  // -> CLN
+		return cln::atan(cln::the<cln::cl_R>(cln::cl_N(x)),
+		                 cln::the<cln::cl_R>(cln::cl_N(y)));
 	else
 		throw std::invalid_argument("atan(): complex argument");        
 }
@@ -1265,7 +1337,7 @@ const numeric atan(const numeric & y, const numeric & x)
  *  @return  arbitrary precision numerical sinh(x). */
 const numeric sinh(const numeric & x)
 {
-	return ::sinh(*x.value);  // -> CLN
+	return cln::sinh(cln::cl_N(x));
 }
 
 
@@ -1274,7 +1346,7 @@ const numeric sinh(const numeric & x)
  *  @return  arbitrary precision numerical cosh(x). */
 const numeric cosh(const numeric & x)
 {
-	return ::cosh(*x.value);  // -> CLN
+	return cln::cosh(cln::cl_N(x));
 }
 
 
@@ -1283,7 +1355,7 @@ const numeric cosh(const numeric & x)
  *  @return  arbitrary precision numerical tanh(x). */
 const numeric tanh(const numeric & x)
 {
-	return ::tanh(*x.value);  // -> CLN
+	return cln::tanh(cln::cl_N(x));
 }
 	
 
@@ -1292,7 +1364,7 @@ const numeric tanh(const numeric & x)
  *  @return  arbitrary precision numerical asinh(x). */
 const numeric asinh(const numeric & x)
 {
-	return ::asinh(*x.value);  // -> CLN
+	return cln::asinh(cln::cl_N(x));
 }
 
 
@@ -1301,7 +1373,7 @@ const numeric asinh(const numeric & x)
  *  @return  arbitrary precision numerical acosh(x). */
 const numeric acosh(const numeric & x)
 {
-	return ::acosh(*x.value);  // -> CLN
+	return cln::acosh(cln::cl_N(x));
 }
 
 
@@ -1310,30 +1382,30 @@ const numeric acosh(const numeric & x)
  *  @return  arbitrary precision numerical atanh(x). */
 const numeric atanh(const numeric & x)
 {
-	return ::atanh(*x.value);  // -> CLN
+	return cln::atanh(cln::cl_N(x));
 }
 
 
-/*static ::cl_N Li2_series(const ::cl_N & x,
-                         const ::cl_float_format_t & prec)
+/*static cln::cl_N Li2_series(const ::cl_N & x,
+                            const ::float_format_t & prec)
 {
 	// Note: argument must be in the unit circle
 	// This is very inefficient unless we have fast floating point Bernoulli
 	// numbers implemented!
-	::cl_N c1 = -::log(1-x);
-	::cl_N c2 = c1;
+	cln::cl_N c1 = -cln::log(1-x);
+	cln::cl_N c2 = c1;
 	// hard-wire the first two Bernoulli numbers
-	::cl_N acc = c1 - ::square(c1)/4;
-	::cl_N aug;
-	::cl_F pisq = ::square(::cl_pi(prec));  // pi^2
-	::cl_F piac = ::cl_float(1, prec);  // accumulator: pi^(2*i)
+	cln::cl_N acc = c1 - cln::square(c1)/4;
+	cln::cl_N aug;
+	cln::cl_F pisq = cln::square(cln::cl_pi(prec));  // pi^2
+	cln::cl_F piac = cln::cl_float(1, prec);  // accumulator: pi^(2*i)
 	unsigned i = 1;
-	c1 = ::square(c1);
+	c1 = cln::square(c1);
 	do {
 		c2 = c1 * c2;
 		piac = piac * pisq;
-		aug = c2 * (*(bernoulli(numeric(2*i)).clnptr())) / ::factorial(2*i+1);
-		// aug = c2 * ::cl_I(i%2 ? 1 : -1) / ::cl_I(2*i+1) * ::cl_zeta(2*i, prec) / piac / (::cl_I(1)<<(2*i-1));
+		aug = c2 * (*(bernoulli(numeric(2*i)).clnptr())) / cln::factorial(2*i+1);
+		// aug = c2 * cln::cl_I(i%2 ? 1 : -1) / cln::cl_I(2*i+1) * cln::cl_zeta(2*i, prec) / piac / (cln::cl_I(1)<<(2*i-1));
 		acc = acc + aug;
 		++i;
 	} while (acc != acc+aug);
@@ -1342,13 +1414,13 @@ const numeric atanh(const numeric & x)
 
 /** Numeric evaluation of Dilogarithm within circle of convergence (unit
  *  circle) using a power series. */
-static ::cl_N Li2_series(const ::cl_N & x,
-                         const ::cl_float_format_t & prec)
+static cln::cl_N Li2_series(const cln::cl_N & x,
+                            const cln::float_format_t & prec)
 {
 	// Note: argument must be in the unit circle
-	::cl_N aug, acc;
-	::cl_N num = ::complex(::cl_float(1, prec), 0);
-	::cl_I den = 0;
+	cln::cl_N aug, acc;
+	cln::cl_N num = cln::complex(cln::cl_float(1, prec), 0);
+	cln::cl_I den = 0;
 	unsigned i = 1;
 	do {
 		num = num * x;
@@ -1361,23 +1433,23 @@ static ::cl_N Li2_series(const ::cl_N & x,
 }
 
 /** Folds Li2's argument inside a small rectangle to enhance convergence. */
-static ::cl_N Li2_projection(const ::cl_N & x,
-                             const ::cl_float_format_t & prec)
+static cln::cl_N Li2_projection(const cln::cl_N & x,
+                                const cln::float_format_t & prec)
 {
-	const ::cl_R re = ::realpart(x);
-	const ::cl_R im = ::imagpart(x);
-	if (re > ::cl_F(".5"))
+	const cln::cl_R re = cln::realpart(x);
+	const cln::cl_R im = cln::imagpart(x);
+	if (re > cln::cl_F(".5"))
 		// zeta(2) - Li2(1-x) - log(x)*log(1-x)
-		return(::cl_zeta(2)
+		return(cln::zeta(2)
 		       - Li2_series(1-x, prec)
-		       - ::log(x)*::log(1-x));
-	if ((re <= 0 && ::abs(im) > ::cl_F(".75")) || (re < ::cl_F("-.5")))
+		       - cln::log(x)*cln::log(1-x));
+	if ((re <= 0 && cln::abs(im) > cln::cl_F(".75")) || (re < cln::cl_F("-.5")))
 		// -log(1-x)^2 / 2 - Li2(x/(x-1))
-		return(- ::square(::log(1-x))/2
+		return(- cln::square(cln::log(1-x))/2
 		       - Li2_series(x/(x-1), prec));
-	if (re > 0 && ::abs(im) > ::cl_LF(".75"))
+	if (re > 0 && cln::abs(im) > cln::cl_LF(".75"))
 		// Li2(x^2)/2 - Li2(-x)
-		return(Li2_projection(::square(x), prec)/2
+		return(Li2_projection(cln::square(x), prec)/2
 		       - Li2_projection(-x, prec));
 	return Li2_series(x, prec);
 }
@@ -1389,28 +1461,29 @@ static ::cl_N Li2_projection(const ::cl_N & x,
  *  @return  arbitrary precision numerical Li2(x). */
 const numeric Li2(const numeric & x)
 {
-	if (::zerop(*x.value))
-		return x;
+	if (x.is_zero())
+		return _num0();
 	
 	// what is the desired float format?
 	// first guess: default format
-	::cl_float_format_t prec = ::cl_default_float_format;
+	cln::float_format_t prec = cln::default_float_format;
+	const cln::cl_N value = cln::cl_N(x);
 	// second guess: the argument's format
-	if (!::instanceof(::realpart(*x.value),cl_RA_ring))
-		prec = ::cl_float_format(The(::cl_F)(::realpart(*x.value)));
-	else if (!::instanceof(::imagpart(*x.value),cl_RA_ring))
-		prec = ::cl_float_format(The(::cl_F)(::imagpart(*x.value)));
+	if (!x.real().is_rational())
+		prec = cln::float_format(cln::the<cln::cl_F>(cln::realpart(value)));
+	else if (!x.imag().is_rational())
+		prec = cln::float_format(cln::the<cln::cl_F>(cln::imagpart(value)));
 	
-	if (*x.value==1)  // may cause trouble with log(1-x)
-		return ::cl_zeta(2, prec);
+	if (cln::the<cln::cl_N>(value)==1)  // may cause trouble with log(1-x)
+		return cln::zeta(2, prec);
 	
-	if (::abs(*x.value) > 1)
+	if (cln::abs(value) > 1)
 		// -log(-x)^2 / 2 - zeta(2) - Li2(1/x)
-		return(- ::square(::log(-*x.value))/2
-		       - ::cl_zeta(2, prec)
-		       - Li2_projection(::recip(*x.value), prec));
+		return(- cln::square(cln::log(-value))/2
+		       - cln::zeta(2, prec)
+		       - Li2_projection(cln::recip(value), prec));
 	else
-		return Li2_projection(*x.value, prec);
+		return Li2_projection(cln::cl_N(x), prec);
 }
 
 
@@ -1424,9 +1497,9 @@ const numeric zeta(const numeric & x)
 	// being an exact zero for CLN, which can be tested and then we can just
 	// pass the number casted to an int:
 	if (x.is_real()) {
-		int aux = (int)(::cl_double_approx(::realpart(*x.value)));
-		if (::zerop(*x.value-aux))
-			return ::cl_zeta(aux);  // -> CLN
+		const int aux = (int)(cln::double_approx(cln::the<cln::cl_R>(cln::cl_N(x))));
+		if (cln::zerop(cln::cl_N(x)-aux))
+			return cln::zeta(aux);
 	}
 	std::clog << "zeta(" << x
 			  << "): Does anybody know good way to calculate this numerically?"
@@ -1483,7 +1556,7 @@ const numeric factorial(const numeric & n)
 {
 	if (!n.is_nonneg_integer())
 		throw std::range_error("numeric::factorial(): argument must be integer >= 0");
-	return numeric(::factorial(n.to_int()));  // -> CLN
+	return numeric(cln::factorial(n.to_int()));
 }
 
 
@@ -1495,13 +1568,13 @@ const numeric factorial(const numeric & n)
  *  @exception range_error (argument must be integer >= -1) */
 const numeric doublefactorial(const numeric & n)
 {
-	if (n == numeric(-1)) {
+	if (n == numeric(-1))
 		return _num1();
-	}
-	if (!n.is_nonneg_integer()) {
+	
+	if (!n.is_nonneg_integer())
 		throw std::range_error("numeric::doublefactorial(): argument must be integer >= -1");
-	}
-	return numeric(::doublefactorial(n.to_int()));  // -> CLN
+	
+	return numeric(cln::doublefactorial(n.to_int()));
 }
 
 
@@ -1514,7 +1587,7 @@ const numeric binomial(const numeric & n, const numeric & k)
 	if (n.is_integer() && k.is_integer()) {
 		if (n.is_nonneg_integer()) {
 			if (k.compare(n)!=1 && k.compare(_num0())!=-1)
-				return numeric(::binomial(n.to_int(),k.to_int()));  // -> CLN
+				return numeric(cln::binomial(n.to_int(),k.to_int()));
 			else
 				return _num0();
 		} else {
@@ -1575,27 +1648,27 @@ const numeric bernoulli(const numeric & nn)
 		return _num0();
 	
 	// store nonvanishing Bernoulli numbers here
-	static std::vector< ::cl_RA > results;
+	static std::vector< cln::cl_RA > results;
 	static int highest_result = 0;
 	// algorithm not applicable to B(0), so just store it
 	if (results.size()==0)
-		results.push_back(::cl_RA(1));
+		results.push_back(cln::cl_RA(1));
 	
 	int n = nn.to_long();
 	for (int i=highest_result; i<n/2; ++i) {
-		::cl_RA B = 0;
+		cln::cl_RA B = 0;
 		long n = 8;
 		long m = 5;
 		long d1 = i;
 		long d2 = 2*i-1;
 		for (int j=i; j>0; --j) {
-			B = ::cl_I(n*m) * (B+results[j]) / (d1*d2);
+			B = cln::cl_I(n*m) * (B+results[j]) / (d1*d2);
 			n += 4;
 			m += 2;
 			d1 -= 1;
 			d2 -= 2;
 		}
-		B = (1 - ((B+1)/(2*i+3))) / (::cl_I(1)<<(2*i+2));
+		B = (1 - ((B+1)/(2*i+3))) / (cln::cl_I(1)<<(2*i+2));
 		results.push_back(B);
 		++highest_result;
 	}
@@ -1615,10 +1688,6 @@ const numeric fibonacci(const numeric & n)
 		throw std::range_error("numeric::fibonacci(): argument must be integer");
 	// Method:
 	//
-	// This is based on an implementation that can be found in CLN's example
-	// directory.  There, it is done recursively, which may be more elegant
-	// than our non-recursive implementation that has to resort to some bit-
-	// fiddling.  This is, however, a matter of taste.
 	// The following addition formula holds:
 	//
 	//      F(n+m)   = F(m-1)*F(n) + F(m)*F(n+1)  for m >= 1, n >= 0.
@@ -1641,19 +1710,19 @@ const numeric fibonacci(const numeric & n)
 		else
 			return fibonacci(-n);
 	
-	::cl_I u(0);
-	::cl_I v(1);
-	::cl_I m = The(::cl_I)(*n.value) >> 1L;  // floor(n/2);
-	for (uintL bit=::integer_length(m); bit>0; --bit) {
+	cln::cl_I u(0);
+	cln::cl_I v(1);
+	cln::cl_I m = cln::the<cln::cl_I>(cln::cl_N(n)) >> 1L;  // floor(n/2);
+	for (uintL bit=cln::integer_length(m); bit>0; --bit) {
 		// Since a squaring is cheaper than a multiplication, better use
 		// three squarings instead of one multiplication and two squarings.
-		::cl_I u2 = ::square(u);
-		::cl_I v2 = ::square(v);
-		if (::logbitp(bit-1, m)) {
-			v = ::square(u + v) - u2;
+		cln::cl_I u2 = cln::square(u);
+		cln::cl_I v2 = cln::square(v);
+		if (cln::logbitp(bit-1, m)) {
+			v = cln::square(u + v) - u2;
 			u = u2 + v2;
 		} else {
-			u = v2 - ::square(v - u);
+			u = v2 - cln::square(v - u);
 			v = u2 + v2;
 		}
 	}
@@ -1662,14 +1731,14 @@ const numeric fibonacci(const numeric & n)
 		// is cheaper than two squarings.
 		return u * ((v << 1) - u);
 	else
-		return ::square(u) + ::square(v);    
+		return cln::square(u) + cln::square(v);    
 }
 
 
 /** Absolute value. */
-numeric abs(const numeric & x)
+const numeric abs(const numeric& x)
 {
-	return ::abs(*x.value);  // -> CLN
+	return cln::abs(cln::cl_N(x));
 }
 
 
@@ -1680,12 +1749,13 @@ numeric abs(const numeric & x)
  *
  *  @return a mod b in the range [0,abs(b)-1] with sign of b if both are
  *  integer, 0 otherwise. */
-numeric mod(const numeric & a, const numeric & b)
+const numeric mod(const numeric & a, const numeric & b)
 {
 	if (a.is_integer() && b.is_integer())
-		return ::mod(The(::cl_I)(*a.value), The(::cl_I)(*b.value));  // -> CLN
+		return cln::mod(cln::the<cln::cl_I>(cln::cl_N(a)),
+		                cln::the<cln::cl_I>(cln::cl_N(b)));
 	else
-		return _num0();  // Throw?
+		return _num0();
 }
 
 
@@ -1693,13 +1763,14 @@ numeric mod(const numeric & a, const numeric & b)
  *  Equivalent to Maple's mods.
  *
  *  @return a mod b in the range [-iquo(abs(m)-1,2), iquo(abs(m),2)]. */
-numeric smod(const numeric & a, const numeric & b)
+const numeric smod(const numeric & a, const numeric & b)
 {
 	if (a.is_integer() && b.is_integer()) {
-		cl_I b2 = The(::cl_I)(ceiling1(The(::cl_I)(*b.value) >> 1)) - 1;
-		return ::mod(The(::cl_I)(*a.value) + b2, The(::cl_I)(*b.value)) - b2;
+		const cln::cl_I b2 = cln::ceiling1(cln::the<cln::cl_I>(cln::cl_N(b)) >> 1) - 1;
+		return cln::mod(cln::the<cln::cl_I>(cln::cl_N(a)) + b2,
+		                cln::the<cln::cl_I>(cln::cl_N(b))) - b2;
 	} else
-		return _num0();  // Throw?
+		return _num0();
 }
 
 
@@ -1709,12 +1780,13 @@ numeric smod(const numeric & a, const numeric & b)
  *  sign of a or is zero.
  *
  *  @return remainder of a/b if both are integer, 0 otherwise. */
-numeric irem(const numeric & a, const numeric & b)
+const numeric irem(const numeric & a, const numeric & b)
 {
 	if (a.is_integer() && b.is_integer())
-		return ::rem(The(::cl_I)(*a.value), The(::cl_I)(*b.value));  // -> CLN
+		return cln::rem(cln::the<cln::cl_I>(cln::cl_N(a)),
+		                cln::the<cln::cl_I>(cln::cl_N(b)));
 	else
-		return _num0();  // Throw?
+		return _num0();
 }
 
 
@@ -1725,15 +1797,16 @@ numeric irem(const numeric & a, const numeric & b)
  *
  *  @return remainder of a/b and quotient stored in q if both are integer,
  *  0 otherwise. */
-numeric irem(const numeric & a, const numeric & b, numeric & q)
+const numeric irem(const numeric & a, const numeric & b, numeric & q)
 {
-	if (a.is_integer() && b.is_integer()) {  // -> CLN
-		cl_I_div_t rem_quo = truncate2(The(::cl_I)(*a.value), The(::cl_I)(*b.value));
+	if (a.is_integer() && b.is_integer()) {
+		const cln::cl_I_div_t rem_quo = cln::truncate2(cln::the<cln::cl_I>(cln::cl_N(a)),
+		                                               cln::the<cln::cl_I>(cln::cl_N(b)));
 		q = rem_quo.quotient;
 		return rem_quo.remainder;
 	} else {
 		q = _num0();
-		return _num0();  // Throw?
+		return _num0();
 	}
 }
 
@@ -1742,12 +1815,13 @@ numeric irem(const numeric & a, const numeric & b, numeric & q)
  *  Equivalent to Maple's iquo as far as sign conventions are concerned.
  *  
  *  @return truncated quotient of a/b if both are integer, 0 otherwise. */
-numeric iquo(const numeric & a, const numeric & b)
+const numeric iquo(const numeric & a, const numeric & b)
 {
 	if (a.is_integer() && b.is_integer())
-		return truncate1(The(::cl_I)(*a.value), The(::cl_I)(*b.value));  // -> CLN
+		return truncate1(cln::the<cln::cl_I>(cln::cl_N(a)),
+	                     cln::the<cln::cl_I>(cln::cl_N(b)));
 	else
-		return _num0();  // Throw?
+		return _num0();
 }
 
 
@@ -1757,16 +1831,45 @@ numeric iquo(const numeric & a, const numeric & b)
  *
  *  @return truncated quotient of a/b and remainder stored in r if both are
  *  integer, 0 otherwise. */
-numeric iquo(const numeric & a, const numeric & b, numeric & r)
+const numeric iquo(const numeric & a, const numeric & b, numeric & r)
 {
-	if (a.is_integer() && b.is_integer()) {  // -> CLN
-		cl_I_div_t rem_quo = truncate2(The(::cl_I)(*a.value), The(::cl_I)(*b.value));
+	if (a.is_integer() && b.is_integer()) {
+		const cln::cl_I_div_t rem_quo = cln::truncate2(cln::the<cln::cl_I>(cln::cl_N(a)),
+		                                               cln::the<cln::cl_I>(cln::cl_N(b)));
 		r = rem_quo.remainder;
 		return rem_quo.quotient;
 	} else {
 		r = _num0();
-		return _num0();  // Throw?
+		return _num0();
 	}
+}
+
+
+/** Greatest Common Divisor.
+ *   
+ *  @return  The GCD of two numbers if both are integer, a numerical 1
+ *  if they are not. */
+const numeric gcd(const numeric & a, const numeric & b)
+{
+	if (a.is_integer() && b.is_integer())
+		return cln::gcd(cln::the<cln::cl_I>(cln::cl_N(a)),
+		                cln::the<cln::cl_I>(cln::cl_N(b)));
+	else
+		return _num1();
+}
+
+
+/** Least Common Multiple.
+ *   
+ *  @return  The LCM of two numbers if both are integer, the product of those
+ *  two numbers if they are not. */
+const numeric lcm(const numeric & a, const numeric & b)
+{
+	if (a.is_integer() && b.is_integer())
+		return cln::lcm(cln::the<cln::cl_I>(cln::cl_N(a)),
+		                cln::the<cln::cl_I>(cln::cl_N(b)));
+	else
+		return a.mul(b);
 }
 
 
@@ -1778,87 +1881,61 @@ numeric iquo(const numeric & a, const numeric & b, numeric & r)
  *  @return square root of z. Branch cut along negative real axis, the negative
  *  real axis itself where imag(z)==0 and real(z)<0 belongs to the upper part
  *  where imag(z)>0. */
-numeric sqrt(const numeric & z)
+const numeric sqrt(const numeric & z)
 {
-	return ::sqrt(*z.value);  // -> CLN
+	return cln::sqrt(cln::cl_N(z));
 }
 
 
 /** Integer numeric square root. */
-numeric isqrt(const numeric & x)
+const numeric isqrt(const numeric & x)
 {
 	if (x.is_integer()) {
-		cl_I root;
-		::isqrt(The(::cl_I)(*x.value), &root);  // -> CLN
+		cln::cl_I root;
+		cln::isqrt(cln::the<cln::cl_I>(cln::cl_N(x)), &root);
 		return root;
 	} else
-		return _num0();  // Throw?
-}
-
-
-/** Greatest Common Divisor.
- *   
- *  @return  The GCD of two numbers if both are integer, a numerical 1
- *  if they are not. */
-numeric gcd(const numeric & a, const numeric & b)
-{
-	if (a.is_integer() && b.is_integer())
-		return ::gcd(The(::cl_I)(*a.value), The(::cl_I)(*b.value));  // -> CLN
-	else
-		return _num1();
-}
-
-
-/** Least Common Multiple.
- *   
- *  @return  The LCM of two numbers if both are integer, the product of those
- *  two numbers if they are not. */
-numeric lcm(const numeric & a, const numeric & b)
-{
-	if (a.is_integer() && b.is_integer())
-		return ::lcm(The(::cl_I)(*a.value), The(::cl_I)(*b.value));  // -> CLN
-	else
-		return *a.value * *b.value;
+		return _num0();
 }
 
 
 /** Floating point evaluation of Archimedes' constant Pi. */
 ex PiEvalf(void)
 { 
-	return numeric(::cl_pi(cl_default_float_format));  // -> CLN
+	return numeric(cln::pi(cln::default_float_format));
 }
 
 
 /** Floating point evaluation of Euler's constant gamma. */
 ex EulerEvalf(void)
 { 
-	return numeric(::cl_eulerconst(cl_default_float_format));  // -> CLN
+	return numeric(cln::eulerconst(cln::default_float_format));
 }
 
 
 /** Floating point evaluation of Catalan's constant. */
 ex CatalanEvalf(void)
 {
-	return numeric(::cl_catalanconst(cl_default_float_format));  // -> CLN
+	return numeric(cln::catalanconst(cln::default_float_format));
 }
 
 
-// It initializes to 17 digits, because in CLN cl_float_format(17) turns out to
-// be 61 (<64) while cl_float_format(18)=65.  We want to have a cl_LF instead 
+// It initializes to 17 digits, because in CLN float_format(17) turns out to
+// be 61 (<64) while float_format(18)=65.  We want to have a cl_LF instead 
 // of cl_SF, cl_FF or cl_DF but everything else is basically arbitrary.
 _numeric_digits::_numeric_digits()
   : digits(17)
 {
 	assert(!too_late);
 	too_late = true;
-	cl_default_float_format = ::cl_float_format(17);
+	cln::default_float_format = cln::float_format(17);
 }
 
 
 _numeric_digits& _numeric_digits::operator=(long prec)
 {
-	digits=prec;
-	cl_default_float_format = ::cl_float_format(prec); 
+	digits = prec;
+	cln::default_float_format = cln::float_format(prec); 
 	return *this;
 }
 

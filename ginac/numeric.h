@@ -27,8 +27,16 @@
 #include "basic.h"
 #include "ex.h"
 
-class cl_N;  // We want to include cln.h only in numeric.cpp in order to 
-             // avoid namespace pollution and keep compile-time low.
+#include <cln/number.h>
+// forward decln of cln::cl_N, since cln/complex_class.h is not included:
+namespace cln { class cl_N; }
+
+#if defined(G__CINTVERSION) && !defined(__MAKECINT__)
+// Cint @$#$! doesn't like forward declaring classes used for casting operators
+// so we have to include the definition of cln::cl_N here, but it is enough to
+// do so for the compiler, hence the !defined(__MAKECINT__).
+  #include <cln/complex_class.h>
+#endif
 
 #ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
@@ -66,35 +74,7 @@ class numeric : public basic
 	GINAC_DECLARE_REGISTERED_CLASS(numeric, basic)
 
 // friends
-	friend const numeric exp(const numeric & x);
-	friend const numeric log(const numeric & x);
-	friend const numeric sin(const numeric & x);
-	friend const numeric cos(const numeric & x);
-	friend const numeric tan(const numeric & x);
-	friend const numeric asin(const numeric & x);
-	friend const numeric acos(const numeric & x);
-	friend const numeric atan(const numeric & x);
-	friend const numeric atan(const numeric & y, const numeric & x);
-	friend const numeric sinh(const numeric & x);
-	friend const numeric cosh(const numeric & x);
-	friend const numeric tanh(const numeric & x);
-	friend const numeric asinh(const numeric & x);
-	friend const numeric acosh(const numeric & x);
-	friend const numeric atanh(const numeric & x);
-	friend const numeric Li2(const numeric & x);
-	friend const numeric zeta(const numeric & x);
-	friend const numeric fibonacci(const numeric & n);
-	friend numeric abs(const numeric & x);
-	friend numeric mod(const numeric & a, const numeric & b);
-	friend numeric smod(const numeric & a, const numeric & b);
-	friend numeric irem(const numeric & a, const numeric & b);
-	friend numeric irem(const numeric & a, const numeric & b, numeric & q);
-	friend numeric iquo(const numeric & a, const numeric & b);
-	friend numeric iquo(const numeric & a, const numeric & b, numeric & r);
-	friend numeric sqrt(const numeric & x);
-	friend numeric isqrt(const numeric & x);
-	friend numeric gcd(const numeric & a, const numeric & b);
-	friend numeric lcm(const numeric & a, const numeric & b);
+// (none)
 
 // member functions
 
@@ -118,7 +98,6 @@ public:
 	explicit numeric(long numer, long denom);
 	explicit numeric(double d);
 	explicit numeric(const char *);
-	numeric(const cl_N & z);
 	
 	// functions overriding virtual functions from bases classes
 public:
@@ -147,11 +126,11 @@ protected:
 
 	// non-virtual functions in this class
 public:
-	numeric add(const numeric & other) const;
-	numeric sub(const numeric & other) const;
-	numeric mul(const numeric & other) const;
-	numeric div(const numeric & other) const;
-	numeric power(const numeric & other) const;
+	const numeric add(const numeric & other) const;
+	const numeric sub(const numeric & other) const;
+	const numeric mul(const numeric & other) const;
+	const numeric div(const numeric & other) const;
+	const numeric power(const numeric & other) const;
 	const numeric & add_dyn(const numeric & other) const;
 	const numeric & sub_dyn(const numeric & other) const;
 	const numeric & mul_dyn(const numeric & other) const;
@@ -163,9 +142,8 @@ public:
 	const numeric & operator=(unsigned long i);
 	const numeric & operator=(double d);
 	const numeric & operator=(const char * s);
-	numeric inverse(void) const;
+	const numeric inverse(void) const;
 	int csgn(void) const;
-	::cl_N* clnptr(void) const { return value; } /**< ptr to representation. */
 	int compare(const numeric & other) const;
 	bool is_equal(const numeric & other) const;
 	bool is_zero(void) const;
@@ -195,12 +173,15 @@ public:
 	const numeric numer(void) const;
 	const numeric denom(void) const;
 	int int_length(void) const;
+	// converting routines for interfacing with CLN:
+	numeric(const cln::cl_N & z);
+	operator cln::cl_N() const;
 
 // member variables
 
 protected:
 	static unsigned precedence;
-	::cl_N *value;
+	cln::cl_number value;
 };
 
 // global constants
@@ -244,25 +225,24 @@ const numeric doublefactorial(const numeric & n);
 const numeric binomial(const numeric & n, const numeric & k);
 const numeric bernoulli(const numeric & n);
 const numeric fibonacci(const numeric & n);
-
-numeric abs(const numeric & x);
-numeric mod(const numeric & a, const numeric & b);
-numeric smod(const numeric & a, const numeric & b);
-numeric irem(const numeric & a, const numeric & b);
-numeric irem(const numeric & a, const numeric & b, numeric & q);
-numeric iquo(const numeric & a, const numeric & b);
-numeric iquo(const numeric & a, const numeric & b, numeric & r);
-numeric sqrt(const numeric & x);
-numeric isqrt(const numeric & x);
-
-numeric gcd(const numeric & a, const numeric & b);
-numeric lcm(const numeric & a, const numeric & b);
+const numeric abs(const numeric & x);
+const numeric isqrt(const numeric & x);
+const numeric sqrt(const numeric & x);
+const numeric abs(const numeric & x);
+const numeric mod(const numeric & a, const numeric & b);
+const numeric smod(const numeric & a, const numeric & b);
+const numeric irem(const numeric & a, const numeric & b);
+const numeric irem(const numeric & a, const numeric & b, numeric & q);
+const numeric iquo(const numeric & a, const numeric & b);
+const numeric iquo(const numeric & a, const numeric & b, numeric & r);
+const numeric gcd(const numeric & a, const numeric & b);
+const numeric lcm(const numeric & a, const numeric & b);
 
 // wrapper functions around member functions
-inline numeric pow(const numeric & x, const numeric & y)
+inline const numeric pow(const numeric & x, const numeric & y)
 { return x.power(y); }
 
-inline numeric inverse(const numeric & x)
+inline const numeric inverse(const numeric & x)
 { return x.inverse(); }
 
 inline int csgn(const numeric & x)
@@ -333,5 +313,10 @@ inline const numeric &ex_to_numeric(const ex &e)
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
 #endif // ndef NO_NAMESPACE_GINAC
+
+#ifdef __MAKECINT__
+#pragma link off defined_in cln/number.h;
+#pragma link off defined_in cln/complex_class.h;
+#endif
 
 #endif // ndef __GINAC_NUMERIC_H__

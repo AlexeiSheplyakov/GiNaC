@@ -18,10 +18,10 @@ dnl autoconf sees "AC_MAJOR_VERSION" and complains about an undefined macro
 dnl (don't we all *love* M4?)...
 
 GINACLIB_MAJOR_VERSION=0
-GINACLIB_MINOR_VERSION=6
-GINACLIB_MICRO_VERSION=4
+GINACLIB_MINOR_VERSION=7
+GINACLIB_MICRO_VERSION=0
 GINACLIB_INTERFACE_AGE=0
-GINACLIB_BINARY_AGE=1
+GINACLIB_BINARY_AGE=0
 GINACLIB_VERSION=$GINACLIB_MAJOR_VERSION.$GINACLIB_MINOR_VERSION.$GINACLIB_MICRO_VERSION
 
 AC_SUBST(GINACLIB_MAJOR_VERSION)
@@ -74,7 +74,6 @@ AC_PROG_YACC
 dnl Configure options.
 AC_ARG_ENABLE(html-doc, [  --enable-html-doc       build HTML documentation [default=no]], , enable_html_doc=no)
 AC_ARG_ENABLE(ps-doc,   [  --enable-ps-doc         build PostScript documentation [default=no]], , enable_ps_doc=no)
-AC_ARG_WITH(cint, [  --with-cint=CINTSYSDIR  build GiNaC-cint C++ interpreter [default=no]], , with_cint=no)
 
 dnl Check for data types which are needed by the hash function 
 dnl (golden_ratio_hash).
@@ -109,9 +108,13 @@ AC_CHECK_HEADERS(iostream vector map string list typeinfo iterator stdexcept alg
   AC_MSG_ERROR(need to have ANSI compliant headers))
 AC_CHECK_HEADERS(sstream strstream)
 
-dnl We need to have Bruno Haible's CLN installed (macros are in acinclude.m4):
-GINAC_CHECK_CLN_H
-GINAC_CHECK_LIBCLN
+dnl We need to have Bruno Haible's CLN installed.
+dnl (CLN versions >= 1.1.0 must have installed cln.m4 at a visible place,
+dnl which provides this macro):
+AC_PATH_LIBCLN(1.1.0, [
+  LIBS="$LIBS $LIBCLN_LIBS"
+  CPPFLAGS="$CPPFLAGS $LIBCLN_CPPFLAGS"
+], GINAC_ERROR([No suitable installed version of CLN could be found.]))
 
 dnl Expand the cppflags and libraries needed by apps using GiNaC
 GINACLIB_CPPFLAGS=$CPPFLAGS
@@ -147,6 +150,7 @@ AC_SUBST(TUTORIAL_TARGETS)
 AC_SUBST(REFERENCE_TARGETS)
 
 dnl Configure GiNaC-cint
+AC_ARG_WITH(cint, [  --with-cint=CINTSYSDIR  build GiNaC-cint C++ interpreter [default=no]], , with_cint=no)
 GINACCINTDIR=
 if test "x$with_cint" != "xno"; then
   if test "x$with_cint" = "xyes"; then
