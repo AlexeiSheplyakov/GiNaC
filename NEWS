@@ -1,6 +1,6 @@
 This file records noteworthy changes.
 
-0.9.1 (<date>)
+0.9.1 (27 June 2001)
 * Ctors of class numeric are not explicit any more.  All built-in callers for
   pseudofunctions are now templated and default to ex arguments which relaxes
   the need for explicit ctors.
