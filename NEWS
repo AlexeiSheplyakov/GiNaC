@@ -2,15 +2,16 @@ This file records noteworthy changes.
 
 0.8.1 (<date>)
 * degree(), ldegree(), coeff(), lcoeff(), tcoeff() and collect() can now
-  be used with constants and indexed expressions as well, so you can use
-  it to collect by powers of Pi or find the coefficient of gamma~0.
+  be used with constants, functions and indexed expressions as well, so you
+  can use it to collect by powers of Pi or sin(x), or to find the coefficient
+  of gamma~0.
   Limitations:
-   - it only works with symbols, constants and indexed expressions;
+   - it only works with symbols, constants, functions and indexed expressions;
      trying to find the coefficient of, e.g., "x^2" or "x+y" won't work
    - it does not know about dummy index summations; the coefficient of
      gamma~0 in p.mu*gamma~mu should be p.0 but is returned as 0
-   - using the functions on elements of noncommutative products might
-     return wrong or surprising results
+   - using coeff(), tcoeff(), lcoeff() or collect() on elements of
+     noncommutative products might return wrong or surprising results
 * Added preliminary (re)implementations of color and clifford classes.
 * simplify_indexed(): contraction of symmetric and antisymmetric tensors
   is zero.
