@@ -7,6 +7,9 @@ This file records noteworthy changes.
   result is either a recursively collected polynomial, or a polynomial in
   a distributed form with terms like coeff*x1^e1*...*xn^en, as specified by
   the second argument to collect().
+* Several bugfixes (including a nasty memory leak in .normal()).
+* class matrix: solve() doesn't call algorithms redundantly any more and
+  inverse() falls back to solve() which works in more general cases.
 
 0.8.1 (16 April 2001)
 * degree(), ldegree(), coeff(), lcoeff(), tcoeff() and collect() can now
