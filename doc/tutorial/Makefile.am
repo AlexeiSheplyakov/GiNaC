@@ -31,8 +31,7 @@ ginac.dvi: $(EPS)
 ginac.html: ginac.texi version.texi $(PNG)
 	$(MAKEINFO) --html $< -I ${srcdir}
 
-ginacdocdir = $(datadir)/doc/GiNaC
-ginactutorialdir = $(ginacdocdir)/tutorial
+ginactutorialdir = `test -z "@TUTORIAL_TARGETS@" || echo @datadir@/doc/GiNaC/tutorial`
 ginactutorial_DATA = @TUTORIAL_TARGETS@
 
 CLEANFILES = $(EPS) $(PNG) ginac.html

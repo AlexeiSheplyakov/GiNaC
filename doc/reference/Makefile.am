@@ -45,8 +45,7 @@ latex/reference.ps: latex/reference.dvi
 reference.ps: latex latex/reference.ps
 	cp ${srcdir}/latex/reference.ps reference.ps
 
-ginacdocdir = $(datadir)/doc/GiNaC
-ginacreferencedir = $(ginacdocdir)/reference
+ginacreferencedir = `test -z "@REFERENCE_TARGETS@" || echo @datadir@/doc/GiNaC/reference`
 ginacreference_DATA = @REFERENCE_TARGETS@
 
 CLEANFILES = *.html *.gif doxygen.css *.ps latex/*
