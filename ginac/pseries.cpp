@@ -798,8 +798,7 @@ ex mul::series(const relational & r, int order, unsigned options) const
 		int real_ldegree = 0;
 		try {
 			real_ldegree = buf.expand().ldegree(sym-r.rhs());
-		}
-		catch (std::runtime_error) {}
+		} catch (std::runtime_error) {}
 
 		if (real_ldegree == 0) {
 			int orderloop = 0;
@@ -814,7 +813,7 @@ ex mul::series(const relational & r, int order, unsigned options) const
 
 	int degsum = std::accumulate(ldegrees.begin(), ldegrees.end(), 0);
 
-	if (degsum>order) {
+	if (degsum >= order) {
 		epvector epv;
 		epv.push_back(expair(Order(_ex1), order));
 		return (new pseries(r, epv))->setflag(status_flags::dynallocated);
@@ -828,7 +827,7 @@ ex mul::series(const relational & r, int order, unsigned options) const
 		ex op = recombine_pair_to_ex(*it).series(r, order-degsum+(*itd), options);
 
 		// Series multiplication
-		if (it==itbeg)
+		if (it == itbeg)
 			acc = ex_to<pseries>(op);
 		else
 			acc = ex_to<pseries>(acc.mul_series(ex_to<pseries>(op)));
