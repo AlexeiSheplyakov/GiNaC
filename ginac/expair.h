@@ -3,7 +3,7 @@
  *  Definition of expression pairs (building blocks of expairseq). */
 
 /*
- *  GiNaC Copyright (C) 1999-2002 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by

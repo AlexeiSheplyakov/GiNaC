@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's clifford algebra (Dirac gamma) objects. */
 
 /*
- *  GiNaC Copyright (C) 1999-2002 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -210,6 +210,8 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 	unsigned char rl = ex_to<clifford>(*self).get_representation_label();
 	ex dim = ex_to<idx>(self->op(1)).get_dim();
 
+      if (other->nops() > 1)
+              dim = minimal_dim(dim, ex_to<idx>(self->op(1)).get_dim());
 	if (is_a<clifford>(*other)) {
 
 		// Contraction only makes sense if the represenation labels are equal
@@ -439,7 +441,7 @@ ex clifford::simplify_ncmul(const exvector & v) const
 			} else if (!a_is_diracgamma && !b_is_diracgamma && ag.is_equal(bg)) {
 
 				// a\ a\ -> a^2
-				varidx ix((new symbol)->setflag(status_flags::dynallocated), ex_to<idx>(a.op(1)).get_dim());
+				varidx ix((new symbol)->setflag(status_flags::dynallocated), ex_to<idx>(a.op(1)).minimal_dim(ex_to<idx>(b.op(1))));
 				a = indexed(ag, ix) * indexed(ag, ix.toggle_variance());
 				b = dirac_ONE(representation_label);
 				something_changed = true;
