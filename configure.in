@@ -3,6 +3,10 @@ dnl Process this file with autoconf to produce a configure script.
 AC_INIT(ginac/basic.cpp)
 AC_PREREQ(2.12)
 
+dnl Configure options
+AC_ARG_ENABLE(html-doc, [  --enable-help-doc       build HTML documentation [default=yes]], , enable_html_doc=yes)
+AC_ARG_ENABLE(ps-doc,   [  --enable-ps-doc         build PostScript documentation [default=no]], , enable_ps_doc=no)
+
 dnl GiNaC version information
 dnl
 dnl Making releases:
@@ -84,15 +88,30 @@ dnl Check for utilities needed by the different kinds of documentation.
 dnl Documantation needs only be built when extending it, so never mind if it
 dnl cannot find those helpers:
 AC_PATH_PROG(DOXYGEN, doxygen, "")
+AC_PATH_PROG(JADE, jade, "")
+AC_PATH_PROG(JADETEX, jadetex, "")
 AC_PATH_PROG(LATEX, latex, "")
 AC_PATH_PROG(MAKEINDEX, makeindex, "")
 AC_PATH_PROG(DVIPS, dvips, "")
 AC_PATH_PROG(FIG2DEV, fig2dev, "")
-AC_PATH_PROG(JADE, jade, "")
-AC_PATH_PROG(JADETEX, jadetex, "")
+
+dnl Determine which documentation shall be built
+TUTORIAL_TARGETS=
+REFERENCE_TARGETS=
+if [[ "x$enable_html_doc" = "xyes" ]]; then
+  TUTORIAL_TARGETS="$TUTORIAL_TARGETS index.html"
+  REFERENCE_TARGETS="$REFERENCE_TARGETS index.html"
+fi
+if [[ "x$enable_ps_doc" = "xyes" ]]; then
+# currently doesn't work
+#  TUTORIAL_TARGETS="$TUTORIAL_TARGETS tutorial.ps"
+  REFERENCE_TARGETS="$REFERENCE_TARGETS reference.ps"
+fi
+AC_SUBST(TUTORIAL_TARGETS)
+AC_SUBST(REFERENCE_TARGETS)
 
 dnl ===========================================================================
 dnl Produce a Makefile from Makefile.in:
 dnl ===========================================================================
-AC_OUTPUT([Makefile ginac/Makefile check/Makefile ginsh/Makefile doc/Makefile])
+AC_OUTPUT([Makefile ginac/Makefile check/Makefile ginsh/Makefile doc/Makefile doc/tutorial/Makefile doc/reference/Makefile])
 echo "Configuration done. Now type \"make\"."
