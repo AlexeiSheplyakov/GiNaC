@@ -21,6 +21,7 @@
  */
 
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 
 #include "idx.h"
@@ -546,8 +547,11 @@ ex minimal_dim(const ex & dim1, const ex & dim2)
 		return dim1;
 	else if (dim1 > dim2 || (is_a<symbol>(dim1) && is_exactly_a<numeric>(dim2)))
 		return dim2;
-	else
-		throw (std::runtime_error("minimal_dim(): index dimensions cannot be ordered"));
+	else {
+		std::ostringstream s;
+		s << "minimal_dim(): index dimensions " << dim1 << " and " << dim2 << " cannot be ordered";
+		throw (std::runtime_error(s.str()));
+	}
 }
 
 } // namespace GiNaC
