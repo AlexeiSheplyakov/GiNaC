@@ -112,3 +112,5 @@ to compile, install and work properly:
  < 5.14.39    | `VERBOTEN' by license (please bite your favorite lawyer)
  < 5.14.60    | since GiNaC version 0.7, these do not compile any more
    5.14.62-72 | compiles fine, works well with GCC 2.95.x.  GCC3 no go.
+   5.14.74    | requires defining -DG__LONGBUF in SYSMACRO and OTHMACRO.
+   5.14.75-76 | compiles fine, works well with GCC 2.95.x.  GCC3 no go.

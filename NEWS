@@ -1,5 +1,8 @@
 This file records noteworthy changes.
 
+0.7.2 (17 February 2001)
+* Several bugfixes in power series expansion, one of them critical.
+
 0.7.1 (7 February 2001)
 * Fix problems with Cint that were caused by CLN's overloaded operator new.
 * Fix compilation errors with GCC3.
