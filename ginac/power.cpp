@@ -490,7 +490,7 @@ ex power::evalf(int level) const
 		throw(std::runtime_error("max recursion level reached"));
 	} else {
 		ebasis = basis.evalf(level-1);
-		if (!is_ex_exactly_of_type(eexponent,numeric))
+		if (!is_ex_exactly_of_type(exponent,numeric))
 			eexponent = exponent.evalf(level-1);
 		else
 			eexponent = exponent;
