@@ -168,7 +168,10 @@ void pseries::print(const print_context & c, unsigned level) const
 				}
 				// print 'coeff', something like (x-1)^42
 				if (!i->coeff.is_zero()) {
-					c.s << '*';
+					if (is_of_type(c, print_latex))
+						c.s << ' ';
+					else
+						c.s << '*';
 					if (!point.is_zero()) {
 						c.s << par_open;
 						(var-point).print(c);
