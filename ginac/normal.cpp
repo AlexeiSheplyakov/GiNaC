@@ -84,7 +84,7 @@ static struct _stat_print {
 #endif
 
 
-/** Return pointer to first symbol found in expression.  Due to GiNaC´s
+/** Return pointer to first symbol found in expression.  Due to GiNaC's
  *  internal ordering of terms, it may not be obvious which symbol this
  *  function returns for a given expression.
  *
@@ -1519,7 +1519,7 @@ ex lcm(const ex &a, const ex &b, bool check_args)
  */
 
 /** Compute square-free factorization of multivariate polynomial a(x) using
- *  Yun´s algorithm.  Used internally by sqrfree().
+ *  Yun's algorithm.  Used internally by sqrfree().
  *
  *  @param a  multivariate polynomial over Z[X], treated here as univariate
  *            polynomial in x.
