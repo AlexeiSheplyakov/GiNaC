@@ -1112,10 +1112,8 @@ factored_a:
 		}
 		if (ca)
 			*ca = acc_ca;
-		if (cb) {
-			if (!divide(b, g, *cb))
-                throw(std::runtime_error("invalid expression in gcd(), division failed"));
-		}
+		if (cb)
+			*cb = part_b;
 		return g;
 	} else if (is_ex_exactly_of_type(b, mul)) {
 		if (is_ex_exactly_of_type(a, mul) && a.nops() > b.nops())
@@ -1130,10 +1128,8 @@ factored_b:
 			acc_cb *= part_cb;
 			part_a = part_ca;
 		}
-		if (ca) {
-			if (!divide(a, g, *ca))
-                throw(std::runtime_error("invalid expression in gcd(), division failed"));
-		}
+		if (ca)
+			*ca = part_a;
 		if (cb)
 			*cb = acc_cb;
 		return g;
