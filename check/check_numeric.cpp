@@ -81,7 +81,7 @@ static unsigned check_numeric2(void)
 				     << radical << endl;
 				errorflag = true;
 			}
-			numeric ratio = ex_to<numeric>(abs(evalf(radical)))/floating;
+			numeric ratio = abs(ex_to<numeric>(evalf(radical))/floating);
 			if (ratio>1.0001 && ratio<0.9999) {
 				clog << "(" << num << "/" << den << ")^(" << nm
 				     << ") erroneously evaluated to " << radical;
