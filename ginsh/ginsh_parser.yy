@@ -722,21 +722,24 @@ static char **fcn_completion(char *text, int start, int end)
 	}
 }
 
+void greeting(void)
+{
+    cout << "ginsh - GiNaC Interactive Shell (" << PACKAGE << " V" << VERSION << ")" << endl;
+    cout << "  __,  _______  Copyright (C) 1999-2000 Johannes Gutenberg University Mainz,\n"
+         << " (__) *       | Germany.  This is free software with ABSOLUTELY NO WARRANTY.\n"
+         << "  ._) i N a C | You are welcome to redistribute it under certain conditions;\n"
+         << "<-------------' see the file COPYING for details." << endl;
+    cout << "Type ?? for a list of help topics." << endl;
+}
 
 /*
  *  Main program
  */
-
 int main(int argc, char **argv)
 {
 	// Print banner in interactive mode
-	if (isatty(0)) {
-		cout << "ginsh - GiNaC Interactive Shell (" << PACKAGE << " " << VERSION << ")\n";
-		cout << "Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany\n";
-		cout << "This is free software with ABSOLUTELY NO WARRANTY.  You are welcome to\n";
-		cout << "redistribute it under certain conditions; see the file COPYING for details.\n";
-		cout << "Type ?? for a list of help topics.\n";
-	}
+	if (isatty(0)) 
+		greeting();
 
 	// Init function table
 	insert_fcns(builtin_fcns);
