@@ -36,6 +36,20 @@ namespace GiNaC {
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(symmetry, basic)
 
+/*
+   Some notes about the structure of a symmetry tree:
+    - The leaf nodes of the tree are of type "none", have one index, and no
+      children (of course). They are constructed by the symmetry(unsigned)
+      constructor.
+    - Leaf nodes are the only nodes that only have one index.
+    - Container nodes contain two or more children. The "indices" set member
+      is the set union of the index sets of all children, and the "children"
+      vector stores the children themselves.
+    - The index set of each child of a "symm", "anti" or "cycl" node must
+      have the same size. It follows that the children of such a node are
+      either all leaf nodes, or all container nodes with two or more indices.
+*/
+
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
 //////////
@@ -151,27 +165,61 @@ void symmetry::print(const print_context & c, unsigned level = 0) const
 {
 	debugmsg("symmetry print", LOGLEVEL_PRINT);
 
-	if (children.empty()) {
-		if (indices.size() > 0)
-			c.s << *(indices.begin());
-		else
-			c.s << "none";
-	} else {
+	if (is_of_type(c, print_tree)) {
+
+		c.s << std::string(level, ' ') << class_name()
+		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+		    << ", type=";
+
 		switch (type) {
-			case none: c.s << '!'; break;
-			case symmetric: c.s << '+'; break;
-			case antisymmetric: c.s << '-'; break;
-			case cyclic: c.s << '@'; break;
-			default: c.s << '?'; break;
+			case none: c.s << "none"; break;
+			case symmetric: c.s << "symm"; break;
+			case antisymmetric: c.s << "anti"; break;
+			case cyclic: c.s << "cycl"; break;
+			default: c.s << "<unknown>"; break;
 		}
-		c.s << '(';
-		unsigned num = children.size();
-		for (unsigned i=0; i<num; i++) {
-			children[i].print(c);
-			if (i != num - 1)
-				c.s << ",";
+
+		c.s << ", indices=(";
+		if (!indices.empty()) {
+			std::set<unsigned>::const_iterator i = indices.begin(), end = indices.end();
+			--end;
+			while (i != end)
+				c.s << *i++ << ",";
+			c.s << *i;
 		}
-		c.s << ')';
+		c.s << ")\n";
+
+		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
+		exvector::const_iterator i = children.begin(), end = children.end();
+		while (i != end) {
+			i->print(c, level + delta_indent);
+			++i;
+		}
+
+	} else {
+
+		if (children.empty()) {
+			if (indices.size() > 0)
+				c.s << *(indices.begin());
+			else
+				c.s << "none";
+		} else {
+			switch (type) {
+				case none: c.s << '!'; break;
+				case symmetric: c.s << '+'; break;
+				case antisymmetric: c.s << '-'; break;
+				case cyclic: c.s << '@'; break;
+				default: c.s << '?'; break;
+			}
+			c.s << '(';
+			unsigned num = children.size();
+			for (unsigned i=0; i<num; i++) {
+				children[i].print(c);
+				if (i != num - 1)
+					c.s << ",";
+			}
+			c.s << ')';
+		}
 	}
 }
 
@@ -264,8 +312,8 @@ public:
 
 int canonicalize(exvector::iterator v, const symmetry &symm)
 {
-	// No children? Then do nothing
-	if (symm.children.empty())
+	// Less than two indices? Then do nothing
+	if (symm.indices.size() < 2)
 		return INT_MAX;
 
 	// Canonicalize children first
