@@ -136,8 +136,10 @@ static unsigned epsilon_check(void)
 	// contraction with symmetric tensor is zero
 	result += check_equal_simplify(lorentz_eps(mu, nu, rho, sigma) * indexed(d, sy_symm(), mu_co, nu_co), 0);
 	result += check_equal_simplify(lorentz_eps(mu, nu, rho, sigma) * indexed(d, sy_symm(), nu_co, sigma_co, rho_co), 0);
-	ex e = lorentz_eps(mu, nu, rho, sigma) * indexed(d, sy_symm(), mu_co, tau);
-	result += check_equal_simplify(e, e);
+	result += check_equal_simplify(lorentz_eps(mu, nu, rho, sigma) * indexed(d, mu_co) * indexed(d, nu_co), 0);
+	result += check_equal_simplify(lorentz_eps(mu_co, nu, rho, sigma) * indexed(d, mu) * indexed(d, nu_co), 0);
+	ex e = lorentz_eps(mu, nu, rho, sigma) * indexed(d, mu_co) - lorentz_eps(mu_co, nu, rho, sigma) * indexed(d, mu);
+	result += check_equal_simplify(e, 0);
 
 	// contractions of epsilon tensors
 	result += check_equal_simplify(lorentz_eps(mu, nu, rho, sigma) * lorentz_eps(mu_co, nu_co, rho_co, sigma_co), -24);
@@ -305,7 +307,7 @@ static unsigned spinor_check(void)
 	unsigned result = 0;
 
 	symbol psi("psi");
-	spinidx A(symbol("A"), 2), B(symbol("B"), 2), C(symbol("C"), 2);
+	spinidx A(symbol("A")), B(symbol("B")), C(symbol("C")), D(symbol("D"));
 	ex A_co = A.toggle_variance(), B_co = B.toggle_variance();
 	ex e;
 
@@ -327,6 +329,8 @@ static unsigned spinor_check(void)
 	result += check_equal_simplify(e, -indexed(psi, A_co));
 	e = spinor_metric(A_co, B_co) * indexed(psi, A);
 	result += check_equal_simplify(e, indexed(psi, B_co));
+	e = spinor_metric(D, A) * spinor_metric(A_co, B_co) * spinor_metric(B, C) - spinor_metric(D, A_co) * spinor_metric(A, B_co) * spinor_metric(B, C);
+	result += check_equal_simplify(e, 0);
 
 	return result;
 }

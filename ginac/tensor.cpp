@@ -510,7 +510,7 @@ bool tensepsilon::contract_with(exvector::iterator self, exvector::iterator othe
 
 	} else if (other->return_type() == return_types::commutative) {
 
-#if 1
+#if 0
 		// This handles eps.i.j.k * p.j * p.k = 0 and related cases.
 		// Actually, simplify_indexed() can handle most of them on its own
 		// but one specific case that is not covered there is

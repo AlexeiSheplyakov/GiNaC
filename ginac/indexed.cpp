@@ -29,6 +29,7 @@
 #include "mul.h"
 #include "ncmul.h"
 #include "power.h"
+#include "relational.h"
 #include "symmetry.h"
 #include "lst.h"
 #include "print.h"
@@ -553,6 +554,14 @@ static ex rename_dummy_indices(const ex & e, exvector & global_dummy_indices, ex
 	}
 }
 
+/* Ordering that only compares the base expressions of indexed objects. */
+struct ex_base_is_less : public std::binary_function<ex, ex, bool> {
+	bool operator() (const ex &lh, const ex &rh) const
+	{
+		return (is_a<indexed>(lh) ? lh.op(0) : lh).compare(is_a<indexed>(rh) ? rh.op(0) : rh) < 0;
+	}
+};
+
 /** Simplify product of indexed expressions (commutative, noncommutative and
  *  simple squares), return list of free indices. */
 ex simplify_indexed_product(const ex & e, exvector & free_indices, exvector & dummy_indices, const scalar_products & sp)
@@ -670,8 +679,7 @@ contraction_done:
 	// Find free indices (concatenate them all and call find_free_and_dummy())
 	// and all dummy indices that appear
 	exvector un, individual_dummy_indices;
-	it1 = v.begin(); itend = v.end();
-	while (it1 != itend) {
+	for (it1 = v.begin(), itend = v.end(); it1 != itend; ++it1) {
 		exvector free_indices_of_factor;
 		if (is_ex_of_type(*it1, indexed)) {
 			exvector dummy_indices_of_factor;
@@ -680,11 +688,75 @@ contraction_done:
 		} else
 			free_indices_of_factor = it1->get_free_indices();
 		un.insert(un.end(), free_indices_of_factor.begin(), free_indices_of_factor.end());
-		it1++;
 	}
 	exvector local_dummy_indices;
 	find_free_and_dummy(un, free_indices, local_dummy_indices);
 	local_dummy_indices.insert(local_dummy_indices.end(), individual_dummy_indices.begin(), individual_dummy_indices.end());
+
+	// Filter out the dummy indices with variance
+	exvector variant_dummy_indices;
+	for (it1 = local_dummy_indices.begin(), itend = local_dummy_indices.end(); it1 != itend; ++it1) {
+		if (is_exactly_a<varidx>(*it1))
+			variant_dummy_indices.push_back(*it1);
+	}
+
+	// Any indices with variance present at all?
+	if (!variant_dummy_indices.empty()) {
+
+		// Yes, bring the product into a canonical order that only depends on
+		// the base expressions of indexed objects
+		if (!non_commutative)
+			std::sort(v.begin(), v.end(), ex_base_is_less());
+
+		exvector moved_indices;
+
+		// Iterate over all indexed objects in the product
+		for (it1 = v.begin(), itend = v.end(); it1 != itend; ++it1) {
+			if (!is_ex_of_type(*it1, indexed))
+				continue;
+
+			ex new_it1;
+			bool it1_dirty = false; // It this is true, then new_it1 holds a new value for *it1
+
+			// If a dummy index is encountered for the first time in the
+			// product, pull it up, otherwise, pull it down
+			exvector::iterator it2, it2end;
+			for (it2 = const_cast<indexed &>(ex_to<indexed>(*it1)).seq.begin(), it2end = const_cast<indexed &>(ex_to<indexed>(*it1)).seq.end(); it2 != it2end; ++it2) {
+				if (!is_exactly_a<varidx>(*it2))
+					continue;
+
+				exvector::iterator vit, vitend;
+				for (vit = variant_dummy_indices.begin(), vitend = variant_dummy_indices.end(); vit != vitend; ++vit) {
+					if (it2->op(0).is_equal(vit->op(0))) {
+						if (ex_to<varidx>(*it2).is_covariant()) {
+							new_it1 = (it1_dirty ? new_it1 : *it1).subs(*it2 == ex_to<varidx>(*it2).toggle_variance());
+							it1_dirty = true;
+							something_changed = true;
+						}
+						moved_indices.push_back(*vit);
+						variant_dummy_indices.erase(vit);
+						goto next_index;
+					}
+				}
+
+				for (vit = moved_indices.begin(), vitend = moved_indices.end(); vit != vitend; ++vit) {
+					if (it2->op(0).is_equal(vit->op(0))) {
+						if (ex_to<varidx>(*it2).is_contravariant()) {
+							new_it1 = (it1_dirty ? new_it1 : *it1).subs(*it2 == ex_to<varidx>(*it2).toggle_variance());
+							it1_dirty = true;
+							something_changed = true;
+						}
+						goto next_index;
+					}
+				}
+
+next_index:		;
+			}
+
+			if (it1_dirty)
+				*it1 = new_it1;
+		}
+	}
 
 	ex r;
 	if (something_changed)
