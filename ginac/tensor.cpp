@@ -308,7 +308,7 @@ ex tensepsilon::eval_indexed(const basic & i) const
 
 		// Get sign of index permutation (the indices should already be in
 		// a canonic order but we can't assume what exactly that order is)
-		vector<int> v;
+		std::vector<int> v;
 		v.reserve(i.nops() - 1);
 		for (unsigned j=1; j<i.nops(); j++)
 			v.push_back(ex_to_numeric(ex_to_idx(i.op(j)).get_value()).to_int());
