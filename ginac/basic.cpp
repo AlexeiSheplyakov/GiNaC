@@ -745,7 +745,7 @@ ex basic::expand(unsigned options) const
 ex basic::subs(const ex & e, unsigned options) const
 {
 	if (e.info(info_flags::relation_equal)) {
-		return subs(lst(e), options);
+		return subs(lst(e.lhs()), lst(e.rhs()), options);
 	}
 	if (!e.info(info_flags::list)) {
 		throw(std::invalid_argument("basic::subs(ex): argument must be a list"));
