@@ -113,7 +113,7 @@ static unsigned color_check3()
 
 	unsigned result = 0;
 
-	idx a(symbol("a"), 8), b(symbol("b"), 8), c(symbol("c"), 8), k(symbol("k"), 8);
+	idx a(symbol("a"), 8), b(symbol("b"), 8), c(symbol("c"), 8);
 	ex e;
 
 	e = color_ONE();
@@ -124,6 +124,18 @@ static unsigned color_check3()
 	result += check_equal(color_trace(e), delta_tensor(a, b) / 2);
 	e = color_T(a) * color_T(b) * color_T(c);
 	result += check_equal(color_trace(e), color_h(a, b, c) / 4);
+
+	e = color_ONE(0) * color_ONE(1) / 9;
+	result += check_equal(color_trace(e, 0), color_ONE(1) / 3);
+	result += check_equal(color_trace(e, 1), color_ONE(0) / 3);
+	result += check_equal(color_trace(e, 2), e);
+	result += check_equal(color_trace(e, lst(0, 1)), 1);
+
+	e = color_T(a, 0) * color_T(a, 1) * color_T(b, 0) * color_T(b, 1);
+	result += check_equal_simplify(color_trace(e, 0), 2 * color_ONE(1) / 3);
+	result += check_equal_simplify(color_trace(e, 1), 2 * color_ONE(0) / 3);
+	result += check_equal_simplify(color_trace(e, 2), e);
+	result += check_equal_simplify(color_trace(e, lst(0, 1)), 2);
 
 	return result;
 }

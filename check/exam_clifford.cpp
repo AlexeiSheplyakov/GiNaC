@@ -184,6 +184,19 @@ static unsigned clifford_check3()
 	e = dirac_trace(e);
 	result += check_equal(e, 4);
 
+	// traces with multiple representation labels
+	e = dirac_ONE(0) * dirac_ONE(1) / 16;
+	result += check_equal(dirac_trace(e, 0), dirac_ONE(1) / 4);
+	result += check_equal(dirac_trace(e, 1), dirac_ONE(0) / 4);
+	result += check_equal(dirac_trace(e, 2), e);
+	result += check_equal(dirac_trace(e, lst(0, 1)), 1);
+
+	e = dirac_gamma(mu, 0) * dirac_gamma(mu.toggle_variance(), 1) * dirac_gamma(nu, 0) * dirac_gamma(nu.toggle_variance(), 1);
+	result += check_equal_simplify(dirac_trace(e, 0), 4 * dim * dirac_ONE(1));
+	result += check_equal_simplify(dirac_trace(e, 1), 4 * dim * dirac_ONE(0));
+	result += check_equal_simplify(dirac_trace(e, 2), e);
+	result += check_equal_simplify(dirac_trace(e, lst(0, 1)), 16 * dim);
+
 	return result;
 }
 
