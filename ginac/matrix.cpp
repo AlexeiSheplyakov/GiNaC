@@ -456,6 +456,7 @@ ex matrix::determinant(void) const
     if (this->row==1)  // continuation would be pointless
         return m[0];
     
+    // Gather some information about the matrix:
     bool numeric_flag = true;
     bool normal_flag = false;
     unsigned sparse_count = 0;  // count non-zero elements
@@ -469,9 +470,17 @@ ex matrix::determinant(void) const
             normal_flag = true;
     }
     
-    if (numeric_flag)  // purely numeric matrix
-        return determinant_numeric();
-    // Does anybody really know when a matrix is sparse?
+    // Purely numeric matrix handled by Gauss elimination
+    if (numeric_flag) {
+        ex det = 1;
+        matrix tmp(*this);
+        int sign = tmp.gauss_elimination();
+        for (int d=0; d<row; ++d)
+            det *= tmp.m[d*col+d];
+        return (sign*det);
+    }
+    
+    // Does anybody know when a matrix is really sparse?
     // Maybe <~row/2.2 nonzero elements average in a row?
     if (5*sparse_count<=row*col) {
         // copy *this:
@@ -640,7 +649,7 @@ matrix matrix::inverse(void) const
 }
 
 
-// superfluous helper function
+// superfluous helper function, to be removed:
 void matrix::ffe_swap(unsigned r1, unsigned c1, unsigned r2 ,unsigned c2)
 {
     ensure_if_modifiable();
@@ -650,13 +659,13 @@ void matrix::ffe_swap(unsigned r1, unsigned c1, unsigned r2 ,unsigned c2)
     ffe_set(r2,c2,tmp);
 }
 
-// superfluous helper function
+// superfluous helper function, to be removed:
 void matrix::ffe_set(unsigned r, unsigned c, ex e)
 {
     set(r-1,c-1,e);
 }
 
-// superfluous helper function
+// superfluous helper function, to be removed:
 ex matrix::ffe_get(unsigned r, unsigned c) const
 {
     return operator()(r-1,c-1);
@@ -860,35 +869,6 @@ matrix matrix::old_solve(const matrix & v) const
 
 // protected
 
-/** Determinant of purely numeric matrix, using pivoting.
- *
- *  @see       matrix::determinant() */
-ex matrix::determinant_numeric(void) const
-{
-    matrix tmp(*this);
-    ex det = _ex1();
-    ex piv;
-    
-    // standard Gauss method:
-    for (unsigned r1=0; r1<row; ++r1) {
-        int indx = tmp.pivot(r1);
-        if (indx == -1)
-            return _ex0();
-        if (indx != 0)
-            det *= _ex_1();
-        det = det * tmp.m[r1*col+r1];
-        for (unsigned r2=r1+1; r2<row; ++r2) {
-            piv = tmp.m[r2*col+r1] / tmp.m[r1*col+r1];
-            for (unsigned c=r1+1; c<col; c++) {
-                tmp.m[r2*col+c] -= piv * tmp.m[r1*col+c];
-            }
-        }
-    }
-    
-    return det;
-}
-
-
 /** Recursive determinant for small matrices having at least one symbolic
  *  entry.  The basic algorithm, known as Laplace-expansion, is enhanced by
  *  some bookkeeping to avoid calculation of the same submatrices ("minors")
@@ -1016,8 +996,9 @@ ex matrix::determinant_minor(void) const
  *  number of rows was swapped and 0 if the matrix is singular. */
 int matrix::gauss_elimination(void)
 {
-    int sign = 1;
     ensure_if_modifiable();
+    int sign = 1;
+    ex piv;
     for (unsigned r1=0; r1<row-1; ++r1) {
         int indx = pivot(r1);
         if (indx == -1)
@@ -1025,8 +1006,9 @@ int matrix::gauss_elimination(void)
         if (indx > 0)
             sign = -sign;
         for (unsigned r2=r1+1; r2<row; ++r2) {
+            piv = this->m[r2*col+r1] / this->m[r1*col+r1];
             for (unsigned c=r1+1; c<col; ++c)
-                this->m[r2*col+c] -= this->m[r2*col+r1]*this->m[r1*col+c]/this->m[r1*col+r1];
+                this->m[r2*col+c] -= piv * this->m[r1*col+c];
             for (unsigned c=0; c<=r1; ++c)
                 this->m[r2*col+c] = _ex0();
         }
@@ -1130,7 +1112,6 @@ int matrix::fraction_free_elimination(bool det)
     }
     
     for (unsigned r1=0; r1<row-1; ++r1) {
-//         cout << "==<" << r1 << ">" << string(60,'=') << endl;
         int indx = tmp_n.pivot(r1);
         if (det && indx==-1)
             return 0;  // FIXME: what to do if det is false?
@@ -1140,8 +1121,6 @@ int matrix::fraction_free_elimination(bool det)
             for (unsigned c=0; c<col; ++c)
                 tmp_d.m[row*indx+c].swap(tmp_d.m[row*r1+c]);
         }
-//         cout << tmp_n << endl;
-//         cout << tmp_d << endl;
         if (r1>0) {
             divisor_n = tmp_n.m[(r1-1)*col+(r1-1)].expand();
             divisor_d = tmp_d.m[(r1-1)*col+(r1-1)].expand();
@@ -1161,12 +1140,6 @@ int matrix::fraction_free_elimination(bool det)
                               tmp_d.m[r1*col+r1]*tmp_d.m[r2*col+c]).expand();
                 dividend_d = (tmp_d.m[r2*col+r1]*tmp_d.m[r1*col+c]*
                               tmp_d.m[r1*col+r1]*tmp_d.m[r2*col+c]).expand();
-//                 cout << "Element " << r2 << ',' << c << endl;
-//                 cout << "dividend_n==" << dividend_n << endl;
-//                 cout << "dividend_d==" << dividend_d << endl;
-//                 cout << " divisor_n==" << divisor_n << endl;
-//                 cout << " divisor_d==" << divisor_d << endl;
-//                 cout << string(20,'-') << endl;
                 bool check = divide(dividend_n, divisor_n,
                                     tmp_n.m[r2*col+c],true);
                 check &= divide(dividend_d, divisor_d,
@@ -1177,8 +1150,6 @@ int matrix::fraction_free_elimination(bool det)
             for (unsigned c=0; c<=r1; ++c)
                 tmp_n.m[r2*col+c] = _ex0();
         }
-//         cout << tmp_n << endl;
-//         cout << tmp_d << endl;        
     }
     // repopulate *this matrix:
     it = m.begin();
@@ -1191,7 +1162,7 @@ int matrix::fraction_free_elimination(bool det)
 }
 
 
-/** Partial pivoting method.
+/** Partial pivoting method for matrix elimination schemes.
  *  Usual pivoting (symbolic==false) returns the index to the element with the
  *  largest absolute value in column ro and swaps the current row with the one
  *  where the element was found.  With (symbolic==true) it does the same thing

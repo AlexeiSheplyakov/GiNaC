@@ -95,7 +95,6 @@ public:
     matrix solve(const matrix & vars, const matrix & rhs) const;
     matrix old_solve(const matrix & v) const;  // FIXME: may be removed
 protected:
-    ex determinant_numeric(void) const;
     ex determinant_minor(void) const;
     int gauss_elimination(void);
     int division_free_elimination(void);
