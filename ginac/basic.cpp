@@ -117,7 +117,7 @@ void basic::archive(archive_node &n) const
 void basic::print(std::ostream & os, unsigned upper_precedence) const
 {
 	debugmsg("basic print",LOGLEVEL_PRINT);
-	os << "[basic object]";
+	os << "[" << class_name() << " object]";
 }
 
 /** Output to ostream in ugly raw format, so brave developers can have a look
@@ -125,7 +125,7 @@ void basic::print(std::ostream & os, unsigned upper_precedence) const
 void basic::printraw(std::ostream & os) const
 {
 	debugmsg("basic printraw",LOGLEVEL_PRINT);
-	os << "[basic object]";
+	os << "[" << class_name() << " object]";
 }
 
 /** Output to ostream formatted in tree- (indented-) form, so developers can
@@ -287,6 +287,31 @@ ex basic::evalf(int level) const
 	return *this;
 }
 
+/** Perform automatic symbolic evaluations on indexed expression that
+ *  contains this object as the base expression. */
+ex basic::eval_indexed(const basic & i) const
+ // this function can't take a "const ex & i" because that would result
+ // in an infinite eval() loop
+{
+	// There is nothing to do for basic objects
+	return i.hold();
+}
+
+/** Try to contract two indexed expressions. If a contraction exists, the
+ *  function overwrites one or both arguments and returns true. Otherwise it
+ *  returns false. It is guaranteed that both expressions are of class
+ *  indexed (or a subclass) and that at least one dummy index has been
+ *  found.
+ *
+ *  @param self The first indexed expression; it's base object is *this
+ *  @param other The second indexed expression
+ *  @return true if the contraction was successful, false otherwise */
+bool basic::contract_with(ex & self, ex & other) const
+{
+	// Do nothing
+	return false;
+}
+
 /** Substitute a set of symbols by arbitrary expressions. The ex returned
  *  will already be evaluated. */
 ex basic::subs(const lst & ls, const lst & lr) const
@@ -320,7 +345,8 @@ ex basic::diff(const symbol & s, unsigned nth) const
 	return ndiff;
 }
 
-exvector basic::get_indices(void) const
+/** Return a vector containing the free indices of an expression. */
+exvector basic::get_free_indices(void) const
 {
 	return exvector(); // return an empty exvector
 }

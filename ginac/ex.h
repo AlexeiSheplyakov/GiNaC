@@ -35,6 +35,7 @@ extern const ex & _ex0(void);     ///<  single ex(numeric(0))
 
 class symbol;
 class lst;
+class scalar_products;
 
 /** Lightweight wrapper for GiNaC's symbolic objects.  Basically all it does is
  *  to hold a pointer to the other objects, manage the reference counting and
@@ -107,7 +108,9 @@ public:
 	ex series(const ex & r, int order, unsigned options = 0) const;
 	ex subs(const lst & ls, const lst & lr) const;
 	ex subs(const ex & e) const;
-	exvector get_indices(void) const;
+	exvector get_free_indices(void) const;
+	ex simplify_indexed(void) const;
+	ex simplify_indexed(const scalar_products & sp) const;
 	ex simplify_ncmul(const exvector & v) const;
 	ex operator[](const ex & index) const;
 	ex operator[](int i) const;

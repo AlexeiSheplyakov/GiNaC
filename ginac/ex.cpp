@@ -37,6 +37,7 @@
 #include "numeric.h"
 #include "power.h"
 #include "relational.h"
+#include "indexed.h"
 #include "input_lexer.h"
 #include "debugmsg.h"
 #include "utils.h"
@@ -241,10 +242,33 @@ ex ex::subs(const ex & e) const
 	return bp->subs(e);
 }
 
-exvector ex::get_indices(void) const
+/** Return a vector containing the free indices of the object. */
+exvector ex::get_free_indices(void) const
 {
 	GINAC_ASSERT(bp!=0);
-	return bp->get_indices();
+	return bp->get_free_indices();
+}
+
+/** Simplify/canonicalize expression containing indexed objects. This
+ *  performs contraction of dummy indices where possible and checks whether
+ *  the free indices in sums are consistent.
+ *
+ *  @return simplified expression */
+ex ex::simplify_indexed(void) const
+{
+	return GiNaC::simplify_indexed(*this);
+}
+
+/** Simplify/canonicalize expression containing indexed objects. This
+ *  performs contraction of dummy indices where possible, checks whether
+ *  the free indices in sums are consistent, and automatically replaces
+ *  scalar products by known values if desired.
+ *
+ *  @param sp Scalar products to be replaced automatically
+ *  @return simplified expression */
+ex ex::simplify_indexed(const scalar_products & sp) const
+{
+	return GiNaC::simplify_indexed(*this, sp);
 }
 
 ex ex::simplify_ncmul(const exvector & v) const

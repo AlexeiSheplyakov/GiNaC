@@ -28,6 +28,8 @@
 #include "archive.h"
 #include "numeric.h"
 #include "lst.h"
+#include "idx.h"
+#include "indexed.h"
 #include "utils.h"
 #include "debugmsg.h"
 #include "power.h"
@@ -157,7 +159,7 @@ void matrix::print(std::ostream & os, unsigned upper_precedence) const
 void matrix::printraw(std::ostream & os) const
 {
 	debugmsg("matrix printraw",LOGLEVEL_PRINT);
-	os << "matrix(" << row << "," << col <<",";
+	os << class_name() << "(" << row << "," << col <<",";
 	for (unsigned r=0; r<row-1; ++r) {
 		os << "(";
 		for (unsigned c=0; c<col-1; ++c)
@@ -217,7 +219,7 @@ bool matrix::has(const ex & other) const
 	return false;
 }
 
-/** evaluate matrix entry by entry. */
+/** Evaluate matrix entry by entry. */
 ex matrix::eval(int level) const
 {
 	debugmsg("matrix eval",LOGLEVEL_MEMBER_FUNCTION);
@@ -241,7 +243,7 @@ ex matrix::eval(int level) const
 											   status_flags::evaluated );
 }
 
-/** evaluate matrix numerically entry by entry. */
+/** Evaluate matrix numerically entry by entry. */
 ex matrix::evalf(int level) const
 {
 	debugmsg("matrix evalf",LOGLEVEL_MEMBER_FUNCTION);
@@ -262,6 +264,16 @@ ex matrix::evalf(int level) const
 		for (unsigned c=0; c<col; ++c)
 			m2[r*col+c] = m[r*col+c].evalf(level);
 	
+	return matrix(row, col, m2);
+}
+
+ex matrix::subs(const lst & ls, const lst & lr) const
+{
+	exvector m2(row * col);
+	for (unsigned r=0; r<row; ++r)
+		for (unsigned c=0; c<col; ++c)
+			m2[r*col+c] = m[r*col+c].subs(ls, lr);
+
 	return matrix(row, col, m2);
 }
 
@@ -291,6 +303,189 @@ int matrix::compare_same_type(const basic & other) const
 	// all elements are equal => matrices are equal;
 	return 0;
 }
+
+/** Automatic symbolic evaluation of an indexed matrix. */
+ex matrix::eval_indexed(const basic & i) const
+{
+	GINAC_ASSERT(is_of_type(i, indexed));
+	GINAC_ASSERT(is_ex_of_type(i.op(0), matrix));
+
+	bool all_indices_unsigned = static_cast<const indexed &>(i).all_index_values_are(info_flags::nonnegint);
+
+	// Check indices
+	if (i.nops() == 2) {
+
+		// One index, must be one-dimensional vector
+		if (row != 1 && col != 1)
+			throw (std::runtime_error("matrix::eval_indexed(): vector must have exactly 1 index"));
+
+		const idx & i1 = ex_to_idx(i.op(1));
+
+		if (col == 1) {
+
+			// Column vector
+			if (!i1.get_dim().is_equal(row))
+				throw (std::runtime_error("matrix::eval_indexed(): dimension of index must match number of vector elements"));
+
+			// Index numeric -> return vector element
+			if (all_indices_unsigned) {
+				unsigned n1 = ex_to_numeric(i1.get_value()).to_int();
+				if (n1 >= row)
+					throw (std::runtime_error("matrix::eval_indexed(): value of index exceeds number of vector elements"));
+				return (*this)(n1, 0);
+			}
+
+		} else {
+
+			// Row vector
+			if (!i1.get_dim().is_equal(col))
+				throw (std::runtime_error("matrix::eval_indexed(): dimension of index must match number of vector elements"));
+
+			// Index numeric -> return vector element
+			if (all_indices_unsigned) {
+				unsigned n1 = ex_to_numeric(i1.get_value()).to_int();
+				if (n1 >= col)
+					throw (std::runtime_error("matrix::eval_indexed(): value of index exceeds number of vector elements"));
+				return (*this)(0, n1);
+			}
+		}
+
+	} else if (i.nops() == 3) {
+
+		// Two indices
+		const idx & i1 = ex_to_idx(i.op(1));
+		const idx & i2 = ex_to_idx(i.op(2));
+
+		if (!i1.get_dim().is_equal(row))
+			throw (std::runtime_error("matrix::eval_indexed(): dimension of first index must match number of rows"));
+		if (!i2.get_dim().is_equal(col))
+			throw (std::runtime_error("matrix::eval_indexed(): dimension of second index must match number of columns"));
+
+		// Pair of dummy indices -> compute trace
+		if (is_dummy_pair(i1, i2))
+			return trace();
+
+		// Both indices numeric -> return matrix element
+		if (all_indices_unsigned) {
+			unsigned n1 = ex_to_numeric(i1.get_value()).to_int(), n2 = ex_to_numeric(i2.get_value()).to_int();
+			if (n1 >= row)
+				throw (std::runtime_error("matrix::eval_indexed(): value of first index exceeds number of rows"));
+			if (n2 >= col)
+				throw (std::runtime_error("matrix::eval_indexed(): value of second index exceeds number of columns"));
+			return (*this)(n1, n2);
+		}
+
+	} else
+		throw (std::runtime_error("matrix::eval_indexed(): matrix must have exactly 2 indices"));
+
+	return i.hold();
+}
+
+/** Contraction of an indexed matrix with something else. */
+bool matrix::contract_with(ex & self, ex & other) const
+{
+	GINAC_ASSERT(is_ex_of_type(self, indexed));
+	GINAC_ASSERT(is_ex_of_type(other, indexed));
+	GINAC_ASSERT(self.nops() == 2 || self.nops() == 3);
+	GINAC_ASSERT(is_ex_of_type(self.op(0), matrix));
+
+	// Only contract with other matrices
+	if (!is_ex_of_type(other.op(0), matrix))
+		return false;
+
+	GINAC_ASSERT(other.nops() == 2 || other.nops() == 3);
+
+	const matrix &self_matrix = ex_to_matrix(self.op(0));
+	const matrix &other_matrix = ex_to_matrix(other.op(0));
+
+	if (self.nops() == 2) {
+		unsigned self_dim = (self_matrix.col == 1) ? self_matrix.row : self_matrix.col;
+
+		if (other.nops() == 2) { // vector * vector (scalar product)
+			unsigned other_dim = (other_matrix.col == 1) ? other_matrix.row : other_matrix.col;
+
+			if (self_matrix.col == 1) {
+				if (other_matrix.col == 1) {
+					// Column vector * column vector, transpose first vector
+					self = self_matrix.transpose().mul(other_matrix)(0, 0);
+				} else {
+					// Column vector * row vector, swap factors
+					self = other_matrix.mul(self_matrix)(0, 0);
+				}
+			} else {
+				if (other_matrix.col == 1) {
+					// Row vector * column vector, perfect
+					self = self_matrix.mul(other_matrix)(0, 0);
+				} else {
+					// Row vector * row vector, transpose second vector
+					self = self_matrix.mul(other_matrix.transpose())(0, 0);
+				}
+			}
+			other = _ex1();
+			return true;
+
+		} else { // vector * matrix
+
+			GINAC_ASSERT(other.nops() == 3);
+
+			// B_i * A_ij = (B*A)_j (B is row vector)
+			if (is_dummy_pair(self.op(1), other.op(1))) {
+				if (self_matrix.row == 1)
+					self = indexed(self_matrix.mul(other_matrix), other.op(2));
+				else
+					self = indexed(self_matrix.transpose().mul(other_matrix), other.op(2));
+				other = _ex1();
+				return true;
+			}
+
+			// B_j * A_ij = (A*B)_i (B is column vector)
+			if (is_dummy_pair(self.op(1), other.op(2))) {
+				if (self_matrix.col == 1)
+					self = indexed(other_matrix.mul(self_matrix), other.op(1));
+				else
+					self = indexed(other_matrix.mul(self_matrix.transpose()), other.op(1));
+				other = _ex1();
+				return true;
+			}
+		}
+
+	} else if (other.nops() == 3) { // matrix * matrix
+
+		GINAC_ASSERT(self.nops() == 3);
+		GINAC_ASSERT(other.nops() == 3);
+
+		// A_ij * B_jk = (A*B)_ik
+		if (is_dummy_pair(self.op(2), other.op(1))) {
+			self = indexed(self_matrix.mul(other_matrix), self.op(1), other.op(2));
+			other = _ex1();
+			return true;
+		}
+
+		// A_ij * B_kj = (A*Btrans)_ik
+		if (is_dummy_pair(self.op(2), other.op(2))) {
+			self = indexed(self_matrix.mul(other_matrix.transpose()), self.op(1), other.op(1));
+			other = _ex1();
+			return true;
+		}
+
+		// A_ji * B_jk = (Atrans*B)_ik
+		if (is_dummy_pair(self.op(1), other.op(1))) {
+			self = indexed(self_matrix.transpose().mul(other_matrix), self.op(2), other.op(2));
+			other = _ex1();
+			return true;
+		}
+
+		// A_ji * B_kj = (B*A)_ki
+		if (is_dummy_pair(self.op(1), other.op(2))) {
+			self = indexed(other_matrix.mul(self_matrix), other.op(1), self.op(2));
+			other = _ex1();
+			return true;
+		}
+	}
+
+	return false;
+}
+
 
 //////////
 // non-virtual functions in this class

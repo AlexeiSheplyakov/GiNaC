@@ -5,20 +5,17 @@ libginac_la_SOURCES = add.cpp archive.cpp basic.cpp constant.cpp ex.cpp \
   expairseq.cpp exprseq.cpp fail.cpp function.cpp inifcns.cpp \
   inifcns_trans.cpp inifcns_zeta.cpp inifcns_gamma.cpp matrix.cpp mul.cpp \
   normal.cpp numeric.cpp operators.cpp power.cpp registrar.cpp relational.cpp \
-  symbol.cpp pseries.cpp utils.cpp ncmul.cpp clifford.cpp structure.cpp \
-  color.cpp indexed.cpp idx.cpp isospin.cpp exprseq_suppl.cpp lst.cpp \
-  lst_suppl.cpp simp_lor.cpp coloridx.cpp lorentzidx.cpp lortensor.cpp \
-  input_parser.yy input_lexer.ll input_lexer.h \
-  remember.h remember.cpp debugmsg.h utils.h 
+  symbol.cpp pseries.cpp utils.cpp ncmul.cpp structure.cpp exprseq_suppl.cpp \
+  lst.cpp lst_suppl.cpp input_parser.yy input_lexer.ll input_lexer.h \
+  remember.h remember.cpp debugmsg.h utils.h idx.cpp indexed.cpp tensor.cpp
 libginac_la_LDFLAGS = -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \
   -release $(LT_RELEASE)
 ginacincludedir = $(includedir)/ginac
-ginacinclude_HEADERS = ginac.h add.h archive.h basic.h clifford.h color.h \
-  coloridx.h constant.h ex.h expair.h expairseq.h exprseq.h fail.h flags.h \
-  function.h idx.h indexed.h inifcns.h isospin.h lorentzidx.h lst.h matrix.h \
-  mul.h ncmul.h normal.h numeric.h operators.h power.h registrar.h \
-  relational.h pseries.h simp_lor.h structure.h symbol.h lortensor.h \
-  tinfos.h assertion.h version.h
+ginacinclude_HEADERS = ginac.h add.h archive.h basic.h constant.h ex.h \
+  expair.h expairseq.h exprseq.h fail.h flags.h function.h inifcns.h \
+  lst.h matrix.h mul.h ncmul.h normal.h numeric.h operators.h power.h \
+  registrar.h relational.h pseries.h structure.h symbol.h tinfos.h assertion.h \
+  version.h idx.h indexed.h tensor.h
 LFLAGS = -Pginac_yy -olex.yy.c
 YFLAGS = -p ginac_yy -d
 EXTRA_DIST = container.pl function.pl structure.pl input_parser.h version.h.in

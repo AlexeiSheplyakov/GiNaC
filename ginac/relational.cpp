@@ -143,7 +143,7 @@ void relational::print(std::ostream & os, unsigned upper_precedence) const
 void relational::printraw(std::ostream & os) const
 {
 	debugmsg("relational printraw",LOGLEVEL_PRINT);
-	os << "RELATIONAL(";
+	os << class_name() << "(";
 	lh.printraw(os);
 	os << ",";
 	rh.printraw(os);

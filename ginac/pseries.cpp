@@ -175,7 +175,7 @@ void pseries::print(std::ostream &os, unsigned upper_precedence) const
 void pseries::printraw(std::ostream &os) const
 {
 	debugmsg("pseries printraw", LOGLEVEL_PRINT);
-	os << "pseries(" << var << ";" << point << ";";
+	os << class_name() << "(" << var << ";" << point << ";";
 	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i)
 		os << "(" << (*i).rest << "," << (*i).coeff << "),";
 	os << ")";
@@ -185,7 +185,7 @@ void pseries::printraw(std::ostream &os) const
 void pseries::printtree(std::ostream & os, unsigned indent) const
 {
 	debugmsg("pseries printtree",LOGLEVEL_PRINT);
-	os << std::string(indent,' ') << "pseries " 
+	os << std::string(indent,' ') << class_name()
 	   << ", hash=" << hashvalue
 	   << " (0x" << std::hex << hashvalue << std::dec << ")"
 	   << ", flags=" << flags << std::endl;
@@ -227,6 +227,7 @@ int pseries::compare_same_type(const basic & other) const
 		++it;
 		++o_it;
 	}
+
 	// so they are equal.
 	return 0;
 }

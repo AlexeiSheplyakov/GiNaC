@@ -418,19 +418,6 @@ ex mul::evalf(int level) const
 	return mul(s,overall_coeff.evalf(level));
 }
 
-exvector mul::get_indices(void) const
-{
-	// return union of indices of factors
-	exvector iv;
-	for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
-		exvector subiv=(*cit).rest.get_indices();
-		iv.reserve(iv.size()+subiv.size());
-		for (exvector::const_iterator cit2=subiv.begin(); cit2!=subiv.end(); ++cit2)
-			iv.push_back(*cit2);
-	}
-	return iv;
-}
-
 ex mul::simplify_ncmul(const exvector & v) const
 {
 	throw(std::logic_error("mul::simplify_ncmul() should never have been called!"));

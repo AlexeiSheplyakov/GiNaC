@@ -331,13 +331,13 @@ basic * ${STRUCTURE}::duplicate() const
 void ${STRUCTURE}::printraw(ostream & os) const
 {
 	debugmsg("${STRUCTURE} printraw",LOGLEVEL_PRINT);
-	os << "${STRUCTURE}()";
+	os << class_name() << "()";
 }
 
 void ${STRUCTURE}::print(ostream & os, unsigned upper_precedence) const
 {
 	debugmsg("${STRUCTURE} print",LOGLEVEL_PRINT);
-	os << "${STRUCTURE}()";
+	os << class_name() << "()";
 }
 
 void ${STRUCTURE}::printtree(ostream & os, unsigned indent) const

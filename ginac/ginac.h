@@ -33,7 +33,6 @@
 
 #include "constant.h"
 #include "fail.h"
-#include "idx.h"
 #include "lst.h"
 #include "matrix.h"
 #include "numeric.h"
@@ -56,14 +55,9 @@
 #include "operators.h"
 
 #ifndef GINAC_BASE_ONLY
+#include "idx.h"
 #include "indexed.h"
-#include "clifford.h"
-#include "coloridx.h"
-#include "color.h"
-#include "isospin.h"
-#include "lorentzidx.h"
-#include "simp_lor.h"
-#include "lortensor.h"
+#include "tensor.h"
 #endif // ndef GINAC_BASE_ONLY
 
 #ifdef __MAKECINT__

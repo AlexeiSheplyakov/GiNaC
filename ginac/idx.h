@@ -23,27 +23,27 @@
 #ifndef __GINAC_IDX_H__
 #define __GINAC_IDX_H__
 
-#include <string>
-//#include <vector>
-#include "basic.h"
 #include "ex.h"
 
 namespace GiNaC {
 
 
-/** This class holds one index of an indexed object. Indices can be symbolic
- *  (e.g. "mu", "i") or numeric (unsigned integer), and they can be contravariant
- *  (the default) or covariant. */
+/** This class holds one index of an indexed object. Indices can
+ *  theoretically consist of any symbolic expression but they are usually
+ *  only just a symbol (e.g. "mu", "i") or numeric (integer). Indices belong
+ *  to a space with a certain numeric or symbolic dimension. */
 class idx : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS(idx, basic)
 
 	// other constructors
 public:
-	explicit idx(bool cov);
-	explicit idx(const std::string & n, bool cov=false);
-	explicit idx(const char * n, bool cov=false);
-	explicit idx(unsigned v, bool cov=false); 
+	/** Construct index with given value and dimension.
+	 *
+	 *  @param v Value of index (numeric or symbolic)
+	 *  @param dim Dimension of index space (numeric or symbolic)
+	 *  @return newly constructed index */
+	explicit idx(const ex & v, const ex & dim);
 
 	// functions overriding virtual functions from bases classes
 public:
@@ -52,56 +52,96 @@ public:
 	void print(std::ostream & os, unsigned upper_precedence=0) const;
 	bool info(unsigned inf) const;
 protected:
-	bool is_equal_same_type(const basic & other) const;
-	unsigned calchash(void) const;
 	ex subs(const lst & ls, const lst & lr) const;
 
-	// new virtual functions which can be overridden by derived classes
+	// new virtual functions in this class
 public:
-	virtual bool is_co_contra_pair(const basic & other) const;
-	virtual ex toggle_covariant(void) const;
+	/** Check whether the index forms a dummy index pair with another index
+	 *  of the same type. */
+	virtual bool is_dummy_pair_same_type(const basic & other) const;
 
 	// non-virtual functions in this class
 public:
-	/** Check whether index is symbolic (not numeric). */
-	bool is_symbolic(void) const {return symbolic;}
+	/** Get value of index. */
+	ex get_value(void) const {return value;}
 
-	/** Get numeric value of index. Undefined for symbolic indices. */
-	unsigned get_value(void) const {return value;}
+	/** Check whether the index is numeric. */
+	bool is_numeric(void) const {return is_ex_exactly_of_type(value, numeric);}
 
-	/** Check whether index is covariant (not contravariant). */
-	bool is_covariant(void) const {return covariant;}
+	/** Check whether the index is symbolic. */
+	bool is_symbolic(void) const {return !is_ex_exactly_of_type(value, numeric);}
 
-	void setname(const std::string & n) {name=n;}
-	std::string getname(void) const {return name;}
+	/** Get dimension of index space. */
+	ex get_dim(void) const {return dim;}
 
-private:
-	std::string & autoname_prefix(void);
+	/** Check whether the dimension is numeric. */
+	bool is_dim_numeric(void) const {return is_ex_exactly_of_type(dim, numeric);}
+
+	/** Check whether the dimension is symbolic. */
+	bool is_dim_symbolic(void) const {return !is_ex_exactly_of_type(dim, numeric);}
 
 	// member variables
 protected:
-	unsigned serial;  /**< Unique serial number for comparing symbolic indices */
-	bool symbolic;    /**< Is index symbolic? */
-	std::string name; /**< Symbolic name (if symbolic == true) */
-	unsigned value;   /**< Numeric value (if symbolic == false) */
-	static unsigned next_serial;
-	bool covariant;   /**< x_mu, default is contravariant: x~mu */
+	ex value; /**< Expression that constitutes the index (numeric or symbolic name) */
+	ex dim;   /**< Dimension of space (can be symbolic or numeric) */
 };
 
+
+/** This class holds an index with a variance (co- or contravariant). There
+ *  is an associated metric tensor that can be used to raise/lower indices. */
+class varidx : public idx
+{
+	GINAC_DECLARE_REGISTERED_CLASS(varidx, idx)
+
+	// other constructors
+public:
+	/** Construct index with given value, dimension and variance.
+	 *
+	 *  @param v Value of index (numeric or symbolic)
+	 *  @param dim Dimension of index space (numeric or symbolic)
+	 *  @param covariant Make covariant index (default is contravariant)
+	 *  @return newly constructed index */
+	varidx(const ex & v, const ex & dim, bool covariant = false);
+
+	// functions overriding virtual functions from bases classes
+public:
+	void print(std::ostream & os, unsigned upper_precedence=0) const;
+	bool is_dummy_pair_same_type(const basic & other) const;
+
+	// non-virtual functions in this class
+public:
+	/** Check whether the index is covariant. */
+	bool is_covariant(void) const {return covariant;}
+
+	/** Check whether the index is contravariant (not covariant). */
+	bool is_contravariant(void) const {return !covariant;}
+
+	/** Make a new index with the same value but the opposite variance. */
+	ex toggle_variance(void) const;
+
+	// member variables
+protected:
+	bool covariant; /**< x.mu, default is contravariant: x~mu */
+};
+
+
 // utility functions
-inline const idx &ex_to_idx(const ex &e)
+inline const idx &ex_to_idx(const ex & e)
 {
 	return static_cast<const idx &>(*e.bp);
 }
 
-// global functions
+inline const varidx &ex_to_varidx(const ex & e)
+{
+	return static_cast<const varidx &>(*e.bp);
+}
 
-int canonicalize_indices(exvector & iv, bool antisymmetric=false);
-exvector idx_intersect(const exvector & iv1, const exvector & iv2);
-ex permute_free_index_to_front(const exvector & iv3, const exvector & iv2, int * sig);
-unsigned subs_index_in_exvector(exvector & v, const ex & is, const ex & ir);
-ex subs_indices(const ex & e, const exvector & idxv_contra, const exvector & idxv_co);
-unsigned count_index(const ex & e, const ex & i);
+/** Check whether two indices form a dummy pair. */
+bool is_dummy_pair(const idx & i1, const idx & i2);
+
+/** Check whether two expressions form a dummy index pair. */
+bool is_dummy_pair(const ex & e1, const ex & e2);
+
 
 } // namespace GiNaC
 

@@ -471,20 +471,6 @@ ex ncmul::eval(int level) const
 										  status_flags::evaluated);
 }
 
-exvector ncmul::get_indices(void) const
-{
-	// return union of indices of factors
-	exvector iv;
-	for (exvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
-		exvector subiv=(*cit).get_indices();
-		iv.reserve(iv.size()+subiv.size());
-		for (exvector::const_iterator cit2=subiv.begin(); cit2!=subiv.end(); ++cit2) {
-			iv.push_back(*cit2);
-		}
-	}
-	return iv;
-}
-
 ex ncmul::subs(const lst & ls, const lst & lr) const
 {
 	return ncmul(subschildren(ls, lr));

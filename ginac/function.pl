@@ -642,7 +642,7 @@ void function::printraw(std::ostream & os) const
 
 	GINAC_ASSERT(serial<registered_functions().size());
 
-	os << "function(name=" << registered_functions()[serial].name;
+	os << class_name() << "(name=" << registered_functions()[serial].name;
 	for (exvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
 		os << ",";
 		(*it).bp->print(os);
@@ -666,7 +666,7 @@ void function::printtree(std::ostream & os, unsigned indent) const
 
 	GINAC_ASSERT(serial<registered_functions().size());
 
-	os << std::string(indent,' ') << "function "
+	os << std::string(indent,' ') << class_name() << " "
 	   << registered_functions()[serial].name
 	   << ", hash=" << hashvalue 
 	   << " (0x" << std::hex << hashvalue << std::dec << ")"

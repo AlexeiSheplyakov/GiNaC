@@ -135,7 +135,7 @@ void power::printraw(std::ostream & os) const
 {
 	debugmsg("power printraw",LOGLEVEL_PRINT);
 
-	os << "power(";
+	os << class_name() << "(";
 	basis.printraw(os);
 	os << ",";
 	exponent.printraw(os);
@@ -146,8 +146,8 @@ void power::printtree(std::ostream & os, unsigned indent) const
 {
 	debugmsg("power printtree",LOGLEVEL_PRINT);
 
-	os << std::string(indent,' ') << "power: "
-	   << "hash=" << hashvalue
+	os << std::string(indent,' ') << class_name()
+	   << ", hash=" << hashvalue
 	   << " (0x" << std::hex << hashvalue << std::dec << ")"
 	   << ", flags=" << flags << std::endl;
 	basis.printtree(os, indent+delta_indent);

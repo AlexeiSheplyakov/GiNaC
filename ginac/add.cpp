@@ -354,17 +354,6 @@ ex add::eval(int level) const
 	return this->hold();
 }
 
-exvector add::get_indices(void) const
-{
-	// FIXME: all terms in the sum should have the same indices (compatible
-	// tensors) however this is not checked, since there is no function yet
-	// which compares indices (idxvector can be unsorted)
-	if (seq.size()==0) {
-		return exvector();
-	}
-	return (seq.begin())->rest.get_indices();
-}    
-
 ex add::simplify_ncmul(const exvector & v) const
 {
 	if (seq.size()==0) {

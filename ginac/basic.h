@@ -127,8 +127,10 @@ public: // only const functions please (may break reference counting)
 	virtual numeric integer_content(void) const;
 	virtual ex smod(const numeric &xi) const;
 	virtual numeric max_coefficient(void) const;
-	virtual exvector get_indices(void) const;
+	virtual exvector get_free_indices(void) const;
 	virtual ex simplify_ncmul(const exvector & v) const;
+	virtual ex eval_indexed(const basic & i) const;
+	virtual bool contract_with(ex & self, ex & other) const;
 protected: // non-const functions should be called from class ex only
 	virtual ex derivative(const symbol & s) const;
 	virtual int compare_same_type(const basic & other) const;

@@ -28,7 +28,8 @@ namespace GiNaC {
 class expand_options {
 public:
 	enum {
-		expand_trigonometric = 0x0001
+		expand_trigonometric = 0x0001,
+		expand_indexed = 0x0002
 	};
 };
 
@@ -128,13 +129,7 @@ public:
 		has_indices,  // object has at least one index
 
 		// answered by class idx
-		idx,
-
-		// answered by class coloridx
-		coloridx,
-
-		// answered by class lorentzidx
-		lorentzidx
+		idx
 	};
 };
 

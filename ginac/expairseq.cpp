@@ -207,8 +207,7 @@ void expairseq::print(std::ostream &os, unsigned upper_precedence) const
 void expairseq::printraw(std::ostream &os) const
 {
 	debugmsg("expairseq printraw",LOGLEVEL_PRINT);
-	
-	os << "expairseq(";
+	os << class_name() << "(";
 	for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
 		os << "(";
 		(*cit).rest.printraw(os);

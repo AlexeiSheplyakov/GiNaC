@@ -449,7 +449,7 @@ void numeric::printraw(std::ostream &os) const
 	// The method printraw doesn't do much, it simply uses CLN's operator<<()
 	// for output, which is ugly but reliable. e.g: 2+2i
 	debugmsg("numeric printraw", LOGLEVEL_PRINT);
-	os << "numeric(" << cln::the<cln::cl_N>(value) << ")";
+	os << class_name() << "(" << cln::the<cln::cl_N>(value) << ")";
 }
 
 

@@ -410,7 +410,7 @@ void ${CONTAINER}::printraw(std::ostream & os) const
 {
 	debugmsg("${CONTAINER} printraw",LOGLEVEL_PRINT);
 
-	os << "${CONTAINER}(";
+	os << class_name() << "(";
 	for (${STLT}::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
 		(*cit).bp->printraw(os);
 		os << ",";

@@ -138,7 +138,7 @@ void constant::print(std::ostream & os, unsigned upper_precedence) const
 void constant::printraw(std::ostream & os) const
 {
 	debugmsg("constant printraw",LOGLEVEL_PRINT);
-	os << "constant(" << name << ")";
+	os << class_name() << "(" << name << ")";
 }
 
 void constant::printtree(std::ostream & os, unsigned indent) const

@@ -1,6 +1,6 @@
 /** @file indexed.h
  *
- *  Interface to GiNaC's index carrying objects. */
+ *  Interface to GiNaC's indexed expressions. */
 
 /*
  *  GiNaC Copyright (C) 1999-2001 Johannes Gutenberg University Mainz, Germany
@@ -23,64 +23,228 @@
 #ifndef __GINAC_INDEXED_H__
 #define __GINAC_INDEXED_H__
 
-#include <string>
+#include <map>
+
 #include "exprseq.h"
 
 namespace GiNaC {
 
 
-/** Base class for objects with indices. */
+class scalar_products;
+
+/** This class holds an indexed expression. It consists of a 'base' expression
+ *  (the expression being indexed) which can be accessed as op(0), and n (n >= 0)
+ *  indices (all of class idx), accessible as op(1)..op(n). */
 class indexed : public exprseq
 {
 	GINAC_DECLARE_REGISTERED_CLASS(indexed, exprseq)
 
+	friend ex simplify_indexed(const ex & e, exvector & free_indices, const scalar_products & sp);
+	friend ex simplify_indexed_product(const ex & e, exvector & free_indices, const scalar_products & sp);
+
+	// types
+public:
+	/** Type of symmetry of the object with respect to commutation of its indices. */
+	typedef enum {
+		unknown,       /**< symmetry properties unknown */
+		symmetric,     /**< totally symmetric */
+		antisymmetric, /**< totally antisymmetric */
+		mixed          /**< mixed symmetry (unimplemented) */
+	} symmetry_type;
+
 	// other constructors
 public:
-	indexed(const ex & i1);
-	indexed(const ex & i1, const ex & i2);
-	indexed(const ex & i1, const ex & i2, const ex & i3);
-	indexed(const ex & i1, const ex & i2, const ex & i3, const ex & i4);
-	indexed(const exvector & iv);
-	indexed(exvector * iv);
+	/** Construct indexed object with no index.
+	 *
+	 *  @param b Base expression
+	 *  @return newly constructed indexed object */
+	indexed(const ex & b);
+
+	/** Construct indexed object with one index. The index must be of class idx.
+	 *
+	 *  @param b Base expression
+	 *  @param i1 The index
+	 *  @return newly constructed indexed object */
+	indexed(const ex & b, const ex & i1);
+
+	/** Construct indexed object with two indices. The indices must be of class idx.
+	 *
+	 *  @param b Base expression
+	 *  @param i1 First index
+	 *  @param i2 Second index
+	 *  @return newly constructed indexed object */
+	indexed(const ex & b, const ex & i1, const ex & i2);
+
+	/** Construct indexed object with three indices. The indices must be of class idx.
+	 *
+	 *  @param b Base expression
+	 *  @param i1 First index
+	 *  @param i2 Second index
+	 *  @param i3 Third index
+	 *  @return newly constructed indexed object */
+	indexed(const ex & b, const ex & i1, const ex & i2, const ex & i3);
+
+	/** Construct indexed object with four indices. The indices must be of class idx.
+	 *
+	 *  @param b Base expression
+	 *  @param i1 First index
+	 *  @param i2 Second index
+	 *  @param i3 Third index
+	 *  @param i4 Fourth index
+	 *  @return newly constructed indexed object */
+	indexed(const ex & b, const ex & i1, const ex & i2, const ex & i3, const ex & i4);
+
+	/** Construct indexed object with two indices and a specified symmetry. The
+	 *  indices must be of class idx.
+	 *
+	 *  @param b Base expression
+	 *  @param symm Symmetry of indices
+	 *  @param i1 First index
+	 *  @param i2 Second index
+	 *  @return newly constructed indexed object */
+	indexed(const ex & b, symmetry_type symm, const ex & i1, const ex & i2);
+
+	/** Construct indexed object with three indices and a specified symmetry.
+	 *  The indices must be of class idx.
+	 *
+	 *  @param b Base expression
+	 *  @param symm Symmetry of indices
+	 *  @param i1 First index
+	 *  @param i2 Second index
+	 *  @param i3 Third index
+	 *  @return newly constructed indexed object */
+	indexed(const ex & b, symmetry_type symm, const ex & i1, const ex & i2, const ex & i3);
+
+	/** Construct indexed object with four indices and a specified symmetry. The
+	 *  indices must be of class idx.
+	 *
+	 *  @param b Base expression
+	 *  @param symm Symmetry of indices
+	 *  @param i1 First index
+	 *  @param i2 Second index
+	 *  @param i3 Third index
+	 *  @param i4 Fourth index
+	 *  @return newly constructed indexed object */
+	indexed(const ex & b, symmetry_type symm, const ex & i1, const ex & i2, const ex & i3, const ex & i4);
+
+	/** Construct indexed object with a specified vector of indices. The indices
+	 *  must be of class idx.
+	 *
+	 *  @param b Base expression
+	 *  @param iv Vector of indices
+	 *  @return newly constructed indexed object */
+	indexed(const ex & b, const exvector & iv);
+
+	/** Construct indexed object with a specified vector of indices and
+	 *  symmetry. The indices must be of class idx.
+	 *
+	 *  @param b Base expression
+	 *  @param symm Symmetry of indices
+	 *  @param iv Vector of indices
+	 *  @return newly constructed indexed object */
+	indexed(const ex & b, symmetry_type symm, const exvector & iv);
+
+	// internal constructors
+	indexed(symmetry_type symm, const exprseq & es);
+	indexed(symmetry_type symm, const exvector & v, bool discardable = false);
+	indexed(symmetry_type symm, exvector * vp); // vp will be deleted
 
 	// functions overriding virtual functions from base classes
 public:
 	void printraw(std::ostream & os) const;
 	void printtree(std::ostream & os, unsigned indent) const;
 	void print(std::ostream & os, unsigned upper_precedence=0) const;
-	void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const;
 	bool info(unsigned inf) const;
-
-	/** Return the vector of indices on this object. */
-	exvector get_indices(void) const {return seq;}
+	ex eval(int level = 0) const;
+	exvector get_free_indices(void) const;
 
 protected:
-	ex derivative(const symbol & s) const;
-	bool is_equal_same_type(const basic & other) const;
-	unsigned return_type(void) const;
-	unsigned return_type_tinfo(void) const;
 	ex thisexprseq(const exvector & v) const;
 	ex thisexprseq(exvector * vp) const;
+	unsigned return_type(void) const { return return_types::commutative; }
+	ex expand(unsigned options = 0) const;
 
 	// new virtual functions which can be overridden by derived classes
 	// none
 	
 	// non-virtual functions in this class
+public:
+	/** Check whether all index values have a certain property.
+	 *  @see class info_flags */
+	bool all_index_values_are(unsigned inf) const;
+
 protected:
 	void printrawindices(std::ostream & os) const;
 	void printtreeindices(std::ostream & os, unsigned indent) const;
 	void printindices(std::ostream & os) const;
-	bool all_of_type_idx(void) const;
+	bool all_indices_of_type_idx(void) const;
 
-// member variables
-	// none
+	// member variables
+protected:
+	symmetry_type symmetry; /**< Index symmetry */
 };
+
+
+typedef std::pair<ex, ex> spmapkey;
+
+struct spmapkey_is_less {
+	bool operator() (const spmapkey &p, const spmapkey &q) const 
+	{
+		int cmp = p.first.compare(q.first);
+		return ((cmp<0) || (!(cmp>0) && p.second.compare(q.second)<0));
+	}
+};
+
+typedef std::map<spmapkey, ex, spmapkey_is_less> spmap;
+
+/** Helper class for storing information about known scalar products which
+ *  are to be automatically replaced by simplify_indexed().
+ *
+ *  @see simplify_indexed */
+class scalar_products {
+public:
+	/** Register scalar product pair and its value. */
+	void add(const ex & v1, const ex & v2, const ex & sp);
+
+	/** Clear all registered scalar products. */
+	void clear(void);
+
+	bool is_defined(const ex & v1, const ex & v2) const;
+	ex evaluate(const ex & v1, const ex & v2) const;
+	void debugprint(void) const;
+
+private:
+	static spmapkey make_key(const ex & v1, const ex & v2);
+
+	spmap spm; /*< Map from defined scalar product pairs to their values */
+};
+
 
 // utility functions
 inline const indexed &ex_to_indexed(const ex &e)
 {
 	return static_cast<const indexed &>(*e.bp);
 }
+
+
+/** Simplify/canonicalize expression containing indexed objects. This
+ *  performs contraction of dummy indices where possible and checks whether
+ *  the free indices in sums are consistent.
+ *
+ *  @param e The expression to be simplified
+ *  @return simplified expression */
+ex simplify_indexed(const ex & e);
+
+/** Simplify/canonicalize expression containing indexed objects. This
+ *  performs contraction of dummy indices where possible, checks whether
+ *  the free indices in sums are consistent, and automatically replaces
+ *  scalar products by known values if desired.
+ *
+ *  @param e The expression to be simplified
+ *  @param sp Scalar products to be replaced automatically
+ *  @return simplified expression */
+ex simplify_indexed(const ex & e, const scalar_products & sp);
+
 
 } // namespace GiNaC
 

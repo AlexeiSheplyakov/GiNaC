@@ -25,7 +25,6 @@
 
 #include "symbol.h"
 #include "lst.h"
-#include "idx.h"
 #include "archive.h"
 #include "debugmsg.h"
 #include "utils.h"
@@ -141,7 +140,7 @@ void symbol::print(std::ostream & os, unsigned upper_precedence) const
 void symbol::printraw(std::ostream & os) const
 {
 	debugmsg("symbol printraw",LOGLEVEL_PRINT);
-	os << "symbol(" << "name=" << name << ",serial=" << serial
+	os << class_name() << "(" << "name=" << name << ",serial=" << serial
 	   << ",hash=" << hashvalue << ",flags=" << flags << ")";
 }
 
@@ -225,11 +224,6 @@ ex symbol::eval(int level) const
 ex symbol::subs(const lst & ls, const lst & lr) const
 {
 	GINAC_ASSERT(ls.nops()==lr.nops());
-#ifdef DO_GINAC_ASSERT
-	for (unsigned i=0; i<ls.nops(); i++)
-		GINAC_ASSERT(is_ex_exactly_of_type(ls.op(i),symbol)||
-		             is_ex_of_type(ls.op(i),idx));
-#endif // def DO_GINAC_ASSERT
 
 	for (unsigned i=0; i<ls.nops(); i++) {
 		if (is_ex_exactly_of_type(ls.op(i),symbol)) {

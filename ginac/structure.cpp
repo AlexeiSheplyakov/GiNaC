@@ -92,14 +92,14 @@ void structure::printraw(std::ostream & os) const
 {
 	debugmsg("structure printraw",LOGLEVEL_PRINT);
 
-	os << "structure(hash=" << hashvalue << ",flags=" << flags << ")";
+	os << class_name() << "(hash=" << hashvalue << ",flags=" << flags << ")";
 }
 
 void structure::print(std::ostream & os, unsigned upper_precedence) const
 {
 	debugmsg("structure print",LOGLEVEL_PRINT);
 
-	os << "structure()";
+	os << class_name() << "()";
 }
 
 void structure::printtree(std::ostream & os, unsigned indent) const
