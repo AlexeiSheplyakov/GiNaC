@@ -772,10 +772,13 @@ ex matrix::determinant(unsigned algo) const
 		default: {
 			// This is the minor expansion scheme.  We always develop such
 			// that the smallest minors (i.e, the trivial 1x1 ones) are on the
-			// rightmost column.  For this to be efficient it turns out that
-			// the emptiest columns (i.e. the ones with most zeros) should be
-			// the ones on the right hand side.  Therefore we presort the
-			// columns of the matrix:
+			// rightmost column.  For this to be efficient, empirical tests
+			// have shown that the emptiest columns (i.e. the ones with most
+			// zeros) should be the ones on the right hand side -- although
+			// this might seem counter-intuitive (and in contradiction to some
+			// literature like the FORM manual).  Please go ahead and test it
+			// if you don't believe me!  Therefore we presort the columns of
+			// the matrix:
 			typedef std::pair<unsigned,unsigned> uintpair;
 			std::vector<uintpair> c_zeros;  // number of zeros in column
 			for (unsigned c=0; c<col; ++c) {
