@@ -193,8 +193,6 @@ void mul::print(const print_context & c, unsigned level) const
 				c.s << "(";
 		}
 
-		bool first = true;
-
 		// First print the overall numeric coefficient
 		numeric coeff = ex_to<numeric>(overall_coeff);
 		if (coeff.csgn() == -1)
@@ -220,17 +218,51 @@ void mul::print(const print_context & c, unsigned level) const
 
 		// Then proceed with the remaining factors
 		epvector::const_iterator it = seq.begin(), itend = seq.end();
-		while (it != itend) {
-			if (!first) {
-				if (is_a<print_latex>(c))
-					c.s << ' ';
+		if (is_a<print_latex>(c)) {
+
+			// Separate factors into those with negative numeric exponent
+			// and all others
+			exvector neg_powers, others;
+			while (it != itend) {
+				GINAC_ASSERT(is_a<numeric>(it->coeff));
+				if (ex_to<numeric>(it->coeff).is_negative())
+					neg_powers.push_back(recombine_pair_to_ex(expair(it->rest, -(it->coeff))));
 				else
-					c.s << '*';
-			} else {
-				first = false;
+					others.push_back(recombine_pair_to_ex(*it));
+				++it;
 			}
-			recombine_pair_to_ex(*it).print(c, precedence());
-			++it;
+
+			if (!neg_powers.empty()) {
+
+				// Factors with negative exponent are printed as a fraction
+				c.s << "\\frac{";
+				mul(others).eval().print(c);
+				c.s << "}{";
+				mul(neg_powers).eval().print(c);
+				c.s << "}";
+
+			} else {
+
+				// All other factors are printed in the ordinary way
+				exvector::const_iterator vit = others.begin(), vitend = others.end();
+				while (vit != vitend) {
+					c.s << ' ';
+					vit->print(c, precedence());
+					++vit;
+				}
+			}
+
+		} else {
+
+			bool first = true;
+			while (it != itend) {
+				if (!first)
+					c.s << '*';
+				else
+					first = false;
+				recombine_pair_to_ex(*it).print(c, precedence());
+				++it;
+			}
 		}
 
 		if (precedence() <= level) {

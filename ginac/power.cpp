@@ -172,11 +172,23 @@ void power::print(const print_context & c, unsigned level) const
 
 		bool is_tex = is_a<print_latex>(c);
 
-		if (exponent.is_equal(_ex1_2)) {
+		if (is_tex && is_a<numeric>(exponent) && ex_to<numeric>(exponent).is_negative()) {
+
+			// Powers with negative numeric exponents are printed as fractions in TeX
+			c.s << "\\frac{1}{";
+			power(basis, -exponent).eval().print(c);
+			c.s << "}";
+
+		} else if (exponent.is_equal(_ex1_2)) {
+
+			// Square roots are printed in a special way
 			c.s << (is_tex ? "\\sqrt{" : "sqrt(");
 			basis.print(c);
 			c.s << (is_tex ? '}' : ')');
+
 		} else {
+
+			// Ordinary output of powers using '^' or '**'
 			if (precedence() <= level)
 				c.s << (is_tex ? "{(" : "(");
 			basis.print(c, precedence());

@@ -43,9 +43,9 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(clifford, indexed)
 GINAC_IMPLEMENT_REGISTERED_CLASS(diracone, tensor)
 GINAC_IMPLEMENT_REGISTERED_CLASS(diracgamma, tensor)
 GINAC_IMPLEMENT_REGISTERED_CLASS(diracgamma5, tensor)
-
 GINAC_IMPLEMENT_REGISTERED_CLASS(diracgammaL, tensor)
 GINAC_IMPLEMENT_REGISTERED_CLASS(diracgammaR, tensor)
+
 //////////
 // default ctor, dtor, copy ctor, assignment operator and helpers
 //////////
@@ -65,9 +65,9 @@ DEFAULT_DESTROY(clifford)
 DEFAULT_CTORS(diracone)
 DEFAULT_CTORS(diracgamma)
 DEFAULT_CTORS(diracgamma5)
-
 DEFAULT_CTORS(diracgammaL)
 DEFAULT_CTORS(diracgammaR)
+
 //////////
 // other constructors
 //////////
@@ -120,9 +120,9 @@ DEFAULT_UNARCHIVE(clifford)
 DEFAULT_ARCHIVING(diracone)
 DEFAULT_ARCHIVING(diracgamma)
 DEFAULT_ARCHIVING(diracgamma5)
-
 DEFAULT_ARCHIVING(diracgammaL)
 DEFAULT_ARCHIVING(diracgammaR)
+
 //////////
 // functions overriding virtual functions from base classes
 //////////
