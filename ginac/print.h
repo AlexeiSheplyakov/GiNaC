@@ -82,7 +82,7 @@ public:
 	print_csrc(std::ostream &);
 };
 
-/** Context for C source output using float numbers. */
+/** Context for C source output using float precision. */
 class print_csrc_float : public print_csrc
 {
 public:
@@ -90,7 +90,7 @@ public:
 	print_csrc_float(std::ostream &);
 };
 
-/** Context for C source output using double numbers. */
+/** Context for C source output using double precision. */
 class print_csrc_double : public print_csrc
 {
 public:

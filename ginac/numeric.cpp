@@ -30,6 +30,7 @@
 #include <stdexcept>
 #include <string>
 #include <sstream>
+#include <limits>
 
 #include "numeric.h"
 #include "ex.h"
@@ -313,7 +314,7 @@ DEFAULT_UNARCHIVE(numeric)
  *  want to visibly distinguish from cl_LF.
  *
  *  @see numeric::print() */
-static void print_real_number(const print_context & c, const cln::cl_R &x)
+static void print_real_number(const print_context & c, const cln::cl_R & x)
 {
 	cln::cl_print_flags ourflags;
 	if (cln::instanceof(x, cln::cl_RA_ring)) {
@@ -339,6 +340,82 @@ static void print_real_number(const print_context & c, const cln::cl_R &x)
 	}
 }
 
+/** Helper function to print integer number in C++ source format.
+ *
+ *  @see numeric::print() */
+static void print_integer_csrc(const print_context & c, const cln::cl_I & x)
+{
+	// Print small numbers in compact float format, but larger numbers in
+	// scientific format
+	const int max_cln_int = 536870911; // 2^29-1
+	if (x >= cln::cl_I(-max_cln_int) && x <= cln::cl_I(max_cln_int))
+		c.s << cln::cl_I_to_int(x) << ".0";
+	else
+		c.s << cln::double_approx(x);
+}
+
+/** Helper function to print real number in C++ source format.
+ *
+ *  @see numeric::print() */
+static void print_real_csrc(const print_context & c, const cln::cl_R & x)
+{
+	if (cln::instanceof(x, cln::cl_I_ring)) {
+
+		// Integer number
+		print_integer_csrc(c, cln::the<cln::cl_I>(x));
+
+	} else if (cln::instanceof(x, cln::cl_RA_ring)) {
+
+		// Rational number
+		const cln::cl_I numer = cln::numerator(cln::the<cln::cl_RA>(x));
+		const cln::cl_I denom = cln::denominator(cln::the<cln::cl_RA>(x));
+		if (cln::plusp(x) > 0) {
+			c.s << "(";
+			print_integer_csrc(c, numer);
+		} else {
+			c.s << "-(";
+			print_integer_csrc(c, -numer);
+		}
+		c.s << "/";
+		print_integer_csrc(c, denom);
+		c.s << ")";
+
+	} else {
+
+		// Anything else
+		c.s << cln::double_approx(x);
+	}
+}
+
+/** Helper function to print real number in C++ source format using cl_N types.
+ *
+ *  @see numeric::print() */
+static void print_real_cl_N(const print_context & c, const cln::cl_R & x)
+{
+	if (cln::instanceof(x, cln::cl_I_ring)) {
+
+		// Integer number
+		c.s << "cln::cl_I(\"";
+		print_real_number(c, x);
+		c.s << "\")";
+
+	} else if (cln::instanceof(x, cln::cl_RA_ring)) {
+
+		// Rational number
+		cln::cl_print_flags ourflags;
+		c.s << "cln::cl_RA(\"";
+		cln::print_rational(c.s, ourflags, cln::the<cln::cl_RA>(x));
+		c.s << "\")";
+
+	} else {
+
+		// Anything else
+		c.s << "cln::cl_F(\"";
+		print_real_number(c, cln::cl_float(1.0, cln::default_float_format) * x);
+		c.s << "_" << Digits << "\")";
+	}
+}
+
 /** This method adds to the output so it blends more consistently together
  *  with the other routines and produces something compatible to ginsh input.
  *  
@@ -352,56 +429,69 @@ void numeric::print(const print_context & c, unsigned level) const
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 		    << std::endl;
 
+	} else if (is_a<print_csrc_cl_N>(c)) {
+
+		// CLN output
+		if (this->is_real()) {
+
+			// Real number
+			print_real_cl_N(c, cln::the<cln::cl_R>(value));
+
+		} else {
+
+			// Complex number
+			c.s << "cln::complex(";
+			print_real_cl_N(c, cln::realpart(cln::the<cln::cl_N>(value)));
+			c.s << ",";
+			print_real_cl_N(c, cln::imagpart(cln::the<cln::cl_N>(value)));
+			c.s << ")";
+		}
+
 	} else if (is_a<print_csrc>(c)) {
 
+		// C++ source output
 		std::ios::fmtflags oldflags = c.s.flags();
 		c.s.setf(std::ios::scientific);
 		int oldprec = c.s.precision();
+
+		// Set precision
 		if (is_a<print_csrc_double>(c))
-			c.s.precision(16);
+			c.s.precision(std::numeric_limits<double>::digits10 + 1);
 		else
-			c.s.precision(7);
-		if (is_a<print_csrc_cl_N>(c) && this->is_integer()) {
-			c.s << "cln::cl_I(\"";
-			const cln::cl_R r = cln::realpart(cln::the<cln::cl_N>(value));
-			print_real_number(c,r);
-			c.s << "\")";
-		} else if (this->is_rational() && !this->is_integer()) {
-			if (compare(_num0) > 0) {
-				c.s << "(";
-				if (is_a<print_csrc_cl_N>(c))
-					c.s << "cln::cl_F(\"" << numer().evalf() << "\")";
-				else
-					c.s << numer().to_double();
-			} else {
-				c.s << "-(";
-				if (is_a<print_csrc_cl_N>(c))
-					c.s << "cln::cl_F(\"" << -numer().evalf() << "\")";
-				else
-					c.s << -numer().to_double();
-			}
-			c.s << "/";
-			if (is_a<print_csrc_cl_N>(c))
-				c.s << "cln::cl_F(\"" << denom().evalf() << "\")";
-			else
-				c.s << denom().to_double();
-			c.s << ")";
+			c.s.precision(std::numeric_limits<float>::digits10 + 1);
+
+		if (this->is_real()) {
+
+			// Real number
+			print_real_csrc(c, cln::the<cln::cl_R>(value));
+
 		} else {
-			if (is_a<print_csrc_cl_N>(c))
-				c.s << "cln::cl_F(\"" << evalf() << "_" << Digits << "\")";
+
+			// Complex number
+			c.s << "std::complex<";
+			if (is_a<print_csrc_double>(c))
+				c.s << "double>(";
 			else
-				c.s << to_double();
+				c.s << "float>(";
+
+			print_real_csrc(c, cln::realpart(cln::the<cln::cl_N>(value)));
+			c.s << ",";
+			print_real_csrc(c, cln::imagpart(cln::the<cln::cl_N>(value)));
+			c.s << ")";
 		}
+
 		c.s.flags(oldflags);
 		c.s.precision(oldprec);
 
 	} else {
+
 		const std::string par_open  = is_a<print_latex>(c) ? "{(" : "(";
 		const std::string par_close = is_a<print_latex>(c) ? ")}" : ")";
 		const std::string imag_sym  = is_a<print_latex>(c) ? "i" : "I";
 		const std::string mul_sym   = is_a<print_latex>(c) ? " " : "*";
 		const cln::cl_R r = cln::realpart(cln::the<cln::cl_N>(value));
 		const cln::cl_R i = cln::imagpart(cln::the<cln::cl_N>(value));
+
 		if (is_a<print_python_repr>(c))
 			c.s << class_name() << "('";
 		if (cln::zerop(i)) {
