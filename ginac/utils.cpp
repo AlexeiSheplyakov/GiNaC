@@ -44,8 +44,6 @@ int pole_error::degree() const
 	return deg;
 }
 
-// some compilers (e.g. cygwin) define a macro log2, causing confusion
-#ifndef log2
 /** Integer binary logarithm */
 unsigned log2(unsigned n)
 {
@@ -54,7 +52,6 @@ unsigned log2(unsigned n)
 		++k;
 	return k;
 }
-#endif
 
 
 //////////

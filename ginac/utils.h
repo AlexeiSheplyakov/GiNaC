@@ -38,9 +38,11 @@ namespace GiNaC {
 class dunno {};
 
 // some compilers (e.g. cygwin) define a macro log2, causing confusion
-#ifndef log2
-unsigned log2(unsigned n);
+#ifdef log2
+#undef log2
 #endif
+
+unsigned log2(unsigned n);
 
 /** Compare two pointers (just to establish some sort of canonical order).
  *  @return -1, 0, or 1 */

@@ -55,6 +55,7 @@ static ex exp_eval(const ex & x)
 	if (x.is_zero()) {
 		return _ex1;
 	}
+
 	// exp(n*Pi*I/2) -> {+1|+I|-1|-I}
 	const ex TwoExOverPiI=(_ex2*x)/(Pi*I);
 	if (TwoExOverPiI.info(info_flags::integer)) {
@@ -68,11 +69,12 @@ static ex exp_eval(const ex & x)
 		if (z.is_equal(_num3))
 			return ex(-I);
 	}
+
 	// exp(log(x)) -> x
 	if (is_ex_the_function(x, log))
 		return x.op(0);
 	
-	// exp(float)
+	// exp(float) -> float
 	if (x.info(info_flags::numeric) && !x.info(info_flags::crational))
 		return exp(ex_to<numeric>(x));
 	
@@ -117,10 +119,12 @@ static ex log_eval(const ex & x)
 			return (Pi*I*_num1_2);
 		if (x.is_equal(-I))      // log(-I) -> -Pi*I/2
 			return (Pi*I*_num_1_2);
-		// log(float)
+
+		// log(float) -> float
 		if (!x.info(info_flags::crational))
 			return log(ex_to<numeric>(x));
 	}
+
 	// log(exp(t)) -> t (if -Pi < t.imag() <= Pi):
 	if (is_ex_the_function(x, exp)) {
 		const ex &t = x.op(0);
@@ -271,15 +275,18 @@ static ex sin_eval(const ex & x)
 		if (z.is_equal(_num30)) // sin(Pi/2)    -> 1
 			return sign;
 	}
-	
+
 	if (is_exactly_a<function>(x)) {
 		const ex &t = x.op(0);
+
 		// sin(asin(x)) -> x
 		if (is_ex_the_function(x, asin))
 			return t;
+
 		// sin(acos(x)) -> sqrt(1-x^2)
 		if (is_ex_the_function(x, acos))
 			return sqrt(_ex1-power(t,_ex2));
+
 		// sin(atan(x)) -> x/sqrt(1+x^2)
 		if (is_ex_the_function(x, atan))
 			return t*power(_ex1+power(t,_ex2),_ex_1_2);
@@ -288,6 +295,10 @@ static ex sin_eval(const ex & x)
 	// sin(float) -> float
 	if (x.info(info_flags::numeric) && !x.info(info_flags::crational))
 		return sin(ex_to<numeric>(x));
+
+	// sin() is odd
+	if (x.info(info_flags::negative))
+		return -sin(-x);
 	
 	return sin(x).hold();
 }
@@ -352,15 +363,18 @@ static ex cos_eval(const ex & x)
 		if (z.is_equal(_num30)) // cos(Pi/2)    -> 0
 			return _ex0;
 	}
-	
+
 	if (is_exactly_a<function>(x)) {
 		const ex &t = x.op(0);
+
 		// cos(acos(x)) -> x
 		if (is_ex_the_function(x, acos))
 			return t;
+
 		// cos(asin(x)) -> sqrt(1-x^2)
 		if (is_ex_the_function(x, asin))
 			return sqrt(_ex1-power(t,_ex2));
+
 		// cos(atan(x)) -> 1/sqrt(1+x^2)
 		if (is_ex_the_function(x, atan))
 			return power(_ex1+power(t,_ex2),_ex_1_2);
@@ -369,6 +383,10 @@ static ex cos_eval(const ex & x)
 	// cos(float) -> float
 	if (x.info(info_flags::numeric) && !x.info(info_flags::crational))
 		return cos(ex_to<numeric>(x));
+	
+	// cos() is even
+	if (x.info(info_flags::negative))
+		return cos(-x);
 	
 	return cos(x).hold();
 }
@@ -429,15 +447,18 @@ static ex tan_eval(const ex & x)
 		if (z.is_equal(_num30)) // tan(Pi/2)    -> infinity
 			throw (pole_error("tan_eval(): simple pole",1));
 	}
-	
+
 	if (is_exactly_a<function>(x)) {
 		const ex &t = x.op(0);
+
 		// tan(atan(x)) -> x
 		if (is_ex_the_function(x, atan))
 			return t;
+
 		// tan(asin(x)) -> x/sqrt(1+x^2)
 		if (is_ex_the_function(x, asin))
 			return t*power(_ex1-power(t,_ex2),_ex_1_2);
+
 		// tan(acos(x)) -> sqrt(1-x^2)/x
 		if (is_ex_the_function(x, acos))
 			return power(t,_ex_1)*sqrt(_ex1-power(t,_ex2));
@@ -447,6 +468,10 @@ static ex tan_eval(const ex & x)
 	if (x.info(info_flags::numeric) && !x.info(info_flags::crational)) {
 		return tan(ex_to<numeric>(x));
 	}
+	
+	// tan() is odd
+	if (x.info(info_flags::negative))
+		return -tan(-x);
 	
 	return tan(x).hold();
 }
@@ -496,24 +521,34 @@ static ex asin_evalf(const ex & x)
 static ex asin_eval(const ex & x)
 {
 	if (x.info(info_flags::numeric)) {
+
 		// asin(0) -> 0
 		if (x.is_zero())
 			return x;
+
 		// asin(1/2) -> Pi/6
 		if (x.is_equal(_ex1_2))
 			return numeric(1,6)*Pi;
+
 		// asin(1) -> Pi/2
 		if (x.is_equal(_ex1))
 			return _num1_2*Pi;
+
 		// asin(-1/2) -> -Pi/6
 		if (x.is_equal(_ex_1_2))
 			return numeric(-1,6)*Pi;
+
 		// asin(-1) -> -Pi/2
 		if (x.is_equal(_ex_1))
 			return _num_1_2*Pi;
+
 		// asin(float) -> float
 		if (!x.info(info_flags::crational))
 			return asin(ex_to<numeric>(x));
+
+		// asin() is odd
+		if (x.info(info_flags::negative))
+			return -asin(-x);
 	}
 	
 	return asin(x).hold();
@@ -547,24 +582,34 @@ static ex acos_evalf(const ex & x)
 static ex acos_eval(const ex & x)
 {
 	if (x.info(info_flags::numeric)) {
+
 		// acos(1) -> 0
 		if (x.is_equal(_ex1))
 			return _ex0;
+
 		// acos(1/2) -> Pi/3
 		if (x.is_equal(_ex1_2))
 			return _ex1_3*Pi;
+
 		// acos(0) -> Pi/2
 		if (x.is_zero())
 			return _ex1_2*Pi;
+
 		// acos(-1/2) -> 2/3*Pi
 		if (x.is_equal(_ex_1_2))
 			return numeric(2,3)*Pi;
+
 		// acos(-1) -> Pi
 		if (x.is_equal(_ex_1))
 			return Pi;
+
 		// acos(float) -> float
 		if (!x.info(info_flags::crational))
 			return acos(ex_to<numeric>(x));
+
+		// acos(-x) -> Pi-acos(x)
+		if (x.info(info_flags::negative))
+			return Pi-acos(-x);
 	}
 	
 	return acos(x).hold();
@@ -598,20 +643,29 @@ static ex atan_evalf(const ex & x)
 static ex atan_eval(const ex & x)
 {
 	if (x.info(info_flags::numeric)) {
+
 		// atan(0) -> 0
 		if (x.is_zero())
 			return _ex0;
+
 		// atan(1) -> Pi/4
 		if (x.is_equal(_ex1))
 			return _ex1_4*Pi;
+
 		// atan(-1) -> -Pi/4
 		if (x.is_equal(_ex_1))
 			return _ex_1_4*Pi;
+
 		if (x.is_equal(I) || x.is_equal(-I))
 			throw (pole_error("atan_eval(): logarithmic pole",0));
+
 		// atan(float) -> float
 		if (!x.info(info_flags::crational))
 			return atan(ex_to<numeric>(x));
+
+		// atan() is odd
+		if (x.info(info_flags::negative))
+			return -atan(-x);
 	}
 	
 	return atan(x).hold();
@@ -681,19 +735,79 @@ REGISTER_FUNCTION(atan, eval_func(atan_eval).
 static ex atan2_evalf(const ex &y, const ex &x)
 {
 	if (is_exactly_a<numeric>(y) && is_exactly_a<numeric>(x))
-		return atan2(ex_to<numeric>(y), ex_to<numeric>(x));
+		return atan(ex_to<numeric>(y), ex_to<numeric>(x));
 	
 	return atan2(y, x).hold();
 }
 
 static ex atan2_eval(const ex & y, const ex & x)
 {
-	if (y.info(info_flags::numeric) && !y.info(info_flags::crational) &&
-		x.info(info_flags::numeric) && !x.info(info_flags::crational)) {
-		return atan2_evalf(y,x);
+	if (y.info(info_flags::numeric) && x.info(info_flags::numeric)) {
+
+		if (y.is_zero()) {
+
+			// atan(0, 0) -> 0
+			if (x.is_zero())
+				return _ex0;
+
+			// atan(0, x), x real and positive -> 0
+			if (x.info(info_flags::positive))
+				return _ex0;
+
+			// atan(0, x), x real and negative -> -Pi
+			if (x.info(info_flags::negative))
+				return _ex_1*Pi;
+		}
+
+		if (x.is_zero()) {
+
+			// atan(y, 0), y real and positive -> Pi/2
+			if (y.info(info_flags::positive))
+				return _ex1_2*Pi;
+
+			// atan(y, 0), y real and negative -> -Pi/2
+			if (y.info(info_flags::negative))
+				return _ex_1_2*Pi;
+		}
+
+		if (y.is_equal(x)) {
+
+			// atan(y, y), y real and positive -> Pi/4
+			if (y.info(info_flags::positive))
+				return _ex1_4*Pi;
+
+			// atan(y, y), y real and negative -> -3/4*Pi
+			if (y.info(info_flags::negative))
+				return numeric(-3, 4)*Pi;
+		}
+
+		if (y.is_equal(-x)) {
+
+			// atan(y, -y), y real and positive -> 3*Pi/4
+			if (y.info(info_flags::positive))
+				return numeric(3, 4)*Pi;
+
+			// atan(y, -y), y real and negative -> -Pi/4
+			if (y.info(info_flags::negative))
+				return _ex_1_4*Pi;
+		}
+
+		// atan(float, float) -> float
+		if (!y.info(info_flags::crational) && !x.info(info_flags::crational))
+			return atan(ex_to<numeric>(y), ex_to<numeric>(x));
+
+		// atan(real, real) -> atan(y/x) +/- Pi
+		if (y.info(info_flags::real) && x.info(info_flags::real)) {
+			if (x.info(info_flags::positive))
+				return atan(y/x);
+			else if(y.info(info_flags::positive))
+				return atan(y/x)+Pi;
+			else
+				return atan(y/x)-Pi;
+		}
 	}
-	
-	return atan2(y,x).hold();
+
+	return atan2(y, x).hold();
 }    
 
 static ex atan2_deriv(const ex & y, const ex & x, unsigned deriv_param)
@@ -727,10 +841,18 @@ static ex sinh_evalf(const ex & x)
 static ex sinh_eval(const ex & x)
 {
 	if (x.info(info_flags::numeric)) {
-		if (x.is_zero())  // sinh(0) -> 0
+
+		// sinh(0) -> 0
+		if (x.is_zero())
 			return _ex0;        
-		if (!x.info(info_flags::crational))  // sinh(float) -> float
+
+		// sinh(float) -> float
+		if (!x.info(info_flags::crational))
 			return sinh(ex_to<numeric>(x));
+
+		// sinh() is odd
+		if (x.info(info_flags::negative))
+			return -sinh(-x);
 	}
 	
 	if ((x/Pi).info(info_flags::numeric) &&
@@ -739,12 +861,15 @@ static ex sinh_eval(const ex & x)
 	
 	if (is_exactly_a<function>(x)) {
 		const ex &t = x.op(0);
+
 		// sinh(asinh(x)) -> x
 		if (is_ex_the_function(x, asinh))
 			return t;
+
 		// sinh(acosh(x)) -> sqrt(x-1) * sqrt(x+1)
 		if (is_ex_the_function(x, acosh))
 			return sqrt(t-_ex1)*sqrt(t+_ex1);
+
 		// sinh(atanh(x)) -> x/sqrt(1-x^2)
 		if (is_ex_the_function(x, atanh))
 			return t*power(_ex1-power(t,_ex2),_ex_1_2);
@@ -781,10 +906,18 @@ static ex cosh_evalf(const ex & x)
 static ex cosh_eval(const ex & x)
 {
 	if (x.info(info_flags::numeric)) {
-		if (x.is_zero())  // cosh(0) -> 1
+
+		// cosh(0) -> 1
+		if (x.is_zero())
 			return _ex1;
-		if (!x.info(info_flags::crational))  // cosh(float) -> float
+
+		// cosh(float) -> float
+		if (!x.info(info_flags::crational))
 			return cosh(ex_to<numeric>(x));
+
+		// cosh() is even
+		if (x.info(info_flags::negative))
+			return cosh(-x);
 	}
 	
 	if ((x/Pi).info(info_flags::numeric) &&
@@ -793,12 +926,15 @@ static ex cosh_eval(const ex & x)
 	
 	if (is_exactly_a<function>(x)) {
 		const ex &t = x.op(0);
+
 		// cosh(acosh(x)) -> x
 		if (is_ex_the_function(x, acosh))
 			return t;
+
 		// cosh(asinh(x)) -> sqrt(1+x^2)
 		if (is_ex_the_function(x, asinh))
 			return sqrt(_ex1+power(t,_ex2));
+
 		// cosh(atanh(x)) -> 1/sqrt(1-x^2)
 		if (is_ex_the_function(x, atanh))
 			return power(_ex1-power(t,_ex2),_ex_1_2);
@@ -835,10 +971,18 @@ static ex tanh_evalf(const ex & x)
 static ex tanh_eval(const ex & x)
 {
 	if (x.info(info_flags::numeric)) {
-		if (x.is_zero())  // tanh(0) -> 0
+
+		// tanh(0) -> 0
+		if (x.is_zero())
 			return _ex0;
-		if (!x.info(info_flags::crational))  // tanh(float) -> float
+
+		// tanh(float) -> float
+		if (!x.info(info_flags::crational))
 			return tanh(ex_to<numeric>(x));
+
+		// tanh() is odd
+		if (x.info(info_flags::negative))
+			return -tanh(-x);
 	}
 	
 	if ((x/Pi).info(info_flags::numeric) &&
@@ -847,12 +991,15 @@ static ex tanh_eval(const ex & x)
 	
 	if (is_exactly_a<function>(x)) {
 		const ex &t = x.op(0);
+
 		// tanh(atanh(x)) -> x
 		if (is_ex_the_function(x, atanh))
 			return t;
+
 		// tanh(asinh(x)) -> x/sqrt(1+x^2)
 		if (is_ex_the_function(x, asinh))
 			return t*power(_ex1+power(t,_ex2),_ex_1_2);
+
 		// tanh(acosh(x)) -> sqrt(x-1)*sqrt(x+1)/x
 		if (is_ex_the_function(x, acosh))
 			return sqrt(t-_ex1)*sqrt(t+_ex1)*power(t,_ex_1);
@@ -906,12 +1053,18 @@ static ex asinh_evalf(const ex & x)
 static ex asinh_eval(const ex & x)
 {
 	if (x.info(info_flags::numeric)) {
+
 		// asinh(0) -> 0
 		if (x.is_zero())
 			return _ex0;
+
 		// asinh(float) -> float
 		if (!x.info(info_flags::crational))
 			return asinh(ex_to<numeric>(x));
+
+		// asinh() is odd
+		if (x.info(info_flags::negative))
+			return -asinh(-x);
 	}
 	
 	return asinh(x).hold();
@@ -944,18 +1097,26 @@ static ex acosh_evalf(const ex & x)
 static ex acosh_eval(const ex & x)
 {
 	if (x.info(info_flags::numeric)) {
+
 		// acosh(0) -> Pi*I/2
 		if (x.is_zero())
 			return Pi*I*numeric(1,2);
+
 		// acosh(1) -> 0
 		if (x.is_equal(_ex1))
 			return _ex0;
+
 		// acosh(-1) -> Pi*I
 		if (x.is_equal(_ex_1))
 			return Pi*I;
+
 		// acosh(float) -> float
 		if (!x.info(info_flags::crational))
 			return acosh(ex_to<numeric>(x));
+
+		// acosh(-x) -> Pi*I-acosh(x)
+		if (x.info(info_flags::negative))
+			return Pi*I-acosh(-x);
 	}
 	
 	return acosh(x).hold();
@@ -988,15 +1149,22 @@ static ex atanh_evalf(const ex & x)
 static ex atanh_eval(const ex & x)
 {
 	if (x.info(info_flags::numeric)) {
+
 		// atanh(0) -> 0
 		if (x.is_zero())
 			return _ex0;
+
 		// atanh({+|-}1) -> throw
 		if (x.is_equal(_ex1) || x.is_equal(_ex_1))
 			throw (pole_error("atanh_eval(): logarithmic pole",0));
+
 		// atanh(float) -> float
 		if (!x.info(info_flags::crational))
 			return atanh(ex_to<numeric>(x));
+
+		// atanh() is odd
+		if (x.info(info_flags::negative))
+			return -atanh(-x);
 	}
 	
 	return atanh(x).hold();
