@@ -1,6 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(ginac/basic.cpp)
+AC_INIT
+AC_CONFIG_SRCDIR(ginac/basic.cpp)
 AC_PREREQ(2.50)
 
 dnl GiNaC library version information.
@@ -45,8 +46,8 @@ ARCHIVE_AGE=1
 
 AC_SUBST(ARCHIVE_VERSION)
 AC_SUBST(ARCHIVE_AGE)
-AC_DEFINE_UNQUOTED(ARCHIVE_VERSION, $ARCHIVE_VERSION)
-AC_DEFINE_UNQUOTED(ARCHIVE_AGE, $ARCHIVE_AGE)
+AC_DEFINE_UNQUOTED(ARCHIVE_VERSION, $ARCHIVE_VERSION, [Current GiNaC archive file version number])
+AC_DEFINE_UNQUOTED(ARCHIVE_AGE, $ARCHIVE_AGE, [GiNaC archive file version age])
 
 dnl libtool versioning
 LT_RELEASE=$GINACLIB_MAJOR_VERSION.$GINACLIB_MINOR_VERSION
@@ -82,7 +83,7 @@ AC_CHECK_SIZEOF(long long, 8)
 AC_CHECK_SIZEOF(long double, 12)
 
 dnl Switch to C++ language mode for the following libraries and headers.
-AC_LANG_CPLUSPLUS
+AC_LANG([C++])
 
 dnl Check for stuff needed for building the GiNaC interactive shell (ginsh).
 AC_CHECK_HEADERS(unistd.h)
@@ -157,7 +158,7 @@ AC_SUBST(TUTORIAL_TARGETS)
 AC_SUBST(REFERENCE_TARGETS)
 
 dnl Output makefiles etc.
-AC_OUTPUT([
+AC_CONFIG_FILES([
 Makefile
 GiNaC.spec
 ginac-config
@@ -172,6 +173,8 @@ tools/viewgar.1
 doc/Makefile
 doc/tutorial/Makefile
 doc/reference/Makefile
-], [chmod +x ginac-config])
+])
+AC_CONFIG_COMMANDS([default],[[chmod +x ginac-config]],[[]])
+AC_OUTPUT
 dnl Display a final warning if there has been a GINAC_ERROR or a GINAC_WARNING
 GINAC_CHECK_ERRORS

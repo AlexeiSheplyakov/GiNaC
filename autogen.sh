@@ -23,6 +23,14 @@ PROG=GiNaC
         DIE=1
 }
 
+(libtoolize --version) < /dev/null > /dev/null 2>&1 || {
+        echo
+        echo "You must have libtool installed to compile $PROG."
+        echo "Get ftp://ftp.gnu.org/pub/gnu/libtool-1.4.tar.gz"
+        echo "(or a newer version if it is available)"
+        DIE=1
+}
+
 if test "$DIE" -eq 1; then
         exit 1
 fi
@@ -38,7 +46,7 @@ do
   (cd $dir; \
   aclocalinclude="$ACLOCAL_FLAGS"; \
   aclocal $aclocalinclude; \
-  autoheader; automake -a; autoconf)
+  autoheader; libtoolize -c; automake -a -c; autoconf)
 done
 
 ./configure "$@"
