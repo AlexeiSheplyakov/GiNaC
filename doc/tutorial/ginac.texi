@@ -721,6 +721,25 @@ The next sections will outline the general picture of GiNaC's class
 hierarchy and describe the classes of objects that are handled by
 @code{ex}.
 
+@subsection Note: Expressions and STL containers
+
+GiNaC expressions (@code{ex} objects) have value semantics (they can be
+assigned, reassigned and copied like integral types) but the operator
+@code{<} doesn't provide a well-defined ordering on them. In STL-speak,
+expressions are @samp{Assignable} but not @samp{LessThanComparable}.
+
+This implies that in order to use expressions in sorted containers such as
+@code{std::map<>} and @code{std::set<>} you have to supply a suitable
+comparison predicate. GiNaC provides such a predicate, called
+@code{ex_is_less}. For example, a set of expressions should be defined
+as @code{std::set<ex, ex_is_less>}.
+
+Unsorted containers such as @code{std::vector<>} and @code{std::list<>}
+don't pose a problem. A @code{std::vector<ex>} works as expected.
+
+@xref{Information About Expressions}, for more about comparing and ordering
+expressions.
+
 
 @node Automatic evaluation, Error handling, Expressions, Basic Concepts
 @c    node-name, next, previous, up
