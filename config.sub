@@ -2,7 +2,9 @@
 # Configuration validation subroutine script, version 1.1.
 #   Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000
 #   Free Software Foundation, Inc.
-#
+
+version='2000-05-30'
+
 # This file is (in principle) common to ALL GNU software.
 # The presence of a machine in this file suggests that SOME GNU software
 # can handle that machine.  It does not imply ALL GNU software can.
@@ -50,23 +52,54 @@
 #	CPU_TYPE-MANUFACTURER-KERNEL-OPERATING_SYSTEM
 # It is wrong to echo any other type of specification.
 
-if [ x$1 = x ]
-then
-	echo Configuration name missing. 1>&2
-	echo "Usage: $0 CPU-MFR-OPSYS" 1>&2
-	echo "or     $0 ALIAS" 1>&2
-	echo where ALIAS is a recognized configuration type. 1>&2
-	exit 1
-fi
+me=`echo "$0" | sed -e 's,.*/,,'`
 
-# First pass through any local machine types.
-case $1 in
-	*local*)
-		echo $1
-		exit 0
-		;;
-	*)
-	;;
+usage="\
+Usage: $0 [OPTION] CPU-MFR-OPSYS
+       $0 [OPTION] ALIAS
+
+Canonicalize a configuration name.
+
+Operation modes:
+  -h, --help               print this help, then exit
+  -V, --version            print version number, then exit"
+
+help="
+Try \`$me --help' for more information."
+
+# Parse command line
+while test $# -gt 0 ; do
+  case "$1" in
+    --version | --vers* | -V )
+       echo "$version" ; exit 0 ;;
+    --help | --h* | -h )
+       echo "$usage"; exit 0 ;;
+    -- )     # Stop option processing
+       shift; break ;;
+    - )	# Use stdin as input.
+       break ;;
+    -* )
+       exec >&2
+       echo "$me: invalid option $1"
+       echo "$help"
+       exit 1 ;;
+
+    *local*)
+       # First pass through any local machine types.
+       echo $1
+       exit 0;;
+
+    * )
+       break ;;
+  esac
+done
+
+case $# in
+ 0) echo "$me: missing argument$help" >&2
+    exit 1;;
+ 1) ;;
+ *) echo "$me: too many arguments$help" >&2
+    exit 1;;
 esac
 
 # Separate what the user gave into CPU-COMPANY and OS or KERNEL-OS (if any).
@@ -1266,3 +1299,11 @@ case $basic_machine in
 esac
 
 echo $basic_machine$os
+exit 0
+
+# Local variables:
+# eval: (add-hook 'write-file-hooks 'time-stamp)
+# time-stamp-start: "version='"
+# time-stamp-format: "%:y-%02m-%02d"
+# time-stamp-end: "'"
+# End:

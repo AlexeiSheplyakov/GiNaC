@@ -1,7 +1,7 @@
 PREREQUISITES
 =============
 
-GiNaC requires the CLN library by Bruno Haible, available at either
+GiNaC requires the CLN library by Bruno Haible, available from either
 one of the following FTP-sites:
   * <ftp://ftp.santafe.edu/pub/gnu/>,
   * <ftp://ftp.ilog.fr/pub/Users/haible/gnu/> or
@@ -12,9 +12,8 @@ different compiler you are on your own.  Note that you may have to use
 the same compiler you compiled CLN with because of differing
 name-mangling schemes.
 
-Optionally, GiNaC may work together with Masaharu Goto's C++
-interpreter cint (which requires that you register for commercial
-use).  You may obtain it from
+Optionally, GiNaC may work together with Masaharu Goto's free C++
+interpreter Cint.  You may obtain it from
   * <ftp://root.cern.ch/root/>.
 Install it by following the instructions included in Cint's
 distribution before trying to compile GiNaC-cint.  (See section
@@ -34,6 +33,8 @@ As with any autoconfiguring GNU software, installation is as easy as this:
 
 Known to work with:
   - Linux/x86, EGCS-1.1.x and GCC 2-95.x
+Known not to work with:
+  - GCC 2.7.x or earlier because proper exception support is missing there.
 
 The "configure" script can be given a number of options to enable and
 disable various features. For a complete list, type:
@@ -85,10 +86,7 @@ libreadline and/or the corresponding header files.  Depending on what
 your system/distribution is, you will have to install a package called
 libreadline and maybe libreadline-dev.  If your system's vendor
 doesn't supply such packages, go to <ftp://ftp.gnu.org/gnu/readline/>
-and compile it yourself.  After that it should work fine.  
-
-If you want to build a completely static ginsh and your compiler still
-complains about unresolved objects try linking with libncurses, too.
+and compile it yourself.
 
 
 Working with the Cint C++ interpreter
@@ -113,3 +111,4 @@ to compile, install and work properly:
  < 5.14.37    |                           | (incompatible with GiNaC)
    5.14.38    | egcs 1.1.1 (problematic)  | gcc.2.95.2
    5.14.39    | egcs 1.1.1, gcc.2.95.2    | gcc <= 2.7.2.3
+   5.14.40    | egcs 1.1.1, gcc.2.95.2    | gcc <= 2.7.2.3
