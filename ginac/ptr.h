@@ -80,11 +80,14 @@ public:
 
 	ptr &operator=(const ptr & other)
 	{
-		// NB: must first add reference to "other", since other might be *this.
-		other.p->add_reference();
+		// NB1: Must first add reference to "other", since other might be *this.
+		// NB2: Cache other.p, because if "other" is a subexpression of p,
+		//      deleting p will also invalidate "other".
+		T *otherp = other.p;
+		otherp->add_reference();
 		if (p->remove_reference() == 0)
 			delete p;
-		p = other.p;
+		p = otherp;
 		return *this;
 	}
 
