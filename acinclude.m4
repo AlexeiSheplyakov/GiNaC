@@ -10,7 +10,7 @@ dnl about compatiblilty (which is not so bad by itself) and at the same time
 dnl they don't export the version to the preprocessor so we could kluge around 
 dnl incomatiblities.  The only reliable way to figure out the version is by 
 dnl checking the extern variable rl_library_version at runtime.  &#@$%*!
-AC_DEFUN(GINAC_LIB_READLINE_VERSION,
+AC_DEFUN([GINAC_LIB_READLINE_VERSION],
 [AC_CACHE_CHECK([for version of libreadline], ginac_cv_rlversion, [
 AC_TRY_RUN([
 #include <stdio.h>
@@ -41,7 +41,7 @@ dnl Some systems have tgetent(), tgetnum(), tgetstr(), tgetflag(), tputs(),
 dnl tgoto() in libc, some have it in libtermcap, some have it in libncurses.
 dnl When both libtermcap and libncurses exist, we prefer the latter, because
 dnl libtermcap is being phased out.
-AC_DEFUN(GINAC_TERMCAP,
+AC_DEFUN([GINAC_TERMCAP],
 [LIBTERMCAP=
 AC_CHECK_FUNCS(tgetent)
 if test "x$ac_cv_func_tgetent" = "xyes"; then
@@ -58,7 +58,7 @@ AC_SUBST(LIBTERMCAP)
 dnl Usage: GINAC_ERROR(message)
 dnl This macro displays the warning "message" and sets the flag ginac_error
 dnl to yes.
-AC_DEFUN(GINAC_ERROR,[
+AC_DEFUN([GINAC_ERROR],[
 ginac_error_txt="$ginac_error_txt
 ** $1
 "
@@ -67,7 +67,7 @@ ginac_error=yes])
 dnl Usage: GINAC_WARNING(message)
 dnl This macro displays the warning "message" and sets the flag ginac_warning
 dnl to yes.
-AC_DEFUN(GINAC_WARNING,[
+AC_DEFUN([GINAC_WARNING],[
 ginac_warning_txt="$ginac_warning_txt
 == $1
 "
@@ -77,7 +77,7 @@ dnl Usage: GINAC_CHECK_ERRORS
 dnl (must be put at end of configure.in, because it exits on error)
 dnl This macro displays a warning message if GINAC_ERROR or GINAC_WARNING 
 dnl has occured previously.
-AC_DEFUN(GINAC_CHECK_ERRORS,[
+AC_DEFUN([GINAC_CHECK_ERRORS],[
 if test "x${ginac_error}" = "xyes"; then
     echo "**** The following problems have been detected by configure."
     echo "**** Please check the messages below before running \"make\"."
