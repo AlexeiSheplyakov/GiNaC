@@ -45,6 +45,7 @@ unsigned exam_color();
 unsigned exam_clifford();
 unsigned exam_archive();
 unsigned exam_structure();
+unsigned exam_hashmap();
 unsigned exam_misc();
 
 #endif // ndef EXAMS_H

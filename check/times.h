@@ -39,6 +39,7 @@ unsigned time_dennyfliegner();
 unsigned time_gammaseries();
 unsigned time_vandermonde();
 unsigned time_toeplitz();
+unsigned time_hashmap();
 unsigned time_lw_A();
 unsigned time_lw_B();
 unsigned time_lw_C();

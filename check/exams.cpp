@@ -52,6 +52,7 @@ try { \
 	EXAM(clifford)
 	EXAM(archive)
 	EXAM(structure)
+	EXAM(hashmap)
 	EXAM(misc)
 	
 	if (result) {

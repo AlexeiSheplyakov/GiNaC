@@ -39,6 +39,7 @@ try { \
 	TIME(gammaseries)
 	TIME(vandermonde)
 	TIME(toeplitz)
+	TIME(hashmap)
 	TIME(lw_A)
 	TIME(lw_B)
 	TIME(lw_C)
