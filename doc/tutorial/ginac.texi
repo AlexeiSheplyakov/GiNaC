@@ -5103,7 +5103,7 @@ static void my_print(const ex & e)
     if (is_a<function>(e))
         cout << ex_to<function>(e).get_name();
     else
-        cout << e.bp->class_name();
+        cout << ex_to<basic>(e).class_name();
     cout << "(";
     size_t n = e.nops();
     if (n)
