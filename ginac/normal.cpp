@@ -1464,7 +1464,7 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args)
 	}
 
 	// Check arguments
-	if (check_args && !a.info(info_flags::rational_polynomial) || !b.info(info_flags::rational_polynomial)) {
+	if (check_args && (!a.info(info_flags::rational_polynomial) || !b.info(info_flags::rational_polynomial))) {
 		throw(std::invalid_argument("gcd: arguments must be polynomials over the rationals"));
 	}
 
@@ -1678,7 +1678,7 @@ ex lcm(const ex &a, const ex &b, bool check_args)
 {
 	if (is_ex_exactly_of_type(a, numeric) && is_ex_exactly_of_type(b, numeric))
 		return lcm(ex_to_numeric(a), ex_to_numeric(b));
-	if (check_args && !a.info(info_flags::rational_polynomial) || !b.info(info_flags::rational_polynomial))
+	if (check_args && (!a.info(info_flags::rational_polynomial) || !b.info(info_flags::rational_polynomial)))
 		throw(std::invalid_argument("lcm: arguments must be polynomials over the rationals"));
 	
 	ex ca, cb;
@@ -1866,9 +1866,13 @@ static ex frac_cancel(const ex &n, const ex &d)
 
 //std::clog << "frac_cancel num = " << num << ", den = " << den << endl;
 
+	// Handle trivial case where denominator is 1
+	if (den.is_equal(_ex1()))
+		return (new lst(num, den))->setflag(status_flags::dynallocated);
+
 	// Handle special cases where numerator or denominator is 0
 	if (num.is_zero())
-		return (new lst(_ex0(), _ex1()))->setflag(status_flags::dynallocated);
+		return (new lst(num, _ex1()))->setflag(status_flags::dynallocated);
 	if (den.expand().is_zero())
 		throw(std::overflow_error("frac_cancel: division by zero in frac_cancel"));
 
@@ -1914,36 +1918,15 @@ ex add::normal(lst &sym_lst, lst &repl_lst, int level) const
 	else if (level == -max_recursion_level)
 		throw(std::runtime_error("max recursion level reached"));
 
-	// Normalize and expand children, chop into summands and split each
-	// one into numerator and denominator
+	// Normalize children and split each one into numerator and denominator
 	exvector nums, dens;
 	nums.reserve(seq.size()+1);
 	dens.reserve(seq.size()+1);
 	epvector::const_iterator it = seq.begin(), itend = seq.end();
 	while (it != itend) {
-
-		// Normalize and expand child
-		ex n = recombine_pair_to_ex(*it).bp->normal(sym_lst, repl_lst, level-1).expand();
-
-		// If numerator is a sum, chop into summands
-		if (is_ex_exactly_of_type(n.op(0), add)) {
-			epvector::const_iterator bit = ex_to_add(n.op(0)).seq.begin(), bitend = ex_to_add(n.op(0)).seq.end();
-			while (bit != bitend) {
-				nums.push_back(recombine_pair_to_ex(*bit));
-				dens.push_back(n.op(1));
-				bit++;
-			}
-
-			// The overall_coeff is already normalized (== rational), we just
-			// split it into numerator and denominator
-			GINAC_ASSERT(ex_to_numeric(ex_to_add(n.op(0)).overall_coeff).is_rational());
-			numeric overall = ex_to_numeric(ex_to_add(n.op(0)).overall_coeff);
-			nums.push_back(overall.numer());
-			dens.push_back(overall.denom() * n.op(1));
-		} else {
-			nums.push_back(n.op(0));
-			dens.push_back(n.op(1));
-		}
+		ex n = recombine_pair_to_ex(*it).bp->normal(sym_lst, repl_lst, level-1);
+		nums.push_back(n.op(0));
+		dens.push_back(n.op(1));
 		it++;
 	}
 	ex n = overall_coeff.bp->normal(sym_lst, repl_lst, level-1);
@@ -1953,20 +1936,29 @@ ex add::normal(lst &sym_lst, lst &repl_lst, int level) const
 
 	// Now, nums is a vector of all numerators and dens is a vector of
 	// all denominators
+//std::clog << "add::normal uses " << nums.size() << " summands:\n";
 
 	// Add fractions sequentially
 	exvector::const_iterator num_it = nums.begin(), num_itend = nums.end();
 	exvector::const_iterator den_it = dens.begin(), den_itend = dens.end();
-//std::clog << "add::normal uses the following summands:\n";
 //std::clog << " num = " << *num_it << ", den = " << *den_it << endl;
 	ex num = *num_it++, den = *den_it++;
 	while (num_it != num_itend) {
 //std::clog << " num = " << *num_it << ", den = " << *den_it << endl;
+		ex next_num = *num_it++, next_den = *den_it++;
+
+		// Trivially add sequences of fractions with identical denominators
+		while ((den_it != den_itend) && next_den.is_equal(*den_it)) {
+			next_num += *num_it;
+			num_it++; den_it++;
+		}
+
+		// Additiion of two fractions, taking advantage of the fact that
+		// the heuristic GCD algorithm computes the cofactors at no extra cost
 		ex co_den1, co_den2;
-		ex g = gcd(den, *den_it, &co_den1, &co_den2, false);
-		num = (num * co_den2) + (*num_it * co_den1);
-		den *= co_den2;		// this is the lcm(den, *den_it)
-		num_it++; den_it++;
+		ex g = gcd(den, next_den, &co_den1, &co_den2, false);
+		num = ((num * co_den2) + (next_num * co_den1)).expand();
+		den *= co_den2;		// this is the lcm(den, next_den)
 	}
 //std::clog << " common denominator = " << den << endl;
 
