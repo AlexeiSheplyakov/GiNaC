@@ -636,7 +636,7 @@ ex pseries::mul_series(const pseries &other) const
             ex a_coeff = coeff(*s, i);
             ex b_coeff = other.coeff(*s, cdeg-i);
             if (!is_order_function(a_coeff) && !is_order_function(b_coeff))
-                co += coeff(*s, i) * other.coeff(*s, cdeg-i);
+                co += a_coeff * b_coeff;
         }
         if (!co.is_zero())
             new_seq.push_back(expair(co, numeric(cdeg)));
