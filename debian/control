@@ -3,7 +3,7 @@ Section: math
 Priority: optional
 Maintainer: Richard Kreckel <kreckel@ginac.de>
 Standards-Version: 3.1.1
-Build-Depends: debhelper, libstdc++-dev, cln-dev (>=1.1.0), libgmp3-dev, libreadline4-dev
+Build-Depends: debhelper, cln-dev (>=1.1.0), libgmp3-dev, libreadline4-dev
 
 Package: libginac
 Architecture: any
@@ -11,10 +11,12 @@ Section: libs
 Depends: libc6
 Suggests: ginac-tools
 Description: The GiNaC framework (runtime library)
- GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is an
- open framework for symbolic computation within the C++ programming language.
+ GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is a
+ library for doing symbolic (i.e. non-numeric) computation directly in the C++
+ programming language.
  .
- See <http://www.ginac.de/> for detailed information.
+ This package provides the runtime library.  See <http://www.ginac.de/> for
+ detailed information about the GiNaC framework.
 
 Package: libginac-dev
 Architecture: any
@@ -23,18 +25,23 @@ Depends: libginac, libc6-dev, g++ (>=2.95.2), cln-dev (>=1.1.0)
 Recommends: info | info-browser
 Suggests: ginac-tools
 Description: The GiNaC framework (development files)
- GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is an
- open framework for symbolic computation within the C++ programming language.
+ GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is a
+ library for doing symbolic (i.e. non-numeric) computation directly in the C++
+ programming language.
  .
- This package provides header files, a static library plus a tutorial as info.
+ This package provides header files, a static library plus a tutorial as info
+ file.  See <http://www.ginac.de/> for detailed information about the GiNaC
+ framework.
 
 Package: ginac-tools
 Architecture: any
 Section: math
 Depends: ${shlibs:Depends}
 Description: Some tools for the GiNaC framework
- GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is an
- open framework for symbolic computation within the C++ programming language.
+ GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is a
+ library for doing symbolic (i.e. non-numeric) computation directly in the C++
+ programming language.
  .
  This package provides some additional tools, like the ginsh (GiNaC interactive
- shell) and viewgar (for inspecting GiNaC archives).
+ shell) and viewgar (for inspecting GiNaC archive files).  See
+ <http://www.ginac.de/> for detailed information about the GiNaC framework.
