@@ -25,9 +25,9 @@ ac_help="$ac_help
 ac_help="$ac_help
   --disable-libtool-lock  avoid locking (might break parallel builds)"
 ac_help="$ac_help
-  --enable-html-doc       build HTML documentation [default=yes]"
+  --enable-html-doc       build HTML documentation [default=no]"
 ac_help="$ac_help
-  --enable-ps-doc         build PostScript documentation [default=yes]"
+  --enable-ps-doc         build PostScript documentation [default=no]"
 ac_help="$ac_help
   --with-cint=CINTSYSDIR  build GiNaC-cint C++ interpreter [default=no]"
 
@@ -2084,7 +2084,7 @@ if test "${enable_html_doc+set}" = set; then
   enableval="$enable_html_doc"
   :
 else
-  enable_html_doc=yes
+  enable_html_doc=no
 fi
 
 # Check whether --enable-ps-doc or --disable-ps-doc was given.
@@ -2092,7 +2092,7 @@ if test "${enable_ps_doc+set}" = set; then
   enableval="$enable_ps_doc"
   :
 else
-  enable_ps_doc=yes
+  enable_ps_doc=no
 fi
 
 # Check whether --with-cint or --without-cint was given.
