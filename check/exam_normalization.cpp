@@ -27,7 +27,7 @@ static symbol w("w"), x("x"), y("y"), z("z");
 static unsigned check_normal(const ex &e, const ex &d)
 {
 	ex en = e.normal();
-	if (en.compare(d) != 0) {
+	if (!en.is_equal(d)) {
 		clog << "normal form of " << e << " erroneously returned "
 		     << en << " (should be " << d << ")" << endl;
 		return 1;
@@ -157,6 +157,56 @@ static unsigned exam_normal4()
 	return result;
 }
 
+/* Test content(), integer_content(), primpart(). */
+static unsigned check_content(const ex & e, const ex & x, const ex & ic, const ex & c, const ex & pp)
+{
+	unsigned result = 0;
+
+	ex r_ic = e.integer_content();
+	if (!r_ic.is_equal(ic)) {
+		clog << "integer_content(" << e << ") erroneously returned "
+		     << r_ic << " instead of " << ic << endl;
+		++result;
+	}
+
+	ex r_c = e.content(x);
+	if (!r_c.is_equal(c)) {
+		clog << "content(" << e << ", " << x << ") erroneously returned "
+		     << r_c << " instead of " << c << endl;
+		++result;
+	}
+
+	ex r_pp = e.primpart(x);
+	if (!r_pp.is_equal(pp)) {
+		clog << "primpart(" << e << ", " << x << ") erroneously returned "
+		     << r_pp << " instead of " << pp << endl;
+		++result;
+	}
+
+	ex r = r_c*r_pp*e.unit(x);
+	if (!(r - e).expand().is_zero()) {
+		clog << "product of unit, content, and primitive part of " << e << " yielded "
+		     << r << " instead of " << e << endl;
+		++result;
+	}
+
+	return result;
+}
+
+static unsigned exam_content()
+{
+	unsigned result = 0;
+	symbol x("x"), y("y");
+
+	result += check_content(ex(-3)/4, x, ex(3)/4, ex(3)/4, 1);
+	result += check_content(-x/4, x, ex(1)/4, ex(1)/4, x);
+	result += check_content(5*x-15, x, 5, 5, x-3);
+	result += check_content(5*x*y-15*y*y, x, 5, 5*y, x-3*y);
+	result += check_content(-15*x/2+ex(25)/3, x, ex(5)/6, ex(5)/6, 9*x-10);
+
+	return result;
+}
+
 unsigned exam_normalization()
 {
 	unsigned result = 0;
@@ -164,10 +214,11 @@ unsigned exam_normalization()
 	cout << "examining rational function normalization" << flush;
 	clog << "----------rational function normalization:" << endl;
 	
-	result += exam_normal1();  cout << '.' << flush;
-	result += exam_normal2();  cout << '.' << flush;
-	result += exam_normal3();  cout << '.' << flush;
-	result += exam_normal4();  cout << '.' << flush;
+	result += exam_normal1(); cout << '.' << flush;
+	result += exam_normal2(); cout << '.' << flush;
+	result += exam_normal3(); cout << '.' << flush;
+	result += exam_normal4(); cout << '.' << flush;
+	result += exam_content(); cout << '.' << flush;
 	
 	if (!result) {
 		cout << " passed " << endl;
