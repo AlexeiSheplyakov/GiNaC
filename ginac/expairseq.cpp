@@ -1183,7 +1183,7 @@ void expairseq::sorted_insert(epplist &eppl, epp elem)
 
 void expairseq::build_hashtab_and_combine(epvector::iterator &first_numeric,
                                           epvector::iterator &last_non_zero,
-                                          vector<bool> &touched,
+                                          std::vector<bool> &touched,
                                           unsigned &number_of_zeroes)
 {
 	epp current=seq.begin();
@@ -1229,7 +1229,7 @@ void expairseq::build_hashtab_and_combine(epvector::iterator &first_numeric,
 
 void expairseq::drop_coeff_0_terms(epvector::iterator &first_numeric,
                                    epvector::iterator &last_non_zero,
-                                   vector<bool> &touched,
+                                   std::vector<bool> &touched,
                                    unsigned &number_of_zeroes)
 {
 	// move terms with coeff 0 to end and remove them from hashtab
@@ -1329,7 +1329,7 @@ void expairseq::combine_same_terms(void)
 	epvector::iterator first_numeric = seq.end();
 	epvector::iterator last_non_zero = seq.end()-1;
 	
-	vector<bool> touched;
+	std::vector<bool> touched;
 	touched.reserve(seq.size());
 	for (unsigned i=0; i<seq.size(); ++i) touched[i]=false;
 	
