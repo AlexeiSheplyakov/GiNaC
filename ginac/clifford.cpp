@@ -145,9 +145,10 @@ DEFAULT_PRINT(diracgamma5, "gamma5")
 /** Contraction of a gamma matrix with something else. */
 bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const
 {
-	GINAC_ASSERT(is_ex_of_type(*self, indexed));
+	GINAC_ASSERT(is_ex_of_type(*self, clifford));
 	GINAC_ASSERT(is_ex_of_type(*other, indexed));
 	GINAC_ASSERT(is_ex_of_type(self->op(0), diracgamma));
+	unsigned char rl = ex_to_clifford(*self).get_representation_label();
 
 	if (is_ex_of_type(other->op(0), diracgamma)) {
 
@@ -156,7 +157,7 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 		// gamma~mu*gamma.mu = dim*ONE
 		if (other - self == 1) {
 			*self = dim;
-			*other = dirac_ONE();
+			*other = dirac_ONE(rl);
 			return true;
 
 		// gamma~mu*gamma~alpha*gamma.mu = (2-dim)*gamma~alpha
@@ -170,7 +171,7 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 		} else if (other - self == 3
 		        && is_ex_of_type(self[1], clifford)
 		        && is_ex_of_type(self[2], clifford)) {
-			*self = 4 * metric_tensor(self[1].op(1), self[2].op(1)) * dirac_ONE() + (dim - 4) * self[1] * self[2];
+			*self = 4 * metric_tensor(self[1].op(1), self[2].op(1)) * dirac_ONE(rl) + (dim - 4) * self[1] * self[2];
 			self[1] = _ex1();
 			self[2] = _ex1();
 			*other = _ex1();
@@ -200,6 +201,7 @@ ex clifford::simplify_ncmul(const exvector & v) const
 {
 	exvector s;
 	s.reserve(v.size());
+	unsigned rl = ex_to_clifford(v[0]).get_representation_label();
 
 	// Remove superfluous ONEs
 	exvector::const_iterator cit = v.begin(), citend = v.end();
@@ -251,7 +253,7 @@ ex clifford::simplify_ncmul(const exvector & v) const
 				const ex & ib = b.op(1);
 				if (ia.is_equal(ib)) {
 					a = lorentz_g(ia, ib);
-					b = dirac_ONE();
+					b = dirac_ONE(rl);
 					something_changed = true;
 				}
 			}
@@ -260,7 +262,7 @@ ex clifford::simplify_ncmul(const exvector & v) const
 	}
 
 	if (s.size() == 0)
-		return clifford(diracone()) * sign;
+		return clifford(diracone(), rl) * sign;
 	if (something_changed)
 		return nonsimplified_ncmul(s) * sign;
 	else
@@ -297,6 +299,76 @@ ex dirac_gamma(const ex & mu, unsigned char rl)
 ex dirac_gamma5(unsigned char rl)
 {
 	return clifford(diracgamma5(), rl);
+}
+
+ex dirac_trace(const ex & e, unsigned char rl = 0)
+{
+	if (is_ex_of_type(e, clifford)) {
+
+		if (ex_to_clifford(e).get_representation_label() == rl
+		 && is_ex_of_type(e.op(0), diracone))
+			return _ex4();
+		else
+			return _ex0();
+
+	} else if (is_ex_exactly_of_type(e, add)) {
+
+		// Trace of sum = sum of traces
+		ex sum = _ex0();
+		for (unsigned i=0; i<e.nops(); i++)
+			sum += dirac_trace(e.op(i), rl);
+		return sum;
+
+	} else if (is_ex_exactly_of_type(e, mul)) {
+
+		// Trace of product: pull out non-clifford factors
+		ex prod = _ex1();
+		for (unsigned i=0; i<e.nops(); i++) {
+			const ex &o = e.op(i);
+			if (is_ex_of_type(o, clifford)
+			 && ex_to_clifford(o).get_representation_label() == rl)
+				prod *= dirac_trace(o, rl);
+			else if (is_ex_of_type(o, ncmul)
+			 && is_ex_of_type(o.op(0), clifford)
+			 && ex_to_clifford(o.op(0)).get_representation_label() == rl)
+				prod *= dirac_trace(o, rl);
+			else
+				prod *= o;
+		}
+		return prod;
+
+	} else if (is_ex_exactly_of_type(e, ncmul)) {
+
+		if (!is_ex_of_type(e.op(0), clifford)
+		 || ex_to_clifford(e.op(0)).get_representation_label() != rl)
+			return _ex0();
+
+		// gamma5 gets moved to the front so this check is enough
+		bool has_gamma5 = is_ex_of_type(e.op(0).op(0), diracgamma5);
+		unsigned num = e.nops();
+
+		if (has_gamma5) {
+
+			// Trace of gamma5 * odd number of gammas and trace of
+			// gamma5 * gamma_mu * gamma_nu are zero
+			if ((num & 1) == 0 || num == 2)
+				return _ex0();
+
+		} else { // no gamma5
+
+			// Trace of odd number of gammas is zero
+			if ((num & 1) == 1)
+				return _ex0();
+
+			// Tr gamma_mu gamma_nu = 4 g_mu_nu
+			if (num == 2)
+				return 4 * lorentz_g(e.op(0).op(1), e.op(1).op(1));
+		}
+
+		throw (std::logic_error("dirac_trace: don't know how to compute trace"));
+	}
+
+	return _ex0();
 }
 
 } // namespace GiNaC

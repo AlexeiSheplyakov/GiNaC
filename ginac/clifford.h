@@ -55,6 +55,10 @@ protected:
 	unsigned return_type(void) const { return return_types::noncommutative; }
 	unsigned return_type_tinfo(void) const { return TINFO_clifford + representation_label; }
 
+	// non-virtual functions in this class
+public:
+	unsigned char get_representation_label(void) const {return representation_label;}
+
 	// member variables
 private:
 	unsigned char representation_label; /**< Representation label to distinguish independent spin lines */
@@ -120,6 +124,12 @@ ex dirac_gamma(const ex & mu, unsigned char rl = 0);
  *  @param rl Representation label
  *  @return newly constructed object */
 ex dirac_gamma5(unsigned char rl = 0);
+
+/** Calculate the trace of an expression containing gamma objects with
+ *  a specified representation label.
+ *
+ *  @param rl Representation label */
+ex dirac_trace(const ex & e, unsigned char rl = 0);
 
 
 } // namespace GiNaC

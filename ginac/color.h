@@ -57,6 +57,10 @@ protected:
 	unsigned return_type(void) const { return return_types::noncommutative; }
 	unsigned return_type_tinfo(void) const { return TINFO_color + representation_label; }
 
+	// non-virtual functions in this class
+public:
+	unsigned char get_representation_label(void) const {return representation_label;}
+
 	// member variables
 private:
 	unsigned char representation_label; /**< Representation label to distinguish independent color matrices coming from separated fermion lines */
