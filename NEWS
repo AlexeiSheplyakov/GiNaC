@@ -4,6 +4,9 @@ This file records noteworthy changes.
 * Powers of indexed objects are now parenthesized correctly in LaTeX output.
 * Input parser handles indices (they have to be specified in the same list
   as the symbols).
+* Added some limited support for subspaces in the idx and tensor classes.
+* Fixed a bug in canonicalize() (antisymmetric canonicalization of an already
+  sorted list containing two or more equal objects failed to return 0).
 
 1.0.9 (11 June 2002)
 * simplify_indexed() now raises/lowers dummy indices to canonicalize the index
