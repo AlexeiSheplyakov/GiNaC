@@ -57,7 +57,34 @@ namespace GiNaC {
 #define FAST_COMPARE 1
 
 // Set this if you want divide_in_z() to use remembering
-#define USE_REMEMBER 1
+#define USE_REMEMBER 0
+
+// Set this if you want divide_in_z() to use trial division followed by
+// polynomial interpolation (usually slower except for very large problems)
+#define USE_TRIAL_DIVISION 0
+
+// Set this to enable some statistical output for the GCD routines
+#define STATISTICS 0
+
+
+#if STATISTICS
+// Statistics variables
+static int gcd_called = 0;
+static int sr_gcd_called = 0;
+static int heur_gcd_called = 0;
+static int heur_gcd_failed = 0;
+
+// Print statistics at end of program
+static struct _stat_print {
+	_stat_print() {}
+	~_stat_print() {
+		cout << "gcd() called " << gcd_called << " times\n";
+		cout << "sr_gcd() called " << sr_gcd_called << " times\n";
+		cout << "heur_gcd() called " << heur_gcd_called << " times\n";
+		cout << "heur_gcd() failed " << heur_gcd_failed << " times\n";
+	}
+} stat_print;
+#endif
 
 
 /** Return pointer to first symbol found in expression.  Due to GiNaC´s
@@ -598,7 +625,61 @@ static bool divide_in_z(const ex &a, const ex &b, ex &q, sym_desc_vec::const_ite
     if (bdeg > adeg)
         return false;
 
-#if 1
+#if USE_TRIAL_DIVISION
+
+    // Trial division with polynomial interpolation
+    int i, k;
+
+    // Compute values at evaluation points 0..adeg
+    vector<numeric> alpha; alpha.reserve(adeg + 1);
+    exvector u; u.reserve(adeg + 1);
+    numeric point = _num0();
+    ex c;
+    for (i=0; i<=adeg; i++) {
+        ex bs = b.subs(*x == point);
+        while (bs.is_zero()) {
+            point += _num1();
+            bs = b.subs(*x == point);
+        }
+        if (!divide_in_z(a.subs(*x == point), bs, c, var+1))
+            return false;
+        alpha.push_back(point);
+        u.push_back(c);
+        point += _num1();
+    }
+
+    // Compute inverses
+    vector<numeric> rcp; rcp.reserve(adeg + 1);
+    rcp.push_back(_num0());
+    for (k=1; k<=adeg; k++) {
+        numeric product = alpha[k] - alpha[0];
+        for (i=1; i<k; i++)
+            product *= alpha[k] - alpha[i];
+        rcp.push_back(product.inverse());
+    }
+
+    // Compute Newton coefficients
+    exvector v; v.reserve(adeg + 1);
+    v.push_back(u[0]);
+    for (k=1; k<=adeg; k++) {
+        ex temp = v[k - 1];
+        for (i=k-2; i>=0; i--)
+            temp = temp * (alpha[k] - alpha[i]) + v[i];
+        v.push_back((u[k] - temp) * rcp[k]);
+    }
+
+    // Convert from Newton form to standard form
+    c = v[adeg];
+    for (k=adeg-1; k>=0; k--)
+        c = c * (*x - alpha[k]) + v[k];
+
+    if (c.degree(*x) == (adeg - bdeg)) {
+        q = c.expand();
+        return true;
+    } else
+        return false;
+
+#else
 
     // Polynomial long division (recursive)
     ex r = a.expand();
@@ -627,59 +708,6 @@ static bool divide_in_z(const ex &a, const ex &b, ex &q, sym_desc_vec::const_ite
 #endif
     return false;
 
-#else
-
-    // Trial division using polynomial interpolation
-    int i, k;
-
-    // Compute values at evaluation points 0..adeg
-    vector<numeric> alpha; alpha.reserve(adeg + 1);
-    exvector u; u.reserve(adeg + 1);
-    numeric point = _num0();
-    ex c;
-    for (i=0; i<=adeg; i++) {
-        ex bs = b.subs(*x == point);
-        while (bs.is_zero()) {
-            point += _num1();
-            bs = b.subs(*x == point);
-        }
-        if (!divide_in_z(a.subs(*x == point), bs, c, var+1))
-            return false;
-        alpha.push_back(point);
-        u.push_back(c);
-        point += _num1();
-    }
-
-    // Compute inverses
-    vector<numeric> rcp; rcp.reserve(adeg + 1);
-    rcp.push_back(0);
-    for (k=1; k<=adeg; k++) {
-        numeric product = alpha[k] - alpha[0];
-        for (i=1; i<k; i++)
-            product *= alpha[k] - alpha[i];
-        rcp.push_back(product.inverse());
-    }
-
-    // Compute Newton coefficients
-    exvector v; v.reserve(adeg + 1);
-    v.push_back(u[0]);
-    for (k=1; k<=adeg; k++) {
-        ex temp = v[k - 1];
-        for (i=k-2; i>=0; i--)
-            temp = temp * (alpha[k] - alpha[i]) + v[i];
-        v.push_back((u[k] - temp) * rcp[k]);
-    }
-
-    // Convert from Newton form to standard form
-    c = v[adeg];
-    for (k=adeg-1; k>=0; k--)
-        c = c * (*x - alpha[k]) + v[k];
-
-    if (c.degree(*x) == (adeg - bdeg)) {
-        q = c.expand();
-        return true;
-    } else
-        return false;
 #endif
 }
 
@@ -812,6 +840,9 @@ ex ex::primpart(const symbol &x, const ex &c) const
 static ex sr_gcd(const ex &a, const ex &b, const symbol *x)
 {
 //clog << "sr_gcd(" << a << "," << b << ")\n";
+#if STATISTICS
+	sr_gcd_called++;
+#endif
 
     // Sort c and d so that c has higher degree
     ex c, d;
@@ -837,6 +868,7 @@ static ex sr_gcd(const ex &a, const ex &b, const symbol *x)
         return gamma;
     c = c.primpart(*x, cont_c);
     d = d.primpart(*x, cont_d);
+//clog << " content " << gamma << " removed, continuing with sr_gcd(" << c << "," << d << ")\n";
 
     // First element of subresultant sequence
     ex r = _ex0(), ri = _ex1(), psi = _ex1();
@@ -844,11 +876,13 @@ static ex sr_gcd(const ex &a, const ex &b, const symbol *x)
 
     for (;;) {
         // Calculate polynomial pseudo-remainder
+//clog << " start of loop, psi = " << psi << ", calculating pseudo-remainder...\n";
         r = prem(c, d, *x, false);
         if (r.is_zero())
             return gamma * d.primpart(*x);
         c = d;
         cdeg = ddeg;
+//clog << " dividing...\n";
         if (!divide(r, ri * power(psi, delta), d, false))
             throw(std::runtime_error("invalid expression in sr_gcd(), division failed"));
         ddeg = d.degree(*x);
@@ -860,6 +894,7 @@ static ex sr_gcd(const ex &a, const ex &b, const symbol *x)
         }
 
         // Next element of subresultant sequence
+//clog << " calculating next subresultant...\n";
         ri = c.expand().lcoeff(*x);
         if (delta == 1)
             psi = ri;
@@ -1024,6 +1059,9 @@ class gcdheu_failed {};
 static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const_iterator var)
 {
 //clog << "heur_gcd(" << a << "," << b << ")\n";
+#if STATISTICS
+	heur_gcd_called++;
+#endif
 
 	// GCD of two numeric values -> CLN
     if (is_ex_exactly_of_type(a, numeric) && is_ex_exactly_of_type(b, numeric)) {
@@ -1057,9 +1095,9 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
         xi = mp * _num2() + _num2();
 
     // 6 tries maximum
-    for (int t=0; t<6; t++) {  // MAGIC
-        if (xi.int_length() * maxdeg > 100000) {  // MAGIC
-// clog << "giving up heur_gcd, xi.int_length = " << xi.int_length() << ", maxdeg = " << maxdeg << endl;
+    for (int t=0; t<6; t++) {
+        if (xi.int_length() * maxdeg > 100000) {
+//clog << "giving up heur_gcd, xi.int_length = " << xi.int_length() << ", maxdeg = " << maxdeg << endl;
             throw gcdheu_failed();
 		}
 
@@ -1109,6 +1147,24 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args)
 {
 //clog << "gcd(" << a << "," << b << ")\n";
+#if STATISTICS
+	gcd_called++;
+#endif
+
+	// GCD of numerics -> CLN
+    if (is_ex_exactly_of_type(a, numeric) && is_ex_exactly_of_type(b, numeric)) {
+        numeric g = gcd(ex_to_numeric(a), ex_to_numeric(b));
+        if (ca)
+            *ca = ex_to_numeric(a) / g;
+        if (cb)
+            *cb = ex_to_numeric(b) / g;
+        return g;
+    }
+
+	// Check arguments
+    if (check_args && !a.info(info_flags::rational_polynomial) || !b.info(info_flags::rational_polynomial)) {
+        throw(std::invalid_argument("gcd: arguments must be polynomials over the rationals"));
+    }
 
 	// Partially factored cases (to avoid expanding large expressions)
 	if (is_ex_exactly_of_type(a, mul)) {
@@ -1149,6 +1205,51 @@ factored_b:
 		return g;
 	}
 
+#if FAST_COMPARE
+	// Input polynomials of the form poly^n are sometimes also trivial
+	if (is_ex_exactly_of_type(a, power)) {
+		ex p = a.op(0);
+		if (is_ex_exactly_of_type(b, power)) {
+			if (p.is_equal(b.op(0))) {
+				// a = p^n, b = p^m, gcd = p^min(n, m)
+				ex exp_a = a.op(1), exp_b = b.op(1);
+				if (exp_a < exp_b) {
+					if (ca)
+						*ca = _ex1();
+					if (cb)
+						*cb = power(p, exp_b - exp_a);
+					return power(p, exp_a);
+				} else {
+					if (ca)
+						*ca = power(p, exp_a - exp_b);
+					if (cb)
+						*cb = _ex1();
+					return power(p, exp_b);
+				}
+			}
+		} else {
+			if (p.is_equal(b)) {
+				// a = p^n, b = p, gcd = p
+				if (ca)
+					*ca = power(p, a.op(1) - 1);
+				if (cb)
+					*cb = _ex1();
+				return p;
+			}
+		}
+	} else if (is_ex_exactly_of_type(b, power)) {
+		ex p = b.op(0);
+		if (p.is_equal(a)) {
+			// a = p, b = p^n, gcd = p
+			if (ca)
+				*ca = _ex1();
+			if (cb)
+				*cb = power(p, b.op(1) - 1);
+			return p;
+		}
+	}
+#endif
+
     // Some trivial cases
 	ex aex = a.expand(), bex = b.expand();
     if (aex.is_zero()) {
@@ -1181,17 +1282,6 @@ factored_b:
         return a;
     }
 #endif
-    if (is_ex_exactly_of_type(aex, numeric) && is_ex_exactly_of_type(bex, numeric)) {
-        numeric g = gcd(ex_to_numeric(aex), ex_to_numeric(bex));
-        if (ca)
-            *ca = ex_to_numeric(aex) / g;
-        if (cb)
-            *cb = ex_to_numeric(bex) / g;
-        return g;
-    }
-    if (check_args && !a.info(info_flags::rational_polynomial) || !b.info(info_flags::rational_polynomial)) {
-        throw(std::invalid_argument("gcd: arguments must be polynomials over the rationals"));
-    }
 
     // Gather symbol statistics
     sym_desc_vec sym_stats;
@@ -1237,13 +1327,32 @@ factored_b:
     }
     if (is_ex_exactly_of_type(g, fail)) {
 //clog << "heuristics failed" << endl;
+#if STATISTICS
+		heur_gcd_failed++;
+#endif
         g = sr_gcd(aex, bex, x);
-        if (ca)
-            divide(aex, g, *ca, false);
-        if (cb)
-            divide(bex, g, *cb, false);
-    }
-    return g;
+		if (g.is_equal(_ex1())) {
+			// Keep cofactors factored if possible
+			if (ca)
+				*ca = a;
+			if (cb)
+				*cb = b;
+		} else {
+	        if (ca)
+	            divide(aex, g, *ca, false);
+	        if (cb)
+	            divide(bex, g, *cb, false);
+		}
+    } else {
+		if (g.is_equal(_ex1())) {
+			// Keep cofactors factored if possible
+			if (ca)
+				*ca = a;
+			if (cb)
+				*cb = b;
+		}
+	    return g;
+	}
 }
 
 
