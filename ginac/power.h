@@ -61,8 +61,8 @@ public:
 	ex evalf(int level=0) const;
 	ex evalm() const;
 	ex series(const relational & s, int order, unsigned options = 0) const;
-	ex subs(const lst & ls, const lst & lr, unsigned options = 0) const;
-	ex normal(lst &sym_lst, lst &repl_lst, int level = 0) const;
+	ex subs(const exmap & m, unsigned options = 0) const;
+	ex normal(exmap & repl, int level = 0) const;
 	ex to_rational(lst &repl_lst) const;
 	ex to_polynomial(lst &repl_lst) const;
 	exvector get_free_indices() const;

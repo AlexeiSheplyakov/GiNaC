@@ -131,8 +131,9 @@ public:
 	bool match(const ex & pattern, lst & repl_lst) const { return bp->match(pattern, repl_lst); }
 
 	// substitutions
-	ex subs(const lst & ls, const lst & lr, unsigned options = 0) const { return bp->subs(ls, lr, options); }
-	ex subs(const ex & e, unsigned options = 0) const { return bp->subs(e, options); }
+	ex subs(const exmap & m, unsigned options = 0) const;
+	ex subs(const lst & ls, const lst & lr, unsigned options = 0) const;
+	ex subs(const ex & e, unsigned options = 0) const;
 
 	// function mapping
 	ex map(map_function & f) const { return bp->map(f); }
@@ -429,12 +430,6 @@ inline ex series(const ex & thisex, const ex & r, int order, unsigned options = 
 inline bool match(const ex & thisex, const ex & pattern, lst & repl_lst)
 { return thisex.match(pattern, repl_lst); }
 
-inline ex subs(const ex & thisex, const ex & e, unsigned options = 0)
-{ return thisex.subs(e, options); }
-
-inline ex subs(const ex & thisex, const lst & ls, const lst & lr, unsigned options = 0)
-{ return thisex.subs(ls, lr, options); }
-
 inline ex simplify_indexed(const ex & thisex)
 { return thisex.simplify_indexed(); }
 
@@ -497,13 +492,27 @@ struct ex_swap : public std::binary_function<ex, ex, void> {
 	void operator() (ex &lh, ex &rh) const { lh.swap(rh); }
 };
 
+inline ex ex::subs(const exmap & m, unsigned options) const
+{
+	return bp->subs(m, options);
+}
+
+inline ex subs(const ex & thisex, const exmap & m, unsigned options = 0)
+{ return thisex.subs(m, options); }
+
+inline ex subs(const ex & thisex, const lst & ls, const lst & lr, unsigned options = 0)
+{ return thisex.subs(ls, lr, options); }
+
+inline ex subs(const ex & thisex, const ex & e, unsigned options = 0)
+{ return thisex.subs(e, options); }
+
 
 /* Convert function pointer to function object suitable for map(). */
 class pointer_to_map_function : public map_function {
 protected:
 	ex (*ptr)(const ex &);
 public:
-	explicit pointer_to_map_function(ex (*x)(const ex &)) : ptr(x) {}
+	explicit pointer_to_map_function(ex x(const ex &)) : ptr(x) {}
 	ex operator()(const ex & e) { return ptr(e); }
 };
 
@@ -513,7 +522,7 @@ protected:
 	ex (*ptr)(const ex &, T1);
 	T1 arg1;
 public:
-	explicit pointer_to_map_function_1arg(ex (*x)(const ex &, T1), T1 a1) : ptr(x), arg1(a1) {}
+	explicit pointer_to_map_function_1arg(ex x(const ex &, T1), T1 a1) : ptr(x), arg1(a1) {}
 	ex operator()(const ex & e) { return ptr(e, arg1); }
 };
 
@@ -524,7 +533,7 @@ protected:
 	T1 arg1;
 	T2 arg2;
 public:
-	explicit pointer_to_map_function_2args(ex (*x)(const ex &, T1, T2), T1 a1, T2 a2) : ptr(x), arg1(a1), arg2(a2) {}
+	explicit pointer_to_map_function_2args(ex x(const ex &, T1, T2), T1 a1, T2 a2) : ptr(x), arg1(a1), arg2(a2) {}
 	ex operator()(const ex & e) { return ptr(e, arg1, arg2); }
 };
 
@@ -536,11 +545,11 @@ protected:
 	T2 arg2;
 	T3 arg3;
 public:
-	explicit pointer_to_map_function_3args(ex (*x)(const ex &, T1, T2, T3), T1 a1, T2 a2, T3 a3) : ptr(x), arg1(a1), arg2(a2), arg3(a3) {}
+	explicit pointer_to_map_function_3args(ex x(const ex &, T1, T2, T3), T1 a1, T2 a2, T3 a3) : ptr(x), arg1(a1), arg2(a2), arg3(a3) {}
 	ex operator()(const ex & e) { return ptr(e, arg1, arg2, arg3); }
 };
 
-inline ex ex::map(ex (*f)(const ex & e)) const
+inline ex ex::map(ex f(const ex &)) const
 {
 	pointer_to_map_function fcn(f);
 	return bp->map(fcn);

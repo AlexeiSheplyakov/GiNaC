@@ -275,7 +275,7 @@ public:
 	ex op(size_t i) const;
 	ex & let_op(size_t i);
 	ex eval(int level = 0) const;
-	ex subs(const lst & ls, const lst & lr, unsigned options = 0) const;
+	ex subs(const exmap & m, unsigned options = 0) const;
 
 protected:
 	bool is_equal_same_type(const basic & other) const;
@@ -328,7 +328,7 @@ public:
 
 protected:
 	STLT evalchildren(int level) const;
-	STLT *subschildren(const lst & ls, const lst & lr, unsigned options = 0) const;
+	STLT *subschildren(const exmap & m, unsigned options = 0) const;
 };
 
 /** Default constructor */
@@ -424,13 +424,13 @@ ex container<C>::eval(int level) const
 }
 
 template <template <class> class C>
-ex container<C>::subs(const lst & ls, const lst & lr, unsigned options) const
+ex container<C>::subs(const exmap & m, unsigned options) const
 {
-	STLT *vp = subschildren(ls, lr, options);
+	STLT *vp = subschildren(m, options);
 	if (vp)
-		return ex_to<basic>(thiscontainer(vp)).subs_one_level(ls, lr, options);
+		return ex_to<basic>(thiscontainer(vp)).subs_one_level(m, options);
 	else
-		return subs_one_level(ls, lr, options);
+		return subs_one_level(m, options);
 }
 
 /** Compare two containers of the same type. */
@@ -587,7 +587,7 @@ typename container<C>::STLT container<C>::evalchildren(int level) const
 }
 
 template <template <class> class C>
-typename container<C>::STLT *container<C>::subschildren(const lst & ls, const lst & lr, unsigned options) const
+typename container<C>::STLT *container<C>::subschildren(const exmap & m, unsigned options) const
 {
 	// returns a NULL pointer if nothing had to be substituted
 	// returns a pointer to a newly created epvector otherwise
@@ -595,7 +595,7 @@ typename container<C>::STLT *container<C>::subschildren(const lst & ls, const ls
 
 	const_iterator cit = seq.begin(), end = seq.end();
 	while (cit != end) {
-		const ex & subsed_ex = cit->subs(ls, lr, options);
+		const ex & subsed_ex = cit->subs(m, options);
 		if (!are_ex_trivially_equal(*cit, subsed_ex)) {
 
 			// copy first part of seq which hasn't changed
@@ -608,7 +608,7 @@ typename container<C>::STLT *container<C>::subschildren(const lst & ls, const ls
 
 			// copy rest
 			while (cit != end) {
-				s->push_back(cit->subs(ls, lr, options));
+				s->push_back(cit->subs(m, options));
 				++cit;
 			}
 

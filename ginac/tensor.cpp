@@ -171,7 +171,10 @@ ex tensdelta::eval_indexed(const basic & i) const
 	// dimension
 	if (!i1.get_dim().is_equal(i2.get_dim())) {
 		ex min_dim = i1.minimal_dim(i2);
-		return i.subs(lst(i1 == i1.replace_dim(min_dim), i2 == i2.replace_dim(min_dim)));
+		exmap m;
+		m[i1] = i1.replace_dim(min_dim);
+		m[i2] = i2.replace_dim(min_dim);
+		return i.subs(m);
 	}
 
 	// Trace of delta tensor is the (effective) dimension of the space
@@ -212,7 +215,10 @@ ex tensmetric::eval_indexed(const basic & i) const
 	// dimension
 	if (!i1.get_dim().is_equal(i2.get_dim())) {
 		ex min_dim = i1.minimal_dim(i2);
-		return i.subs(lst(i1 == i1.replace_dim(min_dim), i2 == i2.replace_dim(min_dim)));
+		exmap m;
+		m[i1] = i1.replace_dim(min_dim);
+		m[i2] = i2.replace_dim(min_dim);
+		return i.subs(m);
 	}
 
 	// A metric tensor with one covariant and one contravariant index gets

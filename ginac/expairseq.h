@@ -80,7 +80,7 @@ public:
 	ex to_rational(lst &repl_lst) const;
 	ex to_polynomial(lst &repl_lst) const;
 	bool match(const ex & pattern, lst & repl_lst) const;
-	ex subs(const lst & ls, const lst & lr, unsigned options = 0) const;
+	ex subs(const exmap & m, unsigned options = 0) const;
 protected:
 	bool is_equal_same_type(const basic & other) const;
 	unsigned return_type() const;
@@ -146,7 +146,7 @@ protected:
 	bool is_canonical() const;
 	epvector * expandchildren(unsigned options) const;
 	epvector * evalchildren(int level) const;
-	epvector * subschildren(const lst & ls, const lst & lr, unsigned options = 0) const;
+	epvector * subschildren(const exmap & m, unsigned options = 0) const;
 	
 // member variables
 	

@@ -386,15 +386,15 @@ found:		;
 	return inherited::match(pattern, repl_lst);
 }
 
-ex expairseq::subs(const lst &ls, const lst &lr, unsigned options) const
+ex expairseq::subs(const exmap & m, unsigned options) const
 {
-	epvector *vp = subschildren(ls, lr, options);
+	epvector *vp = subschildren(m, options);
 	if (vp)
 		return ex_to<basic>(thisexpairseq(vp, overall_coeff));
 	else if ((options & subs_options::subs_algebraic) && is_exactly_a<mul>(*this))
-		return static_cast<const mul *>(this)->algebraic_subs_mul(ls, lr, options);
+		return static_cast<const mul *>(this)->algebraic_subs_mul(m, options);
 	else
-		return subs_one_level(ls, lr, options);
+		return subs_one_level(m, options);
 }
 
 // protected
@@ -1546,29 +1546,32 @@ epvector * expairseq::evalchildren(int level) const
  *  @see expairseq::subs()
  *  @return pointer to epvector containing pairs after application of subs,
  *    or NULL pointer if no members were changed. */
-epvector * expairseq::subschildren(const lst &ls, const lst &lr, unsigned options) const
+epvector * expairseq::subschildren(const exmap & m, unsigned options) const
 {
-	GINAC_ASSERT(ls.nops()==lr.nops());
+	// When any of the objects to be substituted is a product or power
+	// we have to recombine the pairs because the numeric coefficients may
+	// be part of the search pattern.
+	if (!(options & (subs_options::pattern_is_product | subs_options::pattern_is_not_product))) {
 
-	// The substitution is "complex" when any of the objects to be substituted
-	// is a product or power. In this case we have to recombine the pairs
-	// because the numeric coefficients may be part of the search pattern.
-	bool complex_subs = false;
-	for (lst::const_iterator it = ls.begin(); it != ls.end(); ++it) {
-		if (is_exactly_a<mul>(*it) || is_exactly_a<power>(*it)) {
-			complex_subs = true;
-			break;
+		// Search the list of substitutions and cache our findings
+		for (exmap::const_iterator it = m.begin(); it != m.end(); ++it) {
+			if (is_exactly_a<mul>(it->first) || is_exactly_a<power>(it->first)) {
+				options |= subs_options::pattern_is_product;
+				break;
+			}
 		}
+		if (!(options & subs_options::pattern_is_product))
+			options |= subs_options::pattern_is_not_product;
 	}
 
-	if (complex_subs) {
+	if (options & subs_options::pattern_is_product) {
 
 		// Substitute in the recombined pairs
 		epvector::const_iterator cit = seq.begin(), last = seq.end();
 		while (cit != last) {
 
 			const ex &orig_ex = recombine_pair_to_ex(*cit);
-			const ex &subsed_ex = orig_ex.subs(ls, lr, options);
+			const ex &subsed_ex = orig_ex.subs(m, options);
 			if (!are_ex_trivially_equal(orig_ex, subsed_ex)) {
 
 				// Something changed, copy seq, subs and return it
@@ -1584,7 +1587,7 @@ epvector * expairseq::subschildren(const lst &ls, const lst &lr, unsigned option
 
 				// Copy rest
 				while (cit != last) {
-					s->push_back(split_ex_to_pair(recombine_pair_to_ex(*cit).subs(ls, lr, options)));
+					s->push_back(split_ex_to_pair(recombine_pair_to_ex(*cit).subs(m, options)));
 					++cit;
 				}
 				return s;
@@ -1599,7 +1602,7 @@ epvector * expairseq::subschildren(const lst &ls, const lst &lr, unsigned option
 		epvector::const_iterator cit = seq.begin(), last = seq.end();
 		while (cit != last) {
 
-			const ex &subsed_ex = cit->rest.subs(ls, lr, options);
+			const ex &subsed_ex = cit->rest.subs(m, options);
 			if (!are_ex_trivially_equal(cit->rest, subsed_ex)) {
 			
 				// Something changed, copy seq, subs and return it
@@ -1615,7 +1618,7 @@ epvector * expairseq::subschildren(const lst &ls, const lst &lr, unsigned option
 
 				// Copy rest
 				while (cit != last) {
-					s->push_back(combine_ex_with_coeff_to_pair(cit->rest.subs(ls, lr, options),
+					s->push_back(combine_ex_with_coeff_to_pair(cit->rest.subs(m, options),
 					                                           cit->coeff));
 					++cit;
 				}

@@ -160,7 +160,7 @@ protected:
 public:
 
 	// substitutions
-	ex subs(const lst & ls, const lst & lr, unsigned options = 0) const { return inherited::subs(ls, lr, options); }
+	ex subs(const exmap & m, unsigned options = 0) const { return inherited::subs(m, options); }
 
 	// function mapping
 	ex map(map_function & f) const { return inherited::map(f); }
@@ -181,7 +181,7 @@ public:
 	ex series(const relational & r, int order, unsigned options = 0) const { return inherited::series(r, order, options); }
 
 	// rational functions
-	ex normal(lst & sym_lst, lst & repl_lst, int level = 0) const { return inherited::normal(sym_lst, repl_lst, level); }
+	ex normal(exmap & repl, int level = 0) const { return inherited::normal(repl, level); }
 	ex to_rational(lst & repl_lst) const { return inherited::to_rational(repl_lst); }
 	ex to_polynomial(lst & repl_lst) const { return inherited::to_polynomial(repl_lst); }
 

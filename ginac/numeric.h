@@ -104,8 +104,8 @@ public:
 	bool has(const ex &other) const;
 	ex eval(int level = 0) const;
 	ex evalf(int level = 0) const;
-	ex subs(const lst & ls, const lst & lr, unsigned options = 0) const { return subs_one_level(ls, lr, options); } // overwrites basic::subs() for performance reasons
-	ex normal(lst &sym_lst, lst &repl_lst, int level = 0) const;
+	ex subs(const exmap & m, unsigned options = 0) const { return subs_one_level(m, options); } // overwrites basic::subs() for performance reasons
+	ex normal(exmap & repl, int level = 0) const;
 	ex to_rational(lst &repl_lst) const;
 	ex to_polynomial(lst &repl_lst) const;
 	numeric integer_content() const;

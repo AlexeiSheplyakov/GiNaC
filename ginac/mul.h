@@ -57,7 +57,7 @@ public:
 	ex evalf(int level=0) const;
 	ex evalm() const;
 	ex series(const relational & s, int order, unsigned options = 0) const;
-	ex normal(lst &sym_lst, lst &repl_lst, int level = 0) const;
+	ex normal(exmap & repl, int level = 0) const;
 	numeric integer_content() const;
 	ex smod(const numeric &xi) const;
 	numeric max_coefficient() const;
@@ -85,7 +85,7 @@ protected:
 	
 	// non-virtual functions in this class
 public:
-	ex algebraic_subs_mul(const lst & ls, const lst & lr, unsigned options) const;
+	ex algebraic_subs_mul(const exmap & m, unsigned options) const;
 protected:
 	epvector * expandchildren(unsigned options) const;
 };

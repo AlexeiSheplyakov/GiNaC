@@ -524,22 +524,19 @@ bool basic::match(const ex & pattern, lst & repl_lst) const
 }
 
 /** Helper function for subs(). Does not recurse into subexpressions. */
-ex basic::subs_one_level(const lst & ls, const lst & lr, unsigned options) const
+ex basic::subs_one_level(const exmap & m, unsigned options) const
 {
-	GINAC_ASSERT(ls.nops() == lr.nops());
-
-	lst::const_iterator its, itr;
+	exmap::const_iterator it;
 
 	if (options & subs_options::subs_no_pattern) {
-		for (its = ls.begin(), itr = lr.begin(); its != ls.end(); ++its, ++itr) {
-			if (is_equal(ex_to<basic>(*its)))
-				return *itr;
-		}
+		it = m.find(*this);
+		if (it != m.end())
+			return it->second;
 	} else {
-		for (its = ls.begin(), itr = lr.begin(); its != ls.end(); ++its, ++itr) {
+		for (it = m.begin(); it != m.end(); ++it) {
 			lst repl_lst;
-			if (match(ex_to<basic>(*its), repl_lst))
-				return itr->subs(repl_lst, options | subs_options::subs_no_pattern); // avoid infinite recursion when re-substituting the wildcards
+			if (match(ex_to<basic>(it->first), repl_lst))
+				return it->second.subs(repl_lst, options | subs_options::subs_no_pattern); // avoid infinite recursion when re-substituting the wildcards
 		}
 	}
 
@@ -548,7 +545,7 @@ ex basic::subs_one_level(const lst & ls, const lst & lr, unsigned options) const
 
 /** Substitute a set of objects by arbitrary expressions. The ex returned
  *  will already be evaluated. */
-ex basic::subs(const lst & ls, const lst & lr, unsigned options) const
+ex basic::subs(const exmap & m, unsigned options) const
 {
 	size_t num = nops();
 	if (num) {
@@ -556,7 +553,7 @@ ex basic::subs(const lst & ls, const lst & lr, unsigned options) const
 		// Substitute in subexpressions
 		for (size_t i=0; i<num; i++) {
 			const ex & orig_op = op(i);
-			const ex & subsed_op = orig_op.subs(ls, lr, options);
+			const ex & subsed_op = orig_op.subs(m, options);
 			if (!are_ex_trivially_equal(orig_op, subsed_op)) {
 
 				// Something changed, clone the object
@@ -569,16 +566,16 @@ ex basic::subs(const lst & ls, const lst & lr, unsigned options) const
 
 				// Substitute the other operands
 				for (; i<num; i++)
-					copy->let_op(i) = op(i).subs(ls, lr, options);
+					copy->let_op(i) = op(i).subs(m, options);
 
 				// Perform substitutions on the new object as a whole
-				return copy->subs_one_level(ls, lr, options);
+				return copy->subs_one_level(m, options);
 			}
 		}
 	}
 
 	// Nothing changed or no subexpressions
-	return subs_one_level(ls, lr, options);
+	return subs_one_level(m, options);
 }
 
 /** Default interface of nth derivative ex::diff(s, n).  It should be called
@@ -736,35 +733,6 @@ ex basic::expand(unsigned options) const
 //////////
 
 // public
-
-/** Substitute objects in an expression (syntactic substitution) and return
- *  the result as a new expression.  There are two valid types of
- *  replacement arguments: 1) a relational like object==ex and 2) a list of
- *  relationals lst(object1==ex1,object2==ex2,...), which is converted to
- *  subs(lst(object1,object2,...),lst(ex1,ex2,...)). */
-ex basic::subs(const ex & e, unsigned options) const
-{
-	if (e.info(info_flags::relation_equal)) {
-		return subs(lst(e.lhs()), lst(e.rhs()), options);
-	}
-	if (!e.info(info_flags::list)) {
-		throw(std::invalid_argument("basic::subs(ex): argument must be a list"));
-	}
-
-	// Split list into two
-	lst ls;
-	lst lr;
-	GINAC_ASSERT(is_a<lst>(e));
-	for (lst::const_iterator it = ex_to<lst>(e).begin(); it != ex_to<lst>(e).end(); ++it) {
-		ex r = *it;
-		if (!r.info(info_flags::relation_equal)) {
-			throw(std::invalid_argument("basic::subs(ex): argument must be a list of equations"));
-		}
-		ls.append(r.op(0));
-		lr.append(r.op(1));
-	}
-	return subs(ls, lr, options);
-}
 
 /** Compare objects syntactically to establish canonical ordering.
  *  All compare functions return: -1 for *this less than other, 0 equal,

@@ -396,13 +396,13 @@ ex pseries::evalf(int level) const
 	return (new pseries(relational(var,point), new_seq))->setflag(status_flags::dynallocated | status_flags::evaluated);
 }
 
-ex pseries::subs(const lst & ls, const lst & lr, unsigned options) const
+ex pseries::subs(const exmap & m, unsigned options) const
 {
 	// If expansion variable is being substituted, convert the series to a
 	// polynomial and do the substitution there because the result might
 	// no longer be a power series
-	if (ls.has(var))
-		return convert_to_poly(true).subs(ls, lr, options);
+	if (m.find(var) != m.end())
+		return convert_to_poly(true).subs(m, options);
 	
 	// Otherwise construct a new series with substituted coefficients and
 	// expansion point
@@ -410,10 +410,10 @@ ex pseries::subs(const lst & ls, const lst & lr, unsigned options) const
 	newseq.reserve(seq.size());
 	epvector::const_iterator it = seq.begin(), itend = seq.end();
 	while (it != itend) {
-		newseq.push_back(expair(it->rest.subs(ls, lr, options), it->coeff));
+		newseq.push_back(expair(it->rest.subs(m, options), it->coeff));
 		++it;
 	}
-	return (new pseries(relational(var,point.subs(ls, lr, options)), newseq))->setflag(status_flags::dynallocated);
+	return (new pseries(relational(var,point.subs(m, options)), newseq))->setflag(status_flags::dynallocated);
 }
 
 /** Implementation of ex::expand() for a power series.  It expands all the

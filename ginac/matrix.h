@@ -49,7 +49,7 @@ public:
 	ex & let_op(size_t i);
 	ex eval(int level=0) const;
 	ex evalm() const {return *this;}
-	ex subs(const lst & ls, const lst & lr, unsigned options = 0) const;
+	ex subs(const exmap & m, unsigned options = 0) const;
 	ex eval_indexed(const basic & i) const;
 	ex add_indexed(const ex & self, const ex & other) const;
 	ex scalar_mul_indexed(const ex & self, const numeric & other) const;

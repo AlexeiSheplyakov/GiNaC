@@ -348,29 +348,25 @@ ex idx::evalf(int level) const
 	return *this;
 }
 
-ex idx::subs(const lst & ls, const lst & lr, unsigned options) const
+ex idx::subs(const exmap & m, unsigned options) const
 {
-	GINAC_ASSERT(ls.nops() == lr.nops());
-
 	// First look for index substitutions
-	lst::const_iterator its, itr;
-	for (its = ls.begin(), itr = lr.begin(); its != ls.end(); ++its, ++itr) {
-		if (is_equal(ex_to<basic>(*its))) {
+	exmap::const_iterator it = m.find(*this);
+	if (it != m.end()) {
 
-			// Substitution index->index
-			if (is_a<idx>(*itr))
-				return *itr;
+		// Substitution index->index
+		if (is_a<idx>(it->second))
+			return it->second;
 
-			// Otherwise substitute value
-			idx *i_copy = duplicate();
-			i_copy->value = *itr;
-			i_copy->clearflag(status_flags::hash_calculated);
-			return i_copy->setflag(status_flags::dynallocated);
-		}
+		// Otherwise substitute value
+		idx *i_copy = duplicate();
+		i_copy->value = it->second;
+		i_copy->clearflag(status_flags::hash_calculated);
+		return i_copy->setflag(status_flags::dynallocated);
 	}
 
 	// None, substitute objects in value (not in dimension)
-	const ex &subsed_value = value.subs(ls, lr, options);
+	const ex &subsed_value = value.subs(m, options);
 	if (are_ex_trivially_equal(value, subsed_value))
 		return *this;
 

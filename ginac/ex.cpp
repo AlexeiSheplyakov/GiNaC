@@ -117,6 +117,65 @@ bool ex::find(const ex & pattern, lst & found) const
 	return any_found;
 }
 
+/** Substitute objects in an expression (syntactic substitution) and return
+ *  the result as a new expression. */
+ex ex::subs(const lst & ls, const lst & lr, unsigned options) const
+{
+	GINAC_ASSERT(ls.nops() == lr.nops());
+
+	// Convert the lists to a map
+	exmap m;
+	for (lst::const_iterator its = ls.begin(), itr = lr.begin(); its != ls.end(); ++its, ++itr) {
+		m[*its] = *itr;
+
+		// Search for products and powers in the expressions to be substituted
+		// (for an optimization in expairseq::subs())
+		if (is_exactly_a<mul>(*its) || is_exactly_a<power>(*its))
+			options |= subs_options::pattern_is_product;
+	}
+	if (!(options & subs_options::pattern_is_product))
+		options |= subs_options::pattern_is_not_product;
+
+	return bp->subs(m, options);
+}
+
+/** Substitute objects in an expression (syntactic substitution) and return
+ *  the result as a new expression.  There are two valid types of
+ *  replacement arguments: 1) a relational like object==ex and 2) a list of
+ *  relationals lst(object1==ex1,object2==ex2,...). */
+ex ex::subs(const ex & e, unsigned options) const
+{
+	if (e.info(info_flags::relation_equal)) {
+		exmap m;
+		const ex & s = e.lhs();
+		m[s] = e.rhs();
+		if (is_exactly_a<mul>(s) || is_exactly_a<power>(s))
+			options |= subs_options::pattern_is_product;
+		return bp->subs(m, options);
+	} else if (!e.info(info_flags::list))
+		throw(std::invalid_argument("basic::subs(ex): argument must be a list"));
+
+	// Convert the list to a map
+	exmap m;
+	GINAC_ASSERT(is_a<lst>(e));
+	for (lst::const_iterator it = ex_to<lst>(e).begin(); it != ex_to<lst>(e).end(); ++it) {
+		ex r = *it;
+		if (!r.info(info_flags::relation_equal))
+			throw(std::invalid_argument("basic::subs(ex): argument must be a list of equations"));
+		const ex & s = r.lhs();
+		m[s] = r.rhs();
+
+		// Search for products and powers in the expressions to be substituted
+		// (for an optimization in expairseq::subs())
+		if (is_exactly_a<mul>(s) || is_exactly_a<power>(s))
+			options |= subs_options::pattern_is_product;
+	}
+	if (!(options & subs_options::pattern_is_product))
+		options |= subs_options::pattern_is_not_product;
+
+	return bp->subs(m, options);
+}
+
 /** Traverse expression tree with given visitor, preorder traversal. */
 void ex::traverse_preorder(visitor & v) const
 {

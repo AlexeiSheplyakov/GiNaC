@@ -29,9 +29,8 @@ namespace GiNaC {
 class expand_options {
 public:
 	enum {
-		expand_trigonometric = 0x0001,
-		expand_indexed = 0x0002,
-		expand_function_args = 0x0004
+		expand_indexed = 0x0001,      ///< expands (a+b).i to a.i+b.i
+		expand_function_args = 0x0002 ///< expands the arguments of functions
 	};
 };
 
@@ -39,8 +38,12 @@ public:
 class subs_options {
 public:
 	enum {
-		subs_no_pattern = 0x0001,
-		subs_algebraic = 0x0002
+		// this should be called "no_pattern"...
+		subs_no_pattern = 0x0001,        ///< disable pattern matching
+		// this should be called "algebraic"...
+		subs_algebraic = 0x0002,         ///< enable algebraic substitutions
+        pattern_is_product = 0x0004,     ///< used internally by expairseq::subschildren()
+        pattern_is_not_product = 0x0008  ///< used internally by expairseq::subschildren()
 	};
 };
 
@@ -163,10 +166,10 @@ public:
 class status_flags {
 public:
 	enum {
-		dynallocated    = 0x0001,       ///< Heap-allocated (i.e. created by new if we want to be clever and bypass the stack, @see ex::construct_from_basic() )
-		evaluated       = 0x0002,       ///< .eval() has already done its job
-		expanded        = 0x0004,       ///< .expand(0) has already done its job (other expand() options ignore this flag)
-		hash_calculated = 0x0008        ///< .calchash() has already done its job
+		dynallocated    = 0x0001, ///< heap-allocated (i.e. created by new if we want to be clever and bypass the stack, @see ex::construct_from_basic() )
+		evaluated       = 0x0002, ///< .eval() has already done its job
+		expanded        = 0x0004, ///< .expand(0) has already done its job (other expand() options ignore this flag)
+		hash_calculated = 0x0008  ///< .calchash() has already done its job
 	};
 };
 

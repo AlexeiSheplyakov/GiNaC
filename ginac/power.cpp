@@ -518,27 +518,26 @@ ex power::evalm() const
 // from mul.cpp
 extern bool tryfactsubs(const ex &, const ex &, int &, lst &);
 
-ex power::subs(const lst & ls, const lst & lr, unsigned options) const
+ex power::subs(const exmap & m, unsigned options) const
 {	
-	const ex &subsed_basis = basis.subs(ls, lr, options);
-	const ex &subsed_exponent = exponent.subs(ls, lr, options);
+	const ex &subsed_basis = basis.subs(m, options);
+	const ex &subsed_exponent = exponent.subs(m, options);
 
 	if (!are_ex_trivially_equal(basis, subsed_basis)
 	 || !are_ex_trivially_equal(exponent, subsed_exponent)) 
-		return power(subsed_basis, subsed_exponent).subs_one_level(ls, lr, options);
+		return power(subsed_basis, subsed_exponent).subs_one_level(m, options);
 
 	if (!(options & subs_options::subs_algebraic))
-		return subs_one_level(ls, lr, options);
+		return subs_one_level(m, options);
 
-	lst::const_iterator its, itr;
-	for (its = ls.begin(), itr = lr.begin(); its != ls.end(); ++its, ++itr) {
+	for (exmap::const_iterator it = m.begin(); it != m.end(); ++it) {
 		int nummatches = std::numeric_limits<int>::max();
 		lst repls;
-		if (tryfactsubs(*this, *its, nummatches, repls))
-			return (ex_to<basic>((*this) * power(itr->subs(ex(repls), subs_options::subs_no_pattern) / its->subs(ex(repls), subs_options::subs_no_pattern), nummatches))).subs_one_level(ls, lr, options);
+		if (tryfactsubs(*this, it->first, nummatches, repls))
+			return (ex_to<basic>((*this) * power(it->second.subs(ex(repls), subs_options::subs_no_pattern) / it->first.subs(ex(repls), subs_options::subs_no_pattern), nummatches))).subs_one_level(m, options);
 	}
 
-	return subs_one_level(ls, lr, options);
+	return subs_one_level(m, options);
 }
 
 ex power::eval_ncmul(const exvector & v) const

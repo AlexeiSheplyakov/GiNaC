@@ -25,6 +25,7 @@
 
 #include <cstddef> // for size_t
 #include <vector>
+#include <map>
 // CINT needs <algorithm> to work properly with <vector>
 #include <algorithm>
 
@@ -45,6 +46,7 @@ class print_context;
 template <class> class ptr;
 
 typedef std::vector<ex> exvector;
+typedef std::map<ex, ex, ex_is_less> exmap;
 
 
 /** Function object for map(). */
@@ -135,7 +137,7 @@ protected:
 public:
 
 	// substitutions
-	virtual ex subs(const lst & ls, const lst & lr, unsigned options = 0) const;
+	virtual ex subs(const exmap & m, unsigned options = 0) const;
 
 	// function mapping
 	virtual ex map(map_function & f) const;
@@ -163,7 +165,7 @@ public:
 	virtual ex series(const relational & r, int order, unsigned options = 0) const;
 
 	// rational functions
-	virtual ex normal(lst &sym_lst, lst &repl_lst, int level = 0) const;
+	virtual ex normal(exmap & repl, int level = 0) const;
 	virtual ex to_rational(lst &repl_lst) const;
 	virtual ex to_polynomial(lst &repl_lst) const;
 
@@ -190,8 +192,7 @@ protected: // functions that should be called from class ex only
 	
 	// non-virtual functions in this class
 public:
-	ex subs(const ex & e, unsigned options = 0) const;
-	ex subs_one_level(const lst & ls, const lst & lr, unsigned options) const;
+	ex subs_one_level(const exmap & m, unsigned options) const;
 	ex diff(const symbol & s, unsigned nth = 1) const;
 	int compare(const basic & other) const;
 	bool is_equal(const basic & other) const;
