@@ -44,7 +44,7 @@
 
 // Original readline settings
 static int orig_completion_append_character;
-#if (GINAC_RLVERSION_MAJOR < 4) || (GINAC_RLVERSION_MAJOR == 4 && GINAC_RLVERSION_MINOR < 2)
+#if (GINAC_RL_VERSION_MAJOR < 4) || (GINAC_RL_VERSION_MAJOR == 4 && GINAC_RL_VERSION_MINOR < 2)
 static char *orig_basic_word_break_characters;
 #else
 static const char *orig_basic_word_break_characters;
@@ -706,7 +706,7 @@ static char **fcn_completion(char *text, int start, int end)
 		rl_completion_append_character = orig_completion_append_character;
 		rl_basic_word_break_characters = orig_basic_word_break_characters;
 		rl_completer_word_break_characters = rl_basic_word_break_characters;
-#if (GINAC_RLVERSION_MAJOR < 4) || (GINAC_RLVERSION_MAJOR == 4 && GINAC_RLVERSION_MINOR < 2)
+#if (GINAC_RL_VERSION_MAJOR < 4) || (GINAC_RL_VERSION_MAJOR == 4 && GINAC_RL_VERSION_MINOR < 2)
 		return completion_matches(text, (CPFunction *)filename_completion_function);
 #else
 		return rl_completion_matches(text, (CPFunction *)rl_filename_completion_function);
@@ -716,7 +716,7 @@ static char **fcn_completion(char *text, int start, int end)
 		rl_completion_append_character = '(';
 		rl_basic_word_break_characters = " \t\n\"#$%&'()*+,-./:;<=>?@[\\]^`{|}~";
 		rl_completer_word_break_characters = rl_basic_word_break_characters;
-#if (GINAC_RLVERSION_MAJOR < 4) || (GINAC_RLVERSION_MAJOR == 4 && GINAC_RLVERSION_MINOR < 2)
+#if (GINAC_RL_VERSION_MAJOR < 4) || (GINAC_RL_VERSION_MAJOR == 4 && GINAC_RL_VERSION_MINOR < 2)
 		return completion_matches(text, (CPFunction *)fcn_generator);
 #else
 		return rl_completion_matches(text, (CPFunction *)fcn_generator);

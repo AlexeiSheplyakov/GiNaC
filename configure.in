@@ -95,7 +95,7 @@ save_LIBS=$LIBS
 LIBS="$LIBTERMCAP $LIBS"
 AC_CHECK_LIB(readline, readline)
 if test "x${ac_cv_lib_readline_readline}" = "xyes"; then
-  GINAC_RLVERSION
+  GINAC_LIB_READLINE_VERSION
 else
   GINAC_WARNING([I could not find libreadline (needed by ginsh).])
 fi

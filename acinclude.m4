@@ -10,7 +10,7 @@ dnl about compatiblilty (which is not so bad by itself) and at the same time
 dnl they don't export the version to the preprocessor so we could kluge around 
 dnl incomatiblities.  The only reliable way to figure out the version is by 
 dnl checking the extern variable rl_library_version at runtime.  &#@$%*!
-AC_DEFUN(GINAC_RLVERSION,
+AC_DEFUN(GINAC_LIB_READLINE_VERSION,
 [AC_CACHE_CHECK([for version of libreadline], ginac_cv_rlversion, [
 AC_TRY_RUN([
 #include <stdio.h>
@@ -26,10 +26,10 @@ main()
     exit(0);
 }], ginac_cv_rlversion=`cat 'conftest.out'`, ginac_cv_rlversion='unknown', ginac_cv_rlversion='4.2')
 if test "x${ginac_cv_rlversion}" != "xunknown"; then
-  RLVERSION_MAJOR=`echo ${ginac_cv_rlversion} | sed -e 's/\([[0-9]]\)\.\([[0-9]]\)/\1/'`
-  AC_DEFINE_UNQUOTED(GINAC_RLVERSION_MAJOR, $RLVERSION_MAJOR)
-  RLVERSION_MINOR=`echo ${ginac_cv_rlversion} | sed -e 's/\([[0-9]]\)\.\([[0-9]]\)/\2/'`
-  AC_DEFINE_UNQUOTED(GINAC_RLVERSION_MINOR, $RLVERSION_MINOR)
+  RL_VERSION_MAJOR=`echo ${ginac_cv_rlversion} | sed -e 's/\([[0-9]]\)\.\([[0-9]]\)/\1/'`
+  AC_DEFINE_UNQUOTED(GINAC_RL_VERSION_MAJOR, $RL_VERSION_MAJOR, [Major version of installed readline library.])
+  RL_VERSION_MINOR=`echo ${ginac_cv_rlversion} | sed -e 's/\([[0-9]]\)\.\([[0-9]]\)/\2/'`
+  AC_DEFINE_UNQUOTED(GINAC_RL_VERSION_MINOR, $RL_VERSION_MINOR, [Minor version of installed readline library.])
 else
   GINAC_WARNING([I could not run a test of libreadline (needed for building ginsh ginsh).])
 fi

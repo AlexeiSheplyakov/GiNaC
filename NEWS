@@ -1,6 +1,6 @@
 This file records noteworthy changes.
 
-0.8.3 (10 May 2001)
+0.8.3 (11 May 2001)
 * color and clifford classes are functional and documented.
 * New "spinidx" class for dotted/undotted indices.
 * Predefined spinor metric tensor (created by spinor_metric()).
