@@ -442,7 +442,7 @@ static const node tree6(unsigned cuts=0)
 	                bool(cuts & 16)));
 }
 
-static unsigned test_tree(node (*tree_generator)(unsigned=0))
+static unsigned test_tree(const node (*tree_generator)(unsigned=0))
 {
 	const int edges = tree_generator().total_edges();
    	const int vertices = edges+1;
