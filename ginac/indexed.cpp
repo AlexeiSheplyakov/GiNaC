@@ -820,13 +820,13 @@ public:
 
 	symminfo(const ex & symmterm_, const ex & orig_)
 	{
-		if (is_a<mul>(orig_)) {
+		if (is_a<mul>(orig_) && is_a<numeric>(orig_.op(orig_.nops()-1))) {
 			ex tmp = orig_.op(orig_.nops()-1);
 			orig = orig_ / tmp;
 		} else 
 			orig = orig_;
 
-		if (is_a<mul>(symmterm_)) {
+		if (is_a<mul>(symmterm_) && is_a<numeric>(symmterm_.op(symmterm_.nops()-1))) {
 			coeff = symmterm_.op(symmterm_.nops()-1);
 			symmterm = symmterm_ / coeff;
 		} else {
