@@ -557,7 +557,6 @@ void function_options::initialize()
 	print_use_exvector_args = false;
 	use_remember = false;
 	functions_with_same_name = 1;
-	symtree = 0;
 }
 
 function_options & function_options::set_name(std::string const & n,
