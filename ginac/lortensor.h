@@ -26,7 +26,6 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include "config.h"
 #include "indexed.h"
 #include "lorentzidx.h"
 

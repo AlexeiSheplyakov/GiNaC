@@ -144,8 +144,8 @@ unsigned int archive::num_expressions(void) const
  *      - unsigned root node ID
  *   - unsigned number of nodes
  *      - unsigned number of properties
- *        - unsigned type (PTYPE_*)
- *        - unsigned name atom
+ *        - unsigned containing type (PTYPE_*) in its lower 3 bits and
+ *          name atom in the upper bits
  *        - unsigned property value
  *
  *  Unsigned quantities are stored in a compressed format:
@@ -202,8 +202,7 @@ ostream &operator<<(ostream &os, const archive_node &n)
 	unsigned int num_props = n.props.size();
 	write_unsigned(os, num_props);
 	for (unsigned int i=0; i<num_props; i++) {
-		write_unsigned(os, n.props[i].type);
-		write_unsigned(os, n.props[i].name);
+		write_unsigned(os, n.props[i].type | (n.props[i].name << 3));
 		write_unsigned(os, n.props[i].value);
 	}
     return os;
@@ -248,8 +247,9 @@ istream &operator>>(istream &is, archive_node &n)
 	unsigned int num_props = read_unsigned(is);
 	n.props.resize(num_props);
 	for (unsigned int i=0; i<num_props; i++) {
-		n.props[i].type = (archive_node::property_type)read_unsigned(is);
-		n.props[i].name = read_unsigned(is);
+		unsigned int name_type = read_unsigned(is);
+		n.props[i].type = (archive_node::property_type)(name_type & 7);
+		n.props[i].name = name_type >> 3;
 		n.props[i].value = read_unsigned(is);
 	}
     return is;
@@ -562,7 +562,7 @@ void archive_node::printraw(ostream &os) const
 	if (has_expression)
 		os << "(basic * " << e.bp << " = " << e << ")\n";
 	else
-		os << "(no expression)\n";
+		os << "\n";
 
 	// Dump properties
 	vector<property>::const_iterator i = props.begin(), iend = props.end();

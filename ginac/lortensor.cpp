@@ -40,6 +40,7 @@
 #include "power.h"
 #include "symbol.h"
 #include "utils.h"
+#include "config.h"
 
 #ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {

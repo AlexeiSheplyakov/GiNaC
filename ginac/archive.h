@@ -55,7 +55,7 @@ class archive_node
 	friend istream &operator>>(istream &is, archive_node &ar);
 
 public:
-	archive_node() : a(*dummy_ar_creator()), has_expression(false) {}
+	archive_node() : a(*dummy_ar_creator()), has_expression(false) {} // hack for cint which always requires a default constructor
 	archive_node(archive &ar) : a(ar), has_expression(false) {}
 	archive_node(archive &ar, const ex &expr);
 	~archive_node() {}
