@@ -7,5 +7,6 @@ check_ginac_SOURCES = paranoia_check.cpp numeric_output.cpp \
   matrix_checks.cpp series_expansion.cpp lortensor_check.cpp \
   fcntimer.cpp main.cpp check.h
 check_ginac_LDADD = ../ginac/libginac.la
+INCLUDES = -I$(srcdir)/../ginac
 CLEANFILES = result.out
 EXTRA_DIST = result.ref run_checks

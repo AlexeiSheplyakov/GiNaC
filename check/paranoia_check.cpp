@@ -23,15 +23,15 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <ginac/ginac.h>
+#include "ginac.h"
 
 #ifndef NO_NAMESPACE_GINAC
 using namespace GiNaC;
 #endif // ndef NO_NAMESPACE_GINAC
 
 // The very first pair of historic problems had its roots in power.cpp and was
-// finally resolved on April 27th. (Fixing the first on April 23rd actually
-// introduced the second.)
+// finally resolved on April 27th 1999. (Fixing the first on April 23rd
+// actually introduced the second.)
 static unsigned paranoia_check1(void)
 {
     unsigned result = 0;
@@ -95,8 +95,9 @@ static unsigned paranoia_check2(void)
     return result;
 }
 
-// The third bug was introduced on May 18, discovered on May 19 and fixed that
-// same day.  It worked when x was substituted by 1 but not with other numbers:
+// The third bug was introduced on May 18th 1999, discovered on May 19 and
+// fixed that same day.  It worked when x was substituted by 1 but not with
+// other numbers:
 static unsigned paranoia_check3(void)
 {
     unsigned result = 0;
@@ -125,7 +126,7 @@ static unsigned paranoia_check3(void)
     return result;
 }
 
-// The fourth bug was also discovered on May 19 and fixed immediately:
+// The fourth bug was also discovered on May 19th 1999 and fixed immediately:
 static unsigned paranoia_check4(void)
 {
     unsigned result = 0;
@@ -150,7 +151,7 @@ static unsigned paranoia_check4(void)
     return result;
 }
 
-// The fifth oops was discovered on May 20 and fixed a day later:
+// The fifth oops was discovered on May 20th 1999 and fixed a day later:
 static unsigned paranoia_check5(void)
 {
     unsigned result = 0;
@@ -169,7 +170,7 @@ static unsigned paranoia_check5(void)
     return result;
 }
 
-// This one was discovered on Jun 1 and fixed the same day:
+// This one was discovered on Jun 1st 1999 and fixed the same day:
 static unsigned paranoia_check6(void)
 {
     unsigned result = 0;
@@ -186,8 +187,8 @@ static unsigned paranoia_check6(void)
     return result;
 }
 
-// This one was introduced on June 1 by some aggressive manual optimization.
-// Discovered and fixed on June 2.
+// This one was introduced on June 1st 1999 by some aggressive manual
+// optimization. Discovered and fixed on June 2nd.
 static unsigned paranoia_check7(void)
 {
     unsigned result = 0;
@@ -206,8 +207,8 @@ static unsigned paranoia_check7(void)
 }
 
 // This one was a result of the rewrite of mul::max_coefficient when we
-// introduced the overall_coefficient field in expairseq objects on Oct 1.
-// Fixed on Oct 4.
+// introduced the overall_coefficient field in expairseq objects on Oct 1st
+// 1999. Fixed on Oct 4th.
 static unsigned paranoia_check8(void)
 {
     unsigned result = 0;
@@ -220,6 +221,26 @@ static unsigned paranoia_check8(void)
     // check is actually bogus...
     if (!f.is_equal(e)) {
         clog << "normal(-x/(x+1)) returns " << f << " instead of -x/(x+1)\n";
+        ++result;
+    }
+    return result;
+}
+
+// This one was a result of a modification to frac_cancel() & Co. to avoid
+// expanding the numerator and denominator when bringing them from Q[X] to
+// Z[X]. multiply_lcm() forgot to multiply the x-linear term with the LCM of
+// the coefficient's denominators (2 in this case). Introduced on Jan 25th
+// 2000 and fixed on Jan 31th.
+static unsigned paranoia_check9(void)
+{
+    unsigned result = 0;
+    symbol x("x");
+
+    ex e = (exp(-x)-2*x*exp(-x)+pow(x,2)/2*exp(-x))/exp(-x);
+    ex f = e.normal();
+
+    if (!f.is_equal(1-2*x+pow(x,2)/2)) {
+        clog << "normal(" << e << ") returns " << f << " instead of 1-2*x+1/2*x^2\n";
         ++result;
     }
     return result;
@@ -240,6 +261,7 @@ unsigned paranoia_check(void)
     result += paranoia_check6();
     result += paranoia_check7();
     result += paranoia_check8();
+    result += paranoia_check9();
 
     if (!result) {
         cout << " passed ";

@@ -22,7 +22,7 @@
  */
 
 #include <stdlib.h>
-#include <ginac/ginac.h>
+#include "ginac.h"
 
 #ifndef NO_NAMESPACE_GINAC
 using namespace GiNaC;

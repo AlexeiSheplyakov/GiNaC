@@ -108,6 +108,7 @@ check_PROGRAMS = check_ginac
 check_ginac_SOURCES = paranoia_check.cpp numeric_output.cpp   numeric_consist.cpp powerlaws.cpp expand_subs.cpp inifcns_consist.cpp   differentiation.cpp poly_gcd.cpp normalization.cpp lsolve_onedim.cpp   matrix_checks.cpp series_expansion.cpp lortensor_check.cpp   fcntimer.cpp main.cpp check.h
 
 check_ginac_LDADD = ../ginac/libginac.la
+INCLUDES = -I$(srcdir)/../ginac
 CLEANFILES = result.out
 EXTRA_DIST = result.ref run_checks
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -252,7 +253,7 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$d/$$file $(distdir)/$$file; \
+	    cp -pr $$/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
