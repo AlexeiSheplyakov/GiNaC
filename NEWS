@@ -1,6 +1,6 @@
 This file records noteworthy changes.
 
-0.9.2 (<insert date here>)
+0.9.2 (31 July 2001)
 * Epsilon tensor is more functional.
 * simplify_indexed() is better at detecting expressions that vanish for
   symmetry reasons.

@@ -14,7 +14,6 @@ AC_DEFUN(GINAC_LIB_READLINE_VERSION,
 [AC_CACHE_CHECK([for version of libreadline], ginac_cv_rlversion, [
 AC_TRY_RUN([
 #include <stdio.h>
-#include <stdlib.h>
 #include <sys/types.h>
 #include <readline/readline.h>
 
@@ -24,7 +23,7 @@ main()
     fd = fopen("conftest.out", "w");
     fprintf(fd, "%s\n", rl_library_version);
     fclose(fd);
-    exit(0);
+    return 0;
 }], ginac_cv_rlversion=`cat 'conftest.out'`, ginac_cv_rlversion='unknown', ginac_cv_rlversion='4.2')
 if test "x${ginac_cv_rlversion}" != "xunknown"; then
   RL_VERSION_MAJOR=`echo ${ginac_cv_rlversion} | sed -e 's/\([[0-9]]\)\.\([[0-9]]\)/\1/'`
