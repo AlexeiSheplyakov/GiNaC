@@ -1,13 +1,15 @@
 This file records noteworthy changes.
 
-0.5.4 (?x?y?z?  March 2000)
-* Algorithms in class matrix (determinant and solve) were replaced by
+0.5.4 (15 March 2000)
+* Some algorithms in class matrix (notably determinant) were replaced by
   less brain-dead ones and should now have much better performance.
-* Checks were reorganized and split up into three parts:
+* Checks were completely reorganized and split up into three parts:
   a) exams (small regression tests with predefined input)
   b) checks (lenghty coherence checks with random input)
   c) timings (for coherence and crude benchmarking)
 * Behaviour of .evalf() was changed: it doesn't .evalf() any exponents.
+* Expanded expressions now remember they are expanded to prevent
+  superfluous expansions.
 
 0.5.3 (23 February 2000)
 * A more flexible scheme for registering functions was implemented,
