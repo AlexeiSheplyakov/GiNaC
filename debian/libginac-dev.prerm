@@ -1,4 +1,17 @@
 #!/bin/sh -e
-install-info --quiet --remove /usr/share/info/ginac.info
+
+case "$1" in
+    remove|upgrade|deconfigure)
+        install-info --quiet --remove /usr/share/info/ginac.info
+        ;;
+    failed-upgrade)
+        ;;
+    *)
+        echo "prerm called with unknown argument \`$1'" >&2
+        exit 0
+    ;;
+esac
 
 #DEBHELPER#
+
+exit 0
