@@ -82,6 +82,7 @@ static fcn_tab::const_iterator find_function(const ex &sym, int req_params);
 typedef multimap<string, string> help_tab;
 static help_tab help;
 
+static void insert_fcn_help(const char *name, const char *str);
 static void print_help(const string &topic);
 static void print_help_topics(void);
 %}
@@ -483,7 +484,7 @@ static ex f_dummy(const exprseq &e)
 	throw(std::logic_error("dummy function called (shouldn't happen)"));
 }
 
-// Table for initializing the "fcns" map
+// Tables for initializing the "fcns" map and the function help topics
 struct fcn_init {
 	const char *name;
 	const fcn_desc desc;
@@ -543,6 +544,43 @@ static const fcn_init builtin_fcns[] = {
 	{"unit", fcn_desc(f_unit, 2)},
 	{NULL, fcn_desc(f_dummy, 0)}	// End marker
 };
+
+struct fcn_help_init {
+	const char *name;
+	const char *help;
+};
+
+static const fcn_help_init builtin_help[] = {
+	{"acos", "inverse cosine function"},
+	{"acosh", "inverse hyperbolic cosine function"},
+	{"asin", "inverse sine function"},
+	{"asinh", "inverse hyperbolic sine function"},
+	{"atan", "inverse tangent function"},
+	{"atan2", "inverse tangent function with two arguments"},
+	{"atanh", "inverse hyperbolic tangent function"},
+	{"beta", "Beta function"},
+	{"binomial", "binomial function"},
+	{"cos", "cosine function"},
+	{"cosh", "hyperbolic cosine function"},
+	{"exp", "exponential function"},
+	{"factorial", "factorial function"},
+	{"lgamma", "natural logarithm of Gamma function"},
+	{"tgamma", "Gamma function"},
+	{"log", "natural logarithm"},
+	{"psi", "psi function\npsi(x) is the digamma function, psi(n,x) the nth polygamma function"},
+	{"sin", "sine function"},
+	{"sinh", "hyperbolic sine function"},
+	{"tan", "tangent function"},
+	{"tanh", "hyperbolic tangent function"},
+	{"zeta", "zeta function\nzeta(x) is Riemann's zeta function, zeta(n,x) its nth derivative"},
+	{"Li2", "dilogarithm"},
+	{"Li3", "trilogarithm"},
+	{"Order", "order term function (for truncated power series)"},
+	{"Derivative", "inert differential operator"},
+	{NULL, NULL}	// End marker
+};
+
+#include "ginsh_extensions.h"
 
 
 /*
@@ -621,6 +659,15 @@ static void insert_fcn_help(const char *name, const char *str)
 		help_str += ") - ";
 		help_str += str;
 		help.insert(make_pair(string(name), help_str));
+	}
+}
+
+// Help strings for functions from fcn_help_init array
+static void insert_help(const fcn_help_init *p)
+{
+	while (p->name) {
+		insert_fcn_help(p->name, p->help);
+		p++;
 	}
 }
 
@@ -735,6 +782,7 @@ int main(int argc, char **argv)
 
 	// Init function table
 	insert_fcns(builtin_fcns);
+	insert_fcns(extended_fcns);
 	ginsh_get_ginac_functions();
 
 	// Init help for operators (automatically generated from man page)
@@ -745,31 +793,8 @@ int main(int argc, char **argv)
 #include "ginsh_fcn_help.c"
 
 	// Help for GiNaC functions is added manually
-	insert_fcn_help("acos", "inverse cosine function");
-	insert_fcn_help("acosh", "inverse hyperbolic cosine function");
-	insert_fcn_help("asin", "inverse sine function");
-	insert_fcn_help("asinh", "inverse hyperbolic sine function");
-	insert_fcn_help("atan", "inverse tangent function");
-	insert_fcn_help("atan2", "inverse tangent function with two arguments");
-	insert_fcn_help("atanh", "inverse hyperbolic tangent function");
-	insert_fcn_help("beta", "Beta function");
-	insert_fcn_help("binomial", "binomial function");
-	insert_fcn_help("cos", "cosine function");
-	insert_fcn_help("cosh", "hyperbolic cosine function");
-	insert_fcn_help("exp", "exponential function");
-	insert_fcn_help("factorial", "factorial function");
-	insert_fcn_help("lgamma", "natural logarithm of Gamma function");
-	insert_fcn_help("tgamma", "Gamma function");
-	insert_fcn_help("log", "natural logarithm");
-	insert_fcn_help("psi", "psi function\npsi(x) is the digamma function, psi(n,x) the nth polygamma function");
-	insert_fcn_help("sin", "sine function");
-	insert_fcn_help("sinh", "hyperbolic sine function");
-	insert_fcn_help("tan", "tangent function");
-	insert_fcn_help("tanh", "hyperbolic tangent function");
-	insert_fcn_help("zeta", "zeta function\nzeta(x) is Riemann's zeta function, zeta(n,x) its nth derivative");
-	insert_fcn_help("Li2", "dilogarithm");
-	insert_fcn_help("Li3", "trilogarithm");
-	insert_fcn_help("Order", "order term function (for truncated power series)");
+	insert_help(builtin_help);
+	insert_help(extended_help);
 
 	// Init readline completer
 	rl_readline_name = argv[0];
