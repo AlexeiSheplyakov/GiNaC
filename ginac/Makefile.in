@@ -111,6 +111,7 @@ ginacinclude_HEADERS = ginac.h add.h basic.h clifford.h color.h coloridx.h \
   idx.h indexed.h inifcns.h isospin.h lorentzidx.h lst.h matrix.h mul.h \
   ncmul.h normal.h numeric.h operators.h power.h relational.h series.h \
   simp_lor.h structure.h symbol.h tinfos.h assertion.h
+EXTRA_DIST = container.pl function.pl structure.pl
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 

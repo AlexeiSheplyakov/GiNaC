@@ -5,7 +5,7 @@ ginsh_SOURCES = ginsh_parser.yy ginsh_lexer.ll ginsh.h
 ginsh_LDADD = ../ginac/libginac.la $(GINSH_LIBS)
 man_MANS = ginsh.1
 YFLAGS = -d
-EXTRA_DIST = ginsh_parser.h
+EXTRA_DIST = ginsh.1 ginsh_parser.h ginsh_fcn_help.sed ginsh_op_help.sed
 
 # files created by sed scripts
 ginsh_fcn_help.c: ginsh.1 ginsh_fcn_help.sed
@@ -14,4 +14,4 @@ ginsh_fcn_help.c: ginsh.1 ginsh_fcn_help.sed
 ginsh_op_help.c: ginsh.1 ginsh_op_help.sed
 	sed -n -f ginsh_op_help.sed <$< >$@
 
-ginsh_parser.cc: ginsh_fcn_help.c ginsh_op_help.c
+ginsh_parser.o: ginsh_fcn_help.c ginsh_op_help.c

@@ -531,7 +531,7 @@ static const fcn_init builtin_fcns[] = {
 	{"transpose", fcn_desc(f_transpose, 1)},
 	{"unassign", fcn_desc(f_unassign, 1)},
 	{"unit", fcn_desc(f_unit, 2)},
-	{NULL, fcn_desc(f_unit, 0)}	// End marker
+	{NULL, fcn_desc(f_dummy, 0)}	// End marker
 };
 
 
