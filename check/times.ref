@@ -22,6 +22,8 @@
 (no output)
 -------Lewis-Wester test H (det of 80x80 Hilbert)
 (no output)
+-------Lewis-Wester test M1 (26x26 sparse, det)
+(no output)
 -------Lewis-Wester test O1 (three 15x15 dets)
 (no output)
 -------Lewis-Wester test P (det of sparse rank 101)

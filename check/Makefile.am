@@ -12,7 +12,7 @@ checks_LDADD = ../ginac/libginac.la
 times_SOURCES = time_dennyfliegner.cpp time_gammaseries.cpp \
   time_vandermonde.cpp time_toeplitz.cpp time_lw_A.cpp time_lw_B.cpp \
   time_lw_C.cpp time_lw_D.cpp time_lw_E.cpp time_lw_F.cpp time_lw_G.cpp \
-  time_lw_H.cpp time_lw_O.cpp time_lw_P.cpp time_lw_Pprime.cpp \
+  time_lw_H.cpp time_lw_M1.cpp time_lw_O.cpp time_lw_P.cpp time_lw_Pprime.cpp \
   timer.cpp times.cpp times.h
 times_LDADD = ../ginac/libginac.la
 INCLUDES = -I$(srcdir)/../ginac
