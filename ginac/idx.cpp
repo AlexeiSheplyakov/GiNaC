@@ -41,7 +41,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(idx, basic,
 
 GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(varidx, idx,
   print_func<print_context>(&varidx::do_print).
-  // print_latex inherited from idx
+  print_func<print_latex>(&varidx::do_print_latex).
   print_func<print_tree>(&varidx::do_print_tree))
 
 GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(spinidx, varidx,
