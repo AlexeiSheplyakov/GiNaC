@@ -741,8 +741,8 @@ void greeting(void)
     cout << "ginsh - GiNaC Interactive Shell (" << PACKAGE << " V" << VERSION << ")" << endl;
     cout << "  __,  _______  Copyright (C) 1999-2000 Johannes Gutenberg University Mainz,\n"
          << " (__) *       | Germany.  This is free software with ABSOLUTELY NO WARRANTY.\n"
-         << "  ._) i N a C | You are welcome to redistribute it under certain conditions;\n"
-         << "<-------------' see the file COPYING for details.\n" << endl;
+         << "  ._) i N a C | You are welcome to redistribute it under certain conditions.\n"
+         << "<-------------' For details type `warranty;'.\n" << endl;
     cout << "Type ?? for a list of help topics." << endl;
 }
 
