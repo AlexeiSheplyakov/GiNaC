@@ -173,13 +173,13 @@ void add::print(ostream & os, unsigned upper_precedence) const
             os << "-";
         } else {
             if (cit->coeff != 1) {
-                os << cit->coeff;
+                (cit->coeff).print(os,precedence);
                 os << "*";
             }
         }
         os << cit->rest;
     }
-    if (!overall_coeff.is_equal(exZERO())) {
+    if (!overall_coeff.is_zero()) {
         if (overall_coeff > 0) os << '+';
         os << overall_coeff;
     }

@@ -197,13 +197,13 @@ void numeric::printraw(ostream & os) const
 }
 
 // The method print adds to the output so it blends more consistently together
-// with the other routines.
+// with the other routines and produces something compatible to Maple input.
 void numeric::print(ostream & os, unsigned upper_precedence) const
 {
     debugmsg("numeric print", LOGLEVEL_PRINT);
     if (is_real()) {  
         // case 1, real:  x  or  -x
-        if ((realpart(*value) < 0) && (precedence <= upper_precedence)) {
+        if ((precedence<=upper_precedence) && (!is_pos_integer())) {
             os << "(" << *value << ")";
         } else {
             os << *value;
@@ -211,7 +211,7 @@ void numeric::print(ostream & os, unsigned upper_precedence) const
     } else {
         // case 2, imaginary:  y*I  or  -y*I
         if (realpart(*value) == 0) {
-            if ((imagpart(*value) < 0) && (precedence <= upper_precedence)) {
+            if ((precedence<=upper_precedence) && (imagpart(*value) < 0)) {
                 if (imagpart(*value) == -1) {
                     os << "(-I)";
                 } else {
@@ -230,37 +230,22 @@ void numeric::print(ostream & os, unsigned upper_precedence) const
             }
         } else {
             // case 3, complex:  x+y*I  or  x-y*I  or  -x+y*I  or  -x-y*I
-            if ((realpart(*value) < 0) && (precedence <= upper_precedence)) {
-                os << "(" << realpart(*value);
-                if (imagpart(*value) < 0) {
-                    if (imagpart(*value) == -1) {
-                        os << "-I)";
-                    } else {
-                        os << imagpart(*value) << "*I)";
-                    }
+            if (precedence <= upper_precedence) os << "(";
+            os << realpart(*value);
+            if (imagpart(*value) < 0) {
+                if (imagpart(*value) == -1) {
+                    os << "-I";
                 } else {
-                    if (imagpart(*value) == 1) {
-                        os << "+I)";
-                    } else {
-                        os << "+" << imagpart(*value) << "*I)";
-                    }
+                    os << imagpart(*value) << "*I";
                 }
             } else {
-                os << realpart(*value);
-                if (imagpart(*value) < 0) {
-                    if (imagpart(*value) == -1) {
-                        os << "-I";
-                    } else {
-                        os << imagpart(*value) << "*I";
-                    }
+                if (imagpart(*value) == 1) {
+                    os << "+I";
                 } else {
-                    if (imagpart(*value) == 1) {
-                        os << "+I";
-                    } else {
-                        os << "+" << imagpart(*value) << "*I";
-                    }
+                    os << "+" << imagpart(*value) << "*I";
                 }
             }
+            if (precedence <= upper_precedence) os << ")";
         }
     }
 }
