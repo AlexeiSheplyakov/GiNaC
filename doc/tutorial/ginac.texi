@@ -37,6 +37,7 @@ notice identical to this one.
 @titlepage
 @title GiNaC @value{VERSION}
 @subtitle An open framework for symbolic computation within the C++ programming language
+@subtitle @value{UPDATED}
 @author The GiNaC Group:
 @author Christian Bauer, Alexander Frink, Richard B. Kreckel
 
@@ -492,16 +493,20 @@ $ ./configure --disable-shared --prefix=$(HOME)
 
 After proper configuration you should just build the whole
 library by typing
+
 @example
 $ make
 @end example
+
 at the command prompt and go for a cup of coffee.
 
 Just to make sure GiNaC works properly you may run a simple test
 suite by typing
+
 @example
 $ make check
 @end example
+
 This will compile some sample programs, run them and compare the output
 to reference output. Each of the checks should return a message @samp{passed}
 together with the CPU time used for that particular test.  If it does
@@ -517,6 +522,7 @@ this step is unlikely to return any errors.
 @section Installing GiNaC
 
 To install GiNaC on your system, simply type
+
 @example
 $ make install
 @end example
@@ -1302,7 +1308,7 @@ The functions for polynomial greatest common divisor and least common
 multiple have the synopsis:
 
 @example
-#include <GiNaC/normal.h>
+#include <ginac/normal.h>
 ex gcd(const ex & a, const ex & b);
 ex lcm(const ex & a, const ex & b);
 @end example
