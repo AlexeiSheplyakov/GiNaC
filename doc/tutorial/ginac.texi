@@ -661,6 +661,7 @@ meta-class for storing all mathematical objects.
 * Lists::                        Lists of expressions.
 * Mathematical functions::       Mathematical functions.
 * Relations::                    Equality, Inequality and all that.
+* Indexed objects::              Handling indexed quantities.
 @end menu
 
 
@@ -754,9 +755,10 @@ $\sqrt{2}$
 @item @code{lst} @tab Lists of expressions [@math{x}, @math{2*y}, @math{3+z}]
 @item @code{matrix} @tab @math{n}x@math{m} matrices of expressions
 @item @code{relational} @tab A relation like the identity @math{x}@code{==}@math{y}
-@item @code{color}, @code{coloridx} @tab Element and index of the @math{SU(3)} Lie-algebra
-@item @code{isospin} @tab Element of the @math{SU(2)} Lie-algebra
-@item @code{idx} @tab Index of a general tensor object
+@item @code{indexed} @tab Indexed object like @math{A_ij}
+@item @code{tensor} @tab Special tensor like the delta and metric tensors
+@item @code{idx} @tab Index of an indexed object
+@item @code{varidx} @tab Index with variance
 @end multitable
 @end cartouche
 
@@ -1209,7 +1211,7 @@ expansion and so on.  Read the next chapter in order to learn more about
 this.
 
 
-@node Relations, Methods and Functions, Mathematical functions, Basic Concepts
+@node Relations, Indexed objects, Mathematical functions, Basic Concepts
 @c    node-name, next, previous, up
 @section Relations
 @cindex @code{relational} (class)
@@ -1236,7 +1238,534 @@ however, that @code{==} here does not perform any simplifications, hence
 @code{expand()} must be called explicitly.
 
 
-@node Methods and Functions, Information About Expressions, Relations, Top
+@node Indexed objects, Methods and Functions, Relations, Basic Concepts
+@c    node-name, next, previous, up
+@section Indexed objects
+
+GiNaC allows you to handle expressions containing general indexed objects in
+arbitrary spaces. It is also able to canonicalize and simplify such
+expressions and perform symbolic dummy index summations. There are a number
+of predefined indexed objects provided, like delta and metric tensors.
+
+There are few restrictions placed on indexed objects and their indices and
+it is easy to construct nonsense expressions, but our intention is to
+provide a general framework that allows you to implement algorithms with
+indexed quantities, getting in the way as little as possible.
+
+@cindex @code{idx} (class)
+@cindex @code{indexed} (class)
+@subsection Indexed quantities and their indices
+
+Indexed expressions in GiNaC are constructed of two special types of objects,
+@dfn{index objects} and @dfn{indexed objects}.
+
+@itemize @bullet
+
+@item Index objects are of class @code{idx} or a subclass. Every index has
+a @dfn{value} and a @dfn{dimension} (which is the dimension of the space
+the index lives in) which can both be arbitrary expressions but are usually
+a number or a simple symbol. In addition, indices of class @code{varidx} have
+a @dfn{variance} (they can be co- or contravariant).
+
+@item Indexed objects are of class @code{indexed} or a subclass. They
+contain a @dfn{base expression} (which is the expression being indexed), and
+one or more indices.
+
+@end itemize
+
+@strong{Note:} when printing expressions, covariant indices and indices
+without variance are denoted @samp{.i} while contravariant indices are denoted
+@samp{~i}. In the following, we are going to use that notation in the text
+so instead of @math{A^i_jk} we will write @samp{A~i.j.k}. Index dimensions
+are not visible in the output.
+
+A simple example shall illustrate the concepts:
+
+@example
+#include <ginac/ginac.h>
+using namespace GiNaC;
+
+int main()
+@{
+    symbol i_sym("i"), j_sym("j");
+    idx i(i_sym, 3), j(j_sym, 3);
+
+    symbol A("A");
+    cout << indexed(A, i, j) << endl;
+     // -> A.i.j
+    ...
+@end example
+
+The @code{idx} constructor takes two arguments, the index value and the
+index dimension. First we define two index objects, @code{i} and @code{j},
+both with the numeric dimension 3. The value of the index @code{i} is the
+symbol @code{i_sym} (which prints as @samp{i}) and the value of the index
+@code{j} is the symbol @code{j_sym} (which prints as @samp{j}). Next we
+construct an expression containing one indexed object, @samp{A.i.j}. It has
+the symbol @code{A} as its base expression and the two indices @code{i} and
+@code{j}.
+
+Note the difference between the indices @code{i} and @code{j} which are of
+class @code{idx}, and the index values which are the sybols @code{i_sym}
+and @code{j_sym}. The indices of indexed objects cannot directly be symbols
+or numbers but must be index objects. For example, the following is not
+correct and will raise an exception:
+
+@example
+symbol i("i"), j("j");
+e = indexed(A, i, j); // ERROR: indices must be of type idx
+@end example
+
+You can have multiple indexed objects in an expression, index values can
+be numeric, and index dimensions symbolic:
+
+@example
+    ...
+    symbol B("B"), dim("dim");
+    cout << 4 * indexed(A, i)
+          + indexed(B, idx(j_sym, 4), idx(2, 3), idx(i_sym, dim)) << endl;
+     // -> B.j.2.i+4*A.i
+    ...
+@end example
+
+@code{B} has a 4-dimensional symbolic index @samp{k}, a 3-dimensional numeric
+index of value 2, and a symbolic index @samp{i} with the symbolic dimension
+@samp{dim}. Note that GiNaC doesn't automatically notify you that the free
+indices of @samp{A} and @samp{B} in the sum don't match (you have to call
+@code{simplify_indexed()} for that, see below).
+
+In fact, base expressions, index values and index dimensions can be
+arbitrary expressions:
+
+@example
+    ...
+    cout << indexed(A+B, idx(2*i_sym+1, dim/2)) << endl;
+     // -> (B+A).(1+2*i)
+    ...
+@end example
+
+It's also possible to construct nonsense like @samp{Pi.sin(x)}. You will not
+get an error message from this but you will probably not be able to do
+anything useful with it.
+
+@cindex @code{get_value()}
+@cindex @code{get_dimension()}
+The methods
+
+@example
+ex idx::get_value(void);
+ex idx::get_dimension(void);
+@end example
+
+return the value and dimension of an @code{idx} object. If you have an index
+in an expression, such as returned by calling @code{.op()} on an indexed
+object, you can get a reference to the @code{idx} object with the function
+@code{ex_to_idx()} on the expression.
+
+There are also the methods
+
+@example
+bool idx::is_numeric(void);
+bool idx::is_symbolic(void);
+bool idx::is_dim_numeric(void);
+bool idx::is_dim_symbolic(void);
+@end example
+
+for checking whether the value and dimension are numeric or symbolic
+(non-numeric). Using the @code{info()} method of an index (see @ref{Information
+About Expressions}) returns information about the index value.
+
+@cindex @code{varidx} (class)
+If you need co- and contravariant indices, use the @code{varidx} class:
+
+@example
+    ...
+    symbol mu_sym("mu"), nu_sym("nu");
+    varidx mu(mu_sym, 4), nu(nu_sym, 4); // default is contravariant ~mu, ~nu
+    varidx mu_co(mu_sym, 4, true);       // covariant index .mu
+
+    cout << indexed(A, mu, nu) << endl;
+     // -> A~mu~nu
+    cout << indexed(A, mu_co, nu) << endl;
+     // -> A.mu~nu
+    cout << indexed(A, mu.toggle_variance(), nu) << endl;
+     // -> A.mu~nu
+    ...
+@end example
+
+A @code{varidx} is an @code{idx} with an additional flag that marks it as
+co- or contravariant. The default is a contravariant (upper) index, but
+this can be overridden by supplying a third argument to the @code{varidx}
+constructor. The two methods
+
+@example
+bool varidx::is_covariant(void);
+bool varidx::is_contravariant(void);
+@end example
+
+allow you to check the variance of a @code{varidx} object (use @code{ex_to_varidx()}
+to get the object reference from an expression). There's also the very useful
+method
+
+@example
+ex varidx::toggle_variance(void);
+@end example
+
+which makes a new index with the same value and dimension but the opposite
+variance. By using it you only have to define the index once.
+
+@subsection Substituting indices
+
+@cindex @code{subs()}
+Sometimes you will want to substitute one symbolic index with another
+symbolic or numeric index, for example when calculating one specific element
+of a tensor expression. This is done with the @code{.subs()} method, as it
+is done for symbols (see @ref{Substituting Symbols}).
+
+You have two possibilities here. You can either substitute the whole index
+by another index or expression:
+
+@example
+    ...
+    ex e = indexed(A, mu_co);
+    cout << e << " becomes " << e.subs(mu_co == nu) << endl;
+     // -> A.mu becomes A~nu
+    cout << e << " becomes " << e.subs(mu_co == varidx(0, 4)) << endl;
+     // -> A.mu becomes A~0
+    cout << e << " becomes " << e.subs(mu_co == 0) << endl;
+     // -> A.mu becomes A.0
+    ...
+@end example
+
+The third example shows that trying to replace an index with something that
+is not an index will substitute the index value instead.
+
+Alternatively, you can substitute the @emph{symbol} of a symbolic index by
+another expression:
+
+@example
+    ...
+    ex e = indexed(A, mu_co);
+    cout << e << " becomes " << e.subs(mu_sym == nu_sym) << endl;
+     // -> A.mu becomes A.nu
+    cout << e << " becomes " << e.subs(mu_sym == 0) << endl;
+     // -> A.mu becomes A.0
+    ...
+@end example
+
+As you see, with the second method only the value of the index will get
+substituted. Its other properties, including its dimension, remain unchanged.
+If you want to change the dimension of an index you have to substitute the
+whole index by another one with the new dimension.
+
+Finally, substituting the base expression of an indexed object works as
+expected:
+
+@example
+    ...
+    ex e = indexed(A, mu_co);
+    cout << e << " becomes " << e.subs(A == A+B) << endl;
+     // -> A.mu becomes (B+A).mu
+    ...
+@end example
+
+@subsection Symmetries
+
+Indexed objects can be declared as being totally symmetric or antisymmetric
+with respect to their indices. In this case, GiNaC will automatically bring
+the indices into a canonical order which allows for some immediate
+simplifications:
+
+@example
+    ...
+    cout << indexed(A, indexed::symmetric, i, j)
+          + indexed(A, indexed::symmetric, j, i) << endl;
+     // -> 2*A.j.i
+    cout << indexed(B, indexed::antisymmetric, i, j)
+          + indexed(B, indexed::antisymmetric, j, j) << endl;
+     // -> -B.j.i
+    cout << indexed(B, indexed::antisymmetric, i, j)
+          + indexed(B, indexed::antisymmetric, j, i) << endl;
+     // -> 0
+    ...
+@end example
+
+@cindex @code{get_free_indices()}
+@subsection Dummy indices
+
+GiNaC treats certain symbolic index pairs as @dfn{dummy indices} meaning
+that a summation over the index range is implied. Symbolic indices which are
+not dummy indices are called @dfn{free indices}. Numeric indices are neither
+dummy nor free indices.
+
+To be recognized as a dummy index pair, the two indices must be of the same
+class and dimension and their value must be the same single symbol (an index
+like @samp{2*n+1} is never a dummy index). If the indices are of class
+@code{varidx}, they must also be of opposite variance.
+
+The method @code{.get_free_indices()} returns a vector containing the free
+indices of an expression. It also checks that the free indices of the terms
+of a sum are consistent:
+
+@example
+@{
+    symbol A("A"), B("B"), C("C");
+
+    symbol i_sym("i"), j_sym("j"), k_sym("k"), l_sym("l");
+    idx i(i_sym, 3), j(j_sym, 3), k(k_sym, 3), l(l_sym, 3);
+
+    ex e = indexed(A, i, j) * indexed(B, j, k) + indexed(C, k, l, i, l);
+    cout << exprseq(e.get_free_indices()) << endl;
+     // -> (.i,.k)
+     // 'j' and 'l' are dummy indices
+
+    symbol mu_sym("mu"), nu_sym("nu"), rho_sym("rho"), sigma_sym("sigma");
+    varidx mu(mu_sym, 4), nu(nu_sym, 4), rho(rho_sym, 4), sigma(sigma_sym, 4);
+
+    e = indexed(A, mu, nu) * indexed(B, nu.toggle_variance(), rho)
+      + indexed(C, mu, sigma, rho, sigma.toggle_variance());
+    cout << exprseq(e.get_free_indices()) << endl;
+     // -> (~mu,~rho)
+     // 'nu' is a dummy index, but 'sigma' is not
+
+    e = indexed(A, mu, mu);
+    cout << exprseq(e.get_free_indices()) << endl;
+     // -> (~mu)
+     // 'mu' is not a dummy index because it appears twice with the same
+     // variance
+
+    e = indexed(A, mu, nu) + 42;
+    cout << exprseq(e.get_free_indices()) << endl; // ERROR
+     // this will throw an exception:
+     // "add::get_free_indices: inconsistent indices in sum"
+@}
+@end example
+
+@cindex @code{simplify_indexed()}
+@subsection Simplifying indexed expressions
+
+In addition to the few automatic simplifications that GiNaC performs on
+indexed expressions (such as re-ordering the indices of symmetric tensors
+and calculating traces and convolutions of matrices and predefined tensors)
+there is the method
+
+@example
+ex ex::simplify_indexed(void);
+ex ex::simplify_indexed(const scalar_products & sp);
+@end example
+
+that performs some more expensive operations:
+
+@itemize
+@item it checks the consistency of free indices in sums in the same way
+  @code{get_free_indices()} does
+@item it (symbolically) calculates all possible dummy index summations/contractions
+  with the predefined tensors (this will be explained in more detail in the
+  next section)
+@item as a special case of dummy index summation, it can replace scalar products
+  of two tensors with a user-defined value
+@end itemize
+
+The last point is done with the help of the @code{scalar_products} class
+which is used to store scalar products with known values (this is not an
+arithmetic class, you just pass it to @code{simplify_indexed()}):
+
+@example
+@{
+    symbol A("A"), B("B"), C("C"), i_sym("i");
+    idx i(i_sym, 3);
+
+    scalar_products sp;
+    sp.add(A, B, 0); // A and B are orthogonal
+    sp.add(A, C, 0); // A and C are orthogonal
+    sp.add(A, A, 4); // A^2 = 4 (A has length 2)
+
+    e = indexed(A + B, i) * indexed(A + C, i);
+    cout << e << endl;
+     // -> (B+A).i*(A+C).i
+
+    cout << e.expand(expand_options::expand_indexed).simplify_indexed(sp)
+         << endl;
+     // -> 4+C.i*B.i
+@}
+@end example
+
+The @code{scalar_products} object @code{sp} acts as a storage for the
+scalar products added to it with the @code{.add()} method. This method
+takes three arguments: the two expressions of which the scalar product is
+taken, and the expression to replace it with. After @code{sp.add(A, B, 0)},
+@code{simplify_indexed()} will replace all scalar products of indexed
+objects that have the symbols @code{A} and @code{B} as base expressions
+with the single value 0. The number, type and dimension of the indices
+doesn't matter; @samp{A~mu~nu*B.mu.nu} would also be replaced by 0.
+
+@cindex @code{expand()}
+The example above also illustrates a feature of the @code{expand()} method:
+if passed the @code{expand_indexed} option it will distribute indices
+over sums, so @samp{(A+B).i} becomes @samp{A.i+B.i}.
+
+@cindex @code{tensor} (class)
+@subsection Predefined tensors
+
+Some frequently used special tensors such as the delta, epsilon and metric
+tensors are predefined in GiNaC. They have special properties when
+contracted with other tensor expressions and some of them have constant
+matrix representations (they will evaluate to a number when numeric
+indices are specified).
+
+@cindex @code{delta_tensor()}
+@subsubsection Delta tensor
+
+The delta tensor takes two indices, is symmetric and has the matrix
+representation @code{diag(1,1,1,...)}. It is constructed by the function
+@code{delta_tensor()}:
+
+@example
+@{
+    symbol A("A"), B("B");
+
+    idx i(symbol("i"), 3), j(symbol("j"), 3),
+        k(symbol("k"), 3), l(symbol("l"), 3);
+
+    ex e = indexed(A, i, j) * indexed(B, k, l)
+         * delta_tensor(i, k) * delta_tensor(j, l) << endl;
+    cout << e.simplify_indexed() << endl;
+     // -> B.i.j*A.i.j
+
+    cout << delta_tensor(i, i) << endl;
+     // -> 3
+@}
+@end example
+
+@cindex @code{metric_tensor()}
+@subsubsection General metric tensor
+
+The function @code{metric_tensor()} creates a general metric tensor with
+two indices that can be used to raise/lower tensor indices. The metric
+tensor is denoted as @samp{g} in the output and if its indices are of
+mixed variance it is automatically replaced by a delta tensor:
+
+@example
+@{
+    symbol A("A");
+
+    varidx mu(symbol("mu"), 4), nu(symbol("nu"), 4), rho(symbol("rho"), 4);
+
+    ex e = metric_tensor(mu, nu) * indexed(A, nu.toggle_variance(), rho);
+    cout << e.simplify_indexed() << endl;
+     // -> A~mu~rho
+
+    e = delta_tensor(mu, nu.toggle_variance()) * metric_tensor(nu, rho);
+    cout << e.simplify_indexed() << endl;
+     // -> g~mu~rho
+
+    e = metric_tensor(mu.toggle_variance(), nu.toggle_variance())
+      * metric_tensor(nu, rho);
+    cout << e.simplify_indexed() << endl;
+     // -> delta.mu~rho
+
+    e = metric_tensor(nu.toggle_variance(), rho.toggle_variance())
+      * metric_tensor(mu, nu) * (delta_tensor(mu.toggle_variance(), rho)
+        + indexed(A, mu.toggle_variance(), rho));
+    cout << e.simplify_indexed() << endl;
+     // -> 4+A.rho~rho
+@}
+@end example
+
+@cindex @code{lorentz_g()}
+@subsubsection Minkowski metric tensor
+
+The Minkowski metric tensor is a special metric tensor with a constant
+matrix representation which is either @code{diag(1, -1, -1, ...)} (negative
+signature, the default) or @code{diag(-1, 1, 1, ...)} (positive signature).
+It is created with the function @code{lorentz_g()} (although it is output as
+@samp{eta}):
+
+@example
+@{
+    varidx mu(symbol("mu"), 4);
+
+    e = delta_tensor(varidx(0, 4), mu.toggle_variance())
+      * lorentz_g(mu, varidx(0, 4));       // negative signature
+    cout << e.simplify_indexed() << endl;
+     // -> 1
+
+    e = delta_tensor(varidx(0, 4), mu.toggle_variance())
+      * lorentz_g(mu, varidx(0, 4), true); // positive signature
+    cout << e.simplify_indexed() << endl;
+     // -> -1
+@}
+@end example
+
+@subsubsection Epsilon tensor
+
+The epsilon tensor is totally antisymmetric, its number of indices is equal
+to the dimension of the index space (the indices must all be of the same
+numeric dimension), and @samp{eps.1.2.3...} (resp. @samp{eps~0~1~2...}) is
+defined to be 1. Its behaviour with indices that have a variance also
+depends on the signature of the metric. Epsilon tensors are output as
+@samp{eps}.
+
+There are three functions defined to create epsilon tensors in 2, 3 and 4
+dimensions:
+
+@example
+ex epsilon_tensor(const ex & i1, const ex & i2);
+ex epsilon_tensor(const ex & i1, const ex & i2, const ex & i3);
+ex lorentz_eps(const ex & i1, const ex & i2, const ex & i3, const ex & i4, bool pos_sig = false);
+@end example
+
+The first two functions create an epsilon tensor in 2 or 3 Euclidean
+dimensions, the last function creates an epsilon tensor in a 4-dimensional
+Minkowski space (the last @code{bool} argument specifies whether the metric
+has negative or positive signature, as in the case of the Minkowski metric
+tensor).
+
+@subsection Linear algebra
+
+The @code{matrix} class can be used with indices to do some simple linear
+algebra (products of vectors and matrices, traces and scalar products):
+
+@example
+@{
+    idx i(symbol("i"), 2), j(symbol("j"), 2);
+    symbol x("x"), y("y");
+
+    matrix A(2, 2), X(2, 1);
+    A.set(0, 0, 1); A.set(0, 1, 2);
+    A.set(1, 0, 3); A.set(1, 1, 4);
+    X.set(0, 0, x); X.set(1, 0, y);
+
+    cout << indexed(A, i, i) << endl;
+     // -> 5
+
+    ex e = indexed(A, i, j) * indexed(X, j);
+    cout << e.simplify_indexed() << endl;
+     // -> [[ [[2*y+x]], [[4*y+3*x]] ]].i
+
+    e = indexed(A, i, j) * indexed(X, i);
+    cout << e.simplify_indexed() << endl;
+     // -> [[ [[3*y+x,4*y+2*x]] ]].j
+@}
+@end example
+
+You can of course obtain the same results with the @code{matrix::mul()}
+and @code{matrix::trace()} methods but with indices you don't have to
+worry about transposing matrices.
+
+Matrix indices always start at 0 and their dimension must match the number
+of rows/columns of the matrix. Matrices with one row or one column are
+vectors and can have one or two indices (it doesn't matter whether it's a
+row or a columnt vector). Other matrices must have two indices.
+
+You should be careful when using indices with variance on matrices. GiNaC
+doesn't look at the variance and doesn't know that @samp{F~mu~nu} and
+@samp{F.mu.nu} are different matrices. In this case you should use only
+one form for @samp{F} and explicitly multiply it with a matrix representation
+of the metric tensor.
+
+
+@node Methods and Functions, Information About Expressions, Indexed objects, Top
 @c    node-name, next, previous, up
 @chapter Methods and Functions
 @cindex polynomial
@@ -1440,7 +1969,8 @@ for accessing the subexpressions in the container-like GiNaC classes like
 determines the number of subexpressions (@samp{operands}) contained, while
 @code{op()} returns the @code{i}-th (0..@code{nops()-1}) subexpression.
 In the case of a @code{power} object, @code{op(0)} will return the basis
-and @code{op(1)} the exponent.
+and @code{op(1)} the exponent. For @code{indexed} objects, @code{op(0)}
+is the base expression and @code{op(i)}, @math{i>0} are the indices.
 
 The left-hand and right-hand side expressions of objects of class
 @code{relational} (and only of these) can also be accessed with the methods
@@ -2754,7 +3284,10 @@ You don't have to understand how exactly this works. Just copy these four
 lines into your code literally (replacing the class name, of course). It
 calls the unarchiving constructor of the class and unless you are doing
 something very special (like matching @code{archive_node}s to global
-objects) you don't need a different implementation.
+objects) you don't need a different implementation. For those who are
+interested: setting the @code{dynallocated} flag puts the object under
+the control of GiNaC's garbage collection. It will get deleted automatically
+once it is no longer referenced.
 
 Our @code{compare_same_type()} function uses a provided function to compare
 the string members:
