@@ -5,6 +5,8 @@ This file records noteworthy changes.
 * The input parser no longer ignores extra data following accepted input.
 * Improved the CLN C-source output (integers are printed as integers, and
   floating point numbers include the precision).
+* Fixed a problem in the LaTeX-output of negative fractions.
+* Added print_latex() and print_csrc() to ginsh.
 
 1.0.11 (18 September 2002)
 * Fixed a possible memory corruption in contractions of indexed objects with
