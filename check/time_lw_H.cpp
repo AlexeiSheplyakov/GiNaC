@@ -26,29 +26,26 @@
 static unsigned test(unsigned n)
 {
 	matrix hilbert(n,n);
-	
+
 	for (unsigned r=0; r<n; ++r)
 		for (unsigned c=0; c<n; ++c)
 			hilbert.set(r,c,numeric(1,r+c+1));
 	ex det = hilbert.determinant();
-	
+
 	/*
 	   The closed form of the determinant of n x n Hilbert matrices is:
 	
-	     n-1   /                      n-1                 \
-	    ----- |                      -----                 |
-	     | |  | pow(factorial(r),2)   | |    hilbert(r,c)  |
-	     | |  |                       | |                  |   
-	    r = 0  \                     c = 0                /
+             n-1   /                   \
+            ----- | pow(factorial(r),3) |
+             | |  | ------------------- |
+             | |  |    factorial(r+n)   |
+            r = 0  \                   /
 	*/
-	
+
 	ex hilbdet = 1;
-	for (unsigned r=0; r<n; ++r) {
-		hilbdet *= pow(factorial(numeric(r)),2);
-		for (unsigned c=0; c<n; ++c)
-			hilbdet *= hilbert(r,c);
-	}
-	
+	for (unsigned r=0; r<n; ++r)
+	    hilbdet *= pow(factorial(r),3)/(factorial(r+n));
+
 	if (det != hilbdet) {
 		clog << "determinant of " << n << "x" << n << " erroneously returned " << det << endl;
 		return 1;
@@ -62,10 +59,10 @@ unsigned time_lw_H()
 	unsigned count = 0;
 	timer rolex;
 	double time = .0;
-	
+
 	cout << "timing Lewis-Wester test H (det of 80x80 Hilbert)" << flush;
 	clog << "-------Lewis-Wester test H (det of 80x80 Hilbert):" << endl;
-	
+
 	rolex.start();
 	// correct for very small times:
 	do {
@@ -73,7 +70,7 @@ unsigned time_lw_H()
 		++count;
 	} while ((time=rolex.read())<0.1 && !result);
 	cout << '.' << flush;
-	
+
 	if (!result) {
 		cout << " passed ";
 		clog << "(no output)" << endl;
@@ -81,6 +78,6 @@ unsigned time_lw_H()
 		cout << " failed ";
 	}
 	cout << int(1000*(time/count))*0.001 << 's' << endl;
-	
+
 	return result;
 }
