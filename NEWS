@@ -5,6 +5,7 @@ This file records noteworthy changes.
   variance. This allows some simplifications that weren't possible before,
   like eps~a.b~c~d*X.a*X~b -> 0 and X.a~a-X~a.a -> 0.
 * Implemented relational::subs().
+* Fixed bug in simplify_ncmul() for clifford objects.
 
 1.0.8 (31 March 2002)
 * Improvements in memory usage of the expand() methods.
