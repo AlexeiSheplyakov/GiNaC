@@ -1,8 +1,21 @@
 This file records noteworthy changes.
 
 0.9.1 (<date>)
-* Added remove_first() and remove_last() methods for lists.
-* Added symmetrize_cyclic().
+* New functions/methods:
+   - remove_first() and remove_last() for lists
+   - symmetrize_cyclic()
+* Instead of just totally symmetric or antisymmetric, complex symmetries
+  can now be defined for indexed objects. Symmetries are described by a
+  tree of "symmetry" objects that is constructed with the sy_none(),
+  sy_symm(), sy_anti() and sy_cycl() functions. The symmetry of a function
+  with respect to its arguments can also be defined (this is currently
+  only used for the Beta function).
+* color_trace() and dirac_trace() can be applied to a more general class
+  of expressions, e.g. using it on a relation will take the trace on both
+  sides etc.
+* Generalized map() to take a function object instead of a function pointer.
+  This allows passing an arbitrary number of additional state to the
+  function being called.
 
 0.9.0 (7 June 2001)
 * In the output and in ginsh, lists are now delimited by { } braces, and
