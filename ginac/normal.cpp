@@ -1947,10 +1947,10 @@ ex add::normal(lst &sym_lst, lst &repl_lst, int level) const
     // Add fractions
     if (den.is_equal(_ex1())) {
 
-		// Common denominator is 1, simply add all numerators
+		// Common denominator is 1, simply add all fractions
         exvector num_seq;
 		for (ait=o.begin(); ait!=aitend; ait++) {
-			num_seq.push_back(ait->op(0));
+			num_seq.push_back(ait->op(0) / ait->op(1));
 		}
 		return (new lst((new add(num_seq))->setflag(status_flags::dynallocated), den))->setflag(status_flags::dynallocated);
 
