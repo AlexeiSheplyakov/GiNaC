@@ -3154,23 +3154,62 @@ for an explanation of these.
 @cindex container
 @cindex @code{relational} (class)
 
-GiNaC provides the two methods
+Many GiNaC classes, like @code{add}, @code{mul}, @code{lst}, and
+@code{function}, act as containers for subexpressions. For example, the
+subexpressions of a sum (an @code{add} object) are the individual terms,
+and the subexpressions of a @code{function} are the function's arguments.
+
+GiNaC provides two ways of accessing subexpressions. The first way is to use
+the two methods
 
 @example
 size_t ex::nops();
 ex ex::op(size_t i);
 @end example
 
-for accessing the subexpressions in the container-like GiNaC classes like
-@code{add}, @code{mul}, @code{lst}, and @code{function}. @code{nops()}
-determines the number of subexpressions (@samp{operands}) contained, while
-@code{op()} returns the @code{i}-th (0..@code{nops()-1}) subexpression.
-In the case of a @code{power} object, @code{op(0)} will return the basis
-and @code{op(1)} the exponent. For @code{indexed} objects, @code{op(0)}
-is the base expression and @code{op(i)}, @math{i>0} are the indices.
+@code{nops()} determines the number of subexpressions (operands) contained
+in the expression, while @code{op(i)} returns the @code{i}-th
+(0..@code{nops()-1}) subexpression. In the case of a @code{power} object,
+@code{op(0)} will return the basis and @code{op(1)} the exponent. For
+@code{indexed} objects, @code{op(0)} is the base expression and @code{op(i)},
+@math{i>0} are the indices.
 
-The left-hand and right-hand side expressions of objects of class
-@code{relational} (and only of these) can also be accessed with the methods
+The second way to access subexpressions is via the STL-style random-access
+iterator class @code{const_iterator} and the methods
+
+@example
+const_iterator ex::begin();
+const_iterator ex::end();
+@end example
+
+@code{begin()} returns an iterator referring to the first subexpression;
+@code{end()} returns an iterator which is one-past the last subexpression.
+If the expression has no subexpressions, then @code{begin() == end()}. These
+iterators can also be used in conjunction with non-modifying STL algorithms.
+
+Here is an example that (non-recursively) prints all the subexpressions of a
+given expression in three different ways:
+
+@example
+@{
+    ex e = ...
+
+    // with nops()/op()
+    for (size_t i = 0; i != e.nops(); ++i)
+        cout << e.op(i) << endl;
+
+    // with iterators
+    for (const_iterator i = e.begin(); i != e.end(); ++i)
+        cout << *i << endl;
+
+    // with iterators and STL copy()
+    std::copy(e.begin(), e.end(), std::ostream_iterator<ex>(cout, "\n"));
+@}
+@end example
+
+Additionally, the left-hand and right-hand side expressions of objects of
+class @code{relational} (and only of these) can also be accessed with the
+methods
 
 @example
 ex ex::lhs();
