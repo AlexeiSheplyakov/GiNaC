@@ -4665,6 +4665,21 @@ GiNaC contains the following predefined mathematical functions:
 @item @code{Order(x)}
 @tab order term function in truncated power series
 @cindex @code{Order()}
+@item @code{Li(n,x)}
+@tab polylogarithm
+@cindex @code{Li()}
+@item @code{S(n,p,x)}
+@tab Nielsen's generalized polylogarithm
+@cindex @code{S()}
+@item @code{H(m_lst,x)}
+@tab harmonic polylogarithm
+@cindex @code{H()}
+@item @code{Li(m_lst,x_lst)}
+@tab multiple polylogarithm
+@cindex @code{Li()}
+@item @code{mZeta(m_lst)}
+@tab multiple zeta value
+@cindex @code{mZeta()}
 @end multitable
 @end cartouche
 
