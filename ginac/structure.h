@@ -116,7 +116,7 @@ class structure : public basic, public ComparisonPolicy<T> {
 	GINAC_DECLARE_REGISTERED_CLASS(structure, basic)
 
 	// helpers
-	static unsigned get_tinfo() { return reg_info.options.tinfo_key; }
+	static unsigned get_tinfo() { return reg_info.options.get_id(); }
 	static const char *get_class_name() { return "structure"; }
 
 	// constructors
