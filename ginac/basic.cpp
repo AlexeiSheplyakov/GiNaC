@@ -617,9 +617,11 @@ ex basic::subs_one_level(const exmap & m, unsigned options) const
 	exmap::const_iterator it;
 
 	if (options & subs_options::no_pattern) {
-		it = m.find(*this);
+		ex thisex = *this;
+		it = m.find(thisex);
 		if (it != m.end())
 			return it->second;
+		return thisex;
 	} else {
 		for (it = m.begin(); it != m.end(); ++it) {
 			lst repl_lst;
