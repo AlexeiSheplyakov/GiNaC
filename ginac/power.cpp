@@ -545,9 +545,9 @@ ex power::derivative(const symbol & s) const
 		return mul(newseq, exponent);
 	} else {
 		// D(b^e) = b^e * (D(e)*ln(b) + e*D(b)/b)
-		return mul(power(basis, exponent),
+		return mul(*this,
 		           add(mul(exponent.diff(s), log(basis)),
-		           mul(mul(exponent, basis.diff(s)), power(basis, -1))));
+		           mul(mul(exponent, basis.diff(s)), power(basis, _ex_1()))));
 	}
 }
 
