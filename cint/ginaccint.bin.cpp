@@ -49,38 +49,6 @@ void sigterm_handler(int n)
     exit(1);
 }
 
-bool is_whitespace_char(char c)
-{
-    return ((c==' ') || (c=='\t') || (c=='\n') || (c=='\r')); 
-}
-
-char first_non_whitespace_char(char const * s)
-{
-    int l = strlen(s);
-    int pos = 0;
-    while ((pos<l)&&is_whitespace_char(s[pos]))
-        pos++;
-    return s[pos];
-}    
-
-char last_non_whitespace_char(char const * s)
-{
-    int pos = strlen(s)-1;
-    while ((pos>=0) && is_whitespace_char(s[pos]))
-        pos--;
-    return s[pos];
-}    
-
-string strip_whitespace(string const & s)
-{
-    string s2;
-    int l = s.length();
-    for (int pos=0; pos<l; ++pos) {
-        if (!is_whitespace_char(s[pos])) s2 += s[pos];
-    }
-    return s2;
-}
-
 G__value exec_tempfile(string const & command)
 {
     G__value retval;
@@ -185,6 +153,107 @@ void greeting(void)
          << endl;
 }
 
+string preprocess(char const * line, bool & comment, bool & single_quote,
+                  bool & double_quote, unsigned & open_braces)
+{
+    // "preprocess" the line entered to be able to decide if the command shall be
+    // executed directly or more input is needed or this is a special command
+
+    // all whitespace will be removed
+    // all comments (/* */ and //) will be removed
+    // open and close braces ( { and } ) outside strings will be counted 
+
+    /*
+    cout << "line=" << line << endl;
+    cout << "comment=" << comment << ", single_quote=" << single_quote
+         << ",double_quote=" << double_quote << ", open_braces=" << open_braces
+         << endl;
+    */
+    
+    string preprocessed;
+    int pos=0;
+    bool end=false;
+    bool escape=false;
+    bool slash=false;
+    bool asterisk=false;
+    while ((line[pos]!='\0')&&!end) {
+        if (escape) {
+            // last character was a \, ignore this one
+            escape=false;
+        } else if (slash) {
+            // last character was a /, test if * or /
+            slash=false;
+            if (line[pos]=='/') {
+                end=true;
+            } else if (line[pos]=='*') {
+                comment=true;
+            } else {
+                preprocessed += '/';
+            }
+        } else if (asterisk) {
+            // last character was a *, test if /
+            asterisk=false;
+            if (line[pos]=='/') {
+                comment=false;
+            } else if (line[pos]=='*') {
+                preprocessed += '*';
+                asterisk=true;
+            }
+        } else {
+            switch (line[pos]) {
+            case ' ':
+            case '\t':
+            case '\n':
+            case '\r':
+                // whitespace: ignore
+                break;
+            case '\\':
+                // escape character, ignore next
+                escape=true;
+                break;
+            case '"':
+                if ((!single_quote)&&(!comment)) {
+                    double_quote = !double_quote;
+                }
+                break;
+                case '\'':
+                    if ((!double_quote)&&(!comment)) {
+                        single_quote = !single_quote;
+                    }
+                    break;
+            case '{':
+                if ((!single_quote)&&(!double_quote)&&(!comment)) {
+                    open_braces++;
+                }
+                break;
+            case '}':
+                if ((!single_quote)&&(!double_quote)&&(!comment)&&(open_braces>0)) {
+                    open_braces--;
+                }
+                break;
+            case '/':
+                slash=true;
+                break;
+            case '*':
+                asterisk=true;
+                break;
+            default:
+                preprocessed += line[pos];
+            }
+        }
+        pos++;
+    }
+
+    /*
+    cout << "preprocessed=" << preprocessed << endl;
+    cout << "comment=" << comment << ", single_quote=" << single_quote
+         << ",double_quote=" << double_quote << ", open_braces=" << open_braces
+         << endl;
+    */
+    
+    return preprocessed;
+}
+                
 int main(void) 
 {
     char *line;
@@ -204,66 +273,54 @@ int main(void)
     exec_tempfile("ex LAST,LLAST,LLLAST;\n");
     
     bool quit = false;
-    bool next_command_is_function=false;    
+    bool next_command_is_function=false;
+    bool single_quote=false;
+    bool double_quote=false;
+    bool comment=false;
+    unsigned open_braces=0;
+
     while (!quit) {
         strcpy(prompt,PROMPT);
-        int open_braces = 0;
         bool end_of_command = false;
         string command;
+        string preprocessed;
         while (!end_of_command) {
             line = G__input(prompt);
-            
-            int pos = 0;
-            bool double_quote = false;
-            bool single_quote = false;
-            while(line[pos]!='\0') {
-                switch(line[pos]) {
-                case '"':
-                    if (!single_quote) double_quote = !double_quote;
-                    break;
-                case '\'':
-                    if (!double_quote) single_quote = !single_quote;
-                    break;
-                case '{':
-                    if ((!single_quote) && (!double_quote)) open_braces++;
-                    break;
-                case '}':
-                    if ((!single_quote) && (!double_quote)) open_braces--;
-                    break;
-                }
-                pos++;
-            }
             command += line;
-            command += '\n';
-            if (open_braces==0) {
-                if ((first_non_whitespace_char(command.c_str())=='#')||
-                    (first_non_whitespace_char(command.c_str())=='.')||
-                    (last_non_whitespace_char(command.c_str())==';')||
-                    (last_non_whitespace_char(command.c_str())=='}')) {
+            command += "\n";
+            preprocessed += preprocess(line,comment,single_quote,double_quote,open_braces);
+            if ((open_braces==0)&&(!single_quote)&&(!double_quote)&&(!comment)) {
+                unsigned l=preprocessed.length();
+                if ((l==0)||
+                    (preprocessed[0]=='#')||
+                    (preprocessed[0]=='.')||
+                    (preprocessed[l-1]==';')||
+                    (preprocessed[l-1]=='}')) {
                     end_of_command=true;
                 }
             }
             strcpy(prompt,"     > ");
         }
-        string stripped_command=strip_whitespace(command);
-        if ((stripped_command=="quit;")||
-            (stripped_command=="exit;")||
-            (stripped_command=="bye;")||
-            (stripped_command==".q")||
-            (stripped_command==".quit")||
-            (stripped_command==".exit")||
-            (stripped_command==".bye")) {
+        if ((preprocessed=="quit;")||
+            (preprocessed=="exit;")||
+            (preprocessed=="bye;")||
+            (preprocessed==".q")||
+            (preprocessed==".quit")||
+            (preprocessed==".exit")||
+            (preprocessed==".bye")) {
             quit = true;
-        } else if (stripped_command==".function") {
+        } else if (preprocessed==".function") {
             cout << "next expression can be a function definition" << endl;
             next_command_is_function=true;
-        } else if (stripped_command==".cint") {
+        } else if (preprocessed==".cint") {
             cout << endl << "switching to cint interactive mode" << endl;
             cout << "'h' for help, 'q' to quit, '{ statements }' or 'p [expression]' to evaluate" << endl;
             G__pause();
             cout << "back from cint" << endl;
-        } else if (command[0]=='.') {
+        /* test for more special commands
+        } else if (preprocessed==".xyz") {
             cout << "special command (TBD): " << command << endl;
+        */
         } else {
             // cout << "now processing: " << command << endl;
             if (next_command_is_function) {
