@@ -8,7 +8,12 @@
 #include <ginac/function.h>
 
 #ifndef NO_NAMESPACE_GINAC
-using namespace GiNaC;
+namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
 
 void ginsh_get_ginac_functions(void) { }
+
+#ifndef NO_NAMESPACE_GINAC
+}
+#endif // ndef NO_NAMESPACE_GINAC
+

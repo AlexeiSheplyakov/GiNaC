@@ -224,13 +224,23 @@ $opening=<<END_OF_OPENING;
 #include <ginac/function.h>
 
 #ifndef NO_NAMESPACE_GINAC
-using namespace GiNaC;
+namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
 
 END_OF_OPENING
 
 print OUT $opening;
 print OUT "void ginsh_get_ginac_functions(void) { }\n";
+
+$closing=<<END_OF_CLOSING;
+
+#ifndef NO_NAMESPACE_GINAC
+}
+#endif // ndef NO_NAMESPACE_GINAC
+
+END_OF_CLOSING
+
+print OUT $closing;
 
 close OUT;
 
