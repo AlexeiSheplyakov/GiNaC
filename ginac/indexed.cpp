@@ -330,6 +330,10 @@ ex indexed::eval(int level) const
 	if (level > 1)
 		return indexed(symmetry, evalchildren(level));
 
+	// If the base object is 0, the whole object is 0
+	if (seq[0].is_zero())
+		return _ex0();
+
 	// Canonicalize indices according to the symmetry properties
 	if (seq.size() > 2 && (symmetry != unknown && symmetry != mixed)) {
 		exvector v = seq;
@@ -343,7 +347,7 @@ ex indexed::eval(int level) const
 	}
 
 	// Let the class of the base object perform additional evaluations
-	return op(0).bp->eval_indexed(*this);
+	return seq[0].bp->eval_indexed(*this);
 }
 
 ex indexed::thisexprseq(const exvector & v) const
