@@ -9,16 +9,15 @@ AUTOMAKE_OPTIONS = 1.4
 bin_SCRIPTS = ginac-config
 
 # All the rest of the distributed files
-EXTRA_DIST = autogen.sh ginac.m4
+EXTRA_DIST = ginac.m4 GiNaC.spec
 
 # M4 macro file for inclusion with autoconf
 m4datadir = $(datadir)/aclocal
 m4data_DATA = ginac.m4
 
 # Rule to build tar-bzipped distribution package
-$(PACKAGE)-$(VERSION).tar.bz2: dist
+$(PACKAGE)-$(VERSION).tar.gz: dist
 
 # Rule to build RPM distribution package
 rpm: $(PACKAGE)-$(VERSION).tar.gz
-	cp $(PACKAGE)-$(VERSRION).tar.gz /usr/src/redhat/SOURCES
-	rpm -ba GiNaC.spec
+	rpm --tarball a $(PACKAGE)-$(VERSION).tar.gz
