@@ -111,7 +111,7 @@ AC_CHECK_HEADERS(sstream strstream)
 dnl We need to have Bruno Haible's CLN installed.
 dnl (CLN versions >= 1.1.0 must have installed cln.m4 at a visible place,
 dnl which provides this macro):
-AC_PATH_LIBCLN(1.1.0, [
+AC_PATH_CLN(1.1.0, [
   LIBS="$LIBS $CLN_LIBS"
   CPPFLAGS="$CPPFLAGS $CLN_CPPFLAGS"
 ], GINAC_ERROR([No suitable installed version of CLN could be found.]))
