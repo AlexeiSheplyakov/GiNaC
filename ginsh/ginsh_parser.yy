@@ -87,7 +87,7 @@ static void print_help_topics(void);
 %token T_NUMBER T_SYMBOL T_LITERAL T_DIGITS T_QUOTE T_QUOTE2 T_QUOTE3
 %token T_EQUAL T_NOTEQ T_LESSEQ T_GREATEREQ T_MATRIX_BEGIN T_MATRIX_END
 
-%token T_QUIT T_WARRANTY T_PRINT T_READ T_WRITE T_TIME T_XYZZY T_INVENTORY T_LOOK T_SCORE
+%token T_QUIT T_WARRANTY T_PRINT T_IPRINT T_TIME T_XYZZY T_INVENTORY T_LOOK T_SCORE
 
 /* Operator precedence and associativity */
 %right '='
@@ -132,6 +132,20 @@ line	: ';'
 	| T_PRINT '(' exp ')' ';' {
 		try {
 			$3.printtree(cout);
+		} catch (exception &e) {
+			cerr << e.what() << endl;
+			YYERROR;
+		}
+	}
+	| T_IPRINT '(' exp ')' ';' {
+		try {
+			ex e = $3;
+			if (!e.info(info_flags::integer))
+				throw (std::invalid_argument("argument to iprint() must be an integer"));
+			long i = ex_to_numeric(e).to_long();
+			cout << i << endl;
+			cout << "#o" << oct << i << endl;
+			cout << "#x" << hex << i << endl;
 		} catch (exception &e) {
 			cerr << e.what() << endl;
 			YYERROR;
@@ -270,7 +284,7 @@ static ex f_pow(const exprseq &e) {return pow(e[0], e[1]);}
 static ex f_sqrt(const exprseq &e) {return sqrt(e[0]);}
 static ex f_subs2(const exprseq &e) {return e[0].subs(e[1]);}
 
-#define CHECK_ARG(num, type, fcn) if (!is_ex_of_type(e[num], type)) throw(std::invalid_argument("argument " #num " to " #fcn " must be a " #type))
+#define CHECK_ARG(num, type, fcn) if (!is_ex_of_type(e[num], type)) throw(std::invalid_argument("argument " #num " to " #fcn "() must be a " #type))
 
 static ex f_charpoly(const exprseq &e)
 {

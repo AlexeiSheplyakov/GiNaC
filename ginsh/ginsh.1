@@ -36,9 +36,12 @@ expressions on one line. Whitespace (spaces, tabs, newlines) can be applied
 freely between tokens. To quit ginsh, enter
 .BR quit " or " exit ,
 or type an EOF (Ctrl-D) at the prompt.
+.SS COMMENTS
+Anything following a double slash
+.RB ( // )
+up to the end of the line is treated as a comment and ignored.
 .SS NUMBERS
-ginsh accepts numbers in all formats accepted by CLN (the Class Library for
-Numbers, that is the foundation of GiNaC's numerics). This includes arbitrary
+ginsh accepts numbers in the usual decimal notations. This includes arbitrary
 precision integers and rationals as well as floating point numbers in standard
 or scientific notation (e.g.
 .BR 1.2E6 ).
@@ -46,6 +49,11 @@ The general rule is that if a number contains a decimal point
 .RB ( . ),
 it is an (inexact) floating point number; otherwise it is an (exact) integer or
 rational.
+Integers can be specified in binary, octal, hexadecimal or arbitrary (2-36) base
+by prefixing them with
+.BR #b ", " #o ", " #x ", or "
+.BI # n R
+, respectively.
 .SS SYMBOLS
 Symbols are made up of a string of alphanumeric characters and the underscore
 .RB ( _ ),
@@ -82,7 +90,7 @@ Archimedes' Constant
 .B Catalan
 Catalan's Constant
 .TP
-.B gamma
+.B Euler
 Euler-Mascheroni Constant
 .TP
 .B I
@@ -368,6 +376,14 @@ The command
 will print a dump of GiNaC's internal representation for the given
 .IR expression .
 This is useful for debugging and for learning about GiNaC internals.
+.PP
+The command
+.RS
+.BI iprint( expression );
+.RE
+prints the given
+.I expression
+(which must evaluate to an integer) in decimal, octal, and hexadecimal representations.
 .PP
 Finally, the shell escape
 .RS

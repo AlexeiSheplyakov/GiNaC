@@ -55,7 +55,7 @@ AN	[0-9a-zA-Z_]
 %%
 [ \t\n]+		/* skip whitespace */
 \\$			/* skip line continuations */
-"#".*			/* skip comments starting with "#" */
+"//".*			/* skip comments starting with "//" */
 ^"!".*			system(yytext + 1);	/* execute shell command */
 
 			/* special values */
@@ -70,8 +70,7 @@ Digits			yylval = (long)Digits; return T_DIGITS;
 quit|exit		return T_QUIT;
 warranty		return T_WARRANTY;
 print			return T_PRINT;
-read			return T_READ;
-write			return T_WRITE;
+iprint			return T_IPRINT;
 time			return T_TIME;
 xyzzy			return T_XYZZY;
 inventory		return T_INVENTORY;
@@ -95,6 +94,10 @@ score			return T_SCORE;
 
 			/* numbers */
 {D}+			|
+"#"{D}+"R"{AN}+		|
+"#b"([01])+		|
+"#o"[0-7]+		|
+"#x"[0-9a-fA-F]+	|
 {D}+"."{D}*({E})?	|
 {D}*"."{D}+({E})?	|
 {D}+{E}			yylval = numeric(yytext); return T_NUMBER;
