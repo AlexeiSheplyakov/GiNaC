@@ -47,6 +47,7 @@ long ex::last_created_or_assigned_exp = 0;
 G__value exec_tempfile(std::string const & command);
 char * process_permanentfile(std::string const & command);
 void process_tempfile(std::string const & command);
+void printversionmessage(std::ostream & os);
 void greeting(void);
 void helpmessage(void);
 std::string preprocess(char const * const line, bool & comment, bool & single_quote,
@@ -163,10 +164,19 @@ void process_tempfile(std::string const & command)
 	return;
 }
 
+void printversionmessage(std::ostream & os)
+{
+	os << "GiNaC-cint (" << PACKAGE << " V" << VERSION
+	   << ", Cint V" << G__CINTVERSION/1000000
+	   << '.' << G__CINTVERSION/1000%1000
+	   << '.' << G__CINTVERSION%1000 << ')' << endl;
+	return;
+}
+
 void greeting(void)
 {
-	std::cout << "Welcome to GiNaC-cint (" << PACKAGE << " V" << VERSION
-	          << ", Cint V" << G__CINTVERSION << ")\n";
+	std::cout << "Welcome to ";
+	printversionmessage(std::cout);
 	std::cout << "  __,  _______  GiNaC: (C) 1999-2001 Johannes Gutenberg University Mainz,\n"
 	          << " (__) *       | Germany.  Cint C/C++ interpreter: (C) 1995-2001 Masaharu\n"
 	          << "  ._) i N a C | Goto and Agilent Technologies, Japan.  This is free software\n"
@@ -323,13 +333,14 @@ void cleanup(void)
 
 void sigterm_handler(int n)
 {
+	G__scratch_all();
 	exit(1);
 }
 
 void initialize(void)
 {
 	atexit(cleanup);
-	signal(SIGTERM,sigterm_handler);
+	signal(SIGTERM, sigterm_handler);
 	initialize_cint();
 }    
 
@@ -376,13 +387,11 @@ void redirect(std::string const & filename,
 bool evaloption(const std::string & option)
 {
 	if (option=="--version") {
-		std::cout << "GiNaC-cint (" << PACKAGE << " V" << VERSION
-		          << ", Cint V" << G__CINTVERSION << ")\n";
+		printversionmessage(std::cout);
 		exit(0);
 	}
 	if (option=="--help") {
-		std::cout << "GiNaC-cint (" << PACKAGE << " V" << VERSION
-		          << ", Cint V" << G__CINTVERSION << ")\n";
+		printversionmessage(std::cout);
 		std::cout << "usage: ginaccint [option] [file ...]\n";
 		std::cout << " --help           print this help message and exit\n"
 		          << " --silent         invoke ginaccint in silent mode\n"
