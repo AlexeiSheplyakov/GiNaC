@@ -63,6 +63,9 @@ extern ex sqrfree(const ex &a, const lst &l = lst());
 // Square-free partial fraction decomposition of a rational function a(x)
 extern ex sqrfree_parfrac(const ex & a, const symbol & x);
 
+// Collect common factors in sums.
+extern ex collect_common_factors(const ex & e);
+
 } // namespace GiNaC
 
 #endif // ndef __GINAC_NORMAL_H__

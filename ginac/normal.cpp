@@ -1912,6 +1912,96 @@ ex sqrfree_parfrac(const ex & a, const symbol & x)
 }
 
 
+/** Remove the common factor in the terms of a sum 'e' by calculating the GCD,
+ *  and multiply it into the expression 'factor' (which needs to be initialized
+ *  to 1, unless you're accumulating factors). */
+static ex find_common_factor(const ex & e, ex & factor)
+{
+	if (is_a<add>(e)) {
+
+		unsigned num = e.nops();
+		exvector terms; terms.reserve(num);
+		lst repl;
+		ex gc;
+
+		// Find the common GCD
+		for (unsigned i=0; i<num; i++) {
+			ex x = e.op(i).to_rational(repl);
+			if (is_a<add>(x) || is_a<mul>(x)) {
+				ex f = 1;
+				x = find_common_factor(x, f);
+				x *= f;
+			}
+
+			if (i == 0)
+				gc = x;
+			else
+				gc = gcd(gc, x);
+
+			terms.push_back(x);
+		}
+
+		if (gc.is_equal(_ex1))
+			return e;
+
+		// The GCD is the factor we pull out
+		factor *= gc.subs(repl);
+
+		// Now divide all terms by the GCD
+		for (unsigned i=0; i<num; i++) {
+			ex x;
+
+			// Try to avoid divide() because it expands the polynomial
+			ex &t = terms[i];
+			if (is_a<mul>(t)) {
+				for (unsigned j=0; j<t.nops(); j++) {
+					if (t.op(j).is_equal(gc)) {
+						exvector v; v.reserve(t.nops());
+						for (unsigned k=0; k<t.nops(); k++) {
+							if (k == j)
+								v.push_back(_ex1);
+							else
+								v.push_back(t.op(k));
+						}
+						t = (new mul(v))->setflag(status_flags::dynallocated).subs(repl);
+						goto term_done;
+					}
+				}
+			}
+
+			divide(t, gc, x);
+			t = x.subs(repl);
+term_done:	;
+		}
+		return (new add(terms))->setflag(status_flags::dynallocated);
+
+	} else if (is_a<mul>(e)) {
+
+		exvector v;
+		for (unsigned i=0; i<e.nops(); i++)
+			v.push_back(find_common_factor(e.op(i), factor));
+		return (new mul(v))->setflag(status_flags::dynallocated);
+
+	} else
+		return e;
+}
+
+
+/** Collect common factors in sums. This converts expressions like
+ *  'a*(b*x+b*y)' to 'a*b*(x+y)'. */
+ex collect_common_factors(const ex & e)
+{
+	if (is_a<add>(e) || is_a<mul>(e)) {
+
+		ex factor = 1;
+		ex r = find_common_factor(e, factor);
+		return factor * r;
+
+	} else
+		return e;
+}
+
+
 /*
  *  Normal form of rational functions
  */
