@@ -362,8 +362,8 @@ static ex psi1_eval(const ex & x)
 				// psi((2m+1)/2) -> 2/(2m+1) + 2/2m +...+ 2/1 - Euler - 2log(2)
 				numeric rat(0);
 				for (numeric i((nx+_num_1())*_num2()); i.is_positive(); i-=_num2())
-									  rat += _num2()*i.inverse();
-									  return rat-Euler-_ex2()*log(_ex2());
+					rat += _num2()*i.inverse();
+				return rat-Euler-_ex2()*log(_ex2());
 			} else {
 				// use the recurrence relation
 				//   psi(-m-1/2) == psi(-m-1/2+1) - 1 / (-m-1/2)
