@@ -1276,9 +1276,10 @@ and safe simplifications are carried out like transforming
 @cindex @code{remove_last()}
 
 The GiNaC class @code{lst} serves for holding a @dfn{list} of arbitrary
-expressions. These are sometimes used to supply a variable number of
-arguments of the same type to GiNaC methods such as @code{subs()} and
-@code{to_rational()}, so you should have a basic understanding about them.
+expressions. They are not as ubiquitous as in many other computer algebra
+packages, but are sometimes used to supply a variable number of arguments of
+the same type to GiNaC methods such as @code{subs()} and @code{to_rational()},
+so you should have a basic understanding of them.
 
 Lists of up to 16 expressions can be directly constructed from single
 expressions:
@@ -1288,36 +1289,68 @@ expressions:
     symbol x("x"), y("y");
     lst l(x, 2, y, x+y);
     // now, l is a list holding the expressions 'x', '2', 'y', and 'x+y'
-    // ...
+    ...
 @end example
 
 Use the @code{nops()} method to determine the size (number of expressions) of
-a list and the @code{op()} method to access individual elements:
+a list and the @code{op()} method or the @code{[]} operator to access
+individual elements:
 
 @example
-    // ...
-    cout << l.nops() << endl;                   // prints '4'
-    cout << l.op(2) << " " << l.op(0) << endl;  // prints 'y x'
-    // ...
+    ...
+    cout << l.nops() << endl;                // prints '4'
+    cout << l.op(2) << " " << l[0] << endl;  // prints 'y x'
+    ...
+@end example
+
+@code{lst} is one of the few GiNaC classes that allow in-place modifications
+(the only other one is @code{matrix}). You can modify single elements:
+
+@example
+    ...
+    l.let_op(1) = 7; // l is now @{x, 7, y, x+y@}
+    ...
 @end example
 
 You can append or prepend an expression to a list with the @code{append()}
 and @code{prepend()} methods:
 
 @example
-    // ...
-    l.append(4*x);   // l is now @{x, 2, y, x+y, 4*x@}
-    l.prepend(0);    // l is now @{0, x, 2, y, x+y, 4*x@}
-    // ...
+    ...
+    l.append(4*x);   // l is now @{x, 7, y, x+y, 4*x@}
+    l.prepend(0);    // l is now @{0, x, 7, y, x+y, 4*x@}
+    ...
 @end example
 
-Finally you can remove the first or last element of a list with
-@code{remove_first()} and @code{remove_last()}:
+You can remove the first or last element of a list with @code{remove_first()}
+and @code{remove_last()}:
 
 @example
-    // ...
-    l.remove_first();   // l is now @{x, 2, y, x+y, 4*x@}
-    l.remove_last();    // l is now @{x, 2, y, x+y@}
+    ...
+    l.remove_first();   // l is now @{x, 7, y, x+y, 4*x@}
+    l.remove_last();    // l is now @{x, 7, y, x+y@}
+    ...
+@end example
+
+You can bring the elements of a list into a canonical order with @code{sort()}:
+
+@example
+    ...
+    lst l1(x, 2, y, x+y);
+    lst l2(2, x+y, x, y);
+    l1.sort();
+    l2.sort();
+    // l1 and l2 are now equal
+    ...
+@end example
+
+Finally, you can remove all but the first element of consecutive groups of
+elements with @code{unique()}:
+
+@example
+    ...
+    lst l3(x, 2, 2, 2, y, x+y, y+x);
+    l3.unique();        // l3 is now @{x, 2, y, x+y@}
 @}
 @end example
 
