@@ -32,13 +32,15 @@ static unsigned test(unsigned n)
 			hilbert.set(r,c,numeric(1,r+c+1));
 	ex det = hilbert.determinant();
 	
-	// The closed form of the determinant of n x n Hilbert matrices is:
-	//
-	//      n-1   /                      n-1                 \
-	//     ----- |                      -----                 |
-	//      | |  | pow(factorial(r),2)   | |    hilbert(r,c)  |
-	//      | |  |                       | |                  |   
-	//     r = 0  \                     c = 0                /
+	/*
+	   The closed form of the determinant of n x n Hilbert matrices is:
+	
+	     n-1   /                      n-1                 \
+	    ----- |                      -----                 |
+	     | |  | pow(factorial(r),2)   | |    hilbert(r,c)  |
+	     | |  |                       | |                  |   
+	    r = 0  \                     c = 0                /
+	*/
 	
 	ex hilbdet = 1;
 	for (unsigned r=0; r<n; ++r) {

@@ -507,8 +507,8 @@ ex lsolve(const ex &eqns, const ex &symbols)
 	return sollist;
 }
 
-/** Force inclusion of functions from initcns_gamma and inifcns_zeta
- *  for static lib (so ginsh will see them). */
+/* Force inclusion of functions from inifcns_gamma and inifcns_zeta
+ * for static lib (so ginsh will see them). */
 unsigned force_include_tgamma = function_index_tgamma;
 unsigned force_include_zeta1 = function_index_zeta1;
 

@@ -24,9 +24,6 @@
 #include <functional>
 #include <algorithm>
 
-#define DO_GINAC_ASSERT
-#include "assertion.h"
-
 #include "symmetry.h"
 #include "lst.h"
 #include "numeric.h" // for factorial()
@@ -289,12 +286,15 @@ int canonicalize(exvector::iterator v, const symmetry &symm)
 	first = symm.children.begin();
 	switch (symm.type) {
 		case symmetry::symmetric:
+			// Sort the children in ascending order
 			shaker_sort(first, last, sy_is_less(v), sy_swap(v, something_changed));
 			break;
 		case symmetry::antisymmetric:
+			// Sort the children in ascending order, keeping track of the signum
 			sign *= permutation_sign(first, last, sy_is_less(v), sy_swap(v, something_changed));
 			break;
 		case symmetry::cyclic:
+			// Permute the smallest child to the front
 			cyclic_permutation(first, last, min_element(first, last, sy_is_less(v)), sy_swap(v, something_changed));
 			break;
 		default:
