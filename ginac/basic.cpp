@@ -134,7 +134,7 @@ void basic::print(const print_context & c, unsigned level) const
 		c.s << "[" << class_name() << " object]";
 }
 
-/** Little wrapper arount print to be called within a debugger.
+/** Little wrapper around print to be called within a debugger.
  *  This is needed because you cannot call foo.print(cout) from within the
  *  debugger because it might not know what cout is.  This method can be
  *  invoked with no argument and it will simply print to stdout.
@@ -146,7 +146,7 @@ void basic::dbgprint(void) const
 	std::cerr << std::endl;
 }
 
-/** Little wrapper arount printtree to be called within a debugger.
+/** Little wrapper around printtree to be called within a debugger.
  *
  *  @see basic::dbgprint
  *  @see basic::printtree */
@@ -231,7 +231,7 @@ bool basic::has(const ex & other) const
 }
 
 /** Construct new expression by applying the specified function to all
- *  sub-expressions. */
+ *  sub-expressions (one level only, not recursively). */
 ex basic::map(map_func f) const
 {
 	unsigned num = nops();
@@ -366,8 +366,7 @@ ex basic::evalf(int level) const
 /** Evaluate sums and products of matrices. */
 ex basic::evalm(void) const
 {
-	unsigned num = nops();
-	if (num == 0)
+	if (nops() == 0)
 		return *this;
 	else
 		return map(GiNaC::evalm);
@@ -433,7 +432,7 @@ bool basic::match(const ex & pattern, lst & repl_lst) const
 {
 /*
 	Sweet sweet shapes, sweet sweet shapes,
-	Thats the key thing, right right.
+	That's the key thing, right right.
 	Feed feed face, feed feed shapes,
 	But who is the king tonight?
 	Who is the king tonight?

@@ -116,7 +116,7 @@ unsigned wildcard::calchash(void) const
 bool wildcard::match(const ex & pattern, lst & repl_lst) const
 {
 	// Wildcards must match exactly (this is required for subs() to work
-	// properly because in the final step it substitues all wildcards by
+	// properly because in the final step it substitutes all wildcards by
 	// their matching expressions)
 	return is_equal(*pattern.bp);
 }

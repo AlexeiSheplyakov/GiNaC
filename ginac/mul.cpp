@@ -408,7 +408,8 @@ ex mul::evalf(int level) const
 ex mul::evalm(void) const
 {
 	// numeric*matrix
-	if (seq.size() == 1 && is_ex_of_type(seq[0].rest, matrix))
+	if (seq.size() == 1 && seq[0].coeff.is_equal(_ex1())
+	 && is_ex_of_type(seq[0].rest, matrix))
 		return ex_to_matrix(seq[0].rest).mul(ex_to_numeric(overall_coeff));
 
 	// Evaluate children first, look whether there are any matrices at all

@@ -28,8 +28,8 @@
 namespace GiNaC {
 
 
-/** This class acts as a wildcard for subs() and matches(). An integer label
- *  is used to identify different wildcards. */
+/** This class acts as a wildcard for subs(), match() and has(). An integer
+ *  label is used to identify different wildcards. */
 class wildcard : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS(wildcard, basic)
