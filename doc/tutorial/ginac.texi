@@ -773,7 +773,7 @@ ex MyEx6 = z*(x + y);   // z*(x+y)
 The general rule is that when you construct expressions, GiNaC automatically
 creates them in canonical form, which might differ from the form you typed in
 your program. This may create some awkward looking output (@samp{-y+x} instead
-of @samp{y-x}) but allows for more efficient operation and usually yields
+of @samp{x-y}) but allows for more efficient operation and usually yields
 some immediate simplifications.
 
 @cindex @code{eval()}
