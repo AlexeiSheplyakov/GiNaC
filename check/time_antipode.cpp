@@ -178,6 +178,7 @@ const node & node::operator=(const node &n)
 	delete vert;
 	vert = (n.vert)->copy();
 	children = n.children;
+	return *this;
 }
 
 void node::add_child(const node &childnode, bool cut)
