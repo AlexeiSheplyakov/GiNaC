@@ -462,23 +462,16 @@ int classname::compare_same_type(const basic & other) const \
 }
 
 #define DEFAULT_PRINT(classname, text) \
-void classname::print(const print_context & c, unsigned level) const \
+void classname::do_print(const print_context & c, unsigned level) const \
 { \
-	if (is_a<print_tree>(c)) \
-		inherited::print(c, level); \
-	else \
-		c.s << text; \
+	c.s << text; \
 }
 
 #define DEFAULT_PRINT_LATEX(classname, text, latex) \
-void classname::print(const print_context & c, unsigned level) const \
+DEFAULT_PRINT(classname, text) \
+void classname::do_print_latex(const print_latex & c, unsigned level) const \
 { \
-	if (is_a<print_tree>(c)) \
-		inherited::print(c, level); \
-	else if (is_a<print_latex>(c)) \
-		c.s << latex; \
-	else \
-		c.s << text; \
+	c.s << latex; \
 }
 
 } // namespace GiNaC
