@@ -164,6 +164,7 @@ static unsigned differentiation3(void)
     ex e1, e2, e, d;
 
     // construct expression e to be diff'ed:
+    e1 = y*pow(x, 2) + a*x + b;
     e2 = exp(e1);
     e = b*pow(e2, 2) + y*e2 + a;
     
@@ -191,6 +192,7 @@ static unsigned differentiation4(void)
     ex e1, e2, e, d;
     
     // construct expression e to be diff'ed:
+    e1 = y*pow(x, 2) + a*x + b;
     e2 = log(e1);
     e = b*pow(e2, 2) + y*e2 + a;
     
