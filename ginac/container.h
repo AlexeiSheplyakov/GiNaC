@@ -85,7 +85,7 @@ protected:
 
 	// constructors
 public:
-	container(STLT const & s, bool discardable = false)
+	container(STLT const & s, bool discardable = false) : inherited(get_tinfo())
 	{
 		if (discardable)
 			seq.swap(const_cast<STLT &>(s));
@@ -93,7 +93,7 @@ public:
 			seq = s;
 	}
 
-	explicit container(STLT * vp)
+	explicit container(STLT * vp) : inherited(get_tinfo())
 	{
 		GINAC_ASSERT(vp);
 		seq.swap(*vp);
