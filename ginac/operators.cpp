@@ -334,7 +334,7 @@ static void set_print_options(std::ostream & s, unsigned options)
 {
 	print_context *p = get_print_context(s);
 	if (p == 0)
-		set_print_context(s, print_context(s, options));
+		set_print_context(s, print_dflt(s, options));
 	else
 		p->options = options;
 }
@@ -343,7 +343,7 @@ std::ostream & operator<<(std::ostream & os, const ex & e)
 {
 	print_context *p = get_print_context(os);
 	if (p == 0)
-		e.print(print_context(os));
+		e.print(print_dflt(os));
 	else
 		e.print(*p);
 	return os;
@@ -356,7 +356,7 @@ std::istream & operator>>(std::istream & is, ex & e)
 
 std::ostream & dflt(std::ostream & os)
 {
-	set_print_context(os, print_context(os));
+	set_print_context(os, print_dflt(os));
 	set_print_options(os, 0);
 	return os;
 }

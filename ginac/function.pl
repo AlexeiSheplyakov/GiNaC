@@ -62,6 +62,10 @@ $typedef_series_funcp=generate(
 'typedef ex (* series_funcp_${N})(${SEQ1}, const relational &, int, unsigned);'."\n",
 'const ex &','','');
 
+$typedef_print_funcp=generate(
+'typedef void (* print_funcp_${N})(${SEQ1}, const print_context &);'."\n",
+'const ex &','','');
+
 $eval_func_interface=generate('    function_options & eval_func(eval_funcp_${N} e);'."\n",'','','');
 
 $evalf_func_interface=generate('    function_options & evalf_func(evalf_funcp_${N} ef);'."\n",'','','');
@@ -69,6 +73,16 @@ $evalf_func_interface=generate('    function_options & evalf_func(evalf_funcp_${
 $derivative_func_interface=generate('    function_options & derivative_func(derivative_funcp_${N} d);'."\n",'','','');
 
 $series_func_interface=generate('    function_options & series_func(series_funcp_${N} s);'."\n",'','','');
+
+$print_func_interface=generate(
+	<<'END_OF_PRINT_FUNC_INTERFACE','','','');
+    template <class Ctx> function_options & print_func(print_funcp_${N} p)
+    {
+    	test_and_set_nparams(${N});
+    	set_print_func(Ctx::reg_info.options.get_id(), print_funcp(p));
+    	return *this;
+    }
+END_OF_PRINT_FUNC_INTERFACE
 
 $constructors_interface=generate(
 '    function(unsigned ser, ${SEQ1});'."\n",
@@ -86,32 +100,39 @@ END_OF_CONSTRUCTORS_IMPLEMENTATION
 $eval_switch_statement=generate(
 	<<'END_OF_EVAL_SWITCH_STATEMENT','seq[${N}-1]','','');
 	case ${N}:
-		eval_result = ((eval_funcp_${N})(registered_functions()[serial].eval_f))(${SEQ1});
+		eval_result = ((eval_funcp_${N})(opt.eval_f))(${SEQ1});
 		break;
 END_OF_EVAL_SWITCH_STATEMENT
 
 $evalf_switch_statement=generate(
 	<<'END_OF_EVALF_SWITCH_STATEMENT','eseq[${N}-1]','','');
 	case ${N}:
-		return ((evalf_funcp_${N})(registered_functions()[serial].evalf_f))(${SEQ1});
+		return ((evalf_funcp_${N})(opt.evalf_f))(${SEQ1});
 END_OF_EVALF_SWITCH_STATEMENT
 
 $diff_switch_statement=generate(
 	<<'END_OF_DIFF_SWITCH_STATEMENT','seq[${N}-1]','','');
 	case ${N}:
-		return ((derivative_funcp_${N})(registered_functions()[serial].derivative_f))(${SEQ1},diff_param);
+		return ((derivative_funcp_${N})(opt.derivative_f))(${SEQ1},diff_param);
 END_OF_DIFF_SWITCH_STATEMENT
 
 $series_switch_statement=generate(
 	<<'END_OF_SERIES_SWITCH_STATEMENT','seq[${N}-1]','','');
 	case ${N}:
 		try {
-			res = ((series_funcp_${N})(registered_functions()[serial].series_f))(${SEQ1},r,order,options);
+			res = ((series_funcp_${N})(opt.series_f))(${SEQ1},r,order,options);
 		} catch (do_taylor) {
 			res = basic::series(r, order, options);
 		}
 		return res;
 END_OF_SERIES_SWITCH_STATEMENT
+
+$print_switch_statement=generate(
+	<<'END_OF_PRINT_SWITCH_STATEMENT','seq[${N}-1]','','');
+		case ${N}:
+			((print_funcp_${N})(pdt[id]))(${SEQ1}, c);
+			break;
+END_OF_PRINT_SWITCH_STATEMENT
 
 $eval_func_implementation=generate(
 	<<'END_OF_EVAL_FUNC_IMPLEMENTATION','','','');
@@ -208,12 +229,14 @@ typedef ex (* eval_funcp)();
 typedef ex (* evalf_funcp)();
 typedef ex (* derivative_funcp)();
 typedef ex (* series_funcp)();
+typedef void (* print_funcp)();
 
 // the following lines have been generated for max. ${maxargs} parameters
 $typedef_eval_funcp
 $typedef_evalf_funcp
 $typedef_derivative_funcp
 $typedef_series_funcp
+$typedef_print_funcp
 // end of generated lines
 
 // Alternatively, an exvector may be passed into the static function, instead
@@ -222,6 +245,7 @@ typedef ex (* eval_funcp_exvector)(const exvector &);
 typedef ex (* evalf_funcp_exvector)(const exvector &);
 typedef ex (* derivative_funcp_exvector)(const exvector &, unsigned);
 typedef ex (* series_funcp_exvector)(const exvector &, const relational &, int, unsigned);
+typedef void (* print_funcp_exvector)(const exvector &, const print_context &);
 
 
 class function_options
@@ -240,11 +264,19 @@ $eval_func_interface
 $evalf_func_interface
 $derivative_func_interface
 $series_func_interface
+$print_func_interface
 // end of generated lines
 	function_options & eval_func(eval_funcp_exvector e);
 	function_options & evalf_func(evalf_funcp_exvector ef);
 	function_options & derivative_func(derivative_funcp_exvector d);
 	function_options & series_func(series_funcp_exvector s);
+
+	template <class Ctx> function_options & print_func(print_funcp_exvector p)
+	{
+		print_use_exvector_args = true;
+		set_print_func(Ctx::reg_info.options.get_id(), print_funcp(p));
+		return *this;
+	}
 
 	function_options & set_return_type(unsigned rt, unsigned rtt=0);
 	function_options & do_not_evalf_params();
@@ -252,12 +284,15 @@ $series_func_interface
 	                            unsigned strategy=remember_strategies::delete_never);
 	function_options & overloaded(unsigned o);
 	function_options & set_symmetry(const symmetry & s);
-	void test_and_set_nparams(unsigned n);
+
 	std::string get_name() const { return name; }
 	unsigned get_nparams() const { return nparams; }
-	bool has_derivative() const { return derivative_f != NULL; }
 
 protected:
+	bool has_derivative() const { return derivative_f != NULL; }
+	void test_and_set_nparams(unsigned n);
+	void set_print_func(unsigned id, print_funcp f);
+
 	std::string name;
 	std::string TeX_name;
 
@@ -267,6 +302,7 @@ protected:
 	evalf_funcp evalf_f;
 	derivative_funcp derivative_f;
 	series_funcp series_f;
+	std::vector<print_funcp> print_dispatch_table;
 
 	bool evalf_params_first;
 
@@ -283,6 +319,7 @@ protected:
 	bool evalf_use_exvector_args;
 	bool derivative_use_exvector_args;
 	bool series_use_exvector_args;
+	bool print_use_exvector_args;
 
 	unsigned functions_with_same_name;
 
@@ -464,6 +501,7 @@ void function_options::initialize()
 	evalf_use_exvector_args = false;
 	derivative_use_exvector_args = false;
 	series_use_exvector_args = false;
+	print_use_exvector_args = false;
 	use_remember = false;
 	functions_with_same_name = 1;
 	symtree = 0;
@@ -562,11 +600,18 @@ void function_options::test_and_set_nparams(unsigned n)
 	} else if (nparams!=n) {
 		// we do not throw an exception here because this code is
 		// usually executed before main(), so the exception could not
-		// caught anyhow
+		// be caught anyhow
 		std::cerr << "WARNING: " << name << "(): number of parameters ("
 		          << n << ") differs from number set before (" 
 		          << nparams << ")" << std::endl;
 	}
+}
+
+void function_options::set_print_func(unsigned id, print_funcp f)
+{
+	if (id >= print_dispatch_table.size())
+		print_dispatch_table.resize(id + 1);
+	print_dispatch_table[id] = f;
 }
 
 /** This can be used as a hook for external applications. */
@@ -669,44 +714,67 @@ void function::archive(archive_node &n) const
 void function::print(const print_context & c, unsigned level) const
 {
 	GINAC_ASSERT(serial<registered_functions().size());
+	const function_options &opt = registered_functions()[serial];
+	const std::vector<print_funcp> &pdt = opt.print_dispatch_table;
 
-	if (is_a<print_tree>(c)) {
+	// Dynamically dispatch on print_context type
+	const print_context_class_info *pc_info = &c.get_class_info();
 
-		c.s << std::string(level, ' ') << class_name() << " "
-		    << registered_functions()[serial].name
-		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
-		    << ", nops=" << nops()
-		    << std::endl;
-		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
-		for (size_t i=0; i<seq.size(); ++i)
-			seq[i].print(c, level + delta_indent);
-		c.s << std::string(level + delta_indent, ' ') << "=====" << std::endl;
+next_context:
+	unsigned id = pc_info->options.get_id();
+	if (id >= pdt.size() || pdt[id] == NULL) {
 
-	} else if (is_a<print_csrc>(c)) {
-
-		// Print function name in lowercase
-		std::string lname = registered_functions()[serial].name;
-		size_t num = lname.size();
-		for (size_t i=0; i<num; i++)
-			lname[i] = tolower(lname[i]);
-		c.s << lname << "(";
-
-		// Print arguments, separated by commas
-		exvector::const_iterator it = seq.begin(), itend = seq.end();
-		while (it != itend) {
-			it->print(c);
-			++it;
-			if (it != itend)
-				c.s << ",";
+		// Method not found, try parent print_context class
+		const print_context_class_info *parent_pc_info = pc_info->get_parent();
+		if (parent_pc_info) {
+			pc_info = parent_pc_info;
+			goto next_context;
 		}
-		c.s << ")";
 
-	} else if (is_a<print_latex>(c)) {
-		c.s << registered_functions()[serial].TeX_name;
-		printseq(c, '(', ',', ')', exprseq::precedence(), function::precedence());
+		// Method still not found, use default output
+		if (is_a<print_tree>(c)) {
+
+			c.s << std::string(level, ' ') << class_name() << " "
+			    << opt.name
+			    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+			    << ", nops=" << nops()
+			    << std::endl;
+			unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
+			for (size_t i=0; i<seq.size(); ++i)
+				seq[i].print(c, level + delta_indent);
+			c.s << std::string(level + delta_indent, ' ') << "=====" << std::endl;
+
+		} else if (is_a<print_csrc>(c)) {
+
+			// Print function name in lowercase
+			std::string lname = opt.name;
+			size_t num = lname.size();
+			for (size_t i=0; i<num; i++)
+				lname[i] = tolower(lname[i]);
+			c.s << lname;
+			printseq(c, '(', ',', ')', exprseq::precedence(), function::precedence());
+
+		} else if (is_a<print_latex>(c)) {
+			c.s << opt.TeX_name;
+			printseq(c, '(', ',', ')', exprseq::precedence(), function::precedence());
+		} else {
+			c.s << opt.name;
+			printseq(c, '(', ',', ')', exprseq::precedence(), function::precedence());
+		}
+
 	} else {
-		c.s << registered_functions()[serial].name;
-		printseq(c, '(', ',', ')', exprseq::precedence(), function::precedence());
+
+		// Method found, call it
+		current_serial = serial;
+		if (opt.print_use_exvector_args)
+			((print_funcp_exvector)pdt[id])(seq, c);
+		else switch (opt.nparams) {
+			// the following lines have been generated for max. ${maxargs} parameters
+${print_switch_statement}
+			// end of generated lines
+		default:
+			throw(std::logic_error("function::print(): invalid nparams"));
+		}
 	}
 }
 
@@ -721,13 +789,12 @@ ex function::expand(unsigned options) const
 
 ex function::eval(int level) const
 {
-	GINAC_ASSERT(serial<registered_functions().size());
-
 	if (level>1) {
 		// first evaluate children, then we will end up here again
 		return function(serial,evalchildren(level));
 	}
 
+	GINAC_ASSERT(serial<registered_functions().size());
 	const function_options &opt = registered_functions()[serial];
 
 	// Canonicalize argument order according to the symmetry properties
@@ -753,8 +820,8 @@ ex function::eval(int level) const
 		return eval_result;
 	}
 	current_serial = serial;
-	if (registered_functions()[serial].eval_use_exvector_args)
-		eval_result = ((eval_funcp_exvector)(registered_functions()[serial].eval_f))(seq);
+	if (opt.eval_use_exvector_args)
+		eval_result = ((eval_funcp_exvector)(opt.eval_f))(seq);
 	else
 	switch (opt.nparams) {
 		// the following lines have been generated for max. ${maxargs} parameters
@@ -772,7 +839,6 @@ ${eval_switch_statement}
 ex function::evalf(int level) const
 {
 	GINAC_ASSERT(serial<registered_functions().size());
-
 	const function_options &opt = registered_functions()[serial];
 
 	// Evaluate children first
@@ -835,21 +901,22 @@ ex function::thiscontainer(exvector * vp) const
 ex function::series(const relational & r, int order, unsigned options) const
 {
 	GINAC_ASSERT(serial<registered_functions().size());
+	const function_options &opt = registered_functions()[serial];
 
-	if (registered_functions()[serial].series_f==0) {
+	if (opt.series_f==0) {
 		return basic::series(r, order);
 	}
 	ex res;
 	current_serial = serial;
-	if (registered_functions()[serial].series_use_exvector_args) {
+	if (opt.series_use_exvector_args) {
 		try {
-			res = ((series_funcp_exvector)(registered_functions()[serial].series_f))(seq, r, order, options);
+			res = ((series_funcp_exvector)(opt.series_f))(seq, r, order, options);
 		} catch (do_taylor) {
 			res = basic::series(r, order, options);
 		}
 		return res;
 	}
-	switch (registered_functions()[serial].nparams) {
+	switch (opt.nparams) {
 		// the following lines have been generated for max. ${maxargs} parameters
 ${series_switch_statement}
 		// end of generated lines
@@ -919,6 +986,7 @@ bool function::match_same_type(const basic & other) const
 
 unsigned function::return_type() const
 {
+	GINAC_ASSERT(serial<registered_functions().size());
 	const function_options &opt = registered_functions()[serial];
 
 	if (opt.use_return_type) {
@@ -936,6 +1004,7 @@ unsigned function::return_type() const
 
 unsigned function::return_type_tinfo() const
 {
+	GINAC_ASSERT(serial<registered_functions().size());
 	const function_options &opt = registered_functions()[serial];
 
 	if (opt.use_return_type) {
@@ -966,15 +1035,16 @@ unsigned function::return_type_tinfo() const
 ex function::pderivative(unsigned diff_param) const // partial differentiation
 {
 	GINAC_ASSERT(serial<registered_functions().size());
+	const function_options &opt = registered_functions()[serial];
 	
 	// No derivative defined? Then return abstract derivative object
-	if (registered_functions()[serial].derivative_f == NULL)
+	if (opt.derivative_f == NULL)
 		return fderivative(serial, diff_param, seq);
 
 	current_serial = serial;
-	if (registered_functions()[serial].derivative_use_exvector_args)
-		return ((derivative_funcp_exvector)(registered_functions()[serial].derivative_f))(seq, diff_param);
-	switch (registered_functions()[serial].nparams) {
+	if (opt.derivative_use_exvector_args)
+		return ((derivative_funcp_exvector)(opt.derivative_f))(seq, diff_param);
+	switch (opt.nparams) {
 		// the following lines have been generated for max. ${maxargs} parameters
 ${diff_switch_statement}
 		// end of generated lines

@@ -41,7 +41,7 @@ typedef container<std::list> lst;
 typedef ex (*unarch_func)(const archive_node &n, lst &sym_lst);
 
 
-/** This structure stores information about a registered GiNaC class. */
+/** This class stores information about a registered GiNaC class. */
 class registered_class_options {
 public:
 	registered_class_options(const char *n, const char *p, unsigned ti, unarch_func f)

@@ -24,7 +24,7 @@
 
 namespace GiNaC {
 
-// Next free tinfo_key for structure types
+/** Next free tinfo_key for structure types. */
 unsigned next_structure_tinfo_key = TINFO_structure;
 
 } // namespace GiNaC

@@ -26,10 +26,30 @@
 
 namespace GiNaC {
 
+/** Next free ID for print_context types. */
+unsigned next_print_context_id = 0;
+
+
+GINAC_IMPLEMENT_PRINT_CONTEXT(print_context, void)
+GINAC_IMPLEMENT_PRINT_CONTEXT(print_dflt, print_context)
+GINAC_IMPLEMENT_PRINT_CONTEXT(print_latex, print_context)
+GINAC_IMPLEMENT_PRINT_CONTEXT(print_python, print_context)
+GINAC_IMPLEMENT_PRINT_CONTEXT(print_python_repr, print_context)
+GINAC_IMPLEMENT_PRINT_CONTEXT(print_tree, print_context)
+GINAC_IMPLEMENT_PRINT_CONTEXT(print_csrc, print_context)
+GINAC_IMPLEMENT_PRINT_CONTEXT(print_csrc_float, print_csrc)
+GINAC_IMPLEMENT_PRINT_CONTEXT(print_csrc_double, print_csrc)
+GINAC_IMPLEMENT_PRINT_CONTEXT(print_csrc_cl_N, print_csrc)
+
 print_context::print_context()
 	: s(std::cout), options(0) {}
 print_context::print_context(std::ostream & os, unsigned opt)
 	: s(os), options(opt) {}
+
+print_dflt::print_dflt()
+	: print_context(std::cout) {}
+print_dflt::print_dflt(std::ostream & os, unsigned opt)
+	: print_context(os, opt) {}
 
 print_latex::print_latex()
 	: print_context(std::cout) {}
@@ -46,6 +66,8 @@ print_python_repr::print_python_repr()
 print_python_repr::print_python_repr(std::ostream & os, unsigned opt)
 	: print_context(os, opt) {}
 
+print_tree::print_tree()
+	: print_context(std::cout), delta_indent(4) {}
 print_tree::print_tree(unsigned d)
 	: print_context(std::cout), delta_indent(d) {}
 print_tree::print_tree(std::ostream & os, unsigned opt, unsigned d)

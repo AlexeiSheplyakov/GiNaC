@@ -59,8 +59,21 @@ static ex abs_eval(const ex & arg)
 		return abs(arg).hold();
 }
 
+static void abs_print_latex(const ex & arg, const print_context & c)
+{
+	c.s << "{|"; arg.print(c); c.s << "|}";
+}
+
+static void abs_print_csrc_float(const ex & arg, const print_context & c)
+{
+	c.s << "fabs("; arg.print(c); c.s << ")";
+}
+
 REGISTER_FUNCTION(abs, eval_func(abs_eval).
-                       evalf_func(abs_evalf));
+                       evalf_func(abs_evalf).
+                       print_func<print_latex>(abs_print_latex).
+                       print_func<print_csrc_float>(abs_print_csrc_float).
+                       print_func<print_csrc_double>(abs_print_csrc_float));
 
 
 //////////
