@@ -57,6 +57,7 @@ try { \
 	TIME(lw_Q)
 	TIME(lw_Qprime)
 	TIME(antipode)
+	TIME(fateman_expand)
 	
 	if (result) {
 		cout << "Error: something went wrong. ";

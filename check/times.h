@@ -69,5 +69,6 @@ unsigned time_lw_Pprime();
 unsigned time_lw_Q();
 unsigned time_lw_Qprime();
 unsigned time_antipode();
+unsigned time_fateman_expand();
 
 #endif // ndef CHECKS_H
