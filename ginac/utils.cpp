@@ -366,6 +366,21 @@ library_init::library_init()
 		_num48_p  = reinterpret_cast<const numeric*>(&((new numeric(48))->setflag(status_flags::dynallocated)));
 		_num60_p  = reinterpret_cast<const numeric*>(&((new numeric(60))->setflag(status_flags::dynallocated)));
 		_num120_p = reinterpret_cast<const numeric*>(&((new numeric(120))->setflag(status_flags::dynallocated)));
+
+		// Initialize print context class info (this is not strictly necessary
+		// but we do it anyway to make print_context_class_info::dump_hierarchy()
+		// output the whole hierarchy whether or not the classes are actually
+		// used)
+		print_context::get_class_info_static();
+		print_dflt::get_class_info_static();
+		print_latex::get_class_info_static();
+		print_python::get_class_info_static();
+		print_python_repr::get_class_info_static();
+		print_tree::get_class_info_static();
+		print_csrc::get_class_info_static();
+		print_csrc_float::get_class_info_static();
+		print_csrc_double::get_class_info_static();
+		print_csrc_cl_N::get_class_info_static();
 	}
 }
 
