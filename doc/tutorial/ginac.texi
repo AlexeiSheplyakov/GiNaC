@@ -2265,8 +2265,14 @@ The unity element of a Clifford algebra is constructed by
 ex dirac_ONE(unsigned char rl = 0);
 @end example
 
+@strong{Note:} You must always use @code{dirac_ONE()} when referring to
+multiples of the unity element, even though it's customary to omit it.
+E.g. instead of @code{dirac_gamma(mu)*(dirac_slash(q,4)+m)} you have to
+write @code{dirac_gamma(mu)*(dirac_slash(q,4)+m*dirac_ONE())}. Otherwise,
+GiNaC may produce incorrect results.
+
 @cindex @code{dirac_gamma5()}
-and there's a special element @samp{gamma5} that commutes with all other
+There's a special element @samp{gamma5} that commutes with all other
 gammas and in 4 dimensions equals @samp{gamma~0 gamma~1 gamma~2 gamma~3},
 provided by
 
@@ -2429,9 +2435,15 @@ The unity element of a color algebra is constructed by
 ex color_ONE(unsigned char rl = 0);
 @end example
 
+@strong{Note:} You must always use @code{color_ONE()} when referring to
+multiples of the unity element, even though it's customary to omit it.
+E.g. instead of @code{color_T(a)*(color_T(b)*indexed(X,b)+1)} you have to
+write @code{color_T(a)*(color_T(b)*indexed(X,b)+color_ONE())}. Otherwise,
+GiNaC may produce incorrect results.
+
 @cindex @code{color_d()}
 @cindex @code{color_f()}
-and the functions
+The functions
 
 @example
 ex color_d(const ex & a, const ex & b, const ex & c);
@@ -3898,8 +3910,6 @@ GiNaC contains the following predefined mathematical functions:
 @tab binomial coefficients
 @item @code{Order(x)}
 @tab order term function in truncated power series
-@item @code{Derivative(x, l)}
-@tab inert partial differentiation operator (used internally)
 @end multitable
 @end cartouche
 
