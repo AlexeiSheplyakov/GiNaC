@@ -313,6 +313,7 @@ static ex f_denom(const exprseq &e) {return e[0].denom();}
 static ex f_eval1(const exprseq &e) {return e[0].eval();}
 static ex f_evalf1(const exprseq &e) {return e[0].evalf();}
 static ex f_evalm(const exprseq &e) {return e[0].evalm();}
+static ex f_eval_integ(const exprseq &e) {return e[0].eval_integ();}
 static ex f_expand(const exprseq &e) {return e[0].expand();}
 static ex f_gcd(const exprseq &e) {return gcd(e[0], e[1]);}
 static ex f_has(const exprseq &e) {return e[0].has(e[1]) ? ex(1) : ex(0);}
@@ -413,6 +414,12 @@ static ex f_find(const exprseq &e)
 static ex f_integer_content(const exprseq &e)
 {
 	return e[0].expand().integer_content();
+}
+
+static ex f_integral(const exprseq &e)
+{
+	CHECK_ARG(0, symbol, integral);
+	return integral(e[0], e[1], e[2], e[3]);
 }
 
 static ex f_inverse(const exprseq &e)
@@ -578,11 +585,13 @@ static const fcn_init builtin_fcns[] = {
 	{"evalf", f_evalf1, 1},
 	{"evalf", f_evalf2, 2},
 	{"evalm", f_evalm, 1},
+	{"eval_integ", f_eval_integ, 1},
 	{"expand", f_expand, 1},
 	{"find", f_find, 2},
 	{"gcd", f_gcd, 2},
 	{"has", f_has, 2},
 	{"integer_content", f_integer_content, 1},
+	{"integral", f_integral, 4},
 	{"inverse", f_inverse, 1},
 	{"iprint", f_dummy, 0},      // for Tab-completion
 	{"is", f_is, 1},
