@@ -18,11 +18,11 @@ dnl NOTE: these can't be renamed to GINAC_MAJOR_VERSION etc. because
 dnl autoconf sees "AC_MAJOR_VERSION" and complains about an undefined macro
 dnl (don't we all *love* M4?)...
 
-GINACLIB_MAJOR_VERSION=0
-GINACLIB_MINOR_VERSION=9
-GINACLIB_MICRO_VERSION=4
-GINACLIB_INTERFACE_AGE=1
-GINACLIB_BINARY_AGE=1
+GINACLIB_MAJOR_VERSION=1
+GINACLIB_MINOR_VERSION=0
+GINACLIB_MICRO_VERSION=0
+GINACLIB_INTERFACE_AGE=0
+GINACLIB_BINARY_AGE=0
 GINACLIB_VERSION=$GINACLIB_MAJOR_VERSION.$GINACLIB_MINOR_VERSION.$GINACLIB_MICRO_VERSION
 
 AC_SUBST(GINACLIB_MAJOR_VERSION)
@@ -131,7 +131,7 @@ AC_SUBST(GINACLIB_CPPFLAGS)
 AC_SUBST(GINACLIB_LIBS)
 
 dnl Check for utilities needed by the different kinds of documentation.
-dnl Documantation needs only be built when extending it, so never mind if it
+dnl Documentation needs only be built when extending it, so never mind if it
 dnl cannot find those helpers:
 AC_PATH_PROG(DOXYGEN, doxygen, "")
 AC_PATH_PROG(LATEX, latex, "")
