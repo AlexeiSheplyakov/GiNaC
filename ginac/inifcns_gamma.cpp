@@ -304,19 +304,19 @@ static ex beta_series(const ex & arg1,
 		throw do_taylor();  // caught by function::series()
 	// trap the case where arg1 is on a pole:
 	if (arg1.info(info_flags::integer) && !arg1.info(info_flags::positive))
-		arg1_ser = tgamma(arg1+s).series(rel, order, options);
+		arg1_ser = tgamma(arg1+s);
 	else
-		arg1_ser = tgamma(arg1).series(rel,order);
+		arg1_ser = tgamma(arg1);
 	// trap the case where arg2 is on a pole:
 	if (arg2.info(info_flags::integer) && !arg2.info(info_flags::positive))
-		arg2_ser = tgamma(arg2+s).series(rel, order, options);
+		arg2_ser = tgamma(arg2+s);
 	else
-		arg2_ser = tgamma(arg2).series(rel,order);
+		arg2_ser = tgamma(arg2);
 	// trap the case where arg1+arg2 is on a pole:
 	if ((arg1+arg2).info(info_flags::integer) && !(arg1+arg2).info(info_flags::positive))
-		arg1arg2_ser = tgamma(arg2+arg1+s).series(rel, order, options);
+		arg1arg2_ser = tgamma(arg2+arg1+s);
 	else
-		arg1arg2_ser = tgamma(arg2+arg1).series(rel,order);
+		arg1arg2_ser = tgamma(arg2+arg1);
 	// compose the result (expanding all the terms):
 	return (arg1_ser*arg2_ser/arg1arg2_ser).series(rel, order, options).expand();
 }
