@@ -228,27 +228,27 @@ static unsigned poly_gcd7(void)
 
 unsigned exam_polygcd(void)
 {
-    unsigned result = 0;
-    
+	unsigned result = 0;
+	
 	cout << "examining polynomial GCD computation" << flush;
 	clog << "----------polynomial GCD computation:" << endl;
-    
+	
 	result += poly_gcd1();  cout << '.' << flush;
 	result += poly_gcd2();  cout << '.' << flush;
 	result += poly_gcd3();  cout << '.' << flush;
-    result += poly_gcd3p();	 cout << '.' << flush; // takes extremely long (PRS "worst" case)
+	result += poly_gcd3p();	 cout << '.' << flush; // takes extremely long (PRS "worst" case)
 	result += poly_gcd4();  cout << '.' << flush;
 	result += poly_gcd5();  cout << '.' << flush;
 	result += poly_gcd5p();  cout << '.' << flush;
 	result += poly_gcd6();  cout << '.' << flush;
 	result += poly_gcd7();  cout << '.' << flush;
-    
+	
 	if (!result) {
 		cout << " passed " << endl;
-        clog << "(no output)" << endl;
-    } else {
+		clog << "(no output)" << endl;
+	} else {
 		cout << " failed " << endl;
-    }
-    
+	}
+	
 	return result;
 }

@@ -25,68 +25,68 @@
 
 static unsigned test(unsigned n)
 {
-    unsigned result = 0;
-    timer cartier;
-    char name = (n==40?'I':(n==70?'K':'?'));
-    
-    cout << "timing Lewis-Wester test " << name
-         << " (invert rank " << n << " Hilbert)" << flush;
-    clog << "-------Lewis-Wester test " << name
-         << " (invert rank " << n << " Hilbert)" << endl;
-    
-    // Create a rank n Hilbert matrix:
-    matrix H(n,n);
-    for (unsigned r=0; r<n; ++r)
-        for (unsigned c=0; c<n; ++c)
-            H.set(r,c,numeric(1,r+c+1));
-    // invert it:
-    cartier.start();
-    matrix Hinv(n,n);
-    Hinv = H.inverse();
-    cout << ". passed ";
-    clog << "(no output)" << endl;
-    cout << int(1000*cartier.read())*0.001 << 's' << endl;
-    
-    // check result:
-    name = (n==40?'J':(n==70?'L':'?'));
-    
-    cout << "timing Lewis-Wester test " << name
-         << " (check rank " << n << " Hilbert)" << flush;
-    clog << "-------Lewis-Wester test " << name
-         << " (check rank " << n << " Hilbert)" << endl;
-    
-    cartier.reset();
-    matrix identity = H.mul(Hinv);
-    bool correct = true;
-    for (unsigned r=0; r<n; ++r)
-        for (unsigned c=0; c<n; ++c) {
-            if (r==c) {
-                if (identity(r,c)!=1)
-                    correct = false;
-            } else {
-                if (identity(r,c)!=0)
-                    correct = false;
-            }
-        }
-    if (correct) {
-        cout << ". passed ";
-        clog << "(no output)" << endl;
-    } else {
-        cout << ". failed ";
-        ++result;
-    }
-    cout << int(1000*cartier.read())*0.001 << 's' << endl;
-    return result;
+	unsigned result = 0;
+	timer cartier;
+	char name = (n==40?'I':(n==70?'K':'?'));
+	
+	cout << "timing Lewis-Wester test " << name
+		 << " (invert rank " << n << " Hilbert)" << flush;
+	clog << "-------Lewis-Wester test " << name
+		 << " (invert rank " << n << " Hilbert)" << endl;
+	
+	// Create a rank n Hilbert matrix:
+	matrix H(n,n);
+	for (unsigned r=0; r<n; ++r)
+		for (unsigned c=0; c<n; ++c)
+			H.set(r,c,numeric(1,r+c+1));
+	// invert it:
+	cartier.start();
+	matrix Hinv(n,n);
+	Hinv = H.inverse();
+	cout << ". passed ";
+	clog << "(no output)" << endl;
+	cout << int(1000*cartier.read())*0.001 << 's' << endl;
+	
+	// check result:
+	name = (n==40?'J':(n==70?'L':'?'));
+	
+	cout << "timing Lewis-Wester test " << name
+		 << " (check rank " << n << " Hilbert)" << flush;
+	clog << "-------Lewis-Wester test " << name
+		 << " (check rank " << n << " Hilbert)" << endl;
+	
+	cartier.reset();
+	matrix identity = H.mul(Hinv);
+	bool correct = true;
+	for (unsigned r=0; r<n; ++r)
+		for (unsigned c=0; c<n; ++c) {
+			if (r==c) {
+				if (identity(r,c)!=1)
+					correct = false;
+			} else {
+				if (identity(r,c)!=0)
+					correct = false;
+			}
+		}
+	if (correct) {
+		cout << ". passed ";
+		clog << "(no output)" << endl;
+	} else {
+		cout << ". failed ";
+		++result;
+	}
+	cout << int(1000*cartier.read())*0.001 << 's' << endl;
+	return result;
 }
 
 unsigned time_lw_IJKL(void)
 {
-    unsigned result = 0;
-    
-    // Tests I and J:
-    result += test(40);
-    // Tests K and L:
-    result += test(70);
-    
-    return result;
+	unsigned result = 0;
+	
+	// Tests I and J:
+	result += test(40);
+	// Tests K and L:
+	result += test(70);
+	
+	return result;
 }

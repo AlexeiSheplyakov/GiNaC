@@ -37,15 +37,15 @@ using namespace GiNaC;
 
 class timer {
 public:
-    timer();
-    void start(void);
-    void stop(void);
-    void reset(void);
-    double read(void);
-    bool running(void);
+	timer();
+	void start(void);
+	void stop(void);
+	void reset(void);
+	double read(void);
+	bool running(void);
 private:
-    bool on;
-    struct rusage used1, used2;
+	bool on;
+	struct rusage used1, used2;
 };
 
 // prototypes for all individual timings should be unsigned fcn():

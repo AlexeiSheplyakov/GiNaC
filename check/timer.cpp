@@ -24,43 +24,43 @@
 
 timer::timer(void) : on(false)
 {
-    getrusage(RUSAGE_SELF, &used1);
-    getrusage(RUSAGE_SELF, &used2);
+	getrusage(RUSAGE_SELF, &used1);
+	getrusage(RUSAGE_SELF, &used2);
 }
 
 void timer::start(void)
 {
-    on = true;
-    getrusage(RUSAGE_SELF, &used1);
-    getrusage(RUSAGE_SELF, &used2);
+	on = true;
+	getrusage(RUSAGE_SELF, &used1);
+	getrusage(RUSAGE_SELF, &used2);
 }
 
 void timer::stop(void)
 {
-    on = false;
-    getrusage(RUSAGE_SELF, &used2);
+	on = false;
+	getrusage(RUSAGE_SELF, &used2);
 }
 
 void timer::reset(void)
 {
-    getrusage(RUSAGE_SELF, &used1);
-    getrusage(RUSAGE_SELF, &used2);
+	getrusage(RUSAGE_SELF, &used1);
+	getrusage(RUSAGE_SELF, &used2);
 }
 
 double timer::read(void)
 {
-    double elapsed;
-    if (this->running())
-        getrusage(RUSAGE_SELF, &used2);
-    elapsed = ((used2.ru_utime.tv_sec - used1.ru_utime.tv_sec) +
-               (used2.ru_stime.tv_sec - used1.ru_stime.tv_sec) +
-               (used2.ru_utime.tv_usec - used1.ru_utime.tv_usec) / 1e6 +
-               (used2.ru_stime.tv_usec - used1.ru_stime.tv_usec) / 1e6);
-    // round to 10ms for safety:
-    return 0.01*int(elapsed*100+0.5);
+	double elapsed;
+	if (this->running())
+		getrusage(RUSAGE_SELF, &used2);
+	elapsed = ((used2.ru_utime.tv_sec - used1.ru_utime.tv_sec) +
+			   (used2.ru_stime.tv_sec - used1.ru_stime.tv_sec) +
+			   (used2.ru_utime.tv_usec - used1.ru_utime.tv_usec) / 1e6 +
+			   (used2.ru_stime.tv_usec - used1.ru_stime.tv_usec) / 1e6);
+	// round to 10ms for safety:
+	return 0.01*int(elapsed*100+0.5);
 }
 
 bool timer::running(void)
 {
-    return on;
+	return on;
 }

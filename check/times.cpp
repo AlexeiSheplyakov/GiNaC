@@ -27,151 +27,151 @@
 
 int main()
 {
-    unsigned result = 0;
-    
-    try {
-        result += time_dennyfliegner();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += time_gammaseries();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += time_vandermonde();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += time_toeplitz();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += time_lw_A();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += time_lw_B();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += time_lw_C();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += time_lw_D();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += time_lw_E();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += time_lw_F();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += time_lw_G();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += time_lw_H();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += time_lw_IJKL();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += time_lw_M1();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += time_lw_O();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += time_lw_P();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += time_lw_Pprime();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += time_lw_Q();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += time_lw_Qprime();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    if (result) {
-        cout << "Error: something went wrong. ";
-        if (result == 1) {
-            cout << "(one failure)" << endl;
-        } else {
-            cout << "(" << result << " individual failures)" << endl;
-        }
-        cout << "please check times.out against times.ref for more details."
-             << endl << "happy debugging!" << endl;
-    }
-    
-    return result;
+	unsigned result = 0;
+	
+	try {
+		result += time_dennyfliegner();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += time_gammaseries();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += time_vandermonde();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += time_toeplitz();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += time_lw_A();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += time_lw_B();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += time_lw_C();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += time_lw_D();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += time_lw_E();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += time_lw_F();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += time_lw_G();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += time_lw_H();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += time_lw_IJKL();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += time_lw_M1();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += time_lw_O();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += time_lw_P();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += time_lw_Pprime();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += time_lw_Q();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += time_lw_Qprime();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	if (result) {
+		cout << "Error: something went wrong. ";
+		if (result == 1) {
+			cout << "(one failure)" << endl;
+		} else {
+			cout << "(" << result << " individual failures)" << endl;
+		}
+		cout << "please check times.out against times.ref for more details."
+			 << endl << "happy debugging!" << endl;
+	}
+	
+	return result;
 }

@@ -25,44 +25,44 @@
 
 static unsigned test(void)
 {
-    symbol x("x");
-    symbol y("y");
+	symbol x("x");
+	symbol y("y");
 
-    ex p = expand(pow(pow(x,2)-3*x*y+pow(y,2),4)*pow(3*x-7*y+2,5));
-    ex q = expand(pow(pow(x,2)-3*x*y+pow(y,2),3)*pow(3*x-7*y-2,6));
-    ex result = gcd(p,q);
-    if (result!=expand(pow(pow(x,2)-3*x*y+pow(y,2),3))) {
-        clog << "gcd((x^2-3*x*y+y^2)^4*(3*x-7*y+2)^5),(x^2-3*x*y+y^2)^3*(3*x-7*y-2)^6)) erroneously returned " << result << endl;
-        return 1;
-    }
-    return 0;
+	ex p = expand(pow(pow(x,2)-3*x*y+pow(y,2),4)*pow(3*x-7*y+2,5));
+	ex q = expand(pow(pow(x,2)-3*x*y+pow(y,2),3)*pow(3*x-7*y-2,6));
+	ex result = gcd(p,q);
+	if (result!=expand(pow(pow(x,2)-3*x*y+pow(y,2),3))) {
+		clog << "gcd(expand((x^2-3*x*y+y^2)^4*(3*x-7*y+2)^5),expand((x^2-3*x*y+y^2)^3*(3*x-7*y-2)^6)) erroneously returned " << result << endl;
+		return 1;
+	}
+	return 0;
 }
 
 unsigned time_lw_F(void)
 {
-    unsigned result = 0;
-    unsigned count = 0;
-    timer rolex;
-    double time = .0;
-    
-    cout << "timing Lewis-Wester test F (gcd of 2-var polys)" << flush;
-    clog << "-------Lewis-Wester test F (gcd of 2-var polys)" << endl;
-    
-    rolex.start();
-    // correct for very small times:
-    do {
-        result = test();
-        ++count;
-    } while ((time=rolex.read())<0.1 && !result);
-    cout << '.' << flush;
-    
-    if (!result) {
-        cout << " passed ";
-        clog << "(no output)" << endl;
-    } else {
-        cout << " failed ";
-    }
-    cout << int(1000*(time/count))*0.001 << 's' << endl;
-    
-    return result;
+	unsigned result = 0;
+	unsigned count = 0;
+	timer rolex;
+	double time = .0;
+	
+	cout << "timing Lewis-Wester test F (gcd of 2-var polys)" << flush;
+	clog << "-------Lewis-Wester test F (gcd of 2-var polys)" << endl;
+	
+	rolex.start();
+	// correct for very small times:
+	do {
+		result = test();
+		++count;
+	} while ((time=rolex.read())<0.1 && !result);
+	cout << '.' << flush;
+	
+	if (!result) {
+		cout << " passed ";
+		clog << "(no output)" << endl;
+	} else {
+		cout << " failed ";
+	}
+	cout << int(1000*(time/count))*0.001 << 's' << endl;
+	
+	return result;
 }

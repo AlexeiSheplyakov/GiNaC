@@ -24,185 +24,185 @@
 
 static unsigned exam_lsolve1(void)
 {
-    // A trivial example.
-    unsigned result = 0;
-    symbol x("x");
-    ex eq, aux;
-    
-    eq = (3*x+5 == numeric(8));
-    aux = lsolve(eq, x);
-    if (aux != 1) {
-        ++result;
-        clog << "solution of 3*x+5==8 erroneously returned "
-             << aux << endl;
-    }
-    
-    return result;
+	// A trivial example.
+	unsigned result = 0;
+	symbol x("x");
+	ex eq, aux;
+	
+	eq = (3*x+5 == numeric(8));
+	aux = lsolve(eq, x);
+	if (aux != 1) {
+		++result;
+		clog << "solution of 3*x+5==8 erroneously returned "
+			 << aux << endl;
+	}
+	
+	return result;
 }
 
 static unsigned exam_lsolve2a(void)
 {
-    // An example from the Maple online help.
-    unsigned result = 0;
-    symbol a("a"), b("b"), x("x"), y("y");
-    lst eqns, vars;
-    ex sol;
-    
-    // Create the linear system [a*x+b*y==3,x-y==b]...
-    eqns.append(a*x+b*y==3).append(x-y==b);
-    // ...to be solved for [x,y]...
-    vars.append(x).append(y);
-    // ...and solve it:
-    sol = lsolve(eqns, vars);
-    ex sol_x = sol.op(0).rhs();  // rhs of solution for first variable (x)
-    ex sol_y = sol.op(1).rhs();  // rhs of solution for second variable (y)
-    
-    // It should have returned [x==(3+b^2)/(a+b),y==(3-a*b)/(a+b)]
-    if (!normal(sol_x - (3+pow(b,2))/(a+b)).is_zero() ||
-        !normal(sol_y - (3-a*b)/(a+b)).is_zero()) {
-        ++result;
-        clog << "solution of the system " << eqns << " for " << vars
-             << " erroneously returned " << sol << endl;
-    }
-    
-    return result;
+	// An example from the Maple online help.
+	unsigned result = 0;
+	symbol a("a"), b("b"), x("x"), y("y");
+	lst eqns, vars;
+	ex sol;
+	
+	// Create the linear system [a*x+b*y==3,x-y==b]...
+	eqns.append(a*x+b*y==3).append(x-y==b);
+	// ...to be solved for [x,y]...
+	vars.append(x).append(y);
+	// ...and solve it:
+	sol = lsolve(eqns, vars);
+	ex sol_x = sol.op(0).rhs();  // rhs of solution for first variable (x)
+	ex sol_y = sol.op(1).rhs();  // rhs of solution for second variable (y)
+	
+	// It should have returned [x==(3+b^2)/(a+b),y==(3-a*b)/(a+b)]
+	if (!normal(sol_x - (3+pow(b,2))/(a+b)).is_zero() ||
+		!normal(sol_y - (3-a*b)/(a+b)).is_zero()) {
+		++result;
+		clog << "solution of the system " << eqns << " for " << vars
+			 << " erroneously returned " << sol << endl;
+	}
+	
+	return result;
 }
 
 static unsigned exam_lsolve2b(void)
 {
-    // A boring example from Mathematica's online help.
-    unsigned result = 0;
-    symbol x("x"), y("y");
-    lst eqns, vars;
-    ex sol;
-    
-    // Create the linear system [3*x+y==7,2*x-5*y==8]...
-    eqns.append(3*x+y==7).append(2*x-5*y==8);
-    // ...to be solved for [x,y]...
-    vars.append(x).append(y);
-    // ...and solve it:
-    sol = lsolve(eqns, vars);
-    ex sol_x = sol.op(0).rhs();  // rhs of solution for first variable (x)
-    ex sol_y = sol.op(1).rhs();  // rhs of solution for second variable (y)
-    
-    // It should have returned [x==43/17,y==-10/17]
-    if ((sol_x != numeric(43,17)) ||
-        (sol_y != numeric(-10,17))) {
-        ++result;
-        clog << "solution of the system " << eqns << " for " << vars
-             << " erroneously returned " << sol << endl;
-    }
-    
-    return result;
+	// A boring example from Mathematica's online help.
+	unsigned result = 0;
+	symbol x("x"), y("y");
+	lst eqns, vars;
+	ex sol;
+	
+	// Create the linear system [3*x+y==7,2*x-5*y==8]...
+	eqns.append(3*x+y==7).append(2*x-5*y==8);
+	// ...to be solved for [x,y]...
+	vars.append(x).append(y);
+	// ...and solve it:
+	sol = lsolve(eqns, vars);
+	ex sol_x = sol.op(0).rhs();  // rhs of solution for first variable (x)
+	ex sol_y = sol.op(1).rhs();  // rhs of solution for second variable (y)
+	
+	// It should have returned [x==43/17,y==-10/17]
+	if ((sol_x != numeric(43,17)) ||
+		(sol_y != numeric(-10,17))) {
+		++result;
+		clog << "solution of the system " << eqns << " for " << vars
+			 << " erroneously returned " << sol << endl;
+	}
+	
+	return result;
 }
 
 static unsigned exam_lsolve2c(void)
 {
-    // A more interesting example from the Maple online help.
-    unsigned result = 0;
-    symbol x("x"), y("y");
-    lst eqns, vars;
-    ex sol;
-    
-    // Create the linear system [I*x+y==1,I*x-y==2]...
-    eqns.append(I*x+y==1).append(I*x-y==2);
-    // ...to be solved for [x,y]...
-    vars.append(x).append(y);
-    // ...and solve it:
-    sol = lsolve(eqns, vars);
-    ex sol_x = sol.op(0).rhs();  // rhs of solution for first variable (x)
-    ex sol_y = sol.op(1).rhs();  // rhs of solution for second variable (y)
-    
-    // It should have returned [x==-3/2*I,y==-1/2]
-    if ((sol_x != numeric(-3,2)*I) ||
-        (sol_y != numeric(-1,2))) {
-        ++result;
-        clog << "solution of the system " << eqns << " for " << vars
-             << " erroneously returned " << sol << endl;
-    }
-    
-    return result;
+	// A more interesting example from the Maple online help.
+	unsigned result = 0;
+	symbol x("x"), y("y");
+	lst eqns, vars;
+	ex sol;
+	
+	// Create the linear system [I*x+y==1,I*x-y==2]...
+	eqns.append(I*x+y==1).append(I*x-y==2);
+	// ...to be solved for [x,y]...
+	vars.append(x).append(y);
+	// ...and solve it:
+	sol = lsolve(eqns, vars);
+	ex sol_x = sol.op(0).rhs();  // rhs of solution for first variable (x)
+	ex sol_y = sol.op(1).rhs();  // rhs of solution for second variable (y)
+	
+	// It should have returned [x==-3/2*I,y==-1/2]
+	if ((sol_x != numeric(-3,2)*I) ||
+		(sol_y != numeric(-1,2))) {
+		++result;
+		clog << "solution of the system " << eqns << " for " << vars
+			 << " erroneously returned " << sol << endl;
+	}
+	
+	return result;
 }
 
 static unsigned exam_lsolve2S(void)
 {
-    // A degenerate example that went wrong in GiNaC 0.6.2.
-    unsigned result = 0;
-    symbol x("x"), y("y"), t("t");
-    lst eqns, vars;
-    ex sol;
-    
-    // Create the linear system [0*x+0*y==0,0*x+1*y==t]...
-    eqns.append(0*x+0*y==0).append(0*x+1*y==t);
-    // ...to be solved for [x,y]...
-    vars.append(x).append(y);
-    // ...and solve it:
-    sol = lsolve(eqns, vars);
-    ex sol_x = sol.op(0).rhs();  // rhs of solution for first variable (x)
-    ex sol_y = sol.op(1).rhs();  // rhs of solution for second variable (y)
-    
-    // It should have returned [x==x,y==t]
-    if ((sol_x != x) ||
-        (sol_y != t)) {
-        ++result;
-        clog << "solution of the system " << eqns << " for " << vars
-             << " erroneously returned " << sol << endl;
-    }
-    
-    return result;
+	// A degenerate example that went wrong in GiNaC 0.6.2.
+	unsigned result = 0;
+	symbol x("x"), y("y"), t("t");
+	lst eqns, vars;
+	ex sol;
+	
+	// Create the linear system [0*x+0*y==0,0*x+1*y==t]...
+	eqns.append(0*x+0*y==0).append(0*x+1*y==t);
+	// ...to be solved for [x,y]...
+	vars.append(x).append(y);
+	// ...and solve it:
+	sol = lsolve(eqns, vars);
+	ex sol_x = sol.op(0).rhs();  // rhs of solution for first variable (x)
+	ex sol_y = sol.op(1).rhs();  // rhs of solution for second variable (y)
+	
+	// It should have returned [x==x,y==t]
+	if ((sol_x != x) ||
+		(sol_y != t)) {
+		++result;
+		clog << "solution of the system " << eqns << " for " << vars
+			 << " erroneously returned " << sol << endl;
+	}
+	
+	return result;
 }
 
 static unsigned exam_lsolve3S(void)
 {
-    // A degenerate example that went wrong while trying to improve elimination
-    unsigned result = 0;
-    symbol b("b"), c("c");
-    symbol x("x"), y("y"), z("z");
-    lst eqns, vars;
-    ex sol;
-    
-    // Create the linear system [y+z==b,-y+z==c] with one additional row...
-    eqns.append(ex(0)==ex(0)).append(b==z+y).append(c==z-y);
-    // ...to be solved for [x,y,z]...
-    vars.append(x).append(y).append(z);
-    // ...and solve it:
-    sol = lsolve(eqns, vars);
-    ex sol_x = sol.op(0).rhs();  // rhs of solution for first variable (x)
-    ex sol_y = sol.op(1).rhs();  // rhs of solution for second variable (y)
-    ex sol_z = sol.op(2).rhs();  // rhs of solution for third variable (z)
-    
-    // It should have returned [x==x,y==t,]
-    if ((sol_x != x) ||
-        (sol_y != (b-c)/2) ||
-        (sol_z != (b+c)/2)) {
-        ++result;
-        clog << "solution of the system " << eqns << " for " << vars
-             << " erroneously returned " << sol << endl;
-    }
-    
-    return result;
+	// A degenerate example that went wrong while trying to improve elimination
+	unsigned result = 0;
+	symbol b("b"), c("c");
+	symbol x("x"), y("y"), z("z");
+	lst eqns, vars;
+	ex sol;
+	
+	// Create the linear system [y+z==b,-y+z==c] with one additional row...
+	eqns.append(ex(0)==ex(0)).append(b==z+y).append(c==z-y);
+	// ...to be solved for [x,y,z]...
+	vars.append(x).append(y).append(z);
+	// ...and solve it:
+	sol = lsolve(eqns, vars);
+	ex sol_x = sol.op(0).rhs();  // rhs of solution for first variable (x)
+	ex sol_y = sol.op(1).rhs();  // rhs of solution for second variable (y)
+	ex sol_z = sol.op(2).rhs();  // rhs of solution for third variable (z)
+	
+	// It should have returned [x==x,y==t,]
+	if ((sol_x != x) ||
+		(sol_y != (b-c)/2) ||
+		(sol_z != (b+c)/2)) {
+		++result;
+		clog << "solution of the system " << eqns << " for " << vars
+			 << " erroneously returned " << sol << endl;
+	}
+	
+	return result;
 }
 
 unsigned exam_lsolve(void)
 {
-    unsigned result = 0;
-    
-    cout << "examining linear solve" << flush;
-    clog << "----------linear solve:" << endl;
-    
-    result += exam_lsolve1();  cout << '.' << flush;
-    result += exam_lsolve2a();  cout << '.' << flush;
-    result += exam_lsolve2b();  cout << '.' << flush;
-    result += exam_lsolve2c();  cout << '.' << flush;
-    result += exam_lsolve2S();  cout << '.' << flush;
-    result += exam_lsolve3S();  cout << '.' << flush;
-    
-    if (!result) {
-        cout << " passed " << endl;
-        clog << "(no output)" << endl;
-    } else {
-        cout << " failed " << endl;
-    }
-    
-    return result;
+	unsigned result = 0;
+	
+	cout << "examining linear solve" << flush;
+	clog << "----------linear solve:" << endl;
+	
+	result += exam_lsolve1();  cout << '.' << flush;
+	result += exam_lsolve2a();  cout << '.' << flush;
+	result += exam_lsolve2b();  cout << '.' << flush;
+	result += exam_lsolve2c();  cout << '.' << flush;
+	result += exam_lsolve2S();  cout << '.' << flush;
+	result += exam_lsolve3S();  cout << '.' << flush;
+	
+	if (!result) {
+		cout << " passed " << endl;
+		clog << "(no output)" << endl;
+	} else {
+		cout << " failed " << endl;
+	}
+	
+	return result;
 }

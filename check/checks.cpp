@@ -28,52 +28,52 @@
 
 int main()
 {
-    unsigned result = 0;
-    
-    srand((unsigned)time(NULL));
-    
-    try {
-        for (int i=0; i<1; ++i)
-            result += check_numeric();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        for (int i=0; i<1; ++i)
-            result += check_inifcns();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        for (int i=0; i<1; ++i)
-            result += check_matrices();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        for (int i=0; i<1; ++i)
-            result += check_lsolve();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    if (result) {
-        cout << "Error: something went wrong. ";
-        if (result == 1) {
-            cout << "(one failure)" << endl;
-        } else {
-            cout << "(" << result << " individual failures)" << endl;
-        }
-        cout << "please check checks.out against check.ref for more details."
-             << endl << "happy debugging!" << endl;
-    }
-    
-    return result;
+	unsigned result = 0;
+	
+	srand((unsigned)time(NULL));
+	
+	try {
+		for (int i=0; i<1; ++i)
+			result += check_numeric();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		for (int i=0; i<1; ++i)
+			result += check_inifcns();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		for (int i=0; i<1; ++i)
+			result += check_matrices();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		for (int i=0; i<1; ++i)
+			result += check_lsolve();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	if (result) {
+		cout << "Error: something went wrong. ";
+		if (result == 1) {
+			cout << "(one failure)" << endl;
+		} else {
+			cout << "(" << result << " individual failures)" << endl;
+		}
+		cout << "please check checks.out against check.ref for more details."
+			 << endl << "happy debugging!" << endl;
+	}
+	
+	return result;
 }

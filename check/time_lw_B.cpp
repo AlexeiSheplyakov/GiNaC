@@ -25,43 +25,43 @@
 
 static unsigned test(void)
 {
-    numeric s;
-    
-    for (int i=1; i<=1000; ++i)
-        s += numeric(i).inverse();
-    
-    if (abs(s.evalf()-numeric("7.4854708605503449"))>numeric("2.0E-16")) {
-        clog << "sum(1/i,i=1..1000) erroneously returned " << s << endl;
-        return 1;
-    }
-    return 0;
+	numeric s;
+	
+	for (int i=1; i<=1000; ++i)
+		s += numeric(i).inverse();
+	
+	if (abs(s.evalf()-numeric("7.4854708605503449"))>numeric("2.0E-16")) {
+		clog << "sum(1/i,i=1..1000) erroneously returned " << s << endl;
+		return 1;
+	}
+	return 0;
 }
 
 unsigned time_lw_B(void)
 {
-    unsigned result = 0;
-    unsigned count = 0;
-    timer rolex;
-    double time = .0;
-    
-    cout << "timing Lewis-Wester test B (sum of rational numbers)" << flush;
-    clog << "-------Lewis-Wester test B (sum of rational numbers)" << endl;
-    
-    rolex.start();
-    // correct for very small times:
-    do {
-        result = test();
-        ++count;
-    } while ((time=rolex.read())<0.1 && !result);
-    cout << '.' << flush;
-    
-    if (!result) {
-        cout << " passed ";
-        clog << "(no output)" << endl;
-    } else {
-        cout << " failed ";
-    }
-    cout << int(1000*(time/count))*0.001 << 's' << endl;
-    
-    return result;
+	unsigned result = 0;
+	unsigned count = 0;
+	timer rolex;
+	double time = .0;
+	
+	cout << "timing Lewis-Wester test B (sum of rational numbers)" << flush;
+	clog << "-------Lewis-Wester test B (sum of rational numbers)" << endl;
+	
+	rolex.start();
+	// correct for very small times:
+	do {
+		result = test();
+		++count;
+	} while ((time=rolex.read())<0.1 && !result);
+	cout << '.' << flush;
+	
+	if (!result) {
+		cout << " passed ";
+		clog << "(no output)" << endl;
+	} else {
+		cout << " failed ";
+	}
+	cout << int(1000*(time/count))*0.001 << 's' << endl;
+	
+	return result;
 }

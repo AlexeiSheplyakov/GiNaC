@@ -30,30 +30,30 @@
 // actually introduced the second.)
 static unsigned exam_paranoia1(void)
 {
-    unsigned result = 0;
-    symbol x("x"), y("y"), z("z");
-    ex e, f, g;
+	unsigned result = 0;
+	symbol x("x"), y("y"), z("z");
+	ex e, f, g;
 
-    e = x * y * z;
-    f = y * z;
-    g = e / f;
+	e = x * y * z;
+	f = y * z;
+	g = e / f;
 
-    // In the first one expand did not do any job at all:
-    if (!g.expand().is_equal(x)) {
-        clog << "e = x*y*z; f = y*z; expand(e/f) erroneously returned "
-             << g.expand() << endl;
-        ++result;
-    }
+	// In the first one expand did not do any job at all:
+	if (!g.expand().is_equal(x)) {
+		clog << "e = x*y*z; f = y*z; expand(e/f) erroneously returned "
+			 << g.expand() << endl;
+		++result;
+	}
 
-    // This one somehow used to return 0:
-    e = pow(x + 1, -1);
-    if (!e.expand().is_equal(e)) {
-        clog << "expand(pow(x + 1, -1)) erroneously returned "
-             << e.expand() << endl;
-        ++result;
-    }
+	// This one somehow used to return 0:
+	e = pow(x + 1, -1);
+	if (!e.expand().is_equal(e)) {
+		clog << "expand(pow(x + 1, -1)) erroneously returned "
+			 << e.expand() << endl;
+		++result;
+	}
 
-    return result;
+	return result;
 }
 
 // And here the second oops which showed up until May 17th 1999.  It had to do
@@ -61,35 +61,35 @@ static unsigned exam_paranoia1(void)
 // had the names as given here:
 static unsigned exam_paranoia2(void)
 {
-    unsigned result = 0;
-    symbol x("x"), y("y"), z("z");
-    ex e, f, g;
+	unsigned result = 0;
+	symbol x("x"), y("y"), z("z");
+	ex e, f, g;
 
-    e = x + z*x;
-    f = e*y;
-    g = f - e*y;
+	e = x + z*x;
+	f = e*y;
+	g = f - e*y;
 
-    // After .expand(), g should be zero:
-    if (!g.expand().is_zero()) {
-        clog << "e = (x + z*x); f = e*y; expand(f - e*y) erroneously returned "
-             << g.expand() << endl;
-        ++result;
-    }
-    // After .eval(), g should be zero:
-    if (!g.eval().is_zero()) {
-        clog << "e = (x + z*x); f = e*y; eval(f - e*y) erroneously returned "
-             << g.eval() << endl;
-        ++result;
-    }
-    // This actually worked already back in April 1999.
-    // But we are *very* paranoic!
-    if (!g.expand().eval().is_zero()) {
-        clog << "e = (x + z*x); f = e*y; eval(expand(f - e*y)) erroneously returned "
-             << g.expand().eval() << endl;
-        ++result;
-    }
+	// After .expand(), g should be zero:
+	if (!g.expand().is_zero()) {
+		clog << "e = (x + z*x); f = e*y; expand(f - e*y) erroneously returned "
+			 << g.expand() << endl;
+		++result;
+	}
+	// After .eval(), g should be zero:
+	if (!g.eval().is_zero()) {
+		clog << "e = (x + z*x); f = e*y; eval(f - e*y) erroneously returned "
+			 << g.eval() << endl;
+		++result;
+	}
+	// This actually worked already back in April 1999.
+	// But we are *very* paranoic!
+	if (!g.expand().eval().is_zero()) {
+		clog << "e = (x + z*x); f = e*y; eval(expand(f - e*y)) erroneously returned "
+			 << g.expand().eval() << endl;
+		++result;
+	}
 
-    return result;
+	return result;
 }
 
 // The third bug was introduced on May 18th 1999, discovered on May 19 and
@@ -97,110 +97,110 @@ static unsigned exam_paranoia2(void)
 // other numbers:
 static unsigned exam_paranoia3(void)
 {
-    unsigned result = 0;
-    symbol x("x"), y("y");
-    ex e, f;
+	unsigned result = 0;
+	symbol x("x"), y("y");
+	ex e, f;
 
-    e = x*y - y;
-    f = e.subs(x == 2);
+	e = x*y - y;
+	f = e.subs(x == 2);
 
-    if (!f.is_equal(y)) {
-        clog << "e = x*y - y; f = e.subs(x == 2) erroneously returned "
-             << f << endl;
-        ++result;
-    }
-    if (!f.eval().is_equal(y)) {
-        clog << "e = x*y - y; eval(e.subs(x == 2)) erroneously returned "
-             << f.eval() << endl;
-        ++result;
-    }
-    if (!f.expand().is_equal(y)) {
-        clog << "e = x*y - y; expand(e.subs(x == 2)) erroneously returned "
-             << f.expand() << endl;
-        ++result;
-    }
+	if (!f.is_equal(y)) {
+		clog << "e = x*y - y; f = e.subs(x == 2) erroneously returned "
+			 << f << endl;
+		++result;
+	}
+	if (!f.eval().is_equal(y)) {
+		clog << "e = x*y - y; eval(e.subs(x == 2)) erroneously returned "
+			 << f.eval() << endl;
+		++result;
+	}
+	if (!f.expand().is_equal(y)) {
+		clog << "e = x*y - y; expand(e.subs(x == 2)) erroneously returned "
+			 << f.expand() << endl;
+		++result;
+	}
 
-    return result;
+	return result;
 }
 
 // The fourth bug was also discovered on May 19th 1999 and fixed immediately:
 static unsigned exam_paranoia4(void)
 {
-    unsigned result = 0;
-    symbol x("x");
-    ex e, f, g;
+	unsigned result = 0;
+	symbol x("x");
+	ex e, f, g;
 
-    e = pow(x, 2) + x + 1;
-    f = pow(x, 2) + x + 1;
-    g = e - f;
+	e = pow(x, 2) + x + 1;
+	f = pow(x, 2) + x + 1;
+	g = e - f;
 
-    if (!g.is_zero()) {
-        clog << "e = pow(x,2) + x + 1; f = pow(x,2) + x + 1; g = e-f; g erroneously returned "
-             << g << endl;
-        ++result;
-    }
-    if (!g.is_zero()) {
-        clog << "e = pow(x,2) + x + 1; f = pow(x,2) + x + 1; g = e-f; g.eval() erroneously returned "
-             << g.eval() << endl;
-        ++result;
-    }
+	if (!g.is_zero()) {
+		clog << "e = pow(x,2) + x + 1; f = pow(x,2) + x + 1; g = e-f; g erroneously returned "
+			 << g << endl;
+		++result;
+	}
+	if (!g.is_zero()) {
+		clog << "e = pow(x,2) + x + 1; f = pow(x,2) + x + 1; g = e-f; g.eval() erroneously returned "
+			 << g.eval() << endl;
+		++result;
+	}
 
-    return result;
+	return result;
 }
 
 // The fifth oops was discovered on May 20th 1999 and fixed a day later:
 static unsigned exam_paranoia5(void)
 {
-    unsigned result = 0;
-    symbol x("x"), y("y");
+	unsigned result = 0;
+	symbol x("x"), y("y");
 
-    ex e, f;
-    e = pow(x*y + 1, 2);
-    f = pow(x, 2) * pow(y, 2) + 2*x*y + 1;
+	ex e, f;
+	e = pow(x*y + 1, 2);
+	f = pow(x, 2) * pow(y, 2) + 2*x*y + 1;
 
-    if (!(e-f).expand().is_zero()) {
-        clog << "e = pow(x*y+1,2); f = pow(x,2)*pow(y,2) + 2*x*y + 1; (e-f).expand() erroneously returned "
-             << (e-f).expand() << endl;
-        ++result;
-    }
+	if (!(e-f).expand().is_zero()) {
+		clog << "e = pow(x*y+1,2); f = pow(x,2)*pow(y,2) + 2*x*y + 1; (e-f).expand() erroneously returned "
+			 << (e-f).expand() << endl;
+		++result;
+	}
 
-    return result;
+	return result;
 }
 
 // This one was discovered on Jun 1st 1999 and fixed the same day:
 static unsigned exam_paranoia6(void)
 {
-    unsigned result = 0;
-    symbol x("x");
+	unsigned result = 0;
+	symbol x("x");
 
-    ex e, f;
-    e = pow(x, -5);
-    f = e.denom();
+	ex e, f;
+	e = pow(x, -5);
+	f = e.denom();
 
-    if (!f.is_equal(pow(x, 5))) {
-        clog << "e = pow(x, -5); f = e.denom(); f was " << f << " (should be x^5)" << endl;
-        ++result;
-    }
-    return result;
+	if (!f.is_equal(pow(x, 5))) {
+		clog << "e = pow(x, -5); f = e.denom(); f was " << f << " (should be x^5)" << endl;
+		++result;
+	}
+	return result;
 }
 
 // This one was introduced on June 1st 1999 by some aggressive manual
 // optimization. Discovered and fixed on June 2nd.
 static unsigned exam_paranoia7(void)
 {
-    unsigned result = 0;
-    symbol x("x"), y("y");
+	unsigned result = 0;
+	symbol x("x"), y("y");
 
-    ex e = y + y*x + 2;
-    ex f = expand(pow(e, 2) - (e*y*(x + 1)));
+	ex e = y + y*x + 2;
+	ex f = expand(pow(e, 2) - (e*y*(x + 1)));
 
-    if (f.nops() > 3) {
-        clog << "e=y+y*x+2; f=expand(pow(e,2)-(e*y*(x+1))) has "
-             << f.nops() << " arguments instead of 3 ( f=="
-             << f << " )" << endl;
-        ++result;
-    }
-    return result;
+	if (f.nops() > 3) {
+		clog << "e=y+y*x+2; f=expand(pow(e,2)-(e*y*(x+1))) has "
+			 << f.nops() << " arguments instead of 3 ( f=="
+			 << f << " )" << endl;
+		++result;
+	}
+	return result;
 }
 
 // This one was a result of the rewrite of mul::max_coefficient when we
@@ -208,23 +208,23 @@ static unsigned exam_paranoia7(void)
 // 1999. Fixed on Oct 4th.
 static unsigned exam_paranoia8(void)
 {
-    unsigned result = 0;
-    symbol x("x");
+	unsigned result = 0;
+	symbol x("x");
 
-    ex e = -x / (x+1);
-    ex f;
-    
-    try {
-        f = e.normal();
-        if (!f.is_equal(e)) {
-            clog << "normal(-x/(x+1)) returns " << f << " instead of -x/(x+1)\n";
-            ++result;
-        }
-    } catch (const exception &err) {
-        clog << "normal(-x/(x+1) throws " << err.what() << endl;
-        ++result;
-    }
-    return result;
+	ex e = -x / (x+1);
+	ex f;
+	
+	try {
+		f = e.normal();
+		if (!f.is_equal(e)) {
+			clog << "normal(-x/(x+1)) returns " << f << " instead of -x/(x+1)\n";
+			++result;
+		}
+	} catch (const exception &err) {
+		clog << "normal(-x/(x+1) throws " << err.what() << endl;
+		++result;
+	}
+	return result;
 }
 
 // This one was a result of a modification to frac_cancel() & Co. to avoid
@@ -234,17 +234,17 @@ static unsigned exam_paranoia8(void)
 // 2000 and fixed on Jan 31th.
 static unsigned exam_paranoia9(void)
 {
-    unsigned result = 0;
-    symbol x("x");
+	unsigned result = 0;
+	symbol x("x");
 
-    ex e = (exp(-x)-2*x*exp(-x)+pow(x,2)/2*exp(-x))/exp(-x);
-    ex f = e.normal();
+	ex e = (exp(-x)-2*x*exp(-x)+pow(x,2)/2*exp(-x))/exp(-x);
+	ex f = e.normal();
 
-    if (!f.is_equal(1-2*x+pow(x,2)/2)) {
-        clog << "normal(" << e << ") returns " << f << " instead of 1-2*x+1/2*x^2\n";
-        ++result;
-    }
-    return result;
+	if (!f.is_equal(1-2*x+pow(x,2)/2)) {
+		clog << "normal(" << e << ") returns " << f << " instead of 1-2*x+1/2*x^2\n";
+		++result;
+	}
+	return result;
 }
 
 // I have no idea when this broke.  It has been working long ago, before 0.4.0
@@ -253,23 +253,23 @@ static unsigned exam_paranoia9(void)
 // It was fixed that same day.
 static unsigned exam_paranoia10(void)
 {
-    unsigned result = 0;
-    
-    ex b = numeric(2);
-    ex e = numeric(3,2);
-    ex r;
-    
-    try {
-        r = pow(b,e).eval();
-        if (!(r-2*sqrt(ex(2))).is_zero()) {
-            clog << "2^(3/2) erroneously returned " << r << " instead of 2*sqrt(2)" << endl;
-            ++result;
-        }
-    } catch (const exception &err) {
-        clog << "2^(3/2) throws " << err.what() << endl;
-        ++result;
-    }
-    return result;
+	unsigned result = 0;
+	
+	ex b = numeric(2);
+	ex e = numeric(3,2);
+	ex r;
+	
+	try {
+		r = pow(b,e).eval();
+		if (!(r-2*sqrt(ex(2))).is_zero()) {
+			clog << "2^(3/2) erroneously returned " << r << " instead of 2*sqrt(2)" << endl;
+			++result;
+		}
+	} catch (const exception &err) {
+		clog << "2^(3/2) throws " << err.what() << endl;
+		++result;
+	}
+	return result;
 }
 
 // After the rewriting of basic::normal() & Co. to return {num, den} lists,
@@ -278,7 +278,7 @@ static unsigned exam_paranoia10(void)
 // child (did you get this? Well, never mind...). Fixed on Feb 21th 2000.
 static unsigned exam_paranoia11(void)
 {
-    unsigned result = 0;
+	unsigned result = 0;
 	symbol x("x");
 
 	ex e = ((-5-2*x)-((2-5*x)/(-2+x))*(3+2*x))/(5-4*x);
@@ -289,7 +289,7 @@ static unsigned exam_paranoia11(void)
 		clog << "normal(" << e << ") returns " << f << " instead of " << d << endl;
 		++result;
 	}
-    return result;
+	return result;
 }
 
 // This one returned 0 because add::normal() incorrectly assumed that if the
@@ -297,16 +297,16 @@ static unsigned exam_paranoia11(void)
 // be +/-1). Fixed on Aug 2nd 2000.
 static unsigned exam_paranoia12(void)
 {
-    unsigned result = 0;
+	unsigned result = 0;
 	symbol x("x");
-
+	
 	ex e = 2-2*(1+x)/(-1-x);
 	ex f = e.normal();
 	ex d = 4;
-
+	
 	if (!(f - d).expand().is_zero()) {
 		clog << "normal(" << e << ") returns " << f
-             << " instead of " << d << endl;
+			 << " instead of " << d << endl;
 		++result;
 	}
 	return result;
@@ -316,53 +316,53 @@ static unsigned exam_paranoia12(void)
 // input polynomials against 0. Fixed on Aug 4th 2000.
 static unsigned exam_paranoia13(void)
 {
-    unsigned result = 0;
+	unsigned result = 0;
 	symbol a("a"), b("b"), c("c");
-    
+	
 	ex e = (b*a-c*a)/(4-a);
 	ex d = (c*a-b*a)/(a-4);
-    
-    try {
-        ex f = e.normal();    
-        if (!(f - d).expand().is_zero()) {
-            clog << "normal(" << e << ") returns " << f
-                 << " instead of " << d << endl;
-            ++result;
-        }
-    } catch (const exception &err) {
-        clog << "normal(" << e << ") throws " << err.what() << endl;
-        ++result;
-    }
+	
+	try {
+		ex f = e.normal();	
+		if (!(f - d).expand().is_zero()) {
+			clog << "normal(" << e << ") returns " << f
+				 << " instead of " << d << endl;
+			++result;
+		}
+	} catch (const exception &err) {
+		clog << "normal(" << e << ") throws " << err.what() << endl;
+		++result;
+	}
 	return result;
 }
 
 unsigned exam_paranoia(void)
 {
-    unsigned result = 0;
-    
-    cout << "examining several historic failures just out of paranoia" << flush;
-    clog << "----------several historic failures:" << endl;
-    
-    result += exam_paranoia1();  cout << '.' << flush;
-    result += exam_paranoia2();  cout << '.' << flush;
-    result += exam_paranoia3();  cout << '.' << flush;
-    result += exam_paranoia4();  cout << '.' << flush;
-    result += exam_paranoia5();  cout << '.' << flush;
-    result += exam_paranoia6();  cout << '.' << flush;
-    result += exam_paranoia7();  cout << '.' << flush;
-    result += exam_paranoia8();  cout << '.' << flush;
-    result += exam_paranoia9();  cout << '.' << flush;
-    result += exam_paranoia10();  cout << '.' << flush;
-    result += exam_paranoia11();  cout << '.' << flush;
-    result += exam_paranoia12();  cout << '.' << flush;
-    result += exam_paranoia13();  cout << '.' << flush;
-    
-    if (!result) {
-        cout << " passed " << endl;
-        clog << "(no output)" << endl;
-    } else {
-        cout << " failed " << endl;
-    }
-    
-    return result;
+	unsigned result = 0;
+	
+	cout << "examining several historic failures just out of paranoia" << flush;
+	clog << "----------several historic failures:" << endl;
+	
+	result += exam_paranoia1();  cout << '.' << flush;
+	result += exam_paranoia2();  cout << '.' << flush;
+	result += exam_paranoia3();  cout << '.' << flush;
+	result += exam_paranoia4();  cout << '.' << flush;
+	result += exam_paranoia5();  cout << '.' << flush;
+	result += exam_paranoia6();  cout << '.' << flush;
+	result += exam_paranoia7();  cout << '.' << flush;
+	result += exam_paranoia8();  cout << '.' << flush;
+	result += exam_paranoia9();  cout << '.' << flush;
+	result += exam_paranoia10();  cout << '.' << flush;
+	result += exam_paranoia11();  cout << '.' << flush;
+	result += exam_paranoia12();  cout << '.' << flush;
+	result += exam_paranoia13();  cout << '.' << flush;
+	
+	if (!result) {
+		cout << " passed " << endl;
+		clog << "(no output)" << endl;
+	} else {
+		cout << " failed " << endl;
+	}
+	
+	return result;
 }

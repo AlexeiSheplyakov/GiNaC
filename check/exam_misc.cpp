@@ -1,6 +1,7 @@
 /** @file exam_misc.cpp
  *
  */
+
 /*
  *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
  *
@@ -25,27 +26,27 @@
 #define VECSIZE 30
 static unsigned exam_expand_subs(void)
 {
-    unsigned result = 0;
-    symbol a1("a1");
-    symbol a[VECSIZE];
-    ex e, aux;
-    
-    a[1] = a1;
-    for (unsigned i=0; i<VECSIZE; ++i) {
-        e = e + a[i];
-    }
-    
-    // prepare aux so it will swallow anything but a1^2:
-    aux = -e + a[0] + a[1];
-    e = expand(subs(expand(pow(e, 2)), a[0] == aux));
-    
-    if (e != pow(a1,2)) {
-        clog << "Denny Fliegner's quick consistency check erroneously returned "
-             << e << "." << endl;
-        ++result;
-    }
-    
-    return result;
+	unsigned result = 0;
+	symbol a1("a1");
+	symbol a[VECSIZE];
+	ex e, aux;
+	
+	a[1] = a1;
+	for (unsigned i=0; i<VECSIZE; ++i) {
+		e = e + a[i];
+	}
+	
+	// prepare aux so it will swallow anything but a1^2:
+	aux = -e + a[0] + a[1];
+	e = expand(subs(expand(pow(e, 2)), a[0] == aux));
+	
+	if (e != pow(a1,2)) {
+		clog << "Denny Fliegner's quick consistency check erroneously returned "
+			 << e << "." << endl;
+		++result;
+	}
+	
+	return result;
 }
 
 /*  A simple modification of Denny Fliegner's three step consistency test:
@@ -55,38 +56,38 @@ static unsigned exam_expand_subs(void)
  *  after which e should return 0 (without expanding). */
 static unsigned exam_expand_subs2(void)
 {
-    unsigned result = 0;
-    symbol a("a"), b("b");
-    ex e, f;
-    
-    e = pow(a+b,200).expand();
-    f = e.subs(a == -b);
-
-    if (f != 0) {
-        clog << "e = pow(a+b,200).expand(); f = e.subs(a == -b); erroneously returned "
-             << f << " instead of simplifying to 0." << endl;
-        ++result;
-    }
-    
-    return result;
+	unsigned result = 0;
+	symbol a("a"), b("b");
+	ex e, f;
+	
+	e = pow(a+b,200).expand();
+	f = e.subs(a == -b);
+	
+	if (f != 0) {
+		clog << "e = pow(a+b,200).expand(); f = e.subs(a == -b); erroneously returned "
+			 << f << " instead of simplifying to 0." << endl;
+		++result;
+	}
+	
+	return result;
 }
 
 unsigned exam_misc(void)
 {
-    unsigned result = 0;
-    
-    cout << "examining miscellaneous other things" << flush;
-    clog << "----------miscellaneous other things:" << endl;
-    
-    result += exam_expand_subs();  cout << '.' << flush;
-    result += exam_expand_subs2();  cout << '.' << flush;
-    
-    if (!result) {
-        cout << " passed " << endl;
-        clog << "(no output)" << endl;
-    } else {
-        cout << " failed " << endl;
-    }
-    
-    return result;
+	unsigned result = 0;
+	
+	cout << "examining miscellaneous other things" << flush;
+	clog << "----------miscellaneous other things:" << endl;
+	
+	result += exam_expand_subs();  cout << '.' << flush;
+	result += exam_expand_subs2();  cout << '.' << flush;
+	
+	if (!result) {
+		cout << " passed " << endl;
+		clog << "(no output)" << endl;
+	} else {
+		cout << " failed " << endl;
+	}
+	
+	return result;
 }

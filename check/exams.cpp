@@ -27,102 +27,102 @@
 
 int main()
 {
-    unsigned result = 0;
-    
-    try {
-        result += exam_paranoia();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += exam_numeric();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += exam_powerlaws();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += exam_inifcns();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += exam_differentiation();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += exam_polygcd();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += exam_normalization();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += exam_pseries();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += exam_matrices();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += exam_lsolve();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += exam_noncommut();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    try {
-        result += exam_misc();
-    } catch (const exception &e) {
-        cout << "Error: caught exception " << e.what() << endl;
-        ++result;
-    }
-    
-    if (result) {
-        cout << "Error: something went wrong. ";
-        if (result == 1) {
-            cout << "(one failure)" << endl;
-        } else {
-            cout << "(" << result << " individual failures)" << endl;
-        }
-        cout << "please check exams.out against exams.ref for more details."
-             << endl << "happy debugging!" << endl;
-    }
-    
-    return result;
+	unsigned result = 0;
+	
+	try {
+		result += exam_paranoia();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += exam_numeric();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += exam_powerlaws();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += exam_inifcns();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += exam_differentiation();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += exam_polygcd();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += exam_normalization();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += exam_pseries();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += exam_matrices();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += exam_lsolve();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += exam_noncommut();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += exam_misc();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	if (result) {
+		cout << "Error: something went wrong. ";
+		if (result == 1) {
+			cout << "(one failure)" << endl;
+		} else {
+			cout << "(" << result << " individual failures)" << endl;
+		}
+		cout << "please check exams.out against exams.ref for more details."
+			 << endl << "happy debugging!" << endl;
+	}
+	
+	return result;
 }

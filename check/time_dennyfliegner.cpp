@@ -26,73 +26,71 @@
 
 #include "times.h"
 
-#define VECSIZE 200
-
 static unsigned expand_subs(unsigned size)
 {
-    unsigned result = 0;
-    // create a vector of size symbols named "a0", "a1", ...
-    vector<symbol> a;
-    for (unsigned i=0; i<size; ++i) {
-        char buf[4];
-        ostrstream(buf,sizeof(buf)) << i << ends;
-        a.push_back(symbol(string("a")+buf));
-    }
-    ex e, aux;
-    
-    for (unsigned i=0; i<size; ++i)
-        e = e + a[i];
-    
-    // prepare aux so it will swallow anything but a1^2:
-    aux = -e + a[0] + a[1];
-    e = pow(e,2).expand().subs(a[0]==aux).expand();
-    
-    if (e != pow(a[1],2)) {
-        clog << "Denny Fliegner's quick consistency check erroneously returned "
-             << e << "." << endl;
-        ++result;
-    }
-    
-    return result;
+	unsigned result = 0;
+	// create a vector of size symbols named "a0", "a1", ...
+	vector<symbol> a;
+	for (unsigned i=0; i<size; ++i) {
+		char buf[4];
+		ostrstream(buf,sizeof(buf)) << i << ends;
+		a.push_back(symbol(string("a")+buf));
+	}
+	ex e, aux;
+	
+	for (unsigned i=0; i<size; ++i)
+		e = e + a[i];
+	
+	// prepare aux so it will swallow anything but a1^2:
+	aux = -e + a[0] + a[1];
+	e = pow(e,2).expand().subs(a[0]==aux).expand();
+	
+	if (e != pow(a[1],2)) {
+		clog << "Denny Fliegner's quick consistency check erroneously returned "
+			 << e << "." << endl;
+		++result;
+	}
+	
+	return result;
 }
 
 unsigned time_dennyfliegner(void)
 {
-    unsigned result = 0;
-    
-    cout << "timing commutative expansion and substitution" << flush;
-    clog << "-------commutative expansion and substitution:" << endl;
-    
-    vector<unsigned> sizes;
-    vector<double> times;
-    timer breitling;
-    
-    sizes.push_back(25);
-    sizes.push_back(50);
-    sizes.push_back(100);
-    sizes.push_back(200);
-    
-    for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i) {
-        breitling.start();
-        result += expand_subs(*i);
-        times.push_back(breitling.read());
-        cout << '.' << flush;
-    }
-    
-    if (!result) {
-        cout << " passed ";
-        clog << "(no output)" << endl;
-    } else {
-        cout << " failed ";
-    }
-    // print the report:
-    cout << endl << "    size:  ";
-    for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i)
-        cout << '\t' << (*i);
-    cout << endl << "    time/s:";
-    for (vector<double>::iterator i=times.begin(); i!=times.end(); ++i)
-        cout << '\t' << int(1000*(*i))*0.001;
-    cout << endl;
-    
-    return result;
+	unsigned result = 0;
+	
+	cout << "timing commutative expansion and substitution" << flush;
+	clog << "-------commutative expansion and substitution:" << endl;
+	
+	vector<unsigned> sizes;
+	vector<double> times;
+	timer breitling;
+	
+	sizes.push_back(25);
+	sizes.push_back(50);
+	sizes.push_back(100);
+	sizes.push_back(200);
+	
+	for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i) {
+		breitling.start();
+		result += expand_subs(*i);
+		times.push_back(breitling.read());
+		cout << '.' << flush;
+	}
+	
+	if (!result) {
+		cout << " passed ";
+		clog << "(no output)" << endl;
+	} else {
+		cout << " failed ";
+	}
+	// print the report:
+	cout << endl << "	size:  ";
+	for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i)
+		cout << '\t' << (*i);
+	cout << endl << "	time/s:";
+	for (vector<double>::iterator i=times.begin(); i!=times.end(); ++i)
+		cout << '\t' << int(1000*(*i))*0.001;
+	cout << endl;
+	
+	return result;
 }

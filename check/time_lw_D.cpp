@@ -25,45 +25,45 @@
 
 static unsigned test(void)
 {
-    ex s;
-    symbol y("y");
-    symbol t("t");
-    
-    for (int i=1; i<=10; ++i)
-        s += i*y*pow(t,i)/pow(y + i*t,i);
-    
-    if (s.nops()!=10) {
-        clog << "something very strange happened" << endl;
-        return 1;
-    }
-    return 0;
+	ex s;
+	symbol y("y");
+	symbol t("t");
+	
+	for (int i=1; i<=10; ++i)
+		s += i*y*pow(t,i)/pow(y + i*t,i);
+	
+	if (s.nops()!=10) {
+		clog << "something very strange happened" << endl;
+		return 1;
+	}
+	return 0;
 }
 
 unsigned time_lw_D(void)
 {
-    unsigned result = 0;
-    unsigned count = 0;
-    timer rolex;
-    double time = .0;
-    
-    cout << "timing Lewis-Wester test D (sum of rational fcns)" << flush;
-    clog << "-------Lewis-Wester test D (sum of rational fcns)" << endl;
-    
-    rolex.start();
-    // correct for very small times:
-    do {
-        result = test();
-        ++count;
-    } while ((time=rolex.read())<0.1 && !result);
-    cout << '.' << flush;
-    
-    if (!result) {
-        cout << " passed ";
-        clog << "(no output)" << endl;
-    } else {
-        cout << " failed ";
-    }
-    cout << int(100000*(time/count))*0.00001 << 's' << endl;
-    
-    return result;
+	unsigned result = 0;
+	unsigned count = 0;
+	timer rolex;
+	double time = .0;
+	
+	cout << "timing Lewis-Wester test D (sum of rational fcns)" << flush;
+	clog << "-------Lewis-Wester test D (sum of rational fcns)" << endl;
+	
+	rolex.start();
+	// correct for very small times:
+	do {
+		result = test();
+		++count;
+	} while ((time=rolex.read())<0.1 && !result);
+	cout << '.' << flush;
+	
+	if (!result) {
+		cout << " passed ";
+		clog << "(no output)" << endl;
+	} else {
+		cout << " failed ";
+	}
+	cout << int(100000*(time/count))*0.00001 << 's' << endl;
+	
+	return result;
 }
