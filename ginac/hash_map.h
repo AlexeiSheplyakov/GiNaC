@@ -254,13 +254,6 @@ protected:
 		return num_buckets - (num_buckets >> 2);
 	}
 
-	/** Empty all buckets in the table. */
-	void empty_all_buckets()
-	{
-		for (table_iterator i = hashtab.begin(); i != hashtab.end(); ++i)
-			i->first = EMPTY;
-	}
-
 	void grow();
 
 public:
