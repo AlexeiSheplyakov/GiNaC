@@ -25,16 +25,11 @@
 
 #include <sys/resource.h>
 #include <stdlib.h>
-#include "config.h"
-#if defined(HAVE_SSTREAM)
-#  include <sstream>
-#else
-#  include <strstream>
-#endif
+#include <sstream>
 #include <vector>
-using namespace std;
-
+#include "config.h"
 #include "ginac.h"
+using namespace std;
 using namespace GiNaC;
 
 class timer {

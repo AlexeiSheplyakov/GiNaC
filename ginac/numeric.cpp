@@ -29,20 +29,14 @@
 #include <vector>
 #include <stdexcept>
 #include <string>
-
-#if defined(HAVE_SSTREAM)
 #include <sstream>
-#elif defined(HAVE_STRSTREAM)
-#include <strstream>
-#else
-#error Need either sstream or strstream
-#endif
 
 #include "numeric.h"
 #include "ex.h"
 #include "print.h"
 #include "archive.h"
 #include "debugmsg.h"
+#include "tostring.h"
 #include "utils.h"
 
 // CLN should pollute the global namespace as little as possible.  Hence, we
@@ -219,15 +213,7 @@ numeric::numeric(const char *s) : basic(TINFO_numeric)
 			// E to lower case
 			term = term.replace(term.find("E"),1,"e");
 			// append _<Digits> to term
-#if defined(HAVE_SSTREAM)
-			std::ostringstream buf;
-			buf << unsigned(Digits) << std::ends;
-			term += "_" + buf.str();
-#else
-			char buf[14];
-			std::ostrstream(buf,sizeof(buf)) << unsigned(Digits) << std::ends;
-			term += "_" + std::string(buf);
-#endif
+			term += "_" + ToString((unsigned)Digits);
 			// construct float using cln::cl_F(const char *) ctor.
 			if (imaginary)
 				ctorval = ctorval + cln::complex(cln::cl_I(0),cln::cl_F(term.c_str()));
@@ -267,11 +253,7 @@ numeric::numeric(const archive_node &n, const lst &sym_lst) : inherited(n, sym_l
 	// Read number as string
 	std::string str;
 	if (n.find_string("number", str)) {
-#ifdef HAVE_SSTREAM
 		std::istringstream s(str);
-#else
-		std::istrstream s(str.c_str(), str.size() + 1);
-#endif
 		cln::cl_idecoded_float re, im;
 		char c;
 		s.get(c);
@@ -301,12 +283,7 @@ void numeric::archive(archive_node &n) const
 	inherited::archive(n);
 
 	// Write number as string
-#ifdef HAVE_SSTREAM
 	std::ostringstream s;
-#else
-	char buf[1024];
-	std::ostrstream s(buf, 1024);
-#endif
 	if (this->is_crational())
 		s << cln::the<cln::cl_N>(value);
 	else {
@@ -324,13 +301,7 @@ void numeric::archive(archive_node &n) const
 			s << im.sign << " " << im.mantissa << " " << im.exponent;
 		}
 	}
-#ifdef HAVE_SSTREAM
 	n.add_string("number", s.str());
-#else
-	s << ends;
-	std::string str(buf);
-	n.add_string("number", str);
-#endif
 }
 
 DEFAULT_UNARCHIVE(numeric)

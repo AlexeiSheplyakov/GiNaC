@@ -33,15 +33,9 @@ static unsigned expand_subs(unsigned size)
 	vector<symbol> a;
 	ex e;
 	for (unsigned i=0; i<size; ++i) {
-#if defined(HAVE_SSTREAM)
 		ostringstream buf;
 		buf << "a" << i << ends;
 		a.push_back(symbol(buf.str()));
-#else
-		char buf[5];  // 'a' + 3 decimal digits + '\n'
-		ostrstream(buf,sizeof(buf)) << "a" << i << ends;
-		a.push_back(symbol(buf));
-#endif
 		e += a[i];
 	}
 	ex aux;

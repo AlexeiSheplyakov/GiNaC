@@ -24,31 +24,16 @@
 #ifndef __GINAC_TOSTRING_H__
 #define __GINAC_TOSTRING_H__
 
-#include "config.h"
-
-#if defined(HAVE_SSTREAM)
 #include <sstream>
-#elif defined(HAVE_STRSTREAM)
-#include <strstream>
-#else
-#error Need either sstream or strstream
-#endif
 
 namespace GiNaC {
 
-// This should be obsoleted once <sstream> is widely deployed.
 template<class T>
 std::string ToString(const T & t)
 {
-#if defined(HAVE_SSTREAM)
 	std::ostringstream buf;
 	buf << t << std::ends;
 	return buf.str();
-#else
-	char buf[256];
-	std::ostrstream(buf,sizeof(buf)) << t << std::ends;
-	return buf;
-#endif
 }
 
 } // namespace GiNaC
