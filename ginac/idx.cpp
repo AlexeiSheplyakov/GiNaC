@@ -325,11 +325,17 @@ bool spinidx::match_same_type(const basic & other) const
 
 unsigned idx::calchash() const
 {
+	// NOTE: The code in simplify_indexed() assumes that canonically
+	// ordered sequences of indices have the two members of dummy index
+	// pairs lying next to each other. The hash values for indices must
+	// be devised accordingly. The easiest (only?) way to guarantee the
+	// desired ordering is to make indices with the same value have equal
+	// hash keys. That is, the hash values must not depend on the index
+	// dimensions or other attributes (variance etc.).
+	// The compare_same_type() methods will take care of the rest.
 	unsigned v = golden_ratio_hash(tinfo());
 	v = rotate_left(v);
 	v ^= value.gethash();
-	v = rotate_left(v);
-	v ^= dim.gethash();
 
 	// Store calculated hash value only if object is already evaluated
 	if (flags & status_flags::evaluated) {
