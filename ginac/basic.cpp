@@ -311,7 +311,7 @@ ex basic::collect(const ex & s, bool distributed) const
 				// Increment counters
 				int n = num - 1;
 				while (true) {
-					si[n].cnt++;
+					++si[n].cnt;
 					if (si[n].cnt <= si[n].deg) {
 						// Update coefficients
 						ex c;

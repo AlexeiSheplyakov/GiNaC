@@ -580,7 +580,7 @@ ex power::expand(unsigned options) const
 		epvector::const_iterator cit = a.seq.begin();
 		while (cit!=last) {
 			distrseq.push_back(power(expanded_basis, a.recombine_pair_to_ex(*cit)));
-			cit++;
+			++cit;
 		}
 		
 		// Make sure that e.g. (x+y)^(2+a) expands the (x+y)^2 factor
@@ -713,7 +713,7 @@ ex power::expand_add(const add & a, int n) const
 		l = m-2;
 		while ((l>=0)&&((++k[l])>upper_limit[l])) {
 			k[l] = 0;    
-			l--;
+			--l;
 		}
 		if (l<0) break;
 		

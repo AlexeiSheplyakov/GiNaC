@@ -34,25 +34,11 @@ sub generate {
 	return generate_from_to($template,$seq_template1,$seq_template2,1,$maxargs);
 }
 
-$declare_function_macro = <<'END_OF_DECLARE_FUNCTION_1_AND_2P_MACRO';
-#define DECLARE_FUNCTION_1P(NAME) \
-extern const unsigned function_index_##NAME; \
-inline GiNaC::function NAME(const GiNaC::ex & p1) { \
-	return GiNaC::function(function_index_##NAME, p1); \
-}
-#define DECLARE_FUNCTION_2P(NAME) \
-extern const unsigned function_index_##NAME; \
-inline GiNaC::function NAME(const GiNaC::ex & p1, const GiNaC::ex & p2) { \
-	return GiNaC::function(function_index_##NAME, p1, p2); \
-}
-
-END_OF_DECLARE_FUNCTION_1_AND_2P_MACRO
-
-$declare_function_macro .= generate_from_to(
-	<<'END_OF_DECLARE_FUNCTION_MACRO','const GiNaC::ex & p${N}','p${N}',3,$maxargs);
+$declare_function_macro = generate_from_to(
+	<<'END_OF_DECLARE_FUNCTION_MACRO','const GiNaC::ex & p${N}','p${N}',1,$maxargs);
 #define DECLARE_FUNCTION_${N}P(NAME) \\
 extern const unsigned function_index_##NAME; \\
-inline GiNaC::function NAME(${SEQ1}) { \\
+inline const GiNaC::function NAME(${SEQ1}) { \\
 	return GiNaC::function(function_index_##NAME, ${SEQ2}); \\
 }
 
@@ -199,7 +185,7 @@ $interface=<<END_OF_INTERFACE;
 #include <string>
 #include <vector>
 
-// CINT needs <algorithm> to work properly with <vector> 
+// CINT needs <algorithm> to work properly with <vector>
 #include <algorithm>
 
 #include "exprseq.h"
@@ -629,7 +615,7 @@ function::function(const archive_node &n, const lst &sym_lst) : inherited(n, sym
 				serial = ser;
 				return;
 			}
-			i++; ser++;
+			++i; ++ser;
 		}
 		throw (std::runtime_error("unknown function '" + s + "' in archive"));
 	} else
@@ -687,7 +673,7 @@ void function::print(const print_context & c, unsigned level) const
 		exvector::const_iterator it = seq.begin(), itend = seq.end();
 		while (it != itend) {
 			it->print(c);
-			it++;
+			++it;
 			if (it != itend)
 				c.s << ",";
 		}
@@ -788,11 +774,11 @@ ex function::evalf(int level) const
 		throw(std::runtime_error("max recursion level reached"));
 	else
 		eseq.reserve(seq.size());
-	level--;
+	--level;
 	exvector::const_iterator it = seq.begin(), itend = seq.end();
 	while (it != itend) {
-		eseq.push_back((*it).evalf(level));
-		it++;
+		eseq.push_back(it->evalf(level));
+		++it;
 	}
 	
 	if (registered_functions()[serial].evalf_f==0) {
@@ -990,7 +976,7 @@ unsigned function::register_new(function_options const & opt)
 	unsigned same_name = 0;
 	for (unsigned i=0; i<registered_functions().size(); ++i) {
 		if (registered_functions()[i].name==opt.name) {
-			same_name++;
+			++same_name;
 		}
 	}
 	if (same_name>=opt.functions_with_same_name) {
@@ -1021,8 +1007,8 @@ unsigned function::find_function(const std::string &name, unsigned nparams)
 	while (i != end) {
 		if (i->get_name() == name && i->get_nparams() == nparams)
 			return serial;
-		i++;
-		serial++;
+		++i;
+		++serial;
 	}
 	throw (std::runtime_error("no function '" + name + "' with " + ToString(nparams) + " parameters defined"));
 }

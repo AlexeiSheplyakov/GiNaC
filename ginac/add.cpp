@@ -151,7 +151,7 @@ void add::print(const print_context & c, unsigned level) const
 			}
 		
 			// Separator is "+", except if the following expression would have a leading minus sign
-			it++;
+			++it;
 			if (it != itend && !(it->coeff.compare(_num0()) < 0 || (it->coeff.compare(_num1()) == 0 && is_exactly_a<numeric>(it->rest) && it->rest.compare(_num0()) < 0)))
 				c.s << "+";
 		}
@@ -215,7 +215,7 @@ void add::print(const print_context & c, unsigned level) const
 					c.s << '*';
 			}
 			it->rest.print(c, precedence());
-			it++;
+			++it;
 		}
 
 		if (precedence() <= level) {

@@ -147,7 +147,7 @@ protected:
 	void remove_hashtab_entry(epvector::const_iterator element);
 	void move_hashtab_entry(epvector::const_iterator oldpos,
 	                        epvector::iterator newpos);
-	void sorted_insert(epplist & eppl, epp elem);
+	void sorted_insert(epplist & eppl, epvector::const_iterator elem);
 	void build_hashtab_and_combine(epvector::iterator & first_numeric,
 	                               epvector::iterator & last_non_zero,
 	                               vector<bool> & touched,

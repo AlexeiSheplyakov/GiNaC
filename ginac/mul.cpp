@@ -224,7 +224,7 @@ void mul::print(const print_context & c, unsigned level) const
 				first = false;
 			}
 			recombine_pair_to_ex(*it).print(c, precedence());
-			it++;
+			++it;
 		}
 
 		if (precedence() <= level) {
@@ -351,7 +351,7 @@ ex mul::eval(int level) const
 	while (i != end) {
 		GINAC_ASSERT((!is_ex_exactly_of_type(i->rest, mul)) ||
 		             (!(ex_to<numeric>(i->coeff).is_integer())));
-		GINAC_ASSERT(!(cit->is_canonical_numeric()));
+		GINAC_ASSERT(!(i->is_canonical_numeric()));
 		if (is_ex_exactly_of_type(recombine_pair_to_ex(*i), numeric))
 		    print(print_tree(std::cerr));
 		GINAC_ASSERT(!is_ex_exactly_of_type(recombine_pair_to_ex(*i), numeric));

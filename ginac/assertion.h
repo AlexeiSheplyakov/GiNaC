@@ -23,10 +23,9 @@
 #ifndef __GINAC_ASSERTION_H__
 #define __GINAC_ASSERTION_H__
 
-#include <cassert>
-
 #if !defined(GINAC_ASSERT)
 #if defined(DO_GINAC_ASSERT)
+#include <cassert>
 /** Assertion macro for checking invariances. */
 #define GINAC_ASSERT(X) assert(X)
 #else

@@ -234,7 +234,7 @@ void expairseq::print(const print_context & c, unsigned level) const
 					c.s << *it-seq.begin() << " ";
 					++this_bin_fill;
 				}
-				os << std::endl;
+				c.s << std::endl;
 				cum_fill += this_bin_fill;
 				cum_fill_sq += this_bin_fill*this_bin_fill;
 			}
@@ -308,7 +308,7 @@ ex expairseq::map(map_function & f) const
 	epvector::const_iterator cit = seq.begin(), last = seq.end();
 	while (cit != last) {
 		v->push_back(split_ex_to_pair(f(recombine_pair_to_ex(*cit))));
-		cit++;
+		++cit;
 	}
 
 	return thisexpairseq(v, f(overall_coeff));
@@ -890,16 +890,15 @@ void expairseq::construct_from_expairseq_ex(const expairseq &s,
 	
 	// merge p into s.seq
 	while (first!=last) {
-		int cmpval=(*first).rest.compare(p.rest);
+		int cmpval = (*first).rest.compare(p.rest);
 		if (cmpval==0) {
 			// combine terms
-			const numeric &newcoeff = ex_to<numeric>((*first).coeff).
+			const numeric &newcoeff = ex_to<numeric>(first->coeff).
 			                           add(ex_to<numeric>(p.coeff));
 			if (!newcoeff.is_zero()) {
-				seq.push_back(expair((*first).rest,newcoeff));
-				if (expair_needs_further_processing(seq.end()-1)) {
+				seq.push_back(expair(first->rest,newcoeff));
+				if (expair_needs_further_processing(seq.end()-1))
 					needs_further_processing = true;
-				}
 			}
 			++first;
 			p_pushed = true;
@@ -1023,7 +1022,7 @@ void expairseq::make_flat(const epvector &v)
 	while (cit!=v.end()) {
 		if (cit->rest.bp->tinfo()==this->tinfo()) {
 			++nexpairseqs;
-			noperands += ex_to<expairseq>((*cit).rest).seq.size();
+			noperands += ex_to<expairseq>(cit->rest).seq.size();
 		}
 		++cit;
 	}
@@ -1036,13 +1035,13 @@ void expairseq::make_flat(const epvector &v)
 	while (cit!=v.end()) {
 		if (cit->rest.bp->tinfo()==this->tinfo() &&
 		    this->can_make_flat(*cit)) {
-			const expairseq &subseqref = ex_to<expairseq>((*cit).rest);
+			const expairseq &subseqref = ex_to<expairseq>(cit->rest);
 			combine_overall_coeff(ex_to<numeric>(subseqref.overall_coeff),
-			                                    ex_to<numeric>((*cit).coeff));
+			                                    ex_to<numeric>(cit->coeff));
 			epvector::const_iterator cit_s = subseqref.seq.begin();
 			while (cit_s!=subseqref.seq.end()) {
-				seq.push_back(expair((*cit_s).rest,
-				                     ex_to<numeric>((*cit_s).coeff).mul_dyn(ex_to<numeric>((*cit).coeff))));
+				seq.push_back(expair(cit_s->rest,
+				                     ex_to<numeric>(cit_s->coeff).mul_dyn(ex_to<numeric>(cit->coeff))));
 				//seq.push_back(combine_pair_with_coeff_to_pair(*cit_s,
 				//                                              (*cit).coeff));
 				++cit_s;
@@ -1080,14 +1079,14 @@ void expairseq::combine_same_terms_sorted_seq(void)
 		// possible from then on the sequence has changed and must be compacted
 		bool must_copy = false;
 		while (itin2!=last) {
-			if ((*itin1).rest.compare((*itin2).rest)==0) {
-				(*itin1).coeff = ex_to<numeric>((*itin1).coeff).
-				                 add_dyn(ex_to<numeric>((*itin2).coeff));
+			if ((*itin1).rest.compare(itin2->rest)==0) {
+				(*itin1).coeff = ex_to<numeric>(itin1->coeff).
+				                 add_dyn(ex_to<numeric>(itin2->coeff));
 				if (expair_needs_further_processing(itin1))
 					needs_further_processing = true;
 				must_copy = true;
 			} else {
-				if (!ex_to<numeric>((*itin1).coeff).is_zero()) {
+				if (!ex_to<numeric>(itin1->coeff).is_zero()) {
 					if (must_copy)
 						*itout = *itin1;
 					++itout;
@@ -1096,7 +1095,7 @@ void expairseq::combine_same_terms_sorted_seq(void)
 			}
 			++itin2;
 		}
-		if (!ex_to<numeric>((*itin1).coeff).is_zero()) {
+		if (!ex_to<numeric>(itin1->coeff).is_zero()) {
 			if (must_copy)
 				*itout = *itin1;
 			++itout;
@@ -1192,14 +1191,13 @@ void expairseq::remove_hashtab_entry(epvector::const_iterator element)
 		++epplit;
 	}
 	if (!erased) {
-		printtree(cout,0);
-		cout << "tried to erase " << element-seq.begin() << std::endl;
-		cout << "size " << seq.end()-seq.begin() << std::endl;
+		std::cout << "tried to erase " << element-seq.begin() << std::endl;
+		std::cout << "size " << seq.end()-seq.begin() << std::endl;
 
-		unsigned hashindex = calc_hashindex((*element).rest);
+		unsigned hashindex = calc_hashindex(element->rest);
 		epplist &eppl = hashtab[hashindex];
-		epplist::iterator epplit=eppl.begin();
-		bool erased=false;
+		epplist::iterator epplit = eppl.begin();
+		bool erased = false;
 		while (epplit!=eppl.end()) {
 			if (*epplit == element) {
 				eppl.erase(epplit);
@@ -1234,10 +1232,10 @@ void expairseq::move_hashtab_entry(epvector::const_iterator oldpos,
 	GINAC_ASSERT(epplit!=eppl.end());
 }
 
-void expairseq::sorted_insert(epplist &eppl, epp elem)
+void expairseq::sorted_insert(epplist &eppl, epvector::const_iterator elem)
 {
 	epplist::const_iterator current = eppl.begin();
-	while ((current!=eppl.end())&&((*(*current)).is_less(*elem))) {
+	while ((current!=eppl.end()) && ((*current)->is_less(*elem))) {
 		++current;
 	}
 	eppl.insert(current,elem);
@@ -1248,21 +1246,21 @@ void expairseq::build_hashtab_and_combine(epvector::iterator &first_numeric,
                                           std::vector<bool> &touched,
                                           unsigned &number_of_zeroes)
 {
-	epp current=seq.begin();
+	epp current = seq.begin();
 
 	while (current!=first_numeric) {
-		if (is_ex_exactly_of_type((*current).rest,numeric)) {
+		if (is_ex_exactly_of_type(current->rest,numeric)) {
 			--first_numeric;
 			iter_swap(current,first_numeric);
 		} else {
 			// calculate hashindex
-			unsigned currenthashindex = calc_hashindex((*current).rest);
+			unsigned currenthashindex = calc_hashindex(current->rest);
 
 			// test if there is already a matching expair in the hashtab-list
 			epplist &eppl=hashtab[currenthashindex];
 			epplist::iterator epplit = eppl.begin();
 			while (epplit!=eppl.end()) {
-				if ((*current).rest.is_equal((*(*epplit)).rest))
+				if (current->rest.is_equal((*epplit)->rest))
 					break;
 				++epplit;
 			}
@@ -1272,8 +1270,8 @@ void expairseq::build_hashtab_and_combine(epvector::iterator &first_numeric,
 				++current;
 			} else {
 				// epplit points to a matching expair, combine it with current
-				(*(*epplit)).coeff = ex_to<numeric>((*(*epplit)).coeff).
-				                     add_dyn(ex_to<numeric>((*current).coeff));
+				(*epplit)->coeff = ex_to<numeric>((*epplit)->coeff).
+				                   add_dyn(ex_to<numeric>(current->coeff));
 				
 				// move obsolete current expair to end by swapping with last_non_zero element
 				// if this was a numeric, it is swapped with the expair before first_numeric 
@@ -1283,7 +1281,7 @@ void expairseq::build_hashtab_and_combine(epvector::iterator &first_numeric,
 				--last_non_zero;
 				++number_of_zeroes;
 				// test if combined term has coeff 0 and can be removed is done later
-				touched[(*epplit)-seq.begin()]=true;
+				touched[(*epplit)-seq.begin()] = true;
 			}
 		}
 	}
@@ -1312,8 +1310,9 @@ void expairseq::drop_coeff_0_terms(epvector::iterator &first_numeric,
 			if (current!=last_non_zero) {
 				iter_swap(current,last_non_zero);
 				--first_numeric;
-				bool numeric_swapped=first_numeric!=last_non_zero;
-				if (numeric_swapped) iter_swap(first_numeric,current);
+				bool numeric_swapped = first_numeric!=last_non_zero;
+				if (numeric_swapped)
+					iter_swap(first_numeric,current);
 				epvector::iterator changed_entry;
 
 				if (numeric_swapped)
@@ -1437,22 +1436,22 @@ bool expairseq::is_canonical() const
 	epvector::const_iterator it = seq.begin(), itend = seq.end();
 	epvector::const_iterator it_last = it;
 	for (++it; it!=itend; it_last=it, ++it) {
-		if (!((*it_last).is_less(*it) || (*it_last).is_equal(*it))) {
-			if (!is_ex_exactly_of_type((*it_last).rest,numeric) ||
-				!is_ex_exactly_of_type((*it).rest,numeric)) {
+		if (!(it_last->is_less(*it) || it_last->is_equal(*it))) {
+			if (!is_ex_exactly_of_type(it_last->rest,numeric) ||
+				!is_ex_exactly_of_type(it->rest,numeric)) {
 				// double test makes it easier to set a breakpoint...
-				if (!is_ex_exactly_of_type((*it_last).rest,numeric) ||
-					!is_ex_exactly_of_type((*it).rest,numeric)) {
+				if (!is_ex_exactly_of_type(it_last->rest,numeric) ||
+					!is_ex_exactly_of_type(it->rest,numeric)) {
 					printpair(std::clog, *it_last, 0);
 					std::clog << ">";
 					printpair(std::clog, *it, 0);
 					std::clog << "\n";
 					std::clog << "pair1:" << std::endl;
-					(*it_last).rest.print(print_tree(std::clog));
-					(*it_last).coeff.print(print_tree(std::clog));
+					it_last->rest.print(print_tree(std::clog));
+					it_last->coeff.print(print_tree(std::clog));
 					std::clog << "pair2:" << std::endl;
-					(*it).rest.print(print_tree(std::clog));
-					(*it).coeff.print(print_tree(std::clog));
+					it->rest.print(print_tree(std::clog));
+					it->coeff.print(print_tree(std::clog));
 					return 0;
 				}
 			}
@@ -1472,8 +1471,8 @@ epvector * expairseq::expandchildren(unsigned options) const
 	epvector::const_iterator last = seq.end();
 	epvector::const_iterator cit = seq.begin();
 	while (cit!=last) {
-		const ex &expanded_ex = (*cit).rest.expand(options);
-		if (!are_ex_trivially_equal((*cit).rest,expanded_ex)) {
+		const ex &expanded_ex = cit->rest.expand(options);
+		if (!are_ex_trivially_equal(cit->rest,expanded_ex)) {
 			
 			// something changed, copy seq, eval and return it
 			epvector *s = new epvector;
@@ -1487,12 +1486,12 @@ epvector * expairseq::expandchildren(unsigned options) const
 			}
 			// copy first changed element
 			s->push_back(combine_ex_with_coeff_to_pair(expanded_ex,
-			                                           (*cit2).coeff));
+			                                           cit2->coeff));
 			++cit2;
 			// copy rest
 			while (cit2!=last) {
-				s->push_back(combine_ex_with_coeff_to_pair((*cit2).rest.expand(options),
-				                                           (*cit2).coeff));
+				s->push_back(combine_ex_with_coeff_to_pair(cit2->rest.expand(options),
+				                                           cit2->coeff));
 				++cit2;
 			}
 			return s;
@@ -1522,11 +1521,11 @@ epvector * expairseq::evalchildren(int level) const
 		throw(std::runtime_error("max recursion level reached"));
 	
 	--level;
-	epvector::const_iterator last=seq.end();
-	epvector::const_iterator cit=seq.begin();
+	epvector::const_iterator last = seq.end();
+	epvector::const_iterator cit = seq.begin();
 	while (cit!=last) {
-		const ex &evaled_ex = (*cit).rest.eval(level);
-		if (!are_ex_trivially_equal((*cit).rest,evaled_ex)) {
+		const ex &evaled_ex = cit->rest.eval(level);
+		if (!are_ex_trivially_equal(cit->rest,evaled_ex)) {
 			
 			// something changed, copy seq, eval and return it
 			epvector *s = new epvector;
@@ -1540,12 +1539,12 @@ epvector * expairseq::evalchildren(int level) const
 			}
 			// copy first changed element
 			s->push_back(combine_ex_with_coeff_to_pair(evaled_ex,
-			                                           (*cit2).coeff));
+			                                           cit2->coeff));
 			++cit2;
 			// copy rest
 			while (cit2!=last) {
-				s->push_back(combine_ex_with_coeff_to_pair((*cit2).rest.eval(level),
-				                                           (*cit2).coeff));
+				s->push_back(combine_ex_with_coeff_to_pair(cit2->rest.eval(level),
+				                                           cit2->coeff));
 				++cit2;
 			}
 			return s;
@@ -1570,7 +1569,7 @@ epvector * expairseq::subschildren(const lst &ls, const lst &lr, bool no_pattern
 	// is a product or power. In this case we have to recombine the pairs
 	// because the numeric coefficients may be part of the search pattern.
 	bool complex_subs = false;
-	for (unsigned i=0; i<ls.nops(); i++)
+	for (unsigned i=0; i<ls.nops(); ++i)
 		if (is_ex_exactly_of_type(ls.op(i), mul) || is_ex_exactly_of_type(ls.op(i), power)) {
 			complex_subs = true;
 			break;
