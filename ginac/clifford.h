@@ -275,7 +275,8 @@ inline ex clifford_bar(const ex & e) { return clifford_prime(e.conjugate()); }
 /** Reversion of the Clifford algebra, coincides with the conjugate(). */
 inline ex clifford_star(const ex & e) { return e.conjugate(); }
 
-ex delete_ONE(const ex &e);
+/** Replaces all dirac_ONE's in e with 1 (effectively removing them). */
+ex remove_dirac_ONE(const ex & e);
 
 /** Calculation of the norm in the Clifford algebra. */
 ex clifford_norm(const ex & e);
@@ -292,6 +293,30 @@ ex clifford_inverse(const ex & e);
  *  @return Clifford vector with given components */
 ex lst_to_clifford(const ex & v, const ex & mu,  const ex & metr, unsigned char rl = 0);
 
+/** An inverse function to lst_to_clifford(). For given Clifford vector extracts
+ *  its components with respect to given Clifford unit. Obtained components may 
+ *  contain Clifford units with a different metric. Extraction is based on 
+ *  the algebraic formula (e * c.i + c.i * e)/ pow(e.i, 2) for non-degenerate cases
+ *  (i.e. neither pow(e.i, 2) = 0).
+ *  
+ *  @param e Clifford expression to be decomposed into components
+ *  @param c Clifford unit defining the metric for splitting (should have numeric dimension of indices)
+ *  @param algebraic Use algebraic or symbolic algorithm for extractions */
+lst clifford_to_lst(const ex & e, const ex & c, bool algebraic=true);
+
+/** Calculations of Moebius transformations (conformal map) defined by a 2x2 Clifford matrix
+ *  (a b\\c d) in linear spaces with arbitrary signature. The expression is 
+ *  (a * x + b)/(c * x + d), where x is a vector build from list v with metric G.
+ *  (see Jan Cnops. An introduction to {D}irac operators on manifolds, v.24 of
+ *  Progress in Mathematical Physics. Birkhauser Boston Inc., Boston, MA, 2002.)
+ * 
+ *  @param a (1,1) entry of the defining matrix
+ *  @param b (1,2) entry of the defining matrix
+ *  @param c (2,1) entry of the defining matrix
+ *  @param d (2,2) entry of the defining matrix
+ *  @param v Vector to be transformed
+ *  @param G Metric of the surrounding space */
+ex clifford_moebius_map(const ex & a, const ex & b, const ex & c, const ex & d, const ex & v, const ex & G);
 } // namespace GiNaC
 
 #endif // ndef __GINAC_CLIFFORD_H__
