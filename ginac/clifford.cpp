@@ -305,12 +305,6 @@ ex clifford::simplify_ncmul(const exvector & v) const
 		}
 	}
 
-	// Remove squares of gamma5
-	while (s.size() >= 2 && is_a<clifford>(s[0]) && is_a<clifford>(s[1]) && is_a<diracgamma5>(s[0].op(0)) && is_a<diracgamma5>(s[1].op(0))) {
-		s.erase(s.begin(), s.begin() + 2);
-		something_changed = true;
-	}
-
 	// Remove equal adjacent gammas
 	if (s.size() >= 2) {
 		exvector::iterator it, itend = s.end() - 1;
@@ -319,7 +313,9 @@ ex clifford::simplify_ncmul(const exvector & v) const
 			ex & b = it[1];
 			if (!is_a<clifford>(a) || !is_a<clifford>(b))
 				continue;
-			if (is_a<diracgamma>(a.op(0)) && is_a<diracgamma>(b.op(0))) {
+			bool a_is_diracgamma = is_a<diracgamma>(a.op(0));
+			bool b_is_diracgamma = is_a<diracgamma>(b.op(0));
+			if (a_is_diracgamma && b_is_diracgamma) {
 				const ex & ia = a.op(1);
 				const ex & ib = b.op(1);
 				if (ia.is_equal(ib)) { // gamma~alpha gamma~alpha -> g~alpha~alpha
@@ -327,7 +323,12 @@ ex clifford::simplify_ncmul(const exvector & v) const
 					b = dirac_ONE(representation_label);
 					something_changed = true;
 				}
-			} else if (!is_a<diracgamma>(a.op(0)) && !is_a<diracgamma>(b.op(0))) {
+			} else if (is_a<diracgamma5>(a.op(0)) && is_a<diracgamma5>(b.op(0))) {
+				// Remove squares of gamma5
+				a = dirac_ONE(representation_label);
+				b = dirac_ONE(representation_label);
+				something_changed = true;
+			} else if (!a_is_diracgamma && !b_is_diracgamma) {
 				const ex & ba = a.op(0);
 				const ex & bb = b.op(0);
 				if (ba.is_equal(bb)) { // a\ a\ -> a^2
