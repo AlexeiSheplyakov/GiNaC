@@ -35,27 +35,17 @@ ginacdocdir = $(datadir)/doc/GiNaC
 ginactutorialdir = $(ginacdocdir)/tutorial
 ginactutorial_DATA = @TUTORIAL_TARGETS@
 
-CLEANFILES = $(EPS) $(PNG) *.html
+CLEANFILES = $(EPS) $(PNG) ginac.html
 EXTRA_DIST = $(FIG)
 
-#CLEANFILES = *.html *.png *.ps *.tex *.log *.aux *.dvi *.eps tutorial.sgml HTML.manifest
+install-data-local:
+	@for p in $(PNG); do \
+	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p"; \
+	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p; \
+	done
 
-#install-data-local:
-#	@for p in *.html; do \
-#	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p"; \
-#	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p; \
-#	done
-#	@for p in *.png; do \
-#	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p"; \
-#	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p; \
-#	done
-
-#uninstall-local:
-#	@for p in *.html; do \
-#	  echo " rm -f $(DESTDIR)$(ginactutorialdir)/$$p"; \
-#	  rm -f $(DESTDIR)$(ginactutorialdir)/$$p; \
-#	done
-#	@for p in *.png; do \
-#	  echo " rm -f $(DESTDIR)$(ginactutorialdir)/$$p"; \
-#	  rm -f $(DESTDIR)$(ginactutorialdir)/$$p; \
-#	done
+uninstall-local:
+	@for p in $(PNG); do \
+	  echo " rm -f $(DESTDIR)$(ginactutorialdir)/$$p"; \
+	  rm -f $(DESTDIR)$(ginactutorialdir)/$$p; \
+	done

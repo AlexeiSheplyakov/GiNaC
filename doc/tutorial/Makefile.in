@@ -109,7 +109,7 @@ ginacdocdir = $(datadir)/doc/GiNaC
 ginactutorialdir = $(ginacdocdir)/tutorial
 ginactutorial_DATA = @TUTORIAL_TARGETS@
 
-CLEANFILES = $(EPS) $(PNG) *.html
+CLEANFILES = $(EPS) $(PNG) ginac.html
 EXTRA_DIST = $(FIG)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../../config.h
@@ -331,13 +331,14 @@ installcheck: installcheck-am
 install-exec-am:
 install-exec: install-exec-am
 
-install-data-am: install-info-am install-ginactutorialDATA
+install-data-am: install-info-am install-ginactutorialDATA \
+		install-data-local
 install-data: install-data-am
 
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
 install: install-am
-uninstall-am: uninstall-info uninstall-ginactutorialDATA
+uninstall-am: uninstall-info uninstall-ginactutorialDATA uninstall-local
 uninstall: uninstall-am
 all-am: Makefile $(INFO_DEPS) $(DATA)
 all-redirect: all-am
@@ -382,10 +383,10 @@ install-info-am uninstall-info mostlyclean-aminfo distclean-aminfo \
 clean-aminfo maintainer-clean-aminfo uninstall-ginactutorialDATA \
 install-ginactutorialDATA tags distdir info-am info dvi-am dvi check \
 check-am installcheck-am installcheck install-exec-am install-exec \
-install-data-am install-data install-am install uninstall-am uninstall \
-all-redirect all-am all installdirs mostlyclean-generic \
-distclean-generic clean-generic maintainer-clean-generic clean \
-mostlyclean distclean maintainer-clean
+install-data-local install-data-am install-data install-am install \
+uninstall-local uninstall-am uninstall all-redirect all-am all \
+installdirs mostlyclean-generic distclean-generic clean-generic \
+maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
 
 %.eps: %.fig
@@ -410,27 +411,17 @@ ginac.html: ginac.texi version.texi $(PNG)
 	cd $(srcdir) \
 	  && $(MAKEINFO) --html `echo $< | sed 's,.*/,,'`
 
-#CLEANFILES = *.html *.png *.ps *.tex *.log *.aux *.dvi *.eps tutorial.sgml HTML.manifest
+install-data-local:
+	@for p in $(PNG); do \
+	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p"; \
+	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p; \
+	done
 
-#install-data-local:
-#	@for p in *.html; do \
-#	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p"; \
-#	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p; \
-#	done
-#	@for p in *.png; do \
-#	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p"; \
-#	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p; \
-#	done
-
-#uninstall-local:
-#	@for p in *.html; do \
-#	  echo " rm -f $(DESTDIR)$(ginactutorialdir)/$$p"; \
-#	  rm -f $(DESTDIR)$(ginactutorialdir)/$$p; \
-#	done
-#	@for p in *.png; do \
-#	  echo " rm -f $(DESTDIR)$(ginactutorialdir)/$$p"; \
-#	  rm -f $(DESTDIR)$(ginactutorialdir)/$$p; \
-#	done
+uninstall-local:
+	@for p in $(PNG); do \
+	  echo " rm -f $(DESTDIR)$(ginactutorialdir)/$$p"; \
+	  rm -f $(DESTDIR)$(ginactutorialdir)/$$p; \
+	done
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
