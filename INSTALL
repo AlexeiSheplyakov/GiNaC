@@ -90,7 +90,7 @@ or specify it on the command line saying
  $ ./configure --with-cint=/my/path/to/cintsysdir
 Good luck!
 
-  Known to work with:  |  Known not to work with:   
+  Known to work with:  |  Known not to work with:
 -----------------------+----------------------------
-  Cint 5.14.25         |  Cint 5.14.29              
-  Cint 5.14.26         |                            
+  Cint 5.14.25         |  Cint 5.14.24
+  Cint 5.14.26         |  Cint 5.14.29
