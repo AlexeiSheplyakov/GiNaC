@@ -4,10 +4,11 @@
  *  
  *  The functions are: 
  *    classical polylogarithm              Li(n,x)
- *    multiple polylogarithm               Li(lst(n_1,...,n_k),lst(x_1,...,x_k))
+ *    multiple polylogarithm               Li(lst(m_1,...,m_k),lst(x_1,...,x_k))
  *    nielsen's generalized polylogarithm  S(n,p,x)
- *    harmonic polylogarithm               H(n,x) or H(lst(n_1,...,n_k),x)
- *    multiple zeta value                  zeta(n) or zeta(lst(n_1,...,n_k))
+ *    harmonic polylogarithm               H(m,x) or H(lst(m_1,...,m_k),x)
+ *    multiple zeta value                  zeta(m) or zeta(lst(m_1,...,m_k))
+ *    alternating Euler sum                zeta(m,s) or zeta(lst(m_1,...,m_k),lst(s_1,...,s_k))
  *
  *  Some remarks:
  *    
@@ -15,6 +16,7 @@
  *      [Kol] Nielsen's Generalized Polylogarithms, K.S.Kolbig, SIAM J.Math.Anal. 17 (1986), pp. 1232-1258.
  *    	[Cra] Fast Evaluation of Multiple Zeta Sums, R.E.Crandall, Math.Comp. 67 (1998), pp. 1163-1172.
  *    	[ReV] Harmonic Polylogarithms, E.Remiddi, J.A.M.Vermaseren, Int.J.Mod.Phys. A15 (2000), pp. 725-754
+ *    	[BBB] Special Values of Multiple Polylogarithms, J.Borwein, D.Bradley, D.Broadhurst, P.Lisonek, Trans.Amer.Math.Soc. 353/3 (2001), pp. 907-941
  *
  *    - The order of parameters and arguments of H, Li and zeta is defined according to their order in the
  *      nested sums representation.
@@ -24,8 +26,8 @@
  *      one. The parameters for every function (n, p or n_i) must be positive integers.
  *      
  *    - The calculation of classical polylogarithms is speed up by using Bernoulli numbers and 
- *      look-up tables. S uses look-up tables as well. The zeta function applies the algorithm in
- *      [Cra] for speed up.
+ *      look-up tables. S uses look-up tables as well. The zeta function applies the algorithms in
+ *      [Cra] and [BBB] for speed up.
  *      
  *    - The functions have no series expansion as nested sums. To do it, you have to convert these functions
  *      into the appropriate objects from the nestedsums library, do the expansion and convert the
@@ -82,7 +84,7 @@ namespace GiNaC {
 
 //////////////////////////////////////////////////////////////////////
 //
-// Classical polylogarithm  Li
+// Classical polylogarithm  Li(n,x)
 //
 // helper functions
 //
@@ -383,7 +385,7 @@ numeric Li_num(int n, const numeric& x)
 
 //////////////////////////////////////////////////////////////////////
 //
-// Multiple polylogarithm  Li
+// Multiple polylogarithm  Li(n,x)
 //
 // helper function
 //
@@ -410,7 +412,7 @@ cln::cl_N multipleLi_do_sum(const std::vector<int>& s, const std::vector<cln::cl
 		for (int k=j-2; k>=0; k--) {
 			t[k] = t[k] + t[k+1] * cln::expt(x[k], q+j-1-k) / cln::expt(cln::cl_I(q+j-1-k), s[k]);
 		}
-	} while (t[0] != t0buf);
+	} while ((t[0] != t0buf) || (q<10));
 	
 	return t[0];
 }
@@ -421,7 +423,7 @@ cln::cl_N multipleLi_do_sum(const std::vector<int>& s, const std::vector<cln::cl
 
 //////////////////////////////////////////////////////////////////////
 //
-// Classical polylogarithm and multiple polylogarithm  Li
+// Classical polylogarithm and multiple polylogarithm  Li(n,x)
 //
 // GiNaC function
 //
@@ -457,6 +459,7 @@ static ex Li_evalf(const ex& x1, const ex& x2)
 	}
 	// multiple polylogs
 	else if (is_a<lst>(x1) && is_a<lst>(x2)) {
+		ex conv = 1;
 		for (int i=0; i<x1.nops(); i++) {
 			if (!x1.op(i).info(info_flags::posint)) {
 				return Li(x1,x2).hold();
@@ -464,7 +467,8 @@ static ex Li_evalf(const ex& x1, const ex& x2)
 			if (!is_a<numeric>(x2.op(i))) {
 				return Li(x1,x2).hold();
 			}
-			if (x2.op(i) >= 1) {
+			conv *= x2.op(i);
+			if ((conv > 1) || ((conv == 1) && (x1.op(0) == 1))) {
 				return Li(x1,x2).hold();
 			}
 		}
@@ -515,7 +519,7 @@ REGISTER_FUNCTION(Li,
 
 //////////////////////////////////////////////////////////////////////
 //
-// Nielsen's generalized polylogarithm  S
+// Nielsen's generalized polylogarithm  S(n,p,x)
 //
 // helper functions
 //
@@ -865,7 +869,7 @@ numeric S_num(int n, int p, const numeric& x)
 
 //////////////////////////////////////////////////////////////////////
 //
-// Nielsen's generalized polylogarithm  S
+// Nielsen's generalized polylogarithm  S(n,p,x)
 //
 // GiNaC function
 //
@@ -926,7 +930,7 @@ REGISTER_FUNCTION(S,
 
 //////////////////////////////////////////////////////////////////////
 //
-// Harmonic polylogarithm  H
+// Harmonic polylogarithm  H(m,x)
 //
 // helper function
 //
@@ -1418,7 +1422,7 @@ cln::cl_N H_do_sum(const std::vector<int>& s, const cln::cl_N& x)
 
 //////////////////////////////////////////////////////////////////////
 //
-// Harmonic polylogarithm  H
+// Harmonic polylogarithm  H(m,x)
 //
 // GiNaC function
 //
@@ -1540,7 +1544,7 @@ REGISTER_FUNCTION(H,
 
 //////////////////////////////////////////////////////////////////////
 //
-// Multiple zeta values  zeta
+// Multiple zeta values  zeta(x) and zeta(x,s)
 //
 // helper functions
 //
@@ -1797,12 +1801,102 @@ cln::cl_N zeta_do_sum_simple(const std::vector<int>& r)
 }
 
 
+// does Hoelder convolution. see [BBB] (7.0)
+cln::cl_N zeta_do_Hoelder_convolution(const std::vector<int>& m_, const std::vector<int>& s_)
+{
+	// prepare parameters
+	// holds Li arguments in [BBB] notation
+	std::vector<int> s = s_;
+	std::vector<int> m_p = m_;
+	std::vector<int> m_q;
+	// holds Li arguments in nested sums notation
+	std::vector<cln::cl_N> s_p(s.size(), cln::cl_N(1));
+	s_p[0] = s_p[0] * cln::cl_N("1/2");
+	// convert notations
+	int sig = 1;
+	for (int i=0; i<s_.size(); i++) {
+		if (s_[i] < 0) {
+			sig = -sig;
+			s_p[i] = -s_p[i];
+		}
+		s[i] = sig * std::abs(s[i]);
+	}
+	std::vector<cln::cl_N> s_q;
+	cln::cl_N signum = 1;
+
+	// first term
+	cln::cl_N res = multipleLi_do_sum(m_p, s_p);
+
+	// middle terms
+	do {
+
+		// change parameters
+		if (s.front() > 0) {
+			if (m_p.front() == 1) {
+				m_p.erase(m_p.begin());
+				s_p.erase(s_p.begin());
+				if (s_p.size() > 0) {
+					s_p.front() = s_p.front() * cln::cl_N("1/2");
+				}
+				s.erase(s.begin());
+				m_q.front()++;
+			} else {
+				m_p.front()--;
+				m_q.insert(m_q.begin(), 1);
+				if (s_q.size() > 0) {
+					s_q.front() = s_q.front() * 2;
+				}
+				s_q.insert(s_q.begin(), cln::cl_N("1/2"));
+			}
+		} else {
+			if (m_p.front() == 1) {
+				m_p.erase(m_p.begin());
+				s_p.erase(s_p.begin());
+				if (s_p.size() > 0) {
+					s_p.front() = s_p.front() * cln::cl_N("1/2");
+				}
+				s.erase(s.begin());
+				for (int i=0; i<s.size(); i++) {
+					s_p[i] = -s_p[i];
+					if (s[i] > 0) break;
+					
+				}
+				m_q.insert(m_q.begin(), 1);
+				if (s_q.size() > 0) {
+					s_q.front() = s_q.front() * 4;
+				}
+				s_q.insert(s_q.begin(), cln::cl_N("1/4"));
+				signum = -signum;
+			} else {
+				m_p.front()--;
+				m_q.insert(m_q.begin(), 1);
+				if (s_q.size() > 0) {
+					s_q.front() = s_q.front() * 2;
+				}
+				s_q.insert(s_q.begin(), cln::cl_N("1/2"));
+			}
+		}
+
+		// exiting the loop
+		if (m_p.size() == 0) break;
+
+		res = res + signum * multipleLi_do_sum(m_p, s_p) * multipleLi_do_sum(m_q, s_q);
+		
+	} while (true);
+
+	// last term
+	res = res + signum * multipleLi_do_sum(m_q, s_q);
+	
+	return res;
+}
+
+
 } // end of anonymous namespace
 
 
 //////////////////////////////////////////////////////////////////////
 //
-// Multiple zeta values  zeta
+// Multiple zeta values  zeta(x)
 //
 // GiNaC function
 //
@@ -1921,74 +2015,103 @@ unsigned zeta1_SERIAL::serial =
 
 //////////////////////////////////////////////////////////////////////
 //
-// Multiple zeta values  mZeta
-//
-// The use of mZeta is deprecated! This function will be removed
-// from GiNaC source soon. Use zeta instead!!
+// Alternating Euler sum  zeta(x,s)
 //
 // GiNaC function
 //
 //////////////////////////////////////////////////////////////////////
 
 
-static ex mZeta_eval(const ex& x1)
+static ex zeta2_evalf(const ex& x, const ex& s)
 {
-	return mZeta(x1).hold();
-}
+	if (is_exactly_a<lst>(x)) {
 
+		// alternating Euler sum
+		const int count = x.nops();
+		const lst& xlst = ex_to<lst>(x);
+		const lst& slst = ex_to<lst>(s);
+		std::vector<int> xi(count);
+		std::vector<int> si(count);
 
-static ex mZeta_evalf(const ex& x1)
-{
-	if (is_a<lst>(x1)) {
-		for (int i=0; i<x1.nops(); i++) {
-			if (!x1.op(i).info(info_flags::posint))
-				return mZeta(x1).hold();
-		}
-
-		const int j = x1.nops();
-
-		std::vector<int> r(j);
-		for (int i=0; i<j; i++) {
-			r[j-1-i] = ex_to<numeric>(x1.op(i)).to_int();
-		}
+		// check parameters and convert them
+		lst::const_iterator it_xread = xlst.begin();
+		lst::const_iterator it_sread = slst.begin();
+		std::vector<int>::iterator it_xwrite = xi.begin();
+		std::vector<int>::iterator it_swrite = si.begin();
+		do {
+			if (!(*it_xread).info(info_flags::posint)) {
+				return zeta(x, s).hold();
+			}
+			*it_xwrite = ex_to<numeric>(*it_xread).to_int();
+			if (*it_sread > 0) {
+				*it_swrite = 1;
+			} else {
+				*it_swrite = -1;
+			}
+			it_xread++;
+			it_sread++;
+			it_xwrite++;
+			it_swrite++;
+		} while (it_xwrite != xi.end());
 
 		// check for divergence
-		if (r[0] == 1) {
-			return mZeta(x1).hold();
+		if ((xi[0] == 1) && (si[0] == 1)) {
+			return zeta(x, s).hold();
 		}
 
-		// if only one argument, use cln::zeta
-		if (j == 1) {
-			return numeric(cln::zeta(r[0]));
-		}
+		// use Hoelder convolution
+		return numeric(zeta_do_Hoelder_convolution(xi, si));
+	}
 		
-		// decide on summation algorithm
-		// this is still a bit clumsy
-		int limit = (Digits>17) ? 10 : 6;
-		if (r[0]<limit || (j>3 && r[1]<limit/2)) {
-			return numeric(zeta_do_sum_Crandall(r));
-		} else {
-			return numeric(zeta_do_sum_simple(r));
+	return zeta(x, s).hold();
+}
+
+
+static ex zeta2_eval(const ex& x, const ex& s)
+{
+	if (is_exactly_a<lst>(s)) {
+		const lst& l = ex_to<lst>(s);
+		lst::const_iterator it = l.begin();
+		while (it != l.end()) {
+			if ((*it).info(info_flags::negative)) {
+				return zeta(x, s).hold();
+			}
+			it++;
 		}
-	} else if (x1.info(info_flags::posint) && (x1 != 1)) {
-		return numeric(cln::zeta(ex_to<numeric>(x1).to_int()));
+		return zeta(x);
+	} else {
+		if (s.info(info_flags::positive)) {
+			return zeta(x);
+		}
 	}
 
-	return mZeta(x1).hold();
+	return zeta(x, s).hold();
 }
 
 
-static ex mZeta_deriv(const ex& x, unsigned deriv_param)
+static ex zeta2_deriv(const ex& x, const ex& s, unsigned deriv_param)
 {
-	return 0;
+	GINAC_ASSERT(deriv_param==0);
+
+	if (is_exactly_a<lst>(x)) {
+		return _ex0;
+	} else {
+		if ((is_exactly_a<lst>(s) && (s.op(0) > 0)) || (s > 0)) {
+			return zeta(_ex1, x);
+		}
+		return _ex0;
+	}
 }
 
 
-REGISTER_FUNCTION(mZeta, 
-		eval_func(mZeta_eval).
-		evalf_func(mZeta_evalf).
-		do_not_evalf_params().
-		derivative_func(mZeta_deriv));
+unsigned zeta2_SERIAL::serial =
+			function::register_new(function_options("zeta").
+						eval_func(zeta2_eval).
+						evalf_func(zeta2_evalf).
+						do_not_evalf_params().
+						derivative_func(zeta2_deriv).
+						latex_name("\\zeta").
+						overloaded(2));
 
 
 } // namespace GiNaC
