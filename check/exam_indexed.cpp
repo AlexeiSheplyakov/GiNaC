@@ -161,6 +161,16 @@ static unsigned symmetry_check(void)
 	    indexed(B, sy_anti(), k, l); // GiNaC 0.8.0 had a bug here
 	result += check_equal_simplify(e, e);
 
+	symmetry R = sy_symm(sy_anti(0, 1), sy_anti(2, 3));
+	e = indexed(A, R, i, j, k, l) + indexed(A, R, j, i, k, l);
+	result += check_equal(e, 0);
+	e = indexed(A, R, i, j, k, l) + indexed(A, R, i, j, l, k);
+	result += check_equal(e, 0);
+	e = indexed(A, R, i, j, k, l) - indexed(A, R, j, i, l, k);
+	result += check_equal(e, 0);
+	e = indexed(A, R, i, j, k, l) + indexed(A, R, k, l, j, i);
+	result += check_equal(e, 0);
+
 	e = indexed(A, i, j);
 	result += check_equal(symmetrize(e) + antisymmetrize(e), e);
 	e = indexed(A, sy_symm(), i, j, k, l);

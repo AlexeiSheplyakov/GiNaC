@@ -48,7 +48,8 @@ unsigned exam_archive(void)
 	  + dirac_gamma(varidx(mu, dim)) * dirac_gamma(varidx(mu, 4-dim, true))
 	    * color_T(idx(x, 8), 1) * color_h(idx(x, 8), idx(y, 8), idx(2, 8))
 	    * indexed(x, sy_anti(), idx(2*y+1, x), varidx(-mu, 5))
-	  - 2.4275 * spinor_metric(spinidx(x), spinidx(y));
+	  - 2.4275 * spinor_metric(spinidx(x), spinidx(y))
+	  + abs(x).series(x == y, 4);
 
 	archive ar;
 	ar.archive_ex(e, "expr 1");
