@@ -2008,46 +2008,48 @@ ex power::normal(lst &sym_lst, lst &repl_lst, int level) const
 	else if (level == -max_recursion_level)
 		throw(std::runtime_error("max recursion level reached"));
 
-	// Normalize basis
-	ex n = basis.bp->normal(sym_lst, repl_lst, level-1);
+	// Normalize basis and exponent (exponent gets reassembled)
+	ex n_basis = basis.bp->normal(sym_lst, repl_lst, level-1);
+	ex n_exponent = exponent.bp->normal(sym_lst, repl_lst, level-1);
+	n_exponent = n_exponent.op(0) / n_exponent.op(1);
 
-	if (exponent.info(info_flags::integer)) {
+	if (n_exponent.info(info_flags::integer)) {
 
-		if (exponent.info(info_flags::positive)) {
+		if (n_exponent.info(info_flags::positive)) {
 
 			// (a/b)^n -> {a^n, b^n}
-			return (new lst(power(n.op(0), exponent), power(n.op(1), exponent)))->setflag(status_flags::dynallocated);
+			return (new lst(power(n_basis.op(0), n_exponent), power(n_basis.op(1), n_exponent)))->setflag(status_flags::dynallocated);
 
-		} else if (exponent.info(info_flags::negative)) {
+		} else if (n_exponent.info(info_flags::negative)) {
 
 			// (a/b)^-n -> {b^n, a^n}
-			return (new lst(power(n.op(1), -exponent), power(n.op(0), -exponent)))->setflag(status_flags::dynallocated);
+			return (new lst(power(n_basis.op(1), -n_exponent), power(n_basis.op(0), -n_exponent)))->setflag(status_flags::dynallocated);
 		}
 
 	} else {
 
-		if (exponent.info(info_flags::positive)) {
+		if (n_exponent.info(info_flags::positive)) {
 
 			// (a/b)^x -> {sym((a/b)^x), 1}
-			return (new lst(replace_with_symbol(power(n.op(0) / n.op(1), exponent), sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
+			return (new lst(replace_with_symbol(power(n_basis.op(0) / n_basis.op(1), n_exponent), sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
 
-		} else if (exponent.info(info_flags::negative)) {
+		} else if (n_exponent.info(info_flags::negative)) {
 
-			if (n.op(1).is_equal(_ex1())) {
+			if (n_basis.op(1).is_equal(_ex1())) {
 
 				// a^-x -> {1, sym(a^x)}
-				return (new lst(_ex1(), replace_with_symbol(power(n.op(0), -exponent), sym_lst, repl_lst)))->setflag(status_flags::dynallocated);
+				return (new lst(_ex1(), replace_with_symbol(power(n_basis.op(0), -n_exponent), sym_lst, repl_lst)))->setflag(status_flags::dynallocated);
 
 			} else {
 
 				// (a/b)^-x -> {sym((b/a)^x), 1}
-				return (new lst(replace_with_symbol(power(n.op(1) / n.op(0), -exponent), sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
+				return (new lst(replace_with_symbol(power(n_basis.op(1) / n_basis.op(0), -n_exponent), sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
 			}
 
-		} else {	// exponent not numeric
+		} else {	// n_exponent not numeric
 
 			// (a/b)^x -> {sym((a/b)^x, 1}
-			return (new lst(replace_with_symbol(power(n.op(0) / n.op(1), exponent), sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
+			return (new lst(replace_with_symbol(power(n_basis.op(0) / n_basis.op(1), n_exponent), sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
 		}
 	}
 }
