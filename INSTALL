@@ -80,3 +80,13 @@ libreadline and maybe libreadline-dev.  If your system's vendor
 doesn't supply such packages, go to <ftp://ftp.gnu.org/gnu/readline/>
 and compile it yourself.
 
+Problems with missing <sstream>
+-------------------------------
+
+GCC-2.95.2 and earlier don't have support for this header.  GiNaC can use
+<strstream> instead, but this may cause some trouble later.  GCC-3.0 has a
+completely new implementation of the STL-headers (libstdc++-v3) and there,
+standard-conforming support for <sstream> is present.  If you can't upgrade
+your compiler we recommend using the libstdc++-v2 <sstream> header by
+Magnus Fromreide.  It was posted to the gcc-patches mailing list on
+November 21 2000: <http://gcc.gnu.org/ml/gcc-patches/2000-11/msg01152.html>.
