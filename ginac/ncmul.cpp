@@ -467,7 +467,7 @@ ex ncmul::conjugate() const
 		return exprseq::conjugate();
 	}
 
-	if (return_type_tinfo() & 0xffffff00U != TINFO_clifford) {
+	if ((return_type_tinfo() & 0xffffff00U) != TINFO_clifford) {
 		return exprseq::conjugate();
 	}
 
