@@ -1,5 +1,11 @@
 This file records noteworthy changes.
 
+0.8.4 (<date>)
+* simplify_indexed() renames dummy indices so, e.g., "a.i*a.i+a.j*a.j" gets
+  simplified to "2*a.i*a.i".
+* Fixed possible crash when calling subs() on expressions with non-commutative
+  products.
+
 0.8.3 (11 May 2001)
 * color and clifford classes are functional and documented.
 * New "spinidx" class for dotted/undotted indices.
