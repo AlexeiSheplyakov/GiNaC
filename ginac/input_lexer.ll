@@ -38,6 +38,7 @@
 #include "fail.h"
 #include "numeric.h"
 #include "symbol.h"
+#include "lst.h"
 
 using namespace GiNaC;
 namespace GiNaC {
@@ -169,18 +170,18 @@ void set_lexer_string(const std::string &s)
 void set_lexer_symbols(ex l)
 {
 	syms.clear();
-	if (!is_ex_exactly_of_type(l, lst))
+	if (!is_exactly_a<lst>(l))
 		return;
 	for (unsigned i=0; i<l.nops(); i++) {
-		if (is_ex_exactly_of_type(l.op(i), symbol))
-			syms[ex_to_symbol(l.op(i)).get_name()] = sym_def(l.op(i), true);
+		if (is_exactly_a<symbol>(l.op(i)))
+			syms[ex_to<symbol>(l.op(i)).get_name()] = sym_def(l.op(i), true);
 	}
 }
 
 // Check whether symbol was predefined
 bool is_lexer_symbol_predefined(const ex &s)
 {
-	sym_tab::const_iterator i = syms.find(ex_to_symbol(s).get_name());
+	sym_tab::const_iterator i = syms.find(ex_to<symbol>(s).get_name());
 	if (i == syms.end())
 		return false;
 	else

@@ -42,11 +42,10 @@ namespace GiNaC {
 
 static ex exp_evalf(const ex & x)
 {
-	BEGIN_TYPECHECK
-		TYPECHECK(x,numeric)
-	END_TYPECHECK(exp(x))
+	if (is_exactly_a<numeric>(x))
+		return exp(ex_to<numeric>(x));
 	
-	return exp(ex_to<numeric>(x)); // -> numeric exp(numeric)
+	return exp(x).hold();
 }
 
 static ex exp_eval(const ex & x)
@@ -74,7 +73,7 @@ static ex exp_eval(const ex & x)
 	
 	// exp(float)
 	if (x.info(info_flags::numeric) && !x.info(info_flags::crational))
-		return exp_evalf(x);
+		return exp(ex_to<numeric>(x));
 	
 	return exp(x).hold();
 }
@@ -98,11 +97,10 @@ REGISTER_FUNCTION(exp, eval_func(exp_eval).
 
 static ex log_evalf(const ex & x)
 {
-	BEGIN_TYPECHECK
-		TYPECHECK(x,numeric)
-	END_TYPECHECK(log(x))
+	if (is_exactly_a<numeric>(x))
+		return log(ex_to<numeric>(x));
 	
-	return log(ex_to<numeric>(x)); // -> numeric log(numeric)
+	return log(x).hold();
 }
 
 static ex log_eval(const ex & x)
@@ -120,7 +118,7 @@ static ex log_eval(const ex & x)
 			return (Pi*I*_num_1_2());
 		// log(float)
 		if (!x.info(info_flags::crational))
-			return log_evalf(x);
+			return log(ex_to<numeric>(x));
 	}
 	// log(exp(t)) -> t (if -Pi < t.imag() <= Pi):
 	if (is_ex_the_function(x, exp)) {
@@ -220,11 +218,10 @@ REGISTER_FUNCTION(log, eval_func(log_eval).
 
 static ex sin_evalf(const ex & x)
 {
-	BEGIN_TYPECHECK
-	   TYPECHECK(x,numeric)
-	END_TYPECHECK(sin(x))
+	if (is_exactly_a<numeric>(x))
+		return sin(ex_to<numeric>(x));
 	
-	return sin(ex_to<numeric>(x)); // -> numeric sin(numeric)
+	return sin(x).hold();
 }
 
 static ex sin_eval(const ex & x)
@@ -278,7 +275,7 @@ static ex sin_eval(const ex & x)
 	
 	// sin(float) -> float
 	if (x.info(info_flags::numeric) && !x.info(info_flags::crational))
-		return sin_evalf(x);
+		return sin(ex_to<numeric>(x));
 	
 	return sin(x).hold();
 }
@@ -302,11 +299,10 @@ REGISTER_FUNCTION(sin, eval_func(sin_eval).
 
 static ex cos_evalf(const ex & x)
 {
-	BEGIN_TYPECHECK
-		TYPECHECK(x,numeric)
-	END_TYPECHECK(cos(x))
+	if (is_exactly_a<numeric>(x))
+		return cos(ex_to<numeric>(x));
 	
-	return cos(ex_to<numeric>(x)); // -> numeric cos(numeric)
+	return cos(x).hold();
 }
 
 static ex cos_eval(const ex & x)
@@ -360,7 +356,7 @@ static ex cos_eval(const ex & x)
 	
 	// cos(float) -> float
 	if (x.info(info_flags::numeric) && !x.info(info_flags::crational))
-		return cos_evalf(x);
+		return cos(ex_to<numeric>(x));
 	
 	return cos(x).hold();
 }
@@ -384,11 +380,10 @@ REGISTER_FUNCTION(cos, eval_func(cos_eval).
 
 static ex tan_evalf(const ex & x)
 {
-	BEGIN_TYPECHECK
-	   TYPECHECK(x,numeric)
-	END_TYPECHECK(tan(x)) // -> numeric tan(numeric)
+	if (is_exactly_a<numeric>(x))
+		return tan(ex_to<numeric>(x));
 	
-	return tan(ex_to<numeric>(x));
+	return tan(x).hold();
 }
 
 static ex tan_eval(const ex & x)
@@ -438,7 +433,7 @@ static ex tan_eval(const ex & x)
 	
 	// tan(float) -> float
 	if (x.info(info_flags::numeric) && !x.info(info_flags::crational)) {
-		return tan_evalf(x);
+		return tan(ex_to<numeric>(x));
 	}
 	
 	return tan(x).hold();
@@ -480,11 +475,10 @@ REGISTER_FUNCTION(tan, eval_func(tan_eval).
 
 static ex asin_evalf(const ex & x)
 {
-	BEGIN_TYPECHECK
-	   TYPECHECK(x,numeric)
-	END_TYPECHECK(asin(x))
+	if (is_exactly_a<numeric>(x))
+		return asin(ex_to<numeric>(x));
 	
-	return asin(ex_to<numeric>(x)); // -> numeric asin(numeric)
+	return asin(x).hold();
 }
 
 static ex asin_eval(const ex & x)
@@ -507,7 +501,7 @@ static ex asin_eval(const ex & x)
 			return _num_1_2()*Pi;
 		// asin(float) -> float
 		if (!x.info(info_flags::crational))
-			return asin_evalf(x);
+			return asin(ex_to<numeric>(x));
 	}
 	
 	return asin(x).hold();
@@ -532,11 +526,10 @@ REGISTER_FUNCTION(asin, eval_func(asin_eval).
 
 static ex acos_evalf(const ex & x)
 {
-	BEGIN_TYPECHECK
-	   TYPECHECK(x,numeric)
-	END_TYPECHECK(acos(x))
+	if (is_exactly_a<numeric>(x))
+		return acos(ex_to<numeric>(x));
 	
-	return acos(ex_to<numeric>(x)); // -> numeric acos(numeric)
+	return acos(x).hold();
 }
 
 static ex acos_eval(const ex & x)
@@ -559,7 +552,7 @@ static ex acos_eval(const ex & x)
 			return Pi;
 		// acos(float) -> float
 		if (!x.info(info_flags::crational))
-			return acos_evalf(x);
+			return acos(ex_to<numeric>(x));
 	}
 	
 	return acos(x).hold();
@@ -584,11 +577,10 @@ REGISTER_FUNCTION(acos, eval_func(acos_eval).
 
 static ex atan_evalf(const ex & x)
 {
-	BEGIN_TYPECHECK
-		TYPECHECK(x,numeric)
-	END_TYPECHECK(atan(x))
+	if (is_exactly_a<numeric>(x))
+		return atan(ex_to<numeric>(x));
 	
-	return atan(ex_to<numeric>(x)); // -> numeric atan(numeric)
+	return atan(x).hold();
 }
 
 static ex atan_eval(const ex & x)
@@ -607,7 +599,7 @@ static ex atan_eval(const ex & x)
 			throw (pole_error("atan_eval(): logarithmic pole",0));
 		// atan(float) -> float
 		if (!x.info(info_flags::crational))
-			return atan_evalf(x);
+			return atan(ex_to<numeric>(x));
 	}
 	
 	return atan(x).hold();
@@ -674,14 +666,12 @@ REGISTER_FUNCTION(atan, eval_func(atan_eval).
 // inverse tangent (atan2(y,x))
 //////////
 
-static ex atan2_evalf(const ex & y, const ex & x)
+static ex atan2_evalf(const ex &y, const ex &x)
 {
-	BEGIN_TYPECHECK
-		TYPECHECK(y,numeric)
-		TYPECHECK(x,numeric)
-	END_TYPECHECK(atan2(y,x))
+	if (is_exactly_a<numeric>(y) && is_exactly_a<numeric>(x))
+		return atan2(ex_to<numeric>(y), ex_to<numeric>(x));
 	
-	return atan(ex_to<numeric>(y),ex_to<numeric>(x)); // -> numeric atan(numeric)
+	return atan2(y, x).hold();
 }
 
 static ex atan2_eval(const ex & y, const ex & x)
@@ -716,11 +706,10 @@ REGISTER_FUNCTION(atan2, eval_func(atan2_eval).
 
 static ex sinh_evalf(const ex & x)
 {
-	BEGIN_TYPECHECK
-	   TYPECHECK(x,numeric)
-	END_TYPECHECK(sinh(x))
+	if (is_exactly_a<numeric>(x))
+		return sinh(ex_to<numeric>(x));
 	
-	return sinh(ex_to<numeric>(x)); // -> numeric sinh(numeric)
+	return sinh(x).hold();
 }
 
 static ex sinh_eval(const ex & x)
@@ -729,7 +718,7 @@ static ex sinh_eval(const ex & x)
 		if (x.is_zero())  // sinh(0) -> 0
 			return _ex0();        
 		if (!x.info(info_flags::crational))  // sinh(float) -> float
-			return sinh_evalf(x);
+			return sinh(ex_to<numeric>(x));
 	}
 	
 	if ((x/Pi).info(info_flags::numeric) &&
@@ -771,11 +760,10 @@ REGISTER_FUNCTION(sinh, eval_func(sinh_eval).
 
 static ex cosh_evalf(const ex & x)
 {
-	BEGIN_TYPECHECK
-	   TYPECHECK(x,numeric)
-	END_TYPECHECK(cosh(x))
+	if (is_exactly_a<numeric>(x))
+		return cosh(ex_to<numeric>(x));
 	
-	return cosh(ex_to<numeric>(x)); // -> numeric cosh(numeric)
+	return cosh(x).hold();
 }
 
 static ex cosh_eval(const ex & x)
@@ -784,7 +772,7 @@ static ex cosh_eval(const ex & x)
 		if (x.is_zero())  // cosh(0) -> 1
 			return _ex1();
 		if (!x.info(info_flags::crational))  // cosh(float) -> float
-			return cosh_evalf(x);
+			return cosh(ex_to<numeric>(x));
 	}
 	
 	if ((x/Pi).info(info_flags::numeric) &&
@@ -826,11 +814,10 @@ REGISTER_FUNCTION(cosh, eval_func(cosh_eval).
 
 static ex tanh_evalf(const ex & x)
 {
-	BEGIN_TYPECHECK
-	   TYPECHECK(x,numeric)
-	END_TYPECHECK(tanh(x))
+	if (is_exactly_a<numeric>(x))
+		return tanh(ex_to<numeric>(x));
 	
-	return tanh(ex_to<numeric>(x)); // -> numeric tanh(numeric)
+	return tanh(x).hold();
 }
 
 static ex tanh_eval(const ex & x)
@@ -839,7 +826,7 @@ static ex tanh_eval(const ex & x)
 		if (x.is_zero())  // tanh(0) -> 0
 			return _ex0();
 		if (!x.info(info_flags::crational))  // tanh(float) -> float
-			return tanh_evalf(x);
+			return tanh(ex_to<numeric>(x));
 	}
 	
 	if ((x/Pi).info(info_flags::numeric) &&
@@ -898,11 +885,10 @@ REGISTER_FUNCTION(tanh, eval_func(tanh_eval).
 
 static ex asinh_evalf(const ex & x)
 {
-	BEGIN_TYPECHECK
-	   TYPECHECK(x,numeric)
-	END_TYPECHECK(asinh(x))
+	if (is_exactly_a<numeric>(x))
+		return asinh(ex_to<numeric>(x));
 	
-	return asinh(ex_to<numeric>(x)); // -> numeric asinh(numeric)
+	return asinh(x).hold();
 }
 
 static ex asinh_eval(const ex & x)
@@ -913,7 +899,7 @@ static ex asinh_eval(const ex & x)
 			return _ex0();
 		// asinh(float) -> float
 		if (!x.info(info_flags::crational))
-			return asinh_evalf(x);
+			return asinh(ex_to<numeric>(x));
 	}
 	
 	return asinh(x).hold();
@@ -937,11 +923,10 @@ REGISTER_FUNCTION(asinh, eval_func(asinh_eval).
 
 static ex acosh_evalf(const ex & x)
 {
-	BEGIN_TYPECHECK
-	   TYPECHECK(x,numeric)
-	END_TYPECHECK(acosh(x))
+	if (is_exactly_a<numeric>(x))
+		return acosh(ex_to<numeric>(x));
 	
-	return acosh(ex_to<numeric>(x)); // -> numeric acosh(numeric)
+	return acosh(x).hold();
 }
 
 static ex acosh_eval(const ex & x)
@@ -958,7 +943,7 @@ static ex acosh_eval(const ex & x)
 			return Pi*I;
 		// acosh(float) -> float
 		if (!x.info(info_flags::crational))
-			return acosh_evalf(x);
+			return acosh(ex_to<numeric>(x));
 	}
 	
 	return acosh(x).hold();
@@ -982,11 +967,10 @@ REGISTER_FUNCTION(acosh, eval_func(acosh_eval).
 
 static ex atanh_evalf(const ex & x)
 {
-	BEGIN_TYPECHECK
-	   TYPECHECK(x,numeric)
-	END_TYPECHECK(atanh(x))
+	if (is_exactly_a<numeric>(x))
+		return atanh(ex_to<numeric>(x));
 	
-	return atanh(ex_to<numeric>(x)); // -> numeric atanh(numeric)
+	return atanh(x).hold();
 }
 
 static ex atanh_eval(const ex & x)
@@ -1000,7 +984,7 @@ static ex atanh_eval(const ex & x)
 			throw (pole_error("atanh_eval(): logarithmic pole",0));
 		// atanh(float) -> float
 		if (!x.info(info_flags::crational))
-			return atanh_evalf(x);
+			return atanh(ex_to<numeric>(x));
 	}
 	
 	return atanh(x).hold();

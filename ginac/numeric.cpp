@@ -1432,10 +1432,7 @@ const numeric zeta(const numeric &x)
 		if (cln::zerop(x.to_cl_N()-aux))
 			return cln::zeta(aux);
 	}
-	std::clog << "zeta(" << x
-			  << "): Does anybody know a good way to calculate this numerically?"
-			  << std::endl;
-	return numeric(0);
+	throw dunno();
 }
 
 
@@ -1443,17 +1440,11 @@ const numeric zeta(const numeric &x)
  *  This is only a stub! */
 const numeric lgamma(const numeric &x)
 {
-	std::clog << "lgamma(" << x
-	          << "): Does anybody know a good way to calculate this numerically?"
-	          << std::endl;
-	return numeric(0);
+	throw dunno();
 }
 const numeric tgamma(const numeric &x)
 {
-	std::clog << "tgamma(" << x
-	          << "): Does anybody know a good way to calculate this numerically?"
-	          << std::endl;
-	return numeric(0);
+	throw dunno();
 }
 
 
@@ -1461,10 +1452,7 @@ const numeric tgamma(const numeric &x)
  *  This is only a stub! */
 const numeric psi(const numeric &x)
 {
-	std::clog << "psi(" << x
-	          << "): Does anybody know a good way to calculate this numerically?"
-	          << std::endl;
-	return numeric(0);
+	throw dunno();
 }
 
 
@@ -1472,10 +1460,7 @@ const numeric psi(const numeric &x)
  *  This is only a stub! */
 const numeric psi(const numeric &n, const numeric &x)
 {
-	std::clog << "psi(" << n << "," << x
-	          << "): Does anybody know a good way to calculate this numerically?"
-	          << std::endl;
-	return numeric(0);
+	throw dunno();
 }
 
 

@@ -94,8 +94,7 @@ public:
 	bool is_canonical_numeric(void) const
 	{
 		GINAC_ASSERT(is_exactly_a<numeric>(coeff));
-		return (is_ex_exactly_of_type(rest,numeric) &&
-		        (coeff.is_equal(1)));
+		return (is_exactly_a<numeric>(rest) && (coeff.is_equal(1)));
 	}
 
 	/** Swap contents with other expair. */

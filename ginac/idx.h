@@ -24,6 +24,7 @@
 #define __GINAC_IDX_H__
 
 #include "ex.h"
+#include "numeric.h"
 
 namespace GiNaC {
 
@@ -70,19 +71,19 @@ public:
 	ex get_value(void) const {return value;}
 
 	/** Check whether the index is numeric. */
-	bool is_numeric(void) const {return is_ex_exactly_of_type(value, numeric);}
+	bool is_numeric(void) const {return is_exactly_a<numeric>(value);}
 
 	/** Check whether the index is symbolic. */
-	bool is_symbolic(void) const {return !is_ex_exactly_of_type(value, numeric);}
+	bool is_symbolic(void) const {return !is_exactly_a<numeric>(value);}
 
 	/** Get dimension of index space. */
 	ex get_dim(void) const {return dim;}
 
 	/** Check whether the dimension is numeric. */
-	bool is_dim_numeric(void) const {return is_ex_exactly_of_type(dim, numeric);}
+	bool is_dim_numeric(void) const {return is_exactly_a<numeric>(dim);}
 
 	/** Check whether the dimension is symbolic. */
-	bool is_dim_symbolic(void) const {return !is_ex_exactly_of_type(dim, numeric);}
+	bool is_dim_symbolic(void) const {return !is_exactly_a<numeric>(dim);}
 
 protected:
 	ex value; /**< Expression that constitutes the index (numeric or symbolic name) */

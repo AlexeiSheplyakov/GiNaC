@@ -175,21 +175,6 @@ private:
 
 extern int max_recursion_level;
 
-// Obsolete convenience macros.  To be phased out soon!
-// Use the inlined template functions below instead of these macros.
-
-#define is_of_type(OBJ,TYPE) \
-	(dynamic_cast<const TYPE *>(&OBJ)!=0)
-
-#define is_exactly_of_type(OBJ,TYPE) \
-	((OBJ).tinfo()==GiNaC::TINFO_##TYPE)
-
-#define is_ex_of_type(OBJ,TYPE) \
-	(dynamic_cast<const TYPE *>((OBJ).bp)!=0)
-
-#define is_ex_exactly_of_type(OBJ,TYPE) \
-	((*(OBJ).bp).tinfo()==GiNaC::TINFO_##TYPE)
-
 // convenience type checker template functions
 
 /** Check if obj is a T, including base classes. */

@@ -36,6 +36,10 @@ namespace GiNaC {
  *  to signal that ordinary Taylor expansion is safe. */
 class do_taylor {};
 
+/** Exception class thrown by functions to signal unimplemented functionality
+ *  so the expression may just be .hold() */
+class dunno {};
+
 /** Exception class thrown when a singularity is encountered. */
 class pole_error : public std::domain_error {
 public:
@@ -472,6 +476,22 @@ void classname::print(const print_context & c, unsigned level) const \
 		c.s << text; \
 }
 
+// Obsolete convenience macros.  TO BE PHASED OUT SOON!
+// Use the inlined template functions in basic.h instead.  (FIXME: remove them)
+
+#define is_of_type(OBJ,TYPE) \
+	(dynamic_cast<const TYPE *>(&OBJ)!=0)
+
+#define is_exactly_of_type(OBJ,TYPE) \
+	((OBJ).tinfo()==GiNaC::TINFO_##TYPE)
+
+#define is_ex_of_type(OBJ,TYPE) \
+	(dynamic_cast<const TYPE *>((OBJ).bp)!=0)
+
+#define is_ex_exactly_of_type(OBJ,TYPE) \
+	((*(OBJ).bp).tinfo()==GiNaC::TINFO_##TYPE)
+
 } // namespace GiNaC
+
 
 #endif // ndef __GINAC_UTILS_H__

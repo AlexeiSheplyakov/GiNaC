@@ -42,11 +42,13 @@ namespace GiNaC {
 
 static ex lgamma_evalf(const ex & x)
 {
-	BEGIN_TYPECHECK
-		TYPECHECK(x,numeric)
-	END_TYPECHECK(lgamma(x))
+	if (is_exactly_a<numeric>(x)) {
+		try {
+			return lgamma(ex_to<numeric>(x));
+		} catch (const dunno &e) { }
+	}
 	
-	return lgamma(ex_to<numeric>(x));
+	return lgamma(x).hold();
 }
 
 
@@ -120,11 +122,13 @@ REGISTER_FUNCTION(lgamma, eval_func(lgamma_eval).
 
 static ex tgamma_evalf(const ex & x)
 {
-	BEGIN_TYPECHECK
-		TYPECHECK(x,numeric)
-	END_TYPECHECK(tgamma(x))
+	if (is_exactly_a<numeric>(x)) {
+		try {
+			return tgamma(ex_to<numeric>(x));
+		} catch (const dunno &e) { }
+	}
 	
-	return tgamma(ex_to<numeric>(x));
+	return tgamma(x).hold();
 }
 
 
@@ -214,12 +218,13 @@ REGISTER_FUNCTION(tgamma, eval_func(tgamma_eval).
 
 static ex beta_evalf(const ex & x, const ex & y)
 {
-	BEGIN_TYPECHECK
-		TYPECHECK(x,numeric)
-		TYPECHECK(y,numeric)
-	END_TYPECHECK(beta(x,y))
+	if (is_exactly_a<numeric>(x) && is_exactly_a<numeric>(y)) {
+		try {
+			return tgamma(ex_to<numeric>(x))*tgamma(ex_to<numeric>(y))/tgamma(ex_to<numeric>(x+y));
+		} catch (const dunno &e) { }
+	}
 	
-	return tgamma(ex_to<numeric>(x))*tgamma(ex_to<numeric>(y))/tgamma(ex_to<numeric>(x+y));
+	return beta(x,y).hold();
 }
 
 
@@ -249,11 +254,10 @@ static ex beta_eval(const ex & x, const ex & y)
 		}
 		// no problem in numerator, but denominator has pole:
 		if ((nx+ny).is_real() &&
-			(nx+ny).is_integer() &&
-			!(nx+ny).is_positive())
+		    (nx+ny).is_integer() &&
+		   !(nx+ny).is_positive())
 			 return _ex0();
-		// everything is ok:
-		return tgamma(x)*tgamma(y)/tgamma(x+y);
+		// beta_evalf should be called here once it becomes available
 	}
 	
 	return beta(x,y).hold();
@@ -327,11 +331,13 @@ REGISTER_FUNCTION(beta, eval_func(beta_eval).
 
 static ex psi1_evalf(const ex & x)
 {
-	BEGIN_TYPECHECK
-		TYPECHECK(x,numeric)
-	END_TYPECHECK(psi(x))
+	if (is_exactly_a<numeric>(x)) {
+		try {
+			return psi(ex_to<numeric>(x));
+		} catch (const dunno &e) { }
+	}
 	
-	return psi(ex_to<numeric>(x));
+	return psi(x).hold();
 }
 
 /** Evaluation of digamma-function psi(x).
@@ -426,12 +432,13 @@ const unsigned function_index_psi1 =
 
 static ex psi2_evalf(const ex & n, const ex & x)
 {
-	BEGIN_TYPECHECK
-		TYPECHECK(n,numeric)
-		TYPECHECK(x,numeric)
-	END_TYPECHECK(psi(n,x))
+	if (is_exactly_a<numeric>(n) && is_exactly_a<numeric>(x)) {
+		try {
+			return psi(ex_to<numeric>(n),ex_to<numeric>(x));
+		} catch (const dunno &e) { }
+	}
 	
-	return psi(ex_to<numeric>(n), ex_to<numeric>(x));
+	return psi(n,x).hold();
 }
 
 /** Evaluation of polygamma-function psi(n,x). 

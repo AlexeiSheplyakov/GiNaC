@@ -201,6 +201,9 @@ $declare_function_macro
 const unsigned function_index_##NAME= \\
 	GiNaC::function::register_new(GiNaC::function_options(#NAME).OPT);
 
+// The TYPECHECK-macros were used inside the _evalf() functions.  They are
+// considered obsolete now:  (FIXME: remove them)
+
 #define BEGIN_TYPECHECK \\
 bool automatic_typecheck=true;
 
@@ -376,7 +379,7 @@ template<> inline bool is_exactly_a<function>(const basic & obj)
 }
 
 #define is_ex_the_function(OBJ, FUNCNAME) \\
-	(is_ex_exactly_of_type(OBJ, function) && static_cast<GiNaC::function *>(OBJ.bp)->get_serial() == function_index_##FUNCNAME)
+	(is_exactly_a<function>(OBJ) && static_cast<GiNaC::function *>(OBJ.bp)->get_serial() == function_index_##FUNCNAME)
 
 } // namespace GiNaC
 

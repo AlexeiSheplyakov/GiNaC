@@ -44,11 +44,10 @@ namespace GiNaC {
 
 static ex abs_evalf(const ex & arg)
 {
-	BEGIN_TYPECHECK
-		TYPECHECK(arg,numeric)
-	END_TYPECHECK(abs(arg))
+	if (is_exactly_a<numeric>(arg))
+		return abs(ex_to<numeric>(arg));
 	
-	return abs(ex_to<numeric>(arg));
+	return abs(arg).hold();
 }
 
 static ex abs_eval(const ex & arg)
@@ -69,11 +68,10 @@ REGISTER_FUNCTION(abs, eval_func(abs_eval).
 
 static ex csgn_evalf(const ex & arg)
 {
-	BEGIN_TYPECHECK
-		TYPECHECK(arg,numeric)
-	END_TYPECHECK(csgn(arg))
+	if (is_exactly_a<numeric>(arg))
+		return csgn(ex_to<numeric>(arg));
 	
-	return csgn(ex_to<numeric>(arg));
+	return csgn(arg).hold();
 }
 
 static ex csgn_eval(const ex & arg)
@@ -198,7 +196,7 @@ static ex eta_series(const ex & x, const ex & y,
 
 REGISTER_FUNCTION(eta, eval_func(eta_eval).
                        evalf_func(eta_evalf).
-				       series_func(eta_series).
+                       series_func(eta_series).
                        latex_name("\\eta").
                        set_symmetry(sy_symm(0, 1)));
 
@@ -209,11 +207,10 @@ REGISTER_FUNCTION(eta, eval_func(eta_eval).
 
 static ex Li2_evalf(const ex & x)
 {
-	BEGIN_TYPECHECK
-		TYPECHECK(x,numeric)
-	END_TYPECHECK(Li2(x))
+	if (is_exactly_a<numeric>(x))
+		return Li2(ex_to<numeric>(x));
 	
-	return Li2(ex_to<numeric>(x));  // -> numeric Li2(numeric)
+	return Li2(x).hold();
 }
 
 static ex Li2_eval(const ex & x)
@@ -239,7 +236,7 @@ static ex Li2_eval(const ex & x)
 			return power(Pi,_ex2())/_ex_48() - Catalan*I;
 		// Li2(float)
 		if (!x.info(info_flags::crational))
-			return Li2_evalf(x);
+			return Li2(ex_to<numeric>(x));
 	}
 	
 	return Li2(x).hold();
@@ -250,7 +247,7 @@ static ex Li2_deriv(const ex & x, unsigned deriv_param)
 	GINAC_ASSERT(deriv_param==0);
 	
 	// d/dx Li2(x) -> -log(1-x)/x
-	return -log(1-x)/x;
+	return -log(_ex1()-x)/x;
 }
 
 static ex Li2_series(const ex &x, const relational &rel, int order, unsigned options)
@@ -293,7 +290,7 @@ static ex Li2_series(const ex &x, const relational &rel, int order, unsigned opt
 			// obsolete!
 		}
 		// second special case: x==1 (branch point)
-		if (x_pt == _ex1()) {
+		if (x_pt.is_equal(_ex1())) {
 			// method:
 			// construct series manually in a dummy symbol s
 			const symbol s;
@@ -501,7 +498,7 @@ ex lsolve(const ex &eqns, const ex &symbols)
 		// Probably singular matrix or otherwise overdetermined system:
 		// It is consistent to return an empty list
 		return lst();
-	}    
+	}
 	GINAC_ASSERT(solution.cols()==1);
 	GINAC_ASSERT(solution.rows()==symbols.nops());
 	

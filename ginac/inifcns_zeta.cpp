@@ -38,11 +38,13 @@ namespace GiNaC {
 
 static ex zeta1_evalf(const ex & x)
 {
-	BEGIN_TYPECHECK
-		TYPECHECK(x,numeric)
-	END_TYPECHECK(zeta(x))
-		
-	return zeta(ex_to<numeric>(x));
+	if (is_exactly_a<numeric>(x)) {
+		try {
+			return zeta(ex_to<numeric>(x));
+		} catch (const dunno &e) { }
+	}
+	
+	return zeta(x).hold();
 }
 
 static ex zeta1_eval(const ex & x)
@@ -52,7 +54,7 @@ static ex zeta1_eval(const ex & x)
 		// trap integer arguments:
 		if (y.is_integer()) {
 			if (y.is_zero())
-				return -_ex1_2();
+				return _ex_1_2();
 			if (x.is_equal(_ex1()))
 				throw(std::domain_error("zeta(1): infinity"));
 			if (x.info(info_flags::posint)) {
@@ -67,6 +69,9 @@ static ex zeta1_eval(const ex & x)
 					return _num0();
 			}
 		}
+		// zeta(float)
+		if (x.info(info_flags::numeric) && !x.info(info_flags::crational))
+			return zeta1_evalf(x);
 	}
 	return zeta(x).hold();
 }
