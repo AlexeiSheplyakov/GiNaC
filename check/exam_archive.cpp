@@ -42,12 +42,13 @@ unsigned exam_archive(void)
 	      varidx(lst(x, -11*y, acos(2*x).series(x==3-5*I, 3)) * color_ONE()
 	        * metric_tensor(spinidx(0, 5, false, true), varidx(2, 4)), zeta(3)),
 	      varidx(diag_matrix(lst(-1, Euler, atan(x/y==-15*I/17)))
-	        * delta_tensor(idx(x, 2), idx(y, 3)), log(cos(128.0/(x*y))), true),
+	        * delta_tensor(idx(x, 2), idx(wild(7), 3)), log(cos(128.0/(x*y))), true),
 	      true
 	    )
 	  + dirac_gamma(varidx(mu, dim)) * dirac_gamma(varidx(mu, 4-dim, true))
 	    * color_T(idx(x, 8), 1) * color_h(idx(x, 8), idx(y, 8), idx(2, 8))
 	    * indexed(x, indexed::antisymmetric, idx(2*y+1, x), varidx(-mu, 5))
+	  - 2 * spinor_metric(spinidx(x), spinidx(y))
 	  + 0.775;
 
 	archive ar;
