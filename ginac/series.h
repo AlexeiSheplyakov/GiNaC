@@ -88,12 +88,26 @@ protected:
 extern const series some_series;
 extern type_info const & typeid_series;
 
-// utility functions
+/** Return a reference to the series object embedded in an expression.
+ *  The result is undefined if the expression does not contain a series
+ *  object at its top level.
+ *
+ *  @param e expression
+ *  @return reference to series object
+ *  @see is_ex_of_type */
 inline const series &ex_to_series(const ex &e)
 {
 	return static_cast<const series &>(*e.bp);
 }
 
+/** Convert the series object embedded in an expression to an ordinary
+ *  polynomial in the expansion variable. The result is undefined if the
+ *  expression does not contain a series object at its top level.
+ *
+ *  @param e expression
+ *  @return polynomial expression
+ *  @see is_ex_of_type
+ *  @see series::convert_to_poly */
 inline ex series_to_poly(const ex &e)
 {
 	return (static_cast<const series &>(*e.bp).convert_to_poly(true));
