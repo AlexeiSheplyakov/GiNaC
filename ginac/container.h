@@ -95,9 +95,13 @@ public:
 
 	explicit container(STLT * vp) : inherited(get_tinfo())
 	{
-		GINAC_ASSERT(vp);
-		this->seq.swap(*vp);
-		delete vp;
+		if (vp == 0) {
+			// lst(0) ends up here
+			this->seq.push_back(0);
+		} else {
+			this->seq.swap(*vp);
+			delete vp;
+		}
 	}
 
 	container(exvector::const_iterator b, exvector::const_iterator e)
