@@ -33,6 +33,7 @@ This file records noteworthy changes.
 * rem(c, p[x], x) (c: numeric, p[x]: polynomial) erroneously returned p[x]
   instead of c.
 * Small bugfixes in pattern matching.
+* Updated libtool to version 1.4.
 
 0.9.0 (7 June 2001)
 * In the output and in ginsh, lists are now delimited by { } braces, and
