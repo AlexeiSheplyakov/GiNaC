@@ -206,7 +206,7 @@ void add::print(std::ostream & os, unsigned upper_precedence) const
 			first = false;
 		}
 		if (!coeff.is_equal(_num1()) &&
-			!coeff.is_equal(_num_1())) {
+		    !coeff.is_equal(_num_1())) {
 			if (coeff.is_rational()) {
 				if (coeff.is_negative())
 					os << -coeff;
@@ -350,7 +350,7 @@ ex add::coeff(const symbol & s, int n) const
 	epvector::const_iterator it=seq.begin();
 	while (it!=seq.end()) {
 		coeffseq.push_back(combine_ex_with_coeff_to_pair((*it).rest.coeff(s,n),
-														 (*it).coeff));
+		                                                 (*it).coeff));
 		++it;
 	}
 	if (n==0) {
@@ -370,7 +370,7 @@ ex add::eval(int level) const
 	if (evaled_seqp!=0) {
 		// do more evaluation later
 		return (new add(evaled_seqp,overall_coeff))->
-				   setflag(status_flags::dynallocated);
+		       setflag(status_flags::dynallocated);
 	}
 	
 #ifdef DO_GINAC_ASSERT

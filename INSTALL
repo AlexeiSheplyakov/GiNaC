@@ -29,7 +29,7 @@ As with any autoconfiguring GNU software, installation is as easy as this:
  $ make
  $ make check
 [become root if necessary]
- $ make install
+ # make install
 
 Known to work with:
   - Linux/x86, EGCS-1.1.x and GCC 2-95.x
