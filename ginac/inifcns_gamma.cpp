@@ -234,8 +234,8 @@ static ex beta_eval(const ex & x, const ex & y)
 		// treat all problematic x and y that may not be passed into tgamma,
 		// because they would throw there although beta(x,y) is well-defined
 		// using the formula beta(x,y) == (-1)^y * beta(1-x-y, y)
-		const numeric nx = ex_to<numeric>(x);
-		const numeric ny = ex_to<numeric>(y);
+		const numeric &nx = ex_to<numeric>(x);
+		const numeric &ny = ex_to<numeric>(y);
 		if (nx.is_real() && nx.is_integer() &&
 			ny.is_real() && ny.is_integer()) {
 			if (nx.is_negative()) {
@@ -345,7 +345,7 @@ static ex psi1_evalf(const ex & x)
 static ex psi1_eval(const ex & x)
 {
 	if (x.info(info_flags::numeric)) {
-		const numeric nx = ex_to<numeric>(x);
+		const numeric &nx = ex_to<numeric>(x);
 		if (nx.is_integer()) {
 			// integer case 
 			if (nx.is_positive()) {
@@ -453,8 +453,8 @@ static ex psi2_eval(const ex & n, const ex & x)
 		return log(tgamma(x));
 	if (n.info(info_flags::numeric) && n.info(info_flags::posint) &&
 		x.info(info_flags::numeric)) {
-		const numeric nn = ex_to<numeric>(n);
-		const numeric nx = ex_to<numeric>(x);
+		const numeric &nn = ex_to<numeric>(n);
+		const numeric &nx = ex_to<numeric>(x);
 		if (nx.is_integer()) {
 			// integer case 
 			if (nx.is_equal(_num1))

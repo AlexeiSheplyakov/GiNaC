@@ -57,7 +57,7 @@ static ex exp_eval(const ex & x)
 	// exp(n*Pi*I/2) -> {+1|+I|-1|-I}
 	const ex TwoExOverPiI=(_ex2*x)/(Pi*I);
 	if (TwoExOverPiI.info(info_flags::integer)) {
-		numeric z = mod(ex_to<numeric>(TwoExOverPiI),_num4);
+		const numeric z = mod(ex_to<numeric>(TwoExOverPiI),_num4);
 		if (z.is_equal(_num0))
 			return _ex1;
 		if (z.is_equal(_num1))
@@ -122,9 +122,9 @@ static ex log_eval(const ex & x)
 	}
 	// log(exp(t)) -> t (if -Pi < t.imag() <= Pi):
 	if (is_ex_the_function(x, exp)) {
-		ex t = x.op(0);
+		const ex &t = x.op(0);
 		if (t.info(info_flags::numeric)) {
-			numeric nt = ex_to<numeric>(t);
+			const numeric &nt = ex_to<numeric>(t);
 			if (nt.is_real())
 				return t;
 		}
@@ -177,7 +177,7 @@ static ex log_series(const ex &arg,
 		} while (!argser.is_terminating() && argser.nops()==1);
 
 		const symbol &s = ex_to<symbol>(rel.lhs());
-		const ex point = rel.rhs();
+		const ex &point = rel.rhs();
 		const int n = argser.ldegree(s);
 		epvector seq;
 		// construct what we carelessly called the n*log(x) term above
@@ -203,7 +203,7 @@ static ex log_series(const ex &arg,
 		// This is the branch cut: assemble the primitive series manually and
 		// then add the corresponding complex step function.
 		const symbol &s = ex_to<symbol>(rel.lhs());
-		const ex point = rel.rhs();
+		const ex &point = rel.rhs();
 		const symbol foo;
 		const ex replarg = series(log(arg), s==foo, order).subs(foo==point);
 		epvector seq;
@@ -269,7 +269,7 @@ static ex sin_eval(const ex & x)
 	}
 	
 	if (is_exactly_a<function>(x)) {
-		ex t = x.op(0);
+		const ex &t = x.op(0);
 		// sin(asin(x)) -> x
 		if (is_ex_the_function(x, asin))
 			return t;
@@ -350,7 +350,7 @@ static ex cos_eval(const ex & x)
 	}
 	
 	if (is_exactly_a<function>(x)) {
-		ex t = x.op(0);
+		const ex &t = x.op(0);
 		// cos(acos(x)) -> x
 		if (is_ex_the_function(x, acos))
 			return t;
@@ -427,7 +427,7 @@ static ex tan_eval(const ex & x)
 	}
 	
 	if (is_exactly_a<function>(x)) {
-		ex t = x.op(0);
+		const ex &t = x.op(0);
 		// tan(atan(x)) -> x
 		if (is_ex_the_function(x, atan))
 			return t;
@@ -648,7 +648,7 @@ static ex atan_series(const ex &arg,
 		// This is the branch cut: assemble the primitive series manually and
 		// then add the corresponding complex step function.
 		const symbol &s = ex_to<symbol>(rel.lhs());
-		const ex point = rel.rhs();
+		const ex &point = rel.rhs();
 		const symbol foo;
 		const ex replarg = series(atan(arg), s==foo, order).subs(foo==point);
 		ex Order0correction = replarg.op(0)+csgn(arg)*Pi*_ex_1_2;
@@ -734,7 +734,7 @@ static ex sinh_eval(const ex & x)
 		return I*sin(x/I);
 	
 	if (is_exactly_a<function>(x)) {
-		ex t = x.op(0);
+		const ex &t = x.op(0);
 		// sinh(asinh(x)) -> x
 		if (is_ex_the_function(x, asinh))
 			return t;
@@ -788,7 +788,7 @@ static ex cosh_eval(const ex & x)
 		return cos(x/I);
 	
 	if (is_exactly_a<function>(x)) {
-		ex t = x.op(0);
+		const ex &t = x.op(0);
 		// cosh(acosh(x)) -> x
 		if (is_ex_the_function(x, acosh))
 			return t;
@@ -842,7 +842,7 @@ static ex tanh_eval(const ex & x)
 		return I*tan(x/I);
 	
 	if (is_exactly_a<function>(x)) {
-		ex t = x.op(0);
+		const ex &t = x.op(0);
 		// tanh(atanh(x)) -> x
 		if (is_ex_the_function(x, atanh))
 			return t;
@@ -1033,7 +1033,7 @@ static ex atanh_series(const ex &arg,
  		// This is the branch cut: assemble the primitive series manually and
  		// then add the corresponding complex step function.
  		const symbol &s = ex_to<symbol>(rel.lhs());
- 		const ex point = rel.rhs();
+ 		const ex &point = rel.rhs();
  		const symbol foo;
  		const ex replarg = series(atanh(arg), s==foo, order).subs(foo==point);
 		ex Order0correction = replarg.op(0)+csgn(I*arg)*Pi*I*_ex1_2;
