@@ -1752,7 +1752,7 @@ instance are then handled automatically by @code{basic::diff} and
 @code{ex::diff}):
 
 @example
-static ex cos_derive(const ex & x, unsigned diff_param)
+static ex cos_deriv(const ex & x, unsigned diff_param)
 @{
     return -sin(x);
 @}
@@ -1773,14 +1773,20 @@ going to descibe how it expands, please consult your preprocessor if you
 are curious:
 
 @example
-REGISTER_FUNCTION(cos, cos_eval, cos_evalf, cos_derive, NULL);
+REGISTER_FUNCTION(cos, eval_func(cos_eval).
+                       evalf_func(cos_evalf).
+                       derivative_func(cos_deriv));
 @end example
 
 The first argument is the function's name used for calling it and for
-output.  The second, third and fourth bind the corresponding methods to
-this objects and the fifth is a slot for inserting a method for series
-expansion.  (If set to @code{NULL} it defaults to simple Taylor
-expansion, which is correct if there are no poles involved.  The way
+output. The second binds the corresponding methods as options to this
+object. Options are separated by a dot and can be given in an arbitrary
+order. GiNaC functions understand several more options which
+are always specified as @code{.option(params)}, for example a method
+for series expansion @code{.series_func(cos_series)}. If no series
+expansion method is given, GiNaC defaults to simple Taylor
+expansion, which is correct if there are no poles involved (as is
+the case for the @code{cos} function).  The way
 GiNaC handles poles in case there are any is best understood by studying
 one of the examples, like the Gamma function for instance.  In essence
 the function first checks if there is a pole at the evaluation point and
