@@ -4,21 +4,28 @@ This file records noteworthy changes.
 * Added a structure<T> template class for the easy creation of user-defined
   algebraic classes.
 * <visitors>
+* <iterators>
 * <new-style printing>
 * <noncommutative symbols>
-* Improved the speed of subs() and normal() by the use of maps instead of
-  lists.
+* Improved the speed of subs(), normal(), to_rational() and to_polynomial()
+  by the use of maps instead of lists. The old forms
+    subs(const lst & ls, const lst & lr, unsigned options)
+    to_rational/to_polynomial(lst & repl)
+  are still available for compatibility, but using the new forms
+    subs(const exmap & m, unsigned options)
+    to_rational/to_polynomial(exmap & repl)
+  is more efficient, especially when the number of replacements is large.
 * quo(), rem(), prem(), sprem(), decomp_rational(), unit(), content(),
   primpart() and matrix::charpoly() now take a "const ex &" instead of a
   "const symbol &".
 * <object fusion>
-* Many internal reorganizations and optimizations.
+* Lots of internal streamlining and optimizations.
 * Caveats for class implementors:
    - basic::copy() and basic::destroy() are gone; classes derived from
      basic can use the defaults for the assignment operator and copy
      constructor.
-   - basic::subs() and basic::normal() take an 'exmap &' instead of two
-     'lst &'.
+   - basic::subs(), basic::normal(), basic::to_rational() and
+     basic::to_polynomial() take 'exmap' objects instead of lists.
    - basic::subs() now descends into subexpressions (if accessible via
      nops()/op()/let_op()). If you have a custom implementation of subs()
      that calls basic::subs() after substituting subexpressions, this needs
