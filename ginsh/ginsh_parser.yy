@@ -406,7 +406,7 @@ static ex f_find(const exprseq &e)
 
 static ex f_integer_content(const exprseq &e)
 {
-	return e[0].integer_content();
+	return e[0].expand().integer_content();
 }
 
 static ex f_inverse(const exprseq &e)
