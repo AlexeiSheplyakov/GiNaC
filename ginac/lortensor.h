@@ -128,9 +128,8 @@ private:
     extern const lortensor some_lortensor;
     extern type_info const & typeid_lortensor;
 
-// utility functions !!!!!!!!!!!!!!!!!! (to do)
+// utility functions
     
-
 inline const lortensor & ex_to_lortensor(const ex &e)
 {
 	return static_cast<const lortensor &>(*e.bp);
