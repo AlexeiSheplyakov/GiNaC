@@ -4298,19 +4298,22 @@ and have the @samp{x} and @samp{y} correspond to the symbols @code{x} and
 desired symbols to the @code{>>} stream input operator.
 
 Instead, GiNaC lets you construct an expression from a string, specifying the
-list of symbols to be used:
+list of symbols and indices to be used:
 
 @example
 @{
-    symbol x("x"), y("y");
-    ex e("2*x+sin(y)", lst(x, y));
+    symbol x("x"), y("y"), p("p");
+    idx i(symbol("i"), 3);
+    ex e("2*x+sin(y)+p.i", lst(x, y, p, i));
 @}
 @end example
 
 The input syntax is the same as that used by @command{ginsh} and the stream
-output operator @code{<<}. The symbols in the string are matched by name to
-the symbols in the list and if GiNaC encounters a symbol not specified in
-the list it will throw an exception.
+output operator @code{<<}. The symbols and indices in the string are matched
+by name to the symbols and indices in the list and if GiNaC encounters a
+symbol or index not specified in the list it will throw an exception. Only
+indices whose values are single symbols can be used (i.e. numeric indices
+or compound indices as in "A.(2*n+1)" are not allowed).
 
 With this constructor, it's also easy to implement interactive GiNaC programs:
 
