@@ -126,6 +126,8 @@ REGISTER_FUNCTION(csgn, eval_func(csgn_eval).
 
 //////////
 // Eta function: eta(x,y) == log(x*y) - log(x) - log(y).
+// This function is closely related to the unwinding number K, sometimes found
+// in modern literature: K(z) == (z-log(exp(z)))/(2*Pi*I).
 //////////
 
 static ex eta_evalf(const ex &x, const ex &y)
