@@ -319,18 +319,18 @@ void numeric::archive(archive_node &n) const
 #ifdef HAVE_SSTREAM
     // Write number as string
     ostringstream s;
-    if (is_crational())
+    if (this->is_crational())
         s << *value;
     else {
         // Non-rational numbers are written in an integer-decoded format
         // to preserve the precision
-        if (is_real()) {
+        if (this->is_real()) {
             cl_idecoded_float re = integer_decode_float(The(cl_F)(*value));
             s << "R";
             s << re.sign << " " << re.mantissa << " " << re.exponent;
         } else {
-            cl_idecoded_float re = integer_decode_float(The(cl_F)(realpart(*value)));
-            cl_idecoded_float im = integer_decode_float(The(cl_F)(imagpart(*value)));
+            cl_idecoded_float re = integer_decode_float(The(cl_F)(::realpart(*value)));
+            cl_idecoded_float im = integer_decode_float(The(cl_F)(::imagpart(*value)));
             s << "C";
             s << re.sign << " " << re.mantissa << " " << re.exponent << " ";
             s << im.sign << " " << im.mantissa << " " << im.exponent;
@@ -341,18 +341,18 @@ void numeric::archive(archive_node &n) const
     // Write number as string
     char buf[1024];
     ostrstream f(buf, 1024);
-    if (is_crational())
+    if (this->is_crational())
         f << *value << ends;
     else {
         // Non-rational numbers are written in an integer-decoded format
         // to preserve the precision
-        if (is_real()) {
+        if (this->is_real()) {
             cl_idecoded_float re = integer_decode_float(The(cl_F)(*value));
             f << "R";
             f << re.sign << " " << re.mantissa << " " << re.exponent << ends;
         } else {
-            cl_idecoded_float re = integer_decode_float(The(cl_F)(realpart(*value)));
-            cl_idecoded_float im = integer_decode_float(The(cl_F)(imagpart(*value)));
+            cl_idecoded_float re = integer_decode_float(The(cl_F)(::realpart(*value)));
+            cl_idecoded_float im = integer_decode_float(The(cl_F)(::imagpart(*value)));
             f << "C";
             f << re.sign << " " << re.mantissa << " " << re.exponent << " ";
             f << im.sign << " " << im.mantissa << " " << im.exponent << ends;
@@ -381,48 +381,48 @@ void numeric::print(ostream & os, unsigned upper_precedence) const
     // together with the other routines and produces something compatible to
     // ginsh input.
     debugmsg("numeric print", LOGLEVEL_PRINT);
-    if (is_real()) {
+    if (this->is_real()) {
         // case 1, real:  x  or  -x
-        if ((precedence<=upper_precedence) && (!is_pos_integer())) {
+        if ((precedence<=upper_precedence) && (!this->is_pos_integer())) {
             os << "(" << *value << ")";
         } else {
             os << *value;
         }
     } else {
         // case 2, imaginary:  y*I  or  -y*I
-        if (realpart(*value) == 0) {
-            if ((precedence<=upper_precedence) && (imagpart(*value) < 0)) {
-                if (imagpart(*value) == -1) {
+        if (::realpart(*value) == 0) {
+            if ((precedence<=upper_precedence) && (::imagpart(*value) < 0)) {
+                if (::imagpart(*value) == -1) {
                     os << "(-I)";
                 } else {
-                    os << "(" << imagpart(*value) << "*I)";
+                    os << "(" << ::imagpart(*value) << "*I)";
                 }
             } else {
-                if (imagpart(*value) == 1) {
+                if (::imagpart(*value) == 1) {
                     os << "I";
                 } else {
-                    if (imagpart (*value) == -1) {
+                    if (::imagpart (*value) == -1) {
                         os << "-I";
                     } else {
-                        os << imagpart(*value) << "*I";
+                        os << ::imagpart(*value) << "*I";
                     }
                 }
             }
         } else {
             // case 3, complex:  x+y*I  or  x-y*I  or  -x+y*I  or  -x-y*I
             if (precedence <= upper_precedence) os << "(";
-            os << realpart(*value);
-            if (imagpart(*value) < 0) {
-                if (imagpart(*value) == -1) {
+            os << ::realpart(*value);
+            if (::imagpart(*value) < 0) {
+                if (::imagpart(*value) == -1) {
                     os << "-I";
                 } else {
-                    os << imagpart(*value) << "*I";
+                    os << ::imagpart(*value) << "*I";
                 }
             } else {
-                if (imagpart(*value) == 1) {
+                if (::imagpart(*value) == 1) {
                     os << "+I";
                 } else {
-                    os << "+" << imagpart(*value) << "*I";
+                    os << "+" << ::imagpart(*value) << "*I";
                 }
             }
             if (precedence <= upper_precedence) os << ")";
@@ -438,6 +438,8 @@ void numeric::printraw(ostream & os) const
     debugmsg("numeric printraw", LOGLEVEL_PRINT);
     os << "numeric(" << *value << ")";
 }
+
+
 void numeric::printtree(ostream & os, unsigned indent) const
 {
     debugmsg("numeric printtree", LOGLEVEL_PRINT);
@@ -447,12 +449,13 @@ void numeric::printtree(ostream & os, unsigned indent) const
        << ", flags=" << flags << endl;
 }
 
+
 void numeric::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) const
 {
     debugmsg("numeric print csrc", LOGLEVEL_PRINT);
     ios::fmtflags oldflags = os.flags();
     os.setf(ios::scientific);
-    if (is_rational() && !is_integer()) {
+    if (this->is_rational() && !this->is_integer()) {
         if (compare(_num0()) > 0) {
             os << "(";
             if (type == csrc_types::ctype_cl_N)
@@ -480,6 +483,7 @@ void numeric::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) 
     }
     os.flags(oldflags);
 }
+
 
 bool numeric::info(unsigned inf) const
 {
@@ -524,12 +528,37 @@ bool numeric::info(unsigned inf) const
     return false;
 }
 
+/** Disassemble real part and imaginary part to scan for the occurrence of a
+ *  single number.  Also handles the imaginary unit. */
+bool numeric::has(const ex & other) const
+{
+    if (!is_exactly_of_type(*other.bp, numeric))
+        return false;
+    const numeric & o = static_cast<numeric &>(const_cast<basic &>(*other.bp));
+    if (this->is_equal(o))
+        return true;
+    if (o.imag().is_zero())  // e.g. scan for 3 in -3*I
+        return (this->real().is_equal(o) || this->imag().is_equal(o) ||
+                this->real().is_equal(-o) || this->imag().is_equal(-o));
+    else {
+        if (o.is_equal(I))  // e.g scan for I in 42*I
+            return !this->is_real();
+        if (o.real().is_zero())  // e.g. scan for 2*I in 2*I+1
+            return (this->real().has(o*I) || this->imag().has(o*I) ||
+                    this->real().has(-o*I) || this->imag().has(-o*I));
+    }
+    return false;
+}
+
+
+/** Evaluation of numbers doesn't do anything. */
 ex numeric::eval(int level) const
 {
     // Warning: if this is ever gonna do something, the ex ctors from all kinds
     // of numbers should be checking for status_flags::evaluated.
     return this->hold();
 }
+
 
 /** Cast numeric into a floating-point object.  For example exact numeric(1) is
  *  returned as a 1.0000000000000000000000 and so on according to how Digits is
@@ -540,7 +569,7 @@ ex numeric::eval(int level) const
 ex numeric::evalf(int level) const
 {
     // level can safely be discarded for numeric objects.
-    return numeric(cl_float(1.0, cl_default_float_format) * (*value));  // -> CLN
+    return numeric(::cl_float(1.0, ::cl_default_float_format) * (*value));  // -> CLN
 }
 
 // protected
@@ -552,6 +581,7 @@ ex numeric::derivative(const symbol & s) const
 {
     return _ex0();
 }
+
 
 int numeric::compare_same_type(const basic & other) const
 {
@@ -565,12 +595,13 @@ int numeric::compare_same_type(const basic & other) const
     return compare(o);    
 }
 
+
 bool numeric::is_equal_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_exactly_of_type(other,numeric));
     const numeric *o = static_cast<const numeric *>(&other);
     
-    return is_equal(*o);
+    return this->is_equal(*o);
 }
 
 /*
@@ -645,7 +676,7 @@ numeric numeric::power(const numeric & other) const
     if (::zerop(*value)) {
         if (::zerop(*other.value))
             throw (std::domain_error("numeric::eval(): pow(0,0) is undefined"));
-        else if (other.is_real() && !::plusp(realpart(*other.value)))
+        else if (other.is_real() && !::plusp(::realpart(*other.value)))
             throw (std::overflow_error("numeric::eval(): division by zero"));
         else
             return _num0();
@@ -699,7 +730,7 @@ const numeric & numeric::power_dyn(const numeric & other) const
     if (::zerop(*value)) {
         if (::zerop(*other.value))
             throw (std::domain_error("numeric::eval(): pow(0,0) is undefined"));
-        else if (other.is_real() && !::plusp(realpart(*other.value)))
+        else if (other.is_real() && !::plusp(::realpart(*other.value)))
             throw (std::overflow_error("numeric::eval(): division by zero"));
         else
             return _num0();
@@ -745,15 +776,15 @@ const numeric & numeric::operator=(const char * s)
  *  @see numeric::compare(const numeric & other) */
 int numeric::csgn(void) const
 {
-    if (is_zero())
+    if (this->is_zero())
         return 0;
-    if (!::zerop(realpart(*value))) {
-        if (::plusp(realpart(*value)))
+    if (!::zerop(::realpart(*value))) {
+        if (::plusp(::realpart(*value)))
             return 1;
         else
             return -1;
     } else {
-        if (::plusp(imagpart(*value)))
+        if (::plusp(::imagpart(*value)))
             return 1;
         else
             return -1;
@@ -770,16 +801,16 @@ int numeric::csgn(void) const
 int numeric::compare(const numeric & other) const
 {
     // Comparing two real numbers?
-    if (is_real() && other.is_real())
+    if (this->is_real() && other.is_real())
         // Yes, just compare them
         return ::cl_compare(The(cl_R)(*value), The(cl_R)(*other.value));    
     else {
         // No, first compare real parts
-        cl_signean real_cmp = ::cl_compare(realpart(*value), realpart(*other.value));
+        cl_signean real_cmp = ::cl_compare(::realpart(*value), ::realpart(*other.value));
         if (real_cmp)
             return real_cmp;
 
-        return ::cl_compare(imagpart(*value), imagpart(*other.value));
+        return ::cl_compare(::imagpart(*value), ::imagpart(*other.value));
     }
 }
 
@@ -797,7 +828,7 @@ bool numeric::is_zero(void) const
 /** True if object is not complex and greater than zero. */
 bool numeric::is_positive(void) const
 {
-    if (is_real())
+    if (this->is_real())
         return ::plusp(The(cl_R)(*value));  // -> CLN
     return false;
 }
@@ -805,7 +836,7 @@ bool numeric::is_positive(void) const
 /** True if object is not complex and less than zero. */
 bool numeric::is_negative(void) const
 {
-    if (is_real())
+    if (this->is_real())
         return ::minusp(The(cl_R)(*value));  // -> CLN
     return false;
 }
@@ -819,25 +850,25 @@ bool numeric::is_integer(void) const
 /** True if object is an exact integer greater than zero. */
 bool numeric::is_pos_integer(void) const
 {
-    return (is_integer() && ::plusp(The(cl_I)(*value)));  // -> CLN
+    return (this->is_integer() && ::plusp(The(cl_I)(*value)));  // -> CLN
 }
 
 /** True if object is an exact integer greater or equal zero. */
 bool numeric::is_nonneg_integer(void) const
 {
-    return (is_integer() && !::minusp(The(cl_I)(*value)));  // -> CLN
+    return (this->is_integer() && !::minusp(The(cl_I)(*value)));  // -> CLN
 }
 
 /** True if object is an exact even integer. */
 bool numeric::is_even(void) const
 {
-    return (is_integer() && ::evenp(The(cl_I)(*value)));  // -> CLN
+    return (this->is_integer() && ::evenp(The(cl_I)(*value)));  // -> CLN
 }
 
 /** True if object is an exact odd integer. */
 bool numeric::is_odd(void) const
 {
-    return (is_integer() && ::oddp(The(cl_I)(*value)));  // -> CLN
+    return (this->is_integer() && ::oddp(The(cl_I)(*value)));  // -> CLN
 }
 
 /** Probabilistic primality test.
@@ -845,7 +876,7 @@ bool numeric::is_odd(void) const
  *  @return  true if object is exact integer and prime. */
 bool numeric::is_prime(void) const
 {
-    return (is_integer() && ::isprobprime(The(cl_I)(*value)));  // -> CLN
+    return (this->is_integer() && ::isprobprime(The(cl_I)(*value)));  // -> CLN
 }
 
 /** True if object is an exact rational number, may even be complex
@@ -877,9 +908,9 @@ bool numeric::is_cinteger(void) const
 {
     if (::instanceof(*value, cl_I_ring))
         return true;
-    else if (!is_real()) {  // complex case, handle n+m*I
-        if (::instanceof(realpart(*value), cl_I_ring) &&
-            ::instanceof(imagpart(*value), cl_I_ring))
+    else if (!this->is_real()) {  // complex case, handle n+m*I
+        if (::instanceof(::realpart(*value), cl_I_ring) &&
+            ::instanceof(::imagpart(*value), cl_I_ring))
             return true;
     }
     return false;
@@ -891,9 +922,9 @@ bool numeric::is_crational(void) const
 {
     if (::instanceof(*value, cl_RA_ring))
         return true;
-    else if (!is_real()) {  // complex case, handle Q(i):
-        if (::instanceof(realpart(*value), cl_RA_ring) &&
-            ::instanceof(imagpart(*value), cl_RA_ring))
+    else if (!this->is_real()) {  // complex case, handle Q(i):
+        if (::instanceof(::realpart(*value), cl_RA_ring) &&
+            ::instanceof(::imagpart(*value), cl_RA_ring))
             return true;
     }
     return false;
@@ -904,7 +935,7 @@ bool numeric::is_crational(void) const
  *  @exception invalid_argument (complex inequality) */ 
 bool numeric::operator<(const numeric & other) const
 {
-    if (is_real() && other.is_real())
+    if (this->is_real() && other.is_real())
         return (bool)(The(cl_R)(*value) < The(cl_R)(*other.value));  // -> CLN
     throw (std::invalid_argument("numeric::operator<(): complex inequality"));
     return false;  // make compiler shut up
@@ -915,7 +946,7 @@ bool numeric::operator<(const numeric & other) const
  *  @exception invalid_argument (complex inequality) */ 
 bool numeric::operator<=(const numeric & other) const
 {
-    if (is_real() && other.is_real())
+    if (this->is_real() && other.is_real())
         return (bool)(The(cl_R)(*value) <= The(cl_R)(*other.value));  // -> CLN
     throw (std::invalid_argument("numeric::operator<=(): complex inequality"));
     return false;  // make compiler shut up
@@ -926,7 +957,7 @@ bool numeric::operator<=(const numeric & other) const
  *  @exception invalid_argument (complex inequality) */ 
 bool numeric::operator>(const numeric & other) const
 {
-    if (is_real() && other.is_real())
+    if (this->is_real() && other.is_real())
         return (bool)(The(cl_R)(*value) > The(cl_R)(*other.value));  // -> CLN
     throw (std::invalid_argument("numeric::operator>(): complex inequality"));
     return false;  // make compiler shut up
@@ -937,7 +968,7 @@ bool numeric::operator>(const numeric & other) const
  *  @exception invalid_argument (complex inequality) */  
 bool numeric::operator>=(const numeric & other) const
 {
-    if (is_real() && other.is_real())
+    if (this->is_real() && other.is_real())
         return (bool)(The(cl_R)(*value) >= The(cl_R)(*other.value));  // -> CLN
     throw (std::invalid_argument("numeric::operator>=(): complex inequality"));
     return false;  // make compiler shut up
@@ -948,7 +979,7 @@ bool numeric::operator>=(const numeric & other) const
  *  You may also consider checking the range first. */
 int numeric::to_int(void) const
 {
-    GINAC_ASSERT(is_integer());
+    GINAC_ASSERT(this->is_integer());
     return ::cl_I_to_int(The(cl_I)(*value));  // -> CLN
 }
 
@@ -957,7 +988,7 @@ int numeric::to_int(void) const
  *  You may also consider checking the range first. */
 long numeric::to_long(void) const
 {
-    GINAC_ASSERT(is_integer());
+    GINAC_ASSERT(this->is_integer());
     return ::cl_I_to_long(The(cl_I)(*value));  // -> CLN
 }
 
@@ -965,8 +996,8 @@ long numeric::to_long(void) const
  *  if the number is really not complex before calling this method. */
 double numeric::to_double(void) const
 {
-    GINAC_ASSERT(is_real());
-    return ::cl_double_approx(realpart(*value));  // -> CLN
+    GINAC_ASSERT(this->is_real());
+    return ::cl_double_approx(::realpart(*value));  // -> CLN
 }
 
 /** Real part of a number. */
@@ -1000,14 +1031,14 @@ inline cl_heap_ratio* TheRatio (const cl_N& obj)
  *  cases. */
 numeric numeric::numer(void) const
 {
-    if (is_integer()) {
+    if (this->is_integer()) {
         return numeric(*this);
     }
 #ifdef SANE_LINKER
     else if (::instanceof(*value, cl_RA_ring)) {
         return numeric(::numerator(The(cl_RA)(*value)));
     }
-    else if (!is_real()) {  // complex case, handle Q(i):
+    else if (!this->is_real()) {  // complex case, handle Q(i):
         cl_R r = ::realpart(*value);
         cl_R i = ::imagpart(*value);
         if (::instanceof(r, cl_I_ring) && ::instanceof(i, cl_I_ring))
@@ -1026,9 +1057,9 @@ numeric numeric::numer(void) const
     else if (instanceof(*value, cl_RA_ring)) {
         return numeric(TheRatio(*value)->numerator);
     }
-    else if (!is_real()) {  // complex case, handle Q(i):
-        cl_R r = realpart(*value);
-        cl_R i = imagpart(*value);
+    else if (!this->is_real()) {  // complex case, handle Q(i):
+        cl_R r = ::realpart(*value);
+        cl_R i = ::imagpart(*value);
         if (instanceof(r, cl_I_ring) && instanceof(i, cl_I_ring))
             return numeric(*this);
         if (instanceof(r, cl_I_ring) && instanceof(i, cl_RA_ring))
@@ -1051,16 +1082,16 @@ numeric numeric::numer(void) const
  *  (i.e denom(4/3+5/6*I) == 6), one in all other cases. */
 numeric numeric::denom(void) const
 {
-    if (is_integer()) {
+    if (this->is_integer()) {
         return _num1();
     }
 #ifdef SANE_LINKER
     if (instanceof(*value, cl_RA_ring)) {
         return numeric(::denominator(The(cl_RA)(*value)));
     }
-    if (!is_real()) {  // complex case, handle Q(i):
-        cl_R r = realpart(*value);
-        cl_R i = imagpart(*value);
+    if (!this->is_real()) {  // complex case, handle Q(i):
+        cl_R r = ::realpart(*value);
+        cl_R i = ::imagpart(*value);
         if (::instanceof(r, cl_I_ring) && ::instanceof(i, cl_I_ring))
             return _num1();
         if (::instanceof(r, cl_I_ring) && ::instanceof(i, cl_RA_ring))
@@ -1074,9 +1105,9 @@ numeric numeric::denom(void) const
     if (instanceof(*value, cl_RA_ring)) {
         return numeric(TheRatio(*value)->denominator);
     }
-    if (!is_real()) {  // complex case, handle Q(i):
-        cl_R r = realpart(*value);
-        cl_R i = imagpart(*value);
+    if (!this->is_real()) {  // complex case, handle Q(i):
+        cl_R r = ::realpart(*value);
+        cl_R i = ::imagpart(*value);
         if (instanceof(r, cl_I_ring) && instanceof(i, cl_I_ring))
             return _num1();
         if (instanceof(r, cl_I_ring) && instanceof(i, cl_RA_ring))
@@ -1099,7 +1130,7 @@ numeric numeric::denom(void) const
  *  in two's complement if it is an integer, 0 otherwise. */    
 int numeric::int_length(void) const
 {
-    if (is_integer())
+    if (this->is_integer())
         return ::integer_length(The(cl_I)(*value));  // -> CLN
     else
         return 0;
@@ -1215,7 +1246,7 @@ const numeric atan(const numeric & x)
 const numeric atan(const numeric & y, const numeric & x)
 {
     if (x.is_real() && y.is_real())
-        return ::atan(realpart(*x.value), realpart(*y.value));  // -> CLN
+        return ::atan(::realpart(*x.value), ::realpart(*y.value));  // -> CLN
     else
         throw (std::invalid_argument("numeric::atan(): complex argument"));        
 }
@@ -1285,7 +1316,7 @@ const numeric zeta(const numeric & x)
     // being an exact zero for CLN, which can be tested and then we can just
     // pass the number casted to an int:
     if (x.is_real()) {
-        int aux = (int)(::cl_double_approx(realpart(*x.value)));
+        int aux = (int)(::cl_double_approx(::realpart(*x.value)));
         if (zerop(*x.value-aux))
             return ::cl_zeta(aux);  // -> CLN
     }
@@ -1481,7 +1512,6 @@ numeric mod(const numeric & a, const numeric & b)
  *  @return a mod b in the range [-iquo(abs(m)-1,2), iquo(abs(m),2)]. */
 numeric smod(const numeric & a, const numeric & b)
 {
-    //  FIXME: Should this become a member function?
     if (a.is_integer() && b.is_integer()) {
         cl_I b2 = The(cl_I)(ceiling1(The(cl_I)(*b.value) / 2)) - 1;
         return ::mod(The(cl_I)(*a.value) + b2, The(cl_I)(*b.value)) - b2;
@@ -1613,21 +1643,21 @@ numeric lcm(const numeric & a, const numeric & b)
 /** Floating point evaluation of Archimedes' constant Pi. */
 ex PiEvalf(void)
 { 
-    return numeric(cl_pi(cl_default_float_format));  // -> CLN
+    return numeric(::cl_pi(cl_default_float_format));  // -> CLN
 }
 
 
 /** Floating point evaluation of Euler's constant Gamma. */
 ex EulerGammaEvalf(void)
 { 
-    return numeric(cl_eulerconst(cl_default_float_format));  // -> CLN
+    return numeric(::cl_eulerconst(cl_default_float_format));  // -> CLN
 }
 
 
 /** Floating point evaluation of Catalan's constant. */
 ex CatalanEvalf(void)
 {
-    return numeric(cl_catalanconst(cl_default_float_format));  // -> CLN
+    return numeric(::cl_catalanconst(cl_default_float_format));  // -> CLN
 }
 
 
@@ -1639,14 +1669,14 @@ _numeric_digits::_numeric_digits()
 {
     assert(!too_late);
     too_late = true;
-    cl_default_float_format = cl_float_format(17);
+    cl_default_float_format = ::cl_float_format(17);
 }
 
 
 _numeric_digits& _numeric_digits::operator=(long prec)
 {
     digits=prec;
-    cl_default_float_format = cl_float_format(prec); 
+    cl_default_float_format = ::cl_float_format(prec); 
     return *this;
 }
 

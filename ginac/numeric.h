@@ -127,6 +127,7 @@ public:
     void printtree(ostream & os, unsigned indent) const;
     void printcsrc(ostream & os, unsigned type, unsigned precedence=0) const;
     bool info(unsigned inf) const;
+    bool has(const ex & other) const;
     ex eval(int level=0) const;
     ex evalf(int level=0) const;
     ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
