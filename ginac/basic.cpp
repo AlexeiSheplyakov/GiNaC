@@ -22,6 +22,9 @@
 
 #include <iostream>
 #include <stdexcept>
+#ifdef DO_GINAC_ASSERT
+#  include <typeinfo>
+#endif
 
 #include "basic.h"
 #include "ex.h"
