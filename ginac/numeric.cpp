@@ -302,7 +302,7 @@ void numeric::archive(archive_node &n) const
     ostringstream s;
 #else
     char buf[1024];
-    ostrstream f(buf, 1024);
+    ostrstream s(buf, 1024);
 #endif
     if (this->is_crational())
         s << *value;
