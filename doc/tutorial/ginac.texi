@@ -595,7 +595,7 @@ to fiddle around with optimization.
 
 Generally, the top-level Makefile runs recursively to the
 subdirectories.  It is therfore safe to go into any subdirectory
-(@code{doc/}, @code{ginsh/}, ...) and simply type @code{make}
+(@code{doc/}, @code{ginsh/}, @dots{}) and simply type @code{make}
 @var{target} there in case something went wrong.
 
 
@@ -671,6 +671,7 @@ meta-class for storing all mathematical objects.
 * Lists::                        Lists of expressions.
 * Mathematical functions::       Mathematical functions.
 * Relations::                    Equality, Inequality and all that.
+* Matrices::                     Matrices.
 * Indexed objects::              Handling indexed quantities.
 * Non-commutative objects::      Algebras with non-commutative products.
 @end menu
@@ -684,7 +685,7 @@ meta-class for storing all mathematical objects.
 
 The most common class of objects a user deals with is the expression
 @code{ex}, representing a mathematical object like a variable, number,
-function, sum, product, etc...  Expressions may be put together to form
+function, sum, product, etc@dots{}  Expressions may be put together to form
 new expressions, passed as arguments to functions, and so on.  Here is a
 little collection of valid expressions:
 
@@ -765,7 +766,7 @@ $\sqrt{2}$
 @item @code{pseries} @tab Power Series, e.g. @math{x-1/6*x^3+1/120*x^5+O(x^7)}
 @item @code{function} @tab A symbolic function like @math{sin(2*x)}
 @item @code{lst} @tab Lists of expressions @{@math{x}, @math{2*y}, @math{3+z}@}
-@item @code{matrix} @tab @math{n}x@math{m} matrices of expressions
+@item @code{matrix} @tab @math{m}x@math{n} matrices of expressions
 @item @code{relational} @tab A relation like the identity @math{x}@code{==}@math{y}
 @item @code{indexed} @tab Indexed object like @math{A_ij}
 @item @code{tensor} @tab Special tensor like the delta and metric tensors
@@ -812,8 +813,7 @@ for instance) will always reveal their difference.  Watch out, please.
 Although symbols can be assigned expressions for internal reasons, you
 should not do it (and we are not going to tell you how it is done).  If
 you want to replace a symbol with something else in an expression, you
-can use the expression's @code{.subs()} method (@xref{Substituting Expressions},
-for more information).
+can use the expression's @code{.subs()} method (@pxref{Substituting Expressions}).
 
 
 @node Numbers, Constants, Symbols, Basic Concepts
@@ -1136,12 +1136,12 @@ canonical form.
 @cindex @code{append()}
 @cindex @code{prepend()}
 
-The GiNaC class @code{lst} serves for holding a list of arbitrary expressions.
-These are sometimes used to supply a variable number of arguments of the same
-type to GiNaC methods such as @code{subs()} and @code{to_rational()}, so you
-should have a basic understanding about them.
+The GiNaC class @code{lst} serves for holding a @dfn{list} of arbitrary
+expressions. These are sometimes used to supply a variable number of
+arguments of the same type to GiNaC methods such as @code{subs()} and
+@code{to_rational()}, so you should have a basic understanding about them.
 
-Lists of up to 15 expressions can be directly constructed from single
+Lists of up to 16 expressions can be directly constructed from single
 expressions:
 
 @example
@@ -1212,7 +1212,7 @@ expansion and so on.  Read the next chapter in order to learn more about
 this.
 
 
-@node Relations, Indexed objects, Mathematical functions, Basic Concepts
+@node Relations, Matrices, Mathematical functions, Basic Concepts
 @c    node-name, next, previous, up
 @section Relations
 @cindex @code{relational} (class)
@@ -1239,7 +1239,171 @@ however, that @code{==} here does not perform any simplifications, hence
 @code{expand()} must be called explicitly.
 
 
-@node Indexed objects, Non-commutative objects, Relations, Basic Concepts
+@node Matrices, Indexed objects, Relations, Basic Concepts
+@c    node-name, next, previous, up
+@section Matrices
+@cindex @code{matrix} (class)
+
+A @dfn{matrix} is a two-dimensional array of expressions. The elements of a
+matrix with @math{m} rows and @math{n} columns are accessed with two
+@code{unsigned} indices, the first one in the range 0@dots{}@math{m-1}, the
+second one in the range 0@dots{}@math{n-1}.
+
+There are a couple of ways to construct matrices, with or without preset
+elements:
+
+@example
+matrix::matrix(unsigned r, unsigned c);
+matrix::matrix(unsigned r, unsigned c, const lst & l);
+ex lst_to_matrix(const lst & l);
+ex diag_matrix(const lst & l);
+@end example
+
+The first two functions are @code{matrix} constructors which create a matrix
+with @samp{r} rows and @samp{c} columns. The matrix elements can be
+initialized from a (flat) list of expressions @samp{l}. Otherwise they are
+all set to zero. The @code{lst_to_matrix()} function constructs a matrix
+from a list of lists, each list representing a matrix row. Finally,
+@code{diag_matrix()} constructs a diagonal matrix given the list of diagonal
+elements. Note that the last two functions return expressions, not matrix
+objects.
+
+Matrix elements can be accessed and set using the parenthesis (function call)
+operator:
+
+@example
+const ex & matrix::operator()(unsigned r, unsigned c) const;
+ex & matrix::operator()(unsigned r, unsigned c);
+@end example
+
+It is also possible to access the matrix elements in a linear fashion with
+the @code{op()} method. But C++-style subscripting with square brackets
+@samp{[]} is not available.
+
+Here are a couple of examples that all construct the same 2x2 diagonal
+matrix:
+
+@example
+@{
+    symbol a("a"), b("b");
+    ex e;
+
+    matrix M(2, 2);
+    M(0, 0) = a;
+    M(1, 1) = b;
+    e = M;
+
+    e = matrix(2, 2, lst(a, 0, 0, b));
+
+    e = lst_to_matrix(lst(lst(a, 0), lst(0, b)));
+
+    e = diag_matrix(lst(a, b));
+
+    cout << e << endl;
+     // -> [[a,0],[0,b]]
+@}
+@end example
+
+@cindex @code{transpose()}
+@cindex @code{inverse()}
+There are three ways to do arithmetic with matrices. The first (and most
+efficient one) is to use the methods provided by the @code{matrix} class:
+
+@example
+matrix matrix::add(const matrix & other) const;
+matrix matrix::sub(const matrix & other) const;
+matrix matrix::mul(const matrix & other) const;
+matrix matrix::mul_scalar(const ex & other) const;
+matrix matrix::pow(const ex & expn) const;
+matrix matrix::transpose(void) const;
+matrix matrix::inverse(void) const;
+@end example
+
+All of these methods return the result as a new matrix object. Here is an
+example that calculates @math{A*B-2*C} for three matrices @math{A}, @math{B}
+and @math{C}:
+
+@example
+@{
+    matrix A(2, 2, lst(1, 2, 3, 4));
+    matrix B(2, 2, lst(-1, 0, 2, 1));
+    matrix C(2, 2, lst(8, 4, 2, 1));
+
+    matrix result = A.mul(B).sub(C.mul_scalar(2));
+    cout << result << endl;
+     // -> [[-13,-6],[1,2]]
+    ...
+@}
+@end example
+
+@cindex @code{evalm()}
+The second (and probably the most natural) way is to construct an expression
+containing matrices with the usual arithmetic operators and @code{pow()}.
+For efficiency reasons, expressions with sums, products and powers of
+matrices are not automatically evaluated in GiNaC. You have to call the
+method
+
+@example
+ex ex::evalm() const;
+@end example
+
+to obtain the result:
+
+@example
+@{
+    ...
+    ex e = A*B - 2*C;
+    cout << e << endl;
+     // -> [[1,2],[3,4]]*[[-1,0],[2,1]]-2*[[8,4],[2,1]]
+    cout << e.evalm() << endl;
+     // -> [[-13,-6],[1,2]]
+    ...
+@}
+@end example
+
+The non-commutativity of the product @code{A*B} in this example is
+automatically recognized by GiNaC. There is no need to use a special
+operator here. @xref{Non-commutative objects}, for more information about
+dealing with non-commutative expressions.
+
+Finally, you can work with indexed matrices and call @code{simplify_indexed()}
+to perform the arithmetic:
+
+@example
+@{
+    ...
+    idx i(symbol("i"), 2), j(symbol("j"), 2), k(symbol("k"), 2);
+    e = indexed(A, i, k) * indexed(B, k, j) - 2 * indexed(C, i, j);
+    cout << e << endl;
+     // -> -2*[[8,4],[2,1]].i.j+[[-1,0],[2,1]].k.j*[[1,2],[3,4]].i.k
+    cout << e.simplify_indexed() << endl;
+     // -> [[-13,-6],[1,2]].i.j
+@}
+@end example
+
+Using indices is most useful when working with rectangular matrices and
+one-dimensional vectors because you don't have to worry about having to
+transpose matrices before multiplying them. @xref{Indexed objects}, for
+more information about using matrices with indices, and about indices in
+general.
+
+The @code{matrix} class provides a couple of additional methods for
+computing determinants, traces, and characteristic polynomials:
+
+@example
+ex matrix::determinant(unsigned algo = determinant_algo::automatic) const;
+ex matrix::trace(void) const;
+ex matrix::charpoly(const symbol & lambda) const;
+@end example
+
+The @samp{algo} argument of @code{determinant()} allows to select between
+different algorithms for calculating the determinant. The possible values
+are defined in the @file{flags.h} header file. By default, GiNaC uses a
+heuristic to automatically select an algorithm that is likely to give the
+result most quickly.
+
+
+@node Indexed objects, Non-commutative objects, Matrices, Basic Concepts
 @c    node-name, next, previous, up
 @section Indexed objects
 
@@ -1672,7 +1836,7 @@ indices are specified).
 @subsubsection Delta tensor
 
 The delta tensor takes two indices, is symmetric and has the matrix
-representation @code{diag(1,1,1,...)}. It is constructed by the function
+representation @code{diag(1, 1, 1, ...)}. It is constructed by the function
 @code{delta_tensor()}:
 
 @example
@@ -1831,6 +1995,7 @@ and scalar products):
     idx i(symbol("i"), 2), j(symbol("j"), 2);
     symbol x("x"), y("y");
 
+    // A is a 2x2 matrix, X is a 2x1 vector
     matrix A(2, 2, lst(1, 2, 3, 4)), X(2, 1, lst(x, y));
 
     cout << indexed(A, i, i) << endl;
@@ -1847,8 +2012,8 @@ and scalar products):
 @end example
 
 You can of course obtain the same results with the @code{matrix::add()},
-@code{matrix::mul()} and @code{matrix::trace()} methods but with indices you
-don't have to worry about transposing matrices.
+@code{matrix::mul()} and @code{matrix::trace()} methods (@pxref{Matrices})
+but with indices you don't have to worry about transposing matrices.
 
 Matrix indices always start at 0 and their dimension must match the number
 of rows/columns of the matrix. Matrices with one row or one column are
@@ -1878,7 +2043,8 @@ physics:
 
 The @code{clifford} and @code{color} classes are subclasses of
 @code{indexed} because the elements of these algebras ususally carry
-indices.
+indices. The @code{matrix} class is described in more detail in
+@ref{Matrices}.
 
 Unlike most computer algebra systems, GiNaC does not primarily provide an
 operator (often denoted @samp{&*}) for representing inert products of
@@ -2488,7 +2654,7 @@ expressions), so something like @code{(pow(x,2)+x)/x==x+1} will return
 @code{false}.
 
 Actually, if you construct an expression like @code{a == b}, this will be
-represented by an object of the @code{relational} class (@xref{Relations}.)
+represented by an object of the @code{relational} class (@pxref{Relations})
 which is not evaluated until (explicitly or implicitely) cast to a @code{bool}.
 
 There are also two methods
@@ -4581,7 +4747,7 @@ nice for novice programmers, but dangerous.
 @item
 development tools: powerful development tools exist for C++, like fancy
 editors (e.g. with automatic indentation and syntax highlighting),
-debuggers, visualization tools, documentation generators...
+debuggers, visualization tools, documentation generators@dots{}
 
 @item
 modularization: C++ programs can easily be split into modules by
