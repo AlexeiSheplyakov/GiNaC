@@ -1,5 +1,10 @@
 This file records noteworthy changes.
 
+1.0.1 (22 November 2001)
+* Function sqrfree() handles a few more cases now.
+* Class relational has real canonical ordering now.
+* Handle obscene libreadline version numbers when building ginsh.
+
 1.0.0 (6 November 2001)
 * Some internal reorganization resulting in a general speed-up.
 * The last 3 evaluated expressions in ginsh are now referred to with the
