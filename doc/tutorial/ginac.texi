@@ -2735,6 +2735,7 @@ the method
 void ex::print(const print_context & c, unsigned level = 0);
 @end example
 
+@cindex @code{print_context} (class)
 The type of @code{print_context} object passed in determines the format
 of the output. The possible types are defined in @file{ginac/print.h}.
 All constructors of @code{print_context} and derived classes take an
@@ -2770,7 +2771,7 @@ double d = (3.000000e+00/2.000000e+00)*(x*x)+4.500000e+00;
 cl_N n = (cln::cl_F("3.0")/cln::cl_F("2.0"))*(x*x)+cln::cl_F("4.5");
 @end example
 
-The @code{print_context} type @code{print_tree} provdes a dump of the
+The @code{print_context} type @code{print_tree} provides a dump of the
 internal structure of an expression for debugging purposes:
 
 @example
@@ -2795,6 +2796,24 @@ add, hash=0x0, flags=0x3, nops=2
 
 This kind of output is also available in @command{ginsh} as the @code{print()}
 function.
+
+Another useful output format is for LaTeX parsing in mathematical mode.
+It is rather similar to the default @code{print_context} but provides
+some braces needed by LaTeX for delimiting boxes and also converts some
+common objects to conventional LaTeX names.  The code snippet
+
+@example
+    // ...
+    symbol x("x");
+    ex foo = lgamma(x).series(x==0,3);
+    foo.print(print_latex(std::cout));
+@end example
+
+will print out:
+
+@example
+    @{(-\ln(x))@}+@{(-\gamma_E)@} x+@{(1/12 \pi^2)@} x^@{2@}+\mathcal@{O@}(x^3)
+@end example
 
 If you need any fancy special output format, e.g. for interfacing GiNaC
 with other algebra systems or for producing code for different
