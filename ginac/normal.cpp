@@ -1050,21 +1050,22 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args)
 {
     // Some trivial cases
-    if (a.is_zero()) {
+	ex aex = a.expand(), bex = b.expand();
+    if (aex.is_zero()) {
         if (ca)
             *ca = exZERO();
         if (cb)
             *cb = exONE();
         return b;
     }
-    if (b.is_zero()) {
+    if (bex.is_zero()) {
         if (ca)
             *ca = exONE();
         if (cb)
             *cb = exZERO();
         return a;
     }
-    if (a.is_equal(exONE()) || b.is_equal(exONE())) {
+    if (aex.is_equal(exONE()) || bex.is_equal(exONE())) {
         if (ca)
             *ca = a;
         if (cb)
@@ -1080,17 +1081,15 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args)
         return a;
     }
 #endif
-    if (is_ex_exactly_of_type(a, numeric) && is_ex_exactly_of_type(b, numeric)) {
-        numeric g = gcd(ex_to_numeric(a), ex_to_numeric(b));
+    if (is_ex_exactly_of_type(aex, numeric) && is_ex_exactly_of_type(bex, numeric)) {
+        numeric g = gcd(ex_to_numeric(aex), ex_to_numeric(bex));
         if (ca)
-            *ca = ex_to_numeric(a) / g;
+            *ca = ex_to_numeric(aex) / g;
         if (cb)
-            *cb = ex_to_numeric(b) / g;
+            *cb = ex_to_numeric(bex) / g;
         return g;
     }
     if (check_args && !a.info(info_flags::rational_polynomial) || !b.info(info_flags::rational_polynomial)) {
-        cerr << "a=" << a << endl;
-        cerr << "b=" << b << endl;
         throw(std::invalid_argument("gcd: arguments must be polynomials over the rationals"));
     }
 
@@ -1109,40 +1108,40 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args)
     if (min_ldeg > 0) {
         ex common = power(*x, min_ldeg);
 //clog << "trivial common factor " << common << endl;
-        return gcd((a / common).expand(), (b / common).expand(), ca, cb, false) * common;
+        return gcd((aex / common).expand(), (bex / common).expand(), ca, cb, false) * common;
     }
 
     // Try to eliminate variables
     if (var->deg_a == 0) {
 //clog << "eliminating variable " << *x << " from b" << endl;
-        ex c = b.content(*x);
-        ex g = gcd(a, c, ca, cb, false);
+        ex c = bex.content(*x);
+        ex g = gcd(aex, c, ca, cb, false);
         if (cb)
-            *cb *= b.unit(*x) * b.primpart(*x, c);
+            *cb *= bex.unit(*x) * bex.primpart(*x, c);
         return g;
     } else if (var->deg_b == 0) {
 //clog << "eliminating variable " << *x << " from a" << endl;
-        ex c = a.content(*x);
-        ex g = gcd(c, b, ca, cb, false);
+        ex c = aex.content(*x);
+        ex g = gcd(c, bex, ca, cb, false);
         if (ca)
-            *ca *= a.unit(*x) * a.primpart(*x, c);
+            *ca *= aex.unit(*x) * aex.primpart(*x, c);
         return g;
     }
 
     // Try heuristic algorithm first, fall back to PRS if that failed
     ex g;
     try {
-        g = heur_gcd(a.expand(), b.expand(), ca, cb, var);
+        g = heur_gcd(aex, bex, ca, cb, var);
     } catch (gcdheu_failed) {
         g = *new ex(fail());
     }
     if (is_ex_exactly_of_type(g, fail)) {
 //clog << "heuristics failed\n";
-        g = sr_gcd(a, b, x);
+        g = sr_gcd(aex, bex, x);
         if (ca)
-            divide(a, g, *ca, false);
+            divide(aex, g, *ca, false);
         if (cb)
-            divide(b, g, *cb, false);
+            divide(bex, g, *cb, false);
     }
     return g;
 }
