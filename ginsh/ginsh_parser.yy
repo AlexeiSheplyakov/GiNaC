@@ -737,7 +737,7 @@ static void print_help_topics(void)
  *  Function name completion functions for readline
  */
 
-static char *fcn_generator(char *text, int state)
+static char *fcn_generator(const char *text, int state)
 {
 	static int len;				// Length of word to complete
 	static fcn_tab::const_iterator index;	// Iterator to function being currently considered
@@ -758,7 +758,7 @@ static char *fcn_generator(char *text, int state)
 	return NULL;
 }
 
-static char **fcn_completion(char *text, int start, int end)
+static char **fcn_completion(const char *text, int start, int end)
 {
 	if (rl_line_buffer[0] == '!') {
 		// For shell commands, revert back to filename completion
@@ -768,7 +768,7 @@ static char **fcn_completion(char *text, int start, int end)
 #if (GINAC_RL_VERSION_MAJOR < 4) || (GINAC_RL_VERSION_MAJOR == 4 && GINAC_RL_VERSION_MINOR < 2)
 		return completion_matches(text, (CPFunction *)filename_completion_function);
 #else
-		return rl_completion_matches(text, (CPFunction *)rl_filename_completion_function);
+		return rl_completion_matches(text, rl_filename_completion_function);
 #endif
 	} else {
 		// Otherwise, complete function names
@@ -778,7 +778,7 @@ static char **fcn_completion(char *text, int start, int end)
 #if (GINAC_RL_VERSION_MAJOR < 4) || (GINAC_RL_VERSION_MAJOR == 4 && GINAC_RL_VERSION_MINOR < 2)
 		return completion_matches(text, (CPFunction *)fcn_generator);
 #else
-		return rl_completion_matches(text, (CPFunction *)fcn_generator);
+		return rl_completion_matches(text, fcn_generator);
 #endif
 	}
 }
@@ -821,7 +821,11 @@ int main(int argc, char **argv)
 
 	// Init readline completer
 	rl_readline_name = argv[0];
+#if (GINAC_RL_VERSION_MAJOR < 4) || (GINAC_RL_VERSION_MAJOR == 4 && GINAC_RL_VERSION_MINOR < 2)
 	rl_attempted_completion_function = (CPPFunction *)fcn_completion;
+#else
+	rl_attempted_completion_function = fcn_completion;
+#endif
 	orig_completion_append_character = rl_completion_append_character;
 	orig_basic_word_break_characters = rl_basic_word_break_characters;
 
