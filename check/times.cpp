@@ -148,6 +148,20 @@ int main()
         ++result;
     }
     
+    try {
+        result += time_lw_Q();
+    } catch (const exception &e) {
+        cout << "Error: caught exception " << e.what() << endl;
+        ++result;
+    }
+    
+    try {
+        result += time_lw_Qprime();
+    } catch (const exception &e) {
+        cout << "Error: caught exception " << e.what() << endl;
+        ++result;
+    }
+    
     if (result) {
         cout << "Error: something went wrong. ";
         if (result == 1) {

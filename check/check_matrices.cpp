@@ -28,13 +28,13 @@ static unsigned matrix_determinants(void)
     unsigned result = 0;
     symbol a("a");
 
-    for (int size=3; size<16; ++size) {
+    for (int size=3; size<17; ++size) {
         matrix A(size,size);
+        for (int r=0; r<size-1; ++r) {
+            // populate one element in each row:
+            A.set(r,unsigned(rand()%size),dense_univariate_poly(a,5));
+        }
         for (int c=0; c<size; ++c) {
-            for (int r=0;r<size-1; ++r)
-                // populate 10 percent of the entries, the rest remains 0:
-                if (!(int)(10.0*rand()/(RAND_MAX+1.0)))
-                    A.set(r,c,dense_univariate_poly(a,5));
             // set the last line to a linear combination of two other lines
             // to guarantee that the determinant vanishes:
             A.set(size-1,c,A(0,c)-A(size-2,c));

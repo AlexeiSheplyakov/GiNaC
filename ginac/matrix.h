@@ -89,7 +89,7 @@ public:
     matrix transpose(void) const;
     ex determinant(void) const;
     ex trace(void) const;
-    ex charpoly(const ex & lambda) const;
+    ex charpoly(const symbol & lambda) const;
     matrix inverse(void) const;
     matrix fraction_free_elim(const matrix & vars, const matrix & v) const;
     matrix solve(const matrix & vars, const matrix & rhs) const;
@@ -98,7 +98,6 @@ protected:
     ex determinant_numeric(void) const;
     ex determinant_minor_sparse(void) const;
     ex determinant_minor_dense(void) const;
-    ex determinant_bareiss(void) const;
     ex determinant_perm(void) const;
     int gauss_elimination(void);
     int fraction_free_elimination(void);
@@ -153,7 +152,7 @@ inline ex determinant(const matrix & m)
 inline ex trace(const matrix & m)
 { return m.trace(); }
 
-inline ex charpoly(const matrix & m, const ex & lambda)
+inline ex charpoly(const matrix & m, const symbol & lambda)
 { return m.charpoly(lambda); }
 
 inline matrix inverse(const matrix & m)

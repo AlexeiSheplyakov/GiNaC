@@ -30,6 +30,8 @@
 #include "lst.h"
 #include "utils.h"
 #include "debugmsg.h"
+#include "power.h"
+#include "symbol.h"
 
 #ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
@@ -78,9 +80,9 @@ const matrix & matrix::operator=(const matrix & other)
 void matrix::copy(const matrix & other)
 {
     inherited::copy(other);
-    row=other.row;
-    col=other.col;
-    m=other.m;  // use STL's vector copying
+    row = other.row;
+    col = other.col;
+    m = other.m;  // STL's vector copying invoked here
 }
 
 void matrix::destroy(bool call_parent)
@@ -105,7 +107,7 @@ matrix::matrix(unsigned r, unsigned c)
     m.resize(r*c, _ex0());
 }
 
-// protected
+ // protected
 
 /** Ctor from representation, for internal use only. */
 matrix::matrix(unsigned r, unsigned c, const exvector & m2)
@@ -378,11 +380,13 @@ matrix matrix::mul(const matrix & other) const
         throw (std::logic_error("matrix::mul(): incompatible matrices"));
     
     exvector prod(row*other.col);
-    for (unsigned i=0; i<row; ++i) {
-        for (unsigned j=0; j<other.col; ++j) {
-            for (unsigned l=0; l<col; ++l) {
-                prod[i*other.col+j] += m[i*col+l] * other.m[l*other.col+j];
-            }
+    
+    for (unsigned r1=0; r1<row; ++r1) {
+        for (unsigned c=0; c<col; ++c) {
+            if (m[r1*col+c].is_zero())
+                continue;
+            for (unsigned r2=0; r2<other.col; ++r2)
+                prod[r1*other.col+r2] += m[r1*col+c] * other.m[c*other.col+r2];
         }
     }
     return matrix(row, other.col, prod);
@@ -467,17 +471,19 @@ ex matrix::determinant(void) const
         }
     }
     
-    if (numeric_flag)
+    if (numeric_flag)  // purely numeric matrix
         return determinant_numeric();
     
-    if (5*sparse_count<row*col) {     // MAGIC, maybe 10 some bright day?
+    // Does anybody really know when a matrix is sparse?
+    if (4*sparse_count<row*col) {  // < row/2 non-zero elements average in row
         matrix M(*this);
-        // int sign = M.division_free_elimination();
         int sign = M.fraction_free_elimination();
+        if (!sign)
+            return _ex0();
         if (normal_flag)
-            return sign*M(row-1,col-1).normal();
+            return sign * M(row-1,col-1).normal();
         else
-            return sign*M(row-1,col-1).expand();
+            return sign * M(row-1,col-1).expand();
     }
     
     // Now come the minor expansion schemes.  We always develop such that the
@@ -539,24 +545,55 @@ ex matrix::trace(void) const
 }
 
 
-/** Characteristic Polynomial.  The characteristic polynomial of a matrix M is
- *  defined as the determiant of (M - lambda * 1) where 1 stands for the unit
- *  matrix of the same dimension as M.  This method returns the characteristic
- *  polynomial as a new expression.
+/** Characteristic Polynomial.  Following mathematica notation the
+ *  characteristic polynomial of a matrix M is defined as the determiant of
+ *  (M - lambda * 1) where 1 stands for the unit matrix of the same dimension
+ *  as M.  Note that some CASs define it with a sign inside the determinant
+ *  which gives rise to an overall sign if the dimension is odd.  This method
+ *  returns the characteristic polynomial collected in powers of lambda as a
+ *  new expression.
  *
  *  @return    characteristic polynomial as new expression
  *  @exception logic_error (matrix not square)
  *  @see       matrix::determinant() */
-ex matrix::charpoly(const ex & lambda) const
+ex matrix::charpoly(const symbol & lambda) const
 {
     if (row != col)
         throw (std::logic_error("matrix::charpoly(): matrix not square"));
+    
+    bool numeric_flag = true;
+    for (exvector::const_iterator r=m.begin(); r!=m.end(); ++r) {
+        if (!(*r).info(info_flags::numeric)) {
+            numeric_flag = false;
+        }
+    }
+    
+    // The pure numeric case is traditionally rather common.  Hence, it is
+    // trapped and we use Leverrier's algorithm which goes as row^3 for
+    // every coefficient.  The expensive section is the matrix multiplication,
+    // maybe this can be sped up even more?
+    if (numeric_flag) {
+        matrix B(*this);
+        ex c = B.trace();
+        ex poly = power(lambda,row)-c*power(lambda,row-1);
+        for (unsigned i=1; i<row; ++i) {
+            for (unsigned j=0; j<row; ++j)
+                B.m[j*col+j] -= c;
+            B = this->mul(B);
+            c = B.trace()/ex(i+1);
+            poly -= c*power(lambda,row-i-1);
+        }
+        if (row%2)
+            return -poly;
+        else
+            return poly;
+    }
     
     matrix M(*this);
     for (unsigned r=0; r<col; ++r)
         M.m[r*col+r] -= lambda;
     
-    return (M.determinant());
+    return M.determinant().collect(lambda);
 }
 
 
@@ -865,31 +902,6 @@ ex matrix::determinant_numeric(void) const
 }
 
 
-/*  Leverrier algorithm for large matrices having at least one symbolic entry.
- *  This routine is only called internally by matrix::determinant(). The
- *  algorithm is very bad for symbolic matrices since it returns expressions
- *  that are quite hard to expand. */
-/*ex matrix::determinant_leverrier(const matrix & M)
- *{
- *    GINAC_ASSERT(M.rows()==M.cols());  // cannot happen, just in case...
- *    
- *    matrix B(M);
- *    matrix I(M.row, M.col);
- *    ex c=B.trace();
- *    for (unsigned i=1; i<M.row; ++i) {
- *        for (unsigned j=0; j<M.row; ++j)
- *            I.m[j*M.col+j] = c;
- *        B = M.mul(B.sub(I));
- *        c = B.trace()/ex(i+1);
- *    }
- *    if (M.row%2) {
- *        return c;
- *    } else {
- *        return -c;
- *    }
- *}*/
-
-
 ex matrix::determinant_minor_sparse(void) const
 {
     // for small matrices the algorithm does not make any sense:
@@ -1043,22 +1055,6 @@ ex matrix::determinant_minor_dense(void) const
     }
     
     return det;
-}
-
-
-/*  Determinant using a simple Bareiss elimination scheme.  Suited for
- *  sparse matrices.
- *
- *  @return the determinant as a new expression (in expanded form)
- *  @see matrix::determinant() */
-ex matrix::determinant_bareiss(void) const
-{
-    matrix M(*this);
-    int sign = M.fraction_free_elimination();
-    if (sign)
-        return sign*M(row-1,col-1);
-    else
-        return _ex0();
 }
 
 

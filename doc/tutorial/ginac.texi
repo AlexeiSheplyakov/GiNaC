@@ -577,8 +577,11 @@ possible random input.  Third, some @emph{timings} are performed, which
 benchmark some predefined problems with different sizes and display the
 CPU time used in seconds.  Each individual test should return a message
 @samp{passed}.  This is mostly intended to be a QA-check if something
-was broken during development, not a sanity check of your system.
-Another intent is to allow people to fiddle around with optimization.
+was broken during development, not a sanity check of your system.  Some
+of the tests in sections @emph{checks} and @emph{timings} may require
+insane amounts of memory and CPU time.  Feel free to kill them if your
+machine catches fire.  Another quite important intent is to allow people
+to fiddle around with optimization.
 
 Generally, the top-level Makefile runs recursively to the
 subdirectories.  It is therfore safe to go into any subdirectory
@@ -1879,7 +1882,7 @@ nice for novice programmers, but dangerous.
 @item
 development tools: powerful development tools exist for C++, like fancy
 editors (e.g. with automatic indentation and syntax highlighting),
-debuggers, visualization tools, documentation tools...
+debuggers, visualization tools, documentation generators...
 
 @item
 modularization: C++ programs can easily be split into modules by
@@ -1922,9 +1925,9 @@ system (i.e. @emph{Yacas}).
 @item
 efficiency: often large parts of a program do not need symbolic
 calculations at all.  Why use large integers for loop variables or
-arbitrary precision arithmetics where double accuracy is sufficient?
-For pure symbolic applications, GiNaC is comparable in speed with other
-CAS.
+arbitrary precision arithmetics where @code{int} and @code{double} are
+sufficient?  For pure symbolic applications, GiNaC is comparable in
+speed with other CAS.
 
 @end itemize
 

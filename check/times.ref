@@ -38,3 +38,7 @@
 (no output)
 -------Lewis-Wester test P' (det of less sparse rank 101)
 (no output)
+-------Lewis-Wester test Q (charpoly(P))
+(no output)
+-------Lewis-Wester test Q' (charpoly(P'))
+(no output)

@@ -7,7 +7,7 @@ This file records noteworthy changes.
   - series(f(x),x,p[,o]) -> series(f(x),x==p,o)
   - gamma() -> tgamma()  (The true Gamma function, there is now also
     log(tgamma()), called lgamma(), in accord with ISO/IEC 9899:1999.)
-  - EulerGamma -> gamma
+  - EulerGamma -> Euler
 * #include'ing ginac.h defines the preprocessor symbols GINACLIB_MAJOR_VERSION,
   GINACLIB_MINOR_VERSION, and GINACLIB_MICRO_VERSION with the respective GiNaC
   library version numbers.

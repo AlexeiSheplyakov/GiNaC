@@ -60,7 +60,7 @@ AN	[0-9a-zA-Z_]
 
 			/* special values */
 Pi			yylval = Pi; return T_LITERAL;
-gamma			yylval = gamma; return T_LITERAL;
+Euler			yylval = Euler; return T_LITERAL;
 Catalan			yylval = Catalan; return T_LITERAL;
 FAIL			yylval = *new fail(); return T_LITERAL;
 I			yylval = I; return T_NUMBER;

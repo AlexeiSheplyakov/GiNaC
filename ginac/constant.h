@@ -92,10 +92,9 @@ private:
 extern const constant some_constant;
 extern const type_info & typeid_constant;
 
-// extern const numeric I;
 extern const constant Pi;
 extern const constant Catalan;
-extern const constant gamma;
+extern const constant Euler;
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

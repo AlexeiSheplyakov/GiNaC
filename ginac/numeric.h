@@ -323,7 +323,7 @@ inline numeric denom(const numeric & x)
 // numeric evaluation functions for class constant objects:
 
 ex PiEvalf(void);
-ex gammaEvalf(void);
+ex EulerEvalf(void);
 ex CatalanEvalf(void);
 
 

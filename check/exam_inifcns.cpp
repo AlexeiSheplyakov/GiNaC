@@ -198,7 +198,7 @@ unsigned exam_inifcns(void)
     result += inifcns_consist_gamma();  cout << '.' << flush;
     result += inifcns_consist_psi();  cout << '.' << flush;
     result += inifcns_consist_zeta();  cout << '.' << flush;
-
+    
     if (!result) {
         cout << " passed " << endl;
         clog << "(no output)" << endl;

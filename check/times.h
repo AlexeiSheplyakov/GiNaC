@@ -25,6 +25,7 @@
 
 #include <sys/resource.h>
 #include <stdlib.h>
+#include <strstream>
 #include <vector>
 
 #include "ginac.h"
@@ -64,5 +65,7 @@ unsigned time_lw_M1();
 unsigned time_lw_O();
 unsigned time_lw_P();
 unsigned time_lw_Pprime();
+unsigned time_lw_Q();
+unsigned time_lw_Qprime();
 
 #endif // ndef CHECKS_H

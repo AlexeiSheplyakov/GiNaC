@@ -314,11 +314,11 @@ static ex psi1_eval(const ex & x)
         if (nx.is_integer()) {
             // integer case 
             if (nx.is_positive()) {
-                // psi(n) -> 1 + 1/2 +...+ 1/(n-1) - gamma
+                // psi(n) -> 1 + 1/2 +...+ 1/(n-1) - Euler
                 numeric rat(0);
                 for (numeric i(nx+_num_1()); i.is_positive(); --i)
                     rat += i.inverse();
-                return rat-gamma;
+                return rat-Euler;
             } else {
                 // for non-positive integers there is a pole:
                 throw (std::domain_error("psi_eval(): simple pole"));
@@ -327,11 +327,11 @@ static ex psi1_eval(const ex & x)
         if ((_num2()*nx).is_integer()) {
             // half integer case
             if (nx.is_positive()) {
-                // psi((2m+1)/2) -> 2/(2m+1) + 2/2m +...+ 2/1 - gamma - 2log(2)
+                // psi((2m+1)/2) -> 2/(2m+1) + 2/2m +...+ 2/1 - Euler - 2log(2)
                 numeric rat(0);
                 for (numeric i((nx+_num_1())*_num2()); i.is_positive(); i-=_num2())
                                       rat += _num2()*i.inverse();
-                                      return rat-gamma-_ex2()*log(_ex2());
+                                      return rat-Euler-_ex2()*log(_ex2());
             } else {
                 // use the recurrence relation
                 //   psi(-m-1/2) == psi(-m-1/2+1) - 1 / (-m-1/2)
@@ -505,7 +505,7 @@ const unsigned function_index_psi2 =
     function::register_new(function_options("psi").
                            eval_func(psi2_eval).
                            evalf_func(psi2_evalf).
-			   derivative_func(psi2_deriv).
+               derivative_func(psi2_deriv).
 			   series_func(psi2_series).
 			   overloaded(2));
 

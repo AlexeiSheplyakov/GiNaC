@@ -157,28 +157,28 @@ static unsigned exam_series5(void)
     e = tgamma(2*x);
     d = pow(x+1,-1)*numeric(1,4) +
         pow(x+1,0)*(numeric(3,4) -
-                    numeric(1,2)*gamma) +
+                    numeric(1,2)*Euler) +
         pow(x+1,1)*(numeric(7,4) -
-                    numeric(3,2)*gamma +
-                    numeric(1,2)*pow(gamma,2) +
+                    numeric(3,2)*Euler +
+                    numeric(1,2)*pow(Euler,2) +
                     numeric(1,12)*pow(Pi,2)) +
         pow(x+1,2)*(numeric(15,4) -
-                    numeric(7,2)*gamma -
-                    numeric(1,3)*pow(gamma,3) +
+                    numeric(7,2)*Euler -
+                    numeric(1,3)*pow(Euler,3) +
                     numeric(1,4)*pow(Pi,2) +
-                    numeric(3,2)*pow(gamma,2) -
-                    numeric(1,6)*pow(Pi,2)*gamma -
+                    numeric(3,2)*pow(Euler,2) -
+                    numeric(1,6)*pow(Pi,2)*Euler -
                     numeric(2,3)*zeta(3)) +
-        pow(x+1,3)*(numeric(31,4) - pow(gamma,3) -
-                    numeric(15,2)*gamma +
-                    numeric(1,6)*pow(gamma,4) +
-                    numeric(7,2)*pow(gamma,2) +
+        pow(x+1,3)*(numeric(31,4) - pow(Euler,3) -
+                    numeric(15,2)*Euler +
+                    numeric(1,6)*pow(Euler,4) +
+                    numeric(7,2)*pow(Euler,2) +
                     numeric(7,12)*pow(Pi,2) -
-                    numeric(1,2)*pow(Pi,2)*gamma -
+                    numeric(1,2)*pow(Pi,2)*Euler -
                     numeric(2)*zeta(3) +
-                    numeric(1,6)*pow(gamma,2)*pow(Pi,2) +
+                    numeric(1,6)*pow(Euler,2)*pow(Pi,2) +
                     numeric(1,40)*pow(Pi,4) +
-                    numeric(4,3)*zeta(3)*gamma) +
+                    numeric(4,3)*zeta(3)*Euler) +
         Order(pow(x+1,4));
     result += check_series(e, -1, d, 4);
     

@@ -1739,7 +1739,7 @@ ex PiEvalf(void)
 
 
 /** Floating point evaluation of Euler's constant gamma. */
-ex gammaEvalf(void)
+ex EulerEvalf(void)
 { 
     return numeric(::cl_eulerconst(cl_default_float_format));  // -> CLN
 }

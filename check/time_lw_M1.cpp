@@ -27,7 +27,7 @@ static unsigned test(void)
 {
     // Determinant of a sparse matrix that comes up in graph theory:
     symbol x1("x1"), x2("x2"), x3("x3"), x4("x4"), x5("x5");
-    ex w[26][11] = {
+    static ex w[26][11] = {
         { 1,  1,  1,  7, x4, 12, x3, 17, x2, 22, x1},
         { 2,  2,  1,  8, x4, 13, x3, 18, x2, 23, x1},
         { 3,  3,  1,  9, x4, 14, x3, 19, x2, 24, x1},
@@ -65,41 +65,11 @@ static unsigned test(void)
     }
     ex det = m.determinant();
     // The result should have been:
-    ex cmp = -12*pow(x1*x5,2)*x4-12*x1*pow(x2*x4,2)-12*x3*pow(x4*x5,2)
-        -pow(x5,3)*pow(x4,2)-12*x1*pow(x4*x5,2)-12*x2*pow(x4*x5,2)
-        -pow(x4,3)*pow(x5,2)-2*pow(x5,3)*x4*x3-2*pow(x4,3)*x5*x3
-        -36*x3*x1*pow(x5,2)*x4-36*x3*x1*pow(x4,2)*x5-12*pow(x3*x5,2)*x4
-        -12*pow(x3*x4,2)*x5-36*x3*x2*pow(x5,2)*x4-36*x3*x2*pow(x4,2)*x5
-        -36*x1*x5*pow(x3,2)*x4-36*x2*x5*pow(x3,2)*x4-12*x1*pow(x3*x5,2)
-        -12*x1*pow(x3*x4,2)-pow(x3,3)*pow(x5,2)-pow(x3,3)*pow(x4,2)
-        -2*pow(x3,3)*x5*x4-12*x2*pow(x3*x5,2)-12*x2*pow(x3*x4,2)
-        -12*x1*pow(x2*x5,2)-12*pow(x2*x5,2)*x4-12*pow(x2*x4,2)*x5
-        -12*pow(x2*x5,2)*x3-12*pow(x2*x4,2)*x3-12*pow(x2*x3,2)*x5
-        -12*pow(x2*x3,2)*x4-pow(x3,2)*pow(x5,3)-pow(x3,2)*pow(x4,3)
-        -2*pow(x5,3)*x4*x2-2*pow(x4,3)*x5*x2-2*x3*pow(x5,3)*x2
-        -2*x3*pow(x4,3)*x2-2*pow(x3,3)*x5*x2-2*pow(x3,3)*x4*x2
-        -2*pow(x2,3)*x5*x4-36*x2*x1*pow(x5,2)*x4-36*x2*x1*pow(x4,2)*x5
-        -120*x2*x1*x5*x4*x3-36*x2*x1*pow(x5,2)*x3-36*x2*x1*pow(x4,2)*x3
-        -36*x2*x1*pow(x3,2)*x5-36*x2*x1*pow(x3,2)*x4-36*pow(x2,2)*x5*x4*x3
-        -36*pow(x1,2)*x5*x4*x3-12*pow(x1*x5,2)*x3-12*pow(x1*x4,2)*x3
-        -12*pow(x1*x3,2)*x5-12*pow(x1*x3,2)*x4-12*pow(x1*x5,2)*x2
-        -12*pow(x1*x4,2)*x2-12*pow(x1*x3,2)*x2-12*pow(x1*x2,2)*x5
-        -12*pow(x1*x2,2)*x4-12*pow(x1*x2,2)*x3-pow(x2,2)*pow(x5,3)
-        -pow(x2,2)*pow(x4,3)-pow(x2,2)*pow(x3,3)-36*x1*x5*pow(x2,2)*x4
-        -36*x1*x5*pow(x2,2)*x3-36*x1*x4*pow(x2,2)*x3-36*x2*pow(x1,2)*x5*x4
-        -pow(x2,3)*pow(x5,2)-pow(x2,3)*pow(x4,2)-pow(x2,3)*pow(x3,2)
-        -2*pow(x2,3)*x5*x3-2*pow(x2,3)*x4*x3-12*x1*pow(x2*x3,2)
-        -12*pow(x1*x4,2)*x5-pow(x1,3)*pow(x5,2)-pow(x1,3)*pow(x4,2)
-        -pow(x1,3)*pow(x3,2)-pow(x1,3)*pow(x2,2)-pow(x1,2)*pow(x5,3)
-        -pow(x1,2)*pow(x4,3)-pow(x1,2)*pow(x3,3)-pow(x1,2)*pow(x2,3)
-        -36*x2*x3*pow(x1,2)*x5-36*x2*x3*pow(x1,2)*x4-2*pow(x5,3)*x4*x1
-        -2*pow(x4,3)*x5*x1-2*x3*pow(x5,3)*x1-2*x3*pow(x4,3)*x1
-        -2*pow(x3,3)*x5*x1-2*pow(x3,3)*x4*x1-2*x2*pow(x5,3)*x1
-        -2*x2*pow(x4,3)*x1-2*x2*pow(x3,3)*x1-2*pow(x2,3)*x5*x1
-        -2*pow(x2,3)*x4*x1-2*pow(x2,3)*x3*x1-2*pow(x1,3)*x5*x4
-        -2*pow(x1,3)*x5*x3-2*pow(x1,3)*x5*x2-2*pow(x1,3)*x4*x3
-        -2*pow(x1,3)*x4*x2-2*pow(x1,3)*x3*x2;
-    if (det!=cmp) {
+    const char *cmp = "-12*x2^2*x5^2*x4-12*x1*x5^2*x3^2-x5^3*x4^2-12*x1*x5^2*x4^2-12*x2*x5^2*x4^2-12*x3*x5^2*x4^2-x4^3*x5^2-36*x3*x1*x5^2*x4-36*x3*x1*x4^2*x5-36*x3*x2*x5^2*x4-36*x3*x2*x4^2*x5-2*x5^3*x4*x2-12*x3^2*x5^2*x4-12*x3^2*x4^2*x5-2*x5^3*x4*x3-2*x4^3*x5*x3-12*x1*x5^2*x2^2-36*x1*x5*x3^2*x4-36*x2*x5*x3^2*x4-x3^3*x5^2-x3^3*x4^2-2*x3^3*x5*x4-12*x2^2*x4^2*x5-12*x2*x5^2*x3^2-12*x2*x4^2*x3^2-12*x1*x4^2*x3^2-x3^2*x5^3-x3^2*x4^3-2*x4^3*x5*x2-2*x3*x5^3*x2-2*x3*x4^3*x2-2*x3^3*x5*x2-2*x3^3*x4*x2-2*x2^3*x5*x4-2*x2^3*x5*x3-2*x2^3*x4*x3-36*x2^2*x5*x4*x3-36*x2*x1*x5^2*x4-36*x2*x1*x4^2*x5-120*x2*x1*x5*x4*x3-36*x2*x1*x5^2*x3-36*x2*x1*x4^2*x3-36*x2*x1*x3^2*x5-36*x2*x1*x3^2*x4-12*x2^2*x5^2*x3-12*x2^2*x4^2*x3-12*x2^2*x3^2*x5-12*x2^2*x3^2*x4-2*x1^3*x4*x3-2*x1^3*x4*x2-2*x1^3*x3*x2-2*x1^3*x5*x2-36*x1^2*x5*x4*x3-36*x2*x1^2*x5*x4-36*x2*x3*x1^2*x5-36*x2*x3*x1^2*x4-x1^3*x5^2-x1^3*x4^2-x1^3*x3^2-x1^3*x2^2-x2^2*x5^3-x2^2*x4^3-x2^2*x3^3-12*x1*x4^2*x2^2-12*x1*x3^2*x2^2-12*x1^2*x5^2*x4-12*x1^2*x4^2*x5-12*x1^2*x5^2*x3-12*x1^2*x4^2*x3-12*x1^2*x3^2*x5-12*x1^2*x3^2*x4-12*x1^2*x5^2*x2-12*x1^2*x4^2*x2-12*x1^2*x3^2*x2-12*x1^2*x2^2*x5-12*x1^2*x2^2*x4-12*x1^2*x2^2*x3-2*x5^3*x4*x1-2*x4^3*x5*x1-2*x3*x5^3*x1-2*x3*x4^3*x1-2*x3^3*x5*x1-2*x3^3*x4*x1-2*x2*x5^3*x1-2*x2*x4^3*x1-2*x2*x3^3*x1-2*x2^3*x5*x1-2*x2^3*x4*x1-2*x2^3*x3*x1-2*x1^3*x5*x4-2*x1^3*x5*x3-36*x1*x5*x2^2*x4-36*x1*x5*x2^2*x3-36*x1*x4*x2^2*x3-x1^2*x5^3-x1^2*x4^3-x1^2*x3^3-x2^3*x5^2-x2^3*x4^2-x2^3*x3^2-x1^2*x2^3";
+    istrstream cmpstrm(cmp,strlen(cmp));
+    ex cmpex = lst(x1,x2,x3,x4,x5);
+    cmpstrm >> cmpex;
+    if (det!=cmpex) {
         clog << "The determinant was miscalculated" << endl;
         return 1;
     }
