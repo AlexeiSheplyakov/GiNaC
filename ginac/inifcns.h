@@ -95,17 +95,17 @@ DECLARE_FUNCTION_2P(zetaderiv)
 /** Multiple zeta value including Riemann's zeta-function. */
 class zeta1_SERIAL { public: static unsigned serial; };
 template<typename T1>
-inline function zeta(const T1 & p1) {
+inline function zeta(const T1& p1) {
 	return function(zeta1_SERIAL::serial, ex(p1));
 }
 /** Alternating Euler sum or colored MZV. */
 class zeta2_SERIAL { public: static unsigned serial; };
 template<typename T1, typename T2>
-inline function zeta(const T1 & p1, const T2 & p2) {
+inline function zeta(const T1& p1, const T2& p2) {
 	return function(zeta2_SERIAL::serial, ex(p1), ex(p2));
 }
 class zeta_SERIAL;
-template<> inline bool is_the_function<class zeta_SERIAL>(const ex & x)
+template<> inline bool is_the_function<class zeta_SERIAL>(const ex& x)
 {
 	return is_the_function<zeta1_SERIAL>(x) || is_the_function<zeta2_SERIAL>(x);
 }
@@ -116,8 +116,24 @@ DECLARE_FUNCTION_2P(Li)
 /** Nielsen's generalized polylogarithm. */
 DECLARE_FUNCTION_3P(S)
 
-/** Harmonic polylogarithm. */
-DECLARE_FUNCTION_2P(H)
+// overloading at work: we cannot use the macros here
+/** Harmonic polylogarithm with only positive parameters. */
+class H2_SERIAL { public: static unsigned serial; };
+template<typename T1, typename T2>
+inline function H(const T1& p1, const T2& p2) {
+	return function(H2_SERIAL::serial, ex(p1), ex(p2));
+}
+/** Harmonic polylogarithm with signed parameters. */
+class H3_SERIAL { public: static unsigned serial; };
+template<typename T1, typename T2, typename T3>
+inline function H(const T1& p1, const T2& p2, const T3& p3) {
+	return function(H3_SERIAL::serial, ex(p1), ex(p2), ex(p3));
+}
+class H_SERIAL;
+template<> inline bool is_the_function<class H_SERIAL>(const ex& x)
+{
+	return is_the_function<H2_SERIAL>(x) || is_the_function<H3_SERIAL>(x);
+}
 
 /** Gamma-function. */
 DECLARE_FUNCTION_1P(lgamma)
@@ -161,6 +177,11 @@ inline bool is_order_function(const ex & e)
 {
 	return is_ex_the_function(e, Order);
 }
+
+/** Converts a given list containing parameters for H in Remiddi/Vermaseren notation into
+ *  the corresponding GiNaC functions.
+ */
+ex convert_H_notation(const ex& parameterlst, const ex& arg);
 
 } // namespace GiNaC
 

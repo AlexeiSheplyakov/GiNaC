@@ -79,6 +79,11 @@
 #include "wildcard.h"
 
 
+//DEBUG
+#include <iostream>
+using namespace std;
+
+
 namespace GiNaC {
 
 
@@ -400,6 +405,18 @@ cln::cl_N multipleLi_do_sum(const std::vector<int>& s, const std::vector<cln::cl
 {
 	const int j = s.size();
 
+	//DEBUG
+	cout << "m ";
+	for (int i=0; i<s.size(); i++) {
+		cout << s[i] << " ";
+	}
+	cout << endl;
+	cout << "x ";
+	for (int i=0; i<x.size(); i++) {
+		cout << x[i] << " ";
+	}
+	cout << endl;
+
 	std::vector<cln::cl_N> t(j);
 	cln::cl_F one = cln::cl_float(1, cln::float_format(Digits));
 
@@ -420,6 +437,9 @@ cln::cl_N multipleLi_do_sum(const std::vector<int>& s, const std::vector<cln::cl
 			t[k] = t[k] + t[k+1] * cln::expt(x[k], q+j-1-k) / cln::expt(cln::cl_I(q+j-1-k), s[k]);
 		}
 	} while (t[0] != t0buf);
+
+	//DEBUG
+	cout << "end " << q << " " << t[0] << endl;
 	
 	return t[0];
 }
@@ -937,7 +957,7 @@ REGISTER_FUNCTION(S,
 
 //////////////////////////////////////////////////////////////////////
 //
-// Harmonic polylogarithm  H(m,x)
+// Harmonic polylogarithm  H(m,x) and H(m,s,x)
 //
 // helper function
 //
@@ -1319,9 +1339,15 @@ struct map_trafo_H_reduce_trailing_zeros : public map_function
 					//
 					ex result = log(arg) * H(parameter,arg).hold();
 					for (ex i=0; i<lastentry; i++) {
-						parameter[i]++;
-						result -= (parameter[i]-1) * H(parameter, arg).hold();
-						parameter[i]--;
+						if (parameter[i] > 0) {
+							parameter[i]++;
+							result -= (parameter[i]-1) * H(parameter, arg).hold();
+							parameter[i]--;
+						} else {
+							parameter[i]--;
+							result -= abs(parameter[i]+1) * H(parameter, arg).hold();
+							parameter[i]++;
+						}
 					}
 					
 					if (lastentry < parameter.nops()) {
@@ -1330,6 +1356,50 @@ struct map_trafo_H_reduce_trailing_zeros : public map_function
 					} else {
 						return result;
 					}
+				}
+			}
+		}
+		return e;
+	}
+};
+
+
+// transform H(m,x) with signed m to H(m,s,x)
+struct map_trafo_H_convert_signed_m : public map_function
+{
+	ex operator()(const ex& e)
+	{
+		if (is_a<add>(e) || is_a<mul>(e)) {
+			return e.map(*this);
+		}
+		if (is_a<function>(e)) {
+			std::string name = ex_to<function>(e).get_name();
+			if (name == "H") {
+				lst parameter;
+				if (is_a<lst>(e.op(0))) {
+						parameter = ex_to<lst>(e.op(0));
+				} else {
+					parameter = lst(e.op(0));
+				}
+				ex arg = e.op(1);
+				bool signedflag = false;
+				for (int i=0; i<parameter.nops(); i++) {
+					if (parameter.op(i) < 0) {
+						signedflag = true;
+						break;
+					}
+				}
+				if (signedflag) {
+					lst signs;
+					for (int i=0; i<parameter.nops(); i++) {
+						if (parameter.op(i) > 0) {
+							signs.append(1);
+						} else {
+							signs.append(-1);
+							parameter.let_op(i) = -parameter.op(i);
+						}
+					}
+					return H(parameter, signs, arg).hold();
 				}
 			}
 		}
@@ -1364,10 +1434,17 @@ lst convert_to_RV(const lst& o)
 {
 	lst res;
 	for (lst::const_iterator it = o.begin(); it != o.end(); it++) {
-		for (ex i=0; i<(*it)-1; i++) {
-			res.append(0);
+		if (*it > 0) {
+			for (ex i=0; i<(*it)-1; i++) {
+				res.append(0);
+			}
+			res.append(1);
+		} else {
+			for (ex i=0; i<(-*it)-1; i++) {
+				res.append(0);
+			}
+			res.append(-1);
 		}
-		res.append(1);
 	}
 	return res;
 }
@@ -1393,15 +1470,16 @@ ex convert_from_RV(const lst& parameterlst, const ex& arg)
 		newparameterlst.append(0);
 	}
 	
-	map_trafo_H_reduce_trailing_zeros filter;
-	return filter(H(newparameterlst, arg).hold());
+	map_trafo_H_reduce_trailing_zeros filter1;
+	map_trafo_H_convert_signed_m filter2;
+	return filter2(filter1(H(newparameterlst, arg).hold()));
 }
 
 
 // do the actual summation.
-cln::cl_N H_do_sum(const std::vector<int>& s, const cln::cl_N& x)
+cln::cl_N H_do_sum(const std::vector<int>& m, const cln::cl_N& x)
 {
-	const int j = s.size();
+	const int j = m.size();
 
 	std::vector<cln::cl_N> t(j);
 
@@ -1412,11 +1490,11 @@ cln::cl_N H_do_sum(const std::vector<int>& s, const cln::cl_N& x)
 	do {
 		t0buf = t[0];
 		q++;
-		t[j-1] = t[j-1] + 1 / cln::expt(cln::cl_I(q),s[j-1]);
+		t[j-1] = t[j-1] + 1 / cln::expt(cln::cl_I(q),m[j-1]);
 		for (int k=j-2; k>=1; k--) {
-			t[k] = t[k] + t[k+1] / cln::expt(cln::cl_I(q+j-1-k), s[k]);
+			t[k] = t[k] + t[k+1] / cln::expt(cln::cl_I(q+j-1-k), m[k]);
 		}
-		t[0] = t[0] + t[1] * factor / cln::expt(cln::cl_I(q+j-1), s[0]);
+		t[0] = t[0] + t[1] * factor / cln::expt(cln::cl_I(q+j-1), m[0]);
 		factor = factor * x;
 	} while (t[0] != t0buf);
 	
@@ -1436,7 +1514,7 @@ cln::cl_N H_do_sum(const std::vector<int>& s, const cln::cl_N& x)
 //////////////////////////////////////////////////////////////////////
 
 
-static ex H_eval(const ex& x1, const ex& x2)
+static ex H2_eval(const ex& x1, const ex& x2)
 {
 	if (x2 == 0) {
 		return 0;
@@ -1454,7 +1532,7 @@ static ex H_eval(const ex& x1, const ex& x2)
 }
 
 
-static ex H_evalf(const ex& x1, const ex& x2)
+static ex H2_evalf(const ex& x1, const ex& x2)
 {
 	if (is_a<lst>(x1) && is_a<numeric>(x2)) {
 		for (int i=0; i<x1.nops(); i++) {
@@ -1508,7 +1586,7 @@ static ex H_evalf(const ex& x1, const ex& x2)
 }
 
 
-static ex H_series(const ex& x1, const ex& x2, const relational& rel, int order, unsigned options)
+static ex H2_series(const ex& x1, const ex& x2, const relational& rel, int order, unsigned options)
 {
 	epvector seq;
 	seq.push_back(expair(H(x1,x2), 0));
@@ -1516,7 +1594,7 @@ static ex H_series(const ex& x1, const ex& x2, const relational& rel, int order,
 }
 
 
-static ex H_deriv(const ex& x1, const ex& x2, unsigned deriv_param)
+static ex H2_deriv(const ex& x1, const ex& x2, unsigned deriv_param)
 {
 	GINAC_ASSERT(deriv_param < 2);
 	if (deriv_param == 0) {
@@ -1541,12 +1619,172 @@ static ex H_deriv(const ex& x1, const ex& x2, unsigned deriv_param)
 }
 
 
-REGISTER_FUNCTION(H,
-		eval_func(H_eval).
-		evalf_func(H_evalf).
-		do_not_evalf_params().
-		series_func(H_series).
-		derivative_func(H_deriv));
+unsigned H2_SERIAL::serial =
+			function::register_new(function_options("H").
+						eval_func(H2_eval).
+						evalf_func(H2_evalf).
+						do_not_evalf_params().
+						derivative_func(H2_deriv).
+						latex_name("\\mbox{H}").
+						overloaded(2));
+
+
+//////////////////////////////////////////////////////////////////////
+//
+// Harmonic polylogarithm  H(m,s,x)
+//
+// GiNaC function
+//
+//////////////////////////////////////////////////////////////////////
+
+
+static ex H3_eval(const ex& x1, const ex& x2, const ex& x3)
+{
+	if (x3 == 0) {
+		return 0;
+	}
+	if (x3 == 1) {
+		return zeta(x1, x2);
+	}
+	if (x3.info(info_flags::numeric) && (!x3.info(info_flags::crational))) {
+		return H(x1, x2, x3).evalf();
+	}
+	return H(x1, x2, x3).hold();
+}
+
+
+static ex H3_evalf(const ex& x1, const ex& x2, const ex& x3)
+{
+	if (is_a<lst>(x1) && is_a<numeric>(x3)) {
+		for (int i=0; i<x1.nops(); i++) {
+			if (!x1.op(i).info(info_flags::posint)) {
+				return H(x1, x2, x3).hold();
+			}
+		}
+		if (x1.nops() < 1) {
+			return _ex1;
+		}
+		if (x1.nops() == 1) {
+			return x2.op(0) * Li(x1.op(0), x2.op(0)*x3).evalf();
+		}
+		cln::cl_N x = ex_to<numeric>(x3).to_cl_N();
+		if (x == 1) {
+			return zeta(x1, x2).evalf();
+		}
+
+		// choose trafo
+		if (cln::abs(x) > 1) {
+			//TODO
+			return H(x1, x2, x3).hold();
+//			symbol xtemp("xtemp");
+//			lst para = ex_to<lst>(x1);
+//			for (int i=0; i<para.nops(); i++) {
+//				para.let_op(i) = para.op(i) * x2.op(i);
+//			}
+//			map_trafo_H_1overx trafo;
+//			ex res = trafo(H(convert_to_RV(para), xtemp));
+//			map_trafo_H_convert converter;
+//			res = converter(res);
+//			return res.subs(xtemp==x3).evalf();
+		}
+
+//		// since the x->1-x transformation produces a lot of terms, it is only
+//		// efficient for argument near one.
+//		if (cln::realpart(x) > 0.95) {
+//			symbol xtemp("xtemp");
+//			map_trafo_H_1mx trafo;
+//			ex res = trafo(H(convert_to_RV(ex_to<lst>(x1)), xtemp));
+//			map_trafo_H_convert converter;
+//			res = converter(res);
+//			return res.subs(xtemp==x2).evalf();
+//		}
+
+		// no trafo -> do summation
+		int count = x1.nops();
+		std::vector<int> m(count);
+		std::vector<cln::cl_N> s(count);
+		cln::cl_N signbuf = 1;
+		for (int i=0; i<count; i++) {
+			m[i] = ex_to<numeric>(x1.op(i)).to_int();
+			signbuf = signbuf * ex_to<numeric>(x2.op(i)).to_cl_N();
+			s[i] = signbuf;
+		}
+		s[0] = s[0] * ex_to<numeric>(x3).to_cl_N();
+
+		return numeric(signbuf * multipleLi_do_sum(m, s));
+	}
+
+	return H(x1, x2, x3).hold();
+}
+
+
+static ex H3_series(const ex& x1, const ex& x2, const ex& x3, const relational& rel, int order, unsigned options)
+{
+	epvector seq;
+	seq.push_back(expair(H(x1, x2, x3), 0));
+	return pseries(rel, seq);
+}
+
+
+static ex H3_deriv(const ex& x1, const ex& x2, const ex& x3, unsigned deriv_param)
+{
+	//TODO
+	
+	GINAC_ASSERT(deriv_param < 2);
+	if (deriv_param == 0) {
+		return _ex0;
+	}
+	if (is_a<lst>(x1)) {
+		lst newparameter = ex_to<lst>(x1);
+		if (x1.op(0) == 1) {
+			newparameter.remove_first();
+			return 1/(1-x2) * H(newparameter, x2);
+		} else {
+			newparameter[0]--;
+			return H(newparameter, x2).hold() / x2;
+		}
+	} else {
+		if (x1 == 1) {
+			return 1/(1-x2);
+		} else {
+			return H(x1-1, x2).hold() / x2;
+		}
+	}
+}
+
+
+unsigned H3_SERIAL::serial =
+			function::register_new(function_options("H").
+						eval_func(H3_eval).
+						evalf_func(H3_evalf).
+						do_not_evalf_params().
+						derivative_func(H3_deriv).
+						latex_name("\\mbox{H}").
+						overloaded(2));
+
+
+ex convert_H_notation(const ex& parameterlst, const ex& arg)
+{
+	if (is_a<lst>(parameterlst)) {
+		for (int i=0; i<parameterlst.nops(); i++) {
+			if (parameterlst.op(i) == 1) continue;
+			if (parameterlst.op(i) == 0) continue;
+			if (parameterlst.op(i) == -1) continue;
+			throw std::runtime_error("first parameter has to be a list containing only 0, 1 or -1!");
+		}
+		return convert_from_RV(ex_to<lst>(parameterlst), arg).eval();
+	}
+	if (parameterlst == 1) {
+		return -log(1-arg);
+	}
+	if (parameterlst == 0) {
+		return log(arg);
+	}
+	if (parameterlst == -1) {
+		return log(1+arg);
+	}
+	throw std::runtime_error("first parameter has to be a list containing only 0, 1 or -1!");
+}
 
 
 //////////////////////////////////////////////////////////////////////
