@@ -276,6 +276,26 @@ static unsigned paranoia_check10(void)
     return result;
 }
 
+// After the rewriting of basic::normal() & Co. to return {num, den} lists,
+// add::normal() forgot to multiply the denominator of the overall_coeff of
+// its expanded and normalized children with the denominator of the expanded
+// child (did you get this? Well, never mind...). Fixed on Feb 21th 2000.
+static unsigned paranoia_check11(void)
+{
+    unsigned result = 0;
+	symbol x("x");
+
+	ex e = ((-5-2*x)-((2-5*x)/(-2+x))*(3+2*x))/(5-4*x);
+	ex f = e.normal();
+	ex d = (4+10*x+8*pow(x,2))/(x-2)/(5-4*x);
+
+	if (!(f - d).expand().is_zero()) {
+		clog << "normal(" << e << ") returns " << f << " instead of " << d << endl;
+		++result;
+	}
+    return result;
+}
+
 unsigned paranoia_check(void)
 {
     unsigned result = 0;
@@ -293,6 +313,7 @@ unsigned paranoia_check(void)
     result += paranoia_check8();
     result += paranoia_check9();
     result += paranoia_check10();
+    result += paranoia_check11();
 
     if (!result) {
         cout << " passed ";
