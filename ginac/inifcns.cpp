@@ -82,7 +82,8 @@ static ex csgn_eval(const ex & arg)
 	if (is_ex_exactly_of_type(arg, numeric))
 		return csgn(ex_to_numeric(arg));
 	
-	else if (is_ex_exactly_of_type(arg, mul)) {
+	else if (is_ex_of_type(arg, mul) &&
+	         is_ex_of_type(arg.op(arg.nops()-1),numeric)) {
 		numeric oc = ex_to_numeric(arg.op(arg.nops()-1));
 		if (oc.is_real()) {
 			if (oc > 0)
@@ -101,7 +102,7 @@ static ex csgn_eval(const ex & arg)
 				return -csgn(I*arg/oc).hold();
 		}
 	}
-   
+	
 	return csgn(arg).hold();
 }
 
