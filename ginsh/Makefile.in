@@ -135,7 +135,7 @@ DIST_COMMON =  Makefile.am Makefile.in ginsh_lexer.cc ginsh_parser.cc
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
-TAR = gtar
+TAR = tar
 GZIP_ENV = --best
 DEP_FILES =  .deps/ginsh_lexer.P .deps/ginsh_parser.P
 SOURCES = $(ginsh_SOURCES)

@@ -28,3 +28,6 @@ lst.h lst.cpp: container.pl
 
 exprseq.h exprseq.cpp: container.pl
 	perl container.pl exprseq
+
+# Force build of headers before compilation
+add.cpp: function.h lst.h exprseq.h

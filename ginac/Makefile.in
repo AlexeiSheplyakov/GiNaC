@@ -139,7 +139,7 @@ DIST_COMMON =  Makefile.am Makefile.in
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
-TAR = gtar
+TAR = tar
 GZIP_ENV = --best
 DEP_FILES =  .deps/add.P .deps/basic.P .deps/clifford.P .deps/color.P \
 .deps/coloridx.P .deps/constant.P .deps/diff.P .deps/ex.P \
@@ -432,6 +432,9 @@ lst.h lst.cpp: container.pl
 
 exprseq.h exprseq.cpp: container.pl
 	perl container.pl exprseq
+
+# Force build of headers before compilation
+add.cpp: function.h lst.h exprseq.h
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
