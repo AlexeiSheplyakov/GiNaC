@@ -187,6 +187,8 @@ public:
     bool is_prime(void) const;
     bool is_rational(void) const;
     bool is_real(void) const;
+    bool is_cinteger(void) const;
+    bool is_crational(void) const;
     bool operator==(numeric const & other) const;
     bool operator!=(numeric const & other) const;
     bool operator<(numeric const & other) const;

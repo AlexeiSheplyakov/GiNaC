@@ -44,7 +44,7 @@ unsigned lsolve_onedim(void)
              << aux << endl;
     }
     
-    if (! result) {
+    if (!result) {
         cout << " passed ";
         clog << "(no output)" << endl;
     } else {

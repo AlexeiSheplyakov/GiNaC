@@ -128,7 +128,7 @@ SOURCE_BROWSER       = YES
 # Setting the INLINE_SOURCES tag to YES will include the body
 # of functions and classes directly in the documentation.
 
-INLINE_SOURCES       = YES
+INLINE_SOURCES       = NO
 
 # If the CASE_SENSE_NAMES tag is set to NO (the default) then Doxygen
 # will only generate file names in lower case letters. If set to

@@ -86,11 +86,11 @@ unsigned expand_subs(void)
 
     cout << "checking commutative expansion and substitution..." << flush;
     clog << "---------commutative expansion and substitution:" << endl;
-
+    
     result += expand_subs1();
     result += expand_subs2();
-
-    if (! result) {
+    
+    if (!result) {
         cout << " passed ";
         clog << "(no output)" << endl;
     } else {

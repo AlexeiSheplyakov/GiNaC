@@ -294,28 +294,9 @@ ex basic::subs(ex const & e) const
     return subs(ls,lr);
 }
 
-// compare functions to sort expressions canonically
-// all compare functions return: -1 for *this less than other, 0 equal, 1 greater
-
-/*
-int basic::compare(basic const & other) const
-{
-    const type_info & typeid_this = typeid(*this);
-    const type_info & typeid_other = typeid(other);
-
-    if (typeid_this==typeid_other) {
-        return compare_same_type(other);
-    }
-
-    // special rule: sort numeric() to end
-    if (typeid_this==typeid_numeric) return 1;
-    if (typeid_other==typeid_numeric) return -1;
-
-    // otherwise: sort according to type_info order (arbitrary, but well defined)
-    return typeid_this.before(typeid_other) ? -1 : 1;
-}
-*/
-
+/** Compare objects to establish canonical order.
+ *  All compare functions return: -1 for *this less than other, 0 equal,
+ *  1 greater. */
 int basic::compare(basic const & other) const
 {
     unsigned hash_this = gethash();

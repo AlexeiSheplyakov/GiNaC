@@ -41,6 +41,7 @@ class constant : public basic
 
     // default constructor, destructor, copy constructor assignment operator and helpers
 public:
+    constant();
     ~constant();
     constant(constant const & other);
     // constant const & operator=(constant const & other); /* it's pervert! */
@@ -77,7 +78,7 @@ private:
     string name;
     ex (*ef)();
     numeric * number;
-    bool fct_assigned;
+    // bool fct_assigned;
     unsigned serial;  //!< unique serial number for comparision
     static unsigned next_serial;
 };

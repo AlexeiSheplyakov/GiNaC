@@ -37,47 +37,54 @@ static unsigned numeric_consist1(void)
     numeric test_int2(5);
     numeric test_rat1 = test_int1; test_rat1 /= test_int2;
     test_rat1 = -test_rat1;         // -42/5
+    numeric test_crat = test_rat1+I*test_int2;  // 5*I-42/5
     symbol a("a");
     ex e1, e2;
     
-    if ( !test_int1.is_integer() ) {
+    if (!test_int1.is_integer()) {
         clog << test_int1
              << " erroneously not recognized as integer" << endl;
         ++result;
     }
-    if ( !test_int1.is_rational() ) {
+    if (!test_int1.is_rational()) {
         clog << test_int1
              << " erroneously not recognized as rational" << endl;
         ++result;
     }
     
-    if ( !test_rat1.is_rational() ) {
+    if (!test_rat1.is_rational()) {
         clog << test_rat1
              << " erroneously not recognized as rational" << endl;
         ++result;
     }
-    if ( test_rat1.is_integer() ) {
+    if (test_rat1.is_integer()) {
         clog << test_rat1
              << " erroneously recognized as integer" << endl;
         ++result;
     }
     
+    if (!test_crat.is_crational()) {
+        clog << test_crat
+             << " erroneously not recognized as complex rational" << endl;
+        ++result;
+    }
+    
     int i = numeric(1984).to_int();
-    if ( i-1984 ) {
+    if (i-1984) {
         clog << "conversion of " << i
              << " from numeric to int failed" << endl;
         ++result;
     }
     
     e1 = test_int1;
-    if ( !e1.info(info_flags::posint) ) {
+    if (!e1.info(info_flags::posint)) {
         clog << "expression " << e1
              << " erroneously not recognized as positive integer" << endl;
         ++result;
     }
     
     e2 = test_int1 + a;
-    if ( ex_to_numeric(e2).is_integer() ) {
+    if (ex_to_numeric(e2).is_integer()) {
         clog << "expression " << e2
              << " erroneously recognized as integer" << endl;
         ++result;
@@ -86,15 +93,15 @@ static unsigned numeric_consist1(void)
     // The next two were two actual bugs in CLN till June, 12, 1999:
     test_rat1 = numeric(3)/numeric(2);
     test_rat1 += test_rat1;
-    if ( !test_rat1.is_integer() ) {
+    if (!test_rat1.is_integer()) {
         clog << "3/2 + 3/2 erroneously not integer 3 but instead "
              << test_rat1 << endl;
         ++result;
     }
     test_rat1 = numeric(3)/numeric(2);
     numeric test_rat2 = test_rat1 + numeric(1);  // 5/2
-    test_rat2 -= test_rat1;             // 1
-    if ( !test_rat2.is_integer() ) {
+    test_rat2 -= test_rat1;  // 1
+    if (!test_rat2.is_integer()) {
         clog << "5/2 - 3/2 erroneously not integer 1 but instead "
              << test_rat2 << endl;
         ++result;
@@ -124,7 +131,7 @@ static unsigned numeric_consist1(void)
  * calculating expt(a,b) if b is a rational and a a nonnegative integer.
  * Implementing a workaround sadly introduced another bug on May 28th 1999
  * that was fixed on May 31st.  The workaround turned out to be stupid and
- * the bug was finally killed in CLN on September 2nd. */
+ * the original bug in CLN was finally killed on September 2nd. */
 static unsigned numeric_consist2(void)
 {
     unsigned result = 0;
@@ -134,27 +141,27 @@ static unsigned numeric_consist2(void)
     ex three = numeric(3);
     
     // The hang in this code was the reason for the original workaround
-    if ( pow(two,two/three) == 42 ) {
+    if (pow(two,two/three)==42) {
         clog << "pow(2,2/3) erroneously returned 42" << endl;
         ++result;  // cannot happen
     }
     
     // Actually, this used to raise a FPE after introducing the workaround
-    if ( two*zero != zero ) {
+    if (two*zero!=zero) {
         clog << "2*0 erroneously returned " << two*zero << endl;
         ++result;
     }
     
     // And this returned a cl_F due to the implicit call of numeric::power()
     ex six = two*three;
-    if ( !six.info(info_flags::integer) ) {
+    if (!six.info(info_flags::integer)) {
         clog << "2*3 erroneously returned the non-integer " << six << endl;
         ++result;
     }
     
     // The fix in the workaround left a whole which was fixed hours later...
     ex another_zero = pow(zero,numeric(1)/numeric(2));
-    if ( another_zero.compare(exZERO()) ) {
+    if (another_zero.compare(exZERO())) {
         clog << "pow(0,1/2) erroneously returned" << another_zero << endl;
         ++result;
     }
@@ -175,50 +182,50 @@ static unsigned numeric_consist3(void)
     // These overloaded routines indeed need to be checked separately since
     // internally they might be doing something completely different:
     a = 23; b = 4; calc_rem = irem(a, b);
-    if ( calc_rem != 3 ) {
+    if (calc_rem != 3) {
         clog << "irem(" << a << "," << b << ") erroneously returned "
              << calc_rem << endl;
         ++result;
     }
     a = 23; b = -4; calc_rem = irem(a, b);
-    if ( calc_rem != 3 ) {
+    if (calc_rem != 3) {
         clog << "irem(" << a << "," << b << ") erroneously returned "
              << calc_rem << endl;
         ++result;
     }
     a = -23; b = 4; calc_rem = irem(a, b);
-    if ( calc_rem != -3 ) {
+    if (calc_rem != -3) {
         clog << "irem(" << a << "," << b << ") erroneously returned "
              << calc_rem << endl;
         ++result;
     }
     a = -23; b = -4; calc_rem = irem(a, b);
-    if ( calc_rem != -3 ) {
+    if (calc_rem != -3) {
         clog << "irem(" << a << "," << b << ") erroneously returned "
              << calc_rem << endl;
         ++result;
     }
     // and now the overloaded irem(a,b,q):
     a = 23; b = 4; calc_rem = irem(a, b, calc_quo);
-    if ( calc_rem != 3 || calc_quo != 5 ) {
+    if (calc_rem != 3 || calc_quo != 5) {
         clog << "irem(" << a << "," << b << ",q) erroneously returned "
              << calc_rem << " with q=" << calc_quo << endl;
         ++result;
     }
     a = 23; b = -4; calc_rem = irem(a, b, calc_quo);
-    if ( calc_rem != 3 || calc_quo != -5 ) {
+    if (calc_rem != 3 || calc_quo != -5) {
         clog << "irem(" << a << "," << b << ",q) erroneously returned "
              << calc_rem << " with q=" << calc_quo << endl;
         ++result;
     }
     a = -23; b = 4; calc_rem = irem(a, b, calc_quo);
-    if ( calc_rem != -3 || calc_quo != -5 ) {
+    if (calc_rem != -3 || calc_quo != -5) {
         clog << "irem(" << a << "," << b << ",q) erroneously returned "
              << calc_rem << " with q=" << calc_quo << endl;
         ++result;
     }
     a = -23; b = -4; calc_rem = irem(a, b, calc_quo);
-    if ( calc_rem != -3 || calc_quo != 5 ) {
+    if (calc_rem != -3 || calc_quo != 5) {
         clog << "irem(" << a << "," << b << ",q) erroneously returned "
              << calc_rem << " with q=" << calc_quo << endl;
         ++result;
@@ -228,50 +235,50 @@ static unsigned numeric_consist3(void)
     // These overloaded routines indeed need to be checked separately since
     // internally they might be doing something completely different:
     a = 23; b = 4; calc_quo = iquo(a, b);
-    if ( calc_quo != 5 ) {
+    if (calc_quo != 5) {
         clog << "iquo(" << a << "," << b << ") erroneously returned "
              << calc_quo << endl;
         ++result;
     }
     a = 23; b = -4; calc_quo = iquo(a, b);
-    if ( calc_quo != -5 ) {
+    if (calc_quo != -5) {
         clog << "iquo(" << a << "," << b << ") erroneously returned "
              << calc_quo << endl;
         ++result;
     }
     a = -23; b = 4; calc_quo = iquo(a, b);
-    if ( calc_quo != -5 ) {
+    if (calc_quo != -5) {
         clog << "iquo(" << a << "," << b << ") erroneously returned "
              << calc_quo << endl;
         ++result;
     }
     a = -23; b = -4; calc_quo = iquo(a, b);
-    if ( calc_quo != 5 ) {
+    if (calc_quo != 5) {
         clog << "iquo(" << a << "," << b << ") erroneously returned "
              << calc_quo << endl;
         ++result;
     }
     // and now the overloaded iquo(a,b,r):
     a = 23; b = 4; calc_quo = iquo(a, b, calc_rem);
-    if ( calc_quo != 5 || calc_rem != 3 ) {
+    if (calc_quo != 5 || calc_rem != 3) {
         clog << "iquo(" << a << "," << b << ",r) erroneously returned "
              << calc_quo << " with r=" << calc_rem << endl;
         ++result;
     }
     a = 23; b = -4; calc_quo = iquo(a, b, calc_rem);
-    if ( calc_quo != -5 || calc_rem != 3 ) {
+    if (calc_quo != -5 || calc_rem != 3) {
         clog << "iquo(" << a << "," << b << ",r) erroneously returned "
              << calc_quo << " with r=" << calc_rem << endl;
         ++result;
     }
     a = -23; b = 4; calc_quo = iquo(a, b, calc_rem);
-    if ( calc_quo != -5 || calc_rem != -3 ) {
+    if (calc_quo != -5 || calc_rem != -3) {
         clog << "iquo(" << a << "," << b << ",r) erroneously returned "
              << calc_quo << " with r=" << calc_rem << endl;
         ++result;
     }
     a = -23; b = -4; calc_quo = iquo(a, b, calc_rem);
-    if ( calc_quo != 5 || calc_rem != -3 ) {
+    if (calc_quo != 5 || calc_rem != -3) {
         clog << "iquo(" << a << "," << b << ",r) erroneously returned "
              << calc_quo << " with r=" << calc_rem << endl;
         ++result;
@@ -294,10 +301,11 @@ static unsigned numeric_consist4(void)
             passed = false;
         }
     }
-    if ( !passed ) {
+    if (!passed) {
         clog << "One or more square roots of squares of integers did not return exact integers" << endl;
         ++result;
     }
+    
     // square roots of squares of rationals:
     passed = true;
     for (int num=0; num<41; ++num) {
@@ -307,7 +315,7 @@ static unsigned numeric_consist4(void)
             }
         }
     }
-    if ( !passed ) {
+    if (!passed) {
         clog << "One or more square roots of squares of rationals did not return exact integers" << endl;
         ++result;
     }
@@ -327,7 +335,7 @@ unsigned numeric_consist(void)
     result += numeric_consist3();
     result += numeric_consist4();
 
-    if ( !result ) {
+    if (!result) {
         cout << " passed ";
         clog << "(no output)" << endl;
     } else {

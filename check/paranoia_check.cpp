@@ -241,7 +241,7 @@ unsigned paranoia_check(void)
     result += paranoia_check7();
     result += paranoia_check8();
 
-    if (! result) {
+    if (!result) {
         cout << " passed ";
         clog << "(no output)" << endl;
     } else {

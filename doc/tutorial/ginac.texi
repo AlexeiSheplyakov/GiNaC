@@ -360,9 +360,9 @@ polynomials):
 3*y^2+x^2
 @end example
 
-You can differentiate functions and expand them as Taylor or
-Laurent series (the third argument of series is the evaluation point,
-the fourth defines the order):
+You can differentiate functions and expand them as Taylor or Laurent
+series (the third argument of @code{series} is the evaluation point, the
+fourth defines the order):
 
 @example
 > diff(tan(x),x);
@@ -371,6 +371,9 @@ tan(x)^2+1
 x-1/6*x^3+Order(x^4)
 > series(1/tan(x),x,0,4);
 x^(-1)-1/3*x+Order(x^2)
+> series(gamma(2*sin(x)-2),x,Pi/2,6);
+-(x-1/2*Pi)^(-2)+(-1/12*Pi^2-1/2*EulerGamma^2-1/240)*(x-1/2*Pi)^2
+-EulerGamma-1/12+Order((x-1/2*Pi)^3)
 @end example
 
 If you ever wanted to convert units in C or C++ and found this
@@ -675,8 +678,9 @@ implement its own arithmetic.
 
 To give an idea about what kinds of symbolic composits may be built we
 have a look at the most important classes in the class hierarchy.  The
-dashed line symbolizes a "points to" or "handles" relationship while the
-solid lines stand for "inherits from" relationship in the class
+oval classes are atomic ones and the squared classes are containers.
+The dashed line symbolizes a "points to" or "handles" relationship while
+the solid lines stand for "inherits from" relationship in the class
 hierarchy:
 
 @image{classhierarchy}
@@ -912,9 +916,13 @@ following table.
 @item @code{.is_prime()}
 @tab object is a prime integer (probabilistic primality test)
 @item @code{.is_rational()}
-@tab object is an exact rational number (integers are rational, too, as are complex extensions like @math{2/3+7/2*I})
+@tab object is an exact rational number (integers are rational, too)
 @item @code{.is_real()}
 @tab object is a real integer, rational or float (i.e. is not complex)
+@item @code{.is_cinteger()}
+@tab object is a (complex) integer, such as @math{2-3*I}
+@item @code{.is_crational()}
+@tab object is an exact (complex) rational number (such as @math{2/3+7/2*I})
 @end multitable
 @end cartouche
 

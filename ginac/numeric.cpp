@@ -594,7 +594,7 @@ bool numeric::is_negative(void) const
 /** True if object is a non-complex integer. */
 bool numeric::is_integer(void) const
 {
-    return (bool)instanceof(*value, cl_I_ring);  // -> CLN
+    return instanceof(*value, cl_I_ring);  // -> CLN
 }
 
 /** True if object is an exact integer greater than zero. */
@@ -638,20 +638,13 @@ bool numeric::is_prime(void) const
  *  (denominator may be unity). */
 bool numeric::is_rational(void) const
 {
-    if (instanceof(*value, cl_RA_ring)) {
-        return true;
-    } else if (!is_real()) {  // complex case, handle Q(i):
-        if ( instanceof(realpart(*value), cl_RA_ring) &&
-             instanceof(imagpart(*value), cl_RA_ring) )
-            return true;
-    }
-    return false;
+    return instanceof(*value, cl_RA_ring);
 }
 
 /** True if object is a real integer, rational or float (but not complex). */
 bool numeric::is_real(void) const
 {
-    return (bool)instanceof(*value, cl_R_ring);  // -> CLN
+    return instanceof(*value, cl_R_ring);  // -> CLN
 }
 
 bool numeric::operator==(numeric const & other) const
@@ -662,6 +655,34 @@ bool numeric::operator==(numeric const & other) const
 bool numeric::operator!=(numeric const & other) const
 {
     return (*value != *other.value);  // -> CLN
+}
+
+/** True if object is element of the domain of integers extended by I, i.e. is
+ *  of the form a+b*I, where a and b are integers. */
+bool numeric::is_cinteger(void) const
+{
+    if (instanceof(*value, cl_I_ring))
+        return true;
+    else if (!is_real()) {  // complex case, handle n+m*I
+        if (instanceof(realpart(*value), cl_I_ring) &&
+            instanceof(imagpart(*value), cl_I_ring))
+            return true;
+    }
+    return false;
+}
+
+/** True if object is an exact rational number, may even be complex
+ *  (denominator may be unity). */
+bool numeric::is_crational(void) const
+{
+    if (instanceof(*value, cl_RA_ring))
+        return true;
+    else if (!is_real()) {  // complex case, handle Q(i):
+        if (instanceof(realpart(*value), cl_RA_ring) &&
+            instanceof(imagpart(*value), cl_RA_ring))
+            return true;
+    }
+    return false;
 }
 
 /** Numerical comparison: less.

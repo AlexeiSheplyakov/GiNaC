@@ -230,7 +230,7 @@ unsigned matrix_checks(void)
     result += matrix_invert3();
     result += matrix_misc();
     
-    if (! result) {
+    if (!result) {
         cout << " passed ";
         clog << "(no output)" << endl;
     } else {

@@ -44,7 +44,7 @@ END_OF_DECLARE_FUNCTION_MACRO_NAMESPACE
 $declare_function_macro_no_namespace=generate(
     <<'END_OF_DECLARE_FUNCTION_MACRO_NO_NAMESPACE','ex const & p${N}','p${N}');
 #define DECLARE_FUNCTION_${N}P(NAME) \\
-extern unsigned function_index_##NAME; \\
+extern const unsigned function_index_##NAME; \\
 inline function NAME(${SEQ1}) { \\
     return function(function_index_##NAME, ${SEQ2}); \\
 }

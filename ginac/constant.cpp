@@ -38,6 +38,13 @@ namespace GiNaC {
 
 // public
 
+constant::constant() :
+    basic(TINFO_constant), name(""), ef(0),
+    number(0), serial(next_serial++)
+{
+    debugmsg("constant default constructor",LOGLEVEL_CONSTRUCT);
+}
+
 constant::~constant()
 {
     debugmsg("constant destructor",LOGLEVEL_DESTRUCT);
@@ -63,7 +70,7 @@ void constant::copy(constant const & other)
     } else {
         number = 0;
     }
-    fct_assigned=other.fct_assigned;
+    // fct_assigned=other.fct_assigned;
 }
 
 void constant::destroy(bool call_parent)
@@ -81,14 +88,15 @@ void constant::destroy(bool call_parent)
 
 constant::constant(string const & initname, ex (*efun)()) :
     basic(TINFO_constant), name(initname), ef(efun),
-    number(0), fct_assigned(true), serial(next_serial++)
+    // number(0), fct_assigned(true), serial(next_serial++)
+    number(0), serial(next_serial++)
 {
     debugmsg("constant constructor from string, function",LOGLEVEL_CONSTRUCT);
 }
 
 constant::constant(string const & initname, numeric const & initnumber) :
     basic(TINFO_constant), name(initname), ef(0),
-    number(new numeric(initnumber)), fct_assigned(false), serial(next_serial++)
+    number(new numeric(initnumber)), /* fct_assigned(false),*/ serial(next_serial++)
 {
     debugmsg("constant constructor from string, numeric",LOGLEVEL_CONSTRUCT);
 }
@@ -107,7 +115,7 @@ basic * constant::duplicate() const
 
 ex constant::evalf(int level) const
 {
-    if (fct_assigned) {
+    if (ef!=0) {
         return ef();
     } else if (number != 0) {
         return *number;
@@ -156,7 +164,7 @@ unsigned constant::next_serial=0;
 // global constants
 //////////
 
-const constant some_constant("",0);
+const constant some_constant;
 type_info const & typeid_constant=typeid(some_constant);
 
 /**  Pi. (3.14159...)  Diverts straight into CLN for evalf(). */
