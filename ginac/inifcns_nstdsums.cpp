@@ -18,7 +18,7 @@
  *      [Cra] Fast Evaluation of Multiple Zeta Sums, R.E.Crandall, Math.Comp. 67 (1998), pp. 1163-1172.
  *      [ReV] Harmonic Polylogarithms, E.Remiddi, J.A.M.Vermaseren, Int.J.Mod.Phys. A15 (2000), pp. 725-754
  *      [BBB] Special Values of Multiple Polylogarithms, J.Borwein, D.Bradley, D.Broadhurst, P.Lisonek, Trans.Amer.Math.Soc. 353/3 (2001), pp. 907-941
- *      [VSW] Numerical evalutation of multiple polylogarithms, J.Vollinga, S.Weinzierl
+ *      [VSW] Numerical evaluation of multiple polylogarithms, J.Vollinga, S.Weinzierl, hep-ph/0410259
  *
  *    - The order of parameters and arguments of Li and zeta is defined according to the nested sums
  *      representation. The parameters for H are understood as in [ReV]. They can be in expanded --- only
