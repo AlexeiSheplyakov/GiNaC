@@ -2381,6 +2381,10 @@ ex resultant(const ex & e1, const ex & e2, const ex & s)
 {
 	const ex ee1 = e1.expand();
 	const ex ee2 = e2.expand();
+	if (!ee1.info(info_flags::polynomial) ||
+	    !ee2.info(info_flags::polynomial))
+		throw(std::runtime_error("resultant(): arguments must be polynomials"));
+
 	const int h1 = ee1.degree(s);
 	const int l1 = ee1.ldegree(s);
 	const int h2 = ee2.degree(s);
