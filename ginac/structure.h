@@ -195,7 +195,7 @@ public:
 	// indexed objects
 	exvector get_free_indices() const { return exvector(); }
 	ex add_indexed(const ex & self, const ex & other) const { return self + other; }
-	ex scalar_mul_indexed(const ex & self, const numeric & other) const { return self * other; }
+	ex scalar_mul_indexed(const ex & self, const numeric & other) const { return self * ex(other); }
 	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const { return false; }
 
 	// noncommutativity

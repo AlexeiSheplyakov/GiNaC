@@ -33,7 +33,7 @@ namespace GiNaC {
 
 GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(relational, basic,
   print_func<print_context>(&relational::do_print).
-  print_func<print_tree>(&basic::do_print_tree).
+  print_func<print_tree>(&relational::do_print_tree).
   print_func<print_python_repr>(&relational::do_print_python_repr))
 
 //////////

@@ -45,7 +45,7 @@ namespace GiNaC {
 GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(matrix, basic,
   print_func<print_context>(&matrix::do_print).
   print_func<print_latex>(&matrix::do_print_latex).
-  print_func<print_tree>(&basic::do_print_tree).
+  print_func<print_tree>(&matrix::do_print_tree).
   print_func<print_python_repr>(&matrix::do_print_python_repr))
 
 //////////

@@ -369,8 +369,8 @@ public:
 protected:
 	ex conjugate() const
 	{
-		STLT* newcont = 0;
-		for (const_iterator i=seq.begin(); i!=seq.end(); ++i) {
+		STLT *newcont = NULL;
+		for (const_iterator i=this->seq.begin(); i!=this->seq.end(); ++i) {
 			if (newcont) {
 				newcont->push_back(i->conjugate());
 				continue;
@@ -380,8 +380,8 @@ protected:
 				continue;
 			}
 			newcont = new STLT;
-			reserve (*newcont, seq.size());
-			for (const_iterator j=seq.begin(); j!=i; ++j) {
+			reserve(*newcont, this->seq.size());
+			for (const_iterator j=this->seq.begin(); j!=i; ++j) {
 				newcont->push_back(*j);
 			}
 			newcont->push_back(x);
@@ -393,6 +393,7 @@ protected:
 		}
 		return *this;
 	}
+
 	bool is_equal_same_type(const basic & other) const;
 
 	// new virtual functions which can be overridden by derived classes

@@ -36,7 +36,7 @@ namespace GiNaC {
 
 GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(ncmul, exprseq,
   print_func<print_context>(&ncmul::do_print).
-  print_func<print_tree>(&basic::do_print_tree).
+  print_func<print_tree>(&ncmul::do_print_tree).
   print_func<print_csrc>(&ncmul::do_print_csrc).
   print_func<print_python_repr>(&ncmul::do_print_csrc))
 

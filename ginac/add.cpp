@@ -36,7 +36,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(add, expairseq,
   print_func<print_context>(&add::do_print).
   print_func<print_latex>(&add::do_print_latex).
   print_func<print_csrc>(&add::do_print_csrc).
-  print_func<print_tree>(&inherited::do_print_tree).
+  print_func<print_tree>(&add::do_print_tree).
   print_func<print_python_repr>(&add::do_print_python_repr))
 
 //////////

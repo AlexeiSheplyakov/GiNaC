@@ -31,7 +31,7 @@ namespace GiNaC {
 
 GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(fail, basic,
   print_func<print_context>(&fail::do_print).
-  print_func<print_tree>(&basic::do_print_tree))
+  print_func<print_tree>(&fail::do_print_tree))
 
 //////////
 // default constructor
