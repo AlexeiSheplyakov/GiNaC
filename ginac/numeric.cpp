@@ -37,11 +37,32 @@
 #include "utils.h"
 
 // CLN should not pollute the global namespace, hence we include it here
-// instead of in some header file where it would propagate to other parts:
+// instead of in some header file where it would propagate to other parts.
+// Also, we only need a subset of CLN, so we don't include the complete cln.h:
 #ifdef HAVE_CLN_CLN_H
-#include <CLN/cln.h>
+#include <cln/cl_integer_io.h>
+#include <cln/cl_integer_ring.h>
+#include <cln/cl_rational_io.h>
+#include <cln/cl_rational_ring.h>
+#include <cln/cl_lfloat_class.h>
+#include <cln/cl_lfloat_io.h>
+#include <cln/cl_real_io.h>
+#include <cln/cl_real_ring.h>
+#include <cln/cl_complex_io.h>
+#include <cln/cl_complex_ring.h>
+#include <cln/cl_numtheory.h>
 #else
-#include <cln.h>
+#include <cl_integer_io.h>
+#include <cl_integer_ring.h>
+#include <cl_rational_io.h>
+#include <cl_rational_ring.h>
+#include <cl_lfloat_class.h>
+#include <cl_lfloat_io.h>
+#include <cl_real_io.h>
+#include <cl_real_ring.h>
+#include <cl_complex_io.h>
+#include <cl_complex_ring.h>
+#include <cl_numtheory.h>
 #endif
 
 #ifndef NO_GINAC_NAMESPACE
