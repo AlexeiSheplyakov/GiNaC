@@ -154,7 +154,7 @@ static unsigned clifford_check3(void)
 	// non-cyclicity of order D-4 of gamma5 * S_6
 	e = dirac_gamma5() * dirac_gamma(mu) * dirac_gamma(nu) * dirac_gamma(rho) * dirac_gamma(sig) * dirac_gamma(kap) * dirac_gamma(mu.toggle_variance())
 	  + dim * dirac_gamma5() * dirac_gamma(nu) * dirac_gamma(rho) * dirac_gamma(sig) * dirac_gamma(kap);
-	e = dirac_trace(e);
+	e = dirac_trace(e).simplify_indexed();
 	e = (e / (dim - 4)).normal();
 	result += check_equal(e, 8 * I * eps0123(nu, rho, sig, kap));
 

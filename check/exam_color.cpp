@@ -101,6 +101,8 @@ static unsigned color_check2(void)
 	result += check_equal_simplify(e, 16 * color_ONE() / 9);
 	e = color_T(a) * color_T(b) * color_T(c) * color_T(c) * color_T(b) *  color_T(a);
 	result += check_equal_simplify(e, 64 * color_ONE() / 27);
+	e = color_T(a) * color_T(b) * color_T(c) * color_T(k) * color_T(a) * color_T(k) *  color_T(c) * color_T(b);
+	result += check_equal_simplify(e, -color_ONE() / 162);
 
 	return result;
 }
