@@ -636,6 +636,7 @@ meta-class for storing all mathematical objects.
 * Fundamental containers::       The power, add and mul classes.
 * Built-in functions::           Mathematical functions.
 * Relations::                    Equality, Inequality and all that.
+* Archiving::                    Storing expression libraries in files.
 @end menu
 
 
@@ -1117,7 +1118,7 @@ expansion and so on.  Read the next chapter in order to learn more about
 this.
 
 
-@node Relations, Important Algorithms, Built-in functions, Basic Concepts
+@node Relations, Archiving, Built-in functions, Basic Concepts
 @c    node-name, next, previous, up
 @section Relations
 @cindex relations (class @code{relational})
@@ -1134,7 +1135,96 @@ the @code{.subs()} method show how objects of class relational are used
 as arguments.  There they provide an intuitive syntax for substitutions.
 
 
-@node Important Algorithms, Polynomial Expansion, Relations, Top
+@node Archiving, Important Algorithms, Relations, Basic Concepts
+@c    node-name, next, previous, up
+@section Archiving Expressions
+@cindex archives (class @code{archive})
+
+GiNaC allows creating @dfn{archives} of expressions which can be stored
+to or retrieved from files. To create an archive, you declare an object
+of class @code{archive} and archive expressions in it, giving each
+expressions a unique name:
+
+@example
+#include <ginac/ginac.h>
+#include <fstream>
+using namespace GiNaC;
+
+int main()
+@{
+    symbol x("x"), y("y"), z("z");
+
+    ex foo = sin(x + 2*y) + 3*z + 41;
+    ex bar = foo + 1;
+
+    archive a;
+    a.archive_ex(foo, "foo");
+    a.archive_ex(bar, "the second one");
+    // ...
+@end example
+
+The archive can then be written to a file:
+
+@example
+    // ...
+    ofstream out("foobar.gar");
+    out << a;
+    out.close();
+    // ...
+@end example
+
+The file @file{foobar.gar} contains all information that is needed to
+reconstruct the expressions @code{foo} and @code{bar}.
+
+The tool @command{viewgar} that comes with GiNaC can be used to view
+the contents of GiNaC archive files:
+
+@example
+$ viewgar foobar.gar
+foo = 41+sin(x+2*y)+3*z
+the second one = 42+sin(x+2*y)+3*z
+@end example
+
+The point of writing archive files is of course that they can later be
+read in again:
+
+@example
+    // ...
+    archive a2;
+    ifstream in("foobar.gar");
+    in >> a2;
+    // ...
+@end example
+
+And the stored expressions can be retrieved by their name:
+
+@example
+    // ...
+    lst syms;
+    syms.append(x); syms.append(y);
+
+    ex ex1 = a2.unarchive_ex(syms, "foo");
+    ex ex2 = a2.unarchive_ex(syms, "the second one");
+
+    cout << ex1 << endl;              // prints "41+sin(x+2*y)+3*z"
+    cout << ex2 << endl;              // prints "42+sin(x+2*y)+3*z"
+    cout << ex1.subs(x == 2) << endl; // prints "41+sin(2+2*y)+3*z"
+    // ...
+@}
+@end example
+
+Note that you have to supply a list of the symbols which are to be inserted
+in the expressions. Symbols in archives are stored by their name only and
+if you don't specify which symbols you have, unarchiving the expression will
+create new symbols with that name. E.g. if you hadn't included @code{x} in
+the @code{syms} list above, the @code{ex1.subs(x == 2)} statement would
+have had no effect because the @code{x} in @code{ex1} would have been a
+different symbol than the @code{x} which was defined at the beginning of
+the program, altough both would appear as @samp{x} when printed.
+
+
+
+@node Important Algorithms, Polynomial Expansion, Archiving, Top
 @c    node-name, next, previous, up
 @chapter Important Algorithms
 @cindex polynomial
