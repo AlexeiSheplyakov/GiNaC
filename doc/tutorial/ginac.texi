@@ -710,11 +710,47 @@ consisting of one expression and a number (@code{numeric}).  What
 @xref{Internal Structures}, where these two classes are described in
 more detail.
 
+At this point, we only summarize what kind of mathematical objects are
+stored in the different classes in above diagram in order to give you a
+overview:
+
+@cartouche
+@multitable @columnfractions .22 .78
+@item @code{symbol} @tab Algebraic symbols @math{a}, @math{x}, @math{y}@dots{}
+@item @code{constant} @tab Constants like 
+@tex
+$\pi$
+@end tex
+@ifnottex
+@math{Pi}
+@end ifnottex
+@item @code{numeric} @tab All kinds of numbers, @math{42}, @math{7/3*I}, @math{3.14159}@dots{}
+@item @code{add} @tab Sums like @math{x+y} or @math{a+(2*b)+3}
+@item @code{mul} @tab Products like @math{x*y} or @math{a*(x+y+z)*b*2}
+@item @code{power} @tab Exponentials such as @math{x^2}, @math{a^b}, 
+@tex
+$\sqrt{2}$
+@end tex
+@ifnottex
+@code{sqrt(}@math{2}@code{)}
+@end ifnottex
+@dots{}
+@item @code{pseries} @tab Power Series, e.g. @math{x+1/6*x^3+1/120*x^5+O(x^7)}
+@item @code{function} @tab A symbolic function like @math{sin(2*x)}
+@item @code{lst} @tab Lists of expressions [@math{x}, @math{2*y}, @math{3+z}]
+@item @code{matrix} @tab @math{n}x@math{m} matrices of expressions
+@item @code{relational} @tab A relation like the identity @math{x}@code{==}@math{y}
+@item @code{color} @tab Element of the @math{SU(3)} Lie-algebra
+@item @code{isospin} @tab Element of the @math{SU(2)} Lie-algebra
+@item @code{idx} @tab Index of a tensor object
+@item @code{coloridx} @tab Index of a @math{SU(3)} tensor
+@end multitable
+@end cartouche
 
 @node Symbols, Numbers, The Class Hierarchy, Basic Concepts
 @c    node-name, next, previous, up
 @section Symbols
-@cindex Symbols (class @code{symbol})
+@cindex @code{symbol} (class)
 @cindex hierarchy of classes
 
 @cindex atom
@@ -753,7 +789,7 @@ can use the expression's @code{.subs()} method.
 @node Numbers, Constants, Symbols, Basic Concepts
 @c    node-name, next, previous, up
 @section Numbers
-@cindex numbers (class @code{numeric})
+@cindex @code{numeric} (class)
 
 @cindex GMP
 @cindex CLN
@@ -951,7 +987,7 @@ following table.
 @node Constants, Fundamental containers, Numbers, Basic Concepts
 @c    node-name, next, previous, up
 @section Constants
-@cindex constants (class @code{constant})
+@cindex @code{constant} (class)
 
 @cindex @code{Pi}
 @cindex @code{Catalan}
@@ -1066,7 +1102,7 @@ canonical form.
 @node Built-in functions, Relations, Fundamental containers, Basic Concepts
 @c    node-name, next, previous, up
 @section Built-in functions
-@cindex functions (class @code{function})
+@cindex @code{function} (class)
 @cindex trigonometric function
 @cindex hyperbolic function
 
@@ -1121,7 +1157,7 @@ this.
 @node Relations, Archiving, Built-in functions, Basic Concepts
 @c    node-name, next, previous, up
 @section Relations
-@cindex relations (class @code{relational})
+@cindex @code{relational} (class)
 
 Sometimes, a relation holding between two expressions must be stored
 somehow.  The class @code{relational} is a convenient container for such
@@ -1138,7 +1174,8 @@ as arguments.  There they provide an intuitive syntax for substitutions.
 @node Archiving, Important Algorithms, Relations, Basic Concepts
 @c    node-name, next, previous, up
 @section Archiving Expressions
-@cindex archives (class @code{archive})
+@cindex I/O
+@cindex @code{archive} (class)
 
 GiNaC allows creating @dfn{archives} of expressions which can be stored
 to or retrieved from files. To create an archive, you declare an object
@@ -1176,6 +1213,7 @@ The archive can then be written to a file:
 The file @file{foobar.gar} contains all information that is needed to
 reconstruct the expressions @code{foo} and @code{bar}.
 
+@cindex @command{viewgar}
 The tool @command{viewgar} that comes with GiNaC can be used to view
 the contents of GiNaC archive files:
 
@@ -1518,19 +1556,20 @@ When you run it, it produces the sequence @code{1}, @code{-1}, @code{5},
 @node Series Expansion, Extending GiNaC, Symbolic Differentiation, Important Algorithms
 @c    node-name, next, previous, up
 @section Series Expansion
-@cindex series expansion
+@cindex @code{series()}
 @cindex Taylor expansion
 @cindex Laurent expansion
+@cindex @code{pseries} (class)
 
 Expressions know how to expand themselves as a Taylor series or (more
 generally) a Laurent series.  As in most conventional Computer Algebra
 Systems, no distinction is made between those two.  There is a class of
-its own for storing such series as well as a class for storing the order
-of the series.  As a consequence, if you want to work with series,
-i.e. multiply two series, you need to call the method @code{ex::series}
-again to convert it to a series object with the usual structure
-(expansion plus order term).  A sample application from special
-relativity could read:
+its own for storing such series (@code{class pseries}) and a built-in
+function (called @code{Order}) for storing the order term of the series.
+As a consequence, if you want to work with series, i.e. multiply two
+series, you need to call the method @code{ex::series} again to convert
+it to a series object with the usual structure (expansion plus order
+term).  A sample application from special relativity could read:
 
 @example
 #include <ginac/ginac.h>
