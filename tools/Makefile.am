@@ -4,3 +4,4 @@ bin_PROGRAMS = viewgar
 viewgar_SOURCES = viewgar.cpp
 viewgar_LDADD = ../ginac/libginac.la
 man_MANS = viewgar.1
+EXTRA_DIST = $(man_MANS)
