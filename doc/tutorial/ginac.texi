@@ -4480,7 +4480,7 @@ method. It can also already contain a list of replacements from an earlier
 application of @code{.to_polynomial()} or @code{.to_rational()}, so it's
 possible to use it on multiple expressions and get consistent results.
 
-The difference betwerrn @code{.to_polynomial()} and @code{.to_rational()}
+The difference between @code{.to_polynomial()} and @code{.to_rational()}
 is probably best illustrated with an example:
 
 @example
@@ -4747,6 +4747,8 @@ almost any kind of object (anything that is @code{subs()}able):
 @node Built-in Functions, Solving Linear Systems of Equations, Symmetrization, Methods and Functions
 @c    node-name, next, previous, up
 @section Predefined mathematical functions
+@c
+@subsection Overview
 
 GiNaC contains the following predefined mathematical functions:
 
@@ -4807,31 +4809,34 @@ GiNaC contains the following predefined mathematical functions:
 @tab natural logarithm
 @cindex @code{log()}
 @item @code{Li2(x)}
-@tab Dilogarithm
+@tab dilogarithm
 @cindex @code{Li2()}
-@item @code{Li(n, x)}
+@item @code{Li(m, x)}
 @tab classical polylogarithm as well as multiple polylogarithm
 @cindex @code{Li()}
 @item @code{S(n, p, x)}
 @tab Nielsen's generalized polylogarithm
 @cindex @code{S()}
-@item @code{H(n, x)}
+@item @code{H(m, x)}
 @tab harmonic polylogarithm
 @cindex @code{H()}
-@item @code{zeta(x)}
+@item @code{zeta(m)}
 @tab Riemann's zeta function as well as multiple zeta value
 @cindex @code{zeta()}
-@item @code{zeta(n, x)}
+@item @code{zeta(m, s)}
+@tab alternating Euler sum
+@cindex @code{zeta()}
+@item @code{zetaderiv(n, x)}
 @tab derivatives of Riemann's zeta function
 @item @code{tgamma(x)}
-@tab Gamma function
+@tab gamma function
 @cindex @code{tgamma()}
-@cindex Gamma function
+@cindex gamma function
 @item @code{lgamma(x)}
-@tab logarithm of Gamma function
+@tab logarithm of gamma function
 @cindex @code{lgamma()}
 @item @code{beta(x, y)}
-@tab Beta function (@code{tgamma(x)*tgamma(y)/tgamma(x+y)})
+@tab beta function (@code{tgamma(x)*tgamma(y)/tgamma(x+y)})
 @cindex @code{beta()}
 @item @code{psi(x)}
 @tab psi (digamma) function
@@ -4866,25 +4871,148 @@ serious CAS.  It is to be expected that future revisions of the C++
 standard incorporate these functions in the complex domain in a manner
 compatible with C99.
 
-@cindex nested sums
-The functions @code{Li}, @code{S}, @code{H} and @code{zeta} share certain
-properties and are refered to as nested sums functions, because they all
-have a uniform representation as nested sums (for mathematical details and
-conventions see @emph{S.Moch, P.Uwer, S.Weinzierl hep-ph/0110083}).
-@code{Li} and @code{zeta} can take @code{lst}s as arguments, in which case
-they represent not classical polylogarithms or simple zeta functions but
-multiple polylogarithms or multiple zeta values respectively (note that the two
-@code{lst}s for @code{Li} must have the same length). The first parameter
-of the harmonic polylogarithm can also be a @code{lst}.
-For all these functions the arguments in the @code{lst}s are expected to be
-in the same order as they appear in the nested sums representation
-(note that this convention differs from the one in the aforementioned paper 
-in the cases of @code{Li} and @code{zeta}).
-If you want to numerically evaluate the functions, the parameters @code{n}
-and @code{p} as well as @code{x} in the case of @code{zeta} must all be
-positive integers (or @code{lst}s containing them). The multiple polylogarithm
-has the additional restriction that the second parameter must only
-contain arguments with an absolute value smaller than one.
+@subsection Multiple polylogarithms
+
+@cindex polylogarithm
+@cindex Nielsen's generalized polylogarithm
+@cindex harmonic polylogarithm
+@cindex multiple zeta value
+@cindex alternating Euler sum
+@cindex multiple polylogarithm
+
+The multiple polylogarithm is the most generic member of a family of functions,
+to which others like the harmonic polylogarithm, Nielsen's generalized
+polylogarithm and the multiple zeta value belong.
+Everyone of these functions can also be written as a multiple polylogarithm with specific
+parameters. This whole family of functions is therefore often refered to simply as
+multiple polylogarithms, containing @code{Li}, @code{H}, @code{S} and @code{zeta}.
+
+To facilitate the discussion of these functions we distinguish between indices and
+arguments as parameters. In the table above indices are printed as @code{m}, @code{s},
+@code{n} or @code{p}, whereas arguments are printed as @code{x}.
+
+To define a @code{Li}, @code{H} or @code{zeta} with a depth greater than one, you have to
+pass a GiNaC @code{lst} for the indices @code{m} and @code{s}, and in the case of @code{Li}
+for the argument @code{x} as well.
+Note that @code{Li} and @code{zeta} are polymorphic in this respect. They can stand in for
+the classical polylogarithm and Riemann's zeta function (if depth is one), as well as for
+the multiple polylogarithm and the multiple zeta value, respectively. Note also, that
+GiNaC doesn't check whether the @code{lst}s for two parameters do have the same length.
+It is up to the user to ensure this, otherwise evaluating will result in undefined behavior.
+
+The functions print in LaTeX format as
+@tex
+${\rm Li\;\!}_{m_1,m_2,\ldots,m_k}(x_1,x_2,\ldots,x_k)$, 
+@end tex
+@tex
+${\rm S}_{n,p}(x)$, 
+@end tex
+@tex
+${\rm H\;\!}_{m_1,m_2,\ldots,m_k}(x)$ and 
+@end tex
+@tex
+$\zeta(m_1,m_2,\ldots,m_k)$.
+@end tex
+If @code{zeta} is an alternating zeta sum, i.e. @code{zeta(m,s)}, the indices with negative sign
+are printed with a line above, e.g.
+@tex
+$\zeta(5,\overline{2})$.
+@end tex
+The order of indices and arguments in the GiNaC @code{lst}s and in the output is the same.
+
+Definitions and analytical as well as numerical properties of multiple polylogarithms
+are too numerous to be covered here. Instead, the user is refered to the publications listed at the
+end of this section. The implementation in GiNaC adheres to the definitions and conventions therein,
+except for a few differences which will be explicitly stated in the following.
+
+One difference is about the order of the indices and arguments. For GiNac we adopt the convention
+that the indices and arguments are understood to be in the same order as in which they appear in
+the series representation. This means
+@tex
+${\rm Li\;\!}_{m_1,m_2,m_3}(x,1,1) = {\rm H\;\!}_{m_1,m_2,m_3}(x)$ and 
+@end tex
+@tex
+${\rm Li\;\!}_{2,1}(1,1) = \zeta(2,1) = \zeta(3)$, but
+@end tex
+@tex
+$\zeta(1,2)$ evaluates to infinity.
+@end tex
+So in comparison to the referenced publications the order of indices and arguments for @code{Li}
+is reversed.
+
+The functions only evaluate if the indices are integers greater than zero, except for the indices
+@code{s} in @code{zeta} and @code{m} in @code{H}. Since @code{s} will be interpreted as the sequence
+of signs for the corresponding indices @code{m}, it must contain 1 or -1, e.g.
+@code{zeta(lst(3,4), lst(-1,1))} means
+@tex
+$\zeta(\overline{3},4)$.
+@end tex
+The definition of @code{H} allows indices to be 0, 1 or -1 (in expanded notation) or equally to
+be any integer (in compact notation). With GiNaC expanded and compact notation can be mixed,
+e.g. @code{lst(0,0,-1,0,1,0,0)}, @code{lst(0,0,-1,2,0,0)} and @code{lst(-3,2,0,0)} are equivalent as
+indices. The anonymous evaluator @code{eval()} tries to reduce the functions, if possible, to
+the least-generic multiple polylogarithm. If all arguments are unit, it returns @code{zeta}.
+Arguments equal to zero get considered, too. Riemann's zeta function @code{zeta} (with depth one)
+evaluates also for negative integers and positive even integers. For example:
+
+@example
+> Li({3,1},{x,1});
+S(2,2,x)
+> H({-3,2},1);
+-zeta({3,2},{-1,-1})
+> S(3,1,1);
+1/90*Pi^4
+@end example
+
+It is easy to tell for a given function into which other function it can be rewritten, may
+it be a less-generic or a more-generic one, except for harmonic polylogarithms @code{H}
+with negative indices or trailing zeros (the example above gives a hint). Signs can
+quickly be messed up, for example. Therefore GiNaC offers a C++ function
+@code{convert_H_to_Li()} to deal with the upgrade of a @code{H} to a multiple polylogarithm
+@code{Li} (@code{eval()} already cares for the possible downgrade):
+
+@example
+> convert_H_to_Li({0,-2,-1,3},x);
+Li({3,1,3},{-x,1,-1})
+> convert_H_to_Li({2,-1,0},x);
+-Li({2,1},{x,-1})*log(x)+2*Li({3,1},{x,-1})+Li({2,2},{x,-1})
+@end example
+
+Every function apart from the multiple polylogarithm @code{Li} can be numerically evaluated for
+arbitrary real or complex arguments. @code{Li} only evaluates if for all arguments
+@tex
+$x_i$ the condition
+@end tex
+@tex
+$x_1x_2\cdots x_i < 1$ holds.
+@end tex
+
+@example
+> Digits=100;
+100
+> evalf(zeta({3,1,3,1}));
+0.005229569563530960100930652283899231589890420784634635522547448972148869544...
+@end example
+
+If a function evaluates to infinity, no exceptions are raised, but the function is returned
+unevaluated, e.g.
+@tex
+$\zeta(1)$.
+@end tex
+In long expressions this helps a lot with debugging, because you can easily spot
+the divergencies. But on the other hand, you have to make sure for yourself, that no illegal
+cancellations of divergencies happen.
+
+Useful publications:
+
+@cite{Nested Sums, Expansion of Transcendental Functions and Multi-Scale Multi-Loop Integrals}, 
+S.Moch, P.Uwer, S.Weinzierl, hep-ph/0110083
+
+@cite{Harmonic Polylogarithms}, 
+E.Remiddi, J.A.M.Vermaseren, Int.J.Mod.Phys. A15 (2000), pp. 725-754
+
+@cite{Special Values of Multiple Polylogarithms}, 
+J.Borwein, D.Bradley, D.Broadhurst, P.Lisonek, Trans.Amer.Math.Soc. 353/3 (2001), pp. 907-941
 
 @node Solving Linear Systems of Equations, Input/Output, Built-in Functions, Methods and Functions
 @c    node-name, next, previous, up
