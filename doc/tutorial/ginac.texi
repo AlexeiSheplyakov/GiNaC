@@ -3405,6 +3405,7 @@ argument. You can not use functions like @samp{diff()}, @samp{op()},
 @subsection Expanding and collecting
 @cindex @code{expand()}
 @cindex @code{collect()}
+@cindex @code{collect_common_factors()}
 
 A polynomial in one or more variables has many equivalent
 representations.  Some useful ones serve a specific purpose.  Consider
@@ -3461,6 +3462,25 @@ d*sin(x)+(d*sin(x)+sin(y)+d*sin(y)+sin(x))*p+(d*sin(x)+sin(y)+d*sin(y)+sin(x))*q
 (1+(1+d)*p+d+q*(1+d))*sin(x)+(1+(1+d)*p+d+q*(1+d))*sin(y)
 > collect(a,@{find(a,sin($1)),d@});
 (1+q+d*(1+q+p)+p)*sin(y)+(1+q+d*(1+q+p)+p)*sin(x)
+@end example
+
+Polynomials can often be brought into a more compact form by collecting
+common factors from the terms of sums. This is accomplished by the function
+
+@example
+ex collect_common_factors(const ex & e);
+@end example
+
+This function doesn't perform a full factorization but only looks for
+factors which are already explicitly present:
+
+@example
+> collect_common_factors(a*x+a*y);
+(x+y)*a
+> collect_common_factors(a*x^2+2*a*x*y+a*y^2);
+a*(2*x*y+y^2+x^2)
+> collect_common_factors(a*(b*(a+c)*x+b*((a+c)*x+(a+c)*y)*y));
+(c+a)*a*(x*y+y^2+x)*b
 @end example
 
 @subsection Degree and coefficients

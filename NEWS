@@ -10,6 +10,8 @@ This file records noteworthy changes.
   LaTeX output.
 * Added symbolic_matrix() for the convenient creation of matrices filled
   with symbols.
+* Added collect_common_factors() which collects common factors from the
+  terms of sums.
 
 1.0.12 (30 October 2002)
 * Fixed a bug in power::expand() that could produce invalid expressions.
