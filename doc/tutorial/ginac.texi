@@ -766,6 +766,7 @@ $\sqrt{2}$
 @item @code{idx} @tab Index of an indexed object
 @item @code{varidx} @tab Index with variance
 @item @code{spinidx} @tab Index with variance and dot (used in Weyl-van-der-Waerden spinor formalism)
+@item @code{wildcard} @tab Wildcard for pattern matching
 @end multitable
 @end cartouche
 
@@ -2286,6 +2287,7 @@ avoided.
 @menu
 * Information About Expressions::
 * Substituting Expressions::
+* Pattern Matching and Advanced Substitutions::
 * Polynomial Arithmetic::           Working with polynomials.
 * Rational Expressions::            Working with rational functions.
 * Symbolic Differentiation::
@@ -2434,7 +2436,6 @@ for an explanation of these.
 @subsection Accessing subexpressions
 @cindex @code{nops()}
 @cindex @code{op()}
-@cindex @code{has()}
 @cindex container
 @cindex @code{relational} (class)
 
@@ -2460,17 +2461,6 @@ The left-hand and right-hand side expressions of objects of class
 ex ex::lhs();
 ex ex::rhs();
 @end example
-
-Finally, the method
-
-@example
-bool ex::has(const ex & other);
-@end example
-
-checks whether an expression contains the given subexpression @code{other}.
-This only works reliably if @code{other} is of an atomic class such as a
-@code{numeric} or a @code{symbol}. It is, e.g., not possible to verify that
-@code{a+b+c} contains @code{a+c} (or @code{a+b}) as a subexpression.
 
 
 @subsection Comparing expressions
@@ -2505,7 +2495,7 @@ GiNaC to establish a canonical sort order for terms, and using it to compare
 expressions will give very surprising results.
 
 
-@node Substituting Expressions, Polynomial Arithmetic, Information About Expressions, Methods and Functions
+@node Substituting Expressions, Pattern Matching and Advanced Substitutions, Information About Expressions, Methods and Functions
 @c    node-name, next, previous, up
 @section Substituting expressions
 @cindex @code{subs()}
@@ -2535,6 +2525,14 @@ In the first form, @code{subs()} accepts a relational of the form
 @}
 @end example
 
+If you specify multiple substitutions, they are performed in parallel, so e.g.
+@code{subs(lst(x == y, y == x))} exchanges @samp{x} and @samp{y}.
+
+The second form of @code{subs()} takes two lists, one for the objects to be
+replaced and one for the expressions to be substituted (both lists must
+contain the same number of elements). Using this form, you would write
+@code{subs(lst(x, y), lst(y, x))} to exchange @samp{x} and @samp{y}.
+
 @code{subs()} performs syntactic substitution of any complete algebraic
 object; it does not try to match sub-expressions as is demonstrated by the
 following example:
@@ -2547,9 +2545,9 @@ following example:
     cout << e1.subs(x+y == 4) << endl;
      // -> 16
 
-    ex e2 = sin(x)*cos(x);
+    ex e2 = sin(x)*sin(y)*cos(x);
     cout << e2.subs(sin(x) == cos(x)) << endl;
-     // -> cos(x)^2
+     // -> cos(x)^2*sin(y)
 
     ex e3 = x+y+z;
     cout << e3.subs(x+y == 4) << endl;
@@ -2558,16 +2556,253 @@ following example:
 @}
 @end example
 
-If you specify multiple substitutions, they are performed in parallel, so e.g.
-@code{subs(lst(x == y, y == x))} exchanges @samp{x} and @samp{y}.
-
-The second form of @code{subs()} takes two lists, one for the objects to be
-replaced and one for the expressions to be substituted (both lists must
-contain the same number of elements). Using this form, you would write
-@code{subs(lst(x, y), lst(y, x))} to exchange @samp{x} and @samp{y}.
+A more powerful form of substitution using wildcards is described in the
+next section.
 
 
-@node Polynomial Arithmetic, Rational Expressions, Substituting Expressions, Methods and Functions
+@node Pattern Matching and Advanced Substitutions, Polynomial Arithmetic, Substituting Expressions, Methods and Functions
+@c    node-name, next, previous, up
+@section Pattern matching and advanced substitutions
+
+GiNaC allows the use of patterns for checking whether an expression is of a
+certain form or contains subexpressions of a certain form, and for
+substituting expressions in a more general way.
+
+A @dfn{pattern} is an algebraic expression that optionally contains wildcards.
+A @dfn{wildcard} is a special kind of object (of class @code{wildcard}) that
+represents an arbitrary expression. Every wildcard has a @dfn{label} which is
+an unsigned integer number to allow having multiple different wildcards in a
+pattern. Wildcards are printed as @samp{$label} (this is also the way they
+are specified in @command{ginsh}. In C++ code, wildcard objects are created
+with the call
+
+@example
+ex wild(unsigned label = 0);
+@end example
+
+which is simply a wrapper for the @code{wildcard()} constructor with a shorter
+name.
+
+Some examples for patterns:
+
+@multitable @columnfractions .5 .5
+@item @strong{Constructed as} @tab @strong{Output as}
+@item @code{wild()} @tab @samp{$0}
+@item @code{pow(x,wild())} @tab @samp{x^$0}
+@item @code{atan2(wild(1),wild(2))} @tab @samp{atan2($1,$2)}
+@item @code{indexed(A,idx(wild(),3))} @tab @samp{A.$0}
+@end multitable
+
+Notes:
+
+@itemize
+@item Wildcards behave like symbols and are subject to the same algebraic
+  rules. E.g., @samp{$0+2*$0} is automatically transformed to @samp{3*$0}.
+@item As shown in the last example, to use wildcards for indices you have to
+  use them as the value of an @code{idx} object. This is because indices must
+  always be of class @code{idx} (or a subclass).
+@item Wildcards only represent expressions or subexpressions. It is not
+  possible to use them as placeholders for other properties like index
+  dimension or variance, representation labels, symmetry of indexed objects
+  etc.
+@item Because wildcards are commutative, it is not possible to use wildcards
+  as part of noncommutative products.
+@item A pattern does not have to contain wildcards. @samp{x} and @samp{x+y}
+  are also valid patterns.
+@end itemize
+
+@cindex @code{match()}
+The most basic application of patterns is to check whether an expression
+matches a given pattern. This is done by the function
+
+@example
+bool ex::match(const ex & pattern);
+bool ex::match(const ex & pattern, lst & repls);
+@end example
+
+This function returns @code{true} when the expression matches the pattern
+and @code{false} if it doesn't. If used in the second form, the actual
+subexpressions matched by the wildcards get returned in the @code{repls}
+object as a list of relations of the form @samp{wildcard == expression}.
+If @code{match()} returns false, the state of @code{repls} is undefined.
+For reproducible results, the list should be empty when passed to
+@code{match()}, but it is also possible to find similarities in multiple
+expressions by passing in the result of a previous match.
+
+The matching algorithm works as follows:
+
+@itemize
+@item A single wildcard matches any expression. If one wildcard appears
+  multiple times in a pattern, it must match the same expression in all
+  places (e.g. @samp{$0} matches anything, and @samp{$0*($0+1)} matches
+  @samp{x*(x+1)} but not @samp{x*(y+1)}).
+@item If the expression is not of the same class as the pattern, the match
+  fails (i.e. a sum only matches a sum, a function only matches a function,
+  etc.).
+@item If the pattern is a function, it only matches the same function
+  (i.e. @samp{sin($0)} matches @samp{sin(x)} but doesn't match @samp{exp(x)}.
+@item Except for sums and products, the match fails if the number of
+  subexpressions (@code{nops()}) is not equal to the number of subexpressions
+  of the pattern.
+@item If there are no subexpressions, the expressions and the pattern must
+  be equal (in the sense of @code{is_equal()}).
+@item Except for sums and products, each subexpression (@code{op()}) must
+  match the corresponding subexpression of the pattern.
+@end itemize
+
+Sums (@code{add}) and products (@code{mul}) are treated in a special way to
+account for their commutativity and associativity:
+
+@itemize
+@item If the pattern contains a term or factor that is a single wildcard,
+  this one is used as the @dfn{global wildcard}. If there is more than one
+  such wildcard, one of them is chosen as the global wildcard in a random
+  way.
+@item Every term/factor of the pattern, except the global wildcard, is
+  matched against every term of the expression in sequence. If no match is
+  found, the whole match fails. Terms that did match are not considered in
+  further matches.
+@item If there are no unmatched terms left, the match succeeds. Otherwise
+  the match fails unless there is a global wildcard in the pattern, in
+  which case this wildcard matches the remaining terms.
+@end itemize
+
+In general, having more than one single wildcard as a term of a sum or a
+factor of a product (such as @samp{a+$0+$1}) will lead to unpredictable or
+amgiguous results.
+
+Here are some examples in @command{ginsh} to demonstrate how it works (the
+@code{match()} function in @command{ginsh} returns @samp{FAIL} if the
+match fails, and the list of wildcard replacements otherwise):
+
+@example
+> match((x+y)^a,(x+y)^a);
+[]
+> match((x+y)^a,(x+y)^b);
+FAIL
+> match((x+y)^a,$1^$2);
+[$1==x+y,$2==a]
+> match((x+y)^a,$1^$1);
+FAIL
+> match((x+y)^(x+y),$1^$1);
+[$1==x+y]
+> match((x+y)^(x+y),$1^$2);
+[$1==x+y,$2==x+y]
+> match((a+b)*(a+c),($1+b)*($1+c));
+[$1==a]
+> match((a+b)*(a+c),(a+$1)*(a+$2));
+[$1==c,$2==b]
+  (Unpredictable. The result might also be [$1==c,$2==b].)
+> match((a+b)*(a+c),($1+$2)*($1+$3));
+  (The result is undefined. Due to the sequential nature of the algorithm
+   and the re-ordering of terms in GiNaC, the match for the first factor
+   may be [$1==a,$2==b] in which case the match for the second factor
+   succeeds, or it may be [$1==b,$2==a] which causes the second match to
+   fail.)
+> match(2*(x+y)+2*z-2,2*$1+$2);
+  (This is also ambiguous and may return either [$1==z,$2==-2+2*x+2*y] or
+   [$1=x+y,$2=2*z-2].)
+> match(a+b+c+d+e+f,c);
+FAIL
+> match(a+b+c+d+e+f,c+$0);
+[$0==a+e+b+f+d]
+> match(a+b+c+d+e+f,c+e+$0);
+[$0==a+b+f+d]
+> match(a+b,a+b+$0);
+[$0==0]
+> match(a*b^2,a^$1*b^$2);
+FAIL
+  (The matching is syntactic, not algebraic, and "a" doesn't match "a^$0"
+   even if a==a^x for x==0.)
+> match(x*atan2(x,x^2),$0*atan2($0,$0^2));
+[$0==x]
+> match(atan2(y,x^2),atan2(y,$0));
+[$0==x^2]
+@end example
+
+@cindex @code{has()}
+A more general way to look for patterns in expressions is provided by the
+member function
+
+@example
+bool ex::has(const ex & pattern);
+@end example
+
+This function checks whether a pattern is matched by an expression itself or
+by any of its subexpressions.
+
+Again some examples in @command{ginsh} for illustration (in @command{ginsh},
+@code{has()} returns @samp{1} for @code{true} and @samp{0} for @code{false}):
+
+@example
+> has(x*sin(x+y+2*a),y);
+1
+> has(x*sin(x+y+2*a+y),x+y);
+0
+  (This is because in GiNaC, "x+y" is not a subexpression of "x+y+2*a" (which
+   has the subexpressions "x", "y" and "2*a".)
+> has(x*sin(x+y+2*a+y),x+y+$1);
+1
+  (But this is possible.)
+> has(x*sin(2*(x+y)+2*a),x+y);
+0
+  (This fails because "2*(x+y)" automatically gets converted to "2*x+2*y" of
+   which "x+y" is not a subexpression.)
+> has(x+1,x^$1);
+0
+  (Although x^1==x and x^0==1, neither "x" nor "1" are actually of the form
+   "x^something".)
+> has(4*x^2-x+3,$1*x);
+1
+> has(4*x^2+x+3,$1*x);
+0
+  (Another possible pitfall. The first expression matches because the term
+   "-x" has the form "(-1)*x" in GiNaC. To check whether a polynomial
+   contains a linear term you should use the coeff() function instead.)
+@end example
+
+@cindex @code{subs()}
+Probably the most useful application of patterns is to use them for
+substituting expressions with the @code{subs()} method. Wildcards can be
+used in the search patterns as well as in the replacement expressions, where
+they get replaced by the expressions matched by them. @code{subs()} doesn't
+know anything about algebra; it performs purely syntactic substitutions.
+
+Some examples:
+
+@example
+> subs(a^2+b^2+(x+y)^2,$1^2==$1^3);
+b^3+a^3+(x+y)^3
+> subs(a^4+b^4+(x+y)^4,$1^2==$1^3);
+b^4+a^4+(x+y)^4
+> subs((a+b+c)^2,a+b=x);
+(a+b+c)^2
+> subs((a+b+c)^2,a+b+$1==x+$1);
+(x+c)^2
+> subs(4*x^3-2*x^2+5*x-1,x==a);
+-1+5*a-2*a^2+4*a^3
+> subs(4*x^3-2*x^2+5*x-1,x^$0==a^$0);
+-1+5*x-2*a^2+4*a^3
+> subs(sin(1+sin(x)),sin($1)==cos($1));
+cos(1+cos(x))
+> expand(subs(a*sin(x+y)^2+a*cos(x+y)^2+b,cos($1)^2==1-sin($1)^2));
+a+b
+@end example
+
+The last example would be written in C++ in this way:
+
+@example
+@{
+    symbol a("a"), b("b"), x("x"), y("y");
+    e = a*pow(sin(x+y), 2) + a*pow(cos(x+y), 2) + b;
+    e = e.subs(pow(cos(wild()), 2) == 1-pow(sin(wild()), 2));
+    cout << e.expand() << endl;
+     // -> "b+a"
+@}
+@end example
+
+
+@node Polynomial Arithmetic, Rational Expressions, Pattern Matching and Advanced Substitutions, Methods and Functions
 @c    node-name, next, previous, up
 @section Polynomial arithmetic
 
