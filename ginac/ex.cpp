@@ -73,7 +73,7 @@ void ex::dbgprinttree() const
 ex ex::expand(unsigned options) const
 {
 	if (options == 0 && (bp->flags & status_flags::expanded)) // The "expanded" flag only covers the standard options; someone might want to re-expand with different options
-		return *bp;
+		return *this;
 	else
 		return bp->expand(options);
 }
