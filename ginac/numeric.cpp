@@ -30,7 +30,6 @@
 #include <stdexcept>
 #include <string>
 #include <sstream>
-#include <limits>
 
 #include "numeric.h"
 #include "ex.h"
@@ -456,9 +455,9 @@ void numeric::print(const print_context & c, unsigned level) const
 
 		// Set precision
 		if (is_a<print_csrc_double>(c))
-			c.s.precision(std::numeric_limits<double>::digits10 + 1);
+			c.s.precision(16);
 		else
-			c.s.precision(std::numeric_limits<float>::digits10 + 1);
+			c.s.precision(7);
 
 		if (this->is_real()) {
 
