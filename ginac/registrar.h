@@ -45,37 +45,37 @@ extern registered_class_info *first_registered_class;
 
 /** This structure stores information about a registered GiNaC class. */
 struct registered_class_info {
-    registered_class_info(const char *n, const char *s, unsigned int k, unarch_func f)
-        : name(n), super(s), tinfo_key(k), unarchive(f)
-    {
-        // Add structure to list
-        next = first_registered_class;
-        first_registered_class = this;
-    }
+	registered_class_info(const char *n, const char *s, unsigned int k, unarch_func f)
+		: name(n), super(s), tinfo_key(k), unarchive(f)
+	{
+		// Add structure to list
+		next = first_registered_class;
+		first_registered_class = this;
+	}
 
-    registered_class_info *next;	/**< Pointer to next registered_class_info in list. */
-    const char *name;				/**< Class name. */
-    const char *super;				/**< Name of superclass. */
-    unsigned int tinfo_key;			/**< TINFO_* key. */
-    unarch_func unarchive;			/**< Pointer to unarchiving function. */
+	registered_class_info *next;	/**< Pointer to next registered_class_info in list. */
+	const char *name;				/**< Class name. */
+	const char *super;				/**< Name of superclass. */
+	unsigned int tinfo_key;			/**< TINFO_* key. */
+	unarch_func unarchive;			/**< Pointer to unarchiving function. */
 };
 
 
 /** Macro for inclusion in the declaration of each registered class. */
 #define GINAC_DECLARE_REGISTERED_CLASS(classname, supername) \
 public: \
-    typedef supername inherited; \
-    static registered_class_info reg_info; \
-    virtual const char *class_name(void) const; \
-    classname(const archive_node &n, const lst &sym_lst); \
-    virtual void archive(archive_node &n) const; \
-    static ex unarchive(const archive_node &n, const lst &sym_lst); \
+	typedef supername inherited; \
+	static registered_class_info reg_info; \
+	virtual const char *class_name(void) const; \
+	classname(const archive_node &n, const lst &sym_lst); \
+	virtual void archive(archive_node &n) const; \
+	static ex unarchive(const archive_node &n, const lst &sym_lst); \
 private:
 
 /** Macro for inclusion in the implementation of each registered class. */
 #define GINAC_IMPLEMENT_REGISTERED_CLASS(classname, supername) \
-    registered_class_info classname::reg_info(#classname, #supername, TINFO_##classname, &classname::unarchive); \
-    const char *classname::class_name(void) const {return reg_info.name;}
+	registered_class_info classname::reg_info(#classname, #supername, TINFO_##classname, &classname::unarchive); \
+	const char *classname::class_name(void) const {return reg_info.name;}
 
 
 /** Find TINFO_* key by class name. */

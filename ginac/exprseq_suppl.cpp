@@ -30,16 +30,16 @@ namespace GiNaC {
 
 bool exprseq::info(unsigned inf) const
 {
-    if (inf==info_flags::exprseq) return 1;
-    return basic::info(inf);
+	if (inf==info_flags::exprseq) return 1;
+	return basic::info(inf);
 }
 
 ex & exprseq::let_op(int i)
 {
-    GINAC_ASSERT(i>=0);
-    GINAC_ASSERT(i<nops());
+	GINAC_ASSERT(i>=0);
+	GINAC_ASSERT(i<nops());
 
-    return seq[i];
+	return seq[i];
 }
 
 #ifndef NO_NAMESPACE_GINAC

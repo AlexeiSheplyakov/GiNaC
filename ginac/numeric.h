@@ -28,7 +28,7 @@
 #include "ex.h"
 
 class cl_N;     // We want to include cln.h only in numeric.cpp in order to 
-                // avoid namespace pollution and keep compile-time low.
+				// avoid namespace pollution and keep compile-time low.
 
 #ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
@@ -49,158 +49,158 @@ class _numeric_digits
 {
 // member functions
 public:
-    _numeric_digits();
-    _numeric_digits& operator=(long prec);
-    operator long();
-    void print(std::ostream & os) const;
+	_numeric_digits();
+	_numeric_digits& operator=(long prec);
+	operator long();
+	void print(std::ostream & os) const;
 // member variables
 private:
-    long digits;
-    static bool too_late;
+	long digits;
+	static bool too_late;
 };
 
 /** This class is a wrapper around CLN-numbers within the GiNaC class
  *  hierarchy. Objects of this type may directly be created by the user.*/
 class numeric : public basic
 {
-    GINAC_DECLARE_REGISTERED_CLASS(numeric, basic)
+	GINAC_DECLARE_REGISTERED_CLASS(numeric, basic)
 
 // friends
-    friend const numeric exp(const numeric & x);
-    friend const numeric log(const numeric & x);
-    friend const numeric sin(const numeric & x);
-    friend const numeric cos(const numeric & x);
-    friend const numeric tan(const numeric & x);
-    friend const numeric asin(const numeric & x);
-    friend const numeric acos(const numeric & x);
-    friend const numeric atan(const numeric & x);
-    friend const numeric atan(const numeric & y, const numeric & x);
-    friend const numeric sinh(const numeric & x);
-    friend const numeric cosh(const numeric & x);
-    friend const numeric tanh(const numeric & x);
-    friend const numeric asinh(const numeric & x);
-    friend const numeric acosh(const numeric & x);
-    friend const numeric atanh(const numeric & x);
-    friend const numeric Li2(const numeric & x);
-    friend const numeric zeta(const numeric & x);
-    friend const numeric fibonacci(const numeric & n);
-    friend numeric abs(const numeric & x);
-    friend numeric mod(const numeric & a, const numeric & b);
-    friend numeric smod(const numeric & a, const numeric & b);
-    friend numeric irem(const numeric & a, const numeric & b);
-    friend numeric irem(const numeric & a, const numeric & b, numeric & q);
-    friend numeric iquo(const numeric & a, const numeric & b);
-    friend numeric iquo(const numeric & a, const numeric & b, numeric & r);
-    friend numeric sqrt(const numeric & x);
-    friend numeric isqrt(const numeric & x);
-    friend numeric gcd(const numeric & a, const numeric & b);
-    friend numeric lcm(const numeric & a, const numeric & b);
+	friend const numeric exp(const numeric & x);
+	friend const numeric log(const numeric & x);
+	friend const numeric sin(const numeric & x);
+	friend const numeric cos(const numeric & x);
+	friend const numeric tan(const numeric & x);
+	friend const numeric asin(const numeric & x);
+	friend const numeric acos(const numeric & x);
+	friend const numeric atan(const numeric & x);
+	friend const numeric atan(const numeric & y, const numeric & x);
+	friend const numeric sinh(const numeric & x);
+	friend const numeric cosh(const numeric & x);
+	friend const numeric tanh(const numeric & x);
+	friend const numeric asinh(const numeric & x);
+	friend const numeric acosh(const numeric & x);
+	friend const numeric atanh(const numeric & x);
+	friend const numeric Li2(const numeric & x);
+	friend const numeric zeta(const numeric & x);
+	friend const numeric fibonacci(const numeric & n);
+	friend numeric abs(const numeric & x);
+	friend numeric mod(const numeric & a, const numeric & b);
+	friend numeric smod(const numeric & a, const numeric & b);
+	friend numeric irem(const numeric & a, const numeric & b);
+	friend numeric irem(const numeric & a, const numeric & b, numeric & q);
+	friend numeric iquo(const numeric & a, const numeric & b);
+	friend numeric iquo(const numeric & a, const numeric & b, numeric & r);
+	friend numeric sqrt(const numeric & x);
+	friend numeric isqrt(const numeric & x);
+	friend numeric gcd(const numeric & a, const numeric & b);
+	friend numeric lcm(const numeric & a, const numeric & b);
 
 // member functions
 
-    // default constructor, destructor, copy constructor assignment
-    // operator and helpers
+	// default constructor, destructor, copy constructor assignment
+	// operator and helpers
 public:
-    numeric();
-    ~numeric();
-    numeric(const numeric & other);
-    const numeric & operator=(const numeric & other);
+	numeric();
+	~numeric();
+	numeric(const numeric & other);
+	const numeric & operator=(const numeric & other);
 protected:
-    void copy(const numeric & other);
-    void destroy(bool call_parent);
+	void copy(const numeric & other);
+	void destroy(bool call_parent);
 
-    // other constructors
+	// other constructors
 public:
-    explicit numeric(int i);
-    explicit numeric(unsigned int i);
-    explicit numeric(long i);
-    explicit numeric(unsigned long i);
-    explicit numeric(long numer, long denom);
-    explicit numeric(double d);
-    explicit numeric(const char *);
-    numeric(const cl_N & z);
-    
-    // functions overriding virtual functions from bases classes
+	explicit numeric(int i);
+	explicit numeric(unsigned int i);
+	explicit numeric(long i);
+	explicit numeric(unsigned long i);
+	explicit numeric(long numer, long denom);
+	explicit numeric(double d);
+	explicit numeric(const char *);
+	numeric(const cl_N & z);
+	
+	// functions overriding virtual functions from bases classes
 public:
-    basic * duplicate() const;
-    void print(std::ostream & os, unsigned precedence=0) const;
-    void printraw(std::ostream & os) const;
-    void printtree(std::ostream & os, unsigned indent) const;
-    void printcsrc(std::ostream & os, unsigned type, unsigned precedence=0) const;
-    bool info(unsigned inf) const;
-    bool has(const ex & other) const;
-    ex eval(int level=0) const;
-    ex evalf(int level=0) const;
-    ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
-    ex to_rational(lst &repl_lst) const;
-    numeric integer_content(void) const;
-    ex smod(const numeric &xi) const;
-    numeric max_coefficient(void) const;
+	basic * duplicate() const;
+	void print(std::ostream & os, unsigned precedence=0) const;
+	void printraw(std::ostream & os) const;
+	void printtree(std::ostream & os, unsigned indent) const;
+	void printcsrc(std::ostream & os, unsigned type, unsigned precedence=0) const;
+	bool info(unsigned inf) const;
+	bool has(const ex & other) const;
+	ex eval(int level=0) const;
+	ex evalf(int level=0) const;
+	ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
+	ex to_rational(lst &repl_lst) const;
+	numeric integer_content(void) const;
+	ex smod(const numeric &xi) const;
+	numeric max_coefficient(void) const;
 protected:
-    ex derivative(const symbol & s) const;
-    int compare_same_type(const basic & other) const;
-    bool is_equal_same_type(const basic & other) const;
-    unsigned calchash(void) const;
+	ex derivative(const symbol & s) const;
+	int compare_same_type(const basic & other) const;
+	bool is_equal_same_type(const basic & other) const;
+	unsigned calchash(void) const;
 
-    // new virtual functions which can be overridden by derived classes
-    // (none)
+	// new virtual functions which can be overridden by derived classes
+	// (none)
 
-    // non-virtual functions in this class
+	// non-virtual functions in this class
 public:
-    numeric add(const numeric & other) const;
-    numeric sub(const numeric & other) const;
-    numeric mul(const numeric & other) const;
-    numeric div(const numeric & other) const;
-    numeric power(const numeric & other) const;
-    const numeric & add_dyn(const numeric & other) const;
-    const numeric & sub_dyn(const numeric & other) const;
-    const numeric & mul_dyn(const numeric & other) const;
-    const numeric & div_dyn(const numeric & other) const;
-    const numeric & power_dyn(const numeric & other) const;
-    const numeric & operator=(int i);
-    const numeric & operator=(unsigned int i);
-    const numeric & operator=(long i);
-    const numeric & operator=(unsigned long i);
-    const numeric & operator=(double d);
-    const numeric & operator=(const char * s);
-    numeric inverse(void) const;
-    int csgn(void) const;
-    ::cl_N* clnptr(void) const { return value; } /**< ptr to representation. */
-    int compare(const numeric & other) const;
-    bool is_equal(const numeric & other) const;
-    bool is_zero(void) const;
-    bool is_positive(void) const;
-    bool is_negative(void) const;
-    bool is_integer(void) const;
-    bool is_pos_integer(void) const;
-    bool is_nonneg_integer(void) const;
-    bool is_even(void) const;
-    bool is_odd(void) const;
-    bool is_prime(void) const;
-    bool is_rational(void) const;
-    bool is_real(void) const;
-    bool is_cinteger(void) const;
-    bool is_crational(void) const;
-    bool operator==(const numeric & other) const;
-    bool operator!=(const numeric & other) const;
-    bool operator<(const numeric & other) const;
-    bool operator<=(const numeric & other) const;
-    bool operator>(const numeric & other) const;
-    bool operator>=(const numeric & other) const;
-    int to_int(void) const;
-    long to_long(void) const;
-    double to_double(void) const;
-    const numeric real(void) const;
-    const numeric imag(void) const;
-    const numeric numer(void) const;
-    const numeric denom(void) const;
-    int int_length(void) const;
+	numeric add(const numeric & other) const;
+	numeric sub(const numeric & other) const;
+	numeric mul(const numeric & other) const;
+	numeric div(const numeric & other) const;
+	numeric power(const numeric & other) const;
+	const numeric & add_dyn(const numeric & other) const;
+	const numeric & sub_dyn(const numeric & other) const;
+	const numeric & mul_dyn(const numeric & other) const;
+	const numeric & div_dyn(const numeric & other) const;
+	const numeric & power_dyn(const numeric & other) const;
+	const numeric & operator=(int i);
+	const numeric & operator=(unsigned int i);
+	const numeric & operator=(long i);
+	const numeric & operator=(unsigned long i);
+	const numeric & operator=(double d);
+	const numeric & operator=(const char * s);
+	numeric inverse(void) const;
+	int csgn(void) const;
+	::cl_N* clnptr(void) const { return value; } /**< ptr to representation. */
+	int compare(const numeric & other) const;
+	bool is_equal(const numeric & other) const;
+	bool is_zero(void) const;
+	bool is_positive(void) const;
+	bool is_negative(void) const;
+	bool is_integer(void) const;
+	bool is_pos_integer(void) const;
+	bool is_nonneg_integer(void) const;
+	bool is_even(void) const;
+	bool is_odd(void) const;
+	bool is_prime(void) const;
+	bool is_rational(void) const;
+	bool is_real(void) const;
+	bool is_cinteger(void) const;
+	bool is_crational(void) const;
+	bool operator==(const numeric & other) const;
+	bool operator!=(const numeric & other) const;
+	bool operator<(const numeric & other) const;
+	bool operator<=(const numeric & other) const;
+	bool operator>(const numeric & other) const;
+	bool operator>=(const numeric & other) const;
+	int to_int(void) const;
+	long to_long(void) const;
+	double to_double(void) const;
+	const numeric real(void) const;
+	const numeric imag(void) const;
+	const numeric numer(void) const;
+	const numeric denom(void) const;
+	int int_length(void) const;
 
 // member variables
 
 protected:
-    static unsigned precedence;
-    ::cl_N *value;
+	static unsigned precedence;
+	::cl_N *value;
 };
 
 // global constants
@@ -326,7 +326,7 @@ ex CatalanEvalf(void);
 // utility functions
 inline const numeric &ex_to_numeric(const ex &e)
 {
-    return static_cast<const numeric &>(*e.bp);
+	return static_cast<const numeric &>(*e.bp);
 }
 
 

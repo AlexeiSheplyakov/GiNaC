@@ -32,35 +32,35 @@ namespace GiNaC {
 
 class fail : public basic
 {
-    GINAC_DECLARE_REGISTERED_CLASS(fail, basic)
+	GINAC_DECLARE_REGISTERED_CLASS(fail, basic)
 
-    // default constructor, destructor, copy constructor assignment operator and helpers
+	// default constructor, destructor, copy constructor assignment operator and helpers
 public:
-    fail();
-    ~fail();
-    fail(const fail & other);
-    const fail & operator=(const fail & other);
+	fail();
+	~fail();
+	fail(const fail & other);
+	const fail & operator=(const fail & other);
 protected:
-    void copy(const fail & other);
-    void destroy(bool call_parent);
+	void copy(const fail & other);
+	void destroy(bool call_parent);
 
-    // other constructors
-    // none
+	// other constructors
+	// none
 
-    // functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from bases classes
 public:
-    basic * duplicate() const;
-    void print(std::ostream & os, unsigned upper_precedence=0) const;
-    void printraw(std::ostream & os) const;
+	basic * duplicate() const;
+	void print(std::ostream & os, unsigned upper_precedence=0) const;
+	void printraw(std::ostream & os) const;
 protected:
-    int compare_same_type(const basic & other) const;
-    unsigned return_type(void) const { return return_types::noncommutative_composite; };
-    
-    // new virtual functions which can be overridden by derived classes
-    // none
+	int compare_same_type(const basic & other) const;
+	unsigned return_type(void) const { return return_types::noncommutative_composite; };
+	
+	// new virtual functions which can be overridden by derived classes
+	// none
 
-    // non-virtual functions in this class
-    // none
+	// non-virtual functions in this class
+	// none
 
 // member variables
 // none

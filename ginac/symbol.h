@@ -39,77 +39,77 @@ namespace GiNaC {
  *  first place. */
 class symbol : public basic
 {
-    GINAC_DECLARE_REGISTERED_CLASS(symbol, basic)
+	GINAC_DECLARE_REGISTERED_CLASS(symbol, basic)
 
 // types
 
-    /** Symbols as keys to expressions. */
-    class assigned_ex_info {
-    public:
-        assigned_ex_info();     //!< Default ctor
-        bool is_assigned;       //!< True if there is an expression assigned
-        ex assigned_expression; //!< The actual expression
-        unsigned refcount;      //!< Yet another refcounter. PLEASE EXPLAIN!
-    };
-    
+	/** Symbols as keys to expressions. */
+	class assigned_ex_info {
+	public:
+		assigned_ex_info();     //!< Default ctor
+		bool is_assigned;       //!< True if there is an expression assigned
+		ex assigned_expression; //!< The actual expression
+		unsigned refcount;      //!< Yet another refcounter. PLEASE EXPLAIN!
+	};
+	
 // member functions
 
-    // default constructor, destructor, copy constructor assignment operator and helpers
+	// default constructor, destructor, copy constructor assignment operator and helpers
 public:
-    symbol();
-    ~symbol();
-    symbol(const symbol & other);
+	symbol();
+	~symbol();
+	symbol(const symbol & other);
 protected:
-    void copy(const symbol & other); 
-    void destroy(bool call_parent);
+	void copy(const symbol & other); 
+	void destroy(bool call_parent);
 
-    // other constructors
+	// other constructors
 public:
-    explicit symbol(const std::string & initname);
+	explicit symbol(const std::string & initname);
 
-    // functions overriding virtual functions from base classes
+	// functions overriding virtual functions from base classes
 public:
-    basic * duplicate() const;
-    void print(std::ostream & os, unsigned upper_precedence = 0) const;
-    void printraw(std::ostream & os) const;
-    void printtree(std::ostream & os, unsigned indent) const;
-    void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence = 0) const;
-    bool info(unsigned inf) const;
-    ex expand(unsigned options = 0) const;
-    bool has(const ex & other) const;
-    int degree(const symbol & s) const;
-    int ldegree(const symbol & s) const;
-    ex coeff(const symbol & s, int n = 1) const;
-    ex eval(int level = 0) const;
-    ex series(const relational & s, int order, unsigned options = 0) const;
-    ex normal(lst &sym_lst, lst &repl_lst, int level = 0) const;
-    ex to_rational(lst &repl_lst) const;
-    ex subs(const lst & ls, const lst & lr) const;
+	basic * duplicate() const;
+	void print(std::ostream & os, unsigned upper_precedence = 0) const;
+	void printraw(std::ostream & os) const;
+	void printtree(std::ostream & os, unsigned indent) const;
+	void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence = 0) const;
+	bool info(unsigned inf) const;
+	ex expand(unsigned options = 0) const;
+	bool has(const ex & other) const;
+	int degree(const symbol & s) const;
+	int ldegree(const symbol & s) const;
+	ex coeff(const symbol & s, int n = 1) const;
+	ex eval(int level = 0) const;
+	ex series(const relational & s, int order, unsigned options = 0) const;
+	ex normal(lst &sym_lst, lst &repl_lst, int level = 0) const;
+	ex to_rational(lst &repl_lst) const;
+	ex subs(const lst & ls, const lst & lr) const;
 protected:
-    ex derivative(const symbol & s) const;
-    int compare_same_type(const basic & other) const;
-    bool is_equal_same_type(const basic & other) const;
-    unsigned return_type(void) const;
-    unsigned return_type_tinfo(void) const;
-    unsigned calchash(void) const;
-    
-    // non-virtual functions in this class
+	ex derivative(const symbol & s) const;
+	int compare_same_type(const basic & other) const;
+	bool is_equal_same_type(const basic & other) const;
+	unsigned return_type(void) const;
+	unsigned return_type_tinfo(void) const;
+	unsigned calchash(void) const;
+	
+	// non-virtual functions in this class
 public:
-    void assign(const ex & value);
-    void unassign(void);
-    void setname(const std::string & n) { name = n; }
-    std::string getname(void) const { return name; }
+	void assign(const ex & value);
+	void unassign(void);
+	void setname(const std::string & n) { name = n; }
+	std::string getname(void) const { return name; }
 private:
-    std::string & autoname_prefix(void);
+	std::string & autoname_prefix(void);
 
 // member variables
 
 protected:
-    assigned_ex_info * asexinfop;
-    unsigned serial;  //!< unique serial number for comparision
-    std::string name;
+	assigned_ex_info * asexinfop;
+	unsigned serial;  //!< unique serial number for comparision
+	std::string name;
 private:
-    static unsigned next_serial;
+	static unsigned next_serial;
 };
 
 // global constants

@@ -27,7 +27,7 @@
 extern "C" {
 #include <stdio.h>
 }
-    
+	
 #include "config.h"
 
 // yacc stack type

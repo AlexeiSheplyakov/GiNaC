@@ -39,41 +39,41 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(fail, basic)
 
 fail::fail() : inherited(TINFO_fail)
 {
-    debugmsg("fail default constructor",LOGLEVEL_CONSTRUCT);
+	debugmsg("fail default constructor",LOGLEVEL_CONSTRUCT);
 }
 
 fail::~fail()
 {
-    debugmsg("fail destructor",LOGLEVEL_DESTRUCT);
-    destroy(0);
+	debugmsg("fail destructor",LOGLEVEL_DESTRUCT);
+	destroy(0);
 }
 
 fail::fail(const fail & other)
 {
-    debugmsg("fail copy constructor",LOGLEVEL_CONSTRUCT);
-    copy(other);
+	debugmsg("fail copy constructor",LOGLEVEL_CONSTRUCT);
+	copy(other);
 }
 
 const fail & fail::operator=(const fail & other)
 {
-    debugmsg("fail operator=",LOGLEVEL_ASSIGNMENT);
-    if (this != &other) {
-        destroy(1);
-        copy(other);
-    }
-    return *this;
+	debugmsg("fail operator=",LOGLEVEL_ASSIGNMENT);
+	if (this != &other) {
+		destroy(1);
+		copy(other);
+	}
+	return *this;
 }
 
 // protected
 
 void fail::copy(const fail & other)
 {
-    inherited::copy(other);
+	inherited::copy(other);
 }
 
 void fail::destroy(bool call_parent)
 {
-    if (call_parent) inherited::destroy(call_parent);
+	if (call_parent) inherited::destroy(call_parent);
 }
 
 
@@ -90,19 +90,19 @@ void fail::destroy(bool call_parent)
 /** Construct object from archive_node. */
 fail::fail(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-    debugmsg("fail constructor from archive_node", LOGLEVEL_CONSTRUCT);
+	debugmsg("fail constructor from archive_node", LOGLEVEL_CONSTRUCT);
 }
 
 /** Unarchive the object. */
 ex fail::unarchive(const archive_node &n, const lst &sym_lst)
 {
-    return (new fail(n, sym_lst))->setflag(status_flags::dynallocated);
+	return (new fail(n, sym_lst))->setflag(status_flags::dynallocated);
 }
 
 /** Archive the object. */
 void fail::archive(archive_node &n) const
 {
-    inherited::archive(n);
+	inherited::archive(n);
 }
 
 //////////
@@ -113,20 +113,20 @@ void fail::archive(archive_node &n) const
 
 basic * fail::duplicate() const
 {
-    debugmsg("fail duplicate",LOGLEVEL_DUPLICATE);
-    return new fail(*this);
+	debugmsg("fail duplicate",LOGLEVEL_DUPLICATE);
+	return new fail(*this);
 }
 
 void fail::print(std::ostream & os, unsigned upper_precedence) const
 {
-    debugmsg("fail print",LOGLEVEL_PRINT);
-    os << "FAIL";
+	debugmsg("fail print",LOGLEVEL_PRINT);
+	os << "FAIL";
 }
 
 void fail::printraw(std::ostream & os) const
 {
-    debugmsg("fail printraw",LOGLEVEL_PRINT);
-    os << "FAIL";
+	debugmsg("fail printraw",LOGLEVEL_PRINT);
+	os << "FAIL";
 }
 
 // protected
@@ -134,7 +134,7 @@ void fail::printraw(std::ostream & os) const
 int fail::compare_same_type(const basic & other) const
 {
 	// two fails are always identical
-    return 0;
+	return 0;
 }
 
 //////////

@@ -45,48 +45,48 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(isospin, indexed)
 
 isospin::isospin()
 {
-    debugmsg("isospin default constructor",LOGLEVEL_CONSTRUCT);
-    serial=next_serial++;
-    name=autoname_prefix()+ToString(serial);
-    tinfo_key=TINFO_isospin;
+	debugmsg("isospin default constructor",LOGLEVEL_CONSTRUCT);
+	serial=next_serial++;
+	name=autoname_prefix()+ToString(serial);
+	tinfo_key=TINFO_isospin;
 }
 
 isospin::~isospin()
 {
-    debugmsg("isospin destructor",LOGLEVEL_DESTRUCT);
-    destroy(0);
+	debugmsg("isospin destructor",LOGLEVEL_DESTRUCT);
+	destroy(0);
 }
 
 isospin::isospin(const isospin & other)
 {
-    debugmsg("isospin copy constructor",LOGLEVEL_CONSTRUCT);
-    copy (other);
+	debugmsg("isospin copy constructor",LOGLEVEL_CONSTRUCT);
+	copy (other);
 }
 
 const isospin & isospin::operator=(const isospin & other)
 {
-    debugmsg("isospin operator=",LOGLEVEL_ASSIGNMENT);
-    if (this != &other) {
-        destroy(1);
-        copy(other);
-    }
-    return *this;
+	debugmsg("isospin operator=",LOGLEVEL_ASSIGNMENT);
+	if (this != &other) {
+		destroy(1);
+		copy(other);
+	}
+	return *this;
 }
 
 // protected
 
 void isospin::copy(const isospin & other)
 {
-    inherited::copy(other);
-    name=other.name;
-    serial=other.serial;
+	inherited::copy(other);
+	name=other.name;
+	serial=other.serial;
 }
 
 void isospin::destroy(bool call_parent)
 {
-    if (call_parent) {
-        inherited::destroy(call_parent);
-    }
+	if (call_parent) {
+		inherited::destroy(call_parent);
+	}
 }
 
 //////////
@@ -97,10 +97,10 @@ void isospin::destroy(bool call_parent)
 
 isospin::isospin(const std::string & initname)
 {
-    debugmsg("isospin constructor from string",LOGLEVEL_CONSTRUCT);
-    name=initname;
-    serial=next_serial++;
-    tinfo_key=TINFO_isospin;
+	debugmsg("isospin constructor from string",LOGLEVEL_CONSTRUCT);
+	name=initname;
+	serial=next_serial++;
+	tinfo_key=TINFO_isospin;
 }
 
 //////////
@@ -110,31 +110,31 @@ isospin::isospin(const std::string & initname)
 /** Construct object from archive_node. */
 isospin::isospin(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-    debugmsg("isospin constructor from archive_node", LOGLEVEL_CONSTRUCT);
-    serial = next_serial++;
-    if (!(n.find_string("name", name)))
-        name = autoname_prefix() + ToString(serial);
-    tinfo_key = TINFO_isospin;
+	debugmsg("isospin constructor from archive_node", LOGLEVEL_CONSTRUCT);
+	serial = next_serial++;
+	if (!(n.find_string("name", name)))
+		name = autoname_prefix() + ToString(serial);
+	tinfo_key = TINFO_isospin;
 }
 
 /** Unarchive the object. */
 ex isospin::unarchive(const archive_node &n, const lst &sym_lst)
 {
-    ex s = (new isospin(n, sym_lst))->setflag(status_flags::dynallocated);
+	ex s = (new isospin(n, sym_lst))->setflag(status_flags::dynallocated);
 
-    // If isospin is in sym_lst, return the existing isospin
-    for (unsigned i=0; i<sym_lst.nops(); i++) {
-        if (is_ex_of_type(sym_lst.op(i), isospin) && (ex_to_isospin(sym_lst.op(i)).name == ex_to_isospin(s).name))
-            return sym_lst.op(i);
-    }
-    return s;
+	// If isospin is in sym_lst, return the existing isospin
+	for (unsigned i=0; i<sym_lst.nops(); i++) {
+		if (is_ex_of_type(sym_lst.op(i), isospin) && (ex_to_isospin(sym_lst.op(i)).name == ex_to_isospin(s).name))
+			return sym_lst.op(i);
+	}
+	return s;
 }
 
 /** Archive the object. */
 void isospin::archive(archive_node &n) const
 {
-    inherited::archive(n);
-    n.add_string("name", name);
+	inherited::archive(n);
+	n.add_string("name", name);
 }
 
 //////////
@@ -145,73 +145,73 @@ void isospin::archive(archive_node &n) const
 
 basic * isospin::duplicate() const
 {
-    debugmsg("isospin duplicate",LOGLEVEL_DUPLICATE);
-    return new isospin(*this);
+	debugmsg("isospin duplicate",LOGLEVEL_DUPLICATE);
+	return new isospin(*this);
 }
 
 void isospin::printraw(std::ostream & os) const
 {
-    debugmsg("isospin printraw",LOGLEVEL_PRINT);
-    os << "isospin(" << "name=" << name << ",serial=" << serial
-       << ",indices=";
-    printrawindices(os);
-    os << ",hash=" << hashvalue << ",flags=" << flags << ")";
+	debugmsg("isospin printraw",LOGLEVEL_PRINT);
+	os << "isospin(" << "name=" << name << ",serial=" << serial
+	   << ",indices=";
+	printrawindices(os);
+	os << ",hash=" << hashvalue << ",flags=" << flags << ")";
 }
 
 void isospin::printtree(std::ostream & os, unsigned indent) const
 {
-    debugmsg("isospin printtree",LOGLEVEL_PRINT);
-    os << std::string(indent,' ') << name << " (isospin): "
-       << "serial=" << serial << ","
-       << seq.size() << "indices=";
-    printtreeindices(os,indent);
-    os << ", hash=" << hashvalue
-       << " (0x" << std::hex << hashvalue << std::dec << ")"
-       << ", flags=" << flags << std::endl;
+	debugmsg("isospin printtree",LOGLEVEL_PRINT);
+	os << std::string(indent,' ') << name << " (isospin): "
+	   << "serial=" << serial << ","
+	   << seq.size() << "indices=";
+	printtreeindices(os,indent);
+	os << ", hash=" << hashvalue
+	   << " (0x" << std::hex << hashvalue << std::dec << ")"
+	   << ", flags=" << flags << std::endl;
 }
 
 void isospin::print(std::ostream & os, unsigned upper_precedence) const
 {
-    debugmsg("isospin print",LOGLEVEL_PRINT);
-    os << name;
-    printindices(os);
+	debugmsg("isospin print",LOGLEVEL_PRINT);
+	os << name;
+	printindices(os);
 }
 
 void isospin::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
 {
-    debugmsg("isospin print csrc",LOGLEVEL_PRINT);
-    print(os,upper_precedence);
+	debugmsg("isospin print csrc",LOGLEVEL_PRINT);
+	print(os,upper_precedence);
 }
 
 bool isospin::info(unsigned inf) const
 {
-    return inherited::info(inf);
+	return inherited::info(inf);
 }
 
 // protected
 
 int isospin::compare_same_type(const basic & other) const
 {
-    GINAC_ASSERT(other.tinfo() == TINFO_isospin);
-    const isospin *o = static_cast<const isospin *>(&other);
-    if (serial==o->serial) {
-        return inherited::compare_same_type(other);
-    }
-    return serial < o->serial ? -1 : 1;
+	GINAC_ASSERT(other.tinfo() == TINFO_isospin);
+	const isospin *o = static_cast<const isospin *>(&other);
+	if (serial==o->serial) {
+		return inherited::compare_same_type(other);
+	}
+	return serial < o->serial ? -1 : 1;
 }
 
 ex isospin::simplify_ncmul(const exvector & v) const
 {
-    return simplified_ncmul(v);
+	return simplified_ncmul(v);
 }
 
 unsigned isospin::calchash(void) const
 {
-    hashvalue=golden_ratio_hash(golden_ratio_hash(0x55555556U ^
-                                                  golden_ratio_hash(tinfo_key) ^
-                                                  serial));
-    setflag(status_flags::hash_calculated);
-    return hashvalue;
+	hashvalue=golden_ratio_hash(golden_ratio_hash(0x55555556U ^
+												  golden_ratio_hash(tinfo_key) ^
+												  serial));
+	setflag(status_flags::hash_calculated);
+	return hashvalue;
 }
 
 //////////
@@ -226,15 +226,15 @@ unsigned isospin::calchash(void) const
 
 void isospin::setname(const std::string & n)
 {
-    name = n;
+	name = n;
 }
 
 // private
 
 std::string & isospin::autoname_prefix(void)
 {
-    static std::string * s = new std::string("isospin");
-    return *s;
+	static std::string * s = new std::string("isospin");
+	return *s;
 }
 
 //////////

@@ -30,51 +30,51 @@ namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
 
 struct registered_structure_info {
-    const char * name;
+	const char * name;
 };
 
 /** The class structure is used to implement user defined classes
-    with named members which behave similar to ordinary C structs.
-    structure is an 'abstract' base class (it is possible but not
-    meaningful to make instances), the user defined structures
-    will be create by the perl script structure.pl */
+	with named members which behave similar to ordinary C structs.
+	structure is an 'abstract' base class (it is possible but not
+	meaningful to make instances), the user defined structures
+	will be create by the perl script structure.pl */
 
 class structure : public basic
 {
 // member functions
 
-    // default constructor, destructor, copy constructor assignment operator and helpers
+	// default constructor, destructor, copy constructor assignment operator and helpers
 public:
-    structure();
-    ~structure();
-    structure(const structure & other);
-    const structure & operator=(const structure & other);
+	structure();
+	~structure();
+	structure(const structure & other);
+	const structure & operator=(const structure & other);
 protected:
-    void copy(const structure & other);
-    void destroy(bool call_parent);
+	void copy(const structure & other);
+	void destroy(bool call_parent);
 
-    // other constructors
-    // none
+	// other constructors
+	// none
 
-    // functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from bases classes
 public:
-    basic * duplicate() const;
-    void printraw(std::ostream & os) const; 
-    void print(std::ostream & os, unsigned upper_precedence=0) const;
-    void printtree(std::ostream & os, unsigned indent) const;
-    void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence=0) const;
+	basic * duplicate() const;
+	void printraw(std::ostream & os) const; 
+	void print(std::ostream & os, unsigned upper_precedence=0) const;
+	void printtree(std::ostream & os, unsigned indent) const;
+	void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence=0) const;
 protected:
-    int compare_same_type(const basic & other) const;
-    bool is_equal_same_type(const basic & other) const;
-    
-    // new virtual functions which can be overridden by derived classes
-    // none
-    
-    // non-virtual functions in this class
+	int compare_same_type(const basic & other) const;
+	bool is_equal_same_type(const basic & other) const;
+	
+	// new virtual functions which can be overridden by derived classes
+	// none
+	
+	// non-virtual functions in this class
 protected:
-    static std::vector<registered_structure_info> & registered_structures(void);
+	static std::vector<registered_structure_info> & registered_structures(void);
 public:
-    static unsigned register_new(const char * nm);
+	static unsigned register_new(const char * nm);
 
 // member variables
 // none

@@ -32,7 +32,7 @@ namespace GiNaC {
 
 /** Absolute value. */
 DECLARE_FUNCTION_1P(abs)
-    
+	
 /** Complex sign. */
 DECLARE_FUNCTION_1P(csgn)
 
@@ -94,12 +94,12 @@ DECLARE_FUNCTION_1P(Li3)
 /** Riemann's Zeta-function. */
 extern const unsigned function_index_zeta1;
 inline function zeta(const ex & p1) {
-    return function(function_index_zeta1, p1);
+	return function(function_index_zeta1, p1);
 }
 /** Derivatives of Riemann's Zeta-function. */
 extern const unsigned function_index_zeta2;
 inline function zeta(const ex & p1, const ex & p2) {
-    return function(function_index_zeta2, p1, p2);
+	return function(function_index_zeta2, p1, p2);
 }
 
 /** Gamma-function. */
@@ -113,14 +113,14 @@ DECLARE_FUNCTION_2P(beta)
 /** Psi-function (aka digamma-function). */
 extern const unsigned function_index_psi1;
 inline function psi(const ex & p1) {
-    return function(function_index_psi1, p1);
+	return function(function_index_psi1, p1);
 }
 /** Derivatives of Psi-function (aka polygamma-functions). */
 extern const unsigned function_index_psi2;
 inline function psi(const ex & p1, const ex & p2) {
-    return function(function_index_psi2, p1, p2);
+	return function(function_index_psi2, p1, p2);
 }
-    
+	
 /** Factorial function. */
 DECLARE_FUNCTION_1P(factorial)
 
@@ -139,7 +139,7 @@ ex ncpower(const ex &basis, unsigned exponent);
 
 inline bool is_order_function(const ex & e)
 {
-    return is_ex_the_function(e, Order);
+	return is_ex_the_function(e, Order);
 }
 
 #ifndef NO_NAMESPACE_GINAC

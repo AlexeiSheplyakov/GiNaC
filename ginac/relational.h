@@ -34,68 +34,68 @@ namespace GiNaC {
  *  relation between them. */
 class relational : public basic
 {
-    GINAC_DECLARE_REGISTERED_CLASS(relational, basic)
+	GINAC_DECLARE_REGISTERED_CLASS(relational, basic)
 
 // types
 public:
-    enum operators { equal,
-           not_equal,
-           less,
-           less_or_equal,
-           greater,
-           greater_or_equal
-    };
-    
+	enum operators { equal,
+		   not_equal,
+		   less,
+		   less_or_equal,
+		   greater,
+		   greater_or_equal
+	};
+	
 // member functions
 
-    // default constructor, destructor, copy constructor assignment operator and helpers
+	// default constructor, destructor, copy constructor assignment operator and helpers
 public:
-    relational();
-    ~relational();
-    relational(const relational & other);
-    const relational & operator=(const relational & other);
+	relational();
+	~relational();
+	relational(const relational & other);
+	const relational & operator=(const relational & other);
 protected:
-    void copy(const relational & other);
-    void destroy(bool call_parent);
+	void copy(const relational & other);
+	void destroy(bool call_parent);
 
-    // other constructors
+	// other constructors
 public:
-    relational(const ex & lhs, const ex & rhs, operators oper=equal);
-    
-    // functions overriding virtual functions from bases classes
+	relational(const ex & lhs, const ex & rhs, operators oper=equal);
+	
+	// functions overriding virtual functions from bases classes
 public:
-    basic * duplicate() const;
-    void print(std::ostream & os, unsigned upper_precedence=0) const;
-    void printraw(std::ostream & os) const;
-    void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence=0) const;
-    bool info(unsigned inf) const;
-    unsigned nops() const;
-    ex & let_op(int i);
-    ex eval(int level=0) const;
-    ex evalf(int level=0) const;
-    ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
-    ex simplify_ncmul(const exvector & v) const;
+	basic * duplicate() const;
+	void print(std::ostream & os, unsigned upper_precedence=0) const;
+	void printraw(std::ostream & os) const;
+	void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence=0) const;
+	bool info(unsigned inf) const;
+	unsigned nops() const;
+	ex & let_op(int i);
+	ex eval(int level=0) const;
+	ex evalf(int level=0) const;
+	ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
+	ex simplify_ncmul(const exvector & v) const;
 protected:
-    int compare_same_type(const basic & other) const;
-    unsigned return_type(void) const;
-    unsigned return_type_tinfo(void) const;
+	int compare_same_type(const basic & other) const;
+	unsigned return_type(void) const;
+	unsigned return_type_tinfo(void) const;
 
-    // new virtual functions which can be overridden by derived classes
+	// new virtual functions which can be overridden by derived classes
 public:
-    virtual ex lhs(void) const;
-    virtual ex rhs(void) const;
+	virtual ex lhs(void) const;
+	virtual ex rhs(void) const;
 
-    // non-virtual functions in this class
+	// non-virtual functions in this class
 public:
-    operator bool(void) const;
-    
+	operator bool(void) const;
+	
 // member variables
-    
+	
 protected:
-    ex lh;
-    ex rh;
-    operators o;
-    static unsigned precedence;
+	ex lh;
+	ex rh;
+	operators o;
+	static unsigned precedence;
 };
 
 // global constants

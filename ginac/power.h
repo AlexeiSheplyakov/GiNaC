@@ -37,72 +37,72 @@ class add;
  *  representing exponentiation. */
 class power : public basic
 {
-    GINAC_DECLARE_REGISTERED_CLASS(power, basic)
+	GINAC_DECLARE_REGISTERED_CLASS(power, basic)
 
-    friend class mul;
+	friend class mul;
 
 // member functions
 
-    // default constructor, destructor, copy constructor assignment operator and helpers
+	// default constructor, destructor, copy constructor assignment operator and helpers
 public:
-    power();
-    ~power();
-    power(const power & other);
-    const power & operator=(const power & other);
+	power();
+	~power();
+	power(const power & other);
+	const power & operator=(const power & other);
 protected:
-    void copy(const power & other);
-    void destroy(bool call_parent);
+	void copy(const power & other);
+	void destroy(bool call_parent);
 
-    // other constructors
+	// other constructors
 public:
-    power(const ex & lh, const ex & rh);
-    power(const ex & lh, const numeric & rh);
+	power(const ex & lh, const ex & rh);
+	power(const ex & lh, const numeric & rh);
 
-    // functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from bases classes
 public:
-    basic * duplicate() const;
-    void print(std::ostream & os, unsigned upper_precedence = 0) const;
-    void printraw(std::ostream & os) const;
-    void printtree(std::ostream & os, unsigned indent) const;
-    void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence = 0) const;
-    bool info(unsigned inf) const;
-    unsigned nops() const;
-    ex & let_op(int i);
-    int degree(const symbol & s) const;
-    int ldegree(const symbol & s) const;
-    ex coeff(const symbol & s, int n = 1) const;
-    ex eval(int level=0) const;
-    ex evalf(int level=0) const;
-    ex series(const relational & s, int order, unsigned options = 0) const;
-    ex subs(const lst & ls, const lst & lr) const;
-    ex normal(lst &sym_lst, lst &repl_lst, int level = 0) const;
-    ex to_rational(lst &repl_lst) const;
-    ex simplify_ncmul(const exvector & v) const;
+	basic * duplicate() const;
+	void print(std::ostream & os, unsigned upper_precedence = 0) const;
+	void printraw(std::ostream & os) const;
+	void printtree(std::ostream & os, unsigned indent) const;
+	void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence = 0) const;
+	bool info(unsigned inf) const;
+	unsigned nops() const;
+	ex & let_op(int i);
+	int degree(const symbol & s) const;
+	int ldegree(const symbol & s) const;
+	ex coeff(const symbol & s, int n = 1) const;
+	ex eval(int level=0) const;
+	ex evalf(int level=0) const;
+	ex series(const relational & s, int order, unsigned options = 0) const;
+	ex subs(const lst & ls, const lst & lr) const;
+	ex normal(lst &sym_lst, lst &repl_lst, int level = 0) const;
+	ex to_rational(lst &repl_lst) const;
+	ex simplify_ncmul(const exvector & v) const;
 protected:
-    ex derivative(const symbol & s) const;
-    int compare_same_type(const basic & other) const;
-    unsigned return_type(void) const;
-    unsigned return_type_tinfo(void) const;
-    ex expand(unsigned options = 0) const;
-    
-    // new virtual functions which can be overridden by derived classes
-    // none
-    
-    // non-virtual functions in this class
+	ex derivative(const symbol & s) const;
+	int compare_same_type(const basic & other) const;
+	unsigned return_type(void) const;
+	unsigned return_type_tinfo(void) const;
+	ex expand(unsigned options = 0) const;
+	
+	// new virtual functions which can be overridden by derived classes
+	// none
+	
+	// non-virtual functions in this class
 protected:
-    ex expand_add(const add & a, int n) const;
-    ex expand_add_2(const add & a) const;
-    ex expand_mul(const mul & m, const numeric & n) const;
-    //ex expand_commutative_3(const ex & basis, const numeric & exponent,
-    //                         unsigned options) const;
-    // ex expand_noncommutative(const ex & basis, const numeric & exponent, unsigned options) const;
+	ex expand_add(const add & a, int n) const;
+	ex expand_add_2(const add & a) const;
+	ex expand_mul(const mul & m, const numeric & n) const;
+	//ex expand_commutative_3(const ex & basis, const numeric & exponent,
+	//                         unsigned options) const;
+	// ex expand_noncommutative(const ex & basis, const numeric & exponent, unsigned options) const;
 
 // member variables
 
 protected:
-    ex basis;
-    ex exponent;
-    static unsigned precedence;
+	ex basis;
+	ex exponent;
+	static unsigned precedence;
 };
 
 // global constants

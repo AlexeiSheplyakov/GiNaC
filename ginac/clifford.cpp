@@ -41,48 +41,48 @@ namespace GiNaC {
 
 clifford::clifford()
 {
-    debugmsg("clifford default constructor",LOGLEVEL_CONSTRUCT);
-    serial=next_serial++;
-    name=autoname_prefix()+ToString(serial);
-    tinfo_key=TINFO_clifford;
+	debugmsg("clifford default constructor",LOGLEVEL_CONSTRUCT);
+	serial=next_serial++;
+	name=autoname_prefix()+ToString(serial);
+	tinfo_key=TINFO_clifford;
 }
 
 clifford::~clifford()
 {
-    debugmsg("clifford destructor",LOGLEVEL_DESTRUCT);
-    destroy(0);
+	debugmsg("clifford destructor",LOGLEVEL_DESTRUCT);
+	destroy(0);
 }
 
 clifford::clifford(const clifford & other)
 {
-    debugmsg("clifford copy constructor",LOGLEVEL_CONSTRUCT);
-    copy (other);
+	debugmsg("clifford copy constructor",LOGLEVEL_CONSTRUCT);
+	copy (other);
 }
 
 const clifford & clifford::operator=(const clifford & other)
 {
-    debugmsg("clifford operator=",LOGLEVEL_ASSIGNMENT);
-    if (this != &other) {
-        destroy(1);
-        copy(other);
-    }
-    return *this;
+	debugmsg("clifford operator=",LOGLEVEL_ASSIGNMENT);
+	if (this != &other) {
+		destroy(1);
+		copy(other);
+	}
+	return *this;
 }
 
 // protected
 
 void clifford::copy(const clifford & other)
 {
-    indexed::copy(other);
-    name=other.name;
-    serial=other.serial;
+	indexed::copy(other);
+	name=other.name;
+	serial=other.serial;
 }
 
 void clifford::destroy(bool call_parent)
 {
-    if (call_parent) {
-        indexed::destroy(call_parent);
-    }
+	if (call_parent) {
+		indexed::destroy(call_parent);
+	}
 }
 
 //////////
@@ -93,10 +93,10 @@ void clifford::destroy(bool call_parent)
 
 clifford::clifford(const std::string & initname)
 {
-    debugmsg("clifford constructor from string",LOGLEVEL_CONSTRUCT);
-    name=initname;
-    serial=next_serial++;
-    tinfo_key=TINFO_clifford;
+	debugmsg("clifford constructor from string",LOGLEVEL_CONSTRUCT);
+	name=initname;
+	serial=next_serial++;
+	tinfo_key=TINFO_clifford;
 }
 
 //////////
@@ -107,73 +107,73 @@ clifford::clifford(const std::string & initname)
 
 basic * clifford::duplicate() const
 {
-    debugmsg("clifford duplicate",LOGLEVEL_DUPLICATE);
-    return new clifford(*this);
+	debugmsg("clifford duplicate",LOGLEVEL_DUPLICATE);
+	return new clifford(*this);
 }
 
 void clifford::printraw(std::ostream & os) const
 {
-    debugmsg("clifford printraw",LOGLEVEL_PRINT);
-    os << "clifford(" << "name=" << name << ",serial=" << serial
-       << ",indices=";
-    printrawindices(os);
-    os << ",hash=" << hashvalue << ",flags=" << flags << ")";
+	debugmsg("clifford printraw",LOGLEVEL_PRINT);
+	os << "clifford(" << "name=" << name << ",serial=" << serial
+	   << ",indices=";
+	printrawindices(os);
+	os << ",hash=" << hashvalue << ",flags=" << flags << ")";
 }
 
 void clifford::printtree(std::ostream & os, unsigned indent) const
 {
-    debugmsg("clifford printtree",LOGLEVEL_PRINT);
-    os << std::string(indent,' ') << name << " (clifford): "
-       << "serial=" << serial << ","
-       << seq.size() << "indices=";
-    printtreeindices(os, indent);
-    os << ", hash=" << hashvalue
-       << " (0x" << std::hex << hashvalue << std::dec << ")"
-       << ", flags=" << flags << std::endl;
+	debugmsg("clifford printtree",LOGLEVEL_PRINT);
+	os << std::string(indent,' ') << name << " (clifford): "
+	   << "serial=" << serial << ","
+	   << seq.size() << "indices=";
+	printtreeindices(os, indent);
+	os << ", hash=" << hashvalue
+	   << " (0x" << std::hex << hashvalue << std::dec << ")"
+	   << ", flags=" << flags << std::endl;
 }
 
 void clifford::print(std::ostream & os, unsigned upper_precedence) const
 {
-    debugmsg("clifford print",LOGLEVEL_PRINT);
-    os << name;
-    printindices(os);
+	debugmsg("clifford print",LOGLEVEL_PRINT);
+	os << name;
+	printindices(os);
 }
 
 void clifford::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
 {
-    debugmsg("clifford print csrc",LOGLEVEL_PRINT);
-    print(os,upper_precedence);
+	debugmsg("clifford print csrc",LOGLEVEL_PRINT);
+	print(os,upper_precedence);
 }
 
 bool clifford::info(unsigned inf) const
 {
-    return indexed::info(inf);
+	return indexed::info(inf);
 }
 
 // protected
 
 int clifford::compare_same_type(const basic & other) const
 {
-    GINAC_ASSERT(other.tinfo() == TINFO_clifford);
-    const clifford *o = static_cast<const clifford *>(&other);
-    if (serial==o->serial) {
-        return indexed::compare_same_type(other);
-    }
-    return serial < o->serial ? -1 : 1;
+	GINAC_ASSERT(other.tinfo() == TINFO_clifford);
+	const clifford *o = static_cast<const clifford *>(&other);
+	if (serial==o->serial) {
+		return indexed::compare_same_type(other);
+	}
+	return serial < o->serial ? -1 : 1;
 }
 
 ex clifford::simplify_ncmul(const exvector & v) const
 {
-    return simplified_ncmul(v);
+	return simplified_ncmul(v);
 }
 
 unsigned clifford::calchash(void) const
 {
-    hashvalue=golden_ratio_hash(golden_ratio_hash(0x55555556U ^
-                                                  golden_ratio_hash(tinfo_key) ^
-                                                  serial));
-    setflag(status_flags::hash_calculated);
-    return hashvalue;
+	hashvalue=golden_ratio_hash(golden_ratio_hash(0x55555556U ^
+												  golden_ratio_hash(tinfo_key) ^
+												  serial));
+	setflag(status_flags::hash_calculated);
+	return hashvalue;
 }
 
 //////////
@@ -188,15 +188,15 @@ unsigned clifford::calchash(void) const
 
 void clifford::setname(const std::string & n)
 {
-    name = n;
+	name = n;
 }
 
 // private
 
 std::string & clifford::autoname_prefix(void)
 {
-    static std::string * s = new std::string("clifford");
-    return *s;
+	static std::string * s = new std::string("clifford");
+	return *s;
 }
 
 //////////

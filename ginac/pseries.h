@@ -36,65 +36,65 @@ namespace GiNaC {
  *  Other classes must provide members to convert into this type. */
 class pseries : public basic
 {
-    GINAC_DECLARE_REGISTERED_CLASS(pseries, basic)
+	GINAC_DECLARE_REGISTERED_CLASS(pseries, basic)
 
-    // default constructor, destructor, copy constructor, assignment operator and helpers
+	// default constructor, destructor, copy constructor, assignment operator and helpers
 public:
-    pseries();
-    ~pseries();
-    pseries(const pseries &other);
-    const pseries &operator=(const pseries &other);
+	pseries();
+	~pseries();
+	pseries(const pseries &other);
+	const pseries &operator=(const pseries &other);
 protected:
-    void copy(const pseries &other);
-    void destroy(bool call_parent);
+	void copy(const pseries &other);
+	void destroy(bool call_parent);
 
-    // other constructors
+	// other constructors
 public:
-    pseries(const ex &rel_, const epvector &ops_);
+	pseries(const ex &rel_, const epvector &ops_);
 
-    // functions overriding virtual functions from base classes
+	// functions overriding virtual functions from base classes
 public:
-    basic *duplicate() const;
-    void print(std::ostream &os, unsigned upper_precedence = 0) const;
-    void printraw(std::ostream &os) const;
-    void printtree(std::ostream & os, unsigned indent) const;
-    unsigned nops(void) const;
-    ex op(int i) const;
-    ex &let_op(int i);
-    int degree(const symbol &s) const;
-    int ldegree(const symbol &s) const;
-    ex coeff(const symbol &s, int n = 1) const;
-    ex collect(const symbol &s) const;
-    ex eval(int level=0) const;
-    ex evalf(int level=0) const;
-    ex series(const relational & r, int order, unsigned options = 0) const;
-    ex subs(const lst & ls, const lst & lr) const;
-    ex normal(lst &sym_lst, lst &repl_lst, int level = 0) const;
-    ex expand(unsigned options = 0) const;
+	basic *duplicate() const;
+	void print(std::ostream &os, unsigned upper_precedence = 0) const;
+	void printraw(std::ostream &os) const;
+	void printtree(std::ostream & os, unsigned indent) const;
+	unsigned nops(void) const;
+	ex op(int i) const;
+	ex &let_op(int i);
+	int degree(const symbol &s) const;
+	int ldegree(const symbol &s) const;
+	ex coeff(const symbol &s, int n = 1) const;
+	ex collect(const symbol &s) const;
+	ex eval(int level=0) const;
+	ex evalf(int level=0) const;
+	ex series(const relational & r, int order, unsigned options = 0) const;
+	ex subs(const lst & ls, const lst & lr) const;
+	ex normal(lst &sym_lst, lst &repl_lst, int level = 0) const;
+	ex expand(unsigned options = 0) const;
 protected:
-    ex derivative(const symbol & s) const;
+	ex derivative(const symbol & s) const;
 
-    // non-virtual functions in this class
+	// non-virtual functions in this class
 public:
-    ex convert_to_poly(bool no_order = false) const;
-    bool is_compatible_to(const pseries &other) const {return var.compare(other.var) == 0 && point.compare(other.point) == 0;}
-    bool is_zero(void) const {return seq.size() == 0;}
-    bool is_terminating(void) const;
-    ex add_series(const pseries &other) const;
-    ex mul_const(const numeric &other) const;
-    ex mul_series(const pseries &other) const;
-    ex power_const(const numeric &p, int deg) const;
-    pseries shift_exponents(int deg) const;
+	ex convert_to_poly(bool no_order = false) const;
+	bool is_compatible_to(const pseries &other) const {return var.compare(other.var) == 0 && point.compare(other.point) == 0;}
+	bool is_zero(void) const {return seq.size() == 0;}
+	bool is_terminating(void) const;
+	ex add_series(const pseries &other) const;
+	ex mul_const(const numeric &other) const;
+	ex mul_series(const pseries &other) const;
+	ex power_const(const numeric &p, int deg) const;
+	pseries shift_exponents(int deg) const;
 
 protected:
-    /** Vector of {coefficient, power} pairs */
-    epvector seq;
+	/** Vector of {coefficient, power} pairs */
+	epvector seq;
 
-    /** Series variable (holds a symbol) */
-    ex var;
+	/** Series variable (holds a symbol) */
+	ex var;
 
-    /** Expansion point */
-    ex point;
+	/** Expansion point */
+	ex point;
 };
 
 // global constants
@@ -110,7 +110,7 @@ extern const type_info & typeid_pseries;
  *  @see is_ex_of_type */
 inline const pseries &ex_to_pseries(const ex &e)
 {
-    return static_cast<const pseries &>(*e.bp);
+	return static_cast<const pseries &>(*e.bp);
 }
 
 /** Convert the pseries object embedded in an expression to an ordinary
@@ -123,12 +123,12 @@ inline const pseries &ex_to_pseries(const ex &e)
  *  @see pseries::convert_to_poly */
 inline ex series_to_poly(const ex &e)
 {
-    return (static_cast<const pseries &>(*e.bp).convert_to_poly(true));
+	return (static_cast<const pseries &>(*e.bp).convert_to_poly(true));
 }
 
 inline bool is_terminating(const pseries & s)
 {
-    return s.is_terminating();
+	return s.is_terminating();
 }
 
 #ifndef NO_NAMESPACE_GINAC

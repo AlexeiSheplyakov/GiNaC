@@ -29,8 +29,8 @@ namespace GiNaC {
 
 bool lst::info(unsigned inf) const
 {
-    if (inf==info_flags::list) return 1;
-    return basic::info(inf);
+	if (inf==info_flags::list) return 1;
+	return basic::info(inf);
 }
 
 #ifndef NO_NAMESPACE_GINAC

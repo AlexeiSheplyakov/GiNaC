@@ -205,7 +205,7 @@ std::ostream &operator<<(std::ostream &os, const archive_node &n)
 		write_unsigned(os, n.props[i].type | (n.props[i].name << 3));
 		write_unsigned(os, n.props[i].value);
 	}
-    return os;
+	return os;
 }
 
 /** Write archive to binary data stream. */
@@ -237,7 +237,7 @@ std::ostream &operator<<(std::ostream &os, const archive &ar)
 	write_unsigned(os, num_nodes);
 	for (unsigned int i=0; i<num_nodes; i++)
 		os << ar.nodes[i];
-    return os;
+	return os;
 }
 
 /** Read archive_node from binary data stream. */
@@ -252,7 +252,7 @@ std::istream &operator>>(std::istream &is, archive_node &n)
 		n.props[i].name = name_type >> 3;
 		n.props[i].value = read_unsigned(is);
 	}
-    return is;
+	return is;
 }
 
 /** Read archive from binary data stream. */
@@ -287,7 +287,7 @@ std::istream &operator>>(std::istream &is, archive &ar)
 	ar.nodes.resize(num_nodes, ar);
 	for (unsigned int i=0; i<num_nodes; i++)
 		is >> ar.nodes[i];
-    return is;
+	return is;
 }
 
 
@@ -584,8 +584,8 @@ void archive_node::printraw(std::ostream &os) const
  *  ctor, which is currently a Cint-requirement. */
 archive* archive_node::dummy_ar_creator(void)
 {
-    static archive* some_ar = new archive;
-    return some_ar;
+	static archive* some_ar = new archive;
+	return some_ar;
 }
 
 

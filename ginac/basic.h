@@ -56,130 +56,130 @@ typedef std::vector<ex,malloc_alloc> exvector; // CINT does not like vector<...,
  *  It is responsible for the reference counting. */
 class basic
 {
-    GINAC_DECLARE_REGISTERED_CLASS(basic, void)
+	GINAC_DECLARE_REGISTERED_CLASS(basic, void)
 
-    friend class ex;
+	friend class ex;
 
 // member functions
 
-    // default constructor, destructor, copy constructor assignment operator and helpers
+	// default constructor, destructor, copy constructor assignment operator and helpers
 public:
-    basic()
+	basic()
 #ifdef INLINE_BASIC_CONSTRUCTORS
-    : tinfo_key(TINFO_basic), flags(0), refcount(0)
-    {
-    }
+	: tinfo_key(TINFO_basic), flags(0), refcount(0)
+	{
+	}
 #else
 ;
 #endif // def INLINE_BASIC_CONSTRUCTORS
 
-    virtual ~basic()
+	virtual ~basic()
 #ifdef INLINE_BASIC_CONSTRUCTORS
-    {
-        destroy(0);
-        GINAC_ASSERT((!(flags & status_flags::dynallocated))||(refcount==0));
-    }
+	{
+		destroy(0);
+		GINAC_ASSERT((!(flags & status_flags::dynallocated))||(refcount==0));
+	}
 #else
 ;
 #endif // def INLINE_BASIC_CONSTRUCTORS
 
-    basic(const basic & other)
+	basic(const basic & other)
 #ifdef INLINE_BASIC_CONSTRUCTORS
-    {
-        copy(other);
-    }
+	{
+		copy(other);
+	}
 #else
 ;
 #endif // def INLINE_BASIC_CONSTRUCTORS
 
-    virtual const basic & operator=(const basic & other);
-    
+	virtual const basic & operator=(const basic & other);
+	
 protected:
-    void copy(const basic & other)
-    {
-        flags = other.flags & ~status_flags::dynallocated;
-        hashvalue = other.hashvalue;
-        tinfo_key = other.tinfo_key;
-    }
-    void destroy(bool call_parent) {}
+	void copy(const basic & other)
+	{
+		flags = other.flags & ~status_flags::dynallocated;
+		hashvalue = other.hashvalue;
+		tinfo_key = other.tinfo_key;
+	}
+	void destroy(bool call_parent) {}
 
-    // other constructors
-    basic(unsigned ti)
+	// other constructors
+	basic(unsigned ti)
 #ifdef INLINE_BASIC_CONSTRUCTORS
-    : tinfo_key(ti), flags(0), refcount(0)
-    {
-    }
+	: tinfo_key(ti), flags(0), refcount(0)
+	{
+	}
 #else
 ;
 #endif // def INLINE_BASIC_CONSTRUCTORS
 
-    // functions overriding virtual functions from bases classes
-    // none
-    
-    // new virtual functions which can be overridden by derived classes
+	// functions overriding virtual functions from bases classes
+	// none
+	
+	// new virtual functions which can be overridden by derived classes
 public: // only const functions please (may break reference counting)
-    virtual basic * duplicate() const;
-    virtual void print(std::ostream & os,unsigned upper_precedence = 0) const;
-    virtual void printraw(std::ostream & os) const;
-    virtual void printtree(std::ostream & os, unsigned indent) const;
-    virtual void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence = 0) const;
-    virtual void dbgprint(void) const;
-    virtual void dbgprinttree(void) const;
-    virtual bool info(unsigned inf) const;
-    virtual unsigned nops() const;
-    virtual ex op(int i) const;
-    virtual ex & let_op(int i);
-    virtual ex operator[](const ex & index) const;
-    virtual ex operator[](int i) const;
-    virtual bool has(const ex & other) const;
-    virtual int degree(const symbol & s) const;
-    virtual int ldegree(const symbol & s) const;
-    virtual ex coeff(const symbol & s, int n = 1) const;
-    virtual ex collect(const symbol & s) const;
-    virtual ex eval(int level = 0) const;
-    virtual ex evalf(int level = 0) const;
-    virtual ex series(const relational & r, int order, unsigned options = 0) const;
-    virtual ex subs(const lst & ls, const lst & lr) const;
-    virtual ex normal(lst &sym_lst, lst &repl_lst, int level = 0) const;
-    virtual ex to_rational(lst &repl_lst) const;
-    virtual numeric integer_content(void) const;
-    virtual ex smod(const numeric &xi) const;
-    virtual numeric max_coefficient(void) const;
-    virtual exvector get_indices(void) const;
-    virtual ex simplify_ncmul(const exvector & v) const;
+	virtual basic * duplicate() const;
+	virtual void print(std::ostream & os,unsigned upper_precedence = 0) const;
+	virtual void printraw(std::ostream & os) const;
+	virtual void printtree(std::ostream & os, unsigned indent) const;
+	virtual void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence = 0) const;
+	virtual void dbgprint(void) const;
+	virtual void dbgprinttree(void) const;
+	virtual bool info(unsigned inf) const;
+	virtual unsigned nops() const;
+	virtual ex op(int i) const;
+	virtual ex & let_op(int i);
+	virtual ex operator[](const ex & index) const;
+	virtual ex operator[](int i) const;
+	virtual bool has(const ex & other) const;
+	virtual int degree(const symbol & s) const;
+	virtual int ldegree(const symbol & s) const;
+	virtual ex coeff(const symbol & s, int n = 1) const;
+	virtual ex collect(const symbol & s) const;
+	virtual ex eval(int level = 0) const;
+	virtual ex evalf(int level = 0) const;
+	virtual ex series(const relational & r, int order, unsigned options = 0) const;
+	virtual ex subs(const lst & ls, const lst & lr) const;
+	virtual ex normal(lst &sym_lst, lst &repl_lst, int level = 0) const;
+	virtual ex to_rational(lst &repl_lst) const;
+	virtual numeric integer_content(void) const;
+	virtual ex smod(const numeric &xi) const;
+	virtual numeric max_coefficient(void) const;
+	virtual exvector get_indices(void) const;
+	virtual ex simplify_ncmul(const exvector & v) const;
 protected: // non-const functions should be called from class ex only
-    virtual ex derivative(const symbol & s) const;
-    virtual int compare_same_type(const basic & other) const;
-    virtual bool is_equal_same_type(const basic & other) const;
-    virtual unsigned return_type(void) const;
-    virtual unsigned return_type_tinfo(void) const;
-    virtual unsigned calchash(void) const;
-    virtual ex expand(unsigned options=0) const;
+	virtual ex derivative(const symbol & s) const;
+	virtual int compare_same_type(const basic & other) const;
+	virtual bool is_equal_same_type(const basic & other) const;
+	virtual unsigned return_type(void) const;
+	virtual unsigned return_type_tinfo(void) const;
+	virtual unsigned calchash(void) const;
+	virtual ex expand(unsigned options=0) const;
 
-    // non-virtual functions in this class
+	// non-virtual functions in this class
 public:
-    ex subs(const ex & e) const;
-    ex diff(const symbol & s, unsigned nth=1) const;
-    int compare(const basic & other) const;
-    bool is_equal(const basic & other) const;
-    const basic & hold(void) const;
-    unsigned gethash(void) const {if (flags & status_flags::hash_calculated) return hashvalue; else return calchash();}
-    unsigned tinfo(void) const {return tinfo_key;}
-    const basic & setflag(unsigned f) const {flags |= f; return *this;}
-    const basic & clearflag(unsigned f) const {flags &= ~f; return *this;}
+	ex subs(const ex & e) const;
+	ex diff(const symbol & s, unsigned nth=1) const;
+	int compare(const basic & other) const;
+	bool is_equal(const basic & other) const;
+	const basic & hold(void) const;
+	unsigned gethash(void) const {if (flags & status_flags::hash_calculated) return hashvalue; else return calchash();}
+	unsigned tinfo(void) const {return tinfo_key;}
+	const basic & setflag(unsigned f) const {flags |= f; return *this;}
+	const basic & clearflag(unsigned f) const {flags &= ~f; return *this;}
 protected:
-    void ensure_if_modifiable(void) const;
+	void ensure_if_modifiable(void) const;
 
 // member variables
-    
+	
 protected:
-    unsigned tinfo_key;
-    mutable unsigned flags;
-    mutable unsigned hashvalue;
-    static unsigned precedence;
-    static unsigned delta_indent;
+	unsigned tinfo_key;
+	mutable unsigned flags;
+	mutable unsigned hashvalue;
+	static unsigned precedence;
+	static unsigned delta_indent;
 private:
-    unsigned refcount;
+	unsigned refcount;
 };
 
 // global constants
@@ -196,30 +196,30 @@ extern int max_recursion_level;
 #ifndef NO_NAMESPACE_GINAC
 
 #define is_of_type(OBJ,TYPE) \
-    (dynamic_cast<TYPE *>(const_cast<GiNaC::basic *>(&OBJ))!=0)
+	(dynamic_cast<TYPE *>(const_cast<GiNaC::basic *>(&OBJ))!=0)
 
 #define is_exactly_of_type(OBJ,TYPE) \
-    ((OBJ).tinfo()==GiNaC::TINFO_##TYPE)
+	((OBJ).tinfo()==GiNaC::TINFO_##TYPE)
 
 #define is_ex_of_type(OBJ,TYPE) \
-    (dynamic_cast<TYPE *>(const_cast<GiNaC::basic *>((OBJ).bp))!=0)
+	(dynamic_cast<TYPE *>(const_cast<GiNaC::basic *>((OBJ).bp))!=0)
 
 #define is_ex_exactly_of_type(OBJ,TYPE) \
-    ((*(OBJ).bp).tinfo()==GiNaC::TINFO_##TYPE)
+	((*(OBJ).bp).tinfo()==GiNaC::TINFO_##TYPE)
 
 #else // ndef NO_NAMESPACE_GINAC
 
 #define is_of_type(OBJ,TYPE) \
-    (dynamic_cast<TYPE *>(const_cast<basic *>(&OBJ))!=0)
+	(dynamic_cast<TYPE *>(const_cast<basic *>(&OBJ))!=0)
 
 #define is_exactly_of_type(OBJ,TYPE) \
-    ((OBJ).tinfo()==TINFO_##TYPE)
+	((OBJ).tinfo()==TINFO_##TYPE)
 
 #define is_ex_of_type(OBJ,TYPE) \
-    (dynamic_cast<TYPE *>(const_cast<basic *>((OBJ).bp))!=0)
+	(dynamic_cast<TYPE *>(const_cast<basic *>((OBJ).bp))!=0)
 
 #define is_ex_exactly_of_type(OBJ,TYPE) \
-    ((*(OBJ).bp).tinfo()==TINFO_##TYPE)
+	((*(OBJ).bp).tinfo()==TINFO_##TYPE)
 
 #endif // ndef NO_NAMESPACE_GINAC
 

@@ -38,9 +38,9 @@ namespace GiNaC {
 template<class T>
 std::string ToString(const T & t)
 {
-    char buf[256];
-    std::ostrstream(buf,sizeof(buf)) << t << std::ends;
-    return buf;
+	char buf[256];
+	std::ostrstream(buf,sizeof(buf)) << t << std::ends;
+	return buf;
 }
 
 /** Exception class thrown by classes which provide their own series expansion
@@ -50,10 +50,10 @@ class do_taylor {};
 /** Exception class thrown when a singularity is encountered. */
 class pole_error : public std::domain_error {
 public:
-    explicit pole_error(const std::string& what_arg, int degree);
-    int degree(void) const;
+	explicit pole_error(const std::string& what_arg, int degree);
+	int degree(void) const;
 private:
-    int deg;
+	int deg;
 };
 
 // some compilers (e.g. cygwin) define a macro log2, causing confusion
@@ -67,16 +67,16 @@ int compare_pointers(const void * a, const void * b);
  *  (upper bits get cleared). */
 inline unsigned rotate_left_31(unsigned n)
 {
-    // clear highest bit and shift 1 bit to the left
-    n=(n & 0x7FFFFFFFU) << 1;
+	// clear highest bit and shift 1 bit to the left
+	n=(n & 0x7FFFFFFFU) << 1;
 
-    // overflow? clear highest bit and set lowest bit
-    if (n & 0x80000000U) {
-        n=(n & 0x7FFFFFFFU) | 0x00000001U;
-    }
-    GINAC_ASSERT(n<0x80000000U);
+	// overflow? clear highest bit and set lowest bit
+	if (n & 0x80000000U) {
+		n=(n & 0x7FFFFFFFU) | 0x00000001U;
+	}
+	GINAC_ASSERT(n<0x80000000U);
 
-    return n;
+	return n;
 }
 
 /** Golden ratio hash function. */
@@ -86,9 +86,9 @@ inline unsigned golden_ratio_hash(unsigned n)
 #if SIZEOF_LONG_DOUBLE > 8
 	// If "long double" is bigger than 64 bits, we assume that the mantissa
 	// has at least 64 bits. This is not guaranteed but it's a good guess.
-    const static long double golden_ratio = .618033988749894848204586834370;
-    long double m = golden_ratio * n;
-    return unsigned((m - int(m)) * 0x80000000);
+	const static long double golden_ratio = .618033988749894848204586834370;
+	long double m = golden_ratio * n;
+	return unsigned((m - int(m)) * 0x80000000);
 #elif SIZEOF_LONG >= 8
 	// "long" has 64 bits, so we prefer it because it might be more efficient
 	// than "long long"
@@ -96,7 +96,7 @@ inline unsigned golden_ratio_hash(unsigned n)
 	return (l & 0x7fffffffU) ^ (l >> 32);
 #elif SIZEOF_LONG_LONG >= 8
 	// This requires ´long long´ (or an equivalent 64 bit type)---which is,
-    // unfortunately, not ANSI-compliant:
+	// unfortunately, not ANSI-compliant:
 	unsigned long long l = n * 0x4f1bbcddLL;
 	return (l & 0x7fffffffU) ^ (l >> 32);
 #else
@@ -106,70 +106,70 @@ inline unsigned golden_ratio_hash(unsigned n)
 
 // modified from stl_algo.h: always do com(*first1,*first2) instead of comp(*first2,*first1)
 template <class InputIterator1, class InputIterator2, class OutputIterator,
-          class Compare>
+		  class Compare>
 OutputIterator mymerge(InputIterator1 first1, InputIterator1 last1,
-                       InputIterator2 first2, InputIterator2 last2,
-                       OutputIterator result, Compare comp) {
-    while (first1 != last1 && first2 != last2) {
-        if (comp(*first1, *first2)) {
-            *result = *first1;
-            ++first1;
-        }
-        else {
-            *result = *first2;
-            ++first2;
-        }
-        ++result;
-    }
-    return copy(first2, last2, copy(first1, last1, result));
+					   InputIterator2 first2, InputIterator2 last2,
+					   OutputIterator result, Compare comp) {
+	while (first1 != last1 && first2 != last2) {
+		if (comp(*first1, *first2)) {
+			*result = *first1;
+			++first1;
+		}
+		else {
+			*result = *first2;
+			++first2;
+		}
+		++result;
+	}
+	return copy(first2, last2, copy(first1, last1, result));
 }
 
 // like merge(), but three lists with *last2<*first3
 template <class InputIterator1, class InputIterator2, class InputIterator3,
-          class OutputIterator, class Compare>
+		  class OutputIterator, class Compare>
 OutputIterator mymerge3(InputIterator1 first1, InputIterator1 last1,
-                        InputIterator2 first2, InputIterator2 last2,
-                        InputIterator3 first3, InputIterator3 last3,
-                        OutputIterator result, Compare comp) {
-    while (first1 != last1 && first2 != last2) {
-        if (comp(*first1, *first2)) {
-            *result = *first1;
-            ++first1;
-        }
-        else {
-            *result = *first2;
-            ++first2;
-        }
-        ++result;
-    }
-    
-    if (first1==last1) {
-        // list1 empty, copy rest of list2, then list3
-        return copy(first3, last3, copy(first2, last2, result));
-    } else {
-        // list2 empty, merge rest of list1 with list3
-        return mymerge(first1,last1,first3,last3,result,comp);
-    }
+						InputIterator2 first2, InputIterator2 last2,
+						InputIterator3 first3, InputIterator3 last3,
+						OutputIterator result, Compare comp) {
+	while (first1 != last1 && first2 != last2) {
+		if (comp(*first1, *first2)) {
+			*result = *first1;
+			++first1;
+		}
+		else {
+			*result = *first2;
+			++first2;
+		}
+		++result;
+	}
+	
+	if (first1==last1) {
+		// list1 empty, copy rest of list2, then list3
+		return copy(first3, last3, copy(first2, last2, result));
+	} else {
+		// list2 empty, merge rest of list1 with list3
+		return mymerge(first1,last1,first3,last3,result,comp);
+	}
 }
 
 // Compute the sign of a permutation of a vector of things.
 template <typename T>
 int permutation_sign(std::vector<T> s)
 {
-    if (s.size() < 2)
-        return 0;
-    int sigma = 1;
-    for (typename std::vector<T>::iterator i=s.begin(); i!=s.end()-1; ++i) {
-        for (typename std::vector<T>::iterator j=i+1; j!=s.end(); ++j) {
-            if (*i == *j)
-                return 0;
-            if (*i > *j) {
-                iter_swap(i,j);
-                sigma = -sigma;
-            }
-        }
-    }
-    return sigma;
+	if (s.size() < 2)
+		return 0;
+	int sigma = 1;
+	for (typename std::vector<T>::iterator i=s.begin(); i!=s.end()-1; ++i) {
+		for (typename std::vector<T>::iterator j=i+1; j!=s.end(); ++j) {
+			if (*i == *j)
+				return 0;
+			if (*i > *j) {
+				iter_swap(i,j);
+				sigma = -sigma;
+			}
+		}
+	}
+	return sigma;
 }
 
 // Collection of `construct on first use' wrappers for safely avoiding

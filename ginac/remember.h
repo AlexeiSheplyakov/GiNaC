@@ -33,68 +33,68 @@ namespace GiNaC {
 
 class function;
 class ex;
-    
+	
 /** A single entry in the remember table of a function.
-    Needs to be a friend of class function to access 'seq'.
-    'last_access' and 'successful_hits' are updated at each successful
-    'is_equal'. */
+	Needs to be a friend of class function to access 'seq'.
+	'last_access' and 'successful_hits' are updated at each successful
+	'is_equal'. */
 class remember_table_entry {
 public:
-    remember_table_entry(function const & f, ex const & r);
-    bool is_equal(function const & f) const;
-    ex get_result(void) const { return result; }
-    unsigned long get_last_access(void) const { return last_access; }
-    unsigned long get_successful_hits(void) const { return successful_hits; };
+	remember_table_entry(function const & f, ex const & r);
+	bool is_equal(function const & f) const;
+	ex get_result(void) const { return result; }
+	unsigned long get_last_access(void) const { return last_access; }
+	unsigned long get_successful_hits(void) const { return successful_hits; };
 
 protected:
-    unsigned hashvalue;
-    exvector seq;
-    ex result;
-    mutable unsigned long last_access;
-    mutable unsigned successful_hits;
-    static unsigned long access_counter;
+	unsigned hashvalue;
+	exvector seq;
+	ex result;
+	mutable unsigned long last_access;
+	mutable unsigned successful_hits;
+	static unsigned long access_counter;
 };    
 
 /** A list of entries in the remember table having some least
-    significant bits of the hashvalue in common. */
+	significant bits of the hashvalue in common. */
 class remember_table_list : public std::list<remember_table_entry> {
 public:
-    remember_table_list(unsigned as, unsigned strat);
-    void add_entry(function const & f, ex const & result);
-    bool lookup_entry(function const & f, ex & result) const;
+	remember_table_list(unsigned as, unsigned strat);
+	void add_entry(function const & f, ex const & result);
+	bool lookup_entry(function const & f, ex & result) const;
 protected:
-    unsigned max_assoc_size;
-    unsigned remember_strategy;
+	unsigned max_assoc_size;
+	unsigned remember_strategy;
 };
 
 /** The remember table is organized like an n-fold associative cache
-    in a microprocessor.  The table has a width of 's' (which is rounded
-    to table_size, some power of 2 near 's', internally) and a depth of 'as'
-    (unless you choose that entries are never discarded). The place where
-    an entry is stored depends on the hashvalue of the parameters of the
-    function (this corresponds to the address of byte to be cached).
-    The 'log_2(table_size)' least significant bits of this hashvalue
-    give the slot in which the entry will be stored or looked up.
-    Each slot can take up to 'as' entries. If a slot is full, an older
-    entry is removed by one of the following strategies:
-    - oldest entry (the first one in the list)
-    - least recently used (the one with the lowest 'last_access')
-    - least frequently used (the one with the lowest 'successful_hits')
-    or all entries are kept which means that the table grows indefinitely. */
+	in a microprocessor.  The table has a width of 's' (which is rounded
+	to table_size, some power of 2 near 's', internally) and a depth of 'as'
+	(unless you choose that entries are never discarded). The place where
+	an entry is stored depends on the hashvalue of the parameters of the
+	function (this corresponds to the address of byte to be cached).
+	The 'log_2(table_size)' least significant bits of this hashvalue
+	give the slot in which the entry will be stored or looked up.
+	Each slot can take up to 'as' entries. If a slot is full, an older
+	entry is removed by one of the following strategies:
+	- oldest entry (the first one in the list)
+	- least recently used (the one with the lowest 'last_access')
+	- least frequently used (the one with the lowest 'successful_hits')
+	or all entries are kept which means that the table grows indefinitely. */
 class remember_table : public std::vector<remember_table_list> {
 public:
-    remember_table();
-    remember_table(unsigned s, unsigned as, unsigned strat);
-    bool lookup_entry(function const & f, ex & result) const;
-    void add_entry(function const & f, ex const & result);
-    void clear_all_entries(void);
-    void show_statistics(std::ostream & os, unsigned level) const;
-    static std::vector<remember_table> & remember_tables(void);
+	remember_table();
+	remember_table(unsigned s, unsigned as, unsigned strat);
+	bool lookup_entry(function const & f, ex & result) const;
+	void add_entry(function const & f, ex const & result);
+	void clear_all_entries(void);
+	void show_statistics(std::ostream & os, unsigned level) const;
+	static std::vector<remember_table> & remember_tables(void);
 protected:
-    void init_table(void);
-    unsigned table_size;
-    unsigned max_assoc_size;
-    unsigned remember_strategy;
+	void init_table(void);
+	unsigned table_size;
+	unsigned max_assoc_size;
+	unsigned remember_strategy;
 };      
 
 #ifndef NO_NAMESPACE_GINAC

@@ -32,84 +32,84 @@ namespace GiNaC {
 /** Product of expressions. */
 class mul : public expairseq
 {
-    GINAC_DECLARE_REGISTERED_CLASS(mul, expairseq)
+	GINAC_DECLARE_REGISTERED_CLASS(mul, expairseq)
 
-    friend class add;
-    friend class ncmul;
-    friend class power;
+	friend class add;
+	friend class ncmul;
+	friend class power;
 
 // member functions
 
-    // default constructor, destructor, copy constructor assignment operator and helpers
+	// default constructor, destructor, copy constructor assignment operator and helpers
 public:
-    mul();
-    ~mul();
-    mul(const mul & other);
-    const mul & operator=(const mul & other);
+	mul();
+	~mul();
+	mul(const mul & other);
+	const mul & operator=(const mul & other);
 protected:
-    void copy(const mul & other);
-    void destroy(bool call_parent);
+	void copy(const mul & other);
+	void destroy(bool call_parent);
 
-    // other constructors
+	// other constructors
 public:
-    mul(const ex & lh, const ex & rh);
-    mul(const exvector & v);
-    mul(const epvector & v);
-    mul(const epvector & v, const ex & oc);
-    mul(epvector * vp, const ex & oc);
-    mul(const ex & lh, const ex & mh, const ex & rh);
+	mul(const ex & lh, const ex & rh);
+	mul(const exvector & v);
+	mul(const epvector & v);
+	mul(const epvector & v, const ex & oc);
+	mul(epvector * vp, const ex & oc);
+	mul(const ex & lh, const ex & mh, const ex & rh);
 
-    // functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from bases classes
 public:
-    basic * duplicate() const;
-    void print(std::ostream & os, unsigned upper_precedence) const;
-    void printraw(std::ostream & os) const;
-    void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const;
-    bool info(unsigned inf) const;
-    int degree(const symbol & s) const;
-    int ldegree(const symbol & s) const;
-    ex coeff(const symbol & s, int n = 1) const;
-    ex eval(int level=0) const;
-    ex evalf(int level=0) const;
-    ex series(const relational & s, int order, unsigned options = 0) const;
-    ex normal(lst &sym_lst, lst &repl_lst, int level = 0) const;
-    numeric integer_content(void) const;
-    ex smod(const numeric &xi) const;
-    numeric max_coefficient(void) const;
-    exvector get_indices(void) const;
-    ex simplify_ncmul(const exvector & v) const;
+	basic * duplicate() const;
+	void print(std::ostream & os, unsigned upper_precedence) const;
+	void printraw(std::ostream & os) const;
+	void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const;
+	bool info(unsigned inf) const;
+	int degree(const symbol & s) const;
+	int ldegree(const symbol & s) const;
+	ex coeff(const symbol & s, int n = 1) const;
+	ex eval(int level=0) const;
+	ex evalf(int level=0) const;
+	ex series(const relational & s, int order, unsigned options = 0) const;
+	ex normal(lst &sym_lst, lst &repl_lst, int level = 0) const;
+	numeric integer_content(void) const;
+	ex smod(const numeric &xi) const;
+	numeric max_coefficient(void) const;
+	exvector get_indices(void) const;
+	ex simplify_ncmul(const exvector & v) const;
 protected:
-    ex derivative(const symbol & s) const;
-    int compare_same_type(const basic & other) const;
-    bool is_equal_same_type(const basic & other) const;
-    unsigned return_type(void) const;
-    unsigned return_type_tinfo(void) const;
-    ex thisexpairseq(const epvector & v, const ex & oc) const;
-    ex thisexpairseq(epvector * vp, const ex & oc) const;
-    expair split_ex_to_pair(const ex & e) const;
-    expair combine_ex_with_coeff_to_pair(const ex & e,
-                                         const ex & c) const;
-    expair combine_pair_with_coeff_to_pair(const expair & p,
-                                           const ex & c) const;
-    ex recombine_pair_to_ex(const expair & p) const;
-    bool expair_needs_further_processing(epp it);
-    ex default_overall_coeff(void) const;
-    void combine_overall_coeff(const ex & c);
-    void combine_overall_coeff(const ex & c1, const ex & c2);
-    bool can_make_flat(const expair & p) const;
-    ex expand(unsigned options=0) const;
-    
-    // new virtual functions which can be overridden by derived classes
-    // none
+	ex derivative(const symbol & s) const;
+	int compare_same_type(const basic & other) const;
+	bool is_equal_same_type(const basic & other) const;
+	unsigned return_type(void) const;
+	unsigned return_type_tinfo(void) const;
+	ex thisexpairseq(const epvector & v, const ex & oc) const;
+	ex thisexpairseq(epvector * vp, const ex & oc) const;
+	expair split_ex_to_pair(const ex & e) const;
+	expair combine_ex_with_coeff_to_pair(const ex & e,
+										 const ex & c) const;
+	expair combine_pair_with_coeff_to_pair(const expair & p,
+										   const ex & c) const;
+	ex recombine_pair_to_ex(const expair & p) const;
+	bool expair_needs_further_processing(epp it);
+	ex default_overall_coeff(void) const;
+	void combine_overall_coeff(const ex & c);
+	void combine_overall_coeff(const ex & c1, const ex & c2);
+	bool can_make_flat(const expair & p) const;
+	ex expand(unsigned options=0) const;
+	
+	// new virtual functions which can be overridden by derived classes
+	// none
 
-    // non-virtual functions in this class
+	// non-virtual functions in this class
 protected:
-    epvector * expandchildren(unsigned options) const;
+	epvector * expandchildren(unsigned options) const;
 
 // member variables
 
 protected:
-    static unsigned precedence;
+	static unsigned precedence;
 };
 
 // global constants

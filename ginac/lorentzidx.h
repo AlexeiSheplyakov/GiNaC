@@ -33,53 +33,53 @@ namespace GiNaC {
 
 class lorentzidx : public idx
 {
-    GINAC_DECLARE_REGISTERED_CLASS(lorentzidx, idx)
+	GINAC_DECLARE_REGISTERED_CLASS(lorentzidx, idx)
 
-    friend class simp_lor;
-    friend class scalar_products;
+	friend class simp_lor;
+	friend class scalar_products;
 
 // member functions
 
-    // default constructor, destructor, copy constructor assignment operator and helpers
+	// default constructor, destructor, copy constructor assignment operator and helpers
 public:
-    lorentzidx();
-    ~lorentzidx();
-    lorentzidx (const lorentzidx & other);
-    const lorentzidx & operator=(const lorentzidx & other);
+	lorentzidx();
+	~lorentzidx();
+	lorentzidx (const lorentzidx & other);
+	const lorentzidx & operator=(const lorentzidx & other);
 protected:
-    void copy(const lorentzidx & other);
-    void destroy(bool call_parent);
+	void copy(const lorentzidx & other);
+	void destroy(bool call_parent);
 
-    // other constructors
+	// other constructors
 public:
-    explicit lorentzidx(bool cov, bool oonly=false, unsigned dimp=0);
-    explicit lorentzidx(const std::string & n, bool cov=false,
-                        bool oonly=false, unsigned dimp=0);
-    explicit lorentzidx(const char * n, bool cov=false,
-                        bool oonly=false, unsigned dimp=0);
-    explicit lorentzidx(unsigned v, bool cov=false);
+	explicit lorentzidx(bool cov, bool oonly=false, unsigned dimp=0);
+	explicit lorentzidx(const std::string & n, bool cov=false,
+						bool oonly=false, unsigned dimp=0);
+	explicit lorentzidx(const char * n, bool cov=false,
+						bool oonly=false, unsigned dimp=0);
+	explicit lorentzidx(unsigned v, bool cov=false);
 
-    // functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from bases classes
 public:
-    basic * duplicate() const;
-    void printraw(std::ostream & os) const;
-    void printtree(std::ostream & os, unsigned indent) const;
-    void print(std::ostream & os, unsigned upper_precedence=0) const;
-    bool info(unsigned inf) const;
+	basic * duplicate() const;
+	void printraw(std::ostream & os) const;
+	void printtree(std::ostream & os, unsigned indent) const;
+	void print(std::ostream & os, unsigned upper_precedence=0) const;
+	bool info(unsigned inf) const;
 
-    // new virtual functions which can be overridden by derived classes
-    // none
+	// new virtual functions which can be overridden by derived classes
+	// none
 
-    // non-virtual functions in this class
+	// non-virtual functions in this class
 public:
-    bool is_orthogonal_only(void) const { return orthogonal_only; }
-    unsigned get_dim_parallel_space(void) const { return dim_parallel_space; }
-    lorentzidx create_anonymous_representative(void) const; 
+	bool is_orthogonal_only(void) const { return orthogonal_only; }
+	unsigned get_dim_parallel_space(void) const { return dim_parallel_space; }
+	lorentzidx create_anonymous_representative(void) const; 
 
-    // member variables
+	// member variables
 protected:
-    bool orthogonal_only;
-    unsigned dim_parallel_space;
+	bool orthogonal_only;
+	unsigned dim_parallel_space;
 };
 
 // global constants

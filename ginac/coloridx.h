@@ -34,45 +34,45 @@ namespace GiNaC {
 
 class coloridx : public idx
 {
-    GINAC_DECLARE_REGISTERED_CLASS(coloridx, idx)
+	GINAC_DECLARE_REGISTERED_CLASS(coloridx, idx)
 
-    friend class color;
+	friend class color;
 
 // member functions
 
-    // default constructor, destructor, copy constructor assignment operator and helpers
+	// default constructor, destructor, copy constructor assignment operator and helpers
 public:
-    coloridx();
-    ~coloridx();
-    coloridx (const coloridx & other);
-    const coloridx & operator=(const coloridx & other);
+	coloridx();
+	~coloridx();
+	coloridx (const coloridx & other);
+	const coloridx & operator=(const coloridx & other);
 protected:
-    void copy(const coloridx & other);
-    void destroy(bool call_parent);
+	void copy(const coloridx & other);
+	void destroy(bool call_parent);
 
-    // other constructors
+	// other constructors
 public:
-    explicit coloridx(bool cov);
-    explicit coloridx(const std::string & n, bool cov=false);
-    explicit coloridx(const char * n, bool cov=false);
-    explicit coloridx(unsigned v, bool cov=false); 
+	explicit coloridx(bool cov);
+	explicit coloridx(const std::string & n, bool cov=false);
+	explicit coloridx(const char * n, bool cov=false);
+	explicit coloridx(unsigned v, bool cov=false); 
 
-    // functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from bases classes
 public:
-    basic * duplicate() const;
-    void printraw(std::ostream & os) const;
-    void printtree(std::ostream & os, unsigned indent) const;
-    void print(std::ostream & os, unsigned upper_precedence=0) const;
-    bool info(unsigned inf) const;
+	basic * duplicate() const;
+	void printraw(std::ostream & os) const;
+	void printtree(std::ostream & os, unsigned indent) const;
+	void print(std::ostream & os, unsigned upper_precedence=0) const;
+	bool info(unsigned inf) const;
 
-    // new virtual functions which can be overridden by derived classes
-    // none
+	// new virtual functions which can be overridden by derived classes
+	// none
 
-    // non-virtual functions in this class
-    // none
+	// non-virtual functions in this class
+	// none
 
-    // member variables
-    // none
+	// member variables
+	// none
 };
 
 // global constants

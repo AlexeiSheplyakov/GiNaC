@@ -42,46 +42,46 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(lorentzidx, idx)
 
 lorentzidx::lorentzidx() : orthogonal_only(false), dim_parallel_space(0)
 {
-    debugmsg("lorentzidx default constructor",LOGLEVEL_CONSTRUCT);
-    // serial is incremented in idx::idx()
-    name="mu"+ToString(serial);
-    tinfo_key=TINFO_lorentzidx;
+	debugmsg("lorentzidx default constructor",LOGLEVEL_CONSTRUCT);
+	// serial is incremented in idx::idx()
+	name="mu"+ToString(serial);
+	tinfo_key=TINFO_lorentzidx;
 }
 
 lorentzidx::~lorentzidx() 
 {
-    debugmsg("lorentzidx destructor",LOGLEVEL_DESTRUCT);
-    destroy(0);
+	debugmsg("lorentzidx destructor",LOGLEVEL_DESTRUCT);
+	destroy(0);
 }
 
 lorentzidx::lorentzidx(const lorentzidx & other)
 {
-    debugmsg("lorentzidx copy constructor",LOGLEVEL_CONSTRUCT);
-    copy(other);
+	debugmsg("lorentzidx copy constructor",LOGLEVEL_CONSTRUCT);
+	copy(other);
 }
 
 const lorentzidx & lorentzidx::operator=(const lorentzidx & other)
 {
-    debugmsg("lorentzidx operator=",LOGLEVEL_ASSIGNMENT);
-    if (this != &other) {
-        destroy(1);
-        copy(other);
-    }
-    return *this;
+	debugmsg("lorentzidx operator=",LOGLEVEL_ASSIGNMENT);
+	if (this != &other) {
+		destroy(1);
+		copy(other);
+	}
+	return *this;
 }
 
 // protected
 
 void lorentzidx::copy(const lorentzidx & other)
 {
-    inherited::copy(other);
-    orthogonal_only=other.orthogonal_only;
-    dim_parallel_space=other.dim_parallel_space;
+	inherited::copy(other);
+	orthogonal_only=other.orthogonal_only;
+	dim_parallel_space=other.dim_parallel_space;
 }
 
 void lorentzidx::destroy(bool call_parent)
 {
-    if (call_parent) inherited::destroy(call_parent);
+	if (call_parent) inherited::destroy(call_parent);
 }
 
 //////////
@@ -91,39 +91,39 @@ void lorentzidx::destroy(bool call_parent)
 // public
 
 lorentzidx::lorentzidx(bool cov, bool oonly, unsigned dimp) :
-    idx(cov), orthogonal_only(oonly), dim_parallel_space(dimp)
+	idx(cov), orthogonal_only(oonly), dim_parallel_space(dimp)
 {
-    debugmsg("lorentzidx constructor from bool",LOGLEVEL_CONSTRUCT);
-    // serial is incremented in idx::idx(bool)
-    if (oonly) {
-        name="muorth"+ToString(serial);
-    } else {
-        name="mu"+ToString(serial);
-    }
-    tinfo_key=TINFO_lorentzidx;
+	debugmsg("lorentzidx constructor from bool",LOGLEVEL_CONSTRUCT);
+	// serial is incremented in idx::idx(bool)
+	if (oonly) {
+		name="muorth"+ToString(serial);
+	} else {
+		name="mu"+ToString(serial);
+	}
+	tinfo_key=TINFO_lorentzidx;
 }
 
 lorentzidx::lorentzidx(const std::string & n, bool cov, bool oonly, unsigned dimp)
-    : idx(n,cov), orthogonal_only(oonly), dim_parallel_space(dimp)
+	: idx(n,cov), orthogonal_only(oonly), dim_parallel_space(dimp)
 {
-    debugmsg("lorentzidx constructor from string,bool,bool,unsigned",
-             LOGLEVEL_CONSTRUCT);
-    tinfo_key=TINFO_lorentzidx;
+	debugmsg("lorentzidx constructor from string,bool,bool,unsigned",
+			 LOGLEVEL_CONSTRUCT);
+	tinfo_key=TINFO_lorentzidx;
 }
 
 lorentzidx::lorentzidx(const char * n, bool cov, bool oonly, unsigned dimp)
-    : idx(n,cov), orthogonal_only(oonly), dim_parallel_space(dimp)
+	: idx(n,cov), orthogonal_only(oonly), dim_parallel_space(dimp)
 {
-    debugmsg("lorentzidx constructor from char*,bool,bool,unsigned",
-             LOGLEVEL_CONSTRUCT);
-    tinfo_key=TINFO_lorentzidx;
+	debugmsg("lorentzidx constructor from char*,bool,bool,unsigned",
+			 LOGLEVEL_CONSTRUCT);
+	tinfo_key=TINFO_lorentzidx;
 }
 
 lorentzidx::lorentzidx(unsigned v, bool cov) : idx(v,cov),
-    orthogonal_only(false), dim_parallel_space(0)
+	orthogonal_only(false), dim_parallel_space(0)
 {
-    debugmsg("lorentzidx constructor from unsigned,bool",LOGLEVEL_CONSTRUCT);
-    tinfo_key=TINFO_lorentzidx;
+	debugmsg("lorentzidx constructor from unsigned,bool",LOGLEVEL_CONSTRUCT);
+	tinfo_key=TINFO_lorentzidx;
 }
 
 //////////
@@ -133,8 +133,8 @@ lorentzidx::lorentzidx(unsigned v, bool cov) : idx(v,cov),
 /** Construct object from archive_node. */
 lorentzidx::lorentzidx(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-    debugmsg("lorentzidx constructor from archive_node", LOGLEVEL_CONSTRUCT);
-    n.find_bool("orthogonal_only", orthogonal_only);
+	debugmsg("lorentzidx constructor from archive_node", LOGLEVEL_CONSTRUCT);
+	n.find_bool("orthogonal_only", orthogonal_only);
 	if (orthogonal_only)
 		n.find_unsigned("pdim", dim_parallel_space);
 }
@@ -142,22 +142,22 @@ lorentzidx::lorentzidx(const archive_node &n, const lst &sym_lst) : inherited(n,
 /** Unarchive the object. */
 ex lorentzidx::unarchive(const archive_node &n, const lst &sym_lst)
 {
-    ex s = (new lorentzidx(n, sym_lst))->setflag(status_flags::dynallocated);
+	ex s = (new lorentzidx(n, sym_lst))->setflag(status_flags::dynallocated);
 
-    if (ex_to_lorentzidx(s).symbolic) {
-        // If lorentzidx is in sym_lst, return the existing lorentzidx
-        for (unsigned i=0; i<sym_lst.nops(); i++) {
-            if (is_ex_of_type(sym_lst.op(i), lorentzidx) && (ex_to_lorentzidx(sym_lst.op(i)).name == ex_to_lorentzidx(s).name))
-                return sym_lst.op(i);
-        }
-    }
-    return s;
+	if (ex_to_lorentzidx(s).symbolic) {
+		// If lorentzidx is in sym_lst, return the existing lorentzidx
+		for (unsigned i=0; i<sym_lst.nops(); i++) {
+			if (is_ex_of_type(sym_lst.op(i), lorentzidx) && (ex_to_lorentzidx(sym_lst.op(i)).name == ex_to_lorentzidx(s).name))
+				return sym_lst.op(i);
+		}
+	}
+	return s;
 }
 
 /** Archive the object. */
 void lorentzidx::archive(archive_node &n) const
 {
-    inherited::archive(n);
+	inherited::archive(n);
 	n.add_bool("orthogonal_only", orthogonal_only);
 	if (orthogonal_only)
 		n.add_unsigned("pdim", dim_parallel_space);
@@ -171,91 +171,91 @@ void lorentzidx::archive(archive_node &n) const
 
 basic * lorentzidx::duplicate() const
 {
-    debugmsg("lorentzidx duplicate",LOGLEVEL_DUPLICATE);
-    return new lorentzidx(*this);
+	debugmsg("lorentzidx duplicate",LOGLEVEL_DUPLICATE);
+	return new lorentzidx(*this);
 }
 
 void lorentzidx::printraw(std::ostream & os) const
 {
-    debugmsg("lorentzidx printraw",LOGLEVEL_PRINT);
+	debugmsg("lorentzidx printraw",LOGLEVEL_PRINT);
 
-    os << "lorentzidx(";
+	os << "lorentzidx(";
 
-    if (symbolic) {
-        os << "symbolic,name=" << name;
-    } else {
-        os << "non symbolic,value=" << value;
-    }
+	if (symbolic) {
+		os << "symbolic,name=" << name;
+	} else {
+		os << "non symbolic,value=" << value;
+	}
 
-    if (covariant) {
-        os << ",covariant";
-    } else {
-        os << ",contravariant";
-    }
+	if (covariant) {
+		os << ",covariant";
+	} else {
+		os << ",contravariant";
+	}
 
-    if (orthogonal_only) {
-        os << ",only orthogonal components at " << dim_parallel_space
-           << " parallel dimensions";
-    } else {
-        os << ",parallel and orthogonal components";
-    }
+	if (orthogonal_only) {
+		os << ",only orthogonal components at " << dim_parallel_space
+		   << " parallel dimensions";
+	} else {
+		os << ",parallel and orthogonal components";
+	}
 
-    os << ",serial=" << serial;
-    os << ",hash=" << hashvalue << ",flags=" << flags;
-    os << ")";
+	os << ",serial=" << serial;
+	os << ",hash=" << hashvalue << ",flags=" << flags;
+	os << ")";
 }
 
 void lorentzidx::printtree(std::ostream & os, unsigned indent) const
 {
-    debugmsg("lorentzidx printtree",LOGLEVEL_PRINT);
+	debugmsg("lorentzidx printtree",LOGLEVEL_PRINT);
 
-    os << std::string(indent,' ') << "lorentzidx: ";
+	os << std::string(indent,' ') << "lorentzidx: ";
 
-    if (symbolic) {
-        os << "symbolic,name=" << name;
-    } else {
-        os << "non symbolic,value=" << value;
-    }
+	if (symbolic) {
+		os << "symbolic,name=" << name;
+	} else {
+		os << "non symbolic,value=" << value;
+	}
 
-    if (covariant) {
-        os << ",covariant";
-    } else {
-        os << ",contravariant";
-    }
+	if (covariant) {
+		os << ",covariant";
+	} else {
+		os << ",contravariant";
+	}
 
-    if (orthogonal_only) {
-        os << ",only orthogonal components at " << dim_parallel_space
-           << " parallel dimensions";
-    } else {
-        os << ",parallel and orthogonal components";
-    }
+	if (orthogonal_only) {
+		os << ",only orthogonal components at " << dim_parallel_space
+		   << " parallel dimensions";
+	} else {
+		os << ",parallel and orthogonal components";
+	}
 
-    os << ", serial=" << serial
-       << ", hash=" << hashvalue
-       << " (0x" << std::hex << hashvalue << std::dec << ")"
-       << ", flags=" << flags << std::endl;
+	os << ", serial=" << serial
+	   << ", hash=" << hashvalue
+	   << " (0x" << std::hex << hashvalue << std::dec << ")"
+	   << ", flags=" << flags << std::endl;
 }
 
 void lorentzidx::print(std::ostream & os, unsigned upper_precedence) const
 {
-    debugmsg("lorentzidx print",LOGLEVEL_PRINT);
+	debugmsg("lorentzidx print",LOGLEVEL_PRINT);
 
-    if (covariant) {
-        os << "_";
-    } else {
-        os << "~";
-    }
-    if (symbolic) {
-        os << name;
-    } else {
-        os << value;
-    }
+	if (covariant) {
+		os << "_";
+	} else {
+		os << "~";
+	}
+	if (symbolic) {
+		os << name;
+	} else {
+		os << value;
+	}
 }
 
 bool lorentzidx::info(unsigned inf) const
 {
-    if (inf==info_flags::lorentzidx) return true;
-    return inherited::info(inf);
+	if (inf==info_flags::lorentzidx) return true;
+	return inherited::info(inf);
 }
 
 //////////
@@ -272,14 +272,14 @@ bool lorentzidx::info(unsigned inf) const
 
 lorentzidx lorentzidx::create_anonymous_representative(void) const
 {
-    GINAC_ASSERT(is_symbolic());
-    lorentzidx i_copy(*this);
-    i_copy.serial=0;
-    i_copy.name="anonymous_representative";
-    i_copy.covariant=false;
-    i_copy.clearflag(status_flags::dynallocated|
-                     status_flags::hash_calculated);
-    return i_copy;
+	GINAC_ASSERT(is_symbolic());
+	lorentzidx i_copy(*this);
+	i_copy.serial=0;
+	i_copy.name="anonymous_representative";
+	i_copy.covariant=false;
+	i_copy.clearflag(status_flags::dynallocated|
+					 status_flags::hash_calculated);
+	return i_copy;
 }
 
 //////////

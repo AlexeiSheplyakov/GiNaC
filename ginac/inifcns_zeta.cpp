@@ -41,50 +41,50 @@ namespace GiNaC {
 
 static ex zeta1_evalf(const ex & x)
 {
-    BEGIN_TYPECHECK
-        TYPECHECK(x,numeric)
-    END_TYPECHECK(zeta(x))
-        
-    return zeta(ex_to_numeric(x));
+	BEGIN_TYPECHECK
+		TYPECHECK(x,numeric)
+	END_TYPECHECK(zeta(x))
+		
+	return zeta(ex_to_numeric(x));
 }
 
 static ex zeta1_eval(const ex & x)
 {
-    if (x.info(info_flags::numeric)) {
-        numeric y = ex_to_numeric(x);
-        // trap integer arguments:
-        if (y.is_integer()) {
-            if (y.is_zero())
-                return -_ex1_2();
-            if (x.is_equal(_ex1()))
-                throw(std::domain_error("zeta(1): infinity"));
-            if (x.info(info_flags::posint)) {
-                if (x.info(info_flags::odd))
-                    return zeta(x).hold();
-                else
-                    return abs(bernoulli(y))*pow(Pi,x)*pow(_num2(),y-_num1())/factorial(y);
-            } else {
-                if (x.info(info_flags::odd))
-                    return -bernoulli(_num1()-y)/(_num1()-y);
-                else
-                    return _num0();
-            }
-        }
-    }
-    return zeta(x).hold();
+	if (x.info(info_flags::numeric)) {
+		numeric y = ex_to_numeric(x);
+		// trap integer arguments:
+		if (y.is_integer()) {
+			if (y.is_zero())
+				return -_ex1_2();
+			if (x.is_equal(_ex1()))
+				throw(std::domain_error("zeta(1): infinity"));
+			if (x.info(info_flags::posint)) {
+				if (x.info(info_flags::odd))
+					return zeta(x).hold();
+				else
+					return abs(bernoulli(y))*pow(Pi,x)*pow(_num2(),y-_num1())/factorial(y);
+			} else {
+				if (x.info(info_flags::odd))
+					return -bernoulli(_num1()-y)/(_num1()-y);
+				else
+					return _num0();
+			}
+		}
+	}
+	return zeta(x).hold();
 }
 
 static ex zeta1_deriv(const ex & x, unsigned deriv_param)
 {
-    GINAC_ASSERT(deriv_param==0);
-    
-    return zeta(_ex1(), x);
+	GINAC_ASSERT(deriv_param==0);
+	
+	return zeta(_ex1(), x);
 }
 
 const unsigned function_index_zeta1 =
-    function::register_new(function_options("zeta").
-                           eval_func(zeta1_eval).
-                           evalf_func(zeta1_evalf).
+	function::register_new(function_options("zeta").
+						   eval_func(zeta1_eval).
+						   evalf_func(zeta1_evalf).
 			   derivative_func(zeta1_deriv).
 			   overloaded(2));
 
@@ -94,30 +94,30 @@ const unsigned function_index_zeta1 =
 
 static ex zeta2_eval(const ex & n, const ex & x)
 {
-    if (n.info(info_flags::numeric)) {
-        // zeta(0,x) -> zeta(x)
-        if (n.is_zero())
-            return zeta(x);
-    }
-    
-    return zeta(n, x).hold();
+	if (n.info(info_flags::numeric)) {
+		// zeta(0,x) -> zeta(x)
+		if (n.is_zero())
+			return zeta(x);
+	}
+	
+	return zeta(n, x).hold();
 }
 
 static ex zeta2_deriv(const ex & n, const ex & x, unsigned deriv_param)
 {
-    GINAC_ASSERT(deriv_param<2);
-    
-    if (deriv_param==0) {
-        // d/dn zeta(n,x)
-        throw(std::logic_error("cannot diff zeta(n,x) with respect to n"));
-    }
-    // d/dx psi(n,x)
-    return zeta(n+1,x);
+	GINAC_ASSERT(deriv_param<2);
+	
+	if (deriv_param==0) {
+		// d/dn zeta(n,x)
+		throw(std::logic_error("cannot diff zeta(n,x) with respect to n"));
+	}
+	// d/dx psi(n,x)
+	return zeta(n+1,x);
 }
 
 const unsigned function_index_zeta2 =
-    function::register_new(function_options("zeta").
-                           eval_func(zeta2_eval).
+	function::register_new(function_options("zeta").
+						   eval_func(zeta2_eval).
 			   derivative_func(zeta2_deriv).
 			   overloaded(2));
 

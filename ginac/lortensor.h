@@ -36,90 +36,90 @@ namespace GiNaC {
 /** Base class for lortensor object */
 class lortensor : public indexed
 {
-    // friends
-    friend lortensor lortensor_g(const ex & mu, const ex & nu);
-    // friend lortensor lortensor_delta(const ex & mu, const ex & nu);
-    friend lortensor lortensor_epsilon(const ex & mu, const ex & nu,
-                                       const ex & rho, const ex & sigma);
-    // friend lortensor lortensor_rankn(const string & n, const exvector & iv);
-    friend lortensor lortensor_rank1(const std::string & n, const ex & mu);
-    friend lortensor lortensor_rank2(const std::string & n, const ex & mu, const ex & nu);
-    friend ex simplify_lortensor_mul(const ex & m);
-    friend ex simplify_lortensor(const ex & e);
-    
-    // types
+	// friends
+	friend lortensor lortensor_g(const ex & mu, const ex & nu);
+	// friend lortensor lortensor_delta(const ex & mu, const ex & nu);
+	friend lortensor lortensor_epsilon(const ex & mu, const ex & nu,
+									   const ex & rho, const ex & sigma);
+	// friend lortensor lortensor_rankn(const string & n, const exvector & iv);
+	friend lortensor lortensor_rank1(const std::string & n, const ex & mu);
+	friend lortensor lortensor_rank2(const std::string & n, const ex & mu, const ex & nu);
+	friend ex simplify_lortensor_mul(const ex & m);
+	friend ex simplify_lortensor(const ex & e);
+	
+	// types
 
 public:
-    typedef enum { invalid,
-                   lortensor_g,
-                   lortensor_rankn,
-                   lortensor_rank1,
-                   lortensor_rank2,
-                   // lortensor_delta,
-                   lortensor_epsilon
-    } lortensor_types;
+	typedef enum { invalid,
+				   lortensor_g,
+				   lortensor_rankn,
+				   lortensor_rank1,
+				   lortensor_rank2,
+				   // lortensor_delta,
+				   lortensor_epsilon
+	} lortensor_types;
 
-    // member functions
+	// member functions
 
-    // default constructor, destructor, copy constructor assignment operator and helpers
+	// default constructor, destructor, copy constructor assignment operator and helpers
 public:
-    lortensor();
-    ~lortensor();
-    lortensor(const lortensor & other);
-    const lortensor & operator=(const lortensor & other);
+	lortensor();
+	~lortensor();
+	lortensor(const lortensor & other);
+	const lortensor & operator=(const lortensor & other);
 protected:
-    void copy(const lortensor & other);
-    void destroy(bool call_parent);
+	void copy(const lortensor & other);
+	void destroy(bool call_parent);
 
-    // other constructors
+	// other constructors
 protected:
-    lortensor(lortensor_types const lt, const std::string & n);
-    lortensor(lortensor_types const lt, const std::string & n, const ex & mu);
-    lortensor(lortensor_types const lt, const std::string & n, const ex & mu, const ex & nu);
-    lortensor(lortensor_types const lt, const std::string & n, const ex & mu, const ex & nu,
-              const ex & rho);
-    lortensor(lortensor_types const lt, const std::string & n, const ex & mu, const ex & nu, const ex & rho, const ex & sigma);
-    lortensor(lortensor_types const lt, const std::string & n, const exvector & iv);
-    lortensor(lortensor_types const lt, const std::string & n, unsigned s, const exvector & iv);
-    lortensor(lortensor_types const lt, const std::string & n, unsigned s, exvector * ivp);
-    
-    //functions overriding virtual functions from base classes
+	lortensor(lortensor_types const lt, const std::string & n);
+	lortensor(lortensor_types const lt, const std::string & n, const ex & mu);
+	lortensor(lortensor_types const lt, const std::string & n, const ex & mu, const ex & nu);
+	lortensor(lortensor_types const lt, const std::string & n, const ex & mu, const ex & nu,
+			  const ex & rho);
+	lortensor(lortensor_types const lt, const std::string & n, const ex & mu, const ex & nu, const ex & rho, const ex & sigma);
+	lortensor(lortensor_types const lt, const std::string & n, const exvector & iv);
+	lortensor(lortensor_types const lt, const std::string & n, unsigned s, const exvector & iv);
+	lortensor(lortensor_types const lt, const std::string & n, unsigned s, exvector * ivp);
+	
+	//functions overriding virtual functions from base classes
 public:
-    basic * duplicate() const;
-    void printraw(std::ostream & os) const;
-    void printtree(std::ostream & os, unsigned indent) const;
-    void print(std::ostream & os, unsigned upper_precedence=0) const;
-    void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence=0) const;
-    bool info(unsigned inf) const;
-    ex eval(int level=0) const;
+	basic * duplicate() const;
+	void printraw(std::ostream & os) const;
+	void printtree(std::ostream & os, unsigned indent) const;
+	void print(std::ostream & os, unsigned upper_precedence=0) const;
+	void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence=0) const;
+	bool info(unsigned inf) const;
+	ex eval(int level=0) const;
 protected:
-    int compare_same_type(const basic & other) const;
-    bool is_equal_same_type(const basic & other) const;
-    unsigned return_type(void) const;
-    unsigned return_type_tinfo(void) const;
-    ex thisexprseq(const exvector & v) const;
-    ex thisexprseq(exvector * vp) const;
+	int compare_same_type(const basic & other) const;
+	bool is_equal_same_type(const basic & other) const;
+	unsigned return_type(void) const;
+	unsigned return_type_tinfo(void) const;
+	ex thisexprseq(const exvector & v) const;
+	ex thisexprseq(exvector * vp) const;
 
-    // new virtual functions which can be overridden by derived classes
-    // none
+	// new virtual functions which can be overridden by derived classes
+	// none
 
-    //non virtual functions in this class
+	//non virtual functions in this class
 public:
-    void setname(const std::string & n);
-    std::string getname(void) const {return name;}
+	void setname(const std::string & n);
+	std::string getname(void) const {return name;}
 protected:
-    bool all_of_type_lorentzidx(void) const;
+	bool all_of_type_lorentzidx(void) const;
 private:
-    std::string & autoname_prefix(void);
+	std::string & autoname_prefix(void);
 
-    //member variables
+	//member variables
 
 protected:
-    lortensor_types type;
-    std::string name;
-    unsigned serial;
+	lortensor_types type;
+	std::string name;
+	unsigned serial;
 private:
-    static unsigned next_serial;
+	static unsigned next_serial;
 };
 
 // global constants
@@ -128,7 +128,7 @@ extern const lortensor some_lortensor;
 extern const type_info & typeid_lortensor;
 
 // utility functions
-    
+	
 inline const lortensor & ex_to_lortensor(const ex &e)
 {
 	return static_cast<const lortensor &>(*e.bp);

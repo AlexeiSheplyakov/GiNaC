@@ -31,60 +31,60 @@ namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
 
 typedef ex (*evalffunctype)(void);
-    
+	
 /** This class holds constants, symbols with specific numerical value. Each
  *  object of this class must either provide their own function to evaluate it
  *  to class numeric or provide the constant as a numeric (if it's an exact
  *  number). */
 class constant : public basic
 {
-    GINAC_DECLARE_REGISTERED_CLASS(constant, basic)
+	GINAC_DECLARE_REGISTERED_CLASS(constant, basic)
 
 // member functions
 
-    // default constructor, destructor, copy constructor assignment operator and helpers
+	// default constructor, destructor, copy constructor assignment operator and helpers
 public:
-    constant();
-    ~constant();
-    constant(const constant & other);
-    // const constant & operator=(const constant & other); /* it's pervert! */
+	constant();
+	~constant();
+	constant(const constant & other);
+	// const constant & operator=(const constant & other); /* it's pervert! */
 protected:
-    void copy(const constant & other);
-    void destroy(bool call_parent);
+	void copy(const constant & other);
+	void destroy(bool call_parent);
 
-    // other constructors
+	// other constructors
 public:
-    constant(const std::string & initname, evalffunctype efun=0);
-    constant(const std::string & initname, const numeric & initnumber);
+	constant(const std::string & initname, evalffunctype efun=0);
+	constant(const std::string & initname, const numeric & initnumber);
 
-    // functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from bases classes
 public:
-    basic * duplicate() const;
-    void print(std::ostream & os, unsigned upper_precedence=0) const;
-    void printraw(std::ostream & os) const;
-    void printtree(std::ostream & os, unsigned indent) const;
-    void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence=0) const;
-    ex evalf(int level=0) const;
+	basic * duplicate() const;
+	void print(std::ostream & os, unsigned upper_precedence=0) const;
+	void printraw(std::ostream & os) const;
+	void printtree(std::ostream & os, unsigned indent) const;
+	void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence=0) const;
+	ex evalf(int level=0) const;
 protected:
-    ex derivative(const symbol & s) const;
-    int compare_same_type(const basic & other) const;
-    bool is_equal_same_type(const basic & other) const;
-    
-    // new virtual functions which can be overridden by derived classes
-    // none
+	ex derivative(const symbol & s) const;
+	int compare_same_type(const basic & other) const;
+	bool is_equal_same_type(const basic & other) const;
+	
+	// new virtual functions which can be overridden by derived classes
+	// none
 
-    // non-virtual functions in this class
-    // none
+	// non-virtual functions in this class
+	// none
 
 // member variables
 
 private:
-    std::string name;
-    evalffunctype ef;
-    numeric * number;
-    // bool fct_assigned;
-    unsigned serial;  //!< unique serial number for comparision
-    static unsigned next_serial;
+	std::string name;
+	evalffunctype ef;
+	numeric * number;
+	// bool fct_assigned;
+	unsigned serial;  //!< unique serial number for comparision
+	static unsigned next_serial;
 };
 
 // global constants

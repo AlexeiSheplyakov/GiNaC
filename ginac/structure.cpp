@@ -37,42 +37,42 @@ namespace GiNaC {
 
 structure::structure()
 {
-    debugmsg("structure default constructor",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_structure;
+	debugmsg("structure default constructor",LOGLEVEL_CONSTRUCT);
+	tinfo_key = TINFO_structure;
 }
 
 structure::~structure()
 {
-    debugmsg("structure destructor",LOGLEVEL_DESTRUCT);
-    destroy(0);
+	debugmsg("structure destructor",LOGLEVEL_DESTRUCT);
+	destroy(0);
 }
 
 structure::structure(const structure & other)
 {
-    debugmsg("structure copy constructor",LOGLEVEL_CONSTRUCT);
-    copy(other);
+	debugmsg("structure copy constructor",LOGLEVEL_CONSTRUCT);
+	copy(other);
 }
 
 const structure & structure::operator=(const structure & other)
 {
-    debugmsg("structure operator=",LOGLEVEL_ASSIGNMENT);
-    if (this != &other) {
-        destroy(1);
-        copy(other);
-    }
-    return *this;
+	debugmsg("structure operator=",LOGLEVEL_ASSIGNMENT);
+	if (this != &other) {
+		destroy(1);
+		copy(other);
+	}
+	return *this;
 }
 
 // protected
 
 void structure::copy(const structure & other)
 {
-    basic::copy(other);
+	basic::copy(other);
 }
 
 void structure::destroy(bool call_parent)
 {
-    if (call_parent) basic::destroy(call_parent);
+	if (call_parent) basic::destroy(call_parent);
 }
 
 //////////
@@ -89,53 +89,53 @@ void structure::destroy(bool call_parent)
 
 basic * structure::duplicate() const
 {
-    debugmsg("structure duplicate",LOGLEVEL_DUPLICATE);
-    return new structure(*this);
+	debugmsg("structure duplicate",LOGLEVEL_DUPLICATE);
+	return new structure(*this);
 }
 
 void structure::printraw(std::ostream & os) const
 {
-    debugmsg("structure printraw",LOGLEVEL_PRINT);
+	debugmsg("structure printraw",LOGLEVEL_PRINT);
 
-    os << "structure(hash=" << hashvalue << ",flags=" << flags << ")";
+	os << "structure(hash=" << hashvalue << ",flags=" << flags << ")";
 }
 
 void structure::print(std::ostream & os, unsigned upper_precedence) const
 {
-    debugmsg("structure print",LOGLEVEL_PRINT);
+	debugmsg("structure print",LOGLEVEL_PRINT);
 
-    os << "structure()";
+	os << "structure()";
 }
 
 void structure::printtree(std::ostream & os, unsigned indent) const
 {
-    debugmsg("structure printtree",LOGLEVEL_PRINT);
+	debugmsg("structure printtree",LOGLEVEL_PRINT);
 
-    os << std::string(indent,' ') << "structure "
-       << "hash=" << hashvalue
-       << " (0x" << std::hex << hashvalue << std::dec << ")"
-       << ", flags=" << flags << std::endl;
+	os << std::string(indent,' ') << "structure "
+	   << "hash=" << hashvalue
+	   << " (0x" << std::hex << hashvalue << std::dec << ")"
+	   << ", flags=" << flags << std::endl;
 }
 
 void structure::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
 {
-    debugmsg("structure print csrc",LOGLEVEL_PRINT);
+	debugmsg("structure print csrc",LOGLEVEL_PRINT);
 
-    os << "structure()";
+	os << "structure()";
 }
 
 // protected
 
 int structure::compare_same_type(const basic & other) const
 {
-    GINAC_ASSERT(is_of_type(other, structure));
-    return 0; // all structures are the same
+	GINAC_ASSERT(is_of_type(other, structure));
+	return 0; // all structures are the same
 }
 
 bool structure::is_equal_same_type(const basic & other) const
 {
-    GINAC_ASSERT(is_of_type(other, structure));
-    return true; // all structures are the same
+	GINAC_ASSERT(is_of_type(other, structure));
+	return true; // all structures are the same
 }
 
 //////////
@@ -152,17 +152,17 @@ bool structure::is_equal_same_type(const basic & other) const
 
 std::vector<registered_structure_info> & structure::registered_structures(void)
 {
-    static std::vector<registered_structure_info> * rs = new std::vector<registered_structure_info>;
-    return *rs;
+	static std::vector<registered_structure_info> * rs = new std::vector<registered_structure_info>;
+	return *rs;
 }
 
 // public
 
 unsigned structure::register_new(const char * nm)
 {
-    registered_structure_info rsi={nm};
-    registered_structures().push_back(rsi);
-    return registered_structures().size()-1;
+	registered_structure_info rsi={nm};
+	registered_structures().push_back(rsi);
+	return registered_structures().size()-1;
 }
 
 //////////

@@ -29,8 +29,8 @@
 #include <vector>
 
 namespace std {
-    class ostream;
-    class istream;
+	class ostream;
+	class istream;
 }
 
 #ifndef NO_NAMESPACE_GINAC

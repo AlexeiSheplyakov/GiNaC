@@ -34,78 +34,78 @@ namespace GiNaC {
 /** Symbolic matrices. */
 class matrix : public basic
 {
-    GINAC_DECLARE_REGISTERED_CLASS(matrix, basic)
+	GINAC_DECLARE_REGISTERED_CLASS(matrix, basic)
 
 // friends
 // (none)
 // member functions
 
-    // default constructor, destructor, copy constructor, assignment operator
-    // and helpers:
+	// default constructor, destructor, copy constructor, assignment operator
+	// and helpers:
 public:
-    matrix();
-    ~matrix();
-    matrix(const matrix & other);
-    const matrix & operator=(const matrix & other);
+	matrix();
+	~matrix();
+	matrix(const matrix & other);
+	const matrix & operator=(const matrix & other);
 protected:
-    void copy(const matrix & other);
-    void destroy(bool call_parent);
+	void copy(const matrix & other);
+	void destroy(bool call_parent);
 
-    // other constructors
+	// other constructors
 public:
-    matrix(unsigned r, unsigned c);
-    matrix(unsigned r, unsigned c, const exvector & m2);
+	matrix(unsigned r, unsigned c);
+	matrix(unsigned r, unsigned c, const exvector & m2);
    
-    // functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from bases classes
 public:
-    basic * duplicate() const;
-    void print(std::ostream & os, unsigned upper_precedence=0) const;
-    void printraw(std::ostream & os) const;
-    unsigned nops() const;
-    ex op(int i) const;
-    ex & let_op(int i);
-    ex expand(unsigned options=0) const;
-    bool has(const ex & other) const;
-    ex eval(int level=0) const;
-    ex evalf(int level=0) const;
-    // ex subs(const lst & ls, const lst & lr) const;
+	basic * duplicate() const;
+	void print(std::ostream & os, unsigned upper_precedence=0) const;
+	void printraw(std::ostream & os) const;
+	unsigned nops() const;
+	ex op(int i) const;
+	ex & let_op(int i);
+	ex expand(unsigned options=0) const;
+	bool has(const ex & other) const;
+	ex eval(int level=0) const;
+	ex evalf(int level=0) const;
+	// ex subs(const lst & ls, const lst & lr) const;
 protected:
-    int compare_same_type(const basic & other) const;
-    unsigned return_type(void) const { return return_types::noncommutative; };
-    // new virtual functions which can be overridden by derived classes
-    // (none)
-    
-    // non-virtual functions in this class
+	int compare_same_type(const basic & other) const;
+	unsigned return_type(void) const { return return_types::noncommutative; };
+	// new virtual functions which can be overridden by derived classes
+	// (none)
+	
+	// non-virtual functions in this class
 public:
-    unsigned rows(void) const        //! Get number of rows.
-        { return row; }
-    unsigned cols(void) const        //! Get number of columns.
-        { return col; }
-    matrix add(const matrix & other) const;
-    matrix sub(const matrix & other) const;
-    matrix mul(const matrix & other) const;
-    const ex & operator() (unsigned ro, unsigned co) const;
-    matrix & set(unsigned ro, unsigned co, ex value);
-    matrix transpose(void) const;
-    ex determinant(unsigned algo = determinant_algo::automatic) const;
-    ex trace(void) const;
-    ex charpoly(const symbol & lambda) const;
-    matrix inverse(void) const;
-    matrix solve(const matrix & vars, const matrix & rhs,
-                 unsigned algo = solve_algo::automatic) const;
+	unsigned rows(void) const        //! Get number of rows.
+		{ return row; }
+	unsigned cols(void) const        //! Get number of columns.
+		{ return col; }
+	matrix add(const matrix & other) const;
+	matrix sub(const matrix & other) const;
+	matrix mul(const matrix & other) const;
+	const ex & operator() (unsigned ro, unsigned co) const;
+	matrix & set(unsigned ro, unsigned co, ex value);
+	matrix transpose(void) const;
+	ex determinant(unsigned algo = determinant_algo::automatic) const;
+	ex trace(void) const;
+	ex charpoly(const symbol & lambda) const;
+	matrix inverse(void) const;
+	matrix solve(const matrix & vars, const matrix & rhs,
+				 unsigned algo = solve_algo::automatic) const;
 protected:
-    ex determinant_minor(void) const;
-    int gauss_elimination(const bool det = false);
-    int division_free_elimination(const bool det = false);
-    int fraction_free_elimination(const bool det = false);
-    int pivot(unsigned ro, unsigned co, bool symbolic = true);
-    
+	ex determinant_minor(void) const;
+	int gauss_elimination(const bool det = false);
+	int division_free_elimination(const bool det = false);
+	int fraction_free_elimination(const bool det = false);
+	int pivot(unsigned ro, unsigned co, bool symbolic = true);
+	
 // member variables
 protected:
-    unsigned row;             /**< number of rows      */
-    unsigned col;             /**< number of columns   */
-    exvector m;               /**< representation (cols indexed first) */
-    static unsigned precedence;
+	unsigned row;             /**< number of rows      */
+	unsigned col;             /**< number of columns   */
+	exvector m;               /**< representation (cols indexed first) */
+	static unsigned precedence;
 };
 
 

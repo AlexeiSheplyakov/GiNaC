@@ -41,44 +41,44 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(coloridx, idx)
 
 coloridx::coloridx()
 {
-    debugmsg("coloridx default constructor",LOGLEVEL_CONSTRUCT);
-    // serial is incremented in idx::idx()
-    name="color"+ToString(serial);
-    tinfo_key=TINFO_coloridx;
+	debugmsg("coloridx default constructor",LOGLEVEL_CONSTRUCT);
+	// serial is incremented in idx::idx()
+	name="color"+ToString(serial);
+	tinfo_key=TINFO_coloridx;
 }
 
 coloridx::~coloridx() 
 {
-    debugmsg("coloridx destructor",LOGLEVEL_DESTRUCT);
-    destroy(0);
+	debugmsg("coloridx destructor",LOGLEVEL_DESTRUCT);
+	destroy(0);
 }
 
 coloridx::coloridx(const coloridx & other)
 {
-    debugmsg("coloridx copy constructor",LOGLEVEL_CONSTRUCT);
-    copy(other);
+	debugmsg("coloridx copy constructor",LOGLEVEL_CONSTRUCT);
+	copy(other);
 }
 
 const coloridx & coloridx::operator=(const coloridx & other)
 {
-    debugmsg("coloridx operator=",LOGLEVEL_ASSIGNMENT);
-    if (this != &other) {
-        destroy(1);
-        copy(other);
-    }
-    return *this;
+	debugmsg("coloridx operator=",LOGLEVEL_ASSIGNMENT);
+	if (this != &other) {
+		destroy(1);
+		copy(other);
+	}
+	return *this;
 }
 
 // protected
 
 void coloridx::copy(const coloridx & other)
 {
-    inherited::copy(other);
+	inherited::copy(other);
 }
 
 void coloridx::destroy(bool call_parent)
 {
-    if (call_parent) inherited::destroy(call_parent);
+	if (call_parent) inherited::destroy(call_parent);
 }
 
 //////////
@@ -89,28 +89,28 @@ void coloridx::destroy(bool call_parent)
 
 coloridx::coloridx(bool cov) : idx(cov)
 {
-    debugmsg("coloridx constructor from bool",LOGLEVEL_CONSTRUCT);
-    // serial is incremented in idx::idx(bool)
-    name="color"+ToString(serial);
-    tinfo_key=TINFO_coloridx;
+	debugmsg("coloridx constructor from bool",LOGLEVEL_CONSTRUCT);
+	// serial is incremented in idx::idx(bool)
+	name="color"+ToString(serial);
+	tinfo_key=TINFO_coloridx;
 }
 
 coloridx::coloridx(const std::string & n, bool cov) : idx(n,cov)
 {
-    debugmsg("coloridx constructor from string,bool",LOGLEVEL_CONSTRUCT);
-    tinfo_key=TINFO_coloridx;
+	debugmsg("coloridx constructor from string,bool",LOGLEVEL_CONSTRUCT);
+	tinfo_key=TINFO_coloridx;
 }
 
 coloridx::coloridx(const char * n, bool cov) : idx(n,cov)
 {
-    debugmsg("coloridx constructor from char*,bool",LOGLEVEL_CONSTRUCT);
-    tinfo_key=TINFO_coloridx;
+	debugmsg("coloridx constructor from char*,bool",LOGLEVEL_CONSTRUCT);
+	tinfo_key=TINFO_coloridx;
 }
 
 coloridx::coloridx(unsigned v, bool cov) : idx(v,cov)
 {
-    debugmsg("coloridx constructor from unsigned,bool",LOGLEVEL_CONSTRUCT);
-    tinfo_key=TINFO_coloridx;
+	debugmsg("coloridx constructor from unsigned,bool",LOGLEVEL_CONSTRUCT);
+	tinfo_key=TINFO_coloridx;
 }
 
 //////////
@@ -120,19 +120,19 @@ coloridx::coloridx(unsigned v, bool cov) : idx(v,cov)
 /** Construct object from archive_node. */
 coloridx::coloridx(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-    debugmsg("coloridx constructor from archive_node", LOGLEVEL_CONSTRUCT);
+	debugmsg("coloridx constructor from archive_node", LOGLEVEL_CONSTRUCT);
 }
 
 /** Unarchive the object. */
 ex coloridx::unarchive(const archive_node &n, const lst &sym_lst)
 {
-    return (new coloridx(n, sym_lst))->setflag(status_flags::dynallocated);
+	return (new coloridx(n, sym_lst))->setflag(status_flags::dynallocated);
 }
 
 /** Archive the object. */
 void coloridx::archive(archive_node &n) const
 {
-    inherited::archive(n);
+	inherited::archive(n);
 }
 
 //////////
@@ -143,77 +143,77 @@ void coloridx::archive(archive_node &n) const
 
 basic * coloridx::duplicate() const
 {
-    debugmsg("coloridx duplicate",LOGLEVEL_DUPLICATE);
-    return new coloridx(*this);
+	debugmsg("coloridx duplicate",LOGLEVEL_DUPLICATE);
+	return new coloridx(*this);
 }
 
 void coloridx::printraw(std::ostream & os) const
 {
-    debugmsg("coloridx printraw",LOGLEVEL_PRINT);
+	debugmsg("coloridx printraw",LOGLEVEL_PRINT);
 
-    os << "coloridx(";
+	os << "coloridx(";
 
-    if (symbolic) {
-        os << "symbolic,name=" << name;
-    } else {
-        os << "non symbolic,value=" << value;
-    }
+	if (symbolic) {
+		os << "symbolic,name=" << name;
+	} else {
+		os << "non symbolic,value=" << value;
+	}
 
-    if (covariant) {
-        os << ",covariant";
-    } else {
-        os << ",contravariant";
-    }
+	if (covariant) {
+		os << ",covariant";
+	} else {
+		os << ",contravariant";
+	}
 
-    os << ",serial=" << serial;
-    os << ",hash=" << hashvalue << ",flags=" << flags;
-    os << ")";
+	os << ",serial=" << serial;
+	os << ",hash=" << hashvalue << ",flags=" << flags;
+	os << ")";
 }
 
 void coloridx::printtree(std::ostream & os, unsigned indent) const
 {
-    debugmsg("coloridx printtree",LOGLEVEL_PRINT);
+	debugmsg("coloridx printtree",LOGLEVEL_PRINT);
 
-    os << std::string(indent,' ') << "coloridx: ";
+	os << std::string(indent,' ') << "coloridx: ";
 
-    if (symbolic) {
-        os << "symbolic,name=" << name;
-    } else {
-        os << "non symbolic,value=" << value;
-    }
+	if (symbolic) {
+		os << "symbolic,name=" << name;
+	} else {
+		os << "non symbolic,value=" << value;
+	}
 
-    if (covariant) {
-        os << ",covariant";
-    } else {
-        os << ",contravariant";
-    }
+	if (covariant) {
+		os << ",covariant";
+	} else {
+		os << ",contravariant";
+	}
 
-    os << ", serial=" << serial
-       << ", hash=" << hashvalue
-       << " (0x" << std::hex << hashvalue << std::dec << ")"
-       << ", flags=" << flags << std::endl;
+	os << ", serial=" << serial
+	   << ", hash=" << hashvalue
+	   << " (0x" << std::hex << hashvalue << std::dec << ")"
+	   << ", flags=" << flags << std::endl;
 }
 
 void coloridx::print(std::ostream & os, unsigned upper_precedence) const
 {
-    debugmsg("coloridx print",LOGLEVEL_PRINT);
+	debugmsg("coloridx print",LOGLEVEL_PRINT);
 
-    if (covariant) {
-        os << "_";
-    } else {
-        os << "~";
-    }
-    if (symbolic) {
-        os << name;
-    } else {
-        os << value;
-    }
+	if (covariant) {
+		os << "_";
+	} else {
+		os << "~";
+	}
+	if (symbolic) {
+		os << name;
+	} else {
+		os << value;
+	}
 }
 
 bool coloridx::info(unsigned inf) const
 {
-    if (inf==info_flags::coloridx) return true;
-    return idx::info(inf);
+	if (inf==info_flags::coloridx) return true;
+	return idx::info(inf);
 }
 
 //////////

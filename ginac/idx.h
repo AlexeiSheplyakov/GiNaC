@@ -34,61 +34,61 @@ namespace GiNaC {
 
 class idx : public basic
 {
-    GINAC_DECLARE_REGISTERED_CLASS(idx, basic)
+	GINAC_DECLARE_REGISTERED_CLASS(idx, basic)
 
 // member functions
 
-    // default constructor, destructor, copy constructor assignment operator and helpers
+	// default constructor, destructor, copy constructor assignment operator and helpers
 public:
-    idx();
-    ~idx();
-    idx (const idx & other);
-    const idx & operator=(const idx & other);
+	idx();
+	~idx();
+	idx (const idx & other);
+	const idx & operator=(const idx & other);
 protected:
-    void copy(const idx & other);
-    void destroy(bool call_parent);
+	void copy(const idx & other);
+	void destroy(bool call_parent);
 
-    // other constructors
+	// other constructors
 public:
-    explicit idx(bool cov);
-    explicit idx(const std::string & n, bool cov=false);
-    explicit idx(const char * n, bool cov=false);
-    explicit idx(unsigned v, bool cov=false); 
+	explicit idx(bool cov);
+	explicit idx(const std::string & n, bool cov=false);
+	explicit idx(const char * n, bool cov=false);
+	explicit idx(unsigned v, bool cov=false); 
 
-    // functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from bases classes
 public:
-    basic * duplicate() const;
-    void printraw(std::ostream & os) const;
-    void printtree(std::ostream & os, unsigned indent) const;
-    void print(std::ostream & os, unsigned upper_precedence=0) const;
-    bool info(unsigned inf) const;
+	basic * duplicate() const;
+	void printraw(std::ostream & os) const;
+	void printtree(std::ostream & os, unsigned indent) const;
+	void print(std::ostream & os, unsigned upper_precedence=0) const;
+	bool info(unsigned inf) const;
 protected:
-    int compare_same_type(const basic & other) const;
-    bool is_equal_same_type(const basic & other) const;
-    unsigned calchash(void) const;
-    ex subs(const lst & ls, const lst & lr) const;
+	int compare_same_type(const basic & other) const;
+	bool is_equal_same_type(const basic & other) const;
+	unsigned calchash(void) const;
+	ex subs(const lst & ls, const lst & lr) const;
 
-    // new virtual functions which can be overridden by derived classes
+	// new virtual functions which can be overridden by derived classes
 public:
-    virtual bool is_co_contra_pair(const basic & other) const;
-    virtual ex toggle_covariant(void) const;
+	virtual bool is_co_contra_pair(const basic & other) const;
+	virtual ex toggle_covariant(void) const;
 
-    // non-virtual functions in this class
+	// non-virtual functions in this class
 public:
-    bool is_symbolic(void) const;
-    unsigned get_value(void) const;
-    bool is_covariant(void) const;
-    void setname(const std::string & n) {name=n;}
-    std::string getname(void) const {return name;}
+	bool is_symbolic(void) const;
+	unsigned get_value(void) const;
+	bool is_covariant(void) const;
+	void setname(const std::string & n) {name=n;}
+	std::string getname(void) const {return name;}
 
-    // member variables
+	// member variables
 protected:
-    unsigned serial;
-    bool symbolic;
-    std::string name;
-    unsigned value;
-    static unsigned next_serial;
-    bool covariant; // x_mu, default is contravariant: x^mu
+	unsigned serial;
+	bool symbolic;
+	std::string name;
+	unsigned value;
+	static unsigned next_serial;
+	bool covariant; // x_mu, default is contravariant: x^mu
 };
 
 // global constants
@@ -107,10 +107,10 @@ inline const idx &ex_to_idx(const ex &e)
 int canonicalize_indices(exvector & iv, bool antisymmetric=false);
 exvector idx_intersect(const exvector & iv1, const exvector & iv2);
 ex permute_free_index_to_front(const exvector & iv3, const exvector & iv2,
-                               bool antisymmetric, int * sig);
+							   bool antisymmetric, int * sig);
 unsigned subs_index_in_exvector(exvector & v, const ex & is, const ex & ir);
 ex subs_indices(const ex & e, const exvector & idxv_contra,
-                const exvector & idxv_co);
+				const exvector & idxv_co);
 unsigned count_index(const ex & e, const ex & i);
 
 #ifndef NO_NAMESPACE_GINAC

@@ -42,45 +42,45 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(constant, basic)
 // public
 
 constant::constant() :
-    basic(TINFO_constant), name(""), ef(0),
-    number(0), serial(next_serial++)
+	basic(TINFO_constant), name(""), ef(0),
+	number(0), serial(next_serial++)
 {
-    debugmsg("constant default constructor",LOGLEVEL_CONSTRUCT);
+	debugmsg("constant default constructor",LOGLEVEL_CONSTRUCT);
 }
 
 constant::~constant()
 {
-    debugmsg("constant destructor",LOGLEVEL_DESTRUCT);
-    destroy(0);
+	debugmsg("constant destructor",LOGLEVEL_DESTRUCT);
+	destroy(0);
 }
 
 constant::constant(const constant & other)
 {
-    debugmsg("constant copy constructor",LOGLEVEL_CONSTRUCT);
-    copy(other);
+	debugmsg("constant copy constructor",LOGLEVEL_CONSTRUCT);
+	copy(other);
 }
 
 // protected
 
 void constant::copy(const constant & other)
 {
-    basic::copy(other);
-    name=other.name;
-    serial=other.serial;
-    ef=other.ef;
-    if (other.number != 0) {
-        number = new numeric(*other.number);
-    } else {
-        number = 0;
-    }
-    // fct_assigned=other.fct_assigned;
+	basic::copy(other);
+	name=other.name;
+	serial=other.serial;
+	ef=other.ef;
+	if (other.number != 0) {
+		number = new numeric(*other.number);
+	} else {
+		number = 0;
+	}
+	// fct_assigned=other.fct_assigned;
 }
 
 void constant::destroy(bool call_parent)
 {
-    delete number;
-    if (call_parent)
-        basic::destroy(call_parent);
+	delete number;
+	if (call_parent)
+		basic::destroy(call_parent);
 }
 
 //////////
@@ -90,18 +90,18 @@ void constant::destroy(bool call_parent)
 // public
 
 constant::constant(const std::string & initname, evalffunctype efun) :
-    basic(TINFO_constant), name(initname), ef(efun),
-    // number(0), fct_assigned(true), serial(next_serial++)
-    number(0), serial(next_serial++)
+	basic(TINFO_constant), name(initname), ef(efun),
+	// number(0), fct_assigned(true), serial(next_serial++)
+	number(0), serial(next_serial++)
 {
-    debugmsg("constant constructor from string, function",LOGLEVEL_CONSTRUCT);
+	debugmsg("constant constructor from string, function",LOGLEVEL_CONSTRUCT);
 }
 
 constant::constant(const std::string & initname, const numeric & initnumber) :
-    basic(TINFO_constant), name(initname), ef(0),
-    number(new numeric(initnumber)), /* fct_assigned(false),*/ serial(next_serial++)
+	basic(TINFO_constant), name(initname), ef(0),
+	number(new numeric(initnumber)), /* fct_assigned(false),*/ serial(next_serial++)
 {
-    debugmsg("constant constructor from string, numeric",LOGLEVEL_CONSTRUCT);
+	debugmsg("constant constructor from string, numeric",LOGLEVEL_CONSTRUCT);
 }
 
 //////////
@@ -111,33 +111,33 @@ constant::constant(const std::string & initname, const numeric & initnumber) :
 /** Construct object from archive_node. */
 constant::constant(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-    debugmsg("constant constructor from archive_node", LOGLEVEL_CONSTRUCT);
+	debugmsg("constant constructor from archive_node", LOGLEVEL_CONSTRUCT);
 }
 
 /** Unarchive the object. */
 ex constant::unarchive(const archive_node &n, const lst &sym_lst)
 {
-    // Find constant by name (!! this is bad: 'twould be better if there
-    // was a list of all global constants that we could search)
-    std::string s;
-    if (n.find_string("name", s)) {
-        if (s == Pi.name)
-            return Pi;
-        else if (s == Catalan.name)
-            return Catalan;
-        else if (s == Euler.name)
-            return Euler;
-        else
-            throw (std::runtime_error("unknown constant '" + s + "' in archive"));
-    } else
-        throw (std::runtime_error("unnamed constant in archive"));
+	// Find constant by name (!! this is bad: 'twould be better if there
+	// was a list of all global constants that we could search)
+	std::string s;
+	if (n.find_string("name", s)) {
+		if (s == Pi.name)
+			return Pi;
+		else if (s == Catalan.name)
+			return Catalan;
+		else if (s == Euler.name)
+			return Euler;
+		else
+			throw (std::runtime_error("unknown constant '" + s + "' in archive"));
+	} else
+		throw (std::runtime_error("unnamed constant in archive"));
 }
 
 /** Archive the object. */
 void constant::archive(archive_node &n) const
 {
-    inherited::archive(n);
-    n.add_string("name", name);
+	inherited::archive(n);
+	n.add_string("name", name);
 }
 
 //////////
@@ -148,46 +148,46 @@ void constant::archive(archive_node &n) const
 
 basic * constant::duplicate() const
 {
-    debugmsg("constant duplicate",LOGLEVEL_DUPLICATE);
-    return new constant(*this);
+	debugmsg("constant duplicate",LOGLEVEL_DUPLICATE);
+	return new constant(*this);
 }
 
 void constant::print(std::ostream & os, unsigned upper_precedence) const
 {
-    debugmsg("constant print",LOGLEVEL_PRINT);
-    os << name;
+	debugmsg("constant print",LOGLEVEL_PRINT);
+	os << name;
 }
 
 void constant::printraw(std::ostream & os) const
 {
-    debugmsg("constant printraw",LOGLEVEL_PRINT);
-    os << "constant(" << name << ")";
+	debugmsg("constant printraw",LOGLEVEL_PRINT);
+	os << "constant(" << name << ")";
 }
 
 void constant::printtree(std::ostream & os, unsigned indent) const
 {
-    debugmsg("constant printtree",LOGLEVEL_PRINT);
-    os << std::string(indent,' ') << name
-       << ", type=" << typeid(*this).name()
-       << ", hash=" << hashvalue
-       << " (0x" << std::hex << hashvalue << std::dec << ")"
-       << ", flags=" << flags << std::endl;
+	debugmsg("constant printtree",LOGLEVEL_PRINT);
+	os << std::string(indent,' ') << name
+	   << ", type=" << class_name()
+	   << ", hash=" << hashvalue
+	   << " (0x" << std::hex << hashvalue << std::dec << ")"
+	   << ", flags=" << flags << std::endl;
 }
 
 void constant::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
 {
-    debugmsg("constant print csrc",LOGLEVEL_PRINT);
-    os << name;
+	debugmsg("constant print csrc",LOGLEVEL_PRINT);
+	os << name;
 }
 
 ex constant::evalf(int level) const
 {
-    if (ef!=0) {
-        return ef();
-    } else if (number != 0) {
-        return *number;
-    }
-    return *this;
+	if (ef!=0) {
+		return ef();
+	} else if (number != 0) {
+		return *number;
+	}
+	return *this;
 }
 
 // protected
@@ -197,24 +197,24 @@ ex constant::evalf(int level) const
  *  @see ex::diff */
 ex constant::derivative(const symbol & s) const
 {
-    return _ex0();
+	return _ex0();
 }
 
 int constant::compare_same_type(const basic & other) const
 {
-    GINAC_ASSERT(is_exactly_of_type(other, constant));
-    // const constant & o=static_cast<constant &>(const_cast<basic &>(other));
-    // return name.compare(o.name);
-    const constant *o = static_cast<const constant *>(&other);
-    if (serial==o->serial) return 0;
-    return serial < o->serial ? -1 : 1;
+	GINAC_ASSERT(is_exactly_of_type(other, constant));
+	// const constant & o=static_cast<constant &>(const_cast<basic &>(other));
+	// return name.compare(o.name);
+	const constant *o = static_cast<const constant *>(&other);
+	if (serial==o->serial) return 0;
+	return serial < o->serial ? -1 : 1;
 }
 
 bool constant::is_equal_same_type(const basic & other) const
 {
-    GINAC_ASSERT(is_exactly_of_type(other, constant));
-    const constant *o = static_cast<const constant *>(&other);
-    return serial==o->serial;
+	GINAC_ASSERT(is_exactly_of_type(other, constant));
+	const constant *o = static_cast<const constant *>(&other);
+	return serial==o->serial;
 }
 
 //////////

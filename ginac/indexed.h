@@ -33,59 +33,59 @@ namespace GiNaC {
 /** Base class for non-commutative indexed objects */
 class indexed : public exprseq
 {
-    GINAC_DECLARE_REGISTERED_CLASS(indexed, exprseq)
+	GINAC_DECLARE_REGISTERED_CLASS(indexed, exprseq)
 
 // member functions
 
-    // default constructor, destructor, copy constructor assignment operator and helpers
+	// default constructor, destructor, copy constructor assignment operator and helpers
 public:
-    indexed();
-    ~indexed();
-    indexed(const indexed & other);
-    const indexed & operator=(const indexed & other);
+	indexed();
+	~indexed();
+	indexed(const indexed & other);
+	const indexed & operator=(const indexed & other);
 protected:
-    void copy(const indexed & other); 
-    void destroy(bool call_parent);
+	void copy(const indexed & other); 
+	void destroy(bool call_parent);
 
-    // other constructors
+	// other constructors
 public:
-    indexed(const ex & i1);
-    indexed(const ex & i1, const ex & i2);
-    indexed(const ex & i1, const ex & i2, const ex & i3);
-    indexed(const ex & i1, const ex & i2, const ex & i3, const ex & i4);
-    indexed(const exvector & iv);
-    indexed(exvector * iv);
+	indexed(const ex & i1);
+	indexed(const ex & i1, const ex & i2);
+	indexed(const ex & i1, const ex & i2, const ex & i3);
+	indexed(const ex & i1, const ex & i2, const ex & i3, const ex & i4);
+	indexed(const exvector & iv);
+	indexed(exvector * iv);
 
-    // functions overriding virtual functions from base classes
+	// functions overriding virtual functions from base classes
 public:
-    basic * duplicate() const;
-    void printraw(std::ostream & os) const;
-    void printtree(std::ostream & os, unsigned indent) const;
-    void print(std::ostream & os, unsigned upper_precedence=0) const;
-    void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const;
-    bool info(unsigned inf) const;
-    exvector get_indices(void) const;
+	basic * duplicate() const;
+	void printraw(std::ostream & os) const;
+	void printtree(std::ostream & os, unsigned indent) const;
+	void print(std::ostream & os, unsigned upper_precedence=0) const;
+	void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const;
+	bool info(unsigned inf) const;
+	exvector get_indices(void) const;
 protected:
-    ex derivative(const symbol & s) const;
-    int compare_same_type(const basic & other) const;
-    bool is_equal_same_type(const basic & other) const;
-    unsigned return_type(void) const;
-    unsigned return_type_tinfo(void) const;
-    ex thisexprseq(const exvector & v) const;
-    ex thisexprseq(exvector * vp) const;
+	ex derivative(const symbol & s) const;
+	int compare_same_type(const basic & other) const;
+	bool is_equal_same_type(const basic & other) const;
+	unsigned return_type(void) const;
+	unsigned return_type_tinfo(void) const;
+	ex thisexprseq(const exvector & v) const;
+	ex thisexprseq(exvector * vp) const;
 
-    // new virtual functions which can be overridden by derived classes
-    // none
-    
-    // non-virtual functions in this class
+	// new virtual functions which can be overridden by derived classes
+	// none
+	
+	// non-virtual functions in this class
 protected:
-    void printrawindices(std::ostream & os) const;
-    void printtreeindices(std::ostream & os, unsigned indent) const;
-    void printindices(std::ostream & os) const;
-    bool all_of_type_idx(void) const;
+	void printrawindices(std::ostream & os) const;
+	void printtreeindices(std::ostream & os, unsigned indent) const;
+	void printindices(std::ostream & os) const;
+	bool all_of_type_idx(void) const;
 
 // member variables
-    // none
+	// none
 };
 
 // global constants
