@@ -76,13 +76,6 @@ void fail::destroy(bool call_parent)
 	if (call_parent) inherited::destroy(call_parent);
 }
 
-
-//////////
-// other constructors
-//////////
-
-// none
-
 //////////
 // archiving
 //////////
@@ -136,31 +129,6 @@ int fail::compare_same_type(const basic & other) const
 	// two fails are always identical
 	return 0;
 }
-
-//////////
-// new virtual functions which can be overridden by derived classes
-//////////
-
-// none
-
-//////////
-// non-virtual functions in this class
-//////////
-
-// none
-
-//////////
-// static member variables
-//////////
-
-// none
-
-//////////
-// global constants
-//////////
-
-const fail some_fail;
-const std::type_info & typeid_fail = typeid(some_fail);
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

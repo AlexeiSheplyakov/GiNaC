@@ -626,14 +626,6 @@ const exvector & ncmul::get_factors(void) const
 
 unsigned ncmul::precedence=50;
 
-
-//////////
-// global constants
-//////////
-
-const ncmul some_ncmul;
-const std::type_info & typeid_ncmul = typeid(some_ncmul);
-
 //////////
 // friend functions
 //////////

@@ -92,11 +92,6 @@ protected:
 	// none
 };
 
-// global constants
-
-extern const indexed some_indexed;
-extern const std::type_info & typeid_indexed;
-
 // utility functions
 inline const indexed &ex_to_indexed(const ex &e)
 {

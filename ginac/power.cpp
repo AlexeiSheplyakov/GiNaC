@@ -887,13 +887,6 @@ ex power::expand_noncommutative(const ex & basis, const numeric & exponent,
 
 unsigned power::precedence = 60;
 
-//////////
-// global constants
-//////////
-
-const power some_power;
-const std::type_info & typeid_power=typeid(some_power);
-
 // helper function
 
 ex sqrt(const ex & a)

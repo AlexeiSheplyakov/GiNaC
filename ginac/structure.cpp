@@ -165,19 +165,6 @@ unsigned structure::register_new(const char * nm)
 	return registered_structures().size()-1;
 }
 
-//////////
-// static member variables
-//////////
-
-// none
-
-//////////
-// global constants
-//////////
-
-const structure some_structure;
-const std::type_info & typeid_structure = typeid(some_structure);
-
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
 #endif // ndef NO_NAMESPACE_GINAC

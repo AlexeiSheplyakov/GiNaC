@@ -338,19 +338,6 @@ bool indexed::all_of_type_idx(void) const
 	return true;
 }
 
-//////////
-// static member variables
-//////////
-
-// none
-
-//////////
-// global constants
-//////////
-
-const indexed some_indexed;
-const std::type_info & typeid_indexed = typeid(some_indexed);
-
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
 #endif // ndef NO_NAMESPACE_GINAC

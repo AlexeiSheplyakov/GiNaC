@@ -102,11 +102,6 @@ protected:
 	static unsigned precedence;
 };
 
-// global constants
-
-extern const ncmul some_ncmul;
-extern const std::type_info & typeid_ncmul;
-
 // friend funtions 
 
 ex nonsimplified_ncmul(const exvector & v);

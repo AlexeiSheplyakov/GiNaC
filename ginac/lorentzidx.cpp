@@ -283,12 +283,6 @@ bool lorentzidx::info(unsigned inf) const
 }
 
 //////////
-// new virtual functions which can be overridden by derived classes
-//////////
-
-// none
-
-//////////
 // non-virtual functions in this class
 //////////
 
@@ -308,12 +302,6 @@ lorentzidx lorentzidx::create_anonymous_representative(void) const
 }
 
 //////////
-// static member variables
-//////////
-
-// none
-
-//////////
 // global functions
 //////////
 
@@ -323,13 +311,6 @@ ex Dim(void)
 	static symbol *d = new symbol("dim");
 	return *d;
 }
-
-//////////
-// global constants
-//////////
-
-const lorentzidx some_lorentzidx;
-const std::type_info & typeid_lorentzidx = typeid(some_lorentzidx);
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

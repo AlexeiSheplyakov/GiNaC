@@ -112,11 +112,6 @@ private:
 	static unsigned next_serial;
 };
 
-// global constants
-
-extern const symbol some_symbol;
-extern const std::type_info & typeid_symbol;
-
 // utility functions
 inline const symbol &ex_to_symbol(const ex &e)
 {

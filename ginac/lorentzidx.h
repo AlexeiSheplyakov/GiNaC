@@ -94,11 +94,6 @@ protected:
 	unsigned dim_parallel_space; /**< Dimension of parallel space */
 };
 
-// global constants
-
-extern const lorentzidx some_lorentzidx;
-extern const std::type_info & typeid_lorentzidx;
-
 // utility functions
 inline const lorentzidx &ex_to_lorentzidx(const ex &e)
 {

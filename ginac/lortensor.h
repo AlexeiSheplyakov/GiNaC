@@ -126,11 +126,6 @@ private:
 	static unsigned next_serial;
 };
 
-// global constants
-
-extern const lortensor some_lortensor;
-extern const std::type_info & typeid_lortensor;
-
 // utility functions
 	
 inline const lortensor & ex_to_lortensor(const ex &e)

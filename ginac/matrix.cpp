@@ -1220,13 +1220,6 @@ ex lst_to_matrix(const ex &l)
 	return m;
 }
 
-//////////
-// global constants
-//////////
-
-const matrix some_matrix;
-const std::type_info & typeid_matrix = typeid(some_matrix);
-
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
 #endif // ndef NO_NAMESPACE_GINAC

@@ -353,13 +353,6 @@ unsigned symbol::next_serial=0;
 // std::string const symbol::autoname_prefix="symbol";
 
 //////////
-// global constants
-//////////
-
-const symbol some_symbol;
-const std::type_info & typeid_symbol = typeid(some_symbol);
-
-//////////
 // subclass assigned_ex_info
 //////////
 

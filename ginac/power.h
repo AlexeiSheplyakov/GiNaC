@@ -105,11 +105,6 @@ protected:
 	static unsigned precedence;
 };
 
-// global constants
-
-extern const power some_power;
-extern const std::type_info & typeid_power;
-
 // utility functions
 inline const power &ex_to_power(const ex &e)
 {

@@ -543,31 +543,12 @@ ex add::expand(unsigned options) const
 }
 
 //////////
-// new virtual functions which can be overridden by derived classes
-//////////
-
-// none
-
-//////////
-// non-virtual functions in this class
-//////////
-
-// none
-
-//////////
 // static member variables
 //////////
 
 // protected
 
 unsigned add::precedence = 40;
-
-//////////
-// global constants
-//////////
-
-const add some_add;
-const std::type_info & typeid_add = typeid(some_add);
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

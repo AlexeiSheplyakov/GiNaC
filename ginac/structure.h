@@ -81,11 +81,6 @@ public:
 
 };
 
-// global constants
-
-extern const structure some_structure;
-extern const std::type_info & typeid_structure;
-
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
 #endif // ndef NO_NAMESPACE_GINAC

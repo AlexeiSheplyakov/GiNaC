@@ -98,10 +98,6 @@ protected:
 	static unsigned precedence;
 };
 
-// global constants
-extern const pseries some_pseries;
-extern const std::type_info & typeid_pseries;
-
 /** Return a reference to the pseries object embedded in an expression.
  *  The result is undefined if the expression does not contain a pseries
  *  object at its top level.

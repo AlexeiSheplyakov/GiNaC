@@ -85,11 +85,6 @@ protected:
 	// none
 };
 
-// global constants
-
-extern const clifford some_clifford;
-extern const std::type_info & typeid_clifford;
-
 // global functions
 inline const clifford &ex_to_clifford(const ex &e)
 {

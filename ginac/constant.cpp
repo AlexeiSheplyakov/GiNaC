@@ -234,14 +234,13 @@ unsigned constant::next_serial=0;
 // global constants
 //////////
 
-const constant some_constant;
-const std::type_info & typeid_constant = typeid(some_constant);
-
 /**  Pi. (3.14159...)  Diverts straight into CLN for evalf(). */
 const constant Pi("Pi", PiEvalf);
+
 /** Euler's constant. (0.57721...)  Sometimes called Euler-Mascheroni constant.
  *  Diverts straight into CLN for evalf(). */
 const constant Euler("Euler", EulerEvalf);
+
 /** Catalan's constant. (0.91597...)  Diverts straight into CLN for evalf(). */
 const constant Catalan("Catalan", CatalanEvalf);
 

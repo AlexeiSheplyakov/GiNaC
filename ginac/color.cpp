@@ -649,29 +649,6 @@ bool color::all_of_type_coloridx(void) const
 }
 
 //////////
-// virtual functions which can be overridden by derived classes
-//////////
-
-// none
-
-//////////
-// non-virtual functions in this class
-//////////
-
-//////////
-// static member variables
-//////////
-
-// none
-
-//////////
-// global constants
-//////////
-
-const color some_color;
-const std::type_info & typeid_color = typeid(some_color);
-
-//////////
 // friend functions
 //////////
 

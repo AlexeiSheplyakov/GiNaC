@@ -309,13 +309,6 @@ bool simp_lor::all_of_type_lorentzidx(void) const
 // none
 
 //////////
-// global constants
-//////////
-
-const simp_lor some_simp_lor;
-const std::type_info & typeid_simp_lor = typeid(some_simp_lor);
-
-//////////
 // friend functions
 //////////
 

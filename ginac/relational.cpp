@@ -396,13 +396,6 @@ relational::operator bool() const
 
 unsigned relational::precedence=20;
 
-//////////
-// global constants
-//////////
-
-const relational some_relational;
-const std::type_info & typeid_relational = typeid(some_relational);
-
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
 #endif // ndef NO_NAMESPACE_GINAC

@@ -205,24 +205,6 @@ ex clifford::simplify_ncmul(const exvector & v) const
 }
 
 //////////
-// virtual functions which can be overridden by derived classes
-//////////
-
-// none
-
-//////////
-// non-virtual functions in this class
-//////////
-
-// none
-
-//////////
-// static member variables
-//////////
-
-// none
-
-//////////
 // friend functions
 //////////
 
@@ -235,13 +217,6 @@ clifford clifford_gamma(const ex & mu)
 {
 	return clifford("gamma", mu);
 }
-
-//////////
-// global constants
-//////////
-
-const clifford some_clifford;
-const std::type_info & typeid_clifford = typeid(some_clifford);
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

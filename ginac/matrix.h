@@ -109,11 +109,6 @@ protected:
 };
 
 
-// global constants
-extern const matrix some_matrix;
-extern const std::type_info & typeid_matrix;
-
-
 // wrapper functions around member functions
 
 inline unsigned nops(const matrix & m)

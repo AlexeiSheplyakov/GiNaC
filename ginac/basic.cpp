@@ -534,13 +534,6 @@ unsigned basic::precedence = 70;
 unsigned basic::delta_indent = 4;
 
 //////////
-// global constants
-//////////
-
-const basic some_basic;
-const std::type_info & typeid_basic = typeid(some_basic);
-
-//////////
 // global variables
 //////////
 

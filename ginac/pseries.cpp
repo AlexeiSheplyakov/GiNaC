@@ -901,13 +901,6 @@ ex ex::series(const ex & r, int order, unsigned options) const
 
 unsigned pseries::precedence = 38;  // for clarity just below add::precedence
 
-//////////
-// global constants
-//////////
-
-const pseries some_pseries;
-const std::type_info & typeid_pseries = typeid(some_pseries);
-
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
 #endif // ndef NO_NAMESPACE_GINAC

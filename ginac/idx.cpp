@@ -385,13 +385,6 @@ std::string & idx::autoname_prefix(void)
 unsigned idx::next_serial=0;
 
 //////////
-// global constants
-//////////
-
-const idx some_idx;
-const std::type_info & typeid_idx = typeid(some_idx);
-
-//////////
 // other functions
 //////////
 

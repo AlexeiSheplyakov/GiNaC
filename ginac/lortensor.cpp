@@ -600,13 +600,6 @@ ex simplify_lortensor(const ex & e)
 	return e_expanded;
 }
 
-//////////
-// global constants
-//////////
-
-const lortensor some_lortensor;
-const std::type_info & typeid_lortensor = typeid(some_lortensor);
-
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
 #endif // ndef NO_NAMESPACE_GINAC

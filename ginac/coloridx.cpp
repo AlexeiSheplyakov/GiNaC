@@ -235,31 +235,6 @@ bool coloridx::info(unsigned inf) const
 	return idx::info(inf);
 }
 
-//////////
-// new virtual functions which can be overridden by derived classes
-//////////
-
-// none
-
-//////////
-// non-virtual functions in this class
-//////////
-
-// none
-
-//////////
-// static member variables
-//////////
-
-// none
-
-//////////
-// global constants
-//////////
-
-const coloridx some_coloridx;
-const std::type_info & typeid_coloridx = typeid(some_coloridx);
-
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
 #endif // ndef NO_NAMESPACE_GINAC

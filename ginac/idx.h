@@ -102,11 +102,6 @@ protected:
 	bool covariant;   /**< x_mu, default is contravariant: x~mu */
 };
 
-// global constants
-
-extern const idx some_idx;
-extern const std::type_info & typeid_idx;
-
 // utility functions
 inline const idx &ex_to_idx(const ex &e)
 {

@@ -187,11 +187,6 @@ private:
 	unsigned refcount;
 };
 
-// global constants
-
-extern const basic some_basic;
-extern const std::type_info & typeid_basic;
-
 // global variables
 
 extern int max_recursion_level;

@@ -87,11 +87,6 @@ private:
 	static unsigned next_serial;
 };
 
-// global constants
-
-extern const constant some_constant;
-extern const std::type_info & typeid_constant;
-
 extern const constant Pi;
 extern const constant Catalan;
 extern const constant Euler;

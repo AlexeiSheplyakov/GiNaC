@@ -1250,8 +1250,6 @@ unsigned numeric::precedence = 30;
 // global constants
 //////////
 
-const numeric some_numeric;
-const std::type_info & typeid_numeric = typeid(some_numeric);
 /** Imaginary unit.  This is not a constant but a numeric since we are
  *  natively handing complex numbers anyways. */
 const numeric I = numeric(cln::complex(cln::cl_I(0),cln::cl_I(1)));

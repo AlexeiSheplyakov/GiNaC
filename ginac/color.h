@@ -143,11 +143,6 @@ protected:
 	unsigned representation_label; /**< Representation label to distiguish independent color matrices coming from separated fermion lines */
 };
 
-// global constants
-
-extern const color some_color;
-extern const std::type_info & typeid_color;
-
 // global functions
 inline const color &ex_to_color(const ex &e)
 {

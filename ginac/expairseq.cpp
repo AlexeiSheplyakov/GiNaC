@@ -1729,13 +1729,6 @@ unsigned expairseq::minhashtabsize=0x1000U;
 unsigned expairseq::hashtabfactor=1;
 #endif // def EXPAIRSEQ_USE_HASHTAB
 
-//////////
-// global constants
-//////////
-
-const expairseq some_expairseq;
-const std::type_info & typeid_expairseq = typeid(some_expairseq);
-
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
 #endif // ndef NO_NAMESPACE_GINAC

@@ -66,11 +66,6 @@ protected:
 // none
 };
 
-// global constants
-
-extern const fail some_fail;
-extern const std::type_info & typeid_fail;
-
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
 #endif // ndef NO_NAMESPACE_GINAC

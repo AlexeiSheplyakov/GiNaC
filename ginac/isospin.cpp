@@ -244,13 +244,6 @@ std::string & isospin::autoname_prefix(void)
 
 unsigned isospin::next_serial=0;
 
-//////////
-// global constants
-//////////
-
-const isospin some_isospin;
-const std::type_info & typeid_isospin = typeid(some_isospin);
-
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
 #endif // ndef NO_NAMESPACE_GINAC
