@@ -555,6 +555,7 @@ static ex f_ginac_function(const exprseq &es, int serial)
 
 // All registered GiNaC functions
 #ifndef NO_GINAC_NAMESPACE
+void GiNaC::ginsh_get_ginac_functions(void)
 #else // ndef NO_GINAC_NAMESPACE
 void ginsh_get_ginac_functions(void)
 #endif // ndef NO_GINAC_NAMESPACE
