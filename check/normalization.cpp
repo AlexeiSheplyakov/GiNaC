@@ -73,6 +73,16 @@ static unsigned normal1(void)
     e = (pow(x, -1) + x) / (pow(x , 2) * 2 + 2);
     d = pow(x * 2, -1);
     result += check_normal(e, d);
+
+	// Fraction cancellation with rational coefficients
+	e = (pow(x, 2) - pow(y, 2)) / pow(x/2 - y/2, 3);
+	d = (8 * x + 8 * y) / (pow(x, 2) + pow(y, 2) - x * y * 2);
+	result += check_normal(e, d);
+
+	// Fraction cancellation with rational coefficients
+	e = z/5 * (x/7 + y/10) / (x/14 + y/20);
+	d = 2*z/5;
+	result += check_normal(e, d);
     
     // Distribution of powers
     e = pow(x/y, 2);
