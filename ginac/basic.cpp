@@ -528,7 +528,7 @@ ex basic::subs_one_level(const exmap & m, unsigned options) const
 {
 	exmap::const_iterator it;
 
-	if (options & subs_options::subs_no_pattern) {
+	if (options & subs_options::no_pattern) {
 		it = m.find(*this);
 		if (it != m.end())
 			return it->second;
@@ -536,7 +536,7 @@ ex basic::subs_one_level(const exmap & m, unsigned options) const
 		for (it = m.begin(); it != m.end(); ++it) {
 			lst repl_lst;
 			if (match(ex_to<basic>(it->first), repl_lst))
-				return it->second.subs(repl_lst, options | subs_options::subs_no_pattern); // avoid infinite recursion when re-substituting the wildcards
+				return it->second.subs(repl_lst, options | subs_options::no_pattern); // avoid infinite recursion when re-substituting the wildcards
 		}
 	}
 

@@ -527,14 +527,14 @@ ex power::subs(const exmap & m, unsigned options) const
 	 || !are_ex_trivially_equal(exponent, subsed_exponent)) 
 		return power(subsed_basis, subsed_exponent).subs_one_level(m, options);
 
-	if (!(options & subs_options::subs_algebraic))
+	if (!(options & subs_options::algebraic))
 		return subs_one_level(m, options);
 
 	for (exmap::const_iterator it = m.begin(); it != m.end(); ++it) {
 		int nummatches = std::numeric_limits<int>::max();
 		lst repls;
 		if (tryfactsubs(*this, it->first, nummatches, repls))
-			return (ex_to<basic>((*this) * power(it->second.subs(ex(repls), subs_options::subs_no_pattern) / it->first.subs(ex(repls), subs_options::subs_no_pattern), nummatches))).subs_one_level(m, options);
+			return (ex_to<basic>((*this) * power(it->second.subs(ex(repls), subs_options::no_pattern) / it->first.subs(ex(repls), subs_options::no_pattern), nummatches))).subs_one_level(m, options);
 	}
 
 	return subs_one_level(m, options);
