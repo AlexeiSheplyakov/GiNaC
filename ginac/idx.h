@@ -85,6 +85,13 @@ public:
 	/** Check whether the dimension is symbolic. */
 	bool is_dim_symbolic(void) const {return !is_exactly_a<numeric>(dim);}
 
+	/** Make a new index with the same value but a different dimension. */
+	ex replace_dim(const ex & new_dim) const;
+
+	/** Return the minimum of the dimensions of this and another index.
+	 *  If this is undecidable, throw an exception. */
+	ex minimal_dim(const idx & other) const;
+
 protected:
 	ex value; /**< Expression that constitutes the index (numeric or symbolic name) */
 	ex dim;   /**< Dimension of space (can be symbolic or numeric) */
