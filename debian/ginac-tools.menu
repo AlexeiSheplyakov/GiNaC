@@ -4,4 +4,4 @@
   title="Ginsh"\
   longtitle="Ginsh - GiNaC interactive shell"\
   command="/usr/bin/ginsh" \
-  icon="/usr/X11R6/include/X11/pixmaps/ginac.xpm"
+  icon="/usr/share/pixmaps/ginac.xpm"

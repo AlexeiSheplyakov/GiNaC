@@ -17,7 +17,7 @@ DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 	export CXXFLAGS = -O0
 else
-	export CXXFLAGS = -O2 -fomit-frame-pointer -finline-limit=1200
+	export CXXFLAGS = -O2 -finline-limit=1200
 endif
 ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
 	INSTALL_PROGRAM += -s
@@ -26,14 +26,15 @@ endif
 config.status: configure
 	dh_testdir
 	# Add here commands to configure the package.
-	./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info
+	# The Makefile is removed on error in order to prevent the build at this early stage.
+	./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info || rm -f Makefile
 
 build: build-arch
 
 build-arch: build-arch-stamp
 build-arch-stamp:  config.status
 	# Add here commands to compile the arch part of the package.
-	$(MAKE) prefix=$(CURDIR)/debian/tmp/usr infodir=$(CURDIR)/debian/tmp/usr/share/info mandir=$(CURDIR)/debian/tmp/usr/share/man
+	$(MAKE)
 
 clean:
 	dh_testdir
@@ -51,8 +52,8 @@ install-arch:
 	# Add here commands to install the arch part of the package into 
 	# debian/tmp.
 	$(MAKE) install prefix=$(CURDIR)/debian/tmp/usr
-	mkdir -p $(CURDIR)/debian/tmp/usr/X11R6/include/X11/pixmaps
-	cp $(CURDIR)/debian/ginac.xpm $(CURDIR)/debian/tmp/usr/X11R6/include/X11/pixmaps/
+	mkdir -p $(CURDIR)/debian/tmp/usr/share/pixmaps
+	cp $(CURDIR)/debian/ginac.xpm $(CURDIR)/debian/tmp/usr/share/pixmaps/
 
 # Must not depend on anything. This is to be called by
 # binary-arch/binary-multi

@@ -2,4 +2,4 @@ usr/bin/ginsh
 usr/bin/viewgar
 usr/share/man/man1/ginsh*
 usr/share/man/man1/viewgar*
-usr/X11R6/include/X11/pixmaps/ginac.xpm
+usr/share/pixmaps/ginac.xpm

@@ -3,9 +3,9 @@ Section: math
 Priority: optional
 Maintainer: Richard Kreckel <kreckel@ginac.de>
 Build-Depends: debhelper (>> 3.0.0), libcln-dev, libgmp3-dev, libreadline4-dev, flex, bison
-Standards-Version: 3.5.8
+Standards-Version: 3.6.0
 
-Package: libginac1.1
+Package: libginac1.2
 Architecture: any
 Section: libs
 Depends: ${shlibs:Depends}
@@ -21,7 +21,7 @@ Description: The GiNaC framework (runtime library)
 Package: libginac-dev
 Architecture: any
 Section: libdevel
-Depends: libginac1.1 (= ${Source-Version}), libc6-dev, g++, libcln-dev
+Depends: libginac1.2 (= ${Source-Version}), libc6-dev, g++, libcln-dev
 Recommends: info | info-browser
 Suggests: ginac-tools
 Description: The GiNaC framework (development files)
