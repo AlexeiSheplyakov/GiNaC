@@ -129,6 +129,76 @@ static unsigned exam_sqrfree(void)
 	return result;
 }
 
+/* Arithmetic Operators should behave just as one expects from built-in types.
+ * When somebody screws up the operators this routine will most probably fail
+ * to compile.  Unfortunately we can only test the stuff that is allowed, not
+ * what is forbidden (e.g. e1+e2 = 42) since that must not compile.  :-(   */
+static unsigned exam_operator_semantics(void)
+{
+	unsigned result = 0;
+	ex e1, e2;
+	int i1, i2;
+	
+	// Assignment should not return const ex:
+	e1 = 7; e2 = 4;
+	i1 = 7; i2 = 4;
+	(e1 = e2) = 2;
+	(i1 = i2) = 2;
+	if (e1!=i1 || e2!=i2) {
+		clog << "Semantics of ex::operator=() screwed." << endl;
+		++result;
+	}
+	(e1 += e2) = 2;
+	(i1 += i2) = 2;
+	if (e1!=i1 || e2!=i2) {
+		clog << "Semantics of ex::operator=() screwed." << endl;
+		++result;
+	}
+	(e1 -= e2) = 2;
+	(i1 -= i2) = 2;
+	if (e1!=i1 || e2!=i2) {
+		clog << "Semantics of ex::operator=() screwed." << endl;
+		++result;
+	}
+	
+	// Prefix/postfix increment/decrement behaviour:
+	e1 = 7; e2 = 4;
+	i1 = 7; i2 = 4;
+	e1 = (--e2 = 2)++;
+	i1 = (--i2 = 2)++;
+	if (e1!=i1 || e2!=i2) {
+		clog << "Semantics of increment/decrement operators screwed." << endl;
+		++result;
+	}
+	e1 = (++e2 = 2)--;
+	i1 = (++i2 = 2)--;
+	if (e1!=i1 || e2!=i2) {
+		clog << "Semantics of increment/decrement operators screwed." << endl;
+		++result;
+	}
+	
+	// prefix increment/decrement must return an lvalue (contrary to postfix):
+	e1 = 7; e2 = 4;
+	i1 = 7; i2 = 4;
+	--++----e1;  ++(++++++++(++++e2));
+	--++----i1;  ++(++++++++(++++i2));
+	if (e1!=i1 || e2!=i2) {
+		clog << "Semantics of prefix increment/decrement operators screwed." << endl;
+		++result;
+	}
+	
+	// This one has a good chance of detecting problems in self-assignment:
+	// (which incidentally was severely broken from version 0.7.3 to 0.8.2).
+	ex selfprobe = numeric("65536");
+	selfprobe = selfprobe;
+	if (!is_ex_exactly_of_type(selfprobe, numeric)) {
+		clog << "ex (of numeric) after self-assignment became " << selfprobe << endl;
+		++result;
+	}
+	
+	return result;
+}
+
 unsigned exam_misc(void)
 {
 	unsigned result = 0;
@@ -140,6 +210,7 @@ unsigned exam_misc(void)
 	result += exam_expand_subs2();  cout << '.' << flush;
 	result += exam_expand_power(); cout << '.' << flush;
 	result += exam_sqrfree(); cout << '.' << flush;
+	result += exam_operator_semantics(); cout << '.' << flush;
 	
 	if (!result) {
 		cout << " passed " << endl;
