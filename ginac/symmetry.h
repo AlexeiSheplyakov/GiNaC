@@ -61,10 +61,6 @@ public:
 	/** Create node with two children. */
 	symmetry(symmetry_type t, const symmetry &c1, const symmetry &c2);
 
-	// functions overriding virtual functions from base classes
-public:
-	void print(const print_context & c, unsigned level = 0) const;
-
 	// non-virtual functions in this class
 public:
 	/** Get symmetry type. */
@@ -84,6 +80,10 @@ public:
 
 	/** Check whether this node actually represents any kind of symmetry. */
 	bool has_symmetry() const {return type != none || !children.empty(); }
+
+protected:
+	void do_print(const print_context & c, unsigned level) const;
+	void do_print_tree(const print_tree & c, unsigned level) const;
 
 	// member variables
 private:

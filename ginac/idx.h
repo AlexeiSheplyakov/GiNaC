@@ -48,7 +48,6 @@ public:
 
 	// functions overriding virtual functions from base classes
 public:
-	void print(const print_context & c, unsigned level = 0) const;
 	bool info(unsigned inf) const;
 	size_t nops() const;
 	ex op(size_t i) const;
@@ -95,6 +94,12 @@ public:
 	ex minimal_dim(const idx & other) const;
 
 protected:
+	void do_print_idx(const print_context & c, unsigned level) const;
+	void do_print(const print_context & c, unsigned level) const;
+	void do_print_latex(const print_latex & c, unsigned level) const;
+	void do_print_tree(const print_tree & c, unsigned level) const;
+
+protected:
 	ex value; /**< Expression that constitutes the index (numeric or symbolic name) */
 	ex dim;   /**< Dimension of space (can be symbolic or numeric) */
 };
@@ -118,7 +123,6 @@ public:
 
 	// functions overriding virtual functions from base classes
 public:
-	void print(const print_context & c, unsigned level = 0) const;
 	bool is_dummy_pair_same_type(const basic & other) const;
 
 protected:
@@ -134,6 +138,10 @@ public:
 
 	/** Make a new index with the same value but the opposite variance. */
 	ex toggle_variance() const;
+
+protected:
+	void do_print(const print_context & c, unsigned level) const;
+	void do_print_tree(const print_tree & c, unsigned level) const;
 
 	// member variables
 protected:
@@ -163,7 +171,6 @@ public:
 
 	// functions overriding virtual functions from base classes
 public:
-	void print(const print_context & c, unsigned level = 0) const;
 	bool is_dummy_pair_same_type(const basic & other) const;
 
 protected:
@@ -184,6 +191,11 @@ public:
 	/** Make a new index with the same value but opposite variance and
 	 *  dottedness. */
 	ex toggle_variance_dot() const;
+
+protected:
+	void do_print(const print_context & c, unsigned level) const;
+	void do_print_latex(const print_latex & c, unsigned level) const;
+	void do_print_tree(const print_tree & c, unsigned level) const;
 
 	// member variables
 protected:

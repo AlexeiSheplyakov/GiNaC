@@ -35,9 +35,20 @@
 
 namespace GiNaC {
 
-GINAC_IMPLEMENT_REGISTERED_CLASS(idx, basic)
-GINAC_IMPLEMENT_REGISTERED_CLASS(varidx, idx)
-GINAC_IMPLEMENT_REGISTERED_CLASS(spinidx, varidx)
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(idx, basic,
+  print_func<print_context>(&idx::do_print).
+  print_func<print_latex>(&idx::do_print_latex).
+  print_func<print_tree>(&idx::do_print_tree))
+
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(varidx, idx,
+  print_func<print_context>(&varidx::do_print).
+  // print_latex inherited from idx
+  print_func<print_tree>(&varidx::do_print_tree))
+
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(spinidx, varidx,
+  print_func<print_context>(&spinidx::do_print).
+  print_func<print_latex>(&spinidx::do_print_latex).
+  print_func<print_tree>(&spinidx::do_print_tree))
 
 //////////
 // default constructor
@@ -123,120 +134,92 @@ DEFAULT_UNARCHIVE(spinidx)
 // functions overriding virtual functions from base classes
 //////////
 
-void idx::print(const print_context & c, unsigned level) const
+void idx::do_print_idx(const print_context & c, unsigned level) const
 {
-	if (is_a<print_tree>(c)) {
-
-		c.s << std::string(level, ' ') << class_name()
-		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
-		    << std::endl;
-		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
-		value.print(c, level + delta_indent);
-		dim.print(c, level + delta_indent);
-
-	} else {
-
-		if (is_a<print_latex>(c))
-			c.s << "{";
-		else
-			c.s << ".";
-		bool need_parens = !(is_exactly_a<numeric>(value) || is_a<symbol>(value));
-		if (need_parens)
-			c.s << "(";
-		value.print(c);
-		if (need_parens)
-			c.s << ")";
-		if (c.options & print_options::print_index_dimensions) {
-			c.s << "[";
-			dim.print(c);
-			c.s << "]";
-		}
-		if (is_a<print_latex>(c))
-			c.s << "}";
+	bool need_parens = !(is_exactly_a<numeric>(value) || is_a<symbol>(value));
+	if (need_parens)
+		c.s << "(";
+	value.print(c);
+	if (need_parens)
+		c.s << ")";
+	if (c.options & print_options::print_index_dimensions) {
+		c.s << "[";
+		dim.print(c);
+		c.s << "]";
 	}
 }
 
-void varidx::print(const print_context & c, unsigned level) const
+void idx::do_print(const print_context & c, unsigned level) const
 {
-	if (is_a<print_tree>(c)) {
-
-		c.s << std::string(level, ' ') << class_name()
-		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
-		    << (covariant ? ", covariant" : ", contravariant")
-		    << std::endl;
-		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
-		value.print(c, level + delta_indent);
-		dim.print(c, level + delta_indent);
-
-	} else {
-		if (is_a<print_latex>(c))
-			c.s << "{";
-		else {
-			if (covariant)
-				c.s << ".";
-			else
-				c.s << "~";
-		}
-		bool need_parens = !(is_exactly_a<numeric>(value) || is_a<symbol>(value));
-		if (need_parens)
-			c.s << "(";
-		value.print(c);
-		if (need_parens)
-			c.s << ")";
-		if (c.options & print_options::print_index_dimensions) {
-			c.s << "[";
-			dim.print(c);
-			c.s << "]";
-		}
-		if (is_a<print_latex>(c))
-			c.s << "}";
-	}
+	c.s << ".";
+	do_print_idx(c, level);
 }
 
-void spinidx::print(const print_context & c, unsigned level) const
+void idx::do_print_latex(const print_latex & c, unsigned level) const
 {
-	if (is_a<print_tree>(c)) {
+	c.s << "{";
+	do_print_idx(c, level);
+	c.s << "}";
+}
 
-		c.s << std::string(level, ' ') << class_name()
-		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
-		    << (covariant ? ", covariant" : ", contravariant")
-		    << (dotted ? ", dotted" : ", undotted")
-		    << std::endl;
-		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
-		value.print(c, level + delta_indent);
-		dim.print(c, level + delta_indent);
+void idx::do_print_tree(const print_tree & c, unsigned level) const
+{
+	c.s << std::string(level, ' ') << class_name()
+	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+	    << std::endl;
+	value.print(c, level +  c.delta_indent);
+	dim.print(c, level + c.delta_indent);
+}
 
-	} else {
+void varidx::do_print(const print_context & c, unsigned level) const
+{
+	if (covariant)
+		c.s << ".";
+	else
+		c.s << "~";
+	do_print_idx(c, level);
+}
 
-		bool is_tex = is_a<print_latex>(c);
-		if (is_tex) {
-			if (covariant)
-				c.s << "_{";
-			else
-				c.s << "^{";
-		} else {
-			if (covariant)
-				c.s << ".";
-			else
-				c.s << "~";
-		}
-		if (dotted) {
-			if (is_tex)
-				c.s << "\\dot{";
-			else
-				c.s << "*";
-		}
-		bool need_parens = !(is_exactly_a<numeric>(value) || is_a<symbol>(value));
-		if (need_parens)
-			c.s << "(";
-		value.print(c);
-		if (need_parens)
-			c.s << ")";
-		if (is_tex && dotted)
-			c.s << "}";
-		if (is_tex)
-			c.s << "}";
-	}
+void varidx::do_print_tree(const print_tree & c, unsigned level) const
+{
+	c.s << std::string(level, ' ') << class_name()
+	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+	    << (covariant ? ", covariant" : ", contravariant")
+	    << std::endl;
+	value.print(c, level + c.delta_indent);
+	dim.print(c, level + c.delta_indent);
+}
+
+void spinidx::do_print(const print_context & c, unsigned level) const
+{
+	if (covariant)
+		c.s << ".";
+	else
+		c.s << "~";
+	if (dotted)
+		c.s << "*";
+	do_print_idx(c, level);
+}
+
+void spinidx::do_print_latex(const print_latex & c, unsigned level) const
+{
+	if (dotted)
+		c.s << "\\dot{";
+	else
+		c.s << "{";
+	do_print_idx(c, level);
+	c.s << "}";
+}
+
+void spinidx::do_print_tree(const print_tree & c, unsigned level) const
+{
+	c.s << std::string(level, ' ') << class_name()
+	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+	    << (covariant ? ", covariant" : ", contravariant")
+	    << (dotted ? ", dotted" : ", undotted")
+	    << std::endl;
+	value.print(c, level + c.delta_indent);
+	dim.print(c, level + c.delta_indent);
 }
 
 bool idx::info(unsigned inf) const

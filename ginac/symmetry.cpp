@@ -34,7 +34,9 @@
 
 namespace GiNaC {
 
-GINAC_IMPLEMENT_REGISTERED_CLASS(symmetry, basic)
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(symmetry, basic,
+  print_func<print_context>(&symmetry::do_print).
+  print_func<print_tree>(&symmetry::do_print_tree))
 
 /*
    Some notes about the structure of a symmetry tree:
@@ -146,63 +148,60 @@ int symmetry::compare_same_type(const basic & other) const
 	return 0;
 }
 
-void symmetry::print(const print_context & c, unsigned level) const
+void symmetry::do_print(const print_context & c, unsigned level) const
 {
-	if (is_a<print_tree>(c)) {
-
-		c.s << std::string(level, ' ') << class_name()
-		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
-		    << ", type=";
-
-		switch (type) {
-			case none: c.s << "none"; break;
-			case symmetric: c.s << "symm"; break;
-			case antisymmetric: c.s << "anti"; break;
-			case cyclic: c.s << "cycl"; break;
-			default: c.s << "<unknown>"; break;
-		}
-
-		c.s << ", indices=(";
-		if (!indices.empty()) {
-			std::set<unsigned>::const_iterator i = indices.begin(), end = indices.end();
-			--end;
-			while (i != end)
-				c.s << *i++ << ",";
-			c.s << *i;
-		}
-		c.s << ")\n";
-
-		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
-		exvector::const_iterator i = children.begin(), end = children.end();
-		while (i != end) {
-			i->print(c, level + delta_indent);
-			++i;
-		}
-
+	if (children.empty()) {
+		if (indices.size() > 0)
+			c.s << *(indices.begin());
+		else
+			c.s << "none";
 	} else {
-
-		if (children.empty()) {
-			if (indices.size() > 0)
-				c.s << *(indices.begin());
-			else
-				c.s << "none";
-		} else {
-			switch (type) {
-				case none: c.s << '!'; break;
-				case symmetric: c.s << '+'; break;
-				case antisymmetric: c.s << '-'; break;
-				case cyclic: c.s << '@'; break;
-				default: c.s << '?'; break;
-			}
-			c.s << '(';
-			size_t num = children.size();
-			for (size_t i=0; i<num; i++) {
-				children[i].print(c);
-				if (i != num - 1)
-					c.s << ",";
-			}
-			c.s << ')';
+		switch (type) {
+			case none: c.s << '!'; break;
+			case symmetric: c.s << '+'; break;
+			case antisymmetric: c.s << '-'; break;
+			case cyclic: c.s << '@'; break;
+			default: c.s << '?'; break;
 		}
+		c.s << '(';
+		size_t num = children.size();
+		for (size_t i=0; i<num; i++) {
+			children[i].print(c);
+			if (i != num - 1)
+				c.s << ",";
+		}
+		c.s << ')';
+	}
+}
+
+void symmetry::do_print_tree(const print_tree & c, unsigned level) const
+{
+	c.s << std::string(level, ' ') << class_name()
+	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+	    << ", type=";
+
+	switch (type) {
+		case none: c.s << "none"; break;
+		case symmetric: c.s << "symm"; break;
+		case antisymmetric: c.s << "anti"; break;
+		case cyclic: c.s << "cycl"; break;
+		default: c.s << "<unknown>"; break;
+	}
+
+	c.s << ", indices=(";
+	if (!indices.empty()) {
+		std::set<unsigned>::const_iterator i = indices.begin(), end = indices.end();
+		--end;
+		while (i != end)
+			c.s << *i++ << ",";
+		c.s << *i;
+	}
+	c.s << ")\n";
+
+	exvector::const_iterator i = children.begin(), end = children.end();
+	while (i != end) {
+		i->print(c, level + c.delta_indent);
+		++i;
 	}
 }
 

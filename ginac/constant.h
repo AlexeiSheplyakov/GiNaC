@@ -48,21 +48,20 @@ public:
 	
 	// functions overriding virtual functions from base classes
 public:
-	void print(const print_context & c, unsigned level = 0) const;
 	ex evalf(int level = 0) const;
 protected:
 	ex derivative(const symbol & s) const;
 	bool is_equal_same_type(const basic & other) const;
 	unsigned calchash() const;
 	
-	// new virtual functions which can be overridden by derived classes
-	// none
-	
 	// non-virtual functions in this class
-	// none
-	
+protected:
+	void do_print(const print_context & c, unsigned level) const;
+	void do_print_tree(const print_tree & c, unsigned level) const;
+	void do_print_latex(const print_latex & c, unsigned level) const;
+	void do_print_python_repr(const print_python_repr & c, unsigned level) const;
+
 // member variables
-	
 private:
 	std::string name;     ///< printname of this constant
 	std::string TeX_name; ///< LaTeX name
