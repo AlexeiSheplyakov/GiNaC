@@ -73,7 +73,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-, root, root)
 %doc AUTHORS COPYING ChangeLog NEWS README
-%{prefix}/lib/lib*.so*
+%{prefix}/lib/*.so.*
 %{prefix}/man/man1/ginsh.1
 %{prefix}/man/man1/viewgar.1
 %{prefix}/bin/ginsh
@@ -82,9 +82,11 @@ rm -rf $RPM_BUILD_ROOT
 %files devel
 %defattr(-, root, root)
 %doc AUTHORS COPYING ChangeLog NEWS README
-%{prefix}/lib/*a
+%{prefix}/lib/*.a
+%{prefix}/lib/*.la
+%{prefix}/lib/*.so
 %{prefix}/include/*
-%{prefix}/info/*
+%{prefix}/info/*info*
 %{prefix}/man/man1/*-config.1
 %{prefix}/bin/*-config
 %{prefix}/share/doc/%{name}/*
