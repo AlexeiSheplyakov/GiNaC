@@ -3274,7 +3274,7 @@ after @code{other}.
 
 @node Numerical Evaluation, Substituting Expressions, Information About Expressions, Methods and Functions
 @c    node-name, next, previous, up
-@section Numercial Evaluation
+@section Numerical Evaluation
 @cindex @code{evalf()}
 
 GiNaC keeps algebraic expressions, numbers and constants in their exact form.
