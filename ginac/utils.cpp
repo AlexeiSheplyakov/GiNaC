@@ -53,6 +53,20 @@ int compare_pointers(const void * a, const void * b)
 // `construct on first use' chest of numbers
 //////////
 
+// numeric -120
+const numeric & _num_120(void)
+{
+    const static ex e = ex(numeric(-120));
+    const static numeric * n = static_cast<const numeric *>(e.bp);
+    return *n;
+}
+
+const ex & _ex_120(void)
+{
+    static ex * e = new ex(_num_120());
+    return *e;
+}
+
 // numeric -60
 const numeric & _num_60(void)
 {
@@ -67,17 +81,17 @@ const ex & _ex_60(void)
     return *e;
 }
 
-// numeric -120
-const numeric & _num_120(void)
+// numeric -48
+const numeric & _num_48(void)
 {
-    const static ex e = ex(numeric(-120));
+    const static ex e = ex(numeric(-48));
     const static numeric * n = static_cast<const numeric *>(e.bp);
     return *n;
 }
 
-const ex & _ex_120(void)
+const ex & _ex_48(void)
 {
-    static ex * e = new ex(_num_120());
+    static ex * e = new ex(_num_48());
     return *e;
 }
 
@@ -680,6 +694,20 @@ const numeric & _num30(void)
 const ex & _ex30(void)
 {
     static ex * e = new ex(_num30());
+    return *e;
+}
+
+// numeric  48
+const numeric & _num48(void)
+{
+    const static ex e = ex(numeric(48));
+    const static numeric * n = static_cast<const numeric *>(e.bp);
+    return *n;
+}
+
+const ex & _ex48(void)
+{
+    static ex * e = new ex(_num48());
     return *e;
 }
 

@@ -132,16 +132,75 @@ REGISTER_FUNCTION(csgn, eval_func(csgn_eval).
 
 static ex Li2_eval(const ex & x)
 {
+    // Li2(0) -> 0
     if (x.is_zero())
         return x;
+    // Li2(1) -> Pi^2/6
     if (x.is_equal(_ex1()))
-        return power(Pi, _ex2()) / _ex6();
+        return power(Pi,_ex2())/_ex6();
+    // Li2(1/2) -> Pi^2/12 - log(2)^2/2
+    if (x.is_equal(_ex1_2()))
+        return power(Pi,_ex2())/_ex12() + power(log(_ex2()),_ex2())*_ex_1_2();
+    // Li2(-1) -> -Pi^2/12
     if (x.is_equal(_ex_1()))
-        return -power(Pi, _ex2()) / _ex12();
+        return -power(Pi,_ex2())/_ex12();
+    // Li2(I) -> -Pi^2/48+Catalan*I
+    if (x.is_equal(I))
+        return power(Pi,_ex2())/_ex_48() + Catalan*I;
+    // Li2(-I) -> -Pi^2/48-Catalan*I
+    if (x.is_equal(-I))
+        return power(Pi,_ex2())/_ex_48() - Catalan*I;
     return Li2(x).hold();
 }
 
-REGISTER_FUNCTION(Li2, eval_func(Li2_eval));
+static ex Li2_deriv(const ex & x, unsigned deriv_param)
+{
+    GINAC_ASSERT(deriv_param==0);
+    
+    // d/dx Li2(x) -> -log(1-x)/x
+    return -log(1-x)/x;
+}
+
+static ex Li2_series(const ex &x, const relational &rel, int order)
+{
+    const ex x_pt = x.subs(rel);
+    if (!x_pt.is_zero() && !x_pt.is_equal(_ex1()))
+        throw do_taylor();  // caught by function::series()
+    // First case: x==0 (derivatives have poles)
+    if (x_pt.is_zero()) {
+        // method:
+        // The problem is that in d/dx Li2(x==0) == -log(1-x)/x we cannot 
+        // simply substitute x==0.  The limit, however, exists: it is 1.  We
+        // also know all higher derivatives' limits: (d/dx)^n Li2(x) == n!/n^2.
+        // So the primitive series expansion is Li2(x==0) == x + x^2/4 + x^3/9
+        // and so on.
+        // We first construct such a primitive series expansion manually in
+        // a dummy symbol s and then insert the argument's series expansion
+        // for s.  Reexpanding the resulting series returns the desired result.
+        const symbol s;
+        ex ser;
+        // construct manually the primitive expansion
+        for (int i=1; i<order; ++i)
+            ser += pow(s,i)/pow(numeric(i),numeric(2));
+        // substitute the argument's series expansion
+        ser = ser.subs(s==x.series(rel,order));
+        // maybe that was terminanting, so add a proper order term
+        epvector nseq;
+        nseq.push_back(expair(Order(_ex1()), numeric(order)));
+        ser += pseries(rel, nseq);
+        // reexpand will collapse the series again
+        ser = ser.series(rel,order);
+        return ser;
+    }
+    // second problematic case: x real, >=1 (branch cut)
+    return pseries();
+    // TODO: Li2_series should do something around branch point?
+    // Careful: may involve logs!
+}
+
+REGISTER_FUNCTION(Li2, eval_func(Li2_eval).
+                       derivative_func(Li2_deriv).
+                       series_func(Li2_series));
 
 //////////
 // trilogarithm

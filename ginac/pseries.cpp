@@ -454,7 +454,7 @@ ex basic::series(const relational & r, int order) const
         seq.push_back(expair(coeff, numeric(0)));
     
     int n;
-    for (n=1; n<order; n++) {
+    for (n=1; n<order; ++n) {
         fac = fac.mul(numeric(n));
         deriv = deriv.diff(*s).expand();
         if (deriv.is_zero()) {

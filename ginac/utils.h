@@ -174,6 +174,8 @@ const numeric & _num_120(void);   // -120
 const ex & _ex_120(void);
 const numeric & _num_60(void);    // -60
 const ex & _ex_60(void);
+const numeric & _num_48(void);    // -48
+const ex & _ex_48(void);
 const numeric & _num_30(void);    // -30
 const ex & _ex_30(void);
 const numeric & _num_25(void);    // -25
@@ -260,6 +262,8 @@ const numeric & _num25(void);     //  25
 const ex & _ex25(void);
 const numeric & _num30(void);     //  30
 const ex & _ex30(void);
+const numeric & _num48(void);     //  48
+const ex & _ex48(void);
 const numeric & _num60(void);     //  60
 const ex & _ex60(void);
 const numeric & _num120(void);    //  120
