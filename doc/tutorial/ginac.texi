@@ -5530,6 +5530,12 @@ GiNaC contains the following predefined mathematical functions:
 @item @code{Li(m, x)}
 @tab classical polylogarithm as well as multiple polylogarithm
 @cindex @code{Li()}
+@item @code{G(a, y)}
+@tab multiple polylogarithm
+@cindex @code{G()}
+@item @code{G(a, s, y)}
+@tab multiple polylogarithm with explicit signs for the imaginary parts
+@cindex @code{G()}
 @item @code{S(n, p, x)}
 @tab Nielsen's generalized polylogarithm
 @cindex @code{S()}
@@ -5603,15 +5609,22 @@ to which others like the harmonic polylogarithm, Nielsen's generalized
 polylogarithm and the multiple zeta value belong.
 Everyone of these functions can also be written as a multiple polylogarithm with specific
 parameters. This whole family of functions is therefore often referred to simply as
-multiple polylogarithms, containing @code{Li}, @code{H}, @code{S} and @code{zeta}.
+multiple polylogarithms, containing @code{Li}, @code{G}, @code{H}, @code{S} and @code{zeta}.
+The multiple polylogarithm itself comes in two variants: @code{Li} and @code{G}. While
+@code{Li} and @code{G} in principle represent the same function, the different
+notations are more natural to the series representation or the integral
+representation, respectively.
 
 To facilitate the discussion of these functions we distinguish between indices and
 arguments as parameters. In the table above indices are printed as @code{m}, @code{s},
-@code{n} or @code{p}, whereas arguments are printed as @code{x}.
+@code{n} or @code{p}, whereas arguments are printed as @code{x}, @code{a} and @code{y}.
 
 To define a @code{Li}, @code{H} or @code{zeta} with a depth greater than one, you have to
 pass a GiNaC @code{lst} for the indices @code{m} and @code{s}, and in the case of @code{Li}
-for the argument @code{x} as well.
+for the argument @code{x} as well. The parameter @code{a} of @code{G} must always be a @code{lst} containing
+the arguments in expanded form. If @code{G} is used with a third parameter @code{s}, @code{s} must
+have the same length as @code{a}. It contains then the signs of the imaginary parts of the arguments. If
+@code{s} is not given, the signs default to +1.
 Note that @code{Li} and @code{zeta} are polymorphic in this respect. They can stand in for
 the classical polylogarithm and Riemann's zeta function (if depth is one), as well as for
 the multiple polylogarithm and the multiple zeta value, respectively. Note also, that
@@ -5659,11 +5672,18 @@ So in comparison to the referenced publications the order of indices and argumen
 is reversed.
 
 The functions only evaluate if the indices are integers greater than zero, except for the indices
-@code{s} in @code{zeta} and @code{m} in @code{H}. Since @code{s} will be interpreted as the sequence
-of signs for the corresponding indices @code{m}, it must contain 1 or -1, e.g.
+@code{s} in @code{zeta} and @code{G} as well as @code{m} in @code{H}. Since @code{s}
+will be interpreted as the sequence of signs for the corresponding indices
+@code{m} or the sign of the imaginary part for the
+corresponding arguments @code{a}, it must contain 1 or -1, e.g.
 @code{zeta(lst(3,4), lst(-1,1))} means
 @tex
-$\zeta(\overline{3},4)$.
+$\zeta(\overline{3},4)$
+@end tex
+and
+@code{G(lst(a,b), lst(-1,1), c)} means
+@tex
+$G(a-0\epsilon,b+0\epsilon;c)$.
 @end tex
 The definition of @code{H} allows indices to be 0, 1 or -1 (in expanded notation) or equally to
 be any integer (in compact notation). With GiNaC expanded and compact notation can be mixed,
@@ -5696,14 +5716,9 @@ Li(@{3,1,3@},@{-x,1,-1@})
 -Li(@{2,1@},@{x,-1@})*log(x)+2*Li(@{3,1@},@{x,-1@})+Li(@{2,2@},@{x,-1@})
 @end example
 
-Every function apart from the multiple polylogarithm @code{Li} can be numerically evaluated for
-arbitrary real or complex arguments. @code{Li} only evaluates if for all arguments
-@tex
-$x_i$ the condition
-@end tex
-@tex
-$x_1x_2\cdots x_i < 1$ holds.
-@end tex
+Every function can be numerically evaluated for
+arbitrary real or complex arguments. The precision is arbitrary and can be set through the
+global variable @code{Digits}:
 
 @example
 > Digits=100;
