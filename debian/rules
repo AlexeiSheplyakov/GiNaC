@@ -34,8 +34,9 @@ binary-arch: build
 	$(MAKE) install prefix=`pwd`/debian/tmp/usr infodir=`pwd`/debian/tmp/usr/share/info mandir=`pwd`/debian/tmp/usr/share/man
 	dh_installdocs ChangeLog NEWS README
 	dh_installchangelogs
-	dh_installmenu
-	dh_movefiles -pginac-dev
+	dh_installmenu -pginac-ginsh
+#	dh_movefiles -pginac-dev
+	dh_movefiles
 	dh_strip
 	dh_compress
 	dh_fixperms

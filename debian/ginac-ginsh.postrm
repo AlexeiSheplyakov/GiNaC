@@ -1,0 +1,6 @@
+#!/bin/sh
+set -e
+
+if test -x /usr/bin/update-menus; then update-menus; fi
+
+#DEBHELPER#
