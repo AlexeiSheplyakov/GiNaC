@@ -43,7 +43,6 @@ public:
 	
 	// functions overriding virtual functions from base classes
 public:
-	void print(const print_context & c, unsigned level = 0) const;
 	size_t nops() const;
 	ex op(size_t i) const;
 	ex & let_op(size_t i);
@@ -87,6 +86,11 @@ protected:
 	int division_free_elimination(const bool det = false);
 	int fraction_free_elimination(const bool det = false);
 	int pivot(unsigned ro, unsigned co, bool symbolic = true);
+
+	void print_elements(const print_context & c, const std::string & row_start, const std::string & row_end, const std::string & row_sep, const std::string & col_sep) const;
+	void do_print(const print_context & c, unsigned level) const;
+	void do_print_latex(const print_latex & c, unsigned level) const;
+	void do_print_python_repr(const print_python_repr & c, unsigned level) const;
 	
 // member variables
 protected:

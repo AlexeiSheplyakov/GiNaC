@@ -134,7 +134,7 @@ DEFAULT_UNARCHIVE(spinidx)
 // functions overriding virtual functions from base classes
 //////////
 
-void idx::do_print_idx(const print_context & c, unsigned level) const
+void idx::print_index(const print_context & c, unsigned level) const
 {
 	bool need_parens = !(is_exactly_a<numeric>(value) || is_a<symbol>(value));
 	if (need_parens)
@@ -152,13 +152,13 @@ void idx::do_print_idx(const print_context & c, unsigned level) const
 void idx::do_print(const print_context & c, unsigned level) const
 {
 	c.s << ".";
-	do_print_idx(c, level);
+	print_index(c, level);
 }
 
 void idx::do_print_latex(const print_latex & c, unsigned level) const
 {
 	c.s << "{";
-	do_print_idx(c, level);
+	print_index(c, level);
 	c.s << "}";
 }
 
@@ -177,7 +177,7 @@ void varidx::do_print(const print_context & c, unsigned level) const
 		c.s << ".";
 	else
 		c.s << "~";
-	do_print_idx(c, level);
+	print_index(c, level);
 }
 
 void varidx::do_print_tree(const print_tree & c, unsigned level) const
@@ -198,7 +198,7 @@ void spinidx::do_print(const print_context & c, unsigned level) const
 		c.s << "~";
 	if (dotted)
 		c.s << "*";
-	do_print_idx(c, level);
+	print_index(c, level);
 }
 
 void spinidx::do_print_latex(const print_latex & c, unsigned level) const
@@ -207,7 +207,7 @@ void spinidx::do_print_latex(const print_latex & c, unsigned level) const
 		c.s << "\\dot{";
 	else
 		c.s << "{";
-	do_print_idx(c, level);
+	print_index(c, level);
 	c.s << "}";
 }
 

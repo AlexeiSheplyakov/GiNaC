@@ -37,13 +37,16 @@
 #include "symbol.h"
 #include "operators.h"
 #include "normal.h"
-#include "print.h"
 #include "archive.h"
 #include "utils.h"
 
 namespace GiNaC {
 
-GINAC_IMPLEMENT_REGISTERED_CLASS(matrix, basic)
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(matrix, basic,
+  print_func<print_context>(&matrix::do_print).
+  print_func<print_latex>(&matrix::do_print_latex).
+  print_func<print_tree>(&basic::do_print_tree).
+  print_func<print_python_repr>(&matrix::do_print_python_repr))
 
 //////////
 // default constructor
@@ -134,54 +137,41 @@ DEFAULT_UNARCHIVE(matrix)
 
 // public
 
-void matrix::print(const print_context & c, unsigned level) const
+void matrix::print_elements(const print_context & c, const std::string & row_start, const std::string & row_end, const std::string & row_sep, const std::string & col_sep) const
 {
-	if (is_a<print_tree>(c)) {
-
-		inherited::print(c, level);
-
-	} else {
-
-		if (is_a<print_python_repr>(c))
-			c.s << class_name() << '(';
-
-		if (is_a<print_latex>(c))
-			c.s << "\\left(\\begin{array}{" << std::string(col,'c') << "}";
-		else
-			c.s << "[";
-
-		for (unsigned ro=0; ro<row; ++ro) {
-			if (!is_a<print_latex>(c))
-				c.s << "[";
-			for (unsigned co=0; co<col; ++co) {
-				m[ro*col+co].print(c);
-				if (co<col-1) {
-					if (is_a<print_latex>(c))
-						c.s << "&";
-					else
-						c.s << ",";
-				} else {
-					if (!is_a<print_latex>(c))
-						c.s << "]";
-				}
-			}
-			if (ro<row-1) {
-				if (is_a<print_latex>(c))
-					c.s << "\\\\";
-				else
-					c.s << ",";
-			}
+	for (unsigned ro=0; ro<row; ++ro) {
+		c.s << row_start;
+		for (unsigned co=0; co<col; ++co) {
+			m[ro*col+co].print(c);
+			if (co < col-1)
+				c.s << col_sep;
+			else
+				c.s << row_end;
 		}
-
-		if (is_a<print_latex>(c))
-			c.s << "\\end{array}\\right)";
-		else
-			c.s << "]";
-
-		if (is_a<print_python_repr>(c))
-			c.s << ')';
-
+		if (ro < row-1)
+			c.s << row_sep;
 	}
+}
+
+void matrix::do_print(const print_context & c, unsigned level) const
+{
+	c.s << "[";
+	print_elements(c, "[", "]", ",", ",");
+	c.s << "]";
+}
+
+void matrix::do_print_latex(const print_latex & c, unsigned level) const
+{
+	c.s << "\\left(\\begin{array}{" << std::string(col,'c') << "}";
+	print_elements(c, "", "", "\\\\", "&");
+	c.s << "\\end{array}\\right)";
+}
+
+void matrix::do_print_python_repr(const print_python_repr & c, unsigned level) const
+{
+	c.s << class_name() << '(';
+	print_elements(c, "[", "]", ",", ",");
+	c.s << ')';
 }
 
 /** nops is defined to be rows x columns. */

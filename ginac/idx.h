@@ -94,7 +94,7 @@ public:
 	ex minimal_dim(const idx & other) const;
 
 protected:
-	void do_print_idx(const print_context & c, unsigned level) const;
+	void print_index(const print_context & c, unsigned level) const;
 	void do_print(const print_context & c, unsigned level) const;
 	void do_print_latex(const print_latex & c, unsigned level) const;
 	void do_print_tree(const print_tree & c, unsigned level) const;

@@ -51,7 +51,6 @@ public:
 	
 	// functions overriding virtual functions from base classes
 public:
-	void print(const print_context & c, unsigned level = 0) const;
 	unsigned precedence() const {return 20;}
 	bool info(unsigned inf) const;
 	size_t nops() const;
@@ -68,6 +67,10 @@ protected:
 	unsigned calchash() const;
 
 	// new virtual functions which can be overridden by derived classes
+protected:
+	void do_print(const print_context & c, unsigned level) const;
+	void do_print_python_repr(const print_python_repr & c, unsigned level) const;
+
 public:
 	virtual ex lhs() const;
 	virtual ex rhs() const;

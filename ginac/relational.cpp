@@ -26,13 +26,15 @@
 #include "relational.h"
 #include "operators.h"
 #include "numeric.h"
-#include "print.h"
 #include "archive.h"
 #include "utils.h"
 
 namespace GiNaC {
 
-GINAC_IMPLEMENT_REGISTERED_CLASS(relational, basic)
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(relational, basic,
+  print_func<print_context>(&relational::do_print).
+  print_func<print_tree>(&basic::do_print_tree).
+  print_func<print_python_repr>(&relational::do_print_python_repr))
 
 //////////
 // default constructor
@@ -78,55 +80,53 @@ DEFAULT_UNARCHIVE(relational)
 
 // public
 
-void relational::print(const print_context & c, unsigned level) const
+static void print_operator(const print_context & c, relational::operators o)
 {
-	if (is_a<print_tree>(c)) {
-
-		inherited::print(c, level);
-
-	} else {
-
-		if (is_a<print_python_repr>(c)) {
-			c.s << class_name() << '(';
-			lh.print(c);
-			c.s << ',';
-			rh.print(c);
-			c.s << ",'";
-		} else {
-			if (precedence() <= level)
-				c.s << "(";
-			lh.print(c, precedence());
-		}
-		switch (o) {
-			case equal:
-				c.s << "==";
-				break;
-			case not_equal:
-				c.s << "!=";
-				break;
-			case less:
-				c.s << "<";
-				break;
-			case less_or_equal:
-				c.s << "<=";
-				break;
-			case greater:
-				c.s << ">";
-				break;
-			case greater_or_equal:
-				c.s << ">=";
-				break;
-			default:
-				c.s << "(INVALID RELATIONAL OPERATOR)";
-		}
-		if (is_a<print_python_repr>(c))
-			c.s << "')";
-		else {
-			rh.print(c, precedence());
-			if (precedence() <= level)
-				c.s << ")";
-		}
+	switch (o) {
+	case relational::equal:
+		c.s << "==";
+		break;
+	case relational::not_equal:
+		c.s << "!=";
+		break;
+	case relational::less:
+		c.s << "<";
+		break;
+	case relational::less_or_equal:
+		c.s << "<=";
+		break;
+	case relational::greater:
+		c.s << ">";
+		break;
+	case relational::greater_or_equal:
+		c.s << ">=";
+		break;
+	default:
+		c.s << "(INVALID RELATIONAL OPERATOR)";
+		break;
 	}
+}
+
+void relational::do_print(const print_context & c, unsigned level) const
+{
+	if (precedence() <= level)
+		c.s << "(";
+	lh.print(c, precedence());
+	print_operator(c, o);
+	rh.print(c, precedence());
+	if (precedence() <= level)
+		c.s << ")";
+}
+
+void relational::do_print_python_repr(const print_python_repr & c, unsigned level) const
+{
+	c.s << class_name() << '(';
+	lh.print(c);
+	c.s << ',';
+	rh.print(c);
+	c.s << ",'";
+	print_operator(c, o);
+	c.s << "')";
 }
 
 bool relational::info(unsigned inf) const
