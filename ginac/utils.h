@@ -45,7 +45,10 @@ string ToString(const T & t)
  *  signal that ordinary Taylor expansion is safe. */
 class do_taylor {};
 
+// cygwin defines a macro log2, causing confusion
+#ifndef log2
 unsigned log2(unsigned n);
+#endif
 
 int compare_pointers(const void * a, const void * b);
 
