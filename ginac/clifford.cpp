@@ -72,7 +72,13 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(diracgammaR, tensor,
 // default constructors
 //////////
 
-clifford::clifford() : representation_label(0), metric(lorentz_g(varidx((new symbol)->setflag(status_flags::dynallocated), 4), varidx((new symbol)->setflag(status_flags::dynallocated), 4)))
+static ex default_metric()
+{
+	static ex m = (new minkmetric)->setflag(status_flags::dynallocated);
+	return m;
+}
+
+clifford::clifford() : representation_label(0), metric(default_metric())
 {
 	tinfo_key = TINFO_clifford;
 }
@@ -149,17 +155,15 @@ DEFAULT_ARCHIVING(diracgammaR)
 
 ex clifford::get_metric(const ex & i, const ex & j) const
 {
-	return metric.subs(metric.op(1) == i).subs(metric.op(2) == j);
+	return indexed(metric, symmetric2(), i, j);
 }
 
 bool clifford::same_metric(const ex & other) const
 {
 	if (is_a<clifford>(other)) {
-		ex m = get_metric();
-		return m.is_equal(ex_to<clifford>(other).get_metric(m.op(1), m.op(2)));
+		return get_metric().is_equal(ex_to<clifford>(other).get_metric());
 	} else if (is_a<indexed>(other)) {
-		ex m = get_metric(other.op(1), other.op(2));
-		return m.is_equal(other);
+		return get_metric(other.op(1), other.op(2)).is_equal(other);
 	} else
 		return false;
 }
@@ -371,7 +375,7 @@ bool cliffordunit::contract_with(exvector::iterator self, exvector::iterator oth
 		// Find if a previous contraction produces the square of self
 		int prev_square = find_same_metric(v, self[0]);
 		varidx d((new symbol)->setflag(status_flags::dynallocated), ex_to<idx>(ex_to<idx>(self->op(1)).get_dim()));
-		ex squared_metric = unit.get_metric(self->op(1), d)*unit.get_metric(d.toggle_variance(), other->op(1));
+		ex squared_metric = unit.get_metric(self->op(1), d) * unit.get_metric(d.toggle_variance(), other->op(1));
 
 		// e~mu e.mu = Tr ONE
 		if (other - self == 1) {
@@ -389,7 +393,7 @@ bool cliffordunit::contract_with(exvector::iterator self, exvector::iterator oth
 
 			const ex & ia = self[1].op(1);
 			const ex & ib = self[1].op(1);
-			if (is_a<tensmetric>(unit.get_metric().op(0)))
+			if (is_a<tensmetric>(unit.get_metric()))
 				*self = 2 - unit.get_metric(self->op(1), other->op(1));
 			else if (prev_square != 0) {
 				*self = 2-squared_metric;
@@ -419,7 +423,7 @@ bool cliffordunit::contract_with(exvector::iterator self, exvector::iterator oth
 
 			const ex & ia = next_to_last->op(1);
 			const ex & ib = next_to_last->op(1);
-			if (is_a<tensmetric>(unit.get_metric().op(0)))
+			if (is_a<tensmetric>(unit.get_metric()))
 				*self = 2 * (*next_to_last) * S - (*self) * S * (*other) * (*next_to_last);
 			else if (prev_square != 0) {
 				*self = 2 * (*next_to_last) * S  - (*self) * S * (*other) * (*next_to_last)*unit.get_metric(self->op(1),self->op(1));
@@ -546,7 +550,7 @@ ex clifford::eval_ncmul(const exvector & v) const
 				const ex & ia = a.op(1);
 				const ex & ib = b.op(1);
 				if (ia.is_equal(ib)) { // gamma~alpha gamma~alpha -> g~alpha~alpha
-					a = ex_to<clifford>(a).get_metric(ia,ib);
+					a = ex_to<clifford>(a).get_metric(ia, ib);
 					b = dirac_ONE(representation_label);
 					something_changed = true;
 				}
@@ -640,17 +644,12 @@ ex dirac_ONE(unsigned char rl)
 
 ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl)
 {
+	static ex unit = (new cliffordunit)->setflag(status_flags::dynallocated);
+
 	if (!is_a<varidx>(mu))
 		throw(std::invalid_argument("index of Clifford unit must be of type varidx"));
-	if (!is_a<indexed>(metr))
-		throw(std::invalid_argument("metric for Clifford unit must be of type indexed"));
-	exvector d = ex_to<indexed>(metr).get_indices();
-	if (d.size() > 2 || ex_to<idx>(d[0]).get_dim() != ex_to<idx>(d[1]).get_dim())
-	  //|| ex_to<idx>(d[0]).get_dim() != ex_to<idx>(mu).get_dim())
-		throw(std::invalid_argument("metric is not square"));
-	else
-		ex_to<idx>(mu).replace_dim(ex_to<idx>(d[0]).get_dim());
-	return clifford(cliffordunit(), mu, metr, rl);
+
+	return clifford(unit, mu, metr, rl);
 }
 
 ex dirac_gamma(const ex & mu, unsigned char rl)
@@ -660,8 +659,7 @@ ex dirac_gamma(const ex & mu, unsigned char rl)
 	if (!is_a<varidx>(mu))
 		throw(std::invalid_argument("index of Dirac gamma must be of type varidx"));
 
-	ex dim = ex_to<idx>(mu).get_dim();
-	return clifford(gamma, mu, lorentz_g(varidx((new symbol)->setflag(status_flags::dynallocated), dim),varidx((new symbol)->setflag(status_flags::dynallocated), dim)), rl);
+	return clifford(gamma, mu, default_metric(), rl);
 }
 
 ex dirac_gamma5(unsigned char rl)

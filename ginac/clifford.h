@@ -189,7 +189,7 @@ ex dirac_ONE(unsigned char rl = 0);
 /** Create a Clifford unit object.
  *
  *  @param mu Index (must be of class varidx or a derived class)
- *  @param metr Metric (must be of class tensor or a derived class)
+ *  @param metr Metric (should be of class tensmetric or a derived class, or a symmetric matrix)
  *  @param rl Representation label
  *  @return newly constructed Clifford unit object */
 ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl = 0);
@@ -265,7 +265,7 @@ ex clifford_inverse(const ex & e);
  *
  *  @param v List or vector of coordinates
  *  @param mu Index (must be of class varidx or a derived class)
- *  @param metr Metric (must be of class tensor or a derived class)
+ *  @param metr Metric (should be of class tensmetric or a derived class, or a symmetric matrix)
  *  @param rl Representation label
  *  @return Clifford vector with given components */
 ex lst_to_clifford(const ex & v, const ex & mu,  const ex & metr, unsigned char rl = 0);
