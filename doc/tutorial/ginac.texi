@@ -1734,7 +1734,7 @@ static ex cos_eval_method(const ex & x)
 @cindex evaluation
 The last line returns @code{cos(x)} if we don't know what else to do and
 stops a potential recursive evaluation by saying @code{.hold()}, which
-sets a flag to the expression signalint that it has been evaluated.  We
+sets a flag to the expression signaling that it has been evaluated.  We
 should also implement a method for numerical evaluation and since we are
 lazy we sweep the problem under the rug by calling someone else's
 function that does so, in this case the one in class @code{numeric}:
@@ -1779,21 +1779,20 @@ REGISTER_FUNCTION(cos, eval_func(cos_eval).
 @end example
 
 The first argument is the function's name used for calling it and for
-output. The second binds the corresponding methods as options to this
-object. Options are separated by a dot and can be given in an arbitrary
-order. GiNaC functions understand several more options which
-are always specified as @code{.option(params)}, for example a method
-for series expansion @code{.series_func(cos_series)}. If no series
-expansion method is given, GiNaC defaults to simple Taylor
-expansion, which is correct if there are no poles involved (as is
-the case for the @code{cos} function).  The way
-GiNaC handles poles in case there are any is best understood by studying
-one of the examples, like the Gamma function for instance.  In essence
-the function first checks if there is a pole at the evaluation point and
-falls back to Taylor expansion if there isn't.  Then, the pole is
-regularized by some suitable transformation.)  Also, the new function
-needs to be declared somewhere.  This may also be done by a convenient
-preprocessor macro:
+output.  The second binds the corresponding methods as options to this
+object.  Options are separated by a dot and can be given in an arbitrary
+order.  GiNaC functions understand several more options which are always
+specified as @code{.option(params)}, for example a method for series
+expansion @code{.series_func(cos_series)}.  Again, if no series
+expansion method is given, GiNaC defaults to simple Taylor expansion,
+which is correct if there are no poles involved as is the case for the
+@code{cos} function.  The way GiNaC handles poles in case there are any
+is best understood by studying one of the examples, like the Gamma
+function for instance.  (In essence the function first checks if there
+is a pole at the evaluation point and falls back to Taylor expansion if
+there isn't.  Then, the pole is regularized by some suitable
+transformation.)  Also, the new function needs to be declared somewhere.
+This may also be done by a convenient preprocessor macro:
 
 @example
 DECLARE_FUNCTION_1P(cos)
@@ -1804,7 +1803,7 @@ implementation of @code{cos} is very incomplete and lacks several safety
 mechanisms.  Please, have a look at the real implementation in GiNaC.
 (By the way: in case you are worrying about all the macros above we can
 assure you that functions are GiNaC's most macro-intense classes.  We
-have done our best to avoid them where we can.)
+have done our best to avoid macros where we can.)
 
 That's it. May the source be with you!
 
