@@ -54,11 +54,12 @@ dnl Parse required version and the result of ginac-config.
             sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\3/'`
     GINACLIB_CPPFLAGS=`$GINACLIB_CONFIG $ginac_args --cppflags`
     GINACLIB_LIBS=`$GINACLIB_CONFIG $ginac_args --libs`
-    ginac_config_major_version=`$GINACLIB_CONFIG $ginac_args --version | \
+    ginac_config_version=`$GINACLIB_CONFIG $ginac_args --version`
+    ginac_config_major_version=`echo $ginac_config_version | \
             sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\1/'`
-    ginac_config_minor_version=`$GINACLIB_CONFIG $ginac_args --version | \
+    ginac_config_minor_version=`echo $ginac_config_version | \
             sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\2/'`
-    ginac_config_micro_version=`$GINACLIB_CONFIG $ginac_args --version | \
+    ginac_config_micro_version=`echo $ginac_config_version | \
             sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\3/'`
 dnl Check if the installed GiNaC is sufficiently new according to ginac-config.
     if test \( $ginac_config_major_version -lt $ginac_min_major_version \) -o \
@@ -122,7 +123,7 @@ int main(void)
             LIBS="$ac_save_LIBS"
         fi
         if test "x$no_ginac" = x ; then
-            AC_MSG_RESULT([yes, `$GINACLIB_CONFIG $ginac_args --version`])
+            AC_MSG_RESULT([yes, $ginac_config_version])
             ifelse([$2], , :, [$2])
         else
             AC_MSG_RESULT(no)
