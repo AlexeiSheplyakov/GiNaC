@@ -41,6 +41,8 @@ Christian Bauer <Christian.Bauer@uni-mainz.de>
 Alexander Frink <Alexander.Frink@uni-mainz.de>
 .br
 Richard Kreckel <Richard.Kreckel@uni-mainz.de>
+.br
+Jens Vollinga <vollinga@thep.physik.uni-mainz.de>
 .SH SEE ALSO
 GiNaC Tutorial \- An open framework for symbolic computation within the
 C++ programming language

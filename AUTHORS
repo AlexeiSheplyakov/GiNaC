@@ -3,6 +3,7 @@ The GiNaC Group
 Christian Bauer <Christian.Bauer@uni-mainz.de>
 Alexander Frink <Alexander.Frink@uni-mainz.de>
 Richard Kreckel <Richard.Kreckel@uni-mainz.de>
+Jens Vollinga <vollinga@thep.physik.uni-mainz.de>
 
 
 Contributors of patches
@@ -21,4 +22,3 @@ make a suggestion please send email to one of our public mailing lists
 instead of to one or more of the authors.  This avoids both potential
 duplication of work and delays caused by possible vacations.  Mailing
 list subscription is explained at <http://www.ginac.de/lists/>.
-
