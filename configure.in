@@ -64,6 +64,15 @@ AC_PROG_YACC
 dnl Switch to C++ language mode for the following libraries and headers:
 AC_LANG_CPLUSPLUS
 
+dnl Check for stuff needed for building the GiNaC interactive shell (ginsh):
+AC_CHECK_HEADERS(unistd.h)
+AC_CHECK_HEADERS(readline/readline.h readline/history.h)
+save_LIBS=$LIBS
+AC_CHECK_LIB(readline, readline)
+GINSH_LIBS=$LIBS
+LIBS=$save_LIBS
+AC_SUBST(GINSH_LIBS)
+
 dnl Make sure the following libraries work by testing for symbols therein. 
 dnl They are automatically added the the variable $LIBS and thus passed into
 dnl the Makefile:
@@ -74,11 +83,6 @@ dnl If one of them cannot be found the system is probably not ANSI-conform
 dnl enough so trying the .h-style headers is a waste of time.
 AC_CHECK_HEADERS(iostream vector map string list typeinfo iterator strstream stdexcept algorithm, ,
     AC_MSG_ERROR(need to have ANSI compliant headers))
-
-dnl Check for stuff needed for building the GiNaC interactive shell (ginsh):
-AC_CHECK_HEADERS(unistd.h)
-AC_CHECK_HEADERS(readline/readline.h readline/history.h)
-AC_CHECK_LIB(readline, readline)
 
 dnl We need to have Bruno Haible's CLN installed (macros are in acinclude.m4):
 GINAC_CHECK_CLN_H
