@@ -684,8 +684,8 @@ ex MyEx4 = sin(x + 2*y) + 3*z + 41; // containing a function
 ex MyEx5 = MyEx4 + 1;               // similar to above
 @end example
 
-Expressions are handles to other more fundamental objects, that many
-times contain other expressions thus creating a tree of expressions
+Expressions are handles to other more fundamental objects, that often
+contain other expressions thus creating a tree of expressions
 (@xref{Internal Structures}, for particular examples).  Most methods on
 @code{ex} therefore run top-down through such an expression tree.  For
 example, the method @code{has()} scans recursively for occurrences of
@@ -1480,7 +1480,7 @@ bool ex::is_zero();
 for checking whether one expression is equal to another, or equal to zero,
 respectively.
 
-@strong{Warning:} You will also find a @code{ex::compare()} method in the
+@strong{Warning:} You will also find an @code{ex::compare()} method in the
 GiNaC header files. This method is however only to be used internally by
 GiNaC to establish a canonical sort order for terms, and using it to compare
 expressions will give very surprising results.
