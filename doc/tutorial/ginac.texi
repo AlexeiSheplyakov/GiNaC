@@ -4233,9 +4233,9 @@ numbers are written.
 The above example will produce (note the @code{x^2} being converted to @code{x*x}):
 
 @example
-float f = (3.000000e+00/2.000000e+00)*(x*x)+4.500000e+00;
-double d = (3.000000e+00/2.000000e+00)*(x*x)+4.500000e+00;
-cl_N n = (cln::cl_F("3.0")/cln::cl_F("2.0"))*(x*x)+cln::cl_F("4.5");
+float f = (3.0/2.0)*(x*x)+4.500000e+00;
+double d = (3.0/2.0)*(x*x)+4.5000000000000000e+00;
+cl_N n = cln::cl_RA("3/2")*(x*x)+cln::cl_F("4.5_17");
 @end example
 
 The @code{print_context} type @code{print_tree} provides a dump of the
