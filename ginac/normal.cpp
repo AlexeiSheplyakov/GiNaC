@@ -1741,11 +1741,41 @@ static exvector sqrfree_yun(const ex &a, const symbol &x)
 	return res;
 }
 
-/** Compute square-free factorization of multivariate polynomial in Q[X].
+/** Compute a square-free factorization of a multivariate polynomial in Q[X].
  *
  *  @param a  multivariate polynomial over Q[X]
  *  @param x  lst of variables to factor in, may be left empty for autodetection
- *  @return   polynomial a in square-free factored form. */
+ *  @return   a square-free factorization of \p a.
+ *
+ * \note
+ * A polynomial \f$p(X) \in C[X]\f$ is said <EM>square-free</EM>
+ * if, whenever any two polynomials \f$q(X)\f$ and \f$r(X)\f$
+ * are such that
+ * \f[
+ *     p(X) = q(X)^2 r(X),
+ * \f]
+ * we have \f$q(X) \in C\f$.
+ * This means that \f$p(X)\f$ has no repeated factors, apart
+ * eventually from constants.
+ * Given a polynomial \f$p(X) \in C[X]\f$, we say that the
+ * decomposition
+ * \f[
+ *   p(X) = b \cdot p_1(X)^{a_1} \cdot p_2(X)^{a_2} \cdots p_r(X)^{a_r}
+ * \f]
+ * is a <EM>square-free factorization</EM> of \f$p(X)\f$ if the
+ * following conditions hold:
+ * -#  \f$b \in C\f$ and \f$b \neq 0\f$;
+ * -#  \f$a_i\f$ is a positive integer for \f$i = 1, \ldots, r\f$;
+ * -#  the degree of the polynomial \f$p_i\f$ is strictly positive
+ *     for \f$i = 1, \ldots, r\f$;
+ * -#  the polynomial \f$\Pi_{i=1}^r p_i(X)\f$ is square-free.
+ *
+ * Square-free factorizations need not be unique.  For example, if
+ * \f$a_i\f$ is even, we could change the polynomial \f$p_i(X)\f$
+ * into \f$-p_i(X)\f$.
+ * Observe also that the factors \f$p_i(X)\f$ need not be irreducible
+ * polynomials.
+ */
 ex sqrfree(const ex &a, const lst &l)
 {
 	if (is_a<numeric>(a) ||     // algorithm does not trap a==0
