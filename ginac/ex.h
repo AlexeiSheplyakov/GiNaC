@@ -312,6 +312,7 @@ protected:
             }
             last_created_or_assigned_bp=bp;
             ++last_created_or_assigned_bp->refcount;
+            last_created_or_assigned_exp=(long)(void *)(this);
         }
 #endif // def OBSCURE_CINT_HACK
 
@@ -320,7 +321,9 @@ protected:
 public:
     basic *bp;
 #ifdef OBSCURE_CINT_HACK
-    static basic *last_created_or_assigned_bp;
+    static basic * last_created_or_assigned_bp;
+    static basic * dummy_bp;
+    static long last_created_or_assigned_exp;
 #endif // def OBSCURE_CINT_HACK
 };
 
