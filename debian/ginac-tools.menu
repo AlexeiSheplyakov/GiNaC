@@ -1,1 +1,6 @@
-?package(ginac-tools):needs=text section=Apps/Math title="GiNaC interactive shell" command="/usr/bin/ginsh"
+?package(ginac-tools):\
+  needs="text"\
+  section="Apps/Math"\
+  title="Ginsh"\
+  longtitle="Ginsh - GiNaC interactive shell"\
+  command="/usr/bin/ginsh"
