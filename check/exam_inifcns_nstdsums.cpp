@@ -51,7 +51,7 @@
  *    #/bin/sh
  *    IFS=$'\n'
  *    cat exam_inifcns_nstdsums_data.raw | sed -e 's/\*\^/E/g' > exam_inifcns_nstdsums_data.raw2
- *    echo 'string data[] = {' > exam_inifcns_nstdsums_data.raw3
+ *    echo 'const char *data[] = {' > exam_inifcns_nstdsums_data.raw3
  *    for i in `cat exam_inifcns_nstdsums_data.raw2`; do echo \"$i\",; done >> exam_inifcns_nstdsums_data.raw3
  *    echo '"-999"};' >> exam_inifcns_nstdsums.h
  *
@@ -105,12 +105,12 @@ static unsigned inifcns_consist_S(void)
 	vp::iterator it;
 	int error = 0;
 
-	cout << endl << "Calculating ";
+//	cout << endl << "Calculating ";
 	for (int sum=2; sum<=3; sum++) {
 		for (int nn=1; nn<sum; nn++) {
 			vp& da = pp[nn-1][sum-nn-1];
 			for (it = da.begin(); it!=da.end(); it++) {
-				cout << "S(" << nn << "," << sum-nn << "," << it->x << ") " << flush;
+//				cout << "S(" << nn << "," << sum-nn << "," << it->x << ") " << flush;
 				ex res = S(nn,sum-nn,it->x).evalf();
 				if (!is_a<numeric>(res)) {
 					if ((it->x != -1) || ((sum-nn) == 1)) {
@@ -133,7 +133,7 @@ static unsigned inifcns_consist_S(void)
 		}
 
 	}
-	cout << endl;
+//	cout << endl;
 
 	return result;
 }
@@ -157,4 +157,3 @@ unsigned exam_inifcns_nstdsums(void)
 	
 	return result;
 }
-

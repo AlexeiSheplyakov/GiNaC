@@ -1,4 +1,4 @@
-string data[] = {
+const char *data[] = {
 "1",
 "1",
 "0.2",
