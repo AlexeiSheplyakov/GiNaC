@@ -510,10 +510,14 @@ bool tensepsilon::contract_with(exvector::iterator self, exvector::iterator othe
 
 	} else if (other->return_type() == return_types::commutative) {
 
-#if 0
-		// This handles eps.i.j.k * p.j * p.k = 0
-		// Maybe something like this should go to simplify_indexed() because
-		// such relations are true for any antisymmetric tensors...
+#if 1
+		// This handles eps.i.j.k * p.j * p.k = 0 and related cases.
+		// Actually, simplify_indexed() can handle most of them on its own
+		// but one specific case that is not covered there is
+		//   eps~mu.nu~i~j * p.mu * p~nu
+		// because of the difference in variance in the dummy indices mu
+		// and nu. Eventually, simplify_indexed() should be extended to
+		// handle this case, and this hack removed.
 		exvector c;
 
 		// Handle all indices of the epsilon tensor
