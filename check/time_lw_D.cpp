@@ -32,7 +32,9 @@ static unsigned test(void)
 	for (int i=1; i<=10; ++i)
 		s += i*y*pow(t,i)/pow(y + i*t,i);
 	
-	if (s.nops()!=10) {
+	s = s.normal();
+	
+	if (s.subs(t==0)!=0) {
 		clog << "something very strange happened" << endl;
 		return 1;
 	}
@@ -46,8 +48,8 @@ unsigned time_lw_D(void)
 	timer rolex;
 	double time = .0;
 	
-	cout << "timing Lewis-Wester test D (sum of rational fcns)" << flush;
-	clog << "-------Lewis-Wester test D (sum of rational fcns)" << endl;
+	cout << "timing Lewis-Wester test D (normalized sum of rational fcns)" << flush;
+	clog << "-------Lewis-Wester test D (normalized sum of rational fcns)" << endl;
 	
 	rolex.start();
 	// correct for very small times:
@@ -63,7 +65,7 @@ unsigned time_lw_D(void)
 	} else {
 		cout << " failed ";
 	}
-	cout << int(100000*(time/count))*0.00001 << 's' << endl;
+	cout << int(1000*(time/count))*0.001 << 's' << endl;
 	
 	return result;
 }
