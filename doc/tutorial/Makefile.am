@@ -71,6 +71,14 @@ tutorial.ps: tutorial.dvi
 	  echo "warning: target tutorial.ps disabled by configuration"; \
 	fi
 
+ginacdocdir = $(datadir)/doc/GiNaC
+ginactutorialdir = $(ginacdocdir)/tutorial
+ginactutorial_DATA = @TUTORIAL_TARGETS@
+EXTRA_DATA = index.html tutorial.ps
+
+CLEANFILES = *.html *.png *.ps *.tex *.log *.aux *.dvi *.eps tutorial.sgml HTML.manifest
+EXTRA_DIST = tutorial.sgml.in $(FIG)
+
 install-data-local:
 	@for p in *.html; do \
 	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p"; \
@@ -90,11 +98,3 @@ uninstall-local:
 	  echo " rm -f $(DESTDIR)$(ginactutorialdir)/$$p"; \
 	  rm -f $(DESTDIR)$(ginactutorialdir)/$$p; \
 	done
-
-ginacdocdir = $(datadir)/doc/GiNaC
-ginactutorialdir = $(ginacdocdir)/tutorial
-ginactutorial_DATA = $(TUTORIAL_TARGETS)
-EXTRA_DATA = index.html tutorial.ps
-
-CLEANFILES = *.html *.png *.ps *.tex *.log *.aux *.dvi *.eps tutorial.sgml HTML.manifest
-EXTRA_DIST = tutorial.sgml.in $(FIG)

@@ -56,7 +56,7 @@ dnl Check for the compiler and all the utilities needed for the build:
 dnl ===========================================================================
 AC_PROG_CXX
 AC_PROG_CXXCPP
-AM_PROG_INSTALL
+AC_PROG_INSTALL
 AM_PROG_LIBTOOL
 AM_PROG_LEX
 AC_PROG_YACC

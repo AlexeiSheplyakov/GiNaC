@@ -43,6 +43,14 @@ latex/reference.ps: latex/reference.dvi
 reference.ps: latex latex/reference.ps
 	cp ${srcdir}/latex/reference.ps reference.ps
 
+ginacdocdir = $(datadir)/doc/GiNaC
+ginacreferencedir = $(ginacdocdir)/reference
+ginacreference_DATA = @REFERENCE_TARGETS@
+EXTRA_DATA = index.html reference.ps
+
+CLEANFILES = *.html *.gif doxygen.css *.ps latex/*
+EXTRA_DIST = DoxyfileHTML DoxyfileTEX Doxyfooter
+
 install-data-local:
 	$(INSTALL_DATA) $(srcdir)/doxygen.css $(DESTDIR)$(ginacreferencedir)/doxygen.css
 	@for p in *.html; do \
@@ -64,11 +72,3 @@ uninstall-local:
 	  echo " rm -f $(DESTDIR)$(ginacreferencedir)/$$p"; \
 	  rm -f $(DESTDIR)$(ginacreferencedir)/$$p; \
 	done
-
-ginacdocdir = $(datadir)/doc/GiNaC
-ginacreferencedir = $(ginacdocdir)/reference
-ginacreference_DATA = $(REFERENCE_TARGETS)
-EXTRA_DATA = index.html reference.ps
-
-CLEANFILES = *.html *.gif doxygen.css *.ps latex/*
-EXTRA_DIST = DoxyfileHTML DoxyfileTEX Doxyfooter
