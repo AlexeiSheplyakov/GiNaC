@@ -330,13 +330,17 @@ ex mul::coeff(const ex & s, int n) const
 	return _ex0();
 }
 
+/** Perform automatic term rewriting rules in this class.  In the following
+ *  x, x1, x2,... stand for a symbolic variables of type ex and c, c1, c2...
+ *  stand for such expressions that contain a plain number.
+ *  - *(...,x;0) -> 0
+ *  - *(+(x1,x2,...);c) -> *(+(*(x1,c),*(x2,c),...))
+ *  - *(x;1) -> x
+ *  - *(;c) -> c
+ *
+ *  @param level cut-off in recursive evaluation */
 ex mul::eval(int level) const
 {
-	// simplifications  *(...,x;0) -> 0
-	//                  *(+(x,y,...);c) -> *(+(*(x,c),*(y,c),...)) (c numeric())
-	//                  *(x;1) -> x
-	//                  *(;c) -> c
-	
 	debugmsg("mul eval",LOGLEVEL_MEMBER_FUNCTION);
 	
 	epvector *evaled_seqp = evalchildren(level);

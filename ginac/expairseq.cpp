@@ -317,6 +317,7 @@ ex expairseq::map(map_function & f) const
 		return thisexpairseq(v, f(overall_coeff));
 }
 
+/** Perform coefficient-wise automatic term rewriting rules in this class. */
 ex expairseq::eval(int level) const
 {
 	if ((level==1) && (flags &status_flags::evaluated))

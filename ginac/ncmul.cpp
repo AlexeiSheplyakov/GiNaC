@@ -288,18 +288,20 @@ void ncmul::append_factors(exvector & v, const ex & e) const
 typedef std::vector<unsigned> unsignedvector;
 typedef std::vector<exvector> exvectorvector;
 
+/** Perform automatic term rewriting rules in this class.  In the following
+ *  x, x1, x2,... stand for a symbolic variables of type ex and c, c1, c2...
+ *  stand for such expressions that contain a plain number.
+ *  - ncmul(...,*(x1,x2),...,ncmul(x3,x4),...) -> ncmul(...,x1,x2,...,x3,x4,...)  (associativity)
+ *  - ncmul(x) -> x
+ *  - ncmul() -> 1
+ *  - ncmul(...,c1,...,c2,...) -> *(c1,c2,ncmul(...))  (pull out commutative elements)
+ *  - ncmul(x1,y1,x2,y2) -> *(ncmul(x1,x2),ncmul(y1,y2))  (collect elements of same type)
+ *  - ncmul(x1,x2,x3,...) -> x::simplify_ncmul(x1,x2,x3,...)
+ *
+ *  @param level cut-off in recursive evaluation */
 ex ncmul::eval(int level) const
 {
-	// simplifications: ncmul(...,*(x1,x2),...,ncmul(x3,x4),...) ->
-	//                      ncmul(...,x1,x2,...,x3,x4,...) (associativity)
-	//                  ncmul(x) -> x
-	//                  ncmul() -> 1
-	//                  ncmul(...,c1,...,c2,...)
-	//                      *(c1,c2,ncmul(...)) (pull out commutative elements)
-	//                  ncmul(x1,y1,x2,y2) -> *(ncmul(x1,x2),ncmul(y1,y2))
-	//                      (collect elements of same type)
-	//                  ncmul(x1,x2,x3,...) -> x::simplify_ncmul(x1,x2,x3,...)
-	// the following rule would be nice, but produces a recursion,
+	// The following additional rule would be nice, but produces a recursion,
 	// which must be trapped by introducing a flag that the sub-ncmuls()
 	// are already evaluated (maybe later...)
 	//                  ncmul(x1,x2,...,X,y1,y2,...) ->
@@ -313,7 +315,7 @@ ex ncmul::eval(int level) const
 	exvector evaledseq=evalchildren(level);
 
 	// ncmul(...,*(x1,x2),...,ncmul(x3,x4),...) ->
-	//     ncmul(...,x1,x2,...,x3,x4,...) (associativity)
+	//     ncmul(...,x1,x2,...,x3,x4,...)  (associativity)
 	unsigned factors = 0;
 	exvector::const_iterator cit = evaledseq.begin(), citend = evaledseq.end();
 	while (cit != citend)

@@ -356,7 +356,7 @@ ex pseries::collect(const ex &s, bool distributed) const
 	return *this;
 }
 
-/** Evaluate coefficients. */
+/** Perform coefficient-wise automatic term rewriting rules in this class. */
 ex pseries::eval(int level) const
 {
 	if (level == 1)

@@ -345,7 +345,7 @@ done:		delete[] si;
 	return x + (*this - x).expand();
 }
 
-/** Perform automatic non-interruptive symbolic evaluation on expression. */
+/** Perform automatic non-interruptive term rewriting rules. */
 ex basic::eval(int level) const
 {
 	// There is nothing to do for basic objects:
