@@ -1057,7 +1057,7 @@ construction is necessary since we cannot safely overload the constructor
 @code{^} in C++ to construct a @code{power} object.  If we did, it would
 have several counterintuitive effects:
 
-@itemize
+@itemize @bullet
 @item
 Due to C's operator precedence, @code{2*x^2} would be parsed as @code{(2*x)^2}.
 @item
@@ -1661,7 +1661,7 @@ advantages and disadvantages over these systems.
 GiNaC has several advantages over traditional Computer
 Algebra Systems, like 
 
-@itemize
+@itemize @bullet
 
 @item
 familiar language: all common CAS implement their own
@@ -1728,7 +1728,7 @@ GiNaC is comparable in speed with other CAS.
 
 Of course it also has some disadvantages
 
-@itemize
+@itemize @bullet
 
 @item
 not interactive: GiNaC programs have to be written in 
