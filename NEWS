@@ -6,13 +6,16 @@ This file records noteworthy changes.
   and two types of indices: "idx" for simple indices and "varidx" for
   indices with variance. There are predefined delta, epsilon and metric
   tensors, and a function simplify_indexed() that performs canonicalization
-  and dummy index summations.
+  and dummy index summations. Matrix objects can be indexed for doing simple
+  linear algebra.
 * Added an option "expand_indexed" to expand() to perform expansion of
   indexed objects like (a+b).i -> a.i + b.i
 * Renamed get_indices() to get_free_indices(), which no longer returns
   dummy indices and checks the consistency of indices in sums.
 * sqrfree() factorization fixed and improved syntactically.
 * subs() works on matrices.
+* Matrices can be constructed from flat list of elements; diagonal matrices
+  can be constructed from list of diagonal elements with diag_matrix()
 * Fixed memory leak in expand().
 * Operator% for objects of class ncmul has gone.  Use operator* now for that
   case too, which is much more natural.
