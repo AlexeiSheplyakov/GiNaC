@@ -10,6 +10,7 @@ This file records noteworthy changes.
 * Behaviour of .evalf() was changed: it doesn't .evalf() any exponents.
 * Expanded expressions now remember they are expanded to prevent
   superfluous expansions.
+* Small bugfixes and improvements in the series expansion.
 
 0.5.3 (23 February 2000)
 * A more flexible scheme for registering functions was implemented,
