@@ -1742,11 +1742,11 @@ static exvector sqrfree_yun(const ex &a, const symbol &x)
  *
  *  @param a  multivariate polynomial over Q[X]
  *  @param x  lst of variables to factor in, may be left empty for autodetection
- *  @return   polynomail a in square-free factored form. */
+ *  @return   polynomial a in square-free factored form. */
 ex sqrfree(const ex &a, const lst &l)
 {
-	if (is_ex_of_type(a,numeric) ||     // algorithm does not trap a==0
-	    is_ex_of_type(a,symbol))        // shortcut
+	if (is_a<numeric>(a) ||     // algorithm does not trap a==0
+	    is_a<symbol>(a))        // shortcut
 		return a;
 
 	// If no lst of variables to factorize in was specified we have to
@@ -1768,11 +1768,11 @@ ex sqrfree(const ex &a, const lst &l)
 	// Find the symbol to factor in at this stage
 	if (!is_ex_of_type(args.op(0), symbol))
 		throw (std::runtime_error("sqrfree(): invalid factorization variable"));
-	const symbol x = ex_to<symbol>(args.op(0));
+	const symbol &x = ex_to<symbol>(args.op(0));
 
 	// convert the argument from something in Q[X] to something in Z[X]
-	numeric lcm = lcm_of_coefficients_denominators(a);
-	ex tmp = multiply_lcm(a,lcm);
+	const numeric lcm = lcm_of_coefficients_denominators(a);
+	const ex tmp = multiply_lcm(a,lcm);
 
 	// find the factors
 	exvector factors = sqrfree_yun(tmp,x);
@@ -1781,10 +1781,10 @@ ex sqrfree(const ex &a, const lst &l)
 	lst newargs = args;
 	newargs.remove_first();
 
-	// recurse down the factors in remaining vars
+	// recurse down the factors in remaining variables
 	if (newargs.nops()>0) {
-		exvector::iterator i = factors.begin(), end = factors.end();
-		while (i != end) {
+		exvector::iterator i = factors.begin();
+		while (i != factors.end()) {
 			*i = sqrfree(*i, newargs);
 			++i;
 		}
@@ -1796,10 +1796,16 @@ ex sqrfree(const ex &a, const lst &l)
 	for (int p = 1; it!=itend; ++it, ++p)
 		result *= power(*it, p);
 
-	// Yun's algorithm does not account for constant factors.  (For
-	// univariate polynomials it works only in the monic case.)  We can
-	// correct this by inserting what has been lost back into the result:
-	result = result * quo(tmp, result, x);
+	// Yun's algorithm does not account for constant factors.  (For univariate
+	// polynomials it works only in the monic case.)  We can correct this by
+	// inserting what has been lost back into the result.  For completeness
+	// we'll also have to recurse down that factor in the remaining variables.
+	if (newargs.nops()>0)
+		result *= sqrfree(quo(tmp, result, x), newargs);
+	else
+		result *= quo(tmp, result, x);
+
+	// Put in the reational overall factor again and return
 	return result *	lcm.inverse();
 }
 
