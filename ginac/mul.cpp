@@ -171,10 +171,8 @@ void mul::print(const print_context & c, unsigned level) const
 
 	} else if (is_a<print_python_repr>(c)) {
 		c.s << class_name() << '(';
-		unsigned end = nops();
-		if (end)
-			op(0).print(c);
-		for (unsigned i=1; i<end; ++i) {
+		op(0).print(c);
+		for (unsigned i=1; i<nops(); ++i) {
 			c.s << ',';
 			op(i).print(c);
 		}
