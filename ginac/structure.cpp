@@ -25,6 +25,7 @@
 #include "structure.h"
 #include "archive.h"
 #include "debugmsg.h"
+#include "utils.h"
 
 namespace GiNaC {
 
@@ -34,59 +35,17 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(structure, basic)
 // default ctor, dtor, copy ctor assignment operator and helpers
 //////////
 
-// public
-
-structure::structure()
-{
-	debugmsg("structure default ctor",LOGLEVEL_CONSTRUCT);
-	tinfo_key = TINFO_structure;
-}
-
-// protected
-
-void structure::copy(const structure & other)
-{
-	basic::copy(other);
-}
-
-void structure::destroy(bool call_parent)
-{
-	if (call_parent) basic::destroy(call_parent);
-}
-
-//////////
-// other ctors
-//////////
-
-// none
+DEFAULT_CTORS(structure)
 
 //////////
 // archiving
 //////////
 
-/** Construct object from archive_node. */
-structure::structure(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
-{
-	debugmsg("structure ctor from archive_node", LOGLEVEL_CONSTRUCT);
-}
-
-/** Unarchive the object. */
-ex structure::unarchive(const archive_node &n, const lst &sym_lst)
-{
-	return (new structure(n, sym_lst))->setflag(status_flags::dynallocated);
-}
-
-/** Archive the object. */
-void structure::archive(archive_node &n) const
-{
-	inherited::archive(n);
-}
+DEFAULT_ARCHIVING(structure)
 
 //////////
-// structures overriding virtual structures from bases classes
+// functions overriding virtual functions from bases classes
 //////////
-
-// public
 
 void structure::printraw(std::ostream & os) const
 {
@@ -121,11 +80,7 @@ void structure::printcsrc(std::ostream & os, unsigned type, unsigned upper_prece
 
 // protected
 
-int structure::compare_same_type(const basic & other) const
-{
-	GINAC_ASSERT(is_of_type(other, structure));
-	return 0; // all structures are the same
-}
+DEFAULT_COMPARE(structure)
 
 bool structure::is_equal_same_type(const basic & other) const
 {
@@ -134,13 +89,7 @@ bool structure::is_equal_same_type(const basic & other) const
 }
 
 //////////
-// new virtual structures which can be overridden by derived classes
-//////////
-
-// none
-
-//////////
-// non-virtual structures in this class
+// non-virtual functions in this class
 //////////
 
 // protected

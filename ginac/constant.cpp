@@ -91,13 +91,11 @@ constant::constant(const std::string & initname, const numeric & initnumber)
 // archiving
 //////////
 
-/** Construct object from archive_node. */
 constant::constant(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
 	debugmsg("constant ctor from archive_node", LOGLEVEL_CONSTRUCT);
 }
 
-/** Unarchive the object. */
 ex constant::unarchive(const archive_node &n, const lst &sym_lst)
 {
 	// Find constant by name (!! this is bad: 'twould be better if there
@@ -116,7 +114,6 @@ ex constant::unarchive(const archive_node &n, const lst &sym_lst)
 		throw (std::runtime_error("unnamed constant in archive"));
 }
 
-/** Archive the object. */
 void constant::archive(archive_node &n) const
 {
 	inherited::archive(n);

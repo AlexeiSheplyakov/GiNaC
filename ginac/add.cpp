@@ -37,26 +37,14 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(add, expairseq)
 // default constructor, destructor, copy constructor assignment operator and helpers
 //////////
 
-// public
-
 add::add()
 {
 	debugmsg("add default constructor",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_add;
 }
 
-// protected
-
-/** For use by copy ctor and assignment operator. */
-void add::copy(const add & other)
-{
-	inherited::copy(other);
-}
-
-void add::destroy(bool call_parent)
-{
-	if (call_parent) inherited::destroy(call_parent);
-}
+DEFAULT_COPY(add)
+DEFAULT_DESTROY(add)
 
 //////////
 // other constructors
@@ -115,23 +103,7 @@ add::add(epvector * vp, const ex & oc)
 // archiving
 //////////
 
-/** Construct object from archive_node. */
-add::add(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
-{
-	debugmsg("add constructor from archive_node", LOGLEVEL_CONSTRUCT);
-}
-
-/** Unarchive the object. */
-ex add::unarchive(const archive_node &n, const lst &sym_lst)
-{
-	return (new add(n, sym_lst))->setflag(status_flags::dynallocated);
-}
-
-/** Archive the object. */
-void add::archive(archive_node &n) const
-{
-	inherited::archive(n);
-}
+DEFAULT_ARCHIVING(add)
 
 //////////
 // functions overriding virtual functions from bases classes

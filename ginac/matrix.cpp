@@ -44,8 +44,6 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(matrix, basic)
 // default ctor, dtor, copy ctor, assignment operator and helpers:
 //////////
 
-// public
-
 /** Default ctor.  Initializes to 1 x 1-dimensional zero-matrix. */
 matrix::matrix() : inherited(TINFO_matrix), row(1), col(1)
 {
@@ -53,9 +51,6 @@ matrix::matrix() : inherited(TINFO_matrix), row(1), col(1)
 	m.push_back(_ex0());
 }
 
-// protected
-
-/** For use by copy ctor and assignment operator. */
 void matrix::copy(const matrix & other)
 {
 	inherited::copy(other);
@@ -64,10 +59,7 @@ void matrix::copy(const matrix & other)
 	m = other.m;  // STL's vector copying invoked here
 }
 
-void matrix::destroy(bool call_parent)
-{
-	if (call_parent) inherited::destroy(call_parent);
-}
+DEFAULT_DESTROY(matrix)
 
 //////////
 // other ctors
@@ -118,7 +110,6 @@ matrix::matrix(unsigned r, unsigned c, const lst & l)
 // archiving
 //////////
 
-/** Construct object from archive_node. */
 matrix::matrix(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
 	debugmsg("matrix ctor from archive_node", LOGLEVEL_CONSTRUCT);
@@ -134,13 +125,6 @@ matrix::matrix(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst
 	}
 }
 
-/** Unarchive the object. */
-ex matrix::unarchive(const archive_node &n, const lst &sym_lst)
-{
-	return (new matrix(n, sym_lst))->setflag(status_flags::dynallocated);
-}
-
-/** Archive the object. */
 void matrix::archive(archive_node &n) const
 {
 	inherited::archive(n);
@@ -152,6 +136,8 @@ void matrix::archive(archive_node &n) const
 		++i;
 	}
 }
+
+DEFAULT_UNARCHIVE(matrix)
 
 //////////
 // functions overriding virtual functions from bases classes

@@ -38,26 +38,14 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(mul, expairseq)
 // default ctor, dctor, copy ctor assignment operator and helpers
 //////////
 
-// public
-
 mul::mul()
 {
 	debugmsg("mul default ctor",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_mul;
 }
 
-// protected
-
-/** For use by copy ctor and assignment operator. */
-void mul::copy(const mul & other)
-{
-	inherited::copy(other);
-}
-
-void mul::destroy(bool call_parent)
-{
-	if (call_parent) inherited::destroy(call_parent);
-}
+DEFAULT_COPY(mul)
+DEFAULT_DESTROY(mul)
 
 //////////
 // other ctors
@@ -130,23 +118,7 @@ mul::mul(const ex & lh, const ex & mh, const ex & rh)
 // archiving
 //////////
 
-/** Construct object from archive_node. */
-mul::mul(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
-{
-	debugmsg("mul ctor from archive_node", LOGLEVEL_CONSTRUCT);
-}
-
-/** Unarchive the object. */
-ex mul::unarchive(const archive_node &n, const lst &sym_lst)
-{
-	return (new mul(n, sym_lst))->setflag(status_flags::dynallocated);
-}
-
-/** Archive the object. */
-void mul::archive(archive_node &n) const
-{
-	inherited::archive(n);
-}
+DEFAULT_ARCHIVING(mul)
 
 //////////
 // functions overriding virtual functions from bases classes

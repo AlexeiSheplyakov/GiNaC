@@ -44,24 +44,6 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(tensepsilon, tensor)
 // default constructor, destructor, copy constructor assignment operator and helpers
 //////////
 
-#define DEFAULT_DESTROY(classname) \
-void classname::destroy(bool call_parent) \
-{ \
-	if (call_parent) \
-		inherited::destroy(call_parent); \
-}
-
-#define DEFAULT_CTORS(classname) \
-classname::classname() : inherited(TINFO_##classname) \
-{ \
-	debugmsg(#classname " default constructor", LOGLEVEL_CONSTRUCT); \
-} \
-void classname::copy(const classname & other) \
-{ \
-	inherited::copy(other); \
-} \
-DEFAULT_DESTROY(classname)
-
 tensor::tensor(unsigned ti) : inherited(ti)
 {
 	debugmsg("tensor constructor from unsigned", LOGLEVEL_CONSTRUCT); \
@@ -114,23 +96,6 @@ void tensepsilon::copy(const tensepsilon & other)
 // archiving
 //////////
 
-#define DEFAULT_UNARCHIVE(classname) \
-ex classname::unarchive(const archive_node &n, const lst &sym_lst) \
-{ \
-	return (new classname(n, sym_lst))->setflag(status_flags::dynallocated); \
-}
-
-#define DEFAULT_ARCHIVING(classname) \
-classname::classname(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst) \
-{ \
-	debugmsg(#classname " constructor from archive_node", LOGLEVEL_CONSTRUCT); \
-} \
-DEFAULT_UNARCHIVE(classname) \
-void classname::archive(archive_node &n) const \
-{ \
-	inherited::archive(n); \
-}
-
 DEFAULT_ARCHIVING(tensor)
 DEFAULT_ARCHIVING(tensdelta)
 DEFAULT_ARCHIVING(tensmetric)
@@ -167,13 +132,6 @@ void tensepsilon::archive(archive_node &n) const
 // functions overriding virtual functions from bases classes
 //////////
 
-#define DEFAULT_COMPARE(classname) \
-int classname::compare_same_type(const basic & other) const \
-{ \
-	/* by default, two tensors of the same class are always identical */ \
-	return 0; \
-}
-
 DEFAULT_COMPARE(tensor)
 DEFAULT_COMPARE(tensdelta)
 DEFAULT_COMPARE(tensmetric)
@@ -202,29 +160,10 @@ int tensepsilon::compare_same_type(const basic & other) const
 		return inherited::compare_same_type(other);
 }
 
-void tensdelta::print(std::ostream & os, unsigned upper_precedence) const
-{
-	debugmsg("tensdelta print",LOGLEVEL_PRINT);
-	os << "delta";
-}
-
-void tensmetric::print(std::ostream & os, unsigned upper_precedence) const
-{
-	debugmsg("tensmetric print",LOGLEVEL_PRINT);
-	os << "g";
-}
-
-void minkmetric::print(std::ostream & os, unsigned upper_precedence) const
-{
-	debugmsg("minkmetric print",LOGLEVEL_PRINT);
-	os << "eta";
-}
-
-void tensepsilon::print(std::ostream & os, unsigned upper_precedence) const
-{
-	debugmsg("tensepsilon print",LOGLEVEL_PRINT);
-	os << "eps";
-}
+DEFAULT_PRINT(tensdelta, "delta")
+DEFAULT_PRINT(tensmetric, "g")
+DEFAULT_PRINT(minkmetric, "eta")
+DEFAULT_PRINT(tensepsilon, "eps")
 
 /** Automatic symbolic evaluation of an indexed delta tensor. */
 ex tensdelta::eval_indexed(const basic & i) const

@@ -62,17 +62,8 @@ void varidx::copy(const varidx & other)
 	covariant = other.covariant;
 }
 
-void idx::destroy(bool call_parent)
-{
-	if (call_parent)
-		inherited::destroy(call_parent);
-}
-
-void varidx::destroy(bool call_parent)
-{
-	if (call_parent)
-		inherited::destroy(call_parent);
-}
+DEFAULT_DESTROY(idx)
+DEFAULT_DESTROY(varidx)
 
 //////////
 // other constructors
@@ -109,16 +100,6 @@ varidx::varidx(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst
 	n.find_bool("covariant", covariant);
 }
 
-ex idx::unarchive(const archive_node &n, const lst &sym_lst)
-{
-	return (new idx(n, sym_lst))->setflag(status_flags::dynallocated);
-}
-
-ex varidx::unarchive(const archive_node &n, const lst &sym_lst)
-{
-	return (new varidx(n, sym_lst))->setflag(status_flags::dynallocated);
-}
-
 void idx::archive(archive_node &n) const
 {
 	inherited::archive(n);
@@ -131,6 +112,9 @@ void varidx::archive(archive_node &n) const
 	inherited::archive(n);
 	n.add_bool("covariant", covariant);
 }
+
+DEFAULT_UNARCHIVE(idx)
+DEFAULT_UNARCHIVE(varidx)
 
 //////////
 // functions overriding virtual functions from bases classes

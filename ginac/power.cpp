@@ -46,14 +46,10 @@ typedef std::vector<int> intvector;
 // default ctor, dtor, copy ctor assignment operator and helpers
 //////////
 
-// public
-
 power::power() : basic(TINFO_power)
 {
 	debugmsg("power default ctor",LOGLEVEL_CONSTRUCT);
 }
-
-// protected
 
 void power::copy(const power & other)
 {
@@ -62,16 +58,11 @@ void power::copy(const power & other)
 	exponent = other.exponent;
 }
 
-void power::destroy(bool call_parent)
-{
-	if (call_parent) inherited::destroy(call_parent);
-}
+DEFAULT_DESTROY(power)
 
 //////////
 // other ctors
 //////////
-
-// public
 
 power::power(const ex & lh, const ex & rh) : basic(TINFO_power), basis(lh), exponent(rh)
 {
@@ -89,7 +80,6 @@ power::power(const ex & lh, const numeric & rh) : basic(TINFO_power), basis(lh),
 // archiving
 //////////
 
-/** Construct object from archive_node. */
 power::power(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
 	debugmsg("power ctor from archive_node", LOGLEVEL_CONSTRUCT);
@@ -97,19 +87,14 @@ power::power(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 	n.find_ex("exponent", exponent, sym_lst);
 }
 
-/** Unarchive the object. */
-ex power::unarchive(const archive_node &n, const lst &sym_lst)
-{
-	return (new power(n, sym_lst))->setflag(status_flags::dynallocated);
-}
-
-/** Archive the object. */
 void power::archive(archive_node &n) const
 {
 	inherited::archive(n);
 	n.add_ex("basis", basis);
 	n.add_ex("exponent", exponent);
 }
+
+DEFAULT_UNARCHIVE(power)
 
 //////////
 // functions overriding virtual functions from bases classes

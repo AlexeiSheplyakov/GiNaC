@@ -40,25 +40,14 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(ncmul, exprseq)
 // default constructor, destructor, copy constructor assignment operator and helpers
 //////////
 
-// public
-
 ncmul::ncmul()
 {
 	debugmsg("ncmul default constructor",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_ncmul;
 }
 
-// protected
-
-void ncmul::copy(const ncmul & other)
-{
-	inherited::copy(other);
-}
-
-void ncmul::destroy(bool call_parent)
-{
-	if (call_parent) inherited::destroy(call_parent);
-}
+DEFAULT_COPY(ncmul)
+DEFAULT_DESTROY(ncmul)
 
 //////////
 // other constructors
@@ -115,24 +104,7 @@ ncmul::ncmul(exvector * vp) : inherited(vp)
 // archiving
 //////////
 
-/** Construct object from archive_node. */
-ncmul::ncmul(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
-{
-	debugmsg("ncmul constructor from archive_node", LOGLEVEL_CONSTRUCT);
-}
-
-/** Unarchive the object. */
-ex ncmul::unarchive(const archive_node &n, const lst &sym_lst)
-{
-	return (new ncmul(n, sym_lst))->setflag(status_flags::dynallocated);
-}
-
-/** Archive the object. */
-void ncmul::archive(archive_node &n) const
-{
-	inherited::archive(n);
-}
-
+DEFAULT_ARCHIVING(ncmul)
 	
 //////////
 // functions overriding virtual functions from bases classes
@@ -336,7 +308,7 @@ ex ncmul::eval(int level) const
 	//                      *(c1,c2,ncmul(...)) (pull out commutative elements)
 	//                  ncmul(x1,y1,x2,y2) -> *(ncmul(x1,x2),ncmul(y1,y2))
 	//                      (collect elements of same type)
-	//                  ncmul(x1,x2,x3,...) -> x::eval_ncmul(x1,x2,x3,...)
+	//                  ncmul(x1,x2,x3,...) -> x::simplify_ncmul(x1,x2,x3,...)
 	// the following rule would be nice, but produces a recursion,
 	// which must be trapped by introducing a flag that the sub-ncmuls()
 	// are already evaluated (maybe later...)

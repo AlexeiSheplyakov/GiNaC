@@ -72,8 +72,6 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(numeric, basic)
 // operator and helpers
 //////////
 
-// public
-
 /** default ctor. Numerically it initializes to an integer zero. */
 numeric::numeric() : basic(TINFO_numeric)
 {
@@ -82,19 +80,13 @@ numeric::numeric() : basic(TINFO_numeric)
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
-// protected
-
-/** For use by copy ctor and assignment operator. */
 void numeric::copy(const numeric &other)
 {
 	inherited::copy(other);
 	value = other.value;
 }
 
-void numeric::destroy(bool call_parent)
-{
-	if (call_parent) inherited::destroy(call_parent);
-}
+DEFAULT_DESTROY(numeric)
 
 //////////
 // other ctors
@@ -266,7 +258,6 @@ numeric::numeric(const cln::cl_N &z) : basic(TINFO_numeric)
 // archiving
 //////////
 
-/** Construct object from archive_node. */
 numeric::numeric(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
 	debugmsg("numeric ctor from archive_node", LOGLEVEL_CONSTRUCT);
@@ -304,13 +295,6 @@ numeric::numeric(const archive_node &n, const lst &sym_lst) : inherited(n, sym_l
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
-/** Unarchive the object. */
-ex numeric::unarchive(const archive_node &n, const lst &sym_lst)
-{
-	return (new numeric(n, sym_lst))->setflag(status_flags::dynallocated);
-}
-
-/** Archive the object. */
 void numeric::archive(archive_node &n) const
 {
 	inherited::archive(n);
@@ -347,6 +331,8 @@ void numeric::archive(archive_node &n) const
 	n.add_string("number", str);
 #endif
 }
+
+DEFAULT_UNARCHIVE(numeric)
 
 //////////
 // functions overriding virtual functions from bases classes

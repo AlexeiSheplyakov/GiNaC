@@ -36,14 +36,10 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(relational, basic)
 // default ctor, dtor, copy ctor assignment operator and helpers
 //////////
 
-// public
-
 relational::relational() : basic(TINFO_relational)
 {
 	debugmsg("relational default ctor",LOGLEVEL_CONSTRUCT);
 }
-
-// protected
 
 void relational::copy(const relational & other)
 {
@@ -53,10 +49,7 @@ void relational::copy(const relational & other)
 	o=other.o;
 }
 
-void relational::destroy(bool call_parent)
-{
-	if (call_parent) basic::destroy(call_parent);
-}
+DEFAULT_DESTROY(relational)
 
 //////////
 // other ctors
@@ -76,7 +69,6 @@ relational::relational(const ex & lhs, const ex & rhs, operators oper) : basic(T
 // archiving
 //////////
 
-/** Construct object from archive_node. */
 relational::relational(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
 	debugmsg("relational ctor from archive_node", LOGLEVEL_CONSTRUCT);
@@ -88,13 +80,6 @@ relational::relational(const archive_node &n, const lst &sym_lst) : inherited(n,
 	n.find_ex("rh", rh, sym_lst);
 }
 
-/** Unarchive the object. */
-ex relational::unarchive(const archive_node &n, const lst &sym_lst)
-{
-	return (new relational(n, sym_lst))->setflag(status_flags::dynallocated);
-}
-
-/** Archive the object. */
 void relational::archive(archive_node &n) const
 {
 	inherited::archive(n);
@@ -102,6 +87,8 @@ void relational::archive(archive_node &n) const
 	n.add_ex("rh", rh);
 	n.add_unsigned("op", o);
 }
+
+DEFAULT_UNARCHIVE(relational)
 
 //////////
 // functions overriding virtual functions from bases classes

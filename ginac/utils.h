@@ -243,6 +243,61 @@ const ex & _ex60(void);
 const numeric & _num120(void);    //  120
 const ex & _ex120(void);
 
+
+// Helper macros for class implementations (mostly useful for trivial classes)
+
+#define DEFAULT_COPY(classname) \
+void classname::copy(const classname & other) \
+{ \
+	inherited::copy(other); \
+}
+
+#define DEFAULT_DESTROY(classname) \
+void classname::destroy(bool call_parent) \
+{ \
+	if (call_parent) \
+		inherited::destroy(call_parent); \
+}
+
+#define DEFAULT_CTORS(classname) \
+classname::classname() : inherited(TINFO_##classname) \
+{ \
+	debugmsg(#classname " default constructor", LOGLEVEL_CONSTRUCT); \
+} \
+DEFAULT_COPY(classname) \
+DEFAULT_DESTROY(classname)
+
+#define DEFAULT_UNARCHIVE(classname) \
+ex classname::unarchive(const archive_node &n, const lst &sym_lst) \
+{ \
+	return (new classname(n, sym_lst))->setflag(status_flags::dynallocated); \
+}
+
+#define DEFAULT_ARCHIVING(classname) \
+classname::classname(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst) \
+{ \
+	debugmsg(#classname " constructor from archive_node", LOGLEVEL_CONSTRUCT); \
+} \
+DEFAULT_UNARCHIVE(classname) \
+void classname::archive(archive_node &n) const \
+{ \
+	inherited::archive(n); \
+}
+
+#define DEFAULT_COMPARE(classname) \
+int classname::compare_same_type(const basic & other) const \
+{ \
+	/* by default, the objects are always identical */ \
+	return 0; \
+}
+
+#define DEFAULT_PRINT(classname, text) \
+void classname::print(std::ostream & os, unsigned upper_precedence) const \
+{ \
+	debugmsg(#classname " print", LOGLEVEL_PRINT); \
+	os << text; \
+}
+
 } // namespace GiNaC
 
 #endif // ndef __GINAC_UTILS_H__

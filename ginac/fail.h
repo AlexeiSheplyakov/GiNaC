@@ -32,24 +32,11 @@ class fail : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS(fail, basic)
 	
-	// other ctors
-	// none
-	
 	// functions overriding virtual functions from bases classes
 public:
 	void print(std::ostream & os, unsigned upper_precedence=0) const;
-	void printraw(std::ostream & os) const;
 protected:
 	unsigned return_type(void) const { return return_types::noncommutative_composite; };
-	
-	// new virtual functions which can be overridden by derived classes
-	// none
-	
-	// non-virtual functions in this class
-	// none
-	
-	// member variables
-	// none
 };
 
 } // namespace GiNaC

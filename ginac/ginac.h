@@ -58,6 +58,8 @@
 #include "idx.h"
 #include "indexed.h"
 #include "tensor.h"
+#include "color.h"
+#include "clifford.h"
 #endif // ndef GINAC_BASE_ONLY
 
 #ifdef __MAKECINT__

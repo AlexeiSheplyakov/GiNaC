@@ -41,9 +41,6 @@ class structure : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS(structure, basic)
 	
-	// other ctors
-	// none
-
 	// functions overriding virtual functions from bases classes
 public:
 	void printraw(std::ostream & os) const; 
@@ -53,18 +50,11 @@ public:
 protected:
 	bool is_equal_same_type(const basic & other) const;
 	
-	// new virtual functions which can be overridden by derived classes
-	// none
-	
 	// non-virtual functions in this class
 protected:
 	static std::vector<registered_structure_info> & registered_structures(void);
 public:
 	static unsigned register_new(const char * nm);
-
-// member variables
-// none
-
 };
 
 } // namespace GiNaC

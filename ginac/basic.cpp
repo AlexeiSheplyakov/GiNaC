@@ -89,10 +89,7 @@ basic::basic(const archive_node &n, const lst &sym_lst) : flags(0), refcount(0)
 }
 
 /** Unarchive the object. */
-ex basic::unarchive(const archive_node &n, const lst &sym_lst)
-{
-	return (new basic(n, sym_lst))->setflag(status_flags::dynallocated);
-}
+DEFAULT_UNARCHIVE(basic)
 
 /** Archive the object. */
 void basic::archive(archive_node &n) const

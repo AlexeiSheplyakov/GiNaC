@@ -39,6 +39,7 @@ namespace GiNaC {
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(pseries, basic)
 
+
 /*
  *  Default ctor, dtor, copy ctor, assignment operator and helpers
  */
@@ -56,11 +57,7 @@ void pseries::copy(const pseries &other)
 	point = other.point;
 }
 
-void pseries::destroy(bool call_parent)
-{
-	if (call_parent)
-		inherited::destroy(call_parent);
-}
+DEFAULT_DESTROY(pseries)
 
 
 /*
@@ -90,7 +87,6 @@ pseries::pseries(const ex &rel_, const epvector &ops_) : basic(TINFO_pseries), s
  *  Archiving
  */
 
-/** Construct object from archive_node. */
 pseries::pseries(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
 	debugmsg("pseries ctor from archive_node", LOGLEVEL_CONSTRUCT);
@@ -106,13 +102,6 @@ pseries::pseries(const archive_node &n, const lst &sym_lst) : inherited(n, sym_l
 	n.find_ex("point", point, sym_lst);
 }
 
-/** Unarchive the object. */
-ex pseries::unarchive(const archive_node &n, const lst &sym_lst)
-{
-	return (new pseries(n, sym_lst))->setflag(status_flags::dynallocated);
-}
-
-/** Archive the object. */
 void pseries::archive(archive_node &n) const
 {
 	inherited::archive(n);
@@ -125,6 +114,8 @@ void pseries::archive(archive_node &n) const
 	n.add_ex("var", var);
 	n.add_ex("point", point);
 }
+
+DEFAULT_UNARCHIVE(pseries)
 
 //////////
 // functions overriding virtual functions from bases classes

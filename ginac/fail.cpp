@@ -24,6 +24,7 @@
 #include "fail.h"
 #include "archive.h"
 #include "debugmsg.h"
+#include "utils.h"
 
 namespace GiNaC {
 
@@ -33,71 +34,19 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(fail, basic)
 // default ctor, dtor, copy ctor assignment operator and helpers
 //////////
 
-// public
-
-fail::fail() : inherited(TINFO_fail)
-{
-	debugmsg("fail default ctor",LOGLEVEL_CONSTRUCT);
-}
-
-// protected
-
-void fail::copy(const fail & other)
-{
-	inherited::copy(other);
-}
-
-void fail::destroy(bool call_parent)
-{
-	if (call_parent) inherited::destroy(call_parent);
-}
+DEFAULT_CTORS(fail)
 
 //////////
 // archiving
 //////////
 
-/** Construct object from archive_node. */
-fail::fail(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
-{
-	debugmsg("fail ctor from archive_node", LOGLEVEL_CONSTRUCT);
-}
-
-/** Unarchive the object. */
-ex fail::unarchive(const archive_node &n, const lst &sym_lst)
-{
-	return (new fail(n, sym_lst))->setflag(status_flags::dynallocated);
-}
-
-/** Archive the object. */
-void fail::archive(archive_node &n) const
-{
-	inherited::archive(n);
-}
+DEFAULT_ARCHIVING(fail)
 
 //////////
 // functions overriding virtual functions from bases classes
 //////////
 
-// public
-
-void fail::print(std::ostream & os, unsigned upper_precedence) const
-{
-	debugmsg("fail print",LOGLEVEL_PRINT);
-	os << "FAIL";
-}
-
-void fail::printraw(std::ostream & os) const
-{
-	debugmsg("fail printraw",LOGLEVEL_PRINT);
-	os << "FAIL";
-}
-
-// protected
-
-int fail::compare_same_type(const basic & other) const
-{
-	// two fails are always identical
-	return 0;
-}
+DEFAULT_COMPARE(fail)
+DEFAULT_PRINT(fail, "FAIL")
 
 } // namespace GiNaC

@@ -52,11 +52,7 @@ void indexed::copy(const indexed & other)
 	symmetry = other.symmetry;
 }
 
-void indexed::destroy(bool call_parent)
-{
-	if (call_parent)
-		inherited::destroy(call_parent);
-}
+DEFAULT_DESTROY(indexed)
 
 //////////
 // other constructors
@@ -159,7 +155,6 @@ indexed::indexed(symmetry_type symm, exvector * vp) : inherited(vp), symmetry(sy
 // archiving
 //////////
 
-/** Construct object from archive_node. */
 indexed::indexed(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
 	debugmsg("indexed constructor from archive_node", LOGLEVEL_CONSTRUCT);
@@ -168,18 +163,13 @@ indexed::indexed(const archive_node &n, const lst &sym_lst) : inherited(n, sym_l
 		throw (std::runtime_error("unknown indexed symmetry type in archive"));
 }
 
-/** Unarchive the object. */
-ex indexed::unarchive(const archive_node &n, const lst &sym_lst)
-{
-	return (new indexed(n, sym_lst))->setflag(status_flags::dynallocated);
-}
-
-/** Archive the object. */
 void indexed::archive(archive_node &n) const
 {
 	inherited::archive(n);
 	n.add_unsigned("symmetry", symmetry);
 }
+
+DEFAULT_UNARCHIVE(indexed)
 
 //////////
 // functions overriding virtual functions from bases classes

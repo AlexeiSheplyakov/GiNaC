@@ -101,11 +101,7 @@ void expairseq::copy(const expairseq &other)
 #endif // EXPAIRSEQ_USE_HASHTAB
 }
 
-void expairseq::destroy(bool call_parent)
-{
-	if (call_parent)
-		basic::destroy(call_parent);
-}
+DEFAULT_DESTROY(expairseq)
 
 //////////
 // other ctors
@@ -147,7 +143,6 @@ expairseq::expairseq(epvector *vp, const ex &oc)
 // archiving
 //////////
 
-/** Construct object from archive_node. */
 expairseq::expairseq(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 #if EXPAIRSEQ_USE_HASHTAB
 	, hashtabsize(0)
@@ -165,13 +160,6 @@ expairseq::expairseq(const archive_node &n, const lst &sym_lst) : inherited(n, s
 	n.find_ex("overall_coeff", overall_coeff, sym_lst);
 }
 
-/** Unarchive the object. */
-ex expairseq::unarchive(const archive_node &n, const lst &sym_lst)
-{
-	return (new expairseq(n, sym_lst))->setflag(status_flags::dynallocated);
-}
-
-/** Archive the object. */
 void expairseq::archive(archive_node &n) const
 {
 	inherited::archive(n);
@@ -183,6 +171,8 @@ void expairseq::archive(archive_node &n) const
 	}
 	n.add_ex("overall_coeff", overall_coeff);
 }
+
+DEFAULT_UNARCHIVE(expairseq)
 
 //////////
 // functions overriding virtual functions from bases classes

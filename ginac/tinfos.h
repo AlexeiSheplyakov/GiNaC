@@ -53,6 +53,8 @@ const unsigned TINFO_numeric       = 0x00090001U;
 const unsigned TINFO_pseries       = 0x000a0001U;
 
 const unsigned TINFO_indexed       = 0x000b0001U;
+const unsigned TINFO_color         = 0x000b1001U;
+const unsigned TINFO_clifford      = 0x000b1002U;
 
 const unsigned TINFO_structure     = 0x000c0001U;
 // reserved up to                    0x000cffffU
@@ -66,6 +68,11 @@ const unsigned TINFO_tensdelta     = 0x000e1001U;
 const unsigned TINFO_tensmetric    = 0x000e1002U;
 const unsigned TINFO_minkmetric    = 0x000e2001U;
 const unsigned TINFO_tensepsilon   = 0x000e1003U;
+const unsigned TINFO_su3one        = 0x000e1008U;
+const unsigned TINFO_su3t          = 0x000e1009U;
+const unsigned TINFO_su3f          = 0x000e100aU;
+const unsigned TINFO_su3d          = 0x000e100bU;
+const unsigned TINFO_diracgamma    = 0x000e100cU;
 
 } // namespace GiNaC
 
