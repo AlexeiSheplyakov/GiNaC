@@ -5358,7 +5358,7 @@ class may change between GiNaC versions.
 @chapter Extending GiNaC
 
 By reading so far you should have gotten a fairly good understanding of
-GiNaC's design-patterns.  From here on you should start reading the
+GiNaC's design patterns.  From here on you should start reading the
 sources.  All we can do now is issue some recommendations how to tackle
 GiNaC's many loose ends in order to fulfill everybody's dreams.  If you
 develop some useful extension please don't hesitate to contact the GiNaC
@@ -5367,6 +5367,7 @@ authors---they will happily incorporate them into future versions.
 @menu
 * What does not belong into GiNaC::  What to avoid.
 * Symbolic functions::               Implementing symbolic functions.
+* Printing::                         Adding new output formats.
 * Structures::                       Defining new algebraic classes (the easy way).
 * Adding classes::                   Defining new algebraic classes (the hard way).
 @end menu
@@ -5396,7 +5397,7 @@ inefficient.  For this purpose, the underlying foundation classes
 provided by CLN are much better suited.
 
 
-@node Symbolic functions, Structures, What does not belong into GiNaC, Extending GiNaC
+@node Symbolic functions, Printing, What does not belong into GiNaC, Extending GiNaC
 @c    node-name, next, previous, up
 @section Symbolic functions
 
@@ -5499,17 +5500,17 @@ look like this at all, but it should give you an idea what is going on):
 @example
 static ex cos_eval(const ex & x)
 @{
-    if (<x is a multiple of 2*Pi>)
+    if ("x is a multiple of 2*Pi")
         return 1;
-    else if (<x is a multiple of Pi>)
+    else if ("x is a multiple of Pi")
         return -1;
-    else if (<x is a multiple of Pi/2>)
+    else if ("x is a multiple of Pi/2")
         return 0;
     // more rules...
 
-    else if (<x has the form 'acos(y)'>)
+    else if ("x has the form 'acos(y)'")
         return y;
-    else if (<x has the form 'asin(y)'>)
+    else if ("x has the form 'asin(y)'")
         return sqrt(1-y^2);
     // more rules...
 
@@ -5573,7 +5574,7 @@ static ex tan_series(const ex & x, const relational & rel,
     // Find the actual expansion point
     const ex x_pt = x.subs(rel);
 
-    if (<x_pt is not an odd multiple of Pi/2>)
+    if ("x_pt is not an odd multiple of Pi/2")
         throw do_taylor();  // tell function::series() to do Taylor expansion
 
     // On a pole, expand sin()/cos()
@@ -5661,8 +5662,267 @@ arguments. @xref{Indexed objects}, for an explanation of symmetry
 specifications. GiNaC will automatically rearrange the arguments of
 symmetric functions into a canonical order.
 
+Sometimes you may want to have finer control over how functions are
+displayed in the output. For example, the @code{abs()} function prints
+itself as @samp{abs(x)} in the default output format, but as @samp{|x|}
+in LaTeX mode, and @code{fabs(x)} in C source output. This is achieved
+with the
 
-@node Structures, Adding classes, Symbolic functions, Extending GiNaC
+@example
+print_func<C>(<C++ function>)
+@end example
+
+option which is explained in the next section.
+
+
+@node Printing, Structures, Symbolic functions, Extending GiNaC
+@c    node-name, next, previous, up
+@section GiNaC's expression output system
+
+GiNaC allows the output of expressions in a variety of different formats
+(@pxref{Input/Output}). This section will explain how expression output
+is implemented internally, and how to define your own output formats or
+change the output format of built-in algebraic objects. You will also want
+to read this section if you plan to write your own algebraic classes or
+functions.
+
+@cindex @code{print_context} (class)
+@cindex @code{print_dflt} (class)
+@cindex @code{print_latex} (class)
+@cindex @code{print_tree} (class)
+@cindex @code{print_csrc} (class)
+All the different output formats are represented by a hierarchy of classes
+rooted in the @code{print_context} class, defined in the @file{print.h}
+header file:
+
+@table @code
+@item print_dflt
+the default output format
+@item print_latex
+output in LaTeX mathematical mode
+@item print_tree
+a dump of the internal expression structure (for debugging)
+@item print_csrc
+the base class for C source output
+@item print_csrc_float
+C source output using the @code{float} type
+@item print_csrc_double
+C source output using the @code{double} type
+@item print_csrc_cl_N
+C source output using CLN types
+@end table
+
+The @code{print_context} base class provides two public data members:
+
+@example
+class print_context
+@{
+    ...
+public:
+    std::ostream & s;
+    unsigned options;
+@};
+@end example
+
+@code{s} is a reference to the stream to output to, while @code{options}
+holds flags and modifiers. Currently, there is only one flag defined:
+@code{print_options::print_index_dimensions} instructs the @code{idx} class
+to print the index dimension which is normally hidden.
+
+When you write something like @code{std::cout << e}, where @code{e} is
+an object of class @code{ex}, GiNaC will construct an appropriate
+@code{print_context} object (of a class depending on the selected output
+format), fill in the @code{s} and @code{options} members, and call
+
+@cindex @code{print()}
+@example
+void ex::print(const print_context & c, unsigned level = 0) const;
+@end example
+
+which in turn forwards the call to the @code{print()} method of the
+top-level algebraic object contained in the expression.
+
+Unlike other methods, GiNaC classes don't usually override their
+@code{print()} method to implement expression output. Instead, the default
+implementation @code{basic::print(c, level)} performs a run-time double
+dispatch to a function selected by the dynamic type of the object and the
+passed @code{print_context}. To this end, GiNaC maintains a separate method
+table for each class, similar to the virtual function table used for ordinary
+(single) virtual function dispatch.
+
+The method table contains one slot for each possible @code{print_context}
+type, indexed by the (internally assigned) serial number of the type. Slots
+may be empty, in which case GiNaC will retry the method lookup with the
+@code{print_context} object's parent class, possibly repeating the process
+until it reaches the @code{print_context} base class. If there's still no
+method defined, the method table of the algebraic object's parent class
+is consulted, and so on, until a matching method is found (eventually it
+will reach the combination @code{basic/print_context}, which prints the
+object's class name enclosed in square brackets).
+
+You can think of the print methods of all the different classes and output
+formats as being arranged in a two-dimensional matrix with one axis listing
+the algebraic classes and the other axis listing the @code{print_context}
+classes.
+
+Subclasses of @code{basic} can, of course, also overload @code{basic::print()}
+to implement printing, but then they won't get any of the benefits of the
+double dispatch mechanism (such as the ability for derived classes to
+inherit only certain print methods from its parent, or the replacement of
+methods at run-time).
+
+@subsection Print methods for classes
+
+The method table for a class is set up either in the definition of the class,
+by passing the appropriate @code{print_func<C>()} option to
+@code{GINAC_IMPLEMENT_REGISTERED_CLASS_OPT()} (@xref{Adding classes}, for
+an example), or at run-time using @code{set_print_func<T, C>()}. The latter
+can also be used to override existing methods dynamically.
+
+The argument to @code{print_func<C>()} and @code{set_print_func<T, C>()} can
+be a member function of the class (or one of its parent classes), a static
+member function, or an ordinary (global) C++ function. The @code{C} template
+parameter specifies the appropriate @code{print_context} type for which the
+method should be invoked, while, in the case of @code{set_print_func<>()}, the
+@code{T} parameter specifies the algebraic class (for @code{print_func<>()},
+the class is the one being implemented by
+@code{GINAC_IMPLEMENT_REGISTERED_CLASS_OPT}).
+
+For print methods that are member functions, their first argument must be of
+a type convertible to a @code{const C &}, and the second argument must be an
+@code{unsigned}.
+
+For static members and global functions, the first argument must be of a type
+convertible to a @code{const T &}, the second argument must be of a type
+convertible to a @code{const C &}, and the third argument must be an
+@code{unsigned}. A global function will, of course, not have access to
+private and protected members of @code{T}.
+
+The @code{unsigned} argument of the print methods (and of @code{ex::print()}
+and @code{basic::print()}) is used for proper parenthesizing of the output
+(and by @code{print_tree} for proper indentation). It can be used for similar
+purposes if you write your own output formats.
+
+The explanations given above may seem complicated, but in practice it's
+really simple, as shown in the following example. Suppose that we want to
+display exponents in LaTeX output not as superscripts but with little
+upwards-pointing arrows. This can be achieved in the following way:
+
+@example
+void my_print_power_as_latex(const power & p,
+                             const print_latex & c,
+                             unsigned level)
+@{
+    // get the precedence of the 'power' class
+    unsigned power_prec = p.precedence();
+
+    // if the parent operator has the same or a higher precedence
+    // we need parentheses around the power
+    if (level >= power_prec)
+        c.s << '(';
+
+    // print the basis and exponent, each enclosed in braces, and
+    // separated by an uparrow
+    c.s << '@{';
+    p.op(0).print(c, power_prec);
+    c.s << "@}\\uparrow@{";
+    p.op(1).print(c, power_prec);
+    c.s << '@}';
+
+    // don't forget the closing parenthesis
+    if (level >= power_prec)
+        c.s << ')';
+@}
+                                                                                
+int main()
+@{
+    // a sample expression
+    symbol x("x"), y("y");
+    ex e = -3*pow(x, 3)*pow(y, -2) + pow(x+y, 2) - 1;
+
+    // switch to LaTeX mode
+    cout << latex;
+
+    // this prints "-1+@{(y+x)@}^@{2@}-3 \frac@{x^@{3@}@}@{y^@{2@}@}"
+    cout << e << endl;
+
+    // now we replace the method for the LaTeX output of powers with
+    // our own one
+    set_print_func<power, print_latex>(my_print_power_as_latex);
+
+    // this prints "-1+@{@{(y+x)@}@}\uparrow@{2@}-3 \frac@{@{x@}\uparrow@{3@}@}@{@{y@}\uparrow@{2@}@}"
+    cout << e << endl;
+@}
+@end example
+
+Some notes:
+
+@itemize
+
+@item
+The first argument of @code{my_print_power_as_latex} could also have been
+a @code{const basic &}, the second one a @code{const print_context &}.
+
+@item
+The above code depends on @code{mul} objects converting their operands to
+@code{power} objects for the purpose of printing.
+
+@item
+The output of products including negative powers as fractions is also
+controlled by the @code{mul} class.
+
+@item
+The @code{power/print_latex} method provided by GiNaC prints square roots
+using @code{\sqrt}, but the above code doesn't.
+
+@end itemize
+
+It's not possible to restore a method table entry to its previous or default
+value. Once you have called @code{set_print_func()}, you can only override
+it with another call to @code{set_print_func()}, but you can't easily go back
+to the default behavior again (you can, of course, dig around in the GiNaC
+sources, find the method that is installed at startup
+(@code{power::do_print_latex} in this case), and @code{set_print_func} that
+one; that is, after you circumvent the C++ member access control@dots{}).
+
+@subsection Print methods for functions
+
+Symbolic functions employ a print method dispatch mechanism similar to the
+one used for classes. The methods are specified with @code{print_func<C>()}
+function options. If you don't specify any special print methods, the function
+will be printed with its name (or LaTeX name, if supplied), followed by a
+comma-separated list of arguments enclosed in parentheses.
+
+For example, this is what GiNaC's @samp{abs()} function is defined like:
+
+@example
+static ex abs_eval(const ex & arg) @{ ... @}
+static ex abs_evalf(const ex & arg) @{ ... @}
+                                                                                
+static void abs_print_latex(const ex & arg, const print_context & c)
+@{
+    c.s << "@{|"; arg.print(c); c.s << "|@}";
+@}
+                                                                                
+static void abs_print_csrc_float(const ex & arg, const print_context & c)
+@{
+    c.s << "fabs("; arg.print(c); c.s << ")";
+@}
+                                                                                
+REGISTER_FUNCTION(abs, eval_func(abs_eval).
+                       evalf_func(abs_evalf).
+                       print_func<print_latex>(abs_print_latex).
+                       print_func<print_csrc_float>(abs_print_csrc_float).
+                       print_func<print_csrc_double>(abs_print_csrc_float));
+@end example
+
+This will display @samp{abs(x)} as @samp{|x|} in LaTeX mode and @code{fabs(x)}
+in non-CLN C source output, but as @code{abs(x)} in all other formats.
+
+There is currently no equivalent of @code{set_print_func()} for functions.
+
+
+@node Structures, Adding classes, Printing, Extending GiNaC
 @c    node-name, next, previous, up
 @section Structures
 
@@ -5788,10 +6048,15 @@ desired, most notably proper output:
 @end example
 
 By default, any structure types you define will be printed as
-@samp{[structure object]}. To override this, you can specialize the
-template's @code{print()} member function. The member functions of
-GiNaC classes are described in more detail in the next section, but
-it shouldn't be hard to figure out what's going on here:
+@samp{[structure object]}. To override this you can either specialize the
+template's @code{print()} member function, or specify print methods with
+@code{set_print_func<>()}, as described in @ref{Printing}. Unfortunately,
+it's not possible to supply class options like @code{print_func<>()} to
+structures, so for a self-contained structure type you need to resort to
+overriding the @code{print()} function, which is also what we will do here.
+
+The member functions of GiNaC classes are described in more detail in the
+next section, but it shouldn't be hard to figure out what's going on here:
 
 @example
 void sprod::print(const print_context & c, unsigned level) const
@@ -6069,7 +6334,7 @@ to the unarchiving functions. This class registry is defined in the
 
 The disadvantage of this proprietary RTTI implementation is that there's
 a little more to do when implementing new classes (C++'s RTTI works more
-or less automatic) but don't worry, most of the work is simplified by
+or less automatically) but don't worry, most of the work is simplified by
 macros.
 
 @subsection A minimalistic example
@@ -6125,7 +6390,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(mystring, basic)
 @end example
 
 The @code{GINAC_DECLARE_REGISTERED_CLASS} and @code{GINAC_IMPLEMENT_REGISTERED_CLASS}
-macros are defined in @file{registrar.h}.  They take the name of the class
+macros are defined in @file{registrar.h}. They take the name of the class
 and its direct superclass as arguments and insert all required declarations
 for the RTTI system. The @code{GINAC_DECLARE_REGISTERED_CLASS} should be
 the first line after the opening brace of the class definition. The
@@ -6134,10 +6399,12 @@ source (at global scope, of course, not inside a function).
 
 @code{GINAC_DECLARE_REGISTERED_CLASS} contains, among other things the
 declarations of the default constructor and a couple of other functions that
-are required.  It also defines a type @code{inherited} which refers to the
+are required. It also defines a type @code{inherited} which refers to the
 superclass so you don't have to modify your code every time you shuffle around
-the class hierarchy.  @code{GINAC_IMPLEMENT_REGISTERED_CLASS} registers the
-class with the GiNaC RTTI.
+the class hierarchy. @code{GINAC_IMPLEMENT_REGISTERED_CLASS} registers the
+class with the GiNaC RTTI (there is also a
+@code{GINAC_IMPLEMENT_REGISTERED_CLASS_OPT} which allows specifying additional
+options for the class, and which we will be using instead in a few minutes).
 
 Now there are seven member functions we have to implement to get a working
 class:
@@ -6306,20 +6573,21 @@ cout << e << endl;
 @end example
 
 Hm, not exactly what we expect, but of course the @code{mystring} class
-doesn't yet know how to print itself. This is done in the @code{print()}
-member function. Let's say that we wanted to print the string surrounded
-by double quotes:
+doesn't yet know how to print itself. This can be done either by implementing
+the @code{print()} member function, or, preferably, by specifying a
+@code{print_func<>()} class option. Let's say that we want to print the string
+surrounded by double quotes:
 
 @example
 class mystring : public basic
 @{
     ...
-public:
-    void print(const print_context &c, unsigned level = 0) const;
+protected:
+    void do_print(const print_context &c, unsigned level = 0) const;
     ...
 @};
 
-void mystring::print(const print_context &c, unsigned level) const
+void mystring::do_print(const print_context &c, unsigned level) const
 @{
     // print_context::s is a reference to an ostream
     c.s << '\"' << str << '\"';
@@ -6327,14 +6595,39 @@ void mystring::print(const print_context &c, unsigned level) const
 @end example
 
 The @code{level} argument is only required for container classes to
-correctly parenthesize the output. Let's try again to print the expression:
+correctly parenthesize the output.
+
+Now we need to tell GiNaC that @code{mystring} objects should use the
+@code{do_print()} member function for printing themselves. For this, we
+replace the line
+
+@example
+GINAC_IMPLEMENT_REGISTERED_CLASS(mystring, basic)
+@end example
+
+with
+
+@example
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(mystring, basic,
+  print_func<print_context>(&mystring::do_print))
+@end example
+
+Let's try again to print the expression:
 
 @example
 cout << e << endl;
  // -> "Hello, world!"
 @end example
 
-Much better. The @code{mystring} class can be used in arbitrary expressions:
+Much better. If we wanted to have @code{mystring} objects displayed in a
+different way depending on the output format (default, LaTeX, etc.), we
+would have supplied multiple @code{print_func<>()} options with different
+template parameters (@code{print_dflt}, @code{print_latex}, etc.),
+separated by dots. This is similar to the way options are specified for
+symbolic functions. @xref{Printing}, for a more in-depth description of the
+way expression output is implemented in GiNaC.
+
+The @code{mystring} class can be used in arbitrary expressions:
 
 @example
 e += mystring("GiNaC rulez"); 
