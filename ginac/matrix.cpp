@@ -640,7 +640,6 @@ matrix matrix::transpose(void) const
 	return matrix(this->cols(),this->rows(),trans);
 }
 
-
 /** Determinant of square matrix.  This routine doesn't actually calculate the
  *  determinant, it only implements some heuristics about which algorithm to
  *  run.  If all the elements of the matrix are elements of an integral domain
@@ -756,7 +755,8 @@ ex matrix::determinant(unsigned algo) const
 			std::vector<unsigned> pre_sort;
 			for (std::vector<uintpair>::iterator i=c_zeros.begin(); i!=c_zeros.end(); ++i)
 				pre_sort.push_back(i->second);
-			int sign = permutation_sign(pre_sort.begin(), pre_sort.end());
+			std::vector<unsigned> pre_sort_test(pre_sort); // permutation_sign() modifies the vector so we make a copy here
+			int sign = permutation_sign(pre_sort_test.begin(), pre_sort_test.end());
 			exvector result(row*col);  // represents sorted matrix
 			unsigned c = 0;
 			for (std::vector<unsigned>::iterator i=pre_sort.begin();
