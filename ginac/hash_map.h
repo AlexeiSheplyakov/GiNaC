@@ -73,7 +73,6 @@ class exhashmap;
  *
  *  Differences to map<>:
  *   - no lower_bound()/upper_bound()
- *   - no "insert with a hint" insert(iterator, key_type)
  *   - no reverse iterators, no rbegin()/rend()
  *   - no operator<()
  *   - comparison functor is hardcoded to ex_is_less
@@ -335,6 +334,11 @@ public:
 
 	// Modifiers
 	std::pair<iterator, bool> insert(const value_type &x);
+
+	iterator insert(iterator pos, const value_type &x)
+	{
+		return insert(val).first;
+	}
 
 	template <class InputIterator>
 	void insert(InputIterator first, InputIterator last)
