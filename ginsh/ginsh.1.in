@@ -109,6 +109,13 @@ There is also the special
 symbol that controls the numeric precision of calculations with inexact numbers.
 Assigning an integer value to digits will change the precision to the given
 number of decimal places.
+.SS WILDCARDS
+The has(), match() and subs() functions accept wildcards as placeholders for
+expressions. These have the syntax
+.RS
+.BI $ number
+.RE
+for example $0, $1 etc.
 .SS LAST PRINTED EXPRESSIONS
 ginsh provides the three special symbols
 .RS
@@ -272,7 +279,7 @@ detail here. Please refer to the GiNaC documentation.
 \- greatest common divisor
 .br
 .BI has( expression ", " expression )
-\- returns "1" if the first expression contains the second as a subexpression, "0" otherwise
+\- returns "1" if the first expression contains the second (which may contain wildcards) as a subexpression, "0" otherwise
 .br
 .BI inverse( matrix )
 \- inverse of a matrix
@@ -334,7 +341,7 @@ detail here. Please refer to the GiNaC documentation.
 .BI subs( expression ", " relation-or-list )
 .br
 .BI subs( expression ", " look-for-list ", " replace-by-list )
-\- substitute subexpressions
+\- substitute subexpressions (you may use wildcards)
 .br
 .BI tcoeff( expression ", " object )
 \- trailing coefficient of a polynomial
