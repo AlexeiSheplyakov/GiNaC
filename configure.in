@@ -77,7 +77,6 @@ GINAC_CHECK_LIBCLN
 
 dnl Check for stuff needed for building the GiNaC interactive shell (ginsh):
 AC_CHECK_HEADERS(unistd.h)
-AC_REPLACE_FUNCS(strdup)
 AC_CHECK_HEADERS(readline/readline.h readline/history.h)
 AC_CHECK_LIB(readline, readline)
 

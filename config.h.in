@@ -9,9 +9,6 @@
 /* Define to the version of the distribution.  */
 #undef VERSION
 
-/* Define if you have the strdup function.  */
-#undef HAVE_STRDUP
-
 /* Define if you have the <CLN/cln.h> header file.  */
 #undef HAVE_CLN_CLN_H
 

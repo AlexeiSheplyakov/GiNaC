@@ -93,7 +93,7 @@ YACC = @YACC@
 
 bin_PROGRAMS = ginsh
 ginsh_SOURCES = ginsh_parser.yy ginsh_lexer.ll ginsh.h
-ginsh_LDADD = @LIBOBJS@ ../ginac/libginac.la
+ginsh_LDADD = ../ginac/libginac.la
 man_MANS = ginsh.1
 YFLAGS = -d
 EXTRA_DIST = ginsh_parser.h
@@ -108,7 +108,7 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 ginsh_OBJECTS =  ginsh_parser.o ginsh_lexer.o
-ginsh_DEPENDENCIES =  @LIBOBJS@ ../ginac/libginac.la
+ginsh_DEPENDENCIES =  ../ginac/libginac.la
 ginsh_LDFLAGS = 
 LEX_OUTPUT_ROOT = @LEX_OUTPUT_ROOT@
 LEXLIB = @LEXLIB@
@@ -124,15 +124,14 @@ man1dir = $(mandir)/man1
 MANS = $(man_MANS)
 
 NROFF = nroff
-DIST_COMMON =  Makefile.am Makefile.in ginsh_lexer.cc ginsh_parser.cc \
-strdup.c
+DIST_COMMON =  Makefile.am Makefile.in ginsh_lexer.cc ginsh_parser.cc
 
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP = --best
-DEP_FILES =  .deps/ginsh_lexer.P .deps/ginsh_parser.P .deps/strdup.P
+DEP_FILES =  .deps/ginsh_lexer.P .deps/ginsh_parser.P
 CXXMKDEP = $(CXX) -M $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CXXFLAGS)
 SOURCES = $(ginsh_SOURCES)
 OBJECTS = $(ginsh_OBJECTS)
