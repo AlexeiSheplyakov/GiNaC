@@ -336,6 +336,22 @@ static unsigned exam_paranoia13(void)
 	return result;
 }
 
+// A bug introduced on July 19, 2001. quo() and rem() would sometimes call
+// vector::reserve() with a negative argument. Fixed on Dec 20, 2001.
+static unsigned exam_paranoia14(void)
+{
+	unsigned result = 0;
+	symbol x("x");
+
+	ex q = quo(1, pow(x, 3), x);
+	if (!q.is_zero()) {
+		clog << "quo(1,x^3,x) erroneously returned " << q << " instead of 0\n";
+		++result;
+	}
+
+	return result;
+}
+
 unsigned exam_paranoia(void)
 {
 	unsigned result = 0;
@@ -356,6 +372,7 @@ unsigned exam_paranoia(void)
 	result += exam_paranoia11();  cout << '.' << flush;
 	result += exam_paranoia12();  cout << '.' << flush;
 	result += exam_paranoia13();  cout << '.' << flush;
+	result += exam_paranoia14();  cout << '.' << flush;
 	
 	if (!result) {
 		cout << " passed " << endl;
