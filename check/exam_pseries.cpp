@@ -115,6 +115,10 @@ static unsigned exam_series1()
 	    + Order(pow(x, 2));
 	result += check_series(e, 0, d, 2);
 	
+	e = sqrt(1+x*x) * sqrt(1+2*x*x);
+	d = 1 + Order(pow(x, 2));
+	result += check_series(e, 0, d, 2);
+
 	symbol a("a");
 	e = pow(x, 4) * sin(a) + pow(x, 2);
 	d = pow(x, 2) + Order(pow(x, 3));
