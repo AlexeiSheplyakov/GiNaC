@@ -2060,15 +2060,13 @@ ex power::normal(lst &sym_lst, lst &repl_lst, int level) const
  *  @see ex::normal */
 ex pseries::normal(lst &sym_lst, lst &repl_lst, int level) const
 {
-	epvector new_seq;
-	new_seq.reserve(seq.size());
-
-	epvector::const_iterator it = seq.begin(), itend = seq.end();
-	while (it != itend) {
-		new_seq.push_back(expair(it->rest.normal(), it->coeff));
-		it++;
+	epvector newseq;
+	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i) {
+		ex restexp = i->rest.normal();
+		if (!restexp.is_zero())
+			newseq.push_back(expair(restexp, i->coeff));
 	}
-	ex n = pseries(relational(var,point), new_seq);
+	ex n = pseries(relational(var,point), newseq);
 	return (new lst(replace_with_symbol(n, sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
 }
 

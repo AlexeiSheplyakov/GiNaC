@@ -416,7 +416,6 @@ ex pseries::subs(const lst & ls, const lst & lr) const
 ex pseries::expand(unsigned options) const
 {
 	epvector newseq;
-	newseq.reserve(seq.size());
 	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i) {
 		ex restexp = i->rest.expand();
 		if (!restexp.is_zero())
