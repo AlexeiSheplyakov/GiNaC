@@ -176,6 +176,13 @@ int main()
 		++result;
 	}
 	
+	try {
+		result += time_antipode();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
 	if (result) {
 		cout << "Error: something went wrong. ";
 		if (result == 1) {

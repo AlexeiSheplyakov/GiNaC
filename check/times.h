@@ -72,5 +72,6 @@ unsigned time_lw_P();
 unsigned time_lw_Pprime();
 unsigned time_lw_Q();
 unsigned time_lw_Qprime();
+unsigned time_antipode();
 
 #endif // ndef CHECKS_H
