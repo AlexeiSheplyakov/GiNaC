@@ -250,7 +250,7 @@ unsigned exam_clifford(void)
 	result += clifford_check3();  cout << '.' << flush;
 	result += clifford_check4();  cout << '.' << flush;
 	result += clifford_check5();  cout << '.' << flush;
-	
+
 	if (!result) {
 		cout << " passed " << endl;
 		clog << "(no output)" << endl;
