@@ -179,6 +179,9 @@ static void base_and_index(const ex & c, ex & b, ex & i)
 	if (is_a<diracgamma>(c.op(0))) { // proper dirac gamma object
 		i = c.op(1);
 		b = _ex1;
+	} else if (is_a<diracgamma5>(c.op(0))) { // gamma5
+		i = _ex0;
+		b = _ex1;
 	} else { // slash object, generate new dummy index
 		varidx ix((new symbol)->setflag(status_flags::dynallocated), ex_to<idx>(c.op(1)).get_dim());
 		b = indexed(c.op(0), ix.toggle_variance());
@@ -195,6 +198,10 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 	unsigned char rl = ex_to<clifford>(*self).get_representation_label();
 
 	if (is_a<clifford>(*other)) {
+
+		// Contraction only makes sense if the represenation labels are equal
+		if (ex_to<clifford>(*other).get_representation_label() != rl)
+			return false;
 
 		ex dim = ex_to<idx>(self->op(1)).get_dim();
 

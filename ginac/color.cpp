@@ -308,6 +308,11 @@ bool su3t::contract_with(exvector::iterator self, exvector::iterator other, exve
 
 	if (is_ex_exactly_of_type(other->op(0), su3t)) {
 
+		// Contraction only makes sense if the represenation labels are equal
+		GINAC_ASSERT(is_a<color>(*other));
+		if (ex_to<color>(*other).get_representation_label() != rl)
+			return false;
+
 		// T.a T.a = 4/3 ONE
 		if (other - self == 1) {
 			*self = numeric(4, 3);
