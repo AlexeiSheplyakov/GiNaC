@@ -272,7 +272,39 @@ numeric operator+(numeric const & lh)
 
 numeric operator-(numeric const & lh)
 {
-    return (numeric(-1)*lh);
+    return numMINUSONE()*lh;
+}
+
+/** Numeric prefix increment.  Adds 1 and returns incremented number. */
+numeric& operator++(numeric & rh)
+{
+    rh = rh+numONE();
+    return rh;
+}
+
+/** Numeric prefix decrement.  Subtracts 1 and returns decremented number. */
+numeric& operator--(numeric & rh)
+{
+    rh = rh-numONE();
+    return rh;
+}
+
+/** Numeric postfix increment.  Returns the number and leaves the original
+ *  incremented by 1. */
+numeric operator++(numeric & lh, int)
+{
+    numeric tmp = lh;
+    lh = lh+numONE();
+    return tmp;
+}
+
+/** Numeric Postfix decrement.  Returns the number and leaves the original
+ *  decremented by 1. */
+numeric operator--(numeric & lh, int)
+{
+    numeric tmp = lh;
+    lh = lh-numONE();
+    return tmp;
 }
 
 // binary relational operators ex with ex

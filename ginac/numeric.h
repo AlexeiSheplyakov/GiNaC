@@ -317,7 +317,8 @@ inline numeric numer(numeric const & x)
 inline numeric denom(numeric const & x)
 { return x.denom(); }
 
-ex IEvalf(void);
+// numeric evaluation functions for class constant objects:
+
 ex PiEvalf(void);
 ex EulerGammaEvalf(void);
 ex CatalanEvalf(void);

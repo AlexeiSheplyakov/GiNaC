@@ -44,7 +44,7 @@ static ex zeta_eval(ex const & x)
         if (y.is_integer()) {
             if (y.is_zero())
                 return -exHALF();
-            if (!x.compare(exONE()))
+            if (x.is_equal(exONE()))
                 throw(std::domain_error("zeta(1): infinity"));
             if (x.info(info_flags::posint)) {
                 if (x.info(info_flags::odd))

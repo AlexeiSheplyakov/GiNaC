@@ -113,10 +113,30 @@ REGISTER_FUNCTION(gamma, gamma_eval, gamma_evalf, gamma_diff, gamma_series);
 static ex psi1_eval(ex const & x)
 {
     if (x.info(info_flags::numeric)) {
-        // do some stuff...
+        if (x.info(info_flags::integer) && !x.info(info_flags::positive))
+            throw (std::domain_error("psi_eval(): simple pole"));
+        if (x.info(info_flags::positive)) {
+            // psi(n) -> 1 + 1/2 +...+ 1/(n-1) - EulerGamma
+            if (x.info(info_flags::integer)) {
+                numeric rat(0);
+                for (numeric i(ex_to_numeric(x)-numONE()); i.is_positive(); --i)
+                    rat += i.inverse();
+                return rat-EulerGamma;
+            }
+            // psi((2m+1)/2) -> 2/(2m+1) + 2/2m +...+ 2/1 - EulerGamma - 2log(2)
+            if ((exTWO()*x).info(info_flags::integer)) {
+                numeric rat(0);
+                for (numeric i((ex_to_numeric(x)-numONE())*numTWO()); i.is_positive(); i-=numTWO())
+                    rat += numTWO()*i.inverse();
+                return rat-EulerGamma-exTWO()*log(exTWO());
+            }
+            if (x.compare(exONE())==1) {
+                // should call numeric, since >1
+            }
+        }
     }
     return psi(x).hold();
-}    
+}
 
 static ex psi1_evalf(ex const & x)
 {
@@ -134,12 +154,7 @@ static ex psi1_diff(ex const & x, unsigned diff_param)
     return psi(exONE(), x);
 }
 
-static ex psi1_series(ex const & x, symbol const & s, ex const & point, int order)
-{
-    throw(std::logic_error("Nobody told me how to series expand the psi function. :-("));
-}
-
-unsigned function_index_psi1 = function::register_new("psi", psi1_eval, psi1_evalf, psi1_diff, psi1_series);
+const unsigned function_index_psi1 = function::register_new("psi", psi1_eval, psi1_evalf, psi1_diff, NULL);
 
 //////////
 // Psi-functions (aka polygamma-functions)  psi(0,x)==psi(x)
@@ -151,7 +166,7 @@ static ex psi2_eval(ex const & n, ex const & x)
 {
     // psi(0,x) -> psi(x)
     if (n.is_zero())
-        return psi(x).hold();
+        return psi(x);
     if (n.info(info_flags::numeric) && x.info(info_flags::numeric)) {
         // do some stuff...
     }
@@ -180,11 +195,6 @@ static ex psi2_diff(ex const & n, ex const & x, unsigned diff_param)
     return psi(n+1, x);
 }
 
-static ex psi2_series(ex const & n, ex const & x, symbol const & s, ex const & point, int order)
-{
-    throw(std::logic_error("Nobody told me how to series expand the psi functions. :-("));
-}
-
-unsigned function_index_psi2 = function::register_new("psi", psi2_eval, psi2_evalf, psi2_diff, psi2_series);
+const unsigned function_index_psi2 = function::register_new("psi", psi2_eval, psi2_evalf, psi2_diff, NULL);
 
 } // namespace GiNaC

@@ -92,6 +92,10 @@ ex operator-(ex const & lh);
 
 numeric operator+(numeric const & lh);
 numeric operator-(numeric const & lh);
+numeric& operator++(numeric & rh);
+numeric& operator--(numeric & rh);
+numeric operator++(numeric & lh, int);
+numeric operator--(numeric & lh, int);
 
 // binary relational operators ex with ex
 relational operator==(ex const & lh, ex const & rh);

@@ -34,7 +34,7 @@ sub generate {
 $declare_function_macro=generate(
     <<'END_OF_DECLARE_FUNCTION_MACRO','GiNaC::ex const & p${N}','p${N}');
 #define DECLARE_FUNCTION_${N}P(NAME) \\
-extern unsigned function_index_##NAME; \\
+extern const unsigned function_index_##NAME; \\
 inline GiNaC::function NAME(${SEQ1}) { \\
     return GiNaC::function(function_index_##NAME, ${SEQ2}); \\
 }
@@ -155,7 +155,7 @@ $declare_function_macro
 // end of generated lines
 
 #define REGISTER_FUNCTION(NAME,E,EF,D,S) \\
-unsigned function_index_##NAME=GiNaC::function::register_new(#NAME,E,EF,D,S);
+const unsigned function_index_##NAME=GiNaC::function::register_new(#NAME,E,EF,D,S);
 
 #define BEGIN_TYPECHECK \\
 bool automatic_typecheck=true;
