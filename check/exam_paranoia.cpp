@@ -375,7 +375,7 @@ static unsigned exam_paranoia15()
 static unsigned exam_paranoia16()
 {
 	unsigned result = 0;
-	symbol a("a"), b("b"), c("c"), d("d");
+	symbol a("a"), b("b"), c("c"), d("d"), e("e");
 	ex e1, e2, e3;
 
 	e1 = pow(1+a*sqrt(b+c), 2);
@@ -398,6 +398,30 @@ static unsigned exam_paranoia16()
 	e2 = e1.expand();
 
 	if (e2.has(a*(b+c))) {
+		clog << "expand(" << e1 << ") didn't fully expand\n";
+		++result;
+	}
+
+	e1 = pow(sqrt(a+b)+sqrt(c+d), 3);
+	e2 = e1.expand();
+
+	if (e2.has(3*(a+b)*sqrt(c+d)) || e2.has(3*(c+d)*sqrt(a+b))) {
+		clog << "expand(" << e1 << ") didn't fully expand\n";
+		++result;
+	}
+
+	e1 = a*(b+c*(d+e));
+	e2 = e1.expand();
+
+	if (e2.has(c*(d+e))) {
+		clog << "expand(" << e1 << ") didn't fully expand\n";
+		++result;
+	}
+
+	e1 = 2*pow(1+a, 2)/a;
+	e2 = e1.expand();
+
+	if (e2.has(pow(a, 2))) {
 		clog << "expand(" << e1 << ") didn't fully expand\n";
 		++result;
 	}
