@@ -146,36 +146,43 @@ ex ex::subs(const lst & ls, const lst & lr, unsigned options) const
 ex ex::subs(const ex & e, unsigned options) const
 {
 	if (e.info(info_flags::relation_equal)) {
+
+		// Argument is a relation: convert it to a map
 		exmap m;
 		const ex & s = e.op(0);
 		m.insert(std::make_pair(s, e.op(1)));
+
 		if (is_exactly_a<mul>(s) || is_exactly_a<power>(s))
 			options |= subs_options::pattern_is_product;
 		else
 			options |= subs_options::pattern_is_not_product;
+
 		return bp->subs(m, options);
-	} else if (!e.info(info_flags::list))
-		throw(std::invalid_argument("basic::subs(ex): argument must be a list"));
 
-	// Convert the list to a map
-	exmap m;
-	GINAC_ASSERT(is_a<lst>(e));
-	for (lst::const_iterator it = ex_to<lst>(e).begin(); it != ex_to<lst>(e).end(); ++it) {
-		ex r = *it;
-		if (!r.info(info_flags::relation_equal))
-			throw(std::invalid_argument("basic::subs(ex): argument must be a list of equations"));
-		const ex & s = r.op(0);
-		m.insert(std::make_pair(s, r.op(1)));
+	} else if (e.info(info_flags::list)) {
 
-		// Search for products and powers in the expressions to be substituted
-		// (for an optimization in expairseq::subs())
-		if (is_exactly_a<mul>(s) || is_exactly_a<power>(s))
-			options |= subs_options::pattern_is_product;
-	}
-	if (!(options & subs_options::pattern_is_product))
-		options |= subs_options::pattern_is_not_product;
+		// Argument is a list: convert it to a map
+		exmap m;
+		GINAC_ASSERT(is_a<lst>(e));
+		for (lst::const_iterator it = ex_to<lst>(e).begin(); it != ex_to<lst>(e).end(); ++it) {
+			ex r = *it;
+			if (!r.info(info_flags::relation_equal))
+				throw(std::invalid_argument("basic::subs(ex): argument must be a list of equations"));
+			const ex & s = r.op(0);
+			m.insert(std::make_pair(s, r.op(1)));
 
-	return bp->subs(m, options);
+			// Search for products and powers in the expressions to be substituted
+			// (for an optimization in expairseq::subs())
+			if (is_exactly_a<mul>(s) || is_exactly_a<power>(s))
+				options |= subs_options::pattern_is_product;
+		}
+		if (!(options & subs_options::pattern_is_product))
+			options |= subs_options::pattern_is_not_product;
+
+		return bp->subs(m, options);
+
+	} else
+		throw(std::invalid_argument("ex::subs(ex): argument must be a relation_equal or a list"));
 }
 
 /** Traverse expression tree with given visitor, preorder traversal. */
