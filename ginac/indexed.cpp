@@ -325,20 +325,24 @@ ex indexed::expand(unsigned options) const
 {
 	GINAC_ASSERT(seq.size() > 0);
 
-	if ((options & expand_options::expand_indexed) && is_exactly_a<add>(seq[0])) {
-
-		// expand_indexed expands (a+b).i -> a.i + b.i
-		const ex & base = seq[0];
-		ex sum = _ex0;
-		for (size_t i=0; i<base.nops(); i++) {
-			exvector s = seq;
-			s[0] = base.op(i);
-			sum += thiscontainer(s).expand();
+	if (options & expand_options::expand_indexed) {
+		ex newbase = seq[0].expand(options);
+		if (is_exactly_a<add>(newbase)) {
+			ex sum = _ex0;
+			for (size_t i=0; i<newbase.nops(); i++) {
+				exvector s = seq;
+				s[0] = newbase.op(i);
+				sum += thiscontainer(s).expand(options);
+			}
+			return sum;
 		}
-		return sum;
-
-	} else
-		return inherited::expand(options);
+		if (!are_ex_trivially_equal(newbase, seq[0])) {
+			exvector s = seq;
+			s[0] = newbase;
+			return ex_to<indexed>(thiscontainer(s)).inherited::expand(options);
+		}
+	}
+	return inherited::expand(options);
 }
 
 //////////
