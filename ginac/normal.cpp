@@ -89,12 +89,12 @@ static struct _stat_print {
  *  function returns for a given expression.
  *
  *  @param e  expression to search
- *  @param x  pointer to first symbol found (returned)
+ *  @param x  first symbol found (returned)
  *  @return "false" if no symbol was found, "true" otherwise */
-static bool get_first_symbol(const ex &e, const symbol *&x)
+static bool get_first_symbol(const ex &e, ex &x)
 {
 	if (is_a<symbol>(e)) {
-		x = &ex_to<symbol>(e);
+		x = e;
 		return true;
 	} else if (is_exactly_a<add>(e) || is_exactly_a<mul>(e)) {
 		for (size_t i=0; i<e.nops(); i++)
@@ -119,8 +119,8 @@ static bool get_first_symbol(const ex &e, const symbol *&x)
  *
  *  @see get_symbol_stats */
 struct sym_desc {
-	/** Pointer to symbol */
-	const symbol *sym;
+	/** Reference to symbol */
+	ex sym;
 
 	/** Highest degree of symbol in polynomial "a" */
 	int deg_a;
@@ -154,11 +154,11 @@ struct sym_desc {
 typedef std::vector<sym_desc> sym_desc_vec;
 
 // Add symbol the sym_desc_vec (used internally by get_symbol_stats())
-static void add_symbol(const symbol *s, sym_desc_vec &v)
+static void add_symbol(const ex &s, sym_desc_vec &v)
 {
 	sym_desc_vec::const_iterator it = v.begin(), itend = v.end();
 	while (it != itend) {
-		if (it->sym->compare(*s) == 0)  // If it's already in there, don't add it a second time
+		if (it->sym.is_equal(s))  // If it's already in there, don't add it a second time
 			return;
 		++it;
 	}
@@ -171,7 +171,7 @@ static void add_symbol(const symbol *s, sym_desc_vec &v)
 static void collect_symbols(const ex &e, sym_desc_vec &v)
 {
 	if (is_a<symbol>(e)) {
-		add_symbol(&ex_to<symbol>(e), v);
+		add_symbol(e, v);
 	} else if (is_exactly_a<add>(e) || is_exactly_a<mul>(e)) {
 		for (size_t i=0; i<e.nops(); i++)
 			collect_symbols(e.op(i), v);
@@ -198,14 +198,14 @@ static void get_symbol_stats(const ex &a, const ex &b, sym_desc_vec &v)
 	collect_symbols(b.eval(), v);
 	sym_desc_vec::iterator it = v.begin(), itend = v.end();
 	while (it != itend) {
-		int deg_a = a.degree(*(it->sym));
-		int deg_b = b.degree(*(it->sym));
+		int deg_a = a.degree(it->sym);
+		int deg_b = b.degree(it->sym);
 		it->deg_a = deg_a;
 		it->deg_b = deg_b;
 		it->max_deg = std::max(deg_a, deg_b);
-		it->max_lcnops = std::max(a.lcoeff(*(it->sym)).nops(), b.lcoeff(*(it->sym)).nops());
-		it->ldeg_a = a.ldegree(*(it->sym));
-		it->ldeg_b = b.ldegree(*(it->sym));
+		it->max_lcnops = std::max(a.lcoeff(it->sym).nops(), b.lcoeff(it->sym).nops());
+		it->ldeg_a = a.ldegree(it->sym);
+		it->ldeg_b = b.ldegree(it->sym);
 		++it;
 	}
 	std::sort(v.begin(), v.end());
@@ -214,8 +214,8 @@ static void get_symbol_stats(const ex &a, const ex &b, sym_desc_vec &v)
 	std::clog << "Symbols:\n";
 	it = v.begin(); itend = v.end();
 	while (it != itend) {
-		std::clog << " " << *it->sym << ": deg_a=" << it->deg_a << ", deg_b=" << it->deg_b << ", ldeg_a=" << it->ldeg_a << ", ldeg_b=" << it->ldeg_b << ", max_deg=" << it->max_deg << ", max_lcnops=" << it->max_lcnops << endl;
-		std::clog << "  lcoeff_a=" << a.lcoeff(*(it->sym)) << ", lcoeff_b=" << b.lcoeff(*(it->sym)) << endl;
+		std::clog << " " << it->sym << ": deg_a=" << it->deg_a << ", deg_b=" << it->deg_b << ", ldeg_a=" << it->ldeg_a << ", ldeg_b=" << it->ldeg_b << ", max_deg=" << it->max_deg << ", max_lcnops=" << it->max_lcnops << endl;
+		std::clog << "  lcoeff_a=" << a.lcoeff(it->sym) << ", lcoeff_b=" << b.lcoeff(it->sym) << endl;
 		++it;
 	}
 #endif
@@ -361,7 +361,7 @@ numeric mul::integer_content() const
  *  @param check_args  check whether a and b are polynomials with rational
  *         coefficients (defaults to "true")
  *  @return quotient of a and b in Q[x] */
-ex quo(const ex &a, const ex &b, const symbol &x, bool check_args)
+ex quo(const ex &a, const ex &b, const ex &x, bool check_args)
 {
 	if (b.is_zero())
 		throw(std::overflow_error("quo: division by zero"));
@@ -411,7 +411,7 @@ ex quo(const ex &a, const ex &b, const symbol &x, bool check_args)
  *  @param check_args  check whether a and b are polynomials with rational
  *         coefficients (defaults to "true")
  *  @return remainder of a(x) and b(x) in Q[x] */
-ex rem(const ex &a, const ex &b, const symbol &x, bool check_args)
+ex rem(const ex &a, const ex &b, const ex &x, bool check_args)
 {
 	if (b.is_zero())
 		throw(std::overflow_error("rem: division by zero"));
@@ -460,7 +460,7 @@ ex rem(const ex &a, const ex &b, const symbol &x, bool check_args)
  *  @param a rational function in x
  *  @param x a is a function of x
  *  @return decomposed function. */
-ex decomp_rational(const ex &a, const symbol &x)
+ex decomp_rational(const ex &a, const ex &x)
 {
 	ex nd = numer_denom(a);
 	ex numer = nd.op(0), denom = nd.op(1);
@@ -480,7 +480,7 @@ ex decomp_rational(const ex &a, const symbol &x)
  *  @param check_args  check whether a and b are polynomials with rational
  *         coefficients (defaults to "true")
  *  @return pseudo-remainder of a(x) and b(x) in Q[x] */
-ex prem(const ex &a, const ex &b, const symbol &x, bool check_args)
+ex prem(const ex &a, const ex &b, const ex &x, bool check_args)
 {
 	if (b.is_zero())
 		throw(std::overflow_error("prem: division by zero"));
@@ -532,7 +532,7 @@ ex prem(const ex &a, const ex &b, const symbol &x, bool check_args)
  *  @param check_args  check whether a and b are polynomials with rational
  *         coefficients (defaults to "true")
  *  @return sparse pseudo-remainder of a(x) and b(x) in Q[x] */
-ex sprem(const ex &a, const ex &b, const symbol &x, bool check_args)
+ex sprem(const ex &a, const ex &b, const ex &x, bool check_args)
 {
 	if (b.is_zero())
 		throw(std::overflow_error("prem: division by zero"));
@@ -607,7 +607,7 @@ bool divide(const ex &a, const ex &b, ex &q, bool check_args)
 		throw(std::invalid_argument("divide: arguments must be polynomials over the rationals"));
 
 	// Find first symbol
-	const symbol *x;
+	ex x;
 	if (!get_first_symbol(a, x) && !get_first_symbol(b, x))
 		throw(std::invalid_argument("invalid expression in divide()"));
 
@@ -617,26 +617,26 @@ bool divide(const ex &a, const ex &b, ex &q, bool check_args)
 		q = _ex0;
 		return true;
 	}
-	int bdeg = b.degree(*x);
-	int rdeg = r.degree(*x);
-	ex blcoeff = b.expand().coeff(*x, bdeg);
+	int bdeg = b.degree(x);
+	int rdeg = r.degree(x);
+	ex blcoeff = b.expand().coeff(x, bdeg);
 	bool blcoeff_is_numeric = is_exactly_a<numeric>(blcoeff);
 	exvector v; v.reserve(std::max(rdeg - bdeg + 1, 0));
 	while (rdeg >= bdeg) {
-		ex term, rcoeff = r.coeff(*x, rdeg);
+		ex term, rcoeff = r.coeff(x, rdeg);
 		if (blcoeff_is_numeric)
 			term = rcoeff / blcoeff;
 		else
 			if (!divide(rcoeff, blcoeff, term, false))
 				return false;
-		term *= power(*x, rdeg - bdeg);
+		term *= power(x, rdeg - bdeg);
 		v.push_back(term);
 		r -= (term * b).expand();
 		if (r.is_zero()) {
 			q = (new add(v))->setflag(status_flags::dynallocated);
 			return true;
 		}
-		rdeg = r.degree(*x);
+		rdeg = r.degree(x);
 	}
 	return false;
 }
@@ -665,7 +665,7 @@ typedef std::map<ex2, exbool, ex2_less> ex2_exbool_remember;
 /** Exact polynomial division of a(X) by b(X) in Z[X].
  *  This functions works like divide() but the input and output polynomials are
  *  in Z[X] instead of Q[X] (i.e. they have integer coefficients). Unlike
- *  divide(), it doesn´t check whether the input polynomials really are integer
+ *  divide(), it doesn't check whether the input polynomials really are integer
  *  polynomials, so be careful of what you pass in. Also, you have to run
  *  get_symbol_stats() over the input polynomials before calling this function
  *  and pass an iterator to the first element of the sym_desc vector. This
@@ -712,10 +712,10 @@ static bool divide_in_z(const ex &a, const ex &b, ex &q, sym_desc_vec::const_ite
 #endif
 
 	// Main symbol
-	const symbol *x = var->sym;
+	const ex &x = var->sym;
 
 	// Compare degrees
-	int adeg = a.degree(*x), bdeg = b.degree(*x);
+	int adeg = a.degree(x), bdeg = b.degree(x);
 	if (bdeg > adeg)
 		return false;
 
@@ -730,12 +730,12 @@ static bool divide_in_z(const ex &a, const ex &b, ex &q, sym_desc_vec::const_ite
 	numeric point = _num0;
 	ex c;
 	for (i=0; i<=adeg; i++) {
-		ex bs = b.subs(*x == point, subs_options::no_pattern);
+		ex bs = b.subs(x == point, subs_options::no_pattern);
 		while (bs.is_zero()) {
 			point += _num1;
-			bs = b.subs(*x == point, subs_options::no_pattern);
+			bs = b.subs(x == point, subs_options::no_pattern);
 		}
-		if (!divide_in_z(a.subs(*x == point, subs_options::no_pattern), bs, c, var+1))
+		if (!divide_in_z(a.subs(x == point, subs_options::no_pattern), bs, c, var+1))
 			return false;
 		alpha.push_back(point);
 		u.push_back(c);
@@ -765,9 +765,9 @@ static bool divide_in_z(const ex &a, const ex &b, ex &q, sym_desc_vec::const_ite
 	// Convert from Newton form to standard form
 	c = v[adeg];
 	for (k=adeg-1; k>=0; k--)
-		c = c * (*x - alpha[k]) + v[k];
+		c = c * (x - alpha[k]) + v[k];
 
-	if (c.degree(*x) == (adeg - bdeg)) {
+	if (c.degree(x) == (adeg - bdeg)) {
 		q = c.expand();
 		return true;
 	} else
@@ -781,13 +781,13 @@ static bool divide_in_z(const ex &a, const ex &b, ex &q, sym_desc_vec::const_ite
 		return true;
 	int rdeg = adeg;
 	ex eb = b.expand();
-	ex blcoeff = eb.coeff(*x, bdeg);
+	ex blcoeff = eb.coeff(x, bdeg);
 	exvector v; v.reserve(std::max(rdeg - bdeg + 1, 0));
 	while (rdeg >= bdeg) {
-		ex term, rcoeff = r.coeff(*x, rdeg);
+		ex term, rcoeff = r.coeff(x, rdeg);
 		if (!divide_in_z(rcoeff, blcoeff, term, var+1))
 			break;
-		term = (term * power(*x, rdeg - bdeg)).expand();
+		term = (term * power(x, rdeg - bdeg)).expand();
 		v.push_back(term);
 		r -= (term * eb).expand();
 		if (r.is_zero()) {
@@ -797,7 +797,7 @@ static bool divide_in_z(const ex &a, const ex &b, ex &q, sym_desc_vec::const_ite
 #endif
 			return true;
 		}
-		rdeg = r.degree(*x);
+		rdeg = r.degree(x);
 	}
 #if USE_REMEMBER
 	dr_remember[ex2(a, b)] = exbool(q, false);
@@ -819,15 +819,15 @@ static bool divide_in_z(const ex &a, const ex &b, ex &q, sym_desc_vec::const_ite
  *  @param x  variable in which to compute the unit part
  *  @return unit part
  *  @see ex::content, ex::primpart */
-ex ex::unit(const symbol &x) const
+ex ex::unit(const ex &x) const
 {
 	ex c = expand().lcoeff(x);
 	if (is_exactly_a<numeric>(c))
 		return c < _ex0 ? _ex_1 : _ex1;
 	else {
-		const symbol *y;
+		ex y;
 		if (get_first_symbol(c, y))
-			return c.unit(*y);
+			return c.unit(y);
 		else
 			throw(std::invalid_argument("invalid expression in unit()"));
 	}
@@ -841,7 +841,7 @@ ex ex::unit(const symbol &x) const
  *  @param x  variable in which to compute the content part
  *  @return content part
  *  @see ex::unit, ex::primpart */
-ex ex::content(const symbol &x) const
+ex ex::content(const ex &x) const
 {
 	if (is_zero())
 		return _ex0;
@@ -877,7 +877,7 @@ ex ex::content(const symbol &x) const
  *  @param x  variable in which to compute the primitive part
  *  @return primitive part
  *  @see ex::unit, ex::content */
-ex ex::primpart(const symbol &x) const
+ex ex::primpart(const ex &x) const
 {
 	if (is_zero())
 		return _ex0;
@@ -902,7 +902,7 @@ ex ex::primpart(const symbol &x) const
  *  @param x  variable in which to compute the primitive part
  *  @param c  previously computed content part
  *  @return primitive part */
-ex ex::primpart(const symbol &x, const ex &c) const
+ex ex::primpart(const ex &x, const ex &c) const
 {
 	if (is_zero())
 		return _ex0;
@@ -939,7 +939,7 @@ static ex sr_gcd(const ex &a, const ex &b, sym_desc_vec::const_iterator var)
 #endif
 
 	// The first symbol is our main variable
-	const symbol &x = *(var->sym);
+	const ex &x = var->sym;
 
 	// Sort c and d so that c has higher degree
 	ex c, d;
@@ -1109,7 +1109,7 @@ ex mul::smod(const numeric &xi) const
 
 
 /** xi-adic polynomial interpolation */
-static ex interpolate(const ex &gamma, const numeric &xi, const symbol &x, int degree_hint = 1)
+static ex interpolate(const ex &gamma, const numeric &xi, const ex &x, int degree_hint = 1)
 {
 	exvector g; g.reserve(degree_hint);
 	ex e = gamma;
@@ -1161,7 +1161,7 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 	}
 
 	// The first symbol is our main variable
-	const symbol &x = *(var->sym);
+	const ex &x = var->sym;
 
 	// Remove integer content
 	numeric gc = gcd(a.integer_content(), b.integer_content());
@@ -1378,7 +1378,7 @@ factored_b:
 
 	// The symbol with least degree is our main variable
 	sym_desc_vec::const_iterator var = sym_stats.begin();
-	const symbol &x = *(var->sym);
+	const ex &x = var->sym;
 
 	// Cancel trivial common factor
 	int ldeg_a = var->ldeg_a;
@@ -1545,7 +1545,7 @@ ex sqrfree(const ex &a, const lst &l)
 		get_symbol_stats(a, _ex0, sdv);
 		sym_desc_vec::const_iterator it = sdv.begin(), itend = sdv.end();
 		while (it != itend) {
-			args.append(*it->sym);
+			args.append(it->sym);
 			++it;
 		}
 	} else {
@@ -1562,7 +1562,7 @@ ex sqrfree(const ex &a, const lst &l)
 	const ex tmp = multiply_lcm(a,lcm);
 
 	// find the factors
-	exvector factors = sqrfree_yun(tmp,x);
+	exvector factors = sqrfree_yun(tmp, x);
 
 	// construct the next list of symbols with the first element popped
 	lst newargs = args;
@@ -1827,10 +1827,10 @@ static ex frac_cancel(const ex &n, const ex &d)
 			den *= _ex_1;
 		}
 	} else {
-		const symbol *x;
+		ex x;
 		if (get_first_symbol(den, x)) {
-			GINAC_ASSERT(is_exactly_a<numeric>(den.unit(*x)));
-			if (ex_to<numeric>(den.unit(*x)).is_negative()) {
+			GINAC_ASSERT(is_exactly_a<numeric>(den.unit(x)));
+			if (ex_to<numeric>(den.unit(x)).is_negative()) {
 				num *= _ex_1;
 				den *= _ex_1;
 			}
