@@ -21,4 +21,4 @@ makecint_clean:
 clean: makecint_clean
 
 distclean: makecint_clean
-	rm -f Makefile.makecint
+	rm -f Makefile.makecint G__*
