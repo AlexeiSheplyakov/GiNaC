@@ -242,30 +242,31 @@ ex relational::rhs(void) const
 // non-virtual functions in this class
 //////////
 
+/** Cast the relational into a boolean, mainly for evaluation within an 
+ *  if-statement.  Note that (a<b) == false does not imply (a>=b) == true in
+ *  the general symbolic case.  A false result means the comparison is either
+ *  false or undecidable (except of course for !=, where true means either
+ *  unequal or undecidable). */
 relational::operator bool() const
 {
-	// please note that (a<b) == false does not imply (a>=b) == true
-	// a false result means the comparison is either false or undecidable
-	// (except for !=, where true means unequal or undecidable)
-	ex df = lh-rh;
+	const ex df = lh-rh;
 	if (!is_ex_exactly_of_type(df,numeric))
 		// cannot decide on non-numerical results
 		return o==not_equal ? true : false;
 	
-	int cmpval = ex_to<numeric>(df).compare(_num0());
 	switch (o) {
 	case equal:
-		return cmpval==0;
+		return ex_to<numeric>(df).is_zero();
 	case not_equal:
-		return cmpval!=0;
+		return !ex_to<numeric>(df).is_zero();
 	case less:
-		return cmpval<0;
+		return ex_to<numeric>(df)<_num0();
 	case less_or_equal:
-		return cmpval<=0;
+		return ex_to<numeric>(df)<=_num0();
 	case greater:
-		return cmpval>0;
+		return ex_to<numeric>(df)>_num0();
 	case greater_or_equal:
-		return cmpval>=0;
+		return ex_to<numeric>(df)>=_num0();
 	default:
 		throw(std::logic_error("invalid relational operator"));
 	}

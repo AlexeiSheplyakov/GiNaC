@@ -60,7 +60,7 @@ static unsigned check_numeric2(void)
 	int i_num, i_den;
 	
 	// Check non-nested radicals (n/d)^(m/n) in ex wrapper class:
-	for (int i=0; i<200; ++i) {  // FIXME: run to ~200
+	for (int i=0; i<200; ++i) {
 		for (int j=2; j<13; ++j) {
 			// construct an exponent 1/j...
 			numeric nm(1,j);
@@ -81,7 +81,7 @@ static unsigned check_numeric2(void)
 				     << radical << endl;
 				errorflag = true;
 			}
-			numeric ratio = ex_to<numeric>(evalf(radical))/floating;
+			numeric ratio = ex_to<numeric>(abs(evalf(radical)))/floating;
 			if (ratio>1.0001 && ratio<0.9999) {
 				clog << "(" << num << "/" << den << ")^(" << nm
 				     << ") erroneously evaluated to " << radical;

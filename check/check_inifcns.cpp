@@ -178,7 +178,7 @@ static unsigned inifcns_check_Li2(void)
 		argument = numeric(20.0*rand()/(RAND_MAX+1.0)-10.0)
 		         + numeric(20.0*rand()/(RAND_MAX+1.0)-10.0)*I;
 		if (abs(Li2(pow(argument,2))-2*Li2(argument)-2*Li2(-argument)) > epsilon) {
-			cout << "Li2(z) at z==" << argument
+			clog << "Li2(z) at z==" << argument
 			     << " failed to satisfy Li2(z^2)==2*(Li2(z)+Li2(-z))" << endl;
 			errorflag = true;
 		}
