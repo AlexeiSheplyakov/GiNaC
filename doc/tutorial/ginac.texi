@@ -3088,10 +3088,75 @@ bool ex::is_zero();
 for checking whether one expression is equal to another, or equal to zero,
 respectively.
 
-@strong{Warning:} You will also find an @code{ex::compare()} method in the
-GiNaC header files. This method is however only to be used internally by
-GiNaC to establish a canonical sort order for terms, and using it to compare
-expressions will give very surprising results.
+
+@subsection Ordering expressions
+@cindex @code{ex_is_less} (class)
+@cindex @code{ex_is_equal} (class)
+@cindex @code{compare()}
+
+Sometimes it is necessary to establish a mathematically well-defined ordering
+on a set of arbitrary expressions, for example to use expressions as keys
+in a @code{std::map<>} container, or to bring a vector of expressions into
+a canonical order (which is done internally by GiNaC for sums and products).
+
+The operators @code{<}, @code{>} etc. described in the last section cannot
+be used for this, as they don't implement an ordering relation in the
+mathematical sense. In particular, they are not guaranteed to be
+antisymmetric: if @samp{a} and @samp{b} are different expressions, and
+@code{a < b} yields @code{false}, then @code{b < a} doesn't necessarily
+yield @code{true}.
+
+By default, STL classes and algorithms use the @code{<} and @code{==}
+operators to compare objects, which are unsuitable for expressions, but GiNaC
+provides two functors that can be supplied as proper binary comparison
+predicates to the STL:
+
+@example
+class ex_is_less : public std::binary_function<ex, ex, bool> @{
+public:
+    bool operator()(const ex &lh, const ex &rh) const;
+@};
+
+class ex_is_equal : public std::binary_function<ex, ex, bool> @{
+public:
+    bool operator()(const ex &lh, const ex &rh) const;
+@};
+@end example
+
+For example, to define a @code{map} that maps expressions to strings you
+have to use
+
+@example
+std::map<ex, std::string, ex_is_less> myMap;
+@end example
+
+Omitting the @code{ex_is_less} template parameter will introduce spurious
+bugs because the map operates improperly.
+
+Other examples for the use of the functors:
+
+@example
+std::vector<ex> v;
+// fill vector
+...
+
+// sort vector
+std::sort(v.begin(), v.end(), ex_is_less());
+
+// count the number of expressions equal to '1'
+unsigned num_ones = std::count_if(v.begin(), v.end(),
+                                  std::bind2nd(ex_is_equal(), 1));
+@end example
+
+The implementation of @code{ex_is_less} uses the member function
+
+@example
+int ex::compare(const ex & other) const;
+@end example
+
+which returns @math{0} if @code{*this} and @code{other} are equal, @math{-1}
+if @code{*this} sorts before @code{other}, and @math{1} if @code{*this} sorts
+after @code{other}.
 
 
 @node Substituting Expressions, Pattern Matching and Advanced Substitutions, Information About Expressions, Methods and Functions
