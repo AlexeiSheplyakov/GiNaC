@@ -1068,42 +1068,43 @@ void expairseq::canonicalize(void)
  *  instance. */
 void expairseq::combine_same_terms_sorted_seq(void)
 {
+	if (seq.size()<2)
+		return;
+
 	bool needs_further_processing = false;
-	
-	if (seq.size()>1) {
-		epvector::iterator itin1 = seq.begin();
-		epvector::iterator itin2 = itin1+1;
-		epvector::iterator itout = itin1;
-		epvector::iterator last = seq.end();
-		// must_copy will be set to true the first time some combination is 
-		// possible from then on the sequence has changed and must be compacted
-		bool must_copy = false;
-		while (itin2!=last) {
-			if (itin1->rest.compare(itin2->rest)==0) {
-				itin1->coeff = ex_to<numeric>(itin1->coeff).
-				               add_dyn(ex_to<numeric>(itin2->coeff));
-				if (expair_needs_further_processing(itin1))
-					needs_further_processing = true;
-				must_copy = true;
-			} else {
-				if (!ex_to<numeric>(itin1->coeff).is_zero()) {
-					if (must_copy)
-						*itout = *itin1;
-					++itout;
-				}
-				itin1 = itin2;
+
+	epvector::iterator itin1 = seq.begin();
+	epvector::iterator itin2 = itin1+1;
+	epvector::iterator itout = itin1;
+	epvector::iterator last = seq.end();
+	// must_copy will be set to true the first time some combination is 
+	// possible from then on the sequence has changed and must be compacted
+	bool must_copy = false;
+	while (itin2!=last) {
+		if (itin1->rest.compare(itin2->rest)==0) {
+			itin1->coeff = ex_to<numeric>(itin1->coeff).
+			               add_dyn(ex_to<numeric>(itin2->coeff));
+			if (expair_needs_further_processing(itin1))
+				needs_further_processing = true;
+			must_copy = true;
+		} else {
+			if (!ex_to<numeric>(itin1->coeff).is_zero()) {
+				if (must_copy)
+					*itout = *itin1;
+				++itout;
 			}
-			++itin2;
+			itin1 = itin2;
 		}
-		if (!ex_to<numeric>(itin1->coeff).is_zero()) {
-			if (must_copy)
-				*itout = *itin1;
-			++itout;
-		}
-		if (itout!=last)
-			seq.erase(itout,last);
+		++itin2;
 	}
-	
+	if (!ex_to<numeric>(itin1->coeff).is_zero()) {
+		if (must_copy)
+			*itout = *itin1;
+		++itout;
+	}
+	if (itout!=last)
+		seq.erase(itout,last);
+
 	if (needs_further_processing) {
 		epvector v = seq;
 		seq.clear();
