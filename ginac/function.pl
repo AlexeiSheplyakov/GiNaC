@@ -60,6 +60,7 @@ $declare_function_macro = generate(
 	<<'END_OF_DECLARE_FUNCTION_MACRO','typename T${N}','const T${N} & p${N}','GiNaC::ex(p${N})');
 #define DECLARE_FUNCTION_${N}P(NAME) \\
 class NAME##_SERIAL { public: static unsigned serial; }; \\
+const unsigned NAME##_NPARAMS = ${N}; \\
 template<${SEQ1}> const GiNaC::function NAME(${SEQ2}) { \\
 	return GiNaC::function(NAME##_SERIAL::serial, ${SEQ3}); \\
 }
@@ -260,7 +261,7 @@ $declare_function_macro
 
 #define REGISTER_FUNCTION(NAME,OPT) \\
 unsigned NAME##_SERIAL::serial = \\
-	GiNaC::function::register_new(GiNaC::function_options(#NAME).OPT);
+	GiNaC::function::register_new(GiNaC::function_options(#NAME, NAME##_NPARAMS).OPT);
 
 namespace GiNaC {
 
@@ -300,6 +301,7 @@ class function_options
 public:
 	function_options();
 	function_options(std::string const & n, std::string const & tn=std::string());
+	function_options(std::string const & n, unsigned np);
 	~function_options();
 	void initialize();
 
@@ -535,6 +537,13 @@ function_options::function_options(std::string const & n, std::string const & tn
 {
 	initialize();
 	set_name(n, tn);
+}
+
+function_options::function_options(std::string const & n, unsigned np)
+{
+	initialize();
+	set_name(n, std::string());
+	nparams = np;
 }
 
 function_options::~function_options()

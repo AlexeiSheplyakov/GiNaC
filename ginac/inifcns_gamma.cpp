@@ -423,7 +423,7 @@ static ex psi1_series(const ex & arg,
 }
 
 unsigned psi1_SERIAL::serial =
-	function::register_new(function_options("psi").
+	function::register_new(function_options("psi", 1).
 	                       eval_func(psi1_eval).
 	                       evalf_func(psi1_evalf).
 	                       derivative_func(psi1_deriv).
@@ -551,7 +551,7 @@ static ex psi2_series(const ex & n,
 }
 
 unsigned psi2_SERIAL::serial =
-	function::register_new(function_options("psi").
+	function::register_new(function_options("psi", 2).
 	                       eval_func(psi2_eval).
 	                       evalf_func(psi2_evalf).
 	                       derivative_func(psi2_deriv).

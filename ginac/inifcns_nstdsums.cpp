@@ -2635,7 +2635,7 @@ static void zeta1_print_latex(const ex& m_, const print_context& c)
 }
 
 
-unsigned zeta1_SERIAL::serial = function::register_new(function_options("zeta").
+unsigned zeta1_SERIAL::serial = function::register_new(function_options("zeta", 1).
                                 evalf_func(zeta1_evalf).
                                 eval_func(zeta1_eval).
                                 derivative_func(zeta1_deriv).
@@ -2772,7 +2772,7 @@ static void zeta2_print_latex(const ex& m_, const ex& s_, const print_context& c
 }
 
 
-unsigned zeta2_SERIAL::serial = function::register_new(function_options("zeta").
+unsigned zeta2_SERIAL::serial = function::register_new(function_options("zeta", 2).
                                 evalf_func(zeta2_evalf).
                                 eval_func(zeta2_eval).
                                 derivative_func(zeta2_deriv).
