@@ -3857,7 +3857,7 @@ GiNaC contains the following predefined mathematical functions:
 @item @code{csgn(x)}
 @tab complex sign
 @item @code{sqrt(x)}
-@tab square root (not a GiNaC function proper but equivalent to @code{pow(x, numeric(1, 2)})
+@tab square root (not a GiNaC function, rather an alias for @code{pow(x, numeric(1, 2))})
 @item @code{sin(x)}
 @tab sine
 @item @code{cos(x)}
