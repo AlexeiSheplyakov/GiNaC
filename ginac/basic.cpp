@@ -696,7 +696,7 @@ unsigned basic::calchash() const
 	unsigned v = golden_ratio_hash(tinfo());
 	for (size_t i=0; i<nops(); i++) {
 		v = rotate_left(v);
-		v ^= (const_cast<basic *>(this))->op(i).gethash();
+		v ^= this->op(i).gethash();
 	}
 
 	// store calculated hash value only if object is already evaluated
