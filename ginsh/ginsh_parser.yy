@@ -4,7 +4,7 @@
  *  This file must be processed with yacc/bison. */
 
 /*
- *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -854,7 +854,7 @@ static char **fcn_completion(const char *text, int start, int end)
 void greeting(void)
 {
     cout << "ginsh - GiNaC Interactive Shell (" << PACKAGE << " V" << VERSION << ")" << endl;
-    cout << "  __,  _______  Copyright (C) 1999-2004 Johannes Gutenberg University Mainz,\n"
+    cout << "  __,  _______  Copyright (C) 1999-2005 Johannes Gutenberg University Mainz,\n"
          << " (__) *       | Germany.  This is free software with ABSOLUTELY NO WARRANTY.\n"
          << "  ._) i N a C | You are welcome to redistribute it under certain conditions.\n"
          << "<-------------' For details type `warranty;'.\n" << endl;
