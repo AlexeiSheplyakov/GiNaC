@@ -4437,7 +4437,10 @@ function that does so, in this case the one in class @code{numeric}:
 @example
 static ex cos_evalf(const ex & x)
 @{
-    return cos(ex_to<numeric>(x));
+    if (is_a<numeric>(x))
+        return cos(ex_to<numeric>(x));
+    else
+        return cos(x).hold();
 @}
 @end example
 
