@@ -61,7 +61,7 @@ step:         | GCC optimization level:  | comment:
               |  -O0   |  -O1   |  -O2   |
 --------------+--------+--------+--------+-------------------------------
 make          |  ~4m   |  ~6m   |  ~10m  | building shared and static lib
-make check    |  ~2m   |  ~2m   |  ~7m   | mostly due to compilation
+make check    |  ~3m   |  ~3m   |  ~7m   | mostly due to compilation
 
 
 COMMON PROBLEMS
