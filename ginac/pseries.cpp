@@ -163,6 +163,7 @@ basic *pseries::duplicate() const
 void pseries::print(std::ostream &os, unsigned upper_precedence) const
 {
 	debugmsg("pseries print", LOGLEVEL_PRINT);
+	if (precedence<=upper_precedence) os << "(";
 	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i) {
 		// omit zero terms
 		if (i->rest.is_zero())
@@ -196,6 +197,7 @@ void pseries::print(std::ostream &os, unsigned upper_precedence) const
 			os << Order(power(var-point,i->coeff));
 		}
 	}
+	if (precedence<=upper_precedence) os << ")";
 }
 
 
@@ -891,8 +893,18 @@ ex ex::series(const ex & r, int order, unsigned options) const
 	return e;
 }
 
+//////////
+// static member variables
+//////////
 
-// Global constants
+// protected
+
+unsigned pseries::precedence = 38;  // for clarity just below add::precedence
+
+//////////
+// global constants
+//////////
+
 const pseries some_pseries;
 const std::type_info & typeid_pseries = typeid(some_pseries);
 

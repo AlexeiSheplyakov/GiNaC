@@ -220,7 +220,7 @@ void add::print(std::ostream & os, unsigned upper_precedence) const
 			}
 			os << '*';
 		}
-		os << cit->rest;
+		cit->rest.print(os, precedence);
 	}
 	if (precedence<=upper_precedence) os << ")";
 }

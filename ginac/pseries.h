@@ -95,6 +95,7 @@ protected:
 
 	/** Expansion point */
 	ex point;
+	static unsigned precedence;
 };
 
 // global constants
