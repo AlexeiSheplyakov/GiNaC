@@ -200,7 +200,6 @@ static ex log_series(const ex &arg,
 		if (!argser.is_terminating() || argser.nops()!=1) {
 			// in this case n more (or less) terms are needed
 			// (sadly, to generate them, we have to start from the beginning)
-			const ex newarg = ex_to<pseries>((arg/coeff).series(rel, order+n, options)).shift_exponents(-n).convert_to_poly(true);
 			if (n == 0 && coeff == 1) {
 				epvector epv;
 				ex acc = (new pseries(rel, epv))->setflag(status_flags::dynallocated);
@@ -217,6 +216,7 @@ static ex log_series(const ex &arg,
 				}
 				return acc;
 			}
+			const ex newarg = ex_to<pseries>((arg/coeff).series(rel, order+n, options)).shift_exponents(-n).convert_to_poly(true);
 			return pseries(rel, seq).add_series(ex_to<pseries>(log(newarg).series(rel, order, options)));
 		} else  // it was a monomial
 			return pseries(rel, seq);
