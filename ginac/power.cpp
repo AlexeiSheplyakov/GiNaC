@@ -319,7 +319,7 @@ ex power::eval(int level) const
 {
     // simplifications: ^(x,0) -> 1 (0^0 handled here)
     //                  ^(x,1) -> x
-    //                  ^(0,x) -> 0 (except if x is real and negative, in which case an exception is thrown)
+    //                  ^(0,x) -> 0 (except if the realpart of x is non-positive, in which case an exception is thrown)
     //                  ^(1,x) -> 1
     //                  ^(c1,c2) -> *(c1^n,c1^(c2-n)) (c1, c2 numeric(), 0<(c2-n)<1 except if c1,c2 are rational, but c1^c2 is not)
     //                  ^(^(x,c1),c2) -> ^(x,c1*c2) (c1, c2 numeric(), c2 integer or -1 < c1 <= 1, case c1=1 should not happen, see below!)
@@ -362,10 +362,15 @@ ex power::eval(int level) const
     if (eexponent.is_equal(_ex1()))
         return ebasis;
 
-    // ^(0,x) -> 0 (except if x is real and negative)
+    // ^(0,x) -> 0 (except if the realpart of x is non-positive)
     if (ebasis.is_zero()) {
-        if (exponent_is_numerical && num_exponent->is_negative()) {
-            throw(std::overflow_error("power::eval(): division by zero"));
+        if (exponent_is_numerical) {
+            if ((num_exponent->real()).is_zero())
+                throw (std::domain_error("power::eval(): pow(0,I) is undefined"));
+            else if ((num_exponent->real()).is_negative())
+                throw (std::overflow_error("power::eval(): division by zero"));
+            else
+                return _ex0();
         } else
             return _ex0();
     }

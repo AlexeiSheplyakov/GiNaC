@@ -188,10 +188,10 @@ public:
     int to_int(void) const;
     long to_long(void) const;
     double to_double(void) const;
-    numeric real(void) const;
-    numeric imag(void) const;
-    numeric numer(void) const;
-    numeric denom(void) const;
+    const numeric real(void) const;
+    const numeric imag(void) const;
+    const numeric numer(void) const;
+    const numeric denom(void) const;
     int int_length(void) const;
 
 // member variables

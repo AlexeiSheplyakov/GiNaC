@@ -685,13 +685,15 @@ numeric numeric::div(const numeric & other) const
 
 numeric numeric::power(const numeric & other) const
 {
-    static const numeric * _num1p=&_num1();
+    static const numeric * _num1p = &_num1();
     if (&other==_num1p)
         return *this;
     if (::zerop(*value)) {
         if (::zerop(*other.value))
             throw (std::domain_error("numeric::eval(): pow(0,0) is undefined"));
-        else if (other.is_real() && !::plusp(::realpart(*other.value)))
+        else if (::zerop(::realpart(*other.value)))
+            throw (std::domain_error("numeric::eval(): pow(0,I) is undefined"));
+        else if (::minusp(::realpart(*other.value)))
             throw (std::overflow_error("numeric::eval(): division by zero"));
         else
             return _num0();
@@ -745,7 +747,9 @@ const numeric & numeric::power_dyn(const numeric & other) const
     if (::zerop(*value)) {
         if (::zerop(*other.value))
             throw (std::domain_error("numeric::eval(): pow(0,0) is undefined"));
-        else if (other.is_real() && !::plusp(::realpart(*other.value)))
+        else if (::zerop(::realpart(*other.value)))
+            throw (std::domain_error("numeric::eval(): pow(0,I) is undefined"));
+        else if (::minusp(::realpart(*other.value)))
             throw (std::overflow_error("numeric::eval(): division by zero"));
         else
             return _num0();
@@ -1016,13 +1020,13 @@ double numeric::to_double(void) const
 }
 
 /** Real part of a number. */
-numeric numeric::real(void) const
+const numeric numeric::real(void) const
 {
     return numeric(::realpart(*value));  // -> CLN
 }
 
 /** Imaginary part of a number. */
-numeric numeric::imag(void) const
+const numeric numeric::imag(void) const
 {
     return numeric(::imagpart(*value));  // -> CLN
 }
@@ -1044,7 +1048,7 @@ inline cl_heap_ratio* TheRatio (const cl_N& obj)
  *  numerator of complex if real and imaginary part are both rational numbers
  *  (i.e numer(4/3+5/6*I) == 8+5*I), the number carrying the sign in all other
  *  cases. */
-numeric numeric::numer(void) const
+const numeric numeric::numer(void) const
 {
     if (this->is_integer()) {
         return numeric(*this);
@@ -1095,7 +1099,7 @@ numeric numeric::numer(void) const
 /** Denominator.  Computes the denominator of rational numbers, common integer
  *  denominator of complex if real and imaginary part are both rational numbers
  *  (i.e denom(4/3+5/6*I) == 6), one in all other cases. */
-numeric numeric::denom(void) const
+const numeric numeric::denom(void) const
 {
     if (this->is_integer()) {
         return _num1();
