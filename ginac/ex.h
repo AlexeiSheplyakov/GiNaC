@@ -97,7 +97,19 @@ public:
 	
 	// non-virtual functions in this class
 public:
-	void swap(ex & other);
+	/** Efficiently swap the contents of two expressions. */
+	void swap(ex & other)
+	{
+		GINAC_ASSERT(bp!=0);
+		GINAC_ASSERT(bp->flags & status_flags::dynallocated);
+		GINAC_ASSERT(other.bp!=0);
+		GINAC_ASSERT(other.bp->flags & status_flags::dynallocated);
+	
+		basic * tmpbp = bp;
+		bp = other.bp;
+		other.bp = tmpbp;
+	}
+
 	void print(const print_context & c, unsigned level = 0) const;
 	void printtree(std::ostream & os) const;
 	void dbgprint(void) const;
@@ -456,6 +468,10 @@ inline bool is_zero(const ex & thisex)
 
 inline void swap(ex & e1, ex & e2)
 { e1.swap(e2); }
+
+// This makes STL algorithms use the more efficient swap operation for ex objects
+inline void iter_swap(std::vector<ex>::iterator i1, std::vector<ex>::iterator i2)
+{ i1->swap(*i2); }
 
 
 /* Function objects for STL sort() etc. */

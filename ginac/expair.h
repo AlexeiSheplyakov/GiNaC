@@ -111,6 +111,13 @@ struct expair_swap : public std::binary_function<expair, expair, void> {
 	void operator()(expair &lh, expair &rh) const { lh.swap(rh); }
 };
 
+inline void swap(expair & e1, expair & e2)
+{ e1.swap(e2); }
+
+// This makes STL algorithms use the more efficient swap operation for ex objects
+inline void iter_swap(std::vector<expair>::iterator i1, std::vector<expair>::iterator i2)
+{ i1->swap(*i2); }
+
 } // namespace GiNaC
 
 #endif // ndef __GINAC_EXPAIR_H__

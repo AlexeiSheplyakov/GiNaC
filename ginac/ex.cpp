@@ -48,19 +48,6 @@ namespace GiNaC {
 
 // public
 	
-/** Efficiently swap the contents of two expressions. */
-void ex::swap(ex & other)
-{
-	GINAC_ASSERT(bp!=0);
-	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
-	GINAC_ASSERT(other.bp!=0);
-	GINAC_ASSERT(other.bp->flags & status_flags::dynallocated);
-	
-	basic * tmpbp = bp;
-	bp = other.bp;
-	other.bp = tmpbp;
-}
-
 /** Print expression to stream. The formatting of the output is determined
  *  by the kind of print_context object that is passed. Possible formattings
  *  include ginsh-parsable output (the default), tree-like output for
