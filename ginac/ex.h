@@ -192,6 +192,7 @@ public:
 	numeric integer_content() const;
 	ex primpart(const ex &x) const;
 	ex primpart(const ex &x, const ex &cont) const;
+	void unitcontprim(const ex &x, ex &u, ex &c, ex &p) const;
 	ex smod(const numeric &xi) const { return bp->smod(xi); }
 	numeric max_coefficient() const;
 

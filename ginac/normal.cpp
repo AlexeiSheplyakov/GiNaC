@@ -819,14 +819,14 @@ static bool divide_in_z(const ex &a, const ex &b, ex &q, sym_desc_vec::const_ite
  *  polynomial in Q[x]. The product of unit part, content part, and primitive
  *  part is the polynomial itself.
  *
- *  @param x  variable in which to compute the unit part
+ *  @param x  main variable
  *  @return unit part
- *  @see ex::content, ex::primpart */
+ *  @see ex::content, ex::primpart, ex::unitcontprim */
 ex ex::unit(const ex &x) const
 {
 	ex c = expand().lcoeff(x);
 	if (is_exactly_a<numeric>(c))
-		return c < _ex0 ? _ex_1 : _ex1;
+		return c.info(info_flags::negative) ?_ex_1 : _ex1;
 	else {
 		ex y;
 		if (get_first_symbol(c, y))
@@ -841,15 +841,14 @@ ex ex::unit(const ex &x) const
  *  multivariate polynomial in Q[x]. The product of unit part, content part,
  *  and primitive part is the polynomial itself.
  *
- *  @param x  variable in which to compute the content part
+ *  @param x  main variable
  *  @return content part
- *  @see ex::unit, ex::primpart */
+ *  @see ex::unit, ex::primpart, ex::unitcontprim */
 ex ex::content(const ex &x) const
 {
-	if (is_zero())
-		return _ex0;
 	if (is_exactly_a<numeric>(*this))
 		return info(info_flags::negative) ? -*this : *this;
+
 	ex e = expand();
 	if (e.is_zero())
 		return _ex0;
@@ -858,15 +857,15 @@ ex ex::content(const ex &x) const
 	// If the leading coefficient of the quotient is an integer, we are done.
 	ex c = e.integer_content();
 	ex r = e / c;
-	ex lcoeff = r.lcoeff(x);
+	int deg = r.degree(x);
+	ex lcoeff = r.coeff(x, deg);
 	if (lcoeff.info(info_flags::integer))
 		return c;
 
 	// GCD of all coefficients
-	int deg = r.degree(x);
 	int ldeg = r.ldegree(x);
 	if (deg == ldeg)
-		return lcoeff * c;
+		return lcoeff * c / lcoeff.unit(x);
 	ex cont = _ex0;
 	for (int i=ldeg; i<=deg; i++)
 		cont = gcd(r.coeff(x, i), cont, NULL, NULL, false);
@@ -874,23 +873,37 @@ ex ex::content(const ex &x) const
 }
 
 
-/** Compute primitive part of a multivariate polynomial in Q[x].
- *  The product of unit part, content part, and primitive part is the
- *  polynomial itself.
+/** Compute primitive part of a multivariate polynomial in Q[x]. The result
+ *  will be a unit-normal polynomial with a content part of 1. The product
+ *  of unit part, content part, and primitive part is the polynomial itself.
  *
- *  @param x  variable in which to compute the primitive part
+ *  @param x  main variable
  *  @return primitive part
- *  @see ex::unit, ex::content */
+ *  @see ex::unit, ex::content, ex::unitcontprim */
 ex ex::primpart(const ex &x) const
 {
-	if (is_zero())
+	// We need to compute the unit and content anyway, so call unitcontprim()
+	ex u, c, p;
+	unitcontprim(x, u, c, p);
+	return p;
+}
+
+
+/** Compute primitive part of a multivariate polynomial in Q[x] when the
+ *  content part is already known. This function is faster in computing the
+ *  primitive part than the previous function.
+ *
+ *  @param x  main variable
+ *  @param c  previously computed content part
+ *  @return primitive part */
+ex ex::primpart(const ex &x, const ex &c) const
+{
+	if (is_zero() || c.is_zero())
 		return _ex0;
 	if (is_exactly_a<numeric>(*this))
 		return _ex1;
 
-	ex c = content(x);
-	if (c.is_zero())
-		return _ex0;
+	// Divide by unit and content to get primitive part
 	ex u = unit(x);
 	if (is_exactly_a<numeric>(c))
 		return *this / (c * u);
@@ -899,27 +912,58 @@ ex ex::primpart(const ex &x) const
 }
 
 
-/** Compute primitive part of a multivariate polynomial in Q[x] when the
- *  content part is already known. This function is faster in computing the
- *  primitive part than the previous function.
+/** Compute unit part, content part, and primitive part of a multivariate
+ *  polynomial in Q[x]. The product of the three parts is the polynomial
+ *  itself.
  *
- *  @param x  variable in which to compute the primitive part
- *  @param c  previously computed content part
- *  @return primitive part */
-ex ex::primpart(const ex &x, const ex &c) const
+ *  @param x  main variable
+ *  @param u  unit part (returned)
+ *  @param c  content part (returned)
+ *  @param p  primitive part (returned)
+ *  @see ex::unit, ex::content, ex::primpart */
+void ex::unitcontprim(const ex &x, ex &u, ex &c, ex &p) const
 {
-	if (is_zero())
-		return _ex0;
-	if (c.is_zero())
-		return _ex0;
-	if (is_exactly_a<numeric>(*this))
-		return _ex1;
+	// Quick check for zero (avoid expanding)
+	if (is_zero()) {
+		u = _ex1;
+		c = p = _ex0;
+		return;
+	}
 
-	ex u = unit(x);
+	// Special case: input is a number
+	if (is_exactly_a<numeric>(*this)) {
+		if (info(info_flags::negative)) {
+			u = _ex_1;
+			c = abs(ex_to<numeric>(*this));
+		} else {
+			u = _ex1;
+			c = *this;
+		}
+		p = _ex1;
+		return;
+	}
+
+	// Expand input polynomial
+	ex e = expand();
+	if (e.is_zero()) {
+		u = _ex1;
+		c = p = _ex0;
+		return;
+	}
+
+	// Compute unit and content
+	u = unit(x);
+	c = content(x);
+
+	// Divide by unit and content to get primitive part
+	if (c.is_zero()) {
+		p = _ex0;
+		return;
+	}
 	if (is_exactly_a<numeric>(c))
-		return *this / (c * u);
+		p = *this / (c * u);
 	else
-		return quo(*this, c * u, x, false);
+		p = quo(e, c * u, x, false);
 }
 
 
@@ -1396,16 +1440,18 @@ factored_b:
 
 	// Try to eliminate variables
 	if (var->deg_a == 0) {
-		ex c = bex.content(x);
-		ex g = gcd(aex, c, ca, cb, false);
+		ex bex_u, bex_c, bex_p;
+		bex.unitcontprim(x, bex_u, bex_c, bex_p);
+		ex g = gcd(aex, bex_c, ca, cb, false);
 		if (cb)
-			*cb *= bex.unit(x) * bex.primpart(x, c);
+			*cb *= bex_u * bex_p;
 		return g;
 	} else if (var->deg_b == 0) {
-		ex c = aex.content(x);
-		ex g = gcd(c, bex, ca, cb, false);
+		ex aex_u, aex_c, aex_p;
+		aex.unitcontprim(x, aex_u, aex_c, aex_p);
+		ex g = gcd(aex_c, bex, ca, cb, false);
 		if (ca)
-			*ca *= aex.unit(x) * aex.primpart(x, c);
+			*ca *= aex_u * aex_p;
 		return g;
 	}
 

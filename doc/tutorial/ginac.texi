@@ -4725,6 +4725,7 @@ in which case the value of @code{q} is undefined.
 @cindex @code{unit()}
 @cindex @code{content()}
 @cindex @code{primpart()}
+@cindex @code{unitcontprim()}
 
 The methods
 
@@ -4732,14 +4733,26 @@ The methods
 ex ex::unit(const ex & x);
 ex ex::content(const ex & x);
 ex ex::primpart(const ex & x);
+ex ex::primpart(const ex & x, const ex & c);
 @end example
 
 return the unit part, content part, and primitive polynomial of a multivariate
 polynomial with respect to the variable @samp{x} (the unit part being the sign
 of the leading coefficient, the content part being the GCD of the coefficients,
 and the primitive polynomial being the input polynomial divided by the unit and
-content parts). The product of unit, content, and primitive part is the
-original polynomial.
+content parts). The second variant of @code{primpart()} expects the previously
+calculated content part of the polynomial in @code{c}, which enables it to
+work faster in the case where the content part has already been computed. The
+product of unit, content, and primitive part is the original polynomial.
+
+Additionally, the method
+
+@example
+void ex::unitcontprim(const ex & x, ex & u, ex & c, ex & p);
+@end example
+
+computes the unit, content, and primitive parts in one go, returning them
+in @code{u}, @code{c}, and @code{p}, respectively.
 
 
 @subsection GCD, LCM and resultant
