@@ -301,39 +301,27 @@ bool su3d::contract_with(exvector::iterator self, exvector::iterator other, exve
 	GINAC_ASSERT(self->nops() == 4);
 	GINAC_ASSERT(is_ex_of_type(self->op(0), su3d));
 
-	if (is_ex_exactly_of_type(other->op(0), su3d) || is_ex_exactly_of_type(other->op(0), su3f)) {
+	if (is_ex_exactly_of_type(other->op(0), su3d)) {
 
 		// Find the dummy indices of the contraction
 		exvector dummy_indices;
 		dummy_indices = ex_to_indexed(*self).get_dummy_indices(ex_to_indexed(*other));
 
-		if (is_ex_exactly_of_type(other->op(0), su3d)) {
+		// d.abc*d.abc=40/3
+		if (dummy_indices.size() == 3) {
+			*self = numeric(40, 3);
+			*other = _ex1();
+			return true;
 
-			// d.abc*d.abc=40/3
-			if (dummy_indices.size() == 3) {
-				*self = numeric(40, 3);
-				*other = _ex1();
-				return true;
-
-			// d.akl*d.bkl=5/3*delta.ab
-			} else if (dummy_indices.size() == 2) {
-				exvector a = index_set_difference(ex_to_indexed(*self).get_indices(), dummy_indices);
-				exvector b = index_set_difference(ex_to_indexed(*other).get_indices(), dummy_indices);
-				GINAC_ASSERT(a.size() > 0);
-				GINAC_ASSERT(b.size() > 0);
-				*self = numeric(5, 3) * delta_tensor(a[0], b[0]);
-				*other = _ex1();
-				return true;
-			}
-
-		} else {
-
-			// d.akl*f.bkl=0 (includes the case a=b)
-			if (dummy_indices.size() >= 2) {
-				*self = _ex0();
-				*other = _ex0();
-				return true;
-			}
+		// d.akl*d.bkl=5/3*delta.ab
+		} else if (dummy_indices.size() == 2) {
+			exvector a = index_set_difference(ex_to_indexed(*self).get_indices(), dummy_indices);
+			exvector b = index_set_difference(ex_to_indexed(*other).get_indices(), dummy_indices);
+			GINAC_ASSERT(a.size() > 0);
+			GINAC_ASSERT(b.size() > 0);
+			*self = numeric(5, 3) * delta_tensor(a[0], b[0]);
+			*other = _ex1();
+			return true;
 		}
 	}
 

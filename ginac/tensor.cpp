@@ -333,7 +333,7 @@ bool tensmetric::contract_with(exvector::iterator self, exvector::iterator other
 
 	// If contracting with the delta tensor, let the delta do it
 	// (don't raise/lower delta indices)
-	if (is_ex_exactly_of_type(other->op(0), tensdelta))
+	if (is_ex_of_type(other->op(0), tensdelta))
 		return false;
 
 	// Try to contract first index

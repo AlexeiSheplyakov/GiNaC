@@ -587,16 +587,24 @@ try_again:
 		if (!is_ex_of_type(*it1, indexed))
 			continue;
 
-		// Indexed factor found, look for contraction candidates
+		// Indexed factor found, get free indices and look for contraction
+		// candidates
+		exvector free1, dummy1;
+		find_free_and_dummy(ex_to_indexed(*it1).seq.begin() + 1, ex_to_indexed(*it1).seq.end(), free1, dummy1);
+
 		exvector::iterator it2;
 		for (it2 = it1 + 1; it2 != itend; it2++) {
 
 			if (!is_ex_of_type(*it2, indexed))
 				continue;
 
+			// Find free indices of second factor and merge them with free
+			// indices of first factor
+			exvector un;
+			find_free_and_dummy(ex_to_indexed(*it2).seq.begin() + 1, ex_to_indexed(*it2).seq.end(), un, dummy1);
+			un.insert(un.end(), free1.begin(), free1.end());
+
 			// Check whether the two factors share dummy indices
-			exvector un(ex_to_indexed(*it1).seq.begin() + 1, ex_to_indexed(*it1).seq.end());
-			un.insert(un.end(), ex_to_indexed(*it2).seq.begin() + 1, ex_to_indexed(*it2).seq.end());
 			exvector free, dummy;
 			find_free_and_dummy(un, free, dummy);
 			if (dummy.size() == 0)
