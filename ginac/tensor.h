@@ -128,6 +128,7 @@ public:
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 	ex eval_indexed(const basic & i) const;
+	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
 
 	// member variables
 private:

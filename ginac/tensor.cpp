@@ -30,6 +30,7 @@
 #include "relational.h"
 #include "lst.h"
 #include "numeric.h"
+#include "matrix.h"
 #include "print.h"
 #include "archive.h"
 #include "utils.h"
@@ -488,6 +489,31 @@ again:
 		first_index_tried = true;
 		sign = -sign;
 		goto again;
+	}
+
+	return false;
+}
+
+/** Contraction of epsilon tensor with something else. */
+bool tensepsilon::contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const
+{
+	GINAC_ASSERT(is_ex_of_type(*self, indexed));
+	GINAC_ASSERT(is_ex_of_type(*other, indexed));
+	GINAC_ASSERT(is_ex_of_type(self->op(0), spinmetric));
+	unsigned num = self->nops() - 1;
+
+	if (is_ex_exactly_of_type(other->op(0), tensepsilon) && num+1 == other->nops()) {
+
+		// Contraction of two epsilon tensors is a determinant
+		ex dim = ex_to<idx>(self->op(1)).get_dim();
+		matrix M(num, num);
+		for (int i=0; i<num; i++)
+			for (int j=0; j<num; j++)
+				M(i, j) = delta_tensor(self->op(i+1), other->op(j+1));
+		int sign = minkowski ? -1 : 1;
+		*self = sign * M.determinant().simplify_indexed();
+		*other = _ex1();
+		return true;
 	}
 
 	return false;

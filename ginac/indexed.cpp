@@ -545,6 +545,7 @@ static ex rename_dummy_indices(const ex & e, exvector & global_dummy_indices, ex
 
 		// More local indices than we encountered before, add the new ones
 		// to the global set
+		int old_global_size = global_size;
 		int remaining = local_size - global_size;
 		exvector::const_iterator it = local_dummy_indices.begin(), itend = local_dummy_indices.end();
 		while (it != itend && remaining > 0) {
@@ -555,26 +556,35 @@ static ex rename_dummy_indices(const ex & e, exvector & global_dummy_indices, ex
 			}
 			it++;
 		}
-	}
+		shaker_sort(global_dummy_indices.begin(), global_dummy_indices.end(), ex_is_less(), ex_swap());
 
-	// Replace index symbols in expression
-	GINAC_ASSERT(local_size <= global_size);
-	bool all_equal = true;
-	lst local_syms, global_syms;
-	for (unsigned i=0; i<local_size; i++) {
-		ex loc_sym = local_dummy_indices[i].op(0);
-		ex glob_sym = global_dummy_indices[i].op(0);
-		if (!loc_sym.is_equal(glob_sym)
-		 && ex_to<idx>(local_dummy_indices[i]).get_dim().is_equal(ex_to<idx>(global_dummy_indices[i]).get_dim())) {
-			all_equal = false;
-			local_syms.append(loc_sym);
-			global_syms.append(glob_sym);
-		}
+		// If this is the first set of local indices, do nothing
+		if (old_global_size == 0)
+			return e;
 	}
-	if (all_equal)
+	GINAC_ASSERT(local_size <= global_size);
+
+	// Construct lists of index symbols
+	exlist local_syms, global_syms;
+	for (unsigned i=0; i<local_size; i++)
+		local_syms.push_back(local_dummy_indices[i].op(0));
+	shaker_sort(local_syms.begin(), local_syms.end(), ex_is_less(), ex_swap());
+	for (unsigned i=0; i<global_size; i++)
+		global_syms.push_back(global_dummy_indices[i].op(0));
+
+	// Remove common indices
+	exlist local_uniq, global_uniq;
+	set_difference(local_syms.begin(), local_syms.end(), global_syms.begin(), global_syms.end(), std::back_insert_iterator<exlist>(local_uniq), ex_is_less());
+	set_difference(global_syms.begin(), global_syms.end(), local_syms.begin(), local_syms.end(), std::back_insert_iterator<exlist>(global_uniq), ex_is_less());
+
+	// Replace remaining non-common local index symbols by global ones
+	if (local_uniq.empty())
 		return e;
-	else
-		return e.subs(local_syms, global_syms);
+	else {
+		while (global_uniq.size() > local_uniq.size())
+			global_uniq.pop_back();
+		return e.subs(lst(local_uniq), lst(global_uniq));
+	}
 }
 
 /** Simplify product of indexed expressions (commutative, noncommutative and
