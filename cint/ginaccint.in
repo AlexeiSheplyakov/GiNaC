@@ -10,4 +10,4 @@ if [ "x$CINTSYSDIR" = "x" ]; then
   CINTSYSDIR=$config_cintsysdir
   export CINTSYSDIR
 fi
-exec ${bindir}/${binprog}
+exec ${bindir}/${binprog} "$@"
