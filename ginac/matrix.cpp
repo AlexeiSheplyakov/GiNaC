@@ -92,20 +92,20 @@ void matrix::destroy(bool call_parent)
  *
  *  @param r number of rows
  *  @param c number of cols */
-matrix::matrix(int r, int c)
+matrix::matrix(unsigned r, unsigned c)
     : basic(TINFO_matrix), row(r), col(c)
 {
-    debugmsg("matrix constructor from int,int",LOGLEVEL_CONSTRUCT);
+    debugmsg("matrix constructor from unsigned,unsigned",LOGLEVEL_CONSTRUCT);
     m.resize(r*c, _ex0());
 }
 
 // protected
 
 /** Ctor from representation, for internal use only. */
-matrix::matrix(int r, int c, exvector const & m2)
+matrix::matrix(unsigned r, unsigned c, exvector const & m2)
     : basic(TINFO_matrix), row(r), col(c), m(m2)
 {
-    debugmsg("matrix constructor from int,int,exvector",LOGLEVEL_CONSTRUCT);
+    debugmsg("matrix constructor from unsigned,unsigned,exvector",LOGLEVEL_CONSTRUCT);
 }
 
 //////////
@@ -124,15 +124,15 @@ void matrix::print(ostream & os, unsigned upper_precedence) const
 {
     debugmsg("matrix print",LOGLEVEL_PRINT);
     os << "[[ ";
-    for (int r=0; r<row-1; ++r) {
+    for (unsigned r=0; r<row-1; ++r) {
         os << "[[";
-        for (int c=0; c<col-1; ++c) {
+        for (unsigned c=0; c<col-1; ++c) {
             os << m[r*col+c] << ",";
         }
         os << m[col*(r+1)-1] << "]], ";
     }
     os << "[[";
-    for (int c=0; c<col-1; ++c) {
+    for (unsigned c=0; c<col-1; ++c) {
         os << m[(row-1)*col+c] << ",";
     }
     os << m[row*col-1] << "]] ]]";
@@ -142,15 +142,15 @@ void matrix::printraw(ostream & os) const
 {
     debugmsg("matrix printraw",LOGLEVEL_PRINT);
     os << "matrix(" << row << "," << col <<",";
-    for (int r=0; r<row-1; ++r) {
+    for (unsigned r=0; r<row-1; ++r) {
         os << "(";
-        for (int c=0; c<col-1; ++c) {
+        for (unsigned c=0; c<col-1; ++c) {
             os << m[r*col+c] << ",";
         }
         os << m[col*(r-1)-1] << "),";
     }
     os << "(";
-    for (int c=0; c<col-1; ++c) {
+    for (unsigned c=0; c<col-1; ++c) {
         os << m[(row-1)*col+c] << ",";
     }
     os << m[row*col-1] << "))";
@@ -172,7 +172,7 @@ ex & matrix::let_op(int const i)
 ex matrix::expand(unsigned options) const
 {
     exvector tmp(row*col);
-    for (int i=0; i<row*col; ++i) {
+    for (unsigned i=0; i<row*col; ++i) {
         tmp[i]=m[i].expand(options);
     }
     return matrix(row, col, tmp);
@@ -212,8 +212,8 @@ ex matrix::eval(int level) const
     // eval() entry by entry
     exvector m2(row*col);
     --level;    
-    for (int r=0; r<row; ++r) {
-        for (int c=0; c<col; ++c) {
+    for (unsigned r=0; r<row; ++r) {
+        for (unsigned c=0; c<col; ++c) {
             m2[r*col+c] = m[r*col+c].eval(level);
         }
     }
@@ -240,8 +240,8 @@ ex matrix::evalf(int level) const
     // evalf() entry by entry
     exvector m2(row*col);
     --level;
-    for (int r=0; r<row; ++r) {
-        for (int c=0; c<col; ++c) {
+    for (unsigned r=0; r<row; ++r) {
+        for (unsigned c=0; c<col; ++c) {
             m2[r*col+c] = m[r*col+c].evalf(level);
         }
     }
@@ -267,8 +267,8 @@ int matrix::compare_same_type(basic const & other) const
     
     // equal number of rows and columns, compare individual elements
     int cmpval;
-    for (int r=0; r<row; ++r) {
-        for (int c=0; c<col; ++c) {
+    for (unsigned r=0; r<row; ++r) {
+        for (unsigned c=0; c<col; ++c) {
             cmpval=((*this)(r,c)).compare(o(r,c));
             if (cmpval!=0) return cmpval;
         }
@@ -333,9 +333,9 @@ matrix matrix::mul(matrix const & other) const
     }
     
     exvector prod(row*other.col);
-    for (int i=0; i<row; ++i) {
-        for (int j=0; j<other.col; ++j) {
-            for (int l=0; l<col; ++l) {
+    for (unsigned i=0; i<row; ++i) {
+        for (unsigned j=0; j<other.col; ++j) {
+            for (unsigned l=0; l<col; ++l) {
                 prod[i*other.col+j] += m[i*col+l] * other.m[l*other.col+j];
             }
         }
@@ -348,7 +348,7 @@ matrix matrix::mul(matrix const & other) const
  *  @param ro row of element
  *  @param co column of element 
  *  @exception range_error (index out of range) */
-ex const & matrix::operator() (int ro, int co) const
+ex const & matrix::operator() (unsigned ro, unsigned co) const
 {
     if (ro<0 || ro>=row || co<0 || co>=col) {
         throw (std::range_error("matrix::operator(): index out of range"));
@@ -360,7 +360,7 @@ ex const & matrix::operator() (int ro, int co) const
 /** Set individual elements manually.
  *
  *  @exception range_error (index out of range) */
-matrix & matrix::set(int ro, int co, ex value)
+matrix & matrix::set(unsigned ro, unsigned co, ex value)
 {
     if (ro<0 || ro>=row || co<0 || co>=col) {
         throw (std::range_error("matrix::set(): index out of range"));
@@ -377,8 +377,8 @@ matrix matrix::transpose(void) const
 {
     exvector trans(col*row);
     
-    for (int r=0; r<col; ++r) {
-        for (int c=0; c<row; ++c) {
+    for (unsigned r=0; r<col; ++r) {
+        for (unsigned c=0; c<row; ++c) {
             trans[r*row+c] = m[c*col+r];
         }
     }
@@ -394,7 +394,7 @@ ex determinant_numeric(const matrix & M)
     ex det=_ex1();
     ex piv;
     
-    for (int r1=0; r1<M.rows(); ++r1) {
+    for (unsigned r1=0; r1<M.rows(); ++r1) {
         int indx = tmp.pivot(r1);
         if (indx == -1) {
             return _ex0();
@@ -403,9 +403,9 @@ ex determinant_numeric(const matrix & M)
             det *= _ex_1();
         }
         det = det * tmp.m[r1*M.cols()+r1];
-        for (int r2=r1+1; r2<M.rows(); ++r2) {
+        for (unsigned r2=r1+1; r2<M.rows(); ++r2) {
             piv = tmp.m[r2*M.cols()+r1] / tmp.m[r1*M.cols()+r1];
-            for (int c=r1+1; c<M.cols(); c++) {
+            for (unsigned c=r1+1; c<M.cols(); c++) {
                 tmp.m[r2*M.cols()+c] -= piv * tmp.m[r1*M.cols()+c];
             }
         }
@@ -446,12 +446,12 @@ ex determinant_symbolic_perm(const matrix & M)
     
     ex det;
     ex term;
-    vector<int> sigma(M.cols());
-    for (int i=0; i<M.cols(); ++i) sigma[i]=i;
+    vector<unsigned> sigma(M.cols());
+    for (unsigned i=0; i<M.cols(); ++i) sigma[i]=i;
     
     do {
         term = M(sigma[0],0);
-        for (int i=1; i<M.cols(); ++i) term *= M(sigma[i],i);
+        for (unsigned i=1; i<M.cols(); ++i) term *= M(sigma[i],i);
         det += permutation_sign(sigma)*term;
     } while (next_permutation(sigma.begin(), sigma.end()));
     
@@ -480,10 +480,10 @@ ex determinant_symbolic_minor(const matrix & M)
     
     ex det;
     matrix minorM(M.rows()-1,M.cols()-1);
-    for (int r1=0; r1<M.rows(); ++r1) {
+    for (unsigned r1=0; r1<M.rows(); ++r1) {
         // assemble the minor matrix
-        for (int r=0; r<minorM.rows(); ++r) {
-            for (int c=0; c<minorM.cols(); ++c) {
+        for (unsigned r=0; r<minorM.rows(); ++r) {
+            for (unsigned c=0; c<minorM.cols(); ++c) {
                 if (r<r1) {
                     minorM.set(r,c,M(r,c+1));
                 } else {
@@ -512,8 +512,8 @@ ex determinant_symbolic_minor(const matrix & M)
  *    matrix B(M);
  *    matrix I(M.row, M.col);
  *    ex c=B.trace();
- *    for (int i=1; i<M.row; ++i) {
- *        for (int j=0; j<M.row; ++j)
+ *    for (unsigned i=1; i<M.row; ++i) {
+ *        for (unsigned j=0; j<M.row; ++j)
  *            I.m[j*M.col+j] = c;
  *        B = M.mul(B.sub(I));
  *        c = B.trace()/ex(i+1);
@@ -569,7 +569,7 @@ ex matrix::trace(void) const
     }
     
     ex tr;
-    for (int r=0; r<col; ++r) {
+    for (unsigned r=0; r<col; ++r) {
         tr += m[r*col+r];
     }
     return tr;
@@ -590,7 +590,7 @@ ex matrix::charpoly(ex const & lambda) const
     }
     
     matrix M(*this);
-    for (int r=0; r<col; ++r) {
+    for (unsigned r=0; r<col; ++r) {
         M.m[r*col+r] -= lambda;
     }
     return (M.determinant());
@@ -609,30 +609,30 @@ matrix matrix::inverse(void) const
     
     matrix tmp(row,col);
     // set tmp to the unit matrix
-    for (int i=0; i<col; ++i) {
+    for (unsigned i=0; i<col; ++i) {
         tmp.m[i*col+i] = _ex1();
     }
     // create a copy of this matrix
     matrix cpy(*this);
-    for (int r1=0; r1<row; ++r1) {
+    for (unsigned r1=0; r1<row; ++r1) {
         int indx = cpy.pivot(r1);
         if (indx == -1) {
             throw (std::runtime_error("matrix::inverse(): singular matrix"));
         }
         if (indx != 0) {  // swap rows r and indx of matrix tmp
-            for (int i=0; i<col; ++i) {
+            for (unsigned i=0; i<col; ++i) {
                 tmp.m[r1*col+i].swap(tmp.m[indx*col+i]);
             }
         }
         ex a1 = cpy.m[r1*col+r1];
-        for (int c=0; c<col; ++c) {
+        for (unsigned c=0; c<col; ++c) {
             cpy.m[r1*col+c] /= a1;
             tmp.m[r1*col+c] /= a1;
         }
-        for (int r2=0; r2<row; ++r2) {
+        for (unsigned r2=0; r2<row; ++r2) {
             if (r2 != r1) {
                 ex a2 = cpy.m[r2*col+r1];
-                for (int c=0; c<col; ++c) {
+                for (unsigned c=0; c<col; ++c) {
                     cpy.m[r2*col+c] -= a2 * cpy.m[r1*col+c];
                     tmp.m[r2*col+c] -= a2 * tmp.m[r1*col+c];
                 }
@@ -642,7 +642,7 @@ matrix matrix::inverse(void) const
     return tmp;
 }
 
-void matrix::ffe_swap(int r1, int c1, int r2 ,int c2)
+void matrix::ffe_swap(unsigned r1, unsigned c1, unsigned r2 ,unsigned c2)
 {
     ensure_if_modifiable();
     
@@ -651,12 +651,12 @@ void matrix::ffe_swap(int r1, int c1, int r2 ,int c2)
     ffe_set(r2,c2,tmp);
 }
 
-void matrix::ffe_set(int r, int c, ex e)
+void matrix::ffe_set(unsigned r, unsigned c, ex e)
 {
     set(r-1,c-1,e);
 }
 
-ex matrix::ffe_get(int r, int c) const
+ex matrix::ffe_get(unsigned r, unsigned c) const
 {
     return operator()(r-1,c-1);
 }
@@ -680,30 +680,30 @@ matrix matrix::fraction_free_elim(matrix const & vars,
     matrix b(rhs);     // make a copy of the rhs vector
     
     // given an m x n matrix a, reduce it to upper echelon form
-    int m=a.row;
-    int n=a.col;
+    unsigned m=a.row;
+    unsigned n=a.col;
     int sign=1;
     ex divisor=1;
-    int r=1;
+    unsigned r=1;
     
     // eliminate below row r, with pivot in column k
-    for (int k=1; (k<=n)&&(r<=m); ++k) {
+    for (unsigned k=1; (k<=n)&&(r<=m); ++k) {
         // find a nonzero pivot
-        int p;
+        unsigned p;
         for (p=r; (p<=m)&&(a.ffe_get(p,k).is_equal(_ex0())); ++p) {}
         // pivot is in row p
         if (p<=m) {
             if (p!=r) {
                 // switch rows p and r
-                for (int j=k; j<=n; ++j) {
+                for (unsigned j=k; j<=n; ++j) {
                     a.ffe_swap(p,j,r,j);
                 }
                 b.ffe_swap(p,1,r,1);
                 // keep track of sign changes due to row exchange
                 sign=-sign;
             }
-            for (int i=r+1; i<=m; ++i) {
-                for (int j=k+1; j<=n; ++j) {
+            for (unsigned i=r+1; i<=m; ++i) {
+                for (unsigned j=k+1; j<=n; ++j) {
                     a.ffe_set(i,j,(a.ffe_get(r,k)*a.ffe_get(i,j)
                                   -a.ffe_get(r,j)*a.ffe_get(i,k))/divisor);
                     a.ffe_set(i,j,a.ffe_get(i,j).normal() /*.normal() */ );
@@ -721,8 +721,8 @@ matrix matrix::fraction_free_elim(matrix const & vars,
     // if (r==m+1) { det=sign*divisor; } else { det=0; }
     
     /*
-    for (int r=1; r<=m; ++r) {
-        for (int c=1; c<=n; ++c) {
+    for (unsigned r=1; r<=m; ++r) {
+        for (unsigned c=1; c<=n; ++c) {
             cout << a.ffe_get(r,c) << "\t";
         }
         cout << " | " <<  b.ffe_get(r,1) << endl;
@@ -732,9 +732,9 @@ matrix matrix::fraction_free_elim(matrix const & vars,
 #ifdef DO_GINAC_ASSERT
     // test if we really have an upper echelon matrix
     int zero_in_last_row=-1;
-    for (int r=1; r<=m; ++r) {
+    for (unsigned r=1; r<=m; ++r) {
         int zero_in_this_row=0;
-        for (int c=1; c<=n; ++c) {
+        for (unsigned c=1; c<=n; ++c) {
             if (a.ffe_get(r,c).is_equal(_ex0())) {
                zero_in_this_row++;
             } else {
@@ -748,9 +748,9 @@ matrix matrix::fraction_free_elim(matrix const & vars,
     
     // assemble solution
     matrix sol(n,1);
-    int last_assigned_sol=n+1;
-    for (int r=m; r>0; --r) {
-        int first_non_zero=1;
+    unsigned last_assigned_sol=n+1;
+    for (unsigned r=m; r>0; --r) {
+        unsigned first_non_zero=1;
         while ((first_non_zero<=n)&&(a.ffe_get(r,first_non_zero).is_zero())) {
             first_non_zero++;
         }
@@ -762,11 +762,11 @@ matrix matrix::fraction_free_elim(matrix const & vars,
         } else {
             // assign solutions for vars between first_non_zero+1 and
             // last_assigned_sol-1: free parameters
-            for (int c=first_non_zero+1; c<=last_assigned_sol-1; ++c) {
+            for (unsigned c=first_non_zero+1; c<=last_assigned_sol-1; ++c) {
                 sol.ffe_set(c,1,vars.ffe_get(c,1));
             }
             ex e=b.ffe_get(r,1);
-            for (int c=first_non_zero+1; c<=n; ++c) {
+            for (unsigned c=first_non_zero+1; c<=n; ++c) {
                 e=e-a.ffe_get(r,c)*sol.ffe_get(c,1);
             }
             sol.ffe_set(first_non_zero,1,
@@ -776,21 +776,21 @@ matrix matrix::fraction_free_elim(matrix const & vars,
     }
     // assign solutions for vars between 1 and
     // last_assigned_sol-1: free parameters
-    for (int c=1; c<=last_assigned_sol-1; ++c) {
+    for (unsigned c=1; c<=last_assigned_sol-1; ++c) {
         sol.ffe_set(c,1,vars.ffe_get(c,1));
     }
 
     /*
-    for (int c=1; c<=n; ++c) {
+    for (unsigned c=1; c<=n; ++c) {
         cout << vars.ffe_get(c,1) << "->" << sol.ffe_get(c,1) << endl;
     }
     */
     
 #ifdef DO_GINAC_ASSERT
     // test solution with echelon matrix
-    for (int r=1; r<=m; ++r) {
+    for (unsigned r=1; r<=m; ++r) {
         ex e=0;
-        for (int c=1; c<=n; ++c) {
+        for (unsigned c=1; c<=n; ++c) {
             e=e+a.ffe_get(r,c)*sol.ffe_get(c,1);
         }
         if (!(e-b.ffe_get(r,1)).normal().is_zero()) {
@@ -802,9 +802,9 @@ matrix matrix::fraction_free_elim(matrix const & vars,
     }
 
     // test solution with original matrix
-    for (int r=1; r<=m; ++r) {
+    for (unsigned r=1; r<=m; ++r) {
         ex e=0;
-        for (int c=1; c<=n; ++c) {
+        for (unsigned c=1; c<=n; ++c) {
             e=e+ffe_get(r,c)*sol.ffe_get(c,1);
         }
         try {
@@ -837,24 +837,24 @@ matrix matrix::solve(matrix const & v) const
     
     // build the extended matrix of *this with v attached to the right
     matrix tmp(row,col+v.col);
-    for (int r=0; r<row; ++r) {
-        for (int c=0; c<col; ++c) {
+    for (unsigned r=0; r<row; ++r) {
+        for (unsigned c=0; c<col; ++c) {
             tmp.m[r*tmp.col+c] = m[r*col+c];
         }
-        for (int c=0; c<v.col; ++c) {
+        for (unsigned c=0; c<v.col; ++c) {
             tmp.m[r*tmp.col+c+col] = v.m[r*v.col+c];
         }
     }
-    for (int r1=0; r1<row; ++r1) {
+    for (unsigned r1=0; r1<row; ++r1) {
         int indx = tmp.pivot(r1);
         if (indx == -1) {
             throw (std::runtime_error("matrix::solve(): singular matrix"));
         }
-        for (int c=r1; c<tmp.col; ++c) {
+        for (unsigned c=r1; c<tmp.col; ++c) {
             tmp.m[r1*tmp.col+c] /= tmp.m[r1*tmp.col+r1];
         }
-        for (int r2=r1+1; r2<row; ++r2) {
-            for (int c=r1; c<tmp.col; ++c) {
+        for (unsigned r2=r1+1; r2<row; ++r2) {
+            for (unsigned c=r1; c<tmp.col; ++c) {
                 tmp.m[r2*tmp.col+c]
                     -= tmp.m[r2*tmp.col+r1] * tmp.m[r1*tmp.col+c];
             }
@@ -863,10 +863,10 @@ matrix matrix::solve(matrix const & v) const
     
     // assemble the solution matrix
     exvector sol(v.row*v.col);
-    for (int c=0; c<v.col; ++c) {
-        for (int r=col-1; r>=0; --r) {
+    for (unsigned c=0; c<v.col; ++c) {
+        for (unsigned r=col-1; r>=0; --r) {
             sol[r*v.col+c] = tmp[r*tmp.col+c];
-            for (int i=r+1; i<col; ++i) {
+            for (unsigned i=r+1; i<col; ++i) {
                 sol[r*v.col+c]
                     -= tmp[r*tmp.col+i] * sol[i*v.col+c];
             }
@@ -882,11 +882,11 @@ matrix matrix::solve(matrix const & v) const
  *  value and swaps the current row with the one where the element was found.
  *  Here it does the same with the first non-zero element. (This works fine,
  *  but may be far from optimal for numerics.) */
-int matrix::pivot(int ro)
+int matrix::pivot(unsigned ro)
 {
-    int k=ro;
+    unsigned k=ro;
     
-    for (int r=ro; r<row; ++r) {
+    for (unsigned r=ro; r<row; ++r) {
         if (!m[r*col+ro].is_zero()) {
             k = r;
             break;
@@ -896,7 +896,7 @@ int matrix::pivot(int ro)
         return -1;
     }
     if (k!=ro) {  // swap rows
-        for (int c=0; c<col; ++c) {
+        for (unsigned c=0; c<col; ++c) {
             m[k*col+c].swap(m[ro*col+c]);
         }
         return k;

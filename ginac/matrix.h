@@ -53,8 +53,8 @@ protected:
 
     // other constructors
 public:
-    matrix(int r, int c);
-    matrix(int r, int c, exvector const & m2);
+    matrix(unsigned r, unsigned c);
+    matrix(unsigned r, unsigned c, exvector const & m2);
    
     // functions overriding virtual functions from bases classes
 public:
@@ -76,15 +76,15 @@ protected:
     
     // non-virtual functions in this class
 public:
-    int rows() const            //! get number of rows.
+    unsigned rows() const            //! get number of rows.
         { return row; }
-    int cols() const            //! get number of columns.
+    unsigned cols() const            //! get number of columns.
         { return col; }
     matrix add(matrix const & other) const;
     matrix sub(matrix const & other) const;
     matrix mul(matrix const & other) const;
-    ex const & operator() (int ro, int co) const;
-    matrix & set(int ro, int co, ex value);
+    ex const & operator() (unsigned ro, unsigned co) const;
+    matrix & set(unsigned ro, unsigned co, ex value);
     matrix transpose(void) const;
     ex determinant(bool normalized=true) const;
     ex trace(void) const;
@@ -93,15 +93,15 @@ public:
     matrix fraction_free_elim(matrix const & vars, matrix const & v) const;
     matrix solve(matrix const & v) const;
 protected:
-    int pivot(int ro);
-    void ffe_swap(int r1, int c1, int r2 ,int c2);
-    void ffe_set(int r, int c, ex e);
-    ex ffe_get(int r, int c) const;
+    int pivot(unsigned ro);
+    void ffe_swap(unsigned r1, unsigned c1, unsigned r2 ,unsigned c2);
+    void ffe_set(unsigned r, unsigned c, ex e);
+    ex ffe_get(unsigned r, unsigned c) const;
     
 // member variables
 protected:
-    int row;                    /**< number of rows      */
-    int col;                    /**< number of columns   */
+    unsigned row;             /**< number of rows      */
+    unsigned col;             /**< number of columns   */
     exvector m;               /**< representation (cols indexed first) */
     static unsigned precedence;
 };
@@ -127,10 +127,10 @@ inline ex eval(matrix const & m, int level=0)
 inline ex evalf(matrix const & m, int level=0)
 { return m.evalf(level); }
 
-inline int rows(matrix const & m)
+inline unsigned rows(matrix const & m)
 { return m.rows(); }
 
-inline int cols(matrix const & m)
+inline unsigned cols(matrix const & m)
 { return m.cols(); }
 
 inline matrix transpose(matrix const & m)
