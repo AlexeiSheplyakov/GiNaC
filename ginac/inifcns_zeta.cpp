@@ -50,27 +50,27 @@ static ex zeta1_evalf(const ex & x)
 static ex zeta1_eval(const ex & x)
 {
 	if (x.info(info_flags::numeric)) {
-		numeric y = ex_to<numeric>(x);
+		const numeric &y = ex_to<numeric>(x);
 		// trap integer arguments:
 		if (y.is_integer()) {
 			if (y.is_zero())
 				return _ex_1_2;
-			if (x.is_equal(_ex1))
+			if (y.is_equal(_num1))
 				throw(std::domain_error("zeta(1): infinity"));
-			if (x.info(info_flags::posint)) {
-				if (x.info(info_flags::odd))
+			if (y.info(info_flags::posint)) {
+				if (y.info(info_flags::odd))
 					return zeta(x).hold();
 				else
-					return abs(bernoulli(y))*pow(Pi,x)*pow(_num2,y-_num1)/factorial(y);
+					return abs(bernoulli(y))*pow(Pi,y)*pow(_num2,y-_num1)/factorial(y);
 			} else {
-				if (x.info(info_flags::odd))
+				if (y.info(info_flags::odd))
 					return -bernoulli(_num1-y)/(_num1-y);
 				else
-					return _num0;
+					return _ex0;
 			}
 		}
 		// zeta(float)
-		if (x.info(info_flags::numeric) && !x.info(info_flags::crational))
+		if (y.info(info_flags::numeric) && !y.info(info_flags::crational))
 			return zeta1_evalf(x);
 	}
 	return zeta(x).hold();
