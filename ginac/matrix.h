@@ -144,6 +144,13 @@ extern ex lst_to_matrix(const lst & l);
 /** Convert list of diagonal elements to matrix. */
 extern ex diag_matrix(const lst & l);
 
+/** Create a r times c unit matrix. */
+extern ex unit_matrix(unsigned r, unsigned c);
+
+/** Create a x times x unit matrix. */
+inline ex unit_matrix(unsigned x)
+{ return unit_matrix(x, x); }
+
 } // namespace GiNaC
 
 #endif // ndef __GINAC_MATRIX_H__

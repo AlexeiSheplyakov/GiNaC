@@ -150,23 +150,38 @@ void matrix::print(const print_context & c, unsigned level) const
 		if (is_a<print_python_repr>(c))
 			c.s << class_name() << '(';
 
-		c.s << "[";
-		for (unsigned y=0; y<row-1; ++y) {
+		if (is_a<print_latex>(c))
+			c.s << "\\left(\\begin{array}{" << std::string(col,'c') << "}";
+		else
 			c.s << "[";
-			for (unsigned x=0; x<col-1; ++x) {
-				m[y*col+x].print(c);
-				c.s << ",";
+
+		for (unsigned ro=0; ro<row; ++ro) {
+			if (!is_a<print_latex>(c))
+				c.s << "[";
+			for (unsigned co=0; co<col; ++co) {
+				m[ro*col+co].print(c);
+				if (co<col-1) {
+					if (is_a<print_latex>(c))
+						c.s << "&";
+					else
+						c.s << ",";
+				} else {
+					if (!is_a<print_latex>(c))
+						c.s << "]";
+				}
 			}
-			m[col*(y+1)-1].print(c);
-			c.s << "],";
+			if (ro<row-1) {
+				if (is_a<print_latex>(c))
+					c.s << "\\\\";
+				else
+					c.s << ",";
+			}
 		}
-		c.s << "[";
-		for (unsigned x=0; x<col-1; ++x) {
-			m[(row-1)*col+x].print(c);
-			c.s << ",";
-		}
-		m[row*col-1].print(c);
-		c.s << "]]";
+
+		if (is_a<print_latex>(c))
+			c.s << "\\end{array}\\right)";
+		else
+			c.s << "]";
 
 		if (is_a<print_python_repr>(c))
 			c.s << ')';
@@ -605,17 +620,19 @@ matrix matrix::pow(const ex & expn) const
 			matrix C(row,col);
 			for (unsigned r=0; r<row; ++r)
 				C(r,r) = _ex1;
+			if (b.is_zero())
+				return C;
 			// This loop computes the representation of b in base 2 from right
 			// to left and multiplies the factors whenever needed.  Note
 			// that this is not entirely optimal but close to optimal and
 			// "better" algorithms are much harder to implement.  (See Knuth,
 			// TAoCP2, section "Evaluation of Powers" for a good discussion.)
-			while (b!=1) {
+			while (b!=_num1) {
 				if (b.is_odd()) {
 					C = C.mul(A);
-					b -= 1;
+					--b;
 				}
-				b *= _num1_2;  // b /= 2, still integer.
+				b /= _num2;  // still integer.
 				A = A.mul(A);
 			}
 			return A.mul(C);
@@ -1458,6 +1475,14 @@ ex diag_matrix(const lst & l)
 		m(i, i) = l.op(i);
 
 	return m;
+}
+
+ex unit_matrix(unsigned r, unsigned c)
+{
+	matrix Id(r,c);
+	for (unsigned i=0; i<r && i<c; ++i)
+		Id(i,i) = _ex1;
+	return Id;
 }
 
 } // namespace GiNaC
