@@ -1,5 +1,9 @@
 This file records noteworthy changes.
 
+1.0.12 (<date>)
+* Fixed a bug in power::expand() that could produce invalid exressions.
+* The input parser no longer ignores extra data following accepted input.
+
 1.0.11 (18 September 2002)
 * Fixed a possible memory corruption in contractions of indexed objects with
   delta or metric tensors.
