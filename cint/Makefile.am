@@ -32,6 +32,6 @@ makecint_clean:
 	(if [ -f Makefile.makecint ]; then $(MAKE) -f Makefile.makecint clean; fi)
 
 clean: makecint_clean
-	-rm -f libginac.*
+	-rm -f libginac*
 
 distclean: makecint_clean

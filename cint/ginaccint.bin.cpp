@@ -56,14 +56,16 @@ char first_non_whitespace_char(char const * s)
 {
     int l = strlen(s);
     int pos = 0;
-    while ((pos<l)&&is_whitespace_char(s[pos])) pos++;
+    while ((pos<l)&&is_whitespace_char(s[pos]))
+        pos++;
     return s[pos];
 }    
 
 char last_non_whitespace_char(char const * s)
 {
     int pos = strlen(s)-1;
-    while ((pos>=0) && is_whitespace_char(s[pos])) pos--;
+    while ((pos>=0) && is_whitespace_char(s[pos]))
+        pos--;
     return s[pos];
 }    
 
@@ -86,7 +88,7 @@ G__value exec_tempfile(string const & command)
     fout << "{" << endl << command << endl << "}" << endl;
     fout.close();
     G__store_undo_position();
-    retval=G__exec_tempfile(tmpfilename);
+    retval = G__exec_tempfile(tmpfilename);
     G__security_recover(stdout);
     remove(tmpfilename);
     free(tmpfilename);
@@ -165,7 +167,8 @@ int main(void)
     char *line;
     char prompt[G__ONELINE];
 
-    greeting();
+    if (isatty(0))
+        greeting();
 
     atexit(cleanup);
     signal(SIGTERM,sigterm_handler);
@@ -180,14 +183,14 @@ int main(void)
     while (!quit) {
         strcpy(prompt,"GiNaC> ");
         int open_braces = 0;
-        bool end_of_command=false;
+        bool end_of_command = false;
         string command;
         while (!end_of_command) {
             line = G__input(prompt);
             
             int pos = 0;
-            bool double_quote=false;
-            bool single_quote=false;
+            bool double_quote = false;
+            bool single_quote = false;
             while(line[pos]!='\0') {
                 switch(line[pos]) {
                 case '"':
