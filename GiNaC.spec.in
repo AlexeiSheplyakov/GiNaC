@@ -53,7 +53,7 @@ install-info --delete %{prefix}/info/ginac.info.gz %{prefix}/info/dir
 %{prefix}/lib/lib*.so*
 %{prefix}/lib/*a
 %{prefix}/include/*
-%{prefix}/info/*
+%{prefix}/info/ginac.info*
 %{prefix}/man/man1/*
 %{prefix}/share/doc/GiNaC/*
 %{prefix}/bin/*
