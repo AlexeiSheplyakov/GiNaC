@@ -257,12 +257,13 @@ cln::cl_N Li2_do_sum_Xn(const cln::cl_N& x)
 	std::vector<cln::cl_N>::const_iterator xend = Xn[0].end();
 	cln::cl_N u = -cln::log(1-x);
 	cln::cl_N factor = u * cln::cl_float(1, cln::float_format(Digits));
-	cln::cl_N res = u - u*u/4;
+	cln::cl_N uu = cln::square(u);
+	cln::cl_N res = u - uu/4;
 	cln::cl_N resbuf;
 	unsigned i = 1;
 	do {
 		resbuf = res;
-		factor = factor * u*u / (2*i * (2*i+1));
+		factor = factor * uu / (2*i * (2*i+1));
 		res = res + (*it) * factor;
 		i++;
 		if (++it == xend) {
