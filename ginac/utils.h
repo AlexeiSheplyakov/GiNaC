@@ -147,7 +147,7 @@ int permutation_sign(It first, It last)
 		bool swapped = false;
 		while (i != first) {
 			if (*i < *other) {
-				iter_swap(other, i);
+				std::iter_swap(other, i);
 				flag = other;
 				swapped = true;
 				sign = -sign;
@@ -166,7 +166,7 @@ int permutation_sign(It first, It last)
 		swapped = false;
 		while (i != last) {
 			if (*other < *i) {
-				iter_swap(i, other);
+				std::iter_swap(i, other);
 				flag = other;
 				swapped = true;
 				sign = -sign;
@@ -200,7 +200,7 @@ int permutation_sign(It first, It last, Cmp comp)
 		bool swapped = false;
 		while (i != first) {
 			if (comp(*i, *other)) {
-				iter_swap(other, i);
+				std::iter_swap(other, i);
 				flag = other;
 				swapped = true;
 				sign = -sign;
@@ -219,7 +219,7 @@ int permutation_sign(It first, It last, Cmp comp)
 		swapped = false;
 		while (i != last) {
 			if (comp(*other, *i)) {
-				iter_swap(i, other);
+				std::iter_swap(i, other);
 				flag = other;
 				swapped = true;
 				sign = -sign;
@@ -253,7 +253,7 @@ void shaker_sort(It first, It last, Cmp comp)
 		bool swapped = false;
 		while (i != first) {
 			if (comp(*i, *other)) {
-				iter_swap(other, i);
+				std::iter_swap(other, i);
 				flag = other;
 				swapped = true;
 			}
@@ -270,7 +270,7 @@ void shaker_sort(It first, It last, Cmp comp)
 		swapped = false;
 		while (i != last) {
 			if (comp(*other, *i)) {
-				iter_swap(i, other);
+				std::iter_swap(i, other);
 				flag = other;
 				swapped = true;
 			}
@@ -284,11 +284,11 @@ void shaker_sort(It first, It last, Cmp comp)
 }
 
 /* Function objects for STL sort() etc. */
-struct ex_is_less : public binary_function<ex, ex, bool> {
+struct ex_is_less : public std::binary_function<ex, ex, bool> {
 	bool operator() (const ex &lh, const ex &rh) const { return lh.compare(rh) < 0; }
 };
 
-struct ex_is_equal : public binary_function<ex, ex, bool> {
+struct ex_is_equal : public std::binary_function<ex, ex, bool> {
 	bool operator() (const ex &lh, const ex &rh) const { return lh.is_equal(rh); }
 };
 

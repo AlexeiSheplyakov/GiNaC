@@ -371,7 +371,7 @@ bool su3d::contract_with(exvector::iterator self, exvector::iterator other, exve
 		// d.akl d.bkl = 5/3 delta.ab
 		} else if (dummy_indices.size() == 2) {
 			exvector a;
-			back_insert_iterator<exvector> ita(a);
+			std::back_insert_iterator<exvector> ita(a);
 			ita = set_difference(self_indices.begin(), self_indices.end(), dummy_indices.begin(), dummy_indices.end(), ita, ex_is_less());
 			ita = set_difference(other_indices.begin(), other_indices.end(), dummy_indices.begin(), dummy_indices.end(), ita, ex_is_less());
 			GINAC_ASSERT(a.size() == 2);

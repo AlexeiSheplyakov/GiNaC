@@ -226,7 +226,7 @@ bool indexed::info(unsigned inf) const
 	return inherited::info(inf);
 }
 
-struct idx_is_not : public binary_function<ex, unsigned, bool> {
+struct idx_is_not : public std::binary_function<ex, unsigned, bool> {
 	bool operator() (const ex & e, unsigned inf) const {
 		return !(ex_to_idx(e).get_value().info(inf));
 	}
