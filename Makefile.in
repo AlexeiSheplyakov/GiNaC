@@ -59,6 +59,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 host_alias = @host_alias@
 host_triplet = @host@
+ARCHIVE_AGE = @ARCHIVE_AGE@
+ARCHIVE_VERSION = @ARCHIVE_VERSION@
 AS = @AS@
 CC = @CC@
 CXX = @CXX@
@@ -97,7 +99,7 @@ TUTORIAL_TARGETS = @TUTORIAL_TARGETS@
 VERSION = @VERSION@
 YACC = @YACC@
 
-SUBDIRS = ginac check ginsh doc
+SUBDIRS = ginac check ginsh tools doc
 
 # Requires automake 1.4
 AUTOMAKE_OPTIONS = 1.4
@@ -352,7 +354,7 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$d/$$file $(distdir)/$$file; \
+	    cp -pr $$/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \

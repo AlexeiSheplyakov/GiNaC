@@ -20,6 +20,12 @@
 /* Define to the version of the distribution.  */
 #undef VERSION
 
+/* Current GiNaC archive file version number.  */
+#undef ARCHIVE_VERSION
+
+/* GiNaC archive file version age.  */
+#undef ARCHIVE_AGE
+
 
 /* Leave that blank line there!!  Autoheader needs it.
    If you're adding to this file, keep in mind:

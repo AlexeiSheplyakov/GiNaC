@@ -3,6 +3,12 @@
 /* Define if lex declares yytext as a char * by default, not a char[].  */
 #undef YYTEXT_POINTER
 
+/* Current GiNaC archive file version number.  */
+#undef ARCHIVE_VERSION
+
+/* GiNaC archive file version age.  */
+#undef ARCHIVE_AGE
+
 /* The number of bytes in a long.  */
 #undef SIZEOF_LONG
 
