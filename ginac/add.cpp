@@ -144,13 +144,14 @@ void add::print(const print_context & c, unsigned level) const
 			// Separator is "+", except if the following expression would have a leading minus sign or the sign is sitting in parenthesis (as in a ctor)
 			++it;
 			if (it != itend
-				&& (is_a<print_csrc_cl_N>(c)  // sign inside ctor arguments
-					|| !(it->coeff.info(info_flags::negative) || (it->coeff.is_equal(_num1) && is_exactly_a<numeric>(it->rest) && it->rest.info(info_flags::negative)))))
+			 && (is_a<print_csrc_cl_N>(c)  // sign inside ctor arguments
+			  || !(it->coeff.info(info_flags::negative) || (it->coeff.is_equal(_num1) && is_exactly_a<numeric>(it->rest) && it->rest.info(info_flags::negative)))))
 				c.s << "+";
 		}
 	
 		if (!overall_coeff.is_zero()) {
-			if (overall_coeff.info(info_flags::positive))
+			if (overall_coeff.info(info_flags::positive)
+			 || is_a<print_csrc_cl_N>(c))  // sign inside ctor argument
 				c.s << '+';
 			overall_coeff.print(c, precedence());
 		}
