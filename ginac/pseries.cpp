@@ -21,6 +21,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <stdexcept>
+
 #include "pseries.h"
 #include "add.h"
 #include "inifcns.h"
@@ -172,6 +174,23 @@ void pseries::printraw(ostream &os) const
 		os << "(" << (*i).rest << "," << (*i).coeff << "),";
 	}
 	os << ")";
+}
+
+unsigned pseries::nops(void) const
+{
+	return seq.size();
+}
+
+ex pseries::op(int i) const
+{
+	if (i < 0 || i >= seq.size())
+	    throw (std::out_of_range("op() out of range"));
+	return seq[i].rest * power(var - point, seq[i].coeff);
+}
+
+ex &pseries::let_op(int i)
+{
+    throw (std::logic_error("let_op not defined for pseries"));
 }
 
 int pseries::degree(symbol const &s) const

@@ -324,7 +324,7 @@ unsigned basic::calchash(void) const
     unsigned v=golden_ratio_hash(tinfo());
     for (unsigned i=0; i<nops(); i++) {
         v=rotate_left_31(v);
-        v ^= (const_cast<basic *>(this))->let_op(i).gethash();
+        v ^= (const_cast<basic *>(this))->op(i).gethash();
     }
 
     v = v & 0x7FFFFFFFU;

@@ -320,7 +320,7 @@ unsigned expairseq::nops() const
     return seq.size()+1;
 }
 
-ex expairseq::op(int const i) const
+ex expairseq::op(int i) const
 {
     if (unsigned(i)<seq.size()) {
         return recombine_pair_to_ex(seq[i]);

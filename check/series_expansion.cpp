@@ -31,7 +31,7 @@ static symbol x("x");
 static unsigned check_series(const ex &e, const ex &point, const ex &d, int order = 8)
 {
     ex es = e.series(x, point, order);
-    ex ep = static_cast<const pseries &>(*es.bp).convert_to_poly();
+    ex ep = ex_to_pseries(es).convert_to_poly();
     if (!(ep - d).is_zero()) {
         clog << "series expansion of " << e << " at " << point
              << " erroneously returned " << ep << " (instead of " << d
