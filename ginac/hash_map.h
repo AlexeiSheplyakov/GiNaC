@@ -431,6 +431,7 @@ public:
 		return !(lhs == rhs);
 	}
 
+#if 0
 	void dump() const
 	{
 		std::clog << "num_entries = " << num_entries << std::endl;
@@ -441,6 +442,7 @@ public:
 			std::clog << (it->first == EMPTY ? "free" : (it->first == USED ? "used" : "erased")) << ", " << it->second.first << " -> " << it->second.second << std::endl;
 		}
 	}
+#endif
 };
 
 /** Return pointer to bucket corresponding to key (or first empty bucket). */
