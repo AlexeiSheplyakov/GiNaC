@@ -224,7 +224,7 @@ void mul::print(const print_context & c, unsigned level) const
 			// and all others
 			exvector neg_powers, others;
 			while (it != itend) {
-				GINAC_ASSERT(is_a<numeric>(it->coeff));
+				GINAC_ASSERT(is_exactly_a<numeric>(it->coeff));
 				if (ex_to<numeric>(it->coeff).is_negative())
 					neg_powers.push_back(recombine_pair_to_ex(expair(it->rest, -(it->coeff))));
 				else

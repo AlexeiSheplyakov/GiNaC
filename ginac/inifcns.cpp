@@ -79,7 +79,7 @@ static ex csgn_eval(const ex & arg)
 	if (is_ex_exactly_of_type(arg, numeric))
 		return csgn(ex_to<numeric>(arg));
 	
-	else if (is_ex_of_type(arg, mul) &&
+	else if (is_ex_exactly_of_type(arg, mul) &&
 	         is_ex_of_type(arg.op(arg.nops()-1),numeric)) {
 		numeric oc = ex_to<numeric>(arg.op(arg.nops()-1));
 		if (oc.is_real()) {
@@ -419,7 +419,7 @@ static ex Order_series(const ex & x, const relational & r, int order, unsigned o
 {
 	// Just wrap the function into a pseries object
 	epvector new_seq;
-	GINAC_ASSERT(is_exactly_a<symbol>(r.lhs()));
+	GINAC_ASSERT(is_a<symbol>(r.lhs()));
 	const symbol &s = ex_to<symbol>(r.lhs());
 	new_seq.push_back(expair(Order(_ex1), numeric(std::min(x.ldegree(s), order))));
 	return pseries(r, new_seq);

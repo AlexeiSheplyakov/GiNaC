@@ -125,7 +125,7 @@ void power::print(const print_context & c, unsigned level) const
 
 		// Integer powers of symbols are printed in a special, optimized way
 		if (exponent.info(info_flags::integer)
-		 && (is_exactly_a<symbol>(basis) || is_exactly_a<constant>(basis))) {
+		 && (is_a<symbol>(basis) || is_a<constant>(basis))) {
 			int exp = ex_to<numeric>(exponent).to_int();
 			if (exp > 0)
 				c.s << '(';
@@ -172,7 +172,7 @@ void power::print(const print_context & c, unsigned level) const
 
 		bool is_tex = is_a<print_latex>(c);
 
-		if (is_tex && is_a<numeric>(exponent) && ex_to<numeric>(exponent).is_negative()) {
+		if (is_tex && is_exactly_a<numeric>(exponent) && ex_to<numeric>(exponent).is_negative()) {
 
 			// Powers with negative numeric exponents are printed as fractions in TeX
 			c.s << "\\frac{1}{";

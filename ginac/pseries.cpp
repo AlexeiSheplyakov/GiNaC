@@ -73,8 +73,8 @@ DEFAULT_DESTROY(pseries)
  *  @return newly constructed pseries */
 pseries::pseries(const ex &rel_, const epvector &ops_) : basic(TINFO_pseries), seq(ops_)
 {
-	GINAC_ASSERT(is_exactly_a<relational>(rel_));
-	GINAC_ASSERT(is_exactly_a<symbol>(rel_.lhs()));
+	GINAC_ASSERT(is_a<relational>(rel_));
+	GINAC_ASSERT(is_a<symbol>(rel_.lhs()));
 	point = rel_.rhs();
 	var = rel_.lhs();
 }
@@ -551,7 +551,7 @@ ex symbol::series(const relational & r, int order, unsigned options) const
 {
 	epvector seq;
 	const ex point = r.rhs();
-	GINAC_ASSERT(is_exactly_a<symbol>(r.lhs()));
+	GINAC_ASSERT(is_a<symbol>(r.lhs()));
 
 	if (this->is_equal_same_type(ex_to<symbol>(r.lhs()))) {
 		if (order > 0 && !point.is_zero())
@@ -655,7 +655,7 @@ ex add::series(const relational & r, int order, unsigned options) const
 	epvector::const_iterator itend = seq.end();
 	for (; it!=itend; ++it) {
 		ex op;
-		if (is_ex_exactly_of_type(it->rest, pseries))
+		if (is_exactly_a<pseries>(it->rest))
 			op = it->rest;
 		else
 			op = it->rest.series(r, order, options);
@@ -868,7 +868,7 @@ pseries pseries::shift_exponents(int deg) const
 ex power::series(const relational & r, int order, unsigned options) const
 {
 	// If basis is already a series, just power it
-	if (is_ex_exactly_of_type(basis, pseries))
+	if (is_exactly_a<pseries>(basis))
 		return ex_to<pseries>(basis).power_const(ex_to<numeric>(exponent), order);
 
 	// Basis is not a series, may there be a singularity?
@@ -907,7 +907,7 @@ ex power::series(const relational & r, int order, unsigned options) const
 ex pseries::series(const relational & r, int order, unsigned options) const
 {
 	const ex p = r.rhs();
-	GINAC_ASSERT(is_exactly_a<symbol>(r.lhs()));
+	GINAC_ASSERT(is_a<symbol>(r.lhs()));
 	const symbol &s = ex_to<symbol>(r.lhs());
 	
 	if (var.is_equal(s) && point.is_equal(p)) {
@@ -947,9 +947,9 @@ ex ex::series(const ex & r, int order, unsigned options) const
 	ex e;
 	relational rel_;
 	
-	if (is_ex_exactly_of_type(r,relational))
+	if (is_exactly_a<relational>(r))
 		rel_ = ex_to<relational>(r);
-	else if (is_ex_exactly_of_type(r,symbol))
+	else if (is_a<symbol>(r))
 		rel_ = relational(r,_ex0);
 	else
 		throw (std::logic_error("ex::series(): expansion point has unknown type"));

@@ -1418,11 +1418,11 @@ int matrix::pivot(unsigned ro, unsigned co, bool symbolic)
 			++k;
 	} else {
 		// search largest element in column co beginning at row ro
-		GINAC_ASSERT(is_a<numeric>(this->m[k*col+co]));
+		GINAC_ASSERT(is_exactly_a<numeric>(this->m[k*col+co]));
 		unsigned kmax = k+1;
 		numeric mmax = abs(ex_to<numeric>(m[kmax*col+co]));
 		while (kmax<row) {
-			GINAC_ASSERT(is_a<numeric>(this->m[kmax*col+co]));
+			GINAC_ASSERT(is_exactly_a<numeric>(this->m[kmax*col+co]));
 			numeric tmp = ex_to<numeric>(this->m[kmax*col+co]);
 			if (abs(tmp) > mmax) {
 				mmax = tmp;

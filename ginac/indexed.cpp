@@ -820,13 +820,13 @@ public:
 
 	symminfo(const ex & symmterm_, const ex & orig_)
 	{
-		if (is_a<mul>(orig_) && is_a<numeric>(orig_.op(orig_.nops()-1))) {
+		if (is_exactly_a<mul>(orig_) && is_exactly_a<numeric>(orig_.op(orig_.nops()-1))) {
 			ex tmp = orig_.op(orig_.nops()-1);
 			orig = orig_ / tmp;
 		} else 
 			orig = orig_;
 
-		if (is_a<mul>(symmterm_) && is_a<numeric>(symmterm_.op(symmterm_.nops()-1))) {
+		if (is_exactly_a<mul>(symmterm_) && is_exactly_a<numeric>(symmterm_.op(symmterm_.nops()-1))) {
 			coeff = symmterm_.op(symmterm_.nops()-1);
 			symmterm = symmterm_ / coeff;
 		} else {
@@ -937,7 +937,7 @@ ex simplify_indexed(const ex & e, exvector & free_indices, exvector & dummy_indi
 		}
 
 		// Symmetrizing over the dummy indices may cancel terms
-		int num_terms_orig = (is_a<add>(sum) ? sum.nops() : 1);
+		int num_terms_orig = (is_exactly_a<add>(sum) ? sum.nops() : 1);
 		if (num_terms_orig > 1 && dummy_indices.size() >= 2) {
 
 			// Construct list of all dummy index symbols
@@ -950,7 +950,7 @@ ex simplify_indexed(const ex & e, exvector & free_indices, exvector & dummy_indi
 			std::vector<symminfo> v;
 			for (int i=0; i<sum.nops(); i++) {
 				ex sum_symm = sum.op(i).symmetrize(dummy_syms);
-				if (is_a<add>(sum_symm))
+				if (is_exactly_a<add>(sum_symm))
 					for (int j=0; j<sum_symm.nops(); j++)
 						v.push_back(symminfo(sum_symm.op(j), sum.op(i)));
 				else

@@ -161,7 +161,7 @@ void idx::print(const print_context & c, unsigned level) const
 			c.s << "{";
 		else
 			c.s << ".";
-		bool need_parens = !(is_ex_exactly_of_type(value, numeric) || is_ex_of_type(value, symbol));
+		bool need_parens = !(is_exactly_a<numeric>(value) || is_a<symbol>(value));
 		if (need_parens)
 			c.s << "(";
 		value.print(c);
@@ -193,7 +193,7 @@ void varidx::print(const print_context & c, unsigned level) const
 			else
 				c.s << "~";
 		}
-		bool need_parens = !(is_ex_exactly_of_type(value, numeric) || is_ex_of_type(value, symbol));
+		bool need_parens = !(is_exactly_a<numeric>(value) || is_a<symbol>(value));
 		if (need_parens)
 			c.s << "(";
 		value.print(c);
@@ -237,7 +237,7 @@ void spinidx::print(const print_context & c, unsigned level) const
 			else
 				c.s << "*";
 		}
-		bool need_parens = !(is_ex_exactly_of_type(value, numeric) || is_ex_of_type(value, symbol));
+		bool need_parens = !(is_exactly_a<numeric>(value) || is_a<symbol>(value));
 		if (need_parens)
 			c.s << "(";
 		value.print(c);
@@ -357,7 +357,7 @@ ex idx::subs(const lst & ls, const lst & lr, bool no_pattern) const
 		if (is_equal(ex_to<basic>(ls.op(i)))) {
 
 			// Substitution index->index
-			if (is_ex_of_type(lr.op(i), idx))
+			if (is_a<idx>(lr.op(i)))
 				return lr.op(i);
 
 			// Otherwise substitute value
@@ -397,7 +397,7 @@ bool idx::is_dummy_pair_same_type(const basic & other) const
 
 	// Only pure symbols form dummy pairs, numeric indices and expressions
 	// like "2n+1" don't
-	if (!is_ex_of_type(value, symbol))
+	if (!is_a<symbol>(value))
 		return false;
 
 	// Value must be equal, of course
@@ -409,7 +409,7 @@ bool idx::is_dummy_pair_same_type(const basic & other) const
 	if (dim.is_equal(o.dim))
 		return true;
 
-	return (dim < o.dim || dim > o.dim || (is_a<numeric>(dim) && is_a<symbol>(o.dim)) || (is_a<symbol>(dim) && is_a<numeric>(o.dim)));
+	return (dim < o.dim || dim > o.dim || (is_exactly_a<numeric>(dim) && is_a<symbol>(o.dim)) || (is_a<symbol>(dim) && is_exactly_a<numeric>(o.dim)));
 }
 
 bool varidx::is_dummy_pair_same_type(const basic & other) const
@@ -449,9 +449,9 @@ ex idx::replace_dim(const ex & new_dim) const
 
 ex idx::minimal_dim(const idx & other) const
 {
-	if (dim.is_equal(other.dim) || dim < other.dim || (is_a<numeric>(dim) && is_a<symbol>(other.dim)))
+	if (dim.is_equal(other.dim) || dim < other.dim || (is_exactly_a<numeric>(dim) && is_a<symbol>(other.dim)))
 		return dim;
-	else if (dim > other.dim || (is_a<symbol>(dim) && is_a<numeric>(other.dim)))
+	else if (dim > other.dim || (is_a<symbol>(dim) && is_exactly_a<numeric>(other.dim)))
 		return other.dim;
 	else
 		throw (std::runtime_error("idx::minimal_dim: index dimensions cannot be ordered"));
@@ -499,7 +499,7 @@ bool is_dummy_pair(const idx & i1, const idx & i2)
 bool is_dummy_pair(const ex & e1, const ex & e2)
 {
 	// The expressions must be indices
-	if (!is_ex_of_type(e1, idx) || !is_ex_of_type(e2, idx))
+	if (!is_a<idx>(e1) || !is_a<idx>(e2))
 		return false;
 
 	return is_dummy_pair(ex_to<idx>(e1), ex_to<idx>(e2));

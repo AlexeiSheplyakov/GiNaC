@@ -92,14 +92,14 @@ static struct _stat_print {
  *  @return "false" if no symbol was found, "true" otherwise */
 static bool get_first_symbol(const ex &e, const symbol *&x)
 {
-	if (is_ex_exactly_of_type(e, symbol)) {
+	if (is_a<symbol>(e)) {
 		x = &ex_to<symbol>(e);
 		return true;
-	} else if (is_ex_exactly_of_type(e, add) || is_ex_exactly_of_type(e, mul)) {
+	} else if (is_exactly_a<add>(e) || is_exactly_a<mul>(e)) {
 		for (unsigned i=0; i<e.nops(); i++)
 			if (get_first_symbol(e.op(i), x))
 				return true;
-	} else if (is_ex_exactly_of_type(e, power)) {
+	} else if (is_exactly_a<power>(e)) {
 		if (get_first_symbol(e.op(0), x))
 			return true;
 	}
@@ -169,12 +169,12 @@ static void add_symbol(const symbol *s, sym_desc_vec &v)
 // Collect all symbols of an expression (used internally by get_symbol_stats())
 static void collect_symbols(const ex &e, sym_desc_vec &v)
 {
-	if (is_ex_exactly_of_type(e, symbol)) {
+	if (is_a<symbol>(e)) {
 		add_symbol(&ex_to<symbol>(e), v);
-	} else if (is_ex_exactly_of_type(e, add) || is_ex_exactly_of_type(e, mul)) {
+	} else if (is_exactly_a<add>(e) || is_exactly_a<mul>(e)) {
 		for (unsigned i=0; i<e.nops(); i++)
 			collect_symbols(e.op(i), v);
-	} else if (is_ex_exactly_of_type(e, power)) {
+	} else if (is_exactly_a<power>(e)) {
 		collect_symbols(e.op(0), v);
 	}
 }
@@ -230,18 +230,18 @@ static numeric lcmcoeff(const ex &e, const numeric &l)
 {
 	if (e.info(info_flags::rational))
 		return lcm(ex_to<numeric>(e).denom(), l);
-	else if (is_ex_exactly_of_type(e, add)) {
+	else if (is_exactly_a<add>(e)) {
 		numeric c = _num1;
 		for (unsigned i=0; i<e.nops(); i++)
 			c = lcmcoeff(e.op(i), c);
 		return lcm(c, l);
-	} else if (is_ex_exactly_of_type(e, mul)) {
+	} else if (is_exactly_a<mul>(e)) {
 		numeric c = _num1;
 		for (unsigned i=0; i<e.nops(); i++)
 			c *= lcmcoeff(e.op(i), _num1);
 		return lcm(c, l);
-	} else if (is_ex_exactly_of_type(e, power)) {
-		if (is_ex_exactly_of_type(e.op(0), symbol))
+	} else if (is_exactly_a<power>(e)) {
+		if (is_a<symbol>(e.op(0)))
 			return l;
 		else
 			return pow(lcmcoeff(e.op(0), l), ex_to<numeric>(e.op(1)));
@@ -268,7 +268,7 @@ static numeric lcm_of_coefficients_denominators(const ex &e)
  *  @param lcm  LCM to multiply in */
 static ex multiply_lcm(const ex &e, const numeric &lcm)
 {
-	if (is_ex_exactly_of_type(e, mul)) {
+	if (is_exactly_a<mul>(e)) {
 		unsigned num = e.nops();
 		exvector v; v.reserve(num + 1);
 		numeric lcm_accum = _num1;
@@ -279,14 +279,14 @@ static ex multiply_lcm(const ex &e, const numeric &lcm)
 		}
 		v.push_back(lcm / lcm_accum);
 		return (new mul(v))->setflag(status_flags::dynallocated);
-	} else if (is_ex_exactly_of_type(e, add)) {
+	} else if (is_exactly_a<add>(e)) {
 		unsigned num = e.nops();
 		exvector v; v.reserve(num);
 		for (unsigned i=0; i<num; i++)
 			v.push_back(multiply_lcm(e.op(i), lcm));
 		return (new add(v))->setflag(status_flags::dynallocated);
-	} else if (is_ex_exactly_of_type(e, power)) {
-		if (is_ex_exactly_of_type(e.op(0), symbol))
+	} else if (is_exactly_a<power>(e)) {
+		if (is_a<symbol>(e.op(0)))
 			return e * lcm;
 		else
 			return pow(multiply_lcm(e.op(0), lcm.power(ex_to<numeric>(e.op(1)).inverse())), e.op(1));
@@ -364,7 +364,7 @@ ex quo(const ex &a, const ex &b, const symbol &x, bool check_args)
 {
 	if (b.is_zero())
 		throw(std::overflow_error("quo: division by zero"));
-	if (is_ex_exactly_of_type(a, numeric) && is_ex_exactly_of_type(b, numeric))
+	if (is_exactly_a<numeric>(a) && is_exactly_a<numeric>(b))
 		return a / b;
 #if FAST_COMPARE
 	if (a.is_equal(b))
@@ -380,7 +380,7 @@ ex quo(const ex &a, const ex &b, const symbol &x, bool check_args)
 	int bdeg = b.degree(x);
 	int rdeg = r.degree(x);
 	ex blcoeff = b.expand().coeff(x, bdeg);
-	bool blcoeff_is_numeric = is_ex_exactly_of_type(blcoeff, numeric);
+	bool blcoeff_is_numeric = is_exactly_a<numeric>(blcoeff);
 	exvector v; v.reserve(std::max(rdeg - bdeg + 1, 0));
 	while (rdeg >= bdeg) {
 		ex term, rcoeff = r.coeff(x, rdeg);
@@ -414,8 +414,8 @@ ex rem(const ex &a, const ex &b, const symbol &x, bool check_args)
 {
 	if (b.is_zero())
 		throw(std::overflow_error("rem: division by zero"));
-	if (is_ex_exactly_of_type(a, numeric)) {
-		if  (is_ex_exactly_of_type(b, numeric))
+	if (is_exactly_a<numeric>(a)) {
+		if  (is_exactly_a<numeric>(b))
 			return _ex0;
 		else
 			return a;
@@ -434,7 +434,7 @@ ex rem(const ex &a, const ex &b, const symbol &x, bool check_args)
 	int bdeg = b.degree(x);
 	int rdeg = r.degree(x);
 	ex blcoeff = b.expand().coeff(x, bdeg);
-	bool blcoeff_is_numeric = is_ex_exactly_of_type(blcoeff, numeric);
+	bool blcoeff_is_numeric = is_exactly_a<numeric>(blcoeff);
 	while (rdeg >= bdeg) {
 		ex term, rcoeff = r.coeff(x, rdeg);
 		if (blcoeff_is_numeric)
@@ -464,7 +464,7 @@ ex decomp_rational(const ex &a, const symbol &x)
 	ex nd = numer_denom(a);
 	ex numer = nd.op(0), denom = nd.op(1);
 	ex q = quo(numer, denom, x);
-	if (is_ex_exactly_of_type(q, fail))
+	if (is_exactly_a<fail>(q))
 		return a;
 	else
 		return q + rem(numer, denom, x) / denom;
@@ -483,8 +483,8 @@ ex prem(const ex &a, const ex &b, const symbol &x, bool check_args)
 {
 	if (b.is_zero())
 		throw(std::overflow_error("prem: division by zero"));
-	if (is_ex_exactly_of_type(a, numeric)) {
-		if (is_ex_exactly_of_type(b, numeric))
+	if (is_exactly_a<numeric>(a)) {
+		if (is_exactly_a<numeric>(b))
 			return _ex0;
 		else
 			return b;
@@ -535,8 +535,8 @@ ex sprem(const ex &a, const ex &b, const symbol &x, bool check_args)
 {
 	if (b.is_zero())
 		throw(std::overflow_error("prem: division by zero"));
-	if (is_ex_exactly_of_type(a, numeric)) {
-		if (is_ex_exactly_of_type(b, numeric))
+	if (is_exactly_a<numeric>(a)) {
+		if (is_exactly_a<numeric>(b))
 			return _ex0;
 		else
 			return b;
@@ -590,10 +590,10 @@ bool divide(const ex &a, const ex &b, ex &q, bool check_args)
 		q = _ex0;
 		return true;
 	}
-	if (is_ex_exactly_of_type(b, numeric)) {
+	if (is_exactly_a<numeric>(b)) {
 		q = a / b;
 		return true;
-	} else if (is_ex_exactly_of_type(a, numeric))
+	} else if (is_exactly_a<numeric>(a))
 		return false;
 #if FAST_COMPARE
 	if (a.is_equal(b)) {
@@ -619,7 +619,7 @@ bool divide(const ex &a, const ex &b, ex &q, bool check_args)
 	int bdeg = b.degree(*x);
 	int rdeg = r.degree(*x);
 	ex blcoeff = b.expand().coeff(*x, bdeg);
-	bool blcoeff_is_numeric = is_ex_exactly_of_type(blcoeff, numeric);
+	bool blcoeff_is_numeric = is_exactly_a<numeric>(blcoeff);
 	exvector v; v.reserve(std::max(rdeg - bdeg + 1, 0));
 	while (rdeg >= bdeg) {
 		ex term, rcoeff = r.coeff(*x, rdeg);
@@ -686,8 +686,8 @@ static bool divide_in_z(const ex &a, const ex &b, ex &q, sym_desc_vec::const_ite
 		q = a;
 		return true;
 	}
-	if (is_ex_exactly_of_type(a, numeric)) {
-		if (is_ex_exactly_of_type(b, numeric)) {
+	if (is_exactly_a<numeric>(a)) {
+		if (is_exactly_a<numeric>(b)) {
 			q = a / b;
 			return q.info(info_flags::integer);
 		} else
@@ -821,7 +821,7 @@ static bool divide_in_z(const ex &a, const ex &b, ex &q, sym_desc_vec::const_ite
 ex ex::unit(const symbol &x) const
 {
 	ex c = expand().lcoeff(x);
-	if (is_ex_exactly_of_type(c, numeric))
+	if (is_exactly_a<numeric>(c))
 		return c < _ex0 ? _ex_1 : _ex1;
 	else {
 		const symbol *y;
@@ -844,7 +844,7 @@ ex ex::content(const symbol &x) const
 {
 	if (is_zero())
 		return _ex0;
-	if (is_ex_exactly_of_type(*this, numeric))
+	if (is_exactly_a<numeric>(*this))
 		return info(info_flags::negative) ? -*this : *this;
 	ex e = expand();
 	if (e.is_zero())
@@ -880,14 +880,14 @@ ex ex::primpart(const symbol &x) const
 {
 	if (is_zero())
 		return _ex0;
-	if (is_ex_exactly_of_type(*this, numeric))
+	if (is_exactly_a<numeric>(*this))
 		return _ex1;
 
 	ex c = content(x);
 	if (c.is_zero())
 		return _ex0;
 	ex u = unit(x);
-	if (is_ex_exactly_of_type(c, numeric))
+	if (is_exactly_a<numeric>(c))
 		return *this / (c * u);
 	else
 		return quo(*this, c * u, x, false);
@@ -907,11 +907,11 @@ ex ex::primpart(const symbol &x, const ex &c) const
 		return _ex0;
 	if (c.is_zero())
 		return _ex0;
-	if (is_ex_exactly_of_type(*this, numeric))
+	if (is_exactly_a<numeric>(*this))
 		return _ex1;
 
 	ex u = unit(x);
-	if (is_ex_exactly_of_type(c, numeric))
+	if (is_exactly_a<numeric>(c))
 		return *this / (c * u);
 	else
 		return quo(*this, c * u, x, false);
@@ -1110,7 +1110,7 @@ static ex red_gcd(const ex &a, const ex &b, const symbol *x)
 			throw(std::runtime_error("invalid expression in red_gcd(), division failed"));
 		ddeg = d.degree(*x);
 		if (ddeg == 0) {
-			if (is_ex_exactly_of_type(r, numeric))
+			if (is_exactly_a<numeric>(r))
 				return gamma;
 			else
 				return gamma * r.primpart(*x);
@@ -1185,7 +1185,7 @@ static ex sr_gcd(const ex &a, const ex &b, sym_desc_vec::const_iterator var)
 			throw(std::runtime_error("invalid expression in sr_gcd(), division failed"));
 		ddeg = d.degree(x);
 		if (ddeg == 0) {
-			if (is_ex_exactly_of_type(r, numeric))
+			if (is_exactly_a<numeric>(r))
 				return gamma;
 			else
 				return gamma * r.primpart(x);
@@ -1356,7 +1356,7 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 		return (new fail())->setflag(status_flags::dynallocated);
 
 	// GCD of two numeric values -> CLN
-	if (is_ex_exactly_of_type(a, numeric) && is_ex_exactly_of_type(b, numeric)) {
+	if (is_exactly_a<numeric>(a) && is_exactly_a<numeric>(b)) {
 		numeric g = gcd(ex_to<numeric>(a), ex_to<numeric>(b));
 		if (ca)
 			*ca = ex_to<numeric>(a) / g;
@@ -1394,7 +1394,7 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 		// Apply evaluation homomorphism and calculate GCD
 		ex cp, cq;
 		ex gamma = heur_gcd(p.subs(x == xi), q.subs(x == xi), &cp, &cq, var+1).expand();
-		if (!is_ex_exactly_of_type(gamma, fail)) {
+		if (!is_exactly_a<fail>(gamma)) {
 
 			// Reconstruct polynomial from GCD of mapped polynomials
 			ex g = interpolate(gamma, xi, x, maxdeg);
@@ -1407,7 +1407,7 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 			if (divide_in_z(p, g, ca ? *ca : dummy, var) && divide_in_z(q, g, cb ? *cb : dummy, var)) {
 				g *= gc;
 				ex lc = g.lcoeff(x);
-				if (is_ex_exactly_of_type(lc, numeric) && ex_to<numeric>(lc).is_negative())
+				if (is_exactly_a<numeric>(lc) && ex_to<numeric>(lc).is_negative())
 					return -g;
 				else
 					return g;
@@ -1420,7 +1420,7 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 					if (ca)
 						*ca = cp;
 					ex lc = g.lcoeff(x);
-					if (is_ex_exactly_of_type(lc, numeric) && ex_to<numeric>(lc).is_negative())
+					if (is_exactly_a<numeric>(lc) && ex_to<numeric>(lc).is_negative())
 						return -g;
 					else
 						return g;
@@ -1433,7 +1433,7 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 					if (cb)
 						*cb = cq;
 					ex lc = g.lcoeff(x);
-					if (is_ex_exactly_of_type(lc, numeric) && ex_to<numeric>(lc).is_negative())
+					if (is_exactly_a<numeric>(lc) && ex_to<numeric>(lc).is_negative())
 						return -g;
 					else
 						return g;
@@ -1465,7 +1465,7 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args)
 #endif
 
 	// GCD of numerics -> CLN
-	if (is_ex_exactly_of_type(a, numeric) && is_ex_exactly_of_type(b, numeric)) {
+	if (is_exactly_a<numeric>(a) && is_exactly_a<numeric>(b)) {
 		numeric g = gcd(ex_to<numeric>(a), ex_to<numeric>(b));
 		if (ca || cb) {
 			if (g.is_zero()) {
@@ -1489,8 +1489,8 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args)
 	}
 
 	// Partially factored cases (to avoid expanding large expressions)
-	if (is_ex_exactly_of_type(a, mul)) {
-		if (is_ex_exactly_of_type(b, mul) && b.nops() > a.nops())
+	if (is_exactly_a<mul>(a)) {
+		if (is_exactly_a<mul>(b) && b.nops() > a.nops())
 			goto factored_b;
 factored_a:
 		unsigned num = a.nops();
@@ -1508,8 +1508,8 @@ factored_a:
 		if (cb)
 			*cb = part_b;
 		return (new mul(g))->setflag(status_flags::dynallocated);
-	} else if (is_ex_exactly_of_type(b, mul)) {
-		if (is_ex_exactly_of_type(a, mul) && a.nops() > b.nops())
+	} else if (is_exactly_a<mul>(b)) {
+		if (is_exactly_a<mul>(a) && a.nops() > b.nops())
 			goto factored_a;
 factored_b:
 		unsigned num = b.nops();
@@ -1531,9 +1531,9 @@ factored_b:
 
 #if FAST_COMPARE
 	// Input polynomials of the form poly^n are sometimes also trivial
-	if (is_ex_exactly_of_type(a, power)) {
+	if (is_exactly_a<power>(a)) {
 		ex p = a.op(0);
-		if (is_ex_exactly_of_type(b, power)) {
+		if (is_exactly_a<power>(b)) {
 			if (p.is_equal(b.op(0))) {
 				// a = p^n, b = p^m, gcd = p^min(n, m)
 				ex exp_a = a.op(1), exp_b = b.op(1);
@@ -1561,7 +1561,7 @@ factored_b:
 				return p;
 			}
 		}
-	} else if (is_ex_exactly_of_type(b, power)) {
+	} else if (is_exactly_a<power>(b)) {
 		ex p = b.op(0);
 		if (p.is_equal(a)) {
 			// a = p, b = p^n, gcd = p
@@ -1650,7 +1650,7 @@ factored_b:
 	} catch (gcdheu_failed) {
 		g = fail();
 	}
-	if (is_ex_exactly_of_type(g, fail)) {
+	if (is_exactly_a<fail>(g)) {
 //std::clog << "heuristics failed" << std::endl;
 #if STATISTICS
 		heur_gcd_failed++;
@@ -1698,7 +1698,7 @@ factored_b:
  *  @return the LCM as a new expression */
 ex lcm(const ex &a, const ex &b, bool check_args)
 {
-	if (is_ex_exactly_of_type(a, numeric) && is_ex_exactly_of_type(b, numeric))
+	if (is_exactly_a<numeric>(a) && is_exactly_a<numeric>(b))
 		return lcm(ex_to<numeric>(a), ex_to<numeric>(b));
 	if (check_args && (!a.info(info_flags::rational_polynomial) || !b.info(info_flags::rational_polynomial)))
 		throw(std::invalid_argument("lcm: arguments must be polynomials over the rationals"));
@@ -1779,7 +1779,7 @@ static exvector sqrfree_yun(const ex &a, const symbol &x)
  */
 ex sqrfree(const ex &a, const lst &l)
 {
-	if (is_a<numeric>(a) ||     // algorithm does not trap a==0
+	if (is_exactly_a<numeric>(a) ||     // algorithm does not trap a==0
 	    is_a<symbol>(a))        // shortcut
 		return a;
 
@@ -2420,7 +2420,7 @@ ex expairseq::to_rational(lst &repl_lst) const
  *  to 1, unless you're accumulating factors). */
 static ex find_common_factor(const ex & e, ex & factor, lst & repl)
 {
-	if (is_a<add>(e)) {
+	if (is_exactly_a<add>(e)) {
 
 		unsigned num = e.nops();
 		exvector terms; terms.reserve(num);
@@ -2430,7 +2430,7 @@ static ex find_common_factor(const ex & e, ex & factor, lst & repl)
 		for (unsigned i=0; i<num; i++) {
 			ex x = e.op(i).to_rational(repl);
 
-			if (is_a<add>(x) || is_a<mul>(x)) {
+			if (is_exactly_a<add>(x) || is_exactly_a<mul>(x)) {
 				ex f = 1;
 				x = find_common_factor(x, f, repl);
 				x *= f;
@@ -2456,7 +2456,7 @@ static ex find_common_factor(const ex & e, ex & factor, lst & repl)
 
 			// Try to avoid divide() because it expands the polynomial
 			ex &t = terms[i];
-			if (is_a<mul>(t)) {
+			if (is_exactly_a<mul>(t)) {
 				for (unsigned j=0; j<t.nops(); j++) {
 					if (t.op(j).is_equal(gc)) {
 						exvector v; v.reserve(t.nops());
@@ -2478,7 +2478,7 @@ term_done:	;
 		}
 		return (new add(terms))->setflag(status_flags::dynallocated);
 
-	} else if (is_a<mul>(e)) {
+	} else if (is_exactly_a<mul>(e)) {
 
 		unsigned num = e.nops();
 		exvector v; v.reserve(num);
@@ -2488,10 +2488,10 @@ term_done:	;
 
 		return (new mul(v))->setflag(status_flags::dynallocated);
 
-	} else if (is_a<power>(e)) {
+	} else if (is_exactly_a<power>(e)) {
 
 		ex x = e.to_rational(repl);
-		if (is_a<power>(x) && x.op(1).info(info_flags::negative))
+		if (is_exactly_a<power>(x) && x.op(1).info(info_flags::negative))
 			return replace_with_symbol(x, repl);
 		else
 			return x;
@@ -2505,7 +2505,7 @@ term_done:	;
  *  'a*(b*x+b*y)' to 'a*b*(x+y)'. */
 ex collect_common_factors(const ex & e)
 {
-	if (is_a<add>(e) || is_a<mul>(e)) {
+	if (is_exactly_a<add>(e) || is_exactly_a<mul>(e)) {
 
 		lst repl;
 		ex factor = 1;

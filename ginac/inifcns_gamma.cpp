@@ -291,7 +291,7 @@ static ex beta_series(const ex & arg1,
 	// tgamma series directly.
 	const ex arg1_pt = arg1.subs(rel);
 	const ex arg2_pt = arg2.subs(rel);
-	GINAC_ASSERT(is_exactly_a<symbol>(rel.lhs()));
+	GINAC_ASSERT(is_a<symbol>(rel.lhs()));
 	const symbol &s = ex_to<symbol>(rel.lhs());
 	ex arg1_ser, arg2_ser, arg1arg2_ser;
 	if ((!arg1_pt.info(info_flags::integer) || arg1_pt.info(info_flags::positive)) &&
