@@ -23,7 +23,7 @@
 This is a tutorial that documents GiNaC @value{VERSION}, an open
 framework for symbolic computation within the C++ programming language.
 
-Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
 
 Permission is granted to make and distribute verbatim copies of
 this manual provided the copyright notice and this permission notice
@@ -52,7 +52,7 @@ notice identical to this one.
 
 @page
 @vskip 0pt plus 1filll
-Copyright @copyright{} 1999 Johannes Gutenberg University Mainz, Germany
+Copyright @copyright{} 1999-2000 Johannes Gutenberg University Mainz, Germany
 @sp 2
 Permission is granted to make and distribute verbatim copies of
 this manual provided the copyright notice and this permission notice
@@ -135,8 +135,8 @@ the near future.
 
 @section License
 The GiNaC framework for symbolic computation within the C++ programming
-language is Copyright @copyright{} 1999 Johannes Gutenberg University Mainz,
-Germany.
+language is Copyright @copyright{} 1999-2000 Johannes Gutenberg
+University Mainz, Germany.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License as
@@ -389,7 +389,7 @@ previously evaluated element from @command{ginsh}'s internal stack.
 If you ever wanted to convert units in C or C++ and found this is
 cumbersome, here is the solution.  Symbolic types can always be used as
 tags for different types of objects.  Converting from wrong units to the
-metric system is therefore easy:
+metric system is now easy:
 
 @example
 > in=.0254*m;
