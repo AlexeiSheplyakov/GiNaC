@@ -179,7 +179,7 @@ void indexed::print(const print_context & c, unsigned level) const
 {
 	GINAC_ASSERT(seq.size() > 0);
 
-	if (is_of_type(c, print_tree)) {
+	if (is_a<print_tree>(c)) {
 
 		c.s << std::string(level, ' ') << class_name()
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
@@ -191,21 +191,19 @@ void indexed::print(const print_context & c, unsigned level) const
 
 	} else {
 
-		bool is_tex = is_of_type(c, print_latex);
+		bool is_tex = is_a<print_latex>(c);
 		const ex & base = seq[0];
-		bool need_parens = is_ex_exactly_of_type(base, add) || is_ex_exactly_of_type(base, mul)
-		                || is_ex_exactly_of_type(base, ncmul) || is_ex_exactly_of_type(base, power)
-		                || is_ex_of_type(base, indexed);
+
+		if (precedence() <= level)
+			c.s << (is_tex ? "{(" : "(");
 		if (is_tex)
 			c.s << "{";
-		if (need_parens)
-			c.s << "(";
-		base.print(c);
-		if (need_parens)
-			c.s << ")";
+		base.print(c, precedence());
 		if (is_tex)
 			c.s << "}";
 		printindices(c, level);
+		if (precedence() <= level)
+			c.s << (is_tex ? ")}" : ")");
 	}
 }
 
@@ -321,7 +319,7 @@ void indexed::printindices(const print_context & c, unsigned level) const
 
 		exvector::const_iterator it=seq.begin() + 1, itend = seq.end();
 
-		if (is_of_type(c, print_latex)) {
+		if (is_a<print_latex>(c)) {
 
 			// TeX output: group by variance
 			bool first = true;

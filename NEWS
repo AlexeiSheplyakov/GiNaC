@@ -1,5 +1,8 @@
 This file records noteworthy changes.
 
+1.0.10 (<date>)
+* Powers of indexed objects are now parenthesized correctly in LaTeX output.
+
 1.0.9 (11 June 2002)
 * simplify_indexed() now raises/lowers dummy indices to canonicalize the index
   variance. This allows some simplifications that weren't possible before,

@@ -33,6 +33,7 @@
 #include "constant.h"
 #include "inifcns.h" // for log() in power::derivative()
 #include "matrix.h"
+#include "indexed.h"
 #include "symbol.h"
 #include "print.h"
 #include "archive.h"
@@ -169,39 +170,27 @@ void power::print(const print_context & c, unsigned level) const
 
 	} else {
 
+		bool is_tex = is_a<print_latex>(c);
+
 		if (exponent.is_equal(_ex1_2)) {
-			if (is_a<print_latex>(c))
-				c.s << "\\sqrt{";
-			else
-				c.s << "sqrt(";
+			c.s << (is_tex ? "\\sqrt{" : "sqrt(");
 			basis.print(c);
-			if (is_a<print_latex>(c))
-				c.s << '}';
-			else
-				c.s << ')';
+			c.s << (is_tex ? '}' : ')');
 		} else {
-			if (precedence() <= level) {
-				if (is_a<print_latex>(c))
-					c.s << "{(";
-				else
-					c.s << "(";
-			}
+			if (precedence() <= level)
+				c.s << (is_tex ? "{(" : "(");
 			basis.print(c, precedence());
 			if (is_a<print_python>(c))
 				c.s << "**";
 			else
 				c.s << '^';
-			if (is_a<print_latex>(c))
+			if (is_tex)
 				c.s << '{';
 			exponent.print(c, precedence());
-			if (is_a<print_latex>(c))
+			if (is_tex)
 				c.s << '}';
-			if (precedence() <= level) {
-				if (is_a<print_latex>(c))
-					c.s << ")}";
-				else
-					c.s << ')';
-			}
+			if (precedence() <= level)
+				c.s << (is_tex ? ")}" : ")");
 		}
 	}
 }

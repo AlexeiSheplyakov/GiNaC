@@ -144,6 +144,7 @@ public:
 	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
+	unsigned precedence(void) const {return 55;}
 	bool info(unsigned inf) const;
 	ex eval(int level = 0) const;
 	exvector get_free_indices(void) const;
