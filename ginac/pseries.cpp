@@ -757,6 +757,7 @@ ex mul::series(const relational & r, int order, unsigned options) const
 ex pseries::power_const(const numeric &p, int deg) const
 {
 	// method:
+	// (due to Leonhard Euler)
 	// let A(x) be this series and for the time being let it start with a
 	// constant (later we'll generalize):
 	//     A(x) = a_0 + a_1*x + a_2*x^2 + ...
