@@ -207,7 +207,7 @@ void basic::do_print_python_repr(const print_python_repr & c, unsigned level) co
  *  @see basic::dbgprinttree */
 void basic::dbgprint() const
 {
-	this->print(std::cerr);
+	this->print(print_dflt(std::cerr));
 	std::cerr << std::endl;
 }
 
