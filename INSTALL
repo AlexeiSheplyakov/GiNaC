@@ -25,7 +25,7 @@ As with any autoconfiguring GNU software, installation is as easy as this:
  # make install
 
 Known to work with:
-  - Linux/x86, EGCS-1.1.x and GCC 2-95.x
+  - Linux on x86, Alpha and Sparc using GCC 2-95.x.
 Known not to work with:
   - GCC 2.7.x or earlier because proper exception support is missing there.
 
