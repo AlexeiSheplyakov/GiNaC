@@ -171,7 +171,7 @@ void set_lexer_symbols(ex l)
 	syms.clear();
 	if (!is_ex_exactly_of_type(l, lst))
 		return;
-	for (int i=0; i<l.nops(); i++) {
+	for (unsigned i=0; i<l.nops(); i++) {
 		if (is_ex_exactly_of_type(l.op(i), symbol))
 			syms[ex_to_symbol(l.op(i)).get_name()] = sym_def(l.op(i), true);
 	}

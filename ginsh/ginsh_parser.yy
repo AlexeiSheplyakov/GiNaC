@@ -398,6 +398,7 @@ class apply_map_function : public map_function {
 	ex apply;
 public:
 	apply_map_function(const ex & a) : apply(a) {}
+	virtual ~apply_map_function() {}
 	ex operator()(const ex & e) { return apply.subs(wild() == e, true); }
 };
 

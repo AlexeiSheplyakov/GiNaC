@@ -1831,7 +1831,7 @@ ex sqrfree_parfrac(const ex & a, const symbol & x)
 	// Factorize denominator and compute cofactors
 	exvector yun = sqrfree_yun(denom, x);
 //clog << "yun factors: " << exprseq(yun) << endl;
-	int num_yun = yun.size();
+	unsigned num_yun = yun.size();
 	exvector factor; factor.reserve(num_yun);
 	exvector cofac; cofac.reserve(num_yun);
 	for (unsigned i=0; i<num_yun; i++) {
@@ -1849,7 +1849,7 @@ ex sqrfree_parfrac(const ex & a, const symbol & x)
 			}
 		}
 	}
-	int num_factors = factor.size();
+	unsigned num_factors = factor.size();
 //clog << "factors  : " << exprseq(factor) << endl;
 //clog << "cofactors: " << exprseq(cofac) << endl;
 
@@ -1857,7 +1857,7 @@ ex sqrfree_parfrac(const ex & a, const symbol & x)
 	int max_denom_deg = denom.degree(x);
 	matrix sys(max_denom_deg + 1, num_factors);
 	matrix rhs(max_denom_deg + 1, 1);
-	for (unsigned i=0; i<=max_denom_deg; i++) {
+	for (int i=0; i<=max_denom_deg; i++) {
 		for (unsigned j=0; j<num_factors; j++)
 			sys(i, j) = cofac[j].coeff(x, i);
 		rhs(i, 0) = red_numer.coeff(x, i);

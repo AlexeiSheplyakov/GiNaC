@@ -378,8 +378,8 @@ static ex trace_string(exvector::const_iterator ix, unsigned num)
 	exvector v(num - 2);
 	int sign = 1;
 	ex result;
-	for (int i=1; i<num; i++) {
-		for (int n=1, j=0; n<num; n++) {
+	for (unsigned i=1; i<num; i++) {
+		for (unsigned n=1, j=0; n<num; n++) {
 			if (n == i)
 				continue;
 			v[j++] = ix[n];
@@ -406,7 +406,6 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 		ex prod = _ex1();
 		for (unsigned i=0; i<e.nops(); i++) {
 			const ex &o = e.op(i);
-			unsigned ti = o.return_type_tinfo();
 			if (is_clifford_tinfo(o.return_type_tinfo(), rl))
 				prod *= dirac_trace(o, rl, trONE);
 			else
@@ -448,18 +447,18 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 			num--;
 			int *iv = new int[num];
 			ex result;
-			for (int i=0; i<num-3; i++) {
+			for (unsigned i=0; i<num-3; i++) {
 				ex idx1 = ix[i];
-				for (int j=i+1; j<num-2; j++) {
+				for (unsigned j=i+1; j<num-2; j++) {
 					ex idx2 = ix[j];
-					for (int k=j+1; k<num-1; k++) {
+					for (unsigned k=j+1; k<num-1; k++) {
 						ex idx3 = ix[k];
-						for (int l=k+1; l<num; l++) {
+						for (unsigned l=k+1; l<num; l++) {
 							ex idx4 = ix[l];
 							iv[0] = i; iv[1] = j; iv[2] = k; iv[3] = l;
 							exvector v;
 							v.reserve(num - 4);
-							for (int n=0, t=4; n<num; n++) {
+							for (unsigned n=0, t=4; n<num; n++) {
 								if (n == i || n == j || n == k || n == l)
 									continue;
 								iv[t++] = n;

@@ -535,8 +535,8 @@ exvector power::get_free_indices(void) const
  *    by the function */
 static ex rename_dummy_indices(const ex & e, exvector & global_dummy_indices, exvector & local_dummy_indices)
 {
-	int global_size = global_dummy_indices.size(),
-	    local_size = local_dummy_indices.size();
+	unsigned global_size = global_dummy_indices.size(),
+	         local_size = local_dummy_indices.size();
 
 	// Any local dummy indices at all?
 	if (local_size == 0)
@@ -596,7 +596,7 @@ ex simplify_indexed_product(const ex & e, exvector & free_indices, exvector & du
 		v.push_back(e.op(0));
 		v.push_back(e.op(0));
 	} else {
-		for (int i=0; i<e.nops(); i++) {
+		for (unsigned i=0; i<e.nops(); i++) {
 			ex f = e.op(i);
 			if (is_ex_exactly_of_type(f, power) && f.op(1).is_equal(_ex2())) {
 				v.push_back(f.op(0));
@@ -604,7 +604,7 @@ ex simplify_indexed_product(const ex & e, exvector & free_indices, exvector & du
 			} else if (is_ex_exactly_of_type(f, ncmul)) {
 				// Noncommutative factor found, split it as well
 				non_commutative = true; // everything becomes noncommutative, ncmul will sort out the commutative factors later
-				for (int j=0; j<f.nops(); j++)
+				for (unsigned j=0; j<f.nops(); j++)
 					v.push_back(f.op(j));
 			} else
 				v.push_back(f);

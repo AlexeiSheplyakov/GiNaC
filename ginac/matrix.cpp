@@ -415,10 +415,8 @@ bool matrix::contract_with(exvector::iterator self, exvector::iterator other, ex
 	const matrix &other_matrix = ex_to<matrix>(other->op(0));
 
 	if (self->nops() == 2) {
-		unsigned self_dim = (self_matrix.col == 1) ? self_matrix.row : self_matrix.col;
 
 		if (other->nops() == 2) { // vector * vector (scalar product)
-			unsigned other_dim = (other_matrix.col == 1) ? other_matrix.row : other_matrix.col;
 
 			if (self_matrix.col == 1) {
 				if (other_matrix.col == 1) {

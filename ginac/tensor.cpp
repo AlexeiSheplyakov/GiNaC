@@ -344,7 +344,7 @@ bool tensdelta::contract_with(exvector::iterator self, exvector::iterator other,
 
 again:
 	if (self_idx->is_symbolic()) {
-		for (int i=1; i<other->nops(); i++) {
+		for (unsigned i=1; i<other->nops(); i++) {
 			const idx &other_idx = ex_to<idx>(other->op(i));
 			if (is_dummy_pair(*self_idx, other_idx)) {
 
@@ -389,7 +389,7 @@ bool tensmetric::contract_with(exvector::iterator self, exvector::iterator other
 
 again:
 	if (self_idx->is_symbolic()) {
-		for (int i=1; i<other->nops(); i++) {
+		for (unsigned i=1; i<other->nops(); i++) {
 			const idx &other_idx = ex_to<idx>(other->op(i));
 			if (is_dummy_pair(*self_idx, other_idx)) {
 
@@ -467,7 +467,7 @@ bool spinmetric::contract_with(exvector::iterator self, exvector::iterator other
 
 again:
 	if (self_idx->is_symbolic()) {
-		for (int i=1; i<other->nops(); i++) {
+		for (unsigned i=1; i<other->nops(); i++) {
 			const idx &other_idx = ex_to<idx>(other->op(i));
 			if (is_dummy_pair(*self_idx, other_idx)) {
 

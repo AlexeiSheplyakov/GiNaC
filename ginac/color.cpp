@@ -573,7 +573,7 @@ ex color_trace(const ex & e, unsigned char rl)
 
 			exvector v1;
 			v1.reserve(num - 2);
-			for (int i=0; i<num-2; i++)
+			for (unsigned i=0; i<num-2; i++)
 				v1.push_back(e.op(i));
 
 			exvector v2 = v1;

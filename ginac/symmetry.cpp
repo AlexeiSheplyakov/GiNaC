@@ -141,7 +141,6 @@ DEFAULT_UNARCHIVE(symmetry)
 int symmetry::compare_same_type(const basic & other) const
 {
 	GINAC_ASSERT(is_of_type(other, symmetry));
-	const symmetry &o = static_cast<const symmetry &>(other);
 
 	// All symmetry trees are equal. They are not supposed to appear in
 	// ordinary expressions anyway...
@@ -309,7 +308,7 @@ int canonicalize(exvector::iterator v, const symmetry &symm)
 static ex symm(const ex & e, exvector::const_iterator first, exvector::const_iterator last, bool asymmetric)
 {
 	// Need at least 2 objects for this operation
-	int num = last - first;
+	unsigned num = last - first;
 	if (num < 2)
 		return e;
 
@@ -358,7 +357,7 @@ ex antisymmetrize(const ex & e, exvector::const_iterator first, exvector::const_
 ex symmetrize_cyclic(const ex & e, exvector::const_iterator first, exvector::const_iterator last)
 {
 	// Need at least 2 objects for this operation
-	int num = last - first;
+	unsigned num = last - first;
 	if (num < 2)
 		return e;
 
