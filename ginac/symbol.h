@@ -58,7 +58,9 @@ class symbol : public basic
 	// other constructors
 public:
 	explicit symbol(const std::string & initname);
-	explicit symbol(const std::string & initname, const std::string & texname);
+	symbol(const std::string & initname, const std::string & texname);
+	symbol(const std::string & initname, unsigned rt, unsigned rtt);
+	symbol(const std::string & initname, const std::string & texname, unsigned rt, unsigned rtt);
 	
 	// functions overriding virtual functions from base classes
 public:
@@ -70,6 +72,8 @@ public:
 	ex normal(exmap & repl, exmap & rev_lookup, int level = 0) const;
 	ex to_rational(lst &repl_lst) const;
 	ex to_polynomial(lst &repl_lst) const;
+	unsigned return_type() const { return ret_type; }
+	unsigned return_type_tinfo() const { return ret_type_tinfo; }
 protected:
 	ex derivative(const symbol & s) const;
 	bool is_equal_same_type(const basic & other) const;
@@ -97,6 +101,8 @@ protected:
 	unsigned serial;                 ///< unique serial number for comparison
 	std::string name;                ///< printname of this symbol
 	std::string TeX_name;            ///< LaTeX name of this symbol
+	unsigned ret_type;               ///< value returned by return_type()
+	unsigned ret_type_tinfo;         ///< value returned by return_type_tinfo()
 private:
 	static unsigned next_serial;
 };

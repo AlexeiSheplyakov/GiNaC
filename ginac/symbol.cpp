@@ -42,7 +42,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(symbol, basic,
 //////////
 
 symbol::symbol()
- : inherited(TINFO_symbol), asexinfop(new assigned_ex_info), serial(next_serial++), name(autoname_prefix() + ToString(serial)), TeX_name(name)
+ : inherited(TINFO_symbol), asexinfop(new assigned_ex_info), serial(next_serial++), name(autoname_prefix() + ToString(serial)), TeX_name(name), ret_type(return_types::commutative), ret_type_tinfo(TINFO_symbol)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
@@ -54,13 +54,25 @@ symbol::symbol()
 // public
 
 symbol::symbol(const std::string & initname)
- : inherited(TINFO_symbol), asexinfop(new assigned_ex_info), serial(next_serial++), name(initname), TeX_name(default_TeX_name())
+ : inherited(TINFO_symbol), asexinfop(new assigned_ex_info), serial(next_serial++), name(initname), TeX_name(default_TeX_name()), ret_type(return_types::commutative), ret_type_tinfo(TINFO_symbol)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
 symbol::symbol(const std::string & initname, const std::string & texname)
- : inherited(TINFO_symbol), asexinfop(new assigned_ex_info), serial(next_serial++), name(initname), TeX_name(texname)
+ : inherited(TINFO_symbol), asexinfop(new assigned_ex_info), serial(next_serial++), name(initname), TeX_name(texname), ret_type(return_types::commutative), ret_type_tinfo(TINFO_symbol)
+{
+	setflag(status_flags::evaluated | status_flags::expanded);
+}
+
+symbol::symbol(const std::string & initname, unsigned rt, unsigned rtt)
+ : inherited(TINFO_symbol), asexinfop(new assigned_ex_info), serial(next_serial++), name(initname), TeX_name(default_TeX_name()), ret_type(rt), ret_type_tinfo(rtt)
+{
+	setflag(status_flags::evaluated | status_flags::expanded);
+}
+
+symbol::symbol(const std::string & initname, const std::string & texname, unsigned rt, unsigned rtt)
+ : inherited(TINFO_symbol), asexinfop(new assigned_ex_info), serial(next_serial++), name(initname), TeX_name(texname), ret_type(rt), ret_type_tinfo(rtt)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
@@ -71,13 +83,17 @@ symbol::symbol(const std::string & initname, const std::string & texname)
 
 /** Construct object from archive_node. */
 symbol::symbol(const archive_node &n, lst &sym_lst)
- : inherited(n, sym_lst), asexinfop(new assigned_ex_info), serial(next_serial++)
+ : inherited(n, sym_lst), asexinfop(new assigned_ex_info), serial(next_serial++), ret_type(return_types::commutative), ret_type_tinfo(TINFO_symbol)
 {
 	if (!(n.find_string("name", name)))
 		name = autoname_prefix() + ToString(serial);
 	if (!(n.find_string("TeXname", TeX_name)))
 		TeX_name = default_TeX_name();
-	setflag(status_flags::evaluated);
+	if (!n.find_unsigned("return_type", ret_type))
+		ret_type = return_types::commutative;
+	if (!n.find_unsigned("return_type_tinfo", ret_type_tinfo))
+		ret_type_tinfo = TINFO_symbol;
+	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
 /** Unarchive the object. */
@@ -103,6 +119,10 @@ void symbol::archive(archive_node &n) const
 	n.add_string("name", name);
 	if (TeX_name != default_TeX_name())
 		n.add_string("TeX_name", TeX_name);
+	if (ret_type != return_types::commutative)
+		n.add_unsigned("return_type", ret_type);
+	if (ret_type_tinfo != TINFO_symbol)
+		n.add_unsigned("return_type_tinfo", ret_type_tinfo);
 }
 
 //////////
