@@ -82,7 +82,7 @@ framework for symbolic computation within the C++ programming language.
 * A Tour of GiNaC::              A quick tour of the library.
 * Installation::                 How to install the package.
 * Basic Concepts::               Description of fundamental classes.
-* Important Algorithms::         Algorithms for symbolic manipulations.
+* Methods and Functions::        Algorithms for symbolic manipulations.
 * Extending GiNaC::              How to extend the library.
 * A Comparison With Other CAS::  Compares GiNaC to traditional CAS.
 * Internal Structures::          Description of some internal structures.
@@ -658,9 +658,9 @@ meta-class for storing all mathematical objects.
 * Numbers::                      Numerical objects.
 * Constants::                    Pre-defined constants.
 * Fundamental containers::       The power, add and mul classes.
-* Built-in functions::           Mathematical functions.
+* Lists::                        Lists of expressions.
+* Mathematical functions::       Mathematical functions.
 * Relations::                    Equality, Inequality and all that.
-* Archiving::                    Storing expression libraries in files.
 @end menu
 
 
@@ -807,7 +807,8 @@ for instance) will always reveal their difference.  Watch out, please.
 Although symbols can be assigned expressions for internal reasons, you
 should not do it (and we are not going to tell you how it is done).  If
 you want to replace a symbol with something else in an expression, you
-can use the expression's @code{.subs()} method.
+can use the expression's @code{.subs()} method (@xref{Substituting Symbols},
+for more information).
 
 
 @node Numbers, Constants, Symbols, Basic Concepts
@@ -858,7 +859,6 @@ int main()
     numeric trott("1.0841015122311136151E-2");
     
     cout << two*p << endl;  // floating point 6.283...
-    // ...
 @}
 @end example
 
@@ -962,7 +962,6 @@ int main()
     cout << answer.is_integer() << endl;  // false, it's 21/5
     answer *= ten;
     cout << answer.is_integer() << endl;  // true, it's 42 now!
-    // ...
 @}
 @end example
 
@@ -1003,7 +1002,7 @@ following table.
 @item @code{.is_real()}
 @tab @dots{}a real integer, rational or float (i.e. is not complex)
 @item @code{.is_cinteger()}
-@tab @dots{}a (complex) integer, such as @math{2-3*I}
+@tab @dots{}a (complex) integer (such as @math{2-3*I})
 @item @code{.is_crational()}
 @tab @dots{}an exact (complex) rational number (such as @math{2/3+7/2*I})
 @end multitable
@@ -1040,7 +1039,7 @@ The predefined known constants are:
 @end cartouche
 
 
-@node Fundamental containers, Built-in functions, Constants, Basic Concepts
+@node Fundamental containers, Lists, Constants, Basic Concepts
 @c    node-name, next, previous, up
 @section Fundamental containers: the @code{power}, @code{add} and @code{mul} classes
 @cindex polynomial
@@ -1125,17 +1124,66 @@ expression twice, either implicitly or explicitly, results in the same
 canonical form.
 
 
-@node Built-in functions, Relations, Fundamental containers, Basic Concepts
+@node Lists, Mathematical functions, Fundamental containers, Basic Concepts
 @c    node-name, next, previous, up
-@section Built-in functions
+@section Lists of expressions
+@cindex @code{lst} (class)
+@cindex lists
+@cindex @code{nops()}
+@cindex @code{op()}
+@cindex @code{append()}
+@cindex @code{prepend()}
+
+The GiNaC class @code{lst} serves for holding a list of arbitrary expressions.
+These are sometimes used to supply a variable number of arguments of the same
+type to GiNaC methods such as @code{subs()} and @code{to_rational()}, so you
+should have a basic understanding about them.
+
+Lists of up to 15 expressions can be directly constructed from single
+expressions:
+
+@example
+@{
+    symbol x("x"), y("y");
+    lst l(x, 2, y, x+y);
+    // now, l is a list holding the expressions 'x', '2', 'y', and 'x+y'
+    // ...
+@end example
+
+Use the @code{nops()} method to determine the size (number of expressions) of
+a list and the @code{op()} method to access individual elements:
+
+@example
+    // ...
+    cout << l.nops() << endl;                   // prints '4'
+    cout << l.op(2) << " " << l.op(0) << endl;  // prints 'y x'
+    // ...
+@end example
+
+Finally you can append or prepend an expression to a list with the
+@code{append()} and @code{prepend()} methods:
+
+@example
+    // ...
+    l.append(4*x);   // l is now [x, 2, y, x+y, 4*x]
+    l.prepend(0);    // l is now [0, x, 2, y, x+y, 4*x]
+@}
+@end example
+
+
+@node Mathematical functions, Relations, Lists, Basic Concepts
+@c    node-name, next, previous, up
+@section Mathematical functions
 @cindex @code{function} (class)
 @cindex trigonometric function
 @cindex hyperbolic function
 
 There are quite a number of useful functions hard-wired into GiNaC.  For
-instance, all trigonometric and hyperbolic functions are implemented.
-They are all objects of class @code{function}.  They accept one or more
-expressions as arguments and return one expression.  If the arguments
+instance, all trigonometric and hyperbolic functions are implemented
+(@xref{Built-in Functions}, for a complete list).
+
+These functions are all objects of class @code{function}.  They accept one
+or more expressions as arguments and return one expression.  If the arguments
 are not numerical, the evaluation of the function may be halted, as it
 does in the next example:
 
@@ -1155,7 +1203,6 @@ int main()
     cout << "tgamma(" << bar << ") -> " << tgamma(bar) << endl;
     ex foobar = bar.subs(x==7);
     cout << "tgamma(" << foobar << ") -> " << tgamma(foobar) << endl;
-    // ...
 @}
 @end example
 
@@ -1168,19 +1215,12 @@ tgamma(x+1/2) -> tgamma(x+1/2)
 tgamma(15/2) -> (135135/128)*Pi^(1/2)
 @end example
 
-@cindex branch cut
-For functions that have a branch cut in the complex plane GiNaC follows
-the conventions for C++ as defined in the ANSI standard.  In particular:
-the natural logarithm (@code{log}) and the square root (@code{sqrt})
-both have their branch cuts running along the negative real axis where
-the points on the axis itself belong to the upper part.
-
 Besides evaluation most of these functions allow differentiation, series
 expansion and so on.  Read the next chapter in order to learn more about
 this.
 
 
-@node Relations, Archiving, Built-in functions, Basic Concepts
+@node Relations, Methods and Functions, Mathematical functions, Basic Concepts
 @c    node-name, next, previous, up
 @section Relations
 @cindex @code{relational} (class)
@@ -1192,7 +1232,7 @@ a relation between them that signals equality, inequality and so on.
 They are created by simply using the C++ operators @code{==}, @code{!=},
 @code{<}, @code{<=}, @code{>} and @code{>=} between two expressions.
 
-@xref{Built-in functions}, for examples where various applications of
+@xref{Mathematical functions}, for examples where various applications of
 the @code{.subs()} method show how objects of class relational are used
 as arguments.  There they provide an intuitive syntax for substitutions.
 They can also used for creating systems of equations that are to be
@@ -1200,100 +1240,10 @@ solved for unknown variables.  More applications of this class will
 appear throughout the next chapters.
 
 
-@node Archiving, Important Algorithms, Relations, Basic Concepts
+
+@node Methods and Functions, Information About Expressions, Relations, Top
 @c    node-name, next, previous, up
-@section Archiving Expressions
-@cindex I/O
-@cindex @code{archive} (class)
-
-GiNaC allows creating @dfn{archives} of expressions which can be stored
-to or retrieved from files. To create an archive, you declare an object
-of class @code{archive} and archive expressions in it, giving each
-expressions a unique name:
-
-@example
-#include <ginac/ginac.h>
-#include <fstream>
-using namespace GiNaC;
-
-int main()
-@{
-    symbol x("x"), y("y"), z("z");
-
-    ex foo = sin(x + 2*y) + 3*z + 41;
-    ex bar = foo + 1;
-
-    archive a;
-    a.archive_ex(foo, "foo");
-    a.archive_ex(bar, "the second one");
-    // ...
-@end example
-
-The archive can then be written to a file:
-
-@example
-    // ...
-    ofstream out("foobar.gar");
-    out << a;
-    out.close();
-    // ...
-@end example
-
-The file @file{foobar.gar} contains all information that is needed to
-reconstruct the expressions @code{foo} and @code{bar}.
-
-@cindex @command{viewgar}
-The tool @command{viewgar} that comes with GiNaC can be used to view
-the contents of GiNaC archive files:
-
-@example
-$ viewgar foobar.gar
-foo = 41+sin(x+2*y)+3*z
-the second one = 42+sin(x+2*y)+3*z
-@end example
-
-The point of writing archive files is of course that they can later be
-read in again:
-
-@example
-    // ...
-    archive a2;
-    ifstream in("foobar.gar");
-    in >> a2;
-    // ...
-@end example
-
-And the stored expressions can be retrieved by their name:
-
-@example
-    // ...
-    lst syms;
-    syms.append(x); syms.append(y);
-
-    ex ex1 = a2.unarchive_ex(syms, "foo");
-    ex ex2 = a2.unarchive_ex(syms, "the second one");
-
-    cout << ex1 << endl;              // prints "41+sin(x+2*y)+3*z"
-    cout << ex2 << endl;              // prints "42+sin(x+2*y)+3*z"
-    cout << ex1.subs(x == 2) << endl; // prints "41+sin(2+2*y)+3*z"
-    // ...
-@}
-@end example
-
-Note that you have to supply a list of the symbols which are to be inserted
-in the expressions. Symbols in archives are stored by their name only and
-if you don't specify which symbols you have, unarchiving the expression will
-create new symbols with that name. E.g. if you hadn't included @code{x} in
-the @code{syms} list above, the @code{ex1.subs(x == 2)} statement would
-have had no effect because the @code{x} in @code{ex1} would have been a
-different symbol than the @code{x} which was defined at the beginning of
-the program, altough both would appear as @samp{x} when printed.
-
-
-
-@node Important Algorithms, Polynomial Expansion, Archiving, Top
-@c    node-name, next, previous, up
-@chapter Important Algorithms
+@chapter Methods and Functions
 @cindex polynomial
 
 In this chapter the most important algorithms provided by GiNaC will be
@@ -1313,7 +1263,6 @@ int main()
     
     cout << "As method:   " << sin(x).evalf() << endl;
     cout << "As function: " << evalf(sin(x)) << endl;
-    // ...
 @}
 @end example
 
@@ -1339,18 +1288,241 @@ method on class @code{ex} and sometimes calling a function cannot be
 avoided.
 
 @menu
-* Polynomial Expansion::
-* Collecting expressions::
-* Polynomial Arithmetic::
+* Information About Expressions::
+* Substituting Symbols::
+* Polynomial Arithmetic::           Working with polynomials.
+* Rational Expressions::            Working with rational functions.
 * Symbolic Differentiation::
-* Series Expansion::
+* Series Expansion::                Taylor and Laurent expansion.
+* Built-in Functions::              List of predefined mathematical functions.
+* Input/Output::                    Input and output of expressions.
 @end menu
 
 
-@node Polynomial Expansion, Collecting expressions, Important Algorithms, Important Algorithms
+@node Information About Expressions, Substituting Symbols, Methods and Functions, Methods and Functions
 @c    node-name, next, previous, up
-@section Polynomial Expansion
+@section Getting information about expressions
+
+@subsection Checking expression types
+@cindex @code{is_ex_of_type()}
+@cindex @code{info()}
+
+Sometimes it's useful to check whether a given expression is a plain number,
+a sum, a polynomial with integer coefficients, or of some other specific type.
+GiNaC provides two functions for this (the first one is actually a macro):
+
+@example
+bool is_ex_of_type(const ex & e, TYPENAME t);
+bool ex::info(unsigned flag);
+@end example
+
+@code{is_ex_of_type()} allows you to check whether the top-level object of
+an expression @samp{e} is an instance of the GiNaC class @samp{t}
+(@xref{The Class Hierarchy}, for a list of all classes). This is most useful,
+e.g., for checking whether an expression is a number, a sum, or a product:
+
+@example
+@{
+    symbol x("x");
+    ex e1 = 42;
+    ex e2 = 4*x - 3;
+    is_ex_of_type(e1, numeric);  // true
+    is_ex_of_type(e2, numeric);  // false
+    is_ex_of_type(e1, add);      // false
+    is_ex_of_type(e2, add);      // true
+    is_ex_of_type(e1, mul);      // false
+    is_ex_of_type(e2, mul);      // false
+@}
+@end example
+
+The @code{info()} method is used for checking certain attributes of
+expressions. The possible values for the @code{flag} argument are defined
+in @file{ginac/flags.h}, the most important being explained in the following
+table:
+
+@cartouche
+@multitable @columnfractions .30 .70
+@item @strong{Flag} @tab @strong{Returns true if the object is@dots{}}
+@item @code{numeric}
+@tab @dots{}a number (same as @code{is_ex_of_type(..., numeric)})
+@item @code{real}
+@tab @dots{}a real integer, rational or float (i.e. is not complex)
+@item @code{rational}
+@tab @dots{}an exact rational number (integers are rational, too)
+@item @code{integer}
+@tab @dots{}a (non-complex) integer
+@item @code{crational}
+@tab @dots{}an exact (complex) rational number (such as @math{2/3+7/2*I})
+@item @code{cinteger}
+@tab @dots{}a (complex) integer (such as @math{2-3*I})
+@item @code{positive}
+@tab @dots{}not complex and greater than 0
+@item @code{negative}
+@tab @dots{}not complex and less than 0
+@item @code{nonnegative}
+@tab @dots{}not complex and greater than or equal to 0
+@item @code{posint}
+@tab @dots{}an integer greater than 0
+@item @code{negint}
+@tab @dots{}an integer less than 0
+@item @code{nonnegint}
+@tab @dots{}an integer greater than or equal to 0
+@item @code{even}
+@tab @dots{}an even integer
+@item @code{odd}
+@tab @dots{}an odd integer
+@item @code{prime}
+@tab @dots{}a prime integer (probabilistic primality test)
+@item @code{relation}
+@tab @dots{}a relation (same as @code{is_ex_of_type(..., relational)})
+@item @code{relation_equal}
+@tab @dots{}a @code{==} relation
+@item @code{relation_not_equal}
+@tab @dots{}a @code{!=} relation
+@item @code{relation_less}
+@tab @dots{}a @code{<} relation
+@item @code{relation_less_or_equal}
+@tab @dots{}a @code{<=} relation
+@item @code{relation_greater}
+@tab @dots{}a @code{>} relation
+@item @code{relation_greater_or_equal}
+@tab @dots{}a @code{>=} relation
+@item @code{symbol}
+@tab @dots{}a symbol (same as @code{is_ex_of_type(..., symbol)})
+@item @code{list}
+@tab @dots{}a list (same as @code{is_ex_of_type(..., lst)})
+@item @code{polynomial}
+@tab @dots{}a polynomial (i.e. only consists of sums and products of numbers and symbols with positive integer powers)
+@item @code{integer_polynomial}
+@tab @dots{}a polynomial with (non-complex) integer coefficients
+@item @code{cinteger_polynomial}
+@tab @dots{}a polynomial with (possibly complex) integer coefficients (such as @math{2-3*I})
+@item @code{rational_polynomial}
+@tab @dots{}a polynomial with (non-complex) rational coefficients
+@item @code{crational_polynomial}
+@tab @dots{}a polynomial with (possibly complex) rational coefficients (such as @math{2/3+7/2*I})
+@item @code{rational_function}
+@tab @dots{}a rational function
+@end multitable
+@end cartouche
+
+
+@subsection Accessing subexpressions
+@cindex @code{nops()}
+@cindex @code{op()}
+@cindex @code{has()}
+@cindex container
+@cindex @code{relational} (class)
+
+GiNaC provides the two methods
+
+@example
+unsigned ex::nops();
+ex ex::op(unsigned i);
+@end example
+
+for accessing the subexpressions in the container-like GiNaC classes like
+@code{add}, @code{mul}, @code{lst}, and @code{function}. @code{nops()}
+determines the number of subexpressions (@samp{operands}) contained, while
+@code{op()} returns the @code{i}-th (0..@code{nops()-1}) subexpression.
+In the case of a @code{power} object, @code{op(0)} will return the basis
+and @code{op(1)} the exponent.
+
+The left-hand and right-hand side expressions of objects of class
+@code{relational} (and only of these) can also be accessed with the methods
+
+@example
+ex ex::lhs();
+ex ex::rhs();
+@end example
+
+Finally, the method
+
+@example
+bool ex::has(const ex & other);
+@end example
+
+checks whether an expression contains the given subexpression @code{other}.
+This only works reliably if @code{other} is of an atomic class such as a
+@code{numeric} or a @code{symbol}. It is, e.g., not possible to verify that
+@code{a+b+c} contains @code{a+c} (or @code{a+b}) as a subexpression.
+
+
+@subsection Comparing expressions
+@cindex @code{is_equal()}
+@cindex @code{is_zero()}
+
+Expressions can be compared with the usual C++ relational operators like
+@code{==}, @code{>}, and @code{<} but if the expressions contain symbols,
+the result is usually not determinable and the result will be @code{false},
+except in the case of the @code{!=} operator. You should also be aware that
+GiNaC will only do the most trivial test for equality (subtracting both
+expressions), so something like @code{(pow(x,2)+x)/x==x+1} will return
+@code{false}.
+
+Actually, if you construct an expression like @code{a == b}, this will be
+represented by an object of the @code{relational} class (@xref{Relations}.)
+which is not evaluated until (explicitly or implicitely) cast to a @code{bool}.
+
+There are also two methods
+
+@example
+bool ex::is_equal(const ex & other);
+bool ex::is_zero();
+@end example
+
+for checking whether one expression is equal to another, or equal to zero,
+respectively.
+
+@strong{Warning:} You will also find a @code{ex::compare()} method in the
+GiNaC header files. This method is however only to be used internally by
+GiNaC to establish a canonical sort order for terms, and using it to compare
+expressions will give very surprising results.
+
+
+@node Substituting Symbols, Polynomial Arithmetic, Information About Expressions, Methods and Functions
+@c    node-name, next, previous, up
+@section Substituting symbols
+@cindex @code{subs()}
+
+Symbols can be replaced with expressions via the @code{.subs()} method:
+
+@example
+ex ex::subs(const ex & e);
+ex ex::subs(const lst & syms, const lst & repls);
+@end example
+
+In the first form, @code{subs()} accepts a relational of the form
+@samp{symbol == expression} or a @code{lst} of such relationals. E.g.
+
+@example
+@{
+    symbol x("x"), y("y");
+    ex e1 = 2*x^2-4*x+3;
+    cout << "e1(7) = " << e1.subs(x == 7) << endl;
+    ex e2 = x*y + x;
+    cout << "e2(-2, 4) = " << e2.subs(lst(x == -2, y == 4)) << endl;
+@}
+@end example
+
+will print @samp{73} and @samp{-10}, respectively.
+
+If you specify multiple substitutions, they are performed in parallel, so e.g.
+@code{subs(lst(x == y, y == x))} exchanges @samp{x} and @samp{y}.
+
+The second form of @code{subs()} takes two lists, one for the symbols and
+one for the expressions to be substituted (both lists must contain the same
+number of elements). Using this form, you would write @code{subs(lst(x, y), lst(y, x))}
+to exchange @samp{x} and @samp{y}.
+
+
+@node Polynomial Arithmetic, Rational Expressions, Substituting Symbols, Methods and Functions
+@c    node-name, next, previous, up
+@section Polynomial arithmetic
+
+@subsection Expanding and collecting
 @cindex @code{expand()}
+@cindex @code{collect()}
 
 A polynomial in one or more variables has many equivalent
 representations.  Some useful ones serve a specific purpose.  Consider
@@ -1364,43 +1536,62 @@ repeated.  In our expample, two possibilities would be @math{(4*y + z)*x
 + 20*y^2 + 21*y*z + 4*z^2} and @math{20*y^2 + (21*z + 4*x)*y + 4*z^2 +
 x*z}.
 
-To bring an expression into expanded form, its method @code{.expand()}
+To bring an expression into expanded form, its method
+
+@example
+ex ex::expand();
+@end example
+
 may be called.  In our example above, this corresponds to @math{4*x*y +
 x*z + 20*y^2 + 21*y*z + 4*z^2}.  Again, since the canonical form in
 GiNaC is not easily guessable you should be prepared to see different
 orderings of terms in such sums!
 
-
-@node Collecting expressions, Polynomial Arithmetic, Polynomial Expansion, Important Algorithms
-@c    node-name, next, previous, up
-@section Collecting expressions
-@cindex @code{collect()}
-@cindex @code{coeff()}
-
 Another useful representation of multivariate polynomials is as a
 univariate polynomial in one of the variables with the coefficients
 being polynomials in the remaining variables.  The method
-@code{collect()} accomplishes this task.  Here is its declaration:
+@code{collect()} accomplishes this task:
 
 @example
 ex ex::collect(const symbol & s);
 @end example
 
 Note that the original polynomial needs to be in expanded form in order
-to be able to find the coefficients properly.  The range of occuring
-coefficients can be checked using the two methods
+to be able to find the coefficients properly.
 
+@subsection Degree and coefficients
 @cindex @code{degree()}
 @cindex @code{ldegree()}
+@cindex @code{coeff()}
+
+The degree and low degree of a polynomial can be obtained using the two
+methods
+
 @example
 int ex::degree(const symbol & s);
 int ex::ldegree(const symbol & s);
 @end example
 
-where @code{degree()} returns the highest coefficient and
-@code{ldegree()} the lowest one.  (These two methods work also reliably
-on non-expanded input polynomials).  An application is illustrated in
-the next example, where a multivariate polynomial is analyzed:
+which also work reliably on non-expanded input polynomials (they even work
+on rational functions, returning the asymptotic degree). To extract
+a coefficient with a certain power from an expanded polynomial you use
+
+@example
+ex ex::coeff(const symbol & s, int n);
+@end example
+
+You can also obtain the leading and trailing coefficients with the methods
+
+@example
+ex ex::lcoeff(const symbol & s);
+ex ex::tcoeff(const symbol & s);
+@end example
+
+which are equivalent to @code{coeff(s, degree(s))} and @code{coeff(s, ldegree(s))},
+respectively.
+
+An application is illustrated in the next example, where a multivariate
+polynomial is analyzed:
 
 @example
 #include <ginac/ginac.h>
@@ -1419,7 +1610,6 @@ int main()
     @}
     cout << "As polynomial in y: " 
          << Poly.collect(y) << endl;
-    // ...
 @}
 @end example
 
@@ -1438,16 +1628,75 @@ or even from run to run since the internal canonical ordering is not
 within the user's sphere of influence.
 
 
-@node Polynomial Arithmetic, Symbolic Differentiation, Collecting expressions, Important Algorithms
-@c    node-name, next, previous, up
-@section Polynomial Arithmetic
+@subsection Polynomial division
+@cindex polynomial division
+@cindex quotient
+@cindex remainder
+@cindex pseudo-remainder
+@cindex @code{quo()}
+@cindex @code{rem()}
+@cindex @code{prem()}
+@cindex @code{divide()}
+
+The two functions
+
+@example
+ex quo(const ex & a, const ex & b, const symbol & x);
+ex rem(const ex & a, const ex & b, const symbol & x);
+@end example
+
+compute the quotient and remainder of univariate polynomials in the variable
+@samp{x}. The results satisfy @math{a = b*quo(a, b, x) + rem(a, b, x)}.
+
+The additional function
+
+@example
+ex prem(const ex & a, const ex & b, const symbol & x);
+@end example
+
+computes the pseudo-remainder of @samp{a} and @samp{b} which satisfies
+@math{c*a = b*q + prem(a, b, x)}, where @math{c = b.lcoeff(x) ^ (a.degree(x) - b.degree(x) + 1)}.
+
+Exact division of multivariate polynomials is performed by the function
+
+@example
+bool divide(const ex & a, const ex & b, ex & q);
+@end example
+
+If @samp{b} divides @samp{a} over the rationals, this function returns @code{true}
+and returns the quotient in the variable @code{q}. Otherwise it returns @code{false}
+in which case the value of @code{q} is undefined.
+
+
+@subsection Unit, content and primitive part
+@cindex @code{unit()}
+@cindex @code{content()}
+@cindex @code{primpart()}
+
+The methods
+
+@example
+ex ex::unit(const symbol & x);
+ex ex::content(const symbol & x);
+ex ex::primpart(const symbol & x);
+@end example
+
+return the unit part, content part, and primitive polynomial of a multivariate
+polynomial with respect to the variable @samp{x} (the unit part being the sign
+of the leading coefficient, the content part being the GCD of the coefficients,
+and the primitive polynomial being the input polynomial divided by the unit and
+content parts). The product of unit, content, and primitive part is the
+original polynomial.
+
 
 @subsection GCD and LCM
 @cindex GCD
 @cindex LCM
+@cindex @code{gcd()}
+@cindex @code{lcm()}
 
 The functions for polynomial greatest common divisor and least common
-multiple have the synopsis:
+multiple have the synopsis
 
 @example
 ex gcd(const ex & a, const ex & b);
@@ -1474,25 +1723,35 @@ int main()
     // x + 5*y + 4*z
     ex P_lcm = lcm(P_a, P_b);
     // 4*x*y^2 + 13*y*x*z + 20*y^3 + 81*y^2*z + 67*y*z^2 + 3*x*z^2 + 12*z^3
-    // ...
 @}
 @end example
 
+
+@node Rational Expressions, Symbolic Differentiation, Polynomial Arithmetic, Methods and Functions
+@c    node-name, next, previous, up
+@section Rational expressions
+
 @subsection The @code{normal} method
 @cindex @code{normal()}
+@cindex simplification
 @cindex temporary replacement
 
-While in common symbolic code @code{gcd()} and @code{lcm()} are not too
-heavily used, simplification is called for frequently.  Therefore
-@code{.normal()}, which provides some basic form of simplification, has
-become a method of class @code{ex}, just like @code{.expand()}.  It
-converts a rational function into an equivalent rational function where
-numerator and denominator are coprime.  This means, it finds the GCD of
-numerator and denominator and cancels it.  If it encounters some object
-which does not belong to the domain of rationals (a function for
-instance), that object is replaced by a temporary symbol.  This means
-that both expressions @code{t1} and @code{t2} are indeed simplified in
-this little program:
+Some basic from of simplification of expressions is called for frequently.
+GiNaC provides the method @code{.normal()}, which converts a rational function
+into an equivalent rational function of the form @samp{numerator/denominator}
+where numerator and denominator are coprime.  If the input expression is already
+a fraction, it just finds the GCD of numerator and denominator and cancels it,
+otherwise it performs fraction addition and multiplication.
+
+@code{.normal()} can also be used on expressions which are not rational functions
+as it will replace all non-rational objects (like functions or non-integer
+powers) by temporary symbols to bring the expression to the domain of rational
+functions before performing the normalization, and re-substituting these
+symbols afterwards. This algorithm is also available as a separate method
+@code{.to_rational()}, described below.
+
+This means that both expressions @code{t1} and @code{t2} are indeed
+simplified in this little program:
 
 @example
 #include <ginac/ginac.h>
@@ -1505,7 +1764,6 @@ int main()
     ex t2 = (pow(sin(x),2) + 2*sin(x) + 1)/(sin(x) + 1);
     cout << "t1 is " << t1.normal() << endl;
     cout << "t2 is " << t2.normal() << endl;
-    // ...
 @}
 @end example
 
@@ -1514,9 +1772,62 @@ the sample-polynomials from the section about GCD and LCM above would be
 normalized to @code{P_a/P_b} = @code{(4*y+z)/(y+3*z)}.
 
 
-@node Symbolic Differentiation, Series Expansion, Polynomial Arithmetic, Important Algorithms
+@subsection Numerator and denominator
+@cindex numerator
+@cindex denominator
+@cindex @code{numer()}
+@cindex @code{denom()}
+
+The numerator and denominator of an expression can be obtained with
+
+@example
+ex ex::numer();
+ex ex::denom();
+@end example
+
+These functions will first normalize the expression as described above and
+then return the numerator or denominator, respectively.
+
+
+@subsection Converting to a rational expression
+@cindex @code{to_rational()}
+
+Some of the methods described so far only work on polynomials or rational
+functions. GiNaC provides a way to extend the domain of these functions to
+general expressions by using the temporary replacement algorithm described
+above. You do this by calling
+
+@example
+ex ex::to_rational(lst &l);
+@end example
+
+on the expression to be converted. The supplied @code{lst} will be filled
+with the generated temporary symbols and their replacement expressions in
+a format that can be used directly for the @code{subs()} method. It can also
+already contain a list of replacements from an earlier application of
+@code{.to_rational()}, so it's possible to use it on multiple expressions
+and get consistent results.
+
+For example,
+
+@example
+@{
+    symbol x("x");
+    ex a = pow(sin(x), 2) - pow(cos(x), 2);
+    ex b = sin(x) + cos(x);
+    ex q;
+    lst l;
+    divide(a.to_rational(l), b.to_rational(l), q);
+    cout << q.subs(l) << endl;
+@}
+@end example
+
+will print @samp{sin(x)-cos(x)}.
+
+
+@node Symbolic Differentiation, Series Expansion, Rational Expressions, Methods and Functions
 @c    node-name, next, previous, up
-@section Symbolic Differentiation
+@section Symbolic differentiation
 @cindex differentiation
 @cindex @code{diff()}
 @cindex chain rule
@@ -1538,7 +1849,6 @@ int main()
     cout << P.diff(x,2) << endl;  // 20*x^3 + 2
     cout << P.diff(y) << endl;    // 1
     cout << P.diff(z) << endl;    // 0
-    // ...
 @}
 @end example
 
@@ -1582,9 +1892,9 @@ When you run it, it produces the sequence @code{1}, @code{-1}, @code{5},
 @code{i} by two since all odd Euler numbers vanish anyways.
 
 
-@node Series Expansion, Extending GiNaC, Symbolic Differentiation, Important Algorithms
+@node Series Expansion, Built-in Functions, Symbolic Differentiation, Methods and Functions
 @c    node-name, next, previous, up
-@section Series Expansion
+@section Series expansion
 @cindex @code{series()}
 @cindex Taylor expansion
 @cindex Laurent expansion
@@ -1616,8 +1926,6 @@ int main()
     
     cout << "the inverse square of this series is " << endl
          << pow(mass_nonrel,-2).series(v==0, 10) << endl;
-    
-    // ...
 @}
 @end example
 
@@ -1691,7 +1999,306 @@ program, it will type out:
 @end example
 
 
-@node Extending GiNaC, What does not belong into GiNaC, Series Expansion, Top
+@node Built-in Functions, Input/Output, Series Expansion, Methods and Functions
+@c    node-name, next, previous, up
+@section Predefined mathematical functions
+
+GiNaC contains the following predefined mathematical functions:
+
+@cartouche
+@multitable @columnfractions .30 .70
+@item @strong{Name} @tab @strong{Function}
+@item @code{abs(x)}
+@tab absolute value
+@item @code{csgn(x)}
+@tab complex sign
+@item @code{sqrt(x)}
+@tab square root (not a GiNaC function proper but equivalent to @code{pow(x, numeric(1, 2)})
+@item @code{sin(x)}
+@tab sine
+@item @code{cos(x)}
+@tab cosine
+@item @code{tan(x)}
+@tab tangent
+@item @code{asin(x)}
+@tab inverse sine
+@item @code{acos(x)}
+@tab inverse cosine
+@item @code{atan(x)}
+@tab inverse tangent
+@item @code{atan2(y, x)}
+@tab inverse tangent with two arguments
+@item @code{sinh(x)}
+@tab hyperbolic sine
+@item @code{cosh(x)}
+@tab hyperbolic cosine
+@item @code{tanh(x)}
+@tab hyperbolic tangent
+@item @code{asinh(x)}
+@tab inverse hyperbolic sine
+@item @code{acosh(x)}
+@tab inverse hyperbolic cosine
+@item @code{atanh(x)}
+@tab inverse hyperbolic tangent
+@item @code{exp(x)}
+@tab exponential function
+@item @code{log(x)}
+@tab natural logarithm
+@item @code{zeta(x)}
+@tab Riemann's zeta function
+@item @code{zeta(n, x)}
+@tab derivatives of Riemann's zeta function
+@item @code{tgamma(x)}
+@tab Gamma function
+@item @code{lgamma(x)}
+@tab logarithm of Gamma function
+@item @code{beta(x, y)}
+@tab Beta function (@code{tgamma(x)*tgamma(y)/tgamma(x+y)})
+@item @code{psi(x)}
+@tab psi (digamma) function
+@item @code{psi(n, x)}
+@tab derivatives of psi function (polygamma functions)
+@item @code{factorial(n)}
+@tab factorial function
+@item @code{binomial(n, m)}
+@tab binomial coefficients
+@item @code{Order(x)}
+@tab order term function in truncated power series
+@item @code{Derivative(x, l)}
+@tab inert partial differentiation operator (used internally)
+@end multitable
+@end cartouche
+
+@cindex branch cut
+For functions that have a branch cut in the complex plane GiNaC follows
+the conventions for C++ as defined in the ANSI standard.  In particular:
+the natural logarithm (@code{log}) and the square root (@code{sqrt})
+both have their branch cuts running along the negative real axis where
+the points on the axis itself belong to the upper part.
+
+
+@node Input/Output, Extending GiNaC, Built-in Functions, Methods and Functions
+@c    node-name, next, previous, up
+@section Input and output of expressions
+@cindex I/O
+
+@subsection Expression output
+@cindex printing
+@cindex output of expressions
+
+The easiest way to print an expression is to write it to a stream:
+
+@example
+@{
+    symbol x("x");
+    ex e = 7+4.2*pow(x,2);
+    cout << e << endl;    // prints '7+4.2*x^2'
+    // ...
+@end example
+
+The output format is identical to the @command{ginsh} input syntax and
+to that used by most computer algebra systems, but not directly pastable
+into a GiNaC C++ program (note that in the above example, @code{pow(x,2)}
+is printed as @samp{x^2}).
+
+To print an expression in a way that can be directly used in a C or C++
+program, you use the method
+
+@example
+void ex::printcsrc(ostream & os, unsigned type, const char *name);
+@end example
+
+This outputs a line in the form of a variable definition @code{<type> <name> = <expression>}.
+The possible types are defined in @file{ginac/flags.h} (@code{csrc_types})
+and mostly affect the way in which floating point numbers are written:
+
+@example
+    // ...
+    e.printcsrc(cout, csrc_types::ctype_float, "f");
+    e.printcsrc(cout, csrc_types::ctype_double, "d");
+    e.printcsrc(cout, csrc_types::ctype_cl_N, "n");
+    // ...
+@end example
+
+The above example will produce (note the @code{x^2} being converted to @code{x*x}):
+
+@example
+float f = 4.200000e+00*(x*x)+7.000000e+00;
+double d = 4.200000e+00*(x*x)+7.000000e+00;
+cl_N n = cl_F("4.2000000000000001776")*(x*x)+cl_F("7.0");
+@end example
+
+Finally, there are the two methods @code{printraw()} and @code{printtree()} intended for GiNaC
+developers, that provide a dump of the internal structure of an expression for
+debugging purposes:
+
+@example
+    // ...
+    e.printraw(cout); cout << endl << endl;
+    e.printtree(cout);
+@}
+@end example
+
+produces
+
+@example
+ex(+((power(ex(symbol(name=x,serial=1,hash=150875740,flags=11)),ex(numeric(2)),hash=2,flags=3),numeric(4.2000000000000001776L0)),,hash=0,flags=3))
+
+type=Q25GiNaC3add, hash=0 (0x0), flags=3, nops=2
+    power: hash=2 (0x2), flags=3
+        x (symbol): serial=1, hash=150875740 (0x8fe2e5c), flags=11
+        2 (numeric): hash=2147483714 (0x80000042), flags=11
+    4.2000000000000001776L0 (numeric): hash=3006477126 (0xb3333346), flags=11
+    -----
+    overall_coeff
+    7 (numeric): hash=2147483763 (0x80000073), flags=11
+    =====
+@end example
+
+The @code{printtree()} method is also available in @command{ginsh} as the
+@code{print()} function.
+
+
+@subsection Expression input
+@cindex input of expressions
+
+GiNaC provides no way to directly read an expression from a stream because
+you will usually want the user to be able to enter something like @samp{2*x+sin(y)}
+and have the @samp{x} and @samp{y} correspond to the symbols @code{x} and
+@code{y} you defined in your program and there is no way to specify the
+desired symbols to the @code{>>} stream input operator.
+
+Instead, GiNaC lets you construct an expression from a string, specifying the
+list of symbols to be used:
+
+@example
+@{
+    symbol x("x"), y("y");
+    ex e("2*x+sin(y)", lst(x, y));
+@}
+@end example
+
+The input syntax is the same as that used by @command{ginsh} and the stream
+output operator @code{<<}. The symbols in the string are matched by name to
+the symbols in the list and if GiNaC encounters a symbol not specified in
+the list it will throw an exception.
+
+With this constructor, it's also easy to implement interactive GiNaC programs:
+
+@example
+#include <iostream>
+#include <string>
+#include <stdexcept>
+#include <ginac/ginac.h>
+using namespace GiNaC;
+
+int main()
+@{
+     symbol x("x");
+     string s;
+
+     cout << "Enter an expression containing 'x': ";
+     getline(cin, s);
+
+     try @{
+         ex e(s, lst(x));
+         cout << "The derivative of " << e << " with respect to x is ";
+         cout << e.diff(x) << ".\n";
+     @} catch (exception &p) @{
+         cerr << p.what() << endl;
+     @}
+@}
+@end example
+
+
+@subsection Archiving
+@cindex @code{archive} (class)
+@cindex archiving
+
+GiNaC allows creating @dfn{archives} of expressions which can be stored
+to or retrieved from files. To create an archive, you declare an object
+of class @code{archive} and archive expressions in it, giving each
+expression a unique name:
+
+@example
+#include <ginac/ginac.h>
+#include <fstream>
+using namespace GiNaC;
+
+int main()
+@{
+    symbol x("x"), y("y"), z("z");
+
+    ex foo = sin(x + 2*y) + 3*z + 41;
+    ex bar = foo + 1;
+
+    archive a;
+    a.archive_ex(foo, "foo");
+    a.archive_ex(bar, "the second one");
+    // ...
+@end example
+
+The archive can then be written to a file:
+
+@example
+    // ...
+    ofstream out("foobar.gar");
+    out << a;
+    out.close();
+    // ...
+@end example
+
+The file @file{foobar.gar} contains all information that is needed to
+reconstruct the expressions @code{foo} and @code{bar}.
+
+@cindex @command{viewgar}
+The tool @command{viewgar} that comes with GiNaC can be used to view
+the contents of GiNaC archive files:
+
+@example
+$ viewgar foobar.gar
+foo = 41+sin(x+2*y)+3*z
+the second one = 42+sin(x+2*y)+3*z
+@end example
+
+The point of writing archive files is of course that they can later be
+read in again:
+
+@example
+    // ...
+    archive a2;
+    ifstream in("foobar.gar");
+    in >> a2;
+    // ...
+@end example
+
+And the stored expressions can be retrieved by their name:
+
+@example
+    // ...
+    lst syms(x, y);
+
+    ex ex1 = a2.unarchive_ex(syms, "foo");
+    ex ex2 = a2.unarchive_ex(syms, "the second one");
+
+    cout << ex1 << endl;              // prints "41+sin(x+2*y)+3*z"
+    cout << ex2 << endl;              // prints "42+sin(x+2*y)+3*z"
+    cout << ex1.subs(x == 2) << endl; // prints "41+sin(2+2*y)+3*z"
+@}
+@end example
+
+Note that you have to supply a list of the symbols which are to be inserted
+in the expressions. Symbols in archives are stored by their name only and
+if you don't specify which symbols you have, unarchiving the expression will
+create new symbols with that name. E.g. if you hadn't included @code{x} in
+the @code{syms} list above, the @code{ex1.subs(x == 2)} statement would
+have had no effect because the @code{x} in @code{ex1} would have been a
+different symbol than the @code{x} which was defined at the beginning of
+the program, altough both would appear as @samp{x} when printed.
+
+
+
+@node Extending GiNaC, What does not belong into GiNaC, Input/Output, Top
 @c    node-name, next, previous, up
 @chapter Extending GiNaC
 
@@ -2019,7 +2626,6 @@ int main()
     cout << e2 << endl;     // prints sin(x+2*y)+3*z+41
     e2 += 1;                // e2 is copied into a new object
     cout << e2 << endl;     // prints sin(x+2*y)+3*z+42
-    // ...
 @}
 @end example
 
@@ -2051,7 +2657,6 @@ int main()
     cout << e1 << endl          // prints x+3*y
          << e2 << endl          // prints (x+3*y)^3
          << e3 << endl;         // prints 3*(x+3*y)^2*cos((x+3*y)^3)
-    // ...
 @}
 @end example
 
