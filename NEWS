@@ -3,10 +3,14 @@ This file records noteworthy changes.
 1.2.0 (<insert date>)
 * Added a structure<T> template class for the easy creation of user-defined
   algebraic classes.
-* <visitors>
+* Added support for (acyclic) visitors, to allow cleaner implementations of
+  algebraic algorithms.
 * <iterators>
-* <new-style printing>
-* <noncommutative symbols>
+* Completely revamped the implementation of expression output. It is now
+  possible to add new output formats, to change the behavior of predefined
+  formats at run-time, and to have different output styles for algebraic
+  functions.
+* Symbols can be made non-commutative.
 * Improved the speed of subs(), normal(), to_rational() and to_polynomial()
   by the use of maps instead of lists. The old forms
     subs(const lst & ls, const lst & lr, unsigned options)
