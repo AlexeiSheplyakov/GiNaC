@@ -881,7 +881,7 @@ ex pseries::power_const(const numeric &p, int deg) const
 		throw std::runtime_error("pseries::power_const(): trying to assemble a Puiseux series");
 
 	// adjust number of coefficients
-	deg = deg - p.to_int()*ldeg;
+	deg = deg - (p*ldeg).to_int();
 	
 	// O(x^n)^(-m) is undefined
 	if (seq.size() == 1 && is_order_function(seq[0].rest) && p.real().is_negative())
@@ -957,7 +957,7 @@ ex power::series(const relational & r, int order, unsigned options) const
 		return basic::series(r, order, options);
 
 	// Is the expression of type 0^something?
-	if (!must_expand_basis && !basis.subs(r, subs_options::no_pattern).is_zero())
+	if (!must_expand_basis && !basis.subs(r, subs_options::no_pattern).is_zero() && !is_a<add>(basis))
 		return basic::series(r, order, options);
 
 	// Singularity encountered, is the basis equal to (var - point)?
@@ -972,7 +972,7 @@ ex power::series(const relational & r, int order, unsigned options) const
 
 	// No, expand basis into series
 
-	int intexp = ex_to<numeric>(exponent).to_int();
+	numeric numexp = ex_to<numeric>(exponent);
 	const ex& sym = r.lhs();
 	// find existing minimal degree
 	int real_ldegree = basis.expand().ldegree(sym-r.rhs());
@@ -984,13 +984,14 @@ ex power::series(const relational & r, int order, unsigned options) const
 		} while (real_ldegree == orderloop);
 	}
 
-	ex e = basis.series(r, order + real_ldegree*(1-intexp), options);
+	if (!(real_ldegree*numexp).is_integer())
+		throw std::runtime_error("pseries::power_const(): trying to assemble a Puiseux series");
+	ex e = basis.series(r, (order + real_ldegree*(1-numexp)).to_int(), options);
 	
 	ex result;
 	try {
-		result = ex_to<pseries>(e).power_const(intexp, order);
-	}
-	catch (pole_error) {
+		result = ex_to<pseries>(e).power_const(numexp, order);
+	} catch (pole_error) {
 		epvector ser;
 		ser.push_back(expair(Order(_ex1), order));
 		result = pseries(r, ser);
