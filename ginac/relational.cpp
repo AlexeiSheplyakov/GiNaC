@@ -99,26 +99,26 @@ void relational::print(const print_context & c, unsigned level) const
 			c.s << "(";
 		lh.print(c, precedence());
 		switch (o) {
-		case equal:
-			c.s << "==";
-			break;
-		case not_equal:
-			c.s << "!=";
-			break;
-		case less:
-			c.s << "<";
-			break;
-		case less_or_equal:
-			c.s << "<=";
-			break;
-		case greater:
-			c.s << ">";
-			break;
-		case greater_or_equal:
-			c.s << ">=";
-			break;
-		default:
-			c.s << "(INVALID RELATIONAL OPERATOR)";
+			case equal:
+				c.s << "==";
+				break;
+			case not_equal:
+				c.s << "!=";
+				break;
+			case less:
+				c.s << "<";
+				break;
+			case less_or_equal:
+				c.s << "<=";
+				break;
+			case greater:
+				c.s << ">";
+				break;
+			case greater_or_equal:
+				c.s << ">=";
+				break;
+			default:
+				c.s << "(INVALID RELATIONAL OPERATOR)";
 		}
 		rh.print(c, precedence());
 		if (precedence() <= level)
@@ -129,20 +129,20 @@ void relational::print(const print_context & c, unsigned level) const
 bool relational::info(unsigned inf) const
 {
 	switch (inf) {
-	case info_flags::relation:
-		return 1;
-	case info_flags::relation_equal:
-		return o==equal;
-	case info_flags::relation_not_equal:
-		return o==not_equal;
-	case info_flags::relation_less:
-		return o==less;
-	case info_flags::relation_less_or_equal:
-		return o==less_or_equal;
-	case info_flags::relation_greater:
-		return o==greater;
-	case info_flags::relation_greater_or_equal:
-		return o==greater_or_equal;
+		case info_flags::relation:
+			return 1;
+		case info_flags::relation_equal:
+			return o==equal;
+		case info_flags::relation_not_equal:
+			return o==not_equal;
+		case info_flags::relation_less:
+			return o==less;
+		case info_flags::relation_less_or_equal:
+			return o==less_or_equal;
+		case info_flags::relation_greater:
+			return o==greater;
+		case info_flags::relation_greater_or_equal:
+			return o==greater_or_equal;
 	}
 	return 0;
 }
@@ -182,15 +182,33 @@ int relational::compare_same_type(const basic & other) const
 {
 	GINAC_ASSERT(is_exactly_a<relational>(other));
 	const relational &oth = static_cast<const relational &>(other);
-	
-	if (o == oth.o) {
-		int cmpval = lh.compare(oth.lh);
-		if (cmpval)
-			return cmpval;
-		else
-			return rh.compare(oth.rh);
+	if (o==oth.o && lh.is_equal(oth.lh) && rh.is_equal(oth.rh))
+		return 0;
+	switch (o) {
+		case equal:
+		case not_equal:
+			if (oth.o!=o)
+				return (o < oth.o) ? -1 : 1;
+			break;
+		case less:
+			if (oth.o!=greater)
+				return (o < oth.o) ? -1 : 1;
+			break;
+		case less_or_equal:
+			if (oth.o!=greater_or_equal)
+				return (o < oth.o) ? -1 : 1;
+			break;
+		case greater:
+			if (oth.o!=less)
+				return (o < oth.o) ? -1 : 1;
+			break;
+		case greater_or_equal:
+			if (oth.o!=less_or_equal)
+				return (o < oth.o) ? -1 : 1;
+			break;
 	}
-	return (o < oth.o) ? -1 : 1;
+	const int lcmpval = lh.compare(oth.rh);
+	return (lcmpval!=0) ? lcmpval : rh.compare(oth.lh);
 }
 
 bool relational::match_same_type(const basic & other) const
@@ -212,6 +230,81 @@ unsigned relational::return_type_tinfo(void) const
 	GINAC_ASSERT(lh.return_type_tinfo()==rh.return_type_tinfo());
 	return lh.return_type_tinfo();
 }
+
+unsigned relational::calchash(void) const
+{
+	unsigned v = golden_ratio_hash(tinfo());
+	unsigned lhash = lh.gethash();
+	unsigned rhash = rh.gethash();
+
+	v = rotate_left_31(v);
+	switch(o) {
+		case equal:
+		case not_equal:
+			if (lhash>rhash) {
+				v ^= lhash;
+				lhash = rhash;
+			} else {
+				v ^= rhash;
+			}
+			break;
+		case less:
+		case less_or_equal:
+			v ^= rhash;
+			break;
+		case greater:
+		case greater_or_equal:
+	   		v ^= lhash;
+			lhash = rhash;
+			break;
+	}
+	v = rotate_left_31(v);
+	v ^= lhash;
+
+	// mask out numeric hashes:
+	v &= 0x7FFFFFFFU;
+
+	// store calculated hash value only if object is already evaluated
+	if (flags & status_flags::evaluated) {
+		setflag(status_flags::hash_calculated);
+		hashvalue = v;
+	}
+
+	return v;
+}
+
+bool relational::is_equal_same_type(const basic & other) const
+{
+	GINAC_ASSERT(is_a<relational>(other));
+	const relational &oth = static_cast<const relational &>(other);
+	if (o==oth.o && lh.is_equal(oth.lh) && rh.is_equal(oth.rh))
+		return true;
+	switch (o) {
+		case equal:
+		case not_equal:
+			if (oth.o!=o)
+				return false;
+			break;
+		case less:
+			if (oth.o!=greater)
+				return false;
+			break;
+		case less_or_equal:
+			if (oth.o!=greater_or_equal)
+				return false;
+			break;
+		case greater:
+			if (oth.o!=less)
+				return false;
+			break;
+		case greater_or_equal:
+			if (oth.o!=less_or_equal)
+				return false;
+			break;
+	}
+	return lh.is_equal(oth.rh) && rh.is_equal(oth.lh);
+}
+
 
 //////////
 // new virtual functions which can be overridden by derived classes
@@ -246,20 +339,20 @@ relational::operator bool() const
 		return o==not_equal ? true : false;
 	
 	switch (o) {
-	case equal:
-		return ex_to<numeric>(df).is_zero();
-	case not_equal:
-		return !ex_to<numeric>(df).is_zero();
-	case less:
-		return ex_to<numeric>(df)<_num0;
-	case less_or_equal:
-		return ex_to<numeric>(df)<=_num0;
-	case greater:
-		return ex_to<numeric>(df)>_num0;
-	case greater_or_equal:
-		return ex_to<numeric>(df)>=_num0;
-	default:
-		throw(std::logic_error("invalid relational operator"));
+		case equal:
+			return ex_to<numeric>(df).is_zero();
+		case not_equal:
+			return !ex_to<numeric>(df).is_zero();
+		case less:
+			return ex_to<numeric>(df)<_num0;
+		case less_or_equal:
+			return ex_to<numeric>(df)<=_num0;
+		case greater:
+			return ex_to<numeric>(df)>_num0;
+		case greater_or_equal:
+			return ex_to<numeric>(df)>=_num0;
+		default:
+			throw(std::logic_error("invalid relational operator"));
 	}
 }
 

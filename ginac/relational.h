@@ -63,6 +63,8 @@ protected:
 	bool match_same_type(const basic & other) const;
 	unsigned return_type(void) const;
 	unsigned return_type_tinfo(void) const;
+	bool is_equal_same_type(const basic & other) const;
+	unsigned calchash(void) const;
 
 	// new virtual functions which can be overridden by derived classes
 public:
