@@ -2983,11 +2983,18 @@ non-commutative expressions).
 @cindex @code{clifford} (class)
 @subsection Clifford algebra
 
+
+Clifford algebras are supported in two flavours: Dirac gamma
+matrices (more physical) and generic Clifford algebras (more
+mathematical). 
+
 @cindex @code{dirac_gamma()}
-Clifford algebra elements (also called Dirac gamma matrices, although GiNaC
-doesn't treat them as matrices) are designated as @samp{gamma~mu} and satisfy
-@samp{gamma~mu*gamma~nu + gamma~nu*gamma~mu = 2*eta~mu~nu} where @samp{eta~mu~nu}
-is the Minkowski metric tensor. Dirac gammas are constructed by the function
+@subsubsection Dirac gamma matrices
+Dirac gamma matrices (note that GiNaC doesn't treat them
+as matrices) are designated as @samp{gamma~mu} and satisfy
+@samp{gamma~mu*gamma~nu + gamma~nu*gamma~mu = 2*eta~mu~nu} where
+@samp{eta~mu~nu} is the Minkowski metric tensor. Dirac gammas are
+constructed by the function
 
 @example
 ex dirac_gamma(const ex & mu, unsigned char rl = 0);
@@ -3159,6 +3166,182 @@ You can use this to compare two expressions or for further simplifications:
      // -> 2*ONE*eta~mu~nu
 @}
 @end example
+
+@cindex @code{clifford_unit()}
+@subsubsection A generic Clifford algebra
+
+A generic Clifford algebra, i.e. a
+@tex
+$2^n$
+@end tex
+dimensional algebra with
+generators @samp{e~k} satisfying the identities 
+@samp{e~i e~j + e~j e~i = B(i, j)} for some symmetric matrix (@code{metric})
+@math{B(i, j)}. Such generators are created by the function
+
+@example
+    ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl = 0);
+@end example
+
+where @code{mu} should be a @code{varidx} class object indexing the
+generators, @code{metr} defines the metric @math{B(i, j)} and can be
+represented by a square @code{matrix}, @code{tensormetric} or @code{indexed} class
+object, optional parameter @code{rl} allows to distinguish different
+Clifford algebras (which will commute with each other). Note that the call
+@code{clifford_unit(mu, minkmetric())} creates something very close to
+@code{dirac_gamma(mu)}. The method @code{clifford::get_metric()} returns a
+metric defining this Clifford number.
+
+Individual generators of a Clifford algebra can be accessed in several
+ways. For example 
+
+@example
+@{
+    ... 
+    varidx nu(symbol("nu"), 3);
+    matrix M(3, 3) = 1, 0, 0,
+                     0,-1, 0,
+                     0, 0, 0;
+    ex e = clifford_unit(nu, M);
+    ex e0 = e.subs(nu == 0);
+    ex e1 = e.subs(nu == 1);
+    ex e2 = e.subs(nu == 2);
+    ...
+@}
+@end example
+
+will produce three generators of a Clifford algebra with properties
+@code{pow(e0, 2) = 1},  @code{pow(e1, 2) = -1} and   @code{pow(e2, 2) = 0}. 
+
+@cindex @code{lst_to_clifford()}
+A similar effect can be achieved from the function
+
+@example
+    ex lst_to_clifford(const ex & v, const ex & mu,  const ex & metr,
+                       unsigned char rl = 0);
+@end example
+
+which converts a list or vector @samp{v = (v~0, v~1, ..., v~n)} into
+the Clifford number @samp{v~0 e.0 + v~1 e.1 + ... + v~n e.n} with @samp{e.k}
+being created by @code{clifford_unit(mu, metr, rl)}. The previous code
+may be rewritten with the help of @code{lst_to_clifford()} as follows
+
+@example
+@{
+    ...
+    varidx nu(symbol("nu"), 3);
+    matrix M(3, 3) = 1, 0, 0,
+                     0,-1, 0,
+                     0, 0, 0;
+    ex e0 = lst_to_clifford(lst(1, 0, 0), nu, M);
+    ex e1 = lst_to_clifford(lst(0, 1, 0), nu, M);
+    ex e2 = lst_to_clifford(lst(0, 0, 1), nu, M);
+  ...
+@}
+@end example
+
+@cindex @code{clifford_to_lst()}
+There is the inverse function 
+
+@example
+    lst clifford_to_lst(const ex & e, const ex & c, bool algebraic = true);
+@end example
+
+which takes an expression @code{e} and tries to find a list
+@samp{v = (v~0, v~1, ..., v~n)} such that @samp{e = v~0 c.0 + v~1 c.1 + ...
++ v~n c.n} with respect to the given Clifford units @code{c} and none of
+@samp{v~k} contains the Clifford units @code{c} (of course, this
+may be impossible). This function can use an @code{algebraic} method
+(default) or a symbolic one. With the @code{algebraic} method @samp{v~k} are calculated as
+@samp{(e c.k + c.k e)/pow(c.k, 2)}.  If @samp{pow(c.k, 2) = 0} for some @samp{k}
+then the method will be automatically changed to symbolic. The same effect
+is obtained by the assignment (@code{algebraic = false}) in the procedure call.
+
+@cindex @code{clifford_prime()}
+@cindex @code{clifford_star()}
+@cindex @code{clifford_bar()}
+There are several functions for (anti-)automorphisms of Clifford algebras:
+
+@example
+    ex clifford_prime(const ex & e)
+    inline ex clifford_star(const ex & e) @{ return e.conjugate(); @}
+    inline ex clifford_bar(const ex & e) @{ return clifford_prime(e.conjugate()); @}
+@end example
+
+The automorphism of a Clifford algebra @code{clifford_prime()} simply
+changes signs of all Clifford units in the expression. The reversion
+of a Clifford algebra @code{clifford_star()} coincides with the
+@code{conjugate()} method and effectively reverses the order of Clifford
+units in any product. Finally the main anti-automorphism
+of a Clifford algebra @code{clifford_bar()} is the composition of the
+previous two, i.e. it makes the reversion and changes signs of all Clifford units
+in a product. These functions correspond to the notations
+@math{e'},
+@tex
+$e^*$
+@end tex
+and
+@tex
+$\overline{e}$
+@end tex
+used in Clifford algebra textbooks.
+
+@cindex @code{clifford_norm()}
+The function
+
+@example
+    ex clifford_norm(const ex & e);
+@end example
+
+@cindex @code{clifford_inverse()}
+calculates the norm of a Clifford number from the expression
+@tex
+$||e||^2 = e\overline{e}$
+@end tex
+. The inverse of a Clifford expression is returned
+by the function
+
+@example
+    ex clifford_inverse(const ex & e);
+@end example
+
+which calculates it as 
+@tex
+$e^{-1} = e/||e||^2$
+@end tex
+. If
+@tex
+$||e|| = 0$
+@end tex
+then an exception is raised.
+
+@cindex @code{remove_dirac_ONE()}
+If a Clifford number happens to be a factor of
+@code{dirac_ONE()} then we can convert it to a ``real'' (non-Clifford)
+expression by the function
+
+@example
+    ex remove_dirac_ONE(const ex & e);
+@end example
+
+@cindex @code{canonicalize_clifford()}
+The function @code{canonicalize_clifford()} works for a
+generic Clifford algebra in a similar way as for Dirac gammas.
+
+The last provided function is
+
+@cindex @code{clifford_moebius_map()}
+@example
+    ex clifford_moebius_map(const ex & a, const ex & b, const ex & c,
+                            const ex & d, const ex & v, const ex & G);
+@end example 
+
+It takes a list or vector @code{v} and makes the Moebius
+(conformal or linear-fractional) transformation @samp{v ->
+(av+b)/(cv+d)} defined by the matrix @samp{[[a, b], [c, d]]}. The last
+parameter @code{G} defines the metric of the surrounding
+(pseudo-)Euclidean space. The returned value of this function is a list
+of components of the resulting vector.
 
 
 @cindex @code{color} (class)
