@@ -165,6 +165,8 @@ inline const matrix &ex_to_matrix(const ex &e)
 	return static_cast<const matrix &>(*e.bp);
 }
 
+extern ex lst_to_matrix(const ex &l);
+
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
 #endif // ndef NO_NAMESPACE_GINAC

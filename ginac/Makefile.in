@@ -82,6 +82,7 @@ GINACLIB_MINOR_VERSION = @GINACLIB_MINOR_VERSION@
 GINACLIB_VERSION = @GINACLIB_VERSION@
 GINSH_LIBS = @GINSH_LIBS@
 LATEX = @LATEX@
+LD = @LD@
 LEX = @LEX@
 LIBGINACCINT = @LIBGINACCINT@
 LIBTERMCAP = @LIBTERMCAP@
@@ -95,6 +96,7 @@ MAINT = @MAINT@
 MAKECINT = @MAKECINT@
 MAKEINDEX = @MAKEINDEX@
 MAKEINFO = @MAKEINFO@
+NM = @NM@
 OBJDUMP = @OBJDUMP@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
@@ -104,14 +106,16 @@ VERSION = @VERSION@
 YACC = @YACC@
 
 lib_LTLIBRARIES = libginac.la
-libginac_la_SOURCES = add.cpp archive.cpp basic.cpp constant.cpp ex.cpp   expairseq.cpp exprseq.cpp fail.cpp function.cpp inifcns.cpp   inifcns_trans.cpp inifcns_zeta.cpp inifcns_gamma.cpp matrix.cpp mul.cpp   normal.cpp numeric.cpp operators.cpp power.cpp registrar.cpp relational.cpp   symbol.cpp pseries.cpp utils.cpp ncmul.cpp clifford.cpp structure.cpp   color.cpp indexed.cpp idx.cpp isospin.cpp exprseq_suppl.cpp lst.cpp   lst_suppl.cpp simp_lor.cpp coloridx.cpp lorentzidx.cpp lortensor.cpp   remember.h remember.cpp debugmsg.h utils.h 
+libginac_la_SOURCES = add.cpp archive.cpp basic.cpp constant.cpp ex.cpp   expairseq.cpp exprseq.cpp fail.cpp function.cpp inifcns.cpp   inifcns_trans.cpp inifcns_zeta.cpp inifcns_gamma.cpp matrix.cpp mul.cpp   normal.cpp numeric.cpp operators.cpp power.cpp registrar.cpp relational.cpp   symbol.cpp pseries.cpp utils.cpp ncmul.cpp clifford.cpp structure.cpp   color.cpp indexed.cpp idx.cpp isospin.cpp exprseq_suppl.cpp lst.cpp   lst_suppl.cpp simp_lor.cpp coloridx.cpp lorentzidx.cpp lortensor.cpp   input_parser.yy input_lexer.ll input_lexer.h   remember.h remember.cpp debugmsg.h utils.h 
 
 libginac_la_LDFLAGS = -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)   -release $(LT_RELEASE)
 
 ginacincludedir = $(includedir)/ginac
 ginacinclude_HEADERS = ginac.h add.h archive.h basic.h clifford.h color.h   coloridx.h constant.h ex.h expair.h expairseq.h exprseq.h fail.h flags.h   function.h idx.h indexed.h inifcns.h isospin.h lorentzidx.h lst.h matrix.h   mul.h ncmul.h normal.h numeric.h operators.h power.h registrar.h   relational.h pseries.h simp_lor.h structure.h symbol.h lortensor.h tinfos.h   assertion.h
 
-EXTRA_DIST = container.pl function.pl structure.pl
+LFLAGS = -olex.yy.c
+YFLAGS = -d
+EXTRA_DIST = container.pl function.pl structure.pl input_parser.h
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES =  version.h
@@ -129,12 +133,14 @@ inifcns_zeta.lo inifcns_gamma.lo matrix.lo mul.lo normal.lo numeric.lo \
 operators.lo power.lo registrar.lo relational.lo symbol.lo pseries.lo \
 utils.lo ncmul.lo clifford.lo structure.lo color.lo indexed.lo idx.lo \
 isospin.lo exprseq_suppl.lo lst.lo lst_suppl.lo simp_lor.lo coloridx.lo \
-lorentzidx.lo lortensor.lo remember.lo
+lorentzidx.lo lortensor.lo input_parser.lo input_lexer.lo remember.lo
 CXXFLAGS = @CXXFLAGS@
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@
+LEX_OUTPUT_ROOT = @LEX_OUTPUT_ROOT@
+LEXLIB = @LEXLIB@
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -142,7 +148,8 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
 HEADERS =  $(ginacinclude_HEADERS)
 
-DIST_COMMON =  Makefile.am Makefile.in version.h.in
+DIST_COMMON =  Makefile.am Makefile.in input_lexer.cc input_parser.cc \
+version.h.in
 
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
@@ -154,17 +161,18 @@ DEP_FILES =  .deps/add.P .deps/archive.P .deps/basic.P .deps/clifford.P \
 .deps/expairseq.P .deps/exprseq.P .deps/exprseq_suppl.P .deps/fail.P \
 .deps/function.P .deps/idx.P .deps/indexed.P .deps/inifcns.P \
 .deps/inifcns_gamma.P .deps/inifcns_trans.P .deps/inifcns_zeta.P \
-.deps/isospin.P .deps/lorentzidx.P .deps/lortensor.P .deps/lst.P \
-.deps/lst_suppl.P .deps/matrix.P .deps/mul.P .deps/ncmul.P \
-.deps/normal.P .deps/numeric.P .deps/operators.P .deps/power.P \
-.deps/pseries.P .deps/registrar.P .deps/relational.P .deps/remember.P \
-.deps/simp_lor.P .deps/structure.P .deps/symbol.P .deps/utils.P
+.deps/input_lexer.P .deps/input_parser.P .deps/isospin.P \
+.deps/lorentzidx.P .deps/lortensor.P .deps/lst.P .deps/lst_suppl.P \
+.deps/matrix.P .deps/mul.P .deps/ncmul.P .deps/normal.P .deps/numeric.P \
+.deps/operators.P .deps/power.P .deps/pseries.P .deps/registrar.P \
+.deps/relational.P .deps/remember.P .deps/simp_lor.P .deps/structure.P \
+.deps/symbol.P .deps/utils.P
 SOURCES = $(libginac_la_SOURCES)
 OBJECTS = $(libginac_la_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
-.SUFFIXES: .S .c .cpp .lo .o .s
+.SUFFIXES: .S .c .cc .cpp .ll .lo .o .s .yy
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
 	cd $(top_srcdir) && $(AUTOMAKE) --gnu ginac/Makefile
 
@@ -234,10 +242,23 @@ maintainer-clean-libtool:
 
 libginac.la: $(libginac_la_OBJECTS) $(libginac_la_DEPENDENCIES)
 	$(CXXLINK) -rpath $(libdir) $(libginac_la_LDFLAGS) $(libginac_la_OBJECTS) $(libginac_la_LIBADD) $(LIBS)
+.cc.o:
+	$(CXXCOMPILE) -c $<
+.cc.lo:
+	$(LTCXXCOMPILE) -c $<
 .cpp.o:
 	$(CXXCOMPILE) -c $<
 .cpp.lo:
 	$(LTCXXCOMPILE) -c $<
+.ll.cc:
+	$(LEX) $(AM_LFLAGS) $(LFLAGS) $< && mv $(LEX_OUTPUT_ROOT).c $@
+.yy.cc:
+	$(YACC) $(AM_YFLAGS) $(YFLAGS) $< && mv y.tab.c $*.cc
+	if test -f y.tab.h; then \
+	if cmp -s y.tab.h $*.h; then rm -f y.tab.h; else mv y.tab.h $*.h; fi; \
+	else :; fi
+input_parser.hh: input_parser.cc
+
 
 install-ginacincludeHEADERS: $(ginacinclude_HEADERS)
 	@$(NORMAL_INSTALL)
@@ -336,6 +357,25 @@ maintainer-clean-depend:
 	    >> .deps/$(*F).P; \
 	rm -f .deps/$(*F).pp
 
+%.o: %.cc
+	@echo '$(CXXCOMPILE) -c $<'; \
+	$(CXXCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-cp .deps/$(*F).pp .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm .deps/$(*F).pp
+
+%.lo: %.cc
+	@echo '$(LTCXXCOMPILE) -c $<'; \
+	$(LTCXXCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-sed -e 's/^\([^:]*\)\.o[ 	]*:/\1.lo \1.o :/' \
+	  < .deps/$(*F).pp > .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm -f .deps/$(*F).pp
+
 %.o: %.cpp
 	@echo '$(CXXCOMPILE) -c $<'; \
 	$(CXXCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
@@ -390,6 +430,7 @@ distclean-generic:
 	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
 
 maintainer-clean-generic:
+	-test -z "input_lexerllinput_parserhhinput_parsercc" || rm -f input_lexerll input_parserhh input_parsercc
 mostlyclean-am:  mostlyclean-libLTLIBRARIES mostlyclean-compile \
 		mostlyclean-libtool mostlyclean-tags mostlyclean-depend \
 		mostlyclean-generic

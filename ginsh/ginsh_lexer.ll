@@ -1,8 +1,9 @@
 /** @file ginsh_lexer.ll
  *
  *  Lexical analyzer definition for ginsh.
- *  This file must be processed with flex.
- *
+ *  This file must be processed with flex. */
+
+/*
  *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

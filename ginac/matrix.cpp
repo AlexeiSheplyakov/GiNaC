@@ -26,9 +26,10 @@
 
 #include "matrix.h"
 #include "archive.h"
+#include "numeric.h"
+#include "lst.h"
 #include "utils.h"
 #include "debugmsg.h"
-#include "numeric.h"
 
 #ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
@@ -1216,6 +1217,29 @@ int matrix::pivot(unsigned ro, bool symbolic)
         return k;
     }
     return 0;
+}
+
+/** Convert list of lists to matrix. */
+ex lst_to_matrix(const ex &l)
+{
+	if (!is_ex_of_type(l, lst))
+		throw(std::invalid_argument("argument to lst_to_matrix() must be a lst"));
+
+	// Find number of rows and columns
+	unsigned rows = l.nops(), cols = 0, i, j;
+	for (i=0; i<rows; i++)
+		if (l.op(i).nops() > cols)
+			cols = l.op(i).nops();
+
+	// Allocate and fill matrix
+	matrix &m = *new matrix(rows, cols);
+	for (i=0; i<rows; i++)
+		for (j=0; j<cols; j++)
+			if (l.op(i).nops() > j)
+				m.set(i, j, l.op(i).op(j));
+			else
+				m.set(i, j, ex(0));
+	return m;
 }
 
 //////////

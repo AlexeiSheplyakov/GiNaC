@@ -1,8 +1,9 @@
 /** @file ginsh_parser.yy
  *
  *  Input grammar definition for ginsh.
- *  This file must be processed with yacc/bison.
- *
+ *  This file must be processed with yacc/bison. */
+
+/*
  *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -38,6 +39,8 @@
 #include <stdexcept>
 
 #include "ginsh.h"
+
+#define YYERROR_VERBOSE 1
 
 // Original readline settings
 static int orig_completion_append_character;
@@ -77,8 +80,6 @@ static help_tab help;
 
 static void print_help(const string &topic);
 static void print_help_topics(void);
-
-static ex lst2matrix(const ex &l);
 %}
 
 /* Tokens (T_LITERAL means a literal value returned by the parser, but not
@@ -206,7 +207,7 @@ exp	: T_NUMBER		{$$ = $1;}
 	| exp '!'		{$$ = factorial($1);}
 	| '(' exp ')'		{$$ = $2;}
 	| '[' list_or_empty ']'	{$$ = $2;}
-	| T_MATRIX_BEGIN matrix T_MATRIX_END	{$$ = lst2matrix($2);}
+	| T_MATRIX_BEGIN matrix T_MATRIX_END	{$$ = lst_to_matrix($2);}
 	;
 
 exprseq	: exp			{$$ = exprseq($1);}
@@ -654,33 +655,6 @@ static void print_help_topics(void)
 
 
 /*
- *  Convert list of lists to matrix
- */
-
-static ex lst2matrix(const ex &l)
-{
-	if (!is_ex_of_type(l, lst))
-		throw(std::logic_error("internal error: argument to lst2matrix() is not a list"));
-
-	// Find number of rows and columns
-	unsigned rows = l.nops(), cols = 0, i, j;
-	for (i=0; i<rows; i++)
-		if (l.op(i).nops() > cols)
-			cols = l.op(i).nops();
-
-	// Allocate and fill matrix
-	matrix &m = *new matrix(rows, cols);
-	for (i=0; i<rows; i++)
-		for (j=0; j<cols; j++)
-			if (l.op(i).nops() > j)
-				m.set(i, j, l.op(i).op(j));
-			else
-				m.set(i, j, ex(0));
-	return m;
-}
-
-
-/*
  *  Function name completion functions for readline
  */
 
@@ -733,6 +707,7 @@ void greeting(void)
 /*
  *  Main program
  */
+
 int main(int argc, char **argv)
 {
 	// Print banner in interactive mode

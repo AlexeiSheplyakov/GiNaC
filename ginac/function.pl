@@ -498,6 +498,7 @@ protected:
     void store_remember_table(ex const & result) const;
 public:
     static unsigned register_new(function_options const & opt);
+    static unsigned find_function(const string &name, unsigned nparams);
     unsigned getserial(void) const {return serial;}
     
 // member variables
@@ -1112,6 +1113,21 @@ unsigned function::register_new(function_options const & opt)
         remember_table::remember_tables().push_back(remember_table());
     }
     return registered_functions().size()-1;
+}
+
+/** Find serial number of function by name and number of parameters.
+ *  Throws exception if function was not found. */
+unsigned function::find_function(const string &name, unsigned nparams)
+{
+    vector<function_options>::const_iterator i = function::registered_functions().begin(), end = function::registered_functions().end();
+    unsigned serial = 0;
+    while (i != end) {
+        if (i->get_name() == name && i->get_nparams() == nparams)
+            return serial;
+        i++;
+        serial++;
+    }
+    throw (std::runtime_error("no function '" + name + "' with " + ToString(nparams) + " parameters defined"));
 }
 
 //////////
