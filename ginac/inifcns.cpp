@@ -517,24 +517,35 @@ static ex symm(const ex & e, exvector::const_iterator first, exvector::const_ite
 	if (num < 2)
 		return e;
 
-	// Sort object vector, transform it into a list, and make a copy so we
-	// will know which objects get substituted for which
+	// Transform object vector to a list
 	exlist iv_lst;
 	iv_lst.insert(iv_lst.begin(), first, last);
-	shaker_sort(iv_lst.begin(), iv_lst.end(), ex_is_less());
-	lst orig_lst(iv_lst);
+	lst orig_lst(iv_lst, true);
+
+	// Create index vectors for permutation
+	unsigned *iv = new unsigned[num], *iv2;
+	for (unsigned i=0; i<num; i++)
+		iv[i] = i;
+	iv2 = (asymmetric ? new unsigned[num] : NULL);
 
 	// Loop over all permutations (the first permutation, which is the
 	// identity, is unrolled)
 	ex sum = e;
-	while (next_permutation(iv_lst.begin(), iv_lst.end(), ex_is_less())) {
-		ex term = e.subs(orig_lst, lst(iv_lst));
+	while (std::next_permutation(iv, iv + num)) {
+		lst new_lst;
+		for (unsigned i=0; i<num; i++)
+			new_lst.append(orig_lst.op(iv[i]));
+		ex term = e.subs(orig_lst, new_lst);
 		if (asymmetric) {
-			exlist test_lst = iv_lst;
-			term *= permutation_sign(test_lst.begin(), test_lst.end(), ex_is_less());
+			memcpy(iv2, iv, num * sizeof(unsigned));
+			term *= permutation_sign(iv2, iv2 + num);
 		}
 		sum += term;
 	}
+
+	delete[] iv;
+	delete[] iv2;
+
 	return sum / factorial(numeric(num));
 }
 
@@ -546,6 +557,30 @@ ex symmetrize(const ex & e, exvector::const_iterator first, exvector::const_iter
 ex antisymmetrize(const ex & e, exvector::const_iterator first, exvector::const_iterator last)
 {
 	return symm(e, first, last, true);
+}
+
+ex symmetrize_cyclic(const ex & e, exvector::const_iterator first, exvector::const_iterator last)
+{
+	// Need at least 2 objects for this operation
+	int num = last - first;
+	if (num < 2)
+		return e;
+
+	// Transform object vector to a list
+	exlist iv_lst;
+	iv_lst.insert(iv_lst.begin(), first, last);
+	lst orig_lst(iv_lst, true);
+	lst new_lst = orig_lst;
+
+	// Loop over all cyclic permutations (the first permutation, which is
+	// the identity, is unrolled)
+	ex sum = e;
+	for (unsigned i=0; i<num-1; i++) {
+		ex perm = new_lst.op(0);
+		new_lst.remove_first().append(perm);
+		sum += e.subs(orig_lst, new_lst);
+	}
+	return sum / num;
 }
 
 /** Symmetrize expression over a list of objects (symbols, indices). */
@@ -566,6 +601,17 @@ ex ex::antisymmetrize(const lst & l) const
 	for (unsigned i=0; i<l.nops(); i++)
 		v.push_back(l.op(i));
 	return symm(*this, v.begin(), v.end(), true);
+}
+
+/** Symmetrize expression by cyclic permutation over a list of objects
+ *  (symbols, indices). */
+ex ex::symmetrize_cyclic(const lst & l) const
+{
+	exvector v;
+	v.reserve(l.nops());
+	for (unsigned i=0; i<l.nops(); i++)
+		v.push_back(l.op(i));
+	return GiNaC::symmetrize_cyclic(*this, v.begin(), v.end());
 }
 
 /** Force inclusion of functions from initcns_gamma and inifcns_zeta

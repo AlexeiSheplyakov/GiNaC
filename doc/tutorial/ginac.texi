@@ -1135,6 +1135,8 @@ canonical form.
 @cindex @code{op()}
 @cindex @code{append()}
 @cindex @code{prepend()}
+@cindex @code{remove_first()}
+@cindex @code{remove_last()}
 
 The GiNaC class @code{lst} serves for holding a @dfn{list} of arbitrary
 expressions. These are sometimes used to supply a variable number of
@@ -1162,13 +1164,23 @@ a list and the @code{op()} method to access individual elements:
     // ...
 @end example
 
-Finally you can append or prepend an expression to a list with the
-@code{append()} and @code{prepend()} methods:
+You can append or prepend an expression to a list with the @code{append()}
+and @code{prepend()} methods:
 
 @example
     // ...
     l.append(4*x);   // l is now @{x, 2, y, x+y, 4*x@}
     l.prepend(0);    // l is now @{0, x, 2, y, x+y, 4*x@}
+    // ...
+@end example
+
+Finally you can remove the first or last element of a list with
+@code{remove_first()} and @code{remove_last()}:
+
+@example
+    // ...
+    l.remove_first();   // l is now @{x, 2, y, x+y, 4*x@}
+    l.remove_last();    // l is now @{x, 2, y, x+y@}
 @}
 @end example
 
@@ -3541,23 +3553,26 @@ program, it will type out:
 @section Symmetrization
 @cindex @code{symmetrize()}
 @cindex @code{antisymmetrize()}
+@cindex @code{symmetrize_cyclic()}
 
-The two methods
+The three methods
 
 @example
 ex ex::symmetrize(const lst & l);
 ex ex::antisymmetrize(const lst & l);
+ex ex::symmetrize_cyclic(const lst & l);
 @end example
 
-symmetrize an expression by returning the symmetric or antisymmetric sum
-over all permutations of the specified list of objects, weighted by the
-number of permutations.
+symmetrize an expression by returning the sum over all symmetric,
+antisymmetric or cyclic permutations of the specified list of objects,
+weighted by the number of permutations.
 
-The two additional methods
+The three additional methods
 
 @example
 ex ex::symmetrize();
 ex ex::antisymmetrize();
+ex ex::symmetrize_cyclic();
 @end example
 
 symmetrize or antisymmetrize an expression over its free indices.
@@ -3574,8 +3589,8 @@ almost any kind of object (anything that is @code{subs()}able):
      // -> 1/2*A.j.i+1/2*A.i.j
     cout << indexed(A, i, j, k).antisymmetrize(lst(i, j)) << endl;
      // -> -1/2*A.j.i.k+1/2*A.i.j.k
-    cout << lst(a, b, c).symmetrize(lst(a, b, c)) << endl;
-     // -> 1/6*@{a,b,c@}+1/6*@{c,a,b@}+1/6*@{b,a,c@}+1/6*@{c,b,a@}+1/6*@{b,c,a@}+1/6*@{a,c,b@}
+    cout << lst(a, b, c).symmetrize_cyclic(lst(a, b, c)) << endl;
+     // -> 1/3*@{a,b,c@}+1/3*@{b,c,a@}+1/3*@{c,a,b@}
 @}
 @end example
 
@@ -4588,7 +4603,7 @@ cout << e << endl;
  // -> "GiNaC rulez"+"Hello, world!"
 @end example
 
-(note that GiNaC's automatic term reordering is in effect here), or even
+(GiNaC's automatic term reordering is in effect here), or even
 
 @example
 e = pow(mystring("One string"), 2*sin(Pi-mystring("Another string")));

@@ -119,6 +119,8 @@ public:
 	ex symmetrize(const lst & l) const;
 	ex antisymmetrize(void) const;
 	ex antisymmetrize(const lst & l) const;
+	ex symmetrize_cyclic(void) const;
+	ex symmetrize_cyclic(const lst & l) const;
 	ex simplify_ncmul(const exvector & v) const { return bp->simplify_ncmul(v); }
 	ex operator[](const ex & index) const;
 	ex operator[](int i) const;
@@ -411,6 +413,12 @@ inline ex antisymmetrize(const ex & thisex)
 
 inline ex antisymmetrize(const ex & thisex, const lst & l)
 { return thisex.antisymmetrize(l); }
+
+inline ex symmetrize_cyclic(const ex & thisex)
+{ return thisex.symmetrize_cyclic(); }
+
+inline ex symmetrize_cyclic(const ex & thisex, const lst & l)
+{ return thisex.symmetrize_cyclic(l); }
 
 inline ex op(const ex & thisex, int i)
 { return thisex.op(i); }

@@ -283,6 +283,39 @@ void shaker_sort(It first, It last, Cmp comp)
 	} while (first != last);
 }
 
+/* In-place cyclic permutation of a container (no copying, only swapping). */
+template <class It>
+void cyclic_permutation(It first, It last, It new_first)
+{
+	unsigned num = last - first;
+again:
+	if (first == new_first || num < 2)
+		return;
+
+	unsigned num1 = new_first - first, num2 = last - new_first;
+	if (num1 >= num2) {
+		It a = first, b = new_first;
+		while (b != last) {
+			std::iter_swap(a, b);
+			++a; ++b;
+		}
+		if (num1 > num2) {
+			first += num2;
+			num = num1;
+			goto again;
+		}
+	} else {
+		It a = new_first, b = last;
+		do {
+			--a; --b;
+			std::iter_swap(a, b);
+		} while (a != first);
+		last -= num1;
+		num = num2;
+		goto again;
+	}
+}
+
 /* Function objects for STL sort() etc. */
 struct ex_is_less : public std::binary_function<ex, ex, bool> {
 	bool operator() (const ex &lh, const ex &rh) const { return lh.compare(rh) < 0; }

@@ -852,6 +852,12 @@ ex ex::antisymmetrize(void) const
 	return GiNaC::antisymmetrize(*this, get_free_indices());
 }
 
+/** Symmetrize expression by cyclic permutation over its free indices. */
+ex ex::symmetrize_cyclic(void) const
+{
+	return GiNaC::symmetrize_cyclic(*this, get_free_indices());
+}
+
 //////////
 // helper classes
 //////////

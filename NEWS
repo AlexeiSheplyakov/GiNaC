@@ -1,5 +1,9 @@
 This file records noteworthy changes.
 
+0.9.1 (<date>)
+* Added remove_first() and remove_last() methods for lists.
+* Added symmetrize_cyclic().
+
 0.9.0 (7 June 2001)
 * In the output and in ginsh, lists are now delimited by { } braces, and
   matrices are delimited by single [ ] brackets.

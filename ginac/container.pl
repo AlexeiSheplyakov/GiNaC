@@ -54,6 +54,7 @@ if ($reserve) {
 if ($prepend) {
 	$PREPEND_INTERFACE=<<END_OF_PREPEND_INTERFACE;
 	virtual ${CONTAINER} & prepend(const ex & b);
+	virtual ${CONTAINER} & remove_first(void);
 END_OF_PREPEND_INTERFACE
 
 	$PREPEND_IMPLEMENTATION=<<END_OF_PREPEND_IMPLEMENTATION;
@@ -61,6 +62,12 @@ ${CONTAINER} & ${CONTAINER}::prepend(const ex & b)
 {
 	ensure_if_modifiable();
 	seq.push_front(b);
+	return *this;
+}
+${CONTAINER} & ${CONTAINER}::remove_first(void)
+{
+	ensure_if_modifiable();
+	seq.pop_front();
 	return *this;
 }
 END_OF_PREPEND_IMPLEMENTATION
@@ -217,6 +224,7 @@ protected:
 	// new virtual functions which can be overridden by derived classes
 public:
 	virtual ${CONTAINER} & append(const ex & b);
+	virtual ${CONTAINER} & remove_last(void);
 ${PREPEND_INTERFACE}
 protected:
 	virtual void printseq(const print_context & c, char openbracket, char delim,
@@ -537,6 +545,13 @@ ${CONTAINER} & ${CONTAINER}::append(const ex & b)
 {
 	ensure_if_modifiable();
 	seq.push_back(b);
+	return *this;
+}
+
+${CONTAINER} & ${CONTAINER}::remove_last(void)
+{
+	ensure_if_modifiable();
+	seq.pop_back();
 	return *this;
 }
 

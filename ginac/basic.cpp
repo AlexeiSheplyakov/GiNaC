@@ -732,6 +732,7 @@ void basic::ensure_if_modifiable(void) const
 {
 	if (this->refcount>1)
 		throw(std::runtime_error("cannot modify multiply referenced object"));
+	clearflag(status_flags::hash_calculated);
 }
 
 //////////

@@ -682,7 +682,6 @@ ex & matrix::operator() (unsigned ro, unsigned co)
 		throw (std::range_error("matrix::operator(): index out of range"));
 
 	ensure_if_modifiable();
-	clearflag(status_flags::hash_calculated);
 	return m[ro*col+co];
 }
 
