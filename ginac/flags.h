@@ -38,10 +38,10 @@ public:
 class subs_options {
 public:
 	enum {
-		// this should be called "no_pattern"...
-		subs_no_pattern = 0x0001,        ///< disable pattern matching
-		// this should be called "algebraic"...
-		subs_algebraic = 0x0002,         ///< enable algebraic substitutions
+		no_pattern = 0x0001,             ///< disable pattern matching
+		subs_no_pattern = 0x0001, // for backwards compatibility
+		algebraic = 0x0002,              ///< enable algebraic substitutions
+		subs_algebraic = 0x0002,  // for backwards compatibility
         pattern_is_product = 0x0004,     ///< used internally by expairseq::subschildren()
         pattern_is_not_product = 0x0008  ///< used internally by expairseq::subschildren()
 	};
