@@ -734,7 +734,7 @@ ex function::eval(int level) const
 	// Canonicalize argument order according to the symmetry properties
 	if (seq.size() > 1 && !(opt.symtree.is_zero())) {
 		exvector v = seq;
-		GINAC_ASSERT(is_of_type<symmetry>(opt.symtree));
+		GINAC_ASSERT(is_a<symmetry>(opt.symtree));
 		int sig = canonicalize(v.begin(), ex_to<symmetry>(opt.symtree));
 		if (sig != INT_MAX) {
 			// Something has changed while sorting arguments, more evaluations later
