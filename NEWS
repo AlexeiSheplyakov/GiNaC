@@ -1,7 +1,8 @@
 This file records noteworthy changes.
 
 0.5.3 (23 February 2000)
-* A more flexible scheme for registering functions was implemented.
+* A more flexible scheme for registering functions was implemented,
+  allowing for remembering, too.
 * Some Bugfixes.
 
 0.5.2 (16 February 2000)
