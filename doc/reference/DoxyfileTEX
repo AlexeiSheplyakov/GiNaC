@@ -582,13 +582,13 @@ COLLABORATION_GRAPH   = YES
 # the direct and indirect include dependencies of the file with other 
 # documented files. 
 
-INCLUDE_GRAPH         = YES
+INCLUDE_GRAPH         = NO
 
 # If the ENABLE_PREPROCESSING, INCLUDED_BY_GRAPH, and HAVE_DOT tags are set to 
 # YES then doxygen will generate a graph for each documented header file showing 
 # the documented files that directly or indirectly include this file 
 
-INCLUDED_BY_GRAPH     = YES
+INCLUDED_BY_GRAPH     = NO
 
 # If the GRAPHICAL_HIERARCHY and HAVE_DOT tags are set to YES then doxygen 
 # will graphical hierarchy of all classes instead of a textual one. 
