@@ -40,6 +40,8 @@ class symbol : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS(symbol, basic)
 
+	friend class realsymbol;
+
 // types
 	
 	/** Symbols as keys to expressions - only for ginsh. */
@@ -54,10 +56,10 @@ class symbol : public basic
 	
 	// other constructors
 public:
-	explicit symbol(const std::string & initname, unsigned domain = symbol_options::complex);
-	symbol(const std::string & initname, const std::string & texname, unsigned domain = symbol_options::complex);
-	symbol(const std::string & initname, unsigned rt, unsigned rtt, unsigned domain = symbol_options::complex);
-	symbol(const std::string & initname, const std::string & texname, unsigned rt, unsigned rtt, unsigned domain = symbol_options::complex);
+	explicit symbol(const std::string & initname, unsigned domain = domain::complex);
+	symbol(const std::string & initname, const std::string & texname, unsigned domain = domain::complex);
+	symbol(const std::string & initname, unsigned rt, unsigned rtt, unsigned domain = domain::complex);
+	symbol(const std::string & initname, const std::string & texname, unsigned rt, unsigned rtt, unsigned domain = domain::complex);
 	
 	// functions overriding virtual functions from base classes
 public:
@@ -83,7 +85,6 @@ public:
 	void unassign();
 	void set_name(const std::string & n) { name = n; }
 	std::string get_name() const { return name; }
-	unsigned get_domain() const { return domain; }
 protected:
 	void do_print(const print_context & c, unsigned level) const;
 	void do_print_latex(const print_latex & c, unsigned level) const;
@@ -108,12 +109,31 @@ private:
 };
 
 
+/** Specialization of symbol to real domain */
+class realsymbol : public symbol
+{
+	// constructors
+public:
+	realsymbol();
+	explicit realsymbol(const std::string & initname, unsigned domain = domain::real);
+	realsymbol(const std::string & initname, const std::string & texname, unsigned domain = domain::real);
+	realsymbol(const std::string & initname, unsigned rt, unsigned rtt, unsigned domain = domain::real);
+	realsymbol(const std::string & initname, const std::string & texname, unsigned rt, unsigned rtt, unsigned domain = domain::real);
+};
+
+
 // utility functions
 
 /** Specialization of is_exactly_a<symbol>(obj) for symbol objects. */
 template<> inline bool is_exactly_a<symbol>(const basic & obj)
 {
-	return obj.tinfo()==TINFO_symbol;
+	return (obj.tinfo() == TINFO_symbol) && obj.info(info_flags::real);
+}
+
+/** Specialization of is_exactly_a<realsymbol>(obj) for realsymbol objects. */
+template<> inline bool is_exactly_a<realsymbol>(const basic & obj)
+{
+	return (obj.tinfo() == TINFO_symbol) && obj.info(info_flags::real);
 }
 
 // wrapper functions around member functions

@@ -42,10 +42,19 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(symbol, basic,
 // default constructor
 //////////
 
+// symbol
+
 symbol::symbol()
- : inherited(TINFO_symbol), asexinfop(new assigned_ex_info), serial(next_serial++), name(autoname_prefix() + ToString(serial)), TeX_name(name), ret_type(return_types::commutative), ret_type_tinfo(TINFO_symbol), domain(symbol_options::complex)
+ : inherited(TINFO_symbol), asexinfop(new assigned_ex_info), serial(next_serial++), name(autoname_prefix() + ToString(serial)), TeX_name(name), ret_type(return_types::commutative), ret_type_tinfo(TINFO_symbol), domain(domain::complex)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
+}
+
+// realsymbol
+
+realsymbol::realsymbol()
+{
+	domain = domain::real;
 }
 
 //////////
@@ -53,6 +62,8 @@ symbol::symbol()
 //////////
 
 // public
+
+// symbol
 
 symbol::symbol(const std::string & initname, unsigned domain)
  : inherited(TINFO_symbol), asexinfop(new assigned_ex_info), serial(next_serial++), name(initname), TeX_name(default_TeX_name()), ret_type(return_types::commutative), ret_type_tinfo(TINFO_symbol), domain(domain)
@@ -78,6 +89,20 @@ symbol::symbol(const std::string & initname, const std::string & texname, unsign
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
+// realsymbol
+	
+realsymbol::realsymbol(const std::string & initname, unsigned domain)
+ : symbol(initname, domain) { }
+
+realsymbol::realsymbol(const std::string & initname, const std::string & texname, unsigned domain)
+ : symbol(initname, texname, domain) { }
+
+realsymbol::realsymbol(const std::string & initname, unsigned rt, unsigned rtt, unsigned domain)
+ : symbol(initname, rt, rtt, domain) { }
+
+realsymbol::realsymbol(const std::string & initname, const std::string & texname, unsigned rt, unsigned rtt, unsigned domain)
+ : symbol(initname, texname, rt, rtt, domain) { }
+
 //////////
 // archiving
 //////////
@@ -91,7 +116,7 @@ symbol::symbol(const archive_node &n, lst &sym_lst)
 	if (!n.find_string("TeXname", TeX_name))
 		TeX_name = default_TeX_name();
 	if (!n.find_unsigned("domain", domain))
-		domain = symbol_options::complex;
+		domain = domain::complex;
 	if (!n.find_unsigned("return_type", ret_type))
 		ret_type = return_types::commutative;
 	if (!n.find_unsigned("return_type_tinfo", ret_type_tinfo))
@@ -122,7 +147,7 @@ void symbol::archive(archive_node &n) const
 	n.add_string("name", name);
 	if (TeX_name != default_TeX_name())
 		n.add_string("TeX_name", TeX_name);
-	if (domain != symbol_options::complex)
+	if (domain != domain::complex)
 		n.add_unsigned("domain", domain);
 	if (ret_type != return_types::commutative)
 		n.add_unsigned("return_type", ret_type);
@@ -175,7 +200,7 @@ bool symbol::info(unsigned inf) const
 	    inf == info_flags::rational_function)
 		return true;
 	if (inf == info_flags::real)
-		return domain == symbol_options::real;
+		return domain == domain::real;
 	else
 		return inherited::info(inf);
 }
@@ -198,7 +223,7 @@ ex symbol::eval(int level) const
 
 ex symbol::conjugate() const
 {
-	if (this->domain == symbol_options::complex) {
+	if (this->domain == domain::complex) {
 		return GiNaC::conjugate(*this).hold();
 	} else {
 		return *this;

@@ -124,7 +124,7 @@ static ex log_eval(const ex & x)
 	// log(exp(t)) -> t (if -Pi < t.imag() <= Pi):
 	if (is_ex_the_function(x, exp)) {
 		const ex &t = x.op(0);
-		if (is_a<symbol>(t) && (ex_to<symbol>(t).get_domain() == symbol_options::real)) {
+		if (is_a<symbol>(t) && t.info(info_flags::real)) {
 			return t;
 		}
 		if (t.info(info_flags::numeric)) {

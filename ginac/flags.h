@@ -47,13 +47,11 @@ public:
 	};
 };
 
-/** Flags to decide how conjugate should treat a symbol */
-class symbol_options {
+/** Domain of an object */
+class domain {
 public:
 	enum {
-		/** Symbol is treated like a complex valued expression */
 		complex,
-		/** Symbol is treated like a real valued expression */
 		real
 	};
 };
