@@ -44,22 +44,19 @@ together with more established areas of computer science (like
 computation-intense numeric applications, graphical interfaces, etc.)
 under one roof.</para>
 
-<para>This tutorial is intended for the novice user who is new to GiNaC
-but already has some background in C++ programming.  However, since a
-hand made documentation like this one is difficult to keep in sync
-with the development the actual documentation is inside the sources in
-the form of comments.  That documentation may be parsed by one of the
-many Javadoc-like documentation systems.  The generated HTML
-documenatation is included in the distributed sources (subdir
-<literal>doc/reference/</literal>) or can be accessed directly at URL
-<ulink
-url="http://wwwthep.physik.uni-mainz.de/GiNaC/reference/"><literal>http://wwwthep.physik.uni-mainz.de/GiNaC/reference/</literal></ulink>.
+<para>This tutorial is intended for the novice user who is new to
+GiNaC but already has some background in C++ programming.  However,
+since a hand made documentation like this one is difficult to keep in
+sync with the development the actual documentation is inside the
+sources in the form of comments.  That documentation may be parsed by
+one of the many Javadoc-like documentation systems.  If you fail at
+generating it you may access it directly at URL <ulink
+url="http://www.ginac.de/reference/"><literal>http://www.ginac.de/reference/</literal></ulink>.
 It is an invaluable resource not only for the advanced user who wishes
 to extend the system (or chase bugs) but for everybody who wants to
 comprehend the inner workings of GiNaC.  This little tutorial on the
 other hand only covers the basic things that are unlikely to change in
-the near future.
-</para>
+the near future.  </para>
 
 <sect1><title>License</title>
 
@@ -242,9 +239,10 @@ allow one to conclude that <literal>42*Pi</literal> is equal to
 <literal>0</literal>.)</para>
 
 <para>Linear equation systems can be solved along with basic linear
-algebra manipulations over symbolic expressions.  In C++ there is a
-matrix class for this purpose but we can see what it can do using 
-<literal>ginsh</literal>'s notation of double brackets to type them in:
+algebra manipulations over symbolic expressions.  In C++ GiNaC offers
+a matrix class for this purpose but we can see what it can do using
+<literal>ginsh</literal>'s notation of double brackets to type them
+in:
 <screen>
 > lsolve(a+x*y==z,x);
 y^(-1)*(z-a);
@@ -276,10 +274,9 @@ polynomials):
 </screen>
 </para>
 
-<para>
-You can differentiate functions and expand them as Taylor or Laurent 
-series (the third argument of series is the evaluation point, the 
-fourth defines the order):
+<para>You can differentiate functions and expand them as Taylor or
+Laurent series (the third argument of series is the evaluation point,
+the fourth defines the order):
 <screen>
 > diff(tan(x),x);
 tan(x)^2+1
@@ -287,6 +284,20 @@ tan(x)^2+1
 x-1/6*x^3+Order(x^4)
 > series(1/tan(x),x,0,4);
 x^(-1)-1/3*x+Order(x^2)
+</screen>
+</para>
+
+<para>If you ever wanted to convert units in C or C++ and found this
+is cumbersome, here is the solution.  Symbolic types can always be
+used as tags for different types of objects.  Converting from wrong
+units to the metric system is therefore easy:
+<screen>
+> in=.0254*m;
+0.0254*m
+> lb=.45359237*kg;
+0.45359237*kg
+> 200*lb/in^2;
+140613.91592783185568*kg*m^(-2)
 </screen>
 </para>
 
@@ -411,7 +422,7 @@ picky and full assertions switched on:</para>
 <screen>
 <prompt>$</prompt> export CXX=/usr/local/gnu/bin/c++
 <prompt>$</prompt> export CPPFLAGS="${CPPFLAGS} -I${HOME}/include"
-<prompt>$</prompt> export CXXFLAGS="${CXXFLAGS} -ggdb -Wall -ansi -pedantic -O2 -DDO_GINAC_ASSERT"
+<prompt>$</prompt> export CXXFLAGS="${CXXFLAGS} -DDO_GINAC_ASSERT -ggdb -Wall -ansi -pedantic -O2"
 <prompt>$</prompt> export LDFLAGS="${LDFLAGS} -L${HOME}/lib"
 <prompt>$</prompt> ./configure --disable-shared --prefix=${HOME}
 </screen>
@@ -592,7 +603,7 @@ int main()
 Here, <literal>e1</literal> will actually be referenced three times
 while <literal>e2</literal> will be referenced two times.  When the
 power of an expression is built, that expression needs not be
-copied. Likewise, since the derivative of a power of an expression can
+copied.  Likewise, since the derivative of a power of an expression can
 be easily expressed in terms of that expression, no copying of
 <literal>e1</literal> is involved when <literal>e3</literal> is
 constructed.  So, when <literal>e3</literal> is constructed it will
@@ -1396,7 +1407,7 @@ calculated using the chain rule and the product rule.  Consider, for
 instance the expression <literal>1/cosh(x)</literal>.  Since the
 derivative of <literal>cosh(x)</literal> is <literal>sinh(x)</literal>
 and the derivative of <literal>pow(x,-1)</literal> is
-<literal>-pow(x,-2)</literal> GiNaC can readily compute the
+<literal>-pow(x,-2)</literal>, GiNaC can readily compute the
 composition.  It turns out that the composition is the generating
 function for Euler Numbers, i.e. the so called
 <emphasis>n</emphasis>th Euler number is the coefficient of
@@ -1466,7 +1477,7 @@ int main()
 <para>As an instructive application, let us calculate the numerical
 value of Archimedes' constant (for which there already exists the
 built-in constant <literal>Pi</literal>) using M&eacute;chain's
-wonderful formula <literal>Pi==16*atan(1/5)-4*atan(1/239)</literal>.
+mysterious formula <literal>Pi==16*atan(1/5)-4*atan(1/239)</literal>.
 We may expand the arcus tangent around <literal>0</literal> and insert
 the fractions <literal>1/5</literal> and <literal>1/239</literal>.
 But, as we have seen, a series in GiNaC carries an order term with it.
