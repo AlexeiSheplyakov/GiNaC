@@ -26,6 +26,6 @@
 /* Major, minor, and micro version number of the GiNaC library. */
 #define GINACLIB_MAJOR_VERSION 0
 #define GINACLIB_MINOR_VERSION 6
-#define GINACLIB_MICRO_VERSION 1
+#define GINACLIB_MICRO_VERSION 2
 
 #endif // ndef __GINAC_VERSION_H__
