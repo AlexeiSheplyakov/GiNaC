@@ -65,6 +65,7 @@ public:
     ex coeff(const symbol &s, int n=1) const;
     ex eval(int level=0) const;
     ex evalf(int level=0) const;
+    ex series(const symbol & s, const ex & p, int order) const;
     ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
     ex subs(const lst & ls, const lst & lr) const;
 protected:

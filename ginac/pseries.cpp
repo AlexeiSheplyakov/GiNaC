@@ -689,6 +689,31 @@ ex power::series(const symbol & s, const ex & point, int order) const
 }
 
 
+/** Re-expansion of a pseries object. */
+ex pseries::series(const symbol & s, const ex & p, int order) const
+{
+	if (var.is_equal(s) && point.is_equal(p)) {
+		if (order > degree(s))
+			return *this;
+		else {
+	        epvector new_seq;
+	        epvector::const_iterator it = seq.begin(), itend = seq.end();
+			while (it != itend) {
+				int o = ex_to_numeric(it->coeff).to_int();
+				if (o >= order) {
+					new_seq.push_back(expair(Order(_ex1()), o));
+					break;
+				}
+				new_seq.push_back(*it);
+				it++;
+			}
+			return pseries(var, point, new_seq);
+		}
+	} else
+		return convert_to_poly().series(s, p, order);
+}
+
+
 /** Compute the truncated series expansion of an expression.
  *  This function returns an expression containing an object of class pseries to
  *  represent the series. If the series does not terminate within the given
