@@ -66,20 +66,30 @@ static unsigned check_numeric2(void)
 			numeric nm(1,j);
 			nm += numeric(int(20.0*rand()/(RAND_MAX+1.0))-10);
 			// ...a numerator...
-			do { i_num = rand(); } while (i_num == 0);
+			do {
+				i_num = rand();
+			} while (i_num<=0);
 			numeric num(i_num);
 			// ...and a denominator.
-			do { i_den = (rand())/100; } while (i_den == 0);
+			do {
+				i_den = (rand())/100;
+			} while (i_den<=0);
 			numeric den(i_den);
 			// construct the radicals:
 			ex radical = pow(ex(num)/ex(den),ex(nm));
 			numeric floating = pow(num/den,nm);
 			// test the result:
 			if (is_a<numeric>(radical)) {
-				clog << "(" << num << "/" << den << ")^(" << nm
-				     << ") should have been a product, instead it's "
-				     << radical << endl;
-				errorflag = true;
+				// This is very improbable with decent random numbers but it
+				// still can happen, so we better check if it is correct:
+				if (pow(radical,inverse(nm))==num/den) {
+					// Aha! We drew some lucky numbers. Nothing to see here...
+				} else {
+					clog << "(" << num << "/" << den << ")^(" << nm
+						 << ") should have been a product, instead it's "
+						 << radical << endl;
+					errorflag = true;
+				}
 			}
 			numeric ratio = abs(ex_to<numeric>(evalf(radical))/floating);
 			if (ratio>1.0001 && ratio<0.9999) {
