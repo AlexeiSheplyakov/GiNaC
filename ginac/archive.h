@@ -28,8 +28,10 @@
 #include <string>
 #include <vector>
 
-class ostream;
-class istream;
+namespace std {
+    class ostream;
+    class istream;
+}
 
 #ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
@@ -51,8 +53,8 @@ typedef unsigned int archive_atom;
  *  addressed by its name and data type. */
 class archive_node
 {
-	friend ostream &operator<<(ostream &os, const archive_node &ar);
-	friend istream &operator>>(istream &is, archive_node &ar);
+	friend std::ostream &operator<<(std::ostream &os, const archive_node &ar);
+	friend std::istream &operator>>(std::istream &is, archive_node &ar);
 
 public:
 	archive_node() : a(*dummy_ar_creator()), has_expression(false) {} // hack for cint which always requires a default constructor
@@ -65,20 +67,20 @@ public:
 
 	bool has_same_ex_as(const archive_node &other) const;
 
-	void add_bool(const string &name, bool value);
-	void add_unsigned(const string &name, unsigned int value);
-	void add_string(const string &name, const string &value);
-	void add_ex(const string &name, const ex &value);
+	void add_bool(const std::string &name, bool value);
+	void add_unsigned(const std::string &name, unsigned int value);
+	void add_string(const std::string &name, const std::string &value);
+	void add_ex(const std::string &name, const ex &value);
 
-	bool find_bool(const string &name, bool &ret) const;
-	bool find_unsigned(const string &name, unsigned int &ret) const;
-	bool find_string(const string &name, string &ret) const;
-	bool find_ex(const string &name, ex &ret, const lst &sym_lst, unsigned int index = 0) const;
+	bool find_bool(const std::string &name, bool &ret) const;
+	bool find_unsigned(const std::string &name, unsigned int &ret) const;
+	bool find_string(const std::string &name, std::string &ret) const;
+	bool find_ex(const std::string &name, ex &ret, const lst &sym_lst, unsigned int index = 0) const;
 
 	ex unarchive(const lst &sym_lst) const;
 
 	void forget(void);
-	void printraw(ostream &os) const;
+	void printraw(std::ostream &os) const;
 
 private:
 	static archive* dummy_ar_creator(void);
@@ -109,7 +111,7 @@ private:
 	archive &a;
 
 	/** Vector of stored properties. */
-	vector<property> props;
+	std::vector<property> props;
 
 	/** Flag indicating whether a cached unarchived representation of this node exists. */
 	mutable bool has_expression;
@@ -128,8 +130,8 @@ private:
  *  of class basic (or a derived class). */
 class archive
 {
-	friend ostream &operator<<(ostream &os, const archive &ar);
-	friend istream &operator>>(istream &is, archive &ar);
+	friend std::ostream &operator<<(std::ostream &os, const archive &ar);
+	friend std::istream &operator>>(std::istream &is, archive &ar);
 
 public:
 	archive() {}
@@ -147,17 +149,17 @@ public:
 	void archive_ex(const ex &e, const char *name);
 	ex unarchive_ex(const lst &sym_lst, const char *name) const;
 	ex unarchive_ex(const lst &sym_lst, unsigned int index = 0) const;
-	ex unarchive_ex(const lst &sym_lst, string &name, unsigned int index = 0) const;
+	ex unarchive_ex(const lst &sym_lst, std::string &name, unsigned int index = 0) const;
 	unsigned int num_expressions(void) const;
 
 	void clear(void);
 
 	void forget(void);
-	void printraw(ostream &os) const;
+	void printraw(std::ostream &os) const;
 
 private:
 	/** Vector of archived nodes. */
-	vector<archive_node> nodes;
+	std::vector<archive_node> nodes;
 
 	/** Archived expression descriptor. */
 	struct archived_ex {
@@ -169,20 +171,20 @@ private:
 	};
 
 	/** Vector of archived expression descriptors. */
-	vector<archived_ex> exprs;
+	std::vector<archived_ex> exprs;
 
 public:
-	archive_atom atomize(const string &s) const;
-	const string &unatomize(archive_atom id) const;
+	archive_atom atomize(const std::string &s) const;
+	const std::string &unatomize(archive_atom id) const;
 
 private:
 	/** Vector of atomized strings (using a vector allows faster unarchiving). */
-	mutable vector<string> atoms;
+	mutable std::vector<std::string> atoms;
 };
 
 
-ostream &operator<<(ostream &os, const archive &ar);
-istream &operator>>(istream &is, archive &ar);
+std::ostream &operator<<(std::ostream &os, const archive &ar);
+std::istream &operator>>(std::istream &is, archive &ar);
 
 
 #ifndef NO_NAMESPACE_GINAC

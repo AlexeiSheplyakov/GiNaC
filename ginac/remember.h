@@ -57,7 +57,7 @@ protected:
 
 /** A list of entries in the remember table having some least
     significant bits of the hashvalue in common. */
-class remember_table_list : public list<remember_table_entry> {
+class remember_table_list : public std::list<remember_table_entry> {
 public:
     remember_table_list(unsigned as, unsigned strat);
     void add_entry(function const & f, ex const & result);
@@ -81,15 +81,15 @@ protected:
     - least recently used (the one with the lowest 'last_access')
     - least frequently used (the one with the lowest 'successful_hits')
     or all entries are kept which means that the table grows indefinitely. */
-class remember_table : public vector<remember_table_list> {
+class remember_table : public std::vector<remember_table_list> {
 public:
     remember_table();
     remember_table(unsigned s, unsigned as, unsigned strat);
     bool lookup_entry(function const & f, ex & result) const;
     void add_entry(function const & f, ex const & result);
     void clear_all_entries(void);
-    void show_statistics(ostream & os, unsigned level) const;
-    static vector<remember_table> & remember_tables(void);
+    void show_statistics(std::ostream & os, unsigned level) const;
+    static std::vector<remember_table> & remember_tables(void);
 protected:
     void init_table(void);
     unsigned table_size;

@@ -69,7 +69,7 @@ struct sym_def {
 	ex sym;
 	bool predefined;	// true = user supplied symbol, false = lexer generated symbol
 };
-typedef map<string, sym_def> sym_tab;
+typedef std::map<std::string, sym_def> sym_tab;
 static sym_tab syms;
 
 // lex input function
@@ -140,7 +140,7 @@ Digits			ginac_yylval = (long)Digits; return T_DIGITS;
  */
 
 // The string from which we will read
-static string lexer_string;
+static std::string lexer_string;
 
 // The current position within the string
 static int curr_pos = 0;
@@ -169,7 +169,7 @@ namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
 
 // Set the input string
-void set_lexer_string(const string &s)
+void set_lexer_string(const std::string &s)
 {
 	lexer_string = s;
 	curr_pos = 0;

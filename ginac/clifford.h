@@ -48,15 +48,15 @@ protected:
 
     // other constructors
 public:
-    explicit clifford(const string & initname);
+    explicit clifford(const std::string & initname);
 
     // functions overriding virtual functions from base classes
 public:
     basic * duplicate() const;
-    void printraw(ostream & os) const;
-    void printtree(ostream & os, unsigned indent) const;
-    void print(ostream & os, unsigned upper_precedence=0) const;
-    void printcsrc(ostream & os, unsigned type, unsigned upper_precedence=0) const;
+    void printraw(std::ostream & os) const;
+    void printtree(std::ostream & os, unsigned indent) const;
+    void print(std::ostream & os, unsigned upper_precedence=0) const;
+    void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence=0) const;
     bool info(unsigned inf) const;
 protected:
     int compare_same_type(const basic & other) const;
@@ -68,14 +68,14 @@ protected:
     
     // non-virtual functions in this class
 public:
-    void setname(const string & n);
+    void setname(const std::string & n);
 private:
-    string & autoname_prefix(void);
+    std::string & autoname_prefix(void);
 
 // member variables
 
 protected:
-    string name;
+    std::string name;
     unsigned serial; // unique serial number for comparision
 private:
     static unsigned next_serial;

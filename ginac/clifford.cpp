@@ -91,7 +91,7 @@ void clifford::destroy(bool call_parent)
 
 // public
 
-clifford::clifford(const string & initname)
+clifford::clifford(const std::string & initname)
 {
     debugmsg("clifford constructor from string",LOGLEVEL_CONSTRUCT);
     name=initname;
@@ -111,7 +111,7 @@ basic * clifford::duplicate() const
     return new clifford(*this);
 }
 
-void clifford::printraw(ostream & os) const
+void clifford::printraw(std::ostream & os) const
 {
     debugmsg("clifford printraw",LOGLEVEL_PRINT);
     os << "clifford(" << "name=" << name << ",serial=" << serial
@@ -120,25 +120,26 @@ void clifford::printraw(ostream & os) const
     os << ",hash=" << hashvalue << ",flags=" << flags << ")";
 }
 
-void clifford::printtree(ostream & os, unsigned indent) const
+void clifford::printtree(std::ostream & os, unsigned indent) const
 {
     debugmsg("clifford printtree",LOGLEVEL_PRINT);
-    os << string(indent,' ') << name << " (clifford): "
+    os << std::string(indent,' ') << name << " (clifford): "
        << "serial=" << serial << ","
        << seq.size() << "indices=";
-    printtreeindices(os,indent);
-    os << ", hash=" << hashvalue << " (0x" << hex << hashvalue << dec << ")"
-       << ", flags=" << flags << endl;
+    printtreeindices(os, indent);
+    os << ", hash=" << hashvalue
+       << " (0x" << std::hex << hashvalue << std::dec << ")"
+       << ", flags=" << flags << std::endl;
 }
 
-void clifford::print(ostream & os, unsigned upper_precedence) const
+void clifford::print(std::ostream & os, unsigned upper_precedence) const
 {
     debugmsg("clifford print",LOGLEVEL_PRINT);
     os << name;
     printindices(os);
 }
 
-void clifford::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) const
+void clifford::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
 {
     debugmsg("clifford print csrc",LOGLEVEL_PRINT);
     print(os,upper_precedence);
@@ -185,16 +186,16 @@ unsigned clifford::calchash(void) const
 // non-virtual functions in this class
 //////////
 
-void clifford::setname(const string & n)
+void clifford::setname(const std::string & n)
 {
-    name=n;
+    name = n;
 }
 
 // private
 
-string & clifford::autoname_prefix(void)
+std::string & clifford::autoname_prefix(void)
 {
-    static string * s=new string("clifford");
+    static std::string * s = new std::string("clifford");
     return *s;
 }
 

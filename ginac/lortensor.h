@@ -42,8 +42,8 @@ class lortensor : public indexed
     friend lortensor lortensor_epsilon(const ex & mu, const ex & nu,
                                        const ex & rho, const ex & sigma);
     // friend lortensor lortensor_rankn(const string & n, const exvector & iv);
-    friend lortensor lortensor_rank1(const string & n, const ex & mu);
-    friend lortensor lortensor_rank2(const string & n, const ex & mu, const ex & nu);
+    friend lortensor lortensor_rank1(const std::string & n, const ex & mu);
+    friend lortensor lortensor_rank2(const std::string & n, const ex & mu, const ex & nu);
     friend ex simplify_lortensor_mul(const ex & m);
     friend ex simplify_lortensor(const ex & e);
     
@@ -73,23 +73,23 @@ protected:
 
     // other constructors
 protected:
-    lortensor(lortensor_types const lt, const string & n);
-    lortensor(lortensor_types const lt, const string & n, const ex & mu);
-    lortensor(lortensor_types const lt, const string & n, const ex & mu, const ex & nu);
-    lortensor(lortensor_types const lt, const string & n, const ex & mu, const ex & nu,
+    lortensor(lortensor_types const lt, const std::string & n);
+    lortensor(lortensor_types const lt, const std::string & n, const ex & mu);
+    lortensor(lortensor_types const lt, const std::string & n, const ex & mu, const ex & nu);
+    lortensor(lortensor_types const lt, const std::string & n, const ex & mu, const ex & nu,
               const ex & rho);
-    lortensor(lortensor_types const lt, const string & n, const ex & mu, const ex & nu, const ex & rho, const ex & sigma);
-    lortensor(lortensor_types const lt, const string & n, const exvector & iv);
-    lortensor(lortensor_types const lt, const string & n, unsigned s, const exvector & iv);
-    lortensor(lortensor_types const lt, const string & n, unsigned s, exvector * ivp);
+    lortensor(lortensor_types const lt, const std::string & n, const ex & mu, const ex & nu, const ex & rho, const ex & sigma);
+    lortensor(lortensor_types const lt, const std::string & n, const exvector & iv);
+    lortensor(lortensor_types const lt, const std::string & n, unsigned s, const exvector & iv);
+    lortensor(lortensor_types const lt, const std::string & n, unsigned s, exvector * ivp);
     
     //functions overriding virtual functions from base classes
 public:
     basic * duplicate() const;
-    void printraw(ostream & os) const;
-    void printtree(ostream & os, unsigned indent) const;
-    void print(ostream & os, unsigned upper_precedence=0) const;
-    void printcsrc(ostream & os, unsigned type, unsigned upper_precedence=0) const;
+    void printraw(std::ostream & os) const;
+    void printtree(std::ostream & os, unsigned indent) const;
+    void print(std::ostream & os, unsigned upper_precedence=0) const;
+    void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence=0) const;
     bool info(unsigned inf) const;
     ex eval(int level=0) const;
 protected:
@@ -105,18 +105,18 @@ protected:
 
     //non virtual functions in this class
 public:
-    void setname(const string & n);
-    string getname(void) const {return name;}
+    void setname(const std::string & n);
+    std::string getname(void) const {return name;}
 protected:
     bool all_of_type_lorentzidx(void) const;
 private:
-    string & autoname_prefix(void);
+    std::string & autoname_prefix(void);
 
     //member variables
 
 protected:
     lortensor_types type;
-    string name;
+    std::string name;
     unsigned serial;
 private:
     static unsigned next_serial;

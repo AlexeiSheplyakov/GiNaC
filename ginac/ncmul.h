@@ -66,9 +66,9 @@ public:
     // functions overriding virtual functions from bases classes
 public:
     basic * duplicate() const;
-    void print(ostream & os, unsigned upper_precedence) const;
-    void printraw(ostream & os) const;
-    void printcsrc(ostream & os, unsigned upper_precedence) const;
+    void print(std::ostream & os, unsigned upper_precedence) const;
+    void printraw(std::ostream & os) const;
+    void printcsrc(std::ostream & os, unsigned upper_precedence) const;
     bool info(unsigned inf) const;
     int degree(const symbol & s) const;
     int ldegree(const symbol & s) const;

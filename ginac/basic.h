@@ -27,7 +27,7 @@
 #include <typeinfo>
 #include <vector>
 
-// CINT needs <algorithm> to work properly with <vector> 
+// CINT needs <algorithm> to work properly with <vector>
 #include <algorithm>
 
 #include "flags.h"
@@ -47,8 +47,8 @@ class numeric;
 class relational;
 class archive_node;
 
-//typedef vector<ex> exvector;
-typedef vector<ex,malloc_alloc> exvector; // CINT does not like vector<...,default_alloc>
+// typedef std::vector<ex> exvector;
+typedef std::vector<ex,malloc_alloc> exvector; // CINT does not like vector<...,default_alloc>
 
 #define INLINE_BASIC_CONSTRUCTORS
 
@@ -119,10 +119,10 @@ protected:
     // new virtual functions which can be overridden by derived classes
 public: // only const functions please (may break reference counting)
     virtual basic * duplicate() const;
-    virtual void print(ostream & os,unsigned upper_precedence=0) const;
-    virtual void printraw(ostream & os) const;
-    virtual void printtree(ostream & os, unsigned indent) const;
-    virtual void printcsrc(ostream & os, unsigned type, unsigned upper_precedence=0) const;
+    virtual void print(std::ostream & os,unsigned upper_precedence = 0) const;
+    virtual void printraw(std::ostream & os) const;
+    virtual void printtree(std::ostream & os, unsigned indent) const;
+    virtual void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence = 0) const;
     virtual void dbgprint(void) const;
     virtual void dbgprinttree(void) const;
     virtual bool info(unsigned inf) const;
@@ -134,13 +134,13 @@ public: // only const functions please (may break reference counting)
     virtual bool has(const ex & other) const;
     virtual int degree(const symbol & s) const;
     virtual int ldegree(const symbol & s) const;
-    virtual ex coeff(const symbol & s, int n=1) const;
+    virtual ex coeff(const symbol & s, int n = 1) const;
     virtual ex collect(const symbol & s) const;
-    virtual ex eval(int level=0) const;
-    virtual ex evalf(int level=0) const;
-    virtual ex series(const relational & r, int order) const;
+    virtual ex eval(int level = 0) const;
+    virtual ex evalf(int level = 0) const;
+    virtual ex series(const relational & r, int order, bool branchcut = true) const;
     virtual ex subs(const lst & ls, const lst & lr) const;
-    virtual ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
+    virtual ex normal(lst &sym_lst, lst &repl_lst, int level = 0) const;
     virtual ex to_rational(lst &repl_lst) const;
     virtual numeric integer_content(void) const;
     virtual ex smod(const numeric &xi) const;

@@ -187,8 +187,8 @@ $interface=<<END_OF_INTERFACE;
 namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
 
-// typedef ${STLHEADER}<ex> ${STLT};
-typedef ${STLHEADER}<ex,malloc_alloc> ${STLT}; // CINT does not like ${STLHEADER}<...,default_alloc>
+// typedef std::${STLHEADER}<ex> ${STLT};
+typedef std::${STLHEADER}<ex,malloc_alloc> ${STLT}; // CINT does not like ${STLHEADER}<...,default_alloc>
 
 class ${CONTAINER} : public basic
 {
@@ -210,9 +210,9 @@ ${constructors_interface}
 
 public:
     basic * duplicate() const;
-    void printraw(ostream & os) const;
-    void print(ostream & os, unsigned upper_precedence=0) const;
-    void printtree(ostream & os, unsigned indent) const;
+    void printraw(std::ostream & os) const;
+    void print(std::ostream & os, unsigned upper_precedence=0) const;
+    void printtree(std::ostream & os, unsigned indent) const;
     bool info(unsigned inf) const;
     unsigned nops() const;
     ex & let_op(int i);
@@ -233,7 +233,7 @@ public:
     virtual ${CONTAINER} & append(const ex & b);
 ${PREPEND_INTERFACE}
 protected:
-    virtual void printseq(ostream & os, char openbracket, char delim,
+    virtual void printseq(std::ostream & os, char openbracket, char delim,
                           char closebracket, unsigned this_precedence,
                           unsigned upper_precedence=0) const;
     virtual ex this${CONTAINER}(${STLT} const & v) const;
@@ -446,7 +446,7 @@ basic * ${CONTAINER}::duplicate() const
     return new ${CONTAINER}(*this);
 }
 
-void ${CONTAINER}::printraw(ostream & os) const
+void ${CONTAINER}::printraw(std::ostream & os) const
 {
     debugmsg("${CONTAINER} printraw",LOGLEVEL_PRINT);
 
@@ -458,25 +458,26 @@ void ${CONTAINER}::printraw(ostream & os) const
     os << ")";
 }
 
-void ${CONTAINER}::print(ostream & os, unsigned upper_precedence) const
+void ${CONTAINER}::print(std::ostream & os, unsigned upper_precedence) const
 {
     debugmsg("${CONTAINER} print",LOGLEVEL_PRINT);
     // always print brackets around seq, ignore upper_precedence
     printseq(os,'${open_bracket}',',','${close_bracket}',precedence,precedence+1);
 }
 
-void ${CONTAINER}::printtree(ostream & os, unsigned indent) const
+void ${CONTAINER}::printtree(std::ostream & os, unsigned indent) const
 {
     debugmsg("${CONTAINER} printtree",LOGLEVEL_PRINT);
 
-    os << string(indent,' ') << "type=" << typeid(*this).name()
-       << ", hash=" << hashvalue << " (0x" << hex << hashvalue << dec << ")"
+    os << std::string(indent,' ') << "type=" << typeid(*this).name()
+       << ", hash=" << hashvalue 
+       << " (0x" << std::hex << hashvalue << std::dec << ")"
        << ", flags=" << flags
-       << ", nops=" << nops() << endl;
+       << ", nops=" << nops() << std::endl;
     for (${STLT}::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
         (*cit).printtree(os,indent+delta_indent);
     }
-    os << string(indent+delta_indent,' ') << "=====" << endl;
+    os << std::string(indent+delta_indent,' ') << "=====" << std::endl;
 }
 
 // ${CONTAINER}::info() will be implemented by user elsewhere";
@@ -609,7 +610,7 @@ ${PREPEND_IMPLEMENTATION}
 
 // protected
 
-void ${CONTAINER}::printseq(ostream & os, char openbracket, char delim,
+void ${CONTAINER}::printseq(std::ostream & os, char openbracket, char delim,
                          char closebracket, unsigned this_precedence,
                          unsigned upper_precedence) const
 {
@@ -657,7 +658,7 @@ bool ${CONTAINER}::is_canonical() const
     for (++it; it!=seq.end(); it_last=it, ++it) {
         if ((*it_last).compare(*it)>0) {
             if ((*it_last).compare(*it)>0) {
-                cout << *it_last << ">" << *it << "\\n";
+                std::cout << *it_last << ">" << *it << "\\n";
                 return 0;
 	        }
         }

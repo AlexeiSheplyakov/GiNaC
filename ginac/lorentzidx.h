@@ -53,7 +53,7 @@ protected:
     // other constructors
 public:
     explicit lorentzidx(bool cov, bool oonly=false, unsigned dimp=0);
-    explicit lorentzidx(const string & n, bool cov=false,
+    explicit lorentzidx(const std::string & n, bool cov=false,
                         bool oonly=false, unsigned dimp=0);
     explicit lorentzidx(const char * n, bool cov=false,
                         bool oonly=false, unsigned dimp=0);
@@ -62,9 +62,9 @@ public:
     // functions overriding virtual functions from bases classes
 public:
     basic * duplicate() const;
-    void printraw(ostream & os) const;
-    void printtree(ostream & os, unsigned indent) const;
-    void print(ostream & os, unsigned upper_precedence=0) const;
+    void printraw(std::ostream & os) const;
+    void printtree(std::ostream & os, unsigned indent) const;
+    void print(std::ostream & os, unsigned upper_precedence=0) const;
     bool info(unsigned inf) const;
 
     // new virtual functions which can be overridden by derived classes

@@ -1,7 +1,8 @@
 /** @file viewgar.cpp
  *
- *  GiNaC archive file viewer
- *
+ *  GiNaC archive file viewer. */
+
+/*
  *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -36,7 +37,7 @@ int main(int argc, char **argv)
 		fprintf(stderr, "Usage: %s [-d] file...\n", argv[0]);
 		exit(1);
 	}
-	argc--; argv++;
+	--argc; ++argv;
 
 	bool dump_mode = false;
 	try {
@@ -44,24 +45,24 @@ int main(int argc, char **argv)
 		while (argc) {
 			if (strcmp(*argv, "-d") == 0) {
 				dump_mode = true;
-				argc--; argv++;
+				--argc; ++argv;
 			}
-			ifstream f(*argv);
+			std::ifstream f(*argv);
 			archive ar;
 			f >> ar;
 			if (dump_mode) {
-				ar.printraw(cout);
-				cout << endl;
+				ar.printraw(std::cout);
+				std::cout << std::endl;
 			} else {
-				for (unsigned int i=0; i<ar.num_expressions(); i++) {
-					string name;
+				for (unsigned int i=0; i<ar.num_expressions(); ++i) {
+					std::string name;
 					ex e = ar.unarchive_ex(l, name, i);
-					cout << name << " = " << e << endl;
+					std::cout << name << " = " << e << std::endl;
 				}
 			}
-			argc--; argv++;
+			--argc; ++argv;
 		}
-	} catch (exception &e) {
-		cerr << *argv << ": " << e.what() << endl;
+	} catch (std::exception &e) {
+		std::cerr << *argv << ": " << e.what() << std::endl;
 	}
 }

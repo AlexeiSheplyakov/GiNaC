@@ -183,7 +183,7 @@ basic * mul::duplicate() const
     return new mul(*this);
 }
 
-void mul::print(ostream & os, unsigned upper_precedence) const
+void mul::print(std::ostream & os, unsigned upper_precedence) const
 {
     debugmsg("mul print",LOGLEVEL_PRINT);
     if (precedence<=upper_precedence) os << "(";
@@ -218,7 +218,7 @@ void mul::print(ostream & os, unsigned upper_precedence) const
     if (precedence<=upper_precedence) os << ")";
 }
 
-void mul::printraw(ostream & os) const
+void mul::printraw(std::ostream & os) const
 {
     debugmsg("mul printraw",LOGLEVEL_PRINT);
 
@@ -234,7 +234,7 @@ void mul::printraw(ostream & os) const
     os << ")";
 }
 
-void mul::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) const
+void mul::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
 {
     debugmsg("mul print csrc", LOGLEVEL_PRINT);
     if (precedence <= upper_precedence)
@@ -266,7 +266,7 @@ void mul::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) cons
             (ex(power(it->rest, abs(ex_to_numeric(it->coeff))))).bp->printcsrc(os, type, upper_precedence);
 
         // Separator is "/" for negative integer powers, "*" otherwise
-        it++;
+        ++it;
         if (it != itend) {
             if (ex_to_numeric(it->coeff).is_integer() && it->coeff.compare(_num0()) < 0)
                 os << "/";
@@ -304,7 +304,7 @@ bool mul::info(unsigned inf) const
     return inherited::info(inf);
 }
 
-typedef vector<int> intvector;
+typedef std::vector<int> intvector;
 
 int mul::degree(const symbol & s) const
 {
@@ -471,22 +471,21 @@ ex mul::simplify_ncmul(const exvector & v) const
 
 // protected
 
-/** Implementation of ex::diff() for a product. It applies the product rule.
+/** Implementation of ex::diff() for a product.  It applies the product rule.
  *  @see ex::diff */
 ex mul::derivative(const symbol & s) const
 {
-    exvector new_seq;
-    new_seq.reserve(seq.size());
-
-    // D(a*b*c)=D(a)*b*c+a*D(b)*c+a*b*D(c)
-    for (unsigned i=0; i!=seq.size(); i++) {
-        epvector sub_seq = seq;
-        sub_seq[i] = split_ex_to_pair(sub_seq[i].coeff*
-                                      power(sub_seq[i].rest,sub_seq[i].coeff-1)*
-                                      sub_seq[i].rest.diff(s));
-        new_seq.push_back((new mul(sub_seq,overall_coeff))->setflag(status_flags::dynallocated));
+    exvector addseq;
+    addseq.reserve(seq.size());
+    
+    // D(a*b*c) = D(a)*b*c + a*D(b)*c + a*b*D(c)
+    for (unsigned i=0; i!=seq.size(); ++i) {
+        epvector mulseq = seq;
+        mulseq[i] = split_ex_to_pair(power(seq[i].rest,seq[i].coeff - _ex1())*
+                                     seq[i].rest.diff(s));
+        addseq.push_back((new mul(mulseq,overall_coeff*seq[i].coeff))->setflag(status_flags::dynallocated));
     }
-    return (new add(new_seq))->setflag(status_flags::dynallocated);
+    return (new add(addseq))->setflag(status_flags::dynallocated);
 }
 
 int mul::compare_same_type(const basic & other) const
@@ -574,9 +573,9 @@ expair mul::combine_ex_with_coeff_to_pair(const ex & e,
     // we create a temporary power object
     // otherwise it would be hard to correctly simplify
     // expression like (4^(1/3))^(3/2)
-    if (are_ex_trivially_equal(c,_ex1())) {
+    if (are_ex_trivially_equal(c,_ex1()))
         return split_ex_to_pair(e);
-    }
+    
     return split_ex_to_pair(power(e,c));
 }
     
@@ -587,9 +586,9 @@ expair mul::combine_pair_with_coeff_to_pair(const expair & p,
     // we create a temporary power object
     // otherwise it would be hard to correctly simplify
     // expression like (4^(1/3))^(3/2)
-    if (are_ex_trivially_equal(c,_ex1())) {
+    if (are_ex_trivially_equal(c,_ex1()))
         return p;
-    }
+    
     return split_ex_to_pair(power(recombine_pair_to_ex(p),c));
 }
     
@@ -597,11 +596,10 @@ ex mul::recombine_pair_to_ex(const expair & p) const
 {
     // if (p.coeff.compare(_ex1())==0) {
     // if (are_ex_trivially_equal(p.coeff,_ex1())) {
-    if (ex_to_numeric(p.coeff).is_equal(_num1())) {
+    if (ex_to_numeric(p.coeff).is_equal(_num1())) 
         return p.rest;
-    } else {
+    else
         return power(p.rest,p.coeff);
-    }
 }
 
 bool mul::expair_needs_further_processing(epp it)
@@ -678,44 +676,39 @@ ex mul::expand(unsigned options) const
     
     unsigned current_position = 0;
     epvector::const_iterator last = expanded_seq.end();
-    for (epvector::const_iterator cit=expanded_seq.begin(); cit!=last; ++cit) {
-        if (is_ex_exactly_of_type((*cit).rest,add)&&
-            (ex_to_numeric((*cit).coeff).is_equal(_num1()))) {
+    for (epvector::const_iterator cit = expanded_seq.begin(); cit!=last; ++cit) {
+        if (is_ex_exactly_of_type((*cit).rest,add) &&
+            ((*cit).coeff.is_equal(_ex1()))) {
             positions_of_adds[number_of_adds] = current_position;
             const add & expanded_addref = ex_to_add((*cit).rest);
             unsigned addref_nops = expanded_addref.nops();
             number_of_add_operands[number_of_adds] = addref_nops;
             number_of_expanded_terms *= addref_nops;
-            number_of_adds++;
+            ++number_of_adds;
         }
-        current_position++;
+        ++current_position;
     }
     
     if (number_of_adds==0) {
-        if (expanded_seqp==0) {
+        if (expanded_seqp==0)
             return this->setflag(status_flags::expanded);
-        }
-        return (new mul(expanded_seqp,overall_coeff))->
-            setflag(status_flags::dynallocated |
-                    status_flags::expanded);
+        else
+            return ((new mul(expanded_seqp,overall_coeff))->
+                    setflag(status_flags::dynallocated |
+                            status_flags::expanded));
     }
     
     exvector distrseq;
     distrseq.reserve(number_of_expanded_terms);
     
     intvector k;
-    k.resize(number_of_adds);
-    
-    int l;
-    for (l=0; l<number_of_adds; l++) {
-        k[l]=0;
-    }
+    k.resize(number_of_adds, 0);
     
     while (1) {
         epvector term;
         term = expanded_seq;
-        for (l=0; l<number_of_adds; l++) {
-            const add & addref=ex_to_add(expanded_seq[positions_of_adds[l]].rest);
+        for (int l=0; l<number_of_adds; ++l) {
+            const add & addref = ex_to_add(expanded_seq[positions_of_adds[l]].rest);
             GINAC_ASSERT(term[positions_of_adds[l]].coeff.compare(_ex1())==0);
             term[positions_of_adds[l]]=split_ex_to_pair(addref.op(k[l]));
         }
@@ -724,10 +717,10 @@ ex mul::expand(unsigned options) const
                                    status_flags::expanded));
         
         // increment k[]
-        l=number_of_adds-1;
+        int l = number_of_adds-1;
         while ((l>=0) && ((++k[l])>=number_of_add_operands[l])) {
-            k[l]=0;    
-            l--;
+            k[l] = 0;    
+            --l;
         }
         if (l<0) break;
     }

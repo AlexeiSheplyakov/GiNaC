@@ -32,7 +32,7 @@ namespace GiNaC {
 registered_class_info *first_registered_class = NULL;
 
 /** Find registered_class_info strucure by class name. */
-static inline registered_class_info *find_registered_class_info(const string &class_name)
+static inline registered_class_info *find_registered_class_info(const std::string &class_name)
 {
 	registered_class_info *p = first_registered_class;
 	while (p) {
@@ -43,13 +43,13 @@ static inline registered_class_info *find_registered_class_info(const string &cl
 	throw (std::runtime_error("class '" + class_name + "' not registered"));
 }
 
-unsigned int find_tinfo_key(const string &class_name)
+unsigned int find_tinfo_key(const std::string &class_name)
 {
 	registered_class_info *p = find_registered_class_info(class_name);
 	return p->tinfo_key;
 }
 
-unarch_func find_unarch_func(const string &class_name)
+unarch_func find_unarch_func(const std::string &class_name)
 {
 	registered_class_info *p = find_registered_class_info(class_name);
 	return p->unarchive;

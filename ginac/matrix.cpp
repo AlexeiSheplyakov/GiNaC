@@ -168,7 +168,7 @@ basic * matrix::duplicate() const
     return new matrix(*this);
 }
 
-void matrix::print(ostream & os, unsigned upper_precedence) const
+void matrix::print(std::ostream & os, unsigned upper_precedence) const
 {
     debugmsg("matrix print",LOGLEVEL_PRINT);
     os << "[[ ";
@@ -186,7 +186,7 @@ void matrix::print(ostream & os, unsigned upper_precedence) const
     os << m[row*col-1] << "]] ]]";
 }
 
-void matrix::printraw(ostream & os) const
+void matrix::printraw(std::ostream & os) const
 {
     debugmsg("matrix printraw",LOGLEVEL_PRINT);
     os << "matrix(" << row << "," << col <<",";
@@ -498,8 +498,8 @@ ex matrix::determinant(void) const
     // For this to be efficient it turns out that the emptiest columns (i.e.
     // the ones with most zeros) should be the ones on the right hand side.
     // Therefore we presort the columns of the matrix:
-    typedef pair<unsigned,unsigned> uintpair;  // # of zeros, column
-    vector<uintpair> c_zeros;  // number of zeros in column
+    typedef std::pair<unsigned,unsigned> uintpair;  // # of zeros, column
+    std::vector<uintpair> c_zeros;  // number of zeros in column
     for (unsigned c=0; c<col; ++c) {
         unsigned acc = 0;
         for (unsigned r=0; r<row; ++r)
@@ -508,14 +508,14 @@ ex matrix::determinant(void) const
         c_zeros.push_back(uintpair(acc,c));
     }
     sort(c_zeros.begin(),c_zeros.end());
-    vector<unsigned> pre_sort;  // unfortunately vector<uintpair> can't be used
-                                // for permutation_sign.
-    for (vector<uintpair>::iterator i=c_zeros.begin(); i!=c_zeros.end(); ++i)
+    // unfortunately std::vector<uintpair> can't be used for permutation_sign.
+    std::vector<unsigned> pre_sort;
+    for (std::vector<uintpair>::iterator i=c_zeros.begin(); i!=c_zeros.end(); ++i)
         pre_sort.push_back(i->second);
     int sign = permutation_sign(pre_sort);
     exvector result(row*col);  // represents sorted matrix
     unsigned c = 0;
-    for (vector<unsigned>::iterator i=pre_sort.begin();
+    for (std::vector<unsigned>::iterator i=pre_sort.begin();
          i!=pre_sort.end();
          ++i,++c) {
         for (unsigned r=0; r<row; ++r)
@@ -894,14 +894,14 @@ ex matrix::determinant_minor(void) const
     // 2*binomial(n,n/2) minors.
     
     // Unique flipper counter for partitioning into minors
-    vector<unsigned> Pkey;
+    std::vector<unsigned> Pkey;
     Pkey.reserve(this->col);
     // key for minor determinant (a subpartition of Pkey)
-    vector<unsigned> Mkey;
+    std::vector<unsigned> Mkey;
     Mkey.reserve(this->col-1);
     // we store our subminors in maps, keys being the rows they arise from
-    typedef map<vector<unsigned>,class ex> Rmap;
-    typedef map<vector<unsigned>,class ex>::value_type Rmap_value;
+    typedef std::map<std::vector<unsigned>,class ex> Rmap;
+    typedef std::map<std::vector<unsigned>,class ex>::value_type Rmap_value;
     Rmap A;
     Rmap B;
     ex det;

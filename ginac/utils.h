@@ -26,6 +26,7 @@
 
 #include <strstream>
 #include <string>
+#include <stdexcept>
 #include "config.h"
 #include "assertion.h"
 
@@ -33,19 +34,29 @@
 namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
 
+// This should be obsoleted once <sstream> is widely available.
 template<class T>
-string ToString(const T & t)
+std::string ToString(const T & t)
 {
     char buf[256];
-    ostrstream(buf,sizeof(buf)) << t << ends;
+    std::ostrstream(buf,sizeof(buf)) << t << std::ends;
     return buf;
 }
 
-/** Exception thrown by classes which provide their own series expansion to
- *  signal that ordinary Taylor expansion is safe. */
+/** Exception class thrown by classes which provide their own series expansion
+ *  to signal that ordinary Taylor expansion is safe. */
 class do_taylor {};
 
-// cygwin defines a macro log2, causing confusion
+/** Exception class thrown when a singularity is encountered. */
+class pole_error : public std::domain_error {
+public:
+    explicit pole_error(const std::string& what_arg, int degree);
+    int degree(void) const;
+private:
+    int deg;
+};
+
+// some compilers (e.g. cygwin) define a macro log2, causing confusion
 #ifndef log2
 unsigned log2(unsigned n);
 #endif
@@ -143,13 +154,13 @@ OutputIterator mymerge3(InputIterator1 first1, InputIterator1 last1,
 
 // Compute the sign of a permutation of a vector of things.
 template <typename T>
-int permutation_sign(vector<T> s)
+int permutation_sign(std::vector<T> s)
 {
     if (s.size() < 2)
         return 0;
     int sigma = 1;
-    for (typename vector<T>::iterator i=s.begin(); i!=s.end()-1; ++i) {
-        for (typename vector<T>::iterator j=i+1; j!=s.end(); ++j) {
+    for (typename std::vector<T>::iterator i=s.begin(); i!=s.end()-1; ++i) {
+        for (typename std::vector<T>::iterator j=i+1; j!=s.end(); ++j) {
             if (*i == *j)
                 return 0;
             if (*i > *j) {

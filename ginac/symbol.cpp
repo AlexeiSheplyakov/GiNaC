@@ -148,29 +148,30 @@ basic *symbol::duplicate() const
     return new symbol(*this);
 }
 
-void symbol::print(ostream & os, unsigned upper_precedence) const
+void symbol::print(std::ostream & os, unsigned upper_precedence) const
 {
     debugmsg("symbol print",LOGLEVEL_PRINT);
     os << name;
 }
 
-void symbol::printraw(ostream & os) const
+void symbol::printraw(std::ostream & os) const
 {
     debugmsg("symbol printraw",LOGLEVEL_PRINT);
     os << "symbol(" << "name=" << name << ",serial=" << serial
        << ",hash=" << hashvalue << ",flags=" << flags << ")";
 }
 
-void symbol::printtree(ostream & os, unsigned indent) const
+void symbol::printtree(std::ostream & os, unsigned indent) const
 {
     debugmsg("symbol printtree",LOGLEVEL_PRINT);
     os << std::string(indent,' ') << name << " (symbol): "
        << "serial=" << serial
-       << ", hash=" << hashvalue << " (0x" << hex << hashvalue << dec << ")"
-       << ", flags=" << flags << endl;
+       << ", hash=" << hashvalue
+       << " (0x" << std::hex << hashvalue << std::dec << ")"
+       << ", flags=" << flags << std::endl;
 }
 
-void symbol::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) const
+void symbol::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
 {
     debugmsg("symbol print csrc", LOGLEVEL_PRINT);
     os << name;
@@ -349,7 +350,7 @@ std::string & symbol::autoname_prefix(void)
 
 unsigned symbol::next_serial=0;
 
-// string const symbol::autoname_prefix="symbol";
+// std::string const symbol::autoname_prefix="symbol";
 
 //////////
 // global constants

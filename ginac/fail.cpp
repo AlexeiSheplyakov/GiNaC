@@ -117,13 +117,13 @@ basic * fail::duplicate() const
     return new fail(*this);
 }
 
-void fail::print(ostream & os, unsigned upper_precedence) const
+void fail::print(std::ostream & os, unsigned upper_precedence) const
 {
     debugmsg("fail print",LOGLEVEL_PRINT);
     os << "FAIL";
 }
 
-void fail::printraw(ostream & os) const
+void fail::printraw(std::ostream & os) const
 {
     debugmsg("fail printraw",LOGLEVEL_PRINT);
     os << "FAIL";

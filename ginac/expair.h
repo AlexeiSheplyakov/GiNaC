@@ -168,7 +168,7 @@ public:
         return cmpval;
     }
 
-    void printraw(ostream & os) const
+    void printraw(std::ostream & os) const
     {
         os << "expair(";
         rest.printraw(os);

@@ -95,7 +95,7 @@ coloridx::coloridx(bool cov) : idx(cov)
     tinfo_key=TINFO_coloridx;
 }
 
-coloridx::coloridx(const string & n, bool cov) : idx(n,cov)
+coloridx::coloridx(const std::string & n, bool cov) : idx(n,cov)
 {
     debugmsg("coloridx constructor from string,bool",LOGLEVEL_CONSTRUCT);
     tinfo_key=TINFO_coloridx;
@@ -147,7 +147,7 @@ basic * coloridx::duplicate() const
     return new coloridx(*this);
 }
 
-void coloridx::printraw(ostream & os) const
+void coloridx::printraw(std::ostream & os) const
 {
     debugmsg("coloridx printraw",LOGLEVEL_PRINT);
 
@@ -170,11 +170,11 @@ void coloridx::printraw(ostream & os) const
     os << ")";
 }
 
-void coloridx::printtree(ostream & os, unsigned indent) const
+void coloridx::printtree(std::ostream & os, unsigned indent) const
 {
     debugmsg("coloridx printtree",LOGLEVEL_PRINT);
 
-    os << string(indent,' ') << "coloridx: ";
+    os << std::string(indent,' ') << "coloridx: ";
 
     if (symbolic) {
         os << "symbolic,name=" << name;
@@ -189,11 +189,12 @@ void coloridx::printtree(ostream & os, unsigned indent) const
     }
 
     os << ", serial=" << serial
-       << ", hash=" << hashvalue << " (0x" << hex << hashvalue << dec << ")"
-       << ", flags=" << flags << endl;
+       << ", hash=" << hashvalue
+       << " (0x" << std::hex << hashvalue << std::dec << ")"
+       << ", flags=" << flags << std::endl;
 }
 
-void coloridx::print(ostream & os, unsigned upper_precedence) const
+void coloridx::print(std::ostream & os, unsigned upper_precedence) const
 {
     debugmsg("coloridx print",LOGLEVEL_PRINT);
 

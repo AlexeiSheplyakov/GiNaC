@@ -176,6 +176,13 @@ line	: ';'
 		cout << (syms.size() > 350 ? 350 : syms.size());
 		cout << " out of a possible 350.\n";
 	}
+	| T_TIME {getrusage(RUSAGE_SELF, &start_time);} '(' exp ')' {
+		getrusage(RUSAGE_SELF, &end_time);
+		cout << (end_time.ru_utime.tv_sec - start_time.ru_utime.tv_sec) +
+			(end_time.ru_stime.tv_sec - start_time.ru_stime.tv_sec) +
+			 double(end_time.ru_utime.tv_usec - start_time.ru_utime.tv_usec) / 1e6 +
+			 double(end_time.ru_stime.tv_usec - start_time.ru_stime.tv_usec) / 1e6 << 's' << endl;
+	}
 	| error ';'		{yyclearin; yyerrok;}
 	| error ':'		{yyclearin; yyerrok;}
 	;
@@ -188,13 +195,6 @@ exp	: T_NUMBER		{$$ = $1;}
 	| T_QUOTE		{$$ = exstack[0];}
 	| T_QUOTE2		{$$ = exstack[1];}
 	| T_QUOTE3		{$$ = exstack[2];}
-	| T_TIME {getrusage(RUSAGE_SELF, &start_time);} '(' exp ')' {
-		getrusage(RUSAGE_SELF, &end_time);
-		$$ = (end_time.ru_utime.tv_sec - start_time.ru_utime.tv_sec) +
-		     (end_time.ru_stime.tv_sec - start_time.ru_stime.tv_sec) +
-		     double(end_time.ru_utime.tv_usec - start_time.ru_utime.tv_usec) / 1e6 +
-		     double(end_time.ru_stime.tv_usec - start_time.ru_stime.tv_usec) / 1e6;
-	}
 	| T_SYMBOL '(' exprseq ')' {
 		fcn_tab::const_iterator i = find_function($1, $3.nops());
 		if (i->second.is_ginac) {

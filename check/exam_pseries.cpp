@@ -89,7 +89,7 @@ static unsigned exam_series1(void)
     result += check_series(e, 0, d);
     
     e = pow(numeric(2), x);
-    ex t = log(ex(2)) * x;
+    ex t = log(2) * x;
     d = 1 + t + pow(t, 2) / 2 + pow(t, 3) / 6 + pow(t, 4) / 24 + pow(t, 5) / 120 + pow(t, 6) / 720 + pow(t, 7) / 5040 + Order(pow(x, 8));
     result += check_series(e, 0, d.expand());
     
@@ -179,28 +179,45 @@ static unsigned exam_series5(void)
     return check_series(e, -1, d, 4);
 }
     
-// Series expansion of tan(Pi/2)
+// Series expansion of tan(x==Pi/2)
 static unsigned exam_series6(void)
 {
     ex e = tan(x*Pi/2);
-    ex d = pow(x-1,-1)/Pi*(-2) +
-           pow(x-1,1)*Pi/6 +
-           pow(x-1,3)*pow(Pi,3)/360 +
-           pow(x-1,5)*pow(Pi,5)/15120 +
-           pow(x-1,7)*pow(Pi,7)/604800 +
-           Order(pow(x-1,8));
+    ex d = pow(x-1,-1)/Pi*(-2) + pow(x-1,1)*Pi/6 + pow(x-1,3)*pow(Pi,3)/360
+          +pow(x-1,5)*pow(Pi,5)/15120 + pow(x-1,7)*pow(Pi,7)/604800
+          +Order(pow(x-1,8));
     return check_series(e,1,d,8);
 }
 
-// Series expansion of Li2(sin(0))
+// Series expansion of log(sin(x==0))
 static unsigned exam_series7(void)
 {
+    ex e = log(sin(x));
+    ex d = log(x) - pow(x,2)/6 - pow(x,4)/180 - pow(x,6)/2835
+          +Order(pow(x,8));
+    return check_series(e,0,d,8);
+}
+
+// Series expansion of Li2(sin(x==0))
+static unsigned exam_series8(void)
+{
     ex e = Li2(sin(x));
-    ex d = x + numeric(1,4)*pow(x,2) - numeric(1,18)*pow(x,3)
-           - numeric(1,48)*pow(x,4) - numeric(13,1800)*pow(x,5)
-           - numeric(1,360)*pow(x,6) - numeric(23,21168)*pow(x,7)
+    ex d = x + pow(x,2)/4 - pow(x,3)/18 - pow(x,4)/48
+           - 13*pow(x,5)/1800 - pow(x,6)/360 - 23*pow(x,7)/21168
            + Order(pow(x,8));
     return check_series(e,0,d,8);
+}
+
+// Series expansion of Li2((x==2)^2), caring about branch-cut
+static unsigned exam_series9(void)
+{
+    ex e = Li2(pow(x,2));
+    ex d = Li2(4) + (-log(3) + I*Pi*csgn(I-I*pow(x,2))) * (x-2)
+           + (numeric(-2,3) + log(3)/4 - I*Pi/4*csgn(I-I*pow(x,2))) * pow(x-2,2)
+           + (numeric(11,27) - log(3)/12 + I*Pi/12*csgn(I-I*pow(x,2))) * pow(x-2,3)
+           + (numeric(-155,648) + log(3)/32 - I*Pi/32*csgn(I-I*pow(x,2))) * pow(x-2,4)
+           + Order(pow(x-2,5));
+    return check_series(e,2,d,5);
 }
 
 unsigned exam_pseries(void)
@@ -217,6 +234,8 @@ unsigned exam_pseries(void)
     result += exam_series5();  cout << '.' << flush;
     result += exam_series6();  cout << '.' << flush;
     result += exam_series7();  cout << '.' << flush;
+    result += exam_series8();  cout << '.' << flush;
+    result += exam_series9();  cout << '.' << flush;
     
     if (!result) {
         cout << " passed " << endl;

@@ -95,7 +95,7 @@ $typedef_derivative_funcp=generate(
 'const ex &','');
 
 $typedef_series_funcp=generate(
-'typedef ex (* series_funcp_${N})(${SEQ1}, const relational &, int);'."\n",
+'typedef ex (* series_funcp_${N})(${SEQ1}, const relational &, int, bool);'."\n",
 'const ex &','');
 
 $eval_func_interface=generate('    function_options & eval_func(eval_funcp_${N} e);'."\n",'','');
@@ -145,9 +145,9 @@ $series_switch_statement=generate(
     <<'END_OF_SERIES_SWITCH_STATEMENT','seq[${N}-1]','');
     case ${N}:
         try {
-            res = ((series_funcp_${N})(registered_functions()[serial].series_f))(${SEQ1},r,order);
+            res = ((series_funcp_${N})(registered_functions()[serial].series_f))(${SEQ1},r,order,branchcut);
         } catch (do_taylor) {
-            res = basic::series(r, order);
+            res = basic::series(r, order, branchcut);
         }
         return res;
         break;
@@ -226,10 +226,8 @@ $interface=<<END_OF_INTERFACE;
 #include <string>
 #include <vector>
 
-#ifdef __CINT__
 // CINT needs <algorithm> to work properly with <vector> 
 #include <algorithm>
-#endif // def __CINT__
 
 #include "exprseq.h"
 
@@ -330,10 +328,10 @@ class function_options
     friend class function;
 public:
     function_options();
-    function_options(string const & n, string const & tn=string());
+    function_options(std::string const & n, std::string const & tn=std::string());
     ~function_options();
     void initialize(void);
-    function_options & set_name(string const & n, string const & tn=string());
+    function_options & set_name(std::string const & n, std::string const & tn=std::string());
 // the following lines have been generated for max. ${maxargs} parameters
 $eval_func_interface
 $evalf_func_interface
@@ -346,12 +344,12 @@ $series_func_interface
                                 unsigned strategy=remember_strategies::delete_never);
     function_options & overloaded(unsigned o);
     void test_and_set_nparams(unsigned n);
-    string get_name(void) const { return name; }
+    std::string get_name(void) const { return name; }
     unsigned get_nparams(void) const { return nparams; }
 
 protected:
-    string name;
-    string TeX_name;
+    std::string name;
+    std::string TeX_name;
 
     unsigned nparams;
 
@@ -414,14 +412,14 @@ $constructors_interface
     // functions overriding virtual functions from bases classes
 public:
     basic * duplicate() const;
-    void printraw(ostream & os) const; 
-    void print(ostream & os, unsigned upper_precedence=0) const;
-    void printtree(ostream & os, unsigned indent) const;
-    void printcsrc(ostream & os, unsigned type, unsigned upper_precedence=0) const;
+    void printraw(std::ostream & os) const; 
+    void print(std::ostream & os, unsigned upper_precedence=0) const;
+    void printtree(std::ostream & os, unsigned indent) const;
+    void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence=0) const;
     ex expand(unsigned options=0) const;
     ex eval(int level=0) const;
     ex evalf(int level=0) const;
-    ex series(const relational & r, int order) const;
+    ex series(const relational & r, int order, bool branchcut = true) const;
     ex thisexprseq(const exvector & v) const;
     ex thisexprseq(exvector * vp) const;
 protected:
@@ -437,12 +435,12 @@ protected:
     // non-virtual functions in this class
 protected:
     ex pderivative(unsigned diff_param) const; // partial differentiation
-    static vector<function_options> & registered_functions(void);
+    static std::vector<function_options> & registered_functions(void);
     bool lookup_remember_table(ex & result) const;
     void store_remember_table(ex const & result) const;
 public:
     static unsigned register_new(function_options const & opt);
-    static unsigned find_function(const string &name, unsigned nparams);
+    static unsigned find_function(const std::string &name, unsigned nparams);
     unsigned getserial(void) const {return serial;}
     
 // member variables
@@ -535,7 +533,7 @@ function_options::function_options()
     initialize();
 }
 
-function_options::function_options(string const & n, string const & tn)
+function_options::function_options(std::string const & n, std::string const & tn)
 {
     initialize();
     set_name(n,tn);
@@ -557,11 +555,11 @@ void function_options::initialize(void)
     functions_with_same_name=1;
 }
 
-function_options & function_options::set_name(string const & n,
-                                              string const & tn)
+function_options & function_options::set_name(std::string const & n,
+                                              std::string const & tn)
 {
     name=n;
-    if (tn==string()) {
+    if (tn==std::string()) {
         TeX_name="\\\\operatorname{"+name+"}";
     } else {
         TeX_name=tn;
@@ -615,9 +613,9 @@ void function_options::test_and_set_nparams(unsigned n)
         // we do not throw an exception here because this code is
         // usually executed before main(), so the exception could not
         // caught anyhow
-        cerr << "WARNING: number of parameters ("
-             << n << ") differs from number set before (" 
-             << nparams << ")" << endl;
+        std::cerr << "WARNING: number of parameters ("
+                  << n << ") differs from number set before (" 
+                  << nparams << ")" << std::endl;
     }
 }
 
@@ -716,10 +714,10 @@ function::function(const archive_node &n, const lst &sym_lst) : inherited(n, sym
     debugmsg("function constructor from archive_node", LOGLEVEL_CONSTRUCT);
 
     // Find serial number by function name
-    string s;
+    std::string s;
     if (n.find_string("name", s)) {
         unsigned int ser = 0;
-        vector<function_options>::const_iterator i = registered_functions().begin(), iend = registered_functions().end();
+        std::vector<function_options>::const_iterator i = registered_functions().begin(), iend = registered_functions().end();
         while (i != iend) {
             if (s == i->name) {
                 serial = ser;
@@ -758,7 +756,7 @@ basic * function::duplicate() const
     return new function(*this);
 }
 
-void function::printraw(ostream & os) const
+void function::printraw(std::ostream & os) const
 {
     debugmsg("function printraw",LOGLEVEL_PRINT);
 
@@ -772,7 +770,7 @@ void function::printraw(ostream & os) const
     os << ")";
 }
 
-void function::print(ostream & os, unsigned upper_precedence) const
+void function::print(std::ostream & os, unsigned upper_precedence) const
 {
     debugmsg("function print",LOGLEVEL_PRINT);
 
@@ -782,31 +780,32 @@ void function::print(ostream & os, unsigned upper_precedence) const
     printseq(os,'(',',',')',exprseq::precedence,function::precedence);
 }
 
-void function::printtree(ostream & os, unsigned indent) const
+void function::printtree(std::ostream & os, unsigned indent) const
 {
     debugmsg("function printtree",LOGLEVEL_PRINT);
 
     GINAC_ASSERT(serial<registered_functions().size());
 
-    os << string(indent,' ') << "function "
+    os << std::string(indent,' ') << "function "
        << registered_functions()[serial].name
-       << ", hash=" << hashvalue << " (0x" << hex << hashvalue << dec << ")"
+       << ", hash=" << hashvalue 
+       << " (0x" << std::hex << hashvalue << std::dec << ")"
        << ", flags=" << flags
-       << ", nops=" << nops() << endl;
+       << ", nops=" << nops() << std::endl;
     for (unsigned i=0; i<nops(); ++i) {
         seq[i].printtree(os,indent+delta_indent);
     }
-    os << string(indent+delta_indent,' ') << "=====" << endl;
+    os << std::string(indent+delta_indent,' ') << "=====" << std::endl;
 }
 
-void function::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) const
+void function::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
 {
     debugmsg("function print csrc",LOGLEVEL_PRINT);
 
     GINAC_ASSERT(serial<registered_functions().size());
 
 	// Print function name in lowercase
-    string lname;
+    std::string lname;
     lname=registered_functions()[serial].name;
     for (unsigned i=0; i<lname.size(); i++)
         lname[i] = tolower(lname[i]);
@@ -890,7 +889,7 @@ ex function::thisexprseq(exvector * vp) const
 
 /** Implementation of ex::series for functions.
  *  \@see ex::series */
-ex function::series(const relational & r, int order) const
+ex function::series(const relational & r, int order, bool branchcut = true) const
 {
     GINAC_ASSERT(serial<registered_functions().size());
 
@@ -1014,9 +1013,9 @@ ${diff_switch_statement}
     throw(std::logic_error("function::pderivative(): no diff function defined"));
 }
 
-vector<function_options> & function::registered_functions(void)
+std::vector<function_options> & function::registered_functions(void)
 {
-    static vector<function_options> * rf=new vector<function_options>;
+    static std::vector<function_options> * rf = new std::vector<function_options>;
     return *rf;
 }
 
@@ -1044,8 +1043,8 @@ unsigned function::register_new(function_options const & opt)
         // we do not throw an exception here because this code is
         // usually executed before main(), so the exception could not
         // caught anyhow
-        cerr << "WARNING: function name " << opt.name
-             << " already in use!" << endl;
+        std::cerr << "WARNING: function name " << opt.name
+                  << " already in use!" << std::endl;
     }
     registered_functions().push_back(opt);
     if (opt.use_remember) {
@@ -1061,9 +1060,9 @@ unsigned function::register_new(function_options const & opt)
 
 /** Find serial number of function by name and number of parameters.
  *  Throws exception if function was not found. */
-unsigned function::find_function(const string &name, unsigned nparams)
+unsigned function::find_function(const std::string &name, unsigned nparams)
 {
-    vector<function_options>::const_iterator i = function::registered_functions().begin(), end = function::registered_functions().end();
+    std::vector<function_options>::const_iterator i = function::registered_functions().begin(), end = function::registered_functions().end();
     unsigned serial = 0;
     while (i != end) {
         if (i->get_name() == name && i->get_nparams() == nparams)

@@ -51,16 +51,16 @@ protected:
     // other constructors
 public:
     explicit idx(bool cov);
-    explicit idx(const string & n, bool cov=false);
+    explicit idx(const std::string & n, bool cov=false);
     explicit idx(const char * n, bool cov=false);
     explicit idx(unsigned v, bool cov=false); 
 
     // functions overriding virtual functions from bases classes
 public:
     basic * duplicate() const;
-    void printraw(ostream & os) const;
-    void printtree(ostream & os, unsigned indent) const;
-    void print(ostream & os, unsigned upper_precedence=0) const;
+    void printraw(std::ostream & os) const;
+    void printtree(std::ostream & os, unsigned indent) const;
+    void print(std::ostream & os, unsigned upper_precedence=0) const;
     bool info(unsigned inf) const;
 protected:
     int compare_same_type(const basic & other) const;
@@ -78,14 +78,14 @@ public:
     bool is_symbolic(void) const;
     unsigned get_value(void) const;
     bool is_covariant(void) const;
-    void setname(const string & n) {name=n;}
-    string getname(void) const {return name;}
+    void setname(const std::string & n) {name=n;}
+    std::string getname(void) const {return name;}
 
     // member variables
 protected:
     unsigned serial;
     bool symbolic;
-    string name;
+    std::string name;
     unsigned value;
     static unsigned next_serial;
     bool covariant; // x_mu, default is contravariant: x^mu
@@ -103,8 +103,6 @@ inline const idx &ex_to_idx(const ex &e)
 }
 
 // global functions
-
-// typedef vector<ex> exvector;
 
 int canonicalize_indices(exvector & iv, bool antisymmetric=false);
 exvector idx_intersect(const exvector & iv1, const exvector & iv2);

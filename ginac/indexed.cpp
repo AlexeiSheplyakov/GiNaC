@@ -166,7 +166,7 @@ basic * indexed::duplicate() const
     return new indexed(*this);
 }
 
-void indexed::printraw(ostream & os) const
+void indexed::printraw(std::ostream & os) const
 {
     debugmsg("indexed printraw",LOGLEVEL_PRINT);
     os << "indexed(indices=";
@@ -174,22 +174,22 @@ void indexed::printraw(ostream & os) const
     os << ",hash=" << hashvalue << ",flags=" << flags << ")";
 }
 
-void indexed::printtree(ostream & os, unsigned indent) const
+void indexed::printtree(std::ostream & os, unsigned indent) const
 {
     debugmsg("indexed printtree",LOGLEVEL_PRINT);
-    os << string(indent,' ') << "indexed: " << seq.size() << " indices";
-    os << ",hash=" << hashvalue << ",flags=" << flags << endl;
+    os << std::string(indent,' ') << "indexed: " << seq.size() << " indices";
+    os << ",hash=" << hashvalue << ",flags=" << flags << std::endl;
     printtreeindices(os,indent);
 }
 
-void indexed::print(ostream & os, unsigned upper_precedence) const
+void indexed::print(std::ostream & os, unsigned upper_precedence) const
 {
     debugmsg("indexed print",LOGLEVEL_PRINT);
     os << "UNNAMEDINDEX";
     printindices(os);
 }
 
-void indexed::printcsrc(ostream & os, unsigned type,
+void indexed::printcsrc(std::ostream & os, unsigned type,
                         unsigned upper_precedence) const
 {
     debugmsg("indexed print csrc",LOGLEVEL_PRINT);
@@ -272,7 +272,7 @@ ex indexed::thisexprseq(exvector * vp) const
 
 // protected
 
-void indexed::printrawindices(ostream & os) const
+void indexed::printrawindices(std::ostream & os) const
 {
     if (seq.size()!=0) {
         for (exvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
@@ -282,18 +282,18 @@ void indexed::printrawindices(ostream & os) const
     }
 }
 
-void indexed::printtreeindices(ostream & os, unsigned indent) const
+void indexed::printtreeindices(std::ostream & os, unsigned indent) const
 {
     if (seq.size()!=0) {
         for (exvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
-            os << string(indent+delta_indent,' ');
+            os << std::string(indent+delta_indent,' ');
             (*cit).printraw(os);
-            os << endl;
+            os << std::endl;
         }
     }
 }
 
-void indexed::printindices(ostream & os) const
+void indexed::printindices(std::ostream & os) const
 {
     if (seq.size()!=0) {
         if (seq.size()>1) {

@@ -104,7 +104,7 @@ basic::basic(const archive_node &n, const lst &sym_lst) : flags(0), refcount(0)
     debugmsg("basic constructor from archive_node", LOGLEVEL_CONSTRUCT);
 
     // Reconstruct tinfo_key from class name
-    string class_name;
+    std::string class_name;
     if (n.find_string("class", class_name))
         tinfo_key = find_tinfo_key(class_name);
     else
@@ -136,7 +136,7 @@ void basic::archive(archive_node &n) const
 // public
 
 /** Output to stream formatted to be useful as ginsh input. */
-void basic::print(ostream & os, unsigned upper_precedence) const
+void basic::print(std::ostream & os, unsigned upper_precedence) const
 {
     debugmsg("basic print",LOGLEVEL_PRINT);
     os << "[basic object]";
@@ -144,7 +144,7 @@ void basic::print(ostream & os, unsigned upper_precedence) const
 
 /** Output to stream in ugly raw format, so brave developers can have a look
  * at the underlying structure. */
-void basic::printraw(ostream & os) const
+void basic::printraw(std::ostream & os) const
 {
     debugmsg("basic printraw",LOGLEVEL_PRINT);
     os << "[basic object]";
@@ -152,13 +152,14 @@ void basic::printraw(ostream & os) const
 
 /** Output to stream formatted in tree- (indented-) form, so developers can
  *  have a look at the underlying structure. */
-void basic::printtree(ostream & os, unsigned indent) const
+void basic::printtree(std::ostream & os, unsigned indent) const
 {
     debugmsg("basic printtree",LOGLEVEL_PRINT);
-    os << string(indent,' ') << "type=" << typeid(*this).name()
-       << ", hash=" << hashvalue << " (0x" << hex << hashvalue << dec << ")"
+    os << std::string(indent,' ') << "type=" << typeid(*this).name()
+       << ", hash=" << hashvalue
+       << " (0x" << std::hex << hashvalue << std::dec << ")"
        << ", flags=" << flags
-       << ", nops=" << nops() << endl;
+       << ", nops=" << nops() << std::endl;
     for (unsigned i=0; i<nops(); ++i) {
         op(i).printtree(os,indent+delta_indent);
     }
@@ -170,7 +171,7 @@ void basic::printtree(ostream & os, unsigned indent) const
  *  @param type variable type (one of the csrc_types)
  *  @param upper_precedence operator precedence of caller
  *  @see ex::printcsrc */
-void basic::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) const
+void basic::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
 {
     debugmsg("basic print csrc", LOGLEVEL_PRINT);
 }
@@ -178,14 +179,14 @@ void basic::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) co
 /** Little wrapper arount print to be called within a debugger. */
 void basic::dbgprint(void) const
 {
-    print(cerr);
-    cerr << endl;
+    print(std::cerr);
+    std::cerr << std::endl;
 }
 
 /** Little wrapper arount printtree to be called within a debugger. */
 void basic::dbgprinttree(void) const
 {
-    printtree(cerr,0);
+    printtree(std::cerr,0);
 }
 
 basic * basic::duplicate() const
@@ -311,14 +312,14 @@ ex basic::subs(const lst & ls, const lst & lr) const
 ex basic::diff(const symbol & s, unsigned nth) const
 {
     // trivial: zeroth derivative
-    if (!nth)
+    if (nth==0)
         return ex(*this);
     
     // evaluate unevaluated *this before differentiating
     if (!(flags & status_flags::evaluated))
         return ex(*this).diff(s, nth);
     
-    ex ndiff = derivative(s);
+    ex ndiff = this->derivative(s);
     while (!ndiff.is_zero() &&    // stop differentiating zeros
            nth>1) {
         ndiff = ndiff.diff(s);

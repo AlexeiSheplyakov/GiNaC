@@ -268,6 +268,30 @@ static unsigned exam_differentiation6(void)
     return 0;
 }
 
+// Hashing can help a lot, if differentiation is done cleverly
+static unsigned exam_differentiation7(void)
+{
+    symbol x("x");
+    ex P = x + pow(x,3);
+    ex e = (P.diff(x) / P).diff(x, 2);
+    ex d = 6/P - 18*x/pow(P,2) - 54*pow(x,3)/pow(P,2) + 2/pow(P,3)
+        +18*pow(x,2)/pow(P,3) + 54*pow(x,4)/pow(P,3) + 54*pow(x,6)/pow(P,3);
+    
+    if (!(e-d).expand().is_zero()) {
+        clog << "expanded second derivative of " << (P.diff(x) / P) << " by " << x
+             << " returned " << e.expand() << " instead of " << d << endl;
+        return 1;
+    }
+    if (e.nops() > 3) {
+        clog << "second derivative of " << (P.diff(x) / P) << " by " << x
+             << " has " << e.nops() << " operands.  "
+             << "The result is still correct but not optimal: 3 are enough!  "
+             << "(Hint: maybe the product rule for objects of class mul should be more careful about assembling the result?)" << endl;
+        return 1;
+    }
+    return 0;
+}
+
 unsigned exam_differentiation(void)
 {
     unsigned result = 0;
@@ -281,6 +305,7 @@ unsigned exam_differentiation(void)
     result += exam_differentiation4();  cout << '.' << flush;
     result += exam_differentiation5();  cout << '.' << flush;
     result += exam_differentiation6();  cout << '.' << flush;
+    result += exam_differentiation7();  cout << '.' << flush;
     
     if (!result) {
         cout << " passed " << endl;

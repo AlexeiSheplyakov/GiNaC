@@ -1,5 +1,15 @@
 This file records noteworthy changes.
 
+0.6.3 (xx July 2000)
+* Derivatives are now assembled in a slightly different manner (i.e. they 
+  'look' different on first sight).  Under certain circumstances this can 
+  result in a dramatic speedup because it gives hashing a better chance, 
+  especially when computing higher derivatives.
+* Many series expansions of built-in functions have been reengineered.
+* The Dilogarithm (Li2) now has floating point evaluation, derivative and a
+  proper series expansion.
+* Namespace 'std' cleanly disentangled, as demanded by ISO/EIC 14882-1998(E).
+
 0.6.2 (21 June 2000)
 * ginaccint.bin is now launched by a binary program instead of by a scripts.
   This allows us to write #!-scripts.  A small test suite for GiNaC-cint was

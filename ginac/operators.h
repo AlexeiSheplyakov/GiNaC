@@ -79,8 +79,8 @@ relational operator>(const ex & lh, const ex & rh);
 relational operator>=(const ex & lh, const ex & rh);
 
 // input/output stream operators
-ostream & operator<<(ostream & os, const ex & e);
-istream & operator>>(istream & is, ex & e);
+std::ostream & operator<<(std::ostream & os, const ex & e);
+std::istream & operator>>(std::istream & is, ex & e);
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

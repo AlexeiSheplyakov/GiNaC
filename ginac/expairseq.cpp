@@ -209,7 +209,7 @@ basic * expairseq::duplicate() const
     return new expairseq(*this);
 }
 
-void expairseq::print(ostream & os, unsigned upper_precedence) const
+void expairseq::print(std::ostream & os, unsigned upper_precedence) const
 {
     debugmsg("expairseq print",LOGLEVEL_PRINT);
     os << "[[";
@@ -217,7 +217,7 @@ void expairseq::print(ostream & os, unsigned upper_precedence) const
     os << "]]";
 }
 
-void expairseq::printraw(ostream & os) const
+void expairseq::printraw(std::ostream & os) const
 {
     debugmsg("expairseq printraw",LOGLEVEL_PRINT);
 
@@ -232,30 +232,31 @@ void expairseq::printraw(ostream & os) const
     os << ")";
 }
 
-void expairseq::printtree(ostream & os, unsigned indent) const
+void expairseq::printtree(std::ostream & os, unsigned indent) const
 {
     debugmsg("expairseq printtree",LOGLEVEL_PRINT);
 
-    os << string(indent,' ') << "type=" << typeid(*this).name()
-       << ", hash=" << hashvalue << " (0x" << hex << hashvalue << dec << ")"
+    os << std::string(indent,' ') << "type=" << typeid(*this).name()
+       << ", hash=" << hashvalue
+       << " (0x" << std::hex << hashvalue << std::dec << ")"
        << ", flags=" << flags
-       << ", nops=" << nops() << endl;
+       << ", nops=" << nops() << std::endl;
     for (unsigned i=0; i<seq.size(); ++i) {
         seq[i].rest.printtree(os,indent+delta_indent);
         seq[i].coeff.printtree(os,indent+delta_indent);
         if (i!=seq.size()-1) {
-            os << string(indent+delta_indent,' ') << "-----" << endl;
+            os << std::string(indent+delta_indent,' ') << "-----" << std::endl;
         }
     }
     if (!overall_coeff.is_equal(default_overall_coeff())) {
-        os << string(indent+delta_indent,' ') << "-----" << endl;
-        os << string(indent+delta_indent,' ') << "overall_coeff" << endl;
+        os << std::string(indent+delta_indent,' ') << "-----" << std::endl;
+        os << std::string(indent+delta_indent,' ') << "overall_coeff" << std::endl;
         overall_coeff.printtree(os,indent+delta_indent);
     }
-    os << string(indent+delta_indent,' ') << "=====" << endl;
+    os << std::string(indent+delta_indent,' ') << "=====" << std::endl;
 #ifdef EXPAIRSEQ_USE_HASHTAB
-    os << string(indent+delta_indent,' ')
-       << "hashtab size " << hashtabsize << endl;
+    os << std::string(indent+delta_indent,' ')
+       << "hashtab size " << hashtabsize << std::endl;
     if (hashtabsize==0) return;
 #define MAXCOUNT 5
     unsigned count[MAXCOUNT+1];
@@ -266,14 +267,14 @@ void expairseq::printtree(ostream & os, unsigned indent) const
     for (unsigned i=0; i<hashtabsize; ++i) {
         this_bin_fill=0;
         if (hashtab[i].size()>0) {
-            os << string(indent+delta_indent,' ') 
+            os << std::string(indent+delta_indent,' ') 
                << "bin " << i << " with entries ";
             for (epplist::const_iterator it=hashtab[i].begin();
                  it!=hashtab[i].end(); ++it) {
                 os << *it-seq.begin() << " ";
                 this_bin_fill++;
             }
-            os << endl;
+            os << std::endl;
             cum_fill += this_bin_fill;
             cum_fill_sq += this_bin_fill*this_bin_fill;
         }
@@ -290,20 +291,20 @@ void expairseq::printtree(ostream & os, unsigned indent) const
         if (k>0) fact *= k;
         double prob = pow(lambda,k)/fact*exp(-lambda);
         cum_prob += prob;
-        os << string(indent+delta_indent,' ') << "bins with " << k << " entries: "
+        os << std::string(indent+delta_indent,' ') << "bins with " << k << " entries: "
            << int(1000.0*count[k]/hashtabsize)/10.0 << "% (expected: "
-           << int(prob*1000)/10.0 << ")" << endl;
+           << int(prob*1000)/10.0 << ")" << std::endl;
     }
-    os << string(indent+delta_indent,' ') << "bins with more entries: "
+    os << std::string(indent+delta_indent,' ') << "bins with more entries: "
        << int(1000.0*count[MAXCOUNT]/hashtabsize)/10.0 << "% (expected: "
-       << int((1-cum_prob)*1000)/10.0 << ")" << endl;
+       << int((1-cum_prob)*1000)/10.0 << ")" << std::endl;
     
-    os << string(indent+delta_indent,' ') << "variance: "
+    os << std::string(indent+delta_indent,' ') << "variance: "
        << 1.0/hashtabsize*cum_fill_sq-(1.0/hashtabsize*cum_fill)*(1.0/hashtabsize*cum_fill)
-       << endl;
-    os << string(indent+delta_indent,' ') << "average fill: "
+       << std::endl;
+    os << std::string(indent+delta_indent,' ') << "average fill: "
        << (1.0*cum_fill)/hashtabsize
-       << " (should be equal to " << (1.0*seq.size())/hashtabsize << ")" << endl;
+       << " (should be equal to " << (1.0*seq.size())/hashtabsize << ")" << std::endl;
 #endif // def EXPAIRSEQ_USE_HASHTAB
 }
 
@@ -461,9 +462,9 @@ bool expairseq::is_equal_same_type(const basic & other) const
 #ifdef EXPAIRSEQ_USE_HASHTAB
     // compare number of elements in each hashtab entry
     if (hashtabsize!=o.hashtabsize) {
-        cout << "this:" << endl;
+        cout << "this:" << std::endl;
         printtree(cout,0);
-        cout << "other:" << endl;
+        cout << "other:" << std::endl;
         other.printtree(cout,0);
     }
         
@@ -562,7 +563,7 @@ ex expairseq::thisexpairseq(epvector * vp, const ex & oc) const
     return expairseq(vp,oc);
 }
 
-void expairseq::printpair(ostream & os, const expair & p, unsigned upper_precedence) const
+void expairseq::printpair(std::ostream & os, const expair & p, unsigned upper_precedence) const
 {
     os << "[[";
     p.rest.bp->print(os,precedence);
@@ -571,7 +572,8 @@ void expairseq::printpair(ostream & os, const expair & p, unsigned upper_precede
     os << "]]";
 }
 
-void expairseq::printseq(ostream & os, char delim, unsigned this_precedence,
+void expairseq::printseq(std::ostream & os, char delim,
+                         unsigned this_precedence,
                          unsigned upper_precedence) const
 {
     if (this_precedence<=upper_precedence) os << "(";
@@ -904,8 +906,6 @@ void expairseq::construct_from_epvector(const epvector & v)
 #endif // def EXPAIRSEQ_USE_HASHTAB
 }
 
-#include <iostream>
-
 void expairseq::make_flat(const exvector & v)
 {
     exvector::const_iterator cit, citend = v.end();
@@ -948,11 +948,11 @@ void expairseq::make_flat(const exvector & v)
     }
 
     /*
-    cout << "after make flat" << endl;
+    cout << "after make flat" << std::endl;
     for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
         (*cit).printraw(cout);
     }
-    cout << endl;
+    cout << std::endl;
     */
 }
 
@@ -1110,11 +1110,11 @@ void expairseq::canonicalize(void)
     */
 
     /*
-    cout << "after canonicalize" << endl;
+    cout << "after canonicalize" << std::endl;
     for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
         (*cit).printraw(cout);
     }
-    cout << endl;
+    cout << std::endl;
     cout.flush();
     */
 }
@@ -1163,11 +1163,11 @@ void expairseq::combine_same_terms_sorted_seq(void)
     }
 
     /*
-    cout << "after combine" << endl;
+    cout << "after combine" << std::endl;
     for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
         (*cit).printraw(cout);
     }
-    cout << endl;
+    cout << std::endl;
     cout.flush();
     */
     
@@ -1258,8 +1258,8 @@ void expairseq::remove_hashtab_entry(epvector::const_iterator element)
     }
     if (!erased) {
         printtree(cout,0);
-        cout << "tried to erase " << element-seq.begin() << endl;
-        cout << "size " << seq.end()-seq.begin() << endl;
+        cout << "tried to erase " << element-seq.begin() << std::endl;
+        cout << "size " << seq.end()-seq.begin() << std::endl;
 
         unsigned hashindex=calc_hashindex((*element).rest);
         epplist & eppl=hashtab[hashindex];
@@ -1463,15 +1463,15 @@ void expairseq::combine_same_terms(void)
     GINAC_ASSERT(!has_coeff_0());
     build_hashtab_and_combine(first_numeric,last_non_zero,touched,number_of_zeroes);
     /*
-    cout << "in combine:" << endl;
+    cout << "in combine:" << std::endl;
     printtree(cout,0);
-    cout << "size=" << seq.end() - seq.begin() << endl;
-    cout << "first_numeric=" << first_numeric - seq.begin() << endl;
-    cout << "last_non_zero=" << last_non_zero - seq.begin() << endl;
+    cout << "size=" << seq.end() - seq.begin() << std::endl;
+    cout << "first_numeric=" << first_numeric - seq.begin() << std::endl;
+    cout << "last_non_zero=" << last_non_zero - seq.begin() << std::endl;
     for (unsigned i=0; i<seq.size(); ++i) {
-        if (touched[i]) cout << i << " is touched" << endl;
+        if (touched[i]) cout << i << " is touched" << std::endl;
     }
-    cout << "end in combine" << endl;
+    cout << "end in combine" << std::endl;
     */
     
     // there should not be any terms with coeff 0 from the beginning,
@@ -1479,15 +1479,15 @@ void expairseq::combine_same_terms(void)
     if (number_of_zeroes!=0) {
         drop_coeff_0_terms(first_numeric,last_non_zero,touched,number_of_zeroes);
         /*
-        cout << "in combine after drop:" << endl;
+        cout << "in combine after drop:" << std::endl;
         printtree(cout,0);
-        cout << "size=" << seq.end() - seq.begin() << endl;
-        cout << "first_numeric=" << first_numeric - seq.begin() << endl;
-        cout << "last_non_zero=" << last_non_zero - seq.begin() << endl;
+        cout << "size=" << seq.end() - seq.begin() << std::endl;
+        cout << "first_numeric=" << first_numeric - seq.begin() << std::endl;
+        cout << "last_non_zero=" << last_non_zero - seq.begin() << std::endl;
         for (unsigned i=0; i<seq.size(); ++i) {
-            if (touched[i]) cout << i << " is touched" << endl;
+            if (touched[i]) cout << i << " is touched" << std::endl;
         }
-        cout << "end in combine after drop" << endl;
+        cout << "end in combine after drop" << std::endl;
         */
     }
 
@@ -1529,10 +1529,10 @@ bool expairseq::is_canonical() const
                     cout << ">";
                     printpair(cout,*it,0);
                     cout << "\n";
-                    cout << "pair1:" << endl;
+                    cout << "pair1:" << std::endl;
                     (*it_last).rest.printtree(cout);
                     (*it_last).coeff.printtree(cout);
-                    cout << "pair2:" << endl;
+                    cout << "pair2:" << std::endl;
                     (*it).rest.printtree(cout);
                     (*it).coeff.printtree(cout);
                     return 0;

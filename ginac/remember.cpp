@@ -38,7 +38,7 @@ namespace GiNaC {
 remember_table_entry::remember_table_entry(function const & f, ex const & r) :
     hashvalue(f.gethash()), seq(f.seq), result(r)
 {
-    last_access=access_counter++;
+    ++last_access=access_counter;
     successful_hits=0;
 }
 
@@ -49,8 +49,8 @@ bool remember_table_entry::is_equal(function const & f) const
     for (unsigned i=0; i<seq.size(); ++i) {
         if (!seq[i].is_equal(f.seq[i])) return false;
     }
-    last_access=access_counter++;
-    successful_hits++;
+    ++last_access=access_counter;
+    ++successful_hits;
     return true;
 }
 
@@ -183,9 +183,9 @@ void remember_table::init_table(void)
     }
 }
 
-vector<remember_table> & remember_table::remember_tables(void)
+std::vector<remember_table> & remember_table::remember_tables(void)
 {
-    static vector<remember_table> * rt=new vector<remember_table>;
+    static std::vector<remember_table> * rt = new std::vector<remember_table>;
     return *rt;
 }
 

@@ -93,30 +93,31 @@ basic * structure::duplicate() const
     return new structure(*this);
 }
 
-void structure::printraw(ostream & os) const
+void structure::printraw(std::ostream & os) const
 {
     debugmsg("structure printraw",LOGLEVEL_PRINT);
 
     os << "structure(hash=" << hashvalue << ",flags=" << flags << ")";
 }
 
-void structure::print(ostream & os, unsigned upper_precedence) const
+void structure::print(std::ostream & os, unsigned upper_precedence) const
 {
     debugmsg("structure print",LOGLEVEL_PRINT);
 
     os << "structure()";
 }
 
-void structure::printtree(ostream & os, unsigned indent) const
+void structure::printtree(std::ostream & os, unsigned indent) const
 {
     debugmsg("structure printtree",LOGLEVEL_PRINT);
 
-    os << string(indent,' ') << "structure "
-       << "hash=" << hashvalue << " (0x" << hex << hashvalue << dec << ")"
-       << ", flags=" << flags << endl;
+    os << std::string(indent,' ') << "structure "
+       << "hash=" << hashvalue
+       << " (0x" << std::hex << hashvalue << std::dec << ")"
+       << ", flags=" << flags << std::endl;
 }
 
-void structure::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) const
+void structure::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
 {
     debugmsg("structure print csrc",LOGLEVEL_PRINT);
 
@@ -149,9 +150,9 @@ bool structure::is_equal_same_type(const basic & other) const
 
 // protected
 
-vector<registered_structure_info> & structure::registered_structures(void)
+std::vector<registered_structure_info> & structure::registered_structures(void)
 {
-    static vector<registered_structure_info> * rs=new vector<registered_structure_info>;
+    static std::vector<registered_structure_info> * rs = new std::vector<registered_structure_info>;
     return *rs;
 }
 

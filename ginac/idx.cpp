@@ -97,29 +97,29 @@ void idx::destroy(bool call_parent)
 idx::idx(bool cov) : inherited(TINFO_idx), symbolic(true), covariant(cov)
 {
     debugmsg("idx constructor from bool",LOGLEVEL_CONSTRUCT);
-    serial=next_serial++;
-    name="index"+ToString(serial);
+    serial = next_serial++;
+    name = "index"+ToString(serial);
 }
 
-idx::idx(const string & n, bool cov) : inherited(TINFO_idx),  
+idx::idx(const std::string & n, bool cov) : inherited(TINFO_idx),  
     symbolic(true), name(n), covariant(cov)
 {
     debugmsg("idx constructor from string,bool",LOGLEVEL_CONSTRUCT);
-    serial=next_serial++;
+    serial = next_serial++;
 }
 
 idx::idx(const char * n, bool cov) : inherited(TINFO_idx),  
     symbolic(true), name(n), covariant(cov)
 {
     debugmsg("idx constructor from char*,bool",LOGLEVEL_CONSTRUCT);
-    serial=next_serial++;
+    serial = next_serial++;
 }
 
 idx::idx(unsigned v, bool cov) : inherited(TINFO_idx),
     symbolic(false), value(v), covariant(cov)
 {
     debugmsg("idx constructor from unsigned,bool",LOGLEVEL_CONSTRUCT);
-    serial=0;
+    serial = 0;
 }
 
 //////////
@@ -181,7 +181,7 @@ basic * idx::duplicate() const
     return new idx(*this);
 }
 
-void idx::printraw(ostream & os) const
+void idx::printraw(std::ostream & os) const
 {
     debugmsg("idx printraw",LOGLEVEL_PRINT);
 
@@ -204,11 +204,11 @@ void idx::printraw(ostream & os) const
     os << ")";
 }
 
-void idx::printtree(ostream & os, unsigned indent) const
+void idx::printtree(std::ostream & os, unsigned indent) const
 {
     debugmsg("idx printtree",LOGLEVEL_PRINT);
 
-    os << string(indent,' ') << "idx: ";
+    os << std::string(indent,' ') << "idx: ";
 
     if (symbolic) {
         os << "symbolic,name=" << name;
@@ -223,11 +223,12 @@ void idx::printtree(ostream & os, unsigned indent) const
     }
 
     os << ", serial=" << serial
-       << ", hash=" << hashvalue << " (0x" << hex << hashvalue << dec << ")"
-       << ", flags=" << flags << endl;
+       << ", hash=" << hashvalue
+       << " (0x" << std::hex << hashvalue << std::dec << ")"
+       << ", flags=" << flags << std::endl;
 }
 
-void idx::print(ostream & os, unsigned upper_precedence) const
+void idx::print(std::ostream & os, unsigned upper_precedence) const
 {
     debugmsg("idx print",LOGLEVEL_PRINT);
 

@@ -72,9 +72,8 @@ static unsigned inifcns_check_sin(void)
             errorflag = true;
         }
     }
-    if (errorflag) {
+    if (errorflag)
         ++result;
-    }
     
     return result;
 }
@@ -127,9 +126,8 @@ static unsigned inifcns_check_cos(void)
             errorflag = true;
         }
     }
-    if (errorflag) {
+    if (errorflag)
         ++result;
-    }
     
     return result;
 }
@@ -157,9 +155,37 @@ static unsigned inifcns_check_tan(void)
             errorflag = true;
         }
     }
-    if (errorflag) {
+    if (errorflag)
         ++result;
+    
+    return result;
+}
+
+/* Simple tests on the dilogarithm function. */
+static unsigned inifcns_check_Li2(void)
+{
+    // NOTE: this can safely be removed once CLN supports dilogarithms and
+    // checks them itself.
+    unsigned result = 0;
+    bool errorflag;
+    
+    // check the relation Li2(z^2) == 2 * (Li2(z) + Li2(-z)) numerically, which
+    // should hold in the entire complex plane:
+    errorflag = false;
+    ex argument;
+    numeric epsilon(double(1e-16));
+    for (int n=0; n<200; ++n) {
+        argument = numeric(20.0*rand()/(RAND_MAX+1.0)-10.0)
+                 + numeric(20.0*rand()/(RAND_MAX+1.0)-10.0)*I;
+        if (abs(Li2(pow(argument,2))-2*Li2(argument)-2*Li2(-argument)) > epsilon) {
+            cout << "Li2(z) at z==" << argument
+                 << " failed to satisfy Li2(z^2)==2*(Li2(z)+Li2(-z))" << endl;
+            errorflag = true;
+        }
     }
+    
+    if (errorflag)
+        ++result;
     
     return result;
 }
@@ -174,6 +200,7 @@ unsigned check_inifcns(void)
     result += inifcns_check_sin();  cout << '.' << flush;
     result += inifcns_check_cos();  cout << '.' << flush;
     result += inifcns_check_tan();  cout << '.' << flush;
+    result += inifcns_check_Li2();  cout << '.' << flush;
     
     if (!result) {
         cout << " passed " << endl;

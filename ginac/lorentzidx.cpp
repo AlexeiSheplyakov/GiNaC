@@ -103,7 +103,7 @@ lorentzidx::lorentzidx(bool cov, bool oonly, unsigned dimp) :
     tinfo_key=TINFO_lorentzidx;
 }
 
-lorentzidx::lorentzidx(const string & n, bool cov, bool oonly, unsigned dimp)
+lorentzidx::lorentzidx(const std::string & n, bool cov, bool oonly, unsigned dimp)
     : idx(n,cov), orthogonal_only(oonly), dim_parallel_space(dimp)
 {
     debugmsg("lorentzidx constructor from string,bool,bool,unsigned",
@@ -175,7 +175,7 @@ basic * lorentzidx::duplicate() const
     return new lorentzidx(*this);
 }
 
-void lorentzidx::printraw(ostream & os) const
+void lorentzidx::printraw(std::ostream & os) const
 {
     debugmsg("lorentzidx printraw",LOGLEVEL_PRINT);
 
@@ -205,11 +205,11 @@ void lorentzidx::printraw(ostream & os) const
     os << ")";
 }
 
-void lorentzidx::printtree(ostream & os, unsigned indent) const
+void lorentzidx::printtree(std::ostream & os, unsigned indent) const
 {
     debugmsg("lorentzidx printtree",LOGLEVEL_PRINT);
 
-    os << string(indent,' ') << "lorentzidx: ";
+    os << std::string(indent,' ') << "lorentzidx: ";
 
     if (symbolic) {
         os << "symbolic,name=" << name;
@@ -231,11 +231,12 @@ void lorentzidx::printtree(ostream & os, unsigned indent) const
     }
 
     os << ", serial=" << serial
-       << ", hash=" << hashvalue << " (0x" << hex << hashvalue << dec << ")"
-       << ", flags=" << flags << endl;
+       << ", hash=" << hashvalue
+       << " (0x" << std::hex << hashvalue << std::dec << ")"
+       << ", flags=" << flags << std::endl;
 }
 
-void lorentzidx::print(ostream & os, unsigned upper_precedence) const
+void lorentzidx::print(std::ostream & os, unsigned upper_precedence) const
 {
     debugmsg("lorentzidx print",LOGLEVEL_PRINT);
 

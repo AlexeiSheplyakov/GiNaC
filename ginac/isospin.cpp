@@ -95,7 +95,7 @@ void isospin::destroy(bool call_parent)
 
 // public
 
-isospin::isospin(const string & initname)
+isospin::isospin(const std::string & initname)
 {
     debugmsg("isospin constructor from string",LOGLEVEL_CONSTRUCT);
     name=initname;
@@ -149,7 +149,7 @@ basic * isospin::duplicate() const
     return new isospin(*this);
 }
 
-void isospin::printraw(ostream & os) const
+void isospin::printraw(std::ostream & os) const
 {
     debugmsg("isospin printraw",LOGLEVEL_PRINT);
     os << "isospin(" << "name=" << name << ",serial=" << serial
@@ -158,25 +158,26 @@ void isospin::printraw(ostream & os) const
     os << ",hash=" << hashvalue << ",flags=" << flags << ")";
 }
 
-void isospin::printtree(ostream & os, unsigned indent) const
+void isospin::printtree(std::ostream & os, unsigned indent) const
 {
     debugmsg("isospin printtree",LOGLEVEL_PRINT);
-    os << string(indent,' ') << name << " (isospin): "
+    os << std::string(indent,' ') << name << " (isospin): "
        << "serial=" << serial << ","
        << seq.size() << "indices=";
     printtreeindices(os,indent);
-    os << ", hash=" << hashvalue << " (0x" << hex << hashvalue << dec << ")"
-       << ", flags=" << flags << endl;
+    os << ", hash=" << hashvalue
+       << " (0x" << std::hex << hashvalue << std::dec << ")"
+       << ", flags=" << flags << std::endl;
 }
 
-void isospin::print(ostream & os, unsigned upper_precedence) const
+void isospin::print(std::ostream & os, unsigned upper_precedence) const
 {
     debugmsg("isospin print",LOGLEVEL_PRINT);
     os << name;
     printindices(os);
 }
 
-void isospin::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) const
+void isospin::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
 {
     debugmsg("isospin print csrc",LOGLEVEL_PRINT);
     print(os,upper_precedence);
@@ -223,16 +224,16 @@ unsigned isospin::calchash(void) const
 // non-virtual functions in this class
 //////////
 
-void isospin::setname(const string & n)
+void isospin::setname(const std::string & n)
 {
-    name=n;
+    name = n;
 }
 
 // private
 
-string & isospin::autoname_prefix(void)
+std::string & isospin::autoname_prefix(void)
 {
-    static string * s=new string("isospin");
+    static std::string * s = new std::string("isospin");
     return *s;
 }
 

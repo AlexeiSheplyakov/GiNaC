@@ -35,8 +35,8 @@
 namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
 
-typedef pair<string,string> strstrpair;
-typedef pair<strstrpair,lorentzidx> spmapkey;
+typedef std::pair<std::string,std::string> strstrpair;
+typedef std::pair<strstrpair,lorentzidx> spmapkey;
 
 class spmapkey_is_less
 {
@@ -87,7 +87,7 @@ class simp_lor : public indexed
 
     friend class scalar_products;
     friend simp_lor lor_g(const ex & mu, const ex & nu);
-    friend simp_lor lor_vec(const string & n, const ex & mu);
+    friend simp_lor lor_vec(const std::string & n, const ex & mu);
     friend ex simplify_simp_lor_mul(const ex & m, const scalar_products & sp);
     friend ex simplify_simp_lor(const ex & e, const scalar_products & sp);
     
@@ -115,17 +115,17 @@ protected:
 protected:
     simp_lor(simp_lor_types const t);
     simp_lor(simp_lor_types const t, const ex & i1, const ex & i2);
-    simp_lor(simp_lor_types const t, const string & n, const ex & i1);
-    simp_lor(simp_lor_types const t, const string & n, const exvector & iv);
-    simp_lor(simp_lor_types const t, const string & n, exvector * ivp);
+    simp_lor(simp_lor_types const t, const std::string & n, const ex & i1);
+    simp_lor(simp_lor_types const t, const std::string & n, const exvector & iv);
+    simp_lor(simp_lor_types const t, const std::string & n, exvector * ivp);
     
     // functions overriding virtual functions from base classes
 public:
     basic * duplicate() const;
-    void printraw(ostream & os) const;
-    void printtree(ostream & os, unsigned indent) const;
-    void print(ostream & os, unsigned upper_precedence=0) const;
-    void printcsrc(ostream & os, unsigned type, unsigned upper_precedence=0) const;
+    void printraw(std::ostream & os) const;
+    void printtree(std::ostream & os, unsigned indent) const;
+    void print(std::ostream & os, unsigned upper_precedence=0) const;
+    void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence=0) const;
     bool info(unsigned inf) const;
     ex eval(int level=0) const;
 protected:
@@ -147,7 +147,7 @@ protected:
 
 protected:
     simp_lor_types type;
-    string name;
+    std::string name;
 };
 
 // global constants
@@ -167,7 +167,7 @@ inline simp_lor &ex_to_nonconst_simp_lor(const ex &e)
 }
 
 simp_lor lor_g(const ex & mu, const ex & nu);
-simp_lor lor_vec(const string & n, const ex & mu);
+simp_lor lor_vec(const std::string & n, const ex & mu);
 ex simplify_simp_lor_mul(const ex & m, const scalar_products & sp);
 ex simplify_simp_lor(const ex & e, const scalar_products & sp=scalar_products());
 ex Dim(void);

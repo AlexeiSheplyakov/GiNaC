@@ -97,13 +97,13 @@ void pseries::destroy(bool call_parent)
  *  the last coefficient can be Order(_ex1()) to represent a truncated,
  *  non-terminating series.
  *
- *  @param rel__  expansion variable and point (must hold a relational)
+ *  @param rel_  expansion variable and point (must hold a relational)
  *  @param ops_  vector of {coefficient, power} pairs (coefficient must not be zero)
  *  @return newly constructed pseries */
 pseries::pseries(const ex &rel_, const epvector &ops_)
     : basic(TINFO_pseries), seq(ops_)
 {
-    debugmsg("pseries constructor from rel,epvector", LOGLEVEL_CONSTRUCT);
+    debugmsg("pseries constructor from ex,epvector", LOGLEVEL_CONSTRUCT);
     GINAC_ASSERT(is_ex_exactly_of_type(rel_, relational));
     GINAC_ASSERT(is_ex_exactly_of_type(rel_.lhs(),symbol));
     point = rel_.rhs();
@@ -119,7 +119,7 @@ pseries::pseries(const ex &rel_, const epvector &ops_)
 pseries::pseries(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
     debugmsg("pseries constructor from archive_node", LOGLEVEL_CONSTRUCT);
-    for (unsigned int i=0; true; i++) {
+    for (unsigned int i=0; true; ++i) {
         ex rest;
         ex coeff;
         if (n.find_ex("coeff", rest, sym_lst, i) && n.find_ex("power", coeff, sym_lst, i))
@@ -145,7 +145,7 @@ void pseries::archive(archive_node &n) const
     while (i != iend) {
         n.add_ex("coeff", i->rest);
         n.add_ex("power", i->coeff);
-        i++;
+        ++i;
     }
     n.add_ex("var", var);
     n.add_ex("point", point);
@@ -161,10 +161,10 @@ basic *pseries::duplicate() const
     return new pseries(*this);
 }
 
-void pseries::print(ostream &os, unsigned upper_precedence) const
+void pseries::print(std::ostream &os, unsigned upper_precedence) const
 {
     debugmsg("pseries print", LOGLEVEL_PRINT);
-    for (epvector::const_iterator i=seq.begin(); i!=seq.end(); i++) {
+    for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i) {
         // omit zero terms
         if (i->rest.is_zero())
             continue;
@@ -199,38 +199,43 @@ void pseries::print(ostream &os, unsigned upper_precedence) const
     }
 }
 
-void pseries::printraw(ostream &os) const
+
+void pseries::printraw(std::ostream &os) const
 {
     debugmsg("pseries printraw", LOGLEVEL_PRINT);
     os << "pseries(" << var << ";" << point << ";";
-    for (epvector::const_iterator i=seq.begin(); i!=seq.end(); i++) {
+    for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i) {
         os << "(" << (*i).rest << "," << (*i).coeff << "),";
     }
     os << ")";
 }
 
-void pseries::printtree(ostream & os, unsigned indent) const
+
+void pseries::printtree(std::ostream & os, unsigned indent) const
 {
     debugmsg("pseries printtree",LOGLEVEL_PRINT);
-    os << string(indent,' ') << "pseries " 
-       << ", hash=" << hashvalue << " (0x" << hex << hashvalue << dec << ")"
-       << ", flags=" << flags << endl;
+    os << std::string(indent,' ') << "pseries " 
+       << ", hash=" << hashvalue
+       << " (0x" << std::hex << hashvalue << std::dec << ")"
+       << ", flags=" << flags << std::endl;
     for (unsigned i=0; i<seq.size(); ++i) {
         seq[i].rest.printtree(os,indent+delta_indent);
         seq[i].coeff.printtree(os,indent+delta_indent);
-        if (i!=seq.size()-1) {
-            os << string(indent+delta_indent,' ') << "-----" << endl;
-        }
+        if (i!=seq.size()-1)
+            os << std::string(indent+delta_indent,' ') << "-----" << std::endl;
     }
     var.printtree(os, indent+delta_indent);
     point.printtree(os, indent+delta_indent);
 }
 
+/** Return the number of operands including a possible order term. */
 unsigned pseries::nops(void) const
 {
     return seq.size();
 }
 
+
+/** Return the ith term in the series when represented as a sum. */
 ex pseries::op(int i) const
 {
     if (i < 0 || unsigned(i) >= seq.size())
@@ -238,11 +243,16 @@ ex pseries::op(int i) const
     return seq[i].rest * power(var - point, seq[i].coeff);
 }
 
+
 ex &pseries::let_op(int i)
 {
     throw (std::logic_error("let_op not defined for pseries"));
 }
 
+
+/** Return degree of highest power of the series.  This is usually the exponent
+ *  of the Order term.  If s is not the expansion variable of the series, the
+ *  series is examined termwise. */
 int pseries::degree(const symbol &s) const
 {
     if (var.is_equal(s)) {
@@ -260,12 +270,17 @@ int pseries::degree(const symbol &s) const
             int pow = it->rest.degree(s);
             if (pow > max_pow)
                 max_pow = pow;
-            it++;
+            ++it;
         }
         return max_pow;
     }
 }
 
+/** Return degree of lowest power of the series.  This is usually the exponent
+ *  of the leading term.  If s is not the expansion variable of the series, the
+ *  series is examined termwise.  If s is the expansion variable but the
+ *  expansion point is not zero the series is not expanded to find the degree.
+ *  I.e.: (1-x) + (1-x)^2 + Order((1-x)^3) has ldegree(x) 1, not 0. */
 int pseries::ldegree(const symbol &s) const
 {
     if (var.is_equal(s)) {
@@ -283,7 +298,7 @@ int pseries::ldegree(const symbol &s) const
             int pow = it->rest.ldegree(s);
             if (pow < min_pow)
                 min_pow = pow;
-            it++;
+            ++it;
         }
         return min_pow;
     }
@@ -294,7 +309,7 @@ ex pseries::coeff(const symbol &s, int n) const
     if (var.is_equal(s)) {
         if (seq.size() == 0)
             return _ex0();
-
+        
         // Binary search in sequence for given power
         numeric looking_for = numeric(n);
         int lo = 0, hi = seq.size() - 1;
@@ -320,10 +335,12 @@ ex pseries::coeff(const symbol &s, int n) const
         return convert_to_poly().coeff(s, n);
 }
 
+
 ex pseries::collect(const symbol &s) const
 {
     return *this;
 }
+
 
 /** Evaluate coefficients. */
 ex pseries::eval(int level) const
@@ -340,10 +357,11 @@ ex pseries::eval(int level) const
     epvector::const_iterator it = seq.begin(), itend = seq.end();
     while (it != itend) {
         new_seq.push_back(expair(it->rest.eval(level-1), it->coeff));
-        it++;
+        ++it;
     }
     return (new pseries(relational(var,point), new_seq))->setflag(status_flags::dynallocated | status_flags::evaluated);
 }
+
 
 /** Evaluate coefficients numerically. */
 ex pseries::evalf(int level) const
@@ -360,10 +378,11 @@ ex pseries::evalf(int level) const
     epvector::const_iterator it = seq.begin(), itend = seq.end();
     while (it != itend) {
         new_seq.push_back(expair(it->rest.evalf(level-1), it->coeff));
-        it++;
+        ++it;
     }
     return (new pseries(relational(var,point), new_seq))->setflag(status_flags::dynallocated | status_flags::evaluated);
 }
+
 
 ex pseries::subs(const lst & ls, const lst & lr) const
 {
@@ -375,15 +394,31 @@ ex pseries::subs(const lst & ls, const lst & lr) const
     
     // Otherwise construct a new series with substituted coefficients and
     // expansion point
-    epvector new_seq;
-    new_seq.reserve(seq.size());
+    epvector newseq;
+    newseq.reserve(seq.size());
     epvector::const_iterator it = seq.begin(), itend = seq.end();
     while (it != itend) {
-        new_seq.push_back(expair(it->rest.subs(ls, lr), it->coeff));
-        it++;
+        newseq.push_back(expair(it->rest.subs(ls, lr), it->coeff));
+        ++it;
     }
-    return (new pseries(relational(var,point.subs(ls, lr)), new_seq))->setflag(status_flags::dynallocated);
+    return (new pseries(relational(var,point.subs(ls, lr)), newseq))->setflag(status_flags::dynallocated);
 }
+
+
+/** Implementation of ex::expand() for a power series.  It expands all the
+ *  terms individually and returns the resulting series as a new pseries.
+ *  @see ex::diff */
+ex pseries::expand(unsigned options) const
+{
+    epvector newseq;
+    newseq.reserve(seq.size());
+    for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i)
+        newseq.push_back(expair(i->rest.expand(), i->coeff));
+    return (new pseries(relational(var,point), newseq))
+        ->setflag(status_flags::dynallocated |
+                  status_flags::expanded);
+}
+
 
 /** Implementation of ex::diff() for a power series.  It treats the series as a
  *  polynomial.
@@ -403,7 +438,7 @@ ex pseries::derivative(const symbol & s) const
                 if (!c.is_zero())
                     new_seq.push_back(expair(c, it->coeff - 1));
             }
-            it++;
+            ++it;
         }
         return pseries(relational(var,point), new_seq);
     } else {
@@ -430,9 +465,16 @@ ex pseries::convert_to_poly(bool no_order) const
                 e += Order(power(var - point, it->coeff));
         } else
             e += it->rest * power(var - point, it->coeff);
-        it++;
+        ++it;
     }
     return e;
+}
+
+/** Returns true if there is no order term, i.e. the series terminates and
+ *  false otherwise. */
+bool pseries::is_terminating(void) const
+{
+    return !is_order_function((seq.end()-1)->rest);
 }
 
 
@@ -442,7 +484,7 @@ ex pseries::convert_to_poly(bool no_order) const
 
 /** Default implementation of ex::series(). This performs Taylor expansion.
  *  @see ex::series */
-ex basic::series(const relational & r, int order) const
+ex basic::series(const relational & r, int order, bool branchcut) const
 {
     epvector seq;
     numeric fac(1);
@@ -461,14 +503,14 @@ ex basic::series(const relational & r, int order) const
             // Series terminates
             return pseries(r, seq);
         }
-        coeff = fac.inverse() * deriv.subs(r);
+        coeff = deriv.subs(r);
         if (!coeff.is_zero())
-            seq.push_back(expair(coeff, numeric(n)));
+            seq.push_back(expair(fac.inverse() * coeff, numeric(n)));
     }
     
     // Higher-order terms, if present
     deriv = deriv.diff(*s);
-    if (!deriv.is_zero())
+    if (!deriv.expand().is_zero())
         seq.push_back(expair(Order(_ex1()), numeric(n)));
     return pseries(r, seq);
 }
@@ -476,7 +518,7 @@ ex basic::series(const relational & r, int order) const
 
 /** Implementation of ex::series() for symbols.
  *  @see ex::series */
-ex symbol::series(const relational & r, int order) const
+ex symbol::series(const relational & r, int order, bool branchcut) const
 {
     epvector seq;
     const ex point = r.rhs();
@@ -523,7 +565,7 @@ ex pseries::add_series(const pseries &other) const
         if (a == a_end) {
             while (b != b_end) {
                 new_seq.push_back(*b);
-                b++;
+                ++b;
             }
             break;
         } else
@@ -533,7 +575,7 @@ ex pseries::add_series(const pseries &other) const
         if (b == b_end) {
             while (a != a_end) {
                 new_seq.push_back(*a);
-                a++;
+                ++a;
             }
             break;
         } else
@@ -545,13 +587,13 @@ ex pseries::add_series(const pseries &other) const
             new_seq.push_back(*a);
             if (is_order_function((*a).rest))
                 break;
-            a++;
+            ++a;
         } else if (pow_b < pow_a) {
             // b has lesser power, get coefficient from b
             new_seq.push_back(*b);
             if (is_order_function((*b).rest))
                 break;
-            b++;
+            ++b;
         } else {
             // Add coefficient of a and b
             if (is_order_function((*a).rest) || is_order_function((*b).rest)) {
@@ -561,8 +603,8 @@ ex pseries::add_series(const pseries &other) const
                 ex sum = (*a).rest + (*b).rest;
                 if (!(sum.is_zero()))
                     new_seq.push_back(expair(sum, numeric(pow_a)));
-                a++;
-                b++;
+                ++a;
+                ++b;
             }
         }
     }
@@ -573,22 +615,22 @@ ex pseries::add_series(const pseries &other) const
 /** Implementation of ex::series() for sums. This performs series addition when
  *  adding pseries objects.
  *  @see ex::series */
-ex add::series(const relational & r, int order) const
+ex add::series(const relational & r, int order, bool branchcut) const
 {
     ex acc; // Series accumulator
     
     // Get first term from overall_coeff
-    acc = overall_coeff.series(r, order);
+    acc = overall_coeff.series(r, order, branchcut);
     
     // Add remaining terms
     epvector::const_iterator it = seq.begin();
     epvector::const_iterator itend = seq.end();
-    for (; it!=itend; it++) {
+    for (; it!=itend; ++it) {
         ex op;
         if (is_ex_exactly_of_type(it->rest, pseries))
             op = it->rest;
         else
-            op = it->rest.series(r, order);
+            op = it->rest.series(r, order, branchcut);
         if (!it->coeff.is_equal(_ex1()))
             op = ex_to_pseries(op).mul_const(ex_to_numeric(it->coeff));
         
@@ -615,7 +657,7 @@ ex pseries::mul_const(const numeric &other) const
             new_seq.push_back(expair(it->rest * other, it->coeff));
         else
             new_seq.push_back(*it);
-        it++;
+        ++it;
     }
     return pseries(relational(var,point), new_seq);
 }
@@ -653,14 +695,14 @@ ex pseries::mul_series(const pseries &other) const
         higher_order_a = a_max + b_min;
     if (is_order_function(other.coeff(*s, b_max)))
         higher_order_b = b_max + a_min;
-    int higher_order_c = min(higher_order_a, higher_order_b);
+    int higher_order_c = std::min(higher_order_a, higher_order_b);
     if (cdeg_max >= higher_order_c)
         cdeg_max = higher_order_c - 1;
     
-    for (int cdeg=cdeg_min; cdeg<=cdeg_max; cdeg++) {
+    for (int cdeg=cdeg_min; cdeg<=cdeg_max; ++cdeg) {
         ex co = _ex0();
         // c(i)=a(0)b(i)+...+a(i)b(0)
-        for (int i=a_min; cdeg-i>=b_min; i++) {
+        for (int i=a_min; cdeg-i>=b_min; ++i) {
             ex a_coeff = coeff(*s, i);
             ex b_coeff = other.coeff(*s, cdeg-i);
             if (!is_order_function(a_coeff) && !is_order_function(b_coeff))
@@ -678,17 +720,17 @@ ex pseries::mul_series(const pseries &other) const
 /** Implementation of ex::series() for product. This performs series
  *  multiplication when multiplying series.
  *  @see ex::series */
-ex mul::series(const relational & r, int order) const
+ex mul::series(const relational & r, int order, bool branchcut) const
 {
     ex acc; // Series accumulator
     
     // Get first term from overall_coeff
-    acc = overall_coeff.series(r, order);
+    acc = overall_coeff.series(r, order, branchcut);
     
     // Multiply with remaining terms
     epvector::const_iterator it = seq.begin();
     epvector::const_iterator itend = seq.end();
-    for (; it!=itend; it++) {
+    for (; it!=itend; ++it) {
         ex op = it->rest;
         if (op.info(info_flags::numeric)) {
             // series * const (special case, faster)
@@ -696,7 +738,7 @@ ex mul::series(const relational & r, int order) const
             acc = ex_to_pseries(acc).mul_const(ex_to_numeric(f));
             continue;
         } else if (!is_ex_exactly_of_type(op, pseries))
-            op = op.series(r, order);
+            op = op.series(r, order, branchcut);
         if (!it->coeff.is_equal(_ex1()))
             op = ex_to_pseries(op).power_const(ex_to_numeric(it->coeff), order);
 
@@ -723,9 +765,9 @@ ex pseries::power_const(const numeric &p, int deg) const
     ex co0;
     co.push_back(co0 = power(coeff(*s, ldeg), p));
     bool all_sums_zero = true;
-    for (i=1; i<deg; i++) {
+    for (i=1; i<deg; ++i) {
         ex sum = _ex0();
-        for (int j=1; j<=i; j++) {
+        for (int j=1; j<=i; ++j) {
             ex c = coeff(*s, j + ldeg);
             if (is_order_function(c)) {
                 co.push_back(Order(_ex1()));
@@ -741,7 +783,7 @@ ex pseries::power_const(const numeric &p, int deg) const
     // Construct new series (of non-zero coefficients)
     epvector new_seq;
     bool higher_order = false;
-    for (i=0; i<deg; i++) {
+    for (i=0; i<deg; ++i) {
         if (!co[i].is_zero())
             new_seq.push_back(expair(co[i], numeric(i) + p * ldeg));
         if (is_order_function(co[i])) {
@@ -755,23 +797,33 @@ ex pseries::power_const(const numeric &p, int deg) const
 }
 
 
+/** Return a new pseries object with the powers shifted by deg. */
+pseries pseries::shift_exponents(int deg) const
+{
+    epvector newseq(seq);
+    for (epvector::iterator i=newseq.begin(); i!=newseq.end(); ++i)
+        i->coeff = i->coeff + deg;
+    return pseries(relational(var, point), newseq);
+}
+
+
 /** Implementation of ex::series() for powers. This performs Laurent expansion
  *  of reciprocals of series at singularities.
  *  @see ex::series */
-ex power::series(const relational & r, int order) const
+ex power::series(const relational & r, int order, bool branchcut) const
 {
     ex e;
     if (!is_ex_exactly_of_type(basis, pseries)) {
         // Basis is not a series, may there be a singulary?
         if (!exponent.info(info_flags::negint))
-            return basic::series(r, order);
+            return basic::series(r, order, branchcut);
         
         // Expression is of type something^(-int), check for singularity
         if (!basis.subs(r).is_zero())
-            return basic::series(r, order);
+            return basic::series(r, order, branchcut);
         
         // Singularity encountered, expand basis into series
-        e = basis.series(r, order);
+        e = basis.series(r, order, branchcut);
     } else {
         // Basis is a series
         e = basis;
@@ -783,7 +835,7 @@ ex power::series(const relational & r, int order) const
 
 
 /** Re-expansion of a pseries object. */
-ex pseries::series(const relational & r, int order) const
+ex pseries::series(const relational & r, int order, bool branchcut) const
 {
     const ex p = r.rhs();
     GINAC_ASSERT(is_ex_exactly_of_type(r.lhs(),symbol));
@@ -802,12 +854,12 @@ ex pseries::series(const relational & r, int order) const
                     break;
                 }
                 new_seq.push_back(*it);
-                it++;
+                ++it;
             }
             return pseries(r, new_seq);
         }
     } else
-        return convert_to_poly().series(r, order);
+        return convert_to_poly().series(r, order, branchcut);
 }
 
 
@@ -818,8 +870,9 @@ ex pseries::series(const relational & r, int order) const
  *
  *  @param r  expansion relation, lhs holds variable and rhs holds point
  *  @param order  truncation order of series calculations
+ *  @param branchcut  when set to false, branch cuts are not honored
  *  @return an expression holding a pseries object */
-ex ex::series(const ex & r, int order) const
+ex ex::series(const ex & r, int order, bool branchcut) const
 {
     GINAC_ASSERT(bp!=0);
     ex e;
@@ -833,9 +886,9 @@ ex ex::series(const ex & r, int order) const
         throw (std::logic_error("ex::series(): expansion point has unknown type"));
     
     try {
-        e = bp->series(rel_, order);
-    } catch (exception &x) {
-        throw (std::logic_error(string("unable to compute series (") + x.what() + ")"));
+        e = bp->series(rel_, order, branchcut);
+    } catch (std::exception &x) {
+        throw (std::logic_error(std::string("unable to compute series (") + x.what() + ")"));
     }
     return e;
 }

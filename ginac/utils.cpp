@@ -29,6 +29,21 @@
 namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
 
+/** ctor for pole_error exception class. */
+pole_error::pole_error(const std::string& what_arg, int degree)
+     : domain_error(what_arg)
+{
+    deg = degree;
+}
+
+/** Return the degree of the pole_error exception class. */
+int pole_error::degree(void) const
+{
+    return deg;
+}
+
+// some compilers (e.g. cygwin) define a macro log2, causing confusion
+#ifndef log2
 /** Integer binary logarithm */
 unsigned log2(unsigned n)
 {
@@ -36,6 +51,7 @@ unsigned log2(unsigned n)
     for (k = 0; n > 1; n >>= 1) ++k;
     return k;
 }
+#endif
 
 /** Compare two pointers (just to establish some sort of canonical order).
  *  @return -1, 0, or 1 */

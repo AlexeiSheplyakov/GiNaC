@@ -54,16 +54,16 @@ protected:
 
     // other constructors
 public:
-    constant(const string & initname, evalffunctype efun=0);
-    constant(const string & initname, const numeric & initnumber);
+    constant(const std::string & initname, evalffunctype efun=0);
+    constant(const std::string & initname, const numeric & initnumber);
 
     // functions overriding virtual functions from bases classes
 public:
     basic * duplicate() const;
-    void print(ostream & os, unsigned upper_precedence=0) const;
-    void printraw(ostream & os) const;
-    void printtree(ostream & os, unsigned indent) const;
-    void printcsrc(ostream & os, unsigned type, unsigned upper_precedence=0) const;
+    void print(std::ostream & os, unsigned upper_precedence=0) const;
+    void printraw(std::ostream & os) const;
+    void printtree(std::ostream & os, unsigned indent) const;
+    void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence=0) const;
     ex evalf(int level=0) const;
 protected:
     ex derivative(const symbol & s) const;
@@ -79,7 +79,7 @@ protected:
 // member variables
 
 private:
-    string name;
+    std::string name;
     evalffunctype ef;
     numeric * number;
     // bool fct_assigned;

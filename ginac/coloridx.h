@@ -53,16 +53,16 @@ protected:
     // other constructors
 public:
     explicit coloridx(bool cov);
-    explicit coloridx(const string & n, bool cov=false);
+    explicit coloridx(const std::string & n, bool cov=false);
     explicit coloridx(const char * n, bool cov=false);
     explicit coloridx(unsigned v, bool cov=false); 
 
     // functions overriding virtual functions from bases classes
 public:
     basic * duplicate() const;
-    void printraw(ostream & os) const;
-    void printtree(ostream & os, unsigned indent) const;
-    void print(ostream & os, unsigned upper_precedence=0) const;
+    void printraw(std::ostream & os) const;
+    void printtree(std::ostream & os, unsigned indent) const;
+    void print(std::ostream & os, unsigned upper_precedence=0) const;
     bool info(unsigned inf) const;
 
     // new virtual functions which can be overridden by derived classes

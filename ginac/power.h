@@ -61,21 +61,21 @@ public:
     // functions overriding virtual functions from bases classes
 public:
     basic * duplicate() const;
-    void print(ostream & os, unsigned upper_precedence=0) const;
-    void printraw(ostream & os) const;
-    void printtree(ostream & os, unsigned indent) const;
-    void printcsrc(ostream & os, unsigned type, unsigned upper_precedence=0) const;
+    void print(std::ostream & os, unsigned upper_precedence = 0) const;
+    void printraw(std::ostream & os) const;
+    void printtree(std::ostream & os, unsigned indent) const;
+    void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence = 0) const;
     bool info(unsigned inf) const;
     unsigned nops() const;
     ex & let_op(int i);
     int degree(const symbol & s) const;
     int ldegree(const symbol & s) const;
-    ex coeff(const symbol & s, int n=1) const;
+    ex coeff(const symbol & s, int n = 1) const;
     ex eval(int level=0) const;
     ex evalf(int level=0) const;
-    ex series(const relational & s, int order) const;
+    ex series(const relational & s, int order, bool branchcut = true) const;
     ex subs(const lst & ls, const lst & lr) const;
-    ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
+    ex normal(lst &sym_lst, lst &repl_lst, int level = 0) const;
     ex to_rational(lst &repl_lst) const;
     ex simplify_ncmul(const exvector & v) const;
 protected:
@@ -83,7 +83,7 @@ protected:
     int compare_same_type(const basic & other) const;
     unsigned return_type(void) const;
     unsigned return_type_tinfo(void) const;
-    ex expand(unsigned options=0) const;
+    ex expand(unsigned options = 0) const;
     
     // new virtual functions which can be overridden by derived classes
     // none

@@ -200,7 +200,7 @@ public:
      *  similar to the GiNaC output format. All symbols to be used in the
      *  expression must be specified in a lst in the second argument. Undefined
      *  symbols and other parser errors will throw an exception. */
-    ex(const string &s, const ex &l)
+    ex(const std::string &s, const ex &l)
 #ifdef INLINE_EX_CONSTRUCTORS
         {
             construct_from_string_and_lst(s, l);
@@ -222,10 +222,10 @@ public:
     // non-virtual functions in this class
 public:
     void swap(ex & other);
-    void printraw(ostream & os) const;
-    void printtree(ostream & os, unsigned indent=0) const;
-    void print(ostream & os, unsigned upper_precedence=0) const;
-    void printcsrc(ostream & os, unsigned type, const char *var_name) const;
+    void printraw(std::ostream & os) const;
+    void printtree(std::ostream & os, unsigned indent=0) const;
+    void print(std::ostream & os, unsigned upper_precedence=0) const;
+    void printcsrc(std::ostream & os, unsigned type, const char *var_name) const;
     void dbgprint(void) const;
     void dbgprinttree(void) const;
     bool info(unsigned inf) const;
@@ -252,7 +252,7 @@ public:
     ex eval(int level = 0) const;
     ex evalf(int level = 0) const;
     ex diff(const symbol & s, unsigned nth = 1) const;
-    ex series(const ex & r, int order) const;
+    ex series(const ex & r, int order, bool branchcut = true) const;
     ex subs(const lst & ls, const lst & lr) const;
     ex subs(const ex & e) const;
     exvector get_indices(void) const;
@@ -307,7 +307,7 @@ private:
     void construct_from_long(long i);
     void construct_from_ulong(unsigned long i);
     void construct_from_double(double d);
-    void construct_from_string_and_lst(const string &s, const ex &l);
+    void construct_from_string_and_lst(const std::string &s, const ex &l);
     void makewriteable();
 
 #ifdef OBSCURE_CINT_HACK
@@ -395,8 +395,8 @@ inline ex evalf(const ex & thisex, int level = 0)
 inline ex diff(const ex & thisex, const symbol & s, unsigned nth = 1)
 { return thisex.diff(s, nth); }
 
-inline ex series(const ex & thisex, const ex & r, int order)
-{ return thisex.series(r, order); }
+inline ex series(const ex & thisex, const ex & r, int order, bool branchcut = true)
+{ return thisex.series(r, order, branchcut); }
 
 inline ex subs(const ex & thisex, const ex & e)
 { return thisex.subs(e); }

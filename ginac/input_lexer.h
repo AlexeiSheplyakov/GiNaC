@@ -65,7 +65,7 @@ extern int ginac_yyparse();
 extern ex parsed_ex;
 
 /** Get error message from the parser. */
-extern string get_parser_error(void);
+extern std::string get_parser_error(void);
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

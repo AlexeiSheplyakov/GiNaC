@@ -194,7 +194,7 @@ basic * color::duplicate() const
     return new color(*this);
 }
 
-void color::printraw(ostream & os) const
+void color::printraw(std::ostream & os) const
 {
     debugmsg("color printraw",LOGLEVEL_PRINT);
     os << "color(type=" << (unsigned)type
@@ -204,20 +204,20 @@ void color::printraw(ostream & os) const
     os << ",hash=" << hashvalue << ",flags=" << flags << ")";
 }
 
-void color::printtree(ostream & os, unsigned indent) const
+void color::printtree(std::ostream & os, unsigned indent) const
 {
     debugmsg("color printtree",LOGLEVEL_PRINT);
-    os << string(indent,' ') << "color object: "
+    os << std::string(indent,' ') << "color object: "
        << "type=" << (unsigned)type
        << ",representation_label=" << representation_label << ", ";
-    os << seq.size() << " indices" << endl;
+    os << seq.size() << " indices" << std::endl;
     printtreeindices(os,indent);
-    os << string(indent,' ') << "hash=" << hashvalue
-       << " (0x" << hex << hashvalue << dec << ")"
-       << ", flags=" << flags << endl;
+    os << std::string(indent,' ') << "hash=" << hashvalue
+       << " (0x" << std::hex << hashvalue << std::dec << ")"
+       << ", flags=" << flags << std::endl;
 }
 
-void color::print(ostream & os, unsigned upper_precedence) const
+void color::print(std::ostream & os, unsigned upper_precedence) const
 {
     debugmsg("color print",LOGLEVEL_PRINT);
     switch (type) {
@@ -247,7 +247,7 @@ void color::print(ostream & os, unsigned upper_precedence) const
     printindices(os);
 }
 
-void color::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) const
+void color::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
 {
     debugmsg("color print csrc",LOGLEVEL_PRINT);
     print(os,upper_precedence);
@@ -962,17 +962,17 @@ ex brute_force_sum_color_indices(const ex & e)
         }
     }
 
-    vector<int> counter;
+    std::vector<int> counter;
     counter.resize(iv_double.size());
     int l;
     for (l=0; unsigned(l)<iv_double.size(); ++l) {
         counter[l]=1;
     }
 
-    ex sum=_ex0();
+    ex sum;
     
     while (1) {
-        ex term=e;
+        ex term = e;
         for (l=0; unsigned(l)<iv_double.size(); ++l) {
             term=term.subs(iv_double[l]==coloridx((unsigned)(counter[l])));
             //iv_double[l].print(cout);
@@ -982,12 +982,12 @@ ex brute_force_sum_color_indices(const ex & e)
         sum += term;
         
         // increment counter[]
-        l=iv_double.size()-1;
+        l = iv_double.size()-1;
         while ((l>=0)&&((++counter[l])>(int)COLOR_EIGHT)) {
             counter[l]=1;    
             l--;
         }
-        if (l<2) { cout << counter[0] << counter[1] << endl; }
+        if (l<2) { std::cout << counter[0] << counter[1] << std::endl; }
         if (l<0) break;
     }
     

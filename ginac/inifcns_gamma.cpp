@@ -56,7 +56,7 @@ static ex lgamma_evalf(const ex & x)
  *  Knows about integer arguments and that's it.  Somebody ought to provide
  *  some good numerical evaluation some day...
  *
- *  @exception std::domain_error("lgamma_eval(): logarithmic pole") */
+ *  @exception GiNaC::pole_error("lgamma_eval(): logarithmic pole",0) */
 static ex lgamma_eval(const ex & x)
 {
     if (x.info(info_flags::numeric)) {
@@ -66,7 +66,7 @@ static ex lgamma_eval(const ex & x)
             if (x.info(info_flags::posint)) {
                 return log(factorial(x.exadd(_ex_1())));
             } else {
-                throw (std::domain_error("lgamma_eval(): logarithmic pole"));
+                throw (pole_error("lgamma_eval(): logarithmic pole",0));
             }
         }
         //  lgamma_evalf should be called here once it becomes available
@@ -85,7 +85,10 @@ static ex lgamma_deriv(const ex & x, unsigned deriv_param)
 }
 
 
-static ex lgamma_series(const ex & x, const relational & rel, int order)
+static ex lgamma_series(const ex & arg,
+                        const relational & rel,
+                        int order,
+                        bool branchcut)
 {
     // method:
     // Taylor series where there is no pole falls back to psi function
@@ -98,11 +101,11 @@ static ex lgamma_series(const ex & x, const relational & rel, int order)
     // This, however, seems to fail utterly because you run into branch-cut
     // problems.  Somebody ought to implement it some day using an asymptotic
     // series for tgamma:
-    const ex x_pt = x.subs(rel);
-    if (!x_pt.info(info_flags::integer) || x_pt.info(info_flags::positive))
+    const ex arg_pt = arg.subs(rel);
+    if (!arg_pt.info(info_flags::integer) || arg_pt.info(info_flags::positive))
         throw do_taylor();  // caught by function::series()
     // if we got here we have to care for a simple pole of tgamma(-m):
-    throw (std::domain_error("lgamma_series: please implemnt my at the poles"));
+    throw (std::overflow_error("lgamma_series: please implement my at the poles"));
     return _ex0();  // not reached
 }
 
@@ -131,7 +134,7 @@ static ex tgamma_evalf(const ex & x)
  *  arguments, half-integer arguments and that's it. Somebody ought to provide
  *  some good numerical evaluation some day...
  *
- *  @exception std::domain_error("tgamma_eval(): simple pole") */
+ *  @exception pole_error("tgamma_eval(): simple pole",0) */
 static ex tgamma_eval(const ex & x)
 {
     if (x.info(info_flags::numeric)) {
@@ -141,7 +144,7 @@ static ex tgamma_eval(const ex & x)
             if (x.info(info_flags::posint)) {
                 return factorial(ex_to_numeric(x).sub(_num1()));
             } else {
-                throw (std::domain_error("tgamma_eval(): simple pole"));
+                throw (pole_error("tgamma_eval(): simple pole",1));
             }
         }
         // trap half integer arguments:
@@ -178,7 +181,10 @@ static ex tgamma_deriv(const ex & x, unsigned deriv_param)
 }
 
 
-static ex tgamma_series(const ex & x, const relational & rel, int order)
+static ex tgamma_series(const ex & arg,
+                        const relational & rel,
+                        int order,
+                        bool branchcut)
 {
     // method:
     // Taylor series where there is no pole falls back to psi function
@@ -188,15 +194,15 @@ static ex tgamma_series(const ex & x, const relational & rel, int order)
     // from which follows
     //   series(tgamma(x),x==-m,order) ==
     //   series(tgamma(x+m+1)/(x*(x+1)*...*(x+m)),x==-m,order+1);
-    const ex x_pt = x.subs(rel);
-    if (!x_pt.info(info_flags::integer) || x_pt.info(info_flags::positive))
+    const ex arg_pt = arg.subs(rel);
+    if (!arg_pt.info(info_flags::integer) || arg_pt.info(info_flags::positive))
         throw do_taylor();  // caught by function::series()
     // if we got here we have to care for a simple pole at -m:
-    numeric m = -ex_to_numeric(x_pt);
+    numeric m = -ex_to_numeric(arg_pt);
     ex ser_denom = _ex1();
     for (numeric p; p<=m; ++p)
-        ser_denom *= x+p;
-    return (tgamma(x+m+_ex1())/ser_denom).series(rel, order+1);
+        ser_denom *= arg+p;
+    return (tgamma(arg+m+_ex1())/ser_denom).series(rel, order+1);
 }
 
 
@@ -235,13 +241,13 @@ static ex beta_eval(const ex & x, const ex & y)
                 if (nx<=-ny)
                     return pow(_num_1(), ny)*beta(1-x-y, y);
                 else
-                    throw (std::domain_error("beta_eval(): simple pole"));
+                    throw (pole_error("beta_eval(): simple pole",1));
             }
             if (ny.is_negative()) {
                 if (ny<=-nx)
                     return pow(_num_1(), nx)*beta(1-y-x, x);
                 else
-                    throw (std::domain_error("beta_eval(): simple pole"));
+                    throw (pole_error("beta_eval(): simple pole",1));
             }
             return tgamma(x)*tgamma(y)/tgamma(x+y);
         }
@@ -273,37 +279,41 @@ static ex beta_deriv(const ex & x, const ex & y, unsigned deriv_param)
 }
 
 
-static ex beta_series(const ex & x, const ex & y, const relational & rel, int order)
+static ex beta_series(const ex & arg1,
+                      const ex & arg2,
+                      const relational & rel,
+                      int order,
+                      bool branchcut)
 {
     // method:
     // Taylor series where there is no pole of one of the tgamma functions
     // falls back to beta function evaluation.  Otherwise, fall back to
     // tgamma series directly.
-    const ex x_pt = x.subs(rel);
-    const ex y_pt = y.subs(rel);
+    const ex arg1_pt = arg1.subs(rel);
+    const ex arg2_pt = arg2.subs(rel);
     GINAC_ASSERT(is_ex_exactly_of_type(rel.lhs(),symbol));
     const symbol *s = static_cast<symbol *>(rel.lhs().bp);
-    ex x_ser, y_ser, xy_ser;
-    if ((!x_pt.info(info_flags::integer) || x_pt.info(info_flags::positive)) &&
-        (!y_pt.info(info_flags::integer) || y_pt.info(info_flags::positive)))
+    ex arg1_ser, arg2_ser, arg1arg2_ser;
+    if ((!arg1_pt.info(info_flags::integer) || arg1_pt.info(info_flags::positive)) &&
+        (!arg2_pt.info(info_flags::integer) || arg2_pt.info(info_flags::positive)))
         throw do_taylor();  // caught by function::series()
-    // trap the case where x is on a pole directly:
-    if (x.info(info_flags::integer) && !x.info(info_flags::positive))
-        x_ser = tgamma(x+*s).series(rel,order);
+    // trap the case where arg1 is on a pole:
+    if (arg1.info(info_flags::integer) && !arg1.info(info_flags::positive))
+        arg1_ser = tgamma(arg1+*s).series(rel,order);
     else
-        x_ser = tgamma(x).series(rel,order);
-    // trap the case where y is on a pole directly:
-    if (y.info(info_flags::integer) && !y.info(info_flags::positive))
-        y_ser = tgamma(y+*s).series(rel,order);
+        arg1_ser = tgamma(arg1).series(rel,order);
+    // trap the case where arg2 is on a pole:
+    if (arg2.info(info_flags::integer) && !arg2.info(info_flags::positive))
+        arg2_ser = tgamma(arg2+*s).series(rel,order);
     else
-        y_ser = tgamma(y).series(rel,order);
-    // trap the case where y is on a pole directly:
-    if ((x+y).info(info_flags::integer) && !(x+y).info(info_flags::positive))
-        xy_ser = tgamma(y+x+*s).series(rel,order);
+        arg2_ser = tgamma(arg2).series(rel,order);
+    // trap the case where arg1+arg2 is on a pole:
+    if ((arg1+arg2).info(info_flags::integer) && !(arg1+arg2).info(info_flags::positive))
+        arg1arg2_ser = tgamma(arg2+arg1+*s).series(rel,order);
     else
-        xy_ser = tgamma(y+x).series(rel,order);
-    // compose the result:
-    return (x_ser*y_ser/xy_ser).series(rel,order);
+        arg1arg2_ser = tgamma(arg2+arg1).series(rel,order);
+    // compose the result (expanding all the terms):
+    return (arg1_ser*arg2_ser/arg1arg2_ser).series(rel,order).expand();
 }
 
 
@@ -342,7 +352,7 @@ static ex psi1_eval(const ex & x)
                 return rat-Euler;
             } else {
                 // for non-positive integers there is a pole:
-                throw (std::domain_error("psi_eval(): simple pole"));
+                throw (pole_error("psi_eval(): simple pole",1));
             }
         }
         if ((_num2()*nx).is_integer()) {
@@ -379,7 +389,10 @@ static ex psi1_deriv(const ex & x, unsigned deriv_param)
     return psi(_ex1(), x);
 }
 
-static ex psi1_series(const ex & x, const relational & rel, int order)
+static ex psi1_series(const ex & arg,
+                      const relational & rel,
+                      int order,
+                      bool branchcut)
 {
     // method:
     // Taylor series where there is no pole falls back to polygamma function
@@ -389,15 +402,15 @@ static ex psi1_series(const ex & x, const relational & rel, int order)
     // from which follows
     //   series(psi(x),x==-m,order) ==
     //   series(psi(x+m+1) - 1/x - 1/(x+1) - 1/(x+m)),x==-m,order);
-    const ex x_pt = x.subs(rel);
-    if (!x_pt.info(info_flags::integer) || x_pt.info(info_flags::positive))
+    const ex arg_pt = arg.subs(rel);
+    if (!arg_pt.info(info_flags::integer) || arg_pt.info(info_flags::positive))
         throw do_taylor();  // caught by function::series()
     // if we got here we have to care for a simple pole at -m:
-    numeric m = -ex_to_numeric(x_pt);
+    numeric m = -ex_to_numeric(arg_pt);
     ex recur;
     for (numeric p; p<=m; ++p)
-        recur += power(x+p,_ex_1());
-    return (psi(x+m+_ex1())-recur).series(rel, order);
+        recur += power(arg+p,_ex_1());
+    return (psi(arg+m+_ex1())-recur).series(rel, order);
 }
 
 const unsigned function_index_psi1 =
@@ -454,7 +467,7 @@ static ex psi2_eval(const ex & n, const ex & x)
                 return recur+psi(n,_ex1());
             } else {
                 // for non-positive integers there is a pole:
-                throw (std::domain_error("psi2_eval(): pole"));
+                throw (pole_error("psi2_eval(): pole",1));
             }
         }
         if ((_num2()*nx).is_integer()) {
@@ -499,7 +512,11 @@ static ex psi2_deriv(const ex & n, const ex & x, unsigned deriv_param)
     return psi(n+_ex1(), x);
 }
 
-static ex psi2_series(const ex & n, const ex & x, const relational & rel, int order)
+static ex psi2_series(const ex & n,
+                      const ex & arg,
+                      const relational & rel,
+                      int order,
+                      bool branchcut)
 {
     // method:
     // Taylor series where there is no pole falls back to polygamma function
@@ -510,16 +527,16 @@ static ex psi2_series(const ex & n, const ex & x, const relational & rel, int or
     //   series(psi(x),x==-m,order) == 
     //   series(psi(x+m+1) - (-1)^n * n! * ((x)^(-n-1) + (x+1)^(-n-1) + ...
     //                                      ... + (x+m)^(-n-1))),x==-m,order);
-    const ex x_pt = x.subs(rel);
-    if (!x_pt.info(info_flags::integer) || x_pt.info(info_flags::positive))
+    const ex arg_pt = arg.subs(rel);
+    if (!arg_pt.info(info_flags::integer) || arg_pt.info(info_flags::positive))
         throw do_taylor();  // caught by function::series()
     // if we got here we have to care for a pole of order n+1 at -m:
-    numeric m = -ex_to_numeric(x_pt);
+    numeric m = -ex_to_numeric(arg_pt);
     ex recur;
     for (numeric p; p<=m; ++p)
-        recur += power(x+p,-n+_ex_1());
+        recur += power(arg+p,-n+_ex_1());
     recur *= factorial(n)*power(_ex_1(),n);
-    return (psi(n, x+m+_ex1())-recur).series(rel, order);
+    return (psi(n, arg+m+_ex1())-recur).series(rel, order);
 }
 
 const unsigned function_index_psi2 =

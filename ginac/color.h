@@ -36,7 +36,8 @@ const unsigned MAX_REPRESENTATION_LABELS = 4;
 const unsigned COLOR_EIGHT = 8; // N*N-1
 const unsigned COLOR_THREE = 3; // N
 
-typedef vector<exvector,malloc_alloc> exvectorvector;
+// typedef std::vector<exvector> exvectorvector;
+typedef std::vector<exvector,malloc_alloc> exvectorvector; // CINT does not like vector<...,default_alloc>
 
 /** Base class for color object */
 class color : public indexed
@@ -102,10 +103,10 @@ protected:
     // functions overriding virtual functions from base classes
 public:
     basic * duplicate() const;
-    void printraw(ostream & os) const;
-    void printtree(ostream & os, unsigned indent) const;
-    void print(ostream & os, unsigned upper_precedence=0) const;
-    void printcsrc(ostream & os, unsigned type, unsigned upper_precedence=0) const;
+    void printraw(std::ostream & os) const;
+    void printtree(std::ostream & os, unsigned indent) const;
+    void print(std::ostream & os, unsigned upper_precedence=0) const;
+    void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence=0) const;
     bool info(unsigned inf) const;
     ex eval(int level=0) const;
 protected:

@@ -145,7 +145,7 @@ struct sym_desc {
 };
 
 // Vector of sym_desc structures
-typedef vector<sym_desc> sym_desc_vec;
+typedef std::vector<sym_desc> sym_desc_vec;
 
 // Add symbol the sym_desc_vec (used internally by get_symbol_stats())
 static void add_symbol(const symbol *s, sym_desc_vec &v)
@@ -203,11 +203,11 @@ static void get_symbol_stats(const ex &a, const ex &b, sym_desc_vec &v)
     }
     sort(v.begin(), v.end());
 #if 0
-	clog << "Symbols:\n";
+	std::clog << "Symbols:\n";
 	it = v.begin(); itend = v.end();
 	while (it != itend) {
-		clog << " " << *it->sym << ": deg_a=" << it->deg_a << ", deg_b=" << it->deg_b << ", ldeg_a=" << it->ldeg_a << ", ldeg_b=" << it->ldeg_b << ", max_deg=" << it->max_deg << endl;
-		clog << "  lcoeff_a=" << a.lcoeff(*(it->sym)) << ", lcoeff_b=" << b.lcoeff(*(it->sym)) << endl;
+		std::clog << " " << *it->sym << ": deg_a=" << it->deg_a << ", deg_b=" << it->deg_b << ", ldeg_a=" << it->ldeg_a << ", ldeg_b=" << it->ldeg_b << ", max_deg=" << it->max_deg << endl;
+		std::clog << "  lcoeff_a=" << a.lcoeff(*(it->sym)) << ", lcoeff_b=" << b.lcoeff(*(it->sym)) << endl;
 		it++;
 	}
 #endif
@@ -608,8 +608,8 @@ bool divide(const ex &a, const ex &b, ex &q, bool check_args)
  *  Remembering
  */
 
-typedef pair<ex, ex> ex2;
-typedef pair<ex, bool> exbool;
+typedef std::pair<ex, ex> ex2;
+typedef std::pair<ex, bool> exbool;
 
 struct ex2_less {
     bool operator() (const ex2 p, const ex2 q) const 
@@ -618,7 +618,7 @@ struct ex2_less {
     }
 };
 
-typedef map<ex2, exbool, ex2_less> ex2_exbool_remember;
+typedef std::map<ex2, exbool, ex2_less> ex2_exbool_remember;
 #endif
 
 
@@ -893,7 +893,7 @@ ex ex::primpart(const symbol &x, const ex &c) const
 
 static ex eu_gcd(const ex &a, const ex &b, const symbol *x)
 {
-//clog << "eu_gcd(" << a << "," << b << ")\n";
+//std::clog << "eu_gcd(" << a << "," << b << ")\n";
 
     // Sort c and d so that c has higher degree
     ex c, d;
@@ -913,7 +913,7 @@ static ex eu_gcd(const ex &a, const ex &b, const symbol *x)
 	// Euclidean algorithm
     ex r;
     for (;;) {
-//clog << " d = " << d << endl;
+//std::clog << " d = " << d << endl;
         r = rem(c, d, *x, false);
         if (r.is_zero())
             return d / d.lcoeff(*x);
@@ -935,7 +935,7 @@ static ex eu_gcd(const ex &a, const ex &b, const symbol *x)
 
 static ex euprem_gcd(const ex &a, const ex &b, const symbol *x)
 {
-//clog << "euprem_gcd(" << a << "," << b << ")\n";
+//std::clog << "euprem_gcd(" << a << "," << b << ")\n";
 
     // Sort c and d so that c has higher degree
     ex c, d;
@@ -954,7 +954,7 @@ static ex euprem_gcd(const ex &a, const ex &b, const symbol *x)
 	// Euclidean algorithm with pseudo-remainders
     ex r;
     for (;;) {
-//clog << " d = " << d << endl;
+//std::clog << " d = " << d << endl;
         r = prem(c, d, *x, false);
         if (r.is_zero())
             return d.primpart(*x) * gamma;
@@ -976,7 +976,7 @@ static ex euprem_gcd(const ex &a, const ex &b, const symbol *x)
 
 static ex peu_gcd(const ex &a, const ex &b, const symbol *x)
 {
-//clog << "peu_gcd(" << a << "," << b << ")\n";
+//std::clog << "peu_gcd(" << a << "," << b << ")\n";
 
     // Sort c and d so that c has higher degree
     ex c, d;
@@ -1004,7 +1004,7 @@ static ex peu_gcd(const ex &a, const ex &b, const symbol *x)
     // Euclidean algorithm with content removal
 	ex r;
     for (;;) {
-//clog << " d = " << d << endl;
+//std::clog << " d = " << d << endl;
         r = prem(c, d, *x, false);
         if (r.is_zero())
             return gamma * d;
@@ -1025,7 +1025,7 @@ static ex peu_gcd(const ex &a, const ex &b, const symbol *x)
 
 static ex red_gcd(const ex &a, const ex &b, const symbol *x)
 {
-//clog << "red_gcd(" << a << "," << b << ")\n";
+//std::clog << "red_gcd(" << a << "," << b << ")\n";
 
     // Sort c and d so that c has higher degree
     ex c, d;
@@ -1058,7 +1058,7 @@ static ex red_gcd(const ex &a, const ex &b, const symbol *x)
 
     for (;;) {
         // Calculate polynomial pseudo-remainder
-//clog << " d = " << d << endl;
+//std::clog << " d = " << d << endl;
         r = prem(c, d, *x, false);
         if (r.is_zero())
             return gamma * d.primpart(*x);
@@ -1092,7 +1092,7 @@ static ex red_gcd(const ex &a, const ex &b, const symbol *x)
 
 static ex sr_gcd(const ex &a, const ex &b, sym_desc_vec::const_iterator var)
 {
-//clog << "sr_gcd(" << a << "," << b << ")\n";
+//std::clog << "sr_gcd(" << a << "," << b << ")\n";
 #if STATISTICS
 	sr_gcd_called++;
 #endif
@@ -1124,7 +1124,7 @@ static ex sr_gcd(const ex &a, const ex &b, sym_desc_vec::const_iterator var)
         return gamma;
     c = c.primpart(x, cont_c);
     d = d.primpart(x, cont_d);
-//clog << " content " << gamma << " removed, continuing with sr_gcd(" << c << "," << d << ")\n";
+//std::clog << " content " << gamma << " removed, continuing with sr_gcd(" << c << "," << d << ")\n";
 
     // First element of subresultant sequence
     ex r = _ex0(), ri = _ex1(), psi = _ex1();
@@ -1132,14 +1132,14 @@ static ex sr_gcd(const ex &a, const ex &b, sym_desc_vec::const_iterator var)
 
     for (;;) {
         // Calculate polynomial pseudo-remainder
-//clog << " start of loop, psi = " << psi << ", calculating pseudo-remainder...\n";
-//clog << " d = " << d << endl;
+//std::clog << " start of loop, psi = " << psi << ", calculating pseudo-remainder...\n";
+//std::clog << " d = " << d << endl;
         r = prem(c, d, x, false);
         if (r.is_zero())
             return gamma * d.primpart(x);
         c = d;
         cdeg = ddeg;
-//clog << " dividing...\n";
+//std::clog << " dividing...\n";
         if (!divide_in_z(r, ri * pow(psi, delta), d, var+1))
             throw(std::runtime_error("invalid expression in sr_gcd(), division failed"));
         ddeg = d.degree(x);
@@ -1151,7 +1151,7 @@ static ex sr_gcd(const ex &a, const ex &b, sym_desc_vec::const_iterator var)
         }
 
         // Next element of subresultant sequence
-//clog << " calculating next subresultant...\n";
+//std::clog << " calculating next subresultant...\n";
         ri = c.expand().lcoeff(x);
         if (delta == 1)
             psi = ri;
@@ -1326,7 +1326,7 @@ class gcdheu_failed {};
  *  @exception gcdheu_failed() */
 static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const_iterator var)
 {
-//clog << "heur_gcd(" << a << "," << b << ")\n";
+//std::clog << "heur_gcd(" << a << "," << b << ")\n";
 #if STATISTICS
 	heur_gcd_called++;
 #endif
@@ -1365,7 +1365,7 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
     // 6 tries maximum
     for (int t=0; t<6; t++) {
         if (xi.int_length() * maxdeg > 100000) {
-//clog << "giving up heur_gcd, xi.int_length = " << xi.int_length() << ", maxdeg = " << maxdeg << endl;
+//std::clog << "giving up heur_gcd, xi.int_length = " << xi.int_length() << ", maxdeg = " << maxdeg << endl;
             throw gcdheu_failed();
 		}
 
@@ -1437,7 +1437,7 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
  *  @return the GCD as a new expression */
 ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args)
 {
-//clog << "gcd(" << a << "," << b << ")\n";
+//std::clog << "gcd(" << a << "," << b << ")\n";
 #if STATISTICS
 	gcd_called++;
 #endif
@@ -1588,20 +1588,20 @@ factored_b:
     int min_ldeg = min(ldeg_a, ldeg_b);
     if (min_ldeg > 0) {
         ex common = power(x, min_ldeg);
-//clog << "trivial common factor " << common << endl;
+//std::clog << "trivial common factor " << common << endl;
         return gcd((aex / common).expand(), (bex / common).expand(), ca, cb, false) * common;
     }
 
     // Try to eliminate variables
     if (var->deg_a == 0) {
-//clog << "eliminating variable " << x << " from b" << endl;
+//std::clog << "eliminating variable " << x << " from b" << endl;
         ex c = bex.content(x);
         ex g = gcd(aex, c, ca, cb, false);
         if (cb)
             *cb *= bex.unit(x) * bex.primpart(x, c);
         return g;
     } else if (var->deg_b == 0) {
-//clog << "eliminating variable " << x << " from a" << endl;
+//std::clog << "eliminating variable " << x << " from a" << endl;
         ex c = aex.content(x);
         ex g = gcd(c, bex, ca, cb, false);
         if (ca)
@@ -1618,7 +1618,7 @@ factored_b:
         g = *new ex(fail());
     }
     if (is_ex_exactly_of_type(g, fail)) {
-//clog << "heuristics failed" << endl;
+//std::clog << "heuristics failed" << endl;
 #if STATISTICS
 		heur_gcd_failed++;
 #endif
@@ -1853,7 +1853,7 @@ static ex frac_cancel(const ex &n, const ex &d)
     ex den = d;
     numeric pre_factor = _num1();
 
-//clog << "frac_cancel num = " << num << ", den = " << den << endl;
+//std::clog << "frac_cancel num = " << num << ", den = " << den << endl;
 
     // Handle special cases where numerator or denominator is 0
     if (num.is_zero())
@@ -1888,7 +1888,7 @@ static ex frac_cancel(const ex &n, const ex &d)
 	}
 
 	// Return result as list
-//clog << " returns num = " << num << ", den = " << den << ", pre_factor = " << pre_factor << endl;
+//std::clog << " returns num = " << num << ", den = " << den << ", pre_factor = " << pre_factor << endl;
     return (new lst(num * pre_factor.numer(), den * pre_factor.denom()))->setflag(status_flags::dynallocated);
 }
 
@@ -1936,13 +1936,13 @@ ex add::normal(lst &sym_lst, lst &repl_lst, int level) const
     // Determine common denominator
     ex den = _ex1();
     exvector::const_iterator ait = o.begin(), aitend = o.end();
-//clog << "add::normal uses the following summands:\n";
+//std::clog << "add::normal uses the following summands:\n";
     while (ait != aitend) {
-//clog << " num = " << ait->op(0) << ", den = " << ait->op(1) << endl;
+//std::clog << " num = " << ait->op(0) << ", den = " << ait->op(1) << endl;
         den = lcm(ait->op(1), den, false);
         ait++;
     }
-//clog << " common denominator = " << den << endl;
+//std::clog << " common denominator = " << den << endl;
 
     // Add fractions
     if (den.is_equal(_ex1())) {

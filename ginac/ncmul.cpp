@@ -173,13 +173,13 @@ basic * ncmul::duplicate() const
     return new ncmul(*this);
 }
 
-void ncmul::print(ostream & os, unsigned upper_precedence) const
+void ncmul::print(std::ostream & os, unsigned upper_precedence) const
 {
     debugmsg("ncmul print",LOGLEVEL_PRINT);
     printseq(os,'(','%',')',precedence,upper_precedence);
 }
 
-void ncmul::printraw(ostream & os) const
+void ncmul::printraw(std::ostream & os) const
 {
     debugmsg("ncmul printraw",LOGLEVEL_PRINT);
 
@@ -192,7 +192,7 @@ void ncmul::printraw(ostream & os) const
     os << ")";
 }
 
-void ncmul::printcsrc(ostream & os, unsigned upper_precedence) const
+void ncmul::printcsrc(std::ostream & os, unsigned upper_precedence) const
 {
     debugmsg("ncmul print csrc",LOGLEVEL_PRINT);
     exvector::const_iterator it;
@@ -211,7 +211,7 @@ bool ncmul::info(unsigned inf) const
     throw(std::logic_error("which flags have to be implemented in ncmul::info()?"));
 }
 
-typedef vector<int> intvector;
+typedef std::vector<int> intvector;
 
 ex ncmul::expand(unsigned options) const
 {
@@ -357,8 +357,8 @@ void ncmul::append_factors(exvector & v, const ex & e) const
     v.push_back(e);
 }
 
-typedef vector<unsigned> unsignedvector;
-typedef vector<exvector> exvectorvector;
+typedef std::vector<unsigned> unsignedvector;
+typedef std::vector<exvector> exvectorvector;
 
 ex ncmul::eval(int level) const
 {

@@ -27,7 +27,7 @@
 #include <list>
 
 // CINT needs <algorithm> to work properly with <vector> and <list>
-//#include <algorithm>
+#include <algorithm>
 
 #include "expair.h"
 
@@ -37,7 +37,7 @@ namespace GiNaC {
 
 //#define EXPAIRSEQ_USE_HASHTAB
 
-typedef vector<expair> epvector;
+typedef std::vector<expair> epvector;
 typedef epvector::iterator epviter;
 
 inline void iter_swap(epvector::iterator it1, epvector::iterator it2)
@@ -47,8 +47,8 @@ inline void iter_swap(epvector::iterator it1, epvector::iterator it2)
 }
 
 typedef epvector::iterator epp;
-typedef list<epp> epplist;
-typedef vector<epplist> epplistvector;
+typedef std::list<epp> epplist;
+typedef std::vector<epplist> epplistvector;
 
 /** A sequence of class expair.
  *  This is used for time-critical classes like sums and products of terms
@@ -92,9 +92,9 @@ public:
     // functions overriding virtual functions from bases classes
 public:
     basic * duplicate() const;
-    void print(ostream & os, unsigned upper_precedence=0) const;
-    void printraw(ostream & os) const;
-    void printtree(ostream & os, unsigned indent) const;
+    void print(std::ostream & os, unsigned upper_precedence=0) const;
+    void printraw(std::ostream & os) const;
+    void printtree(std::ostream & os, unsigned indent) const;
     bool info(unsigned inf) const;
     unsigned nops() const;
     ex op(int i) const;
@@ -116,9 +116,10 @@ protected:
 protected:
     virtual ex thisexpairseq(const epvector & v, const ex & oc) const;
     virtual ex thisexpairseq(epvector * vp, const ex & oc) const;
-    virtual void printseq(ostream & os, char delim, unsigned this_precedence,
+    virtual void printseq(std::ostream & os, char delim,
+                          unsigned this_precedence,
                           unsigned upper_precedence) const;
-    virtual void printpair(ostream & os, const expair & p,
+    virtual void printpair(std::ostream & os, const expair & p,
                            unsigned upper_precedence) const;
     virtual expair split_ex_to_pair(const ex & e) const;
     virtual expair combine_ex_with_coeff_to_pair(const ex & e,

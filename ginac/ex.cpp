@@ -135,7 +135,7 @@ ex::ex(double const d)
     construct_from_double(d);
 }
 
-ex::ex(const string &s, const ex &l)
+ex::ex(const std::string &s, const ex &l)
 {
     debugmsg("ex constructor from string,lst",LOGLEVEL_CONSTRUCT);
     construct_from_string_and_lst(s, l);
@@ -177,14 +177,14 @@ void ex::swap(ex & other)
 }
 
 /** Output formatted to be useful as ginsh input. */
-void ex::print(ostream & os, unsigned upper_precedence) const
+void ex::print(std::ostream & os, unsigned upper_precedence) const
 {
     debugmsg("ex print",LOGLEVEL_PRINT);
     GINAC_ASSERT(bp!=0);
     bp->print(os,upper_precedence);
 }
 
-void ex::printraw(ostream & os) const
+void ex::printraw(std::ostream & os) const
 {
     debugmsg("ex printraw",LOGLEVEL_PRINT);
     GINAC_ASSERT(bp!=0);
@@ -193,7 +193,7 @@ void ex::printraw(ostream & os) const
     os << ")";
 }
 
-void ex::printtree(ostream & os, unsigned indent) const
+void ex::printtree(std::ostream & os, unsigned indent) const
 {
     debugmsg("ex printtree",LOGLEVEL_PRINT);
     GINAC_ASSERT(bp!=0);
@@ -208,7 +208,7 @@ void ex::printtree(ostream & os, unsigned indent) const
  *  @param os output stream
  *  @param type variable type (one of the csrc_types)
  *  @param var_name variable name to be printed */
-void ex::printcsrc(ostream & os, unsigned type, const char *var_name) const
+void ex::printcsrc(std::ostream & os, unsigned type, const char *var_name) const
 {
     debugmsg("ex print csrc", LOGLEVEL_PRINT);
     GINAC_ASSERT(bp!=0);
@@ -410,10 +410,10 @@ bool ex::is_equal(const ex & other) const
 {
     GINAC_ASSERT(bp!=0);
     GINAC_ASSERT(other.bp!=0);
-    if (bp==other.bp) {
-        // special case: both expression point to same basic, trivially equal
-        return true; 
-    }
+    // if both expression point to same basic they are trivially equal
+    if (bp==other.bp)
+        return true;
+    
     return bp->is_equal(*other.bp);
 }
 #endif // ndef INLINE_EX_CONSTRUCTORS
@@ -634,7 +634,7 @@ void ex::construct_from_double(double d)
     GINAC_ASSERT(bp->refcount=1);
 }
 
-void ex::construct_from_string_and_lst(const string &s, const ex &l)
+void ex::construct_from_string_and_lst(const std::string &s, const ex &l)
 {
     set_lexer_string(s);
     set_lexer_symbols(l);

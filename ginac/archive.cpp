@@ -55,7 +55,7 @@ void archive::archive_ex(const ex &e, const char *name)
 archive_node_id archive::add_node(const archive_node &n)
 {
 	// Search for node in nodes vector
-	vector<archive_node>::const_iterator i = nodes.begin(), iend = nodes.end();
+	std::vector<archive_node>::const_iterator i = nodes.begin(), iend = nodes.end();
 	archive_node_id id = 0;
 	while (i != iend) {
 		if (i->has_same_ex_as(n))
@@ -84,9 +84,9 @@ archive_node &archive::get_node(archive_node_id id)
 ex archive::unarchive_ex(const lst &sym_lst, const char *name) const
 {
 	// Find root node
-	string name_string = name;
+	std::string name_string = name;
 	archive_atom id = atomize(name_string);
-	vector<archived_ex>::const_iterator i = exprs.begin(), iend = exprs.end();
+	std::vector<archived_ex>::const_iterator i = exprs.begin(), iend = exprs.end();
 	while (i != iend) {
 		if (i->name == id)
 			goto found;
@@ -112,7 +112,7 @@ ex archive::unarchive_ex(const lst &sym_lst, unsigned int index) const
 
 /** Retrieve expression and its name from archive by index.
  *  @param sym_lst  list of pre-defined symbols */
-ex archive::unarchive_ex(const lst &sym_lst, string &name, unsigned int index) const
+ex archive::unarchive_ex(const lst &sym_lst, std::string &name, unsigned int index) const
 {
 	if (index >= exprs.size())
 		throw (std::range_error("index of archived expression out of range"));
@@ -172,7 +172,7 @@ unsigned int archive::num_expressions(void) const
  */
 
 /** Write unsigned integer quantity to stream. */
-static void write_unsigned(ostream &os, unsigned int val)
+static void write_unsigned(std::ostream &os, unsigned int val)
 {
 	while (val > 0x80) {
 		os.put((val & 0x7f) | 0x80);
@@ -182,7 +182,7 @@ static void write_unsigned(ostream &os, unsigned int val)
 }
 
 /** Read unsigned integer quantity from stream. */
-static unsigned int read_unsigned(istream &is)
+static unsigned int read_unsigned(std::istream &is)
 {
 	unsigned char b;
 	unsigned int ret = 0;
@@ -196,7 +196,7 @@ static unsigned int read_unsigned(istream &is)
 }
 
 /** Write archive_node to binary data stream. */
-ostream &operator<<(ostream &os, const archive_node &n)
+std::ostream &operator<<(std::ostream &os, const archive_node &n)
 {
 	// Write properties
 	unsigned int num_props = n.props.size();
@@ -209,7 +209,7 @@ ostream &operator<<(ostream &os, const archive_node &n)
 }
 
 /** Write archive to binary data stream. */
-ostream &operator<<(ostream &os, const archive &ar)
+std::ostream &operator<<(std::ostream &os, const archive &ar)
 {
 	// Write header
 	os.put('G');	// Signature
@@ -241,7 +241,7 @@ ostream &operator<<(ostream &os, const archive &ar)
 }
 
 /** Read archive_node from binary data stream. */
-istream &operator>>(istream &is, archive_node &n)
+std::istream &operator>>(std::istream &is, archive_node &n)
 {
 	// Read properties
 	unsigned int num_props = read_unsigned(is);
@@ -256,7 +256,7 @@ istream &operator>>(istream &is, archive_node &n)
 }
 
 /** Read archive from binary data stream. */
-istream &operator>>(istream &is, archive &ar)
+std::istream &operator>>(std::istream &is, archive &ar)
 {
 	// Read header
 	char c1, c2, c3, c4;
@@ -293,10 +293,10 @@ istream &operator>>(istream &is, archive &ar)
 
 /** Atomize a string (i.e. convert it into an ID number that uniquely
  *  represents the string). */
-archive_atom archive::atomize(const string &s) const
+archive_atom archive::atomize(const std::string &s) const
 {
 	// Search for string in atoms vector
-	vector<string>::const_iterator i = atoms.begin(), iend = atoms.end();
+	std::vector<std::string>::const_iterator i = atoms.begin(), iend = atoms.end();
 	archive_atom id = 0;
 	while (i != iend) {
 		if (*i == s)
@@ -310,7 +310,7 @@ archive_atom archive::atomize(const string &s) const
 }
 
 /** Unatomize a string (i.e. convert the ID number back to the string). */
-const string &archive::unatomize(archive_atom id) const
+const std::string &archive::unatomize(archive_atom id) const
 {
 	if (id >= atoms.size())
 		throw (std::range_error("archive::unatomizee(): atom ID out of range"));
@@ -359,25 +359,25 @@ bool archive_node::has_same_ex_as(const archive_node &other) const
 
 
 /** Add property of type "bool" to node. */
-void archive_node::add_bool(const string &name, bool value)
+void archive_node::add_bool(const std::string &name, bool value)
 {
 	props.push_back(property(a.atomize(name), PTYPE_BOOL, value));
 }
 
 /** Add property of type "unsigned int" to node. */
-void archive_node::add_unsigned(const string &name, unsigned int value)
+void archive_node::add_unsigned(const std::string &name, unsigned int value)
 {
 	props.push_back(property(a.atomize(name), PTYPE_UNSIGNED, value));
 }
 
 /** Add property of type "string" to node. */
-void archive_node::add_string(const string &name, const string &value)
+void archive_node::add_string(const std::string &name, const std::string &value)
 {
 	props.push_back(property(a.atomize(name), PTYPE_STRING, a.atomize(value)));
 }
 
 /** Add property of type "ex" to node. */
-void archive_node::add_ex(const string &name, const ex &value)
+void archive_node::add_ex(const std::string &name, const ex &value)
 {
 	// Recursively create an archive_node and add its ID to the properties of this node
 	archive_node_id id = a.add_node(archive_node(a, value));
@@ -387,10 +387,10 @@ void archive_node::add_ex(const string &name, const ex &value)
 
 /** Retrieve property of type "bool" from node.
  *  @return "true" if property was found, "false" otherwise */
-bool archive_node::find_bool(const string &name, bool &ret) const
+bool archive_node::find_bool(const std::string &name, bool &ret) const
 {
 	archive_atom name_atom = a.atomize(name);
-	vector<property>::const_iterator i = props.begin(), iend = props.end();
+	std::vector<property>::const_iterator i = props.begin(), iend = props.end();
 	while (i != iend) {
 		if (i->type == PTYPE_BOOL && i->name == name_atom) {
 			ret = i->value;
@@ -403,10 +403,10 @@ bool archive_node::find_bool(const string &name, bool &ret) const
 
 /** Retrieve property of type "unsigned" from node.
  *  @return "true" if property was found, "false" otherwise */
-bool archive_node::find_unsigned(const string &name, unsigned int &ret) const
+bool archive_node::find_unsigned(const std::string &name, unsigned int &ret) const
 {
 	archive_atom name_atom = a.atomize(name);
-	vector<property>::const_iterator i = props.begin(), iend = props.end();
+	std::vector<property>::const_iterator i = props.begin(), iend = props.end();
 	while (i != iend) {
 		if (i->type == PTYPE_UNSIGNED && i->name == name_atom) {
 			ret = i->value;
@@ -419,10 +419,10 @@ bool archive_node::find_unsigned(const string &name, unsigned int &ret) const
 
 /** Retrieve property of type "string" from node.
  *  @return "true" if property was found, "false" otherwise */
-bool archive_node::find_string(const string &name, string &ret) const
+bool archive_node::find_string(const std::string &name, std::string &ret) const
 {
 	archive_atom name_atom = a.atomize(name);
-	vector<property>::const_iterator i = props.begin(), iend = props.end();
+	std::vector<property>::const_iterator i = props.begin(), iend = props.end();
 	while (i != iend) {
 		if (i->type == PTYPE_STRING && i->name == name_atom) {
 			ret = a.unatomize(i->value);
@@ -435,10 +435,10 @@ bool archive_node::find_string(const string &name, string &ret) const
 
 /** Retrieve property of type "ex" from node.
  *  @return "true" if property was found, "false" otherwise */
-bool archive_node::find_ex(const string &name, ex &ret, const lst &sym_lst, unsigned int index) const
+bool archive_node::find_ex(const std::string &name, ex &ret, const lst &sym_lst, unsigned int index) const
 {
 	archive_atom name_atom = a.atomize(name);
-	vector<property>::const_iterator i = props.begin(), iend = props.end();
+	std::vector<property>::const_iterator i = props.begin(), iend = props.end();
 	unsigned int found_index = 0;
 	while (i != iend) {
 		if (i->type == PTYPE_NODE && i->name == name_atom) {
@@ -464,7 +464,7 @@ ex archive_node::unarchive(const lst &sym_lst) const
 		return e;
 
 	// Find instantiation function for class specified in node
-	string class_name;
+	std::string class_name;
 	if (!find_string("class", class_name))
 		throw (std::runtime_error("archive node contains no class name"));
 	unarch_func f = find_unarch_func(class_name);
@@ -500,7 +500,7 @@ void archive::clear(void)
 /** Delete cached unarchived expressions in all archive_nodes (mainly for debugging). */
 void archive::forget(void)
 {
-	vector<archive_node>::iterator i = nodes.begin(), iend = nodes.end();
+	std::vector<archive_node>::iterator i = nodes.begin(), iend = nodes.end();
 	while (i != iend) {
 		i->forget();
 		i++;
@@ -516,12 +516,12 @@ void archive_node::forget(void)
 
 
 /** Print archive to stream in ugly raw format (for debugging). */
-void archive::printraw(ostream &os) const
+void archive::printraw(std::ostream &os) const
 {
 	// Dump atoms
 	os << "Atoms:\n";
 	{
-		vector<string>::const_iterator i = atoms.begin(), iend = atoms.end();
+		std::vector<std::string>::const_iterator i = atoms.begin(), iend = atoms.end();
 		archive_atom id = 0;
 		while (i != iend) {
 			os << " " << id << " " << *i << endl;
@@ -533,7 +533,7 @@ void archive::printraw(ostream &os) const
 	// Dump expressions
 	os << "Expressions:\n";
 	{
-		vector<archived_ex>::const_iterator i = exprs.begin(), iend = exprs.end();
+		std::vector<archived_ex>::const_iterator i = exprs.begin(), iend = exprs.end();
 		unsigned int index = 0;
 		while (i != iend) {
 			os << " " << index << " \"" << unatomize(i->name) << "\" root node " << i->root << endl;
@@ -545,7 +545,7 @@ void archive::printraw(ostream &os) const
 	// Dump nodes
 	os << "Nodes:\n";
 	{
-		vector<archive_node>::const_iterator i = nodes.begin(), iend = nodes.end();
+		std::vector<archive_node>::const_iterator i = nodes.begin(), iend = nodes.end();
 		archive_node_id id = 0;
 		while (i != iend) {
 			os << " " << id << " ";
@@ -556,7 +556,7 @@ void archive::printraw(ostream &os) const
 }
 
 /** Output archive_node to stream in ugly raw format (for debugging). */
-void archive_node::printraw(ostream &os) const
+void archive_node::printraw(std::ostream &os) const
 {
 	// Dump cached unarchived expression
 	if (has_expression)
@@ -565,7 +565,7 @@ void archive_node::printraw(ostream &os) const
 		os << "\n";
 
 	// Dump properties
-	vector<property>::const_iterator i = props.begin(), iend = props.end();
+	std::vector<property>::const_iterator i = props.begin(), iend = props.end();
 	while (i != iend) {
 		os << "  ";
 		switch (i->type) {

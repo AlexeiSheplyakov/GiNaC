@@ -59,10 +59,10 @@ protected:
     // functions overriding virtual functions from bases classes
 public:
     basic * duplicate() const;
-    void printraw(ostream & os) const; 
-    void print(ostream & os, unsigned upper_precedence=0) const;
-    void printtree(ostream & os, unsigned indent) const;
-    void printcsrc(ostream & os, unsigned type, unsigned upper_precedence=0) const;
+    void printraw(std::ostream & os) const; 
+    void print(std::ostream & os, unsigned upper_precedence=0) const;
+    void printtree(std::ostream & os, unsigned indent) const;
+    void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence=0) const;
 protected:
     int compare_same_type(const basic & other) const;
     bool is_equal_same_type(const basic & other) const;
@@ -72,7 +72,7 @@ protected:
     
     // non-virtual functions in this class
 protected:
-    static vector<registered_structure_info> & registered_structures(void);
+    static std::vector<registered_structure_info> & registered_structures(void);
 public:
     static unsigned register_new(const char * nm);
 

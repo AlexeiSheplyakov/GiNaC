@@ -55,7 +55,6 @@ public:
     mul(const ex & lh, const ex & rh);
     mul(const exvector & v);
     mul(const epvector & v);
-    //mul(const epvector & v, bool do_not_canonicalize=0);
     mul(const epvector & v, const ex & oc);
     mul(epvector * vp, const ex & oc);
     mul(const ex & lh, const ex & mh, const ex & rh);
@@ -63,17 +62,17 @@ public:
     // functions overriding virtual functions from bases classes
 public:
     basic * duplicate() const;
-    void print(ostream & os, unsigned upper_precedence) const;
-    void printraw(ostream & os) const;
-    void printcsrc(ostream & os, unsigned type, unsigned upper_precedence) const;
+    void print(std::ostream & os, unsigned upper_precedence) const;
+    void printraw(std::ostream & os) const;
+    void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const;
     bool info(unsigned inf) const;
     int degree(const symbol & s) const;
     int ldegree(const symbol & s) const;
-    ex coeff(const symbol & s, int n=1) const;
+    ex coeff(const symbol & s, int n = 1) const;
     ex eval(int level=0) const;
     ex evalf(int level=0) const;
-    ex series(const relational & s, int order) const;
-    ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
+    ex series(const relational & s, int order, bool branchcut = true) const;
+    ex normal(lst &sym_lst, lst &repl_lst, int level = 0) const;
     numeric integer_content(void) const;
     ex smod(const numeric &xi) const;
     numeric max_coefficient(void) const;

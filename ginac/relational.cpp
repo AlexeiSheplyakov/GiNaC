@@ -139,7 +139,7 @@ basic * relational::duplicate() const
     return new relational(*this);
 }
 
-void relational::print(ostream & os, unsigned upper_precedence) const
+void relational::print(std::ostream & os, unsigned upper_precedence) const
 {
     debugmsg("relational print",LOGLEVEL_PRINT);
     if (precedence<=upper_precedence) os << "(";
@@ -170,7 +170,7 @@ void relational::print(ostream & os, unsigned upper_precedence) const
     if (precedence<=upper_precedence) os << ")";
 }
 
-void relational::printraw(ostream & os) const
+void relational::printraw(std::ostream & os) const
 {
     debugmsg("relational printraw",LOGLEVEL_PRINT);
     os << "RELATIONAL(";
@@ -203,7 +203,7 @@ void relational::printraw(ostream & os) const
     os << ")";
 }
 
-void relational::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) const
+void relational::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
 {
     debugmsg("relational print csrc", LOGLEVEL_PRINT);
     if (precedence<=upper_precedence)
@@ -363,8 +363,6 @@ ex relational::rhs(void) const
 //////////
 // non-virtual functions in this class
 //////////
-
-#include <iostream>
 
 relational::operator bool() const
 {

@@ -105,14 +105,14 @@ void lortensor::destroy(bool call_parent)
 
 // protected
 
-lortensor::lortensor(lortensor_types const lt, const string & n) : type(lt), name(n)
+lortensor::lortensor(lortensor_types const lt, const std::string & n) : type(lt), name(n)
 {
     debugmsg("lortensor constructor from lortensor_types,string",LOGLEVEL_CONSTRUCT);
     serial=next_serial++;
     tinfo_key=TINFO_lortensor;
 }
 
-lortensor::lortensor(lortensor_types const lt, const string & n, const ex & mu) : indexed(mu), type(lt), name(n)
+lortensor::lortensor(lortensor_types const lt, const std::string & n, const ex & mu) : indexed(mu), type(lt), name(n)
 {
     debugmsg("lortensor constructor from lortensor_types,string,ex",LOGLEVEL_CONSTRUCT);
     serial=next_serial++;    
@@ -120,7 +120,7 @@ lortensor::lortensor(lortensor_types const lt, const string & n, const ex & mu) 
     tinfo_key=TINFO_lortensor;
 }
 
-lortensor::lortensor(lortensor_types const lt, const string & n, const ex & mu, const ex & nu) : indexed(mu,nu), type(lt), name(n)
+lortensor::lortensor(lortensor_types const lt, const std::string & n, const ex & mu, const ex & nu) : indexed(mu,nu), type(lt), name(n)
 {
     debugmsg("lortensor constructor from lortensor_types,string,ex,ex",LOGLEVEL_CONSTRUCT);
     serial=next_serial++;
@@ -128,7 +128,7 @@ lortensor::lortensor(lortensor_types const lt, const string & n, const ex & mu, 
     tinfo_key=TINFO_lortensor;
 }
 
-lortensor::lortensor(lortensor_types const lt, const string & n, const ex & mu, const ex & nu, const ex & rho) : indexed(mu,nu,rho), type(lt), name(n)
+lortensor::lortensor(lortensor_types const lt, const std::string & n, const ex & mu, const ex & nu, const ex & rho) : indexed(mu,nu,rho), type(lt), name(n)
 {
     debugmsg("lortensor constructor from lortensor_types,string,ex,ex,ex",LOGLEVEL_CONSTRUCT);
     serial=next_serial++;
@@ -136,7 +136,7 @@ lortensor::lortensor(lortensor_types const lt, const string & n, const ex & mu, 
     tinfo_key=TINFO_lortensor;
 }
 
-lortensor::lortensor(lortensor_types const lt, const string & n, const ex & mu, const ex & nu, const ex & rho, const ex & sigma) : indexed(mu,nu,rho,sigma), type(lt), name(n)
+lortensor::lortensor(lortensor_types const lt, const std::string & n, const ex & mu, const ex & nu, const ex & rho, const ex & sigma) : indexed(mu,nu,rho,sigma), type(lt), name(n)
 {
     debugmsg("lortensor constructor from lortensor_types,string,ex,ex,ex,ex",LOGLEVEL_CONSTRUCT);
     serial=next_serial++;
@@ -144,7 +144,7 @@ lortensor::lortensor(lortensor_types const lt, const string & n, const ex & mu, 
     tinfo_key=TINFO_lortensor;
 }
 
-lortensor::lortensor(lortensor_types const lt, const string & n, const exvector & iv) : indexed(iv), type(lt), name(n)
+lortensor::lortensor(lortensor_types const lt, const std::string & n, const exvector & iv) : indexed(iv), type(lt), name(n)
 {
     debugmsg("lortensor constructor from lortensor_types,string,exvector",LOGLEVEL_CONSTRUCT);
     serial=next_serial++;
@@ -152,14 +152,14 @@ lortensor::lortensor(lortensor_types const lt, const string & n, const exvector 
     tinfo_key=TINFO_lortensor;
 }
 
-lortensor::lortensor(lortensor_types const lt, const string & n, unsigned s, const exvector & iv) : indexed(iv), type(lt), name(n), serial(s)
+lortensor::lortensor(lortensor_types const lt, const std::string & n, unsigned s, const exvector & iv) : indexed(iv), type(lt), name(n), serial(s)
 {
     debugmsg("lortensor constructor from lortensor_types,string,unsigned,exvector",LOGLEVEL_CONSTRUCT);
     GINAC_ASSERT(all_of_type_lorentzidx());
     tinfo_key=TINFO_lortensor;
 }
 
-lortensor::lortensor(lortensor_types const lt, const string & n, unsigned s, exvector *ivp) : indexed(ivp), type(lt), name(n), serial(s)
+lortensor::lortensor(lortensor_types const lt, const std::string & n, unsigned s, exvector *ivp) : indexed(ivp), type(lt), name(n), serial(s)
 {
     debugmsg("lortensor constructor from lortensor_types,string,unsigned,exvector",LOGLEVEL_CONSTRUCT);
     GINAC_ASSERT(all_of_type_lorentzidx());
@@ -178,7 +178,7 @@ basic * lortensor::duplicate() const
     return new lortensor(*this);
 }
 
-void lortensor::printraw(ostream & os) const
+void lortensor::printraw(std::ostream & os) const
 {
     debugmsg("lortensor printraw",LOGLEVEL_PRINT);
     os << "lortensor(type=" << (unsigned)type
@@ -187,19 +187,19 @@ void lortensor::printraw(ostream & os) const
     os << ",hash=" << hashvalue << ",flags=" << flags << ")";
 }
 
-void lortensor::printtree(ostream & os, unsigned indent) const
+void lortensor::printtree(std::ostream & os, unsigned indent) const
 {
     debugmsg("lortensor printtree",LOGLEVEL_PRINT);
-    os << string(indent,' ') <<"lortensor object: "
+    os << std::string(indent,' ') <<"lortensor object: "
        << "type=" << (unsigned)type << ","
-       << seq.size() << " indices" << endl;
+       << seq.size() << " indices" << std::endl;
     printtreeindices(os,indent);
-    os << string(indent,' ') << "hash=" << hashvalue
-       << " (0x" << hex << hashvalue << dec << ")"
-       << ", flags=" << flags << endl;
+    os << std::string(indent,' ') << "hash=" << hashvalue
+       << " (0x" << std::hex << hashvalue << std::dec << ")"
+       << ", flags=" << flags << std::endl;
 }
 
-void lortensor::print(ostream & os, unsigned upper_precedence) const
+void lortensor::print(std::ostream & os, unsigned upper_precedence) const
 {
     debugmsg("lortensor print",LOGLEVEL_PRINT);
     switch (type) {
@@ -226,7 +226,7 @@ void lortensor::print(ostream & os, unsigned upper_precedence) const
     printindices(os);
 }
 
-void lortensor::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) const
+void lortensor::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
 {
     debugmsg("lortensor print csrc",LOGLEVEL_PRINT);
     print(os,upper_precedence);
@@ -327,9 +327,9 @@ ex lortensor::thisexprseq(exvector *vp) const
 
 // protected
 
-void lortensor::setname(const string & n)
+void lortensor::setname(const std::string & n)
 {
-    name=n;
+    name = n;
 }
 
 bool lortensor::all_of_type_lorentzidx(void) const
@@ -344,9 +344,9 @@ bool lortensor::all_of_type_lorentzidx(void) const
 
 // private
 
-string & lortensor::autoname_prefix(void)
+std::string & lortensor::autoname_prefix(void)
 {
-    static string * s=new string("lortensor");
+    static std::string * s = new std::string("lortensor");
     return *s;
 }
 
@@ -372,12 +372,12 @@ lortensor lortensor_epsilon(const ex & mu, const ex & nu, const ex & rho, const 
     return lortensor(lortensor::lortensor_epsilon,"",mu,nu,rho,sigma);
 }
 
-lortensor lortensor_rank1(const string & n, const ex & mu)
+lortensor lortensor_rank1(const std::string & n, const ex & mu)
 {
     return lortensor(lortensor::lortensor_rank1,n,mu);
 }
 
-lortensor lortensor_rank2(const string & n, const ex & mu, const ex & nu)
+lortensor lortensor_rank2(const std::string & n, const ex & mu, const ex & nu)
 {
     return lortensor(lortensor::lortensor_rank2,n,mu,nu);
 }

@@ -52,7 +52,7 @@ public:
     _numeric_digits();
     _numeric_digits& operator=(long prec);
     operator long();
-    void print(ostream & os) const;
+    void print(std::ostream & os) const;
 // member variables
 private:
     long digits;
@@ -81,8 +81,9 @@ class numeric : public basic
     friend const numeric asinh(const numeric & x);
     friend const numeric acosh(const numeric & x);
     friend const numeric atanh(const numeric & x);
+    friend const numeric Li2(const numeric & x);
     friend const numeric zeta(const numeric & x);
-    friend const numeric bernoulli(const numeric & n);
+    // friend const numeric bernoulli(const numeric & n);
     friend const numeric fibonacci(const numeric & n);
     friend numeric abs(const numeric & x);
     friend numeric mod(const numeric & a, const numeric & b);
@@ -123,10 +124,10 @@ public:
     // functions overriding virtual functions from bases classes
 public:
     basic * duplicate() const;
-    void print(ostream & os, unsigned precedence=0) const;
-    void printraw(ostream & os) const;
-    void printtree(ostream & os, unsigned indent) const;
-    void printcsrc(ostream & os, unsigned type, unsigned precedence=0) const;
+    void print(std::ostream & os, unsigned precedence=0) const;
+    void printraw(std::ostream & os) const;
+    void printtree(std::ostream & os, unsigned indent) const;
+    void printcsrc(std::ostream & os, unsigned type, unsigned precedence=0) const;
     bool info(unsigned inf) const;
     bool has(const ex & other) const;
     ex eval(int level=0) const;
@@ -165,6 +166,7 @@ public:
     const numeric & operator=(const char * s);
     numeric inverse(void) const;
     int csgn(void) const;
+    ::cl_N* clnptr(void) const { return value; } /**< ptr to representation. */
     int compare(const numeric & other) const;
     bool is_equal(const numeric & other) const;
     bool is_zero(void) const;
@@ -232,6 +234,7 @@ const numeric tanh(const numeric & x);
 const numeric asinh(const numeric & x);
 const numeric acosh(const numeric & x);
 const numeric atanh(const numeric & x);
+const numeric Li2(const numeric & x);
 const numeric zeta(const numeric & x);
 const numeric lgamma(const numeric & x);
 const numeric tgamma(const numeric & x);

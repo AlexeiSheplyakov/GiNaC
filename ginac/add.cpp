@@ -185,7 +185,7 @@ basic * add::duplicate() const
     return new add(*this);
 }
 
-void add::print(ostream & os, unsigned upper_precedence) const
+void add::print(std::ostream & os, unsigned upper_precedence) const
 {
     debugmsg("add print",LOGLEVEL_PRINT);
     if (precedence<=upper_precedence) os << "(";
@@ -225,7 +225,7 @@ void add::print(ostream & os, unsigned upper_precedence) const
     if (precedence<=upper_precedence) os << ")";
 }
 
-void add::printraw(ostream & os) const
+void add::printraw(std::ostream & os) const
 {
     debugmsg("add printraw",LOGLEVEL_PRINT);
 
@@ -241,7 +241,7 @@ void add::printraw(ostream & os) const
     os << ")";
 }
 
-void add::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) const
+void add::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
 {
     debugmsg("add print csrc", LOGLEVEL_PRINT);
     if (precedence <= upper_precedence)
@@ -539,9 +539,9 @@ ex add::expand(unsigned options) const
         return *this;
     
     epvector * vp = expandchildren(options);
-    if (vp==0) {
+    if (vp==0)
         return *this;
-    }
+    
     return (new add(vp,overall_coeff))->
         setflag(status_flags::expanded |
                 status_flags::dynallocated);

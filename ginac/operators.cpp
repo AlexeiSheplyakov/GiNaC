@@ -257,13 +257,13 @@ relational operator>=(const ex & lh, const ex & rh)
 
 // input/output stream operators
 
-ostream & operator<<(ostream & os, const ex & e)
+std::ostream & operator<<(std::ostream & os, const ex & e)
 {
     e.print(os);
     return os;
 }
 
-istream & operator>>(istream & is, ex & e)
+std::istream & operator>>(std::istream & is, ex & e)
 {
     throw (std::logic_error("expression input from streams not implemented"));
 }

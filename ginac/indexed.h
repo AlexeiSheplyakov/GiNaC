@@ -59,10 +59,10 @@ public:
     // functions overriding virtual functions from base classes
 public:
     basic * duplicate() const;
-    void printraw(ostream & os) const;
-    void printtree(ostream & os, unsigned indent) const;
-    void print(ostream & os, unsigned upper_precedence=0) const;
-    void printcsrc(ostream & os, unsigned type, unsigned upper_precedence) const;
+    void printraw(std::ostream & os) const;
+    void printtree(std::ostream & os, unsigned indent) const;
+    void print(std::ostream & os, unsigned upper_precedence=0) const;
+    void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const;
     bool info(unsigned inf) const;
     exvector get_indices(void) const;
 protected:
@@ -79,9 +79,9 @@ protected:
     
     // non-virtual functions in this class
 protected:
-    void printrawindices(ostream & os) const;
-    void printtreeindices(ostream & os, unsigned indent) const;
-    void printindices(ostream & os) const;
+    void printrawindices(std::ostream & os) const;
+    void printtreeindices(std::ostream & os, unsigned indent) const;
+    void printindices(std::ostream & os) const;
     bool all_of_type_idx(void) const;
 
 // member variables

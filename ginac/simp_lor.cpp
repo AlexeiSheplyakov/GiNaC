@@ -109,7 +109,7 @@ simp_lor::simp_lor(simp_lor_types const t, const ex & i1, const ex & i2) :
     GINAC_ASSERT(all_of_type_lorentzidx());
 }
 
-simp_lor::simp_lor(simp_lor_types const t, const string & n, const ex & i1) :
+simp_lor::simp_lor(simp_lor_types const t, const std::string & n, const ex & i1) :
     indexed(i1), type(t), name(n)
 {
     debugmsg("simp_lor constructor from simp_lor_types,string,ex",LOGLEVEL_CONSTRUCT);
@@ -117,7 +117,7 @@ simp_lor::simp_lor(simp_lor_types const t, const string & n, const ex & i1) :
     GINAC_ASSERT(all_of_type_lorentzidx());
 }
 
-simp_lor::simp_lor(simp_lor_types const t, const string & n, const exvector & iv) :
+simp_lor::simp_lor(simp_lor_types const t, const std::string & n, const exvector & iv) :
     indexed(iv), type(t), name(n)
 {
     debugmsg("simp_lor constructor from simp_lor_types,string,exvector",LOGLEVEL_CONSTRUCT);
@@ -125,7 +125,7 @@ simp_lor::simp_lor(simp_lor_types const t, const string & n, const exvector & iv
     GINAC_ASSERT(all_of_type_lorentzidx());
 }
 
-simp_lor::simp_lor(simp_lor_types const t, const string & n, exvector * ivp) :
+simp_lor::simp_lor(simp_lor_types const t, const std::string & n, exvector * ivp) :
     indexed(ivp), type(t), name(n)
 {
     debugmsg("simp_lor constructor from simp_lor_types,string,exvector*",LOGLEVEL_CONSTRUCT);
@@ -145,7 +145,7 @@ basic * simp_lor::duplicate() const
     return new simp_lor(*this);
 }
 
-void simp_lor::printraw(ostream & os) const
+void simp_lor::printraw(std::ostream & os) const
 {
     debugmsg("simp_lor printraw",LOGLEVEL_PRINT);
     os << "simp_lor(type=" << (unsigned)type
@@ -154,20 +154,20 @@ void simp_lor::printraw(ostream & os) const
     os << ",hash=" << hashvalue << ",flags=" << flags << ")";
 }
 
-void simp_lor::printtree(ostream & os, unsigned indent) const
+void simp_lor::printtree(std::ostream & os, unsigned indent) const
 {
     debugmsg("simp_lor printtree",LOGLEVEL_PRINT);
-    os << string(indent,' ') << "simp_lor object: "
+    os << std::string(indent,' ') << "simp_lor object: "
        << "type=" << (unsigned)type
        << ", name=" << name << ", ";
-    os << seq.size() << " indices" << endl;
+    os << seq.size() << " indices" << std::endl;
     printtreeindices(os,indent);
-    os << string(indent,' ') << "hash=" << hashvalue
-       << " (0x" << hex << hashvalue << dec << ")"
-       << ", flags=" << flags << endl;
+    os << std::string(indent,' ') << "hash=" << hashvalue
+       << " (0x" << std::hex << hashvalue << std::dec << ")"
+       << ", flags=" << flags << std::endl;
 }
 
-void simp_lor::print(ostream & os, unsigned upper_precedence) const
+void simp_lor::print(std::ostream & os, unsigned upper_precedence) const
 {
     debugmsg("simp_lor print",LOGLEVEL_PRINT);
     switch (type) {
@@ -185,7 +185,7 @@ void simp_lor::print(ostream & os, unsigned upper_precedence) const
     printindices(os);
 }
 
-void simp_lor::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) const
+void simp_lor::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
 {
     debugmsg("simp_lor print csrc",LOGLEVEL_PRINT);
     print(os,upper_precedence);
@@ -314,7 +314,7 @@ bool simp_lor::all_of_type_lorentzidx(void) const
 //////////
 
 const simp_lor some_simp_lor;
-const type_info & typeid_simp_lor=typeid(some_simp_lor);
+const type_info & typeid_simp_lor = typeid(some_simp_lor);
 
 //////////
 // friend functions
@@ -325,7 +325,7 @@ simp_lor lor_g(const ex & mu, const ex & nu)
     return simp_lor(simp_lor::simp_lor_g,mu,nu);
 }
 
-simp_lor lor_vec(const string & n, const ex & mu)
+simp_lor lor_vec(const std::string & n, const ex & mu)
 {
     return simp_lor(simp_lor::simp_lor_vec,n,mu);
 }
@@ -497,13 +497,13 @@ ex scalar_products::evaluate(const simp_lor & v1, const simp_lor & v2) const
 
 void scalar_products::debugprint(void) const
 {
-    cerr << "map size=" << spm.size() << endl;
+    std::cerr << "map size=" << spm.size() << std::endl;
     for (spmap::const_iterator cit=spm.begin(); cit!=spm.end(); ++cit) {
         const spmapkey & k=(*cit).first;
-        cerr << "item key=((" << k.first.first
-             << "," << k.first.second << "),";
+        std::cerr << "item key=((" << k.first.first
+                  << "," << k.first.second << "),";
         k.second.printraw(cerr);
-        cerr << ") value=" << (*cit).second << endl;
+        cerr << ") value=" << (*cit).second << std::endl;
     }
 }
 

@@ -89,7 +89,7 @@ void constant::destroy(bool call_parent)
 
 // public
 
-constant::constant(const string & initname, evalffunctype efun) :
+constant::constant(const std::string & initname, evalffunctype efun) :
     basic(TINFO_constant), name(initname), ef(efun),
     // number(0), fct_assigned(true), serial(next_serial++)
     number(0), serial(next_serial++)
@@ -97,7 +97,7 @@ constant::constant(const string & initname, evalffunctype efun) :
     debugmsg("constant constructor from string, function",LOGLEVEL_CONSTRUCT);
 }
 
-constant::constant(const string & initname, const numeric & initnumber) :
+constant::constant(const std::string & initname, const numeric & initnumber) :
     basic(TINFO_constant), name(initname), ef(0),
     number(new numeric(initnumber)), /* fct_assigned(false),*/ serial(next_serial++)
 {
@@ -119,7 +119,7 @@ ex constant::unarchive(const archive_node &n, const lst &sym_lst)
 {
     // Find constant by name (!! this is bad: 'twould be better if there
     // was a list of all global constants that we could search)
-    string s;
+    std::string s;
     if (n.find_string("name", s)) {
         if (s == Pi.name)
             return Pi;
@@ -152,28 +152,29 @@ basic * constant::duplicate() const
     return new constant(*this);
 }
 
-void constant::print(ostream & os, unsigned upper_precedence) const
+void constant::print(std::ostream & os, unsigned upper_precedence) const
 {
     debugmsg("constant print",LOGLEVEL_PRINT);
     os << name;
 }
 
-void constant::printraw(ostream & os) const
+void constant::printraw(std::ostream & os) const
 {
     debugmsg("constant printraw",LOGLEVEL_PRINT);
     os << "constant(" << name << ")";
 }
 
-void constant::printtree(ostream & os, unsigned indent) const
+void constant::printtree(std::ostream & os, unsigned indent) const
 {
     debugmsg("constant printtree",LOGLEVEL_PRINT);
-    os << string(indent,' ') << name
+    os << std::string(indent,' ') << name
        << ", type=" << typeid(*this).name()
-       << ", hash=" << hashvalue << " (0x" << hex << hashvalue << dec << ")"
-       << ", flags=" << flags << endl;
+       << ", hash=" << hashvalue
+       << " (0x" << std::hex << hashvalue << std::dec << ")"
+       << ", flags=" << flags << std::endl;
 }
 
-void constant::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) const
+void constant::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
 {
     debugmsg("constant print csrc",LOGLEVEL_PRINT);
     os << name;

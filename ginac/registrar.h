@@ -79,10 +79,10 @@ private:
 
 
 /** Find TINFO_* key by class name. */
-extern unsigned int find_tinfo_key(const string &class_name);
+extern unsigned int find_tinfo_key(const std::string &class_name);
 
 /** Find unarchiving function by class name. */
-extern unarch_func find_unarch_func(const string &class_name);
+extern unarch_func find_unarch_func(const std::string &class_name);
 
 
 #ifndef NO_NAMESPACE_GINAC

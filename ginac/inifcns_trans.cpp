@@ -110,7 +110,7 @@ static ex log_eval(const ex & x)
 {
     if (x.info(info_flags::numeric)) {
         if (x.is_equal(_ex0()))  // log(0) -> infinity
-            throw(std::domain_error("log_eval(): log(0)"));
+            throw(pole_error("log_eval(): log(0)",0));
         if (x.info(info_flags::real) && x.info(info_flags::negative))
             return (log(-x)+I*Pi);
         if (x.is_equal(_ex1()))  // log(1) -> 0
@@ -144,26 +144,60 @@ static ex log_deriv(const ex & x, unsigned deriv_param)
     return power(x, _ex_1());
 }
 
-static ex log_series(const ex &x, const relational &rel, int order)
+static ex log_series(const ex &arg,
+                     const relational &rel,
+                     int order,
+                     bool branchcut)
 {
-    const ex x_pt = x.subs(rel);
-    if (!x_pt.info(info_flags::negative) && !x_pt.is_zero())
-        throw do_taylor();  // caught by function::series()
-    // now we either have to care for the branch cut or the branch point:
-    if (x_pt.is_zero()) {  // branch point: return a plain log(x).
+    GINAC_ASSERT(is_ex_exactly_of_type(rel.lhs(),symbol));
+    ex arg_pt;
+    bool must_expand_arg = false;
+    // maybe substitution of rel into arg fails because of a pole
+    try {
+        arg_pt = arg.subs(rel);
+    } catch (pole_error) {
+        must_expand_arg = true;
+    }
+    // or we are at the branch cut anyways
+    if (arg_pt.is_zero())
+        must_expand_arg = true;
+    
+    if (must_expand_arg) {
+        // method:
+        // This is the branch point: Series expand the argument first, then
+        // trivially factorize it to isolate that part which has constant
+        // leading coefficient in this fashion:
+        //   x^n + Order(x^(n+m))  ->  x^n * (1 + Order(x^m)).
+        // Return a plain n*log(x) for the x^n part and series expand the
+        // other part.  Add them together and reexpand again in order to have
+        // one unnested pseries object.  All this also works for negative n.
+        const pseries argser = ex_to_pseries(arg.series(rel, order, branchcut));
+        const symbol *s = static_cast<symbol *>(rel.lhs().bp);
+        const ex point = rel.rhs();
+        const int n = argser.ldegree(*s);
         epvector seq;
-        seq.push_back(expair(log(x), _ex0()));
-        return pseries(rel, seq);
-    } // on the branch cut:
-    const ex point = rel.rhs();
-    const symbol *s = static_cast<symbol *>(rel.lhs().bp);
-    const symbol foo;
-    // compute the formal series:
-    ex replx = series(log(x),*s==foo,order).subs(foo==point);
-    epvector seq;
-    seq.push_back(expair(-I*csgn(x*I)*Pi,_ex0()));
-    seq.push_back(expair(Order(_ex1()),order));
-    return series(replx - I*Pi + pseries(rel, seq),rel,order);
+        seq.push_back(expair(n*log(*s-point), _ex0()));
+        if (!argser.is_terminating() || argser.nops()!=1) {
+            // in this case n more terms are needed
+            ex newarg = ex_to_pseries(arg.series(rel, order+n, branchcut)).shift_exponents(-n).convert_to_poly(true);
+            return pseries(rel, seq).add_series(ex_to_pseries(log(newarg).series(rel, order, branchcut)));
+        } else  // it was a monomial
+            return pseries(rel, seq);
+    }
+    if (branchcut && arg_pt.info(info_flags::negative)) {
+        // method:
+        // This is the branch cut: assemble the primitive series manually and
+        // then add the corresponding complex step function.
+        const symbol *s = static_cast<symbol *>(rel.lhs().bp);
+        const ex point = rel.rhs();
+        const symbol foo;
+        ex replarg = series(log(arg), *s==foo, order, false).subs(foo==point);
+        epvector seq;
+        seq.push_back(expair(-I*csgn(arg*I)*Pi, _ex0()));
+        seq.push_back(expair(Order(_ex1()), order));
+        return series(replarg - I*Pi + pseries(rel, seq), rel, order);
+    }
+    throw do_taylor();  // caught by function::series()
 }
 
 REGISTER_FUNCTION(log, eval_func(log_eval).
@@ -375,7 +409,7 @@ static ex tan_eval(const ex & x)
         if (z.is_equal(_num25())) // tan(5/12*Pi) -> 2+sqrt(3)
             return sign*(power(_ex3(),_ex1_2())+_ex2());
         if (z.is_equal(_num30())) // tan(Pi/2)    -> infinity
-            throw (std::domain_error("tan_eval(): simple pole"));
+            throw (pole_error("tan_eval(): simple pole",1));
     }
     
     if (is_ex_exactly_of_type(x, function)) {
@@ -407,7 +441,10 @@ static ex tan_deriv(const ex & x, unsigned deriv_param)
     return (_ex1()+power(tan(x),_ex2()));
 }
 
-static ex tan_series(const ex &x, const relational &rel, int order)
+static ex tan_series(const ex &x,
+                     const relational &rel,
+                     int order,
+                     bool branchcut)
 {
     // method:
     // Taylor series where there is no pole falls back to tan_deriv.
@@ -764,7 +801,10 @@ static ex tanh_deriv(const ex & x, unsigned deriv_param)
     return _ex1()-power(tanh(x),_ex2());
 }
 
-static ex tanh_series(const ex &x, const relational &rel, int order)
+static ex tanh_series(const ex &x,
+                      const relational &rel,
+                      int order,
+                      bool branchcut)
 {
     // method:
     // Taylor series where there is no pole falls back to tanh_deriv.
@@ -886,7 +926,7 @@ static ex atanh_eval(const ex & x)
             return _ex0();
         // atanh({+|-}1) -> throw
         if (x.is_equal(_ex1()) || x.is_equal(_ex_1()))
-            throw (std::domain_error("atanh_eval(): logarithmic pole"));
+            throw (pole_error("atanh_eval(): logarithmic pole",0));
         // atanh(float) -> float
         if (!x.info(info_flags::crational))
             return atanh_evalf(x);

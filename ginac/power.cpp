@@ -42,7 +42,7 @@ namespace GiNaC {
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(power, basic)
 
-typedef vector<int> intvector;
+typedef std::vector<int> intvector;
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -147,7 +147,7 @@ basic * power::duplicate() const
     return new power(*this);
 }
 
-void power::print(ostream & os, unsigned upper_precedence) const
+void power::print(std::ostream & os, unsigned upper_precedence) const
 {
     debugmsg("power print",LOGLEVEL_PRINT);
     if (exponent.is_equal(_ex1_2())) {
@@ -161,7 +161,7 @@ void power::print(ostream & os, unsigned upper_precedence) const
     }
 }
 
-void power::printraw(ostream & os) const
+void power::printraw(std::ostream & os) const
 {
     debugmsg("power printraw",LOGLEVEL_PRINT);
 
@@ -172,18 +172,19 @@ void power::printraw(ostream & os) const
     os << ",hash=" << hashvalue << ",flags=" << flags << ")";
 }
 
-void power::printtree(ostream & os, unsigned indent) const
+void power::printtree(std::ostream & os, unsigned indent) const
 {
     debugmsg("power printtree",LOGLEVEL_PRINT);
 
-    os << string(indent,' ') << "power: "
-       << "hash=" << hashvalue << " (0x" << hex << hashvalue << dec << ")"
-       << ", flags=" << flags << endl;
-    basis.printtree(os,indent+delta_indent);
-    exponent.printtree(os,indent+delta_indent);
+    os << std::string(indent,' ') << "power: "
+       << "hash=" << hashvalue
+       << " (0x" << std::hex << hashvalue << std::dec << ")"
+       << ", flags=" << flags << std::endl;
+    basis.printtree(os, indent+delta_indent);
+    exponent.printtree(os, indent+delta_indent);
 }
 
-static void print_sym_pow(ostream & os, unsigned type, const symbol &x, int exp)
+static void print_sym_pow(std::ostream & os, unsigned type, const symbol &x, int exp)
 {
     // Optimal output of integer powers of symbols to aid compiler CSE
     if (exp == 1) {
@@ -205,7 +206,7 @@ static void print_sym_pow(ostream & os, unsigned type, const symbol &x, int exp)
     }
 }
 
-void power::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) const
+void power::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
 {
     debugmsg("power print csrc", LOGLEVEL_PRINT);
     
@@ -370,7 +371,7 @@ ex power::eval(int level) const
         if ((num_exponent->real()).is_zero())
             throw (std::domain_error("power::eval(): pow(0,I) is undefined"));
         else if ((num_exponent->real()).is_negative())
-            throw (std::overflow_error("power::eval(): division by zero"));
+            throw (pole_error("power::eval(): division by zero",1));
         else
             return _ex0();
     }
@@ -524,7 +525,12 @@ ex power::derivative(const symbol & s) const
 {
     if (exponent.info(info_flags::real)) {
         // D(b^r) = r * b^(r-1) * D(b) (faster than the formula below)
-        return mul(mul(exponent, power(basis, exponent - _ex1())), basis.diff(s));
+        //return mul(mul(exponent, power(basis, exponent - _ex1())), basis.diff(s));
+        epvector newseq;
+        newseq.reserve(2);
+        newseq.push_back(expair(basis, exponent - _ex1()));
+        newseq.push_back(expair(basis.diff(s),_ex1()));
+        return mul(newseq, exponent);
     } else {
         // D(b^e) = b^e * (D(e)*ln(b) + e*D(b)/b)
         return mul(power(basis, exponent),

@@ -396,7 +396,7 @@ basic * numeric::duplicate() const
  *  long as it only uses cl_LF and no other floating point types.
  *
  *  @see numeric::print() */
-static void print_real_number(ostream & os, const cl_R & num)
+static void print_real_number(std::ostream & os, const cl_R & num)
 {
     cl_print_flags ourflags;
     if (::instanceof(num, ::cl_RA_ring)) {
@@ -416,7 +416,7 @@ static void print_real_number(ostream & os, const cl_R & num)
  *  with the other routines and produces something compatible to ginsh input.
  *  
  *  @see print_real_number() */
-void numeric::print(ostream & os, unsigned upper_precedence) const
+void numeric::print(std::ostream & os, unsigned upper_precedence) const
 {
     debugmsg("numeric print", LOGLEVEL_PRINT);
     if (this->is_real()) {
@@ -479,7 +479,7 @@ void numeric::print(ostream & os, unsigned upper_precedence) const
 }
 
 
-void numeric::printraw(ostream & os) const
+void numeric::printraw(std::ostream & os) const
 {
     // The method printraw doesn't do much, it simply uses CLN's operator<<()
     // for output, which is ugly but reliable. e.g: 2+2i
@@ -488,17 +488,18 @@ void numeric::printraw(ostream & os) const
 }
 
 
-void numeric::printtree(ostream & os, unsigned indent) const
+void numeric::printtree(std::ostream & os, unsigned indent) const
 {
     debugmsg("numeric printtree", LOGLEVEL_PRINT);
     os << std::string(indent,' ') << *value
        << " (numeric): "
-       << "hash=" << hashvalue << " (0x" << hex << hashvalue << dec << ")"
-       << ", flags=" << flags << endl;
+       << "hash=" << hashvalue
+       << " (0x" << std::hex << hashvalue << std::dec << ")"
+       << ", flags=" << flags << std::endl;
 }
 
 
-void numeric::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) const
+void numeric::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
 {
     debugmsg("numeric print csrc", LOGLEVEL_PRINT);
     ios::fmtflags oldflags = os.flags();
@@ -616,9 +617,10 @@ ex numeric::eval(int level) const
 
 /** Cast numeric into a floating-point object.  For example exact numeric(1) is
  *  returned as a 1.0000000000000000000000 and so on according to how Digits is
- *  currently set.
+ *  currently set.  In case the object already was a floating point number the
+ *  precision is trimmed to match the currently set default.
  *
- *  @param level  ignored, but needed for overriding basic::evalf.
+ *  @param level  ignored, only needed for overriding basic::evalf.
  *  @return  an ex-handle to a numeric. */
 ex numeric::evalf(int level) const
 {
@@ -1360,6 +1362,106 @@ const numeric atanh(const numeric & x)
 }
 
 
+/*static ::cl_N Li2_series(const ::cl_N & x,
+                         const ::cl_float_format_t & prec)
+{
+    // Note: argument must be in the unit circle
+    // This is very inefficient unless we have fast floating point Bernoulli
+    // numbers implemented!
+    ::cl_N c1 = -::log(1-x);
+    ::cl_N c2 = c1;
+    // hard-wire the first two Bernoulli numbers
+    ::cl_N acc = c1 - ::square(c1)/4;
+    ::cl_N aug;
+    ::cl_F pisq = ::square(::cl_pi(prec));  // pi^2
+    ::cl_F piac = ::cl_float(1, prec);  // accumulator: pi^(2*i)
+    unsigned i = 1;
+    c1 = ::square(c1);
+    do {
+        c2 = c1 * c2;
+        piac = piac * pisq;
+        aug = c2 * (*(bernoulli(numeric(2*i)).clnptr())) / ::factorial(2*i+1);
+        // aug = c2 * ::cl_I(i%2 ? 1 : -1) / ::cl_I(2*i+1) * ::cl_zeta(2*i, prec) / piac / (::cl_I(1)<<(2*i-1));
+        acc = acc + aug;
+        ++i;
+    } while (acc != acc+aug);
+    return acc;
+}*/
+
+/** Numeric evaluation of Dilogarithm within circle of convergence (unit
+ *  circle) using a power series. */
+static ::cl_N Li2_series(const ::cl_N & x,
+                         const ::cl_float_format_t & prec)
+{
+    // Note: argument must be in the unit circle
+    ::cl_N aug, acc;
+    ::cl_N num = ::complex(::cl_float(1, prec), 0);
+    ::cl_I den = 0;
+    unsigned i = 1;
+    do {
+        num = num * x;
+        den = den + i;  // 1, 4, 9, 16, ...
+        i += 2;
+        aug = num / den;
+        acc = acc + aug;
+    } while (acc != acc+aug);
+    return acc;
+}
+
+/** Folds Li2's argument inside a small rectangle to enhance convergence. */
+static ::cl_N Li2_projection(const ::cl_N & x,
+                             const ::cl_float_format_t & prec)
+{
+    const ::cl_R re = ::realpart(x);
+    const ::cl_R im = ::imagpart(x);
+    if (re > ::cl_F(".5"))
+        // zeta(2) - Li2(1-x) - log(x)*log(1-x)
+        return(::cl_zeta(2)
+               - Li2_series(1-x, prec)
+               - ::log(x)*::log(1-x));
+    if ((re <= 0 && ::abs(im) > ::cl_F(".75")) || (re < ::cl_F("-.5")))
+        // -log(1-x)^2 / 2 - Li2(x/(x-1))
+        return(-::square(::log(1-x))/2
+               - Li2_series(x/(x-1), prec));
+    if (re > 0 && ::abs(im) > ::cl_LF(".75"))
+        // Li2(x^2)/2 - Li2(-x)
+        return(Li2_projection(::square(x), prec)/2
+               - Li2_projection(-x, prec));
+    return Li2_series(x, prec);
+}
+
+/** Numeric evaluation of Dilogarithm.  The domain is the entire complex plane,
+ *  the branch cut lies along the positive real axis, starting at 1 and
+ *  continuous with quadrant IV.
+ *
+ *  @return  arbitrary precision numerical Li2(x). */
+const numeric Li2(const numeric & x)
+{
+    if (::zerop(*x.value))
+        return x;
+    
+    // what is the desired float format?
+    // first guess: default format
+    ::cl_float_format_t prec = ::cl_default_float_format;
+    // second guess: the argument's format
+    if (!::instanceof(::realpart(*x.value),cl_RA_ring))
+        prec = ::cl_float_format(The(::cl_F)(::realpart(*x.value)));
+    else if (!::instanceof(::imagpart(*x.value),cl_RA_ring))
+        prec = ::cl_float_format(The(::cl_F)(::imagpart(*x.value)));
+    
+    if (*x.value==1)  // may cause trouble with log(1-x)
+        return ::cl_zeta(2, prec);
+    
+    if (::abs(*x.value) > 1)
+        // -log(-x)^2 / 2 - zeta(2) - Li2(1/x)
+        return(-::square(::log(-*x.value))/2
+               - ::cl_zeta(2, prec)
+               - Li2_projection(::recip(*x.value), prec));
+    else
+        return Li2_projection(*x.value, prec);
+}
+
+
 /** Numeric evaluation of Riemann's Zeta function.  Currently works only for
  *  integer arguments. */
 const numeric zeta(const numeric & x)
@@ -1371,12 +1473,12 @@ const numeric zeta(const numeric & x)
     // pass the number casted to an int:
     if (x.is_real()) {
         int aux = (int)(::cl_double_approx(::realpart(*x.value)));
-        if (zerop(*x.value-aux))
+        if (::zerop(*x.value-aux))
             return ::cl_zeta(aux);  // -> CLN
     }
-    clog << "zeta(" << x
-         << "): Does anybody know good way to calculate this numerically?"
-         << endl;
+    std::clog << "zeta(" << x
+              << "): Does anybody know good way to calculate this numerically?"
+              << std::endl;
     return numeric(0);
 }
 
@@ -1385,16 +1487,16 @@ const numeric zeta(const numeric & x)
  *  This is only a stub! */
 const numeric lgamma(const numeric & x)
 {
-    clog << "lgamma(" << x
-         << "): Does anybody know good way to calculate this numerically?"
-         << endl;
+    std::clog << "lgamma(" << x
+              << "): Does anybody know good way to calculate this numerically?"
+              << std::endl;
     return numeric(0);
 }
 const numeric tgamma(const numeric & x)
 {
-    clog << "tgamma(" << x
-         << "): Does anybody know good way to calculate this numerically?"
-         << endl;
+    std::clog << "tgamma(" << x
+              << "): Does anybody know good way to calculate this numerically?"
+              << std::endl;
     return numeric(0);
 }
 
@@ -1403,9 +1505,9 @@ const numeric tgamma(const numeric & x)
  *  This is only a stub! */
 const numeric psi(const numeric & x)
 {
-    clog << "psi(" << x
-         << "): Does anybody know good way to calculate this numerically?"
-         << endl;
+    std::clog << "psi(" << x
+              << "): Does anybody know good way to calculate this numerically?"
+              << std::endl;
     return numeric(0);
 }
 
@@ -1414,9 +1516,9 @@ const numeric psi(const numeric & x)
  *  This is only a stub! */
 const numeric psi(const numeric & n, const numeric & x)
 {
-    clog << "psi(" << n << "," << x
-         << "): Does anybody know good way to calculate this numerically?"
-         << endl;
+    std::clog << "psi(" << n << "," << x
+              << "): Does anybody know good way to calculate this numerically?"
+              << std::endl;
     return numeric(0);
 }
 
@@ -1515,13 +1617,13 @@ const numeric bernoulli(const numeric & nn)
     // we don't use it.)
     
     // the special cases not covered by the algorithm below
-    if (!nn.compare(_num1()))
-        return numeric(-1,2);
+    if (nn.is_equal(_num1()))
+        return _num_1_2();
     if (nn.is_odd())
         return _num0();
     
     // store nonvanishing Bernoulli numbers here
-    static vector< ::cl_RA > results;
+    static std::vector< ::cl_RA > results;
     static int highest_result = 0;
     // algorithm not applicable to B(0), so just store it
     if (results.size()==0)
@@ -1535,13 +1637,13 @@ const numeric bernoulli(const numeric & nn)
         long d1 = i;
         long d2 = 2*i-1;
         for (int j=i; j>0; --j) {
-            B = cl_I(n*m) * (B+results[j]) / (d1*d2);
+            B = ::cl_I(n*m) * (B+results[j]) / (d1*d2);
             n += 4;
             m += 2;
             d1 -= 1;
             d2 -= 2;
         }
-        B = (1 - ((B+1)/(2*i+3))) / (cl_I(1)<<(2*i+2));
+        B = (1 - ((B+1)/(2*i+3))) / (::cl_I(1)<<(2*i+2));
         results.push_back(B);
         ++highest_result;
     }
@@ -1816,14 +1918,14 @@ _numeric_digits::operator long()
 }
 
 
-void _numeric_digits::print(ostream & os) const
+void _numeric_digits::print(std::ostream & os) const
 {
     debugmsg("_numeric_digits print", LOGLEVEL_PRINT);
     os << digits;
 }
 
 
-ostream& operator<<(ostream& os, const _numeric_digits & e)
+std::ostream& operator<<(std::ostream& os, const _numeric_digits & e)
 {
     e.print(os);
     return os;

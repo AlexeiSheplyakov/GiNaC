@@ -22,14 +22,14 @@ int main(int argc, char * *argv)
     if (libdir=="${exec_prefix}/lib")
         libdir = exec_prefix + "/lib";
     // now we can guess what to start
-    string binprog = bindir + "/ginaccint.bin";
+    std::string binprog = bindir + "/ginaccint.bin";
     
     // extend LD_LIBRARY_PATH by libdir, so ginaccint.bin really finds libginac
     const char * LD_LIBRARY_PATH = getenv("LD_LIBRARY_PATH");
     if (LD_LIBRARY_PATH == NULL)
         setenv("LD_LIBRARY_PATH", libdir.c_str(), 1);
     else
-        setenv("LD_LIBRARY_PATH", (string(LD_LIBRARY_PATH)+':'+libdir).c_str(), 1);
+        setenv("LD_LIBRARY_PATH", (std::string(LD_LIBRARY_PATH)+':'+libdir).c_str(), 1);
     
     // hard-wire CINTSYSDIR, inherited from configure, if it is not set
     setenv("CINTSYSDIR", CINTSYSDIR.c_str(), 0);
@@ -38,6 +38,6 @@ int main(int argc, char * *argv)
     int error = execve(binprog.c_str(), argv, environ);
     
     // only gets here on error
-    cerr << argv[0] << ": cannot exec " << binprog << endl;
+    std::cerr << argv[0] << ": cannot exec " << binprog << std::endl;
     return error;
 }
