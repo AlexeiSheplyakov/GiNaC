@@ -195,28 +195,32 @@ extern int max_recursion_level;
 
 #ifndef NO_NAMESPACE_GINAC
 
+/** Check if OBJ is a TYPE, including base classes. */
 #define is_of_type(OBJ,TYPE) \
-	(dynamic_cast<TYPE *>(const_cast<GiNaC::basic *>(&OBJ))!=0)
+	(dynamic_cast<const TYPE *>(&OBJ)!=0)
 
+/** Check if OBJ is a TYPE, not including base classes. */
 #define is_exactly_of_type(OBJ,TYPE) \
 	((OBJ).tinfo()==GiNaC::TINFO_##TYPE)
 
+/** Check if ex is a handle to a TYPE, including base classes. */
 #define is_ex_of_type(OBJ,TYPE) \
-	(dynamic_cast<TYPE *>(const_cast<GiNaC::basic *>((OBJ).bp))!=0)
+	(dynamic_cast<const TYPE *>((OBJ).bp)!=0)
 
+/** Check if ex is a handle to a TYPE, not including base classes. */
 #define is_ex_exactly_of_type(OBJ,TYPE) \
 	((*(OBJ).bp).tinfo()==GiNaC::TINFO_##TYPE)
 
 #else // ndef NO_NAMESPACE_GINAC
 
 #define is_of_type(OBJ,TYPE) \
-	(dynamic_cast<TYPE *>(const_cast<basic *>(&OBJ))!=0)
+	(dynamic_cast<const TYPE *>(&OBJ)!=0)
 
 #define is_exactly_of_type(OBJ,TYPE) \
 	((OBJ).tinfo()==TINFO_##TYPE)
 
 #define is_ex_of_type(OBJ,TYPE) \
-	(dynamic_cast<TYPE *>(const_cast<basic *>((OBJ).bp))!=0)
+	(dynamic_cast<const TYPE *>((OBJ).bp)!=0)
 
 #define is_ex_exactly_of_type(OBJ,TYPE) \
 	((*(OBJ).bp).tinfo()==TINFO_##TYPE)
