@@ -185,9 +185,10 @@ void basic::do_print(const print_context & c, unsigned level) const
 void basic::do_print_tree(const print_tree & c, unsigned level) const
 {
 	c.s << std::string(level, ' ') << class_name()
-	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
-	    << ", nops=" << nops()
-	    << std::endl;
+	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec;
+	if (nops())
+		c.s << ", nops=" << nops();
+	c.s << std::endl;
 	for (size_t i=0; i<nops(); ++i)
 		op(i).print(c, level + c.delta_indent);
 }
