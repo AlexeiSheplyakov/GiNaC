@@ -61,8 +61,8 @@ static unsigned lsolve2a(void)
     ex sol_y = sol.op(1).rhs();  // rhs of solution for second variable (y)
     
     // It should have returned [x==(3+b^2)/(a+b),y==(3-a*b)/(a+b)]
-    if (!(sol_x - (3+pow(b,2))/(a+b)).is_zero() ||
-        !(sol_y - (3-a*b)/(a+b)).is_zero()) {
+    if (!normal(sol_x - (3+pow(b,2))/(a+b)).is_zero() ||
+        !normal(sol_y - (3-a*b)/(a+b)).is_zero()) {
         result++;
         clog << "solution of the system " << eqns << " for " << vars
              << " erroneously returned " << sol << endl;
