@@ -124,6 +124,11 @@ static unsigned exam_series1()
 	d = pow(x, 2) + Order(pow(x, 3));
 	result += check_series(e, 0, d, 3);
 
+	symbol b("b");
+	e = log(a*x + b*x*x*log(x));
+	d = log(a*x) + b/a*log(x)*x - pow(b/a, 2)/2*pow(log(x)*x, 2) + Order(pow(x, 3));
+	result += check_series(e, 0, d, 3);
+
 	return result;
 }
 
