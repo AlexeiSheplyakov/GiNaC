@@ -59,7 +59,7 @@ struct registered_class_info {
 };
 
 
-/** Primary macro for inclusion in the implementation of each registered class. */
+/** Primary macro for inclusion in the declaration of each registered class. */
 #define GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(classname, supername) \
 public: \
 	typedef supername inherited; \
