@@ -1,0 +1,52 @@
+# spec file for GiNaC
+
+%define ver @VERSION@
+%define rel 1
+%define prefix /usr
+
+Summary: C++ library for symbolic mathematical calculations
+Name: GiNaC
+Version: %ver
+Release: %rel
+Copyright: GPL
+Group: Libraries
+Source: ftp://ftpthep.physik.uni-mainz.de/pub/GiNaC/GiNaC-%{ver}.tar.gz
+BuildRoot: /tmp/GiNaC-%{PACKAGE_VERSION}-root
+Packager: Christian Bauer <Christian.Bauer@uni-mainz.de>
+URL: http://wwwthep.physik.uni-mainz.de/GiNaC/
+Docdir: %{prefix}/doc
+
+%description
+GiNaC (which stands for "GiNaC is not a computer algebra system) is a
+C++ library for symbolic mathematical calculations. It is designed to
+allow the creation of integrated systems that embed symbolic manipulations
+together with more established areas of computer science (like computation-
+intense numeric applications, graphical interfaces, etc.) under one roof.
+
+%prep
+%setup
+
+%build
+./configure --prefix=%prefix
+make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
+
+%install
+rm -rf $RPM_BUILD_ROOT
+make prefix=$RPM_BUILD_ROOT%{prefix} install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%post -p /sbin/ldconfig
+
+%postun -p /sbin/ldconfig
+
+%files
+%defattr(-, root, root)
+%doc AUTHORS COPYING ChangeLog NEWS README
+%{prefix}/lib/lib*.so
+%{prefix}/lib/*a
+%{prefix}/include/*
+%{prefix}/man/man1/*
+%{prefix}/share/doc/GiNaC/*
+%{prefix}/bin/*

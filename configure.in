@@ -113,5 +113,14 @@ AC_SUBST(REFERENCE_TARGETS)
 dnl ===========================================================================
 dnl Produce a Makefile from Makefile.in:
 dnl ===========================================================================
-AC_OUTPUT([Makefile ginac/Makefile check/Makefile ginsh/Makefile doc/Makefile doc/tutorial/Makefile doc/reference/Makefile])
+AC_OUTPUT([
+Makefile
+GiNaC.spec
+ginac/Makefile
+check/Makefile
+ginsh/Makefile
+doc/Makefile
+doc/tutorial/Makefile
+doc/reference/Makefile
+])
 echo "Configuration done. Now type \"make\"."
