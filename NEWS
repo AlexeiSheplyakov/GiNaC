@@ -5,7 +5,7 @@ This file records noteworthy changes.
   algebraic classes.
 * Added support for (acyclic) visitors, to allow cleaner implementations of
   algebraic algorithms.
-* <iterators>
+* Added a const_iterator class that can be used instead of op()/nops().
 * Completely revamped the implementation of expression output. It is now
   possible to add new output formats, to change the behavior of predefined
   formats at run-time, and to have different output styles for algebraic
