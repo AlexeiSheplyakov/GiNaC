@@ -248,7 +248,7 @@ ex &pseries::let_op(int i)
 /** Return degree of highest power of the series.  This is usually the exponent
  *  of the Order term.  If s is not the expansion variable of the series, the
  *  series is examined termwise. */
-int pseries::degree(const symbol &s) const
+int pseries::degree(const ex &s) const
 {
 	if (var.is_equal(s)) {
 		// Return last exponent
@@ -276,7 +276,7 @@ int pseries::degree(const symbol &s) const
  *  series is examined termwise.  If s is the expansion variable but the
  *  expansion point is not zero the series is not expanded to find the degree.
  *  I.e.: (1-x) + (1-x)^2 + Order((1-x)^3) has ldegree(x) 1, not 0. */
-int pseries::ldegree(const symbol &s) const
+int pseries::ldegree(const ex &s) const
 {
 	if (var.is_equal(s)) {
 		// Return first exponent
@@ -306,7 +306,7 @@ int pseries::ldegree(const symbol &s) const
  *  If s is not the expansion variable, an attempt is made to convert the
  *  series to a polynomial and return the corresponding coefficient from
  *  there. */
-ex pseries::coeff(const symbol &s, int n) const
+ex pseries::coeff(const ex &s, int n) const
 {
 	if (var.is_equal(s)) {
 		if (seq.size() == 0)
@@ -338,7 +338,7 @@ ex pseries::coeff(const symbol &s, int n) const
 }
 
 /** Does nothing. */
-ex pseries::collect(const symbol &s) const
+ex pseries::collect(const ex &s) const
 {
 	return *this;
 }
@@ -489,7 +489,7 @@ ex basic::series(const relational & r, int order, unsigned options) const
 	numeric fac(1);
 	ex deriv = *this;
 	ex coeff = deriv.subs(r);
-	const symbol *s = static_cast<symbol *>(r.lhs().bp);
+	const symbol &s = static_cast<symbol &>(*r.lhs().bp);
 	
 	if (!coeff.is_zero())
 		seq.push_back(expair(coeff, numeric(0)));
@@ -497,7 +497,7 @@ ex basic::series(const relational & r, int order, unsigned options) const
 	int n;
 	for (n=1; n<order; ++n) {
 		fac = fac.mul(numeric(n));
-		deriv = deriv.diff(*s).expand();
+		deriv = deriv.diff(s).expand();
 		if (deriv.is_zero()) {
 			// Series terminates
 			return pseries(r, seq);
@@ -508,7 +508,7 @@ ex basic::series(const relational & r, int order, unsigned options) const
 	}
 	
 	// Higher-order terms, if present
-	deriv = deriv.diff(*s);
+	deriv = deriv.diff(s);
 	if (!deriv.expand().is_zero())
 		seq.push_back(expair(Order(_ex1()), numeric(n)));
 	return pseries(r, seq);
@@ -522,9 +522,9 @@ ex symbol::series(const relational & r, int order, unsigned options) const
 	epvector seq;
 	const ex point = r.rhs();
 	GINAC_ASSERT(is_ex_exactly_of_type(r.lhs(),symbol));
-	const symbol *s = static_cast<symbol *>(r.lhs().bp);
+	ex s = r.lhs();
 	
-	if (this->is_equal(*s)) {
+	if (this->is_equal(*s.bp)) {
 		if (order > 0 && !point.is_zero())
 			seq.push_back(expair(point, _ex0()));
 		if (order > 1)
@@ -680,19 +680,18 @@ ex pseries::mul_series(const pseries &other) const
 	// Series multiplication
 	epvector new_seq;
 	
-	const symbol *s = static_cast<symbol *>(var.bp);
-	int a_max = degree(*s);
-	int b_max = other.degree(*s);
-	int a_min = ldegree(*s);
-	int b_min = other.ldegree(*s);
+	int a_max = degree(var);
+	int b_max = other.degree(var);
+	int a_min = ldegree(var);
+	int b_min = other.ldegree(var);
 	int cdeg_min = a_min + b_min;
 	int cdeg_max = a_max + b_max;
 	
 	int higher_order_a = INT_MAX;
 	int higher_order_b = INT_MAX;
-	if (is_order_function(coeff(*s, a_max)))
+	if (is_order_function(coeff(var, a_max)))
 		higher_order_a = a_max + b_min;
-	if (is_order_function(other.coeff(*s, b_max)))
+	if (is_order_function(other.coeff(var, b_max)))
 		higher_order_b = b_max + a_min;
 	int higher_order_c = std::min(higher_order_a, higher_order_b);
 	if (cdeg_max >= higher_order_c)
@@ -702,8 +701,8 @@ ex pseries::mul_series(const pseries &other) const
 		ex co = _ex0();
 		// c(i)=a(0)b(i)+...+a(i)b(0)
 		for (int i=a_min; cdeg-i>=b_min; ++i) {
-			ex a_coeff = coeff(*s, i);
-			ex b_coeff = other.coeff(*s, cdeg-i);
+			ex a_coeff = coeff(var, i);
+			ex b_coeff = other.coeff(var, cdeg-i);
 			if (!is_order_function(a_coeff) && !is_order_function(b_coeff))
 				co += a_coeff * b_coeff;
 		}
@@ -712,7 +711,7 @@ ex pseries::mul_series(const pseries &other) const
 	}
 	if (higher_order_c < INT_MAX)
 		new_seq.push_back(expair(Order(_ex1()), numeric(higher_order_c)));
-	return pseries(relational(var,point), new_seq);
+	return pseries(relational(var, point), new_seq);
 }
 
 
@@ -785,18 +784,17 @@ ex pseries::power_const(const numeric &p, int deg) const
 			return *this;
 	}
 	
-	const symbol *s = static_cast<symbol *>(var.bp);
-	int ldeg = ldegree(*s);
+	int ldeg = ldegree(var);
 	
 	// Compute coefficients of the powered series
 	exvector co;
 	co.reserve(deg);
-	co.push_back(power(coeff(*s, ldeg), p));
+	co.push_back(power(coeff(var, ldeg), p));
 	bool all_sums_zero = true;
 	for (int i=1; i<deg; ++i) {
 		ex sum = _ex0();
 		for (int j=1; j<=i; ++j) {
-			ex c = coeff(*s, j + ldeg);
+			ex c = coeff(var, j + ldeg);
 			if (is_order_function(c)) {
 				co.push_back(Order(_ex1()));
 				break;
@@ -805,7 +803,7 @@ ex pseries::power_const(const numeric &p, int deg) const
 		}
 		if (!sum.is_zero())
 			all_sums_zero = false;
-		co.push_back(sum / coeff(*s, ldeg) / numeric(i));
+		co.push_back(sum / coeff(var, ldeg) / numeric(i));
 	}
 	
 	// Construct new series (of non-zero coefficients)
@@ -875,10 +873,10 @@ ex pseries::series(const relational & r, int order, unsigned options) const
 {
 	const ex p = r.rhs();
 	GINAC_ASSERT(is_ex_exactly_of_type(r.lhs(),symbol));
-	const symbol *s = static_cast<symbol *>(r.lhs().bp);
+	const symbol &s = static_cast<symbol &>(*r.lhs().bp);
 	
-	if (var.is_equal(*s) && point.is_equal(p)) {
-		if (order > degree(*s))
+	if (var.is_equal(s) && point.is_equal(p)) {
+		if (order > degree(s))
 			return *this;
 		else {
 			epvector new_seq;

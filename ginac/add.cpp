@@ -240,7 +240,7 @@ bool add::info(unsigned inf) const
 	return inherited::info(inf);
 }
 
-int add::degree(const symbol & s) const
+int add::degree(const ex & s) const
 {
 	int deg = INT_MIN;
 	if (!overall_coeff.is_equal(_ex0()))
@@ -255,7 +255,7 @@ int add::degree(const symbol & s) const
 	return deg;
 }
 
-int add::ldegree(const symbol & s) const
+int add::ldegree(const ex & s) const
 {
 	int deg = INT_MAX;
 	if (!overall_coeff.is_equal(_ex0()))
@@ -269,7 +269,7 @@ int add::ldegree(const symbol & s) const
 	return deg;
 }
 
-ex add::coeff(const symbol & s, int n) const
+ex add::coeff(const ex & s, int n) const
 {
 	epvector coeffseq;
 	coeffseq.reserve(seq.size());

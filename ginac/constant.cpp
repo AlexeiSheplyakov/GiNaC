@@ -154,6 +154,24 @@ void constant::printcsrc(std::ostream & os, unsigned type, unsigned upper_preced
 	os << name;
 }
 
+int constant::degree(const ex & s) const
+{
+	return is_equal(*s.bp) ? 1 : 0;
+}
+
+int constant::ldegree(const ex & s) const
+{
+	return is_equal(*s.bp) ? 1 : 0;
+}
+
+ex constant::coeff(const ex & s, int n) const
+{
+	if (is_equal(*s.bp))
+		return n==1 ? _ex1() : _ex0();
+	else
+		return n==0 ? *this : _ex0();
+}
+
 ex constant::evalf(int level) const
 {
 	if (ef!=0) {

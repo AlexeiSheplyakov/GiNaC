@@ -179,25 +179,25 @@ bool ex::has(const ex & other) const
 	return bp->has(other);
 }
 
-int ex::degree(const symbol & s) const
+int ex::degree(const ex & s) const
 {
 	GINAC_ASSERT(bp!=0);
 	return bp->degree(s);
 }
 
-int ex::ldegree(const symbol & s) const
+int ex::ldegree(const ex & s) const
 {
 	GINAC_ASSERT(bp!=0);
 	return bp->ldegree(s);
 }
 
-ex ex::coeff(const symbol & s, int n) const
+ex ex::coeff(const ex & s, int n) const
 {
 	GINAC_ASSERT(bp!=0);
 	return bp->coeff(s,n);
 }
 
-ex ex::collect(const symbol & s) const
+ex ex::collect(const ex & s) const
 {
 	GINAC_ASSERT(bp!=0);
 	return bp->collect(s);

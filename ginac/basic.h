@@ -114,10 +114,10 @@ public: // only const functions please (may break reference counting)
 	virtual ex operator[](const ex & index) const;
 	virtual ex operator[](int i) const;
 	virtual bool has(const ex & other) const;
-	virtual int degree(const symbol & s) const;
-	virtual int ldegree(const symbol & s) const;
-	virtual ex coeff(const symbol & s, int n = 1) const;
-	virtual ex collect(const symbol & s) const;
+	virtual int degree(const ex & s) const;
+	virtual int ldegree(const ex & s) const;
+	virtual ex coeff(const ex & s, int n = 1) const;
+	virtual ex collect(const ex & s) const;
 	virtual ex eval(int level = 0) const;
 	virtual ex evalf(int level = 0) const;
 	virtual ex series(const relational & r, int order, unsigned options = 0) const;

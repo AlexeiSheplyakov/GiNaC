@@ -218,7 +218,7 @@ ex ncmul::expand(unsigned options) const
 										status_flags::expanded);
 }
 
-int ncmul::degree(const symbol & s) const
+int ncmul::degree(const ex & s) const
 {
 	int deg_sum=0;
 	for (exvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
@@ -227,7 +227,7 @@ int ncmul::degree(const symbol & s) const
 	return deg_sum;
 }
 
-int ncmul::ldegree(const symbol & s) const
+int ncmul::ldegree(const ex & s) const
 {
 	int deg_sum=0;
 	for (exvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
@@ -236,7 +236,7 @@ int ncmul::ldegree(const symbol & s) const
 	return deg_sum;
 }
 
-ex ncmul::coeff(const symbol & s, int n) const
+ex ncmul::coeff(const ex & s, int n) const
 {
 	exvector coeffseq;
 	coeffseq.reserve(seq.size());

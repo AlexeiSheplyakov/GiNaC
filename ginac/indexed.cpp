@@ -350,6 +350,24 @@ ex indexed::eval(int level) const
 	return base.bp->eval_indexed(*this);
 }
 
+int indexed::degree(const ex & s) const
+{
+	return is_equal(*s.bp) ? 1 : 0;
+}
+
+int indexed::ldegree(const ex & s) const
+{
+	return is_equal(*s.bp) ? 1 : 0;
+}
+
+ex indexed::coeff(const ex & s, int n) const
+{
+	if (is_equal(*s.bp))
+		return n==1 ? _ex1() : _ex0();
+	else
+		return n==0 ? ex(*this) : _ex0();
+}
+
 ex indexed::thisexprseq(const exvector & v) const
 {
 	return indexed(symmetry, v);

@@ -242,26 +242,26 @@ bool basic::has(const ex & other) const
 }
 
 /** Return degree of highest power in symbol s. */
-int basic::degree(const symbol & s) const
+int basic::degree(const ex & s) const
 {
 	return 0;
 }
 
 /** Return degree of lowest power in symbol s. */
-int basic::ldegree(const symbol & s) const
+int basic::ldegree(const ex & s) const
 {
 	return 0;
 }
 
 /** Return coefficient of degree n in symbol s. */
-ex basic::coeff(const symbol & s, int n) const
+ex basic::coeff(const ex & s, int n) const
 {
 	return n==0 ? *this : _ex0();
 }
 
 /** Sort expression in terms of powers of some symbol.
  *  @param s symbol to sort in. */
-ex basic::collect(const symbol & s) const
+ex basic::collect(const ex & s) const
 {
 	ex x;
 	for (int n=this->ldegree(s); n<=this->degree(s); n++)

@@ -187,19 +187,19 @@ bool symbol::has(const ex & other) const
 		return false;
 }
 
-int symbol::degree(const symbol & s) const
+int symbol::degree(const ex & s) const
 {
-	return compare_same_type(s)==0 ? 1 : 0;
+	return is_equal(*s.bp) ? 1 : 0;
 }
 
-int symbol::ldegree(const symbol & s) const
+int symbol::ldegree(const ex & s) const
 {
-	return compare_same_type(s)==0 ? 1 : 0;
+	return is_equal(*s.bp) ? 1 : 0;
 }
 
-ex symbol::coeff(const symbol & s, int n) const
+ex symbol::coeff(const ex & s, int n) const
 {
-	if (compare_same_type(s)==0)
+	if (is_equal(*s.bp))
 		return n==1 ? _ex1() : _ex0();
 	else
 		return n==0 ? *this : _ex0();

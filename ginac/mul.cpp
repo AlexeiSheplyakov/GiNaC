@@ -247,7 +247,7 @@ bool mul::info(unsigned inf) const
 	return inherited::info(inf);
 }
 
-int mul::degree(const symbol & s) const
+int mul::degree(const ex & s) const
 {
 	int deg_sum = 0;
 	for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
@@ -257,7 +257,7 @@ int mul::degree(const symbol & s) const
 	return deg_sum;
 }
 
-int mul::ldegree(const symbol & s) const
+int mul::ldegree(const ex & s) const
 {
 	int deg_sum = 0;
 	for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
@@ -267,7 +267,7 @@ int mul::ldegree(const symbol & s) const
 	return deg_sum;
 }
 
-ex mul::coeff(const symbol & s, int n) const
+ex mul::coeff(const ex & s, int n) const
 {
 	exvector coeffseq;
 	coeffseq.reserve(seq.size()+1);

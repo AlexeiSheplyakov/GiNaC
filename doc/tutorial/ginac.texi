@@ -2083,7 +2083,7 @@ being polynomials in the remaining variables.  The method
 @code{collect()} accomplishes this task:
 
 @example
-ex ex::collect(const symbol & s);
+ex ex::collect(const ex & s);
 @end example
 
 Note that the original polynomial needs to be in expanded form in order
@@ -2098,8 +2098,8 @@ The degree and low degree of a polynomial can be obtained using the two
 methods
 
 @example
-int ex::degree(const symbol & s);
-int ex::ldegree(const symbol & s);
+int ex::degree(const ex & s);
+int ex::ldegree(const ex & s);
 @end example
 
 which also work reliably on non-expanded input polynomials (they even work
@@ -2107,14 +2107,14 @@ on rational functions, returning the asymptotic degree). To extract
 a coefficient with a certain power from an expanded polynomial you use
 
 @example
-ex ex::coeff(const symbol & s, int n);
+ex ex::coeff(const ex & s, int n);
 @end example
 
 You can also obtain the leading and trailing coefficients with the methods
 
 @example
-ex ex::lcoeff(const symbol & s);
-ex ex::tcoeff(const symbol & s);
+ex ex::lcoeff(const ex & s);
+ex ex::tcoeff(const ex & s);
 @end example
 
 which are equivalent to @code{coeff(s, degree(s))} and @code{coeff(s, ldegree(s))},

@@ -86,11 +86,11 @@ public:
 	unsigned nops() const;
 	ex expand(unsigned options=0) const;
 	bool has(const ex & other) const;
-	int degree(const symbol & s) const;
-	int ldegree(const symbol & s) const;
-	ex coeff(const symbol & s, int n=1) const;
-	ex lcoeff(const symbol & s) const { return coeff(s, degree(s)); }
-	ex tcoeff(const symbol & s) const { return coeff(s, ldegree(s)); }
+	int degree(const ex & s) const;
+	int ldegree(const ex & s) const;
+	ex coeff(const ex & s, int n=1) const;
+	ex lcoeff(const ex & s) const { return coeff(s, degree(s)); }
+	ex tcoeff(const ex & s) const { return coeff(s, ldegree(s)); }
 	ex numer(void) const;
 	ex denom(void) const;
 	ex unit(const symbol &x) const;
@@ -102,7 +102,7 @@ public:
 	ex to_rational(lst &repl_lst) const;
 	ex smod(const numeric &xi) const;
 	numeric max_coefficient(void) const;
-	ex collect(const symbol & s) const;
+	ex collect(const ex & s) const;
 	ex eval(int level = 0) const;
 	ex evalf(int level = 0) const;
 	ex diff(const symbol & s, unsigned nth = 1) const;
@@ -338,13 +338,13 @@ inline ex expand(const ex & thisex, unsigned options = 0)
 inline bool has(const ex & thisex, const ex & other)
 { return thisex.has(other); }
 
-inline int degree(const ex & thisex, const symbol & s)
+inline int degree(const ex & thisex, const ex & s)
 { return thisex.degree(s); }
 
-inline int ldegree(const ex & thisex, const symbol & s)
+inline int ldegree(const ex & thisex, const ex & s)
 { return thisex.ldegree(s); }
 
-inline ex coeff(const ex & thisex, const symbol & s, int n=1)
+inline ex coeff(const ex & thisex, const ex & s, int n=1)
 { return thisex.coeff(s, n); }
 
 inline ex numer(const ex & thisex)
@@ -359,7 +359,7 @@ inline ex normal(const ex & thisex, int level=0)
 inline ex to_rational(const ex & thisex, lst & repl_lst)
 { return thisex.to_rational(repl_lst); }
 
-inline ex collect(const ex & thisex, const symbol & s)
+inline ex collect(const ex & thisex, const ex & s)
 { return thisex.collect(s); }
 
 inline ex eval(const ex & thisex, int level = 0)

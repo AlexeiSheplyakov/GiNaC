@@ -236,10 +236,10 @@ ex & power::let_op(int i)
 	return i==0 ? basis : exponent;
 }
 
-int power::degree(const symbol & s) const
+int power::degree(const ex & s) const
 {
 	if (is_exactly_of_type(*exponent.bp,numeric)) {
-		if ((*basis.bp).compare(s)==0) {
+		if (basis.is_equal(s)) {
 			if (ex_to_numeric(exponent).is_integer())
 				return ex_to_numeric(exponent).to_int();
 			else
@@ -250,10 +250,10 @@ int power::degree(const symbol & s) const
 	return 0;
 }
 
-int power::ldegree(const symbol & s) const 
+int power::ldegree(const ex & s) const 
 {
 	if (is_exactly_of_type(*exponent.bp,numeric)) {
-		if ((*basis.bp).compare(s)==0) {
+		if (basis.is_equal(s)) {
 			if (ex_to_numeric(exponent).is_integer())
 				return ex_to_numeric(exponent).to_int();
 			else
@@ -264,9 +264,9 @@ int power::ldegree(const symbol & s) const
 	return 0;
 }
 
-ex power::coeff(const symbol & s, int n) const
+ex power::coeff(const ex & s, int n) const
 {
-	if ((*basis.bp).compare(s)!=0) {
+	if (!basis.is_equal(s)) {
 		// basis not equal to s
 		if (n == 0)
 			return *this;

@@ -55,9 +55,9 @@ public:
 	bool info(unsigned inf) const;
 	unsigned nops() const;
 	ex & let_op(int i);
-	int degree(const symbol & s) const;
-	int ldegree(const symbol & s) const;
-	ex coeff(const symbol & s, int n = 1) const;
+	int degree(const ex & s) const;
+	int ldegree(const ex & s) const;
+	ex coeff(const ex & s, int n = 1) const;
 	ex eval(int level=0) const;
 	ex evalf(int level=0) const;
 	ex series(const relational & s, int order, unsigned options = 0) const;

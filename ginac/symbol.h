@@ -79,9 +79,9 @@ public:
 	bool info(unsigned inf) const;
 	ex expand(unsigned options = 0) const;
 	bool has(const ex & other) const;
-	int degree(const symbol & s) const;
-	int ldegree(const symbol & s) const;
-	ex coeff(const symbol & s, int n = 1) const;
+	int degree(const ex & s) const;
+	int ldegree(const ex & s) const;
+	ex coeff(const ex & s, int n = 1) const;
 	ex eval(int level = 0) const;
 	ex series(const relational & s, int order, unsigned options = 0) const;
 	ex normal(lst &sym_lst, lst &repl_lst, int level = 0) const;
@@ -126,10 +126,10 @@ inline const symbol &ex_to_symbol(const ex &e)
 inline void unassign(symbol & symarg)
 { symarg.unassign(); }
 
-inline int degree(const symbol & a, const symbol & s)
+inline int degree(const symbol & a, const ex & s)
 { return a.degree(s); }
 
-inline int ldegree(const symbol & a, const symbol & s)
+inline int ldegree(const symbol & a, const ex & s)
 { return a.ldegree(s); }
 
 } // namespace GiNaC
