@@ -168,8 +168,8 @@ numeric::numeric(const char *s) : basic(TINFO_numeric)
 
 	// We use 'E' as exponent marker in the output, but some people insist on
 	// writing 'e' at input, so let's substitute them right at the beginning:
-	while ((delim = ss.find('e'))!=std::string::npos)
-		ss = ss.replace(delim,1,'E');
+	while ((delim = ss.find("e"))!=std::string::npos)
+		ss.replace(delim,1,"E");
 
 	// main parser loop:
 	do {
@@ -184,12 +184,12 @@ numeric::numeric(const char *s) : basic(TINFO_numeric)
 		if (delim!=std::string::npos)
 			ss = ss.substr(delim);
 		// is the term imaginary?
-		if (term.find('I')!=std::string::npos) {
+		if (term.find("I")!=std::string::npos) {
 			// erase 'I':
-			term = term.replace(term.find('I'),1,"");
+			term.erase(term.find("I"),1);
 			// erase '*':
-			if (term.find('*')!=std::string::npos)
-				term = term.replace(term.find('*'),1,"");
+			if (term.find("*")!=std::string::npos)
+				term.erase(term.find("*"),1);
 			// correct for trivial +/-I without explicit factor on I:
 			if (term.size()==1)
 				term += '1';
@@ -206,10 +206,10 @@ numeric::numeric(const char *s) : basic(TINFO_numeric)
 			// 31.4E-1   -->   31.4e-1_<Digits>
 			// and s on.
 			// No exponent marker?  Let's add a trivial one.
-			if (term.find('E')==std::string::npos)
+			if (term.find("E")==std::string::npos)
 				term += "E0";
 			// E to lower case
-			term = term.replace(term.find('E'),1,'e');
+			term = term.replace(term.find("E"),1,"e");
 			// append _<Digits> to term
 			term += "_" + ToString((unsigned)Digits);
 			// construct float using cln::cl_F(const char *) ctor.
