@@ -1,0 +1,5 @@
+#!/bin/sh
+set -e
+install-info --section Math Math -- /usr/share/info/ginac.info
+
+#DEBHELPER#

@@ -1,6 +1,4 @@
 #!/usr/bin/make -f
-# Made with the aid of debmake, by Christoph Lameter,
-# based on the sample debian/rules file for GNU hello by Ian Jackson.
 
 package=ginac
 
@@ -9,7 +7,7 @@ version_major=$(shell expr `pwd` : '.*-\([0-9]*\).[0-9.]*')
 
 build:
 	dh_testdir
-	./configure --without-cint --prefix=/usr
+	./configure --prefix=/usr --with-cint
 	$(MAKE) CXXFLAGS="-O2"
 	touch build
 
@@ -30,12 +28,13 @@ binary-arch: build
 	dh_testdir
 	dh_testroot
 	dh_installdirs
-	# When will Automake honor FHS?
+	# When is Automake going to honor FHS?
 	$(MAKE) install prefix=`pwd`/debian/tmp/usr infodir=`pwd`/debian/tmp/usr/share/info mandir=`pwd`/debian/tmp/usr/share/man
+	# Work around dumb lintian error: binary-without-manpage ginaccint.bin
+	(cd `pwd`/debian/tmp/usr/share/man/man1; ln -s ginaccint.1.gz ginaccint.bin.1.gz)
 	dh_installdocs ChangeLog NEWS README
 	dh_installchangelogs
-	dh_installmenu -pginac-ginsh
-#	dh_movefiles -pginac-dev
+	dh_installmenu
 	dh_movefiles
 	dh_strip
 	dh_compress
@@ -45,7 +44,7 @@ binary-arch: build
 	dh_makeshlibs
 	dh_installdeb
 	dh_md5sums
-	dh_builddeb -pginac -pginac-dev
+	dh_builddeb
 
 binary: binary-indep binary-arch
 

@@ -1,1 +1,0 @@
-?package(ginac-ginsh):needs=text section=Apps/Math title="GiNaC interactive shell" command="/usr/bin/ginsh"
