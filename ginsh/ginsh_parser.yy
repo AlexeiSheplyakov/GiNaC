@@ -175,6 +175,10 @@ line	: ';'
 	}
 	| '?' T_SYMBOL 		{print_help(ex_to<symbol>($2).get_name());}
 	| '?' T_TIME		{print_help("time");}
+	| '?' T_PRINT		{print_help("print");}
+	| '?' T_IPRINT		{print_help("iprint");}
+	| '?' T_PRINTLATEX	{print_help("print_latex");}
+	| '?' T_PRINTCSRC	{print_help("print_csrc");}
 	| '?' '?'		{print_help_topics();}
 	| T_QUIT		{YYACCEPT;}
 	| T_WARRANTY {
@@ -561,6 +565,7 @@ static const fcn_init builtin_fcns[] = {
 	{"gcd", f_gcd, 2},
 	{"has", f_has, 2},
 	{"inverse", f_inverse, 1},
+	{"iprint", f_dummy, 0},      // for Tab-completion
 	{"is", f_is, 1},
 	{"lcm", f_lcm, 2},
 	{"lcoeff", f_lcoeff, 2},
@@ -577,6 +582,9 @@ static const fcn_init builtin_fcns[] = {
 	{"pow", f_pow, 2},
 	{"prem", f_prem, 3},
 	{"primpart", f_primpart, 2},
+	{"print", f_dummy, 0},       // for Tab-completion
+	{"print_csrc", f_dummy, 0},  // for Tab-completion
+	{"print_latex", f_dummy, 0}, // for Tab-completion
 	{"quo", f_quo, 3},
 	{"rem", f_rem, 3},
 	{"series", f_series, 3},
@@ -587,12 +595,12 @@ static const fcn_init builtin_fcns[] = {
 	{"subs", f_subs2, 2},
 	{"subs", f_subs3, 3},
 	{"tcoeff", f_tcoeff, 2},
-	{"time", f_dummy, 0},
+	{"time", f_dummy, 0},        // for Tab-completion
 	{"trace", f_trace, 1},
 	{"transpose", f_transpose, 1},
 	{"unassign", f_unassign, 1},
 	{"unit", f_unit, 2},
-	{NULL, f_dummy, 0}	// End marker
+	{NULL, f_dummy, 0}           // End marker
 };
 
 struct fcn_help_init {
@@ -845,6 +853,12 @@ int main(int argc, char **argv)
 	// Help for GiNaC functions is added manually
 	insert_help(builtin_help);
 	insert_help(extended_help);
+
+	// Help for other keywords
+	insert_help("print", "print(expression) - dumps the internal structure of the given expression (for debugging)");
+	insert_help("iprint", "iprint(expression) - prints the given integer expression in decimal, octal, and hexadecimal bases");
+	insert_help("print_latex", "print_latex(expression) - prints a LaTeX representation of the given expression");
+	insert_help("print_csrc", "print_csrc(expression) - prints a C source code representation of the given expression");
 
 	// Init readline completer
 	rl_readline_name = argv[0];

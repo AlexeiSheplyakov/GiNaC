@@ -421,8 +421,7 @@ The command
 .RE
 prints the given
 .I expression
-in a way that can be used in a C or C++ program (complex numbers are not
-supported, though).
+in a way that can be used in a C or C++ program.
 .PP
 The command
 .RS
