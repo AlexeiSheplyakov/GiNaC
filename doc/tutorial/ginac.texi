@@ -909,6 +909,7 @@ $\sqrt{2}$
 @item @code{varidx} @tab Index with variance
 @item @code{spinidx} @tab Index with variance and dot (used in Weyl-van-der-Waerden spinor formalism)
 @item @code{wildcard} @tab Wildcard for pattern matching
+@item @code{structure} @tab Template for user-defined classes
 @end multitable
 @end cartouche
 
