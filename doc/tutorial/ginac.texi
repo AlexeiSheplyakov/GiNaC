@@ -781,7 +781,7 @@ behave in an entirely obvious way at first glance:
 The terms of sums and products (and some other things like the arguments of
 symmetric functions, the indices of symmetric tensors etc.) are re-ordered
 into a canonical form that is deterministic, but not lexicographical or in
-any other way easily guessable (it almost always depends on the number and
+any other way easy to guess (it almost always depends on the number and
 order of the symbols you define). However, constructing the same expression
 twice, either implicitly or explicitly, will always result in the same
 canonical form.
@@ -839,7 +839,7 @@ int pole_error::degree() const;
 that returns the order of the singularity (or 0 when the pole is
 logarithmic or the order is undefined).
 
-When using GiNaC it is useful to arrange for exceptions to be catched in
+When using GiNaC it is useful to arrange for exceptions to be caught in
 the main program even if you don't want to do any special error handling.
 Otherwise whenever an error occurs in GiNaC, it will be delegated to the
 default exception handler of your C++ compiler's run-time system which
@@ -976,6 +976,17 @@ are two different symbols in two scopes, for instance when you call a
 function that declares a symbol with a name already existent in a symbol
 in the calling function.  Again, comparing them (using @code{operator==}
 for instance) will always reveal their difference.  Watch out, please.
+
+@cindex @code{realsymbol()}
+Symbols are expected to stand in for complex values by default, i.e. they live
+in the complex domain.  As a consequence, operations like complex conjugation,
+for example (see @ref{Complex Conjugation}), do @emph{not} evaluate if applied
+to such symbols. Likewise @code{log(exp(x))} does not evaluate to @code{x},
+because of the unknown imaginary part of @code{x}.
+On the other hand, if you are sure that your symbols will hold only real values, you
+would like to have such functions evaluated. Therefore GiNaC allows you to specify
+the domain of the symbol. Instead of @code{symbol x("x");} you can write
+@code{realsymbol x("x");} to tell GiNaC that @code{x} stands in for real values.
 
 @cindex @code{subs()}
 Although symbols can be assigned expressions for internal reasons, you
@@ -4112,7 +4123,7 @@ ex ex::expand(unsigned options = 0);
 
 may be called.  In our example above, this corresponds to @math{4*x*y +
 x*z + 20*y^2 + 21*y*z + 4*z^2}.  Again, since the canonical form in
-GiNaC is not easily guessable you should be prepared to see different
+GiNaC is not easy to guess you should be prepared to see different
 orderings of terms in such sums!
 
 Another useful representation of multivariate polynomials is as a
@@ -4744,8 +4755,7 @@ almost any kind of object (anything that is @code{subs()}able):
 @}
 @end example
 
-
-@node Built-in Functions, Solving Linear Systems of Equations, Symmetrization, Methods and Functions
+@node Built-in Functions, Complex Conjugation, Symmetrization, Methods and Functions
 @c    node-name, next, previous, up
 @section Predefined mathematical functions
 @c
@@ -4761,6 +4771,9 @@ GiNaC contains the following predefined mathematical functions:
 @cindex @code{abs()}
 @item @code{csgn(x)}
 @tab complex sign
+@cindex @code{conjugate()}
+@item @code{conjugate(x)}
+@tab complex conjugation
 @cindex @code{csgn()}
 @item @code{sqrt(x)}
 @tab square root (not a GiNaC function, rather an alias for @code{pow(x, numeric(1, 2))})
@@ -4885,7 +4898,7 @@ The multiple polylogarithm is the most generic member of a family of functions,
 to which others like the harmonic polylogarithm, Nielsen's generalized
 polylogarithm and the multiple zeta value belong.
 Everyone of these functions can also be written as a multiple polylogarithm with specific
-parameters. This whole family of functions is therefore often refered to simply as
+parameters. This whole family of functions is therefore often referred to simply as
 multiple polylogarithms, containing @code{Li}, @code{H}, @code{S} and @code{zeta}.
 
 To facilitate the discussion of these functions we distinguish between indices and
@@ -4922,11 +4935,11 @@ $\zeta(5,\overline{2})$.
 The order of indices and arguments in the GiNaC @code{lst}s and in the output is the same.
 
 Definitions and analytical as well as numerical properties of multiple polylogarithms
-are too numerous to be covered here. Instead, the user is refered to the publications listed at the
+are too numerous to be covered here. Instead, the user is referred to the publications listed at the
 end of this section. The implementation in GiNaC adheres to the definitions and conventions therein,
 except for a few differences which will be explicitly stated in the following.
 
-One difference is about the order of the indices and arguments. For GiNac we adopt the convention
+One difference is about the order of the indices and arguments. For GiNaC we adopt the convention
 that the indices and arguments are understood to be in the same order as in which they appear in
 the series representation. This means
 @tex
@@ -5018,7 +5031,41 @@ E.Remiddi, J.A.M.Vermaseren, Int.J.Mod.Phys. A15 (2000), pp. 725-754
 @cite{Special Values of Multiple Polylogarithms}, 
 J.Borwein, D.Bradley, D.Broadhurst, P.Lisonek, Trans.Amer.Math.Soc. 353/3 (2001), pp. 907-941
 
-@node Solving Linear Systems of Equations, Input/Output, Built-in Functions, Methods and Functions
+@node Complex Conjugation, Solving Linear Systems of Equations, Built-in Functions, Methods and Functions
+@c    node-name, next, previous, up
+@section Complex Conjugation
+@c
+@cindex @code{conjugate()}
+
+The method
+
+@example
+ex ex::conjugate();
+@end example
+
+returns the complex conjugate of the expression. For all built-in functions and objects the
+conjugation gives the expected results:
+
+@example
+@{
+    varidx a(symbol("a"), 4), b(symbol("b"), 4);
+    symbol x("x");
+    realsymbol y("y");
+                                           
+    cout << (3*I*x*y + sin(2*Pi*I*y)).conjugate() << endl;
+     // -> -3*I*conjugate(x)*y+sin(-2*I*Pi*y)
+    cout << (dirac_gamma(a)*dirac_gamma(b)*dirac_gamma5()).conjugate() << endl;
+     // -> -gamma5*gamma~b*gamma~a
+@}
+@end example
+
+For symbols in the complex domain the conjugation can not be evaluated and the GiNaC function
+@code{conjugate} is returned. GiNaC functions conjugate by applying the conjugation to their
+arguments. This is the default strategy. If you want to define your own functions and want to
+change this behavior, you have to supply a specialized conjugation method for your function
+(see @ref{Symbolic functions} and the GiNaC source-code for @code{abs} as an example).
+
+@node Solving Linear Systems of Equations, Input/Output, Complex Conjugation, Methods and Functions
 @c    node-name, next, previous, up
 @section Solving Linear Systems of Equations
 @cindex @code{lsolve()}
@@ -5768,6 +5815,7 @@ eval_func(<C++ function>)
 evalf_func(<C++ function>)
 derivative_func(<C++ function>)
 series_func(<C++ function>)
+conjugate_func(<C++ function>)
 @end example
 
 These specify the C++ functions that implement symbolic evaluation,
