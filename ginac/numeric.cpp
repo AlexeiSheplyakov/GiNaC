@@ -354,6 +354,11 @@ void numeric::print(const print_context & c, unsigned level) const
 
 		std::ios::fmtflags oldflags = c.s.flags();
 		c.s.setf(std::ios::scientific);
+		int oldprec = c.s.precision();
+		if (is_a<print_csrc_double>(c))
+			c.s.precision(16);
+		else
+			c.s.precision(7);
 		if (this->is_rational() && !this->is_integer()) {
 			if (compare(_num0) > 0) {
 				c.s << "(";
@@ -381,6 +386,7 @@ void numeric::print(const print_context & c, unsigned level) const
 				c.s << to_double();
 		}
 		c.s.flags(oldflags);
+		c.s.precision(oldprec);
 
 	} else {
 		const std::string par_open  = is_a<print_latex>(c) ? "{(" : "(";
