@@ -95,6 +95,25 @@ matrix::matrix(unsigned r, unsigned c, const exvector & m2)
 	debugmsg("matrix ctor from unsigned,unsigned,exvector",LOGLEVEL_CONSTRUCT);
 }
 
+/** Construct matrix from (flat) list of elements. If the list has fewer
+ *  elements than the matrix, the remaining matrix elements are set to zero.
+ *  If the list has more elements than the matrix, the excessive elements are
+ *  thrown away. */
+matrix::matrix(unsigned r, unsigned c, const lst & l)
+  : inherited(TINFO_matrix), row(r), col(c)
+{
+	debugmsg("matrix ctor from unsigned,unsigned,lst",LOGLEVEL_CONSTRUCT);
+	m.resize(r*c, _ex0());
+
+	for (unsigned i=0; i<l.nops(); i++) {
+		unsigned x = i % c;
+		unsigned y = i / c;
+		if (y >= r)
+			break; // matrix smaller than list: throw away excessive elements
+		m[y*c+x] = l.op(i);
+	}
+}
+
 //////////
 // archiving
 //////////
@@ -385,6 +404,7 @@ ex matrix::eval_indexed(const basic & i) const
 ex matrix::add_indexed(const ex & self, const ex & other) const
 {
 	GINAC_ASSERT(is_ex_of_type(self, indexed));
+	GINAC_ASSERT(is_ex_of_type(self.op(0), matrix));
 	GINAC_ASSERT(is_ex_of_type(other, indexed));
 	GINAC_ASSERT(self.nops() == 2 || self.nops() == 3);
 
@@ -414,6 +434,21 @@ ex matrix::add_indexed(const ex & self, const ex & other) const
 
 	// Don't know what to do, return unevaluated sum
 	return self + other;
+}
+
+/** Product of an indexed matrix with a number. */
+ex matrix::scalar_mul_indexed(const ex & self, const numeric & other) const
+{
+	GINAC_ASSERT(is_ex_of_type(self, indexed));
+	GINAC_ASSERT(is_ex_of_type(self.op(0), matrix));
+	GINAC_ASSERT(self.nops() == 2 || self.nops() == 3);
+
+	const matrix &self_matrix = ex_to_matrix(self.op(0));
+
+	if (self.nops() == 2)
+		return indexed(self_matrix.mul(other), self.op(1));
+	else // self.nops() == 3
+		return indexed(self_matrix.mul(other), self.op(1), self.op(2));
 }
 
 /** Contraction of an indexed matrix with something else. */
@@ -578,6 +613,19 @@ matrix matrix::mul(const matrix & other) const
 		}
 	}
 	return matrix(row, other.col, prod);
+}
+
+
+/** Product of matrix and scalar. */
+matrix matrix::mul(const numeric & other) const
+{
+	exvector prod(row * col);
+
+	for (unsigned r=0; r<row; ++r)
+		for (unsigned c=0; c<col; ++c)
+			prod[r*col+c] = m[r*col+c] * other;
+
+	return matrix(row, col, prod);
 }
 
 
@@ -1392,12 +1440,8 @@ int matrix::pivot(unsigned ro, unsigned co, bool symbolic)
 	return k;
 }
 
-/** Convert list of lists to matrix. */
-ex lst_to_matrix(const ex &l)
+ex lst_to_matrix(const lst & l)
 {
-	if (!is_ex_of_type(l, lst))
-		throw(std::invalid_argument("argument to lst_to_matrix() must be a lst"));
-	
 	// Find number of rows and columns
 	unsigned rows = l.nops(), cols = 0, i, j;
 	for (i=0; i<rows; i++)
@@ -1412,6 +1456,17 @@ ex lst_to_matrix(const ex &l)
 				m.set(i, j, l.op(i).op(j));
 			else
 				m.set(i, j, ex(0));
+	return m;
+}
+
+ex diag_matrix(const lst & l)
+{
+	unsigned dim = l.nops();
+
+	matrix &m = *new matrix(dim, dim);
+	for (unsigned i=0; i<dim; i++)
+		m.set(i, i, l.op(i));
+
 	return m;
 }
 

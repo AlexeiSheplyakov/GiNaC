@@ -310,6 +310,18 @@ ex basic::add_indexed(const ex & self, const ex & other) const
 	return self + other;
 }
 
+/** Multiply an indexed expression with a scalar. This function is used
+ *  internally by simplify_indexed().
+ *
+ *  @param self Indexed expression; it's base object is *this
+ *  @param other Numeric value
+ *  @return product of self and other
+ *  @see ex::simplify_indexed() */
+ex basic::scalar_mul_indexed(const ex & self, const numeric & other) const
+{
+	return self * other;
+}
+
 /** Try to contract two indexed expressions that appear in the same product. 
  *  If a contraction exists, the function overwrites one or both of the
  *  expressions and returns true. Otherwise it returns false. It is

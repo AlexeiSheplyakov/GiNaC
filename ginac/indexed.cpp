@@ -679,13 +679,21 @@ try_again:
 	}
 	find_free_and_dummy(un.begin(), un.end(), free_indices, dummy_indices);
 
+	ex r;
 	if (something_changed) {
 		if (non_commutative)
-			return ncmul(v);
+			r = ncmul(v);
 		else
-			return mul(v);
+			r = mul(v);
 	} else
-		return e;
+		r = e;
+
+	// Product of indexed object with a scalar?
+	if (is_ex_exactly_of_type(r, mul) && r.nops() == 2
+	 && is_ex_exactly_of_type(r.op(1), numeric) && is_ex_of_type(r.op(0), indexed))
+		return r.op(0).op(0).bp->scalar_mul_indexed(r.op(0), ex_to_numeric(r.op(1)));
+	else
+		return r;
 }
 
 /** Simplify indexed expression, return list of free indices. */

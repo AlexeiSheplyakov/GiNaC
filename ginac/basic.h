@@ -131,6 +131,7 @@ public: // only const functions please (may break reference counting)
 	virtual ex simplify_ncmul(const exvector & v) const;
 	virtual ex eval_indexed(const basic & i) const;
 	virtual ex add_indexed(const ex & self, const ex & other) const;
+	virtual ex scalar_mul_indexed(const ex & self, const numeric & other) const;
 	virtual bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
 protected: // non-const functions should be called from class ex only
 	virtual ex derivative(const symbol & s) const;

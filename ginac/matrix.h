@@ -38,6 +38,7 @@ class matrix : public basic
 public:
 	matrix(unsigned r, unsigned c);
 	matrix(unsigned r, unsigned c, const exvector & m2);
+	matrix(unsigned r, unsigned c, const lst & l);
 	
 	// functions overriding virtual functions from bases classes
 public:
@@ -53,6 +54,7 @@ public:
 	ex subs(const lst & ls, const lst & lr) const;
 	ex eval_indexed(const basic & i) const;
 	ex add_indexed(const ex & self, const ex & other) const;
+	ex scalar_mul_indexed(const ex & self, const numeric & other) const;
 	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
 protected:
 	unsigned return_type(void) const { return return_types::noncommutative; };
@@ -68,6 +70,7 @@ public:
 	matrix add(const matrix & other) const;
 	matrix sub(const matrix & other) const;
 	matrix mul(const matrix & other) const;
+	matrix mul(const numeric & other) const;
 	const ex & operator() (unsigned ro, unsigned co) const;
 	matrix & set(unsigned ro, unsigned co, ex value);
 	matrix transpose(void) const;
@@ -137,7 +140,11 @@ inline const matrix &ex_to_matrix(const ex &e)
 	return static_cast<const matrix &>(*e.bp);
 }
 
-extern ex lst_to_matrix(const ex &l);
+/** Convert list of lists to matrix. */
+extern ex lst_to_matrix(const lst & l);
+
+/** Convert list of diagonal elements to matrix. */
+extern ex diag_matrix(const lst & l);
 
 } // namespace GiNaC
 

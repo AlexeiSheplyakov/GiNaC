@@ -115,7 +115,7 @@ exp	: T_NUMBER		{$$ = $1;}
 	| exp '!'		{$$ = factorial($1);}
 	| '(' exp ')'		{$$ = $2;}
 	| '[' list_or_empty ']'	{$$ = $2;}
-	| T_MATRIX_BEGIN matrix T_MATRIX_END	{$$ = lst_to_matrix($2);}
+	| T_MATRIX_BEGIN matrix T_MATRIX_END	{$$ = lst_to_matrix(ex_to_lst($2));}
 	;
 
 exprseq	: exp			{$$ = exprseq($1);}
