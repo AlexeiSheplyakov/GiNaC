@@ -1,5 +1,9 @@
 This file records noteworthy changes.
 
+0.6.1 (18 May 2000)
+* Cleanup in the interface to Cint.  The required version is now Cint 5.14.38.
+* Several bugfixes in target install.
+
 0.6.0 (11 May 2000)
 * IMPORTANT: Several interface changes make programs written with GiNaC 
   much clearer but break compatibility with older versions:
