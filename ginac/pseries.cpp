@@ -727,11 +727,7 @@ ex mul::series(const relational & r, int order, unsigned options) const
 	const epvector::const_iterator itbeg = seq.begin();
 	const epvector::const_iterator itend = seq.end();
 	for (epvector::const_iterator it=itbeg; it!=itend; ++it) {
-		ex op = it->rest;
-		if (!is_ex_exactly_of_type(op, pseries))
-			op = op.series(r, order, options);
-		if (!it->coeff.is_equal(_ex1()))
-			op = ex_to<pseries>(op).power_const(ex_to<numeric>(it->coeff), order);
+		ex op = recombine_pair_to_ex(*it).series(r, order, options);
 
 		// Series multiplication
 		if (it==itbeg)
@@ -784,6 +780,10 @@ ex pseries::power_const(const numeric &p, int deg) const
 	const int ldeg = ldegree(var);
 	if (!(p*ldeg).is_integer())
 		throw std::runtime_error("pseries::power_const(): trying to assemble a Puiseux series");
+
+	// O(x^n)^(-m) is undefined
+	if (seq.size() == 1 && is_order_function(seq[0].rest) && p.real().is_negative())
+		throw pole_error("pseries::power_const(): division by zero",1);
 	
 	// Compute coefficients of the powered series
 	exvector co;
@@ -840,32 +840,38 @@ pseries pseries::shift_exponents(int deg) const
  *  @see ex::series */
 ex power::series(const relational & r, int order, unsigned options) const
 {
-	ex e;
-	if (!is_ex_exactly_of_type(basis, pseries)) {
-		// Basis is not a series, may there be a singularity?
-		bool must_expand_basis = false;
-		try {
-			basis.subs(r);
-		} catch (pole_error) {
-			must_expand_basis = true;
-		}
-		
-		// Is the expression of type something^(-int)?
-		if (!must_expand_basis && !exponent.info(info_flags::negint))
-			return basic::series(r, order, options);
-		
-		// Is the expression of type 0^something?
-		if (!must_expand_basis && !basis.subs(r).is_zero())
-			return basic::series(r, order, options);
-		
-		// Singularity encountered, expand basis into series
-		e = basis.series(r, order, options);
-	} else {
-		// Basis is a series
-		e = basis;
+	// If basis is already a series, just power it
+	if (is_ex_exactly_of_type(basis, pseries))
+		return ex_to<pseries>(basis).power_const(ex_to<numeric>(exponent), order);
+
+	// Basis is not a series, may there be a singularity?
+	bool must_expand_basis = false;
+	try {
+		basis.subs(r);
+	} catch (pole_error) {
+		must_expand_basis = true;
 	}
-	
-	// Power e
+		
+	// Is the expression of type something^(-int)?
+	if (!must_expand_basis && !exponent.info(info_flags::negint))
+		return basic::series(r, order, options);
+		
+	// Is the expression of type 0^something?
+	if (!must_expand_basis && !basis.subs(r).is_zero())
+		return basic::series(r, order, options);
+
+	// Singularity encountered, is the basis equal to (var - point)?
+	if (basis.is_equal(r.lhs() - r.rhs())) {
+		epvector new_seq;
+		if (ex_to<numeric>(exponent).to_int() < order)
+			new_seq.push_back(expair(_ex1(), exponent));
+		else
+			new_seq.push_back(expair(Order(_ex1()), exponent));
+		return pseries(r, new_seq);
+	}
+
+	// No, expand basis into series
+	ex e = basis.series(r, order, options);
 	return ex_to<pseries>(e).power_const(ex_to<numeric>(exponent), order);
 }
 
