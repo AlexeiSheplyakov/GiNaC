@@ -1,6 +1,7 @@
 // check/main.cpp
 
-#include "ginac.h"
+#include <stdexcept>
+#include <GiNaC/ginac.h>
 #include "check.h"
 
 int main()

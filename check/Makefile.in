@@ -26,7 +26,7 @@ OBJECTS = paranoia_check.o numeric_output.o numeric_consist.o powerlaws.o \
 all: 
 	echo "Please call it with 'make check' from top-level Makefile."
 	echo "Alternatively, you can use this Makefile's targets {shared|static}check"
-	echo "depending on your personal preferences and which lib you built."
+	echo "depending on your personal preferences and which library you built."
 
 sharedcheck: ${OBJECTS} ../src/.libs/libginac.so
 	${CXX} ${LDFLAGS} ${OBJECTS} -Wl,--rpath -Wl,../src/.libs -L../src/.libs -lginac ${LIBS} -o main

@@ -28,7 +28,7 @@ INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 
 
-all: 	lib ginsh
+all: 	lib ginsh/ginsh
 	echo "now type make install"
 
 src/libginac.la:
@@ -41,9 +41,15 @@ lib:
 	cd src; ${MAKE} all
 
 
-# Target for making the GiNaC interactive shell (ginsh):
-ginsh:
-	if [ "${shared}" ]; then ${MAKE} sharedginsh; else ${MAKE} staticginsh; fi
+# Targets for making the GiNaC interactive shell (ginsh)
+ginsh: ginsh/ginsh
+
+ginsh/ginsh:
+	if [ "${shared}" ]; then \
+		${MAKE} sharedginsh; \
+	else \
+		${MAKE} staticginsh; \
+	fi
 
 sharedginsh: src/libginac.la
 	cd ginsh; ${MAKE} sharedginsh
@@ -54,7 +60,11 @@ staticginsh: src/.libs/libginac.a
 
 # Target for running a test-suite across the library:
 check:
-	if [ "${shared}" ]; then ${MAKE} sharedcheck; else ${MAKE} staticcheck; fi
+	if [ "${shared}" ]; then \
+		${MAKE} sharedcheck; \
+	else \
+		${MAKE} staticcheck; \
+	fi
 
 sharedcheck: src/libginac.la
 	cd check; ${MAKE} sharedcheck
@@ -66,22 +76,21 @@ staticcheck: src/.libs/libginac.a
 # Targets for installation in install directories.  The user-visible target
 # `install' determines which one to call (static lib only or both shared and
 # static lib).
-install:
+install: installdirs
 	@ if [ "${shared}" ]; then \
-		${MAKE} shlibinst; \
+		${MAKE} sharedinst; \
 	else \
-		${MAKE} libinst; \
+		${MAKE} staticinst; \
 	fi
-	${INSTALL} -d ${includedir}
-	${INSTALL_DATA} include/*.h ${includedir}/
+	${INSTALL_DATA} include/GiNaC/*.h ${includedir}/
 	cd ginsh; ${MAKE} install
 	cd doc; ${MAKE} install
 
-shlibinst: src/libginac.la installdirs
+sharedinst: src/libginac.la
 	${LIBTOOL} install src/libginac.la ${libdir}/libginac.la
 	${LIBTOOL} -n --finish ${libdir}
 
-libinst: src/.libs/libginac.a installdirs
+staticinst: src/.libs/libginac.a
 	${INSTALL_DATA} src/.libs/libginac.a ${libdir}/libginac.a
 
 installdirs:

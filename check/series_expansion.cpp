@@ -2,7 +2,7 @@
 
 /* Series expansion test (Laurent and Taylor series). */
 
-#include "ginac.h"
+#include <GiNaC/ginac.h>
 
 static symbol x("x");
 

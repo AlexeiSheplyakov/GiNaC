@@ -3,7 +3,7 @@
 /* This test routine does some simple checks on solving a polynomial for a
  * variable. */
 
-#include "ginac.h"
+#include <GiNaC/ginac.h>
 
 unsigned lsolve_onedim(void)
 {

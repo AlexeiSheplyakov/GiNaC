@@ -2,8 +2,8 @@
 
 /* Here we test manipulations on GiNaC's symbolic matrices. */
 
-#include "ginac.h"
 #include <stdexcept>
+#include <GiNaC/ginac.h>
 
 static unsigned matrix_determinants(void)
 {

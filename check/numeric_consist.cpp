@@ -3,8 +3,8 @@
 /* This test routine creates some numbers and check the result of several
  * boolean tests on these numbers like is_integer() etc... */
 
-#include "ginac.h"
 #include <stdlib.h>
+#include <GiNaC/ginac.h>
 
 /* Simple and maybe somewhat pointless consistency tests of assorted tests and
  * conversions. */

@@ -33,7 +33,7 @@ extern "C" {
 #include <string>
 #include <stdexcept>
 
-#include <ginac.h>
+#include <GiNaC/ginac.h>
 
 #include "ginsh.h"
 

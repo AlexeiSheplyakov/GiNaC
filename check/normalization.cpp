@@ -2,7 +2,7 @@
 
 /* Rational function normalization test-suite. */
 
-#include "ginac.h"
+#include <GiNaC/ginac.h>
 
 static symbol x("x"), y("y"), z("z");
 

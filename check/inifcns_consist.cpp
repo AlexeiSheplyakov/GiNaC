@@ -3,7 +3,7 @@
 /* This test routine applies assorted tests on initially known higher level
  * functions. */
 
-#include "ginac.h"
+#include <GiNaC/ginac.h>
 
 /* Simple tests on the sine trigonometric function. */
 static unsigned inifcns_consist_sin(void)

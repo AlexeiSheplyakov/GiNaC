@@ -1,6 +1,6 @@
 // check/numeric_output.cpp
 
-#include "ginac.h"
+#include <GiNaC/ginac.h>
 
 unsigned numeric_output(void)
 {

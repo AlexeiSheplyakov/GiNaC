@@ -454,7 +454,7 @@ echo > confdefs.h
 
 # A filename unique to this package, relative to the directory that
 # configure is in, which we can look for to find out if srcdir is correct.
-ac_unique_file=include/ginac.h
+ac_unique_file=include/GiNaC/ginac.h
 
 # Find the source files, if location was not specified.
 if test -z "$srcdir"; then
@@ -528,7 +528,7 @@ fi
 
 GiNaC_Major_Version=0
 GiNaC_Minor_Version=0
-GiNaC_Micro_Version=30
+GiNaC_Micro_Version=40
 GiNaC_Version="${GiNaC_Major_Version}.${GiNaC_Minor_Version}.${GiNaC_Micro_Version}"
 LibGiNaC_Ver="${GiNaC_Major_Version}:${GiNaC_Micro_Version}:${GiNaC_Minor_Version}"
 

@@ -22,7 +22,7 @@ extern "C" {
 }
 #include <map>
 
-#include <ginac.h>
+#include <GiNaC/ginac.h>
 
 #include "ginsh.h"
 #include "y.tab.h"

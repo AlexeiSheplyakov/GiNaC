@@ -3,7 +3,7 @@
 /* Some test with polynomial GCD calculations. See also the checks for
  * rational function normalization in normalization.cpp. */
 
-#include "ginac.h"
+#include <GiNaC/ginac.h>
 
 const int MAX_VARIABLES = 5;
 

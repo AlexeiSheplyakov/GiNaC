@@ -2,7 +2,7 @@
 
 /* Tests for symbolic differentiation, including various functions. */
 
-#include "ginac.h"
+#include <GiNaC/ginac.h>
 
 static unsigned check_diff(const ex &e, const symbol &x,
                            const ex &d, unsigned nth=1)

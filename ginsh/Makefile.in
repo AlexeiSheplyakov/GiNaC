@@ -4,7 +4,7 @@
 # values from configure which checks it anyways:
 CXX = @CXX@
 CXXFLAGS = @CXXFLAGS@
-CPPFLAGS = @CPPFLAGS@ -I../ -I../include
+CPPFLAGS = @CPPFLAGS@ -I.. -I../include
 DEFS = @DEFS@
 LIBS = @LIBS@ @LEXLIB@
 LDFLAGS = @LDFLAGS@
@@ -30,8 +30,8 @@ OBJECTS=y.tab.o @LEX_OUTPUT_ROOT@.o
 
 all:	
 	echo "Please call it with 'make ginsh' from top-level Makefile."
-	echo "Alternatively, you can use this Makefile's targets {shared|static} ginsh"
-	echo "depending on your personal preferences and which lib you built."
+	echo "Alternatively, you can use this Makefile's targets {shared|static}ginsh"
+	echo "depending on your personal preferences and which library you built."
 
 sharedginsh: depend ${OBJECTS}
 	${CXX} ${CXXFLAGS} ${LDFLAGS} ${OBJECTS} ${LIBS} -Wl,--rpath -Wl,../src/.libs -L../src/.libs -lginac -o ginsh
@@ -72,6 +72,7 @@ depend:
 # Special dummy targets:
 .PHONY: clean distclean depend all install uninstall check doc
 .SUFFIXES: .o .c .h .y .l
+.SILENT: all
 
 # Suffix rules:
 .c.o :

@@ -5,7 +5,7 @@ dnl See aclocal.m4 for additional self-made macros.
 dnl ===========================================================================
 
 dnl This file is used as a signal that everything is in place:
-AC_INIT(include/ginac.h)
+AC_INIT(include/GiNaC/ginac.h)
 dnl A convenient header file for some additional system-dependend output:
 AC_CONFIG_HEADER(config.h)
 
