@@ -138,7 +138,7 @@ int main(void)
                   echo "*** that the run-time linker is not finding GiNaC or finding the wrong"
                   echo "*** version of GiNaC. If it is not finding GiNaC, you'll need to set your"
                   echo "*** LD_LIBRARY_PATH environment variable, or edit /etc/ld.so.conf to point"
-                  echo "*** to the installed location  Also, make sure you have run ldconfig if that"
+                  echo "*** to the installed location. Also, make sure you have run ldconfig if that"
                   echo "*** is required on your system."],
                 [ echo "*** The test program failed to compile or link. See the file config.log for the"
                   echo "*** exact error that occured. This usually means GiNaC was incorrectly installed"
