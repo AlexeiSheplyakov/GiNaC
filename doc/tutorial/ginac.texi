@@ -1004,7 +1004,7 @@ done some arithmetic with them it is frequently desired to retrieve some
 kind of information from them like asking whether that number is
 integer, rational, real or complex.  For those cases GiNaC provides
 several useful methods.  (Internally, they fall back to invocations of
-certain CLN functions.)
+certain @acronym{CLN} functions.)
 
 As an example, let's construct some rational number, multiply it with
 some multiple of its denominator and test what comes out:
@@ -3296,7 +3296,7 @@ This function object could then be used like this:
 @}
 @end example
 
-Here is another example for you to meditate over. It removes quadratic
+Here is another example for you to meditate over.  It removes quadratic
 terms in a variable from an expanded polynomial:
 
 @example
@@ -3308,7 +3308,8 @@ struct map_rem_quad : public map_function @{
     @{
         if (is_a<add>(e) || is_a<mul>(e))
      	    return e.map(*this);
-        else if (is_a<power>(e) && e.op(0).is_equal(var) && e.op(1).info(info_flags::even))
+        else if (is_a<power>(e) && 
+                 e.op(0).is_equal(var) && e.op(1).info(info_flags::even))
             return 0;
         else
             return e;
@@ -4071,12 +4072,12 @@ negative real axis where the points on the axis itself belong to the
 upper part (i.e. continuous with quadrant II).  The inverse
 trigonometric and hyperbolic functions are not defined for complex
 arguments by the C++ standard, however.  In GiNaC we follow the
-conventions used by CLN, which in turn follow the carefully designed
-definitions in the Common Lisp standard.  It should be noted that this
-convention is identical to the one used by the C99 standard and by most
-serious CAS.  It is to be expected that future revisions of the C++
-standard incorporate these functions in the complex domain in a manner
-compatible with C99.
+conventions used by @acronym{CLN}, which in turn follow the carefully
+designed definitions in the Common Lisp standard.  It should be noted
+that this convention is identical to the one used by the C99 standard
+and by most serious CAS.  It is to be expected that future revisions of
+the C++ standard incorporate these functions in the complex domain in a
+manner compatible with C99.
 
 
 @node Input/Output, Extending GiNaC, Built-in Functions, Methods and Functions
@@ -5226,10 +5227,10 @@ not planned for the near future).
 @item
 portability: While the GiNaC library itself is designed to avoid any
 platform dependent features (it should compile on any ANSI compliant C++
-compiler), the currently used version of the CLN library (fast large
-integer and arbitrary precision arithmetics) can be compiled only on
-systems with a recently new C++ compiler from the GNU Compiler
-Collection (@acronym{GCC}).@footnote{This is because CLN uses
+compiler), the currently used version of the @acronym{CLN} library (fast
+large integer and arbitrary precision arithmetics) can be compiled only
+on systems with a recently new C++ compiler from the GNU Compiler
+Collection (@acronym{GCC}).@footnote{This is because @acronym{CLN} uses
 PROVIDE/REQUIRE like macros to let the compiler gather all static
 initializations, which works for GNU C++ only.}  GiNaC uses recent
 language features like explicit constructors, mutable members, RTTI,
