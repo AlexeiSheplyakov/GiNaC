@@ -126,7 +126,7 @@ ex ex::subs(const lst & ls, const lst & lr, unsigned options) const
 	// Convert the lists to a map
 	exmap m;
 	for (lst::const_iterator its = ls.begin(), itr = lr.begin(); its != ls.end(); ++its, ++itr) {
-		m[*its] = *itr;
+		m.insert(std::make_pair(*its, *itr));
 
 		// Search for products and powers in the expressions to be substituted
 		// (for an optimization in expairseq::subs())
@@ -148,7 +148,7 @@ ex ex::subs(const ex & e, unsigned options) const
 	if (e.info(info_flags::relation_equal)) {
 		exmap m;
 		const ex & s = e.lhs();
-		m[s] = e.rhs();
+		m.insert(std::make_pair(s, e.rhs()));
 		if (is_exactly_a<mul>(s) || is_exactly_a<power>(s))
 			options |= subs_options::pattern_is_product;
 		return bp->subs(m, options);
@@ -163,7 +163,7 @@ ex ex::subs(const ex & e, unsigned options) const
 		if (!r.info(info_flags::relation_equal))
 			throw(std::invalid_argument("basic::subs(ex): argument must be a list of equations"));
 		const ex & s = r.lhs();
-		m[s] = r.rhs();
+		m.insert(std::make_pair(s, r.rhs()));
 
 		// Search for products and powers in the expressions to be substituted
 		// (for an optimization in expairseq::subs())

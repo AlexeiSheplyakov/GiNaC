@@ -1696,8 +1696,8 @@ static ex replace_with_symbol(const ex & e, exmap & repl, exmap & rev_lookup)
 	// because subs() is not recursive
 	ex es = (new symbol)->setflag(status_flags::dynallocated);
 	ex e_replaced = e.subs(repl, subs_options::no_pattern);
-	repl[es] = e_replaced;
-	rev_lookup[e_replaced] = es;
+	repl.insert(std::make_pair(es, e_replaced));
+	rev_lookup.insert(std::make_pair(e_replaced, es));
 	return es;
 }
 
