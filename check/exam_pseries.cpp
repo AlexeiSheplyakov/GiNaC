@@ -147,52 +147,60 @@ static unsigned exam_series4(void)
     return result;
 }
 
-// Series of special functions
+// Series expansion of tgamma(-1)
 static unsigned exam_series5(void)
 {
-    unsigned result = 0;
-    ex e, d;
+    ex e = tgamma(2*x);
+    ex d = pow(x+1,-1)*numeric(1,4) +
+           pow(x+1,0)*(numeric(3,4) -
+                       numeric(1,2)*Euler) +
+           pow(x+1,1)*(numeric(7,4) -
+                       numeric(3,2)*Euler +
+                       numeric(1,2)*pow(Euler,2) +
+                       numeric(1,12)*pow(Pi,2)) +
+           pow(x+1,2)*(numeric(15,4) -
+                       numeric(7,2)*Euler -
+                       numeric(1,3)*pow(Euler,3) +
+                       numeric(1,4)*pow(Pi,2) +
+                       numeric(3,2)*pow(Euler,2) -
+                       numeric(1,6)*pow(Pi,2)*Euler -
+                       numeric(2,3)*zeta(3)) +
+           pow(x+1,3)*(numeric(31,4) - pow(Euler,3) -
+                       numeric(15,2)*Euler +
+                       numeric(1,6)*pow(Euler,4) +
+                       numeric(7,2)*pow(Euler,2) +
+                       numeric(7,12)*pow(Pi,2) -
+                       numeric(1,2)*pow(Pi,2)*Euler -
+                       numeric(2)*zeta(3) +
+                       numeric(1,6)*pow(Euler,2)*pow(Pi,2) +
+                       numeric(1,40)*pow(Pi,4) +
+                       numeric(4,3)*zeta(3)*Euler) +
+           Order(pow(x+1,4));
+    return check_series(e, -1, d, 4);
+}
     
-    // tgamma(-1):
-    e = tgamma(2*x);
-    d = pow(x+1,-1)*numeric(1,4) +
-        pow(x+1,0)*(numeric(3,4) -
-                    numeric(1,2)*Euler) +
-        pow(x+1,1)*(numeric(7,4) -
-                    numeric(3,2)*Euler +
-                    numeric(1,2)*pow(Euler,2) +
-                    numeric(1,12)*pow(Pi,2)) +
-        pow(x+1,2)*(numeric(15,4) -
-                    numeric(7,2)*Euler -
-                    numeric(1,3)*pow(Euler,3) +
-                    numeric(1,4)*pow(Pi,2) +
-                    numeric(3,2)*pow(Euler,2) -
-                    numeric(1,6)*pow(Pi,2)*Euler -
-                    numeric(2,3)*zeta(3)) +
-        pow(x+1,3)*(numeric(31,4) - pow(Euler,3) -
-                    numeric(15,2)*Euler +
-                    numeric(1,6)*pow(Euler,4) +
-                    numeric(7,2)*pow(Euler,2) +
-                    numeric(7,12)*pow(Pi,2) -
-                    numeric(1,2)*pow(Pi,2)*Euler -
-                    numeric(2)*zeta(3) +
-                    numeric(1,6)*pow(Euler,2)*pow(Pi,2) +
-                    numeric(1,40)*pow(Pi,4) +
-                    numeric(4,3)*zeta(3)*Euler) +
-        Order(pow(x+1,4));
-    result += check_series(e, -1, d, 4);
-    
-    // tan(Pi/2)
-    e = tan(x*Pi/2);
-    d = pow(x-1,-1)/Pi*(-2) +
-        pow(x-1,1)*Pi/6 +
-        pow(x-1,3)*pow(Pi,3)/360 +
-        pow(x-1,5)*pow(Pi,5)/15120 +
-        pow(x-1,7)*pow(Pi,7)/604800 +
-        Order(pow(x-1,8));
-    result += check_series(e,1,d,8);
-    
-    return result;
+// Series expansion of tan(Pi/2)
+static unsigned exam_series6(void)
+{
+    ex e = tan(x*Pi/2);
+    ex d = pow(x-1,-1)/Pi*(-2) +
+           pow(x-1,1)*Pi/6 +
+           pow(x-1,3)*pow(Pi,3)/360 +
+           pow(x-1,5)*pow(Pi,5)/15120 +
+           pow(x-1,7)*pow(Pi,7)/604800 +
+           Order(pow(x-1,8));
+    return check_series(e,1,d,8);
+}
+
+// Series expansion of Li2(sin(0))
+static unsigned exam_series7(void)
+{
+    ex e = Li2(sin(x));
+    ex d = x + numeric(1,4)*pow(x,2) - numeric(1,18)*pow(x,3)
+           - numeric(1,48)*pow(x,4) - numeric(13,1800)*pow(x,5)
+           - numeric(1,360)*pow(x,6) - numeric(23,21168)*pow(x,7)
+           + Order(pow(x,8));
+    return check_series(e,0,d,8);
 }
 
 unsigned exam_pseries(void)
@@ -207,6 +215,8 @@ unsigned exam_pseries(void)
     result += exam_series3();  cout << '.' << flush;
     result += exam_series4();  cout << '.' << flush;
     result += exam_series5();  cout << '.' << flush;
+    result += exam_series6();  cout << '.' << flush;
+    result += exam_series7();  cout << '.' << flush;
     
     if (!result) {
         cout << " passed " << endl;
