@@ -46,7 +46,7 @@ static unsigned test(void)
 unsigned time_lw_P(void)
 {
     unsigned result = 0;
-    unsigned count = 1;
+    unsigned count = 0;
     timer rolex;
     double time = .0;
     

@@ -127,6 +127,14 @@ int main()
     
     try {
         for (int i=0; i<1; ++i)
+            result += time_lw_O();
+    } catch (const exception &e) {
+        cout << "Error: caught exception " << e.what() << endl;
+        ++result;
+    }
+    
+    try {
+        for (int i=0; i<1; ++i)
             result += time_lw_P();
     } catch (const exception &e) {
         cout << "Error: caught exception " << e.what() << endl;

@@ -59,6 +59,7 @@ unsigned time_lw_E();
 unsigned time_lw_F();
 unsigned time_lw_G();
 unsigned time_lw_H();
+unsigned time_lw_O();
 unsigned time_lw_P();
 unsigned time_lw_Pprime();
 
