@@ -301,6 +301,10 @@ bodies and classes. Really short functions can be written in one single line.
 		int x;
 	};
 
+	namespace bar {
+		// a foo by any other name...
+	}
+
 	void foo::schwupp(char c)
 	{
 		// diwupp
