@@ -4,3 +4,4 @@ ginsh_SOURCES = ginsh_parser.yy ginsh_lexer.ll ginsh.h
 ginsh_LDADD = @LIBOBJS@ ../ginac/libginac.la
 man_MANS = ginsh.1
 YFLAGS = -d
+EXTRA_DIST = ginsh_parser.h
