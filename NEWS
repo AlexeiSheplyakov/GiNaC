@@ -1,7 +1,9 @@
 This file records noteworthy changes.
 
-0.7.3 (<date>)
-* Added a section to the tutorial about adding new algebraic classes to GiNaC
+0.7.3 (28 February 2001)
+* Several bugfixes and minor performance tunings.
+* Added a section to the tutorial about adding new algebraic classes to GiNaC.
+* Closed many in-source documentation gaps.
 
 0.7.2 (17 February 2001)
 * Several bugfixes in power series expansion, one of them critical.
