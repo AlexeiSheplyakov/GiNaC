@@ -85,6 +85,7 @@ public:
 	void unassign();
 	void set_name(const std::string & n) { name = n; }
 	std::string get_name() const { return name; }
+	unsigned get_domain() const { return domain; }
 protected:
 	void do_print(const print_context & c, unsigned level) const;
 	void do_print_latex(const print_latex & c, unsigned level) const;
@@ -127,13 +128,13 @@ public:
 /** Specialization of is_exactly_a<symbol>(obj) for symbol objects. */
 template<> inline bool is_exactly_a<symbol>(const basic & obj)
 {
-	return (obj.tinfo() == TINFO_symbol) && obj.info(info_flags::real);
+	return obj.tinfo() == TINFO_symbol;
 }
 
 /** Specialization of is_exactly_a<realsymbol>(obj) for realsymbol objects. */
 template<> inline bool is_exactly_a<realsymbol>(const basic & obj)
 {
-	return (obj.tinfo() == TINFO_symbol) && obj.info(info_flags::real);
+	return (obj.tinfo() == TINFO_symbol) && (static_cast<const symbol &>(obj).get_domain() == domain::real);
 }
 
 // wrapper functions around member functions
