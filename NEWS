@@ -1,11 +1,12 @@
 This file records noteworthy changes.
 
-0.7.1 (--date--)
+0.7.1 (7 February 2001)
 * Fix problems with Cint that were caused by CLN's overloaded operator new.
 * Fix compilation errors with GCC3.
 * normal() handles large sums of fractions better and normalizes the exponent
   of power expressions.
 * expand() always expands the exponent and transforms x^(a+b) -> x^a*x^b.
+* Some bugfixes of series expansion around branch cuts of special functions.
 
 0.7.0 (15 December 2000)
 * Requires CLN 1.1 now.  Class numeric doesn't use an indirect pointer to the
