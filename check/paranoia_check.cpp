@@ -218,7 +218,7 @@ static unsigned paranoia_check8(void)
     ex f = e.normal();
 
     // The bug caused a division by zero in normal(), so the following
-    // check is actually bogus...
+    // check is actually quite bogus...
     if (!f.is_equal(e)) {
         clog << "normal(-x/(x+1)) returns " << f << " instead of -x/(x+1)\n";
         ++result;
@@ -229,7 +229,7 @@ static unsigned paranoia_check8(void)
 // This one was a result of a modification to frac_cancel() & Co. to avoid
 // expanding the numerator and denominator when bringing them from Q[X] to
 // Z[X]. multiply_lcm() forgot to multiply the x-linear term with the LCM of
-// the coefficient's denominators (2 in this case). Introduced on Jan 25th
+// the coefficient's denominators (2 in this case).  Introduced on Jan 25th
 // 2000 and fixed on Jan 31th.
 static unsigned paranoia_check9(void)
 {
@@ -241,6 +241,31 @@ static unsigned paranoia_check9(void)
 
     if (!f.is_equal(1-2*x+pow(x,2)/2)) {
         clog << "normal(" << e << ") returns " << f << " instead of 1-2*x+1/2*x^2\n";
+        ++result;
+    }
+    return result;
+}
+
+// I have no idea when this broke.  It has been working long ago, before 0.4.0
+// and on Feb 13th 2000 I found out that things like 2^(3/2) throw an exception
+// "power::eval(): pow(0,0) is undefined" instead of simplifying to 2*2^(1/2).
+// It was fixed that same day.
+static unsigned paranoia_check10(void)
+{
+    unsigned result = 0;
+    
+    ex b = numeric(2);
+    ex e = numeric(3,2);
+    ex r;
+    
+    try {
+        r = pow(b,e).eval();
+        if (!(r-2*sqrt(ex(2))).is_zero()) {
+            clog << "2^(3/2) erroneously returned " << r << " instead of 2*sqrt(2)" << endl;
+            ++result;
+        }
+    } catch (const exception &e) {
+        clog << "2^(3/2) throws " << e.what() << endl;
         ++result;
     }
     return result;
@@ -262,6 +287,7 @@ unsigned paranoia_check(void)
     result += paranoia_check7();
     result += paranoia_check8();
     result += paranoia_check9();
+    result += paranoia_check10();
 
     if (!result) {
         cout << " passed ";

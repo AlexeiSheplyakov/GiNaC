@@ -953,7 +953,6 @@ void expairseq::make_flat(const exvector & v)
         (*cit).printraw(cout);
     }
     cout << endl;
-    cout.flush();
     */
 }
 
@@ -965,11 +964,12 @@ void expairseq::make_flat(const epvector & v)
     // and their cumulative number of operands
     int nexpairseqs=0;
     int noperands=0;
-    cit=v.begin();
+
+    cit = v.begin();
     while (cit!=citend) {
         if (cit->rest.bp->tinfo()==tinfo()) {
             nexpairseqs++;
-            noperands+=ex_to_expairseq((*cit).rest).seq.size();
+            noperands += ex_to_expairseq((*cit).rest).seq.size();
         }
         ++cit;
     }
@@ -978,7 +978,7 @@ void expairseq::make_flat(const epvector & v)
     seq.reserve(v.size()+noperands-nexpairseqs);
 
     // copy elements and split off numerical part
-    cit=v.begin();
+    cit = v.begin();
     while (cit!=citend) {
         if ((cit->rest.bp->tinfo()==tinfo())&&can_make_flat(*cit)) {
             const expairseq & subseqref=ex_to_expairseq((*cit).rest);

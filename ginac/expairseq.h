@@ -165,7 +165,8 @@ protected:
                             vector<bool> & touched,
                             unsigned & number_of_zeroes);
     bool has_coeff_0(void) const;
-    void add_numerics_to_hashtab(epvector::iterator first_numeric,                                              epvector::const_iterator last_non_zero);
+    void add_numerics_to_hashtab(epvector::iterator first_numeric,
+                                 epvector::const_iterator last_non_zero);
 #endif // def EXPAIRSEQ_USE_HASHTAB
     bool is_canonical() const;
     epvector * expandchildren(unsigned options) const;

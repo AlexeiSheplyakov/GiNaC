@@ -92,7 +92,7 @@ mul::mul(const ex & lh, const ex & rh)
 {
     debugmsg("mul constructor from ex,ex",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_mul;
-    overall_coeff=_ex1();
+    overall_coeff = _ex1();
     construct_from_2_ex(lh,rh);
     GINAC_ASSERT(is_canonical());
 }
@@ -101,33 +101,16 @@ mul::mul(const exvector & v)
 {
     debugmsg("mul constructor from exvector",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_mul;
-    overall_coeff=_ex1();
+    overall_coeff = _ex1();
     construct_from_exvector(v);
     GINAC_ASSERT(is_canonical());
 }
-
-/*
-mul::mul(const epvector & v, bool do_not_canonicalize)
-{
-    debugmsg("mul constructor from epvector,bool",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_mul;
-    if (do_not_canonicalize) {
-        seq=v;
-#ifdef EXPAIRSEQ_USE_HASHTAB
-        combine_same_terms(); // to build hashtab
-#endif // def EXPAIRSEQ_USE_HASHTAB
-    } else {
-        construct_from_epvector(v);
-    }
-    GINAC_ASSERT(is_canonical());
-}
-*/
 
 mul::mul(const epvector & v)
 {
     debugmsg("mul constructor from epvector",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_mul;
-    overall_coeff=_ex1();
+    overall_coeff = _ex1();
     construct_from_epvector(v);
     GINAC_ASSERT(is_canonical());
 }
@@ -136,7 +119,7 @@ mul::mul(const epvector & v, const ex & oc)
 {
     debugmsg("mul constructor from epvector,ex",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_mul;
-    overall_coeff=oc;
+    overall_coeff = oc;
     construct_from_epvector(v);
     GINAC_ASSERT(is_canonical());
 }
@@ -146,7 +129,7 @@ mul::mul(epvector * vp, const ex & oc)
     debugmsg("mul constructor from epvector *,ex",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_mul;
     GINAC_ASSERT(vp!=0);
-    overall_coeff=oc;
+    overall_coeff = oc;
     construct_from_epvector(*vp);
     delete vp;
     GINAC_ASSERT(is_canonical());
@@ -161,7 +144,7 @@ mul::mul(const ex & lh, const ex & mh, const ex & rh)
     factors.push_back(lh);
     factors.push_back(mh);
     factors.push_back(rh);
-    overall_coeff=_ex1();
+    overall_coeff = _ex1();
     construct_from_exvector(factors);
     GINAC_ASSERT(is_canonical());
 }

@@ -338,18 +338,18 @@ ex power::eval(int level) const
     const ex & ebasis    = level==1 ? basis    : basis.eval(level-1);
     const ex & eexponent = level==1 ? exponent : exponent.eval(level-1);
 
-    bool basis_is_numerical=0;
-    bool exponent_is_numerical=0;
+    bool basis_is_numerical = 0;
+    bool exponent_is_numerical = 0;
     numeric * num_basis;
     numeric * num_exponent;
 
     if (is_exactly_of_type(*ebasis.bp,numeric)) {
-        basis_is_numerical=1;
-        num_basis=static_cast<numeric *>(ebasis.bp);
+        basis_is_numerical = 1;
+        num_basis = static_cast<numeric *>(ebasis.bp);
     }
     if (is_exactly_of_type(*eexponent.bp,numeric)) {
-        exponent_is_numerical=1;
-        num_exponent=static_cast<numeric *>(eexponent.bp);
+        exponent_is_numerical = 1;
+        num_exponent = static_cast<numeric *>(eexponent.bp);
     }
 
     // ^(x,0) -> 1 (0^0 also handled here)
@@ -391,10 +391,10 @@ ex power::eval(int level) const
         if (basis_is_crational && exponent_is_crational
             && num_exponent->is_real()
             && !num_exponent->is_integer()) {
-            numeric r, q, n, m;
-            n = num_exponent->numer();
-            m = num_exponent->denom();
-            q = iquo(n, m, r);
+            numeric n = num_exponent->numer();
+            numeric m = num_exponent->denom();
+            numeric r;
+            numeric q = iquo(n, m, r);
             if (r.is_negative()) {
                 r = r.add(m);
                 q = q.sub(_num1());
@@ -402,29 +402,23 @@ ex power::eval(int level) const
             if (q.is_zero())  // the exponent was in the allowed range 0<(n/m)<1
                 return this->hold();
             else {
-                epvector res(2);
+                epvector res;
+                res.reserve(1);
                 res.push_back(expair(ebasis,r.div(m)));
-                res.push_back(expair(ex(num_basis->power(q)),_ex1()));
-                return (new mul(res))->setflag(status_flags::dynallocated | status_flags::evaluated);
-                /*return mul(num_basis->power(q),
-                           power(ex(*num_basis),ex(r.div(m)))).hold();
-                */
-                /* return (new mul(num_basis->power(q),
-                   power(*num_basis,r.div(m)).hold()))->setflag(status_flags::dynallocated | status_flags::evaluated);
-                */
+                return (new mul(res,ex(num_basis->power(q))))->setflag(status_flags::dynallocated | status_flags::evaluated);
             }
         }
     }
 
     // ^(^(x,c1),c2) -> ^(x,c1*c2)
     // (c1, c2 numeric(), c2 integer or -1 < c1 <= 1,
-    // case c1=1 should not happen, see below!)
+    // case c1==1 should not happen, see below!)
     if (exponent_is_numerical && is_ex_exactly_of_type(ebasis,power)) {
-        const power & sub_power=ex_to_power(ebasis);
-        const ex & sub_basis=sub_power.basis;
-        const ex & sub_exponent=sub_power.exponent;
+        const power & sub_power = ex_to_power(ebasis);
+        const ex & sub_basis = sub_power.basis;
+        const ex & sub_exponent = sub_power.exponent;
         if (is_ex_exactly_of_type(sub_exponent,numeric)) {
-            const numeric & num_sub_exponent=ex_to_numeric(sub_exponent);
+            const numeric & num_sub_exponent = ex_to_numeric(sub_exponent);
             GINAC_ASSERT(num_sub_exponent!=numeric(1));
             if (num_exponent->is_integer() || abs(num_sub_exponent)<1) {
                 return power(sub_basis,num_sub_exponent.mul(*num_exponent));
