@@ -319,8 +319,10 @@ ex clifford::simplify_ncmul(const exvector & v) const
 
 	// Remove equal adjacent gammas
 	if (s.size() >= 2) {
-		exvector::iterator it = s.begin(), itend = s.end() - 1;
-		while (it != itend) {
+		exvector::iterator it, itend = s.end() - 1;
+		for (it = s.begin(); it != itend; ++it) {
+			if (!is_a<clifford>(it[0]))
+				continue;
 			ex & a = it[0];
 			ex & b = it[1];
 			if (is_a<diracgamma>(a.op(0)) && is_a<diracgamma>(b.op(0))) {
@@ -341,7 +343,6 @@ ex clifford::simplify_ncmul(const exvector & v) const
 					something_changed = true;
 				}
 			}
-			++it;
 		}
 	}
 
