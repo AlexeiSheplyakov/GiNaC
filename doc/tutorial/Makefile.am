@@ -4,8 +4,9 @@
 FIG = classhierarchy.fig repnaive.fig reppair.fig repreal.fig
 PNG = $(addsuffix .png, $(basename $(FIG)))
 EPS = $(addsuffix .eps, $(basename $(FIG)))
+TXT = $(addsuffix .txt, $(basename $(FIG)))
 
-SUFFIXES = .fig .png .eps
+SUFFIXES = .fig .png .eps .txt
 
 %.eps: %.fig
 	@if [ "${FIG2DEV}" ]; then \
@@ -36,7 +37,7 @@ ginactutorialdir = $(ginacdocdir)/tutorial
 ginactutorial_DATA = @TUTORIAL_TARGETS@
 
 CLEANFILES = $(EPS) $(PNG) ginac.html
-EXTRA_DIST = $(FIG)
+EXTRA_DIST = $(FIG) $(TXT)
 
 install-data-local:
 	@for p in $(PNG); do \

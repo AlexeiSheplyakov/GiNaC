@@ -100,8 +100,9 @@ YACC = @YACC@
 FIG = classhierarchy.fig repnaive.fig reppair.fig repreal.fig
 PNG = $(addsuffix .png, $(basename $(FIG)))
 EPS = $(addsuffix .eps, $(basename $(FIG)))
+TXT = $(addsuffix .txt, $(basename $(FIG)))
 
-SUFFIXES = .fig .png .eps
+SUFFIXES = .fig .png .eps .txt
 
 info_TEXINFOS = ginac.texi
 
@@ -110,7 +111,7 @@ ginactutorialdir = $(ginacdocdir)/tutorial
 ginactutorial_DATA = @TUTORIAL_TARGETS@
 
 CLEANFILES = $(EPS) $(PNG) ginac.html
-EXTRA_DIST = $(FIG)
+EXTRA_DIST = $(FIG) $(TXT)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../../config.h
 CONFIG_CLEAN_FILES = 
@@ -130,7 +131,7 @@ TAR = tar
 GZIP_ENV = --best
 all: all-redirect
 .SUFFIXES:
-.SUFFIXES: .dvi .eps .fig .info .png .ps .texi .texinfo .txi
+.SUFFIXES: .dvi .eps .fig .info .png .ps .texi .texinfo .txi .txt
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
 	cd $(top_srcdir) && $(AUTOMAKE) --gnu doc/tutorial/Makefile
 
