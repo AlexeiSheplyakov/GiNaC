@@ -271,7 +271,7 @@ detail here. Please refer to the GiNaC documentation.
 \- evaluates an expression to a floating point number
 .br
 .BI evalm( expression )
-\- evaluates sums and products of matrices
+\- evaluates sums, products and integer powers of matrices
 .br
 .BI expand( expression )
 \- expands an expression

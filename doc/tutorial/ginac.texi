@@ -2765,7 +2765,7 @@ A @dfn{wildcard} is a special kind of object (of class @code{wildcard}) that
 represents an arbitrary expression. Every wildcard has a @dfn{label} which is
 an unsigned integer number to allow having multiple different wildcards in a
 pattern. Wildcards are printed as @samp{$label} (this is also the way they
-are specified in @command{ginsh}. In C++ code, wildcard objects are created
+are specified in @command{ginsh}). In C++ code, wildcard objects are created
 with the call
 
 @example
@@ -2905,7 +2905,7 @@ FAIL
 > match(a*b^2,a^$1*b^$2);
 FAIL
   (The matching is syntactic, not algebraic, and "a" doesn't match "a^$1"
-   even if a==a^1.)
+   even though a==a^1.)
 > match(x*atan2(x,x^2),$0*atan2($0,$0^2));
 @{$0==x@}
 > match(atan2(y,x^2),atan2(y,$0));
