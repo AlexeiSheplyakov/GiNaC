@@ -1698,7 +1698,7 @@ ex lcm(const ex &a, const ex &b, bool check_args)
  *            polynomial in x.
  *  @param x  variable to factor in
  *  @return   vector of factors sorted in ascending degree */
-exvector sqrfree_yun(const ex &a, const symbol &x)
+static exvector sqrfree_yun(const ex &a, const symbol &x)
 {
 	int i = 0;
 	exvector res;

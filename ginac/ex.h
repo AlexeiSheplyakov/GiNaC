@@ -39,7 +39,8 @@ class scalar_products;
 
 /** Lightweight wrapper for GiNaC's symbolic objects.  Basically all it does is
  *  to hold a pointer to the other objects, manage the reference counting and
- *  provide methods for manipulation of these objects. */
+ *  provide methods for manipulation of these objects.  (Some people call such
+ *  a thing a proxy class.) */
 class ex
 {
 	friend class basic;

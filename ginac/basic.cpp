@@ -371,7 +371,8 @@ ex basic::derivative(const symbol & s) const
 /** Returns order relation between two objects of same type.  This needs to be
  *  implemented by each class. It may never return anything else than 0,
  *  signalling equality, or +1 and -1 signalling inequality and determining
- *  the canonical ordering. */
+ *  the canonical ordering.  (Perl hackers will wonder why C++ doesn't feature
+ *  the spaceship operator <=> for denoting just this.) */
 int basic::compare_same_type(const basic & other) const
 {
 	return compare_pointers(this, &other);
@@ -502,16 +503,18 @@ int basic::compare(const basic & other) const
 	
 	GINAC_ASSERT(typeid(*this)==typeid(other));
 	
-	int cmpval = compare_same_type(other);
-	if ((cmpval!=0) && (hash_this<0x80000000U)) {
+// 	int cmpval = compare_same_type(other);
+// 	if ((cmpval!=0) && (hash_this<0x80000000U)) {
 // 		std::cout << "hash collision, same type: " 
 // 		          << *this << " and " << other << std::endl;
 // 		this->printraw(std::cout);
 // 		std::cout << " and ";
 // 		other.printraw(std::cout);
 // 		std::cout << std::endl;
-	}
-	return cmpval;
+// 	}
+// 	return cmpval;
+	
+	return compare_same_type(other);
 }
 
 /** Test for equality.
