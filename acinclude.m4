@@ -17,7 +17,7 @@ AC_TRY_RUN([
 #include <sys/types.h>
 #include <readline/readline.h>
 
-main()
+int main()
 {
     FILE *fd;
     fd = fopen("conftest.out", "w");
