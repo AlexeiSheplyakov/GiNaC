@@ -1,6 +1,6 @@
 This file records noteworthy changes.
 
-0.8.1 (15 April 2001)
+0.8.1 (16 April 2001)
 * degree(), ldegree(), coeff(), lcoeff(), tcoeff() and collect() can now
   be used with constants, functions and indexed expressions as well, so you
   can use it to collect by powers of Pi or sin(x), or to find the coefficient
