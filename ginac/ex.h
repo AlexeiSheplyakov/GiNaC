@@ -26,6 +26,7 @@
 #include <iosfwd>
 #include <iterator>
 #include <functional>
+#include <stack>
 
 #include "basic.h"
 #include "ptr.h"
@@ -53,6 +54,7 @@ static library_init library_initializer;
 
 
 class scalar_products;
+class const_iterator;
 
 
 /** Lightweight wrapper for GiNaC's symbolic objects.  Basically all it does is
@@ -91,140 +93,6 @@ public:
 	ex(const std::string &s, const ex &l);
 	
 public:
-	// Iterators
-	class const_iterator : public std::iterator<std::random_access_iterator_tag, ex, ptrdiff_t, const ex *, const ex &>
-	{
-		friend class ex;
-
-	public:
-		const_iterator() throw() {}
-		const_iterator(const basic *bp_, size_t i_) throw() : bp(bp_), i(i_) {}
-
-		bool operator==(const const_iterator &other) const throw()
-		{
-			return bp == other.bp && i == other.i;
-		}
-
-		bool operator!=(const const_iterator &other) const throw()
-		{
-			return !(*this == other);
-		}
-
-		bool operator<(const const_iterator &other) const throw()
-		{
-			return i < other.i;
-		}
-
-		bool operator>(const const_iterator &other) const throw()
-		{
-			return other < *this;
-		}
-
-		bool operator<=(const const_iterator &other) const throw()
-		{
-			return !(other < *this);
-		}
-
-		bool operator>=(const const_iterator &other) const throw()
-		{
-			return !(*this < other);
-		}
-
-		// This should return an ex&, but that would be a reference to a
-		// temporary value
-		ex operator*() const
-		{
-			return bp->op(i);
-		}
-
-#if 0
-		// How do we make this work in the context of the "reference to
-		// temporary" problem? Return an auto_ptr?
-		pointer operator->() const
-		{
-			return &(operator*());
-		}
-#endif
-
-		const_iterator &operator++() throw()
-		{
-			++i;
-			return *this;
-		}
-
-		const_iterator operator++(int) throw()
-		{
-			const_iterator tmp = *this;
-			++i;
-			return tmp;
-		}
-
-		const_iterator &operator+=(difference_type n) throw()
-		{
-			i += n;
-			return *this;
-		}
-
-		const_iterator operator+(difference_type n) const throw()
-		{
-			return const_iterator(bp, i + n);
-		}
-
-		inline friend const_iterator operator+(difference_type n, const const_iterator &it) throw()
-		{
-			return const_iterator(it.bp, it.i + n);
-		}
-
-		const_iterator &operator--() throw()
-		{
-			--i;
-			return *this;
-		}
-
-		const_iterator operator--(int) throw()
-		{
-			const_iterator tmp = *this;
-			--i;
-			return tmp;
-		}
-
-		const_iterator &operator-=(difference_type n) throw()
-		{
-			i -= n;
-			return *this;
-		}
-
-		const_iterator operator-(difference_type n) const throw()
-		{
-			return const_iterator(bp, i - n);
-		}
-
-		inline friend difference_type operator-(const const_iterator &lhs, const const_iterator &rhs) throw()
-		{
-			return lhs.i - rhs.i;
-		}
-
-		ex operator[](difference_type n) const
-		{
-			return bp->op(i + n);
-		}
-
-	protected:
-		const basic *bp;
-		size_t i;
-	};
-
-	const_iterator begin() const throw() { return const_iterator(get_pointer(bp), 0); }
-	const_iterator end() const throw() { return const_iterator(get_pointer(bp), bp->nops()); }
-
-#if 0
-	// This doesn't work because of the "reference to temporary" problem
-	// in operator*()
-	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
-	const_reverse_iterator rbegin() const { return const_reverse_iterator(end()); }
-	const_reverse_iterator rend() const { return const_reverse_iterator(begin()); }
-#endif
-
 	// non-virtual functions in this class
 public:
 	/** Efficiently swap the contents of two expressions. */
@@ -234,6 +102,10 @@ public:
 		GINAC_ASSERT(other.bp->flags & status_flags::dynallocated);
 		bp.swap(other.bp);
 	}
+
+	// iterators
+	const_iterator begin() const throw();
+	const_iterator end() const throw();
 
 	// evaluation
 	ex eval(int level = 0) const { return bp->eval(level); }
@@ -499,6 +371,298 @@ bool ex::is_equal(const ex & other) const
 	if (bp == other.bp)  // trivial case: both expressions point to same basic
 		return true;
 	return bp->is_equal(*other.bp);
+}
+
+
+// Iterators
+
+class const_iterator : public std::iterator<std::random_access_iterator_tag, ex, ptrdiff_t, const ex *, const ex &>
+{
+	friend class ex;
+	friend class const_preorder_iterator;
+	friend class const_postorder_iterator;
+
+public:
+	const_iterator() throw() {}
+
+private:
+	const_iterator(const ex &e_, size_t i_) throw() : e(e_), i(i_) {}
+
+public:
+	// This should return an ex&, but that would be a reference to a
+	// temporary value
+	ex operator*() const
+	{
+		return e.op(i);
+	}
+
+#if 0
+	// How do we make this work in the context of the "reference to
+	// temporary" problem? Return an auto_ptr?
+	pointer operator->() const
+	{
+		return &(operator*());
+	}
+#endif
+
+	ex operator[](difference_type n) const
+	{
+		return e.op(i + n);
+	}
+
+	const_iterator &operator++() throw()
+	{
+		++i;
+		return *this;
+	}
+
+	const_iterator operator++(int) throw()
+	{
+		const_iterator tmp = *this;
+		++i;
+		return tmp;
+	}
+
+	const_iterator &operator+=(difference_type n) throw()
+	{
+		i += n;
+		return *this;
+	}
+
+	const_iterator operator+(difference_type n) const throw()
+	{
+		return const_iterator(e, i + n);
+	}
+
+	inline friend const_iterator operator+(difference_type n, const const_iterator &it) throw()
+	{
+		return const_iterator(it.e, it.i + n);
+	}
+
+	const_iterator &operator--() throw()
+	{
+		--i;
+		return *this;
+	}
+
+	const_iterator operator--(int) throw()
+	{
+		const_iterator tmp = *this;
+		--i;
+		return tmp;
+	}
+
+	const_iterator &operator-=(difference_type n) throw()
+	{
+		i -= n;
+		return *this;
+	}
+
+	const_iterator operator-(difference_type n) const throw()
+	{
+		return const_iterator(e, i - n);
+	}
+
+	inline friend difference_type operator-(const const_iterator &lhs, const const_iterator &rhs) throw()
+	{
+		return lhs.i - rhs.i;
+	}
+
+	bool operator==(const const_iterator &other) const throw()
+	{
+		return are_ex_trivially_equal(e, other.e) && i == other.i;
+	}
+
+	bool operator!=(const const_iterator &other) const throw()
+	{
+		return !(*this == other);
+	}
+
+	bool operator<(const const_iterator &other) const throw()
+	{
+		return i < other.i;
+	}
+
+	bool operator>(const const_iterator &other) const throw()
+	{
+		return other < *this;
+	}
+
+	bool operator<=(const const_iterator &other) const throw()
+	{
+		return !(other < *this);
+	}
+
+	bool operator>=(const const_iterator &other) const throw()
+	{
+		return !(*this < other);
+	}
+
+protected:
+	ex e; // this used to be a "const basic *", but in view of object fusion that wouldn't be safe
+	size_t i;
+};
+
+namespace internal {
+
+struct _iter_rep {
+	_iter_rep(const ex &e_, size_t i_, size_t i_end_) : e(e_), i(i_), i_end(i_end_) {}
+
+	bool operator==(const _iter_rep &other) const throw()
+	{
+		return are_ex_trivially_equal(e, other.e) && i == other.i;
+	}
+
+	bool operator!=(const _iter_rep &other) const throw()
+	{
+		return !(*this == other);
+	}
+
+	ex e;
+	size_t i;
+	size_t i_end;
+};
+
+} // namespace internal
+
+class const_preorder_iterator : public std::iterator<std::forward_iterator_tag, ex, ptrdiff_t, const ex *, const ex &>
+{
+public:
+	const_preorder_iterator() throw() {}
+
+	// Provide implicit conversion from const_iterator, so begin() and
+	// end() can be used to create const_preorder_iterators
+	const_preorder_iterator(const const_iterator & cit)
+	{
+		s.push(internal::_iter_rep(cit.e, cit.i, cit.e.nops()));
+	}
+
+public:
+	ex operator*() const
+	{
+		const internal::_iter_rep & r = s.top();
+		return r.e.op(r.i);
+	}
+
+	// operator->() not implemented (see above)
+
+	const_preorder_iterator &operator++()
+	{
+		increment();
+		return *this;
+	}
+
+	const_preorder_iterator operator++(int)
+	{
+		const_preorder_iterator tmp = *this;
+		increment();
+		return tmp;
+	}
+
+	bool operator==(const const_preorder_iterator &other) const throw()
+	{
+		return s == other.s;
+	}
+
+	bool operator!=(const const_preorder_iterator &other) const throw()
+	{
+		return !(*this == other);
+	}
+
+private:
+	std::stack<internal::_iter_rep> s;
+
+	void increment()
+	{
+		internal::_iter_rep & current = s.top();
+		const ex & child = current.e.op(current.i);
+		size_t n = child.nops();
+		if (n)
+			s.push(internal::_iter_rep(child, 0, n));
+		else
+			++current.i;
+
+		while (s.top().i == s.top().i_end && s.size() > 1) {
+			s.pop();
+			++s.top().i;
+		}
+	}
+};
+
+class const_postorder_iterator : public std::iterator<std::forward_iterator_tag, ex, ptrdiff_t, const ex *, const ex &>
+{
+public:
+	const_postorder_iterator() throw() {}
+
+	// Provide implicit conversion from const_iterator, so begin() and
+	// end() can be used to create const_postorder_iterators
+	const_postorder_iterator(const const_iterator & cit)
+	{
+		s.push(internal::_iter_rep(cit.e, cit.i, cit.e.nops()));
+		descend();
+	}
+
+public:
+	ex operator*() const
+	{
+		const internal::_iter_rep & r = s.top();
+		return r.e.op(r.i);
+	}
+
+	// operator->() not implemented
+
+	const_postorder_iterator &operator++()
+	{
+		increment();
+		return *this;
+	}
+
+	const_postorder_iterator operator++(int)
+	{
+		const_postorder_iterator tmp = *this;
+		increment();
+		return tmp;
+	}
+
+	bool operator==(const const_postorder_iterator &other) const throw()
+	{
+		return s == other.s;
+	}
+
+	bool operator!=(const const_postorder_iterator &other) const throw()
+	{
+		return !(*this == other);
+	}
+
+private:
+	std::stack<internal::_iter_rep> s;
+
+	void descend()
+	{
+		while (s.top().i != s.top().i_end && s.top().e.op(s.top().i).nops() > 0) {
+			const internal::_iter_rep & current = s.top();
+			const ex & child = current.e.op(current.i);
+			s.push(internal::_iter_rep(child, 0, child.nops()));
+		}
+	}
+
+	void increment()
+	{
+		++s.top().i;
+		descend();
+		if (s.top().i == s.top().i_end && s.size() > 1)
+			s.pop();
+	}
+};
+
+inline const_iterator ex::begin() const throw()
+{
+	return const_iterator(*this, 0);
+}
+
+inline const_iterator ex::end() const throw()
+{
+	return const_iterator(*this, nops());
 }
 
 
