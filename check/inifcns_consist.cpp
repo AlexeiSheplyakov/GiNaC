@@ -33,11 +33,11 @@ static unsigned inifcns_consist_sin(void)
     // sin(n*Pi) == 0?
     errorflag = false;
     for (int n=-10; n<=10; ++n) {
-        if (  sin(n*Pi).eval() != numeric(0) ||
-             !sin(n*Pi).eval().info(info_flags::integer) )
+        if ( sin(n*Pi).eval() != numeric(0) ||
+            !sin(n*Pi).eval().info(info_flags::integer))
             errorflag = true;
     }
-    if ( errorflag ) {
+    if (errorflag) {
         clog << "sin(n*Pi) with integer n does not always return exact 0"
              << endl;
         ++result;
@@ -46,12 +46,12 @@ static unsigned inifcns_consist_sin(void)
     // sin((n+1/2)*Pi) == {+|-}1?
     errorflag = false;
     for (int n=-10; n<=10; ++n) {
-        if ( ! sin((n+numeric(1,2))*Pi).eval().info(info_flags::integer) ||
-             !(sin((n+numeric(1,2))*Pi).eval() == numeric(1) ||
-               sin((n+numeric(1,2))*Pi).eval() == numeric(-1)) )
+        if (! sin((n+numeric(1,2))*Pi).eval().info(info_flags::integer) ||
+            !(sin((n+numeric(1,2))*Pi).eval() == numeric(1) ||
+              sin((n+numeric(1,2))*Pi).eval() == numeric(-1)))
             errorflag = true;
     }
-    if ( errorflag ) {
+    if (errorflag) {
         clog << "sin((n+1/2)*Pi) with integer n does not always return exact {+|-}1"
              << endl;
         ++result;
@@ -69,11 +69,11 @@ static unsigned inifcns_consist_cos(void)
     // cos((n+1/2)*Pi) == 0?
     errorflag = false;
     for (int n=-10; n<=10; ++n) {
-        if (  cos((n+numeric(1,2))*Pi).eval() != numeric(0) ||
-             !cos((n+numeric(1,2))*Pi).eval().info(info_flags::integer) )
+        if ( cos((n+numeric(1,2))*Pi).eval() != numeric(0) ||
+            !cos((n+numeric(1,2))*Pi).eval().info(info_flags::integer))
             errorflag = true;
     }
-    if ( errorflag ) {
+    if (errorflag) {
         clog << "cos((n+1/2)*Pi) with integer n does not always return exact 0"
              << endl;
         ++result;
@@ -82,12 +82,12 @@ static unsigned inifcns_consist_cos(void)
     // cos(n*Pi) == 0?
     errorflag = false;
     for (int n=-10; n<=10; ++n) {
-        if ( ! cos(n*Pi).eval().info(info_flags::integer) ||
-             !(cos(n*Pi).eval() == numeric(1) ||
-               cos(n*Pi).eval() == numeric(-1)) )
+        if (! cos(n*Pi).eval().info(info_flags::integer) ||
+            !(cos(n*Pi).eval() == numeric(1) ||
+              cos(n*Pi).eval() == numeric(-1)))
             errorflag = true;
     }
-    if ( errorflag ) {
+    if (errorflag) {
         clog << "cos(n*Pi) with integer n does not always return exact {+|-}1"
              << endl;
         ++result;
@@ -174,40 +174,65 @@ static unsigned inifcns_consist_gamma(void)
     ex e;
     
     e = gamma(ex(1));
-    for (int i=2; i<8; ++i) {
+    for (int i=2; i<8; ++i)
         e += gamma(ex(i));
-    }
-    if ( e != numeric(874) ) {
+    if (e != numeric(874)) {
         clog << "gamma(1)+...+gamma(7) erroneously returned "
              << e << " instead of 874" << endl;
         ++result;
     }
     
     e = gamma(ex(1));
-    for (int i=2; i<8; ++i) {
-        e *= gamma(ex(i));
-    }
-    if ( e != numeric(24883200) ) {
+    for (int i=2; i<8; ++i)
+        e *= gamma(ex(i));    
+    if (e != numeric(24883200)) {
         clog << "gamma(1)*...*gamma(7) erroneously returned "
              << e << " instead of 24883200" << endl;
         ++result;
     }
-              
+    
     e = gamma(ex(numeric(5, 2)))*gamma(ex(numeric(9, 2)))*64;
-    if ( e != 315*Pi ) {
+    if (e != 315*Pi) {
         clog << "64*gamma(5/2)*gamma(9/2) erroneously returned "
              << e << " instead of 315*Pi" << endl;
         ++result;
     }
     
     e = gamma(ex(numeric(-13, 2)));
-    for (int i=-13; i<7; i=i+2) {
+    for (int i=-13; i<7; i=i+2)
         e += gamma(ex(numeric(i, 2)));
-    }
     e = (e*gamma(ex(numeric(15, 2)))*numeric(512));
-    if ( e != numeric(633935)*Pi ) {
+    if (e != numeric(633935)*Pi) {
         clog << "512*(gamma(-13/2)+...+gamma(5/2))*gamma(15/2) erroneously returned "
              << e << " instead of 633935*Pi" << endl;
+        ++result;
+    }
+    
+    return result;
+}
+
+/* Simple tests on the Riemann Zeta function.  We stuff in arguments where the
+ * result exists in closed form and check if it's ok.  Of course, this checks
+ * the Bernoulli numbers as a side effect. */
+static unsigned inifcns_consist_zeta(void)
+{
+    unsigned result = 0;
+    ex e;
+    
+    for (int i=0; i<13; i+=2)
+        e += zeta(i)/pow(Pi,i);
+    if (e!=numeric(-204992279,638512875)) {
+        clog << "zeta(0) + zeta(2) + ... + zeta(12) erroneously returned "
+             << e << " instead of -204992279/638512875" << endl;
+        ++result;
+    }
+    
+    e = 0;
+    for (int i=-1; i>-16; i--)
+        e += zeta(i);
+    if (e!=numeric(487871,1633632)) {
+        clog << "zeta(-1) + zeta(-2) + ... + zeta(-15) erroneously returned "
+             << e << " instead of 487871/1633632" << endl;
         ++result;
     }
     
@@ -225,6 +250,7 @@ unsigned inifcns_consist(void)
     result += inifcns_consist_cos();
     result += inifcns_consist_trans();
     result += inifcns_consist_gamma();
+    result += inifcns_consist_zeta();
 
     if ( !result ) {
         cout << " passed ";
