@@ -269,7 +269,7 @@ inline numeric pow(const numeric & x, const numeric & y)
 inline numeric inverse(const numeric & x)
 { return x.inverse(); }
 
-inline bool csgn(const numeric & x)
+inline int csgn(const numeric & x)
 { return x.csgn(); }
 
 inline bool is_zero(const numeric & x)
@@ -308,16 +308,16 @@ inline bool is_cinteger(const numeric & x)
 inline bool is_crational(const numeric & x)
 { return x.is_crational(); }
 
-inline numeric real(const numeric & x)
+inline const numeric real(const numeric & x)
 { return x.real(); }
 
-inline numeric imag(const numeric & x)
+inline const numeric imag(const numeric & x)
 { return x.imag(); }
 
-inline numeric numer(const numeric & x)
+inline const numeric numer(const numeric & x)
 { return x.numer(); }
 
-inline numeric denom(const numeric & x)
+inline const numeric denom(const numeric & x)
 { return x.denom(); }
 
 // numeric evaluation functions for class constant objects:
