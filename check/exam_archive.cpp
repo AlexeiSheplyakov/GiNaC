@@ -47,7 +47,7 @@ unsigned exam_archive(void)
 	    )
 	  + dirac_gamma(varidx(mu, dim)) * dirac_gamma(varidx(mu, 4-dim, true))
 	    * color_T(idx(x, 8), 1) * color_h(idx(x, 8), idx(y, 8), idx(2, 8))
-	    * indexed(x, indexed::antisymmetric, idx(2*y+1, x), varidx(-mu, 5))
+	    * indexed(x, sy_anti(), idx(2*y+1, x), varidx(-mu, 5))
 	  - 2 * spinor_metric(spinidx(x), spinidx(y))
 	  + 0.775;
 
@@ -69,6 +69,8 @@ unsigned exam_archive(void)
 		     << "erroneously returned " << f << endl;
 		++result;
 	}
+
+	cout << '.' << flush;
 	
 	if (!result) {
 		cout << " passed " << endl;

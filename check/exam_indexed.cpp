@@ -133,9 +133,9 @@ static unsigned epsilon_check(void)
 	result += check_equal_simplify(lorentz_g(mu.toggle_variance(), nu.toggle_variance()) * lorentz_eps(mu, nu, rho, sigma), 0);
 
 	// contraction with symmetric tensor is zero
-	result += check_equal_simplify(lorentz_eps(mu, nu, rho, sigma) * indexed(d, indexed::symmetric, mu.toggle_variance(), nu.toggle_variance()), 0);
-	result += check_equal_simplify(lorentz_eps(mu, nu, rho, sigma) * indexed(d, indexed::symmetric, nu.toggle_variance(), sigma.toggle_variance(), rho.toggle_variance()), 0);
-	ex e = lorentz_eps(mu, nu, rho, sigma) * indexed(d, indexed::symmetric, mu.toggle_variance(), tau);
+	result += check_equal_simplify(lorentz_eps(mu, nu, rho, sigma) * indexed(d, sy_symm(), mu.toggle_variance(), nu.toggle_variance()), 0);
+	result += check_equal_simplify(lorentz_eps(mu, nu, rho, sigma) * indexed(d, sy_symm(), nu.toggle_variance(), sigma.toggle_variance(), rho.toggle_variance()), 0);
+	ex e = lorentz_eps(mu, nu, rho, sigma) * indexed(d, sy_symm(), mu.toggle_variance(), tau);
 	result += check_equal_simplify(e, e);
 
 	return result;
@@ -151,22 +151,22 @@ static unsigned symmetry_check(void)
 	symbol A("A"), B("B");
 	ex e;
 
-	result += check_equal(indexed(A, indexed::symmetric, i, j), indexed(A, indexed::symmetric, j, i));
-	result += check_equal(indexed(A, indexed::antisymmetric, i, j) + indexed(A, indexed::antisymmetric, j, i), 0);
-	result += check_equal(indexed(A, indexed::antisymmetric, i, j, k) - indexed(A, indexed::antisymmetric, j, k, i), 0);
-	e = indexed(A, indexed::symmetric, i, j, k) *
-	    indexed(B, indexed::antisymmetric, l, k, i);
+	result += check_equal(indexed(A, sy_symm(), i, j), indexed(A, sy_symm(), j, i));
+	result += check_equal(indexed(A, sy_anti(), i, j) + indexed(A, sy_anti(), j, i), 0);
+	result += check_equal(indexed(A, sy_anti(), i, j, k) - indexed(A, sy_anti(), j, k, i), 0);
+	e = indexed(A, sy_symm(), i, j, k) *
+	    indexed(B, sy_anti(), l, k, i);
 	result += check_equal_simplify(e, 0);
-	e = indexed(A, indexed::symmetric, i, i, j, j) *
-	    indexed(B, indexed::antisymmetric, k, l); // GiNaC 0.8.0 had a bug here
+	e = indexed(A, sy_symm(), i, i, j, j) *
+	    indexed(B, sy_anti(), k, l); // GiNaC 0.8.0 had a bug here
 	result += check_equal_simplify(e, e);
 
 	e = indexed(A, i, j);
 	result += check_equal(symmetrize(e) + antisymmetrize(e), e);
-	e = indexed(A, indexed::symmetric, i, j, k, l);
+	e = indexed(A, sy_symm(), i, j, k, l);
 	result += check_equal(symmetrize(e), e);
 	result += check_equal(antisymmetrize(e), 0);
-	e = indexed(A, indexed::antisymmetric, i, j, k, l);
+	e = indexed(A, sy_anti(), i, j, k, l);
 	result += check_equal(symmetrize(e), 0);
 	result += check_equal(antisymmetrize(e), e);
 
