@@ -66,4 +66,9 @@
 #include "lortensor.h"
 #endif // ndef GINAC_BASE_ONLY
 
+#ifdef __MAKECINT__
+#pragma link C++ nestedclass;
+#pragma link C++ nestedtypedef;
+#endif
+
 #endif // ndef __GINAC_H__
