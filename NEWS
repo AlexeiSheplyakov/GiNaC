@@ -7,6 +7,7 @@ This file records noteworthy changes.
   floating point numbers include the precision).
 * Fixed a problem in the LaTeX-output of negative fractions.
 * Added print_latex() and print_csrc() to ginsh.
+* The sprem() function is now public.
 
 1.0.11 (18 September 2002)
 * Fixed a possible memory corruption in contractions of indexed objects with
