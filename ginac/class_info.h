@@ -29,6 +29,7 @@
 #include <string>
 #include <iostream>
 #include <iomanip>
+#include <stdexcept>
 
 namespace GiNaC {
 
@@ -52,31 +53,12 @@ public:
 	}
 
 	/** Find class_info by name. */
-	static const class_info *find(const std::string &class_name)
-	{
-		// Use a map for faster lookup. The registered_class_info list doesn't
-		// change at run-time, so it's sufficient to construct the map once
-		// on the first trip through this function.
-		typedef std::map<std::string, const class_info *> name_map_type;
-		static name_map_type name_map;
-		static bool name_map_initialized = false;
+	static const class_info *find(const std::string &class_name);
 
-		if (!name_map_initialized) {
-			// Construct map
-			const class_info *p = first;
-			while (p) {
-				name_map[p->options.get_name()] = p;
-				p = p->next;
-			}
-			name_map_initialized = true;
-		}
+	/** Dump class hierarchy to std::cout. */
+	static void dump_hierarchy(bool verbose = false);
 
-		typename name_map_type::const_iterator it = name_map.find(class_name);
-		if (it == name_map.end())
-			throw (std::runtime_error("class '" + class_name + "' not registered"));
-		else
-			return it->second;
-	}
+	OPT options;
 
 private:
 	struct tree_node {
@@ -87,90 +69,8 @@ private:
 		class_info *info;
 	};
 
-	static void dump_tree(tree_node *n, const std::string & prefix, bool verbose)
-	{
-		std::string name = n->info->options.get_name();
-		std::cout << name;
-		if (verbose)
-			std::cout << " [ID 0x" << std::hex << std::setw(8) << std::setfill('0') << n->info->options.get_id() << std::dec << "]" << std::endl;
-
-		size_t num_children = n->children.size();
-		if (num_children) {
-			for (size_t i = 0; i < num_children; ++i) {
-				if (verbose) {
-					std::cout << prefix << " +- ";
-					if (i == num_children - 1)
-						dump_tree(n->children[i], prefix + "    ", verbose);
-					else
-						dump_tree(n->children[i], prefix + " |  ", verbose);
-				} else {
-					std::string spaces(name.size(), ' ');
-					if (i > 0)
-						std::cout << prefix << spaces;
-					if (num_children == 1)
-						std::cout << " --- ";
-					else if (i > 0)
-						std::cout << "  +- ";
-					else
-						std::cout << " -+- ";
-					if (i == num_children - 1)
-						dump_tree(n->children[i], prefix + spaces + "     ", verbose);
-					else
-						dump_tree(n->children[i], prefix + spaces + "  |  ", verbose);
-				}
-			}
-		} else if (!verbose)
-			std::cout << std::endl;
-	}
-
-public:
-	/** Dump class hierarchy to std::cout. */
-	static void dump_hierarchy(bool verbose = false)
-	{
-		identify_parents();
-
-		// Create tree nodes for all class_infos
-		std::vector<tree_node> tree;
-		for (class_info *p = first; p; p = p->next)
-			tree.push_back(tree_node(p));
-
-		// Identify children for all nodes and find the root
-		tree_node *root = NULL;
-		for (typename std::vector<tree_node>::iterator i = tree.begin(); i != tree.end(); ++i) {
-			class_info *p = i->info->get_parent();
-			if (p) {
-				for (typename std::vector<tree_node>::iterator j = tree.begin(); j != tree.end(); ++j) {
-					if (j->info == p) {
-						j->add_child(&*i);
-						break;
-					}
-				}
-			} else
-				root = &*i;
-		}
-
-		// Print hierarchy tree starting at the root
-		dump_tree(root, "", verbose);
-	}
-
-	OPT options;
-
-private:
-	static void identify_parents()
-	{
-		if (!parents_identified) {
-			for (class_info *p = first; p; p = p->next) {
-				const char *parent_name = p->options.get_parent_name();
-				for (class_info *q = first; q; q = q->next) {
-					if (strcmp(q->options.get_name(), parent_name) == 0) {
-						p->parent = q;
-						break;
-					}
-				}
-			}
-			parents_identified = true;
-		}
-	}
+	static void dump_tree(tree_node *n, const std::string & prefix, bool verbose);
+	static void identify_parents();
 
 	static class_info *first;
 	class_info *next;
@@ -178,6 +78,116 @@ private:
 
 	static bool parents_identified;
 };
+
+template <class OPT>
+const class_info<OPT> *class_info<OPT>::find(const std::string &class_name)
+{
+	// Use a map for faster lookup. The registered_class_info list doesn't
+	// change at run-time, so it's sufficient to construct the map once
+	// on the first trip through this function.
+	typedef std::map<std::string, const class_info *> name_map_type;
+	static name_map_type name_map;
+	static bool name_map_initialized = false;
+
+	if (!name_map_initialized) {
+		// Construct map
+		const class_info *p = first;
+		while (p) {
+			name_map[p->options.get_name()] = p;
+			p = p->next;
+		}
+		name_map_initialized = true;
+	}
+
+	typename name_map_type::const_iterator it = name_map.find(class_name);
+	if (it == name_map.end())
+		throw (std::runtime_error("class '" + class_name + "' not registered"));
+	else
+		return it->second;
+}
+
+template <class OPT>
+void class_info<OPT>::dump_tree(tree_node *n, const std::string & prefix, bool verbose)
+{
+	std::string name = n->info->options.get_name();
+	std::cout << name;
+	if (verbose)
+		std::cout << " [ID 0x" << std::hex << std::setw(8) << std::setfill('0') << n->info->options.get_id() << std::dec << "]" << std::endl;
+
+	size_t num_children = n->children.size();
+	if (num_children) {
+		for (size_t i = 0; i < num_children; ++i) {
+			if (verbose) {
+				std::cout << prefix << " +- ";
+				if (i == num_children - 1)
+					dump_tree(n->children[i], prefix + "    ", verbose);
+				else
+					dump_tree(n->children[i], prefix + " |  ", verbose);
+			} else {
+				std::string spaces(name.size(), ' ');
+				if (i > 0)
+					std::cout << prefix << spaces;
+				if (num_children == 1)
+					std::cout << " --- ";
+				else if (i > 0)
+					std::cout << "  +- ";
+				else
+					std::cout << " -+- ";
+				if (i == num_children - 1)
+					dump_tree(n->children[i], prefix + spaces + "     ", verbose);
+				else
+					dump_tree(n->children[i], prefix + spaces + "  |  ", verbose);
+			}
+		}
+	} else if (!verbose)
+		std::cout << std::endl;
+}
+
+template <class OPT>
+void class_info<OPT>::dump_hierarchy(bool verbose)
+{
+	identify_parents();
+
+	// Create tree nodes for all class_infos
+	std::vector<tree_node> tree;
+	for (class_info *p = first; p; p = p->next)
+		tree.push_back(tree_node(p));
+
+	// Identify children for all nodes and find the root
+	tree_node *root = NULL;
+	for (typename std::vector<tree_node>::iterator i = tree.begin(); i != tree.end(); ++i) {
+		class_info *p = i->info->get_parent();
+		if (p) {
+			for (typename std::vector<tree_node>::iterator j = tree.begin(); j != tree.end(); ++j) {
+				if (j->info == p) {
+					j->add_child(&*i);
+					break;
+				}
+			}
+		} else
+			root = &*i;
+	}
+
+	// Print hierarchy tree starting at the root
+	dump_tree(root, "", verbose);
+}
+
+template <class OPT>
+void class_info<OPT>::identify_parents()
+{
+	if (!parents_identified) {
+		for (class_info *p = first; p; p = p->next) {
+			const char *parent_name = p->options.get_parent_name();
+			for (class_info *q = first; q; q = q->next) {
+				if (strcmp(q->options.get_name(), parent_name) == 0) {
+					p->parent = q;
+					break;
+				}
+			}
+		}
+		parents_identified = true;
+	}
+}
 
 template <class OPT> class_info<OPT> *class_info<OPT>::first = NULL;
 template <class OPT> bool class_info<OPT>::parents_identified = false;
