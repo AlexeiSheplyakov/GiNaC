@@ -172,7 +172,7 @@ unsigned int archive::num_expressions(void) const
 /** Write unsigned integer quantity to stream. */
 static void write_unsigned(std::ostream &os, unsigned int val)
 {
-	while (val > 0x80) {
+	while (val >= 0x80) {
 		os.put((val & 0x7f) | 0x80);
 		val >>= 7;
 	}
