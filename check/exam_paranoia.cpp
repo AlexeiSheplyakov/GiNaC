@@ -352,6 +352,24 @@ static unsigned exam_paranoia14(void)
 	return result;
 }
 
+// Under certain conditions, power::expand_add_2() could produce non-canonical
+// numeric expairs. Fixed on Oct 24, 2002.
+static unsigned exam_paranoia15(void)
+{
+	unsigned result = 0;
+
+	ex q = (pow(pow(2, numeric(1, 2))*2+1, 2)).expand();
+	// this used to produce "1+4*sqrt(2)+4*2" which would never evaluate
+	// to "9+4*sqrt(2)"
+
+	if (!(q-9-4*pow(2, numeric(1, 2).is_zero()) {
+		clog << "expand((sqrt(2)*2+1)^2) erroneously returned " << q << " instead of 9-4*sqrt(2)\n";
+		++result;
+	}
+
+	return result;
+}
+
 unsigned exam_paranoia(void)
 {
 	unsigned result = 0;
@@ -373,6 +391,7 @@ unsigned exam_paranoia(void)
 	result += exam_paranoia12();  cout << '.' << flush;
 	result += exam_paranoia13();  cout << '.' << flush;
 	result += exam_paranoia14();  cout << '.' << flush;
+	result += exam_paranoia15();  cout << '.' << flush;
 	
 	if (!result) {
 		cout << " passed " << endl;
