@@ -34,10 +34,13 @@ namespace GiNaC {
 /** Symbolic matrices. */
 class matrix : public basic
 {
+    GINAC_DECLARE_REGISTERED_CLASS(matrix, basic)
+
 // friends
     friend ex determinant_numeric(const matrix & m);
     friend ex determinant_symbolic_perm(const matrix & m);
     friend ex determinant_symbolic_minor(const matrix & m);
+
 // member functions
 
     // default constructor, destructor, copy constructor, assignment operator

@@ -52,7 +52,7 @@ const unsigned TINFO_fail         = 0x00080001U;
 
 const unsigned TINFO_numeric      = 0x00090001U;
 
-const unsigned TINFO_series       = 0x000a0001U;
+const unsigned TINFO_pseries      = 0x000a0001U;
 
 const unsigned TINFO_indexed      = 0x000b0001U;
 const unsigned TINFO_algebra      = 0x000b1001U;

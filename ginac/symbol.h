@@ -39,7 +39,10 @@ namespace GiNaC {
  *  first place. */
 class symbol : public basic
 {
+    GINAC_DECLARE_REGISTERED_CLASS(symbol, basic)
+
 // types
+
     /** Symbols as keys to expressions. */
     class assigned_ex_info {
     public:
@@ -79,6 +82,7 @@ public:
     ex coeff(symbol const & s, int const n = 1) const;
     ex eval(int level = 0) const;
     ex diff(symbol const & s) const;
+    ex series(symbol const & s, ex const & point, int order) const;
     ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
     ex subs(lst const & ls, lst const & lr) const;
 protected:

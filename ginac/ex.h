@@ -308,6 +308,9 @@ inline ex evalf(ex const & thisex, int level = 0)
 inline ex diff(ex const & thisex, symbol const & s, unsigned nth = 1)
 { return thisex.diff(s, nth); }
 
+inline ex series(ex const & thisex, symbol const & s, ex const & point, int order = 6)
+{ return thisex.series(s, point, order); }
+
 inline ex subs(ex const & thisex, ex const & e)
 { return thisex.subs(e); }
 

@@ -259,6 +259,8 @@ struct registered_function_info {
     and user defined functions */
 class function : public exprseq
 {
+    GINAC_DECLARE_REGISTERED_CLASS(function, exprseq)
+
     // CINT has a linking problem
     friend void ginsh_get_ginac_functions(void);
 
@@ -382,12 +384,15 @@ $implementation=<<END_OF_IMPLEMENTATION;
 
 #include "function.h"
 #include "ex.h"
+#include "archive.h"
 #include "utils.h"
 #include "debugmsg.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
 #endif // ndef NO_GINAC_NAMESPACE
+
+GINAC_IMPLEMENT_REGISTERED_CLASS(function, exprseq)
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -470,6 +475,46 @@ function::function(unsigned ser, exvector * vp)
 {
     debugmsg("function constructor from unsigned,exvector *",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_function;
+}
+
+//////////
+// archiving
+//////////
+
+/** Construct object from archive_node. */
+function::function(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+{
+    debugmsg("function constructor from archive_node", LOGLEVEL_CONSTRUCT);
+
+    // Find serial number by function name
+    string s;
+    if (n.find_string("name", s)) {
+        unsigned int ser = 0;
+        vector<registered_function_info>::const_iterator i = registered_functions().begin(), iend = registered_functions().end();
+        while (i != iend) {
+            if (s == i->name) {
+                serial = ser;
+                return;
+            }
+            i++; ser++;
+        }
+        throw (std::runtime_error("unknown function '" + s + "' in archive"));
+    } else
+        throw (std::runtime_error("unnamed function in archive"));
+}
+
+/** Unarchive the object. */
+ex function::unarchive(const archive_node &n, const lst &sym_lst)
+{
+    return (new function(n, sym_lst))->setflag(status_flags::dynallocated);
+}
+
+/** Archive the object. */
+void function::archive(archive_node &n) const
+{
+    inherited::archive(n);
+    GINAC_ASSERT(serial < registered_functions().size());
+    n.add_string("name", registered_functions()[serial].name);
 }
 
 //////////

@@ -27,7 +27,7 @@
 #include "inifcns.h"
 #include "ex.h"
 #include "constant.h"
-#include "series.h"
+#include "pseries.h"
 #include "numeric.h"
 #include "power.h"
 #include "relational.h"

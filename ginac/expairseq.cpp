@@ -27,6 +27,7 @@
 
 #include "expairseq.h"
 #include "lst.h"
+#include "archive.h"
 #include "debugmsg.h"
 #include "utils.h"
 
@@ -37,6 +38,8 @@ namespace GiNaC {
 #ifdef EXPAIRSEQ_USE_HASHTAB
 #error "FIXME: expair_needs_further_processing not yet implemented for hashtabs, sorry. A.F."
 #endif // def EXPAIRSEQ_USE_HASHTAB
+
+GINAC_IMPLEMENT_REGISTERED_CLASS(expairseq, basic)
 
 //////////
 // helper classes
@@ -77,7 +80,7 @@ expairseq const & expairseq::operator=(expairseq const & other)
 
 void expairseq::copy(expairseq const & other)
 {
-    basic::copy(other);
+    inherited::copy(other);
     seq=other.seq;
     overall_coeff=other.overall_coeff;
 #ifdef EXPAIRSEQ_USE_HASHTAB
@@ -104,14 +107,14 @@ void expairseq::copy(expairseq const & other)
 // other constructors
 //////////
 
-expairseq::expairseq(ex const & lh, ex const & rh) : basic(TINFO_expairseq)
+expairseq::expairseq(ex const & lh, ex const & rh) : inherited(TINFO_expairseq)
 {
     debugmsg("expairseq constructor from ex,ex",LOGLEVEL_CONSTRUCT);
     construct_from_2_ex(lh,rh);
     GINAC_ASSERT(is_canonical());
 }
 
-expairseq::expairseq(exvector const & v) : basic(TINFO_expairseq)
+expairseq::expairseq(exvector const & v) : inherited(TINFO_expairseq)
 {
     debugmsg("expairseq constructor from exvector",LOGLEVEL_CONSTRUCT);
     construct_from_exvector(v);
@@ -120,7 +123,7 @@ expairseq::expairseq(exvector const & v) : basic(TINFO_expairseq)
 
 /*
 expairseq::expairseq(epvector const & v, bool do_not_canonicalize) :
-    basic(TINFO_expairseq)
+    inherited(TINFO_expairseq)
 {
     debugmsg("expairseq constructor from epvector",LOGLEVEL_CONSTRUCT);
     if (do_not_canonicalize) {
@@ -136,7 +139,7 @@ expairseq::expairseq(epvector const & v, bool do_not_canonicalize) :
 */
 
 expairseq::expairseq(epvector const & v, ex const & oc) :
-    basic(TINFO_expairseq), overall_coeff(oc)
+    inherited(TINFO_expairseq), overall_coeff(oc)
 {
     debugmsg("expairseq constructor from epvector,ex",LOGLEVEL_CONSTRUCT);
     construct_from_epvector(v);
@@ -144,13 +147,54 @@ expairseq::expairseq(epvector const & v, ex const & oc) :
 }
 
 expairseq::expairseq(epvector * vp, ex const & oc) :
-    basic(TINFO_expairseq), overall_coeff(oc)
+    inherited(TINFO_expairseq), overall_coeff(oc)
 {
     debugmsg("expairseq constructor from epvector *,ex",LOGLEVEL_CONSTRUCT);
     GINAC_ASSERT(vp!=0);
     construct_from_epvector(*vp);
     delete vp;
     GINAC_ASSERT(is_canonical());
+}
+
+//////////
+// archiving
+//////////
+
+/** Construct object from archive_node. */
+expairseq::expairseq(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+#ifdef EXPAIRSEQ_USE_HASHTAB
+    , hashtabsize(0)
+#endif
+{
+    debugmsg("expairseq constructor from archive_node", LOGLEVEL_CONSTRUCT);
+    for (unsigned int i=0; true; i++) {
+        ex rest;
+        ex coeff;
+        if (n.find_ex("rest", rest, sym_lst, i) && n.find_ex("coeff", coeff, sym_lst, i))
+            seq.push_back(expair(rest, coeff));
+        else
+            break;
+    }
+    n.find_ex("overall_coeff", overall_coeff, sym_lst);
+}
+
+/** Unarchive the object. */
+ex expairseq::unarchive(const archive_node &n, const lst &sym_lst)
+{
+    return (new expairseq(n, sym_lst))->setflag(status_flags::dynallocated);
+}
+
+/** Archive the object. */
+void expairseq::archive(archive_node &n) const
+{
+    inherited::archive(n);
+    epvector::const_iterator i = seq.begin(), iend = seq.end();
+    while (i != iend) {
+        n.add_ex("rest", i->rest);
+        n.add_ex("coeff", i->coeff);
+        i++;
+    }
+    n.add_ex("overall_coeff", overall_coeff);
 }
 
 //////////
@@ -265,7 +309,7 @@ void expairseq::printtree(ostream & os, unsigned indent) const
 
 bool expairseq::info(unsigned inf) const
 {
-    return basic::info(inf);
+    return inherited::info(inf);
 }
 
 unsigned expairseq::nops() const

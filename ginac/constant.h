@@ -38,6 +38,7 @@ typedef ex (*evalffunctype)(void);
  *  number). */
 class constant : public basic
 {
+    GINAC_DECLARE_REGISTERED_CLASS(constant, basic)
 
 // member functions
 

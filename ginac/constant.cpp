@@ -26,11 +26,14 @@
 #include "constant.h"
 #include "numeric.h"
 #include "ex.h"
+#include "archive.h"
 #include "debugmsg.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
 #endif // ndef NO_GINAC_NAMESPACE
+
+GINAC_IMPLEMENT_REGISTERED_CLASS(constant, basic)
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -99,6 +102,42 @@ constant::constant(string const & initname, numeric const & initnumber) :
     number(new numeric(initnumber)), /* fct_assigned(false),*/ serial(next_serial++)
 {
     debugmsg("constant constructor from string, numeric",LOGLEVEL_CONSTRUCT);
+}
+
+//////////
+// archiving
+//////////
+
+/** Construct object from archive_node. */
+constant::constant(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+{
+    debugmsg("constant constructor from archive_node", LOGLEVEL_CONSTRUCT);
+}
+
+/** Unarchive the object. */
+ex constant::unarchive(const archive_node &n, const lst &sym_lst)
+{
+    // Find constant by name (!! this is bad: 'twould be better if there
+    // was a list of all global constants that we could search)
+    string s;
+    if (n.find_string("name", s)) {
+        if (s == Pi.name)
+            return Pi;
+        else if (s == Catalan.name)
+            return Catalan;
+        else if (s == EulerGamma.name)
+            return EulerGamma;
+        else
+            throw (std::runtime_error("unknown constant '" + s + "' in archive"));
+    } else
+        throw (std::runtime_error("unnamed constant in archive"));
+}
+
+/** Archive the object. */
+void constant::archive(archive_node &n) const
+{
+    inherited::archive(n);
+    n.add_string("name", name);
 }
 
 //////////

@@ -25,21 +25,24 @@
 
 #include "symbol.h"
 #include "lst.h"
-#include "utils.h"
 #include "idx.h"
+#include "archive.h"
 #include "debugmsg.h"
+#include "utils.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
 #endif // ndef NO_GINAC_NAMESPACE
 
+GINAC_IMPLEMENT_REGISTERED_CLASS(symbol, basic)
+
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
 //////////
 
-symbol::symbol() : basic(TINFO_symbol)
+symbol::symbol() : inherited(TINFO_symbol)
 {
-    debugmsg("symbol default constructor",LOGLEVEL_CONSTRUCT);
+    debugmsg("symbol default constructor", LOGLEVEL_CONSTRUCT);
     serial=next_serial++;
     name=autoname_prefix()+ToString(serial);
     asexinfop=new assigned_ex_info;
@@ -48,19 +51,19 @@ symbol::symbol() : basic(TINFO_symbol)
 
 symbol::~symbol()
 {
-    debugmsg("symbol destructor",LOGLEVEL_DESTRUCT);
+    debugmsg("symbol destructor", LOGLEVEL_DESTRUCT);
     destroy(0);
 }
 
 symbol::symbol(symbol const & other)
 {
-    debugmsg("symbol copy constructor",LOGLEVEL_CONSTRUCT);
+    debugmsg("symbol copy constructor", LOGLEVEL_CONSTRUCT);
     copy(other);
 }
 
 void symbol::copy(symbol const & other)
 {
-    basic::copy(other);
+    inherited::copy(other);
     name=other.name;
     serial=other.serial;
     asexinfop=other.asexinfop;
@@ -73,7 +76,7 @@ void symbol::destroy(bool call_parent)
         delete asexinfop;
     }
     if (call_parent) {
-        basic::destroy(call_parent);
+        inherited::destroy(call_parent);
     }
 }
 
@@ -89,13 +92,48 @@ void symbol::destroy(bool call_parent)
 
 // public
 
-symbol::symbol(string const & initname) : basic(TINFO_symbol)
+symbol::symbol(string const & initname) : inherited(TINFO_symbol)
 {
-    debugmsg("symbol constructor from string",LOGLEVEL_CONSTRUCT);
+    debugmsg("symbol constructor from string", LOGLEVEL_CONSTRUCT);
     name=initname;
     serial=next_serial++;
     asexinfop=new assigned_ex_info;
     setflag(status_flags::evaluated);
+}
+
+//////////
+// archiving
+//////////
+
+/** Construct object from archive_node. */
+symbol::symbol(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+{
+    debugmsg("symbol constructor from archive_node", LOGLEVEL_CONSTRUCT);
+    serial = next_serial++;
+    if (!(n.find_string("name", name)))
+        name = autoname_prefix() + ToString(serial);
+    asexinfop = new assigned_ex_info;
+    setflag(status_flags::evaluated);
+}
+
+/** Unarchive the object. */
+ex symbol::unarchive(const archive_node &n, const lst &sym_lst)
+{
+    ex s = (new symbol(n, sym_lst))->setflag(status_flags::dynallocated);
+
+    // If symbol is in sym_lst, return the existing symbol
+    for (int i=0; i<sym_lst.nops(); i++) {
+        if (is_ex_of_type(sym_lst.op(i), symbol) && (ex_to_symbol(sym_lst.op(i)).name == ex_to_symbol(s).name))
+            return sym_lst.op(i);
+    }
+    return s;
+}
+
+/** Archive the object. */
+void symbol::archive(archive_node &n) const
+{
+    inherited::archive(n);
+    n.add_string("name", name);
 }
 
 //////////
@@ -104,9 +142,9 @@ symbol::symbol(string const & initname) : basic(TINFO_symbol)
 
 // public
 
-basic * symbol::duplicate() const
+basic *symbol::duplicate() const
 {
-    debugmsg("symbol duplicate",LOGLEVEL_DUPLICATE);
+    debugmsg("symbol duplicate", LOGLEVEL_DUPLICATE);
     return new symbol(*this);
 }
 
@@ -149,7 +187,7 @@ bool symbol::info(unsigned inf) const
         inf==info_flags::rational_function) {
         return true;
     } else {
-        return basic::info(inf);
+        return inherited::info(inf);
     }
 }
 

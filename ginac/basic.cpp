@@ -31,12 +31,15 @@
 #include "symbol.h"
 #include "lst.h"
 #include "ncmul.h"
+#include "archive.h"
 #include "utils.h"
 #include "debugmsg.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
 #endif // ndef NO_GINAC_NAMESPACE
+
+GINAC_IMPLEMENT_REGISTERED_CLASS(basic, void)
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -47,27 +50,27 @@ namespace GiNaC {
 #ifndef INLINE_BASIC_CONSTRUCTORS
 basic::basic() : flags(0), refcount(0), tinfo_key(TINFO_BASIC)
 {
-    debugmsg("basic default constructor",LOGLEVEL_CONSTRUCT);
+    debugmsg("basic default constructor", LOGLEVEL_CONSTRUCT);
     // nothing to do
 }
 
 basic::~basic() 
 {
-    debugmsg("basic destructor",LOGLEVEL_DESTRUCT);
+    debugmsg("basic destructor", LOGLEVEL_DESTRUCT);
     destroy(0);
     GINAC_ASSERT((!(flags & status_flags::dynallocated))||(refcount==0));
 }
 
 basic::basic(basic const & other) : flags(0), refcount(0), tinfo_key(TINFO_BASIC)
 {
-    debugmsg("basic copy constructor",LOGLEVEL_CONSTRUCT);
+    debugmsg("basic copy constructor", LOGLEVEL_CONSTRUCT);
     copy(other);
 }
 #endif
 
 basic const & basic::operator=(basic const & other)
 {
-    debugmsg("basic operator=",LOGLEVEL_ASSIGNMENT);
+    debugmsg("basic operator=", LOGLEVEL_ASSIGNMENT);
     if (this != &other) {
         destroy(1);
         copy(other);
@@ -93,10 +96,39 @@ void basic::copy(basic const & other)
 #ifndef INLINE_BASIC_CONSTRUCTORS
 basic::basic(unsigned ti) : flags(0), refcount(0), tinfo_key(ti)
 {
-    debugmsg("basic constructor with tinfo_key",LOGLEVEL_CONSTRUCT);
+    debugmsg("basic constructor with tinfo_key", LOGLEVEL_CONSTRUCT);
     // nothing to do
 }
 #endif
+
+//////////
+// archiving
+//////////
+
+/** Construct object from archive_node. */
+basic::basic(const archive_node &n, const lst &sym_lst) : flags(0), refcount(0)
+{
+    debugmsg("basic constructor from archive_node", LOGLEVEL_CONSTRUCT);
+
+    // Reconstruct tinfo_key from class name
+    string class_name;
+    if (n.find_string("class", class_name))
+        tinfo_key = find_tinfo_key(class_name);
+    else
+        throw (std::runtime_error("archive node contains no class name"));
+}
+
+/** Unarchive the object. */
+ex basic::unarchive(const archive_node &n, const lst &sym_lst)
+{
+    return (new basic(n, sym_lst))->setflag(status_flags::dynallocated);
+}
+
+/** Archive the object. */
+void basic::archive(archive_node &n) const
+{
+    n.add_string("class", class_name());
+}
 
 //////////
 // functions overriding virtual functions from bases classes

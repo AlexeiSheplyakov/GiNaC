@@ -26,12 +26,15 @@
 #include "mul.h"
 #include "add.h"
 #include "power.h"
+#include "archive.h"
 #include "debugmsg.h"
 #include "utils.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
 #endif // ndef NO_GINAC_NAMESPACE
+
+GINAC_IMPLEMENT_REGISTERED_CLASS(mul, expairseq)
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -71,12 +74,12 @@ mul const & mul::operator=(mul const & other)
 
 void mul::copy(mul const & other)
 {
-    expairseq::copy(other);
+    inherited::copy(other);
 }
 
 void mul::destroy(bool call_parent)
 {
-    if (call_parent) expairseq::destroy(call_parent);
+    if (call_parent) inherited::destroy(call_parent);
 }
 
 //////////
@@ -161,6 +164,28 @@ mul::mul(ex const & lh, ex const & mh, ex const & rh)
     overall_coeff=_ex1();
     construct_from_exvector(factors);
     GINAC_ASSERT(is_canonical());
+}
+
+//////////
+// archiving
+//////////
+
+/** Construct object from archive_node. */
+mul::mul(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+{
+    debugmsg("mul constructor from archive_node", LOGLEVEL_CONSTRUCT);
+}
+
+/** Unarchive the object. */
+ex mul::unarchive(const archive_node &n, const lst &sym_lst)
+{
+    return (new mul(n, sym_lst))->setflag(status_flags::dynallocated);
+}
+
+/** Archive the object. */
+void mul::archive(archive_node &n) const
+{
+    inherited::archive(n);
 }
 
 //////////
@@ -285,7 +310,7 @@ bool mul::info(unsigned inf) const
         }
         return overall_coeff.info(inf);
     } else {
-        return expairseq::info(inf);
+        return inherited::info(inf);
     }
 }
 
@@ -439,12 +464,12 @@ ex mul::simplify_ncmul(exvector const & v) const
 
 int mul::compare_same_type(basic const & other) const
 {
-    return expairseq::compare_same_type(other);
+    return inherited::compare_same_type(other);
 }
 
 bool mul::is_equal_same_type(basic const & other) const
 {
-    return expairseq::is_equal_same_type(other);
+    return inherited::is_equal_same_type(other);
 }
 
 unsigned mul::return_type(void) const

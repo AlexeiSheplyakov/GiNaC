@@ -31,12 +31,15 @@
 #include "numeric.h"
 #include "relational.h"
 #include "symbol.h"
+#include "archive.h"
 #include "debugmsg.h"
 #include "utils.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
 #endif // ndef NO_GINAC_NAMESPACE
+
+GINAC_IMPLEMENT_REGISTERED_CLASS(power, basic)
 
 typedef vector<int> intvector;
 
@@ -77,14 +80,14 @@ power const & power::operator=(power const & other)
 
 void power::copy(power const & other)
 {
-    basic::copy(other);
+    inherited::copy(other);
     basis=other.basis;
     exponent=other.exponent;
 }
 
 void power::destroy(bool call_parent)
 {
-    if (call_parent) basic::destroy(call_parent);
+    if (call_parent) inherited::destroy(call_parent);
 }
 
 //////////
@@ -103,6 +106,32 @@ power::power(ex const & lh, numeric const & rh) : basic(TINFO_power), basis(lh),
 {
     debugmsg("power constructor from ex,numeric",LOGLEVEL_CONSTRUCT);
     GINAC_ASSERT(basis.return_type()==return_types::commutative);
+}
+
+//////////
+// archiving
+//////////
+
+/** Construct object from archive_node. */
+power::power(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+{
+    debugmsg("power constructor from archive_node", LOGLEVEL_CONSTRUCT);
+    n.find_ex("basis", basis, sym_lst);
+    n.find_ex("exponent", exponent, sym_lst);
+}
+
+/** Unarchive the object. */
+ex power::unarchive(const archive_node &n, const lst &sym_lst)
+{
+    return (new power(n, sym_lst))->setflag(status_flags::dynallocated);
+}
+
+/** Archive the object. */
+void power::archive(archive_node &n) const
+{
+    inherited::archive(n);
+    n.add_ex("basis", basis);
+    n.add_ex("exponent", exponent);
 }
 
 //////////
@@ -229,7 +258,7 @@ bool power::info(unsigned inf) const
     } else if (inf==info_flags::rational_function) {
         return exponent.info(info_flags::integer);
     } else {
-        return basic::info(inf);
+        return inherited::info(inf);
     }
 }
 
@@ -480,7 +509,7 @@ ex power::subs(lst const & ls, lst const & lr) const
 
 ex power::simplify_ncmul(exvector const & v) const
 {
-    return basic::simplify_ncmul(v);
+    return inherited::simplify_ncmul(v);
 }
 
 // protected

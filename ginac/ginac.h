@@ -27,6 +27,7 @@
 
 #include <ginac/ex.h>
 #include <ginac/normal.h>
+#include <ginac/archive.h>
 
 #include <ginac/constant.h>
 #include <ginac/fail.h>
@@ -43,7 +44,7 @@
 #include <ginac/expairseq.h>
 #include <ginac/add.h>
 #include <ginac/mul.h>
-#include <ginac/series.h>
+#include <ginac/pseries.h>
 
 #include <ginac/exprseq.h>
 #include <ginac/function.h>

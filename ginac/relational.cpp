@@ -24,12 +24,15 @@
 
 #include "relational.h"
 #include "numeric.h"
-#include "debugmsg.h"
+#include "archive.h"
 #include "utils.h"
+#include "debugmsg.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
 #endif // ndef NO_GINAC_NAMESPACE
+
+GINAC_IMPLEMENT_REGISTERED_CLASS(relational, basic)
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -91,6 +94,37 @@ relational::relational(ex const & lhs, ex const & rhs, operators oper) : basic(T
     lh=lhs;
     rh=rhs;
     o=oper;
+}
+
+//////////
+// archiving
+//////////
+
+/** Construct object from archive_node. */
+relational::relational(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+{
+    debugmsg("relational constructor from archive_node", LOGLEVEL_CONSTRUCT);
+    unsigned int opi;
+    if (!(n.find_unsigned("op", opi)))
+        throw (std::runtime_error("unknown relational operator in archive"));
+    o = (operators)opi;
+    n.find_ex("lh", lh, sym_lst);
+    n.find_ex("rh", rh, sym_lst);
+}
+
+/** Unarchive the object. */
+ex relational::unarchive(const archive_node &n, const lst &sym_lst)
+{
+    return (new relational(n, sym_lst))->setflag(status_flags::dynallocated);
+}
+
+/** Archive the object. */
+void relational::archive(archive_node &n) const
+{
+    inherited::archive(n);
+    n.add_ex("lh", lh);
+    n.add_ex("rh", rh);
+    n.add_unsigned("op", o);
 }
 
 //////////

@@ -34,6 +34,7 @@ namespace GiNaC {
  *  relation between them. */
 class relational : public basic
 {
+    GINAC_DECLARE_REGISTERED_CLASS(relational, basic)
 
 // types
 public:

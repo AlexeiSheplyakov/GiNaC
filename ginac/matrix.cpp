@@ -24,12 +24,15 @@
 #include <stdexcept>
 
 #include "matrix.h"
-#include "debugmsg.h"
+#include "archive.h"
 #include "utils.h"
+#include "debugmsg.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
 #endif // ndef NO_GINAC_NAMESPACE
+
+GINAC_IMPLEMENT_REGISTERED_CLASS(matrix, basic)
 
 //////////
 // default constructor, destructor, copy constructor, assignment operator
@@ -40,7 +43,7 @@ namespace GiNaC {
 
 /** Default ctor.  Initializes to 1 x 1-dimensional zero-matrix. */
 matrix::matrix()
-    : basic(TINFO_matrix), row(1), col(1)
+    : inherited(TINFO_matrix), row(1), col(1)
 {
     debugmsg("matrix default constructor",LOGLEVEL_CONSTRUCT);
     m.push_back(_ex0());
@@ -71,7 +74,7 @@ matrix const & matrix::operator=(matrix const & other)
 
 void matrix::copy(matrix const & other)
 {
-    basic::copy(other);
+    inherited::copy(other);
     row=other.row;
     col=other.col;
     m=other.m;  // use STL's vector copying
@@ -79,7 +82,7 @@ void matrix::copy(matrix const & other)
 
 void matrix::destroy(bool call_parent)
 {
-    if (call_parent) basic::destroy(call_parent);
+    if (call_parent) inherited::destroy(call_parent);
 }
 
 //////////
@@ -93,7 +96,7 @@ void matrix::destroy(bool call_parent)
  *  @param r number of rows
  *  @param c number of cols */
 matrix::matrix(unsigned r, unsigned c)
-    : basic(TINFO_matrix), row(r), col(c)
+    : inherited(TINFO_matrix), row(r), col(c)
 {
     debugmsg("matrix constructor from unsigned,unsigned",LOGLEVEL_CONSTRUCT);
     m.resize(r*c, _ex0());
@@ -103,9 +106,48 @@ matrix::matrix(unsigned r, unsigned c)
 
 /** Ctor from representation, for internal use only. */
 matrix::matrix(unsigned r, unsigned c, exvector const & m2)
-    : basic(TINFO_matrix), row(r), col(c), m(m2)
+    : inherited(TINFO_matrix), row(r), col(c), m(m2)
 {
     debugmsg("matrix constructor from unsigned,unsigned,exvector",LOGLEVEL_CONSTRUCT);
+}
+
+//////////
+// archiving
+//////////
+
+/** Construct object from archive_node. */
+matrix::matrix(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+{
+    debugmsg("matrix constructor from archive_node", LOGLEVEL_CONSTRUCT);
+    if (!(n.find_unsigned("row", row)) || !(n.find_unsigned("col", col)))
+        throw (std::runtime_error("unknown matrix dimensions in archive"));
+    m.reserve(row * col);
+    for (unsigned int i=0; true; i++) {
+        ex e;
+        if (n.find_ex("m", e, sym_lst, i))
+            m.push_back(e);
+        else
+            break;
+    }
+}
+
+/** Unarchive the object. */
+ex matrix::unarchive(const archive_node &n, const lst &sym_lst)
+{
+    return (new matrix(n, sym_lst))->setflag(status_flags::dynallocated);
+}
+
+/** Archive the object. */
+void matrix::archive(archive_node &n) const
+{
+    inherited::archive(n);
+    n.add_unsigned("row", row);
+    n.add_unsigned("col", col);
+    exvector::const_iterator i = m.begin(), iend = m.end();
+    while (i != iend) {
+        n.add_ex("m", *i);
+        i++;
+    }
 }
 
 //////////

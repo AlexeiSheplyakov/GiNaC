@@ -34,7 +34,7 @@
 #include "numeric.h"
 #include "power.h"
 #include "relational.h"
-#include "series.h"
+#include "pseries.h"
 #include "symbol.h"
 #include "utils.h"
 
@@ -200,9 +200,9 @@ ex function::diff(symbol const & s) const
 }
 
 
-/** Implementation of ex::diff() for a power-series. It treats the series as a polynomial.
+/** Implementation of ex::diff() for a power series. It treats the series as a polynomial.
  *  @see ex::diff */
-ex series::diff(symbol const & s) const
+ex pseries::diff(symbol const & s) const
 {
     if (s == var) {
         epvector new_seq;
@@ -219,7 +219,7 @@ ex series::diff(symbol const & s) const
             }
             it++;
         }
-        return series(var, point, new_seq);
+        return pseries(var, point, new_seq);
     } else {
         return *this;
     }

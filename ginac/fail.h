@@ -32,7 +32,7 @@ namespace GiNaC {
 
 class fail : public basic
 {
-// member functions
+    GINAC_DECLARE_REGISTERED_CLASS(fail, basic)
 
     // default constructor, destructor, copy constructor assignment operator and helpers
 public:

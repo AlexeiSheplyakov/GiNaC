@@ -22,11 +22,14 @@
  */
 
 #include "fail.h"
+#include "archive.h"
 #include "debugmsg.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
 #endif // ndef NO_GINAC_NAMESPACE
+
+GINAC_IMPLEMENT_REGISTERED_CLASS(fail, basic)
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -34,7 +37,7 @@ namespace GiNaC {
 
 // public
 
-fail::fail() : basic(TINFO_fail)
+fail::fail() : inherited(TINFO_fail)
 {
     debugmsg("fail default constructor",LOGLEVEL_CONSTRUCT);
 }
@@ -65,12 +68,12 @@ fail const & fail::operator=(fail const & other)
 
 void fail::copy(fail const & other)
 {
-    basic::copy(other);
+    inherited::copy(other);
 }
 
 void fail::destroy(bool call_parent)
 {
-    if (call_parent) basic::destroy(call_parent);
+    if (call_parent) inherited::destroy(call_parent);
 }
 
 
@@ -79,6 +82,28 @@ void fail::destroy(bool call_parent)
 //////////
 
 // none
+
+//////////
+// archiving
+//////////
+
+/** Construct object from archive_node. */
+fail::fail(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+{
+    debugmsg("fail constructor from archive_node", LOGLEVEL_CONSTRUCT);
+}
+
+/** Unarchive the object. */
+ex fail::unarchive(const archive_node &n, const lst &sym_lst)
+{
+    return (new fail(n, sym_lst))->setflag(status_flags::dynallocated);
+}
+
+/** Archive the object. */
+void fail::archive(archive_node &n) const
+{
+    inherited::archive(n);
+}
 
 //////////
 // functions overriding virtual functions from bases classes

@@ -33,6 +33,7 @@
 #include <ginac/flags.h>
 #include <ginac/tinfos.h>
 #include <ginac/assertion.h>
+#include <ginac/registrar.h>
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
@@ -43,6 +44,7 @@ class ex;
 class symbol;
 class lst;
 class numeric;
+class archive_node;
 
 //typedef vector<ex> exvector;
 typedef vector<ex,malloc_alloc> exvector; // CINT does not like vector<...,default_alloc>
@@ -53,6 +55,8 @@ typedef vector<ex,malloc_alloc> exvector; // CINT does not like vector<...,defau
  *  It is responsible for the reference counting. */
 class basic
 {
+    GINAC_DECLARE_REGISTERED_CLASS(basic, void)
+
     friend class ex;
 
 // member functions
@@ -221,4 +225,3 @@ extern int max_recursion_level;
 #endif // ndef NO_GINAC_NAMESPACE
 
 #endif // ndef __GINAC_BASIC_H__
-

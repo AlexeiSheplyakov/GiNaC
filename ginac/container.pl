@@ -139,6 +139,7 @@ typedef ${STLHEADER}<ex,malloc_alloc> ${STLT}; // CINT does not like ${STLHEADER
 
 class ${CONTAINER} : public basic
 {
+    GINAC_DECLARE_REGISTERED_CLASS(${CONTAINER}, basic)
 
 public:
     ${CONTAINER}();
@@ -276,11 +277,14 @@ $implementation=<<END_OF_IMPLEMENTATION;
 
 #include "${CONTAINER}.h"
 #include "ex.h"
+#include "archive.h"
 #include "debugmsg.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
 #endif // ndef NO_GINAC_NAMESPACE
+
+GINAC_IMPLEMENT_REGISTERED_CLASS(${CONTAINER}, basic)
 
 ${RESERVE_IMPLEMENTATION}
 
@@ -321,14 +325,14 @@ ${CONTAINER} const & ${CONTAINER}::operator=(${CONTAINER} const & other)
 
 void ${CONTAINER}::copy(${CONTAINER} const & other)
 {
-    basic::copy(other);
+    inherited::copy(other);
     seq=other.seq;
 }
 
 void ${CONTAINER}::destroy(bool call_parent)
 {
     seq.clear();
-    if (call_parent) basic::destroy(call_parent);
+    if (call_parent) inherited::destroy(call_parent);
 }
 
 //////////
@@ -495,6 +499,40 @@ ${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
     seq.push_back(e8);
     seq.push_back(e9);
     seq.push_back(e10);
+}
+
+//////////
+// archiving
+//////////
+
+/** Construct object from archive_node. */
+${CONTAINER}::${CONTAINER}(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+{
+    debugmsg("${CONTAINER} constructor from archive_node", LOGLEVEL_CONSTRUCT);
+    for (unsigned int i=0; true; i++) {
+        ex e;
+        if (n.find_ex("seq", e, sym_lst, i))
+            seq.push_back(e);
+        else
+            break;
+    }
+}
+
+/** Unarchive the object. */
+ex ${CONTAINER}::unarchive(const archive_node &n, const lst &sym_lst)
+{
+    return (new ${CONTAINER}(n, sym_lst))->setflag(status_flags::dynallocated);
+}
+
+/** Archive the object. */
+void ${CONTAINER}::archive(archive_node &n) const
+{
+    inherited::archive(n);
+    ${STLT}::const_iterator i = seq.begin(), iend = seq.end();
+    while (i != iend) {
+        n.add_ex("seq", *i);
+        i++;
+    }
 }
 
 //////////

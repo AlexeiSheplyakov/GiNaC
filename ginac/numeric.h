@@ -63,6 +63,8 @@ private:
  *  hierarchy. Objects of this type may directly be created by the user.*/
 class numeric : public basic
 {
+    GINAC_DECLARE_REGISTERED_CLASS(numeric, basic)
+
 // friends
     friend numeric exp(const numeric & x);
     friend numeric log(const numeric & x);

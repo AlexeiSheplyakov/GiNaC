@@ -33,7 +33,7 @@
 #include "numeric.h"
 #include "power.h"
 #include "relational.h"
-#include "series.h"
+#include "pseries.h"
 #include "symbol.h"
 #include "utils.h"
 
@@ -157,10 +157,10 @@ static ex Order_eval(ex const & x)
 
 static ex Order_series(ex const & x, symbol const & s, ex const & point, int order)
 {
-	// Just wrap the function into a series object
+	// Just wrap the function into a pseries object
 	epvector new_seq;
 	new_seq.push_back(expair(Order(_ex1()), numeric(min(x.ldegree(s), order))));
-	return series(s, point, new_seq);
+	return pseries(s, point, new_seq);
 }
 
 REGISTER_FUNCTION(Order, Order_eval, NULL, NULL, Order_series);

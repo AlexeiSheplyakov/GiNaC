@@ -1,4 +1,4 @@
-/** @file series.h
+/** @file pseries.h
  *
  *  Interface to class for extended truncated power series. */
 
@@ -34,23 +34,23 @@ namespace GiNaC {
  *  integer powers). It consists of expression coefficients (only non-zero
  *  coefficients are stored), an expansion variable and an expansion point.
  *  Other classes must provide members to convert into this type. */
-class series : public basic
+class pseries : public basic
 {
-    typedef basic inherited;
+    GINAC_DECLARE_REGISTERED_CLASS(pseries, basic)
 
     // default constructor, destructor, copy constructor, assignment operator and helpers
 public:
-    series();
-    ~series();
-    series(series const &other);
-    series const &operator=(series const &other);
+    pseries();
+    ~pseries();
+    pseries(pseries const &other);
+    pseries const &operator=(pseries const &other);
 protected:
-    void copy(series const &other);
+    void copy(pseries const &other);
     void destroy(bool call_parent);
 
     // other constructors
 public:
-    series(ex const &var_, ex const &point_, epvector const &ops_);
+    pseries(ex const &var_, ex const &point_, epvector const &ops_);
 
     // functions overriding virtual functions from base classes
 public:
@@ -62,17 +62,18 @@ public:
     ex coeff(symbol const &s, int const n=1) const;
     ex eval(int level=0) const;
     ex evalf(int level=0) const;
-    ex diff(symbol const & s) const;
     ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
+    ex diff(symbol const & s) const;
+    ex subs(lst const & ls, lst const & lr) const;
 
     // non-virtual functions in this class
 public:
     ex convert_to_poly(bool no_order = false) const;
-    bool is_compatible_to(const series &other) const {return var.compare(other.var) == 0 && point.compare(other.point) == 0;}
+    bool is_compatible_to(const pseries &other) const {return var.compare(other.var) == 0 && point.compare(other.point) == 0;}
     bool is_zero(void) const {return seq.size() == 0;}
-    ex add_series(const series &other) const;
+    ex add_series(const pseries &other) const;
     ex mul_const(const numeric &other) const;
-    ex mul_series(const series &other) const;
+    ex mul_series(const pseries &other) const;
     ex power_const(const numeric &p, int deg) const;
 
 protected:
@@ -87,32 +88,32 @@ protected:
 };
 
 // global constants
-extern const series some_series;
-extern type_info const & typeid_series;
+extern const pseries some_pseries;
+extern type_info const & typeid_pseries;
 
-/** Return a reference to the series object embedded in an expression.
- *  The result is undefined if the expression does not contain a series
+/** Return a reference to the pseries object embedded in an expression.
+ *  The result is undefined if the expression does not contain a pseries
  *  object at its top level.
  *
  *  @param e expression
- *  @return reference to series object
+ *  @return reference to pseries object
  *  @see is_ex_of_type */
-inline const series &ex_to_series(const ex &e)
+inline const pseries &ex_to_pseries(const ex &e)
 {
-	return static_cast<const series &>(*e.bp);
+	return static_cast<const pseries &>(*e.bp);
 }
 
-/** Convert the series object embedded in an expression to an ordinary
+/** Convert the pseries object embedded in an expression to an ordinary
  *  polynomial in the expansion variable. The result is undefined if the
- *  expression does not contain a series object at its top level.
+ *  expression does not contain a pseries object at its top level.
  *
  *  @param e expression
  *  @return polynomial expression
  *  @see is_ex_of_type
- *  @see series::convert_to_poly */
+ *  @see pseries::convert_to_poly */
 inline ex series_to_poly(const ex &e)
 {
-	return (static_cast<const series &>(*e.bp).convert_to_poly(true));
+	return (static_cast<const pseries &>(*e.bp).convert_to_poly(true));
 }
 
 #ifndef NO_GINAC_NAMESPACE

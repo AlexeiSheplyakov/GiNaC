@@ -37,6 +37,8 @@ class add;
  *  representing exponentiation. */
 class power : public basic
 {
+    GINAC_DECLARE_REGISTERED_CLASS(power, basic)
+
     friend class mul;
 
 // member functions

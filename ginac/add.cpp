@@ -25,12 +25,15 @@
 
 #include "add.h"
 #include "mul.h"
+#include "archive.h"
 #include "debugmsg.h"
 #include "utils.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
 #endif // ndef NO_GINAC_NAMESPACE
+
+GINAC_IMPLEMENT_REGISTERED_CLASS(add, expairseq)
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -70,12 +73,12 @@ add const & add::operator=(add const & other)
 
 void add::copy(add const & other)
 {
-    expairseq::copy(other);
+    inherited::copy(other);
 }
 
 void add::destroy(bool call_parent)
 {
-    if (call_parent) expairseq::destroy(call_parent);
+    if (call_parent) inherited::destroy(call_parent);
 }
 
 //////////
@@ -146,6 +149,28 @@ add::add(epvector * vp, ex const & oc)
     construct_from_epvector(*vp);
     delete vp;
     GINAC_ASSERT(is_canonical());
+}
+
+//////////
+// archiving
+//////////
+
+/** Construct object from archive_node. */
+add::add(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+{
+    debugmsg("add constructor from archive_node", LOGLEVEL_CONSTRUCT);
+}
+
+/** Unarchive the object. */
+ex add::unarchive(const archive_node &n, const lst &sym_lst)
+{
+    return (new add(n, sym_lst))->setflag(status_flags::dynallocated);
+}
+
+/** Archive the object. */
+void add::archive(archive_node &n) const
+{
+    inherited::archive(n);
 }
 
 //////////
@@ -317,7 +342,7 @@ bool add::info(unsigned inf) const
         }
         return overall_coeff.info(inf);
     } else {
-        return expairseq::info(inf);
+        return inherited::info(inf);
     }
 }
 
@@ -421,7 +446,7 @@ exvector add::get_indices(void) const
 ex add::simplify_ncmul(exvector const & v) const
 {
     if (seq.size()==0) {
-        return expairseq::simplify_ncmul(v);
+        return inherited::simplify_ncmul(v);
     }
     return (*seq.begin()).rest.simplify_ncmul(v);
 }    
@@ -430,12 +455,12 @@ ex add::simplify_ncmul(exvector const & v) const
 
 int add::compare_same_type(basic const & other) const
 {
-    return expairseq::compare_same_type(other);
+    return inherited::compare_same_type(other);
 }
 
 bool add::is_equal_same_type(basic const & other) const
 {
-    return expairseq::is_equal_same_type(other);
+    return inherited::is_equal_same_type(other);
 }
 
 unsigned add::return_type(void) const

@@ -32,6 +32,8 @@ namespace GiNaC {
 /** Sum of expressions. */
 class add : public expairseq
 {
+    GINAC_DECLARE_REGISTERED_CLASS(add, expairseq)
+
     friend class mul;
     friend class ncmul;
     friend class power;

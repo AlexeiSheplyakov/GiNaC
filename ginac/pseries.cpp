@@ -1,6 +1,6 @@
-/** @file series.cpp
+/** @file pseries.cpp
  *
- *  Implementation of class for extended truncated power-series and
+ *  Implementation of class for extended truncated power series and
  *  methods for series expansion. */
 
 /*
@@ -21,44 +21,48 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "series.h"
+#include "pseries.h"
 #include "add.h"
 #include "inifcns.h"
+#include "lst.h"
 #include "mul.h"
 #include "power.h"
 #include "relational.h"
 #include "symbol.h"
-#include "debugmsg.h"
+#include "archive.h"
 #include "utils.h"
+#include "debugmsg.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
 #endif // ndef NO_GINAC_NAMESPACE
 
+GINAC_IMPLEMENT_REGISTERED_CLASS(pseries, basic)
+
 /*
  *  Default constructor, destructor, copy constructor, assignment operator and helpers
  */
 
-series::series() : basic(TINFO_series)
+pseries::pseries() : basic(TINFO_pseries)
 {
-    debugmsg("series default constructor", LOGLEVEL_CONSTRUCT);
+    debugmsg("pseries default constructor", LOGLEVEL_CONSTRUCT);
 }
 
-series::~series()
+pseries::~pseries()
 {
-    debugmsg("series destructor", LOGLEVEL_DESTRUCT);
+    debugmsg("pseries destructor", LOGLEVEL_DESTRUCT);
     destroy(false);
 }
 
-series::series(series const &other)
+pseries::pseries(pseries const &other)
 {
-    debugmsg("series copy constructor", LOGLEVEL_CONSTRUCT);
+    debugmsg("pseries copy constructor", LOGLEVEL_CONSTRUCT);
     copy(other);
 }
 
-series const &series::operator=(series const & other)
+pseries const &pseries::operator=(pseries const & other)
 {
-    debugmsg("series operator=", LOGLEVEL_ASSIGNMENT);
+    debugmsg("pseries operator=", LOGLEVEL_ASSIGNMENT);
     if (this != &other) {
         destroy(true);
         copy(other);
@@ -66,7 +70,7 @@ series const &series::operator=(series const & other)
     return *this;
 }
 
-void series::copy(series const &other)
+void pseries::copy(pseries const &other)
 {
     inherited::copy(other);
     seq = other.seq;
@@ -74,7 +78,7 @@ void series::copy(series const &other)
     point = other.point;
 }
 
-void series::destroy(bool call_parent)
+void pseries::destroy(bool call_parent)
 {
     if (call_parent)
         inherited::destroy(call_parent);
@@ -85,7 +89,7 @@ void series::destroy(bool call_parent)
  *  Other constructors
  */
 
-/** Construct series from a vector of coefficients and powers.
+/** Construct pseries from a vector of coefficients and powers.
  *  expair.rest holds the coefficient, expair.coeff holds the power.
  *  The powers must be integers (positive or negative) and in ascending order;
  *  the last coefficient can be Order(_ex1()) to represent a truncated,
@@ -94,12 +98,53 @@ void series::destroy(bool call_parent)
  *  @param var_  series variable (must hold a symbol)
  *  @param point_  expansion point
  *  @param ops_  vector of {coefficient, power} pairs (coefficient must not be zero)
- *  @return newly constructed series */
-series::series(ex const &var_, ex const &point_, epvector const &ops_)
-    : basic(TINFO_series), seq(ops_), var(var_), point(point_)
+ *  @return newly constructed pseries */
+pseries::pseries(ex const &var_, ex const &point_, epvector const &ops_)
+    : basic(TINFO_pseries), seq(ops_), var(var_), point(point_)
 {
-    debugmsg("series constructor from ex,ex,epvector", LOGLEVEL_CONSTRUCT);
+    debugmsg("pseries constructor from ex,ex,epvector", LOGLEVEL_CONSTRUCT);
     GINAC_ASSERT(is_ex_exactly_of_type(var_, symbol));
+}
+
+
+/*
+ *  Archiving
+ */
+
+/** Construct object from archive_node. */
+pseries::pseries(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+{
+    debugmsg("pseries constructor from archive_node", LOGLEVEL_CONSTRUCT);
+    for (unsigned int i=0; true; i++) {
+        ex rest;
+        ex coeff;
+        if (n.find_ex("coeff", rest, sym_lst, i) && n.find_ex("power", coeff, sym_lst, i))
+            seq.push_back(expair(rest, coeff));
+        else
+            break;
+    }
+    n.find_ex("var", var, sym_lst);
+    n.find_ex("point", point, sym_lst);
+}
+
+/** Unarchive the object. */
+ex pseries::unarchive(const archive_node &n, const lst &sym_lst)
+{
+    return (new pseries(n, sym_lst))->setflag(status_flags::dynallocated);
+}
+
+/** Archive the object. */
+void pseries::archive(archive_node &n) const
+{
+    inherited::archive(n);
+    epvector::const_iterator i = seq.begin(), iend = seq.end();
+    while (i != iend) {
+        n.add_ex("coeff", i->rest);
+        n.add_ex("power", i->coeff);
+        i++;
+    }
+    n.add_ex("var", var);
+    n.add_ex("point", point);
 }
 
 
@@ -107,30 +152,29 @@ series::series(ex const &var_, ex const &point_, epvector const &ops_)
  *  Functions overriding virtual functions from base classes
  */
 
-basic *series::duplicate() const
+basic *pseries::duplicate() const
 {
-    debugmsg("series duplicate", LOGLEVEL_DUPLICATE);
-    return new series(*this);
+    debugmsg("pseries duplicate", LOGLEVEL_DUPLICATE);
+    return new pseries(*this);
 }
 
-void series::print(ostream &os, unsigned upper_precedence) const
+void pseries::print(ostream &os, unsigned upper_precedence) const
 {
 	debugmsg("symbol print", LOGLEVEL_PRINT);
 	convert_to_poly().print(os, upper_precedence);
 }
 
-void series::printraw(ostream &os) const
+void pseries::printraw(ostream &os) const
 {
 	debugmsg("symbol printraw", LOGLEVEL_PRINT);
-	os << "series(" << var << ";" << point << ";";
+	os << "pseries(" << var << ";" << point << ";";
 	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); i++) {
 		os << "(" << (*i).rest << "," << (*i).coeff << "),";
 	}
 	os << ")";
 }
 
-// Highest degree of variable
-int series::degree(symbol const &s) const
+int pseries::degree(symbol const &s) const
 {
     if (var.is_equal(s)) {
         // Return last exponent
@@ -153,8 +197,7 @@ int series::degree(symbol const &s) const
     }
 }
 
-// Lowest degree of variable
-int series::ldegree(symbol const &s) const
+int pseries::ldegree(symbol const &s) const
 {
     if (var.is_equal(s)) {
         // Return first exponent
@@ -177,8 +220,7 @@ int series::ldegree(symbol const &s) const
     }
 }
 
-// Coefficient of variable
-ex series::coeff(symbol const &s, int const n) const
+ex pseries::coeff(symbol const &s, int const n) const
 {
     if (var.is_equal(s)) {
         epvector::const_iterator it = seq.begin(), itend = seq.end();
@@ -195,7 +237,7 @@ ex series::coeff(symbol const &s, int const n) const
         return convert_to_poly().coeff(s, n);
 }
 
-ex series::eval(int level) const
+ex pseries::eval(int level) const
 {
     if (level == 1)
         return this->hold();
@@ -208,23 +250,44 @@ ex series::eval(int level) const
         new_seq.push_back(expair(it->rest.eval(level-1), it->coeff));
         it++;
     }
-    return (new series(var, point, new_seq))->setflag(status_flags::dynallocated | status_flags::evaluated);
+    return (new pseries(var, point, new_seq))->setflag(status_flags::dynallocated | status_flags::evaluated);
 }
 
 /** Evaluate numerically.  The order term is dropped. */
-ex series::evalf(int level) const
+ex pseries::evalf(int level) const
 {
     return convert_to_poly().evalf(level);
 }
 
+ex pseries::subs(lst const & ls, lst const & lr) const
+{
+	// If expansion variable is being substituted, convert the series to a
+	// polynomial and do the substitution there because the result might
+	// no longer be a power series
+	if (ls.has(var))
+		return convert_to_poly(true).subs(ls, lr);
+
+	// Otherwise construct a new series with substituted coefficients and
+	// expansion point
+	epvector new_seq;
+	new_seq.reserve(seq.size());
+	epvector::const_iterator it = seq.begin(), itend = seq.end();
+	while (it != itend) {
+		new_seq.push_back(expair(it->rest.subs(ls, lr), it->coeff));
+		it++;
+	}
+    return (new pseries(var, point.subs(ls, lr), new_seq))->setflag(status_flags::dynallocated);
+}
+
+
 /*
- *  Construct expression (polynomial) out of series
+ *  Construct ordinary polynomial out of series
  */
 
-/** Convert a series object to an ordinary polynomial.
+/** Convert a pseries object to an ordinary polynomial.
  *
  *  @param no_order flag: discard higher order terms */
-ex series::convert_to_poly(bool no_order) const
+ex pseries::convert_to_poly(bool no_order) const
 {
     ex e;
     epvector::const_iterator it = seq.begin(), itend = seq.end();
@@ -262,7 +325,7 @@ ex basic::series(symbol const & s, ex const & point, int order) const
         deriv = deriv.diff(s).expand();
         if (deriv.is_zero()) {
             // Series terminates
-            return series::series(s, point, seq);
+            return pseries(s, point, seq);
         }
         coeff = fac.inverse() * deriv.subs(s == point);
         if (!coeff.is_zero())
@@ -273,23 +336,41 @@ ex basic::series(symbol const & s, ex const & point, int order) const
     deriv = deriv.diff(s);
     if (!deriv.is_zero())
         seq.push_back(expair(Order(_ex1()), numeric(n)));
-    return series::series(s, point, seq);
+    return pseries(s, point, seq);
 }
 
 
-/** Add one series object to another, producing a series object that represents
+/** Implementation of ex::series() for symbols.
+ *  @see ex::series */
+ex symbol::series(symbol const & s, ex const & point, int order) const
+{
+	epvector seq;
+	if (is_equal(s)) {
+		if (order > 0 && !point.is_zero())
+			seq.push_back(expair(point, _ex0()));
+		if (order > 1)
+			seq.push_back(expair(_ex1(), _ex1()));
+		else
+			seq.push_back(expair(Order(_ex1()), numeric(order)));
+	} else
+		seq.push_back(expair(*this, _ex0()));
+	return pseries(s, point, seq);
+}
+
+
+/** Add one series object to another, producing a pseries object that represents
  *  the sum.
  *
- *  @param other  series object to add with
- *  @return the sum as a series */
-ex series::add_series(const series &other) const
+ *  @param other  pseries object to add with
+ *  @return the sum as a pseries */
+ex pseries::add_series(const pseries &other) const
 {
     // Adding two series with different variables or expansion points
     // results in an empty (constant) series 
     if (!is_compatible_to(other)) {
         epvector nul;
         nul.push_back(expair(Order(_ex1()), _ex0()));
-        return series(var, point, nul);
+        return pseries(var, point, nul);
     }
     
     // Series addition
@@ -347,79 +428,45 @@ ex series::add_series(const series &other) const
             }
         }
     }
-    return series(var, point, new_seq);
+    return pseries(var, point, new_seq);
 }
 
 
 /** Implementation of ex::series() for sums. This performs series addition when
- *  adding series objects.
+ *  adding pseries objects.
  *  @see ex::series */
-/*
-ex add::series(symbol const & s, ex const & point, int order) const
-{
-    ex acc; // Series accumulator
-
-    // Get first term
-    epvector::const_iterator it = seq.begin();
-    epvector::const_iterator itend = seq.end();
-    if (it != itend) {
-        if (is_ex_exactly_of_type(it->rest, series))
-            acc = it->rest;
-        else
-            acc = it->rest.series(s, point, order);
-        if (!it->coeff.is_equal(_ex1()))
-            acc = ex_to_series(acc).mul_const(ex_to_numeric(it->coeff));
-        it++;
-    }
-
-    // Add remaining terms
-    for (; it!=itend; it++) {
-        ex op;
-        if (is_ex_exactly_of_type(it->rest, series))
-            op = it->rest;
-        else
-            op = it->rest.series(s, point, order);
-        if (!it->coeff.is_equal(_ex1()))
-            op = ex_to_series(op).mul_const(ex_to_numeric(it->coeff));
-
-        // Series addition
-        acc = ex_to_series(acc).add_series(ex_to_series(op));
-    }
-    return acc;
-}
-*/
 ex add::series(symbol const & s, ex const & point, int order) const
 {
     ex acc; // Series accumulator
     
     // Get first term from overall_coeff
-    acc = overall_coeff.series(s,point,order);
-    
+    acc = overall_coeff.series(s, point, order);
+
     // Add remaining terms
     epvector::const_iterator it = seq.begin();
     epvector::const_iterator itend = seq.end();
     for (; it!=itend; it++) {
         ex op;
-        if (is_ex_exactly_of_type(it->rest, series))
+        if (is_ex_exactly_of_type(it->rest, pseries))
             op = it->rest;
         else
             op = it->rest.series(s, point, order);
         if (!it->coeff.is_equal(_ex1()))
-            op = ex_to_series(op).mul_const(ex_to_numeric(it->coeff));
+            op = ex_to_pseries(op).mul_const(ex_to_numeric(it->coeff));
         
         // Series addition
-        acc = ex_to_series(acc).add_series(ex_to_series(op));
+        acc = ex_to_pseries(acc).add_series(ex_to_pseries(op));
     }
     return acc;
 }
 
 
-/** Multiply a series object with a numeric constant, producing a series object
+/** Multiply a pseries object with a numeric constant, producing a pseries object
  *  that represents the product.
  *
  *  @param other  constant to multiply with
- *  @return the product as a series */
-ex series::mul_const(const numeric &other) const
+ *  @return the product as a pseries */
+ex pseries::mul_const(const numeric &other) const
 {
     epvector new_seq;
     new_seq.reserve(seq.size());
@@ -432,23 +479,23 @@ ex series::mul_const(const numeric &other) const
             new_seq.push_back(*it);
         it++;
     }
-    return series(var, point, new_seq);
+    return pseries(var, point, new_seq);
 }
 
 
-/** Multiply one series object to another, producing a series object that
+/** Multiply one pseries object to another, producing a pseries object that
  *  represents the product.
  *
- *  @param other  series object to multiply with
- *  @return the product as a series */
-ex series::mul_series(const series &other) const
+ *  @param other  pseries object to multiply with
+ *  @return the product as a pseries */
+ex pseries::mul_series(const pseries &other) const
 {
     // Multiplying two series with different variables or expansion points
     // results in an empty (constant) series 
     if (!is_compatible_to(other)) {
         epvector nul;
         nul.push_back(expair(Order(_ex1()), _ex0()));
-        return series(var, point, nul);
+        return pseries(var, point, nul);
     }
 
     // Series multiplication
@@ -486,47 +533,9 @@ ex series::mul_series(const series &other) const
     }
     if (higher_order_c < INT_MAX)
         new_seq.push_back(expair(Order(_ex1()), numeric(higher_order_c)));
-    return series::series(var, point, new_seq);
+    return pseries(var, point, new_seq);
 }
 
-
-/*
-ex mul::series(symbol const & s, ex const & point, int order) const
-{
-    ex acc; // Series accumulator
-
-    // Get first term
-    epvector::const_iterator it = seq.begin();
-    epvector::const_iterator itend = seq.end();
-    if (it != itend) {
-        if (is_ex_exactly_of_type(it->rest, series))
-            acc = it->rest;
-        else
-            acc = it->rest.series(s, point, order);
-        if (!it->coeff.is_equal(_ex1()))
-            acc = ex_to_series(acc).power_const(ex_to_numeric(it->coeff), order);
-        it++;
-    }
-
-    // Multiply with remaining terms
-    for (; it!=itend; it++) {
-        ex op = it->rest;
-        if (op.info(info_flags::numeric)) {
-            // series * const (special case, faster)
-            ex f = power(op, it->coeff);
-            acc = ex_to_series(acc).mul_const(ex_to_numeric(f));
-            continue;
-        } else if (!is_ex_exactly_of_type(op, series))
-            op = op.series(s, point, order);
-        if (!it->coeff.is_equal(_ex1()))
-            op = ex_to_series(op).power_const(ex_to_numeric(it->coeff), order);
-
-        // Series multiplication
-        acc = ex_to_series(acc).mul_series(ex_to_series(op));
-    }
-    return acc;
-}
-*/
 
 /** Implementation of ex::series() for product. This performs series
  *  multiplication when multiplying series.
@@ -546,15 +555,15 @@ ex mul::series(symbol const & s, ex const & point, int order) const
         if (op.info(info_flags::numeric)) {
             // series * const (special case, faster)
             ex f = power(op, it->coeff);
-            acc = ex_to_series(acc).mul_const(ex_to_numeric(f));
+            acc = ex_to_pseries(acc).mul_const(ex_to_numeric(f));
             continue;
-        } else if (!is_ex_exactly_of_type(op, series))
+        } else if (!is_ex_exactly_of_type(op, pseries))
             op = op.series(s, point, order);
         if (!it->coeff.is_equal(_ex1()))
-            op = ex_to_series(op).power_const(ex_to_numeric(it->coeff), order);
+            op = ex_to_pseries(op).power_const(ex_to_numeric(it->coeff), order);
 
         // Series multiplication
-        acc = ex_to_series(acc).mul_series(ex_to_series(op));
+        acc = ex_to_pseries(acc).mul_series(ex_to_pseries(op));
     }
     return acc;
 }
@@ -564,7 +573,7 @@ ex mul::series(symbol const & s, ex const & point, int order) const
  *
  *  @param p  power to compute
  *  @param deg  truncation order of series calculation */
-ex series::power_const(const numeric &p, int deg) const
+ex pseries::power_const(const numeric &p, int deg) const
 {
     int i;
     const symbol *s = static_cast<symbol *>(var.bp);
@@ -604,7 +613,7 @@ ex series::power_const(const numeric &p, int deg) const
     }
     if (!higher_order && !all_sums_zero)
         new_seq.push_back(expair(Order(_ex1()), numeric(deg) + p * ldeg));
-    return series::series(var, point, new_seq);
+    return pseries(var, point, new_seq);
 }
 
 
@@ -614,7 +623,7 @@ ex series::power_const(const numeric &p, int deg) const
 ex power::series(symbol const & s, ex const & point, int order) const
 {
     ex e;
-    if (!is_ex_exactly_of_type(basis, series)) {
+    if (!is_ex_exactly_of_type(basis, pseries)) {
         // Basis is not a series, may there be a singulary?
         if (!exponent.info(info_flags::negint))
             return basic::series(s, point, order);
@@ -631,19 +640,19 @@ ex power::series(symbol const & s, ex const & point, int order) const
     }
     
     // Power e
-    return ex_to_series(e).power_const(ex_to_numeric(exponent), order);
+    return ex_to_pseries(e).power_const(ex_to_numeric(exponent), order);
 }
 
 
 /** Compute the truncated series expansion of an expression.
- *  This function returns an expression containing an object of class series to
+ *  This function returns an expression containing an object of class pseries to
  *  represent the series. If the series does not terminate within the given
  *  truncation order, the last term of the series will be an order term.
  *
  *  @param s  expansion variable
  *  @param point  expansion point
  *  @param order  truncation order of series calculations
- *  @return an expression holding a series object */
+ *  @return an expression holding a pseries object */
 ex ex::series(symbol const &s, ex const &point, int order) const
 {
     GINAC_ASSERT(bp!=0);
@@ -652,8 +661,8 @@ ex ex::series(symbol const &s, ex const &point, int order) const
 
 
 // Global constants
-const series some_series;
-type_info const & typeid_series = typeid(some_series);
+const pseries some_pseries;
+type_info const & typeid_pseries = typeid(some_pseries);
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC

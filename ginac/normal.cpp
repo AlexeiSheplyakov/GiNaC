@@ -43,7 +43,7 @@
 #include "numeric.h"
 #include "power.h"
 #include "relational.h"
-#include "series.h"
+#include "pseries.h"
 #include "symbol.h"
 #include "utils.h"
 
@@ -1460,10 +1460,10 @@ ex power::normal(lst &sym_lst, lst &repl_lst, int level) const
 }
 
 
-/** Implementation of ex::normal() for series. It normalizes each coefficient and
+/** Implementation of ex::normal() for pseries. It normalizes each coefficient and
  *  replaces the series by a temporary symbol.
  *  @see ex::normal */
-ex series::normal(lst &sym_lst, lst &repl_lst, int level) const
+ex pseries::normal(lst &sym_lst, lst &repl_lst, int level) const
 {
     epvector new_seq;
     new_seq.reserve(seq.size());
@@ -1474,7 +1474,7 @@ ex series::normal(lst &sym_lst, lst &repl_lst, int level) const
         it++;
     }
 
-    ex n = series(var, point, new_seq);
+    ex n = pseries(var, point, new_seq);
     return replace_with_symbol(n, sym_lst, repl_lst);
 }
 

@@ -33,6 +33,8 @@ namespace GiNaC {
 /** Base class for non-commutative indexed objects */
 class indexed : public exprseq
 {
+    GINAC_DECLARE_REGISTERED_CLASS(indexed, exprseq)
+
 // member functions
 
     // default constructor, destructor, copy constructor assignment operator and helpers

@@ -26,10 +26,13 @@
 
 #include <vector>
 #include <stdexcept>
+#include <string>
+#include <strstream>	//!!
 
 #include "numeric.h"
 #include "ex.h"
 #include "config.h"
+#include "archive.h"
 #include "debugmsg.h"
 #include "utils.h"
 
@@ -47,6 +50,8 @@ namespace GiNaC {
 
 // linker has no problems finding text symbols for numerator or denominator
 //#define SANE_LINKER
+
+GINAC_IMPLEMENT_REGISTERED_CLASS(numeric, basic)
 
 //////////
 // default constructor, destructor, copy constructor assignment
@@ -110,7 +115,7 @@ void numeric::destroy(bool call_parent)
 
 numeric::numeric(int i) : basic(TINFO_numeric)
 {
-    debugmsg("const numericructor from int",LOGLEVEL_CONSTRUCT);
+    debugmsg("numeric constructor from int",LOGLEVEL_CONSTRUCT);
     // Not the whole int-range is available if we don't cast to long
     // first. This is due to the behaviour of the cl_I-ctor, which
     // emphasizes efficiency:
@@ -122,7 +127,7 @@ numeric::numeric(int i) : basic(TINFO_numeric)
 
 numeric::numeric(unsigned int i) : basic(TINFO_numeric)
 {
-    debugmsg("const numericructor from uint",LOGLEVEL_CONSTRUCT);
+    debugmsg("numeric constructor from uint",LOGLEVEL_CONSTRUCT);
     // Not the whole uint-range is available if we don't cast to ulong
     // first. This is due to the behaviour of the cl_I-ctor, which
     // emphasizes efficiency:
@@ -134,7 +139,7 @@ numeric::numeric(unsigned int i) : basic(TINFO_numeric)
 
 numeric::numeric(long i) : basic(TINFO_numeric)
 {
-    debugmsg("const numericructor from long",LOGLEVEL_CONSTRUCT);
+    debugmsg("numeric constructor from long",LOGLEVEL_CONSTRUCT);
     value = new cl_I(i);
     calchash();
     setflag(status_flags::evaluated|
@@ -143,7 +148,7 @@ numeric::numeric(long i) : basic(TINFO_numeric)
 
 numeric::numeric(unsigned long i) : basic(TINFO_numeric)
 {
-    debugmsg("const numericructor from ulong",LOGLEVEL_CONSTRUCT);
+    debugmsg("numeric constructor from ulong",LOGLEVEL_CONSTRUCT);
     value = new cl_I(i);
     calchash();
     setflag(status_flags::evaluated|
@@ -155,7 +160,7 @@ numeric::numeric(unsigned long i) : basic(TINFO_numeric)
  *  @exception overflow_error (division by zero) */
 numeric::numeric(long numer, long denom) : basic(TINFO_numeric)
 {
-    debugmsg("const numericructor from long/long",LOGLEVEL_CONSTRUCT);
+    debugmsg("numeric constructor from long/long",LOGLEVEL_CONSTRUCT);
     if (!denom)
         throw (std::overflow_error("division by zero"));
     value = new cl_I(numer);
@@ -167,7 +172,7 @@ numeric::numeric(long numer, long denom) : basic(TINFO_numeric)
 
 numeric::numeric(double d) : basic(TINFO_numeric)
 {
-    debugmsg("const numericructor from double",LOGLEVEL_CONSTRUCT);
+    debugmsg("numeric constructor from double",LOGLEVEL_CONSTRUCT);
     // We really want to explicitly use the type cl_LF instead of the
     // more general cl_F, since that would give us a cl_DF only which
     // will not be promoted to cl_LF if overflow occurs:
@@ -180,7 +185,7 @@ numeric::numeric(double d) : basic(TINFO_numeric)
 
 numeric::numeric(char const *s) : basic(TINFO_numeric)
 {   // MISSING: treatment of complex and ints and rationals.
-    debugmsg("const numericructor from string",LOGLEVEL_CONSTRUCT);
+    debugmsg("numeric constructor from string",LOGLEVEL_CONSTRUCT);
     if (strchr(s, '.'))
         value = new cl_LF(s);
     else
@@ -194,11 +199,65 @@ numeric::numeric(char const *s) : basic(TINFO_numeric)
  *  only. */
 numeric::numeric(cl_N const & z) : basic(TINFO_numeric)
 {
-    debugmsg("const numericructor from cl_N", LOGLEVEL_CONSTRUCT);
+    debugmsg("numeric constructor from cl_N", LOGLEVEL_CONSTRUCT);
     value = new cl_N(z);
     calchash();
     setflag(status_flags::evaluated|
             status_flags::hash_calculated);
+}
+
+//////////
+// archiving
+//////////
+
+/** Construct object from archive_node. */
+numeric::numeric(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+{
+    debugmsg("numeric constructor from archive_node", LOGLEVEL_CONSTRUCT);
+    value = new cl_N;
+#if 0	//!!
+    // This is how it should be implemented but we have no istringstream here...
+    string str;
+    if (n.find_string("number", str)) {
+        istringstream s(str);
+        s >> *value;
+    }
+#else
+    // Workaround for the above: read from strstream
+    string str;
+    if (n.find_string("number", str)) {
+        istrstream f(str.c_str(), str.size() + 1);
+        f >> *value;
+    }
+#endif
+    calchash();
+    setflag(status_flags::evaluated|
+            status_flags::hash_calculated);
+}
+
+/** Unarchive the object. */
+ex numeric::unarchive(const archive_node &n, const lst &sym_lst)
+{
+    return (new numeric(n, sym_lst))->setflag(status_flags::dynallocated);
+}
+
+/** Archive the object. */
+void numeric::archive(archive_node &n) const
+{
+    inherited::archive(n);
+#if 0	//!!
+    // This is how it should be implemented but we have no ostringstream here...
+    ostringstream s;
+    s << *value;
+    n.add_string("number", s.str());
+#else
+    // Workaround for the above: write to strstream
+    char buf[1024];
+    ostrstream f(buf, 1024);
+    f << *value << ends;
+    string str(buf);
+    n.add_string("number", str);
+#endif
 }
 
 //////////
@@ -1370,7 +1429,7 @@ _numeric_digits::_numeric_digits()
 {
     assert(!too_late);
     too_late = true;
-    cl_default_float_format = cl_float_format(17); 
+    cl_default_float_format = cl_float_format(17);
 }
 
 _numeric_digits& _numeric_digits::operator=(long prec)

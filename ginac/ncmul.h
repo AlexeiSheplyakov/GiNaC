@@ -32,6 +32,8 @@ namespace GiNaC {
 /** Non-commutative product of expressions. */
 class ncmul : public exprseq
 {
+    GINAC_DECLARE_REGISTERED_CLASS(ncmul, exprseq)
+
     friend class power;
     friend ex nonsimplified_ncmul(exvector const & v);
     friend ex simplified_ncmul(exvector const & v);
