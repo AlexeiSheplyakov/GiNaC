@@ -1,6 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
-bin_PROGRAMS = ginaccint.bin ginaccint
+bin_PROGRAMS = ginaccint.bin
+bin_SCRIPTS = ginaccint
 noinst_LTLIBRARIES = libginac.la
 ginaccint_bin_SOURCES = ginaccint.bin.cpp dummies.cpp dummies.h
 man_MANS = ginaccint.1

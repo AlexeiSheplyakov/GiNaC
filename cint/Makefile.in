@@ -104,7 +104,8 @@ TUTORIAL_TARGETS = @TUTORIAL_TARGETS@
 VERSION = @VERSION@
 YACC = @YACC@
 
-bin_PROGRAMS = ginaccint.bin ginaccint
+bin_PROGRAMS = ginaccint.bin
+bin_SCRIPTS = ginaccint
 noinst_LTLIBRARIES = libginac.la
 ginaccint_bin_SOURCES = ginaccint.bin.cpp dummies.cpp dummies.h
 man_MANS = ginaccint.1
@@ -130,11 +131,8 @@ ginaccint_bin_OBJECTS =  ginaccint.bin.o dummies.o
 ginaccint_bin_LDADD = $(LDADD)
 ginaccint_bin_DEPENDENCIES = 
 ginaccint_bin_LDFLAGS = 
-ginaccint_SOURCES = ginaccint.c
-ginaccint_OBJECTS =  ginaccint.o
-ginaccint_LDADD = $(LDADD)
-ginaccint_DEPENDENCIES = 
-ginaccint_LDFLAGS = 
+SCRIPTS =  $(bin_SCRIPTS)
+
 CXXFLAGS = @CXXFLAGS@
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -156,10 +154,9 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/dummies.P .deps/ginaccint.P .deps/ginaccint.bin.P \
-.deps/libginac.la.P
-SOURCES = libginac.la.c $(ginaccint_bin_SOURCES) ginaccint.c
-OBJECTS = libginac.la.lo $(ginaccint_bin_OBJECTS) ginaccint.o
+DEP_FILES =  .deps/dummies.P .deps/ginaccint.bin.P .deps/libginac.la.P
+SOURCES = libginac.la.c $(ginaccint_bin_SOURCES)
+OBJECTS = libginac.la.lo $(ginaccint_bin_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -240,9 +237,24 @@ uninstall-binPROGRAMS:
 	  rm -f $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
 	done
 
-ginaccint: $(ginaccint_OBJECTS) $(ginaccint_DEPENDENCIES)
-	@rm -f ginaccint
-	$(LINK) $(ginaccint_LDFLAGS) $(ginaccint_OBJECTS) $(ginaccint_LDADD) $(LIBS)
+install-binSCRIPTS: $(bin_SCRIPTS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(bindir)
+	@list='$(bin_SCRIPTS)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo " $(INSTALL_SCRIPT) $$p $(DESTDIR)$(bindir)/`echo $$p|sed '$(transform)'`"; \
+	    $(INSTALL_SCRIPT) $$p $(DESTDIR)$(bindir)/`echo $$p|sed '$(transform)'`; \
+	  else if test -f $(srcdir)/$$p; then \
+	    echo " $(INSTALL_SCRIPT) $(srcdir)/$$p $(DESTDIR)$(bindir)/`echo $$p|sed '$(transform)'`"; \
+	    $(INSTALL_SCRIPT) $(srcdir)/$$p $(DESTDIR)$(bindir)/`echo $$p|sed '$(transform)'`; \
+	  else :; fi; fi; \
+	done
+
+uninstall-binSCRIPTS:
+	@$(NORMAL_UNINSTALL)
+	list='$(bin_SCRIPTS)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(bindir)/`echo $$p|sed '$(transform)'`; \
+	done
 .cpp.o:
 	$(CXXCOMPILE) -c $<
 .cpp.lo:
@@ -395,7 +407,7 @@ check-am: all-am
 check: check-am
 installcheck-am:
 installcheck: installcheck-am
-install-exec-am: install-binPROGRAMS
+install-exec-am: install-binPROGRAMS install-binSCRIPTS
 install-exec: install-exec-am
 
 install-data-am: install-man
@@ -404,14 +416,15 @@ install-data: install-data-am
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
 install: install-am
-uninstall-am: uninstall-binPROGRAMS uninstall-man
+uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS uninstall-man
 uninstall: uninstall-am
-all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(MANS)
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(SCRIPTS) $(MANS)
 all-redirect: all-am
 install-strip:
 	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
 installdirs:
-	$(mkinstalldirs)  $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1
+	$(mkinstalldirs)  $(DESTDIR)$(bindir) $(DESTDIR)$(bindir) \
+		$(DESTDIR)$(mandir)/man1
 
 
 mostlyclean-generic:
@@ -458,15 +471,16 @@ mostlyclean-compile distclean-compile clean-compile \
 maintainer-clean-compile mostlyclean-libtool distclean-libtool \
 clean-libtool maintainer-clean-libtool mostlyclean-binPROGRAMS \
 distclean-binPROGRAMS clean-binPROGRAMS maintainer-clean-binPROGRAMS \
-uninstall-binPROGRAMS install-binPROGRAMS install-man1 uninstall-man1 \
-install-man uninstall-man tags mostlyclean-tags distclean-tags \
-clean-tags maintainer-clean-tags distdir mostlyclean-depend \
-distclean-depend clean-depend maintainer-clean-depend info-am info \
-dvi-am dvi check check-am installcheck-am installcheck install-exec-am \
-install-exec install-data-am install-data install-am install \
-uninstall-am uninstall all-redirect all-am all installdirs \
-mostlyclean-generic distclean-generic clean-generic \
-maintainer-clean-generic clean mostlyclean distclean maintainer-clean
+uninstall-binPROGRAMS install-binPROGRAMS uninstall-binSCRIPTS \
+install-binSCRIPTS install-man1 uninstall-man1 install-man \
+uninstall-man tags mostlyclean-tags distclean-tags clean-tags \
+maintainer-clean-tags distdir mostlyclean-depend distclean-depend \
+clean-depend maintainer-clean-depend info-am info dvi-am dvi check \
+check-am installcheck-am installcheck install-exec-am install-exec \
+install-data-am install-data install-am install uninstall-am uninstall \
+all-redirect all-am all installdirs mostlyclean-generic \
+distclean-generic clean-generic maintainer-clean-generic clean \
+mostlyclean distclean maintainer-clean
 
 
 # Build a modified library in the ginac-subdir and put it into the cint-subdir:

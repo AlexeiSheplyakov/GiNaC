@@ -16,7 +16,7 @@ with the native compiler and linked into the system.
 After startup, ginsh displays a prompt signifying that it is ready to
 accept your input. All C++ statements are valid as input, extended by
 GiNaC's numeric or symbolic expressions.  E.g.
-.BR fibonacci(24)/1104; 
+.BR fibonacci(24)/1104;
 returns a GiNaC object of class
 .BR ex,
 , which in this case represents the numeric 42.  Symbols are declared by 
@@ -64,6 +64,10 @@ Returns the expression whose output was marked
 .BR "\fBOut\fP\fInum\fP" 
 as a handle.
 
+.IP "\fBLAST\fP, \fBLLAST, \fP\fBLLLAST\fP"
+Return the last, second last and third last expression, 
+respectively.
+
 .SH EXAMPLES
 .nf
 GiNaC> symbol x("x"), y("y"), z("z");
@@ -75,7 +79,7 @@ Out1 = -2*(1+x)^(-3)*(-2-x+x^2)+(-1+2*x)*(1+x)^(-2)
 GiNaC> s.normal();
 Out2 = (-2+x)*(1+x)^(-1)
 GiNaC> for (int i=2; i<20; i+=2) {
-     >     cout << "B(" << i << ") == " << bernoulli(i) << endl;
+     >     cout << "B(" << i << ")==" << bernoulli(i) << endl;
      > }
 B(2)==1/6
 B(4)==-1/30
@@ -90,13 +94,23 @@ GiNaC> .function
 next expression can be a function definition
 GiNaC> ex EulerNumber(unsigned n)
      > {
-     >     symbol x;
-     >     const ex generator = pow(cosh(x),-1);
-     >     return generator.diff(x,n).subs(x==0);
+     >     symbol xi;
+     >     const ex generator = pow(cosh(xi),-1);
+     >     return generator.diff(xi,n).subs(xi==0);
      > }
 creating file /tmp/ginac26197caa
 GiNaC> EulerNumber(42);
 Out3 = -10364622733519612119397957304745185976310201
+GiNaC> ex f = expand((x*y*z-1)*(x*y*z+3));
+GiNaC> ex g = expand((x*y*z-1)*(x*y*z-3));
+GiNaC> cout << "The GCD of " << f << " and " << g << endl
+     >      << " is " << gcd(f, g) << endl
+     >      << " so " << f/g << endl
+     >      << " is " << normal(f/g) << endl;
+The GCD of -3+2*x*z*y+x^2*z^2*y^2 and 3-4*x*z*y+x^2*z^2*y^2
+ is -1+x*z*y
+ so (-3+2*x*z*y+x^2*z^2*y^2)*(3-4*x*z*y+x^2*z^2*y^2)^(-1)
+ is (-3+x*z*y)^(-1)*(3+x*z*y)
 GiNaC> quit;
 .fi
 
