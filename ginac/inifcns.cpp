@@ -369,6 +369,37 @@ REGISTER_FUNCTION(Li3, eval_func(Li3_eval).
                        latex_name("\\mbox{Li}_3"));
 
 //////////
+// Derivatives of Riemann's Zeta-function  zetaderiv(0,x)==zeta(x)
+//////////
+
+static ex zetaderiv_eval(const ex & n, const ex & x)
+{
+	if (n.info(info_flags::numeric)) {
+		// zetaderiv(0,x) -> zeta(x)
+		if (n.is_zero())
+			return zeta(x);
+	}
+	
+	return zetaderiv(n, x).hold();
+}
+
+static ex zetaderiv_deriv(const ex & n, const ex & x, unsigned deriv_param)
+{
+	GINAC_ASSERT(deriv_param<2);
+	
+	if (deriv_param==0) {
+		// d/dn zeta(n,x)
+		throw(std::logic_error("cannot diff zetaderiv(n,x) with respect to n"));
+	}
+	// d/dx psi(n,x)
+	return zetaderiv(n+1,x);
+}
+
+REGISTER_FUNCTION(zetaderiv, eval_func(zetaderiv_eval).
+	                       	 derivative_func(zetaderiv_deriv).
+  	                         latex_name("\\zeta^\\prime"));
+
+//////////
 // factorial
 //////////
 

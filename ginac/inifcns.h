@@ -88,6 +88,9 @@ DECLARE_FUNCTION_1P(Li2)
 /** Trilogarithm. */
 DECLARE_FUNCTION_1P(Li3)
 
+/** Derivatives of Riemann's Zeta-function. */
+DECLARE_FUNCTION_2P(zetaderiv)
+
 // overloading at work: we cannot use the macros here
 /** Multiple zeta value including Riemann's zeta-function. */
 class zeta1_SERIAL { public: static unsigned serial; };
@@ -95,7 +98,7 @@ template<typename T1>
 inline function zeta(const T1 & p1) {
 	return function(zeta1_SERIAL::serial, ex(p1));
 }
-/** Derivatives of Riemann's Zeta-function. */
+/** Alternating Euler sum or colored MZV. */
 class zeta2_SERIAL { public: static unsigned serial; };
 template<typename T1, typename T2>
 inline function zeta(const T1 & p1, const T2 & p2) {
@@ -106,6 +109,15 @@ template<> inline bool is_the_function<class zeta_SERIAL>(const ex & x)
 {
 	return is_the_function<zeta1_SERIAL>(x) || is_the_function<zeta2_SERIAL>(x);
 }
+
+/** Polylogarithm and multiple polylogarithm. */
+DECLARE_FUNCTION_2P(Li)
+
+/** Nielsen's generalized polylogarithm. */
+DECLARE_FUNCTION_3P(S)
+
+/** Harmonic polylogarithm. */
+DECLARE_FUNCTION_2P(H)
 
 /** Gamma-function. */
 DECLARE_FUNCTION_1P(lgamma)
@@ -142,18 +154,6 @@ DECLARE_FUNCTION_2P(binomial)
 /** Order term function (for truncated power series). */
 DECLARE_FUNCTION_1P(Order)
 
-/** Polylogarithm and multiple polylogarithm. */
-DECLARE_FUNCTION_2P(Li)
-
-/** Nielsen's generalized polylogarithm. */
-DECLARE_FUNCTION_3P(S)
-
-/** Harmonic polylogarithm. */
-DECLARE_FUNCTION_2P(H)
-
-/** Multiple zeta value. */
-DECLARE_FUNCTION_1P(mZeta)
- 
 ex lsolve(const ex &eqns, const ex &symbols, unsigned options = solve_algo::automatic);
 
 /** Check whether a function is the Order (O(n)) function. */
