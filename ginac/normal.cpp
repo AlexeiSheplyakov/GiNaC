@@ -59,7 +59,8 @@ namespace GiNaC {
 #define USE_REMEMBER 0
 
 // Set this if you want divide_in_z() to use trial division followed by
-// polynomial interpolation (usually slower except for very large problems)
+// polynomial interpolation (always slower except for completely dense
+// polynomials)
 #define USE_TRIAL_DIVISION 0
 
 // Set this to enable some statistical output for the GCD routines
@@ -1291,6 +1292,20 @@ ex mul::smod(const numeric &xi) const
 }
 
 
+/** xi-adic polynomial interpolation */
+static ex interpolate(const ex &gamma, const numeric &xi, const symbol &x)
+{
+	ex g = _ex0();
+	ex e = gamma;
+	numeric rxi = xi.inverse();
+	for (int i=0; !e.is_zero(); i++) {
+		ex gi = e.smod(xi);
+		g += gi * power(x, i);
+		e = (e - gi) * rxi;
+	}
+	return g;
+}
+
 /** Exception thrown by heur_gcd() to signal failure. */
 class gcdheu_failed {};
 
@@ -1355,21 +1370,17 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 		}
 
         // Apply evaluation homomorphism and calculate GCD
-        ex gamma = heur_gcd(p.subs(x == xi), q.subs(x == xi), NULL, NULL, var+1).expand();
+		ex cp, cq;
+        ex gamma = heur_gcd(p.subs(x == xi), q.subs(x == xi), &cp, &cq, var+1).expand();
         if (!is_ex_exactly_of_type(gamma, fail)) {
 
             // Reconstruct polynomial from GCD of mapped polynomials
-            ex g = _ex0();
-            numeric rxi = xi.inverse();
-            for (int i=0; !gamma.is_zero(); i++) {
-                ex gi = gamma.smod(xi);
-                g += gi * power(x, i);
-                gamma = (gamma - gi) * rxi;
-            }
+			ex g = interpolate(gamma, xi, x);
+
             // Remove integer content
             g /= g.integer_content();
 
-            // If the calculated polynomial divides both a and b, this is the GCD
+            // If the calculated polynomial divides both p and q, this is the GCD
             ex dummy;
             if (divide_in_z(p, g, ca ? *ca : dummy, var) && divide_in_z(q, g, cb ? *cb : dummy, var)) {
                 g *= gc;
@@ -1379,6 +1390,34 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
                 else
                     return g;
             }
+#if 0
+			cp = interpolate(cp, xi, x);
+			if (divide_in_z(cp, p, g, var)) {
+				if (divide_in_z(g, q, cb ? *cb : dummy, var)) {
+					g *= gc;
+					if (ca)
+						*ca = cp;
+	                ex lc = g.lcoeff(x);
+	                if (is_ex_exactly_of_type(lc, numeric) && ex_to_numeric(lc).is_negative())
+	                    return -g;
+	                else
+	                    return g;
+				}
+			}
+			cq = interpolate(cq, xi, x);
+			if (divide_in_z(cq, q, g, var)) {
+				if (divide_in_z(g, p, ca ? *ca : dummy, var)) {
+					g *= gc;
+					if (cb)
+						*cb = cq;
+	                ex lc = g.lcoeff(x);
+	                if (is_ex_exactly_of_type(lc, numeric) && ex_to_numeric(lc).is_negative())
+	                    return -g;
+	                else
+	                    return g;
+				}
+			}
+#endif
         }
 
         // Next evaluation point
