@@ -166,8 +166,12 @@ void add::print(const print_context & c, unsigned level) const
 
 	} else {
 
-		if (precedence <= level)
-			c.s << "(";
+		if (precedence <= level) {
+			if (is_of_type(c, print_latex))
+				c.s << "{(";
+			else
+				c.s << "(";
+		}
 
 		numeric coeff;
 		bool first = true;
@@ -204,14 +208,21 @@ void add::print(const print_context & c, unsigned level) const
 					else
 						coeff.print(c, precedence);
 				}
-				c.s << '*';
+				if (is_of_type(c, print_latex))
+					c.s << ' ';
+				else
+					c.s << '*';
 			}
 			it->rest.print(c, precedence);
 			it++;
 		}
 
-		if (precedence <= level)
-			c.s << ")";
+		if (precedence <= level) {
+			if (is_of_type(c, print_latex))
+				c.s << ")}";
+			else
+				c.s << ")";
+		}
 	}
 }
 

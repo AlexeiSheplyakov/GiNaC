@@ -136,8 +136,7 @@ void mul::print(const print_context & c, unsigned level) const
 
 	} else if (is_of_type(c, print_csrc)) {
 
-		if (precedence <= level)
-			c.s << "(";
+		c.s << "(";
 
 		if (!overall_coeff.is_equal(_ex1())) {
 			overall_coeff.bp->print(c, precedence);
@@ -179,8 +178,12 @@ void mul::print(const print_context & c, unsigned level) const
 
 	} else {
 
-		if (precedence <= level)
-			c.s << "(";
+		if (precedence <= level) {
+			if (is_of_type(c, print_latex))
+				c.s << "{(";
+			else
+				c.s << "(";
+		}
 
 		bool first = true;
 
@@ -201,14 +204,20 @@ void mul::print(const print_context & c, unsigned level) const
 				else
 					coeff.print(c, precedence);
 			}
-			c.s << '*';
+			if (is_of_type(c, print_latex))
+				c.s << ' ';
+			else
+				c.s << '*';
 		}
 
 		// Then proceed with the remaining factors
 		epvector::const_iterator it = seq.begin(), itend = seq.end();
 		while (it != itend) {
 			if (!first) {
-				c.s << '*';
+				if (is_of_type(c, print_latex))
+					c.s << ' ';
+				else
+					c.s << '*';
 			} else {
 				first = false;
 			}
@@ -216,8 +225,12 @@ void mul::print(const print_context & c, unsigned level) const
 			it++;
 		}
 
-		if (precedence <= level)
-			c.s << ")";
+		if (precedence <= level) {
+			if (is_of_type(c, print_latex))
+				c.s << ")}";
+			else
+				c.s << ")";
+		}
 	}
 }
 

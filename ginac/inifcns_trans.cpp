@@ -89,7 +89,8 @@ static ex exp_deriv(const ex & x, unsigned deriv_param)
 
 REGISTER_FUNCTION(exp, eval_func(exp_eval).
                        evalf_func(exp_evalf).
-                       derivative_func(exp_deriv));
+                       derivative_func(exp_deriv).
+                       latex_name("\\exp"));
 
 //////////
 // natural logarithm
@@ -210,7 +211,8 @@ static ex log_series(const ex &arg,
 REGISTER_FUNCTION(log, eval_func(log_eval).
                        evalf_func(log_evalf).
                        derivative_func(log_deriv).
-                       series_func(log_series));
+                       series_func(log_series).
+                       latex_name("\\ln"));
 
 //////////
 // sine (trigonometric function)
@@ -291,7 +293,8 @@ static ex sin_deriv(const ex & x, unsigned deriv_param)
 
 REGISTER_FUNCTION(sin, eval_func(sin_eval).
                        evalf_func(sin_evalf).
-                       derivative_func(sin_deriv));
+                       derivative_func(sin_deriv).
+                       latex_name("\\sin"));
 
 //////////
 // cosine (trigonometric function)
@@ -372,7 +375,8 @@ static ex cos_deriv(const ex & x, unsigned deriv_param)
 
 REGISTER_FUNCTION(cos, eval_func(cos_eval).
                        evalf_func(cos_evalf).
-                       derivative_func(cos_deriv));
+                       derivative_func(cos_deriv).
+                       latex_name("\\cos"));
 
 //////////
 // tangent (trigonometric function)
@@ -467,7 +471,8 @@ static ex tan_series(const ex &x,
 REGISTER_FUNCTION(tan, eval_func(tan_eval).
                        evalf_func(tan_evalf).
                        derivative_func(tan_deriv).
-                       series_func(tan_series));
+                       series_func(tan_series).
+                       latex_name("\\tan"));
 
 //////////
 // inverse sine (arc sine)
@@ -518,7 +523,8 @@ static ex asin_deriv(const ex & x, unsigned deriv_param)
 
 REGISTER_FUNCTION(asin, eval_func(asin_eval).
                         evalf_func(asin_evalf).
-                        derivative_func(asin_deriv));
+                        derivative_func(asin_deriv).
+                        latex_name("\\arcsin"));
 
 //////////
 // inverse cosine (arc cosine)
@@ -569,7 +575,8 @@ static ex acos_deriv(const ex & x, unsigned deriv_param)
 
 REGISTER_FUNCTION(acos, eval_func(acos_eval).
                         evalf_func(acos_evalf).
-                        derivative_func(acos_deriv));
+                        derivative_func(acos_deriv).
+                        latex_name("\\arccos"));
 
 //////////
 // inverse tangent (arc tangent)
@@ -660,7 +667,8 @@ static ex atan_series(const ex &arg,
 REGISTER_FUNCTION(atan, eval_func(atan_eval).
                         evalf_func(atan_evalf).
                         derivative_func(atan_deriv).
-                        series_func(atan_series));
+                        series_func(atan_series).
+                        latex_name("\\arctan"));
 
 //////////
 // inverse tangent (atan2(y,x))
@@ -754,7 +762,8 @@ static ex sinh_deriv(const ex & x, unsigned deriv_param)
 
 REGISTER_FUNCTION(sinh, eval_func(sinh_eval).
                         evalf_func(sinh_evalf).
-                        derivative_func(sinh_deriv));
+                        derivative_func(sinh_deriv).
+                        latex_name("\\sinh"));
 
 //////////
 // hyperbolic cosine (trigonometric function)
@@ -808,8 +817,8 @@ static ex cosh_deriv(const ex & x, unsigned deriv_param)
 
 REGISTER_FUNCTION(cosh, eval_func(cosh_eval).
                         evalf_func(cosh_evalf).
-                        derivative_func(cosh_deriv));
-
+                        derivative_func(cosh_deriv).
+                        latex_name("\\cosh"));
 
 //////////
 // hyperbolic tangent (trigonometric function)
@@ -880,7 +889,8 @@ static ex tanh_series(const ex &x,
 REGISTER_FUNCTION(tanh, eval_func(tanh_eval).
                         evalf_func(tanh_evalf).
                         derivative_func(tanh_deriv).
-                        series_func(tanh_series));
+                        series_func(tanh_series).
+                        latex_name("\\tanh"));
 
 //////////
 // inverse hyperbolic sine (trigonometric function)

@@ -143,6 +143,24 @@ void symbol::print(const print_context & c, unsigned level) const
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 		    << std::endl;
 
+	} else if (is_of_type(c, print_latex)) {
+		if (name=="alpha"        || name=="beta"         || name=="gamma"
+		 || name=="delta"        || name=="epsilon"      || name=="varepsilon"
+		 || name=="zeta"         || name=="eta"          || name=="theta"
+		 || name=="vartheta"     || name=="iota"         || name=="kappa"
+		 || name=="lambda"       || name=="mu"           || name=="nu"
+		 || name=="xi"           || name=="omicron"      || name=="pi"
+		 || name=="varpi"        || name=="rho"          || name=="varrho"
+		 || name=="sigma"        || name=="varsigma"     || name=="tau"
+		 || name=="upsilon"      || name=="phi"          || name=="varphix"
+		 || name=="chi"          || name=="psi"          || name=="omega"
+		 || name=="Gamma"        || name=="Delta"        || name=="Theta"
+		 || name=="Lambda"       || name=="Xi"           || name=="Pi"
+		 || name=="Sigma"        || name=="Upsilon"      || name=="Phi"
+		 || name=="Psi"          || name=="Omega")
+			c.s << "\\" << name;
+		else
+			c.s << name;
 	} else
 		c.s << name;
 }

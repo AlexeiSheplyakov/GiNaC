@@ -243,10 +243,11 @@ ex basic::coeff(const ex & s, int n) const
 ex basic::collect(const ex & s) const
 {
 	ex x;
-	for (int n=this->ldegree(s); n<=this->degree(s); n++)
+	for (int n=this->ldegree(s); n<=this->degree(s); ++n)
 		x += this->coeff(s,n)*power(s,n);
 	
-	return x;
+	// correct for lost fractional arguments and return
+	return x + (*this - x).expand();
 }
 
 /** Perform automatic non-interruptive symbolic evaluation on expression. */

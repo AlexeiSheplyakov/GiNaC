@@ -132,11 +132,18 @@ void constant::print(const print_context & c, unsigned level) const
 	debugmsg("constant print", LOGLEVEL_PRINT);
 
 	if (is_of_type(c, print_tree)) {
-
 		c.s << std::string(level, ' ') << name << " (" << class_name() << ")"
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 		    << std::endl;
-
+	} else if (is_of_type(c, print_latex)) {
+		if (name=="Pi")
+			c.s << "\\pi";
+		else if (name=="Euler")
+			c.s << "\\gamma_E";
+		else if (name=="Catalan")
+			c.s << "G";
+		else
+			c.s << "\\mbox{"+name+"}";
 	} else
 		c.s << name;
 }

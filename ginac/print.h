@@ -39,6 +39,14 @@ public:
 	virtual void dummy(void) {}
 };
 
+/** Context for latex-parsable output. */
+class print_latex : public print_context
+{
+public:
+	print_latex(std::ostream & os = std::cout)
+	  : print_context(os) {}
+};
+
 /** Context for tree-like output for debugging. */
 class print_tree : public print_context
 {

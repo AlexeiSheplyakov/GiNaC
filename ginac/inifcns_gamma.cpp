@@ -109,7 +109,8 @@ static ex lgamma_series(const ex & arg,
 REGISTER_FUNCTION(lgamma, eval_func(lgamma_eval).
                           evalf_func(lgamma_evalf).
                           derivative_func(lgamma_deriv).
-                          series_func(lgamma_series));
+                          series_func(lgamma_series).
+                          latex_name("\\log \\Gamma"));
 
 
 //////////
@@ -205,7 +206,8 @@ static ex tgamma_series(const ex & arg,
 REGISTER_FUNCTION(tgamma, eval_func(tgamma_eval).
                           evalf_func(tgamma_evalf).
                           derivative_func(tgamma_deriv).
-                          series_func(tgamma_series));
+                          series_func(tgamma_series).
+                          latex_name("\\Gamma"));
 
 
 //////////
@@ -316,7 +318,8 @@ static ex beta_series(const ex & arg1,
 REGISTER_FUNCTION(beta, eval_func(beta_eval).
                         evalf_func(beta_evalf).
                         derivative_func(beta_deriv).
-                        series_func(beta_series));
+                        series_func(beta_series).
+                        latex_name("\\mbox{B}"));
 
 
 //////////
@@ -541,6 +544,7 @@ const unsigned function_index_psi2 =
 	                       evalf_func(psi2_evalf).
 	                       derivative_func(psi2_deriv).
 	                       series_func(psi2_series).
+                           latex_name("\\psi").
 	                       overloaded(2));
 
 

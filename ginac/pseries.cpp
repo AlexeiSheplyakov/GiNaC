@@ -144,7 +144,10 @@ void pseries::print(const print_context & c, unsigned level) const
 
 		if (precedence <= level)
 			c.s << "(";
-
+		
+		std::string par_open = is_of_type(c, print_latex) ? "{(" : "(";
+		std::string par_close = is_of_type(c, print_latex) ? ")}" : ")";
+		
 		// objects of type pseries must not have any zero entries, so the
 		// trivial (zero) pseries needs a special treatment here:
 		if (seq.size() == 0)
@@ -159,27 +162,33 @@ void pseries::print(const print_context & c, unsigned level) const
 					i->rest.info(info_flags::positive)) {
 					i->rest.print(c);
 				} else {
-					c.s << '(';
+					c.s << par_open;
 					i->rest.print(c);
-					c.s << ')';
+					c.s << par_close;
 				}
 				// print 'coeff', something like (x-1)^42
 				if (!i->coeff.is_zero()) {
 					c.s << '*';
 					if (!point.is_zero()) {
-						c.s << '(';
+						c.s << par_open;
 						(var-point).print(c);
-						c.s << ')';
+						c.s << par_close;
 					} else
 						var.print(c);
 					if (i->coeff.compare(_ex1())) {
 						c.s << '^';
 						if (i->coeff.info(info_flags::negative)) {
-							c.s << '(';
+							c.s << par_open;
 							i->coeff.print(c);
-							c.s << ')';
-						} else
-							i->coeff.print(c);
+							c.s << par_close;
+						} else {
+							if (is_of_type(c, print_latex)) {
+								c.s << '{';
+								i->coeff.print(c);
+								c.s << '}';
+							} else
+								i->coeff.print(c);
+						}
 					}
 				}
 			} else

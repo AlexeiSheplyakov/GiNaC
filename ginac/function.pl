@@ -264,6 +264,7 @@ public:
 	~function_options();
 	void initialize(void);
 	function_options & set_name(std::string const & n, std::string const & tn=std::string());
+	function_options & latex_name(std::string const & tn);
 // the following lines have been generated for max. ${maxargs} parameters
 $eval_func_interface
 $evalf_func_interface
@@ -451,7 +452,7 @@ function_options::~function_options()
 
 void function_options::initialize(void)
 {
-	set_name("unnamed_function","\\\\operatorname{unnamed}");
+	set_name("unnamed_function","\\\\mbox{unnamed}");
 	nparams=0;
 	eval_f=evalf_f=derivative_f=series_f=0;
 	evalf_params_first=true;
@@ -465,10 +466,16 @@ function_options & function_options::set_name(std::string const & n,
 {
 	name=n;
 	if (tn==std::string()) {
-		TeX_name="\\\\operatorname{"+name+"}";
+		TeX_name="\\\\mbox{"+name+"}";
 	} else {
 		TeX_name=tn;
 	}
+	return *this;
+}
+
+function_options & function_options::latex_name(std::string const & tn)
+{
+	TeX_name=tn;
 	return *this;
 }
 
@@ -669,6 +676,9 @@ void function::print(const print_context & c, unsigned level) const
 		}
 		c.s << ")";
 
+	} else if is_of_type(c, print_latex) {
+		c.s << registered_functions()[serial].TeX_name;
+		printseq(c, '(', ',', ')', exprseq::precedence, function::precedence);
 	} else {
 		c.s << registered_functions()[serial].name;
 		printseq(c, '(', ',', ')', exprseq::precedence, function::precedence);

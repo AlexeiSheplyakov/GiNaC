@@ -177,7 +177,8 @@ static ex eta_series(const ex & arg1,
 
 REGISTER_FUNCTION(eta, eval_func(eta_eval).
                        evalf_func(eta_evalf).
-                       series_func(eta_series));
+                       series_func(eta_series).
+                       latex_name("\\eta"));
 
 
 //////////
@@ -315,7 +316,8 @@ static ex Li2_series(const ex &x, const relational &rel, int order, unsigned opt
 REGISTER_FUNCTION(Li2, eval_func(Li2_eval).
                        evalf_func(Li2_evalf).
                        derivative_func(Li2_deriv).
-                       series_func(Li2_series));
+                       series_func(Li2_series).
+                       latex_name("\\mbox{Li}_2"));
 
 //////////
 // trilogarithm
@@ -328,7 +330,8 @@ static ex Li3_eval(const ex & x)
 	return Li3(x).hold();
 }
 
-REGISTER_FUNCTION(Li3, eval_func(Li3_eval));
+REGISTER_FUNCTION(Li3, eval_func(Li3_eval).
+                       latex_name("\\mbox{Li}_3"));
 
 //////////
 // factorial
@@ -404,7 +407,8 @@ static ex Order_series(const ex & x, const relational & r, int order, unsigned o
 // Differentiation is handled in function::derivative because of its special requirements
 
 REGISTER_FUNCTION(Order, eval_func(Order_eval).
-                         series_func(Order_series));
+                         series_func(Order_series).
+                         latex_name("\\mathcal{O}"));
 
 //////////
 // Inert partial differentiation operator

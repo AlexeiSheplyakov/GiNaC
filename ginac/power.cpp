@@ -177,17 +177,31 @@ void power::print(const print_context & c, unsigned level) const
 	} else {
 
 		if (exponent.is_equal(_ex1_2())) {
-			c.s << "sqrt(";
+			if (is_of_type(c, print_latex))
+				c.s << "\\sqrt{";
+			else
+				c.s << "sqrt(";
 			basis.print(c);
-			c.s << ")";
+			if (is_of_type(c, print_latex))
+				c.s << "}";
+			else
+				c.s << ")";
 		} else {
-			if (precedence <= level)
-				c.s << "(";
+			if (precedence <= level) {
+				if (is_of_type(c, print_latex))
+					c.s << "{(";
+				else
+					c.s << "(";
+			}
 			basis.print(c, precedence);
 			c.s << "^";
 			exponent.print(c, precedence);
-			if (precedence <= level)
-				c.s << ")";
+			if (precedence <= level) {
+				if (is_of_type(c, print_latex))
+					c.s << ")}";
+				else
+					c.s << ")";
+			}
 		}
 	}
 }

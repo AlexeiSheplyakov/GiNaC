@@ -83,6 +83,7 @@ const unsigned function_index_zeta1 =
 	                       eval_func(zeta1_eval).
 	                       evalf_func(zeta1_evalf).
 	                       derivative_func(zeta1_deriv).
+                           latex_name("\\zeta").
 	                       overloaded(2));
 
 //////////

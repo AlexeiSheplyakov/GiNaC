@@ -79,7 +79,7 @@ public:
 #if defined(__GNUC__) && ((__GNUC__ == 2) && (__GNUC_MINOR__ < 97))
 	typedef std::vector<property_info,malloc_alloc> propinfovector;
 #else
-	typedef std::vector<ex> propinfovector;
+	typedef std::vector<property_info> propinfovector;
 #endif
 
 	archive_node() : a(*dummy_ar_creator()), has_expression(false) {} // hack for cint which always requires a default constructor

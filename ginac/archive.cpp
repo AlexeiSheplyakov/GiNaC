@@ -463,7 +463,7 @@ void archive_node::get_properties(propinfovector &v) const
 	std::vector<property>::const_iterator i = props.begin(), iend = props.end();
 	while (i != iend) {
 		property_type type = i->type;
-		string name = a.unatomize(i->name);
+		std::string name = a.unatomize(i->name);
 
 		propinfovector::iterator a = v.begin(), aend = v.end();
 		bool found = false;

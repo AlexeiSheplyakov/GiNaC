@@ -410,15 +410,18 @@ void numeric::print(const print_context & c, unsigned level) const
 		c.s.flags(oldflags);
 
 	} else {
-
-		cln::cl_R r = cln::realpart(cln::the<cln::cl_N>(value));
-		cln::cl_R i = cln::imagpart(cln::the<cln::cl_N>(value));
+		const std::string par_open  = is_of_type(c, print_latex) ? "{(" : "(";
+		const std::string par_close = is_of_type(c, print_latex) ? ")}" : ")";
+		const std::string imag_sym  = is_of_type(c, print_latex) ? "i" : "I";
+		const std::string mul_sym   = is_of_type(c, print_latex) ? " " : "*";
+		const cln::cl_R r = cln::realpart(cln::the<cln::cl_N>(value));
+		const cln::cl_R i = cln::imagpart(cln::the<cln::cl_N>(value));
 		if (cln::zerop(i)) {
 			// case 1, real:  x  or  -x
 			if ((precedence <= level) && (!this->is_nonneg_integer())) {
-				c.s << "(";
+				c.s << par_open;
 				print_real_number(c.s, r);
-				c.s << ")";
+				c.s << par_close;
 			} else {
 				print_real_number(c.s, r);
 			}
@@ -427,47 +430,47 @@ void numeric::print(const print_context & c, unsigned level) const
 				// case 2, imaginary:  y*I  or  -y*I
 				if ((precedence <= level) && (i < 0)) {
 					if (i == -1) {
-						c.s << "(-I)";
+						c.s << par_open+imag_sym+par_close;
 					} else {
-						c.s << "(";
+						c.s << par_open;
 						print_real_number(c.s, i);
-						c.s << "*I)";
+						c.s << mul_sym+imag_sym+par_close;
 					}
 				} else {
 					if (i == 1) {
-						c.s << "I";
+						c.s << imag_sym;
 					} else {
 						if (i == -1) {
-							c.s << "-I";
+							c.s << "-" << imag_sym;
 						} else {
 							print_real_number(c.s, i);
-							c.s << "*I";
+							c.s << mul_sym+imag_sym;
 						}
 					}
 				}
 			} else {
 				// case 3, complex:  x+y*I  or  x-y*I  or  -x+y*I  or  -x-y*I
 				if (precedence <= level)
-					c.s << "(";
+					c.s << par_open;
 				print_real_number(c.s, r);
 				if (i < 0) {
 					if (i == -1) {
-						c.s << "-I";
+						c.s << "-"+imag_sym;
 					} else {
 						print_real_number(c.s, i);
-						c.s << "*I";
+						c.s << mul_sym+imag_sym;
 					}
 				} else {
 					if (i == 1) {
-						c.s << "+I";
+						c.s << "+"+imag_sym;
 					} else {
 						c.s << "+";
 						print_real_number(c.s, i);
-						c.s << "*I";
+						c.s << mul_sym+imag_sym;
 					}
 				}
 				if (precedence <= level)
-					c.s << ")";
+					c.s << par_close;
 			}
 		}
 	}
