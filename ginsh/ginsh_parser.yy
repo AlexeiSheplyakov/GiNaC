@@ -299,6 +299,7 @@ static void push(const ex &e)
 static ex f_collect(const exprseq &e) {return e[0].collect(e[1]);}
 static ex f_collect_distributed(const exprseq &e) {return e[0].collect(e[1], true);}
 static ex f_collect_common_factors(const exprseq &e) {return collect_common_factors(e[0]);}
+static ex f_convert_H_notation(const exprseq &e) {return convert_H_notation(e[0], e[1]);}
 static ex f_degree(const exprseq &e) {return e[0].degree(e[1]);}
 static ex f_denom(const exprseq &e) {return e[0].denom();}
 static ex f_eval1(const exprseq &e) {return e[0].eval();}
@@ -538,6 +539,7 @@ static const fcn_init builtin_fcns[] = {
 	{"collect_common_factors", f_collect_common_factors, 1},
 	{"collect_distributed", f_collect_distributed, 2},
 	{"content", f_content, 2},
+	{"convert_H_notation", f_convert_H_notation, 2},
 	{"decomp_rational", f_decomp_rational, 2},
 	{"degree", f_degree, 2},
 	{"denom", f_denom, 1},
