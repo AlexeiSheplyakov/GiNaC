@@ -26,6 +26,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <map>
+#include <string>
+
 #ifdef HAVE_READLINE_READLINE_H
 extern "C" {
 #include <readline/readline.h>

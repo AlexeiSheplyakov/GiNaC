@@ -35,8 +35,6 @@
 #include <unistd.h>
 #endif
 
-#include <map>
-#include <string>
 #include <stdexcept>
 
 #include "ginsh.h"
@@ -73,6 +71,13 @@ static fcn_tab fcns;
 
 static fcn_tab::const_iterator find_function(const ex &sym, int req_params);
 
+// Table to map help topics to help strings
+typedef multimap<string, string> help_tab;
+static help_tab help;
+
+static void print_help(const string &topic);
+static void print_help_topics(void);
+
 static ex lst2matrix(const ex &l);
 %}
 
@@ -106,44 +111,42 @@ input	: /* empty */
 	;
 
 line	: ';'
-	| exp ';'
-		{
-			try {
-				cout << $1 << endl;
-				push($1);
-			} catch (exception &e) {
-				cerr << e.what() << endl;
-				YYERROR;
-			}
+	| exp ';' {
+		try {
+			cout << $1 << endl;
+			push($1);
+		} catch (exception &e) {
+			cerr << e.what() << endl;
+			YYERROR;
 		}
-	| exp ':'
-		{
-			try {
-				push($1);
-			} catch (exception &e) {
-				cerr << e.what() << endl;
-				YYERROR;
-			}
+	}
+	| exp ':' {
+		try {
+			push($1);
+		} catch (exception &e) {
+			cerr << e.what() << endl;
+			YYERROR;
 		}
-	| T_PRINT '(' exp ')' ';'
-		{
-			try {
-				$3.printtree(cout);
-			} catch (exception &e) {
-				cerr << e.what() << endl;
-				YYERROR;
-			}
+	}
+	| T_PRINT '(' exp ')' ';' {
+		try {
+			$3.printtree(cout);
+		} catch (exception &e) {
+			cerr << e.what() << endl;
+			YYERROR;
 		}
+	}
+	| '?' T_SYMBOL 		{print_help(ex_to_symbol($2).getname());}
+	| '?' '?'		{print_help_topics();}
 	| T_QUIT		{YYACCEPT;}
 	| T_XYZZY		{cout << "Nothing happens.\n";}
 	| T_INVENTORY		{cout << "You're not carrying anything.\n";}
 	| T_LOOK		{cout << "You're in a twisty little maze of passages, all alike.\n";}
-	| T_SCORE
-		{
-			cout << "If you were to quit now, you would score ";
-			cout << (syms.size() > 350 ? 350 : syms.size());
-			cout << " out of a possible 350.\n";
-		}
+	| T_SCORE {
+		cout << "If you were to quit now, you would score ";
+		cout << (syms.size() > 350 ? 350 : syms.size());
+		cout << " out of a possible 350.\n";
+	}
 	| error ';'		{yyclearin; yyerrok;}
 	| error ':'		{yyclearin; yyerrok;}
 	;
@@ -156,27 +159,23 @@ exp	: T_NUMBER		{$$ = $1;}
 	| T_QUOTE		{$$ = exstack[0];}
 	| T_QUOTE2		{$$ = exstack[1];}
 	| T_QUOTE3		{$$ = exstack[2];}
-	| T_TIME {getrusage(RUSAGE_SELF, &start_time);} '(' exp ')'
-		{
-			getrusage(RUSAGE_SELF, &end_time);
-			$$ = (end_time.ru_utime.tv_sec - start_time.ru_utime.tv_sec) +
-			     (end_time.ru_stime.tv_sec - start_time.ru_stime.tv_sec) +
-			     double(end_time.ru_utime.tv_usec - start_time.ru_utime.tv_usec) / 1e6 +
-			     double(end_time.ru_stime.tv_usec - start_time.ru_stime.tv_usec) / 1e6;
+	| T_TIME {getrusage(RUSAGE_SELF, &start_time);} '(' exp ')' {
+		getrusage(RUSAGE_SELF, &end_time);
+		$$ = (end_time.ru_utime.tv_sec - start_time.ru_utime.tv_sec) +
+		     (end_time.ru_stime.tv_sec - start_time.ru_stime.tv_sec) +
+		     double(end_time.ru_utime.tv_usec - start_time.ru_utime.tv_usec) / 1e6 +
+		     double(end_time.ru_stime.tv_usec - start_time.ru_stime.tv_usec) / 1e6;
+	}
+	| T_SYMBOL '(' exprseq ')' {
+		fcn_tab::const_iterator i = find_function($1, $3.nops());
+		if (i->second.is_ginac) {
+			$$ = ((fcnp2)(i->second.p))(static_cast<const exprseq &>(*($3.bp)), i->second.serial);
+		} else {
+			$$ = (i->second.p)(static_cast<const exprseq &>(*($3.bp)));
 		}
-	| T_SYMBOL '(' exprseq ')'
-		{
-			fcn_tab::const_iterator i = find_function($1, $3.nops());
-			if (i->second.is_ginac) {
-				$$ = ((fcnp2)(i->second.p))(static_cast<const exprseq &>(*($3.bp)), i->second.serial);
-			} else {
-				$$ = (i->second.p)(static_cast<const exprseq &>(*($3.bp)));
-			}
-		}
-	| T_DIGITS '=' T_NUMBER
-		{$$ = $3; Digits = ex_to_numeric($3).to_int();}
-	| T_SYMBOL '=' exp
-		{$$ = $3; const_cast<symbol *>(&ex_to_symbol($1))->assign($3);}
+	}
+	| T_DIGITS '=' T_NUMBER	{$$ = $3; Digits = ex_to_numeric($3).to_int();}
+	| T_SYMBOL '=' exp	{$$ = $3; const_cast<symbol *>(&ex_to_symbol($1))->assign($3);}
 	| exp T_EQUAL exp	{$$ = $1 == $3;}
 	| exp T_NOTEQ exp	{$$ = $1 != $3;}
 	| exp '<' exp		{$$ = $1 < $3;}
@@ -477,16 +476,84 @@ static ex f_dummy(const exprseq &e)
 	throw(std::logic_error("dummy function called (shouldn't happen)"));
 }
 
+// Table for initializing the "fcns" map
+struct fcn_init {
+	const char *name;
+	const fcn_desc &desc;
+};
+
+static const fcn_init builtin_fcns[] = {
+	{"beta", fcn_desc(f_beta, 2)},
+	{"charpoly", fcn_desc(f_charpoly, 2)},
+	{"coeff", fcn_desc(f_coeff, 3)},
+	{"collect", fcn_desc(f_collect, 2)},
+	{"content", fcn_desc(f_content, 2)},
+	{"degree", fcn_desc(f_degree, 2)},
+	{"denom", fcn_desc(f_denom, 1)},
+	{"determinant", fcn_desc(f_determinant, 1)},
+	{"diag", fcn_desc(f_diag, 0)},
+	{"diff", fcn_desc(f_diff2, 2)},
+	{"diff", fcn_desc(f_diff3, 3)},
+	{"divide", fcn_desc(f_divide, 2)},
+	{"eval", fcn_desc(f_eval1, 1)},
+	{"eval", fcn_desc(f_eval2, 2)},
+	{"evalf", fcn_desc(f_evalf1, 1)},
+	{"evalf", fcn_desc(f_evalf2, 2)},
+	{"expand", fcn_desc(f_expand, 1)},
+	{"gcd", fcn_desc(f_gcd, 2)},
+	{"has", fcn_desc(f_has, 2)},
+	{"inverse", fcn_desc(f_inverse, 1)},
+	{"is", fcn_desc(f_is, 1)},
+	{"lcm", fcn_desc(f_lcm, 2)},
+	{"lcoeff", fcn_desc(f_lcoeff, 2)},
+	{"ldegree", fcn_desc(f_ldegree, 2)},
+	{"lsolve", fcn_desc(f_lsolve, 2)},
+	{"nops", fcn_desc(f_nops, 1)},
+	{"normal", fcn_desc(f_normal1, 1)},
+	{"normal", fcn_desc(f_normal2, 2)},
+	{"numer", fcn_desc(f_numer, 1)},
+	{"op", fcn_desc(f_op, 2)},
+	{"power", fcn_desc(f_power, 2)},
+	{"prem", fcn_desc(f_prem, 3)},
+	{"primpart", fcn_desc(f_primpart, 2)},
+	{"quo", fcn_desc(f_quo, 3)},
+	{"rem", fcn_desc(f_rem, 3)},
+	{"series", fcn_desc(f_series2, 2)},
+	{"series", fcn_desc(f_series3, 3)},
+	{"series", fcn_desc(f_series4, 4)},
+	{"sqrfree", fcn_desc(f_sqrfree, 2)},
+	{"sqrt", fcn_desc(f_sqrt, 1)},
+	{"subs", fcn_desc(f_subs2, 2)},
+	{"subs", fcn_desc(f_subs3, 3)},
+	{"tcoeff", fcn_desc(f_tcoeff, 2)},
+	{"time", fcn_desc(f_dummy, 0)},
+	{"trace", fcn_desc(f_trace, 1)},
+	{"transpose", fcn_desc(f_transpose, 1)},
+	{"unassign", fcn_desc(f_unassign, 1)},
+	{"unit", fcn_desc(f_unit, 2)},
+	{NULL, fcn_desc(f_unit, 0)}	// End marker
+};
+
 
 /*
- *  Add all registered GiNaC functions to ginsh
+ *  Add functions to ginsh
  */
+
+// Functions from fcn_init array
+static void insert_fcns(const fcn_init *p)
+{
+	while (p->name) {
+		fcns.insert(make_pair(string(p->name), p->desc));
+		p++;
+	}
+}
 
 static ex f_ginac_function(const exprseq &es, int serial)
 {
 	return function(serial, es).eval(1);
 }
 
+// All registered GiNaC functions
 void GiNaC::ginsh_get_ginac_functions(void)
 {
 	vector<registered_function_info>::const_iterator i = function::registered_functions().begin(), end = function::registered_functions().end();
@@ -516,6 +583,73 @@ static fcn_tab::const_iterator find_function(const ex &sym, int req_params)
 				return i;
 	}
 	throw(std::logic_error("invalid number of arguments to " + name + "()"));
+}
+
+
+/*
+ *  Insert help strings
+ */
+
+// Normal help string
+static void insert_help(const char *topic, const char *str)
+{
+	help.insert(make_pair(string(topic), string(str)));
+}
+
+// Help string for functions, automatically generates synopsis
+static void insert_fcn_help(const char *name, const char *str)
+{
+	typedef fcn_tab::const_iterator I;
+	pair<I, I> b = fcns.equal_range(name);
+	if (b.first != b.second) {
+		string help_str = string(name) + "(";
+		for (int i=0; i<b.first->second.num_params; i++) {
+			if (i)
+				help_str += ", ";
+			help_str += "expression";
+		}
+		help_str += ") - ";
+		help_str += str;
+		help.insert(make_pair(string(name), help_str));
+	}
+}
+
+
+/*
+ *  Print help to cout
+ */
+
+// Help for a given topic
+static void print_help(const string &topic)
+{
+	typedef help_tab::const_iterator I;
+	pair<I, I> b = help.equal_range(topic);
+	if (b.first == b.second)
+		cout << "no help for '" << topic << "'\n";
+	else {
+		for (I i=b.first; i!=b.second; i++)
+			cout << i->second << endl;
+	}
+}
+
+// List of help topics
+static void print_help_topics(void)
+{
+	cout << "Available help topics:\n";
+	help_tab::const_iterator i;
+	string last_name = string("*");
+	int num = 0;
+	for (i=help.begin(); i!=help.end(); i++) {
+		// Don't print duplicates
+		if (i->first != last_name) {
+			if (num)
+				cout << ", ";
+			num++;
+			cout << i->first;
+			last_name = i->first;
+		}
+	}
+	cout << "\nTo get help for a certain topic, type ?topic\n";
 }
 
 
@@ -598,59 +732,43 @@ int main(int argc, char **argv)
 		cout << "ginsh - GiNaC Interactive Shell (" << PACKAGE << " " << VERSION << ")\n";
 		cout << "Copyright (C) 1999 Johannes Gutenberg Universitaet Mainz, Germany\n";
 		cout << "This is free software, and you are welcome to redistribute it\n";
-		cout << "under certain conditions; see the file COPYING for details.\n"; 
+		cout << "under certain conditions; see the file COPYING for details.\n";
+		cout << "Type ?? for a list of help topics.\n";
 	}
 
-	// Init table of built-in functions
-	fcns.insert(make_pair(string("beta"), fcn_desc(f_beta, 2)));
-	fcns.insert(make_pair(string("charpoly"), fcn_desc(f_charpoly, 2)));
-	fcns.insert(make_pair(string("coeff"), fcn_desc(f_coeff, 3)));
-	fcns.insert(make_pair(string("collect"), fcn_desc(f_collect, 2)));
-	fcns.insert(make_pair(string("content"), fcn_desc(f_content, 2)));
-	fcns.insert(make_pair(string("degree"), fcn_desc(f_degree, 2)));
-	fcns.insert(make_pair(string("denom"), fcn_desc(f_denom, 1)));
-	fcns.insert(make_pair(string("determinant"), fcn_desc(f_determinant, 1)));
-	fcns.insert(make_pair(string("diag"), fcn_desc(f_diag, 0)));
-	fcns.insert(make_pair(string("diff"), fcn_desc(f_diff2, 2)));
-	fcns.insert(make_pair(string("diff"), fcn_desc(f_diff3, 3)));
-	fcns.insert(make_pair(string("divide"), fcn_desc(f_divide, 2)));
-	fcns.insert(make_pair(string("eval"), fcn_desc(f_eval1, 1)));
-	fcns.insert(make_pair(string("eval"), fcn_desc(f_eval2, 2)));
-	fcns.insert(make_pair(string("evalf"), fcn_desc(f_evalf1, 1)));
-	fcns.insert(make_pair(string("evalf"), fcn_desc(f_evalf2, 2)));
-	fcns.insert(make_pair(string("expand"), fcn_desc(f_expand, 1)));
-	fcns.insert(make_pair(string("gcd"), fcn_desc(f_gcd, 2)));
-	fcns.insert(make_pair(string("has"), fcn_desc(f_has, 2)));
-	fcns.insert(make_pair(string("inverse"), fcn_desc(f_inverse, 1)));
-	fcns.insert(make_pair(string("is"), fcn_desc(f_is, 1)));
-	fcns.insert(make_pair(string("lcm"), fcn_desc(f_lcm, 2)));
-	fcns.insert(make_pair(string("lcoeff"), fcn_desc(f_lcoeff, 2)));
-	fcns.insert(make_pair(string("ldegree"), fcn_desc(f_ldegree, 2)));
-	fcns.insert(make_pair(string("lsolve"), fcn_desc(f_lsolve, 2)));
-	fcns.insert(make_pair(string("nops"), fcn_desc(f_nops, 1)));
-	fcns.insert(make_pair(string("normal"), fcn_desc(f_normal1, 1)));
-	fcns.insert(make_pair(string("normal"), fcn_desc(f_normal2, 2)));
-	fcns.insert(make_pair(string("numer"), fcn_desc(f_numer, 1)));
-	fcns.insert(make_pair(string("op"), fcn_desc(f_op, 2)));
-	fcns.insert(make_pair(string("power"), fcn_desc(f_power, 2)));
-	fcns.insert(make_pair(string("prem"), fcn_desc(f_prem, 3)));
-	fcns.insert(make_pair(string("primpart"), fcn_desc(f_primpart, 2)));
-	fcns.insert(make_pair(string("quo"), fcn_desc(f_quo, 3)));
-	fcns.insert(make_pair(string("rem"), fcn_desc(f_rem, 3)));
-	fcns.insert(make_pair(string("series"), fcn_desc(f_series2, 2)));
-	fcns.insert(make_pair(string("series"), fcn_desc(f_series3, 3)));
-	fcns.insert(make_pair(string("series"), fcn_desc(f_series4, 4)));
-	fcns.insert(make_pair(string("sqrfree"), fcn_desc(f_sqrfree, 2)));
-	fcns.insert(make_pair(string("sqrt"), fcn_desc(f_sqrt, 1)));
-	fcns.insert(make_pair(string("subs"), fcn_desc(f_subs2, 2)));
-	fcns.insert(make_pair(string("subs"), fcn_desc(f_subs3, 3)));
-	fcns.insert(make_pair(string("tcoeff"), fcn_desc(f_tcoeff, 2)));
-	fcns.insert(make_pair(string("time"), fcn_desc(f_dummy, 0)));
-	fcns.insert(make_pair(string("trace"), fcn_desc(f_trace, 1)));
-	fcns.insert(make_pair(string("transpose"), fcn_desc(f_transpose, 1)));
-	fcns.insert(make_pair(string("unassign"), fcn_desc(f_unassign, 1)));
-	fcns.insert(make_pair(string("unit"), fcn_desc(f_unit, 2)));
+	// Init function table
+	insert_fcns(builtin_fcns);
 	ginsh_get_ginac_functions();
+
+	// Init help for operators (automatically generated from man page)
+	insert_help("operators", "Operators in falling order of precedence:");
+#include "ginsh_op_help.c"
+
+	// Init help for built-in functions (automatically generated from man page)
+#include "ginsh_fcn_help.c"
+
+	// Help for GiNaC functions is added manually
+	insert_fcn_help("acos", "inverse cosine function");
+	insert_fcn_help("acosh", "inverse hyperbolic cosine function");
+	insert_fcn_help("asin", "inverse sine function");
+	insert_fcn_help("asinh", "inverse hyperbolic sine function");
+	insert_fcn_help("atan", "inverse tangent function");
+	insert_fcn_help("atan2", "inverse tangent function with two arguments");
+	insert_fcn_help("atanh", "inverse hyperbolic tangent function");
+	insert_fcn_help("cos", "cosine function");
+	insert_fcn_help("cosh", "hyperbolic cosine function");
+	insert_fcn_help("sin", "sine function");
+	insert_fcn_help("sinh", "hyperbolic sine function");
+	insert_fcn_help("tan", "tangent function");
+	insert_fcn_help("tanh", "hyperbolic tangent function");
+	insert_fcn_help("exp", "exponential function");
+	insert_fcn_help("log", "natural logarithm");
+	insert_fcn_help("Li2", "dilogarithm");
+	insert_fcn_help("Li3", "trilogarithm");
+	insert_fcn_help("binomial", "binomial function");
+	insert_fcn_help("factorial", "factorial function");
+	insert_fcn_help("gamma", "gamma function");
+	insert_fcn_help("Order", "order term function (for truncated power series)");
 
 	// Init readline completer
 	rl_readline_name = argv[0];

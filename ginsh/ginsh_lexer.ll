@@ -28,8 +28,6 @@
 %{
 #include "config.h"
 
-#include <map>
-
 #include "ginsh.h"
 #include "ginsh_parser.h"
 

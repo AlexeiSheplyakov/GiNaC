@@ -408,6 +408,15 @@ installdirs mostlyclean-generic distclean-generic clean-generic \
 maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
 
+# files created by sed scripts
+ginsh_fcn_help.c: ginsh.1 ginsh_fcn_help.sed
+	sed -n -f ginsh_fcn_help.sed <$< >$@
+
+ginsh_op_help.c: ginsh.1 ginsh_op_help.sed
+	sed -n -f ginsh_op_help.sed <$< >$@
+
+ginsh_parser.cc: ginsh_fcn_help.c ginsh_op_help.c
+
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
