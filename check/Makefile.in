@@ -88,11 +88,13 @@ MAKEINFO = @MAKEINFO@
 NM = @NM@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
+REFERENCE_TARGETS = @REFERENCE_TARGETS@
+TUTORIAL_TARGETS = @TUTORIAL_TARGETS@
 VERSION = @VERSION@
 YACC = @YACC@
 
 TESTS = run_checks
-noinst_PROGRAMS = check_ginac
+check_PROGRAMS = check_ginac
 check_ginac_SOURCES = paranoia_check.cpp numeric_output.cpp numeric_consist.cpp \
   powerlaws.cpp expand_subs.cpp inifcns_consist.cpp differentiation.cpp \
   poly_gcd.cpp normalization.cpp lsolve_onedim.cpp matrix_checks.cpp \
@@ -103,8 +105,6 @@ EXTRA_DIST = result.ref run_checks
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 
-PROGRAMS =  $(noinst_PROGRAMS)
-
 
 DEFS = @DEFS@ -I. -I$(srcdir) -I..
 CPPFLAGS = @CPPFLAGS@
@@ -136,7 +136,7 @@ CXXMKDEP = $(CXX) -M $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CXXFLAGS)
 SOURCES = $(check_ginac_SOURCES)
 OBJECTS = $(check_ginac_OBJECTS)
 
-all: Makefile $(PROGRAMS)
+all: Makefile
 
 .SUFFIXES:
 .SUFFIXES: .S .c .cpp .lo .o .s
@@ -148,14 +148,14 @@ Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
 
-mostlyclean-noinstPROGRAMS:
+mostlyclean-checkPROGRAMS:
 
-clean-noinstPROGRAMS:
-	-test -z "$(noinst_PROGRAMS)" || rm -f $(noinst_PROGRAMS)
+clean-checkPROGRAMS:
+	-test -z "$(check_PROGRAMS)" || rm -f $(check_PROGRAMS)
 
-distclean-noinstPROGRAMS:
+distclean-checkPROGRAMS:
 
-maintainer-clean-noinstPROGRAMS:
+maintainer-clean-checkPROGRAMS:
 
 .s.o:
 	$(COMPILE) -c $<
@@ -300,7 +300,7 @@ check-TESTS: $(TESTS)
 	test "$$failed" -eq 0
 info:
 dvi:
-check: all
+check: all $(check_PROGRAMS)
 	$(MAKE) check-TESTS
 installcheck:
 install-exec: 
@@ -333,36 +333,35 @@ distclean-generic:
 maintainer-clean-generic:
 	-test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
 	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
-mostlyclean:  mostlyclean-noinstPROGRAMS mostlyclean-compile \
+mostlyclean:  mostlyclean-checkPROGRAMS mostlyclean-compile \
 		mostlyclean-libtool mostlyclean-tags mostlyclean-depend \
 		mostlyclean-generic
 
-clean:  clean-noinstPROGRAMS clean-compile clean-libtool clean-tags \
+clean:  clean-checkPROGRAMS clean-compile clean-libtool clean-tags \
 		clean-depend clean-generic mostlyclean
 
-distclean:  distclean-noinstPROGRAMS distclean-compile distclean-libtool \
+distclean:  distclean-checkPROGRAMS distclean-compile distclean-libtool \
 		distclean-tags distclean-depend distclean-generic clean
 	-rm -f config.status
 	-rm -f libtool
 
-maintainer-clean:  maintainer-clean-noinstPROGRAMS \
+maintainer-clean:  maintainer-clean-checkPROGRAMS \
 		maintainer-clean-compile maintainer-clean-libtool \
 		maintainer-clean-tags maintainer-clean-depend \
 		maintainer-clean-generic distclean
 	@echo "This command is intended for maintainers to use;"
 	@echo "it deletes files that may require special tools to rebuild."
 
-.PHONY: mostlyclean-noinstPROGRAMS distclean-noinstPROGRAMS \
-clean-noinstPROGRAMS maintainer-clean-noinstPROGRAMS \
-mostlyclean-compile distclean-compile clean-compile \
-maintainer-clean-compile mostlyclean-libtool distclean-libtool \
-clean-libtool maintainer-clean-libtool tags mostlyclean-tags \
-distclean-tags clean-tags maintainer-clean-tags distdir \
-mostlyclean-depend distclean-depend clean-depend \
-maintainer-clean-depend check-TESTS info dvi installcheck install-exec \
-install-data install uninstall all installdirs mostlyclean-generic \
-distclean-generic clean-generic maintainer-clean-generic clean \
-mostlyclean distclean maintainer-clean
+.PHONY: mostlyclean-checkPROGRAMS distclean-checkPROGRAMS \
+clean-checkPROGRAMS maintainer-clean-checkPROGRAMS mostlyclean-compile \
+distclean-compile clean-compile maintainer-clean-compile \
+mostlyclean-libtool distclean-libtool clean-libtool \
+maintainer-clean-libtool tags mostlyclean-tags distclean-tags \
+clean-tags maintainer-clean-tags distdir mostlyclean-depend \
+distclean-depend clean-depend maintainer-clean-depend check-TESTS info \
+dvi installcheck install-exec install-data install uninstall all \
+installdirs mostlyclean-generic distclean-generic clean-generic \
+maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

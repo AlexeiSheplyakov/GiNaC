@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 TESTS = run_checks
-noinst_PROGRAMS = check_ginac
+check_PROGRAMS = check_ginac
 check_ginac_SOURCES = paranoia_check.cpp numeric_output.cpp numeric_consist.cpp \
   powerlaws.cpp expand_subs.cpp inifcns_consist.cpp differentiation.cpp \
   poly_gcd.cpp normalization.cpp lsolve_onedim.cpp matrix_checks.cpp \
