@@ -319,7 +319,7 @@ ex power::eval(int level) const
 {
     // simplifications: ^(x,0) -> 1 (0^0 handled here)
     //                  ^(x,1) -> x
-    //                  ^(0,x) -> 0 (except if the realpart of x is non-positive, in which case an exception is thrown)
+    //                  ^(0,c1) -> 0 or exception (depending on real value of c1)
     //                  ^(1,x) -> 1
     //                  ^(c1,c2) -> *(c1^n,c1^(c2-n)) (c1, c2 numeric(), 0<(c2-n)<1 except if c1,c2 are rational, but c1^c2 is not)
     //                  ^(^(x,c1),c2) -> ^(x,c1*c2) (c1, c2 numeric(), c2 integer or -1 < c1 <= 1, case c1=1 should not happen, see below!)
@@ -328,7 +328,7 @@ ex power::eval(int level) const
     //                  ^(*(x,c1),c2) -> ^(-x,c2)*c1^c2 (c1, c2 numeric(), c1<0)
     
     debugmsg("power eval",LOGLEVEL_MEMBER_FUNCTION);
-
+    
     if ((level==1) && (flags & status_flags::evaluated))
         return *this;
     else if (level == -max_recursion_level)
@@ -336,12 +336,12 @@ ex power::eval(int level) const
     
     const ex & ebasis    = level==1 ? basis    : basis.eval(level-1);
     const ex & eexponent = level==1 ? exponent : exponent.eval(level-1);
-
+    
     bool basis_is_numerical = 0;
     bool exponent_is_numerical = 0;
     numeric * num_basis;
     numeric * num_exponent;
-
+    
     if (is_exactly_of_type(*ebasis.bp,numeric)) {
         basis_is_numerical = 1;
         num_basis = static_cast<numeric *>(ebasis.bp);
@@ -350,35 +350,32 @@ ex power::eval(int level) const
         exponent_is_numerical = 1;
         num_exponent = static_cast<numeric *>(eexponent.bp);
     }
-
+    
     // ^(x,0) -> 1 (0^0 also handled here)
     if (eexponent.is_zero())
         if (ebasis.is_zero())
             throw (std::domain_error("power::eval(): pow(0,0) is undefined"));
         else
             return _ex1();
-
+    
     // ^(x,1) -> x
     if (eexponent.is_equal(_ex1()))
         return ebasis;
-
-    // ^(0,x) -> 0 (except if the realpart of x is non-positive)
-    if (ebasis.is_zero()) {
-        if (exponent_is_numerical) {
-            if ((num_exponent->real()).is_zero())
-                throw (std::domain_error("power::eval(): pow(0,I) is undefined"));
-            else if ((num_exponent->real()).is_negative())
-                throw (std::overflow_error("power::eval(): division by zero"));
-            else
-                return _ex0();
-        } else
+    
+    // ^(0,c1) -> 0 or exception (depending on real value of c1)
+    if (ebasis.is_zero() && exponent_is_numerical) {
+        if ((num_exponent->real()).is_zero())
+            throw (std::domain_error("power::eval(): pow(0,I) is undefined"));
+        else if ((num_exponent->real()).is_negative())
+            throw (std::overflow_error("power::eval(): division by zero"));
+        else
             return _ex0();
     }
-
+    
     // ^(1,x) -> 1
     if (ebasis.is_equal(_ex1()))
         return _ex1();
-
+    
     if (basis_is_numerical && exponent_is_numerical) {
         // ^(c1,c2) -> c1^c2 (c1, c2 numeric(),
         // except if c1,c2 are rational, but c1^c2 is not)
@@ -412,7 +409,7 @@ ex power::eval(int level) const
             }
         }
     }
-
+    
     // ^(^(x,c1),c2) -> ^(x,c1*c2)
     // (c1, c2 numeric(), c2 integer or -1 < c1 <= 1,
     // case c1==1 should not happen, see below!)
@@ -434,7 +431,7 @@ ex power::eval(int level) const
         is_ex_exactly_of_type(ebasis,mul)) {
         return expand_mul(ex_to_mul(ebasis), *num_exponent);
     }
-
+    
     // ^(*(...,x;c1),c2) -> ^(*(...,x;1),c2)*c1^c2 (c1, c2 numeric(), c1>0)
     // ^(*(...,x,c1),c2) -> ^(*(...,x;-1),c2)*(-c1)^c2 (c1, c2 numeric(), c1<0)
     if (exponent_is_numerical && is_ex_exactly_of_type(ebasis,mul)) {

@@ -96,6 +96,7 @@ static unsigned exam_powerlaws1(void)
         clog << "returned: " << e6 << endl;
         return 1;
     }
+    
     return 0;
 }
 
@@ -201,33 +202,33 @@ static unsigned exam_powerlaws3(void)
 {
     // numeric evaluation
 
-    ex e1=power(numeric(4),numeric(1)/numeric(2));
+    ex e1 = power(numeric(4),numeric(1,2));
     if (e1 != 2) {
         clog << "4^(1/2) wrongly returned " << e1 << endl;
         return 1;
     }
     
-    ex e2=power(numeric(27),numeric(2)/numeric(3));
+    ex e2 = power(numeric(27),numeric(2,3));
     if (e2 != 9) {
         clog << "27^(2/3) wrongly returned " << e2 << endl;
         return 1;
     }
-
-    ex e3=power(numeric(5),numeric(1)/numeric(2));
+    
+    ex e3 = power(numeric(5),numeric(1,2));
     if (!(is_ex_exactly_of_type(e3,power) &&
           e3.op(0).is_equal(numeric(5)) &&
-          e3.op(1).is_equal(numeric(1)/numeric(2)) )) {
+          e3.op(1).is_equal(numeric(1,2)))) {
         clog << "5^(1/2) wrongly returned " << e3 << endl;
         return 1;
     }
     
-    ex e4=power(numeric(5),evalf(numeric(1)/numeric(2)));
+    ex e4 = power(numeric(5),evalf(numeric(1,2)));
     if (!(is_ex_exactly_of_type(e4,numeric))) {
         clog << "5^(0.5) wrongly returned " << e4 << endl;
         return 1;
     }
     
-    ex e5=power(evalf(numeric(5)),numeric(1)/numeric(2));
+    ex e5 = power(evalf(numeric(5)),numeric(1,2));
     if (!(is_ex_exactly_of_type(e5,numeric))) {
         clog << "5.0^(1/2) wrongly returned " << e5 << endl;
         return 1;
@@ -239,24 +240,47 @@ static unsigned exam_powerlaws3(void)
 static unsigned exam_powerlaws4(void)
 {
     // test for mul::eval()
-
+    
     symbol a("a");
     symbol b("b");
     symbol c("c");
     
-    ex f1=power(a*b,ex(1)/ex(2));
-    ex f2=power(a*b,ex(3)/ex(2));
-    ex f3=c;
-
+    ex f1 = power(a*b,ex(1)/ex(2));
+    ex f2 = power(a*b,ex(3)/ex(2));
+    ex f3 = c;
+    
     exvector v;
     v.push_back(f1);
     v.push_back(f2);
     v.push_back(f3);
-    ex e1=mul(v);
+    ex e1 = mul(v);
     if (e1!=a*a*b*b*c) {
         clog << "(a*b)^(1/2)*(a*b)^(3/2)*c wrongly returned " << e1 << endl;
         return 1;
     }
+    
+    return 0;
+}
+
+static unsigned exam_powerlaws5(void)
+{
+    // cabinet of slightly pathological cases
+    
+    symbol a("a");
+    
+    ex e1 = pow(1,a);
+    if (e1 != 1) {
+        clog << "1^a wrongly returned " << e1 << endl;
+        return 1;
+    }
+    
+    ex e2 = pow(0,a);
+    if (!(is_ex_exactly_of_type(e2,power))) {
+        clog << "0^a was evaluated to " << e2
+             << " though nothing is known about a." << endl;
+        return 1;
+    }
+    
     return 0;
 }
 
@@ -271,6 +295,7 @@ unsigned exam_powerlaws(void)
     result += exam_powerlaws2();  cout << '.' << flush;
     result += exam_powerlaws3();  cout << '.' << flush;
     result += exam_powerlaws4();  cout << '.' << flush;
+    result += exam_powerlaws5();  cout << '.' << flush;
     
     if (!result) {
         cout << " passed " << endl;
