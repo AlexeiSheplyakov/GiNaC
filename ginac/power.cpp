@@ -317,16 +317,16 @@ ex power::eval(int level) const
 	
 	bool basis_is_numerical = false;
 	bool exponent_is_numerical = false;
-	numeric * num_basis;
-	numeric * num_exponent;
+	const numeric *num_basis;
+	const numeric *num_exponent;
 	
 	if (is_exactly_of_type(*ebasis.bp,numeric)) {
 		basis_is_numerical = true;
-		num_basis = static_cast<numeric *>(ebasis.bp);
+		num_basis = static_cast<const numeric *>(ebasis.bp);
 	}
 	if (is_exactly_of_type(*eexponent.bp,numeric)) {
 		exponent_is_numerical = true;
-		num_exponent = static_cast<numeric *>(eexponent.bp);
+		num_exponent = static_cast<const numeric *>(eexponent.bp);
 	}
 	
 	// ^(x,0) -> 1 (0^0 also handled here)
@@ -340,7 +340,7 @@ ex power::eval(int level) const
 	// ^(x,1) -> x
 	if (eexponent.is_equal(_ex1()))
 		return ebasis;
-	
+
 	// ^(0,c1) -> 0 or exception (depending on real value of c1)
 	if (ebasis.is_zero() && exponent_is_numerical) {
 		if ((num_exponent->real()).is_zero())
@@ -350,44 +350,64 @@ ex power::eval(int level) const
 		else
 			return _ex0();
 	}
-	
+
 	// ^(1,x) -> 1
 	if (ebasis.is_equal(_ex1()))
 		return _ex1();
-	
+
 	if (exponent_is_numerical) {
 
 		// ^(c1,c2) -> c1^c2 (c1, c2 numeric(),
 		// except if c1,c2 are rational, but c1^c2 is not)
 		if (basis_is_numerical) {
-			bool basis_is_crational = num_basis->is_crational();
-			bool exponent_is_crational = num_exponent->is_crational();
-			numeric res = num_basis->power(*num_exponent);
-		
-			if ((!basis_is_crational || !exponent_is_crational)
-				|| res.is_crational()) {
+			const bool basis_is_crational = num_basis->is_crational();
+			const bool exponent_is_crational = num_exponent->is_crational();
+			if (!basis_is_crational || !exponent_is_crational) {
+				// return a plain float
+				return (new numeric(num_basis->power(*num_exponent)))->setflag(status_flags::dynallocated |
+				                                                               status_flags::evaluated |
+				                                                               status_flags::expanded);
+			}
+
+			const numeric res = num_basis->power(*num_exponent);
+			if (res.is_crational()) {
 				return res;
 			}
 			GINAC_ASSERT(!num_exponent->is_integer());  // has been handled by now
 
-			// ^(c1,n/m) -> *(c1^q,c1^(n/m-q)), 0<(n/m-h)<1, q integer
+			// ^(c1,n/m) -> *(c1^q,c1^(n/m-q)), 0<(n/m-q)<1, q integer
 			if (basis_is_crational && exponent_is_crational
-				&& num_exponent->is_real()
-				&& !num_exponent->is_integer()) {
-				numeric n = num_exponent->numer();
-				numeric m = num_exponent->denom();
+			    && num_exponent->is_real()
+			    && !num_exponent->is_integer()) {
+				const numeric n = num_exponent->numer();
+				const numeric m = num_exponent->denom();
 				numeric r;
 				numeric q = iquo(n, m, r);
 				if (r.is_negative()) {
-					r = r.add(m);
-					q = q.sub(_num1());
+					r += m;
+					--q;
 				}
-				if (q.is_zero())  // the exponent was in the allowed range 0<(n/m)<1
+				if (q.is_zero()) {  // the exponent was in the allowed range 0<(n/m)<1
+					if (num_basis->is_rational() && !num_basis->is_integer()) {
+						// try it for numerator and denominator separately, in order to
+						// partially simplify things like (5/8)^(1/3) -> 1/2*5^(1/3)
+						const numeric bnum = num_basis->numer();
+						const numeric bden = num_basis->denom();
+						const numeric res_bnum = bnum.power(*num_exponent);
+						const numeric res_bden = bden.power(*num_exponent);
+						if (res_bnum.is_integer())
+							return (new mul(power(bden,-*num_exponent),res_bnum))->setflag(status_flags::dynallocated | status_flags::evaluated);
+						if (res_bden.is_integer())
+							return (new mul(power(bnum,*num_exponent),res_bden.inverse()))->setflag(status_flags::dynallocated | status_flags::evaluated);
+					}
 					return this->hold();
-				else {
-					epvector res;
-					res.push_back(expair(ebasis,r.div(m)));
-					return (new mul(res,ex(num_basis->power_dyn(q))))->setflag(status_flags::dynallocated | status_flags::evaluated);
+				} else {
+					// assemble resulting product, but allowing for a re-evaluation,
+					// because otherwise we'll end up with something like
+					//    (7/8)^(4/3)  ->  7/8*(1/2*7^(1/3))
+					// instead of 7/16*7^(1/3).
+					ex prod = power(*num_basis,r.div(m));
+					return prod*power(*num_basis,q);
 				}
 			}
 		}
@@ -421,7 +441,7 @@ ex power::eval(int level) const
 				const numeric & num_coeff = ex_to<numeric>(mulref.overall_coeff);
 				if (num_coeff.is_real()) {
 					if (num_coeff.is_positive()) {
-						mul * mulp = new mul(mulref);
+						mul *mulp = new mul(mulref);
 						mulp->overall_coeff = _ex1();
 						mulp->clearflag(status_flags::evaluated);
 						mulp->clearflag(status_flags::hash_calculated);
@@ -430,7 +450,7 @@ ex power::eval(int level) const
 					} else {
 						GINAC_ASSERT(num_coeff.compare(_num0())<0);
 						if (num_coeff.compare(_num_1())!=0) {
-							mul * mulp = new mul(mulref);
+							mul *mulp = new mul(mulref);
 							mulp->overall_coeff = _ex_1();
 							mulp->clearflag(status_flags::evaluated);
 							mulp->clearflag(status_flags::hash_calculated);
@@ -451,17 +471,17 @@ ex power::eval(int level) const
 	}
 	
 	if (are_ex_trivially_equal(ebasis,basis) &&
-		are_ex_trivially_equal(eexponent,exponent)) {
+	    are_ex_trivially_equal(eexponent,exponent)) {
 		return this->hold();
 	}
 	return (new power(ebasis, eexponent))->setflag(status_flags::dynallocated |
-												   status_flags::evaluated);
+	                                               status_flags::evaluated);
 }
 
 ex power::evalf(int level) const
 {
 	debugmsg("power evalf",LOGLEVEL_MEMBER_FUNCTION);
-
+	
 	ex ebasis;
 	ex eexponent;
 	
@@ -558,8 +578,8 @@ ex power::expand(unsigned options) const
 	if (options == 0 && (flags & status_flags::expanded))
 		return *this;
 	
-	ex expanded_basis = basis.expand(options);
-	ex expanded_exponent = exponent.expand(options);
+	const ex expanded_basis = basis.expand(options);
+	const ex expanded_exponent = exponent.expand(options);
 	
 	// x^(a+b) -> x^a * x^b
 	if (is_ex_exactly_of_type(expanded_exponent, add)) {
