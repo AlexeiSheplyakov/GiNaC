@@ -15,7 +15,7 @@ Prereq: /sbin/install-info
 BuildRoot: %{_tmppath}/%{name}-root
 Prefix: %{_prefix}
 
-Requires: cln >= 1.0.3
+Requires: cln >= 1.1.0
 
 %description
 GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is an
@@ -57,7 +57,7 @@ make
 
 %install
 rm -rf ${RPM_BUILD_ROOT}
-make DESTDIR=${RPM_BUILD_ROOT} install-strip
+make DESTDIR=${RPM_BUILD_ROOT} install
 gzip -9nf ${RPM_BUILD_ROOT}%{_infodir}/ginac.info*
 
 %clean
@@ -91,7 +91,7 @@ fi
 %{_libdir}/*.a
 %{_libdir}/*.la
 %{_libdir}/*.so
-%{_includedir}/*.h
+%{_includedir}/ginac/*.h
 %{_infodir}/*.info*
 %{_mandir}/man1/ginac-config.1
 %{_bindir}/ginac-config
