@@ -109,4 +109,5 @@ Good luck!
   Known to work with:  |  Known not to work with:
 -----------------------+----------------------------
   Cint 5.14.31         |  Cint before 5.14.29
-
+  Cint 5.14.34         |
+  Cint 5.14.37         |
