@@ -2989,7 +2989,7 @@ AC_PROG_CXX
 AC_PROG_INSTALL
 AC_LANG_CPLUSPLUS
 
-AM_PATH_GINAC(0.6.0, [
+AM_PATH_GINAC(0.7.0, [
   LIBS="$LIBS $GINACLIB_LIBS"
   CPPFLAGS="$CPPFLAGS $GINACLIB_CPPFLAGS"  
 ], AC_MSG_ERROR([need to have GiNaC installed]))
@@ -3000,13 +3000,10 @@ AC_OUTPUT(Makefile)
 The only command in this which is not standard for automake
 is the @samp{AM_PATH_GINAC} macro.
 
-That command does the following:
-
-@display
-If a GiNaC version greater than 0.4.0 is found, adds @env{$GINACLIB_LIBS} to 
-@env{$LIBS} and @env{$GINACLIB_CPPFLAGS} to @env{$CPPFLAGS}. Otherwise, dies
-with the error message `need to have GiNaC installed'
-@end display
+That command does the following: If a GiNaC version greater or equal
+than 0.7.0 is found, then it adds @env{$GINACLIB_LIBS} to @env{$LIBS}
+and @env{$GINACLIB_CPPFLAGS} to @env{$CPPFLAGS}. Otherwise, it dies with
+the error message `need to have GiNaC installed'
 
 And the @file{Makefile.am}, which will be used to build the Makefile.
 
