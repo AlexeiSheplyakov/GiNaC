@@ -48,6 +48,7 @@
 // instead of in some header file where it would propagate to other parts.
 // Also, we only need a subset of CLN, so we don't include the complete cln.h:
 #ifdef HAVE_CLN_CLN_H
+#include <cln/cl_output.h>
 #include <cln/cl_integer_io.h>
 #include <cln/cl_integer_ring.h>
 #include <cln/cl_rational_io.h>
@@ -60,6 +61,7 @@
 #include <cln/cl_complex_ring.h>
 #include <cln/cl_numtheory.h>
 #else  // def HAVE_CLN_CLN_H
+#include <cl_output.h>
 #include <cl_integer_io.h>
 #include <cl_integer_ring.h>
 #include <cl_rational_io.h>
@@ -376,18 +378,44 @@ basic * numeric::duplicate() const
     return new numeric(*this);
 }
 
+
+/** Helper function to print a real number in a nicer way than is CLN's
+ *  default.  Instead of printing 42.0L0 this just prints 42.0 to ostream os
+ *  and instead of 3.99168L7 it prints 3.99168E7.  This is fine in GiNaC as
+ *  long as it only uses cl_LF and no other floating point types.
+ *
+ *  @see numeric::print() */
+void print_real_number(ostream & os, const cl_R & num)
+{
+    cl_print_flags ourflags;
+    if (::instanceof(num, ::cl_RA_ring)) {
+        // case 1: integer or rational, nothing special to do:
+        ::print_real(os, ourflags, num);
+    } else {
+        // case 2: float
+        // make CLN believe this number has default_float_format, so it prints
+        // 'E' as exponent marker instead of 'L':
+        ourflags.default_float_format = ::cl_float_format(The(cl_F)(num));
+        ::print_real(os, ourflags, num);
+    }
+    return;
+}
+
+/** This method adds to the output so it blends more consistently together
+ *  with the other routines and produces something compatible to ginsh input.
+ *  
+ *  @see print_real_number() */
 void numeric::print(ostream & os, unsigned upper_precedence) const
 {
-    // The method print adds to the output so it blends more consistently
-    // together with the other routines and produces something compatible to
-    // ginsh input.
     debugmsg("numeric print", LOGLEVEL_PRINT);
     if (this->is_real()) {
         // case 1, real:  x  or  -x
         if ((precedence<=upper_precedence) && (!this->is_pos_integer())) {
-            os << "(" << *value << ")";
+            os << "(";
+            print_real_number(os, The(cl_R)(*value));
+            os << ")";
         } else {
-            os << *value;
+            print_real_number(os, The(cl_R)(*value));
         }
     } else {
         // case 2, imaginary:  y*I  or  -y*I
@@ -396,7 +424,9 @@ void numeric::print(ostream & os, unsigned upper_precedence) const
                 if (::imagpart(*value) == -1) {
                     os << "(-I)";
                 } else {
-                    os << "(" << ::imagpart(*value) << "*I)";
+                    os << "(";
+                    print_real_number(os, The(cl_R)(::imagpart(*value)));
+                    os << "*I)";
                 }
             } else {
                 if (::imagpart(*value) == 1) {
@@ -405,28 +435,34 @@ void numeric::print(ostream & os, unsigned upper_precedence) const
                     if (::imagpart (*value) == -1) {
                         os << "-I";
                     } else {
-                        os << ::imagpart(*value) << "*I";
+                        print_real_number(os, The(cl_R)(::imagpart(*value)));
+                        os << "*I";
                     }
                 }
             }
         } else {
             // case 3, complex:  x+y*I  or  x-y*I  or  -x+y*I  or  -x-y*I
-            if (precedence <= upper_precedence) os << "(";
-            os << ::realpart(*value);
+            if (precedence <= upper_precedence)
+                os << "(";
+            print_real_number(os, The(cl_R)(::realpart(*value)));
             if (::imagpart(*value) < 0) {
                 if (::imagpart(*value) == -1) {
                     os << "-I";
                 } else {
-                    os << ::imagpart(*value) << "*I";
+                    print_real_number(os, The(cl_R)(::imagpart(*value)));
+                    os << "*I";
                 }
             } else {
                 if (::imagpart(*value) == 1) {
                     os << "+I";
                 } else {
-                    os << "+" << ::imagpart(*value) << "*I";
+                    os << "+";
+                    print_real_number(os, The(cl_R)(::imagpart(*value)));
+                    os << "*I";
                 }
             }
-            if (precedence <= upper_precedence) os << ")";
+            if (precedence <= upper_precedence)
+                os << ")";
         }
     }
 }
@@ -863,7 +899,7 @@ bool numeric::is_negative(void) const
 /** True if object is a non-complex integer. */
 bool numeric::is_integer(void) const
 {
-    return ::instanceof(*value, cl_I_ring);  // -> CLN
+    return ::instanceof(*value, ::cl_I_ring);  // -> CLN
 }
 
 /** True if object is an exact integer greater than zero. */
@@ -902,13 +938,13 @@ bool numeric::is_prime(void) const
  *  (denominator may be unity). */
 bool numeric::is_rational(void) const
 {
-    return ::instanceof(*value, cl_RA_ring);  // -> CLN
+    return ::instanceof(*value, ::cl_RA_ring);  // -> CLN
 }
 
 /** True if object is a real integer, rational or float (but not complex). */
 bool numeric::is_real(void) const
 {
-    return ::instanceof(*value, cl_R_ring);  // -> CLN
+    return ::instanceof(*value, ::cl_R_ring);  // -> CLN
 }
 
 bool numeric::operator==(const numeric & other) const
@@ -925,11 +961,11 @@ bool numeric::operator!=(const numeric & other) const
  *  of the form a+b*I, where a and b are integers. */
 bool numeric::is_cinteger(void) const
 {
-    if (::instanceof(*value, cl_I_ring))
+    if (::instanceof(*value, ::cl_I_ring))
         return true;
     else if (!this->is_real()) {  // complex case, handle n+m*I
-        if (::instanceof(::realpart(*value), cl_I_ring) &&
-            ::instanceof(::imagpart(*value), cl_I_ring))
+        if (::instanceof(::realpart(*value), ::cl_I_ring) &&
+            ::instanceof(::imagpart(*value), ::cl_I_ring))
             return true;
     }
     return false;
@@ -939,11 +975,11 @@ bool numeric::is_cinteger(void) const
  *  (denominator may be unity). */
 bool numeric::is_crational(void) const
 {
-    if (::instanceof(*value, cl_RA_ring))
+    if (::instanceof(*value, ::cl_RA_ring))
         return true;
     else if (!this->is_real()) {  // complex case, handle Q(i):
-        if (::instanceof(::realpart(*value), cl_RA_ring) &&
-            ::instanceof(::imagpart(*value), cl_RA_ring))
+        if (::instanceof(::realpart(*value), ::cl_RA_ring) &&
+            ::instanceof(::imagpart(*value), ::cl_RA_ring))
             return true;
     }
     return false;
@@ -1054,38 +1090,38 @@ const numeric numeric::numer(void) const
         return numeric(*this);
     }
 #ifdef SANE_LINKER
-    else if (::instanceof(*value, cl_RA_ring)) {
+    else if (::instanceof(*value, ::cl_RA_ring)) {
         return numeric(::numerator(The(cl_RA)(*value)));
     }
     else if (!this->is_real()) {  // complex case, handle Q(i):
         cl_R r = ::realpart(*value);
         cl_R i = ::imagpart(*value);
-        if (::instanceof(r, cl_I_ring) && ::instanceof(i, cl_I_ring))
+        if (::instanceof(r, ::cl_I_ring) && ::instanceof(i, ::cl_I_ring))
             return numeric(*this);
-        if (::instanceof(r, cl_I_ring) && ::instanceof(i, cl_RA_ring))
+        if (::instanceof(r, ::cl_I_ring) && ::instanceof(i, ::cl_RA_ring))
             return numeric(::complex(r*::denominator(The(cl_RA)(i)), ::numerator(The(cl_RA)(i))));
-        if (::instanceof(r, cl_RA_ring) && ::instanceof(i, cl_I_ring))
+        if (::instanceof(r, ::cl_RA_ring) && ::instanceof(i, ::cl_I_ring))
             return numeric(::complex(::numerator(The(cl_RA)(r)), i*::denominator(The(cl_RA)(r))));
-        if (::instanceof(r, cl_RA_ring) && ::instanceof(i, cl_RA_ring)) {
+        if (::instanceof(r, ::cl_RA_ring) && ::instanceof(i, ::cl_RA_ring)) {
             cl_I s = ::lcm(::denominator(The(cl_RA)(r)), ::denominator(The(cl_RA)(i)));
             return numeric(::complex(::numerator(The(cl_RA)(r))*(exquo(s,::denominator(The(cl_RA)(r)))),
                                    ::numerator(The(cl_RA)(i))*(exquo(s,::denominator(The(cl_RA)(i))))));
         }
     }
 #else
-    else if (instanceof(*value, cl_RA_ring)) {
+    else if (instanceof(*value, ::cl_RA_ring)) {
         return numeric(TheRatio(*value)->numerator);
     }
     else if (!this->is_real()) {  // complex case, handle Q(i):
         cl_R r = ::realpart(*value);
         cl_R i = ::imagpart(*value);
-        if (instanceof(r, cl_I_ring) && instanceof(i, cl_I_ring))
+        if (instanceof(r, ::cl_I_ring) && instanceof(i, ::cl_I_ring))
             return numeric(*this);
-        if (instanceof(r, cl_I_ring) && instanceof(i, cl_RA_ring))
+        if (instanceof(r, ::cl_I_ring) && instanceof(i, ::cl_RA_ring))
             return numeric(::complex(r*TheRatio(i)->denominator, TheRatio(i)->numerator));
-        if (instanceof(r, cl_RA_ring) && instanceof(i, cl_I_ring))
+        if (instanceof(r, ::cl_RA_ring) && instanceof(i, ::cl_I_ring))
             return numeric(::complex(TheRatio(r)->numerator, i*TheRatio(r)->denominator));
-        if (instanceof(r, cl_RA_ring) && instanceof(i, cl_RA_ring)) {
+        if (instanceof(r, ::cl_RA_ring) && instanceof(i, ::cl_RA_ring)) {
             cl_I s = ::lcm(TheRatio(r)->denominator, TheRatio(i)->denominator);
             return numeric(::complex(TheRatio(r)->numerator*(exquo(s,TheRatio(r)->denominator)),
                                    TheRatio(i)->numerator*(exquo(s,TheRatio(i)->denominator))));
@@ -1105,35 +1141,35 @@ const numeric numeric::denom(void) const
         return _num1();
     }
 #ifdef SANE_LINKER
-    if (instanceof(*value, cl_RA_ring)) {
+    if (instanceof(*value, ::cl_RA_ring)) {
         return numeric(::denominator(The(cl_RA)(*value)));
     }
     if (!this->is_real()) {  // complex case, handle Q(i):
         cl_R r = ::realpart(*value);
         cl_R i = ::imagpart(*value);
-        if (::instanceof(r, cl_I_ring) && ::instanceof(i, cl_I_ring))
+        if (::instanceof(r, ::cl_I_ring) && ::instanceof(i, ::cl_I_ring))
             return _num1();
-        if (::instanceof(r, cl_I_ring) && ::instanceof(i, cl_RA_ring))
+        if (::instanceof(r, ::cl_I_ring) && ::instanceof(i, ::cl_RA_ring))
             return numeric(::denominator(The(cl_RA)(i)));
-        if (::instanceof(r, cl_RA_ring) && ::instanceof(i, cl_I_ring))
+        if (::instanceof(r, ::cl_RA_ring) && ::instanceof(i, ::cl_I_ring))
             return numeric(::denominator(The(cl_RA)(r)));
-        if (::instanceof(r, cl_RA_ring) && ::instanceof(i, cl_RA_ring))
+        if (::instanceof(r, ::cl_RA_ring) && ::instanceof(i, ::cl_RA_ring))
             return numeric(::lcm(::denominator(The(cl_RA)(r)), ::denominator(The(cl_RA)(i))));
     }
 #else
-    if (instanceof(*value, cl_RA_ring)) {
+    if (instanceof(*value, ::cl_RA_ring)) {
         return numeric(TheRatio(*value)->denominator);
     }
     if (!this->is_real()) {  // complex case, handle Q(i):
         cl_R r = ::realpart(*value);
         cl_R i = ::imagpart(*value);
-        if (instanceof(r, cl_I_ring) && instanceof(i, cl_I_ring))
+        if (instanceof(r, ::cl_I_ring) && instanceof(i, ::cl_I_ring))
             return _num1();
-        if (instanceof(r, cl_I_ring) && instanceof(i, cl_RA_ring))
+        if (instanceof(r, ::cl_I_ring) && instanceof(i, ::cl_RA_ring))
             return numeric(TheRatio(i)->denominator);
-        if (instanceof(r, cl_RA_ring) && instanceof(i, cl_I_ring))
+        if (instanceof(r, ::cl_RA_ring) && instanceof(i, ::cl_I_ring))
             return numeric(TheRatio(r)->denominator);
-        if (instanceof(r, cl_RA_ring) && instanceof(i, cl_RA_ring))
+        if (instanceof(r, ::cl_RA_ring) && instanceof(i, ::cl_RA_ring))
             return numeric(::lcm(TheRatio(r)->denominator, TheRatio(i)->denominator));
     }
 #endif // def SANE_LINKER
