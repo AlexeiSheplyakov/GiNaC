@@ -73,7 +73,8 @@ public:
 	matrix mul_scalar(const ex & other) const;
 	matrix pow(const ex & expn) const;
 	const ex & operator() (unsigned ro, unsigned co) const;
-	matrix & set(unsigned ro, unsigned co, ex value);
+	ex & operator() (unsigned ro, unsigned co);
+	matrix & set(unsigned ro, unsigned co, const ex & value) { (*this)(ro, co) = value; return *this; }
 	matrix transpose(void) const;
 	ex determinant(unsigned algo = determinant_algo::automatic) const;
 	ex trace(void) const;

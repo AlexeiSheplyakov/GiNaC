@@ -475,15 +475,15 @@ ex lsolve(const ex &eqns, const ex &symbols)
 		for (unsigned c=0; c<symbols.nops(); c++) {
 			ex co = eq.coeff(ex_to_symbol(symbols.op(c)),1);
 			linpart -= co*symbols.op(c);
-			sys.set(r,c,co);
+			sys(r,c) = co;
 		}
 		linpart = linpart.expand();
-		rhs.set(r,0,-linpart);
+		rhs(r,0) = -linpart;
 	}
 	
 	// test if system is linear and fill vars matrix
 	for (unsigned i=0; i<symbols.nops(); i++) {
-		vars.set(i,0,symbols.op(i));
+		vars(i,0) = symbols.op(i);
 		if (sys.has(symbols.op(i)))
 			throw(std::logic_error("lsolve: system is not linear"));
 		if (rhs.has(symbols.op(i)))

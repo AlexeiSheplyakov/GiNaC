@@ -363,7 +363,7 @@ ex basic::evalf(int level) const
 	return *this;
 }
 
-/** Evaluate sums and products of matrices. */
+/** Evaluate sums, products and integer powers of matrices. */
 ex basic::evalm(void) const
 {
 	if (nops() == 0)

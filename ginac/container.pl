@@ -13,7 +13,7 @@ if ($ARGV[0] eq 'lst') {
 if ($#ARGV==1) {
 	$maxargs=$ARGV[1];
 } else {
-	$maxargs=15; # must be greater or equal than the value used in function.pl
+	$maxargs=16; # must be greater or equal than the value used in function.pl
 }
 
 if ($type eq 'exprseq') {
