@@ -21,6 +21,7 @@ This file records noteworthy changes.
   - is_ex_of_type(foo, type) -> is_a<type>(foo)
   - is_exaclty_of_type(foo, type) -> is_exaclty_a<type>(foo)
   - is_ex_exaclty_of_type(foo, type) -> is_exaclty_a<type>(foo)
+  - ex_to_foobar(baz)  ->  ex_to<foobar>(baz)
 
 0.9.0 (7 June 2001)
 * In the output and in ginsh, lists are now delimited by { } braces, and
