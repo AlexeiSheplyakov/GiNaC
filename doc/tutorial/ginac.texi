@@ -1970,6 +1970,16 @@ Other representation labels yield a different @code{return_type_tinfo()},
 but it's the same for any two objects with the same label. This is also true
 for color objects.
 
+As a last note, powers of non-commutative objects are not allowed in GiNaC.
+You can use the function
+
+@example
+ex ncpow(const ex & basis, unsigned exponent)
+@end example
+
+instead which returns an expanded product (e.g. @code{ncpow(a*b, 2)} becomes
+@samp{a*b*a*b} if @samp{a} and @samp{b} are non-commutative expressions).
+
 
 @cindex @code{clifford} (class)
 @subsection Clifford algebra
@@ -2799,7 +2809,7 @@ The last example would be written in C++ in this way:
     e = a*pow(sin(x+y), 2) + a*pow(cos(x+y), 2) + b;
     e = e.subs(pow(cos(wild()), 2) == 1-pow(sin(wild()), 2));
     cout << e.expand() << endl;
-     // -> "b+a"
+     // -> a+b
 @}
 @end example
 
