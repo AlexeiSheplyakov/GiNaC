@@ -126,57 +126,78 @@ REGISTER_FUNCTION(csgn, eval_func(csgn_eval).
 
 
 //////////
-// Eta function: log(x*y) == log(x) + log(y) + eta(x,y).
+// Eta function: eta(x,y) == log(x*y) - log(x) - log(y).
 //////////
 
-static ex eta_evalf(const ex & x, const ex & y)
+static ex eta_evalf(const ex &x, const ex &y)
 {
-	BEGIN_TYPECHECK
-		TYPECHECK(x,numeric)
-		TYPECHECK(y,numeric)
-	END_TYPECHECK(eta(x,y))
-		
-	numeric xim = imag(ex_to<numeric>(x));
-	numeric yim = imag(ex_to<numeric>(y));
-	numeric xyim = imag(ex_to<numeric>(x*y));
-	return evalf(I/4*Pi)*((csgn(-xim)+1)*(csgn(-yim)+1)*(csgn(xyim)+1)-(csgn(xim)+1)*(csgn(yim)+1)*(csgn(-xyim)+1));
+	// It seems like we basically have to replicate the eval function here,
+	// since the expression might not be fully evaluated yet.
+	if (x.info(info_flags::positive) || y.info(info_flags::positive))
+		return _ex0();
+
+	if (x.info(info_flags::numeric) &&	y.info(info_flags::numeric)) {
+		const numeric nx = ex_to<numeric>(x);
+		const numeric ny = ex_to<numeric>(y);
+		const numeric nxy = ex_to<numeric>(x*y);
+		int cut = 0;
+		if (nx.is_real() && nx.is_negative())
+			cut -= 4;
+		if (ny.is_real() && ny.is_negative())
+			cut -= 4;
+		if (nxy.is_real() && nxy.is_negative())
+			cut += 4;
+		return evalf(I/4*Pi)*((csgn(-imag(nx))+1)*(csgn(-imag(ny))+1)*(csgn(imag(nxy))+1)-
+		                      (csgn(imag(nx))+1)*(csgn(imag(ny))+1)*(csgn(-imag(nxy))+1)+cut);
+	}
+
+	return eta(x,y).hold();
 }
 
-static ex eta_eval(const ex & x, const ex & y)
+static ex eta_eval(const ex &x, const ex &y)
 {
-	if (is_ex_exactly_of_type(x, numeric) &&
-		is_ex_exactly_of_type(y, numeric)) {
+	// trivial:  eta(x,c) -> 0  if c is real and positive
+	if (x.info(info_flags::positive) || y.info(info_flags::positive))
+		return _ex0();
+
+	if (x.info(info_flags::numeric) &&	y.info(info_flags::numeric)) {
 		// don't call eta_evalf here because it would call Pi.evalf()!
-		numeric xim = imag(ex_to<numeric>(x));
-		numeric yim = imag(ex_to<numeric>(y));
-		numeric xyim = imag(ex_to<numeric>(x*y));
-		return (I/4)*Pi*((csgn(-xim)+1)*(csgn(-yim)+1)*(csgn(xyim)+1)-(csgn(xim)+1)*(csgn(yim)+1)*(csgn(-xyim)+1));
+		const numeric nx = ex_to<numeric>(x);
+		const numeric ny = ex_to<numeric>(y);
+		const numeric nxy = ex_to<numeric>(x*y);
+		int cut = 0;
+		if (nx.is_real() && nx.is_negative())
+			cut -= 4;
+		if (ny.is_real() && ny.is_negative())
+			cut -= 4;
+		if (nxy.is_real() && nxy.is_negative())
+			cut += 4;
+		return (I/4)*Pi*((csgn(-imag(nx))+1)*(csgn(-imag(ny))+1)*(csgn(imag(nxy))+1)-
+		                 (csgn(imag(nx))+1)*(csgn(imag(ny))+1)*(csgn(-imag(nxy))+1)+cut);
 	}
 	
 	return eta(x,y).hold();
 }
 
-static ex eta_series(const ex & arg1,
-                     const ex & arg2,
+static ex eta_series(const ex & x, const ex & y,
                      const relational & rel,
                      int order,
                      unsigned options)
 {
-	const ex arg1_pt = arg1.subs(rel);
-	const ex arg2_pt = arg2.subs(rel);
-	if (ex_to<numeric>(arg1_pt).imag().is_zero() ||
-		ex_to<numeric>(arg2_pt).imag().is_zero() ||
-		ex_to<numeric>(arg1_pt*arg2_pt).imag().is_zero()) {
-		throw (std::domain_error("eta_series(): on discontinuity"));
-	}
+	const ex x_pt = x.subs(rel);
+	const ex y_pt = y.subs(rel);
+	if ((x_pt.info(info_flags::numeric) && x_pt.info(info_flags::negative)) ||
+	    (y_pt.info(info_flags::numeric) && y_pt.info(info_flags::negative)) ||
+	    ((x_pt*y_pt).info(info_flags::numeric) && (x_pt*y_pt).info(info_flags::negative)))
+			throw (std::domain_error("eta_series(): on discontinuity"));
 	epvector seq;
-	seq.push_back(expair(eta(arg1_pt,arg2_pt), _ex0()));
+	seq.push_back(expair(eta(x_pt,y_pt), _ex0()));
 	return pseries(rel,seq);
 }
 
 REGISTER_FUNCTION(eta, eval_func(eta_eval).
                        evalf_func(eta_evalf).
-                       series_func(eta_series).
+				       series_func(eta_series).
                        latex_name("\\eta"));
 
 
@@ -419,7 +440,7 @@ ex lsolve(const ex &eqns, const ex &symbols)
 	if (eqns.info(info_flags::relation_equal)) {
 		if (!symbols.info(info_flags::symbol))
 			throw(std::invalid_argument("lsolve(): 2nd argument must be a symbol"));
-		ex sol=lsolve(lst(eqns),lst(symbols));
+		const ex sol = lsolve(lst(eqns),lst(symbols));
 		
 		GINAC_ASSERT(sol.nops()==1);
 		GINAC_ASSERT(is_ex_exactly_of_type(sol.op(0),relational));
@@ -451,10 +472,10 @@ ex lsolve(const ex &eqns, const ex &symbols)
 	matrix vars(symbols.nops(),1);
 	
 	for (unsigned r=0; r<eqns.nops(); r++) {
-		ex eq = eqns.op(r).op(0)-eqns.op(r).op(1); // lhs-rhs==0
+		const ex eq = eqns.op(r).op(0)-eqns.op(r).op(1); // lhs-rhs==0
 		ex linpart = eq;
 		for (unsigned c=0; c<symbols.nops(); c++) {
-			ex co = eq.coeff(ex_to<symbol>(symbols.op(c)),1);
+			const ex co = eq.coeff(ex_to<symbol>(symbols.op(c)),1);
 			linpart -= co*symbols.op(c);
 			sys(r,c) = co;
 		}

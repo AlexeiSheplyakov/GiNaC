@@ -90,6 +90,27 @@ static unsigned inifcns_consist_trans(void)
 		++result;
 	}
 	
+	// check consistency of log and eta phases:
+	for (int r1=-1; r1<=1; ++r1) {
+		for (int i1=-1; i1<=1; ++i1) {
+			ex x1 = r1+I*i1;
+			if (x1.is_zero())
+				continue;
+			for (int r2=-1; r2<=1; ++r2) {
+				for (int i2=-1; i2<=1; ++i2) {
+					ex x2 = r2+I*i2;
+					if (x2.is_zero())
+						continue;
+					if (abs(evalf(eta(x1,x2)-log(x1*x2)+log(x1)+log(x2)))>.1e-12) {
+						clog << "either eta(x,y), log(x), log(y) or log(x*y) is wrong"
+						     << " at x==" << x1 << ", y==" << x2 << endl;
+						++result;
+					}
+				}
+			}
+		}
+	}
+		
 	return result;
 }
 
@@ -100,7 +121,7 @@ static unsigned inifcns_consist_gamma(void)
 	unsigned result = 0;
 	ex e;
 	
-	e = tgamma(ex(1));
+	e = tgamma(1);
 	for (int i=2; i<8; ++i)
 		e += tgamma(ex(i));
 	if (e != numeric(874)) {
@@ -109,7 +130,7 @@ static unsigned inifcns_consist_gamma(void)
 		++result;
 	}
 	
-	e = tgamma(ex(1));
+	e = tgamma(1);
 	for (int i=2; i<8; ++i)
 		e *= tgamma(ex(i));	
 	if (e != numeric(24883200)) {
