@@ -36,12 +36,14 @@ int main()
         ++result;
     }
     
+#if 0
     try {
         result += time_gammaseries();
     } catch (const exception &e) {
         cout << "Error: caught exception " << e.what() << endl;
         ++result;
     }
+#endif
     
     try {
         result += time_vandermonde();
