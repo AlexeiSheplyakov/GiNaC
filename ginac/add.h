@@ -45,7 +45,6 @@ public:
 	
 	// functions overriding virtual functions from base classes
 public:
-	void print(const print_context & c, unsigned level = 0) const;
 	unsigned precedence() const {return 40;}
 	bool info(unsigned inf) const;
 	int degree(const ex & s) const;
@@ -73,6 +72,14 @@ protected:
 	                                       const ex & c) const;
 	ex recombine_pair_to_ex(const expair & p) const;
 	ex expand(unsigned options=0) const;
+
+	// non-virtual functions in this class
+protected:
+	void print_add(const print_context & c, const char *openbrace, const char *closebrace, const char *mul_sym, unsigned level) const;
+	void do_print(const print_context & c, unsigned level) const;
+	void do_print_latex(const print_latex & c, unsigned level) const;
+	void do_print_csrc(const print_csrc & c, unsigned level) const;
+	void do_print_python_repr(const print_python_repr & c, unsigned level) const;
 };
 
 // utility functions

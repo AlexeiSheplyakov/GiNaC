@@ -100,7 +100,7 @@ void power::print_power(const print_context & c, const char *powersymbol, const 
 	exponent.print(c, precedence());
 	c.s << closebrace;
 	if (precedence() <= level)
-		c.s << closebrace << ')';
+		c.s << ')' << closebrace;
 }
 
 void power::do_print_dflt(const print_dflt & c, unsigned level) const

@@ -39,7 +39,10 @@
 
 namespace GiNaC {
 
-GINAC_IMPLEMENT_REGISTERED_CLASS(indexed, exprseq)
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(indexed, exprseq,
+  print_func<print_context>(&indexed::do_print).
+  print_func<print_latex>(&indexed::do_print_latex).
+  print_func<print_tree>(&indexed::do_print_tree))
 
 //////////
 // default constructor
@@ -168,36 +171,78 @@ DEFAULT_UNARCHIVE(indexed)
 // functions overriding virtual functions from base classes
 //////////
 
-void indexed::print(const print_context & c, unsigned level) const
+void indexed::printindices(const print_context & c, unsigned level) const
 {
-	GINAC_ASSERT(seq.size() > 0);
+	if (seq.size() > 1) {
 
-	if (is_a<print_tree>(c)) {
+		exvector::const_iterator it=seq.begin() + 1, itend = seq.end();
 
-		c.s << std::string(level, ' ') << class_name()
-		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
-		    << ", " << seq.size()-1 << " indices"
-		    << ", symmetry=" << symtree << std::endl;
-		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
-		seq[0].print(c, level + delta_indent);
-		printindices(c, level + delta_indent);
+		if (is_a<print_latex>(c)) {
 
-	} else {
+			// TeX output: group by variance
+			bool first = true;
+			bool covariant = true;
 
-		bool is_tex = is_a<print_latex>(c);
-		const ex & base = seq[0];
-
-		if (precedence() <= level)
-			c.s << (is_tex ? "{(" : "(");
-		if (is_tex)
-			c.s << "{";
-		base.print(c, precedence());
-		if (is_tex)
+			while (it != itend) {
+				bool cur_covariant = (is_a<varidx>(*it) ? ex_to<varidx>(*it).is_covariant() : true);
+				if (first || cur_covariant != covariant) { // Variance changed
+					// The empty {} prevents indices from ending up on top of each other
+					if (!first)
+						c.s << "}{}";
+					covariant = cur_covariant;
+					if (covariant)
+						c.s << "_{";
+					else
+						c.s << "^{";
+				}
+				it->print(c, level);
+				c.s << " ";
+				first = false;
+				it++;
+			}
 			c.s << "}";
-		printindices(c, level);
-		if (precedence() <= level)
-			c.s << (is_tex ? ")}" : ")");
+
+		} else {
+
+			// Ordinary output
+			while (it != itend) {
+				it->print(c, level);
+				it++;
+			}
+		}
 	}
+}
+
+void indexed::print_indexed(const print_context & c, const char *openbrace, const char *closebrace, unsigned level) const
+{
+	if (precedence() <= level)
+		c.s << openbrace << '(';
+	c.s << openbrace;
+	seq[0].print(c, precedence());
+	c.s << closebrace;
+	printindices(c, level);
+	if (precedence() <= level)
+		c.s << ')' << closebrace;
+}
+
+void indexed::do_print(const print_context & c, unsigned level) const
+{
+	print_indexed(c, "", "", level);
+}
+
+void indexed::do_print_latex(const print_latex & c, unsigned level) const
+{
+	print_indexed(c, "{", "}", level);
+}
+
+void indexed::do_print_tree(const print_tree & c, unsigned level) const
+{
+	c.s << std::string(level, ' ') << class_name()
+	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+	    << ", " << seq.size()-1 << " indices"
+	    << ", symmetry=" << symtree << std::endl;
+	seq[0].print(c, level + c.delta_indent);
+	printindices(c, level + c.delta_indent);
 }
 
 bool indexed::info(unsigned inf) const
@@ -305,48 +350,6 @@ ex indexed::expand(unsigned options) const
 //////////
 // non-virtual functions in this class
 //////////
-
-void indexed::printindices(const print_context & c, unsigned level) const
-{
-	if (seq.size() > 1) {
-
-		exvector::const_iterator it=seq.begin() + 1, itend = seq.end();
-
-		if (is_a<print_latex>(c)) {
-
-			// TeX output: group by variance
-			bool first = true;
-			bool covariant = true;
-
-			while (it != itend) {
-				bool cur_covariant = (is_a<varidx>(*it) ? ex_to<varidx>(*it).is_covariant() : true);
-				if (first || cur_covariant != covariant) { // Variance changed
-					// The empty {} prevents indices from ending up on top of each other
-					if (!first)
-						c.s << "}{}";
-					covariant = cur_covariant;
-					if (covariant)
-						c.s << "_{";
-					else
-						c.s << "^{";
-				}
-				it->print(c, level);
-				c.s << " ";
-				first = false;
-				it++;
-			}
-			c.s << "}";
-
-		} else {
-
-			// Ordinary output
-			while (it != itend) {
-				it->print(c, level);
-				it++;
-			}
-		}
-	}
-}
 
 /** Check whether all indices are of class idx and validate the symmetry
  *  tree. This function is used internally to make sure that all constructed

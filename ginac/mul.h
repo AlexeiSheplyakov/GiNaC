@@ -47,7 +47,6 @@ public:
 	
 	// functions overriding virtual functions from base classes
 public:
-	void print(const print_context & c, unsigned level = 0) const;
 	unsigned precedence() const {return 50;}
 	bool info(unsigned inf) const;
 	int degree(const ex & s) const;
@@ -87,6 +86,11 @@ protected:
 public:
 	ex algebraic_subs_mul(const exmap & m, unsigned options) const;
 protected:
+	void print_overall_coeff(const print_context & c, const char *mul_sym) const;
+	void do_print(const print_context & c, unsigned level) const;
+	void do_print_latex(const print_latex & c, unsigned level) const;
+	void do_print_csrc(const print_csrc & c, unsigned level) const;
+	void do_print_python_repr(const print_python_repr & c, unsigned level) const;
 	epvector * expandchildren(unsigned options) const;
 };
 

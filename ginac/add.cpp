@@ -32,7 +32,12 @@
 
 namespace GiNaC {
 
-GINAC_IMPLEMENT_REGISTERED_CLASS(add, expairseq)
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(add, expairseq,
+  print_func<print_context>(&add::do_print).
+  print_func<print_latex>(&add::do_print_latex).
+  print_func<print_csrc>(&add::do_print_csrc).
+  print_func<print_tree>(&inherited::do_print_tree).
+  print_func<print_python_repr>(&add::do_print_python_repr))
 
 //////////
 // default constructor
@@ -103,130 +108,121 @@ DEFAULT_ARCHIVING(add)
 
 // public
 
-void add::print(const print_context & c, unsigned level) const
+void add::print_add(const print_context & c, const char *openbrace, const char *closebrace, const char *mul_sym, unsigned level) const
 {
-	if (is_a<print_tree>(c)) {
+	if (precedence() <= level)
+		c.s << openbrace << '(';
 
-		inherited::print(c, level);
+	numeric coeff;
+	bool first = true;
 
-	} else if (is_a<print_csrc>(c)) {
+	// First print the overall numeric coefficient, if present
+	if (!overall_coeff.is_zero()) {
+		overall_coeff.print(c, 0);
+		first = false;
+	}
 
-		if (precedence() <= level)
-			c.s << "(";
-	
-		// Print arguments, separated by "+"
-		epvector::const_iterator it = seq.begin(), itend = seq.end();
-		while (it != itend) {
-		
-			// If the coefficient is -1, it is replaced by a single minus sign
-			if (it->coeff.is_equal(_ex1)) {
-				it->rest.print(c, precedence());
-			} else if (it->coeff.is_equal(_ex_1)) {
-				c.s << "-";
-				it->rest.print(c, precedence());
-			} else if (ex_to<numeric>(it->coeff).numer().is_equal(_num1)) {
-				it->rest.print(c, precedence());
-				c.s << "/";
-				ex_to<numeric>(it->coeff).denom().print(c, precedence());
-			} else if (ex_to<numeric>(it->coeff).numer().is_equal(_num_1)) {
-				c.s << "-";
-				it->rest.print(c, precedence());
-				c.s << "/";
-				ex_to<numeric>(it->coeff).denom().print(c, precedence());
-			} else {
-				it->coeff.print(c, precedence());
-				c.s << "*";
-				it->rest.print(c, precedence());
-			}
-		
-			// Separator is "+", except if the following expression would have a leading minus sign or the sign is sitting in parenthesis (as in a ctor)
-			++it;
-			if (it != itend
-			 && (is_a<print_csrc_cl_N>(c) || !it->coeff.info(info_flags::real)  // sign inside ctor arguments
-			  || !(it->coeff.info(info_flags::negative) || (it->coeff.is_equal(_num1) && is_exactly_a<numeric>(it->rest) && it->rest.info(info_flags::negative)))))
-				c.s << "+";
-		}
-	
-		if (!overall_coeff.is_zero()) {
-			if (overall_coeff.info(info_flags::positive)
-			 || is_a<print_csrc_cl_N>(c) || !overall_coeff.info(info_flags::real))  // sign inside ctor argument
-				c.s << '+';
-			overall_coeff.print(c, precedence());
-		}
-		
-		if (precedence() <= level)
-			c.s << ")";
-
-	} else if (is_a<print_python_repr>(c)) {
-
-		c.s << class_name() << '(';
-		op(0).print(c);
-		for (size_t i=1; i<nops(); ++i) {
-			c.s << ',';
-			op(i).print(c);
-		}
-		c.s << ')';
-
-	} else {
-
-		if (precedence() <= level) {
-			if (is_a<print_latex>(c))
-				c.s << "{(";
-			else
-				c.s << "(";
-		}
-
-		numeric coeff;
-		bool first = true;
-
-		// First print the overall numeric coefficient, if present
-		if (!overall_coeff.is_zero()) {
-			if (!is_a<print_tree>(c))
-				overall_coeff.print(c, 0);
-			else
-				overall_coeff.print(c, precedence());
+	// Then proceed with the remaining factors
+	epvector::const_iterator it = seq.begin(), itend = seq.end();
+	while (it != itend) {
+		coeff = ex_to<numeric>(it->coeff);
+		if (!first) {
+			if (coeff.csgn() == -1) c.s << '-'; else c.s << '+';
+		} else {
+			if (coeff.csgn() == -1) c.s << '-';
 			first = false;
 		}
-
-		// Then proceed with the remaining factors
-		epvector::const_iterator it = seq.begin(), itend = seq.end();
-		while (it != itend) {
-			coeff = ex_to<numeric>(it->coeff);
-			if (!first) {
-				if (coeff.csgn() == -1) c.s << '-'; else c.s << '+';
-			} else {
-				if (coeff.csgn() == -1) c.s << '-';
-				first = false;
-			}
-			if (!coeff.is_equal(_num1) &&
-			    !coeff.is_equal(_num_1)) {
-				if (coeff.is_rational()) {
-					if (coeff.is_negative())
-						(-coeff).print(c);
-					else
-						coeff.print(c);
-				} else {
-					if (coeff.csgn() == -1)
-						(-coeff).print(c, precedence());
-					else
-						coeff.print(c, precedence());
-				}
-				if (is_a<print_latex>(c))
-					c.s << ' ';
+		if (!coeff.is_equal(_num1) &&
+		    !coeff.is_equal(_num_1)) {
+			if (coeff.is_rational()) {
+				if (coeff.is_negative())
+					(-coeff).print(c);
 				else
-					c.s << '*';
+					coeff.print(c);
+			} else {
+				if (coeff.csgn() == -1)
+					(-coeff).print(c, precedence());
+				else
+					coeff.print(c, precedence());
 			}
-			it->rest.print(c, precedence());
-			++it;
+			c.s << mul_sym;
 		}
-
-		if (precedence() <= level) {
-			if (is_a<print_latex>(c))
-				c.s << ")}";
-			else
-				c.s << ")";
-		}
+		it->rest.print(c, precedence());
+		++it;
 	}
+
+	if (precedence() <= level)
+		c.s << ')' << closebrace;
+}
+
+void add::do_print(const print_context & c, unsigned level) const
+{
+	print_add(c, "", "", "*", level);
+}
+
+void add::do_print_latex(const print_latex & c, unsigned level) const
+{
+	print_add(c, "{", "}", " ", level);
+}
+
+void add::do_print_csrc(const print_csrc & c, unsigned level) const
+{
+	if (precedence() <= level)
+		c.s << "(";
+	
+	// Print arguments, separated by "+"
+	epvector::const_iterator it = seq.begin(), itend = seq.end();
+	while (it != itend) {
+		
+		// If the coefficient is -1, it is replaced by a single minus sign
+		if (it->coeff.is_equal(_ex1)) {
+			it->rest.print(c, precedence());
+		} else if (it->coeff.is_equal(_ex_1)) {
+			c.s << "-";
+			it->rest.print(c, precedence());
+		} else if (ex_to<numeric>(it->coeff).numer().is_equal(_num1)) {
+			it->rest.print(c, precedence());
+			c.s << "/";
+			ex_to<numeric>(it->coeff).denom().print(c, precedence());
+		} else if (ex_to<numeric>(it->coeff).numer().is_equal(_num_1)) {
+			c.s << "-";
+			it->rest.print(c, precedence());
+			c.s << "/";
+			ex_to<numeric>(it->coeff).denom().print(c, precedence());
+		} else {
+			it->coeff.print(c, precedence());
+			c.s << "*";
+			it->rest.print(c, precedence());
+		}
+		
+		// Separator is "+", except if the following expression would have a leading minus sign or the sign is sitting in parenthesis (as in a ctor)
+		++it;
+		if (it != itend
+		 && (is_a<print_csrc_cl_N>(c) || !it->coeff.info(info_flags::real)  // sign inside ctor arguments
+		  || !(it->coeff.info(info_flags::negative) || (it->coeff.is_equal(_num1) && is_exactly_a<numeric>(it->rest) && it->rest.info(info_flags::negative)))))
+			c.s << "+";
+	}
+	
+	if (!overall_coeff.is_zero()) {
+		if (overall_coeff.info(info_flags::positive)
+		 || is_a<print_csrc_cl_N>(c) || !overall_coeff.info(info_flags::real))  // sign inside ctor argument
+			c.s << '+';
+		overall_coeff.print(c, precedence());
+	}
+		
+	if (precedence() <= level)
+		c.s << ")";
+}
+
+void add::do_print_python_repr(const print_python_repr & c, unsigned level) const
+{
+	c.s << class_name() << '(';
+	op(0).print(c);
+	for (size_t i=1; i<nops(); ++i) {
+		c.s << ',';
+		op(i).print(c);
+	}
+	c.s << ')';
 }
 
 bool add::info(unsigned inf) const

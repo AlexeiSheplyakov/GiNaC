@@ -38,7 +38,12 @@
 
 namespace GiNaC {
 
-GINAC_IMPLEMENT_REGISTERED_CLASS(pseries, basic)
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(pseries, basic,
+  print_func<print_context>(&pseries::do_print).
+  print_func<print_latex>(&pseries::do_print_latex).
+  print_func<print_tree>(&pseries::do_print_tree).
+  print_func<print_python>(&pseries::do_print_python).
+  print_func<print_python_repr>(&pseries::do_print_python_repr))
 
 
 /*
@@ -107,106 +112,113 @@ DEFAULT_UNARCHIVE(pseries)
 // functions overriding virtual functions from base classes
 //////////
 
-void pseries::print(const print_context & c, unsigned level) const
+void pseries::print_series(const print_context & c, const char *openbrace, const char *closebrace, const char *mul_sym, const char *pow_sym, unsigned level) const
 {
-	if (is_a<print_tree>(c)) {
-
-		c.s << std::string(level, ' ') << class_name()
-		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
-		    << std::endl;
-		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
-		size_t num = seq.size();
-		for (size_t i=0; i<num; ++i) {
-			seq[i].rest.print(c, level + delta_indent);
-			seq[i].coeff.print(c, level + delta_indent);
-			c.s << std::string(level + delta_indent, ' ') << "-----" << std::endl;
-		}
-		var.print(c, level + delta_indent);
-		point.print(c, level + delta_indent);
-
-	} else if (is_a<print_python_repr>(c)) {
-		c.s << class_name() << "(relational(";
-		var.print(c);
-		c.s << ',';
-		point.print(c);
-		c.s << "),[";
-		size_t num = seq.size();
-		for (size_t i=0; i<num; ++i) {
-			if (i)
-				c.s << ',';
-			c.s << '(';
-			seq[i].rest.print(c);
-			c.s << ',';
-			seq[i].coeff.print(c);
-			c.s << ')';
-		}
-		c.s << "])";
-	} else {
-
-		if (precedence() <= level)
-			c.s << "(";
+	if (precedence() <= level)
+		c.s << '(';
 		
-		std::string par_open = is_a<print_latex>(c) ? "{(" : "(";
-		std::string par_close = is_a<print_latex>(c) ? ")}" : ")";
-		
-		// objects of type pseries must not have any zero entries, so the
-		// trivial (zero) pseries needs a special treatment here:
-		if (seq.empty())
-			c.s << '0';
-		epvector::const_iterator i = seq.begin(), end = seq.end();
-		while (i != end) {
-			// print a sign, if needed
-			if (i != seq.begin())
-				c.s << '+';
-			if (!is_order_function(i->rest)) {
-				// print 'rest', i.e. the expansion coefficient
-				if (i->rest.info(info_flags::numeric) &&
-					i->rest.info(info_flags::positive)) {
-					i->rest.print(c);
-				} else {
-					c.s << par_open;
-					i->rest.print(c);
-					c.s << par_close;
-				}
-				// print 'coeff', something like (x-1)^42
-				if (!i->coeff.is_zero()) {
-					if (is_a<print_latex>(c))
-						c.s << ' ';
-					else
-						c.s << '*';
-					if (!point.is_zero()) {
-						c.s << par_open;
-						(var-point).print(c);
-						c.s << par_close;
+	// objects of type pseries must not have any zero entries, so the
+	// trivial (zero) pseries needs a special treatment here:
+	if (seq.empty())
+		c.s << '0';
+
+	epvector::const_iterator i = seq.begin(), end = seq.end();
+	while (i != end) {
+
+		// print a sign, if needed
+		if (i != seq.begin())
+			c.s << '+';
+
+		if (!is_order_function(i->rest)) {
+
+			// print 'rest', i.e. the expansion coefficient
+			if (i->rest.info(info_flags::numeric) &&
+				i->rest.info(info_flags::positive)) {
+				i->rest.print(c);
+			} else {
+				c.s << openbrace << '(';
+				i->rest.print(c);
+				c.s << ')' << closebrace;
+			}
+
+			// print 'coeff', something like (x-1)^42
+			if (!i->coeff.is_zero()) {
+				c.s << mul_sym;
+				if (!point.is_zero()) {
+					c.s << openbrace << '(';
+					(var-point).print(c);
+					c.s << ')' << closebrace;
+				} else
+					var.print(c);
+				if (i->coeff.compare(_ex1)) {
+					c.s << pow_sym;
+					c.s << openbrace;
+					if (i->coeff.info(info_flags::negative)) {
+						c.s << '(';
+						i->coeff.print(c);
+						c.s << ')';
 					} else
-						var.print(c);
-					if (i->coeff.compare(_ex1)) {
-						if (is_a<print_python>(c))
-							c.s << "**";
-						else
-							c.s << '^';
-						if (i->coeff.info(info_flags::negative)) {
-							c.s << par_open;
-							i->coeff.print(c);
-							c.s << par_close;
-						} else {
-							if (is_a<print_latex>(c)) {
-								c.s << '{';
-								i->coeff.print(c);
-								c.s << '}';
-							} else
-								i->coeff.print(c);
-						}
-					}
+						i->coeff.print(c);
+					c.s << closebrace;
 				}
-			} else
-				Order(power(var-point,i->coeff)).print(c);
-			++i;
-		}
-
-		if (precedence() <= level)
-			c.s << ")";
+			}
+		} else
+			Order(power(var-point,i->coeff)).print(c);
+		++i;
 	}
+
+	if (precedence() <= level)
+		c.s << ')';
+}
+
+void pseries::do_print(const print_context & c, unsigned level) const
+{
+	print_series(c, "", "", "*", "^", level);
+}
+
+void pseries::do_print_latex(const print_latex & c, unsigned level) const
+{
+	print_series(c, "{", "}", " ", "^", level);
+}
+
+void pseries::do_print_python(const print_python & c, unsigned level) const
+{
+	print_series(c, "", "", "*", "**", level);
+}
+
+void pseries::do_print_tree(const print_tree & c, unsigned level) const
+{
+	c.s << std::string(level, ' ') << class_name()
+	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+	    << std::endl;
+	size_t num = seq.size();
+	for (size_t i=0; i<num; ++i) {
+		seq[i].rest.print(c, level + c.delta_indent);
+		seq[i].coeff.print(c, level + c.delta_indent);
+		c.s << std::string(level + c.delta_indent, ' ') << "-----" << std::endl;
+	}
+	var.print(c, level + c.delta_indent);
+	point.print(c, level + c.delta_indent);
+}
+
+void pseries::do_print_python_repr(const print_python_repr & c, unsigned level) const
+{
+	c.s << class_name() << "(relational(";
+	var.print(c);
+	c.s << ',';
+	point.print(c);
+	c.s << "),[";
+	size_t num = seq.size();
+	for (size_t i=0; i<num; ++i) {
+		if (i)
+			c.s << ',';
+		c.s << '(';
+		seq[i].rest.print(c);
+		c.s << ',';
+		seq[i].coeff.print(c);
+		c.s << ')';
+	}
+	c.s << "])";
 }
 
 int pseries::compare_same_type(const basic & other) const

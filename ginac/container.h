@@ -272,7 +272,6 @@ public:
 
 	// functions overriding virtual functions from base classes
 public:
-	void print(const print_context & c, unsigned level = 0) const;
 	bool info(unsigned inf) const { return inherited::info(inf); }
 	unsigned precedence() const { return 10; }
 	size_t nops() const { return this->seq.size(); }
@@ -331,6 +330,10 @@ public:
 	const_reverse_iterator rend() const {return this->seq.rend();}
 
 protected:
+	void do_print(const print_context & c, unsigned level) const;
+	void do_print_tree(const print_tree & c, unsigned level) const;
+	void do_print_python(const print_python & c, unsigned level) const;
+	void do_print_python_repr(const print_python_repr & c, unsigned level) const;
 	STLT evalchildren(int level) const;
 	STLT *subschildren(const exmap & m, unsigned options = 0) const;
 };
@@ -372,29 +375,38 @@ void container<C>::archive(archive_node &n) const
 }
 
 template <template <class> class C>
-void container<C>::print(const print_context & c, unsigned level) const
+void container<C>::do_print(const print_context & c, unsigned level) const
 {
-	if (is_a<print_tree>(c)) {
-		c.s << std::string(level, ' ') << class_name()
-		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
-		    << ", nops=" << nops()
-		    << std::endl;
-		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
-		const_iterator i = this->seq.begin(), end = this->seq.end();
-		while (i != end) {
-			i->print(c, level + delta_indent);
-			++i;
-		}
-		c.s << std::string(level + delta_indent,' ') << "=====" << std::endl;
-	} else if (is_a<print_python>(c)) {
-		printseq(c, '[', ',', ']', precedence(), precedence()+1);
-	} else if (is_a<print_python_repr>(c)) {
-		c.s << class_name ();
-		printseq(c, '(', ',', ')', precedence(), precedence()+1);
-	} else {
-		// always print brackets around seq, ignore upper_precedence
-		printseq(c, get_open_delim(), ',', get_close_delim(), precedence(), precedence()+1);
+	// always print brackets around seq, ignore upper_precedence
+	printseq(c, get_open_delim(), ',', get_close_delim(), precedence(), precedence()+1);
+}
+
+template <template <class> class C>
+void container<C>::do_print_tree(const print_tree & c, unsigned level) const
+{
+	c.s << std::string(level, ' ') << class_name()
+	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+	    << ", nops=" << nops()
+	    << std::endl;
+	const_iterator i = this->seq.begin(), end = this->seq.end();
+	while (i != end) {
+		i->print(c, level + c.delta_indent);
+		++i;
 	}
+	c.s << std::string(level + c.delta_indent,' ') << "=====" << std::endl;
+}
+
+template <template <class> class C>
+void container<C>::do_print_python(const print_python & c, unsigned level) const
+{
+	printseq(c, '[', ',', ']', precedence(), precedence()+1);
+}
+
+template <template <class> class C>
+void container<C>::do_print_python_repr(const print_python_repr & c, unsigned level) const
+{
+	c.s << class_name();
+	printseq(c, '(', ',', ')', precedence(), precedence()+1);
 }
 
 template <template <class> class C>

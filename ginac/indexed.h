@@ -144,7 +144,6 @@ public:
 
 	// functions overriding virtual functions from base classes
 public:
-	void print(const print_context & c, unsigned level = 0) const;
 	unsigned precedence() const {return 55;}
 	bool info(unsigned inf) const;
 	ex eval(int level = 0) const;
@@ -185,6 +184,10 @@ public:
 
 protected:
 	void printindices(const print_context & c, unsigned level) const;
+	void print_indexed(const print_context & c, const char *openbrace, const char *closebrace, unsigned level) const;
+	void do_print(const print_context & c, unsigned level) const;
+	void do_print_latex(const print_latex & c, unsigned level) const;
+	void do_print_tree(const print_tree & c, unsigned level) const;
 	void validate() const;
 
 	// member variables

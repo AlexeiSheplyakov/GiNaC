@@ -42,7 +42,6 @@ public:
 
 	// functions overriding virtual functions from base classes
 public:
-	void print(const print_context & c, unsigned level = 0) const;
 	unsigned precedence() const {return 38;} // for clarity just below add::precedence
 	size_t nops() const;
 	ex op(size_t i) const;
@@ -88,6 +87,14 @@ public:
 	ex mul_series(const pseries &other) const;
 	ex power_const(const numeric &p, int deg) const;
 	pseries shift_exponents(int deg) const;
+
+protected:
+	void print_series(const print_context & c, const char *openbrace, const char *closebrace, const char *mul_sym, const char *pow_sym, unsigned level) const;
+	void do_print(const print_context & c, unsigned level) const;
+	void do_print_latex(const print_latex & c, unsigned level) const;
+	void do_print_tree(const print_tree & c, unsigned level) const;
+	void do_print_python(const print_python & c, unsigned level) const;
+	void do_print_python_repr(const print_python_repr & c, unsigned level) const;
 
 protected:
 	/** Vector of {coefficient, power} pairs */

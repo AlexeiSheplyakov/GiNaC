@@ -36,7 +36,13 @@
 
 namespace GiNaC {
 
-GINAC_IMPLEMENT_REGISTERED_CLASS(mul, expairseq)
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(mul, expairseq,
+  print_func<print_context>(&mul::do_print).
+  print_func<print_latex>(&mul::do_print_latex).
+  print_func<print_csrc>(&mul::do_print_csrc).
+  print_func<print_tree>(&inherited::do_print_tree).
+  print_func<print_python_repr>(&mul::do_print_python_repr))
+
 
 //////////
 // default constructor
@@ -118,159 +124,154 @@ DEFAULT_ARCHIVING(mul)
 // functions overriding virtual functions from base classes
 //////////
 
-// public
-void mul::print(const print_context & c, unsigned level) const
+void mul::print_overall_coeff(const print_context & c, const char *mul_sym) const
 {
-	if (is_a<print_tree>(c)) {
-
-		inherited::print(c, level);
-
-	} else if (is_a<print_csrc>(c)) {
-
-		if (precedence() <= level)
-			c.s << "(";
-
-		if (!overall_coeff.is_equal(_ex1)) {
-			overall_coeff.print(c, precedence());
-			c.s << "*";
-		}
-
-		// Print arguments, separated by "*" or "/"
-		epvector::const_iterator it = seq.begin(), itend = seq.end();
-		while (it != itend) {
-
-			// If the first argument is a negative integer power, it gets printed as "1.0/<expr>"
-			bool needclosingparenthesis = false;
-			if (it == seq.begin() && it->coeff.info(info_flags::negint)) {
-				if (is_a<print_csrc_cl_N>(c)) {
-					c.s << "recip(";
-					needclosingparenthesis = true;
-				} else
-					c.s << "1.0/";
-			}
-
-			// If the exponent is 1 or -1, it is left out
-			if (it->coeff.is_equal(_ex1) || it->coeff.is_equal(_ex_1))
-				it->rest.print(c, precedence());
-			else if (it->coeff.info(info_flags::negint))
-				// Outer parens around ex needed for broken GCC parser:
-				(ex(power(it->rest, -ex_to<numeric>(it->coeff)))).print(c, level);
+	const numeric &coeff = ex_to<numeric>(overall_coeff);
+	if (coeff.csgn() == -1)
+		c.s << '-';
+	if (!coeff.is_equal(_num1) &&
+		!coeff.is_equal(_num_1)) {
+		if (coeff.is_rational()) {
+			if (coeff.is_negative())
+				(-coeff).print(c);
 			else
-				// Outer parens around ex needed for broken GCC parser:
-				(ex(power(it->rest, ex_to<numeric>(it->coeff)))).print(c, level);
-
-			if (needclosingparenthesis)
-				c.s << ")";
-
-			// Separator is "/" for negative integer powers, "*" otherwise
-			++it;
-			if (it != itend) {
-				if (it->coeff.info(info_flags::negint))
-					c.s << "/";
-				else
-					c.s << "*";
-			}
+				coeff.print(c);
+		} else {
+			if (coeff.csgn() == -1)
+				(-coeff).print(c, precedence());
+			else
+				coeff.print(c, precedence());
 		}
+		c.s << mul_sym;
+	}
+}
 
-		if (precedence() <= level)
-			c.s << ")";
+void mul::do_print(const print_context & c, unsigned level) const
+{
+	if (precedence() <= level)
+		c.s << '(';
 
-	} else if (is_a<print_python_repr>(c)) {
-		c.s << class_name() << '(';
-		op(0).print(c);
-		for (size_t i=1; i<nops(); ++i) {
-			c.s << ',';
-			op(i).print(c);
-		}
+	print_overall_coeff(c, "*");
+
+	epvector::const_iterator it = seq.begin(), itend = seq.end();
+	bool first = true;
+	while (it != itend) {
+		if (!first)
+			c.s << '*';
+		else
+			first = false;
+		recombine_pair_to_ex(*it).print(c, precedence());
+		++it;
+	}
+
+	if (precedence() <= level)
 		c.s << ')';
+}
+
+void mul::do_print_latex(const print_latex & c, unsigned level) const
+{
+	if (precedence() <= level)
+		c.s << "{(";
+
+	print_overall_coeff(c, " ");
+
+	// Separate factors into those with negative numeric exponent
+	// and all others
+	epvector::const_iterator it = seq.begin(), itend = seq.end();
+	exvector neg_powers, others;
+	while (it != itend) {
+		GINAC_ASSERT(is_exactly_a<numeric>(it->coeff));
+		if (ex_to<numeric>(it->coeff).is_negative())
+			neg_powers.push_back(recombine_pair_to_ex(expair(it->rest, -(it->coeff))));
+		else
+			others.push_back(recombine_pair_to_ex(*it));
+		++it;
+	}
+
+	if (!neg_powers.empty()) {
+
+		// Factors with negative exponent are printed as a fraction
+		c.s << "\\frac{";
+		mul(others).eval().print(c);
+		c.s << "}{";
+		mul(neg_powers).eval().print(c);
+		c.s << "}";
+
 	} else {
 
-		if (precedence() <= level) {
-			if (is_a<print_latex>(c))
-				c.s << "{(";
-			else
-				c.s << "(";
-		}
-
-		// First print the overall numeric coefficient
-		const numeric &coeff = ex_to<numeric>(overall_coeff);
-		if (coeff.csgn() == -1)
-			c.s << '-';
-		if (!coeff.is_equal(_num1) &&
-			!coeff.is_equal(_num_1)) {
-			if (coeff.is_rational()) {
-				if (coeff.is_negative())
-					(-coeff).print(c);
-				else
-					coeff.print(c);
-			} else {
-				if (coeff.csgn() == -1)
-					(-coeff).print(c, precedence());
-				else
-					coeff.print(c, precedence());
-			}
-			if (is_a<print_latex>(c))
-				c.s << ' ';
-			else
-				c.s << '*';
-		}
-
-		// Then proceed with the remaining factors
-		epvector::const_iterator it = seq.begin(), itend = seq.end();
-		if (is_a<print_latex>(c)) {
-
-			// Separate factors into those with negative numeric exponent
-			// and all others
-			exvector neg_powers, others;
-			while (it != itend) {
-				GINAC_ASSERT(is_exactly_a<numeric>(it->coeff));
-				if (ex_to<numeric>(it->coeff).is_negative())
-					neg_powers.push_back(recombine_pair_to_ex(expair(it->rest, -(it->coeff))));
-				else
-					others.push_back(recombine_pair_to_ex(*it));
-				++it;
-			}
-
-			if (!neg_powers.empty()) {
-
-				// Factors with negative exponent are printed as a fraction
-				c.s << "\\frac{";
-				mul(others).eval().print(c);
-				c.s << "}{";
-				mul(neg_powers).eval().print(c);
-				c.s << "}";
-
-			} else {
-
-				// All other factors are printed in the ordinary way
-				exvector::const_iterator vit = others.begin(), vitend = others.end();
-				while (vit != vitend) {
-					c.s << ' ';
-					vit->print(c, precedence());
-					++vit;
-				}
-			}
-
-		} else {
-
-			bool first = true;
-			while (it != itend) {
-				if (!first)
-					c.s << '*';
-				else
-					first = false;
-				recombine_pair_to_ex(*it).print(c, precedence());
-				++it;
-			}
-		}
-
-		if (precedence() <= level) {
-			if (is_a<print_latex>(c))
-				c.s << ")}";
-			else
-				c.s << ")";
+		// All other factors are printed in the ordinary way
+		exvector::const_iterator vit = others.begin(), vitend = others.end();
+		while (vit != vitend) {
+			c.s << ' ';
+			vit->print(c, precedence());
+			++vit;
 		}
 	}
+
+	if (precedence() <= level)
+		c.s << ")}";
+}
+
+void mul::do_print_csrc(const print_csrc & c, unsigned level) const
+{
+	if (precedence() <= level)
+		c.s << "(";
+
+	if (!overall_coeff.is_equal(_ex1)) {
+		overall_coeff.print(c, precedence());
+		c.s << "*";
+	}
+
+	// Print arguments, separated by "*" or "/"
+	epvector::const_iterator it = seq.begin(), itend = seq.end();
+	while (it != itend) {
+
+		// If the first argument is a negative integer power, it gets printed as "1.0/<expr>"
+		bool needclosingparenthesis = false;
+		if (it == seq.begin() && it->coeff.info(info_flags::negint)) {
+			if (is_a<print_csrc_cl_N>(c)) {
+				c.s << "recip(";
+				needclosingparenthesis = true;
+			} else
+				c.s << "1.0/";
+		}
+
+		// If the exponent is 1 or -1, it is left out
+		if (it->coeff.is_equal(_ex1) || it->coeff.is_equal(_ex_1))
+			it->rest.print(c, precedence());
+		else if (it->coeff.info(info_flags::negint))
+			// Outer parens around ex needed for broken GCC parser:
+			(ex(power(it->rest, -ex_to<numeric>(it->coeff)))).print(c, level);
+		else
+			// Outer parens around ex needed for broken GCC parser:
+			(ex(power(it->rest, ex_to<numeric>(it->coeff)))).print(c, level);
+
+		if (needclosingparenthesis)
+			c.s << ")";
+
+		// Separator is "/" for negative integer powers, "*" otherwise
+		++it;
+		if (it != itend) {
+			if (it->coeff.info(info_flags::negint))
+				c.s << "/";
+			else
+				c.s << "*";
+		}
+	}
+
+	if (precedence() <= level)
+		c.s << ")";
+}
+
+void mul::do_print_python_repr(const print_python_repr & c, unsigned level) const
+{
+	c.s << class_name() << '(';
+	op(0).print(c);
+	for (size_t i=1; i<nops(); ++i) {
+		c.s << ',';
+		op(i).print(c);
+	}
+	c.s << ')';
 }
 
 bool mul::info(unsigned inf) const
