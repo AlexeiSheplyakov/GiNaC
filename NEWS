@@ -1,5 +1,18 @@
 This file records noteworthy changes.
 
+0.8.0 (<date>)
+* Complete revamp of indexed objects. Instead of multiple classes for
+  indexed things and their indices there is now only one "indexed" class
+  and two types of indices: "idx" for simple indices and "varidx" for
+  indices with variance. There are predefined delta, epsilon and metric
+  tensors, and a function simplify_indexed() that performs canonicalization
+  and dummy index summations.
+* Added an option "expand_indexed" to expand() to perform expansion of
+  indexed objects like (a+b).i -> a.i + b.i
+* Renamed get_indices() to get_free_indices(), which no longer returns
+  dummy indices and checks the consistency of indices in sums.
+* subs() works on matrices.
+
 0.7.3 (28 February 2001)
 * Several bugfixes and minor performance tunings.
 * Added a section to the tutorial about adding new algebraic classes to GiNaC.

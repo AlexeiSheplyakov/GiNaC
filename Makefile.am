@@ -23,4 +23,4 @@ $(PACKAGE)-$(VERSION).tar.gz: dist
 
 # Rule to build RPM distribution package
 rpm: $(PACKAGE)-$(VERSION).tar.gz
-	rpm --tarball a $(PACKAGE)-$(VERSION).tar.gz
+	rpm -ta --clean $(PACKAGE)-$(VERSION).tar.gz
