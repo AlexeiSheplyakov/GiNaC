@@ -326,8 +326,7 @@ static ex f_tcoeff(const exprseq &e) {return e[0].tcoeff(e[1]);}
 static ex f_charpoly(const exprseq &e)
 {
 	CHECK_ARG(0, matrix, charpoly);
-	CHECK_ARG(1, symbol, charpoly);
-	return ex_to<matrix>(e[0]).charpoly(ex_to<symbol>(e[1]));
+	return ex_to<matrix>(e[0]).charpoly(e[1]);
 }
 
 static ex f_coeff(const exprseq &e)
@@ -338,14 +337,12 @@ static ex f_coeff(const exprseq &e)
 
 static ex f_content(const exprseq &e)
 {
-	CHECK_ARG(1, symbol, content);
-	return e[0].content(ex_to<symbol>(e[1]));
+	return e[0].content(e[1]);
 }
 
 static ex f_decomp_rational(const exprseq &e)
 {
-	CHECK_ARG(1, symbol, decomp_rational);
-	return decomp_rational(e[0], ex_to<symbol>(e[1]));
+	return decomp_rational(e[0], e[1]);
 }
 
 static ex f_determinant(const exprseq &e)
@@ -456,26 +453,22 @@ static ex f_op(const exprseq &e)
 
 static ex f_prem(const exprseq &e)
 {
-	CHECK_ARG(2, symbol, prem);
-	return prem(e[0], e[1], ex_to<symbol>(e[2]));
+	return prem(e[0], e[1], e[2]);
 }
 
 static ex f_primpart(const exprseq &e)
 {
-	CHECK_ARG(1, symbol, primpart);
-	return e[0].primpart(ex_to<symbol>(e[1]));
+	return e[0].primpart(e[1]);
 }
 
 static ex f_quo(const exprseq &e)
 {
-	CHECK_ARG(2, symbol, quo);
-	return quo(e[0], e[1], ex_to<symbol>(e[2]));
+	return quo(e[0], e[1], e[2]);
 }
 
 static ex f_rem(const exprseq &e)
 {
-	CHECK_ARG(2, symbol, rem);
-	return rem(e[0], e[1], ex_to<symbol>(e[2]));
+	return rem(e[0], e[1], e[2]);
 }
 
 static ex f_series(const exprseq &e)
@@ -486,8 +479,7 @@ static ex f_series(const exprseq &e)
 
 static ex f_sprem(const exprseq &e)
 {
-	CHECK_ARG(2, symbol, sprem);
-	return sprem(e[0], e[1], ex_to<symbol>(e[2]));
+	return sprem(e[0], e[1], e[2]);
 }
 
 static ex f_sqrfree2(const exprseq &e)
@@ -524,8 +516,7 @@ static ex f_unassign(const exprseq &e)
 
 static ex f_unit(const exprseq &e)
 {
-	CHECK_ARG(1, symbol, unit);
-	return e[0].unit(ex_to<symbol>(e[1]));
+	return e[0].unit(e[1]);
 }
 
 static ex f_dummy(const exprseq &e)
