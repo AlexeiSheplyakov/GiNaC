@@ -26,6 +26,7 @@
 #include "ncmul.h"
 #include "symbol.h"
 #include "numeric.h" // for I
+#include "symmetry.h"
 #include "lst.h"
 #include "relational.h"
 #include "print.h"
@@ -86,13 +87,13 @@ clifford::clifford(const ex & b, const ex & mu, unsigned char rl) : inherited(b,
 	tinfo_key = TINFO_clifford;
 }
 
-clifford::clifford(unsigned char rl, const exvector & v, bool discardable) : inherited(indexed::unknown, v, discardable), representation_label(rl)
+clifford::clifford(unsigned char rl, const exvector & v, bool discardable) : inherited(sy_none(), v, discardable), representation_label(rl)
 {
 	debugmsg("clifford constructor from unsigned char,exvector", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_clifford;
 }
 
-clifford::clifford(unsigned char rl, exvector * vp) : inherited(indexed::unknown, vp), representation_label(rl)
+clifford::clifford(unsigned char rl, exvector * vp) : inherited(sy_none(), vp), representation_label(rl)
 {
 	debugmsg("clifford constructor from unsigned char,exvector *", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_clifford;
@@ -391,14 +392,6 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 		else
 			return _ex0();
 
-	} else if (is_ex_exactly_of_type(e, add)) {
-
-		// Trace of sum = sum of traces
-		ex sum = _ex0();
-		for (unsigned i=0; i<e.nops(); i++)
-			sum += dirac_trace(e.op(i), rl, trONE);
-		return sum;
-
 	} else if (is_ex_exactly_of_type(e, mul)) {
 
 		// Trace of product: pull out non-clifford factors
@@ -491,9 +484,15 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 
 			return trONE * trace_string(iv.begin(), num);
 		}
-	}
 
-	return _ex0();
+	} else if (e.nops() > 0) {
+
+		// Trace maps to all other container classes (this includes sums)
+		pointer_to_map_function_2args<unsigned char, const ex &> fcn(dirac_trace, rl, trONE);
+		return e.map(fcn);
+
+	} else
+		return _ex0();
 }
 
 ex canonicalize_clifford(const ex & e)

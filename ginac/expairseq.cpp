@@ -299,7 +299,7 @@ ex &expairseq::let_op(int i)
 	throw(std::logic_error("let_op not defined for expairseq and derived classes (add,mul,...)"));
 }
 
-ex expairseq::map(map_func f) const
+ex expairseq::map(map_function & f) const
 {
 	epvector *v = new epvector;
 	v->reserve(seq.size());

@@ -36,10 +36,10 @@ class archive;
 
 
 /** Numerical ID value to refer to an archive_node. */
-typedef unsigned int archive_node_id;
+typedef unsigned archive_node_id;
 
 /** Numerical ID value to refer to a string. */
-typedef unsigned int archive_atom;
+typedef unsigned archive_atom;
 
 
 /** This class stores all properties needed to record/retrieve the state
@@ -88,7 +88,7 @@ public:
 	void add_bool(const std::string &name, bool value);
 
 	/** Add property of type "unsigned int" to node. */
-	void add_unsigned(const std::string &name, unsigned int value);
+	void add_unsigned(const std::string &name, unsigned value);
 
 	/** Add property of type "string" to node. */
 	void add_string(const std::string &name, const std::string &value);
@@ -98,23 +98,23 @@ public:
 
 	/** Retrieve property of type "bool" from node.
 	 *  @return "true" if property was found, "false" otherwise */
-	bool find_bool(const std::string &name, bool &ret) const;
+	bool find_bool(const std::string &name, bool &ret, unsigned index = 0) const;
 
 	/** Retrieve property of type "unsigned" from node.
 	 *  @return "true" if property was found, "false" otherwise */
-	bool find_unsigned(const std::string &name, unsigned int &ret) const;
+	bool find_unsigned(const std::string &name, unsigned &ret, unsigned index = 0) const;
 
 	/** Retrieve property of type "string" from node.
 	 *  @return "true" if property was found, "false" otherwise */
-	bool find_string(const std::string &name, std::string &ret) const;
+	bool find_string(const std::string &name, std::string &ret, unsigned index = 0) const;
 
 	/** Retrieve property of type "ex" from node.
 	 *  @return "true" if property was found, "false" otherwise */
-	bool find_ex(const std::string &name, ex &ret, const lst &sym_lst, unsigned int index = 0) const;
+	bool find_ex(const std::string &name, ex &ret, const lst &sym_lst, unsigned index = 0) const;
 
 	/** Retrieve property of type "ex" from node, returning the node of
 	 *  the sub-expression. */
-	const archive_node &find_ex_node(const std::string &name, unsigned int index = 0) const;
+	const archive_node &find_ex_node(const std::string &name, unsigned index = 0) const;
 
 	/** Return vector of properties stored in node. */
 	void get_properties(propinfovector &v) const;
@@ -131,7 +131,7 @@ private:
 	/** Archived property (data type, name and associated data) */
 	struct property {
 		property() {}
-		property(archive_atom n, property_type t, unsigned int v) : type(t), name(n), value(v) {}
+		property(archive_atom n, property_type t, unsigned v) : type(t), name(n), value(v) {}
 		~property() {}
 
 		property(const property &other) : type(other.type), name(other.name), value(other.value) {}
@@ -139,7 +139,7 @@ private:
 
 		property_type type; /**< Data type of property. */
 		archive_atom name;  /**< Name of property. */
-		unsigned int value; /**< Stored value. */
+		unsigned value; /**< Stored value. */
 	};
 
 	/** Reference to the archive to which this node belongs. */
@@ -190,19 +190,19 @@ public:
 	/** Retrieve expression from archive by index.
 	 *  @param sym_lst list of pre-defined symbols
      *  @see count_expressions */
-	ex unarchive_ex(const lst &sym_lst, unsigned int index = 0) const;
+	ex unarchive_ex(const lst &sym_lst, unsigned index = 0) const;
 
 	/** Retrieve expression and its name from archive by index.
 	 *  @param sym_lst list of pre-defined symbols
 	 *  @param name receives the name of the expression
      *  @see count_expressions */
-	ex unarchive_ex(const lst &sym_lst, std::string &name, unsigned int index = 0) const;
+	ex unarchive_ex(const lst &sym_lst, std::string &name, unsigned index = 0) const;
 
 	/** Return number of archived expressions. */
-	unsigned int num_expressions(void) const;
+	unsigned num_expressions(void) const;
 
 	/** Return reference to top node of an expression specified by index. */
-	const archive_node &get_top_node(unsigned int index = 0) const;
+	const archive_node &get_top_node(unsigned index = 0) const;
 
 	/** Clear all archived expressions. */
 	void clear(void);

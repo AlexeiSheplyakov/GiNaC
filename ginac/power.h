@@ -53,7 +53,7 @@ public:
 	bool info(unsigned inf) const;
 	unsigned nops() const;
 	ex & let_op(int i);
-	ex map(map_func f) const;
+	ex map(map_function & f) const;
 	int degree(const ex & s) const;
 	int ldegree(const ex & s) const;
 	ex coeff(const ex & s, int n = 1) const;

@@ -39,7 +39,7 @@ public:
 	/** Construct wildcard with specified label. */
 	wildcard(unsigned label);
 
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 	unsigned calchash(void) const;

@@ -242,6 +242,7 @@ if (!automatic_typecheck) { \\
 namespace GiNaC {
 
 class function;
+class symmetry;
 
 typedef ex (* eval_funcp)();
 typedef ex (* evalf_funcp)();
@@ -276,6 +277,7 @@ $series_func_interface
 	function_options & remember(unsigned size, unsigned assoc_size=0,
 	                            unsigned strategy=remember_strategies::delete_never);
 	function_options & overloaded(unsigned o);
+	function_options & set_symmetry(const symmetry & s);
 	void test_and_set_nparams(unsigned n);
 	std::string get_name(void) const { return name; }
 	unsigned get_nparams(void) const { return nparams; }
@@ -303,6 +305,8 @@ protected:
 	unsigned remember_strategy;
 
 	unsigned functions_with_same_name;
+
+	ex symtree;
 };
 
 /** The class function is used to implement builtin functions like sin, cos...
@@ -423,6 +427,7 @@ $implementation=<<END_OF_IMPLEMENTATION;
 #include "function.h"
 #include "ex.h"
 #include "lst.h"
+#include "symmetry.h"
 #include "print.h"
 #include "archive.h"
 #include "inifcns.h"
@@ -461,6 +466,7 @@ void function_options::initialize(void)
 	use_return_type=false;
 	use_remember=false;
 	functions_with_same_name=1;
+	symtree = 0;
 }
 
 function_options & function_options::set_name(std::string const & n,
@@ -516,6 +522,12 @@ function_options & function_options::remember(unsigned size,
 function_options & function_options::overloaded(unsigned o)
 {
 	functions_with_same_name=o;
+	return *this;
+}
+
+function_options & function_options::set_symmetry(const symmetry & s)
+{
+	symtree = s;
 	return *this;
 }
 	
@@ -719,17 +731,32 @@ ex function::eval(int level) const
 		return function(serial,evalchildren(level));
 	}
 
-	if (registered_functions()[serial].eval_f==0) {
+	const function_options &opt = registered_functions()[serial];
+
+	// Canonicalize argument order according to the symmetry properties
+	if (seq.size() > 1 && !(opt.symtree.is_zero())) {
+		exvector v = seq;
+		GINAC_ASSERT(is_ex_exactly_of_type(opt.symtree, symmetry));
+		int sig = canonicalize(v.begin(), ex_to_symmetry(opt.symtree));
+		if (sig != INT_MAX) {
+			// Something has changed while sorting arguments, more evaluations later
+			if (sig == 0)
+				return _ex0();
+			return ex(sig) * thisexprseq(v);
+		}
+	}
+
+	if (opt.eval_f==0) {
 		return this->hold();
 	}
 
-	bool use_remember=registered_functions()[serial].use_remember;
+	bool use_remember=opt.use_remember;
 	ex eval_result;
 	if (use_remember && lookup_remember_table(eval_result)) {
 		return eval_result;
 	}
 
-	switch (registered_functions()[serial].nparams) {
+	switch (opt.nparams) {
 		// the following lines have been generated for max. ${maxargs} parameters
 ${eval_switch_statement}
 		// end of generated lines

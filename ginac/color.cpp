@@ -26,6 +26,7 @@
 #include "color.h"
 #include "idx.h"
 #include "ncmul.h"
+#include "symmetry.h"
 #include "numeric.h"
 #include "power.h" // for sqrt()
 #include "symbol.h"
@@ -86,13 +87,13 @@ color::color(const ex & b, const ex & i1, unsigned char rl) : inherited(b, i1), 
 	tinfo_key = TINFO_color;
 }
 
-color::color(unsigned char rl, const exvector & v, bool discardable) : inherited(indexed::unknown, v, discardable), representation_label(rl)
+color::color(unsigned char rl, const exvector & v, bool discardable) : inherited(sy_none(), v, discardable), representation_label(rl)
 {
 	debugmsg("color constructor from unsigned char,exvector", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_color;
 }
 
-color::color(unsigned char rl, exvector * vp) : inherited(indexed::unknown, vp), representation_label(rl)
+color::color(unsigned char rl, exvector * vp) : inherited(sy_none(), vp), representation_label(rl)
 {
 	debugmsg("color constructor from unsigned char,exvector *", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_color;
@@ -482,7 +483,7 @@ ex color_f(const ex & a, const ex & b, const ex & c)
 	if (!ex_to_idx(a).get_dim().is_equal(8) || !ex_to_idx(b).get_dim().is_equal(8) || !ex_to_idx(c).get_dim().is_equal(8))
 		throw(std::invalid_argument("index dimension for color_f must be 8"));
 
-	return indexed(su3f(), indexed::antisymmetric, a, b, c);
+	return indexed(su3f(), sy_anti(), a, b, c);
 }
 
 ex color_d(const ex & a, const ex & b, const ex & c)
@@ -492,7 +493,7 @@ ex color_d(const ex & a, const ex & b, const ex & c)
 	if (!ex_to_idx(a).get_dim().is_equal(8) || !ex_to_idx(b).get_dim().is_equal(8) || !ex_to_idx(c).get_dim().is_equal(8))
 		throw(std::invalid_argument("index dimension for color_d must be 8"));
 
-	return indexed(su3d(), indexed::symmetric, a, b, c);
+	return indexed(su3d(), sy_symm(), a, b, c);
 }
 
 ex color_h(const ex & a, const ex & b, const ex & c)
@@ -516,14 +517,6 @@ ex color_trace(const ex & e, unsigned char rl)
 			return _ex3();
 		else
 			return _ex0();
-
-	} else if (is_ex_exactly_of_type(e, add)) {
-
-		// Trace of sum = sum of traces
-		ex sum = _ex0();
-		for (unsigned i=0; i<e.nops(); i++)
-			sum += color_trace(e.op(i), rl);
-		return sum;
 
 	} else if (is_ex_exactly_of_type(e, mul)) {
 
@@ -581,9 +574,15 @@ ex color_trace(const ex & e, unsigned char rl)
 			return delta_tensor(next_to_last_index, last_index) * color_trace(ncmul(v1), rl) / 6
 			       + color_h(next_to_last_index, last_index, summation_index) * color_trace(ncmul(v2), rl) / 2;
 		}
-	}
 
-	return _ex0();
+	} else if (e.nops() > 0) {
+
+		// Trace maps to all other container classes (this includes sums)
+		pointer_to_map_function_1arg<unsigned char> fcn(color_trace, rl);
+		return e.map(fcn);
+
+	} else
+		return _ex0();
 }
 
 } // namespace GiNaC

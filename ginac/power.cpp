@@ -30,7 +30,7 @@
 #include "mul.h"
 #include "ncmul.h"
 #include "numeric.h"
-#include "inifcns.h"
+#include "inifcns.h" // for log() in power::derivative()
 #include "matrix.h"
 #include "symbol.h"
 #include "print.h"
@@ -242,7 +242,7 @@ ex & power::let_op(int i)
 	return i==0 ? basis : exponent;
 }
 
-ex power::map(map_func f) const
+ex power::map(map_function & f) const
 {
 	return (new power(f(basis), f(exponent)))->setflag(status_flags::dynallocated);
 }

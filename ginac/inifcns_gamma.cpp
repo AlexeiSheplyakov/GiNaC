@@ -31,6 +31,7 @@
 #include "power.h"
 #include "relational.h"
 #include "symbol.h"
+#include "symmetry.h"
 #include "utils.h"
 
 namespace GiNaC {
@@ -319,7 +320,8 @@ REGISTER_FUNCTION(beta, eval_func(beta_eval).
                         evalf_func(beta_evalf).
                         derivative_func(beta_deriv).
                         series_func(beta_series).
-                        latex_name("\\mbox{B}"));
+                        latex_name("\\mbox{B}").
+						set_symmetry(sy_symm(0, 1)));
 
 
 //////////

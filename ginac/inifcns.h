@@ -133,35 +133,6 @@ DECLARE_FUNCTION_2P(Derivative)
 
 ex lsolve(const ex &eqns, const ex &symbols);
 
-/** Symmetrize expression over a set of objects (symbols, indices). */
-ex symmetrize(const ex & e, exvector::const_iterator first, exvector::const_iterator last);
-
-/** Symmetrize expression over a set of objects (symbols, indices). */
-inline ex symmetrize(const ex & e, const exvector & v)
-{
-	return symmetrize(e, v.begin(), v.end());
-}
-
-/** Antisymmetrize expression over a set of objects (symbols, indices). */
-ex antisymmetrize(const ex & e, exvector::const_iterator first, exvector::const_iterator last);
-
-/** Antisymmetrize expression over a set of objects (symbols, indices). */
-inline ex antisymmetrize(const ex & e, const exvector & v)
-{
-	return antisymmetrize(e, v.begin(), v.end());
-}
-
-/** Symmetrize expression by cyclic permuation over a set of objects
- *  (symbols, indices). */
-ex symmetrize_cyclic(const ex & e, exvector::const_iterator first, exvector::const_iterator last);
-
-/** Symmetrize expression by cyclic permutation over a set of objects
- *  (symbols, indices). */
-inline ex symmetrize_cyclic(const ex & e, const exvector & v)
-{
-	return symmetrize(e, v.begin(), v.end());
-}
-
 /** Check whether a function is the Order (O(n)) function. */
 inline bool is_order_function(const ex & e)
 {

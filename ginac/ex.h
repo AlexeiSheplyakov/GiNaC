@@ -26,6 +26,8 @@
 #include "basic.h"
 #include "operators.h"
 
+#include <functional>
+
 namespace GiNaC {
 
 // Sorry, this is the only constant to pollute the global scope, the other ones
@@ -36,6 +38,7 @@ extern const ex & _ex0(void);     ///<  single ex(numeric(0))
 class symbol;
 class lst;
 class scalar_products;
+
 
 /** Lightweight wrapper for GiNaC's symbolic objects.  Basically all it does is
  *  to hold a pointer to the other objects, manage the reference counting and
@@ -84,7 +87,8 @@ public:
 	unsigned nops() const { return bp->nops(); }
 	ex expand(unsigned options=0) const;
 	bool has(const ex & other) const { return bp->has(other); }
-	ex map(map_func f) const { return bp->map(f); }
+	ex map(map_function & f) const { return bp->map(f); }
+	ex map(ex (*f)(const ex & e)) const;
 	int degree(const ex & s) const { return bp->degree(s); }
 	int ldegree(const ex & s) const { return bp->ldegree(s); }
 	ex coeff(const ex & s, int n = 1) const { return bp->coeff(s, n); }
@@ -434,6 +438,70 @@ inline bool is_zero(const ex & thisex)
 
 inline void swap(ex & e1, ex & e2)
 { e1.swap(e2); }
+
+
+/* Function objects for STL sort() etc. */
+struct ex_is_less : public std::binary_function<ex, ex, bool> {
+	bool operator() (const ex &lh, const ex &rh) const { return lh.compare(rh) < 0; }
+};
+
+struct ex_is_equal : public std::binary_function<ex, ex, bool> {
+	bool operator() (const ex &lh, const ex &rh) const { return lh.is_equal(rh); }
+};
+
+struct ex_swap : public std::binary_function<ex, ex, void> {
+	void operator() (ex &lh, ex &rh) const { lh.swap(rh); }
+};
+
+
+/* Convert function pointer to function object suitable for map(). */
+class pointer_to_map_function : public map_function {
+protected:
+	ex (*ptr)(const ex &);
+public:
+	explicit pointer_to_map_function(ex (*x)(const ex &)) : ptr(x) {}
+	ex operator()(const ex & e) { return ptr(e); }
+};
+
+template<class T1>
+class pointer_to_map_function_1arg : public map_function {
+protected:
+	ex (*ptr)(const ex &, T1);
+	T1 arg1;
+public:
+	explicit pointer_to_map_function_1arg(ex (*x)(const ex &, T1), T1 a1) : ptr(x), arg1(a1) {}
+	ex operator()(const ex & e) { return ptr(e, arg1); }
+};
+
+template<class T1, class T2>
+class pointer_to_map_function_2args : public map_function {
+protected:
+	ex (*ptr)(const ex &, T1, T2);
+	T1 arg1;
+	T2 arg2;
+public:
+	explicit pointer_to_map_function_2args(ex (*x)(const ex &, T1, T2), T1 a1, T2 a2) : ptr(x), arg1(a1), arg2(a2) {}
+	ex operator()(const ex & e) { return ptr(e, arg1, arg2); }
+};
+
+template<class T1, class T2, class T3>
+class pointer_to_map_function_3args : public map_function {
+protected:
+	ex (*ptr)(const ex &, T1, T2, T3);
+	T1 arg1;
+	T2 arg2;
+	T3 arg3;
+public:
+	explicit pointer_to_map_function_3args(ex (*x)(const ex &, T1, T2, T3), T1 a1, T2 a2, T3 a3) : ptr(x), arg1(a1), arg2(a2), arg3(a3) {}
+	ex operator()(const ex & e) { return ptr(e, arg1, arg2, arg3); }
+};
+
+inline ex ex::map(ex (*f)(const ex & e)) const
+{
+	pointer_to_map_function fcn(f);
+	return bp->map(fcn);
+}
+
 
 } // namespace GiNaC
 

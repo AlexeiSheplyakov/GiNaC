@@ -25,7 +25,7 @@
 
 #include "pseries.h"
 #include "add.h"
-#include "inifcns.h"
+#include "inifcns.h" // for Order function
 #include "lst.h"
 #include "mul.h"
 #include "power.h"

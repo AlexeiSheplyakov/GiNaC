@@ -210,7 +210,7 @@ public:
 	bool info(unsigned inf) const;
 	unsigned nops() const;
 	ex & let_op(int i);
-	ex map(map_func f) const;
+	ex map(map_function & f) const;
 	ex expand(unsigned options=0) const;
 	ex eval(int level=0) const;
 	ex evalf(int level=0) const;
@@ -432,7 +432,7 @@ unsigned ${CONTAINER}::nops() const
 
 ${LET_OP_IMPLEMENTATION}
 
-ex ${CONTAINER}::map(map_func f) const
+ex ${CONTAINER}::map(map_function & f) const
 {
 	${STLT} s;
 	RESERVE(s,seq.size());

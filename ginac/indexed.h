@@ -31,6 +31,7 @@ namespace GiNaC {
 
 
 class scalar_products;
+class symmetry;
 
 /** This class holds an indexed expression. It consists of a 'base' expression
  *  (the expression being indexed) which can be accessed as op(0), and n (n >= 0)
@@ -41,16 +42,6 @@ class indexed : public exprseq
 
 	friend ex simplify_indexed(const ex & e, exvector & free_indices, exvector & dummy_indices, const scalar_products & sp);
 	friend ex simplify_indexed_product(const ex & e, exvector & free_indices, exvector & dummy_indices, const scalar_products & sp);
-
-	// types
-public:
-	/** Type of symmetry of the object with respect to commutation of its indices. */
-	typedef enum {
-		unknown,       /**< symmetry properties unknown */
-		symmetric,     /**< totally symmetric */
-		antisymmetric, /**< totally antisymmetric */
-		mixed          /**< mixed symmetry (unimplemented) */
-	} symmetry_type;
 
 	// other constructors
 public:
@@ -102,7 +93,7 @@ public:
 	 *  @param i1 First index
 	 *  @param i2 Second index
 	 *  @return newly constructed indexed object */
-	indexed(const ex & b, symmetry_type symm, const ex & i1, const ex & i2);
+	indexed(const ex & b, const symmetry & symm, const ex & i1, const ex & i2);
 
 	/** Construct indexed object with three indices and a specified symmetry.
 	 *  The indices must be of class idx.
@@ -113,7 +104,7 @@ public:
 	 *  @param i2 Second index
 	 *  @param i3 Third index
 	 *  @return newly constructed indexed object */
-	indexed(const ex & b, symmetry_type symm, const ex & i1, const ex & i2, const ex & i3);
+	indexed(const ex & b, const symmetry & symm, const ex & i1, const ex & i2, const ex & i3);
 
 	/** Construct indexed object with four indices and a specified symmetry. The
 	 *  indices must be of class idx.
@@ -125,7 +116,7 @@ public:
 	 *  @param i3 Third index
 	 *  @param i4 Fourth index
 	 *  @return newly constructed indexed object */
-	indexed(const ex & b, symmetry_type symm, const ex & i1, const ex & i2, const ex & i3, const ex & i4);
+	indexed(const ex & b, const symmetry & symm, const ex & i1, const ex & i2, const ex & i3, const ex & i4);
 
 	/** Construct indexed object with a specified vector of indices. The indices
 	 *  must be of class idx.
@@ -142,12 +133,12 @@ public:
 	 *  @param symm Symmetry of indices
 	 *  @param iv Vector of indices
 	 *  @return newly constructed indexed object */
-	indexed(const ex & b, symmetry_type symm, const exvector & iv);
+	indexed(const ex & b, const symmetry & symm, const exvector & iv);
 
 	// internal constructors
-	indexed(symmetry_type symm, const exprseq & es);
-	indexed(symmetry_type symm, const exvector & v, bool discardable = false);
-	indexed(symmetry_type symm, exvector * vp); // vp will be deleted
+	indexed(const symmetry & symm, const exprseq & es);
+	indexed(const symmetry & symm, const exvector & v, bool discardable = false);
+	indexed(const symmetry & symm, exvector * vp); // vp will be deleted
 
 	// functions overriding virtual functions from base classes
 public:
@@ -188,13 +179,16 @@ public:
 	 *  with a given index. */
 	bool has_dummy_index_for(const ex & i) const;
 
+	/** Return symmetry properties. */
+	ex get_symmetry(void) const {return symtree;}
+
 protected:
 	void printindices(const print_context & c, unsigned level) const;
-	void assert_all_indices_of_type_idx(void) const;
+	void validate(void) const;
 
 	// member variables
 protected:
-	symmetry_type symmetry; /**< Index symmetry */
+	ex symtree; /**< Index symmetry (tree of symmetry objects) */
 };
 
 

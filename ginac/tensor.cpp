@@ -26,6 +26,7 @@
 #include "tensor.h"
 #include "idx.h"
 #include "indexed.h"
+#include "symmetry.h"
 #include "relational.h"
 #include "lst.h"
 #include "numeric.h"
@@ -501,7 +502,7 @@ ex delta_tensor(const ex & i1, const ex & i2)
 	if (!is_ex_of_type(i1, idx) || !is_ex_of_type(i2, idx))
 		throw(std::invalid_argument("indices of delta tensor must be of type idx"));
 
-	return indexed(tensdelta(), indexed::symmetric, i1, i2);
+	return indexed(tensdelta(), sy_symm(), i1, i2);
 }
 
 ex metric_tensor(const ex & i1, const ex & i2)
@@ -509,7 +510,7 @@ ex metric_tensor(const ex & i1, const ex & i2)
 	if (!is_ex_of_type(i1, varidx) || !is_ex_of_type(i2, varidx))
 		throw(std::invalid_argument("indices of metric tensor must be of type varidx"));
 
-	return indexed(tensmetric(), indexed::symmetric, i1, i2);
+	return indexed(tensmetric(), sy_symm(), i1, i2);
 }
 
 ex lorentz_g(const ex & i1, const ex & i2, bool pos_sig)
@@ -517,7 +518,7 @@ ex lorentz_g(const ex & i1, const ex & i2, bool pos_sig)
 	if (!is_ex_of_type(i1, varidx) || !is_ex_of_type(i2, varidx))
 		throw(std::invalid_argument("indices of metric tensor must be of type varidx"));
 
-	return indexed(minkmetric(pos_sig), indexed::symmetric, i1, i2);
+	return indexed(minkmetric(pos_sig), sy_symm(), i1, i2);
 }
 
 ex spinor_metric(const ex & i1, const ex & i2)
@@ -527,7 +528,7 @@ ex spinor_metric(const ex & i1, const ex & i2)
 	if (!ex_to_idx(i1).get_dim().is_equal(2) || !ex_to_idx(i2).get_dim().is_equal(2))
 		throw(std::runtime_error("index dimension for spinor metric must be 2"));
 
-	return indexed(spinmetric(), indexed::antisymmetric, i1, i2);
+	return indexed(spinmetric(), sy_anti(), i1, i2);
 }
 
 ex epsilon_tensor(const ex & i1, const ex & i2)
@@ -541,7 +542,7 @@ ex epsilon_tensor(const ex & i1, const ex & i2)
 	if (!ex_to_idx(i1).get_dim().is_equal(_ex2()))
 		throw(std::runtime_error("index dimension of epsilon tensor must match number of indices"));
 
-	return indexed(tensepsilon(), indexed::antisymmetric, i1, i2);
+	return indexed(tensepsilon(), sy_anti(), i1, i2);
 }
 
 ex epsilon_tensor(const ex & i1, const ex & i2, const ex & i3)
@@ -555,7 +556,7 @@ ex epsilon_tensor(const ex & i1, const ex & i2, const ex & i3)
 	if (!ex_to_idx(i1).get_dim().is_equal(_ex3()))
 		throw(std::runtime_error("index dimension of epsilon tensor must match number of indices"));
 
-	return indexed(tensepsilon(), indexed::antisymmetric, i1, i2, i3);
+	return indexed(tensepsilon(), sy_anti(), i1, i2, i3);
 }
 
 ex lorentz_eps(const ex & i1, const ex & i2, const ex & i3, const ex & i4, bool pos_sig)
@@ -569,7 +570,7 @@ ex lorentz_eps(const ex & i1, const ex & i2, const ex & i3, const ex & i4, bool 
 	if (!ex_to_idx(i1).get_dim().is_equal(_ex4()))
 		throw(std::runtime_error("index dimension of epsilon tensor must match number of indices"));
 
-	return indexed(tensepsilon(true, pos_sig), indexed::antisymmetric, i1, i2, i3, i4);
+	return indexed(tensepsilon(true, pos_sig), sy_anti(), i1, i2, i3, i4);
 }
 
 ex eps0123(const ex & i1, const ex & i2, const ex & i3, const ex & i4, bool pos_sig)
@@ -581,7 +582,7 @@ ex eps0123(const ex & i1, const ex & i2, const ex & i3, const ex & i4, bool pos_
 	if (dim.is_equal(4))
 		return lorentz_eps(i1, i2, i3, i4, pos_sig);
 	else
-		return indexed(tensepsilon(true, pos_sig), indexed::antisymmetric, i1, i2, i3, i4);
+		return indexed(tensepsilon(true, pos_sig), sy_anti(), i1, i2, i3, i4);
 }
 
 } // namespace GiNaC

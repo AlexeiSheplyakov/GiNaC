@@ -92,7 +92,7 @@ found:
 	return nodes[i->root].unarchive(sym_lst);
 }
 
-ex archive::unarchive_ex(const lst &sym_lst, unsigned int index) const
+ex archive::unarchive_ex(const lst &sym_lst, unsigned index) const
 {
 	if (index >= exprs.size())
 		throw (std::range_error("index of archived expression out of range"));
@@ -101,7 +101,7 @@ ex archive::unarchive_ex(const lst &sym_lst, unsigned int index) const
 	return nodes[exprs[index].root].unarchive(sym_lst);
 }
 
-ex archive::unarchive_ex(const lst &sym_lst, std::string &name, unsigned int index) const
+ex archive::unarchive_ex(const lst &sym_lst, std::string &name, unsigned index) const
 {
 	if (index >= exprs.size())
 		throw (std::range_error("index of archived expression out of range"));
@@ -113,12 +113,12 @@ ex archive::unarchive_ex(const lst &sym_lst, std::string &name, unsigned int ind
 	return nodes[exprs[index].root].unarchive(sym_lst);
 }
 
-unsigned int archive::num_expressions(void) const
+unsigned archive::num_expressions(void) const
 {
 	return exprs.size();
 }
 
-const archive_node &archive::get_top_node(unsigned int index) const
+const archive_node &archive::get_top_node(unsigned index) const
 {
 	if (index >= exprs.size())
 		throw (std::range_error("index of archived expression out of range"));
@@ -167,7 +167,7 @@ const archive_node &archive::get_top_node(unsigned int index) const
  */
 
 /** Write unsigned integer quantity to stream. */
-static void write_unsigned(std::ostream &os, unsigned int val)
+static void write_unsigned(std::ostream &os, unsigned val)
 {
 	while (val >= 0x80) {
 		os.put((val & 0x7f) | 0x80);
@@ -177,11 +177,11 @@ static void write_unsigned(std::ostream &os, unsigned int val)
 }
 
 /** Read unsigned integer quantity from stream. */
-static unsigned int read_unsigned(std::istream &is)
+static unsigned read_unsigned(std::istream &is)
 {
 	unsigned char b;
-	unsigned int ret = 0;
-	unsigned int shift = 0;
+	unsigned ret = 0;
+	unsigned shift = 0;
 	do {
         char b2;
 		is.get(b2);
@@ -196,9 +196,9 @@ static unsigned int read_unsigned(std::istream &is)
 std::ostream &operator<<(std::ostream &os, const archive_node &n)
 {
 	// Write properties
-	unsigned int num_props = n.props.size();
+	unsigned num_props = n.props.size();
 	write_unsigned(os, num_props);
-	for (unsigned int i=0; i<num_props; i++) {
+	for (unsigned i=0; i<num_props; i++) {
 		write_unsigned(os, n.props[i].type | (n.props[i].name << 3));
 		write_unsigned(os, n.props[i].value);
 	}
@@ -216,23 +216,23 @@ std::ostream &operator<<(std::ostream &os, const archive &ar)
 	write_unsigned(os, ARCHIVE_VERSION);
 
 	// Write atoms
-	unsigned int num_atoms = ar.atoms.size();
+	unsigned num_atoms = ar.atoms.size();
 	write_unsigned(os, num_atoms);
-	for (unsigned int i=0; i<num_atoms; i++)
+	for (unsigned i=0; i<num_atoms; i++)
 		os << ar.atoms[i] << std::ends;
 
 	// Write expressions
-	unsigned int num_exprs = ar.exprs.size();
+	unsigned num_exprs = ar.exprs.size();
 	write_unsigned(os, num_exprs);
-	for (unsigned int i=0; i<num_exprs; i++) {
+	for (unsigned i=0; i<num_exprs; i++) {
 		write_unsigned(os, ar.exprs[i].name);
 		write_unsigned(os, ar.exprs[i].root);
 	}
 
 	// Write nodes
-	unsigned int num_nodes = ar.nodes.size();
+	unsigned num_nodes = ar.nodes.size();
 	write_unsigned(os, num_nodes);
-	for (unsigned int i=0; i<num_nodes; i++)
+	for (unsigned i=0; i<num_nodes; i++)
 		os << ar.nodes[i];
 	return os;
 }
@@ -241,10 +241,10 @@ std::ostream &operator<<(std::ostream &os, const archive &ar)
 std::istream &operator>>(std::istream &is, archive_node &n)
 {
 	// Read properties
-	unsigned int num_props = read_unsigned(is);
+	unsigned num_props = read_unsigned(is);
 	n.props.resize(num_props);
-	for (unsigned int i=0; i<num_props; i++) {
-		unsigned int name_type = read_unsigned(is);
+	for (unsigned i=0; i<num_props; i++) {
+		unsigned name_type = read_unsigned(is);
 		n.props[i].type = (archive_node::property_type)(name_type & 7);
 		n.props[i].name = name_type >> 3;
 		n.props[i].value = read_unsigned(is);
@@ -260,29 +260,29 @@ std::istream &operator>>(std::istream &is, archive &ar)
 	is.get(c1); is.get(c2); is.get(c3); is.get(c4);
 	if (c1 != 'G' || c2 != 'A' || c3 != 'R' || c4 != 'C')
 		throw (std::runtime_error("not a GiNaC archive (signature not found)"));
-	unsigned int version = read_unsigned(is);
+	unsigned version = read_unsigned(is);
 	if (version > ARCHIVE_VERSION || version < ARCHIVE_VERSION - ARCHIVE_AGE)
 		throw (std::runtime_error("archive version " + ToString(version) + " cannot be read by this GiNaC library (which supports versions " + ToString(ARCHIVE_VERSION-ARCHIVE_AGE) + " thru " + ToString(ARCHIVE_VERSION)));
 
 	// Read atoms
-	unsigned int num_atoms = read_unsigned(is);
+	unsigned num_atoms = read_unsigned(is);
 	ar.atoms.resize(num_atoms);
-	for (unsigned int i=0; i<num_atoms; i++)
+	for (unsigned i=0; i<num_atoms; i++)
 		getline(is, ar.atoms[i], '\0');
 
 	// Read expressions
-	unsigned int num_exprs = read_unsigned(is);
+	unsigned num_exprs = read_unsigned(is);
 	ar.exprs.resize(num_exprs);
-	for (unsigned int i=0; i<num_exprs; i++) {
+	for (unsigned i=0; i<num_exprs; i++) {
 		archive_atom name = read_unsigned(is);
 		archive_node_id root = read_unsigned(is);
 		ar.exprs[i] = archive::archived_ex(name, root);
 	}
 
 	// Read nodes
-	unsigned int num_nodes = read_unsigned(is);
+	unsigned num_nodes = read_unsigned(is);
 	ar.nodes.resize(num_nodes, ar);
-	for (unsigned int i=0; i<num_nodes; i++)
+	for (unsigned i=0; i<num_nodes; i++)
 		is >> ar.nodes[i];
 	return is;
 }
@@ -360,7 +360,7 @@ void archive_node::add_bool(const std::string &name, bool value)
 	props.push_back(property(a.atomize(name), PTYPE_BOOL, value));
 }
 
-void archive_node::add_unsigned(const std::string &name, unsigned int value)
+void archive_node::add_unsigned(const std::string &name, unsigned value)
 {
 	props.push_back(property(a.atomize(name), PTYPE_UNSIGNED, value));
 }
@@ -378,73 +378,83 @@ void archive_node::add_ex(const std::string &name, const ex &value)
 }
 
 
-bool archive_node::find_bool(const std::string &name, bool &ret) const
+bool archive_node::find_bool(const std::string &name, bool &ret, unsigned index) const
 {
 	archive_atom name_atom = a.atomize(name);
 	std::vector<property>::const_iterator i = props.begin(), iend = props.end();
+	unsigned found_index = 0;
 	while (i != iend) {
 		if (i->type == PTYPE_BOOL && i->name == name_atom) {
-			ret = i->value;
-			return true;
-		}
-		i++;
-	}
-	return false;
-}
-
-bool archive_node::find_unsigned(const std::string &name, unsigned int &ret) const
-{
-	archive_atom name_atom = a.atomize(name);
-	std::vector<property>::const_iterator i = props.begin(), iend = props.end();
-	while (i != iend) {
-		if (i->type == PTYPE_UNSIGNED && i->name == name_atom) {
-			ret = i->value;
-			return true;
-		}
-		i++;
-	}
-	return false;
-}
-
-bool archive_node::find_string(const std::string &name, std::string &ret) const
-{
-	archive_atom name_atom = a.atomize(name);
-	std::vector<property>::const_iterator i = props.begin(), iend = props.end();
-	while (i != iend) {
-		if (i->type == PTYPE_STRING && i->name == name_atom) {
-			ret = a.unatomize(i->value);
-			return true;
-		}
-		i++;
-	}
-	return false;
-}
-
-bool archive_node::find_ex(const std::string &name, ex &ret, const lst &sym_lst, unsigned int index) const
-{
-	archive_atom name_atom = a.atomize(name);
-	std::vector<property>::const_iterator i = props.begin(), iend = props.end();
-	unsigned int found_index = 0;
-	while (i != iend) {
-		if (i->type == PTYPE_NODE && i->name == name_atom) {
-			if (found_index == index)
-				goto found;
+			if (found_index == index) {
+				ret = i->value;
+				return true;
+			}
 			found_index++;
 		}
 		i++;
 	}
 	return false;
-
-found:
-	ret = a.get_node(i->value).unarchive(sym_lst);
-	return true;
 }
 
-const archive_node &archive_node::find_ex_node(const std::string &name, unsigned int index) const
+bool archive_node::find_unsigned(const std::string &name, unsigned &ret, unsigned index) const
 {
 	archive_atom name_atom = a.atomize(name);
 	std::vector<property>::const_iterator i = props.begin(), iend = props.end();
-	unsigned int found_index = 0;
+	unsigned found_index = 0;
+	while (i != iend) {
+		if (i->type == PTYPE_UNSIGNED && i->name == name_atom) {
+			if (found_index == index) {
+				ret = i->value;
+				return true;
+			}
+			found_index++;
+		}
+		i++;
+	}
+	return false;
+}
+
+bool archive_node::find_string(const std::string &name, std::string &ret, unsigned index) const
+{
+	archive_atom name_atom = a.atomize(name);
+	std::vector<property>::const_iterator i = props.begin(), iend = props.end();
+	unsigned found_index = 0;
+	while (i != iend) {
+		if (i->type == PTYPE_STRING && i->name == name_atom) {
+			if (found_index == index) {
+				ret = a.unatomize(i->value);
+				return true;
+			}
+			found_index++;
+		}
+		i++;
+	}
+	return false;
+}
+
+bool archive_node::find_ex(const std::string &name, ex &ret, const lst &sym_lst, unsigned index) const
+{
+	archive_atom name_atom = a.atomize(name);
+	std::vector<property>::const_iterator i = props.begin(), iend = props.end();
+	unsigned found_index = 0;
+	while (i != iend) {
+		if (i->type == PTYPE_NODE && i->name == name_atom) {
+			if (found_index == index) {
+				ret = a.get_node(i->value).unarchive(sym_lst);
+				return true;
+			}
+			found_index++;
+		}
+		i++;
+	}
+	return false;
+}
+
+const archive_node &archive_node::find_ex_node(const std::string &name, unsigned index) const
+{
+	archive_atom name_atom = a.atomize(name);
+	std::vector<property>::const_iterator i = props.begin(), iend = props.end();
+	unsigned found_index = 0;
 	while (i != iend) {
 		if (i->type == PTYPE_NODE && i->name == name_atom) {
 			if (found_index == index)
@@ -570,7 +580,7 @@ void archive::printraw(std::ostream &os) const
 	os << "Expressions:\n";
 	{
 		std::vector<archived_ex>::const_iterator i = exprs.begin(), iend = exprs.end();
-		unsigned int index = 0;
+		unsigned index = 0;
 		while (i != iend) {
 			os << " " << index << " \"" << unatomize(i->name) << "\" root node " << i->root << std::endl;
 			i++; index++;

@@ -151,7 +151,7 @@ ex dirac_trace(const ex & e, unsigned char rl = 0, const ex & trONE = 4);
 
 /** Bring all products of clifford objects in an expression into a canonical
  *  order. This is not necessarily the most simple form but it will allow
- *  to checking two expressions for equality. */
+ *  to check two expressions for equality. */
 ex canonicalize_clifford(const ex & e);
 
 } // namespace GiNaC

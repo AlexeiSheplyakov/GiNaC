@@ -491,7 +491,7 @@ void find_free_and_dummy(exvector::const_iterator it, exvector::const_iterator i
 	// Sort index vector. This will cause dummy indices come to lie next
 	// to each other (because the sort order is defined to guarantee this).
 	exvector v(it, itend);
-	shaker_sort(v.begin(), v.end(), ex_is_less());
+	shaker_sort(v.begin(), v.end(), ex_is_less(), ex_swap());
 
 	// Find dummy pairs and free indices
 	it = v.begin(); itend = v.end();

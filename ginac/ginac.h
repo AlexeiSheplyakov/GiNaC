@@ -41,13 +41,14 @@
 #include "relational.h"
 #include "structure.h"
 #include "symbol.h"
+#include "pseries.h"
 #include "wildcard.h"
+#include "symmetry.h"
 
 #include "expair.h"
 #include "expairseq.h"
 #include "add.h"
 #include "mul.h"
-#include "pseries.h"
 
 #include "exprseq.h"
 #include "function.h"

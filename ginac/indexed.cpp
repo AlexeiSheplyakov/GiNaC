@@ -29,8 +29,8 @@
 #include "mul.h"
 #include "ncmul.h"
 #include "power.h"
+#include "symmetry.h"
 #include "lst.h"
-#include "inifcns.h" // for symmetrize()
 #include "print.h"
 #include "archive.h"
 #include "utils.h"
@@ -44,7 +44,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(indexed, exprseq)
 // default constructor, destructor, copy constructor assignment operator and helpers
 //////////
 
-indexed::indexed() : symmetry(unknown)
+indexed::indexed() : symtree(sy_none())
 {
 	debugmsg("indexed default constructor", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
@@ -53,7 +53,7 @@ indexed::indexed() : symmetry(unknown)
 void indexed::copy(const indexed & other)
 {
 	inherited::copy(other);
-	symmetry = other.symmetry;
+	symtree = other.symtree;
 }
 
 DEFAULT_DESTROY(indexed)
@@ -62,97 +62,94 @@ DEFAULT_DESTROY(indexed)
 // other constructors
 //////////
 
-indexed::indexed(const ex & b) : inherited(b), symmetry(unknown)
+indexed::indexed(const ex & b) : inherited(b), symtree(sy_none())
 {
 	debugmsg("indexed constructor from ex", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
-	assert_all_indices_of_type_idx();
+	validate();
 }
 
-indexed::indexed(const ex & b, const ex & i1) : inherited(b, i1), symmetry(unknown)
+indexed::indexed(const ex & b, const ex & i1) : inherited(b, i1), symtree(sy_none())
 {
 	debugmsg("indexed constructor from ex,ex", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
-	assert_all_indices_of_type_idx();
+	validate();
 }
 
-indexed::indexed(const ex & b, const ex & i1, const ex & i2) : inherited(b, i1, i2), symmetry(unknown)
+indexed::indexed(const ex & b, const ex & i1, const ex & i2) : inherited(b, i1, i2), symtree(sy_none())
 {
 	debugmsg("indexed constructor from ex,ex,ex", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
-	assert_all_indices_of_type_idx();
+	validate();
 }
 
-indexed::indexed(const ex & b, const ex & i1, const ex & i2, const ex & i3) : inherited(b, i1, i2, i3), symmetry(unknown)
+indexed::indexed(const ex & b, const ex & i1, const ex & i2, const ex & i3) : inherited(b, i1, i2, i3), symtree(sy_none())
 {
 	debugmsg("indexed constructor from ex,ex,ex,ex", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
-	assert_all_indices_of_type_idx();
+	validate();
 }
 
-indexed::indexed(const ex & b, const ex & i1, const ex & i2, const ex & i3, const ex & i4) : inherited(b, i1, i2, i3, i4), symmetry(unknown)
+indexed::indexed(const ex & b, const ex & i1, const ex & i2, const ex & i3, const ex & i4) : inherited(b, i1, i2, i3, i4), symtree(sy_none())
 {
 	debugmsg("indexed constructor from ex,ex,ex,ex,ex", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
-	assert_all_indices_of_type_idx();
+	validate();
 }
 
-indexed::indexed(const ex & b, symmetry_type symm, const ex & i1, const ex & i2) : inherited(b, i1, i2), symmetry(symm)
+indexed::indexed(const ex & b, const symmetry & symm, const ex & i1, const ex & i2) : inherited(b, i1, i2), symtree(symm)
 {
 	debugmsg("indexed constructor from ex,symmetry,ex,ex", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
-	assert_all_indices_of_type_idx();
+	validate();
 }
 
-indexed::indexed(const ex & b, symmetry_type symm, const ex & i1, const ex & i2, const ex & i3) : inherited(b, i1, i2, i3), symmetry(symm)
+indexed::indexed(const ex & b, const symmetry & symm, const ex & i1, const ex & i2, const ex & i3) : inherited(b, i1, i2, i3), symtree(symm)
 {
 	debugmsg("indexed constructor from ex,symmetry,ex,ex,ex", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
-	assert_all_indices_of_type_idx();
+	validate();
 }
 
-indexed::indexed(const ex & b, symmetry_type symm, const ex & i1, const ex & i2, const ex & i3, const ex & i4) : inherited(b, i1, i2, i3, i4), symmetry(symm)
+indexed::indexed(const ex & b, const symmetry & symm, const ex & i1, const ex & i2, const ex & i3, const ex & i4) : inherited(b, i1, i2, i3, i4), symtree(symm)
 {
 	debugmsg("indexed constructor from ex,symmetry,ex,ex,ex,ex", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
-	assert_all_indices_of_type_idx();
+	validate();
 }
 
-indexed::indexed(const ex & b, const exvector & v) : inherited(b), symmetry(unknown)
+indexed::indexed(const ex & b, const exvector & v) : inherited(b), symtree(sy_none())
 {
 	debugmsg("indexed constructor from ex,exvector", LOGLEVEL_CONSTRUCT);
 	seq.insert(seq.end(), v.begin(), v.end());
 	tinfo_key = TINFO_indexed;
-	assert_all_indices_of_type_idx();
+	validate();
 }
 
-indexed::indexed(const ex & b, symmetry_type symm, const exvector & v) : inherited(b), symmetry(symm)
+indexed::indexed(const ex & b, const symmetry & symm, const exvector & v) : inherited(b), symtree(symm)
 {
 	debugmsg("indexed constructor from ex,symmetry,exvector", LOGLEVEL_CONSTRUCT);
 	seq.insert(seq.end(), v.begin(), v.end());
 	tinfo_key = TINFO_indexed;
-	assert_all_indices_of_type_idx();
+	validate();
 }
 
-indexed::indexed(symmetry_type symm, const exprseq & es) : inherited(es), symmetry(symm)
+indexed::indexed(const symmetry & symm, const exprseq & es) : inherited(es), symtree(symm)
 {
 	debugmsg("indexed constructor from symmetry,exprseq", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
-	assert_all_indices_of_type_idx();
 }
 
-indexed::indexed(symmetry_type symm, const exvector & v, bool discardable) : inherited(v, discardable), symmetry(symm)
+indexed::indexed(const symmetry & symm, const exvector & v, bool discardable) : inherited(v, discardable), symtree(symm)
 {
 	debugmsg("indexed constructor from symmetry,exvector", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
-	assert_all_indices_of_type_idx();
 }
 
-indexed::indexed(symmetry_type symm, exvector * vp) : inherited(vp), symmetry(symm)
+indexed::indexed(const symmetry & symm, exvector * vp) : inherited(vp), symtree(symm)
 {
 	debugmsg("indexed constructor from symmetry,exvector *", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
-	assert_all_indices_of_type_idx();
 }
 
 //////////
@@ -162,15 +159,29 @@ indexed::indexed(symmetry_type symm, exvector * vp) : inherited(vp), symmetry(sy
 indexed::indexed(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
 	debugmsg("indexed constructor from archive_node", LOGLEVEL_CONSTRUCT);
-	unsigned int symm;
-	if (!(n.find_unsigned("symmetry", symm)))
-		throw (std::runtime_error("unknown indexed symmetry type in archive"));
+	if (!n.find_ex("symmetry", symtree, sym_lst)) {
+		// GiNaC versions <= 0.9.0 had an unsigned "symmetry" property
+		unsigned symm = 0;
+		n.find_unsigned("symmetry", symm);
+		switch (symm) {
+			case 1:
+				symtree = sy_symm();
+				break;
+			case 2:
+				symtree = sy_anti();
+				break;
+			default:
+				symtree = sy_none();
+				break;
+		}
+		ex_to_nonconst_symmetry(symtree).validate(seq.size() - 1);
+	}
 }
 
 void indexed::archive(archive_node &n) const
 {
 	inherited::archive(n);
-	n.add_unsigned("symmetry", symmetry);
+	n.add_ex("symmetry", symtree);
 }
 
 DEFAULT_UNARCHIVE(indexed)
@@ -188,12 +199,8 @@ void indexed::print(const print_context & c, unsigned level) const
 
 		c.s << std::string(level, ' ') << class_name()
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
-		    << ", " << seq.size()-1 << " indices";
-		switch (symmetry) {
-			case symmetric: c.s << ", symmetric"; break;
-			case antisymmetric: c.s << ", antisymmetric"; break;
-			default: break;
-		}
+		    << ", " << seq.size()-1 << " indices"
+		    << ", symmetry=" << symtree << std::endl;
 		c.s << std::endl;
 		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
 		seq[0].print(c, level + delta_indent);
@@ -248,57 +255,11 @@ int indexed::compare_same_type(const basic & other) const
 	return inherited::compare_same_type(other);
 }
 
-// The main difference between sort_index_vector() and canonicalize_indices()
-// is that the latter takes the symmetry of the object into account. Once we
-// implement mixed symmetries, canonicalize_indices() will only be able to
-// reorder index pairs with known symmetry properties, while sort_index_vector()
-// always sorts the whole vector.
-
-/** Bring a vector of indices into a canonic order. This operation only makes
- *  sense if the object carrying these indices is either symmetric or totally
- *  antisymmetric with respect to the indices.
- *
- *  @param itbegin Start of index vector
- *  @param itend End of index vector
- *  @param antisymm Whether the object is antisymmetric
- *  @return the sign introduced by the reordering of the indices if the object
- *          is antisymmetric (or 0 if two equal indices are encountered). For
- *          symmetric objects, this is always +1. If the index vector was
- *          already in a canonic order this function returns INT_MAX. */
-static int canonicalize_indices(exvector::iterator itbegin, exvector::iterator itend, bool antisymm)
-{
-	bool something_changed = false;
-	int sig = 1;
-
-	// Simple bubble sort algorithm should be sufficient for the small
-	// number of indices expected
-	exvector::iterator it1 = itbegin, next_to_last_idx = itend - 1;
-	while (it1 != next_to_last_idx) {
-		exvector::iterator it2 = it1 + 1;
-		while (it2 != itend) {
-			int cmpval = it1->compare(*it2);
-			if (cmpval == 1) {
-				it1->swap(*it2);
-				something_changed = true;
-				if (antisymm)
-					sig = -sig;
-			} else if (cmpval == 0 && antisymm) {
-				something_changed = true;
-				sig = 0;
-			}
-			it2++;
-		}
-		it1++;
-	}
-
-	return something_changed ? sig : INT_MAX;
-}
-
 ex indexed::eval(int level) const
 {
 	// First evaluate children, then we will end up here again
 	if (level > 1)
-		return indexed(symmetry, evalchildren(level));
+		return indexed(ex_to_symmetry(symtree), evalchildren(level));
 
 	const ex &base = seq[0];
 
@@ -315,9 +276,10 @@ ex indexed::eval(int level) const
 	}
 
 	// Canonicalize indices according to the symmetry properties
-	if (seq.size() > 2 && (symmetry == symmetric || symmetry == antisymmetric)) {
-		exvector v(seq);
-		int sig = canonicalize_indices(v.begin() + 1, v.end(), symmetry == antisymmetric);
+	if (seq.size() > 2) {
+		exvector v = seq;
+		GINAC_ASSERT(is_ex_exactly_of_type(symtree, symmetry));
+		int sig = canonicalize(v.begin() + 1, ex_to_symmetry(symtree));
 		if (sig != INT_MAX) {
 			// Something has changed while sorting indices, more evaluations later
 			if (sig == 0)
@@ -350,12 +312,12 @@ ex indexed::coeff(const ex & s, int n) const
 
 ex indexed::thisexprseq(const exvector & v) const
 {
-	return indexed(symmetry, v);
+	return indexed(ex_to_symmetry(symtree), v);
 }
 
 ex indexed::thisexprseq(exvector * vp) const
 {
-	return indexed(symmetry, vp);
+	return indexed(ex_to_symmetry(symtree), vp);
 }
 
 ex indexed::expand(unsigned options) const
@@ -429,10 +391,10 @@ void indexed::printindices(const print_context & c, unsigned level) const
 	}
 }
 
-/** Check whether all indices are of class idx. This function is used
- *  internally to make sure that all constructed indexed objects really
- *  carry indices and not some other classes. */
-void indexed::assert_all_indices_of_type_idx(void) const
+/** Check whether all indices are of class idx and validate the symmetry
+ *  tree. This function is used internally to make sure that all constructed
+ *  indexed objects really carry indices and not some other classes. */
+void indexed::validate(void) const
 {
 	GINAC_ASSERT(seq.size() > 0);
 	exvector::const_iterator it = seq.begin() + 1, itend = seq.end();
@@ -440,6 +402,12 @@ void indexed::assert_all_indices_of_type_idx(void) const
 		if (!is_ex_of_type(*it, idx))
 			throw(std::invalid_argument("indices of indexed object must be of type idx"));
 		it++;
+	}
+
+	if (!symtree.is_zero()) {
+		if (!is_ex_exactly_of_type(symtree, symmetry))
+			throw(std::invalid_argument("symmetry of indexed object must be of type symmetry"));
+		ex_to_nonconst_symmetry(symtree).validate(seq.size() - 1);
 	}
 }
 
@@ -682,13 +650,26 @@ try_again:
 			}
 
 			// Contraction of symmetric with antisymmetric object is zero
-			if ((ex_to_indexed(*it1).symmetry == indexed::symmetric &&
-			     ex_to_indexed(*it2).symmetry == indexed::antisymmetric
-			  || ex_to_indexed(*it1).symmetry == indexed::antisymmetric &&
-			     ex_to_indexed(*it2).symmetry == indexed::symmetric)
-			 && dummy.size() > 1) {
-				free_indices.clear();
-				return _ex0();
+			if (dummy.size() > 1
+			 && ex_to_symmetry(ex_to_indexed(*it1).symtree).has_symmetry()
+			 && ex_to_symmetry(ex_to_indexed(*it2).symtree).has_symmetry()) {
+
+				// Check all pairs of dummy indices
+				for (unsigned idx1=0; idx1<dummy.size()-1; idx1++) {
+					for (unsigned idx2=idx1+1; idx2<dummy.size(); idx2++) {
+
+						// Try and swap the index pair and check whether the
+						// relative sign changed
+						lst subs_lst(dummy[idx1].op(0), dummy[idx2].op(0)), repl_lst(dummy[idx2].op(0), dummy[idx1].op(0));
+						ex swapped1 = it1->subs(subs_lst, repl_lst);
+						ex swapped2 = it2->subs(subs_lst, repl_lst);
+						if (it1->is_equal(swapped1) && it2->is_equal(-swapped2)
+						 || it1->is_equal(-swapped1) && it2->is_equal(swapped2)) {
+							free_indices.clear();
+							return _ex0();
+						}
+					}
+				}
 			}
 
 			// Try to contract the first one with the second one

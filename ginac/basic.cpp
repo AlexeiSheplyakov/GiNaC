@@ -232,7 +232,7 @@ bool basic::has(const ex & other) const
 
 /** Construct new expression by applying the specified function to all
  *  sub-expressions (one level only, not recursively). */
-ex basic::map(map_func f) const
+ex basic::map(map_function & f) const
 {
 	unsigned num = nops();
 	if (num == 0)
@@ -368,8 +368,12 @@ ex basic::evalm(void) const
 {
 	if (nops() == 0)
 		return *this;
-	else
-		return map(GiNaC::evalm);
+	else {
+		struct evalm_map_function : public map_function {
+			ex operator()(const ex & e) { return GiNaC::evalm(e); }
+		} fcn;
+		return map(fcn);
+	}
 }
 
 /** Perform automatic symbolic evaluations on indexed expression that

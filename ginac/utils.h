@@ -28,7 +28,6 @@
 
 #include <string>
 #include <stdexcept>
-#include <functional>
 #if defined(HAVE_SSTREAM)
 #include <sstream>
 #elif defined(HAVE_STRSTREAM)
@@ -183,8 +182,8 @@ int permutation_sign(It first, It last)
 	return sign;
 }
 
-template <class It, class Cmp>
-int permutation_sign(It first, It last, Cmp comp)
+template <class It, class Cmp, class Swap>
+int permutation_sign(It first, It last, Cmp comp, Swap swapit)
 {
 	if (first == last)
 		return 0;
@@ -200,7 +199,7 @@ int permutation_sign(It first, It last, Cmp comp)
 		bool swapped = false;
 		while (i != first) {
 			if (comp(*i, *other)) {
-				std::iter_swap(other, i);
+				swapit(*other, *i);
 				flag = other;
 				swapped = true;
 				sign = -sign;
@@ -219,7 +218,7 @@ int permutation_sign(It first, It last, Cmp comp)
 		swapped = false;
 		while (i != last) {
 			if (comp(*other, *i)) {
-				std::iter_swap(i, other);
+				swapit(*i, *other);
 				flag = other;
 				swapped = true;
 				sign = -sign;
@@ -237,8 +236,8 @@ int permutation_sign(It first, It last, Cmp comp)
 }
 
 /* Implementation of shaker sort, only compares adjacent elements. */
-template <class It, class Cmp>
-void shaker_sort(It first, It last, Cmp comp)
+template <class It, class Cmp, class Swap>
+void shaker_sort(It first, It last, Cmp comp, Swap swapit)
 {
 	if (first == last)
 		return;
@@ -253,7 +252,7 @@ void shaker_sort(It first, It last, Cmp comp)
 		bool swapped = false;
 		while (i != first) {
 			if (comp(*i, *other)) {
-				std::iter_swap(other, i);
+				swapit(*other, *i);
 				flag = other;
 				swapped = true;
 			}
@@ -270,7 +269,7 @@ void shaker_sort(It first, It last, Cmp comp)
 		swapped = false;
 		while (i != last) {
 			if (comp(*other, *i)) {
-				std::iter_swap(i, other);
+				swapit(*i, *other);
 				flag = other;
 				swapped = true;
 			}
@@ -284,8 +283,8 @@ void shaker_sort(It first, It last, Cmp comp)
 }
 
 /* In-place cyclic permutation of a container (no copying, only swapping). */
-template <class It>
-void cyclic_permutation(It first, It last, It new_first)
+template <class It, class Swap>
+void cyclic_permutation(It first, It last, It new_first, Swap swapit)
 {
 	unsigned num = last - first;
 again:
@@ -296,7 +295,7 @@ again:
 	if (num1 >= num2) {
 		It a = first, b = new_first;
 		while (b != last) {
-			std::iter_swap(a, b);
+			swapit(*a, *b);
 			++a; ++b;
 		}
 		if (num1 > num2) {
@@ -308,7 +307,7 @@ again:
 		It a = new_first, b = last;
 		do {
 			--a; --b;
-			std::iter_swap(a, b);
+			swapit(*a, *b);
 		} while (a != first);
 		last -= num1;
 		num = num2;
@@ -316,14 +315,6 @@ again:
 	}
 }
 
-/* Function objects for STL sort() etc. */
-struct ex_is_less : public std::binary_function<ex, ex, bool> {
-	bool operator() (const ex &lh, const ex &rh) const { return lh.compare(rh) < 0; }
-};
-
-struct ex_is_equal : public std::binary_function<ex, ex, bool> {
-	bool operator() (const ex &lh, const ex &rh) const { return lh.is_equal(rh); }
-};
 
 // Collection of `construct on first use' wrappers for safely avoiding
 // internal object replication without running into the `static
