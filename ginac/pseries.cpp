@@ -165,6 +165,9 @@ void pseries::print(ostream &os, unsigned upper_precedence) const
 {
     debugmsg("pseries print", LOGLEVEL_PRINT);
     for (epvector::const_iterator i=seq.begin(); i!=seq.end(); i++) {
+        // omit zero terms
+        if (i->rest.is_zero())
+            continue;
         // print a sign, if needed
         if (i!=seq.begin())
             os << '+';
