@@ -134,6 +134,23 @@ void pseries::print(const print_context & c, unsigned level) const
 		var.print(c, level + delta_indent);
 		point.print(c, level + delta_indent);
 
+	} else if (is_a<print_python_repr>(c)) {
+		c.s << class_name() << "(relational(";
+		var.print(c);
+		c.s << ',';
+		point.print(c);
+		c.s << "),[";
+		unsigned num = seq.size();
+		for (unsigned i=0; i<num; ++i) {
+			if (i)
+				c.s << ',';
+			c.s << '(';
+			seq[i].rest.print(c);
+			c.s << ',';
+			seq[i].coeff.print(c);
+			c.s << ')';
+		}
+		c.s << "])";
 	} else {
 
 		if (precedence() <= level)
@@ -174,7 +191,10 @@ void pseries::print(const print_context & c, unsigned level) const
 					} else
 						var.print(c);
 					if (i->coeff.compare(_ex1)) {
-						c.s << '^';
+						if (is_a<print_python>(c))
+							c.s << "**";
+						else
+							c.s << '^';
 						if (i->coeff.info(info_flags::negative)) {
 							c.s << par_open;
 							i->coeff.print(c);

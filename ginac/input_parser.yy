@@ -94,7 +94,7 @@ exp	: T_NUMBER		{$$ = $1;}
 	| T_LITERAL		{$$ = $1;}
 	| T_DIGITS		{$$ = $1;}
 	| T_SYMBOL '(' exprseq ')' {
-		string n = ex_to<symbol>($1).get_name();
+		std::string n = ex_to<symbol>($1).get_name();
 		if (n == "sqrt") {
 			if ($3.nops() != 1)
 				throw (std::runtime_error("too many arguments to sqrt()"));

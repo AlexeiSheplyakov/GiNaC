@@ -147,6 +147,9 @@ void matrix::print(const print_context & c, unsigned level) const
 
 	} else {
 
+		if (is_a<print_python_repr>(c))
+			c.s << class_name() << '(';
+
 		c.s << "[";
 		for (unsigned y=0; y<row-1; ++y) {
 			c.s << "[";
@@ -164,6 +167,9 @@ void matrix::print(const print_context & c, unsigned level) const
 		}
 		m[row*col-1].print(c);
 		c.s << "]]";
+
+		if (is_a<print_python_repr>(c))
+			c.s << ')';
 
 	}
 }

@@ -151,9 +151,14 @@ void symbol::print(const print_context & c, unsigned level) const
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 		    << std::endl;
 
-	} else if (is_a<print_latex>(c))
+	} else if (is_a<print_latex>(c)) {
 		c.s << TeX_name;
-	else
+	} else if (is_a<print_python_repr>(c)) {
+		c.s << class_name() << "('" << name;
+		if (TeX_name != default_TeX_name())
+			c.s << "','" << TeX_name;
+		c.s << "')";
+	} else
 		c.s << name;
 }
 

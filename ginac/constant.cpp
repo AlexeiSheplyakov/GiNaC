@@ -134,9 +134,14 @@ void constant::print(const print_context & c, unsigned level) const
 		c.s << std::string(level, ' ') << name << " (" << class_name() << ")"
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 		    << std::endl;
-	} else if (is_a<print_latex>(c))
+	} else if (is_a<print_latex>(c)) {
 		c.s << TeX_name;
-	else
+	} else if (is_a<print_python_repr>(c)) {
+		c.s << class_name() << "('" << name << "'";
+		if (TeX_name != "\\mbox{" + name + "}")
+			c.s << ",TeX_name='" << TeX_name << "'";
+		c.s << ')';
+	} else
 		c.s << name;
 }
 

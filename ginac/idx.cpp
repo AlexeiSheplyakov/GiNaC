@@ -156,7 +156,9 @@ void idx::print(const print_context & c, unsigned level) const
 
 	} else {
 
-		if (!is_of_type(c, print_latex))
+		if (is_a<print_latex>(c))
+			c.s << "_{";
+		else
 			c.s << ".";
 		bool need_parens = !(is_ex_exactly_of_type(value, numeric) || is_ex_of_type(value, symbol));
 		if (need_parens)
@@ -164,6 +166,8 @@ void idx::print(const print_context & c, unsigned level) const
 		value.print(c);
 		if (need_parens)
 			c.s << ")";
+		if (is_a<print_latex>(c))
+			c.s << "}";
 	}
 }
 
@@ -180,8 +184,12 @@ void varidx::print(const print_context & c, unsigned level) const
 		dim.print(c, level + delta_indent);
 
 	} else {
-
-		if (!is_of_type(c, print_latex)) {
+		if (is_a<print_latex>(c)) {
+			if (covariant)
+				c.s << "_{";
+			else
+				c.s << "^{";
+		} else {
 			if (covariant)
 				c.s << ".";
 			else
@@ -193,6 +201,8 @@ void varidx::print(const print_context & c, unsigned level) const
 		value.print(c);
 		if (need_parens)
 			c.s << ")";
+		if (is_a<print_latex>(c))
+			c.s << "}";
 	}
 }
 
@@ -212,7 +222,12 @@ void spinidx::print(const print_context & c, unsigned level) const
 	} else {
 
 		bool is_tex = is_of_type(c, print_latex);
-		if (!is_tex) {
+		if (is_tex) {
+			if (covariant)
+				c.s << "_{";
+			else
+				c.s << "^{";
+		} else {
 			if (covariant)
 				c.s << ".";
 			else
@@ -231,6 +246,8 @@ void spinidx::print(const print_context & c, unsigned level) const
 		if (need_parens)
 			c.s << ")";
 		if (is_tex && dotted)
+			c.s << "}";
+		if (is_tex)
 			c.s << "}";
 	}
 }

@@ -36,6 +36,16 @@ print_latex::print_latex()
 print_latex::print_latex(std::ostream & os)
 	: print_context(os) {}
 
+print_python::print_python()
+	: print_context(std::cout) {}
+print_python::print_python(std::ostream & os)
+	: print_context(os) {}
+
+print_python_repr::print_python_repr()
+	: print_context(std::cout) {}
+print_python_repr::print_python_repr(std::ostream & os)
+	: print_context(os) {}
+
 print_tree::print_tree(unsigned d)
 	: print_context(std::cout), delta_indent(d) {}
 print_tree::print_tree(std::ostream & os, unsigned d)

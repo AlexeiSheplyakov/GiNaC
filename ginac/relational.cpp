@@ -95,9 +95,17 @@ void relational::print(const print_context & c, unsigned level) const
 
 	} else {
 
-		if (precedence() <= level)
-			c.s << "(";
-		lh.print(c, precedence());
+		if (is_a<print_python_repr>(c)) {
+			c.s << class_name() << '(';
+			lh.print(c);
+			c.s << ',';
+			rh.print(c);
+			c.s << ",'";
+		} else {
+			if (precedence() <= level)
+				c.s << "(";
+			lh.print(c, precedence());
+		}
 		switch (o) {
 			case equal:
 				c.s << "==";
@@ -120,9 +128,13 @@ void relational::print(const print_context & c, unsigned level) const
 			default:
 				c.s << "(INVALID RELATIONAL OPERATOR)";
 		}
-		rh.print(c, precedence());
-		if (precedence() <= level)
-			c.s << ")";
+		if (is_a<print_python_repr>(c))
+			c.s << "')";
+		else {
+			rh.print(c, precedence());
+			if (precedence() <= level)
+				c.s << ")";
+		}
 	}
 }
 
@@ -272,39 +284,6 @@ unsigned relational::calchash(void) const
 
 	return v;
 }
-
-bool relational::is_equal_same_type(const basic & other) const
-{
-	GINAC_ASSERT(is_a<relational>(other));
-	const relational &oth = static_cast<const relational &>(other);
-	if (o==oth.o && lh.is_equal(oth.lh) && rh.is_equal(oth.rh))
-		return true;
-	switch (o) {
-		case equal:
-		case not_equal:
-			if (oth.o!=o)
-				return false;
-			break;
-		case less:
-			if (oth.o!=greater)
-				return false;
-			break;
-		case less_or_equal:
-			if (oth.o!=greater_or_equal)
-				return false;
-			break;
-		case greater:
-			if (oth.o!=less)
-				return false;
-			break;
-		case greater_or_equal:
-			if (oth.o!=less_or_equal)
-				return false;
-			break;
-	}
-	return lh.is_equal(oth.rh) && rh.is_equal(oth.lh);
-}
-
 
 //////////
 // new virtual functions which can be overridden by derived classes

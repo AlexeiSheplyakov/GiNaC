@@ -159,6 +159,14 @@ void power::print(const print_context & c, unsigned level) const
 			c.s << ')';
 		}
 
+	} else if (is_a<print_python_repr>(c)) {
+
+		c.s << class_name() << '(';
+		basis.print(c);
+		c.s << ',';
+		exponent.print(c);
+		c.s << ')';
+
 	} else {
 
 		if (exponent.is_equal(_ex1_2)) {
@@ -179,7 +187,10 @@ void power::print(const print_context & c, unsigned level) const
 					c.s << "(";
 			}
 			basis.print(c, precedence());
-			c.s << '^';
+			if (is_a<print_python>(c))
+				c.s << "**";
+			else
+				c.s << '^';
 			if (is_a<print_latex>(c))
 				c.s << '{';
 			exponent.print(c, precedence());

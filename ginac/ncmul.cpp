@@ -111,9 +111,9 @@ void ncmul::print(const print_context & c, unsigned level) const
 
 		inherited::print(c, level);
 
-	} else if (is_a<print_csrc>(c)) {
+	} else if (is_a<print_csrc>(c) || is_a<print_python_repr>(c)) {
 
-		c.s << "ncmul(";
+		c.s << class_name() << "(";
 		exvector::const_iterator it = seq.begin(), itend = seq.end()-1;
 		while (it != itend) {
 			it->print(c, precedence());

@@ -389,6 +389,8 @@ void numeric::print(const print_context & c, unsigned level) const
 		const std::string mul_sym   = is_a<print_latex>(c) ? " " : "*";
 		const cln::cl_R r = cln::realpart(cln::the<cln::cl_N>(value));
 		const cln::cl_R i = cln::imagpart(cln::the<cln::cl_N>(value));
+		if (is_a<print_python_repr>(c))
+			c.s << class_name() << "('";
 		if (cln::zerop(i)) {
 			// case 1, real:  x  or  -x
 			if ((precedence() <= level) && (!this->is_nonneg_integer())) {
@@ -446,6 +448,8 @@ void numeric::print(const print_context & c, unsigned level) const
 					c.s << par_close;
 			}
 		}
+		if (is_a<print_python_repr>(c))
+			c.s << "')";
 	}
 }
 

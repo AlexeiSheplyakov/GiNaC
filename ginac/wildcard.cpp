@@ -95,6 +95,8 @@ void wildcard::print(const print_context & c, unsigned level) const
 		c.s << std::string(level, ' ') << class_name() << " (" << label << ")"
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 		    << std::endl;
+	} else if (is_a<print_python_repr>(c)) {
+		c.s << class_name() << '(' << label << ')';
 	} else
 		c.s << "$" << label;
 }

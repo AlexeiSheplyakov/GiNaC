@@ -49,6 +49,22 @@ public:
 	print_latex(std::ostream &);
 };
 
+/** Context for python pretty-print output. */
+class print_python : public print_context
+{
+public:
+	print_python();
+	print_python(std::ostream &);
+};
+
+/** Context for python-parsable output. */
+class print_python_repr : public print_context
+{
+public:
+	print_python_repr();
+	print_python_repr(std::ostream &);
+};
+
 /** Context for tree-like output for debugging. */
 class print_tree : public print_context
 {

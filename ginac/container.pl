@@ -430,7 +430,11 @@ void ${CONTAINER}::print(const print_context & c, unsigned level) const
 			++i;
 		}
 		c.s << std::string(level + delta_indent,' ') << "=====" << std::endl;
-
+	} else if (is_a<print_python>(c)) {
+		printseq(c, '[', ',', ']', precedence(), precedence()+1);
+	} else if (is_a<print_python_repr>(c)) {
+		c.s << class_name ();
+		printseq(c, '(', ',', ')', precedence(), precedence()+1);
 	} else {
 		// always print brackets around seq, ignore upper_precedence
 		printseq(c, '${open_bracket}', ',', '${close_bracket}', precedence(), precedence()+1);
