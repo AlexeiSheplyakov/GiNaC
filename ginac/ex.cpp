@@ -46,11 +46,11 @@ namespace GiNaC {
 
 #ifndef INLINE_EX_CONSTRUCTORS
 
-ex::ex() : bp(ex0().bp)
+ex::ex() : bp(_ex0().bp)
 {
     debugmsg("ex default constructor",LOGLEVEL_CONSTRUCT);
-    GINAC_ASSERT(ex0().bp!=0);
-    GINAC_ASSERT(ex0().bp->flags & status_flags::dynallocated);
+    GINAC_ASSERT(_ex0().bp!=0);
+    GINAC_ASSERT(_ex0().bp->flags & status_flags::dynallocated);
     GINAC_ASSERT(bp!=0);
     ++bp->refcount;
 }
