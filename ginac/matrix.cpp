@@ -599,35 +599,31 @@ matrix matrix::pow(const ex & expn) const
 		// Integer cases are computed by successive multiplication, using the
 		// obvious shortcut of storing temporaries, like A^4 == (A*A)*(A*A).
 		if (expn.info(info_flags::integer)) {
-			numeric k;
-			matrix prod(row,col);
+			numeric b = ex_to<numeric>(expn);
+			matrix A(row,col);
 			if (expn.info(info_flags::negative)) {
-				k = -ex_to<numeric>(expn);
-				prod = this->inverse();
+				b *= -1;
+				A = this->inverse();
 			} else {
-				k = ex_to<numeric>(expn);
-				prod = *this;
+				A = *this;
 			}
-			matrix result(row,col);
+			matrix C(row,col);
 			for (unsigned r=0; r<row; ++r)
-				result(r,r) = _ex1();
-			numeric b(1);
-			// This loop computes the representation of k in base 2 from right
-			// to left(!) and multiplies the factors whenever needed.  Note
+				C(r,r) = _ex1();
+			// This loop computes the representation of b in base 2 from right
+			// to left and multiplies the factors whenever needed.  Note
 			// that this is not entirely optimal but close to optimal and
 			// "better" algorithms are much harder to implement.  (See Knuth,
 			// TAoCP2, section "Evaluation of Powers" for a good discussion.)
-			while (b.compare(k)<=0) {
-				b *= numeric(2);
-				numeric r(mod(k,b));
-				if (!r.is_zero()) {
-					k -= r;
-					result = result.mul(prod);
+			while (b!=1) {
+				if (b.is_odd()) {
+					C = C.mul(A);
+					b -= 1;
 				}
-				if (b.compare(k)<=0)
-					prod = prod.mul(prod);
+				b *= _num1_2();  // b /= 2, still integer.
+				A = A.mul(A);
 			}
-			return result;
+			return A.mul(C);
 		}
 	}
 	throw (std::runtime_error("matrix::pow(): don't know how to handle exponent"));
