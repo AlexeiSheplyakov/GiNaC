@@ -1,33 +1,35 @@
 This file records noteworthy changes.
 
-0.8.1 (13 April 2001)
+0.8.1 (15 April 2001)
 * degree(), ldegree(), coeff(), lcoeff(), tcoeff() and collect() can now
   be used with constants, functions and indexed expressions as well, so you
   can use it to collect by powers of Pi or sin(x), or to find the coefficient
   of gamma~0.
   Limitations:
-   - it only works with symbols, constants, functions and indexed expressions;
-     trying to find the coefficient of, e.g., "x^2" or "x+y" won't work
+   - it only works with symbols, constants, functions and indexed expressions,
+     trying to find the coefficient of, e.g., "x^2" or "x+y" won't work;
    - it does not know about dummy index summations; the coefficient of
-     gamma~0 in p.mu*gamma~mu should be p.0 but is returned as 0
+     gamma~0 in p.mu*gamma~mu should be p.0 but is returned as 0;
    - using coeff(), tcoeff(), lcoeff() or collect() on elements of
-     noncommutative products might return wrong or surprising results
+     noncommutative products might return wrong or surprising results.
 * subs() no longer only substitutes symbols and indices but performs a more
   general "syntactic substitution", i.e. it substitutes whole objects in sub-
   expressions. You can subs((a+b)^2,a+b==3) and get 9, but subs(a+b+c,a+b==3)
   doesn't do anything.
   Limitations:
    - substituting numerics (subs(expr, 2==4)) will not replace then in all
-     occurences; in general, you shouldn't substitute numerics, though
+     occurences; in general, you shouldn't substitute numerics, though.
 * Added preliminary (re)implementations of color and clifford classes.
 * simplify_indexed(): contraction of symmetric and antisymmetric tensors
   is zero.
 * Replaced the various print*() member functions by a single print() that
   takes a print_context object that determines the output formatting. This
-  should make it easier to add more output types.
+  should make it easier to add more output types, such as LaTeX output,
+  which is based on work by Stefan Weinzierl.
 * Added functions to retrieve the properties stored in archive objects
   outside of unarchive() (for printing or debugging purposes).
 * Some bugfixes (indexed objects, archive writing).
+* .collect() on non-polynomials is now algebraically correct.
 
 0.8.0 (24 March 2001)
 * Complete revamp of indexed objects. Instead of multiple classes for
