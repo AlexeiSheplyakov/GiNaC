@@ -192,9 +192,9 @@ void mul::print(const print_context & c, unsigned level) const
 			!coeff.is_equal(_num_1())) {
 			if (coeff.is_rational()) {
 				if (coeff.is_negative())
-					(-coeff).print(c, precedence);
+					(-coeff).print(c);
 				else
-					coeff.print(c, precedence);
+					coeff.print(c);
 			} else {
 				if (coeff.csgn() == -1)
 					(-coeff).print(c, precedence);
