@@ -5,10 +5,9 @@ libginac_la_SOURCES = add.cpp archive.cpp basic.cpp clifford.cpp color.cpp \
   constant.cpp ex.cpp expair.cpp expairseq.cpp exprseq.cpp fail.cpp \
   fderivative.cpp function.cpp idx.cpp indexed.cpp inifcns.cpp \
   inifcns_trans.cpp inifcns_zeta.cpp inifcns_gamma.cpp inifcns_nstdsums.cpp \
-  lst.cpp matrix.cpp \
-  mul.cpp ncmul.cpp normal.cpp numeric.cpp operators.cpp power.cpp \
-  registrar.cpp relational.cpp remember.cpp pseries.cpp print.cpp structure.cpp \
-  symbol.cpp symmetry.cpp tensor.cpp utils.cpp wildcard.cpp \
+  lst.cpp matrix.cpp mul.cpp ncmul.cpp normal.cpp numeric.cpp operators.cpp \
+  power.cpp registrar.cpp relational.cpp remember.cpp pseries.cpp print.cpp \
+  structure.cpp symbol.cpp symmetry.cpp tensor.cpp utils.cpp wildcard.cpp \
   input_parser.yy input_lexer.ll \
   input_lexer.h remember.h tostring.h utils.h
 libginac_la_LDFLAGS = -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \

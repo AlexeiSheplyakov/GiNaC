@@ -24,6 +24,7 @@
 #define __GINAC_EX_H__
 
 #include <iosfwd>
+#include <iterator>
 #include <functional>
 
 #include "basic.h"
@@ -89,6 +90,140 @@ public:
 	 *  Undefined symbols and other parser errors will throw an exception. */
 	ex(const std::string &s, const ex &l);
 	
+public:
+	// Iterators
+	class const_iterator : public std::iterator<std::random_access_iterator_tag, ex, ptrdiff_t, const ex *, const ex &>
+	{
+		friend class ex;
+
+	public:
+		const_iterator() {}
+		const_iterator(const basic *bp_, size_t i_) : bp(bp_), i(i_) {}
+
+		bool operator==(const const_iterator &other) const
+		{
+			return bp == other.bp && i == other.i;
+		}
+
+		bool operator!=(const const_iterator &other) const
+		{
+			return !(*this == other);
+		}
+
+		bool operator<(const const_iterator &other) const
+		{
+			return i < other.i;
+		}
+
+		bool operator>(const const_iterator &other) const
+		{
+			return other < *this;
+		}
+
+		bool operator<=(const const_iterator &other) const
+		{
+			return !(other < *this);
+		}
+
+		bool operator>=(const const_iterator &other) const
+		{
+			return !(*this < other);
+		}
+
+		// This should return an ex&, but that would be a reference to a
+		// temporary value
+		ex operator*() const
+		{
+			return bp->op(i);
+		}
+
+#if 0
+		// How do we make this work in the context of the "reference to
+		// temporary" problem? Return an auto_ptr?
+		pointer operator->() const
+		{
+			return &(operator*());
+		}
+#endif
+
+		const_iterator &operator++()
+		{
+			++i;
+			return *this;
+		}
+
+		const_iterator operator++(int)
+		{
+			const_iterator tmp = *this;
+			++i;
+			return tmp;
+		}
+
+		const_iterator &operator+=(difference_type n)
+		{
+			i += n;
+			return *this;
+		}
+
+		const_iterator operator+(difference_type n) const
+		{
+			return const_iterator(bp, i + n);
+		}
+
+		inline friend const_iterator operator+(difference_type n, const const_iterator &it)
+		{
+			return const_iterator(it.bp, it.i + n);
+		}
+
+		const_iterator &operator--()
+		{
+			--i;
+			return *this;
+		}
+
+		const_iterator operator--(int)
+		{
+			const_iterator tmp = *this;
+			--i;
+			return tmp;
+		}
+
+		const_iterator &operator-=(difference_type n)
+		{
+			i -= n;
+			return *this;
+		}
+
+		const_iterator operator-(difference_type n) const
+		{
+			return const_iterator(bp, i - n);
+		}
+
+		inline friend difference_type operator-(const const_iterator &lhs, const const_iterator &rhs)
+		{
+			return lhs.i - rhs.i;
+		}
+
+		reference operator[](difference_type n) const
+		{
+		}
+
+	protected:
+		const basic *bp;
+		size_t i;
+	};
+
+	const_iterator begin() const { return const_iterator(get_pointer(bp), 0); }
+	const_iterator end() const { return const_iterator(get_pointer(bp), bp->nops()); }
+
+#if 0
+	// This doesn't work because of the "reference to temporary" problem
+	// in operator*()
+	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+	const_reverse_iterator rbegin() const { return const_reverse_iterator(end()); }
+	const_reverse_iterator rend() const { return const_reverse_iterator(begin()); }
+#endif
+
 	// non-virtual functions in this class
 public:
 	/** Efficiently swap the contents of two expressions. */
