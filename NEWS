@@ -11,7 +11,8 @@ This file records noteworthy changes.
   formats at run-time, and to have different output styles for algebraic
   functions.
 * Symbols can be made non-commutative.
-* Complex conjugation available.
+* Added a method ex::conjugate() and a function conjugate() for complex
+  conjugation. Symbols can be declared as real or complex-valued.
 * Improved the speed of subs(), normal(), to_rational() and to_polynomial()
   by the use of maps instead of lists. The old forms
     subs(const lst & ls, const lst & lr, unsigned options)
@@ -23,7 +24,11 @@ This file records noteworthy changes.
 * quo(), rem(), prem(), sprem(), decomp_rational(), unit(), content(),
   primpart() and matrix::charpoly() now take a "const ex &" instead of a
   "const symbol &".
-* <object fusion>
+* Redundant expressions (two ex pointing to different objects are found to be
+  equal in compare()) are now actively deleted/fused to conserve memory and
+  speed up subsequent comparisons. This behavior can be suppressed on a
+  per-object level with status_flags::not_shareable. Lists and matrices are
+  not shareable by default.
 * Lots of internal streamlining and optimizations.
 * Caveats for class implementors:
    - basic::copy() and basic::destroy() are gone; classes derived from
@@ -39,6 +44,76 @@ This file records noteworthy changes.
    - thiscontainer() and associated constructors now take a std::auto_ptr.
    - Overloading basic::print() is now deprecated. You should use
      print_func<>() class options instead.
+
+1.1.7 (11 March 2004)
+* Fixed a bug in canonicalize_clifford().
+* Series expansion now works predictably. All terms with the exponent of the
+  expansion variable smaller than the given order are calculated exactly. If
+  the series is not terminating, the Order function is (at least) of the given
+  order.
+
+1.1.6 (22 January 2004)
+* Added a function option "dummy()" which means "no options". This simplifies
+  the implementation of symbolic functions which are not to be further
+  evaluated.
+* Removed a bug in the numerical evaluation of Li() that caused the system
+  to hang for certain parameter combinations.
+* Fixed a bug in the calculation of hash values for indices that could lead
+  to wrong results or bogus error messages from simplify_indexed().
+* Fixed a bug in the evaluation of harmonic polylogarithms for complex
+  arguments with positive imaginary part.
+
+1.1.5 (5 November 2003)
+* Harmonic polylogarithms now numerically evaluate for arbitrary arguments
+  (parameter must still be positive integers).
+* The zeta function now can also be given a lst as a parameter in which case
+  it becomes a multiple zeta value. The use of mZeta is deprecated.
+* The order of parameters for the multiple polylogarithm has been corrected.
+* Documentation for the nested sums functions zeta, harmonic polylog, multiple
+  polylog, etc. has been added.
+
+1.1.4 (17 October 2003)
+* Lists and matrices can now be initialized from comma-separated lists of
+  expressions, like this:
+
+    lst l;
+    l = x, 2, y, x+y;
+
+    matrix M(3, 3);
+    M = x, y, 0,
+       -y, x, 0,
+        0, 0, 1;
+
+  This is both faster and produces much smaller code than the old constructors
+  lst(ex, ex, ...) and matrix(unsigned, unsigned, lst), especially in the case
+  of matrices, and is now the recommended way to create these objects.
+* The function mZeta now evaluates much faster for arbitrary parameters. The
+  harmonic and multiple polylogarithms evaluate considerably faster and check
+  for convergence. The order of parameters for the harmonic polylogarithm
+  has been corrected.
+
+1.1.3 (22 August 2003)
+* Added new symbolic functions for better integration with nestedsums:
+  (multiple) polylogarithm Li(), Nielsen's generalized polylogarithm S(),
+  harmonic polylogarithm H(), and multiple zeta value mZeta().
+* New exhashmap<T> template intended as a drop-in replacement for
+  std::map<ex, T, ex_is_less> using GiNaC's hashing algorithms.
+
+1.1.2 (11 August 2003)
+* Fixed a bug in the unarchiving of sums and products: terms were not
+  reordered in a canonical way.
+* Fixed a bug in normal()/numer_denom(): denominator was not made unit
+  normal if it was a simple number.
+* Improved the speed of subs() in some cases.
+
+1.1.1 (18 June 2003)
+* lst (and exprseq) provide iterators for read-only element access. For
+  sequential access this is one order faster than using op().
+* Implemented relational::subs() (this was done in 1.0.9 but inadvertently
+  omitted from the 1.1 branch).
+* pole_error and do_taylor are available to library users.
+* Added on-line help and Tab-completion for print(), iprint(), print_latex()
+  and print_csrc() in ginsh.
 
 1.1.0 (3 April 2003)
 * Removed deprecated macros is_ex_a, is_ex_exactly_a and friends for good.
