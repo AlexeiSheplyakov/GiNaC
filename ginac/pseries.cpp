@@ -203,24 +203,31 @@ int pseries::compare_same_type(const basic & other) const
 {
 	GINAC_ASSERT(is_of_type(other, pseries));
 	const pseries &o = static_cast<const pseries &>(other);
-
+	
+	// first compare the lengths of the series...
+	if (seq.size()>o.seq.size())
+		return 1;
+	if (seq.size()<o.seq.size())
+		return -1;
+	
+	// ...then the expansion point...
 	int cmpval = var.compare(o.var);
 	if (cmpval)
 		return cmpval;
 	cmpval = point.compare(o.point);
 	if (cmpval)
 		return cmpval;
-
-	epvector::const_iterator it1 = seq.begin(), it2 = o.seq.begin(), it1end = seq.end(), it2end = o.seq.end();
-	while ((it1 != it1end) && (it2 != it2end)) {
-		cmpval = it1->compare(*it2);
+	
+	// ...and if that failed the individual elements
+	epvector::const_iterator it = seq.begin(), o_it = o.seq.begin();
+	while (it!=seq.end() && o_it!=o.seq.end()) {
+		cmpval = it->compare(*o_it);
 		if (cmpval)
 			return cmpval;
-		it1++; it2++;
+		++it;
+		++o_it;
 	}
-	if (it1 == it1end)
-		return it2 == it2end ? 0 : -1;
-
+	// so they are equal.
 	return 0;
 }
 
