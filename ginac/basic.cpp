@@ -297,16 +297,17 @@ ex basic::eval_indexed(const basic & i) const
 	return i.hold();
 }
 
-/** Try to contract two indexed expressions. If a contraction exists, the
- *  function overwrites one or both arguments and returns true. Otherwise it
- *  returns false. It is guaranteed that both expressions are of class
- *  indexed (or a subclass) and that at least one dummy index has been
- *  found.
+/** Try to contract two indexed expressions that appear in the same product. 
+ *  If a contraction exists, the function overwrites one or both of the
+ *  expressions and returns true. Otherwise it returns false. It is
+ *  guaranteed that both expressions are of class indexed (or a subclass)
+ *  and that at least one dummy index has been found.
  *
- *  @param self The first indexed expression; it's base object is *this
- *  @param other The second indexed expression
+ *  @param self Pointer to first indexed expression; it's base object is *this
+ *  @param other Pointer to second indexed expression
+ *  @param v The complete vector of factors
  *  @return true if the contraction was successful, false otherwise */
-bool basic::contract_with(ex & self, ex & other) const
+bool basic::contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const
 {
 	// Do nothing
 	return false;

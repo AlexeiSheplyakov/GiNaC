@@ -240,8 +240,12 @@ static numeric lcmcoeff(const ex &e, const numeric &l)
 		for (unsigned i=0; i<e.nops(); i++)
 			c *= lcmcoeff(e.op(i), _num1());
 		return lcm(c, l);
-	} else if (is_ex_exactly_of_type(e, power))
-		return pow(lcmcoeff(e.op(0), l), ex_to_numeric(e.op(1)));
+	} else if (is_ex_exactly_of_type(e, power)) {
+		if (is_ex_exactly_of_type(e.op(0), symbol))
+			return l;
+		else
+			return pow(lcmcoeff(e.op(0), l), ex_to_numeric(e.op(1)));
+	}
 	return l;
 }
 
@@ -280,7 +284,10 @@ static ex multiply_lcm(const ex &e, const numeric &lcm)
 			c += multiply_lcm(e.op(i), lcm);
 		return c;
 	} else if (is_ex_exactly_of_type(e, power)) {
-		return pow(multiply_lcm(e.op(0), lcm.power(ex_to_numeric(e.op(1)).inverse())), e.op(1));
+		if (is_ex_exactly_of_type(e.op(0), symbol))
+			return e * lcm;
+		else
+			return pow(multiply_lcm(e.op(0), lcm.power(ex_to_numeric(e.op(1)).inverse())), e.op(1));
 	} else
 		return e * lcm;
 }

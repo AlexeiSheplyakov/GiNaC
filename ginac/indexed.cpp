@@ -629,12 +629,12 @@ try_again:
 			}
 
 			// Try to contract the first one with the second one
-			bool contracted = it1->op(0).bp->contract_with(*it1, *it2);
+			bool contracted = it1->op(0).bp->contract_with(it1, it2, v);
 			if (!contracted) {
 
 				// That didn't work; maybe the second object knows how to
 				// contract itself with the first one
-				contracted = it2->op(0).bp->contract_with(*it2, *it1);
+				contracted = it2->op(0).bp->contract_with(it2, it1, v);
 			}
 			if (contracted) {
 				something_changed = true;

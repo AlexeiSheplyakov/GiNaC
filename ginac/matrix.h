@@ -52,7 +52,7 @@ public:
 	ex evalf(int level=0) const;
 	ex subs(const lst & ls, const lst & lr) const;
 	ex eval_indexed(const basic & i) const;
-	bool contract_with(ex & self, ex & other) const;
+	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
 protected:
 	unsigned return_type(void) const { return return_types::noncommutative; };
 	// new virtual functions which can be overridden by derived classes

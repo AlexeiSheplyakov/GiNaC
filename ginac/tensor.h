@@ -55,7 +55,7 @@ class tensdelta : public tensor
 public:
 	void print(std::ostream & os, unsigned upper_precedence=0) const;
 	ex eval_indexed(const basic & i) const;
-	bool contract_with(ex & self, ex & other) const;
+	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
 };
 
 
@@ -70,7 +70,7 @@ class tensmetric : public tensor
 public:
 	void print(std::ostream & os, unsigned upper_precedence=0) const;
 	ex eval_indexed(const basic & i) const;
-	bool contract_with(ex & self, ex & other) const;
+	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
 };
 
 

@@ -382,103 +382,98 @@ ex matrix::eval_indexed(const basic & i) const
 }
 
 /** Contraction of an indexed matrix with something else. */
-bool matrix::contract_with(ex & self, ex & other) const
+bool matrix::contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const
 {
-	GINAC_ASSERT(is_ex_of_type(self, indexed));
-	GINAC_ASSERT(is_ex_of_type(other, indexed));
-	GINAC_ASSERT(self.nops() == 2 || self.nops() == 3);
-	GINAC_ASSERT(is_ex_of_type(self.op(0), matrix));
+	GINAC_ASSERT(is_ex_of_type(*self, indexed));
+	GINAC_ASSERT(is_ex_of_type(*other, indexed));
+	GINAC_ASSERT(self->nops() == 2 || self->nops() == 3);
+	GINAC_ASSERT(is_ex_of_type(self->op(0), matrix));
 
 	// Only contract with other matrices
-	if (!is_ex_of_type(other.op(0), matrix))
+	if (!is_ex_of_type(other->op(0), matrix))
 		return false;
 
-	GINAC_ASSERT(other.nops() == 2 || other.nops() == 3);
+	GINAC_ASSERT(other->nops() == 2 || other->nops() == 3);
 
-	const matrix &self_matrix = ex_to_matrix(self.op(0));
-	const matrix &other_matrix = ex_to_matrix(other.op(0));
+	const matrix &self_matrix = ex_to_matrix(self->op(0));
+	const matrix &other_matrix = ex_to_matrix(other->op(0));
 
-	if (self.nops() == 2) {
+	if (self->nops() == 2) {
 		unsigned self_dim = (self_matrix.col == 1) ? self_matrix.row : self_matrix.col;
 
-		if (other.nops() == 2) { // vector * vector (scalar product)
+		if (other->nops() == 2) { // vector * vector (scalar product)
 			unsigned other_dim = (other_matrix.col == 1) ? other_matrix.row : other_matrix.col;
 
 			if (self_matrix.col == 1) {
 				if (other_matrix.col == 1) {
 					// Column vector * column vector, transpose first vector
-					self = self_matrix.transpose().mul(other_matrix)(0, 0);
+					*self = self_matrix.transpose().mul(other_matrix)(0, 0);
 				} else {
 					// Column vector * row vector, swap factors
-					self = other_matrix.mul(self_matrix)(0, 0);
+					*self = other_matrix.mul(self_matrix)(0, 0);
 				}
 			} else {
 				if (other_matrix.col == 1) {
 					// Row vector * column vector, perfect
-					self = self_matrix.mul(other_matrix)(0, 0);
+					*self = self_matrix.mul(other_matrix)(0, 0);
 				} else {
 					// Row vector * row vector, transpose second vector
-					self = self_matrix.mul(other_matrix.transpose())(0, 0);
+					*self = self_matrix.mul(other_matrix.transpose())(0, 0);
 				}
 			}
-			other = _ex1();
+			*other = _ex1();
 			return true;
 
 		} else { // vector * matrix
 
-			GINAC_ASSERT(other.nops() == 3);
-
 			// B_i * A_ij = (B*A)_j (B is row vector)
-			if (is_dummy_pair(self.op(1), other.op(1))) {
+			if (is_dummy_pair(self->op(1), other->op(1))) {
 				if (self_matrix.row == 1)
-					self = indexed(self_matrix.mul(other_matrix), other.op(2));
+					*self = indexed(self_matrix.mul(other_matrix), other->op(2));
 				else
-					self = indexed(self_matrix.transpose().mul(other_matrix), other.op(2));
-				other = _ex1();
+					*self = indexed(self_matrix.transpose().mul(other_matrix), other->op(2));
+				*other = _ex1();
 				return true;
 			}
 
 			// B_j * A_ij = (A*B)_i (B is column vector)
-			if (is_dummy_pair(self.op(1), other.op(2))) {
+			if (is_dummy_pair(self->op(1), other->op(2))) {
 				if (self_matrix.col == 1)
-					self = indexed(other_matrix.mul(self_matrix), other.op(1));
+					*self = indexed(other_matrix.mul(self_matrix), other->op(1));
 				else
-					self = indexed(other_matrix.mul(self_matrix.transpose()), other.op(1));
-				other = _ex1();
+					*self = indexed(other_matrix.mul(self_matrix.transpose()), other->op(1));
+				*other = _ex1();
 				return true;
 			}
 		}
 
-	} else if (other.nops() == 3) { // matrix * matrix
-
-		GINAC_ASSERT(self.nops() == 3);
-		GINAC_ASSERT(other.nops() == 3);
+	} else if (other->nops() == 3) { // matrix * matrix
 
 		// A_ij * B_jk = (A*B)_ik
-		if (is_dummy_pair(self.op(2), other.op(1))) {
-			self = indexed(self_matrix.mul(other_matrix), self.op(1), other.op(2));
-			other = _ex1();
+		if (is_dummy_pair(self->op(2), other->op(1))) {
+			*self = indexed(self_matrix.mul(other_matrix), self->op(1), other->op(2));
+			*other = _ex1();
 			return true;
 		}
 
 		// A_ij * B_kj = (A*Btrans)_ik
-		if (is_dummy_pair(self.op(2), other.op(2))) {
-			self = indexed(self_matrix.mul(other_matrix.transpose()), self.op(1), other.op(1));
-			other = _ex1();
+		if (is_dummy_pair(self->op(2), other->op(2))) {
+			*self = indexed(self_matrix.mul(other_matrix.transpose()), self->op(1), other->op(1));
+			*other = _ex1();
 			return true;
 		}
 
 		// A_ji * B_jk = (Atrans*B)_ik
-		if (is_dummy_pair(self.op(1), other.op(1))) {
-			self = indexed(self_matrix.transpose().mul(other_matrix), self.op(2), other.op(2));
-			other = _ex1();
+		if (is_dummy_pair(self->op(1), other->op(1))) {
+			*self = indexed(self_matrix.transpose().mul(other_matrix), self->op(2), other->op(2));
+			*other = _ex1();
 			return true;
 		}
 
 		// A_ji * B_kj = (B*A)_ki
-		if (is_dummy_pair(self.op(1), other.op(2))) {
-			self = indexed(other_matrix.mul(self_matrix), other.op(1), self.op(2));
-			other = _ex1();
+		if (is_dummy_pair(self->op(1), other->op(2))) {
+			*self = indexed(other_matrix.mul(self_matrix), other->op(1), self->op(2));
+			*other = _ex1();
 			return true;
 		}
 	}

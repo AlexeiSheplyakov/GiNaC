@@ -250,28 +250,28 @@ ex minkmetric::eval_indexed(const basic & i) const
 }
 
 /** Contraction of an indexed delta tensor with something else. */
-bool tensdelta::contract_with(ex & self, ex & other) const
+bool tensdelta::contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const
 {
-	GINAC_ASSERT(is_ex_of_type(self, indexed));
-	GINAC_ASSERT(is_ex_of_type(other, indexed));
-	GINAC_ASSERT(self.nops() == 3);
-	GINAC_ASSERT(is_ex_of_type(self.op(0), tensdelta));
+	GINAC_ASSERT(is_ex_of_type(*self, indexed));
+	GINAC_ASSERT(is_ex_of_type(*other, indexed));
+	GINAC_ASSERT(self->nops() == 3);
+	GINAC_ASSERT(is_ex_of_type(self->op(0), tensdelta));
 
 	// Try to contract first index
-	const idx *self_idx = &ex_to_idx(self.op(1));
-	const idx *free_idx = &ex_to_idx(self.op(2));
+	const idx *self_idx = &ex_to_idx(self->op(1));
+	const idx *free_idx = &ex_to_idx(self->op(2));
 	bool first_index_tried = false;
 
 again:
 	if (self_idx->is_symbolic()) {
-		for (int i=1; i<other.nops(); i++) {
-			const idx &other_idx = ex_to_idx(other.op(i));
+		for (int i=1; i<other->nops(); i++) {
+			const idx &other_idx = ex_to_idx(other->op(i));
 			if (is_dummy_pair(*self_idx, other_idx)) {
 
 				// Contraction found, remove delta tensor and substitute
 				// index in second object
-				self = _ex1();
-				other = other.subs(other_idx == *free_idx);
+				*self = _ex1();
+				*other = other->subs(other_idx == *free_idx);
 				return true;
 			}
 		}
@@ -280,8 +280,8 @@ again:
 	if (!first_index_tried) {
 
 		// No contraction with first index found, try second index
-		self_idx = &ex_to_idx(self.op(2));
-		free_idx = &ex_to_idx(self.op(1));
+		self_idx = &ex_to_idx(self->op(2));
+		free_idx = &ex_to_idx(self->op(1));
 		first_index_tried = true;
 		goto again;
 	}
@@ -290,33 +290,33 @@ again:
 }
 
 /** Contraction of an indexed metric tensor with something else. */
-bool tensmetric::contract_with(ex & self, ex & other) const
+bool tensmetric::contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const
 {
-	GINAC_ASSERT(is_ex_of_type(self, indexed));
-	GINAC_ASSERT(is_ex_of_type(other, indexed));
-	GINAC_ASSERT(self.nops() == 3);
-	GINAC_ASSERT(is_ex_of_type(self.op(0), tensmetric));
+	GINAC_ASSERT(is_ex_of_type(*self, indexed));
+	GINAC_ASSERT(is_ex_of_type(*other, indexed));
+	GINAC_ASSERT(self->nops() == 3);
+	GINAC_ASSERT(is_ex_of_type(self->op(0), tensmetric));
 
 	// If contracting with the delta tensor, let the delta do it
 	// (don't raise/lower delta indices)
-	if (is_ex_exactly_of_type(other.op(0), tensdelta))
+	if (is_ex_exactly_of_type(other->op(0), tensdelta))
 		return false;
 
 	// Try to contract first index
-	const idx *self_idx = &ex_to_idx(self.op(1));
-	const idx *free_idx = &ex_to_idx(self.op(2));
+	const idx *self_idx = &ex_to_idx(self->op(1));
+	const idx *free_idx = &ex_to_idx(self->op(2));
 	bool first_index_tried = false;
 
 again:
 	if (self_idx->is_symbolic()) {
-		for (int i=1; i<other.nops(); i++) {
-			const idx &other_idx = ex_to_idx(other.op(i));
+		for (int i=1; i<other->nops(); i++) {
+			const idx &other_idx = ex_to_idx(other->op(i));
 			if (is_dummy_pair(*self_idx, other_idx)) {
 
 				// Contraction found, remove metric tensor and substitute
 				// index in second object
-				self = _ex1();
-				other = other.subs(other_idx == *free_idx);
+				*self = _ex1();
+				*other = other->subs(other_idx == *free_idx);
 				return true;
 			}
 		}
@@ -325,8 +325,8 @@ again:
 	if (!first_index_tried) {
 
 		// No contraction with first index found, try second index
-		self_idx = &ex_to_idx(self.op(2));
-		free_idx = &ex_to_idx(self.op(1));
+		self_idx = &ex_to_idx(self->op(2));
+		free_idx = &ex_to_idx(self->op(1));
 		first_index_tried = true;
 		goto again;
 	}
