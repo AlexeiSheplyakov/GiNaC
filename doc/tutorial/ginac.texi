@@ -291,7 +291,7 @@ can be expanded:
 > expand((1+3^(1/5)-3^(2/5))^3);
 10-5*3^(3/5)
 > evalf((1+3^(1/5)-3^(2/5))^3);
-0.33408977534118624238
+0.33408977534118624228
 @end example
 
 The function @code{evalf} that was used above converts any number in
@@ -317,11 +317,11 @@ numeric expressions (as an inexact number):
 > a=Pi^2+x;
 x+Pi^2
 > evalf(a);
-x+9.869604401089358619L0
+9.869604401089358619+x
 > x=2;
 2
 > evalf(a);
-11.869604401089358619L0
+11.869604401089358619
 @end example
 
 Built-in functions evaluate immediately to exact numbers if
@@ -348,7 +348,7 @@ a matrix class for this purpose but we can see what it can do using
 @example
 > lsolve(a+x*y==z,x);
 y^(-1)*(z-a);
-lsolve([3*x+5*y == 7, -2*x+10*y == -5], [x, y]);
+> lsolve([3*x+5*y == 7, -2*x+10*y == -5], [x, y]);
 [x==19/8,y==-1/40]
 > M = [[ [[1, 3]], [[-3, 2]] ]];
 [[ [[1,3]], [[-3,2]] ]]
@@ -391,8 +391,8 @@ x^(-1)-1/3*x+Order(x^2)
 x^(-1)-EulerGamma+(1/12*Pi^2+1/2*EulerGamma^2)*x
 +(-1/3*zeta(3)-1/12*Pi^2*EulerGamma-1/6*EulerGamma^3)*x^2+Order(x^3)
 > evalf(");
-x^(-1.0)-0.5772156649015328606+(0.98905599532797255544)*x
--(0.90747907608088628905)*x^2+Order(x^(3.0))
+x^(-1)-0.5772156649015328606+(0.9890559953279725555)*x
+-(0.90747907608088628905)*x^2+Order(x^3)
 > series(gamma(2*sin(x)-2),x,Pi/2,6);
 -(x-1/2*Pi)^(-2)+(-1/12*Pi^2-1/2*EulerGamma^2-1/240)*(x-1/2*Pi)^2
 -EulerGamma-1/12+Order((x-1/2*Pi)^3)
@@ -846,11 +846,13 @@ using namespace GiNaC;
 
 int main()
 @{
-    numeric two(2);                     // exact integer 2
-    numeric r(2,3);                     // exact fraction 2/3
-    numeric e(2.71828);                 // floating point number
-    numeric p("3.1415926535897932385"); // floating point number
-
+    numeric two(2);                       // exact integer 2
+    numeric r(2,3);                       // exact fraction 2/3
+    numeric e(2.71828);                   // floating point number
+    numeric p("3.1415926535897932385");   // floating point number
+    // Trott's constant in scientific notation:
+    numeric trott("1.0841015122311136151E-2");
+    
     cout << two*p << endl;  // floating point 6.283...
     // ...
 @}
