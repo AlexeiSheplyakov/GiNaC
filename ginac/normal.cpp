@@ -2046,7 +2046,8 @@ ex basic::to_rational(lst &repl_lst) const
 }
 
 
-/** Implementation of ex::to_rational() for symbols. This returns the unmodified symbol.
+/** Implementation of ex::to_rational() for symbols. This returns the
+ *  unmodified symbol.
  *  @see ex::to_rational */
 ex symbol::to_rational(lst &repl_lst) const
 {
@@ -2054,14 +2055,14 @@ ex symbol::to_rational(lst &repl_lst) const
 }
 
 
-/** Implementation of ex::to_rational() for a numeric. It splits complex numbers
- *  into re+I*im and replaces I and non-rational real numbers with a temporary
- *  symbol.
+/** Implementation of ex::to_rational() for a numeric. It splits complex
+ *  numbers into re+I*im and replaces I and non-rational real numbers with a
+ *  temporary symbol.
  *  @see ex::to_rational */
 ex numeric::to_rational(lst &repl_lst) const
 {
     if (is_real()) {
-        if (!is_integer())
+        if (!is_rational())
             return replace_with_symbol(*this, repl_lst);
     } else { // complex
         numeric re = real();
