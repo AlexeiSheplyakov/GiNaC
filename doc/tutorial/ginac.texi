@@ -1697,22 +1697,99 @@ expected:
 @end example
 
 @subsection Symmetries
+@cindex @code{symmetry} (class)
+@cindex @code{sy_none()}
+@cindex @code{sy_symm()}
+@cindex @code{sy_anti()}
+@cindex @code{sy_cycl()}
 
-Indexed objects can be declared as being totally symmetric or antisymmetric
-with respect to their indices. In this case, GiNaC will automatically bring
-the indices into a canonical order which allows for some immediate
-simplifications:
+Indexed objects can have certain symmetry properties with respect to their
+indices. Symmetries are specified as a tree of objects of class @code{symmetry}
+that is constructed with the helper functions
+
+@example
+symmetry sy_none(...);
+symmetry sy_symm(...);
+symmetry sy_anti(...);
+symmetry sy_cycl(...);
+@end example
+
+@code{sy_none()} stands for no symmetry, @code{sy_symm()} and @code{sy_anti()}
+specify fully symmetric or antisymmetric, respectively, and @code{sy_cycl()}
+represents a cyclic symmetry. Each of these functions accepts up to four
+arguments which can be either symmetry objects themselves or unsigned integer
+numbers that represent an index position (counting from 0). A symmetry
+specification that consists of only a single @code{sy_symm()}, @code{sy_anti()}
+or @code{sy_cycl()} with no arguments specifies the respective symmetry for
+all indices.
+
+Here are some examples of symmetry definitions:
 
 @example
     ...
-    cout << indexed(A, indexed::symmetric, i, j)
-          + indexed(A, indexed::symmetric, j, i) << endl;
+    // No symmetry:
+    e = indexed(A, i, j);
+    e = indexed(A, sy_none(), i, j);     // equivalent
+    e = indexed(A, sy_none(0, 1), i, j); // equivalent
+
+    // Symmetric in all three indices:
+    e = indexed(A, sy_symm(), i, j, k);
+    e = indexed(A, sy_symm(0, 1, 2), i, j, k); // equivalent
+    e = indexed(A, sy_symm(2, 0, 1), i, j, k); // same symmetry, but yields a
+                                               // different canonical order
+
+    // Symmetric in the first two indices only:
+    e = indexed(A, sy_symm(0, 1), i, j, k);
+    e = indexed(A, sy_none(sy_symm(0, 1), 2), i, j, k); // equivalent
+
+    // Antisymmetric in the first and last index only (index ranges need not
+    // be contiguous):
+    e = indexed(A, sy_anti(0, 2), i, j, k);
+    e = indexed(A, sy_none(sy_anti(0, 2), 1), i, j, k); // equivalent
+
+    // An example of a mixed symmetry: antisymmetric in the first two and
+    // last two indices, symmetric when swapping the first and last index
+    // pairs (like the Riemann curvature tensor):
+    e = indexed(A, sy_symm(sy_anti(0, 1), sy_anti(2, 3)), i, j, k, l);
+
+    // Cyclic symmetry in all three indices:
+    e = indexed(A, sy_cycl(), i, j, k);
+    e = indexed(A, sy_cycl(0, 1, 2), i, j, k); // equivalent
+
+    // The following examples are invalid constructions that will throw
+    // an exception at run time.
+
+    // An index may not appear multiple times:
+    e = indexed(A, sy_symm(0, 0, 1), i, j, k); // ERROR
+    e = indexed(A, sy_none(sy_symm(0, 1), sy_anti(0, 2)), i, j, k); // ERROR
+
+    // Every child of sy_symm(), sy_anti() and sy_cycl() must refer to the
+    // same number of indices:
+    e = indexed(A, sy_symm(sy_anti(0, 1), 2), i, j, k); // ERROR
+
+    // And of course, you cannot specify indices which are not there:
+    e = indexed(A, sy_symm(0, 1, 2, 3), i, j, k); // ERROR
+    ...
+@end example
+
+If you need to specify more than four indices, you have to use the
+@code{.add()} method of the @code{symmetry} class. For example, to specify
+full symmetry in the first six indices you would write
+@code{sy_symm(0, 1, 2, 3).add(4).add(5)}.
+
+If an indexed object has a symmetry, GiNaC will automatically bring the
+indices into a canonical order which allows for some immediate simplifications:
+
+@example
+    ...
+    cout << indexed(A, sy_symm(), i, j)
+          + indexed(A, sy_symm(), j, i) << endl;
      // -> 2*A.j.i
-    cout << indexed(B, indexed::antisymmetric, i, j)
-          + indexed(B, indexed::antisymmetric, j, j) << endl;
+    cout << indexed(B, sy_anti(), i, j)
+          + indexed(B, sy_anti(), j, i) << endl;
      // -> -B.j.i
-    cout << indexed(B, indexed::antisymmetric, i, j)
-          + indexed(B, indexed::antisymmetric, j, i) << endl;
+    cout << indexed(B, sy_anti(), i, j, k)
+          + indexed(B, sy_anti(), j, i, k) << endl;
      // -> 0
     ...
 @end example
@@ -2302,7 +2379,7 @@ QED:
            dirac_gamma(mu.toggle_variance()) *
            (dirac_slash(l, D) + m * dirac_ONE());   
     e = dirac_trace(e).simplify_indexed(sp);
-    e = e.collect(lst(l, ldotq, m), true);
+    e = e.collect(lst(l, ldotq, m));
     cout << e << endl;
      // -> (8-4*D)*l^2+(8-4*D)*ldotq+4*D*m^2
 @}
@@ -2477,6 +2554,7 @@ avoided.
 * Information About Expressions::
 * Substituting Expressions::
 * Pattern Matching and Advanced Substitutions::
+* Applying a Function on Subexpressions::
 * Polynomial Arithmetic::           Working with polynomials.
 * Rational Expressions::            Working with rational functions.
 * Symbolic Differentiation::
@@ -2755,7 +2833,7 @@ A more powerful form of substitution using wildcards is described in the
 next section.
 
 
-@node Pattern Matching and Advanced Substitutions, Polynomial Arithmetic, Substituting Expressions, Methods and Functions
+@node Pattern Matching and Advanced Substitutions, Applying a Function on Subexpressions, Substituting Expressions, Methods and Functions
 @c    node-name, next, previous, up
 @section Pattern matching and advanced substitutions
 @cindex @code{wildcard} (class)
@@ -2958,6 +3036,33 @@ Again some examples in @command{ginsh} for illustration (in @command{ginsh},
    contains a linear term you should use the coeff() function instead.)
 @end example
 
+@cindex @code{find()}
+The method
+
+@example
+bool ex::find(const ex & pattern, lst & found);
+@end example
+
+works a bit like @code{has()} but it doesn't stop upon finding the first
+match. Instead, it appends all found matches to the specified list. If there
+are multiple occurrences of the same expression, it is entered only once to
+the list. @code{find()} returns false if no matches were found (in
+@command{ginsh}, it returns an empty list):
+
+@example
+> find(1+x+x^2+x^3,x);
+@{x@}
+> find(1+x+x^2+x^3,y);
+@{@}
+> find(1+x+x^2+x^3,x^$1);
+@{x^3,x^2@}
+  (Note the absence of "x".)
+> expand((sin(x)+sin(y))*(a+b));
+sin(y)*a+sin(x)*b+sin(x)*a+sin(y)*b
+> find(",sin($1));
+@{sin(y),sin(x)@}
+@end example
+
 @cindex @code{subs()}
 Probably the most useful application of patterns is to use them for
 substituting expressions with the @code{subs()} method. Wildcards can be
@@ -3001,7 +3106,115 @@ The last example would be written in C++ in this way:
 @end example
 
 
-@node Polynomial Arithmetic, Rational Expressions, Pattern Matching and Advanced Substitutions, Methods and Functions
+@node Applying a Function on Subexpressions, Polynomial Arithmetic, Pattern Matching and Advanced Substitutions, Methods and Functions
+@c    node-name, next, previous, up
+@section Applying a Function on Subexpressions
+@cindex Tree traversal
+@cindex @code{map()}
+
+Sometimes you may want to perform an operation on specific parts of an
+expression while leaving the general structure of it intact. An example
+of this would be a matrix trace operation: the trace of a sum is the sum
+of the traces of the individual terms. That is, the trace should @dfn{map}
+on the sum, by applying itself to each of the sum's operands. It is possible
+to do this manually which usually results in code like this:
+
+@example
+ex calc_trace(ex e)
+@{
+    if (is_a<matrix>(e))
+        return ex_to<matrix>(e).trace();
+    else if (is_a<add>(e)) @{
+        ex sum = 0;
+        for (unsigned i=0; i<e.nops(); i++)
+            sum += calc_trace(e.op(i));
+        return sum;
+    @} else if (is_a<mul>)(e)) @{
+        ...
+    @} else @{
+        ...
+    @}
+@}
+@end example
+
+This is, however, slightly inefficient (if the sum is very large it can take
+a long time to add the terms one-by-one), and its applicability is limited to
+a rather small class of expressions. If @code{calc_trace()} is called with
+a relation or a list as its argument, you will probably want the trace to
+be taken on both sides of the relation or of all elements of the list.
+
+GiNaC offers the @code{map()} method to aid in the implementation of such
+operations:
+
+@example
+static ex ex::map(map_function & f) const;
+static ex ex::map(ex (*f)(const ex & e)) const;
+@end example
+
+In the first (preferred) form, @code{map()} takes a function object that
+is subclassed from the @code{map_function} class. In the second form, it
+takes a pointer to a function that accepts and returns an expression.
+@code{map()} constructs a new expression of the same type, applying the
+specified function on all subexpressions (in the sense of @code{op()}),
+non-recursively.
+
+The use of a function object makes it possible to supply more arguments to
+the function that is being mapped, or to keep local state information.
+The @code{map_function} class declares a virtual function call operator
+that you can overload. Here is a sample implementation of @code{calc_trace()}
+that uses @code{map()} in a recursive fashion:
+
+@example
+struct calc_trace : public map_function @{
+    ex operator()(const ex &e)
+    @{
+        if (is_a<matrix>(e))
+            return ex_to<matrix>(e).trace();
+        else if (is_a<mul>(e)) @{
+            ...
+        @} else
+            return e.map(*this);
+    @}
+@};
+@end example
+
+This function object could then be used like this:
+
+@example
+@{
+    ex M = ... // expression with matrices
+    calc_trace do_trace;
+    ex tr = do_trace(M);
+@}
+@end example
+
+@command{ginsh} offers a slightly different implementation of @code{map()}
+that allows applying algebraic functions to operands. The second argument
+to @code{map()} is an expression containing the wildcard @samp{$0} which
+acts as the placeholder for the operands:
+
+@example
+> map(a*b,sin($0));
+sin(a)*sin(b)
+> map(a+2*b,sin($0));
+sin(a)+sin(2*b)
+> map(@{a,b,c@},$0^2+$0);
+@{a^2+a,b^2+b,c^2+c@}
+@end example
+
+Note that it is only possible to use algebraic functions in the second
+argument. You can not use functions like @samp{diff()}, @samp{op()},
+@samp{subs()} etc. because these are evaluated immediately:
+
+@example
+> map(@{a,b,c@},diff($0,a));
+@{0,0,0@}
+  This is because "diff($0,a)" evaluates to "0", so the command is equivalent
+  to "map(@{a,b,c@},0)".
+@end example
+
+
+@node Polynomial Arithmetic, Rational Expressions, Applying a Function on Subexpressions, Methods and Functions
 @c    node-name, next, previous, up
 @section Polynomial arithmetic
 
@@ -3046,8 +3259,25 @@ case the result is either a recursively collected polynomial, or a polynomial
 in a distributed form with terms like @math{c*x1^e1*...*xn^en}, as specified
 by the @code{distributed} flag.
 
-Note that the original polynomial needs to be in expanded form in order
-for @code{collect()} to be able to find the coefficients properly.
+Note that the original polynomial needs to be in expanded form (for the
+variables concerned) in order for @code{collect()} to be able to find the
+coefficients properly.
+
+The following @command{ginsh} transcript shows an application of @code{collect()}
+together with @code{find()}:
+
+@example
+> a=expand((sin(x)+sin(y))*(1+p+q)*(1+d));
+d*p*sin(x)+p*sin(x)+q*d*sin(x)+q*sin(y)+d*sin(x)+q*d*sin(y)+sin(y)+d*sin(y)+q*sin(x)+d*sin(y)*p+sin(x)+sin(y)*p
+> collect(a,@{p,q@});
+d*sin(x)+(d*sin(x)+sin(y)+d*sin(y)+sin(x))*p+(d*sin(x)+sin(y)+d*sin(y)+sin(x))*q+sin(y)+d*sin(y)+sin(x)
+> collect(a,find(a,sin($1)));
+(1+q+d+q*d+d*p+p)*sin(y)+(1+q+d+q*d+d*p+p)*sin(x)
+> collect(a,@{find(a,sin($1)),p,q@});
+(1+(1+d)*p+d+q*(1+d))*sin(x)+(1+(1+d)*p+d+q*(1+d))*sin(y)
+> collect(a,@{find(a,sin($1)),d@});
+(1+q+d*(1+q+p)+p)*sin(y)+(1+q+d*(1+q+p)+p)*sin(x)
+@end example
 
 @subsection Degree and coefficients
 @cindex @code{degree()}
@@ -3804,6 +4034,7 @@ will print out:
     @{(-\ln(x))@}+@{(-\gamma_E)@} x+@{(1/12 \pi^2)@} x^@{2@}+\mathcal@{O@}(x^3)
 @end example
 
+@cindex Tree traversal
 If you need any fancy special output format, e.g. for interfacing GiNaC
 with other algebra systems or for producing code for different
 programming languages, you can always traverse the expression tree yourself:
