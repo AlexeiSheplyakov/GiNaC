@@ -1543,7 +1543,7 @@ ex idx::get_dimension(void);
 return the value and dimension of an @code{idx} object. If you have an index
 in an expression, such as returned by calling @code{.op()} on an indexed
 object, you can get a reference to the @code{idx} object with the function
-@code{ex_to_idx()} on the expression.
+@code{ex_to<idx>()} on the expression.
 
 There are also the methods
 
@@ -1586,7 +1586,7 @@ bool varidx::is_covariant(void);
 bool varidx::is_contravariant(void);
 @end example
 
-allow you to check the variance of a @code{varidx} object (use @code{ex_to_varidx()}
+allow you to check the variance of a @code{varidx} object (use @code{ex_to<varidx>()}
 to get the object reference from an expression). There's also the very useful
 method
 
@@ -1630,7 +1630,7 @@ bool spinidx::is_undotted(void);
 @end example
 
 allow you to check whether or not a @code{spinidx} object is dotted (use
-@code{ex_to_spinidx()} to get the object reference from an expression).
+@code{ex_to<spinidx>()} to get the object reference from an expression).
 Finally, the two methods
 
 @example
@@ -2492,41 +2492,42 @@ avoided.
 @section Getting information about expressions
 
 @subsection Checking expression types
-@cindex @code{is_ex_of_type()}
-@cindex @code{ex_to_numeric()}
-@cindex @code{ex_to_@dots{}}
-@cindex @code{Converting ex to other classes}
+@cindex @code{is_a<@dots{}>()}
+@cindex @code{is_exactly_a<@dots{}>()}
+@cindex @code{ex_to<@dots{}>()}
+@cindex Converting @code{ex} to other classes
 @cindex @code{info()}
 @cindex @code{return_type()}
 @cindex @code{return_type_tinfo()}
 
 Sometimes it's useful to check whether a given expression is a plain number,
 a sum, a polynomial with integer coefficients, or of some other specific type.
-GiNaC provides a couple of functions for this (the first one is actually a macro):
+GiNaC provides a couple of functions for this:
 
 @example
-bool is_ex_of_type(const ex & e, TYPENAME t);
+bool is_a<T>(const ex & e);
+bool is_exactly_a<T>(const ex & e);
 bool ex::info(unsigned flag);
 unsigned ex::return_type(void) const;
 unsigned ex::return_type_tinfo(void) const;
 @end example
 
-When the test made by @code{is_ex_of_type()} returns true, it is safe to
-call one of the functions @code{ex_to_@dots{}}, where @code{@dots{}} is
-one of the class names (@xref{The Class Hierarchy}, for a list of all
-classes). For example, assuming @code{e} is an @code{ex}:
+When the test made by @code{is_a<T>()} returns true, it is safe to call
+one of the functions @code{ex_to<T>()}, where @code{T} is one of the
+class names (@xref{The Class Hierarchy}, for a list of all classes). For
+example, assuming @code{e} is an @code{ex}:
 
 @example
 @{
     @dots{}
-    if (is_ex_of_type(e, numeric))
-        numeric n = ex_to_numeric(e);
+    if (is_a<numeric>(e))
+        numeric n = ex_to<numeric>(e);
     @dots{}
 @}
 @end example
 
-@code{is_ex_of_type()} allows you to check whether the top-level object of
-an expression @samp{e} is an instance of the GiNaC class @samp{t}
+@code{is_a<T>(e)} allows you to check whether the top-level object of
+an expression @samp{e} is an instance of the GiNaC class @samp{T}
 (@xref{The Class Hierarchy}, for a list of all classes). This is most useful,
 e.g., for checking whether an expression is a number, a sum, or a product:
 
@@ -2535,14 +2536,18 @@ e.g., for checking whether an expression is a number, a sum, or a product:
     symbol x("x");
     ex e1 = 42;
     ex e2 = 4*x - 3;
-    is_ex_of_type(e1, numeric);  // true
-    is_ex_of_type(e2, numeric);  // false
-    is_ex_of_type(e1, add);      // false
-    is_ex_of_type(e2, add);      // true
-    is_ex_of_type(e1, mul);      // false
-    is_ex_of_type(e2, mul);      // false
+    is_a<numeric>(e1);  // true
+    is_a<numeric>(e2);  // false
+    is_a<add>(e1);      // false
+    is_a<add>(e2);      // true
+    is_a<mul>(e1);      // false
+    is_a<mul>(e2);      // false
 @}
 @end example
+
+In contrast, @code{is_exactly_a<T>(e)} allows you to check whether the
+top-level object of an expression @samp{e} is an instance of the GiNaC
+class @samp{T}, not including parent classes.
 
 The @code{info()} method is used for checking certain attributes of
 expressions. The possible values for the @code{flag} argument are defined
@@ -2553,7 +2558,7 @@ table:
 @multitable @columnfractions .30 .70
 @item @strong{Flag} @tab @strong{Returns true if the object is@dots{}}
 @item @code{numeric}
-@tab @dots{}a number (same as @code{is_ex_of_type(..., numeric)})
+@tab @dots{}a number (same as @code{is_<numeric>(...)})
 @item @code{real}
 @tab @dots{}a real integer, rational or float (i.e. is not complex)
 @item @code{rational}
@@ -2583,7 +2588,7 @@ table:
 @item @code{prime}
 @tab @dots{}a prime integer (probabilistic primality test)
 @item @code{relation}
-@tab @dots{}a relation (same as @code{is_ex_of_type(..., relational)})
+@tab @dots{}a relation (same as @code{is_a<relational>(...)})
 @item @code{relation_equal}
 @tab @dots{}a @code{==} relation
 @item @code{relation_not_equal}
@@ -2597,9 +2602,9 @@ table:
 @item @code{relation_greater_or_equal}
 @tab @dots{}a @code{>=} relation
 @item @code{symbol}
-@tab @dots{}a symbol (same as @code{is_ex_of_type(..., symbol)})
+@tab @dots{}a symbol (same as @code{is_a<symbol>(...)})
 @item @code{list}
-@tab @dots{}a list (same as @code{is_ex_of_type(..., lst)})
+@tab @dots{}a list (same as @code{is_a<lst>(...)})
 @item @code{polynomial}
 @tab @dots{}a polynomial (i.e. only consists of sums and products of numbers and symbols with positive integer powers)
 @item @code{integer_polynomial}
@@ -3806,8 +3811,8 @@ programming languages, you can always traverse the expression tree yourself:
 @example
 static void my_print(const ex & e)
 @{
-    if (is_ex_of_type(e, function))
-        cout << ex_to_function(e).get_name();
+    if (is_a<function>(e))
+        cout << ex_to<function>(e).get_name();
     else
         cout << e.bp->class_name();
     cout << "(";
@@ -4154,7 +4159,7 @@ function that does so, in this case the one in class @code{numeric}:
 @example
 static ex cos_evalf(const ex & x)
 @{
-    return cos(ex_to_numeric(x));
+    return cos(ex_to<numeric>(x));
 @}
 @end example
 
@@ -4323,7 +4328,7 @@ private:
     string str;
 @};
 
-GIANC_IMPLEMENT_REGISTERED_CLASS(mystring, basic)
+GINAC_IMPLEMENT_REGISTERED_CLASS(mystring, basic)
 @end example
 
 The @code{GINAC_DECLARE_REGISTERED_CLASS} and @code{GINAC_IMPLEMENT_REGISTERED_CLASS}
@@ -4552,7 +4557,7 @@ strings in algebraic expressions. Let's confirm that the RTTI works:
 
 @example
 ex e = mystring("Hello, world!");
-cout << is_ex_of_type(e, mystring) << endl;
+cout << is_a<mystring>(e) << endl;
  // -> 1 (true)
 
 cout << e.bp->class_name() << endl;
@@ -4702,19 +4707,12 @@ implement for terminal classes like the described string class is
 which will allow GiNaC to compare and canonicalize expressions much more
 efficiently.
 
-You can, of course, also add your own new member functions. In this case you
-will probably want to define a little helper function like
-
-@example
-inline const mystring &ex_to_mystring(const ex &e)
-@{
-    return static_cast<const mystring &>(*e.bp);
-@}
-@end example
-
-that let's you get at the object inside an expression (after you have
-verified that the type is correct) so you can call member functions that are
-specific to the class.
+You can, of course, also add your own new member functions. Remember,
+that the RTTI may be used to get information about what kinds of objects
+you are dealing with (the position in the class hierarchy) and that you
+can always extract the bare object from an @code{ex} by stripping the
+@code{ex} off using the @code{ex_to<mystring>(e)} function when that
+should become a need.
 
 That's it. May the source be with you!
 
