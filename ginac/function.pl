@@ -59,8 +59,8 @@ $typedef_evalf_funcp=generate(
 'typedef ex (* evalf_funcp_${N})(${SEQ1});'."\n",
 'const ex &','');
 
-$typedef_diff_funcp=generate(
-'typedef ex (* diff_funcp_${N})(${SEQ1}, unsigned);'."\n",
+$typedef_derivative_funcp=generate(
+'typedef ex (* derivative_funcp_${N})(${SEQ1}, unsigned);'."\n",
 'const ex &','');
 
 $typedef_series_funcp=generate(
@@ -73,7 +73,7 @@ $constructors_interface=generate(
 
 $register_new_interface=generate(
 '    static unsigned register_new(const char * nm, eval_funcp_${N} e,'."\n".
-'                                 evalf_funcp_${N} ef=0, diff_funcp_${N} d=0, series_funcp_${N} s=0);'.
+'                                 evalf_funcp_${N} ef=0, derivative_funcp_${N} d=0, series_funcp_${N} s=0);'.
 "\n",'','');
 
 $constructors_implementation=generate(
@@ -103,7 +103,7 @@ END_OF_EVALF_SWITCH_STATEMENT
 $diff_switch_statement=generate(
     <<'END_OF_DIFF_SWITCH_STATEMENT','seq[${N}-1]','');
     case ${N}:
-        return ((diff_funcp_${N})(registered_functions()[serial].d))(${SEQ1},diff_param);
+        return ((derivative_funcp_${N})(registered_functions()[serial].d))(${SEQ1},diff_param);
         break;
 END_OF_DIFF_SWITCH_STATEMENT
 
@@ -122,10 +122,10 @@ END_OF_SERIES_SWITCH_STATEMENT
 $register_new_implementation=generate(
     <<'END_OF_REGISTER_NEW_IMPLEMENTATION','','');
 unsigned function::register_new(const char * nm, eval_funcp_${N} e,
-                                 evalf_funcp_${N} ef, diff_funcp_${N} d, series_funcp_${N} s)
+                                 evalf_funcp_${N} ef, derivative_funcp_${N} d, series_funcp_${N} s)
 {
     registered_function_info rfi={nm,${N},0,eval_funcp(e),
-                                  evalf_funcp(ef),diff_funcp(d),series_funcp(s)};
+                                  evalf_funcp(ef),derivative_funcp(d),series_funcp(s)};
     registered_functions().push_back(rfi);
     return registered_functions().size()-1;
 }
@@ -235,13 +235,13 @@ class function;
 
 typedef ex (* eval_funcp)();
 typedef ex (* evalf_funcp)();
-typedef ex (* diff_funcp)();
+typedef ex (* derivative_funcp)();
 typedef ex (* series_funcp)();
 
 // the following lines have been generated for max. ${maxargs} parameters
 $typedef_eval_funcp
 $typedef_evalf_funcp
-$typedef_diff_funcp
+$typedef_derivative_funcp
 $typedef_series_funcp
 // end of generated lines
 
@@ -251,7 +251,7 @@ struct registered_function_info {
     unsigned options;
     eval_funcp e;
     evalf_funcp ef;
-    diff_funcp d;
+    derivative_funcp d;
     series_funcp s;
 };
 

@@ -302,11 +302,16 @@ ex basic::subs(const lst & ls, const lst & lr) const
  *  @see ex::diff */
 ex basic::diff(const symbol & s, unsigned nth) const
 {
-    // FIXME: Check if it is evaluated!
+    // trivial: zeroth derivative
     if (!nth)
         return ex(*this);
+    
+    // evaluate unevalueted *this before differentiating
+    if (!(flags & status_flags::evaluated))
+        return ex(*this).diff(s, nth);
+    
     ex ndiff = derivative(s);
-    while (!ndiff.is_zero() &&    // stop differentiating zeroes
+    while (!ndiff.is_zero() &&    // stop differentiating zeros
            nth>1) {
         ndiff = ndiff.diff(s);
         --nth;
