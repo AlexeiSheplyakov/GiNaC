@@ -67,10 +67,10 @@ static ex conjugate_conjugate(const ex & arg)
 }
 
 REGISTER_FUNCTION(conjugate_function, eval_func(conjugate_eval).
-                       evalf_func(conjugate_evalf).
-                       print_func<print_latex>(conjugate_print_latex).
-                       conjugate_func(conjugate_conjugate).
-                       set_name("conjugate","conjugate"));
+                                      evalf_func(conjugate_evalf).
+                                      print_func<print_latex>(conjugate_print_latex).
+                                      conjugate_func(conjugate_conjugate).
+                                      set_name("conjugate","conjugate"));
 
 //////////
 // absolute value

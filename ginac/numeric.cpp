@@ -1683,7 +1683,7 @@ const numeric bernoulli(const numeric &nn)
 	if (n & 1)
 		return (n==1) ? _num_1_2 : _num0;
 	if (!n)
-		 return _num1;
+		return _num1;
 
 	// store nonvanishing Bernoulli numbers here
 	static std::vector< cln::cl_RA > results;

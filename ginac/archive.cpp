@@ -188,9 +188,9 @@ static unsigned read_unsigned(std::istream &is)
 	unsigned ret = 0;
 	unsigned shift = 0;
 	do {
-        char b2;
+		char b2;
 		is.get(b2);
-        b = b2;
+		b = b2;
 		ret |= (b & 0x7f) << shift;
 		shift += 7;
 	} while (b & 0x80);

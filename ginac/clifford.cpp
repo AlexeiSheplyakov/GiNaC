@@ -1087,7 +1087,7 @@ ex lst_to_clifford(const ex & v, const ex & e) {
 	} else
 		throw(std::invalid_argument("The second argument should be a Clifford unit"));
 }
- 
+
 /** Auxiliary structure to define a function for striping one Clifford unit
  * from vectors. Used in  clifford_to_lst(). */
 static ex get_clifford_comp(const ex & e, const ex & c) 

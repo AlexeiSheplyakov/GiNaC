@@ -448,7 +448,7 @@ unsigned add::return_type() const
 	else
 		return seq.begin()->rest.return_type();
 }
-   
+
 unsigned add::return_type_tinfo() const
 {
 	if (seq.empty())
