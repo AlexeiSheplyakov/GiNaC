@@ -27,20 +27,17 @@
 static unsigned exam_expand_subs(void)
 {
 	unsigned result = 0;
-	symbol a1("a1");
 	symbol a[VECSIZE];
 	ex e, aux;
 	
-	a[1] = a1;
-	for (unsigned i=0; i<VECSIZE; ++i) {
+	for (unsigned i=0; i<VECSIZE; ++i)
 		e = e + a[i];
-	}
 	
 	// prepare aux so it will swallow anything but a1^2:
 	aux = -e + a[0] + a[1];
 	e = expand(subs(expand(pow(e, 2)), a[0] == aux));
 	
-	if (e != pow(a1,2)) {
+	if (e != pow(a[1],2)) {
 		clog << "Denny Fliegner's quick consistency check erroneously returned "
 		     << e << "." << endl;
 		++result;
