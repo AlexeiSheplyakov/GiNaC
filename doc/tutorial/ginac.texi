@@ -1105,8 +1105,16 @@ gamma(x+1/2) -> gamma(x+1/2)
 gamma(15/2) -> (135135/128)*Pi^(1/2)
 @end example
 
-Most of these functions can be differentiated, series expanded and so
-on.  Read the next chapter in order to learn more about this.
+@cindex branch cut
+For functions that have a branch cut in the complex plane GiNaC follows
+the conventions for C++ as defined in the ANSI standard.  In particular:
+the natural logarithm (@code{log}) and the square root (@code{sqrt})
+both have their branch cuts running along the negative real axis where
+the points on the axis itself belong to the upper part.
+
+Besides evaluation most of these functions allow differentiation, series
+expansion and so on.  Read the next chapter in order to learn more about
+this.
 
 
 @node Relations, Important Algorithms, Built-in functions, Basic Concepts
