@@ -208,14 +208,13 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 	GINAC_ASSERT(is_a<indexed>(*other));
 	GINAC_ASSERT(is_a<diracgamma>(self->op(0)));
 	unsigned char rl = ex_to<clifford>(*self).get_representation_label();
+	ex dim = ex_to<idx>(self->op(1)).get_dim();
 
 	if (is_a<clifford>(*other)) {
 
 		// Contraction only makes sense if the represenation labels are equal
 		if (ex_to<clifford>(*other).get_representation_label() != rl)
 			return false;
-
-		ex dim = ex_to<idx>(self->op(1)).get_dim();
 
 		// gamma~mu gamma.mu = dim ONE
 		if (other - self == 1) {
@@ -278,6 +277,13 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 			*other = _ex1;
 			return true;
 		}
+
+	} else if (is_a<symbol>(other->op(0)) && other->nops() == 2) {
+
+		// x.mu gamma~mu -> x-slash
+		*self = dirac_slash(other->op(0), dim, rl);
+		*other = _ex1;
+		return true;
 	}
 
 	return false;
@@ -718,7 +724,7 @@ ex canonicalize_clifford(const ex & e)
 
 			// Stupid recursive bubble sort because we only want to swap adjacent gammas
 			exvector::iterator it = v.begin(), next_to_last = v.end() - 1;
-			if (is_a<diracgamma5>(it->op(0)))
+			if (is_a<diracgamma5>(it->op(0)) || is_a<diracgammaL>(it->op(0)) || is_a<diracgammaR>(it->op(0)))
 				++it;
 			while (it != next_to_last) {
 				if (it[0].compare(it[1]) > 0) {
