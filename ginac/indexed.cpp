@@ -235,7 +235,7 @@ bool indexed::info(unsigned inf) const
 
 struct idx_is_not : public std::binary_function<ex, unsigned, bool> {
 	bool operator() (const ex & e, unsigned inf) const {
-		return !(ex_to_idx(e).get_value().info(inf));
+		return !(ex_to<idx>(e).get_value().info(inf));
 	}
 };
 
@@ -259,7 +259,7 @@ ex indexed::eval(int level) const
 {
 	// First evaluate children, then we will end up here again
 	if (level > 1)
-		return indexed(ex_to_symmetry(symtree), evalchildren(level));
+		return indexed(ex_to<symmetry>(symtree), evalchildren(level));
 
 	const ex &base = seq[0];
 
@@ -270,7 +270,7 @@ ex indexed::eval(int level) const
 	// If the base object is a product, pull out the numeric factor
 	if (is_ex_exactly_of_type(base, mul) && is_ex_exactly_of_type(base.op(base.nops() - 1), numeric)) {
 		exvector v(seq);
-		ex f = ex_to_numeric(base.op(base.nops() - 1));
+		ex f = ex_to<numeric>(base.op(base.nops() - 1));
 		v[0] = seq[0] / f;
 		return f * thisexprseq(v);
 	}
@@ -279,7 +279,7 @@ ex indexed::eval(int level) const
 	if (seq.size() > 2) {
 		exvector v = seq;
 		GINAC_ASSERT(is_ex_exactly_of_type(symtree, symmetry));
-		int sig = canonicalize(v.begin() + 1, ex_to_symmetry(symtree));
+		int sig = canonicalize(v.begin() + 1, ex_to<symmetry>(symtree));
 		if (sig != INT_MAX) {
 			// Something has changed while sorting indices, more evaluations later
 			if (sig == 0)
@@ -312,12 +312,12 @@ ex indexed::coeff(const ex & s, int n) const
 
 ex indexed::thisexprseq(const exvector & v) const
 {
-	return indexed(ex_to_symmetry(symtree), v);
+	return indexed(ex_to<symmetry>(symtree), v);
 }
 
 ex indexed::thisexprseq(exvector * vp) const
 {
-	return indexed(ex_to_symmetry(symtree), vp);
+	return indexed(ex_to<symmetry>(symtree), vp);
 }
 
 ex indexed::expand(unsigned options) const
@@ -363,7 +363,7 @@ void indexed::printindices(const print_context & c, unsigned level) const
 			bool covariant = true;
 
 			while (it != itend) {
-				bool cur_covariant = (is_ex_of_type(*it, varidx) ? ex_to_varidx(*it).is_covariant() : true);
+				bool cur_covariant = (is_ex_of_type(*it, varidx) ? ex_to<varidx>(*it).is_covariant() : true);
 				if (first || cur_covariant != covariant) {
 					if (!first)
 						c.s << "}";
@@ -617,7 +617,7 @@ try_again:
 		// Indexed factor found, get free indices and look for contraction
 		// candidates
 		exvector free1, dummy1;
-		find_free_and_dummy(ex_to_indexed(*it1).seq.begin() + 1, ex_to_indexed(*it1).seq.end(), free1, dummy1);
+		find_free_and_dummy(ex_to<indexed>(*it1).seq.begin() + 1, ex_to<indexed>(*it1).seq.end(), free1, dummy1);
 
 		exvector::iterator it2;
 		for (it2 = it1 + 1; it2 != itend; it2++) {
@@ -630,7 +630,7 @@ try_again:
 			// Find free indices of second factor and merge them with free
 			// indices of first factor
 			exvector un;
-			find_free_and_dummy(ex_to_indexed(*it2).seq.begin() + 1, ex_to_indexed(*it2).seq.end(), un, dummy1);
+			find_free_and_dummy(ex_to<indexed>(*it2).seq.begin() + 1, ex_to<indexed>(*it2).seq.end(), un, dummy1);
 			un.insert(un.end(), free1.begin(), free1.end());
 
 			// Check whether the two factors share dummy indices
@@ -651,8 +651,8 @@ try_again:
 
 			// Contraction of symmetric with antisymmetric object is zero
 			if (dummy.size() > 1
-			 && ex_to_symmetry(ex_to_indexed(*it1).symtree).has_symmetry()
-			 && ex_to_symmetry(ex_to_indexed(*it2).symtree).has_symmetry()) {
+			 && ex_to<symmetry>(ex_to<indexed>(*it1).symtree).has_symmetry()
+			 && ex_to<symmetry>(ex_to<indexed>(*it2).symtree).has_symmetry()) {
 
 				// Check all pairs of dummy indices
 				for (unsigned idx1=0; idx1<dummy.size()-1; idx1++) {
@@ -713,7 +713,7 @@ contraction_done:
 		exvector free_indices_of_factor;
 		if (is_ex_of_type(*it1, indexed)) {
 			exvector dummy_indices_of_factor;
-			find_free_and_dummy(ex_to_indexed(*it1).seq.begin() + 1, ex_to_indexed(*it1).seq.end(), free_indices_of_factor, dummy_indices_of_factor);
+			find_free_and_dummy(ex_to<indexed>(*it1).seq.begin() + 1, ex_to<indexed>(*it1).seq.end(), free_indices_of_factor, dummy_indices_of_factor);
 			individual_dummy_indices.insert(individual_dummy_indices.end(), dummy_indices_of_factor.begin(), dummy_indices_of_factor.end());
 		} else
 			free_indices_of_factor = it1->get_free_indices();
@@ -736,7 +736,7 @@ contraction_done:
 	// Product of indexed object with a scalar?
 	if (is_ex_exactly_of_type(r, mul) && r.nops() == 2
 	 && is_ex_exactly_of_type(r.op(1), numeric) && is_ex_of_type(r.op(0), indexed))
-		return r.op(0).op(0).bp->scalar_mul_indexed(r.op(0), ex_to_numeric(r.op(1)));
+		return r.op(0).op(0).bp->scalar_mul_indexed(r.op(0), ex_to<numeric>(r.op(1)));
 	else
 		return r;
 }
@@ -750,7 +750,7 @@ ex simplify_indexed(const ex & e, exvector & free_indices, exvector & dummy_indi
 	// Simplification of single indexed object: just find the free indices
 	// and perform dummy index renaming
 	if (is_ex_of_type(e_expanded, indexed)) {
-		const indexed &i = ex_to_indexed(e_expanded);
+		const indexed &i = ex_to<indexed>(e_expanded);
 		exvector local_dummy_indices;
 		find_free_and_dummy(i.seq.begin() + 1, i.seq.end(), free_indices, local_dummy_indices);
 		return rename_dummy_indices(e_expanded, dummy_indices, local_dummy_indices);

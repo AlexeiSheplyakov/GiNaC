@@ -102,7 +102,7 @@ public:
 
 // global functions
 
-/** Return the clifford object handled by an ex.
+/** Return the clifford object handled by an ex.  Deprecated: use ex_to<clifford>().
  *  This is unsafe: you need to check the type first. */
 inline const clifford &ex_to_clifford(const ex &e)
 {

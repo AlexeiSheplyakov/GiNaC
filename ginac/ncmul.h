@@ -89,7 +89,7 @@ ex simplified_ncmul(const exvector & v);
 
 // utility functions
 
-/** Return the ncmul object handled by an ex.
+/** Return the ncmul object handled by an ex.  Deprecated: use ex_to<ncmul>().
  *  This is unsafe: you need to check the type first. */
 inline const ncmul &ex_to_ncmul(const ex &e)
 {

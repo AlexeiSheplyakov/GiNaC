@@ -116,7 +116,7 @@ public:
 
 // global functions
 
-/** Return the color object handled by an ex.
+/** Return the color object handled by an ex.  Deprecated: use ex_to<color>().
  *  This is unsafe: you need to check the type first. */
 inline const color &ex_to_color(const ex &e)
 {

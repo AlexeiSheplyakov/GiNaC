@@ -46,7 +46,7 @@ static ex exp_evalf(const ex & x)
 		TYPECHECK(x,numeric)
 	END_TYPECHECK(exp(x))
 	
-	return exp(ex_to_numeric(x)); // -> numeric exp(numeric)
+	return exp(ex_to<numeric>(x)); // -> numeric exp(numeric)
 }
 
 static ex exp_eval(const ex & x)
@@ -58,7 +58,7 @@ static ex exp_eval(const ex & x)
 	// exp(n*Pi*I/2) -> {+1|+I|-1|-I}
 	ex TwoExOverPiI=(_ex2()*x)/(Pi*I);
 	if (TwoExOverPiI.info(info_flags::integer)) {
-		numeric z=mod(ex_to_numeric(TwoExOverPiI),_num4());
+		numeric z=mod(ex_to<numeric>(TwoExOverPiI),_num4());
 		if (z.is_equal(_num0()))
 			return _ex1();
 		if (z.is_equal(_num1()))
@@ -102,7 +102,7 @@ static ex log_evalf(const ex & x)
 		TYPECHECK(x,numeric)
 	END_TYPECHECK(log(x))
 	
-	return log(ex_to_numeric(x)); // -> numeric log(numeric)
+	return log(ex_to<numeric>(x)); // -> numeric log(numeric)
 }
 
 static ex log_eval(const ex & x)
@@ -126,7 +126,7 @@ static ex log_eval(const ex & x)
 	if (is_ex_the_function(x, exp)) {
 		ex t = x.op(0);
 		if (t.info(info_flags::numeric)) {
-			numeric nt = ex_to_numeric(t);
+			numeric nt = ex_to<numeric>(t);
 			if (nt.is_real())
 				return t;
 		}
@@ -170,7 +170,7 @@ static ex log_series(const ex &arg,
 		// Return a plain n*log(x) for the x^n part and series expand the
 		// other part.  Add them together and reexpand again in order to have
 		// one unnested pseries object.  All this also works for negative n.
-		const pseries argser = ex_to_pseries(arg.series(rel, order, options));
+		const pseries argser = ex_to<pseries>(arg.series(rel, order, options));
 		const symbol *s = static_cast<symbol *>(rel.lhs().bp);
 		const ex point = rel.rhs();
 		const int n = argser.ldegree(*s);
@@ -186,8 +186,8 @@ static ex log_series(const ex &arg,
 		if (!argser.is_terminating() || argser.nops()!=1) {
 			// in this case n more terms are needed
 			// (sadly, to generate them, we have to start from the beginning)
-			ex newarg = ex_to_pseries((arg/coeff).series(rel, order+n, options)).shift_exponents(-n).convert_to_poly(true);
-			return pseries(rel, seq).add_series(ex_to_pseries(log(newarg).series(rel, order, options)));
+			ex newarg = ex_to<pseries>((arg/coeff).series(rel, order+n, options)).shift_exponents(-n).convert_to_poly(true);
+			return pseries(rel, seq).add_series(ex_to<pseries>(log(newarg).series(rel, order, options)));
 		} else  // it was a monomial
 			return pseries(rel, seq);
 	}
@@ -224,7 +224,7 @@ static ex sin_evalf(const ex & x)
 	   TYPECHECK(x,numeric)
 	END_TYPECHECK(sin(x))
 	
-	return sin(ex_to_numeric(x)); // -> numeric sin(numeric)
+	return sin(ex_to<numeric>(x)); // -> numeric sin(numeric)
 }
 
 static ex sin_eval(const ex & x)
@@ -233,7 +233,7 @@ static ex sin_eval(const ex & x)
 	ex SixtyExOverPi = _ex60()*x/Pi;
 	ex sign = _ex1();
 	if (SixtyExOverPi.info(info_flags::integer)) {
-		numeric z = mod(ex_to_numeric(SixtyExOverPi),_num120());
+		numeric z = mod(ex_to<numeric>(SixtyExOverPi),_num120());
 		if (z>=_num60()) {
 			// wrap to interval [0, Pi)
 			z -= _num60();
@@ -306,7 +306,7 @@ static ex cos_evalf(const ex & x)
 		TYPECHECK(x,numeric)
 	END_TYPECHECK(cos(x))
 	
-	return cos(ex_to_numeric(x)); // -> numeric cos(numeric)
+	return cos(ex_to<numeric>(x)); // -> numeric cos(numeric)
 }
 
 static ex cos_eval(const ex & x)
@@ -315,7 +315,7 @@ static ex cos_eval(const ex & x)
 	ex SixtyExOverPi = _ex60()*x/Pi;
 	ex sign = _ex1();
 	if (SixtyExOverPi.info(info_flags::integer)) {
-		numeric z = mod(ex_to_numeric(SixtyExOverPi),_num120());
+		numeric z = mod(ex_to<numeric>(SixtyExOverPi),_num120());
 		if (z>=_num60()) {
 			// wrap to interval [0, Pi)
 			z = _num120()-z;
@@ -388,7 +388,7 @@ static ex tan_evalf(const ex & x)
 	   TYPECHECK(x,numeric)
 	END_TYPECHECK(tan(x)) // -> numeric tan(numeric)
 	
-	return tan(ex_to_numeric(x));
+	return tan(ex_to<numeric>(x));
 }
 
 static ex tan_eval(const ex & x)
@@ -397,7 +397,7 @@ static ex tan_eval(const ex & x)
 	ex SixtyExOverPi = _ex60()*x/Pi;
 	ex sign = _ex1();
 	if (SixtyExOverPi.info(info_flags::integer)) {
-		numeric z = mod(ex_to_numeric(SixtyExOverPi),_num60());
+		numeric z = mod(ex_to<numeric>(SixtyExOverPi),_num60());
 		if (z>=_num60()) {
 			// wrap to interval [0, Pi)
 			z -= _num60();
@@ -484,7 +484,7 @@ static ex asin_evalf(const ex & x)
 	   TYPECHECK(x,numeric)
 	END_TYPECHECK(asin(x))
 	
-	return asin(ex_to_numeric(x)); // -> numeric asin(numeric)
+	return asin(ex_to<numeric>(x)); // -> numeric asin(numeric)
 }
 
 static ex asin_eval(const ex & x)
@@ -536,7 +536,7 @@ static ex acos_evalf(const ex & x)
 	   TYPECHECK(x,numeric)
 	END_TYPECHECK(acos(x))
 	
-	return acos(ex_to_numeric(x)); // -> numeric acos(numeric)
+	return acos(ex_to<numeric>(x)); // -> numeric acos(numeric)
 }
 
 static ex acos_eval(const ex & x)
@@ -588,7 +588,7 @@ static ex atan_evalf(const ex & x)
 		TYPECHECK(x,numeric)
 	END_TYPECHECK(atan(x))
 	
-	return atan(ex_to_numeric(x)); // -> numeric atan(numeric)
+	return atan(ex_to<numeric>(x)); // -> numeric atan(numeric)
 }
 
 static ex atan_eval(const ex & x)
@@ -681,7 +681,7 @@ static ex atan2_evalf(const ex & y, const ex & x)
 		TYPECHECK(x,numeric)
 	END_TYPECHECK(atan2(y,x))
 	
-	return atan(ex_to_numeric(y),ex_to_numeric(x)); // -> numeric atan(numeric)
+	return atan(ex_to<numeric>(y),ex_to<numeric>(x)); // -> numeric atan(numeric)
 }
 
 static ex atan2_eval(const ex & y, const ex & x)
@@ -720,7 +720,7 @@ static ex sinh_evalf(const ex & x)
 	   TYPECHECK(x,numeric)
 	END_TYPECHECK(sinh(x))
 	
-	return sinh(ex_to_numeric(x)); // -> numeric sinh(numeric)
+	return sinh(ex_to<numeric>(x)); // -> numeric sinh(numeric)
 }
 
 static ex sinh_eval(const ex & x)
@@ -733,7 +733,7 @@ static ex sinh_eval(const ex & x)
 	}
 	
 	if ((x/Pi).info(info_flags::numeric) &&
-		ex_to_numeric(x/Pi).real().is_zero())  // sinh(I*x) -> I*sin(x)
+		ex_to<numeric>(x/Pi).real().is_zero())  // sinh(I*x) -> I*sin(x)
 		return I*sin(x/I);
 	
 	if (is_ex_exactly_of_type(x, function)) {
@@ -775,7 +775,7 @@ static ex cosh_evalf(const ex & x)
 	   TYPECHECK(x,numeric)
 	END_TYPECHECK(cosh(x))
 	
-	return cosh(ex_to_numeric(x)); // -> numeric cosh(numeric)
+	return cosh(ex_to<numeric>(x)); // -> numeric cosh(numeric)
 }
 
 static ex cosh_eval(const ex & x)
@@ -788,7 +788,7 @@ static ex cosh_eval(const ex & x)
 	}
 	
 	if ((x/Pi).info(info_flags::numeric) &&
-		ex_to_numeric(x/Pi).real().is_zero())  // cosh(I*x) -> cos(x)
+		ex_to<numeric>(x/Pi).real().is_zero())  // cosh(I*x) -> cos(x)
 		return cos(x/I);
 	
 	if (is_ex_exactly_of_type(x, function)) {
@@ -830,7 +830,7 @@ static ex tanh_evalf(const ex & x)
 	   TYPECHECK(x,numeric)
 	END_TYPECHECK(tanh(x))
 	
-	return tanh(ex_to_numeric(x)); // -> numeric tanh(numeric)
+	return tanh(ex_to<numeric>(x)); // -> numeric tanh(numeric)
 }
 
 static ex tanh_eval(const ex & x)
@@ -843,7 +843,7 @@ static ex tanh_eval(const ex & x)
 	}
 	
 	if ((x/Pi).info(info_flags::numeric) &&
-		ex_to_numeric(x/Pi).real().is_zero())  // tanh(I*x) -> I*tan(x);
+		ex_to<numeric>(x/Pi).real().is_zero())  // tanh(I*x) -> I*tan(x);
 		return I*tan(x/I);
 	
 	if (is_ex_exactly_of_type(x, function)) {
@@ -902,7 +902,7 @@ static ex asinh_evalf(const ex & x)
 	   TYPECHECK(x,numeric)
 	END_TYPECHECK(asinh(x))
 	
-	return asinh(ex_to_numeric(x)); // -> numeric asinh(numeric)
+	return asinh(ex_to<numeric>(x)); // -> numeric asinh(numeric)
 }
 
 static ex asinh_eval(const ex & x)
@@ -941,7 +941,7 @@ static ex acosh_evalf(const ex & x)
 	   TYPECHECK(x,numeric)
 	END_TYPECHECK(acosh(x))
 	
-	return acosh(ex_to_numeric(x)); // -> numeric acosh(numeric)
+	return acosh(ex_to<numeric>(x)); // -> numeric acosh(numeric)
 }
 
 static ex acosh_eval(const ex & x)
@@ -986,7 +986,7 @@ static ex atanh_evalf(const ex & x)
 	   TYPECHECK(x,numeric)
 	END_TYPECHECK(atanh(x))
 	
-	return atanh(ex_to_numeric(x)); // -> numeric atanh(numeric)
+	return atanh(ex_to<numeric>(x)); // -> numeric atanh(numeric)
 }
 
 static ex atanh_eval(const ex & x)

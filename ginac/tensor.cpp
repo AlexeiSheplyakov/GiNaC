@@ -187,8 +187,8 @@ ex tensdelta::eval_indexed(const basic & i) const
 	GINAC_ASSERT(i.nops() == 3);
 	GINAC_ASSERT(is_ex_of_type(i.op(0), tensdelta));
 
-	const idx & i1 = ex_to_idx(i.op(1));
-	const idx & i2 = ex_to_idx(i.op(2));
+	const idx & i1 = ex_to<idx>(i.op(1));
+	const idx & i2 = ex_to<idx>(i.op(2));
 
 	// Trace of delta tensor is the dimension of the space
 	if (is_dummy_pair(i1, i2))
@@ -196,7 +196,7 @@ ex tensdelta::eval_indexed(const basic & i) const
 
 	// Numeric evaluation
 	if (static_cast<const indexed &>(i).all_index_values_are(info_flags::integer)) {
-		int n1 = ex_to_numeric(i1.get_value()).to_int(), n2 = ex_to_numeric(i2.get_value()).to_int();
+		int n1 = ex_to<numeric>(i1.get_value()).to_int(), n2 = ex_to<numeric>(i2.get_value()).to_int();
 		if (n1 == n2)
 			return _ex1();
 		else
@@ -216,8 +216,8 @@ ex tensmetric::eval_indexed(const basic & i) const
 	GINAC_ASSERT(is_ex_of_type(i.op(1), varidx));
 	GINAC_ASSERT(is_ex_of_type(i.op(2), varidx));
 
-	const varidx & i1 = ex_to_varidx(i.op(1));
-	const varidx & i2 = ex_to_varidx(i.op(2));
+	const varidx & i1 = ex_to<varidx>(i.op(1));
+	const varidx & i2 = ex_to<varidx>(i.op(2));
 
 	// A metric tensor with one covariant and one contravariant index gets
 	// replaced by a delta tensor
@@ -237,12 +237,12 @@ ex minkmetric::eval_indexed(const basic & i) const
 	GINAC_ASSERT(is_ex_of_type(i.op(1), varidx));
 	GINAC_ASSERT(is_ex_of_type(i.op(2), varidx));
 
-	const varidx & i1 = ex_to_varidx(i.op(1));
-	const varidx & i2 = ex_to_varidx(i.op(2));
+	const varidx & i1 = ex_to<varidx>(i.op(1));
+	const varidx & i2 = ex_to<varidx>(i.op(2));
 
 	// Numeric evaluation
 	if (static_cast<const indexed &>(i).all_index_values_are(info_flags::nonnegint)) {
-		int n1 = ex_to_numeric(i1.get_value()).to_int(), n2 = ex_to_numeric(i2.get_value()).to_int();
+		int n1 = ex_to<numeric>(i1.get_value()).to_int(), n2 = ex_to<numeric>(i2.get_value()).to_int();
 		if (n1 != n2)
 			return _ex0();
 		else if (n1 == 0)
@@ -264,8 +264,8 @@ ex spinmetric::eval_indexed(const basic & i) const
 	GINAC_ASSERT(is_ex_of_type(i.op(1), spinidx));
 	GINAC_ASSERT(is_ex_of_type(i.op(2), spinidx));
 
-	const spinidx & i1 = ex_to_spinidx(i.op(1));
-	const spinidx & i2 = ex_to_spinidx(i.op(2));
+	const spinidx & i1 = ex_to<spinidx>(i.op(1));
+	const spinidx & i2 = ex_to<spinidx>(i.op(2));
 
 	// Convolutions are zero
 	if (static_cast<const indexed &>(i).get_dummy_indices().size() != 0)
@@ -273,7 +273,7 @@ ex spinmetric::eval_indexed(const basic & i) const
 
 	// Numeric evaluation
 	if (static_cast<const indexed &>(i).all_index_values_are(info_flags::nonnegint)) {
-		int n1 = ex_to_numeric(i1.get_value()).to_int(), n2 = ex_to_numeric(i2.get_value()).to_int();
+		int n1 = ex_to<numeric>(i1.get_value()).to_int(), n2 = ex_to<numeric>(i2.get_value()).to_int();
 		if (n1 == n2)
 			return _ex0();
 		else if (n1 < n2)
@@ -305,7 +305,7 @@ ex tensepsilon::eval_indexed(const basic & i) const
 		std::vector<int> v;
 		v.reserve(i.nops() - 1);
 		for (unsigned j=1; j<i.nops(); j++)
-			v.push_back(ex_to_numeric(ex_to_idx(i.op(j)).get_value()).to_int());
+			v.push_back(ex_to<numeric>(ex_to<idx>(i.op(j)).get_value()).to_int());
 		int sign = permutation_sign(v.begin(), v.end());
 
 		// In a Minkowski space, check for covariant indices
@@ -314,8 +314,8 @@ ex tensepsilon::eval_indexed(const basic & i) const
 				const ex & x = i.op(j);
 				if (!is_ex_of_type(x, varidx))
 					throw(std::runtime_error("indices of epsilon tensor in Minkowski space must be of type varidx"));
-				if (ex_to_varidx(x).is_covariant())
-					if (ex_to_idx(x).get_value().is_zero())
+				if (ex_to<varidx>(x).is_covariant())
+					if (ex_to<idx>(x).get_value().is_zero())
 						sign = (pos_sig ? -sign : sign);
 					else
 						sign = (pos_sig ? sign : -sign);
@@ -338,14 +338,14 @@ bool tensdelta::contract_with(exvector::iterator self, exvector::iterator other,
 	GINAC_ASSERT(is_ex_of_type(self->op(0), tensdelta));
 
 	// Try to contract first index
-	const idx *self_idx = &ex_to_idx(self->op(1));
-	const idx *free_idx = &ex_to_idx(self->op(2));
+	const idx *self_idx = &ex_to<idx>(self->op(1));
+	const idx *free_idx = &ex_to<idx>(self->op(2));
 	bool first_index_tried = false;
 
 again:
 	if (self_idx->is_symbolic()) {
 		for (int i=1; i<other->nops(); i++) {
-			const idx &other_idx = ex_to_idx(other->op(i));
+			const idx &other_idx = ex_to<idx>(other->op(i));
 			if (is_dummy_pair(*self_idx, other_idx)) {
 
 				// Contraction found, remove delta tensor and substitute
@@ -360,8 +360,8 @@ again:
 	if (!first_index_tried) {
 
 		// No contraction with first index found, try second index
-		self_idx = &ex_to_idx(self->op(2));
-		free_idx = &ex_to_idx(self->op(1));
+		self_idx = &ex_to<idx>(self->op(2));
+		free_idx = &ex_to<idx>(self->op(1));
 		first_index_tried = true;
 		goto again;
 	}
@@ -383,14 +383,14 @@ bool tensmetric::contract_with(exvector::iterator self, exvector::iterator other
 		return false;
 
 	// Try to contract first index
-	const idx *self_idx = &ex_to_idx(self->op(1));
-	const idx *free_idx = &ex_to_idx(self->op(2));
+	const idx *self_idx = &ex_to<idx>(self->op(1));
+	const idx *free_idx = &ex_to<idx>(self->op(2));
 	bool first_index_tried = false;
 
 again:
 	if (self_idx->is_symbolic()) {
 		for (int i=1; i<other->nops(); i++) {
-			const idx &other_idx = ex_to_idx(other->op(i));
+			const idx &other_idx = ex_to<idx>(other->op(i));
 			if (is_dummy_pair(*self_idx, other_idx)) {
 
 				// Contraction found, remove metric tensor and substitute
@@ -405,8 +405,8 @@ again:
 	if (!first_index_tried) {
 
 		// No contraction with first index found, try second index
-		self_idx = &ex_to_idx(self->op(2));
-		free_idx = &ex_to_idx(self->op(1));
+		self_idx = &ex_to<idx>(self->op(2));
+		free_idx = &ex_to<idx>(self->op(1));
 		first_index_tried = true;
 		goto again;
 	}
@@ -424,10 +424,10 @@ bool spinmetric::contract_with(exvector::iterator self, exvector::iterator other
 
 	// Contractions between spinor metrics
 	if (is_ex_of_type(other->op(0), spinmetric)) {
-		const idx &self_i1 = ex_to_idx(self->op(1));
-		const idx &self_i2 = ex_to_idx(self->op(2));
-		const idx &other_i1 = ex_to_idx(other->op(1));
-		const idx &other_i2 = ex_to_idx(other->op(2));
+		const idx &self_i1 = ex_to<idx>(self->op(1));
+		const idx &self_i2 = ex_to<idx>(self->op(2));
+		const idx &other_i1 = ex_to<idx>(other->op(1));
+		const idx &other_i2 = ex_to<idx>(other->op(2));
 
 		if (is_dummy_pair(self_i1, other_i1)) {
 			if (is_dummy_pair(self_i2, other_i2))
@@ -460,15 +460,15 @@ bool spinmetric::contract_with(exvector::iterator self, exvector::iterator other
 		return false;
 
 	// Try to contract first index
-	const idx *self_idx = &ex_to_idx(self->op(1));
-	const idx *free_idx = &ex_to_idx(self->op(2));
+	const idx *self_idx = &ex_to<idx>(self->op(1));
+	const idx *free_idx = &ex_to<idx>(self->op(2));
 	bool first_index_tried = false;
 	int sign = 1;
 
 again:
 	if (self_idx->is_symbolic()) {
 		for (int i=1; i<other->nops(); i++) {
-			const idx &other_idx = ex_to_idx(other->op(i));
+			const idx &other_idx = ex_to<idx>(other->op(i));
 			if (is_dummy_pair(*self_idx, other_idx)) {
 
 				// Contraction found, remove metric tensor and substitute
@@ -483,8 +483,8 @@ again:
 	if (!first_index_tried) {
 
 		// No contraction with first index found, try second index
-		self_idx = &ex_to_idx(self->op(2));
-		free_idx = &ex_to_idx(self->op(1));
+		self_idx = &ex_to<idx>(self->op(2));
+		free_idx = &ex_to<idx>(self->op(1));
 		first_index_tried = true;
 		sign = -sign;
 		goto again;
@@ -525,7 +525,7 @@ ex spinor_metric(const ex & i1, const ex & i2)
 {
 	if (!is_ex_of_type(i1, spinidx) || !is_ex_of_type(i2, spinidx))
 		throw(std::invalid_argument("indices of spinor metric must be of type spinidx"));
-	if (!ex_to_idx(i1).get_dim().is_equal(2) || !ex_to_idx(i2).get_dim().is_equal(2))
+	if (!ex_to<idx>(i1).get_dim().is_equal(2) || !ex_to<idx>(i2).get_dim().is_equal(2))
 		throw(std::runtime_error("index dimension for spinor metric must be 2"));
 
 	return indexed(spinmetric(), sy_anti(), i1, i2);
@@ -536,10 +536,10 @@ ex epsilon_tensor(const ex & i1, const ex & i2)
 	if (!is_ex_of_type(i1, idx) || !is_ex_of_type(i2, idx))
 		throw(std::invalid_argument("indices of epsilon tensor must be of type idx"));
 
-	ex dim = ex_to_idx(i1).get_dim();
-	if (!dim.is_equal(ex_to_idx(i2).get_dim()))
+	ex dim = ex_to<idx>(i1).get_dim();
+	if (!dim.is_equal(ex_to<idx>(i2).get_dim()))
 		throw(std::invalid_argument("all indices of epsilon tensor must have the same dimension"));
-	if (!ex_to_idx(i1).get_dim().is_equal(_ex2()))
+	if (!ex_to<idx>(i1).get_dim().is_equal(_ex2()))
 		throw(std::runtime_error("index dimension of epsilon tensor must match number of indices"));
 
 	return indexed(tensepsilon(), sy_anti(), i1, i2);
@@ -550,10 +550,10 @@ ex epsilon_tensor(const ex & i1, const ex & i2, const ex & i3)
 	if (!is_ex_of_type(i1, idx) || !is_ex_of_type(i2, idx) || !is_ex_of_type(i3, idx))
 		throw(std::invalid_argument("indices of epsilon tensor must be of type idx"));
 
-	ex dim = ex_to_idx(i1).get_dim();
-	if (!dim.is_equal(ex_to_idx(i2).get_dim()) || !dim.is_equal(ex_to_idx(i3).get_dim()))
+	ex dim = ex_to<idx>(i1).get_dim();
+	if (!dim.is_equal(ex_to<idx>(i2).get_dim()) || !dim.is_equal(ex_to<idx>(i3).get_dim()))
 		throw(std::invalid_argument("all indices of epsilon tensor must have the same dimension"));
-	if (!ex_to_idx(i1).get_dim().is_equal(_ex3()))
+	if (!ex_to<idx>(i1).get_dim().is_equal(_ex3()))
 		throw(std::runtime_error("index dimension of epsilon tensor must match number of indices"));
 
 	return indexed(tensepsilon(), sy_anti(), i1, i2, i3);
@@ -564,10 +564,10 @@ ex lorentz_eps(const ex & i1, const ex & i2, const ex & i3, const ex & i4, bool 
 	if (!is_ex_of_type(i1, varidx) || !is_ex_of_type(i2, varidx) || !is_ex_of_type(i3, varidx) || !is_ex_of_type(i4, varidx))
 		throw(std::invalid_argument("indices of Lorentz epsilon tensor must be of type varidx"));
 
-	ex dim = ex_to_idx(i1).get_dim();
-	if (!dim.is_equal(ex_to_idx(i2).get_dim()) || !dim.is_equal(ex_to_idx(i3).get_dim()) || !dim.is_equal(ex_to_idx(i4).get_dim()))
+	ex dim = ex_to<idx>(i1).get_dim();
+	if (!dim.is_equal(ex_to<idx>(i2).get_dim()) || !dim.is_equal(ex_to<idx>(i3).get_dim()) || !dim.is_equal(ex_to<idx>(i4).get_dim()))
 		throw(std::invalid_argument("all indices of epsilon tensor must have the same dimension"));
-	if (!ex_to_idx(i1).get_dim().is_equal(_ex4()))
+	if (!ex_to<idx>(i1).get_dim().is_equal(_ex4()))
 		throw(std::runtime_error("index dimension of epsilon tensor must match number of indices"));
 
 	return indexed(tensepsilon(true, pos_sig), sy_anti(), i1, i2, i3, i4);
@@ -578,7 +578,7 @@ ex eps0123(const ex & i1, const ex & i2, const ex & i3, const ex & i4, bool pos_
 	if (!is_ex_of_type(i1, varidx) || !is_ex_of_type(i2, varidx) || !is_ex_of_type(i3, varidx) || !is_ex_of_type(i4, varidx))
 		throw(std::invalid_argument("indices of epsilon tensor must be of type varidx"));
 
-	ex dim = ex_to_idx(i1).get_dim();
+	ex dim = ex_to<idx>(i1).get_dim();
 	if (dim.is_equal(4))
 		return lorentz_eps(i1, i2, i3, i4, pos_sig);
 	else

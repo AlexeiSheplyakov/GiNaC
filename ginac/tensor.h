@@ -137,6 +137,9 @@ private:
 
 
 // utility functions
+
+/** Return the tensor object handled by an ex.  Deprecated: use ex_to<tensor>().
+ *  This is unsafe: you need to check the type first. */
 inline const tensor &ex_to_tensor(const ex &e)
 {
 	return static_cast<const tensor &>(*e.bp);

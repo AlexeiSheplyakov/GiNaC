@@ -81,7 +81,7 @@ extern const constant Euler;
 
 // utility functions
 
-/** Return the constant object handled by an ex.
+/** Return the constant object handled by an ex.  Deprecated: use ex_to<constant>().
  *  This is unsafe: you need to check the type first. */
 inline const constant &ex_to_constant(const ex &e)
 {

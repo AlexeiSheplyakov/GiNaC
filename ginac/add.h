@@ -79,7 +79,7 @@ protected:
 
 // utility functions
 
-/** Return the add object handled by an ex.
+/** Return the add object handled by an ex.  Deprecated: use ex_to<add>().
  *  This is unsafe: you need to check the type first. */
 inline const add &ex_to_add(const ex &e)
 {

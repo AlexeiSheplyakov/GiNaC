@@ -146,7 +146,7 @@ line	: ';'
 			ex e = $3;
 			if (!e.info(info_flags::integer))
 				throw (std::invalid_argument("argument to iprint() must be an integer"));
-			long i = ex_to_numeric(e).to_long();
+			long i = ex_to<numeric>(e).to_long();
 			cout << i << endl;
 			cout << "#o" << oct << i << endl;
 			cout << "#x" << hex << i << dec << endl;
@@ -155,7 +155,7 @@ line	: ';'
 			YYERROR;
 		}
 	}
-	| '?' T_SYMBOL 		{print_help(ex_to_symbol($2).get_name());}
+	| '?' T_SYMBOL 		{print_help(ex_to<symbol>($2).get_name());}
 	| '?' T_TIME		{print_help("time");}
 	| '?' '?'		{print_help_topics();}
 	| T_QUIT		{YYACCEPT;}
@@ -207,8 +207,8 @@ exp	: T_NUMBER		{$$ = $1;}
 			$$ = (i->second.p)(static_cast<const exprseq &>(*($3.bp)));
 		}
 	}
-	| T_DIGITS '=' T_NUMBER	{$$ = $3; Digits = ex_to_numeric($3).to_int();}
-	| T_SYMBOL '=' exp	{$$ = $3; const_cast<symbol *>(&ex_to_symbol($1))->assign($3);}
+	| T_DIGITS '=' T_NUMBER	{$$ = $3; Digits = ex_to<numeric>($3).to_int();}
+	| T_SYMBOL '=' exp	{$$ = $3; const_cast<symbol *>(&ex_to<symbol>($1))->assign($3);}
 	| exp T_EQUAL exp	{$$ = $1 == $3;}
 	| exp T_NOTEQ exp	{$$ = $1 != $3;}
 	| exp '<' exp		{$$ = $1 < $3;}
@@ -225,7 +225,7 @@ exp	: T_NUMBER		{$$ = $1;}
 	| exp '!'		{$$ = factorial($1);}
 	| '(' exp ')'		{$$ = $2;}
 	| '{' list_or_empty '}'	{$$ = $2;}
-	| '[' matrix ']'	{$$ = lst_to_matrix(ex_to_lst($2));}
+	| '[' matrix ']'	{$$ = lst_to_matrix(ex_to<lst>($2));}
 	;
 
 exprseq	: exp			{$$ = exprseq($1);}
@@ -304,25 +304,25 @@ static ex f_charpoly(const exprseq &e)
 {
 	CHECK_ARG(0, matrix, charpoly);
 	CHECK_ARG(1, symbol, charpoly);
-	return ex_to_matrix(e[0]).charpoly(ex_to_symbol(e[1]));
+	return ex_to<matrix>(e[0]).charpoly(ex_to<symbol>(e[1]));
 }
 
 static ex f_coeff(const exprseq &e)
 {
 	CHECK_ARG(2, numeric, coeff);
-	return e[0].coeff(e[1], ex_to_numeric(e[2]).to_int());
+	return e[0].coeff(e[1], ex_to<numeric>(e[2]).to_int());
 }
 
 static ex f_content(const exprseq &e)
 {
 	CHECK_ARG(1, symbol, content);
-	return e[0].content(ex_to_symbol(e[1]));
+	return e[0].content(ex_to<symbol>(e[1]));
 }
 
 static ex f_determinant(const exprseq &e)
 {
 	CHECK_ARG(0, matrix, determinant);
-	return ex_to_matrix(e[0]).determinant();
+	return ex_to<matrix>(e[0]).determinant();
 }
 
 static ex f_diag(const exprseq &e)
@@ -337,14 +337,14 @@ static ex f_diag(const exprseq &e)
 static ex f_diff2(const exprseq &e)
 {
 	CHECK_ARG(1, symbol, diff);
-	return e[0].diff(ex_to_symbol(e[1]));
+	return e[0].diff(ex_to<symbol>(e[1]));
 }
 
 static ex f_diff3(const exprseq &e)
 {
 	CHECK_ARG(1, symbol, diff);
 	CHECK_ARG(2, numeric, diff);
-	return e[0].diff(ex_to_symbol(e[1]), ex_to_numeric(e[2]).to_int());
+	return e[0].diff(ex_to<symbol>(e[1]), ex_to<numeric>(e[2]).to_int());
 }
 
 static ex f_divide(const exprseq &e)
@@ -359,25 +359,25 @@ static ex f_divide(const exprseq &e)
 static ex f_eval2(const exprseq &e)
 {
 	CHECK_ARG(1, numeric, eval);
-	return e[0].eval(ex_to_numeric(e[1]).to_int());
+	return e[0].eval(ex_to<numeric>(e[1]).to_int());
 }
 
 static ex f_evalf2(const exprseq &e)
 {
 	CHECK_ARG(1, numeric, evalf);
-	return e[0].evalf(ex_to_numeric(e[1]).to_int());
+	return e[0].evalf(ex_to<numeric>(e[1]).to_int());
 }
 
 static ex f_inverse(const exprseq &e)
 {
 	CHECK_ARG(0, matrix, inverse);
-	return ex_to_matrix(e[0]).inverse();
+	return ex_to<matrix>(e[0]).inverse();
 }
 
 static ex f_is(const exprseq &e)
 {
 	CHECK_ARG(0, relational, is);
-	return (bool)ex_to_relational(e[0]) ? ex(1) : ex(0);
+	return (bool)ex_to<relational>(e[0]) ? ex(1) : ex(0);
 }
 
 static ex f_match(const exprseq &e)
@@ -392,13 +392,13 @@ static ex f_match(const exprseq &e)
 static ex f_normal2(const exprseq &e)
 {
 	CHECK_ARG(1, numeric, normal);
-	return e[0].normal(ex_to_numeric(e[1]).to_int());
+	return e[0].normal(ex_to<numeric>(e[1]).to_int());
 }
 
 static ex f_op(const exprseq &e)
 {
 	CHECK_ARG(1, numeric, op);
-	int n = ex_to_numeric(e[1]).to_int();
+	int n = ex_to<numeric>(e[1]).to_int();
 	if (n < 0 || n >= (int)e[0].nops())
 		throw(std::out_of_range("second argument to op() is out of range"));
 	return e[0].op(n);
@@ -407,69 +407,69 @@ static ex f_op(const exprseq &e)
 static ex f_prem(const exprseq &e)
 {
 	CHECK_ARG(2, symbol, prem);
-	return prem(e[0], e[1], ex_to_symbol(e[2]));
+	return prem(e[0], e[1], ex_to<symbol>(e[2]));
 }
 
 static ex f_primpart(const exprseq &e)
 {
 	CHECK_ARG(1, symbol, primpart);
-	return e[0].primpart(ex_to_symbol(e[1]));
+	return e[0].primpart(ex_to<symbol>(e[1]));
 }
 
 static ex f_quo(const exprseq &e)
 {
 	CHECK_ARG(2, symbol, quo);
-	return quo(e[0], e[1], ex_to_symbol(e[2]));
+	return quo(e[0], e[1], ex_to<symbol>(e[2]));
 }
 
 static ex f_rem(const exprseq &e)
 {
 	CHECK_ARG(2, symbol, rem);
-	return rem(e[0], e[1], ex_to_symbol(e[2]));
+	return rem(e[0], e[1], ex_to<symbol>(e[2]));
 }
 
 static ex f_series(const exprseq &e)
 {
 	CHECK_ARG(2, numeric, series);
-	return e[0].series(e[1], ex_to_numeric(e[2]).to_int());
+	return e[0].series(e[1], ex_to<numeric>(e[2]).to_int());
 }
 
 static ex f_sqrfree2(const exprseq &e)
 {
 	CHECK_ARG(1, lst, sqrfree);
-	return sqrfree(e[0], ex_to_lst(e[1]));
+	return sqrfree(e[0], ex_to<lst>(e[1]));
 }
 
 static ex f_subs3(const exprseq &e)
 {
 	CHECK_ARG(1, lst, subs);
 	CHECK_ARG(2, lst, subs);
-	return e[0].subs(ex_to_lst(e[1]), ex_to_lst(e[2]));
+	return e[0].subs(ex_to<lst>(e[1]), ex_to<lst>(e[2]));
 }
 
 static ex f_trace(const exprseq &e)
 {
 	CHECK_ARG(0, matrix, trace);
-	return ex_to_matrix(e[0]).trace();
+	return ex_to<matrix>(e[0]).trace();
 }
 
 static ex f_transpose(const exprseq &e)
 {
 	CHECK_ARG(0, matrix, transpose);
-	return ex_to_matrix(e[0]).transpose();
+	return ex_to<matrix>(e[0]).transpose();
 }
 
 static ex f_unassign(const exprseq &e)
 {
 	CHECK_ARG(0, symbol, unassign);
-	(const_cast<symbol *>(&ex_to_symbol(e[0])))->unassign();
+	(const_cast<symbol *>(&ex_to<symbol>(e[0])))->unassign();
 	return e[0];
 }
 
 static ex f_unit(const exprseq &e)
 {
 	CHECK_ARG(1, symbol, unit);
-	return e[0].unit(ex_to_symbol(e[1]));
+	return e[0].unit(ex_to<symbol>(e[1]));
 }
 
 static ex f_dummy(const exprseq &e)
@@ -575,7 +575,7 @@ void GiNaC::ginsh_get_ginac_functions(void)
 
 static fcn_tab::const_iterator find_function(const ex &sym, int req_params)
 {
-	const string &name = ex_to_symbol(sym).get_name();
+	const string &name = ex_to<symbol>(sym).get_name();
 	typedef fcn_tab::const_iterator I;
 	pair<I, I> b = fcns.equal_range(name);
 	if (b.first == b.second)

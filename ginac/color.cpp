@@ -229,7 +229,7 @@ ex su3d::eval_indexed(const basic & i) const
 		// Sort indices
 		int v[3];
 		for (unsigned j=0; j<3; j++)
-			v[j] = ex_to_numeric(ex_to_idx(i.op(j + 1)).get_value()).to_int();
+			v[j] = ex_to<numeric>(ex_to<idx>(i.op(j + 1)).get_value()).to_int();
 		if (v[0] > v[1]) std::swap(v[0], v[1]);
 		if (v[0] > v[2]) std::swap(v[0], v[2]);
 		if (v[1] > v[2]) std::swap(v[1], v[2]);
@@ -270,7 +270,7 @@ ex su3f::eval_indexed(const basic & i) const
 		// Sort indices, remember permutation sign
 		int v[3];
 		for (unsigned j=0; j<3; j++)
-			v[j] = ex_to_numeric(ex_to_idx(i.op(j + 1)).get_value()).to_int();
+			v[j] = ex_to<numeric>(ex_to<idx>(i.op(j + 1)).get_value()).to_int();
 		int sign = 1;
 		if (v[0] > v[1]) { std::swap(v[0], v[1]); sign = -sign; }
 		if (v[0] > v[2]) { std::swap(v[0], v[2]); sign = -sign; }
@@ -302,7 +302,7 @@ bool su3t::contract_with(exvector::iterator self, exvector::iterator other, exve
 	GINAC_ASSERT(is_ex_of_type(*other, indexed));
 	GINAC_ASSERT(self->nops() == 2);
 	GINAC_ASSERT(is_ex_of_type(self->op(0), su3t));
-	unsigned char rl = ex_to_color(*self).get_representation_label();
+	unsigned char rl = ex_to<color>(*self).get_representation_label();
 
 	if (is_ex_exactly_of_type(other->op(0), su3t)) {
 
@@ -356,8 +356,8 @@ bool su3d::contract_with(exvector::iterator self, exvector::iterator other, exve
 	if (is_ex_exactly_of_type(other->op(0), su3d)) {
 
 		// Find the dummy indices of the contraction
-		exvector self_indices = ex_to_indexed(*self).get_indices();
-		exvector other_indices = ex_to_indexed(*other).get_indices();
+		exvector self_indices = ex_to<indexed>(*self).get_indices();
+		exvector other_indices = ex_to<indexed>(*other).get_indices();
 		exvector all_indices = self_indices;
 		all_indices.insert(all_indices.end(), other_indices.begin(), other_indices.end());
 		exvector free_indices, dummy_indices;
@@ -386,16 +386,16 @@ bool su3d::contract_with(exvector::iterator self, exvector::iterator other, exve
 		// d.abc T.b T.c = 5/6 T.a
 		if (other+1 != v.end()
 		 && is_ex_exactly_of_type(other[1].op(0), su3t)
-		 && ex_to_indexed(*self).has_dummy_index_for(other[1].op(1))) {
+		 && ex_to<indexed>(*self).has_dummy_index_for(other[1].op(1))) {
 
-			exvector self_indices = ex_to_indexed(*self).get_indices();
+			exvector self_indices = ex_to<indexed>(*self).get_indices();
 			exvector dummy_indices;
 			dummy_indices.push_back(other[0].op(1));
 			dummy_indices.push_back(other[1].op(1));
 			int sig;
 			ex a = permute_free_index_to_front(self_indices, dummy_indices, sig);
 			*self = numeric(5, 6);
-			other[0] = color_T(a, ex_to_color(other[0]).get_representation_label());
+			other[0] = color_T(a, ex_to<color>(other[0]).get_representation_label());
 			other[1] = _ex1();
 			return true;
 		}
@@ -416,7 +416,7 @@ bool su3f::contract_with(exvector::iterator self, exvector::iterator other, exve
 
 		// Find the dummy indices of the contraction
 		exvector dummy_indices;
-		dummy_indices = ex_to_indexed(*self).get_dummy_indices(ex_to_indexed(*other));
+		dummy_indices = ex_to<indexed>(*self).get_dummy_indices(ex_to<indexed>(*other));
 
 		// f.abc f.abc = 24
 		if (dummy_indices.size() == 3) {
@@ -427,8 +427,8 @@ bool su3f::contract_with(exvector::iterator self, exvector::iterator other, exve
 		// f.akl f.bkl = 3 delta.ab
 		} else if (dummy_indices.size() == 2) {
 			int sign1, sign2;
-			ex a = permute_free_index_to_front(ex_to_indexed(*self).get_indices(), dummy_indices, sign1);
-			ex b = permute_free_index_to_front(ex_to_indexed(*other).get_indices(), dummy_indices, sign2);
+			ex a = permute_free_index_to_front(ex_to<indexed>(*self).get_indices(), dummy_indices, sign1);
+			ex b = permute_free_index_to_front(ex_to<indexed>(*other).get_indices(), dummy_indices, sign2);
 			*self = sign1 * sign2 * 3 * delta_tensor(a, b);
 			*other = _ex1();
 			return true;
@@ -439,16 +439,16 @@ bool su3f::contract_with(exvector::iterator self, exvector::iterator other, exve
 		// f.abc T.b T.c = 3/2 I T.a
 		if (other+1 != v.end()
 		 && is_ex_exactly_of_type(other[1].op(0), su3t)
-		 && ex_to_indexed(*self).has_dummy_index_for(other[1].op(1))) {
+		 && ex_to<indexed>(*self).has_dummy_index_for(other[1].op(1))) {
 
-			exvector self_indices = ex_to_indexed(*self).get_indices();
+			exvector self_indices = ex_to<indexed>(*self).get_indices();
 			exvector dummy_indices;
 			dummy_indices.push_back(other[0].op(1));
 			dummy_indices.push_back(other[1].op(1));
 			int sig;
 			ex a = permute_free_index_to_front(self_indices, dummy_indices, sig);
 			*self = numeric(3, 2) * sig * I;
-			other[0] = color_T(a, ex_to_color(other[0]).get_representation_label());
+			other[0] = color_T(a, ex_to<color>(other[0]).get_representation_label());
 			other[1] = _ex1();
 			return true;
 		}
@@ -470,7 +470,7 @@ ex color_T(const ex & a, unsigned char rl)
 {
 	if (!is_ex_of_type(a, idx))
 		throw(std::invalid_argument("indices of color_T must be of type idx"));
-	if (!ex_to_idx(a).get_dim().is_equal(8))
+	if (!ex_to<idx>(a).get_dim().is_equal(8))
 		throw(std::invalid_argument("index dimension for color_T must be 8"));
 
 	return color(su3t(), a, rl);
@@ -480,7 +480,7 @@ ex color_f(const ex & a, const ex & b, const ex & c)
 {
 	if (!is_ex_of_type(a, idx) || !is_ex_of_type(b, idx) || !is_ex_of_type(c, idx))
 		throw(std::invalid_argument("indices of color_f must be of type idx"));
-	if (!ex_to_idx(a).get_dim().is_equal(8) || !ex_to_idx(b).get_dim().is_equal(8) || !ex_to_idx(c).get_dim().is_equal(8))
+	if (!ex_to<idx>(a).get_dim().is_equal(8) || !ex_to<idx>(b).get_dim().is_equal(8) || !ex_to<idx>(c).get_dim().is_equal(8))
 		throw(std::invalid_argument("index dimension for color_f must be 8"));
 
 	return indexed(su3f(), sy_anti(), a, b, c);
@@ -490,7 +490,7 @@ ex color_d(const ex & a, const ex & b, const ex & c)
 {
 	if (!is_ex_of_type(a, idx) || !is_ex_of_type(b, idx) || !is_ex_of_type(c, idx))
 		throw(std::invalid_argument("indices of color_d must be of type idx"));
-	if (!ex_to_idx(a).get_dim().is_equal(8) || !ex_to_idx(b).get_dim().is_equal(8) || !ex_to_idx(c).get_dim().is_equal(8))
+	if (!ex_to<idx>(a).get_dim().is_equal(8) || !ex_to<idx>(b).get_dim().is_equal(8) || !ex_to<idx>(c).get_dim().is_equal(8))
 		throw(std::invalid_argument("index dimension for color_d must be 8"));
 
 	return indexed(su3d(), sy_symm(), a, b, c);
@@ -512,7 +512,7 @@ ex color_trace(const ex & e, unsigned char rl)
 {
 	if (is_ex_of_type(e, color)) {
 
-		if (ex_to_color(e).get_representation_label() == rl
+		if (ex_to<color>(e).get_representation_label() == rl
 		 && is_ex_of_type(e.op(0), su3one))
 			return _ex3();
 		else

@@ -42,13 +42,13 @@ static ex zeta1_evalf(const ex & x)
 		TYPECHECK(x,numeric)
 	END_TYPECHECK(zeta(x))
 		
-	return zeta(ex_to_numeric(x));
+	return zeta(ex_to<numeric>(x));
 }
 
 static ex zeta1_eval(const ex & x)
 {
 	if (x.info(info_flags::numeric)) {
-		numeric y = ex_to_numeric(x);
+		numeric y = ex_to<numeric>(x);
 		// trap integer arguments:
 		if (y.is_integer()) {
 			if (y.is_zero())

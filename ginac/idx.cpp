@@ -320,7 +320,7 @@ bool idx::match(const ex & pattern, lst & repl_lst) const
 {
 	if (!is_ex_of_type(pattern, idx))
 		return false;
-	const idx &o = ex_to_idx(pattern);
+	const idx &o = ex_to<idx>(pattern);
 	if (!dim.is_equal(o.dim))
 		return false;
 	return value.match(o.value, repl_lst);
@@ -330,7 +330,7 @@ bool varidx::match(const ex & pattern, lst & repl_lst) const
 {
 	if (!is_ex_of_type(pattern, varidx))
 		return false;
-	const varidx &o = ex_to_varidx(pattern);
+	const varidx &o = ex_to<varidx>(pattern);
 	if (covariant != o.covariant)
 		return false;
 	return inherited::match(pattern, repl_lst);
@@ -340,7 +340,7 @@ bool spinidx::match(const ex & pattern, lst & repl_lst) const
 {
 	if (!is_ex_of_type(pattern, spinidx))
 		return false;
-	const spinidx &o = ex_to_spinidx(pattern);
+	const spinidx &o = ex_to<spinidx>(pattern);
 	if (dotted != o.dotted)
 		return false;
 	return inherited::match(pattern, repl_lst);
@@ -469,7 +469,7 @@ bool is_dummy_pair(const ex & e1, const ex & e2)
 	if (!is_ex_of_type(e1, idx) || !is_ex_of_type(e2, idx))
 		return false;
 
-	return is_dummy_pair(ex_to_idx(e1), ex_to_idx(e2));
+	return is_dummy_pair(ex_to<idx>(e1), ex_to<idx>(e2));
 }
 
 void find_free_and_dummy(exvector::const_iterator it, exvector::const_iterator itend, exvector & out_free, exvector & out_dummy)
@@ -483,7 +483,7 @@ void find_free_and_dummy(exvector::const_iterator it, exvector::const_iterator i
 
 	// Only one index? Then it is a free one if it's not numeric
 	if (itend - it == 1) {
-		if (ex_to_idx(*it).is_symbolic())
+		if (ex_to<idx>(*it).is_symbolic())
 			out_free.push_back(*it);
 		return;
 	}
@@ -503,12 +503,12 @@ void find_free_and_dummy(exvector::const_iterator it, exvector::const_iterator i
 			if (it == itend)
 				return;
 		} else {
-			if (!it->is_equal(*last) && ex_to_idx(*last).is_symbolic())
+			if (!it->is_equal(*last) && ex_to<idx>(*last).is_symbolic())
 				out_free.push_back(*last);
 		}
 		last = it++;
 	}
-	if (ex_to_idx(*last).is_symbolic())
+	if (ex_to<idx>(*last).is_symbolic())
 		out_free.push_back(*last);
 }
 

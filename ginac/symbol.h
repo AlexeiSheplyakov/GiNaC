@@ -116,7 +116,7 @@ private:
 
 // utility functions
 
-/** Return the symbol object handled by an ex.
+/** Return the symbol object handled by an ex.  Deprecated: use ex_to<symbol>().
  *  This is unsafe: you need to check the type first. */
 inline const symbol &ex_to_symbol(const ex &e)
 {

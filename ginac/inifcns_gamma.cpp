@@ -46,7 +46,7 @@ static ex lgamma_evalf(const ex & x)
 		TYPECHECK(x,numeric)
 	END_TYPECHECK(lgamma(x))
 	
-	return lgamma(ex_to_numeric(x));
+	return lgamma(ex_to<numeric>(x));
 }
 
 
@@ -99,7 +99,7 @@ static ex lgamma_series(const ex & arg,
 	if (!arg_pt.info(info_flags::integer) || arg_pt.info(info_flags::positive))
 		throw do_taylor();  // caught by function::series()
 	// if we got here we have to care for a simple pole of tgamma(-m):
-	numeric m = -ex_to_numeric(arg_pt);
+	numeric m = -ex_to<numeric>(arg_pt);
 	ex recur;
 	for (numeric p; p<=m; ++p)
 		recur += log(arg+p);
@@ -124,7 +124,7 @@ static ex tgamma_evalf(const ex & x)
 		TYPECHECK(x,numeric)
 	END_TYPECHECK(tgamma(x))
 	
-	return tgamma(ex_to_numeric(x));
+	return tgamma(ex_to<numeric>(x));
 }
 
 
@@ -140,7 +140,7 @@ static ex tgamma_eval(const ex & x)
 		if (x.info(info_flags::integer)) {
 			// tgamma(n) -> (n-1)! for postitive n
 			if (x.info(info_flags::posint)) {
-				return factorial(ex_to_numeric(x).sub(_num1()));
+				return factorial(ex_to<numeric>(x).sub(_num1()));
 			} else {
 				throw (pole_error("tgamma_eval(): simple pole",1));
 			}
@@ -150,14 +150,14 @@ static ex tgamma_eval(const ex & x)
 			// trap positive x==(n+1/2)
 			// tgamma(n+1/2) -> Pi^(1/2)*(1*3*..*(2*n-1))/(2^n)
 			if ((x*_ex2()).info(info_flags::posint)) {
-				numeric n = ex_to_numeric(x).sub(_num1_2());
+				numeric n = ex_to<numeric>(x).sub(_num1_2());
 				numeric coefficient = doublefactorial(n.mul(_num2()).sub(_num1()));
 				coefficient = coefficient.div(pow(_num2(),n));
 				return coefficient * pow(Pi,_ex1_2());
 			} else {
 				// trap negative x==(-n+1/2)
 				// tgamma(-n+1/2) -> Pi^(1/2)*(-2)^n/(1*3*..*(2*n-1))
-				numeric n = abs(ex_to_numeric(x).sub(_num1_2()));
+				numeric n = abs(ex_to<numeric>(x).sub(_num1_2()));
 				numeric coefficient = pow(_num_2(), n);
 				coefficient = coefficient.div(doublefactorial(n.mul(_num2()).sub(_num1())));;
 				return coefficient*power(Pi,_ex1_2());
@@ -196,7 +196,7 @@ static ex tgamma_series(const ex & arg,
 	if (!arg_pt.info(info_flags::integer) || arg_pt.info(info_flags::positive))
 		throw do_taylor();  // caught by function::series()
 	// if we got here we have to care for a simple pole at -m:
-	numeric m = -ex_to_numeric(arg_pt);
+	numeric m = -ex_to<numeric>(arg_pt);
 	ex ser_denom = _ex1();
 	for (numeric p; p<=m; ++p)
 		ser_denom *= arg+p;
@@ -222,7 +222,7 @@ static ex beta_evalf(const ex & x, const ex & y)
 		TYPECHECK(y,numeric)
 	END_TYPECHECK(beta(x,y))
 	
-	return tgamma(ex_to_numeric(x))*tgamma(ex_to_numeric(y))/tgamma(ex_to_numeric(x+y));
+	return tgamma(ex_to<numeric>(x))*tgamma(ex_to<numeric>(y))/tgamma(ex_to<numeric>(x+y));
 }
 
 
@@ -232,8 +232,8 @@ static ex beta_eval(const ex & x, const ex & y)
 		// treat all problematic x and y that may not be passed into tgamma,
 		// because they would throw there although beta(x,y) is well-defined
 		// using the formula beta(x,y) == (-1)^y * beta(1-x-y, y)
-		numeric nx(ex_to_numeric(x));
-		numeric ny(ex_to_numeric(y));
+		numeric nx(ex_to<numeric>(x));
+		numeric ny(ex_to<numeric>(y));
 		if (nx.is_real() && nx.is_integer() &&
 			ny.is_real() && ny.is_integer()) {
 			if (nx.is_negative()) {
@@ -334,7 +334,7 @@ static ex psi1_evalf(const ex & x)
 		TYPECHECK(x,numeric)
 	END_TYPECHECK(psi(x))
 	
-	return psi(ex_to_numeric(x));
+	return psi(ex_to<numeric>(x));
 }
 
 /** Evaluation of digamma-function psi(x).
@@ -342,7 +342,7 @@ static ex psi1_evalf(const ex & x)
 static ex psi1_eval(const ex & x)
 {
 	if (x.info(info_flags::numeric)) {
-		numeric nx = ex_to_numeric(x);
+		numeric nx = ex_to<numeric>(x);
 		if (nx.is_integer()) {
 			// integer case 
 			if (nx.is_positive()) {
@@ -407,7 +407,7 @@ static ex psi1_series(const ex & arg,
 	if (!arg_pt.info(info_flags::integer) || arg_pt.info(info_flags::positive))
 		throw do_taylor();  // caught by function::series()
 	// if we got here we have to care for a simple pole at -m:
-	numeric m = -ex_to_numeric(arg_pt);
+	numeric m = -ex_to<numeric>(arg_pt);
 	ex recur;
 	for (numeric p; p<=m; ++p)
 		recur += power(arg+p,_ex_1());
@@ -434,7 +434,7 @@ static ex psi2_evalf(const ex & n, const ex & x)
 		TYPECHECK(x,numeric)
 	END_TYPECHECK(psi(n,x))
 	
-	return psi(ex_to_numeric(n), ex_to_numeric(x));
+	return psi(ex_to<numeric>(n), ex_to<numeric>(x));
 }
 
 /** Evaluation of polygamma-function psi(n,x). 
@@ -449,8 +449,8 @@ static ex psi2_eval(const ex & n, const ex & x)
 		return log(tgamma(x));
 	if (n.info(info_flags::numeric) && n.info(info_flags::posint) &&
 		x.info(info_flags::numeric)) {
-		numeric nn = ex_to_numeric(n);
-		numeric nx = ex_to_numeric(x);
+		numeric nn = ex_to<numeric>(n);
+		numeric nx = ex_to<numeric>(x);
 		if (nx.is_integer()) {
 			// integer case 
 			if (nx.is_equal(_num1()))
@@ -533,7 +533,7 @@ static ex psi2_series(const ex & n,
 	if (!arg_pt.info(info_flags::integer) || arg_pt.info(info_flags::positive))
 		throw do_taylor();  // caught by function::series()
 	// if we got here we have to care for a pole of order n+1 at -m:
-	numeric m = -ex_to_numeric(arg_pt);
+	numeric m = -ex_to<numeric>(arg_pt);
 	ex recur;
 	for (numeric p; p<=m; ++p)
 		recur += power(arg+p,-n+_ex_1());

@@ -234,7 +234,7 @@ private:
 
 // utility functions
 
-/** Return the indexed object handled by an ex.
+/** Return the indexed object handled by an ex.  Deprecated: use ex_to<indexed>().
  *  This is unsafe: you need to check the type first. */
 inline const indexed &ex_to_indexed(const ex &e)
 {

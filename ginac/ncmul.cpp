@@ -164,7 +164,7 @@ ex ncmul::expand(unsigned options) const
 	for (exvector::const_iterator cit=expanded_seq.begin(); cit!=last; ++cit) {
 		if (is_ex_exactly_of_type((*cit),add)) {
 			positions_of_adds[number_of_adds]=current_position;
-			const add & expanded_addref=ex_to_add(*cit);
+			const add & expanded_addref=ex_to<add>(*cit);
 			number_of_add_operands[number_of_adds]=expanded_addref.seq.size();
 			number_of_expanded_terms *= expanded_addref.seq.size();
 			number_of_adds++;
@@ -193,7 +193,7 @@ ex ncmul::expand(unsigned options) const
 		term=expanded_seq;
 		for (l=0; l<number_of_adds; l++) {
 			GINAC_ASSERT(is_ex_exactly_of_type(expanded_seq[positions_of_adds[l]],add));
-			const add & addref=ex_to_add(expanded_seq[positions_of_adds[l]]);
+			const add & addref=ex_to<add>(expanded_seq[positions_of_adds[l]]);
 			term[positions_of_adds[l]]=addref.recombine_pair_to_ex(addref.seq[k[l]]);
 		}
 		distrseq.push_back((new ncmul(term,1))->setflag(status_flags::dynallocated |
@@ -447,12 +447,12 @@ ex ncmul::evalm(void) const
 	// If there are only matrices, simply multiply them
 	it = s->begin(); itend = s->end();
 	if (is_ex_of_type(*it, matrix)) {
-		matrix prod(ex_to_matrix(*it));
+		matrix prod(ex_to<matrix>(*it));
 		it++;
 		while (it != itend) {
 			if (!is_ex_of_type(*it, matrix))
 				goto no_matrix;
-			prod = prod.mul(ex_to_matrix(*it));
+			prod = prod.mul(ex_to<matrix>(*it));
 			it++;
 		}
 		delete s;

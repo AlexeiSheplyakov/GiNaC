@@ -95,7 +95,7 @@ symmetry::symmetry(const archive_node &n, const lst &sym_lst) : inherited(n, sym
 	while (true) {
 		ex e;
 		if (n.find_ex("child", e, sym_lst, i))
-			add(ex_to_symmetry(e));
+			add(ex_to<symmetry>(e));
 		else
 			break;
 		i++;
@@ -185,7 +185,7 @@ symmetry &symmetry::add(const symmetry &c)
 	// All children must have the same number of indices
 	if (type != none && !children.empty()) {
 		GINAC_ASSERT(is_ex_exactly_of_type(children[0], symmetry));
-		if (ex_to_symmetry(children[0]).indices.size() != c.indices.size())
+		if (ex_to<symmetry>(children[0]).indices.size() != c.indices.size())
 			throw (std::logic_error("symmetry:add(): children must have same number of indices"));
 	}
 
@@ -227,8 +227,8 @@ public:
 	{
 		GINAC_ASSERT(is_ex_exactly_of_type(lh, symmetry));
 		GINAC_ASSERT(is_ex_exactly_of_type(rh, symmetry));
-		GINAC_ASSERT(ex_to_symmetry(lh).indices.size() == ex_to_symmetry(rh).indices.size());
-		std::set<unsigned>::const_iterator ait = ex_to_symmetry(lh).indices.begin(), aitend = ex_to_symmetry(lh).indices.end(), bit = ex_to_symmetry(rh).indices.begin();
+		GINAC_ASSERT(ex_to<symmetry>(lh).indices.size() == ex_to<symmetry>(rh).indices.size());
+		std::set<unsigned>::const_iterator ait = ex_to<symmetry>(lh).indices.begin(), aitend = ex_to<symmetry>(lh).indices.end(), bit = ex_to<symmetry>(rh).indices.begin();
 		while (ait != aitend) {
 			int cmpval = v[*ait].compare(v[*bit]);
 			if (cmpval < 0)
@@ -253,8 +253,8 @@ public:
 	{
 		GINAC_ASSERT(is_ex_exactly_of_type(lh, symmetry));
 		GINAC_ASSERT(is_ex_exactly_of_type(rh, symmetry));
-		GINAC_ASSERT(ex_to_symmetry(lh).indices.size() == ex_to_symmetry(rh).indices.size());
-		std::set<unsigned>::const_iterator ait = ex_to_symmetry(lh).indices.begin(), aitend = ex_to_symmetry(lh).indices.end(), bit = ex_to_symmetry(rh).indices.begin();
+		GINAC_ASSERT(ex_to<symmetry>(lh).indices.size() == ex_to<symmetry>(rh).indices.size());
+		std::set<unsigned>::const_iterator ait = ex_to<symmetry>(lh).indices.begin(), aitend = ex_to<symmetry>(lh).indices.end(), bit = ex_to<symmetry>(rh).indices.begin();
 		while (ait != aitend) {
 			v[*ait].swap(v[*bit]);
 			++ait; ++bit;
@@ -275,7 +275,7 @@ int canonicalize(exvector::iterator v, const symmetry &symm)
 	exvector::const_iterator first = symm.children.begin(), last = symm.children.end();
 	while (first != last) {
 		GINAC_ASSERT(is_ex_exactly_of_type(*first, symmetry));
-		int child_sign = canonicalize(v, ex_to_symmetry(*first));
+		int child_sign = canonicalize(v, ex_to<symmetry>(*first));
 		if (child_sign == 0)
 			return 0;
 		if (child_sign != INT_MAX) {

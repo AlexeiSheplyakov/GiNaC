@@ -134,7 +134,7 @@ inline matrix inverse(const matrix & m)
 
 // utility functions
 
-/** Return the matrix object handled by an ex.
+/** Return the matrix object handled by an ex.  Deprecated: use ex_to<matrix>().
  *  This is unsafe: you need to check the type first. */
 inline const matrix &ex_to_matrix(const ex &e)
 {

@@ -135,15 +135,15 @@ void add::print(const print_context & c, unsigned level) const
 			} else if (it->coeff.compare(_num_1()) == 0) {
 				c.s << "-";
 				it->rest.bp->print(c, precedence());
-			} else if (ex_to_numeric(it->coeff).numer().compare(_num1()) == 0) {
+			} else if (ex_to<numeric>(it->coeff).numer().compare(_num1()) == 0) {
 				it->rest.bp->print(c, precedence());
 				c.s << "/";
-				ex_to_numeric(it->coeff).denom().print(c, precedence());
-			} else if (ex_to_numeric(it->coeff).numer().compare(_num_1()) == 0) {
+				ex_to<numeric>(it->coeff).denom().print(c, precedence());
+			} else if (ex_to<numeric>(it->coeff).numer().compare(_num_1()) == 0) {
 				c.s << "-";
 				it->rest.bp->print(c, precedence());
 				c.s << "/";
-				ex_to_numeric(it->coeff).denom().print(c, precedence());
+				ex_to<numeric>(it->coeff).denom().print(c, precedence());
 			} else {
 				it->coeff.bp->print(c, precedence());
 				c.s << "*";
@@ -189,7 +189,7 @@ void add::print(const print_context & c, unsigned level) const
 		// Then proceed with the remaining factors
 		epvector::const_iterator it = seq.begin(), itend = seq.end();
 		while (it != itend) {
-			coeff = ex_to_numeric(it->coeff);
+			coeff = ex_to<numeric>(it->coeff);
 			if (!first) {
 				if (coeff.csgn() == -1) c.s << '-'; else c.s << '+';
 			} else {
@@ -354,10 +354,10 @@ ex add::evalm(void) const
 		s->push_back(split_ex_to_pair(m));
 		if (is_ex_of_type(m, matrix)) {
 			if (first_term) {
-				sum = ex_to_matrix(m);
+				sum = ex_to<matrix>(m);
 				first_term = false;
 			} else
-				sum = sum.add(ex_to_matrix(m));
+				sum = sum.add(ex_to<matrix>(m));
 		} else
 			all_matrices = false;
 		it++;
@@ -426,8 +426,8 @@ ex add::thisexpairseq(epvector * vp, const ex & oc) const
 expair add::split_ex_to_pair(const ex & e) const
 {
 	if (is_ex_exactly_of_type(e,mul)) {
-		const mul &mulref = ex_to_mul(e);
-		ex numfactor(mulref.overall_coeff);
+		const mul &mulref(ex_to<mul>(e));
+		ex numfactor = mulref.overall_coeff;
 		mul *mulcopyp = new mul(mulref);
 		mulcopyp->overall_coeff = _ex1();
 		mulcopyp->clearflag(status_flags::evaluated);
@@ -443,8 +443,8 @@ expair add::combine_ex_with_coeff_to_pair(const ex & e,
 {
 	GINAC_ASSERT(is_ex_exactly_of_type(c, numeric));
 	if (is_ex_exactly_of_type(e, mul)) {
-		const mul &mulref = ex_to_mul(e);
-		ex numfactor(mulref.overall_coeff);
+		const mul &mulref(ex_to<mul>(e));
+		ex numfactor = mulref.overall_coeff;
 		mul *mulcopyp = new mul(mulref);
 		mulcopyp->overall_coeff = _ex1();
 		mulcopyp->clearflag(status_flags::evaluated);
@@ -455,11 +455,11 @@ expair add::combine_ex_with_coeff_to_pair(const ex & e,
 		else if (are_ex_trivially_equal(numfactor, _ex1()))
 			return expair(*mulcopyp, c);
 		else
-			return expair(*mulcopyp, ex_to_numeric(numfactor).mul_dyn(ex_to_numeric(c)));
+			return expair(*mulcopyp, ex_to<numeric>(numfactor).mul_dyn(ex_to<numeric>(c)));
 	} else if (is_ex_exactly_of_type(e, numeric)) {
 		if (are_ex_trivially_equal(c, _ex1()))
 			return expair(e, _ex1());
-		return expair(ex_to_numeric(e).mul_dyn(ex_to_numeric(c)), _ex1());
+		return expair(ex_to<numeric>(e).mul_dyn(ex_to<numeric>(c)), _ex1());
 	}
 	return expair(e, c);
 }
@@ -471,16 +471,16 @@ expair add::combine_pair_with_coeff_to_pair(const expair & p,
 	GINAC_ASSERT(is_ex_exactly_of_type(c,numeric));
 
 	if (is_ex_exactly_of_type(p.rest,numeric)) {
-		GINAC_ASSERT(ex_to_numeric(p.coeff).is_equal(_num1())); // should be normalized
-		return expair(ex_to_numeric(p.rest).mul_dyn(ex_to_numeric(c)),_ex1());
+		GINAC_ASSERT(ex_to<numeric>(p.coeff).is_equal(_num1())); // should be normalized
+		return expair(ex_to<numeric>(p.rest).mul_dyn(ex_to<numeric>(c)),_ex1());
 	}
 
-	return expair(p.rest,ex_to_numeric(p.coeff).mul_dyn(ex_to_numeric(c)));
+	return expair(p.rest,ex_to<numeric>(p.coeff).mul_dyn(ex_to<numeric>(c)));
 }
 	
 ex add::recombine_pair_to_ex(const expair & p) const
 {
-	if (ex_to_numeric(p.coeff).is_equal(_num1()))
+	if (ex_to<numeric>(p.coeff).is_equal(_num1()))
 		return p.rest;
 	else
 		return p.rest*p.coeff;

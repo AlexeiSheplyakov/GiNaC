@@ -228,7 +228,7 @@ static void get_symbol_stats(const ex &a, const ex &b, sym_desc_vec &v)
 static numeric lcmcoeff(const ex &e, const numeric &l)
 {
 	if (e.info(info_flags::rational))
-		return lcm(ex_to_numeric(e).denom(), l);
+		return lcm(ex_to<numeric>(e).denom(), l);
 	else if (is_ex_exactly_of_type(e, add)) {
 		numeric c = _num1();
 		for (unsigned i=0; i<e.nops(); i++)
@@ -243,7 +243,7 @@ static numeric lcmcoeff(const ex &e, const numeric &l)
 		if (is_ex_exactly_of_type(e.op(0), symbol))
 			return l;
 		else
-			return pow(lcmcoeff(e.op(0), l), ex_to_numeric(e.op(1)));
+			return pow(lcmcoeff(e.op(0), l), ex_to<numeric>(e.op(1)));
 	}
 	return l;
 }
@@ -286,7 +286,7 @@ static ex multiply_lcm(const ex &e, const numeric &lcm)
 		if (is_ex_exactly_of_type(e.op(0), symbol))
 			return e * lcm;
 		else
-			return pow(multiply_lcm(e.op(0), lcm.power(ex_to_numeric(e.op(1)).inverse())), e.op(1));
+			return pow(multiply_lcm(e.op(0), lcm.power(ex_to<numeric>(e.op(1)).inverse())), e.op(1));
 	} else
 		return e * lcm;
 }
@@ -321,11 +321,11 @@ numeric add::integer_content(void) const
 	while (it != itend) {
 		GINAC_ASSERT(!is_ex_exactly_of_type(it->rest,numeric));
 		GINAC_ASSERT(is_ex_exactly_of_type(it->coeff,numeric));
-		c = gcd(ex_to_numeric(it->coeff), c);
+		c = gcd(ex_to<numeric>(it->coeff), c);
 		it++;
 	}
 	GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
-	c = gcd(ex_to_numeric(overall_coeff),c);
+	c = gcd(ex_to<numeric>(overall_coeff),c);
 	return c;
 }
 
@@ -340,7 +340,7 @@ numeric mul::integer_content(void) const
 	}
 #endif // def DO_GINAC_ASSERT
 	GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
-	return abs(ex_to_numeric(overall_coeff));
+	return abs(ex_to<numeric>(overall_coeff));
 }
 
 
@@ -1204,11 +1204,11 @@ numeric add::max_coefficient(void) const
 	epvector::const_iterator it = seq.begin();
 	epvector::const_iterator itend = seq.end();
 	GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
-	numeric cur_max = abs(ex_to_numeric(overall_coeff));
+	numeric cur_max = abs(ex_to<numeric>(overall_coeff));
 	while (it != itend) {
 		numeric a;
 		GINAC_ASSERT(!is_ex_exactly_of_type(it->rest,numeric));
-		a = abs(ex_to_numeric(it->coeff));
+		a = abs(ex_to<numeric>(it->coeff));
 		if (a > cur_max)
 			cur_max = a;
 		it++;
@@ -1227,7 +1227,7 @@ numeric mul::max_coefficient(void) const
 	}
 #endif // def DO_GINAC_ASSERT
 	GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
-	return abs(ex_to_numeric(overall_coeff));
+	return abs(ex_to<numeric>(overall_coeff));
 }
 
 
@@ -1262,13 +1262,13 @@ ex add::smod(const numeric &xi) const
 	epvector::const_iterator itend = seq.end();
 	while (it != itend) {
 		GINAC_ASSERT(!is_ex_exactly_of_type(it->rest,numeric));
-		numeric coeff = GiNaC::smod(ex_to_numeric(it->coeff), xi);
+		numeric coeff = GiNaC::smod(ex_to<numeric>(it->coeff), xi);
 		if (!coeff.is_zero())
 			newseq.push_back(expair(it->rest, coeff));
 		it++;
 	}
 	GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
-	numeric coeff = GiNaC::smod(ex_to_numeric(overall_coeff), xi);
+	numeric coeff = GiNaC::smod(ex_to<numeric>(overall_coeff), xi);
 	return (new add(newseq,coeff))->setflag(status_flags::dynallocated);
 }
 
@@ -1284,7 +1284,7 @@ ex mul::smod(const numeric &xi) const
 #endif // def DO_GINAC_ASSERT
 	mul * mulcopyp = new mul(*this);
 	GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
-	mulcopyp->overall_coeff = GiNaC::smod(ex_to_numeric(overall_coeff),xi);
+	mulcopyp->overall_coeff = GiNaC::smod(ex_to<numeric>(overall_coeff),xi);
 	mulcopyp->clearflag(status_flags::evaluated);
 	mulcopyp->clearflag(status_flags::hash_calculated);
 	return mulcopyp->setflag(status_flags::dynallocated);
@@ -1336,11 +1336,11 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 
 	// GCD of two numeric values -> CLN
 	if (is_ex_exactly_of_type(a, numeric) && is_ex_exactly_of_type(b, numeric)) {
-		numeric g = gcd(ex_to_numeric(a), ex_to_numeric(b));
+		numeric g = gcd(ex_to<numeric>(a), ex_to<numeric>(b));
 		if (ca)
-			*ca = ex_to_numeric(a) / g;
+			*ca = ex_to<numeric>(a) / g;
 		if (cb)
-			*cb = ex_to_numeric(b) / g;
+			*cb = ex_to<numeric>(b) / g;
 		return g;
 	}
 
@@ -1386,7 +1386,7 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 			if (divide_in_z(p, g, ca ? *ca : dummy, var) && divide_in_z(q, g, cb ? *cb : dummy, var)) {
 				g *= gc;
 				ex lc = g.lcoeff(x);
-				if (is_ex_exactly_of_type(lc, numeric) && ex_to_numeric(lc).is_negative())
+				if (is_ex_exactly_of_type(lc, numeric) && ex_to<numeric>(lc).is_negative())
 					return -g;
 				else
 					return g;
@@ -1399,7 +1399,7 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 					if (ca)
 						*ca = cp;
 					ex lc = g.lcoeff(x);
-					if (is_ex_exactly_of_type(lc, numeric) && ex_to_numeric(lc).is_negative())
+					if (is_ex_exactly_of_type(lc, numeric) && ex_to<numeric>(lc).is_negative())
 						return -g;
 					else
 						return g;
@@ -1412,7 +1412,7 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 					if (cb)
 						*cb = cq;
 					ex lc = g.lcoeff(x);
-					if (is_ex_exactly_of_type(lc, numeric) && ex_to_numeric(lc).is_negative())
+					if (is_ex_exactly_of_type(lc, numeric) && ex_to<numeric>(lc).is_negative())
 						return -g;
 					else
 						return g;
@@ -1445,7 +1445,7 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args)
 
 	// GCD of numerics -> CLN
 	if (is_ex_exactly_of_type(a, numeric) && is_ex_exactly_of_type(b, numeric)) {
-		numeric g = gcd(ex_to_numeric(a), ex_to_numeric(b));
+		numeric g = gcd(ex_to<numeric>(a), ex_to<numeric>(b));
 		if (ca || cb) {
 			if (g.is_zero()) {
 				if (ca)
@@ -1454,9 +1454,9 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args)
 					*cb = _ex0();
 			} else {
 				if (ca)
-					*ca = ex_to_numeric(a) / g;
+					*ca = ex_to<numeric>(a) / g;
 				if (cb)
-					*cb = ex_to_numeric(b) / g;
+					*cb = ex_to<numeric>(b) / g;
 			}
 		}
 		return g;
@@ -1676,7 +1676,7 @@ factored_b:
 ex lcm(const ex &a, const ex &b, bool check_args)
 {
 	if (is_ex_exactly_of_type(a, numeric) && is_ex_exactly_of_type(b, numeric))
-		return lcm(ex_to_numeric(a), ex_to_numeric(b));
+		return lcm(ex_to<numeric>(a), ex_to<numeric>(b));
 	if (check_args && (!a.info(info_flags::rational_polynomial) || !b.info(info_flags::rational_polynomial)))
 		throw(std::invalid_argument("lcm: arguments must be polynomials over the rationals"));
 	
@@ -1742,7 +1742,7 @@ ex sqrfree(const ex &a, const lst &l)
 	// Find the symbol to factor in at this stage
 	if (!is_ex_of_type(args.op(0), symbol))
 		throw (std::runtime_error("sqrfree(): invalid factorization variable"));
-	const symbol x = ex_to_symbol(args.op(0));
+	const symbol x = ex_to<symbol>(args.op(0));
 	// convert the argument from something in Q[X] to something in Z[X]
 	numeric lcm = lcm_of_coefficients_denominators(a);
 	ex tmp = multiply_lcm(a,lcm);
@@ -1908,7 +1908,7 @@ static ex frac_cancel(const ex &n, const ex &d)
 	const symbol *x;
 	if (get_first_symbol(den, x)) {
 		GINAC_ASSERT(is_ex_exactly_of_type(den.unit(*x),numeric));
-		if (ex_to_numeric(den.unit(*x)).is_negative()) {
+		if (ex_to<numeric>(den.unit(*x)).is_negative()) {
 			num *= _ex_1();
 			den *= _ex_1();
 		}

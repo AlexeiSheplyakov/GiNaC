@@ -209,10 +209,6 @@ extern const ${STRUCTURE} some_${STRUCTURE};
 extern const type_info & typeid_${STRUCTURE};
 extern const unsigned tinfo_${STRUCTURE};
 
-// macros
-
-#define ex_to_${STRUCTURE}(X) (static_cast<${STRUCTURE} const &>(*(X).bp))
-
 } // namespace GiNaC
 
 #endif // ndef _${STRUCTURE_UC}_H_

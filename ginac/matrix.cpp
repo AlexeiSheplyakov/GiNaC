@@ -308,7 +308,7 @@ ex matrix::eval_indexed(const basic & i) const
 		if (row != 1 && col != 1)
 			throw (std::runtime_error("matrix::eval_indexed(): vector must have exactly 1 index"));
 
-		const idx & i1 = ex_to_idx(i.op(1));
+		const idx & i1 = ex_to<idx>(i.op(1));
 
 		if (col == 1) {
 
@@ -318,7 +318,7 @@ ex matrix::eval_indexed(const basic & i) const
 
 			// Index numeric -> return vector element
 			if (all_indices_unsigned) {
-				unsigned n1 = ex_to_numeric(i1.get_value()).to_int();
+				unsigned n1 = ex_to<numeric>(i1.get_value()).to_int();
 				if (n1 >= row)
 					throw (std::runtime_error("matrix::eval_indexed(): value of index exceeds number of vector elements"));
 				return (*this)(n1, 0);
@@ -332,7 +332,7 @@ ex matrix::eval_indexed(const basic & i) const
 
 			// Index numeric -> return vector element
 			if (all_indices_unsigned) {
-				unsigned n1 = ex_to_numeric(i1.get_value()).to_int();
+				unsigned n1 = ex_to<numeric>(i1.get_value()).to_int();
 				if (n1 >= col)
 					throw (std::runtime_error("matrix::eval_indexed(): value of index exceeds number of vector elements"));
 				return (*this)(0, n1);
@@ -342,8 +342,8 @@ ex matrix::eval_indexed(const basic & i) const
 	} else if (i.nops() == 3) {
 
 		// Two indices
-		const idx & i1 = ex_to_idx(i.op(1));
-		const idx & i2 = ex_to_idx(i.op(2));
+		const idx & i1 = ex_to<idx>(i.op(1));
+		const idx & i2 = ex_to<idx>(i.op(2));
 
 		if (!i1.get_dim().is_equal(row))
 			throw (std::runtime_error("matrix::eval_indexed(): dimension of first index must match number of rows"));
@@ -356,7 +356,7 @@ ex matrix::eval_indexed(const basic & i) const
 
 		// Both indices numeric -> return matrix element
 		if (all_indices_unsigned) {
-			unsigned n1 = ex_to_numeric(i1.get_value()).to_int(), n2 = ex_to_numeric(i2.get_value()).to_int();
+			unsigned n1 = ex_to<numeric>(i1.get_value()).to_int(), n2 = ex_to<numeric>(i2.get_value()).to_int();
 			if (n1 >= row)
 				throw (std::runtime_error("matrix::eval_indexed(): value of first index exceeds number of rows"));
 			if (n2 >= col)
@@ -382,8 +382,8 @@ ex matrix::add_indexed(const ex & self, const ex & other) const
 	if (is_ex_of_type(other.op(0), matrix)) {
 		GINAC_ASSERT(other.nops() == 2 || other.nops() == 3);
 
-		const matrix &self_matrix = ex_to_matrix(self.op(0));
-		const matrix &other_matrix = ex_to_matrix(other.op(0));
+		const matrix &self_matrix = ex_to<matrix>(self.op(0));
+		const matrix &other_matrix = ex_to<matrix>(other.op(0));
 
 		if (self.nops() == 2 && other.nops() == 2) { // vector + vector
 
@@ -413,7 +413,7 @@ ex matrix::scalar_mul_indexed(const ex & self, const numeric & other) const
 	GINAC_ASSERT(is_ex_of_type(self.op(0), matrix));
 	GINAC_ASSERT(self.nops() == 2 || self.nops() == 3);
 
-	const matrix &self_matrix = ex_to_matrix(self.op(0));
+	const matrix &self_matrix = ex_to<matrix>(self.op(0));
 
 	if (self.nops() == 2)
 		return indexed(self_matrix.mul(other), self.op(1));
@@ -435,8 +435,8 @@ bool matrix::contract_with(exvector::iterator self, exvector::iterator other, ex
 
 	GINAC_ASSERT(other->nops() == 2 || other->nops() == 3);
 
-	const matrix &self_matrix = ex_to_matrix(self->op(0));
-	const matrix &other_matrix = ex_to_matrix(other->op(0));
+	const matrix &self_matrix = ex_to<matrix>(self->op(0));
+	const matrix &other_matrix = ex_to<matrix>(other->op(0));
 
 	if (self->nops() == 2) {
 		unsigned self_dim = (self_matrix.col == 1) ? self_matrix.row : self_matrix.col;
@@ -628,10 +628,10 @@ matrix matrix::pow(const ex & expn) const
 			numeric k;
 			matrix prod(row,col);
 			if (expn.info(info_flags::negative)) {
-				k = -ex_to_numeric(expn);
+				k = -ex_to<numeric>(expn);
 				prod = this->inverse();
 			} else {
-				k = ex_to_numeric(expn);
+				k = ex_to<numeric>(expn);
 				prod = *this;
 			}
 			matrix result(row,col);
@@ -1425,10 +1425,10 @@ int matrix::pivot(unsigned ro, unsigned co, bool symbolic)
 		// search largest element in column co beginning at row ro
 		GINAC_ASSERT(is_ex_of_type(this->m[k*col+co],numeric));
 		unsigned kmax = k+1;
-		numeric mmax = abs(ex_to_numeric(m[kmax*col+co]));
+		numeric mmax = abs(ex_to<numeric>(m[kmax*col+co]));
 		while (kmax<row) {
 			GINAC_ASSERT(is_ex_of_type(this->m[kmax*col+co],numeric));
-			numeric tmp = ex_to_numeric(this->m[kmax*col+co]);
+			numeric tmp = ex_to<numeric>(this->m[kmax*col+co]);
 			if (abs(tmp) > mmax) {
 				mmax = tmp;
 				k = kmax;

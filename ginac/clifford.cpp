@@ -153,11 +153,11 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 	GINAC_ASSERT(is_ex_of_type(*self, clifford));
 	GINAC_ASSERT(is_ex_of_type(*other, indexed));
 	GINAC_ASSERT(is_ex_of_type(self->op(0), diracgamma));
-	unsigned char rl = ex_to_clifford(*self).get_representation_label();
+	unsigned char rl = ex_to<clifford>(*self).get_representation_label();
 
 	if (is_ex_of_type(*other, clifford)) {
 
-		ex dim = ex_to_idx(self->op(1)).get_dim();
+		ex dim = ex_to<idx>(self->op(1)).get_dim();
 
 		// gamma~mu gamma.mu = dim ONE
 		if (other - self == 1) {
@@ -386,7 +386,7 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 {
 	if (is_ex_of_type(e, clifford)) {
 
-		if (ex_to_clifford(e).get_representation_label() == rl
+		if (ex_to<clifford>(e).get_representation_label() == rl
 		 && is_ex_of_type(e.op(0), diracone))
 			return trONE;
 		else

@@ -247,7 +247,7 @@ protected:
 
 // utility functions
 
-/** Return the ${CONTAINER} object handled by an ex.
+/** Return the ${CONTAINER} object handled by an ex.  Deprecated: use ex_to<${CONTAINER}>().
  *  This is unsafe: you need to check the type first. */
 inline const ${CONTAINER} &ex_to_${CONTAINER}(const ex &e)
 {

@@ -47,13 +47,13 @@ static ex abs_evalf(const ex & arg)
 		TYPECHECK(arg,numeric)
 	END_TYPECHECK(abs(arg))
 	
-	return abs(ex_to_numeric(arg));
+	return abs(ex_to<numeric>(arg));
 }
 
 static ex abs_eval(const ex & arg)
 {
 	if (is_ex_exactly_of_type(arg, numeric))
-		return abs(ex_to_numeric(arg));
+		return abs(ex_to<numeric>(arg));
 	else
 		return abs(arg).hold();
 }
@@ -72,17 +72,17 @@ static ex csgn_evalf(const ex & arg)
 		TYPECHECK(arg,numeric)
 	END_TYPECHECK(csgn(arg))
 	
-	return csgn(ex_to_numeric(arg));
+	return csgn(ex_to<numeric>(arg));
 }
 
 static ex csgn_eval(const ex & arg)
 {
 	if (is_ex_exactly_of_type(arg, numeric))
-		return csgn(ex_to_numeric(arg));
+		return csgn(ex_to<numeric>(arg));
 	
 	else if (is_ex_of_type(arg, mul) &&
 	         is_ex_of_type(arg.op(arg.nops()-1),numeric)) {
-		numeric oc = ex_to_numeric(arg.op(arg.nops()-1));
+		numeric oc = ex_to<numeric>(arg.op(arg.nops()-1));
 		if (oc.is_real()) {
 			if (oc > 0)
 				// csgn(42*x) -> csgn(x)
@@ -111,7 +111,7 @@ static ex csgn_series(const ex & arg,
 {
 	const ex arg_pt = arg.subs(rel);
 	if (arg_pt.info(info_flags::numeric)
-	    && ex_to_numeric(arg_pt).real().is_zero()
+	    && ex_to<numeric>(arg_pt).real().is_zero()
 	    && !(options & series_options::suppress_branchcut))
 		throw (std::domain_error("csgn_series(): on imaginary axis"));
 	
@@ -136,9 +136,9 @@ static ex eta_evalf(const ex & x, const ex & y)
 		TYPECHECK(y,numeric)
 	END_TYPECHECK(eta(x,y))
 		
-	numeric xim = imag(ex_to_numeric(x));
-	numeric yim = imag(ex_to_numeric(y));
-	numeric xyim = imag(ex_to_numeric(x*y));
+	numeric xim = imag(ex_to<numeric>(x));
+	numeric yim = imag(ex_to<numeric>(y));
+	numeric xyim = imag(ex_to<numeric>(x*y));
 	return evalf(I/4*Pi)*((csgn(-xim)+1)*(csgn(-yim)+1)*(csgn(xyim)+1)-(csgn(xim)+1)*(csgn(yim)+1)*(csgn(-xyim)+1));
 }
 
@@ -147,9 +147,9 @@ static ex eta_eval(const ex & x, const ex & y)
 	if (is_ex_exactly_of_type(x, numeric) &&
 		is_ex_exactly_of_type(y, numeric)) {
 		// don't call eta_evalf here because it would call Pi.evalf()!
-		numeric xim = imag(ex_to_numeric(x));
-		numeric yim = imag(ex_to_numeric(y));
-		numeric xyim = imag(ex_to_numeric(x*y));
+		numeric xim = imag(ex_to<numeric>(x));
+		numeric yim = imag(ex_to<numeric>(y));
+		numeric xyim = imag(ex_to<numeric>(x*y));
 		return (I/4)*Pi*((csgn(-xim)+1)*(csgn(-yim)+1)*(csgn(xyim)+1)-(csgn(xim)+1)*(csgn(yim)+1)*(csgn(-xyim)+1));
 	}
 	
@@ -164,9 +164,9 @@ static ex eta_series(const ex & arg1,
 {
 	const ex arg1_pt = arg1.subs(rel);
 	const ex arg2_pt = arg2.subs(rel);
-	if (ex_to_numeric(arg1_pt).imag().is_zero() ||
-		ex_to_numeric(arg2_pt).imag().is_zero() ||
-		ex_to_numeric(arg1_pt*arg2_pt).imag().is_zero()) {
+	if (ex_to<numeric>(arg1_pt).imag().is_zero() ||
+		ex_to<numeric>(arg2_pt).imag().is_zero() ||
+		ex_to<numeric>(arg1_pt*arg2_pt).imag().is_zero()) {
 		throw (std::domain_error("eta_series(): on discontinuity"));
 	}
 	epvector seq;
@@ -190,7 +190,7 @@ static ex Li2_evalf(const ex & x)
 		TYPECHECK(x,numeric)
 	END_TYPECHECK(Li2(x))
 	
-	return Li2(ex_to_numeric(x));  // -> numeric Li2(numeric)
+	return Li2(ex_to<numeric>(x));  // -> numeric Li2(numeric)
 }
 
 static ex Li2_eval(const ex & x)
@@ -289,7 +289,7 @@ static ex Li2_series(const ex &x, const relational &rel, int order, unsigned opt
 		}
 		// third special case: x real, >=1 (branch cut)
 		if (!(options & series_options::suppress_branchcut) &&
-			ex_to_numeric(x_pt).is_real() && ex_to_numeric(x_pt)>1) {
+			ex_to<numeric>(x_pt).is_real() && ex_to<numeric>(x_pt)>1) {
 			// method:
 			// This is the branch cut: assemble the primitive series manually
 			// and then add the corresponding complex step function.
@@ -344,7 +344,7 @@ static ex factorial_evalf(const ex & x)
 static ex factorial_eval(const ex & x)
 {
 	if (is_ex_exactly_of_type(x, numeric))
-		return factorial(ex_to_numeric(x));
+		return factorial(ex_to<numeric>(x));
 	else
 		return factorial(x).hold();
 }
@@ -364,7 +364,7 @@ static ex binomial_evalf(const ex & x, const ex & y)
 static ex binomial_eval(const ex & x, const ex &y)
 {
 	if (is_ex_exactly_of_type(x, numeric) && is_ex_exactly_of_type(y, numeric))
-		return binomial(ex_to_numeric(x), ex_to_numeric(y));
+		return binomial(ex_to<numeric>(x), ex_to<numeric>(y));
 	else
 		return binomial(x, y).hold();
 }
@@ -471,7 +471,7 @@ ex lsolve(const ex &eqns, const ex &symbols)
 		ex eq = eqns.op(r).op(0)-eqns.op(r).op(1); // lhs-rhs==0
 		ex linpart = eq;
 		for (unsigned c=0; c<symbols.nops(); c++) {
-			ex co = eq.coeff(ex_to_symbol(symbols.op(c)),1);
+			ex co = eq.coeff(ex_to<symbol>(symbols.op(c)),1);
 			linpart -= co*symbols.op(c);
 			sys(r,c) = co;
 		}

@@ -91,7 +91,7 @@ protected:
 
 // utility functions
 
-/** Return the mul object handled by an ex.
+/** Return the mul object handled by an ex.  Deprecated: use ex_to<mul>().
  *  This is unsafe: you need to check the type first. */
 inline const mul &ex_to_mul(const ex &e)
 {

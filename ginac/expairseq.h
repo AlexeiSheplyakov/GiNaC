@@ -189,7 +189,7 @@ protected:
 
 // utility functions
 
-/** Return the expairseq object handled by an ex.
+/** Return the expairseq object handled by an ex.  Deprecated: use ex_to<expairseq>().
  *  This is unsafe: you need to check the type first. */
 inline const expairseq &ex_to_expairseq(const ex &e)
 {

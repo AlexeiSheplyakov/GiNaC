@@ -263,7 +263,7 @@ relational::operator bool() const
 		// cannot decide on non-numerical results
 		return o==not_equal ? true : false;
 	
-	int cmpval = ex_to_numeric(df).compare(_num0());
+	int cmpval = ex_to<numeric>(df).compare(_num0());
 	switch (o) {
 	case equal:
 		return cmpval==0;

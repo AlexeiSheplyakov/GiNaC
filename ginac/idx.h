@@ -175,21 +175,21 @@ protected:
 
 // utility functions
 
-/** Return the idx object handled by an ex.
+/** Return the idx object handled by an ex.  Deprecated: use ex_to<idx>().
  *  This is unsafe: you need to check the type first. */
 inline const idx &ex_to_idx(const ex & e)
 {
 	return static_cast<const idx &>(*e.bp);
 }
 
-/** Return the varidx object handled by an ex.
+/** Return the varidx object handled by an ex.  Deprecated: use ex_to<varidx>().
  *  This is unsafe: you need to check the type first. */
 inline const varidx &ex_to_varidx(const ex & e)
 {
 	return static_cast<const varidx &>(*e.bp);
 }
 
-/** Return the spinidx object handled by an ex.
+/** Return the spinidx object handled by an ex.  Deprecated: use ex_to<spinidx>().
  *  This is unsafe: you need to check the type first. */
 inline const spinidx &ex_to_spinidx(const ex & e)
 {

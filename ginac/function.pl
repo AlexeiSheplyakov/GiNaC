@@ -745,7 +745,7 @@ ex function::eval(int level) const
 	if (seq.size() > 1 && !(opt.symtree.is_zero())) {
 		exvector v = seq;
 		GINAC_ASSERT(is_ex_exactly_of_type(opt.symtree, symmetry));
-		int sig = canonicalize(v.begin(), ex_to_symmetry(opt.symtree));
+		int sig = canonicalize(v.begin(), ex_to<symmetry>(opt.symtree));
 		if (sig != INT_MAX) {
 			// Something has changed while sorting arguments, more evaluations later
 			if (sig == 0)
@@ -840,7 +840,7 @@ ${series_switch_statement}
 bool function::match(const ex & pattern, lst & repl_lst) const
 {
 	// Serial number must match
-	if (is_ex_of_type(pattern, function) && serial != ex_to_function(pattern).serial)
+	if (is_ex_of_type(pattern, function) && serial != ex_to<function>(pattern).serial)
 		return false;
 	return inherited::match(pattern, repl_lst);
 }
@@ -868,7 +868,7 @@ ex function::derivative(const symbol & s) const
 		for (unsigned i=0; i!=fcn.nops(); i++) {
 			arg_diff = fcn.op(i).diff(s);
 			if (!arg_diff.is_zero()) {
-				lst new_lst = ex_to_lst(seq[1]);
+				lst new_lst = ex_to<lst>(seq[1]);
 				new_lst.append(i);
 				result += arg_diff * Derivative(fcn, new_lst);
 			}

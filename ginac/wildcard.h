@@ -57,7 +57,7 @@ private:
 
 // utility functions
 
-/** Return the wildcard object handled by an ex.
+/** Return the wildcard object handled by an ex.  Deprecated: use ex_to<wildcard>().
  *  This is unsafe: you need to check the type first. */
 inline const wildcard &ex_to_wildcard(const ex &e)
 {

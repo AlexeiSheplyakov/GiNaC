@@ -121,7 +121,7 @@ ex symbol::unarchive(const archive_node &n, const lst &sym_lst)
 	
 	// If symbol is in sym_lst, return the existing symbol
 	for (unsigned i=0; i<sym_lst.nops(); i++) {
-		if (is_ex_of_type(sym_lst.op(i), symbol) && (ex_to_symbol(sym_lst.op(i)).name == ex_to_symbol(s).name))
+		if (is_ex_of_type(sym_lst.op(i), symbol) && (ex_to<symbol>(sym_lst.op(i)).name == ex_to<symbol>(s).name))
 			return sym_lst.op(i);
 	}
 	return s;
