@@ -62,7 +62,7 @@ unsigned time_dennyfliegner(void)
     
     vector<unsigned> sizes;
     vector<double> times;
-    timer rolex;
+    timer breitling;
     
     sizes.push_back(25);
     sizes.push_back(50);
@@ -70,9 +70,9 @@ unsigned time_dennyfliegner(void)
     sizes.push_back(200);
     
     for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i) {
-        rolex.start();
+        breitling.start();
         result += expand_subs(*i);
-        times.push_back(rolex.read());
+        times.push_back(breitling.read());
         cout << '.' << flush;
     }
     

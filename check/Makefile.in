@@ -111,7 +111,7 @@ exams_LDADD = ../ginac/libginac.la
 checks_SOURCES = check_numeric.cpp check_inifcns.cpp check_matrices.cpp   check_lsolve.cpp genex.cpp checks.cpp checks.h
 
 checks_LDADD = ../ginac/libginac.la
-times_SOURCES = time_dennyfliegner.cpp time_gammaseries.cpp   time_vandermonde.cpp time_toeplitz.cpp time_lw_A.cpp time_lw_B.cpp   time_lw_C.cpp time_lw_D.cpp time_lw_E.cpp time_lw_F.cpp time_lw_G.cpp   time_lw_H.cpp time_lw_M1.cpp time_lw_O.cpp time_lw_P.cpp time_lw_Pprime.cpp   timer.cpp times.cpp times.h
+times_SOURCES = time_dennyfliegner.cpp time_gammaseries.cpp   time_vandermonde.cpp time_toeplitz.cpp time_lw_A.cpp time_lw_B.cpp   time_lw_C.cpp time_lw_D.cpp time_lw_E.cpp time_lw_F.cpp time_lw_G.cpp   time_lw_H.cpp time_lw_IJKL.cpp time_lw_M1.cpp time_lw_O.cpp time_lw_P.cpp   time_lw_Pprime.cpp timer.cpp times.cpp times.h
 
 times_LDADD = ../ginac/libginac.la
 INCLUDES = -I$(srcdir)/../ginac
@@ -138,7 +138,8 @@ checks_LDFLAGS =
 times_OBJECTS =  time_dennyfliegner.o time_gammaseries.o \
 time_vandermonde.o time_toeplitz.o time_lw_A.o time_lw_B.o time_lw_C.o \
 time_lw_D.o time_lw_E.o time_lw_F.o time_lw_G.o time_lw_H.o \
-time_lw_M1.o time_lw_O.o time_lw_P.o time_lw_Pprime.o timer.o times.o
+time_lw_IJKL.o time_lw_M1.o time_lw_O.o time_lw_P.o time_lw_Pprime.o \
+timer.o times.o
 times_DEPENDENCIES =  ../ginac/libginac.la
 times_LDFLAGS = 
 CXXFLAGS = @CXXFLAGS@
@@ -167,10 +168,10 @@ DEP_FILES =  .deps/check_inifcns.P .deps/check_lsolve.P \
 .deps/exams.P .deps/genex.P .deps/time_dennyfliegner.P \
 .deps/time_gammaseries.P .deps/time_lw_A.P .deps/time_lw_B.P \
 .deps/time_lw_C.P .deps/time_lw_D.P .deps/time_lw_E.P .deps/time_lw_F.P \
-.deps/time_lw_G.P .deps/time_lw_H.P .deps/time_lw_M1.P \
-.deps/time_lw_O.P .deps/time_lw_P.P .deps/time_lw_Pprime.P \
-.deps/time_toeplitz.P .deps/time_vandermonde.P .deps/timer.P \
-.deps/times.P
+.deps/time_lw_G.P .deps/time_lw_H.P .deps/time_lw_IJKL.P \
+.deps/time_lw_M1.P .deps/time_lw_O.P .deps/time_lw_P.P \
+.deps/time_lw_Pprime.P .deps/time_toeplitz.P .deps/time_vandermonde.P \
+.deps/timer.P .deps/times.P
 SOURCES = $(exams_SOURCES) $(checks_SOURCES) $(times_SOURCES)
 OBJECTS = $(exams_OBJECTS) $(checks_OBJECTS) $(times_OBJECTS)
 

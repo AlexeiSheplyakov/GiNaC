@@ -114,6 +114,13 @@ int main()
     }
     
     try {
+        result += time_lw_IJKL();
+    } catch (const exception &e) {
+        cout << "Error: caught exception " << e.what() << endl;
+        ++result;
+    }
+    
+    try {
         result += time_lw_M1();
     } catch (const exception &e) {
         cout << "Error: caught exception " << e.what() << endl;
