@@ -14,6 +14,7 @@ AC_DEFUN(GINAC_LIB_READLINE_VERSION,
 [AC_CACHE_CHECK([for version of libreadline], ginac_cv_rlversion, [
 AC_TRY_RUN([
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <readline/readline.h>
 
