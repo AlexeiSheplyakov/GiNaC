@@ -1,12 +1,22 @@
-Installation:
+Prerequisites
 =============
+
+GiNaC requires the CLN library by Bruno Haible, available at
+<ftp://ftp.santafe.eu/pub/gnu/> or <ftp://ftp.ilog.fr/pub/Users/haible/gnu/>.
+You will also need a C++ compiler adhering to the ANSI standard (we used gcc
+for development so if you have a different compiler you are on your own).
+
+
+Installation
+============
 
 As with any autoconfiguring GNU software, installation is as easy as this:
 
-sysprompt> ./configure
-sysprompt> make
-sysprompt> make check
-sysprompt> make install
+ $ ./configure
+ $ make
+ $ make check
+[become root if necessary]
+ $ make install
 
 Known to work with:
   - Linux/x86, EGCS-1.1.2 or GCC 2-95.
@@ -14,12 +24,25 @@ Known to work with:
 The "make" step takes about 10 minutes, on a 586 DX / 133 MHz / 64 MB or
 about 2 minutes on a P-III /550 MHz / 512 MB.
 
+The "configure" script can be given a number of options to enable and
+disable various features. For a complete list, type:
+
+ $ ./configure --help
+
+A few of the more important ones:
+
+ --prefix=PREFIX        install architecture-independent files in PREFIX
+                        [defaults to /usr/local]
+ --exec-prefix=EPREFIX  install architecture-dependent files in EPREFIX
+                        [defaults to the value given to --prefix]
+ --disable-shared       suppress the creation of a shared version of libginac
+
 More detailed installation instructions can be found in the documentation,
 in the doc/ directory.
 
 
-Problems with CLN:
-==================
+Problems with CLN
+=================
 
 You should use at least CLN V1.0.2, since all earlier ones are
 somewhat buggy.  Even V1.0.1 has a few problems and GiNaC will not
