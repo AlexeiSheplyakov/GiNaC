@@ -103,7 +103,7 @@ VERSION = @VERSION@
 YACC = @YACC@
 
 lib_LTLIBRARIES = libginac.la
-libginac_la_SOURCES = add.cpp archive.cpp basic.cpp constant.cpp ex.cpp   expairseq.cpp exprseq.cpp fail.cpp function.cpp inifcns.cpp   inifcns_trans.cpp inifcns_zeta.cpp inifcns_gamma.cpp matrix.cpp mul.cpp   normal.cpp numeric.cpp operators.cpp power.cpp registrar.cpp relational.cpp   symbol.cpp pseries.cpp utils.cpp ncmul.cpp clifford.cpp structure.cpp   color.cpp indexed.cpp idx.cpp isospin.cpp exprseq_suppl.cpp lst.cpp   lst_suppl.cpp simp_lor.cpp coloridx.cpp lorentzidx.cpp lortensor.cpp   debugmsg.h utils.h 
+libginac_la_SOURCES = add.cpp archive.cpp basic.cpp constant.cpp ex.cpp   expairseq.cpp exprseq.cpp fail.cpp function.cpp inifcns.cpp   inifcns_trans.cpp inifcns_zeta.cpp inifcns_gamma.cpp matrix.cpp mul.cpp   normal.cpp numeric.cpp operators.cpp power.cpp registrar.cpp relational.cpp   symbol.cpp pseries.cpp utils.cpp ncmul.cpp clifford.cpp structure.cpp   color.cpp indexed.cpp idx.cpp isospin.cpp exprseq_suppl.cpp lst.cpp   lst_suppl.cpp simp_lor.cpp coloridx.cpp lorentzidx.cpp lortensor.cpp   remember.h remember.cpp debugmsg.h utils.h 
 
 libginac_la_LDFLAGS = -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)   -release $(LT_RELEASE)
 
@@ -128,7 +128,7 @@ inifcns_zeta.lo inifcns_gamma.lo matrix.lo mul.lo normal.lo numeric.lo \
 operators.lo power.lo registrar.lo relational.lo symbol.lo pseries.lo \
 utils.lo ncmul.lo clifford.lo structure.lo color.lo indexed.lo idx.lo \
 isospin.lo exprseq_suppl.lo lst.lo lst_suppl.lo simp_lor.lo coloridx.lo \
-lorentzidx.lo lortensor.lo
+lorentzidx.lo lortensor.lo remember.lo
 CXXFLAGS = @CXXFLAGS@
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -156,8 +156,8 @@ DEP_FILES =  .deps/add.P .deps/archive.P .deps/basic.P .deps/clifford.P \
 .deps/isospin.P .deps/lorentzidx.P .deps/lortensor.P .deps/lst.P \
 .deps/lst_suppl.P .deps/matrix.P .deps/mul.P .deps/ncmul.P \
 .deps/normal.P .deps/numeric.P .deps/operators.P .deps/power.P \
-.deps/pseries.P .deps/registrar.P .deps/relational.P .deps/simp_lor.P \
-.deps/structure.P .deps/symbol.P .deps/utils.P
+.deps/pseries.P .deps/registrar.P .deps/relational.P .deps/remember.P \
+.deps/simp_lor.P .deps/structure.P .deps/symbol.P .deps/utils.P
 SOURCES = $(libginac_la_SOURCES)
 OBJECTS = $(libginac_la_OBJECTS)
 

@@ -572,10 +572,15 @@ $implementation=<<END_OF_IMPLEMENTATION;
 #include "inifcns.h"
 #include "utils.h"
 #include "debugmsg.h"
+#include "remember.h"
 
 #ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
+
+//////////
+// helper class function_options
+//////////
 
 function_options::function_options()
 {
@@ -666,113 +671,6 @@ void function_options::test_and_set_nparams(unsigned n)
              << n << ") differs from number set before (" 
              << nparams << ")" << endl;
     }
-}
-
-class remember_table_entry {
-public:
-    remember_table_entry(function const & f, ex const & r) :
-        hashvalue(f.gethash()), seq(f.seq), result(r)
-    {
-        last_access=0;
-        successful_hits=0;
-    }
-    bool is_equal(function const & f) const
-    {
-        GINAC_ASSERT(f.seq.size()==seq.size());
-        if (f.gethash()!=hashvalue) return false;
-        for (unsigned i=0; i<seq.size(); ++i) {
-            if (!seq[i].is_equal(f.seq[i])) return false;
-        }
-        last_access=access_counter++;
-        successful_hits++;
-        return true;
-    }
-    unsigned hashvalue;
-    exvector seq;
-    ex result;
-    mutable unsigned long last_access;
-    mutable unsigned successful_hits;
-
-    static unsigned access_counter;
-};    
-
-unsigned remember_table_entry::access_counter=0;
-
-class remember_table_list : public list<remember_table_entry> {
-public:
-    remember_table_list()
-    {
-        max_assoc_size=0;
-        delete_strategy=0;
-    }
-    remember_table_list(unsigned as, unsigned strat)
-    {
-        max_assoc_size=as;
-        delete_strategy=strat;
-    }
-    void add_entry(function const & f, ex const & result)
-    {
-        push_back(remember_table_entry(f,result));
-    }        
-    bool lookup_entry(function const & f, ex & result) const
-    {
-        for (const_iterator cit=begin(); cit!=end(); ++cit) {
-            if (cit->is_equal(f)) {
-                result=cit->result;
-                return true;
-            }
-        }
-        return false;
-    }
-protected:
-    unsigned max_assoc_size;
-    unsigned delete_strategy;
-};
-
-
-class remember_table : public vector<remember_table_list> {
-public:
-    remember_table()
-    {
-    }
-    remember_table(unsigned s, unsigned as, unsigned strat)
-    {
-        calc_size(s);
-        reserve(table_size);
-        for (unsigned i=0; i<table_size; ++i) {
-            push_back(remember_table_list(as,strat));
-        }
-    }
-    bool lookup_entry(function const & f, ex & result) const
-    {
-        unsigned entry=f.gethash() & (table_size-1);
-        if (entry>=size()) {
-            cerr << "entry=" << entry << ",size=" << size() << endl;
-        }
-        GINAC_ASSERT(entry<size());
-        return operator[](entry).lookup_entry(f,result);
-    }
-    void add_entry(function const & f, ex const & result)
-    {
-        unsigned entry=f.gethash() & (table_size-1);
-        GINAC_ASSERT(entry<size());
-        operator[](entry).add_entry(f,result);
-    }        
-    void calc_size(unsigned s)
-    {
-        // use some power of 2 next to s
-        table_size=1 << log2(s);
-    }
-protected:
-    unsigned table_size;
-};      
-
-// this is not declared as a static function in the class function
-// (like registered_function()) because of issues with cint
-static vector<remember_table> & remember_tables(void)
-{
-    static vector<remember_table> * rt=new vector<remember_table>;
-    return *rt;
 }
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(function, exprseq)
@@ -1161,12 +1059,12 @@ vector<function_options> & function::registered_functions(void)
 
 bool function::lookup_remember_table(ex & result) const
 {
-    return remember_tables()[serial].lookup_entry(*this,result);
+    return remember_table::remember_tables()[serial].lookup_entry(*this,result);
 }
 
 void function::store_remember_table(ex const & result) const
 {
-    remember_tables()[serial].add_entry(*this,result);
+    remember_table::remember_tables()[serial].add_entry(*this,result);
 }
 
 // public
@@ -1188,11 +1086,12 @@ unsigned function::register_new(function_options const & opt)
     }
     registered_functions().push_back(opt);
     if (opt.use_remember) {
-        remember_tables().push_back(remember_table(opt.remember_size,
-                                                   opt.remember_assoc_size,
-                                                   opt.remember_strategy));
+        remember_table::remember_tables().
+            push_back(remember_table(opt.remember_size,
+                                     opt.remember_assoc_size,
+                                     opt.remember_strategy));
     } else {
-        remember_tables().push_back(remember_table());
+        remember_table::remember_tables().push_back(remember_table());
     }
     return registered_functions().size()-1;
 }
