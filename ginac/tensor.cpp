@@ -493,13 +493,16 @@ bool tensepsilon::contract_with(exvector::iterator self, exvector::iterator othe
 
 		// Contraction of two epsilon tensors is a determinant
 		ex dim = ex_to<idx>(self->op(1)).get_dim();
+		bool variance = is_a<varidx>(self->op(1));
 		matrix M(num, num);
 		for (int i=0; i<num; i++) {
 			for (int j=0; j<num; j++) {
 				if (minkowski)
 					M(i, j) = lorentz_g(self->op(i+1), other->op(j+1), pos_sig);
-				else
+				else if (variance)
 					M(i, j) = metric_tensor(self->op(i+1), other->op(j+1));
+				else
+					M(i, j) = delta_tensor(self->op(i+1), other->op(j+1));
 			}
 		}
 		int sign = minkowski ? -1 : 1;
