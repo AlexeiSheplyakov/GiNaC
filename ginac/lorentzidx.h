@@ -33,6 +33,8 @@ namespace GiNaC {
 
 class lorentzidx : public idx
 {
+    GINAC_DECLARE_REGISTERED_CLASS(lorentzidx, idx)
+
     friend class simp_lor;
     friend class scalar_products;
 

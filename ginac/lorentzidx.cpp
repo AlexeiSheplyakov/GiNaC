@@ -23,12 +23,16 @@
 #include <stdexcept>
 
 #include "lorentzidx.h"
+#include "lst.h"
+#include "archive.h"
 #include "utils.h"
 #include "debugmsg.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
 #endif // ndef NO_GINAC_NAMESPACE
+
+GINAC_IMPLEMENT_REGISTERED_CLASS(lorentzidx, idx)
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -70,14 +74,14 @@ const lorentzidx & lorentzidx::operator=(const lorentzidx & other)
 
 void lorentzidx::copy(const lorentzidx & other)
 {
-    idx::copy(other);
+    inherited::copy(other);
     orthogonal_only=other.orthogonal_only;
     dim_parallel_space=other.dim_parallel_space;
 }
 
 void lorentzidx::destroy(bool call_parent)
 {
-    if (call_parent) idx::destroy(call_parent);
+    if (call_parent) inherited::destroy(call_parent);
 }
 
 //////////
@@ -120,6 +124,43 @@ lorentzidx::lorentzidx(unsigned v, bool cov) : idx(v,cov),
 {
     debugmsg("lorentzidx constructor from unsigned,bool",LOGLEVEL_CONSTRUCT);
     tinfo_key=TINFO_lorentzidx;
+}
+
+//////////
+// archiving
+//////////
+
+/** Construct object from archive_node. */
+lorentzidx::lorentzidx(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+{
+    debugmsg("lorentzidx constructor from archive_node", LOGLEVEL_CONSTRUCT);
+    n.find_bool("orthogonal_only", orthogonal_only);
+	if (orthogonal_only)
+		n.find_unsigned("pdim", dim_parallel_space);
+}
+
+/** Unarchive the object. */
+ex lorentzidx::unarchive(const archive_node &n, const lst &sym_lst)
+{
+    ex s = (new lorentzidx(n, sym_lst))->setflag(status_flags::dynallocated);
+
+    if (ex_to_lorentzidx(s).symbolic) {
+        // If lorentzidx is in sym_lst, return the existing lorentzidx
+        for (int i=0; i<sym_lst.nops(); i++) {
+            if (is_ex_of_type(sym_lst.op(i), lorentzidx) && (ex_to_lorentzidx(sym_lst.op(i)).name == ex_to_lorentzidx(s).name))
+                return sym_lst.op(i);
+        }
+    }
+    return s;
+}
+
+/** Archive the object. */
+void lorentzidx::archive(archive_node &n) const
+{
+    inherited::archive(n);
+	n.add_bool("orthogonal_only", orthogonal_only);
+	if (orthogonal_only)
+		n.add_unsigned("pdim", dim_parallel_space);
 }
 
 //////////
@@ -213,7 +254,7 @@ void lorentzidx::print(ostream & os, unsigned upper_precedence) const
 bool lorentzidx::info(unsigned inf) const
 {
     if (inf==info_flags::lorentzidx) return true;
-    return idx::info(inf);
+    return inherited::info(inf);
 }
 
 //////////
