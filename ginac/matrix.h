@@ -65,6 +65,7 @@ public:
     void print(ostream & os, unsigned upper_precedence=0) const;
     void printraw(ostream & os) const;
     unsigned nops() const;
+    ex op(int i) const;
     ex & let_op(int i);
     ex expand(unsigned options=0) const;
     bool has(const ex & other) const;

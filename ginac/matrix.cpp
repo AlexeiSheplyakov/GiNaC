@@ -205,6 +205,12 @@ unsigned matrix::nops() const
 }
 
 /** returns matrix entry at position (i/col, i%col). */
+ex matrix::op(int i) const
+{
+    return m[i];
+}
+
+/** returns matrix entry at position (i/col, i%col). */
 ex & matrix::let_op(int i)
 {
     return m[i];
