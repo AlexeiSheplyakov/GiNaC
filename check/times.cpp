@@ -60,7 +60,71 @@ int main()
         cout << "Error: caught exception " << e.what() << endl;
         ++result;
     }
-        
+    
+    try {
+        for (int i=0; i<1; ++i)
+            result += time_lw_A();
+    } catch (const exception &e) {
+        cout << "Error: caught exception " << e.what() << endl;
+        ++result;
+    }
+    
+    try {
+        for (int i=0; i<1; ++i)
+            result += time_lw_B();
+    } catch (const exception &e) {
+        cout << "Error: caught exception " << e.what() << endl;
+        ++result;
+    }
+    
+    try {
+        for (int i=0; i<1; ++i)
+            result += time_lw_C();
+    } catch (const exception &e) {
+        cout << "Error: caught exception " << e.what() << endl;
+        ++result;
+    }
+    
+    try {
+        for (int i=0; i<1; ++i)
+            result += time_lw_D();
+    } catch (const exception &e) {
+        cout << "Error: caught exception " << e.what() << endl;
+        ++result;
+    }
+    
+    try {
+        for (int i=0; i<1; ++i)
+            result += time_lw_E();
+    } catch (const exception &e) {
+        cout << "Error: caught exception " << e.what() << endl;
+        ++result;
+    }
+    
+    try {
+        for (int i=0; i<1; ++i)
+            result += time_lw_F();
+    } catch (const exception &e) {
+        cout << "Error: caught exception " << e.what() << endl;
+        ++result;
+    }
+    
+    try {
+        for (int i=0; i<1; ++i)
+            result += time_lw_G();
+    } catch (const exception &e) {
+        cout << "Error: caught exception " << e.what() << endl;
+        ++result;
+    }
+    
+    try {
+        for (int i=0; i<1; ++i)
+            result += time_lw_H();
+    } catch (const exception &e) {
+        cout << "Error: caught exception " << e.what() << endl;
+        ++result;
+    }
+
     if (result) {
         cout << "Error: something went wrong. ";
         if (result == 1) {

@@ -10,7 +10,9 @@ checks_SOURCES =  check_numeric.cpp check_inifcns.cpp check_matrices.cpp \
   check_lsolve.cpp genex.cpp checks.cpp checks.h
 checks_LDADD = ../ginac/libginac.la
 times_SOURCES = time_dennyfliegner.cpp time_gammaseries.cpp \
-  time_vandermonde.cpp time_toeplitz.cpp timer.cpp times.cpp times.h
+  time_vandermonde.cpp time_toeplitz.cpp time_lw_A.cpp time_lw_B.cpp \
+  time_lw_C.cpp time_lw_D.cpp time_lw_E.cpp time_lw_F.cpp time_lw_G.cpp \
+  time_lw_H.cpp timer.cpp times.cpp times.h
 times_LDADD = ../ginac/libginac.la
 INCLUDES = -I$(srcdir)/../ginac
 CLEANFILES = exams.out checks.out times.out

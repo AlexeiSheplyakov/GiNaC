@@ -74,8 +74,8 @@ static unsigned matrix_determinants(void)
     }
     
     // check dense symbolic 2x2 matrix determinant
-    m2.set(0,0,a/(a-b)).set(0,1,numeric(1));
-    m2.set(1,0,b/(a-b)).set(1,1,numeric(1));
+    m2.set(0,0,a/(a-b)).set(0,1,1);
+    m2.set(1,0,b/(a-b)).set(1,1,1);
     det = m2.determinant();
     if (det != 1) {
         if (det.normal() == 1)  // only half wrong
@@ -86,7 +86,7 @@ static unsigned matrix_determinants(void)
                  << " erroneously returned " << det << endl;
         ++result;
     }
-
+    
     // check sparse symbolic 4x4 matrix determinant
     m4.set(0,1,a).set(1,0,b).set(3,2,c).set(2,3,d);
     det = m4.determinant();

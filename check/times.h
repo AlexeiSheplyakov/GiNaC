@@ -51,5 +51,13 @@ unsigned time_dennyfliegner();
 unsigned time_gammaseries();
 unsigned time_vandermonde();
 unsigned time_toeplitz();
+unsigned time_lw_A();
+unsigned time_lw_B();
+unsigned time_lw_C();
+unsigned time_lw_D();
+unsigned time_lw_E();
+unsigned time_lw_F();
+unsigned time_lw_G();
+unsigned time_lw_H();
 
 #endif // ndef CHECKS_H
