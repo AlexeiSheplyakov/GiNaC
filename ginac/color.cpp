@@ -947,7 +947,7 @@ ex brute_force_sum_color_indices(ex const & e)
         
         // increment counter[]
         l=iv_double.size()-1;
-        while ((l>=0)&&((++counter[l])>COLOR_EIGHT)) {
+        while ((l>=0)&&((++counter[l])>(int)COLOR_EIGHT)) {
             counter[l]=1;    
             l--;
         }

@@ -30,9 +30,9 @@
 
 namespace GiNaC {
 
-const int MAX_REPRESENTATION_LABELS = 4;
-const int COLOR_EIGHT = 8; // N*N-1
-const int COLOR_THREE = 3; // N
+const unsigned MAX_REPRESENTATION_LABELS = 4;
+const unsigned COLOR_EIGHT = 8; // N*N-1
+const unsigned COLOR_THREE = 3; // N
 
 /** Base class for color object */
 class color : public indexed
