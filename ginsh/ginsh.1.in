@@ -191,22 +191,20 @@ Lists are used by the
 .B subs
 and
 .B lsolve
-functions. A list consists of an opening square bracket
-.RB ( [ ),
-a (possibly empty) comma-separated sequence of expressions, and a closing square
-bracket
-.RB ( ] ).
+functions. A list consists of an opening curly brace
+.RB ( { ),
+a (possibly empty) comma-separated sequence of expressions, and a closing curly
+brace
+.RB ( } ).
 .SS MATRICES
-A matrix consists of an opening double square bracket
-.RB ( [[ ),
-a non-empty comma-separated sequence of matrix rows, and a closing double square
-bracket
-.RB ( ]] ).
-Each matrix row consists of an opening double square bracket
-.RB ( [[ ),
-a non-empty comma-separated sequence of expressions, and a closing double square
-bracket
-.RB ( ]] ).
+A matrix consists of an opening square bracket
+.RB ( [ ),
+a non-empty comma-separated sequence of matrix rows, and a closing square bracket
+.RB ( ] ).
+Each matrix row consists of an opening square bracket
+.RB ( [ ),
+a non-empty comma-separated sequence of expressions, and a closing square bracket
+.RB ( ] ).
 If the rows of a matrix are not of the same length, the width of the matrix
 becomes that of the longest row and shorter rows are filled up at the end
 with elements of value zero.
@@ -271,6 +269,9 @@ detail here. Please refer to the GiNaC documentation.
 .br
 .BI evalf( "expression [" ", " level] )
 \- evaluates an expression to a floating point number
+.br
+.BI evalm( expression )
+\- evaluates sums and products of matrices
 .br
 .BI expand( expression )
 \- expands an expression
@@ -440,12 +441,12 @@ x
 (x+1)^(\-2)*(\-x+x^2\-2)
 > series(sin(x),x==0,6);
 1*x+(\-1/6)*x^3+1/120*x^5+Order(x^6)
-> lsolve([3*x+5*y == 7], [x, y]);
-[x==\-5/3*y+7/3,y==y]
-> lsolve([3*x+5*y == 7, \-2*x+10*y == \-5], [x, y]);
-[x==19/8,y==\-1/40]
-> M = [[ [[a, b]], [[c, d]] ]];
-[[ [[\-x+x^2\-2,(x+1)^2]], [[c,d]] ]]
+> lsolve({3*x+5*y == 7}, {x, y});
+{x==\-5/3*y+7/3,y==y}
+> lsolve({3*x+5*y == 7, \-2*x+10*y == \-5}, {x, y});
+{x==19/8,y==\-1/40}
+> M = [ [a, b], [c, d] ];
+[[\-x+x^2\-2,(x+1)^2],[c,d]]
 > determinant(M);
 \-2*d\-2*x*c\-x^2*c\-x*d+x^2*d\-c
 > collect(", x);

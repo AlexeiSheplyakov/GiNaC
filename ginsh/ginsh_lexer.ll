@@ -89,10 +89,6 @@ score			return T_SCORE;
 \"\"			return T_QUOTE2;
 \"\"\"			return T_QUOTE3;
 
-			/* matrix delimiters */
-\[\[			return T_MATRIX_BEGIN;
-\]\]			return T_MATRIX_END;
-
 			/* numbers */
 {D}+			|
 "#"{D}+"R"{AN}+		|

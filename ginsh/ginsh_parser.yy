@@ -89,7 +89,7 @@ static void print_help_topics(void);
 /* Tokens (T_LITERAL means a literal value returned by the parser, but not
    of class numeric or symbol (e.g. a constant or the FAIL object)) */
 %token T_NUMBER T_SYMBOL T_LITERAL T_DIGITS T_QUOTE T_QUOTE2 T_QUOTE3
-%token T_EQUAL T_NOTEQ T_LESSEQ T_GREATEREQ T_MATRIX_BEGIN T_MATRIX_END
+%token T_EQUAL T_NOTEQ T_LESSEQ T_GREATEREQ
 
 %token T_QUIT T_WARRANTY T_PRINT T_IPRINT T_TIME T_XYZZY T_INVENTORY T_LOOK T_SCORE
 
@@ -224,8 +224,8 @@ exp	: T_NUMBER		{$$ = $1;}
 	| exp '^' exp		{$$ = power($1, $3);}
 	| exp '!'		{$$ = factorial($1);}
 	| '(' exp ')'		{$$ = $2;}
-	| '[' list_or_empty ']'	{$$ = $2;}
-	| T_MATRIX_BEGIN matrix T_MATRIX_END	{$$ = lst_to_matrix(ex_to_lst($2));}
+	| '{' list_or_empty '}'	{$$ = $2;}
+	| '[' matrix ']'	{$$ = lst_to_matrix(ex_to_lst($2));}
 	;
 
 exprseq	: exp			{$$ = exprseq($1);}
@@ -240,8 +240,8 @@ list	: exp			{$$ = lst($1);}
 	| list ',' exp		{lst l(static_cast<lst &>(*($1.bp))); $$ = l.append($3);}
 	;
 
-matrix	: T_MATRIX_BEGIN row T_MATRIX_END		{$$ = lst($2);}
-	| matrix ',' T_MATRIX_BEGIN row	T_MATRIX_END	{lst l(static_cast<lst &>(*($1.bp))); $$ = l.append($4);}
+matrix	: '[' row ']'		{$$ = lst($2);}
+	| matrix ',' '[' row ']' {lst l(static_cast<lst &>(*($1.bp))); $$ = l.append($4);}
 	;
 
 row	: exp			{$$ = lst($1);}
@@ -280,6 +280,7 @@ static ex f_degree(const exprseq &e) {return e[0].degree(e[1]);}
 static ex f_denom(const exprseq &e) {return e[0].denom();}
 static ex f_eval1(const exprseq &e) {return e[0].eval();}
 static ex f_evalf1(const exprseq &e) {return e[0].evalf();}
+static ex f_evalm(const exprseq &e) {return e[0].evalm();}
 static ex f_expand(const exprseq &e) {return e[0].expand();}
 static ex f_gcd(const exprseq &e) {return gcd(e[0], e[1]);}
 static ex f_has(const exprseq &e) {return e[0].has(e[1]) ? ex(1) : ex(0);}
@@ -499,6 +500,7 @@ static const fcn_init builtin_fcns[] = {
 	{"eval", fcn_desc(f_eval2, 2)},
 	{"evalf", fcn_desc(f_evalf1, 1)},
 	{"evalf", fcn_desc(f_evalf2, 2)},
+	{"evalm", fcn_desc(f_evalm, 1)},
 	{"expand", fcn_desc(f_expand, 1)},
 	{"gcd", fcn_desc(f_gcd, 2)},
 	{"has", fcn_desc(f_has, 2)},
