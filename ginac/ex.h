@@ -396,14 +396,12 @@ public:
 		return e.op(i);
 	}
 
-#if 0
-	// How do we make this work in the context of the "reference to
-	// temporary" problem? Return an auto_ptr?
-	pointer operator->() const
+	// This should return an ex*, but that would be a pointer to a
+	// temporary value
+	std::auto_ptr<ex> operator->() const
 	{
-		return &(operator*());
+		return std::auto_ptr<ex>(new ex(operator*()));
 	}
-#endif
 
 	ex operator[](difference_type n) const
 	{
@@ -544,7 +542,10 @@ public:
 		return r.e.op(r.i);
 	}
 
-	// operator->() not implemented (see above)
+	std::auto_ptr<ex> operator->() const
+	{
+		return std::auto_ptr<ex>(new ex(operator*()));
+	}
 
 	const_preorder_iterator &operator++()
 	{
@@ -609,7 +610,10 @@ public:
 		return r.e.op(r.i);
 	}
 
-	// operator->() not implemented
+	std::auto_ptr<ex> operator->() const
+	{
+		return std::auto_ptr<ex>(new ex(operator*()));
+	}
 
 	const_postorder_iterator &operator++()
 	{
