@@ -632,7 +632,10 @@ ex power::expand_add(const add & a, int n) const
             GINAC_ASSERT(!is_ex_exactly_of_type(b,add));
             GINAC_ASSERT(!is_ex_exactly_of_type(b,power)||
                          !is_ex_exactly_of_type(ex_to_power(b).exponent,numeric)||
-                         !ex_to_numeric(ex_to_power(b).exponent).is_pos_integer());
+                         !ex_to_numeric(ex_to_power(b).exponent).is_pos_integer()||
+                         !is_ex_exactly_of_type(ex_to_power(b).basis,add)||
+                         !is_ex_exactly_of_type(ex_to_power(b).basis,mul)||
+                         !is_ex_exactly_of_type(ex_to_power(b).basis,power));
             if (is_ex_exactly_of_type(b,mul)) {
                 term.push_back(expand_mul(ex_to_mul(b),numeric(k[l])));
             } else {
@@ -644,7 +647,10 @@ ex power::expand_add(const add & a, int n) const
         GINAC_ASSERT(!is_ex_exactly_of_type(b,add));
         GINAC_ASSERT(!is_ex_exactly_of_type(b,power)||
                      !is_ex_exactly_of_type(ex_to_power(b).exponent,numeric)||
-                     !ex_to_numeric(ex_to_power(b).exponent).is_pos_integer());
+                     !ex_to_numeric(ex_to_power(b).exponent).is_pos_integer()||
+                     !is_ex_exactly_of_type(ex_to_power(b).basis,add)||
+                     !is_ex_exactly_of_type(ex_to_power(b).basis,mul)||
+                     !is_ex_exactly_of_type(ex_to_power(b).basis,power));
         if (is_ex_exactly_of_type(b,mul)) {
             term.push_back(expand_mul(ex_to_mul(b),numeric(n-k_cum[m-2])));
         } else {
