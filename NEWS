@@ -5,12 +5,14 @@ This file records noteworthy changes.
   much clearer but break compatibility with older versions:
   - f(x).series(x,p[,o]) -> f(x).series(x==p,o)
   - series(f(x),x,p[,o]) -> series(f(x),x==p,o)
-  - gamma() -> Gamma()
+  - gamma() -> tgamma()  (The true Gamma function, there is now also
+    log(tgamma()), called lgamma(), in accord with ISO/IEC 9899:1999.)
   - EulerGamma -> gamma
-  - beta() -> Beta()
 * #include'ing ginac.h defines the preprocessor symbols GINACLIB_MAJOR_VERSION,
   GINACLIB_MINOR_VERSION, and GINACLIB_MICRO_VERSION with the respective GiNaC
   library version numbers.
+* Several new timings in the check target.  Some of them may be rather rude 
+  at your machine.
 
 0.5.4 (15 March 2000)
 * Some algorithms in class matrix (notably determinant) were replaced by

@@ -92,7 +92,7 @@ static unsigned test1(void)
     unsigned nops3 = nops(d3.determinant());  cout << '.' << flush;
     
     if ((nops1 != 37490) || (nops2 != 37490) || (nops3 != 37490)) {
-        clog << "Determinant from van der Waerden's example were miscalculated" << endl;
+        clog << "Determinants were miscalculated" << endl;
         return 1;
     }
     return 0;

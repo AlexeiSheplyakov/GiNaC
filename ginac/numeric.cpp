@@ -1384,9 +1384,16 @@ const numeric zeta(const numeric & x)
 
 /** The Gamma function.
  *  This is only a stub! */
-const numeric Gamma(const numeric & x)
+const numeric lgamma(const numeric & x)
 {
-    clog << "Gamma(" << x
+    clog << "lgamma(" << x
+         << "): Does anybody know good way to calculate this numerically?"
+         << endl;
+    return numeric(0);
+}
+const numeric tgamma(const numeric & x)
+{
+    clog << "tgamma(" << x
          << "): Does anybody know good way to calculate this numerically?"
          << endl;
     return numeric(0);
@@ -1428,7 +1435,7 @@ const numeric factorial(const numeric & n)
 
 
 /** The double factorial combinatorial function.  (Scarcely used, but still
- *  useful in cases, like for exact results of Gamma(n+1/2) for instance.)
+ *  useful in cases, like for exact results of tgamma(n+1/2) for instance.)
  *
  *  @param n  integer argument >= -1
  *  @return n!! == n * (n-2) * (n-4) * ... * ({1|2}) with 0!! == (-1)!! == 1
@@ -1482,13 +1489,13 @@ const numeric bernoulli(const numeric & nn)
         return numeric(-1,2);
     if (nn.is_odd())
         return _num0();
-    // Until somebody has the Blues and comes up with a much better idea and
+    // Until somebody has the blues and comes up with a much better idea and
     // codes it (preferably in CLN) we make this a remembering function which
     // computes its results using the defining formula
     // B(nn) == - 1/(nn+1) * sum_{k=0}^{nn-1}(binomial(nn+1,k)*B(k))
     // whith B(0) == 1.
-    // Be warned, though: the Bernoulli numbers are probably computationally 
-    // very expensive anyhow and you shouldn't expect miracles to happen.
+    // Be warned, though: the Bernoulli numbers are computationally very
+    // expensive anyhow and you shouldn't expect miracles to happen.
     static vector<numeric> results;
     static int highest_result = -1;
     int n = nn.sub(_num2()).div(_num2()).to_int();
@@ -1731,7 +1738,7 @@ ex PiEvalf(void)
 }
 
 
-/** Floating point evaluation of Euler's constant Gamma. */
+/** Floating point evaluation of Euler's constant gamma. */
 ex gammaEvalf(void)
 { 
     return numeric(::cl_eulerconst(cl_default_float_format));  // -> CLN

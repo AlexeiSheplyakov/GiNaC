@@ -22,12 +22,12 @@
 
 #include "times.h"
 
-unsigned Gammaseries(unsigned order)
+unsigned tgammaseries(unsigned order)
 {
     unsigned result = 0;
     symbol x;
     
-    ex myseries = series(Gamma(x),x==0,order);
+    ex myseries = series(tgamma(x),x==0,order);
     // compute the last coefficient numerically:
     ex last_coeff = myseries.coeff(x,order-1).evalf();
     // compute a bound for that coefficient using a variation of the leading
@@ -35,7 +35,7 @@ unsigned Gammaseries(unsigned order)
     ex bound = evalf(exp(ex(-.57721566490153286*(order-1)))/(order-1));
     if (evalf(abs((last_coeff-pow(-1,order))/bound)) > numeric(1)) {
         clog << "The " << order-1
-             << "th order coefficient in the power series expansion of Gamma(0) was erroneously found to be "
+             << "th order coefficient in the power series expansion of tgamma(0) was erroneously found to be "
              << last_coeff << ", violating a simple estimate." << endl;
         ++result;
     }
@@ -61,7 +61,7 @@ unsigned time_gammaseries(void)
     
     for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i) {
         omega.start();
-        result += Gammaseries(*i);
+        result += tgammaseries(*i);
         times.push_back(omega.read());
         cout << '.' << flush;
     }

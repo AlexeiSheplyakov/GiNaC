@@ -153,8 +153,8 @@ static unsigned exam_series5(void)
     unsigned result = 0;
     ex e, d;
     
-    // Gamma(-1):
-    e = Gamma(2*x);
+    // tgamma(-1):
+    e = tgamma(2*x);
     d = pow(x+1,-1)*numeric(1,4) +
         pow(x+1,0)*(numeric(3,4) -
                     numeric(1,2)*gamma) +

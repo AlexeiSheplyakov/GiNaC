@@ -96,10 +96,13 @@ public:
     matrix old_solve(const matrix & v) const;  // FIXME: may be removed
 protected:
     ex determinant_numeric(void) const;
-    ex determinant_minor(void) const;
+    ex determinant_minor_sparse(void) const;
+    ex determinant_minor_dense(void) const;
+    ex determinant_bareiss(void) const;
     ex determinant_perm(void) const;
     int gauss_elimination(void);
     int fraction_free_elimination(void);
+    int division_free_elimination(void);
     int pivot(unsigned ro, bool symbolic=true);
 private:  // FIXME: these should be obsoleted
     void ffe_swap(unsigned r1, unsigned c1, unsigned r2 ,unsigned c2);

@@ -39,40 +39,93 @@ namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
 
 //////////
-// Gamma-function
+// Logarithm of Gamma function
 //////////
 
-static ex Gamma_evalf(const ex & x)
+static ex lgamma_evalf(const ex & x)
 {
     BEGIN_TYPECHECK
         TYPECHECK(x,numeric)
-    END_TYPECHECK(Gamma(x))
+    END_TYPECHECK(lgamma(x))
     
-    return Gamma(ex_to_numeric(x));
+    return lgamma(ex_to_numeric(x));
 }
 
 
-/** Evaluation of Gamma(x). Knows about integer arguments, half-integer
- *  arguments and that's it. Somebody ought to provide some good numerical
- *  evaluation some day...
+/** Evaluation of lgamma(x), the natural logarithm of the Gamma function.
+ *  Knows about integer arguments and that's it.  Somebody ought to provide
+ *  some good numerical evaluation some day...
  *
- *  @exception std::domain_error("Gamma_eval(): simple pole") */
-static ex Gamma_eval(const ex & x)
+ *  @exception std::domain_error("lgamma_eval(): simple pole") */
+static ex lgamma_eval(const ex & x)
 {
     if (x.info(info_flags::numeric)) {
         // trap integer arguments:
         if (x.info(info_flags::integer)) {
-            // Gamma(n+1) -> n! for postitive n
+            // lgamma(n) -> log((n-1)!) for postitive n
+            if (x.info(info_flags::posint)) {
+                return log(factorial(x.exadd(_ex_1())));
+            } else {
+                throw (std::domain_error("lgamma_eval(): logarithmic pole"));
+            }
+        }
+        //  lgamma_evalf should be called here once it becomes available
+    }
+    
+    return lgamma(x).hold();
+}
+
+
+static ex lgamma_deriv(const ex & x, unsigned deriv_param)
+{
+    GINAC_ASSERT(deriv_param==0);
+    
+    // d/dx  lgamma(x) -> psi(x)
+    return psi(x);
+}
+
+// need to implement lgamma_series.
+
+REGISTER_FUNCTION(lgamma, eval_func(lgamma_eval).
+                          evalf_func(lgamma_evalf).
+                          derivative_func(lgamma_deriv));
+
+
+//////////
+// true Gamma function
+//////////
+
+static ex tgamma_evalf(const ex & x)
+{
+    BEGIN_TYPECHECK
+        TYPECHECK(x,numeric)
+    END_TYPECHECK(tgamma(x))
+    
+    return tgamma(ex_to_numeric(x));
+}
+
+
+/** Evaluation of tgamma(x), the true Gamma function.  Knows about integer
+ *  arguments, half-integer arguments and that's it. Somebody ought to provide
+ *  some good numerical evaluation some day...
+ *
+ *  @exception std::domain_error("tgamma_eval(): simple pole") */
+static ex tgamma_eval(const ex & x)
+{
+    if (x.info(info_flags::numeric)) {
+        // trap integer arguments:
+        if (x.info(info_flags::integer)) {
+            // tgamma(n) -> (n-1)! for postitive n
             if (x.info(info_flags::posint)) {
                 return factorial(ex_to_numeric(x).sub(_num1()));
             } else {
-                throw (std::domain_error("Gamma_eval(): simple pole"));
+                throw (std::domain_error("tgamma_eval(): simple pole"));
             }
         }
         // trap half integer arguments:
         if ((x*2).info(info_flags::integer)) {
             // trap positive x==(n+1/2)
-            // Gamma(n+1/2) -> Pi^(1/2)*(1*3*..*(2*n-1))/(2^n)
+            // tgamma(n+1/2) -> Pi^(1/2)*(1*3*..*(2*n-1))/(2^n)
             if ((x*_ex2()).info(info_flags::posint)) {
                 numeric n = ex_to_numeric(x).sub(_num1_2());
                 numeric coefficient = doublefactorial(n.mul(_num2()).sub(_num1()));
@@ -80,40 +133,39 @@ static ex Gamma_eval(const ex & x)
                 return coefficient * pow(Pi,_ex1_2());
             } else {
                 // trap negative x==(-n+1/2)
-                // Gamma(-n+1/2) -> Pi^(1/2)*(-2)^n/(1*3*..*(2*n-1))
+                // tgamma(-n+1/2) -> Pi^(1/2)*(-2)^n/(1*3*..*(2*n-1))
                 numeric n = abs(ex_to_numeric(x).sub(_num1_2()));
                 numeric coefficient = pow(_num_2(), n);
                 coefficient = coefficient.div(doublefactorial(n.mul(_num2()).sub(_num1())));;
                 return coefficient*power(Pi,_ex1_2());
             }
         }
-        //  Gamma_evalf should be called here once it becomes available
+        //  tgamma_evalf should be called here once it becomes available
     }
     
-    return Gamma(x).hold();
-}    
-
-
-static ex Gamma_deriv(const ex & x, unsigned deriv_param)
-{
-    GINAC_ASSERT(deriv_param==0);
-    
-    // d/dx  log(Gamma(x)) -> psi(x)
-    // d/dx  Gamma(x) -> psi(x)*Gamma(x)
-    return psi(x)*Gamma(x);
+    return tgamma(x).hold();
 }
 
 
-static ex Gamma_series(const ex & x, const relational & r, int order)
+static ex tgamma_deriv(const ex & x, unsigned deriv_param)
+{
+    GINAC_ASSERT(deriv_param==0);
+    
+    // d/dx  tgamma(x) -> psi(x)*tgamma(x)
+    return psi(x)*tgamma(x);
+}
+
+
+static ex tgamma_series(const ex & x, const relational & r, int order)
 {
     // method:
     // Taylor series where there is no pole falls back to psi function
     // evaluation.
     // On a pole at -m use the recurrence relation
-    //   Gamma(x) == Gamma(x+1) / x
+    //   tgamma(x) == tgamma(x+1) / x
     // from which follows
-    //   series(Gamma(x),x,-m,order) ==
-    //   series(Gamma(x+m+1)/(x*(x+1)*...*(x+m)),x,-m,order+1);
+    //   series(tgamma(x),x,-m,order) ==
+    //   series(tgamma(x+m+1)/(x*(x+1)*...*(x+m)),x,-m,order+1);
     const ex x_pt = x.subs(r);
     if (!x_pt.info(info_flags::integer) || x_pt.info(info_flags::positive))
         throw do_taylor();  // caught by function::series()
@@ -122,54 +174,54 @@ static ex Gamma_series(const ex & x, const relational & r, int order)
     ex ser_denom = _ex1();
     for (numeric p; p<=m; ++p)
         ser_denom *= x+p;
-    return (Gamma(x+m+_ex1())/ser_denom).series(r, order+1);
+    return (tgamma(x+m+_ex1())/ser_denom).series(r, order+1);
 }
 
 
-REGISTER_FUNCTION(Gamma, eval_func(Gamma_eval).
-                         evalf_func(Gamma_evalf).
-                         derivative_func(Gamma_deriv).
-                         series_func(Gamma_series));
+REGISTER_FUNCTION(tgamma, eval_func(tgamma_eval).
+                          evalf_func(tgamma_evalf).
+                          derivative_func(tgamma_deriv).
+                          series_func(tgamma_series));
 
 
 //////////
-// Beta-function
+// beta-function
 //////////
 
-static ex Beta_evalf(const ex & x, const ex & y)
+static ex beta_evalf(const ex & x, const ex & y)
 {
     BEGIN_TYPECHECK
         TYPECHECK(x,numeric)
         TYPECHECK(y,numeric)
-    END_TYPECHECK(Beta(x,y))
+    END_TYPECHECK(beta(x,y))
     
-    return Gamma(ex_to_numeric(x))*Gamma(ex_to_numeric(y))/Gamma(ex_to_numeric(x+y));
+    return tgamma(ex_to_numeric(x))*tgamma(ex_to_numeric(y))/tgamma(ex_to_numeric(x+y));
 }
 
 
-static ex Beta_eval(const ex & x, const ex & y)
+static ex beta_eval(const ex & x, const ex & y)
 {
     if (x.info(info_flags::numeric) && y.info(info_flags::numeric)) {
-        // treat all problematic x and y that may not be passed into Gamma,
-        // because they would throw there although Beta(x,y) is well-defined
-        // using the formula Beta(x,y) == (-1)^y * Beta(1-x-y, y)
+        // treat all problematic x and y that may not be passed into tgamma,
+        // because they would throw there although beta(x,y) is well-defined
+        // using the formula beta(x,y) == (-1)^y * beta(1-x-y, y)
         numeric nx(ex_to_numeric(x));
         numeric ny(ex_to_numeric(y));
         if (nx.is_real() && nx.is_integer() &&
             ny.is_real() && ny.is_integer()) {
             if (nx.is_negative()) {
                 if (nx<=-ny)
-                    return pow(_num_1(), ny)*Beta(1-x-y, y);
+                    return pow(_num_1(), ny)*beta(1-x-y, y);
                 else
-                    throw (std::domain_error("Beta_eval(): simple pole"));
+                    throw (std::domain_error("beta_eval(): simple pole"));
             }
             if (ny.is_negative()) {
                 if (ny<=-nx)
-                    return pow(_num_1(), nx)*Beta(1-y-x, x);
+                    return pow(_num_1(), nx)*beta(1-y-x, x);
                 else
-                    throw (std::domain_error("Beta_eval(): simple pole"));
+                    throw (std::domain_error("beta_eval(): simple pole"));
             }
-            return Gamma(x)*Gamma(y)/Gamma(x+y);
+            return tgamma(x)*tgamma(y)/tgamma(x+y);
         }
         // no problem in numerator, but denominator has pole:
         if ((nx+ny).is_real() &&
@@ -177,34 +229,34 @@ static ex Beta_eval(const ex & x, const ex & y)
             !(nx+ny).is_positive())
              return _ex0();
         // everything is ok:
-        return Gamma(x)*Gamma(y)/Gamma(x+y);
+        return tgamma(x)*tgamma(y)/tgamma(x+y);
     }
     
-    return Beta(x,y).hold();
+    return beta(x,y).hold();
 }
 
 
-static ex Beta_deriv(const ex & x, const ex & y, unsigned deriv_param)
+static ex beta_deriv(const ex & x, const ex & y, unsigned deriv_param)
 {
     GINAC_ASSERT(deriv_param<2);
     ex retval;
     
-    // d/dx Beta(x,y) -> (psi(x)-psi(x+y)) * Beta(x,y)
+    // d/dx beta(x,y) -> (psi(x)-psi(x+y)) * beta(x,y)
     if (deriv_param==0)
-        retval = (psi(x)-psi(x+y))*Beta(x,y);
-    // d/dy Beta(x,y) -> (psi(y)-psi(x+y)) * Beta(x,y)
+        retval = (psi(x)-psi(x+y))*beta(x,y);
+    // d/dy beta(x,y) -> (psi(y)-psi(x+y)) * beta(x,y)
     if (deriv_param==1)
-        retval = (psi(y)-psi(x+y))*Beta(x,y);
+        retval = (psi(y)-psi(x+y))*beta(x,y);
     return retval;
 }
 
 
-static ex Beta_series(const ex & x, const ex & y, const relational & r, int order)
+static ex beta_series(const ex & x, const ex & y, const relational & r, int order)
 {
     // method:
-    // Taylor series where there is no pole of one of the Gamma functions
-    // falls back to Beta function evaluation.  Otherwise, fall back to
-    // Gamma series directly.
+    // Taylor series where there is no pole of one of the tgamma functions
+    // falls back to beta function evaluation.  Otherwise, fall back to
+    // tgamma series directly.
     // FIXME: this could need some testing, maybe it's wrong in some cases?
     const ex x_pt = x.subs(r);
     const ex y_pt = y.subs(r);
@@ -216,28 +268,28 @@ static ex Beta_series(const ex & x, const ex & y, const relational & r, int orde
         throw do_taylor();  // caught by function::series()
     // trap the case where x is on a pole directly:
     if (x.info(info_flags::integer) && !x.info(info_flags::positive))
-        x_ser = Gamma(x+*s).series(r,order);
+        x_ser = tgamma(x+*s).series(r,order);
     else
-        x_ser = Gamma(x).series(r,order);
+        x_ser = tgamma(x).series(r,order);
     // trap the case where y is on a pole directly:
     if (y.info(info_flags::integer) && !y.info(info_flags::positive))
-        y_ser = Gamma(y+*s).series(r,order);
+        y_ser = tgamma(y+*s).series(r,order);
     else
-        y_ser = Gamma(y).series(r,order);
+        y_ser = tgamma(y).series(r,order);
     // trap the case where y is on a pole directly:
     if ((x+y).info(info_flags::integer) && !(x+y).info(info_flags::positive))
-        xy_ser = Gamma(y+x+*s).series(r,order);
+        xy_ser = tgamma(y+x+*s).series(r,order);
     else
-        xy_ser = Gamma(y+x).series(r,order);
+        xy_ser = tgamma(y+x).series(r,order);
     // compose the result:
     return (x_ser*y_ser/xy_ser).series(r,order);
 }
 
 
-REGISTER_FUNCTION(Beta, eval_func(Beta_eval).
-                        evalf_func(Beta_evalf).
-                        derivative_func(Beta_deriv).
-                        series_func(Beta_series));
+REGISTER_FUNCTION(beta, eval_func(beta_eval).
+                        evalf_func(beta_evalf).
+                        derivative_func(beta_deriv).
+                        series_func(beta_series));
 
 
 //////////
@@ -356,9 +408,9 @@ static ex psi2_eval(const ex & n, const ex & x)
     // psi(0,x) -> psi(x)
     if (n.is_zero())
         return psi(x);
-    // psi(-1,x) -> log(Gamma(x))
+    // psi(-1,x) -> log(tgamma(x))
     if (n.is_equal(_ex_1()))
-        return log(Gamma(x));
+        return log(tgamma(x));
     if (n.info(info_flags::numeric) && n.info(info_flags::posint) &&
         x.info(info_flags::numeric)) {
         numeric nn = ex_to_numeric(n);

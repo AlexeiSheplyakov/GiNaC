@@ -444,30 +444,68 @@ matrix matrix::transpose(void) const
  *  @exception logic_error (matrix not square) */
 ex matrix::determinant(void) const
 {
-    if (row != col)
+    if (row!=col)
         throw (std::logic_error("matrix::determinant(): matrix not square"));
     GINAC_ASSERT(row*col==m.capacity());
+    if (this->row==1)  // continuation would be pointless
+        return m[0];
     
-    ex det;
     bool numeric_flag = true;
     bool normal_flag = false;
+    unsigned sparse_count = 0;  // count non-zero elements
     for (exvector::const_iterator r=m.begin(); r!=m.end(); ++r) {
-        if (!(*r).info(info_flags::numeric))
+        if (!(*r).is_zero()) {
+            ++sparse_count;
+        }
+        if (!(*r).info(info_flags::numeric)) {
             numeric_flag = false;
+        }
         if ((*r).info(info_flags::rational_function) &&
-            !(*r).info(info_flags::crational_polynomial))
+            !(*r).info(info_flags::crational_polynomial)) {
             normal_flag = true;
+        }
     }
     
     if (numeric_flag)
-        det = determinant_numeric();
-    else
-        if (normal_flag)
-            det = determinant_minor().normal();
-        else
-            det = determinant_minor(); // is already expanded!
+        return determinant_numeric();
     
-    return det;
+    // Now come the minor expansion schemes.  We always develop such that the
+    // smallest minors (i.e, the trivial 1x1 ones) are on the rightmost column.
+    // For this to be efficient it turns out that the emptiest columns (i.e.
+    // the ones with most zeros) should be the ones on the right hand side.
+    // Therefore we presort the columns of the matrix:
+    typedef pair<unsigned,unsigned> uintpair;  // # of zeros, column
+    vector<uintpair> c_zeros;  // number of zeros in column
+    for (unsigned c=0; c<col; ++c) {
+        unsigned acc = 0;
+        for (unsigned r=0; r<row; ++r)
+            if (m[r*col+c].is_zero())
+                ++acc;
+        c_zeros.push_back(uintpair(acc,c));
+    }
+    sort(c_zeros.begin(),c_zeros.end());
+    vector<unsigned> pre_sort;  // unfortunately vector<uintpair> can't be used
+                                // for permutation_sign.
+    for (vector<uintpair>::iterator i=c_zeros.begin(); i!=c_zeros.end(); ++i)
+        pre_sort.push_back(i->second);
+    int sign = permutation_sign(pre_sort);
+    exvector result(row*col);  // represents sorted matrix
+    unsigned c = 0;
+    for (vector<unsigned>::iterator i=pre_sort.begin();
+         i!=pre_sort.end();
+         ++i,++c) {
+        for (unsigned r=0; r<row; ++r)
+            result[r*col+c] = m[r*col+(*i)];
+    }
+    
+    if (0*sparse_count>row*col) {     // MAGIC, maybe 10 some day?
+        if (normal_flag)
+            return sign*matrix(row,col,result).determinant_minor_sparse().normal();
+        return sign*matrix(row,col,result).determinant_minor_sparse();
+    }
+    if (normal_flag)
+        return sign*matrix(row,col,result).determinant_minor_dense().normal();
+    return sign*matrix(row,col,result).determinant_minor_dense();
 }
 
 
@@ -846,6 +884,42 @@ ex matrix::determinant_numeric(void) const
  *}*/
 
 
+ex matrix::determinant_minor_sparse(void) const
+{
+    // for small matrices the algorithm does not make any sense:
+    if (this->row==1)
+        return m[0];
+    if (this->row==2)
+        return (m[0]*m[3]-m[2]*m[1]).expand();
+    if (this->row==3)
+        return (m[0]*m[4]*m[8]-m[0]*m[5]*m[7]-
+                m[1]*m[3]*m[8]+m[2]*m[3]*m[7]+
+                m[1]*m[5]*m[6]-m[2]*m[4]*m[6]).expand();
+    
+    ex det;
+    matrix minorM(this->row-1,this->col-1);
+    for (unsigned r1=0; r1<this->row; ++r1) {
+        // shortcut if element(r1,0) vanishes
+        if (m[r1*col].is_zero())
+            continue;
+        // assemble the minor matrix
+        for (unsigned r=0; r<minorM.rows(); ++r) {
+            for (unsigned c=0; c<minorM.cols(); ++c) {
+                if (r<r1)
+                    minorM.set(r,c,m[r*col+c+1]);
+                else
+                    minorM.set(r,c,m[(r+1)*col+c+1]);
+            }
+        }
+        // recurse down and care for sign:
+        if (r1%2)
+            det -= m[r1*col] * minorM.determinant_minor_sparse();
+        else
+            det += m[r1*col] * minorM.determinant_minor_sparse();
+    }
+    return det.expand();
+}
+
 /** Recursive determinant for small matrices having at least one symbolic
  *  entry.  The basic algorithm, known as Laplace-expansion, is enhanced by
  *  some bookkeeping to avoid calculation of the same submatrices ("minors")
@@ -856,7 +930,7 @@ ex matrix::determinant_numeric(void) const
  *
  *  @return the determinant as a new expression (in expanded form)
  *  @see matrix::determinant() */
-ex matrix::determinant_minor(void) const
+ex matrix::determinant_minor_dense(void) const
 {
     // for small matrices the algorithm does not make any sense:
     if (this->row==1)
@@ -926,7 +1000,6 @@ ex matrix::determinant_minor(void) const
             Pkey.push_back(i);
         unsigned fc = 0;  // controls logic for our strange flipper counter
         do {
-            A.insert(Rmap_value(Pkey,_ex0()));
             det = _ex0();
             for (unsigned r=0; r<this->col-c; ++r) {
                 // maybe there is nothing to do?
@@ -946,7 +1019,8 @@ ex matrix::determinant_minor(void) const
             // prevent build-up of deep nesting of expressions saves time:
             det = det.expand();
             // store the new determinant at its place in B:
-            B.insert(Rmap_value(Pkey,det));
+            if (!det.is_zero())
+                B.insert(Rmap_value(Pkey,det));
             // increment our strange flipper counter
             for (fc=this->col-c; fc>0; --fc) {
                 ++Pkey[fc-1];
@@ -966,8 +1040,25 @@ ex matrix::determinant_minor(void) const
 }
 
 
+/*  Determinant using a simple Bareiss elimination scheme.  Suited for
+ *  sparse matrices.
+ *
+ *  @return the determinant as a new expression (in expanded form)
+ *  @see matrix::determinant() */
+ex matrix::determinant_bareiss(void) const
+{
+    matrix M(*this);
+    int sign = M.fraction_free_elimination();
+    if (sign)
+        return sign*M(row-1,col-1);
+    else
+        return _ex0();
+}
+
+
 /** Determinant built by application of the full permutation group.  This
- *  routine is only called internally by matrix::determinant(). */
+ *  routine is only called internally by matrix::determinant().
+ *  NOTE: it is probably inefficient in all cases and may be eliminated. */
 ex matrix::determinant_perm(void) const
 {
     if (rows()==1)  // speed things up
@@ -1008,6 +1099,64 @@ int matrix::gauss_elimination(void)
         for (unsigned r2=r1+1; r2<row; ++r2) {
             for (unsigned c=r1+1; c<col; ++c)
                 this->m[r2*col+c] -= this->m[r2*col+r1]*this->m[r1*col+c]/this->m[r1*col+r1];
+            for (unsigned c=0; c<=r1; ++c)
+                this->m[r2*col+c] = _ex0();
+        }
+    }
+    
+    return sign;
+}
+
+
+/** Perform the steps of division free elimination to bring the matrix
+ *  into an upper echelon form.
+ *
+ *  @return sign is 1 if an even number of rows was swapped, -1 if an odd
+ *  number of rows was swapped and 0 if the matrix is singular. */
+int matrix::division_free_elimination(void)
+{
+    int sign = 1;
+    ensure_if_modifiable();
+    for (unsigned r1=0; r1<row-1; ++r1) {
+        int indx = pivot(r1);
+        if (indx==-1)
+            return 0;  // Note: leaves *this in a messy state.
+        if (indx>0)
+            sign = -sign;
+        for (unsigned r2=r1+1; r2<row; ++r2) {
+            for (unsigned c=r1+1; c<col; ++c)
+                this->m[r2*col+c] = this->m[r1*col+r1]*this->m[r2*col+c] - this->m[r2*col+r1]*this->m[r1*col+c];
+            for (unsigned c=0; c<=r1; ++c)
+                this->m[r2*col+c] = _ex0();
+        }
+    }
+    
+    return sign;
+}
+
+
+/** Perform the steps of Bareiss' one-step fraction free elimination to bring
+ *  the matrix into an upper echelon form.
+ *
+ *  @return sign is 1 if an even number of rows was swapped, -1 if an odd
+ *  number of rows was swapped and 0 if the matrix is singular. */
+int matrix::fraction_free_elimination(void)
+{
+    int sign = 1;
+    ex divisor = 1;
+    
+    ensure_if_modifiable();
+    for (unsigned r1=0; r1<row-1; ++r1) {
+        int indx = pivot(r1);
+        if (indx==-1)
+            return 0;  // Note: leaves *this in a messy state.
+        if (indx>0)
+            sign = -sign;
+        if (r1>0)
+            divisor = this->m[(r1-1)*col + (r1-1)];
+        for (unsigned r2=r1+1; r2<row; ++r2) {
+            for (unsigned c=r1+1; c<col; ++c)
+                this->m[r2*col+c] = ((this->m[r1*col+r1]*this->m[r2*col+c] - this->m[r2*col+r1]*this->m[r1*col+c])/divisor).normal();
             for (unsigned c=0; c<=r1; ++c)
                 this->m[r2*col+c] = _ex0();
         }
