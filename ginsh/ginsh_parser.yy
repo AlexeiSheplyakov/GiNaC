@@ -4,7 +4,7 @@
  *  This file must be processed with yacc/bison. */
 
 /*
- *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -93,7 +93,7 @@ static void print_help_topics(void);
 %token T_EQUAL T_NOTEQ T_LESSEQ T_GREATEREQ
 
 %token T_QUIT T_WARRANTY T_PRINT T_IPRINT T_PRINTLATEX T_PRINTCSRC T_TIME
-%token T_XYZZY T_INVENTORY T_LOOK T_SCORE
+%token T_XYZZY T_INVENTORY T_LOOK T_SCORE T_COMPLEX_SYMBOLS T_REAL_SYMBOLS
 
 /* Operator precedence and associativity */
 %right '='
@@ -202,6 +202,8 @@ line	: ';'
 		cout << (syms.size() > 350 ? 350 : syms.size());
 		cout << " out of a possible 350.\n";
 	}
+	| T_REAL_SYMBOLS { symboltype = symbol_options::real; }
+	| T_COMPLEX_SYMBOLS { symboltype = symbol_options::complex; }
 	| T_TIME {getrusage(RUSAGE_SELF, &start_time);} '(' exp ')' {
 		getrusage(RUSAGE_SELF, &end_time);
 		cout << (end_time.ru_utime.tv_sec - start_time.ru_utime.tv_sec) +
@@ -817,7 +819,7 @@ static char **fcn_completion(const char *text, int start, int end)
 void greeting(void)
 {
     cout << "ginsh - GiNaC Interactive Shell (" << PACKAGE << " V" << VERSION << ")" << endl;
-    cout << "  __,  _______  Copyright (C) 1999-2003 Johannes Gutenberg University Mainz,\n"
+    cout << "  __,  _______  Copyright (C) 1999-2004 Johannes Gutenberg University Mainz,\n"
          << " (__) *       | Germany.  This is free software with ABSOLUTELY NO WARRANTY.\n"
          << "  ._) i N a C | You are welcome to redistribute it under certain conditions.\n"
          << "<-------------' For details type `warranty;'.\n" << endl;

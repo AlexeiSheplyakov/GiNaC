@@ -4,7 +4,7 @@
  *  This file must be processed with flex. */
 
 /*
- *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -36,6 +36,9 @@
 
 // Table of all used symbols
 sym_tab syms;
+
+// Type of symbols to generate (real or complex)
+unsigned symboltype = symbol_options::complex;
 
 // lex input function
 static int ginsh_input(char *buf, int max_size);
@@ -79,6 +82,8 @@ xyzzy			return T_XYZZY;
 inventory		return T_INVENTORY;
 look			return T_LOOK;
 score			return T_SCORE;
+complex_symbols return T_COMPLEX_SYMBOLS;
+real_symbols    return T_REAL_SYMBOLS;
 
 			/* comparison */
 "=="			return T_EQUAL;
@@ -105,7 +110,11 @@ score			return T_SCORE;
 {A}{AN}*		{
 				sym_tab::const_iterator i = syms.find(yytext);
 				if (i == syms.end()) {
-					yylval = syms[yytext] = *(new symbol(yytext));
+					if (symboltype == symbol_options::complex) {
+						yylval = syms[yytext] = *(new symbol(yytext));
+					} else {
+						yylval = syms[yytext] = *(new symbol(yytext, symbol_options::real));
+					}
 				} else
 					yylval = i->second;
 				return T_SYMBOL;
