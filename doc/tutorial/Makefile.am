@@ -10,8 +10,8 @@ SUFFIXES = .fig .png .eps .txt
 
 %.eps: %.fig
 	@if [ "${FIG2DEV}" ]; then \
-	  echo "Running ${FIG2DEV} -L ps -m 0.8 $< $@..."; \
-	  ${FIG2DEV} -L ps -m 0.8 $< $@; \
+	  echo "Running ${FIG2DEV} -L ps -m 0.9 $< $@..."; \
+	  ${FIG2DEV} -L ps -m 0.9 $< $@; \
 	else \
 	  echo "warning: fig2dev was not found by configure"; \
 	fi
