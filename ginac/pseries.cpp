@@ -953,7 +953,7 @@ ex power::series(const relational & r, int order, unsigned options) const
 	}
 
 	// Is the expression of type something^(-int)?
-	if (!must_expand_basis && !exponent.info(info_flags::negint))
+	if (!must_expand_basis && !exponent.info(info_flags::negint) && !is_a<add>(basis))
 		return basic::series(r, order, options);
 
 	// Is the expression of type 0^something?
