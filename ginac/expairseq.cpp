@@ -361,6 +361,17 @@ ex expairseq::normal(lst &sym_lst, lst &repl_lst, int level) const
     return n.bp->basic::normal(sym_lst,repl_lst,level);
 }
 
+ex expairseq::to_rational(lst &repl_lst) const
+{
+    epvector s;
+    s.reserve(seq.size());
+    for (epvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
+        s.push_back(combine_ex_with_coeff_to_pair((*it).rest.to_rational(repl_lst),
+                                                  (*it).coeff));
+    }
+    return thisexpairseq(s, overall_coeff);
+}
+
 ex expairseq::subs(const lst & ls, const lst & lr) const
 {
     epvector * vp=subschildren(ls,lr);

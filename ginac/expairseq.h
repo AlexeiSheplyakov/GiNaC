@@ -102,6 +102,7 @@ public:
     ex eval(int level=0) const;
     ex evalf(int level=0) const;
     ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
+    ex to_rational(lst &repl_lst) const;
     ex subs(const lst & ls, const lst & lr) const;
 protected:
     ex derivative(const symbol & s) const;

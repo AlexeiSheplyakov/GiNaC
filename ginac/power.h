@@ -76,6 +76,7 @@ public:
     ex series(const relational & s, int order) const;
     ex subs(const lst & ls, const lst & lr) const;
     ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
+    ex to_rational(lst &repl_lst) const;
     ex simplify_ncmul(const exvector & v) const;
 protected:
     ex derivative(const symbol & s) const;

@@ -260,6 +260,7 @@ public:
     ex primpart(const symbol &x, const basic &cont) const { return primpart(x,ex(cont)); }
 #endif // def CINT_CONVERSION_WORKAROUND
     ex normal(int level = 0) const;
+    ex to_rational(lst &repl_lst) const;
     ex smod(const numeric &xi) const;
     numeric max_coefficient(void) const;
     ex collect(const symbol & s) const;
@@ -417,6 +418,9 @@ inline ex denom(const ex & thisex)
 
 inline ex normal(const ex & thisex, int level=0)
 { return thisex.normal(level); }
+
+inline ex to_rational(const ex & thisex, lst & repl_lst)
+{ return thisex.to_rational(repl_lst); }
 
 inline ex collect(const ex & thisex, const symbol & s)
 { return thisex.collect(s); }

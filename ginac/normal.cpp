@@ -3,8 +3,7 @@
  *  This file implements several functions that work on univariate and
  *  multivariate polynomials and rational functions.
  *  These functions include polynomial quotient and remainder, GCD and LCM
- *  computation, square-free factorization and rational function normalization.
- */
+ *  computation, square-free factorization and rational function normalization. */
 
 /*
  *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
@@ -1460,8 +1459,8 @@ ex sqrfree(const ex &a, const symbol &x)
  */
 
 /** Create a symbol for replacing the expression "e" (or return a previously
- *  assigned symbol). The symbol is appended to sym_list and returned, the
- *  expression is appended to repl_list.
+ *  assigned symbol). The symbol is appended to sym_lst and returned, the
+ *  expression is appended to repl_lst.
  *  @see ex::normal */
 static ex replace_with_symbol(const ex &e, lst &sym_lst, lst &repl_lst)
 {
@@ -1481,6 +1480,26 @@ static ex replace_with_symbol(const ex &e, lst &sym_lst, lst &repl_lst)
     return es;
 }
 
+/** Create a symbol for replacing the expression "e" (or return a previously
+ *  assigned symbol). An expression of the form "symbol == expression" is added
+ *  to repl_lst and the symbol is returned.
+ *  @see ex::to_rational */
+static ex replace_with_symbol(const ex &e, lst &repl_lst)
+{
+    // Expression already in repl_lst? Then return the assigned symbol
+    for (unsigned i=0; i<repl_lst.nops(); i++)
+        if (repl_lst.op(i).op(1).is_equal(e))
+            return repl_lst.op(i).op(0);
+
+    // Otherwise create new symbol and add to list, taking care that the
+	// replacement expression doesn't contain symbols from the sym_lst
+	// because subs() is not recursive
+	symbol s;
+	ex es(s);
+	ex e_replaced = e.subs(repl_lst);
+    repl_lst.append(es == e_replaced);
+    return es;
+}
 
 /** Default implementation of ex::normal(). It replaces the object with a
  *  temporary symbol.
@@ -1747,8 +1766,8 @@ ex pseries::normal(lst &sym_lst, lst &repl_lst, int level) const
  *  This function converts an expression to its normal form
  *  "numerator/denominator", where numerator and denominator are (relatively
  *  prime) polynomials. Any subexpressions which are not rational functions
- *  (like non-rational numbers, non-integer powers or functions like Sin(),
- *  Cos() etc.) are replaced by temporary symbols which are re-substituted by
+ *  (like non-rational numbers, non-integer powers or functions like sin(),
+ *  cos() etc.) are replaced by temporary symbols which are re-substituted by
  *  the (normalized) subexpressions before normal() returns (this way, any
  *  expression can be treated as a rational function). normal() is applied
  *  recursively to arguments of functions etc.
@@ -1809,6 +1828,78 @@ ex ex::denom(void) const
 	else
 		return e.op(1);
 }
+
+
+/** Default implementation of ex::to_rational(). It replaces the object with a
+ *  temporary symbol.
+ *  @see ex::to_rational */
+ex basic::to_rational(lst &repl_lst) const
+{
+	return replace_with_symbol(*this, repl_lst);
+}
+
+
+/** Implementation of ex::to_rational() for symbols. This returns the unmodified symbol.
+ *  @see ex::to_rational */
+ex symbol::to_rational(lst &repl_lst) const
+{
+    return *this;
+}
+
+
+/** Implementation of ex::to_rational() for a numeric. It splits complex numbers
+ *  into re+I*im and replaces I and non-rational real numbers with a temporary
+ *  symbol.
+ *  @see ex::to_rational */
+ex numeric::to_rational(lst &repl_lst) const
+{
+	numeric num = numer();
+	ex numex = num;
+
+    if (num.is_real()) {
+        if (!num.is_integer())
+            numex = replace_with_symbol(numex, repl_lst);
+    } else { // complex
+        numeric re = num.real(), im = num.imag();
+        ex re_ex = re.is_rational() ? re : replace_with_symbol(re, repl_lst);
+        ex im_ex = im.is_rational() ? im : replace_with_symbol(im, repl_lst);
+        numex = re_ex + im_ex * replace_with_symbol(I, repl_lst);
+    }
+	return numex;
+}
+
+
+/** Implementation of ex::to_rational() for powers. It replaces non-integer
+ *  powers by temporary symbols.
+ *  @see ex::to_rational */
+ex power::to_rational(lst &repl_lst) const
+{
+	if (exponent.info(info_flags::integer))
+		return power(basis.to_rational(repl_lst), exponent);
+	else
+		return replace_with_symbol(*this, repl_lst);
+}
+
+
+/** Rationalization of non-rational functions.
+ *  This function converts a general expression to a rational polynomial
+ *  by replacing all non-rational subexpressions (like non-rational numbers,
+ *  non-integer powers or functions like sin(), cos() etc.) to temporary
+ *  symbols. This makes it possible to use functions like gcd() and divide()
+ *  on non-rational functions by applying to_rational() on the arguments,
+ *  calling the desired function and re-substituting the temporary symbols
+ *  in the result. To make the last step possible, all temporary symbols and
+ *  their associated expressions are collected in the list specified by the
+ *  repl_lst parameter in the form {symbol == expression}, ready to be passed
+ *  as an argument to ex::subs().
+ *
+ *  @param repl_lst collects a list of all temporary symbols and their replacements
+ *  @return rationalized expression */
+ex ex::to_rational(lst &repl_lst) const
+{
+	return bp->to_rational(repl_lst);
+}
+
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

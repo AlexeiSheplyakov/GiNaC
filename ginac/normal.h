@@ -1,7 +1,9 @@
 /** @file normal.h
  *
- *  Functions for polynomial quotient and remainder, GCD and LCM computation
- *  and square-free factorization. */
+ *  This file defines several functions that work on univariate and
+ *  multivariate polynomials and rational functions.
+ *  These functions include polynomial quotient and remainder, GCD and LCM
+ *  computation, square-free factorization and rational function normalization. */
 
 /*
  *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany

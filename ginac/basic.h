@@ -141,6 +141,7 @@ public: // only const functions please (may break reference counting)
     virtual ex series(const relational & r, int order) const;
     virtual ex subs(const lst & ls, const lst & lr) const;
     virtual ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
+    virtual ex to_rational(lst &repl_lst) const;
     virtual numeric integer_content(void) const;
     virtual ex smod(const numeric &xi) const;
     virtual numeric max_coefficient(void) const;
