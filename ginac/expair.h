@@ -97,19 +97,25 @@ public:
 		return (is_ex_exactly_of_type(rest,numeric) &&
 		        (coeff.is_equal(1)));
 	}
+
+	/** Swap contents with other expair. */
+	void swap(expair & other)
+	{
+		rest.swap(other.rest);
+		coeff.swap(other.coeff);
+	}
 	
 	ex rest;    ///< first member of pair, an arbitrary expression
 	ex coeff;   ///< second member of pair, must be numeric
 };
 
-/** Function object for insertion into third argument of STL's sort() etc. */
-class expair_is_less
-{
-public:
-	bool operator()(const expair &lh, const expair &rh) const
-	{
-		return lh.is_less(rh);
-	}
+/** Function objects for insertion into third argument of STL's sort() etc. */
+struct expair_is_less : public std::binary_function<expair, expair, bool> {
+	bool operator()(const expair &lh, const expair &rh) const { return lh.is_less(rh); }
+};
+
+struct expair_swap : public std::binary_function<expair, expair, void> {
+	void operator()(expair &lh, expair &rh) const { lh.swap(rh); }
 };
 
 } // namespace GiNaC

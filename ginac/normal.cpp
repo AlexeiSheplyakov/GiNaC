@@ -269,20 +269,22 @@ static numeric lcm_of_coefficients_denominators(const ex &e)
 static ex multiply_lcm(const ex &e, const numeric &lcm)
 {
 	if (is_ex_exactly_of_type(e, mul)) {
-		ex c = _ex1();
+		unsigned num = e.nops();
+		exvector v; v.reserve(num + 1);
 		numeric lcm_accum = _num1();
 		for (unsigned i=0; i<e.nops(); i++) {
 			numeric op_lcm = lcmcoeff(e.op(i), _num1());
-			c *= multiply_lcm(e.op(i), op_lcm);
+			v.push_back(multiply_lcm(e.op(i), op_lcm));
 			lcm_accum *= op_lcm;
 		}
-		c *= lcm / lcm_accum;
-		return c;
+		v.push_back(lcm / lcm_accum);
+		return (new mul(v))->setflag(status_flags::dynallocated);
 	} else if (is_ex_exactly_of_type(e, add)) {
-		ex c = _ex0();
-		for (unsigned i=0; i<e.nops(); i++)
-			c += multiply_lcm(e.op(i), lcm);
-		return c;
+		unsigned num = e.nops();
+		exvector v; v.reserve(num);
+		for (unsigned i=0; i<num; i++)
+			v.push_back(multiply_lcm(e.op(i), lcm));
+		return (new add(v))->setflag(status_flags::dynallocated);
 	} else if (is_ex_exactly_of_type(e, power)) {
 		if (is_ex_exactly_of_type(e.op(0), symbol))
 			return e * lcm;
@@ -372,7 +374,6 @@ ex quo(const ex &a, const ex &b, const symbol &x, bool check_args)
 		throw(std::invalid_argument("quo: arguments must be polynomials over the rationals"));
 
 	// Polynomial long division
-	ex q = _ex0();
 	ex r = a.expand();
 	if (r.is_zero())
 		return r;
@@ -380,6 +381,7 @@ ex quo(const ex &a, const ex &b, const symbol &x, bool check_args)
 	int rdeg = r.degree(x);
 	ex blcoeff = b.expand().coeff(x, bdeg);
 	bool blcoeff_is_numeric = is_ex_exactly_of_type(blcoeff, numeric);
+	exvector v; v.reserve(rdeg - bdeg + 1);
 	while (rdeg >= bdeg) {
 		ex term, rcoeff = r.coeff(x, rdeg);
 		if (blcoeff_is_numeric)
@@ -389,13 +391,13 @@ ex quo(const ex &a, const ex &b, const symbol &x, bool check_args)
 				return (new fail())->setflag(status_flags::dynallocated);
 		}
 		term *= power(x, rdeg - bdeg);
-		q += term;
+		v.push_back(term);
 		r -= (term * b).expand();
 		if (r.is_zero())
 			break;
 		rdeg = r.degree(x);
 	}
-	return q;
+	return (new add(v))->setflag(status_flags::dynallocated);
 }
 
 
@@ -529,7 +531,6 @@ ex prem(const ex &a, const ex &b, const symbol &x, bool check_args)
  *  @param check_args  check whether a and b are polynomials with rational
  *         coefficients (defaults to "true")
  *  @return sparse pseudo-remainder of a(x) and b(x) in Z[x] */
-
 ex sprem(const ex &a, const ex &b, const symbol &x, bool check_args)
 {
 	if (b.is_zero())
@@ -616,6 +617,7 @@ bool divide(const ex &a, const ex &b, ex &q, bool check_args)
 	int rdeg = r.degree(*x);
 	ex blcoeff = b.expand().coeff(*x, bdeg);
 	bool blcoeff_is_numeric = is_ex_exactly_of_type(blcoeff, numeric);
+	exvector v; v.reserve(rdeg - bdeg + 1);
 	while (rdeg >= bdeg) {
 		ex term, rcoeff = r.coeff(*x, rdeg);
 		if (blcoeff_is_numeric)
@@ -624,10 +626,12 @@ bool divide(const ex &a, const ex &b, ex &q, bool check_args)
 			if (!divide(rcoeff, blcoeff, term, false))
 				return false;
 		term *= power(*x, rdeg - bdeg);
-		q += term;
+		v.push_back(term);
 		r -= (term * b).expand();
-		if (r.is_zero())
+		if (r.is_zero()) {
+			q = (new add(v))->setflag(status_flags::dynallocated);
 			return true;
+		}
 		rdeg = r.degree(*x);
 	}
 	return false;
@@ -774,14 +778,16 @@ static bool divide_in_z(const ex &a, const ex &b, ex &q, sym_desc_vec::const_ite
 	int rdeg = adeg;
 	ex eb = b.expand();
 	ex blcoeff = eb.coeff(*x, bdeg);
+	exvector v; v.reserve(rdeg - bdeg + 1);
 	while (rdeg >= bdeg) {
 		ex term, rcoeff = r.coeff(*x, rdeg);
 		if (!divide_in_z(rcoeff, blcoeff, term, var+1))
 			break;
 		term = (term * power(*x, rdeg - bdeg)).expand();
-		q += term;
+		v.push_back(term);
 		r -= (term * eb).expand();
 		if (r.is_zero()) {
+			q = (new add(v))->setflag(status_flags::dynallocated);
 #if USE_REMEMBER
 			dr_remember[ex2(a, b)] = exbool(q, true);
 #endif
@@ -1311,17 +1317,17 @@ ex mul::smod(const numeric &xi) const
 
 
 /** xi-adic polynomial interpolation */
-static ex interpolate(const ex &gamma, const numeric &xi, const symbol &x)
+static ex interpolate(const ex &gamma, const numeric &xi, const symbol &x, int degree_hint = 1)
 {
-	ex g = _ex0();
+	exvector g; g.reserve(degree_hint);
 	ex e = gamma;
 	numeric rxi = xi.inverse();
 	for (int i=0; !e.is_zero(); i++) {
 		ex gi = e.smod(xi);
-		g += gi * power(x, i);
+		g.push_back(gi * power(x, i));
 		e = (e - gi) * rxi;
 	}
-	return g;
+	return (new add(g))->setflag(status_flags::dynallocated);
 }
 
 /** Exception thrown by heur_gcd() to signal failure. */
@@ -1349,7 +1355,7 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 	heur_gcd_called++;
 #endif
 
-	// Algorithms only works for non-vanishing input polynomials
+	// Algorithm only works for non-vanishing input polynomials
 	if (a.is_zero() || b.is_zero())
 		return (new fail())->setflag(status_flags::dynallocated);
 
@@ -1371,7 +1377,7 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 	numeric rgc = gc.inverse();
 	ex p = a * rgc;
 	ex q = b * rgc;
-	int maxdeg =  std::max(p.degree(x),q.degree(x));
+	int maxdeg =  std::max(p.degree(x), q.degree(x));
 	
 	// Find evaluation point
 	numeric mp = p.max_coefficient();
@@ -1395,7 +1401,7 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 		if (!is_ex_exactly_of_type(gamma, fail)) {
 
 			// Reconstruct polynomial from GCD of mapped polynomials
-			ex g = interpolate(gamma, xi, x);
+			ex g = interpolate(gamma, xi, x, maxdeg);
 
 			// Remove integer content
 			g /= g.integer_content();
@@ -1491,38 +1497,40 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args)
 		if (is_ex_exactly_of_type(b, mul) && b.nops() > a.nops())
 			goto factored_b;
 factored_a:
-		ex g = _ex1();
-		ex acc_ca = _ex1();
+		unsigned num = a.nops();
+		exvector g; g.reserve(num);
+		exvector acc_ca; acc_ca.reserve(num);
 		ex part_b = b;
-		for (unsigned i=0; i<a.nops(); i++) {
+		for (unsigned i=0; i<num; i++) {
 			ex part_ca, part_cb;
-			g *= gcd(a.op(i), part_b, &part_ca, &part_cb, check_args);
-			acc_ca *= part_ca;
+			g.push_back(gcd(a.op(i), part_b, &part_ca, &part_cb, check_args));
+			acc_ca.push_back(part_ca);
 			part_b = part_cb;
 		}
 		if (ca)
-			*ca = acc_ca;
+			*ca = (new mul(acc_ca))->setflag(status_flags::dynallocated);
 		if (cb)
 			*cb = part_b;
-		return g;
+		return (new mul(g))->setflag(status_flags::dynallocated);
 	} else if (is_ex_exactly_of_type(b, mul)) {
 		if (is_ex_exactly_of_type(a, mul) && a.nops() > b.nops())
 			goto factored_a;
 factored_b:
-		ex g = _ex1();
-		ex acc_cb = _ex1();
+		unsigned num = b.nops();
+		exvector g; g.reserve(num);
+		exvector acc_cb; acc_cb.reserve(num);
 		ex part_a = a;
-		for (unsigned i=0; i<b.nops(); i++) {
+		for (unsigned i=0; i<num; i++) {
 			ex part_ca, part_cb;
-			g *= gcd(part_a, b.op(i), &part_ca, &part_cb, check_args);
-			acc_cb *= part_cb;
+			g.push_back(gcd(part_a, b.op(i), &part_ca, &part_cb, check_args));
+			acc_cb.push_back(part_cb);
 			part_a = part_ca;
 		}
 		if (ca)
 			*ca = part_a;
 		if (cb)
-			*cb = acc_cb;
-		return g;
+			*cb = (new mul(acc_cb))->setflag(status_flags::dynallocated);
+		return (new mul(g))->setflag(status_flags::dynallocated);
 	}
 
 #if FAST_COMPARE
@@ -1817,7 +1825,7 @@ ex sqrfree_parfrac(const ex & a, const symbol & x)
 		if (!yun[i].is_equal(_ex1())) {
 			for (unsigned j=0; j<=i; j++) {
 				factor.push_back(pow(yun[i], j+1));
-				ex prod = 1;
+				ex prod = _ex1();
 				for (unsigned k=0; k<num_yun; k++) {
 					if (k == i)
 						prod *= pow(yun[k], i-j);
@@ -2099,22 +2107,23 @@ ex mul::normal(lst &sym_lst, lst &repl_lst, int level) const
 		throw(std::runtime_error("max recursion level reached"));
 
 	// Normalize children, separate into numerator and denominator
-	ex num = _ex1();
-	ex den = _ex1(); 
+	exvector num; num.reserve(seq.size());
+	exvector den; den.reserve(seq.size());
 	ex n;
 	epvector::const_iterator it = seq.begin(), itend = seq.end();
 	while (it != itend) {
 		n = recombine_pair_to_ex(*it).bp->normal(sym_lst, repl_lst, level-1);
-		num *= n.op(0);
-		den *= n.op(1);
+		num.push_back(n.op(0));
+		den.push_back(n.op(1));
 		it++;
 	}
 	n = overall_coeff.bp->normal(sym_lst, repl_lst, level-1);
-	num *= n.op(0);
-	den *= n.op(1);
+	num.push_back(n.op(0));
+	den.push_back(n.op(1));
 
 	// Perform fraction cancellation
-	return frac_cancel(num, den);
+	return frac_cancel((new mul(num))->setflag(status_flags::dynallocated),
+	                   (new mul(den))->setflag(status_flags::dynallocated));
 }
 
 
