@@ -256,6 +256,14 @@ ex pseries::coeff(const symbol &s, int n) const
         return convert_to_poly().coeff(s, n);
 }
 
+ex pseries::collect(const symbol &s) const
+{
+	if (var.is_equal(s))
+		return convert_to_poly();
+	else
+		return inherited::collect(s);
+}
+
 ex pseries::eval(int level) const
 {
     if (level == 1)

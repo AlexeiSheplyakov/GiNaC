@@ -63,6 +63,7 @@ public:
     int degree(const symbol &s) const;
     int ldegree(const symbol &s) const;
     ex coeff(const symbol &s, int n=1) const;
+    ex collect(const symbol &s) const;
     ex eval(int level=0) const;
     ex evalf(int level=0) const;
     ex series(const symbol & s, const ex & p, int order) const;
