@@ -83,10 +83,10 @@ static ex zeta1_deriv(const ex & x, unsigned deriv_param)
 
 const unsigned function_index_zeta1 =
 	function::register_new(function_options("zeta").
-						   eval_func(zeta1_eval).
-						   evalf_func(zeta1_evalf).
-			   derivative_func(zeta1_deriv).
-			   overloaded(2));
+	                       eval_func(zeta1_eval).
+	                       evalf_func(zeta1_evalf).
+	                       derivative_func(zeta1_deriv).
+	                       overloaded(2));
 
 //////////
 // Derivatives of Riemann's Zeta-function  zeta(0,x)==zeta(x)
@@ -117,9 +117,9 @@ static ex zeta2_deriv(const ex & n, const ex & x, unsigned deriv_param)
 
 const unsigned function_index_zeta2 =
 	function::register_new(function_options("zeta").
-						   eval_func(zeta2_eval).
-			   derivative_func(zeta2_deriv).
-			   overloaded(2));
+	                       eval_func(zeta2_eval).
+	                       derivative_func(zeta2_deriv).
+	                       overloaded(2));
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

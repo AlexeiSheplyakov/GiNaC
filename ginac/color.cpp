@@ -58,7 +58,7 @@ color::color() : type(invalid), representation_label(0)
 color::~color()
 {
 	debugmsg("color destructor",LOGLEVEL_DESTRUCT);
-	destroy(0);
+	destroy(false);
 }
 
 color::color(const color & other)
@@ -71,8 +71,8 @@ const color & color::operator=(const color & other)
 {
 	debugmsg("color operator=",LOGLEVEL_ASSIGNMENT);
 	if (this != &other) {
-		destroy(1);
-	   copy(other);
+		destroy(true);
+		copy(other);
 	}
 	return *this;
 }
@@ -108,7 +108,7 @@ color::color(color_types const t, unsigned rl) : type(t), representation_label(r
 }
 
 color::color(color_types const t, const ex & i1, unsigned rl)
-	: inherited(i1), type(t), representation_label(rl)
+  : inherited(i1), type(t), representation_label(rl)
 {
 	debugmsg("color constructor from color_types,ex,unsigned",LOGLEVEL_CONSTRUCT);
 	GINAC_ASSERT(representation_label<MAX_REPRESENTATION_LABELS);
@@ -117,7 +117,7 @@ color::color(color_types const t, const ex & i1, unsigned rl)
 }
 
 color::color(color_types const t, const ex & i1, const ex & i2, unsigned rl)
-	: inherited(i1,i2), type(t), representation_label(rl)
+  : inherited(i1,i2), type(t), representation_label(rl)
 {
 	debugmsg("color constructor from color_types,ex,ex,unsigned",LOGLEVEL_CONSTRUCT);
 	GINAC_ASSERT(representation_label<MAX_REPRESENTATION_LABELS);
@@ -126,7 +126,7 @@ color::color(color_types const t, const ex & i1, const ex & i2, unsigned rl)
 }
 
 color::color(color_types const t, const ex & i1, const ex & i2, const ex & i3,
-			 unsigned rl) : inherited(i1,i2,i3), type(t), representation_label(rl)
+             unsigned rl) : inherited(i1,i2,i3), type(t), representation_label(rl)
 {
 	debugmsg("color constructor from color_types,ex,ex,ex,unsigned",LOGLEVEL_CONSTRUCT);
 	GINAC_ASSERT(representation_label<MAX_REPRESENTATION_LABELS);
@@ -135,7 +135,7 @@ color::color(color_types const t, const ex & i1, const ex & i2, const ex & i3,
 }
 
 color::color(color_types const t, const exvector & iv, unsigned rl)
-	: inherited(iv), type(t), representation_label(rl)
+  : inherited(iv), type(t), representation_label(rl)
 {
 	debugmsg("color constructor from color_types,exvector,unsigned",LOGLEVEL_CONSTRUCT);
 	GINAC_ASSERT(representation_label<MAX_REPRESENTATION_LABELS);
@@ -144,7 +144,7 @@ color::color(color_types const t, const exvector & iv, unsigned rl)
 }
 
 color::color(color_types const t, exvector * ivp, unsigned rl)
-	: inherited(ivp), type(t), representation_label(rl)
+  : inherited(ivp), type(t), representation_label(rl)
 {
 	debugmsg("color constructor from color_types,exvector *,unsigned",LOGLEVEL_CONSTRUCT);
 	GINAC_ASSERT(representation_label<MAX_REPRESENTATION_LABELS);
@@ -356,7 +356,7 @@ ex color::eval(int level) const
 				if (CMPINDICES(1,2,3)) {
 					return _ex1();
 				} else if (CMPINDICES(1,4,7)||CMPINDICES(2,4,6)||
-						   CMPINDICES(2,5,7)||CMPINDICES(3,4,5)) {
+				           CMPINDICES(2,5,7)||CMPINDICES(3,4,5)) {
 					return _ex1_2();
 				} else if (CMPINDICES(1,5,6)||CMPINDICES(3,6,7)) {
 					return -_ex1_2();
@@ -689,10 +689,10 @@ color color_delta8(const ex & a, const ex & b)
 }
 
 void split_color_string_in_parts(const exvector & v, exvector & delta8vec,
-								 exvector & fvec, exvector & dvec,
-								 exvectorvector & Tvecs,
-								 exvectorvector & ONEvecs,
-								 exvector & unknownvec)
+                                 exvector & fvec, exvector & dvec,
+                                 exvectorvector & Tvecs,
+                                 exvectorvector & ONEvecs,
+                                 exvector & unknownvec)
 {
 	// if not all elements are of type color, put all Ts in unknownvec to
 	// retain the ordering
@@ -738,8 +738,8 @@ void split_color_string_in_parts(const exvector & v, exvector & delta8vec,
 }    
 
 exvector recombine_color_string(exvector & delta8vec, exvector & fvec,
-								exvector & dvec, exvectorvector & Tvecs,
-								exvectorvector & ONEvecs, exvector & unknownvec)
+                                exvector & dvec, exvectorvector & Tvecs,
+                                exvectorvector & ONEvecs, exvector & unknownvec)
 {
 	unsigned sz=delta8vec.size()+fvec.size()+dvec.size()+unknownvec.size();
 	for (unsigned rl=0; rl<MAX_REPRESENTATION_LABELS; ++rl) {
@@ -787,9 +787,9 @@ ex color_trace_of_one_representation_label(const exvector & v)
 	
 	// FIXME: check this formula for SU(N) with N!=3
 	return numeric(1)/numeric(2*COLOR_THREE)*color_delta8(next_to_last_index,last_index)
-		   % color_trace_of_one_representation_label(v1)
-		  +numeric(1)/numeric(2)*color_h(next_to_last_index,last_index,summation_index)
-		   % color_trace_of_one_representation_label(v2);
+	       % color_trace_of_one_representation_label(v1)
+	       +numeric(1)/numeric(2)*color_h(next_to_last_index,last_index,summation_index)
+	       % color_trace_of_one_representation_label(v2);
 	/*
 	ex term1=numeric(1)/numeric(2*COLOR_THREE)*color_delta8(next_to_last_index,last_index)
 		   % color_trace_of_one_representation_label(v1);
@@ -882,14 +882,12 @@ ex simplify_pure_color_string(const ex & e)
 						}
 						t1=_ex1();
 						t2=_ex1();
-						ex term1=numeric(-1)/numeric(6)*nonsimplified_ncmul(recombine_color_string(
-								 delta8vec,fvec,dvec,Tvecs,ONEvecs,unknownvec));
+						ex term1=numeric(-1)/numeric(6)*nonsimplified_ncmul(recombine_color_string(delta8vec,fvec,dvec,Tvecs,ONEvecs,unknownvec));
 						for (unsigned k=i+1; k<j; ++k) {
 							S.push_back(_ex1());
 						}
 						t1=color_trace_of_one_representation_label(S);
-						ex term2=numeric(1)/numeric(2)*nonsimplified_ncmul(recombine_color_string(
-								 delta8vec,fvec,dvec,Tvecs,ONEvecs,unknownvec));
+						ex term2=numeric(1)/numeric(2)*nonsimplified_ncmul(recombine_color_string(delta8vec,fvec,dvec,Tvecs,ONEvecs,unknownvec));
 						return simplify_color(term1+term2);
 					}
 				}

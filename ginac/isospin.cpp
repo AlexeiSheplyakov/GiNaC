@@ -54,7 +54,7 @@ isospin::isospin()
 isospin::~isospin()
 {
 	debugmsg("isospin destructor",LOGLEVEL_DESTRUCT);
-	destroy(0);
+	destroy(false);
 }
 
 isospin::isospin(const isospin & other)
@@ -67,7 +67,7 @@ const isospin & isospin::operator=(const isospin & other)
 {
 	debugmsg("isospin operator=",LOGLEVEL_ASSIGNMENT);
 	if (this != &other) {
-		destroy(1);
+		destroy(true);
 		copy(other);
 	}
 	return *this;
@@ -207,9 +207,8 @@ ex isospin::simplify_ncmul(const exvector & v) const
 
 unsigned isospin::calchash(void) const
 {
-	hashvalue=golden_ratio_hash(golden_ratio_hash(0x55555556U ^
-												  golden_ratio_hash(tinfo_key) ^
-												  serial));
+	hashvalue = golden_ratio_hash(golden_ratio_hash(0x55555556U ^
+	            golden_ratio_hash(tinfo_key) ^ serial));
 	setflag(status_flags::hash_calculated);
 	return hashvalue;
 }

@@ -52,7 +52,7 @@ idx::idx() : inherited(TINFO_idx), symbolic(true), covariant(false)
 idx::~idx() 
 {
 	debugmsg("idx destructor",LOGLEVEL_DESTRUCT);
-	destroy(0);
+	destroy(false);
 }
 
 idx::idx(const idx & other)
@@ -65,7 +65,7 @@ const idx & idx::operator=(const idx & other)
 {
 	debugmsg("idx operator=",LOGLEVEL_ASSIGNMENT);
 	if (this != &other) {
-		destroy(1);
+		destroy(true);
 		copy(other);
 	}
 	return *this;
@@ -108,15 +108,13 @@ idx::idx(const std::string & n, bool cov) : inherited(TINFO_idx),
 	serial = next_serial++;
 }
 
-idx::idx(const char * n, bool cov) : inherited(TINFO_idx),  
-	symbolic(true), name(n), covariant(cov)
+idx::idx(const char * n, bool cov) : inherited(TINFO_idx), symbolic(true), name(n), covariant(cov)
 {
 	debugmsg("idx constructor from char*,bool",LOGLEVEL_CONSTRUCT);
 	serial = next_serial++;
 }
 
-idx::idx(unsigned v, bool cov) : inherited(TINFO_idx),
-	symbolic(false), value(v), covariant(cov)
+idx::idx(unsigned v, bool cov) : inherited(TINFO_idx), symbolic(false), value(v), covariant(cov)
 {
 	debugmsg("idx constructor from unsigned,bool",LOGLEVEL_CONSTRUCT);
 	serial = 0;
@@ -273,8 +271,7 @@ ex idx::subs(const lst & ls, const lst & lr) const
 int idx::compare_same_type(const basic & other) const
 {
 	GINAC_ASSERT(is_of_type(other,idx));
-	const idx & o=static_cast<const idx &>
-							 (const_cast<basic &>(other));
+	const idx & o=static_cast<const idx &>(const_cast<basic &>(other));
 
 	if (covariant!=o.covariant) {
 		// different co/contravariant
@@ -301,8 +298,7 @@ int idx::compare_same_type(const basic & other) const
 bool idx::is_equal_same_type(const basic & other) const
 {
 	GINAC_ASSERT(is_of_type(other,idx));
-	const idx & o=static_cast<const idx &>
-							 (const_cast<basic &>(other));
+	const idx & o=static_cast<const idx &>(const_cast<basic &>(other));
 
 	if (covariant!=o.covariant) return false;
 	if (symbolic!=o.symbolic) return false;
@@ -327,8 +323,7 @@ bool idx::is_co_contra_pair(const basic & other) const
 {
 	// like is_equal_same_type(), but tests for different covariant status
 	GINAC_ASSERT(is_of_type(other,idx));
-	const idx & o=static_cast<const idx &>
-							 (const_cast<basic &>(other));
+	const idx & o=static_cast<const idx &>(const_cast<basic &>(other));
 
 	if (covariant==o.covariant) return false;
 	if (symbolic!=o.symbolic) return false;
@@ -439,7 +434,7 @@ exvector idx_intersect(const exvector & iv1, const exvector & iv2)
 	}
 
 ex permute_free_index_to_front(const exvector & iv3, const exvector & iv2,
-							   bool antisymmetric, int * sig)
+                               bool antisymmetric, int * sig)
 {
 	// match (return value,iv2) to iv3 by permuting indices
 	// iv3 is always cyclic
@@ -488,7 +483,7 @@ unsigned count_index(const ex & e, const ex & i)
 }
 
 ex subs_indices(const ex & e, const exvector & idxv_subs,
-				const exvector & idxv_repl)
+                const exvector & idxv_repl)
 {
 	GINAC_ASSERT(idxv_subs.size()==idxv_repl.size());
 	ex res=e;

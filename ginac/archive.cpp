@@ -321,7 +321,7 @@ const std::string &archive::unatomize(archive_atom id) const
 
 /** Copy constructor of archive_node. */
 archive_node::archive_node(const archive_node &other)
-	: a(other.a), props(other.props), has_expression(other.has_expression), e(other.e)
+  : a(other.a), props(other.props), has_expression(other.has_expression), e(other.e)
 {
 }
 
@@ -341,7 +341,7 @@ const archive_node &archive_node::operator=(const archive_node &other)
 
 /** Recursively construct archive node from expression. */
 archive_node::archive_node(archive &ar, const ex &expr)
-	: a(ar), has_expression(true), e(expr)
+  : a(ar), has_expression(true), e(expr)
 {
 	expr.bp->archive(*this);
 }

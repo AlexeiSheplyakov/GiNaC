@@ -48,7 +48,7 @@ relational::relational() : basic(TINFO_relational)
 relational::~relational()
 {
 	debugmsg("relational destructor",LOGLEVEL_DESTRUCT);
-	destroy(0);
+	destroy(false);
 }
 
 relational::relational(const relational & other)
@@ -61,7 +61,7 @@ const relational & relational::operator=(const relational & other)
 {
 	debugmsg("relational operator=",LOGLEVEL_ASSIGNMENT);
 	if (this != &other) {
-		destroy(1);
+		destroy(true);
 		copy(other);
 	}
 	return *this;
@@ -286,9 +286,7 @@ ex relational::eval(int level) const
 	if (level == -max_recursion_level) {
 		throw(std::runtime_error("max recursion level reached"));
 	}
-	return (new relational(lh.eval(level-1),rh.eval(level-1),o))->
-			setflag(status_flags::dynallocated  |
-					status_flags::evaluated );
+	return (new relational(lh.eval(level-1),rh.eval(level-1),o))->setflag(status_flags::dynallocated | status_flags::evaluated);
 }
 
 ex relational::evalf(int level) const
@@ -299,8 +297,7 @@ ex relational::evalf(int level) const
 	if (level == -max_recursion_level) {
 		throw(std::runtime_error("max recursion level reached"));
 	}
-	return (new relational(lh.eval(level-1),rh.eval(level-1),o))->
-			setflag(status_flags::dynallocated);
+	return (new relational(lh.eval(level-1),rh.eval(level-1),o))->setflag(status_flags::dynallocated);
 }
 
 ex relational::simplify_ncmul(const exvector & v) const

@@ -41,9 +41,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(constant, basic)
 
 // public
 
-constant::constant() :
-	basic(TINFO_constant), name(""), ef(0),
-	number(0), serial(next_serial++)
+constant::constant() : basic(TINFO_constant), name(""), ef(0), number(0), serial(next_serial++)
 {
 	debugmsg("constant default constructor",LOGLEVEL_CONSTRUCT);
 }
@@ -89,17 +87,14 @@ void constant::destroy(bool call_parent)
 
 // public
 
-constant::constant(const std::string & initname, evalffunctype efun) :
-	basic(TINFO_constant), name(initname), ef(efun),
-	// number(0), fct_assigned(true), serial(next_serial++)
-	number(0), serial(next_serial++)
+constant::constant(const std::string & initname, evalffunctype efun)
+  : basic(TINFO_constant), name(initname), ef(efun), number(0), serial(next_serial++)
 {
 	debugmsg("constant constructor from string, function",LOGLEVEL_CONSTRUCT);
 }
 
-constant::constant(const std::string & initname, const numeric & initnumber) :
-	basic(TINFO_constant), name(initname), ef(0),
-	number(new numeric(initnumber)), /* fct_assigned(false),*/ serial(next_serial++)
+constant::constant(const std::string & initname, const numeric & initnumber)
+  : basic(TINFO_constant), name(initname), ef(0), number(new numeric(initnumber)), serial(next_serial++)
 {
 	debugmsg("constant constructor from string, numeric",LOGLEVEL_CONSTRUCT);
 }

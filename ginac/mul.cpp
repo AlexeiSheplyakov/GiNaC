@@ -412,21 +412,19 @@ ex mul::eval(int level) const
 		// *(x;1) -> x
 		return recombine_pair_to_ex(*(seq.begin()));
 	} else if ((seq_size==1) &&
-			   is_ex_exactly_of_type((*seq.begin()).rest,add) &&
-			   ex_to_numeric((*seq.begin()).coeff).is_equal(_num1())) {
+	           is_ex_exactly_of_type((*seq.begin()).rest,add) &&
+	           ex_to_numeric((*seq.begin()).coeff).is_equal(_num1())) {
 		// *(+(x,y,...);c) -> +(*(x,c),*(y,c),...) (c numeric(), no powers of +())
 		const add & addref=ex_to_add((*seq.begin()).rest);
 		epvector distrseq;
 		distrseq.reserve(addref.seq.size());
 		for (epvector::const_iterator cit=addref.seq.begin(); cit!=addref.seq.end(); ++cit) {
-			distrseq.push_back(addref.combine_pair_with_coeff_to_pair(*cit,
-								   overall_coeff));
+			distrseq.push_back(addref.combine_pair_with_coeff_to_pair(*cit, overall_coeff));
 		}
 		return (new add(distrseq,
-						ex_to_numeric(addref.overall_coeff).
-						mul_dyn(ex_to_numeric(overall_coeff))))
-			->setflag(status_flags::dynallocated |
-					  status_flags::evaluated);
+		                ex_to_numeric(addref.overall_coeff).
+		                mul_dyn(ex_to_numeric(overall_coeff))))
+		      ->setflag(status_flags::dynallocated | status_flags::evaluated);
 	}
 	return this->hold();
 }
@@ -445,7 +443,7 @@ ex mul::evalf(int level) const
 	--level;
 	for (epvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
 		s.push_back(combine_ex_with_coeff_to_pair((*it).rest.evalf(level),
-												  (*it).coeff));
+		                                          (*it).coeff));
 	}
 	return mul(s,overall_coeff.evalf(level));
 }
@@ -481,8 +479,8 @@ ex mul::derivative(const symbol & s) const
 	// D(a*b*c) = D(a)*b*c + a*D(b)*c + a*b*D(c)
 	for (unsigned i=0; i!=seq.size(); ++i) {
 		epvector mulseq = seq;
-		mulseq[i] = split_ex_to_pair(power(seq[i].rest,seq[i].coeff - _ex1())*
-									 seq[i].rest.diff(s));
+		mulseq[i] = split_ex_to_pair(power(seq[i].rest,seq[i].coeff - _ex1()) *
+		                             seq[i].rest.diff(s));
 		addseq.push_back((new mul(mulseq,overall_coeff*seq[i].coeff))->setflag(status_flags::dynallocated));
 	}
 	return (new add(addseq))->setflag(status_flags::dynallocated);
@@ -567,7 +565,7 @@ expair mul::split_ex_to_pair(const ex & e) const
 }
 	
 expair mul::combine_ex_with_coeff_to_pair(const ex & e,
-										  const ex & c) const
+                                          const ex & c) const
 {
 	// to avoid duplication of power simplification rules,
 	// we create a temporary power object
@@ -580,7 +578,7 @@ expair mul::combine_ex_with_coeff_to_pair(const ex & e,
 }
 	
 expair mul::combine_pair_with_coeff_to_pair(const expair & p,
-											const ex & c) const
+                                            const ex & c) const
 {
 	// to avoid duplication of power simplification rules,
 	// we create a temporary power object
@@ -640,8 +638,7 @@ void mul::combine_overall_coeff(const ex & c1, const ex & c2)
 	GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
 	GINAC_ASSERT(is_ex_exactly_of_type(c1,numeric));
 	GINAC_ASSERT(is_ex_exactly_of_type(c2,numeric));
-	overall_coeff = ex_to_numeric(overall_coeff).
-						mul_dyn(ex_to_numeric(c1).power(ex_to_numeric(c2)));
+	overall_coeff = ex_to_numeric(overall_coeff).mul_dyn(ex_to_numeric(c1).power(ex_to_numeric(c2)));
 }
 
 bool mul::can_make_flat(const expair & p) const
@@ -692,8 +689,7 @@ ex mul::expand(unsigned options) const
 			return this->setflag(status_flags::expanded);
 		else
 			return ((new mul(expanded_seqp,overall_coeff))->
-					setflag(status_flags::dynallocated |
-							status_flags::expanded));
+			       setflag(status_flags::dynallocated | status_flags::expanded));
 	}
 	
 	exvector distrseq;
@@ -711,8 +707,7 @@ ex mul::expand(unsigned options) const
 			term[positions_of_adds[l]]=split_ex_to_pair(addref.op(k[l]));
 		}
 		distrseq.push_back((new mul(term,overall_coeff))->
-						   setflag(status_flags::dynallocated |
-								   status_flags::expanded));
+		                    setflag(status_flags::dynallocated | status_flags::expanded));
 		
 		// increment k[]
 		int l = number_of_adds-1;

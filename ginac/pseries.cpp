@@ -100,8 +100,7 @@ void pseries::destroy(bool call_parent)
  *  @param rel_  expansion variable and point (must hold a relational)
  *  @param ops_  vector of {coefficient, power} pairs (coefficient must not be zero)
  *  @return newly constructed pseries */
-pseries::pseries(const ex &rel_, const epvector &ops_)
-	: basic(TINFO_pseries), seq(ops_)
+pseries::pseries(const ex &rel_, const epvector &ops_) : basic(TINFO_pseries), seq(ops_)
 {
 	debugmsg("pseries constructor from ex,epvector", LOGLEVEL_CONSTRUCT);
 	GINAC_ASSERT(is_ex_exactly_of_type(rel_, relational));
@@ -415,8 +414,7 @@ ex pseries::expand(unsigned options) const
 	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i)
 		newseq.push_back(expair(i->rest.expand(), i->coeff));
 	return (new pseries(relational(var,point), newseq))
-		->setflag(status_flags::dynallocated |
-				  status_flags::expanded);
+	        ->setflag(status_flags::dynallocated | status_flags::expanded);
 }
 
 
@@ -474,7 +472,7 @@ ex pseries::convert_to_poly(bool no_order) const
  *  false otherwise. */
 bool pseries::is_terminating(void) const
 {
-	return !is_order_function((seq.end()-1)->rest);
+	return seq.size() == 0 || !is_order_function((seq.end()-1)->rest);
 }
 
 

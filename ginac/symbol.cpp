@@ -181,11 +181,11 @@ bool symbol::info(unsigned inf) const
 {
 	if (inf==info_flags::symbol) return true;
 	if (inf==info_flags::polynomial ||
-		inf==info_flags::integer_polynomial ||
-		inf==info_flags::cinteger_polynomial ||
-		inf==info_flags::rational_polynomial ||
-		inf==info_flags::crational_polynomial ||
-		inf==info_flags::rational_function) {
+	    inf==info_flags::integer_polynomial ||
+	    inf==info_flags::cinteger_polynomial ||
+	    inf==info_flags::rational_polynomial ||
+	    inf==info_flags::crational_polynomial ||
+	    inf==info_flags::rational_function) {
 		return true;
 	} else {
 		return inherited::info(inf);

@@ -54,7 +54,7 @@ simp_lor::simp_lor() : type(invalid)
 simp_lor::~simp_lor()
 {
 	debugmsg("simp_lor destructor",LOGLEVEL_DESTRUCT);
-	destroy(0);
+	destroy(false);
 }
 
 simp_lor::simp_lor(const simp_lor & other)
@@ -67,7 +67,7 @@ const simp_lor & simp_lor::operator=(const simp_lor & other)
 {
 	debugmsg("simp_lor operator=",LOGLEVEL_ASSIGNMENT);
 	if (this != &other) {
-		destroy(1);
+		destroy(true);
 		copy(other);
 	}
 	return *this;
@@ -101,32 +101,32 @@ simp_lor::simp_lor(simp_lor_types const t) : type(t)
 	tinfo_key=TINFO_simp_lor;
 }
 
-simp_lor::simp_lor(simp_lor_types const t, const ex & i1, const ex & i2) :
-	indexed(i1,i2), type(t)
+simp_lor::simp_lor(simp_lor_types const t, const ex & i1, const ex & i2)
+  : indexed(i1,i2), type(t)
 {
 	debugmsg("simp_lor constructor from simp_lor_types,ex,ex",LOGLEVEL_CONSTRUCT);
 	tinfo_key=TINFO_simp_lor;
 	GINAC_ASSERT(all_of_type_lorentzidx());
 }
 
-simp_lor::simp_lor(simp_lor_types const t, const std::string & n, const ex & i1) :
-	indexed(i1), type(t), name(n)
+simp_lor::simp_lor(simp_lor_types const t, const std::string & n, const ex & i1)
+  : indexed(i1), type(t), name(n)
 {
 	debugmsg("simp_lor constructor from simp_lor_types,string,ex",LOGLEVEL_CONSTRUCT);
 	tinfo_key=TINFO_simp_lor;
 	GINAC_ASSERT(all_of_type_lorentzidx());
 }
 
-simp_lor::simp_lor(simp_lor_types const t, const std::string & n, const exvector & iv) :
-	indexed(iv), type(t), name(n)
+simp_lor::simp_lor(simp_lor_types const t, const std::string & n, const exvector & iv)
+  : indexed(iv), type(t), name(n)
 {
 	debugmsg("simp_lor constructor from simp_lor_types,string,exvector",LOGLEVEL_CONSTRUCT);
 	tinfo_key=TINFO_simp_lor;
 	GINAC_ASSERT(all_of_type_lorentzidx());
 }
 
-simp_lor::simp_lor(simp_lor_types const t, const std::string & n, exvector * ivp) :
-	indexed(ivp), type(t), name(n)
+simp_lor::simp_lor(simp_lor_types const t, const std::string & n, exvector * ivp)
+  : indexed(ivp), type(t), name(n)
 {
 	debugmsg("simp_lor constructor from simp_lor_types,string,exvector*",LOGLEVEL_CONSTRUCT);
 	tinfo_key=TINFO_simp_lor;
@@ -230,7 +230,7 @@ ex simp_lor::eval(int level) const
 				return _ex0();
 			}
 		} else if (idx1.is_symbolic() &&
-				   idx1.is_co_contra_pair(idx2)) {
+		           idx1.is_co_contra_pair(idx2)) {
 			return Dim()-idx1.get_dim_parallel_space();
 		}
 	}
@@ -367,8 +367,7 @@ ex simplify_simp_lor_mul(const ex & m, const scalar_products & sp)
 			// try to contract first index
 			replacements=0;
 			if (first_idx.is_symbolic()) {
-				replacements = subs_index_in_exvector(v_contracted,
-								   first_idx.toggle_covariant(),second_idx);
+				replacements = subs_index_in_exvector(v_contracted, first_idx.toggle_covariant(),second_idx);
 				if (replacements==0) {
 					// not contracted, restore g object
 					*it=saved_g;
@@ -383,8 +382,7 @@ ex simplify_simp_lor_mul(const ex & m, const scalar_products & sp)
 			// try second index only if first was not contracted
 			if ((replacements==0)&&(second_idx.is_symbolic())) {
 				// first index not contracted, *it is again the original g object
-				replacements = subs_index_in_exvector(v_contracted,
-								   second_idx.toggle_covariant(),first_idx);
+				replacements = subs_index_in_exvector(v_contracted, second_idx.toggle_covariant(),first_idx);
 				if (replacements==0) {
 					// not contracted except in itself, restore g object
 					*it=saved_g;
@@ -446,7 +444,7 @@ ex simplify_simp_lor(const ex & e, const scalar_products & sp)
 		ex sum=_ex0();
 		for (unsigned i=0; i<e_expanded.nops(); ++i)
 			sum += simplify_simp_lor(e_expanded.op(i),sp);
-		
+
 		return sum;
 	}
 
@@ -470,7 +468,7 @@ ex simplify_simp_lor(const ex & e, const scalar_products & sp)
 //////////
 
 void scalar_products::reg(const simp_lor & v1, const simp_lor & v2,
-						  const ex & sp)
+                          const ex & sp)
 {
 	if (v1.compare_same_type(v2)>0) {
 		reg(v2,v1,sp);
@@ -501,7 +499,7 @@ void scalar_products::debugprint(void) const
 	for (spmap::const_iterator cit=spm.begin(); cit!=spm.end(); ++cit) {
 		const spmapkey & k=(*cit).first;
 		std::cerr << "item key=((" << k.first.first
-				  << "," << k.first.second << "),";
+		          << "," << k.first.second << "),";
 		k.second.printraw(cerr);
 		cerr << ") value=" << (*cit).second << std::endl;
 	}

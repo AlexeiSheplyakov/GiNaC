@@ -44,7 +44,7 @@ structure::structure()
 structure::~structure()
 {
 	debugmsg("structure destructor",LOGLEVEL_DESTRUCT);
-	destroy(0);
+	destroy(false);
 }
 
 structure::structure(const structure & other)
@@ -57,7 +57,7 @@ const structure & structure::operator=(const structure & other)
 {
 	debugmsg("structure operator=",LOGLEVEL_ASSIGNMENT);
 	if (this != &other) {
-		destroy(1);
+		destroy(true);
 		copy(other);
 	}
 	return *this;

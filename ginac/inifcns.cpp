@@ -63,7 +63,7 @@ static ex abs_eval(const ex & arg)
 }
 
 REGISTER_FUNCTION(abs, eval_func(abs_eval).
-					   evalf_func(abs_evalf));
+                       evalf_func(abs_evalf));
 
 
 //////////
@@ -108,13 +108,13 @@ static ex csgn_eval(const ex & arg)
 }
 
 static ex csgn_series(const ex & arg,
-					  const relational & rel,
-					  int order,
-					  unsigned options)
+                      const relational & rel,
+                      int order,
+                      unsigned options)
 {
 	const ex arg_pt = arg.subs(rel);
-	if (arg_pt.info(info_flags::numeric) &&
-		ex_to_numeric(arg_pt).real().is_zero())
+	if (arg_pt.info(info_flags::numeric)
+	 && ex_to_numeric(arg_pt).real().is_zero())
 		throw (std::domain_error("csgn_series(): on imaginary axis"));
 	
 	epvector seq;
@@ -123,8 +123,8 @@ static ex csgn_series(const ex & arg,
 }
 
 REGISTER_FUNCTION(csgn, eval_func(csgn_eval).
-						evalf_func(csgn_evalf).
-						series_func(csgn_series));
+                        evalf_func(csgn_evalf).
+                        series_func(csgn_series));
 
 
 //////////
@@ -159,10 +159,10 @@ static ex eta_eval(const ex & x, const ex & y)
 }
 
 static ex eta_series(const ex & arg1,
-					 const ex & arg2,
-					 const relational & rel,
-					 int order,
-					 unsigned options)
+                     const ex & arg2,
+                     const relational & rel,
+                     int order,
+                     unsigned options)
 {
 	const ex arg1_pt = arg1.subs(rel);
 	const ex arg2_pt = arg2.subs(rel);
@@ -177,8 +177,8 @@ static ex eta_series(const ex & arg1,
 }
 
 REGISTER_FUNCTION(eta, eval_func(eta_eval).
-					   evalf_func(eta_evalf).
-					   series_func(eta_series));
+                       evalf_func(eta_evalf).
+                       series_func(eta_series));
 
 
 //////////
@@ -314,9 +314,9 @@ static ex Li2_series(const ex &x, const relational &rel, int order, unsigned opt
 }
 
 REGISTER_FUNCTION(Li2, eval_func(Li2_eval).
-					   evalf_func(Li2_evalf).
-					   derivative_func(Li2_deriv).
-					   series_func(Li2_series));
+                       evalf_func(Li2_evalf).
+                       derivative_func(Li2_deriv).
+                       series_func(Li2_series));
 
 //////////
 // trilogarithm
@@ -349,7 +349,7 @@ static ex factorial_eval(const ex & x)
 }
 
 REGISTER_FUNCTION(factorial, eval_func(factorial_eval).
-							 evalf_func(factorial_evalf));
+                             evalf_func(factorial_evalf));
 
 //////////
 // binomial
@@ -369,7 +369,7 @@ static ex binomial_eval(const ex & x, const ex &y)
 }
 
 REGISTER_FUNCTION(binomial, eval_func(binomial_eval).
-							evalf_func(binomial_evalf));
+                            evalf_func(binomial_evalf));
 
 //////////
 // Order term function (for truncated power series)
@@ -405,7 +405,7 @@ static ex Order_series(const ex & x, const relational & r, int order, unsigned o
 // Differentiation is handled in function::derivative because of its special requirements
 
 REGISTER_FUNCTION(Order, eval_func(Order_eval).
-						 series_func(Order_series));
+                         series_func(Order_series));
 
 //////////
 // Inert partial differentiation operator

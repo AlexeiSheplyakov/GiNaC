@@ -57,7 +57,7 @@ basic::basic() : flags(0), refcount(0), tinfo_key(TINFO_BASIC)
 basic::~basic() 
 {
 	debugmsg("basic destructor", LOGLEVEL_DESTRUCT);
-	destroy(0);
+	destroy(false);
 	GINAC_ASSERT((!(flags & status_flags::dynallocated))||(refcount==0));
 }
 
@@ -72,7 +72,7 @@ const basic & basic::operator=(const basic & other)
 {
 	debugmsg("basic operator=", LOGLEVEL_ASSIGNMENT);
 	if (this != &other) {
-		destroy(1);
+		destroy(true);
 		copy(other);
 	}
 	return *this;
@@ -321,7 +321,7 @@ ex basic::diff(const symbol & s, unsigned nth) const
 	
 	ex ndiff = this->derivative(s);
 	while (!ndiff.is_zero() &&    // stop differentiating zeros
-		   nth>1) {
+	       nth>1) {
 		ndiff = ndiff.diff(s);
 		--nth;
 	}

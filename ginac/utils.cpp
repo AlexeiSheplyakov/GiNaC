@@ -31,7 +31,7 @@ namespace GiNaC {
 
 /** ctor for pole_error exception class. */
 pole_error::pole_error(const std::string& what_arg, int degree)
-	 : domain_error(what_arg)
+  : domain_error(what_arg)
 {
 	deg = degree;
 }

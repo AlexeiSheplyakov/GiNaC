@@ -48,7 +48,7 @@ indexed::indexed()
 indexed::~indexed()
 {
 	debugmsg("indexed destructor",LOGLEVEL_DESTRUCT);
-	destroy(0);
+	destroy(false);
 }
 
 indexed::indexed(const indexed & other)
@@ -61,7 +61,7 @@ const indexed & indexed::operator=(const indexed & other)
 {
 	debugmsg("indexed operator=",LOGLEVEL_ASSIGNMENT);
 	if (this != &other) {
-		destroy(1);
+		destroy(true);
 		copy(other);
 	}
 	return *this;
@@ -102,7 +102,7 @@ indexed::indexed(const ex & i1, const ex & i2) : inherited(i1,i2)
 }
 
 indexed::indexed(const ex & i1, const ex & i2, const ex & i3)
-	: inherited(i1,i2,i3)
+  : inherited(i1,i2,i3)
 {
 	debugmsg("indexed constructor from ex,ex,ex",LOGLEVEL_CONSTRUCT);
 	tinfo_key=TINFO_indexed;
@@ -110,7 +110,7 @@ indexed::indexed(const ex & i1, const ex & i2, const ex & i3)
 }
 
 indexed::indexed(const ex & i1, const ex & i2, const ex & i3, const ex & i4)
-	: inherited(i1,i2,i3,i4)
+  : inherited(i1,i2,i3,i4)
 {
 	debugmsg("indexed constructor from ex,ex,ex,ex",LOGLEVEL_CONSTRUCT);
 	tinfo_key=TINFO_indexed;
@@ -190,7 +190,7 @@ void indexed::print(std::ostream & os, unsigned upper_precedence) const
 }
 
 void indexed::printcsrc(std::ostream & os, unsigned type,
-						unsigned upper_precedence) const
+                        unsigned upper_precedence) const
 {
 	debugmsg("indexed print csrc",LOGLEVEL_PRINT);
 	print(os,upper_precedence);
@@ -225,7 +225,7 @@ exvector indexed::get_indices(void) const
  *  @see ex::diff */
 ex indexed::derivative(const symbol & s) const
 {
-		return _ex0();
+	return _ex0();
 }
 
 int indexed::compare_same_type(const basic & other) const

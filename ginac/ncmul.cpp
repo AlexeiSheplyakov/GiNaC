@@ -53,7 +53,7 @@ ncmul::ncmul()
 ncmul::~ncmul()
 {
 	debugmsg("ncmul destructor",LOGLEVEL_DESTRUCT);
-	destroy(0);
+	destroy(false);
 }
 
 ncmul::ncmul(const ncmul & other)
@@ -66,7 +66,7 @@ const ncmul & ncmul::operator=(const ncmul & other)
 {
 	debugmsg("ncmul operator=",LOGLEVEL_ASSIGNMENT);
 	if (this != &other) {
-		destroy(1);
+		destroy(true);
 		copy(other);
 	}
 	return *this;
@@ -90,37 +90,34 @@ void ncmul::destroy(bool call_parent)
 
 // public
 
-ncmul::ncmul(const ex & lh, const ex & rh) :
-	inherited(lh,rh)
+ncmul::ncmul(const ex & lh, const ex & rh) : inherited(lh,rh)
 {
 	debugmsg("ncmul constructor from ex,ex",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_ncmul;
 }
 
-ncmul::ncmul(const ex & f1, const ex & f2, const ex & f3) :
-	inherited(f1,f2,f3)
+ncmul::ncmul(const ex & f1, const ex & f2, const ex & f3) : inherited(f1,f2,f3)
 {
 	debugmsg("ncmul constructor from 3 ex",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_ncmul;
 }
 
 ncmul::ncmul(const ex & f1, const ex & f2, const ex & f3,
-	  const ex & f4) : inherited(f1,f2,f3,f4)
+             const ex & f4) : inherited(f1,f2,f3,f4)
 {
 	debugmsg("ncmul constructor from 4 ex",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_ncmul;
 }
 
 ncmul::ncmul(const ex & f1, const ex & f2, const ex & f3,
-	  const ex & f4, const ex & f5) : inherited(f1,f2,f3,f4,f5)
+             const ex & f4, const ex & f5) : inherited(f1,f2,f3,f4,f5)
 {
 	debugmsg("ncmul constructor from 5 ex",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_ncmul;
 }
 
 ncmul::ncmul(const ex & f1, const ex & f2, const ex & f3,
-	  const ex & f4, const ex & f5, const ex & f6) :
-	inherited(f1,f2,f3,f4,f5,f6)
+             const ex & f4, const ex & f5, const ex & f6) : inherited(f1,f2,f3,f4,f5,f6)
 {
 	debugmsg("ncmul constructor from 6 ex",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_ncmul;
@@ -366,7 +363,7 @@ ex ncmul::eval(int level) const
 	//                      ncmul(...,x1,x2,...,x3,x4,...) (associativity)
 	//                  ncmul(x) -> x
 	//                  ncmul() -> 1
-	//                  ncmul(...,c1,...,c2,...) ->
+	//                  ncmul(...,c1,...,c2,...)
 	//                      *(c1,c2,ncmul(...)) (pull out commutative elements)
 	//                  ncmul(x1,y1,x2,y2) -> *(ncmul(x1,x2),ncmul(y1,y2))
 	//                      (collect elements of same type)
@@ -442,8 +439,7 @@ ex ncmul::eval(int level) const
 				noncommutativeseq.push_back(assocseq[i]);
 			}
 		}
-		commutativeseq.push_back((new ncmul(noncommutativeseq,1))->
-								  setflag(status_flags::dynallocated));
+		commutativeseq.push_back((new ncmul(noncommutativeseq,1))->setflag(status_flags::dynallocated));
 		return (new mul(commutativeseq))->setflag(status_flags::dynallocated);
 	}
 		
@@ -496,8 +492,7 @@ ex ncmul::eval(int level) const
 		exvector splitseq;
 		splitseq.reserve(evv.size());
 		for (i=0; i<evv.size(); ++i) {
-			splitseq.push_back((new ncmul(evv[i]))->
-							   setflag(status_flags::dynallocated));
+			splitseq.push_back((new ncmul(evv[i]))->setflag(status_flags::dynallocated));
 		}
 
 		return (new mul(splitseq))->setflag(status_flags::dynallocated);
@@ -570,10 +565,10 @@ unsigned ncmul::return_type(void) const
 			all_commutative=0;
 		}
 		if ((rt==return_types::noncommutative)&&(!all_commutative)) {
-		// another nc element found, compare type_infos
+			// another nc element found, compare type_infos
 			if ((*cit_noncommutative_element).return_type_tinfo()!=(*cit).return_type_tinfo()) {
-			// diffent types -> mul is ncc
-			return return_types::noncommutative_composite;
+				// diffent types -> mul is ncc
+				return return_types::noncommutative_composite;
 			}
 		}
 	}
@@ -657,7 +652,7 @@ ex simplified_ncmul(const exvector & v)
 		return v[0];
 	}
 	return (new ncmul(v))->setflag(status_flags::dynallocated |
-								   status_flags::evaluated);
+	                               status_flags::evaluated);
 }
 
 #ifndef NO_NAMESPACE_GINAC

@@ -50,7 +50,7 @@ clifford::clifford()
 clifford::~clifford()
 {
 	debugmsg("clifford destructor",LOGLEVEL_DESTRUCT);
-	destroy(0);
+	destroy(false);
 }
 
 clifford::clifford(const clifford & other)
@@ -63,7 +63,7 @@ const clifford & clifford::operator=(const clifford & other)
 {
 	debugmsg("clifford operator=",LOGLEVEL_ASSIGNMENT);
 	if (this != &other) {
-		destroy(1);
+		destroy(true);
 		copy(other);
 	}
 	return *this;

@@ -125,11 +125,11 @@ sub generate {
 }
 
 $constructors_interface=generate(
-'    explicit ${CONTAINER}(${SEQ1});'."\n",
+'	explicit ${CONTAINER}(${SEQ1});'."\n",
 'const ex & param${N}',', ','','');
 
 $constructors_implementation=generate(
-	<<'END_OF_CONSTRUCTORS_IMPLEMENTATION','const ex & param${N}',', ','    seq.push_back(param${N});',"\n");
+	<<'END_OF_CONSTRUCTORS_IMPLEMENTATION','const ex & param${N}',', ','	seq.push_back(param${N});',"\n");
 ${CONTAINER}::${CONTAINER}(${SEQ1}) : basic(TINFO_${CONTAINER})
 {
 	debugmsg(\"${CONTAINER} constructor from ${N}*ex\",LOGLEVEL_CONSTRUCT);
@@ -340,7 +340,7 @@ ${CONTAINER}::${CONTAINER}() : basic(TINFO_${CONTAINER})
 ${CONTAINER}::~${CONTAINER}()
 {
 	debugmsg("${CONTAINER} destructor",LOGLEVEL_DESTRUCT);
-	destroy(0);
+	destroy(false);
 }
 
 ${CONTAINER}::${CONTAINER}(${CONTAINER} const & other)
@@ -353,7 +353,7 @@ ${CONTAINER} const & ${CONTAINER}::operator=(${CONTAINER} const & other)
 {
 	debugmsg("${CONTAINER} operator=",LOGLEVEL_ASSIGNMENT);
 	if (this != &other) {
-		destroy(1);
+		destroy(true);
 		copy(other);
 	}
 	return *this;

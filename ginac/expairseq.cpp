@@ -70,7 +70,7 @@ const expairseq & expairseq::operator=(const expairseq & other)
 {
 	debugmsg("expairseq operator=",LOGLEVEL_ASSIGNMENT);
 	if (this != &other) {
-		destroy(1);
+		destroy(true);
 		copy(other);
 	}
 	return *this;
@@ -93,7 +93,7 @@ void expairseq::copy(const expairseq & other)
 		for (unsigned i=0; i<hashtabsize; ++i) {
 			hashtab[i].clear();
 			for (epplist::const_iterator cit=other.hashtab[i].begin();
-				 cit!=other.hashtab[i].end(); ++cit) {
+			     cit!=other.hashtab[i].end(); ++cit) {
 				hashtab[i].push_back(seq.begin()+((*cit)-osb));
 			}
 		}
@@ -122,8 +122,8 @@ expairseq::expairseq(const exvector & v) : inherited(TINFO_expairseq)
 }
 
 /*
-expairseq::expairseq(const epvector & v, bool do_not_canonicalize) :
-	inherited(TINFO_expairseq)
+expairseq::expairseq(const epvector & v, bool do_not_canonicalize)
+  : inherited(TINFO_expairseq)
 {
 	debugmsg("expairseq constructor from epvector",LOGLEVEL_CONSTRUCT);
 	if (do_not_canonicalize) {
@@ -138,16 +138,16 @@ expairseq::expairseq(const epvector & v, bool do_not_canonicalize) :
 }
 */
 
-expairseq::expairseq(const epvector & v, const ex & oc) :
-	inherited(TINFO_expairseq), overall_coeff(oc)
+expairseq::expairseq(const epvector & v, const ex & oc)
+  : inherited(TINFO_expairseq), overall_coeff(oc)
 {
 	debugmsg("expairseq constructor from epvector,ex",LOGLEVEL_CONSTRUCT);
 	construct_from_epvector(v);
 	GINAC_ASSERT(is_canonical());
 }
 
-expairseq::expairseq(epvector * vp, const ex & oc) :
-	inherited(TINFO_expairseq), overall_coeff(oc)
+expairseq::expairseq(epvector * vp, const ex & oc)
+  : inherited(TINFO_expairseq), overall_coeff(oc)
 {
 	debugmsg("expairseq constructor from epvector *,ex",LOGLEVEL_CONSTRUCT);
 	GINAC_ASSERT(vp!=0);
@@ -346,9 +346,7 @@ ex expairseq::eval(int level) const
 		return this->hold();
 	}
 
-	return (new expairseq(vp,overall_coeff))
-			   ->setflag(status_flags::dynallocated |
-						 status_flags::evaluated );
+	return (new expairseq(vp,overall_coeff))->setflag(status_flags::dynallocated | status_flags::evaluated);
 }
 
 ex expairseq::evalf(int level) const
@@ -573,8 +571,8 @@ void expairseq::printpair(std::ostream & os, const expair & p, unsigned upper_pr
 }
 
 void expairseq::printseq(std::ostream & os, char delim,
-						 unsigned this_precedence,
-						 unsigned upper_precedence) const
+                         unsigned this_precedence,
+                         unsigned upper_precedence) const
 {
 	if (this_precedence<=upper_precedence) os << "(";
 	epvector::const_iterator it,it_last;
@@ -597,7 +595,7 @@ expair expairseq::split_ex_to_pair(const ex & e) const
 }
 
 expair expairseq::combine_ex_with_coeff_to_pair(const ex & e,
-												const ex & c) const
+                                                const ex & c) const
 {
 	GINAC_ASSERT(is_ex_exactly_of_type(c,numeric));
 
@@ -605,7 +603,7 @@ expair expairseq::combine_ex_with_coeff_to_pair(const ex & e,
 }
 
 expair expairseq::combine_pair_with_coeff_to_pair(const expair & p,
-												  const ex & c) const
+                                                  const ex & c) const
 {
 	GINAC_ASSERT(is_ex_exactly_of_type(p.coeff,numeric));
 	GINAC_ASSERT(is_ex_exactly_of_type(c,numeric));
@@ -641,7 +639,7 @@ void expairseq::combine_overall_coeff(const ex & c1, const ex & c2)
 	GINAC_ASSERT(is_ex_exactly_of_type(c1,numeric));
 	GINAC_ASSERT(is_ex_exactly_of_type(c2,numeric));
 	overall_coeff = ex_to_numeric(overall_coeff).
-						add_dyn(ex_to_numeric(c1).mul(ex_to_numeric(c2)));
+	                add_dyn(ex_to_numeric(c1).mul(ex_to_numeric(c2)));
 }
 
 bool expairseq::can_make_flat(const expair & p) const
@@ -670,33 +668,33 @@ void expairseq::construct_from_2_ex_via_exvector(const ex & lh, const ex & rh)
 void expairseq::construct_from_2_ex(const ex & lh, const ex & rh)
 {
 	if (lh.bp->tinfo()==tinfo()) {
-	   if (rh.bp->tinfo()==tinfo()) {
+		if (rh.bp->tinfo()==tinfo()) {
 #ifdef EXPAIRSEQ_USE_HASHTAB
-		   unsigned totalsize=ex_to_expairseq(lh).seq.size()+
-							  ex_to_expairseq(rh).seq.size();
-		   if (calc_hashtabsize(totalsize)!=0) {
-			   construct_from_2_ex_via_exvector(lh,rh);
-		   } else {
+			unsigned totalsize = ex_to_expairseq(lh).seq.size() +
+			                     ex_to_expairseq(rh).seq.size();
+			if (calc_hashtabsize(totalsize)!=0) {
+				construct_from_2_ex_via_exvector(lh,rh);
+			} else {
 #endif // def EXPAIRSEQ_USE_HASHTAB
-			   construct_from_2_expairseq(ex_to_expairseq(lh),
-										  ex_to_expairseq(rh));
+				construct_from_2_expairseq(ex_to_expairseq(lh),
+				                           ex_to_expairseq(rh));
 #ifdef EXPAIRSEQ_USE_HASHTAB
-		   }
+			}
 #endif // def EXPAIRSEQ_USE_HASHTAB
-		   return;
-	   } else {
+			return;
+		} else {
 #ifdef EXPAIRSEQ_USE_HASHTAB
-		   unsigned totalsize=ex_to_expairseq(lh).seq.size()+1;
-		   if (calc_hashtabsize(totalsize)!=0) {
-			   construct_from_2_ex_via_exvector(lh,rh);
-		   } else {
+			unsigned totalsize=ex_to_expairseq(lh).seq.size()+1;
+			if (calc_hashtabsize(totalsize) != 0) {
+				construct_from_2_ex_via_exvector(lh, rh);
+			} else {
 #endif // def EXPAIRSEQ_USE_HASHTAB
-			   construct_from_expairseq_ex(ex_to_expairseq(lh),rh);
+				construct_from_expairseq_ex(ex_to_expairseq(lh), rh);
 #ifdef EXPAIRSEQ_USE_HASHTAB
-		   }
+			}
 #endif // def EXPAIRSEQ_USE_HASHTAB
-		   return;
-	   }
+			return;
+		}
 	} else if (rh.bp->tinfo()==tinfo()) {
 #ifdef EXPAIRSEQ_USE_HASHTAB
 		unsigned totalsize=ex_to_expairseq(rh).seq.size()+1;
@@ -776,8 +774,8 @@ void expairseq::construct_from_2_expairseq(const expairseq & s1,
 		int cmpval=(*first1).rest.compare((*first2).rest);
 		if (cmpval==0) {
 			// combine terms
-			const numeric & newcoeff=ex_to_numeric((*first1).coeff).
-									 add(ex_to_numeric((*first2).coeff));
+			const numeric & newcoeff = ex_to_numeric((*first1).coeff).
+			                           add(ex_to_numeric((*first2).coeff));
 			if (!newcoeff.is_zero()) {
 				seq.push_back(expair((*first1).rest,newcoeff));
 				if (expair_needs_further_processing(seq.end()-1)) {
@@ -835,8 +833,8 @@ void expairseq::construct_from_expairseq_ex(const expairseq & s,
 		int cmpval=(*first).rest.compare(p.rest);
 		if (cmpval==0) {
 			// combine terms
-			const numeric & newcoeff=ex_to_numeric((*first).coeff).
-									 add(ex_to_numeric(p.coeff));
+			const numeric & newcoeff = ex_to_numeric((*first).coeff).
+			                           add(ex_to_numeric(p.coeff));
 			if (!newcoeff.is_zero()) {
 				seq.push_back(expair((*first).rest,newcoeff));
 				if (expair_needs_further_processing(seq.end()-1)) {
@@ -983,11 +981,11 @@ void expairseq::make_flat(const epvector & v)
 		if ((cit->rest.bp->tinfo()==tinfo())&&can_make_flat(*cit)) {
 			const expairseq & subseqref=ex_to_expairseq((*cit).rest);
 			combine_overall_coeff(ex_to_numeric(subseqref.overall_coeff),
-								  ex_to_numeric((*cit).coeff));
+			                                    ex_to_numeric((*cit).coeff));
 			epvector::const_iterator cit_s=subseqref.seq.begin();
 			while (cit_s!=subseqref.seq.end()) {
 				seq.push_back(expair((*cit_s).rest,
-							  ex_to_numeric((*cit_s).coeff).mul_dyn(ex_to_numeric((*cit).coeff))));
+				                     ex_to_numeric((*cit_s).coeff).mul_dyn(ex_to_numeric((*cit).coeff))));
 				//seq.push_back(combine_pair_with_coeff_to_pair(*cit_s,
 				//                                              (*cit).coeff));
 				++cit_s;
@@ -1134,8 +1132,8 @@ void expairseq::combine_same_terms_sorted_seq(void)
 		bool must_copy=false;
 		while (itin2!=last) {
 			if ((*itin1).rest.compare((*itin2).rest)==0) {
-				(*itin1).coeff=ex_to_numeric((*itin1).coeff).
-							   add_dyn(ex_to_numeric((*itin2).coeff));
+				(*itin1).coeff = ex_to_numeric((*itin1).coeff).
+				                 add_dyn(ex_to_numeric((*itin2).coeff));
 				if (expair_needs_further_processing(itin1)) {
 					needs_further_processing = true;
 				}
@@ -1309,9 +1307,9 @@ void expairseq::sorted_insert(epplist & eppl, epp elem)
 }    
 
 void expairseq::build_hashtab_and_combine(epvector::iterator & first_numeric,
-										  epvector::iterator & last_non_zero,
-										  vector<bool> & touched,
-										  unsigned & number_of_zeroes)
+                                          epvector::iterator & last_non_zero,
+                                          vector<bool> & touched,
+                                          unsigned & number_of_zeroes)
 {
 	epp current=seq.begin();
 
@@ -1336,8 +1334,8 @@ void expairseq::build_hashtab_and_combine(epvector::iterator & first_numeric,
 				++current;
 			} else {
 				// epplit points to a matching expair, combine it with current
-				(*(*epplit)).coeff=ex_to_numeric((*(*epplit)).coeff).
-								   add_dyn(ex_to_numeric((*current).coeff));
+				(*(*epplit)).coeff = ex_to_numeric((*(*epplit)).coeff).
+				                     add_dyn(ex_to_numeric((*current).coeff));
 				
 				// move obsolete current expair to end by swapping with last_non_zero element
 				// if this was a numeric, it is swapped with the expair before first_numeric 
@@ -1354,9 +1352,9 @@ void expairseq::build_hashtab_and_combine(epvector::iterator & first_numeric,
 }    
 
 void expairseq::drop_coeff_0_terms(epvector::iterator & first_numeric,
-								   epvector::iterator & last_non_zero,
-								   vector<bool> & touched,
-								   unsigned & number_of_zeroes)
+                                   epvector::iterator & last_non_zero,
+                                   vector<bool> & touched,
+                                   unsigned & number_of_zeroes)
 {
 	// move terms with coeff 0 to end and remove them from hashtab
 	// check only those elements which have been touched
@@ -1390,7 +1388,7 @@ void expairseq::drop_coeff_0_terms(epvector::iterator & first_numeric,
 				++number_of_zeroes;
 
 				if (first_numeric!=current) {
-				
+
 					// change entry in hashtab which referred to first_numeric or last_non_zero to current
 					move_hashtab_entry(changed_entry,current);
 					touched[current-seq.begin()]=touched[changed_entry-seq.begin()];
@@ -1563,12 +1561,12 @@ epvector * expairseq::expandchildren(unsigned options) const
 			}
 			// copy first changed element
 			s->push_back(combine_ex_with_coeff_to_pair(expanded_ex,
-													   (*cit2).coeff));
+			                                           (*cit2).coeff));
 			++cit2;
 			// copy rest
 			while (cit2!=last) {
 				s->push_back(combine_ex_with_coeff_to_pair((*cit2).rest.expand(options),
-														   (*cit2).coeff));
+				                                           (*cit2).coeff));
 				++cit2;
 			}
 			return s;
@@ -1611,12 +1609,12 @@ epvector * expairseq::evalchildren(int level) const
 			}
 			// copy first changed element
 			s->push_back(combine_ex_with_coeff_to_pair(evaled_ex,
-													   (*cit2).coeff));
+			                                           (*cit2).coeff));
 			++cit2;
 			// copy rest
 			while (cit2!=last) {
 				s->push_back(combine_ex_with_coeff_to_pair((*cit2).rest.eval(level),
-														   (*cit2).coeff));
+				                                           (*cit2).coeff));
 				++cit2;
 			}
 			return s;
@@ -1641,7 +1639,7 @@ epvector expairseq::evalfchildren(int level) const
 	--level;
 	for (epvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
 		s.push_back(combine_ex_with_coeff_to_pair((*it).rest.evalf(level),
-												  (*it).coeff.evalf(level)));
+		                                          (*it).coeff.evalf(level)));
 	}
 	return s;
 }
@@ -1660,7 +1658,7 @@ epvector expairseq::normalchildren(int level) const
 	--level;
 	for (epvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
 		s.push_back(combine_ex_with_coeff_to_pair((*it).rest.normal(level),
-												  (*it).coeff));
+		                                          (*it).coeff));
 	}
 	return s;
 }
@@ -1672,7 +1670,7 @@ epvector expairseq::diffchildren(const symbol & y) const
 
 	for (epvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
 		s.push_back(combine_ex_with_coeff_to_pair((*it).rest.diff(y),
-												  (*it).coeff));
+		                                          (*it).coeff));
 	}
 	return s;
 }
@@ -1702,12 +1700,12 @@ epvector * expairseq::subschildren(const lst & ls, const lst & lr) const
 			}
 			// copy first changed element
 			s->push_back(combine_ex_with_coeff_to_pair(subsed_ex,
-													   (*cit2).coeff));
+			                                           (*cit2).coeff));
 			++cit2;
 			// copy rest
 			while (cit2!=last) {
 				s->push_back(combine_ex_with_coeff_to_pair((*cit2).rest.subs(ls,lr),
-														   (*cit2).coeff));
+				                                           (*cit2).coeff));
 				++cit2;
 			}
 			return s;

@@ -277,7 +277,7 @@ ${STRUCTURE}::${STRUCTURE}()
 ${STRUCTURE}::~${STRUCTURE}()
 {
 	debugmsg("${STRUCTURE} destructor",LOGLEVEL_DESTRUCT);
-	destroy(0);
+	destroy(false);
 }
 
 ${STRUCTURE}::${STRUCTURE}(${STRUCTURE} const & other)
@@ -290,7 +290,7 @@ ${STRUCTURE} const & ${STRUCTURE}::operator=(${STRUCTURE} const & other)
 {
 	debugmsg("${STRUCTURE} operator=",LOGLEVEL_ASSIGNMENT);
 	if (this != &other) {
-		destroy(1);
+		destroy(true);
 		copy(other);
 	}
 	return *this;

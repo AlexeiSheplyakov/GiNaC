@@ -45,7 +45,7 @@ fail::fail() : inherited(TINFO_fail)
 fail::~fail()
 {
 	debugmsg("fail destructor",LOGLEVEL_DESTRUCT);
-	destroy(0);
+	destroy(false);
 }
 
 fail::fail(const fail & other)
@@ -58,7 +58,7 @@ const fail & fail::operator=(const fail & other)
 {
 	debugmsg("fail operator=",LOGLEVEL_ASSIGNMENT);
 	if (this != &other) {
-		destroy(1);
+		destroy(true);
 		copy(other);
 	}
 	return *this;

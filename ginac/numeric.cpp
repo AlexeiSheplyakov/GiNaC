@@ -99,14 +99,14 @@ numeric::numeric() : basic(TINFO_numeric)
 	*value = ::cl_I(0);
 	calchash();
 	setflag(status_flags::evaluated |
-			status_flags::expanded |
-			status_flags::hash_calculated);
+	        status_flags::expanded |
+	        status_flags::hash_calculated);
 }
 
 numeric::~numeric()
 {
 	debugmsg("numeric destructor" ,LOGLEVEL_DESTRUCT);
-	destroy(0);
+	destroy(false);
 }
 
 numeric::numeric(const numeric & other)
@@ -119,7 +119,7 @@ const numeric & numeric::operator=(const numeric & other)
 {
 	debugmsg("numeric operator=", LOGLEVEL_ASSIGNMENT);
 	if (this != &other) {
-		destroy(1);
+		destroy(true);
 		copy(other);
 	}
 	return *this;
@@ -154,8 +154,8 @@ numeric::numeric(int i) : basic(TINFO_numeric)
 	value = new ::cl_I((long) i);
 	calchash();
 	setflag(status_flags::evaluated |
-			status_flags::expanded |
-			status_flags::hash_calculated);
+	        status_flags::expanded |
+	        status_flags::hash_calculated);
 }
 
 
@@ -168,8 +168,8 @@ numeric::numeric(unsigned int i) : basic(TINFO_numeric)
 	value = new ::cl_I((unsigned long)i);
 	calchash();
 	setflag(status_flags::evaluated |
-			status_flags::expanded |
-			status_flags::hash_calculated);
+	        status_flags::expanded |
+	        status_flags::hash_calculated);
 }
 
 
@@ -179,8 +179,8 @@ numeric::numeric(long i) : basic(TINFO_numeric)
 	value = new ::cl_I(i);
 	calchash();
 	setflag(status_flags::evaluated |
-			status_flags::expanded |
-			status_flags::hash_calculated);
+	        status_flags::expanded |
+	        status_flags::hash_calculated);
 }
 
 
@@ -190,8 +190,8 @@ numeric::numeric(unsigned long i) : basic(TINFO_numeric)
 	value = new ::cl_I(i);
 	calchash();
 	setflag(status_flags::evaluated |
-			status_flags::expanded |
-			status_flags::hash_calculated);
+	        status_flags::expanded |
+	        status_flags::hash_calculated);
 }
 
 /** Ctor for rational numerics a/b.
@@ -206,8 +206,8 @@ numeric::numeric(long numer, long denom) : basic(TINFO_numeric)
 	*value = *value / ::cl_I(denom);
 	calchash();
 	setflag(status_flags::evaluated |
-			status_flags::expanded |
-			status_flags::hash_calculated);
+	        status_flags::expanded |
+	        status_flags::hash_calculated);
 }
 
 
@@ -221,8 +221,8 @@ numeric::numeric(double d) : basic(TINFO_numeric)
 	*value = cl_float(d, cl_default_float_format);
 	calchash();
 	setflag(status_flags::evaluated |
-			status_flags::expanded |
-			status_flags::hash_calculated);
+	        status_flags::expanded |
+	        status_flags::hash_calculated);
 }
 
 
@@ -246,8 +246,8 @@ numeric::numeric(const char *s) : basic(TINFO_numeric)
 		bool imaginary = false;
 		delim = ss.find_first_of(std::string("+-"),1);
 		// Do we have an exponent marker like "31.415E-1"?  If so, hop on!
-		if (delim != std::string::npos &&
-			ss.at(delim-1) == 'E')
+		if (delim != std::string::npos
+		 && ss.at(delim-1) == 'E')
 			delim = ss.find_first_of(std::string("+-"),delim+1);
 		term = ss.substr(0,delim);
 		if (delim != std::string::npos)
@@ -281,8 +281,8 @@ numeric::numeric(const char *s) : basic(TINFO_numeric)
 				*value = *value + ::cl_R(cs);
 	} while(delim != std::string::npos);
 	calchash();
-	setflag(status_flags::evaluated|
-			status_flags::hash_calculated);
+	setflag(status_flags::evaluated |
+	        status_flags::hash_calculated);
 }
 
 /** Ctor from CLN types.  This is for the initiated user or internal use
@@ -293,8 +293,8 @@ numeric::numeric(const cl_N & z) : basic(TINFO_numeric)
 	value = new ::cl_N(z);
 	calchash();
 	setflag(status_flags::evaluated |
-			status_flags::expanded |
-			status_flags::hash_calculated);
+	        status_flags::expanded |
+	        status_flags::hash_calculated);
 }
 
 //////////
@@ -337,8 +337,8 @@ numeric::numeric(const archive_node &n, const lst &sym_lst) : inherited(n, sym_l
 	}
 	calchash();
 	setflag(status_flags::evaluated |
-			status_flags::expanded |
-			status_flags::hash_calculated);
+	        status_flags::expanded |
+	        status_flags::hash_calculated);
 }
 
 /** Unarchive the object. */
@@ -602,13 +602,13 @@ bool numeric::has(const ex & other) const
 		return true;
 	if (o.imag().is_zero())  // e.g. scan for 3 in -3*I
 		return (this->real().is_equal(o) || this->imag().is_equal(o) ||
-				this->real().is_equal(-o) || this->imag().is_equal(-o));
+		        this->real().is_equal(-o) || this->imag().is_equal(-o));
 	else {
 		if (o.is_equal(I))  // e.g scan for I in 42*I
 			return !this->is_real();
 		if (o.real().is_zero())  // e.g. scan for 2*I in 2*I+1
 			return (this->real().has(o*I) || this->imag().has(o*I) ||
-					this->real().has(-o*I) || this->imag().has(-o*I));
+			        this->real().has(-o*I) || this->imag().has(-o*I));
 	}
 	return false;
 }
@@ -976,7 +976,7 @@ bool numeric::is_cinteger(void) const
 		return true;
 	else if (!this->is_real()) {  // complex case, handle n+m*I
 		if (::instanceof(::realpart(*value), ::cl_I_ring) &&
-			::instanceof(::imagpart(*value), ::cl_I_ring))
+		    ::instanceof(::imagpart(*value), ::cl_I_ring))
 			return true;
 	}
 	return false;
@@ -990,7 +990,7 @@ bool numeric::is_crational(void) const
 		return true;
 	else if (!this->is_real()) {  // complex case, handle Q(i):
 		if (::instanceof(::realpart(*value), ::cl_RA_ring) &&
-			::instanceof(::imagpart(*value), ::cl_RA_ring))
+		    ::instanceof(::imagpart(*value), ::cl_RA_ring))
 			return true;
 	}
 	return false;
@@ -1297,8 +1297,8 @@ const numeric acos(const numeric & x)
 const numeric atan(const numeric & x)
 {
 	if (!x.is_real() &&
-		x.real().is_zero() &&
-		abs(x.imag()).is_equal(_num1()))
+	    x.real().is_zero() &&
+	    abs(x.imag()).is_equal(_num1()))
 		throw pole_error("atan(): logarithmic pole",0);
 	return ::atan(*x.value);  // -> CLN
 }
@@ -1373,7 +1373,7 @@ const numeric atanh(const numeric & x)
 
 
 /*static ::cl_N Li2_series(const ::cl_N & x,
-						 const ::cl_float_format_t & prec)
+                         const ::cl_float_format_t & prec)
 {
 	// Note: argument must be in the unit circle
 	// This is very inefficient unless we have fast floating point Bernoulli
@@ -1401,7 +1401,7 @@ const numeric atanh(const numeric & x)
 /** Numeric evaluation of Dilogarithm within circle of convergence (unit
  *  circle) using a power series. */
 static ::cl_N Li2_series(const ::cl_N & x,
-						 const ::cl_float_format_t & prec)
+                         const ::cl_float_format_t & prec)
 {
 	// Note: argument must be in the unit circle
 	::cl_N aug, acc;
@@ -1420,23 +1420,23 @@ static ::cl_N Li2_series(const ::cl_N & x,
 
 /** Folds Li2's argument inside a small rectangle to enhance convergence. */
 static ::cl_N Li2_projection(const ::cl_N & x,
-							 const ::cl_float_format_t & prec)
+                             const ::cl_float_format_t & prec)
 {
 	const ::cl_R re = ::realpart(x);
 	const ::cl_R im = ::imagpart(x);
 	if (re > ::cl_F(".5"))
 		// zeta(2) - Li2(1-x) - log(x)*log(1-x)
 		return(::cl_zeta(2)
-			   - Li2_series(1-x, prec)
-			   - ::log(x)*::log(1-x));
+		       - Li2_series(1-x, prec)
+		       - ::log(x)*::log(1-x));
 	if ((re <= 0 && ::abs(im) > ::cl_F(".75")) || (re < ::cl_F("-.5")))
 		// -log(1-x)^2 / 2 - Li2(x/(x-1))
-		return(-::square(::log(1-x))/2
-			   - Li2_series(x/(x-1), prec));
+		return(- ::square(::log(1-x))/2
+		       - Li2_series(x/(x-1), prec));
 	if (re > 0 && ::abs(im) > ::cl_LF(".75"))
 		// Li2(x^2)/2 - Li2(-x)
 		return(Li2_projection(::square(x), prec)/2
-			   - Li2_projection(-x, prec));
+		       - Li2_projection(-x, prec));
 	return Li2_series(x, prec);
 }
 
@@ -1464,9 +1464,9 @@ const numeric Li2(const numeric & x)
 	
 	if (::abs(*x.value) > 1)
 		// -log(-x)^2 / 2 - zeta(2) - Li2(1/x)
-		return(-::square(::log(-*x.value))/2
-			   - ::cl_zeta(2, prec)
-			   - Li2_projection(::recip(*x.value), prec));
+		return(- ::square(::log(-*x.value))/2
+		       - ::cl_zeta(2, prec)
+		       - Li2_projection(::recip(*x.value), prec));
 	else
 		return Li2_projection(*x.value, prec);
 }
@@ -1498,15 +1498,15 @@ const numeric zeta(const numeric & x)
 const numeric lgamma(const numeric & x)
 {
 	std::clog << "lgamma(" << x
-			  << "): Does anybody know good way to calculate this numerically?"
-			  << std::endl;
+	          << "): Does anybody know good way to calculate this numerically?"
+	          << std::endl;
 	return numeric(0);
 }
 const numeric tgamma(const numeric & x)
 {
 	std::clog << "tgamma(" << x
-			  << "): Does anybody know good way to calculate this numerically?"
-			  << std::endl;
+	          << "): Does anybody know good way to calculate this numerically?"
+	          << std::endl;
 	return numeric(0);
 }
 
@@ -1516,8 +1516,8 @@ const numeric tgamma(const numeric & x)
 const numeric psi(const numeric & x)
 {
 	std::clog << "psi(" << x
-			  << "): Does anybody know good way to calculate this numerically?"
-			  << std::endl;
+	          << "): Does anybody know good way to calculate this numerically?"
+	          << std::endl;
 	return numeric(0);
 }
 
@@ -1527,8 +1527,8 @@ const numeric psi(const numeric & x)
 const numeric psi(const numeric & n, const numeric & x)
 {
 	std::clog << "psi(" << n << "," << x
-			  << "): Does anybody know good way to calculate this numerically?"
-			  << std::endl;
+	          << "): Does anybody know good way to calculate this numerically?"
+	          << std::endl;
 	return numeric(0);
 }
 
@@ -1789,8 +1789,7 @@ numeric irem(const numeric & a, const numeric & b, numeric & q)
 		cl_I_div_t rem_quo = truncate2(The(::cl_I)(*a.value), The(::cl_I)(*b.value));
 		q = rem_quo.quotient;
 		return rem_quo.remainder;
-	}
-	else {
+	} else {
 		q = _num0();
 		return _num0();  // Throw?
 	}
@@ -1906,7 +1905,7 @@ ex CatalanEvalf(void)
 // be 61 (<64) while cl_float_format(18)=65.  We want to have a cl_LF instead 
 // of cl_SF, cl_FF or cl_DF but everything else is basically arbitrary.
 _numeric_digits::_numeric_digits()
-	: digits(17)
+  : digits(17)
 {
 	assert(!too_late);
 	too_late = true;

@@ -35,8 +35,8 @@ namespace GiNaC {
 // class remember_table_entry
 //////////
 
-remember_table_entry::remember_table_entry(function const & f, ex const & r) :
-	hashvalue(f.gethash()), seq(f.seq), result(r)
+remember_table_entry::remember_table_entry(function const & f, ex const & r)
+  : hashvalue(f.gethash()), seq(f.seq), result(r)
 {
 	++last_access=access_counter;
 	successful_hits=0;
@@ -144,8 +144,8 @@ remember_table::remember_table()
 	remember_strategy=remember_strategies::delete_never;
 }
 
-remember_table::remember_table(unsigned s, unsigned as, unsigned strat) :
-	max_assoc_size(as), remember_strategy(strat)
+remember_table::remember_table(unsigned s, unsigned as, unsigned strat)
+  : max_assoc_size(as), remember_strategy(strat)
 {
 	// we keep max_assoc_size and remember_strategy if we need to clear
 	// all entries

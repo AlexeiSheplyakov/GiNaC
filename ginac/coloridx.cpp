@@ -50,7 +50,7 @@ coloridx::coloridx()
 coloridx::~coloridx() 
 {
 	debugmsg("coloridx destructor",LOGLEVEL_DESTRUCT);
-	destroy(0);
+	destroy(false);
 }
 
 coloridx::coloridx(const coloridx & other)
@@ -63,7 +63,7 @@ const coloridx & coloridx::operator=(const coloridx & other)
 {
 	debugmsg("coloridx operator=",LOGLEVEL_ASSIGNMENT);
 	if (this != &other) {
-		destroy(1);
+		destroy(true);
 		copy(other);
 	}
 	return *this;

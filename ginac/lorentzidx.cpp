@@ -44,14 +44,14 @@ lorentzidx::lorentzidx() : orthogonal_only(false), dim_parallel_space(0)
 {
 	debugmsg("lorentzidx default constructor",LOGLEVEL_CONSTRUCT);
 	// serial is incremented in idx::idx()
-	name="mu"+ToString(serial);
-	tinfo_key=TINFO_lorentzidx;
+	name = "mu" + ToString(serial);
+	tinfo_key = TINFO_lorentzidx;
 }
 
 lorentzidx::~lorentzidx() 
 {
 	debugmsg("lorentzidx destructor",LOGLEVEL_DESTRUCT);
-	destroy(0);
+	destroy(false);
 }
 
 lorentzidx::lorentzidx(const lorentzidx & other)
@@ -64,7 +64,7 @@ const lorentzidx & lorentzidx::operator=(const lorentzidx & other)
 {
 	debugmsg("lorentzidx operator=",LOGLEVEL_ASSIGNMENT);
 	if (this != &other) {
-		destroy(1);
+		destroy(true);
 		copy(other);
 	}
 	return *this;
@@ -90,8 +90,8 @@ void lorentzidx::destroy(bool call_parent)
 
 // public
 
-lorentzidx::lorentzidx(bool cov, bool oonly, unsigned dimp) :
-	idx(cov), orthogonal_only(oonly), dim_parallel_space(dimp)
+lorentzidx::lorentzidx(bool cov, bool oonly, unsigned dimp)
+  : idx(cov), orthogonal_only(oonly), dim_parallel_space(dimp)
 {
 	debugmsg("lorentzidx constructor from bool",LOGLEVEL_CONSTRUCT);
 	// serial is incremented in idx::idx(bool)
@@ -104,7 +104,7 @@ lorentzidx::lorentzidx(bool cov, bool oonly, unsigned dimp) :
 }
 
 lorentzidx::lorentzidx(const std::string & n, bool cov, bool oonly, unsigned dimp)
-	: idx(n,cov), orthogonal_only(oonly), dim_parallel_space(dimp)
+  : idx(n,cov), orthogonal_only(oonly), dim_parallel_space(dimp)
 {
 	debugmsg("lorentzidx constructor from string,bool,bool,unsigned",
 			 LOGLEVEL_CONSTRUCT);
@@ -112,15 +112,15 @@ lorentzidx::lorentzidx(const std::string & n, bool cov, bool oonly, unsigned dim
 }
 
 lorentzidx::lorentzidx(const char * n, bool cov, bool oonly, unsigned dimp)
-	: idx(n,cov), orthogonal_only(oonly), dim_parallel_space(dimp)
+  : idx(n,cov), orthogonal_only(oonly), dim_parallel_space(dimp)
 {
 	debugmsg("lorentzidx constructor from char*,bool,bool,unsigned",
 			 LOGLEVEL_CONSTRUCT);
 	tinfo_key=TINFO_lorentzidx;
 }
 
-lorentzidx::lorentzidx(unsigned v, bool cov) : idx(v,cov),
-	orthogonal_only(false), dim_parallel_space(0)
+lorentzidx::lorentzidx(unsigned v, bool cov)
+  : idx(v,cov), orthogonal_only(false), dim_parallel_space(0)
 {
 	debugmsg("lorentzidx constructor from unsigned,bool",LOGLEVEL_CONSTRUCT);
 	tinfo_key=TINFO_lorentzidx;
@@ -277,8 +277,8 @@ lorentzidx lorentzidx::create_anonymous_representative(void) const
 	i_copy.serial=0;
 	i_copy.name="anonymous_representative";
 	i_copy.covariant=false;
-	i_copy.clearflag(status_flags::dynallocated|
-					 status_flags::hash_calculated);
+	i_copy.clearflag(status_flags::dynallocated |
+	                 status_flags::hash_calculated);
 	return i_copy;
 }
 

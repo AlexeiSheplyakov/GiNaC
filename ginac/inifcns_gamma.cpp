@@ -85,9 +85,9 @@ static ex lgamma_deriv(const ex & x, unsigned deriv_param)
 
 
 static ex lgamma_series(const ex & arg,
-						const relational & rel,
-						int order,
-						unsigned options)
+                        const relational & rel,
+                        int order,
+                        unsigned options)
 {
 	// method:
 	// Taylor series where there is no pole falls back to psi function
@@ -111,9 +111,9 @@ static ex lgamma_series(const ex & arg,
 
 
 REGISTER_FUNCTION(lgamma, eval_func(lgamma_eval).
-						  evalf_func(lgamma_evalf).
-						  derivative_func(lgamma_deriv).
-						  series_func(lgamma_series));
+                          evalf_func(lgamma_evalf).
+                          derivative_func(lgamma_deriv).
+                          series_func(lgamma_series));
 
 
 //////////
@@ -182,9 +182,9 @@ static ex tgamma_deriv(const ex & x, unsigned deriv_param)
 
 
 static ex tgamma_series(const ex & arg,
-						const relational & rel,
-						int order,
-						unsigned options)
+                        const relational & rel,
+                        int order,
+                        unsigned options)
 {
 	// method:
 	// Taylor series where there is no pole falls back to psi function
@@ -207,9 +207,9 @@ static ex tgamma_series(const ex & arg,
 
 
 REGISTER_FUNCTION(tgamma, eval_func(tgamma_eval).
-						  evalf_func(tgamma_evalf).
-						  derivative_func(tgamma_deriv).
-						  series_func(tgamma_series));
+                          evalf_func(tgamma_evalf).
+                          derivative_func(tgamma_deriv).
+                          series_func(tgamma_series));
 
 
 //////////
@@ -280,10 +280,10 @@ static ex beta_deriv(const ex & x, const ex & y, unsigned deriv_param)
 
 
 static ex beta_series(const ex & arg1,
-					  const ex & arg2,
-					  const relational & rel,
-					  int order,
-					  unsigned options)
+                      const ex & arg2,
+                      const relational & rel,
+                      int order,
+                      unsigned options)
 {
 	// method:
 	// Taylor series where there is no pole of one of the tgamma functions
@@ -295,7 +295,7 @@ static ex beta_series(const ex & arg1,
 	const symbol *s = static_cast<symbol *>(rel.lhs().bp);
 	ex arg1_ser, arg2_ser, arg1arg2_ser;
 	if ((!arg1_pt.info(info_flags::integer) || arg1_pt.info(info_flags::positive)) &&
-		(!arg2_pt.info(info_flags::integer) || arg2_pt.info(info_flags::positive)))
+	    (!arg2_pt.info(info_flags::integer) || arg2_pt.info(info_flags::positive)))
 		throw do_taylor();  // caught by function::series()
 	// trap the case where arg1 is on a pole:
 	if (arg1.info(info_flags::integer) && !arg1.info(info_flags::positive))
@@ -318,9 +318,9 @@ static ex beta_series(const ex & arg1,
 
 
 REGISTER_FUNCTION(beta, eval_func(beta_eval).
-						evalf_func(beta_evalf).
-						derivative_func(beta_deriv).
-						series_func(beta_series));
+                        evalf_func(beta_evalf).
+                        derivative_func(beta_deriv).
+                        series_func(beta_series));
 
 
 //////////
@@ -390,9 +390,9 @@ static ex psi1_deriv(const ex & x, unsigned deriv_param)
 }
 
 static ex psi1_series(const ex & arg,
-					  const relational & rel,
-					  int order,
-					  unsigned options)
+                      const relational & rel,
+                      int order,
+                      unsigned options)
 {
 	// method:
 	// Taylor series where there is no pole falls back to polygamma function
@@ -415,11 +415,11 @@ static ex psi1_series(const ex & arg,
 
 const unsigned function_index_psi1 =
 	function::register_new(function_options("psi").
-						   eval_func(psi1_eval).
-						   evalf_func(psi1_evalf).
-			   derivative_func(psi1_deriv).
-			   series_func(psi1_series).
-			   overloaded(2));
+	                       eval_func(psi1_eval).
+	                       evalf_func(psi1_evalf).
+	                       derivative_func(psi1_deriv).
+	                       series_func(psi1_series).
+	                       overloaded(2));
 
 //////////
 // Psi-functions (aka polygamma-functions)  psi(0,x)==psi(x)
@@ -513,10 +513,10 @@ static ex psi2_deriv(const ex & n, const ex & x, unsigned deriv_param)
 }
 
 static ex psi2_series(const ex & n,
-					  const ex & arg,
-					  const relational & rel,
-					  int order,
-					  unsigned options)
+                      const ex & arg,
+                      const relational & rel,
+                      int order,
+                      unsigned options)
 {
 	// method:
 	// Taylor series where there is no pole falls back to polygamma function
@@ -541,11 +541,11 @@ static ex psi2_series(const ex & n,
 
 const unsigned function_index_psi2 =
 	function::register_new(function_options("psi").
-						   eval_func(psi2_eval).
-						   evalf_func(psi2_evalf).
-			   derivative_func(psi2_deriv).
-			   series_func(psi2_series).
-			   overloaded(2));
+	                       eval_func(psi2_eval).
+	                       evalf_func(psi2_evalf).
+	                       derivative_func(psi2_deriv).
+	                       series_func(psi2_series).
+	                       overloaded(2));
 
 
 #ifndef NO_NAMESPACE_GINAC

@@ -63,7 +63,7 @@ lortensor::lortensor()
 lortensor::~lortensor()
 {
 	debugmsg("lortensor destructor",LOGLEVEL_DESTRUCT);
-	destroy(0);
+	destroy(false);
 }
 
 lortensor::lortensor(const lortensor & other)
@@ -76,7 +76,7 @@ const lortensor & lortensor::operator=(const lortensor & other)
 {
 	debugmsg("lortensor operator=",LOGLEVEL_ASSIGNMENT);
 	if (this != & other) {
-		destroy(1);
+		destroy(true);
 		copy(other);
 	}
 	return *this;
@@ -308,14 +308,17 @@ unsigned lortensor::return_type(void) const
 {
 	return return_types::commutative;
 }
+
 unsigned lortensor::return_type_tinfo(void) const
 {
 	return tinfo_key;
 }
+
 ex lortensor::thisexprseq(const exvector & v) const
 {
 	return lortensor(type,name,serial,v);
 }
+
 ex lortensor::thisexprseq(exvector *vp) const
 {
 	return lortensor(type,name,serial,vp);
@@ -420,7 +423,7 @@ ex simplify_lortensor_mul(const ex & m)
 			replacements=0;
 			if (first_idx.is_symbolic()) {
 				replacements = subs_index_in_exvector(v_contracted,
-								   first_idx.toggle_covariant(),second_idx);
+				                                      first_idx.toggle_covariant(),second_idx);
 				if (replacements==0) {
 					// not contracted, restore g object
 					*it=saved_g;
@@ -436,7 +439,7 @@ ex simplify_lortensor_mul(const ex & m)
 			if ((replacements==0)&&(second_idx.is_symbolic())) {
 				// first index not contracted, *it is again the original g object
 				replacements = subs_index_in_exvector(v_contracted,
-								   second_idx.toggle_covariant(),first_idx);
+				                                      second_idx.toggle_covariant(),first_idx);
 				if (replacements==0) {
 					// not contracted except in itself, restore g object
 					*it=saved_g;

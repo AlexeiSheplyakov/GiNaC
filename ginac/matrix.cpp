@@ -48,8 +48,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(matrix, basic)
 // public
 
 /** Default ctor.  Initializes to 1 x 1-dimensional zero-matrix. */
-matrix::matrix()
-	: inherited(TINFO_matrix), row(1), col(1)
+matrix::matrix() : inherited(TINFO_matrix), row(1), col(1)
 {
 	debugmsg("matrix default constructor",LOGLEVEL_CONSTRUCT);
 	m.push_back(_ex0());
@@ -58,6 +57,7 @@ matrix::matrix()
 matrix::~matrix()
 {
 	debugmsg("matrix destructor",LOGLEVEL_DESTRUCT);
+	destroy(false);
 }
 
 matrix::matrix(const matrix & other)
@@ -70,7 +70,7 @@ const matrix & matrix::operator=(const matrix & other)
 {
 	debugmsg("matrix operator=",LOGLEVEL_ASSIGNMENT);
 	if (this != &other) {
-		destroy(1);
+		destroy(true);
 		copy(other);
 	}
 	return *this;
@@ -102,7 +102,7 @@ void matrix::destroy(bool call_parent)
  *  @param r number of rows
  *  @param c number of cols */
 matrix::matrix(unsigned r, unsigned c)
-	: inherited(TINFO_matrix), row(r), col(c)
+  : inherited(TINFO_matrix), row(r), col(c)
 {
 	debugmsg("matrix constructor from unsigned,unsigned",LOGLEVEL_CONSTRUCT);
 	m.resize(r*c, _ex0());
@@ -112,7 +112,7 @@ matrix::matrix(unsigned r, unsigned c)
 
 /** Ctor from representation, for internal use only. */
 matrix::matrix(unsigned r, unsigned c, const exvector & m2)
-	: inherited(TINFO_matrix), row(r), col(c), m(m2)
+  : inherited(TINFO_matrix), row(r), col(c), m(m2)
 {
 	debugmsg("matrix constructor from unsigned,unsigned,exvector",LOGLEVEL_CONSTRUCT);
 }
@@ -814,8 +814,8 @@ ex matrix::determinant_minor(void) const
 		return (m[0]*m[3]-m[2]*m[1]).expand();
 	if (n==3)
 		return (m[0]*m[4]*m[8]-m[0]*m[5]*m[7]-
-				m[1]*m[3]*m[8]+m[2]*m[3]*m[7]+
-				m[1]*m[5]*m[6]-m[2]*m[4]*m[6]).expand();
+		        m[1]*m[3]*m[8]+m[2]*m[3]*m[7]+
+		        m[1]*m[5]*m[6]-m[2]*m[4]*m[6]).expand();
 	
 	// This algorithm can best be understood by looking at a naive
 	// implementation of Laplace-expansion, like this one:
@@ -1099,15 +1099,15 @@ int matrix::fraction_free_elimination(const bool det)
 			for (unsigned r2=r0+1; r2<m; ++r2) {
 				for (unsigned c=r1+1; c<n; ++c) {
 					dividend_n = (tmp_n.m[r0*n+r1]*tmp_n.m[r2*n+c]*
-								  tmp_d.m[r2*n+r1]*tmp_d.m[r0*n+c]
-								 -tmp_n.m[r2*n+r1]*tmp_n.m[r0*n+c]*
-								  tmp_d.m[r0*n+r1]*tmp_d.m[r2*n+c]).expand();
+					              tmp_d.m[r2*n+r1]*tmp_d.m[r0*n+c]
+					             -tmp_n.m[r2*n+r1]*tmp_n.m[r0*n+c]*
+					              tmp_d.m[r0*n+r1]*tmp_d.m[r2*n+c]).expand();
 					dividend_d = (tmp_d.m[r2*n+r1]*tmp_d.m[r0*n+c]*
-								  tmp_d.m[r0*n+r1]*tmp_d.m[r2*n+c]).expand();
+					              tmp_d.m[r0*n+r1]*tmp_d.m[r2*n+c]).expand();
 					bool check = divide(dividend_n, divisor_n,
-										tmp_n.m[r2*n+c], true);
+					                    tmp_n.m[r2*n+c], true);
 					check &= divide(dividend_d, divisor_d,
-									tmp_d.m[r2*n+c], true);
+					                tmp_d.m[r2*n+c], true);
 					GINAC_ASSERT(check);
 				}
 				// fill up left hand side with zeros

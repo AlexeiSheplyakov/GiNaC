@@ -569,7 +569,7 @@ bool divide(const ex &a, const ex &b, ex &q, bool check_args)
 	}
 #endif
 	if (check_args && (!a.info(info_flags::rational_polynomial) ||
-					   !b.info(info_flags::rational_polynomial)))
+	                   !b.info(info_flags::rational_polynomial)))
 		throw(std::invalid_argument("divide: arguments must be polynomials over the rationals"));
 
 	// Find first symbol
@@ -1890,7 +1890,7 @@ static ex frac_cancel(const ex &n, const ex &d)
 	// as defined by get_first_symbol() is made positive)
 	const symbol *x;
 	if (get_first_symbol(den, x)) {
-				GINAC_ASSERT(is_ex_exactly_of_type(den.unit(*x),numeric));
+		GINAC_ASSERT(is_ex_exactly_of_type(den.unit(*x),numeric));
 		if (ex_to_numeric(den.unit(*x)).is_negative()) {
 			num *= _ex_1();
 			den *= _ex_1();

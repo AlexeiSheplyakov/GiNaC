@@ -50,7 +50,7 @@ add::add()
 add::~add()
 {
 	debugmsg("add destructor",LOGLEVEL_DESTRUCT);
-	destroy(0);
+	destroy(false);
 }
 
 add::add(const add & other)
@@ -63,7 +63,7 @@ const add & add::operator=(const add & other)
 {
 	debugmsg("add operator=",LOGLEVEL_ASSIGNMENT);
 	if (this != &other) {
-		destroy(1);
+		destroy(true);
 		copy(other);
 	}
 	return *this;
@@ -539,9 +539,7 @@ ex add::expand(unsigned options) const
 	if (vp==0)
 		return *this;
 	
-	return (new add(vp,overall_coeff))->
-		setflag(status_flags::expanded |
-				status_flags::dynallocated);
+	return (new add(vp,overall_coeff))->setflag(status_flags::expanded | status_flags::dynallocated);
 }
 
 //////////
