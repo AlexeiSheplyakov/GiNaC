@@ -4,3 +4,4 @@ usr/lib/libginac.so
 usr/include/ginac
 usr/bin/ginac-config
 usr/share/man/man1/ginac-config*
+usr/share/info

@@ -35,7 +35,7 @@ binary-arch: build
 	dh_installdocs ChangeLog NEWS README
 	dh_installchangelogs
 	dh_installmenu
-	dh_movefiles -pginac-dev -pginac-doc
+	dh_movefiles -pginac-dev
 	if test -f cint/ginaccint.bin; then dh_movefiles -pginaccint; fi
 	dh_strip
 	dh_compress
@@ -45,7 +45,7 @@ binary-arch: build
 	dh_makeshlibs
 	dh_installdeb
 	dh_md5sums
-	dh_builddeb -pginac -pginac-dev -pginac-doc
+	dh_builddeb -pginac -pginac-dev
 	if test -f cint/ginaccint.bin; then dh_builddeb -pginaccint; fi
 
 binary: binary-indep binary-arch

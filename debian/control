@@ -18,30 +18,20 @@ Package: ginac-dev
 Architecture: any
 Section: devel
 Depends: ginac, libc6-dev, g++ (>=2.95.2), cln-dev (>=1.1.0)
-Recommends: ginac-ginsh
-Suggests: ginac-doc
+Recommends: info | info-browser
 Description: The GiNaC framework (development files)
  GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is an
  open framework for symbolic computation within the C++ programming language.
  .
- This package provides header files and a static library.
+ This package provides header files, a static library plus a tutorial as info.
 
 Package: ginaccint
 Architecture: any
 Section: devel
 Depends: ginac-dev, cint (>=5.14.62)
+Build-Depends: cint (>=5.14.62)
 Description: The GiNaC framework's interface with Cint, the C++ interpreter
  GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is an
  open framework for symbolic computation within the C++ programming language.
  .
  ginaccint provides an interactive symbolic interface with a C++ syntax.
-
-Package: ginac-doc
-Architecture: any
-Recommends: info | info-browser
-Description: The GiNaC framework (documentation files)
- GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is an
- open framework for symbolic computation within the C++ programming language.
- .
- This package contains the complete documentation including a tutorial and a
- browsable reference.
