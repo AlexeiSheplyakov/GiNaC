@@ -106,7 +106,7 @@ pointless) bivariate polynomial with some large coefficients:
 <example>
 <title>My first GiNaC program (a bivariate polynomial)</title>
 <programlisting>
-#include &lt;GiNaC/ginac.h&gt;
+#include &lt;ginac/ginac.h&gt;
 
 int main()
 {
@@ -136,7 +136,7 @@ variable.
 <example>
 <title>My second GiNaC program (Hermite polynomials)</title>
 <programlisting>
-#include &lt;GiNaC/ginac.h&gt;
+#include &lt;ginac/ginac.h&gt;
 
 ex HermitePoly(symbol x, int deg)
 {
@@ -338,15 +338,10 @@ with the <literal>--help</literal> option.  The most important ones
 will be shortly described in what follows:
 <itemizedlist>
   <listitem>
-    <para><literal>--enable-shared</literal>: When given, this option
-    switches on the build of a shared library, i.e. a
-    <literal>.so</literal>-file. A static libarary (i.e. a
-    <literal>.a</literal>-file) is still built. For this to succeed,
-    GNU libtool needs to be installed on your system. Hence,
-    <literal>configure</literal> checks if it can find an executable
-    <literal>libtool</literal> in the <literal>PATH</literal>. If it
-    doesn't this option is ignored and the default restored, which
-    means that only a static library will be build.</para>
+    <para><literal>--disable-shared</literal>: When given, this option
+    switches off the build of a shared library, i.e. a 
+    <literal>.so</literal>-file.  This may be convenient when developing
+    because it considerably speeds up compilation.</para>
   </listitem>
   <listitem>
     <para><literal>--prefix=</literal><emphasis>PREFIX</emphasis>: The
@@ -367,11 +362,11 @@ will be shortly described in what follows:
     <para><literal>--includedir=</literal><emphasis>INCLUDEDIR</emphasis>:
     Use this option in case you want to have the header files
     installed in some other directory than
-    <emphasis>PREFIX</emphasis><literal>/include/GiNaC/</literal>. For
+    <emphasis>PREFIX</emphasis><literal>/include/ginac/</literal>. For
     instance, if you specify
     <literal>--includedir=/usr/include</literal> you will end up with
     the header files sitting in the directory
-    <literal>/usr/include/GiNaC/</literal>. Note that the subdirectory
+    <literal>/usr/include/ginac/</literal>. Note that the subdirectory
     <literal>GiNaC</literal> is enforced by this process in order to
     keep the header files separated from others.  This avoids some
     clashes and allows for an easier deinstallation of GiNaC. This ought
@@ -463,8 +458,8 @@ directories will be created if they don't already exist):
   </listitem>
   <listitem>
     <para>All the header files will be installed into
-    <emphasis>PREFIX</emphasis><literal>/include/GiNaC/</literal> (or
-    <emphasis>INCLUDEDIR</emphasis><literal>/GiNaC/</literal>, if
+    <emphasis>PREFIX</emphasis><literal>/include/ginac/</literal> (or
+    <emphasis>INCLUDEDIR</emphasis><literal>/ginac/</literal>, if
     specified).</para>
   </listitem>
   <listitem>
@@ -543,7 +538,7 @@ the copying takes place as soon as you try to change the second.
 Consider the simple sequence of code:
 <example><title>Simple copy-on-write semantics</title>
 <programlisting>
-#include &lt;GiNaC/ginac.h&gt;
+#include &lt;ginac/ginac.h&gt;
 
 int main()
 {
@@ -576,7 +571,7 @@ less trivial example of differentiation using the chain-rule should
 make clear how powerful this can be.  <example><title>Advanced
 copy-on-write semantics</title>
 <programlisting>
-#include &lt;GiNaC/ginac.h&gt;
+#include &lt;ginac/ginac.h&gt;
 
 int main()
 {
@@ -734,9 +729,9 @@ some useful constants.</para>
 shows the four most important constructors: construction from
 C-integer, construction of fractions from two integers, construction
 from C-float and construction from a string.
-<example><title>Sample C++ program</title>
+<example><title>Construction of numbers</title>
 <programlisting>
-#include &lt;GiNaC/ginac.h&gt;
+#include &lt;ginac/ginac.h&gt;
 
 int main()
 {
@@ -777,7 +772,7 @@ stored with a precision matching that number of decimal digits:
 <example><title>Controlling the precision of floating point numbers</title>
 <programlisting> 
 #include
-&lt;GiNaC/ginac.h&gt;
+&lt;ginac/ginac.h&gt;
 
 void foo()
 {
@@ -822,7 +817,7 @@ back to invocations of certain CLN functions.)</para>
 with some multiple of its denominator and check what comes out:
 <example><title>Sample test on objects of type numeric</title>
 <programlisting>
-#include &lt;GiNaC/ginac.h&gt;
+#include &lt;ginac/ginac.h&gt;
 
 int main()
 {
@@ -963,7 +958,7 @@ type <literal>add</literal> is called to hold the sum of that
 <literal>mul</literal> object and the number one:
 <example><title>Construction of <literal>add</literal> and <literal>mul</literal> objects</title>
 <programlisting>
-#include &lt;GiNaC/ginac.h&gt;
+#include &lt;ginac/ginac.h&gt;
 
 int main()
 {
@@ -1060,7 +1055,7 @@ it, so you can alternatively call it in a functional way as shown in
 the simple example:
 <example><title>Methods vs. wrapper functions</title>
 <programlisting>
-#include &lt;GiNaC/ginac.h&gt;
+#include &lt;ginac/ginac.h&gt;
 
 int main()
 {
@@ -1127,7 +1122,7 @@ a univariate polynomial in one of the variables with the coefficients
 being polynomials in the remaining variables.  The method
 <literal>collect()</literal> accomplishes this task:
 <funcsynopsis>
-  <funcsynopsisinfo>#include &lt;GiNaC/ginac.h></funcsynopsisinfo>
+  <funcsynopsisinfo>#include &lt;ginac/ginac.h></funcsynopsisinfo>
   <funcdef>ex <function>ex::collect</function></funcdef>
   <paramdef>symbol const & <parameter>s</parameter></paramdef>
 </funcsynopsis>
@@ -1135,7 +1130,7 @@ Note that the original polynomial needs to be in expanded form in
 order to be able to find the coefficients properly.  The range of
 occuring coefficients can be checked using the two methods
 <funcsynopsis>
-  <funcsynopsisinfo>#include &lt;GiNaC/ginac.h></funcsynopsisinfo>
+  <funcsynopsisinfo>#include &lt;ginac/ginac.h></funcsynopsisinfo>
   <funcdef>int <function>ex::degree</function></funcdef>
   <paramdef>symbol const & <parameter>s</parameter></paramdef>
 </funcsynopsis>
@@ -1150,7 +1145,7 @@ in the following example:
 
 <example><title>Collecting expressions in multivariate polynomials</title>
 <programlisting>
-#include &lt;GiNaC/ginac.h&gt;
+#include &lt;ginac/ginac.h&gt;
 
 int main()
 {
@@ -1209,7 +1204,7 @@ and <function>lcm(a,b)</function> returns the product of
 <literal>a</literal> and <literal>b</literal>.
 <example><title>Polynomal GCD/LCM</title>
 <programlisting>
-#include &lt;GiNaC/ginac.h&gt;
+#include &lt;ginac/ginac.h&gt;
 
 int main()
 {
@@ -1247,7 +1242,7 @@ just like <literal>.expand()</literal>.</para>
 <para>
 <example><title>Simple polynomial differentiation</title>
 <programlisting>
-#include &lt;GiNaC/ginac.h&gt;
+#include &lt;ginac/ginac.h&gt;
 
 int main()
 {
@@ -1266,7 +1261,7 @@ int main()
 <para>
 <example><title>Differentiation with nontrivial functions</title>
 <programlisting>
-#include &lt;GiNaC/ginac.h&gt;
+#include &lt;ginac/ginac.h&gt;
 
 int main()
 {
@@ -1287,7 +1282,7 @@ class of its own for storing such series as well as a class for
 storing the order of the series.  A sample program could read:
 <example><title>Series expansion</title>
 <programlisting>
-#include &lt;GiNaC/ginac.h&gt;
+#include &lt;ginac/ginac.h&gt;
 
 int main()
 {
@@ -1297,15 +1292,64 @@ int main()
     ex MyExpr2 = 1/(x - pow(x, 2) - pow(x, 3));
     ex MyTailor, MySeries;
     
-    MyTailor = MyExpr1.series(x, numZERO(), 5);
+    MyTailor = MyExpr1.series(x, point, 5);
     cout &lt;&lt; MyExpr1 &lt;&lt; " == " &lt;&lt; MyTailor
          &lt;&lt; " for small " &lt;&lt; x &lt;&lt; endl;
-    MySeries = MyExpr2.series(x, numZERO(), 7);
+    MySeries = MyExpr2.series(x, point, 7);
     cout &lt;&lt; MyExpr2 &lt;&lt; " == " &lt;&lt; MySeries
          &lt;&lt; " for small " &lt;&lt; x &lt;&lt; endl;
     \\ ...
 }
 </programlisting>
+</example>
+</para>
+
+<para>As an instructive application, let us calculate the numerical
+value of Archimedes' constant (for which there already exists the
+built-in constant <literal>Pi</literal>) using M&eacute;chain's
+wonderful formula <literal>Pi==16*atan(1/5)-4*atan(1/239)</literal>.
+We may expand the arcus tangent around <literal>0</literal> and insert
+the fractions <literal>1/5</literal> and <literal>1/239</literal>.
+But, as we have seen, a series in GiNaC carries an order term with it.
+The preprocessor-macro <literal>series_to_poly</literal> may be used
+to strip this off:
+<example><title>Series expansion using M&eacute;chain's formula</title>
+<programlisting>
+#include &lt;ginac/ginac.h&gt;
+
+ex mechain_pi(int degr)
+{
+    symbol x("x");
+    ex pi_expansion = series_to_poly(atan(x).series(x,0,degr));
+    ex pi_approx = 16*pi_expansion.subs(x==numeric(1,5))
+                   -4*pi_expansion.subs(x==numeric(1,239));
+    return pi_approx;
+}
+
+int main()
+{
+    ex pi_frac;
+    for (int i=2; i&lt;12; i+=2) {
+        pi_frac = mechain_pi(i);
+        cout &lt;&lt; i &lt;&lt; ":\t" &lt;&lt; pi_frac &lt;&lt; endl
+             &lt;&lt; "\t" &lt;&lt; pi_frac.evalf() &lt;&lt; endl;
+    }
+    return 0;
+}
+</programlisting>
+<para>When you run this program, it will type out:</para>
+<screen>
+2:      3804/1195
+        3.1832635983263598326
+4:      5359397032/1706489875
+        3.1405970293260603143
+6:      38279241713339684/12184551018734375
+        3.141621029325034425
+8:      76528487109180192540976/24359780855939418203125
+        3.141591772182177295
+10:     327853873402258685803048818236/104359128170408663038552734375
+        3.1415926824043995174
+</screen>
 </example>
 </para>
 
