@@ -231,7 +231,7 @@ numeric::numeric(const char *s) : basic(TINFO_numeric)
     // ss should represent a simple sum like 2+5*I
     std::string ss(s);
     // make it safe by adding explicit sign
-    if (ss.at(0) != '+' && ss.at(0) != '-')
+    if (ss.at(0) != '+' && ss.at(0) != '-' && ss.at(0) != '#')
         ss = '+' + ss;
     std::string::size_type delim;
     do {
