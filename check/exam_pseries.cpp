@@ -127,8 +127,25 @@ static unsigned exam_series3(void)
 	return result;
 }
 
-// Order term handling
+// Series exponentiation
 static unsigned exam_series4(void)
+{
+	unsigned result = 0;
+	ex e, d;
+	
+	e = pow((2*cos(x)).series(x==0, 5), 2).series(x==0, 5);
+	d = 4 - 4*pow(x, 2) + 4*pow(x, 4)/3 + Order(pow(x, 5));
+	result += check_series(e, 0, d);
+	
+	e = pow(tgamma(x), 2).series(x==0, 3);
+	d = pow(x,-2) - 2*Euler/x + (pow(Pi,2)/6+2*pow(Euler,2)) + Order(x);
+	result += check_series(e, 0, d);
+	
+	return result;
+}
+
+// Order term handling
+static unsigned exam_series5(void)
 {
 	unsigned result = 0;
 	ex e, d;
@@ -148,7 +165,7 @@ static unsigned exam_series4(void)
 }
 
 // Series expansion of tgamma(-1)
-static unsigned exam_series5(void)
+static unsigned exam_series6(void)
 {
 	ex e = tgamma(2*x);
 	ex d = pow(x+1,-1)*numeric(1,4) +
@@ -180,7 +197,7 @@ static unsigned exam_series5(void)
 }
 	
 // Series expansion of tan(x==Pi/2)
-static unsigned exam_series6(void)
+static unsigned exam_series7(void)
 {
 	ex e = tan(x*Pi/2);
 	ex d = pow(x-1,-1)/Pi*(-2) + pow(x-1,1)*Pi/6 + pow(x-1,3)*pow(Pi,3)/360
@@ -190,7 +207,7 @@ static unsigned exam_series6(void)
 }
 
 // Series expansion of log(sin(x==0))
-static unsigned exam_series7(void)
+static unsigned exam_series8(void)
 {
 	ex e = log(sin(x));
 	ex d = log(x) - pow(x,2)/6 - pow(x,4)/180 - pow(x,6)/2835
@@ -199,7 +216,7 @@ static unsigned exam_series7(void)
 }
 
 // Series expansion of Li2(sin(x==0))
-static unsigned exam_series8(void)
+static unsigned exam_series9(void)
 {
 	ex e = Li2(sin(x));
 	ex d = x + pow(x,2)/4 - pow(x,3)/18 - pow(x,4)/48
@@ -209,7 +226,7 @@ static unsigned exam_series8(void)
 }
 
 // Series expansion of Li2((x==2)^2), caring about branch-cut
-static unsigned exam_series9(void)
+static unsigned exam_series10(void)
 {
 	ex e = Li2(pow(x,2));
 	ex d = Li2(4) + (-log(3) + I*Pi*csgn(I-I*pow(x,2))) * (x-2)
@@ -221,7 +238,7 @@ static unsigned exam_series9(void)
 }
 
 // Series expansion of logarithms around branch points
-static unsigned exam_series10(void)
+static unsigned exam_series11(void)
 {
 	unsigned result = 0;
 	ex e, d;
@@ -261,7 +278,7 @@ static unsigned exam_series10(void)
 }
 
 // Series expansion of other functions around branch points
-static unsigned exam_series11(void)
+static unsigned exam_series12(void)
 {
 	unsigned result = 0;
 	ex e, d;
@@ -305,6 +322,7 @@ unsigned exam_pseries(void)
 	result += exam_series9();  cout << '.' << flush;
 	result += exam_series10();  cout << '.' << flush;
 	result += exam_series11();  cout << '.' << flush;
+	result += exam_series12();  cout << '.' << flush;
 	
 	if (!result) {
 		cout << " passed " << endl;
