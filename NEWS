@@ -1,5 +1,11 @@
 This file records noteworthy changes.
 
+0.6.2 (21 June 2000)
+* ginaccint.bin is now launched by a binary program instead of by a scripts.
+  This allows us to write #!-scripts.  A small test suite for GiNaC-cint was
+  added.
+* Several minor bugfixes.
+
 0.6.1 (18 May 2000)
 * Cleanup in the interface to Cint.  The required version is now Cint 5.14.38.
 * Several bugfixes in target install.

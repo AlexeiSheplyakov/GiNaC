@@ -101,13 +101,15 @@ try to export that variable and type
  $ ./configure --with-cint
 or specify it directly on the command line by saying
  $ ./configure --with-cint=/my/path/to/cintsysdir
+This variable does not have to be exported for running the installed
+binary: since the actual program is started by a launcher that sets it.
 Enjoy!
 
-Here is an overview to gives you an idea if you can expect GiNaCcint 
+Here is an overview to gives you an idea if you can expect GiNaC-cint
 to compile, install and work properly:
 
- Cint version |   is known to work with   |  is known not to work with
---------------+---------------------------+-------------------------------
- < 5.14.39    | `verboten' by license (please bite your favorite lawyer)
- < 5.14.39,40 | egcs 1.1.1, gcc 2.95.2    | COMPILES BUT DOES NOT WORK OK
-   5.14.41    | We all wait for it...
+ Cint version | how it works
+--------------+----------------------------------------------------------
+ < 5.14.39    | `VERBOTEN' by license (please bite your favorite lawyer)
+ < 5.14.39,40 | compiles but does not feel happy at all (inconsistent!)
+   5.14.41    | tested on egcs 1.1.1, gcc 2.95.2: only minor weirdnesses
