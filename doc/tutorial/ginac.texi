@@ -1028,7 +1028,7 @@ for exclusive or.  (It would be embarassing to return @code{1} where one
 has requested @code{2^3}.)
 @end itemize
 
-@cindex @code{ginsh}
+@cindex @command{ginsh}
 All effects are contrary to mathematical notation and differ from the
 way most other CAS handle exponentiation, therefore overloading @code{^}
 is ruled out for GiNaC's C++ part.  The situation is different in
@@ -1535,7 +1535,7 @@ authors---they will happily incorporate them into future versions.
 @c    node-name, next, previous, up
 @section What doesn't belong into GiNaC
 
-@cindex @code{ginsh}
+@cindex @command{ginsh}
 First of all, GiNaC's name must be read literally.  It is designed to be
 a library for use within C++.  The tiny @command{ginsh} accompanying
 GiNaC makes this even more clear: it doesn't even attempt to provide a
