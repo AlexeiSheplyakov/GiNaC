@@ -10,7 +10,7 @@ This file records noteworthy changes.
   optionally containing wildcard objects. These are constructed with the
   call "wild(<unsigned>)" and are denoted as "$0", "$1" etc. in the output
   and in ginsh.
-* Added symmetrize() and antisymmetrize() functions.
+* Added symmetrize(), antisymmetrize() and numer_denom() functions.
 * Fixed possible crash when calling subs() on expressions with non-commutative
   products.
 
@@ -20,7 +20,7 @@ This file records noteworthy changes.
 * Predefined spinor metric tensor (created by spinor_metric()).
 * Symbols can have a LaTeX name, e.g. symbol s("s", "\\sigma");
 * LaTeX output of indexed objects is much nicer.
-* Fix some build-problems (with recent libreadline).
+* Fixed some build problems (with recent libreadline).
 * Semantics of arithmetic operators now follows the C++ rules more strictly.
 
 0.8.2 (24 April 2001)
