@@ -457,7 +457,7 @@ ex simplify_simp_lor(const ex & e, const scalar_products & sp)
 	return e_expanded;
 }
 
-//ex Dim(void)   // FIXME: what's going on here?
+//ex Dim(void)   // now in lortensor.cpp
 //{
 //    static symbol * d=new symbol("dim");
 //    return *d;

@@ -88,7 +88,7 @@ protected:
 	std::string name;
 	unsigned value;
 	static unsigned next_serial;
-	bool covariant; // x_mu, default is contravariant: x^mu
+	bool covariant; // x_mu, default is contravariant: x~mu
 };
 
 // global constants
