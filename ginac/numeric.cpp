@@ -716,7 +716,7 @@ numeric numeric::mul(const numeric & other) const
 numeric numeric::div(const numeric & other) const
 {
     if (::zerop(*other.value))
-        throw std::overflow_error("division by zero");
+        throw std::overflow_error("numeric::div(): division by zero");
     return numeric((*value)/(*other.value));
 }
 
@@ -741,6 +741,8 @@ numeric numeric::power(const numeric & other) const
 /** Inverse of a number. */
 numeric numeric::inverse(void) const
 {
+    if (::zerop(*value))
+        throw std::overflow_error("numeric::inverse(): division by zero");
     return numeric(::recip(*value));  // -> CLN
 }
 
