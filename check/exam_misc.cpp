@@ -199,6 +199,33 @@ static unsigned exam_operator_semantics(void)
 	return result;
 }
 
+/* This checks whether subs() works as intended in some special cases. */
+static unsigned exam_subs(void)
+{
+	unsigned result = 0;
+	symbol x("x");
+	ex e1, e2;
+
+	// This used to fail in GiNaC 1.0.5 because it first substituted
+	// x+1 -> (x-1)+1 -> x, and then substituted again x -> x-1, giving
+	// the wrong result
+	e1 = x+1;
+	e2 = e1.subs(x == x-1);
+	if (!e2.is_equal(x)) {
+		clog << "(x+1).subs(x==x-1) erroneously returned " << e2 << " instead of x" << endl;
+		++result;
+	}
+
+	e1 = sin(1+sin(x));
+	e2 = e1.subs(sin(wild()) == cos(wild()));
+	if (!e2.is_equal(cos(1+cos(x)))) {
+		clog << "sin(1+sin(x)).subs(sin($1)==cos($1)) erroneously returned " << e2 << " instead of cos(1+cos(x))" << endl;
+		++result;
+	}
+
+	return result;
+}
+
 unsigned exam_misc(void)
 {
 	unsigned result = 0;
@@ -211,6 +238,7 @@ unsigned exam_misc(void)
 	result += exam_expand_power(); cout << '.' << flush;
 	result += exam_sqrfree(); cout << '.' << flush;
 	result += exam_operator_semantics(); cout << '.' << flush;
+	result += exam_subs(); cout << '.' << flush;
 	
 	if (!result) {
 		cout << " passed " << endl;
