@@ -57,7 +57,7 @@ fderivative::fderivative(unsigned ser, const paramset & params, const exvector &
 	tinfo_key = TINFO_fderivative;
 }
 
-fderivative::fderivative(unsigned ser, const paramset & params, exvector * vp) : function(ser, vp), parameter_set(params)
+fderivative::fderivative(unsigned ser, const paramset & params, std::auto_ptr<exvector> vp) : function(ser, vp), parameter_set(params)
 {
 	tinfo_key = TINFO_fderivative;
 }
@@ -160,7 +160,7 @@ ex fderivative::thiscontainer(const exvector & v) const
 	return fderivative(serial, parameter_set, v);
 }
 
-ex fderivative::thiscontainer(exvector * vp) const
+ex fderivative::thiscontainer(std::auto_ptr<exvector> vp) const
 {
 	return fderivative(serial, parameter_set, vp);
 }

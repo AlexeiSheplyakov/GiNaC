@@ -86,13 +86,12 @@ add::add(const epvector & v, const ex & oc)
 	GINAC_ASSERT(is_canonical());
 }
 
-add::add(epvector * vp, const ex & oc)
+add::add(std::auto_ptr<epvector> vp, const ex & oc)
 {
 	tinfo_key = TINFO_add;
 	GINAC_ASSERT(vp!=0);
 	overall_coeff = oc;
 	construct_from_epvector(*vp);
-	delete vp;
 	GINAC_ASSERT(is_canonical());
 }
 
@@ -291,7 +290,7 @@ int add::ldegree(const ex & s) const
 
 ex add::coeff(const ex & s, int n) const
 {
-	epvector *coeffseq = new epvector();
+	std::auto_ptr<epvector> coeffseq(new epvector);
 
 	// Calculate sum of coefficients in each term
 	epvector::const_iterator i = seq.begin(), end = seq.end();
@@ -314,8 +313,8 @@ ex add::coeff(const ex & s, int n) const
  *  @param level cut-off in recursive evaluation */
 ex add::eval(int level) const
 {
-	epvector *evaled_seqp = evalchildren(level);
-	if (evaled_seqp) {
+	std::auto_ptr<epvector> evaled_seqp = evalchildren(level);
+	if (evaled_seqp.get()) {
 		// do more evaluation later
 		return (new add(evaled_seqp, overall_coeff))->
 		       setflag(status_flags::dynallocated);
@@ -355,7 +354,7 @@ ex add::evalm() const
 {
 	// Evaluate children first and add up all matrices. Stop if there's one
 	// term that is not a matrix.
-	epvector *s = new epvector;
+	std::auto_ptr<epvector> s(new epvector);
 	s->reserve(seq.size());
 
 	bool all_matrices = true;
@@ -377,10 +376,9 @@ ex add::evalm() const
 		++it;
 	}
 
-	if (all_matrices) {
-		delete s;
+	if (all_matrices)
 		return sum + overall_coeff;
-	} else
+	else
 		return (new add(s, overall_coeff))->setflag(status_flags::dynallocated);
 }
 
@@ -398,7 +396,7 @@ ex add::eval_ncmul(const exvector & v) const
  *  @see ex::diff */
 ex add::derivative(const symbol & y) const
 {
-	epvector *s = new epvector();
+	std::auto_ptr<epvector> s(new epvector);
 	s->reserve(seq.size());
 	
 	// Only differentiate the "rest" parts of the expairs. This is faster
@@ -438,7 +436,7 @@ ex add::thisexpairseq(const epvector & v, const ex & oc) const
 	return (new add(v,oc))->setflag(status_flags::dynallocated);
 }
 
-ex add::thisexpairseq(epvector * vp, const ex & oc) const
+ex add::thisexpairseq(std::auto_ptr<epvector> vp, const ex & oc) const
 {
 	return (new add(vp,oc))->setflag(status_flags::dynallocated);
 }
@@ -508,8 +506,8 @@ ex add::recombine_pair_to_ex(const expair & p) const
 
 ex add::expand(unsigned options) const
 {
-	epvector *vp = expandchildren(options);
-	if (vp == NULL) {
+	std::auto_ptr<epvector> vp = expandchildren(options);
+	if (vp.get() == 0) {
 		// the terms have not changed, so it is safe to declare this expanded
 		return (options == 0) ? setflag(status_flags::expanded) : *this;
 	}

@@ -357,7 +357,7 @@ $constructors_interface
 	// end of generated lines
 	function(unsigned ser, const exprseq & es);
 	function(unsigned ser, const exvector & v, bool discardable = false);
-	function(unsigned ser, exvector * vp); // vp will be deleted
+	function(unsigned ser, std::auto_ptr<exvector> vp);
 
 	// functions overriding virtual functions from base classes
 public:
@@ -369,7 +369,7 @@ public:
 	unsigned calchash() const;
 	ex series(const relational & r, int order, unsigned options = 0) const;
 	ex thiscontainer(const exvector & v) const;
-	ex thiscontainer(exvector * vp) const;
+	ex thiscontainer(std::auto_ptr<exvector> vp) const;
 protected:
 	ex derivative(const symbol & s) const;
 	bool is_equal_same_type(const basic & other) const;
@@ -661,7 +661,7 @@ function::function(unsigned ser, const exvector & v, bool discardable)
 	tinfo_key = TINFO_function;
 }
 
-function::function(unsigned ser, exvector * vp) 
+function::function(unsigned ser, std::auto_ptr<exvector> vp) 
   : exprseq(vp), serial(ser)
 {
 	tinfo_key = TINFO_function;
@@ -888,12 +888,12 @@ unsigned function::calchash() const
 
 ex function::thiscontainer(const exvector & v) const
 {
-	return function(serial,v);
+	return function(serial, v);
 }
 
-ex function::thiscontainer(exvector * vp) const
+ex function::thiscontainer(std::auto_ptr<exvector> vp) const
 {
-	return function(serial,vp);
+	return function(serial, vp);
 }
 
 /** Implementation of ex::series for functions.

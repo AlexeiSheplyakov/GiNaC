@@ -89,7 +89,7 @@ ncmul::ncmul(const exvector & v, bool discardable) : inherited(v,discardable)
 	tinfo_key = TINFO_ncmul;
 }
 
-ncmul::ncmul(exvector * vp) : inherited(vp)
+ncmul::ncmul(std::auto_ptr<exvector> vp) : inherited(vp)
 {
 	tinfo_key = TINFO_ncmul;
 }
@@ -420,7 +420,7 @@ ex ncmul::eval(int level) const
 ex ncmul::evalm() const
 {
 	// Evaluate children first
-	exvector *s = new exvector;
+	std::auto_ptr<exvector> s(new exvector);
 	s->reserve(seq.size());
 	exvector::const_iterator it = seq.begin(), itend = seq.end();
 	while (it != itend) {
@@ -439,7 +439,6 @@ ex ncmul::evalm() const
 			prod = prod.mul(ex_to<matrix>(*it));
 			it++;
 		}
-		delete s;
 		return prod;
 	}
 
@@ -452,7 +451,7 @@ ex ncmul::thiscontainer(const exvector & v) const
 	return (new ncmul(v))->setflag(status_flags::dynallocated);
 }
 
-ex ncmul::thiscontainer(exvector * vp) const
+ex ncmul::thiscontainer(std::auto_ptr<exvector> vp) const
 {
 	return (new ncmul(vp))->setflag(status_flags::dynallocated);
 }

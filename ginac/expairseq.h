@@ -25,6 +25,7 @@
 
 #include <vector>
 #include <list>
+#include <memory>
 // CINT needs <algorithm> to work properly with <vector> and <list>
 #include <algorithm>
 
@@ -66,7 +67,7 @@ public:
 	expairseq(const ex & lh, const ex & rh);
 	expairseq(const exvector & v);
 	expairseq(const epvector & v, const ex & oc);
-	expairseq(epvector * vp, const ex & oc); // vp will be deleted
+	expairseq(std::auto_ptr<epvector>, const ex & oc);
 	
 	// functions overriding virtual functions from base classes
 public:
@@ -89,7 +90,7 @@ protected:
 	// new virtual functions which can be overridden by derived classes
 protected:
 	virtual ex thisexpairseq(const epvector & v, const ex & oc) const;
-	virtual ex thisexpairseq(epvector * vp, const ex & oc) const;
+	virtual ex thisexpairseq(std::auto_ptr<epvector> vp, const ex & oc) const;
 	virtual void printseq(const print_context & c, char delim,
 	                      unsigned this_precedence,
 	                      unsigned upper_precedence) const;
@@ -145,9 +146,9 @@ protected:
 	                             epvector::const_iterator last_non_zero);
 #endif // EXPAIRSEQ_USE_HASHTAB
 	bool is_canonical() const;
-	epvector * expandchildren(unsigned options) const;
-	epvector * evalchildren(int level) const;
-	epvector * subschildren(const exmap & m, unsigned options = 0) const;
+	std::auto_ptr<epvector> expandchildren(unsigned options) const;
+	std::auto_ptr<epvector> evalchildren(int level) const;
+	std::auto_ptr<epvector> subschildren(const exmap & m, unsigned options = 0) const;
 	
 // member variables
 	

@@ -45,14 +45,14 @@ public:
 
 	// internal constructors
 	clifford(unsigned char rl, const exvector & v, bool discardable = false);
-	clifford(unsigned char rl, exvector * vp); // vp will be deleted
+	clifford(unsigned char rl, std::auto_ptr<exvector> vp);
 
 	// functions overriding virtual functions from base classes
 protected:
 	ex eval_ncmul(const exvector & v) const;
 	bool match_same_type(const basic & other) const;
 	ex thiscontainer(const exvector & v) const;
-	ex thiscontainer(exvector * vp) const;
+	ex thiscontainer(std::auto_ptr<exvector> vp) const;
 	unsigned return_type() const { return return_types::noncommutative; }
 	unsigned return_type_tinfo() const { return TINFO_clifford + representation_label; }
 

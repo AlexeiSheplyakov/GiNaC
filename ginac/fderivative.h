@@ -56,7 +56,7 @@ public:
 	fderivative(unsigned ser, const paramset & params, const exvector & args);
 
 	// internal constructors
-	fderivative(unsigned ser, const paramset & params, exvector * vp); // vp will be deleted
+	fderivative(unsigned ser, const paramset & params, std::auto_ptr<exvector> vp);
 
 	// functions overriding virtual functions from base classes
 public:
@@ -64,7 +64,7 @@ public:
 	ex evalf(int level = 0) const;
 	ex series(const relational & r, int order, unsigned options = 0) const;
 	ex thiscontainer(const exvector & v) const;
-	ex thiscontainer(exvector * vp) const;
+	ex thiscontainer(std::auto_ptr<exvector> vp) const;
 protected:
 	ex derivative(const symbol & s) const;
 	bool is_equal_same_type(const basic & other) const;

@@ -104,7 +104,7 @@ clifford::clifford(unsigned char rl, const exvector & v, bool discardable) : inh
 	tinfo_key = TINFO_clifford;
 }
 
-clifford::clifford(unsigned char rl, exvector * vp) : inherited(sy_none(), vp), representation_label(rl)
+clifford::clifford(unsigned char rl, std::auto_ptr<exvector> vp) : inherited(sy_none(), vp), representation_label(rl)
 {
 	tinfo_key = TINFO_clifford;
 }
@@ -479,7 +479,7 @@ ex clifford::thiscontainer(const exvector & v) const
 	return clifford(representation_label, v);
 }
 
-ex clifford::thiscontainer(exvector * vp) const
+ex clifford::thiscontainer(std::auto_ptr<exvector> vp) const
 {
 	return clifford(representation_label, vp);
 }

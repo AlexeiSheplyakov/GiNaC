@@ -94,7 +94,7 @@ color::color(unsigned char rl, const exvector & v, bool discardable) : inherited
 	tinfo_key = TINFO_color;
 }
 
-color::color(unsigned char rl, exvector * vp) : inherited(sy_none(), vp), representation_label(rl)
+color::color(unsigned char rl, std::auto_ptr<exvector> vp) : inherited(sy_none(), vp), representation_label(rl)
 {
 	tinfo_key = TINFO_color;
 }
@@ -183,7 +183,7 @@ ex color::thiscontainer(const exvector & v) const
 	return color(representation_label, v);
 }
 
-ex color::thiscontainer(exvector * vp) const
+ex color::thiscontainer(std::auto_ptr<exvector> vp) const
 {
 	return color(representation_label, vp);
 }

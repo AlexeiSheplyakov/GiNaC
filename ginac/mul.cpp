@@ -91,13 +91,12 @@ mul::mul(const epvector & v, const ex & oc)
 	GINAC_ASSERT(is_canonical());
 }
 
-mul::mul(epvector * vp, const ex & oc)
+mul::mul(std::auto_ptr<epvector> vp, const ex & oc)
 {
 	tinfo_key = TINFO_mul;
 	GINAC_ASSERT(vp!=0);
 	overall_coeff = oc;
 	construct_from_epvector(*vp);
-	delete vp;
 	GINAC_ASSERT(is_canonical());
 }
 
@@ -379,10 +378,10 @@ ex mul::coeff(const ex & s, int n) const
  *  @param level cut-off in recursive evaluation */
 ex mul::eval(int level) const
 {
-	epvector *evaled_seqp = evalchildren(level);
-	if (evaled_seqp) {
+	std::auto_ptr<epvector> evaled_seqp = evalchildren(level);
+	if (evaled_seqp.get()) {
 		// do more evaluation later
-		return (new mul(evaled_seqp,overall_coeff))->
+		return (new mul(evaled_seqp, overall_coeff))->
 		           setflag(status_flags::dynallocated);
 	}
 	
@@ -425,7 +424,7 @@ ex mul::eval(int level) const
 	           ex_to<numeric>((*seq.begin()).coeff).is_equal(_num1)) {
 		// *(+(x,y,...);c) -> +(*(x,c),*(y,c),...) (c numeric(), no powers of +())
 		const add & addref = ex_to<add>((*seq.begin()).rest);
-		epvector *distrseq = new epvector();
+		std::auto_ptr<epvector> distrseq(new epvector);
 		distrseq->reserve(addref.seq.size());
 		epvector::const_iterator i = addref.seq.begin(), end = addref.seq.end();
 		while (i != end) {
@@ -448,7 +447,7 @@ ex mul::evalf(int level) const
 	if (level==-max_recursion_level)
 		throw(std::runtime_error("max recursion level reached"));
 	
-	epvector *s = new epvector();
+	std::auto_ptr<epvector> s(new epvector);
 	s->reserve(seq.size());
 
 	--level;
@@ -471,7 +470,7 @@ ex mul::evalm() const
 	// Evaluate children first, look whether there are any matrices at all
 	// (there can be either no matrices or one matrix; if there were more
 	// than one matrix, it would be a non-commutative product)
-	epvector *s = new epvector;
+	std::auto_ptr<epvector> s(new epvector);
 	s->reserve(seq.size());
 
 	bool have_matrix = false;
@@ -724,7 +723,7 @@ ex mul::thisexpairseq(const epvector & v, const ex & oc) const
 	return (new mul(v, oc))->setflag(status_flags::dynallocated);
 }
 
-ex mul::thisexpairseq(epvector * vp, const ex & oc) const
+ex mul::thisexpairseq(std::auto_ptr<epvector> vp, const ex & oc) const
 {
 	return (new mul(vp, oc))->setflag(status_flags::dynallocated);
 }
@@ -828,8 +827,8 @@ bool mul::can_make_flat(const expair & p) const
 ex mul::expand(unsigned options) const
 {
 	// First, expand the children
-	epvector * expanded_seqp = expandchildren(options);
-	const epvector & expanded_seq = (expanded_seqp == NULL) ? seq : *expanded_seqp;
+	std::auto_ptr<epvector> expanded_seqp = expandchildren(options);
+	const epvector & expanded_seq = (expanded_seqp.get() ? *expanded_seqp : seq);
 
 	// Now, look for all the factors that are sums and multiply each one out
 	// with the next one that is found while collecting the factors which are
@@ -906,8 +905,6 @@ ex mul::expand(unsigned options) const
 		}
 		++cit;
 	}
-	if (expanded_seqp)
-		delete expanded_seqp;
 	
 	// Now the only remaining thing to do is to multiply the factors which
 	// were not sums into the "last_expanded" sum
@@ -949,7 +946,7 @@ ex mul::expand(unsigned options) const
  *  @see mul::expand()
  *  @return pointer to epvector containing expanded representation or zero
  *  pointer, if sequence is unchanged. */
-epvector * mul::expandchildren(unsigned options) const
+std::auto_ptr<epvector> mul::expandchildren(unsigned options) const
 {
 	const epvector::const_iterator last = seq.end();
 	epvector::const_iterator cit = seq.begin();
@@ -959,7 +956,7 @@ epvector * mul::expandchildren(unsigned options) const
 		if (!are_ex_trivially_equal(factor,expanded_factor)) {
 			
 			// something changed, copy seq, eval and return it
-			epvector *s = new epvector;
+			std::auto_ptr<epvector> s(new epvector);
 			s->reserve(seq.size());
 			
 			// copy parts of seq which are known not to have changed
@@ -968,9 +965,11 @@ epvector * mul::expandchildren(unsigned options) const
 				s->push_back(*cit2);
 				++cit2;
 			}
+
 			// copy first changed element
 			s->push_back(split_ex_to_pair(expanded_factor));
 			++cit2;
+
 			// copy rest
 			while (cit2!=last) {
 				s->push_back(split_ex_to_pair(recombine_pair_to_ex(*cit2).expand(options)));
@@ -981,7 +980,7 @@ epvector * mul::expandchildren(unsigned options) const
 		++cit;
 	}
 	
-	return 0; // nothing has changed
+	return std::auto_ptr<epvector>(0); // nothing has changed
 }
 
 } // namespace GiNaC

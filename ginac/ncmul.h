@@ -49,7 +49,7 @@ public:
 	ncmul(const ex & f1, const ex & f2, const ex & f3,
 	      const ex & f4, const ex & f5, const ex & f6);
 	ncmul(const exvector & v, bool discardable=false);
-	ncmul(exvector * vp); // vp will be deleted
+	ncmul(std::auto_ptr<exvector> vp);
 
 	// functions overriding virtual functions from base classes
 public:
@@ -63,7 +63,7 @@ public:
 	ex evalm() const;
 	exvector get_free_indices() const;
 	ex thiscontainer(const exvector & v) const;
-	ex thiscontainer(exvector * vp) const;
+	ex thiscontainer(std::auto_ptr<exvector> vp) const;
 
 protected:
 	ex derivative(const symbol & s) const;
