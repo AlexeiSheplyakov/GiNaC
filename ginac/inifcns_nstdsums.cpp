@@ -14,7 +14,7 @@
  *      This document will be referenced as [Kol] throughout this source code.
  *    - Classical polylogarithms (Li) and nielsen's generalized polylogarithms (S) can be numerically
  *    	evaluated in the whole complex plane. And of course, there is still room for speed optimizations ;-).
- *    - The calculation of classical polylogarithms is speed up by using Euler-MacLaurin summation (EuMac).
+ *    - The calculation of classical polylogarithms is speed up by using Euler-Maclaurin summation (EuMac).
  *    - The remaining functions can only be numerically evaluated with arguments lying in the unit sphere
  *      at the moment. Sorry. The evaluation especially for mZeta is very slow ... better not use it
  *      right now.
@@ -59,13 +59,13 @@
 namespace GiNaC {
 
 	
-// lookup table for Euler-MacLaurin optimization
+// lookup table for Euler-Maclaurin optimization
 // see fill_Xn()
 std::vector<std::vector<cln::cl_N> > Xn;
 int xnsize = 0;
 
 
-// lookup table for Euler-Zagier-Sums (used for S_n,p(x))
+// lookup table for special Euler-Zagier-Sums (used for S_n,p(x))
 // see fill_Yn()
 std::vector<std::vector<cln::cl_N> > Yn;
 int ynsize = 0; // number of Yn[]
@@ -77,7 +77,7 @@ int ynlength = 100; // initial length of all Yn[i]
 //////////////////////
 
 
-// This function calculates the X_n. The X_n are needed for the Euler-MacLaurin summation (EMS) of
+// This function calculates the X_n. The X_n are needed for the Euler-Maclaurin summation (EMS) of
 // classical polylogarithms.
 // With EMS the polylogs can be calculated as follows:
 //   Li_p (x)  =  \sum_{n=0}^\infty X_{p-2}(n) u^{n+1}/(n+1)! with  u = -log(1-x)
@@ -167,7 +167,6 @@ static void fill_Xn(int n)
 // The calculation of Y_n uses the values from Y_{n-1}.
 static void fill_Yn(int n, const cln::float_format_t& prec)
 {
-	// TODO -> get rid of the magic number
 	const int initsize = ynlength;
 	//const int initsize = initsize_Yn;
 	cln::cl_N one = cln::cl_float(1, prec);
@@ -553,8 +552,6 @@ static cln::cl_N S_series(int n, int p, const cln::cl_N& x, const cln::float_for
 		return Li_projection(n+1, x, prec);
 	}
 	
-	// TODO -> check for vector boundaries and do missing calculations
-
 	// check if precalculated values are sufficient
 	if (p > ynsize+1) {
 		for (int i=ynsize; i<p-1; i++) {
@@ -565,22 +562,23 @@ static cln::cl_N S_series(int n, int p, const cln::cl_N& x, const cln::float_for
 	// should be done otherwise
 	cln::cl_N xf = x * cln::cl_float(1, prec);
 
-	cln::cl_N result;
-	cln::cl_N resultbuffer;
-	int i;
-	for (i=p; true; i++) {
-		resultbuffer = result;
+	cln::cl_N res;
+	cln::cl_N resbuf;
+	cln::cl_N factor = cln::expt(xf, p);
+	int i = p;
+	do {
+		resbuf = res;
 		if (i-p >= ynlength) {
 			// make Yn longer
 			make_Yn_longer(ynlength*2, prec);
 		}
-		result = result + cln::expt(xf,i) / cln::expt(cln::cl_I(i),n+1) * Yn[p-2][i-p]; // should we check it? or rely on magic number? ...
-		if (cln::zerop(result-resultbuffer)) {
-			break;
-		}
-	}
+		res = res + factor / cln::expt(cln::cl_I(i),n+1) * Yn[p-2][i-p]; // should we check it? or rely on magic number? ...
+		//res = res + factor / cln::expt(cln::cl_I(i),n+1) * (*it); // should we check it? or rely on magic number? ...
+		factor = factor * xf;
+		i++;
+	} while (res != resbuf);
 	
-	return result;
+	return res;
 }
 
 
@@ -920,36 +918,38 @@ static ex mZeta_evalf(const ex& x1)
 {
 	if (is_a<lst>(x1)) {
 		for (int i=0; i<x1.nops(); i++) {
-			if (!is_a<numeric>(x1.op(i)))
+			if (!x1.op(i).info(info_flags::posint))
 				return mZeta(x1).hold();
 		}
 
-		cln::cl_N m_1 = ex_to<numeric>(x1.op(x1.nops()-1)).to_cl_N();
+		const int j = x1.nops();
+
+		std::vector<int> r(j);
+		for (int i=0; i<j; i++) {
+			r[j-1-i] = ex_to<numeric>(x1.op(i)).to_int();
+		}
 
 		// check for divergence
-		if (m_1 == 1) {
+		if (r[0] == 1) {
 			return mZeta(x1).hold();
 		}
 		
-		std::vector<cln::cl_N> m;
-		const int nops = ex_to<numeric>(x1.nops()).to_int();
-		for (int i=nops-2; i>=0; i--) {
-			m.push_back(ex_to<numeric>(x1.op(i)).to_cl_N());
-		}
+		// buffer for subsums
+		std::vector<cln::cl_N> t(j);
+		cln::cl_F one = cln::cl_float(1, cln::float_format(Digits));
 
-		cln::float_format_t prec = cln::default_float_format;
-		cln::cl_N res = cln::complex(cln::cl_float(0, prec), 0);
-		cln::cl_N resbuf;
-		for (int i=nops; true; i++) {
-			// to infinity and beyond ... timewise
-			resbuf = res;
-			res = res + cln::recip(cln::expt(i,m_1)) * numeric_harmonic(i, m);
-			if (cln::zerop(res-resbuf))
-				break;
-		}
+		cln::cl_N t0buf;
+		int q = 0;
+		do {
+			t0buf = t[0];
+			q++;
+			t[j-1] = t[j-1] + one / cln::expt(cln::cl_I(q),r[j-1]);
+			for (int k=j-2; k>=0; k--) {
+				t[k] = t[k] + one * t[k+1] / cln::expt(cln::cl_I(q+j-1-k), r[k]);
+			}
+		} while (t[0] != t0buf);
 
-		return numeric(res);
-
+		return numeric(t[0]);
 	}
 
 	return mZeta(x1).hold();
