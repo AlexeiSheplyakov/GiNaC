@@ -132,7 +132,7 @@ DECLARE_FUNCTION_2P(binomial)
 /** Order term function (for truncated power series). */
 DECLARE_FUNCTION_1P(Order)
 
-ex lsolve(const ex &eqns, const ex &symbols);
+ex lsolve(const ex &eqns, const ex &symbols, unsigned options = determinant_algo::automatic);
 
 /** Check whether a function is the Order (O(n)) function. */
 inline bool is_order_function(const ex & e)

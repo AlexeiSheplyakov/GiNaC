@@ -433,7 +433,7 @@ REGISTER_FUNCTION(Order, eval_func(Order_eval).
 // Solve linear system
 //////////
 
-ex lsolve(const ex &eqns, const ex &symbols)
+ex lsolve(const ex &eqns, const ex &symbols, unsigned options)
 {
 	// solve a system of linear equations
 	if (eqns.info(info_flags::relation_equal)) {
@@ -493,7 +493,7 @@ ex lsolve(const ex &eqns, const ex &symbols)
 	
 	matrix solution;
 	try {
-		solution = sys.solve(vars,rhs);
+		solution = sys.solve(vars,rhs,options);
 	} catch (const std::runtime_error & e) {
 		// Probably singular matrix or otherwise overdetermined system:
 		// It is consistent to return an empty list
