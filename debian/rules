@@ -35,6 +35,8 @@ binary-arch: build
 	dh_installdocs ChangeLog NEWS README
 	dh_installchangelogs
 	dh_installmenu
+	mkdir -p `pwd`/debian/tmp/usr/X11R6/include/X11/pixmaps
+	cp `pwd`/debian/ginac.xpm `pwd`/debian/tmp/usr/X11R6/include/X11/pixmaps/
 	dh_movefiles
 	dh_strip
 	dh_compress

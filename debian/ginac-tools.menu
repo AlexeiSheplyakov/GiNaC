@@ -3,4 +3,5 @@
   section="Apps/Math"\
   title="Ginsh"\
   longtitle="Ginsh - GiNaC interactive shell"\
-  command="/usr/bin/ginsh"
+  command="/usr/bin/ginsh" \
+  icon="/usr/X11R6/include/X11/pixmaps/ginac.xpm"
