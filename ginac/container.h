@@ -661,7 +661,7 @@ container<C> & container<C>::sort()
 }
 
 /** Specialization of container::unique_() for std::list. */
-inline void container<std::list>::unique_()
+template<> inline void container<std::list>::unique_()
 {
 	this->seq.unique(ex_is_equal());
 }

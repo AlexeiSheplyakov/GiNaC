@@ -32,7 +32,7 @@ namespace GiNaC {
 typedef container<std::vector> exprseq;
 
 /** Specialization of container::get_tinfo() for exprseq. */
-inline unsigned exprseq::get_tinfo() { return TINFO_exprseq; }
+template<> inline unsigned exprseq::get_tinfo() { return TINFO_exprseq; }
 
 // defined in exprseq.cpp
 template<> bool exprseq::info(unsigned inf) const;
