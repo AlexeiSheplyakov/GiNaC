@@ -1,11 +1,9 @@
 PREREQUISITES
 =============
 
-GiNaC requires the CLN library by Bruno Haible, available from either
-one of the following FTP-sites:
-  * <ftp://ftp.santafe.edu/pub/gnu/>,
-  * <ftp://ftp.ilog.fr/pub/Users/haible/gnu/> or
-  * <ftp://ftpthep.physik.uni-mainz.de/pub/gnu/>.
+GiNaC requires the CLN library by Bruno Haible installed on your system.
+It is available from <ftp://ftpthep.physik.uni-mainz.de/pub/gnu/>.
+
 You will also need a decent ANSI-compliant C++-compiler.  We recommend
 the C++ compiler from the GNU compiler collection, GCC >= 3.0.  If you
 have a different or older compiler you are on your own.  Note that you
