@@ -1546,14 +1546,13 @@ const numeric bernoulli(const numeric &nn)
 
 	// algorithm not applicable to B(2), so just store it
 	if (!next_r) {
-		results.push_back(); // results[0] is not used
 		results.push_back(cln::recip(cln::cl_RA(6)));
 		next_r = 4;
 	}
 	if (n<next_r)
-		return results[n/2];
+		return results[n/2-1];
 
-	results.reserve(n/2 + 1);
+	results.reserve(n/2);
 	for (unsigned p=next_r; p<=n;  p+=2) {
 		cln::cl_I  c = 1;  // seed for binonmial coefficients
 		cln::cl_RA b = cln::cl_RA(1-p)/2;
@@ -1565,18 +1564,18 @@ const numeric bernoulli(const numeric &nn)
 		if (p < (1UL<<cl_value_len/2)) {
 			for (i=2, k=1, p_2=p/2; i<=pm; i+=2, ++k, --p_2) {
 				c = cln::exquo(c * ((p3-i) * p_2), (i-1)*k);
-				b = b + c*results[k];
+				b = b + c*results[k-1];
 			}
 		} else {
 			for (i=2, k=1, p_2=p/2; i<=pm; i+=2, ++k, --p_2) {
 				c = cln::exquo((c * (p3-i)) * p_2, cln::cl_I(i-1)*k);
-				b = b + c*results[k];
+				b = b + c*results[k-1];
 			}
  		}
 		results.push_back(-b/(p+1));
 	}
 	next_r = n+2;
-	return results[n/2];
+	return results[n/2-1];
 }
 
 
