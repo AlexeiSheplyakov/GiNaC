@@ -261,13 +261,13 @@ numeric::numeric(const archive_node &n, const lst &sym_lst) : inherited(n, sym_l
             case 'N':    // Ordinary number
             case 'R':    // Integer-decoded real number
                 s >> re.sign >> re.mantissa >> re.exponent;
-                *value = re.sign * re.mantissa * expt(cl_float(2.0, cl_default_float_format), re.exponent);
+                *value = re.sign * re.mantissa * ::expt(cl_float(2.0, cl_default_float_format), re.exponent);
                 break;
             case 'C':    // Integer-decoded complex number
                 s >> re.sign >> re.mantissa >> re.exponent;
                 s >> im.sign >> im.mantissa >> im.exponent;
-                *value = complex(re.sign * re.mantissa * expt(cl_float(2.0, cl_default_float_format), re.exponent),
-                                 im.sign * im.mantissa * expt(cl_float(2.0, cl_default_float_format), im.exponent));
+                *value = ::complex(re.sign * re.mantissa * ::expt(cl_float(2.0, cl_default_float_format), re.exponent),
+                                 im.sign * im.mantissa * ::expt(cl_float(2.0, cl_default_float_format), im.exponent));
                 break;
             default:	// Ordinary number
 				s.putback(c);
@@ -286,13 +286,13 @@ numeric::numeric(const archive_node &n, const lst &sym_lst) : inherited(n, sym_l
         switch (c) {
             case 'R':    // Integer-decoded real number
                 f >> re.sign >> re.mantissa >> re.exponent;
-                *value = re.sign * re.mantissa * expt(cl_float(2.0, cl_default_float_format), re.exponent);
+                *value = re.sign * re.mantissa * ::expt(cl_float(2.0, cl_default_float_format), re.exponent);
                 break;
             case 'C':    // Integer-decoded complex number
                 f >> re.sign >> re.mantissa >> re.exponent;
                 f >> im.sign >> im.mantissa >> im.exponent;
-                *value = complex(re.sign * re.mantissa * expt(cl_float(2.0, cl_default_float_format), re.exponent),
-                                 im.sign * im.mantissa * expt(cl_float(2.0, cl_default_float_format), im.exponent));
+                *value = ::complex(re.sign * re.mantissa * ::expt(cl_float(2.0, cl_default_float_format), re.exponent),
+                                 im.sign * im.mantissa * ::expt(cl_float(2.0, cl_default_float_format), im.exponent));
                 break;
             default:	// Ordinary number
 				f.putback(c);
@@ -529,13 +529,17 @@ bool numeric::info(unsigned inf) const
 }
 
 /** Disassemble real part and imaginary part to scan for the occurrence of a
- *  single number.  Also handles the imaginary unit. */
+ *  single number.  Also handles the imaginary unit.  It ignores the sign on
+ *  both this and the argument, which may lead to what might appear as funny
+ *  results:  (2+I).has(-2) -> true.  But this is consistent, since we also
+ *  would like to have (-2+I).has(2) -> true and we want to think about the
+ *  sign as a multiplicative factor. */
 bool numeric::has(const ex & other) const
 {
     if (!is_exactly_of_type(*other.bp, numeric))
         return false;
     const numeric & o = static_cast<numeric &>(const_cast<basic &>(*other.bp));
-    if (this->is_equal(o))
+    if (this->is_equal(o) || this->is_equal(-o))
         return true;
     if (o.imag().is_zero())  // e.g. scan for 3 in -3*I
         return (this->real().is_equal(o) || this->imag().is_equal(o) ||
@@ -551,7 +555,7 @@ bool numeric::has(const ex & other) const
 }
 
 
-/** Evaluation of numbers doesn't do anything. */
+/** Evaluation of numbers doesn't do anything at all. */
 ex numeric::eval(int level) const
 {
     // Warning: if this is ever gonna do something, the ex ctors from all kinds
@@ -936,7 +940,7 @@ bool numeric::is_crational(void) const
 bool numeric::operator<(const numeric & other) const
 {
     if (this->is_real() && other.is_real())
-        return (bool)(The(cl_R)(*value) < The(cl_R)(*other.value));  // -> CLN
+        return (The(cl_R)(*value) < The(cl_R)(*other.value));  // -> CLN
     throw (std::invalid_argument("numeric::operator<(): complex inequality"));
     return false;  // make compiler shut up
 }
@@ -947,7 +951,7 @@ bool numeric::operator<(const numeric & other) const
 bool numeric::operator<=(const numeric & other) const
 {
     if (this->is_real() && other.is_real())
-        return (bool)(The(cl_R)(*value) <= The(cl_R)(*other.value));  // -> CLN
+        return (The(cl_R)(*value) <= The(cl_R)(*other.value));  // -> CLN
     throw (std::invalid_argument("numeric::operator<=(): complex inequality"));
     return false;  // make compiler shut up
 }
@@ -958,7 +962,7 @@ bool numeric::operator<=(const numeric & other) const
 bool numeric::operator>(const numeric & other) const
 {
     if (this->is_real() && other.is_real())
-        return (bool)(The(cl_R)(*value) > The(cl_R)(*other.value));  // -> CLN
+        return (The(cl_R)(*value) > The(cl_R)(*other.value));  // -> CLN
     throw (std::invalid_argument("numeric::operator>(): complex inequality"));
     return false;  // make compiler shut up
 }
@@ -969,7 +973,7 @@ bool numeric::operator>(const numeric & other) const
 bool numeric::operator>=(const numeric & other) const
 {
     if (this->is_real() && other.is_real())
-        return (bool)(The(cl_R)(*value) >= The(cl_R)(*other.value));  // -> CLN
+        return (The(cl_R)(*value) >= The(cl_R)(*other.value));  // -> CLN
     throw (std::invalid_argument("numeric::operator>=(): complex inequality"));
     return false;  // make compiler shut up
 }
@@ -1044,12 +1048,12 @@ numeric numeric::numer(void) const
         if (::instanceof(r, cl_I_ring) && ::instanceof(i, cl_I_ring))
             return numeric(*this);
         if (::instanceof(r, cl_I_ring) && ::instanceof(i, cl_RA_ring))
-            return numeric(complex(r*::denominator(The(cl_RA)(i)), ::numerator(The(cl_RA)(i))));
+            return numeric(::complex(r*::denominator(The(cl_RA)(i)), ::numerator(The(cl_RA)(i))));
         if (::instanceof(r, cl_RA_ring) && ::instanceof(i, cl_I_ring))
-            return numeric(complex(::numerator(The(cl_RA)(r)), i*::denominator(The(cl_RA)(r))));
+            return numeric(::complex(::numerator(The(cl_RA)(r)), i*::denominator(The(cl_RA)(r))));
         if (::instanceof(r, cl_RA_ring) && ::instanceof(i, cl_RA_ring)) {
-            cl_I s = lcm(::denominator(The(cl_RA)(r)), ::denominator(The(cl_RA)(i)));
-            return numeric(complex(::numerator(The(cl_RA)(r))*(exquo(s,::denominator(The(cl_RA)(r)))),
+            cl_I s = ::lcm(::denominator(The(cl_RA)(r)), ::denominator(The(cl_RA)(i)));
+            return numeric(::complex(::numerator(The(cl_RA)(r))*(exquo(s,::denominator(The(cl_RA)(r)))),
                                    ::numerator(The(cl_RA)(i))*(exquo(s,::denominator(The(cl_RA)(i))))));
         }
     }
@@ -1063,12 +1067,12 @@ numeric numeric::numer(void) const
         if (instanceof(r, cl_I_ring) && instanceof(i, cl_I_ring))
             return numeric(*this);
         if (instanceof(r, cl_I_ring) && instanceof(i, cl_RA_ring))
-            return numeric(complex(r*TheRatio(i)->denominator, TheRatio(i)->numerator));
+            return numeric(::complex(r*TheRatio(i)->denominator, TheRatio(i)->numerator));
         if (instanceof(r, cl_RA_ring) && instanceof(i, cl_I_ring))
-            return numeric(complex(TheRatio(r)->numerator, i*TheRatio(r)->denominator));
+            return numeric(::complex(TheRatio(r)->numerator, i*TheRatio(r)->denominator));
         if (instanceof(r, cl_RA_ring) && instanceof(i, cl_RA_ring)) {
-            cl_I s = lcm(TheRatio(r)->denominator, TheRatio(i)->denominator);
-            return numeric(complex(TheRatio(r)->numerator*(exquo(s,TheRatio(r)->denominator)),
+            cl_I s = ::lcm(TheRatio(r)->denominator, TheRatio(i)->denominator);
+            return numeric(::complex(TheRatio(r)->numerator*(exquo(s,TheRatio(r)->denominator)),
                                    TheRatio(i)->numerator*(exquo(s,TheRatio(i)->denominator))));
         }
     }
@@ -1099,7 +1103,7 @@ numeric numeric::denom(void) const
         if (::instanceof(r, cl_RA_ring) && ::instanceof(i, cl_I_ring))
             return numeric(::denominator(The(cl_RA)(r)));
         if (::instanceof(r, cl_RA_ring) && ::instanceof(i, cl_RA_ring))
-            return numeric(lcm(::denominator(The(cl_RA)(r)), ::denominator(The(cl_RA)(i))));
+            return numeric(::lcm(::denominator(The(cl_RA)(r)), ::denominator(The(cl_RA)(i))));
     }
 #else
     if (instanceof(*value, cl_RA_ring)) {
@@ -1115,7 +1119,7 @@ numeric numeric::denom(void) const
         if (instanceof(r, cl_RA_ring) && instanceof(i, cl_I_ring))
             return numeric(TheRatio(r)->denominator);
         if (instanceof(r, cl_RA_ring) && instanceof(i, cl_RA_ring))
-            return numeric(lcm(TheRatio(r)->denominator, TheRatio(i)->denominator));
+            return numeric(::lcm(TheRatio(r)->denominator, TheRatio(i)->denominator));
     }
 #endif // def SANE_LINKER
     // at least one float encountered
@@ -1153,7 +1157,7 @@ const numeric some_numeric;
 const type_info & typeid_numeric=typeid(some_numeric);
 /** Imaginary unit.  This is not a constant but a numeric since we are
  *  natively handing complex numbers anyways. */
-const numeric I = numeric(complex(cl_I(0),cl_I(1)));
+const numeric I = numeric(::complex(cl_I(0),cl_I(1)));
 
 
 /** Exponential function.
