@@ -38,18 +38,18 @@ static unsigned exam_numeric1(void)
 	
 	if (!test_int1.is_integer()) {
 		clog << test_int1
-			 << " erroneously not recognized as integer" << endl;
+		     << " erroneously not recognized as integer" << endl;
 		++result;
 	}
 	if (!test_int1.is_rational()) {
 		clog << test_int1
-			 << " erroneously not recognized as rational" << endl;
+		     << " erroneously not recognized as rational" << endl;
 		++result;
 	}
 	
 	if (!test_rat1.is_rational()) {
 		clog << test_rat1
-			 << " erroneously not recognized as rational" << endl;
+		     << " erroneously not recognized as rational" << endl;
 		++result;
 	}
 	if (test_rat1.is_integer()) {
@@ -60,28 +60,28 @@ static unsigned exam_numeric1(void)
 	
 	if (!test_crat.is_crational()) {
 		clog << test_crat
-			 << " erroneously not recognized as complex rational" << endl;
+		     << " erroneously not recognized as complex rational" << endl;
 		++result;
 	}
 	
 	int i = numeric(1984).to_int();
 	if (i-1984) {
 		clog << "conversion of " << i
-			 << " from numeric to int failed" << endl;
+		     << " from numeric to int failed" << endl;
 		++result;
 	}
 	
 	e1 = test_int1;
 	if (!e1.info(info_flags::posint)) {
 		clog << "expression " << e1
-			 << " erroneously not recognized as positive integer" << endl;
+		     << " erroneously not recognized as positive integer" << endl;
 		++result;
 	}
 	
 	e2 = test_int1 + a;
 	if (ex_to_numeric(e2).is_integer()) {
 		clog << "expression " << e2
-			 << " erroneously recognized as integer" << endl;
+		     << " erroneously recognized as integer" << endl;
 		++result;
 	}
 	
@@ -90,7 +90,7 @@ static unsigned exam_numeric1(void)
 	test_rat1 += test_rat1;
 	if (!test_rat1.is_integer()) {
 		clog << "3/2 + 3/2 erroneously not integer 3 but instead "
-			 << test_rat1 << endl;
+		     << test_rat1 << endl;
 		++result;
 	}
 	test_rat1 = numeric(3)/numeric(2);
@@ -98,7 +98,7 @@ static unsigned exam_numeric1(void)
 	test_rat2 -= test_rat1;  // 1
 	if (!test_rat2.is_integer()) {
 		clog << "5/2 - 3/2 erroneously not integer 1 but instead "
-			 << test_rat2 << endl;
+		     << test_rat2 << endl;
 		++result;
 	}
 	
@@ -162,7 +162,7 @@ static unsigned exam_numeric3(void)
 	a = 23; b = 4; calc_rem = irem(a, b);
 	if (calc_rem != 3) {
 		clog << "irem(" << a << "," << b << ") erroneously returned "
-			 << calc_rem << endl;
+		     << calc_rem << endl;
 		++result;
 	}
 	a = 23; b = -4; calc_rem = irem(a, b);
@@ -174,38 +174,38 @@ static unsigned exam_numeric3(void)
 	a = -23; b = 4; calc_rem = irem(a, b);
 	if (calc_rem != -3) {
 		clog << "irem(" << a << "," << b << ") erroneously returned "
-			 << calc_rem << endl;
+		     << calc_rem << endl;
 		++result;
 	}
 	a = -23; b = -4; calc_rem = irem(a, b);
 	if (calc_rem != -3) {
 		clog << "irem(" << a << "," << b << ") erroneously returned "
-			 << calc_rem << endl;
+		     << calc_rem << endl;
 		++result;
 	}
 	// and now the overloaded irem(a,b,q):
 	a = 23; b = 4; calc_rem = irem(a, b, calc_quo);
 	if (calc_rem != 3 || calc_quo != 5) {
 		clog << "irem(" << a << "," << b << ",q) erroneously returned "
-			 << calc_rem << " with q=" << calc_quo << endl;
+		     << calc_rem << " with q=" << calc_quo << endl;
 		++result;
 	}
 	a = 23; b = -4; calc_rem = irem(a, b, calc_quo);
 	if (calc_rem != 3 || calc_quo != -5) {
 		clog << "irem(" << a << "," << b << ",q) erroneously returned "
-			 << calc_rem << " with q=" << calc_quo << endl;
+		     << calc_rem << " with q=" << calc_quo << endl;
 		++result;
 	}
 	a = -23; b = 4; calc_rem = irem(a, b, calc_quo);
 	if (calc_rem != -3 || calc_quo != -5) {
 		clog << "irem(" << a << "," << b << ",q) erroneously returned "
-			 << calc_rem << " with q=" << calc_quo << endl;
+		     << calc_rem << " with q=" << calc_quo << endl;
 		++result;
 	}
 	a = -23; b = -4; calc_rem = irem(a, b, calc_quo);
 	if (calc_rem != -3 || calc_quo != 5) {
 		clog << "irem(" << a << "," << b << ",q) erroneously returned "
-			 << calc_rem << " with q=" << calc_quo << endl;
+		     << calc_rem << " with q=" << calc_quo << endl;
 		++result;
 	}
 	// check if iquo(a, b) and iquo(a, b, r) really behave like Maple's 
@@ -215,50 +215,50 @@ static unsigned exam_numeric3(void)
 	a = 23; b = 4; calc_quo = iquo(a, b);
 	if (calc_quo != 5) {
 		clog << "iquo(" << a << "," << b << ") erroneously returned "
-			 << calc_quo << endl;
+		     << calc_quo << endl;
 		++result;
 	}
 	a = 23; b = -4; calc_quo = iquo(a, b);
 	if (calc_quo != -5) {
 		clog << "iquo(" << a << "," << b << ") erroneously returned "
-			 << calc_quo << endl;
+		     << calc_quo << endl;
 		++result;
 	}
 	a = -23; b = 4; calc_quo = iquo(a, b);
 	if (calc_quo != -5) {
 		clog << "iquo(" << a << "," << b << ") erroneously returned "
-			 << calc_quo << endl;
+		     << calc_quo << endl;
 		++result;
 	}
 	a = -23; b = -4; calc_quo = iquo(a, b);
 	if (calc_quo != 5) {
 		clog << "iquo(" << a << "," << b << ") erroneously returned "
-			 << calc_quo << endl;
+		     << calc_quo << endl;
 		++result;
 	}
 	// and now the overloaded iquo(a,b,r):
 	a = 23; b = 4; calc_quo = iquo(a, b, calc_rem);
 	if (calc_quo != 5 || calc_rem != 3) {
 		clog << "iquo(" << a << "," << b << ",r) erroneously returned "
-			 << calc_quo << " with r=" << calc_rem << endl;
+		     << calc_quo << " with r=" << calc_rem << endl;
 		++result;
 	}
 	a = 23; b = -4; calc_quo = iquo(a, b, calc_rem);
 	if (calc_quo != -5 || calc_rem != 3) {
 		clog << "iquo(" << a << "," << b << ",r) erroneously returned "
-			 << calc_quo << " with r=" << calc_rem << endl;
+		     << calc_quo << " with r=" << calc_rem << endl;
 		++result;
 	}
 	a = -23; b = 4; calc_quo = iquo(a, b, calc_rem);
 	if (calc_quo != -5 || calc_rem != -3) {
 		clog << "iquo(" << a << "," << b << ",r) erroneously returned "
-			 << calc_quo << " with r=" << calc_rem << endl;
+		     << calc_quo << " with r=" << calc_rem << endl;
 		++result;
 	}
 	a = -23; b = -4; calc_quo = iquo(a, b, calc_rem);
 	if (calc_quo != 5 || calc_rem != -3) {
 		clog << "iquo(" << a << "," << b << ",r) erroneously returned "
-			 << calc_quo << " with r=" << calc_rem << endl;
+		     << calc_quo << " with r=" << calc_rem << endl;
 		++result;
 	}
 	
@@ -274,11 +274,9 @@ static unsigned exam_numeric4(void)
 	
 	// square roots of squares of integers:
 	passed = true;
-	for (int i=0; i<42; ++i) {
-		if (!sqrt(numeric(i*i)).is_integer()) {
+	for (int i=0; i<42; ++i)
+		if (!sqrt(numeric(i*i)).is_integer())
 			passed = false;
-		}
-	}
 	if (!passed) {
 		clog << "One or more square roots of squares of integers did not return exact integers" << endl;
 		++result;
@@ -286,13 +284,10 @@ static unsigned exam_numeric4(void)
 	
 	// square roots of squares of rationals:
 	passed = true;
-	for (int num=0; num<41; ++num) {
-		for (int den=1; den<42; ++den) {
-			if (!sqrt(numeric(num*num)/numeric(den*den)).is_rational()) {
+	for (int num=0; num<41; ++num)
+		for (int den=1; den<42; ++den)
+			if (!sqrt(numeric(num*num)/numeric(den*den)).is_rational())
 				passed = false;
-			}
-		}
-	}
 	if (!passed) {
 		clog << "One or more square roots of squares of rationals did not return exact integers" << endl;
 		++result;
@@ -313,7 +308,7 @@ static unsigned exam_numeric5(void)
 	ex e2 = expand(e1 - 10 + 5*pow(3,numeric(3,5)));
 	if (!e2.is_zero()) {
 		clog << "expand((1+3^(1/5)-3^(2/5))^3-10+5*3^(3/5)) returned "
-			 << e2 << " instead of 0." << endl;
+		     << e2 << " instead of 0." << endl;
 		++result;
 	}
 	

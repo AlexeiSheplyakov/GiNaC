@@ -37,7 +37,7 @@ static unsigned matrix_determinants(void)
 	det = m1.determinant();
 	if (det != a) {
 		clog << "determinant of 1x1 matrix " << m1
-			 << " erroneously returned " << det << endl;
+		     << " erroneously returned " << det << endl;
 		++result;
 	}
 	
@@ -47,7 +47,7 @@ static unsigned matrix_determinants(void)
 	det = m2.determinant();
 	if (det != (a*d-b*c)) {
 		clog << "determinant of 2x2 matrix " << m2
-			 << " erroneously returned " << det << endl;
+		     << " erroneously returned " << det << endl;
 		++result;
 	}
 	
@@ -58,7 +58,7 @@ static unsigned matrix_determinants(void)
 	det = m3.determinant();
 	if (det != (a*e*i - a*f*h - d*b*i + d*c*h + g*b*f - g*c*e)) {
 		clog << "determinant of 3x3 matrix " << m3
-			 << " erroneously returned " << det << endl;
+		     << " erroneously returned " << det << endl;
 		++result;
 	}
 	
@@ -69,7 +69,7 @@ static unsigned matrix_determinants(void)
 	det = m3.determinant();
 	if (det != 42) {
 		clog << "determinant of 3x3 matrix " << m3
-			 << " erroneously returned " << det << endl;
+		     << " erroneously returned " << det << endl;
 		++result;
 	}
 	
@@ -80,10 +80,10 @@ static unsigned matrix_determinants(void)
 	if (det != 1) {
 		if (det.normal() == 1)  // only half wrong
 			clog << "determinant of 2x2 matrix " << m2
-				 << " was returned unnormalized as " << det << endl;
+			     << " was returned unnormalized as " << det << endl;
 		else  // totally wrong
 			clog << "determinant of 2x2 matrix " << m2
-				 << " erroneously returned " << det << endl;
+			     << " erroneously returned " << det << endl;
 		++result;
 	}
 	
@@ -92,7 +92,7 @@ static unsigned matrix_determinants(void)
 	det = m4.determinant();
 	if (det != a*b*c*d) {
 		clog << "determinant of 4x4 matrix " << m4
-			 << " erroneously returned " << det << endl;
+		     << " erroneously returned " << det << endl;
 		++result;
 	}
 	
@@ -103,7 +103,7 @@ static unsigned matrix_determinants(void)
 	ex p = m3.charpoly(a);
 	if (p != 0) {
 		clog << "charpoly of 3x3 matrix " << m3
-			 << " erroneously returned " << p << endl;
+		     << " erroneously returned " << p << endl;
 		++result;
 	}
 	
@@ -121,7 +121,7 @@ static unsigned matrix_invert1(void)
 	
 	if (m_i(0,0) != pow(a,-1)) {
 		clog << "inversion of 1x1 matrix " << m
-			 << " erroneously returned " << m_i << endl;
+		     << " erroneously returned " << m_i << endl;
 		++result;
 	}
 	
@@ -143,7 +143,7 @@ static unsigned matrix_invert2(void)
 		(normal(m_i(1,0)*det) != -c) ||
 		(normal(m_i(1,1)*det) != a)) {
 		clog << "inversion of 2x2 matrix " << m
-			 << " erroneously returned " << m_i << endl;
+		     << " erroneously returned " << m_i << endl;
 		++result;
 	}
 	
@@ -164,16 +164,16 @@ static unsigned matrix_invert3(void)
 	ex det = m.determinant();
 	
 	if ((normal(m_i(0,0)*det) != (e*i-f*h)) ||
-		(normal(m_i(0,1)*det) != (c*h-b*i)) ||
-		(normal(m_i(0,2)*det) != (b*f-c*e)) ||
-		(normal(m_i(1,0)*det) != (f*g-d*i)) ||
-		(normal(m_i(1,1)*det) != (a*i-c*g)) ||
-		(normal(m_i(1,2)*det) != (c*d-a*f)) ||
-		(normal(m_i(2,0)*det) != (d*h-e*g)) ||
-		(normal(m_i(2,1)*det) != (b*g-a*h)) ||
-		(normal(m_i(2,2)*det) != (a*e-b*d))) {
+	    (normal(m_i(0,1)*det) != (c*h-b*i)) ||
+	    (normal(m_i(0,2)*det) != (b*f-c*e)) ||
+	    (normal(m_i(1,0)*det) != (f*g-d*i)) ||
+	    (normal(m_i(1,1)*det) != (a*i-c*g)) ||
+	    (normal(m_i(1,2)*det) != (c*d-a*f)) ||
+	    (normal(m_i(2,0)*det) != (d*h-e*g)) ||
+	    (normal(m_i(2,1)*det) != (b*g-a*h)) ||
+	    (normal(m_i(2,2)*det) != (a*e-b*d))) {
 		clog << "inversion of 3x3 matrix " << m
-			 << " erroneously returned " << m_i << endl;
+		     << " erroneously returned " << m_i << endl;
 		++result;
 	}
 	
@@ -210,7 +210,7 @@ static unsigned matrix_solve2(void)
 				result = 1;
 	if (result) {
 		clog << "Solving " << A << " * " << X << " == " << B << endl
-			 << "erroneously returned " << sol << endl;
+		     << "erroneously returned " << sol << endl;
 	}
 	
 	return result;
@@ -228,7 +228,7 @@ static unsigned matrix_misc(void)
 	// check a simple trace
 	if (tr.compare(a+d)) {
 		clog << "trace of 2x2 matrix " << m1
-			 << " erroneously returned " << tr << endl;
+		     << " erroneously returned " << tr << endl;
 		++result;
 	}
 	
@@ -245,7 +245,7 @@ static unsigned matrix_misc(void)
 	m3.set(2,0,e).set(2,1,f);
 	if (transpose(transpose(m3)) != m3) {
 		clog << "transposing 3x2 matrix " << m3 << " twice"
-			 << " erroneously returned " << transpose(transpose(m3)) << endl;
+		     << " erroneously returned " << transpose(transpose(m3)) << endl;
 		++result;
 	}
 	
@@ -260,7 +260,7 @@ static unsigned matrix_misc(void)
 	}
 	if (!caught) {
 		cerr << "singular 2x2 matrix " << m4
-			 << " erroneously inverted to " << m5 << endl;
+		     << " erroneously inverted to " << m5 << endl;
 		++result;
 	}
 	

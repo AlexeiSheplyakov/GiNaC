@@ -37,12 +37,12 @@ static unsigned lortensor_check1(void)
 	e6 = e4 - e5; // g(~mu,_mu) - g(_mu,~mu) = 0!
 	if (!e3.is_zero()) {
 		clog << e1 << "-" << e2 << " erroneously returned "
-			 << e3 << " instead of 0" << endl;
+		     << e3 << " instead of 0" << endl;
 		++result;
 	}
 	if (!e6.is_zero()) {
 		clog << e4 << "-" << e5 << " erroneously returned "
-			 << e6 << " instead of 0" << endl;
+		     << e6 << " instead of 0" << endl;
 		++result;
 	}
 
@@ -68,17 +68,17 @@ static unsigned lortensor_check2(void)
 	e10 = simplify_lortensor(e8 * e7) - e9; // F(_mu,_nu) g(~nu,~rho) - F(_mu,~rho) = 0!
 	if (!e5.is_zero()) {
 		clog << e3 << "*" << e1 << "-" << e3 << "*" << e2 << " erroneously returned "
-			 << e5 << " instead of 0" << endl;
+		     << e5 << " instead of 0" << endl;
 		++result;
 	}
 	if (!e6.is_zero()) {	
 		clog << " simplify_lortensor(e3 * e1)" << "-" << e4 << " erroneously returned"
-			 << e6 << " instead of 0" << endl;
+		     << e6 << " instead of 0" << endl;
 		++result;
 	}
 	if (!e10.is_zero()) {		
 		clog << " simplify_lortensor(e8 * e7)" << "-" << e9 << " erroneously returned"
-			 << e10 << " instead of 0" << endl;
+		     << e10 << " instead of 0" << endl;
 		++result;
 	}
 

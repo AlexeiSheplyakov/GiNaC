@@ -30,9 +30,9 @@ static unsigned test(unsigned n)
 	char name = (n==40?'I':(n==70?'K':'?'));
 	
 	cout << "timing Lewis-Wester test " << name
-		 << " (invert rank " << n << " Hilbert)" << flush;
+	     << " (invert rank " << n << " Hilbert)" << flush;
 	clog << "-------Lewis-Wester test " << name
-		 << " (invert rank " << n << " Hilbert)" << endl;
+	     << " (invert rank " << n << " Hilbert)" << endl;
 	
 	// Create a rank n Hilbert matrix:
 	matrix H(n,n);
@@ -51,9 +51,9 @@ static unsigned test(unsigned n)
 	name = (n==40?'J':(n==70?'L':'?'));
 	
 	cout << "timing Lewis-Wester test " << name
-		 << " (check rank " << n << " Hilbert)" << flush;
+	     << " (check rank " << n << " Hilbert)" << flush;
 	clog << "-------Lewis-Wester test " << name
-		 << " (check rank " << n << " Hilbert)" << endl;
+	     << " (check rank " << n << " Hilbert)" << endl;
 	
 	cartier.reset();
 	matrix identity = H.mul(Hinv);

@@ -31,15 +31,20 @@ static unsigned expand_subs(unsigned size)
 	unsigned result = 0;
 	// create a vector of size symbols named "a0", "a1", ...
 	vector<symbol> a;
+	ex e;
 	for (unsigned i=0; i<size; ++i) {
+#if defined(HAVE_SSTREAM)
+		ostringstream buf;
+		buf << "a" << i << ends;
+		a.push_back(symbol(buf.str()));
+#else
 		char buf[4];
-		ostrstream(buf,sizeof(buf)) << i << ends;
-		a.push_back(symbol(string("a")+buf));
+		ostrstream(buf,sizeof(buf)) << "a" << i << ends;
+		a.push_back(symbol(buf));
+#endif
+		e += a[i];
 	}
-	ex e, aux;
-	
-	for (unsigned i=0; i<size; ++i)
-		e = e + a[i];
+	ex aux;
 	
 	// prepare aux so it will swallow anything but a1^2:
 	aux = -e + a[0] + a[1];
@@ -47,7 +52,7 @@ static unsigned expand_subs(unsigned size)
 	
 	if (e != pow(a[1],2)) {
 		clog << "Denny Fliegner's quick consistency check erroneously returned "
-			 << e << "." << endl;
+		     << e << "." << endl;
 		++result;
 	}
 	

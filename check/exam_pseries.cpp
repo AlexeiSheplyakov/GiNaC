@@ -30,8 +30,8 @@ static unsigned check_series(const ex &e, const ex &point, const ex &d, int orde
 	ex ep = ex_to_pseries(es).convert_to_poly();
 	if (!(ep - d).is_zero()) {
 		clog << "series expansion of " << e << " at " << point
-			 << " erroneously returned " << ep << " (instead of " << d
-			 << ")" << endl;
+		     << " erroneously returned " << ep << " (instead of " << d
+		     << ")" << endl;
 		(ep-d).printtree(clog);
 		return 1;
 	}
@@ -152,30 +152,30 @@ static unsigned exam_series5(void)
 {
 	ex e = tgamma(2*x);
 	ex d = pow(x+1,-1)*numeric(1,4) +
-		   pow(x+1,0)*(numeric(3,4) -
-					   numeric(1,2)*Euler) +
-		   pow(x+1,1)*(numeric(7,4) -
-					   numeric(3,2)*Euler +
-					   numeric(1,2)*pow(Euler,2) +
-					   numeric(1,12)*pow(Pi,2)) +
-		   pow(x+1,2)*(numeric(15,4) -
-					   numeric(7,2)*Euler -
-					   numeric(1,3)*pow(Euler,3) +
-					   numeric(1,4)*pow(Pi,2) +
-					   numeric(3,2)*pow(Euler,2) -
-					   numeric(1,6)*pow(Pi,2)*Euler -
-					   numeric(2,3)*zeta(3)) +
-		   pow(x+1,3)*(numeric(31,4) - pow(Euler,3) -
-					   numeric(15,2)*Euler +
-					   numeric(1,6)*pow(Euler,4) +
-					   numeric(7,2)*pow(Euler,2) +
-					   numeric(7,12)*pow(Pi,2) -
-					   numeric(1,2)*pow(Pi,2)*Euler -
-					   numeric(2)*zeta(3) +
-					   numeric(1,6)*pow(Euler,2)*pow(Pi,2) +
-					   numeric(1,40)*pow(Pi,4) +
-					   numeric(4,3)*zeta(3)*Euler) +
-		   Order(pow(x+1,4));
+	       pow(x+1,0)*(numeric(3,4) -
+	                   numeric(1,2)*Euler) +
+	       pow(x+1,1)*(numeric(7,4) -
+	                   numeric(3,2)*Euler +
+	                   numeric(1,2)*pow(Euler,2) +
+	                   numeric(1,12)*pow(Pi,2)) +
+	       pow(x+1,2)*(numeric(15,4) -
+	                   numeric(7,2)*Euler -
+	                   numeric(1,3)*pow(Euler,3) +
+	                   numeric(1,4)*pow(Pi,2) +
+	                   numeric(3,2)*pow(Euler,2) -
+	                   numeric(1,6)*pow(Pi,2)*Euler -
+	                   numeric(2,3)*zeta(3)) +
+	       pow(x+1,3)*(numeric(31,4) - pow(Euler,3) -
+	                   numeric(15,2)*Euler +
+	                   numeric(1,6)*pow(Euler,4) +
+	                   numeric(7,2)*pow(Euler,2) +
+	                   numeric(7,12)*pow(Pi,2) -
+	                   numeric(1,2)*pow(Pi,2)*Euler -
+	                   numeric(2)*zeta(3) +
+	                   numeric(1,6)*pow(Euler,2)*pow(Pi,2) +
+	                   numeric(1,40)*pow(Pi,4) +
+	                   numeric(4,3)*zeta(3)*Euler) +
+	       Order(pow(x+1,4));
 	return check_series(e, -1, d, 4);
 }
 	
@@ -184,8 +184,8 @@ static unsigned exam_series6(void)
 {
 	ex e = tan(x*Pi/2);
 	ex d = pow(x-1,-1)/Pi*(-2) + pow(x-1,1)*Pi/6 + pow(x-1,3)*pow(Pi,3)/360
-		  +pow(x-1,5)*pow(Pi,5)/15120 + pow(x-1,7)*pow(Pi,7)/604800
-		  +Order(pow(x-1,8));
+	      +pow(x-1,5)*pow(Pi,5)/15120 + pow(x-1,7)*pow(Pi,7)/604800
+	      +Order(pow(x-1,8));
 	return check_series(e,1,d,8);
 }
 
@@ -194,7 +194,7 @@ static unsigned exam_series7(void)
 {
 	ex e = log(sin(x));
 	ex d = log(x) - pow(x,2)/6 - pow(x,4)/180 - pow(x,6)/2835
-		  +Order(pow(x,8));
+	      +Order(pow(x,8));
 	return check_series(e,0,d,8);
 }
 
@@ -203,8 +203,8 @@ static unsigned exam_series8(void)
 {
 	ex e = Li2(sin(x));
 	ex d = x + pow(x,2)/4 - pow(x,3)/18 - pow(x,4)/48
-		   - 13*pow(x,5)/1800 - pow(x,6)/360 - 23*pow(x,7)/21168
-		   + Order(pow(x,8));
+	       - 13*pow(x,5)/1800 - pow(x,6)/360 - 23*pow(x,7)/21168
+	       + Order(pow(x,8));
 	return check_series(e,0,d,8);
 }
 
@@ -213,10 +213,10 @@ static unsigned exam_series9(void)
 {
 	ex e = Li2(pow(x,2));
 	ex d = Li2(4) + (-log(3) + I*Pi*csgn(I-I*pow(x,2))) * (x-2)
-		   + (numeric(-2,3) + log(3)/4 - I*Pi/4*csgn(I-I*pow(x,2))) * pow(x-2,2)
-		   + (numeric(11,27) - log(3)/12 + I*Pi/12*csgn(I-I*pow(x,2))) * pow(x-2,3)
-		   + (numeric(-155,648) + log(3)/32 - I*Pi/32*csgn(I-I*pow(x,2))) * pow(x-2,4)
-		   + Order(pow(x-2,5));
+	       + (numeric(-2,3) + log(3)/4 - I*Pi/4*csgn(I-I*pow(x,2))) * pow(x-2,2)
+	       + (numeric(11,27) - log(3)/12 + I*Pi/12*csgn(I-I*pow(x,2))) * pow(x-2,3)
+	       + (numeric(-155,648) + log(3)/32 - I*Pi/32*csgn(I-I*pow(x,2))) * pow(x-2,4)
+	       + Order(pow(x-2,5));
 	return check_series(e,2,d,5);
 }
 

@@ -82,9 +82,9 @@ static unsigned check_matrix_solve(unsigned m, unsigned n, unsigned p,
 	}
 	if (errorflag) {
 		clog << "Our solve method claims that A*X==B, with matrices" << endl
-			 << "A == " << A << endl
-			 << "X == " << sol << endl
-			 << "B == " << B << endl;
+		     << "A == " << A << endl
+		     << "X == " << sol << endl
+		     << "B == " << B << endl;
 		return 1;
 	}
 	
@@ -146,7 +146,7 @@ static unsigned check_inifcns_lsolve(unsigned n)
 			if (errorflag) {
 				++result;
 				clog << "solution of the system " << eqns << " for " << vars
-					 << " erroneously returned " << sol << endl;
+				     << " erroneously returned " << sol << endl;
 			}
 		}
 	}

@@ -47,7 +47,7 @@ static unsigned check_numeric1(void)
 		numeric res = p/q;
 		if (res != z) {
 			clog << z << " erroneously transformed into " 
-				 << p << "/" << q << " by numer() and denom()" << endl;
+			     << p << "/" << q << " by numer() and denom()" << endl;
 			errorflag = true;
 		}
 	}
@@ -81,14 +81,14 @@ static unsigned check_numeric2(void)
 			// test the result:
 			if (is_ex_of_type(radical,numeric)) {
 				clog << "(" << num << "/" << den << ")^(" << nm
-					 << ") should have been a product, instead it's "
-					 << radical << endl;
+				     << ") should have been a product, instead it's "
+				     << radical << endl;
 				errorflag = true;
 			}
 			numeric ratio = ex_to_numeric(evalf(radical))/floating;
 			if (ratio>1.0001 && ratio<0.9999) {
 				clog << "(" << num << "/" << den << ")^(" << nm
-					 << ") erroneously evaluated to " << radical;
+				     << ") erroneously evaluated to " << radical;
 				errorflag = true;
 			}
 		}

@@ -41,7 +41,7 @@ static unsigned exam_paranoia1(void)
 	// In the first one expand did not do any job at all:
 	if (!g.expand().is_equal(x)) {
 		clog << "e = x*y*z; f = y*z; expand(e/f) erroneously returned "
-			 << g.expand() << endl;
+		     << g.expand() << endl;
 		++result;
 	}
 
@@ -49,7 +49,7 @@ static unsigned exam_paranoia1(void)
 	e = pow(x + 1, -1);
 	if (!e.expand().is_equal(e)) {
 		clog << "expand(pow(x + 1, -1)) erroneously returned "
-			 << e.expand() << endl;
+		     << e.expand() << endl;
 		++result;
 	}
 
@@ -72,20 +72,20 @@ static unsigned exam_paranoia2(void)
 	// After .expand(), g should be zero:
 	if (!g.expand().is_zero()) {
 		clog << "e = (x + z*x); f = e*y; expand(f - e*y) erroneously returned "
-			 << g.expand() << endl;
+		     << g.expand() << endl;
 		++result;
 	}
 	// After .eval(), g should be zero:
 	if (!g.eval().is_zero()) {
 		clog << "e = (x + z*x); f = e*y; eval(f - e*y) erroneously returned "
-			 << g.eval() << endl;
+		     << g.eval() << endl;
 		++result;
 	}
 	// This actually worked already back in April 1999.
 	// But we are *very* paranoic!
 	if (!g.expand().eval().is_zero()) {
 		clog << "e = (x + z*x); f = e*y; eval(expand(f - e*y)) erroneously returned "
-			 << g.expand().eval() << endl;
+		     << g.expand().eval() << endl;
 		++result;
 	}
 
@@ -106,17 +106,17 @@ static unsigned exam_paranoia3(void)
 
 	if (!f.is_equal(y)) {
 		clog << "e = x*y - y; f = e.subs(x == 2) erroneously returned "
-			 << f << endl;
+		     << f << endl;
 		++result;
 	}
 	if (!f.eval().is_equal(y)) {
 		clog << "e = x*y - y; eval(e.subs(x == 2)) erroneously returned "
-			 << f.eval() << endl;
+		     << f.eval() << endl;
 		++result;
 	}
 	if (!f.expand().is_equal(y)) {
 		clog << "e = x*y - y; expand(e.subs(x == 2)) erroneously returned "
-			 << f.expand() << endl;
+		     << f.expand() << endl;
 		++result;
 	}
 
@@ -136,12 +136,12 @@ static unsigned exam_paranoia4(void)
 
 	if (!g.is_zero()) {
 		clog << "e = pow(x,2) + x + 1; f = pow(x,2) + x + 1; g = e-f; g erroneously returned "
-			 << g << endl;
+		     << g << endl;
 		++result;
 	}
 	if (!g.is_zero()) {
 		clog << "e = pow(x,2) + x + 1; f = pow(x,2) + x + 1; g = e-f; g.eval() erroneously returned "
-			 << g.eval() << endl;
+		     << g.eval() << endl;
 		++result;
 	}
 
@@ -160,7 +160,7 @@ static unsigned exam_paranoia5(void)
 
 	if (!(e-f).expand().is_zero()) {
 		clog << "e = pow(x*y+1,2); f = pow(x,2)*pow(y,2) + 2*x*y + 1; (e-f).expand() erroneously returned "
-			 << (e-f).expand() << endl;
+		     << (e-f).expand() << endl;
 		++result;
 	}
 
@@ -196,8 +196,8 @@ static unsigned exam_paranoia7(void)
 
 	if (f.nops() > 3) {
 		clog << "e=y+y*x+2; f=expand(pow(e,2)-(e*y*(x+1))) has "
-			 << f.nops() << " arguments instead of 3 ( f=="
-			 << f << " )" << endl;
+		     << f.nops() << " arguments instead of 3 ( f=="
+		     << f << " )" << endl;
 		++result;
 	}
 	return result;
@@ -306,7 +306,7 @@ static unsigned exam_paranoia12(void)
 	
 	if (!(f - d).expand().is_zero()) {
 		clog << "normal(" << e << ") returns " << f
-			 << " instead of " << d << endl;
+		     << " instead of " << d << endl;
 		++result;
 	}
 	return result;
@@ -326,7 +326,7 @@ static unsigned exam_paranoia13(void)
 		ex f = e.normal();	
 		if (!(f - d).expand().is_zero()) {
 			clog << "normal(" << e << ") returns " << f
-				 << " instead of " << d << endl;
+			     << " instead of " << d << endl;
 			++result;
 		}
 	} catch (const exception &err) {

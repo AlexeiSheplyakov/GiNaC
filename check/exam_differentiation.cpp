@@ -43,7 +43,7 @@ static unsigned check_diff(const ex &e, const symbol &x,
 			clog << nth << "th ";
 		}
 		clog << "derivative of " << e << " by " << x << " returned "
-			 << ed << " instead of " << d << endl;
+		     << ed << " instead of " << d << endl;
 		clog << "returned:" << endl;
 		ed.printtree(clog);
 		clog << endl << "instead of" << endl;
@@ -101,15 +101,15 @@ static unsigned exam_differentiation2(void)
 	result += check_diff(e, x, d);
 	
 	d = 2*b*pow(cos(e1),2)*pow(2*x*y + a, 2) + 4*b*y*e2*cos(e1)
-		- 2*b*pow(e2,2)*pow(2*x*y + a, 2) - y*e2*pow(2*x*y + a, 2)
-		+ 2*pow(y,2)*cos(e1);
+	    - 2*b*pow(e2,2)*pow(2*x*y + a, 2) - y*e2*pow(2*x*y + a, 2)
+	    + 2*pow(y,2)*cos(e1);
 	result += check_diff(e, x, d, 2);
 	
 	d = 2*b*e2*cos(e1)*pow(x, 2) + e2 + y*cos(e1)*pow(x, 2);
 	result += check_diff(e, y, d);
 
 	d = 2*b*pow(cos(e1),2)*pow(x,4) - 2*b*pow(e2,2)*pow(x,4)
-		+ 2*cos(e1)*pow(x,2) - y*e2*pow(x,4);
+	    + 2*cos(e1)*pow(x,2) - y*e2*pow(x,4);
 	result += check_diff(e, y, d, 2);
 	
 	// construct expression e to be diff'ed:
@@ -120,15 +120,15 @@ static unsigned exam_differentiation2(void)
 	result += check_diff(e, x, d);
 	
 	d = 2*b*pow(sin(e1),2)*pow(2*y*x + a,2) - 4*b*e2*sin(e1)*y 
-		- 2*b*pow(e2,2)*pow(2*y*x + a,2) - y*e2*pow(2*y*x + a,2)
-		- 2*pow(y,2)*sin(e1);
+	    - 2*b*pow(e2,2)*pow(2*y*x + a,2) - y*e2*pow(2*y*x + a,2)
+	    - 2*pow(y,2)*sin(e1);
 	result += check_diff(e, x, d, 2);
 	
 	d = -2*b*e2*sin(e1)*pow(x,2) + e2 - y*sin(e1)*pow(x, 2);
 	result += check_diff(e, y, d);
 	
 	d = -2*b*pow(e2,2)*pow(x,4) + 2*b*pow(sin(e1),2)*pow(x,4)
-		- 2*sin(e1)*pow(x,2) - y*e2*pow(x,4);
+	    - 2*sin(e1)*pow(x,2) - y*e2*pow(x,4);
 	result += check_diff(e, y, d, 2);
 
 	return result;
@@ -150,7 +150,7 @@ static unsigned exam_differentiation3(void)
 	result += check_diff(e, x, d);
 	
 	d = 4*b*pow(e2,2)*pow(2*y*x + a,2) + 4*b*pow(e2,2)*y
-		+ 2*pow(y,2)*e2 + y*e2*pow(2*y*x + a,2);
+	    + 2*pow(y,2)*e2 + y*e2*pow(2*y*x + a,2);
 	result += check_diff(e, x, d, 2);
 	
 	d = 2*b*pow(e2,2)*pow(x,2) + e2 + y*e2*pow(x,2);
@@ -178,15 +178,15 @@ static unsigned exam_differentiation4(void)
 	result += check_diff(e, x, d);
 	
 	d = 2*b*pow((2*x*y + a),2)*pow(e1,-2) + 4*b*y*e2/e1
-		- 2*b*e2*pow(2*x*y + a,2)*pow(e1,-2) + 2*pow(y,2)/e1
-		- y*pow(2*x*y + a,2)*pow(e1,-2);
+	    - 2*b*e2*pow(2*x*y + a,2)*pow(e1,-2) + 2*pow(y,2)/e1
+	    - y*pow(2*x*y + a,2)*pow(e1,-2);
 	result += check_diff(e, x, d, 2);
 	
 	d = 2*b*e2*pow(x,2)/e1 + e2 + y*pow(x,2)/e1;
 	result += check_diff(e, y, d);
 	
 	d = 2*b*pow(x,4)*pow(e1,-2) - 2*b*e2*pow(e1,-2)*pow(x,4)
-		+ 2*pow(x,2)/e1 - y*pow(x,4)*pow(e1,-2);
+	    + 2*pow(x,2)/e1 - y*pow(x,4)*pow(e1,-2);
 	result += check_diff(e, y, d, 2);
 
 	return result;
@@ -203,25 +203,11 @@ static unsigned exam_differentiation5(void)
 	e1 = y*pow(x, 2) + a*x + b;
 	e2 = x*pow(y, 2) + b*y + a;
 	e = atan2(e1,e2);
-	/*
-	d = pow(y,2)*(-b-y*pow(x,2)-a*x)/(pow(b+y*pow(x,2)+a*x,2)+pow(x*pow(y,2)+b*y+a,2))
-		+(2*y*x+a)/((x*pow(y,2)+b*y+a)*(1+pow(b*y*pow(x,2)+a*x,2)/pow(x*pow(y,2)+b*y+a,2)));
-	*/
-	/*
-	d = ((a+2*y*x)*pow(y*b+pow(y,2)*x+a,-1)-(a*x+b+y*pow(x,2))*
-		 pow(y*b+pow(y,2)*x+a,-2)*pow(y,2))*
-		pow(1+pow(a*x+b+y*pow(x,2),2)*pow(y*b+pow(y,2)*x+a,-2),-1);
-	*/
-	/*
-	d = pow(1+pow(a*x+b+y*pow(x,2),2)*pow(y*b+pow(y,2)*x+a,-2),-1)
-		*pow(y*b+pow(y,2)*x+a,-1)*(a+2*y*x)
-		+pow(y,2)*(-a*x-b-y*pow(x,2))*
-		pow(pow(y*b+pow(y,2)*x+a,2)+pow(a*x+b+y*pow(x,2),2),-1);
-	*/
+	
 	d = pow(y,2)*pow(pow(b+y*pow(x,2)+x*a,2)+pow(y*b+pow(y,2)*x+a,2),-1)*
-		(-b-y*pow(x,2)-x*a)+
-		pow(pow(b+y*pow(x,2)+x*a,2)+pow(y*b+pow(y,2)*x+a,2),-1)*
-		(y*b+pow(y,2)*x+a)*(2*y*x+a);
+	    (-b-y*pow(x,2)-x*a)
+	   +pow(pow(b+y*pow(x,2)+x*a,2)+pow(y*b+pow(y,2)*x+a,2),-1)*
+	    (y*b+pow(y,2)*x+a)*(2*y*x+a);
 	result += check_diff(e, x, d);
 	
 	return result;
@@ -241,7 +227,7 @@ static unsigned exam_differentiation6(void)
 	
 	if ((ed - d).compare(ex(0)) != 0) {
 		clog << "derivative of " << e << " by " << x << " returned "
-			 << ed << " instead of " << d << ")" << endl;
+		     << ed << " instead of " << d << ")" << endl;
 		return 1;
 	}
 	return 0;
@@ -254,18 +240,18 @@ static unsigned exam_differentiation7(void)
 	ex P = x + pow(x,3);
 	ex e = (P.diff(x) / P).diff(x, 2);
 	ex d = 6/P - 18*x/pow(P,2) - 54*pow(x,3)/pow(P,2) + 2/pow(P,3)
-		+18*pow(x,2)/pow(P,3) + 54*pow(x,4)/pow(P,3) + 54*pow(x,6)/pow(P,3);
+	    +18*pow(x,2)/pow(P,3) + 54*pow(x,4)/pow(P,3) + 54*pow(x,6)/pow(P,3);
 	
 	if (!(e-d).expand().is_zero()) {
 		clog << "expanded second derivative of " << (P.diff(x) / P) << " by " << x
-			 << " returned " << e.expand() << " instead of " << d << endl;
+		     << " returned " << e.expand() << " instead of " << d << endl;
 		return 1;
 	}
 	if (e.nops() > 3) {
 		clog << "second derivative of " << (P.diff(x) / P) << " by " << x
-			 << " has " << e.nops() << " operands.  "
-			 << "The result is still correct but not optimal: 3 are enough!  "
-			 << "(Hint: maybe the product rule for objects of class mul should be more careful about assembling the result?)" << endl;
+		     << " has " << e.nops() << " operands.  "
+		     << "The result is still correct but not optimal: 3 are enough!  "
+		     << "(Hint: maybe the product rule for objects of class mul should be more careful about assembling the result?)" << endl;
 		return 1;
 	}
 	return 0;

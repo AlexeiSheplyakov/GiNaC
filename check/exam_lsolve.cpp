@@ -34,7 +34,7 @@ static unsigned exam_lsolve1(void)
 	if (aux != 1) {
 		++result;
 		clog << "solution of 3*x+5==8 erroneously returned "
-			 << aux << endl;
+		     << aux << endl;
 	}
 	
 	return result;
@@ -62,7 +62,7 @@ static unsigned exam_lsolve2a(void)
 		!normal(sol_y - (3-a*b)/(a+b)).is_zero()) {
 		++result;
 		clog << "solution of the system " << eqns << " for " << vars
-			 << " erroneously returned " << sol << endl;
+		     << " erroneously returned " << sol << endl;
 	}
 	
 	return result;
@@ -90,7 +90,7 @@ static unsigned exam_lsolve2b(void)
 		(sol_y != numeric(-10,17))) {
 		++result;
 		clog << "solution of the system " << eqns << " for " << vars
-			 << " erroneously returned " << sol << endl;
+		     << " erroneously returned " << sol << endl;
 	}
 	
 	return result;
@@ -118,7 +118,7 @@ static unsigned exam_lsolve2c(void)
 		(sol_y != numeric(-1,2))) {
 		++result;
 		clog << "solution of the system " << eqns << " for " << vars
-			 << " erroneously returned " << sol << endl;
+		     << " erroneously returned " << sol << endl;
 	}
 	
 	return result;
@@ -146,7 +146,7 @@ static unsigned exam_lsolve2S(void)
 		(sol_y != t)) {
 		++result;
 		clog << "solution of the system " << eqns << " for " << vars
-			 << " erroneously returned " << sol << endl;
+		     << " erroneously returned " << sol << endl;
 	}
 	
 	return result;
@@ -177,7 +177,7 @@ static unsigned exam_lsolve3S(void)
 		(sol_z != (b+c)/2)) {
 		++result;
 		clog << "solution of the system " << eqns << " for " << vars
-			 << " erroneously returned " << sol << endl;
+		     << " erroneously returned " << sol << endl;
 	}
 	
 	return result;

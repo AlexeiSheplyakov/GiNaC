@@ -236,7 +236,7 @@ unsigned exam_polygcd(void)
 	result += poly_gcd1();  cout << '.' << flush;
 	result += poly_gcd2();  cout << '.' << flush;
 	result += poly_gcd3();  cout << '.' << flush;
-	result += poly_gcd3p();	 cout << '.' << flush; // takes extremely long (PRS "worst" case)
+	result += poly_gcd3p();	 cout << '.' << flush; // PRS "worst" case
 	result += poly_gcd4();  cout << '.' << flush;
 	result += poly_gcd5();  cout << '.' << flush;
 	result += poly_gcd5p();  cout << '.' << flush;

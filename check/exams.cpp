@@ -121,7 +121,7 @@ int main()
 			cout << "(" << result << " individual failures)" << endl;
 		}
 		cout << "please check exams.out against exams.ref for more details."
-			 << endl << "happy debugging!" << endl;
+		     << endl << "happy debugging!" << endl;
 	}
 	
 	return result;

@@ -72,7 +72,7 @@ int main()
 			cout << "(" << result << " individual failures)" << endl;
 		}
 		cout << "please check checks.out against check.ref for more details."
-			 << endl << "happy debugging!" << endl;
+		     << endl << "happy debugging!" << endl;
 	}
 	
 	return result;

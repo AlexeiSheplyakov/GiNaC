@@ -33,7 +33,7 @@ static unsigned inifcns_consist_trans(void)
 	chk = asin(1)-acos(0);
 	if (!chk.is_zero()) {
 		clog << "asin(1)-acos(0) erroneously returned " << chk
-			 << " instead of 0" << endl;
+		     << " instead of 0" << endl;
 		++result;
 	}
 	
@@ -42,7 +42,7 @@ static unsigned inifcns_consist_trans(void)
 		- (1+pow(x,2))*pow(sin(atan(x)),2);
 	if (chk != 1-pow(x,2)) {
 		clog << "sin(acos(x))^2 + sin(asin(x))^2 - (1+x^2)*sin(atan(x))^2 "
-			 << "erroneously returned " << chk << " instead of 1-x^2" << endl;
+		     << "erroneously returned " << chk << " instead of 1-x^2" << endl;
 		++result;
 	}
 	
@@ -51,7 +51,7 @@ static unsigned inifcns_consist_trans(void)
 		- (1+pow(x,2))*pow(cos(atan(x)),2);
 	if (!chk.is_zero()) {
 		clog << "cos(acos(x))^2 + cos(asin(x))^2 - (1+x^2)*cos(atan(x))^2 "
-			 << "erroneously returned " << chk << " instead of 0" << endl;
+		     << "erroneously returned " << chk << " instead of 0" << endl;
 		++result;
 	}
 	
@@ -59,7 +59,7 @@ static unsigned inifcns_consist_trans(void)
 	chk = tan(acos(x))*tan(asin(x)) - tan(atan(x));
 	if (chk != 1-x) {
 		clog << "tan(acos(x))*tan(asin(x)) - tan(atan(x)) "
-			 << "erroneously returned " << chk << " instead of -x+1" << endl;
+		     << "erroneously returned " << chk << " instead of -x+1" << endl;
 		++result;
 	}
 	
@@ -68,7 +68,7 @@ static unsigned inifcns_consist_trans(void)
 		- pow(sinh(asinh(x)),2);
 	if (!chk.is_zero()) {
 		clog << "expand(-(sinh(acosh(x)))^2)*(sinh(atanh(x))^2) - sinh(asinh(x))^2 "
-			 << "erroneously returned " << chk << " instead of 0" << endl;
+		     << "erroneously returned " << chk << " instead of 0" << endl;
 		++result;
 	}
 	
@@ -77,7 +77,7 @@ static unsigned inifcns_consist_trans(void)
 		* pow(cosh(atanh(x)),2);
 	if (chk != 1) {
 		clog << "(cosh(asinh(x))^2 - 2*cosh(acosh(x))^2) * cosh(atanh(x))^2 "
-			 << "erroneously returned " << chk << " instead of 1" << endl;
+		     << "erroneously returned " << chk << " instead of 1" << endl;
 		++result;
 	}
 	
@@ -86,7 +86,7 @@ static unsigned inifcns_consist_trans(void)
 		* pow(tanh(atanh(x)),2);
 	if (chk != 2) {
 		clog << "expand(tanh(acosh(x))^2 - tanh(asinh(x))^(-2)) * tanh(atanh(x))^2 "
-			 << "erroneously returned " << chk << " instead of 2" << endl;
+		     << "erroneously returned " << chk << " instead of 2" << endl;
 		++result;
 	}
 	
@@ -105,7 +105,7 @@ static unsigned inifcns_consist_gamma(void)
 		e += tgamma(ex(i));
 	if (e != numeric(874)) {
 		clog << "tgamma(1)+...+tgamma(7) erroneously returned "
-			 << e << " instead of 874" << endl;
+		     << e << " instead of 874" << endl;
 		++result;
 	}
 	
@@ -114,14 +114,14 @@ static unsigned inifcns_consist_gamma(void)
 		e *= tgamma(ex(i));	
 	if (e != numeric(24883200)) {
 		clog << "tgamma(1)*...*tgamma(7) erroneously returned "
-			 << e << " instead of 24883200" << endl;
+		     << e << " instead of 24883200" << endl;
 		++result;
 	}
 	
 	e = tgamma(ex(numeric(5, 2)))*tgamma(ex(numeric(9, 2)))*64;
 	if (e != 315*Pi) {
 		clog << "64*tgamma(5/2)*tgamma(9/2) erroneously returned "
-			 << e << " instead of 315*Pi" << endl;
+		     << e << " instead of 315*Pi" << endl;
 		++result;
 	}
 	
@@ -131,7 +131,7 @@ static unsigned inifcns_consist_gamma(void)
 	e = (e*tgamma(ex(numeric(15, 2)))*numeric(512));
 	if (e != numeric(633935)*Pi) {
 		clog << "512*(tgamma(-13/2)+...+tgamma(5/2))*tgamma(15/2) erroneously returned "
-			 << e << " instead of 633935*Pi" << endl;
+		     << e << " instead of 633935*Pi" << endl;
 		++result;
 	}
 	
@@ -152,7 +152,7 @@ static unsigned inifcns_consist_psi(void)
 	e -= (tgamma(x).diff(x)/tgamma(x)).subs(x==numeric(1,2));
 	if (e!=2*log(2)) {
 		clog << "tgamma(1)'/tgamma(1) - tgamma(1/2)'/tgamma(1/2) erroneously returned "
-			 << e << " instead of 2*log(2)" << endl;
+		     << e << " instead of 2*log(2)" << endl;
 		++result;
 	}
 	
@@ -171,7 +171,7 @@ static unsigned inifcns_consist_zeta(void)
 		e += zeta(i)/pow(Pi,i);
 	if (e!=numeric(-204992279,638512875)) {
 		clog << "zeta(0) + zeta(2) + ... + zeta(12) erroneously returned "
-			 << e << " instead of -204992279/638512875" << endl;
+		     << e << " instead of -204992279/638512875" << endl;
 		++result;
 	}
 	
@@ -180,7 +180,7 @@ static unsigned inifcns_consist_zeta(void)
 		e += zeta(i);
 	if (e!=numeric(487871,1633632)) {
 		clog << "zeta(-1) + zeta(-2) + ... + zeta(-15) erroneously returned "
-			 << e << " instead of 487871/1633632" << endl;
+		     << e << " instead of 487871/1633632" << endl;
 		++result;
 	}
 	

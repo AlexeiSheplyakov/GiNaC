@@ -40,8 +40,8 @@ static unsigned integdom_matrix_determinants(void)
 			A.set(size-1,c,A(0,c)-A(size-2,c));
 		if (!A.determinant().is_zero()) {
 			clog << "Determinant of " << size << "x" << size << " matrix "
-				 << endl << A << endl
-				 << "was not found to vanish!" << endl;
+			     << endl << A << endl
+			     << "was not found to vanish!" << endl;
 			++result;
 		}
 	}
@@ -75,8 +75,8 @@ static unsigned rational_matrix_determinants(void)
 			A.set(size-1,co,A(0,co)-A(size-2,co));
 		if (!A.determinant().is_zero()) {
 			clog << "Determinant of " << size << "x" << size << " matrix "
-				 << endl << A << endl
-				 << "was not found to vanish!" << endl;
+			     << endl << A << endl
+			     << "was not found to vanish!" << endl;
 			++result;
 		}
 	}
@@ -109,8 +109,8 @@ static unsigned funny_matrix_determinants(void)
 			A.set(ro,size-1,A(ro,0)-A(ro,size-2));
 		if (!A.determinant().is_zero()) {
 			clog << "Determinant of " << size << "x" << size << " matrix "
-				 << endl << A << endl
-				 << "was not found to vanish!" << endl;
+			     << endl << A << endl
+			     << "was not found to vanish!" << endl;
 			++result;
 		}
 	}
@@ -143,12 +143,12 @@ static unsigned compare_matrix_determinants(void)
 			(det_bareiss-det_laplace).normal() != 0 ||
 			(det_divfree-det_laplace).normal() != 0) {
 			clog << "Determinant of " << size << "x" << size << " matrix "
-				 << endl << A << endl
-				 << "is inconsistent between different algorithms:" << endl
-				 << "Gauss elimination:   " << det_gauss << endl
-				 << "Minor elimination:   " << det_laplace << endl
-				 << "Division-free elim.: " << det_divfree << endl
-				 << "Fraction-free elim.: " << det_bareiss << endl;
+			     << endl << A << endl
+			     << "is inconsistent between different algorithms:" << endl
+			     << "Gauss elimination:   " << det_gauss << endl
+			     << "Minor elimination:   " << det_laplace << endl
+			     << "Division-free elim.: " << det_divfree << endl
+			     << "Fraction-free elim.: " << det_bareiss << endl;
 			++result;
 		}
 	}
@@ -183,9 +183,9 @@ static unsigned symbolic_matrix_inverse(void)
 					ok = false;
 		if (!ok) {
 			clog << "Inverse of " << size << "x" << size << " matrix "
-				 << endl << A << endl
-				 << "erroneously returned: "
-				 << endl << B << endl;
+			     << endl << A << endl
+			     << "erroneously returned: "
+			     << endl << B << endl;
 			++result;
 		}
 	}

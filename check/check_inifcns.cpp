@@ -39,7 +39,7 @@ static unsigned inifcns_check_sin(void)
 	if (errorflag) {
 		// we don't count each of those errors
 		clog << "sin(n*Pi) with integer n does not always return exact 0"
-			 << endl;
+		     << endl;
 		++result;
 	}
 	
@@ -47,13 +47,13 @@ static unsigned inifcns_check_sin(void)
 	errorflag = false;
 	for (int n=-10; n<=10; ++n) {
 		if (!sin((n+numeric(1,2))*Pi).eval().info(info_flags::integer) ||
-			!(sin((n+numeric(1,2))*Pi).eval() == numeric(1) ||
-			  sin((n+numeric(1,2))*Pi).eval() == numeric(-1)))
+		    !(sin((n+numeric(1,2))*Pi).eval() == numeric(1) ||
+		      sin((n+numeric(1,2))*Pi).eval() == numeric(-1)))
 			errorflag = true;
 	}
 	if (errorflag) {
 		clog << "sin((n+1/2)*Pi) with integer n does not always return exact {+|-}1"
-			 << endl;
+		     << endl;
 		++result;
 	}
 	
@@ -68,7 +68,7 @@ static unsigned inifcns_check_sin(void)
 		argument = n*Pi/60;
 		if (abs(sin(evalf(argument))-evalf(sin(argument)))>epsilon) {
 			clog << "sin(" << argument << ") returns "
-				 << sin(argument) << endl;
+			     << sin(argument) << endl;
 			errorflag = true;
 		}
 	}
@@ -88,12 +88,12 @@ static unsigned inifcns_check_cos(void)
 	errorflag = false;
 	for (int n=-10; n<=10; ++n) {
 		if (cos((n+numeric(1,2))*Pi).eval() != numeric(0) ||
-			!cos((n+numeric(1,2))*Pi).eval().info(info_flags::integer))
+		    !cos((n+numeric(1,2))*Pi).eval().info(info_flags::integer))
 			errorflag = true;
 	}
 	if (errorflag) {
 		clog << "cos((n+1/2)*Pi) with integer n does not always return exact 0"
-			 << endl;
+		     << endl;
 		++result;
 	}
 	
@@ -101,13 +101,13 @@ static unsigned inifcns_check_cos(void)
 	errorflag = false;
 	for (int n=-10; n<=10; ++n) {
 		if (!cos(n*Pi).eval().info(info_flags::integer) ||
-			!(cos(n*Pi).eval() == numeric(1) ||
-			  cos(n*Pi).eval() == numeric(-1)))
+		    !(cos(n*Pi).eval() == numeric(1) ||
+		      cos(n*Pi).eval() == numeric(-1)))
 			errorflag = true;
 	}
 	if (errorflag) {
 		clog << "cos(n*Pi) with integer n does not always return exact {+|-}1"
-			 << endl;
+		     << endl;
 		++result;
 	}
 	
@@ -122,7 +122,7 @@ static unsigned inifcns_check_cos(void)
 		argument = n*Pi/60;
 		if (abs(cos(evalf(argument))-evalf(cos(argument)))>epsilon) {
 			clog << "cos(" << argument << ") returns "
-				 << cos(argument) << endl;
+			     << cos(argument) << endl;
 			errorflag = true;
 		}
 	}
@@ -151,7 +151,7 @@ static unsigned inifcns_check_tan(void)
 		argument = n*Pi/60;
 		if (abs(tan(evalf(argument))-evalf(tan(argument)))>epsilon) {
 			clog << "tan(" << argument << ") returns "
-				 << tan(argument) << endl;
+			     << tan(argument) << endl;
 			errorflag = true;
 		}
 	}
@@ -176,10 +176,10 @@ static unsigned inifcns_check_Li2(void)
 	numeric epsilon(double(1e-16));
 	for (int n=0; n<200; ++n) {
 		argument = numeric(20.0*rand()/(RAND_MAX+1.0)-10.0)
-				 + numeric(20.0*rand()/(RAND_MAX+1.0)-10.0)*I;
+		         + numeric(20.0*rand()/(RAND_MAX+1.0)-10.0)*I;
 		if (abs(Li2(pow(argument,2))-2*Li2(argument)-2*Li2(-argument)) > epsilon) {
 			cout << "Li2(z) at z==" << argument
-				 << " failed to satisfy Li2(z^2)==2*(Li2(z)+Li2(-z))" << endl;
+			     << " failed to satisfy Li2(z^2)==2*(Li2(z)+Li2(-z))" << endl;
 			errorflag = true;
 		}
 	}

@@ -42,7 +42,7 @@ static unsigned exam_expand_subs(void)
 	
 	if (e != pow(a1,2)) {
 		clog << "Denny Fliegner's quick consistency check erroneously returned "
-			 << e << "." << endl;
+		     << e << "." << endl;
 		++result;
 	}
 	
@@ -65,7 +65,7 @@ static unsigned exam_expand_subs2(void)
 	
 	if (f != 0) {
 		clog << "e = pow(a+b,200).expand(); f = e.subs(a == -b); erroneously returned "
-			 << f << " instead of simplifying to 0." << endl;
+		     << f << " instead of simplifying to 0." << endl;
 		++result;
 	}
 	

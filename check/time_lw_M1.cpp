@@ -59,8 +59,8 @@ static unsigned test(void)
 	for (unsigned r=0; r<26; ++r) {
 		for (unsigned c=0; c<5; ++c) {
 			m.set(r,
-				  unsigned(ex_to_numeric(w[r][2*c+1]).to_int()-1),
-				  w[r][2*c+2]);
+			      unsigned(ex_to_numeric(w[r][2*c+1]).to_int()-1),
+			      w[r][2*c+2]);
 		}
 	}
 	ex det = m.determinant();

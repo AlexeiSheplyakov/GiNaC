@@ -35,8 +35,8 @@ unsigned tgammaseries(unsigned order)
 	ex bound = evalf(exp(ex(-.57721566490153286*(order-1)))/(order-1));
 	if (evalf(abs((last_coeff-pow(-1,order))/bound)) > numeric(1)) {
 		clog << "The " << order-1
-			 << "th order coefficient in the power series expansion of tgamma(0) was erroneously found to be "
-			 << last_coeff << ", violating a simple estimate." << endl;
+		     << "th order coefficient in the power series expansion of tgamma(0) was erroneously found to be "
+		     << last_coeff << ", violating a simple estimate." << endl;
 		++result;
 	}
 	

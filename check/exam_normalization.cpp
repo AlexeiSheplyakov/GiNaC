@@ -29,7 +29,7 @@ static unsigned check_normal(const ex &e, const ex &d)
 	ex en = e.normal();
 	if (en.compare(d) != 0) {
 		clog << "normal form of " << e << " erroneously returned "
-			 << en << " (should be " << d << ")" << endl;
+		     << en << " (should be " << d << ")" << endl;
 		return 1;
 	}
 	return 0;

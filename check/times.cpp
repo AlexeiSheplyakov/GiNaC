@@ -170,7 +170,7 @@ int main()
 			cout << "(" << result << " individual failures)" << endl;
 		}
 		cout << "please check times.out against times.ref for more details."
-			 << endl << "happy debugging!" << endl;
+		     << endl << "happy debugging!" << endl;
 	}
 	
 	return result;

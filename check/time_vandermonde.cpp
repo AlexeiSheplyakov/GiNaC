@@ -48,8 +48,8 @@ static unsigned vandermonde_det(unsigned size)
 	// dirty consistency check of result:
 	if (!vdet.subs(a==1).is_zero()) {
 		clog << "Determaint of Vandermonde matrix " << endl
-			 << "M==" << M << endl
-			 << "was miscalculated: det(M)==" << vdet << endl;
+		     << "M==" << M << endl
+		     << "was miscalculated: det(M)==" << vdet << endl;
 		++result;
 	}
 	

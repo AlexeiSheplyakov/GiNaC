@@ -30,13 +30,13 @@ static unsigned toeplitz_det(unsigned size)
 	unsigned result = 0;
 	symbol a("a"), b("b");
 	ex p[8] = {a,
-			   b,
-			   a+b,
-			   pow(a,2) + a*b + pow(b,2),
-			   pow(a,3) + pow(a,2)*b - a*pow(b,2) + pow(b,3),
-			   pow(a,4) + pow(a,3)*b + pow(a*b,2) + a*pow(b,3) + pow(b,4),
-			   pow(a,5) + pow(a,4)*b + pow(a,3)*pow(b,2) - pow(a,2)*pow(b,3) + a*pow(b,4) + pow(b,5),
-			   pow(a,6) + pow(a,5)*b + pow(a,4)*pow(b,2) + pow(a*b,3) + pow(a,2)*pow(b,4) + a*pow(b,5) + pow(b,6)
+	           b,
+	           a+b,
+	           pow(a,2) + a*b + pow(b,2),
+	           pow(a,3) + pow(a,2)*b - a*pow(b,2) + pow(b,3),
+	           pow(a,4) + pow(a,3)*b + pow(a*b,2) + a*pow(b,3) + pow(b,4),
+	           pow(a,5) + pow(a,4)*b + pow(a,3)*pow(b,2) - pow(a,2)*pow(b,3) + a*pow(b,4) + pow(b,5),
+	           pow(a,6) + pow(a,5)*b + pow(a,4)*pow(b,2) + pow(a*b,3) + pow(a,2)*pow(b,4) + a*pow(b,5) + pow(b,6)
 	};
 	
 	// construct Toeplitz matrix:
@@ -54,8 +54,8 @@ static unsigned toeplitz_det(unsigned size)
 	// dirty consistency check of result:
 	if (!tdet.subs(a==0).subs(b==0).is_zero()) {
 		clog << "Determaint of Toeplitz matrix " << endl
-			 << "M==" << M << endl
-			 << "was miscalculated: det(M)==" << tdet << endl;
+		     << "M==" << M << endl
+		     << "was miscalculated: det(M)==" << tdet << endl;
 		++result;
 	}
 	

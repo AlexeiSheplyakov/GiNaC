@@ -30,9 +30,9 @@ static unsigned test(void)
 	symbol z("z");
 
 	ex p = expand(pow(7*y*pow(x*z,2)-3*x*y*z+11*(x+1)*pow(y,2)+5*z+1,4)
-				  *pow(3*x-7*y+2*z-3,5));
+	              *pow(3*x-7*y+2*z-3,5));
 	ex q = expand(pow(7*y*pow(x*z,2)-3*x*y*z+11*(x+1)*pow(y,2)+5*z+1,3)
-				  *pow(3*x-7*y+2*z+3,6));
+	              *pow(3*x-7*y+2*z+3,6));
 	ex result = gcd(p,q);
 	if (result.expand()!=expand(pow(7*y*pow(x*z,2)-3*x*y*z+11*(x+1)*pow(y,2)+5*z+1,3))) {
 		clog << "gcd(expand((7*y*x^2*z^2-3*x*y*z+11*(x+1)*y^2+5*z+1)^4*(3*x-7*y+2*z-3)^5),expand((7*y*x^2*z^2-3*x*y*z+11*(x+1)*y^2+5*z+1)^3*(3*x-7*y+2*z+3)^6)) erroneously returned " << result << endl;
