@@ -1,7 +1,7 @@
 // check/main.cpp
 
 #include <stdexcept>
-#include <GiNaC/ginac.h>
+#include <ginac/ginac.h>
 #include "check.h"
 
 int main()
@@ -25,6 +25,7 @@ int main()
         }
     } catch (exception const & e) {
         cout << "error: caught an exception: " << e.what() << endl;
+		result++;
     }
     
     if (result) {

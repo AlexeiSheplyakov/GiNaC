@@ -12,7 +12,7 @@
  *     substitute a0 by -a1 in e
  * after which e should return 0 (without expanding). */
 
-#include <GiNaC/ginac.h>
+#include <ginac/ginac.h>
 
 #define VECSIZE 100
 

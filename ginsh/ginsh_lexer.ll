@@ -12,20 +12,17 @@
 %{
 #include "config.h"
 
-#if STDC_HEADERS
 #include <stdio.h>
-#endif
-
 extern "C" {
 #include <readline/readline.h>
 #include <readline/history.h>
 }
 #include <map>
 
-#include <GiNaC/ginac.h>
-
+#include <ginac/ginac.h>
 #include "ginsh.h"
-#include "y.tab.h"
+
+#include "ginsh_parser.h"
 
 #define YY_INPUT(buf, result, max_size) (result = ginsh_input(buf, max_size))
 
@@ -156,4 +153,10 @@ static int ginsh_input(char *buf, int max_size)
 		YY_FATAL_ERROR("input in flex scanner failed");
 
 	return result;
+}
+
+// Scanner terminates on EOF
+int yywrap()
+{
+	return 1;
 }

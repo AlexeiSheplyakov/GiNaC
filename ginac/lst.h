@@ -1,0 +1,116 @@
+/** @file lst.h
+ *
+ *  Definition of GiNaC's lst. 
+ *  This file was generated automatically by container.pl.
+ *  Please do not modify it directly, edit the perl script instead!
+ *  container.pl options: $CONTAINER=lst
+ *                        $STLHEADER=list
+ *                        $reserve=0
+ *                        $prepend=1
+ *                        $let_op=1
+ *                        $open_bracket=[
+ *                        $close_bracket=] */
+
+#ifndef _LST_H_
+#define _LST_H_
+
+#include <list>
+
+#include <ginac/ginac.h>
+
+typedef list<ex> exlist;
+
+class lst : public basic
+{
+
+public:
+    lst();
+    ~lst();
+    lst(lst const & other);
+    lst const & operator=(lst const & other);
+protected:
+    void copy(lst const & other);
+    void destroy(bool call_parent);
+
+public:
+    lst(exlist const & s, bool discardable=0);
+    lst(exlist * vp); // vp will be deleted
+    explicit lst(ex const & e1);
+    explicit lst(ex const & e1, ex const & e2);
+    explicit lst(ex const & e1, ex const & e2, ex const & e3);
+    explicit lst(ex const & e1, ex const & e2, ex const & e3,
+             ex const & e4);
+    explicit lst(ex const & e1, ex const & e2, ex const & e3,
+             ex const & e4, ex const & e5);
+    explicit lst(ex const & e1, ex const & e2, ex const & e3,
+             ex const & e4, ex const & e5, ex const & e6);
+    explicit lst(ex const & e1, ex const & e2, ex const & e3,
+             ex const & e4, ex const & e5, ex const & e6,
+             ex const & e7);
+    explicit lst(ex const & e1, ex const & e2, ex const & e3,
+             ex const & e4, ex const & e5, ex const & e6,
+             ex const & e7, ex const & e8);
+    explicit lst(ex const & e1, ex const & e2, ex const & e3,
+             ex const & e4, ex const & e5, ex const & e6,
+             ex const & e7, ex const & e8, ex const & e9);
+    explicit lst(ex const & e1, ex const & e2, ex const & e3,
+             ex const & e4, ex const & e5, ex const & e6,
+             ex const & e7, ex const & e8, ex const & e9,
+             ex const &e10);
+
+public:
+    basic * duplicate() const;
+    void printraw(ostream & os) const;
+    void print(ostream & os, unsigned upper_precedence=0) const;
+    void printtree(ostream & os, unsigned indent) const;
+    bool info(unsigned inf) const;
+    int nops() const;
+    ex & let_op(int const i);
+    ex expand(unsigned options=0) const;
+    bool has(ex const & other) const;
+    ex eval(int level=0) const;
+    ex evalf(int level=0) const;
+    ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
+    ex diff(symbol const & s) const;
+    ex subs(lst const & ls, lst const & lr) const;
+protected:
+    int compare_same_type(basic const & other) const;
+    bool is_equal_same_type(basic const & other) const;
+    unsigned return_type(void) const;
+
+    // new virtual functions which can be overridden by derived classes
+public:
+    virtual lst & append(ex const & b);
+    virtual lst & prepend(ex const & b);
+
+protected:
+    virtual void printseq(ostream & os, char openbracket, char delim,
+                          char closebracket, unsigned this_precedence,
+                          unsigned upper_precedence=0) const;
+    virtual ex thislst(exlist const & v) const;
+    virtual ex thislst(exlist * vp) const;
+
+protected:
+    bool is_canonical() const;
+    exlist evalchildren(int level) const;
+    exlist evalfchildren(int level) const;
+    exlist normalchildren(int level) const;
+    exlist diffchildren(symbol const & s) const;
+    exlist * subschildren(lst const & ls, lst const & lr) const;
+
+protected:
+    exlist seq;
+    static unsigned precedence;
+};
+
+// global constants
+
+extern const lst some_lst;
+extern type_info const & typeid_lst;
+
+// macros
+
+#define ex_to_lst(X) (static_cast<lst const &>(*(X).bp))
+
+#endif // ndef _LST_H_
+

@@ -4,7 +4,7 @@
  * boolean tests on these numbers like is_integer() etc... */
 
 #include <stdlib.h>
-#include <GiNaC/ginac.h>
+#include <ginac/ginac.h>
 
 /* Simple and maybe somewhat pointless consistency tests of assorted tests and
  * conversions. */

@@ -1,168 +1,178 @@
-# This is the prototype Makefile for all of GiNaC's documentation.  It tries to
-# be tolerant---if some tools were not found it skips the built of that part
-# of documentation and tries to continue.
+# Makefile.in generated automatically by automake 1.3 from Makefile.am
 
-# Substitution variables from configure skript:
-# Here come the usual install directories in GNU-configure fashion:
-prefix = @prefix@
-docdir = @datadir@/doc/GiNaC
+# Copyright (C) 1994, 1995, 1996, 1997, 1998 Free Software Foundation, Inc.
+# This Makefile.in is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
+
+
+SHELL = /bin/sh
+
 srcdir = @srcdir@
-# Dimitri van Heesch's Doxygen is needed for developer's resource:
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+
+DISTDIR =
+
+pkgdatadir = $(datadir)/@PACKAGE@
+pkglibdir = $(libdir)/@PACKAGE@
+pkgincludedir = $(includedir)/@PACKAGE@
+
+top_builddir = ..
+
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOMAKE = @AUTOMAKE@
+AUTOHEADER = @AUTOHEADER@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+transform = @program_transform_name@
+
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+host_alias = @host_alias@
+host_triplet = @host@
+CC = @CC@
+CXX = @CXX@
+CXXCPP = @CXXCPP@
 DOXYGEN = @DOXYGEN@
-# LaTeX and friends are needed for processing developer's resource for print:
-LATEX = @LATEX@
-MAKEINDEX = @MAKEINDEX@
 DVIPS = @DVIPS@
 FIG2DEV = @FIG2DEV@
-# Jade and friends needed for generating the tutorial:
 JADE = @JADE@
 JADETEX = @JADETEX@
-# Arguments for Jade and friends (does anybody know how to find them out?)
-# JADEARGS_TEX = -t tex -o tutorial.tex -d /usr/lib/dsssl/stylesheets/docbook/print/docbook.dsl
-JADEARGS_TEX = -t tex -o tutorial.tex -d /usr/lib/sgml/stylesheet/dsssl/docbook/nwalsh/print/docbook.dsl
-# JADEARGS_HTML = -t sgml -d /usr/lib/dsssl/stylesheets/docbook/html/docbook.dsl
-JADEARGS_HTML = -t sgml -d /usr/lib/sgml/stylesheet/dsssl/docbook/nwalsh/html/docbook.dsl
-# Autoconf macro AC_PROC_INSTALL sets these:
-INSTALL = @INSTALL@
-INSTALL_DATA = @INSTALL_DATA@
-# All LaTeX builds will take place in a separate subdirectory:
-VPATH = @srcdir@:@srcdir@/latex:@srcdir@/tutorial
+LATEX = @LATEX@
+LD = @LD@
+LEX = @LEX@
+LIBTOOL = @LIBTOOL@
+LN_S = @LN_S@
+MAINT = @MAINT@
+MAKEINDEX = @MAKEINDEX@
+MAKEINFO = @MAKEINFO@
+NM = @NM@
+PACKAGE = @PACKAGE@
+RANLIB = @RANLIB@
+VERSION = @VERSION@
+YACC = @YACC@
+mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+CONFIG_HEADER = ../config.h
+CONFIG_CLEAN_FILES = 
+DIST_COMMON =  Makefile.am Makefile.in
 
-# default target:
-all: reference tutorial
 
-# REFERENCE:
-# This section produces HTML'ed and TeX'ed developer's reference from the
-# sources with a JavaDoc-like tool (in this case doxygen):
-reference_html:
-	@ if [ ! -d ${srcdir}/reference ]; then mkdir ${srcdir}/reference; fi
-	@ if [ "${DOXYGEN}" ]; then \
-		echo "Running ${DOXYGEN} ./DoxyfileHTML..."; \
-		cd ..; ${DOXYGEN} ./doc/DoxyfileHTML; \
-	else \
-		echo "warning: target reference_html disabled by configuration"; \
-	fi
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
-reference.tex:
-	@ if [ ! -d ${srcdir}/latex ]; then mkdir ${srcdir}/latex; fi
-	@ if [ "${DOXYGEN}" ]; then \
-		echo "Running ${DOXYGEN} ./DoxyfileTEX..."; \
-		cd ..; ${DOXYGEN} ./doc/DoxyfileTEX; \
-	else \
-		echo "warning: target reference.tex disabled by configuration"; \
-	fi
-	- mv ${srcdir}/latex/refman.tex ${srcdir}/latex/reference.tex 
+TAR = tar
+GZIP = --best
+all: Makefile
 
-reference.dvi: reference.tex
-	@ if [ "${LATEX}" -a "${MAKEINDEX}" ]; then \
-		cd latex; \
-		${LATEX} reference.tex && \
-		${MAKEINDEX} reference.idx && \
-		${LATEX} reference.tex; \
-	else \
-		echo "warning: target reference.dvi disabled by configuration"; \
-	fi
+.SUFFIXES:
+$(srcdir)/Makefile.in: @MAINT@ Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4)
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu doc/Makefile
 
-reference.ps: reference.dvi
-	@ if [ "${DVIPS}" ]; then \
-		echo "Running ${DVIPS} -o reference.ps reference.dvi..."; \
-		cd latex; ${DVIPS} -o reference.ps reference.dvi; \
-	else \
-		echo "warning: target reference.ps disabled by configuration"; \
-	fi
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
+	cd $(top_builddir) \
+	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
-reference: reference_html reference.ps
+tags: TAGS
+TAGS:
 
-# TUTORIAL:
-# This section produces HTML'ed and TeX'ed versions of the tutorial using a
-# SGML to TeX converter (in this case jade).  As a dirty hack, we are doing
-# some regexpese to tutorial.sgml prior to parsing it, in order to allow for
-# different graphics output.  This seems to be an ugly limitation of docbook...
 
-EPS = classhierarchy.eps rep_naive.eps rep_pair.eps
-PNG = classhierarchy.png rep_naive.png rep_pair.png
+distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
 
-tutorial/index.html: tutorial.sgml.in ${PNG}
-	@ if [ ! -d ${srcdir}/latex ]; then mkdir ${srcdir}/latex; fi
-	@ if [ "${JADE}" ]; then \
-		sed -e 's/graext/png/g' -e 's/GRAEXT/GIF/g' tutorial.sgml.in > tutorial.sgml; \
-		echo "Running ${JADE} ${JADEARGS_HTML} tutorial.sgml..."; \
-		cd tutorial/; ${JADE} ${JADEARGS_HTML} ../tutorial.sgml; \
-		if [ -f book1.html ]; then cp book1.html index.html; fi; \
-	else \
-		echo "warning: target tutorial_html disabled by configuration"; \
-	fi
+subdir = doc
 
-tutorial.tex: tutorial.sgml.in ${EPS}
-	@ if [ ! -d ${srcdir}/latex ]; then mkdir ${srcdir}/latex; fi
-	@ if [ "${JADE}" -a "${LATEX}" ]; then \
-		sed -e 's/graext/eps/g' -e 's/GRAEXT/EPS/g' tutorial.sgml.in > tutorial.sgml; \
-		echo "Running ${JADE} ${JADEARGS_TEX} tutorial.sgml..."; \
-		cd latex; ${JADE} ${JADEARGS_TEX} ../tutorial.sgml ; \
-	else \
-		echo "warning: target tutorial.tex disabled by configuration"; \
-	fi
+distdir: $(DISTFILES)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(top_distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
+	cd $(top_srcdir) \
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu doc/Makefile
+	@for file in $(DISTFILES); do \
+	  d=$(srcdir); \
+	  test -f $(distdir)/$$file \
+	  || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	  || cp -p $$d/$$file $(distdir)/$$file; \
+	done
+info:
+dvi:
+check: all
+	$(MAKE)
+installcheck:
+install-exec: 
+	@$(NORMAL_INSTALL)
 
-tutorial.dvi: tutorial.tex
-	@ if [ "${JADETEX}" ]; then \
-		echo "Running ${JADETEX} tutorial.tex..."; \
-		cd latex; ${JADETEX} tutorial.tex && ${JADETEX} tutorial.tex && ${JADETEX} tutorial.tex; \
-	else \
-		echo "warning: target tutorial.dvi disabled by configuration"; \
-	fi
+install-data: 
+	@$(NORMAL_INSTALL)
 
-tutorial.ps: tutorial.dvi
-	@ if [ "${DVIPS}" ]; then \
-		echo "Running ${DVIPS} tutorial.dvi -o tutorial.ps..."; \
-		cd latex; ${DVIPS} tutorial.dvi -o tutorial.ps; \
-	else \
-		echo "warning: target tutorial.ps disabled by configuration"; \
-	fi
+install: install-exec install-data all
+	@:
 
-tutorial:	tutorial/index.html tutorial.ps
+uninstall: 
 
-# Target for installing all generated documentation files on the system.
-# (Foolproof: installs what we got, even if one or more targets failed.)
-install:
-	- ${INSTALL} -d ${docdir}/reference/
-	- ${INSTALL_DATA} ${srcdir}/reference/* ${docdir}/reference/
-	- ${INSTALL_DATA} ${srcdir}/latex/reference.ps ${docdir}/
-	- ${INSTALL} -d ${docdir}/tutorial/
-	- ${INSTALL_DATA} ${srcdir}/tutorial/* ${docdir}/tutorial/
-	- ${INSTALL_DATA} ${srcdir}/latex/tutorial.ps ${docdir}/
+install-strip:
+	$(MAKE) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' INSTALL_SCRIPT='$(INSTALL_PROGRAM)' install
+installdirs:
 
-# Removes all installed documentation files from the system:
-uninstall:
-	rm -rf ${docdir}
 
-# The next targets should only be called in case of emergency by developers, 
-# since the complete documentation is not normally rebuilt.  In any case, they
-# should only be called from people who know what they are doing and never 
-# from top-level Makefile's targets clean and distclean.
-clean:
-	rm -rf ${srcdir}/tutorial ${srcdir}/reference ${srcdir}/latex
-	rm -f tutorial.sgml
+mostlyclean-generic:
+	-test -z "$(MOSTLYCLEANFILES)" || rm -f $(MOSTLYCLEANFILES)
 
-distclean: clean
-	rm -f Makefile
+clean-generic:
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
-# Special dummy targets:
-.SUFFIXES: .fig .eps .png
-.PHONY: all clean distclean reference tutorial
-.SILENT: all reference tutorial_html tutorial_tex
+distclean-generic:
+	-rm -f Makefile $(DISTCLEANFILES)
+	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
+	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 
-# Suffix rules:
-.fig.eps :
-	@ if [ ! -d ${srcdir}/latex ]; then mkdir ${srcdir}/latex; fi
-	if [ "${FIG2DEV}" ]; then \
-		${FIG2DEV} -L ps -m 0.8 $< ${srcdir}/latex/$@; \
-	else \
-		echo "warning: fig2dev was not found by configure"; \
-	fi
-.fig.png :
-	@ if [ ! -d ${srcdir}/tutorial ]; then mkdir ${srcdir}/tutorial; fi
-	if [ "${FIG2DEV}" ]; then \
-		${FIG2DEV} -L png $< ${srcdir}/tutorial/$@; \
-	else \
-		echo "warning: fig2dev was not found by configure"; \
-	fi
+maintainer-clean-generic:
+	-test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
+	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
+mostlyclean:  mostlyclean-generic
+
+clean:  clean-generic mostlyclean
+
+distclean:  distclean-generic clean
+	-rm -f config.status
+	-rm -f libtool
+
+maintainer-clean:  maintainer-clean-generic distclean
+	@echo "This command is intended for maintainers to use;"
+	@echo "it deletes files that may require special tools to rebuild."
+
+.PHONY: tags distdir info dvi installcheck install-exec install-data \
+install uninstall all installdirs mostlyclean-generic distclean-generic \
+clean-generic maintainer-clean-generic clean mostlyclean distclean \
+maintainer-clean
+
+
+# Tell versions [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

@@ -1,0 +1,5 @@
+#! /bin/sh
+echo "Running checks..."
+./check_ginac 2>result.out
+echo "Comparing output..."
+cmp result.ref result.out

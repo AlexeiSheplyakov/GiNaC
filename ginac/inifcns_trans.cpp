@@ -1,0 +1,717 @@
+/** @file inifcns_trans.cpp
+ *
+ *  Implementation of transcendental (and trigonometric and hyperbolic)
+ *  functions. */
+
+#include <vector>
+#include <stdexcept>
+
+#include "ginac.h"
+
+//////////
+// exponential function
+//////////
+
+ex exp_evalf(ex const & x)
+{
+    BEGIN_TYPECHECK
+        TYPECHECK(x,numeric)
+    END_TYPECHECK(exp(x))
+    
+    return exp(ex_to_numeric(x)); // -> numeric exp(numeric)
+}
+
+ex exp_eval(ex const & x)
+{
+    // exp(0) -> 1
+    if (x.is_zero()) {
+        return exONE();
+    }
+    // exp(n*Pi*I/2) -> {+1|+I|-1|-I}
+    ex TwoExOverPiI=(2*x)/(Pi*I);
+    if (TwoExOverPiI.info(info_flags::integer)) {
+        numeric z=mod(ex_to_numeric(TwoExOverPiI),numeric(4));
+        if (z.is_equal(numZERO()))
+            return exONE();
+        if (z.is_equal(numONE()))
+            return ex(I);
+        if (z.is_equal(numTWO()))
+            return exMINUSONE();
+        if (z.is_equal(numTHREE()))
+            return ex(-I);
+    }
+    // exp(log(x)) -> x
+    if (is_ex_the_function(x, log))
+        return x.op(0);
+    
+    // exp(float)
+    if (x.info(info_flags::numeric) && !x.info(info_flags::rational))
+        return exp_evalf(x);
+    
+    return exp(x).hold();
+}    
+
+ex exp_diff(ex const & x, unsigned diff_param)
+{
+    ASSERT(diff_param==0);
+
+    return exp(x);
+}
+
+REGISTER_FUNCTION(exp, exp_eval, exp_evalf, exp_diff, NULL);
+
+//////////
+// natural logarithm
+//////////
+
+ex log_evalf(ex const & x)
+{
+    BEGIN_TYPECHECK
+        TYPECHECK(x,numeric)
+    END_TYPECHECK(log(x))
+    
+    return log(ex_to_numeric(x)); // -> numeric log(numeric)
+}
+
+ex log_eval(ex const & x)
+{
+    if (x.info(info_flags::numeric)) {
+        // log(1) -> 0
+        if (x.is_equal(exONE()))
+            return exZERO();
+        // log(-1) -> I*Pi
+        if (x.is_equal(exMINUSONE()))
+            return (I*Pi);
+        // log(I) -> Pi*I/2
+        if (x.is_equal(I))
+            return (I*Pi*numeric(1,2));
+        // log(-I) -> -Pi*I/2
+        if (x.is_equal(-I))
+            return (I*Pi*numeric(-1,2));
+        // log(0) -> throw singularity
+        if (x.is_equal(exZERO()))
+            throw(std::domain_error("log_eval(): log(0)"));
+        // log(float)
+        if (!x.info(info_flags::rational))
+            return log_evalf(x);
+    }
+    
+    return log(x).hold();
+}    
+
+ex log_diff(ex const & x, unsigned diff_param)
+{
+    ASSERT(diff_param==0);
+
+    return power(x, -1);
+}
+
+REGISTER_FUNCTION(log, log_eval, log_evalf, log_diff, NULL);
+
+//////////
+// sine (trigonometric function)
+//////////
+
+ex sin_evalf(ex const & x)
+{
+    BEGIN_TYPECHECK
+       TYPECHECK(x,numeric)
+    END_TYPECHECK(sin(x))
+    
+    return sin(ex_to_numeric(x)); // -> numeric sin(numeric)
+}
+
+ex sin_eval(ex const & x)
+{
+    // sin(n*Pi) -> 0
+    ex xOverPi=x/Pi;
+    if (xOverPi.info(info_flags::integer))
+        return exZERO();
+    
+    // sin((2n+1)*Pi/2) -> {+|-}1
+    ex xOverPiMinusHalf=xOverPi-exHALF();
+    if (xOverPiMinusHalf.info(info_flags::even))
+        return exONE();
+    else if (xOverPiMinusHalf.info(info_flags::odd))
+        return exMINUSONE();
+    
+    if (is_ex_exactly_of_type(x, function)) {
+        ex t=x.op(0);
+        // sin(asin(x)) -> x
+        if (is_ex_the_function(x, asin))
+            return t;
+        // sin(acos(x)) -> (1-x^2)^(1/2)
+        if (is_ex_the_function(x, acos))
+            return power(exONE()-power(t,exTWO()),exHALF());
+        // sin(atan(x)) -> x*(1+x^2)^(-1/2)
+        if (is_ex_the_function(x, atan))
+            return t*power(exONE()+power(t,exTWO()),exMINUSHALF());
+    }
+    
+    // sin(float) -> float
+    if (x.info(info_flags::numeric) && !x.info(info_flags::rational))
+        return sin_evalf(x);
+    
+    return sin(x).hold();
+}
+
+ex sin_diff(ex const & x, unsigned diff_param)
+{
+    ASSERT(diff_param==0);
+    
+    return cos(x);
+}
+
+REGISTER_FUNCTION(sin, sin_eval, sin_evalf, sin_diff, NULL);
+
+//////////
+// cosine (trigonometric function)
+//////////
+
+ex cos_evalf(ex const & x)
+{
+    BEGIN_TYPECHECK
+        TYPECHECK(x,numeric)
+    END_TYPECHECK(cos(x))
+    
+    return cos(ex_to_numeric(x)); // -> numeric cos(numeric)
+}
+
+ex cos_eval(ex const & x)
+{
+    // cos(n*Pi) -> {+|-}1
+    ex xOverPi=x/Pi;
+    if (xOverPi.info(info_flags::even))
+        return exONE();
+    else if (xOverPi.info(info_flags::odd))
+        return exMINUSONE();
+    
+    // cos((2n+1)*Pi/2) -> 0
+    ex xOverPiMinusHalf=xOverPi-exHALF();
+    if (xOverPiMinusHalf.info(info_flags::integer))
+        return exZERO();
+    
+    if (is_ex_exactly_of_type(x, function)) {
+        ex t=x.op(0);
+        // cos(acos(x)) -> x
+        if (is_ex_the_function(x, acos))
+            return t;
+        // cos(asin(x)) -> (1-x^2)^(1/2)
+        if (is_ex_the_function(x, asin))
+            return power(exONE()-power(t,exTWO()),exHALF());
+        // cos(atan(x)) -> (1+x^2)^(-1/2)
+        if (is_ex_the_function(x, atan))
+            return power(exONE()+power(t,exTWO()),exMINUSHALF());
+    }
+    
+    // cos(float) -> float
+    if (x.info(info_flags::numeric) && !x.info(info_flags::rational))
+        return cos_evalf(x);
+    
+    return cos(x).hold();
+}
+
+ex cos_diff(ex const & x, unsigned diff_param)
+{
+    ASSERT(diff_param==0);
+
+    return numMINUSONE()*sin(x);
+}
+
+REGISTER_FUNCTION(cos, cos_eval, cos_evalf, cos_diff, NULL);
+
+//////////
+// tangent (trigonometric function)
+//////////
+
+ex tan_evalf(ex const & x)
+{
+    BEGIN_TYPECHECK
+       TYPECHECK(x,numeric)
+    END_TYPECHECK(tan(x)) // -> numeric tan(numeric)
+    
+    return tan(ex_to_numeric(x));
+}
+
+ex tan_eval(ex const & x)
+{
+    // tan(n*Pi/3) -> {0|3^(1/2)|-(3^(1/2))}
+    ex ThreeExOverPi=numTHREE()*x/Pi;
+    if (ThreeExOverPi.info(info_flags::integer)) {
+        numeric z=mod(ex_to_numeric(ThreeExOverPi),numeric(3));
+        if (z.is_equal(numZERO()))
+            return exZERO();
+        if (z.is_equal(numONE()))
+            return power(exTHREE(),exHALF());
+        if (z.is_equal(numTWO()))
+            return -power(exTHREE(),exHALF());
+    }
+    
+    // tan((2n+1)*Pi/2) -> throw
+    ex ExOverPiMinusHalf=x/Pi-exHALF();
+    if (ExOverPiMinusHalf.info(info_flags::integer))
+        throw (std::domain_error("tan_eval(): infinity"));
+    
+    if (is_ex_exactly_of_type(x, function)) {
+        ex t=x.op(0);
+        // tan(atan(x)) -> x
+        if (is_ex_the_function(x, atan))
+            return t;
+        // tan(asin(x)) -> x*(1+x^2)^(-1/2)
+        if (is_ex_the_function(x, asin))
+            return t*power(exONE()-power(t,exTWO()),exMINUSHALF());
+        // tan(acos(x)) -> (1-x^2)^(1/2)/x
+        if (is_ex_the_function(x, acos))
+            return power(t,exMINUSONE())*power(exONE()-power(t,exTWO()),exHALF());
+    }
+    
+    // tan(float) -> float
+    if (x.info(info_flags::numeric) && !x.info(info_flags::rational)) {
+        return tan_evalf(x);
+    }
+    
+    return tan(x).hold();
+}
+
+ex tan_diff(ex const & x, unsigned diff_param)
+{
+    ASSERT(diff_param==0);
+    
+    return (1+power(tan(x),exTWO()));
+}
+
+REGISTER_FUNCTION(tan, tan_eval, tan_evalf, tan_diff, NULL);
+
+//////////
+// inverse sine (arc sine)
+//////////
+
+ex asin_evalf(ex const & x)
+{
+    BEGIN_TYPECHECK
+       TYPECHECK(x,numeric)
+    END_TYPECHECK(asin(x))
+    
+    return asin(ex_to_numeric(x)); // -> numeric asin(numeric)
+}
+
+ex asin_eval(ex const & x)
+{
+    if (x.info(info_flags::numeric)) {
+        // asin(0) -> 0
+        if (x.is_zero())
+            return x;
+        // asin(1/2) -> Pi/6
+        if (x.is_equal(exHALF()))
+            return numeric(1,6)*Pi;
+        // asin(1) -> Pi/2
+        if (x.is_equal(exONE()))
+            return numeric(1,2)*Pi;
+        // asin(-1/2) -> -Pi/6
+        if (x.is_equal(exMINUSHALF()))
+            return numeric(-1,6)*Pi;
+        // asin(-1) -> -Pi/2
+        if (x.is_equal(exMINUSONE()))
+            return numeric(-1,2)*Pi;
+        // asin(float) -> float
+        if (!x.info(info_flags::rational))
+            return asin_evalf(x);
+    }
+    
+    return asin(x).hold();
+}
+
+ex asin_diff(ex const & x, unsigned diff_param)
+{
+    ASSERT(diff_param==0);
+    
+    return power(1-power(x,exTWO()),exMINUSHALF());
+}
+
+REGISTER_FUNCTION(asin, asin_eval, asin_evalf, asin_diff, NULL);
+
+//////////
+// inverse cosine (arc cosine)
+//////////
+
+ex acos_evalf(ex const & x)
+{
+    BEGIN_TYPECHECK
+       TYPECHECK(x,numeric)
+    END_TYPECHECK(acos(x))
+    
+    return acos(ex_to_numeric(x)); // -> numeric acos(numeric)
+}
+
+ex acos_eval(ex const & x)
+{
+    if (x.info(info_flags::numeric)) {
+        // acos(1) -> 0
+        if (x.is_equal(exONE()))
+            return exZERO();
+        // acos(1/2) -> Pi/3
+        if (x.is_equal(exHALF()))
+            return numeric(1,3)*Pi;
+        // acos(0) -> Pi/2
+        if (x.is_zero())
+            return numeric(1,2)*Pi;
+        // acos(-1/2) -> 2/3*Pi
+        if (x.is_equal(exMINUSHALF()))
+            return numeric(2,3)*Pi;
+        // acos(-1) -> Pi
+        if (x.is_equal(exMINUSONE()))
+            return Pi;
+        // acos(float) -> float
+        if (!x.info(info_flags::rational))
+            return acos_evalf(x);
+    }
+    
+    return acos(x).hold();
+}
+
+ex acos_diff(ex const & x, unsigned diff_param)
+{
+    ASSERT(diff_param==0);
+    
+    return numMINUSONE()*power(1-power(x,exTWO()),exMINUSHALF());
+}
+
+REGISTER_FUNCTION(acos, acos_eval, acos_evalf, acos_diff, NULL);
+
+//////////
+// inverse tangent (arc tangent)
+//////////
+
+ex atan_evalf(ex const & x)
+{
+    BEGIN_TYPECHECK
+        TYPECHECK(x,numeric)
+    END_TYPECHECK(atan(x))
+    
+    return atan(ex_to_numeric(x)); // -> numeric atan(numeric)
+}
+
+ex atan_eval(ex const & x)
+{
+    if (x.info(info_flags::numeric)) {
+        // atan(0) -> 0
+        if (x.is_equal(exZERO()))
+            return exZERO();
+        // atan(float) -> float
+        if (!x.info(info_flags::rational))
+            return atan_evalf(x);
+    }
+    
+    return atan(x).hold();
+}    
+
+ex atan_diff(ex const & x, unsigned diff_param)
+{
+    ASSERT(diff_param==0);
+
+    return power(1+x*x, -1);
+}
+
+REGISTER_FUNCTION(atan, atan_eval, atan_evalf, atan_diff, NULL);
+
+//////////
+// inverse tangent (atan2(y,x))
+//////////
+
+ex atan2_evalf(ex const & y, ex const & x)
+{
+    BEGIN_TYPECHECK
+        TYPECHECK(y,numeric)
+        TYPECHECK(x,numeric)
+    END_TYPECHECK(atan2(y,x))
+    
+    return atan(ex_to_numeric(y),ex_to_numeric(x)); // -> numeric atan(numeric)
+}
+
+ex atan2_eval(ex const & y, ex const & x)
+{
+    if (y.info(info_flags::numeric) && !y.info(info_flags::rational) &&
+        x.info(info_flags::numeric) && !x.info(info_flags::rational)) {
+        return atan2_evalf(y,x);
+    }
+    
+    return atan2(y,x).hold();
+}    
+
+ex atan2_diff(ex const & y, ex const & x, unsigned diff_param)
+{
+    ASSERT(diff_param<2);
+
+    if (diff_param==0) {
+        // d/dy atan(y,x)
+        return power(x*(1+y*y/(x*x)),-1);
+    }
+    // d/dx atan(y,x)
+    return -y*power(x*x+y*y,-1);
+}
+
+REGISTER_FUNCTION(atan2, atan2_eval, atan2_evalf, atan2_diff, NULL);
+
+//////////
+// hyperbolic sine (trigonometric function)
+//////////
+
+ex sinh_evalf(ex const & x)
+{
+    BEGIN_TYPECHECK
+       TYPECHECK(x,numeric)
+    END_TYPECHECK(sinh(x))
+    
+    return sinh(ex_to_numeric(x)); // -> numeric sinh(numeric)
+}
+
+ex sinh_eval(ex const & x)
+{
+    if (x.info(info_flags::numeric)) {
+        // sinh(0) -> 0
+        if (x.is_zero())
+            return exZERO();
+        // sinh(float) -> float
+        if (!x.info(info_flags::rational))
+            return sinh_evalf(x);
+    }
+    
+    if (is_ex_exactly_of_type(x, function)) {
+        ex t=x.op(0);
+        // sinh(asinh(x)) -> x
+        if (is_ex_the_function(x, asinh))
+            return t;
+        // sinh(acosh(x)) -> (x-1)^(1/2) * (x+1)^(1/2)
+        if (is_ex_the_function(x, acosh))
+            return power(t-exONE(),exHALF())*power(t+exONE(),exHALF());
+        // sinh(atanh(x)) -> x*(1-x^2)^(-1/2)
+        if (is_ex_the_function(x, atanh))
+            return t*power(exONE()-power(t,exTWO()),exMINUSHALF());
+    }
+    
+    return sinh(x).hold();
+}
+
+ex sinh_diff(ex const & x, unsigned diff_param)
+{
+    ASSERT(diff_param==0);
+    
+    return cosh(x);
+}
+
+REGISTER_FUNCTION(sinh, sinh_eval, sinh_evalf, sinh_diff, NULL);
+
+//////////
+// hyperbolic cosine (trigonometric function)
+//////////
+
+ex cosh_evalf(ex const & x)
+{
+    BEGIN_TYPECHECK
+       TYPECHECK(x,numeric)
+    END_TYPECHECK(cosh(x))
+    
+    return cosh(ex_to_numeric(x)); // -> numeric cosh(numeric)
+}
+
+ex cosh_eval(ex const & x)
+{
+    if (x.info(info_flags::numeric)) {
+        // cosh(0) -> 1
+        if (x.is_zero())
+            return exONE();
+        // cosh(float) -> float
+        if (!x.info(info_flags::rational))
+            return cosh_evalf(x);
+    }
+    
+    if (is_ex_exactly_of_type(x, function)) {
+        ex t=x.op(0);
+        // cosh(acosh(x)) -> x
+        if (is_ex_the_function(x, acosh))
+            return t;
+        // cosh(asinh(x)) -> (1+x^2)^(1/2)
+        if (is_ex_the_function(x, asinh))
+            return power(exONE()+power(t,exTWO()),exHALF());
+        // cosh(atanh(x)) -> (1-x^2)^(-1/2)
+        if (is_ex_the_function(x, atanh))
+            return power(exONE()-power(t,exTWO()),exMINUSHALF());
+    }
+    
+    return cosh(x).hold();
+}
+
+ex cosh_diff(ex const & x, unsigned diff_param)
+{
+    ASSERT(diff_param==0);
+    
+    return sinh(x);
+}
+
+REGISTER_FUNCTION(cosh, cosh_eval, cosh_evalf, cosh_diff, NULL);
+
+//////////
+// hyperbolic tangent (trigonometric function)
+//////////
+
+ex tanh_evalf(ex const & x)
+{
+    BEGIN_TYPECHECK
+       TYPECHECK(x,numeric)
+    END_TYPECHECK(tanh(x))
+    
+    return tanh(ex_to_numeric(x)); // -> numeric tanh(numeric)
+}
+
+ex tanh_eval(ex const & x)
+{
+    if (x.info(info_flags::numeric)) {
+        // tanh(0) -> 0
+        if (x.is_zero())
+            return exZERO();
+        // tanh(float) -> float
+        if (!x.info(info_flags::rational))
+            return tanh_evalf(x);
+    }
+    
+    if (is_ex_exactly_of_type(x, function)) {
+        ex t=x.op(0);
+        // tanh(atanh(x)) -> x
+        if (is_ex_the_function(x, atanh))
+            return t;
+        // tanh(asinh(x)) -> x*(1+x^2)^(-1/2)
+        if (is_ex_the_function(x, asinh))
+            return t*power(exONE()+power(t,exTWO()),exMINUSHALF());
+        // tanh(acosh(x)) -> (x-1)^(1/2)*(x+1)^(1/2)/x
+        if (is_ex_the_function(x, acosh))
+            return power(t-exONE(),exHALF())*power(t+exONE(),exHALF())*power(t,exMINUSONE());
+    }
+    
+    return tanh(x).hold();
+}
+
+ex tanh_diff(ex const & x, unsigned diff_param)
+{
+    ASSERT(diff_param==0);
+    
+    return exONE()-power(tanh(x),exTWO());
+}
+
+REGISTER_FUNCTION(tanh, tanh_eval, tanh_evalf, tanh_diff, NULL);
+
+//////////
+// inverse hyperbolic sine (trigonometric function)
+//////////
+
+ex asinh_evalf(ex const & x)
+{
+    BEGIN_TYPECHECK
+       TYPECHECK(x,numeric)
+    END_TYPECHECK(asinh(x))
+    
+    return asinh(ex_to_numeric(x)); // -> numeric asinh(numeric)
+}
+
+ex asinh_eval(ex const & x)
+{
+    if (x.info(info_flags::numeric)) {
+        // asinh(0) -> 0
+        if (x.is_zero())
+            return exZERO();
+        // asinh(float) -> float
+        if (!x.info(info_flags::rational))
+            return asinh_evalf(x);
+    }
+    
+    return asinh(x).hold();
+}
+
+ex asinh_diff(ex const & x, unsigned diff_param)
+{
+    ASSERT(diff_param==0);
+    
+    return power(1+power(x,exTWO()),exMINUSHALF());
+}
+
+REGISTER_FUNCTION(asinh, asinh_eval, asinh_evalf, asinh_diff, NULL);
+
+//////////
+// inverse hyperbolic cosine (trigonometric function)
+//////////
+
+ex acosh_evalf(ex const & x)
+{
+    BEGIN_TYPECHECK
+       TYPECHECK(x,numeric)
+    END_TYPECHECK(acosh(x))
+    
+    return acosh(ex_to_numeric(x)); // -> numeric acosh(numeric)
+}
+
+ex acosh_eval(ex const & x)
+{
+    if (x.info(info_flags::numeric)) {
+        // acosh(0) -> Pi*I/2
+        if (x.is_zero())
+            return Pi*I*numeric(1,2);
+        // acosh(1) -> 0
+        if (x.is_equal(exONE()))
+            return exZERO();
+        // acosh(-1) -> Pi*I
+        if (x.is_equal(exMINUSONE()))
+            return Pi*I;
+        // acosh(float) -> float
+        if (!x.info(info_flags::rational))
+            return acosh_evalf(x);
+    }
+    
+    return acosh(x).hold();
+}
+
+ex acosh_diff(ex const & x, unsigned diff_param)
+{
+    ASSERT(diff_param==0);
+    
+    return power(x-1,exMINUSHALF())*power(x+1,exMINUSHALF());
+}
+
+REGISTER_FUNCTION(acosh, acosh_eval, acosh_evalf, acosh_diff, NULL);
+
+//////////
+// inverse hyperbolic tangent (trigonometric function)
+//////////
+
+ex atanh_evalf(ex const & x)
+{
+    BEGIN_TYPECHECK
+       TYPECHECK(x,numeric)
+    END_TYPECHECK(atanh(x))
+    
+    return atanh(ex_to_numeric(x)); // -> numeric atanh(numeric)
+}
+
+ex atanh_eval(ex const & x)
+{
+    if (x.info(info_flags::numeric)) {
+        // atanh(0) -> 0
+        if (x.is_zero())
+            return exZERO();
+        // atanh({+|-}1) -> throw
+        if (x.is_equal(exONE()) || x.is_equal(exONE()))
+            throw (std::domain_error("atanh_eval(): infinity"));
+        // atanh(float) -> float
+        if (!x.info(info_flags::rational))
+            return atanh_evalf(x);
+    }
+    
+    return atanh(x).hold();
+}
+
+ex atanh_diff(ex const & x, unsigned diff_param)
+{
+    ASSERT(diff_param==0);
+    
+    return power(exONE()-power(x,exTWO()),exMINUSONE());
+}
+
+REGISTER_FUNCTION(atanh, atanh_eval, atanh_evalf, atanh_diff, NULL);

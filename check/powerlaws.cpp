@@ -3,7 +3,7 @@
 /* Tests for power laws.  You shouldn't try to draw much inspiration from
  * this code, it is a sanity check rather deeply rooted in GiNaC's classes. */
 
-#include <GiNaC/ginac.h>
+#include <ginac/ginac.h>
 
 static unsigned powerlaws1(void)
 {

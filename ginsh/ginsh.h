@@ -2,8 +2,8 @@
  *  ginsh.h - GiNaC Interactive Shell, global definitions
  */
 
-#ifndef GINSH_H_
-#define GINSH_H_
+#ifndef GINSH_H
+#define GINSH_H
 
 // yacc semantic type
 #define YYSTYPE ex
@@ -21,14 +21,9 @@ extern char yytext[];
 typedef map<string, symbol> sym_tab;
 extern sym_tab syms;
 
-// Ersatz functions
+// Prototypes for missing functions
 #ifndef HAVE_STRDUP
-char *strdup(const char *s)
-{
-	char *n = (char *)malloc(strlen(s) + 1);
-	strcpy(n, s);
-	return n;
-}
+extern char *strdup(const char *s);
 #endif
 
 #endif

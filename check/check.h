@@ -1,7 +1,7 @@
 // check/check.h
 
-#ifndef _CHECK_H_
-#define _CHECK_H_
+#ifndef CHECK_H
+#define CHECK_H
 
 // fcntimer is defined in timer.cpp and used for timing check functions only:
 unsigned fcntimer(unsigned fcn());
@@ -21,4 +21,4 @@ unsigned matrix_checks();
 unsigned lsolve_onedim();
 unsigned series_expansion();
 
-#endif // ndef _CHECK_H_
+#endif // ndef CHECK_H

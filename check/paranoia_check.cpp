@@ -5,7 +5,7 @@
  * a sick behaviour again.  But since we are paranoic and we want to exclude
  * that behaviour for good... */
 
-#include <GiNaC/ginac.h>
+#include <ginac/ginac.h>
 
 // The very first pair of historic problems had its roots in power.cpp and was
 // finally resolved on April 27th. (Fixing the first on April 23rd actually

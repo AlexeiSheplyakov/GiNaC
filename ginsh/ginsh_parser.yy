@@ -19,22 +19,20 @@
 #include <unistd.h>
 #endif
 
-#if STDC_HEADERS
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#endif
 
 extern "C" {
 #include <readline/readline.h>
 #include <readline/history.h>
 }
+
 #include <map>
 #include <string>
 #include <stdexcept>
 
-#include <GiNaC/ginac.h>
-
+#include <ginac/ginac.h>
 #include "ginsh.h"
 
 // Original readline settings

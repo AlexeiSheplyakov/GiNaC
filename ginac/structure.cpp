@@ -1,0 +1,156 @@
+/** @file structure.cpp
+ *
+ *  Implementation of 'abstract' class structure. */
+
+#include <string>
+
+#include "ginac.h"
+
+//////////
+// default constructor, destructor, copy constructor assignment operator and helpers
+//////////
+
+// public
+
+structure::structure()
+{
+    debugmsg("structure default constructor",LOGLEVEL_CONSTRUCT);
+    tinfo_key = TINFO_STRUCTURE;
+}
+
+structure::~structure()
+{
+    debugmsg("structure destructor",LOGLEVEL_DESTRUCT);
+    destroy(0);
+}
+
+structure::structure(structure const & other)
+{
+    debugmsg("structure copy constructor",LOGLEVEL_CONSTRUCT);
+    copy(other);
+}
+
+structure const & structure::operator=(structure const & other)
+{
+    debugmsg("structure operator=",LOGLEVEL_ASSIGNMENT);
+    if (this != &other) {
+        destroy(1);
+        copy(other);
+    }
+    return *this;
+}
+
+// protected
+
+void structure::copy(structure const & other)
+{
+    basic::copy(other);
+}
+
+void structure::destroy(bool call_parent)
+{
+    if (call_parent) basic::destroy(call_parent);
+}
+
+//////////
+// other constructors
+//////////
+
+// none
+
+//////////
+// structures overriding virtual structures from bases classes
+//////////
+
+// public
+
+basic * structure::duplicate() const
+{
+    debugmsg("structure duplicate",LOGLEVEL_DUPLICATE);
+    return new structure(*this);
+}
+
+void structure::printraw(ostream & os) const
+{
+    debugmsg("structure printraw",LOGLEVEL_PRINT);
+
+    os << "structure(hash=" << hashvalue << ",flags=" << flags << ")";
+}
+
+void structure::print(ostream & os, unsigned upper_precedence) const
+{
+    debugmsg("structure print",LOGLEVEL_PRINT);
+
+    os << "structure()";
+}
+
+void structure::printtree(ostream & os, unsigned indent) const
+{
+    debugmsg("structure printtree",LOGLEVEL_PRINT);
+
+    os << string(indent,' ') << "structure "
+       << "hash=" << hashvalue << " (0x" << hex << hashvalue << dec << ")"
+       << ", flags=" << flags << endl;
+}
+
+void structure::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) const
+{
+    debugmsg("structure print csrc",LOGLEVEL_PRINT);
+
+    os << "structure()";
+}
+
+// protected
+
+int structure::compare_same_type(basic const & other) const
+{
+    ASSERT(is_of_type(other, structure));
+    return 0; // all structures are the same
+}
+
+bool structure::is_equal_same_type(basic const & other) const
+{
+    ASSERT(is_of_type(other, structure));
+    return true; // all structures are the same
+}
+
+//////////
+// new virtual structures which can be overridden by derived classes
+//////////
+
+// none
+
+//////////
+// non-virtual structures in this class
+//////////
+
+// protected
+
+vector<registered_structure_info> & structure::registered_structures(void)
+{
+    static vector<registered_structure_info> * rs=new vector<registered_structure_info>;
+    return *rs;
+}
+
+// public
+
+unsigned structure::register_new(char const * nm)
+{
+    registered_structure_info rsi={nm};
+    registered_structures().push_back(rsi);
+    return registered_structures().size()-1;
+}
+
+//////////
+// static member variables
+//////////
+
+// none
+
+//////////
+// global constants
+//////////
+
+const structure some_structure;
+type_info const & typeid_structure=typeid(some_structure);
+

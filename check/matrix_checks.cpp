@@ -3,7 +3,7 @@
 /* Here we test manipulations on GiNaC's symbolic matrices. */
 
 #include <stdexcept>
-#include <GiNaC/ginac.h>
+#include <ginac/ginac.h>
 
 static unsigned matrix_determinants(void)
 {
