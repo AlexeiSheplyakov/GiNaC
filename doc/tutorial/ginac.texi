@@ -23,7 +23,7 @@
 This is a tutorial that documents GiNaC @value{VERSION}, an open
 framework for symbolic computation within the C++ programming language.
 
-Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
 
 Permission is granted to make and distribute verbatim copies of
 this manual provided the copyright notice and this permission notice
@@ -52,7 +52,7 @@ notice identical to this one.
 
 @page
 @vskip 0pt plus 1filll
-Copyright @copyright{} 1999-2003 Johannes Gutenberg University Mainz, Germany
+Copyright @copyright{} 1999-2004 Johannes Gutenberg University Mainz, Germany
 @sp 2
 Permission is granted to make and distribute verbatim copies of
 this manual provided the copyright notice and this permission notice
@@ -135,7 +135,7 @@ the near future.
 
 @section License
 The GiNaC framework for symbolic computation within the C++ programming
-language is Copyright @copyright{} 1999-2003 Johannes Gutenberg
+language is Copyright @copyright{} 1999-2004 Johannes Gutenberg
 University Mainz, Germany.
 
 This program is free software; you can redistribute it and/or
@@ -4994,6 +4994,9 @@ $x_1x_2\cdots x_i < 1$ holds.
 > evalf(zeta(@{3,1,3,1@}));
 0.005229569563530960100930652283899231589890420784634635522547448972148869544...
 @end example
+
+Note that the convention for arguments on the branch cut in GiNaC as stated above is
+different from the one Remiddi and Vermaseren have chosen for the harmonic polylogarithm.
 
 If a function evaluates to infinity, no exceptions are raised, but the function is returned
 unevaluated, e.g.
