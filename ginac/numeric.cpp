@@ -537,9 +537,9 @@ bool numeric::info(unsigned inf) const
  *  sign as a multiplicative factor. */
 bool numeric::has(const ex &other) const
 {
-	if (!is_exactly_of_type(*other.bp, numeric))
+	if (!is_ex_exactly_of_type(other, numeric))
 		return false;
-	const numeric &o = static_cast<const numeric &>(*other.bp);
+	const numeric &o = ex_to<numeric>(other);
 	if (this->is_equal(o) || this->is_equal(-o))
 		return true;
 	if (o.imag().is_zero())  // e.g. scan for 3 in -3*I

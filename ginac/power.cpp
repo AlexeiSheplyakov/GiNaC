@@ -240,7 +240,7 @@ ex power::map(map_function & f) const
 
 int power::degree(const ex & s) const
 {
-	if (is_exactly_of_type(*exponent.bp, numeric) && ex_to<numeric>(exponent).is_integer()) {
+	if (is_ex_exactly_of_type(exponent, numeric) && ex_to<numeric>(exponent).is_integer()) {
 		if (basis.is_equal(s))
 			return ex_to<numeric>(exponent).to_int();
 		else
@@ -251,7 +251,7 @@ int power::degree(const ex & s) const
 
 int power::ldegree(const ex & s) const 
 {
-	if (is_exactly_of_type(*exponent.bp, numeric) && ex_to<numeric>(exponent).is_integer()) {
+	if (is_ex_exactly_of_type(exponent, numeric) && ex_to<numeric>(exponent).is_integer()) {
 		if (basis.is_equal(s))
 			return ex_to<numeric>(exponent).to_int();
 		else
@@ -270,7 +270,7 @@ ex power::coeff(const ex & s, int n) const
 			return _ex0();
 	} else {
 		// basis equal to s
-		if (is_exactly_of_type(*exponent.bp, numeric) && ex_to<numeric>(exponent).is_integer()) {
+		if (is_ex_exactly_of_type(exponent, numeric) && ex_to<numeric>(exponent).is_integer()) {
 			// integer exponent
 			int int_exp = ex_to<numeric>(exponent).to_int();
 			if (n == int_exp)
@@ -318,13 +318,13 @@ ex power::eval(int level) const
 	const numeric *num_basis;
 	const numeric *num_exponent;
 	
-	if (is_exactly_of_type(*ebasis.bp,numeric)) {
+	if (is_ex_exactly_of_type(ebasis, numeric)) {
 		basis_is_numerical = true;
-		num_basis = static_cast<const numeric *>(ebasis.bp);
+		num_basis = &ex_to<numeric>(ebasis);
 	}
-	if (is_exactly_of_type(*eexponent.bp,numeric)) {
+	if (is_ex_exactly_of_type(eexponent, numeric)) {
 		exponent_is_numerical = true;
-		num_exponent = static_cast<const numeric *>(eexponent.bp);
+		num_exponent = &ex_to<numeric>(eexponent);
 	}
 	
 	// ^(x,0) -> 1  (0^0 also handled here)

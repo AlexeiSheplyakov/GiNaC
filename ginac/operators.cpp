@@ -223,7 +223,7 @@ const ex operator++(ex & lh, int)
 	return tmp;
 }
 
-/** Expression Postfix decrement.  Returns the ex and leaves the original
+/** Expression postfix decrement.  Returns the ex and leaves the original
  *  decremented by 1. */
 const ex operator--(ex & lh, int)
 {
@@ -259,7 +259,7 @@ const numeric operator++(numeric & lh, int)
 	return tmp;
 }
 
-/** Numeric Postfix decrement.  Returns the number and leaves the original
+/** Numeric postfix decrement.  Returns the number and leaves the original
  *  decremented by 1. */
 const numeric operator--(numeric & lh, int)
 {

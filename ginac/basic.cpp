@@ -196,9 +196,9 @@ ex & basic::let_op(int i)
 
 ex basic::operator[](const ex & index) const
 {
-	if (is_exactly_of_type(*index.bp,numeric))
-		return op(static_cast<const numeric &>(*index.bp).to_int());
-	
+	if (is_ex_exactly_of_type(index,numeric))
+		return op(ex_to<numeric>(index).to_int());
+
 	throw(std::invalid_argument("non-numeric indices not supported by this type"));
 }
 

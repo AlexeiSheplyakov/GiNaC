@@ -489,7 +489,7 @@ bool pseries::is_terminating(void) const
 ex basic::series(const relational & r, int order, unsigned options) const
 {
 	epvector seq;
-	numeric fac(1);
+	numeric fac = 1;
 	ex deriv = *this;
 	ex coeff = deriv.subs(r);
 	const symbol &s = ex_to<symbol>(r.lhs());

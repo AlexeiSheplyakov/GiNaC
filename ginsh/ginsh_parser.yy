@@ -203,9 +203,9 @@ exp	: T_NUMBER		{$$ = $1;}
 	| T_SYMBOL '(' exprseq ')' {
 		fcn_tab::const_iterator i = find_function($1, $3.nops());
 		if (i->second.is_ginac) {
-			$$ = ((fcnp2)(i->second.p))(static_cast<const exprseq &>(*($3.bp)), i->second.serial);
+			$$ = ((fcnp2)(i->second.p))(ex_to<exprseq>($3), i->second.serial);
 		} else {
-			$$ = (i->second.p)(static_cast<const exprseq &>(*($3.bp)));
+			$$ = (i->second.p)(ex_to<exprseq>($3));
 		}
 	}
 	| T_DIGITS '=' T_NUMBER	{$$ = $3; Digits = ex_to<numeric>($3).to_int();}
@@ -230,7 +230,7 @@ exp	: T_NUMBER		{$$ = $1;}
 	;
 
 exprseq	: exp			{$$ = exprseq($1);}
-	| exprseq ',' exp	{exprseq es(static_cast<exprseq &>(*($1.bp))); $$ = es.append($3);}
+	| exprseq ',' exp	{exprseq es(ex_to<exprseq>($1)); $$ = es.append($3);}
 	;
 
 list_or_empty: /* empty */	{$$ = *new lst;}
@@ -238,15 +238,15 @@ list_or_empty: /* empty */	{$$ = *new lst;}
 	;
 
 list	: exp			{$$ = lst($1);}
-	| list ',' exp		{lst l(static_cast<lst &>(*($1.bp))); $$ = l.append($3);}
+	| list ',' exp		{lst l(ex_to<lst>($1)); $$ = l.append($3);}
 	;
 
 matrix	: '[' row ']'		{$$ = lst($2);}
-	| matrix ',' '[' row ']' {lst l(static_cast<lst &>(*($1.bp))); $$ = l.append($4);}
+	| matrix ',' '[' row ']' {lst l(ex_to<lst>($1)); $$ = l.append($4);}
 	;
 
 row	: exp			{$$ = lst($1);}
-	| row ',' exp		{lst l(static_cast<lst &>(*($1.bp))); $$ = l.append($3);}
+	| row ',' exp		{lst l(ex_to<lst>($1)); $$ = l.append($3);}
 	;
 
 
