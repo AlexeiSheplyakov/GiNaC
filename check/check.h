@@ -40,5 +40,6 @@ unsigned normalization();
 unsigned matrix_checks();
 unsigned lsolve_onedim();
 unsigned series_expansion();
+unsigned lortensor_check();
 
 #endif // ndef CHECK_H

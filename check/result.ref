@@ -26,3 +26,5 @@ Complex integers: {(0,0)=0} {(1,0)=1} {(1,1)=1+I} {(0,1)=I} {(-1,1)=-1+I} {(-1,0
 (no output)
 ---------series expansion:
 (no output)
+---------manipulations of lortensor objects:
+(no output)

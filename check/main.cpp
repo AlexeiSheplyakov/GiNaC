@@ -43,6 +43,7 @@ int main()
             result += fcntimer(matrix_checks);
             result += fcntimer(lsolve_onedim);
             result += fcntimer(series_expansion);
+            result += fcntimer(lortensor_check);
         }
     } catch (exception const & e) {
         cout << "error: caught an exception: " << e.what() << endl;
