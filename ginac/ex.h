@@ -55,14 +55,15 @@ static library_init library_initializer;
 
 class scalar_products;
 class const_iterator;
+class const_preorder_iterator;
+class const_postorder_iterator;
 
 
 /** Lightweight wrapper for GiNaC's symbolic objects.  Basically all it does is
  *  to hold a pointer to the other objects, manage the reference counting and
  *  provide methods for manipulation of these objects.  (Some people call such
  *  a thing a proxy class.) */
-class ex
-{
+class ex {
 	friend class archive_node;
 	friend inline bool are_ex_trivially_equal(const ex &, const ex &);
 	template<class T> friend inline const T &ex_to(const ex &);
@@ -106,6 +107,10 @@ public:
 	// iterators
 	const_iterator begin() const throw();
 	const_iterator end() const throw();
+	const_preorder_iterator preorder_begin() const;
+	const_preorder_iterator preorder_end() const throw();
+	const_postorder_iterator postorder_begin() const;
+	const_postorder_iterator postorder_end() const throw();
 
 	// evaluation
 	ex eval(int level = 0) const { return bp->eval(level); }
@@ -404,8 +409,7 @@ bool ex::is_equal(const ex & other) const
 
 // Iterators
 
-class const_iterator : public std::iterator<std::random_access_iterator_tag, ex, ptrdiff_t, const ex *, const ex &>
-{
+class const_iterator : public std::iterator<std::random_access_iterator_tag, ex, ptrdiff_t, const ex *, const ex &> {
 	friend class ex;
 	friend class const_preorder_iterator;
 	friend class const_postorder_iterator;
@@ -551,27 +555,24 @@ struct _iter_rep {
 
 } // namespace internal
 
-class const_preorder_iterator : public std::iterator<std::forward_iterator_tag, ex, ptrdiff_t, const ex *, const ex &>
-{
+class const_preorder_iterator : public std::iterator<std::forward_iterator_tag, ex, ptrdiff_t, const ex *, const ex &> {
 public:
 	const_preorder_iterator() throw() {}
 
-	// Provide implicit conversion from const_iterator, so ex::begin() and
-	// ex::end() can be used to create const_preorder_iterators
-	const_preorder_iterator(const const_iterator & cit)
+	const_preorder_iterator(const ex &e, size_t n)
 	{
-		s.push(internal::_iter_rep(cit.e, cit.i, cit.e.nops()));
+		s.push(internal::_iter_rep(e, 0, n));
 	}
 
 public:
-	ex operator*() const
+	reference operator*() const
 	{
 		return s.top().e;
 	}
 
-	std::auto_ptr<ex> operator->() const
+	pointer operator->() const
 	{
-		return std::auto_ptr<ex>(new ex(operator*()));
+		return &(s.top().e);
 	}
 
 	const_preorder_iterator &operator++()
@@ -589,7 +590,7 @@ public:
 
 	bool operator==(const const_preorder_iterator &other) const throw()
 	{
-		return s.top() == other.s.top();
+		return s == other.s;
 	}
 
 	bool operator!=(const const_preorder_iterator &other) const throw()
@@ -602,8 +603,10 @@ private:
 
 	void increment()
 	{
-		while (s.top().i == s.top().i_end && s.size() > 1) {
+		while (!s.empty() && s.top().i == s.top().i_end) {
 			s.pop();
+			if (s.empty())
+				return;
 			++s.top().i;
 		}
 
@@ -616,31 +619,25 @@ private:
 	}
 };
 
-class const_postorder_iterator : public std::iterator<std::forward_iterator_tag, ex, ptrdiff_t, const ex *, const ex &>
-{
+class const_postorder_iterator : public std::iterator<std::forward_iterator_tag, ex, ptrdiff_t, const ex *, const ex &> {
 public:
 	const_postorder_iterator() throw() {}
 
-	// Provide implicit conversion from const_iterator, so ex::begin() and
-	// ex::end() can be used to create const_postorder_iterators
-	const_postorder_iterator(const const_iterator & cit)
+	const_postorder_iterator(const ex &e, size_t n)
 	{
-		size_t n = cit.e.nops();
-		if (cit.i != n) {
-			s.push(internal::_iter_rep(cit.e, cit.i, n));
-			descend();
-		}
+		s.push(internal::_iter_rep(e, 0, n));
+		descend();
 	}
 
 public:
-	ex operator*() const
+	reference operator*() const
 	{
 		return s.top().e;
 	}
 
-	std::auto_ptr<ex> operator->() const
+	pointer operator->() const
 	{
-		return std::auto_ptr<ex>(new ex(operator*()));
+		return &(s.top().e);
 	}
 
 	const_postorder_iterator &operator++()
@@ -682,7 +679,7 @@ private:
 	{
 		if (s.top().i == s.top().i_end)
 			s.pop();
-		if (s.size() > 0) {
+		if (!s.empty()) {
 			++s.top().i;
 			descend();
 		}
@@ -697,6 +694,26 @@ inline const_iterator ex::begin() const throw()
 inline const_iterator ex::end() const throw()
 {
 	return const_iterator(*this, nops());
+}
+
+inline const_preorder_iterator ex::preorder_begin() const
+{
+	return const_preorder_iterator(*this, nops());
+}
+
+inline const_preorder_iterator ex::preorder_end() const throw()
+{
+	return const_preorder_iterator();
+}
+
+inline const_postorder_iterator ex::postorder_begin() const
+{
+	return const_postorder_iterator(*this, nops());
+}
+
+inline const_postorder_iterator ex::postorder_end() const throw()
+{
+	return const_postorder_iterator();
 }
 
 
