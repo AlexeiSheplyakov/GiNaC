@@ -220,6 +220,73 @@ static unsigned inifcns_test_zeta()
 }
 
 
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//  H/Li exam
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+
+static unsigned inifcns_test_LiG()
+{
+	int digitsbuf = Digits;
+	Digits = 17;
+	ex prec = 5 * pow(10, -(int)Digits);
+	numeric almostone("0.99999999999999999999");
+	unsigned result = 0;
+
+	lst res;
+	
+	res.append(Li(lst(4), lst(6)).hold() - Li(4, 6.0));
+	res.append(G(lst(0,0,5.0,0,2.0,0,0,0,3.0),0.5).hold()
+	           + Li(lst(3,2,4), lst(numeric(1,10), numeric(5,2), numeric(2,3))));
+	res.append(Li(lst(2,1,1), lst(almostone, almostone, almostone)) - zeta(lst(2,1,1)));
+
+	// check Li_{1,1} against known expression
+	symbol x("x"), y("y");
+	ex eps = 1e-30*I;
+	ex s1 = Li(lst(1,1),lst(x,y));
+	ex s2 = log(1-1/x/y-eps)*log((1-1/x-eps)/(1/x/y-1/x)) + Li(2,(1-1/x/y-eps)/(1/x-1/x/y))
+			- log(-1/x/y-eps)*log((-1/x-eps)/(1/x/y-1/x)) - Li(2,(-1/x/y-eps)/(1/x-1/x/y))
+			- log(-1/x/y-eps)*log(1-1/x-eps) + log(-1/x/y-eps)*log(-1/x-eps);
+	res.append(s1.subs(lst(x==numeric(1)/2, y==3)) - s2.subs(lst(x==numeric(1)/2, y==3)));
+	res.append(s1.subs(lst(x==numeric(3)/2, y==numeric(1)/2)) - s2.subs(lst(x==numeric(3)/2, y==numeric(1)/2)));
+	res.append(s1.subs(lst(x==2, y==numeric(4)/5)) - s2.subs(lst(x==2, y==numeric(4)/5)));
+
+	// shuffle and quasi-shuffle identities
+	res.append(G(lst(0,0.2),1).hold() * G(lst(0.5),1).hold() - G(lst(0.5,0,0.2),1).hold()
+			- G(lst(0,0.5,0.2),1).hold() - G(lst(0,0.2,0.5),1).hold());
+	res.append(G(lst(0,0.5),1).hold() * G(lst(0.6),1).hold() - G(lst(0,0.5,0.5*0.6),1).hold()
+			- G(lst(0.6,0,0.5*0.6),1).hold() + G(lst(0,0,0.5*0.6),1).hold());
+	res.append(Li(lst(2),lst(numeric(1,5))).hold() * Li(lst(3),lst(7)).hold() - Li(lst(2,3),lst(numeric(1,5),7)).hold()
+			- Li(lst(3,2),lst(7,numeric(1,5))).hold() - Li(lst(5),lst(numeric(7,5))).hold());
+	symbol a1, a2, a3, a4;
+	res.append((G(lst(a1,a2),1) * G(lst(a3,a4),1) - G(lst(a1,a2,a3,a4),1)
+			- G(lst(a1,a3,a2,a4),1) - G(lst(a3,a1,a2,a4),1)
+			- G(lst(a1,a3,a4,a2),1) - G(lst(a3,a1,a4,a2),1) - G(lst(a3,a4,a1,a2),1))
+				.subs(lst(a1==numeric(1)/10, a2==numeric(3)/10, a3==numeric(7)/10, a4==5)));
+	res.append(G(lst(-0.009),1).hold() * G(lst(-8,1.4999),1).hold() - G(lst(-0.009,-8,1.4999),1).hold()
+			- G(lst(-8,-0.009,1.4999),1).hold() - G(lst(-8,1.4999,-0.009),1).hold());
+	res.append(G(lst(sqrt(numeric(1)/2)+I*sqrt(numeric(1)/2)),1).hold() * G(lst(1.51,-0.999),1).hold()
+			- G(lst(sqrt(numeric(1)/2)+I*sqrt(numeric(1)/2),1.51,-0.999),1).hold()
+			- G(lst(1.51,sqrt(numeric(1)/2)+I*sqrt(numeric(1)/2),-0.999),1).hold()
+			- G(lst(1.51,-0.999,sqrt(numeric(1)/2)+I*sqrt(numeric(1)/2)),1).hold());
+	// checks for hoelder convolution which is used if one argument has a distance to one smaller than 0.01 
+	res.append(G(lst(0, 1.2, 1, 1.01), 1).hold() - G(lst(0, 1.2, 1, numeric("1.009999999999999999")), 1).hold());
+
+	for (lst::const_iterator it = res.begin(); it != res.end(); it++) {
+		ex diff = abs((*it).evalf());
+		if (diff > prec) {
+			clog << *it << " seems to be wrong: " << diff << endl;
+			result++;
+		}
+		cout << "." << flush;
+	}
+
+	return result;
+}
+
+
 unsigned exam_inifcns_nstdsums(void)
 {
 	unsigned result = 0;
@@ -230,6 +297,7 @@ unsigned exam_inifcns_nstdsums(void)
 	result += inifcns_test_zeta();
 	result += inifcns_test_S();
 	result += inifcns_test_HLi();
+	result += inifcns_test_LiG();
 	
 	if (!result) {
 		cout << " passed " << endl;
