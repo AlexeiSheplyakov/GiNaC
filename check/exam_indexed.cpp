@@ -148,6 +148,11 @@ static unsigned epsilon_check(void)
 	return result;
 }
 
+DECLARE_FUNCTION_2P(symm_fcn)
+REGISTER_FUNCTION(symm_fcn, set_symmetry(sy_symm(0, 1)));
+DECLARE_FUNCTION_2P(anti_fcn)
+REGISTER_FUNCTION(anti_fcn, set_symmetry(sy_anti(0, 1)));
+
 static unsigned symmetry_check(void)
 {
 	// check symmetric/antisymmetric objects
@@ -189,6 +194,10 @@ static unsigned symmetry_check(void)
 
 	e = (indexed(A, sy_anti(), i, j, k, l) * (indexed(B, j) * indexed(C, k) + indexed(B, k) * indexed(C, j)) + indexed(B, i, l)).expand();
 	result += check_equal_simplify(e, indexed(B, i, l));
+
+	result += check_equal(symm_fcn(0, 1) + symm_fcn(1, 0), 2*symm_fcn(0, 1));
+	result += check_equal(anti_fcn(0, 1) + anti_fcn(1, 0), 0);
+	result += check_equal(anti_fcn(0, 0), 0);
 
 	return result;
 }
