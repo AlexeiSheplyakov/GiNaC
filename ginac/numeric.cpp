@@ -79,9 +79,6 @@
 namespace GiNaC {
 #endif  // ndef NO_NAMESPACE_GINAC
 
-// linker has no problems finding text symbols for numerator or denominator
-//#define SANE_LINKER
-
 GINAC_IMPLEMENT_REGISTERED_CLASS(numeric, basic)
 
 //////////
@@ -1074,18 +1071,6 @@ const numeric numeric::imag(void) const
 	return numeric(::imagpart(*value));  // -> CLN
 }
 
-#ifndef SANE_LINKER
-// Unfortunately, CLN did not provide an official way to access the numerator
-// or denominator of a rational number (cl_RA). Doing some excavations in CLN
-// one finds how it works internally in src/rational/cl_RA.h:
-struct cl_heap_ratio : cl_heap {
-	cl_I numerator;
-	cl_I denominator;
-};
-
-inline cl_heap_ratio* TheRatio (const cl_N& obj)
-{ return (cl_heap_ratio*)(obj.pointer); }
-#endif // ndef SANE_LINKER
 
 /** Numerator.  Computes the numerator of rational numbers, rationalized
  *  numerator of complex if real and imaginary part are both rational numbers
@@ -1093,48 +1078,27 @@ inline cl_heap_ratio* TheRatio (const cl_N& obj)
  *  cases. */
 const numeric numeric::numer(void) const
 {
-	if (this->is_integer()) {
+	if (this->is_integer())
 		return numeric(*this);
-	}
-#ifdef SANE_LINKER
-	else if (::instanceof(*value, ::cl_RA_ring)) {
+	
+	else if (::instanceof(*value, ::cl_RA_ring))
 		return numeric(::numerator(The(::cl_RA)(*value)));
-	}
+	
 	else if (!this->is_real()) {  // complex case, handle Q(i):
 		cl_R r = ::realpart(*value);
 		cl_R i = ::imagpart(*value);
 		if (::instanceof(r, ::cl_I_ring) && ::instanceof(i, ::cl_I_ring))
-			return numeric(*this);
+		    return numeric(*this);
 		if (::instanceof(r, ::cl_I_ring) && ::instanceof(i, ::cl_RA_ring))
-			return numeric(::complex(r*::denominator(The(::cl_RA)(i)), ::numerator(The(::cl_RA)(i))));
+		    return numeric(::complex(r*::denominator(The(::cl_RA)(i)), ::numerator(The(::cl_RA)(i))));
 		if (::instanceof(r, ::cl_RA_ring) && ::instanceof(i, ::cl_I_ring))
-			return numeric(::complex(::numerator(The(::cl_RA)(r)), i*::denominator(The(::cl_RA)(r))));
+		    return numeric(::complex(::numerator(The(::cl_RA)(r)), i*::denominator(The(::cl_RA)(r))));
 		if (::instanceof(r, ::cl_RA_ring) && ::instanceof(i, ::cl_RA_ring)) {
-			cl_I s = ::lcm(::denominator(The(::cl_RA)(r)), ::denominator(The(::cl_RA)(i)));
-			return numeric(::complex(::numerator(The(::cl_RA)(r))*(exquo(s,::denominator(The(::cl_RA)(r)))),
-								   ::numerator(The(::cl_RA)(i))*(exquo(s,::denominator(The(::cl_RA)(i))))));
+		    cl_I s = ::lcm(::denominator(The(::cl_RA)(r)), ::denominator(The(::cl_RA)(i)));
+		    return numeric(::complex(::numerator(The(::cl_RA)(r))*(exquo(s,::denominator(The(::cl_RA)(r)))),
+			                         ::numerator(The(::cl_RA)(i))*(exquo(s,::denominator(The(::cl_RA)(i))))));
 		}
 	}
-#else
-	else if (instanceof(*value, ::cl_RA_ring)) {
-		return numeric(TheRatio(*value)->numerator);
-	}
-	else if (!this->is_real()) {  // complex case, handle Q(i):
-		cl_R r = ::realpart(*value);
-		cl_R i = ::imagpart(*value);
-		if (instanceof(r, ::cl_I_ring) && instanceof(i, ::cl_I_ring))
-			return numeric(*this);
-		if (instanceof(r, ::cl_I_ring) && instanceof(i, ::cl_RA_ring))
-			return numeric(::complex(r*TheRatio(i)->denominator, TheRatio(i)->numerator));
-		if (instanceof(r, ::cl_RA_ring) && instanceof(i, ::cl_I_ring))
-			return numeric(::complex(TheRatio(r)->numerator, i*TheRatio(r)->denominator));
-		if (instanceof(r, ::cl_RA_ring) && instanceof(i, ::cl_RA_ring)) {
-			cl_I s = ::lcm(TheRatio(r)->denominator, TheRatio(i)->denominator);
-			return numeric(::complex(TheRatio(r)->numerator*(exquo(s,TheRatio(r)->denominator)),
-								   TheRatio(i)->numerator*(exquo(s,TheRatio(i)->denominator))));
-		}
-	}
-#endif // def SANE_LINKER
 	// at least one float encountered
 	return numeric(*this);
 }
@@ -1144,13 +1108,12 @@ const numeric numeric::numer(void) const
  *  (i.e denom(4/3+5/6*I) == 6), one in all other cases. */
 const numeric numeric::denom(void) const
 {
-	if (this->is_integer()) {
+	if (this->is_integer())
 		return _num1();
-	}
-#ifdef SANE_LINKER
-	if (instanceof(*value, ::cl_RA_ring)) {
+	
+	if (instanceof(*value, ::cl_RA_ring))
 		return numeric(::denominator(The(::cl_RA)(*value)));
-	}
+	
 	if (!this->is_real()) {  // complex case, handle Q(i):
 		cl_R r = ::realpart(*value);
 		cl_R i = ::imagpart(*value);
@@ -1163,23 +1126,6 @@ const numeric numeric::denom(void) const
 		if (::instanceof(r, ::cl_RA_ring) && ::instanceof(i, ::cl_RA_ring))
 			return numeric(::lcm(::denominator(The(::cl_RA)(r)), ::denominator(The(::cl_RA)(i))));
 	}
-#else
-	if (instanceof(*value, ::cl_RA_ring)) {
-		return numeric(TheRatio(*value)->denominator);
-	}
-	if (!this->is_real()) {  // complex case, handle Q(i):
-		cl_R r = ::realpart(*value);
-		cl_R i = ::imagpart(*value);
-		if (instanceof(r, ::cl_I_ring) && instanceof(i, ::cl_I_ring))
-			return _num1();
-		if (instanceof(r, ::cl_I_ring) && instanceof(i, ::cl_RA_ring))
-			return numeric(TheRatio(i)->denominator);
-		if (instanceof(r, ::cl_RA_ring) && instanceof(i, ::cl_I_ring))
-			return numeric(TheRatio(r)->denominator);
-		if (instanceof(r, ::cl_RA_ring) && instanceof(i, ::cl_RA_ring))
-			return numeric(::lcm(TheRatio(r)->denominator, TheRatio(i)->denominator));
-	}
-#endif // def SANE_LINKER
 	// at least one float encountered
 	return _num1();
 }
