@@ -685,7 +685,7 @@ ex dirac_slash(const ex & e, const ex & dim, unsigned char rl)
 	// Slashed vectors are actually stored as a clifford object with the
 	// vector as its base expression and a (dummy) index that just serves
 	// for storing the space dimensionality
-	return clifford(e, varidx(0, dim), rl);
+	return clifford(e, varidx(0, dim), default_metric(), rl);
 }
 
 /** Check whether a given tinfo key (as returned by return_type_tinfo()
