@@ -163,9 +163,9 @@ int constant::ldegree(const ex & s) const
 ex constant::coeff(const ex & s, int n) const
 {
 	if (is_equal(ex_to<basic>(s)))
-		return n==1 ? _ex1() : _ex0();
+		return n==1 ? _ex1 : _ex0;
 	else
-		return n==0 ? *this : _ex0();
+		return n==0 ? *this : _ex0;
 }
 
 ex constant::evalf(int level) const
@@ -185,7 +185,7 @@ ex constant::evalf(int level) const
  *  @see ex::diff */
 ex constant::derivative(const symbol & s) const
 {
-	return _ex0();
+	return _ex0;
 }
 
 int constant::compare_same_type(const basic & other) const

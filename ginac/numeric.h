@@ -96,7 +96,7 @@ public:
 protected:
 	/** Implementation of ex::diff for a numeric always returns 0.
 	 *  @see ex::diff */
-	ex derivative(const symbol &s) const { return _ex0(); }
+	ex derivative(const symbol &s) const { return 0; }
 	bool is_equal_same_type(const basic &other) const;
 	unsigned calchash(void) const;
 	

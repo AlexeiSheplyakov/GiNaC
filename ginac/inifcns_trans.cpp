@@ -52,19 +52,19 @@ static ex exp_eval(const ex & x)
 {
 	// exp(0) -> 1
 	if (x.is_zero()) {
-		return _ex1();
+		return _ex1;
 	}
 	// exp(n*Pi*I/2) -> {+1|+I|-1|-I}
-	const ex TwoExOverPiI=(_ex2()*x)/(Pi*I);
+	const ex TwoExOverPiI=(_ex2*x)/(Pi*I);
 	if (TwoExOverPiI.info(info_flags::integer)) {
-		numeric z=mod(ex_to<numeric>(TwoExOverPiI),_num4());
-		if (z.is_equal(_num0()))
-			return _ex1();
-		if (z.is_equal(_num1()))
+		numeric z = mod(ex_to<numeric>(TwoExOverPiI),_num4);
+		if (z.is_equal(_num0))
+			return _ex1;
+		if (z.is_equal(_num1))
 			return ex(I);
-		if (z.is_equal(_num2()))
-			return _ex_1();
-		if (z.is_equal(_num3()))
+		if (z.is_equal(_num2))
+			return _ex_1;
+		if (z.is_equal(_num3))
 			return ex(-I);
 	}
 	// exp(log(x)) -> x
@@ -110,12 +110,12 @@ static ex log_eval(const ex & x)
 			throw(pole_error("log_eval(): log(0)",0));
 		if (x.info(info_flags::real) && x.info(info_flags::negative))
 			return (log(-x)+I*Pi);
-		if (x.is_equal(_ex1()))  // log(1) -> 0
-			return _ex0();
+		if (x.is_equal(_ex1))  // log(1) -> 0
+			return _ex0;
 		if (x.is_equal(I))       // log(I) -> Pi*I/2
-			return (Pi*I*_num1_2());
+			return (Pi*I*_num1_2);
 		if (x.is_equal(-I))      // log(-I) -> -Pi*I/2
-			return (Pi*I*_num_1_2());
+			return (Pi*I*_num_1_2);
 		// log(float)
 		if (!x.info(info_flags::crational))
 			return log(ex_to<numeric>(x));
@@ -138,7 +138,7 @@ static ex log_deriv(const ex & x, unsigned deriv_param)
 	GINAC_ASSERT(deriv_param==0);
 	
 	// d/dx log(x) -> 1/x
-	return power(x, _ex_1());
+	return power(x, _ex_1);
 }
 
 static ex log_series(const ex &arg,
@@ -185,9 +185,9 @@ static ex log_series(const ex &arg,
 		// expand the log, but only if coeff is real and > 0, since otherwise
 		// it would make the branch cut run into the wrong direction
 		if (coeff.info(info_flags::positive))
-			seq.push_back(expair(n*log(s-point)+log(coeff), _ex0()));
+			seq.push_back(expair(n*log(s-point)+log(coeff), _ex0));
 		else
-			seq.push_back(expair(log(coeff*pow(s-point, n)), _ex0()));
+			seq.push_back(expair(log(coeff*pow(s-point, n)), _ex0));
 
 		if (!argser.is_terminating() || argser.nops()!=1) {
 			// in this case n more (or less) terms are needed
@@ -207,8 +207,8 @@ static ex log_series(const ex &arg,
 		const symbol foo;
 		const ex replarg = series(log(arg), s==foo, order).subs(foo==point);
 		epvector seq;
-		seq.push_back(expair(-I*csgn(arg*I)*Pi, _ex0()));
-		seq.push_back(expair(Order(_ex1()), order));
+		seq.push_back(expair(-I*csgn(arg*I)*Pi, _ex0));
+		seq.push_back(expair(Order(_ex1), order));
 		return series(replarg - I*Pi + pseries(rel, seq), rel, order);
 	}
 	throw do_taylor();  // caught by function::series()
@@ -235,37 +235,37 @@ static ex sin_evalf(const ex & x)
 static ex sin_eval(const ex & x)
 {
 	// sin(n/d*Pi) -> { all known non-nested radicals }
-	const ex SixtyExOverPi = _ex60()*x/Pi;
-	ex sign = _ex1();
+	const ex SixtyExOverPi = _ex60*x/Pi;
+	ex sign = _ex1;
 	if (SixtyExOverPi.info(info_flags::integer)) {
-		numeric z = mod(ex_to<numeric>(SixtyExOverPi),_num120());
-		if (z>=_num60()) {
+		numeric z = mod(ex_to<numeric>(SixtyExOverPi),_num120);
+		if (z>=_num60) {
 			// wrap to interval [0, Pi)
-			z -= _num60();
-			sign = _ex_1();
+			z -= _num60;
+			sign = _ex_1;
 		}
-		if (z>_num30()) {
+		if (z>_num30) {
 			// wrap to interval [0, Pi/2)
-			z = _num60()-z;
+			z = _num60-z;
 		}
-		if (z.is_equal(_num0()))  // sin(0)       -> 0
-			return _ex0();
-		if (z.is_equal(_num5()))  // sin(Pi/12)   -> sqrt(6)/4*(1-sqrt(3)/3)
-			return sign*_ex1_4()*power(_ex6(),_ex1_2())*(_ex1()+_ex_1_3()*power(_ex3(),_ex1_2()));
-		if (z.is_equal(_num6()))  // sin(Pi/10)   -> sqrt(5)/4-1/4
-			return sign*(_ex1_4()*power(_ex5(),_ex1_2())+_ex_1_4());
-		if (z.is_equal(_num10())) // sin(Pi/6)    -> 1/2
-			return sign*_ex1_2();
-		if (z.is_equal(_num15())) // sin(Pi/4)    -> sqrt(2)/2
-			return sign*_ex1_2()*power(_ex2(),_ex1_2());
-		if (z.is_equal(_num18())) // sin(3/10*Pi) -> sqrt(5)/4+1/4
-			return sign*(_ex1_4()*power(_ex5(),_ex1_2())+_ex1_4());
-		if (z.is_equal(_num20())) // sin(Pi/3)    -> sqrt(3)/2
-			return sign*_ex1_2()*power(_ex3(),_ex1_2());
-		if (z.is_equal(_num25())) // sin(5/12*Pi) -> sqrt(6)/4*(1+sqrt(3)/3)
-			return sign*_ex1_4()*power(_ex6(),_ex1_2())*(_ex1()+_ex1_3()*power(_ex3(),_ex1_2()));
-		if (z.is_equal(_num30())) // sin(Pi/2)    -> 1
-			return sign*_ex1();
+		if (z.is_equal(_num0))  // sin(0)       -> 0
+			return _ex0;
+		if (z.is_equal(_num5))  // sin(Pi/12)   -> sqrt(6)/4*(1-sqrt(3)/3)
+			return sign*_ex1_4*sqrt(_ex6)*(_ex1+_ex_1_3*sqrt(_ex3));
+		if (z.is_equal(_num6))  // sin(Pi/10)   -> sqrt(5)/4-1/4
+			return sign*(_ex1_4*sqrt(_ex5)+_ex_1_4);
+		if (z.is_equal(_num10)) // sin(Pi/6)    -> 1/2
+			return sign*_ex1_2;
+		if (z.is_equal(_num15)) // sin(Pi/4)    -> sqrt(2)/2
+			return sign*_ex1_2*sqrt(_ex2);
+		if (z.is_equal(_num18)) // sin(3/10*Pi) -> sqrt(5)/4+1/4
+			return sign*(_ex1_4*sqrt(_ex5)+_ex1_4);
+		if (z.is_equal(_num20)) // sin(Pi/3)    -> sqrt(3)/2
+			return sign*_ex1_2*sqrt(_ex3);
+		if (z.is_equal(_num25)) // sin(5/12*Pi) -> sqrt(6)/4*(1+sqrt(3)/3)
+			return sign*_ex1_4*sqrt(_ex6)*(_ex1+_ex1_3*sqrt(_ex3));
+		if (z.is_equal(_num30)) // sin(Pi/2)    -> 1
+			return sign;
 	}
 	
 	if (is_exactly_a<function>(x)) {
@@ -275,10 +275,10 @@ static ex sin_eval(const ex & x)
 			return t;
 		// sin(acos(x)) -> sqrt(1-x^2)
 		if (is_ex_the_function(x, acos))
-			return power(_ex1()-power(t,_ex2()),_ex1_2());
-		// sin(atan(x)) -> x*(1+x^2)^(-1/2)
+			return sqrt(_ex1-power(t,_ex2));
+		// sin(atan(x)) -> x/sqrt(1+x^2)
 		if (is_ex_the_function(x, atan))
-			return t*power(_ex1()+power(t,_ex2()),_ex_1_2());
+			return t*power(_ex1+power(t,_ex2),_ex_1_2);
 	}
 	
 	// sin(float) -> float
@@ -316,37 +316,37 @@ static ex cos_evalf(const ex & x)
 static ex cos_eval(const ex & x)
 {
 	// cos(n/d*Pi) -> { all known non-nested radicals }
-	const ex SixtyExOverPi = _ex60()*x/Pi;
-	ex sign = _ex1();
+	const ex SixtyExOverPi = _ex60*x/Pi;
+	ex sign = _ex1;
 	if (SixtyExOverPi.info(info_flags::integer)) {
-		numeric z = mod(ex_to<numeric>(SixtyExOverPi),_num120());
-		if (z>=_num60()) {
+		numeric z = mod(ex_to<numeric>(SixtyExOverPi),_num120);
+		if (z>=_num60) {
 			// wrap to interval [0, Pi)
-			z = _num120()-z;
+			z = _num120-z;
 		}
-		if (z>=_num30()) {
+		if (z>=_num30) {
 			// wrap to interval [0, Pi/2)
-			z = _num60()-z;
-			sign = _ex_1();
+			z = _num60-z;
+			sign = _ex_1;
 		}
-		if (z.is_equal(_num0()))  // cos(0)       -> 1
-			return sign*_ex1();
-		if (z.is_equal(_num5()))  // cos(Pi/12)   -> sqrt(6)/4*(1+sqrt(3)/3)
-			return sign*_ex1_4()*power(_ex6(),_ex1_2())*(_ex1()+_ex1_3()*power(_ex3(),_ex1_2()));
-		if (z.is_equal(_num10())) // cos(Pi/6)    -> sqrt(3)/2
-			return sign*_ex1_2()*power(_ex3(),_ex1_2());
-		if (z.is_equal(_num12())) // cos(Pi/5)    -> sqrt(5)/4+1/4
-			return sign*(_ex1_4()*power(_ex5(),_ex1_2())+_ex1_4());
-		if (z.is_equal(_num15())) // cos(Pi/4)    -> sqrt(2)/2
-			return sign*_ex1_2()*power(_ex2(),_ex1_2());
-		if (z.is_equal(_num20())) // cos(Pi/3)    -> 1/2
-			return sign*_ex1_2();
-		if (z.is_equal(_num24())) // cos(2/5*Pi)  -> sqrt(5)/4-1/4x
-			return sign*(_ex1_4()*power(_ex5(),_ex1_2())+_ex_1_4());
-		if (z.is_equal(_num25())) // cos(5/12*Pi) -> sqrt(6)/4*(1-sqrt(3)/3)
-			return sign*_ex1_4()*power(_ex6(),_ex1_2())*(_ex1()+_ex_1_3()*power(_ex3(),_ex1_2()));
-		if (z.is_equal(_num30())) // cos(Pi/2)    -> 0
-			return sign*_ex0();
+		if (z.is_equal(_num0))  // cos(0)       -> 1
+			return sign;
+		if (z.is_equal(_num5))  // cos(Pi/12)   -> sqrt(6)/4*(1+sqrt(3)/3)
+			return sign*_ex1_4*sqrt(_ex6)*(_ex1+_ex1_3*sqrt(_ex3));
+		if (z.is_equal(_num10)) // cos(Pi/6)    -> sqrt(3)/2
+			return sign*_ex1_2*sqrt(_ex3);
+		if (z.is_equal(_num12)) // cos(Pi/5)    -> sqrt(5)/4+1/4
+			return sign*(_ex1_4*sqrt(_ex5)+_ex1_4);
+		if (z.is_equal(_num15)) // cos(Pi/4)    -> sqrt(2)/2
+			return sign*_ex1_2*sqrt(_ex2);
+		if (z.is_equal(_num20)) // cos(Pi/3)    -> 1/2
+			return sign*_ex1_2;
+		if (z.is_equal(_num24)) // cos(2/5*Pi)  -> sqrt(5)/4-1/4x
+			return sign*(_ex1_4*sqrt(_ex5)+_ex_1_4);
+		if (z.is_equal(_num25)) // cos(5/12*Pi) -> sqrt(6)/4*(1-sqrt(3)/3)
+			return sign*_ex1_4*sqrt(_ex6)*(_ex1+_ex_1_3*sqrt(_ex3));
+		if (z.is_equal(_num30)) // cos(Pi/2)    -> 0
+			return _ex0;
 	}
 	
 	if (is_exactly_a<function>(x)) {
@@ -354,12 +354,12 @@ static ex cos_eval(const ex & x)
 		// cos(acos(x)) -> x
 		if (is_ex_the_function(x, acos))
 			return t;
-		// cos(asin(x)) -> (1-x^2)^(1/2)
+		// cos(asin(x)) -> sqrt(1-x^2)
 		if (is_ex_the_function(x, asin))
-			return power(_ex1()-power(t,_ex2()),_ex1_2());
-		// cos(atan(x)) -> (1+x^2)^(-1/2)
+			return sqrt(_ex1-power(t,_ex2));
+		// cos(atan(x)) -> 1/sqrt(1+x^2)
 		if (is_ex_the_function(x, atan))
-			return power(_ex1()+power(t,_ex2()),_ex_1_2());
+			return power(_ex1+power(t,_ex2),_ex_1_2);
 	}
 	
 	// cos(float) -> float
@@ -374,7 +374,7 @@ static ex cos_deriv(const ex & x, unsigned deriv_param)
 	GINAC_ASSERT(deriv_param==0);
 
 	// d/dx cos(x) -> -sin(x)
-	return _ex_1()*sin(x);
+	return -sin(x);
 }
 
 REGISTER_FUNCTION(cos, eval_func(cos_eval).
@@ -397,32 +397,32 @@ static ex tan_evalf(const ex & x)
 static ex tan_eval(const ex & x)
 {
 	// tan(n/d*Pi) -> { all known non-nested radicals }
-	const ex SixtyExOverPi = _ex60()*x/Pi;
-	ex sign = _ex1();
+	const ex SixtyExOverPi = _ex60*x/Pi;
+	ex sign = _ex1;
 	if (SixtyExOverPi.info(info_flags::integer)) {
-		numeric z = mod(ex_to<numeric>(SixtyExOverPi),_num60());
-		if (z>=_num60()) {
+		numeric z = mod(ex_to<numeric>(SixtyExOverPi),_num60);
+		if (z>=_num60) {
 			// wrap to interval [0, Pi)
-			z -= _num60();
+			z -= _num60;
 		}
-		if (z>=_num30()) {
+		if (z>=_num30) {
 			// wrap to interval [0, Pi/2)
-			z = _num60()-z;
-			sign = _ex_1();
+			z = _num60-z;
+			sign = _ex_1;
 		}
-		if (z.is_equal(_num0()))  // tan(0)       -> 0
-			return _ex0();
-		if (z.is_equal(_num5()))  // tan(Pi/12)   -> 2-sqrt(3)
-			return sign*(_ex2()-power(_ex3(),_ex1_2()));
-		if (z.is_equal(_num10())) // tan(Pi/6)    -> sqrt(3)/3
-			return sign*_ex1_3()*power(_ex3(),_ex1_2());
-		if (z.is_equal(_num15())) // tan(Pi/4)    -> 1
-			return sign*_ex1();
-		if (z.is_equal(_num20())) // tan(Pi/3)    -> sqrt(3)
-			return sign*power(_ex3(),_ex1_2());
-		if (z.is_equal(_num25())) // tan(5/12*Pi) -> 2+sqrt(3)
-			return sign*(power(_ex3(),_ex1_2())+_ex2());
-		if (z.is_equal(_num30())) // tan(Pi/2)    -> infinity
+		if (z.is_equal(_num0))  // tan(0)       -> 0
+			return _ex0;
+		if (z.is_equal(_num5))  // tan(Pi/12)   -> 2-sqrt(3)
+			return sign*(_ex2-sqrt(_ex3));
+		if (z.is_equal(_num10)) // tan(Pi/6)    -> sqrt(3)/3
+			return sign*_ex1_3*sqrt(_ex3);
+		if (z.is_equal(_num15)) // tan(Pi/4)    -> 1
+			return sign;
+		if (z.is_equal(_num20)) // tan(Pi/3)    -> sqrt(3)
+			return sign*sqrt(_ex3);
+		if (z.is_equal(_num25)) // tan(5/12*Pi) -> 2+sqrt(3)
+			return sign*(sqrt(_ex3)+_ex2);
+		if (z.is_equal(_num30)) // tan(Pi/2)    -> infinity
 			throw (pole_error("tan_eval(): simple pole",1));
 	}
 	
@@ -431,12 +431,12 @@ static ex tan_eval(const ex & x)
 		// tan(atan(x)) -> x
 		if (is_ex_the_function(x, atan))
 			return t;
-		// tan(asin(x)) -> x*(1+x^2)^(-1/2)
+		// tan(asin(x)) -> x/sqrt(1+x^2)
 		if (is_ex_the_function(x, asin))
-			return t*power(_ex1()-power(t,_ex2()),_ex_1_2());
-		// tan(acos(x)) -> (1-x^2)^(1/2)/x
+			return t*power(_ex1-power(t,_ex2),_ex_1_2);
+		// tan(acos(x)) -> sqrt(1-x^2)/x
 		if (is_ex_the_function(x, acos))
-			return power(t,_ex_1())*power(_ex1()-power(t,_ex2()),_ex1_2());
+			return power(t,_ex_1)*sqrt(_ex1-power(t,_ex2));
 	}
 	
 	// tan(float) -> float
@@ -452,7 +452,7 @@ static ex tan_deriv(const ex & x, unsigned deriv_param)
 	GINAC_ASSERT(deriv_param==0);
 	
 	// d/dx tan(x) -> 1+tan(x)^2;
-	return (_ex1()+power(tan(x),_ex2()));
+	return (_ex1+power(tan(x),_ex2));
 }
 
 static ex tan_series(const ex &x,
@@ -496,17 +496,17 @@ static ex asin_eval(const ex & x)
 		if (x.is_zero())
 			return x;
 		// asin(1/2) -> Pi/6
-		if (x.is_equal(_ex1_2()))
+		if (x.is_equal(_ex1_2))
 			return numeric(1,6)*Pi;
 		// asin(1) -> Pi/2
-		if (x.is_equal(_ex1()))
-			return _num1_2()*Pi;
+		if (x.is_equal(_ex1))
+			return _num1_2*Pi;
 		// asin(-1/2) -> -Pi/6
-		if (x.is_equal(_ex_1_2()))
+		if (x.is_equal(_ex_1_2))
 			return numeric(-1,6)*Pi;
 		// asin(-1) -> -Pi/2
-		if (x.is_equal(_ex_1()))
-			return _num_1_2()*Pi;
+		if (x.is_equal(_ex_1))
+			return _num_1_2*Pi;
 		// asin(float) -> float
 		if (!x.info(info_flags::crational))
 			return asin(ex_to<numeric>(x));
@@ -520,7 +520,7 @@ static ex asin_deriv(const ex & x, unsigned deriv_param)
 	GINAC_ASSERT(deriv_param==0);
 	
 	// d/dx asin(x) -> 1/sqrt(1-x^2)
-	return power(1-power(x,_ex2()),_ex_1_2());
+	return power(1-power(x,_ex2),_ex_1_2);
 }
 
 REGISTER_FUNCTION(asin, eval_func(asin_eval).
@@ -544,19 +544,19 @@ static ex acos_eval(const ex & x)
 {
 	if (x.info(info_flags::numeric)) {
 		// acos(1) -> 0
-		if (x.is_equal(_ex1()))
-			return _ex0();
+		if (x.is_equal(_ex1))
+			return _ex0;
 		// acos(1/2) -> Pi/3
-		if (x.is_equal(_ex1_2()))
-			return _ex1_3()*Pi;
+		if (x.is_equal(_ex1_2))
+			return _ex1_3*Pi;
 		// acos(0) -> Pi/2
 		if (x.is_zero())
-			return _ex1_2()*Pi;
+			return _ex1_2*Pi;
 		// acos(-1/2) -> 2/3*Pi
-		if (x.is_equal(_ex_1_2()))
+		if (x.is_equal(_ex_1_2))
 			return numeric(2,3)*Pi;
 		// acos(-1) -> Pi
-		if (x.is_equal(_ex_1()))
+		if (x.is_equal(_ex_1))
 			return Pi;
 		// acos(float) -> float
 		if (!x.info(info_flags::crational))
@@ -571,7 +571,7 @@ static ex acos_deriv(const ex & x, unsigned deriv_param)
 	GINAC_ASSERT(deriv_param==0);
 	
 	// d/dx acos(x) -> -1/sqrt(1-x^2)
-	return _ex_1()*power(1-power(x,_ex2()),_ex_1_2());
+	return -power(1-power(x,_ex2),_ex_1_2);
 }
 
 REGISTER_FUNCTION(acos, eval_func(acos_eval).
@@ -596,13 +596,13 @@ static ex atan_eval(const ex & x)
 	if (x.info(info_flags::numeric)) {
 		// atan(0) -> 0
 		if (x.is_zero())
-			return _ex0();
+			return _ex0;
 		// atan(1) -> Pi/4
-		if (x.is_equal(_ex1()))
-			return _ex1_4()*Pi;
+		if (x.is_equal(_ex1))
+			return _ex1_4*Pi;
 		// atan(-1) -> -Pi/4
-		if (x.is_equal(_ex_1()))
-			return _ex_1_4()*Pi;
+		if (x.is_equal(_ex_1))
+			return _ex_1_4*Pi;
 		if (x.is_equal(I) || x.is_equal(-I))
 			throw (pole_error("atan_eval(): logarithmic pole",0));
 		// atan(float) -> float
@@ -618,7 +618,7 @@ static ex atan_deriv(const ex & x, unsigned deriv_param)
 	GINAC_ASSERT(deriv_param==0);
 
 	// d/dx atan(x) -> 1/(1+x^2)
-	return power(_ex1()+power(x,_ex2()), _ex_1());
+	return power(_ex1+power(x,_ex2), _ex_1);
 }
 
 static ex atan_series(const ex &arg,
@@ -638,7 +638,7 @@ static ex atan_series(const ex &arg,
 	const ex arg_pt = arg.subs(rel);
 	if (!(I*arg_pt).info(info_flags::real))
 		throw do_taylor();     // Re(x) != 0
-	if ((I*arg_pt).info(info_flags::real) && abs(I*arg_pt)<_ex1())
+	if ((I*arg_pt).info(info_flags::real) && abs(I*arg_pt)<_ex1)
 		throw do_taylor();     // Re(x) == 0, but abs(x)<1
 	// care for the poles, using the defining formula for atan()...
 	if (arg_pt.is_equal(I) || arg_pt.is_equal(-I))
@@ -651,14 +651,14 @@ static ex atan_series(const ex &arg,
 		const ex point = rel.rhs();
 		const symbol foo;
 		const ex replarg = series(atan(arg), s==foo, order).subs(foo==point);
-		ex Order0correction = replarg.op(0)+csgn(arg)*Pi*_ex_1_2();
-		if ((I*arg_pt)<_ex0())
-			Order0correction += log((I*arg_pt+_ex_1())/(I*arg_pt+_ex1()))*I*_ex_1_2();
+		ex Order0correction = replarg.op(0)+csgn(arg)*Pi*_ex_1_2;
+		if ((I*arg_pt)<_ex0)
+			Order0correction += log((I*arg_pt+_ex_1)/(I*arg_pt+_ex1))*I*_ex_1_2;
 		else
-			Order0correction += log((I*arg_pt+_ex1())/(I*arg_pt+_ex_1()))*I*_ex1_2();
+			Order0correction += log((I*arg_pt+_ex1)/(I*arg_pt+_ex_1))*I*_ex1_2;
 		epvector seq;
-		seq.push_back(expair(Order0correction, _ex0()));
-		seq.push_back(expair(Order(_ex1()), order));
+		seq.push_back(expair(Order0correction, _ex0));
+		seq.push_back(expair(Order(_ex1), order));
 		return series(replarg - pseries(rel, seq), rel, order);
 	}
 	throw do_taylor();
@@ -698,10 +698,10 @@ static ex atan2_deriv(const ex & y, const ex & x, unsigned deriv_param)
 	
 	if (deriv_param==0) {
 		// d/dy atan(y,x)
-		return x*power(power(x,_ex2())+power(y,_ex2()),_ex_1());
+		return x*power(power(x,_ex2)+power(y,_ex2),_ex_1);
 	}
 	// d/dx atan(y,x)
-	return -y*power(power(x,_ex2())+power(y,_ex2()),_ex_1());
+	return -y*power(power(x,_ex2)+power(y,_ex2),_ex_1);
 }
 
 REGISTER_FUNCTION(atan2, eval_func(atan2_eval).
@@ -724,7 +724,7 @@ static ex sinh_eval(const ex & x)
 {
 	if (x.info(info_flags::numeric)) {
 		if (x.is_zero())  // sinh(0) -> 0
-			return _ex0();        
+			return _ex0;        
 		if (!x.info(info_flags::crational))  // sinh(float) -> float
 			return sinh(ex_to<numeric>(x));
 	}
@@ -738,12 +738,12 @@ static ex sinh_eval(const ex & x)
 		// sinh(asinh(x)) -> x
 		if (is_ex_the_function(x, asinh))
 			return t;
-		// sinh(acosh(x)) -> (x-1)^(1/2) * (x+1)^(1/2)
+		// sinh(acosh(x)) -> sqrt(x-1) * sqrt(x+1)
 		if (is_ex_the_function(x, acosh))
-			return power(t-_ex1(),_ex1_2())*power(t+_ex1(),_ex1_2());
-		// sinh(atanh(x)) -> x*(1-x^2)^(-1/2)
+			return sqrt(t-_ex1)*sqrt(t+_ex1);
+		// sinh(atanh(x)) -> x/sqrt(1-x^2)
 		if (is_ex_the_function(x, atanh))
-			return t*power(_ex1()-power(t,_ex2()),_ex_1_2());
+			return t*power(_ex1-power(t,_ex2),_ex_1_2);
 	}
 	
 	return sinh(x).hold();
@@ -778,7 +778,7 @@ static ex cosh_eval(const ex & x)
 {
 	if (x.info(info_flags::numeric)) {
 		if (x.is_zero())  // cosh(0) -> 1
-			return _ex1();
+			return _ex1;
 		if (!x.info(info_flags::crational))  // cosh(float) -> float
 			return cosh(ex_to<numeric>(x));
 	}
@@ -792,12 +792,12 @@ static ex cosh_eval(const ex & x)
 		// cosh(acosh(x)) -> x
 		if (is_ex_the_function(x, acosh))
 			return t;
-		// cosh(asinh(x)) -> (1+x^2)^(1/2)
+		// cosh(asinh(x)) -> sqrt(1+x^2)
 		if (is_ex_the_function(x, asinh))
-			return power(_ex1()+power(t,_ex2()),_ex1_2());
-		// cosh(atanh(x)) -> (1-x^2)^(-1/2)
+			return sqrt(_ex1+power(t,_ex2));
+		// cosh(atanh(x)) -> 1/sqrt(1-x^2)
 		if (is_ex_the_function(x, atanh))
-			return power(_ex1()-power(t,_ex2()),_ex_1_2());
+			return power(_ex1-power(t,_ex2),_ex_1_2);
 	}
 	
 	return cosh(x).hold();
@@ -832,7 +832,7 @@ static ex tanh_eval(const ex & x)
 {
 	if (x.info(info_flags::numeric)) {
 		if (x.is_zero())  // tanh(0) -> 0
-			return _ex0();
+			return _ex0;
 		if (!x.info(info_flags::crational))  // tanh(float) -> float
 			return tanh(ex_to<numeric>(x));
 	}
@@ -846,12 +846,12 @@ static ex tanh_eval(const ex & x)
 		// tanh(atanh(x)) -> x
 		if (is_ex_the_function(x, atanh))
 			return t;
-		// tanh(asinh(x)) -> x*(1+x^2)^(-1/2)
+		// tanh(asinh(x)) -> x/sqrt(1+x^2)
 		if (is_ex_the_function(x, asinh))
-			return t*power(_ex1()+power(t,_ex2()),_ex_1_2());
-		// tanh(acosh(x)) -> (x-1)^(1/2)*(x+1)^(1/2)/x
+			return t*power(_ex1+power(t,_ex2),_ex_1_2);
+		// tanh(acosh(x)) -> sqrt(x-1)*sqrt(x+1)/x
 		if (is_ex_the_function(x, acosh))
-			return power(t-_ex1(),_ex1_2())*power(t+_ex1(),_ex1_2())*power(t,_ex_1());
+			return sqrt(t-_ex1)*sqrt(t+_ex1)*power(t,_ex_1);
 	}
 	
 	return tanh(x).hold();
@@ -862,7 +862,7 @@ static ex tanh_deriv(const ex & x, unsigned deriv_param)
 	GINAC_ASSERT(deriv_param==0);
 	
 	// d/dx tanh(x) -> 1-tanh(x)^2
-	return _ex1()-power(tanh(x),_ex2());
+	return _ex1-power(tanh(x),_ex2);
 }
 
 static ex tanh_series(const ex &x,
@@ -904,7 +904,7 @@ static ex asinh_eval(const ex & x)
 	if (x.info(info_flags::numeric)) {
 		// asinh(0) -> 0
 		if (x.is_zero())
-			return _ex0();
+			return _ex0;
 		// asinh(float) -> float
 		if (!x.info(info_flags::crational))
 			return asinh(ex_to<numeric>(x));
@@ -918,7 +918,7 @@ static ex asinh_deriv(const ex & x, unsigned deriv_param)
 	GINAC_ASSERT(deriv_param==0);
 	
 	// d/dx asinh(x) -> 1/sqrt(1+x^2)
-	return power(_ex1()+power(x,_ex2()),_ex_1_2());
+	return power(_ex1+power(x,_ex2),_ex_1_2);
 }
 
 REGISTER_FUNCTION(asinh, eval_func(asinh_eval).
@@ -944,10 +944,10 @@ static ex acosh_eval(const ex & x)
 		if (x.is_zero())
 			return Pi*I*numeric(1,2);
 		// acosh(1) -> 0
-		if (x.is_equal(_ex1()))
-			return _ex0();
+		if (x.is_equal(_ex1))
+			return _ex0;
 		// acosh(-1) -> Pi*I
-		if (x.is_equal(_ex_1()))
+		if (x.is_equal(_ex_1))
 			return Pi*I;
 		// acosh(float) -> float
 		if (!x.info(info_flags::crational))
@@ -962,7 +962,7 @@ static ex acosh_deriv(const ex & x, unsigned deriv_param)
 	GINAC_ASSERT(deriv_param==0);
 	
 	// d/dx acosh(x) -> 1/(sqrt(x-1)*sqrt(x+1))
-	return power(x+_ex_1(),_ex_1_2())*power(x+_ex1(),_ex_1_2());
+	return power(x+_ex_1,_ex_1_2)*power(x+_ex1,_ex_1_2);
 }
 
 REGISTER_FUNCTION(acosh, eval_func(acosh_eval).
@@ -986,9 +986,9 @@ static ex atanh_eval(const ex & x)
 	if (x.info(info_flags::numeric)) {
 		// atanh(0) -> 0
 		if (x.is_zero())
-			return _ex0();
+			return _ex0;
 		// atanh({+|-}1) -> throw
-		if (x.is_equal(_ex1()) || x.is_equal(_ex_1()))
+		if (x.is_equal(_ex1) || x.is_equal(_ex_1))
 			throw (pole_error("atanh_eval(): logarithmic pole",0));
 		// atanh(float) -> float
 		if (!x.info(info_flags::crational))
@@ -1003,7 +1003,7 @@ static ex atanh_deriv(const ex & x, unsigned deriv_param)
 	GINAC_ASSERT(deriv_param==0);
 	
 	// d/dx atanh(x) -> 1/(1-x^2)
-	return power(_ex1()-power(x,_ex2()),_ex_1());
+	return power(_ex1-power(x,_ex2),_ex_1);
 }
 
 static ex atanh_series(const ex &arg,
@@ -1022,11 +1022,11 @@ static ex atanh_series(const ex &arg,
 	const ex arg_pt = arg.subs(rel);
 	if (!(arg_pt).info(info_flags::real))
 		throw do_taylor();     // Im(x) != 0
-	if ((arg_pt).info(info_flags::real) && abs(arg_pt)<_ex1())
+	if ((arg_pt).info(info_flags::real) && abs(arg_pt)<_ex1)
 		throw do_taylor();     // Im(x) == 0, but abs(x)<1
 	// care for the poles, using the defining formula for atanh()...
-	if (arg_pt.is_equal(_ex1()) || arg_pt.is_equal(_ex_1()))
-		return ((log(_ex1()+arg)-log(_ex1()-arg))*_ex1_2()).series(rel, order, options);
+	if (arg_pt.is_equal(_ex1) || arg_pt.is_equal(_ex_1))
+		return ((log(_ex1+arg)-log(_ex1-arg))*_ex1_2).series(rel, order, options);
 	// ...and the branch cuts (the discontinuity at the cut being just I*Pi)
 	if (!(options & series_options::suppress_branchcut)) {
  		// method:
@@ -1036,14 +1036,14 @@ static ex atanh_series(const ex &arg,
  		const ex point = rel.rhs();
  		const symbol foo;
  		const ex replarg = series(atanh(arg), s==foo, order).subs(foo==point);
-		ex Order0correction = replarg.op(0)+csgn(I*arg)*Pi*I*_ex1_2();
-		if (arg_pt<_ex0())
-			Order0correction += log((arg_pt+_ex_1())/(arg_pt+_ex1()))*_ex1_2();
+		ex Order0correction = replarg.op(0)+csgn(I*arg)*Pi*I*_ex1_2;
+		if (arg_pt<_ex0)
+			Order0correction += log((arg_pt+_ex_1)/(arg_pt+_ex1))*_ex1_2;
 		else
-			Order0correction += log((arg_pt+_ex1())/(arg_pt+_ex_1()))*_ex_1_2();
+			Order0correction += log((arg_pt+_ex1)/(arg_pt+_ex_1))*_ex_1_2;
  		epvector seq;
-		seq.push_back(expair(Order0correction, _ex0()));
- 		seq.push_back(expair(Order(_ex1()), order));
+		seq.push_back(expair(Order0correction, _ex0));
+ 		seq.push_back(expair(Order(_ex1), order));
  		return series(replarg - pseries(rel, seq), rel, order);
 	}
 	throw do_taylor();

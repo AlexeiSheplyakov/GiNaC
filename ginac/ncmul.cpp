@@ -259,7 +259,7 @@ ex ncmul::coeff(const ex & s, int n) const
 
 	if (coeff_found) return (new ncmul(coeffseq,1))->setflag(status_flags::dynallocated);
 	
-	return _ex0();
+	return _ex0;
 }
 
 unsigned ncmul::count_factors(const ex & e) const
@@ -331,7 +331,7 @@ ex ncmul::eval(int level) const
 	if (assocseq.size()==1) return *(seq.begin());
 
 	// ncmul() -> 1
-	if (assocseq.empty()) return _ex1();
+	if (assocseq.empty()) return _ex1;
 
 	// determine return types
 	unsignedvector rettypes;
@@ -593,7 +593,7 @@ ex nonsimplified_ncmul(const exvector & v)
 ex simplified_ncmul(const exvector & v)
 {
 	if (v.empty())
-		return _ex1();
+		return _ex1;
 	else if (v.size() == 1)
 		return v[0];
 	else

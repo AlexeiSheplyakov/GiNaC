@@ -256,7 +256,7 @@ int basic::ldegree(const ex & s) const
 /** Return coefficient of degree n in object s. */
 ex basic::coeff(const ex & s, int n) const
 {
-	return n==0 ? *this : _ex0();
+	return n==0 ? *this : _ex0;
 }
 
 /** Sort expanded expression in terms of powers of some object(s).
@@ -295,7 +295,7 @@ ex basic::collect(const ex & s, bool distributed) const
 			while (true) {
 
 				// Calculate coeff*x1^c1*...*xn^cn
-				ex y = _ex1();
+				ex y = _ex1;
 				for (int i=0; i<num; i++) {
 					int cnt = si[i].cnt;
 					y *= power(si[i].sym, cnt);
@@ -580,7 +580,7 @@ struct derivative_map_function : public map_function {
 ex basic::derivative(const symbol & s) const
 {
 	if (nops() == 0)
-		return _ex0();
+		return _ex0;
 	else {
 		derivative_map_function map_derivative(s);
 		return map(map_derivative);

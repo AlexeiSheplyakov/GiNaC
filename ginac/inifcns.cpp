@@ -115,7 +115,7 @@ static ex csgn_series(const ex & arg,
 		throw (std::domain_error("csgn_series(): on imaginary axis"));
 	
 	epvector seq;
-	seq.push_back(expair(csgn(arg_pt), _ex0()));
+	seq.push_back(expair(csgn(arg_pt), _ex0));
 	return pseries(rel,seq);
 }
 
@@ -135,7 +135,7 @@ static ex eta_evalf(const ex &x, const ex &y)
 	// It seems like we basically have to replicate the eval function here,
 	// since the expression might not be fully evaluated yet.
 	if (x.info(info_flags::positive) || y.info(info_flags::positive))
-		return _ex0();
+		return _ex0;
 
 	if (x.info(info_flags::numeric) &&	y.info(info_flags::numeric)) {
 		const numeric nx = ex_to<numeric>(x);
@@ -159,7 +159,7 @@ static ex eta_eval(const ex &x, const ex &y)
 {
 	// trivial:  eta(x,c) -> 0  if c is real and positive
 	if (x.info(info_flags::positive) || y.info(info_flags::positive))
-		return _ex0();
+		return _ex0;
 
 	if (x.info(info_flags::numeric) &&	y.info(info_flags::numeric)) {
 		// don't call eta_evalf here because it would call Pi.evalf()!
@@ -192,7 +192,7 @@ static ex eta_series(const ex & x, const ex & y,
 	    ((x_pt*y_pt).info(info_flags::numeric) && (x_pt*y_pt).info(info_flags::negative)))
 			throw (std::domain_error("eta_series(): on discontinuity"));
 	epvector seq;
-	seq.push_back(expair(eta(x_pt,y_pt), _ex0()));
+	seq.push_back(expair(eta(x_pt,y_pt), _ex0));
 	return pseries(rel,seq);
 }
 
@@ -220,22 +220,22 @@ static ex Li2_eval(const ex & x)
 	if (x.info(info_flags::numeric)) {
 		// Li2(0) -> 0
 		if (x.is_zero())
-			return _ex0();
+			return _ex0;
 		// Li2(1) -> Pi^2/6
-		if (x.is_equal(_ex1()))
-			return power(Pi,_ex2())/_ex6();
+		if (x.is_equal(_ex1))
+			return power(Pi,_ex2)/_ex6;
 		// Li2(1/2) -> Pi^2/12 - log(2)^2/2
-		if (x.is_equal(_ex1_2()))
-			return power(Pi,_ex2())/_ex12() + power(log(_ex2()),_ex2())*_ex_1_2();
+		if (x.is_equal(_ex1_2))
+			return power(Pi,_ex2)/_ex12 + power(log(_ex2),_ex2)*_ex_1_2;
 		// Li2(-1) -> -Pi^2/12
-		if (x.is_equal(_ex_1()))
-			return -power(Pi,_ex2())/_ex12();
+		if (x.is_equal(_ex_1))
+			return -power(Pi,_ex2)/_ex12;
 		// Li2(I) -> -Pi^2/48+Catalan*I
 		if (x.is_equal(I))
-			return power(Pi,_ex2())/_ex_48() + Catalan*I;
+			return power(Pi,_ex2)/_ex_48 + Catalan*I;
 		// Li2(-I) -> -Pi^2/48-Catalan*I
 		if (x.is_equal(-I))
-			return power(Pi,_ex2())/_ex_48() - Catalan*I;
+			return power(Pi,_ex2)/_ex_48 - Catalan*I;
 		// Li2(float)
 		if (!x.info(info_flags::crational))
 			return Li2(ex_to<numeric>(x));
@@ -249,7 +249,7 @@ static ex Li2_deriv(const ex & x, unsigned deriv_param)
 	GINAC_ASSERT(deriv_param==0);
 	
 	// d/dx Li2(x) -> -log(1-x)/x
-	return -log(_ex1()-x)/x;
+	return -log(_ex1-x)/x;
 }
 
 static ex Li2_series(const ex &x, const relational &rel, int order, unsigned options)
@@ -274,12 +274,12 @@ static ex Li2_series(const ex &x, const relational &rel, int order, unsigned opt
 			ex ser;
 			// manually construct the primitive expansion
 			for (int i=1; i<order; ++i)
-				ser += pow(s,i) / pow(numeric(i), _num2());
+				ser += pow(s,i) / pow(numeric(i), _num2);
 			// substitute the argument's series expansion
 			ser = ser.subs(s==x.series(rel, order));
 			// maybe that was terminating, so add a proper order term
 			epvector nseq;
-			nseq.push_back(expair(Order(_ex1()), order));
+			nseq.push_back(expair(Order(_ex1), order));
 			ser += pseries(rel, nseq);
 			// reexpanding it will collapse the series again
 			return ser.series(rel, order);
@@ -292,11 +292,11 @@ static ex Li2_series(const ex &x, const relational &rel, int order, unsigned opt
 			// obsolete!
 		}
 		// second special case: x==1 (branch point)
-		if (x_pt.is_equal(_ex1())) {
+		if (x_pt.is_equal(_ex1)) {
 			// method:
 			// construct series manually in a dummy symbol s
 			const symbol s;
-			ex ser = zeta(_ex2());
+			ex ser = zeta(_ex2);
 			// manually construct the primitive expansion
 			for (int i=1; i<order; ++i)
 				ser += pow(1-s,i) * (numeric(1,i)*(I*Pi+log(s-1)) - numeric(1,i*i));
@@ -304,7 +304,7 @@ static ex Li2_series(const ex &x, const relational &rel, int order, unsigned opt
 			ser = ser.subs(s==x.series(rel, order));
 			// maybe that was terminating, so add a proper order term
 			epvector nseq;
-			nseq.push_back(expair(Order(_ex1()), order));
+			nseq.push_back(expair(Order(_ex1), order));
 			ser += pseries(rel, nseq);
 			// reexpanding it will collapse the series again
 			return ser.series(rel, order);
@@ -320,13 +320,13 @@ static ex Li2_series(const ex &x, const relational &rel, int order, unsigned opt
 			const symbol foo;
 			epvector seq;
 			// zeroth order term:
-			seq.push_back(expair(Li2(x_pt), _ex0()));
+			seq.push_back(expair(Li2(x_pt), _ex0));
 			// compute the intermediate terms:
 			ex replarg = series(Li2(x), s==foo, order);
 			for (unsigned i=1; i<replarg.nops()-1; ++i)
 				seq.push_back(expair((replarg.op(i)/power(s-foo,i)).series(foo==point,1,options).op(0).subs(foo==s),i));
 			// append an order term:
-			seq.push_back(expair(Order(_ex1()), replarg.nops()-1));
+			seq.push_back(expair(Order(_ex1), replarg.nops()-1));
 			return pseries(rel, seq);
 		}
 	}
@@ -403,9 +403,9 @@ static ex Order_eval(const ex & x)
 	if (is_ex_exactly_of_type(x, numeric)) {
 		// O(c) -> O(1) or 0
 		if (!x.is_zero())
-			return Order(_ex1()).hold();
+			return Order(_ex1).hold();
 		else
-			return _ex0();
+			return _ex0;
 	} else if (is_ex_exactly_of_type(x, mul)) {
 		const mul &m = ex_to<mul>(x);
 		// O(c*expr) -> O(expr)
@@ -421,7 +421,7 @@ static ex Order_series(const ex & x, const relational & r, int order, unsigned o
 	epvector new_seq;
 	GINAC_ASSERT(is_exactly_a<symbol>(r.lhs()));
 	const symbol &s = ex_to<symbol>(r.lhs());
-	new_seq.push_back(expair(Order(_ex1()), numeric(std::min(x.ldegree(s), order))));
+	new_seq.push_back(expair(Order(_ex1), numeric(std::min(x.ldegree(s), order))));
 	return pseries(r, new_seq);
 }
 

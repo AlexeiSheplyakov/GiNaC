@@ -264,7 +264,7 @@ ex indexed::eval(int level) const
 
 	// If the base object is 0, the whole object is 0
 	if (base.is_zero())
-		return _ex0();
+		return _ex0;
 
 	// If the base object is a product, pull out the numeric factor
 	if (is_ex_exactly_of_type(base, mul) && is_ex_exactly_of_type(base.op(base.nops() - 1), numeric)) {
@@ -282,7 +282,7 @@ ex indexed::eval(int level) const
 		if (sig != INT_MAX) {
 			// Something has changed while sorting indices, more evaluations later
 			if (sig == 0)
-				return _ex0();
+				return _ex0;
 			return ex(sig) * thisexprseq(v);
 		}
 	}
@@ -304,9 +304,9 @@ int indexed::ldegree(const ex & s) const
 ex indexed::coeff(const ex & s, int n) const
 {
 	if (is_equal(ex_to<basic>(s)))
-		return n==1 ? _ex1() : _ex0();
+		return n==1 ? _ex1 : _ex0;
 	else
-		return n==0 ? ex(*this) : _ex0();
+		return n==0 ? ex(*this) : _ex0;
 }
 
 ex indexed::thisexprseq(const exvector & v) const
@@ -327,7 +327,7 @@ ex indexed::expand(unsigned options) const
 
 		// expand_indexed expands (a+b).i -> a.i + b.i
 		const ex & base = seq[0];
-		ex sum = _ex0();
+		ex sum = _ex0;
 		for (unsigned i=0; i<base.nops(); i++) {
 			exvector s = seq;
 			s[0] = base.op(i);
@@ -415,7 +415,7 @@ void indexed::validate(void) const
  *  @see ex::diff */
 ex indexed::derivative(const symbol & s) const
 {
-	return _ex0();
+	return _ex0;
 }
 
 //////////
@@ -601,13 +601,13 @@ ex simplify_indexed_product(const ex & e, exvector & free_indices, exvector & du
 
 	if (is_ex_exactly_of_type(e, power)) {
 		// We only get called for simple squares, split a^2 -> a*a
-		GINAC_ASSERT(e.op(1).is_equal(_ex2()));
+		GINAC_ASSERT(e.op(1).is_equal(_ex2));
 		v.push_back(e.op(0));
 		v.push_back(e.op(0));
 	} else {
 		for (unsigned i=0; i<e.nops(); i++) {
 			ex f = e.op(i);
-			if (is_ex_exactly_of_type(f, power) && f.op(1).is_equal(_ex2())) {
+			if (is_ex_exactly_of_type(f, power) && f.op(1).is_equal(_ex2)) {
 				v.push_back(f.op(0));
 	            v.push_back(f.op(0));
 			} else if (is_ex_exactly_of_type(f, ncmul)) {
@@ -663,7 +663,7 @@ try_again:
 			if (free.empty()) {
 				if (sp.is_defined(*it1, *it2)) {
 					*it1 = sp.evaluate(*it1, *it2);
-					*it2 = _ex1();
+					*it2 = _ex1;
 					goto contraction_done;
 				}
 			}
@@ -735,7 +735,7 @@ contraction_done:
 			dummy_syms.append(local_dummy_indices[i].op(0));
 		if (r.symmetrize(dummy_syms).is_zero()) {
 			free_indices.clear();
-			return _ex0();
+			return _ex0;
 		}
 	}
 
@@ -769,7 +769,7 @@ ex simplify_indexed(const ex & e, exvector & free_indices, exvector & dummy_indi
 	// free indices in each term
 	if (is_ex_exactly_of_type(e_expanded, add)) {
 		bool first = true;
-		ex sum = _ex0();
+		ex sum = _ex0;
 		free_indices.clear();
 
 		for (unsigned i=0; i<e_expanded.nops(); i++) {
@@ -797,7 +797,7 @@ ex simplify_indexed(const ex & e, exvector & free_indices, exvector & dummy_indi
 	// Simplification of products
 	if (is_ex_exactly_of_type(e_expanded, mul)
 	 || is_ex_exactly_of_type(e_expanded, ncmul)
-	 || (is_ex_exactly_of_type(e_expanded, power) && is_ex_of_type(e_expanded.op(0), indexed) && e_expanded.op(1).is_equal(_ex2())))
+	 || (is_ex_exactly_of_type(e_expanded, power) && is_ex_of_type(e_expanded.op(0), indexed) && e_expanded.op(1).is_equal(_ex2)))
 		return simplify_indexed_product(e_expanded, free_indices, dummy_indices, sp);
 
 	// Cannot do anything

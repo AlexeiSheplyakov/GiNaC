@@ -387,7 +387,7 @@ ex idx::subs(const lst & ls, const lst & lr, bool no_pattern) const
  *  @see ex::diff */
 ex idx::derivative(const symbol & s) const
 {
-	return _ex0();
+	return _ex0;
 }
 
 //////////

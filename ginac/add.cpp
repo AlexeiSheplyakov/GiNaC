@@ -57,7 +57,7 @@ add::add(const ex & lh, const ex & rh)
 {
 	debugmsg("add constructor from ex,ex",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_add;
-	overall_coeff = _ex0();
+	overall_coeff = _ex0;
 	construct_from_2_ex(lh,rh);
 	GINAC_ASSERT(is_canonical());
 }
@@ -66,7 +66,7 @@ add::add(const exvector & v)
 {
 	debugmsg("add constructor from exvector",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_add;
-	overall_coeff = _ex0();
+	overall_coeff = _ex0;
 	construct_from_exvector(v);
 	GINAC_ASSERT(is_canonical());
 }
@@ -75,7 +75,7 @@ add::add(const epvector & v)
 {
 	debugmsg("add constructor from epvector",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_add;
-	overall_coeff = _ex0();
+	overall_coeff = _ex0;
 	construct_from_epvector(v);
 	GINAC_ASSERT(is_canonical());
 }
@@ -130,16 +130,16 @@ void add::print(const print_context & c, unsigned level) const
 		while (it != itend) {
 		
 			// If the coefficient is -1, it is replaced by a single minus sign
-			if (it->coeff.compare(_num1()) == 0) {
+			if (it->coeff.compare(_num1) == 0) {
 				it->rest.print(c, precedence());
-			} else if (it->coeff.compare(_num_1()) == 0) {
+			} else if (it->coeff.compare(_num_1) == 0) {
 				c.s << "-";
 				it->rest.print(c, precedence());
-			} else if (ex_to<numeric>(it->coeff).numer().compare(_num1()) == 0) {
+			} else if (ex_to<numeric>(it->coeff).numer().compare(_num1) == 0) {
 				it->rest.print(c, precedence());
 				c.s << "/";
 				ex_to<numeric>(it->coeff).denom().print(c, precedence());
-			} else if (ex_to<numeric>(it->coeff).numer().compare(_num_1()) == 0) {
+			} else if (ex_to<numeric>(it->coeff).numer().compare(_num_1) == 0) {
 				c.s << "-";
 				it->rest.print(c, precedence());
 				c.s << "/";
@@ -152,7 +152,7 @@ void add::print(const print_context & c, unsigned level) const
 		
 			// Separator is "+", except if the following expression would have a leading minus sign
 			++it;
-			if (it != itend && !(it->coeff.compare(_num0()) < 0 || (it->coeff.compare(_num1()) == 0 && is_exactly_a<numeric>(it->rest) && it->rest.compare(_num0()) < 0)))
+			if (it != itend && !(it->coeff.compare(_num0) < 0 || (it->coeff.compare(_num1) == 0 && is_exactly_a<numeric>(it->rest) && it->rest.compare(_num0) < 0)))
 				c.s << "+";
 		}
 	
@@ -196,8 +196,8 @@ void add::print(const print_context & c, unsigned level) const
 				if (coeff.csgn() == -1) c.s << '-';
 				first = false;
 			}
-			if (!coeff.is_equal(_num1()) &&
-			    !coeff.is_equal(_num_1())) {
+			if (!coeff.is_equal(_num1) &&
+			    !coeff.is_equal(_num_1)) {
 				if (coeff.is_rational()) {
 					if (coeff.is_negative())
 						(-coeff).print(c);
@@ -304,7 +304,7 @@ ex add::coeff(const ex & s, int n) const
 		++i;
 	}
 
-	return (new add(coeffseq, n==0 ? overall_coeff : _ex0()))->setflag(status_flags::dynallocated);
+	return (new add(coeffseq, n==0 ? overall_coeff : _ex0))->setflag(status_flags::dynallocated);
 }
 
 /** Perform automatic term rewriting rules in this class.  In the following
@@ -413,7 +413,7 @@ ex add::derivative(const symbol & y) const
 		s->push_back(combine_ex_with_coeff_to_pair(i->rest.diff(y), i->coeff));
 		++i;
 	}
-	return (new add(s, _ex0()))->setflag(status_flags::dynallocated);
+	return (new add(s, _ex0))->setflag(status_flags::dynallocated);
 }
 
 int add::compare_same_type(const basic & other) const
@@ -458,13 +458,13 @@ expair add::split_ex_to_pair(const ex & e) const
 		const mul &mulref(ex_to<mul>(e));
 		ex numfactor = mulref.overall_coeff;
 		mul *mulcopyp = new mul(mulref);
-		mulcopyp->overall_coeff = _ex1();
+		mulcopyp->overall_coeff = _ex1;
 		mulcopyp->clearflag(status_flags::evaluated);
 		mulcopyp->clearflag(status_flags::hash_calculated);
 		mulcopyp->setflag(status_flags::dynallocated);
 		return expair(*mulcopyp,numfactor);
 	}
-	return expair(e,_ex1());
+	return expair(e,_ex1);
 }
 
 expair add::combine_ex_with_coeff_to_pair(const ex & e,
@@ -475,20 +475,20 @@ expair add::combine_ex_with_coeff_to_pair(const ex & e,
 		const mul &mulref(ex_to<mul>(e));
 		ex numfactor = mulref.overall_coeff;
 		mul *mulcopyp = new mul(mulref);
-		mulcopyp->overall_coeff = _ex1();
+		mulcopyp->overall_coeff = _ex1;
 		mulcopyp->clearflag(status_flags::evaluated);
 		mulcopyp->clearflag(status_flags::hash_calculated);
 		mulcopyp->setflag(status_flags::dynallocated);
-		if (are_ex_trivially_equal(c, _ex1()))
+		if (are_ex_trivially_equal(c, _ex1))
 			return expair(*mulcopyp, numfactor);
-		else if (are_ex_trivially_equal(numfactor, _ex1()))
+		else if (are_ex_trivially_equal(numfactor, _ex1))
 			return expair(*mulcopyp, c);
 		else
 			return expair(*mulcopyp, ex_to<numeric>(numfactor).mul_dyn(ex_to<numeric>(c)));
 	} else if (is_ex_exactly_of_type(e, numeric)) {
-		if (are_ex_trivially_equal(c, _ex1()))
-			return expair(e, _ex1());
-		return expair(ex_to<numeric>(e).mul_dyn(ex_to<numeric>(c)), _ex1());
+		if (are_ex_trivially_equal(c, _ex1))
+			return expair(e, _ex1);
+		return expair(ex_to<numeric>(e).mul_dyn(ex_to<numeric>(c)), _ex1);
 	}
 	return expair(e, c);
 }
@@ -500,8 +500,8 @@ expair add::combine_pair_with_coeff_to_pair(const expair & p,
 	GINAC_ASSERT(is_exactly_a<numeric>(c));
 
 	if (is_ex_exactly_of_type(p.rest,numeric)) {
-		GINAC_ASSERT(ex_to<numeric>(p.coeff).is_equal(_num1())); // should be normalized
-		return expair(ex_to<numeric>(p.rest).mul_dyn(ex_to<numeric>(c)),_ex1());
+		GINAC_ASSERT(ex_to<numeric>(p.coeff).is_equal(_num1)); // should be normalized
+		return expair(ex_to<numeric>(p.rest).mul_dyn(ex_to<numeric>(c)),_ex1);
 	}
 
 	return expair(p.rest,ex_to<numeric>(p.coeff).mul_dyn(ex_to<numeric>(c)));
@@ -509,7 +509,7 @@ expair add::combine_pair_with_coeff_to_pair(const expair & p,
 	
 ex add::recombine_pair_to_ex(const expair & p) const
 {
-	if (ex_to<numeric>(p.coeff).is_equal(_num1()))
+	if (ex_to<numeric>(p.coeff).is_equal(_num1))
 		return p.rest;
 	else
 		return p.rest*p.coeff;

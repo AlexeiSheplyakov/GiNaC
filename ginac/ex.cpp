@@ -48,7 +48,7 @@ namespace GiNaC {
 //////////
 
 // public
-
+	
 /** Efficiently swap the contents of two expressions. */
 void ex::swap(ex & other)
 {
@@ -239,25 +239,105 @@ void ex::construct_from_basic(const basic & other)
 
 void ex::construct_from_int(int i)
 {
-	switch (i) {  // some tiny efficiency-hack
+	switch (i) {  // prefer flyweights over new objects
+	case -12:
+		bp = (basic*)_num_12_p;
+		++bp->refcount;
+		break;
+	case -11:
+		bp = (basic*)_num_11_p;
+		++bp->refcount;
+		break;
+	case -10:
+		bp = (basic*)_num_10_p;
+		++bp->refcount;
+		break;
+	case -9:
+		bp = (basic*)_num_9_p;
+		++bp->refcount;
+		break;
+	case -8:
+		bp = (basic*)_num_8_p;
+		++bp->refcount;
+		break;
+	case -7:
+		bp = (basic*)_num_7_p;
+		++bp->refcount;
+		break;
+	case -6:
+		bp = (basic*)_num_6_p;
+		++bp->refcount;
+		break;
+	case -5:
+		bp = (basic*)_num_5_p;
+		++bp->refcount;
+		break;
+	case -4:
+		bp = (basic*)_num_4_p;
+		++bp->refcount;
+		break;
+	case -3:
+		bp = (basic*)_num_3_p;
+		++bp->refcount;
+		break;
 	case -2:
-		bp = _ex_2().bp;
+		bp = (basic*)_num_2_p;
 		++bp->refcount;
 		break;
 	case -1:
-		bp = _ex_1().bp;
+		bp = (basic*)_num_1_p;
 		++bp->refcount;
 		break;
 	case 0:
-		bp = _ex0().bp;
+		bp = (basic*)_num0_p;
 		++bp->refcount;
 		break;
 	case 1:
-		bp = _ex1().bp;
+		bp = (basic*)_num1_p;
 		++bp->refcount;
 		break;
 	case 2:
-		bp = _ex2().bp;
+		bp = (basic*)_num2_p;
+		++bp->refcount;
+		break;
+	case 3:
+		bp = (basic*)_num3_p;
+		++bp->refcount;
+		break;
+	case 4:
+		bp = (basic*)_num4_p;
+		++bp->refcount;
+		break;
+	case 5:
+		bp = (basic*)_num5_p;
+		++bp->refcount;
+		break;
+	case 6:
+		bp = (basic*)_num6_p;
+		++bp->refcount;
+		break;
+	case 7:
+		bp = (basic*)_num7_p;
+		++bp->refcount;
+		break;
+	case 8:
+		bp = (basic*)_num8_p;
+		++bp->refcount;
+		break;
+	case 9:
+		bp = (basic*)_num9_p;
+		++bp->refcount;
+		break;
+	case 10:
+		bp = (basic*)_num10_p;
+		++bp->refcount;
+		break;
+	case 11:
+		bp = (basic*)_num11_p;
+		++bp->refcount;
+		break;
+	case 12:
+		bp = (basic*)_num12_p;
 		++bp->refcount;
 		break;
 	default:
@@ -271,17 +351,57 @@ void ex::construct_from_int(int i)
 	
 void ex::construct_from_uint(unsigned int i)
 {
-	switch (i) {  // some tiny efficiency-hack
+	switch (i) {  // prefer flyweights over new objects
 	case 0:
-		bp = _ex0().bp;
+		bp = (basic*)_num0_p;
 		++bp->refcount;
 		break;
 	case 1:
-		bp = _ex1().bp;
+		bp = (basic*)_num1_p;
 		++bp->refcount;
 		break;
 	case 2:
-		bp = _ex2().bp;
+		bp = (basic*)_num2_p;
+		++bp->refcount;
+		break;
+	case 3:
+		bp = (basic*)_num3_p;
+		++bp->refcount;
+		break;
+	case 4:
+		bp = (basic*)_num4_p;
+		++bp->refcount;
+		break;
+	case 5:
+		bp = (basic*)_num5_p;
+		++bp->refcount;
+		break;
+	case 6:
+		bp = (basic*)_num6_p;
+		++bp->refcount;
+		break;
+	case 7:
+		bp = (basic*)_num7_p;
+		++bp->refcount;
+		break;
+	case 8:
+		bp = (basic*)_num8_p;
+		++bp->refcount;
+		break;
+	case 9:
+		bp = (basic*)_num9_p;
+		++bp->refcount;
+		break;
+	case 10:
+		bp = (basic*)_num10_p;
+		++bp->refcount;
+		break;
+	case 11:
+		bp = (basic*)_num11_p;
+		++bp->refcount;
+		break;
+	case 12:
+		bp = (basic*)_num12_p;
 		++bp->refcount;
 		break;
 	default:
@@ -295,25 +415,105 @@ void ex::construct_from_uint(unsigned int i)
 	
 void ex::construct_from_long(long i)
 {
-	switch (i) {  // some tiny efficiency-hack
+	switch (i) {  // prefer flyweights over new objects
+	case -12:
+		bp = (basic*)_num_12_p;
+		++bp->refcount;
+		break;
+	case -11:
+		bp = (basic*)_num_11_p;
+		++bp->refcount;
+		break;
+	case -10:
+		bp = (basic*)_num_10_p;
+		++bp->refcount;
+		break;
+	case -9:
+		bp = (basic*)_num_9_p;
+		++bp->refcount;
+		break;
+	case -8:
+		bp = (basic*)_num_8_p;
+		++bp->refcount;
+		break;
+	case -7:
+		bp = (basic*)_num_7_p;
+		++bp->refcount;
+		break;
+	case -6:
+		bp = (basic*)_num_6_p;
+		++bp->refcount;
+		break;
+	case -5:
+		bp = (basic*)_num_5_p;
+		++bp->refcount;
+		break;
+	case -4:
+		bp = (basic*)_num_4_p;
+		++bp->refcount;
+		break;
+	case -3:
+		bp = (basic*)_num_3_p;
+		++bp->refcount;
+		break;
 	case -2:
-		bp = _ex_2().bp;
+		bp = (basic*)_num_2_p;
 		++bp->refcount;
 		break;
 	case -1:
-		bp = _ex_1().bp;
+		bp = (basic*)_num_1_p;
 		++bp->refcount;
 		break;
 	case 0:
-		bp = _ex0().bp;
+		bp = (basic*)_num0_p;
 		++bp->refcount;
 		break;
 	case 1:
-		bp = _ex1().bp;
+		bp = (basic*)_num1_p;
 		++bp->refcount;
 		break;
 	case 2:
-		bp = _ex2().bp;
+		bp = (basic*)_num2_p;
+		++bp->refcount;
+		break;
+	case 3:
+		bp = (basic*)_num3_p;
+		++bp->refcount;
+		break;
+	case 4:
+		bp = (basic*)_num4_p;
+		++bp->refcount;
+		break;
+	case 5:
+		bp = (basic*)_num5_p;
+		++bp->refcount;
+		break;
+	case 6:
+		bp = (basic*)_num6_p;
+		++bp->refcount;
+		break;
+	case 7:
+		bp = (basic*)_num7_p;
+		++bp->refcount;
+		break;
+	case 8:
+		bp = (basic*)_num8_p;
+		++bp->refcount;
+		break;
+	case 9:
+		bp = (basic*)_num9_p;
+		++bp->refcount;
+		break;
+	case 10:
+		bp = (basic*)_num10_p;
+		++bp->refcount;
+		break;
+	case 11:
+		bp = (basic*)_num11_p;
+		++bp->refcount;
+		break;
+	case 12:
+		bp = (basic*)_num12_p;
 		++bp->refcount;
 		break;
 	default:
@@ -327,17 +527,57 @@ void ex::construct_from_long(long i)
 	
 void ex::construct_from_ulong(unsigned long i)
 {
-	switch (i) {  // some tiny efficiency-hack
+	switch (i) {  // prefer flyweights over new objects
 	case 0:
-		bp = _ex0().bp;
+		bp = (basic*)_num0_p;
 		++bp->refcount;
 		break;
 	case 1:
-		bp = _ex1().bp;
+		bp = (basic*)_num1_p;
 		++bp->refcount;
 		break;
 	case 2:
-		bp = _ex2().bp;
+		bp = (basic*)_num2_p;
+		++bp->refcount;
+		break;
+	case 3:
+		bp = (basic*)_num3_p;
+		++bp->refcount;
+		break;
+	case 4:
+		bp = (basic*)_num4_p;
+		++bp->refcount;
+		break;
+	case 5:
+		bp = (basic*)_num5_p;
+		++bp->refcount;
+		break;
+	case 6:
+		bp = (basic*)_num6_p;
+		++bp->refcount;
+		break;
+	case 7:
+		bp = (basic*)_num7_p;
+		++bp->refcount;
+		break;
+	case 8:
+		bp = (basic*)_num8_p;
+		++bp->refcount;
+		break;
+	case 9:
+		bp = (basic*)_num9_p;
+		++bp->refcount;
+		break;
+	case 10:
+		bp = (basic*)_num10_p;
+		++bp->refcount;
+		break;
+	case 11:
+		bp = (basic*)_num11_p;
+		++bp->refcount;
+		break;
+	case 12:
+		bp = (basic*)_num12_p;
 		++bp->refcount;
 		break;
 	default:

@@ -68,7 +68,7 @@ DEFAULT_DESTROY(pseries)
 /** Construct pseries from a vector of coefficients and powers.
  *  expair.rest holds the coefficient, expair.coeff holds the power.
  *  The powers must be integers (positive or negative) and in ascending order;
- *  the last coefficient can be Order(_ex1()) to represent a truncated,
+ *  the last coefficient can be Order(_ex1) to represent a truncated,
  *  non-terminating series.
  *
  *  @param rel_  expansion variable and point (must hold a relational)
@@ -180,7 +180,7 @@ void pseries::print(const print_context & c, unsigned level) const
 						c.s << par_close;
 					} else
 						var.print(c);
-					if (i->coeff.compare(_ex1())) {
+					if (i->coeff.compare(_ex1)) {
 						c.s << '^';
 						if (i->coeff.info(info_flags::negative)) {
 							c.s << par_open;
@@ -323,7 +323,7 @@ ex pseries::coeff(const ex &s, int n) const
 {
 	if (var.is_equal(s)) {
 		if (seq.empty())
-			return _ex0();
+			return _ex0;
 		
 		// Binary search in sequence for given power
 		numeric looking_for = numeric(n);
@@ -345,7 +345,7 @@ ex pseries::coeff(const ex &s, int n) const
 					throw(std::logic_error("pseries::coeff: compare() didn't return -1, 0 or 1"));
 			}
 		}
-		return _ex0();
+		return _ex0;
 	} else
 		return convert_to_poly().coeff(s, n);
 }
@@ -495,7 +495,7 @@ ex basic::series(const relational & r, int order, unsigned options) const
 	const symbol &s = ex_to<symbol>(r.lhs());
 	
 	if (!coeff.is_zero())
-		seq.push_back(expair(coeff, _ex0()));
+		seq.push_back(expair(coeff, _ex0));
 	
 	int n;
 	for (n=1; n<order; ++n) {
@@ -515,7 +515,7 @@ ex basic::series(const relational & r, int order, unsigned options) const
 	// Higher-order terms, if present
 	deriv = deriv.diff(s);
 	if (!deriv.expand().is_zero())
-		seq.push_back(expair(Order(_ex1()), n));
+		seq.push_back(expair(Order(_ex1), n));
 	return pseries(r, seq);
 }
 
@@ -530,13 +530,13 @@ ex symbol::series(const relational & r, int order, unsigned options) const
 
 	if (this->is_equal_same_type(ex_to<symbol>(r.lhs()))) {
 		if (order > 0 && !point.is_zero())
-			seq.push_back(expair(point, _ex0()));
+			seq.push_back(expair(point, _ex0));
 		if (order > 1)
-			seq.push_back(expair(_ex1(), _ex1()));
+			seq.push_back(expair(_ex1, _ex1));
 		else
-			seq.push_back(expair(Order(_ex1()), numeric(order)));
+			seq.push_back(expair(Order(_ex1), numeric(order)));
 	} else
-		seq.push_back(expair(*this, _ex0()));
+		seq.push_back(expair(*this, _ex0));
 	return pseries(r, seq);
 }
 
@@ -552,7 +552,7 @@ ex pseries::add_series(const pseries &other) const
 	// results in an empty (constant) series 
 	if (!is_compatible_to(other)) {
 		epvector nul;
-		nul.push_back(expair(Order(_ex1()), _ex0()));
+		nul.push_back(expair(Order(_ex1), _ex0));
 		return pseries(relational(var,point), nul);
 	}
 	
@@ -600,7 +600,7 @@ ex pseries::add_series(const pseries &other) const
 		} else {
 			// Add coefficient of a and b
 			if (is_order_function((*a).rest) || is_order_function((*b).rest)) {
-				new_seq.push_back(expair(Order(_ex1()), (*a).coeff));
+				new_seq.push_back(expair(Order(_ex1), (*a).coeff));
 				break;  // Order term ends the sequence
 			} else {
 				ex sum = (*a).rest + (*b).rest;
@@ -634,7 +634,7 @@ ex add::series(const relational & r, int order, unsigned options) const
 			op = it->rest;
 		else
 			op = it->rest.series(r, order, options);
-		if (!it->coeff.is_equal(_ex1()))
+		if (!it->coeff.is_equal(_ex1))
 			op = ex_to<pseries>(op).mul_const(ex_to<numeric>(it->coeff));
 		
 		// Series addition
@@ -677,7 +677,7 @@ ex pseries::mul_series(const pseries &other) const
 	// results in an empty (constant) series 
 	if (!is_compatible_to(other)) {
 		epvector nul;
-		nul.push_back(expair(Order(_ex1()), _ex0()));
+		nul.push_back(expair(Order(_ex1), _ex0));
 		return pseries(relational(var,point), nul);
 	}
 	
@@ -701,7 +701,7 @@ ex pseries::mul_series(const pseries &other) const
 		cdeg_max = higher_order_c - 1;
 	
 	for (int cdeg=cdeg_min; cdeg<=cdeg_max; ++cdeg) {
-		ex co = _ex0();
+		ex co = _ex0;
 		// c(i)=a(0)b(i)+...+a(i)b(0)
 		for (int i=a_min; cdeg-i>=b_min; ++i) {
 			ex a_coeff = coeff(var, i);
@@ -713,7 +713,7 @@ ex pseries::mul_series(const pseries &other) const
 			new_seq.push_back(expair(co, numeric(cdeg)));
 	}
 	if (higher_order_c < INT_MAX)
-		new_seq.push_back(expair(Order(_ex1()), numeric(higher_order_c)));
+		new_seq.push_back(expair(Order(_ex1), numeric(higher_order_c)));
 	return pseries(relational(var, point), new_seq);
 }
 
@@ -793,11 +793,11 @@ ex pseries::power_const(const numeric &p, int deg) const
 	co.push_back(power(coeff(var, ldeg), p));
 	bool all_sums_zero = true;
 	for (int i=1; i<deg; ++i) {
-		ex sum = _ex0();
+		ex sum = _ex0;
 		for (int j=1; j<=i; ++j) {
 			ex c = coeff(var, j + ldeg);
 			if (is_order_function(c)) {
-				co.push_back(Order(_ex1()));
+				co.push_back(Order(_ex1));
 				break;
 			} else
 				sum += (p * j - (i - j)) * co[i - j] * c;
@@ -819,7 +819,7 @@ ex pseries::power_const(const numeric &p, int deg) const
 		}
 	}
 	if (!higher_order && !all_sums_zero)
-		new_seq.push_back(expair(Order(_ex1()), p * ldeg + deg));
+		new_seq.push_back(expair(Order(_ex1), p * ldeg + deg));
 	return pseries(relational(var,point), new_seq);
 }
 
@@ -866,9 +866,9 @@ ex power::series(const relational & r, int order, unsigned options) const
 	if (basis.is_equal(r.lhs() - r.rhs())) {
 		epvector new_seq;
 		if (ex_to<numeric>(exponent).to_int() < order)
-			new_seq.push_back(expair(_ex1(), exponent));
+			new_seq.push_back(expair(_ex1, exponent));
 		else
-			new_seq.push_back(expair(Order(_ex1()), exponent));
+			new_seq.push_back(expair(Order(_ex1), exponent));
 		return pseries(r, new_seq);
 	}
 
@@ -894,7 +894,7 @@ ex pseries::series(const relational & r, int order, unsigned options) const
 			while (it != itend) {
 				int o = ex_to<numeric>(it->coeff).to_int();
 				if (o >= order) {
-					new_seq.push_back(expair(Order(_ex1()), o));
+					new_seq.push_back(expair(Order(_ex1), o));
 					break;
 				}
 				new_seq.push_back(*it);
@@ -925,7 +925,7 @@ ex ex::series(const ex & r, int order, unsigned options) const
 	if (is_ex_exactly_of_type(r,relational))
 		rel_ = ex_to<relational>(r);
 	else if (is_ex_exactly_of_type(r,symbol))
-		rel_ = relational(r,_ex0());
+		rel_ = relational(r,_ex0);
 	else
 		throw (std::logic_error("ex::series(): expansion point has unknown type"));
 	

@@ -54,19 +54,19 @@ static ex zeta1_eval(const ex & x)
 		// trap integer arguments:
 		if (y.is_integer()) {
 			if (y.is_zero())
-				return _ex_1_2();
-			if (x.is_equal(_ex1()))
+				return _ex_1_2;
+			if (x.is_equal(_ex1))
 				throw(std::domain_error("zeta(1): infinity"));
 			if (x.info(info_flags::posint)) {
 				if (x.info(info_flags::odd))
 					return zeta(x).hold();
 				else
-					return abs(bernoulli(y))*pow(Pi,x)*pow(_num2(),y-_num1())/factorial(y);
+					return abs(bernoulli(y))*pow(Pi,x)*pow(_num2,y-_num1)/factorial(y);
 			} else {
 				if (x.info(info_flags::odd))
-					return -bernoulli(_num1()-y)/(_num1()-y);
+					return -bernoulli(_num1-y)/(_num1-y);
 				else
-					return _num0();
+					return _num0;
 			}
 		}
 		// zeta(float)
@@ -80,7 +80,7 @@ static ex zeta1_deriv(const ex & x, unsigned deriv_param)
 {
 	GINAC_ASSERT(deriv_param==0);
 	
-	return zeta(_ex1(), x);
+	return zeta(_ex1, x);
 }
 
 const unsigned function_index_zeta1 =

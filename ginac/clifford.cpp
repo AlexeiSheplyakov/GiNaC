@@ -184,7 +184,7 @@ static void base_and_index(const ex & c, ex & b, ex & i)
 
 	if (is_a<diracgamma>(c.op(0))) { // proper dirac gamma object
 		i = c.op(1);
-		b = _ex1();
+		b = _ex1;
 	} else { // slash object, generate new dummy index
 		varidx ix((new symbol)->setflag(status_flags::dynallocated), ex_to<idx>(c.op(1)).get_dim());
 		b = indexed(c.op(0), ix.toggle_variance());
@@ -214,7 +214,7 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 		} else if (other - self == 2
 		        && is_a<clifford>(self[1])) {
 			*self = 2 - dim;
-			*other = _ex1();
+			*other = _ex1;
 			return true;
 
 		// gamma~mu gamma~alpha gamma~beta gamma.mu = 4 g~alpha~beta + (dim-4) gamam~alpha gamma~beta
@@ -225,9 +225,9 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 			base_and_index(self[1], b1, i1);
 			base_and_index(self[2], b2, i2);
 			*self = 4 * lorentz_g(i1, i2) * b1 * b2 * dirac_ONE(rl) + (dim - 4) * self[1] * self[2];
-			self[1] = _ex1();
-			self[2] = _ex1();
-			*other = _ex1();
+			self[1] = _ex1;
+			self[2] = _ex1;
+			*other = _ex1;
 			return true;
 
 		// gamma~mu gamma~alpha gamma~beta gamma~delta gamma.mu = -2 gamma~delta gamma~beta gamma~alpha - (dim-4) gamam~alpha gamma~beta gamma~delta
@@ -236,10 +236,10 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 		        && is_a<clifford>(self[2])
 		        && is_a<clifford>(self[3])) {
 			*self = -2 * self[3] * self[2] * self[1] - (dim - 4) * self[1] * self[2] * self[3];
-			self[1] = _ex1();
-			self[2] = _ex1();
-			self[3] = _ex1();
-			*other = _ex1();
+			self[1] = _ex1;
+			self[2] = _ex1;
+			self[3] = _ex1;
+			*other = _ex1;
 			return true;
 
 		// gamma~mu S gamma~alpha gamma.mu = 2 gamma~alpha S - gamma~mu S gamma.mu gamma~alpha
@@ -254,15 +254,15 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 			}
 
 			it = self + 1;
-			ex S = _ex1();
+			ex S = _ex1;
 			while (it != next_to_last) {
 				S *= *it;
-				*it++ = _ex1();
+				*it++ = _ex1;
 			}
 
 			*self = 2 * (*next_to_last) * S - (*self) * S * (*other) * (*next_to_last);
-			*next_to_last = _ex1();
-			*other = _ex1();
+			*next_to_last = _ex1;
+			*other = _ex1;
 			return true;
 		}
 	}
@@ -462,12 +462,12 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 		 && is_a<diracone>(e.op(0)))
 			return trONE;
 		else
-			return _ex0();
+			return _ex0;
 
 	} else if (is_ex_exactly_of_type(e, mul)) {
 
 		// Trace of product: pull out non-clifford factors
-		ex prod = _ex1();
+		ex prod = _ex1;
 		for (unsigned i=0; i<e.nops(); i++) {
 			const ex &o = e.op(i);
 			if (is_clifford_tinfo(o.return_type_tinfo(), rl))
@@ -480,7 +480,7 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 	} else if (is_ex_exactly_of_type(e, ncmul)) {
 
 		if (!is_clifford_tinfo(e.return_type_tinfo(), rl))
-			return _ex0();
+			return _ex0;
 
 		// Expand product, if necessary
 		ex e_expanded = e.expand();
@@ -496,7 +496,7 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 			// Trace of gamma5 * odd number of gammas and trace of
 			// gamma5 * gamma.mu * gamma.nu are zero
 			if ((num & 1) == 0 || num == 3)
-				return _ex0();
+				return _ex0;
 
 			// Tr gamma5 gamma.mu gamma.nu gamma.rho gamma.sigma = 4I * epsilon(mu, nu, rho, sigma)
 			if (num == 5) {
@@ -547,7 +547,7 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 
 			// Trace of odd number of gammas is zero
 			if ((num & 1) == 1)
-				return _ex0();
+				return _ex0;
 
 			// Tr gamma.mu gamma.nu = 4 g.mu.nu
 			if (num == 2) {
@@ -571,7 +571,7 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 		return e.map(fcn);
 
 	} else
-		return _ex0();
+		return _ex0;
 }
 
 ex canonicalize_clifford(const ex & e)
@@ -613,7 +613,7 @@ ex canonicalize_clifford(const ex & e)
 					base_and_index(it[0], b1, i1);
 					base_and_index(it[1], b2, i2);
 					it[0] = (lorentz_g(i1, i2) * b1 * b2).simplify_indexed();
-					it[1] = _ex2();
+					it[1] = _ex2;
 					ex sum = ncmul(v);
 					it[0] = save1;
 					it[1] = save0;

@@ -307,104 +307,153 @@ again:
 class numeric;
 class ex;
 
-const numeric & _num_120(void);   // -120
-const ex & _ex_120(void);
-const numeric & _num_60(void);    // -60
-const ex & _ex_60(void);
-const numeric & _num_48(void);    // -48
-const ex & _ex_48(void);
-const numeric & _num_30(void);    // -30
-const ex & _ex_30(void);
-const numeric & _num_25(void);    // -25
-const ex & _ex_25(void);
-const numeric & _num_24(void);    // -24
-const ex & _ex_24(void);
-const numeric & _num_20(void);    // -20
-const ex & _ex_20(void);
-const numeric & _num_18(void);    // -18
-const ex & _ex_18(void);
-const numeric & _num_15(void);    // -15
-const ex & _ex_15(void);
-const numeric & _num_12(void);    // -12
-const ex & _ex_12(void);
-const numeric & _num_11(void);    // -11
-const ex & _ex_11(void);
-const numeric & _num_10(void);    // -10
-const ex & _ex_10(void);
-const numeric & _num_9(void);     // -9
-const ex & _ex_9(void);
-const numeric & _num_8(void);     // -8
-const ex & _ex_8(void);
-const numeric & _num_7(void);     // -7
-const ex & _ex_7(void);
-const numeric & _num_6(void);     // -6
-const ex & _ex_6(void);
-const numeric & _num_5(void);     // -5
-const ex & _ex_5(void);
-const numeric & _num_4(void);     // -4
-const ex & _ex_4(void);
-const numeric & _num_3(void);     // -3
-const ex & _ex_3(void);
-const numeric & _num_2(void);     // -2
-const ex & _ex_2(void);
-const numeric & _num_1(void);     // -1
-const ex & _ex_1(void);
-const numeric & _num_1_2(void);   // -1/2
-const ex & _ex_1_2(void);
-const numeric & _num_1_3(void);   // -1/3
-const ex & _ex_1_3(void);
-const numeric & _num_1_4(void);   // -1/4
-const ex & _ex_1_4(void);
-const numeric & _num0(void);      //  0
-const ex & _ex0(void);
-const numeric & _num1_4(void);    //  1/4
-const ex & _ex1_4(void);
-const numeric & _num1_3(void);    //  1/3
-const ex & _ex1_3(void);
-const numeric & _num1_2(void);    //  1/2
-const ex & _ex1_2(void);
-const numeric & _num1(void);      //  1
-const ex & _ex1(void);
-const numeric & _num2(void);      //  2
-const ex & _ex2(void);
-const numeric & _num3(void);      //  3
-const ex & _ex3(void);
-const numeric & _num4(void);      //  4
-const ex & _ex4(void);
-const numeric & _num5(void);      //  5
-const ex & _ex5(void);
-const numeric & _num6(void);      //  6
-const ex & _ex6(void);
-const numeric & _num7(void);      //  7
-const ex & _ex7(void);
-const numeric & _num8(void);      //  8
-const ex & _ex8(void);
-const numeric & _num9(void);      //  9
-const ex & _ex9(void);
-const numeric & _num10(void);     //  10
-const ex & _ex10(void);
-const numeric & _num11(void);     //  11
-const ex & _ex11(void);
-const numeric & _num12(void);     //  12
-const ex & _ex12(void);
-const numeric & _num15(void);     //  15
-const ex & _ex15(void);
-const numeric & _num18(void);     //  18
-const ex & _ex18(void);
-const numeric & _num20(void);     //  20
-const ex & _ex20(void);
-const numeric & _num24(void);     //  24
-const ex & _ex24(void);
-const numeric & _num25(void);     //  25
-const ex & _ex25(void);
-const numeric & _num30(void);     //  30
-const ex & _ex30(void);
-const numeric & _num48(void);     //  48
-const ex & _ex48(void);
-const numeric & _num60(void);     //  60
-const ex & _ex60(void);
-const numeric & _num120(void);    //  120
-const ex & _ex120(void);
+extern const numeric *_num_120_p;
+extern const numeric &_num_120;
+extern const ex _ex_120;
+extern const numeric *_num_60_p;
+extern const numeric &_num_60;
+extern const ex _ex_60;
+extern const numeric *_num_48_p;
+extern const numeric &_num_48;
+extern const ex _ex_48;
+extern const numeric *_num_30_p;
+extern const numeric &_num_30;
+extern const ex _ex_30;
+extern const numeric *_num_25_p;
+extern const numeric &_num_25;
+extern const ex _ex_25;
+extern const numeric *_num_24_p;
+extern const numeric &_num_24;
+extern const ex _ex_24;
+extern const numeric *_num_20_p;
+extern const numeric &_num_20;
+extern const ex _ex_20;
+extern const numeric *_num_18_p;
+extern const numeric &_num_18;
+extern const ex _ex_18;
+extern const numeric *_num_15_p;
+extern const numeric &_num_15;
+extern const ex _ex_15;
+extern const numeric *_num_12_p;
+extern const numeric &_num_12;
+extern const ex _ex_12;
+extern const numeric *_num_11_p;
+extern const numeric &_num_11;
+extern const ex _ex_11;
+extern const numeric *_num_10_p;
+extern const numeric &_num_10;
+extern const ex _ex_10;
+extern const numeric *_num_9_p;
+extern const numeric &_num_9;
+extern const ex _ex_9;
+extern const numeric *_num_8_p;
+extern const numeric &_num_8;
+extern const ex _ex_8;
+extern const numeric *_num_7_p;
+extern const numeric &_num_7;
+extern const ex _ex_7;
+extern const numeric *_num_6_p;
+extern const numeric &_num_6;
+extern const ex _ex_6;
+extern const numeric *_num_5_p;
+extern const numeric &_num_5;
+extern const ex _ex_5;
+extern const numeric *_num_4_p;
+extern const numeric &_num_4;
+extern const ex _ex_4;
+extern const numeric *_num_3_p;
+extern const numeric &_num_3;
+extern const ex _ex_3;
+extern const numeric *_num_2_p;
+extern const numeric &_num_2;
+extern const ex _ex_2;
+extern const numeric *_num_1_p;
+extern const numeric &_num_1;
+extern const ex _ex_1;
+extern const numeric *_num_1_2_p;
+extern const numeric &_num_1_2;
+extern const ex _ex_1_2;
+extern const numeric *_num_1_3_p;
+extern const numeric &_num_1_3;
+extern const ex _ex_1_3;
+extern const numeric *_num_1_4_p;
+extern const numeric &_num_1_4;
+extern const ex _ex_1_4;
+extern const numeric *_num0_p;
+extern const numeric &_num0;
+extern const ex _ex0;
+extern const numeric *_num1_4_p;
+extern const numeric &_num1_4;
+extern const ex _ex1_4;
+extern const numeric *_num1_3_p;
+extern const numeric &_num1_3;
+extern const ex _ex1_3;
+extern const numeric *_num1_2_p;
+extern const numeric &_num1_2;
+extern const ex _ex1_2;
+extern const numeric *_num1_p;
+extern const numeric &_num1;
+extern const ex _ex1;
+extern const numeric *_num2_p;
+extern const numeric &_num2;
+extern const ex _ex2;
+extern const numeric *_num3_p;
+extern const numeric &_num3;
+extern const ex _ex3;
+extern const numeric *_num4_p;
+extern const numeric &_num4;
+extern const ex _ex4;
+extern const numeric *_num5_p;
+extern const numeric &_num5;
+extern const ex _ex5;
+extern const numeric *_num6_p;
+extern const numeric &_num6;
+extern const ex _ex6;
+extern const numeric *_num7_p;
+extern const numeric &_num7;
+extern const ex _ex7;
+extern const numeric *_num8_p;
+extern const numeric &_num8;
+extern const ex _ex8;
+extern const numeric *_num9_p;
+extern const numeric &_num9;
+extern const ex _ex9;
+extern const numeric *_num10_p;
+extern const numeric &_num10;
+extern const ex _ex10;
+extern const numeric *_num11_p;
+extern const numeric &_num11;
+extern const ex _ex11;
+extern const numeric *_num12_p;
+extern const numeric &_num12;
+extern const ex _ex12;
+extern const numeric *_num15_p;
+extern const numeric &_num15;
+extern const ex _ex15;
+extern const numeric *_num18_p;
+extern const numeric &_num18;
+extern const ex _ex18;
+extern const numeric *_num20_p;
+extern const numeric &_num20;
+extern const ex _ex20;
+extern const numeric *_num24_p;
+extern const numeric &_num24;
+extern const ex _ex24;
+extern const numeric *_num25_p;
+extern const numeric &_num25;
+extern const ex _ex25;
+extern const numeric *_num30_p;
+extern const numeric &_num30;
+extern const ex _ex30;
+extern const numeric *_num48_p;
+extern const numeric &_num48;
+extern const ex _ex48;
+extern const numeric *_num60_p;
+extern const numeric &_num60;
+extern const ex _ex60;
+extern const numeric *_num120_p;
+extern const numeric &_num120;
+extern const ex _ex120;
 
 
 // Helper macros for class implementations (mostly useful for trivial classes)

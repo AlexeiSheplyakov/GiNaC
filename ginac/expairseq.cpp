@@ -651,7 +651,7 @@ void expairseq::printseq(const print_context & c, char delim,
  *  @see expairseq::recombine_pair_to_ex() */
 expair expairseq::split_ex_to_pair(const ex &e) const
 {
-	return expair(e,_ex1());
+	return expair(e,_ex1);
 }
 
 
@@ -691,7 +691,7 @@ bool expairseq::expair_needs_further_processing(epp it)
 
 ex expairseq::default_overall_coeff(void) const
 {
-	return _ex0();
+	return _ex0;
 }
 
 void expairseq::combine_overall_coeff(const ex &c)

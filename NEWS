@@ -1,5 +1,8 @@
 This file records noteworthy changes.
 
+0.9.5 (<date>)
+* Some internal reorganization resulting in a general speed-up.
+
 0.9.4 (20 September 2001)
 * Functions have better support for external scripting languages.
 * Interface cleanups and bugfixes.

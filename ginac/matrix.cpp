@@ -49,7 +49,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(matrix, basic)
 matrix::matrix() : inherited(TINFO_matrix), row(1), col(1)
 {
 	debugmsg("matrix default ctor",LOGLEVEL_CONSTRUCT);
-	m.push_back(_ex0());
+	m.push_back(_ex0);
 }
 
 void matrix::copy(const matrix & other)
@@ -76,7 +76,7 @@ matrix::matrix(unsigned r, unsigned c)
   : inherited(TINFO_matrix), row(r), col(c)
 {
 	debugmsg("matrix ctor from unsigned,unsigned",LOGLEVEL_CONSTRUCT);
-	m.resize(r*c, _ex0());
+	m.resize(r*c, _ex0);
 }
 
 // protected
@@ -96,7 +96,7 @@ matrix::matrix(unsigned r, unsigned c, const lst & l)
   : inherited(TINFO_matrix), row(r), col(c)
 {
 	debugmsg("matrix ctor from unsigned,unsigned,lst",LOGLEVEL_CONSTRUCT);
-	m.resize(r*c, _ex0());
+	m.resize(r*c, _ex0);
 
 	for (unsigned i=0; i<l.nops(); i++) {
 		unsigned x = i % c;
@@ -435,7 +435,7 @@ bool matrix::contract_with(exvector::iterator self, exvector::iterator other, ex
 					*self = self_matrix.mul(other_matrix.transpose())(0, 0);
 				}
 			}
-			*other = _ex1();
+			*other = _ex1;
 			return true;
 
 		} else { // vector * matrix
@@ -446,7 +446,7 @@ bool matrix::contract_with(exvector::iterator self, exvector::iterator other, ex
 					*self = indexed(self_matrix.mul(other_matrix), other->op(2));
 				else
 					*self = indexed(self_matrix.transpose().mul(other_matrix), other->op(2));
-				*other = _ex1();
+				*other = _ex1;
 				return true;
 			}
 
@@ -456,7 +456,7 @@ bool matrix::contract_with(exvector::iterator self, exvector::iterator other, ex
 					*self = indexed(other_matrix.mul(self_matrix), other->op(1));
 				else
 					*self = indexed(other_matrix.mul(self_matrix.transpose()), other->op(1));
-				*other = _ex1();
+				*other = _ex1;
 				return true;
 			}
 		}
@@ -466,28 +466,28 @@ bool matrix::contract_with(exvector::iterator self, exvector::iterator other, ex
 		// A_ij * B_jk = (A*B)_ik
 		if (is_dummy_pair(self->op(2), other->op(1))) {
 			*self = indexed(self_matrix.mul(other_matrix), self->op(1), other->op(2));
-			*other = _ex1();
+			*other = _ex1;
 			return true;
 		}
 
 		// A_ij * B_kj = (A*Btrans)_ik
 		if (is_dummy_pair(self->op(2), other->op(2))) {
 			*self = indexed(self_matrix.mul(other_matrix.transpose()), self->op(1), other->op(1));
-			*other = _ex1();
+			*other = _ex1;
 			return true;
 		}
 
 		// A_ji * B_jk = (Atrans*B)_ik
 		if (is_dummy_pair(self->op(1), other->op(1))) {
 			*self = indexed(self_matrix.transpose().mul(other_matrix), self->op(2), other->op(2));
-			*other = _ex1();
+			*other = _ex1;
 			return true;
 		}
 
 		// A_ji * B_kj = (B*A)_ki
 		if (is_dummy_pair(self->op(1), other->op(2))) {
 			*self = indexed(other_matrix.mul(self_matrix), other->op(1), self->op(2));
-			*other = _ex1();
+			*other = _ex1;
 			return true;
 		}
 	}
@@ -609,7 +609,7 @@ matrix matrix::pow(const ex & expn) const
 			}
 			matrix C(row,col);
 			for (unsigned r=0; r<row; ++r)
-				C(r,r) = _ex1();
+				C(r,r) = _ex1;
 			// This loop computes the representation of b in base 2 from right
 			// to left and multiplies the factors whenever needed.  Note
 			// that this is not entirely optimal but close to optimal and
@@ -620,7 +620,7 @@ matrix matrix::pow(const ex & expn) const
 					C = C.mul(A);
 					b -= 1;
 				}
-				b *= _num1_2();  // b /= 2, still integer.
+				b *= _num1_2;  // b /= 2, still integer.
 				A = A.mul(A);
 			}
 			return A.mul(C);
@@ -760,7 +760,7 @@ ex matrix::determinant(unsigned algo) const
 			int sign;
 			sign = tmp.division_free_elimination(true);
 			if (sign==0)
-				return _ex0();
+				return _ex0;
 			ex det = tmp.m[row*col-1];
 			// factor out accumulated bogus slag
 			for (unsigned d=0; d<row-2; ++d)
@@ -903,7 +903,7 @@ matrix matrix::inverse(void) const
 	// First populate the identity matrix supposed to become the right hand side.
 	matrix identity(row,col);
 	for (unsigned i=0; i<row; ++i)
-		identity(i,i) = _ex1();
+		identity(i,i) = _ex1;
 	
 	// Populate a dummy matrix of variables, just because of compatibility with
 	// matrix::solve() which wants this (for compatibility with under-determined
@@ -1114,7 +1114,7 @@ ex matrix::determinant_minor(void) const
 			Pkey.push_back(i);
 		unsigned fc = 0;  // controls logic for our strange flipper counter
 		do {
-			det = _ex0();
+			det = _ex0;
 			for (unsigned r=0; r<n-c; ++r) {
 				// maybe there is nothing to do?
 				if (m[Pkey[r]*n+c].is_zero())
@@ -1194,12 +1194,12 @@ int matrix::gauss_elimination(const bool det)
 				}
 				// fill up left hand side with zeros
 				for (unsigned c=0; c<=r1; ++c)
-					this->m[r2*n+c] = _ex0();
+					this->m[r2*n+c] = _ex0;
 			}
 			if (det) {
 				// save space by deleting no longer needed elements
 				for (unsigned c=r0+1; c<n; ++c)
-					this->m[r0*n+c] = _ex0();
+					this->m[r0*n+c] = _ex0;
 			}
 			++r0;
 		}
@@ -1241,12 +1241,12 @@ int matrix::division_free_elimination(const bool det)
 					this->m[r2*n+c] = (this->m[r0*n+r1]*this->m[r2*n+c] - this->m[r2*n+r1]*this->m[r0*n+c]).expand();
 				// fill up left hand side with zeros
 				for (unsigned c=0; c<=r1; ++c)
-					this->m[r2*n+c] = _ex0();
+					this->m[r2*n+c] = _ex0;
 			}
 			if (det) {
 				// save space by deleting no longer needed elements
 				for (unsigned c=r0+1; c<n; ++c)
-					this->m[r0*n+c] = _ex0();
+					this->m[r0*n+c] = _ex0;
 			}
 			++r0;
 		}
@@ -1354,7 +1354,7 @@ int matrix::fraction_free_elimination(const bool det)
 				}
 				// fill up left hand side with zeros
 				for (unsigned c=0; c<=r1; ++c)
-					tmp_n.m[r2*n+c] = _ex0();
+					tmp_n.m[r2*n+c] = _ex0;
 			}
 			if ((r1<n-1)&&(r0<m-1)) {
 				// compute next iteration's divisor
@@ -1363,8 +1363,8 @@ int matrix::fraction_free_elimination(const bool det)
 				if (det) {
 					// save space by deleting no longer needed elements
 					for (unsigned c=0; c<n; ++c) {
-						tmp_n.m[r0*n+c] = _ex0();
-						tmp_d.m[r0*n+c] = _ex1();
+						tmp_n.m[r0*n+c] = _ex0;
+						tmp_d.m[r0*n+c] = _ex1;
 					}
 				}
 			}
@@ -1449,7 +1449,7 @@ ex lst_to_matrix(const lst & l)
 			if (l.op(i).nops() > j)
 				m(i, j) = l.op(i).op(j);
 			else
-				m(i, j) = _ex0();
+				m(i, j) = _ex0;
 	return m;
 }
 

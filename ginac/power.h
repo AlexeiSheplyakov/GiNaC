@@ -113,7 +113,11 @@ inline ex pow(const T1 & b, const T2 & e)
 }
 
 /** Square root expression.  Returns a power-object with exponent 1/2. */
-ex sqrt(const ex & a);
+inline ex sqrt(const ex & a)
+{
+	extern const ex _ex1_2;
+	return power(a,_ex1_2);
+}
 
 } // namespace GiNaC
 

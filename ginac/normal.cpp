@@ -231,14 +231,14 @@ static numeric lcmcoeff(const ex &e, const numeric &l)
 	if (e.info(info_flags::rational))
 		return lcm(ex_to<numeric>(e).denom(), l);
 	else if (is_ex_exactly_of_type(e, add)) {
-		numeric c = _num1();
+		numeric c = _num1;
 		for (unsigned i=0; i<e.nops(); i++)
 			c = lcmcoeff(e.op(i), c);
 		return lcm(c, l);
 	} else if (is_ex_exactly_of_type(e, mul)) {
-		numeric c = _num1();
+		numeric c = _num1;
 		for (unsigned i=0; i<e.nops(); i++)
-			c *= lcmcoeff(e.op(i), _num1());
+			c *= lcmcoeff(e.op(i), _num1);
 		return lcm(c, l);
 	} else if (is_ex_exactly_of_type(e, power)) {
 		if (is_ex_exactly_of_type(e.op(0), symbol))
@@ -258,7 +258,7 @@ static numeric lcmcoeff(const ex &e, const numeric &l)
  *  @return LCM of denominators of coefficients */
 static numeric lcm_of_coefficients_denominators(const ex &e)
 {
-	return lcmcoeff(e, _num1());
+	return lcmcoeff(e, _num1);
 }
 
 /** Bring polynomial from Q[X] to Z[X] by multiplying in the previously
@@ -271,9 +271,9 @@ static ex multiply_lcm(const ex &e, const numeric &lcm)
 	if (is_ex_exactly_of_type(e, mul)) {
 		unsigned num = e.nops();
 		exvector v; v.reserve(num + 1);
-		numeric lcm_accum = _num1();
+		numeric lcm_accum = _num1;
 		for (unsigned i=0; i<e.nops(); i++) {
-			numeric op_lcm = lcmcoeff(e.op(i), _num1());
+			numeric op_lcm = lcmcoeff(e.op(i), _num1);
 			v.push_back(multiply_lcm(e.op(i), op_lcm));
 			lcm_accum *= op_lcm;
 		}
@@ -308,7 +308,7 @@ numeric ex::integer_content(void) const
 
 numeric basic::integer_content(void) const
 {
-	return _num1();
+	return _num1;
 }
 
 numeric numeric::integer_content(void) const
@@ -320,7 +320,7 @@ numeric add::integer_content(void) const
 {
 	epvector::const_iterator it = seq.begin();
 	epvector::const_iterator itend = seq.end();
-	numeric c = _num0();
+	numeric c = _num0;
 	while (it != itend) {
 		GINAC_ASSERT(!is_exactly_a<numeric>(it->rest));
 		GINAC_ASSERT(is_exactly_a<numeric>(it->coeff));
@@ -368,7 +368,7 @@ ex quo(const ex &a, const ex &b, const symbol &x, bool check_args)
 		return a / b;
 #if FAST_COMPARE
 	if (a.is_equal(b))
-		return _ex1();
+		return _ex1;
 #endif
 	if (check_args && (!a.info(info_flags::rational_polynomial) || !b.info(info_flags::rational_polynomial)))
 		throw(std::invalid_argument("quo: arguments must be polynomials over the rationals"));
@@ -416,13 +416,13 @@ ex rem(const ex &a, const ex &b, const symbol &x, bool check_args)
 		throw(std::overflow_error("rem: division by zero"));
 	if (is_ex_exactly_of_type(a, numeric)) {
 		if  (is_ex_exactly_of_type(b, numeric))
-			return _ex0();
+			return _ex0;
 		else
 			return a;
 	}
 #if FAST_COMPARE
 	if (a.is_equal(b))
-		return _ex0();
+		return _ex0;
 #endif
 	if (check_args && (!a.info(info_flags::rational_polynomial) || !b.info(info_flags::rational_polynomial)))
 		throw(std::invalid_argument("rem: arguments must be polynomials over the rationals"));
@@ -485,7 +485,7 @@ ex prem(const ex &a, const ex &b, const symbol &x, bool check_args)
 		throw(std::overflow_error("prem: division by zero"));
 	if (is_ex_exactly_of_type(a, numeric)) {
 		if (is_ex_exactly_of_type(b, numeric))
-			return _ex0();
+			return _ex0;
 		else
 			return b;
 	}
@@ -501,18 +501,18 @@ ex prem(const ex &a, const ex &b, const symbol &x, bool check_args)
 	if (bdeg <= rdeg) {
 		blcoeff = eb.coeff(x, bdeg);
 		if (bdeg == 0)
-			eb = _ex0();
+			eb = _ex0;
 		else
 			eb -= blcoeff * power(x, bdeg);
 	} else
-		blcoeff = _ex1();
+		blcoeff = _ex1;
 
 	int delta = rdeg - bdeg + 1, i = 0;
 	while (rdeg >= bdeg && !r.is_zero()) {
 		ex rlcoeff = r.coeff(x, rdeg);
 		ex term = (power(x, rdeg - bdeg) * eb * rlcoeff).expand();
 		if (rdeg == 0)
-			r = _ex0();
+			r = _ex0;
 		else
 			r -= rlcoeff * power(x, rdeg);
 		r = (blcoeff * r).expand() - term;
@@ -537,7 +537,7 @@ ex sprem(const ex &a, const ex &b, const symbol &x, bool check_args)
 		throw(std::overflow_error("prem: division by zero"));
 	if (is_ex_exactly_of_type(a, numeric)) {
 		if (is_ex_exactly_of_type(b, numeric))
-			return _ex0();
+			return _ex0;
 		else
 			return b;
 	}
@@ -553,17 +553,17 @@ ex sprem(const ex &a, const ex &b, const symbol &x, bool check_args)
 	if (bdeg <= rdeg) {
 		blcoeff = eb.coeff(x, bdeg);
 		if (bdeg == 0)
-			eb = _ex0();
+			eb = _ex0;
 		else
 			eb -= blcoeff * power(x, bdeg);
 	} else
-		blcoeff = _ex1();
+		blcoeff = _ex1;
 
 	while (rdeg >= bdeg && !r.is_zero()) {
 		ex rlcoeff = r.coeff(x, rdeg);
 		ex term = (power(x, rdeg - bdeg) * eb * rlcoeff).expand();
 		if (rdeg == 0)
-			r = _ex0();
+			r = _ex0;
 		else
 			r -= rlcoeff * power(x, rdeg);
 		r = (blcoeff * r).expand() - term;
@@ -584,7 +584,7 @@ ex sprem(const ex &a, const ex &b, const symbol &x, bool check_args)
  *          "false" otherwise */
 bool divide(const ex &a, const ex &b, ex &q, bool check_args)
 {
-	q = _ex0();
+	q = _ex0;
 	if (b.is_zero())
 		throw(std::overflow_error("divide: division by zero"));
 	if (a.is_zero())
@@ -596,7 +596,7 @@ bool divide(const ex &a, const ex &b, ex &q, bool check_args)
 		return false;
 #if FAST_COMPARE
 	if (a.is_equal(b)) {
-		q = _ex1();
+		q = _ex1;
 		return true;
 	}
 #endif
@@ -676,10 +676,10 @@ typedef std::map<ex2, exbool, ex2_less> ex2_exbool_remember;
  *  @see get_symbol_stats, heur_gcd */
 static bool divide_in_z(const ex &a, const ex &b, ex &q, sym_desc_vec::const_iterator var)
 {
-	q = _ex0();
+	q = _ex0;
 	if (b.is_zero())
 		throw(std::overflow_error("divide_in_z: division by zero"));
-	if (b.is_equal(_ex1())) {
+	if (b.is_equal(_ex1)) {
 		q = a;
 		return true;
 	}
@@ -692,7 +692,7 @@ static bool divide_in_z(const ex &a, const ex &b, ex &q, sym_desc_vec::const_ite
 	}
 #if FAST_COMPARE
 	if (a.is_equal(b)) {
-		q = _ex1();
+		q = _ex1;
 		return true;
 	}
 #endif
@@ -723,24 +723,24 @@ static bool divide_in_z(const ex &a, const ex &b, ex &q, sym_desc_vec::const_ite
 	// Compute values at evaluation points 0..adeg
 	vector<numeric> alpha; alpha.reserve(adeg + 1);
 	exvector u; u.reserve(adeg + 1);
-	numeric point = _num0();
+	numeric point = _num0;
 	ex c;
 	for (i=0; i<=adeg; i++) {
 		ex bs = b.subs(*x == point);
 		while (bs.is_zero()) {
-			point += _num1();
+			point += _num1;
 			bs = b.subs(*x == point);
 		}
 		if (!divide_in_z(a.subs(*x == point), bs, c, var+1))
 			return false;
 		alpha.push_back(point);
 		u.push_back(c);
-		point += _num1();
+		point += _num1;
 	}
 
 	// Compute inverses
 	vector<numeric> rcp; rcp.reserve(adeg + 1);
-	rcp.push_back(_num0());
+	rcp.push_back(_num0);
 	for (k=1; k<=adeg; k++) {
 		numeric product = alpha[k] - alpha[0];
 		for (i=1; i<k; i++)
@@ -819,7 +819,7 @@ ex ex::unit(const symbol &x) const
 {
 	ex c = expand().lcoeff(x);
 	if (is_ex_exactly_of_type(c, numeric))
-		return c < _ex0() ? _ex_1() : _ex1();
+		return c < _ex0 ? _ex_1 : _ex1;
 	else {
 		const symbol *y;
 		if (get_first_symbol(c, y))
@@ -840,12 +840,12 @@ ex ex::unit(const symbol &x) const
 ex ex::content(const symbol &x) const
 {
 	if (is_zero())
-		return _ex0();
+		return _ex0;
 	if (is_ex_exactly_of_type(*this, numeric))
 		return info(info_flags::negative) ? -*this : *this;
 	ex e = expand();
 	if (e.is_zero())
-		return _ex0();
+		return _ex0;
 
 	// First, try the integer content
 	ex c = e.integer_content();
@@ -859,7 +859,7 @@ ex ex::content(const symbol &x) const
 	int ldeg = e.ldegree(x);
 	if (deg == ldeg)
 		return e.lcoeff(x) / e.unit(x);
-	c = _ex0();
+	c = _ex0;
 	for (int i=ldeg; i<=deg; i++)
 		c = gcd(e.coeff(x, i), c, NULL, NULL, false);
 	return c;
@@ -876,13 +876,13 @@ ex ex::content(const symbol &x) const
 ex ex::primpart(const symbol &x) const
 {
 	if (is_zero())
-		return _ex0();
+		return _ex0;
 	if (is_ex_exactly_of_type(*this, numeric))
-		return _ex1();
+		return _ex1;
 
 	ex c = content(x);
 	if (c.is_zero())
-		return _ex0();
+		return _ex0;
 	ex u = unit(x);
 	if (is_ex_exactly_of_type(c, numeric))
 		return *this / (c * u);
@@ -901,11 +901,11 @@ ex ex::primpart(const symbol &x) const
 ex ex::primpart(const symbol &x, const ex &c) const
 {
 	if (is_zero())
-		return _ex0();
+		return _ex0;
 	if (c.is_zero())
-		return _ex0();
+		return _ex0;
 	if (is_ex_exactly_of_type(*this, numeric))
-		return _ex1();
+		return _ex1;
 
 	ex u = unit(x);
 	if (is_ex_exactly_of_type(c, numeric))
@@ -1091,7 +1091,7 @@ static ex red_gcd(const ex &a, const ex &b, const symbol *x)
 	d = d.primpart(*x, cont_d);
 
 	// First element of divisor sequence
-	ex r, ri = _ex1();
+	ex r, ri = _ex1;
 	int delta = cdeg - ddeg;
 
 	for (;;) {
@@ -1165,7 +1165,7 @@ static ex sr_gcd(const ex &a, const ex &b, sym_desc_vec::const_iterator var)
 //std::clog << " content " << gamma << " removed, continuing with sr_gcd(" << c << "," << d << ")\n";
 
 	// First element of subresultant sequence
-	ex r = _ex0(), ri = _ex1(), psi = _ex1();
+	ex r = _ex0, ri = _ex1, psi = _ex1;
 	int delta = cdeg - ddeg;
 
 	for (;;) {
@@ -1216,7 +1216,7 @@ numeric ex::max_coefficient(void) const
  *  @see heur_gcd */
 numeric basic::max_coefficient(void) const
 {
-	return _num1();
+	return _num1;
 }
 
 numeric numeric::max_coefficient(void) const
@@ -1377,9 +1377,9 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 	numeric mq = q.max_coefficient();
 	numeric xi;
 	if (mp > mq)
-		xi = mq * _num2() + _num2();
+		xi = mq * _num2 + _num2;
 	else
-		xi = mp * _num2() + _num2();
+		xi = mp * _num2 + _num2;
 
 	// 6 tries maximum
 	for (int t=0; t<6; t++) {
@@ -1467,9 +1467,9 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args)
 		if (ca || cb) {
 			if (g.is_zero()) {
 				if (ca)
-					*ca = _ex0();
+					*ca = _ex0;
 				if (cb)
-					*cb = _ex0();
+					*cb = _ex0;
 			} else {
 				if (ca)
 					*ca = ex_to<numeric>(a) / g;
@@ -1536,7 +1536,7 @@ factored_b:
 				ex exp_a = a.op(1), exp_b = b.op(1);
 				if (exp_a < exp_b) {
 					if (ca)
-						*ca = _ex1();
+						*ca = _ex1;
 					if (cb)
 						*cb = power(p, exp_b - exp_a);
 					return power(p, exp_a);
@@ -1544,7 +1544,7 @@ factored_b:
 					if (ca)
 						*ca = power(p, exp_a - exp_b);
 					if (cb)
-						*cb = _ex1();
+						*cb = _ex1;
 					return power(p, exp_b);
 				}
 			}
@@ -1554,7 +1554,7 @@ factored_b:
 				if (ca)
 					*ca = power(p, a.op(1) - 1);
 				if (cb)
-					*cb = _ex1();
+					*cb = _ex1;
 				return p;
 			}
 		}
@@ -1563,7 +1563,7 @@ factored_b:
 		if (p.is_equal(a)) {
 			// a = p, b = p^n, gcd = p
 			if (ca)
-				*ca = _ex1();
+				*ca = _ex1;
 			if (cb)
 				*cb = power(p, b.op(1) - 1);
 			return p;
@@ -1575,31 +1575,31 @@ factored_b:
 	ex aex = a.expand(), bex = b.expand();
 	if (aex.is_zero()) {
 		if (ca)
-			*ca = _ex0();
+			*ca = _ex0;
 		if (cb)
-			*cb = _ex1();
+			*cb = _ex1;
 		return b;
 	}
 	if (bex.is_zero()) {
 		if (ca)
-			*ca = _ex1();
+			*ca = _ex1;
 		if (cb)
-			*cb = _ex0();
+			*cb = _ex0;
 		return a;
 	}
-	if (aex.is_equal(_ex1()) || bex.is_equal(_ex1())) {
+	if (aex.is_equal(_ex1) || bex.is_equal(_ex1)) {
 		if (ca)
 			*ca = a;
 		if (cb)
 			*cb = b;
-		return _ex1();
+		return _ex1;
 	}
 #if FAST_COMPARE
 	if (a.is_equal(b)) {
 		if (ca)
-			*ca = _ex1();
+			*ca = _ex1;
 		if (cb)
-			*cb = _ex1();
+			*cb = _ex1;
 		return a;
 	}
 #endif
@@ -1659,7 +1659,7 @@ factored_b:
 //		g = peu_gcd(aex, bex, &x);
 //		g = red_gcd(aex, bex, &x);
 		g = sr_gcd(aex, bex, var);
-		if (g.is_equal(_ex1())) {
+		if (g.is_equal(_ex1)) {
 			// Keep cofactors factored if possible
 			if (ca)
 				*ca = a;
@@ -1673,7 +1673,7 @@ factored_b:
 		}
 #if 1
 	} else {
-		if (g.is_equal(_ex1())) {
+		if (g.is_equal(_ex1)) {
 			// Keep cofactors factored if possible
 			if (ca)
 				*ca = a;
@@ -1723,7 +1723,7 @@ static exvector sqrfree_yun(const ex &a, const symbol &x)
 	ex w = a;
 	ex z = w.diff(x);
 	ex g = gcd(w, z);
-	if (g.is_equal(_ex1())) {
+	if (g.is_equal(_ex1)) {
 		res.push_back(a);
 		return res;
 	}
@@ -1755,7 +1755,7 @@ ex sqrfree(const ex &a, const lst &l)
 	lst args;
 	if (l.nops()==0) {
 		sym_desc_vec sdv;
-		get_symbol_stats(a, _ex0(), sdv);
+		get_symbol_stats(a, _ex0, sdv);
 		sym_desc_vec::const_iterator it = sdv.begin(), itend = sdv.end();
 		while (it != itend) {
 			args.append(*it->sym);
@@ -1791,7 +1791,7 @@ ex sqrfree(const ex &a, const lst &l)
 	}
 
 	// Done with recursion, now construct the final result
-	ex result = _ex1();
+	ex result = _ex1;
 	exvector::const_iterator it = factors.begin(), itend = factors.end();
 	for (int p = 1; it!=itend; ++it, ++p)
 		result *= power(*it, p);
@@ -1828,10 +1828,10 @@ ex sqrfree_parfrac(const ex & a, const symbol & x)
 	exvector factor; factor.reserve(num_yun);
 	exvector cofac; cofac.reserve(num_yun);
 	for (unsigned i=0; i<num_yun; i++) {
-		if (!yun[i].is_equal(_ex1())) {
+		if (!yun[i].is_equal(_ex1)) {
 			for (unsigned j=0; j<=i; j++) {
 				factor.push_back(pow(yun[i], j+1));
-				ex prod = _ex1();
+				ex prod = _ex1;
 				for (unsigned k=0; k<num_yun; k++) {
 					if (k == i)
 						prod *= pow(yun[k], i-j);
@@ -1943,15 +1943,15 @@ struct normal_map_function : public map_function {
 ex basic::normal(lst &sym_lst, lst &repl_lst, int level) const
 {
 	if (nops() == 0)
-		return (new lst(replace_with_symbol(*this, sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
+		return (new lst(replace_with_symbol(*this, sym_lst, repl_lst), _ex1))->setflag(status_flags::dynallocated);
 	else {
 		if (level == 1)
-			return (new lst(replace_with_symbol(*this, sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
+			return (new lst(replace_with_symbol(*this, sym_lst, repl_lst), _ex1))->setflag(status_flags::dynallocated);
 		else if (level == -max_recursion_level)
 			throw(std::runtime_error("max recursion level reached"));
 		else {
 			normal_map_function map_normal(level - 1);
-			return (new lst(replace_with_symbol(map(map_normal), sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
+			return (new lst(replace_with_symbol(map(map_normal), sym_lst, repl_lst), _ex1))->setflag(status_flags::dynallocated);
 		}
 	}
 }
@@ -1961,7 +1961,7 @@ ex basic::normal(lst &sym_lst, lst &repl_lst, int level) const
  *  @see ex::normal */
 ex symbol::normal(lst &sym_lst, lst &repl_lst, int level) const
 {
-	return (new lst(*this, _ex1()))->setflag(status_flags::dynallocated);
+	return (new lst(*this, _ex1))->setflag(status_flags::dynallocated);
 }
 
 
@@ -1997,17 +1997,17 @@ static ex frac_cancel(const ex &n, const ex &d)
 {
 	ex num = n;
 	ex den = d;
-	numeric pre_factor = _num1();
+	numeric pre_factor = _num1;
 
 //std::clog << "frac_cancel num = " << num << ", den = " << den << std::endl;
 
 	// Handle trivial case where denominator is 1
-	if (den.is_equal(_ex1()))
+	if (den.is_equal(_ex1))
 		return (new lst(num, den))->setflag(status_flags::dynallocated);
 
 	// Handle special cases where numerator or denominator is 0
 	if (num.is_zero())
-		return (new lst(num, _ex1()))->setflag(status_flags::dynallocated);
+		return (new lst(num, _ex1))->setflag(status_flags::dynallocated);
 	if (den.expand().is_zero())
 		throw(std::overflow_error("frac_cancel: division by zero in frac_cancel"));
 
@@ -2021,7 +2021,7 @@ static ex frac_cancel(const ex &n, const ex &d)
 
 	// Cancel GCD from numerator and denominator
 	ex cnum, cden;
-	if (gcd(num, den, &cnum, &cden, false) != _ex1()) {
+	if (gcd(num, den, &cnum, &cden, false) != _ex1) {
 		num = cnum;
 		den = cden;
 	}
@@ -2032,8 +2032,8 @@ static ex frac_cancel(const ex &n, const ex &d)
 	if (get_first_symbol(den, x)) {
 		GINAC_ASSERT(is_exactly_a<numeric>(den.unit(*x)));
 		if (ex_to<numeric>(den.unit(*x)).is_negative()) {
-			num *= _ex_1();
-			den *= _ex_1();
+			num *= _ex_1;
+			den *= _ex_1;
 		}
 	}
 
@@ -2049,7 +2049,7 @@ static ex frac_cancel(const ex &n, const ex &d)
 ex add::normal(lst &sym_lst, lst &repl_lst, int level) const
 {
 	if (level == 1)
-		return (new lst(replace_with_symbol(*this, sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
+		return (new lst(replace_with_symbol(*this, sym_lst, repl_lst), _ex1))->setflag(status_flags::dynallocated);
 	else if (level == -max_recursion_level)
 		throw(std::runtime_error("max recursion level reached"));
 
@@ -2108,7 +2108,7 @@ ex add::normal(lst &sym_lst, lst &repl_lst, int level) const
 ex mul::normal(lst &sym_lst, lst &repl_lst, int level) const
 {
 	if (level == 1)
-		return (new lst(replace_with_symbol(*this, sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
+		return (new lst(replace_with_symbol(*this, sym_lst, repl_lst), _ex1))->setflag(status_flags::dynallocated);
 	else if (level == -max_recursion_level)
 		throw(std::runtime_error("max recursion level reached"));
 
@@ -2140,7 +2140,7 @@ ex mul::normal(lst &sym_lst, lst &repl_lst, int level) const
 ex power::normal(lst &sym_lst, lst &repl_lst, int level) const
 {
 	if (level == 1)
-		return (new lst(replace_with_symbol(*this, sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
+		return (new lst(replace_with_symbol(*this, sym_lst, repl_lst), _ex1))->setflag(status_flags::dynallocated);
 	else if (level == -max_recursion_level)
 		throw(std::runtime_error("max recursion level reached"));
 
@@ -2167,25 +2167,25 @@ ex power::normal(lst &sym_lst, lst &repl_lst, int level) const
 		if (n_exponent.info(info_flags::positive)) {
 
 			// (a/b)^x -> {sym((a/b)^x), 1}
-			return (new lst(replace_with_symbol(power(n_basis.op(0) / n_basis.op(1), n_exponent), sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
+			return (new lst(replace_with_symbol(power(n_basis.op(0) / n_basis.op(1), n_exponent), sym_lst, repl_lst), _ex1))->setflag(status_flags::dynallocated);
 
 		} else if (n_exponent.info(info_flags::negative)) {
 
-			if (n_basis.op(1).is_equal(_ex1())) {
+			if (n_basis.op(1).is_equal(_ex1)) {
 
 				// a^-x -> {1, sym(a^x)}
-				return (new lst(_ex1(), replace_with_symbol(power(n_basis.op(0), -n_exponent), sym_lst, repl_lst)))->setflag(status_flags::dynallocated);
+				return (new lst(_ex1, replace_with_symbol(power(n_basis.op(0), -n_exponent), sym_lst, repl_lst)))->setflag(status_flags::dynallocated);
 
 			} else {
 
 				// (a/b)^-x -> {sym((b/a)^x), 1}
-				return (new lst(replace_with_symbol(power(n_basis.op(1) / n_basis.op(0), -n_exponent), sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
+				return (new lst(replace_with_symbol(power(n_basis.op(1) / n_basis.op(0), -n_exponent), sym_lst, repl_lst), _ex1))->setflag(status_flags::dynallocated);
 			}
 
 		} else {	// n_exponent not numeric
 
 			// (a/b)^x -> {sym((a/b)^x, 1}
-			return (new lst(replace_with_symbol(power(n_basis.op(0) / n_basis.op(1), n_exponent), sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
+			return (new lst(replace_with_symbol(power(n_basis.op(0) / n_basis.op(1), n_exponent), sym_lst, repl_lst), _ex1))->setflag(status_flags::dynallocated);
 		}
 	}
 }
@@ -2205,7 +2205,7 @@ ex pseries::normal(lst &sym_lst, lst &repl_lst, int level) const
 		++i;
 	}
 	ex n = pseries(relational(var,point), newseq);
-	return (new lst(replace_with_symbol(n, sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
+	return (new lst(replace_with_symbol(n, sym_lst, repl_lst), _ex1))->setflag(status_flags::dynallocated);
 }
 
 
@@ -2369,7 +2369,7 @@ ex expairseq::to_rational(lst &repl_lst) const
 	if (oc.info(info_flags::numeric))
 		return thisexpairseq(s, overall_coeff);
 	else
-		s.push_back(combine_ex_with_coeff_to_pair(oc, _ex1()));
+		s.push_back(combine_ex_with_coeff_to_pair(oc, _ex1));
 	return thisexpairseq(s, default_overall_coeff());
 }
 

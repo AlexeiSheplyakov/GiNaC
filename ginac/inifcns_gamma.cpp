@@ -64,7 +64,7 @@ static ex lgamma_eval(const ex & x)
 		if (x.info(info_flags::integer)) {
 			// lgamma(n) -> log((n-1)!) for postitive n
 			if (x.info(info_flags::posint))
-				return log(factorial(x + _ex_1()));
+				return log(factorial(x + _ex_1));
 			else
 				throw (pole_error("lgamma_eval(): logarithmic pole",0));
 		}
@@ -105,7 +105,7 @@ static ex lgamma_series(const ex & arg,
 	ex recur;
 	for (numeric p = 0; p<=m; ++p)
 		recur += log(arg+p);
-	return (lgamma(arg+m+_ex1())-recur).series(rel, order, options);
+	return (lgamma(arg+m+_ex1)-recur).series(rel, order, options);
 }
 
 
@@ -141,11 +141,11 @@ static ex tgamma_eval(const ex & x)
 {
 	if (x.info(info_flags::numeric)) {
 		// trap integer arguments:
-		const numeric two_x = _num2()*ex_to<numeric>(x);
+		const numeric two_x = _num2*ex_to<numeric>(x);
 		if (two_x.is_even()) {
 			// tgamma(n) -> (n-1)! for postitive n
 			if (two_x.is_positive()) {
-				return factorial(ex_to<numeric>(x).sub(_num1()));
+				return factorial(ex_to<numeric>(x).sub(_num1));
 			} else {
 				throw (pole_error("tgamma_eval(): simple pole",1));
 			}
@@ -155,13 +155,13 @@ static ex tgamma_eval(const ex & x)
 			// trap positive x==(n+1/2)
 			// tgamma(n+1/2) -> Pi^(1/2)*(1*3*..*(2*n-1))/(2^n)
 			if (two_x.is_positive()) {
-				const numeric n = ex_to<numeric>(x).sub(_num1_2());
-				return (doublefactorial(n.mul(_num2()).sub(_num1())).div(pow(_num2(),n))) * pow(Pi,_ex1_2());
+				const numeric n = ex_to<numeric>(x).sub(_num1_2);
+				return (doublefactorial(n.mul(_num2).sub(_num1)).div(pow(_num2,n))) * sqrt(Pi);
 			} else {
 				// trap negative x==(-n+1/2)
 				// tgamma(-n+1/2) -> Pi^(1/2)*(-2)^n/(1*3*..*(2*n-1))
-				const numeric n = abs(ex_to<numeric>(x).sub(_num1_2()));
-				return (pow(_num_2(), n).div(doublefactorial(n.mul(_num2()).sub(_num1()))))*power(Pi,_ex1_2());
+				const numeric n = abs(ex_to<numeric>(x).sub(_num1_2));
+				return (pow(_num_2, n).div(doublefactorial(n.mul(_num2).sub(_num1))))*sqrt(Pi);
 			}
 		}
 		//  tgamma_evalf should be called here once it becomes available
@@ -198,10 +198,10 @@ static ex tgamma_series(const ex & arg,
 		throw do_taylor();  // caught by function::series()
 	// if we got here we have to care for a simple pole at -m:
 	const numeric m = -ex_to<numeric>(arg_pt);
-	ex ser_denom = _ex1();
+	ex ser_denom = _ex1;
 	for (numeric p; p<=m; ++p)
 		ser_denom *= arg+p;
-	return (tgamma(arg+m+_ex1())/ser_denom).series(rel, order+1, options);
+	return (tgamma(arg+m+_ex1)/ser_denom).series(rel, order+1, options);
 }
 
 
@@ -240,13 +240,13 @@ static ex beta_eval(const ex & x, const ex & y)
 			ny.is_real() && ny.is_integer()) {
 			if (nx.is_negative()) {
 				if (nx<=-ny)
-					return pow(_num_1(), ny)*beta(1-x-y, y);
+					return pow(_num_1, ny)*beta(1-x-y, y);
 				else
 					throw (pole_error("beta_eval(): simple pole",1));
 			}
 			if (ny.is_negative()) {
 				if (ny<=-nx)
-					return pow(_num_1(), nx)*beta(1-y-x, x);
+					return pow(_num_1, nx)*beta(1-y-x, x);
 				else
 					throw (pole_error("beta_eval(): simple pole",1));
 			}
@@ -256,7 +256,7 @@ static ex beta_eval(const ex & x, const ex & y)
 		if ((nx+ny).is_real() &&
 		    (nx+ny).is_integer() &&
 		   !(nx+ny).is_positive())
-			 return _ex0();
+			 return _ex0;
 		// beta_evalf should be called here once it becomes available
 	}
 	
@@ -351,7 +351,7 @@ static ex psi1_eval(const ex & x)
 			if (nx.is_positive()) {
 				// psi(n) -> 1 + 1/2 +...+ 1/(n-1) - Euler
 				numeric rat = 0;
-				for (numeric i(nx+_num_1()); i>0; --i)
+				for (numeric i(nx+_num_1); i>0; --i)
 					rat += i.inverse();
 				return rat-Euler;
 			} else {
@@ -359,14 +359,14 @@ static ex psi1_eval(const ex & x)
 				throw (pole_error("psi_eval(): simple pole",1));
 			}
 		}
-		if ((_num2()*nx).is_integer()) {
+		if ((_num2*nx).is_integer()) {
 			// half integer case
 			if (nx.is_positive()) {
 				// psi((2m+1)/2) -> 2/(2m+1) + 2/2m +...+ 2/1 - Euler - 2log(2)
 				numeric rat = 0;
-				for (numeric i = (nx+_num_1())*_num2(); i>0; i-=_num2())
-					rat += _num2()*i.inverse();
-				return rat-Euler-_ex2()*log(_ex2());
+				for (numeric i = (nx+_num_1)*_num2; i>0; i-=_num2)
+					rat += _num2*i.inverse();
+				return rat-Euler-_ex2*log(_ex2);
 			} else {
 				// use the recurrence relation
 				//   psi(-m-1/2) == psi(-m-1/2+1) - 1 / (-m-1/2)
@@ -375,8 +375,8 @@ static ex psi1_eval(const ex & x)
 				// where r == ((-1/2)^(-1) + ... + (-m-1/2)^(-1))
 				numeric recur = 0;
 				for (numeric p = nx; p<0; ++p)
-					recur -= pow(p, _num_1());
-				return recur+psi(_ex1_2());
+					recur -= pow(p, _num_1);
+				return recur+psi(_ex1_2);
 			}
 		}
 		//  psi1_evalf should be called here once it becomes available
@@ -390,7 +390,7 @@ static ex psi1_deriv(const ex & x, unsigned deriv_param)
 	GINAC_ASSERT(deriv_param==0);
 	
 	// d/dx psi(x) -> psi(1,x)
-	return psi(_ex1(), x);
+	return psi(_ex1, x);
 }
 
 static ex psi1_series(const ex & arg,
@@ -413,8 +413,8 @@ static ex psi1_series(const ex & arg,
 	const numeric m = -ex_to<numeric>(arg_pt);
 	ex recur;
 	for (numeric p; p<=m; ++p)
-		recur += power(arg+p,_ex_1());
-	return (psi(arg+m+_ex1())-recur).series(rel, order, options);
+		recur += power(arg+p,_ex_1);
+	return (psi(arg+m+_ex1)-recur).series(rel, order, options);
 }
 
 const unsigned function_index_psi1 =
@@ -449,7 +449,7 @@ static ex psi2_eval(const ex & n, const ex & x)
 	if (n.is_zero())
 		return psi(x);
 	// psi(-1,x) -> log(tgamma(x))
-	if (n.is_equal(_ex_1()))
+	if (n.is_equal(_ex_1))
 		return log(tgamma(x));
 	if (n.info(info_flags::numeric) && n.info(info_flags::posint) &&
 		x.info(info_flags::numeric)) {
@@ -457,9 +457,9 @@ static ex psi2_eval(const ex & n, const ex & x)
 		const numeric nx = ex_to<numeric>(x);
 		if (nx.is_integer()) {
 			// integer case 
-			if (nx.is_equal(_num1()))
+			if (nx.is_equal(_num1))
 				// use psi(n,1) == (-)^(n+1) * n! * zeta(n+1)
-				return pow(_num_1(),nn+_num1())*factorial(nn)*zeta(ex(nn+_num1()));
+				return pow(_num_1,nn+_num1)*factorial(nn)*zeta(ex(nn+_num1));
 			if (nx.is_positive()) {
 				// use the recurrence relation
 				//   psi(n,m) == psi(n,m+1) - (-)^n * n! / m^(n+1)
@@ -468,25 +468,25 @@ static ex psi2_eval(const ex & n, const ex & x)
 				// where r == (-)^n * n! * (1^(-n-1) + ... + (m-1)^(-n-1))
 				numeric recur = 0;
 				for (numeric p = 1; p<nx; ++p)
-					recur += pow(p, -nn+_num_1());
-				recur *= factorial(nn)*pow(_num_1(), nn);
-				return recur+psi(n,_ex1());
+					recur += pow(p, -nn+_num_1);
+				recur *= factorial(nn)*pow(_num_1, nn);
+				return recur+psi(n,_ex1);
 			} else {
 				// for non-positive integers there is a pole:
 				throw (pole_error("psi2_eval(): pole",1));
 			}
 		}
-		if ((_num2()*nx).is_integer()) {
+		if ((_num2*nx).is_integer()) {
 			// half integer case
-			if (nx.is_equal(_num1_2()))
+			if (nx.is_equal(_num1_2))
 				// use psi(n,1/2) == (-)^(n+1) * n! * (2^(n+1)-1) * zeta(n+1)
-				return pow(_num_1(),nn+_num1())*factorial(nn)*(pow(_num2(),nn+_num1()) + _num_1())*zeta(ex(nn+_num1()));
+				return pow(_num_1,nn+_num1)*factorial(nn)*(pow(_num2,nn+_num1) + _num_1)*zeta(ex(nn+_num1));
 			if (nx.is_positive()) {
-				const numeric m = nx - _num1_2();
+				const numeric m = nx - _num1_2;
 				// use the multiplication formula
 				//   psi(n,2*m) == (psi(n,m) + psi(n,m+1/2)) / 2^(n+1)
 				// to revert to positive integer case
-				return psi(n,_num2()*m)*pow(_num2(),nn+_num1())-psi(n,m);
+				return psi(n,_num2*m)*pow(_num2,nn+_num1)-psi(n,m);
 			} else {
 				// use the recurrence relation
 				//   psi(n,-m-1/2) == psi(n,-m-1/2+1) - (-)^n * n! / (-m-1/2)^(n+1)
@@ -495,9 +495,9 @@ static ex psi2_eval(const ex & n, const ex & x)
 				// where r == (-)^(n+1) * n! * ((-1/2)^(-n-1) + ... + (-m-1/2)^(-n-1))
 				numeric recur = 0;
 				for (numeric p = nx; p<0; ++p)
-					recur += pow(p, -nn+_num_1());
-				recur *= factorial(nn)*pow(_num_1(), nn+_num_1());
-				return recur+psi(n,_ex1_2());
+					recur += pow(p, -nn+_num_1);
+				recur *= factorial(nn)*pow(_num_1, nn+_num_1);
+				return recur+psi(n,_ex1_2);
 			}
 		}
 		//  psi2_evalf should be called here once it becomes available
@@ -515,7 +515,7 @@ static ex psi2_deriv(const ex & n, const ex & x, unsigned deriv_param)
 		throw(std::logic_error("cannot diff psi(n,x) with respect to n"));
 	}
 	// d/dx psi(n,x) -> psi(n+1,x)
-	return psi(n+_ex1(), x);
+	return psi(n+_ex1, x);
 }
 
 static ex psi2_series(const ex & n,
@@ -540,9 +540,9 @@ static ex psi2_series(const ex & n,
 	const numeric m = -ex_to<numeric>(arg_pt);
 	ex recur;
 	for (numeric p; p<=m; ++p)
-		recur += power(arg+p,-n+_ex_1());
-	recur *= factorial(n)*power(_ex_1(),n);
-	return (psi(n, arg+m+_ex1())-recur).series(rel, order, options);
+		recur += power(arg+p,-n+_ex_1);
+	recur *= factorial(n)*power(_ex_1,n);
+	return (psi(n, arg+m+_ex1)-recur).series(rel, order, options);
 }
 
 const unsigned function_index_psi2 =

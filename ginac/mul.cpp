@@ -58,7 +58,7 @@ mul::mul(const ex & lh, const ex & rh)
 {
 	debugmsg("mul ctor from ex,ex",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_mul;
-	overall_coeff = _ex1();
+	overall_coeff = _ex1;
 	construct_from_2_ex(lh,rh);
 	GINAC_ASSERT(is_canonical());
 }
@@ -67,7 +67,7 @@ mul::mul(const exvector & v)
 {
 	debugmsg("mul ctor from exvector",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_mul;
-	overall_coeff = _ex1();
+	overall_coeff = _ex1;
 	construct_from_exvector(v);
 	GINAC_ASSERT(is_canonical());
 }
@@ -76,7 +76,7 @@ mul::mul(const epvector & v)
 {
 	debugmsg("mul ctor from epvector",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_mul;
-	overall_coeff = _ex1();
+	overall_coeff = _ex1;
 	construct_from_epvector(v);
 	GINAC_ASSERT(is_canonical());
 }
@@ -110,7 +110,7 @@ mul::mul(const ex & lh, const ex & mh, const ex & rh)
 	factors.push_back(lh);
 	factors.push_back(mh);
 	factors.push_back(rh);
-	overall_coeff = _ex1();
+	overall_coeff = _ex1;
 	construct_from_exvector(factors);
 	GINAC_ASSERT(is_canonical());
 }
@@ -140,7 +140,7 @@ void mul::print(const print_context & c, unsigned level) const
 		if (precedence() <= level)
 			c.s << "(";
 
-		if (!overall_coeff.is_equal(_ex1())) {
+		if (!overall_coeff.is_equal(_ex1)) {
 			overall_coeff.print(c, precedence());
 			c.s << "*";
 		}
@@ -150,7 +150,7 @@ void mul::print(const print_context & c, unsigned level) const
 		while (it != itend) {
 
 			// If the first argument is a negative integer power, it gets printed as "1.0/<expr>"
-			if (it == seq.begin() && ex_to<numeric>(it->coeff).is_integer() && it->coeff.compare(_num0()) < 0) {
+			if (it == seq.begin() && ex_to<numeric>(it->coeff).is_integer() && it->coeff.compare(_num0) < 0) {
 				if (is_a<print_csrc_cl_N>(c))
 					c.s << "recip(";
 				else
@@ -158,7 +158,7 @@ void mul::print(const print_context & c, unsigned level) const
 			}
 
 			// If the exponent is 1 or -1, it is left out
-			if (it->coeff.compare(_ex1()) == 0 || it->coeff.compare(_num_1()) == 0)
+			if (it->coeff.compare(_ex1) == 0 || it->coeff.compare(_num_1) == 0)
 				it->rest.print(c, precedence());
 			else {
 				// Outer parens around ex needed for broken gcc-2.95 parser:
@@ -168,7 +168,7 @@ void mul::print(const print_context & c, unsigned level) const
 			// Separator is "/" for negative integer powers, "*" otherwise
 			++it;
 			if (it != itend) {
-				if (ex_to<numeric>(it->coeff).is_integer() && it->coeff.compare(_num0()) < 0)
+				if (ex_to<numeric>(it->coeff).is_integer() && it->coeff.compare(_num0) < 0)
 					c.s << "/";
 				else
 					c.s << "*";
@@ -193,8 +193,8 @@ void mul::print(const print_context & c, unsigned level) const
 		numeric coeff = ex_to<numeric>(overall_coeff);
 		if (coeff.csgn() == -1)
 			c.s << '-';
-		if (!coeff.is_equal(_num1()) &&
-			!coeff.is_equal(_num_1())) {
+		if (!coeff.is_equal(_num1) &&
+			!coeff.is_equal(_num_1)) {
 			if (coeff.is_rational()) {
 				if (coeff.is_negative())
 					(-coeff).print(c);
@@ -327,7 +327,7 @@ ex mul::coeff(const ex & s, int n) const
 		return (new mul(coeffseq))->setflag(status_flags::dynallocated);
 	}
 	
-	return _ex0();
+	return _ex0;
 }
 
 /** Perform automatic term rewriting rules in this class.  In the following
@@ -370,23 +370,23 @@ ex mul::eval(int level) const
 	
 	if (flags & status_flags::evaluated) {
 		GINAC_ASSERT(seq.size()>0);
-		GINAC_ASSERT(seq.size()>1 || !overall_coeff.is_equal(_ex1()));
+		GINAC_ASSERT(seq.size()>1 || !overall_coeff.is_equal(_ex1));
 		return *this;
 	}
 	
 	int seq_size = seq.size();
 	if (overall_coeff.is_zero()) {
 		// *(...,x;0) -> 0
-		return _ex0();
+		return _ex0;
 	} else if (seq_size==0) {
 		// *(;c) -> c
 		return overall_coeff;
-	} else if (seq_size==1 && overall_coeff.is_equal(_ex1())) {
+	} else if (seq_size==1 && overall_coeff.is_equal(_ex1)) {
 		// *(x;1) -> x
 		return recombine_pair_to_ex(*(seq.begin()));
 	} else if ((seq_size==1) &&
 	           is_ex_exactly_of_type((*seq.begin()).rest,add) &&
-	           ex_to<numeric>((*seq.begin()).coeff).is_equal(_num1())) {
+	           ex_to<numeric>((*seq.begin()).coeff).is_equal(_num1)) {
 		// *(+(x,y,...);c) -> +(*(x,c),*(y,c),...) (c numeric(), no powers of +())
 		const add & addref = ex_to<add>((*seq.begin()).rest);
 		epvector *distrseq = new epvector();
@@ -428,7 +428,7 @@ ex mul::evalf(int level) const
 ex mul::evalm(void) const
 {
 	// numeric*matrix
-	if (seq.size() == 1 && seq[0].coeff.is_equal(_ex1())
+	if (seq.size() == 1 && seq[0].coeff.is_equal(_ex1)
 	 && is_ex_of_type(seq[0].rest, matrix))
 		return ex_to<matrix>(seq[0].rest).mul(ex_to<numeric>(overall_coeff));
 
@@ -495,7 +495,7 @@ ex mul::derivative(const symbol & s) const
 	epvector::const_iterator i = seq.begin(), end = seq.end();
 	epvector::iterator i2 = mulseq.begin();
 	while (i != end) {
-		expair ep = split_ex_to_pair(power(i->rest, i->coeff - _ex1()) *
+		expair ep = split_ex_to_pair(power(i->rest, i->coeff - _ex1) *
 		                             i->rest.diff(s));
 		ep.swap(*i2);
 		addseq.push_back((new mul(mulseq, overall_coeff * i->coeff))->setflag(status_flags::dynallocated));
@@ -581,7 +581,7 @@ expair mul::split_ex_to_pair(const ex & e) const
 		if (is_ex_exactly_of_type(powerref.exponent,numeric))
 			return expair(powerref.basis,powerref.exponent);
 	}
-	return expair(e,_ex1());
+	return expair(e,_ex1);
 }
 	
 expair mul::combine_ex_with_coeff_to_pair(const ex & e,
@@ -591,7 +591,7 @@ expair mul::combine_ex_with_coeff_to_pair(const ex & e,
 	// we create a temporary power object
 	// otherwise it would be hard to correctly simplify
 	// expression like (4^(1/3))^(3/2)
-	if (are_ex_trivially_equal(c,_ex1()))
+	if (are_ex_trivially_equal(c,_ex1))
 		return split_ex_to_pair(e);
 	
 	return split_ex_to_pair(power(e,c));
@@ -604,7 +604,7 @@ expair mul::combine_pair_with_coeff_to_pair(const expair & p,
 	// we create a temporary power object
 	// otherwise it would be hard to correctly simplify
 	// expression like (4^(1/3))^(3/2)
-	if (are_ex_trivially_equal(c,_ex1()))
+	if (are_ex_trivially_equal(c,_ex1))
 		return p;
 	
 	return split_ex_to_pair(power(recombine_pair_to_ex(p),c));
@@ -612,7 +612,7 @@ expair mul::combine_pair_with_coeff_to_pair(const expair & p,
 	
 ex mul::recombine_pair_to_ex(const expair & p) const
 {
-	if (ex_to<numeric>(p.coeff).is_equal(_num1())) 
+	if (ex_to<numeric>(p.coeff).is_equal(_num1)) 
 		return p.rest;
 	else
 		return power(p.rest,p.coeff);
@@ -633,7 +633,7 @@ bool mul::expair_needs_further_processing(epp it)
 			*it = ep;
 			return true;
 		}
-		if (ex_to<numeric>((*it).coeff).is_equal(_num1())) {
+		if (ex_to<numeric>((*it).coeff).is_equal(_num1)) {
 			// combined pair has coeff 1 and must be moved to the end
 			return true;
 		}
@@ -643,7 +643,7 @@ bool mul::expair_needs_further_processing(epp it)
 
 ex mul::default_overall_coeff(void) const
 {
-	return _ex1();
+	return _ex1;
 }
 
 void mul::combine_overall_coeff(const ex & c)
@@ -667,7 +667,7 @@ bool mul::can_make_flat(const expair & p) const
 	// this assertion will probably fail somewhere
 	// it would require a more careful make_flat, obeying the power laws
 	// probably should return true only if p.coeff is integer
-	return ex_to<numeric>(p.coeff).is_equal(_num1());
+	return ex_to<numeric>(p.coeff).is_equal(_num1);
 }
 
 ex mul::expand(unsigned options) const
@@ -680,13 +680,13 @@ ex mul::expand(unsigned options) const
 	// with the next one that is found while collecting the factors which are
 	// not sums
 	int number_of_adds = 0;
-	ex last_expanded = _ex1();
+	ex last_expanded = _ex1;
 	epvector non_adds;
 	non_adds.reserve(expanded_seq.size());
 	epvector::const_iterator cit = expanded_seq.begin(), last = expanded_seq.end();
 	while (cit != last) {
 		if (is_ex_exactly_of_type(cit->rest, add) &&
-			(cit->coeff.is_equal(_ex1()))) {
+			(cit->coeff.is_equal(_ex1))) {
 			++number_of_adds;
 			if (is_ex_exactly_of_type(last_expanded, add)) {
 				const add & add1 = ex_to<add>(last_expanded);

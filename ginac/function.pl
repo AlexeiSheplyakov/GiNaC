@@ -764,9 +764,9 @@ int function::ldegree(const ex & s) const
 ex function::coeff(const ex & s, int n) const
 {
 	if (is_equal(ex_to<basic>(s)))
-		return n==1 ? _ex1() : _ex0();
+		return n==1 ? _ex1 : _ex0;
 	else
-		return n==0 ? ex(*this) : _ex0();
+		return n==0 ? ex(*this) : _ex0;
 }
 
 ex function::eval(int level) const
@@ -788,7 +788,7 @@ ex function::eval(int level) const
 		if (sig != INT_MAX) {
 			// Something has changed while sorting arguments, more evaluations later
 			if (sig == 0)
-				return _ex0();
+				return _ex0;
 			return ex(sig) * thisexprseq(v);
 		}
 	}

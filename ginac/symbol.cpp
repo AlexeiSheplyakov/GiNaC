@@ -193,9 +193,9 @@ int symbol::ldegree(const ex & s) const
 ex symbol::coeff(const ex & s, int n) const
 {
 	if (is_equal(ex_to<basic>(s)))
-		return n==1 ? _ex1() : _ex0();
+		return n==1 ? _ex1 : _ex0;
 	else
-		return n==0 ? *this : _ex0();
+		return n==0 ? *this : _ex0;
 }
 
 ex symbol::eval(int level) const
@@ -223,9 +223,9 @@ ex symbol::eval(int level) const
 ex symbol::derivative(const symbol & s) const
 {
 	if (compare_same_type(s))
-		return _ex0();
+		return _ex0;
 	else
-		return _ex1();
+		return _ex1;
 }
 
 int symbol::compare_same_type(const basic & other) const
@@ -276,7 +276,7 @@ void symbol::unassign(void)
 {
 	if (asexinfop->is_assigned) {
 		asexinfop->is_assigned = 0;
-		asexinfop->assigned_expression = _ex0();
+		asexinfop->assigned_expression = _ex0;
 	}
 	setflag(status_flags::evaluated | status_flags::expanded);
 }

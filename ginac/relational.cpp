@@ -263,13 +263,13 @@ relational::operator bool() const
 	case not_equal:
 		return !ex_to<numeric>(df).is_zero();
 	case less:
-		return ex_to<numeric>(df)<_num0();
+		return ex_to<numeric>(df)<_num0;
 	case less_or_equal:
-		return ex_to<numeric>(df)<=_num0();
+		return ex_to<numeric>(df)<=_num0;
 	case greater:
-		return ex_to<numeric>(df)>_num0();
+		return ex_to<numeric>(df)>_num0;
 	case greater_or_equal:
-		return ex_to<numeric>(df)>=_num0();
+		return ex_to<numeric>(df)>=_num0;
 	default:
 		throw(std::logic_error("invalid relational operator"));
 	}

@@ -230,7 +230,7 @@ ex su3d::eval_indexed(const basic & i) const
 
 	// Convolutions are zero
 	if (!(static_cast<const indexed &>(i).get_dummy_indices().empty()))
-		return _ex0();
+		return _ex0;
 
 	// Numeric evaluation
 	if (static_cast<const indexed &>(i).all_index_values_are(info_flags::nonnegint)) {
@@ -248,18 +248,18 @@ ex su3d::eval_indexed(const basic & i) const
 		// Check for non-zero elements
 		if (CMPINDICES(1,4,6) || CMPINDICES(1,5,7) || CMPINDICES(2,5,6)
 		 || CMPINDICES(3,4,4) || CMPINDICES(3,5,5))
-			return _ex1_2();
+			return _ex1_2;
 		else if (CMPINDICES(2,4,7) || CMPINDICES(3,6,6) || CMPINDICES(3,7,7))
-			return _ex_1_2();
+			return _ex_1_2;
 		else if (CMPINDICES(1,1,8) || CMPINDICES(2,2,8) || CMPINDICES(3,3,8))
-			return sqrt(_ex3())/3;
+			return sqrt(_ex3)*_ex1_3;
 		else if (CMPINDICES(8,8,8))
-			return -sqrt(_ex3())/3;
+			return sqrt(_ex3)*_ex_1_3;
 		else if (CMPINDICES(4,4,8) || CMPINDICES(5,5,8)
 		      || CMPINDICES(6,6,8) || CMPINDICES(7,7,8))
-			return -sqrt(_ex3())/6;
+			return sqrt(_ex3)/_ex_6;
 		else
-			return _ex0();
+			return _ex0;
 	}
 
 	// No further simplifications
@@ -290,13 +290,13 @@ ex su3f::eval_indexed(const basic & i) const
 			return sign;
 		else if (CMPINDICES(1,4,7) || CMPINDICES(2,4,6)
 		      || CMPINDICES(2,5,7) || CMPINDICES(3,4,5))
-			return _ex1_2() * sign;
+			return _ex1_2 * sign;
 		else if (CMPINDICES(1,5,6) || CMPINDICES(3,6,7))
-			return _ex_1_2() * sign;
+			return _ex_1_2 * sign;
 		else if (CMPINDICES(4,5,8) || CMPINDICES(6,7,8))
-			return sqrt(_ex3())/2 * sign;
+			return sqrt(_ex3)/2 * sign;
 		else
-			return _ex0();
+			return _ex0;
 	}
 
 	// No further simplifications
@@ -325,7 +325,7 @@ bool su3t::contract_with(exvector::iterator self, exvector::iterator other, exve
 		} else if (other - self == 2
 		        && is_ex_of_type(self[1], color)) {
 			*self = numeric(-1, 6);
-			*other = _ex1();
+			*other = _ex1;
 			return true;
 
 		// T.a S T.a = 1/2 Tr(S) - 1/6 S
@@ -339,14 +339,14 @@ bool su3t::contract_with(exvector::iterator self, exvector::iterator other, exve
 			}
 
 			it = self + 1;
-			ex S = _ex1();
+			ex S = _ex1;
 			while (it != other) {
 				S *= *it;
-				*it++ = _ex1();
+				*it++ = _ex1;
 			}
 
 			*self = color_trace(S, rl) * color_ONE(rl) / 2 - S / 6;
-			*other = _ex1();
+			*other = _ex1;
 			return true;
 		}
 	}
@@ -375,7 +375,7 @@ bool su3d::contract_with(exvector::iterator self, exvector::iterator other, exve
 		// d.abc d.abc = 40/3
 		if (dummy_indices.size() == 3) {
 			*self = numeric(40, 3);
-			*other = _ex1();
+			*other = _ex1;
 			return true;
 
 		// d.akl d.bkl = 5/3 delta.ab
@@ -386,7 +386,7 @@ bool su3d::contract_with(exvector::iterator self, exvector::iterator other, exve
 			ita = set_difference(other_indices.begin(), other_indices.end(), dummy_indices.begin(), dummy_indices.end(), ita, ex_is_less());
 			GINAC_ASSERT(a.size() == 2);
 			*self = numeric(5, 3) * delta_tensor(a[0], a[1]);
-			*other = _ex1();
+			*other = _ex1;
 			return true;
 		}
 
@@ -405,7 +405,7 @@ bool su3d::contract_with(exvector::iterator self, exvector::iterator other, exve
 			ex a = permute_free_index_to_front(self_indices, dummy_indices, sig);
 			*self = numeric(5, 6);
 			other[0] = color_T(a, ex_to<color>(other[0]).get_representation_label());
-			other[1] = _ex1();
+			other[1] = _ex1;
 			return true;
 		}
 	}
@@ -430,7 +430,7 @@ bool su3f::contract_with(exvector::iterator self, exvector::iterator other, exve
 		// f.abc f.abc = 24
 		if (dummy_indices.size() == 3) {
 			*self = 24;
-			*other = _ex1();
+			*other = _ex1;
 			return true;
 
 		// f.akl f.bkl = 3 delta.ab
@@ -439,7 +439,7 @@ bool su3f::contract_with(exvector::iterator self, exvector::iterator other, exve
 			ex a = permute_free_index_to_front(ex_to<indexed>(*self).get_indices(), dummy_indices, sign1);
 			ex b = permute_free_index_to_front(ex_to<indexed>(*other).get_indices(), dummy_indices, sign2);
 			*self = sign1 * sign2 * 3 * delta_tensor(a, b);
-			*other = _ex1();
+			*other = _ex1;
 			return true;
 		}
 
@@ -458,7 +458,7 @@ bool su3f::contract_with(exvector::iterator self, exvector::iterator other, exve
 			ex a = permute_free_index_to_front(self_indices, dummy_indices, sig);
 			*self = numeric(3, 2) * sig * I;
 			other[0] = color_T(a, ex_to<color>(other[0]).get_representation_label());
-			other[1] = _ex1();
+			other[1] = _ex1;
 			return true;
 		}
 	}
@@ -523,14 +523,14 @@ ex color_trace(const ex & e, unsigned char rl)
 
 		if (ex_to<color>(e).get_representation_label() == rl
 		 && is_ex_of_type(e.op(0), su3one))
-			return _ex3();
+			return _ex3;
 		else
-			return _ex0();
+			return _ex0;
 
 	} else if (is_ex_exactly_of_type(e, mul)) {
 
 		// Trace of product: pull out non-color factors
-		ex prod = _ex1();
+		ex prod = _ex1;
 		for (unsigned i=0; i<e.nops(); i++) {
 			const ex &o = e.op(i);
 			if (is_color_tinfo(o.return_type_tinfo(), rl))
@@ -543,7 +543,7 @@ ex color_trace(const ex & e, unsigned char rl)
 	} else if (is_ex_exactly_of_type(e, ncmul)) {
 
 		if (!is_color_tinfo(e.return_type_tinfo(), rl))
-			return _ex0();
+			return _ex0;
 
 		// Expand product, if necessary
 		ex e_expanded = e.expand();
@@ -591,7 +591,7 @@ ex color_trace(const ex & e, unsigned char rl)
 		return e.map(fcn);
 
 	} else
-		return _ex0();
+		return _ex0;
 }
 
 } // namespace GiNaC

@@ -30,10 +30,30 @@
 
 namespace GiNaC {
 
-// Sorry, this is the only constant to pollute the global scope, the other ones
-// are defined in utils.h and not visible from outside.
-class ex;
-extern const ex & _ex0(void);     ///<  single ex(numeric(0))
+/** Helper class to initialize the library.  There must be one static object
+ *  of this class in every object file that makes use of our flyweights in
+ *  order to guarantee proper initialization.  Hence we put it into this
+ *  file which is included by every relevant file anyways.  This is modeled
+ *  after section 27.4.2.1.6 of the C++ standard, where cout and friends are
+ *  set up.
+ *
+ *  @see utils.cpp */
+class library_init {
+public:
+	library_init();
+	~library_init();
+private:
+	static int count;
+};
+/** For construction of flyweights, etc. */
+static library_init library_initializer;
+
+// Current versions of Cint don't link data declared extern within functions.
+// FIXME: Fix Cint and later remove this from here.
+#if defined(G__CINTVERSION)
+extern const class numeric *_num0_p;
+#endif
+
 
 class symbol;
 class lst;
@@ -133,7 +153,7 @@ public:
 	ex rhs(void) const;
 	int compare(const ex & other) const;
 	bool is_equal(const ex & other) const;
-	bool is_zero(void) const { return is_equal(_ex0()); }
+	bool is_zero(void) const { extern const ex _ex0; return is_equal(_ex0); }
 	
 	unsigned return_type(void) const { return bp->return_type(); }
 	unsigned return_type_tinfo(void) const { return bp->return_type_tinfo(); }
@@ -188,12 +208,13 @@ public:
 // performance-critical inlined method implementations
 
 inline
-ex::ex() : bp(_ex0().bp)
+ex::ex()
 {
-	/*debugmsg("ex default ctor",LOGLEVEL_CONSTRUCT);*/
-	GINAC_ASSERT(_ex0().bp!=0);
-	GINAC_ASSERT(_ex0().bp->flags & status_flags::dynallocated);
+	/* debugmsg("ex default ctor",LOGLEVEL_CONSTRUCT); */
+	extern const class numeric *_num0_p;
+	bp = (basic*)_num0_p;
 	GINAC_ASSERT(bp!=0);
+	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
 	++bp->refcount;
 #ifdef OBSCURE_CINT_HACK
 	update_last_created_or_assigned_bp();
