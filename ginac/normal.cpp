@@ -2093,10 +2093,14 @@ ex expairseq::to_rational(lst &repl_lst) const
     epvector s;
     s.reserve(seq.size());
     for (epvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
-        s.push_back(combine_ex_with_coeff_to_pair((*it).rest.to_rational(repl_lst),
-                                                  (*it).coeff));
+        s.push_back(split_ex_to_pair(recombine_pair_to_ex(*it).to_rational(repl_lst)));
+        // s.push_back(combine_ex_with_coeff_to_pair((*it).rest.to_rational(repl_lst),
     }
-    return thisexpairseq(s, overall_coeff);
+    ex oc = overall_coeff.to_rational(repl_lst);
+    if (oc.info(info_flags::numeric))
+        return thisexpairseq(s, overall_coeff);
+    else s.push_back(combine_ex_with_coeff_to_pair(oc,_ex1()));
+    return thisexpairseq(s, default_overall_coeff());
 }
 
 
