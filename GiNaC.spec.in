@@ -38,8 +38,8 @@ fi
 
 %install
 rm -rf $RPM_BUILD_ROOT
-make prefix=$RPM_BUILD_ROOT%{prefix} install
-gzip -9n $RPM_BUILD_ROOT%{prefix}/info/*
+make prefix=$RPM_BUILD_ROOT%{prefix} install-strip
+gzip -9 $RPM_BUILD_ROOT%{prefix}/info/*
 
 %clean
 rm -rf $RPM_BUILD_ROOT
