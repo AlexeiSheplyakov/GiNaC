@@ -40,6 +40,7 @@ try { \
 	EXAM(numeric)
 	EXAM(powerlaws)
 	EXAM(inifcns)
+	EXAM(inifcns_nstdsums)
 	EXAM(differentiation)
 	EXAM(polygcd)
 	EXAM(normalization)
@@ -50,8 +51,8 @@ try { \
 	EXAM(color)
 	EXAM(clifford)
 	EXAM(archive)
+	EXAM(structure)
 	EXAM(misc)
-//  EXAM(inifcns_nstdsums)
 	
 	if (result) {
 		cout << "Error: something went wrong. ";

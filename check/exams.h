@@ -33,6 +33,7 @@ unsigned exam_paranoia();
 unsigned exam_numeric();
 unsigned exam_powerlaws();
 unsigned exam_inifcns();
+unsigned exam_inifcns_nstdsums();
 unsigned exam_differentiation();
 unsigned exam_polygcd();
 unsigned exam_normalization();
@@ -43,7 +44,7 @@ unsigned exam_indexed();
 unsigned exam_color();
 unsigned exam_clifford();
 unsigned exam_archive();
+unsigned exam_structure();
 unsigned exam_misc();
-unsigned exam_inifcns_nstdsums();
 
 #endif // ndef EXAMS_H
