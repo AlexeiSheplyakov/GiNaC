@@ -7,7 +7,7 @@ version_major=$(shell expr `pwd` : '.*-\([0-9]*\).[0-9.]*')
 
 build:
 	dh_testdir
-	./configure --prefix=/usr --with-cint
+	./configure --prefix=/usr
 	$(MAKE) CXXFLAGS="-O2"
 	touch build
 
@@ -30,8 +30,6 @@ binary-arch: build
 	dh_installdirs
 	# When is Automake going to honor FHS?
 	$(MAKE) install prefix=`pwd`/debian/tmp/usr infodir=`pwd`/debian/tmp/usr/share/info mandir=`pwd`/debian/tmp/usr/share/man
-	# Work around dumb lintian error: binary-without-manpage ginaccint.bin
-	(cd `pwd`/debian/tmp/usr/share/man/man1; ln -s ginaccint.1.gz ginaccint.bin.1.gz)
 	# Automake generated Makefile.in do install-info, which is bad for us:
 	-rm -f `pwd`/debian/tmp/usr/share/info/dir*
 	dh_installdocs ChangeLog NEWS README

@@ -1,3 +1,11 @@
+ginac (0.9.0-1) unstable; urgency=low
+
+  * New upstream release.  This separates the ginaccint stuff off into
+    a different package (closes: #97836).
+  * Added libgmp3-dev build-dependency (closes: #99083).
+
+ -- Richard Kreckel <kreckel@ginac.de>  Thu, 7 June 2001 19:17:15 +0200
+
 ginac (0.8.3-1) unstable; urgency=low
 
   * New upstream release; closes #97136.

@@ -3,7 +3,7 @@ Section: math
 Priority: optional
 Maintainer: Richard Kreckel <kreckel@ginac.de>
 Standards-Version: 3.1.1
-Build-Depends: debhelper, libstdc++-dev, cln-dev (>=1.1.0), libreadline4-dev, cint (>=5.14.81)
+Build-Depends: debhelper, libstdc++-dev, cln-dev (>=1.1.0), libgmp3-dev, libreadline4-dev
 
 Package: libginac
 Architecture: any
@@ -38,14 +38,3 @@ Description: Some tools for the GiNaC framework
  .
  This package provides some additional tools, like the ginsh (GiNaC interactive
  shell) and viewgar (for inspecting GiNaC archives).
-
-Package: ginac-cint
-Architecture: any
-Section: math
-Depends: ${shlibs:Depends}, libc6-dev, g++ (>=2.95.2), libginac-dev, cln-dev (>=1.1.0)
-Description: The GiNaC framework (development files)
- GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is an
- open framework for symbolic computation within the C++ programming language.
- .
- This package provides the program ginaccint, an interpreted C++ frontend for 
- symbolic computation with GiNaC.
