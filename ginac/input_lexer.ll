@@ -39,6 +39,7 @@
 #include "numeric.h"
 #include "symbol.h"
 #include "lst.h"
+#include "idx.h"
 
 using namespace GiNaC;
 namespace GiNaC {
@@ -47,7 +48,7 @@ namespace GiNaC {
 
 } // namespace GiNaC
 
-// Table of all used symbols
+// Table of all used symbols/indices
 struct sym_def {
 	sym_def() : predefined(false) {}
 	sym_def(const ex &s, bool predef) : sym(s), predefined(predef) {}
@@ -166,22 +167,34 @@ void set_lexer_string(const std::string &s)
 	curr_pos = 0;
 }
 
-// Set the list of predefined symbols
+// Get name of symbol/index
+std::string get_symbol_name(const ex & s)
+{
+	if (is_a<symbol>(s))
+		return ex_to<symbol>(s).get_name();
+	else if (is_a<idx>(s) && is_a<symbol>(s.op(0)))
+		return ex_to<symbol>(s.op(0)).get_name();
+	else
+		throw (std::runtime_error("get_symbol_name(): unexpected expression type"));
+}
+
+// Set the list of predefined symbols/indices
 void set_lexer_symbols(ex l)
 {
 	syms.clear();
 	if (!is_exactly_a<lst>(l))
 		return;
 	for (unsigned i=0; i<l.nops(); i++) {
-		if (is_exactly_a<symbol>(l.op(i)))
-			syms[ex_to<symbol>(l.op(i)).get_name()] = sym_def(l.op(i), true);
+		const ex &o = l.op(i);
+		if (is_a<symbol>(o) || (is_a<idx>(o) && is_a<symbol>(o.op(0))))
+			syms[get_symbol_name(o)] = sym_def(o, true);
 	}
 }
 
-// Check whether symbol was predefined
+// Check whether symbol/index was predefined
 bool is_lexer_symbol_predefined(const ex &s)
 {
-	sym_tab::const_iterator i = syms.find(ex_to<symbol>(s).get_name());
+	sym_tab::const_iterator i = syms.find(get_symbol_name(s));
 	if (i == syms.end())
 		return false;
 	else

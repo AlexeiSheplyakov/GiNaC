@@ -89,10 +89,11 @@ public:
 	ex(long i);
 	ex(unsigned long i);
 	ex(double const d);
+
 	/** Construct ex from string and a list of symbols. The input grammar is
-	 *  similar to the GiNaC output format. All symbols to be used in the
-	 *  expression must be specified in a lst in the second argument. Undefined
-	 *  symbols and other parser errors will throw an exception. */
+	 *  similar to the GiNaC output format. All symbols and indices to be used
+	 *  in the expression must be specified in a lst in the second argument.
+	 *  Undefined symbols and other parser errors will throw an exception. */
 	ex(const std::string &s, const ex &l);
 	
 	// non-virtual functions in this class

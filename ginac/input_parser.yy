@@ -36,6 +36,8 @@
 #include "lst.h"
 #include "power.h"
 #include "exprseq.h"
+#include "idx.h"
+#include "indexed.h"
 #include "matrix.h"
 #include "inifcns.h"
 
@@ -48,6 +50,9 @@ ex parsed_ex;
 
 // Last error message returned by parser
 static std::string parser_error;
+
+// Prototypes
+ex attach_index(const ex & base, ex i, bool covariant);
 %}
 
 /* Tokens (T_LITERAL means a literal value returned by the parser, but not
@@ -62,6 +67,7 @@ static std::string parser_error;
 %left '*' '/' '%'
 %nonassoc NEG
 %right '^'
+%left '.' '~'
 %nonassoc '!'
 
 %start input
@@ -89,12 +95,12 @@ exp	: T_NUMBER		{$$ = $1;}
 		if (is_lexer_symbol_predefined($1))
 			$$ = $1.eval();
 		else
-			throw (std::runtime_error("unknown symbol '" + ex_to<symbol>($1).get_name() + "'"));
+			throw (std::runtime_error("unknown symbol '" + get_symbol_name($1) + "'"));
 	}
 	| T_LITERAL		{$$ = $1;}
 	| T_DIGITS		{$$ = $1;}
 	| T_SYMBOL '(' exprseq ')' {
-		std::string n = ex_to<symbol>($1).get_name();
+		std::string n = get_symbol_name($1);
 		if (n == "sqrt") {
 			if ($3.nops() != 1)
 				throw (std::runtime_error("too many arguments to sqrt()"));
@@ -117,6 +123,8 @@ exp	: T_NUMBER		{$$ = $1;}
 	| '-' exp %prec NEG	{$$ = -$2;}
 	| '+' exp %prec NEG	{$$ = $2;}
 	| exp '^' exp		{$$ = pow($1, $3);}
+	| exp '.' exp		{$$ = attach_index($1, $3, true);}
+	| exp '~' exp		{$$ = attach_index($1, $3, false);}
 	| exp '!'		{$$ = factorial($1);}
 	| '(' exp ')'		{$$ = $2;}
 	| '{' list_or_empty '}'	{$$ = $2;}
@@ -149,6 +157,30 @@ row	: exp			{$$ = lst($1);}
  */
 
 %%
+// Attach index to expression
+ex attach_index(const ex & base, ex i, bool covariant)
+{
+	// Toggle index variance if necessary
+	if (is_a<varidx>(i)) {
+		const varidx &vi = ex_to<varidx>(i);
+		if (vi.is_covariant() != covariant)
+			i = vi.toggle_variance();
+	} else if (!covariant)
+		throw (std::runtime_error("index '" + get_symbol_name(i) + "' is not a varidx and cannot be contravariant"));
+
+	// Add index to an existing indexed object, or create a new indexed
+	// object if there are no indices yet
+	if (is_a<indexed>(base)) {
+		const ex &b = base.op(0);
+		exvector iv;
+		for (unsigned n=1; n<base.nops(); n++)
+			iv.push_back(base.op(n));
+		iv.push_back(i);
+		return indexed(b, iv);
+	} else
+		return indexed(base, i);
+}
+
 // Get last error encountered by parser
 std::string get_parser_error(void)
 {

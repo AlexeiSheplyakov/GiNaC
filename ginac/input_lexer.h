@@ -50,6 +50,9 @@ class ex;
 /** Set the input string to be parsed by ginac_yyparse() (used internally). */
 extern void set_lexer_string(const std::string &s);
 
+/** Get name of symbol/index (used internally). */
+extern std::string get_symbol_name(const ex & s);
+
 /** Set the list of predefined symbols for the lexer (used internally). */
 extern void set_lexer_symbols(ex l);
 
