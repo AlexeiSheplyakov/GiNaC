@@ -132,7 +132,11 @@ static char *line_ptr;
 static int ginsh_input(char *buf, int max_size)
 {
 	int result;
+#if defined(YY_CURRENT_BUFFER)
+	if (YY_CURRENT_BUFFER->yy_is_interactive) {
+#else
 	if (yy_current_buffer->yy_is_interactive) {
+#endif
 #ifdef HAVE_LIBREADLINE
 		// Do we need to read a new line?
 		int actual;
