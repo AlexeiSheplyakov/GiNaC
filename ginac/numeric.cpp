@@ -7,7 +7,7 @@
  *  of special functions or implement the interface to the bignum package. */
 
 /*
- *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -281,7 +281,7 @@ void numeric::archive(archive_node &n) const
 	// Write number as string
 	std::ostringstream s;
 	if (this->is_crational())
-		s << cln::the<cln::cl_N>(value);
+		s << value;
 	else {
 		// Non-rational numbers are written in an integer-decoded format
 		// to preserve the precision
@@ -417,8 +417,8 @@ static void print_real_cl_N(const print_context & c, const cln::cl_R & x)
 
 void numeric::print_numeric(const print_context & c, const char *par_open, const char *par_close, const char *imag_sym, const char *mul_sym, unsigned level) const
 {
-	const cln::cl_R r = cln::realpart(cln::the<cln::cl_N>(value));
-	const cln::cl_R i = cln::imagpart(cln::the<cln::cl_N>(value));
+	const cln::cl_R r = cln::realpart(value);
+	const cln::cl_R i = cln::imagpart(value);
 
 	if (cln::zerop(i)) {
 
@@ -514,9 +514,9 @@ void numeric::do_print_csrc(const print_csrc & c, unsigned level) const
 		else
 			c.s << "float>(";
 
-		print_real_csrc(c, cln::realpart(cln::the<cln::cl_N>(value)));
+		print_real_csrc(c, cln::realpart(value));
 		c.s << ",";
-		print_real_csrc(c, cln::imagpart(cln::the<cln::cl_N>(value)));
+		print_real_csrc(c, cln::imagpart(value));
 		c.s << ")";
 	}
 
@@ -535,16 +535,16 @@ void numeric::do_print_csrc_cl_N(const print_csrc_cl_N & c, unsigned level) cons
 
 		// Complex number
 		c.s << "cln::complex(";
-		print_real_cl_N(c, cln::realpart(cln::the<cln::cl_N>(value)));
+		print_real_cl_N(c, cln::realpart(value));
 		c.s << ",";
-		print_real_cl_N(c, cln::imagpart(cln::the<cln::cl_N>(value)));
+		print_real_cl_N(c, cln::imagpart(value));
 		c.s << ")";
 	}
 }
 
 void numeric::do_print_tree(const print_tree & c, unsigned level) const
 {
-	c.s << std::string(level, ' ') << cln::the<cln::cl_N>(value)
+	c.s << std::string(level, ' ') << value
 	    << " (" << class_name() << ")" << " @" << this
 	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 	    << std::endl;
@@ -663,8 +663,15 @@ ex numeric::eval(int level) const
 ex numeric::evalf(int level) const
 {
 	// level can safely be discarded for numeric objects.
-	return numeric(cln::cl_float(1.0, cln::default_float_format) *
-	               (cln::the<cln::cl_N>(value)));
+	return numeric(cln::cl_float(1.0, cln::default_float_format) * value);
+}
+
+ex numeric::conjugate() const
+{
+	if (is_real()) {
+		return *this;
+	}
+	return numeric(cln::conjugate(this->value));
 }
 
 // protected
@@ -694,7 +701,7 @@ unsigned numeric::calchash() const
 	// equivalence relation on numbers).  As a consequence, 3 and 3.0 share
 	// the same hashvalue.  That shouldn't really matter, though.
 	setflag(status_flags::hash_calculated);
-	hashvalue = golden_ratio_hash(cln::equal_hashcode(cln::the<cln::cl_N>(value)));
+	hashvalue = golden_ratio_hash(cln::equal_hashcode(value));
 	return hashvalue;
 }
 
@@ -715,7 +722,7 @@ unsigned numeric::calchash() const
  *  a numeric object. */
 const numeric numeric::add(const numeric &other) const
 {
-	return numeric(cln::the<cln::cl_N>(value)+cln::the<cln::cl_N>(other.value));
+	return numeric(value + other.value);
 }
 
 
@@ -723,7 +730,7 @@ const numeric numeric::add(const numeric &other) const
  *  result as a numeric object. */
 const numeric numeric::sub(const numeric &other) const
 {
-	return numeric(cln::the<cln::cl_N>(value)-cln::the<cln::cl_N>(other.value));
+	return numeric(value - other.value);
 }
 
 
@@ -731,7 +738,7 @@ const numeric numeric::sub(const numeric &other) const
  *  result as a numeric object. */
 const numeric numeric::mul(const numeric &other) const
 {
-	return numeric(cln::the<cln::cl_N>(value)*cln::the<cln::cl_N>(other.value));
+	return numeric(value * other.value);
 }
 
 
@@ -741,9 +748,9 @@ const numeric numeric::mul(const numeric &other) const
  *  @exception overflow_error (division by zero) */
 const numeric numeric::div(const numeric &other) const
 {
-	if (cln::zerop(cln::the<cln::cl_N>(other.value)))
+	if (cln::zerop(other.value))
 		throw std::overflow_error("numeric::div(): division by zero");
-	return numeric(cln::the<cln::cl_N>(value)/cln::the<cln::cl_N>(other.value));
+	return numeric(value / other.value);
 }
 
 
@@ -753,20 +760,20 @@ const numeric numeric::power(const numeric &other) const
 {
 	// Shortcut for efficiency and numeric stability (as in 1.0 exponent):
 	// trap the neutral exponent.
-	if (&other==_num1_p || cln::equal(cln::the<cln::cl_N>(other.value),cln::the<cln::cl_N>(_num1.value)))
+	if (&other==_num1_p || cln::equal(other.value,_num1.value))
 		return *this;
 	
-	if (cln::zerop(cln::the<cln::cl_N>(value))) {
-		if (cln::zerop(cln::the<cln::cl_N>(other.value)))
+	if (cln::zerop(value)) {
+		if (cln::zerop(other.value))
 			throw std::domain_error("numeric::eval(): pow(0,0) is undefined");
-		else if (cln::zerop(cln::realpart(cln::the<cln::cl_N>(other.value))))
+		else if (cln::zerop(cln::realpart(other.value)))
 			throw std::domain_error("numeric::eval(): pow(0,I) is undefined");
-		else if (cln::minusp(cln::realpart(cln::the<cln::cl_N>(other.value))))
+		else if (cln::minusp(cln::realpart(other.value)))
 			throw std::overflow_error("numeric::eval(): division by zero");
 		else
 			return _num0;
 	}
-	return numeric(cln::expt(cln::the<cln::cl_N>(value),cln::the<cln::cl_N>(other.value)));
+	return numeric(cln::expt(value, other.value));
 }
 
 
@@ -783,7 +790,7 @@ const numeric &numeric::add_dyn(const numeric &other) const
 	else if (&other==_num0_p)
 		return *this;
 	
-	return static_cast<const numeric &>((new numeric(cln::the<cln::cl_N>(value)+cln::the<cln::cl_N>(other.value)))->
+	return static_cast<const numeric &>((new numeric(value + other.value))->
 	                                    setflag(status_flags::dynallocated));
 }
 
@@ -796,10 +803,10 @@ const numeric &numeric::sub_dyn(const numeric &other) const
 {
 	// Efficiency shortcut: trap the neutral exponent (first by pointer).  This
 	// hack is supposed to keep the number of distinct numeric objects low.
-	if (&other==_num0_p || cln::zerop(cln::the<cln::cl_N>(other.value)))
+	if (&other==_num0_p || cln::zerop(other.value))
 		return *this;
 	
-	return static_cast<const numeric &>((new numeric(cln::the<cln::cl_N>(value)-cln::the<cln::cl_N>(other.value)))->
+	return static_cast<const numeric &>((new numeric(value - other.value))->
 	                                    setflag(status_flags::dynallocated));
 }
 
@@ -817,7 +824,7 @@ const numeric &numeric::mul_dyn(const numeric &other) const
 	else if (&other==_num1_p)
 		return *this;
 	
-	return static_cast<const numeric &>((new numeric(cln::the<cln::cl_N>(value)*cln::the<cln::cl_N>(other.value)))->
+	return static_cast<const numeric &>((new numeric(value * other.value))->
 	                                    setflag(status_flags::dynallocated));
 }
 
@@ -836,7 +843,7 @@ const numeric &numeric::div_dyn(const numeric &other) const
 		return *this;
 	if (cln::zerop(cln::the<cln::cl_N>(other.value)))
 		throw std::overflow_error("division by zero");
-	return static_cast<const numeric &>((new numeric(cln::the<cln::cl_N>(value)/cln::the<cln::cl_N>(other.value)))->
+	return static_cast<const numeric &>((new numeric(value / other.value))->
 	                                    setflag(status_flags::dynallocated));
 }
 
@@ -850,20 +857,20 @@ const numeric &numeric::power_dyn(const numeric &other) const
 	// Efficiency shortcut: trap the neutral exponent (first try by pointer, then
 	// try harder, since calls to cln::expt() below may return amazing results for
 	// floating point exponent 1.0).
-	if (&other==_num1_p || cln::equal(cln::the<cln::cl_N>(other.value),cln::the<cln::cl_N>(_num1.value)))
+	if (&other==_num1_p || cln::equal(other.value, _num1.value))
 		return *this;
 	
-	if (cln::zerop(cln::the<cln::cl_N>(value))) {
-		if (cln::zerop(cln::the<cln::cl_N>(other.value)))
+	if (cln::zerop(value)) {
+		if (cln::zerop(other.value))
 			throw std::domain_error("numeric::eval(): pow(0,0) is undefined");
-		else if (cln::zerop(cln::realpart(cln::the<cln::cl_N>(other.value))))
+		else if (cln::zerop(cln::realpart(other.value)))
 			throw std::domain_error("numeric::eval(): pow(0,I) is undefined");
-		else if (cln::minusp(cln::realpart(cln::the<cln::cl_N>(other.value))))
+		else if (cln::minusp(cln::realpart(other.value)))
 			throw std::overflow_error("numeric::eval(): division by zero");
 		else
 			return _num0;
 	}
-	return static_cast<const numeric &>((new numeric(cln::expt(cln::the<cln::cl_N>(value),cln::the<cln::cl_N>(other.value))))->
+	return static_cast<const numeric &>((new numeric(cln::expt(value, other.value)))->
 	                                     setflag(status_flags::dynallocated));
 }
 
@@ -907,9 +914,9 @@ const numeric &numeric::operator=(const char * s)
 /** Inverse of a number. */
 const numeric numeric::inverse() const
 {
-	if (cln::zerop(cln::the<cln::cl_N>(value)))
+	if (cln::zerop(value))
 		throw std::overflow_error("numeric::inverse(): division by zero");
-	return numeric(cln::recip(cln::the<cln::cl_N>(value)));
+	return numeric(cln::recip(value));
 }
 
 
@@ -920,16 +927,16 @@ const numeric numeric::inverse() const
  *  @see numeric::compare(const numeric &other) */
 int numeric::csgn() const
 {
-	if (cln::zerop(cln::the<cln::cl_N>(value)))
+	if (cln::zerop(value))
 		return 0;
-	cln::cl_R r = cln::realpart(cln::the<cln::cl_N>(value));
+	cln::cl_R r = cln::realpart(value);
 	if (!cln::zerop(r)) {
 		if (cln::plusp(r))
 			return 1;
 		else
 			return -1;
 	} else {
-		if (cln::plusp(cln::imagpart(cln::the<cln::cl_N>(value))))
+		if (cln::plusp(cln::imagpart(value)))
 			return 1;
 		else
 			return -1;
@@ -953,25 +960,25 @@ int numeric::compare(const numeric &other) const
 		return cln::compare(cln::the<cln::cl_R>(value), cln::the<cln::cl_R>(other.value));
 	else {
 		// No, first cln::compare real parts...
-		cl_signean real_cmp = cln::compare(cln::realpart(cln::the<cln::cl_N>(value)), cln::realpart(cln::the<cln::cl_N>(other.value)));
+		cl_signean real_cmp = cln::compare(cln::realpart(value), cln::realpart(other.value));
 		if (real_cmp)
 			return real_cmp;
 		// ...and then the imaginary parts.
-		return cln::compare(cln::imagpart(cln::the<cln::cl_N>(value)), cln::imagpart(cln::the<cln::cl_N>(other.value)));
+		return cln::compare(cln::imagpart(value), cln::imagpart(other.value));
 	}
 }
 
 
 bool numeric::is_equal(const numeric &other) const
 {
-	return cln::equal(cln::the<cln::cl_N>(value),cln::the<cln::cl_N>(other.value));
+	return cln::equal(value, other.value);
 }
 
 
 /** True if object is zero. */
 bool numeric::is_zero() const
 {
-	return cln::zerop(cln::the<cln::cl_N>(value));
+	return cln::zerop(value);
 }
 
 
@@ -1056,13 +1063,13 @@ bool numeric::is_real() const
 
 bool numeric::operator==(const numeric &other) const
 {
-	return cln::equal(cln::the<cln::cl_N>(value), cln::the<cln::cl_N>(other.value));
+	return cln::equal(value, other.value);
 }
 
 
 bool numeric::operator!=(const numeric &other) const
 {
-	return !cln::equal(cln::the<cln::cl_N>(value), cln::the<cln::cl_N>(other.value));
+	return !cln::equal(value, other.value);
 }
 
 
@@ -1073,8 +1080,8 @@ bool numeric::is_cinteger() const
 	if (cln::instanceof(value, cln::cl_I_ring))
 		return true;
 	else if (!this->is_real()) {  // complex case, handle n+m*I
-		if (cln::instanceof(cln::realpart(cln::the<cln::cl_N>(value)), cln::cl_I_ring) &&
-		    cln::instanceof(cln::imagpart(cln::the<cln::cl_N>(value)), cln::cl_I_ring))
+		if (cln::instanceof(cln::realpart(value), cln::cl_I_ring) &&
+		    cln::instanceof(cln::imagpart(value), cln::cl_I_ring))
 			return true;
 	}
 	return false;
@@ -1088,8 +1095,8 @@ bool numeric::is_crational() const
 	if (cln::instanceof(value, cln::cl_RA_ring))
 		return true;
 	else if (!this->is_real()) {  // complex case, handle Q(i):
-		if (cln::instanceof(cln::realpart(cln::the<cln::cl_N>(value)), cln::cl_RA_ring) &&
-		    cln::instanceof(cln::imagpart(cln::the<cln::cl_N>(value)), cln::cl_RA_ring))
+		if (cln::instanceof(cln::realpart(value), cln::cl_RA_ring) &&
+		    cln::instanceof(cln::imagpart(value), cln::cl_RA_ring))
 			return true;
 	}
 	return false;
@@ -1165,7 +1172,7 @@ long numeric::to_long() const
 double numeric::to_double() const
 {
 	GINAC_ASSERT(this->is_real());
-	return cln::double_approx(cln::realpart(cln::the<cln::cl_N>(value)));
+	return cln::double_approx(cln::realpart(value));
 }
 
 
@@ -1174,21 +1181,21 @@ double numeric::to_double() const
  */
 cln::cl_N numeric::to_cl_N() const
 {
-	return cln::cl_N(cln::the<cln::cl_N>(value));
+	return value;
 }
 
 
 /** Real part of a number. */
 const numeric numeric::real() const
 {
-	return numeric(cln::realpart(cln::the<cln::cl_N>(value)));
+	return numeric(cln::realpart(value));
 }
 
 
 /** Imaginary part of a number. */
 const numeric numeric::imag() const
 {
-	return numeric(cln::imagpart(cln::the<cln::cl_N>(value)));
+	return numeric(cln::imagpart(value));
 }
 
 
@@ -1205,8 +1212,8 @@ const numeric numeric::numer() const
 		return numeric(cln::numerator(cln::the<cln::cl_RA>(value)));
 	
 	else if (!this->is_real()) {  // complex case, handle Q(i):
-		const cln::cl_RA r = cln::the<cln::cl_RA>(cln::realpart(cln::the<cln::cl_N>(value)));
-		const cln::cl_RA i = cln::the<cln::cl_RA>(cln::imagpart(cln::the<cln::cl_N>(value)));
+		const cln::cl_RA r = cln::the<cln::cl_RA>(cln::realpart(value));
+		const cln::cl_RA i = cln::the<cln::cl_RA>(cln::imagpart(value));
 		if (cln::instanceof(r, cln::cl_I_ring) && cln::instanceof(i, cln::cl_I_ring))
 			return numeric(*this);
 		if (cln::instanceof(r, cln::cl_I_ring) && cln::instanceof(i, cln::cl_RA_ring))
@@ -1236,8 +1243,8 @@ const numeric numeric::denom() const
 		return numeric(cln::denominator(cln::the<cln::cl_RA>(value)));
 	
 	if (!this->is_real()) {  // complex case, handle Q(i):
-		const cln::cl_RA r = cln::the<cln::cl_RA>(cln::realpart(cln::the<cln::cl_N>(value)));
-		const cln::cl_RA i = cln::the<cln::cl_RA>(cln::imagpart(cln::the<cln::cl_N>(value)));
+		const cln::cl_RA r = cln::the<cln::cl_RA>(cln::realpart(value));
+		const cln::cl_RA i = cln::the<cln::cl_RA>(cln::imagpart(value));
 		if (cln::instanceof(r, cln::cl_I_ring) && cln::instanceof(i, cln::cl_I_ring))
 			return _num1;
 		if (cln::instanceof(r, cln::cl_I_ring) && cln::instanceof(i, cln::cl_RA_ring))
@@ -1515,7 +1522,7 @@ const numeric Li2(const numeric &x)
 	else if (!x.imag().is_rational())
 		prec = cln::float_format(cln::the<cln::cl_F>(cln::imagpart(value)));
 	
-	if (cln::the<cln::cl_N>(value)==1)  // may cause trouble with log(1-x)
+	if (value==1)  // may cause trouble with log(1-x)
 		return cln::zeta(2, prec);
 	
 	if (cln::abs(value) > 1)

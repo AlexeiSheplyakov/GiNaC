@@ -3,7 +3,7 @@
  *  Makes the interface to the underlying bignum package available. */
 
 /*
- *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -28,9 +28,7 @@
 
 #include <stdexcept>
 
-#include <cln/number.h>
-// forward decln of cln::cl_N, since cln/complex_class.h is not included:
-namespace cln { class cl_N; }
+#include <cln/complex.h>
 
 #if defined(G__CINTVERSION) && !defined(__MAKECINT__)
 // Cint @$#$! doesn't like forward declaring classes used for casting operators
@@ -110,6 +108,7 @@ public:
 	numeric integer_content() const;
 	ex smod(const numeric &xi) const;
 	numeric max_coefficient() const;
+	ex conjugate() const;
 protected:
 	/** Implementation of ex::diff for a numeric always returns 0.
 	 *  @see ex::diff */
@@ -185,7 +184,7 @@ protected:
 // member variables
 
 protected:
-	cln::cl_number value;
+	cln::cl_N value;
 };
 
 
