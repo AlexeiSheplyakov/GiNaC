@@ -25,9 +25,9 @@
 
 // For rand() and friends:
 #include <stdlib.h>
-
-#include "ginac.h"
 using namespace std;
+#include "config.h"
+#include "ginac.h"
 using namespace GiNaC;
 
 // prototypes for the expression generating functions in:
