@@ -54,7 +54,7 @@ dnl linking failed:
     "fail")
         LIBS="${saved_LIBS}"
         AC_MSG_RESULT([no])
-        GINAC_ERROR([I could not successfully link a test-program against libcln and run it.
+        GINAC_ERROR([I could not successfully link a test-program against libcln.
    You either need to set \$LDFLAGS or install/update the CLN library.])
     ;;
     esac

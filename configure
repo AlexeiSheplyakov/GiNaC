@@ -2763,7 +2763,7 @@ fi
         echo "$ac_t""no" 1>&6
         
 ginac_error_txt="$ginac_error_txt
-** I could not successfully link a test-program against libcln and run it.
+** I could not successfully link a test-program against libcln.
    You either need to set \$LDFLAGS or install/update the CLN library.
 "
 ginac_error=yes
