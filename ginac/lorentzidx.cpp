@@ -90,6 +90,12 @@ void lorentzidx::destroy(bool call_parent)
 
 // public
 
+/** Construct symbolic Lorentz index, using an automatically generated unique name.
+ *
+ *  @param cov Index is covariant (contravariant otherwise)
+ *  @param oonly Index only lives in orthogonal space
+ *  @param dimp Dimension of parallel space
+ *  @return newly constructed index */
 lorentzidx::lorentzidx(bool cov, bool oonly, unsigned dimp)
   : idx(cov), orthogonal_only(oonly), dim_parallel_space(dimp)
 {
@@ -103,6 +109,13 @@ lorentzidx::lorentzidx(bool cov, bool oonly, unsigned dimp)
 	tinfo_key=TINFO_lorentzidx;
 }
 
+/** Construct symbolic Lorentz index with specified name.
+ *
+ *  @param n Symbolic index name
+ *  @param cov Index is covariant (contravariant otherwise)
+ *  @param oonly Index only lives in orthogonal space
+ *  @param dimp Dimension of parallel space
+ *  @return newly constructed index */
 lorentzidx::lorentzidx(const std::string & n, bool cov, bool oonly, unsigned dimp)
   : idx(n,cov), orthogonal_only(oonly), dim_parallel_space(dimp)
 {
@@ -111,6 +124,13 @@ lorentzidx::lorentzidx(const std::string & n, bool cov, bool oonly, unsigned dim
 	tinfo_key=TINFO_lorentzidx;
 }
 
+/** Construct symbolic Lorentz index with specified name.
+ *
+ *  @param n Symbolic index name
+ *  @param cov Index is covariant (contravariant otherwise)
+ *  @param oonly Index only lives in orthogonal space
+ *  @param dimp Dimension of parallel space
+ *  @return newly constructed index */
 lorentzidx::lorentzidx(const char * n, bool cov, bool oonly, unsigned dimp)
   : idx(n,cov), orthogonal_only(oonly), dim_parallel_space(dimp)
 {
@@ -119,6 +139,11 @@ lorentzidx::lorentzidx(const char * n, bool cov, bool oonly, unsigned dimp)
 	tinfo_key=TINFO_lorentzidx;
 }
 
+/** Construct numeric Lorentz index with specified value.
+ *
+ *  @param v Numeric index value
+ *  @param cov Index is covariant (contravariant otherwise)
+ *  @return newly constructed index */
 lorentzidx::lorentzidx(unsigned v, bool cov)
   : idx(v,cov), orthogonal_only(false), dim_parallel_space(0)
 {
@@ -135,8 +160,7 @@ lorentzidx::lorentzidx(const archive_node &n, const lst &sym_lst) : inherited(n,
 {
 	debugmsg("lorentzidx constructor from archive_node", LOGLEVEL_CONSTRUCT);
 	n.find_bool("orthogonal_only", orthogonal_only);
-	if (orthogonal_only)
-		n.find_unsigned("pdim", dim_parallel_space);
+	n.find_unsigned("pdim", dim_parallel_space);
 }
 
 /** Unarchive the object. */
@@ -159,8 +183,7 @@ void lorentzidx::archive(archive_node &n) const
 {
 	inherited::archive(n);
 	n.add_bool("orthogonal_only", orthogonal_only);
-	if (orthogonal_only)
-		n.add_unsigned("pdim", dim_parallel_space);
+	n.add_unsigned("pdim", dim_parallel_space);
 }
 
 //////////
@@ -270,6 +293,7 @@ bool lorentzidx::info(unsigned inf) const
 
 // public
 
+/** Create anonymous contravariant copy of a symbolic Lorentz index. */
 lorentzidx lorentzidx::create_anonymous_representative(void) const
 {
 	GINAC_ASSERT(is_symbolic());

@@ -32,6 +32,8 @@
 namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
 
+/** Class of indices for color algebra (SU(3)) objects, to tell them apart
+ *  from other index families like Lorentz indices. */
 class coloridx : public idx
 {
 	GINAC_DECLARE_REGISTERED_CLASS(coloridx, idx)

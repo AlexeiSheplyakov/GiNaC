@@ -510,9 +510,9 @@ ex color::simplify_ncmul(const exvector & v) const
 						*it1=numeric(40)/numeric(3);
 						*it2=_ex1();
 					} else {
-						int sig1, sig2; // unimportant, since symmetric
-						ex idx1=permute_free_index_to_front(col1.seq,iv_intersect,false,&sig1);
-						ex idx2=permute_free_index_to_front(col2.seq,iv_intersect,false,&sig2);
+						int dummy; // sign unimportant, since symmetric
+						ex idx1=permute_free_index_to_front(col1.seq,iv_intersect,&dummy);
+						ex idx2=permute_free_index_to_front(col2.seq,iv_intersect,&dummy);
 						*it1=numeric(5)/numeric(3)*color(color_delta8,idx1,idx2);
 						*it2=_ex1();
 					}
@@ -538,8 +538,8 @@ ex color::simplify_ncmul(const exvector & v) const
 						*it2=_ex1();
 					} else {
 						int sig1, sig2;
-						ex idx1=permute_free_index_to_front(col1.seq,iv_intersect,true,&sig1);
-						ex idx2=permute_free_index_to_front(col2.seq,iv_intersect,true,&sig2);
+						ex idx1=permute_free_index_to_front(col1.seq,iv_intersect,&sig1);
+						ex idx2=permute_free_index_to_front(col2.seq,iv_intersect,&sig2);
 						*it1=numeric(sig1*sig2*5)/numeric(3)*color(color_delta8,idx1,idx2);
 						*it2=_ex1();
 					}
@@ -567,8 +567,8 @@ ex color::simplify_ncmul(const exvector & v) const
 					const color & dref=ex_to_color(*it2);
 					exvector iv_intersect=idx_intersect(dref.seq,iv);
 					if (iv_intersect.size()==2) {
-						int sig; // unimportant, since symmetric
-						ex free_idx=permute_free_index_to_front(dref.seq,iv,false,&sig);
+						int dummy; // sign unimportant, since symmetric
+						ex free_idx=permute_free_index_to_front(dref.seq,iv,&dummy);
 						*it1=color(color_T,free_idx,rl);
 						*(it1+1)=color(color_ONE,rl);
 						*it2=numeric(5)/numeric(6);
@@ -584,7 +584,7 @@ ex color::simplify_ncmul(const exvector & v) const
 					exvector iv_intersect=idx_intersect(fref.seq,iv);
 					if (iv_intersect.size()==2) {
 						int sig;
-						ex free_idx=permute_free_index_to_front(fref.seq,iv,true,&sig);
+						ex free_idx=permute_free_index_to_front(fref.seq,iv,&sig);
 						*it1=color(color_T,free_idx,rl);
 						*(it1+1)=color(color_ONE,rl);
 						*it2=numeric(sig*3)/numeric(2)*I;

@@ -87,6 +87,10 @@ void coloridx::destroy(bool call_parent)
 
 // public
 
+/** Construct symbolic color index, using an automatically generated unique name.
+ *
+ *  @param cov Index is covariant (contravariant otherwise)
+ *  @return newly constructed index */
 coloridx::coloridx(bool cov) : idx(cov)
 {
 	debugmsg("coloridx constructor from bool",LOGLEVEL_CONSTRUCT);
@@ -95,18 +99,33 @@ coloridx::coloridx(bool cov) : idx(cov)
 	tinfo_key=TINFO_coloridx;
 }
 
+/** Construct symbolic color index with specified name.
+ *
+ *  @param n Symbolic index name
+ *  @param cov Index is covariant (contravariant otherwise)
+ *  @return newly constructed index */
 coloridx::coloridx(const std::string & n, bool cov) : idx(n,cov)
 {
 	debugmsg("coloridx constructor from string,bool",LOGLEVEL_CONSTRUCT);
 	tinfo_key=TINFO_coloridx;
 }
 
+/** Construct symbolic color index with specified name.
+ *
+ *  @param n Symbolic index name
+ *  @param cov Index is covariant (contravariant otherwise)
+ *  @return newly constructed index */
 coloridx::coloridx(const char * n, bool cov) : idx(n,cov)
 {
 	debugmsg("coloridx constructor from char*,bool",LOGLEVEL_CONSTRUCT);
 	tinfo_key=TINFO_coloridx;
 }
 
+/** Construct numeric color index with specified value.
+ *
+ *  @param v Numeric index value
+ *  @param cov Index is covariant (contravariant otherwise)
+ *  @return newly constructed index */
 coloridx::coloridx(unsigned v, bool cov) : idx(v,cov)
 {
 	debugmsg("coloridx constructor from unsigned,bool",LOGLEVEL_CONSTRUCT);

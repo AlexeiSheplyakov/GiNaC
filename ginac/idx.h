@@ -32,11 +32,13 @@
 namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
 
+
+/** This class holds one index of an indexed object. Indices can be symbolic
+ *  (e.g. "mu", "i") or numeric (unsigned integer), and they can be contravariant
+ *  (the default) or covariant. */
 class idx : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS(idx, basic)
-
-// member functions
 
 	// default constructor, destructor, copy constructor assignment operator and helpers
 public:
@@ -75,20 +77,26 @@ public:
 
 	// non-virtual functions in this class
 public:
-	bool is_symbolic(void) const;
-	unsigned get_value(void) const;
-	bool is_covariant(void) const;
+	/** Check whether index is symbolic (not numeric). */
+	bool is_symbolic(void) const {return symbolic;}
+
+	/** Get numeric value of index. Undefined for symbolic indices. */
+	unsigned get_value(void) const {return value;}
+
+	/** Check whether index is covariant (not contravariant). */
+	bool is_covariant(void) const {return covariant;}
+
 	void setname(const std::string & n) {name=n;}
 	std::string getname(void) const {return name;}
 
 	// member variables
 protected:
 	unsigned serial;
-	bool symbolic;
-	std::string name;
-	unsigned value;
+	bool symbolic;    /**< Is index symbolic? */
+	std::string name; /**< Symbolic name (if symbolic == true) */
+	unsigned value;   /**< Numeric value (if symbolic == false) */
 	static unsigned next_serial;
-	bool covariant; // x_mu, default is contravariant: x~mu
+	bool covariant;   /**< x_mu, default is contravariant: x~mu */
 };
 
 // global constants
@@ -106,11 +114,9 @@ inline const idx &ex_to_idx(const ex &e)
 
 int canonicalize_indices(exvector & iv, bool antisymmetric=false);
 exvector idx_intersect(const exvector & iv1, const exvector & iv2);
-ex permute_free_index_to_front(const exvector & iv3, const exvector & iv2,
-                               bool antisymmetric, int * sig);
+ex permute_free_index_to_front(const exvector & iv3, const exvector & iv2, int * sig);
 unsigned subs_index_in_exvector(exvector & v, const ex & is, const ex & ir);
-ex subs_indices(const ex & e, const exvector & idxv_contra,
-                const exvector & idxv_co);
+ex subs_indices(const ex & e, const exvector & idxv_contra, const exvector & idxv_co);
 unsigned count_index(const ex & e, const ex & i);
 
 #ifndef NO_NAMESPACE_GINAC

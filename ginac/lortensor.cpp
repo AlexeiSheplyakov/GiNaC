@@ -270,7 +270,7 @@ ex lortensor::eval(int level) const
 				return _ex0();
 			}
 		} else if (idx1.is_symbolic() && idx1.is_co_contra_pair(idx2)) {
-			return Dim()-idx1.get_dim_parallel_space();
+			return Dim() - 2;
 		}
 	}
 	return this -> hold();

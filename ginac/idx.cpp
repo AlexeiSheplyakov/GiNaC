@@ -94,6 +94,10 @@ void idx::destroy(bool call_parent)
 
 // public
 
+/** Construct symbolic index, using an automatically generated unique name.
+ *
+ *  @param cov Index is covariant (contravariant otherwise)
+ *  @return newly constructed index */
 idx::idx(bool cov) : inherited(TINFO_idx), symbolic(true), covariant(cov)
 {
 	debugmsg("idx constructor from bool",LOGLEVEL_CONSTRUCT);
@@ -101,6 +105,11 @@ idx::idx(bool cov) : inherited(TINFO_idx), symbolic(true), covariant(cov)
 	name = "index"+ToString(serial);
 }
 
+/** Construct symbolic index with specified name.
+ *
+ *  @param n Symbolic index name
+ *  @param cov Index is covariant (contravariant otherwise)
+ *  @return newly constructed index */
 idx::idx(const std::string & n, bool cov) : inherited(TINFO_idx),  
 	symbolic(true), name(n), covariant(cov)
 {
@@ -108,12 +117,22 @@ idx::idx(const std::string & n, bool cov) : inherited(TINFO_idx),
 	serial = next_serial++;
 }
 
+/** Construct symbolic index with specified name.
+ *
+ *  @param n Symbolic index name
+ *  @param cov Index is covariant (contravariant otherwise)
+ *  @return newly constructed index */
 idx::idx(const char * n, bool cov) : inherited(TINFO_idx), symbolic(true), name(n), covariant(cov)
 {
 	debugmsg("idx constructor from char*,bool",LOGLEVEL_CONSTRUCT);
 	serial = next_serial++;
 }
 
+/** Construct numeric index with specified value.
+ *
+ *  @param v Numeric index value
+ *  @param cov Index is covariant (contravariant otherwise)
+ *  @return newly constructed index */
 idx::idx(unsigned v, bool cov) : inherited(TINFO_idx), symbolic(false), value(v), covariant(cov)
 {
 	debugmsg("idx constructor from unsigned,bool",LOGLEVEL_CONSTRUCT);
@@ -319,6 +338,8 @@ unsigned idx::calchash(void) const
 
 // public
 
+/** Check whether the index forms a co-/contravariant pair with another
+ *  index (i.e. same name/value but opposite co-/contravariance). */
 bool idx::is_co_contra_pair(const basic & other) const
 {
 	// like is_equal_same_type(), but tests for different covariant status
@@ -331,21 +352,7 @@ bool idx::is_co_contra_pair(const basic & other) const
 	return value==o.value;
 }    
 
-bool idx::is_symbolic(void) const
-{
-	return symbolic;
-}
-
-unsigned idx::get_value(void) const
-{
-	return value;
-}
-
-bool idx::is_covariant(void) const
-{
-	return covariant;
-}
-
+/** Toggle co-/contravariance of index. */
 ex idx::toggle_covariant(void) const
 {
 	idx * i_copy=static_cast<idx *>(duplicate());
@@ -379,6 +386,16 @@ const std::type_info & typeid_idx = typeid(some_idx);
 // other functions
 //////////
 
+/** Bring a vector of indices into a canonic order. This operation only makes
+ *  sense if the object carrying these indices is either symmetric or totally
+ *  antisymmetric with respect to the indices.
+ *
+ *  @param iv Index vector
+ *  @param antisymmetric Whether the object carrying the indices is antisymmetric (symmetric otherwise)
+ *  @return the sign introduced by the reordering of the indices. For symmetric
+ *          objects this is always +1. For antisymmetric objects this is either
+ *          +1 or -1 or 0 (if two equal indices were encountered). If the index
+ *          vector was unchanged this function returns INT_MAX. */
 int canonicalize_indices(exvector & iv, bool antisymmetric)
 {
 	if (iv.size()<2) {
@@ -388,6 +405,7 @@ int canonicalize_indices(exvector & iv, bool antisymmetric)
 
 	bool something_changed=false;
 	int sig=1;
+
 	// simple bubble sort algorithm should be sufficient for the small number of indices needed
 	exvector::const_iterator last_idx=iv.end();
 	exvector::const_iterator next_to_last_idx=iv.end()-1;
@@ -404,37 +422,56 @@ int canonicalize_indices(exvector & iv, bool antisymmetric)
 			}
 		}
 	}
+
 	return something_changed ? sig : INT_MAX;
 }
 
+/** Build a vector of indices as the set intersection of two other index
+ *  vectors (i.e. the returned vector contains the indices which appear in
+ *  both source vectors). */
 exvector idx_intersect(const exvector & iv1, const exvector & iv2)
 {
-	// build a vector of symbolic indices contained in iv1 and iv2 simultaneously
-	// assumes (but does not test) that each index occurs at most twice
+	// Create union vector
+	exvector iv_union;
+	iv_union.reserve(iv1.size() + iv2.size());
+	iv_union.insert(iv_union.end(), iv1.begin(), iv1.end());
+	iv_union.insert(iv_union.end(), iv2.begin(), iv2.end());
+
+	// Sort it
+	canonicalize_indices(iv_union);
+
+	// Look for duplicates
 	exvector iv_intersect;
-	for (exvector::const_iterator cit1=iv1.begin(); cit1!=iv1.end(); ++cit1) {
-		GINAC_ASSERT(is_ex_of_type(*cit1,idx));
-		if (ex_to_idx(*cit1).is_symbolic()) {
-			for (exvector::const_iterator cit2=iv2.begin(); cit2!=iv2.end(); ++cit2) {
-				GINAC_ASSERT(is_ex_of_type(*cit2,idx));
-				if ((*cit1).is_equal(*cit2)) {
-					iv_intersect.push_back(*cit1);
-					break;
-				}
-			}
+	exvector::const_iterator cit = iv_union.begin(), citend = iv_union.end();
+	ex e;
+	if (cit != citend)
+		e = *cit++;
+	while (cit != citend) {
+		if (e.is_equal(*cit)) {
+			iv_intersect.push_back(e);
+			do {
+				cit++;
+			} while (cit != citend && e.is_equal(*cit));
+			if (cit == citend)
+				break;
 		}
+		e = *cit++;
 	}
 	return iv_intersect;
 }
 
-#define TEST_PERMUTATION(A,B,C,P) \
-	if ((iv3[B].is_equal(iv2[0]))&&(iv3[C].is_equal(iv2[1]))) { \
-		if (antisymmetric) *sig=P; \
-		return iv3[A]; \
-	}
-
-ex permute_free_index_to_front(const exvector & iv3, const exvector & iv2,
-                               bool antisymmetric, int * sig)
+/** Given a vector iv3 of three indices and a vector iv2 of two indices
+ *  where iv2 is a subset of iv3, return the (free) index that is in iv3
+ *  but not in iv2 and the sign introduced by permuting that index to the
+ *  front.
+ *
+ *  @param iv3 Vector of 3 indices
+ *  @param iv2 Vector of 2 indices, must be a subset of iv3
+ *  @param sig Returns the sign introduced by permuting the free index to the
+ *             front if the object carrying the indices was antisymmetric (if
+ *             it's symmetric, you can just ignore the returned value).
+ *  @return the free index (the one that is in iv3 but not in iv2) */
+ex permute_free_index_to_front(const exvector & iv3, const exvector & iv2, int * sig)
 {
 	// match (return value,iv2) to iv3 by permuting indices
 	// iv3 is always cyclic
@@ -443,6 +480,12 @@ ex permute_free_index_to_front(const exvector & iv3, const exvector & iv2,
 	GINAC_ASSERT(iv2.size()==2);
 
 	*sig=1;
+
+#define TEST_PERMUTATION(A,B,C,P) \
+	if ((iv3[B].is_equal(iv2[0]))&&(iv3[C].is_equal(iv2[1]))) { \
+		*sig=P; \
+		return iv3[A]; \
+	}
 	
 	TEST_PERMUTATION(0,1,2,  1);
 	TEST_PERMUTATION(0,2,1, -1);
@@ -453,6 +496,12 @@ ex permute_free_index_to_front(const exvector & iv3, const exvector & iv2,
 	throw(std::logic_error("permute_free_index_to_front(): no valid permutation found"));
 }
 	
+/** Substitute one index in a vector of expressions.
+ *
+ *  @param v Vector to substitute in (will be modified)
+ *  @param is Index being substituted
+ *  @param ir Index to replace by
+ *  @return number of performed substitutions */
 unsigned subs_index_in_exvector(exvector & v, const ex & is, const ex & ir)
 {
 	exvector::iterator it;
@@ -472,6 +521,12 @@ unsigned subs_index_in_exvector(exvector & v, const ex & is, const ex & ir)
 	return replacements;
 }
 
+/** Count number of times a given index appears in the index vector of an
+ *  indexed object.
+ *
+ *  @param e Indexed object
+ *  @param i Index to look for
+ *  @return number of times the index was found */
 unsigned count_index(const ex & e, const ex & i)
 {
 	exvector idxv=e.get_indices();
@@ -482,8 +537,13 @@ unsigned count_index(const ex & e, const ex & i)
 	return count;
 }
 
-ex subs_indices(const ex & e, const exvector & idxv_subs,
-                const exvector & idxv_repl)
+/** Substitute multiple indices in an expression.
+ *
+ *  @param e Expression to substitute in
+ *  @param idxv_subs Vector of indices being substituted
+ *  @param idxv_repl Vector of indices to replace by (1:1 correspondence to idxv_subs)
+ *  @return expression with substituted indices */
+ex subs_indices(const ex & e, const exvector & idxv_subs, const exvector & idxv_repl)
 {
 	GINAC_ASSERT(idxv_subs.size()==idxv_repl.size());
 	ex res=e;
