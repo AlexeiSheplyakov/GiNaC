@@ -99,7 +99,7 @@ END_OF_CONSTRUCTORS_IMPLEMENTATION
 $eval_switch_statement=generate(
 	<<'END_OF_EVAL_SWITCH_STATEMENT','seq[${N}-1]','');
 	case ${N}:
-		eval_result=((eval_funcp_${N})(registered_functions()[serial].eval_f))(${SEQ1});
+		eval_result = ((eval_funcp_${N})(registered_functions()[serial].eval_f))(${SEQ1});
 		break;
 END_OF_EVAL_SWITCH_STATEMENT
 
@@ -131,9 +131,9 @@ $eval_func_implementation=generate(
 function_options & function_options::eval_func(eval_funcp_${N} e)
 {
 	test_and_set_nparams(${N});
-	eval_f=eval_funcp(e);
+	eval_f = eval_funcp(e);
 	return *this;
-}        
+}
 END_OF_EVAL_FUNC_IMPLEMENTATION
 
 $evalf_func_implementation=generate(
@@ -141,9 +141,9 @@ $evalf_func_implementation=generate(
 function_options & function_options::evalf_func(evalf_funcp_${N} ef)
 {
 	test_and_set_nparams(${N});
-	evalf_f=evalf_funcp(ef);
+	evalf_f = evalf_funcp(ef);
 	return *this;
-}        
+}
 END_OF_EVALF_FUNC_IMPLEMENTATION
 
 $derivative_func_implementation=generate(
@@ -151,9 +151,9 @@ $derivative_func_implementation=generate(
 function_options & function_options::derivative_func(derivative_funcp_${N} d)
 {
 	test_and_set_nparams(${N});
-	derivative_f=derivative_funcp(d);
+	derivative_f = derivative_funcp(d);
 	return *this;
-}        
+}
 END_OF_DERIVATIVE_FUNC_IMPLEMENTATION
 
 $series_func_implementation=generate(
@@ -161,9 +161,9 @@ $series_func_implementation=generate(
 function_options & function_options::series_func(series_funcp_${N} s)
 {
 	test_and_set_nparams(${N});
-	series_f=series_funcp(s);
+	series_f = series_funcp(s);
 	return *this;
-}        
+}
 END_OF_SERIES_FUNC_IMPLEMENTATION
 
 $interface=<<END_OF_INTERFACE;
@@ -460,12 +460,12 @@ function_options::~function_options()
 void function_options::initialize(void)
 {
 	set_name("unnamed_function","\\\\mbox{unnamed}");
-	nparams=0;
-	eval_f=evalf_f=derivative_f=series_f=0;
-	evalf_params_first=true;
-	use_return_type=false;
-	use_remember=false;
-	functions_with_same_name=1;
+	nparams = 0;
+	eval_f = evalf_f = derivative_f = series_f = 0;
+	evalf_params_first = true;
+	use_return_type = false;
+	use_remember = false;
+	functions_with_same_name = 1;
 	symtree = 0;
 }
 
@@ -473,11 +473,10 @@ function_options & function_options::set_name(std::string const & n,
                                               std::string const & tn)
 {
 	name=n;
-	if (tn==std::string()) {
-		TeX_name="\\\\mbox{"+name+"}";
-	} else {
-		TeX_name=tn;
-	}
+	if (tn==std::string())
+		TeX_name = "\\\\mbox{"+name+"}";
+	else
+		TeX_name = tn;
 	return *this;
 }
 
@@ -496,15 +495,15 @@ $series_func_implementation
 
 function_options & function_options::set_return_type(unsigned rt, unsigned rtt)
 {
-	use_return_type=true;
-	return_type=rt;
-	return_type_tinfo=rtt;
+	use_return_type = true;
+	return_type = rt;
+	return_type_tinfo = rtt;
 	return *this;
 }
 
 function_options & function_options::do_not_evalf_params(void)
 {
-	evalf_params_first=false;
+	evalf_params_first = false;
 	return *this;
 }
 
@@ -512,16 +511,16 @@ function_options & function_options::remember(unsigned size,
                                               unsigned assoc_size,
                                               unsigned strategy)
 {
-	use_remember=true;
-	remember_size=size;
-	remember_assoc_size=assoc_size;
-	remember_strategy=strategy;
+	use_remember = true;
+	remember_size = size;
+	remember_assoc_size = assoc_size;
+	remember_strategy = strategy;
 	return *this;
 }
 
 function_options & function_options::overloaded(unsigned o)
 {
-	functions_with_same_name=o;
+	functions_with_same_name = o;
 	return *this;
 }
 
@@ -534,7 +533,7 @@ function_options & function_options::set_symmetry(const symmetry & s)
 void function_options::test_and_set_nparams(unsigned n)
 {
 	if (nparams==0) {
-		nparams=n;
+		nparams = n;
 	} else if (nparams!=n) {
 		// we do not throw an exception here because this code is
 		// usually executed before main(), so the exception could not
@@ -563,13 +562,14 @@ function::function() : serial(0)
 
 void function::copy(const function & other)
 {
-	exprseq::copy(other);
-	serial=other.serial;
+	inherited::copy(other);
+	serial = other.serial;
 }
 
 void function::destroy(bool call_parent)
 {
-	if (call_parent) exprseq::destroy(call_parent);
+	if (call_parent)
+		inherited::destroy(call_parent);
 }
 
 //////////
@@ -750,7 +750,7 @@ ex function::eval(int level) const
 		return this->hold();
 	}
 
-	bool use_remember=opt.use_remember;
+	bool use_remember = opt.use_remember;
 	ex eval_result;
 	if (use_remember && lookup_remember_table(eval_result)) {
 		return eval_result;
@@ -922,7 +922,7 @@ unsigned function::return_type(void) const
 	}
 	return (*seq.begin()).return_type();
 }
-   
+
 unsigned function::return_type_tinfo(void) const
 {
 	if (seq.size()==0) {
@@ -954,7 +954,7 @@ ex function::pderivative(unsigned diff_param) const // partial differentiation
 		// the following lines have been generated for max. ${maxargs} parameters
 ${diff_switch_statement}
 		// end of generated lines
-	}        
+	}
 	throw(std::logic_error("function::pderivative(): no diff function defined"));
 }
 
@@ -978,7 +978,7 @@ void function::store_remember_table(ex const & result) const
 
 unsigned function::register_new(function_options const & opt)
 {
-	unsigned same_name=0;
+	unsigned same_name = 0;
 	for (unsigned i=0; i<registered_functions().size(); ++i) {
 		if (registered_functions()[i].name==opt.name) {
 			same_name++;
