@@ -1,14 +1,19 @@
 ginac (1.3.0-1) unstable; urgency=low
 
   * New upstream release; binary incompatible, so it's libginac1.3 now.
+  * Reverted the info-file hack from the previous release since the upstream
+    package is complete again.
 
- -- Richard Kreckel <kreckel@ginac.de>  Tue, 19 Oct 2004 14:44:44 +0100
+ -- Richard Kreckel <kreckel@ginac.de>  Tue, 26 Oct 2004 00:24:41 +0200
 
 ginac (1.2.4-1) unstable; urgency=low
 
   * New upstream (bugfix only) release.
+  * Exchange doc/tutorial/ginac.info by a full unsplitted version, since
+    the second and third parts were accidentally left out by upstream
+    packaging.
 
- -- Richard Kreckel <kreckel@ginac.de>  Tue, 12 Oct 2004 15:30:13 +0200
+ -- Richard Kreckel <kreckel@ginac.de>  Wed, 13 Oct 2004 21:46:23 +0200
 
 ginac (1.2.3-1) unstable; urgency=low
 
@@ -40,12 +45,6 @@ ginac (1.2.0-1) unstable; urgency=low
   * New upstream release; binary incompatible, so it's libginac1.2 now.
 
  -- Richard Kreckel <kreckel@ginac.de>  Tue, 23 Mar 2004 21:39:15 +0100
-
-ginac (1.1.7-1) unstable; urgency=low
-
-  * New upstream (bugfix only) release.
-
- -- Richard Kreckel <kreckel@ginac.de>  Thu, 11 Mar 2004 16:50:45 +0100
 
 ginac (1.1.6-1) unstable; urgency=low
 
