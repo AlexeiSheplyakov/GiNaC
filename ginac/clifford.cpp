@@ -363,6 +363,28 @@ ex dirac_trace(const ex & e, unsigned char rl = 0)
 			// Tr gamma_mu gamma_nu = 4 g_mu_nu
 			if (num == 2)
 				return 4 * lorentz_g(e.op(0).op(1), e.op(1).op(1));
+
+			// Traces of 4 or more gammas are computed recursively:
+			// Tr gamma_mu1 gamma_mu2 ... gamma_mun =
+			//   + eta_mu1_mu2 * Tr gamma_mu3 ... gamma_mun
+			//   - eta_mu1_mu3 * Tr gamma_mu2 gamma_mu4 ... gamma_mun
+			//   + eta_mu1_mu4 * Tr gamma_mu3 gamma_mu3 gamma_mu5 ... gamma_mun
+			//   - ...
+			//   + eta_mu1_mun * Tr gamma_mu2 ... gamma_mu(n-1)
+			exvector v(num - 2);
+			int sign = 1;
+			const ex &ix1 = e.op(0).op(1);
+			ex result;
+			for (int i=1; i<num; i++) {
+				for (int n=1, j=0; n<num; n++) {
+					if (n == i)
+						continue;
+					v[j++] = e.op(n);
+				}
+				result += sign * lorentz_g(ix1, e.op(i).op(1)) * dirac_trace(ncmul(v), rl);
+				sign = -sign;
+			}
+			return result;
 		}
 
 		throw (std::logic_error("dirac_trace: don't know how to compute trace"));

@@ -126,7 +126,10 @@ ex dirac_gamma(const ex & mu, unsigned char rl = 0);
 ex dirac_gamma5(unsigned char rl = 0);
 
 /** Calculate the trace of an expression containing gamma objects with
- *  a specified representation label.
+ *  a specified representation label. The computed trace is a linear
+ *  functional that is equal to the usual trace only in D = 4 dimensions.
+ *  In particular, the functional is non-cyclic in D != 4 dimensions when
+ *  gamma5 is involved.
  *
  *  @param rl Representation label */
 ex dirac_trace(const ex & e, unsigned char rl = 0);
