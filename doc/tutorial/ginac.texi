@@ -3678,7 +3678,7 @@ ex mystring::eval(int level) const
     @}
 
     if (new_str.length() == 0)
-        return _ex0();
+        return 0;
     else
         return mystring(new_str).hold();
 @}
