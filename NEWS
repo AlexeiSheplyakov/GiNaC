@@ -1,6 +1,6 @@
 This file records noteworthy changes.
 
-0.8.0 (<date>)
+0.8.0 (24 March 2001)
 * Complete revamp of indexed objects. Instead of multiple classes for
   indexed things and their indices there is now only one "indexed" class
   and two types of indices: "idx" for simple indices and "varidx" for
@@ -15,7 +15,7 @@ This file records noteworthy changes.
 * sqrfree() factorization fixed and improved syntactically.
 * subs() works on matrices.
 * Matrices can be constructed from flat list of elements; diagonal matrices
-  can be constructed from list of diagonal elements with diag_matrix()
+  can be constructed from list of diagonal elements with diag_matrix().
 * Fixed memory leak in expand().
 * Operator% for objects of class ncmul has gone.  Use operator* now for that
   case too, which is much more natural.
