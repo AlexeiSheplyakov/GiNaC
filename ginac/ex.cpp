@@ -329,55 +329,55 @@ basic & ex::construct_from_int(int i)
 {
 	switch (i) {  // prefer flyweights over new objects
 	case -12:
-		return const_cast<numeric &>(_num_12);
+		return *const_cast<numeric *>(_num_12_p);
 	case -11:
-		return const_cast<numeric &>(_num_11);
+		return *const_cast<numeric *>(_num_11_p);
 	case -10:
-		return const_cast<numeric &>(_num_10);
+		return *const_cast<numeric *>(_num_10_p);
 	case -9:
-		return const_cast<numeric &>(_num_9);
+		return *const_cast<numeric *>(_num_9_p);
 	case -8:
-		return const_cast<numeric &>(_num_8);
+		return *const_cast<numeric *>(_num_8_p);
 	case -7:
-		return const_cast<numeric &>(_num_7);
+		return *const_cast<numeric *>(_num_7_p);
 	case -6:
-		return const_cast<numeric &>(_num_6);
+		return *const_cast<numeric *>(_num_6_p);
 	case -5:
-		return const_cast<numeric &>(_num_5);
+		return *const_cast<numeric *>(_num_5_p);
 	case -4:
-		return const_cast<numeric &>(_num_4);
+		return *const_cast<numeric *>(_num_4_p);
 	case -3:
-		return const_cast<numeric &>(_num_3);
+		return *const_cast<numeric *>(_num_3_p);
 	case -2:
-		return const_cast<numeric &>(_num_2);
+		return *const_cast<numeric *>(_num_2_p);
 	case -1:
-		return const_cast<numeric &>(_num_1);
+		return *const_cast<numeric *>(_num_1_p);
 	case 0:
-		return const_cast<numeric &>(_num0);
+		return *const_cast<numeric *>(_num0_p);
 	case 1:
-		return const_cast<numeric &>(_num1);
+		return *const_cast<numeric *>(_num1_p);
 	case 2:
-		return const_cast<numeric &>(_num2);
+		return *const_cast<numeric *>(_num2_p);
 	case 3:
-		return const_cast<numeric &>(_num3);
+		return *const_cast<numeric *>(_num3_p);
 	case 4:
-		return const_cast<numeric &>(_num4);
+		return *const_cast<numeric *>(_num4_p);
 	case 5:
-		return const_cast<numeric &>(_num5);
+		return *const_cast<numeric *>(_num5_p);
 	case 6:
-		return const_cast<numeric &>(_num6);
+		return *const_cast<numeric *>(_num6_p);
 	case 7:
-		return const_cast<numeric &>(_num7);
+		return *const_cast<numeric *>(_num7_p);
 	case 8:
-		return const_cast<numeric &>(_num8);
+		return *const_cast<numeric *>(_num8_p);
 	case 9:
-		return const_cast<numeric &>(_num9);
+		return *const_cast<numeric *>(_num9_p);
 	case 10:
-		return const_cast<numeric &>(_num10);
+		return *const_cast<numeric *>(_num10_p);
 	case 11:
-		return const_cast<numeric &>(_num11);
+		return *const_cast<numeric *>(_num11_p);
 	case 12:
-		return const_cast<numeric &>(_num12);
+		return *const_cast<numeric *>(_num12_p);
 	default:
 		basic *bp = new numeric(i);
 		bp->setflag(status_flags::dynallocated);
@@ -390,31 +390,31 @@ basic & ex::construct_from_uint(unsigned int i)
 {
 	switch (i) {  // prefer flyweights over new objects
 	case 0:
-		return const_cast<numeric &>(_num0);
+		return *const_cast<numeric *>(_num0_p);
 	case 1:
-		return const_cast<numeric &>(_num1);
+		return *const_cast<numeric *>(_num1_p);
 	case 2:
-		return const_cast<numeric &>(_num2);
+		return *const_cast<numeric *>(_num2_p);
 	case 3:
-		return const_cast<numeric &>(_num3);
+		return *const_cast<numeric *>(_num3_p);
 	case 4:
-		return const_cast<numeric &>(_num4);
+		return *const_cast<numeric *>(_num4_p);
 	case 5:
-		return const_cast<numeric &>(_num5);
+		return *const_cast<numeric *>(_num5_p);
 	case 6:
-		return const_cast<numeric &>(_num6);
+		return *const_cast<numeric *>(_num6_p);
 	case 7:
-		return const_cast<numeric &>(_num7);
+		return *const_cast<numeric *>(_num7_p);
 	case 8:
-		return const_cast<numeric &>(_num8);
+		return *const_cast<numeric *>(_num8_p);
 	case 9:
-		return const_cast<numeric &>(_num9);
+		return *const_cast<numeric *>(_num9_p);
 	case 10:
-		return const_cast<numeric &>(_num10);
+		return *const_cast<numeric *>(_num10_p);
 	case 11:
-		return const_cast<numeric &>(_num11);
+		return *const_cast<numeric *>(_num11_p);
 	case 12:
-		return const_cast<numeric &>(_num12);
+		return *const_cast<numeric *>(_num12_p);
 	default:
 		basic *bp = new numeric(i);
 		bp->setflag(status_flags::dynallocated);
@@ -427,55 +427,55 @@ basic & ex::construct_from_long(long i)
 {
 	switch (i) {  // prefer flyweights over new objects
 	case -12:
-		return const_cast<numeric &>(_num_12);
+		return *const_cast<numeric *>(_num_12_p);
 	case -11:
-		return const_cast<numeric &>(_num_11);
+		return *const_cast<numeric *>(_num_11_p);
 	case -10:
-		return const_cast<numeric &>(_num_10);
+		return *const_cast<numeric *>(_num_10_p);
 	case -9:
-		return const_cast<numeric &>(_num_9);
+		return *const_cast<numeric *>(_num_9_p);
 	case -8:
-		return const_cast<numeric &>(_num_8);
+		return *const_cast<numeric *>(_num_8_p);
 	case -7:
-		return const_cast<numeric &>(_num_7);
+		return *const_cast<numeric *>(_num_7_p);
 	case -6:
-		return const_cast<numeric &>(_num_6);
+		return *const_cast<numeric *>(_num_6_p);
 	case -5:
-		return const_cast<numeric &>(_num_5);
+		return *const_cast<numeric *>(_num_5_p);
 	case -4:
-		return const_cast<numeric &>(_num_4);
+		return *const_cast<numeric *>(_num_4_p);
 	case -3:
-		return const_cast<numeric &>(_num_3);
+		return *const_cast<numeric *>(_num_3_p);
 	case -2:
-		return const_cast<numeric &>(_num_2);
+		return *const_cast<numeric *>(_num_2_p);
 	case -1:
-		return const_cast<numeric &>(_num_1);
+		return *const_cast<numeric *>(_num_1_p);
 	case 0:
-		return const_cast<numeric &>(_num0);
+		return *const_cast<numeric *>(_num0_p);
 	case 1:
-		return const_cast<numeric &>(_num1);
+		return *const_cast<numeric *>(_num1_p);
 	case 2:
-		return const_cast<numeric &>(_num2);
+		return *const_cast<numeric *>(_num2_p);
 	case 3:
-		return const_cast<numeric &>(_num3);
+		return *const_cast<numeric *>(_num3_p);
 	case 4:
-		return const_cast<numeric &>(_num4);
+		return *const_cast<numeric *>(_num4_p);
 	case 5:
-		return const_cast<numeric &>(_num5);
+		return *const_cast<numeric *>(_num5_p);
 	case 6:
-		return const_cast<numeric &>(_num6);
+		return *const_cast<numeric *>(_num6_p);
 	case 7:
-		return const_cast<numeric &>(_num7);
+		return *const_cast<numeric *>(_num7_p);
 	case 8:
-		return const_cast<numeric &>(_num8);
+		return *const_cast<numeric *>(_num8_p);
 	case 9:
-		return const_cast<numeric &>(_num9);
+		return *const_cast<numeric *>(_num9_p);
 	case 10:
-		return const_cast<numeric &>(_num10);
+		return *const_cast<numeric *>(_num10_p);
 	case 11:
-		return const_cast<numeric &>(_num11);
+		return *const_cast<numeric *>(_num11_p);
 	case 12:
-		return const_cast<numeric &>(_num12);
+		return *const_cast<numeric *>(_num12_p);
 	default:
 		basic *bp = new numeric(i);
 		bp->setflag(status_flags::dynallocated);
@@ -488,31 +488,31 @@ basic & ex::construct_from_ulong(unsigned long i)
 {
 	switch (i) {  // prefer flyweights over new objects
 	case 0:
-		return const_cast<numeric &>(_num0);
+		return *const_cast<numeric *>(_num0_p);
 	case 1:
-		return const_cast<numeric &>(_num1);
+		return *const_cast<numeric *>(_num1_p);
 	case 2:
-		return const_cast<numeric &>(_num2);
+		return *const_cast<numeric *>(_num2_p);
 	case 3:
-		return const_cast<numeric &>(_num3);
+		return *const_cast<numeric *>(_num3_p);
 	case 4:
-		return const_cast<numeric &>(_num4);
+		return *const_cast<numeric *>(_num4_p);
 	case 5:
-		return const_cast<numeric &>(_num5);
+		return *const_cast<numeric *>(_num5_p);
 	case 6:
-		return const_cast<numeric &>(_num6);
+		return *const_cast<numeric *>(_num6_p);
 	case 7:
-		return const_cast<numeric &>(_num7);
+		return *const_cast<numeric *>(_num7_p);
 	case 8:
-		return const_cast<numeric &>(_num8);
+		return *const_cast<numeric *>(_num8_p);
 	case 9:
-		return const_cast<numeric &>(_num9);
+		return *const_cast<numeric *>(_num9_p);
 	case 10:
-		return const_cast<numeric &>(_num10);
+		return *const_cast<numeric *>(_num10_p);
 	case 11:
-		return const_cast<numeric &>(_num11);
+		return *const_cast<numeric *>(_num11_p);
 	case 12:
-		return const_cast<numeric &>(_num12);
+		return *const_cast<numeric *>(_num12_p);
 	default:
 		basic *bp = new numeric(i);
 		bp->setflag(status_flags::dynallocated);
