@@ -24,8 +24,8 @@ accept your input. All C++ statements are valid as input, extended by
 GiNaC's numeric or symbolic expressions.  E.g.
 .BR fibonacci(24)/1104;
 returns a GiNaC object of class
-.BR ex,
-, which in this case represents the numeric 42.  Symbols are declared by 
+.BR "ex" ,
+which in this case represents the numeric 42.  Symbols are declared by 
 statements as
 .nf 
 GiNaC> symbol x("x"), y("y"), z;
@@ -44,9 +44,34 @@ matches the first opening brace
 .RB ( { ) 
 or a semicolon
 .RB ( ; )
-is encountered.
+is encountered while there are no open braces. This implies that
+an input like 
+.nf
+GiNaC> class A {
+     > }
+     > ;
+.fi
+is misinterpreted to be complete after the closing brace.
+Instead you have to write
+.nf
+GiNaC> class A {
+     > };
+.fi
 
 .SS SPECIAL COMMANDS
+
+Lines starting with a dot mark special GiNaC-cint commands. Instead of
+.BR "\fB.cmd\fB"
+you can also write
+.BR "\fB//GiNaC-cint.cmd\fB"
+to be compatible with programs that will be compiled later.
+This is mostly useful for the
+.BR "\fB.function\fB" 
+declaration.
+
+Lines starting with #! (for #!/path/ginaccint) are ignored.
+
+
 .IP "\fB.cint\fR"
 Switch to cint's interactive mode.
 
@@ -100,8 +125,7 @@ output (variables are still accessible).
 .IP "\fB.> [filename]\fB"
 
 same as
-.BR "\fB.redirect [filename]\fB"
-.
+.BR "\fB.redirect [filename]\fB" .
 
 .IP "\fBOut\fP\fInum\fP"
 Returns the expression whose output was marked

@@ -53,6 +53,8 @@ void sigterm_handler(int n);
 void initialize(void);
 void initialize_cint(void);
 void restart(void);
+bool is_command(string const & command, string & preprocessed,
+                string const & comparevalue, bool substr=false);
 bool readlines(istream * is, string & allcommands);
 bool readfile(string const & filename, string & allcommands);
 void savefile(string const & filename, string const & allcommands);
@@ -190,7 +192,9 @@ void helpmessage(void)
          << "  .silent                  suppress 'OutXY = ...' output (variables are still" << endl
          << "                           accessible)" << endl
          << "  .> [filename]            same as .redirect [filename]" << endl << endl
-<< "Additionally you can exit GiNaC-cint with quit; exit; or bye;" << endl
+         << "Instead of '.cmd' you can also write '//GiNaC-cint.cmd' to be compatible with" << endl
+         << "programs that will be compiled later." << endl
+         << "Additionally you can exit GiNaC-cint with quit; exit; or bye;" << endl
          << endl;
 }
 
@@ -358,6 +362,28 @@ void redirect(string const & filename)
     }
 }
 
+bool is_command(string const & command, string & preprocessed,
+                string const & comparevalue, bool substr)
+{
+    bool single_quote=false;
+    bool double_quote=false;
+    bool comment=false;
+    unsigned open_braces=0;
+    if ((preprocessed=="."+comparevalue)||
+        substr&&(preprocessed.substr(0,comparevalue.length()+1)==
+                 "."+comparevalue)) {
+        return true;
+    }
+    if ((command=="//GiNaC-cint."+comparevalue+"\n")||
+        substr&&(command.substr(0,comparevalue.length()+13)==
+                 "//GiNaC-cint."+comparevalue)) {
+        preprocessed = preprocess(command.substr(12).c_str(),comment,
+                                  single_quote,double_quote,open_braces);
+        return true;
+    }
+    return false;
+}       
+
 bool readlines(istream * is, string & allcommands)
 {
     char const * line;
@@ -402,38 +428,40 @@ bool readlines(istream * is, string & allcommands)
         if ((preprocessed=="quit;")||
             (preprocessed=="exit;")||
             (preprocessed=="bye;")||
-            (preprocessed==".q")||
-            (preprocessed==".quit")||
-            (preprocessed==".exit")||
-            (preprocessed==".bye")) {
+            (is_command(command,preprocessed,"quit"))||
+            (is_command(command,preprocessed,"exit"))||
+            (is_command(command,preprocessed,"bye"))||
+            (is_command(command,preprocessed,"q"))) {
             quit = true;
-        } else if (preprocessed==".function") {
+        } else if (is_command(command,preprocessed,"function")) {
             cout << "next expression can be a function definition" << endl;
             next_command_is_function=true;
-        } else if (preprocessed==".cint") {
+        } else if (is_command(command,preprocessed,"cint")) {
             cout << endl << "switching to cint interactive mode" << endl;
             cout << "'h' for help, 'q' to quit, '{ statements }' or 'p [expression]' to evaluate" << endl;
             G__pause();
             cout << "back from cint" << endl;
-        } else if (preprocessed==".help") {
+        } else if (is_command(command,preprocessed,"help")) {
             helpmessage();
-        } else if (preprocessed.substr(0,5)==".read") {
+        } else if (is_command(command,preprocessed,"read",true)) {
             quit=readfile(preprocessed.substr(5),allcommands);
-        } else if (preprocessed.substr(0,5)==".save") {
-            command = "// "+command; // we do not want the .save command itself in saved files
+        } else if (is_command(command,preprocessed,"save",true)) {
+            command = "/* "+command+" */"; // we do not want the .save command itself in saved files
             savefile(preprocessed.substr(5),allcommands);
-        } else if (preprocessed==".restart") {
+        } else if (is_command(command,preprocessed,"restart")) {
             restart();
-        } else if (preprocessed.substr(0,9)==".redirect") {
+        } else if (is_command(command,preprocessed,"redirect",true)) {
             redirect(preprocessed.substr(9));
-        } else if (preprocessed.substr(0,2)==".>") {
+        } else if (is_command(command,preprocessed,">",true)) {
             redirect(preprocessed.substr(2));
-        } else if (preprocessed==".silent") {
+        } else if (is_command(command,preprocessed,"silent")) {
             redirect("/dev/null");
         /* test for more special commands
         } else if (preprocessed==".xyz") {
             cout << "special command (TBD): " << command << endl;
         */
+        } else if (command.substr(0,2)=="#!") {
+            // ignore lines which indicate that this file is executed as a script
         } else {
             // cout << "now processing: " << command << endl;
             if (next_command_is_function) {
