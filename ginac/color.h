@@ -44,7 +44,15 @@ typedef std::vector<exvector,malloc_alloc> exvectorvector;
 typedef std::vector<exvector> exvectorvector;
 #endif
 
-/** Base class for color object */
+
+/** This class holds an object carrying color indices (of class coloridx). 
+ *  It can represent the generators T_a and structure constants f_abc/d_abc
+ *  of SU(3), the unity element ONE of the Lie algebra of SU(3), or the
+ *  unity matrix delta8. Together, these objects are used to implement the
+ *  Lie algebra su(3), as required for calculations in quantum
+ *  chromodynamics. A representation label (an unsigned integer) is used to
+ *  distinguish elements from different Lie algebras (only objects with the
+ *  same representation label "interact" with each other). */
 class color : public indexed
 {
 	GINAC_DECLARE_REGISTERED_CLASS(color, indexed)
@@ -71,17 +79,17 @@ class color : public indexed
 	friend ex simplify_pure_color_string(const ex & e);
 	friend ex simplify_color(const ex & e);
 
-	
 // types
 
 public:
+	/** Type of object */
 	typedef enum {
-		invalid,	// not properly constructed by one of the friend functions
-		color_T,
-		color_f,
-		color_d,
-		color_delta8,
-		color_ONE
+		invalid,      /**< not properly constructed */
+		color_T,      /**< one of the generators T_a of SU(3) (these are non-commutative) */
+		color_f,      /**< one of the antisymmetric structure constants f_abc of SU(3) */
+		color_d,      /**< one of the symmetric structure constants d_abc of SU(3) */
+		color_delta8, /**< the unity matrix */
+		color_ONE     /**< the unity element of su(3) */
 	} color_types;
 	
 // member functions
@@ -112,7 +120,6 @@ public:
 	void printraw(std::ostream & os) const;
 	void printtree(std::ostream & os, unsigned indent) const;
 	void print(std::ostream & os, unsigned upper_precedence=0) const;
-	void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence=0) const;
 	bool info(unsigned inf) const;
 	ex eval(int level=0) const;
 protected:
@@ -132,8 +139,8 @@ protected:
 // member variables
 
 protected:
-	color_types type;
-	unsigned representation_label; // to distiguish independent color matrices coming from separated fermion lines
+	color_types type; /**< Type of object (generator, structure constant etc.) */
+	unsigned representation_label; /**< Representation label to distiguish independent color matrices coming from separated fermion lines */
 };
 
 // global constants
@@ -172,8 +179,6 @@ ex simplify_pure_color_string(const ex & e);
 ex simplify_color(const ex & e);
 
 ex brute_force_sum_color_indices(const ex & e);
-
-void append_exvector_to_exvector(exvector & dest, const exvector & source);
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

@@ -24,6 +24,7 @@
 
 #include "lorentzidx.h"
 #include "lst.h"
+#include "symbol.h"
 #include "archive.h"
 #include "utils.h"
 #include "debugmsg.h"
@@ -99,7 +100,7 @@ void lorentzidx::destroy(bool call_parent)
 lorentzidx::lorentzidx(bool cov, bool oonly, unsigned dimp)
   : idx(cov), orthogonal_only(oonly), dim_parallel_space(dimp)
 {
-	debugmsg("lorentzidx constructor from bool",LOGLEVEL_CONSTRUCT);
+	debugmsg("lorentzidx constructor from bool,bool,unsigned",LOGLEVEL_CONSTRUCT);
 	// serial is incremented in idx::idx(bool)
 	if (oonly) {
 		name="muorth"+ToString(serial);
@@ -311,6 +312,17 @@ lorentzidx lorentzidx::create_anonymous_representative(void) const
 //////////
 
 // none
+
+//////////
+// global functions
+//////////
+
+/** Return the global symbol that represents the dimension D of spacetime. */
+ex Dim(void)
+{
+	static symbol *d = new symbol("dim");
+	return *d;
+}
 
 //////////
 // global constants

@@ -171,6 +171,8 @@ int permutation_sign(std::vector<T> s)
 	return sigma;
 }
 
+void append_exvector_to_exvector(exvector & dest, const exvector & source);
+
 // Collection of `construct on first use' wrappers for safely avoiding
 // internal object replication without running into the `static
 // initialization order fiasco'.  This chest of numbers helps speed up

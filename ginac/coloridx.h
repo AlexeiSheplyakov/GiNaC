@@ -32,8 +32,13 @@
 namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
 
-/** Class of indices for color algebra (SU(3)) objects, to tell them apart
- *  from other index families like Lorentz indices. */
+
+/** Class of indices for color algebra objects, to tell them apart from
+ *  other index families like Lorentz indices. The color indices are the
+ *  indices of the SU(3) generators T_a, so they lie in the range of 0 to 7. 
+ *  Note that this kind of index is different from the indices carried by
+ *  elements of a specific matrix representation of su(3). Such indices are
+ *  always hidden in our implementation and we are not concerned with them. */
 class coloridx : public idx
 {
 	GINAC_DECLARE_REGISTERED_CLASS(coloridx, idx)

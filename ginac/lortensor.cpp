@@ -38,7 +38,7 @@
 #include "operators.h"
 #include "tinfos.h"
 #include "power.h"
-#include "symbol.h"
+#include "archive.h"
 #include "utils.h"
 #include "config.h"
 
@@ -46,18 +46,19 @@
 namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
 
+GINAC_IMPLEMENT_REGISTERED_CLASS(lortensor, indexed)
+
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
 //////////
 
 // public
 
-lortensor::lortensor()
+lortensor::lortensor() : inherited(TINFO_lortensor), type(invalid)
 {
 	debugmsg("lortensor default constructor",LOGLEVEL_CONSTRUCT);
 	serial=next_serial++;
 	name=autoname_prefix()+ToString(serial);
-	tinfo_key=TINFO_lortensor;
 }
 
 lortensor::~lortensor()
@@ -86,7 +87,7 @@ const lortensor & lortensor::operator=(const lortensor & other)
 
 void lortensor::copy(const lortensor & other)
 {
-	indexed::copy(other);
+	inherited::copy(other);
 	type=other.type;
 	name=other.name;
 	serial=other.serial;
@@ -94,9 +95,7 @@ void lortensor::copy(const lortensor & other)
 
 void lortensor::destroy(bool call_parent)
 {
-	if (call_parent) {
-		indexed::destroy(call_parent);
-	}
+	if (call_parent) inherited::destroy(call_parent);
 }
 
 //////////
@@ -105,50 +104,94 @@ void lortensor::destroy(bool call_parent)
 
 // protected
 
+/** Construct object without any Lorentz index. This constructor is for
+ *  internal use only. */
 lortensor::lortensor(lortensor_types const lt, const std::string & n) : type(lt), name(n)
 {
 	debugmsg("lortensor constructor from lortensor_types,string",LOGLEVEL_CONSTRUCT);
-	serial=next_serial++;
-	tinfo_key=TINFO_lortensor;
+	if (lt == lortensor_symbolic)
+		serial = next_serial++;
+	else
+		serial = 0;
+	tinfo_key = TINFO_lortensor;
 }
 
-lortensor::lortensor(lortensor_types const lt, const std::string & n, const ex & mu) : indexed(mu), type(lt), name(n)
+/** Construct object with one Lorentz index. This constructor is for
+ *  internal use only. Use the lortensor_vector() or lortensor_symbolic()
+ *  functions instead.
+ *  @see lortensor_vector
+ *  @see lortensor_symbolic */
+lortensor::lortensor(lortensor_types const lt, const std::string & n, const ex & mu) : inherited(mu), type(lt), name(n)
 {
 	debugmsg("lortensor constructor from lortensor_types,string,ex",LOGLEVEL_CONSTRUCT);
-	serial=next_serial++;    
 	GINAC_ASSERT(all_of_type_lorentzidx());
+	if (lt == lortensor_symbolic)
+		serial = next_serial++;
+	else
+		serial = 0;
 	tinfo_key=TINFO_lortensor;
 }
 
-lortensor::lortensor(lortensor_types const lt, const std::string & n, const ex & mu, const ex & nu) : indexed(mu,nu), type(lt), name(n)
+/** Construct object with two Lorentz indices. This constructor is for
+ *  internal use only. Use the lortensor_g(), lortensor_delta() or
+ *  lortensor_symbolic() functions instead.
+ *  @see lortensor_g
+ *  @see lortensor_delta
+ *  @see lortensor_symbolic */
+lortensor::lortensor(lortensor_types const lt, const std::string & n, const ex & mu, const ex & nu) : inherited(mu,nu), type(lt), name(n)
 {
 	debugmsg("lortensor constructor from lortensor_types,string,ex,ex",LOGLEVEL_CONSTRUCT);
-	serial=next_serial++;
 	GINAC_ASSERT(all_of_type_lorentzidx());
+	if (lt == lortensor_symbolic)
+		serial = next_serial++;
+	else
+		serial = 0;
 	tinfo_key=TINFO_lortensor;
 }
 
-lortensor::lortensor(lortensor_types const lt, const std::string & n, const ex & mu, const ex & nu, const ex & rho) : indexed(mu,nu,rho), type(lt), name(n)
+/** Construct object with three Lorentz indices. This constructor is for
+ *  internal use only. Use the lortensor_symbolic() function instead.
+ *  @see lortensor_symbolic */
+lortensor::lortensor(lortensor_types const lt, const std::string & n, const ex & mu, const ex & nu, const ex & rho) : inherited(mu,nu,rho), type(lt), name(n)
 {
 	debugmsg("lortensor constructor from lortensor_types,string,ex,ex,ex",LOGLEVEL_CONSTRUCT);
-	serial=next_serial++;
 	GINAC_ASSERT(all_of_type_lorentzidx());
+	if (lt == lortensor_symbolic)
+		serial = next_serial++;
+	else
+		serial = 0;
 	tinfo_key=TINFO_lortensor;
 }
 
-lortensor::lortensor(lortensor_types const lt, const std::string & n, const ex & mu, const ex & nu, const ex & rho, const ex & sigma) : indexed(mu,nu,rho,sigma), type(lt), name(n)
+/** Construct object with four Lorentz indices. This constructor is for
+ *  internal use only. Use the lortensor_epsilon() or lortensor_symbolic()
+ *  functions instead.
+ *  @see lortensor_epsilon
+ *  @see lortensor_symbolic */
+lortensor::lortensor(lortensor_types const lt, const std::string & n, const ex & mu, const ex & nu, const ex & rho, const ex & sigma) : inherited(mu,nu,rho,sigma), type(lt), name(n)
 {
 	debugmsg("lortensor constructor from lortensor_types,string,ex,ex,ex,ex",LOGLEVEL_CONSTRUCT);
-	serial=next_serial++;
 	GINAC_ASSERT(all_of_type_lorentzidx());
+	if (lt == lortensor_symbolic)
+		serial = next_serial++;
+	else
+		serial = 0;
 	tinfo_key=TINFO_lortensor;
 }
 
-lortensor::lortensor(lortensor_types const lt, const std::string & n, const exvector & iv) : indexed(iv), type(lt), name(n)
+/** Construct object with arbitrary number of Lorentz indices. This
+ *  constructor is for internal use only. Use the lortensor_symbolic()
+ *  function instead.
+ *
+ *  @see lortensor_symbolic */
+lortensor::lortensor(lortensor_types const lt, const std::string & n, const exvector & iv) : inherited(iv), type(lt), name(n)
 {
 	debugmsg("lortensor constructor from lortensor_types,string,exvector",LOGLEVEL_CONSTRUCT);
-	serial=next_serial++;
 	GINAC_ASSERT(all_of_type_lorentzidx());
+	if (lt == lortensor_symbolic)
+		serial = next_serial++;
+	else
+		serial = 0;
 	tinfo_key=TINFO_lortensor;
 }
 
@@ -165,6 +208,52 @@ lortensor::lortensor(lortensor_types const lt, const std::string & n, unsigned s
 	GINAC_ASSERT(all_of_type_lorentzidx());
 	tinfo_key=TINFO_lortensor;
 }
+
+
+//////////
+// archiving
+//////////
+
+/** Construct object from archive_node. */
+lortensor::lortensor(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+{
+	debugmsg("lortensor constructor from archive_node", LOGLEVEL_CONSTRUCT);
+	unsigned int ty;
+	if (!(n.find_unsigned("type", ty)))
+		throw (std::runtime_error("unknown lortensor type in archive"));
+	type = (lortensor_types)ty;
+	if (type == lortensor_symbolic) {
+		serial = next_serial++;
+		if (!(n.find_string("name", name)))
+			name = autoname_prefix() + ToString(serial);
+	} else
+		serial = 0;
+}
+
+/** Unarchive the object. */
+ex lortensor::unarchive(const archive_node &n, const lst &sym_lst)
+{
+	ex s = (new lortensor(n, sym_lst))->setflag(status_flags::dynallocated);
+
+	if (ex_to_lortensor(s).type == lortensor_symbolic) {
+		// If lortensor is in sym_lst, return the existing lortensor
+		for (unsigned i=0; i<sym_lst.nops(); i++) {
+			if (is_ex_of_type(sym_lst.op(i), lortensor) && (ex_to_lortensor(sym_lst.op(i)).name == ex_to_lortensor(s).name))
+				return sym_lst.op(i);
+		}
+	}
+	return s;
+}
+
+/** Archive the object. */
+void lortensor::archive(archive_node &n) const
+{
+	inherited::archive(n);
+	n.add_unsigned("type", type);
+	if (type == lortensor_symbolic)
+		n.add_string("name", name);
+}
+
 
 //////////
 // functions overriding virtual functions from bases classes
@@ -184,6 +273,7 @@ void lortensor::printraw(std::ostream & os) const
 	os << "lortensor(type=" << (unsigned)type
 	   << ",indices=";
 	printrawindices(os);
+	os << ",serial=" << serial;
 	os << ",hash=" << hashvalue << ",flags=" << flags << ")";
 }
 
@@ -206,17 +296,14 @@ void lortensor::print(std::ostream & os, unsigned upper_precedence) const
 	case lortensor_g:
 		os << "g";
 		break;
-	case lortensor_rankn:
-		os << name;
-		break;
-	case lortensor_rank1:
-		os << name;
-		break;
-	case lortensor_rank2:
-		os << name;
+	case lortensor_delta:
+		os << "delta";
 		break;
 	case lortensor_epsilon:
 		os << "epsilon";
+		break;
+	case lortensor_symbolic:
+		os << name;
 		break;
 	case invalid:
 	default:
@@ -226,15 +313,9 @@ void lortensor::print(std::ostream & os, unsigned upper_precedence) const
 	printindices(os);
 }
 
-void lortensor::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
-{
-	debugmsg("lortensor print csrc",LOGLEVEL_PRINT);
-	print(os,upper_precedence);
-}
-
 bool lortensor::info(unsigned inf) const
 {
-	return indexed::info(inf);
+	return inherited::info(inf);
 }
 
 ex lortensor::eval(int level) const
@@ -281,27 +362,31 @@ ex lortensor::eval(int level) const
 int lortensor::compare_same_type(const basic & other) const
 {
 	GINAC_ASSERT(is_of_type(other,lortensor));
-	const lortensor *o = static_cast <const lortensor *> (&other);
-	if (type==o->type) {
-		if (type==lortensor_rankn) {
-			if (serial!=o->serial) {
-				return serial < o->serial ? -1 : 1;
-			}
-		}
-		return indexed::compare_same_type(other);
+	const lortensor &o = static_cast<const lortensor &>(other);
+
+	if (type!=o.type) {
+		// different type
+		return type < o.type ? -1 : 1;
 	}
-	return type < o->type ? -1 : 1;            
+
+	if (type == lortensor_symbolic) {
+		// symbolic, compare serials
+		if (serial != o.serial) {
+			return serial < o.serial ? -1 : 1;
+		}
+	}
+
+	return inherited::compare_same_type(other);
 }
 
 bool lortensor::is_equal_same_type(const basic & other) const
 {
 	GINAC_ASSERT(is_of_type(other,lortensor));
-	const lortensor *o=static_cast<const lortensor *> (&other);
-	if (type!=o->type) return false;
-	if (type==lortensor_rankn) {
-		if (serial!=o->serial) return false;
-	}
-	return indexed::is_equal_same_type(other);            
+	const lortensor &o = static_cast<const lortensor &>(other);
+
+	if (type != o.type) return false;
+	if (type == lortensor_symbolic && serial != o.serial) return false;
+	return inherited::is_equal_same_type(other);            
 }
 
 unsigned lortensor::return_type(void) const
@@ -330,17 +415,13 @@ ex lortensor::thisexprseq(exvector *vp) const
 
 // protected
 
-void lortensor::setname(const std::string & n)
-{
-	name = n;
-}
-
+/** Check whether all indices are of class lorentzidx or a subclass. This
+ *  function is used internally to make sure that all constructed Lorentz
+ *  tensors really carry Lorentz indices and not some other classes. */
 bool lortensor::all_of_type_lorentzidx(void) const
 {
 	for (exvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++ cit) {
-		if (!is_ex_of_type(*cit,lorentzidx)) {
-			return false;
-		}
+		if (!is_ex_of_type(*cit,lorentzidx)) return false;
 	}
 	return true;
 }
@@ -365,24 +446,61 @@ unsigned lortensor::next_serial=0;
 // friend functions
 //////////
 
+/** Construct an object representing the metric tensor g. The indices must
+ *  be of class lorentzidx.
+ *
+ *  @param mu First index
+ *  @param nu Second index
+ *  @return newly constructed object */
 lortensor lortensor_g(const ex & mu, const ex & nu)
 {
 	return lortensor(lortensor::lortensor_g,"",mu,nu);
 }
 
+/** Construct an object representing the unity matrix delta. The indices
+ *  must be of class lorentzidx.
+ *
+ *  @param mu First index
+ *  @param nu Second index
+ *  @return newly constructed object */
+lortensor lortensor_delta(const ex & mu, const ex & nu)
+{
+	return lortensor(lortensor::lortensor_delta,"",mu,nu);
+}
+
+/** Construct an object representing the four-dimensional totally
+ *  antisymmetric tensor epsilon. The indices must be of class lorentzidx.
+ *
+ *  @param mu First index
+ *  @param nu Second index
+ *  @param rho Third index
+ *  @param sigma Fourth index
+ *  @return newly constructed object */
 lortensor lortensor_epsilon(const ex & mu, const ex & nu, const ex & rho, const ex & sigma)
 {
 	return lortensor(lortensor::lortensor_epsilon,"",mu,nu,rho,sigma);
 }
 
-lortensor lortensor_rank1(const std::string & n, const ex & mu)
+/** Construct an object representing a symbolic Lorentz vector. The index
+ *  must be of class lorentzidx.
+ *
+ *  @param n Symbolic name
+ *  @param mu Index
+ *  @return newly constructed object */
+lortensor lortensor_vector(const std::string & n, const ex & mu)
 {
-	return lortensor(lortensor::lortensor_rank1,n,mu);
+	return lortensor(lortensor::lortensor_symbolic,n,mu);
 }
 
-lortensor lortensor_rank2(const std::string & n, const ex & mu, const ex & nu)
+/** Construct an object representing a symbolic Lorentz tensor of arbitrary
+ *  rank. The indices must be of class lorentzidx.
+ *
+ *  @param n Symbolic name
+ *  @param iv Vector of indices
+ *  @return newly constructed object */
+lortensor lortensor_symbolic(const std::string & n, const exvector & iv)
 {
-	return lortensor(lortensor::lortensor_rank2,n,mu,nu);
+	return lortensor(lortensor::lortensor_symbolic,n,iv);
 }
 
 ex simplify_lortensor_mul(const ex & m)
@@ -459,6 +577,7 @@ ex simplify_lortensor_mul(const ex & m)
 	return m;
 }
 
+/** Perform some simplifications on an expression containing Lorentz tensors. */
 ex simplify_lortensor(const ex & e)
 {
 	// all simplification is done on expanded objects
@@ -473,19 +592,13 @@ ex simplify_lortensor(const ex & e)
 		return sum;
 	}
 
-	// simplification of commutative product=commutative product of simplifications
+	// simplification of (commutative) product
 	if (is_ex_exactly_of_type(e_expanded,mul)) {
 		return simplify_lortensor_mul(e);
 	}
 
 	// cannot do anything
 	return e_expanded;
-}
-
-ex Dim(void)
-{
-	static symbol * d=new symbol("dim");
-	return *d;
 }
 
 //////////

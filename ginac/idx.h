@@ -89,9 +89,12 @@ public:
 	void setname(const std::string & n) {name=n;}
 	std::string getname(void) const {return name;}
 
+private:
+	std::string & autoname_prefix(void);
+
 	// member variables
 protected:
-	unsigned serial;
+	unsigned serial;  /**< Unique serial number for comparing symbolic indices */
 	bool symbolic;    /**< Is index symbolic? */
 	std::string name; /**< Symbolic name (if symbolic == true) */
 	unsigned value;   /**< Numeric value (if symbolic == false) */

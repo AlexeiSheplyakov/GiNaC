@@ -31,7 +31,6 @@
 #include "simp_lor.h"
 #include "ex.h"
 #include "mul.h"
-#include "symbol.h"
 #include "debugmsg.h"
 #include "utils.h"
 
@@ -456,12 +455,6 @@ ex simplify_simp_lor(const ex & e, const scalar_products & sp)
 	// cannot do anything
 	return e_expanded;
 }
-
-//ex Dim(void)   // now in lortensor.cpp
-//{
-//    static symbol * d=new symbol("dim");
-//    return *d;
-//}
 
 //////////
 // helper classes

@@ -87,6 +87,11 @@ void indexed::destroy(bool call_parent)
 
 // public
 
+/** Construct indexed object with one index. The index must be of class idx
+ *  or a subclass.
+ *
+ *  @param i1 The index
+ *  @return newly constructed indexed object */
 indexed::indexed(const ex & i1) : inherited(i1)
 {
 	debugmsg("indexed constructor from ex",LOGLEVEL_CONSTRUCT);
@@ -94,6 +99,12 @@ indexed::indexed(const ex & i1) : inherited(i1)
 	GINAC_ASSERT(all_of_type_idx());
 }
 
+/** Construct indexed object with two indices. The indices must be of class
+ *  idx or a subclass.
+ *
+ *  @param i1 First index
+ *  @param i2 Second index
+ *  @return newly constructed indexed object */
 indexed::indexed(const ex & i1, const ex & i2) : inherited(i1,i2)
 {
 	debugmsg("indexed constructor from ex,ex",LOGLEVEL_CONSTRUCT);
@@ -101,6 +112,13 @@ indexed::indexed(const ex & i1, const ex & i2) : inherited(i1,i2)
 	GINAC_ASSERT(all_of_type_idx());
 }
 
+/** Construct indexed object with three indices. The indices must be of class
+ *  idx or a subclass.
+ *
+ *  @param i1 First index
+ *  @param i2 Second index
+ *  @param i3 Third index
+ *  @return newly constructed indexed object */
 indexed::indexed(const ex & i1, const ex & i2, const ex & i3)
   : inherited(i1,i2,i3)
 {
@@ -109,6 +127,14 @@ indexed::indexed(const ex & i1, const ex & i2, const ex & i3)
 	GINAC_ASSERT(all_of_type_idx());
 }
 
+/** Construct indexed object with four indices. The indices must be of class
+ *  idx or a subclass.
+ *
+ *  @param i1 First index
+ *  @param i2 Second index
+ *  @param i3 Third index
+ *  @param i4 Fourth index
+ *  @return newly constructed indexed object */
 indexed::indexed(const ex & i1, const ex & i2, const ex & i3, const ex & i4)
   : inherited(i1,i2,i3,i4)
 {
@@ -117,6 +143,11 @@ indexed::indexed(const ex & i1, const ex & i2, const ex & i3, const ex & i4)
 	GINAC_ASSERT(all_of_type_idx());
 }
 
+/** Construct indexed object with a specified vector of indices. The indices
+ *  must be of class idx or a subclass.
+ *
+ *  @param iv Vector of indices
+ *  @return newly constructed indexed object */
 indexed::indexed(const exvector & iv) : inherited(iv)
 {
 	debugmsg("indexed constructor from exvector",LOGLEVEL_CONSTRUCT);
@@ -201,22 +232,6 @@ bool indexed::info(unsigned inf) const
 	if (inf==info_flags::indexed) return true;
 	if (inf==info_flags::has_indices) return seq.size()!=0;
 	return inherited::info(inf);
-}
-
-exvector indexed::get_indices(void) const
-{
-	return seq;
-
-	/*
-	idxvector filtered_indices;
-	filtered_indices.reserve(indices.size());
-	for (idxvector::const_iterator cit=indices.begin(); cit!=indices.end(); ++cit) {
-		if ((*cit).get_type()==t) {
-			filtered_indices.push_back(*cit);
-		}
-	}
-	return filtered_indices;
-	*/
 }
 
 // protected
@@ -312,9 +327,11 @@ void indexed::printindices(std::ostream & os) const
 	}
 }
 
+/** Check whether all indices are of class idx or a subclass. This function
+ *  is used internally to make sure that all constructed indexed objects
+ *  really carry indices and not some other classes. */
 bool indexed::all_of_type_idx(void) const
 {
-	// used only inside of ASSERTs
 	for (exvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
 		if (!is_ex_of_type(*cit,idx)) return false;
 	}

@@ -31,11 +31,14 @@
 namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
 
-/** Class of indices for Lorentz tensors, to tell them apart from other index
- *  families like color indices. The indices of this class also support the
- *  case of P-O-decomposed D-dimensional spacetime, where the parallel space
- *  is a Minkowski-like space with integral dimension P and the orthogonal
- *  space is a Euclidean space with (possibly complex) dimension D-P. */
+
+/** Class of indices for Lorentz tensors, to tell them apart from other
+ *  index families like color indices. The indices of this class also
+ *  support the case of P-O-decomposed D-dimensional spacetime, where the
+ *  parallel space is a Minkowski space with integral dimension P and the
+ *  orthogonal space is a Euclidean space with (possibly complex) dimension
+ *  D-P. The dimension D of spacetime is represented by the global symbol
+ *  that is returned by the Dim() function. */
 class lorentzidx : public idx
 {
 	GINAC_DECLARE_REGISTERED_CLASS(lorentzidx, idx)
@@ -101,6 +104,8 @@ inline const lorentzidx &ex_to_lorentzidx(const ex &e)
 {
 	return static_cast<const lorentzidx &>(*e.bp);
 }
+
+ex Dim(void);
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

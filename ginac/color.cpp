@@ -49,10 +49,9 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(color, indexed)
 
 // public
 
-color::color() : type(invalid), representation_label(0)
+color::color() : inherited(TINFO_color), type(invalid), representation_label(0)
 {
 	debugmsg("color default constructor",LOGLEVEL_CONSTRUCT);
-	tinfo_key=TINFO_color;
 }
 
 color::~color()
@@ -99,6 +98,9 @@ void color::destroy(bool call_parent)
 
 // protected
 
+/** Construct object without any color index. This constructor is for internal
+ *  use only. Use the color_ONE() function instead.
+ *  @see color_ONE */
 color::color(color_types const t, unsigned rl) : type(t), representation_label(rl)
 {
 	debugmsg("color constructor from color_types,unsigned",LOGLEVEL_CONSTRUCT);
@@ -107,6 +109,9 @@ color::color(color_types const t, unsigned rl) : type(t), representation_label(r
 	GINAC_ASSERT(all_of_type_coloridx());
 }
 
+/** Construct object with one color index. This constructor is for internal
+ *  use only. Use the color_T() function instead.
+ *  @see color_T */
 color::color(color_types const t, const ex & i1, unsigned rl)
   : inherited(i1), type(t), representation_label(rl)
 {
@@ -116,6 +121,9 @@ color::color(color_types const t, const ex & i1, unsigned rl)
 	GINAC_ASSERT(all_of_type_coloridx());
 }
 
+/** Construct object with two color indices. This constructor is for internal
+ *  use only. Use the color_delta8() function instead.
+ *  @see color_delta8 */
 color::color(color_types const t, const ex & i1, const ex & i2, unsigned rl)
   : inherited(i1,i2), type(t), representation_label(rl)
 {
@@ -125,6 +133,11 @@ color::color(color_types const t, const ex & i1, const ex & i2, unsigned rl)
 	GINAC_ASSERT(all_of_type_coloridx());
 }
 
+/** Construct object with three color indices. This constructor is for internal
+ *  use only. Use the color_f(), color_d() and color_h() functions instead.
+ *  @see color_f
+ *  @see color_d
+ *  @see color_h */
 color::color(color_types const t, const ex & i1, const ex & i2, const ex & i3,
              unsigned rl) : inherited(i1,i2,i3), type(t), representation_label(rl)
 {
@@ -134,6 +147,8 @@ color::color(color_types const t, const ex & i1, const ex & i2, const ex & i3,
 	GINAC_ASSERT(all_of_type_coloridx());
 }
 
+/** Construct object with arbitrary number of color indices. This
+ *  constructor is for internal use only. */
 color::color(color_types const t, const exvector & iv, unsigned rl)
   : inherited(iv), type(t), representation_label(rl)
 {
@@ -245,12 +260,6 @@ void color::print(std::ostream & os, unsigned upper_precedence) const
 		break;
 	}
 	printindices(os);
-}
-
-void color::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
-{
-	debugmsg("color print csrc",LOGLEVEL_PRINT);
-	print(os,upper_precedence);
 }
 
 bool color::info(unsigned inf) const
@@ -384,22 +393,28 @@ ex color::eval(int level) const
 int color::compare_same_type(const basic & other) const
 {
 	GINAC_ASSERT(other.tinfo() == TINFO_color);
-	const color *o = static_cast<const color *>(&other);
-	if (type==o->type) {
-		if (representation_label==o->representation_label) {
-			return inherited::compare_same_type(other);
-		}
-		return representation_label < o->representation_label ? -1 : 1;
+	const color &o = static_cast<const color &>(other);
+
+	if (type != o.type) {
+		// different type
+		return type < o.type ? -1 : 1;
 	}
-	return type < o->type ? -1 : 1;
+
+	if (representation_label != o.representation_label) {
+		// different representation label
+		return representation_label < o.representation_label ? -1 : 1;
+	}
+
+	return inherited::compare_same_type(other);
 }
 
 bool color::is_equal_same_type(const basic & other) const
 {
 	GINAC_ASSERT(other.tinfo() == TINFO_color);
-	const color *o = static_cast<const color *>(&other);
-	if (type!=o->type) return false;
-	if (representation_label!=o->representation_label) return false;
+	const color &o = static_cast<const color &>(other);
+
+	if (type != o.type) return false;
+	if (representation_label != o.representation_label) return false;
 	return inherited::is_equal_same_type(other);
 }
 
@@ -622,9 +637,11 @@ ex color::thisexprseq(exvector * vp) const
 	return color(type,vp,representation_label);
 }
 
+/** Check whether all indices are of class coloridx or a subclass. This
+ *  function is used internally to make sure that all constructed color
+ *  objects really carry color indices and not some other classes. */
 bool color::all_of_type_coloridx(void) const
 {
-	// used only inside of ASSERTs
 	for (exvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
 		if (!is_ex_of_type(*cit,coloridx)) return false;
 	}
@@ -658,36 +675,89 @@ const std::type_info & typeid_color = typeid(some_color);
 // friend functions
 //////////
 
+/** Construct an object representing the unity element of su(3).
+ *
+ *  @param rl Representation label
+ *  @return newly constructed object */
 color color_ONE(unsigned rl)
 {
 	return color(color::color_ONE,rl);
 }
 
+/** Construct an object representing the generators T_a of SU(3). The index
+ *  must be of class coloridx.
+ *
+ *  @param a Index
+ *  @param rl Representation label
+ *  @return newly constructed object */
 color color_T(const ex & a, unsigned rl)
 {
 	return color(color::color_T,a,rl);
 }
 
+/** Construct an object representing the antisymmetric structure constants
+ *  f_abc of SU(3). The indices must be of class coloridx.
+ *
+ *  @param a First index
+ *  @param b Second index
+ *  @param c Third index
+ *  @return newly constructed object */
 color color_f(const ex & a, const ex & b, const ex & c)
 {
 	return color(color::color_f,a,b,c);
 }
 
+/** Construct an object representing the symmetric structure constants d_abc
+ *  of SU(3). The indices must be of class coloridx.
+ *
+ *  @param a First index
+ *  @param b Second index
+ *  @param c Third index
+ *  @return newly constructed object */
 color color_d(const ex & a, const ex & b, const ex & c)
 {
 	return color(color::color_d,a,b,c);
 }
 
+/** This returns the linear combination d_abc+I*f_abc.
+ *
+ *  @param a First index
+ *  @param b Second index
+ *  @param c Third index
+ *  @return newly constructed object */
 ex color_h(const ex & a, const ex & b, const ex & c)
 {
 	return color(color::color_d,a,b,c)+I*color(color::color_f,a,b,c);
 }
 
+/** Construct an object representing the unity matrix delta8_ab in su(3).
+ *  The indices must be of class coloridx.
+ *
+ *  @param a First index
+ *  @param b Second index
+ *  @return newly constructed object */
 color color_delta8(const ex & a, const ex & b)
 {
 	return color(color::color_delta8,a,b);
 }
 
+/** Given a vector of color (and possible other) objects, split it up
+ *  according to the object type (structure constant, generator etc.) and
+ *  representation label while preserving the order within each group. If
+ *  there are non-color objetcs in the vector, the SU(3) generators T_a get
+ *  sorted into the "unknown" group together with the non-color objects
+ *  because we don't know whether these objects commute with the generators.
+ *
+ *  @param v Source vector of expressions
+ *  @param delta8vec Vector of unity matrices (returned)
+ *  @param fvec Vector of antisymmetric structure constants (returned)
+ *  @param dvec Vector of symmetric structure constants (returned)
+ *  @param Tvecs Vectors of generators, one for each representation label (returned)
+ *  @param ONEvecs Vectors of unity elements, one for each representation label (returned)
+ *  @param unknownvec Vector of all non-color objects (returned)
+ *
+ *  @see color::color_types
+ *  @see recombine_color_string */
 void split_color_string_in_parts(const exvector & v, exvector & delta8vec,
                                  exvector & fvec, exvector & dvec,
                                  exvectorvector & Tvecs,
@@ -737,6 +807,20 @@ void split_color_string_in_parts(const exvector & v, exvector & delta8vec,
 	}
 }    
 
+/** Merge vectors of color objects sorted by object type into one vector,
+ *  retaining the order within each group. This is the inverse operation of
+ *  split_color_string_in_parts().
+ *
+ *  @param delta8vec Vector of unity matrices
+ *  @param fvec Vector of antisymmetric structure constants
+ *  @param dvec Vector of symmetric structure constants
+ *  @param Tvecs Vectors of generators, one for each representation label
+ *  @param ONEvecs Vectors of unity elements, one for each representation label
+ *  @param unknownvec Vector of all non-color objects
+ *  @return merged vector
+ *
+ *  @see color::color_types
+ *  @see split_color_string_in_parts */
 exvector recombine_color_string(exvector & delta8vec, exvector & fvec,
                                 exvector & dvec, exvectorvector & Tvecs,
                                 exvectorvector & ONEvecs, exvector & unknownvec)
@@ -801,6 +885,13 @@ ex color_trace_of_one_representation_label(const exvector & v)
 	*/
 }
 
+/** Calculate the trace over the (hidden) indices of the su(3) Lie algebra
+ *  elements (the SU(3) generators and the unity element) of a specified
+ *  representation label in a string of color objects.
+ *
+ *  @param v Vector of color objects
+ *  @param rl Representation label
+ *  @return value of the trace */
 ex color_trace(const exvector & v, unsigned rl)
 {
 	GINAC_ASSERT(rl<MAX_REPRESENTATION_LABELS);
@@ -900,6 +991,7 @@ ex simplify_pure_color_string(const ex & e)
 	return e;
 }
 	
+/** Perform some simplifications on an expression containing color objects. */
 ex simplify_color(const ex & e)
 {
 	// all simplification is done on expanded objects
@@ -992,14 +1084,6 @@ ex brute_force_sum_color_indices(const ex & e)
 	return sum;
 }
 
-void append_exvector_to_exvector(exvector & dest, const exvector & source)
-{
-	for (exvector::const_iterator cit=source.begin(); cit!=source.end(); ++cit) {
-		dest.push_back(*cit);
-	}
-}
-
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
 #endif // ndef NO_NAMESPACE_GINAC
-

@@ -72,6 +72,13 @@ int compare_pointers(const void * a, const void * b)
 	return 0;
 }
 
+/** Append one exvector to another */
+void append_exvector_to_exvector(exvector & dest, const exvector & source)
+{
+	dest.reserve(dest.size() + source.size());
+	dest.insert(dest.end(), source.begin(), source.end());
+}
+
 //////////
 // `construct on first use' chest of numbers
 //////////

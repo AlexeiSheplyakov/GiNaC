@@ -24,16 +24,24 @@
 #define __GINAC_CLIFFORD_H__
 
 #include <string>
-#include "indexed.h"
-#include "ex.h"
+#include "lortensor.h"
 
 #ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
 
-/** Base class for clifford object */
-class clifford : public indexed
+
+/** This class holds an object representing an element of the Clifford
+ *  algebra (the Dirac gamma matrices). These objects only carry Lorentz
+ *  indices. Spinor indices are always hidden in our implementation. */
+class clifford : public lortensor
 {
+	GINAC_DECLARE_REGISTERED_CLASS(clifford, lortensor)
+
+// friends
+
+	friend clifford clifford_gamma(const ex & mu);
+
 // member functions
 
 	// default constructor, destructor, copy constructor assignment operator and helpers
@@ -48,7 +56,7 @@ protected:
 
 	// other constructors
 public:
-	explicit clifford(const std::string & initname);
+	clifford(const std::string & n, const ex & mu);
 
 	// functions overriding virtual functions from base classes
 public:
@@ -56,29 +64,23 @@ public:
 	void printraw(std::ostream & os) const;
 	void printtree(std::ostream & os, unsigned indent) const;
 	void print(std::ostream & os, unsigned upper_precedence=0) const;
-	void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence=0) const;
 	bool info(unsigned inf) const;
+	// ex eval(int level=0) const;
 protected:
 	int compare_same_type(const basic & other) const;
+	bool is_equal_same_type(const basic & other) const;
 	ex simplify_ncmul(const exvector & v) const;
-	unsigned calchash(void) const;
+	ex thisexprseq(const exvector & v) const;
+	ex thisexprseq(exvector * vp) const;
 
 	// new virtual functions which can be overridden by derived classes
 	// none
 	
 	// non-virtual functions in this class
-public:
-	void setname(const std::string & n);
-private:
-	std::string & autoname_prefix(void);
+	// none
 
-// member variables
-
-protected:
-	std::string name;
-	unsigned serial; // unique serial number for comparision
-private:
-	static unsigned next_serial;
+	// member variables
+	// none
 };
 
 // global constants
@@ -86,11 +88,13 @@ private:
 extern const clifford some_clifford;
 extern const std::type_info & typeid_clifford;
 
-// utility functions
+// global functions
 inline const clifford &ex_to_clifford(const ex &e)
 {
 	return static_cast<const clifford &>(*e.bp);
 }
+
+clifford clifford_gamma(const ex & mu);
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

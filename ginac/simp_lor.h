@@ -43,21 +43,8 @@ class spmapkey_is_less
 public:
 	bool operator()(const spmapkey & lh, const spmapkey & rh) const
 	{
-		/*
-		cerr << "spmapkey_is_less" << endl;
-		cerr << "lh=((" << lh.first.first
-			 << "," << lh.first.second << "),";
-		lh.second.printraw(cerr);
-		cerr << ")" << endl;
-
-		cerr << "rh=((" << rh.first.first
-			 << "," << rh.first.second << "),";
-		rh.second.printraw(cerr);
-		cerr << ")" << endl;
-		*/
 		bool res = lh.first<rh.first
 		        || (!(rh.first<lh.first) && lh.second.compare(rh.second)<0);
-		// cout << "result=" << res << endl;
 		return res;
 	}
 };
@@ -171,7 +158,6 @@ simp_lor lor_g(const ex & mu, const ex & nu);
 simp_lor lor_vec(const std::string & n, const ex & mu);
 ex simplify_simp_lor_mul(const ex & m, const scalar_products & sp);
 ex simplify_simp_lor(const ex & e, const scalar_products & sp=scalar_products());
-ex Dim(void);
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

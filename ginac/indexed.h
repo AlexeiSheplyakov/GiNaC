@@ -30,7 +30,8 @@
 namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
 
-/** Base class for non-commutative indexed objects */
+
+/** Base class for objects with indices. */
 class indexed : public exprseq
 {
 	GINAC_DECLARE_REGISTERED_CLASS(indexed, exprseq)
@@ -64,7 +65,10 @@ public:
 	void print(std::ostream & os, unsigned upper_precedence=0) const;
 	void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const;
 	bool info(unsigned inf) const;
-	exvector get_indices(void) const;
+
+	/** Return the vector of indices on this object. */
+	exvector get_indices(void) const {return seq;}
+
 protected:
 	ex derivative(const symbol & s) const;
 	int compare_same_type(const basic & other) const;

@@ -46,7 +46,7 @@ idx::idx() : inherited(TINFO_idx), symbolic(true), covariant(false)
 {
 	debugmsg("idx default constructor",LOGLEVEL_CONSTRUCT);
 	serial=next_serial++;
-	name="index"+ToString(serial);
+	name=autoname_prefix()+ToString(serial);
 }
 
 idx::~idx() 
@@ -102,7 +102,7 @@ idx::idx(bool cov) : inherited(TINFO_idx), symbolic(true), covariant(cov)
 {
 	debugmsg("idx constructor from bool",LOGLEVEL_CONSTRUCT);
 	serial = next_serial++;
-	name = "index"+ToString(serial);
+	name = autoname_prefix()+ToString(serial);
 }
 
 /** Construct symbolic index with specified name.
@@ -152,7 +152,7 @@ idx::idx(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 	if (symbolic) {
 		serial = next_serial++;
 		if (!(n.find_string("name", name)))
-			name = "index" + ToString(serial);
+			name = autoname_prefix() + ToString(serial);
 	} else {
 		serial = 0;
 		n.find_unsigned("value", value);
@@ -290,12 +290,13 @@ ex idx::subs(const lst & ls, const lst & lr) const
 int idx::compare_same_type(const basic & other) const
 {
 	GINAC_ASSERT(is_of_type(other,idx));
-	const idx & o=static_cast<const idx &>(const_cast<basic &>(other));
+	const idx &o = static_cast<const idx &>(&other);
 
 	if (covariant!=o.covariant) {
 		// different co/contravariant
 		return covariant ? -1 : 1;
 	}
+
 	if ((!symbolic) && (!o.symbolic)) {
 		// non-symbolic, of equal type: compare values
 		if (value==o.value) {
@@ -303,6 +304,7 @@ int idx::compare_same_type(const basic & other) const
 		}
 		return value<o.value ? -1 : 1;
 	}
+
 	if (symbolic && o.symbolic) {
 		// both symbolic: compare serials
 		if (serial==o.serial) {
@@ -310,6 +312,7 @@ int idx::compare_same_type(const basic & other) const
 		}
 		return serial<o.serial ? -1 : 1;
 	}
+
 	// one symbolic, one value: value is sorted first
 	return o.symbolic ? -1 : 1;
 }
@@ -317,10 +320,10 @@ int idx::compare_same_type(const basic & other) const
 bool idx::is_equal_same_type(const basic & other) const
 {
 	GINAC_ASSERT(is_of_type(other,idx));
-	const idx & o=static_cast<const idx &>(const_cast<basic &>(other));
+	const idx &o = static_cast<const idx &>(other);
 
-	if (covariant!=o.covariant) return false;
-	if (symbolic!=o.symbolic) return false;
+	if (covariant != o.covariant) return false;
+	if (symbolic != o.symbolic) return false;
 	if (symbolic && o.symbolic) return serial==o.serial;
 	return value==o.value;
 }    
@@ -365,7 +368,13 @@ ex idx::toggle_covariant(void) const
 // non-virtual functions in this class
 //////////
 
-// none
+// private
+
+std::string & idx::autoname_prefix(void)
+{
+	static std::string * s = new std::string("index");
+	return *s;
+}
 
 //////////
 // static member variables
