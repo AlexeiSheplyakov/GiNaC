@@ -137,7 +137,7 @@ DEFAULT_UNARCHIVE(matrix)
 
 // public
 
-void matrix::print_elements(const print_context & c, const std::string & row_start, const std::string & row_end, const std::string & row_sep, const std::string & col_sep) const
+void matrix::print_elements(const print_context & c, const char *row_start, const char *row_end, const char *row_sep, const char *col_sep) const
 {
 	for (unsigned ro=0; ro<row; ++ro) {
 		c.s << row_start;

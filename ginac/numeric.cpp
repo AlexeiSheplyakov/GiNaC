@@ -34,7 +34,6 @@
 
 #include "numeric.h"
 #include "ex.h"
-#include "print.h"
 #include "operators.h"
 #include "archive.h"
 #include "tostring.h"
@@ -61,7 +60,13 @@
 
 namespace GiNaC {
 
-GINAC_IMPLEMENT_REGISTERED_CLASS(numeric, basic)
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(numeric, basic,
+  print_func<print_context>(&numeric::do_print).
+  print_func<print_latex>(&numeric::do_print_latex).
+  print_func<print_csrc>(&numeric::do_print_csrc).
+  print_func<print_csrc_cl_N>(&numeric::do_print_csrc_cl_N).
+  print_func<print_tree>(&numeric::do_print_tree).
+  print_func<print_python_repr>(&numeric::do_print_python_repr))
 
 //////////
 // default constructor
@@ -410,138 +415,146 @@ static void print_real_cl_N(const print_context & c, const cln::cl_R & x)
 	}
 }
 
-/** This method adds to the output so it blends more consistently together
- *  with the other routines and produces something compatible to ginsh input.
- *  
- *  @see print_real_number() */
-void numeric::print(const print_context & c, unsigned level) const
+void numeric::print_numeric(const print_context & c, const char *par_open, const char *par_close, const char *imag_sym, const char *mul_sym, unsigned level) const
 {
-	if (is_a<print_tree>(c)) {
+	const cln::cl_R r = cln::realpart(cln::the<cln::cl_N>(value));
+	const cln::cl_R i = cln::imagpart(cln::the<cln::cl_N>(value));
 
-		c.s << std::string(level, ' ') << cln::the<cln::cl_N>(value)
-		    << " (" << class_name() << ")"
-		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
-		    << std::endl;
+	if (cln::zerop(i)) {
 
-	} else if (is_a<print_csrc_cl_N>(c)) {
+		// case 1, real:  x  or  -x
+		if ((precedence() <= level) && (!this->is_nonneg_integer())) {
+			c.s << par_open;
+			print_real_number(c, r);
+			c.s << par_close;
+		} else {
+			print_real_number(c, r);
+		}
 
-		// CLN output
-		if (this->is_real()) {
+	} else {
+		if (cln::zerop(r)) {
 
-			// Real number
-			print_real_cl_N(c, cln::the<cln::cl_R>(value));
+			// case 2, imaginary:  y*I  or  -y*I
+			if (i == 1)
+				c.s << imag_sym;
+			else {
+				if (precedence()<=level)
+					c.s << par_open;
+				if (i == -1)
+					c.s << "-" << imag_sym;
+				else {
+					print_real_number(c, i);
+					c.s << mul_sym << imag_sym;
+				}
+				if (precedence()<=level)
+					c.s << par_close;
+			}
 
 		} else {
 
-			// Complex number
-			c.s << "cln::complex(";
-			print_real_cl_N(c, cln::realpart(cln::the<cln::cl_N>(value)));
-			c.s << ",";
-			print_real_cl_N(c, cln::imagpart(cln::the<cln::cl_N>(value)));
-			c.s << ")";
+			// case 3, complex:  x+y*I  or  x-y*I  or  -x+y*I  or  -x-y*I
+			if (precedence() <= level)
+				c.s << par_open;
+			print_real_number(c, r);
+			if (i < 0) {
+				if (i == -1) {
+					c.s << "-" << imag_sym;
+				} else {
+					print_real_number(c, i);
+					c.s << mul_sym << imag_sym;
+				}
+			} else {
+				if (i == 1) {
+					c.s << "+" << imag_sym;
+				} else {
+					c.s << "+";
+					print_real_number(c, i);
+					c.s << mul_sym << imag_sym;
+				}
+			}
+			if (precedence() <= level)
+				c.s << par_close;
 		}
+	}
+}
 
-	} else if (is_a<print_csrc>(c)) {
+void numeric::do_print(const print_context & c, unsigned level) const
+{
+	print_numeric(c, "(", ")", "I", "*", level);
+}
 
-		// C++ source output
-		std::ios::fmtflags oldflags = c.s.flags();
-		c.s.setf(std::ios::scientific);
-		int oldprec = c.s.precision();
+void numeric::do_print_latex(const print_latex & c, unsigned level) const
+{
+	print_numeric(c, "{(", ")}", "i", " ", level);
+}
 
-		// Set precision
-		if (is_a<print_csrc_double>(c))
-			c.s.precision(std::numeric_limits<double>::digits10 + 1);
-		else
-			c.s.precision(std::numeric_limits<float>::digits10 + 1);
+void numeric::do_print_csrc(const print_csrc & c, unsigned level) const
+{
+	std::ios::fmtflags oldflags = c.s.flags();
+	c.s.setf(std::ios::scientific);
+	int oldprec = c.s.precision();
 
-		if (this->is_real()) {
+	// Set precision
+	if (is_a<print_csrc_double>(c))
+		c.s.precision(std::numeric_limits<double>::digits10 + 1);
+	else
+		c.s.precision(std::numeric_limits<float>::digits10 + 1);
 
-			// Real number
-			print_real_csrc(c, cln::the<cln::cl_R>(value));
+	if (this->is_real()) {
 
-		} else {
-
-			// Complex number
-			c.s << "std::complex<";
-			if (is_a<print_csrc_double>(c))
-				c.s << "double>(";
-			else
-				c.s << "float>(";
-
-			print_real_csrc(c, cln::realpart(cln::the<cln::cl_N>(value)));
-			c.s << ",";
-			print_real_csrc(c, cln::imagpart(cln::the<cln::cl_N>(value)));
-			c.s << ")";
-		}
-
-		c.s.flags(oldflags);
-		c.s.precision(oldprec);
+		// Real number
+		print_real_csrc(c, cln::the<cln::cl_R>(value));
 
 	} else {
 
-		const std::string par_open  = is_a<print_latex>(c) ? "{(" : "(";
-		const std::string par_close = is_a<print_latex>(c) ? ")}" : ")";
-		const std::string imag_sym  = is_a<print_latex>(c) ? "i" : "I";
-		const std::string mul_sym   = is_a<print_latex>(c) ? " " : "*";
-		const cln::cl_R r = cln::realpart(cln::the<cln::cl_N>(value));
-		const cln::cl_R i = cln::imagpart(cln::the<cln::cl_N>(value));
+		// Complex number
+		c.s << "std::complex<";
+		if (is_a<print_csrc_double>(c))
+			c.s << "double>(";
+		else
+			c.s << "float>(";
 
-		if (is_a<print_python_repr>(c))
-			c.s << class_name() << "('";
-		if (cln::zerop(i)) {
-			// case 1, real:  x  or  -x
-			if ((precedence() <= level) && (!this->is_nonneg_integer())) {
-				c.s << par_open;
-				print_real_number(c, r);
-				c.s << par_close;
-			} else {
-				print_real_number(c, r);
-			}
-		} else {
-			if (cln::zerop(r)) {
-				// case 2, imaginary:  y*I  or  -y*I
-				if (i==1)
-					c.s << imag_sym;
-				else {
-					if (precedence()<=level)
-						c.s << par_open;
-					if (i == -1)
-						c.s << "-" << imag_sym;
-					else {
-						print_real_number(c, i);
-						c.s << mul_sym+imag_sym;
-					}
-					if (precedence()<=level)
-						c.s << par_close;
-				}
-			} else {
-				// case 3, complex:  x+y*I  or  x-y*I  or  -x+y*I  or  -x-y*I
-				if (precedence() <= level)
-					c.s << par_open;
-				print_real_number(c, r);
-				if (i < 0) {
-					if (i == -1) {
-						c.s << "-"+imag_sym;
-					} else {
-						print_real_number(c, i);
-						c.s << mul_sym+imag_sym;
-					}
-				} else {
-					if (i == 1) {
-						c.s << "+"+imag_sym;
-					} else {
-						c.s << "+";
-						print_real_number(c, i);
-						c.s << mul_sym+imag_sym;
-					}
-				}
-				if (precedence() <= level)
-					c.s << par_close;
-			}
-		}
-		if (is_a<print_python_repr>(c))
-			c.s << "')";
+		print_real_csrc(c, cln::realpart(cln::the<cln::cl_N>(value)));
+		c.s << ",";
+		print_real_csrc(c, cln::imagpart(cln::the<cln::cl_N>(value)));
+		c.s << ")";
 	}
+
+	c.s.flags(oldflags);
+	c.s.precision(oldprec);
+}
+
+void numeric::do_print_csrc_cl_N(const print_csrc_cl_N & c, unsigned level) const
+{
+	if (this->is_real()) {
+
+		// Real number
+		print_real_cl_N(c, cln::the<cln::cl_R>(value));
+
+	} else {
+
+		// Complex number
+		c.s << "cln::complex(";
+		print_real_cl_N(c, cln::realpart(cln::the<cln::cl_N>(value)));
+		c.s << ",";
+		print_real_cl_N(c, cln::imagpart(cln::the<cln::cl_N>(value)));
+		c.s << ")";
+	}
+}
+
+void numeric::do_print_tree(const print_tree & c, unsigned level) const
+{
+	c.s << std::string(level, ' ') << cln::the<cln::cl_N>(value)
+	    << " (" << class_name() << ")"
+	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+	    << std::endl;
+}
+
+void numeric::do_print_python_repr(const print_python_repr & c, unsigned level) const
+{
+	c.s << class_name() << "('";
+	print_numeric(c, "(", ")", "I", "*", level);
+	c.s << "')";
 }
 
 bool numeric::info(unsigned inf) const

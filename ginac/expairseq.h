@@ -70,7 +70,6 @@ public:
 	
 	// functions overriding virtual functions from base classes
 public:
-	void print(const print_context & c, unsigned level = 0) const;
 	unsigned precedence() const {return 10;}
 	bool info(unsigned inf) const;
 	size_t nops() const;
@@ -110,6 +109,8 @@ protected:
 	
 	// non-virtual functions in this class
 protected:
+	void do_print(const print_context & c, unsigned level) const;
+	void do_print_tree(const print_tree & c, unsigned level) const;
 	void construct_from_2_ex_via_exvector(const ex & lh, const ex & rh);
 	void construct_from_2_ex(const ex & lh, const ex & rh);
 	void construct_from_2_expairseq(const expairseq & s1,

@@ -53,7 +53,6 @@ public:
 
 	// functions overriding virtual functions from base classes
 public:
-	void print(const print_context & c, unsigned level = 0) const;
 	unsigned precedence() const {return 50;}
 	bool info(unsigned inf) const;
 	int degree(const ex & s) const;
@@ -76,6 +75,8 @@ protected:
 
 	// non-virtual functions in this class
 protected:
+	void do_print(const print_context & c, unsigned level) const;
+	void do_print_csrc(const print_context & c, unsigned level) const;
 	size_t count_factors(const ex & e) const;
 	void append_factors(exvector & v, const ex & e) const;
 	exvector expandchildren(unsigned options) const;

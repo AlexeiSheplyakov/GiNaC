@@ -38,13 +38,17 @@
 #include "indexed.h"
 #include "symbol.h"
 #include "lst.h"
-#include "print.h"
 #include "archive.h"
 #include "utils.h"
 
 namespace GiNaC {
 
-GINAC_IMPLEMENT_REGISTERED_CLASS(power, basic)
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(power, basic,
+  print_func<print_dflt>(&power::do_print_dflt).
+  print_func<print_latex>(&power::do_print_latex).
+  print_func<print_csrc>(&power::do_print_csrc).
+  print_func<print_python>(&power::do_print_python).
+  print_func<print_python_repr>(&power::do_print_python_repr))
 
 typedef std::vector<int> intvector;
 
@@ -85,6 +89,53 @@ DEFAULT_UNARCHIVE(power)
 
 // public
 
+void power::print_power(const print_context & c, const char *powersymbol, const char *openbrace, const char *closebrace, unsigned level) const
+{
+	// Ordinary output of powers using '^' or '**'
+	if (precedence() <= level)
+		c.s << openbrace << '(';
+	basis.print(c, precedence());
+	c.s << powersymbol;
+	c.s << openbrace;
+	exponent.print(c, precedence());
+	c.s << closebrace;
+	if (precedence() <= level)
+		c.s << closebrace << ')';
+}
+
+void power::do_print_dflt(const print_dflt & c, unsigned level) const
+{
+	if (exponent.is_equal(_ex1_2)) {
+
+		// Square roots are printed in a special way
+		c.s << "sqrt(";
+		basis.print(c);
+		c.s << ')';
+
+	} else
+		print_power(c, "^", "", "", level);
+}
+
+void power::do_print_latex(const print_latex & c, unsigned level) const
+{
+	if (is_exactly_a<numeric>(exponent) && ex_to<numeric>(exponent).is_negative()) {
+
+		// Powers with negative numeric exponents are printed as fractions
+		c.s << "\\frac{1}{";
+		power(basis, -exponent).eval().print(c);
+		c.s << '}';
+
+	} else if (exponent.is_equal(_ex1_2)) {
+
+		// Square roots are printed in a special way
+		c.s << "\\sqrt{";
+		basis.print(c);
+		c.s << '}';
+
+	} else
+		print_power(c, "^", "{", "}", level);
+}
+
 static void print_sym_pow(const print_context & c, const symbol &x, int exp)
 {
 	// Optimal output of integer powers of symbols to aid compiler CSE.
@@ -109,96 +160,58 @@ static void print_sym_pow(const print_context & c, const symbol &x, int exp)
 	}
 }
 
-void power::print(const print_context & c, unsigned level) const
+void power::do_print_csrc(const print_csrc & c, unsigned level) const
 {
-	if (is_a<print_tree>(c)) {
-
-		inherited::print(c, level);
-
-	} else if (is_a<print_csrc>(c)) {
-
-		// Integer powers of symbols are printed in a special, optimized way
-		if (exponent.info(info_flags::integer)
-		 && (is_a<symbol>(basis) || is_a<constant>(basis))) {
-			int exp = ex_to<numeric>(exponent).to_int();
-			if (exp > 0)
-				c.s << '(';
-			else {
-				exp = -exp;
-				if (is_a<print_csrc_cl_N>(c))
-					c.s << "recip(";
-				else
-					c.s << "1.0/(";
-			}
-			print_sym_pow(c, ex_to<symbol>(basis), exp);
-			c.s << ')';
-
-		// <expr>^-1 is printed as "1.0/<expr>" or with the recip() function of CLN
-		} else if (exponent.is_equal(_ex_1)) {
+	// Integer powers of symbols are printed in a special, optimized way
+	if (exponent.info(info_flags::integer)
+	 && (is_a<symbol>(basis) || is_a<constant>(basis))) {
+		int exp = ex_to<numeric>(exponent).to_int();
+		if (exp > 0)
+			c.s << '(';
+		else {
+			exp = -exp;
 			if (is_a<print_csrc_cl_N>(c))
 				c.s << "recip(";
 			else
 				c.s << "1.0/(";
-			basis.print(c);
-			c.s << ')';
-
-		// Otherwise, use the pow() or expt() (CLN) functions
-		} else {
-			if (is_a<print_csrc_cl_N>(c))
-				c.s << "expt(";
-			else
-				c.s << "pow(";
-			basis.print(c);
-			c.s << ',';
-			exponent.print(c);
-			c.s << ')';
 		}
+		print_sym_pow(c, ex_to<symbol>(basis), exp);
+		c.s << ')';
 
-	} else if (is_a<print_python_repr>(c)) {
+	// <expr>^-1 is printed as "1.0/<expr>" or with the recip() function of CLN
+	} else if (exponent.is_equal(_ex_1)) {
+		if (is_a<print_csrc_cl_N>(c))
+			c.s << "recip(";
+		else
+			c.s << "1.0/(";
+		basis.print(c);
+		c.s << ')';
 
-		c.s << class_name() << '(';
+	// Otherwise, use the pow() or expt() (CLN) functions
+	} else {
+		if (is_a<print_csrc_cl_N>(c))
+			c.s << "expt(";
+		else
+			c.s << "pow(";
 		basis.print(c);
 		c.s << ',';
 		exponent.print(c);
 		c.s << ')';
-
-	} else {
-
-		bool is_tex = is_a<print_latex>(c);
-
-		if (is_tex && is_exactly_a<numeric>(exponent) && ex_to<numeric>(exponent).is_negative()) {
-
-			// Powers with negative numeric exponents are printed as fractions in TeX
-			c.s << "\\frac{1}{";
-			power(basis, -exponent).eval().print(c);
-			c.s << "}";
-
-		} else if (exponent.is_equal(_ex1_2)) {
-
-			// Square roots are printed in a special way
-			c.s << (is_tex ? "\\sqrt{" : "sqrt(");
-			basis.print(c);
-			c.s << (is_tex ? '}' : ')');
-
-		} else {
-
-			// Ordinary output of powers using '^' or '**'
-			if (precedence() <= level)
-				c.s << (is_tex ? "{(" : "(");
-			basis.print(c, precedence());
-			if (is_a<print_python>(c))
-				c.s << "**";
-			else
-				c.s << '^';
-			if (is_tex)
-				c.s << '{';
-			exponent.print(c, precedence());
-			if (is_tex)
-				c.s << '}';
-			if (precedence() <= level)
-				c.s << (is_tex ? ")}" : ")");
-		}
 	}
+}
+
+void power::do_print_python(const print_python & c, unsigned level) const
+{
+	print_power(c, "**", "", "", level);
+}
+
+void power::do_print_python_repr(const print_python_repr & c, unsigned level) const
+{
+	c.s << class_name() << '(';
+	basis.print(c);
+	c.s << ',';
+	exponent.print(c);
+	c.s << ')';
 }
 
 bool power::info(unsigned inf) const

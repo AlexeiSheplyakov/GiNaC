@@ -25,7 +25,6 @@
 
 #include "symbol.h"
 #include "lst.h"
-#include "print.h"
 #include "archive.h"
 #include "tostring.h"
 #include "utils.h"

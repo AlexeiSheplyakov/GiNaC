@@ -48,7 +48,6 @@ public:
 	
 	// functions overriding virtual functions from base classes
 public:
-	void print(const print_context & c, unsigned level = 0) const;
 	unsigned precedence() const {return 60;}
 	bool info(unsigned inf) const;
 	size_t nops() const;
@@ -78,6 +77,13 @@ protected:
 	
 	// non-virtual functions in this class
 protected:
+	void print_power(const print_context & c, const char *powersymbol, const char *openbrace, const char *closebrace, unsigned level) const;
+	void do_print_dflt(const print_dflt & c, unsigned level) const;
+	void do_print_latex(const print_latex & c, unsigned level) const;
+	void do_print_csrc(const print_csrc & c, unsigned level) const;
+	void do_print_python(const print_python & c, unsigned level) const;
+	void do_print_python_repr(const print_python_repr & c, unsigned level) const;
+
 	ex expand_add(const add & a, int n) const;
 	ex expand_add_2(const add & a) const;
 	ex expand_mul(const mul & m, const numeric & n) const;

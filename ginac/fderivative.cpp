@@ -24,13 +24,14 @@
 
 #include "fderivative.h"
 #include "operators.h"
-#include "print.h"
 #include "archive.h"
 #include "utils.h"
 
 namespace GiNaC {
 
-GINAC_IMPLEMENT_REGISTERED_CLASS(fderivative, function)
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(fderivative, function,
+  print_func<print_context>(&fderivative::do_print).
+  print_func<print_tree>(&fderivative::do_print_tree))
 
 //////////
 // default constructor
@@ -94,35 +95,32 @@ DEFAULT_UNARCHIVE(fderivative)
 // functions overriding virtual functions from base classes
 //////////
 
-void fderivative::print(const print_context & c, unsigned level) const
+void fderivative::do_print(const print_context & c, unsigned level) const
 {
-	if (is_a<print_tree>(c)) {
+	c.s << "D[";
+	paramset::const_iterator i = parameter_set.begin(), end = parameter_set.end();
+	--end;
+	while (i != end)
+		c.s << *i++ << ",";
+	c.s << *i << "](" << registered_functions()[serial].name << ")";
+	printseq(c, '(', ',', ')', exprseq::precedence(), function::precedence());
+}
 
-		c.s << std::string(level, ' ') << class_name() << " "
-		    << registered_functions()[serial].name
-		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
-		    << ", nops=" << nops()
-		    << ", params=";
-		paramset::const_iterator i = parameter_set.begin(), end = parameter_set.end();
-		--end;
-		while (i != end)
-			c.s << *i++ << ",";
-		c.s << *i << std::endl;
-		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
-		for (size_t i=0; i<seq.size(); ++i)
-			seq[i].print(c, level + delta_indent);
-		c.s << std::string(level + delta_indent, ' ') << "=====" << std::endl;
-
-	} else {
-
-		c.s << "D[";
-		paramset::const_iterator i = parameter_set.begin(), end = parameter_set.end();
-		--end;
-		while (i != end)
-			c.s << *i++ << ",";
-		c.s << *i << "](" << registered_functions()[serial].name << ")";
-		printseq(c, '(', ',', ')', exprseq::precedence(), function::precedence());
-	}
+void fderivative::do_print_tree(const print_tree & c, unsigned level) const
+{
+	c.s << std::string(level, ' ') << class_name() << " "
+	    << registered_functions()[serial].name
+	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+	    << ", nops=" << nops()
+	    << ", params=";
+	paramset::const_iterator i = parameter_set.begin(), end = parameter_set.end();
+	--end;
+	while (i != end)
+		c.s << *i++ << ",";
+	c.s << *i << std::endl;
+	for (size_t i=0; i<seq.size(); ++i)
+		seq[i].print(c, level + c.delta_indent);
+	c.s << std::string(level + c.delta_indent, ' ') << "=====" << std::endl;
 }
 
 ex fderivative::eval(int level) const

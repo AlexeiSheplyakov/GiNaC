@@ -60,7 +60,6 @@ public:
 
 	// functions overriding virtual functions from base classes
 public:
-	void print(const print_context & c, unsigned level = 0) const;
 	ex eval(int level = 0) const;
 	ex evalf(int level = 0) const;
 	ex series(const relational & r, int order, unsigned options = 0) const;
@@ -70,6 +69,11 @@ protected:
 	ex derivative(const symbol & s) const;
 	bool is_equal_same_type(const basic & other) const;
 	bool match_same_type(const basic & other) const;
+
+	// non-virtual functions in this class
+protected:
+	void do_print(const print_context & c, unsigned level) const;
+	void do_print_tree(const print_tree & c, unsigned level) const;
 
 	// member variables
 protected:

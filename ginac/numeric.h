@@ -95,7 +95,6 @@ public:
 	
 	// functions overriding virtual functions from base classes
 public:
-	void print(const print_context & c, unsigned level = 0) const;
 	unsigned precedence() const {return 30;}
 	bool info(unsigned inf) const;
 	int degree(const ex & s) const;
@@ -173,6 +172,15 @@ public:
 	int int_length() const;
 	// converting routines for interfacing with CLN:
 	numeric(const cln::cl_N &z);
+
+protected:
+	void print_numeric(const print_context & c, const char *par_open, const char *par_close, const char *imag_sym, const char *mul_sym, unsigned level) const;
+	void do_print(const print_context & c, unsigned level) const;
+	void do_print_latex(const print_latex & c, unsigned level) const;
+	void do_print_csrc(const print_csrc & c, unsigned level) const;
+	void do_print_csrc_cl_N(const print_csrc_cl_N & c, unsigned level) const;
+	void do_print_tree(const print_tree & c, unsigned level) const;
+	void do_print_python_repr(const print_python_repr & c, unsigned level) const;
 
 // member variables
 

@@ -29,13 +29,17 @@
 #include "add.h"
 #include "mul.h"
 #include "matrix.h"
-#include "print.h"
 #include "archive.h"
 #include "utils.h"
 
 namespace GiNaC {
 
-GINAC_IMPLEMENT_REGISTERED_CLASS(ncmul, exprseq)
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(ncmul, exprseq,
+  print_func<print_context>(&ncmul::do_print).
+  print_func<print_tree>(&basic::do_print_tree).
+  print_func<print_csrc>(&ncmul::do_print_csrc).
+  print_func<print_python_repr>(&ncmul::do_print_csrc))
+
 
 //////////
 // default constructor
@@ -102,26 +106,15 @@ DEFAULT_ARCHIVING(ncmul)
 
 // public
 
-void ncmul::print(const print_context & c, unsigned level) const
+void ncmul::do_print(const print_context & c, unsigned level) const
 {
-	if (is_a<print_tree>(c)) {
+	printseq(c, '(', '*', ')', precedence(), level);
+}
 
-		inherited::print(c, level);
-
-	} else if (is_a<print_csrc>(c) || is_a<print_python_repr>(c)) {
-
-		c.s << class_name() << "(";
-		exvector::const_iterator it = seq.begin(), itend = seq.end()-1;
-		while (it != itend) {
-			it->print(c, precedence());
-			c.s << ",";
-			it++;
-		}
-		it->print(c, precedence());
-		c.s << ")";
-
-	} else
-		printseq(c, '(', '*', ')', precedence(), level);
+void ncmul::do_print_csrc(const print_context & c, unsigned level) const
+{
+	c.s << class_name();
+	printseq(c, '(', ',', ')', precedence(), precedence());
 }
 
 bool ncmul::info(unsigned inf) const

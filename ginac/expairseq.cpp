@@ -31,7 +31,6 @@
 #include "power.h"
 #include "relational.h"
 #include "wildcard.h"
-#include "print.h"
 #include "archive.h"
 #include "operators.h"
 #include "utils.h"
@@ -43,7 +42,10 @@
 namespace GiNaC {
 
 	
-GINAC_IMPLEMENT_REGISTERED_CLASS(expairseq, basic)
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(expairseq, basic,
+  print_func<print_context>(&expairseq::do_print).
+  print_func<print_tree>(&expairseq::do_print_tree))
+
 
 //////////
 // helper classes
@@ -177,88 +179,85 @@ DEFAULT_UNARCHIVE(expairseq)
 
 // public
 
-void expairseq::print(const print_context &c, unsigned level) const
+void expairseq::do_print(const print_context & c, unsigned level) const
 {
-	if (is_a<print_tree>(c)) {
+	c.s << "[[";
+	printseq(c, ',', precedence(), level);
+	c.s << "]]";
+}
 
-		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
-
-		c.s << std::string(level, ' ') << class_name()
-		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
-		    << ", nops=" << nops()
-		    << std::endl;
-		size_t num = seq.size();
-		for (size_t i=0; i<num; ++i) {
-			seq[i].rest.print(c, level + delta_indent);
-			seq[i].coeff.print(c, level + delta_indent);
-			if (i != num - 1)
-				c.s << std::string(level + delta_indent, ' ') << "-----" << std::endl;
-		}
-		if (!overall_coeff.is_equal(default_overall_coeff())) {
-			c.s << std::string(level + delta_indent, ' ') << "-----" << std::endl
-			    << std::string(level + delta_indent, ' ') << "overall_coeff" << std::endl;
-			overall_coeff.print(c, level + delta_indent);
-		}
-		c.s << std::string(level + delta_indent,' ') << "=====" << std::endl;
-#if EXPAIRSEQ_USE_HASHTAB
-		c.s << std::string(level + delta_indent,' ')
-		    << "hashtab size " << hashtabsize << std::endl;
-		if (hashtabsize == 0) return;
-#define MAXCOUNT 5
-		unsigned count[MAXCOUNT+1];
-		for (int i=0; i<MAXCOUNT+1; ++i)
-			count[i] = 0;
-		unsigned this_bin_fill;
-		unsigned cum_fill_sq = 0;
-		unsigned cum_fill = 0;
-		for (unsigned i=0; i<hashtabsize; ++i) {
-			this_bin_fill = 0;
-			if (hashtab[i].size() > 0) {
-				c.s << std::string(level + delta_indent, ' ')
-				    << "bin " << i << " with entries ";
-				for (epplist::const_iterator it=hashtab[i].begin();
-				     it!=hashtab[i].end(); ++it) {
-					c.s << *it-seq.begin() << " ";
-					++this_bin_fill;
-				}
-				c.s << std::endl;
-				cum_fill += this_bin_fill;
-				cum_fill_sq += this_bin_fill*this_bin_fill;
-			}
-			if (this_bin_fill<MAXCOUNT)
-				++count[this_bin_fill];
-			else
-				++count[MAXCOUNT];
-		}
-		unsigned fact = 1;
-		double cum_prob = 0;
-		double lambda = (1.0*seq.size()) / hashtabsize;
-		for (int k=0; k<MAXCOUNT; ++k) {
-			if (k>0)
-				fact *= k;
-			double prob = std::pow(lambda,k)/fact * std::exp(-lambda);
-			cum_prob += prob;
-			c.s << std::string(level + delta_indent, ' ') << "bins with " << k << " entries: "
-			    << int(1000.0*count[k]/hashtabsize)/10.0 << "% (expected: "
-			    << int(prob*1000)/10.0 << ")" << std::endl;
-		}
-		c.s << std::string(level + delta_indent, ' ') << "bins with more entries: "
-		    << int(1000.0*count[MAXCOUNT]/hashtabsize)/10.0 << "% (expected: "
-		    << int((1-cum_prob)*1000)/10.0 << ")" << std::endl;
-	
-		c.s << std::string(level + delta_indent, ' ') << "variance: "
-		    << 1.0/hashtabsize*cum_fill_sq-(1.0/hashtabsize*cum_fill)*(1.0/hashtabsize*cum_fill)
-		    << std::endl;
-		c.s << std::string(level + delta_indent, ' ') << "average fill: "
-		    << (1.0*cum_fill)/hashtabsize
-		    << " (should be equal to " << (1.0*seq.size())/hashtabsize << ")" << std::endl;
-#endif // EXPAIRSEQ_USE_HASHTAB
-
-	} else {
-		c.s << "[[";
-		printseq(c, ',', precedence(), level);
-		c.s << "]]";
+void expairseq::do_print_tree(const print_tree & c, unsigned level) const
+{
+	c.s << std::string(level, ' ') << class_name()
+	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+	    << ", nops=" << nops()
+	    << std::endl;
+	size_t num = seq.size();
+	for (size_t i=0; i<num; ++i) {
+		seq[i].rest.print(c, level + c.delta_indent);
+		seq[i].coeff.print(c, level + c.delta_indent);
+		if (i != num - 1)
+			c.s << std::string(level + c.delta_indent, ' ') << "-----" << std::endl;
 	}
+	if (!overall_coeff.is_equal(default_overall_coeff())) {
+		c.s << std::string(level + c.delta_indent, ' ') << "-----" << std::endl
+		    << std::string(level + c.delta_indent, ' ') << "overall_coeff" << std::endl;
+		overall_coeff.print(c, level + c.delta_indent);
+	}
+	c.s << std::string(level + c.delta_indent,' ') << "=====" << std::endl;
+#if EXPAIRSEQ_USE_HASHTAB
+	c.s << std::string(level + c.delta_indent,' ')
+	    << "hashtab size " << hashtabsize << std::endl;
+	if (hashtabsize == 0) return;
+#define MAXCOUNT 5
+	unsigned count[MAXCOUNT+1];
+	for (int i=0; i<MAXCOUNT+1; ++i)
+		count[i] = 0;
+	unsigned this_bin_fill;
+	unsigned cum_fill_sq = 0;
+	unsigned cum_fill = 0;
+	for (unsigned i=0; i<hashtabsize; ++i) {
+		this_bin_fill = 0;
+		if (hashtab[i].size() > 0) {
+			c.s << std::string(level + c.delta_indent, ' ')
+			    << "bin " << i << " with entries ";
+			for (epplist::const_iterator it=hashtab[i].begin();
+			     it!=hashtab[i].end(); ++it) {
+				c.s << *it-seq.begin() << " ";
+				++this_bin_fill;
+			}
+			c.s << std::endl;
+			cum_fill += this_bin_fill;
+			cum_fill_sq += this_bin_fill*this_bin_fill;
+		}
+		if (this_bin_fill<MAXCOUNT)
+			++count[this_bin_fill];
+		else
+			++count[MAXCOUNT];
+	}
+	unsigned fact = 1;
+	double cum_prob = 0;
+	double lambda = (1.0*seq.size()) / hashtabsize;
+	for (int k=0; k<MAXCOUNT; ++k) {
+		if (k>0)
+			fact *= k;
+		double prob = std::pow(lambda,k)/fact * std::exp(-lambda);
+		cum_prob += prob;
+		c.s << std::string(level + c.delta_indent, ' ') << "bins with " << k << " entries: "
+		    << int(1000.0*count[k]/hashtabsize)/10.0 << "% (expected: "
+		    << int(prob*1000)/10.0 << ")" << std::endl;
+	}
+	c.s << std::string(level + c.delta_indent, ' ') << "bins with more entries: "
+	    << int(1000.0*count[MAXCOUNT]/hashtabsize)/10.0 << "% (expected: "
+	    << int((1-cum_prob)*1000)/10.0 << ")" << std::endl;
+
+	c.s << std::string(level + c.delta_indent, ' ') << "variance: "
+	    << 1.0/hashtabsize*cum_fill_sq-(1.0/hashtabsize*cum_fill)*(1.0/hashtabsize*cum_fill)
+	    << std::endl;
+	c.s << std::string(level + c.delta_indent, ' ') << "average fill: "
+	    << (1.0*cum_fill)/hashtabsize
+	    << " (should be equal to " << (1.0*seq.size())/hashtabsize << ")" << std::endl;
+#endif // EXPAIRSEQ_USE_HASHTAB
 }
 
 bool expairseq::info(unsigned inf) const
