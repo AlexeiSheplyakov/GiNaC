@@ -137,11 +137,11 @@ struct sym_desc {
     /** Lowest degree of symbol in polynomial "b" */
     int ldeg_b;
 
-    /** Minimum of ldeg_a and ldeg_b (Used for sorting) */
-    int min_deg;
+    /** Maximum of deg_a and deg_b (Used for sorting) */
+    int max_deg;
 
     /** Commparison operator for sorting */
-    bool operator<(const sym_desc &x) const {return min_deg < x.min_deg;}
+    bool operator<(const sym_desc &x) const {return max_deg < x.max_deg;}
 };
 
 // Vector of sym_desc structures
@@ -197,12 +197,21 @@ static void get_symbol_stats(const ex &a, const ex &b, sym_desc_vec &v)
         int deg_b = b.degree(*(it->sym));
         it->deg_a = deg_a;
         it->deg_b = deg_b;
-        it->min_deg = min(deg_a, deg_b);
+        it->max_deg = max(deg_a, deg_b);
         it->ldeg_a = a.ldegree(*(it->sym));
         it->ldeg_b = b.ldegree(*(it->sym));
         it++;
     }
     sort(v.begin(), v.end());
+#if 0
+	clog << "Symbols:\n";
+	it = v.begin(); itend = v.end();
+	while (it != itend) {
+		clog << " " << *it->sym << ": deg_a=" << it->deg_a << ", deg_b=" << it->deg_b << ", ldeg_a=" << it->ldeg_a << ", ldeg_b=" << it->ldeg_b << ", max_deg=" << it->max_deg << endl;
+		clog << "  lcoeff_a=" << a.lcoeff(*(it->sym)) << ", lcoeff_b=" << b.lcoeff(*(it->sym)) << endl;
+		it++;
+	}
+#endif
 }
 
 
@@ -503,6 +512,8 @@ bool divide(const ex &a, const ex &b, ex &q, bool check_args)
     q = _ex0();
     if (b.is_zero())
         throw(std::overflow_error("divide: division by zero"));
+	if (a.is_zero())
+		return true;
     if (is_ex_exactly_of_type(b, numeric)) {
         q = a / b;
         return true;
@@ -827,8 +838,201 @@ ex ex::primpart(const symbol &x, const ex &c) const
  *  GCD of multivariate polynomials
  */
 
+/** Compute GCD of multivariate polynomials using the Euclidean PRS algorithm
+ *  (not really suited for multivariate GCDs). This function is only provided
+ *  for testing purposes.
+ *
+ *  @param a  first multivariate polynomial
+ *  @param b  second multivariate polynomial
+ *  @param x  pointer to symbol (main variable) in which to compute the GCD in
+ *  @return the GCD as a new expression
+ *  @see gcd */
+
+static ex eu_gcd(const ex &a, const ex &b, const symbol *x)
+{
+//clog << "eu_gcd(" << a << "," << b << ")\n";
+
+    // Sort c and d so that c has higher degree
+    ex c, d;
+    int adeg = a.degree(*x), bdeg = b.degree(*x);
+    if (adeg >= bdeg) {
+        c = a;
+        d = b;
+    } else {
+        c = b;
+        d = a;
+    }
+
+	// Euclidean algorithm
+    ex r;
+    for (;;) {
+//clog << " d = " << d << endl;
+        r = rem(c, d, *x, false);
+        if (r.is_zero())
+            return d.primpart(*x);
+        c = d;
+		d = r;
+    }
+}
+
+
+/** Compute GCD of multivariate polynomials using the Euclidean PRS algorithm
+ *  with pseudo-remainders ("World's Worst GCD Algorithm", staying in Z[X]).
+ *  This function is only provided for testing purposes.
+ *
+ *  @param a  first multivariate polynomial
+ *  @param b  second multivariate polynomial
+ *  @param x  pointer to symbol (main variable) in which to compute the GCD in
+ *  @return the GCD as a new expression
+ *  @see gcd */
+
+static ex euprem_gcd(const ex &a, const ex &b, const symbol *x)
+{
+//clog << "euprem_gcd(" << a << "," << b << ")\n";
+
+    // Sort c and d so that c has higher degree
+    ex c, d;
+    int adeg = a.degree(*x), bdeg = b.degree(*x);
+    if (adeg >= bdeg) {
+        c = a;
+        d = b;
+    } else {
+        c = b;
+        d = a;
+    }
+
+	// Euclidean algorithm with pseudo-remainders
+    ex r;
+    for (;;) {
+//clog << " d = " << d << endl;
+        r = prem(c, d, *x, false);
+        if (r.is_zero())
+            return d.primpart(*x);
+        c = d;
+		d = r;
+    }
+}
+
+
+/** Compute GCD of multivariate polynomials using the primitive Euclidean
+ *  PRS algorithm (complete content removal at each step). This function is
+ *  only provided for testing purposes.
+ *
+ *  @param a  first multivariate polynomial
+ *  @param b  second multivariate polynomial
+ *  @param x  pointer to symbol (main variable) in which to compute the GCD in
+ *  @return the GCD as a new expression
+ *  @see gcd */
+
+static ex peu_gcd(const ex &a, const ex &b, const symbol *x)
+{
+//clog << "peu_gcd(" << a << "," << b << ")\n";
+
+    // Sort c and d so that c has higher degree
+    ex c, d;
+    int adeg = a.degree(*x), bdeg = b.degree(*x);
+    int ddeg;
+    if (adeg >= bdeg) {
+        c = a;
+        d = b;
+        ddeg = bdeg;
+    } else {
+        c = b;
+        d = a;
+        ddeg = adeg;
+    }
+
+    // Remove content from c and d, to be attached to GCD later
+    ex cont_c = c.content(*x);
+    ex cont_d = d.content(*x);
+    ex gamma = gcd(cont_c, cont_d, NULL, NULL, false);
+    if (ddeg == 0)
+        return gamma;
+    c = c.primpart(*x, cont_c);
+    d = d.primpart(*x, cont_d);
+
+    // Euclidean algorithm with content removal
+	ex r;
+    for (;;) {
+//clog << " d = " << d << endl;
+        r = prem(c, d, *x, false);
+        if (r.is_zero())
+            return gamma * d;
+        c = d;
+		d = r.primpart(*x);
+    }
+}
+
+
+/** Compute GCD of multivariate polynomials using the reduced PRS algorithm.
+ *  This function is only provided for testing purposes.
+ *
+ *  @param a  first multivariate polynomial
+ *  @param b  second multivariate polynomial
+ *  @param x  pointer to symbol (main variable) in which to compute the GCD in
+ *  @return the GCD as a new expression
+ *  @see gcd */
+
+static ex red_gcd(const ex &a, const ex &b, const symbol *x)
+{
+//clog << "red_gcd(" << a << "," << b << ")\n";
+
+    // Sort c and d so that c has higher degree
+    ex c, d;
+    int adeg = a.degree(*x), bdeg = b.degree(*x);
+    int cdeg, ddeg;
+    if (adeg >= bdeg) {
+        c = a;
+        d = b;
+        cdeg = adeg;
+        ddeg = bdeg;
+    } else {
+        c = b;
+        d = a;
+        cdeg = bdeg;
+        ddeg = adeg;
+    }
+
+    // Remove content from c and d, to be attached to GCD later
+    ex cont_c = c.content(*x);
+    ex cont_d = d.content(*x);
+    ex gamma = gcd(cont_c, cont_d, NULL, NULL, false);
+    if (ddeg == 0)
+        return gamma;
+    c = c.primpart(*x, cont_c);
+    d = d.primpart(*x, cont_d);
+
+    // First element of subresultant sequence
+    ex r, ri = _ex1();
+    int delta = cdeg - ddeg;
+
+    for (;;) {
+        // Calculate polynomial pseudo-remainder
+//clog << " d = " << d << endl;
+        r = prem(c, d, *x, false);
+        if (r.is_zero())
+            return gamma * d.primpart(*x);
+        c = d;
+        cdeg = ddeg;
+
+        if (!divide(r, pow(ri, delta), d, false))
+            throw(std::runtime_error("invalid expression in red_gcd(), division failed"));
+        ddeg = d.degree(*x);
+        if (ddeg == 0) {
+            if (is_ex_exactly_of_type(r, numeric))
+                return gamma;
+            else
+                return gamma * r.primpart(*x);
+        }
+
+        ri = c.expand().lcoeff(*x);
+        delta = cdeg - ddeg;
+    }
+}
+
+
 /** Compute GCD of multivariate polynomials using the subresultant PRS
- *  algorithm. This function is used internally gy gcd().
+ *  algorithm. This function is used internally by gcd().
  *
  *  @param a  first multivariate polynomial
  *  @param b  second multivariate polynomial
@@ -876,13 +1080,14 @@ static ex sr_gcd(const ex &a, const ex &b, const symbol *x)
     for (;;) {
         // Calculate polynomial pseudo-remainder
 //clog << " start of loop, psi = " << psi << ", calculating pseudo-remainder...\n";
+//clog << " d = " << d << endl;
         r = prem(c, d, *x, false);
         if (r.is_zero())
             return gamma * d.primpart(*x);
         c = d;
         cdeg = ddeg;
 //clog << " dividing...\n";
-        if (!divide(r, ri * power(psi, delta), d, false))
+        if (!divide(r, ri * pow(psi, delta), d, false))
             throw(std::runtime_error("invalid expression in sr_gcd(), division failed"));
         ddeg = d.degree(*x);
         if (ddeg == 0) {
@@ -898,7 +1103,7 @@ static ex sr_gcd(const ex &a, const ex &b, const symbol *x)
         if (delta == 1)
             psi = ri;
         else if (delta)
-            divide(power(ri, delta), power(psi, delta-1), psi, false);
+            divide(pow(ri, delta), pow(psi, delta-1), psi, false);
         delta = cdeg - ddeg;
     }
 }
@@ -1317,8 +1522,9 @@ factored_b:
         return g;
     }
 
-    // Try heuristic algorithm first, fall back to PRS if that failed
     ex g;
+#if 1
+    // Try heuristic algorithm first, fall back to PRS if that failed
     try {
         g = heur_gcd(aex, bex, ca, cb, var);
     } catch (gcdheu_failed) {
@@ -1329,7 +1535,13 @@ factored_b:
 #if STATISTICS
 		heur_gcd_failed++;
 #endif
-        g = sr_gcd(aex, bex, x);
+#endif
+//		g = heur_gcd(aex, bex, ca, cb, var);
+//		g = eu_gcd(aex, bex, x);
+//		g = euprem_gcd(aex, bex, x);
+//		g = peu_gcd(aex, bex, x);
+//		g = red_gcd(aex, bex, x);
+		g = sr_gcd(aex, bex, x);
 		if (g.is_equal(_ex1())) {
 			// Keep cofactors factored if possible
 			if (ca)
@@ -1342,6 +1554,7 @@ factored_b:
 	        if (cb)
 	            divide(bex, g, *cb, false);
 		}
+#if 1
     } else {
 		if (g.is_equal(_ex1())) {
 			// Keep cofactors factored if possible
@@ -1350,8 +1563,9 @@ factored_b:
 			if (cb)
 				*cb = b;
 		}
-	    return g;
 	}
+#endif
+    return g;
 }
 
 
@@ -1861,19 +2075,16 @@ ex symbol::to_rational(lst &repl_lst) const
  *  @see ex::to_rational */
 ex numeric::to_rational(lst &repl_lst) const
 {
-	numeric num = numer();
-	ex numex = num;
-
-    if (num.is_real()) {
-        if (!num.is_integer())
-            numex = replace_with_symbol(numex, repl_lst);
+    if (is_real()) {
+        if (!is_integer())
+            return replace_with_symbol(*this, repl_lst);
     } else { // complex
-        numeric re = num.real(), im = num.imag();
+        numeric re = real(), im = imag();
         ex re_ex = re.is_rational() ? re : replace_with_symbol(re, repl_lst);
         ex im_ex = im.is_rational() ? im : replace_with_symbol(im, repl_lst);
-        numex = re_ex + im_ex * replace_with_symbol(I, repl_lst);
+        return re_ex + im_ex * replace_with_symbol(I, repl_lst);
     }
-	return numex;
+	return *this;
 }
 
 

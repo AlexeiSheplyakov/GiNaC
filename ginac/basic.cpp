@@ -309,7 +309,7 @@ ex basic::diff(const symbol & s, unsigned nth) const
     if (!nth)
         return ex(*this);
     
-    // evaluate unevalueted *this before differentiating
+    // evaluate unevaluated *this before differentiating
     if (!(flags & status_flags::evaluated))
         return ex(*this).diff(s, nth);
     
