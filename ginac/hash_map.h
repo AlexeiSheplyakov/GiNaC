@@ -337,7 +337,7 @@ public:
 
 	iterator insert(iterator pos, const value_type &x)
 	{
-		return insert(this->val).first;
+		return insert(x).first;
 	}
 
 	template <class InputIterator>
