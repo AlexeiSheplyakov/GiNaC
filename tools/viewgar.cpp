@@ -33,7 +33,7 @@ using namespace GiNaC;
 int main(int argc, char **argv)
 {
 	if (argc < 2) {
-		fprintf(stderr, "Usage: %s [-d] file...", argv[0]);
+		fprintf(stderr, "Usage: %s [-d] file...\n", argv[0]);
 		exit(1);
 	}
 	argc--; argv++;
