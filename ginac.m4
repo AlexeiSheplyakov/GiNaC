@@ -14,11 +14,11 @@ AC_DEFUN([AM_PATH_GINAC],
 [dnl 
 dnl Get the cppflags and libraries from the ginac-config script
 dnl
-AC_ARG_WITH(ginac-prefix,[  --with-ginac-prefix=PFX Prefix where GiNaC is installed (optional)],
+AC_ARG_WITH(ginac-prefix, AC_HELP_STRING([--with-ginac-prefix=PFX], [Prefix where GiNaC is installed (optional)]),
             ginac_prefix="$withval", ginac_prefix="")
-AC_ARG_WITH(ginac-exec-prefix,[  --with-ginac-exec-prefix=PFX Exec prefix where GiNaC is installed (optional)],
+AC_ARG_WITH(ginac-exec-prefix, AC_HELP_STRING([--with-ginac-exec-prefix=PFX], [Exec prefix where GiNaC is installed (optional)]),
             ginac_exec_prefix="$withval", ginac_exec_prefix="")
-AC_ARG_ENABLE(ginactest, [  --disable-ginactest     Do not try to compile and run a test GiNaC program],
+AC_ARG_ENABLE(ginactest, AC_HELP_STRING([--disable-ginactest], [Do not try to compile and run a test GiNaC program]),
               , enable_ginactest=yes)
 
 if test x$ginac_exec_prefix != x ; then
