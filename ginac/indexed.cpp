@@ -1108,7 +1108,7 @@ ex simplify_indexed(const ex & e, exvector & free_indices, exvector & dummy_indi
  *  the free indices in sums are consistent.
  *
  *  @return simplified expression */
-ex ex::simplify_indexed() const
+ex ex::simplify_indexed(unsigned options) const
 {
 	exvector free_indices, dummy_indices;
 	scalar_products sp;
@@ -1122,7 +1122,7 @@ ex ex::simplify_indexed() const
  *
  *  @param sp Scalar products to be replaced automatically
  *  @return simplified expression */
-ex ex::simplify_indexed(const scalar_products & sp) const
+ex ex::simplify_indexed(const scalar_products & sp, unsigned options) const
 {
 	exvector free_indices, dummy_indices;
 	return GiNaC::simplify_indexed(*this, free_indices, dummy_indices, sp);

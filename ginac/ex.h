@@ -189,8 +189,8 @@ public:
 
 	// indexed objects
 	exvector get_free_indices() const { return bp->get_free_indices(); }
-	ex simplify_indexed() const;
-	ex simplify_indexed(const scalar_products & sp) const;
+	ex simplify_indexed(unsigned options = 0) const;
+	ex simplify_indexed(const scalar_products & sp, unsigned options = 0) const;
 
 	// comparison
 	int compare(const ex & other) const;
@@ -769,11 +769,11 @@ inline ex series(const ex & thisex, const ex & r, int order, unsigned options = 
 inline bool match(const ex & thisex, const ex & pattern, lst & repl_lst)
 { return thisex.match(pattern, repl_lst); }
 
-inline ex simplify_indexed(const ex & thisex)
-{ return thisex.simplify_indexed(); }
+inline ex simplify_indexed(const ex & thisex, unsigned options = 0)
+{ return thisex.simplify_indexed(options); }
 
-inline ex simplify_indexed(const ex & thisex, const scalar_products & sp)
-{ return thisex.simplify_indexed(sp); }
+inline ex simplify_indexed(const ex & thisex, const scalar_products & sp, unsigned options = 0)
+{ return thisex.simplify_indexed(sp, options); }
 
 inline ex symmetrize(const ex & thisex)
 { return thisex.symmetrize(); }
