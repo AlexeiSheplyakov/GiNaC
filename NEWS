@@ -3,7 +3,8 @@ This file records noteworthy changes.
 0.7.1 (--date--)
 * Fix problems with Cint that were caused by CLN's overloaded operator new.
 * Fix compilation errors with GCC3.
-* normal() handles large sums of fractions better.
+* normal() handles large sums of fractions better and normalizes the exponent
+  of power expressions.
 * expand() always expands the exponent and transforms x^(a+b) -> x^a*x^b.
 
 0.7.0 (15 December 2000)
