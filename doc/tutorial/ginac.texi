@@ -2640,7 +2640,7 @@ The matching algorithm works as follows:
   fails (i.e. a sum only matches a sum, a function only matches a function,
   etc.).
 @item If the pattern is a function, it only matches the same function
-  (i.e. @samp{sin($0)} matches @samp{sin(x)} but doesn't match @samp{exp(x)}.
+  (i.e. @samp{sin($0)} matches @samp{sin(x)} but doesn't match @samp{exp(x)}).
 @item Except for sums and products, the match fails if the number of
   subexpressions (@code{nops()}) is not equal to the number of subexpressions
   of the pattern.
@@ -2699,9 +2699,9 @@ FAIL
    may be [$1==a,$2==b] in which case the match for the second factor
    succeeds, or it may be [$1==b,$2==a] which causes the second match to
    fail.)
-> match(2*(x+y)+2*z-2,2*$1+$2);
-  (This is also ambiguous and may return either [$1==z,$2==-2+2*x+2*y] or
-   [$1=x+y,$2=2*z-2].)
+> match(a*(x+y)+a*z+b,a*$1+$2);
+  (This is also ambiguous and may return either [$1==z,$2==a*(x+y)+b] or
+   [$1=x+y,$2=a*z+b].)
 > match(a+b+c+d+e+f,c);
 FAIL
 > match(a+b+c+d+e+f,c+$0);
@@ -2712,8 +2712,8 @@ FAIL
 [$0==0]
 > match(a*b^2,a^$1*b^$2);
 FAIL
-  (The matching is syntactic, not algebraic, and "a" doesn't match "a^$0"
-   even if a==a^x for x==0.)
+  (The matching is syntactic, not algebraic, and "a" doesn't match "a^$1"
+   even if a==a^1.)
 > match(x*atan2(x,x^2),$0*atan2($0,$0^2));
 [$0==x]
 > match(atan2(y,x^2),atan2(y,$0));
@@ -2779,6 +2779,8 @@ b^4+a^4+(x+y)^4
 (a+b+c)^2
 > subs((a+b+c)^2,a+b+$1==x+$1);
 (x+c)^2
+> subs(a+2*b,a+b=x);
+a+2*b
 > subs(4*x^3-2*x^2+5*x-1,x==a);
 -1+5*a-2*a^2+4*a^3
 > subs(4*x^3-2*x^2+5*x-1,x^$0==a^$0);
