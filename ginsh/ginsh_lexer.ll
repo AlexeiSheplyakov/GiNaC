@@ -171,8 +171,27 @@ static int ginsh_input(char *buf, int max_size)
 	return result;
 }
 
-// Scanner terminates on EOF
+// List of input files to be processed
+int num_files = 0;
+char **file_list = NULL;
+
+// EOF encountered, connect to next file. If this was the last file,
+// connect to stdin. If this was stdin, terminate the scanner.
 int yywrap()
 {
-	return 1;
+	if (yyin == stdin)
+		return 1;
+
+	fclose(yyin);
+	if (num_files) {
+		yyin = fopen(*file_list, "r");
+		if (yyin == NULL) {
+			cerr << "Can't open " << *file_list << endl;
+			return 1;
+		}
+		num_files--;
+		file_list++;
+	} else
+		yyin = stdin;
+	return 0;
 }

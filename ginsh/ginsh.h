@@ -22,7 +22,7 @@
 #ifndef GINSH_H
 #define GINSH_H
 
-// yacc semantic type
+// yacc stack type
 #define YYSTYPE ex
 
 // lex functions/variables
@@ -33,14 +33,14 @@ extern char *yytext;
 #else
 extern char yytext[];
 #endif
+extern FILE *yyin;
+
+// List of input files to be processed
+extern int num_files;
+extern char **file_list;
 
 // Table of all used symbols
 typedef map<string, symbol> sym_tab;
 extern sym_tab syms;
-
-// Prototypes for missing functions
-#ifndef HAVE_STRDUP
-extern char *strdup(const char *s);
-#endif
 
 #endif

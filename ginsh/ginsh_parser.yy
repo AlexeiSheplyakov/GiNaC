@@ -126,6 +126,15 @@ line	: ';'
 				YYERROR;
 			}
 		}
+	| exp ':'
+		{
+			try {
+				push($1);
+			} catch (exception &e) {
+				cerr << e.what() << endl;
+				YYERROR;
+			}
+		}
 	| T_PRINT '(' exp ')' ';'
 		{
 			try {
@@ -146,6 +155,7 @@ line	: ';'
 			cout << " out of a possible 350.\n";
 		}
 	| error ';'		{yyclearin; yyerrok;}
+	| error ':'		{yyclearin; yyerrok;}
 	;
 
 exp	: T_NUMBER		{$$ = $1;}
@@ -657,6 +667,19 @@ int main(int argc, char **argv)
 	rl_attempted_completion_function = (CPPFunction *)fcn_completion;
 	orig_completion_append_character = rl_completion_append_character;
 	orig_basic_word_break_characters = rl_basic_word_break_characters;
+
+	// Init input file list, open first file
+	num_files = argc - 1;
+	file_list = argv + 1;
+	if (num_files) {
+		yyin = fopen(*file_list, "r");
+		if (yyin == NULL) {
+			cerr << "Can't open " << *file_list << endl;
+			exit(1);
+		}
+		num_files--;
+		file_list++;
+	}
 
 	// Parse input, catch all remaining exceptions
 	int result;

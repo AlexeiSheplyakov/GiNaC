@@ -3,6 +3,7 @@
 ginsh \- GiNaC Interactive Shell
 .SH SYNPOSIS
 .B ginsh
+.RI [ file\&... ]
 .SH DESCRIPTION
 .B ginsh
 is an interactive frontend for the GiNaC symbolic computation framework.
@@ -24,12 +25,15 @@ mathematical operators like
 .BR + " and  " * ,
 and functions (e.g.
 .BR sin " or " normal ).
-ginsh will evaluate the expression and print the result to stdout. Every
-input expression must be terminated by a semicolon
-.RB ( ; ),
-and it is possible to enter multiple expressions on one line. Whitespace
-(spaces, tabs, newlines) can be applied freely between tokens. To quit ginsh,
-enter
+Every input expression must be terminated with either a semicolon
+.RB ( ; )
+or a colon
+.RB ( : ).
+If terminated with a semicolon, ginsh will evaluate the expression and print
+the result to stdout. If terminated with a colon, ginsh will only evaluate the
+expression but not print the result. It is possible to enter multiple
+expressions on one line. Whitespace (spaces, tabs, newlines) can be applied
+freely between tokens. To quit ginsh, enter
 .BR quit " or " exit ,
 or type an EOF (Ctrl-D) at the prompt.
 .SS NUMBERS
