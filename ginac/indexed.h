@@ -172,7 +172,8 @@ public:
 	exvector get_dummy_indices() const;
 
 	/** Return a vector containing the dummy indices in the contraction with
-	 *  another indexed object. */
+	 *  another indexed object. This is symmetric: a.get_dummy_indices(b)
+	 *  == b.get_dummy_indices(a) */
 	exvector get_dummy_indices(const indexed & other) const;
 
 	/** Check whether the object has an index that forms a dummy index pair
