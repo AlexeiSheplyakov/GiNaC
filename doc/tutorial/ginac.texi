@@ -3443,9 +3443,34 @@ int ex::degree(const ex & s);
 int ex::ldegree(const ex & s);
 @end example
 
-which also work reliably on non-expanded input polynomials (they even work
-on rational functions, returning the asymptotic degree). To extract
-a coefficient with a certain power from an expanded polynomial you use
+These functions only work reliably if the input polynomial is collected in
+terms of the object @samp{s}. Otherwise, they are only guaranteed to return
+the upper/lower bounds of the exponents. If you need accurate results, you
+have to call @code{expand()} and/or @code{collect()} on the input polynomial.
+For example
+
+@example
+> a=(x+1)^2-x^2;
+(1+x)^2-x^2;
+> degree(a,x);
+2
+> degree(expand(a),x);
+1
+@end example
+
+@code{degree()} also works on rational functions, returning the asymptotic
+degree:
+
+@example
+> degree((x+1)/(x^3+1),x);
+-2
+@end example
+
+If the input is not a polynomial or rational function in the variable @samp{s},
+the behavior of @code{degree()} and @code{ldegree()} is undefined.
+
+To extract a coefficient with a certain power from an expanded
+polynomial you use
 
 @example
 ex ex::coeff(const ex & s, int n);
