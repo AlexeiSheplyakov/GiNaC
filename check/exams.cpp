@@ -49,6 +49,7 @@ try { \
 	EXAM(lsolve)
 	EXAM(indexed)
 	EXAM(color)
+	EXAM(clifford)
 	EXAM(misc)
 	
 	if (result) {

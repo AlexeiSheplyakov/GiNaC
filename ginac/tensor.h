@@ -40,6 +40,8 @@ protected:
 	tensor(unsigned ti);
 
 	// functions overriding virtual functions from bases classes
+public:
+	ex subs(const lst & ls, const lst & lr) const;
 protected:
 	unsigned return_type(void) const { return return_types::noncommutative_composite; }
 };

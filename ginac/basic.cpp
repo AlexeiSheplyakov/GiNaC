@@ -31,6 +31,10 @@
 #include "symbol.h"
 #include "lst.h"
 #include "ncmul.h"
+#include "idx.h"
+#include "indexed.h"
+#include "tensor.h"
+#include "function.h"
 #include "archive.h"
 #include "utils.h"
 #include "debugmsg.h"
@@ -462,11 +466,11 @@ ex basic::expand(unsigned options) const
 
 // public
 
-/** Substitute symbols in expression and return the result as a new expression.
- *  There are two valid types of replacement arguments: 1) a relational like
- *  symbol==ex and 2) a list of relationals lst(symbol1==ex1,symbol2==ex2,...),
- *  which is converted to subs(lst(symbol1,symbol2,...),lst(ex1,ex2,...)).
- *  In addition, an object of class idx can be used instead of a symbol. */
+/** Substitute objects (symbols, indices, tensors, functions, indexed) in
+ *  expression and return the result as a new expression.  There are two
+ *  valid types of replacement arguments: 1) a relational like object==ex
+ *  and 2) a list of relationals lst(object1==ex1,object2==ex2,...), which
+ *  is converted to subs(lst(object1,object2,...),lst(ex1,ex2,...)). */
 ex basic::subs(const ex & e) const
 {
 	if (e.info(info_flags::relation_equal)) {
@@ -481,13 +485,15 @@ ex basic::subs(const ex & e) const
 		if (!e.op(i).info(info_flags::relation_equal)) {
 			throw(std::invalid_argument("basic::subs(ex): argument must be a list or equations"));
 		}
-		if (!e.op(i).op(0).info(info_flags::symbol)) {
-			if (!e.op(i).op(0).info(info_flags::idx)) {
-				throw(std::invalid_argument("basic::subs(ex): lhs must be a symbol or an idx"));
-			}
+		ex s = e.op(i).op(0);
+		ex r = e.op(i).op(1);
+		if (!is_ex_of_type(s, symbol) && !is_ex_of_type(s, idx) &&
+		    !is_ex_of_type(s, tensor) && !is_ex_of_type(s, function) &&
+			!is_ex_of_type(s, indexed)) {
+			throw(std::invalid_argument("basic::subs(ex): lhs must be a symbol, idx, tensor, function or indexed"));
 		}
-		ls.append(e.op(i).op(0));
-		lr.append(e.op(i).op(1));
+		ls.append(s);
+		lr.append(r);
 	}
 	return subs(ls,lr);
 }

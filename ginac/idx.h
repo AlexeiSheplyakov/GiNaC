@@ -51,6 +51,8 @@ public:
 	void printtree(std::ostream & os, unsigned indent) const;
 	void print(std::ostream & os, unsigned upper_precedence=0) const;
 	bool info(unsigned inf) const;
+	unsigned nops() const;
+	ex & let_op(int i);
 protected:
 	ex subs(const lst & ls, const lst & lr) const;
 

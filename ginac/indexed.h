@@ -159,6 +159,7 @@ public:
 	int degree(const ex & s) const;
 	int ldegree(const ex & s) const;
 	ex coeff(const ex & s, int n = 1) const;
+	ex subs(const lst & ls, const lst & lr) const;
 	exvector get_free_indices(void) const;
 
 protected:

@@ -29,6 +29,8 @@
 #include "utils.h"
 #include "debugmsg.h"
 
+#include "exprseq.h" // !!
+
 namespace GiNaC {
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(idx, basic)
@@ -182,6 +184,18 @@ bool idx::info(unsigned inf) const
 	return inherited::info(inf);
 }
 
+unsigned idx::nops() const
+{
+	// don't count the dimension as that is not really a sub-expression
+	return 1;
+}
+
+ex & idx::let_op(int i)
+{
+	GINAC_ASSERT(i == 0);
+	return value;
+}
+
 /** Returns order relation between two indices of the same type. The order
  *  must be such that dummy indices lie next to each other. */
 int idx::compare_same_type(const basic & other) const
@@ -225,6 +239,7 @@ ex idx::subs(const lst & ls, const lst & lr) const
 			// Otherwise substitute value
 			idx *i_copy = static_cast<idx *>(duplicate());
 			i_copy->value = lr.op(i);
+			i_copy->clearflag(status_flags::hash_calculated);
 			return i_copy->setflag(status_flags::dynallocated);
 		}
 	}
@@ -236,6 +251,7 @@ ex idx::subs(const lst & ls, const lst & lr) const
 
 	idx *i_copy = static_cast<idx *>(duplicate());
 	i_copy->value = subsed_value;
+	i_copy->clearflag(status_flags::hash_calculated);
 	return i_copy->setflag(status_flags::dynallocated);
 }
 

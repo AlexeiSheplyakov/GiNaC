@@ -223,7 +223,7 @@ ex symbol::eval(int level) const
 
 ex symbol::subs(const lst & ls, const lst & lr) const
 {
-	GINAC_ASSERT(ls.nops()==lr.nops());
+	GINAC_ASSERT(ls.nops() == lr.nops());
 
 	for (unsigned i=0; i<ls.nops(); i++) {
 		if (is_ex_exactly_of_type(ls.op(i),symbol)) {
