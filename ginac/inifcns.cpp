@@ -485,11 +485,32 @@ static ex binomial_evalf(const ex & x, const ex & y)
 	return binomial(x, y).hold();
 }
 
+static ex binomial_sym(const ex & x, const numeric & y)
+{
+	if (y.is_integer()) {
+		if (y.is_nonneg_integer()) {
+			const unsigned N = y.to_int();
+			if (N == 0) return _num0;
+			if (N == 1) return x;
+			ex t = x.expand();
+			for (unsigned i = 2; i <= N; ++i)
+				t = (t * (x + i - y - 1)).expand() / i;
+			return t;
+		} else
+			return _num0;
+	}
+
+	return binomial(x, y).hold();
+}
+
 static ex binomial_eval(const ex & x, const ex &y)
 {
-	if (is_exactly_a<numeric>(x) && is_exactly_a<numeric>(y))
-		return binomial(ex_to<numeric>(x), ex_to<numeric>(y));
-	else
+	if (is_exactly_a<numeric>(y)) {
+		if (is_exactly_a<numeric>(x) && ex_to<numeric>(x).is_integer())
+			return binomial(ex_to<numeric>(x), ex_to<numeric>(y));
+		else
+			return binomial_sym(x, ex_to<numeric>(y));
+	} else
 		return binomial(x, y).hold();
 }
 
