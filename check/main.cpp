@@ -20,7 +20,8 @@
  */
 
 #include <stdexcept>
-#include <ginac/ginac.h>
+#include <iostream>
+
 #include "check.h"
 
 int main()
