@@ -445,14 +445,14 @@ ex pseries::expand(unsigned options) const
 	        ->setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0));
 }
 
-/** Implementation of ex::diff() for a power series.  It treats the series as a
- *  polynomial.
+/** Implementation of ex::diff() for a power series.
  *  @see ex::diff */
 ex pseries::derivative(const symbol & s) const
 {
+	epvector new_seq;
+	epvector::const_iterator it = seq.begin(), itend = seq.end();
+
 	if (s == var) {
-		epvector new_seq;
-		epvector::const_iterator it = seq.begin(), itend = seq.end();
 		
 		// FIXME: coeff might depend on var
 		while (it != itend) {
@@ -465,10 +465,22 @@ ex pseries::derivative(const symbol & s) const
 			}
 			++it;
 		}
-		return pseries(relational(var,point), new_seq);
+
 	} else {
-		return *this;
+
+		while (it != itend) {
+			if (is_order_function(it->rest)) {
+				new_seq.push_back(*it);
+			} else {
+				ex c = it->rest.diff(s);
+				if (!c.is_zero())
+					new_seq.push_back(expair(c, it->coeff));
+			}
+			++it;
+		}
 	}
+
+	return pseries(relational(var,point), new_seq);
 }
 
 ex pseries::convert_to_poly(bool no_order) const
