@@ -173,6 +173,17 @@ static unsigned clifford_check3(void)
 	e = dirac_trace(e).simplify_indexed(sp);
 	result += check_equal(e, 4*(2*ldotq*ldotq + q*q*ldotq - q*q*l*l + q*q*m*m).expand());
 
+	// stuff that had problems in the past
+	ex prop = dirac_slash(q, dim) - m * dirac_ONE();
+	e = dirac_slash(l, dim) * dirac_gamma5() * dirac_slash(l, dim) * prop;
+	e = dirac_trace(dirac_slash(q, dim) * e) - dirac_trace(m * e)
+	  - dirac_trace(prop * e);
+	result += check_equal(e, 0);
+
+	e = (dirac_gamma5() + dirac_ONE()) * dirac_gamma5();
+	e = dirac_trace(e);
+	result += check_equal(e, 4);
+
 	return result;
 }
 

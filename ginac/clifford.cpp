@@ -281,7 +281,7 @@ ex clifford::simplify_ncmul(const exvector & v) const
 	// Remove superfluous ONEs
 	exvector::const_iterator cit = v.begin(), citend = v.end();
 	while (cit != citend) {
-		if (!is_a<diracone>(cit->op(0)))
+		if (!is_a<clifford>(*cit) || !is_a<diracone>(cit->op(0)))
 			s.push_back(*cit);
 		cit++;
 	}
@@ -296,7 +296,7 @@ ex clifford::simplify_ncmul(const exvector & v) const
 			exvector::iterator it = next_to_last;
 			while (true) {
 				exvector::iterator it2 = it + 1;
-				if (!is_a<diracgamma5>(it->op(0)) && is_a<diracgamma5>(it2->op(0))) {
+				if (is_a<clifford>(*it) && is_a<clifford>(*it2) && !is_a<diracgamma5>(it->op(0)) && is_a<diracgamma5>(it2->op(0))) {
 					it->swap(*it2);
 					sign = -sign;
 					something_changed = true;
@@ -312,7 +312,7 @@ ex clifford::simplify_ncmul(const exvector & v) const
 	}
 
 	// Remove squares of gamma5
-	while (s.size() >= 2 && is_a<diracgamma5>(s[0].op(0)) && is_a<diracgamma5>(s[1].op(0))) {
+	while (s.size() >= 2 && is_a<clifford>(s[0]) && is_a<clifford>(s[1]) && is_a<diracgamma5>(s[0].op(0)) && is_a<diracgamma5>(s[1].op(0))) {
 		s.erase(s.begin(), s.begin() + 2);
 		something_changed = true;
 	}
@@ -321,10 +321,10 @@ ex clifford::simplify_ncmul(const exvector & v) const
 	if (s.size() >= 2) {
 		exvector::iterator it, itend = s.end() - 1;
 		for (it = s.begin(); it != itend; ++it) {
-			if (!is_a<clifford>(it[0]))
-				continue;
 			ex & a = it[0];
 			ex & b = it[1];
+			if (!is_a<clifford>(a) || !is_a<clifford>(b))
+				continue;
 			if (is_a<diracgamma>(a.op(0)) && is_a<diracgamma>(b.op(0))) {
 				const ex & ia = a.op(1);
 				const ex & ib = b.op(1);
