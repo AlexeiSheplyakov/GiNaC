@@ -170,7 +170,7 @@ if test "x$with_cint" != "xno"; then
     AC_MSG_RESULT([creating cint/Makefile])
     (cd cint && \
     $MAKECINT -mk Makefile.makecint -o ginaccint.bin -m \
-      -D OBSCURE_CINT_HACK -D NO_NAMESPACE_GINAC \
+      -D OBSCURE_CINT_HACK -D CINT_CONVERSION_WORKAROUND -D NO_NAMESPACE_GINAC \
       -I .. -I $CINTSYSDIR -m -H ../ginac/ginac.h dummies.h \
       -C++ dummies.cpp -C++ ginaccint.bin.cpp \
       -l ./libginac.a -lcln -cint -M0x10; \
