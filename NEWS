@@ -1,6 +1,6 @@
 This file records noteworthy changes.
 
-0.8.3 (<date>)
+0.8.3 (10 May 2001)
 * Symbols can have a LaTeX name, e.g. symbol s("s", "\\sigma");
 * LaTeX output of indexed objects is much nicer.
 * Fix some build-problems (with recent libreadline).
