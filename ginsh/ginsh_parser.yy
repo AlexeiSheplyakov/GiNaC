@@ -252,7 +252,7 @@ static ex f_lsolve(const exprseq &e) {return lsolve(e[0], e[1]);}
 static ex f_nops(const exprseq &e) {return e[0].nops();}
 static ex f_normal1(const exprseq &e) {return e[0].normal();}
 static ex f_numer(const exprseq &e) {return e[0].numer();}
-static ex f_power(const exprseq &e) {return power(e[0], e[1]);}
+static ex f_pow(const exprseq &e) {return pow(e[0], e[1]);}
 static ex f_sqrt(const exprseq &e) {return sqrt(e[0]);}
 static ex f_subs2(const exprseq &e) {return e[0].subs(e[1]);}
 
@@ -511,7 +511,7 @@ static const fcn_init builtin_fcns[] = {
 	{"normal", fcn_desc(f_normal2, 2)},
 	{"numer", fcn_desc(f_numer, 1)},
 	{"op", fcn_desc(f_op, 2)},
-	{"power", fcn_desc(f_power, 2)},
+	{"pow", fcn_desc(f_pow, 2)},
 	{"prem", fcn_desc(f_prem, 3)},
 	{"primpart", fcn_desc(f_primpart, 2)},
 	{"quo", fcn_desc(f_quo, 3)},
