@@ -95,6 +95,12 @@ DEFAULT_UNARCHIVE(fderivative)
 // functions overriding virtual functions from base classes
 //////////
 
+void fderivative::print(const print_context & c, unsigned level) const
+{
+	// class function overrides print(), but we don't want that
+	basic::print(c, level);
+}
+
 void fderivative::do_print(const print_context & c, unsigned level) const
 {
 	c.s << "D[";

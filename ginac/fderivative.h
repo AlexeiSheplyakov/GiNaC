@@ -60,6 +60,7 @@ public:
 
 	// functions overriding virtual functions from base classes
 public:
+	void print(const print_context & c, unsigned level = 0) const;
 	ex eval(int level = 0) const;
 	ex evalf(int level = 0) const;
 	ex series(const relational & r, int order, unsigned options = 0) const;
