@@ -2337,6 +2337,7 @@ authors---they will happily incorporate them into future versions.
 @menu
 * What does not belong into GiNaC::  What to avoid.
 * Symbolic functions::               Implementing symbolic functions.
+* Adding classes::                   Defining new algebraic classes.
 @end menu
 
 
@@ -2364,7 +2365,7 @@ inefficient.  For this purpose, the underlying foundation classes
 provided by @acronym{CLN} are much better suited.
 
 
-@node Symbolic functions, A Comparison With Other CAS, What does not belong into GiNaC, Extending GiNaC
+@node Symbolic functions, Adding classes, What does not belong into GiNaC, Extending GiNaC
 @c    node-name, next, previous, up
 @section Symbolic functions
 
@@ -2468,10 +2469,499 @@ mechanisms.  Please, have a look at the real implementation in GiNaC.
 assure you that functions are GiNaC's most macro-intense classes.  We
 have done our best to avoid macros where we can.)
 
+
+@node Adding classes, A Comparison With Other CAS, Symbolic functions, Extending GiNaC
+@c    node-name, next, previous, up
+@section Adding classes
+
+If you are doing some very specialized things with GiNaC you may find that
+you have to implement your own algebraic classes to fit your needs. This
+section will explain how to do this by giving the example of a simple
+'string' class. After reading this section you will know how to properly
+declare a GiNaC class and what the minimum required member functions are
+that you have to implement. We only cover the implementation of a 'leaf'
+class here (i.e. one that doesn't contain subexpressions). Creating a
+container class like, for example, a class representing tensor products is
+more involved but this section should give you enough information so you can
+consult the source to GiNaC's predefined classes if you want to implement
+something more complicated.
+
+@subsection GiNaC's run-time type information system
+
+@cindex hierarchy of classes
+@cindex RTTI
+All algebraic classes (that is, all classes that can appear in expressions)
+in GiNaC are direct or indirect subclasses of the class @code{basic}. So a
+@code{basic *} (which is essentially what an @code{ex} is) represents a
+generic pointer to an algebraic class. Occasionally it is necessary to find
+out what the class of an object pointed to by a @code{basic *} really is.
+Also, for the unarchiving of expressions it must be possible to find the
+@code{unarchive()} function of a class given the class name (as a string). A
+system that provides this kind of information is called a run-time type
+information (RTTI) system. The C++ language provides such a thing (see the
+standard header file @file{<typeinfo>}) but for efficiency reasons GiNaC
+implements its own, simpler RTTI.
+
+The RTTI in GiNaC is based on two mechanisms:
+
+@itemize @bullet
+
+@item
+The @code{basic} class declares a member variable @code{tinfo_key} which
+holds an unsigned integer that identifies the object's class. These numbers
+are defined in the @file{tinfos.h} header file for the built-in GiNaC
+classes. They all start with @code{TINFO_}.
+
+@item
+By means of some clever tricks with static members, GiNaC maintains a list
+of information for all classes derived from @code{basic}. The information
+available includes the class names, the @code{tinfo_key}s, and pointers
+to the unarchiving functions. This class registry is defined in the
+@file{registrar.h} header file.
+
+@end itemize
+
+The disadvantage of this proprietary RTTI implementation is that there's
+a little more to do when implementing new classes (C++'s RTTI works more
+or less automatic) but don't worry, most of the work is simplified by
+macros.
+
+@subsection A minimalistic example
+
+Now we will start implementing a new class @code{mystring} that allows
+placing character strings in algebraic expressions (this is not very useful,
+but it's just an example). This class will be a direct subclass of
+@code{basic}. You can use this sample implementation as a starting point
+for your own classes.
+
+The code snippets given here assume that you have included some header files
+as follows:
+
+@example
+#include <iostream>
+#include <string>   
+#include <stdexcept>
+using namespace std;
+
+#include <ginac/ginac.h>
+using namespace GiNaC;
+@end example
+
+The first thing we have to do is to define a @code{tinfo_key} for our new
+class. This can be any arbitrary unsigned number that is not already taken
+by one of the existing classes but it's better to come up with something
+that is unlikely to clash with keys that might be added in the future. The
+numbers in @file{tinfos.h} are modeled somewhat after the class hierarchy
+which is not a requirement but we are going to stick with this scheme:
+
+@example
+const unsigned TINFO_mystring = 0x42420001U;
+@end example
+
+Now we can write down the class declaration. The class stores a C++
+@code{string} and the user shall be able to construct a @code{mystring}
+object from a C or C++ string:
+
+@example
+class mystring : public basic
+@{
+    GINAC_DECLARE_REGISTERED_CLASS(mystring, basic)
+  
+public:
+    mystring(const string &s);
+    mystring(const char *s);
+
+private:
+    string str;
+@};
+
+GIANC_IMPLEMENT_REGISTERED_CLASS(mystring, basic)
+@end example
+
+The @code{GINAC_DECLARE_REGISTERED_CLASS} and @code{GINAC_IMPLEMENT_REGISTERED_CLASS}
+macros are defined in @file{registrar.h}. They take the name of the class
+and its direct superclass as arguments and insert all required declarations
+for the RTTI system. The @code{GINAC_DECLARE_REGISTERED_CLASS} should be
+the first line after the opening brace of the class definition. The
+@code{GINAC_IMPLEMENT_REGISTERED_CLASS} may appear anywhere else in the
+source (at global scope, of course, not inside a function).
+
+@code{GINAC_DECLARE_REGISTERED_CLASS} contains, among other things the
+declarations of the default and copy constructor, the destructor, the
+assignment operator and a couple of other functions that are required. It
+also defines a type @code{inherited} which refers to the superclass so you
+don't have to modify your code every time you shuffle around the class
+hierarchy. @code{GINAC_IMPLEMENT_REGISTERED_CLASS} implements the copy
+constructor, the destructor and the assignment operator.
+
+Now there are nine member functions we have to implement to get a working
+class:
+
+@itemize
+
+@item
+@code{mystring()}, the default constructor.
+
+@item
+@code{void destroy(bool call_parent)}, which is used in the destructor and the
+assignment operator to free dynamically allocated members. The @code{call_parent}
+specifies whether the @code{destroy()} function of the superclass is to be
+called also.
+
+@item
+@code{void copy(const mystring &other)}, which is used in the copy constructor
+and assignment operator to copy the member variables over from another
+object of the same class.
+
+@item
+@code{void archive(archive_node &n)}, the archiving function. This stores all
+information needed to reconstruct an object of this class inside an
+@code{archive_node}.
+
+@item
+@code{mystring(const archive_node &n, const lst &sym_lst)}, the unarchiving
+constructor. This constructs an instance of the class from the information
+found in an @code{archive_node}.
+
+@item
+@code{ex unarchive(const archive_node &n, const lst &sym_lst)}, the static
+unarchiving function. It constructs a new instance by calling the unarchiving
+constructor.
+
+@item
+@code{int compare_same_type(const basic &other)}, which is used internally
+by GiNaC to establish a canonical sort order for terms. It returns 0, +1 or
+-1, depending on the relative order of this object and the @code{other}
+object. If it returns 0, the objects are considered equal.
+@strong{Note:} This has nothing to do with the (numeric) ordering
+relationship expressed by @code{<}, @code{>=} etc (which cannot be defined
+for non-numeric classes). For example, @code{numeric(1).compare_same_type(numeric(2))}
+may return +1 even though 1 is clearly smaller than 2. Every GiNaC class
+must provide a @code{compare_same_type()} function, even those representing
+objects for which no reasonable algebraic ordering relationship can be
+defined.
+
+@item
+And, of course, @code{mystring(const string &s)} and @code{mystring(const char *s)}
+which are the two constructors we declared.
+
+@end itemize
+
+Let's proceed step-by-step. The default constructor looks like this:
+
+@example
+mystring::mystring() : inherited(TINFO_mystring)
+@{
+    // dynamically allocate resources here if required
+@}
+@end example
+
+The golden rule is that in all constructors you have to set the
+@code{tinfo_key} member to the @code{TINFO_*} value of your class. Otherwise
+it will be set by the constructor of the superclass and all hell will break
+loose in the RTTI. For your convenience, the @code{basic} class provides
+a constructor that takes a @code{tinfo_key} value, which we are using here
+(remember that in our case @code{inherited = basic}). If the superclass
+didn't have such a constructor, we would have to set the @code{tinfo_key}
+to the right value manually.
+
+In the default constructor you should set all other member variables to
+reasonable default values (we don't need that here since our @code{str}
+member gets set to an empty string automatically). The constructor(s) are of
+course also the right place to allocate any dynamic resources you require.
+
+Next, the @code{destroy()} function:
+
+@example
+void mystring::destroy(bool call_parent)
+@{
+    // free dynamically allocated resources here if required
+    if (call_parent)
+        inherited::destroy(call_parent);
+@}
+@end example
+
+This function is where we free all dynamically allocated resources. We don't
+have any so we're not doing anything here, but if we had, for example, used
+a C-style @code{char *} to store our string, this would be the place to
+@code{delete[]} the string storage. If @code{call_parent} is true, we have
+to call the @code{destroy()} function of the superclass after we're done
+(to mimic C++'s automatic invocation of superclass destructors where
+@code{destroy()} is called from outside a destructor).
+
+The @code{copy()} function just copies over the member variables from
+another object:
+
+@example
+void mystring::copy(const mystring &other)
+@{
+    inherited::copy(other);
+    str = other.str;
+@}
+@end example
+
+We can simply overwrite the member variables here. There's no need to worry
+about dynamically allocated storage. The assignment operator (which is
+automatically defined by @code{GINAC_IMPLEMENT_REGISTERED_CLASS}, as you
+recall) calls @code{destroy()} before it calls @code{copy()}. You have to
+explicitly call the @code{copy()} function of the superclass here so
+all the member variables will get copied.
+
+Next are the three functions for archiving. You have to implement them even
+if you don't plan to use archives, but the minimum required implementation
+is really simple. First, the archiving function:
+
+@example
+void mystring::archive(archive_node &n) const
+@{
+    inherited::archive(n);
+    n.add_string("string", str);
+@}
+@end example
+
+The only thing that is really required is calling the @code{archive()}
+function of the superclass. Optionally, you can store all information you
+deem necessary for representing the object into the passed
+@code{archive_node}. We are just storing our string here. For more
+information on how the archiving works, consult the @file{archive.h} header
+file.
+
+The unarchiving constructor is basically the inverse of the archiving
+function:
+
+@example
+mystring::mystring(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+@{
+    n.find_string("string", str);
+@}
+@end example
+
+If you don't need archiving, just leave this function empty (but you must
+invoke the unarchiving constructor of the superclass). Note that we don't
+have to set the @code{tinfo_key} here because it is done automatically
+by the unarchiving constructor of the @code{basic} class.
+
+Finally, the unarchiving function:
+
+@example
+ex mystring::unarchive(const archive_node &n, const lst &sym_lst)
+@{
+    return (new mystring(n, sym_lst))->setflag(status_flags::dynallocated);
+@}
+@end example
+
+You don't have to understand how exactly this works. Just copy these four
+lines into your code literally (replacing the class name, of course). It
+calls the unarchiving constructor of the class and unless you are doing
+something very special (like matching @code{archive_node}s to global
+objects) you don't need a different implementation.
+
+Our @code{compare_same_type()} function uses a provided function to compare
+the string members:
+
+@example
+int mystring::compare_same_type(const basic &other) const
+@{
+    const mystring &o = static_cast<const mystring &>(other);
+    int cmpval = str.compare(o.str);
+    if (cmpval == 0)
+        return 0;
+    else if (cmpval < 0)
+        return -1;
+    else
+        return 1;
+@}
+@end example
+
+Although this function takes a @code{basic &}, it will always be a reference
+to an object of exactly the same class (objects of different classes are not
+comparable), so the cast is safe. If this function returns 0, the two objects
+are considered equal (in the sense that @math{A-B=0}), so you should compare
+all relevant member variables.
+
+Now the only thing missing is our two new constructors:
+
+@example
+mystring::mystring(const string &s) : inherited(TINFO_mystring), str(s)
+@{
+    // dynamically allocate resources here if required
+@}
+
+mystring::mystring(const char *s) : inherited(TINFO_mystring), str(s)
+@{
+    // dynamically allocate resources here if required
+@}
+@end example
+
+No surprises here. We set the @code{str} member from the argument and
+remember to pass the right @code{tinfo_key} to the @code{basic} constructor.
+
+That's it! We now have a minimal working GiNaC class that can store
+strings in algebraic expressions. Let's confirm that the RTTI works:
+
+@example
+ex e = mystring("Hello, world!");
+cout << is_ex_of_type(e, mystring) << endl;
+ // -> 1 (true)
+
+cout << e.bp->class_name() << endl;
+ // -> mystring
+@end example
+
+Obviously it does. Let's see what the expression @code{e} looks like:
+
+@example
+cout << e << endl;
+ // -> [mystring object]
+@end example
+
+Hm, not exactly what we expect, but of course the @code{mystring} class
+doesn't yet know how to print itself. This is done in the @code{print()}
+member function. Let's say that we wanted to print the string surrounded
+by double quotes:
+
+@example
+class mystring : public basic
+@{
+    ...
+public:
+    void print(ostream &os, unsigned upper_precedence) const;
+    ...
+@};
+
+void mystring::print(ostream &os, unsigned upper_precedence) const
+@{
+    os << '\"' << str << '\"';
+@}
+@end example
+
+The @code{upper_precedence} argument is only required for container classes
+to correctly parenthesize the output. Let's try again to print the expression:
+
+@example
+cout << e << endl;
+ // -> "Hello, world!"
+@end example
+
+Much better. The @code{mystring} class can be used in arbitrary expressions:
+
+@example
+e += mystring("GiNaC rulez"); 
+cout << e << endl;
+ // -> "GiNaC rulez"+"Hello, world!"
+@end example
+
+(note that GiNaC's automatic term reordering is in effect here), or even
+
+@example
+e = pow(mystring("One string"), 2*sin(Pi-mystring("Another string")));
+cout << e << endl;
+ // -> "One string"^(2*sin(-"Another string"+Pi))
+@end example
+
+Whether this makes sense is debatable but remember that this is only an
+example. At least it allows you to implement your own symbolic algorithms
+for your objects.
+
+Note that GiNaC's algebraic rules remain unchanged:
+
+@example
+e = mystring("Wow") * mystring("Wow");
+cout << e << endl;
+ // -> "Wow"^2
+
+e = pow(mystring("First")-mystring("Second"), 2);
+cout << e.expand() << endl;
+ // -> -2*"First"*"Second"+"First"^2+"Second"^2
+@end example
+
+There's no way to, for example, make GiNaC's @code{add} class perform string
+concatenation. You would have to implement this yourself.
+
+@subsection Automatic evaluation
+
+@cindex @code{hold()}
+@cindex evaluation
+When dealing with objects that are just a little more complicated than the
+simple string objects we have implemented, chances are that you will want to
+have some automatic simplifications or canonicalizations performed on them.
+This is done in the evaluation member function @code{eval()}. Let's say that
+we wanted all strings automatically converted to lowercase with
+non-alphabetic characters stripped, and empty strings removed:
+
+@example
+class mystring : public basic
+@{
+    ...
+public:
+    ex eval(int level = 0) const;
+    ...
+@};
+
+ex mystring::eval(int level) const
+@{
+    string new_str;
+    for (int i=0; i<str.length(); i++) @{
+        char c = str[i];
+        if (c >= 'A' && c <= 'Z') 
+            new_str += tolower(c);
+        else if (c >= 'a' && c <= 'z')
+            new_str += c;
+    @}
+
+    if (new_str.length() == 0)
+        return _ex0();
+    else
+        return mystring(new_str).hold();
+@}
+@end example
+
+The @code{level} argument is used to limit the recursion depth of the
+evaluation. We don't have any subexpressions in the @code{mystring} class
+so we are not concerned with this. If we had, we would call the @code{eval()}
+functions of the subexpressions with @code{level - 1} as the argument if
+@code{level != 1}. The @code{hold()} member function sets a flag in the
+object that prevents further evaluation. Otherwise we might end up in an
+endless loop. When you want to return the object unmodified, use
+@code{return this->hold();}.
+
+Let's confirm that it works:
+
+@example
+ex e = mystring("Hello, world!") + mystring("!?#");
+cout << e << endl;
+ // -> "helloworld"
+
+e = mystring("Wow!") + mystring("WOW") + mystring(" W ** o ** W");  
+cout << e << endl;
+ // -> 3*"wow"
+@end example
+
+@subsection Other member functions
+
+We have implemented only a small set of member functions to make the class
+work in the GiNaC framework. For a real algebraic class, there are probably
+some more functions that you will want to re-implement, such as
+@code{evalf()}, @code{series()} or @code{op()}. Have a look at @file{basic.h}
+or the header file of the class you want to make a subclass of to see
+what's there. You can, of course, also add your own new member functions.
+In this case you will probably want to define a little helper function like
+
+@example
+inline const mystring &ex_to_mystring(const ex &e)
+@{
+    return static_cast<const mystring &>(*e.bp);
+@}
+@end example
+
+that let's you get at the object inside an expression (after you have verified
+that the type is correct) so you can call member functions that are specific
+to the class.
+
 That's it. May the source be with you!
 
 
-@node A Comparison With Other CAS, Advantages, Symbolic functions, Top
+@node A Comparison With Other CAS, Advantages, Adding classes, Top
 @c    node-name, next, previous, up
 @chapter A Comparison With Other CAS
 @cindex advocacy
@@ -3086,4 +3576,3 @@ Academic Press, London
 @printindex cp
 
 @bye
-
