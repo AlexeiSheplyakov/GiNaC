@@ -3002,20 +3002,25 @@ for example
 
 @cindex @code{dirac_trace()}
 To calculate the trace of an expression containing strings of Dirac gammas
-you use the function
+you use one of the functions
 
 @example
+ex dirac_trace(const ex & e, const std::set<unsigned char> & rls, const ex & trONE = 4);
+ex dirac_trace(const ex & e, const lst & rll, const ex & trONE = 4);
 ex dirac_trace(const ex & e, unsigned char rl = 0, const ex & trONE = 4);
 @end example
 
-This function takes the trace of all gammas with the specified representation
-label; gammas with other labels are left standing. The last argument to
+These functions take the trace over all gammas in the specified set @code{rls}
+or list @code{rll} of representation labels, or the single label @code{rl};
+gammas with other labels are left standing. The last argument to
 @code{dirac_trace()} is the value to be returned for the trace of the unity
-element, which defaults to 4. The @code{dirac_trace()} function is a linear
-functional that is equal to the usual trace only in @math{D = 4} dimensions.
-In particular, the functional is not cyclic in @math{D != 4} dimensions when
-acting on expressions containing @samp{gamma5}, so it's not a proper trace.
-This @samp{gamma5} scheme is described in greater detail in
+element, which defaults to 4.
+
+The @code{dirac_trace()} function is a linear functional that is equal to the
+ordinary matrix trace only in @math{D = 4} dimensions. In particular, the
+functional is not cyclic in @math{D != 4} dimensions when acting on
+expressions containing @samp{gamma5}, so it's not a proper trace. This
+@samp{gamma5} scheme is described in greater detail in
 @cite{The Role of gamma5 in Dimensional Regularization}.
 
 The value of the trace itself is also usually different in 4 and in
@@ -3177,16 +3182,19 @@ expressions containing color objects:
 @end example
 
 @cindex @code{color_trace()}
-To calculate the trace of an expression containing color objects you use the
-function
+To calculate the trace of an expression containing color objects you use one
+of the functions
 
 @example
+ex color_trace(const ex & e, const std::set<unsigned char> & rls);
+ex color_trace(const ex & e, const lst & rll);
 ex color_trace(const ex & e, unsigned char rl = 0);
 @end example
 
-This function takes the trace of all color @samp{T} objects with the
-specified representation label; @samp{T}s with other labels are left
-standing. For example:
+These functions take the trace over all color @samp{T} objects in the
+specified set @code{rls} or list @code{rll} of representation labels, or the
+single label @code{rl}; @samp{T}s with other labels are left standing. For
+example:
 
 @example
     ...
