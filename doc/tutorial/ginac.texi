@@ -1397,7 +1397,9 @@ table:
 @item @code{crational_polynomial}
 @tab @dots{}a polynomial with (possibly complex) rational coefficients (such as @math{2/3+7/2*I})
 @item @code{rational_function}
-@tab @dots{}a rational function
+@tab @dots{}a rational function (@math{x+y}, @math{z/(x+y)})
+@item @code{algebraic}
+@tab @dots{}an algebraic object (@math{sqrt(2)}, @math{sqrt(x)-1})
 @end multitable
 @end cartouche
 
