@@ -85,7 +85,8 @@ static unsigned paranoia_check2(void)
              << g.eval() << endl;
         ++result;
     }
-    // This actually worked already back in April 1999.  But we are very paranoic!
+    // This actually worked already back in April 1999.
+    // But we are *very* paranoic!
     if (!g.expand().eval().is_zero()) {
         clog << "e = (x + z*x); f = e*y; eval(expand(f - e*y)) erroneously returned "
              << g.expand().eval() << endl;
@@ -215,12 +216,16 @@ static unsigned paranoia_check8(void)
     symbol x("x");
 
     ex e = -x / (x+1);
-    ex f = e.normal();
-
-    // The bug caused a division by zero in normal(), so the following
-    // check is actually quite bogus...
-    if (!f.is_equal(e)) {
-        clog << "normal(-x/(x+1)) returns " << f << " instead of -x/(x+1)\n";
+    ex f;
+    
+    try {
+        f = e.normal();
+        if (!f.is_equal(e)) {
+            clog << "normal(-x/(x+1)) returns " << f << " instead of -x/(x+1)\n";
+            ++result;
+        }
+    } catch (const exception &e) {
+        clog << "normal(-x/(x+1) throws " << e.what() << endl;
         ++result;
     }
     return result;
