@@ -202,8 +202,8 @@ line	: ';'
 		cout << (syms.size() > 350 ? 350 : syms.size());
 		cout << " out of a possible 350.\n";
 	}
-	| T_REAL_SYMBOLS { symboltype = symbol_options::real; }
-	| T_COMPLEX_SYMBOLS { symboltype = symbol_options::complex; }
+	| T_REAL_SYMBOLS { symboltype = domain::real; }
+	| T_COMPLEX_SYMBOLS { symboltype = domain::complex; }
 	| T_TIME {getrusage(RUSAGE_SELF, &start_time);} '(' exp ')' {
 		getrusage(RUSAGE_SELF, &end_time);
 		cout << (end_time.ru_utime.tv_sec - start_time.ru_utime.tv_sec) +

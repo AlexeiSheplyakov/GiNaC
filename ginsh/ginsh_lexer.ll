@@ -38,7 +38,7 @@
 sym_tab syms;
 
 // Type of symbols to generate (real or complex)
-unsigned symboltype = symbol_options::complex;
+unsigned symboltype = domain::complex;
 
 // lex input function
 static int ginsh_input(char *buf, int max_size);
@@ -110,10 +110,10 @@ real_symbols    return T_REAL_SYMBOLS;
 {A}{AN}*		{
 				sym_tab::const_iterator i = syms.find(yytext);
 				if (i == syms.end()) {
-					if (symboltype == symbol_options::complex) {
+					if (symboltype == domain::complex) {
 						yylval = syms[yytext] = *(new symbol(yytext));
 					} else {
-						yylval = syms[yytext] = *(new symbol(yytext, symbol_options::real));
+						yylval = syms[yytext] = *(new symbol(yytext, domain::real));
 					}
 				} else
 					yylval = i->second;
