@@ -159,35 +159,43 @@ numeric::numeric(const char *s) : basic(TINFO_numeric)
 	// parse complex numbers (functional but not completely safe, unfortunately
 	// std::string does not understand regexpese):
 	// ss should represent a simple sum like 2+5*I
-	std::string ss(s);
-	// make it safe by adding explicit sign
+	std::string ss = s;
+	std::string::size_type delim;
+
+	// make this implementation safe by adding explicit sign
 	if (ss.at(0) != '+' && ss.at(0) != '-' && ss.at(0) != '#')
 		ss = '+' + ss;
-	std::string::size_type delim;
+
+	// We use 'E' as exponent marker in the output, but some people insist on
+	// writing 'e' at input, so let's substitute them right at the beginning:
+	while ((delim = ss.find('e'))!=std::string::npos)
+		ss = ss.replace(delim,1,'E');
+
+	// main parser loop:
 	do {
 		// chop ss into terms from left to right
 		std::string term;
 		bool imaginary = false;
 		delim = ss.find_first_of(std::string("+-"),1);
 		// Do we have an exponent marker like "31.415E-1"?  If so, hop on!
-		if ((delim != std::string::npos) && (ss.at(delim-1) == 'E'))
+		if (delim!=std::string::npos && ss.at(delim-1)=='E')
 			delim = ss.find_first_of(std::string("+-"),delim+1);
 		term = ss.substr(0,delim);
-		if (delim != std::string::npos)
+		if (delim!=std::string::npos)
 			ss = ss.substr(delim);
 		// is the term imaginary?
-		if (term.find("I") != std::string::npos) {
+		if (term.find('I')!=std::string::npos) {
 			// erase 'I':
-			term = term.replace(term.find("I"),1,"");
+			term = term.replace(term.find('I'),1,"");
 			// erase '*':
-			if (term.find("*") != std::string::npos)
-				term = term.replace(term.find("*"),1,"");
+			if (term.find('*')!=std::string::npos)
+				term = term.replace(term.find('*'),1,"");
 			// correct for trivial +/-I without explicit factor on I:
-			if (term.size() == 1)
-				term += "1";
+			if (term.size()==1)
+				term += '1';
 			imaginary = true;
 		}
-		if (term.find(".") != std::string::npos) {
+		if (term.find('.')!=std::string::npos || term.find('E')!=std::string::npos) {
 			// CLN's short type cl_SF is not very useful within the GiNaC
 			// framework where we are mainly interested in the arbitrary
 			// precision type cl_LF.  Hence we go straight to the construction
@@ -198,10 +206,10 @@ numeric::numeric(const char *s) : basic(TINFO_numeric)
 			// 31.4E-1   -->   31.4e-1_<Digits>
 			// and s on.
 			// No exponent marker?  Let's add a trivial one.
-			if (term.find("E") == std::string::npos)
+			if (term.find('E')==std::string::npos)
 				term += "E0";
 			// E to lower case
-			term = term.replace(term.find("E"),1,"e");
+			term = term.replace(term.find('E'),1,'e');
 			// append _<Digits> to term
 			term += "_" + ToString((unsigned)Digits);
 			// construct float using cln::cl_F(const char *) ctor.
@@ -210,13 +218,13 @@ numeric::numeric(const char *s) : basic(TINFO_numeric)
 			else
 				ctorval = ctorval + cln::cl_F(term.c_str());
 		} else {
-			// not a floating point number...
+			// this is not a floating point number...
 			if (imaginary)
 				ctorval = ctorval + cln::complex(cln::cl_I(0),cln::cl_R(term.c_str()));
 			else
 				ctorval = ctorval + cln::cl_R(term.c_str());
 		}
-	} while(delim != std::string::npos);
+	} while (delim != std::string::npos);
 	value = ctorval;
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
