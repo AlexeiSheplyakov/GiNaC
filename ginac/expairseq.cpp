@@ -261,8 +261,8 @@ void expairseq::printtree(ostream & os, unsigned indent) const
     unsigned count[MAXCOUNT+1];
     for (int i=0; i<MAXCOUNT+1; ++i) count[i]=0;
     unsigned this_bin_fill;
-    unsigned cum_fill_sq=0;
-    unsigned cum_fill=0;
+    unsigned cum_fill_sq = 0;
+    unsigned cum_fill = 0;
     for (unsigned i=0; i<hashtabsize; ++i) {
         this_bin_fill=0;
         if (hashtab[i].size()>0) {
@@ -283,12 +283,12 @@ void expairseq::printtree(ostream & os, unsigned indent) const
             ++count[MAXCOUNT];
         }
     }
-    unsigned fact=1;
-    double cum_prob=0;
-    double lambda=(1.0*seq.size())/hashtabsize;
+    unsigned fact = 1;
+    double cum_prob = 0;
+    double lambda = (1.0*seq.size())/hashtabsize;
     for (int k=0; k<MAXCOUNT; ++k) {
         if (k>0) fact *= k;
-        double prob=pow(lambda,k)/fact*exp(-lambda);
+        double prob = pow(lambda,k)/fact*exp(-lambda);
         cum_prob += prob;
         os << string(indent+delta_indent,' ') << "bins with " << k << " entries: "
            << int(1000.0*count[k]/hashtabsize)/10.0 << "% (expected: "
@@ -352,12 +352,12 @@ ex expairseq::eval(int level) const
 
 ex expairseq::evalf(int level) const
 {
-    return thisexpairseq(evalfchildren(level),overall_coeff);
+    return thisexpairseq(evalfchildren(level),overall_coeff.evalf(level-1));
 }
 
 ex expairseq::normal(lst &sym_lst, lst &repl_lst, int level) const
 {
-    ex n=thisexpairseq(normalchildren(level),overall_coeff);
+    ex n = thisexpairseq(normalchildren(level),overall_coeff);
     return n.bp->basic::normal(sym_lst,repl_lst,level);
 }
 
@@ -383,7 +383,7 @@ ex expairseq::derivative(const symbol & s) const
 int expairseq::compare_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_of_type(other, expairseq));
-    const expairseq & o=static_cast<const expairseq &>(const_cast<basic &>(other));
+    const expairseq & o = static_cast<const expairseq &>(const_cast<basic &>(other));
 
     int cmpval;
     
@@ -393,7 +393,7 @@ int expairseq::compare_same_type(const basic & other) const
     }
 
     // compare overall_coeff
-    cmpval=overall_coeff.compare(o.overall_coeff);
+    cmpval = overall_coeff.compare(o.overall_coeff);
     if (cmpval!=0) return cmpval;
 
     //if (seq.size()==0) return 0; // empty expairseq's are equal
@@ -402,13 +402,13 @@ int expairseq::compare_same_type(const basic & other) const
     GINAC_ASSERT(hashtabsize==o.hashtabsize);
     if (hashtabsize==0) {
 #endif // def EXPAIRSEQ_USE_HASHTAB
-        epvector::const_iterator cit1=seq.begin();
-        epvector::const_iterator cit2=o.seq.begin();
-        epvector::const_iterator last1=seq.end();
-        epvector::const_iterator last2=o.seq.end();
+        epvector::const_iterator cit1 = seq.begin();
+        epvector::const_iterator cit2 = o.seq.begin();
+        epvector::const_iterator last1 = seq.end();
+        epvector::const_iterator last2 = o.seq.end();
         
         for (; (cit1!=last1)&&(cit2!=last2); ++cit1, ++cit2) {
-            cmpval=(*cit1).compare(*cit2);
+            cmpval = (*cit1).compare(*cit2);
             if (cmpval!=0) return cmpval;
         }
 
@@ -1516,8 +1516,8 @@ bool expairseq::is_canonical() const
     if (hashtabsize>0) return 1; // not canoncalized
 #endif // def EXPAIRSEQ_USE_HASHTAB
     
-    epvector::const_iterator it=seq.begin();
-    epvector::const_iterator it_last=it;
+    epvector::const_iterator it = seq.begin();
+    epvector::const_iterator it_last = it;
     for (++it; it!=seq.end(); it_last=it, ++it) {
         if (!((*it_last).is_less(*it)||(*it_last).is_equal(*it))) {
             if (!is_ex_exactly_of_type((*it_last).rest,numeric)||
@@ -1556,7 +1556,7 @@ epvector * expairseq::expandchildren(unsigned options) const
             s->reserve(seq.size());
 
             // copy parts of seq which are known not to have changed
-            epvector::const_iterator cit2=seq.begin();
+            epvector::const_iterator cit2 = seq.begin();
             while (cit2!=cit) {
                 s->push_back(*cit2);
                 ++cit2;
@@ -1600,7 +1600,7 @@ epvector * expairseq::evalchildren(int level) const
         if (!are_ex_trivially_equal((*cit).rest,evaled_ex)) {
 
             // something changed, copy seq, eval and return it
-            epvector *s=new epvector;
+            epvector *s = new epvector;
             s->reserve(seq.size());
 
             // copy parts of seq which are known not to have changed
@@ -1629,34 +1629,34 @@ epvector * expairseq::evalchildren(int level) const
 
 epvector expairseq::evalfchildren(int level) const
 {
+    if (level==1)
+        return seq;
+
+    if (level==-max_recursion_level)
+        throw(std::runtime_error("max recursion level reached"));
+    
     epvector s;
     s.reserve(seq.size());
-
-    if (level==1) {
-        return seq;
-    }
-    if (level == -max_recursion_level) {
-        throw(std::runtime_error("max recursion level reached"));
-    }
+    
     --level;
     for (epvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
         s.push_back(combine_ex_with_coeff_to_pair((*it).rest.evalf(level),
-                                                  (*it).coeff));
+                                                  (*it).coeff.evalf(level)));
     }
     return s;
 }
 
 epvector expairseq::normalchildren(int level) const
 {
+    if (level==1)
+        return seq;
+    
+    if (level == -max_recursion_level)
+        throw(std::runtime_error("max recursion level reached"));
+
     epvector s;
     s.reserve(seq.size());
 
-    if (level==1) {
-        return seq;
-    }
-    if (level == -max_recursion_level) {
-        throw(std::runtime_error("max recursion level reached"));
-    }
     --level;
     for (epvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
         s.push_back(combine_ex_with_coeff_to_pair((*it).rest.normal(level),

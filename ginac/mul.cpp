@@ -424,6 +424,25 @@ ex mul::eval(int level) const
     return this->hold();
 }
 
+ex mul::evalf(int level) const
+{
+    if (level==1)
+        return mul(seq,overall_coeff);
+    
+    if (level==-max_recursion_level)
+        throw(std::runtime_error("max recursion level reached"));
+    
+    epvector s;
+    s.reserve(seq.size());
+    
+    --level;
+    for (epvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
+        s.push_back(combine_ex_with_coeff_to_pair((*it).rest.evalf(level),
+                                                  (*it).coeff));
+    }
+    return mul(s,overall_coeff.evalf(level));
+}
+
 exvector mul::get_indices(void) const
 {
     // return union of indices of factors

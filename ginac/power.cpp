@@ -479,13 +479,16 @@ ex power::evalf(int level) const
     ex eexponent;
     
     if (level==1) {
-        ebasis=basis;
-        eexponent=exponent;
+        ebasis = basis;
+        eexponent = exponent;
     } else if (level == -max_recursion_level) {
         throw(std::runtime_error("max recursion level reached"));
     } else {
-        ebasis=basis.evalf(level-1);
-        eexponent=exponent.evalf(level-1);
+        ebasis = basis.evalf(level-1);
+        if (!is_ex_exactly_of_type(eexponent,numeric))
+            eexponent = exponent.evalf(level-1);
+        else
+            eexponent = exponent;
     }
 
     return power(ebasis,eexponent);
