@@ -229,7 +229,7 @@ ex matrix::subs(const lst & ls, const lst & lr, bool no_pattern) const
 		for (unsigned c=0; c<col; ++c)
 			m2[r*col+c] = m[r*col+c].subs(ls, lr, no_pattern);
 
-	return ex(matrix(row, col, m2)).bp->basic::subs(ls, lr, no_pattern);
+	return matrix(row, col, m2).basic::subs(ls, lr, no_pattern);
 }
 
 // protected

@@ -93,7 +93,7 @@ static struct _stat_print {
 static bool get_first_symbol(const ex &e, const symbol *&x)
 {
 	if (is_ex_exactly_of_type(e, symbol)) {
-		x = static_cast<symbol *>(e.bp);
+		x = &ex_to<symbol>(e);
 		return true;
 	} else if (is_ex_exactly_of_type(e, add) || is_ex_exactly_of_type(e, mul)) {
 		for (unsigned i=0; i<e.nops(); i++)
@@ -170,7 +170,7 @@ static void add_symbol(const symbol *s, sym_desc_vec &v)
 static void collect_symbols(const ex &e, sym_desc_vec &v)
 {
 	if (is_ex_exactly_of_type(e, symbol)) {
-		add_symbol(static_cast<symbol *>(e.bp), v);
+		add_symbol(&ex_to<symbol>(e), v);
 	} else if (is_ex_exactly_of_type(e, add) || is_ex_exactly_of_type(e, mul)) {
 		for (unsigned i=0; i<e.nops(); i++)
 			collect_symbols(e.op(i), v);
@@ -1256,19 +1256,12 @@ numeric mul::max_coefficient(void) const
 }
 
 
-/** Apply symmetric modular homomorphism to a multivariate polynomial.
- *  This function is used internally by heur_gcd().
+/** Apply symmetric modular homomorphism to an expanded multivariate
+ *  polynomial.  This function is usually used internally by heur_gcd().
  *
- *  @param e  expanded multivariate polynomial
  *  @param xi  modulus
  *  @return mapped polynomial
  *  @see heur_gcd */
-ex ex::smod(const numeric &xi) const
-{
-	GINAC_ASSERT(bp!=0);
-	return bp->smod(xi);
-}
-
 ex basic::smod(const numeric &xi) const
 {
 	return *this;
@@ -1918,7 +1911,7 @@ static ex replace_with_symbol(const ex &e, lst &sym_lst, lst &repl_lst)
 /** Create a symbol for replacing the expression "e" (or return a previously
  *  assigned symbol). An expression of the form "symbol == expression" is added
  *  to repl_lst and the symbol is returned.
- *  @see ex::to_rational */
+ *  @see basic::to_rational */
 static ex replace_with_symbol(const ex &e, lst &repl_lst)
 {
 	// Expression already in repl_lst? Then return the assigned symbol
@@ -2066,12 +2059,12 @@ ex add::normal(lst &sym_lst, lst &repl_lst, int level) const
 	dens.reserve(seq.size()+1);
 	epvector::const_iterator it = seq.begin(), itend = seq.end();
 	while (it != itend) {
-		ex n = recombine_pair_to_ex(*it).bp->normal(sym_lst, repl_lst, level-1);
+		ex n = ex_to<basic>(recombine_pair_to_ex(*it)).normal(sym_lst, repl_lst, level-1);
 		nums.push_back(n.op(0));
 		dens.push_back(n.op(1));
 		it++;
 	}
-	ex n = overall_coeff.bp->normal(sym_lst, repl_lst, level-1);
+	ex n = ex_to<numeric>(overall_coeff).normal(sym_lst, repl_lst, level-1);
 	nums.push_back(n.op(0));
 	dens.push_back(n.op(1));
 	GINAC_ASSERT(nums.size() == dens.size());
@@ -2125,12 +2118,12 @@ ex mul::normal(lst &sym_lst, lst &repl_lst, int level) const
 	ex n;
 	epvector::const_iterator it = seq.begin(), itend = seq.end();
 	while (it != itend) {
-		n = recombine_pair_to_ex(*it).bp->normal(sym_lst, repl_lst, level-1);
+		n = ex_to<basic>(recombine_pair_to_ex(*it)).normal(sym_lst, repl_lst, level-1);
 		num.push_back(n.op(0));
 		den.push_back(n.op(1));
 		it++;
 	}
-	n = overall_coeff.bp->normal(sym_lst, repl_lst, level-1);
+	n = ex_to<numeric>(overall_coeff).normal(sym_lst, repl_lst, level-1);
 	num.push_back(n.op(0));
 	den.push_back(n.op(1));
 
@@ -2152,8 +2145,8 @@ ex power::normal(lst &sym_lst, lst &repl_lst, int level) const
 		throw(std::runtime_error("max recursion level reached"));
 
 	// Normalize basis and exponent (exponent gets reassembled)
-	ex n_basis = basis.bp->normal(sym_lst, repl_lst, level-1);
-	ex n_exponent = exponent.bp->normal(sym_lst, repl_lst, level-1);
+	ex n_basis = ex_to<basic>(basis).normal(sym_lst, repl_lst, level-1);
+	ex n_exponent = ex_to<basic>(exponent).normal(sym_lst, repl_lst, level-1);
 	n_exponent = n_exponent.op(0) / n_exponent.op(1);
 
 	if (n_exponent.info(info_flags::integer)) {
@@ -2304,9 +2297,20 @@ ex ex::numer_denom(void) const
 }
 
 
-/** Default implementation of ex::to_rational(). It replaces the object with a
- *  temporary symbol.
- *  @see ex::to_rational */
+/** Rationalization of non-rational functions.
+ *  This function converts a general expression to a rational polynomial
+ *  by replacing all non-rational subexpressions (like non-rational numbers,
+ *  non-integer powers or functions like sin(), cos() etc.) to temporary
+ *  symbols. This makes it possible to use functions like gcd() and divide()
+ *  on non-rational functions by applying to_rational() on the arguments,
+ *  calling the desired function and re-substituting the temporary symbols
+ *  in the result. To make the last step possible, all temporary symbols and
+ *  their associated expressions are collected in the list specified by the
+ *  repl_lst parameter in the form {symbol == expression}, ready to be passed
+ *  as an argument to ex::subs().
+ *
+ *  @param repl_lst collects a list of all temporary symbols and their replacements
+ *  @return rationalized expression */
 ex basic::to_rational(lst &repl_lst) const
 {
 	return replace_with_symbol(*this, repl_lst);
@@ -2314,8 +2318,7 @@ ex basic::to_rational(lst &repl_lst) const
 
 
 /** Implementation of ex::to_rational() for symbols. This returns the
- *  unmodified symbol.
- *  @see ex::to_rational */
+ *  unmodified symbol. */
 ex symbol::to_rational(lst &repl_lst) const
 {
 	return *this;
@@ -2324,8 +2327,7 @@ ex symbol::to_rational(lst &repl_lst) const
 
 /** Implementation of ex::to_rational() for a numeric. It splits complex
  *  numbers into re+I*im and replaces I and non-rational real numbers with a
- *  temporary symbol.
- *  @see ex::to_rational */
+ *  temporary symbol. */
 ex numeric::to_rational(lst &repl_lst) const
 {
 	if (is_real()) {
@@ -2343,8 +2345,7 @@ ex numeric::to_rational(lst &repl_lst) const
 
 
 /** Implementation of ex::to_rational() for powers. It replaces non-integer
- *  powers by temporary symbols.
- *  @see ex::to_rational */
+ *  powers by temporary symbols. */
 ex power::to_rational(lst &repl_lst) const
 {
 	if (exponent.info(info_flags::integer))
@@ -2354,8 +2355,7 @@ ex power::to_rational(lst &repl_lst) const
 }
 
 
-/** Implementation of ex::to_rational() for expairseqs.
- *  @see ex::to_rational */
+/** Implementation of ex::to_rational() for expairseqs. */
 ex expairseq::to_rational(lst &repl_lst) const
 {
 	epvector s;
@@ -2371,26 +2371,6 @@ ex expairseq::to_rational(lst &repl_lst) const
 	else
 		s.push_back(combine_ex_with_coeff_to_pair(oc, _ex1()));
 	return thisexpairseq(s, default_overall_coeff());
-}
-
-
-/** Rationalization of non-rational functions.
- *  This function converts a general expression to a rational polynomial
- *  by replacing all non-rational subexpressions (like non-rational numbers,
- *  non-integer powers or functions like sin(), cos() etc.) to temporary
- *  symbols. This makes it possible to use functions like gcd() and divide()
- *  on non-rational functions by applying to_rational() on the arguments,
- *  calling the desired function and re-substituting the temporary symbols
- *  in the result. To make the last step possible, all temporary symbols and
- *  their associated expressions are collected in the list specified by the
- *  repl_lst parameter in the form {symbol == expression}, ready to be passed
- *  as an argument to ex::subs().
- *
- *  @param repl_lst collects a list of all temporary symbols and their replacements
- *  @return rationalized expression */
-ex ex::to_rational(lst &repl_lst) const
-{
-	return bp->to_rational(repl_lst);
 }
 
 

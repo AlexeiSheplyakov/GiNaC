@@ -152,17 +152,17 @@ void constant::print(const print_context & c, unsigned level) const
 
 int constant::degree(const ex & s) const
 {
-	return is_equal(*s.bp) ? 1 : 0;
+	return is_equal(ex_to<basic>(s)) ? 1 : 0;
 }
 
 int constant::ldegree(const ex & s) const
 {
-	return is_equal(*s.bp) ? 1 : 0;
+	return is_equal(ex_to<basic>(s)) ? 1 : 0;
 }
 
 ex constant::coeff(const ex & s, int n) const
 {
-	if (is_equal(*s.bp))
+	if (is_equal(ex_to<basic>(s)))
 		return n==1 ? _ex1() : _ex0();
 	else
 		return n==0 ? *this : _ex0();

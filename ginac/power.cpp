@@ -520,7 +520,7 @@ ex power::subs(const lst & ls, const lst & lr, bool no_pattern) const
 	 && are_ex_trivially_equal(exponent, subsed_exponent))
 		return basic::subs(ls, lr, no_pattern);
 	else
-		return ex(power(subsed_basis, subsed_exponent)).bp->basic::subs(ls, lr, no_pattern);
+		return power(subsed_basis, subsed_exponent).basic::subs(ls, lr, no_pattern);
 }
 
 ex power::simplify_ncmul(const exvector & v) const

@@ -98,8 +98,8 @@ public:
 	ex primpart(const symbol &x) const;
 	ex primpart(const symbol &x, const ex &cont) const;
 	ex normal(int level = 0) const;
-	ex to_rational(lst &repl_lst) const;
-	ex smod(const numeric &xi) const;
+	ex to_rational(lst &repl_lst) const { return bp->to_rational(repl_lst); }
+	ex smod(const numeric &xi) const { return bp->smod(xi); }
 	numeric max_coefficient(void) const;
 	ex collect(const ex & s, bool distributed = false) const { return bp->collect(s, distributed); }
 	ex eval(int level = 0) const { return bp->eval(level); }

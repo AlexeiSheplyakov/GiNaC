@@ -131,23 +131,23 @@ void add::print(const print_context & c, unsigned level) const
 		
 			// If the coefficient is -1, it is replaced by a single minus sign
 			if (it->coeff.compare(_num1()) == 0) {
-				it->rest.bp->print(c, precedence());
+				it->rest.print(c, precedence());
 			} else if (it->coeff.compare(_num_1()) == 0) {
 				c.s << "-";
-				it->rest.bp->print(c, precedence());
+				it->rest.print(c, precedence());
 			} else if (ex_to<numeric>(it->coeff).numer().compare(_num1()) == 0) {
-				it->rest.bp->print(c, precedence());
+				it->rest.print(c, precedence());
 				c.s << "/";
 				ex_to<numeric>(it->coeff).denom().print(c, precedence());
 			} else if (ex_to<numeric>(it->coeff).numer().compare(_num_1()) == 0) {
 				c.s << "-";
-				it->rest.bp->print(c, precedence());
+				it->rest.print(c, precedence());
 				c.s << "/";
 				ex_to<numeric>(it->coeff).denom().print(c, precedence());
 			} else {
-				it->coeff.bp->print(c, precedence());
+				it->coeff.print(c, precedence());
 				c.s << "*";
-				it->rest.bp->print(c, precedence());
+				it->rest.print(c, precedence());
 			}
 		
 			// Separator is "+", except if the following expression would have a leading minus sign
@@ -159,7 +159,7 @@ void add::print(const print_context & c, unsigned level) const
 		if (!overall_coeff.is_zero()) {
 			if (overall_coeff.info(info_flags::positive))
 				c.s << '+';
-			overall_coeff.bp->print(c, precedence());
+			overall_coeff.print(c, precedence());
 		}
 	
 		if (precedence() <= level)
