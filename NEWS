@@ -12,6 +12,7 @@ This file records noteworthy changes.
   with symbols.
 * Added collect_common_factors() which collects common factors from the
   terms of sums.
+* simplify_indexed() converts "gamma~mu*p.mu" to "p\".
 
 1.0.12 (30 October 2002)
 * Fixed a bug in power::expand() that could produce invalid expressions.
