@@ -153,6 +153,12 @@ ex color_d(const ex & a, const ex & b, const ex & c);
 /** This returns the linear combination d.a.b.c+I*f.a.b.c. */
 ex color_h(const ex & a, const ex & b, const ex & c);
 
+/** Calculate the trace of an expression containing color objects with a
+ *  specified representation label.
+ *
+ *  @param rl Representation label */
+ex color_trace(const ex & e, unsigned char rl = 0);
+
 
 } // namespace GiNaC
 

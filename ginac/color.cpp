@@ -29,6 +29,7 @@
 #include "ncmul.h"
 #include "numeric.h"
 #include "power.h" // for sqrt()
+#include "symbol.h"
 #include "print.h"
 #include "archive.h"
 #include "debugmsg.h"
@@ -407,6 +408,92 @@ ex color_d(const ex & a, const ex & b, const ex & c)
 ex color_h(const ex & a, const ex & b, const ex & c)
 {
 	return color_d(a, b, c) + I * color_f(a, b, c);
+}
+
+/** Check whether a given tinfo key (as returned by return_type_tinfo()
+ *  is that of a color object with the specified representation label. */
+static bool is_color_tinfo(unsigned ti, unsigned char rl)
+{
+	return ti == (TINFO_color + rl);
+}
+
+ex color_trace(const ex & e, unsigned char rl)
+{
+	if (is_ex_of_type(e, color)) {
+
+		if (ex_to_color(e).get_representation_label() == rl
+		 && is_ex_of_type(e.op(0), su3one))
+			return _ex3();
+		else
+			return _ex0();
+
+	} else if (is_ex_exactly_of_type(e, add)) {
+
+		// Trace of sum = sum of traces
+		ex sum = _ex0();
+		for (unsigned i=0; i<e.nops(); i++)
+			sum += color_trace(e.op(i), rl);
+		return sum;
+
+	} else if (is_ex_exactly_of_type(e, mul)) {
+
+		// Trace of product: pull out non-color factors
+		ex prod = _ex1();
+		for (unsigned i=0; i<e.nops(); i++) {
+			const ex &o = e.op(i);
+			if (is_color_tinfo(o.return_type_tinfo(), rl))
+				prod *= color_trace(o, rl);
+			else
+				prod *= o;
+		}
+		return prod;
+
+	} else if (is_ex_exactly_of_type(e, ncmul)) {
+
+		if (!is_color_tinfo(e.return_type_tinfo(), rl))
+			return _ex0();
+
+		// Expand product, if necessary
+		ex e_expanded = e.expand();
+		if (!is_ex_of_type(e_expanded, ncmul))
+			return color_trace(e_expanded, rl);
+
+		unsigned num = e.nops();
+
+		if (num == 2) {
+
+			// Tr T_a T_b = 1/2 delta_a_b
+			return delta_tensor(e.op(0).op(1), e.op(1).op(1)) / 2;
+
+		} else if (num == 3) {
+
+			// Tr T_a T_b T_c = 1/4 h_a_b_c
+			return color_h(e.op(0).op(1), e.op(1).op(1), e.op(2).op(1)) / 4;
+
+		} else {
+
+			// Traces of 4 or more generators are computed recursively:
+			// Tr T_a1 .. T_an =
+			//     1/6 delta_a(n-1)_an Tr T_a1 .. T_a(n-2)
+			//   + 1/2 h_a(n-1)_an_k Tr T_a1 .. T_a(n-2) T_k
+			const ex &last_index = e.op(num - 1).op(1);
+			const ex &next_to_last_index = e.op(num - 2).op(1);
+			idx summation_index((new symbol)->setflag(status_flags::dynallocated), 8);
+
+			exvector v1;
+			v1.reserve(num - 2);
+			for (int i=0; i<num-2; i++)
+				v1.push_back(e.op(i));
+
+			exvector v2 = v1;
+			v2.push_back(color_T(summation_index, rl));
+
+			return delta_tensor(next_to_last_index, last_index) * color_trace(ncmul(v1), rl) / 6
+			       + color_h(next_to_last_index, last_index, summation_index) * color_trace(ncmul(v2), rl) / 2;
+		}
+	}
+
+	return _ex0();
 }
 
 } // namespace GiNaC

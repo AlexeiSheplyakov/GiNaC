@@ -88,7 +88,8 @@ public:
 };
 
 
-/** This class represents the Dirac gamma5 object. */
+/** This class represents the Dirac gamma5 object which anticommutes with
+ *  all other gammas. */
 class diracgamma5 : public tensor
 {
 	GINAC_DECLARE_REGISTERED_CLASS(diracgamma5, tensor)
@@ -125,11 +126,17 @@ ex dirac_gamma(const ex & mu, unsigned char rl = 0);
  *  @return newly constructed object */
 ex dirac_gamma5(unsigned char rl = 0);
 
+/** Create a term of the form e_mu * gamma~mu with a unique index mu.
+ *
+ *  @param dim Dimension of index
+ *  @param rl Representation label */
+ex dirac_slash(const ex & e, const ex & dim, unsigned char rl = 0);
+
 /** Calculate the trace of an expression containing gamma objects with
  *  a specified representation label. The computed trace is a linear
  *  functional that is equal to the usual trace only in D = 4 dimensions.
- *  In particular, the functional is non-cyclic in D != 4 dimensions when
- *  gamma5 is involved.
+ *  In particular, the functional is not always cyclic in D != 4 dimensions
+ *  when gamma5 is involved.
  *
  *  @param rl Representation label */
 ex dirac_trace(const ex & e, unsigned char rl = 0);

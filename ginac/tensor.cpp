@@ -440,4 +440,16 @@ ex lorentz_eps(const ex & i1, const ex & i2, const ex & i3, const ex & i4, bool 
 	return indexed(tensepsilon(true, pos_sig), indexed::antisymmetric, i1, i2, i3, i4);
 }
 
+ex eps0123(const ex & i1, const ex & i2, const ex & i3, const ex & i4, bool pos_sig)
+{
+	if (!is_ex_of_type(i1, varidx) || !is_ex_of_type(i2, varidx) || !is_ex_of_type(i3, varidx) || !is_ex_of_type(i4, varidx))
+		throw(std::invalid_argument("indices of epsilon tensor must be of type varidx"));
+
+	ex dim = ex_to_idx(i1).get_dim();
+	if (dim.is_equal(4))
+		return lorentz_eps(i1, i2, i3, i4, pos_sig);
+	else
+		return indexed(tensepsilon(true, pos_sig), indexed::antisymmetric, i1, i2, i3, i4);
+}
+
 } // namespace GiNaC

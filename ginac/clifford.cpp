@@ -24,6 +24,7 @@
 #include "ex.h"
 #include "idx.h"
 #include "ncmul.h"
+#include "symbol.h"
 #include "print.h"
 #include "archive.h"
 #include "debugmsg.h"
@@ -301,7 +302,20 @@ ex dirac_gamma5(unsigned char rl)
 	return clifford(diracgamma5(), rl);
 }
 
-ex dirac_trace(const ex & e, unsigned char rl = 0)
+ex dirac_slash(const ex & e, const ex & dim, unsigned char rl)
+{
+	varidx mu((new symbol)->setflag(status_flags::dynallocated), dim);
+	return indexed(e, mu.toggle_variance()) * dirac_gamma(mu, rl);
+}
+
+/** Check whether a given tinfo key (as returned by return_type_tinfo()
+ *  is that of a clifford object with the specified representation label. */
+static bool is_clifford_tinfo(unsigned ti, unsigned char rl)
+{
+	return ti == (TINFO_clifford + rl);
+}
+
+ex dirac_trace(const ex & e, unsigned char rl)
 {
 	if (is_ex_of_type(e, clifford)) {
 
@@ -325,12 +339,8 @@ ex dirac_trace(const ex & e, unsigned char rl = 0)
 		ex prod = _ex1();
 		for (unsigned i=0; i<e.nops(); i++) {
 			const ex &o = e.op(i);
-			if (is_ex_of_type(o, clifford)
-			 && ex_to_clifford(o).get_representation_label() == rl)
-				prod *= dirac_trace(o, rl);
-			else if (is_ex_of_type(o, ncmul)
-			 && is_ex_of_type(o.op(0), clifford)
-			 && ex_to_clifford(o.op(0)).get_representation_label() == rl)
+			unsigned ti = o.return_type_tinfo();
+			if (is_clifford_tinfo(o.return_type_tinfo(), rl))
 				prod *= dirac_trace(o, rl);
 			else
 				prod *= o;
@@ -339,9 +349,13 @@ ex dirac_trace(const ex & e, unsigned char rl = 0)
 
 	} else if (is_ex_exactly_of_type(e, ncmul)) {
 
-		if (!is_ex_of_type(e.op(0), clifford)
-		 || ex_to_clifford(e.op(0)).get_representation_label() != rl)
+		if (!is_clifford_tinfo(e.return_type_tinfo(), rl))
 			return _ex0();
+
+		// Expand product, if necessary
+		ex e_expanded = e.expand();
+		if (!is_ex_of_type(e_expanded, ncmul))
+			return dirac_trace(e_expanded, rl);
 
 		// gamma5 gets moved to the front so this check is enough
 		bool has_gamma5 = is_ex_of_type(e.op(0).op(0), diracgamma5);
@@ -351,8 +365,27 @@ ex dirac_trace(const ex & e, unsigned char rl = 0)
 
 			// Trace of gamma5 * odd number of gammas and trace of
 			// gamma5 * gamma_mu * gamma_nu are zero
-			if ((num & 1) == 0 || num == 2)
+			if ((num & 1) == 0 || num == 3)
 				return _ex0();
+
+			// Tr gamma5 S_2k =
+			//   epsilon0123_mu1_mu2_mu3_mu4 * Tr gamma_mu1 gamma_mu2 gamma_mu3 gamma_mu4 S_2k
+			ex dim = ex_to_idx(e.op(1).op(1)).get_dim();
+			varidx mu1((new symbol)->setflag(status_flags::dynallocated), dim),
+			       mu2((new symbol)->setflag(status_flags::dynallocated), dim),
+			       mu3((new symbol)->setflag(status_flags::dynallocated), dim),
+			       mu4((new symbol)->setflag(status_flags::dynallocated), dim);
+			exvector v;
+			v.reserve(num + 3);
+			v.push_back(dirac_gamma(mu1, rl));
+			v.push_back(dirac_gamma(mu2, rl));
+			v.push_back(dirac_gamma(mu3, rl));
+			v.push_back(dirac_gamma(mu4, rl));
+			for (int i=1; i<num; i++)
+				v.push_back(e.op(i));
+
+			return (eps0123(mu1.toggle_variance(), mu2.toggle_variance(), mu3.toggle_variance(), mu4.toggle_variance()) *
+			        dirac_trace(ncmul(v), rl)).simplify_indexed() / 24;
 
 		} else { // no gamma5
 
@@ -386,8 +419,6 @@ ex dirac_trace(const ex & e, unsigned char rl = 0)
 			}
 			return result;
 		}
-
-		throw (std::logic_error("dirac_trace: don't know how to compute trace"));
 	}
 
 	return _ex0();
