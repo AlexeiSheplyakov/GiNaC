@@ -693,6 +693,7 @@ meta-class for storing all mathematical objects.
 * Lists::                        Lists of expressions.
 * Mathematical functions::       Mathematical functions.
 * Relations::                    Equality, Inequality and all that.
+* Integrals::                    Symbolic integrals.
 * Matrices::                     Matrices.
 * Indexed objects::              Handling indexed quantities.
 * Non-commutative objects::      Algebras with non-commutative products.
@@ -1807,7 +1808,7 @@ point number of class @code{numeric} you should call
 wrapped inside an @code{ex}.
 
 
-@node Relations, Matrices, Mathematical functions, Basic Concepts
+@node Relations, Integrals, Mathematical functions, Basic Concepts
 @c    node-name, next, previous, up
 @section Relations
 @cindex @code{relational} (class)
@@ -1833,8 +1834,68 @@ conversion from @code{relational} to @code{bool} takes place.  Note,
 however, that @code{==} here does not perform any simplifications, hence
 @code{expand()} must be called explicitly.
 
+@node Integrals, Matrices, Relations, Basic Concepts
+@c    node-name, next, previous, up
+@section Integrals
+@cindex @code{integral} (class)
 
-@node Matrices, Indexed objects, Relations, Basic Concepts
+An object of class @dfn{integral} can be used to hold a symbolic integral.
+If you want to symbolically represent the integral of @code{x*x} from 0 to
+1, you would write this as
+@example
+integral(x, 0, 1, x*x)
+@end example
+The first argument is the integration variable. It should be noted that
+GiNaC is not very good (yet?) at symbolically evaluating integrals. In
+fact, it can only integrate polynomials. An expression containing integrals
+can be evaluated symbolically by calling the
+@example
+.eval_integ()
+@end example
+method on it. Numerical evaluation is available by calling the
+@example
+.evalf()
+@end example
+method on an expression containing the integral. This will only evaluate
+integrals into a number if @code{subs}ing the integration variable by a
+number in the fourth argument of an integral and then @code{evalf}ing the
+result always results in a number. Of course, also the boundaries of the
+integration domain must @code{evalf} into numbers. It should be noted that
+trying to @code{evalf} a function with discontinuities in the integration
+domain is not recommended. The accuracy of the numeric evaluation of
+integrals is determined by the static member variable
+@example
+ex integral::relative_integration_error
+@end example
+of the class @code{integral}. The default value of this is 10^-8.
+The integration works by halving the interval of integration, until numeric
+stability of the answer indicates that the requested accuracy has been
+reached. The maximum depth of the halving can be set via the static member
+variable
+@example
+int integral::max_integration_level
+@end example
+The default value is 15. If this depth is exceeded, @code{evalf} will simply
+return the integral unevaluated. The function that performs the numerical
+evaluation, is also available as
+@example
+ex adaptivesimpson(const ex & x, const ex & a, const ex & b, const ex & f,
+const ex & error)
+@end example
+This function will throw an exception if the maximum depth is exceeded. The
+last parameter of the function is optional and defaults to the
+@code{relative_integration_error}. To make sure that we do not do too
+much work if an expression contains the same integral multiple times,
+a lookup table is used.
+
+If you know that an expression holds an integral, you can get the
+integration variable, the left boundary, right boundary and integrant by
+respectively calling @code{.op(0)}, @code{.op(1)}, @code{.op(2)}, and
+@code{.op(3)}. Differentiating integrals with respect to variables works
+as expected. Note that it makes no sense to differentiate an integral
+with respect to the integration variable.
+
+@node Matrices, Indexed objects, Integrals, Basic Concepts
 @c    node-name, next, previous, up
 @section Matrices
 @cindex @code{matrix} (class)
