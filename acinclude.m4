@@ -74,7 +74,7 @@ ginac_warning_txt="$ginac_warning_txt
 ginac_warning=yes])
 
 dnl Usage: GINAC_CHECK_ERRORS
-dnl (preferably to be put at end of configure.in)
+dnl (must be put at end of configure.in, because it exits on error)
 dnl This macro displays a warning message if GINAC_ERROR or GINAC_WARNING 
 dnl has occured previously.
 AC_DEFUN(GINAC_CHECK_ERRORS,[
@@ -90,12 +90,13 @@ if test "x${ginac_error}" = "xyes"; then
         echo "deleting cache ${cache_file}"
         rm -f $cache_file
     fi
-    else 
-        if test x$ginac_warning = xyes; then
-            echo "=== The following minor problems have been detected by configure."
-            echo "=== Please check the messages below before running \"make\"."
-            echo "=== (see the section 'Common Problems' in the INSTALL file)"
-            echo "$ginac_warning_txt"
-        fi
+    exit 1
+else 
+    if test "x${ginac_warning}" = "xyes"; then
+        echo "=== The following minor problems have been detected by configure."
+        echo "=== Please check the messages below before running \"make\"."
+        echo "=== (see the section 'Common Problems' in the INSTALL file)"
+        echo "$ginac_warning_txt"
+    fi
     echo "Configuration of GiNaC $VERSION done. Now type \"make\"."
 fi])
