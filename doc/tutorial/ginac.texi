@@ -345,7 +345,7 @@ conclude that @code{42*Pi} is equal to @code{0}.)
 Linear equation systems can be solved along with basic linear
 algebra manipulations over symbolic expressions.  In C++ GiNaC offers
 a matrix class for this purpose but we can see what it can do using
-@command{ginsh}'s notation of double brackets to type them in:
+@command{ginsh}'s bracket notation to type them in:
 
 @example
 > lsolve(a+x*y==z,x);
@@ -1976,9 +1976,10 @@ Other representation labels yield a different @code{return_type_tinfo()},
 but it's the same for any two objects with the same label. This is also true
 for color objects.
 
-As a last note, positive integer powers of non-commutative objects are
-automatically expanded in GiNaC. For example, @code{pow(a*b, 2)} becomes
-@samp{a*b*a*b} if @samp{a} and @samp{b} are non-commutative expressions).
+A last note: With the exception of matrices, positive integer powers of
+non-commutative objects are automatically expanded in GiNaC. For example,
+@code{pow(a*b, 2)} becomes @samp{a*b*a*b} if @samp{a} and @samp{b} are
+non-commutative expressions).
 
 
 @cindex @code{clifford} (class)
@@ -2748,11 +2749,11 @@ Again some examples in @command{ginsh} for illustration (in @command{ginsh},
 @example
 > has(x*sin(x+y+2*a),y);
 1
-> has(x*sin(x+y+2*a+y),x+y);
+> has(x*sin(x+y+2*a),x+y);
 0
   (This is because in GiNaC, "x+y" is not a subexpression of "x+y+2*a" (which
    has the subexpressions "x", "y" and "2*a".)
-> has(x*sin(x+y+2*a+y),x+y+$1);
+> has(x*sin(x+y+2*a),x+y+$1);
 1
   (But this is possible.)
 > has(x*sin(2*(x+y)+2*a),x+y);
