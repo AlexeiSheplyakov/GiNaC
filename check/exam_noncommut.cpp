@@ -22,8 +22,6 @@
 
 #include "exams.h"
 
-#if 0 // this will change
-
 static unsigned lortensor_check1(void)
 {
 	// checks simple identities of the metric tensor!
@@ -47,10 +45,11 @@ static unsigned lortensor_check1(void)
 		     << e6 << " instead of 0" << endl;
 		++result;
 	}
-
+	
 	return result;
 }
 
+#if 0  // this will change
 static unsigned lortensor_check2(void)
 {
 	// checks simple contraction properties of an arbitrary (symmetric!) rankn lortensor!
@@ -83,10 +82,9 @@ static unsigned lortensor_check2(void)
 		     << e10 << " instead of 0" << endl;
 		++result;
 	}
-
+	
 	return result;
 }
-
 #endif
 
 unsigned exam_noncommut(void)
@@ -95,12 +93,11 @@ unsigned exam_noncommut(void)
 	
 	cout << "examining behaviour of noncommutative objects" << flush;
 	clog << "----------behaviour of noncommutative objects:" << endl;
-
-#if 0	
+	
 	result += lortensor_check1();  cout << '.' << flush;
+#if 0
 	result += lortensor_check2();  cout << '.' << flush;
 #endif
-	
 	if (!result) {
 		cout << " passed " << endl;
 		clog << "(no output)" << endl;

@@ -38,7 +38,7 @@ static unsigned expand_subs(unsigned size)
 		buf << "a" << i << ends;
 		a.push_back(symbol(buf.str()));
 #else
-		char buf[4];
+		char buf[5];  // 'a' + 3 decimal digits + '\n'
 		ostrstream(buf,sizeof(buf)) << "a" << i << ends;
 		a.push_back(symbol(buf));
 #endif

@@ -128,6 +128,20 @@ int main()
 	}
 	
 	try {
+		result += time_lw_M2();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
+		result += time_lw_N();
+	} catch (const exception &e) {
+		cout << "Error: caught exception " << e.what() << endl;
+		++result;
+	}
+	
+	try {
 		result += time_lw_O();
 	} catch (const exception &e) {
 		cout << "Error: caught exception " << e.what() << endl;

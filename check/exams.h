@@ -25,10 +25,7 @@
 
 #include "ginac.h"
 using namespace std;
-
-#ifndef NO_NAMESPACE_GINAC
 using namespace GiNaC;
-#endif // ndef NO_NAMESPACE_GINAC
 
 // prototypes for all individual checks should be unsigned fcn():
 unsigned exam_paranoia();

@@ -28,10 +28,7 @@
 
 #include "ginac.h"
 using namespace std;
-
-#ifndef NO_NAMESPACE_GINAC
 using namespace GiNaC;
-#endif // ndef NO_NAMESPACE_GINAC
 
 // prototypes for the expression generating functions in:
 const ex dense_univariate_poly(const symbol & x, unsigned degree);

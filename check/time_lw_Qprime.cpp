@@ -23,6 +23,8 @@
 
 #include "times.h"
 
+static const bool do_test = false;  // set to true in order to run this beast
+
 static unsigned test(void)
 {
 	// same matrix as in test P':
@@ -74,21 +76,26 @@ unsigned time_lw_Qprime(void)
 	cout << "timing Lewis-Wester test Q' (charpoly(P'))" << flush;
 	clog << "-------Lewis-Wester test Q' (charpoly(P'))" << endl;
 	
-	rolex.start();
-	// correct for very small times:
-	do {
-		result = test();
-		++count;
-	} while ((time=rolex.read())<0.1 && !result);
-	cout << '.' << flush;
-	
-	if (!result) {
-		cout << " passed ";
-		clog << "(no output)" << endl;
+	if (do_test) {
+		rolex.start();
+		// correct for very small times:
+		do {
+			result = test();
+			++count;
+		} while ((time=rolex.read())<0.1 && !result);
+		cout << '.' << flush;
+		
+		if (!result) {
+			cout << " passed ";
+			clog << "(no output)" << endl;
+		} else {
+			cout << " failed ";
+		}
+		cout << int(1000*(time/count))*0.001 << 's' << endl;
 	} else {
-		cout << " failed ";
+		cout << " disabled" << endl;
+		clog << "(no output)" << endl;
 	}
-	cout << int(1000*(time/count))*0.001 << 's' << endl;
 	
 	return result;
 }

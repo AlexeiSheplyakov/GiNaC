@@ -25,15 +25,17 @@
 
 #include <sys/resource.h>
 #include <stdlib.h>
-#include <strstream>
+#include "config.h"
+#if defined(HAVE_SSTREAM)
+#  include <sstream>
+#else
+#  include <strstream>
+#endif
 #include <vector>
 using namespace std;
 
 #include "ginac.h"
-
-#ifndef NO_NAMESPACE_GINAC
 using namespace GiNaC;
-#endif // ndef NO_NAMESPACE_GINAC
 
 class timer {
 public:
@@ -63,6 +65,8 @@ unsigned time_lw_G();
 unsigned time_lw_H();
 unsigned time_lw_IJKL();
 unsigned time_lw_M1();
+unsigned time_lw_M2();
+unsigned time_lw_N();
 unsigned time_lw_O();
 unsigned time_lw_P();
 unsigned time_lw_Pprime();

@@ -25,10 +25,7 @@
 #include <stdlib.h>
 
 #include "ginac.h"
-
-#ifndef NO_NAMESPACE_GINAC
 using namespace GiNaC;
-#endif // ndef NO_NAMESPACE_GINAC
 
 /* Create a dense univariate random polynomial in x.
  * (of the form 9 - 22*a - 17*a^2 + 14*a^3 + 7*a^4 + 7a^5 if degree==5) */

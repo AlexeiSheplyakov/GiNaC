@@ -23,10 +23,6 @@
 
 #include "checks.h"
 
-#ifndef NO_NAMESPACE_GINAC
-using namespace GiNaC;
-#endif // ndef NO_NAMESPACE_GINAC
-
 /* Simple and maybe somewhat pointless consistency tests of assorted tests and
  * conversions. */
 static unsigned check_numeric1(void)

@@ -23,6 +23,8 @@
 
 #include "times.h"
 
+static const bool do_test = false;  // set to true in order to run this beast
+
 static unsigned test1(void)
 {
 	symbol a1("a1"), a2("a2"), a3("a3"), a4("a4"), a5("a5"), a6("a6");
@@ -108,20 +110,25 @@ unsigned time_lw_O(void)
 	cout << "timing Lewis-Wester test O1 (three 15x15 dets)" << flush;
 	clog << "-------Lewis-Wester test O1 (three 15x15 dets)" << endl;
 	
-	rolex.start();
-	// correct for very small times:
-	do {
-		result = test1();
-		++count;
-	} while ((time=rolex.read())<0.1 && !result);
-	
-	if (!result) {
-		cout << " passed ";
-		clog << "(no output)" << endl;
+	if (do_test) {
+		rolex.start();
+		// correct for very small times:
+		do {
+			result = test1();
+			++count;
+		} while ((time=rolex.read())<0.1 && !result);
+		
+		if (!result) {
+			cout << " passed ";
+			clog << "(no output)" << endl;
+		} else {
+			cout << " failed ";
+		}
+		cout << int(1000*(time/(3*count)))*0.001 << "s (average)" << endl;
 	} else {
-		cout << " failed ";
+		cout << " disabled" << endl;
+		clog << "(no output)" << endl;
 	}
-	cout << int(1000*(time/(3*count)))*0.001 << "s (average)" << endl;
 	
 	return result;
 }
