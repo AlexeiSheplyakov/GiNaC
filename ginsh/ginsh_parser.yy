@@ -700,11 +700,13 @@ static char **fcn_completion(char *text, int start, int end)
 		// For shell commands, revert back to filename completion
 		rl_completion_append_character = orig_completion_append_character;
 		rl_basic_word_break_characters = orig_basic_word_break_characters;
+		rl_completer_word_break_characters = rl_basic_word_break_characters;
 		return completion_matches(text, (CPFunction *)filename_completion_function);
 	} else {
 		// Otherwise, complete function names
 		rl_completion_append_character = '(';
 		rl_basic_word_break_characters = " \t\n\"#$%&'()*+,-./:;<=>?@[\\]^`{|}~";
+		rl_completer_word_break_characters = rl_basic_word_break_characters;
 		return completion_matches(text, (CPFunction *)fcn_generator);
 	}
 }
