@@ -545,21 +545,24 @@ takes to compile GiNaC depends not only on the speed of your machines
 but also on other parameters, for instance what value for @env{CXXFLAGS}
 you entered.  Optimization may be very time-consuming.
 
-Just to make sure GiNaC works properly you may run a simple test
-suite by typing
+Just to make sure GiNaC works properly you may run a collection of
+regression tests by typing
 
 @example
 $ make check
 @end example
 
-This will compile some sample programs, run them and compare the output
-to reference output. Each of the checks should return a message @samp{passed}
-together with the CPU time used for that particular test.  If it does
-not, something went wrong.  This is mostly intended to be a QA-check
-if something was broken during the development, not a sanity check
-of your system.  Another intent is to allow people to fiddle around
-with optimization.  If @acronym{CLN} was installed all right
-this step is unlikely to return any errors.
+This will compile some sample programs, run them and check the output
+for correctness.  The regression tests fall in three categories.  First,
+the so called @emph{exams} are performed, simple tests where some
+predefined input is evaluated (like a pupils' exam).  Second, the
+@emph{checks} test the coherence of results among each other with
+possible random input.  Third, some @emph{timings} are performed, which
+benchmark some predefined problems with different sizes and display the
+CPU time used in seconds.  Each individual test should return a message
+@samp{passed}.  This is mostly intended to be a QA-check if something
+was broken during development, not a sanity check of your system.
+Another intent is to allow people to fiddle around with optimization.
 
 Generally, the top-level Makefile runs recursively to the
 subdirectories.  It is therfore safe to go into any subdirectory
