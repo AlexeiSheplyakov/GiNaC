@@ -177,9 +177,9 @@ int symbol::ldegree(symbol const & s) const
 ex symbol::coeff(symbol const & s, int const n) const
 {
     if (compare_same_type(s)==0) {
-        return n==1 ? exONE() : exZERO();
+        return n==1 ? _ex1() : _ex0();
     } else {
-        return n==0 ? *this : exZERO();
+        return n==0 ? *this : _ex0();
     }
 }
 
@@ -277,7 +277,7 @@ void symbol::unassign(void)
 {
     if (asexinfop->is_assigned) {
         asexinfop->is_assigned=0;
-        asexinfop->assigned_expression=exZERO();
+        asexinfop->assigned_expression=_ex0();
     }
     setflag(status_flags::evaluated);
 }

@@ -46,7 +46,7 @@ static unsigned poly_gcd1(void)
 		ex f = (e1 + 1) * (e1 + 2);
 		ex g = e2 * (-pow(x, 2) * y[0] * 3 + pow(y[0], 2) - 1);
 		ex r = gcd(f, g);
-		if (r != exONE()) {
+		if (r != 1) {
 			clog << "case 1, gcd(" << f << "," << g << ") = " << r << " (should be 1)" << endl;
 			return 1;
 		}
@@ -69,10 +69,7 @@ static unsigned poly_gcd2(void)
 		ex f = d * pow(e2 - 2, 2);
 		ex g = d * pow(e1 + 2, 2);
 		ex r = gcd(f, g);
-        ex re=r.expand();
-        ex df1=r-d;
-        ex df=(r-d).expand();
-		if ((r - d).expand().compare(exZERO()) != 0) {
+		if (!(r - d).expand().is_zero()) {
 			clog << "case 2, gcd(" << f << "," << g << ") = " << r << " (should be " << d << ")" << endl;
 			return 1;
 		}
@@ -92,7 +89,7 @@ static unsigned poly_gcd3(void)
 		ex f = d * (e1 - 2);
 		ex g = d * (e1 + 2);
 		ex r = gcd(f, g);
-		if ((r - d).expand().compare(exZERO()) != 0) {
+		if (!(r - d).expand().is_zero()) {
 			clog << "case 3, gcd(" << f << "," << g << ") = " << r << " (should be " << d << ")" << endl;
 			return 1;
 		}
@@ -115,7 +112,7 @@ static unsigned poly_gcd3p(void)
 		ex f = d * (e1 - 2);
 		ex g = d * (e2 + 2);
 		ex r = gcd(f, g);
-		if ((r - d).expand().compare(exZERO()) != 0) {
+		if (!(r - d).expand().is_zero()) {
 			clog << "case 3p, gcd(" << f << "," << g << ") = " << r << " (should be " << d << ")" << endl;
 			return 1;
 		}
@@ -140,7 +137,7 @@ static unsigned poly_gcd4(void)
 		ex f = d * (e2 - 1);
 		ex g = d * pow(e3 + 2, 2);
 		ex r = gcd(f, g);
-		if ((r - d).expand().compare(exZERO()) != 0) {
+		if (!(r - d).expand().is_zero()) {
 			clog << "case 4, gcd(" << f << "," << g << ") = " << r << " (should be " << d << ")" << endl;
 			return 1;
 		}
@@ -165,7 +162,7 @@ static unsigned poly_gcd5(void)
 		ex f = d * (e2 + 3);
 		ex g = d * (e3 - 3);
 		ex r = gcd(f, g);
-		if ((r - d).expand().compare(exZERO()) != 0) {
+		if (!(r - d).expand().is_zero()) {
 			clog << "case 5, gcd(" << f << "," << g << ") = " << r << " (should be " << d << ")" << endl;
 			return 1;
 		}
@@ -185,7 +182,7 @@ static unsigned poly_gcd5p(void)
 		ex f = d * (e1 + 3);
 		ex g = d * (e1 - 3);
 		ex r = gcd(f, g);
-		if ((r - d).expand().compare(exZERO()) != 0) {
+		if (!(r - d).expand().is_zero()) {
 			clog << "case 5p, gcd(" << f << "," << g << ") = " << r << " (should be " << d << ")" << endl;
 			return 1;
 		}
@@ -203,7 +200,7 @@ static unsigned poly_gcd6(void)
 		ex f = d * (pow(x, j) + pow(y, j + 1) * pow(z, j) + 1);
 		ex g = d * (pow(x, j + 1) + pow(y, j) * pow(z, j + 1) - 7);
 		ex r = gcd(f, g);
-		if ((r - d).expand().compare(exZERO()) != 0) {
+		if (!(r - d).expand().is_zero()) {
 			clog << "case 6, gcd(" << f << "," << g << ") = " << r << " (should be " << d << ")" << endl;
 			return 1;
 		}
@@ -224,7 +221,7 @@ static unsigned poly_gcd7(void)
 			ex f = pow(p, j) * pow(q, k);
 			ex g = pow(p, k) * pow(q, j); 
 			ex r = gcd(f, g);
-			if ((r - d).expand().compare(exZERO()) != 0 && (r + d).expand().compare(exZERO()) != 0) {
+			if (!(r - d).expand().is_zero() && !(r + d).expand().is_zero()) {
 				clog << "case 7, gcd(" << f << "," << g << ") = " << r << " (should be " << d << ")" << endl;
 				return 1;
 			}

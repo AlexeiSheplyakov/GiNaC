@@ -29,6 +29,7 @@
 #include "add.h"
 #include "mul.h"
 #include "debugmsg.h"
+#include "utils.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
@@ -302,7 +303,7 @@ ex ncmul::coeff(symbol const & s, int const n) const
 
     if (coeff_found) return (new ncmul(coeffseq,1))->setflag(status_flags::dynallocated);
     
-    return exZERO();
+    return _ex0();
 }
 
 unsigned ncmul::count_factors(ex const & e) const
@@ -374,7 +375,7 @@ ex ncmul::eval(int level) const
     if (assocseq.size()==1) return *(seq.begin());
 
     // ncmul() -> 1
-    if (assocseq.size()==0) return exONE();
+    if (assocseq.size()==0) return _ex1();
 
     // determine return types
     unsignedvector rettypes;
@@ -618,7 +619,7 @@ ex nonsimplified_ncmul(exvector const & v)
 ex simplified_ncmul(exvector const & v)
 {
     if (v.size()==0) {
-        return exONE();
+        return _ex1();
     } else if (v.size()==1) {
         return v[0];
     }

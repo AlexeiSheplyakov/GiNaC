@@ -36,6 +36,7 @@
 #include "relational.h"
 #include "series.h"
 #include "symbol.h"
+#include "utils.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
@@ -54,7 +55,7 @@ ex basic::diff(symbol const & s) const
  *  @see ex::diff */
 ex numeric::diff(symbol const & s) const
 {
-    return exZERO();
+    return _ex0();
 }
 
 
@@ -65,9 +66,9 @@ ex numeric::diff(symbol const & s) const
 ex symbol::diff(symbol const & s) const
 {
     if (compare_same_type(s)) {
-        return exZERO();
+        return _ex0();
     } else {
-        return exONE();
+        return _ex1();
     }
 }
 
@@ -76,7 +77,7 @@ ex symbol::diff(symbol const & s) const
  *  @see ex::diff */
 ex constant::diff(symbol const & s) const
 {
-    return exZERO();
+    return _ex0();
 }
 
 /** Implementation of ex::diff() for multiple differentiation of a symbol.
@@ -92,13 +93,13 @@ ex symbol::diff(symbol const & s, unsigned nth) const
             return s;
             break;
         case 1:
-            return exONE();
+            return _ex1();
             break;
         default:
-            return exZERO();
+            return _ex0();
         }
     } else {
-        return exONE();
+        return _ex1();
     }
 }
 
@@ -107,7 +108,7 @@ ex symbol::diff(symbol const & s, unsigned nth) const
  *  @see ex::diff */
 ex indexed::diff(symbol const & s) const
 {
-        return exZERO();
+        return _ex0();
 }
 
 
@@ -151,7 +152,7 @@ ex mul::diff(symbol const & s) const
  *  @see ex::diff */
 ex ncmul::diff(symbol const & s) const
 {
-    return exZERO();
+    return _ex0();
 }
 
 
@@ -161,7 +162,7 @@ ex power::diff(symbol const & s) const
 {
     if (exponent.info(info_flags::real)) {
         // D(b^r) = r * b^(r-1) * D(b) (faster than the formula below)
-        return mul(mul(exponent, power(basis, exponent - exONE())), basis.diff(s));
+        return mul(mul(exponent, power(basis, exponent - _ex1())), basis.diff(s));
     } else {
         // D(b^e) = b^e * (D(e)*ln(b) + e*D(b)/b)
         return mul(power(basis, exponent),

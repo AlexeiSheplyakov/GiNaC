@@ -30,7 +30,7 @@ static unsigned check_diff(const ex &e, const symbol &x,
                            const ex &d, unsigned nth=1)
 {
     ex ed = e.diff(x, nth);
-    if ((ed - d).compare(exZERO()) != 0) {
+    if ((ed - d).compare(ex(0)) != 0) {
         switch (nth) {
         case 0:
             clog << "zeroth ";
@@ -258,13 +258,13 @@ static unsigned differentiation6(void)
     symbol x("x");
     ex e, d, ed;
     
-    e = sin(x).series(x, exZERO(), 8);
-    d = cos(x).series(x, exZERO(), 7);
+    e = sin(x).series(x, 0, 8);
+    d = cos(x).series(x, 0, 7);
     ed = e.diff(x);
     ed = static_cast<series *>(ed.bp)->convert_to_poly();
     d = static_cast<series *>(d.bp)->convert_to_poly();
     
-    if ((ed - d).compare(exZERO()) != 0) {
+    if ((ed - d).compare(ex(0)) != 0) {
         clog << "derivative of " << e << " by " << x << " returned "
              << ed << " instead of " << d << ")" << endl;
         return 1;

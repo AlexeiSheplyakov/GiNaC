@@ -45,6 +45,7 @@
 #include "relational.h"
 #include "series.h"
 #include "symbol.h"
+#include "utils.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
@@ -190,7 +191,7 @@ static numeric lcmcoeff(const ex &e, const numeric &l)
     if (e.info(info_flags::rational))
         return lcm(ex_to_numeric(e).denom(), l);
     else if (is_ex_exactly_of_type(e, add) || is_ex_exactly_of_type(e, mul)) {
-        numeric c = numONE();
+        numeric c = _num1();
         for (int i=0; i<e.nops(); i++) {
             c = lcmcoeff(e.op(i), c);
         }
@@ -210,7 +211,7 @@ static numeric lcmcoeff(const ex &e, const numeric &l)
 
 static numeric lcm_of_coefficients_denominators(const ex &e)
 {
-    return lcmcoeff(e.expand(), numONE());
+    return lcmcoeff(e.expand(), _num1());
 }
 
 
@@ -228,7 +229,7 @@ numeric ex::integer_content(void) const
 
 numeric basic::integer_content(void) const
 {
-    return numONE();
+    return _num1();
 }
 
 numeric numeric::integer_content(void) const
@@ -240,7 +241,7 @@ numeric add::integer_content(void) const
 {
     epvector::const_iterator it = seq.begin();
     epvector::const_iterator itend = seq.end();
-    numeric c = numZERO();
+    numeric c = _num0();
     while (it != itend) {
         GINAC_ASSERT(!is_ex_exactly_of_type(it->rest,numeric));
         GINAC_ASSERT(is_ex_exactly_of_type(it->coeff,numeric));
@@ -289,13 +290,13 @@ ex quo(const ex &a, const ex &b, const symbol &x, bool check_args)
         return a / b;
 #if FAST_COMPARE
     if (a.is_equal(b))
-        return exONE();
+        return _ex1();
 #endif
     if (check_args && (!a.info(info_flags::rational_polynomial) || !b.info(info_flags::rational_polynomial)))
         throw(std::invalid_argument("quo: arguments must be polynomials over the rationals"));
 
     // Polynomial long division
-    ex q = exZERO();
+    ex q = _ex0();
     ex r = a.expand();
     if (r.is_zero())
         return r;
@@ -338,13 +339,13 @@ ex rem(const ex &a, const ex &b, const symbol &x, bool check_args)
         throw(std::overflow_error("rem: division by zero"));
     if (is_ex_exactly_of_type(a, numeric)) {
         if  (is_ex_exactly_of_type(b, numeric))
-            return exZERO();
+            return _ex0();
         else
             return b;
     }
 #if FAST_COMPARE
     if (a.is_equal(b))
-        return exZERO();
+        return _ex0();
 #endif
     if (check_args && (!a.info(info_flags::rational_polynomial) || !b.info(info_flags::rational_polynomial)))
         throw(std::invalid_argument("rem: arguments must be polynomials over the rationals"));
@@ -390,7 +391,7 @@ ex prem(const ex &a, const ex &b, const symbol &x, bool check_args)
         throw(std::overflow_error("prem: division by zero"));
     if (is_ex_exactly_of_type(a, numeric)) {
         if (is_ex_exactly_of_type(b, numeric))
-            return exZERO();
+            return _ex0();
         else
             return b;
     }
@@ -406,18 +407,18 @@ ex prem(const ex &a, const ex &b, const symbol &x, bool check_args)
     if (bdeg <= rdeg) {
         blcoeff = eb.coeff(x, bdeg);
         if (bdeg == 0)
-            eb = exZERO();
+            eb = _ex0();
         else
             eb -= blcoeff * power(x, bdeg);
     } else
-        blcoeff = exONE();
+        blcoeff = _ex1();
 
     int delta = rdeg - bdeg + 1, i = 0;
     while (rdeg >= bdeg && !r.is_zero()) {
         ex rlcoeff = r.coeff(x, rdeg);
         ex term = (power(x, rdeg - bdeg) * eb * rlcoeff).expand();
         if (rdeg == 0)
-            r = exZERO();
+            r = _ex0();
         else
             r -= rlcoeff * power(x, rdeg);
         r = (blcoeff * r).expand() - term;
@@ -440,7 +441,7 @@ ex prem(const ex &a, const ex &b, const symbol &x, bool check_args)
 
 bool divide(const ex &a, const ex &b, ex &q, bool check_args)
 {
-    q = exZERO();
+    q = _ex0();
     if (b.is_zero())
         throw(std::overflow_error("divide: division by zero"));
     if (is_ex_exactly_of_type(b, numeric)) {
@@ -450,7 +451,7 @@ bool divide(const ex &a, const ex &b, ex &q, bool check_args)
         return false;
 #if FAST_COMPARE
     if (a.is_equal(b)) {
-        q = exONE();
+        q = _ex1();
         return true;
     }
 #endif
@@ -525,10 +526,10 @@ typedef map<ex2, exbool, ex2_less> ex2_exbool_remember;
  *  @see get_symbol_stats, heur_gcd */
 static bool divide_in_z(const ex &a, const ex &b, ex &q, sym_desc_vec::const_iterator var)
 {
-    q = exZERO();
+    q = _ex0();
     if (b.is_zero())
         throw(std::overflow_error("divide_in_z: division by zero"));
-    if (b.is_equal(exONE())) {
+    if (b.is_equal(_ex1())) {
         q = a;
         return true;
     }
@@ -541,7 +542,7 @@ static bool divide_in_z(const ex &a, const ex &b, ex &q, sym_desc_vec::const_ite
     }
 #if FAST_COMPARE
     if (a.is_equal(b)) {
-        q = exONE();
+        q = _ex1();
         return true;
     }
 #endif
@@ -601,19 +602,19 @@ static bool divide_in_z(const ex &a, const ex &b, ex &q, sym_desc_vec::const_ite
     // Compute values at evaluation points 0..adeg
     vector<numeric> alpha; alpha.reserve(adeg + 1);
     exvector u; u.reserve(adeg + 1);
-    numeric point = numZERO();
+    numeric point = _num0();
     ex c;
     for (i=0; i<=adeg; i++) {
         ex bs = b.subs(*x == point);
         while (bs.is_zero()) {
-            point += numONE();
+            point += _num1();
             bs = b.subs(*x == point);
         }
         if (!divide_in_z(a.subs(*x == point), bs, c, var+1))
             return false;
         alpha.push_back(point);
         u.push_back(c);
-        point += numONE();
+        point += _num1();
     }
 
     // Compute inverses
@@ -665,7 +666,7 @@ ex ex::unit(const symbol &x) const
 {
     ex c = expand().lcoeff(x);
     if (is_ex_exactly_of_type(c, numeric))
-        return c < exZERO() ? exMINUSONE() : exONE();
+        return c < _ex0() ? _ex_1() : _ex1();
     else {
         const symbol *y;
         if (get_first_symbol(c, y))
@@ -686,12 +687,12 @@ ex ex::unit(const symbol &x) const
 ex ex::content(const symbol &x) const
 {
     if (is_zero())
-        return exZERO();
+        return _ex0();
     if (is_ex_exactly_of_type(*this, numeric))
         return info(info_flags::negative) ? -*this : *this;
     ex e = expand();
     if (e.is_zero())
-        return exZERO();
+        return _ex0();
 
     // First, try the integer content
     ex c = e.integer_content();
@@ -705,7 +706,7 @@ ex ex::content(const symbol &x) const
     int ldeg = e.ldegree(x);
     if (deg == ldeg)
         return e.lcoeff(x) / e.unit(x);
-    c = exZERO();
+    c = _ex0();
     for (int i=ldeg; i<=deg; i++)
         c = gcd(e.coeff(x, i), c, NULL, NULL, false);
     return c;
@@ -722,13 +723,13 @@ ex ex::content(const symbol &x) const
 ex ex::primpart(const symbol &x) const
 {
     if (is_zero())
-        return exZERO();
+        return _ex0();
     if (is_ex_exactly_of_type(*this, numeric))
-        return exONE();
+        return _ex1();
 
     ex c = content(x);
     if (c.is_zero())
-        return exZERO();
+        return _ex0();
     ex u = unit(x);
     if (is_ex_exactly_of_type(c, numeric))
         return *this / (c * u);
@@ -748,11 +749,11 @@ ex ex::primpart(const symbol &x) const
 ex ex::primpart(const symbol &x, const ex &c) const
 {
     if (is_zero())
-        return exZERO();
+        return _ex0();
     if (c.is_zero())
-        return exZERO();
+        return _ex0();
     if (is_ex_exactly_of_type(*this, numeric))
-        return exONE();
+        return _ex1();
 
     ex u = unit(x);
     if (is_ex_exactly_of_type(c, numeric))
@@ -803,7 +804,7 @@ static ex sr_gcd(const ex &a, const ex &b, const symbol *x)
     d = d.primpart(*x, cont_d);
 
     // First element of subresultant sequence
-    ex r = exZERO(), ri = exONE(), psi = exONE();
+    ex r = _ex0(), ri = _ex1(), psi = _ex1();
     int delta = cdeg - ddeg;
 
     for (;;) {
@@ -849,7 +850,7 @@ numeric ex::max_coefficient(void) const
 
 numeric basic::max_coefficient(void) const
 {
-    return numONE();
+    return _num1();
 }
 
 numeric numeric::max_coefficient(void) const
@@ -1013,9 +1014,9 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
     numeric mp = p.max_coefficient(), mq = q.max_coefficient();
     numeric xi;
     if (mp > mq)
-        xi = mq * numTWO() + numTWO();
+        xi = mq * _num2() + _num2();
     else
-        xi = mp * numTWO() + numTWO();
+        xi = mp * _num2() + _num2();
 
     // 6 tries maximum
     for (int t=0; t<6; t++) {
@@ -1027,7 +1028,7 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
         if (!is_ex_exactly_of_type(gamma, fail)) {
 
             // Reconstruct polynomial from GCD of mapped polynomials
-            ex g = exZERO();
+            ex g = _ex0();
             numeric rxi = xi.inverse();
             for (int i=0; !gamma.is_zero(); i++) {
                 ex gi = gamma.smod(xi);
@@ -1042,7 +1043,7 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
             if (divide_in_z(p, g, ca ? *ca : dummy, var) && divide_in_z(q, g, cb ? *cb : dummy, var)) {
                 g *= gc;
                 ex lc = g.lcoeff(*x);
-                if (is_ex_exactly_of_type(lc, numeric) && lc.compare(exZERO()) < 0)
+                if (is_ex_exactly_of_type(lc, numeric) && lc.compare(_ex0()) < 0)
                     return -g;
                 else
                     return g;
@@ -1071,31 +1072,31 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args)
 	ex aex = a.expand(), bex = b.expand();
     if (aex.is_zero()) {
         if (ca)
-            *ca = exZERO();
+            *ca = _ex0();
         if (cb)
-            *cb = exONE();
+            *cb = _ex1();
         return b;
     }
     if (bex.is_zero()) {
         if (ca)
-            *ca = exONE();
+            *ca = _ex1();
         if (cb)
-            *cb = exZERO();
+            *cb = _ex0();
         return a;
     }
-    if (aex.is_equal(exONE()) || bex.is_equal(exONE())) {
+    if (aex.is_equal(_ex1()) || bex.is_equal(_ex1())) {
         if (ca)
             *ca = a;
         if (cb)
             *cb = b;
-        return exONE();
+        return _ex1();
     }
 #if FAST_COMPARE
     if (a.is_equal(b)) {
         if (ca)
-            *ca = exONE();
+            *ca = _ex1();
         if (cb)
-            *cb = exONE();
+            *cb = _ex1();
         return a;
     }
 #endif
@@ -1154,7 +1155,7 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args)
         g = *new ex(fail());
     }
     if (is_ex_exactly_of_type(g, fail)) {
-//clog << "heuristics failed\n";
+// clog << "heuristics failed" << endl;
         g = sr_gcd(aex, bex, x);
         if (ca)
             divide(aex, g, *ca, false);
@@ -1197,8 +1198,8 @@ static ex univariate_gcd(const ex &a, const ex &b, const symbol &x)
         return b;
     if (b.is_zero())
         return a;
-    if (a.is_equal(exONE()) || b.is_equal(exONE()))
-        return exONE();
+    if (a.is_equal(_ex1()) || b.is_equal(_ex1()))
+        return _ex1();
     if (is_ex_of_type(a, numeric) && is_ex_of_type(b, numeric))
         return gcd(ex_to_numeric(a), ex_to_numeric(b));
     if (!a.info(info_flags::rational_polynomial) || !b.info(info_flags::rational_polynomial))
@@ -1233,11 +1234,11 @@ static ex univariate_gcd(const ex &a, const ex &b, const symbol &x)
 ex sqrfree(const ex &a, const symbol &x)
 {
     int i = 1;
-    ex res = exONE();
+    ex res = _ex1();
     ex b = a.diff(x);
     ex c = univariate_gcd(a, b, x);
     ex w;
-    if (c.is_equal(exONE())) {
+    if (c.is_equal(_ex1())) {
         w = a;
     } else {
         w = quo(a, c, x);
@@ -1326,11 +1327,11 @@ static ex frac_cancel(const ex &n, const ex &d)
 {
     ex num = n;
     ex den = d;
-    ex pre_factor = exONE();
+    ex pre_factor = _ex1();
 
     // Handle special cases where numerator or denominator is 0
     if (num.is_zero())
-        return exZERO();
+        return _ex0();
     if (den.expand().is_zero())
         throw(std::overflow_error("frac_cancel: division by zero in frac_cancel"));
 
@@ -1338,7 +1339,7 @@ static ex frac_cancel(const ex &n, const ex &d)
     if (is_ex_exactly_of_type(den, numeric))
         return num / den;
     if (num.is_zero())
-        return exZERO();
+        return _ex0();
 
     // Bring numerator and denominator to Z[X] by multiplying with
     // LCM of all coefficients' denominators
@@ -1350,7 +1351,7 @@ static ex frac_cancel(const ex &n, const ex &d)
 
     // Cancel GCD from numerator and denominator
     ex cnum, cden;
-    if (gcd(num, den, &cnum, &cden, false) != exONE()) {
+    if (gcd(num, den, &cnum, &cden, false) != _ex1()) {
 		num = cnum;
 		den = cden;
 	}
@@ -1359,9 +1360,9 @@ static ex frac_cancel(const ex &n, const ex &d)
 	// as defined by get_first_symbol() is made positive)
 	const symbol *x;
 	if (get_first_symbol(den, x)) {
-		if (den.unit(*x).compare(exZERO()) < 0) {
-			num *= exMINUSONE();
-			den *= exMINUSONE();
+		if (den.unit(*x).compare(_ex0()) < 0) {
+			num *= _ex_1();
+			den *= _ex_1();
 		}
 	}
     return pre_factor * num / den;
@@ -1393,7 +1394,7 @@ ex add::normal(lst &sym_lst, lst &repl_lst, int level) const
     o.push_back(overall_coeff.bp->normal(sym_lst, repl_lst, level-1));
 
     // Determine common denominator
-    ex den = exONE();
+    ex den = _ex1();
     exvector::const_iterator ait = o.begin(), aitend = o.end();
     while (ait != aitend) {
         den = lcm((*ait).denom(false), den, false);
@@ -1401,7 +1402,7 @@ ex add::normal(lst &sym_lst, lst &repl_lst, int level) const
     }
 
     // Add fractions
-    if (den.is_equal(exONE()))
+    if (den.is_equal(_ex1()))
         return (new add(o))->setflag(status_flags::dynallocated);
     else {
         exvector num_seq;

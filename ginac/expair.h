@@ -59,7 +59,7 @@ public:
     {
         GINAC_ASSERT(is_ex_exactly_of_type(coeff,numeric));
         return is_ex_exactly_of_type(rest,numeric) &&
-               (ex_to_numeric(coeff).compare(numONE())==0);
+               (coeff.is_equal(ex(1)));
     }
 
     bool is_equal(expair const & other) const
@@ -101,14 +101,14 @@ public:
         */
         if (is_ex_exactly_of_type(rest,numeric) &&
             is_ex_exactly_of_type(other.rest,numeric)) {
-            if (ex_to_numeric(coeff).compare(numONE())==0) {
-                if (ex_to_numeric(other.coeff).compare(numONE())==0) {
+            if (coeff.is_equal(ex(1))) {
+                if ((other.coeff).is_equal(ex(1))) {
                     // both have coeff 1: compare rests
                     return rest.compare(other.rest)<0;
                 }
                 // only this has coeff 1: >
                 return false;
-            } else if (ex_to_numeric(other.coeff).compare(numONE())==0) {
+            } else if ((other.coeff).is_equal(ex(1))) {
                 // only other has coeff 1: <
                 return true;
             }
@@ -122,14 +122,14 @@ public:
     {
         if (is_ex_exactly_of_type(rest,numeric) &&
             is_ex_exactly_of_type(other.rest,numeric)) {
-            if (ex_to_numeric(coeff).compare(numONE())==0) {
-                if (ex_to_numeric(other.coeff).compare(numONE())==0) {
+            if ((coeff).is_equal(ex(1))) {
+                if ((other.coeff).is_equal(ex(1))) {
                     // both have coeff 1: compare rests
                     return rest.compare(other.rest);
                 }
                 // only this has coeff 1: >
                 return 1;
-            } else if (ex_to_numeric(other.coeff).compare(numONE())==0) {
+            } else if ((other.coeff).is_equal(ex(1))) {
                 // only other has coeff 1: <
                 return -1;
             }

@@ -38,17 +38,9 @@ class status_flags;
 class symbol;
 class lst;
 
+extern ex const & _ex0(void);  /* FIXME: should this pollute headers? */
+
 // typedef vector<ex> exvector;
-
-// enum definitions
-
-ex const & exZERO(void);
-ex const & exONE(void);
-ex const & exTWO(void);
-ex const & exTHREE(void);
-ex const & exMINUSONE(void);
-ex const & exHALF(void);
-ex const & exMINUSHALF(void);
 
 #define INLINE_EX_CONSTRUCTORS
 
@@ -65,10 +57,10 @@ class ex
 public:
     ex()
 #ifdef INLINE_EX_CONSTRUCTORS
-    : bp(exZERO().bp)
+    : bp(_ex0().bp)
         {
-            GINAC_ASSERT(exZERO().bp!=0);
-            GINAC_ASSERT(exZERO().bp->flags & status_flags::dynallocated);
+            GINAC_ASSERT(_ex0().bp!=0);
+            GINAC_ASSERT(_ex0().bp->flags & status_flags::dynallocated);
             GINAC_ASSERT(bp!=0);
             ++bp->refcount;
 #ifdef OBSCURE_CINT_HACK
@@ -224,7 +216,7 @@ public:
 #else
 ;
 #endif // def INLINE_EX_CONSTRUCTORS
-    bool is_zero(void) const {return compare(exZERO()) == 0;};
+    bool is_zero(void) const {return compare(_ex0())==0;};
         
     unsigned return_type(void) const;
     unsigned return_type_tinfo(void) const;

@@ -33,6 +33,7 @@
 #include "mul.h"
 #include "symbol.h"
 #include "debugmsg.h"
+#include "utils.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
@@ -203,7 +204,7 @@ ex simp_lor::eval(int level) const
         int sig=canonicalize_indices(iv,false); // symmetric
         if (sig!=INT_MAX) {
             // something has changed while sorting indices, more evaluations later
-            if (sig==0) return exZERO();
+            if (sig==0) return _ex0();
             return ex(sig)*simp_lor(type,name,iv);
         }
         lorentzidx const & idx1=ex_to_lorentzidx(seq[0]);
@@ -214,19 +215,19 @@ ex simp_lor::eval(int level) const
                 // both on diagonal
                 if (idx1.get_value()==0) {
                     // (0,0)
-                    return exONE();
+                    return _ex1();
                 } else {
                     if (idx1.is_covariant()!=idx2.is_covariant()) {
                         // (_i,~i) or (~i,_i), i=1..3
-                        return exONE();
+                        return _ex1();
                     } else {
                         // (_i,_i) or (~i,~i), i=1..3
-                        return exMINUSONE();
+                        return _ex_1();
                     }
                 }
             } else {
                 // at least one off-diagonal
-                return exZERO();
+                return _ex0();
             }
         } else if (idx1.is_symbolic() &&
                    idx1.is_co_contra_pair(idx2)) {
@@ -339,7 +340,7 @@ ex simplify_simp_lor_mul(ex const & m, scalar_products const & sp)
     v_contracted.reserve(2*n);
     for (int i=0; i<n; ++i) {
         ex f=m.op(i);
-        if (is_ex_exactly_of_type(f,power)&&f.op(1).is_equal(exTWO())) {
+        if (is_ex_exactly_of_type(f,power)&&f.op(1).is_equal(_ex2())) {
             v_contracted.push_back(f.op(0));
             v_contracted.push_back(f.op(0));
         } else {
@@ -374,7 +375,7 @@ ex simplify_simp_lor_mul(ex const & m, scalar_products const & sp)
                 } else {
                     // a contracted index should occur exactly once
                     GINAC_ASSERT(replacements==1);
-                    *it=exONE();
+                    *it=_ex1();
                     something_changed=true;
                 }
             }
@@ -390,7 +391,7 @@ ex simplify_simp_lor_mul(ex const & m, scalar_products const & sp)
                 } else {
                     // a contracted index should occur exactly once
                     GINAC_ASSERT(replacements==1);
-                    *it=exONE();
+                    *it=_ex1();
                     something_changed=true;
                 }
             }
@@ -418,7 +419,7 @@ ex simplify_simp_lor_mul(ex const & m, scalar_products const & sp)
                         idx1.is_co_contra_pair(idx2) &&
                         sp.is_defined(vec1,vec2)) {
                         *it1=sp.evaluate(vec1,vec2);
-                        *it2=exONE();
+                        *it2=_ex1();
                         something_changed=true;
                         jump_to_next=true;
                     }
@@ -442,7 +443,7 @@ ex simplify_simp_lor(ex const & e, scalar_products const & sp)
 
     // simplification of sum=sum of simplifications
     if (is_ex_exactly_of_type(e_expanded,add)) {
-        ex sum=exZERO();
+        ex sum=_ex0();
         for (int i=0; i<e_expanded.nops(); ++i) {
             sum += simplify_simp_lor(e_expanded.op(i),sp);
         }
@@ -458,11 +459,11 @@ ex simplify_simp_lor(ex const & e, scalar_products const & sp)
     return e_expanded;
 }
 
-ex Dim(void)
-{
-    static symbol * d=new symbol("dim");
-    return *d;
-}
+//ex Dim(void)   // FIXME: what's going on here?
+//{
+//    static symbol * d=new symbol("dim");
+//    return *d;
+//}
 
 //////////
 // helper classes

@@ -27,6 +27,7 @@
 #include "add.h"
 #include "power.h"
 #include "debugmsg.h"
+#include "utils.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
@@ -88,7 +89,7 @@ mul::mul(ex const & lh, ex const & rh)
 {
     debugmsg("mul constructor from ex,ex",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_mul;
-    overall_coeff=exONE();
+    overall_coeff=_ex1();
     construct_from_2_ex(lh,rh);
     GINAC_ASSERT(is_canonical());
 }
@@ -97,7 +98,7 @@ mul::mul(exvector const & v)
 {
     debugmsg("mul constructor from exvector",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_mul;
-    overall_coeff=exONE();
+    overall_coeff=_ex1();
     construct_from_exvector(v);
     GINAC_ASSERT(is_canonical());
 }
@@ -123,7 +124,7 @@ mul::mul(epvector const & v)
 {
     debugmsg("mul constructor from epvector",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_mul;
-    overall_coeff=exONE();
+    overall_coeff=_ex1();
     construct_from_epvector(v);
     GINAC_ASSERT(is_canonical());
 }
@@ -157,7 +158,7 @@ mul::mul(ex const & lh, ex const & mh, ex const & rh)
     factors.push_back(lh);
     factors.push_back(mh);
     factors.push_back(rh);
-    overall_coeff=exONE();
+    overall_coeff=_ex1();
     construct_from_exvector(factors);
     GINAC_ASSERT(is_canonical());
 }
@@ -181,10 +182,10 @@ void mul::print(ostream & os, unsigned upper_precedence) const
     bool first=true;
     // first print the overall numeric coefficient:
     if (ex_to_numeric(overall_coeff).csgn()==-1) os << '-';
-    if (!overall_coeff.is_equal(exONE()) &&
-        !overall_coeff.is_equal(exMINUSONE())) {
+    if (!overall_coeff.is_equal(_ex1()) &&
+        !overall_coeff.is_equal(_ex_1())) {
         if (ex_to_numeric(overall_coeff).csgn()==-1)
-            (numMINUSONE()*overall_coeff).print(os, precedence);
+            (_num_1()*overall_coeff).print(os, precedence);
         else
             overall_coeff.print(os, precedence);
         os << '*';
@@ -223,7 +224,7 @@ void mul::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) cons
     if (precedence <= upper_precedence)
         os << "(";
 
-    if (!overall_coeff.is_equal(exONE())) {
+    if (!overall_coeff.is_equal(_ex1())) {
         overall_coeff.bp->printcsrc(os,type,precedence);
         os << "*";
     }
@@ -234,7 +235,7 @@ void mul::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) cons
     while (it != itend) {
 
         // If the first argument is a negative integer power, it gets printed as "1.0/<expr>"
-        if (it == seq.begin() && ex_to_numeric(it->coeff).is_integer() && it->coeff.compare(numZERO()) < 0) {
+        if (it == seq.begin() && ex_to_numeric(it->coeff).is_integer() && it->coeff.compare(_num0()) < 0) {
             if (type == csrc_types::ctype_cl_N)
                 os << "recip(";
             else
@@ -242,7 +243,7 @@ void mul::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) cons
         }
 
         // If the exponent is 1 or -1, it is left out
-        if (it->coeff.compare(exONE()) == 0 || it->coeff.compare(numMINUSONE()) == 0)
+        if (it->coeff.compare(_ex1()) == 0 || it->coeff.compare(_num_1()) == 0)
             it->rest.bp->printcsrc(os, type, precedence);
         else
             // outer parens around ex needed for broken gcc-2.95 parser:
@@ -251,7 +252,7 @@ void mul::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) cons
         // Separator is "/" for negative integer powers, "*" otherwise
         it++;
         if (it != itend) {
-            if (ex_to_numeric(it->coeff).is_integer() && it->coeff.compare(numZERO()) < 0)
+            if (ex_to_numeric(it->coeff).is_integer() && it->coeff.compare(_num0()) < 0)
                 os << "/";
             else
                 os << "*";
@@ -335,7 +336,7 @@ ex mul::coeff(symbol const & s, int const n) const
         return (new mul(coeffseq))->setflag(status_flags::dynallocated);
     }
     
-    return exZERO();
+    return _ex0();
 }
 
 ex mul::eval(int level) const
@@ -373,23 +374,23 @@ ex mul::eval(int level) const
 
     if (flags & status_flags::evaluated) {
         GINAC_ASSERT(seq.size()>0);
-        GINAC_ASSERT((seq.size()>1)||!overall_coeff.is_equal(exONE()));
+        GINAC_ASSERT((seq.size()>1)||!overall_coeff.is_equal(_ex1()));
         return *this;
     }
 
     int seq_size=seq.size();
-    if (overall_coeff.is_equal(exZERO())) {
+    if (overall_coeff.is_equal(_ex0())) {
         // *(...,x;0) -> 0
-        return exZERO();
+        return _ex0();
     } else if (seq_size==0) {
         // *(;c) -> c
         return overall_coeff;
-    } else if ((seq_size==1)&&overall_coeff.is_equal(exONE())) {
+    } else if ((seq_size==1)&&overall_coeff.is_equal(_ex1())) {
         // *(x;1) -> x
         return recombine_pair_to_ex(*(seq.begin()));
     } else if ((seq_size==1) &&
                is_ex_exactly_of_type((*seq.begin()).rest,add) &&
-               ex_to_numeric((*seq.begin()).coeff).is_equal(numONE())) {
+               ex_to_numeric((*seq.begin()).coeff).is_equal(_num1())) {
         // *(+(x,y,...);c) -> +(*(x,c),*(y,c),...) (c numeric(), no powers of +())
         add const & addref=ex_to_add((*seq.begin()).rest);
         epvector distrseq;
@@ -503,7 +504,7 @@ expair mul::split_ex_to_pair(ex const & e) const
             return expair(powerref.basis,powerref.exponent);
         }
     }
-    return expair(e,exONE());
+    return expair(e,_ex1());
 }
     
 expair mul::combine_ex_with_coeff_to_pair(ex const & e,
@@ -513,7 +514,7 @@ expair mul::combine_ex_with_coeff_to_pair(ex const & e,
     // we create a temporary power object
     // otherwise it would be hard to correctly simplify
     // expression like (4^(1/3))^(3/2)
-    if (are_ex_trivially_equal(c,exONE())) {
+    if (are_ex_trivially_equal(c,_ex1())) {
         return split_ex_to_pair(e);
     }
     return split_ex_to_pair(power(e,c));
@@ -526,7 +527,7 @@ expair mul::combine_pair_with_coeff_to_pair(expair const & p,
     // we create a temporary power object
     // otherwise it would be hard to correctly simplify
     // expression like (4^(1/3))^(3/2)
-    if (are_ex_trivially_equal(c,exONE())) {
+    if (are_ex_trivially_equal(c,_ex1())) {
         return p;
     }
     return split_ex_to_pair(power(recombine_pair_to_ex(p),c));
@@ -534,9 +535,9 @@ expair mul::combine_pair_with_coeff_to_pair(expair const & p,
     
 ex mul::recombine_pair_to_ex(expair const & p) const
 {
-    // if (p.coeff.compare(exONE())==0) {
-    // if (are_ex_trivially_equal(p.coeff,exONE())) {
-    if (ex_to_numeric(p.coeff).is_equal(numONE())) {
+    // if (p.coeff.compare(_ex1())==0) {
+    // if (are_ex_trivially_equal(p.coeff,_ex1())) {
+    if (ex_to_numeric(p.coeff).is_equal(_num1())) {
         return p.rest;
     } else {
         return power(p.rest,p.coeff);
@@ -558,7 +559,7 @@ bool mul::expair_needs_further_processing(epp it)
             *it=ep;
             return true;
         }
-        if (ex_to_numeric((*it).coeff).is_equal(numONE())) {
+        if (ex_to_numeric((*it).coeff).is_equal(_num1())) {
             // combined pair has coeff 1 and must be moved to the end
             return true;
         }
@@ -568,7 +569,7 @@ bool mul::expair_needs_further_processing(epp it)
 
 ex mul::default_overall_coeff(void) const
 {
-    return exONE();
+    return _ex1();
 }
 
 void mul::combine_overall_coeff(ex const & c)
@@ -593,7 +594,7 @@ bool mul::can_make_flat(expair const & p) const
     // this assertion will probably fail somewhere
     // it would require a more careful make_flat, obeying the power laws
     // probably should return true only if p.coeff is integer
-    return ex_to_numeric(p.coeff).is_equal(numONE());
+    return ex_to_numeric(p.coeff).is_equal(_num1());
 }
 
 ex mul::expand(unsigned options) const
@@ -616,7 +617,7 @@ ex mul::expand(unsigned options) const
     epvector::const_iterator last=expanded_seq.end();
     for (epvector::const_iterator cit=expanded_seq.begin(); cit!=last; ++cit) {
         if (is_ex_exactly_of_type((*cit).rest,add)&&
-            (ex_to_numeric((*cit).coeff).is_equal(numONE()))) {
+            (ex_to_numeric((*cit).coeff).is_equal(_num1()))) {
             positions_of_adds[number_of_adds]=current_position;
             add const & expanded_addref=ex_to_add((*cit).rest);
             int addref_nops=expanded_addref.nops();
@@ -652,7 +653,7 @@ ex mul::expand(unsigned options) const
         term=expanded_seq;
         for (l=0; l<number_of_adds; l++) {
             add const & addref=ex_to_add(expanded_seq[positions_of_adds[l]].rest);
-            GINAC_ASSERT(term[positions_of_adds[l]].coeff.compare(exONE())==0);
+            GINAC_ASSERT(term[positions_of_adds[l]].coeff.compare(_ex1())==0);
             term[positions_of_adds[l]]=split_ex_to_pair(addref.op(k[l]));
         }
         /*

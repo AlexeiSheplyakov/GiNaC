@@ -74,19 +74,19 @@ static unsigned paranoia_check2(void)
     g = f - e*y;
 
     // After .expand(), g should be zero:
-    if (!g.expand().is_equal(exZERO())) {
+    if (!g.expand().is_zero()) {
         clog << "e = (x + z*x); f = e*y; expand(f - e*y) erroneously returned "
              << g.expand() << endl;
         ++result;
     }
     // After .eval(), g should be zero:
-    if (!g.eval().is_equal(exZERO())) {
+    if (!g.eval().is_zero()) {
         clog << "e = (x + z*x); f = e*y; eval(f - e*y) erroneously returned "
              << g.eval() << endl;
         ++result;
     }
-    // This actually worked already back in April.  But we are very paranoic!
-    if (!g.expand().eval().is_equal(exZERO())) {
+    // This actually worked already back in April 1999.  But we are very paranoic!
+    if (!g.expand().eval().is_zero()) {
         clog << "e = (x + z*x); f = e*y; eval(expand(f - e*y)) erroneously returned "
              << g.expand().eval() << endl;
         ++result;
@@ -136,12 +136,12 @@ static unsigned paranoia_check4(void)
     f = pow(x, 2) + x + 1;
     g = e - f;
 
-    if (!g.is_equal(exZERO())) {
+    if (!g.is_zero()) {
         clog << "e = pow(x,2) + x + 1; f = pow(x,2) + x + 1; g = e-f; g erroneously returned "
              << g << endl;
         ++result;
     }
-    if (!g.is_equal(exZERO())) {
+    if (!g.is_zero()) {
         clog << "e = pow(x,2) + x + 1; f = pow(x,2) + x + 1; g = e-f; g.eval() erroneously returned "
              << g.eval() << endl;
         ++result;
@@ -160,7 +160,7 @@ static unsigned paranoia_check5(void)
     e = pow(x*y + 1, 2);
     f = pow(x, 2) * pow(y, 2) + 2*x*y + 1;
 
-    if (!(e-f).expand().is_equal(exZERO())) {
+    if (!(e-f).expand().is_zero()) {
         clog << "e = pow(x*y+1,2); f = pow(x,2)*pow(y,2) + 2*x*y + 1; (e-f).expand() erroneously returned "
              << (e-f).expand() << endl;
         ++result;

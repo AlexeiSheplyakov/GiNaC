@@ -34,6 +34,7 @@
 #include "numeric.h"
 #include "relational.h"
 #include "debugmsg.h"
+#include "utils.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
@@ -242,7 +243,7 @@ ex color::eval(int level) const
             int sig=canonicalize_indices(iv,antisymmetric);
             if (sig!=INT_MAX) {
                 // something has changed while sorting indices, more evaluations later
-                if (sig==0) return exZERO();
+                if (sig==0) return _ex0();
                 return ex(sig)*color(type,iv,representation_label);
             }
         }
@@ -267,9 +268,9 @@ ex color::eval(int level) const
             // check for delta8_{a,b} where a and b are numeric indices, replace by 0 or 1
             if ((!idx1.is_symbolic())&&(!idx2.is_symbolic())) {
                 if ((idx1.get_value()!=idx2.get_value())) {
-                    return exONE();
+                    return _ex1();
                 } else {
-                    return exZERO();
+                    return _ex0();
                 }
             }
 	}
@@ -283,9 +284,9 @@ ex color::eval(int level) const
             coloridx const & idx3=ex_to_coloridx(seq[2]);
             
             if (idx1.is_equal_same_type(idx2) && idx1.is_symbolic()) {
-                return exZERO();
+                return _ex0();
             } else if (idx2.is_equal_same_type(idx3) && idx2.is_symbolic()) {
-                return exZERO();
+                return _ex0();
             }
             
             // check for three numeric indices
@@ -294,9 +295,9 @@ ex color::eval(int level) const
                 GINAC_ASSERT(idx2.get_value()<=idx3.get_value());
                 if (CMPINDICES(1,4,6)||CMPINDICES(1,5,7)||CMPINDICES(2,5,6)||
                     CMPINDICES(3,4,4)||CMPINDICES(3,5,5)) {
-                    return exHALF();
+                    return _ex1_2();
                 } else if (CMPINDICES(2,4,7)||CMPINDICES(3,6,6)||CMPINDICES(3,7,7)) {
-                    return -exHALF();
+                    return -_ex1_2();
                 } else if (CMPINDICES(1,1,8)||CMPINDICES(2,2,8)||CMPINDICES(3,3,8)) {
                     return 1/sqrt(numeric(3));
                 } else if (CMPINDICES(8,8,8)) {
@@ -304,7 +305,7 @@ ex color::eval(int level) const
                 } else if (CMPINDICES(4,4,8)||CMPINDICES(5,5,8)||CMPINDICES(6,6,8)||CMPINDICES(7,7,8)) {
                     return -1/(2*sqrt(numeric(3)));
                 }
-                return exZERO();
+                return _ex0();
             }
         }
         break;
@@ -320,12 +321,12 @@ ex color::eval(int level) const
                 GINAC_ASSERT(idx1.get_value()<=idx2.get_value());
                 GINAC_ASSERT(idx2.get_value()<=idx3.get_value());
                 if (CMPINDICES(1,2,3)) {
-                    return exONE();
+                    return _ex1();
                 } else if (CMPINDICES(1,4,7)||CMPINDICES(2,4,6)||
                            CMPINDICES(2,5,7)||CMPINDICES(3,4,5)) {
-                    return exHALF();
+                    return _ex1_2();
                 } else if (CMPINDICES(1,5,6)||CMPINDICES(3,6,7)) {
-                    return -exHALF();
+                    return -_ex1_2();
                 } else if (CMPINDICES(4,5,8)||CMPINDICES(6,7,8)) {
                     return sqrt(numeric(3))/2;
                 } else if (CMPINDICES(8,8,8)) {
@@ -333,7 +334,7 @@ ex color::eval(int level) const
                 } else if (CMPINDICES(4,4,8)||CMPINDICES(5,5,8)||CMPINDICES(6,6,8)||CMPINDICES(7,7,8)) {
                     return -1/(2*sqrt(numeric(3)));
                 }
-                return exZERO();
+                return _ex0();
             }
             break;
         }
@@ -405,7 +406,7 @@ ex color::simplify_ncmul(exvector const & v) const
                 } else {
                     // a contracted index should occur exactly twice
                     GINAC_ASSERT(replacements==2);
-                    *it=exONE();
+                    *it=_ex1();
                     something_changed=true;
                 }
             }
@@ -420,7 +421,7 @@ ex color::simplify_ncmul(exvector const & v) const
                 } else {
                     // a contracted index should occur exactly twice
                     GINAC_ASSERT(replacements==2);
-                    *it=exONE();
+                    *it=_ex1();
                     something_changed=true;
                 }
             }
@@ -457,7 +458,7 @@ ex color::simplify_ncmul(exvector const & v) const
                 color const & col1=ex_to_color(*it1);
                 color const & col2=ex_to_color(*it2);
                 exvector iv_intersect=idx_intersect(col1.seq,col2.seq);
-                if (iv_intersect.size()>=2) return exZERO();
+                if (iv_intersect.size()>=2) return _ex0();
             }
         }
     }
@@ -474,13 +475,13 @@ ex color::simplify_ncmul(exvector const & v) const
                 if (iv_intersect.size()>=2) {
                     if (iv_intersect.size()==3) {
                         *it1=numeric(40)/numeric(3);
-                        *it2=exONE();
+                        *it2=_ex1();
                     } else {
                         int sig1, sig2; // unimportant, since symmetric
                         ex idx1=permute_free_index_to_front(col1.seq,iv_intersect,false,&sig1);
                         ex idx2=permute_free_index_to_front(col2.seq,iv_intersect,false,&sig2);
                         *it1=numeric(5)/numeric(3)*color(color_delta8,idx1,idx2);
-                        *it2=exONE();
+                        *it2=_ex1();
                     }
                     return nonsimplified_ncmul(recombine_color_string(
                            delta8vec,fvec,dvec,Tvecs,ONEvecs,unknownvec));
@@ -501,13 +502,13 @@ ex color::simplify_ncmul(exvector const & v) const
                 if (iv_intersect.size()>=2) {
                     if (iv_intersect.size()==3) {
                         *it1=numeric(24);
-                        *it2=exONE();
+                        *it2=_ex1();
                     } else {
                         int sig1, sig2;
                         ex idx1=permute_free_index_to_front(col1.seq,iv_intersect,true,&sig1);
                         ex idx2=permute_free_index_to_front(col2.seq,iv_intersect,true,&sig2);
                         *it1=numeric(sig1*sig2*5)/numeric(3)*color(color_delta8,idx1,idx2);
-                        *it2=exONE();
+                        *it2=_ex1();
                     }
                     return nonsimplified_ncmul(recombine_color_string(
                            delta8vec,fvec,dvec,Tvecs,ONEvecs,unknownvec));
@@ -732,7 +733,7 @@ ex color_trace_of_one_representation_label(exvector const & v)
         return numeric(COLOR_THREE);
     } else if (v.size()==1) {
         GINAC_ASSERT(is_ex_exactly_of_type(*(v.begin()),color));
-        return exZERO();
+        return _ex0();
     }
     exvector v1=v;
     ex last_element=v1.back();
@@ -846,12 +847,12 @@ ex simplify_pure_color_string(ex const & e)
                         for (unsigned k=i+1; k<j; ++k) {
                             S.push_back(Tvecs[rl][k]);
                         }
-                        t1=exONE();
-                        t2=exONE();
+                        t1=_ex1();
+                        t2=_ex1();
                         ex term1=numeric(-1)/numeric(6)*nonsimplified_ncmul(recombine_color_string(
                                  delta8vec,fvec,dvec,Tvecs,ONEvecs,unknownvec));
                         for (unsigned k=i+1; k<j; ++k) {
-                            S.push_back(exONE());
+                            S.push_back(_ex1());
                         }
                         t1=color_trace_of_one_representation_label(S);
                         ex term2=numeric(1)/numeric(2)*nonsimplified_ncmul(recombine_color_string(
@@ -875,7 +876,7 @@ ex simplify_color(ex const & e)
 
     // simplification of sum=sum of simplifications
     if (is_ex_exactly_of_type(e_expanded,add)) {
-        ex sum=exZERO();
+        ex sum=_ex0();
         for (int i=0; i<e_expanded.nops(); ++i) {
             sum += simplify_color(e_expanded.op(i));
         }
@@ -884,7 +885,7 @@ ex simplify_color(ex const & e)
 
     // simplification of commutative product=commutative product of simplifications
     if (is_ex_exactly_of_type(e_expanded,mul)) {
-        ex prod=exONE();
+        ex prod=_ex1();
         for (int i=0; i<e_expanded.nops(); ++i) {
             prod *= simplify_color(e_expanded.op(i));
         }
@@ -935,7 +936,7 @@ ex brute_force_sum_color_indices(ex const & e)
         counter[l]=1;
     }
 
-    ex sum=exZERO();
+    ex sum=_ex0();
     
     while (1) {
         ex term=e;

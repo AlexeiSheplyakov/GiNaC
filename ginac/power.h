@@ -124,8 +124,7 @@ inline ex pow(ex const & b, ex const & e)
 
 /** Square root expression.  Returns a power-object with exponent 1/2 as a new
  *  expression.  */
-inline ex sqrt(ex const & a)
-{ return power(a,exHALF()); }
+ex sqrt(ex const & a);
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC

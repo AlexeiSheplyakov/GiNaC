@@ -226,7 +226,7 @@ int basic::ldegree(symbol const & s) const
 
 ex basic::coeff(symbol const & s, int const n) const
 {
-    return n==0 ? *this : exZERO();
+    return n==0 ? *this : _ex0();
 }
 
 ex basic::collect(symbol const & s) const

@@ -29,6 +29,7 @@
 #include "numeric.h"
 #include "power.h"
 #include "symbol.h"
+#include "utils.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
@@ -54,19 +55,19 @@ static ex zeta1_eval(ex const & x)
         // trap integer arguments:
         if (y.is_integer()) {
             if (y.is_zero())
-                return -exHALF();
-            if (x.is_equal(exONE()))
+                return -_ex1_2();
+            if (x.is_equal(_ex1()))
                 throw(std::domain_error("zeta(1): infinity"));
             if (x.info(info_flags::posint)) {
                 if (x.info(info_flags::odd))
                     return zeta(x).hold();
                 else
-                    return abs(bernoulli(y))*pow(Pi,x)*numTWO().power(y-numONE())/factorial(y);
+                    return abs(bernoulli(y))*pow(Pi,x)*_num2().power(y-_num1())/factorial(y);
             } else {
                 if (x.info(info_flags::odd))
-                    return -bernoulli(numONE()-y)/(numONE()-y);
+                    return -bernoulli(_num1()-y)/(_num1()-y);
                 else
-                    return numZERO();
+                    return _num0();
             }
         }
     }
@@ -77,7 +78,7 @@ static ex zeta1_diff(ex const & x, unsigned diff_param)
 {
     GINAC_ASSERT(diff_param==0);
     
-    return zeta(exONE(), x);
+    return zeta(_ex1(), x);
 }
 
 const unsigned function_index_zeta1 = function::register_new("zeta", zeta1_eval, zeta1_evalf, zeta1_diff, NULL);

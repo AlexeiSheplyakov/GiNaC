@@ -1,7 +1,7 @@
 /** @file utils.h
  *
  *  Interface to several small and furry utilities needed within GiNaC but not
- *  of interest to the user of the library. */
+ *  of any interest to the user of the library. */
 
 /*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
@@ -137,6 +137,74 @@ OutputIterator mymerge3(InputIterator1 first1, InputIterator1 last1,
         return mymerge(first1,last1,first3,last3,result,comp);
     }
 }
+
+// Collection of `construct on first use' wrappers for safely avoiding
+// internal object replication without running into the `static
+// initialization order fiasco'.  This chest of numbers helps speed up
+// the library but should not be used outside it since it is
+// potentially confusing.
+
+class numeric;
+class ex;
+                       
+numeric const & _num_12(void);    // -12
+numeric const & _num_11(void);    // -11
+numeric const & _num_10(void);    // -10
+numeric const & _num_9(void);     // -9
+numeric const & _num_8(void);     // -8
+numeric const & _num_7(void);     // -7
+numeric const & _num_6(void);     // -6
+numeric const & _num_5(void);     // -5
+numeric const & _num_4(void);     // -4
+numeric const & _num_3(void);     // -3
+numeric const & _num_2(void);     // -2
+numeric const & _num_1(void);     // -1
+numeric const & _num_1_2(void);   // -1/2
+numeric const & _num_1_3(void);   // -1/3
+numeric const & _num0(void);      //  0
+numeric const & _num1_3(void);    //  1/3
+numeric const & _num1_2(void);    //  1/2
+numeric const & _num1(void);      //  1
+numeric const & _num2(void);      //  2
+numeric const & _num3(void);      //  3
+numeric const & _num4(void);      //  4
+numeric const & _num5(void);      //  5
+numeric const & _num6(void);      //  6
+numeric const & _num7(void);      //  7
+numeric const & _num8(void);      //  8
+numeric const & _num9(void);      //  9
+numeric const & _num10(void);     //  10
+numeric const & _num11(void);     //  11
+numeric const & _num12(void);     //  12
+ex const & _ex_12(void);          // -12
+ex const & _ex_11(void);          // -11
+ex const & _ex_10(void);          // -10
+ex const & _ex_9(void);           // -9
+ex const & _ex_8(void);           // -8
+ex const & _ex_7(void);           // -7
+ex const & _ex_6(void);           // -6
+ex const & _ex_5(void);           // -5
+ex const & _ex_4(void);           // -4
+ex const & _ex_3(void);           // -3
+ex const & _ex_2(void);           // -2
+ex const & _ex_1(void);           // -1
+ex const & _ex_1_2(void);         // -1/2
+ex const & _ex_1_3(void);         // -1/3
+ex const & _ex0(void);            //  0
+ex const & _ex1_3(void);          //  1/3
+ex const & _ex1_2(void);          //  1/2
+ex const & _ex1(void);            //  1
+ex const & _ex2(void);            //  2
+ex const & _ex3(void);            //  3
+ex const & _ex4(void);            //  4
+ex const & _ex5(void);            //  5
+ex const & _ex6(void);            //  6
+ex const & _ex7(void);            //  7
+ex const & _ex8(void);            //  8
+ex const & _ex9(void);            //  9
+ex const & _ex10(void);           //  10
+ex const & _ex11(void);           //  11
+ex const & _ex12(void);           //  12
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC

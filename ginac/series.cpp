@@ -29,6 +29,7 @@
 #include "relational.h"
 #include "symbol.h"
 #include "debugmsg.h"
+#include "utils.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
@@ -87,7 +88,7 @@ void series::destroy(bool call_parent)
 /** Construct series from a vector of coefficients and powers.
  *  expair.rest holds the coefficient, expair.coeff holds the power.
  *  The powers must be integers (positive or negative) and in ascending order;
- *  the last coefficient can be Order(exONE()) to represent a truncated,
+ *  the last coefficient can be Order(_ex1()) to represent a truncated,
  *  non-terminating series.
  *
  *  @param var_  series variable (must hold a symbol)
@@ -177,7 +178,7 @@ int series::ldegree(symbol const &s) const
 }
 
 // Coefficient of variable
-ex series::coeff(symbol const &s, int n) const
+ex series::coeff(symbol const &s, int const n) const
 {
     if (var.is_equal(s)) {
         epvector::const_iterator it = seq.begin(), itend = seq.end();
@@ -186,10 +187,10 @@ ex series::coeff(symbol const &s, int n) const
             if (pow == n)
                 return it->rest;
             if (pow > n)
-                return exZERO();
+                return _ex0();
             it++;
         }
-        return exZERO();
+        return _ex0();
     } else
         return convert_to_poly().coeff(s, n);
 }
@@ -271,7 +272,7 @@ ex basic::series(symbol const & s, ex const & point, int order) const
     // Higher-order terms, if present
     deriv = deriv.diff(s);
     if (!deriv.is_zero())
-        seq.push_back(expair(Order(exONE()), numeric(n)));
+        seq.push_back(expair(Order(_ex1()), numeric(n)));
     return series::series(s, point, seq);
 }
 
@@ -287,7 +288,7 @@ ex series::add_series(const series &other) const
     // results in an empty (constant) series 
     if (!is_compatible_to(other)) {
         epvector nul;
-        nul.push_back(expair(Order(exONE()), exZERO()));
+        nul.push_back(expair(Order(_ex1()), _ex0()));
         return series(var, point, nul);
     }
     
@@ -335,7 +336,7 @@ ex series::add_series(const series &other) const
         } else {
             // Add coefficient of a and b
             if (is_order_function((*a).rest) || is_order_function((*b).rest)) {
-                new_seq.push_back(expair(Order(exONE()), (*a).coeff));
+                new_seq.push_back(expair(Order(_ex1()), (*a).coeff));
                 break;  // Order term ends the sequence
             } else {
                 ex sum = (*a).rest + (*b).rest;
@@ -366,7 +367,7 @@ ex add::series(symbol const & s, ex const & point, int order) const
             acc = it->rest;
         else
             acc = it->rest.series(s, point, order);
-        if (!it->coeff.is_equal(exONE()))
+        if (!it->coeff.is_equal(_ex1()))
             acc = ex_to_series(acc).mul_const(ex_to_numeric(it->coeff));
         it++;
     }
@@ -378,7 +379,7 @@ ex add::series(symbol const & s, ex const & point, int order) const
             op = it->rest;
         else
             op = it->rest.series(s, point, order);
-        if (!it->coeff.is_equal(exONE()))
+        if (!it->coeff.is_equal(_ex1()))
             op = ex_to_series(op).mul_const(ex_to_numeric(it->coeff));
 
         // Series addition
@@ -403,7 +404,7 @@ ex add::series(symbol const & s, ex const & point, int order) const
             op = it->rest;
         else
             op = it->rest.series(s, point, order);
-        if (!it->coeff.is_equal(exONE()))
+        if (!it->coeff.is_equal(_ex1()))
             op = ex_to_series(op).mul_const(ex_to_numeric(it->coeff));
         
         // Series addition
@@ -446,7 +447,7 @@ ex series::mul_series(const series &other) const
     // results in an empty (constant) series 
     if (!is_compatible_to(other)) {
         epvector nul;
-        nul.push_back(expair(Order(exONE()), exZERO()));
+        nul.push_back(expair(Order(_ex1()), _ex0()));
         return series(var, point, nul);
     }
 
@@ -472,7 +473,7 @@ ex series::mul_series(const series &other) const
         cdeg_max = higher_order_c - 1;
     
     for (int cdeg=cdeg_min; cdeg<=cdeg_max; cdeg++) {
-        ex co = exZERO();
+        ex co = _ex0();
         // c(i)=a(0)b(i)+...+a(i)b(0)
         for (int i=a_min; cdeg-i>=b_min; i++) {
             ex a_coeff = coeff(*s, i);
@@ -484,7 +485,7 @@ ex series::mul_series(const series &other) const
             new_seq.push_back(expair(co, numeric(cdeg)));
     }
     if (higher_order_c < INT_MAX)
-        new_seq.push_back(expair(Order(exONE()), numeric(higher_order_c)));
+        new_seq.push_back(expair(Order(_ex1()), numeric(higher_order_c)));
     return series::series(var, point, new_seq);
 }
 
@@ -502,7 +503,7 @@ ex mul::series(symbol const & s, ex const & point, int order) const
             acc = it->rest;
         else
             acc = it->rest.series(s, point, order);
-        if (!it->coeff.is_equal(exONE()))
+        if (!it->coeff.is_equal(_ex1()))
             acc = ex_to_series(acc).power_const(ex_to_numeric(it->coeff), order);
         it++;
     }
@@ -517,7 +518,7 @@ ex mul::series(symbol const & s, ex const & point, int order) const
             continue;
         } else if (!is_ex_exactly_of_type(op, series))
             op = op.series(s, point, order);
-        if (!it->coeff.is_equal(exONE()))
+        if (!it->coeff.is_equal(_ex1()))
             op = ex_to_series(op).power_const(ex_to_numeric(it->coeff), order);
 
         // Series multiplication
@@ -549,7 +550,7 @@ ex mul::series(symbol const & s, ex const & point, int order) const
             continue;
         } else if (!is_ex_exactly_of_type(op, series))
             op = op.series(s, point, order);
-        if (!it->coeff.is_equal(exONE()))
+        if (!it->coeff.is_equal(_ex1()))
             op = ex_to_series(op).power_const(ex_to_numeric(it->coeff), order);
 
         // Series multiplication
@@ -576,11 +577,11 @@ ex series::power_const(const numeric &p, int deg) const
     co.push_back(co0 = power(coeff(*s, ldeg), p));
     bool all_sums_zero = true;
     for (i=1; i<deg; i++) {
-        ex sum = exZERO();
+        ex sum = _ex0();
         for (int j=1; j<=i; j++) {
             ex c = coeff(*s, j + ldeg);
             if (is_order_function(c)) {
-                co.push_back(Order(exONE()));
+                co.push_back(Order(_ex1()));
                 break;
             } else
                 sum += (p * j - (i - j)) * co[i - j] * c;
@@ -602,7 +603,7 @@ ex series::power_const(const numeric &p, int deg) const
         }
     }
     if (!higher_order && !all_sums_zero)
-        new_seq.push_back(expair(Order(exONE()), numeric(deg) + p * ldeg));
+        new_seq.push_back(expair(Order(_ex1()), numeric(deg) + p * ldeg));
     return series::series(var, point, new_seq);
 }
 

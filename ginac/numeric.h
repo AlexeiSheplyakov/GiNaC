@@ -92,12 +92,6 @@ class numeric : public basic
     friend numeric isqrt(numeric const & x);
     friend numeric gcd(numeric const & a, numeric const & b);
     friend numeric lcm(numeric const & a, numeric const & b);
-    friend numeric const & numZERO(void);
-    friend numeric const & numONE(void);
-    friend numeric const & numTWO(void);
-    friend numeric const & numTHREE(void);
-    friend numeric const & numMINUSONE(void);
-    friend numeric const & numHALF(void);
 
 // member functions
 
@@ -222,12 +216,6 @@ extern _numeric_digits Digits;
 // may have to be changed to ((x)>=0x80000000U)
 
 // global functions
-
-numeric const & numZERO(void);
-numeric const & numONE(void);
-numeric const & numTWO(void);
-numeric const & numMINUSONE(void);
-numeric const & numHALF(void);
 
 numeric exp(numeric const & x);
 numeric log(numeric const & x);

@@ -31,6 +31,7 @@
 #include "ex.h"
 #include "config.h"
 #include "debugmsg.h"
+#include "utils.h"
 
 // CLN should not pollute the global namespace, hence we include it here
 // instead of in some header file where it would propagate to other parts:
@@ -290,7 +291,7 @@ void numeric::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) 
     ios::fmtflags oldflags = os.flags();
     os.setf(ios::scientific);
     if (is_rational() && !is_integer()) {
-        if (compare(numZERO()) > 0) {
+        if (compare(_num0()) > 0) {
             os << "(";
             if (type == csrc_types::ctype_cl_N)
                 os << "cl_F(\"" << numer().evalf() << "\")";
@@ -344,11 +345,11 @@ bool numeric::info(unsigned inf) const
     case info_flags::negative:
         return is_negative();
     case info_flags::nonnegative:
-        return compare(numZERO())>=0;
+        return compare(_num0())>=0;
     case info_flags::posint:
         return is_pos_integer();
     case info_flags::negint:
-        return is_integer() && (compare(numZERO())<0);
+        return is_integer() && (compare(_num0())<0);
     case info_flags::nonnegint:
         return is_nonneg_integer();
     case info_flags::even:
@@ -439,10 +440,10 @@ numeric numeric::sub(numeric const & other) const
  *  result as a new numeric object. */
 numeric numeric::mul(numeric const & other) const
 {
-    static const numeric * numONEp=&numONE();
-    if (this==numONEp) {
+    static const numeric * _num1p=&_num1();
+    if (this==_num1p) {
         return other;
-    } else if (&other==numONEp) {
+    } else if (&other==_num1p) {
         return *this;
     }
     return numeric((*value)*(*other.value));
@@ -461,8 +462,8 @@ numeric numeric::div(numeric const & other) const
 
 numeric numeric::power(numeric const & other) const
 {
-    static const numeric * numONEp=&numONE();
-    if (&other==numONEp)
+    static const numeric * _num1p=&_num1();
+    if (&other==_num1p)
         return *this;
     if (::zerop(*value) && other.is_real() && ::minusp(realpart(*other.value)))
         throw (std::overflow_error("division by zero"));
@@ -489,10 +490,10 @@ numeric const & numeric::sub_dyn(numeric const & other) const
 
 numeric const & numeric::mul_dyn(numeric const & other) const
 {
-    static const numeric * numONEp=&numONE();
-    if (this==numONEp) {
+    static const numeric * _num1p=&_num1();
+    if (this==_num1p) {
         return other;
-    } else if (&other==numONEp) {
+    } else if (&other==_num1p) {
         return *this;
     }
     return static_cast<numeric const &>((new numeric((*value)*(*other.value)))->
@@ -509,8 +510,8 @@ numeric const & numeric::div_dyn(numeric const & other) const
 
 numeric const & numeric::power_dyn(numeric const & other) const
 {
-    static const numeric * numONEp=&numONE();
-    if (&other==numONEp)
+    static const numeric * _num1p=&_num1();
+    if (&other==_num1p)
         return *this;
     if (::zerop(*value) && other.is_real() && ::minusp(realpart(*other.value)))
         throw (std::overflow_error("division by zero"));
@@ -852,7 +853,7 @@ numeric numeric::numer(void) const
 numeric numeric::denom(void) const
 {
     if (is_integer()) {
-        return numONE();
+        return _num1();
     }
 #ifdef SANE_LINKER
     if (instanceof(*value, cl_RA_ring)) {
@@ -862,7 +863,7 @@ numeric numeric::denom(void) const
         cl_R r = realpart(*value);
         cl_R i = imagpart(*value);
         if (::instanceof(r, cl_I_ring) && ::instanceof(i, cl_I_ring))
-            return numONE();
+            return _num1();
         if (::instanceof(r, cl_I_ring) && ::instanceof(i, cl_RA_ring))
             return numeric(::denominator(The(cl_RA)(i)));
         if (::instanceof(r, cl_RA_ring) && ::instanceof(i, cl_I_ring))
@@ -878,7 +879,7 @@ numeric numeric::denom(void) const
         cl_R r = realpart(*value);
         cl_R i = imagpart(*value);
         if (instanceof(r, cl_I_ring) && instanceof(i, cl_I_ring))
-            return numONE();
+            return _num1();
         if (instanceof(r, cl_I_ring) && instanceof(i, cl_RA_ring))
             return numeric(TheRatio(i)->denominator);
         if (instanceof(r, cl_RA_ring) && instanceof(i, cl_I_ring))
@@ -888,7 +889,7 @@ numeric numeric::denom(void) const
     }
 #endif // def SANE_LINKER
     // at least one float encountered
-    return numONE();
+    return _num1();
 }
 
 /** Size in binary notation.  For integers, this is the smallest n >= 0 such
@@ -923,52 +924,6 @@ type_info const & typeid_numeric=typeid(some_numeric);
 /** Imaginary unit.  This is not a constant but a numeric since we are
  *  natively handing complex numbers anyways. */
 const numeric I = numeric(complex(cl_I(0),cl_I(1)));
-
-//////////
-// global functions
-//////////
-
-numeric const & numZERO(void)
-{
-    const static ex eZERO = ex((new numeric(0))->setflag(status_flags::dynallocated));
-    const static numeric * nZERO = static_cast<const numeric *>(eZERO.bp);
-    return *nZERO;
-}
-
-numeric const & numONE(void)
-{
-    const static ex eONE = ex((new numeric(1))->setflag(status_flags::dynallocated));
-    const static numeric * nONE = static_cast<const numeric *>(eONE.bp);
-    return *nONE;
-}
-
-numeric const & numTWO(void)
-{
-    const static ex eTWO = ex((new numeric(2))->setflag(status_flags::dynallocated));
-    const static numeric * nTWO = static_cast<const numeric *>(eTWO.bp);
-    return *nTWO;
-}
-
-numeric const & numTHREE(void)
-{
-    const static ex eTHREE = ex((new numeric(3))->setflag(status_flags::dynallocated));
-    const static numeric * nTHREE = static_cast<const numeric *>(eTHREE.bp);
-    return *nTHREE;
-}
-
-numeric const & numMINUSONE(void)
-{
-    const static ex eMINUSONE = ex((new numeric(-1))->setflag(status_flags::dynallocated));
-    const static numeric * nMINUSONE = static_cast<const numeric *>(eMINUSONE.bp);
-    return *nMINUSONE;
-}
-
-numeric const & numHALF(void)
-{
-    const static ex eHALF = ex((new numeric(1, 2))->setflag(status_flags::dynallocated));
-    const static numeric * nHALF = static_cast<const numeric *>(eHALF.bp);
-    return *nHALF;
-}
 
 /** Exponential function.
  *
@@ -1039,7 +994,7 @@ numeric atan(numeric const & x)
 {
     if (!x.is_real() &&
         x.real().is_zero() &&
-        !abs(x.imag()).is_equal(numONE()))
+        !abs(x.imag()).is_equal(_num1()))
         throw (std::overflow_error("atan(): logarithmic singularity"));
     return ::atan(*x.value);  // -> CLN
 }
@@ -1189,13 +1144,13 @@ numeric doublefactorial(numeric const & nn)
     static int highest_oddresult = -1;
     
     if (nn == numeric(-1)) {
-        return numONE();
+        return _num1();
     }
     if (!nn.is_nonneg_integer()) {
         throw (std::range_error("numeric::doublefactorial(): argument must be integer >= -1"));
     }
     if (nn.is_even()) {
-        int n = nn.div(numTWO()).to_int();
+        int n = nn.div(_num2()).to_int();
         if (n <= highest_evenresult) {
             return evenresults[n];
         }
@@ -1203,7 +1158,7 @@ numeric doublefactorial(numeric const & nn)
             evenresults.reserve(n+1);
         }
         if (highest_evenresult < 0) {
-            evenresults.push_back(numONE());
+            evenresults.push_back(_num1());
             highest_evenresult=0;
         }
         for (int i=highest_evenresult+1; i<=n; i++) {
@@ -1212,7 +1167,7 @@ numeric doublefactorial(numeric const & nn)
         highest_evenresult=n;
         return evenresults[n];
     } else {
-        int n = nn.sub(numONE()).div(numTWO()).to_int();
+        int n = nn.sub(_num1()).div(_num2()).to_int();
         if (n <= highest_oddresult) {
             return oddresults[n];
         }
@@ -1220,7 +1175,7 @@ numeric doublefactorial(numeric const & nn)
             oddresults.reserve(n+1);
         }
         if (highest_oddresult < 0) {
-            oddresults.push_back(numONE());
+            oddresults.push_back(_num1());
             highest_oddresult=0;
         }
         for (int i=highest_oddresult+1; i<=n; i++) {
@@ -1239,12 +1194,12 @@ numeric binomial(numeric const & n, numeric const & k)
 {
     if (n.is_integer() && k.is_integer()) {
         if (n.is_nonneg_integer()) {
-            if (k.compare(n)!=1 && k.compare(numZERO())!=-1)
+            if (k.compare(n)!=1 && k.compare(_num0())!=-1)
                 return numeric(::binomial(n.to_int(),k.to_int()));  // -> CLN
             else
-                return numZERO();
+                return _num0();
         } else {
-            return numMINUSONE().power(k)*binomial(k-n-numONE(),k);
+            return _num_1().power(k)*binomial(k-n-_num1(),k);
         }
     }
     
@@ -1262,11 +1217,11 @@ numeric bernoulli(numeric const & nn)
     if (!nn.is_integer() || nn.is_negative())
         throw (std::range_error("numeric::bernoulli(): argument must be integer >= 0"));
     if (nn.is_zero())
-        return numONE();
-    if (!nn.compare(numONE()))
+        return _num1();
+    if (!nn.compare(_num1()))
         return numeric(-1,2);
     if (nn.is_odd())
-        return numZERO();
+        return _num0();
     // Until somebody has the Blues and comes up with a much better idea and
     // codes it (preferably in CLN) we make this a remembering function which
     // computes its results using the formula
@@ -1274,7 +1229,7 @@ numeric bernoulli(numeric const & nn)
     // whith B(0) == 1.
     static vector<numeric> results;
     static int highest_result = -1;
-    int n = nn.sub(numTWO()).div(numTWO()).to_int();
+    int n = nn.sub(_num2()).div(_num2()).to_int();
     if (n <= highest_result)
         return results[n];
     if (results.capacity() < (unsigned)(n+1))
@@ -1312,7 +1267,7 @@ numeric mod(numeric const & a, numeric const & b)
     if (a.is_integer() && b.is_integer())
         return ::mod(The(cl_I)(*a.value), The(cl_I)(*b.value));  // -> CLN
     else
-        return numZERO();  // Throw?
+        return _num0();  // Throw?
 }
 
 /** Modulus (in symmetric representation).
@@ -1321,11 +1276,12 @@ numeric mod(numeric const & a, numeric const & b)
  *  @return a mod b in the range [-iquo(abs(m)-1,2), iquo(abs(m),2)]. */
 numeric smod(numeric const & a, numeric const & b)
 {
+    //  FIXME: Should this become a member function?
     if (a.is_integer() && b.is_integer()) {
         cl_I b2 = The(cl_I)(ceiling1(The(cl_I)(*b.value) / 2)) - 1;
         return ::mod(The(cl_I)(*a.value) + b2, The(cl_I)(*b.value)) - b2;
     } else
-        return numZERO();  // Throw?
+        return _num0();  // Throw?
 }
 
 /** Numeric integer remainder.
@@ -1339,7 +1295,7 @@ numeric irem(numeric const & a, numeric const & b)
     if (a.is_integer() && b.is_integer())
         return ::rem(The(cl_I)(*a.value), The(cl_I)(*b.value));  // -> CLN
     else
-        return numZERO();  // Throw?
+        return _num0();  // Throw?
 }
 
 /** Numeric integer remainder.
@@ -1357,8 +1313,8 @@ numeric irem(numeric const & a, numeric const & b, numeric & q)
         return rem_quo.remainder;
     }
     else {
-        q = numZERO();
-        return numZERO();  // Throw?
+        q = _num0();
+        return _num0();  // Throw?
     }
 }
 
@@ -1371,7 +1327,7 @@ numeric iquo(numeric const & a, numeric const & b)
     if (a.is_integer() && b.is_integer())
         return truncate1(The(cl_I)(*a.value), The(cl_I)(*b.value));  // -> CLN
     else
-        return numZERO();  // Throw?
+        return _num0();  // Throw?
 }
 
 /** Numeric integer quotient.
@@ -1387,8 +1343,8 @@ numeric iquo(numeric const & a, numeric const & b, numeric & r)
         r = rem_quo.remainder;
         return rem_quo.quotient;
     } else {
-        r = numZERO();
-        return numZERO();  // Throw?
+        r = _num0();
+        return _num0();  // Throw?
     }
 }
 
@@ -1413,7 +1369,7 @@ numeric isqrt(numeric const & x)
         ::isqrt(The(cl_I)(*x.value), &root);  // -> CLN
         return root;
     } else
-        return numZERO();  // Throw?
+        return _num0();  // Throw?
 }
 
 /** Greatest Common Divisor.
@@ -1425,7 +1381,7 @@ numeric gcd(numeric const & a, numeric const & b)
     if (a.is_integer() && b.is_integer())
         return ::gcd(The(cl_I)(*a.value), The(cl_I)(*b.value));  // -> CLN
     else
-        return numONE();
+        return _num1();
 }
 
 /** Least Common Multiple.

@@ -46,7 +46,7 @@ static unsigned normal1(void)
     
     // Expansion
     e = pow(x, 2) - (x+1)*(x-1) - 1;
-    d = exZERO();
+    d = ex(0);
     result += check_normal(e, d);
     
     // Expansion inside functions

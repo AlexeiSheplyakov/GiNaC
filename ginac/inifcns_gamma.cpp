@@ -63,7 +63,7 @@ static ex gamma_eval(ex const & x)
         if (x.info(info_flags::integer)) {
             // gamma(n+1) -> n! for postitive n
             if (x.info(info_flags::posint)) {
-                return factorial(ex_to_numeric(x).sub(numONE()));
+                return factorial(ex_to_numeric(x).sub(_num1()));
             } else {
                 throw (std::domain_error("gamma_eval(): simple pole"));
             }
@@ -73,16 +73,16 @@ static ex gamma_eval(ex const & x)
             // trap positive x==(n+1/2)
             // gamma(n+1/2) -> Pi^(1/2)*(1*3*..*(2*n-1))/(2^n)
             if ((x*2).info(info_flags::posint)) {
-                numeric n = ex_to_numeric(x).sub(numHALF());
-                numeric coefficient = doublefactorial(n.mul(numTWO()).sub(numONE()));
-                coefficient = coefficient.div(numTWO().power(n));
-                return coefficient * pow(Pi,numHALF());
+                numeric n = ex_to_numeric(x).sub(_num1_2());
+                numeric coefficient = doublefactorial(n.mul(_num2()).sub(_num1()));
+                coefficient = coefficient.div(_num2().power(n));
+                return coefficient * pow(Pi,_num1_2());
             } else {
                 // trap negative x==(-n+1/2)
                 // gamma(-n+1/2) -> Pi^(1/2)*(-2)^n/(1*3*..*(2*n-1))
-                numeric n = abs(ex_to_numeric(x).sub(numHALF()));
+                numeric n = abs(ex_to_numeric(x).sub(_num1_2()));
                 numeric coefficient = numeric(-2).power(n);
-                coefficient = coefficient.div(doublefactorial(n.mul(numTWO()).sub(numONE())));;
+                coefficient = coefficient.div(doublefactorial(n.mul(_num2()).sub(_num1())));;
                 return coefficient*sqrt(Pi);
             }
         }
@@ -94,24 +94,28 @@ static ex gamma_diff(ex const & x, unsigned diff_param)
 {
     GINAC_ASSERT(diff_param==0);
     
-    return psi(x)*gamma(x);  // diff(log(gamma(x)),x)==psi(x)
+    // d/dx  log(gamma(x)) -> psi(x)
+    // d/dx  gamma(x) -> psi(x)*gamma(x)
+    return psi(x)*gamma(x);
 }
 
 static ex gamma_series(ex const & x, symbol const & s, ex const & point, int order)
 {
     // method:
-    // Taylor series where there is no pole falls back to psi functions.
-    // On a pole at -n use the identity
-    //   series(GAMMA(x),x=-n,order) ==
-    //   series(GAMMA(x+n+1)/(x*(x+1)...*(x+n)),x=-n,order+1);
+    // Taylor series where there is no pole falls back to psi function evaluation.
+    // On a pole at -m use the recurrence relation
+    //   gamma(x) == gamma(x+1) / x
+    // from which follows
+    //   series(gamma(x),x,-m,order) ==
+    //   series(gamma(x+m+1)/(x*(x+1)...*(x+m)),x,-m,order+1);
     ex xpoint = x.subs(s==point);
     if (!xpoint.info(info_flags::integer) || xpoint.info(info_flags::positive))
-        throw do_taylor();
-    // if we got here we have to care for a simple pole at -n:
-    numeric n = -ex_to_numeric(xpoint);
-    ex ser_numer = gamma(x+n+exONE());
-    ex ser_denom = exONE();
-    for (numeric p; p<=n; ++p)
+        throw do_taylor();  // caught by function::series()
+    // if we got here we have to care for a simple pole at -m:
+    numeric m = -ex_to_numeric(xpoint);
+    ex ser_numer = gamma(x+m+_ex1());
+    ex ser_denom = _ex1();
+    for (numeric p; p<=m; ++p)
         ser_denom *= x+p;
     return (ser_numer/ser_denom).series(s, point, order+1);
 }
@@ -144,13 +148,13 @@ static ex beta_eval(ex const & x, ex const & y)
             ny.is_real() && ny.is_integer()) {
             if (nx.is_negative()) {
                 if (nx<=-ny)
-                    return numMINUSONE().power(ny)*beta(1-x-y, y);
+                    return _num_1().power(ny)*beta(1-x-y, y);
                 else
                     throw (std::domain_error("beta_eval(): simple pole"));
             }
             if (ny.is_negative()) {
                 if (ny<=-nx)
-                    return numMINUSONE().power(nx)*beta(1-y-x, x);
+                    return _num_1().power(nx)*beta(1-y-x, x);
                 else
                     throw (std::domain_error("beta_eval(): simple pole"));
             }
@@ -160,7 +164,7 @@ static ex beta_eval(ex const & x, ex const & y)
         if ((nx+ny).is_real() &&
             (nx+ny).is_integer() &&
             !(nx+ny).is_positive())
-            return exZERO();
+            return _ex0();
         return gamma(x)*gamma(y)/gamma(x+y);
     }
     return beta(x,y).hold();
@@ -171,9 +175,11 @@ static ex beta_diff(ex const & x, ex const & y, unsigned diff_param)
     GINAC_ASSERT(diff_param<2);
     ex retval;
     
-    if (diff_param==0)  // d/dx beta(x,y)
+    // d/dx beta(x,y) -> (psi(x)-psi(x+y)) * beta(x,y)
+    if (diff_param==0)
         retval = (psi(x)-psi(x+y))*beta(x,y);
-    if (diff_param==1)  // d/dy beta(x,y)
+    // d/dy beta(x,y) -> (psi(y)-psi(x+y)) * beta(x,y)
+    if (diff_param==1)  
         retval = (psi(y)-psi(x+y))*beta(x,y);
     return retval;
 }
@@ -181,7 +187,7 @@ static ex beta_diff(ex const & x, ex const & y, unsigned diff_param)
 REGISTER_FUNCTION(beta, beta_eval, beta_evalf, beta_diff, NULL);
 
 //////////
-// Psi-function (aka polygamma-function)
+// Psi-function (aka digamma-function)
 //////////
 
 static ex psi1_evalf(ex const & x)
@@ -193,7 +199,7 @@ static ex psi1_evalf(ex const & x)
     return psi(ex_to_numeric(x));
 }
 
-/** Evaluation of polygamma-function psi(x). 
+/** Evaluation of digamma-function psi(x).
  *  Somebody ought to provide some good numerical evaluation some day... */
 static ex psi1_eval(ex const & x)
 {
@@ -204,18 +210,18 @@ static ex psi1_eval(ex const & x)
             // psi(n) -> 1 + 1/2 +...+ 1/(n-1) - EulerGamma
             if (x.info(info_flags::integer)) {
                 numeric rat(0);
-                for (numeric i(ex_to_numeric(x)-numONE()); i.is_positive(); --i)
+                for (numeric i(ex_to_numeric(x)-_num1()); i.is_positive(); --i)
                     rat += i.inverse();
                 return rat-EulerGamma;
             }
             // psi((2m+1)/2) -> 2/(2m+1) + 2/2m +...+ 2/1 - EulerGamma - 2log(2)
-            if ((exTWO()*x).info(info_flags::integer)) {
+            if ((_ex2()*x).info(info_flags::integer)) {
                 numeric rat(0);
-                for (numeric i((ex_to_numeric(x)-numONE())*numTWO()); i.is_positive(); i-=numTWO())
-                    rat += numTWO()*i.inverse();
-                return rat-EulerGamma-exTWO()*log(exTWO());
+                for (numeric i((ex_to_numeric(x)-_num1())*_num2()); i.is_positive(); i-=_num2())
+                    rat += _num2()*i.inverse();
+                return rat-EulerGamma-_ex2()*log(_ex2());
             }
-            if (x.compare(exONE())==1) {
+            if (x.compare(_ex1())==1) {
                 // should call numeric, since >1
             }
         }
@@ -227,10 +233,32 @@ static ex psi1_diff(ex const & x, unsigned diff_param)
 {
     GINAC_ASSERT(diff_param==0);
     
-    return psi(exONE(), x);
+    // d/dx psi(x) -> psi(1,x)
+    return psi(_ex1(), x);
 }
 
-const unsigned function_index_psi1 = function::register_new("psi", psi1_eval, psi1_evalf, psi1_diff, NULL);
+static ex psi1_series(ex const & x, symbol const & s, ex const & point, int order)
+{
+    // method:
+    // Taylor series where there is no pole falls back to polygamma function
+    // evaluation.
+    // On a pole at -m use the recurrence relation
+    //   psi(x) == psi(x+1) - 1/z
+    // from which follows
+    //   series(psi(x),x,-m,order) ==
+    //   series(psi(x+m+1) - 1/x - 1/(x+1) - 1/(x+m)),x,-m,order);
+    ex xpoint = x.subs(s==point);
+    if (!xpoint.info(info_flags::integer) || xpoint.info(info_flags::positive))
+        throw do_taylor();  // caught by function::series()
+    // if we got here we have to care for a simple pole at -m:
+    numeric m = -ex_to_numeric(xpoint);
+    ex recur;
+    for (numeric p; p<=m; ++p)
+        recur += power(x+p,_ex_1());
+    return (psi(x+m+_ex1())-recur).series(s, point, order);
+}
+
+const unsigned function_index_psi1 = function::register_new("psi", psi1_eval, psi1_evalf, psi1_diff, psi1_series);
 
 //////////
 // Psi-functions (aka polygamma-functions)  psi(0,x)==psi(x)
@@ -254,14 +282,14 @@ static ex psi2_eval(ex const & n, ex const & x)
     if (n.is_zero())
         return psi(x);
     // psi(-1,x) -> log(gamma(x))
-    if (n.is_equal(exMINUSONE()))
+    if (n.is_equal(_ex_1()))
         return log(gamma(x));
     if (n.info(info_flags::numeric) && n.info(info_flags::posint) &&
         x.info(info_flags::numeric)) {
         numeric nn = ex_to_numeric(n);
         numeric nx = ex_to_numeric(x);
-        if (x.is_equal(exONE()))
-            return numMINUSONE().power(nn+numONE())*factorial(nn)*zeta(ex(nn+numONE()));
+        if (x.is_equal(_ex1()))
+            return _num_1().power(nn+_num1())*factorial(nn)*zeta(ex(nn+_num1()));
     }
     return psi(n, x).hold();
 }    
@@ -274,11 +302,34 @@ static ex psi2_diff(ex const & n, ex const & x, unsigned diff_param)
         // d/dn psi(n,x)
         throw(std::logic_error("cannot diff psi(n,x) with respect to n"));
     }
-    // d/dx psi(n,x)
+    // d/dx psi(n,x) -> psi(n+1,x)
     return psi(n+1, x);
 }
 
-const unsigned function_index_psi2 = function::register_new("psi", psi2_eval, psi2_evalf, psi2_diff, NULL);
+static ex psi2_series(ex const & n, ex const & x, symbol const & s, ex const & point, int order)
+{
+    // method:
+    // Taylor series where there is no pole falls back to polygamma function
+    // evaluation.
+    // On a pole at -m use the recurrence relation
+    //   psi(n,x) == psi(n,x+1) - (-)^n * n! / z^(n+1)
+    // from which follows
+    //   series(psi(x),x,-m,order) == 
+    //   series(psi(x+m+1) - (-1)^n * n!
+    //            * ((x)^(-n-1) + (x+1)^(-n-1) + (x+m)^(-n-1))),x,-m,order);
+    ex xpoint = x.subs(s==point);
+    if (!xpoint.info(info_flags::integer) || xpoint.info(info_flags::positive))
+        throw do_taylor();  // caught by function::series()
+    // if we got here we have to care for a pole of order n+1 at -m:
+    numeric m = -ex_to_numeric(xpoint);
+    ex recur;
+    for (numeric p; p<=m; ++p)
+        recur += power(x+p,-n+_ex_1());
+    recur *= factorial(n)*power(_ex_1(),n);
+    return (psi(n, x+m+_ex1())-recur).series(s, point, order);
+}
+
+const unsigned function_index_psi2 = function::register_new("psi", psi2_eval, psi2_evalf, psi2_diff, psi2_series);
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC

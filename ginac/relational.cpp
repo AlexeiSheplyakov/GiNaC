@@ -25,6 +25,7 @@
 #include "relational.h"
 #include "numeric.h"
 #include "debugmsg.h"
+#include "utils.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
@@ -330,7 +331,7 @@ relational::operator bool() const
     if (!is_ex_exactly_of_type(df,numeric)) {
         return o==not_equal ? true : false; // cannot decide on non-numerical results
     }
-    int cmpval=ex_to_numeric(df).compare(numZERO());
+    int cmpval=ex_to_numeric(df).compare(_num0());
     switch (o) {
     case equal:
         return cmpval==0;

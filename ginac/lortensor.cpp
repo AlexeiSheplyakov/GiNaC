@@ -35,11 +35,11 @@
 #include "flags.h"
 #include "lst.h"
 #include "lortensor.h"
-#include "utils.h"
 #include "operators.h"
 #include "tinfos.h"
 #include "power.h"
 #include "symbol.h"
+#include "utils.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
@@ -254,19 +254,19 @@ ex lortensor::eval(int level) const
                 //both on diagonal
                 if (idx1.get_value()==0){
                     // (0,0)
-                    return exONE();
+                    return _ex1();
                 } else {
                     if (idx1.is_covariant() != idx2.is_covariant()) {
                         // (_i,~i) or (~i,_i), i = 1...3
-                        return exONE();
+                        return _ex1();
                     } else {
                         // (_i,_i) or (~i,~i), i= 1...3
-                        return exMINUSONE();
+                        return _ex_1();
                     }
                 }
             } else {
                 // at least one off-diagonal
-                return exZERO();
+                return _ex0();
             }
         } else if (idx1.is_symbolic() && idx1.is_co_contra_pair(idx2)) {
             return Dim()-idx1.get_dim_parallel_space();
@@ -391,12 +391,12 @@ ex simplify_lortensor_mul(ex const & m)
     v_contracted.reserve(2*n);
     for (int i=0; i<n; ++i) {
         ex f=m.op(i);
-        if (is_ex_exactly_of_type(f,power)&&f.op(1).is_equal(exTWO())) {
+        if (is_ex_exactly_of_type(f,power)&&f.op(1).is_equal(_ex2())) {
             v_contracted.push_back(f.op(0));
             v_contracted.push_back(f.op(0));
         } else {
             v_contracted.push_back(f);
-	}
+        }
     }
 
     unsigned replacements;
@@ -426,7 +426,7 @@ ex simplify_lortensor_mul(ex const & m)
                 } else {
                     // a contracted index should occur exactly once
                     GINAC_ASSERT(replacements==1);
-                    *it=exONE();
+                    *it=_ex1();
                     something_changed=true;
                 }
             }
@@ -442,7 +442,7 @@ ex simplify_lortensor_mul(ex const & m)
                 } else {
                     // a contracted index should occur exactly once
                     GINAC_ASSERT(replacements==1);
-                    *it=exONE();
+                    *it=_ex1();
                     something_changed=true;
                 }
             }
@@ -462,7 +462,7 @@ ex simplify_lortensor(ex const & e)
 
     // simplification of sum=sum of simplifications
     if (is_ex_exactly_of_type(e_expanded,add)) {
-        ex sum=exZERO();
+        ex sum=_ex0();
         for (int i=0; i<e_expanded.nops(); ++i) {
             sum += simplify_lortensor(e_expanded.op(i));
         }

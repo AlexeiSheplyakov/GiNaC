@@ -32,6 +32,7 @@
 #include "relational.h"
 #include "symbol.h"
 #include "debugmsg.h"
+#include "utils.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
@@ -192,7 +193,7 @@ void power::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) co
         os << ")";
 
     // <expr>^-1 is printed as "1.0/<expr>" or with the recip() function of CLN
-    } else if (exponent.compare(numMINUSONE()) == 0) {
+    } else if (exponent.compare(_num_1()) == 0) {
         if (type == csrc_types::ctype_cl_N)
             os << "recip(";
         else
@@ -244,7 +245,7 @@ ex & power::let_op(int const i)
 int power::degree(symbol const & s) const
 {
     if (is_exactly_of_type(*exponent.bp,numeric)) {
-	if ((*basis.bp).compare(s)==0)
+        if ((*basis.bp).compare(s)==0)
             return ex_to_numeric(exponent).to_int();
         else
             return basis.degree(s) * ex_to_numeric(exponent).to_int();
@@ -255,7 +256,7 @@ int power::degree(symbol const & s) const
 int power::ldegree(symbol const & s) const 
 {
     if (is_exactly_of_type(*exponent.bp,numeric)) {
-	if ((*basis.bp).compare(s)==0)
+        if ((*basis.bp).compare(s)==0)
             return ex_to_numeric(exponent).to_int();
         else
             return basis.ldegree(s) * ex_to_numeric(exponent).to_int();
@@ -270,14 +271,14 @@ ex power::coeff(symbol const & s, int const n) const
         if (n==0) {
             return *this;
         } else {
-            return exZERO();
+            return _ex0();
         }
     } else if (is_exactly_of_type(*exponent.bp,numeric)&&
                (static_cast<numeric const &>(*exponent.bp).compare(numeric(n))==0)) {
-        return exONE();
+        return _ex1();
     }
 
-    return exZERO();
+    return _ex0();
 }
 
 ex power::eval(int level) const
@@ -319,10 +320,10 @@ ex power::eval(int level) const
 
     // ^(x,0) -> 1 (0^0 also handled here)
     if (eexponent.is_zero())
-        return exONE();
+        return _ex1();
 
     // ^(x,1) -> x
-    if (eexponent.is_equal(exONE()))
+    if (eexponent.is_equal(_ex1()))
         return ebasis;
 
     // ^(0,x) -> 0 (except if x is real and negative)
@@ -330,12 +331,12 @@ ex power::eval(int level) const
         if (exponent_is_numerical && num_exponent->is_negative()) {
             throw(std::overflow_error("power::eval(): division by zero"));
         } else
-            return exZERO();
+            return _ex0();
     }
 
     // ^(1,x) -> 1
-    if (ebasis.is_equal(exONE()))
-        return exONE();
+    if (ebasis.is_equal(_ex1()))
+        return _ex1();
 
     if (basis_is_numerical && exponent_is_numerical) {
         // ^(c1,c2) -> c1^c2 (c1, c2 numeric(),
@@ -359,14 +360,14 @@ ex power::eval(int level) const
             q = iquo(n, m, r);
             if (r.is_negative()) {
                 r = r.add(m);
-                q = q.sub(numONE());
+                q = q.sub(_num1());
             }
             if (q.is_zero())  // the exponent was in the allowed range 0<(n/m)<1
                 return this->hold();
             else {
                 epvector res(2);
                 res.push_back(expair(ebasis,r.div(m)));
-                res.push_back(expair(ex(num_basis->power(q)),exONE()));
+                res.push_back(expair(ex(num_basis->power(q)),_ex1()));
                 return (new mul(res))->setflag(status_flags::dynallocated | status_flags::evaluated);
                 /*return mul(num_basis->power(q),
                            power(ex(*num_basis),ex(r.div(m)))).hold();
@@ -405,22 +406,22 @@ ex power::eval(int level) const
     if (exponent_is_numerical && is_ex_exactly_of_type(ebasis,mul)) {
         GINAC_ASSERT(!num_exponent->is_integer()); // should have been handled above
         mul const & mulref=ex_to_mul(ebasis);
-        if (!mulref.overall_coeff.is_equal(exONE())) {
+        if (!mulref.overall_coeff.is_equal(_ex1())) {
             numeric const & num_coeff=ex_to_numeric(mulref.overall_coeff);
             if (num_coeff.is_real()) {
                 if (num_coeff.is_positive()>0) {
                     mul * mulp=new mul(mulref);
-                    mulp->overall_coeff=exONE();
+                    mulp->overall_coeff=_ex1();
                     mulp->clearflag(status_flags::evaluated);
                     mulp->clearflag(status_flags::hash_calculated);
                     return (new mul(power(*mulp,exponent),
                                     power(num_coeff,*num_exponent)))->
                         setflag(status_flags::dynallocated);
                 } else {
-                    GINAC_ASSERT(num_coeff.compare(numZERO())<0);
-                    if (num_coeff.compare(numMINUSONE())!=0) {
+                    GINAC_ASSERT(num_coeff.compare(_num0())<0);
+                    if (num_coeff.compare(_num_1())!=0) {
                         mul * mulp=new mul(mulref);
-                        mulp->overall_coeff=exMINUSONE();
+                        mulp->overall_coeff=_ex_1();
                         mulp->clearflag(status_flags::evaluated);
                         mulp->clearflag(status_flags::hash_calculated);
                         return (new mul(power(*mulp,exponent),
@@ -644,41 +645,6 @@ ex power::expand_add(add const & a, int const n) const
     return (new add(sum))->setflag(status_flags::dynallocated);
 }
 
-/*
-ex power::expand_add_2(add const & a) const
-{
-    // special case: expand a^2 where a is an add
-
-    epvector sum;
-    sum.reserve((a.seq.size()*(a.seq.size()+1))/2);
-    epvector::const_iterator last=a.seq.end();
-
-    for (epvector::const_iterator cit0=a.seq.begin(); cit0!=last; ++cit0) {
-        ex const & b=a.recombine_pair_to_ex(*cit0);
-        GINAC_ASSERT(!is_ex_exactly_of_type(b,add));
-        GINAC_ASSERT(!is_ex_exactly_of_type(b,power)||
-               !is_ex_exactly_of_type(ex_to_power(b).exponent,numeric)||
-               !ex_to_numeric(ex_to_power(b).exponent).is_pos_integer());
-        if (is_ex_exactly_of_type(b,mul)) {
-            sum.push_back(a.split_ex_to_pair(expand_mul(ex_to_mul(b),numTWO())));
-        } else {
-            sum.push_back(a.split_ex_to_pair((new power(b,exTWO()))->
-                                              setflag(status_flags::dynallocated)));
-        }
-        for (epvector::const_iterator cit1=cit0+1; cit1!=last; ++cit1) {
-            sum.push_back(a.split_ex_to_pair((new mul(a.recombine_pair_to_ex(*cit0),
-                                                      a.recombine_pair_to_ex(*cit1)))->
-                                              setflag(status_flags::dynallocated),
-                                             exTWO()));
-        }
-    }
-
-    GINAC_ASSERT(sum.size()==(a.seq.size()*(a.seq.size()+1))/2);
-
-    return (new add(sum))->setflag(status_flags::dynallocated);
-}
-*/
-
 ex power::expand_add_2(add const & a) const
 {
     // special case: expand a^2 where a is an add
@@ -702,20 +668,20 @@ ex power::expand_add_2(add const & a) const
                !is_ex_exactly_of_type(ex_to_power(r).basis,mul)||
                !is_ex_exactly_of_type(ex_to_power(r).basis,power));
 
-        if (are_ex_trivially_equal(c,exONE())) {
+        if (are_ex_trivially_equal(c,_ex1())) {
             if (is_ex_exactly_of_type(r,mul)) {
-                sum.push_back(expair(expand_mul(ex_to_mul(r),numTWO()),exONE()));
+                sum.push_back(expair(expand_mul(ex_to_mul(r),_num2()),_ex1()));
             } else {
-                sum.push_back(expair((new power(r,exTWO()))->setflag(status_flags::dynallocated),
-                                     exONE()));
+                sum.push_back(expair((new power(r,_ex2()))->setflag(status_flags::dynallocated),
+                                     _ex1()));
             }
         } else {
             if (is_ex_exactly_of_type(r,mul)) {
-                sum.push_back(expair(expand_mul(ex_to_mul(r),numTWO()),
-                                     ex_to_numeric(c).power_dyn(numTWO())));
+                sum.push_back(expair(expand_mul(ex_to_mul(r),_num2()),
+                                     ex_to_numeric(c).power_dyn(_num2())));
             } else {
-                sum.push_back(expair((new power(r,exTWO()))->setflag(status_flags::dynallocated),
-                                     ex_to_numeric(c).power_dyn(numTWO())));
+                sum.push_back(expair((new power(r,_ex2()))->setflag(status_flags::dynallocated),
+                                     ex_to_numeric(c).power_dyn(_num2())));
             }
         }
             
@@ -723,18 +689,18 @@ ex power::expand_add_2(add const & a) const
             ex const & r1=(*cit1).rest;
             ex const & c1=(*cit1).coeff;
             sum.push_back(a.combine_ex_with_coeff_to_pair((new mul(r,r1))->setflag(status_flags::dynallocated),
-                                                          numTWO().mul(ex_to_numeric(c)).mul_dyn(ex_to_numeric(c1))));
+                                                          _num2().mul(ex_to_numeric(c)).mul_dyn(ex_to_numeric(c1))));
         }
     }
 
     GINAC_ASSERT(sum.size()==(a.seq.size()*(a.seq.size()+1))/2);
 
     // second part: add terms coming from overall_factor (if != 0)
-    if (!a.overall_coeff.is_equal(exZERO())) {
+    if (!a.overall_coeff.is_equal(_ex0())) {
         for (epvector::const_iterator cit=a.seq.begin(); cit!=a.seq.end(); ++cit) {
-            sum.push_back(a.combine_pair_with_coeff_to_pair(*cit,ex_to_numeric(a.overall_coeff).mul_dyn(numTWO())));
+            sum.push_back(a.combine_pair_with_coeff_to_pair(*cit,ex_to_numeric(a.overall_coeff).mul_dyn(_num2())));
         }
-        sum.push_back(expair(ex_to_numeric(a.overall_coeff).power_dyn(numTWO()),exONE()));
+        sum.push_back(expair(ex_to_numeric(a.overall_coeff).power_dyn(_num2()),_ex1()));
     }
         
     GINAC_ASSERT(sum.size()==(a_nops*(a_nops+1))/2);
@@ -746,8 +712,8 @@ ex power::expand_mul(mul const & m, numeric const & n) const
 {
     // expand m^n where m is a mul and n is and integer
 
-    if (n.is_equal(numZERO())) {
-        return exONE();
+    if (n.is_equal(_num0())) {
+        return _ex1();
     }
     
     epvector distrseq;
@@ -801,7 +767,7 @@ ex power::expand_commutative_3(ex const & basis, numeric const & exponent,
 ex power::expand_noncommutative(ex const & basis, numeric const & exponent,
                                 unsigned options) const
 {
-    ex rest_power=ex(power(basis,exponent.add(numMINUSONE()))).
+    ex rest_power=ex(power(basis,exponent.add(_num_1()))).
                   expand(options | expand_options::internal_do_not_expand_power_operands);
 
     return ex(mul(rest_power,basis),0).
@@ -823,6 +789,13 @@ unsigned power::precedence=60;
 
 const power some_power;
 type_info const & typeid_power=typeid(some_power);
+
+// helper function
+
+ex sqrt(ex const & a)
+{
+    return power(a,_ex1_2());
+}
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC

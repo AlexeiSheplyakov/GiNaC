@@ -539,7 +539,7 @@ void expairseq::printseq(ostream & os, char delim, unsigned this_precedence,
     
 expair expairseq::split_ex_to_pair(ex const & e) const
 {
-    return expair(e,exONE());
+    return expair(e,_ex1());
 }
 
 expair expairseq::combine_ex_with_coeff_to_pair(ex const & e,
@@ -571,7 +571,7 @@ bool expairseq::expair_needs_further_processing(epp it)
 
 ex expairseq::default_overall_coeff(void) const
 {
-    return exZERO();
+    return _ex0();
 }
 
 void expairseq::combine_overall_coeff(ex const & c)
@@ -1314,7 +1314,7 @@ void expairseq::drop_coeff_0_terms(epvector::iterator & first_numeric,
         if (!touched[i]) {
             ++current;
             ++i;
-        } else if (!ex_to_numeric((*current).coeff).is_equal(numZERO())) {
+        } else if (!ex_to_numeric((*current).coeff).is_equal(_num0())) {
             ++current;
             ++i;
         } else {
@@ -1356,7 +1356,7 @@ void expairseq::drop_coeff_0_terms(epvector::iterator & first_numeric,
 bool expairseq::has_coeff_0(void) const
 {
     for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
-        if ((*cit).coeff.is_equal(exZERO())) {
+        if ((*cit).coeff.is_equal(_ex0())) {
             return true;
         }
     }

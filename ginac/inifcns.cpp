@@ -35,6 +35,7 @@
 #include "relational.h"
 #include "series.h"
 #include "symbol.h"
+#include "utils.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
@@ -48,9 +49,9 @@ static ex Li2_eval(ex const & x)
 {
     if (x.is_zero())
         return x;
-    if (x.is_equal(exONE()))
+    if (x.is_equal(_ex1()))
         return power(Pi, 2) / 6;
-    if (x.is_equal(exMINUSONE()))
+    if (x.is_equal(_ex_1()))
         return -power(Pi, 2) / 12;
     return Li2(x).hold();
 }
@@ -117,7 +118,7 @@ static ex Order_eval(ex const & x)
 	if (is_ex_exactly_of_type(x, numeric)) {
 
 		// O(c)=O(1)
-		return Order(exONE()).hold();
+		return Order(_ex1()).hold();
 
 	} else if (is_ex_exactly_of_type(x, mul)) {
 
@@ -135,7 +136,7 @@ static ex Order_series(ex const & x, symbol const & s, ex const & point, int ord
 {
 	// Just wrap the function into a series object
 	epvector new_seq;
-	new_seq.push_back(expair(Order(exONE()), numeric(min(x.ldegree(s), order))));
+	new_seq.push_back(expair(Order(_ex1()), numeric(min(x.ldegree(s), order))));
 	return series(s, point, new_seq);
 }
 
@@ -237,7 +238,7 @@ ex lsolve(ex const &eqns, ex const &symbols)
 ex ncpower(ex const &basis, unsigned exponent)
 {
     if (exponent==0) {
-        return exONE();
+        return _ex1();
     }
 
     exvector v;

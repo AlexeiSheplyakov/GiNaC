@@ -30,6 +30,7 @@
 #include "power.h"
 #include "relational.h"
 #include "debugmsg.h"
+#include "utils.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
@@ -46,7 +47,7 @@ ex operator+(ex const & lh, ex const & rh)
 ex operator-(ex const & lh, ex const & rh)
 {
     debugmsg("operator-(ex,ex)",LOGLEVEL_OPERATOR);
-    return lh.exadd(rh.exmul(exMINUSONE()));
+    return lh.exadd(rh.exmul(_ex_1()));
 }
 
 ex operator*(ex const & lh, ex const & rh)
@@ -58,7 +59,7 @@ ex operator*(ex const & lh, ex const & rh)
 ex operator/(ex const & lh, ex const & rh)
 {
     debugmsg("operator*(ex,ex)",LOGLEVEL_OPERATOR);
-    return lh.exmul(power(rh,exMINUSONE()));
+    return lh.exmul(power(rh,_ex_1()));
 }
 
 ex operator%(ex const & lh, ex const & rh)
@@ -67,73 +68,6 @@ ex operator%(ex const & lh, ex const & rh)
     return lh.exncmul(rh);
 }
 
-/*
-
-// binary arithmetic operators ex with numeric
-
-ex operator+(ex const & lh, numeric const & rh)
-{
-    debugmsg("operator+(ex,numeric)",LOGLEVEL_OPERATOR);
-    return lh+ex(rh);
-}
-
-ex operator-(ex const & lh, numeric const & rh)
-{
-    debugmsg("operator-(ex,numeric)",LOGLEVEL_OPERATOR);
-    return lh-ex(rh);
-}
-
-ex operator*(ex const & lh, numeric const & rh)
-{
-    debugmsg("operator*(ex,numeric)",LOGLEVEL_OPERATOR);
-    return lh*ex(rh);
-}
-
-ex operator/(ex const & lh, numeric const & rh)
-{
-    debugmsg("operator/(ex,numeric)",LOGLEVEL_OPERATOR);
-    return lh/ex(rh);
-}
-
-ex operator%(ex const & lh, numeric const & rh)
-{
-    debugmsg("operator%(ex,numeric)",LOGLEVEL_OPERATOR);
-    return lh%ex(rh);
-}
-
-// binary arithmetic operators numeric with ex
-
-ex operator+(numeric const & lh, ex const & rh)
-{
-    debugmsg("operator+(numeric,ex)",LOGLEVEL_OPERATOR);
-    return ex(lh)+rh;
-}
-
-ex operator-(numeric const & lh, ex const & rh)
-{
-    debugmsg("operator-(numeric,ex)",LOGLEVEL_OPERATOR);
-    return ex(lh)-rh;
-}
-
-ex operator*(numeric const & lh, ex const & rh)
-{
-    debugmsg("operator*(numeric,ex)",LOGLEVEL_OPERATOR);
-    return ex(lh)*rh;
-}
-
-ex operator/(numeric const & lh, ex const & rh)
-{
-    debugmsg("operator/(numeric,ex)",LOGLEVEL_OPERATOR);
-    return ex(lh)/rh;
-}
-
-ex operator%(numeric const & lh, ex const & rh)
-{
-    debugmsg("operator%(numeric,ex)",LOGLEVEL_OPERATOR);
-    return ex(lh)%rh;
-}
-
-*/
 
 // binary arithmetic operators numeric with numeric
 
@@ -160,6 +94,7 @@ numeric operator/(numeric const & lh, numeric const & rh)
     debugmsg("operator/(numeric,ex)",LOGLEVEL_OPERATOR);
     return lh.div(rh);
 }
+
 
 // binary arithmetic assignment operators with ex
 
@@ -193,41 +128,6 @@ ex const & operator%=(ex & lh, ex const & rh)
     return (lh=lh%rh);
 }
 
-/*
-
-// binary arithmetic assignment operators with numeric
-
-ex const & operator+=(ex & lh, numeric const & rh)
-{
-    debugmsg("operator+=(ex,numeric)",LOGLEVEL_OPERATOR);
-    return (lh=lh+ex(rh));
-}
-
-ex const & operator-=(ex & lh, numeric const & rh)
-{
-    debugmsg("operator-=(ex,numeric)",LOGLEVEL_OPERATOR);
-    return (lh=lh-ex(rh));
-}
-
-ex const & operator*=(ex & lh, numeric const & rh)
-{
-    debugmsg("operator*=(ex,numeric)",LOGLEVEL_OPERATOR);
-    return (lh=lh*ex(rh));
-}
-
-ex const & operator/=(ex & lh, numeric const & rh)
-{
-    debugmsg("operator/=(ex,numeric)",LOGLEVEL_OPERATOR);
-    return (lh=lh/ex(rh));
-}
-
-ex const & operator%=(ex & lh, numeric const & rh)
-{
-    debugmsg("operator%=(ex,numeric)",LOGLEVEL_OPERATOR);
-    return (lh=lh%ex(rh));
-}
-
-*/
 
 // binary arithmetic assignment operators with numeric
 
@@ -264,7 +164,7 @@ ex operator+(ex const & lh)
 
 ex operator-(ex const & lh)
 {
-    return exMINUSONE()*lh;
+    return lh.exmul(_ex_1());
 }
 
 numeric operator+(numeric const & lh)
@@ -274,20 +174,20 @@ numeric operator+(numeric const & lh)
 
 numeric operator-(numeric const & lh)
 {
-    return numMINUSONE()*lh;
+    return _num_1()*lh;
 }
 
 /** Numeric prefix increment.  Adds 1 and returns incremented number. */
 numeric& operator++(numeric & rh)
 {
-    rh = rh+numONE();
+    rh = rh+_num1();
     return rh;
 }
 
 /** Numeric prefix decrement.  Subtracts 1 and returns decremented number. */
 numeric& operator--(numeric & rh)
 {
-    rh = rh-numONE();
+    rh = rh-_num1();
     return rh;
 }
 
@@ -296,7 +196,7 @@ numeric& operator--(numeric & rh)
 numeric operator++(numeric & lh, int)
 {
     numeric tmp = lh;
-    lh = lh+numONE();
+    lh = lh+_num1();
     return tmp;
 }
 
@@ -305,7 +205,7 @@ numeric operator++(numeric & lh, int)
 numeric operator--(numeric & lh, int)
 {
     numeric tmp = lh;
-    lh = lh-numONE();
+    lh = lh-_num1();
     return tmp;
 }
 

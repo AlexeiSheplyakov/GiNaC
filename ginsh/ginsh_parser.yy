@@ -341,7 +341,7 @@ static ex f_evalf2(const exprseq &e)
 
 static ex f_has(const exprseq &e)
 {
-	return e[0].has(e[1]) ? exONE() : exZERO();
+	return e[0].has(e[1]) ? ex(1) : ex(0);
 }
 
 static ex f_inverse(const exprseq &e)
@@ -353,7 +353,7 @@ static ex f_inverse(const exprseq &e)
 static ex f_is(const exprseq &e)
 {
 	CHECK_ARG(0, relational, is);
-	return (bool)ex_to_relational(e[0]) ? exONE() : exZERO();
+	return (bool)ex_to_relational(e[0]) ? ex(1) : ex(0);
 }
 
 static ex f_lcoeff(const exprseq &e)
@@ -410,7 +410,7 @@ static ex f_rem(const exprseq &e)
 static ex f_series2(const exprseq &e)
 {
 	CHECK_ARG(1, symbol, series);
-	return e[0].series(ex_to_symbol(e[1]), exZERO());
+	return e[0].series(ex_to_symbol(e[1]), ex(0));
 }
 
 static ex f_series3(const exprseq &e)
@@ -677,7 +677,7 @@ static ex lst2matrix(const ex &l)
 			if (l.op(i).nops() > j)
 				m.set(i, j, l.op(i).op(j));
 			else
-				m.set(i, j, exZERO());
+				m.set(i, j, ex(0));
 	return m;
 }
 

@@ -29,6 +29,7 @@
 #include "numeric.h"
 #include "power.h"
 #include "debugmsg.h"
+#include "utils.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
@@ -42,11 +43,11 @@ namespace GiNaC {
 
 #ifndef INLINE_EX_CONSTRUCTORS
 
-ex::ex() : bp(exZERO().bp)
+ex::ex() : bp(ex0().bp)
 {
     debugmsg("ex default constructor",LOGLEVEL_CONSTRUCT);
-    GINAC_ASSERT(exZERO().bp!=0);
-    GINAC_ASSERT(exZERO().bp->flags & status_flags::dynallocated);
+    GINAC_ASSERT(ex0().bp!=0);
+    GINAC_ASSERT(ex0().bp->flags & status_flags::dynallocated);
     GINAC_ASSERT(bp!=0);
     ++bp->refcount;
 }
@@ -313,12 +314,12 @@ ex ex::numer(bool normalize) const
 
     // something^(-int)
     if (is_ex_exactly_of_type(n, power) && n.op(1).info(info_flags::negint))
-        return exONE();
+        return _ex1();
 
     // something^(int) * something^(int) * ...
     if (!is_ex_exactly_of_type(n, mul))
         return n;
-    ex res = exONE();
+    ex res = _ex1();
     for (int i=0; i<n.nops(); i++) {
         if (!is_ex_exactly_of_type(n.op(i), power) || !n.op(i).op(1).info(info_flags::negint))
             res *= n.op(i);
@@ -336,7 +337,7 @@ ex ex::denom(bool normalize) const
 
     // polynomial
     if (n.info(info_flags::polynomial))
-        return exONE();
+        return _ex1();
 
     // something^(-int)
     if (is_ex_exactly_of_type(n, power) && n.op(1).info(info_flags::negint))
@@ -344,8 +345,8 @@ ex ex::denom(bool normalize) const
 
     // something^(int) * something^(int) * ...
     if (!is_ex_exactly_of_type(n, mul))
-        return exONE();
-    ex res = exONE();
+        return _ex1();
+    ex res = _ex1();
     for (int i=0; i<n.nops(); i++) {
         if (is_ex_exactly_of_type(n.op(i), power) && n.op(i).op(1).info(info_flags::negint))
             res *= power(n.op(i), -1);
@@ -543,47 +544,8 @@ void ex::construct_from_basic(basic const & other)
 // global functions
 //////////
 
-ex const & exZERO(void)
-{
-    static ex * eZERO=new ex(numZERO());
-    return *eZERO;
-}
+// none
 
-ex const & exONE(void)
-{
-    static ex * eONE=new ex(numONE());
-    return *eONE;
-}
-
-ex const & exTWO(void)
-{
-    static ex * eTWO=new ex(numTWO());
-    return *eTWO;
-}
-
-ex const & exTHREE(void)
-{
-    static ex * eTHREE=new ex(numTHREE());
-    return *eTHREE;
-}
-
-ex const & exMINUSONE(void)
-{
-    static ex * eMINUSONE=new ex(numMINUSONE());
-    return *eMINUSONE;
-}
-
-ex const & exHALF(void)
-{
-    static ex * eHALF=new ex(ex(1)/ex(2));
-    return *eHALF;
-}
-
-ex const & exMINUSHALF(void)
-{
-    static ex * eMINUSHALF=new ex(numeric(-1,2));
-    return *eMINUSHALF;
-}
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC

@@ -161,7 +161,7 @@ static unsigned numeric_consist2(void)
     
     // The fix in the workaround left a whole which was fixed hours later...
     ex another_zero = pow(zero,numeric(1)/numeric(2));
-    if (another_zero.compare(exZERO())) {
+    if (!another_zero.is_zero()) {
         clog << "pow(0,1/2) erroneously returned" << another_zero << endl;
         ++result;
     }

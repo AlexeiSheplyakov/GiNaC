@@ -25,6 +25,7 @@
 
 #include "matrix.h"
 #include "debugmsg.h"
+#include "utils.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
@@ -42,7 +43,7 @@ matrix::matrix()
     : basic(TINFO_matrix), row(1), col(1)
 {
     debugmsg("matrix default constructor",LOGLEVEL_CONSTRUCT);
-    m.push_back(exZERO());
+    m.push_back(_ex0());
 }
 
 matrix::~matrix()
@@ -95,7 +96,7 @@ matrix::matrix(int r, int c)
     : basic(TINFO_matrix), row(r), col(c)
 {
     debugmsg("matrix constructor from int,int",LOGLEVEL_CONSTRUCT);
-    m.resize(r*c, exZERO());
+    m.resize(r*c, _ex0());
 }
 
 // protected
@@ -390,16 +391,16 @@ ex determinant_numeric(const matrix & M)
 {
     GINAC_ASSERT(M.rows()==M.cols());  // cannot happen, just in case...
     matrix tmp(M);
-    ex det=exONE();
+    ex det=_ex1();
     ex piv;
     
     for (int r1=0; r1<M.rows(); ++r1) {
         int indx = tmp.pivot(r1);
         if (indx == -1) {
-            return exZERO();
+            return _ex0();
         }
         if (indx != 0) {
-            det *= exMINUSONE();
+            det *= _ex_1();
         }
         det = det * tmp.m[r1*M.cols()+r1];
         for (int r2=r1+1; r2<M.rows(); ++r2) {
@@ -609,7 +610,7 @@ matrix matrix::inverse(void) const
     matrix tmp(row,col);
     // set tmp to the unit matrix
     for (int i=0; i<col; ++i) {
-        tmp.m[i*col+i] = exONE();
+        tmp.m[i*col+i] = _ex1();
     }
     // create a copy of this matrix
     matrix cpy(*this);
@@ -689,7 +690,7 @@ matrix matrix::fraction_free_elim(matrix const & vars,
     for (int k=1; (k<=n)&&(r<=m); ++k) {
         // find a nonzero pivot
         int p;
-        for (p=r; (p<=m)&&(a.ffe_get(p,k).is_equal(exZERO())); ++p) {}
+        for (p=r; (p<=m)&&(a.ffe_get(p,k).is_equal(_ex0())); ++p) {}
         // pivot is in row p
         if (p<=m) {
             if (p!=r) {
@@ -734,7 +735,7 @@ matrix matrix::fraction_free_elim(matrix const & vars,
     for (int r=1; r<=m; ++r) {
         int zero_in_this_row=0;
         for (int c=1; c<=n; ++c) {
-            if (a.ffe_get(r,c).is_equal(exZERO())) {
+            if (a.ffe_get(r,c).is_equal(_ex0())) {
                zero_in_this_row++;
             } else {
                 break;
