@@ -46,7 +46,7 @@
  */
 
 /*
- *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -1088,6 +1088,10 @@ REGISTER_FUNCTION(S,
 // anonymous namespace for helper functions
 namespace {
 
+	
+// regulates the pole (used by 1/x-transformation)
+symbol H_polesign("IMSIGN");
+
 
 // convert parameters from H to Li representation
 // parameters are expected to be in expanded form, i.e. only 0, 1 and -1
@@ -1601,7 +1605,7 @@ struct map_trafo_H_1overx : public map_function
 					}
 					if (allthesame) {
 						map_trafo_H_mult unify;
-						return unify((pow(H(lst(1),1/arg).hold() + H(lst(0),1/arg).hold() - I*Pi, parameter.nops())
+						return unify((pow(H(lst(1),1/arg).hold() + H(lst(0),1/arg).hold() + H_polesign, parameter.nops())
 						       / factorial(parameter.nops())).expand());
 					}
 				}
@@ -1928,6 +1932,11 @@ static ex H_evalf(const ex& x1, const ex& x2)
 			// x -> 1/x
 			map_trafo_H_1overx trafo;
 			res *= trafo(H(m, xtemp));
+			if (cln::imagpart(x) <= 0) {
+				res = res.subs(H_polesign == -I*Pi);
+			} else {
+				res = res.subs(H_polesign == I*Pi);
+			}
 		}
 
 		// simplify result
