@@ -252,16 +252,19 @@ numeric::numeric(const archive_node &n, const lst &sym_lst) : inherited(n, sym_l
 {
     debugmsg("numeric constructor from archive_node", LOGLEVEL_CONSTRUCT);
     value = new cl_N;
-#ifdef HAVE_SSTREAM
+
     // Read number as string
     string str;
     if (n.find_string("number", str)) {
+#ifdef HAVE_SSTREAM
         istringstream s(str);
+#else
+		istrstream s(str.c_str(), str.size() + 1);
+#endif
         cl_idecoded_float re, im;
         char c;
         s.get(c);
         switch (c) {
-            case 'N':    // Ordinary number
             case 'R':    // Integer-decoded real number
                 s >> re.sign >> re.mantissa >> re.exponent;
                 *value = re.sign * re.mantissa * ::expt(cl_float(2.0, cl_default_float_format), re.exponent);
@@ -278,32 +281,6 @@ numeric::numeric(const archive_node &n, const lst &sym_lst) : inherited(n, sym_l
                 break;
         }
     }
-#else
-    // Read number as string
-    string str;
-    if (n.find_string("number", str)) {
-        istrstream f(str.c_str(), str.size() + 1);
-        cl_idecoded_float re, im;
-        char c;
-        f.get(c);
-        switch (c) {
-            case 'R':    // Integer-decoded real number
-                f >> re.sign >> re.mantissa >> re.exponent;
-                *value = re.sign * re.mantissa * ::expt(cl_float(2.0, cl_default_float_format), re.exponent);
-                break;
-            case 'C':    // Integer-decoded complex number
-                f >> re.sign >> re.mantissa >> re.exponent;
-                f >> im.sign >> im.mantissa >> im.exponent;
-                *value = ::complex(re.sign * re.mantissa * ::expt(cl_float(2.0, cl_default_float_format), re.exponent),
-                                 im.sign * im.mantissa * ::expt(cl_float(2.0, cl_default_float_format), im.exponent));
-                break;
-            default:	// Ordinary number
-				f.putback(c);
-                f >> *value;
-				break;
-        }
-    }
-#endif
     calchash();
     setflag(status_flags::evaluated|
             status_flags::hash_calculated);
@@ -319,9 +296,14 @@ ex numeric::unarchive(const archive_node &n, const lst &sym_lst)
 void numeric::archive(archive_node &n) const
 {
     inherited::archive(n);
-#ifdef HAVE_SSTREAM
+
     // Write number as string
+#ifdef HAVE_SSTREAM
     ostringstream s;
+#else
+    char buf[1024];
+    ostrstream f(buf, 1024);
+#endif
     if (this->is_crational())
         s << *value;
     else {
@@ -339,30 +321,12 @@ void numeric::archive(archive_node &n) const
             s << im.sign << " " << im.mantissa << " " << im.exponent;
         }
     }
+#ifdef HAVE_SSTREAM
     n.add_string("number", s.str());
 #else
-    // Write number as string
-    char buf[1024];
-    ostrstream f(buf, 1024);
-    if (this->is_crational())
-        f << *value << ends;
-    else {
-        // Non-rational numbers are written in an integer-decoded format
-        // to preserve the precision
-        if (this->is_real()) {
-            cl_idecoded_float re = integer_decode_float(The(cl_F)(*value));
-            f << "R";
-            f << re.sign << " " << re.mantissa << " " << re.exponent << ends;
-        } else {
-            cl_idecoded_float re = integer_decode_float(The(cl_F)(::realpart(*value)));
-            cl_idecoded_float im = integer_decode_float(The(cl_F)(::imagpart(*value)));
-            f << "C";
-            f << re.sign << " " << re.mantissa << " " << re.exponent << " ";
-            f << im.sign << " " << im.mantissa << " " << im.exponent << ends;
-        }
-    }
-    string str(buf);
-    n.add_string("number", str);
+	s << ends;
+	string str(buf);
+	n.add_string("number", str);
 #endif
 }
 
