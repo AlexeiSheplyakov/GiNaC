@@ -179,6 +179,13 @@ ex tensdelta::eval_indexed(const basic & i) const
 	const idx & i1 = ex_to<idx>(i.op(1));
 	const idx & i2 = ex_to<idx>(i.op(2));
 
+	// The dimension of the indices must be equal, otherwise we use the minimal
+	// dimension
+	if (!i1.get_dim().is_equal(i2.get_dim())) {
+		ex min_dim = i1.minimal_dim(i2);
+		return i.subs(lst(i1 == i1.replace_dim(min_dim), i2 == i2.replace_dim(min_dim)));
+	}
+
 	// Trace of delta tensor is the (effective) dimension of the space
 	if (is_dummy_pair(i1, i2)) {
 		try {
