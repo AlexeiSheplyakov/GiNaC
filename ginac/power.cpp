@@ -656,7 +656,7 @@ ex power::expand(unsigned options) const
 	
 	// (x*y)^n -> x^n * y^n
 	if (is_exactly_a<mul>(expanded_basis))
-		return expand_mul(ex_to<mul>(expanded_basis), num_exponent, options);
+		return expand_mul(ex_to<mul>(expanded_basis), num_exponent, options, true);
 	
 	// cannot expand further
 	if (are_ex_trivially_equal(basis,expanded_basis) && are_ex_trivially_equal(exponent,expanded_exponent))
@@ -713,7 +713,7 @@ ex power::expand_add(const add & a, int n, unsigned options) const
 			             !is_exactly_a<mul>(ex_to<power>(b).basis) ||
 			             !is_exactly_a<power>(ex_to<power>(b).basis));
 			if (is_exactly_a<mul>(b))
-				term.push_back(expand_mul(ex_to<mul>(b), numeric(k[l]), options));
+				term.push_back(expand_mul(ex_to<mul>(b), numeric(k[l]), options, true));
 			else
 				term.push_back(power(b,k[l]));
 		}
@@ -727,7 +727,7 @@ ex power::expand_add(const add & a, int n, unsigned options) const
 		             !is_exactly_a<mul>(ex_to<power>(b).basis) ||
 		             !is_exactly_a<power>(ex_to<power>(b).basis));
 		if (is_exactly_a<mul>(b))
-			term.push_back(expand_mul(ex_to<mul>(b), numeric(n-k_cum[m-2]), options));
+			term.push_back(expand_mul(ex_to<mul>(b), numeric(n-k_cum[m-2]), options, true));
 		else
 			term.push_back(power(b,n-k_cum[m-2]));
 
@@ -787,7 +787,7 @@ ex power::expand_add_2(const add & a, unsigned options) const
 		
 		if (c.is_equal(_ex1)) {
 			if (is_exactly_a<mul>(r)) {
-				sum.push_back(expair(expand_mul(ex_to<mul>(r), _num2, options),
+				sum.push_back(expair(expand_mul(ex_to<mul>(r), _num2, options, true),
 				                     _ex1));
 			} else {
 				sum.push_back(expair((new power(r,_ex2))->setflag(status_flags::dynallocated),
@@ -795,7 +795,7 @@ ex power::expand_add_2(const add & a, unsigned options) const
 			}
 		} else {
 			if (is_exactly_a<mul>(r)) {
-				sum.push_back(a.combine_ex_with_coeff_to_pair(expand_mul(ex_to<mul>(r), _num2, options),
+				sum.push_back(a.combine_ex_with_coeff_to_pair(expand_mul(ex_to<mul>(r), _num2, options, true),
 				                     ex_to<numeric>(c).power_dyn(_num2)));
 			} else {
 				sum.push_back(a.combine_ex_with_coeff_to_pair((new power(r,_ex2))->setflag(status_flags::dynallocated),
@@ -830,7 +830,7 @@ ex power::expand_add_2(const add & a, unsigned options) const
 
 /** Expand factors of m in m^n where m is a mul and n is and integer.
  *  @see power::expand */
-ex power::expand_mul(const mul & m, const numeric & n, unsigned options) const
+ex power::expand_mul(const mul & m, const numeric & n, unsigned options, bool from_expand) const
 {
 	GINAC_ASSERT(n.is_integer());
 
@@ -850,7 +850,7 @@ ex power::expand_mul(const mul & m, const numeric & n, unsigned options) const
 			// it is safe not to call mul::combine_pair_with_coeff_to_pair()
 			// since n is an integer
 			numeric new_coeff = ex_to<numeric>(cit->coeff).mul(n);
-			if (is_exactly_a<add>(cit->rest) && new_coeff.is_pos_integer()) {
+			if (from_expand && is_exactly_a<add>(cit->rest) && new_coeff.is_pos_integer()) {
 				// this happens when e.g. (a+b)^(1/2) gets squared and
 				// the resulting product needs to be reexpanded
 				need_reexpand = true;
@@ -863,8 +863,9 @@ ex power::expand_mul(const mul & m, const numeric & n, unsigned options) const
 	const mul & result = static_cast<const mul &>((new mul(distrseq, ex_to<numeric>(m.overall_coeff).power_dyn(n)))->setflag(status_flags::dynallocated));
 	if (need_reexpand)
 		return ex(result).expand(options);
-	else
+	if (from_expand)
 		return result.setflag(status_flags::expanded);
+	return result;
 }
 
 } // namespace GiNaC

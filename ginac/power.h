@@ -86,7 +86,7 @@ protected:
 
 	ex expand_add(const add & a, int n, unsigned options) const;
 	ex expand_add_2(const add & a, unsigned options) const;
-	ex expand_mul(const mul & m, const numeric & n, unsigned options) const;
+	ex expand_mul(const mul & m, const numeric & n, unsigned options, bool from_expand = false) const;
 	
 // member variables
 	

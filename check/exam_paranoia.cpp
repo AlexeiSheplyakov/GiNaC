@@ -426,6 +426,14 @@ static unsigned exam_paranoia16()
 		++result;
 	}
 
+	e1 = a*(a+b);
+	e2 = pow(pow(e1, -1), -1);
+
+	if (e2.has(a*b)) {
+		clog << "double reciprocal expanded where it should not\n";
+		++result;
+	}
+
 	return result;
 }
 
