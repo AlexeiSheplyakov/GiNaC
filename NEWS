@@ -25,6 +25,8 @@ This file records noteworthy changes.
 * Replaced the various print*() member functions by a single print() that
   takes a print_context object that determines the output formatting. This
   should make it easier to add more output types.
+* Added functions to retrieve the properties stored in archive objects
+  outside of unarchive() (for printing or debugging purposes).
 * Some bugfixes (indexed objects, archive writing).
 
 0.8.0 (24 March 2001)
