@@ -170,8 +170,10 @@ public:
 
 	// rational functions
 	ex normal(int level = 0) const;
-	ex to_rational(lst &repl_lst) const;
-	ex to_polynomial(lst &repl_lst) const;
+	ex to_rational(exmap & repl) const;
+	ex to_rational(lst & repl_lst) const;
+	ex to_polynomial(exmap & repl) const;
+	ex to_polynomial(lst & repl_lst) const;
 	ex numer() const;
 	ex denom() const;
 	ex numer_denom() const;
@@ -681,6 +683,23 @@ inline bool are_ex_trivially_equal(const ex &e1, const ex &e2)
 	return e1.bp == e2.bp;
 }
 
+/* Function objects for STL sort() etc. */
+struct ex_is_less : public std::binary_function<ex, ex, bool> {
+	bool operator() (const ex &lh, const ex &rh) const { return lh.compare(rh) < 0; }
+};
+
+struct ex_is_equal : public std::binary_function<ex, ex, bool> {
+	bool operator() (const ex &lh, const ex &rh) const { return lh.is_equal(rh); }
+};
+
+struct op0_is_equal : public std::binary_function<ex, ex, bool> {
+	bool operator() (const ex &lh, const ex &rh) const { return lh.op(0).is_equal(rh.op(0)); }
+};
+
+struct ex_swap : public std::binary_function<ex, ex, void> {
+	void operator() (ex &lh, ex &rh) const { lh.swap(rh); }
+};
+
 // wrapper functions around member functions
 inline size_t nops(const ex & thisex)
 { return thisex.nops(); }
@@ -717,6 +736,12 @@ inline ex normal(const ex & thisex, int level=0)
 
 inline ex to_rational(const ex & thisex, lst & repl_lst)
 { return thisex.to_rational(repl_lst); }
+
+inline ex to_rational(const ex & thisex, exmap & repl)
+{ return thisex.to_rational(repl); }
+
+inline ex to_polynomial(const ex & thisex, exmap & repl)
+{ return thisex.to_polynomial(repl); }
 
 inline ex to_polynomial(const ex & thisex, lst & repl_lst)
 { return thisex.to_polynomial(repl_lst); }
@@ -780,23 +805,6 @@ inline bool is_zero(const ex & thisex)
 
 inline void swap(ex & e1, ex & e2)
 { e1.swap(e2); }
-
-/* Function objects for STL sort() etc. */
-struct ex_is_less : public std::binary_function<ex, ex, bool> {
-	bool operator() (const ex &lh, const ex &rh) const { return lh.compare(rh) < 0; }
-};
-
-struct ex_is_equal : public std::binary_function<ex, ex, bool> {
-	bool operator() (const ex &lh, const ex &rh) const { return lh.is_equal(rh); }
-};
-
-struct op0_is_equal : public std::binary_function<ex, ex, bool> {
-	bool operator() (const ex &lh, const ex &rh) const { return lh.op(0).is_equal(rh.op(0)); }
-};
-
-struct ex_swap : public std::binary_function<ex, ex, void> {
-	void operator() (ex &lh, ex &rh) const { lh.swap(rh); }
-};
 
 inline ex ex::subs(const exmap & m, unsigned options) const
 {

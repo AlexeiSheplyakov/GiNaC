@@ -182,8 +182,8 @@ public:
 
 	// rational functions
 	ex normal(exmap & repl, exmap & rev_lookup, int level = 0) const { return inherited::normal(repl, rev_lookup, level); }
-	ex to_rational(lst & repl_lst) const { return inherited::to_rational(repl_lst); }
-	ex to_polynomial(lst & repl_lst) const { return inherited::to_polynomial(repl_lst); }
+	ex to_rational(exmap & repl) const { return inherited::to_rational(repl); }
+	ex to_polynomial(exmap & repl) const { return inherited::to_polynomial(repl); }
 
 	// polynomial algorithms
 	numeric integer_content() const { return 1; }

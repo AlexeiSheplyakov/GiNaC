@@ -702,7 +702,7 @@ ex matrix::determinant(unsigned algo) const
 	unsigned sparse_count = 0;  // counts non-zero elements
 	exvector::const_iterator r = m.begin(), rend = m.end();
 	while (r != rend) {
-		lst srl;  // symbol replacement list
+		exmap srl;  // symbol replacement list
 		ex rtest = r->to_rational(srl);
 		if (!rtest.is_zero())
 			++sparse_count;
@@ -1320,7 +1320,7 @@ int matrix::fraction_free_elimination(const bool det)
 	// makes things more complicated than they need to be.
 	matrix tmp_n(*this);
 	matrix tmp_d(m,n);  // for denominators, if needed
-	lst srl;  // symbol replacement list
+	exmap srl;  // symbol replacement list
 	exvector::const_iterator cit = this->m.begin(), citend = this->m.end();
 	exvector::iterator tmp_n_it = tmp_n.m.begin(), tmp_d_it = tmp_d.m.begin();
 	while (cit != citend) {

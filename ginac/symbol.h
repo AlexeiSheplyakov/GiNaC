@@ -67,8 +67,8 @@ public:
 	ex series(const relational & s, int order, unsigned options = 0) const;
 	ex subs(const exmap & m, unsigned options = 0) const { return subs_one_level(m, options); } // overwrites basic::subs() for performance reasons
 	ex normal(exmap & repl, exmap & rev_lookup, int level = 0) const;
-	ex to_rational(lst &repl_lst) const;
-	ex to_polynomial(lst &repl_lst) const;
+	ex to_rational(exmap & repl) const;
+	ex to_polynomial(exmap & repl) const;
 	unsigned return_type() const { return ret_type; }
 	unsigned return_type_tinfo() const { return ret_type_tinfo; }
 protected:

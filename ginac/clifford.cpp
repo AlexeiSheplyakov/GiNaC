@@ -706,13 +706,12 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 ex canonicalize_clifford(const ex & e)
 {
 	// Scan for any ncmul objects
-	lst srl;
+	exmap srl;
 	ex aux = e.to_rational(srl);
-	for (size_t i=0; i<srl.nops(); i++) {
+	for (exmap::iterator i = srl.begin(); i != srl.end(); ++i) {
 
-		ex o = srl.op(i);
-		ex lhs = o.lhs();
-		ex rhs = o.rhs();
+		ex lhs = i->first;
+		ex rhs = i->second;
 
 		if (is_exactly_a<ncmul>(rhs)
 		 && rhs.return_type() == return_types::noncommutative
@@ -721,7 +720,7 @@ ex canonicalize_clifford(const ex & e)
 			// Expand product, if necessary
 			ex rhs_expanded = rhs.expand();
 			if (!is_a<ncmul>(rhs_expanded)) {
-				srl[i] = (lhs == canonicalize_clifford(rhs_expanded));
+				i->second = canonicalize_clifford(rhs_expanded);
 				continue;
 
 			} else if (!is_a<clifford>(rhs.op(0)))
@@ -748,7 +747,7 @@ ex canonicalize_clifford(const ex & e)
 					it[0] = save1;
 					it[1] = save0;
 					sum -= ncmul(v, true);
-					srl[i] = (lhs == canonicalize_clifford(sum));
+					i->second = canonicalize_clifford(sum);
 					goto next_sym;
 				}
 				++it;

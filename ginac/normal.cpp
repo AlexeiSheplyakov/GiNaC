@@ -1702,23 +1702,23 @@ static ex replace_with_symbol(const ex & e, exmap & repl, exmap & rev_lookup)
 }
 
 /** Create a symbol for replacing the expression "e" (or return a previously
- *  assigned symbol). An expression of the form "symbol == expression" is added
- *  to repl_lst and the symbol is returned.
+ *  assigned symbol). The symbol and expression are appended to repl, and the
+ *  symbol is returned.
  *  @see basic::to_rational
  *  @see basic::to_polynomial */
-static ex replace_with_symbol(const ex & e, lst & repl_lst)
+static ex replace_with_symbol(const ex & e, exmap & repl)
 {
-	// Expression already in repl_lst? Then return the assigned symbol
-	for (lst::const_iterator it = repl_lst.begin(); it != repl_lst.end(); ++it)
-		if (it->op(1).is_equal(e))
-			return it->op(0);
+	// Expression already replaced? Then return the assigned symbol
+	for (exmap::const_iterator it = repl.begin(); it != repl.end(); ++it)
+		if (it->second.is_equal(e))
+			return it->first;
 	
 	// Otherwise create new symbol and add to list, taking care that the
-	// replacement expression doesn't itself contain symbols from the repl_lst,
+	// replacement expression doesn't itself contain symbols from repl,
 	// because subs() is not recursive
 	ex es = (new symbol)->setflag(status_flags::dynallocated);
-	ex e_replaced = e.subs(repl_lst, subs_options::no_pattern);
-	repl_lst.append(es == e_replaced);
+	ex e_replaced = e.subs(repl, subs_options::no_pattern);
+	repl.insert(std::make_pair(es, e_replaced));
 	return es;
 }
 
@@ -2103,46 +2103,80 @@ ex ex::numer_denom() const
  *  on non-rational functions by applying to_rational() on the arguments,
  *  calling the desired function and re-substituting the temporary symbols
  *  in the result. To make the last step possible, all temporary symbols and
- *  their associated expressions are collected in the list specified by the
- *  repl_lst parameter in the form {symbol == expression}, ready to be passed
- *  as an argument to ex::subs().
+ *  their associated expressions are collected in the map specified by the
+ *  repl parameter, ready to be passed as an argument to ex::subs().
  *
- *  @param repl_lst collects a list of all temporary symbols and their replacements
+ *  @param repl collects all temporary symbols and their replacements
  *  @return rationalized expression */
-ex ex::to_rational(lst &repl_lst) const
+ex ex::to_rational(exmap & repl) const
 {
-	return bp->to_rational(repl_lst);
+	return bp->to_rational(repl);
 }
 
-ex ex::to_polynomial(lst &repl_lst) const
+// GiNaC 1.1 compatibility function
+ex ex::to_rational(lst & repl_lst) const
 {
-	return bp->to_polynomial(repl_lst);
+	// Convert lst to exmap
+	exmap m;
+	for (lst::const_iterator it = repl_lst.begin(); it != repl_lst.end(); ++it)
+		m.insert(std::make_pair(it->op(0), it->op(1)));
+
+	ex ret = bp->to_rational(m);
+
+	// Convert exmap back to lst
+	repl_lst.remove_all();
+	for (exmap::const_iterator it = m.begin(); it != m.end(); ++it)
+		repl_lst.append(it->first == it->second);
+
+	return ret;
 }
 
+ex ex::to_polynomial(exmap & repl) const
+{
+	return bp->to_polynomial(repl);
+}
+
+// GiNaC 1.1 compatibility function
+ex ex::to_polynomial(lst & repl_lst) const
+{
+	// Convert lst to exmap
+	exmap m;
+	for (lst::const_iterator it = repl_lst.begin(); it != repl_lst.end(); ++it)
+		m.insert(std::make_pair(it->op(0), it->op(1)));
+
+	ex ret = bp->to_polynomial(m);
+
+	// Convert exmap back to lst
+	repl_lst.remove_all();
+	for (exmap::const_iterator it = m.begin(); it != m.end(); ++it)
+		repl_lst.append(it->first == it->second);
+
+	return ret;
+}
 
 /** Default implementation of ex::to_rational(). This replaces the object with
  *  a temporary symbol. */
-ex basic::to_rational(lst &repl_lst) const
+ex basic::to_rational(exmap & repl) const
 {
-	return replace_with_symbol(*this, repl_lst);
+	return replace_with_symbol(*this, repl);
 }
 
-ex basic::to_polynomial(lst &repl_lst) const
+ex basic::to_polynomial(exmap & repl) const
 {
-	return replace_with_symbol(*this, repl_lst);
+	return replace_with_symbol(*this, repl);
 }
 
 
 /** Implementation of ex::to_rational() for symbols. This returns the
  *  unmodified symbol. */
-ex symbol::to_rational(lst &repl_lst) const
+ex symbol::to_rational(exmap & repl) const
 {
 	return *this;
 }
 
 /** Implementation of ex::to_polynomial() for symbols. This returns the
  *  unmodified symbol. */
-ex symbol::to_polynomial(lst &repl_lst) const
+ex symbol::to_polynomial(exmap & repl) const
 {
 	return *this;
 }
@@ -2151,17 +2185,17 @@ ex symbol::to_polynomial(lst &repl_lst) const
 /** Implementation of ex::to_rational() for a numeric. It splits complex
  *  numbers into re+I*im and replaces I and non-rational real numbers with a
  *  temporary symbol. */
-ex numeric::to_rational(lst &repl_lst) const
+ex numeric::to_rational(exmap & repl) const
 {
 	if (is_real()) {
 		if (!is_rational())
-			return replace_with_symbol(*this, repl_lst);
+			return replace_with_symbol(*this, repl);
 	} else { // complex
 		numeric re = real();
 		numeric im = imag();
-		ex re_ex = re.is_rational() ? re : replace_with_symbol(re, repl_lst);
-		ex im_ex = im.is_rational() ? im : replace_with_symbol(im, repl_lst);
-		return re_ex + im_ex * replace_with_symbol(I, repl_lst);
+		ex re_ex = re.is_rational() ? re : replace_with_symbol(re, repl);
+		ex im_ex = im.is_rational() ? im : replace_with_symbol(im, repl);
+		return re_ex + im_ex * replace_with_symbol(I, repl);
 	}
 	return *this;
 }
@@ -2169,17 +2203,17 @@ ex numeric::to_rational(lst &repl_lst) const
 /** Implementation of ex::to_polynomial() for a numeric. It splits complex
  *  numbers into re+I*im and replaces I and non-integer real numbers with a
  *  temporary symbol. */
-ex numeric::to_polynomial(lst &repl_lst) const
+ex numeric::to_polynomial(exmap & repl) const
 {
 	if (is_real()) {
 		if (!is_integer())
-			return replace_with_symbol(*this, repl_lst);
+			return replace_with_symbol(*this, repl);
 	} else { // complex
 		numeric re = real();
 		numeric im = imag();
-		ex re_ex = re.is_integer() ? re : replace_with_symbol(re, repl_lst);
-		ex im_ex = im.is_integer() ? im : replace_with_symbol(im, repl_lst);
-		return re_ex + im_ex * replace_with_symbol(I, repl_lst);
+		ex re_ex = re.is_integer() ? re : replace_with_symbol(re, repl);
+		ex im_ex = im.is_integer() ? im : replace_with_symbol(im, repl);
+		return re_ex + im_ex * replace_with_symbol(I, repl);
 	}
 	return *this;
 }
@@ -2187,36 +2221,36 @@ ex numeric::to_polynomial(lst &repl_lst) const
 
 /** Implementation of ex::to_rational() for powers. It replaces non-integer
  *  powers by temporary symbols. */
-ex power::to_rational(lst &repl_lst) const
+ex power::to_rational(exmap & repl) const
 {
 	if (exponent.info(info_flags::integer))
-		return power(basis.to_rational(repl_lst), exponent);
+		return power(basis.to_rational(repl), exponent);
 	else
-		return replace_with_symbol(*this, repl_lst);
+		return replace_with_symbol(*this, repl);
 }
 
 /** Implementation of ex::to_polynomial() for powers. It replaces non-posint
  *  powers by temporary symbols. */
-ex power::to_polynomial(lst &repl_lst) const
+ex power::to_polynomial(exmap & repl) const
 {
 	if (exponent.info(info_flags::posint))
-		return power(basis.to_rational(repl_lst), exponent);
+		return power(basis.to_rational(repl), exponent);
 	else
-		return replace_with_symbol(*this, repl_lst);
+		return replace_with_symbol(*this, repl);
 }
 
 
 /** Implementation of ex::to_rational() for expairseqs. */
-ex expairseq::to_rational(lst &repl_lst) const
+ex expairseq::to_rational(exmap & repl) const
 {
 	epvector s;
 	s.reserve(seq.size());
 	epvector::const_iterator i = seq.begin(), end = seq.end();
 	while (i != end) {
-		s.push_back(split_ex_to_pair(recombine_pair_to_ex(*i).to_rational(repl_lst)));
+		s.push_back(split_ex_to_pair(recombine_pair_to_ex(*i).to_rational(repl)));
 		++i;
 	}
-	ex oc = overall_coeff.to_rational(repl_lst);
+	ex oc = overall_coeff.to_rational(repl);
 	if (oc.info(info_flags::numeric))
 		return thisexpairseq(s, overall_coeff);
 	else
@@ -2225,16 +2259,16 @@ ex expairseq::to_rational(lst &repl_lst) const
 }
 
 /** Implementation of ex::to_polynomial() for expairseqs. */
-ex expairseq::to_polynomial(lst &repl_lst) const
+ex expairseq::to_polynomial(exmap & repl) const
 {
 	epvector s;
 	s.reserve(seq.size());
 	epvector::const_iterator i = seq.begin(), end = seq.end();
 	while (i != end) {
-		s.push_back(split_ex_to_pair(recombine_pair_to_ex(*i).to_polynomial(repl_lst)));
+		s.push_back(split_ex_to_pair(recombine_pair_to_ex(*i).to_polynomial(repl)));
 		++i;
 	}
-	ex oc = overall_coeff.to_polynomial(repl_lst);
+	ex oc = overall_coeff.to_polynomial(repl);
 	if (oc.info(info_flags::numeric))
 		return thisexpairseq(s, overall_coeff);
 	else
@@ -2246,7 +2280,7 @@ ex expairseq::to_polynomial(lst &repl_lst) const
 /** Remove the common factor in the terms of a sum 'e' by calculating the GCD,
  *  and multiply it into the expression 'factor' (which needs to be initialized
  *  to 1, unless you're accumulating factors). */
-static ex find_common_factor(const ex & e, ex & factor, lst & repl)
+static ex find_common_factor(const ex & e, ex & factor, exmap & repl)
 {
 	if (is_exactly_a<add>(e)) {
 
@@ -2331,7 +2365,7 @@ ex collect_common_factors(const ex & e)
 {
 	if (is_exactly_a<add>(e) || is_exactly_a<mul>(e)) {
 
-		lst repl;
+		exmap repl;
 		ex factor = 1;
 		ex r = find_common_factor(e, factor, repl);
 		return factor.subs(repl, subs_options::no_pattern) * r.subs(repl, subs_options::no_pattern);

@@ -164,8 +164,8 @@ public:
 
 	// rational functions
 	virtual ex normal(exmap & repl, exmap & rev_lookup, int level = 0) const;
-	virtual ex to_rational(lst &repl_lst) const;
-	virtual ex to_polynomial(lst &repl_lst) const;
+	virtual ex to_rational(exmap & repl) const;
+	virtual ex to_polynomial(exmap & repl) const;
 
 	// polynomial algorithms
 	virtual numeric integer_content() const;
