@@ -798,7 +798,7 @@ but for internal routines when no output is desired it is often
 enough.  We'll come across examples of such symbols later in this
 tutorial.
 
-This implies that the stings passed to symbols at construction
+This implies that the strings passed to symbols at construction
 time may not be used for comparing two of them.  It is perfectly
 legitimate to write @code{symbol x("x"),y("x");} but it is
 likely to lead into trouble.  Here, @code{x} and
@@ -1134,7 +1134,7 @@ int main()
     cout << "gamma(" << foo << ") -> " << gamma(foo) << endl;
     ex bar = foo.subs(y==1);
     cout << "gamma(" << bar << ") -> " << gamma(bar) << endl;
-    ex foobar= bar.subs(x==7);
+    ex foobar = bar.subs(x==7);
     cout << "gamma(" << foobar << ") -> " << gamma(foobar) << endl;
     // ...
 @}
