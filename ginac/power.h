@@ -94,8 +94,8 @@ protected:
 	ex expand_add_2(const add & a) const;
 	ex expand_mul(const mul & m, const numeric & n) const;
 	//ex expand_commutative_3(const ex & basis, const numeric & exponent,
-	//                         unsigned options) const;
-	// ex expand_noncommutative(const ex & basis, const numeric & exponent, unsigned options) const;
+	//                        unsigned options) const;
+	//ex expand_noncommutative(const ex & basis, const numeric & exponent, unsigned options) const;
 
 // member variables
 

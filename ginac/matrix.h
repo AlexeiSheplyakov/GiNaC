@@ -92,7 +92,7 @@ public:
 	ex charpoly(const symbol & lambda) const;
 	matrix inverse(void) const;
 	matrix solve(const matrix & vars, const matrix & rhs,
-				 unsigned algo = solve_algo::automatic) const;
+	             unsigned algo = solve_algo::automatic) const;
 protected:
 	ex determinant_minor(void) const;
 	int gauss_elimination(const bool det = false);

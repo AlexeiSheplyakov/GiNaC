@@ -107,10 +107,10 @@ inline const idx &ex_to_idx(const ex &e)
 int canonicalize_indices(exvector & iv, bool antisymmetric=false);
 exvector idx_intersect(const exvector & iv1, const exvector & iv2);
 ex permute_free_index_to_front(const exvector & iv3, const exvector & iv2,
-							   bool antisymmetric, int * sig);
+                               bool antisymmetric, int * sig);
 unsigned subs_index_in_exvector(exvector & v, const ex & is, const ex & ir);
 ex subs_indices(const ex & e, const exvector & idxv_contra,
-				const exvector & idxv_co);
+                const exvector & idxv_co);
 unsigned count_index(const ex & e, const ex & i);
 
 #ifndef NO_NAMESPACE_GINAC

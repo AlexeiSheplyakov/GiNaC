@@ -36,7 +36,6 @@ namespace GiNaC {
 /** Base class for lortensor object */
 class lortensor : public indexed
 {
-	// friends
 	friend lortensor lortensor_g(const ex & mu, const ex & nu);
 	// friend lortensor lortensor_delta(const ex & mu, const ex & nu);
 	friend lortensor lortensor_epsilon(const ex & mu, const ex & nu,
@@ -48,15 +47,15 @@ class lortensor : public indexed
 	friend ex simplify_lortensor(const ex & e);
 	
 	// types
-
 public:
-	typedef enum { invalid,
-				   lortensor_g,
-				   lortensor_rankn,
-				   lortensor_rank1,
-				   lortensor_rank2,
-				   // lortensor_delta,
-				   lortensor_epsilon
+	typedef enum {
+		invalid,
+		lortensor_g,
+		lortensor_rankn,
+		lortensor_rank1,
+		lortensor_rank2,
+		// lortensor_delta,
+		lortensor_epsilon
 	} lortensor_types;
 
 	// member functions
@@ -76,8 +75,7 @@ protected:
 	lortensor(lortensor_types const lt, const std::string & n);
 	lortensor(lortensor_types const lt, const std::string & n, const ex & mu);
 	lortensor(lortensor_types const lt, const std::string & n, const ex & mu, const ex & nu);
-	lortensor(lortensor_types const lt, const std::string & n, const ex & mu, const ex & nu,
-			  const ex & rho);
+	lortensor(lortensor_types const lt, const std::string & n, const ex & mu, const ex & nu, const ex & rho);
 	lortensor(lortensor_types const lt, const std::string & n, const ex & mu, const ex & nu, const ex & rho, const ex & sigma);
 	lortensor(lortensor_types const lt, const std::string & n, const exvector & iv);
 	lortensor(lortensor_types const lt, const std::string & n, unsigned s, const exvector & iv);

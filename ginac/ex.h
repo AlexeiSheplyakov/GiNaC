@@ -57,66 +57,66 @@ class ex
 public:
 	ex()
 #ifdef INLINE_EX_CONSTRUCTORS
-	: bp(_ex0().bp)
-		{
-			GINAC_ASSERT(_ex0().bp!=0);
-			GINAC_ASSERT(_ex0().bp->flags & status_flags::dynallocated);
-			GINAC_ASSERT(bp!=0);
-			++bp->refcount;
+	     : bp(_ex0().bp)
+	{
+		GINAC_ASSERT(_ex0().bp!=0);
+		GINAC_ASSERT(_ex0().bp->flags & status_flags::dynallocated);
+		GINAC_ASSERT(bp!=0);
+		++bp->refcount;
 #ifdef OBSCURE_CINT_HACK
-			update_last_created_or_assigned_bp();
+		update_last_created_or_assigned_bp();
 #endif // def OBSCURE_CINT_HACK
-		}
+	}
 #else
 ;
 #endif // def INLINE_EX_CONSTRUCTORS
 
 	~ex()
 #ifdef INLINE_EX_CONSTRUCTORS
-		{
-			GINAC_ASSERT(bp!=0);
-			GINAC_ASSERT(bp->flags & status_flags::dynallocated);
-			if (--bp->refcount == 0) {
-				delete bp;
-			}
+	{
+		GINAC_ASSERT(bp!=0);
+		GINAC_ASSERT(bp->flags & status_flags::dynallocated);
+		if (--bp->refcount == 0) {
+			delete bp;
 		}
+	}
 #else
 ;
 #endif // def INLINE_EX_CONSTRUCTORS
 		
 	ex(const ex & other)
 #ifdef INLINE_EX_CONSTRUCTORS
-	: bp(other.bp)
-		{
-			GINAC_ASSERT(bp!=0);
-			GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
-			++bp->refcount;
+	                     : bp(other.bp)
+	{
+		GINAC_ASSERT(bp!=0);
+		GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
+		++bp->refcount;
 #ifdef OBSCURE_CINT_HACK
-			update_last_created_or_assigned_bp();
+		update_last_created_or_assigned_bp();
 #endif // def OBSCURE_CINT_HACK
-		}
+	}
 #else
 ;
 #endif // def INLINE_EX_CONSTRUCTORS
 		
 	const ex & operator=(const ex & other)
 #ifdef INLINE_EX_CONSTRUCTORS
-		{
-			GINAC_ASSERT(bp!=0);
-			GINAC_ASSERT(bp->flags & status_flags::dynallocated);
-			GINAC_ASSERT(other.bp!=0);
-			GINAC_ASSERT(other.bp->flags & status_flags::dynallocated);
-			++other.bp->refcount;
-			basic * tmpbp=other.bp;
-			if (--bp->refcount==0) {
-				delete bp;
-			}
-			bp=tmpbp;
-#ifdef OBSCURE_CINT_HACK
-			update_last_created_or_assigned_bp();
-#endif // def OBSCURE_CINT_HACK
-			return *this;
+	{
+		GINAC_ASSERT(bp!=0);
+		GINAC_ASSERT(bp->flags & status_flags::dynallocated);
+		GINAC_ASSERT(other.bp!=0);
+		GINAC_ASSERT(other.bp->flags & status_flags::dynallocated);
+		++other.bp->refcount;
+		basic * tmpbp=other.bp;
+		if (--bp->refcount==0) {
+			delete bp;
 		}
+		bp=tmpbp;
+#ifdef OBSCURE_CINT_HACK
+		update_last_created_or_assigned_bp();
+#endif // def OBSCURE_CINT_HACK
+		return *this;
+	}
 #else
 ;
 #endif // def INLINE_EX_CONSTRUCTORS
@@ -126,72 +126,72 @@ public:
 public:
 	ex(const basic & other)
 #ifdef INLINE_EX_CONSTRUCTORS
-		{
-			construct_from_basic(other);
+	{
+		construct_from_basic(other);
 #ifdef OBSCURE_CINT_HACK
-			update_last_created_or_assigned_bp();
+		update_last_created_or_assigned_bp();
 #endif // def OBSCURE_CINT_HACK
-		}
+	}
 #else
 ;
 #endif // def INLINE_EX_CONSTRUCTORS
 	
 	ex(int i)
 #ifdef INLINE_EX_CONSTRUCTORS
-		{
-			construct_from_int(i);
+	{
+		construct_from_int(i);
 #ifdef OBSCURE_CINT_HACK
-			update_last_created_or_assigned_bp();
+		update_last_created_or_assigned_bp();
 #endif // def OBSCURE_CINT_HACK
-		}
+	}
 #else
 ;
 #endif // def INLINE_EX_CONSTRUCTORS
 
 	ex(unsigned int i)
 #ifdef INLINE_EX_CONSTRUCTORS
-		{
-			construct_from_uint(i);
+	{
+		construct_from_uint(i);
 #ifdef OBSCURE_CINT_HACK
-			update_last_created_or_assigned_bp();
+		update_last_created_or_assigned_bp();
 #endif // def OBSCURE_CINT_HACK
-		}
+	}
 #else
 ;
 #endif // def INLINE_EX_CONSTRUCTORS
 	
 	ex(long i)
 #ifdef INLINE_EX_CONSTRUCTORS
-		{
-			construct_from_long(i);
+	{
+		construct_from_long(i);
 #ifdef OBSCURE_CINT_HACK
-			update_last_created_or_assigned_bp();
+		update_last_created_or_assigned_bp();
 #endif // def OBSCURE_CINT_HACK
-		}
+	}
 #else
 ;
 #endif // def INLINE_EX_CONSTRUCTORS
 
 	ex(unsigned long i)
 #ifdef INLINE_EX_CONSTRUCTORS
-		{
-			construct_from_ulong(i);
+	{
+		construct_from_ulong(i);
 #ifdef OBSCURE_CINT_HACK
-			update_last_created_or_assigned_bp();
+		update_last_created_or_assigned_bp();
 #endif // def OBSCURE_CINT_HACK
-		}
+	}
 #else
 ;
 #endif // def INLINE_EX_CONSTRUCTORS
 	
 	ex(double const d)
 #ifdef INLINE_EX_CONSTRUCTORS
-		{
-			construct_from_double(d);
+	{
+		construct_from_double(d);
 #ifdef OBSCURE_CINT_HACK
-			update_last_created_or_assigned_bp();
+		update_last_created_or_assigned_bp();
 #endif // def OBSCURE_CINT_HACK
-		}
+	}
 #else
 ;
 #endif // def INLINE_EX_CONSTRUCTORS
@@ -202,12 +202,12 @@ public:
 	 *  symbols and other parser errors will throw an exception. */
 	ex(const std::string &s, const ex &l)
 #ifdef INLINE_EX_CONSTRUCTORS
-		{
-			construct_from_string_and_lst(s, l);
+	{
+		construct_from_string_and_lst(s, l);
 #ifdef OBSCURE_CINT_HACK
-			update_last_created_or_assigned_bp();
+		update_last_created_or_assigned_bp();
 #endif // def OBSCURE_CINT_HACK
-		}
+	}
 #else
 ;
 #endif // def INLINE_EX_CONSTRUCTORS
@@ -265,29 +265,29 @@ public:
 	ex rhs(void) const;
 	int compare(const ex & other) const
 #ifdef INLINE_EX_CONSTRUCTORS
-		{
-			GINAC_ASSERT(bp!=0);
-			GINAC_ASSERT(other.bp!=0);
-			if (bp==other.bp) {
-				// special case: both expression point to same basic, trivially equal
-				return 0; 
-			}
-			return bp->compare(*other.bp);
+	{
+		GINAC_ASSERT(bp!=0);
+		GINAC_ASSERT(other.bp!=0);
+		if (bp==other.bp) {
+			// special case: both expression point to same basic, trivially equal
+			return 0; 
 		}
+		return bp->compare(*other.bp);
+	}
 #else
 ;
 #endif // def INLINE_EX_CONSTRUCTORS
 	bool is_equal(const ex & other) const
 #ifdef INLINE_EX_CONSTRUCTORS
-		{
-			GINAC_ASSERT(bp!=0);
-			GINAC_ASSERT(other.bp!=0);
-			if (bp==other.bp) {
-				// special case: both expression point to same basic, trivially equal
-				return true; 
-			}
-			return bp->is_equal(*other.bp);
+	{
+		GINAC_ASSERT(bp!=0);
+		GINAC_ASSERT(other.bp!=0);
+		if (bp==other.bp) {
+			// special case: both expression point to same basic, trivially equal
+			return true; 
 		}
+		return bp->is_equal(*other.bp);
+	}
 #else
 ;
 #endif // def INLINE_EX_CONSTRUCTORS
@@ -313,26 +313,26 @@ private:
 #ifdef OBSCURE_CINT_HACK
 public:
 	static bool last_created_or_assigned_bp_can_be_converted_to_ex(void)
-		{
-			if (last_created_or_assigned_bp==0) return false;
-			if ((last_created_or_assigned_bp->flags &
-				 status_flags::dynallocated)==0) return false;
-			if ((last_created_or_assigned_bp->flags &
-				 status_flags::evaluated)==0) return false;
-			return true;
-		}
+	{
+		if (last_created_or_assigned_bp==0) return false;
+		if ((last_created_or_assigned_bp->flags &
+			 status_flags::dynallocated)==0) return false;
+		if ((last_created_or_assigned_bp->flags &
+			 status_flags::evaluated)==0) return false;
+		return true;
+	}
 protected:
 	void update_last_created_or_assigned_bp(void)
-		{
-			if (last_created_or_assigned_bp!=0) {
-				if (--last_created_or_assigned_bp->refcount == 0) {
-					delete last_created_or_assigned_bp;
-				}
+	{
+		if (last_created_or_assigned_bp!=0) {
+			if (--last_created_or_assigned_bp->refcount == 0) {
+				delete last_created_or_assigned_bp;
 			}
-			last_created_or_assigned_bp=bp;
-			++last_created_or_assigned_bp->refcount;
-			last_created_or_assigned_exp=(long)(void *)(this);
 		}
+		last_created_or_assigned_bp=bp;
+		++last_created_or_assigned_bp->refcount;
+		last_created_or_assigned_exp=(long)(void *)(this);
+	}
 #endif // def OBSCURE_CINT_HACK
 
 // member variables

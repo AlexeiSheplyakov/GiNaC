@@ -54,9 +54,9 @@ protected:
 public:
 	explicit lorentzidx(bool cov, bool oonly=false, unsigned dimp=0);
 	explicit lorentzidx(const std::string & n, bool cov=false,
-						bool oonly=false, unsigned dimp=0);
+	                    bool oonly=false, unsigned dimp=0);
 	explicit lorentzidx(const char * n, bool cov=false,
-						bool oonly=false, unsigned dimp=0);
+	                    bool oonly=false, unsigned dimp=0);
 	explicit lorentzidx(unsigned v, bool cov=false);
 
 	// functions overriding virtual functions from bases classes

@@ -38,10 +38,12 @@ class expair
 public:
 	expair() {}
 	~expair() {}
+
 	expair(const expair & other) : rest(other.rest), coeff(other.coeff)
 	{
 		GINAC_ASSERT(is_ex_exactly_of_type(coeff,numeric));
 	}
+
 	const expair & operator=(const expair & other)
 	{
 		if (this != &other) {
@@ -50,6 +52,7 @@ public:
 		}
 		return *this;
 	}
+
 	expair(const ex & r, const ex & c) : rest(r), coeff(c)
 	{
 		GINAC_ASSERT(is_ex_exactly_of_type(coeff,numeric));
@@ -58,19 +61,21 @@ public:
 	bool is_numeric_with_coeff_1(void) const
 	{
 		GINAC_ASSERT(is_ex_exactly_of_type(coeff,numeric));
-		return is_ex_exactly_of_type(rest,numeric) &&
-			   (coeff.is_equal(ex(1)));
+		return is_ex_exactly_of_type(rest,numeric)
+	            && (coeff.is_equal(ex(1)));
 	}
 
 	bool is_equal(const expair & other) const
 	{
 		return (rest.is_equal(other.rest) && coeff.is_equal(other.coeff));
 	}
+
 	bool is_less(const expair & other) const 
 	{
-		return (rest.compare(other.rest)<0) ||
-			   (!(other.rest.compare(rest)<0) && (coeff.compare(other.coeff)<0));
+		return (rest.compare(other.rest)<0)
+		    || (!(other.rest.compare(rest)<0) && (coeff.compare(other.coeff)<0));
 	}
+
 	int compare(const expair & other) const
 	{
 		int cmpval=rest.compare(other.rest);
@@ -95,9 +100,8 @@ public:
 			// only other has coeff 1: <
 			return true;
 		}
-		return (rest.compare(other.rest)<0) ||
-			   (!(other.rest.compare(rest)<0) &&
-				 (coeff.compare(other.coeff)<0));
+		return (rest.compare(other.rest)<0)
+		    || (!(other.rest.compare(rest)<0) && (coeff.compare(other.coeff)<0));
 		*/
 		if (is_ex_exactly_of_type(rest,numeric) &&
 			is_ex_exactly_of_type(other.rest,numeric)) {
@@ -114,10 +118,10 @@ public:
 			}
 			// neither has coeff 1: usual compare        
 		}
-		return (rest.compare(other.rest)<0) ||
-			   (!(other.rest.compare(rest)<0) &&
-				 (coeff.compare(other.coeff)<0));
+		return (rest.compare(other.rest)<0)
+		    || (!(other.rest.compare(rest)<0) && (coeff.compare(other.coeff)<0));
 	}
+
 	int compare_old2(const expair & other) const
 	{
 		if (is_ex_exactly_of_type(rest,numeric) &&
@@ -155,10 +159,11 @@ public:
 		if (cmpval!=0) return cmpval;
 		return coeff.compare(other.coeff);
 	}
+
 	bool is_less_old(const expair & other) const 
 	{
-		return (rest.compare(other.rest)<0) ||
-			   (!(other.rest.compare(rest)<0) && (coeff.compare(other.coeff)<0));
+		return (rest.compare(other.rest)<0)
+		    || (!(other.rest.compare(rest)<0) && (coeff.compare(other.coeff)<0));
 	}
 	int compare_old(const expair & other) const
 	{

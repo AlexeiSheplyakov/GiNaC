@@ -53,11 +53,11 @@ struct registered_class_info {
 		first_registered_class = this;
 	}
 
-	registered_class_info *next;	/**< Pointer to next registered_class_info in list. */
-	const char *name;				/**< Class name. */
-	const char *super;				/**< Name of superclass. */
-	unsigned int tinfo_key;			/**< TINFO_* key. */
-	unarch_func unarchive;			/**< Pointer to unarchiving function. */
+	registered_class_info *next;  /**< Pointer to next registered_class_info in list. */
+	const char *name;             /**< Class name. */
+	const char *super;            /**< Name of superclass. */
+	unsigned int tinfo_key;       /**< TINFO_* key. */
+	unarch_func unarchive;        /**< Pointer to unarchiving function. */
 };
 
 

@@ -38,12 +38,13 @@ class relational : public basic
 
 // types
 public:
-	enum operators { equal,
-		   not_equal,
-		   less,
-		   less_or_equal,
-		   greater,
-		   greater_or_equal
+	enum operators {
+		equal,
+		not_equal,
+		less,
+		less_or_equal,
+		greater,
+		greater_or_equal
 	};
 	
 // member functions

@@ -55,8 +55,8 @@ public:
 		rh.second.printraw(cerr);
 		cerr << ")" << endl;
 		*/
-		bool res=lh.first<rh.first ||
-			(!(rh.first<lh.first) && lh.second.compare(rh.second)<0 );
+		bool res = lh.first<rh.first
+		        || (!(rh.first<lh.first) && lh.second.compare(rh.second)<0);
 		// cout << "result=" << res << endl;
 		return res;
 	}
@@ -94,9 +94,10 @@ class simp_lor : public indexed
 // types
 
 public:
-	typedef enum { invalid, // not properly constructed by one of the friend functions
-				   simp_lor_g,
-				   simp_lor_vec
+	typedef enum {
+		invalid, // not properly constructed by one of the friend functions
+		simp_lor_g,
+		simp_lor_vec
 	} simp_lor_types;
 	
 // member functions

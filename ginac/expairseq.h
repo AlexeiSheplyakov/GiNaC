@@ -65,22 +65,22 @@ class expairseq : public basic
 public:
 	expairseq() : basic(TINFO_expairseq)
 #ifdef EXPAIRSEQ_USE_HASHTAB
-		, hashtabsize(0)
+	                                    , hashtabsize(0)
 #endif // def EXPAIRSEQ_USE_HASHTAB
-		{
-		}
+	{
+	}
 	~expairseq()
-		{
-			destroy(0);
-		}
+	{
+		destroy(0);
+	}
 	expairseq(const expairseq & other);
 	const expairseq & operator=(const expairseq & other);
 protected:
 	void copy(const expairseq & other);
 	void destroy(bool call_parent)
-		{
-			if (call_parent) basic::destroy(call_parent);
-		};
+	{
+		if (call_parent) basic::destroy(call_parent);
+	};
 
 	// other constructors
 public:
@@ -117,10 +117,10 @@ protected:
 	virtual ex thisexpairseq(const epvector & v, const ex & oc) const;
 	virtual ex thisexpairseq(epvector * vp, const ex & oc) const;
 	virtual void printseq(std::ostream & os, char delim,
-						  unsigned this_precedence,
-						  unsigned upper_precedence) const;
+	                      unsigned this_precedence,
+	                      unsigned upper_precedence) const;
 	virtual void printpair(std::ostream & os, const expair & p,
-						   unsigned upper_precedence) const;
+	                       unsigned upper_precedence) const;
 	virtual expair split_ex_to_pair(const ex & e) const;
 	virtual expair combine_ex_with_coeff_to_pair(const ex & e,
 												 const ex & c) const;
@@ -138,9 +138,9 @@ protected:
 	void construct_from_2_ex_via_exvector(const ex & lh, const ex & rh);
 	void construct_from_2_ex(const ex & lh, const ex & rh);
 	void construct_from_2_expairseq(const expairseq & s1,
-									const expairseq & s2);
+	                                const expairseq & s2);
 	void construct_from_expairseq_ex(const expairseq & s,
-									 const ex & e);
+	                                 const ex & e);
 	void construct_from_exvector(const exvector & v);
 	void construct_from_epvector(const epvector & v);
 	void make_flat(const exvector & v);
@@ -156,19 +156,19 @@ protected:
 	void shrink_hashtab(void);
 	void remove_hashtab_entry(epvector::const_iterator element);
 	void move_hashtab_entry(epvector::const_iterator oldpos,
-							epvector::iterator newpos);
+	                        epvector::iterator newpos);
 	void sorted_insert(epplist & eppl, epp elem);
 	void build_hashtab_and_combine(epvector::iterator & first_numeric,
-								   epvector::iterator & last_non_zero,
-								   vector<bool> & touched,
-								   unsigned & number_of_zeroes);
+	                               epvector::iterator & last_non_zero,
+	                               vector<bool> & touched,
+	                               unsigned & number_of_zeroes);
 	void drop_coeff_0_terms(epvector::iterator & first_numeric,
-							epvector::iterator & last_non_zero,
-							vector<bool> & touched,
-							unsigned & number_of_zeroes);
+	                        epvector::iterator & last_non_zero,
+	                        vector<bool> & touched,
+	                        unsigned & number_of_zeroes);
 	bool has_coeff_0(void) const;
 	void add_numerics_to_hashtab(epvector::iterator first_numeric,
-								 epvector::const_iterator last_non_zero);
+	                             epvector::const_iterator last_non_zero);
 #endif // def EXPAIRSEQ_USE_HASHTAB
 	bool is_canonical() const;
 	epvector * expandchildren(unsigned options) const;

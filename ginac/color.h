@@ -54,13 +54,13 @@ class color : public indexed
 	friend color color_delta8(const ex & a, const ex & b);
 	friend unsigned subs_index_in_exvector(exvector & v, const ex & is, const ex & ir);
 	friend void split_color_string_in_parts(const exvector & v, exvector & delta8vec,
-											exvector & fvec, exvector & dvec,
-											exvectorvector & Tvecs,
-											exvectorvector & ONEvecs,
-											exvector & unknownvec);
+	                                        exvector & fvec, exvector & dvec,
+	                                        exvectorvector & Tvecs,
+	                                        exvectorvector & ONEvecs,
+	                                        exvector & unknownvec);
 	friend exvector recombine_color_string(exvector & delta8vec, exvector & fvec,
-										   exvector & dvec, exvectorvector & Tvecs,
-										   exvectorvector & ONEvecs, exvector & unknownvec);
+	                                       exvector & dvec, exvectorvector & Tvecs,
+	                                       exvectorvector & ONEvecs, exvector & unknownvec);
 	friend ex color_trace_of_one_representation_label(const exvector & v);
 	friend ex color_trace(const exvector & v, unsigned rl);
 	friend ex simplify_pure_color_string(const ex & e);
@@ -70,12 +70,13 @@ class color : public indexed
 // types
 
 public:
-	typedef enum { invalid, // not properly constructed by one of the friend functions
-				   color_T,
-				   color_f,
-				   color_d,
-				   color_delta8,
-				   color_ONE
+	typedef enum {
+		invalid,	// not properly constructed by one of the friend functions
+		color_T,
+		color_f,
+		color_d,
+		color_delta8,
+		color_ONE
 	} color_types;
 	
 // member functions
@@ -96,7 +97,7 @@ protected:
 	color(color_types const t, const ex & i1, unsigned rl=0);
 	color(color_types const t, const ex & i1, const ex & i2, unsigned rl=0);
 	color(color_types const t, const ex & i1, const ex & i2, const ex & i3,
-		  unsigned rl=0);
+	      unsigned rl=0);
 	color(color_types const t, const exvector & iv, unsigned rl=0);
 	color(color_types const t, exvector * ivp, unsigned rl=0);
 	
@@ -153,13 +154,13 @@ color color_d(const ex & a, const ex & b, const ex & c);
 ex color_h(const ex & a, const ex & b, const ex & c);
 color color_delta8(const ex & a, const ex & b);
 void split_color_string_in_parts(const exvector & v, exvector & delta8vec,
-								 exvector & fvec, exvector & dvec,
-								 exvectorvector & Tvecs,
-								 exvectorvector & ONEvecs,
-								 exvector & unknownvec);
+                                 exvector & fvec, exvector & dvec,
+                                 exvectorvector & Tvecs,
+                                 exvectorvector & ONEvecs,
+                                 exvector & unknownvec);
 exvector recombine_color_string(exvector & delta8vec, exvector & fvec,
-								exvector & dvec, exvectorvector & Tvecs,
-								exvectorvector & ONEvecs, exvector & unknownvec);
+                                exvector & dvec, exvectorvector & Tvecs,
+                                exvectorvector & ONEvecs, exvector & unknownvec);
 ex color_trace_of_one_representation_label(const exvector & v);
 ex color_trace(const exvector & v, unsigned rl=0);
 ex simplify_pure_color_string(const ex & e);

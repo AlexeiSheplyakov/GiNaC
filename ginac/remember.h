@@ -35,9 +35,9 @@ class function;
 class ex;
 	
 /** A single entry in the remember table of a function.
-	Needs to be a friend of class function to access 'seq'.
-	'last_access' and 'successful_hits' are updated at each successful
-	'is_equal'. */
+ *  Needs to be a friend of class function to access 'seq'.
+ *  'last_access' and 'successful_hits' are updated at each successful
+ *  'is_equal'. */
 class remember_table_entry {
 public:
 	remember_table_entry(function const & f, ex const & r);
@@ -56,7 +56,7 @@ protected:
 };    
 
 /** A list of entries in the remember table having some least
-	significant bits of the hashvalue in common. */
+ *  significant bits of the hashvalue in common. */
 class remember_table_list : public std::list<remember_table_entry> {
 public:
 	remember_table_list(unsigned as, unsigned strat);
@@ -68,19 +68,19 @@ protected:
 };
 
 /** The remember table is organized like an n-fold associative cache
-	in a microprocessor.  The table has a width of 's' (which is rounded
-	to table_size, some power of 2 near 's', internally) and a depth of 'as'
-	(unless you choose that entries are never discarded). The place where
-	an entry is stored depends on the hashvalue of the parameters of the
-	function (this corresponds to the address of byte to be cached).
-	The 'log_2(table_size)' least significant bits of this hashvalue
-	give the slot in which the entry will be stored or looked up.
-	Each slot can take up to 'as' entries. If a slot is full, an older
-	entry is removed by one of the following strategies:
-	- oldest entry (the first one in the list)
-	- least recently used (the one with the lowest 'last_access')
-	- least frequently used (the one with the lowest 'successful_hits')
-	or all entries are kept which means that the table grows indefinitely. */
+ *  in a microprocessor.  The table has a width of 's' (which is rounded
+ *  to table_size, some power of 2 near 's', internally) and a depth of 'as'
+ *  (unless you choose that entries are never discarded). The place where
+ *  an entry is stored depends on the hashvalue of the parameters of the
+ *  function (this corresponds to the address of byte to be cached).
+ *  The 'log_2(table_size)' least significant bits of this hashvalue
+ *  give the slot in which the entry will be stored or looked up.
+ *  Each slot can take up to 'as' entries. If a slot is full, an older
+ *  entry is removed by one of the following strategies:
+ *   - oldest entry (the first one in the list)
+ *   - least recently used (the one with the lowest 'last_access')
+ *   - least frequently used (the one with the lowest 'successful_hits')
+ *  or all entries are kept which means that the table grows indefinitely. */
 class remember_table : public std::vector<remember_table_list> {
 public:
 	remember_table();

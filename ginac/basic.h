@@ -66,7 +66,7 @@ class basic
 public:
 	basic()
 #ifdef INLINE_BASIC_CONSTRUCTORS
-	: tinfo_key(TINFO_basic), flags(0), refcount(0)
+	        : tinfo_key(TINFO_basic), flags(0), refcount(0)
 	{
 	}
 #else
@@ -106,7 +106,7 @@ protected:
 	// other constructors
 	basic(unsigned ti)
 #ifdef INLINE_BASIC_CONSTRUCTORS
-	: tinfo_key(ti), flags(0), refcount(0)
+	                   : tinfo_key(ti), flags(0), refcount(0)
 	{
 	}
 #else

@@ -27,8 +27,8 @@
 #include "basic.h"
 #include "ex.h"
 
-class cl_N;     // We want to include cln.h only in numeric.cpp in order to 
-				// avoid namespace pollution and keep compile-time low.
+class cl_N;  // We want to include cln.h only in numeric.cpp in order to 
+             // avoid namespace pollution and keep compile-time low.
 
 #ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {

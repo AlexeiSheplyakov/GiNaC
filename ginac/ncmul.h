@@ -55,11 +55,11 @@ public:
 	ncmul(const ex & lh, const ex & rh);
 	ncmul(const ex & f1, const ex & f2, const ex & f3);
 	ncmul(const ex & f1, const ex & f2, const ex & f3,
-		  const ex & f4);
+	      const ex & f4);
 	ncmul(const ex & f1, const ex & f2, const ex & f3,
-		  const ex & f4, const ex & f5);
+	      const ex & f4, const ex & f5);
 	ncmul(const ex & f1, const ex & f2, const ex & f3,
-		  const ex & f4, const ex & f5, const ex & f6);
+	      const ex & f4, const ex & f5, const ex & f6);
 	ncmul(const exvector & v, bool discardable=false);
 	ncmul(exvector * vp); // vp will be deleted
 

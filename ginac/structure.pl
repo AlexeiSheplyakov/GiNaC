@@ -3,45 +3,45 @@
 $input_structure='';
 $original_input_structure='';
 while (<>) {
-    $input_structure .= '// '.$_;
-    $original_input_structure .= $_;
+	$input_structure .= '// '.$_;
+	$original_input_structure .= $_;
 }
 
 $original_input_structure =~ tr/ \t\n\r\f/     /;
 $original_input_structure =~ tr/ //s;
 
 if ($original_input_structure =~ /^struct (\w+) ?\{ ?(.*)\}\;? ?$/) {
-    $STRUCTURE=$1;
-    $decl=$2;
+	$STRUCTURE=$1;
+	$decl=$2;
 } else {
-    die "illegal struct, must match 'struct name { type var; /*comment*/ ...};': $original_input_structure";
+	die "illegal struct, must match 'struct name { type var; /*comment*/ ...};': $original_input_structure";
 }
 
 # split off a part 'type var[,var...];' with a possible C-comment '/* ... */'
 while ($decl =~ /^ ?(\w+) ([\w \,]+)\; ?((\/\*.*?\*\/)?)(.*)$/) {
-    $type=$1;
-    $member=$2;
-    $comment=$3;
-    $decl=$5;
-    while ($member =~ /^(\w+) ?\, ?(.*)$/) {
-        push @TYPES,$type;
-        push @MEMBERS,$1;
-        push @COMMENTS,$comment;
-        if ($comment ne '') {
-            $comment='/* see above */';
-        }
-        $member=$2;
-    }
-    if ($member !~ /^\w+$/) {
-        die "illegal struct, must match 'struct name { type var; /*comment*/ ...};': $input_structure";
-    }
-    push @TYPES,$type;
-    push @MEMBERS,$member;
-    push @COMMENTS,$comment;
+	$type=$1;
+	$member=$2;
+	$comment=$3;
+	$decl=$5;
+	while ($member =~ /^(\w+) ?\, ?(.*)$/) {
+		push @TYPES,$type;
+		push @MEMBERS,$1;
+		push @COMMENTS,$comment;
+		if ($comment ne '') {
+			$comment='/* see above */';
+		}
+		$member=$2;
+	}
+	if ($member !~ /^\w+$/) {
+		die "illegal struct, must match 'struct name { type var; /*comment*/ ...};': $input_structure";
+	}
+	push @TYPES,$type;
+	push @MEMBERS,$member;
+	push @COMMENTS,$comment;
 }
 
 if ($decl !~ /^ ?$/) {
-    die "illegal struct, must match 'struct name { type var; /*comment*/ ...};': $input_structure";
+	die "illegal struct, must match 'struct name { type var; /*comment*/ ...};': $input_structure";
 }
 
 #$STRUCTURE='teststruct';
@@ -50,23 +50,23 @@ $STRUCTURE_UC=uc(${STRUCTURE});
 #@MEMBERS=('q10','q20','q21');
 
 sub generate {
-    my ($template,$conj)=@_;
-    my ($res,$N);
+	my ($template,$conj)=@_;
+	my ($res,$N);
 
-    $res='';
-    for ($N=1; $N<=$#MEMBERS+1; $N++) {
-        $TYPE=$TYPES[$N-1];
-        $MEMBER=$MEMBERS[$N-1];
-        $COMMENT=$COMMENTS[$N-1];
-        $res .= eval('"' . $template . '"');
-        $TYPE=''; # to avoid main::TYPE used only once warning
-        $MEMBER=''; # same as above
-        $COMMENT=''; # same as above
-        if ($N!=$#MEMBERS+1) {
-            $res .= $conj;
-        }
-    }
-    return $res;
+	$res='';
+	for ($N=1; $N<=$#MEMBERS+1; $N++) {
+		$TYPE=$TYPES[$N-1];
+		$MEMBER=$MEMBERS[$N-1];
+		$COMMENT=$COMMENTS[$N-1];
+		$res .= eval('"' . $template . '"');
+		$TYPE=''; # to avoid main::TYPE used only once warning
+		$MEMBER=''; # same as above
+		$COMMENT=''; # same as above
+		if ($N!=$#MEMBERS+1) {
+			$res .= $conj;
+		}
+	}
+	return $res;
 }
 
 $number_of_members=$#MEMBERS+1;
@@ -158,48 +158,48 @@ class ${STRUCTURE} : public structure
 {
 // member functions
 
-    // default constructor, destructor, copy constructor assignment operator and helpers
+	// default constructor, destructor, copy constructor assignment operator and helpers
 public:
-    ${STRUCTURE}();
-    ~${STRUCTURE}();
-    ${STRUCTURE}(${STRUCTURE} const & other);
-    ${STRUCTURE} const & operator=(${STRUCTURE} const & other);
+	${STRUCTURE}();
+	~${STRUCTURE}();
+	${STRUCTURE}(${STRUCTURE} const & other);
+	${STRUCTURE} const & operator=(${STRUCTURE} const & other);
 protected:
-    void copy(${STRUCTURE} const & other);
-    void destroy(bool call_parent);
+	void copy(${STRUCTURE} const & other);
+	void destroy(bool call_parent);
 
-    // other constructors
+	// other constructors
 public:
-    ${STRUCTURE}(${constructor_arglist});
+	${STRUCTURE}(${constructor_arglist});
 
-    // functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from bases classes
 public:
-    basic * duplicate() const;
-    void printraw(ostream & os) const;
-    void print(ostream & os, unsigned upper_precedence=0) const;
-    void printtree(ostream & os, unsigned indent) const;
-    int nops() const;
-    ex & let_op(int i);
-    ex expand(unsigned options=0) const;
-    bool has(const ex & other) const;
-    ex eval(int level=0) const;
-    ex evalf(int level=0) const;
-    ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
-    ex diff(const symbol & s) const;
-    ex subs(const lst & ls, const lst & lr) const;
+	basic * duplicate() const;
+	void printraw(ostream & os) const;
+	void print(ostream & os, unsigned upper_precedence=0) const;
+	void printtree(ostream & os, unsigned indent) const;
+	int nops() const;
+	ex & let_op(int i);
+	ex expand(unsigned options=0) const;
+	bool has(const ex & other) const;
+	ex eval(int level=0) const;
+	ex evalf(int level=0) const;
+	ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
+	ex diff(const symbol & s) const;
+	ex subs(const lst & ls, const lst & lr) const;
 protected:
-    int compare_same_type(const basic & other) const;
-    bool is_equal_same_type(const basic & other) const;
-    unsigned return_type(void) const;
+	int compare_same_type(const basic & other) const;
+	bool is_equal_same_type(const basic & other) const;
+	unsigned return_type(void) const;
 
-    // new virtual functions which can be overridden by derived classes
-    // none
+	// new virtual functions which can be overridden by derived classes
+	// none
 
-    // non-virtual functions in this class
+	// non-virtual functions in this class
 public:
 ${member_access_functions}
-    bool types_ok(void) const;
-    
+	bool types_ok(void) const;
+	
 // member variables
 protected:
 ${members}
@@ -270,43 +270,43 @@ namespace GiNaC {
 
 ${STRUCTURE}::${STRUCTURE}()
 {
-    debugmsg("${STRUCTURE} default constructor",LOGLEVEL_CONSTRUCT);
-    tinfo_key=tinfo_${STRUCTURE};
+	debugmsg("${STRUCTURE} default constructor",LOGLEVEL_CONSTRUCT);
+	tinfo_key=tinfo_${STRUCTURE};
 }
 
 ${STRUCTURE}::~${STRUCTURE}()
 {
-    debugmsg("${STRUCTURE} destructor",LOGLEVEL_DESTRUCT);
-    destroy(0);
+	debugmsg("${STRUCTURE} destructor",LOGLEVEL_DESTRUCT);
+	destroy(0);
 }
 
 ${STRUCTURE}::${STRUCTURE}(${STRUCTURE} const & other)
 {
-    debugmsg("${STRUCTURE} copy constructor",LOGLEVEL_CONSTRUCT);
-    copy(other);
+	debugmsg("${STRUCTURE} copy constructor",LOGLEVEL_CONSTRUCT);
+	copy(other);
 }
 
 ${STRUCTURE} const & ${STRUCTURE}::operator=(${STRUCTURE} const & other)
 {
-    debugmsg("${STRUCTURE} operator=",LOGLEVEL_ASSIGNMENT);
-    if (this != &other) {
-        destroy(1);
-        copy(other);
-    }
-    return *this;
+	debugmsg("${STRUCTURE} operator=",LOGLEVEL_ASSIGNMENT);
+	if (this != &other) {
+		destroy(1);
+		copy(other);
+	}
+	return *this;
 }
 
 // protected
 
 void ${STRUCTURE}::copy(${STRUCTURE} const & other)
 {
-    structure::copy(other);
+	structure::copy(other);
 ${copy_statements}
 }
 
 void ${STRUCTURE}::destroy(bool call_parent)
 {
-    if (call_parent) structure::destroy(call_parent);
+	if (call_parent) structure::destroy(call_parent);
 }
 
 //////////
@@ -316,11 +316,10 @@ void ${STRUCTURE}::destroy(bool call_parent)
 // public
 
 ${STRUCTURE}::${STRUCTURE}(${constructor_arglist}) 
-    : ${constructor_statements}
+	: ${constructor_statements}
 {
-    debugmsg("${STRUCTURE} constructor from children",
-             LOGLEVEL_CONSTRUCT);
-    tinfo_key=tinfo_${STRUCTURE};
+	debugmsg("${STRUCTURE} constructor from children", LOGLEVEL_CONSTRUCT);
+	tinfo_key=tinfo_${STRUCTURE};
 }
 
 //////////
@@ -331,89 +330,89 @@ ${STRUCTURE}::${STRUCTURE}(${constructor_arglist})
 
 basic * ${STRUCTURE}::duplicate() const
 {
-    debugmsg("${STRUCTURE} duplicate",LOGLEVEL_DUPLICATE);
-    return new ${STRUCTURE}(*this);
+	debugmsg("${STRUCTURE} duplicate",LOGLEVEL_DUPLICATE);
+	return new ${STRUCTURE}(*this);
 }
 
 void ${STRUCTURE}::printraw(ostream & os) const
 {
-    debugmsg("${STRUCTURE} printraw",LOGLEVEL_PRINT);
-    os << "${STRUCTURE}()";
+	debugmsg("${STRUCTURE} printraw",LOGLEVEL_PRINT);
+	os << "${STRUCTURE}()";
 }
 
 void ${STRUCTURE}::print(ostream & os, unsigned upper_precedence) const
 {
-    debugmsg("${STRUCTURE} print",LOGLEVEL_PRINT);
-    os << "${STRUCTURE}()";
+	debugmsg("${STRUCTURE} print",LOGLEVEL_PRINT);
+	os << "${STRUCTURE}()";
 }
 
 void ${STRUCTURE}::printtree(ostream & os, unsigned indent) const
 {
-    debugmsg("${STRUCTURE} printtree",LOGLEVEL_PRINT);
-    os << "${STRUCTURE}()";
+	debugmsg("${STRUCTURE} printtree",LOGLEVEL_PRINT);
+	os << "${STRUCTURE}()";
 }
 
 int ${STRUCTURE}::nops() const
 {
-    return ${number_of_members};
+	return ${number_of_members};
 }
 
 ex & ${STRUCTURE}::let_op(int i)
 {
-    GINAC_ASSERT(i>=0);
-    GINAC_ASSERT(i<nops());
+	GINAC_ASSERT(i>=0);
+	GINAC_ASSERT(i<nops());
 
-    switch (i) {
+	switch (i) {
 ${let_op_statements}
-    }
-    errormsg("${STRUCTURE}::let_op(): should not reach this point");
-    return *new ex(fail());
+	}
+	errormsg("${STRUCTURE}::let_op(): should not reach this point");
+	return *new ex(fail());
 }
 
 ex ${STRUCTURE}::expand(unsigned options) const
 {
-    bool all_are_trivially_equal=true;
+	bool all_are_trivially_equal=true;
 ${expand_statements}
-    if (all_are_trivially_equal) {
-        return *this;
-    }
-    return ${STRUCTURE}(${temporary_arglist});
+	if (all_are_trivially_equal) {
+		return *this;
+	}
+	return ${STRUCTURE}(${temporary_arglist});
 }
 
 // a ${STRUCTURE} 'has' an expression if it is this expression itself or a child 'has' it
 
 bool ${STRUCTURE}::has(const ex & other) const
 {
-    GINAC_ASSERT(other.bp!=0);
-    if (is_equal(*other.bp)) return true;
+	GINAC_ASSERT(other.bp!=0);
+	if (is_equal(*other.bp)) return true;
 ${has_statements}
-    return false;
+	return false;
 }
 
 ex ${STRUCTURE}::eval(int level) const
 {
-    if (level==1) {
-        return this->hold();
-    }
-    bool all_are_trivially_equal=true;
+	if (level==1) {
+		return this->hold();
+	}
+	bool all_are_trivially_equal=true;
 ${eval_statements}
-    if (all_are_trivially_equal) {
-        return this->hold();
-    }
-    return ${STRUCTURE}(${temporary_arglist});
+	if (all_are_trivially_equal) {
+		return this->hold();
+	}
+	return ${STRUCTURE}(${temporary_arglist});
 }
 
 ex ${STRUCTURE}::evalf(int level) const
 {
-    if (level==1) {
-        return *this;
-    }
-    bool all_are_trivially_equal=true;
+	if (level==1) {
+		return *this;
+	}
+	bool all_are_trivially_equal=true;
 ${evalf_statements}
-    if (all_are_trivially_equal) {
-        return *this;
-    }
-    return ${STRUCTURE}(${temporary_arglist});
+	if (all_are_trivially_equal) {
+		return *this;
+	}
+	return ${STRUCTURE}(${temporary_arglist});
 }
 
 /** Implementation of ex::normal() for ${STRUCTURE}s. It normalizes the arguments
@@ -421,61 +420,61 @@ ${evalf_statements}
  *  \@see ex::normal */
 ex ${STRUCTURE}::normal(lst &sym_lst, lst &repl_lst, int level) const
 {
-    if (level==1) {
-        return basic::normal(sym_lst,repl_lst,level);
-    }
-    bool all_are_trivially_equal=true;
+	if (level==1) {
+		return basic::normal(sym_lst,repl_lst,level);
+	}
+	bool all_are_trivially_equal=true;
 ${normal_statements}
-    if (all_are_trivially_equal) {
-        return basic::normal(sym_lst,repl_lst,level);
-    }
-    ex n=${STRUCTURE}(${temporary_arglist});
-    return n.bp->basic::normal(sym_lst,repl_lst,level);
+	if (all_are_trivially_equal) {
+		return basic::normal(sym_lst,repl_lst,level);
+	}
+	ex n=${STRUCTURE}(${temporary_arglist});
+	return n.bp->basic::normal(sym_lst,repl_lst,level);
 }
 
 /** ${STRUCTURE}::diff() differentiates the children.
-    there is no need to check for triavially equal, since diff usually
-    does not return itself unevaluated. */
+	there is no need to check for triavially equal, since diff usually
+	does not return itself unevaluated. */
 ex ${STRUCTURE}::diff(const symbol & s) const
 {
 ${diff_statements}
-    return ${STRUCTURE}(${temporary_arglist});
+	return ${STRUCTURE}(${temporary_arglist});
 }
 
 ex ${STRUCTURE}::subs(const lst & ls, const lst & lr) const
 {
-    bool all_are_trivially_equal=true;
+	bool all_are_trivially_equal=true;
 ${subs_statements}
-    if (all_are_trivially_equal) {
-        return *this;
-    }
-    return ${STRUCTURE}(${temporary_arglist});
+	if (all_are_trivially_equal) {
+		return *this;
+	}
+	return ${STRUCTURE}(${temporary_arglist});
 }
 
 // protected
 
 int ${STRUCTURE}::compare_same_type(const basic & other) const
 {
-    GINAC_ASSERT(is_of_type(other,${STRUCTURE}));
-    ${STRUCTURE} const & o=static_cast<${STRUCTURE} const &>
-                                    (const_cast<basic &>(other));
-    int cmpval;
+	GINAC_ASSERT(is_of_type(other,${STRUCTURE}));
+	${STRUCTURE} const & o=static_cast<${STRUCTURE} const &>
+									(const_cast<basic &>(other));
+	int cmpval;
 ${compare_statements}
-    return 0;
+	return 0;
 }
 
 bool ${STRUCTURE}::is_equal_same_type(const basic & other) const
 {
-    GINAC_ASSERT(is_of_type(other,${STRUCTURE}));
-    ${STRUCTURE} const & o=static_cast<${STRUCTURE} const &>
-                                    (const_cast<basic &>(other));
+	GINAC_ASSERT(is_of_type(other,${STRUCTURE}));
+	${STRUCTURE} const & o=static_cast<${STRUCTURE} const &>
+									(const_cast<basic &>(other));
 ${is_equal_statements}
-    return true;
+	return true;
 }
 
 unsigned ${STRUCTURE}::return_type(void) const
 {
-    return return_types::noncommutative_composite;
+	return return_types::noncommutative_composite;
 }
 
 //////////
@@ -497,7 +496,7 @@ unsigned ${STRUCTURE}::return_type(void) const
 bool ${STRUCTURE}::types_ok(void) const
 {
 ${types_ok_statements}
-    return true;
+	return true;
 }
 
 //////////
