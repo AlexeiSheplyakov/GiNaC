@@ -23,7 +23,6 @@ string ToString(T const & t)
 }
 
 basic * ex::last_created_or_assigned_bp=0;
-bool ex::last_created_or_assigned_bp_modified=false;
 
 #endif // def OBSCURE_CINT_HACK
 
@@ -108,31 +107,29 @@ char * process_permanentfile(string const & command)
 void process_tempfile(string const & command)
 {
 #ifdef OBSCURE_CINT_HACK
-    static G__value ref_ex=exec_tempfile("ex ginac_cint_internal; ginac_cint_internal;");
-    ex dummy_ex;
-    ex::last_created_or_assigned_bp_modified=false;
+    static G__value ref_symbol=exec_tempfile("symbol ginac_cint_internal_symbol; ginac_cint_internal_symbol;");
+    static G__value ref_ex=exec_tempfile("ex ginac_cint_internal_ex; ginac_cint_internal_ex;");
+    static G__value ref_function=exec_tempfile("sin(ginac_cint_internal_symbol);");
+    static G__value ref_power=exec_tempfile("power(ginac_cint_internal_symbol,ginac_cint_internal_symbol);");
 #endif // def OBSCURE_CINT_HACK
 
     G__value retval=exec_tempfile(command);
 
 #ifdef OBSCURE_CINT_HACK
+
+    #define TYPES_EQUAL(A,B) (((A).type==(B).type)&&((A).tagnum==(B).tagnum))
+    
     static unsigned out_count=0;
-    if (!ex::last_created_or_assigned_bp_modified) {
-        if ((ref_ex.type==retval.type)&&(ref_ex.tagnum==retval.tagnum)) {
-            ex * ep=(ex *)(retval.obj.i);
-            dummy_ex=*ep;
-        }
-    }
-    if (ex::last_created_or_assigned_bp_modified) {
+    if (TYPES_EQUAL(retval,ref_ex)) {
         if (ex::last_created_or_assigned_bp_can_be_converted_to_ex()) {
             string varname="Out"+ToString(++out_count);
             exec_tempfile("ex "+varname+"(*ex::last_created_or_assigned_bp);\n"
-                         +"LLLAST=LLAST;\n"
-                         +"LLAST=LAST;\n"
-                         +"LAST="+varname+";\n"
-                         +"cout << \""+varname+" = \" << "+varname+" << endl << endl;"); 
+                          +"LLLAST=LLAST;\n"
+                          +"LLAST=LAST;\n"
+                          +"LAST="+varname+";\n"
+                          +"cout << \""+varname+" = \" << "+varname+" << endl << endl;"); 
         } else {
-            cout << "warning: last_created_or_assigned_bp modified but 0 or not evaluated or not dynallocated" << endl;
+            cout << "warning: last_created_or_assigned_bp modified 0 or not evaluated or not dynallocated" << endl;
         }
     }
 #endif // def OBSCURE_CINT_HACK
