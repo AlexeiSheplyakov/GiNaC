@@ -95,8 +95,8 @@ protected:
 public:
 	void assign(const ex & value);
 	void unassign(void);
-	void setname(const std::string & n) { name = n; }
-	std::string getname(void) const { return name; }
+	void set_name(const std::string & n) { name = n; }
+	std::string get_name(void) const { return name; }
 private:
 	std::string & autoname_prefix(void);
 

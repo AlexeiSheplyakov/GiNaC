@@ -230,7 +230,6 @@ unsigned pseries::nops(void) const
 	return seq.size();
 }
 
-
 /** Return the ith term in the series when represented as a sum. */
 ex pseries::op(int i) const
 {
@@ -239,12 +238,10 @@ ex pseries::op(int i) const
 	return seq[i].rest * power(var - point, seq[i].coeff);
 }
 
-
 ex &pseries::let_op(int i)
 {
 	throw (std::logic_error("let_op not defined for pseries"));
 }
-
 
 /** Return degree of highest power of the series.  This is usually the exponent
  *  of the Order term.  If s is not the expansion variable of the series, the
@@ -344,7 +341,6 @@ ex pseries::collect(const ex &s) const
 	return *this;
 }
 
-
 /** Evaluate coefficients. */
 ex pseries::eval(int level) const
 {
@@ -364,7 +360,6 @@ ex pseries::eval(int level) const
 	}
 	return (new pseries(relational(var,point), new_seq))->setflag(status_flags::dynallocated | status_flags::evaluated);
 }
-
 
 /** Evaluate coefficients numerically. */
 ex pseries::evalf(int level) const
@@ -386,7 +381,6 @@ ex pseries::evalf(int level) const
 	return (new pseries(relational(var,point), new_seq))->setflag(status_flags::dynallocated | status_flags::evaluated);
 }
 
-
 ex pseries::subs(const lst & ls, const lst & lr) const
 {
 	// If expansion variable is being substituted, convert the series to a
@@ -407,7 +401,6 @@ ex pseries::subs(const lst & ls, const lst & lr) const
 	return (new pseries(relational(var,point.subs(ls, lr)), newseq))->setflag(status_flags::dynallocated);
 }
 
-
 /** Implementation of ex::expand() for a power series.  It expands all the
  *  terms individually and returns the resulting series as a new pseries. */
 ex pseries::expand(unsigned options) const
@@ -421,7 +414,6 @@ ex pseries::expand(unsigned options) const
 	return (new pseries(relational(var,point), newseq))
 	        ->setflag(status_flags::dynallocated | status_flags::expanded);
 }
-
 
 /** Implementation of ex::diff() for a power series.  It treats the series as a
  *  polynomial.
@@ -449,10 +441,6 @@ ex pseries::derivative(const symbol & s) const
 	}
 }
 
-
-/** Convert a pseries object to an ordinary polynomial.
- *
- *  @param no_order flag: discard higher order terms */
 ex pseries::convert_to_poly(bool no_order) const
 {
 	ex e;
@@ -469,9 +457,6 @@ ex pseries::convert_to_poly(bool no_order) const
 	return e;
 }
 
-
-/** Returns true if there is no order term, i.e. the series terminates and
- *  false otherwise. */
 bool pseries::is_terminating(void) const
 {
 	return seq.size() == 0 || !is_order_function((seq.end()-1)->rest);

@@ -362,7 +362,7 @@ protected:
 public:
 	static unsigned register_new(function_options const & opt);
 	static unsigned find_function(const std::string &name, unsigned nparams);
-	unsigned getserial(void) const {return serial;}
+	unsigned get_serial(void) const {return serial;}
 	std::string get_name(void) const;
 	
 // member variables
@@ -378,7 +378,7 @@ inline const function &ex_to_function(const ex &e)
 }
 
 #define is_ex_the_function(OBJ, FUNCNAME) \\
-	(is_ex_exactly_of_type(OBJ, function) && static_cast<GiNaC::function *>(OBJ.bp)->getserial() == function_index_##FUNCNAME)
+	(is_ex_exactly_of_type(OBJ, function) && static_cast<GiNaC::function *>(OBJ.bp)->get_serial() == function_index_##FUNCNAME)
 
 } // namespace GiNaC
 

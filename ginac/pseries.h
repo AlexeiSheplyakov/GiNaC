@@ -61,10 +61,28 @@ protected:
 
 	// non-virtual functions in this class
 public:
+	/** Get the expansion variable. */
+	ex get_var(void) const {return var;}
+
+	/** Get the expansion point. */
+	ex get_point(void) const {return point;}
+
+	/** Convert the pseries object to an ordinary polynomial.
+	 *
+	 *  @param no_order flag: discard higher order terms */
 	ex convert_to_poly(bool no_order = false) const;
-	bool is_compatible_to(const pseries &other) const {return var.compare(other.var) == 0 && point.compare(other.point) == 0;}
+
+	/** Check whether series is compatible to another series (expansion
+	 *  variable and point are the same. */
+	bool is_compatible_to(const pseries &other) const {return var.is_equal(other.var) && point.is_equal(other.point);}
+
+	/** Check whether series has the value zero. */
 	bool is_zero(void) const {return seq.size() == 0;}
+
+	/** Returns true if there is no order term, i.e. the series terminates and
+	 *  false otherwise. */
 	bool is_terminating(void) const;
+
 	ex add_series(const pseries &other) const;
 	ex mul_const(const numeric &other) const;
 	ex mul_series(const pseries &other) const;
