@@ -1688,9 +1688,12 @@ const numeric smod(const numeric &a, const numeric &b)
  *  In general, mod(a,b) has the sign of b or is zero, and irem(a,b) has the
  *  sign of a or is zero.
  *
- *  @return remainder of a/b if both are integer, 0 otherwise. */
+ *  @return remainder of a/b if both are integer, 0 otherwise.
+ *  @exception overflow_error (division by zero) if b is zero. */
 const numeric irem(const numeric &a, const numeric &b)
 {
+	if (b.is_zero())
+		throw std::overflow_error("numeric::irem(): division by zero");
 	if (a.is_integer() && b.is_integer())
 		return cln::rem(cln::the<cln::cl_I>(a.to_cl_N()),
 		                cln::the<cln::cl_I>(b.to_cl_N()));
@@ -1705,9 +1708,12 @@ const numeric irem(const numeric &a, const numeric &b)
  *  and irem(a,b) has the sign of a or is zero.  
  *
  *  @return remainder of a/b and quotient stored in q if both are integer,
- *  0 otherwise. */
+ *  0 otherwise.
+ *  @exception overflow_error (division by zero) if b is zero. */
 const numeric irem(const numeric &a, const numeric &b, numeric &q)
 {
+	if (b.is_zero())
+		throw std::overflow_error("numeric::irem(): division by zero");
 	if (a.is_integer() && b.is_integer()) {
 		const cln::cl_I_div_t rem_quo = cln::truncate2(cln::the<cln::cl_I>(a.to_cl_N()),
 		                                               cln::the<cln::cl_I>(b.to_cl_N()));
@@ -1723,9 +1729,12 @@ const numeric irem(const numeric &a, const numeric &b, numeric &q)
 /** Numeric integer quotient.
  *  Equivalent to Maple's iquo as far as sign conventions are concerned.
  *  
- *  @return truncated quotient of a/b if both are integer, 0 otherwise. */
+ *  @return truncated quotient of a/b if both are integer, 0 otherwise.
+ *  @exception overflow_error (division by zero) if b is zero. */
 const numeric iquo(const numeric &a, const numeric &b)
 {
+	if (b.is_zero())
+		throw std::overflow_error("numeric::iquo(): division by zero");
 	if (a.is_integer() && b.is_integer())
 		return cln::truncate1(cln::the<cln::cl_I>(a.to_cl_N()),
 	                          cln::the<cln::cl_I>(b.to_cl_N()));
@@ -1739,9 +1748,12 @@ const numeric iquo(const numeric &a, const numeric &b)
  *  r == a - iquo(a,b,r)*b.
  *
  *  @return truncated quotient of a/b and remainder stored in r if both are
- *  integer, 0 otherwise. */
+ *  integer, 0 otherwise.
+ *  @exception overflow_error (division by zero) if b is zero. */
 const numeric iquo(const numeric &a, const numeric &b, numeric &r)
 {
+	if (b.is_zero())
+		throw std::overflow_error("numeric::iquo(): division by zero");
 	if (a.is_integer() && b.is_integer()) {
 		const cln::cl_I_div_t rem_quo = cln::truncate2(cln::the<cln::cl_I>(a.to_cl_N()),
 		                                               cln::the<cln::cl_I>(b.to_cl_N()));
