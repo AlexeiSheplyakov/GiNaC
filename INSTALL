@@ -12,13 +12,6 @@ different compiler you are on your own.  Note that you may have to use
 the same compiler you compiled CLN with because of differing
 name-mangling schemes.
 
-Optionally, GiNaC may work together with Masaharu Goto's free C++
-interpreter Cint.  You may obtain it from
-  * <ftp://root.cern.ch/root/>.
-Install it by following the instructions included in Cint's
-distribution before trying to compile GiNaC-cint.  (See section
-`Working with the Cint C++ interpreter' below.)
-
 
 INSTALLATION
 ============
@@ -87,28 +80,3 @@ libreadline and maybe libreadline-dev.  If your system's vendor
 doesn't supply such packages, go to <ftp://ftp.gnu.org/gnu/readline/>
 and compile it yourself.
 
-
-Working with the Cint C++ interpreter
-=====================================
-
-Please see <http://root.cern.ch/root/Cint.html> to learn about Cint
-and install it prior to installing ginaccint.  For the interpreter-
-compiler `makecint' to work properly, the Makefiles need to know where
-Cint has its system directory.  This is usually done by exporting
-$CINTSYSDIR to point to the proper place.  With GiNaC you may either
-try to export that variable and type
- $ ./configure --with-cint
-or specify it directly on the command line by saying
- $ ./configure --with-cint=/my/path/to/cintsysdir
-This variable does not have to be exported for running the installed
-binary: since the actual program is started by a launcher that sets it.
-Enjoy!
-
-Here is an overview to gives you an idea if you can expect GiNaC-cint
-to compile, install and work properly:
-
- Cint version | how it works
---------------+----------------------------------------------------------
- < 5.14.39    | `VERBOTEN' by license (please bite your favorite lawyer)
- < 5.14.62    | since GiNaC version 0.7, these do not compile any more
-   5.14.64-86 | compiles fine, works well with GCC 2.95.x.  GCC3 no go.

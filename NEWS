@@ -21,6 +21,8 @@ This file records noteworthy changes.
   products.
 * Positive integer powers of non-commutative expressions are automatically
   expanded.
+* Removed cint subdirectory, ginaccint is a separate package now due to 
+  packaging considerations.
 * Several little bugfixes.
 
 0.8.3 (11 May 2001)
