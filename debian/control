@@ -8,7 +8,7 @@ Package: ginac
 Architecture: any
 Depends: ${shlibs:Depends}
 Description: The GiNaC framework (runtime library)
- GiNaC stands for "GiNaC is Not a CAS (Computer Algebra System)".  It is an 
+ GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is an
  open framework for symbolic computation within the C++ programming language.
  .
  See <http://www.ginac.de/> for detailed information.
@@ -19,7 +19,7 @@ Depends: ginac, libc6-dev
 Recommends: ginac-ginsh
 Suggests: ginac-doc
 Description: The GiNaC framework (development files)
- GiNaC stands for "GiNaC is Not a CAS (Computer Algebra System)".  It is an 
+ GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is an
  open framework for symbolic computation within the C++ programming language.
  .
  This package provides header files and a static library.
@@ -28,7 +28,7 @@ Package: ginac-ginsh
 Architecture: any
 Depends: ginac, libc6-dev
 Description: The GiNaC framework's interactive shell
- GiNaC stands for "GiNaC is Not a CAS (Computer Algebra System)".  It is an 
+ GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is an
  open framework for symbolic computation within the C++ programming language.
  .
  The ginsh (GiNaC interactive shell) provides a simple and easy to use 
@@ -38,7 +38,7 @@ Package: ginac-doc
 Architecture: any
 Depends: ginac, libc6-dev
 Description: The GiNaC framework (documentation files)
- GiNaC stands for "GiNaC is Not a CAS (Computer Algebra System)".  It is an 
+ GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is an
  open framework for symbolic computation within the C++ programming language.
  .
  This package contains the complete documentation including a  tutorial and a
