@@ -1,10 +1,13 @@
 This file records noteworthy changes.
 
 1.3.0 (<insert date>)
+
+1.2.1 (23 April 2004)
 * Fixed infinite recursion in atan2_evalf() and improved atan2_eval().
 * Added automatic evaluations for trigonometric functions with negative
   arguments (e.g. sin(-2) -> -sin(2)).
 * Fixed a static initialization order goof-up.
+* Fixed various bugs in series expansion.
 
 1.2.0 (19 March 2004)
 * Added a structure<T> template class for the easy creation of user-defined
