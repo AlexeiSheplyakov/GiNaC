@@ -22,6 +22,8 @@
 #ifndef __GINAC_ADD_H__
 #define __GINAC_ADD_H__
 
+#include <ginac/expairseq.h>
+
 /** Sum of expressions. */
 class add : public expairseq
 {
@@ -106,4 +108,3 @@ extern type_info const & typeid_add;
 #define ex_to_add(X) static_cast<add const &>(*(X).bp)
 
 #endif // ndef __GINAC_ADD_H__
-

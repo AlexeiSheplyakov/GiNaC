@@ -20,7 +20,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "ginac.h"
+#include "fail.h"
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -28,7 +28,7 @@
 
 // public
 
-fail::fail() : basic(TINFO_FAIL)
+fail::fail() : basic(TINFO_fail)
 {
     debugmsg("fail default constructor",LOGLEVEL_CONSTRUCT);
 }

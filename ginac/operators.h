@@ -24,6 +24,10 @@
 
 #include <iostream>
 
+class ex;
+class numeric;
+class relational;
+
 // binary arithmetic operators ex with ex
 ex operator+(ex const & lh, ex const & rh);
 ex operator-(ex const & lh, ex const & rh);

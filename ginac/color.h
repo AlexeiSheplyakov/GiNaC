@@ -24,6 +24,7 @@
 
 #include <string>
 #include <vector>
+#include <ginac/indexed.h>
 
 #define MAX_REPRESENTATION_LABELS 4
 #define COLOR_EIGHT 8 // N*N-1

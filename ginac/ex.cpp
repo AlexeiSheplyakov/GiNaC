@@ -21,7 +21,12 @@
 
 #include <iostream>
 
-#include "ginac.h"
+#include "ex.h"
+#include "add.h"
+#include "mul.h"
+#include "ncmul.h"
+#include "numeric.h"
+#include "power.h"
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers

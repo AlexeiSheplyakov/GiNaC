@@ -21,7 +21,8 @@
 #include <string>
 #include <stdexcept>
 
-#include "ginac.h"
+#include "expairseq.h"
+#include "lst.h"
 
 #ifdef EXPAIRSEQ_USE_HASHTAB
 #error "!!!!!!!!TODO: expair_needs_further_processing not yet implemented for hashtabs, sorry. A.F."
@@ -93,14 +94,14 @@ void expairseq::copy(expairseq const & other)
 // other constructors
 //////////
 
-expairseq::expairseq(ex const & lh, ex const & rh) : basic(TINFO_EXPAIRSEQ)
+expairseq::expairseq(ex const & lh, ex const & rh) : basic(TINFO_expairseq)
 {
     debugmsg("expairseq constructor from ex,ex",LOGLEVEL_CONSTRUCT);
     construct_from_2_ex(lh,rh);
     ASSERT(is_canonical());
 }
 
-expairseq::expairseq(exvector const & v) : basic(TINFO_EXPAIRSEQ)
+expairseq::expairseq(exvector const & v) : basic(TINFO_expairseq)
 {
     debugmsg("expairseq constructor from exvector",LOGLEVEL_CONSTRUCT);
     construct_from_exvector(v);
@@ -109,7 +110,7 @@ expairseq::expairseq(exvector const & v) : basic(TINFO_EXPAIRSEQ)
 
 /*
 expairseq::expairseq(epvector const & v, bool do_not_canonicalize) :
-    basic(TINFO_EXPAIRSEQ)
+    basic(TINFO_expairseq)
 {
     debugmsg("expairseq constructor from epvector",LOGLEVEL_CONSTRUCT);
     if (do_not_canonicalize) {
@@ -125,7 +126,7 @@ expairseq::expairseq(epvector const & v, bool do_not_canonicalize) :
 */
 
 expairseq::expairseq(epvector const & v, ex const & oc) :
-    basic(TINFO_EXPAIRSEQ), overall_coeff(oc)
+    basic(TINFO_expairseq), overall_coeff(oc)
 {
     debugmsg("expairseq constructor from epvector,ex",LOGLEVEL_CONSTRUCT);
     construct_from_epvector(v);
@@ -133,7 +134,7 @@ expairseq::expairseq(epvector const & v, ex const & oc) :
 }
 
 expairseq::expairseq(epvector * vp, ex const & oc) :
-    basic(TINFO_EXPAIRSEQ), overall_coeff(oc)
+    basic(TINFO_expairseq), overall_coeff(oc)
 {
     debugmsg("expairseq constructor from epvector *,ex",LOGLEVEL_CONSTRUCT);
     ASSERT(vp!=0);

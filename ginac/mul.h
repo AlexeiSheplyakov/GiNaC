@@ -22,7 +22,7 @@
 #ifndef __GINAC_MUL_H__
 #define __GINAC_MUL_H__
 
-class mul;
+#include <ginac/expairseq.h>
 
 /** Product of expressions. */
 class mul : public expairseq
@@ -115,4 +115,3 @@ extern type_info const & typeid_mul;
 #define ex_to_mul(X) static_cast<mul const &>(*(X).bp)
 
 #endif // ndef __GINAC_MUL_H__
-

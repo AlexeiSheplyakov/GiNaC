@@ -23,6 +23,7 @@
 #define __GINAC_CLIFFORD_H__
 
 #include <string>
+#include <ginac/indexed.h>
 
 /** Base class for clifford object */
 class clifford : public indexed

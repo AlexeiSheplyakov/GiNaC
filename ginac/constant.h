@@ -23,6 +23,7 @@
 #define __GINAC_CONSTANT_H__
 
 #include <string>
+#include <ginac/basic.h>
 
 /** This class holds constants, symbols with specific numerical value. Each
  *  object of this class must either provide their own function to evaluate it

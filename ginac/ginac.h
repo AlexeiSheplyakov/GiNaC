@@ -22,10 +22,6 @@
 #ifndef __GINAC_H__
 #define __GINAC_H__
 
-#include <ginac/flags.h>
-#include <ginac/tinfos.h>
-#include <ginac/debugmsg.h>
-
 #include <ginac/basic.h>
 
 #include <ginac/ex.h>

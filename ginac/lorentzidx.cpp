@@ -21,7 +21,7 @@
 
 #include <stdexcept>
 
-#include "ginac.h"
+#include "lorentzidx.h"
 #include "utils.h"
 
 //////////
@@ -35,7 +35,7 @@ lorentzidx::lorentzidx() : orthogonal_only(false), dim_parallel_space(0)
     debugmsg("lorentzidx default constructor",LOGLEVEL_CONSTRUCT);
     // serial is incremented in idx::idx()
     name="mu"+ToString(serial);
-    tinfo_key=TINFO_LORENTZIDX;
+    tinfo_key=TINFO_lorentzidx;
 }
 
 lorentzidx::~lorentzidx() 
@@ -90,7 +90,7 @@ lorentzidx::lorentzidx(bool cov, bool oonly, unsigned dimp) :
     } else {
         name="mu"+ToString(serial);
     }
-    tinfo_key=TINFO_LORENTZIDX;
+    tinfo_key=TINFO_lorentzidx;
 }
 
 lorentzidx::lorentzidx(string const & n, bool cov, bool oonly, unsigned dimp)
@@ -98,7 +98,7 @@ lorentzidx::lorentzidx(string const & n, bool cov, bool oonly, unsigned dimp)
 {
     debugmsg("lorentzidx constructor from string,bool,bool,unsigned",
              LOGLEVEL_CONSTRUCT);
-    tinfo_key=TINFO_LORENTZIDX;
+    tinfo_key=TINFO_lorentzidx;
 }
 
 lorentzidx::lorentzidx(char const * n, bool cov, bool oonly, unsigned dimp)
@@ -106,14 +106,14 @@ lorentzidx::lorentzidx(char const * n, bool cov, bool oonly, unsigned dimp)
 {
     debugmsg("lorentzidx constructor from char*,bool,bool,unsigned",
              LOGLEVEL_CONSTRUCT);
-    tinfo_key=TINFO_LORENTZIDX;
+    tinfo_key=TINFO_lorentzidx;
 }
 
 lorentzidx::lorentzidx(unsigned const v, bool cov) : idx(v,cov),
     orthogonal_only(false), dim_parallel_space(0)
 {
     debugmsg("lorentzidx constructor from unsigned,bool",LOGLEVEL_CONSTRUCT);
-    tinfo_key=TINFO_LORENTZIDX;
+    tinfo_key=TINFO_lorentzidx;
 }
 
 //////////

@@ -32,7 +32,7 @@
 #define __GINAC_LST_H__
 
 #include <list>
-#include <ginac/ginac.h>
+#include <ginac/basic.h>
 
 typedef list<ex> exlist;
 

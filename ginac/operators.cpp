@@ -22,7 +22,12 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "ginac.h"
+#include "operators.h"
+#include "basic.h"
+#include "ex.h"
+#include "numeric.h"
+#include "power.h"
+#include "relational.h"
 
 // binary arithmetic operators ex with ex
 

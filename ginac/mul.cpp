@@ -22,7 +22,9 @@
 #include <vector>
 #include <stdexcept>
 
-#include "ginac.h"
+#include "mul.h"
+#include "add.h"
+#include "power.h"
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -33,7 +35,7 @@
 mul::mul()
 {
     debugmsg("mul default constructor",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_MUL;
+    tinfo_key = TINFO_mul;
 }
 
 mul::~mul()
@@ -79,7 +81,7 @@ void mul::destroy(bool call_parent)
 mul::mul(ex const & lh, ex const & rh)
 {
     debugmsg("mul constructor from ex,ex",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_MUL;
+    tinfo_key = TINFO_mul;
     overall_coeff=exONE();
     construct_from_2_ex(lh,rh);
     ASSERT(is_canonical());
@@ -88,7 +90,7 @@ mul::mul(ex const & lh, ex const & rh)
 mul::mul(exvector const & v)
 {
     debugmsg("mul constructor from exvector",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_MUL;
+    tinfo_key = TINFO_mul;
     overall_coeff=exONE();
     construct_from_exvector(v);
     ASSERT(is_canonical());
@@ -98,7 +100,7 @@ mul::mul(exvector const & v)
 mul::mul(epvector const & v, bool do_not_canonicalize)
 {
     debugmsg("mul constructor from epvector,bool",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_MUL;
+    tinfo_key = TINFO_mul;
     if (do_not_canonicalize) {
         seq=v;
 #ifdef EXPAIRSEQ_USE_HASHTAB
@@ -114,7 +116,7 @@ mul::mul(epvector const & v, bool do_not_canonicalize)
 mul::mul(epvector const & v)
 {
     debugmsg("mul constructor from epvector",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_MUL;
+    tinfo_key = TINFO_mul;
     overall_coeff=exONE();
     construct_from_epvector(v);
     ASSERT(is_canonical());
@@ -123,7 +125,7 @@ mul::mul(epvector const & v)
 mul::mul(epvector const & v, ex const & oc)
 {
     debugmsg("mul constructor from epvector,ex",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_MUL;
+    tinfo_key = TINFO_mul;
     overall_coeff=oc;
     construct_from_epvector(v);
     ASSERT(is_canonical());
@@ -132,7 +134,7 @@ mul::mul(epvector const & v, ex const & oc)
 mul::mul(epvector * vp, ex const & oc)
 {
     debugmsg("mul constructor from epvector *,ex",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_MUL;
+    tinfo_key = TINFO_mul;
     ASSERT(vp!=0);
     overall_coeff=oc;
     construct_from_epvector(*vp);
@@ -143,7 +145,7 @@ mul::mul(epvector * vp, ex const & oc)
 mul::mul(ex const & lh, ex const & mh, ex const & rh)
 {
     debugmsg("mul constructor from ex,ex,ex",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_MUL;
+    tinfo_key = TINFO_mul;
     exvector factors;
     factors.reserve(3);
     factors.push_back(lh);

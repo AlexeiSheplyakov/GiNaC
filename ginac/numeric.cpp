@@ -26,7 +26,8 @@
 #include <vector>
 #include <stdexcept>
 
-#include "ginac.h"
+#include "numeric.h"
+#include "ex.h"
 #include "config.h"
 
 // CLN should not pollute the global namespace, hence we include it here
@@ -48,7 +49,7 @@
 // public
 
 /** default ctor. Numerically it initializes to an integer zero. */
-numeric::numeric() : basic(TINFO_NUMERIC)
+numeric::numeric() : basic(TINFO_numeric)
 {
     debugmsg("numeric default constructor", LOGLEVEL_CONSTRUCT);
     value = new cl_N;
@@ -100,7 +101,7 @@ void numeric::destroy(bool call_parent)
 
 // public
 
-numeric::numeric(int i) : basic(TINFO_NUMERIC)
+numeric::numeric(int i) : basic(TINFO_numeric)
 {
     debugmsg("numeric constructor from int",LOGLEVEL_CONSTRUCT);
     // Not the whole int-range is available if we don't cast to long
@@ -112,7 +113,7 @@ numeric::numeric(int i) : basic(TINFO_NUMERIC)
             status_flags::hash_calculated);
 }
 
-numeric::numeric(unsigned int i) : basic(TINFO_NUMERIC)
+numeric::numeric(unsigned int i) : basic(TINFO_numeric)
 {
     debugmsg("numeric constructor from uint",LOGLEVEL_CONSTRUCT);
     // Not the whole uint-range is available if we don't cast to ulong
@@ -124,7 +125,7 @@ numeric::numeric(unsigned int i) : basic(TINFO_NUMERIC)
             status_flags::hash_calculated);
 }
 
-numeric::numeric(long i) : basic(TINFO_NUMERIC)
+numeric::numeric(long i) : basic(TINFO_numeric)
 {
     debugmsg("numeric constructor from long",LOGLEVEL_CONSTRUCT);
     value = new cl_I(i);
@@ -133,7 +134,7 @@ numeric::numeric(long i) : basic(TINFO_NUMERIC)
             status_flags::hash_calculated);
 }
 
-numeric::numeric(unsigned long i) : basic(TINFO_NUMERIC)
+numeric::numeric(unsigned long i) : basic(TINFO_numeric)
 {
     debugmsg("numeric constructor from ulong",LOGLEVEL_CONSTRUCT);
     value = new cl_I(i);
@@ -145,7 +146,7 @@ numeric::numeric(unsigned long i) : basic(TINFO_NUMERIC)
 /** Ctor for rational numerics a/b.
  *
  *  @exception overflow_error (division by zero) */
-numeric::numeric(long numer, long denom) : basic(TINFO_NUMERIC)
+numeric::numeric(long numer, long denom) : basic(TINFO_numeric)
 {
     debugmsg("numeric constructor from long/long",LOGLEVEL_CONSTRUCT);
     if (!denom)
@@ -157,7 +158,7 @@ numeric::numeric(long numer, long denom) : basic(TINFO_NUMERIC)
             status_flags::hash_calculated);
 }
 
-numeric::numeric(double d) : basic(TINFO_NUMERIC)
+numeric::numeric(double d) : basic(TINFO_numeric)
 {
     debugmsg("numeric constructor from double",LOGLEVEL_CONSTRUCT);
     // We really want to explicitly use the type cl_LF instead of the
@@ -170,7 +171,7 @@ numeric::numeric(double d) : basic(TINFO_NUMERIC)
             status_flags::hash_calculated);
 }
 
-numeric::numeric(char const *s) : basic(TINFO_NUMERIC)
+numeric::numeric(char const *s) : basic(TINFO_numeric)
 {   // MISSING: treatment of complex and ints and rationals.
     debugmsg("numeric constructor from string",LOGLEVEL_CONSTRUCT);
     if (strchr(s, '.'))
@@ -184,7 +185,7 @@ numeric::numeric(char const *s) : basic(TINFO_NUMERIC)
 
 /** Ctor from CLN types.  This is for the initiated user or internal use
  *  only. */
-numeric::numeric(cl_N const & z) : basic(TINFO_NUMERIC)
+numeric::numeric(cl_N const & z) : basic(TINFO_numeric)
 {
     debugmsg("numeric constructor from cl_N", LOGLEVEL_CONSTRUCT);
     value = new cl_N(z);

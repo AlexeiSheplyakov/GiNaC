@@ -22,6 +22,9 @@
 #ifndef __GINAC_INIFCNS_H__
 #define __GINAC_INIFCNS_H__
 
+#include <ginac/function.h>
+#include <ginac/ex.h>
+
 /** Sine. */
 DECLARE_FUNCTION_1P(sin)
 
@@ -85,9 +88,9 @@ DECLARE_FUNCTION_2P(binomial)
 /** Order term function (for truncated power series). */
 DECLARE_FUNCTION_1P(Order)
 
-ex lsolve(ex eqns,ex symbols);
+ex lsolve(ex const &eqns, ex const &symbols);
 
-ex ncpower(ex basis, unsigned exponent);
+ex ncpower(ex const &basis, unsigned exponent);
 
 inline bool is_order_function(ex const & e)
 {

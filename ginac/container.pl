@@ -121,7 +121,7 @@ $interface=<<END_OF_INTERFACE;
 #define __GINAC_${CONTAINER_UC}_H__
 
 #include <${STLHEADER}>
-#include <ginac/ginac.h>
+#include <ginac/basic.h>
 
 typedef ${STLHEADER}<ex> ${STLT};
 
@@ -254,7 +254,8 @@ $implementation=<<END_OF_IMPLEMENTATION;
 #include <iostream>
 #include <stdexcept>
 
-#include "ginac.h"
+#include "${CONTAINER}.h"
+#include "ex.h"
 
 ${RESERVE_IMPLEMENTATION}
 
@@ -264,7 +265,7 @@ ${RESERVE_IMPLEMENTATION}
 
 // public
 
-${CONTAINER}::${CONTAINER}() : basic(TINFO_${CONTAINER_UC})
+${CONTAINER}::${CONTAINER}() : basic(TINFO_${CONTAINER})
 {
     debugmsg("${CONTAINER} default constructor",LOGLEVEL_CONSTRUCT);
 }
@@ -311,7 +312,7 @@ void ${CONTAINER}::destroy(bool call_parent)
 
 // public
 
-${CONTAINER}::${CONTAINER}(${STLT} const & s, bool discardable) :  basic(TINFO_${CONTAINER_UC})
+${CONTAINER}::${CONTAINER}(${STLT} const & s, bool discardable) :  basic(TINFO_${CONTAINER})
 {
     debugmsg("${CONTAINER} constructor from ${STLT}",
              LOGLEVEL_CONSTRUCT);
@@ -322,7 +323,7 @@ ${CONTAINER}::${CONTAINER}(${STLT} const & s, bool discardable) :  basic(TINFO_$
     }
 }
 
-${CONTAINER}::${CONTAINER}(${STLT} * vp) : basic(TINFO_${CONTAINER_UC})
+${CONTAINER}::${CONTAINER}(${STLT} * vp) : basic(TINFO_${CONTAINER})
 {
     debugmsg("${CONTAINER} constructor from ${STLT} *",LOGLEVEL_CONSTRUCT);
     ASSERT(vp!=0);
@@ -330,7 +331,7 @@ ${CONTAINER}::${CONTAINER}(${STLT} * vp) : basic(TINFO_${CONTAINER_UC})
     delete vp;
 }
 
-${CONTAINER}::${CONTAINER}(ex const & e1) :  basic(TINFO_${CONTAINER_UC})
+${CONTAINER}::${CONTAINER}(ex const & e1) :  basic(TINFO_${CONTAINER})
 {
     debugmsg("${CONTAINER} constructor from 1 ex",
              LOGLEVEL_CONSTRUCT);
@@ -338,7 +339,7 @@ ${CONTAINER}::${CONTAINER}(ex const & e1) :  basic(TINFO_${CONTAINER_UC})
     seq.push_back(e1);
 }
 
-${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2) : basic(TINFO_${CONTAINER_UC})
+${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2) : basic(TINFO_${CONTAINER})
 {
     debugmsg("${CONTAINER} constructor from 2 ex",
              LOGLEVEL_CONSTRUCT);
@@ -348,7 +349,7 @@ ${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2) : basic(TINFO_${CONTAIN
 }
 
 ${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3)
-    : basic(TINFO_${CONTAINER_UC})
+    : basic(TINFO_${CONTAINER})
 {
     debugmsg("${CONTAINER} constructor from 3 ex",
              LOGLEVEL_CONSTRUCT);
@@ -359,7 +360,7 @@ ${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3)
 }
 
 ${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
-                     ex const & e4) : basic(TINFO_${CONTAINER_UC})
+                     ex const & e4) : basic(TINFO_${CONTAINER})
 {
     debugmsg("${CONTAINER} constructor from 4 ex",
              LOGLEVEL_CONSTRUCT);
@@ -371,7 +372,7 @@ ${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
 }
 
 ${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
-                     ex const & e4, ex const & e5) : basic(TINFO_${CONTAINER_UC})
+                     ex const & e4, ex const & e5) : basic(TINFO_${CONTAINER})
 {
     debugmsg("${CONTAINER} constructor from 5 ex",
              LOGLEVEL_CONSTRUCT);
@@ -385,7 +386,7 @@ ${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
 
 ${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
                      ex const & e4, ex const & e5, ex const & e6)
-    : basic(TINFO_${CONTAINER_UC})
+    : basic(TINFO_${CONTAINER})
 {
     debugmsg("${CONTAINER} constructor from 6 ex",
              LOGLEVEL_CONSTRUCT);
@@ -400,7 +401,7 @@ ${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
 
 ${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
                      ex const & e4, ex const & e5, ex const & e6,
-                     ex const & e7) : basic(TINFO_${CONTAINER_UC})
+                     ex const & e7) : basic(TINFO_${CONTAINER})
 {
     debugmsg("${CONTAINER} constructor from 7 ex",
              LOGLEVEL_CONSTRUCT);
@@ -416,7 +417,7 @@ ${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
 
 ${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
                      ex const & e4, ex const & e5, ex const & e6,
-                     ex const & e7, ex const & e8) : basic(TINFO_${CONTAINER_UC})
+                     ex const & e7, ex const & e8) : basic(TINFO_${CONTAINER})
 {
     debugmsg("${CONTAINER} constructor from 8 ex",
              LOGLEVEL_CONSTRUCT);
@@ -434,7 +435,7 @@ ${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
 ${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
                      ex const & e4, ex const & e5, ex const & e6,
                      ex const & e7, ex const & e8, ex const & e9)
-    : basic(TINFO_${CONTAINER_UC})
+    : basic(TINFO_${CONTAINER})
 {
     debugmsg("${CONTAINER} constructor from 9 ex",
              LOGLEVEL_CONSTRUCT);
@@ -454,7 +455,7 @@ ${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
                      ex const & e4, ex const & e5, ex const & e6,
                      ex const & e7, ex const & e8, ex const & e9,
                      ex const &e10)
-    : basic(TINFO_${CONTAINER_UC})
+    : basic(TINFO_${CONTAINER})
 {
     debugmsg("${CONTAINER} constructor from 10 ex",
              LOGLEVEL_CONSTRUCT);

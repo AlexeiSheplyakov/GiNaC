@@ -23,6 +23,8 @@
 #define __GINAC_SYMBOL_H__
 
 #include <string>
+#include <ginac/basic.h>
+#include <ginac/ex.h>
 
 /** Basic CAS symbol.  It has a name because it must know how to output itself.
  *  It may be assigned an expression, but this feature is only intended for

@@ -22,14 +22,15 @@
 #include <string>
 #include <stdexcept>
 
-#include "ginac.h"
+#include "symbol.h"
+#include "lst.h"
 #include "utils.h"
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
 //////////
 
-symbol::symbol() : basic(TINFO_SYMBOL)
+symbol::symbol() : basic(TINFO_symbol)
 {
     debugmsg("symbol default constructor",LOGLEVEL_CONSTRUCT);
     serial=next_serial++;
@@ -81,7 +82,7 @@ void symbol::destroy(bool call_parent)
 
 // public
 
-symbol::symbol(string const & initname) : basic(TINFO_SYMBOL)
+symbol::symbol(string const & initname) : basic(TINFO_symbol)
 {
     debugmsg("symbol constructor from string",LOGLEVEL_CONSTRUCT);
     name=initname;

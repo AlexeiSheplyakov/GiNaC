@@ -20,14 +20,20 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "ginac.h"
+#include "series.h"
+#include "add.h"
+#include "inifcns.h"
+#include "mul.h"
+#include "power.h"
+#include "relational.h"
+#include "symbol.h"
 
 
 /*
  *  Default constructor, destructor, copy constructor, assignment operator and helpers
  */
 
-series::series() : basic(TINFO_SERIES)
+series::series() : basic(TINFO_series)
 {
     debugmsg("series default constructor", LOGLEVEL_CONSTRUCT);
 }
@@ -84,7 +90,7 @@ void series::destroy(bool call_parent)
  *  @param ops_  vector of {coefficient, power} pairs (coefficient must not be zero)
  *  @return newly constructed series */
 series::series(ex const &var_, ex const &point_, epvector const &ops_)
-    : basic(TINFO_SERIES), seq(ops_), var(var_), point(point_)
+    : basic(TINFO_series), seq(ops_), var(var_), point(point_)
 {
     debugmsg("series constructor from ex,ex,epvector", LOGLEVEL_CONSTRUCT);
     ASSERT(is_ex_exactly_of_type(var_, symbol));
@@ -104,7 +110,7 @@ basic *series::duplicate() const
 // Highest degree of variable
 int series::degree(symbol const &s) const
 {
-    if (var == s) {
+    if (var.is_equal(s)) {
         // Return last exponent
         if (seq.size())
             return ex_to_numeric((*(seq.end() - 1)).coeff).to_int();
@@ -128,7 +134,7 @@ int series::degree(symbol const &s) const
 // Lowest degree of variable
 int series::ldegree(symbol const &s) const
 {
-    if (var == s) {
+    if (var.is_equal(s)) {
         // Return first exponent
         if (seq.size())
             return ex_to_numeric((*(seq.begin())).coeff).to_int();
@@ -152,7 +158,7 @@ int series::ldegree(symbol const &s) const
 // Coefficient of variable
 ex series::coeff(symbol const &s, int n) const
 {
-    if (var == s) {
+    if (var.is_equal(s)) {
         epvector::const_iterator it = seq.begin(), itend = seq.end();
         while (it != itend) {
             int pow = ex_to_numeric(it->coeff).to_int();
@@ -312,7 +318,7 @@ ex series::add_series(const series &other) const
                 break;  // Order term ends the sequence
             } else {
                 ex sum = (*a).rest + (*b).rest;
-                if (!(sum == exZERO()))
+                if (!(sum.is_zero()))
                     new_seq.push_back(expair(sum, numeric(pow_a)));
                 a++;
                 b++;

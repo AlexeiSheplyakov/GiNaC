@@ -23,7 +23,10 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "ginac.h"
+#include "ncmul.h"
+#include "ex.h"
+#include "add.h"
+#include "mul.h"
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -34,7 +37,7 @@
 ncmul::ncmul()
 {
     debugmsg("ncmul default constructor",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_NCMUL;
+    tinfo_key = TINFO_ncmul;
 }
 
 ncmul::~ncmul()
@@ -81,28 +84,28 @@ ncmul::ncmul(ex const & lh, ex const & rh) :
     exprseq(lh,rh)
 {
     debugmsg("ncmul constructor from ex,ex",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_NCMUL;
+    tinfo_key = TINFO_ncmul;
 }
 
 ncmul::ncmul(ex const & f1, ex const & f2, ex const & f3) :
     exprseq(f1,f2,f3)
 {
     debugmsg("ncmul constructor from 3 ex",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_NCMUL;
+    tinfo_key = TINFO_ncmul;
 }
 
 ncmul::ncmul(ex const & f1, ex const & f2, ex const & f3,
       ex const & f4) : exprseq(f1,f2,f3,f4)
 {
     debugmsg("ncmul constructor from 4 ex",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_NCMUL;
+    tinfo_key = TINFO_ncmul;
 }
 
 ncmul::ncmul(ex const & f1, ex const & f2, ex const & f3,
       ex const & f4, ex const & f5) : exprseq(f1,f2,f3,f4,f5)
 {
     debugmsg("ncmul constructor from 5 ex",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_NCMUL;
+    tinfo_key = TINFO_ncmul;
 }
 
 ncmul::ncmul(ex const & f1, ex const & f2, ex const & f3,
@@ -110,19 +113,19 @@ ncmul::ncmul(ex const & f1, ex const & f2, ex const & f3,
     exprseq(f1,f2,f3,f4,f5,f6)
 {
     debugmsg("ncmul constructor from 6 ex",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_NCMUL;
+    tinfo_key = TINFO_ncmul;
 }
 
 ncmul::ncmul(exvector const & v, bool discardable) : exprseq(v,discardable)
 {
     debugmsg("ncmul constructor from exvector,bool",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_NCMUL;
+    tinfo_key = TINFO_ncmul;
 }
 
 ncmul::ncmul(exvector * vp) : exprseq(vp)
 {
     debugmsg("ncmul constructor from exvector *",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_NCMUL;
+    tinfo_key = TINFO_ncmul;
 }
     
 //////////

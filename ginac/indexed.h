@@ -23,6 +23,7 @@
 #define __GINAC_INDEXED_H__
 
 #include <string>
+#include <ginac/exprseq.h>
 
 /** Base class for non-commutative indexed objects */
 class indexed : public exprseq

@@ -21,7 +21,10 @@
 
 #include <stdexcept>
 
-#include "ginac.h"
+#include "idx.h"
+#include "ex.h"
+#include "lst.h"
+#include "relational.h"
 #include "utils.h"
 
 //////////
@@ -30,7 +33,7 @@
 
 // public
 
-idx::idx() : basic(TINFO_IDX), symbolic(true), covariant(false)
+idx::idx() : basic(TINFO_idx), symbolic(true), covariant(false)
 {
     debugmsg("idx default constructor",LOGLEVEL_CONSTRUCT);
     serial=next_serial++;
@@ -82,28 +85,28 @@ void idx::destroy(bool call_parent)
 
 // public
 
-idx::idx(bool cov) : basic(TINFO_IDX), symbolic(true), covariant(cov)
+idx::idx(bool cov) : basic(TINFO_idx), symbolic(true), covariant(cov)
 {
     debugmsg("idx constructor from bool",LOGLEVEL_CONSTRUCT);
     serial=next_serial++;
     name="index"+ToString(serial);
 }
 
-idx::idx(string const & n, bool cov) : basic(TINFO_IDX),  
+idx::idx(string const & n, bool cov) : basic(TINFO_idx),  
     symbolic(true), name(n), covariant(cov)
 {
     debugmsg("idx constructor from string,bool",LOGLEVEL_CONSTRUCT);
     serial=next_serial++;
 }
 
-idx::idx(char const * n, bool cov) : basic(TINFO_IDX),  
+idx::idx(char const * n, bool cov) : basic(TINFO_idx),  
     symbolic(true), name(n), covariant(cov)
 {
     debugmsg("idx constructor from char*,bool",LOGLEVEL_CONSTRUCT);
     serial=next_serial++;
 }
 
-idx::idx(unsigned const v, bool cov) : basic(TINFO_IDX),
+idx::idx(unsigned const v, bool cov) : basic(TINFO_idx),
     symbolic(false), value(v), covariant(cov)
 {
     debugmsg("idx constructor from unsigned,bool",LOGLEVEL_CONSTRUCT);

@@ -27,6 +27,8 @@
 #include <utility>
 #include <map>
 #include <iostream>
+#include <ginac/indexed.h>
+#include <ginac/lorentzidx.h>
 
 typedef pair<string,string> strstrpair;
 typedef pair<strstrpair,lorentzidx> spmapkey;

@@ -23,6 +23,8 @@
 #define __GINAC_EX_H__
 
 #include <iostream>
+#include <ginac/basic.h>
+#include <ginac/operators.h>
 
 class ex;
 class expand_options;

@@ -22,7 +22,9 @@
 #include <string>
 #include <stdexcept>
 
-#include "ginac.h"
+#include "constant.h"
+#include "numeric.h"
+#include "ex.h"
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -72,14 +74,14 @@ void constant::destroy(bool call_parent)
 // public
 
 constant::constant(string const & initname, ex (*efun)()) :
-    basic(TINFO_CONSTANT), name(initname), ef(efun),
+    basic(TINFO_constant), name(initname), ef(efun),
     number(0), fct_assigned(true), serial(next_serial++)
 {
     debugmsg("constant constructor from string, function",LOGLEVEL_CONSTRUCT);
 }
 
 constant::constant(string const & initname, numeric const & initnumber) :
-    basic(TINFO_CONSTANT), name(initname), ef(0),
+    basic(TINFO_constant), name(initname), ef(0),
     number(new numeric(initnumber)), fct_assigned(false), serial(next_serial++)
 {
     debugmsg("constant constructor from string, numeric",LOGLEVEL_CONSTRUCT);

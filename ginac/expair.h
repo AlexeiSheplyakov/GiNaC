@@ -17,6 +17,12 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#ifndef __GINAC_EXPAIR_H__
+#define __GINAC_EXPAIR_H__
+
+#include <ginac/ex.h>
+#include <ginac/numeric.h>
+
 /** A pair of expressions.
  *  This similar to, but slightly extended STL's pair<> but we need to account
  *  for methods like .compare() */
@@ -186,5 +192,4 @@ public:
     }
 };
 
-
-           
+#endif // ndef __GINAC_EXPAIR_H__

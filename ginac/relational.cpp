@@ -21,7 +21,8 @@
 
 #include <stdexcept>
 
-#include "ginac.h"
+#include "relational.h"
+#include "numeric.h"
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -29,7 +30,7 @@
 
 // public
 
-relational::relational() : basic(TINFO_RELATIONAL)
+relational::relational() : basic(TINFO_relational)
 {
     debugmsg("relational default constructor",LOGLEVEL_CONSTRUCT);
 }
@@ -77,7 +78,7 @@ void relational::destroy(bool call_parent)
 
 // public
 
-relational::relational(ex const & lhs, ex const & rhs, operators oper) : basic(TINFO_RELATIONAL)
+relational::relational(ex const & lhs, ex const & rhs, operators oper) : basic(TINFO_relational)
 {
     debugmsg("relational constructor ex,ex,operator",LOGLEVEL_CONSTRUCT);
     lh=lhs;

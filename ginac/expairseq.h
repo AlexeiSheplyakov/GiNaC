@@ -22,6 +22,7 @@
 
 #include <vector>
 #include <list>
+#include <ginac/expair.h>
 
 //#define EXPAIRSEQ_USE_HASHTAB
 
@@ -50,7 +51,7 @@ class expairseq : public basic
 
     // default constructor, destructor, copy constructor assignment operator and helpers
 public:
-    expairseq() : basic(TINFO_EXPAIRSEQ)
+    expairseq() : basic(TINFO_expairseq)
 #ifdef EXPAIRSEQ_USE_HASHTAB
         , hashtabsize(0)
 #endif // def EXPAIRSEQ_USE_HASHTAB

@@ -32,7 +32,7 @@
 #define __GINAC_EXPRSEQ_H__
 
 #include <vector>
-#include <ginac/ginac.h>
+#include <ginac/basic.h>
 
 typedef vector<ex> exvector;
 

@@ -31,7 +31,8 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "ginac.h"
+#include "exprseq.h"
+#include "ex.h"
 
 #define RESERVE(s,size) (s).reserve(size)
 
@@ -41,7 +42,7 @@
 
 // public
 
-exprseq::exprseq() : basic(TINFO_EXPRSEQ)
+exprseq::exprseq() : basic(TINFO_exprseq)
 {
     debugmsg("exprseq default constructor",LOGLEVEL_CONSTRUCT);
 }
@@ -88,7 +89,7 @@ void exprseq::destroy(bool call_parent)
 
 // public
 
-exprseq::exprseq(exvector const & s, bool discardable) :  basic(TINFO_EXPRSEQ)
+exprseq::exprseq(exvector const & s, bool discardable) :  basic(TINFO_exprseq)
 {
     debugmsg("exprseq constructor from exvector",
              LOGLEVEL_CONSTRUCT);
@@ -99,7 +100,7 @@ exprseq::exprseq(exvector const & s, bool discardable) :  basic(TINFO_EXPRSEQ)
     }
 }
 
-exprseq::exprseq(exvector * vp) : basic(TINFO_EXPRSEQ)
+exprseq::exprseq(exvector * vp) : basic(TINFO_exprseq)
 {
     debugmsg("exprseq constructor from exvector *",LOGLEVEL_CONSTRUCT);
     ASSERT(vp!=0);
@@ -107,7 +108,7 @@ exprseq::exprseq(exvector * vp) : basic(TINFO_EXPRSEQ)
     delete vp;
 }
 
-exprseq::exprseq(ex const & e1) :  basic(TINFO_EXPRSEQ)
+exprseq::exprseq(ex const & e1) :  basic(TINFO_exprseq)
 {
     debugmsg("exprseq constructor from 1 ex",
              LOGLEVEL_CONSTRUCT);
@@ -115,7 +116,7 @@ exprseq::exprseq(ex const & e1) :  basic(TINFO_EXPRSEQ)
     seq.push_back(e1);
 }
 
-exprseq::exprseq(ex const & e1, ex const & e2) : basic(TINFO_EXPRSEQ)
+exprseq::exprseq(ex const & e1, ex const & e2) : basic(TINFO_exprseq)
 {
     debugmsg("exprseq constructor from 2 ex",
              LOGLEVEL_CONSTRUCT);
@@ -125,7 +126,7 @@ exprseq::exprseq(ex const & e1, ex const & e2) : basic(TINFO_EXPRSEQ)
 }
 
 exprseq::exprseq(ex const & e1, ex const & e2, ex const & e3)
-    : basic(TINFO_EXPRSEQ)
+    : basic(TINFO_exprseq)
 {
     debugmsg("exprseq constructor from 3 ex",
              LOGLEVEL_CONSTRUCT);
@@ -136,7 +137,7 @@ exprseq::exprseq(ex const & e1, ex const & e2, ex const & e3)
 }
 
 exprseq::exprseq(ex const & e1, ex const & e2, ex const & e3,
-                     ex const & e4) : basic(TINFO_EXPRSEQ)
+                     ex const & e4) : basic(TINFO_exprseq)
 {
     debugmsg("exprseq constructor from 4 ex",
              LOGLEVEL_CONSTRUCT);
@@ -148,7 +149,7 @@ exprseq::exprseq(ex const & e1, ex const & e2, ex const & e3,
 }
 
 exprseq::exprseq(ex const & e1, ex const & e2, ex const & e3,
-                     ex const & e4, ex const & e5) : basic(TINFO_EXPRSEQ)
+                     ex const & e4, ex const & e5) : basic(TINFO_exprseq)
 {
     debugmsg("exprseq constructor from 5 ex",
              LOGLEVEL_CONSTRUCT);
@@ -162,7 +163,7 @@ exprseq::exprseq(ex const & e1, ex const & e2, ex const & e3,
 
 exprseq::exprseq(ex const & e1, ex const & e2, ex const & e3,
                      ex const & e4, ex const & e5, ex const & e6)
-    : basic(TINFO_EXPRSEQ)
+    : basic(TINFO_exprseq)
 {
     debugmsg("exprseq constructor from 6 ex",
              LOGLEVEL_CONSTRUCT);
@@ -177,7 +178,7 @@ exprseq::exprseq(ex const & e1, ex const & e2, ex const & e3,
 
 exprseq::exprseq(ex const & e1, ex const & e2, ex const & e3,
                      ex const & e4, ex const & e5, ex const & e6,
-                     ex const & e7) : basic(TINFO_EXPRSEQ)
+                     ex const & e7) : basic(TINFO_exprseq)
 {
     debugmsg("exprseq constructor from 7 ex",
              LOGLEVEL_CONSTRUCT);
@@ -193,7 +194,7 @@ exprseq::exprseq(ex const & e1, ex const & e2, ex const & e3,
 
 exprseq::exprseq(ex const & e1, ex const & e2, ex const & e3,
                      ex const & e4, ex const & e5, ex const & e6,
-                     ex const & e7, ex const & e8) : basic(TINFO_EXPRSEQ)
+                     ex const & e7, ex const & e8) : basic(TINFO_exprseq)
 {
     debugmsg("exprseq constructor from 8 ex",
              LOGLEVEL_CONSTRUCT);
@@ -211,7 +212,7 @@ exprseq::exprseq(ex const & e1, ex const & e2, ex const & e3,
 exprseq::exprseq(ex const & e1, ex const & e2, ex const & e3,
                      ex const & e4, ex const & e5, ex const & e6,
                      ex const & e7, ex const & e8, ex const & e9)
-    : basic(TINFO_EXPRSEQ)
+    : basic(TINFO_exprseq)
 {
     debugmsg("exprseq constructor from 9 ex",
              LOGLEVEL_CONSTRUCT);
@@ -231,7 +232,7 @@ exprseq::exprseq(ex const & e1, ex const & e2, ex const & e3,
                      ex const & e4, ex const & e5, ex const & e6,
                      ex const & e7, ex const & e8, ex const & e9,
                      ex const &e10)
-    : basic(TINFO_EXPRSEQ)
+    : basic(TINFO_exprseq)
 {
     debugmsg("exprseq constructor from 10 ex",
              LOGLEVEL_CONSTRUCT);

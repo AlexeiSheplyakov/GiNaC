@@ -23,6 +23,7 @@
 #define __GINAC_ISOSPIN_H__
 
 #include <string>
+#include <ginac/indexed.h>
 
 /** Base class for isospin object */
 class isospin : public indexed

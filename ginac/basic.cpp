@@ -23,7 +23,13 @@
 #include <typeinfo>
 #include <stdexcept>
 
-#include "ginac.h"
+#include "basic.h"
+#include "ex.h"
+#include "numeric.h"
+#include "power.h"
+#include "symbol.h"
+#include "lst.h"
+#include "ncmul.h"
 #include "utils.h"
 
 //////////

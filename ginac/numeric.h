@@ -23,6 +23,7 @@
 #define __GINAC_NUMERIC_H__
 
 #include <strstream>
+#include <ginac/basic.h>
 
 #define HASHVALUE_NUMERIC 0x80000001U
 

@@ -24,6 +24,7 @@
 
 #include <string>
 #include <vector>
+#include <ginac/idx.h>
 
 class lorentzidx : public idx
 {

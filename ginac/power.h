@@ -22,7 +22,9 @@
 #ifndef __GINAC_POWER_H__
 #define __GINAC_POWER_H__
 
-class power;
+#include <ginac/basic.h>
+#include <ginac/ex.h>
+
 class numeric;
 class add;
 

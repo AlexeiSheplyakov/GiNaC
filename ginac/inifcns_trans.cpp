@@ -23,7 +23,11 @@
 #include <vector>
 #include <stdexcept>
 
-#include "ginac.h"
+#include "inifcns.h"
+#include "ex.h"
+#include "constant.h"
+#include "numeric.h"
+#include "power.h"
 
 //////////
 // exponential function

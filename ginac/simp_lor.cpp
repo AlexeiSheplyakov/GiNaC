@@ -27,7 +27,10 @@
 #include <stdexcept>
 #include <map>
 
-#include "ginac.h"
+#include "simp_lor.h"
+#include "ex.h"
+#include "mul.h"
+#include "symbol.h"
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -38,7 +41,7 @@
 simp_lor::simp_lor() : type(invalid)
 {
     debugmsg("simp_lor default constructor",LOGLEVEL_CONSTRUCT);
-    tinfo_key=TINFO_SIMP_LOR;
+    tinfo_key=TINFO_simp_lor;
 }
 
 simp_lor::~simp_lor()
@@ -88,14 +91,14 @@ void simp_lor::destroy(bool call_parent)
 simp_lor::simp_lor(simp_lor_types const t) : type(t)
 {
     debugmsg("simp_lor constructor from simp_lor_types",LOGLEVEL_CONSTRUCT);
-    tinfo_key=TINFO_SIMP_LOR;
+    tinfo_key=TINFO_simp_lor;
 }
 
 simp_lor::simp_lor(simp_lor_types const t, ex const & i1, ex const & i2) :
     indexed(i1,i2), type(t)
 {
     debugmsg("simp_lor constructor from simp_lor_types,ex,ex",LOGLEVEL_CONSTRUCT);
-    tinfo_key=TINFO_SIMP_LOR;
+    tinfo_key=TINFO_simp_lor;
     ASSERT(all_of_type_lorentzidx());
 }
 
@@ -103,7 +106,7 @@ simp_lor::simp_lor(simp_lor_types const t, string const & n, ex const & i1) :
     indexed(i1), type(t), name(n)
 {
     debugmsg("simp_lor constructor from simp_lor_types,string,ex",LOGLEVEL_CONSTRUCT);
-    tinfo_key=TINFO_SIMP_LOR;
+    tinfo_key=TINFO_simp_lor;
     ASSERT(all_of_type_lorentzidx());
 }
 
@@ -111,7 +114,7 @@ simp_lor::simp_lor(simp_lor_types const t, string const & n, exvector const & iv
     indexed(iv), type(t), name(n)
 {
     debugmsg("simp_lor constructor from simp_lor_types,string,exvector",LOGLEVEL_CONSTRUCT);
-    tinfo_key=TINFO_SIMP_LOR;
+    tinfo_key=TINFO_simp_lor;
     ASSERT(all_of_type_lorentzidx());
 }
 
@@ -119,7 +122,7 @@ simp_lor::simp_lor(simp_lor_types const t, string const & n, exvector * ivp) :
     indexed(ivp), type(t), name(n)
 {
     debugmsg("simp_lor constructor from simp_lor_types,string,exvector*",LOGLEVEL_CONSTRUCT);
-    tinfo_key=TINFO_SIMP_LOR;
+    tinfo_key=TINFO_simp_lor;
     ASSERT(all_of_type_lorentzidx());
 }
 
@@ -232,7 +235,7 @@ ex simp_lor::eval(int level) const
 
 int simp_lor::compare_same_type(basic const & other) const
 {
-    ASSERT(other.tinfo() == TINFO_SIMP_LOR);
+    ASSERT(other.tinfo() == TINFO_simp_lor);
     const simp_lor *o = static_cast<const simp_lor *>(&other);
     if (type==o->type) {
         if (name==o->name) {
@@ -245,7 +248,7 @@ int simp_lor::compare_same_type(basic const & other) const
 
 bool simp_lor::is_equal_same_type(basic const & other) const
 {
-    ASSERT(other.tinfo() == TINFO_SIMP_LOR);
+    ASSERT(other.tinfo() == TINFO_simp_lor);
     const simp_lor *o = static_cast<const simp_lor *>(&other);
     if (type!=o->type) return false;
     if (name!=o->name) return false;
@@ -330,7 +333,7 @@ ex simplify_simp_lor_mul(ex const & m, scalar_products const & sp)
     v_contracted.reserve(2*n);
     for (int i=0; i<n; ++i) {
         ex f=m.op(i);
-        if (is_ex_exactly_of_type(f,power)&&f.op(1)==2) {
+        if (is_ex_exactly_of_type(f,power)&&f.op(1).is_equal(exTWO())) {
             v_contracted.push_back(f.op(0));
             v_contracted.push_back(f.op(0));
         } else {

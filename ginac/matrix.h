@@ -23,6 +23,8 @@
 #define __GINAC_MATRIX_H__
 
 #include <vector>
+#include <ginac/basic.h>
+#include <ginac/ex.h>
 
 /** Symbolic matrices. */
 class matrix : public basic

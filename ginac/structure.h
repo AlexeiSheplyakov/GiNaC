@@ -22,6 +22,8 @@
 #ifndef __GINAC_STRUCTURE_H__
 #define __GINAC_STRUCTURE_H__
 
+#include <ginac/basic.h>
+
 struct registered_structure_info {
     char const * name;
 };

@@ -25,7 +25,23 @@
 
 #include <stdexcept>
 
-#include "ginac.h"
+#include "normal.h"
+#include "basic.h"
+#include "ex.h"
+#include "add.h"
+#include "constant.h"
+#include "expairseq.h"
+#include "fail.h"
+#include "indexed.h"
+#include "inifcns.h"
+#include "lst.h"
+#include "mul.h"
+#include "ncmul.h"
+#include "numeric.h"
+#include "power.h"
+#include "relational.h"
+#include "series.h"
+#include "symbol.h"
 
 // If comparing expressions (ex::compare()) is fast, you can set this to 1.
 // Some routines like quo(), rem() and gcd() will then return a quick answer

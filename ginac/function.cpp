@@ -26,7 +26,8 @@
 #include <string>
 #include <stdexcept>
 
-#include "ginac.h"
+#include "function.h"
+#include "ex.h"
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -37,7 +38,7 @@
 function::function() : serial(0)
 {
     debugmsg("function default constructor",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_FUNCTION;
+    tinfo_key = TINFO_function;
 }
 
 function::~function()
@@ -84,7 +85,7 @@ void function::destroy(bool call_parent)
 function::function(unsigned ser) : serial(ser)
 {
     debugmsg("function constructor from unsigned",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_FUNCTION;
+    tinfo_key = TINFO_function;
 }
 
 // the following lines have been generated for max. 10 parameters
@@ -92,61 +93,61 @@ function::function(unsigned ser, ex const & param1)
     : exprseq(param1), serial(ser)
 {
     debugmsg("function constructor from unsigned,1*ex",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_FUNCTION;
+    tinfo_key = TINFO_function;
 }
 function::function(unsigned ser, ex const & param1, ex const & param2)
     : exprseq(param1, param2), serial(ser)
 {
     debugmsg("function constructor from unsigned,2*ex",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_FUNCTION;
+    tinfo_key = TINFO_function;
 }
 function::function(unsigned ser, ex const & param1, ex const & param2, ex const & param3)
     : exprseq(param1, param2, param3), serial(ser)
 {
     debugmsg("function constructor from unsigned,3*ex",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_FUNCTION;
+    tinfo_key = TINFO_function;
 }
 function::function(unsigned ser, ex const & param1, ex const & param2, ex const & param3, ex const & param4)
     : exprseq(param1, param2, param3, param4), serial(ser)
 {
     debugmsg("function constructor from unsigned,4*ex",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_FUNCTION;
+    tinfo_key = TINFO_function;
 }
 function::function(unsigned ser, ex const & param1, ex const & param2, ex const & param3, ex const & param4, ex const & param5)
     : exprseq(param1, param2, param3, param4, param5), serial(ser)
 {
     debugmsg("function constructor from unsigned,5*ex",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_FUNCTION;
+    tinfo_key = TINFO_function;
 }
 function::function(unsigned ser, ex const & param1, ex const & param2, ex const & param3, ex const & param4, ex const & param5, ex const & param6)
     : exprseq(param1, param2, param3, param4, param5, param6), serial(ser)
 {
     debugmsg("function constructor from unsigned,6*ex",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_FUNCTION;
+    tinfo_key = TINFO_function;
 }
 function::function(unsigned ser, ex const & param1, ex const & param2, ex const & param3, ex const & param4, ex const & param5, ex const & param6, ex const & param7)
     : exprseq(param1, param2, param3, param4, param5, param6, param7), serial(ser)
 {
     debugmsg("function constructor from unsigned,7*ex",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_FUNCTION;
+    tinfo_key = TINFO_function;
 }
 function::function(unsigned ser, ex const & param1, ex const & param2, ex const & param3, ex const & param4, ex const & param5, ex const & param6, ex const & param7, ex const & param8)
     : exprseq(param1, param2, param3, param4, param5, param6, param7, param8), serial(ser)
 {
     debugmsg("function constructor from unsigned,8*ex",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_FUNCTION;
+    tinfo_key = TINFO_function;
 }
 function::function(unsigned ser, ex const & param1, ex const & param2, ex const & param3, ex const & param4, ex const & param5, ex const & param6, ex const & param7, ex const & param8, ex const & param9)
     : exprseq(param1, param2, param3, param4, param5, param6, param7, param8, param9), serial(ser)
 {
     debugmsg("function constructor from unsigned,9*ex",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_FUNCTION;
+    tinfo_key = TINFO_function;
 }
 function::function(unsigned ser, ex const & param1, ex const & param2, ex const & param3, ex const & param4, ex const & param5, ex const & param6, ex const & param7, ex const & param8, ex const & param9, ex const & param10)
     : exprseq(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10), serial(ser)
 {
     debugmsg("function constructor from unsigned,10*ex",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_FUNCTION;
+    tinfo_key = TINFO_function;
 }
 
 // end of generated lines
@@ -154,21 +155,21 @@ function::function(unsigned ser, ex const & param1, ex const & param2, ex const 
 function::function(unsigned ser, exprseq const & es) : exprseq(es), serial(ser)
 {
     debugmsg("function constructor from unsigned,exprseq",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_FUNCTION;
+    tinfo_key = TINFO_function;
 }
 
 function::function(unsigned ser, exvector const & v, bool discardable) 
     : exprseq(v,discardable), serial(ser)
 {
     debugmsg("function constructor from string,exvector,bool",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_FUNCTION;
+    tinfo_key = TINFO_function;
 }
 
 function::function(unsigned ser, exvector * vp) 
     : exprseq(vp), serial(ser)
 {
     debugmsg("function constructor from unsigned,exvector *",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_FUNCTION;
+    tinfo_key = TINFO_function;
 }
 
 //////////

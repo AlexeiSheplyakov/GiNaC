@@ -72,7 +72,7 @@ function::function(unsigned ser, ${SEQ1})
     : exprseq(${SEQ2}), serial(ser)
 {
     debugmsg(\"function constructor from unsigned,${N}*ex\",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_FUNCTION;
+    tinfo_key = TINFO_function;
 }
 END_OF_CONSTRUCTORS_IMPLEMENTATION
 
@@ -147,6 +147,7 @@ $interface=<<END_OF_INTERFACE;
 
 #include <string>
 #include <vector>
+#include <ginac/exprseq.h>
 
 class function;
 
@@ -308,7 +309,8 @@ $implementation=<<END_OF_IMPLEMENTATION;
 #include <string>
 #include <stdexcept>
 
-#include "ginac.h"
+#include "function.h"
+#include "ex.h"
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -319,7 +321,7 @@ $implementation=<<END_OF_IMPLEMENTATION;
 function::function() : serial(0)
 {
     debugmsg("function default constructor",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_FUNCTION;
+    tinfo_key = TINFO_function;
 }
 
 function::~function()
@@ -366,7 +368,7 @@ void function::destroy(bool call_parent)
 function::function(unsigned ser) : serial(ser)
 {
     debugmsg("function constructor from unsigned",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_FUNCTION;
+    tinfo_key = TINFO_function;
 }
 
 // the following lines have been generated for max. ${maxargs} parameters
@@ -376,21 +378,21 @@ $constructors_implementation
 function::function(unsigned ser, exprseq const & es) : exprseq(es), serial(ser)
 {
     debugmsg("function constructor from unsigned,exprseq",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_FUNCTION;
+    tinfo_key = TINFO_function;
 }
 
 function::function(unsigned ser, exvector const & v, bool discardable) 
     : exprseq(v,discardable), serial(ser)
 {
     debugmsg("function constructor from string,exvector,bool",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_FUNCTION;
+    tinfo_key = TINFO_function;
 }
 
 function::function(unsigned ser, exvector * vp) 
     : exprseq(vp), serial(ser)
 {
     debugmsg("function constructor from unsigned,exvector *",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_FUNCTION;
+    tinfo_key = TINFO_function;
 }
 
 //////////

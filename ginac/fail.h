@@ -23,6 +23,8 @@
 #ifndef __GINAC_FAIL_H__
 #define __GINAC_FAIL_H__
 
+#include <ginac/basic.h>
+
 class fail : public basic
 {
 // member functions

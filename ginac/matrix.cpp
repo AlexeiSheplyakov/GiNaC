@@ -22,7 +22,7 @@
 #include <algorithm>
 #include <stdexcept>
 
-#include "ginac.h"
+#include "matrix.h"
 
 //////////
 // default constructor, destructor, copy constructor, assignment operator
@@ -33,7 +33,7 @@
 
 /** Default ctor.  Initializes to 1 x 1-dimensional zero-matrix. */
 matrix::matrix()
-    : basic(TINFO_MATRIX), row(1), col(1)
+    : basic(TINFO_matrix), row(1), col(1)
 {
     debugmsg("matrix default constructor",LOGLEVEL_CONSTRUCT);
     m.push_back(exZERO());
@@ -86,7 +86,7 @@ void matrix::destroy(bool call_parent)
  *  @param r number of rows
  *  @param c number of cols */
 matrix::matrix(int r, int c)
-    : basic(TINFO_MATRIX), row(r), col(c)
+    : basic(TINFO_matrix), row(r), col(c)
 {
     debugmsg("matrix constructor from int,int",LOGLEVEL_CONSTRUCT);
     m.resize(r*c, exZERO());
@@ -96,7 +96,7 @@ matrix::matrix(int r, int c)
 
 /** Ctor from representation, for internal use only. */
 matrix::matrix(int r, int c, vector<ex> const & m2)
-    : basic(TINFO_MATRIX), row(r), col(c), m(m2)
+    : basic(TINFO_matrix), row(r), col(c), m(m2)
 {
     debugmsg("matrix constructor from int,int,vector<ex>",LOGLEVEL_CONSTRUCT);
 }

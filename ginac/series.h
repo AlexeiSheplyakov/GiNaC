@@ -22,6 +22,9 @@
 #ifndef __GINAC_SERIES_H__
 #define __GINAC_SERIES_H__
 
+#include <ginac/basic.h>
+#include <ginac/expairseq.h>
+
 /** This class holds a extended truncated power series (positive and negative
  *  integer powers). It consists of expression coefficients (only non-zero
  *  coefficients are stored), an expansion variable and an expansion point.

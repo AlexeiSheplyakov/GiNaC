@@ -21,7 +21,7 @@
 
 #include <stdexcept>
 
-#include "ginac.h"
+#include "coloridx.h"
 #include "utils.h"
 
 //////////
@@ -35,7 +35,7 @@ coloridx::coloridx()
     debugmsg("coloridx default constructor",LOGLEVEL_CONSTRUCT);
     // serial is incremented in idx::idx()
     name="color"+ToString(serial);
-    tinfo_key=TINFO_COLORIDX;
+    tinfo_key=TINFO_coloridx;
 }
 
 coloridx::~coloridx() 
@@ -83,25 +83,25 @@ coloridx::coloridx(bool cov) : idx(cov)
     debugmsg("coloridx constructor from bool",LOGLEVEL_CONSTRUCT);
     // serial is incremented in idx::idx(bool)
     name="color"+ToString(serial);
-    tinfo_key=TINFO_COLORIDX;
+    tinfo_key=TINFO_coloridx;
 }
 
 coloridx::coloridx(string const & n, bool cov) : idx(n,cov)
 {
     debugmsg("coloridx constructor from string,bool",LOGLEVEL_CONSTRUCT);
-    tinfo_key=TINFO_COLORIDX;
+    tinfo_key=TINFO_coloridx;
 }
 
 coloridx::coloridx(char const * n, bool cov) : idx(n,cov)
 {
     debugmsg("coloridx constructor from char*,bool",LOGLEVEL_CONSTRUCT);
-    tinfo_key=TINFO_COLORIDX;
+    tinfo_key=TINFO_coloridx;
 }
 
 coloridx::coloridx(unsigned const v, bool cov) : idx(v,cov)
 {
     debugmsg("coloridx constructor from unsigned,bool",LOGLEVEL_CONSTRUCT);
-    tinfo_key=TINFO_COLORIDX;
+    tinfo_key=TINFO_coloridx;
 }
 
 //////////

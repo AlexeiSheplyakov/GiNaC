@@ -22,6 +22,9 @@
 #ifndef __GINAC_RELATIONAL_H__
 #define __GINAC_RELATIONAL_H__
 
+#include <ginac/basic.h>
+#include <ginac/ex.h>
+
 /** This class holds a relation consisting of two expressions and a logical
  *  relation between them. */
 class relational : public basic

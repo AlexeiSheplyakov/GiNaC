@@ -21,7 +21,7 @@
 
 #include <string>
 
-#include "ginac.h"
+#include "structure.h"
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -32,7 +32,7 @@
 structure::structure()
 {
     debugmsg("structure default constructor",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_STRUCTURE;
+    tinfo_key = TINFO_structure;
 }
 
 structure::~structure()

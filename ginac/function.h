@@ -28,6 +28,7 @@
 
 #include <string>
 #include <vector>
+#include <ginac/exprseq.h>
 
 class function;
 
@@ -287,4 +288,3 @@ extern const function some_function;
 extern type_info const & typeid_function;
 
 #endif // ndef __GINAC_FUNCTION_H__
-

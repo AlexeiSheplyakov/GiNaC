@@ -22,7 +22,12 @@
 #include <vector>
 #include <stdexcept>
 
-#include "ginac.h"
+#include "inifcns.h"
+#include "ex.h"
+#include "constant.h"
+#include "numeric.h"
+#include "power.h"
+#include "symbol.h"
 
 //////////
 // gamma function
@@ -54,14 +59,14 @@ ex gamma_eval(ex const & x)
                 numeric n = ex_to_numeric(x).sub(numHALF());
                 numeric coefficient = doublefactorial(n.mul(numTWO()).sub(numONE()));
                 coefficient = coefficient.div(numTWO().power(n));
-                return mul(coefficient,power(Pi,numHALF()));
+                return coefficient * power(Pi,numHALF());
             } else {
                 // trap negative x=(-n+1/2)
                 // gamma(-n+1/2) -> Pi^(1/2)*(-2)^n/(1*3*..*(2*n-1))
                 numeric n = abs(ex_to_numeric(x).sub(numHALF()));
                 numeric coefficient = numeric(-2).power(n);
                 coefficient = coefficient.div(doublefactorial(n.mul(numTWO()).sub(numONE())));;
-                return mul(coefficient,power(Pi,numHALF()));
+                return coefficient * power(Pi,numHALF());
             }
         }
     }

@@ -23,7 +23,13 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "ginac.h"
+#include "power.h"
+#include "expairseq.h"
+#include "add.h"
+#include "mul.h"
+#include "numeric.h"
+#include "relational.h"
+#include "symbol.h"
 
 typedef vector<int> intvector;
 
@@ -33,7 +39,7 @@ typedef vector<int> intvector;
 
 // public
 
-power::power() : basic(TINFO_POWER)
+power::power() : basic(TINFO_power)
 {
     debugmsg("power default constructor",LOGLEVEL_CONSTRUCT);
 }
@@ -80,13 +86,13 @@ void power::destroy(bool call_parent)
 
 // public
 
-power::power(ex const & lh, ex const & rh) : basic(TINFO_POWER), basis(lh), exponent(rh)
+power::power(ex const & lh, ex const & rh) : basic(TINFO_power), basis(lh), exponent(rh)
 {
     debugmsg("power constructor from ex,ex",LOGLEVEL_CONSTRUCT);
     ASSERT(basis.return_type()==return_types::commutative);
 }
 
-power::power(ex const & lh, numeric const & rh) : basic(TINFO_POWER), basis(lh), exponent(rh)
+power::power(ex const & lh, numeric const & rh) : basic(TINFO_power), basis(lh), exponent(rh)
 {
     debugmsg("power constructor from ex,numeric",LOGLEVEL_CONSTRUCT);
     ASSERT(basis.return_type()==return_types::commutative);

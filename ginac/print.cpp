@@ -22,7 +22,22 @@
 
 #include <iostream>
 
-#include "ginac.h"
+#include "basic.h"
+#include "ex.h"
+#include "add.h"
+#include "constant.h"
+#include "expairseq.h"
+#include "fail.h"
+#include "indexed.h"
+#include "inifcns.h"
+#include "matrix.h"
+#include "mul.h"
+#include "ncmul.h"
+#include "numeric.h"
+#include "power.h"
+#include "relational.h"
+#include "series.h"
+#include "symbol.h"
 
 void ex::print(ostream & os, unsigned upper_precedence) const
 {

@@ -22,7 +22,9 @@
 
 #include <string>
 
-#include "ginac.h"
+#include "clifford.h"
+#include "ex.h"
+#include "ncmul.h"
 #include "utils.h"
 
 //////////
@@ -36,7 +38,7 @@ clifford::clifford()
     debugmsg("clifford default constructor",LOGLEVEL_CONSTRUCT);
     serial=next_serial++;
     name=autoname_prefix()+ToString(serial);
-    tinfo_key=TINFO_CLIFFORD;
+    tinfo_key=TINFO_clifford;
 }
 
 clifford::~clifford()
@@ -88,7 +90,7 @@ clifford::clifford(string const & initname)
     debugmsg("clifford constructor from string",LOGLEVEL_CONSTRUCT);
     name=initname;
     serial=next_serial++;
-    tinfo_key=TINFO_CLIFFORD;
+    tinfo_key=TINFO_clifford;
 }
 
 //////////
@@ -145,7 +147,7 @@ bool clifford::info(unsigned inf) const
 
 int clifford::compare_same_type(basic const & other) const
 {
-    ASSERT(other.tinfo() == TINFO_CLIFFORD);
+    ASSERT(other.tinfo() == TINFO_clifford);
     const clifford *o = static_cast<const clifford *>(&other);
     if (serial==o->serial) {
         return indexed::compare_same_type(other);

@@ -22,6 +22,8 @@
 #ifndef __GINAC_NCMUL_H__
 #define __GINAC_NCMUL_H__
 
+#include <ginac/exprseq.h>
+
 /** Non-commutative product of expressions. */
 class ncmul : public exprseq
 {

@@ -22,7 +22,9 @@
 
 #include <string>
 
-#include "ginac.h"
+#include "isospin.h"
+#include "ex.h"
+#include "ncmul.h"
 #include "utils.h"
 
 //////////
@@ -36,7 +38,7 @@ isospin::isospin()
     debugmsg("isospin default constructor",LOGLEVEL_CONSTRUCT);
     serial=next_serial++;
     name=autoname_prefix()+ToString(serial);
-    tinfo_key=TINFO_ISOSPIN;
+    tinfo_key=TINFO_isospin;
 }
 
 isospin::~isospin()
@@ -88,7 +90,7 @@ isospin::isospin(string const & initname)
     debugmsg("isospin constructor from string",LOGLEVEL_CONSTRUCT);
     name=initname;
     serial=next_serial++;
-    tinfo_key=TINFO_ISOSPIN;
+    tinfo_key=TINFO_isospin;
 }
 
 //////////
@@ -145,7 +147,7 @@ bool isospin::info(unsigned inf) const
 
 int isospin::compare_same_type(basic const & other) const
 {
-    ASSERT(other.tinfo() == TINFO_ISOSPIN);
+    ASSERT(other.tinfo() == TINFO_isospin);
     const isospin *o = static_cast<const isospin *>(&other);
     if (serial==o->serial) {
         return indexed::compare_same_type(other);

@@ -26,7 +26,12 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "ginac.h"
+#include "color.h"
+#include "ex.h"
+#include "coloridx.h"
+#include "ncmul.h"
+#include "numeric.h"
+#include "relational.h"
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -37,7 +42,7 @@
 color::color() : type(invalid), representation_label(0)
 {
     debugmsg("color default constructor",LOGLEVEL_CONSTRUCT);
-    tinfo_key=TINFO_COLOR;
+    tinfo_key=TINFO_color;
 }
 
 color::~color()
@@ -88,7 +93,7 @@ color::color(color_types const t, unsigned const rl) : type(t), representation_l
 {
     debugmsg("color constructor from color_types,unsigned",LOGLEVEL_CONSTRUCT);
     ASSERT(representation_label<MAX_REPRESENTATION_LABELS);
-    tinfo_key=TINFO_COLOR;
+    tinfo_key=TINFO_color;
     ASSERT(all_of_type_coloridx());
 }
 
@@ -97,7 +102,7 @@ color::color(color_types const t, ex const & i1, unsigned const rl)
 {
     debugmsg("color constructor from color_types,ex,unsigned",LOGLEVEL_CONSTRUCT);
     ASSERT(representation_label<MAX_REPRESENTATION_LABELS);
-    tinfo_key=TINFO_COLOR;
+    tinfo_key=TINFO_color;
     ASSERT(all_of_type_coloridx());
 }
 
@@ -106,7 +111,7 @@ color::color(color_types const t, ex const & i1, ex const & i2, unsigned const r
 {
     debugmsg("color constructor from color_types,ex,ex,unsigned",LOGLEVEL_CONSTRUCT);
     ASSERT(representation_label<MAX_REPRESENTATION_LABELS);
-    tinfo_key=TINFO_COLOR;
+    tinfo_key=TINFO_color;
     ASSERT(all_of_type_coloridx());
 }
 
@@ -115,7 +120,7 @@ color::color(color_types const t, ex const & i1, ex const & i2, ex const & i3,
 {
     debugmsg("color constructor from color_types,ex,ex,ex,unsigned",LOGLEVEL_CONSTRUCT);
     ASSERT(representation_label<MAX_REPRESENTATION_LABELS);
-    tinfo_key=TINFO_COLOR;
+    tinfo_key=TINFO_color;
     ASSERT(all_of_type_coloridx());
 }
 
@@ -124,7 +129,7 @@ color::color(color_types const t, exvector const & iv, unsigned const rl)
 {
     debugmsg("color constructor from color_types,exvector,unsigned",LOGLEVEL_CONSTRUCT);
     ASSERT(representation_label<MAX_REPRESENTATION_LABELS);
-    tinfo_key=TINFO_COLOR;
+    tinfo_key=TINFO_color;
     ASSERT(all_of_type_coloridx());
 }
 
@@ -133,7 +138,7 @@ color::color(color_types const t, exvector * ivp, unsigned const rl)
 {
     debugmsg("color constructor from color_types,exvector *,unsigned",LOGLEVEL_CONSTRUCT);
     ASSERT(representation_label<MAX_REPRESENTATION_LABELS);
-    tinfo_key=TINFO_COLOR;
+    tinfo_key=TINFO_color;
     ASSERT(all_of_type_coloridx());
 }
 
@@ -338,7 +343,7 @@ ex color::eval(int level) const
 
 int color::compare_same_type(basic const & other) const
 {
-    ASSERT(other.tinfo() == TINFO_COLOR);
+    ASSERT(other.tinfo() == TINFO_color);
     const color *o = static_cast<const color *>(&other);
     if (type==o->type) {
         if (representation_label==o->representation_label) {
@@ -351,7 +356,7 @@ int color::compare_same_type(basic const & other) const
 
 bool color::is_equal_same_type(basic const & other) const
 {
-    ASSERT(other.tinfo() == TINFO_COLOR);
+    ASSERT(other.tinfo() == TINFO_color);
     const color *o = static_cast<const color *>(&other);
     if (type!=o->type) return false;
     if (representation_label!=o->representation_label) return false;

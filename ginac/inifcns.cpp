@@ -22,7 +22,18 @@
 #include <vector>
 #include <stdexcept>
 
-#include "ginac.h"
+#include "inifcns.h"
+#include "ex.h"
+#include "constant.h"
+#include "lst.h"
+#include "matrix.h"
+#include "mul.h"
+#include "ncmul.h"
+#include "numeric.h"
+#include "power.h"
+#include "relational.h"
+#include "series.h"
+#include "symbol.h"
 
 //////////
 // dilogarithm
@@ -126,7 +137,7 @@ ex Order_series(ex const & x, symbol const & s, ex const & point, int order)
 REGISTER_FUNCTION(Order, Order_eval, NULL, NULL, Order_series);
 
 /** linear solve. */
-ex lsolve(ex eqns, ex symbols)
+ex lsolve(ex const &eqns, ex const &symbols)
 {
     // solve a system of linear equations
     if (eqns.info(info_flags::relation_equal)) {
@@ -218,7 +229,7 @@ ex lsolve(ex eqns, ex symbols)
 }
 
 /** non-commutative power. */
-ex ncpower(ex basis, unsigned exponent)
+ex ncpower(ex const &basis, unsigned exponent)
 {
     if (exponent==0) {
         return exONE();
@@ -232,4 +243,3 @@ ex ncpower(ex basis, unsigned exponent)
 
     return ncmul(v,1);
 }
-

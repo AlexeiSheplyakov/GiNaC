@@ -31,7 +31,8 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "ginac.h"
+#include "lst.h"
+#include "ex.h"
 
 #define RESERVE(s,size) // no reserve needed for list
 
@@ -41,7 +42,7 @@
 
 // public
 
-lst::lst() : basic(TINFO_LST)
+lst::lst() : basic(TINFO_lst)
 {
     debugmsg("lst default constructor",LOGLEVEL_CONSTRUCT);
 }
@@ -88,7 +89,7 @@ void lst::destroy(bool call_parent)
 
 // public
 
-lst::lst(exlist const & s, bool discardable) :  basic(TINFO_LST)
+lst::lst(exlist const & s, bool discardable) :  basic(TINFO_lst)
 {
     debugmsg("lst constructor from exlist",
              LOGLEVEL_CONSTRUCT);
@@ -99,7 +100,7 @@ lst::lst(exlist const & s, bool discardable) :  basic(TINFO_LST)
     }
 }
 
-lst::lst(exlist * vp) : basic(TINFO_LST)
+lst::lst(exlist * vp) : basic(TINFO_lst)
 {
     debugmsg("lst constructor from exlist *",LOGLEVEL_CONSTRUCT);
     ASSERT(vp!=0);
@@ -107,7 +108,7 @@ lst::lst(exlist * vp) : basic(TINFO_LST)
     delete vp;
 }
 
-lst::lst(ex const & e1) :  basic(TINFO_LST)
+lst::lst(ex const & e1) :  basic(TINFO_lst)
 {
     debugmsg("lst constructor from 1 ex",
              LOGLEVEL_CONSTRUCT);
@@ -115,7 +116,7 @@ lst::lst(ex const & e1) :  basic(TINFO_LST)
     seq.push_back(e1);
 }
 
-lst::lst(ex const & e1, ex const & e2) : basic(TINFO_LST)
+lst::lst(ex const & e1, ex const & e2) : basic(TINFO_lst)
 {
     debugmsg("lst constructor from 2 ex",
              LOGLEVEL_CONSTRUCT);
@@ -125,7 +126,7 @@ lst::lst(ex const & e1, ex const & e2) : basic(TINFO_LST)
 }
 
 lst::lst(ex const & e1, ex const & e2, ex const & e3)
-    : basic(TINFO_LST)
+    : basic(TINFO_lst)
 {
     debugmsg("lst constructor from 3 ex",
              LOGLEVEL_CONSTRUCT);
@@ -136,7 +137,7 @@ lst::lst(ex const & e1, ex const & e2, ex const & e3)
 }
 
 lst::lst(ex const & e1, ex const & e2, ex const & e3,
-                     ex const & e4) : basic(TINFO_LST)
+                     ex const & e4) : basic(TINFO_lst)
 {
     debugmsg("lst constructor from 4 ex",
              LOGLEVEL_CONSTRUCT);
@@ -148,7 +149,7 @@ lst::lst(ex const & e1, ex const & e2, ex const & e3,
 }
 
 lst::lst(ex const & e1, ex const & e2, ex const & e3,
-                     ex const & e4, ex const & e5) : basic(TINFO_LST)
+                     ex const & e4, ex const & e5) : basic(TINFO_lst)
 {
     debugmsg("lst constructor from 5 ex",
              LOGLEVEL_CONSTRUCT);
@@ -162,7 +163,7 @@ lst::lst(ex const & e1, ex const & e2, ex const & e3,
 
 lst::lst(ex const & e1, ex const & e2, ex const & e3,
                      ex const & e4, ex const & e5, ex const & e6)
-    : basic(TINFO_LST)
+    : basic(TINFO_lst)
 {
     debugmsg("lst constructor from 6 ex",
              LOGLEVEL_CONSTRUCT);
@@ -177,7 +178,7 @@ lst::lst(ex const & e1, ex const & e2, ex const & e3,
 
 lst::lst(ex const & e1, ex const & e2, ex const & e3,
                      ex const & e4, ex const & e5, ex const & e6,
-                     ex const & e7) : basic(TINFO_LST)
+                     ex const & e7) : basic(TINFO_lst)
 {
     debugmsg("lst constructor from 7 ex",
              LOGLEVEL_CONSTRUCT);
@@ -193,7 +194,7 @@ lst::lst(ex const & e1, ex const & e2, ex const & e3,
 
 lst::lst(ex const & e1, ex const & e2, ex const & e3,
                      ex const & e4, ex const & e5, ex const & e6,
-                     ex const & e7, ex const & e8) : basic(TINFO_LST)
+                     ex const & e7, ex const & e8) : basic(TINFO_lst)
 {
     debugmsg("lst constructor from 8 ex",
              LOGLEVEL_CONSTRUCT);
@@ -211,7 +212,7 @@ lst::lst(ex const & e1, ex const & e2, ex const & e3,
 lst::lst(ex const & e1, ex const & e2, ex const & e3,
                      ex const & e4, ex const & e5, ex const & e6,
                      ex const & e7, ex const & e8, ex const & e9)
-    : basic(TINFO_LST)
+    : basic(TINFO_lst)
 {
     debugmsg("lst constructor from 9 ex",
              LOGLEVEL_CONSTRUCT);
@@ -231,7 +232,7 @@ lst::lst(ex const & e1, ex const & e2, ex const & e3,
                      ex const & e4, ex const & e5, ex const & e6,
                      ex const & e7, ex const & e8, ex const & e9,
                      ex const &e10)
-    : basic(TINFO_LST)
+    : basic(TINFO_lst)
 {
     debugmsg("lst constructor from 10 ex",
              LOGLEVEL_CONSTRUCT);

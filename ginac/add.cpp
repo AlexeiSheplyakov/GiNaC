@@ -22,7 +22,8 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "ginac.h"
+#include "add.h"
+#include "mul.h"
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -33,7 +34,7 @@
 add::add()
 {
     debugmsg("add default constructor",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_ADD;
+    tinfo_key = TINFO_add;
 }
 
 add::~add()
@@ -79,7 +80,7 @@ void add::destroy(bool call_parent)
 add::add(ex const & lh, ex const & rh)
 {
     debugmsg("add constructor from ex,ex",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_ADD;
+    tinfo_key = TINFO_add;
     overall_coeff=exZERO();
     construct_from_2_ex(lh,rh);
     ASSERT(is_canonical());
@@ -88,7 +89,7 @@ add::add(ex const & lh, ex const & rh)
 add::add(exvector const & v)
 {
     debugmsg("add constructor from exvector",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_ADD;
+    tinfo_key = TINFO_add;
     overall_coeff=exZERO();
     construct_from_exvector(v);
     ASSERT(is_canonical());
@@ -98,7 +99,7 @@ add::add(exvector const & v)
 add::add(epvector const & v, bool do_not_canonicalize)
 {
     debugmsg("add constructor from epvector,bool",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_ADD;
+    tinfo_key = TINFO_add;
     if (do_not_canonicalize) {
         seq=v;
 #ifdef EXPAIRSEQ_USE_HASHTAB
@@ -114,7 +115,7 @@ add::add(epvector const & v, bool do_not_canonicalize)
 add::add(epvector const & v)
 {
     debugmsg("add constructor from epvector",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_ADD;
+    tinfo_key = TINFO_add;
     overall_coeff=exZERO();
     construct_from_epvector(v);
     ASSERT(is_canonical());
@@ -123,7 +124,7 @@ add::add(epvector const & v)
 add::add(epvector const & v, ex const & oc)
 {
     debugmsg("add constructor from epvector,ex",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_ADD;
+    tinfo_key = TINFO_add;
     overall_coeff=oc;
     construct_from_epvector(v);
     ASSERT(is_canonical());
@@ -132,7 +133,7 @@ add::add(epvector const & v, ex const & oc)
 add::add(epvector * vp, ex const & oc)
 {
     debugmsg("add constructor from epvector *,ex",LOGLEVEL_CONSTRUCT);
-    tinfo_key = TINFO_ADD;
+    tinfo_key = TINFO_add;
     ASSERT(vp!=0);
     overall_coeff=oc;
     construct_from_epvector(*vp);

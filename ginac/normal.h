@@ -23,6 +23,9 @@
 #ifndef NORMAL_H
 #define NORMAL_H
 
+class ex;
+class symbol;
+
 // Quotient q(x) of polynomials a(x) and b(x) in Q[x], so that a(x)=b(x)*q(x)+r(x)
 extern ex quo(const ex &a, const ex &b, const symbol &x, bool check_args = true);
 

@@ -21,7 +21,9 @@
 
 #include <string>
 
-#include "ginac.h"
+#include "indexed.h"
+#include "ex.h"
+#include "idx.h"
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -32,7 +34,7 @@
 indexed::indexed()
 {
     debugmsg("indexed default constructor",LOGLEVEL_CONSTRUCT);
-    tinfo_key=TINFO_INDEXED;
+    tinfo_key=TINFO_indexed;
 }
 
 indexed::~indexed()
@@ -80,14 +82,14 @@ void indexed::destroy(bool call_parent)
 indexed::indexed(ex const & i1) : exprseq(i1)
 {
     debugmsg("indexed constructor from ex",LOGLEVEL_CONSTRUCT);
-    tinfo_key=TINFO_INDEXED;
+    tinfo_key=TINFO_indexed;
     ASSERT(all_of_type_idx());
 }
 
 indexed::indexed(ex const & i1, ex const & i2) : exprseq(i1,i2)
 {
     debugmsg("indexed constructor from ex,ex",LOGLEVEL_CONSTRUCT);
-    tinfo_key=TINFO_INDEXED;
+    tinfo_key=TINFO_indexed;
     ASSERT(all_of_type_idx());
 }
 
@@ -95,21 +97,21 @@ indexed::indexed(ex const & i1, ex const & i2, ex const & i3)
     : exprseq(i1,i2,i3)
 {
     debugmsg("indexed constructor from ex,ex,ex",LOGLEVEL_CONSTRUCT);
-    tinfo_key=TINFO_INDEXED;
+    tinfo_key=TINFO_indexed;
     ASSERT(all_of_type_idx());
 }
 
 indexed::indexed(exvector const & iv) : exprseq(iv)
 {
     debugmsg("indexed constructor from exvector",LOGLEVEL_CONSTRUCT);
-    tinfo_key=TINFO_INDEXED;
+    tinfo_key=TINFO_indexed;
     ASSERT(all_of_type_idx());
 }
 
 indexed::indexed(exvector * ivp) : exprseq(ivp)
 {
     debugmsg("indexed constructor from exvector *",LOGLEVEL_CONSTRUCT);
-    tinfo_key=TINFO_INDEXED;
+    tinfo_key=TINFO_indexed;
     ASSERT(all_of_type_idx());
 }
 
