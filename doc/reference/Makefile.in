@@ -288,11 +288,11 @@ install-data-local:
 	  echo " $(INSTALL_DATA) $(srcdir)/doxygen.css $(DESTDIR)$(ginacreferencedir)/doxygen.css"; \
 	  $(INSTALL_DATA) $(srcdir)/doxygen.css $(DESTDIR)$(ginacreferencedir)/doxygen.css; \
 	fi
-	@for p in `echo $(srcdir)/*.html | sed 's,[^ ]*/,,g'`; do \
+	@for p in `echo $(srcdir)/*.html | sed -e 's,[^ ]*/,,g' -e 's,\*\.html,,'`; do \
 	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p"; \
 	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p; \
 	done
-	@for p in `echo $(srcdir)/*.gif | sed 's,[^ ]*/,,g'`; do \
+	@for p in `echo $(srcdir)/*.gif | sed -e 's,[^ ]*/,,g' -e 's,\*\.gif,'`; do \
 	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p"; \
 	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p; \
 	done
