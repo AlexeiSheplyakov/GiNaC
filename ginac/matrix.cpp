@@ -961,7 +961,7 @@ matrix matrix::solve(const matrix & vars,
 	// Gather some statistical information about the augmented matrix:
 	bool numeric_flag = true;
 	exvector::const_iterator r = aug.m.begin(), rend = aug.m.end();
-	while (r != rend) {
+	while (r!=rend && numeric_flag==true) {
 		if (!r->info(info_flags::numeric))
 			numeric_flag = false;
 		++r;
