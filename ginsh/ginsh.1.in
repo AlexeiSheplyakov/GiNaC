@@ -243,6 +243,9 @@ detail here. Please refer to the GiNaC documentation.
 .BI collect_common_factors( expression )
 \- collects common factors from the terms of sums
 .br
+.BI conjugate( expression )
+\- complex conjugation
+.br
 .BI content( expression ", " symbol )
 \- content part of a polynomial
 .br
