@@ -42,6 +42,13 @@ protected:
 	// functions overriding virtual functions from base classes
 protected:
 	unsigned return_type(void) const { return return_types::noncommutative_composite; }
+
+	// non-virtual functions in this class
+public:
+	/** Replace dummy index in contracted-with object by the contracting
+	 *  object's second index (used internally for delta and metric tensor
+	 *  contractions. */
+	bool replace_contr_index(exvector::iterator self, exvector::iterator other) const;
 };
 
 

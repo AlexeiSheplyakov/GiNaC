@@ -318,15 +318,9 @@ ex tensepsilon::eval_indexed(const basic & i) const
 	return i.hold();
 }
 
-/** Contraction of an indexed delta tensor with something else. */
-bool tensdelta::contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const
+bool tensor::replace_contr_index(exvector::iterator self, exvector::iterator other) const
 {
-	GINAC_ASSERT(is_a<indexed>(*self));
-	GINAC_ASSERT(is_a<indexed>(*other));
-	GINAC_ASSERT(self->nops() == 3);
-	GINAC_ASSERT(is_a<tensdelta>(self->op(0)));
-
-	// Try to contract first index
+	// Try to contract the first index
 	const idx *self_idx = &ex_to<idx>(self->op(1));
 	const idx *free_idx = &ex_to<idx>(self->op(2));
 	bool first_index_tried = false;
@@ -337,8 +331,8 @@ again:
 			const idx &other_idx = ex_to<idx>(other->op(i));
 			if (is_dummy_pair(*self_idx, other_idx)) {
 
-				// Contraction found, remove delta tensor and substitute
-				// index in second object
+				// Contraction found, remove this tensor and substitute the
+				// index in the second object
 				*self = _ex1;
 				*other = other->subs(other_idx == *free_idx);
 				return true;
@@ -348,7 +342,7 @@ again:
 
 	if (!first_index_tried) {
 
-		// No contraction with first index found, try second index
+		// No contraction with the first index found, try the second index
 		self_idx = &ex_to<idx>(self->op(2));
 		free_idx = &ex_to<idx>(self->op(1));
 		first_index_tried = true;
@@ -356,6 +350,19 @@ again:
 	}
 
 	return false;
+}
+
+/** Contraction of an indexed delta tensor with something else. */
+bool tensdelta::contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const
+{
+	GINAC_ASSERT(is_a<indexed>(*self));
+	GINAC_ASSERT(is_a<indexed>(*other));
+	GINAC_ASSERT(self->nops() == 3);
+	GINAC_ASSERT(is_a<tensdelta>(self->op(0)));
+
+	// Replace the dummy index with this tensor's other index and remove
+	// the tensor (this is valid for contractions with all other tensors)
+	return replace_contr_index(self, other);
 }
 
 /** Contraction of an indexed metric tensor with something else. */
@@ -371,36 +378,9 @@ bool tensmetric::contract_with(exvector::iterator self, exvector::iterator other
 	if (is_ex_of_type(other->op(0), tensdelta))
 		return false;
 
-	// Try to contract first index
-	const idx *self_idx = &ex_to<idx>(self->op(1));
-	const idx *free_idx = &ex_to<idx>(self->op(2));
-	bool first_index_tried = false;
-
-again:
-	if (self_idx->is_symbolic()) {
-		for (unsigned i=1; i<other->nops(); i++) {
-			const idx &other_idx = ex_to<idx>(other->op(i));
-			if (is_dummy_pair(*self_idx, other_idx)) {
-
-				// Contraction found, remove metric tensor and substitute
-				// index in second object
-				*self = _ex1;
-				*other = other->subs(other_idx == *free_idx);
-				return true;
-			}
-		}
-	}
-
-	if (!first_index_tried) {
-
-		// No contraction with first index found, try second index
-		self_idx = &ex_to<idx>(self->op(2));
-		free_idx = &ex_to<idx>(self->op(1));
-		first_index_tried = true;
-		goto again;
-	}
-
-	return false;
+	// Replace the dummy index with this tensor's other index and remove
+	// the tensor (this is valid for contractions with all other tensors)
+	return replace_contr_index(self, other);
 }
 
 /** Contraction of an indexed spinor metric with something else. */
@@ -507,48 +487,6 @@ bool tensepsilon::contract_with(exvector::iterator self, exvector::iterator othe
 		*self = sign * M.determinant().simplify_indexed();
 		*other = _ex1;
 		return true;
-
-	} else if (other->return_type() == return_types::commutative) {
-
-#if 0
-		// This handles eps.i.j.k * p.j * p.k = 0 and related cases.
-		// Actually, simplify_indexed() can handle most of them on its own
-		// but one specific case that is not covered there is
-		//   eps~mu.nu~i~j * p.mu * p~nu
-		// because of the difference in variance in the dummy indices mu
-		// and nu. Eventually, simplify_indexed() should be extended to
-		// handle this case, and this hack removed.
-		exvector c;
-
-		// Handle all indices of the epsilon tensor
-		for (int i=0; i<num; i++) {
-			ex idx = self->op(i+1);
-
-			// Look whether there's a contraction with this index
-			exvector::const_iterator ait, aitend = v.end();
-			for (ait = v.begin(); ait != aitend; ait++) {
-				if (ait == self)
-					continue;
-				if (is_a<indexed>(*ait) && ait->return_type() == return_types::commutative && ex_to<indexed>(*ait).has_dummy_index_for(idx) && ait->nops() == 2) {
-
-					// Yes, did we already have another contraction with the same base expression?
-					ex base = ait->op(0);
-					if (std::find_if(c.begin(), c.end(), bind2nd(ex_is_equal(), base)) == c.end()) {
-
-						// No, add the base expression to the list
-						c.push_back(base);
-
-					} else {
-
-						// Yes, the contraction is zero
-						*self = _ex0;
-						*other = _ex0;
-						return true;
-					}
-				}
-			}
-		}
-#endif
 	}
 
 	return false;
