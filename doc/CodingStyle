@@ -9,7 +9,7 @@ This document attempts to describe the preferred coding style for GiNaC.
 
 Different people have different ideas of how source code should be formatted
 to be most beautiful and/or useful to work with. GiNaC itself was developed
-by a group of people whose ideas on these matters differred in some details.
+by a group of people whose ideas on these matters differed in some details.
 It also evolved over the course of the years, and received contributions
 from outside. As a result, the GiNaC source is not in all places 100%
 consistent with the rules laid out in this document. Old code will
@@ -90,7 +90,7 @@ exact same value the author of the code used.
 
 Take the "person" class definition from above as an example (here and in
 the following, ':' represents a Tab, while '.' represents a Space). Assume
-that we had done both intendation and alignment with Tabs, with a tab-size
+that we had done both indentation and alignment with Tabs, with a tab-size
 of 8:
 
 |-------|-------|-------|-------|-------|-------|------- <- tab stops
@@ -340,7 +340,7 @@ Names of header files end in ".h" (not ".hpp", ".H", ".hh", or ".hxx").
 Don't place "using namespace std;", "using std::vector;" or anything like this
 into public library header files. Doing so would force the import of all or
 parts of the "std" namespace upon all users of the library, even if they don't
-want it. Always fully qualify indentifiers in the headers.
+want it. Always fully qualify identifiers in the headers.
 
 Definitions that are only used internally within the library but have to be
 placed in a public header file for one reason or another should be put into
