@@ -12,7 +12,7 @@ AC_CONFIG_HEADER(config.h)
 dnl Set the Version Number at this place only:
 GiNaC_Major_Version=0
 GiNaC_Minor_Version=0
-GiNaC_Micro_Version=30
+GiNaC_Micro_Version=40
 dnl This composite variable can be inserted where it appears necessary:
 GiNaC_Version="${GiNaC_Major_Version}.${GiNaC_Minor_Version}.${GiNaC_Micro_Version}"
 dnl This composition is needed for libtool, if a shared lib shall be built:
@@ -68,7 +68,7 @@ case "${shared}" in
     shared="";
     ;;
 esac
-dnl Check for helpers needed for building the GiNaC interactive shell:
+dnl Check for helpers needed for building the GiNaC interactive shell (ginsh):
 AC_PROG_LEX
 AC_PROG_YACC
 AC_DECL_YYTEXT

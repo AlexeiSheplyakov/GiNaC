@@ -5,7 +5,7 @@
 
 # Substitution variables from configure skript:
 # Here come the usual install directories in GNU-configure fashion:
-prefix = /usr/local
+prefix = /tmp
 docdir = ${prefix}/share/doc/GiNaC
 srcdir = .
 # Dimitri van Heesch's Doxygen is needed for developer's resource:

@@ -27,6 +27,7 @@ LIBGINACVER = @LibGiNaC_Ver@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 
+
 all: 	lib ginsh
 	echo "now type make install"
 
@@ -39,13 +40,21 @@ src/.libs/libginac.a:
 lib:
 	cd src; ${MAKE} all
 
+
+# Target for making the GiNaC interactive shell (ginsh):
+ginsh:
+	if [ "${shared}" ]; then ${MAKE} sharedginsh; else ${MAKE} staticginsh; fi
+
+sharedginsh: src/libginac.la
+	cd ginsh; ${MAKE} sharedginsh
+
+staticginsh: src/.libs/libginac.a
+	cd ginsh; ${MAKE} staticginsh
+
+
 # Target for running a test-suite across the library:
 check:
-	if [ "${shared}" ]; then \
-		${MAKE} sharedcheck; \
-	else \
-		${MAKE} staticcheck; \
-	fi
+	if [ "${shared}" ]; then ${MAKE} sharedcheck; else ${MAKE} staticcheck; fi
 
 sharedcheck: src/libginac.la
 	cd check; ${MAKE} sharedcheck
@@ -53,32 +62,31 @@ sharedcheck: src/libginac.la
 staticcheck: src/.libs/libginac.a
 	cd check; ${MAKE} staticcheck
 
-# Target for making the Ginac INteractive SHell ginsh:
-ginsh:
-	cd ginsh; ${MAKE} all
 
 # Targets for installation in install directories.  The user-visible target
 # `install' determines which one to call (static lib only or both shared and
 # static lib).
-install: 
+install:
 	@ if [ "${shared}" ]; then \
 		${MAKE} shlibinst; \
 	else \
 		${MAKE} libinst; \
 	fi
 	${INSTALL} -d ${includedir}
-	${INSTALL_DATA} include/* ${includedir}/
+	${INSTALL_DATA} include/*.h ${includedir}/
 	cd ginsh; ${MAKE} install
 	cd doc; ${MAKE} install
 
-shlibinst: libginac.la
-	${INSTALL} -d ${libdir}
-	${LIBTOOL} install libginac.la ${libdir}/libginac.la
+shlibinst: src/libginac.la installdirs
+	${LIBTOOL} install src/libginac.la ${libdir}/libginac.la
 	${LIBTOOL} -n --finish ${libdir}
 
-libinst: .libs/libginac.a
-	${INSTALL} -d ${libdir}
-	${INSTALL_DATA} .libs/libginac.a ${libdir}/libginac.a
+libinst: src/.libs/libginac.a installdirs
+	${INSTALL_DATA} src/.libs/libginac.a ${libdir}/libginac.a
+
+installdirs:
+	./mkinstalldirs ${libdir} ${includedir}
+
 
 # Targets for cleaning up. (clean deletes files created by built, distclean
 # deletes files created by configuration, uninstall removes all files related
@@ -100,6 +108,7 @@ uninstall:
 	cd ginsh; ${MAKE} uninstall
 	cd doc; ${MAKE} uninstall
 
+
 # Convenient targets for those who wish to extend on the documentation:
 doc:
 	cd doc; ${MAKE} all
@@ -108,8 +117,9 @@ reference:
 tutorial:
 	cd doc; ${MAKE} tutorial
 
+
 # Special dummy targets:
-.PHONY: clean distclean all install uninstall check ginsh doc
+.PHONY: clean distclean all install installdirs uninstall check ginsh doc
 .SUFFIXES: .o .lo .cpp
 .SILENT: all check sharedcheck staticcheck doc reference tutorial
 
