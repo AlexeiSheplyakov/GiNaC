@@ -100,17 +100,46 @@ static unsigned clifford_check3(void)
 
 	unsigned result = 0;
 
-	symbol dim("D"), m("m"), q("q");
-	varidx mu(symbol("mu"), dim), nu(symbol("nu"), dim);
+	symbol dim("D"), m("m"), q("q"), l("l"), ldotq("ldotq");
+	varidx mu(symbol("mu"), dim), nu(symbol("nu"), dim), rho(symbol("rho"), dim),
+	       sig(symbol("sig"), dim), kap(symbol("kap"), dim), lam(symbol("lam"), 4);
 	scalar_products sp;
 	ex e;
 
 	sp.add(q, q, pow(q, 2));
+	sp.add(l, l, pow(l, 2));
+	sp.add(l, q, ldotq);
 
 	e = pow(m, 2) * indexed(q, mu) * indexed(q, nu)
 	  * dirac_gamma(mu.toggle_variance()) * dirac_gamma(nu.toggle_variance());
 	e = dirac_trace(e).simplify_indexed(sp);
 	result += check_equal(e, 4*pow(m, 2)*pow(q, 2));
+
+	// cyclicity
+	e = dirac_gamma(mu) * dirac_gamma(nu) * dirac_gamma(rho) * dirac_gamma(sig)
+	  - dirac_gamma(nu) * dirac_gamma(rho) * dirac_gamma(sig) * dirac_gamma(mu);
+	e = dirac_trace(e);
+	result += check_equal(e.expand(), 0);
+
+	e = dirac_gamma(mu) * dirac_gamma(nu) * dirac_gamma(rho) * dirac_gamma(sig) * dirac_gamma(kap) * dirac_gamma(lam)
+	  - dirac_gamma(nu) * dirac_gamma(rho) * dirac_gamma(sig) * dirac_gamma(kap) * dirac_gamma(lam) * dirac_gamma(mu);
+	e = dirac_trace(e);
+	result += check_equal(e.expand(), 0);
+
+	// one-loop vacuum polarization in QED
+	e = dirac_gamma(mu) *
+	    (dirac_gamma(nu) * indexed(l, nu.toggle_variance()) + dirac_gamma(nu) * indexed(q, nu.toggle_variance()) + m * dirac_ONE()) *
+	    dirac_gamma(mu.toggle_variance()) *
+	    (dirac_gamma(rho) * indexed(l, rho.toggle_variance()) + m * dirac_ONE());
+	e = dirac_trace(e.expand()).simplify_indexed(sp);
+	result += check_equal(e, 4*((2-dim)*l*l + (2-dim)*ldotq + dim*m*m).expand());
+
+    e = dirac_gamma(mu) * indexed(q, mu.toggle_variance()) *
+	    (dirac_gamma(nu) * indexed(l, nu.toggle_variance()) + dirac_gamma(nu) * indexed(q, nu.toggle_variance()) + m * dirac_ONE()) *
+	    dirac_gamma(sig) * indexed(q, sig.toggle_variance()) *
+	    (dirac_gamma(rho) * indexed(l, rho.toggle_variance()) + m * dirac_ONE());
+	e = dirac_trace(e.expand()).simplify_indexed(sp);
+	result += check_equal(e, 4*(2*ldotq*ldotq + q*q*ldotq - q*q*l*l + q*q*m*m).expand());
 
 	return result;
 }
