@@ -742,7 +742,13 @@ evaluation}. GiNaC only performs transformations that are
 
 @itemize @bullet
 @item
-at most of complexity @math{O(n log n)}
+at most of complexity
+@tex
+$O(n\log n)$
+@end tex
+@ifnottex
+@math{O(n log n)}
+@end ifnottex
 @item
 algebraically correct, possibly except for a set of measure zero (e.g.
 @math{x/x} is transformed to @math{1} although this is incorrect for @math{x=0})
@@ -899,7 +905,13 @@ $\sqrt{2}$
 @end ifnottex
 @dots{}
 @item @code{pseries} @tab Power Series, e.g. @math{x-1/6*x^3+1/120*x^5+O(x^7)}
-@item @code{function} @tab A symbolic function like @math{sin(2*x)}
+@item @code{function} @tab A symbolic function like
+@tex
+$\sin 2x$
+@end tex
+@ifnottex
+@math{sin(2*x)}
+@end ifnottex
 @item @code{lst} @tab Lists of expressions @{@math{x}, @math{2*y}, @math{3+z}@}
 @item @code{matrix} @tab @math{m}x@math{n} matrices of expressions
 @item @code{relational} @tab A relation like the identity @math{x}@code{==}@math{y}
