@@ -7,7 +7,7 @@
 \subsection{Definitions}
 
 Definitions for power and log:
-\begin{equation}
+\begin{equation}\label{powerdef}
 x^a \equiv e^{a \ln x}
 \end{equation}
 \begin{equation}
@@ -19,18 +19,20 @@ x^a \equiv e^{a \ln x}
 \begin{equation}
 e^x e^y = e^{x+y}
 \end{equation}
-for arbitrary complex $x$ and $y$
+for arbitrary complex \(x\) and \(y\) (with~(\ref{powerdef}) we obtain
+the rule \(x^ax^b=x^{a+b}\) since \(x^ax^b\equiv e^{a\ln x}e^{b\ln x} = 
+e^{(a+b)\ln x}\equiv x^{a+b}\) for arbitrary complex \(a,b,x\))
 
 \begin{equation}
 x^{-a} = \frac{1}{x^a}
 \end{equation}
-for arbitrary complex $x$ and $a$
+for arbitrary complex \(x\) and \(a\)
 
-\subsection{$(ax)^b=a^b x^b$}
+\subsection{\((ax)^b=a^b x^b\)}
 
-\subsubsection{$b$ integer, $x$ and $a$ arbitrary complex}
+\subsubsection{\(b\) integer, \(x\) and \(a\) arbitrary complex}
 
-assume $b>0$
+assume \(b>0\)
 
 \begin{eqnarray}
 (ax)^b & = & \underbrace{(ax) \cdots (ax)}_{b \times}
@@ -41,7 +43,7 @@ assume $b>0$
 & = & a^b x^b \mbox{ q.e.d.}
 \end{eqnarray}
 
-if $b<0$ (so $b=-|b|$)
+if \(b<0\) (so \(b=-|b|\))
 \begin{eqnarray}
 (ax)^b & = & \frac{1}{(ax)^{|b|}}
 \nonumber\\
@@ -52,7 +54,7 @@ if $b<0$ (so $b=-|b|$)
 & = & a^b x^b
 \end{eqnarray}
 
-\subsubsection{$a>0$, $x$ and $b$ arbitrary complex}
+\subsubsection{\(a>0\), \(x\) and \(b\) arbitrary complex}
 
 \begin{eqnarray}
 (ax)^b & = & e^{b \ln(ax)}
@@ -60,7 +62,7 @@ if $b<0$ (so $b=-|b|$)
 & = & e^{b (\ln |ax| + i \arg(ax))}
 \end{eqnarray}
 
-if $a$ is real and positive:
+if \(a\) is real and positive:
 \begin{equation}
 \ln |ax| = \ln |a| + \ln |x| = \ln a + \ln |x|
 \end{equation}
@@ -81,11 +83,11 @@ e^{b (\ln a + \ln |x| + i \arg(x))}
 & = & a^b x^b \mbox{ q.e.d.}
 \end{eqnarray}
 
-\subsection{$(x^a)^b = x^{ab}$}
+\subsection{\((x^a)^b = x^{ab}\)}
 
-\subsubsection{$b$ integer, $x$ and $a$ arbitrary complex}
+\subsubsection{\(b\) integer, \(x\) and \(a\) arbitrary complex}
 
-assume $b>0$
+assume \(b>0\)
 
 \begin{eqnarray}
 (x^a)^b & = & \underbrace{(x^a) \cdots (x^a)}_{b \times}
@@ -99,7 +101,7 @@ assume $b>0$
 & = & x^{ab} \mbox{ q.e.d.}
 \end{eqnarray}
 
-if $b<0$ (so $b=-|b|$)
+if \(b<0\) (so \(b=-|b|\))
 \begin{eqnarray}
 (x^a)^b & = & \frac{1}{(x^a)^{|b|}}
 \nonumber\\
@@ -110,13 +112,13 @@ if $b<0$ (so $b=-|b|$)
 & = & x^{ab}
 \end{eqnarray}
 
-\subsubsection{$-1 < a \le 1$, $x$ and $b$ arbitrary complex}
+\subsubsection{\(-1 < a \le 1\), \(x\) and \(b\) arbitrary complex}
 
 We have
 \begin{equation}
 x^a=e^{a \ln|x| + ia\arg(x)}
 \end{equation}
-if $a$ is real
+if \(a\) is real
 \begin{equation}
 |x^a|=e^{a\ln|x|}
 \end{equation}
@@ -124,19 +126,19 @@ and
 \begin{equation}
 \arg(x^a)-a\arg(x)=2k\pi
 \end{equation}
-now if $-1 < a \le 1$, then $-\pi < a\arg(x) \le \pi$,
-and so $k=0$, i.e.
+now if \(-1 < a \le 1\), then \(-\pi < a\arg(x) \le \pi\),
+and so \(k=0\), i.e.
 \begin{equation}
 \arg(x^a)=a\arg(x)
 \end{equation}
-(Note that for $a=-1$ this may not be true, as $-1 \arg(x)$ may be equal to $-\pi$.)
+(Note that for \(a=-1\) this may not be true, as \(-1 \arg(x)\) may be equal to \(-\pi\).)
 So
 \begin{eqnarray}
 \ln(x^a) & = & \ln|x^a| + i\arg(x^a)
 \nonumber\\
 & = & \ln (e^{a\ln|x|})+ia\arg(x)
 \nonumber\\
-& = & a \ln |x| + ia\arg(x) \mbox{ (because $a\ln|x|$ is real)}
+& = & a \ln |x| + ia\arg(x) \mbox{ (because \(a\ln|x|\) is real)}
 \nonumber\\
 & = & a\ln x
 \end{eqnarray}
