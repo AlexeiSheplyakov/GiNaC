@@ -3,8 +3,8 @@
 
 #include "G__ci.h"   /* G__atpause is defined in G__ci.h */
 
-#if (!defined(G__CINTVERSION)) || (G__CINTVERSION < 501439)
-#error You need at least cint 5.14.39 to compile GiNaC-cint. Download it via http from root.cern.ch/root/Cint.html or via ftp from ftpthep.physik.uni-mainz.de/pub/cint
+#if (!defined(G__CINTVERSION)) || (G__CINTVERSION < 501460)
+#error You need at least cint 5.14.60 to compile GiNaC-cint. Download it via http from root.cern.ch/root/Cint.html or via ftp from ftpthep.physik.uni-mainz.de/pub/cint
 #endif // (!defined(G__CINTVERSION)) || (G__CINTVERSION < 501438)
 
 #include <iostream>

@@ -19,6 +19,7 @@ makecint_clean:
 	(if [ -f Makefile.makecint ]; then $(MAKE) -f Makefile.makecint clean; fi)
 
 clean: makecint_clean
+	rm -f G__*
 
 distclean: makecint_clean
-	rm -f Makefile.makecint G__*
+	rm -f Makefile.makecint
