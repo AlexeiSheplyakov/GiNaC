@@ -386,7 +386,7 @@ ex quo(const ex &a, const ex &b, const symbol &x, bool check_args)
 			term = rcoeff / blcoeff;
 		else {
 			if (!divide(rcoeff, blcoeff, term, false))
-				return *new ex(fail());
+				return (new fail())->setflag(status_flags::dynallocated);
 		}
 		term *= power(x, rdeg - bdeg);
 		q += term;
@@ -439,7 +439,7 @@ ex rem(const ex &a, const ex &b, const symbol &x, bool check_args)
 			term = rcoeff / blcoeff;
 		else {
 			if (!divide(rcoeff, blcoeff, term, false))
-				return *new ex(fail());
+				return (new fail())->setflag(status_flags::dynallocated);
 		}
 		term *= power(x, rdeg - bdeg);
 		r -= (term * b).expand();
@@ -1283,7 +1283,7 @@ ex mul::smod(const numeric &xi) const
 		it++;
 	}
 #endif // def DO_GINAC_ASSERT
-	mul * mulcopyp=new mul(*this);
+	mul * mulcopyp = new mul(*this);
 	GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
 	mulcopyp->overall_coeff = GiNaC::smod(ex_to_numeric(overall_coeff),xi);
 	mulcopyp->clearflag(status_flags::evaluated);
@@ -1333,7 +1333,7 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 
 	// Algorithms only works for non-vanishing input polynomials
 	if (a.is_zero() || b.is_zero())
-		return *new ex(fail());
+		return (new fail())->setflag(status_flags::dynallocated);
 
 	// GCD of two numeric values -> CLN
 	if (is_ex_exactly_of_type(a, numeric) && is_ex_exactly_of_type(b, numeric)) {
@@ -1367,7 +1367,7 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 	// 6 tries maximum
 	for (int t=0; t<6; t++) {
 		if (xi.int_length() * maxdeg > 100000) {
-//std::clog << "giving up heur_gcd, xi.int_length = " << xi.int_length() << ", maxdeg = " << maxdeg << endl;
+//std::clog << "giving up heur_gcd, xi.int_length = " << xi.int_length() << ", maxdeg = " << maxdeg << std::endl;
 			throw gcdheu_failed();
 		}
 
@@ -1425,7 +1425,7 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 		// Next evaluation point
 		xi = iquo(xi * isqrt(isqrt(xi)) * numeric(73794), numeric(27011));
 	}
-	return *new ex(fail());
+	return (new fail())->setflag(status_flags::dynallocated);
 }
 
 
@@ -1599,20 +1599,20 @@ factored_b:
 	int min_ldeg = std::min(ldeg_a,ldeg_b);
 	if (min_ldeg > 0) {
 		ex common = power(x, min_ldeg);
-//std::clog << "trivial common factor " << common << endl;
+//std::clog << "trivial common factor " << common << std::endl;
 		return gcd((aex / common).expand(), (bex / common).expand(), ca, cb, false) * common;
 	}
 
 	// Try to eliminate variables
 	if (var->deg_a == 0) {
-//std::clog << "eliminating variable " << x << " from b" << endl;
+//std::clog << "eliminating variable " << x << " from b" << std::endl;
 		ex c = bex.content(x);
 		ex g = gcd(aex, c, ca, cb, false);
 		if (cb)
 			*cb *= bex.unit(x) * bex.primpart(x, c);
 		return g;
 	} else if (var->deg_b == 0) {
-//std::clog << "eliminating variable " << x << " from a" << endl;
+//std::clog << "eliminating variable " << x << " from a" << std::endl;
 		ex c = aex.content(x);
 		ex g = gcd(c, bex, ca, cb, false);
 		if (ca)
@@ -1626,10 +1626,10 @@ factored_b:
 	try {
 		g = heur_gcd(aex, bex, ca, cb, var);
 	} catch (gcdheu_failed) {
-		g = *new ex(fail());
+		g = fail();
 	}
 	if (is_ex_exactly_of_type(g, fail)) {
-//std::clog << "heuristics failed" << endl;
+//std::clog << "heuristics failed" << std::endl;
 #if STATISTICS
 		heur_gcd_failed++;
 #endif
@@ -1877,7 +1877,7 @@ static ex frac_cancel(const ex &n, const ex &d)
 	ex den = d;
 	numeric pre_factor = _num1();
 
-//std::clog << "frac_cancel num = " << num << ", den = " << den << endl;
+//std::clog << "frac_cancel num = " << num << ", den = " << den << std::endl;
 
 	// Handle trivial case where denominator is 1
 	if (den.is_equal(_ex1()))
@@ -1916,7 +1916,7 @@ static ex frac_cancel(const ex &n, const ex &d)
 	}
 
 	// Return result as list
-//std::clog << " returns num = " << num << ", den = " << den << ", pre_factor = " << pre_factor << endl;
+//std::clog << " returns num = " << num << ", den = " << den << ", pre_factor = " << pre_factor << std::endl;
 	return (new lst(num * pre_factor.numer(), den * pre_factor.denom()))->setflag(status_flags::dynallocated);
 }
 
@@ -1954,10 +1954,10 @@ ex add::normal(lst &sym_lst, lst &repl_lst, int level) const
 	// Add fractions sequentially
 	exvector::const_iterator num_it = nums.begin(), num_itend = nums.end();
 	exvector::const_iterator den_it = dens.begin(), den_itend = dens.end();
-//std::clog << " num = " << *num_it << ", den = " << *den_it << endl;
+//std::clog << " num = " << *num_it << ", den = " << *den_it << std::endl;
 	ex num = *num_it++, den = *den_it++;
 	while (num_it != num_itend) {
-//std::clog << " num = " << *num_it << ", den = " << *den_it << endl;
+//std::clog << " num = " << *num_it << ", den = " << *den_it << std::endl;
 		ex next_num = *num_it++, next_den = *den_it++;
 
 		// Trivially add sequences of fractions with identical denominators
@@ -1973,7 +1973,7 @@ ex add::normal(lst &sym_lst, lst &repl_lst, int level) const
 		num = ((num * co_den2) + (next_num * co_den1)).expand();
 		den *= co_den2;		// this is the lcm(den, next_den)
 	}
-//std::clog << " common denominator = " << den << endl;
+//std::clog << " common denominator = " << den << std::endl;
 
 	// Cancel common factors from num/den
 	return frac_cancel(num, den);

@@ -249,6 +249,7 @@ $implementation=<<END_OF_IMPLEMENTATION;
 ${input_structure}
 
 #include <iostream>
+#include <stdexcept>
 
 #include "${STRUCTURE}.h"
 #include "print.h"
@@ -346,8 +347,7 @@ ex & ${STRUCTURE}::let_op(int i)
 	switch (i) {
 ${let_op_statements}
 	}
-	errormsg("${STRUCTURE}::let_op(): should not reach this point");
-	return *new ex(fail());
+	throw(std::runtime_error("${STRUCTURE}::let_op(): should not have reached this point"));
 }
 
 ex ${STRUCTURE}::expand(unsigned options) const
