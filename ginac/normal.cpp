@@ -880,9 +880,9 @@ ex ex::primpart(const symbol &x, const ex &c) const
  *  GCD of multivariate polynomials
  */
 
-/** Compute GCD of multivariate polynomials using the Euclidean PRS algorithm
- *  (not really suited for multivariate GCDs). This function is only provided
- *  for testing purposes.
+/** Compute GCD of polynomials in Q[X] using the Euclidean algorithm (not
+ *  really suited for multivariate GCDs). This function is only provided for
+ *  testing purposes.
  *
  *  @param a  first multivariate polynomial
  *  @param b  second multivariate polynomial
@@ -905,13 +905,17 @@ static ex eu_gcd(const ex &a, const ex &b, const symbol *x)
         d = a;
     }
 
+	// Normalize in Q[x]
+	c = c / c.lcoeff(*x);
+	d = d / d.lcoeff(*x);
+
 	// Euclidean algorithm
     ex r;
     for (;;) {
 //clog << " d = " << d << endl;
         r = rem(c, d, *x, false);
         if (r.is_zero())
-            return d.primpart(*x);
+            return d / d.lcoeff(*x);
         c = d;
 		d = r;
     }
@@ -943,13 +947,16 @@ static ex euprem_gcd(const ex &a, const ex &b, const symbol *x)
         d = a;
     }
 
+	// Calculate GCD of contents
+	ex gamma = gcd(c.content(*x), d.content(*x), NULL, NULL, false);
+
 	// Euclidean algorithm with pseudo-remainders
     ex r;
     for (;;) {
 //clog << " d = " << d << endl;
         r = prem(c, d, *x, false);
         if (r.is_zero())
-            return d.primpart(*x);
+            return d.primpart(*x) * gamma;
         c = d;
 		d = r;
     }
@@ -1044,7 +1051,7 @@ static ex red_gcd(const ex &a, const ex &b, const symbol *x)
     c = c.primpart(*x, cont_c);
     d = d.primpart(*x, cont_d);
 
-    // First element of subresultant sequence
+    // First element of divisor sequence
     ex r, ri = _ex1();
     int delta = cdeg - ddeg;
 
@@ -1076,21 +1083,25 @@ static ex red_gcd(const ex &a, const ex &b, const symbol *x)
 /** Compute GCD of multivariate polynomials using the subresultant PRS
  *  algorithm. This function is used internally by gcd().
  *
- *  @param a  first multivariate polynomial
- *  @param b  second multivariate polynomial
- *  @param x  pointer to symbol (main variable) in which to compute the GCD in
+ *  @param a   first multivariate polynomial
+ *  @param b   second multivariate polynomial
+ *  @param var iterator to first element of vector of sym_desc structs
  *  @return the GCD as a new expression
  *  @see gcd */
-static ex sr_gcd(const ex &a, const ex &b, const symbol *x)
+
+static ex sr_gcd(const ex &a, const ex &b, sym_desc_vec::const_iterator var)
 {
 //clog << "sr_gcd(" << a << "," << b << ")\n";
 #if STATISTICS
 	sr_gcd_called++;
 #endif
 
+    // The first symbol is our main variable
+    const symbol &x = *(var->sym);
+
     // Sort c and d so that c has higher degree
     ex c, d;
-    int adeg = a.degree(*x), bdeg = b.degree(*x);
+    int adeg = a.degree(x), bdeg = b.degree(x);
     int cdeg, ddeg;
     if (adeg >= bdeg) {
         c = a;
@@ -1105,13 +1116,13 @@ static ex sr_gcd(const ex &a, const ex &b, const symbol *x)
     }
 
     // Remove content from c and d, to be attached to GCD later
-    ex cont_c = c.content(*x);
-    ex cont_d = d.content(*x);
+    ex cont_c = c.content(x);
+    ex cont_d = d.content(x);
     ex gamma = gcd(cont_c, cont_d, NULL, NULL, false);
     if (ddeg == 0)
         return gamma;
-    c = c.primpart(*x, cont_c);
-    d = d.primpart(*x, cont_d);
+    c = c.primpart(x, cont_c);
+    d = d.primpart(x, cont_d);
 //clog << " content " << gamma << " removed, continuing with sr_gcd(" << c << "," << d << ")\n";
 
     // First element of subresultant sequence
@@ -1122,29 +1133,29 @@ static ex sr_gcd(const ex &a, const ex &b, const symbol *x)
         // Calculate polynomial pseudo-remainder
 //clog << " start of loop, psi = " << psi << ", calculating pseudo-remainder...\n";
 //clog << " d = " << d << endl;
-        r = prem(c, d, *x, false);
+        r = prem(c, d, x, false);
         if (r.is_zero())
-            return gamma * d.primpart(*x);
+            return gamma * d.primpart(x);
         c = d;
         cdeg = ddeg;
 //clog << " dividing...\n";
-        if (!divide(r, ri * pow(psi, delta), d, false))
+        if (!divide_in_z(r, ri * pow(psi, delta), d, var+1))
             throw(std::runtime_error("invalid expression in sr_gcd(), division failed"));
-        ddeg = d.degree(*x);
+        ddeg = d.degree(x);
         if (ddeg == 0) {
             if (is_ex_exactly_of_type(r, numeric))
                 return gamma;
             else
-                return gamma * r.primpart(*x);
+                return gamma * r.primpart(x);
         }
 
         // Next element of subresultant sequence
 //clog << " calculating next subresultant...\n";
-        ri = c.expand().lcoeff(*x);
+        ri = c.expand().lcoeff(x);
         if (delta == 1)
             psi = ri;
         else if (delta)
-            divide(pow(ri, delta), pow(psi, delta-1), psi, false);
+            divide_in_z(pow(ri, delta), pow(psi, delta-1), psi, var+1);
         delta = cdeg - ddeg;
     }
 }
@@ -1319,14 +1330,14 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
     }
 
     // The first symbol is our main variable
-    const symbol *x = var->sym;
+    const symbol &x = *(var->sym);
 
     // Remove integer content
     numeric gc = gcd(a.integer_content(), b.integer_content());
     numeric rgc = gc.inverse();
     ex p = a * rgc;
     ex q = b * rgc;
-    int maxdeg = max(p.degree(*x), q.degree(*x));
+    int maxdeg = max(p.degree(x), q.degree(x));
 
     // Find evaluation point
     numeric mp = p.max_coefficient(), mq = q.max_coefficient();
@@ -1344,7 +1355,7 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 		}
 
         // Apply evaluation homomorphism and calculate GCD
-        ex gamma = heur_gcd(p.subs(*x == xi), q.subs(*x == xi), NULL, NULL, var+1).expand();
+        ex gamma = heur_gcd(p.subs(x == xi), q.subs(x == xi), NULL, NULL, var+1).expand();
         if (!is_ex_exactly_of_type(gamma, fail)) {
 
             // Reconstruct polynomial from GCD of mapped polynomials
@@ -1352,7 +1363,7 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
             numeric rxi = xi.inverse();
             for (int i=0; !gamma.is_zero(); i++) {
                 ex gi = gamma.smod(xi);
-                g += gi * power(*x, i);
+                g += gi * power(x, i);
                 gamma = (gamma - gi) * rxi;
             }
             // Remove integer content
@@ -1362,7 +1373,7 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
             ex dummy;
             if (divide_in_z(p, g, ca ? *ca : dummy, var) && divide_in_z(q, g, cb ? *cb : dummy, var)) {
                 g *= gc;
-                ex lc = g.lcoeff(*x);
+                ex lc = g.lcoeff(x);
                 if (is_ex_exactly_of_type(lc, numeric) && ex_to_numeric(lc).is_negative())
                     return -g;
                 else
@@ -1530,32 +1541,32 @@ factored_b:
 
     // The symbol with least degree is our main variable
     sym_desc_vec::const_iterator var = sym_stats.begin();
-    const symbol *x = var->sym;
+    const symbol &x = *(var->sym);
 
     // Cancel trivial common factor
     int ldeg_a = var->ldeg_a;
     int ldeg_b = var->ldeg_b;
     int min_ldeg = min(ldeg_a, ldeg_b);
     if (min_ldeg > 0) {
-        ex common = power(*x, min_ldeg);
+        ex common = power(x, min_ldeg);
 //clog << "trivial common factor " << common << endl;
         return gcd((aex / common).expand(), (bex / common).expand(), ca, cb, false) * common;
     }
 
     // Try to eliminate variables
     if (var->deg_a == 0) {
-//clog << "eliminating variable " << *x << " from b" << endl;
-        ex c = bex.content(*x);
+//clog << "eliminating variable " << x << " from b" << endl;
+        ex c = bex.content(x);
         ex g = gcd(aex, c, ca, cb, false);
         if (cb)
-            *cb *= bex.unit(*x) * bex.primpart(*x, c);
+            *cb *= bex.unit(x) * bex.primpart(x, c);
         return g;
     } else if (var->deg_b == 0) {
-//clog << "eliminating variable " << *x << " from a" << endl;
-        ex c = aex.content(*x);
+//clog << "eliminating variable " << x << " from a" << endl;
+        ex c = aex.content(x);
         ex g = gcd(c, bex, ca, cb, false);
         if (ca)
-            *ca *= aex.unit(*x) * aex.primpart(*x, c);
+            *ca *= aex.unit(x) * aex.primpart(x, c);
         return g;
     }
 
@@ -1574,11 +1585,11 @@ factored_b:
 #endif
 #endif
 //		g = heur_gcd(aex, bex, ca, cb, var);
-//		g = eu_gcd(aex, bex, x);
-//		g = euprem_gcd(aex, bex, x);
-//		g = peu_gcd(aex, bex, x);
-//		g = red_gcd(aex, bex, x);
-		g = sr_gcd(aex, bex, x);
+//		g = eu_gcd(aex, bex, &x);
+//		g = euprem_gcd(aex, bex, &x);
+//		g = peu_gcd(aex, bex, &x);
+//		g = red_gcd(aex, bex, &x);
+		g = sr_gcd(aex, bex, var);
 		if (g.is_equal(_ex1())) {
 			// Keep cofactors factored if possible
 			if (ca)
