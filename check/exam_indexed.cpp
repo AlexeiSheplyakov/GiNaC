@@ -109,8 +109,9 @@ static unsigned epsilon_check(void)
 
 	unsigned result = 0;
 
-	symbol s_mu("mu"), s_nu("nu"), s_rho("rho"), s_sigma("sigma");
-	varidx mu(s_mu, 4), nu(s_nu, 4), rho(s_rho, 4), sigma(s_sigma, 4);
+	symbol s_mu("mu"), s_nu("nu"), s_rho("rho"), s_sigma("sigma"), s_tau("tau");
+	symbol d("d");
+	varidx mu(s_mu, 4), nu(s_nu, 4), rho(s_rho, 4), sigma(s_sigma, 4), tau(s_tau, 4);
 
 	// antisymmetry
 	result += check_equal(lorentz_eps(mu, nu, rho, sigma) + lorentz_eps(sigma, rho, mu, nu), 0);
@@ -119,6 +120,12 @@ static unsigned epsilon_check(void)
 	result += check_equal(lorentz_eps(mu, nu, rho, nu.toggle_variance()), 0);
 	result += check_equal(lorentz_eps(mu, nu, mu.toggle_variance(), nu.toggle_variance()), 0);
 	result += check_equal_simplify(lorentz_g(mu.toggle_variance(), nu.toggle_variance()) * lorentz_eps(mu, nu, rho, sigma), 0);
+
+	// contraction with symmetric tensor is zero
+	result += check_equal_simplify(lorentz_eps(mu, nu, rho, sigma) * indexed(d, indexed::symmetric, mu.toggle_variance(), nu.toggle_variance()), 0);
+	result += check_equal_simplify(lorentz_eps(mu, nu, rho, sigma) * indexed(d, indexed::symmetric, nu.toggle_variance(), sigma.toggle_variance(), rho.toggle_variance()), 0);
+	ex e = lorentz_eps(mu, nu, rho, sigma) * indexed(d, indexed::symmetric, mu.toggle_variance(), tau);
+	result += check_equal_simplify(e, e);
 
 	return result;
 }
