@@ -47,7 +47,7 @@ int main(int argc, char **argv)
 			archive ar;
 			f >> ar;
 			if (dump_mode) {
-				ar.dump(cout);
+				ar.printraw(cout);
 				cout << endl;
 			} else {
 				for (unsigned int i=0; i<ar.num_expressions(); i++) {

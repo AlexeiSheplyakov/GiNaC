@@ -104,8 +104,9 @@ AC_CHECK_LIB(stdc++, cout)
 dnl Make sure all the necessary new-style headers are installed on the system.
 dnl If one of them cannot be found the system is probably not ANSI-conform
 dnl enough so trying the .h-style headers is a waste of time.
-AC_CHECK_HEADERS(iostream vector map string list typeinfo iterator strstream stdexcept algorithm, ,
+AC_CHECK_HEADERS(iostream vector map string list typeinfo iterator stdexcept algorithm, ,
     AC_MSG_ERROR(need to have ANSI compliant headers))
+AC_CHECK_HEADERS(sstream strstream)
 
 dnl We need to have Bruno Haible's CLN installed (macros are in acinclude.m4):
 GINAC_CHECK_CLN_H

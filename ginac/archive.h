@@ -77,7 +77,7 @@ public:
 	ex unarchive(const lst &sym_lst) const;
 
 	void forget(void);
-	void dump(ostream &os) const;
+	void printraw(ostream &os) const;
 
 private:
 	/** Property data types */
@@ -150,7 +150,7 @@ public:
 	void clear(void);
 
 	void forget(void);
-	void dump(ostream &os) const;
+	void printraw(ostream &os) const;
 
 private:
 	/** Vector of archived nodes. */

@@ -34,6 +34,8 @@ namespace GiNaC {
 
 class idx : public basic
 {
+    GINAC_DECLARE_REGISTERED_CLASS(idx, basic)
+
 // member functions
 
     // default constructor, destructor, copy constructor assignment operator and helpers

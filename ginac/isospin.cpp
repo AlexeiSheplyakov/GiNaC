@@ -26,12 +26,16 @@
 #include "isospin.h"
 #include "ex.h"
 #include "ncmul.h"
+#include "lst.h"
+#include "archive.h"
 #include "utils.h"
 #include "debugmsg.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
 #endif // ndef NO_GINAC_NAMESPACE
+
+GINAC_IMPLEMENT_REGISTERED_CLASS(isospin, indexed)
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -73,7 +77,7 @@ const isospin & isospin::operator=(const isospin & other)
 
 void isospin::copy(const isospin & other)
 {
-    indexed::copy(other);
+    inherited::copy(other);
     name=other.name;
     serial=other.serial;
 }
@@ -81,7 +85,7 @@ void isospin::copy(const isospin & other)
 void isospin::destroy(bool call_parent)
 {
     if (call_parent) {
-        indexed::destroy(call_parent);
+        inherited::destroy(call_parent);
     }
 }
 
@@ -97,6 +101,40 @@ isospin::isospin(const string & initname)
     name=initname;
     serial=next_serial++;
     tinfo_key=TINFO_isospin;
+}
+
+//////////
+// archiving
+//////////
+
+/** Construct object from archive_node. */
+isospin::isospin(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+{
+    debugmsg("isospin constructor from archive_node", LOGLEVEL_CONSTRUCT);
+    serial = next_serial++;
+    if (!(n.find_string("name", name)))
+        name = autoname_prefix() + ToString(serial);
+    tinfo_key = TINFO_isospin;
+}
+
+/** Unarchive the object. */
+ex isospin::unarchive(const archive_node &n, const lst &sym_lst)
+{
+    ex s = (new isospin(n, sym_lst))->setflag(status_flags::dynallocated);
+
+    // If isospin is in sym_lst, return the existing isospin
+    for (int i=0; i<sym_lst.nops(); i++) {
+        if (is_ex_of_type(sym_lst.op(i), isospin) && (ex_to_isospin(sym_lst.op(i)).name == ex_to_isospin(s).name))
+            return sym_lst.op(i);
+    }
+    return s;
+}
+
+/** Archive the object. */
+void isospin::archive(archive_node &n) const
+{
+    inherited::archive(n);
+    n.add_string("name", name);
 }
 
 //////////
@@ -146,7 +184,7 @@ void isospin::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) 
 
 bool isospin::info(unsigned inf) const
 {
-    return indexed::info(inf);
+    return inherited::info(inf);
 }
 
 // protected
@@ -156,7 +194,7 @@ int isospin::compare_same_type(const basic & other) const
     GINAC_ASSERT(other.tinfo() == TINFO_isospin);
     const isospin *o = static_cast<const isospin *>(&other);
     if (serial==o->serial) {
-        return indexed::compare_same_type(other);
+        return inherited::compare_same_type(other);
     }
     return serial < o->serial ? -1 : 1;
 }

@@ -33,6 +33,8 @@ namespace GiNaC {
 /** Base class for isospin object */
 class isospin : public indexed
 {
+    GINAC_DECLARE_REGISTERED_CLASS(isospin, indexed)
+
 // member functions
 
     // default constructor, destructor, copy constructor assignment operator and helpers

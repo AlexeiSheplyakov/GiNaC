@@ -24,14 +24,22 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "config.h"
+
 #include <vector>
 #include <stdexcept>
 #include <string>
-#include <strstream>	//!!
+
+#if defined(HAVE_SSTREAM)
+#include <sstream>
+#elif defined(HAVE_STRSTREAM)
+#include <strstream>
+#else
+#error Need either sstream or strstream
+#endif
 
 #include "numeric.h"
 #include "ex.h"
-#include "config.h"
 #include "archive.h"
 #include "debugmsg.h"
 #include "utils.h"
@@ -236,19 +244,56 @@ numeric::numeric(const archive_node &n, const lst &sym_lst) : inherited(n, sym_l
 {
     debugmsg("numeric constructor from archive_node", LOGLEVEL_CONSTRUCT);
     value = new cl_N;
-#if 0	//!!
-    // This is how it should be implemented but we have no istringstream here...
+#ifdef HAVE_SSTREAM
+    // Read number as string
     string str;
     if (n.find_string("number", str)) {
         istringstream s(str);
-        s >> *value;
+        cl_idecoded_float re, im;
+        char c;
+        s.get(c);
+        switch (c) {
+            case 'N':    // Ordinary number
+            case 'R':    // Integer-decoded real number
+                s >> re.sign >> re.mantissa >> re.exponent;
+                *value = re.sign * re.mantissa * expt(cl_float(2.0, cl_default_float_format), re.exponent);
+                break;
+            case 'C':    // Integer-decoded complex number
+                s >> re.sign >> re.mantissa >> re.exponent;
+                s >> im.sign >> im.mantissa >> im.exponent;
+                *value = complex(re.sign * re.mantissa * expt(cl_float(2.0, cl_default_float_format), re.exponent),
+                                 im.sign * im.mantissa * expt(cl_float(2.0, cl_default_float_format), im.exponent));
+                break;
+            default:	// Ordinary number
+				s.putback(c);
+                s >> *value;
+                break;
+        }
     }
 #else
-    // Workaround for the above: read from strstream
+    // Read number as string
     string str;
     if (n.find_string("number", str)) {
         istrstream f(str.c_str(), str.size() + 1);
-        f >> *value;
+        cl_idecoded_float re, im;
+        char c;
+        f.get(c);
+        switch (c) {
+            case 'R':    // Integer-decoded real number
+                f >> re.sign >> re.mantissa >> re.exponent;
+                *value = re.sign * re.mantissa * expt(cl_float(2.0, cl_default_float_format), re.exponent);
+                break;
+            case 'C':    // Integer-decoded complex number
+                f >> re.sign >> re.mantissa >> re.exponent;
+                f >> im.sign >> im.mantissa >> im.exponent;
+                *value = complex(re.sign * re.mantissa * expt(cl_float(2.0, cl_default_float_format), re.exponent),
+                                 im.sign * im.mantissa * expt(cl_float(2.0, cl_default_float_format), im.exponent));
+                break;
+            default:	// Ordinary number
+				f.putback(c);
+                f >> *value;
+				break;
+        }
     }
 #endif
     calchash();
@@ -266,16 +311,48 @@ ex numeric::unarchive(const archive_node &n, const lst &sym_lst)
 void numeric::archive(archive_node &n) const
 {
     inherited::archive(n);
-#if 0	//!!
-    // This is how it should be implemented but we have no ostringstream here...
+#ifdef HAVE_SSTREAM
+    // Write number as string
     ostringstream s;
-    s << *value;
+    if (is_crational())
+        s << *value;
+    else {
+        // Non-rational numbers are written in an integer-decoded format
+        // to preserve the precision
+        if (is_real()) {
+            cl_idecoded_float re = integer_decode_float(The(cl_F)(*value));
+            s << "R";
+            s << re.sign << " " << re.mantissa << " " << re.exponent;
+        } else {
+            cl_idecoded_float re = integer_decode_float(The(cl_F)(realpart(*value)));
+            cl_idecoded_float im = integer_decode_float(The(cl_F)(imagpart(*value)));
+            s << "C";
+            s << re.sign << " " << re.mantissa << " " << re.exponent << " ";
+            s << im.sign << " " << im.mantissa << " " << im.exponent;
+        }
+    }
     n.add_string("number", s.str());
 #else
-    // Workaround for the above: write to strstream
+    // Write number as string
     char buf[1024];
     ostrstream f(buf, 1024);
-    f << *value << ends;
+    if (is_crational())
+        f << *value << ends;
+    else {
+        // Non-rational numbers are written in an integer-decoded format
+        // to preserve the precision
+        if (is_real()) {
+            cl_idecoded_float re = integer_decode_float(The(cl_F)(*value));
+            f << "R";
+            f << re.sign << " " << re.mantissa << " " << re.exponent << ends;
+        } else {
+            cl_idecoded_float re = integer_decode_float(The(cl_F)(realpart(*value)));
+            cl_idecoded_float im = integer_decode_float(The(cl_F)(imagpart(*value)));
+            f << "C";
+            f << re.sign << " " << re.mantissa << " " << re.exponent << " ";
+            f << im.sign << " " << im.mantissa << " " << im.exponent << ends;
+        }
+    }
     string str(buf);
     n.add_string("number", str);
 #endif

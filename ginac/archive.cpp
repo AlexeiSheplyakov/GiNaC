@@ -511,8 +511,8 @@ void archive_node::forget(void)
 }
 
 
-/** Dump archive to stream (for debugging). */
-void archive::dump(ostream &os) const
+/** Print archive to stream in ugly raw format (for debugging). */
+void archive::printraw(ostream &os) const
 {
 	// Dump atoms
 	os << "Atoms:\n";
@@ -545,14 +545,14 @@ void archive::dump(ostream &os) const
 		archive_node_id id = 0;
 		while (i != iend) {
 			os << " " << id << " ";
-			i->dump(os);
+			i->printraw(os);
 			i++; id++;
 		}
 	}
 }
 
-/** Dump archive_node to stream (for debugging). */
-void archive_node::dump(ostream &os) const
+/** Output archive_node to stream in ugly raw format (for debugging). */
+void archive_node::printraw(ostream &os) const
 {
 	// Dump cached unarchived expression
 	if (has_expression)

@@ -26,6 +26,7 @@
 #include "ex.h"
 #include "lst.h"
 #include "relational.h"
+#include "archive.h"
 #include "utils.h"
 #include "debugmsg.h"
 
@@ -33,13 +34,15 @@
 namespace GiNaC {
 #endif // ndef NO_GINAC_NAMESPACE
 
+GINAC_IMPLEMENT_REGISTERED_CLASS(idx, basic)
+
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
 //////////
 
 // public
 
-idx::idx() : basic(TINFO_idx), symbolic(true), covariant(false)
+idx::idx() : inherited(TINFO_idx), symbolic(true), covariant(false)
 {
     debugmsg("idx default constructor",LOGLEVEL_CONSTRUCT);
     serial=next_serial++;
@@ -72,7 +75,7 @@ const idx & idx::operator=(const idx & other)
 
 void idx::copy(const idx & other)
 {
-    basic::copy(other);
+    inherited::copy(other);
     serial=other.serial;
     symbolic=other.symbolic;
     name=other.name;
@@ -82,7 +85,7 @@ void idx::copy(const idx & other)
 
 void idx::destroy(bool call_parent)
 {
-    if (call_parent) basic::destroy(call_parent);
+    if (call_parent) inherited::destroy(call_parent);
 }
 
 //////////
@@ -91,34 +94,80 @@ void idx::destroy(bool call_parent)
 
 // public
 
-idx::idx(bool cov) : basic(TINFO_idx), symbolic(true), covariant(cov)
+idx::idx(bool cov) : inherited(TINFO_idx), symbolic(true), covariant(cov)
 {
     debugmsg("idx constructor from bool",LOGLEVEL_CONSTRUCT);
     serial=next_serial++;
     name="index"+ToString(serial);
 }
 
-idx::idx(const string & n, bool cov) : basic(TINFO_idx),  
+idx::idx(const string & n, bool cov) : inherited(TINFO_idx),  
     symbolic(true), name(n), covariant(cov)
 {
     debugmsg("idx constructor from string,bool",LOGLEVEL_CONSTRUCT);
     serial=next_serial++;
 }
 
-idx::idx(const char * n, bool cov) : basic(TINFO_idx),  
+idx::idx(const char * n, bool cov) : inherited(TINFO_idx),  
     symbolic(true), name(n), covariant(cov)
 {
     debugmsg("idx constructor from char*,bool",LOGLEVEL_CONSTRUCT);
     serial=next_serial++;
 }
 
-idx::idx(unsigned v, bool cov) : basic(TINFO_idx),
+idx::idx(unsigned v, bool cov) : inherited(TINFO_idx),
     symbolic(false), value(v), covariant(cov)
 {
     debugmsg("idx constructor from unsigned,bool",LOGLEVEL_CONSTRUCT);
     serial=0;
 }
 
+//////////
+// archiving
+//////////
+
+/** Construct object from archive_node. */
+idx::idx(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+{
+    debugmsg("idx constructor from archive_node", LOGLEVEL_CONSTRUCT);
+    n.find_bool("symbolic", symbolic);
+    n.find_bool("covariant", covariant);
+    if (symbolic) {
+        serial = next_serial++;
+        if (!(n.find_string("name", name)))
+            name = "index" + ToString(serial);
+    } else {
+        serial = 0;
+        n.find_unsigned("value", value);
+    }
+}
+
+/** Unarchive the object. */
+ex idx::unarchive(const archive_node &n, const lst &sym_lst)
+{
+    ex s = (new idx(n, sym_lst))->setflag(status_flags::dynallocated);
+
+    if (ex_to_idx(s).symbolic) {
+        // If idx is in sym_lst, return the existing idx
+        for (int i=0; i<sym_lst.nops(); i++) {
+            if (is_ex_of_type(sym_lst.op(i), idx) && (ex_to_idx(sym_lst.op(i)).name == ex_to_idx(s).name))
+                return sym_lst.op(i);
+        }
+    }
+    return s;
+}
+
+/** Archive the object. */
+void idx::archive(archive_node &n) const
+{
+    inherited::archive(n);
+    n.add_bool("symbolic", symbolic);
+    n.add_bool("covariant", covariant);
+    if (symbolic)
+        n.add_string("name", name);
+    else
+        n.add_unsigned("value", value);
+}
 
 //////////
 // functions overriding virtual functions from bases classes
@@ -197,7 +246,7 @@ void idx::print(ostream & os, unsigned upper_precedence) const
 bool idx::info(unsigned inf) const
 {
     if (inf==info_flags::idx) return true;
-    return basic::info(inf);
+    return inherited::info(inf);
 }
 
 ex idx::subs(const lst & ls, const lst & lr) const

@@ -23,12 +23,15 @@
 #include <stdexcept>
 
 #include "coloridx.h"
+#include "archive.h"
 #include "utils.h"
 #include "debugmsg.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
 #endif // ndef NO_GINAC_NAMESPACE
+
+GINAC_IMPLEMENT_REGISTERED_CLASS(coloridx, idx)
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -70,12 +73,12 @@ const coloridx & coloridx::operator=(const coloridx & other)
 
 void coloridx::copy(const coloridx & other)
 {
-    idx::copy(other);
+    inherited::copy(other);
 }
 
 void coloridx::destroy(bool call_parent)
 {
-    if (call_parent) idx::destroy(call_parent);
+    if (call_parent) inherited::destroy(call_parent);
 }
 
 //////////
@@ -108,6 +111,28 @@ coloridx::coloridx(unsigned v, bool cov) : idx(v,cov)
 {
     debugmsg("coloridx constructor from unsigned,bool",LOGLEVEL_CONSTRUCT);
     tinfo_key=TINFO_coloridx;
+}
+
+//////////
+// archiving
+//////////
+
+/** Construct object from archive_node. */
+coloridx::coloridx(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+{
+    debugmsg("coloridx constructor from archive_node", LOGLEVEL_CONSTRUCT);
+}
+
+/** Unarchive the object. */
+ex coloridx::unarchive(const archive_node &n, const lst &sym_lst)
+{
+    return (new coloridx(n, sym_lst))->setflag(status_flags::dynallocated);
+}
+
+/** Archive the object. */
+void coloridx::archive(archive_node &n) const
+{
+    inherited::archive(n);
 }
 
 //////////

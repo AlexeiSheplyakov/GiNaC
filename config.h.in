@@ -42,6 +42,9 @@
 /* Define if you have the <readline/readline.h> header file.  */
 #undef HAVE_READLINE_READLINE_H
 
+/* Define if you have the <sstream> header file.  */
+#undef HAVE_SSTREAM
+
 /* Define if you have the <stdexcept> header file.  */
 #undef HAVE_STDEXCEPT
 

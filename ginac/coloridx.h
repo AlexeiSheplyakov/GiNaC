@@ -34,6 +34,8 @@ namespace GiNaC {
 
 class coloridx : public idx
 {
+    GINAC_DECLARE_REGISTERED_CLASS(coloridx, idx)
+
     friend class color;
 
 // member functions

@@ -33,12 +33,15 @@
 #include "ncmul.h"
 #include "numeric.h"
 #include "relational.h"
+#include "archive.h"
 #include "debugmsg.h"
 #include "utils.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
 #endif // ndef NO_GINAC_NAMESPACE
+
+GINAC_IMPLEMENT_REGISTERED_CLASS(color, indexed)
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -78,7 +81,7 @@ const color & color::operator=(const color & other)
 
 void color::copy(const color & other)
 {
-    indexed::copy(other);
+    inherited::copy(other);
     type=other.type;
     representation_label=other.representation_label;
 }
@@ -86,7 +89,7 @@ void color::copy(const color & other)
 void color::destroy(bool call_parent)
 {
     if (call_parent) {
-        indexed::destroy(call_parent);
+        inherited::destroy(call_parent);
     }
 }
 
@@ -105,7 +108,7 @@ color::color(color_types const t, unsigned rl) : type(t), representation_label(r
 }
 
 color::color(color_types const t, const ex & i1, unsigned rl)
-    : indexed(i1), type(t), representation_label(rl)
+    : inherited(i1), type(t), representation_label(rl)
 {
     debugmsg("color constructor from color_types,ex,unsigned",LOGLEVEL_CONSTRUCT);
     GINAC_ASSERT(representation_label<MAX_REPRESENTATION_LABELS);
@@ -114,7 +117,7 @@ color::color(color_types const t, const ex & i1, unsigned rl)
 }
 
 color::color(color_types const t, const ex & i1, const ex & i2, unsigned rl)
-    : indexed(i1,i2), type(t), representation_label(rl)
+    : inherited(i1,i2), type(t), representation_label(rl)
 {
     debugmsg("color constructor from color_types,ex,ex,unsigned",LOGLEVEL_CONSTRUCT);
     GINAC_ASSERT(representation_label<MAX_REPRESENTATION_LABELS);
@@ -123,7 +126,7 @@ color::color(color_types const t, const ex & i1, const ex & i2, unsigned rl)
 }
 
 color::color(color_types const t, const ex & i1, const ex & i2, const ex & i3,
-             unsigned rl) : indexed(i1,i2,i3), type(t), representation_label(rl)
+             unsigned rl) : inherited(i1,i2,i3), type(t), representation_label(rl)
 {
     debugmsg("color constructor from color_types,ex,ex,ex,unsigned",LOGLEVEL_CONSTRUCT);
     GINAC_ASSERT(representation_label<MAX_REPRESENTATION_LABELS);
@@ -132,7 +135,7 @@ color::color(color_types const t, const ex & i1, const ex & i2, const ex & i3,
 }
 
 color::color(color_types const t, const exvector & iv, unsigned rl)
-    : indexed(iv), type(t), representation_label(rl)
+    : inherited(iv), type(t), representation_label(rl)
 {
     debugmsg("color constructor from color_types,exvector,unsigned",LOGLEVEL_CONSTRUCT);
     GINAC_ASSERT(representation_label<MAX_REPRESENTATION_LABELS);
@@ -141,12 +144,42 @@ color::color(color_types const t, const exvector & iv, unsigned rl)
 }
 
 color::color(color_types const t, exvector * ivp, unsigned rl)
-    : indexed(ivp), type(t), representation_label(rl)
+    : inherited(ivp), type(t), representation_label(rl)
 {
     debugmsg("color constructor from color_types,exvector *,unsigned",LOGLEVEL_CONSTRUCT);
     GINAC_ASSERT(representation_label<MAX_REPRESENTATION_LABELS);
     tinfo_key=TINFO_color;
     GINAC_ASSERT(all_of_type_coloridx());
+}
+
+//////////
+// archiving
+//////////
+
+/** Construct object from archive_node. */
+color::color(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+{
+    debugmsg("color constructor from archive_node", LOGLEVEL_CONSTRUCT);
+    unsigned int ty;
+    if (!(n.find_unsigned("type", ty)))
+        throw (std::runtime_error("unknown color type in archive"));
+    type = (color_types)ty;
+    if (!(n.find_unsigned("representation", representation_label)))
+        throw (std::runtime_error("unknown color representation label in archive"));
+}
+
+/** Unarchive the object. */
+ex color::unarchive(const archive_node &n, const lst &sym_lst)
+{
+    return (new color(n, sym_lst))->setflag(status_flags::dynallocated);
+}
+
+/** Archive the object. */
+void color::archive(archive_node &n) const
+{
+    inherited::archive(n);
+    n.add_unsigned("type", type);
+    n.add_unsigned("representation", representation_label);
 }
 
 //////////
@@ -222,7 +255,7 @@ void color::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) co
 
 bool color::info(unsigned inf) const
 {
-    return indexed::info(inf);
+    return inherited::info(inf);
 }
 
 #define CMPINDICES(A,B,C) ((idx1.get_value()==(A))&&(idx2.get_value()==(B))&&(idx3.get_value()==(C)))
@@ -354,7 +387,7 @@ int color::compare_same_type(const basic & other) const
     const color *o = static_cast<const color *>(&other);
     if (type==o->type) {
         if (representation_label==o->representation_label) {
-            return indexed::compare_same_type(other);
+            return inherited::compare_same_type(other);
         }
         return representation_label < o->representation_label ? -1 : 1;
     }
@@ -367,7 +400,7 @@ bool color::is_equal_same_type(const basic & other) const
     const color *o = static_cast<const color *>(&other);
     if (type!=o->type) return false;
     if (representation_label!=o->representation_label) return false;
-    return indexed::is_equal_same_type(other);
+    return inherited::is_equal_same_type(other);
 }
 
 #include <iostream>

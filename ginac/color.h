@@ -41,6 +41,8 @@ typedef vector<exvector,malloc_alloc> exvectorvector;
 /** Base class for color object */
 class color : public indexed
 {
+    GINAC_DECLARE_REGISTERED_CLASS(color, indexed)
+
 // friends
 
     friend color color_ONE(unsigned rl);

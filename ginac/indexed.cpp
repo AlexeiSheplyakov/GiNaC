@@ -139,6 +139,7 @@ indexed::indexed(exvector * ivp) : inherited(ivp)
 indexed::indexed(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
     debugmsg("indexed constructor from archive_node", LOGLEVEL_CONSTRUCT);
+    tinfo_key = TINFO_indexed;
 }
 
 /** Unarchive the object. */
