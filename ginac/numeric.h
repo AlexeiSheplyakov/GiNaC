@@ -241,6 +241,7 @@ numeric acosh(numeric const & x);
 numeric atanh(numeric const & x);
 numeric zeta(numeric const & x);
 numeric gamma(numeric const & x);
+numeric psi(numeric const & x);
 numeric psi(numeric const & n, numeric const & x);
 numeric factorial(numeric const & n);
 numeric doublefactorial(numeric const & n);

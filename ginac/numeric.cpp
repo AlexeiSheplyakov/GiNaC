@@ -1084,6 +1084,14 @@ numeric gamma(numeric const & x)
 
 /** The psi function (aka polygamma function).
  *  This is only a stub! */
+numeric psi(numeric const & x)
+{
+    clog << "psi(): Does anybody know good way to calculate this numerically?" << endl;
+    return numeric(0);
+}
+
+/** The psi functions (aka polygamma functions).
+ *  This is only a stub! */
 numeric psi(numeric const & n, numeric const & x)
 {
     clog << "psi(): Does anybody know good way to calculate this numerically?" << endl;

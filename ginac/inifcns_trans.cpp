@@ -468,10 +468,10 @@ static ex atan2_diff(ex const & y, ex const & x, unsigned diff_param)
     
     if (diff_param==0) {
         // d/dy atan(y,x)
-        return pow(x*(1+y*y/(x*x)),-1);
+        return x*pow(pow(x,2)+pow(y,2),-1);
     }
     // d/dx atan(y,x)
-    return -y*pow(x*x+y*y,-1);
+    return -y*pow(pow(x,2)+pow(y,2),-1);
 }
 
 REGISTER_FUNCTION(atan2, atan2_eval, atan2_evalf, atan2_diff, NULL);

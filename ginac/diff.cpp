@@ -175,17 +175,22 @@ ex power::diff(symbol const & s) const
 ex function::diff(symbol const & s) const
 {
     exvector new_seq;
-
-    if (serial == function_index_Order) {
-
+    
+    if (serial==function_index_Order) {
         // Order Term function only differentiates the argument
         return Order(seq[0].diff(s));
-
     } else {
-
         // Chain rule
+        ex arg_diff;
         for (unsigned i=0; i!=seq.size(); i++) {
-            new_seq.push_back(mul(pdiff(i), seq[i].diff(s)));
+            arg_diff = seq[i].diff(s);
+            // We apply the chain rule only when it makes sense.  This is not
+            // just for performance reasons but also to allow functions to
+            // throw when differentiated with respect to one of its arguments
+            // without running into trouble with our automatic full
+            // differentiation:
+            if (!arg_diff.is_zero())
+                new_seq.push_back(mul(pdiff(i), arg_diff));
         }
     }
     return add(new_seq);

@@ -234,10 +234,16 @@ static unsigned differentiation5(void)
          pow(y*b+pow(y,2)*x+a,-2)*pow(y,2))*
         pow(1+pow(a*x+b+y*pow(x,2),2)*pow(y*b+pow(y,2)*x+a,-2),-1);
     */
+    /*
     d = pow(1+pow(a*x+b+y*pow(x,2),2)*pow(y*b+pow(y,2)*x+a,-2),-1)
         *pow(y*b+pow(y,2)*x+a,-1)*(a+2*y*x)
         +pow(y,2)*(-a*x-b-y*pow(x,2))*
         pow(pow(y*b+pow(y,2)*x+a,2)+pow(a*x+b+y*pow(x,2),2),-1);
+    */
+    d = pow(y,2)*pow(pow(b+y*pow(x,2)+x*a,2)+pow(y*b+pow(y,2)*x+a,2),-1)*
+        (-b-y*pow(x,2)-x*a)+
+        pow(pow(b+y*pow(x,2)+x*a,2)+pow(y*b+pow(y,2)*x+a,2),-1)*
+        (y*b+pow(y,2)*x+a)*(2*y*x+a);
     result += check_diff(e, x, d);
     
     return result;

@@ -87,8 +87,16 @@ DECLARE_FUNCTION_1P(zeta)
 DECLARE_FUNCTION_1P(gamma)
 
 /** Psi-function (aka polygamma-function). */
+extern unsigned function_index_psi1;
+inline function psi(ex const & p1) {
+    return function(function_index_psi1, p1);
+}
+extern unsigned function_index_psi2;
+inline function psi(ex const & p1, ex const & p2) {
+    return function(function_index_psi2, p1, p2);
+}
 //DECLARE_FUNCTION_1P(psi)
-DECLARE_FUNCTION_2P(psi)
+//DECLARE_FUNCTION_2P(psi)
     
 /** Factorial function. */
 DECLARE_FUNCTION_1P(factorial)
