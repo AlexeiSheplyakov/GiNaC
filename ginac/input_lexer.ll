@@ -26,6 +26,8 @@
  *  Definitions
  */
 
+%pointer
+
 %{
 #include <iostream>
 #include <string>

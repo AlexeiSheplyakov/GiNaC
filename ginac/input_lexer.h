@@ -37,11 +37,7 @@ extern "C" {
 extern int ginac_yyerror(char *s);
 extern int ginac_yylex(void);
 extern void ginac_yyrestart(FILE *f);
-#if YYTEXT_POINTER
 extern char *ginac_yytext;
-#else
-extern char ginac_yytext[];
-#endif
 
 namespace GiNaC {
 

@@ -58,11 +58,7 @@ using namespace GiNaC;
 // lex functions/variables
 extern int yyerror(char *s);
 extern int yylex(void);
-#if YYTEXT_POINTER
 extern char *yytext;
-#else
-extern char yytext[];
-#endif
 extern FILE *yyin;
 
 // List of input files to be processed

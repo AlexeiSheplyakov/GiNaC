@@ -26,6 +26,8 @@
  *  Definitions
  */
 
+%pointer
+
 %{
 #include "config.h"
 
