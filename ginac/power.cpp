@@ -403,7 +403,6 @@ ex power::eval(int level) const
                 return this->hold();
             else {
                 epvector res;
-                res.reserve(1);
                 res.push_back(expair(ebasis,r.div(m)));
                 return (new mul(res,ex(num_basis->power(q))))->setflag(status_flags::dynallocated | status_flags::evaluated);
             }
