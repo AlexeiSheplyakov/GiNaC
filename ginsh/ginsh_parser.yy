@@ -572,10 +572,10 @@ void GiNaC::ginsh_get_ginac_functions(void)
 void ginsh_get_ginac_functions(void)
 #endif // ndef NO_NAMESPACE_GINAC
 {
-	vector<registered_function_info>::const_iterator i = function::registered_functions().begin(), end = function::registered_functions().end();
+	vector<function_options>::const_iterator i = function::registered_functions().begin(), end = function::registered_functions().end();
 	unsigned serial = 0;
 	while (i != end) {
-		fcns.insert(make_pair(i->name, fcn_desc(f_ginac_function, i->nparams, serial)));
+		fcns.insert(make_pair(i->get_name(), fcn_desc(f_ginac_function, i->get_nparams(), serial)));
 		i++;
 		serial++;
 	}
