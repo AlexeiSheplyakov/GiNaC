@@ -407,12 +407,19 @@ cln::cl_N multipleLi_do_sum(const std::vector<int>& s, const std::vector<cln::cl
 	int q = 0;
 	do {
 		t0buf = t[0];
+		// do it once ...
 		q++;
 		t[j-1] = t[j-1] + cln::expt(x[j-1], q) / cln::expt(cln::cl_I(q),s[j-1]) * one;
 		for (int k=j-2; k>=0; k--) {
 			t[k] = t[k] + t[k+1] * cln::expt(x[k], q+j-1-k) / cln::expt(cln::cl_I(q+j-1-k), s[k]);
 		}
-	} while ((t[0] != t0buf) || (q<10));
+		// ... and do it again (to avoid premature drop out due to special arguments)
+		q++;
+		t[j-1] = t[j-1] + cln::expt(x[j-1], q) / cln::expt(cln::cl_I(q),s[j-1]) * one;
+		for (int k=j-2; k>=0; k--) {
+			t[k] = t[k] + t[k+1] * cln::expt(x[k], q+j-1-k) / cln::expt(cln::cl_I(q+j-1-k), s[k]);
+		}
+	} while (t[0] != t0buf);
 	
 	return t[0];
 }
@@ -1851,16 +1858,12 @@ cln::cl_N zeta_do_Hoelder_convolution(const std::vector<int>& m_, const std::vec
 		} else {
 			if (m_p.front() == 1) {
 				m_p.erase(m_p.begin());
+				cln::cl_N spbuf = s_p.front();
 				s_p.erase(s_p.begin());
 				if (s_p.size() > 0) {
-					s_p.front() = s_p.front() * cln::cl_N("1/2");
+					s_p.front() = s_p.front() * spbuf;
 				}
 				s.erase(s.begin());
-				for (int i=0; i<s.size(); i++) {
-					s_p[i] = -s_p[i];
-					if (s[i] > 0) break;
-					
-				}
 				m_q.insert(m_q.begin(), 1);
 				if (s_q.size() > 0) {
 					s_q.front() = s_q.front() * 4;
