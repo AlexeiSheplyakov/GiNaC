@@ -648,6 +648,16 @@ try_again:
 				}
 			}
 
+			// Contraction of symmetric with antisymmetric object is zero
+			if ((ex_to_indexed(*it1).symmetry == indexed::symmetric &&
+			     ex_to_indexed(*it2).symmetry == indexed::antisymmetric
+			  || ex_to_indexed(*it1).symmetry == indexed::antisymmetric &&
+			     ex_to_indexed(*it2).symmetry == indexed::symmetric)
+			 && dummy.size() > 1) {
+				free_indices.clear();
+				return _ex0();
+			}
+
 			// Try to contract the first one with the second one
 			bool contracted = it1->op(0).bp->contract_with(it1, it2, v);
 			if (!contracted) {
@@ -713,17 +723,27 @@ ex simplify_indexed(const ex & e, exvector & free_indices, const scalar_products
 	// Simplification of sum = sum of simplifications, check consistency of
 	// free indices in each term
 	if (is_ex_exactly_of_type(e_expanded, add)) {
-		ex sum = simplify_indexed(e_expanded.op(0), free_indices, sp);
+		bool first = true;
+		ex sum = _ex0();
+		free_indices.clear();
 
-		for (unsigned i=1; i<e_expanded.nops(); i++) {
+		for (unsigned i=0; i<e_expanded.nops(); i++) {
 			exvector free_indices_of_term;
 			ex term = simplify_indexed(e_expanded.op(i), free_indices_of_term, sp);
-			if (!indices_consistent(free_indices, free_indices_of_term))
-				throw (std::runtime_error("simplify_indexed: inconsistent indices in sum"));
-			if (is_ex_of_type(sum, indexed) && is_ex_of_type(term, indexed))
-				sum = sum.op(0).bp->add_indexed(sum, term);
-			else
-				sum += term;
+			if (!term.is_zero()) {
+				if (first) {
+					free_indices = free_indices_of_term;
+					sum = term;
+					first = false;
+				} else {
+					if (!indices_consistent(free_indices, free_indices_of_term))
+						throw (std::runtime_error("simplify_indexed: inconsistent indices in sum"));
+					if (is_ex_of_type(sum, indexed) && is_ex_of_type(term, indexed))
+						sum = sum.op(0).bp->add_indexed(sum, term);
+					else
+						sum += term;
+				}
+			}
 		}
 
 		return sum;
