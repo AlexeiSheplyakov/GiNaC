@@ -1141,10 +1141,6 @@ bool convert_parameter_H_to_Li(const lst& l, lst& m, lst& s, ex& pf)
 			}
 		}
 	}
-	for (; acc > 1; acc--) {
-		throw std::runtime_error("ERROR!");
-		m.append(0);
-	}
 	
 	return has_negative_parameters;
 }
@@ -2141,9 +2137,9 @@ ex convert_H_to_Li(const ex& m, const ex& x)
 	map_trafo_H_reduce_trailing_zeros filter;
 	map_trafo_H_convert_to_Li filter2;
 	if (is_a<lst>(m)) {
-		return filter2(filter(H(m, x).hold())).eval();
+		return filter2(filter(H(m, x).hold()));
 	} else {
-		return filter2(filter(H(lst(m), x).hold())).eval();
+		return filter2(filter(H(lst(m), x).hold()));
 	}
 }
 
