@@ -59,7 +59,7 @@
 #include <cln/cl_complex_io.h>
 #include <cln/cl_complex_ring.h>
 #include <cln/cl_numtheory.h>
-#else
+#else  // def HAVE_CLN_CLN_H
 #include <cl_integer_io.h>
 #include <cl_integer_ring.h>
 #include <cl_rational_io.h>
@@ -71,11 +71,11 @@
 #include <cl_complex_io.h>
 #include <cl_complex_ring.h>
 #include <cl_numtheory.h>
-#endif
+#endif  // def HAVE_CLN_CLN_H
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif  // ndef NO_GINAC_NAMESPACE
 
 // linker has no problems finding text symbols for numerator or denominator
 //#define SANE_LINKER
@@ -154,6 +154,7 @@ numeric::numeric(int i) : basic(TINFO_numeric)
             status_flags::hash_calculated);
 }
 
+
 numeric::numeric(unsigned int i) : basic(TINFO_numeric)
 {
     debugmsg("numeric constructor from uint",LOGLEVEL_CONSTRUCT);
@@ -166,6 +167,7 @@ numeric::numeric(unsigned int i) : basic(TINFO_numeric)
             status_flags::hash_calculated);
 }
 
+
 numeric::numeric(long i) : basic(TINFO_numeric)
 {
     debugmsg("numeric constructor from long",LOGLEVEL_CONSTRUCT);
@@ -174,6 +176,7 @@ numeric::numeric(long i) : basic(TINFO_numeric)
     setflag(status_flags::evaluated|
             status_flags::hash_calculated);
 }
+
 
 numeric::numeric(unsigned long i) : basic(TINFO_numeric)
 {
@@ -199,6 +202,7 @@ numeric::numeric(long numer, long denom) : basic(TINFO_numeric)
             status_flags::hash_calculated);
 }
 
+
 numeric::numeric(double d) : basic(TINFO_numeric)
 {
     debugmsg("numeric constructor from double",LOGLEVEL_CONSTRUCT);
@@ -211,6 +215,7 @@ numeric::numeric(double d) : basic(TINFO_numeric)
     setflag(status_flags::evaluated|
             status_flags::hash_calculated);
 }
+
 
 numeric::numeric(const char *s) : basic(TINFO_numeric)
 {   // MISSING: treatment of complex and ints and rationals.
@@ -911,12 +916,22 @@ bool numeric::operator>=(const numeric & other) const
     return false;  // make compiler shut up
 }
 
-/** Converts numeric types to machine's int. You should check with is_integer()
- *  if the number is really an integer before calling this method. */
+/** Converts numeric types to machine's int.  You should check with
+ *  is_integer() if the number is really an integer before calling this method.
+ *  You may also consider checking the range first. */
 int numeric::to_int(void) const
 {
     GINAC_ASSERT(is_integer());
     return ::cl_I_to_int(The(cl_I)(*value));  // -> CLN
+}
+
+/** Converts numeric types to machine's long.  You should check with
+ *  is_integer() if the number is really an integer before calling this method.
+ *  You may also consider checking the range first. */
+long numeric::to_long(void) const
+{
+    GINAC_ASSERT(is_integer());
+    return ::cl_I_to_long(The(cl_I)(*value));  // -> CLN
 }
 
 /** Converts numeric types to machine's double. You should check with is_real()
@@ -1082,72 +1097,80 @@ const type_info & typeid_numeric=typeid(some_numeric);
  *  natively handing complex numbers anyways. */
 const numeric I = numeric(complex(cl_I(0),cl_I(1)));
 
+
 /** Exponential function.
  *
  *  @return  arbitrary precision numerical exp(x). */
-numeric exp(const numeric & x)
+const numeric exp(const numeric & x)
 {
     return ::exp(*x.value);  // -> CLN
 }
+
 
 /** Natural logarithm.
  *
  *  @param z complex number
  *  @return  arbitrary precision numerical log(x).
  *  @exception overflow_error (logarithmic singularity) */
-numeric log(const numeric & z)
+const numeric log(const numeric & z)
 {
     if (z.is_zero())
         throw (std::overflow_error("log(): logarithmic singularity"));
     return ::log(*z.value);  // -> CLN
 }
 
+
 /** Numeric sine (trigonometric function).
  *
  *  @return  arbitrary precision numerical sin(x). */
-numeric sin(const numeric & x)
+const numeric sin(const numeric & x)
 {
     return ::sin(*x.value);  // -> CLN
 }
 
+
 /** Numeric cosine (trigonometric function).
  *
  *  @return  arbitrary precision numerical cos(x). */
-numeric cos(const numeric & x)
+const numeric cos(const numeric & x)
 {
     return ::cos(*x.value);  // -> CLN
 }
-    
+
+
 /** Numeric tangent (trigonometric function).
  *
  *  @return  arbitrary precision numerical tan(x). */
-numeric tan(const numeric & x)
+const numeric tan(const numeric & x)
 {
     return ::tan(*x.value);  // -> CLN
 }
     
+
 /** Numeric inverse sine (trigonometric function).
  *
  *  @return  arbitrary precision numerical asin(x). */
-numeric asin(const numeric & x)
+const numeric asin(const numeric & x)
 {
     return ::asin(*x.value);  // -> CLN
 }
-    
+
+
 /** Numeric inverse cosine (trigonometric function).
  *
  *  @return  arbitrary precision numerical acos(x). */
-numeric acos(const numeric & x)
+const numeric acos(const numeric & x)
 {
     return ::acos(*x.value);  // -> CLN
 }
     
-/** Arcustangents.
+
+/** Arcustangent.
  *
  *  @param z complex number
  *  @return atan(z)
  *  @exception overflow_error (logarithmic singularity) */
-numeric atan(const numeric & x)
+const numeric atan(const numeric & x)
 {
     if (!x.is_real() &&
         x.real().is_zero() &&
@@ -1156,12 +1179,13 @@ numeric atan(const numeric & x)
     return ::atan(*x.value);  // -> CLN
 }
 
-/** Arcustangents.
+
+/** Arcustangent.
  *
  *  @param x real number
  *  @param y real number
  *  @return atan(y/x) */
-numeric atan(const numeric & y, const numeric & x)
+const numeric atan(const numeric & y, const numeric & x)
 {
     if (x.is_real() && y.is_real())
         return ::atan(realpart(*x.value), realpart(*y.value));  // -> CLN
@@ -1169,57 +1193,64 @@ numeric atan(const numeric & y, const numeric & x)
         throw (std::invalid_argument("numeric::atan(): complex argument"));        
 }
 
+
 /** Numeric hyperbolic sine (trigonometric function).
  *
  *  @return  arbitrary precision numerical sinh(x). */
-numeric sinh(const numeric & x)
+const numeric sinh(const numeric & x)
 {
     return ::sinh(*x.value);  // -> CLN
 }
 
+
 /** Numeric hyperbolic cosine (trigonometric function).
  *
  *  @return  arbitrary precision numerical cosh(x). */
-numeric cosh(const numeric & x)
+const numeric cosh(const numeric & x)
 {
     return ::cosh(*x.value);  // -> CLN
 }
-    
+
+
 /** Numeric hyperbolic tangent (trigonometric function).
  *
  *  @return  arbitrary precision numerical tanh(x). */
-numeric tanh(const numeric & x)
+const numeric tanh(const numeric & x)
 {
     return ::tanh(*x.value);  // -> CLN
 }
     
+
 /** Numeric inverse hyperbolic sine (trigonometric function).
  *
  *  @return  arbitrary precision numerical asinh(x). */
-numeric asinh(const numeric & x)
+const numeric asinh(const numeric & x)
 {
     return ::asinh(*x.value);  // -> CLN
 }
 
+
 /** Numeric inverse hyperbolic cosine (trigonometric function).
  *
  *  @return  arbitrary precision numerical acosh(x). */
-numeric acosh(const numeric & x)
+const numeric acosh(const numeric & x)
 {
     return ::acosh(*x.value);  // -> CLN
 }
 
+
 /** Numeric inverse hyperbolic tangent (trigonometric function).
  *
  *  @return  arbitrary precision numerical atanh(x). */
-numeric atanh(const numeric & x)
+const numeric atanh(const numeric & x)
 {
     return ::atanh(*x.value);  // -> CLN
 }
 
+
 /** Numeric evaluation of Riemann's Zeta function.  Currently works only for
  *  integer arguments. */
-numeric zeta(const numeric & x)
+const numeric zeta(const numeric & x)
 {
     // A dirty hack to allow for things like zeta(3.0), since CLN currently
     // only knows about integer arguments and zeta(3).evalf() automatically
@@ -1237,9 +1268,10 @@ numeric zeta(const numeric & x)
     return numeric(0);
 }
 
+
 /** The gamma function.
  *  This is only a stub! */
-numeric gamma(const numeric & x)
+const numeric gamma(const numeric & x)
 {
     clog << "gamma(" << x
          << "): Does anybody know good way to calculate this numerically?"
@@ -1247,9 +1279,10 @@ numeric gamma(const numeric & x)
     return numeric(0);
 }
 
+
 /** The psi function (aka polygamma function).
  *  This is only a stub! */
-numeric psi(const numeric & x)
+const numeric psi(const numeric & x)
 {
     clog << "psi(" << x
          << "): Does anybody know good way to calculate this numerically?"
@@ -1257,9 +1290,10 @@ numeric psi(const numeric & x)
     return numeric(0);
 }
 
+
 /** The psi functions (aka polygamma functions).
  *  This is only a stub! */
-numeric psi(const numeric & n, const numeric & x)
+const numeric psi(const numeric & n, const numeric & x)
 {
     clog << "psi(" << n << "," << x
          << "): Does anybody know good way to calculate this numerically?"
@@ -1267,15 +1301,18 @@ numeric psi(const numeric & n, const numeric & x)
     return numeric(0);
 }
 
+
 /** Factorial combinatorial function.
  *
+ *  @param n  integer argument >= 0
  *  @exception range_error (argument must be integer >= 0) */
-numeric factorial(const numeric & nn)
+const numeric factorial(const numeric & n)
 {
-    if (!nn.is_nonneg_integer())
+    if (!n.is_nonneg_integer())
         throw (std::range_error("numeric::factorial(): argument must be integer >= 0"));
-    return numeric(::factorial(nn.to_int()));  // -> CLN
+    return numeric(::factorial(n.to_int()));  // -> CLN
 }
+
 
 /** The double factorial combinatorial function.  (Scarcely used, but still
  *  useful in cases, like for exact results of Gamma(n+1/2) for instance.)
@@ -1283,22 +1320,23 @@ numeric factorial(const numeric & nn)
  *  @param n  integer argument >= -1
  *  @return n!! == n * (n-2) * (n-4) * ... * ({1|2}) with 0!! == (-1)!! == 1
  *  @exception range_error (argument must be integer >= -1) */
-numeric doublefactorial(const numeric & nn)
+const numeric doublefactorial(const numeric & n)
 {
-    if (nn == numeric(-1)) {
+    if (n == numeric(-1)) {
         return _num1();
     }
-    if (!nn.is_nonneg_integer()) {
+    if (!n.is_nonneg_integer()) {
         throw (std::range_error("numeric::doublefactorial(): argument must be integer >= -1"));
     }
-    return numeric(::doublefactorial(nn.to_int()));  // -> CLN
+    return numeric(::doublefactorial(n.to_int()));  // -> CLN
 }
+
 
 /** The Binomial coefficients.  It computes the binomial coefficients.  For
  *  integer n and k and positive n this is the number of ways of choosing k
  *  objects from n distinct objects.  If n is negative, the formula
  *  binomial(n,k) == (-1)^k*binomial(k-n-1,k) is used to compute the result. */
-numeric binomial(const numeric & n, const numeric & k)
+const numeric binomial(const numeric & n, const numeric & k)
 {
     if (n.is_integer() && k.is_integer()) {
         if (n.is_nonneg_integer()) {
@@ -1315,12 +1353,13 @@ numeric binomial(const numeric & n, const numeric & k)
     throw (std::range_error("numeric::binomial(): don´t know how to evaluate that."));
 }
 
+
 /** Bernoulli number.  The nth Bernoulli number is the coefficient of x^n/n!
  *  in the expansion of the function x/(e^x-1).
  *
  *  @return the nth Bernoulli number (a rational number).
  *  @exception range_error (argument must be integer >= 0) */
-numeric bernoulli(const numeric & nn)
+const numeric bernoulli(const numeric & nn)
 {
     if (!nn.is_integer() || nn.is_negative())
         throw (std::range_error("numeric::bernoulli(): argument must be integer >= 0"));
@@ -1357,11 +1396,41 @@ numeric bernoulli(const numeric & nn)
     return results[n];
 }
 
+
+/** Fibonacci number.  The nth Fibonacci number F(n) is defined by the
+ *  recurrence formula F(n)==F(n-1)+F(n-2) with F(0)==0 and F(1)==1.
+ *
+ *  @param n an integer
+ *  @return the nth Fibonacci number F(n) (an integer number)
+ *  @exception range_error (argument must be an integer) */
+const numeric fibonacci(const numeric & n)
+{
+    if (!n.is_integer()) {
+        throw (std::range_error("numeric::fibonacci(): argument must be integer"));
+    }
+    // For positive arguments compute the nearest integer to
+    // ((1+sqrt(5))/2)^n/sqrt(5).  For negative arguments, apply an additional
+    // sign.  Note that we are falling back to longs, but this should suffice
+    // for all times.
+    int sig = 1;
+    const long nn = ::abs(n.to_double());
+    if (n.is_negative() && n.is_even())
+        sig =-1;
+    
+    // Need a precision of ((1+sqrt(5))/2)^-n.
+    cl_float_format_t prec = ::cl_float_format((int)(0.208987641*nn+5));
+    cl_R sqrt5 = ::sqrt(::cl_float(5,prec));
+    cl_R phi = (1+sqrt5)/2;
+    return numeric(::round1(::expt(phi,nn)/sqrt5)*sig);
+}
+
+
 /** Absolute value. */
 numeric abs(const numeric & x)
 {
     return ::abs(*x.value);  // -> CLN
 }
+
 
 /** Modulus (in positive representation).
  *  In general, mod(a,b) has the sign of b or is zero, and rem(a,b) has the
@@ -1378,6 +1447,7 @@ numeric mod(const numeric & a, const numeric & b)
         return _num0();  // Throw?
 }
 
+
 /** Modulus (in symmetric representation).
  *  Equivalent to Maple's mods.
  *
@@ -1392,6 +1462,7 @@ numeric smod(const numeric & a, const numeric & b)
         return _num0();  // Throw?
 }
 
+
 /** Numeric integer remainder.
  *  Equivalent to Maple's irem(a,b) as far as sign conventions are concerned.
  *  In general, mod(a,b) has the sign of b or is zero, and irem(a,b) has the
@@ -1405,6 +1476,7 @@ numeric irem(const numeric & a, const numeric & b)
     else
         return _num0();  // Throw?
 }
+
 
 /** Numeric integer remainder.
  *  Equivalent to Maple's irem(a,b,'q') it obeyes the relation
@@ -1426,6 +1498,7 @@ numeric irem(const numeric & a, const numeric & b, numeric & q)
     }
 }
 
+
 /** Numeric integer quotient.
  *  Equivalent to Maple's iquo as far as sign conventions are concerned.
  *  
@@ -1437,6 +1510,7 @@ numeric iquo(const numeric & a, const numeric & b)
     else
         return _num0();  // Throw?
 }
+
 
 /** Numeric integer quotient.
  *  Equivalent to Maple's iquo(a,b,'r') it obeyes the relation
@@ -1456,6 +1530,7 @@ numeric iquo(const numeric & a, const numeric & b, numeric & r)
     }
 }
 
+
 /** Numeric square root.
  *  If possible, sqrt(z) should respect squares of exact numbers, i.e. sqrt(4)
  *  should return integer 2.
@@ -1469,6 +1544,7 @@ numeric sqrt(const numeric & z)
     return ::sqrt(*z.value);  // -> CLN
 }
 
+
 /** Integer numeric square root. */
 numeric isqrt(const numeric & x)
 {
@@ -1479,6 +1555,7 @@ numeric isqrt(const numeric & x)
     } else
         return _num0();  // Throw?
 }
+
 
 /** Greatest Common Divisor.
  *   
@@ -1492,6 +1569,7 @@ numeric gcd(const numeric & a, const numeric & b)
         return _num1();
 }
 
+
 /** Least Common Multiple.
  *   
  *  @return  The LCM of two numbers if both are integer, the product of those
@@ -1504,20 +1582,27 @@ numeric lcm(const numeric & a, const numeric & b)
         return *a.value * *b.value;
 }
 
+
+/** Floating point evaluation of Archimedes' constant Pi. */
 ex PiEvalf(void)
 { 
     return numeric(cl_pi(cl_default_float_format));  // -> CLN
 }
 
+
+/** Floating point evaluation of Euler's constant Gamma. */
 ex EulerGammaEvalf(void)
 { 
     return numeric(cl_eulerconst(cl_default_float_format));  // -> CLN
 }
 
+
+/** Floating point evaluation of Catalan's constant. */
 ex CatalanEvalf(void)
 {
     return numeric(cl_catalanconst(cl_default_float_format));  // -> CLN
 }
+
 
 // It initializes to 17 digits, because in CLN cl_float_format(17) turns out to
 // be 61 (<64) while cl_float_format(18)=65.  We want to have a cl_LF instead 
@@ -1530,6 +1615,7 @@ _numeric_digits::_numeric_digits()
     cl_default_float_format = cl_float_format(17);
 }
 
+
 _numeric_digits& _numeric_digits::operator=(long prec)
 {
     digits=prec;
@@ -1537,16 +1623,19 @@ _numeric_digits& _numeric_digits::operator=(long prec)
     return *this;
 }
 
+
 _numeric_digits::operator long()
 {
     return (long)digits;
 }
+
 
 void _numeric_digits::print(ostream & os) const
 {
     debugmsg("_numeric_digits print", LOGLEVEL_PRINT);
     os << digits;
 }
+
 
 ostream& operator<<(ostream& os, const _numeric_digits & e)
 {
