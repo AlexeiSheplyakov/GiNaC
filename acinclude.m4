@@ -29,7 +29,7 @@ AC_DEFUN(GINAC_CHECK_LIBCLN,
     saved_LIBS="${LIBS}"
     AC_CACHE_VAL(ginac_cv_lib_cln_link,
         [LIBS="-lcln"
-        case "${ac_cv_header_CLN_cln_h}" in
+        case "${ac_cv_header_cln_cln_h}" in
         "yes")
             AC_TRY_LINK([#include <cln/cln.h>],
                 [doublefactorial(2);],

@@ -6,7 +6,7 @@ AC_PREREQ(2.13)
 dnl Configure options
 AC_ARG_ENABLE(html-doc, [  --enable-html-doc       build HTML documentation [default=yes]], , enable_html_doc=yes)
 AC_ARG_ENABLE(ps-doc,   [  --enable-ps-doc         build PostScript documentation [default=yes]], , enable_ps_doc=yes)
-AC_ARG_WITH(cint, [  --with-cint             build GiNaC-cint C++ interpreter [default=no]], with_cint=no])
+AC_ARG_WITH(cint, [  --with-cint=CINTSYSDIR  build GiNaC-cint C++ interpreter [default=no]], , with_cint=no)
 
 dnl GiNaC library version information
 dnl
@@ -144,6 +144,19 @@ if [[ "x$enable_ps_doc" = "xyes" ]]; then
 fi
 AC_SUBST(TUTORIAL_TARGETS)
 AC_SUBST(REFERENCE_TARGETS)
+
+dnl Configure GiNaC-cint, if requested
+if [[ "x$with_cint" != "xno" ]]; then
+  echo "with_cint is set to: $with_cint"
+  CINTSYSDIR=$with_cint
+  AC_PATH_PROG(CINT, cint, "", $CINTSYSDIR:$PATH)
+  AC_PATH_PROG(MAKECINT, makecint, "", $CINTSYSDIR:$PATH)
+  if [[ "$cint" -a "$makecint" ]]; then
+    AC_MSG_RESULT([Configuring GiNaC-cint])
+  else
+    AC_MSG_ERROR([Cannot configure GiNaC-cint])
+  fi
+fi
 
 dnl Output makefiles etc.
 AC_OUTPUT([
