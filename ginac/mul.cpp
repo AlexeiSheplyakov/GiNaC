@@ -824,6 +824,20 @@ bool mul::can_make_flat(const expair & p) const
 	return ex_to<numeric>(p.coeff).is_equal(_num1);
 }
 
+bool mul::can_be_further_expanded(const ex & e)
+{
+	if (is_exactly_a<mul>(e)) {
+		for (epvector::const_iterator cit = ex_to<mul>(e).seq.begin(); cit != ex_to<mul>(e).seq.end(); ++cit) {
+			if (is_exactly_a<add>(cit->rest) && cit->coeff.info(info_flags::posint))
+				return true;
+		}
+	} else if (is_exactly_a<power>(e)) {
+		if (is_exactly_a<add>(e.op(0)) && e.op(1).info(info_flags::posint))
+			return true;
+	}
+	return false;
+}
+
 ex mul::expand(unsigned options) const
 {
 	// First, expand the children
@@ -833,18 +847,15 @@ ex mul::expand(unsigned options) const
 	// Now, look for all the factors that are sums and multiply each one out
 	// with the next one that is found while collecting the factors which are
 	// not sums
-	int number_of_adds = 0;
 	ex last_expanded = _ex1;
+	bool need_reexpand = false;
 
 	epvector non_adds;
 	non_adds.reserve(expanded_seq.size());
-	bool non_adds_has_sums = false; // Look for sums or powers of sums in the non_adds (we need this later)
 
-	epvector::const_iterator cit = expanded_seq.begin(), last = expanded_seq.end();
-	while (cit != last) {
+	for (epvector::const_iterator cit = expanded_seq.begin(); cit != expanded_seq.end(); ++cit) {
 		if (is_exactly_a<add>(cit->rest) &&
 			(cit->coeff.is_equal(_ex1))) {
-			++number_of_adds;
 			if (is_exactly_a<add>(last_expanded)) {
 
 				// Expand a product of two sums, aggressive version.
@@ -862,6 +873,7 @@ ex mul::expand(unsigned options) const
 				const epvector::const_iterator add2end   = add2.seq.end();
 				epvector distrseq;
 				distrseq.reserve(add1.seq.size()+add2.seq.size());
+
 				// Multiply add2 with the overall coefficient of add1 and append it to distrseq:
 				if (!add1.overall_coeff.is_zero()) {
 					if (add1.overall_coeff.is_equal(_ex1))
@@ -870,6 +882,7 @@ ex mul::expand(unsigned options) const
 						for (epvector::const_iterator i=add2begin; i!=add2end; ++i)
 							distrseq.push_back(expair(i->rest, ex_to<numeric>(i->coeff).mul_dyn(ex_to<numeric>(add1.overall_coeff))));
 				}
+
 				// Multiply add1 with the overall coefficient of add2 and append it to distrseq:
 				if (!add2.overall_coeff.is_zero()) {
 					if (add2.overall_coeff.is_equal(_ex1))
@@ -878,8 +891,10 @@ ex mul::expand(unsigned options) const
 						for (epvector::const_iterator i=add1begin; i!=add1end; ++i)
 							distrseq.push_back(expair(i->rest, ex_to<numeric>(i->coeff).mul_dyn(ex_to<numeric>(add2.overall_coeff))));
 				}
+
 				// Compute the new overall coefficient and put it together:
 				ex tmp_accu = (new add(distrseq, add1.overall_coeff*add2.overall_coeff))->setflag(status_flags::dynallocated);
+
 				// Multiply explicitly all non-numeric terms of add1 and add2:
 				for (epvector::const_iterator i1=add1begin; i1!=add1end; ++i1) {
 					// We really have to combine terms here in order to compactify
@@ -889,7 +904,7 @@ ex mul::expand(unsigned options) const
 					for (epvector::const_iterator i2=add2begin; i2!=add2end; ++i2) {
 						// Don't push_back expairs which might have a rest that evaluates to a numeric,
 						// since that would violate an invariant of expairseq:
-						const ex rest = ex((new mul(i1->rest, i2->rest))->setflag(status_flags::dynallocated)).expand();
+						const ex rest = (new mul(i1->rest, i2->rest))->setflag(status_flags::dynallocated);
 						if (is_exactly_a<numeric>(rest))
 							oc += ex_to<numeric>(rest).mul(ex_to<numeric>(i1->coeff).mul(ex_to<numeric>(i2->coeff)));
 						else
@@ -900,47 +915,49 @@ ex mul::expand(unsigned options) const
 				last_expanded = tmp_accu;
 
 			} else {
-				non_adds.push_back(split_ex_to_pair(last_expanded));
+				if (!last_expanded.is_equal(_ex1))
+					non_adds.push_back(split_ex_to_pair(last_expanded));
 				last_expanded = cit->rest;
 			}
+
 		} else {
-			if (is_exactly_a<add>(cit->rest))
-				non_adds_has_sums = true;
 			non_adds.push_back(*cit);
 		}
-		++cit;
 	}
 
 	// Now the only remaining thing to do is to multiply the factors which
 	// were not sums into the "last_expanded" sum
 	if (is_exactly_a<add>(last_expanded)) {
-		const add & finaladd = ex_to<add>(last_expanded);
-
-		size_t n = finaladd.nops();
+		size_t n = last_expanded.nops();
 		exvector distrseq;
 		distrseq.reserve(n);
 
 		for (size_t i=0; i<n; ++i) {
 			epvector factors = non_adds;
-			expair new_factor = split_ex_to_pair(finaladd.op(i).expand());
-			factors.push_back(new_factor);
-
-			const mul & term = static_cast<const mul &>((new mul(factors, overall_coeff))->setflag(status_flags::dynallocated));
-
-			// The new term may have sums in it if e.g. a sqrt() of a sum in
-			// the non_adds meets a sqrt() of a sum in the factor from
-			// last_expanded. In this case we should re-expand the term.
-			if (non_adds_has_sums || is_exactly_a<add>(new_factor.rest))
-				distrseq.push_back(ex(term).expand());
-			else
-				distrseq.push_back(term.setflag(options == 0 ? status_flags::expanded : 0));
+			factors.push_back(split_ex_to_pair(last_expanded.op(i)));
+			ex term = (new mul(factors, overall_coeff))->setflag(status_flags::dynallocated);
+			if (can_be_further_expanded(term))
+				distrseq.push_back(term.expand());
+			else {
+				if (options == 0)
+					ex_to<basic>(term).setflag(status_flags::expanded);
+				distrseq.push_back(term);
+			}
 		}
+
 		return ((new add(distrseq))->
 		        setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0)));
 	}
+
 	non_adds.push_back(split_ex_to_pair(last_expanded));
-	return (new mul(non_adds, overall_coeff))->
-	        setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0));
+	ex result = (new mul(non_adds, overall_coeff))->setflag(status_flags::dynallocated);
+	if (can_be_further_expanded(result)) {
+		return result.expand();
+	} else {
+		if (options == 0)
+			ex_to<basic>(result).setflag(status_flags::expanded);
+		return result;
+	}
 }
 
   
