@@ -46,12 +46,15 @@ string preprocess(char const * const line, bool & comment, bool & single_quote,
 void cleanup(void);
 void sigterm_handler(int n);
 void initialize(void);
+void initialize_cint(void);
+void restart(void);
 bool readlines(istream * is, string & allcommands);
 bool readfile(string const & filename, string & allcommands);
 void savefile(string const & filename, string const & allcommands);
 
 typedef list<char *> cplist;
 cplist filenames;
+bool redirect_output=false;
 
 G__value exec_tempfile(string const & command)
 {
@@ -122,14 +125,19 @@ void process_tempfile(string const & command)
         exec_tempfile(string()+"LLLAST=LLAST;\n"
                       +"LLAST=LAST;\n"
                       +"LAST="+varname+";\n"
-                      +"cout << \""+varname+" = \" << "+varname+" << endl << endl;");
+                      +"if (ginac_cint_internal_redirect_output&&"
+                      +"    ginac_cint_internal_fout.good()) {" 
+                      +"    ginac_cint_internal_fout << \""+varname+" = \" << "+varname+" << endl << endl;"
+                      +"} else {"
+                      +"    cout << \""+varname+" = \" << "+varname+" << endl << endl;"
+                      +"}");
     } else if (TYPES_EQUAL(retval,ref_symbol)||
                TYPES_EQUAL(retval,ref_constant)||
                TYPES_EQUAL(retval,ref_function)||
                TYPES_EQUAL(retval,ref_power)||
                TYPES_EQUAL(retval,ref_numeric)) {
         if (!basic_type_warning_already_displayed) {
-	    cout << endl
+            cout << endl
                  <<"WARNING: The return value of the last expression you entered was a symbol," << endl
                  << "constant, function, power or numeric, which cannot be safely displayed." << endl
                  << "To force the output, cast it explicitly to type 'ex' or use 'cout'," << endl
@@ -161,16 +169,23 @@ void greeting(void)
 void helpmessage(void)
 {
     cout << "GiNaC-cint recognizes some special commands which start with a dot:" << endl << endl
-         << "  .q, .quit, .exit, .bye   quit GiNaC-cint" << endl
-         << "  .help                    the text you are currently reading" << endl
-         << "  .function                define the body of a function (necessary due to a" << endl
-         << "                           cint limitation)" << endl
          << "  .cint                    switch to cint interactive mode (see cint" << endl
          << "                           documentation for further details)" << endl
+         << "  .function                define the body of a function (necessary due to a" << endl
+         << "                           cint limitation)" << endl
+         << "  .help                    the text you are currently reading" << endl
+         << "  .q, .quit, .exit, .bye   quit GiNaC-cint" << endl
          << "  .read filename           read a file from disk and execute it in GiNaC-cint" << endl
          << "                           (recursive call is possible)" << endl
-         << "  .save filename           save the commands you have entered so far in a file" << endl << endl
-         << "Additionally you can exit GiNaC-cint with quit; exit; or bye;" << endl
+         << "  .redirect [filename]     redirect 'OutXY = ...' output to a file" << endl
+         << "                           (.redirect alone redirects output back to console)" << endl
+         << "  .restart                 restart GiNaC-cint (does not re-read command line" << endl
+         << "                           files)" << endl
+         << "  .save filename           save the commands you have entered so far in a file" << endl
+         << "  .silent                  suppress 'OutXY = ...' output (variables are still" << endl
+         << "                           accessible)" << endl
+         << "  .> [filename]            same as .redirect [filename]" << endl << endl
+<< "Additionally you can exit GiNaC-cint with quit; exit; or bye;" << endl
          << endl;
 }
 
@@ -180,7 +195,7 @@ string preprocess(char const * const line, bool & comment, bool & single_quote,
     // "preprocess" the line entered to be able to decide if the command shall be
     // executed directly or more input is needed or this is a special command
 
-    // all whitespace will be removed
+    // ALL whitespace will be removed
     // all comments (/* */ and //) will be removed
     // open and close braces ( { and } ) outside strings will be counted 
 
@@ -297,7 +312,11 @@ void initialize(void)
 
     atexit(cleanup);
     signal(SIGTERM,sigterm_handler);
-    
+    initialize_cint();
+}    
+
+void initialize_cint(void)
+{
     G__init_cint("cint");    /* initialize cint */
 
     // no longer needed as of cint 5.14.31
@@ -308,7 +327,31 @@ void initialize(void)
 #endif // ndef NO_NAMESPACE_GINAC
     
     exec_tempfile("ex LAST,LLAST,LLLAST;\n");
+    exec_tempfile("bool ginac_cint_internal_redirect_output=false;\n");
+    exec_tempfile("ofstream ginac_cint_internal_fout;\n");
 }    
+
+void restart(void)
+{
+    cout << "Restarting GiNaC-cint." << endl;
+    G__scratch_all();
+    initialize_cint();
+}
+
+void redirect(string const & filename)
+{
+    if (filename=="") {
+        cout << "Redirecting output back to console..." << endl;
+        exec_tempfile( string()
+                      +"ginac_cint_internal_redirect_output=false;\n"
+                      +"ginac_cint_internal_fout.close();");
+    } else {
+        cout << "Redirecting output to " << filename << "..." << endl;
+        exec_tempfile( string()
+                      +"ginac_cint_internal_redirect_output=true;\n"
+                      +"ginac_cint_internal_fout.open(\""+filename+"\");\n");
+    }
+}
 
 bool readlines(istream * is, string & allcommands)
 {
@@ -374,6 +417,14 @@ bool readlines(istream * is, string & allcommands)
         } else if (preprocessed.substr(0,5)==".save") {
             command = "// "+command; // we do not want the .save command itself in saved files
             savefile(preprocessed.substr(5),allcommands);
+        } else if (preprocessed==".restart") {
+            restart();
+        } else if (preprocessed.substr(0,9)==".redirect") {
+            redirect(preprocessed.substr(9));
+        } else if (preprocessed.substr(0,2)==".>") {
+            redirect(preprocessed.substr(2));
+        } else if (preprocessed==".silent") {
+            redirect("/dev/null");
         /* test for more special commands
         } else if (preprocessed==".xyz") {
             cout << "special command (TBD): " << command << endl;

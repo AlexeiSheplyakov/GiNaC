@@ -3,6 +3,7 @@
 GiNaC-cint \- An interactive interface for GiNaC based on the Cint C/C++ interpreter
 .SH SYNPOSIS
 .B ginaccint
+[file ...]
 .SH DESCRIPTION
 .B ginaccint
 is an interactive frontend for the GiNaC symbolic computation
@@ -14,7 +15,11 @@ scripts and later compiled with the native compiler and linked into
 the system.
 .SH USAGE
 .SS INPUT FORMAT
-After startup, ginsh displays a prompt signifying that it is ready to
+After startup, GiNaC-cint reads and executes the files given as 
+command line arguments. If any of these files contains a
+.BR .quit
+command, GiNaC-cint exits at this point.
+Otherwise it displays a prompt signifying that it is ready to
 accept your input. All C++ statements are valid as input, extended by
 GiNaC's numeric or symbolic expressions.  E.g.
 .BR fibonacci(24)/1104;
@@ -44,6 +49,7 @@ is encountered.
 .SS SPECIAL COMMANDS
 .IP "\fB.cint\fR"
 Switch to cint's interactive mode.
+
 .IP "\fB.function\fR"
 
 Allow a function definition in interactive mode.  GiNaC-cint must be
@@ -51,14 +57,51 @@ put into a special mode in order to define a function. After that any
 function definition in valid C++ syntax may be typed in.  It becomes
 immediatly available for usage.
 
-.IP "\fBquit;\fR"
+.IP "\fB.help\fB"
+
+List a short summary of available commands.
+
+.IP "\fB.quit\fR"
 Exit from GiNaC-cint.  Same as 
-.BR "exit;" ,
-.BR "bye;" ,
+.BR ".bye" ,
+.BR ".exit" ,
 .BR ".q" ,
-.BR ".quit" ,
-.BR ".exit " or
-.BR ".bye" .
+.BR "bye;" ,
+.BR "exit; " or
+.BR "quit;" .
+
+.IP "\fB.read filename\fB"
+
+Read a file from disk and execute it in GiNaC-cint
+(recursive call is possible).
+
+.IP "\fB.redirect [filename]\fB"
+
+Redirect
+.BR "\fBOut\fP\fInum\fP" 
+output to a file (
+.BR .redirect
+alone redirects output to console).
+
+.IP "\fB.restart\fB"
+
+Restart GiNaC-cint (does not re-read command line files).	
+
+.IP "\fB.save filename\fB"
+
+Save the commands you have entered so far in a file.
+
+.IP "\fB.silent\fB"
+
+suppress
+.BR "\fBOut\fP\fInum\fP" 
+output (variables are still accessible).
+
+.IP "\fB.> [filename]\fB"
+
+same as
+.BR "\fB.redirect [filename]\fB"
+.
 
 .IP "\fBOut\fP\fInum\fP"
 Returns the expression whose output was marked
@@ -112,7 +155,7 @@ The GCD of -3+2*x*z*y+x^2*z^2*y^2 and 3-4*x*z*y+x^2*z^2*y^2
  is -1+x*z*y
  so (-3+2*x*z*y+x^2*z^2*y^2)*(3-4*x*z*y+x^2*z^2*y^2)^(-1)
  is (-3+x*z*y)^(-1)*(3+x*z*y)
-GiNaC> quit;
+GiNaC> .quit
 .fi
 
 .SH BUGS
@@ -137,7 +180,8 @@ after declaring them.  This accounts for some funny behaviour, like
 doesn't print, but
 .BR fibonacci(7)*1
 does, since this is not a naked number but an expression holding
-that number.
+that number. A warning message is printed in this case only for
+the first occurence.
 
 .SH AUTHOR
 .TP
