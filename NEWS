@@ -5,6 +5,7 @@ This file records noteworthy changes.
   delta or metric tensors.
 * Computing the derivative of a power series object with respect to a symbol
   that is not the expansion variable now works correctly.
+* Several bugfixes in code generation.
 
 1.0.10 (24 July 2002)
 * Powers of indexed objects are now parenthesized correctly in LaTeX output.
