@@ -341,6 +341,23 @@ bool spinidx::match_same_type(const basic & other) const
 	return inherited::match_same_type(other);
 }
 
+unsigned idx::calchash() const
+{
+	unsigned v = golden_ratio_hash(tinfo());
+	v = rotate_left(v);
+	v ^= value.gethash();
+	v = rotate_left(v);
+	v ^= dim.gethash();
+
+	// Store calculated hash value only if object is already evaluated
+	if (flags & status_flags::evaluated) {
+		setflag(status_flags::hash_calculated);
+		hashvalue = v;
+	}
+
+	return v;
+}
+
 /** By default, basic::evalf would evaluate the index value but we don't want
  *  a.1 to become a.(1.0). */
 ex idx::evalf(int level) const

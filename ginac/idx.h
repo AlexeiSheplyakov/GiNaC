@@ -59,6 +59,7 @@ public:
 protected:
 	ex derivative(const symbol & s) const;
 	bool match_same_type(const basic & other) const;
+	unsigned calchash() const;
 
 	// new virtual functions in this class
 public:
