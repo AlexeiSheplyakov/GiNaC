@@ -242,6 +242,19 @@ void ex::makewriteable()
 	GINAC_ASSERT(bp->refcount == 1);
 }
 
+/** Share equal objects between expressions.
+ *  @see ex::compare(const basic &) */
+void ex::share(const ex & other) const
+{
+	if ((bp->flags & status_flags::not_shareable) || (other.bp->flags & status_flags::not_shareable))
+		return;
+
+	if (bp->refcount <= other.bp->refcount)
+		bp = other.bp;
+	else
+		other.bp = bp;
+}
+
 /** Helper function for the ex-from-basic constructor. This is where GiNaC's
  *  automatic evaluator and memory management are implemented.
  *  @see ex::ex(const basic &) */

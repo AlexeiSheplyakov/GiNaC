@@ -304,11 +304,11 @@ public:
 	ex numer_denom() const;
 
 	// polynomial algorithms
-	ex unit(const symbol &x) const;
-	ex content(const symbol &x) const;
+	ex unit(const ex &x) const;
+	ex content(const ex &x) const;
 	numeric integer_content() const;
-	ex primpart(const symbol &x) const;
-	ex primpart(const symbol &x, const ex &cont) const;
+	ex primpart(const ex &x) const;
+	ex primpart(const ex &x, const ex &cont) const;
 	ex smod(const numeric &xi) const { return bp->smod(xi); }
 	numeric max_coefficient() const;
 
@@ -345,6 +345,7 @@ private:
 	static basic & construct_from_double(double d);
 	static ptr<basic> construct_from_string_and_lst(const std::string &s, const ex &l);
 	void makewriteable();
+	void share(const ex & other) const;
 
 #ifdef OBSCURE_CINT_HACK
 public:
@@ -368,7 +369,7 @@ protected:
 // member variables
 
 private:
-	ptr<basic> bp;      ///< pointer to basic object managed by this
+	mutable ptr<basic> bp;  ///< pointer to basic object managed by this
 
 #ifdef OBSCURE_CINT_HACK
 public:
@@ -481,7 +482,14 @@ int ex::compare(const ex & other) const
 {
 	if (bp == other.bp)  // trivial case: both expressions point to same basic
 		return 0;
-	return bp->compare(*other.bp);
+	const int cmpval = bp->compare(*other.bp);
+	if (cmpval == 0) {
+		// Expressions point to different, but equal, trees: conserve
+		// memory and make subsequent compare() operations faster by
+		// making both expression point to the same tree.
+		share(other);
+	}
+	return cmpval;
 }
 
 inline
