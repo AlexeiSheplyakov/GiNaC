@@ -200,28 +200,6 @@ $declare_function_macro
 const unsigned function_index_##NAME= \\
 	GiNaC::function::register_new(GiNaC::function_options(#NAME).OPT);
 
-// The TYPECHECK-macros were used inside the _evalf() functions.  They are
-// considered obsolete now:  (FIXME: remove them)
-
-#define BEGIN_TYPECHECK \\
-bool automatic_typecheck=true;
-
-#define TYPECHECK(VAR,TYPE) \\
-if (!is_exactly_a<TYPE>(VAR)) { \\
-	automatic_typecheck=false; \\
-} else
-
-#define TYPECHECK_INTEGER(VAR) \\
-if (!(VAR).info(GiNaC::info_flags::integer)) { \\
-	automatic_typecheck=false; \\
-} else
-
-#define END_TYPECHECK(RV) \\
-{} \\
-if (!automatic_typecheck) { \\
-	return RV.hold(); \\
-}
-
 namespace GiNaC {
 
 class function;
