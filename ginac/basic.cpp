@@ -140,11 +140,9 @@ void basic::print_dispatch(const registered_class_info & ri, const print_context
 	const print_context_class_info * pc_info = &c.get_class_info();
 
 next_class:
-std::clog << "searching class " << reg_info->options.get_name() << std::endl;
 	const std::vector<print_functor> & pdt = reg_info->options.get_print_dispatch_table();
 
 next_context:
-std::clog << "searching context " << pc_info->options.get_name() << ", ID " << pc_info->options.get_id() << std::endl;
 	unsigned id = pc_info->options.get_id();
 	if (id >= pdt.size() || !(pdt[id].is_valid())) {
 
@@ -173,8 +171,6 @@ std::clog << "searching context " << pc_info->options.get_name() << ", ID " << p
 	} else {
 
 		// Call method
-std::clog << "method found, calling" << std::endl;
-std::clog << " this = " << class_name() << ", context = " << c.class_name() << std::endl;
 		pdt[id](*this, c, level);
 	}
 }
