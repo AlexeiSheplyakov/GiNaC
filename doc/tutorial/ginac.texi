@@ -1750,7 +1750,7 @@ int main()
 @cindex simplification
 @cindex temporary replacement
 
-Some basic from of simplification of expressions is called for frequently.
+Some basic form of simplification of expressions is called for frequently.
 GiNaC provides the method @code{.normal()}, which converts a rational function
 into an equivalent rational function of the form @samp{numerator/denominator}
 where numerator and denominator are coprime.  If the input expression is already
