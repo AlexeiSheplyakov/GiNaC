@@ -144,4 +144,4 @@ template <class T> struct less< GiNaC::ptr<T> >
 
 } // namespace std
 
-#endif // ndef __GINAC_UTILS_H__
+#endif // ndef __GINAC_PTR_H__
