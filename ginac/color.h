@@ -33,7 +33,7 @@ namespace GiNaC {
  *  of SU(3), as used for calculations in quantum chromodynamics. A
  *  representation label (an unsigned 8-bit integer) is used to distinguish
  *  elements from different Lie algebras (objects with different labels
- *  commute). These objects implement an abstract representation of the
+ *  commutate). These objects implement an abstract representation of the
  *  group, not a specific matrix representation. The indices used for color
  *  objects should not have a variance. */
 class color : public indexed

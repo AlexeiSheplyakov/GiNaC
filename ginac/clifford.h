@@ -35,7 +35,7 @@ namespace GiNaC {
  *  algebra (the Dirac gamma matrices). These objects only carry Lorentz
  *  indices. Spinor indices are hidden. A representation label (an unsigned
  *  8-bit integer) is used to distinguish elements from different Clifford
- *  algebras (objects with different labels commute). */
+ *  algebras (objects with different labels commutate). */
 class clifford : public indexed
 {
 	GINAC_DECLARE_REGISTERED_CLASS(clifford, indexed)
@@ -124,7 +124,7 @@ protected:
 };
 
 
-/** This class represents the Dirac gamma5 object which anticommutes with
+/** This class represents the Dirac gamma5 object which anticommutates with
  *  all other gammas. */
 class diracgamma5 : public tensor
 {

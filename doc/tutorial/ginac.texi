@@ -2811,7 +2811,7 @@ operator (often denoted @samp{&*}) for representing inert products of
 arbitrary objects. Rather, non-commutativity in GiNaC is a property of the
 classes of objects involved, and non-commutative products are formed with
 the usual @samp{*} operator, as are ordinary products. GiNaC is capable of
-figuring out by itself which objects commute and will group the factors
+figuring out by itself which objects commutate and will group the factors
 by their class. Consider this example:
 
 @example
@@ -2827,7 +2827,7 @@ by their class. Consider this example:
 As can be seen, GiNaC pulls out the overall commutative factor @samp{-16} and
 groups the non-commutative factors (the gammas and the su(3) generators)
 together while preserving the order of factors within each class (because
-Clifford objects commute with color objects). The resulting expression is a
+Clifford objects commutate with color objects). The resulting expression is a
 @emph{commutative} product with two factors that are themselves non-commutative
 products (@samp{gamma~mu*gamma~nu} and @samp{T.a*T.b}). For clarification,
 parentheses are placed around the non-commutative products in the output.
@@ -2845,7 +2845,7 @@ than in other computer algebra systems; they can, for example, automatically
 canonicalize themselves according to rules specified in the implementation
 of the non-commutative classes. The drawback is that to work with other than
 the built-in algebras you have to implement new classes yourself. Symbols
-always commute and it's not possible to construct non-commutative products
+always commutate and it's not possible to construct non-commutative products
 using symbols to represent the algebra elements or generators. User-defined
 functions can, however, be specified as being non-commutative.
 
@@ -2864,16 +2864,16 @@ the header file @file{flags.h}), corresponding to three categories of
 expressions in GiNaC:
 
 @itemize
-@item @code{return_types::commutative}: Commutes with everything. Most GiNaC
+@item @code{return_types::commutative}: Commutates with everything. Most GiNaC
   classes are of this kind.
 @item @code{return_types::noncommutative}: Non-commutative, belonging to a
   certain class of non-commutative objects which can be determined with the
-  @code{return_type_tinfo()} method. Expressions of this category commute
+  @code{return_type_tinfo()} method. Expressions of this category commutate
   with everything except @code{noncommutative} expressions of the same
   class.
 @item @code{return_types::noncommutative_composite}: Non-commutative, composed
   of non-commutative objects of different classes. Expressions of this
-  category don't commute with any other @code{noncommutative} or
+  category don't commutate with any other @code{noncommutative} or
   @code{noncommutative_composite} expressions.
 @end itemize
 
@@ -2924,7 +2924,7 @@ ex dirac_gamma(const ex & mu, unsigned char rl = 0);
 which takes two arguments: the index and a @dfn{representation label} in the
 range 0 to 255 which is used to distinguish elements of different Clifford
 algebras (this is also called a @dfn{spin line index}). Gammas with different
-labels commute with each other. The dimension of the index can be 4 or (in
+labels commutate with each other. The dimension of the index can be 4 or (in
 the framework of dimensional regularization) any symbolic value. Spinor
 indices on Dirac gammas are not supported in GiNaC.
 
@@ -2942,7 +2942,7 @@ write @code{dirac_gamma(mu)*(dirac_slash(q,4)+m*dirac_ONE())}. Otherwise,
 GiNaC will complain and/or produce incorrect results.
 
 @cindex @code{dirac_gamma5()}
-There is a special element @samp{gamma5} that commutes with all other
+There is a special element @samp{gamma5} that commutates with all other
 gammas, has a unit square, and in 4 dimensions equals
 @samp{gamma~0 gamma~1 gamma~2 gamma~3}, provided by
 
@@ -3098,7 +3098,7 @@ ex color_T(const ex & a, unsigned char rl = 0);
 
 which takes two arguments: the index and a @dfn{representation label} in the
 range 0 to 255 which is used to distinguish elements of different color
-algebras. Objects with different labels commute with each other. The
+algebras. Objects with different labels commutate with each other. The
 dimension of the index must be exactly 8 and it should be of class @code{idx},
 not @code{varidx}.
 
@@ -3430,7 +3430,7 @@ table:
 @end cartouche
 
 To determine whether an expression is commutative or non-commutative and if
-so, with which other expressions it would commute, you use the methods
+so, with which other expressions it would commutate, you use the methods
 @code{return_type()} and @code{return_type_tinfo()}. @xref{Non-commutative objects},
 for an explanation of these.
 
