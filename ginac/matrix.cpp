@@ -463,7 +463,7 @@ ex determinant_numeric(const matrix & M)
 
 // Compute the sign of a permutation of a vector of things, used internally
 // by determinant_symbolic_perm() where it is instantiated for int.
-template <class T>
+template <typename T>
 int permutation_sign(vector<T> s)
 {
     if (s.size() < 2)
