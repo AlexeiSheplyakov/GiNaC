@@ -971,7 +971,12 @@ ex power::series(const relational & r, int order, unsigned options) const
 
 	// No, expand basis into series
 
-	numeric numexp = ex_to<numeric>(exponent);
+	numeric numexp;
+	if (is_a<numeric>(exponent)) {
+		numexp = ex_to<numeric>(exponent);
+	} else {
+		numexp = 0;
+	}
 	const ex& sym = r.lhs();
 	// find existing minimal degree
 	int real_ldegree = basis.expand().ldegree(sym-r.rhs());
