@@ -44,6 +44,17 @@ static unsigned check_equal_simplify(const ex &e1, const ex &e2)
 	return 0;
 }
 
+static unsigned check_equal_simplify(const ex &e1, const ex &e2, const scalar_products &sp)
+{
+	ex e = simplify_indexed(e1, sp) - e2;
+	if (!e.is_zero()) {
+		clog << "simplify_indexed(" << e1 << ")-" << e2 << " erroneously returned "
+		     << e << " instead of 0" << endl;
+		return 1;
+	}
+	return 0;
+}
+
 static unsigned delta_check(void)
 {
 	// checks identities of the delta tensor
@@ -136,14 +147,42 @@ static unsigned symmetry_check(void)
 
 	unsigned result = 0;
 
-	symbol s_i("i"), s_j("j"), s_k("k");
-	idx i(s_i, 3), j(s_j, 3), k(s_k, 3);
-	symbol A("A");
-	ex e, e1, e2;
+	idx i(symbol("i"), 3), j(symbol("j"), 3), k(symbol("k"), 3), l(symbol("l"), 3);
+	symbol A("A"), B("B");
+	ex e;
 
 	result += check_equal(indexed(A, indexed::symmetric, i, j), indexed(A, indexed::symmetric, j, i));
 	result += check_equal(indexed(A, indexed::antisymmetric, i, j) + indexed(A, indexed::antisymmetric, j, i), 0);
 	result += check_equal(indexed(A, indexed::antisymmetric, i, j, k) - indexed(A, indexed::antisymmetric, j, k, i), 0);
+	e = indexed(A, indexed::symmetric, i, j, k) *
+	    indexed(B, indexed::antisymmetric, l, k, i);
+	result += check_equal_simplify(e, 0);
+	e = indexed(A, indexed::symmetric, i, i, j, j) *
+	    indexed(B, indexed::antisymmetric, k, l); // GiNaC 0.8.0 had a bug here
+	result += check_equal_simplify(e, e);
+
+	return result;
+}
+
+static unsigned scalar_product_check(void)
+{
+	// check scalar product replacement
+
+	unsigned result = 0;
+
+    idx i(symbol("i"), 3), j(symbol("j"), 3);
+    symbol A("A"), B("B"), C("C");
+	ex e;
+
+    scalar_products sp;
+    sp.add(A, B, 0); // A and B are orthogonal
+    sp.add(A, C, 0); // A and C are orthogonal
+    sp.add(A, A, 4); // A^2 = 4 (A has length 2)
+
+    e = (indexed(A + B, i) * indexed(A + C, i)).expand(expand_options::expand_indexed);
+	result += check_equal_simplify(e, indexed(B, i) * indexed(C, i) + 4, sp);
+	e = indexed(A, i, i) * indexed(B, j, j); // GiNaC 0.8.0 had a bug here
+	result += check_equal_simplify(e, e, sp);
 
 	return result;
 }
@@ -246,6 +285,7 @@ unsigned exam_indexed(void)
 	result += metric_check();  cout << '.' << flush;
 	result += epsilon_check();  cout << '.' << flush;
 	result += symmetry_check();  cout << '.' << flush;
+	result += scalar_product_check();  cout << '.' << flush;
 	result += edyn_check();  cout << '.' << flush;
 	
 	if (!result) {
