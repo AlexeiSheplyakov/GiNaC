@@ -6,6 +6,8 @@ This file records noteworthy changes.
 * Added dirac_gammaL/R(), which can be used instead of dirac_gamma6/7()
   but are single objects, to allow for a more compact notation of Dirac
   strings.
+* Powers with negative numeric exponents are printed as fractions in the
+  LaTeX output.
 
 1.0.12 (30 October 2002)
 * Fixed a bug in power::expand() that could produce invalid expressions.
