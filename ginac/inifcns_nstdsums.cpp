@@ -13,8 +13,8 @@
  *      Nielsen's Generalized Polylogarithms, K.S.Kolbig, SIAM J.Math.Anal. 17 (1986), pp. 1232-1258.
  *      This document will be referenced as [Kol] throughout this source code.
  *    - Classical polylogarithms (Li) and nielsen's generalized polylogarithms (S) can be numerically
- *    	evaluated in the whole complex plane except for S(n,p,-1) when p is not unit (no formula yet
- *    	to tackle these points). And of course, there is still room for speed optimizations ;-).
+ *    	evaluated in the whole complex plane. And of course, there is still room for speed optimizations ;-).
+ *    - The calculation of classical polylogarithms is speed up by using Euler-MacLaurin summation (EuMac).
  *    - The remaining functions can only be numerically evaluated with arguments lying in the unit sphere
  *      at the moment. Sorry. The evaluation especially for mZeta is very slow ... better not use it
  *      right now.
@@ -53,40 +53,320 @@
 #include "numeric.h"
 #include "operators.h"
 #include "relational.h"
+#include "pseries.h"
 
 
 namespace GiNaC {
 
 	
+// lookup table for Euler-MacLaurin optimization
+// see fill_Xn()
+std::vector<std::vector<cln::cl_N> > Xn;
+int xnsize = 0;
+
+
+// lookup table for Euler-Zagier-Sums (used for S_n,p(x))
+// see fill_Yn()
+std::vector<std::vector<cln::cl_N> > Yn;
+int ynsize = 0; // number of Yn[]
+int ynlength = 100; // initial length of all Yn[i]
+
+
 //////////////////////
 // helper functions //
 //////////////////////
 
 
-// helper function for classical polylog Li
-static cln::cl_N Li_series(int n, const cln::cl_N& x, const cln::float_format_t& prec)
+// This function calculates the X_n. The X_n are needed for the Euler-MacLaurin summation (EMS) of
+// classical polylogarithms.
+// With EMS the polylogs can be calculated as follows:
+//   Li_p (x)  =  \sum_{n=0}^\infty X_{p-2}(n) u^{n+1}/(n+1)! with  u = -log(1-x)
+//   X_0(n) = B_n (Bernoulli numbers)
+//   X_p(n) = \sum_{k=0}^n binomial(n,k) B_{n-k} / (k+1) * X_{p-1}(k)
+// The calculation of Xn depends on X0 and X{n-1}.
+// X_0 is special, it holds only the non-zero Bernoulli numbers with index 2 or greater.
+// This results in a slightly more complicated algorithm for the X_n.
+// The first index in Xn corresponds to the index of the polylog minus 2.
+// The second index in Xn corresponds to the index from the EMS.
+static void fill_Xn(int n)
 {
-	// Note: argument must be in the unit circle
-	cln::cl_N aug, acc;
-	cln::cl_N num = cln::complex(cln::cl_float(1, prec), 0);
-	cln::cl_N den = 0;
-	int i = 1;
-	do {
-		num = num * x;
-		cln::cl_R ii = i;
-		den = cln::expt(ii, n);
-		i++;
-		aug = num / den;
-		acc = acc + aug;
-	} while (acc != acc+aug);
-	return acc;
+	// rule of thumb. needs to be improved. TODO
+	const int initsize = Digits * 3 / 2;
+
+	if (n>1) {
+		// calculate X_2 and higher (corresponding to Li_4 and higher)
+		std::vector<cln::cl_N> buf(initsize);
+		std::vector<cln::cl_N>::iterator it = buf.begin();
+		cln::cl_N result;
+		*it = -(cln::expt(cln::cl_I(2),n+1) - 1) / cln::expt(cln::cl_I(2),n+1); // i == 1
+		it++;
+		for (int i=2; i<=initsize; i++) {
+			if (i&1) {
+				result = 0; // k == 0
+			} else {
+				result = Xn[0][i/2-1]; // k == 0
+			}
+			for (int k=1; k<i-1; k++) {
+				if ( !(((i-k) & 1) && ((i-k) > 1)) ) {
+					result = result + cln::binomial(i,k) * Xn[0][(i-k)/2-1] * Xn[n-1][k-1] / (k+1);
+				}
+			}
+			result = result - cln::binomial(i,i-1) * Xn[n-1][i-2] / 2 / i; // k == i-1
+			result = result + Xn[n-1][i-1] / (i+1); // k == i
+			
+			*it = result;
+			it++;
+		}
+		Xn.push_back(buf);
+	} else if (n==1) {
+		// special case to handle the X_0 correct
+		std::vector<cln::cl_N> buf(initsize);
+		std::vector<cln::cl_N>::iterator it = buf.begin();
+		cln::cl_N result;
+		*it = cln::cl_I(-3)/cln::cl_I(4); // i == 1
+		it++;
+		*it = cln::cl_I(17)/cln::cl_I(36); // i == 2
+		it++;
+		for (int i=3; i<=initsize; i++) {
+			if (i & 1) {
+				result = -Xn[0][(i-3)/2]/2;
+				*it = (cln::binomial(i,1)/cln::cl_I(2) + cln::binomial(i,i-1)/cln::cl_I(i))*result;
+				it++;
+			} else {
+				result = Xn[0][i/2-1] + Xn[0][i/2-1]/(i+1);
+				for (int k=1; k<i/2; k++) {
+					result = result + cln::binomial(i,k*2) * Xn[0][k-1] * Xn[0][i/2-k-1] / (k*2+1);
+				}
+				*it = result;
+				it++;
+			}
+		}
+		Xn.push_back(buf);
+	} else {
+		// calculate X_0
+		std::vector<cln::cl_N> buf(initsize/2);
+		std::vector<cln::cl_N>::iterator it = buf.begin();
+		for (int i=1; i<=initsize/2; i++) {
+			*it = bernoulli(i*2).to_cl_N();
+			it++;
+		}
+		Xn.push_back(buf);
+	}
+
+	xnsize++;
 }
+
+
+// This function calculates the Y_n. The Y_n are needed for the evaluation of S_{n,p}(x).
+// The Y_n are basically Euler-Zagier sums with all m_i=1. They are subsums in the Z-sum
+// representing S_{n,p}(x).
+// The first index in Y_n corresponds to the parameter p minus one, i.e. the depth of the
+// equivalent Z-sum.
+// The second index in Y_n corresponds to the running index of the outermost sum in the full Z-sum
+// representing S_{n,p}(x).
+// The calculation of Y_n uses the values from Y_{n-1}.
+static void fill_Yn(int n, const cln::float_format_t& prec)
+{
+	// TODO -> get rid of the magic number
+	const int initsize = ynlength;
+	//const int initsize = initsize_Yn;
+	cln::cl_N one = cln::cl_float(1, prec);
+
+	if (n) {
+		std::vector<cln::cl_N> buf(initsize);
+		std::vector<cln::cl_N>::iterator it = buf.begin();
+		std::vector<cln::cl_N>::iterator itprev = Yn[n-1].begin();
+		*it = (*itprev) / cln::cl_N(n+1) * one;
+		it++;
+		itprev++;
+		// sums with an index smaller than the depth are zero and need not to be calculated.
+		// calculation starts with depth, which is n+2)
+		for (int i=n+2; i<=initsize+n; i++) {
+			*it = *(it-1) + (*itprev) / cln::cl_N(i) * one;
+			it++;
+			itprev++;
+		}
+		Yn.push_back(buf);
+	} else {
+		std::vector<cln::cl_N> buf(initsize);
+		std::vector<cln::cl_N>::iterator it = buf.begin();
+		*it = 1 * one;
+		it++;
+		for (int i=2; i<=initsize; i++) {
+			*it = *(it-1) + 1 / cln::cl_N(i) * one;
+			it++;
+		}
+		Yn.push_back(buf);
+	}
+	ynsize++;
+}
+
+
+// make Yn longer ... 
+static void make_Yn_longer(int newsize, const cln::float_format_t& prec)
+{
+
+	cln::cl_N one = cln::cl_float(1, prec);
+
+	Yn[0].resize(newsize);
+	std::vector<cln::cl_N>::iterator it = Yn[0].begin();
+	it += ynlength;
+	for (int i=ynlength+1; i<=newsize; i++) {
+		*it = *(it-1) + 1 / cln::cl_N(i) * one;
+		it++;
+	}
+
+	for (int n=1; n<ynsize; n++) {
+		Yn[n].resize(newsize);
+		std::vector<cln::cl_N>::iterator it = Yn[n].begin();
+		std::vector<cln::cl_N>::iterator itprev = Yn[n-1].begin();
+		it += ynlength;
+		itprev += ynlength;
+		for (int i=ynlength+n+1; i<=newsize+n; i++) {
+			*it = *(it-1) + (*itprev) / cln::cl_N(i) * one;
+			it++;
+			itprev++;
+		}
+	}
+	
+	ynlength = newsize;
+}
+
+
+// calculates Li(2,x) without EuMac
+static cln::cl_N Li2_series(const cln::cl_N& x)
+{
+	cln::cl_N res = x;
+	cln::cl_N resbuf;
+	cln::cl_N num = x;
+	cln::cl_I den = 1; // n^2 = 1
+	unsigned i = 3;
+	do {
+		resbuf = res;
+		num = num * x;
+		den = den + i;  // n^2 = 4, 9, 16, ...
+		i += 2;
+		res = res + num / den;
+	} while (res != resbuf);
+	return res;
+}
+
+
+// calculates Li(2,x) with EuMac
+static cln::cl_N Li2_series_EuMac(const cln::cl_N& x)
+{
+	std::vector<cln::cl_N>::const_iterator it = Xn[0].begin();
+	cln::cl_N u = -cln::log(1-x);
+	cln::cl_N factor = u;
+	cln::cl_N res = u - u*u/4;
+	cln::cl_N resbuf;
+	unsigned i = 1;
+	do {
+		resbuf = res;
+		factor = factor * u*u / (2*i * (2*i+1));
+		res = res + (*it) * factor;
+		it++; // should we check it? or rely on initsize? ...
+		i++;
+	} while (res != resbuf);
+	return res;
+}
+
+
+// calculates Li(n,x), n>2 without EuMac
+static cln::cl_N Lin_series(int n, const cln::cl_N& x)
+{
+	cln::cl_N factor = x;
+	cln::cl_N res = x;
+	cln::cl_N resbuf;
+	int i=2;
+	do {
+		resbuf = res;
+		factor = factor * x;
+		res = res + factor / cln::expt(cln::cl_I(i),n);
+		i++;
+	} while (res != resbuf);
+	return res;
+}
+
+
+// calculates Li(n,x), n>2 with EuMac
+static cln::cl_N Lin_series_EuMac(int n, const cln::cl_N& x)
+{
+	std::vector<cln::cl_N>::const_iterator it = Xn[n-2].begin();
+	cln::cl_N u = -cln::log(1-x);
+	cln::cl_N factor = u;
+	cln::cl_N res = u;
+	cln::cl_N resbuf;
+	unsigned i=2;
+	do {
+		resbuf = res;
+		factor = factor * u / i;
+		res = res + (*it) * factor;
+		it++; // should we check it? or rely on initsize? ...
+		i++;
+	} while (res != resbuf);
+	return res;
+}
+
+
+// forward declaration needed by function Li_projection and C below
+static numeric S_num(int n, int p, const numeric& x);
 
 
 // helper function for classical polylog Li
 static cln::cl_N Li_projection(int n, const cln::cl_N& x, const cln::float_format_t& prec)
 {
-	return Li_series(n, x, prec);
+	// treat n=2 as special case
+	if (n == 2) {
+		// check if precalculated X0 exists
+		if (xnsize == 0) {
+			fill_Xn(0);
+		}
+
+		if (cln::realpart(x) < 0.5) {
+			// choose the faster algorithm
+			// the switching point was empirically determined. the optimal point
+			// depends on hardware, Digits, ... so an approx value is okay.
+			// it solves also the problem with precision due to the u=-log(1-x) transformation
+			if (cln::abs(cln::realpart(x)) < 0.25) {
+				
+				return Li2_series(x);
+			} else {
+				return Li2_series_EuMac(x);
+			}
+		} else {
+			// choose the faster algorithm
+			if (cln::abs(cln::realpart(x)) > 0.75) {
+				return -Li2_series(1-x) - cln::log(x) * cln::log(1-x) + cln::zeta(2);
+			} else {
+				return -Li2_series_EuMac(1-x) - cln::log(x) * cln::log(1-x) + cln::zeta(2);
+			}
+		}
+	} else {
+		// check if precalculated Xn exist
+		if (n > xnsize+1) {
+			for (int i=xnsize; i<n-1; i++) {
+				fill_Xn(i);
+			}
+		}
+
+		if (cln::realpart(x) < 0.5) {
+			// choose the faster algorithm
+			// with n>=12 the "normal" summation always wins against EuMac
+			if ((cln::abs(cln::realpart(x)) < 0.3) || (n >= 12)) {
+				return Lin_series(n, x);
+			} else {
+				return Lin_series_EuMac(n, x);
+			}
+		} else {
+			cln::cl_N result = -cln::expt(cln::log(x), n-1) * cln::log(1-x) / cln::factorial(n-1);
+			for (int j=0; j<n-1; j++) {
+				result = result + (S_num(n-j-1, 1, 1).to_cl_N() - S_num(1, n-j-1, 1-x).to_cl_N())
+					* cln::expt(cln::log(x), j) / cln::factorial(j);
+			}
+			return result;
+		}
+	}
 }
 
 
@@ -169,10 +449,6 @@ static cln::cl_N numeric_nielsen(int n, int step)
 }
 
 
-// forward declaration needed by function C below
-static numeric S_num(int n, int p, const numeric& x);
-
-	
 // helper function for S(n,p,x)
 // [Kol] (7.2)
 static cln::cl_N C(int n, int p)
@@ -273,22 +549,38 @@ static cln::cl_N b_k(int k)
 // helper function for S(n,p,x)
 static cln::cl_N S_series(int n, int p, const cln::cl_N& x, const cln::float_format_t& prec)
 {
-	n++;
-	int i = p;
-	p--;
-	cln::cl_N aug, acc;
-	cln::cl_N num = cln::expt(x,p);
-	cln::cl_N converter = cln::complex(cln::cl_float(1, prec), 0);
-	cln::cl_N den = 0;
-	do {
-		num = num * x;
-		den = cln::expt(cln::cl_I(i), n);
-		aug = num / den * numeric_nielsen(i, p);
-		i++;
-		acc = acc + aug;
-	} while (acc != acc+aug);
+	if (p==1) {
+		return Li_projection(n+1, x, prec);
+	}
+	
+	// TODO -> check for vector boundaries and do missing calculations
 
-	return acc;
+	// check if precalculated values are sufficient
+	if (p > ynsize+1) {
+		for (int i=ynsize; i<p-1; i++) {
+			fill_Yn(i, prec);
+		}
+	}
+
+	// should be done otherwise
+	cln::cl_N xf = x * cln::cl_float(1, prec);
+
+	cln::cl_N result;
+	cln::cl_N resultbuffer;
+	int i;
+	for (i=p; true; i++) {
+		resultbuffer = result;
+		if (i-p >= ynlength) {
+			// make Yn longer
+			make_Yn_longer(ynlength*2, prec);
+		}
+		result = result + cln::expt(xf,i) / cln::expt(cln::cl_I(i),n+1) * Yn[p-2][i-p]; // should we check it? or rely on magic number? ...
+		if (cln::zerop(result-resultbuffer)) {
+			break;
+		}
+	}
+	
+	return result;
 }
 
 
@@ -348,7 +640,7 @@ static numeric S_num(int n, int p, const numeric& x)
 		if (p == 1) {
 			return -(1-cln::expt(cln::cl_I(2),-n)) * cln::zeta(n+1);
 		}
-		throw std::runtime_error("don't know how to evaluate this function!");
+//		throw std::runtime_error("don't know how to evaluate this function!");
 	}
 
 	// what is the desired float format?
@@ -381,7 +673,7 @@ static numeric S_num(int n, int p, const numeric& x)
 		
 	}
 	// [Kol] (5.12)
-	else if (cln::abs(value) > 1) {
+	if (cln::abs(value) > 1) {
 		
 		cln::cl_N result;
 
@@ -467,6 +759,8 @@ static ex Li_eval(const ex& x1, const ex& x2)
 		return 0;
 	}
 	else {
+		if (x2.info(info_flags::numeric) && (!x2.info(info_flags::crational)))
+			return Li_num(ex_to<numeric>(x1).to_int(), ex_to<numeric>(x2));
 		return Li(x1,x2).hold();
 	}
 }
@@ -484,7 +778,7 @@ static ex Li_evalf(const ex& x1, const ex& x2)
 				return Li(x1,x2).hold();
 			if (!is_a<numeric>(x2.op(i)))
 				return Li(x1,x2).hold();
-			if (x2 >= 1)
+			if (x2.op(i) >= 1)
 				return Li(x1,x2).hold();
 		}
 
@@ -514,7 +808,14 @@ static ex Li_evalf(const ex& x1, const ex& x2)
 	return Li(x1,x2).hold();
 }
 
-REGISTER_FUNCTION(Li, eval_func(Li_eval).evalf_func(Li_evalf).do_not_evalf_params());
+static ex Li_series(const ex& x1, const ex& x2, const relational& rel, int order, unsigned options)
+{
+	epvector seq;
+	seq.push_back(expair(Li(x1,x2), 0));
+	return pseries(rel,seq);
+}
+
+REGISTER_FUNCTION(Li, eval_func(Li_eval).evalf_func(Li_evalf).do_not_evalf_params().series_func(Li_series));
 
 
 // Nielsen's generalized polylogarithm
@@ -524,6 +825,10 @@ static ex S_eval(const ex& x1, const ex& x2, const ex& x3)
 	if (x2 == 1) {
 		return Li(x1+1,x3);
 	}
+	if (x3.info(info_flags::numeric) && (!x3.info(info_flags::crational)) && 
+			x1.info(info_flags::posint) && x2.info(info_flags::posint)) {
+		return S_num(ex_to<numeric>(x1).to_int(), ex_to<numeric>(x2).to_int(), ex_to<numeric>(x3));
+	}
 	return S(x1,x2,x3).hold();
 }
 
@@ -532,20 +837,30 @@ static ex S_evalf(const ex& x1, const ex& x2, const ex& x3)
 	if (is_a<numeric>(x1) && is_a<numeric>(x2) && is_a<numeric>(x3)) {
 		if ((x3 == -1) && (x2 != 1)) {
 			// no formula to evaluate this ... sorry
-			return S(x1,x2,x3).hold();
+//			return S(x1,x2,x3).hold();
 		}
 		return S_num(ex_to<numeric>(x1).to_int(), ex_to<numeric>(x2).to_int(), ex_to<numeric>(x3));
 	}
 	return S(x1,x2,x3).hold();
 }
 
-REGISTER_FUNCTION(S, eval_func(S_eval).evalf_func(S_evalf).do_not_evalf_params());
+static ex S_series(const ex& x1, const ex& x2, const ex& x3, const relational& rel, int order, unsigned options)
+{
+	epvector seq;
+	seq.push_back(expair(S(x1,x2,x3), 0));
+	return pseries(rel,seq);
+}
+
+REGISTER_FUNCTION(S, eval_func(S_eval).evalf_func(S_evalf).do_not_evalf_params().series_func(S_series));
 
 
 // Harmonic polylogarithm
 
 static ex H_eval(const ex& x1, const ex& x2)
 {
+	if (x2.info(info_flags::numeric) && (!x2.info(info_flags::crational))) {
+		return H(x1,x2).evalf();
+	}
 	return H(x1,x2).hold();
 }
 
@@ -555,6 +870,9 @@ static ex H_evalf(const ex& x1, const ex& x2)
 		for (int i=0; i<x1.nops(); i++) {
 			if (!is_a<numeric>(x1.op(i)))
 				return H(x1,x2).hold();
+		}
+		if (x2 >= 1) {
+			return H(x1,x2).hold();
 		}
 
 		cln::cl_N m_1 = ex_to<numeric>(x1.op(x1.nops()-1)).to_cl_N();
@@ -581,7 +899,14 @@ static ex H_evalf(const ex& x1, const ex& x2)
 	return H(x1,x2).hold();
 }
 
-REGISTER_FUNCTION(H, eval_func(H_eval).evalf_func(H_evalf).do_not_evalf_params());
+static ex H_series(const ex& x1, const ex& x2, const relational& rel, int order, unsigned options)
+{
+	epvector seq;
+	seq.push_back(expair(H(x1,x2), 0));
+	return pseries(rel,seq);
+}
+
+REGISTER_FUNCTION(H, eval_func(H_eval).evalf_func(H_evalf).do_not_evalf_params().series_func(H_series));
 
 
 // Multiple zeta value
@@ -600,6 +925,12 @@ static ex mZeta_evalf(const ex& x1)
 		}
 
 		cln::cl_N m_1 = ex_to<numeric>(x1.op(x1.nops()-1)).to_cl_N();
+
+		// check for divergence
+		if (m_1 == 1) {
+			return mZeta(x1).hold();
+		}
+		
 		std::vector<cln::cl_N> m;
 		const int nops = ex_to<numeric>(x1.nops()).to_int();
 		for (int i=nops-2; i>=0; i--) {
@@ -624,7 +955,14 @@ static ex mZeta_evalf(const ex& x1)
 	return mZeta(x1).hold();
 }
 
-REGISTER_FUNCTION(mZeta, eval_func(mZeta_eval).evalf_func(mZeta_evalf).do_not_evalf_params());
+static ex mZeta_series(const ex& x1, const relational& rel, int order, unsigned options)
+{
+	epvector seq;
+	seq.push_back(expair(mZeta(x1), 0));
+	return pseries(rel,seq);
+}
+
+REGISTER_FUNCTION(mZeta, eval_func(mZeta_eval).evalf_func(mZeta_evalf).do_not_evalf_params().series_func(mZeta_series));
 
 
 } // namespace GiNaC
