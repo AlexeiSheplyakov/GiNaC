@@ -404,6 +404,11 @@ static ex f_find(const exprseq &e)
 	return found;
 }
 
+static ex f_integer_content(const exprseq &e)
+{
+	return e[0].integer_content();
+}
+
 static ex f_inverse(const exprseq &e)
 {
 	CHECK_ARG(0, matrix, inverse);
@@ -571,6 +576,7 @@ static const fcn_init builtin_fcns[] = {
 	{"find", f_find, 2},
 	{"gcd", f_gcd, 2},
 	{"has", f_has, 2},
+	{"integer_content", f_integer_content, 1},
 	{"inverse", f_inverse, 1},
 	{"iprint", f_dummy, 0},      // for Tab-completion
 	{"is", f_is, 1},

@@ -299,6 +299,9 @@ detail here. Please refer to the GiNaC documentation.
 .BI has( expression ", " pattern )
 \- returns "1" if the first expression contains the pattern as a subexpression, "0" otherwise
 .br
+.BI integer_content( expression )
+\- integer content of a polynomial
+.br
 .BI inverse( matrix )
 \- inverse of a matrix
 .br
