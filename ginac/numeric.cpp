@@ -1488,7 +1488,7 @@ const numeric bernoulli(const numeric &nn)
 {
 	if (!nn.is_integer() || nn.is_negative())
 		throw std::range_error("numeric::bernoulli(): argument must be integer >= 0");
-	
+
 	// Method:
 	//
 	// The Bernoulli numbers are rational numbers that may be computed using
@@ -1512,46 +1512,49 @@ const numeric bernoulli(const numeric &nn)
 	// But if somebody works with the n'th Bernoulli number she is likely to
 	// also need all previous Bernoulli numbers. So we need a complete remember
 	// table and above divide and conquer algorithm is not suited to build one
-	// up.  The code below is adapted from Pari's function bernvec().
+	// up.  The formula below accomplishes this.  It is a modification of the
+	// defining formula above but the computation of the binomial coefficients
+	// is carried along in an inline fashion.  It also honors the fact that
+	// B_n is zero when n is odd and greater than 1.
 	// 
 	// (There is an interesting relation with the tangent polynomials described
-	// in `Concrete Mathematics', which leads to a program twice as fast as our
-	// implementation below, but it requires storing one such polynomial in
+	// in `Concrete Mathematics', which leads to a program a little faster as
+	// our implementation below, but it requires storing one such polynomial in
 	// addition to the remember table.  This doubles the memory footprint so
 	// we don't use it.)
-	
+
+	const unsigned n = nn.to_int();
+
 	// the special cases not covered by the algorithm below
-	if (nn.is_equal(_num1))
-		return _num_1_2;
-	if (nn.is_odd())
-		return _num0;
-	
+	if (n & 1)
+		return (n==1) ? _num_1_2 : _num0;
+	if (!n)
+		 return _num1;
+
 	// store nonvanishing Bernoulli numbers here
 	static std::vector< cln::cl_RA > results;
-	static int highest_result = 0;
-	// algorithm not applicable to B(0), so just store it
-	if (results.empty())
-		results.push_back(cln::cl_RA(1));
-	
-	int n = nn.to_long();
-	for (int i=highest_result; i<n/2; ++i) {
-		cln::cl_RA B = 0;
-		long n = 8;
-		long m = 5;
-		long d1 = i;
-		long d2 = 2*i-1;
-		for (int j=i; j>0; --j) {
-			B = cln::cl_I(n*m) * (B+results[j]) / (d1*d2);
-			n += 4;
-			m += 2;
-			d1 -= 1;
-			d2 -= 2;
-		}
-		B = (1 - ((B+1)/(2*i+3))) / (cln::cl_I(1)<<(2*i+2));
-		results.push_back(B);
-		++highest_result;
+	static unsigned next_r = 0;
+
+	// algorithm not applicable to B(2), so just store it
+	if (!next_r) {
+		results.push_back(cln::recip(cln::cl_RA(6)));
+		next_r = 4;
 	}
-	return results[n/2];
+	for (unsigned p=next_r; p<=n;  p+=2) {
+		cln::cl_I  c = 1;
+		cln::cl_RA b = cln::cl_RA(1-p)/2;
+		const unsigned p3 = p+3;
+		const unsigned p2 = p+2;
+		const unsigned pm = p-2;
+		unsigned i, k;
+		for (i=2, k=0; i <= pm; i += 2, k++) {
+			c = cln::exquo(c * ((p3 - i)*(p2 - i)), (i - 1)*i);
+			b = b + c * results[k];
+		}
+		results.push_back(-b / (p+1));
+		next_r += 2;
+	}
+	return results[n/2 - 1];
 }
 
 
