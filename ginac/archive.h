@@ -74,6 +74,13 @@ public:
 		std::string name;   /**< Name of property. */
 		unsigned count;     /**< Number of occurrences. */
 	};
+	// Cint doesn't like vector<..,default_alloc> but malloc_alloc is
+	// unstandardized and not supported by newer GCCs.
+#if defined(__GNUC__) && ((__GNUC__ == 2) && (__GNUC_MINOR__ < 97))
+	typedef std::vector<property_info,malloc_alloc> propinfovector;
+#else
+	typedef std::vector<ex> propinfovector;
+#endif
 
 	archive_node() : a(*dummy_ar_creator()), has_expression(false) {} // hack for cint which always requires a default constructor
 	archive_node(archive &ar) : a(ar), has_expression(false) {}
@@ -116,7 +123,7 @@ public:
 	const archive_node &find_ex_node(const std::string &name, unsigned int index = 0) const;
 
 	/** Return vector of properties stored in node. */
-	void get_properties(std::vector<property_info> &v) const;
+	void get_properties(propinfovector &v) const;
 
 	ex unarchive(const lst &sym_lst) const;
 	bool has_same_ex_as(const archive_node &other) const;

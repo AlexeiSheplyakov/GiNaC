@@ -457,7 +457,7 @@ const archive_node &archive_node::find_ex_node(const std::string &name, unsigned
 }
 
 
-void archive_node::get_properties(std::vector<archive_node::property_info> &v) const
+void archive_node::get_properties(propinfovector &v) const
 {
 	v.clear();
 	std::vector<property>::const_iterator i = props.begin(), iend = props.end();
@@ -465,7 +465,7 @@ void archive_node::get_properties(std::vector<archive_node::property_info> &v) c
 		property_type type = i->type;
 		string name = a.unatomize(i->name);
 
-		std::vector<property_info>::iterator a = v.begin(), aend = v.end();
+		propinfovector::iterator a = v.begin(), aend = v.end();
 		bool found = false;
 		while (a != aend) {
 			if (a->type == type && a->name == name) {
