@@ -74,14 +74,7 @@ public:
 		std::string name;   /**< Name of property. */
 		unsigned count;     /**< Number of occurrences. */
 	};
-	// Cint currently doesn't like vector<..,default_alloc> but malloc_alloc is
-	// unstandardized and not supported by newer GCCs.  This ugly hack will go
-	// away soon!
-#if (defined(__GNUC__) && (__GNUC__ == 2) && (__GNUC_MINOR__ < 97)) || (defined(G__GNUC) && (G__GNUC == 2) && (G__GNUC_MINOR < 97))
-	typedef std::vector<property_info,malloc_alloc> propinfovector;
-#else
 	typedef std::vector<property_info> propinfovector;
-#endif
 
 	archive_node() : a(*dummy_ar_creator()), has_expression(false) {} // hack for cint which always requires a default constructor
 	archive_node(archive &ar) : a(ar), has_expression(false) {}

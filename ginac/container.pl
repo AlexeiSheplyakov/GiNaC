@@ -186,14 +186,7 @@ $interface=<<END_OF_INTERFACE;
 namespace GiNaC {
 
 
-// Cint currently does not like ${STLHEADER}<..,default_alloc> but malloc_alloc is
-// unstandardized and not supported by newer GCCs.  This ugly hack will go
-// away soon!
-#if (defined(__GNUC__) && (__GNUC__ == 2) && (__GNUC_MINOR__ < 97)) || (defined(G__GNUC) && (G__GNUC == 2) && (G__GNUC_MINOR < 97))
-typedef std::${STLHEADER}<GiNaC::ex,malloc_alloc> ${STLT};
-#else
 typedef std::${STLHEADER}<ex> ${STLT};
-#endif
 
 class ${CONTAINER} : public basic
 {
