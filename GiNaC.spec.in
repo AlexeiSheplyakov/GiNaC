@@ -17,7 +17,7 @@ URL: http://wwwthep.physik.uni-mainz.de/GiNaC/
 Docdir: %{prefix}/doc
 
 %description
-GiNaC (which stands for "GiNaC is Not a CAS (computer algebra system)) is a
+GiNaC (which stands for "GiNaC is Not a CAS (computer algebra system)") is a
 C++ library for symbolic mathematical calculations. It is designed to allow
 the creation of integrated systems that embed symbolic manipulations together
 with more established areas of computer science (like computation-intense
