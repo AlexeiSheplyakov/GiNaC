@@ -93,6 +93,12 @@ dnl We need to have Bruno Haible's CLN installed (macros are in acinclude.m4):
 GINAC_CHECK_CLN_H
 GINAC_CHECK_LIBCLN
 
+dnl Expand the cppflags and libraries needed by apps using GiNaC
+GINACLIB_CPPFLAGS=$CPPFLAGS
+GINACLIB_LIBS=$LIBS
+AC_SUBST(GINACLIB_CPPFLAGS)
+AC_SUBST(GINACLIB_LIBS)
+
 dnl Check for utilities needed by the different kinds of documentation.
 dnl Documantation needs only be built when extending it, so never mind if it
 dnl cannot find those helpers:
@@ -120,17 +126,16 @@ fi
 AC_SUBST(TUTORIAL_TARGETS)
 AC_SUBST(REFERENCE_TARGETS)
 
-dnl ===========================================================================
-dnl Produce a Makefile from Makefile.in:
-dnl ===========================================================================
+dnl Output makefiles etc.
 AC_OUTPUT([
 Makefile
 GiNaC.spec
+ginac-config
 ginac/Makefile
 check/Makefile
 ginsh/Makefile
 doc/Makefile
 doc/tutorial/Makefile
 doc/reference/Makefile
-])
+], [chmod +x ginac-config])
 echo "Configuration done. Now type \"make\"."

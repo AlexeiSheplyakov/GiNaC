@@ -70,7 +70,9 @@ DOXYGEN = @DOXYGEN@
 DVIPS = @DVIPS@
 FIG2DEV = @FIG2DEV@
 GINACLIB_BINARY_AGE = @GINACLIB_BINARY_AGE@
+GINACLIB_CPPFLAGS = @GINACLIB_CPPFLAGS@
 GINACLIB_INTERFACE_AGE = @GINACLIB_INTERFACE_AGE@
+GINACLIB_LIBS = @GINACLIB_LIBS@
 GINACLIB_MAJOR_VERSION = @GINACLIB_MAJOR_VERSION@
 GINACLIB_MICRO_VERSION = @GINACLIB_MICRO_VERSION@
 GINACLIB_MINOR_VERSION = @GINACLIB_MINOR_VERSION@
@@ -414,8 +416,10 @@ ginac.html: ginac.texi version.texi $(PNG)
 
 install-data-local:
 	@for p in $(PNG); do \
-	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p"; \
-	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p; \
+          if [ -f $(srcdir)/$$p ]; then \
+	    echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p"; \
+	    $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p; \
+	  fi; \
 	done
 
 uninstall-local:

@@ -71,7 +71,9 @@ DOXYGEN = @DOXYGEN@
 DVIPS = @DVIPS@
 FIG2DEV = @FIG2DEV@
 GINACLIB_BINARY_AGE = @GINACLIB_BINARY_AGE@
+GINACLIB_CPPFLAGS = @GINACLIB_CPPFLAGS@
 GINACLIB_INTERFACE_AGE = @GINACLIB_INTERFACE_AGE@
+GINACLIB_LIBS = @GINACLIB_LIBS@
 GINACLIB_MAJOR_VERSION = @GINACLIB_MAJOR_VERSION@
 GINACLIB_MICRO_VERSION = @GINACLIB_MICRO_VERSION@
 GINACLIB_MINOR_VERSION = @GINACLIB_MINOR_VERSION@
@@ -275,14 +277,21 @@ reference.ps: latex latex/reference.ps
 	cp ${srcdir}/latex/reference.ps reference.ps
 
 install-data-local:
-	$(INSTALL_DATA) $(srcdir)/doxygen.css $(DESTDIR)$(ginacreferencedir)/doxygen.css
+	@if [ -f $(srcdir)/doxygen.css ]; then \
+	  echo " $(INSTALL_DATA) $(srcdir)/doxygen.css $(DESTDIR)$(ginacreferencedir)/doxygen.css"; \
+	  $(INSTALL_DATA) $(srcdir)/doxygen.css $(DESTDIR)$(ginacreferencedir)/doxygen.css; \
+	fi
 	@for p in *.html; do \
-	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p"; \
-	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p; \
+	  if [ -f $(srcdir)/$$p ]; then \
+	    echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p"; \
+	    $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p; \
+	  fi; \
 	done
 	@for p in *.gif; do \
-	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p"; \
-	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p; \
+	  if [ -f $(srcdir)/$$p ]; then \
+	    echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p"; \
+	    $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p; \
+	  fi; \
 	done
 
 uninstall-local:

@@ -51,14 +51,21 @@ CLEANFILES = *.html *.gif doxygen.css *.ps latex/*
 EXTRA_DIST = DoxyfileHTML DoxyfileTEX Doxyfooter
 
 install-data-local:
-	$(INSTALL_DATA) $(srcdir)/doxygen.css $(DESTDIR)$(ginacreferencedir)/doxygen.css
+	@if [ -f $(srcdir)/doxygen.css ]; then \
+	  echo " $(INSTALL_DATA) $(srcdir)/doxygen.css $(DESTDIR)$(ginacreferencedir)/doxygen.css"; \
+	  $(INSTALL_DATA) $(srcdir)/doxygen.css $(DESTDIR)$(ginacreferencedir)/doxygen.css; \
+	fi
 	@for p in *.html; do \
-	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p"; \
-	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p; \
+	  if [ -f $(srcdir)/$$p ]; then \
+	    echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p"; \
+	    $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p; \
+	  fi; \
 	done
 	@for p in *.gif; do \
-	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p"; \
-	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p; \
+	  if [ -f $(srcdir)/$$p ]; then \
+	    echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p"; \
+	    $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p; \
+	  fi; \
 	done
 
 uninstall-local:

@@ -1,5 +1,4 @@
-# spec file for GiNaC (not relocatable)
-
+# Note that this is NOT a relocatable package
 %define ver @VERSION@
 %define rel 1
 %define prefix /usr
@@ -63,4 +62,10 @@ rm -rf $RPM_BUILD_ROOT
 %{prefix}/info/*
 %{prefix}/man/man1/*
 %{prefix}/share/doc/GiNaC/*
+%{prefix}/share/aclocal/*
 %{prefix}/bin/*
+
+%changelog
+* Wed Dec  1 1999 Christian Bauer <Christian.Bauer@uni-mainz.de>
+
+- aclocal macros get installed

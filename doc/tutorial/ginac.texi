@@ -86,6 +86,7 @@ framework for symbolic computation within the C++ programming language.
 * Extending GiNaC::              How to extend the library.
 * A Comparison With Other CAS::  Compares GiNaC to traditional CAS.
 * Internal Structures::          Description of some internal structures.
+* Package Tools::                Configuring packages to work with GiNaC.
 * Bibliography::
 * Concept Index::
 @end menu
@@ -202,6 +203,9 @@ $ c++ hello.cc -o hello -lcln -lginac
 $ ./hello
 355687428096000*x*y+20922789888000*y^2+6402373705728000*x^2
 @end example
+
+(@xref{Package Tools}, for tools that help you when creating a software
+package that uses GiNaC.)
 
 @cindex Hermite polynomial
 Next, there is a more meaningful C++ program that calls a function which
@@ -600,6 +604,7 @@ configuration again with the same @var{PREFIX} thus creating a
 do it by hand since you now know where all the files went during
 installation.}.
 
+
 @node Basic Concepts, Expressions, Installing GiNaC, Top
 @c    node-name, next, previous, up
 @chapter Basic Concepts
@@ -642,7 +647,7 @@ ex MyEx5 = MyEx4 + 1;               // similar to above
 
 Expressions are handles to other more fundamental objects, that many
 times contain other expressions thus creating a tree of expressions
-(@xref{Internal Structures} for particular examples).  Most methods on
+(@xref{Internal Structures}, for particular examples).  Most methods on
 @code{ex} therefore run top-down through such an expression tree.  For
 example, the method @code{has()} scans recursively for occurrences of
 something inside an expression.  Thus, if you have declared @code{MyEx4}
@@ -1802,7 +1807,7 @@ Marshall Cline.  Chapter 16 covers this issue and presents an
 implementation which is pretty close to the one in GiNaC.
 
 
-@node Internal representation of products and sums, Bibliography, Expressions are reference counted, Internal Structures
+@node Internal representation of products and sums, Package Tools, Expressions are reference counted, Internal Structures
 @c    node-name, next, previous, up
 @appendixsection Internal representation of products and sums
 
@@ -1870,8 +1875,281 @@ expansion and the like are reimplemented for @code{add} and @code{mul},
 but the data structure is inherited from @code{expairseq}.
 
 
+@node Package Tools, ginac-config, Internal representation of products and sums, Top
+@c    node-name, next, previous, up
+@appendix Package Tools
 
-@node Bibliography, Concept Index, Internal representation of products and sums, Top
+If you are creating a software package that uses the GiNaC library,
+setting the correct command line options for the compiler and linker
+can be difficult. GiNaC includes two tools to make this process easier.
+
+@menu
+* ginac-config::   A shell script to detect compiler and linker flags.
+* AM_PATH_GINAC::  Macro for GNU automake.
+@end menu
+
+
+@node ginac-config, AM_PATH_GINAC, Package Tools, Package Tools
+@c    node-name, next, previous, up
+@section @command{ginac-config}
+@cindex ginac-config
+
+@command{ginac-config} is a shell script that you can use to determine
+the compiler and linker command line options required to compile and
+link a program with the GiNaC library.
+
+@command{ginac-config} takes the following flags:
+
+@table @samp
+@item --version
+Prints out the version of GiNaC installed.
+@item --cppflags
+Prints '-I' flags pointing to the installed header files.
+@item --libs
+Prints out the linker flags necessary to link a program against GiNaC.
+@item --prefix[=@var{PREFIX}]
+If @var{PREFIX} is specified, overrides the configured value of @env{$prefix}.
+(And of exec-prefix, unless --exec-prefix is also specified)
+Otherwise, prints out the configured value of @env{$prefix}.
+@item --exec-prefix[=@var{PREFIX}]
+If @var{PREFIX} is specified, overrides the configured value of @env{$exec_prefix}.
+Otherwise, prints out the configured value of @env{$exec_prefix}.
+@end table
+
+Typically, @command{ginac-config} will be used within a configure script,
+as described below. It, however, can also be used directly
+from the command line to compile a simple program. For example:
+
+@example
+c++ -o simple `ginac-config --cppflags` simple.cpp `ginac-config --libs`
+@end example
+
+This command line might expand to (for example):
+
+@example
+cc -o simple -I/usr/local/include simple.cpp -L/usr/local/lib \
+  -lginac -lcln -lstdc++
+@end example
+
+Not only is the form using @command{ginac-config} easier to type, it will
+work on any system, no matter how GiNaC was configured.
+
+
+@node AM_PATH_GINAC, Configure script options, ginac-config, Package Tools
+@c    node-name, next, previous, up
+@section @samp{AM_PATH_GINAC}
+@cindex AM_PATH_GINAC
+
+For packages configured using GNU automake, GiNaC also provides
+a macro to automate the process of checking for GiNaC.
+
+@example
+AM_PATH_GINAC([@var{MINIMUM-VERSION}, [@var{ACTION-IF-FOUND} [, @var{ACTION-IF-NOT-FOUND}]]])
+@end example
+
+This macro:
+
+@itemize @bullet
+
+@item
+Determines the location of GiNaC using @command{ginac-config}, which is
+either found in the user's path, or from the environment variable
+@env{GINACLIB_CONFIG}.
+
+@item
+Tests the installed libraries to make sure that there version
+is later than @var{MINIMUM-VERSION}. (A default version will be used
+if not specified)
+
+@item
+If the required version was found, sets the @env{GINACLIB_CPPFLAGS} variable
+to the output of @command{ginac-config --cppflags} and the @env{GINACLIB_LIBS}
+variable to the output of @command{ginac-config --libs}, and calls
+@samp{AC_SUBST()} for these variables so they can be used in generated
+makefiles, and then executes @var{ACTION-IF-FOUND}.
+
+@item
+If the required version was not found, sets @env{GINACLIB_CPPFLAGS} and
+@env{GINACLIB_LIBS} to empty strings, and executes @var{ACTION-IF-NOT-FOUND}.
+
+@end itemize
+
+This macro is in file @file{ginac.m4} which is installed in
+@file{$datadir/aclocal}. Note that if automake was installed with a
+different @samp{--prefix} than GiNaC, you will either have to manually
+move @file{ginac.m4} to automake's @file{$datadir/aclocal}, or give
+aclocal the @samp{-I} option when running it.
+
+@menu
+* Configure script options::  Configuring a package that uses AM_PATH_GINAC.
+* Example package::           Example of a package using AM_PATH_GINAC.
+@end menu
+
+
+@node Configure script options, Example package, AM_PATH_GINAC, AM_PATH_GINAC
+@c    node-name, next, previous, up
+@subsection Configuring a package that uses @samp{AM_PATH_GINAC}
+
+Simply make sure that @command{ginac-config} is in your path, and run
+the configure script.
+
+Notes:
+
+@itemize @bullet
+
+@item
+The directory where the GiNaC libraries are installed needs
+to be found by your system's dynamic linker.
+  
+This is generally done by
+
+@display
+editing @file{/etc/ld.so.conf} and running @command{ldconfig}
+@end display
+
+or by
+   
+@display
+setting the environment variable @env{LD_LIBRARY_PATH},
+@end display
+
+or, as a last resort, 
+ 
+@display
+giving a @samp{-R} or @samp{-rpath} flag (depending on your linker) when
+running configure, for instance:
+
+@example
+LDFLAGS=-R/home/cbauer/lib ./configure
+@end example
+@end display
+
+@item
+You can also specify a @command{ginac-config} not in your path by
+setting the @env{GINACLIB_CONFIG} environment variable to the
+name of the executable
+
+@item
+If you move the GiNaC package from its installed location,
+you will need either need to modify @command{ginac-config} script
+manually to point to the new location or rebuild GiNaC.
+
+@end itemize
+
+Advanced note:
+
+@itemize @bullet
+@item
+configure flags
+  
+@example
+--with-ginac-prefix=@var{PREFIX}
+--with-ginac-exec-prefix=@var{PREFIX}
+@end example
+
+are provided to override the prefix and exec-prefix that were stored
+in the @command{ginac-config} shell script by GiNaC's configure. You are
+generally better off configuring GiNaC with the right path to begin with.
+@end itemize
+
+
+@node Example package, Bibliography, Configure script options, AM_PATH_GINAC
+@c    node-name, next, previous, up
+@subsection Example of a package using @samp{AM_PATH_GINAC}
+
+The following shows how to build a simple package using automake
+and the @samp{AM_PATH_GINAC} macro. The program used here is @file{simple.cpp}:
+
+@example
+#include <ginac/ginac.h>
+using namespace GiNaC;
+
+int main(void)
+@{
+    symbol x("x");
+    ex a = sin(x); 
+    cout << "Derivative of " << a << " is " << a.diff(x) << endl;
+    return 0;
+@}
+@end example
+
+You should first read the introductory portions of the automake
+Manual, if you are not already familiar with it.
+
+Two files are needed, @file{configure.in}, which is used to build the
+configure script:
+
+@example
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(simple.cpp)
+AM_INIT_AUTOMAKE(simple.cpp, 1.0.0)
+
+AC_PROG_CXX
+AC_PROG_INSTALL
+AC_LANG_CPLUSPLUS
+
+AM_PATH_GINAC(0.4.0, [
+  LIBS="$LIBS $GINACLIB_LIBS"
+  CPPFLAGS="$CFLAGS $GINACLIB_CPPFLAGS"  
+], AC_MSG_ERROR([need to have GiNaC installed]))
+
+AC_OUTPUT(Makefile)
+@end example
+
+The only command in this which is not standard for automake
+is the @samp{AM_PATH_GINAC} macro.
+
+That command does the following:
+
+@display
+If a GiNaC version greater than 0.4.0 is found, adds @env{$GINACLIB_LIBS} to 
+@env{$LIBS} and @env{$GINACLIB_CPPFLAGS} to @env{$CPPFLAGS}. Otherwise, dies
+with the error message "need to have GiNaC installed"
+@end display
+
+And the @file{Makefile.am}, which will be used to build the Makefile.
+
+@example
+## Process this file with automake to produce Makefile.in
+bin_PROGRAMS = simple
+simple_SOURCES = simple.cpp
+@end example
+
+This @file{Makefile.am}, says that we are building a single executable,
+from a single sourcefile @file{simple.cpp}. Since every program
+we are building uses GiNaC we simply added the GiNaC options
+to @env{$LIBS} and @env{$CPPFLAGS}, but in other circumstances, we might
+want to specify them on a per-program basis: for instance by
+adding the lines:
+
+@example
+simple_LDADD = $(GINACLIB_LIBS)
+INCLUDES = $(GINACLIB_CPPFLAGS)
+@end example
+
+to the @file{Makefile.am}.
+
+To try this example out, create a new directory and add the three
+files above to it.
+
+Now execute the following commands:
+
+@example
+$ automake --add-missing
+$ aclocal
+$ autoconf
+@end example
+
+You now have a package that can be built in the normal fashion
+
+@example
+$ ./configure
+$ make
+$ make install
+@end example
+
+
+@node Bibliography, Concept Index, Example package, Top
 @c    node-name, next, previous, up
 @appendix Bibliography
 

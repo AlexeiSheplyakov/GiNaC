@@ -41,8 +41,10 @@ EXTRA_DIST = $(FIG) $(TXT)
 
 install-data-local:
 	@for p in $(PNG); do \
-	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p"; \
-	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p; \
+          if [ -f $(srcdir)/$$p ]; then \
+	    echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p"; \
+	    $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p; \
+	  fi; \
 	done
 
 uninstall-local:
