@@ -1,4 +1,4 @@
-.TH ginsh 1 "January, 2000" "GiNaC"
+.TH ginsh 1 "January, 2000" "GiNaC @VERSION@" "The GiNaC Group"
 .SH NAME
 ginsh \- GiNaC Interactive Shell
 .SH SYNPOSIS

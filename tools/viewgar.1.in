@@ -1,4 +1,4 @@
-.TH viewgar 1 "January, 2000" "GiNaC"
+.TH viewgar 1 "January, 2000" "GiNaC @VERSION@" "The GiNaC Group"
 .SH NAME
 viewgar \- GiNaC archive file viewer
 .SH SYNPOSIS
