@@ -29,7 +29,7 @@ template <> GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(exprseq, basic,
   print_func<print_tree>(&exprseq::do_print_tree))
 
 /** Specialization of container::info() for exprseq. */
-bool exprseq::info(unsigned inf) const
+template <> bool exprseq::info(unsigned inf) const
 {
 	if (inf == info_flags::exprseq)
 		return true;

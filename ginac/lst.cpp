@@ -29,7 +29,7 @@ template <> GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(lst, basic,
   print_func<print_tree>(&lst::do_print_tree))
 
 /** Specialization of container::info() for lst. */
-bool lst::info(unsigned inf) const
+template <> bool lst::info(unsigned inf) const
 {
 	if (inf == info_flags::list)
 		return true;

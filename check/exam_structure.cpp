@@ -47,13 +47,13 @@ inline ex make_sprod(const ex & l, const ex & r)
 	return sprod(sprod_s(l, r));
 }
 
-void sprod::print(const print_context & c, unsigned level) const
+template <> void sprod::print(const print_context & c, unsigned level) const
 {
 	const sprod_s & sp = get_struct();
 	c.s << "<" << sp.left << "|" << sp.right << ">";
 }
 
-ex sprod::eval(int level) const
+template <> ex sprod::eval(int level) const
 {
 	// symmetric scalar product
 	const sprod_s & sp = get_struct();

@@ -27,6 +27,7 @@
 
 #include "ex.h"
 #include "ncmul.h"
+#include "numeric.h"
 #include "operators.h"
 #include "print.h"
 

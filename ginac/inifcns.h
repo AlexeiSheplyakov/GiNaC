@@ -108,7 +108,7 @@ inline function zeta(const T1& p1, const T2& p2) {
 	return function(zeta2_SERIAL::serial, ex(p1), ex(p2));
 }
 class zeta_SERIAL;
-template<> inline bool is_the_function<class zeta_SERIAL>(const ex& x)
+template<> inline bool is_the_function<zeta_SERIAL>(const ex& x)
 {
 	return is_the_function<zeta1_SERIAL>(x) || is_the_function<zeta2_SERIAL>(x);
 }
@@ -127,7 +127,7 @@ inline function G(const T1& x, const T2& s, const T3& y) {
 	return function(G3_SERIAL::serial, ex(x), ex(s), ex(y));
 }
 class G_SERIAL;
-template<> inline bool is_the_function<class G_SERIAL>(const ex& x)
+template<> inline bool is_the_function<G_SERIAL>(const ex& x)
 {
 	return is_the_function<G2_SERIAL>(x) || is_the_function<G3_SERIAL>(x);
 }
@@ -162,7 +162,7 @@ inline function psi(const T1 & p1, const T2 & p2) {
 	return function(psi2_SERIAL::serial, ex(p1), ex(p2));
 }
 class psi_SERIAL;
-template<> inline bool is_the_function<class psi_SERIAL>(const ex & x)
+template<> inline bool is_the_function<psi_SERIAL>(const ex & x)
 {
 	return is_the_function<psi1_SERIAL>(x) || is_the_function<psi2_SERIAL>(x);
 }
