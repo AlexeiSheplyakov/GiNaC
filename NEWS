@@ -1,6 +1,6 @@
 This file records noteworthy changes.
 
-0.7.1 ()
+0.7.1 (--date--)
 * Fix problems with Cint that were caused by CLN's overloaded operator new.
 
 0.7.0 (15 December 2000)
