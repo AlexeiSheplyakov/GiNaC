@@ -363,6 +363,7 @@ public:
 	static unsigned register_new(function_options const & opt);
 	static unsigned find_function(const std::string &name, unsigned nparams);
 	unsigned getserial(void) const {return serial;}
+	std::string get_name(void) const;
 	
 // member variables
 
@@ -955,6 +956,13 @@ unsigned function::find_function(const std::string &name, unsigned nparams)
 		serial++;
 	}
 	throw (std::runtime_error("no function '" + name + "' with " + ToString(nparams) + " parameters defined"));
+}
+
+/** Return the print name of the function. */
+std::string function::get_name(void) const
+{
+	GINAC_ASSERT(serial<registered_functions().size());
+	return registered_functions()[serial].name;
 }
 
 } // namespace GiNaC
