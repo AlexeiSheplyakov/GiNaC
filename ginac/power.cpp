@@ -764,10 +764,10 @@ ex power::expand_add_2(const add & a) const
 			}
 		} else {
 			if (is_ex_exactly_of_type(r,mul)) {
-				sum.push_back(expair(expand_mul(ex_to<mul>(r),_num2),
+				sum.push_back(a.combine_ex_with_coeff_to_pair(expand_mul(ex_to<mul>(r),_num2),
 				                     ex_to<numeric>(c).power_dyn(_num2)));
 			} else {
-				sum.push_back(expair((new power(r,_ex2))->setflag(status_flags::dynallocated),
+				sum.push_back(a.combine_ex_with_coeff_to_pair((new power(r,_ex2))->setflag(status_flags::dynallocated),
 				                     ex_to<numeric>(c).power_dyn(_num2)));
 			}
 		}
@@ -811,16 +811,16 @@ ex power::expand_mul(const mul & m, const numeric & n) const
 	epvector::const_iterator last = m.seq.end();
 	epvector::const_iterator cit = m.seq.begin();
 	while (cit!=last) {
-		if (is_ex_exactly_of_type((*cit).rest,numeric)) {
-			distrseq.push_back(m.combine_pair_with_coeff_to_pair(*cit,n));
+		if (is_ex_exactly_of_type(cit->rest,numeric)) {
+			distrseq.push_back(m.combine_pair_with_coeff_to_pair(*cit, n));
 		} else {
 			// it is safe not to call mul::combine_pair_with_coeff_to_pair()
 			// since n is an integer
-			distrseq.push_back(expair((*cit).rest, ex_to<numeric>((*cit).coeff).mul(n)));
+			distrseq.push_back(expair(cit->rest, ex_to<numeric>(cit->coeff).mul(n)));
 		}
 		++cit;
 	}
-	return (new mul(distrseq,ex_to<numeric>(m.overall_coeff).power_dyn(n)))->setflag(status_flags::dynallocated);
+	return (new mul(distrseq, ex_to<numeric>(m.overall_coeff).power_dyn(n)))->setflag(status_flags::dynallocated);
 }
 
 } // namespace GiNaC

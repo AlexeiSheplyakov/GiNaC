@@ -524,7 +524,7 @@ ex add::expand(unsigned options) const
 		// the terms have not changed, so it is safe to declare this expanded
 		return (options == 0) ? setflag(status_flags::expanded) : *this;
 	}
-	
+
 	return (new add(vp, overall_coeff))->setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0));
 }
 
