@@ -1,6 +1,6 @@
 /** @file lorentzidx.h
  *
- *  Interface to GiNaC's lorentz indices. */
+ *  Interface to GiNaC's Lorentz indices. */
 
 /*
  *  GiNaC Copyright (C) 1999-2001 Johannes Gutenberg University Mainz, Germany

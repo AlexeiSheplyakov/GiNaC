@@ -26,6 +26,7 @@
 #include "clifford.h"
 #include "ex.h"
 #include "ncmul.h"
+#include "archive.h"
 #include "utils.h"
 #include "debugmsg.h"
 
@@ -93,6 +94,42 @@ clifford::clifford(const std::string & n, const ex & mu) : inherited(lortensor_s
 	tinfo_key=TINFO_clifford;
 }
 
+clifford::clifford(const std::string & n, const exvector & iv) : inherited(lortensor_symbolic, n, iv)
+{
+	debugmsg("clifford constructor from string,exvector", LOGLEVEL_CONSTRUCT);
+	GINAC_ASSERT(all_of_type_lorentzidx());
+	tinfo_key=TINFO_clifford;
+}
+
+clifford::clifford(const std::string & n, exvector *ivp) : inherited(lortensor_symbolic, n, *ivp)
+{
+	debugmsg("clifford constructor from string,exvector", LOGLEVEL_CONSTRUCT);
+	GINAC_ASSERT(all_of_type_lorentzidx());
+	tinfo_key=TINFO_clifford;
+}
+
+//////////
+// archiving
+//////////
+
+/** Construct object from archive_node. */
+clifford::clifford(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+{
+	debugmsg("clifford constructor from archive_node", LOGLEVEL_CONSTRUCT);
+}
+
+/** Unarchive the object. */
+ex clifford::unarchive(const archive_node &n, const lst &sym_lst)
+{
+	return (new clifford(n, sym_lst))->setflag(status_flags::dynallocated);
+}
+
+/** Archive the object. */
+void clifford::archive(archive_node &n) const
+{
+	inherited::archive(n);
+}
+
 //////////
 // functions overriding virtual functions from bases classes
 //////////
@@ -150,6 +187,16 @@ bool clifford::is_equal_same_type(const basic & other) const
 	GINAC_ASSERT(is_of_type(other,clifford));
 	// only compare indices
 	return exprseq::is_equal_same_type(other);
+}
+
+ex clifford::thisexprseq(const exvector & v) const
+{
+	return clifford(name, v);
+}
+
+ex clifford::thisexprseq(exvector *vp) const
+{
+	return clifford(name, vp);
 }
 
 ex clifford::simplify_ncmul(const exvector & v) const

@@ -1,6 +1,6 @@
 /** @file lortensor.h
  *
- *  Interface to GiNaC´s lortensor objects. */
+ *  Interface to GiNaC's Lorentz tensors. */
 
 /*
  *  GiNaC Copyright (C) 1999-2001 Johannes Gutenberg University Mainz, Germany

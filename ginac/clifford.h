@@ -57,6 +57,8 @@ protected:
 	// other constructors
 public:
 	clifford(const std::string & n, const ex & mu);
+	clifford(const std::string & n, const exvector & iv);
+	clifford(const std::string & n, exvector * ivp);
 
 	// functions overriding virtual functions from base classes
 public:

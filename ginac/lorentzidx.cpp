@@ -1,6 +1,6 @@
 /** @file lorentzidx.cpp
  *
- *  Implementation of GiNaC's lorentz indices. */
+ *  Implementation of GiNaC's Lorentz indices. */
 
 /*
  *  GiNaC Copyright (C) 1999-2001 Johannes Gutenberg University Mainz, Germany

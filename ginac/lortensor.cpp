@@ -1,7 +1,6 @@
 /** @file lortensor.cpp
  *
- *  Implementation of GiNaC´s lortensor objects.
- *  No real implementation yet, do be done.      */
+ *  Implementation of GiNaC's Lorentz tensors. */
 
 /*
  *  GiNaC Copyright (C) 1999-2001 Johannes Gutenberg University Mainz, Germany
