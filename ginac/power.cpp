@@ -222,12 +222,14 @@ bool power::info(unsigned inf) const
 		case info_flags::cinteger_polynomial:
 		case info_flags::rational_polynomial:
 		case info_flags::crational_polynomial:
-			return exponent.info(info_flags::nonnegint);
+			return exponent.info(info_flags::nonnegint) &&
+			       basis.info(inf);
 		case info_flags::rational_function:
-			return exponent.info(info_flags::integer);
+			return exponent.info(info_flags::integer) &&
+			       basis.info(inf);
 		case info_flags::algebraic:
-			return (!exponent.info(info_flags::integer) ||
-					basis.info(inf));
+			return !exponent.info(info_flags::integer) ||
+			       basis.info(inf);
 	}
 	return inherited::info(inf);
 }
