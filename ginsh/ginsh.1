@@ -39,7 +39,9 @@ or type an EOF (Ctrl-D) at the prompt.
 .SS COMMENTS
 Anything following a double slash
 .RB ( // )
-up to the end of the line is treated as a comment and ignored.
+up to the end of the line, and all lines starting with a hash mark
+.RB ( # )
+are treated as a comment and ignored.
 .SS NUMBERS
 ginsh accepts numbers in the usual decimal notations. This includes arbitrary
 precision integers and rationals as well as floating point numbers in standard

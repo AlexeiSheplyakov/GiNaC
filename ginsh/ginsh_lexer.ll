@@ -56,6 +56,7 @@ AN	[0-9a-zA-Z_]
 [ \t\n]+		/* skip whitespace */
 \\$			/* skip line continuations */
 "//".*			/* skip comments starting with "//" */
+^"#".*			/* skip lines starting with "#" */
 ^"!".*			system(yytext + 1);	/* execute shell command */
 
 			/* special values */
