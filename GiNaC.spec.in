@@ -15,7 +15,7 @@ Prereq: /sbin/install-info
 BuildRoot: %{_tmppath}/%{name}-root
 Prefix: %{_prefix}
 
-Requires: cln >= 1.1.0
+Requires: cln >= 1.1
 
 %description
 GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is an
@@ -83,8 +83,8 @@ fi
 %{_libdir}/*.so.*
 %{_bindir}/ginsh
 %{_bindir}/viewgar
-%{_mandir}/man1/ginsh.1
-%{_mandir}/man1/viewgar.1
+%{_mandir}/man1/ginsh.1*
+%{_mandir}/man1/viewgar.1*
 
 %files devel
 %defattr(-,root,root)
@@ -93,7 +93,7 @@ fi
 %{_libdir}/*.so
 %{_includedir}/ginac/*.h
 %{_infodir}/*.info*
-%{_mandir}/man1/ginac-config.1
+%{_mandir}/man1/ginac-config.1*
 %{_bindir}/ginac-config
 %{_datadir}/aclocal/*
 
