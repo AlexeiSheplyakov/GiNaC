@@ -12,10 +12,10 @@ man_MANS = ginsh.1
 EXTRA_DIST = ginsh_parser.h ginsh_fcn_help.sed ginsh_op_help.sed
 
 # files created by sed scripts
-$(srcdir)/ginsh_fcn_help.c: ginsh.1 $(srcdir)/ginsh_fcn_help.sed
+ginsh_fcn_help.h: ginsh.1 $(srcdir)/ginsh_fcn_help.sed
 	sed -n -f $(srcdir)/ginsh_fcn_help.sed <$< >$@
 
-$(srcdir)/ginsh_op_help.c: ginsh.1 $(srcdir)/ginsh_op_help.sed
+ginsh_op_help.h: ginsh.1 $(srcdir)/ginsh_op_help.sed
 	sed -n -f $(srcdir)/ginsh_op_help.sed <$< >$@
 
-ginsh_parser.o: $(srcdir)/ginsh_fcn_help.c $(srcdir)/ginsh_op_help.c
+ginsh_parser.o: ginsh_fcn_help.h ginsh_op_help.h

@@ -16,7 +16,7 @@ m4datadir = $(datadir)/aclocal
 m4data_DATA = ginac.m4
 
 # All the rest of the distributed files
-EXTRA_DIST = ginac.m4 GiNaC.spec
+EXTRA_DIST = ginac.m4 GiNaC.spec depcomp
 
 # Rule to build tar-bzipped distribution package
 $(PACKAGE)-$(VERSION).tar.gz: dist

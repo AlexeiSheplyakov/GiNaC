@@ -810,10 +810,10 @@ int main(int argc, char **argv)
 
 	// Init help for operators (automatically generated from man page)
 	insert_help("operators", "Operators in falling order of precedence:");
-#include "ginsh_op_help.c"
+#include "ginsh_op_help.h"
 
 	// Init help for built-in functions (automatically generated from man page)
-#include "ginsh_fcn_help.c"
+#include "ginsh_fcn_help.h"
 
 	// Help for GiNaC functions is added manually
 	insert_help(builtin_help);
