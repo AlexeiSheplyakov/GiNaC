@@ -250,7 +250,6 @@ protected:
             }
             last_created_or_assigned_bp=bp;
             ++last_created_or_assigned_bp->refcount;
-            last_created_or_assigned_bp_modified=true;
         }
 #endif // def OBSCURE_CINT_HACK
 
@@ -260,7 +259,6 @@ public:
     basic *bp;
 #ifdef OBSCURE_CINT_HACK
     static basic *last_created_or_assigned_bp;
-    static bool last_created_or_assigned_bp_modified;
 #endif // def OBSCURE_CINT_HACK
 };
 
