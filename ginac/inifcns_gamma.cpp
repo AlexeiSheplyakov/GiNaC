@@ -43,7 +43,7 @@ namespace GiNaC {
  *  @exception fail_numeric("complex_infinity") or something similar... */
 static ex gamma_eval(ex const & x)
 {
-    if ( x.info(info_flags::numeric) ) {
+    if (x.info(info_flags::numeric)) {
 
         // trap integer arguments:
         if ( x.info(info_flags::integer) ) {
@@ -62,14 +62,14 @@ static ex gamma_eval(ex const & x)
                 numeric n = ex_to_numeric(x).sub(numHALF());
                 numeric coefficient = doublefactorial(n.mul(numTWO()).sub(numONE()));
                 coefficient = coefficient.div(numTWO().power(n));
-                return coefficient * power(Pi,numHALF());
+                return coefficient * pow(Pi,numHALF());
             } else {
                 // trap negative x=(-n+1/2)
                 // gamma(-n+1/2) -> Pi^(1/2)*(-2)^n/(1*3*..*(2*n-1))
                 numeric n = abs(ex_to_numeric(x).sub(numHALF()));
                 numeric coefficient = numeric(-2).power(n);
                 coefficient = coefficient.div(doublefactorial(n.mul(numTWO()).sub(numONE())));;
-                return coefficient * power(Pi,numHALF());
+                return coefficient*sqrt(Pi);
             }
         }
     }
@@ -89,19 +89,57 @@ static ex gamma_diff(ex const & x, unsigned diff_param)
 {
     ASSERT(diff_param==0);
 
-    return power(x, -1);	// FIXME
+    return psi(exZERO(),x)*gamma(x);
 }
 
 static ex gamma_series(ex const & x, symbol const & s, ex const & point, int order)
 {
 	// FIXME: Only handle one special case for now...
 	if (x.is_equal(s) && point.is_zero()) {
-		ex e = 1 / s - EulerGamma + s * (power(Pi, 2) / 12 + power(EulerGamma, 2) / 2) + Order(power(s, 2));
+		ex e = 1 / s - EulerGamma + s * (pow(Pi, 2) / 12 + pow(EulerGamma, 2) / 2) + Order(pow(s, 2));
 		return e.series(s, point, order);
 	} else
 		throw(std::logic_error("don't know the series expansion of this particular gamma function"));
 }
 
 REGISTER_FUNCTION(gamma, gamma_eval, gamma_evalf, gamma_diff, gamma_series);
+
+//////////
+// psi function (aka polygamma function)
+//////////
+
+/** Evaluation of polygamma-function psi(n,x). 
+ *  Somebody ought to provide some good numerical evaluation some day... */
+static ex psi_eval(ex const & n, ex const & x)
+{
+    if (n.info(info_flags::numeric) && x.info(info_flags::numeric)) {
+        // do some stuff...
+    }
+    return psi(n, x).hold();
+}    
+    
+static ex psi_evalf(ex const & n, ex const & x)
+{
+    BEGIN_TYPECHECK
+        TYPECHECK(n,numeric)
+        TYPECHECK(x,numeric)
+    END_TYPECHECK(psi(n,x))
+    
+    return psi(ex_to_numeric(n), ex_to_numeric(x));
+}
+
+static ex psi_diff(ex const & n, ex const & x, unsigned diff_param)
+{
+    ASSERT(diff_param==0);
+    
+    return psi(n+1, x);
+}
+
+static ex psi_series(ex const & n, ex const & x, symbol const & s, ex const & point, int order)
+{
+    throw(std::logic_error("Nobody told me how to series expand the psi function. :-("));
+}
+
+REGISTER_FUNCTION(psi, psi_eval, psi_evalf, psi_diff, psi_series);
 
 } // namespace GiNaC

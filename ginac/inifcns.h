@@ -82,6 +82,9 @@ DECLARE_FUNCTION_1P(Li3)
 /** Gamma function. */
 DECLARE_FUNCTION_1P(gamma)
 
+/** Psi function (aka polygamma-function) */
+DECLARE_FUNCTION_2P(psi)
+    
 /** Factorial function. */
 DECLARE_FUNCTION_1P(factorial)
 

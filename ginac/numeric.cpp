@@ -1063,10 +1063,18 @@ numeric atanh(numeric const & x)
 }
 
 /** The gamma function.
- *  stub stub stub stub stub stub! */
+ *  This is only a stub! */
 numeric gamma(numeric const & x)
 {
-    clog << "gamma(): Nobody expects the Spanish inquisition" << endl;
+    clog << "gamma(): Does anybody know good way to calculate this numerically?" << endl;
+    return numeric(0);
+}
+
+/** The psi function (aka polygamma function).
+ *  This is only a stub! */
+numeric psi(numeric const & n, numeric const & x)
+{
+    clog << "psi(): Does anybody know good way to calculate this numerically?" << endl;
     return numeric(0);
 }
 
