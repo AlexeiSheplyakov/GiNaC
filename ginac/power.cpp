@@ -139,7 +139,7 @@ void power::print(const print_context & c, unsigned level) const
 			c.s << ')';
 
 		// <expr>^-1 is printed as "1.0/<expr>" or with the recip() function of CLN
-		} else if (exponent.compare(_num_1) == 0) {
+		} else if (exponent.is_equal(_ex_1)) {
 			if (is_a<print_csrc_cl_N>(c))
 				c.s << "recip(";
 			else

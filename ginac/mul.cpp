@@ -141,7 +141,7 @@ void mul::print(const print_context & c, unsigned level) const
 		while (it != itend) {
 
 			// If the first argument is a negative integer power, it gets printed as "1.0/<expr>"
-			if (it == seq.begin() && ex_to<numeric>(it->coeff).is_integer() && it->coeff.compare(_num0) < 0) {
+			if (it == seq.begin() && ex_to<numeric>(it->coeff).is_integer() && it->coeff.info(info_flags::negative)) {
 				if (is_a<print_csrc_cl_N>(c))
 					c.s << "recip(";
 				else
@@ -149,7 +149,7 @@ void mul::print(const print_context & c, unsigned level) const
 			}
 
 			// If the exponent is 1 or -1, it is left out
-			if (it->coeff.compare(_ex1) == 0 || it->coeff.compare(_num_1) == 0)
+			if (it->coeff.is_equal(_ex1) || it->coeff.is_equal(_ex_1))
 				it->rest.print(c, precedence());
 			else {
 				// Outer parens around ex needed for broken gcc-2.95 parser:
@@ -159,7 +159,7 @@ void mul::print(const print_context & c, unsigned level) const
 			// Separator is "/" for negative integer powers, "*" otherwise
 			++it;
 			if (it != itend) {
-				if (ex_to<numeric>(it->coeff).is_integer() && it->coeff.compare(_num0) < 0)
+				if (ex_to<numeric>(it->coeff).is_integer() && it->coeff.info(info_flags::negative))
 					c.s << "/";
 				else
 					c.s << "*";

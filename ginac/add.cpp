@@ -121,16 +121,16 @@ void add::print(const print_context & c, unsigned level) const
 		while (it != itend) {
 		
 			// If the coefficient is -1, it is replaced by a single minus sign
-			if (it->coeff.compare(_num1) == 0) {
+			if (it->coeff.is_equal(_ex1)) {
 				it->rest.print(c, precedence());
-			} else if (it->coeff.compare(_num_1) == 0) {
+			} else if (it->coeff.is_equal(_ex_1)) {
 				c.s << "-";
 				it->rest.print(c, precedence());
-			} else if (ex_to<numeric>(it->coeff).numer().compare(_num1) == 0) {
+			} else if (ex_to<numeric>(it->coeff).numer().is_equal(_num1)) {
 				it->rest.print(c, precedence());
 				c.s << "/";
 				ex_to<numeric>(it->coeff).denom().print(c, precedence());
-			} else if (ex_to<numeric>(it->coeff).numer().compare(_num_1) == 0) {
+			} else if (ex_to<numeric>(it->coeff).numer().is_equal(_num_1)) {
 				c.s << "-";
 				it->rest.print(c, precedence());
 				c.s << "/";
@@ -143,7 +143,7 @@ void add::print(const print_context & c, unsigned level) const
 		
 			// Separator is "+", except if the following expression would have a leading minus sign
 			++it;
-			if (it != itend && !(it->coeff.compare(_num0) < 0 || (it->coeff.compare(_num1) == 0 && is_exactly_a<numeric>(it->rest) && it->rest.compare(_num0) < 0)))
+			if (it != itend && !(it->coeff.info(info_flags::negative) || (it->coeff.is_equal(_num1) && is_exactly_a<numeric>(it->rest) && it->rest.info(info_flags::negative))))
 				c.s << "+";
 		}
 	
