@@ -583,13 +583,19 @@ static ex atan_eval(const ex & x)
 		// atan(0) -> 0
 		if (x.is_equal(_ex0()))
 			return _ex0();
+		// atan(1) -> Pi/4
+		if (x.is_equal(_ex1()))
+			return _ex1_4()*Pi;
+		// atan(-1) -> -Pi/4
+		if (x.is_equal(_ex_1()))
+			return _ex_1_4()*Pi;
 		// atan(float) -> float
 		if (!x.info(info_flags::crational))
 			return atan_evalf(x);
 	}
 	
 	return atan(x).hold();
-}    
+}
 
 static ex atan_deriv(const ex & x, unsigned deriv_param)
 {
