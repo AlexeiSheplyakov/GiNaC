@@ -10,7 +10,7 @@ checks_LDADD = ../ginac/libginac.la
 exams_SOURCES = exam_paranoia.cpp exam_numeric.cpp exam_powerlaws.cpp \
   exam_inifcns.cpp exam_differentiation.cpp exam_polygcd.cpp \
   exam_normalization.cpp exam_pseries.cpp exam_matrices.cpp exam_lsolve.cpp \
-  exam_indexed.cpp exam_misc.cpp exams.cpp exams.h
+  exam_indexed.cpp exam_color.cpp exam_misc.cpp exams.cpp exams.h
 exams_LDADD = ../ginac/libginac.la
 
 times_SOURCES = time_dennyfliegner.cpp time_gammaseries.cpp \

@@ -31,38 +31,20 @@ int main()
 	unsigned result = 0;
 	
 	srand((unsigned)time(NULL));
+
+#define CHECK(which) \
+try { \
+	for (int i=0; i<1; ++i) \
+		result += check_ ## which (); \
+} catch (const exception &e) { \
+	cout << "Error: caught exception " << e.what() << endl; \
+	++result; \
+}
 	
-	try {
-		for (int i=0; i<1; ++i)
-			result += check_numeric();
-	} catch (const exception &e) {
-		cout << "Error: caught exception " << e.what() << endl;
-		++result;
-	}
-	
-	try {
-		for (int i=0; i<1; ++i)
-			result += check_inifcns();
-	} catch (const exception &e) {
-		cout << "Error: caught exception " << e.what() << endl;
-		++result;
-	}
-	
-	try {
-		for (int i=0; i<1; ++i)
-			result += check_matrices();
-	} catch (const exception &e) {
-		cout << "Error: caught exception " << e.what() << endl;
-		++result;
-	}
-	
-	try {
-		for (int i=0; i<1; ++i)
-			result += check_lsolve();
-	} catch (const exception &e) {
-		cout << "Error: caught exception " << e.what() << endl;
-		++result;
-	}
+	CHECK(numeric)
+	CHECK(inifcns)
+	CHECK(matrices)
+	CHECK(lsolve)
 	
 	if (result) {
 		cout << "Error: something went wrong. ";

@@ -28,90 +28,28 @@
 int main()
 {
 	unsigned result = 0;
+
+#define EXAM(which) \
+try { \
+	result += exam_ ## which (); \
+} catch (const exception &e) { \
+	cout << "Error: caught exception " << e.what() << endl; \
+	++result; \
+}
 	
-	try {
-		result += exam_paranoia();
-	} catch (const exception &e) {
-		cout << "Error: caught exception " << e.what() << endl;
-		++result;
-	}
-	
-	try {
-		result += exam_numeric();
-	} catch (const exception &e) {
-		cout << "Error: caught exception " << e.what() << endl;
-		++result;
-	}
-	
-	try {
-		result += exam_powerlaws();
-	} catch (const exception &e) {
-		cout << "Error: caught exception " << e.what() << endl;
-		++result;
-	}
-	
-	try {
-		result += exam_inifcns();
-	} catch (const exception &e) {
-		cout << "Error: caught exception " << e.what() << endl;
-		++result;
-	}
-	
-	try {
-		result += exam_differentiation();
-	} catch (const exception &e) {
-		cout << "Error: caught exception " << e.what() << endl;
-		++result;
-	}
-	
-	try {
-		result += exam_polygcd();
-	} catch (const exception &e) {
-		cout << "Error: caught exception " << e.what() << endl;
-		++result;
-	}
-	
-	try {
-		result += exam_normalization();
-	} catch (const exception &e) {
-		cout << "Error: caught exception " << e.what() << endl;
-		++result;
-	}
-	
-	try {
-		result += exam_pseries();
-	} catch (const exception &e) {
-		cout << "Error: caught exception " << e.what() << endl;
-		++result;
-	}
-	
-	try {
-		result += exam_matrices();
-	} catch (const exception &e) {
-		cout << "Error: caught exception " << e.what() << endl;
-		++result;
-	}
-	
-	try {
-		result += exam_lsolve();
-	} catch (const exception &e) {
-		cout << "Error: caught exception " << e.what() << endl;
-		++result;
-	}
-	
-	try {
-		result += exam_indexed();
-	} catch (const exception &e) {
-		cout << "Error: caught exception " << e.what() << endl;
-		++result;
-	}
-	
-	try {
-		result += exam_misc();
-	} catch (const exception &e) {
-		cout << "Error: caught exception " << e.what() << endl;
-		++result;
-	}
+	EXAM(paranoia)
+	EXAM(numeric)
+	EXAM(powerlaws)
+	EXAM(inifcns)
+	EXAM(differentiation)
+	EXAM(polygcd)
+	EXAM(normalization)
+	EXAM(pseries)
+	EXAM(matrices)
+	EXAM(lsolve)
+	EXAM(indexed)
+	EXAM(color)
+	EXAM(misc)
 	
 	if (result) {
 		cout << "Error: something went wrong. ";
