@@ -42,7 +42,7 @@ static unsigned expand_subs(unsigned size)
 	
 	// prepare aux so it will swallow anything but a1^2:
 	aux = -e + a[0] + a[1];
-	e = pow(e,2).expand().subs(a[0]==aux, subs_options::subs_no_pattern).expand();
+	e = pow(e,2).expand().subs(a[0]==aux, subs_options::no_pattern).expand();
 	
 	if (e != pow(a[1],2)) {
 		clog << "Denny Fliegner's quick consistency check erroneously returned "
