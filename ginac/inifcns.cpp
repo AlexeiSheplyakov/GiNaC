@@ -42,6 +42,29 @@ namespace GiNaC {
 #endif // ndef NO_GINAC_NAMESPACE
 
 //////////
+// absolute value
+//////////
+
+static ex abs_evalf(ex const & x)
+{
+    BEGIN_TYPECHECK
+        TYPECHECK(x,numeric)
+    END_TYPECHECK(abs(x))
+    
+    return abs(ex_to_numeric(x));
+}
+
+static ex abs_eval(ex const & x)
+{
+    if (is_ex_exactly_of_type(x, numeric))
+        return abs(ex_to_numeric(x));
+    else
+        return abs(x).hold();
+}
+
+REGISTER_FUNCTION(abs, abs_eval, abs_evalf, NULL, NULL);
+
+//////////
 // dilogarithm
 //////////
 

@@ -30,6 +30,9 @@
 namespace GiNaC {
 #endif // ndef NO_GINAC_NAMESPACE
 
+/** Absolute value. */
+DECLARE_FUNCTION_1P(abs)
+
 /** Sine. */
 DECLARE_FUNCTION_1P(sin)
 
