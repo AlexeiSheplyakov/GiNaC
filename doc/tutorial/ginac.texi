@@ -6307,6 +6307,24 @@ print_func<C>(<C++ function>)
 
 option which is explained in the next section.
 
+@subsection Functions with a variable number of arguments
+
+The @code{DECLARE_FUNCTION} and @code{REGISTER_FUNCTION} macros define
+functions with a fixed number of arguments. Sometimes, though, you may need
+to have a function that accepts a variable number of expressions. One way to
+accomplish this is to pass variable-length lists as arguments. The
+@code{Li()} function uses this method for multiple polylogarithms.
+
+It is also possible to define functions that accept a different number of
+parameters under the same function name, such as the @code{psi()} function
+which can be called either as @code{psi(z)} (the digamma function) or as
+@code{psi(n, z)} (polygamma functions). These are actually two different
+functions in GiNaC that, however, have the same name. Defining such
+functions is not possible with the macros but requires manually fiddling
+with GiNaC internals. If you are interested, please consult the GiNaC source
+code for the @code{psi()} function (@file{inifcns.h} and
+@file{inifcns_gamma.cpp}).
+
 
 @node Printing, Structures, Symbolic functions, Extending GiNaC
 @c    node-name, next, previous, up
