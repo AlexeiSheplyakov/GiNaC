@@ -3149,18 +3149,17 @@ for an explanation of these.
 
 
 @subsection Accessing subexpressions
-@cindex @code{nops()}
-@cindex @code{op()}
 @cindex container
-@cindex @code{relational} (class)
 
 Many GiNaC classes, like @code{add}, @code{mul}, @code{lst}, and
 @code{function}, act as containers for subexpressions. For example, the
 subexpressions of a sum (an @code{add} object) are the individual terms,
 and the subexpressions of a @code{function} are the function's arguments.
 
-GiNaC provides two ways of accessing subexpressions. The first way is to use
-the two methods
+@cindex @code{nops()}
+@cindex @code{op()}
+GiNaC provides several ways of accessing subexpressions. The first way is to
+use the two methods
 
 @example
 size_t ex::nops();
@@ -3174,6 +3173,8 @@ in the expression, while @code{op(i)} returns the @code{i}-th
 @code{indexed} objects, @code{op(0)} is the base expression and @code{op(i)},
 @math{i>0} are the indices.
 
+@cindex iterators
+@cindex @code{const_iterator}
 The second way to access subexpressions is via the STL-style random-access
 iterator class @code{const_iterator} and the methods
 
@@ -3187,7 +3188,7 @@ const_iterator ex::end();
 If the expression has no subexpressions, then @code{begin() == end()}. These
 iterators can also be used in conjunction with non-modifying STL algorithms.
 
-Here is an example that (non-recursively) prints all the subexpressions of a
+Here is an example that (non-recursively) prints the subexpressions of a
 given expression in three different ways:
 
 @example
@@ -3207,7 +3208,56 @@ given expression in three different ways:
 @}
 @end example
 
-Additionally, the left-hand and right-hand side expressions of objects of
+@cindex @code{const_preorder_iterator}
+@cindex @code{const_postorder_iterator}
+@code{op()}/@code{nops()} and @code{const_iterator} only access an
+expression's immediate children. GiNaC provides two additional iterator
+classes, @code{const_preorder_iterator} and @code{const_postorder_iterator},
+that iterate over all objects in an expression tree, in preorder or postorder,
+respectively. They are STL-style forward iterators, and are created with the
+methods
+
+@example
+const_preorder_iterator ex::preorder_begin();
+const_preorder_iterator ex::preorder_end();
+const_postorder_iterator ex::postorder_begin();
+const_postorder_iterator ex::postorder_end();
+@end example
+
+The following example illustrates the differences between
+@code{const_iterator}, @code{const_preorder_iterator}, and
+@code{const_postorder_iterator}:
+
+@example
+@{
+    symbol A("A"), B("B"), C("C");
+    ex e = lst(lst(A, B), C);
+
+    std::copy(e.begin(), e.end(),
+              std::ostream_iterator<ex>(cout, "\n"));
+    // @{A,B@}
+    // C
+
+    std::copy(e.preorder_begin(), e.preorder_end(),
+              std::ostream_iterator<ex>(cout, "\n"));
+    // @{@{A,B@},C@}
+    // @{A,B@}
+    // A
+    // B
+    // C
+
+    std::copy(e.postorder_begin(), e.postorder_end(),
+              std::ostream_iterator<ex>(cout, "\n"));
+    // A
+    // B
+    // @{A,B@}
+    // C
+    // @{@{A,B@},C@}
+@}
+@end example
+
+@cindex @code{relational} (class)
+Finally, the left-hand side and right-hand side expressions of objects of
 class @code{relational} (and only of these) can also be accessed with the
 methods
 
@@ -4131,6 +4181,21 @@ lst gather_indices(const ex & e)
 @{
     gather_indices_visitor v;
     e.traverse(v);
+    return v.get_result();
+@}
+@end example
+
+Alternatively, you could use pre- or postorder iterators for the tree
+traversal:
+
+@example
+lst gather_indices(const ex & e)
+@{
+    gather_indices_visitor v;
+    for (const_preorder_iterator i = e.preorder_begin();
+         i != e.preorder_end(); ++i) @{
+        i->accept(v);
+    @}
     return v.get_result();
 @}
 @end example
