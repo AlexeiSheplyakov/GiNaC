@@ -52,6 +52,7 @@ CLEANFILES = *.html *.gif doxygen.css *.ps latex/*
 EXTRA_DIST = DoxyfileHTML DoxyfileTEX Doxyfooter
 
 install-data-local:
+	$(mkinstalldirs) $(DESTDIR)$(ginacreferencedir)
 	@if [ -f $(srcdir)/doxygen.css ]; then \
 	  echo " $(INSTALL_DATA) $(srcdir)/doxygen.css $(DESTDIR)$(ginacreferencedir)/doxygen.css"; \
 	  $(INSTALL_DATA) $(srcdir)/doxygen.css $(DESTDIR)$(ginacreferencedir)/doxygen.css; \

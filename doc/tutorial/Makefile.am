@@ -38,6 +38,7 @@ CLEANFILES = $(EPS) $(PNG) ginac.html
 EXTRA_DIST = $(FIG) $(TXT)
 
 install-data-local:
+	$(mkinstalldirs) $(DESTDIR)$(ginactutorialdir)
 	@for p in $(PNG); do \
           if [ -f $$p ]; then \
 	    echo " $(INSTALL_DATA) $$p $(DESTDIR)$(ginactutorialdir)/$$p"; \
