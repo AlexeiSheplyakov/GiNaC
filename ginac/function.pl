@@ -398,7 +398,6 @@ $constructors_interface
 
 	// functions overriding virtual functions from bases classes
 public:
-	basic * duplicate() const;
 	void printraw(std::ostream & os) const; 
 	void print(std::ostream & os, unsigned upper_precedence=0) const;
 	void printtree(std::ostream & os, unsigned indent) const;
@@ -411,7 +410,6 @@ public:
 	ex thisexprseq(exvector * vp) const;
 protected:
 	ex derivative(const symbol & s) const;
-	int compare_same_type(const basic & other) const;
 	bool is_equal_same_type(const basic & other) const;
 	unsigned return_type(void) const;
 	unsigned return_type_tinfo(void) const;
@@ -714,12 +712,6 @@ void function::archive(archive_node &n) const
 //////////
 
 // public
-
-basic * function::duplicate() const
-{
-	debugmsg("function duplicate",LOGLEVEL_DUPLICATE);
-	return new function(*this);
-}
 
 void function::printraw(std::ostream & os) const
 {

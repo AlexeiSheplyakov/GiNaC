@@ -111,12 +111,6 @@ void relational::archive(archive_node &n) const
 
 // public
 
-basic * relational::duplicate() const
-{
-	debugmsg("relational duplicate",LOGLEVEL_DUPLICATE);
-	return new relational(*this);
-}
-
 void relational::print(std::ostream & os, unsigned upper_precedence) const
 {
 	debugmsg("relational print",LOGLEVEL_PRINT);

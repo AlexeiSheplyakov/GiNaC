@@ -82,12 +82,6 @@ void fail::archive(archive_node &n) const
 
 // public
 
-basic * fail::duplicate() const
-{
-	debugmsg("fail duplicate",LOGLEVEL_DUPLICATE);
-	return new fail(*this);
-}
-
 void fail::print(std::ostream & os, unsigned upper_precedence) const
 {
 	debugmsg("fail print",LOGLEVEL_PRINT);

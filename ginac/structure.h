@@ -48,13 +48,11 @@ class structure : public basic
 
 	// functions overriding virtual functions from bases classes
 public:
-	basic * duplicate() const;
 	void printraw(std::ostream & os) const; 
 	void print(std::ostream & os, unsigned upper_precedence=0) const;
 	void printtree(std::ostream & os, unsigned indent) const;
 	void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence=0) const;
 protected:
-	int compare_same_type(const basic & other) const;
 	bool is_equal_same_type(const basic & other) const;
 	
 	// new virtual functions which can be overridden by derived classes

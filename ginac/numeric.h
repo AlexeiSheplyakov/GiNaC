@@ -87,7 +87,6 @@ public:
 	
 	// functions overriding virtual functions from bases classes
 public:
-	basic * duplicate() const;
 	void print(std::ostream & os, unsigned precedence=0) const;
 	void printraw(std::ostream & os) const;
 	void printtree(std::ostream & os, unsigned indent) const;
@@ -103,7 +102,6 @@ public:
 	numeric max_coefficient(void) const;
 protected:
 	ex derivative(const symbol & s) const;
-	int compare_same_type(const basic & other) const;
 	bool is_equal_same_type(const basic & other) const;
 	unsigned calchash(void) const;
 

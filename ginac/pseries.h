@@ -44,7 +44,6 @@ public:
 
 	// functions overriding virtual functions from base classes
 public:
-	basic *duplicate() const;
 	void print(std::ostream &os, unsigned upper_precedence = 0) const;
 	void printraw(std::ostream &os) const;
 	void printtree(std::ostream & os, unsigned indent) const;
@@ -85,6 +84,7 @@ protected:
 
 	/** Expansion point */
 	ex point;
+
 	static unsigned precedence;
 };
 

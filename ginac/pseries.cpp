@@ -132,12 +132,6 @@ void pseries::archive(archive_node &n) const
 // functions overriding virtual functions from bases classes
 //////////
 
-basic *pseries::duplicate() const
-{
-	debugmsg("pseries duplicate", LOGLEVEL_DUPLICATE);
-	return new pseries(*this);
-}
-
 void pseries::print(std::ostream &os, unsigned upper_precedence) const
 {
 	debugmsg("pseries print", LOGLEVEL_PRINT);
@@ -205,6 +199,31 @@ void pseries::printtree(std::ostream & os, unsigned indent) const
 	}
 	var.printtree(os, indent+delta_indent);
 	point.printtree(os, indent+delta_indent);
+}
+
+int pseries::compare_same_type(const basic & other) const
+{
+	GINAC_ASSERT(is_of_type(other, pseries));
+	const pseries &o = static_cast<const pseries &>(other);
+
+	int cmpval = var.compare(o.var);
+	if (cmpval)
+		return cmpval;
+	cmpval = point.compare(o.point);
+	if (cmpval)
+		return cmpval;
+
+	epvector::const_iterator it1 = seq.begin(), it2 = o.seq.begin(), it1end = seq.end(), it2end = o.seq.end();
+	while ((it1 != it1end) && (it2 != it2end)) {
+		cmpval = it1->compare(*it2);
+		if (cmpval)
+			return cmpval;
+		it1++; it2++;
+	}
+	if (it1 == it1end)
+		return it2 == it2end ? 0 : -1;
+
+	return 0;
 }
 
 /** Return the number of operands including a possible order term. */

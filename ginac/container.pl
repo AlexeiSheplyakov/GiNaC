@@ -206,7 +206,6 @@ public:
 ${constructors_interface}
 
 public:
-	basic * duplicate() const;
 	void printraw(std::ostream & os) const;
 	void print(std::ostream & os, unsigned upper_precedence=0) const;
 	void printtree(std::ostream & os, unsigned indent) const;
@@ -221,7 +220,6 @@ public:
 	ex derivative(const symbol & s) const;
 	ex subs(const lst & ls, const lst & lr) const;
 protected:
-	int compare_same_type(const basic & other) const;
 	bool is_equal_same_type(const basic & other) const;
 	unsigned return_type(void) const;
 
@@ -413,12 +411,6 @@ void ${CONTAINER}::archive(archive_node &n) const
 //////////
 
 // public
-
-basic * ${CONTAINER}::duplicate() const
-{
-	debugmsg("${CONTAINER} duplicate",LOGLEVEL_DUPLICATE);
-	return new ${CONTAINER}(*this);
-}
 
 void ${CONTAINER}::printraw(std::ostream & os) const
 {

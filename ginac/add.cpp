@@ -157,12 +157,6 @@ void add::archive(archive_node &n) const
 
 // public
 
-basic * add::duplicate() const
-{
-	debugmsg("add duplicate",LOGLEVEL_DUPLICATE);
-	return new add(*this);
-}
-
 void add::print(std::ostream & os, unsigned upper_precedence) const
 {
 	debugmsg("add print",LOGLEVEL_PRINT);

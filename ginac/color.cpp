@@ -181,12 +181,6 @@ void color::archive(archive_node &n) const
 
 // public
 
-basic * color::duplicate() const
-{
-	debugmsg("color duplicate",LOGLEVEL_DUPLICATE);
-	return new color(*this);
-}
-
 void color::printraw(std::ostream & os) const
 {
 	debugmsg("color printraw",LOGLEVEL_PRINT);

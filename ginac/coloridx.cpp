@@ -138,12 +138,6 @@ void coloridx::archive(archive_node &n) const
 
 // public
 
-basic * coloridx::duplicate() const
-{
-	debugmsg("coloridx duplicate",LOGLEVEL_DUPLICATE);
-	return new coloridx(*this);
-}
-
 void coloridx::printraw(std::ostream & os) const
 {
 	debugmsg("coloridx printraw",LOGLEVEL_PRINT);
@@ -211,6 +205,11 @@ bool coloridx::info(unsigned inf) const
 {
 	if (inf==info_flags::coloridx) return true;
 	return idx::info(inf);
+}
+
+int coloridx::compare_same_type(const basic & other) const
+{
+	return inherited::compare_same_type(other);
 }
 
 #ifndef NO_NAMESPACE_GINAC

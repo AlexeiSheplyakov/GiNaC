@@ -41,14 +41,12 @@ public:
 
 	// functions overriding virtual functions from base classes
 public:
-	basic * duplicate() const;
 	void printraw(std::ostream & os) const;
 	void printtree(std::ostream & os, unsigned indent) const;
 	void print(std::ostream & os, unsigned upper_precedence=0) const;
 	void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence=0) const;
 	bool info(unsigned inf) const;
 protected:
-	int compare_same_type(const basic & other) const;
 	ex simplify_ncmul(const exvector & v) const;
 	unsigned calchash(void) const;
 

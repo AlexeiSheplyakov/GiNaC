@@ -39,11 +39,9 @@ class fail : public basic
 
 	// functions overriding virtual functions from bases classes
 public:
-	basic * duplicate() const;
 	void print(std::ostream & os, unsigned upper_precedence=0) const;
 	void printraw(std::ostream & os) const;
 protected:
-	int compare_same_type(const basic & other) const;
 	unsigned return_type(void) const { return return_types::noncommutative_composite; };
 	
 	// new virtual functions which can be overridden by derived classes

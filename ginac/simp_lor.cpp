@@ -149,12 +149,6 @@ void simp_lor::archive(archive_node &n) const
 
 // public
 
-basic * simp_lor::duplicate() const
-{
-	debugmsg("simp_lor duplicate",LOGLEVEL_DUPLICATE);
-	return new simp_lor(*this);
-}
-
 void simp_lor::printraw(std::ostream & os) const
 {
 	debugmsg("simp_lor printraw",LOGLEVEL_PRINT);

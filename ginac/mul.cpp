@@ -155,12 +155,6 @@ void mul::archive(archive_node &n) const
 
 // public
 
-basic * mul::duplicate() const
-{
-	debugmsg("mul duplicate",LOGLEVEL_ASSIGNMENT);
-	return new mul(*this);
-}
-
 void mul::print(std::ostream & os, unsigned upper_precedence) const
 {
 	debugmsg("mul print",LOGLEVEL_PRINT);

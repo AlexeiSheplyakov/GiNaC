@@ -90,12 +90,6 @@ void structure::archive(archive_node &n) const
 
 // public
 
-basic * structure::duplicate() const
-{
-	debugmsg("structure duplicate",LOGLEVEL_DUPLICATE);
-	return new structure(*this);
-}
-
 void structure::printraw(std::ostream & os) const
 {
 	debugmsg("structure printraw",LOGLEVEL_PRINT);

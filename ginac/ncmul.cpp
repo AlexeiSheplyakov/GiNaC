@@ -142,12 +142,6 @@ void ncmul::archive(archive_node &n) const
 
 // public
 
-basic * ncmul::duplicate() const
-{
-	debugmsg("ncmul duplicate",LOGLEVEL_ASSIGNMENT);
-	return new ncmul(*this);
-}
-
 void ncmul::print(std::ostream & os, unsigned upper_precedence) const
 {
 	debugmsg("ncmul print",LOGLEVEL_PRINT);

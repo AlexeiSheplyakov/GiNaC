@@ -50,7 +50,6 @@ public:
 
 	// functions overriding virtual functions from bases classes
 public:
-	basic * duplicate() const;
 	void print(std::ostream & os, unsigned upper_precedence = 0) const;
 	void printraw(std::ostream & os) const;
 	void printtree(std::ostream & os, unsigned indent) const;
@@ -70,7 +69,6 @@ public:
 	ex simplify_ncmul(const exvector & v) const;
 protected:
 	ex derivative(const symbol & s) const;
-	int compare_same_type(const basic & other) const;
 	unsigned return_type(void) const;
 	unsigned return_type_tinfo(void) const;
 	ex expand(unsigned options = 0) const;

@@ -171,12 +171,6 @@ void lorentzidx::archive(archive_node &n) const
 
 // public
 
-basic * lorentzidx::duplicate() const
-{
-	debugmsg("lorentzidx duplicate",LOGLEVEL_DUPLICATE);
-	return new lorentzidx(*this);
-}
-
 void lorentzidx::printraw(std::ostream & os) const
 {
 	debugmsg("lorentzidx printraw",LOGLEVEL_PRINT);
@@ -258,6 +252,18 @@ bool lorentzidx::info(unsigned inf) const
 {
 	if (inf==info_flags::lorentzidx) return true;
 	return inherited::info(inf);
+}
+
+int lorentzidx::compare_same_type(const basic & other) const
+{
+	GINAC_ASSERT(is_of_type(other, lorentzidx));
+	const lorentzidx &o = static_cast<const lorentzidx &>(other);
+
+	if (orthogonal_only != o.orthogonal_only)
+		return orthogonal_only ? -1 : 1;
+	if (dim_parallel_space != o.dim_parallel_space)
+		return dim_parallel_space < o.dim_parallel_space ? -1 : 1;
+	return inherited::compare_same_type(other);
 }
 
 //////////

@@ -114,12 +114,6 @@ void clifford::archive(archive_node &n) const
 
 // public
 
-basic * clifford::duplicate() const
-{
-	debugmsg("clifford duplicate",LOGLEVEL_DUPLICATE);
-	return new clifford(*this);
-}
-
 void clifford::printraw(std::ostream & os) const
 {
 	debugmsg("clifford printraw",LOGLEVEL_PRINT);

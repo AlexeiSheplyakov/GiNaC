@@ -169,12 +169,6 @@ void indexed::archive(archive_node &n) const
 
 // public
 
-basic * indexed::duplicate() const
-{
-	debugmsg("indexed duplicate",LOGLEVEL_DUPLICATE);
-	return new indexed(*this);
-}
-
 void indexed::printraw(std::ostream & os) const
 {
 	debugmsg("indexed printraw",LOGLEVEL_PRINT);

@@ -119,12 +119,6 @@ void power::archive(archive_node &n) const
 
 // public
 
-basic * power::duplicate() const
-{
-	debugmsg("power duplicate",LOGLEVEL_DUPLICATE);
-	return new power(*this);
-}
-
 void power::print(std::ostream & os, unsigned upper_precedence) const
 {
 	debugmsg("power print",LOGLEVEL_PRINT);

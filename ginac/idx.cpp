@@ -170,12 +170,6 @@ void idx::archive(archive_node &n) const
 
 // public
 
-basic * idx::duplicate() const
-{
-	debugmsg("idx duplicate",LOGLEVEL_DUPLICATE);
-	return new idx(*this);
-}
-
 void idx::printraw(std::ostream & os) const
 {
 	debugmsg("idx printraw",LOGLEVEL_PRINT);
@@ -268,7 +262,7 @@ ex idx::subs(const lst & ls, const lst & lr) const
 int idx::compare_same_type(const basic & other) const
 {
 	GINAC_ASSERT(is_of_type(other,idx));
-	const idx &o = static_cast<const idx &>(&other);
+	const idx &o = static_cast<const idx &>(other);
 
 	if (covariant!=o.covariant) {
 		// different co/contravariant

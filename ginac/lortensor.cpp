@@ -238,12 +238,6 @@ void lortensor::archive(archive_node &n) const
 
 //public
 
-basic * lortensor::duplicate() const
-{
-	debugmsg("lortensor duplicate",LOGLEVEL_DUPLICATE);
-	return new lortensor(*this);
-}
-
 void lortensor::printraw(std::ostream & os) const
 {
 	debugmsg("lortensor printraw",LOGLEVEL_PRINT);

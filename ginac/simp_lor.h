@@ -99,7 +99,6 @@ protected:
 	
 	// functions overriding virtual functions from base classes
 public:
-	basic * duplicate() const;
 	void printraw(std::ostream & os) const;
 	void printtree(std::ostream & os, unsigned indent) const;
 	void print(std::ostream & os, unsigned upper_precedence=0) const;
@@ -107,7 +106,6 @@ public:
 	bool info(unsigned inf) const;
 	ex eval(int level=0) const;
 protected:
-	int compare_same_type(const basic & other) const;
 	bool is_equal_same_type(const basic & other) const;
 	unsigned return_type(void) const;
 	unsigned return_type_tinfo(void) const;

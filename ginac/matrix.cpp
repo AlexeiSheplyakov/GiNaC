@@ -140,12 +140,6 @@ void matrix::archive(archive_node &n) const
 
 // public
 
-basic * matrix::duplicate() const
-{
-	debugmsg("matrix duplicate",LOGLEVEL_DUPLICATE);
-	return new matrix(*this);
-}
-
 void matrix::print(std::ostream & os, unsigned upper_precedence) const
 {
 	debugmsg("matrix print",LOGLEVEL_PRINT);

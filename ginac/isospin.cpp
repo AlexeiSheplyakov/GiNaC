@@ -121,12 +121,6 @@ void isospin::archive(archive_node &n) const
 
 // public
 
-basic * isospin::duplicate() const
-{
-	debugmsg("isospin duplicate",LOGLEVEL_DUPLICATE);
-	return new isospin(*this);
-}
-
 void isospin::printraw(std::ostream & os) const
 {
 	debugmsg("isospin printraw",LOGLEVEL_PRINT);

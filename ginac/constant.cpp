@@ -129,12 +129,6 @@ void constant::archive(archive_node &n) const
 
 // public
 
-basic * constant::duplicate() const
-{
-	debugmsg("constant duplicate",LOGLEVEL_DUPLICATE);
-	return new constant(*this);
-}
-
 void constant::print(std::ostream & os, unsigned upper_precedence) const
 {
 	debugmsg("constant print",LOGLEVEL_PRINT);

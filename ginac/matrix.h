@@ -43,7 +43,6 @@ public:
    
 	// functions overriding virtual functions from bases classes
 public:
-	basic * duplicate() const;
 	void print(std::ostream & os, unsigned upper_precedence=0) const;
 	void printraw(std::ostream & os) const;
 	unsigned nops() const;
@@ -55,7 +54,6 @@ public:
 	ex evalf(int level=0) const;
 	// ex subs(const lst & ls, const lst & lr) const;
 protected:
-	int compare_same_type(const basic & other) const;
 	unsigned return_type(void) const { return return_types::noncommutative; };
 	// new virtual functions which can be overridden by derived classes
 	// (none)

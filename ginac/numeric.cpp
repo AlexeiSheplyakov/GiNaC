@@ -381,15 +381,6 @@ void numeric::archive(archive_node &n) const
 // functions overriding virtual functions from bases classes
 //////////
 
-// public
-
-basic * numeric::duplicate() const
-{
-	debugmsg("numeric duplicate", LOGLEVEL_DUPLICATE);
-	return new numeric(*this);
-}
-
-
 /** Helper function to print a real number in a nicer way than is CLN's
  *  default.  Instead of printing 42.0L0 this just prints 42.0 to ostream os
  *  and instead of 3.99168L7 it prints 3.99168E7.  This is fine in GiNaC as
