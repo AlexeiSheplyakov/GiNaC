@@ -292,7 +292,7 @@ install-data-local:
 	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p"; \
 	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p; \
 	done
-	@for p in `echo $(srcdir)/*.gif | sed -e 's,[^ ]*/,,g' -e 's,\*\.gif,'`; do \
+	@for p in `echo $(srcdir)/*.gif | sed -e 's,[^ ]*/,,g' -e 's,\*\.gif,,'`; do \
 	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p"; \
 	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p; \
 	done
