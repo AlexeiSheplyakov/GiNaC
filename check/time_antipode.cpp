@@ -455,7 +455,7 @@ static unsigned test_tree(const node tree_generator(unsigned))
 	// ...the sum, when evaluated and reexpanded, is the antipode...
 	ex result = 0;
 	for (vector<node>::iterator i=counter.begin(); i!=counter.end(); ++i)
-		result = (result+i->evaluate(x,vertices)).series(x==0,vertices).expand();
+		result = (result+i->evaluate(x,vertices-1)).series(x==0,vertices-1).expand();
 	
 	// ...and has the nice property that in each term all the Eulers cancel:
 	if (result.has(Euler)) {
