@@ -440,9 +440,9 @@ ex color::simplify_ncmul(exvector const & v) const
     exvector delta8vec;
     exvector fvec;
     exvector dvec;
-    vector<exvector> Tvecs;
+    exvectorvector Tvecs;
     Tvecs.resize(MAX_REPRESENTATION_LABELS);
-    vector<exvector> ONEvecs;
+    exvectorvector ONEvecs;
     ONEvecs.resize(MAX_REPRESENTATION_LABELS);
     exvector unknownvec;
     
@@ -656,8 +656,8 @@ color color_delta8(ex const & a, ex const & b)
 
 void split_color_string_in_parts(exvector const & v, exvector & delta8vec,
                                  exvector & fvec, exvector & dvec,
-                                 vector<exvector> & Tvecs,
-                                 vector<exvector> & ONEvecs,
+                                 exvectorvector & Tvecs,
+                                 exvectorvector & ONEvecs,
                                  exvector & unknownvec)
 {
     // if not all elements are of type color, put all Ts in unknownvec to
@@ -704,8 +704,8 @@ void split_color_string_in_parts(exvector const & v, exvector & delta8vec,
 }    
 
 exvector recombine_color_string(exvector & delta8vec, exvector & fvec,
-                                exvector & dvec, vector<exvector> & Tvecs,
-                                vector<exvector> & ONEvecs, exvector & unknownvec)
+                                exvector & dvec, exvectorvector & Tvecs,
+                                exvectorvector & ONEvecs, exvector & unknownvec)
 {
     unsigned sz=delta8vec.size()+fvec.size()+dvec.size()+unknownvec.size();
     for (unsigned rl=0; rl<MAX_REPRESENTATION_LABELS; ++rl) {
@@ -777,9 +777,9 @@ ex color_trace(exvector const & v, unsigned const rl)
     exvector delta8vec;
     exvector fvec;
     exvector dvec;
-    vector<exvector> Tvecs;
+    exvectorvector Tvecs;
     Tvecs.resize(MAX_REPRESENTATION_LABELS);
-    vector<exvector> ONEvecs;
+    exvectorvector ONEvecs;
     ONEvecs.resize(MAX_REPRESENTATION_LABELS);
     exvector unknownvec;
 
@@ -817,9 +817,9 @@ ex simplify_pure_color_string(ex const & e)
     exvector delta8vec;
     exvector fvec;
     exvector dvec;
-    vector<exvector> Tvecs;
+    exvectorvector Tvecs;
     Tvecs.resize(MAX_REPRESENTATION_LABELS);
-    vector<exvector> ONEvecs;
+    exvectorvector ONEvecs;
     ONEvecs.resize(MAX_REPRESENTATION_LABELS);
     exvector unknownvec;
 

@@ -36,6 +36,8 @@ const unsigned MAX_REPRESENTATION_LABELS = 4;
 const unsigned COLOR_EIGHT = 8; // N*N-1
 const unsigned COLOR_THREE = 3; // N
 
+typedef vector<exvector,malloc_alloc> exvectorvector;
+
 /** Base class for color object */
 class color : public indexed
 {
@@ -50,12 +52,12 @@ class color : public indexed
     friend unsigned subs_index_in_exvector(exvector & v, ex const & is, ex const & ir);
     friend void split_color_string_in_parts(exvector const & v, exvector & delta8vec,
                                             exvector & fvec, exvector & dvec,
-                                            vector<exvector> & Tvecs,
-                                            vector<exvector> & ONEvecs,
+                                            exvectorvector & Tvecs,
+                                            exvectorvector & ONEvecs,
                                             exvector & unknownvec);
     friend exvector recombine_color_string(exvector & delta8vec, exvector & fvec,
-                                           exvector & dvec, vector<exvector> & Tvecs,
-                                           vector<exvector> & ONEvecs, exvector & unknownvec);
+                                           exvector & dvec, exvectorvector & Tvecs,
+                                           exvectorvector & ONEvecs, exvector & unknownvec);
     friend ex color_trace_of_one_representation_label(exvector const & v);
     friend ex color_trace(exvector const & v, unsigned const rl);
     friend ex simplify_pure_color_string(ex const & e);
@@ -149,12 +151,12 @@ ex color_h(ex const & a, ex const & b, ex const & c);
 color color_delta8(ex const & a, ex const & b);
 void split_color_string_in_parts(exvector const & v, exvector & delta8vec,
                                  exvector & fvec, exvector & dvec,
-                                 vector<exvector> & Tvecs,
-                                 vector<exvector> & ONEvecs,
+                                 exvectorvector & Tvecs,
+                                 exvectorvector & ONEvecs,
                                  exvector & unknownvec);
 exvector recombine_color_string(exvector & delta8vec, exvector & fvec,
-                                exvector & dvec, vector<exvector> & Tvecs,
-                                vector<exvector> & ONEvecs, exvector & unknownvec);
+                                exvector & dvec, exvectorvector & Tvecs,
+                                exvectorvector & ONEvecs, exvector & unknownvec);
 ex color_trace_of_one_representation_label(exvector const & v);
 ex color_trace(exvector const & v, unsigned const rl=0);
 ex simplify_pure_color_string(ex const & e);

@@ -101,10 +101,10 @@ matrix::matrix(int r, int c)
 // protected
 
 /** Ctor from representation, for internal use only. */
-matrix::matrix(int r, int c, vector<ex> const & m2)
+matrix::matrix(int r, int c, exvector const & m2)
     : basic(TINFO_matrix), row(r), col(c), m(m2)
 {
-    debugmsg("matrix constructor from int,int,vector<ex>",LOGLEVEL_CONSTRUCT);
+    debugmsg("matrix constructor from int,int,exvector",LOGLEVEL_CONSTRUCT);
 }
 
 //////////
@@ -170,7 +170,7 @@ ex & matrix::let_op(int const i)
 /** expands the elements of a matrix entry by entry. */
 ex matrix::expand(unsigned options) const
 {
-    vector<ex> tmp(row*col);
+    exvector tmp(row*col);
     for (int i=0; i<row*col; ++i) {
         tmp[i]=m[i].expand(options);
     }
@@ -187,7 +187,7 @@ bool matrix::has(ex const & other) const
     if (is_equal(*other.bp)) return true;
     
     // search all the elements
-    for (vector<ex>::const_iterator r=m.begin(); r!=m.end(); ++r) {
+    for (exvector::const_iterator r=m.begin(); r!=m.end(); ++r) {
         if ((*r).has(other)) return true;
     }
     return false;
@@ -209,7 +209,7 @@ ex matrix::eval(int level) const
     }
     
     // eval() entry by entry
-    vector<ex> m2(row*col);
+    exvector m2(row*col);
     --level;    
     for (int r=0; r<row; ++r) {
         for (int c=0; c<col; ++c) {
@@ -237,7 +237,7 @@ ex matrix::evalf(int level) const
     }
     
     // evalf() entry by entry
-    vector<ex> m2(row*col);
+    exvector m2(row*col);
     --level;
     for (int r=0; r<row; ++r) {
         for (int c=0; c<col; ++c) {
@@ -291,9 +291,9 @@ matrix matrix::add(matrix const & other) const
         throw (std::logic_error("matrix::add(): incompatible matrices"));
     }
     
-    vector<ex> sum(this->m);
-    vector<ex>::iterator i;
-    vector<ex>::const_iterator ci;
+    exvector sum(this->m);
+    exvector::iterator i;
+    exvector::const_iterator ci;
     for (i=sum.begin(), ci=other.m.begin();
          i!=sum.end();
          ++i, ++ci) {
@@ -311,9 +311,9 @@ matrix matrix::sub(matrix const & other) const
         throw (std::logic_error("matrix::sub(): incompatible matrices"));
     }
     
-    vector<ex> dif(this->m);
-    vector<ex>::iterator i;
-    vector<ex>::const_iterator ci;
+    exvector dif(this->m);
+    exvector::iterator i;
+    exvector::const_iterator ci;
     for (i=dif.begin(), ci=other.m.begin();
          i!=dif.end();
          ++i, ++ci) {
@@ -331,7 +331,7 @@ matrix matrix::mul(matrix const & other) const
         throw (std::logic_error("matrix::mul(): incompatible matrices"));
     }
     
-    vector<ex> prod(row*other.col);
+    exvector prod(row*other.col);
     for (int i=0; i<row; ++i) {
         for (int j=0; j<other.col; ++j) {
             for (int l=0; l<col; ++l) {
@@ -374,7 +374,7 @@ matrix & matrix::set(int ro, int co, ex value)
  *  represents the transposed. */
 matrix matrix::transpose(void) const
 {
-    vector<ex> trans(col*row);
+    exvector trans(col*row);
     
     for (int r=0; r<col; ++r) {
         for (int c=0; c<row; ++c) {
@@ -544,7 +544,7 @@ ex matrix::determinant(bool normalized) const
     }
 
     // check, if there are non-numeric entries in the matrix:
-    for (vector<ex>::const_iterator r=m.begin(); r!=m.end(); ++r) {
+    for (exvector::const_iterator r=m.begin(); r!=m.end(); ++r) {
         if (!(*r).info(info_flags::numeric)) {
             if (normalized) {
                 return determinant_symbolic_minor(*this).normal();
@@ -861,7 +861,7 @@ matrix matrix::solve(matrix const & v) const
     }
     
     // assemble the solution matrix
-    vector<ex> sol(v.row*v.col);
+    exvector sol(v.row*v.col);
     for (int c=0; c<v.col; ++c) {
         for (int r=col-1; r>=0; --r) {
             sol[r*v.col+c] = tmp[r*tmp.col+c];

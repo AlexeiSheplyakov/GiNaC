@@ -71,6 +71,9 @@ public:
             GINAC_ASSERT(exZERO().bp->flags & status_flags::dynallocated);
             GINAC_ASSERT(bp!=0);
             ++bp->refcount;
+#ifdef OBSCURE_CINT_HACK
+            update_last_created_or_assigned_bp();
+#endif // def OBSCURE_CINT_HACK
         }
 #else
 ;
@@ -96,6 +99,9 @@ public:
             GINAC_ASSERT(bp!=0);
             GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
             ++bp->refcount;
+#ifdef OBSCURE_CINT_HACK
+            update_last_created_or_assigned_bp();
+#endif // def OBSCURE_CINT_HACK
         }
 #else
 ;
@@ -114,6 +120,9 @@ public:
                 delete bp;
             }
             bp=tmpbp;
+#ifdef OBSCURE_CINT_HACK
+            update_last_created_or_assigned_bp();
+#endif // def OBSCURE_CINT_HACK
             return *this;
         }
 #else
@@ -124,9 +133,12 @@ public:
 public:
     ex(basic const & other)
 #ifdef INLINE_EX_CONSTRUCTORS
-    {
-        construct_from_basic(other);
-    }
+        {
+            construct_from_basic(other);
+#ifdef OBSCURE_CINT_HACK
+            update_last_created_or_assigned_bp();
+#endif // def OBSCURE_CINT_HACK
+        }
 #else
 ;
 #endif // def INLINE_EX_CONSTRUCTORS
@@ -225,10 +237,39 @@ private:
     void construct_from_basic(basic const & other);
     void makewriteable();
 
+#ifdef OBSCURE_CINT_HACK
+public:
+    static bool last_created_or_assigned_bp_can_be_converted_to_ex(void)
+        {
+            if (last_created_or_assigned_bp==0) return false;
+            if ((last_created_or_assigned_bp->flags &
+                 status_flags::dynallocated)==0) return false;
+            if ((last_created_or_assigned_bp->flags &
+                 status_flags::evaluated)==0) return false;
+            return true;
+        }
+protected:
+    void update_last_created_or_assigned_bp(void)
+        {
+            if (last_created_or_assigned_bp!=0) {
+                if (--last_created_or_assigned_bp->refcount == 0) {
+                    delete last_created_or_assigned_bp;
+                }
+            }
+            last_created_or_assigned_bp=bp;
+            ++last_created_or_assigned_bp->refcount;
+            last_created_or_assigned_bp_modified=true;
+        }
+#endif // def OBSCURE_CINT_HACK
+
 // member variables
 
 public:
     basic *bp;
+#ifdef OBSCURE_CINT_HACK
+    static basic *last_created_or_assigned_bp;
+    static bool last_created_or_assigned_bp_modified;
+#endif // def OBSCURE_CINT_HACK
 };
 
 // utility functions

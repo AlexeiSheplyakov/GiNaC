@@ -86,7 +86,7 @@ void constant::destroy(bool call_parent)
 
 // public
 
-constant::constant(string const & initname, ex (*efun)()) :
+constant::constant(string const & initname, evalffunctype efun) :
     basic(TINFO_constant), name(initname), ef(efun),
     // number(0), fct_assigned(true), serial(next_serial++)
     number(0), serial(next_serial++)

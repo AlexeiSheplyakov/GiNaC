@@ -54,7 +54,7 @@ protected:
     // other constructors
 public:
     matrix(int r, int c);
-    matrix(int r, int c, vector<ex> const & m2);
+    matrix(int r, int c, exvector const & m2);
    
     // functions overriding virtual functions from bases classes
 public:
@@ -102,7 +102,7 @@ protected:
 protected:
     int row;                    /**< number of rows      */
     int col;                    /**< number of columns   */
-    vector<ex> m;               /**< representation (cols indexed first) */
+    exvector m;               /**< representation (cols indexed first) */
     static unsigned precedence;
 };
 

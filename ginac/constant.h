@@ -30,6 +30,8 @@
 namespace GiNaC {
 #endif // ndef NO_GINAC_NAMESPACE
 
+typedef ex (*evalffunctype)(void);
+    
 /** This class holds constants, symbols with specific numerical value. Each
  *  object of this class must either provide their own function to evaluate it
  *  to class numeric or provide the constant as a numeric (if it's an exact
@@ -51,7 +53,7 @@ protected:
 
     // other constructors
 public:
-    constant(string const & initname, ex (*efun)()=0);
+    constant(string const & initname, evalffunctype efun=0);
     constant(string const & initname, numeric const & initnumber);
 
     // functions overriding virtual functions from bases classes
@@ -77,7 +79,7 @@ protected:
 
 private:
     string name;
-    ex (*ef)();
+    evalffunctype ef;
     numeric * number;
     // bool fct_assigned;
     unsigned serial;  //!< unique serial number for comparision
