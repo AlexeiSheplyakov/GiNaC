@@ -1,5 +1,8 @@
 This file records noteworthy changes.
 
+1.0.7 (<date>)
+* Fixed LaTeX output of indexed objects.
+
 1.0.6 (4 March 2002)
 * "(x+1).subs(x==x-1)" now returns the correct result "x" instead of "x-1".
 
