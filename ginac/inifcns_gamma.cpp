@@ -101,7 +101,7 @@ static ex gamma_diff(const ex & x, unsigned diff_param)
     return psi(x)*gamma(x);
 }
 
-static ex gamma_series(const ex & x, const symbol & s, const ex & point, int order)
+static ex gamma_series(const ex & x, const symbol & s, const ex & pt, int order)
 {
     // method:
     // Taylor series where there is no pole falls back to psi function
@@ -110,17 +110,17 @@ static ex gamma_series(const ex & x, const symbol & s, const ex & point, int ord
     //   gamma(x) == gamma(x+1) / x
     // from which follows
     //   series(gamma(x),x,-m,order) ==
-    //   series(gamma(x+m+1)/(x*(x+1)...*(x+m)),x,-m,order+1);
-    ex xpoint = x.subs(s==point);
-    if (!xpoint.info(info_flags::integer) || xpoint.info(info_flags::positive))
+    //   series(gamma(x+m+1)/(x*(x+1)*...*(x+m)),x,-m,order+1);
+    const ex x_pt = x.subs(s==pt);
+    if (!x_pt.info(info_flags::integer) || x_pt.info(info_flags::positive))
         throw do_taylor();  // caught by function::series()
     // if we got here we have to care for a simple pole at -m:
-    numeric m = -ex_to_numeric(xpoint);
+    numeric m = -ex_to_numeric(x_pt);
     ex ser_numer = gamma(x+m+_ex1());
     ex ser_denom = _ex1();
     for (numeric p; p<=m; ++p)
         ser_denom *= x+p;
-    return (ser_numer/ser_denom).series(s, point, order+1);
+    return (ser_numer/ser_denom).series(s, pt, order+1);
 }
 
 REGISTER_FUNCTION(gamma, gamma_eval, gamma_evalf, gamma_diff, gamma_series);
@@ -143,11 +143,11 @@ static ex beta_evalf(const ex & x, const ex & y)
 static ex beta_eval(const ex & x, const ex & y)
 {
     if (x.info(info_flags::numeric) && y.info(info_flags::numeric)) {
-        numeric nx(ex_to_numeric(x));
-        numeric ny(ex_to_numeric(y));
         // treat all problematic x and y that may not be passed into gamma,
         // because they would throw there although beta(x,y) is well-defined
         // using the formula beta(x,y) == (-1)^y * beta(1-x-y, y)
+        numeric nx(ex_to_numeric(x));
+        numeric ny(ex_to_numeric(y));
         if (nx.is_real() && nx.is_integer() &&
             ny.is_real() && ny.is_integer()) {
             if (nx.is_negative()) {
@@ -190,23 +190,36 @@ static ex beta_diff(const ex & x, const ex & y, unsigned diff_param)
     return retval;
 }
 
-static ex beta_series(const ex & x, const ex & y, const symbol & s, const ex & point, int order)
+static ex beta_series(const ex & x, const ex & y, const symbol & s, const ex & pt, int order)
 {
     // method:
-    // Taylor series where there is no pole falls back to beta function
-    // evaluation.
-    // On a pole at -m use the recurrence relation
-    //   gamma(x) == gamma(x+1) / x
-    // from which follows
-    //   series(gamma(x),x,-m,order) ==
-    //   series(gamma(x+m+1)/(x*(x+1)...*(x+m)),x,-m,order+1);
-    ex xpoint = x.subs(s==point);
-    ex ypoint = y.subs(s==point);
-    if ((!xpoint.info(info_flags::integer) || xpoint.info(info_flags::positive)) &&
-        (!ypoint.info(info_flags::integer) || ypoint.info(info_flags::positive)))
+    // Taylor series where there is no pole of one of the gamma functions
+    // falls back to beta function evaluation.  Otherwise, fall back to
+    // gamma series directly.
+    // FIXME: this could need some testing, maybe it's wrong in some cases?
+    const ex x_pt = x.subs(s==pt);
+    const ex y_pt = y.subs(s==pt);
+    ex x_ser, y_ser, xy_ser;
+    if ((!x_pt.info(info_flags::integer) || x_pt.info(info_flags::positive)) &&
+        (!y_pt.info(info_flags::integer) || y_pt.info(info_flags::positive)))
         throw do_taylor();  // caught by function::series()
-    // if we got here we have to care for a simple pole at -m:
-    throw (std::domain_error("beta_series(): Mama, please code me!"));
+    // trap the case where x is on a pole directly:
+    if (x.info(info_flags::integer) && !x.info(info_flags::positive))
+        x_ser = gamma(x+s).series(s,pt,order);
+    else
+        x_ser = gamma(x).series(s,pt,order);
+    // trap the case where y is on a pole directly:
+    if (y.info(info_flags::integer) && !y.info(info_flags::positive))
+        y_ser = gamma(y+s).series(s,pt,order);
+    else
+        y_ser = gamma(y).series(s,pt,order);
+    // trap the case where y is on a pole directly:
+    if ((x+y).info(info_flags::integer) && !(x+y).info(info_flags::positive))
+        xy_ser = gamma(y+x+s).series(s,pt,order);
+    else
+        xy_ser = gamma(y+x).series(s,pt,order);
+    // compose the result:
+    return (x_ser*y_ser/xy_ser).series(s,pt,order);
 }
 
 REGISTER_FUNCTION(beta, beta_eval, beta_evalf, beta_diff, beta_series);
@@ -277,7 +290,7 @@ static ex psi1_diff(const ex & x, unsigned diff_param)
     return psi(_ex1(), x);
 }
 
-static ex psi1_series(const ex & x, const symbol & s, const ex & point, int order)
+static ex psi1_series(const ex & x, const symbol & s, const ex & pt, int order)
 {
     // method:
     // Taylor series where there is no pole falls back to polygamma function
@@ -287,15 +300,15 @@ static ex psi1_series(const ex & x, const symbol & s, const ex & point, int orde
     // from which follows
     //   series(psi(x),x,-m,order) ==
     //   series(psi(x+m+1) - 1/x - 1/(x+1) - 1/(x+m)),x,-m,order);
-    ex xpoint = x.subs(s==point);
-    if (!xpoint.info(info_flags::integer) || xpoint.info(info_flags::positive))
+    const ex x_pt = x.subs(s==pt);
+    if (!x_pt.info(info_flags::integer) || x_pt.info(info_flags::positive))
         throw do_taylor();  // caught by function::series()
     // if we got here we have to care for a simple pole at -m:
-    numeric m = -ex_to_numeric(xpoint);
+    numeric m = -ex_to_numeric(x_pt);
     ex recur;
     for (numeric p; p<=m; ++p)
         recur += power(x+p,_ex_1());
-    return (psi(x+m+_ex1())-recur).series(s, point, order);
+    return (psi(x+m+_ex1())-recur).series(s, pt, order);
 }
 
 const unsigned function_index_psi1 = function::register_new("psi", psi1_eval, psi1_evalf, psi1_diff, psi1_series);
@@ -391,7 +404,7 @@ static ex psi2_diff(const ex & n, const ex & x, unsigned diff_param)
     return psi(n+_ex1(), x);
 }
 
-static ex psi2_series(const ex & n, const ex & x, const symbol & s, const ex & point, int order)
+static ex psi2_series(const ex & n, const ex & x, const symbol & s, const ex & pt, int order)
 {
     // method:
     // Taylor series where there is no pole falls back to polygamma function
@@ -402,16 +415,16 @@ static ex psi2_series(const ex & n, const ex & x, const symbol & s, const ex & p
     //   series(psi(x),x,-m,order) == 
     //   series(psi(x+m+1) - (-1)^n * n! * ((x)^(-n-1) + (x+1)^(-n-1) + ...
     //                                      ... + (x+m)^(-n-1))),x,-m,order);
-    ex xpoint = x.subs(s==point);
-    if (!xpoint.info(info_flags::integer) || xpoint.info(info_flags::positive))
+    const ex x_pt = x.subs(s==pt);
+    if (!x_pt.info(info_flags::integer) || x_pt.info(info_flags::positive))
         throw do_taylor();  // caught by function::series()
     // if we got here we have to care for a pole of order n+1 at -m:
-    numeric m = -ex_to_numeric(xpoint);
+    numeric m = -ex_to_numeric(x_pt);
     ex recur;
     for (numeric p; p<=m; ++p)
         recur += power(x+p,-n+_ex_1());
     recur *= factorial(n)*power(_ex_1(),n);
-    return (psi(n, x+m+_ex1())-recur).series(s, point, order);
+    return (psi(n, x+m+_ex1())-recur).series(s, pt, order);
 }
 
 const unsigned function_index_psi2 = function::register_new("psi", psi2_eval, psi2_evalf, psi2_diff, psi2_series);

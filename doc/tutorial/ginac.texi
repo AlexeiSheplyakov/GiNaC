@@ -1433,10 +1433,14 @@ When you run it, it produces the sequence @code{1}, @code{-1}, @code{5},
 @cindex Laurent expansion
 
 Expressions know how to expand themselves as a Taylor series or (more
-generally) a Laurent series.  Similar to most conventional Computer
-Algebra Systems, no distinction is made between those two.  There is a
-class of its own for storing such series as well as a class for storing
-the order of the series.  A sample program could read:
+generally) a Laurent series.  As in most conventional Computer Algebra
+Systems, no distinction is made between those two.  There is a class of
+its own for storing such series as well as a class for storing the order
+of the series.  As a consequence, if you want to work with series,
+i.e. multiply two series, you need to call the method @code{ex::series}
+again to convert it to a series object with the usual structure
+(expansion plus order term).  A sample application from special
+relativity could read:
 
 @example
 #include <ginac/ginac.h>
@@ -1444,25 +1448,28 @@ using namespace GiNaC;
 
 int main()
 @{
-    symbol x("x");
-    numeric point(0);
-    ex MyExpr1 = sin(x);
-    ex MyExpr2 = 1/(x - pow(x, 2) - pow(x, 3));
-    ex MyTailor, MySeries;
+    symbol v("v"), c("c");
     
-    MyTailor = MyExpr1.series(x, point, 5);
-    cout << MyExpr1 << " == " << MyTailor
-         << " for small " << x << endl;
-    MySeries = MyExpr2.series(x, point, 7);
-    cout << MyExpr2 << " == " << MySeries
-         << " for small " << x << endl;
+    ex gamma = 1/sqrt(1 - pow(v/c,2));
+    ex mass_nonrel = gamma.series(v, 0, 10);
+    
+    cout << "the relativistic mass increase with v is " << endl
+         << mass_nonrel << endl;
+    
+    cout << "the inverse square of this series is " << endl
+         << pow(mass_nonrel,-2).series(v, 0, 10) << endl;
+    
     // ...
 @}
 @end example
 
+Only calling the series method makes the last output simplify to
+@math{1-v^2/c^2+O(v^10)}, without that call we would just have a long
+series raised to the power @math{-2}.
+
 @cindex M@'echain's formula
-As an instructive application, let us calculate the numerical value of
-Archimedes' constant
+As another instructive application, let us calculate the numerical 
+value of Archimedes' constant
 @tex
 $\pi$
 @end tex

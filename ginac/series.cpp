@@ -264,7 +264,7 @@ ex basic::series(symbol const & s, ex const & point, int order) const
             // Series terminates
             return series::series(s, point, seq);
         }
-        coeff = power(fac, -1) * deriv.subs(s == point);
+        coeff = fac.inverse() * deriv.subs(s == point);
         if (!coeff.is_zero())
             seq.push_back(expair(coeff, numeric(n)));
     }

@@ -39,7 +39,7 @@ namespace GiNaC {
 // Riemann's Zeta-function
 //////////
 
-static ex zeta1_evalf(ex const & x)
+static ex zeta1_evalf(const ex & x)
 {
     BEGIN_TYPECHECK
         TYPECHECK(x,numeric)
@@ -48,7 +48,7 @@ static ex zeta1_evalf(ex const & x)
     return zeta(ex_to_numeric(x));
 }
 
-static ex zeta1_eval(ex const & x)
+static ex zeta1_eval(const ex & x)
 {
     if (x.info(info_flags::numeric)) {
         numeric y = ex_to_numeric(x);
@@ -74,7 +74,7 @@ static ex zeta1_eval(ex const & x)
     return zeta(x).hold();
 }
 
-static ex zeta1_diff(ex const & x, unsigned diff_param)
+static ex zeta1_diff(const ex & x, unsigned diff_param)
 {
     GINAC_ASSERT(diff_param==0);
     
@@ -87,7 +87,7 @@ const unsigned function_index_zeta1 = function::register_new("zeta", zeta1_eval,
 // Derivatives of Riemann's Zeta-function  zeta(0,x)==zeta(x)
 //////////
 
-static ex zeta2_eval(ex const & n, ex const & x)
+static ex zeta2_eval(const ex & n, const ex & x)
 {
     if (n.info(info_flags::numeric)) {
         // zeta(0,x) -> zeta(x)
@@ -98,7 +98,7 @@ static ex zeta2_eval(ex const & n, ex const & x)
     return zeta(n, x).hold();
 }
 
-static ex zeta2_diff(ex const & n, ex const & x, unsigned diff_param)
+static ex zeta2_diff(const ex & n, const ex & x, unsigned diff_param)
 {
     GINAC_ASSERT(diff_param<2);
     
