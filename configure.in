@@ -77,7 +77,8 @@ AC_ARG_ENABLE(html-doc, [  --enable-html-doc       build HTML documentation [def
 AC_ARG_ENABLE(ps-doc,   [  --enable-ps-doc         build PostScript documentation [default=no]], , enable_ps_doc=no)
 AC_ARG_WITH(cint, [  --with-cint=CINTSYSDIR  build GiNaC-cint C++ interpreter [default=no]], , with_cint=no)
 
-dnl Check for data types which are needed by the hash function (golden_ratio_hash).
+dnl Check for data types which are needed by the hash function 
+dnl (golden_ratio_hash).
 AC_CHECK_SIZEOF(long, 4)
 AC_CHECK_SIZEOF(long long, 8)
 AC_CHECK_SIZEOF(long double, 12)

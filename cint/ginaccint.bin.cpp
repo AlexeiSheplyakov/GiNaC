@@ -35,9 +35,9 @@ string ToString(const T & t)
     return buf;
 }
 
-basic * ex::last_created_or_assigned_bp=0;
-basic * ex::dummy_bp=0;
-long ex::last_created_or_assigned_exp=0;
+basic * ex::last_created_or_assigned_bp = 0;
+basic * ex::dummy_bp = 0;
+long ex::last_created_or_assigned_exp = 0;
 
 #endif // def OBSCURE_CINT_HACK
 
@@ -102,7 +102,7 @@ void process_tempfile(string const & command)
     static G__value ref_power = exec_tempfile("power(ex(ginac_cint_internal_symbol),ex(ginac_cint_internal_symbol));");
     static G__value ref_numeric = exec_tempfile("numeric ginac_cint_internal_numeric; ginac_cint_internal_numeric;");
     static G__value ref_ex = exec_tempfile("ex ginac_cint_internal_ex; ginac_cint_internal_ex;");
-    static bool basic_type_warning_already_displayed=false;
+    static bool basic_type_warning_already_displayed = false;
 #endif // def OBSCURE_CINT_HACK
 
     G__value retval = exec_tempfile(command);
@@ -154,23 +154,24 @@ void process_tempfile(string const & command)
                  << PROMPT1 "cout << x << endl;" << endl
                  << "x" << endl << endl
                  << "This warning will not be shown again." << endl;
-            basic_type_warning_already_displayed=true;
+            basic_type_warning_already_displayed = true;
         }
     }
 #endif // def OBSCURE_CINT_HACK
+    return;
 }
-
+//----+----#----+----#----+----#----+----#----+----#----+----#----+----#----+----#
+//  __,  _______  Cint: Copyright 1995-2000 Masaharu Goto and Agilent Technologies, JP." << endl
 void greeting(void)
 {
     cout << "Welcome to GiNaC-cint (" << PACKAGE << " V" << VERSION << ")" << endl;
-    cout << "This software is provided \"as is\" without any warranty.  Copyright of Cint is" << endl
-         << "owned by Agilent Technologies Japan and Masaharu Goto.  Registration is" << endl
-         << "  __,  _______  requested, at this moment, for commercial use.  Send e-mail to" << endl
-         << " (__) *       | <MXJ02154@niftyserve.or.jp>.  The registration is free." << endl
-         << "  ._) i N a C | The GiNaC framework is Copyright by Johannes Gutenberg Univ.," << endl
-         << "<-------------' Germany and licensed under the terms and conditions of the GPL." << endl
+    cout << "  __,  _______  GiNaC: (C) 1999-2000 Johannes Gutenberg University Mainz," << endl
+         << " (__) *       | Germany.  Cint C/C++ interpreter: (C) 1995-2000 Masaharu" << endl
+         << "  ._) i N a C | Goto and Agilent Technologies, Japan.  This is free software" << endl
+         << "<-------------' with ABSOLUTELY NO WARRANTY.  For details, type `.warranty'" << endl
          << "Type .help for help." << endl
          << endl;
+    return;
 }
 
 void helpmessage(void)
@@ -191,11 +192,38 @@ void helpmessage(void)
          << "  .save filename           save the commands you have entered so far in a file" << endl
          << "  .silent                  suppress 'OutXY = ...' output (variables are still" << endl
          << "                           accessible)" << endl
+         << "  .warranty                information on redistribution and warranty" << endl
          << "  .> [filename]            same as .redirect [filename]" << endl << endl
          << "Instead of '.cmd' you can also write '//GiNaC-cint.cmd' to be compatible with" << endl
          << "programs that will be compiled later." << endl
          << "Additionally you can exit GiNaC-cint with quit; exit; or bye;" << endl
          << endl;
+    return;
+}
+
+void warrantymessage(void)
+{
+    cout << "GiNaC is free software; you can redistribute it and/or modify it under the" << endl
+         << "the terms of the GNU General Public License as published by the Free Software" << endl
+         << "Foundation; either version 2 of the License, or (at your option) any later" << endl
+         << "version." << endl
+         << "This program is distributed in the hope that it will be useful, but WITHOUT" << endl
+         << "ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS" << endl
+         << "FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more" << endl
+         << "details." << endl
+         << "You should have received a copy of the GNU General Public License along with" << endl
+         << "this program. If not, write to the Free Software Foundation, 675 Mass Ave," << endl
+         << "Cambridge, MA 02139, USA." << endl << endl;
+    cout << "Cint and associated tools are copyright by Agilent Technologies Japan Company" << endl
+         << "and Masaharu Goto <MXJ02154@niftyserve.or.jp>." << endl
+         << "Source code, binary executable or library of Cint and associated tools can be" << endl
+         << "used, modified and distributed with no royalty for any purpose provided that" << endl
+         << "the copyright notice appear in all copies and that both that copyright notice" << endl
+         << "and this permission notice appear in supporting documentation." << endl
+         << "Agilent Technologies Japan and the author make no representations about the" << endl
+         << "suitability of this software for any purpose.  It is provided \"AS IS\"" << endl
+         << "without express or implied warranty." << endl;
+    return;
 }
 
 string preprocess(char const * const line, bool & comment, bool & single_quote,
@@ -216,34 +244,34 @@ string preprocess(char const * const line, bool & comment, bool & single_quote,
     */
     
     string preprocessed;
-    int pos=0;
-    bool end=false;
-    bool escape=false;
-    bool slash=false;
-    bool asterisk=false;
+    int pos = 0;
+    bool end = false;
+    bool escape = false;
+    bool slash = false;
+    bool asterisk = false;
     while ((line[pos]!='\0')&&!end) {
         if (escape) {
             // last character was a \, ignore this one
-            escape=false;
+            escape = false;
         } else if (slash) {
             // last character was a /, test if * or /
-            slash=false;
+            slash = false;
             if (line[pos]=='/') {
-                end=true;
+                end = true;
             } else if (line[pos]=='*') {
-                comment=true;
+                comment = true;
             } else {
                 preprocessed += '/';
                 preprocessed += line[pos];
             }
         } else if (asterisk) {
             // last character was a *, test if /
-            asterisk=false;
+            asterisk = false;
             if (line[pos]=='/') {
-                comment=false;
+                comment = false;
             } else if (line[pos]=='*') {
                 preprocessed += '*';
-                asterisk=true;
+                asterisk = true;
             }
         } else {
             switch (line[pos]) {
@@ -278,10 +306,10 @@ string preprocess(char const * const line, bool & comment, bool & single_quote,
                 }
                 break;
             case '/':
-                slash=true;
+                slash = true;
                 break;
             case '*':
-                asterisk=true;
+                asterisk = true;
                 break;
             default:
                 preprocessed += line[pos];
@@ -328,7 +356,7 @@ void initialize_cint(void)
 {
     G__init_cint("cint");    /* initialize cint */
 
-    // no longer needed as of cint 5.14.31
+    // no longer needed as of cint 5.14.31:
     // exec_tempfile("#include <string>\n");
 
 #ifndef NO_NAMESPACE_GINAC
@@ -365,10 +393,10 @@ void redirect(string const & filename)
 bool is_command(string const & command, string & preprocessed,
                 string const & comparevalue, bool substr)
 {
-    bool single_quote=false;
-    bool double_quote=false;
-    bool comment=false;
-    unsigned open_braces=0;
+    bool single_quote = false;
+    bool double_quote = false;
+    bool comment = false;
+    unsigned open_braces = 0;
     if ((preprocessed=="."+comparevalue)||
         substr&&(preprocessed.substr(0,comparevalue.length()+1)==
                  "."+comparevalue)) {
@@ -392,11 +420,11 @@ bool readlines(istream * is, string & allcommands)
     
     bool quit = false;
     bool eof = false;
-    bool next_command_is_function=false;
-    bool single_quote=false;
-    bool double_quote=false;
-    bool comment=false;
-    unsigned open_braces=0;
+    bool next_command_is_function = false;
+    bool single_quote = false;
+    bool double_quote = false;
+    bool comment = false;
+    unsigned open_braces = 0;
 
     while ((!quit)&&(!eof)) {
         strcpy(prompt,PROMPT1);
@@ -408,19 +436,19 @@ bool readlines(istream * is, string & allcommands)
                 line = G__input(prompt);
             } else {
                 getline(*is,linebuffer);
-                line=linebuffer.c_str();
+                line = linebuffer.c_str();
             }
             command += line;
             command += "\n";
             preprocessed += preprocess(line,comment,single_quote,double_quote,open_braces);
             if ((open_braces==0)&&(!single_quote)&&(!double_quote)&&(!comment)) {
-                unsigned l=preprocessed.length();
+                unsigned l = preprocessed.length();
                 if ((l==0)||
                     (preprocessed[0]=='#')||
                     (preprocessed[0]=='.')||
                     (preprocessed[l-1]==';')||
                     (preprocessed[l-1]=='}')) {
-                    end_of_command=true;
+                    end_of_command = true;
                 }
             }
             strcpy(prompt,PROMPT2);
@@ -456,6 +484,8 @@ bool readlines(istream * is, string & allcommands)
             redirect(preprocessed.substr(2));
         } else if (is_command(command,preprocessed,"silent")) {
             redirect("/dev/null");
+        } else if (is_command(command,preprocessed,"warranty")) {
+            warrantymessage();
         /* test for more special commands
         } else if (preprocessed==".xyz") {
             cout << "special command (TBD): " << command << endl;
@@ -486,11 +516,11 @@ bool readlines(istream * is, string & allcommands)
 bool readfile(string const & filename, string & allcommands)
 {
     cout << "Reading commands from file " << filename << "." << endl;
-    bool quit=false;
+    bool quit = false;
     ifstream fin;
     fin.open(filename.c_str());
     if (fin.good()) {
-        quit=readlines(&fin,allcommands);
+        quit = readlines(&fin,allcommands);
     } else {
         cout << "Cannot open " << filename << " for reading." << endl;
     }
@@ -519,11 +549,11 @@ int main(int argc, char ** argv)
     string allcommands;
     initialize();
 
-    bool quit=false;
-    bool argsexist=argc>1;
+    bool quit = false;
+    bool argsexist = argc>1;
 
     if (argsexist) {
-        allcommands="/* Files given as command line arguments:\n";
+        allcommands = "/* Files given as command line arguments:\n";
     }
     
     argc--; argv++;
@@ -544,10 +574,3 @@ int main(int argc, char ** argv)
 
     return 0;
 }
-
-
-
-
-
-
-
