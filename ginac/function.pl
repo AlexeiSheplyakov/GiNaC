@@ -183,11 +183,11 @@ $declare_function_macro_no_namespace
 #ifndef NO_GINAC_NAMESPACE
 
 #define REGISTER_FUNCTION(NAME,E,EF,D,S) \\
-
 const unsigned function_index_##NAME=GiNaC::function::register_new(#NAME,E,EF,D,S);
 
 #else // ndef NO_GINAC_NAMESPACE
 
+#define REGISTER_FUNCTION(NAME,E,EF,D,S) \\
 const unsigned function_index_##NAME=function::register_new(#NAME,E,EF,D,S);
 
 #endif // ndef NO_GINAC_NAMESPACE
