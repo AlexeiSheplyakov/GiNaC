@@ -242,7 +242,6 @@ static void push(const ex &e)
  *  Built-in functions
  */
 
-static ex f_beta(const exprseq &e) {return gamma(e[0])*gamma(e[1])/gamma(e[0]+e[1]);}
 static ex f_denom(const exprseq &e) {return e[0].denom();}
 static ex f_eval1(const exprseq &e) {return e[0].eval();}
 static ex f_evalf1(const exprseq &e) {return e[0].evalf();}
@@ -483,7 +482,6 @@ struct fcn_init {
 };
 
 static const fcn_init builtin_fcns[] = {
-	{"beta", fcn_desc(f_beta, 2)},
 	{"charpoly", fcn_desc(f_charpoly, 2)},
 	{"coeff", fcn_desc(f_coeff, 3)},
 	{"collect", fcn_desc(f_collect, 2)},
@@ -759,8 +757,10 @@ int main(int argc, char **argv)
 	insert_fcn_help("atan", "inverse tangent function");
 	insert_fcn_help("atan2", "inverse tangent function with two arguments");
 	insert_fcn_help("atanh", "inverse hyperbolic tangent function");
+	insert_fcn_help("beta", "beta function");
 	insert_fcn_help("cos", "cosine function");
 	insert_fcn_help("cosh", "hyperbolic cosine function");
+	insert_fcn_help("psi", "polygamma function");
 	insert_fcn_help("sin", "sine function");
 	insert_fcn_help("sinh", "hyperbolic sine function");
 	insert_fcn_help("tan", "tangent function");

@@ -88,7 +88,11 @@ DECLARE_FUNCTION_1P(zeta)
 /** Gamma-function. */
 DECLARE_FUNCTION_1P(gamma)
 
+/** Beta-function. */
+DECLARE_FUNCTION_2P(beta)
+
 /** Psi-function (aka polygamma-function). */
+// overloading @ work: we cannot use the macros
 extern const unsigned function_index_psi1;
 inline function psi(ex const & p1) {
     return function(function_index_psi1, p1);

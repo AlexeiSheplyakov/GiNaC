@@ -1,7 +1,7 @@
 /** @file inifcns_gamma.cpp
  *
- *  Implementation of Gamma-function, Polygamma-functions, and some related
- *  stuff. */
+ *  Implementation of Gamma-function, Beta-function, Polygamma-functions, and
+ *  some related stuff. */
 
 /*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
@@ -53,7 +53,7 @@ static ex gamma_eval(ex const & x)
             if (x.info(info_flags::posint)) {
                 return factorial(ex_to_numeric(x).sub(numONE()));
             } else {
-                return numZERO();  // Infinity. Throw? What?
+                throw (std::domain_error("gamma_eval(): simple pole"));
             }
         }
         // trap half integer arguments:
@@ -105,6 +105,77 @@ static ex gamma_series(ex const & x, symbol const & s, ex const & point, int ord
 }
 
 REGISTER_FUNCTION(gamma, gamma_eval, gamma_evalf, gamma_diff, gamma_series);
+
+//////////
+// Beta-function
+//////////
+
+static ex beta_eval(ex const & x, ex const & y)
+{
+    if (x.info(info_flags::numeric) && y.info(info_flags::numeric)) {
+        numeric nx(ex_to_numeric(x));
+        numeric ny(ex_to_numeric(y));
+        // treat all problematic x and y that may not be passed into gamma,
+        // because they would throw there although beta(x,y) is well-defined:
+        if (nx.is_real() && nx.is_integer() &&
+            ny.is_real() && ny.is_integer()) {
+            if (nx.is_negative()) {
+                if (nx<=-ny)
+                    return numMINUSONE().power(ny)*beta(1-x-y, y);
+                else
+                    throw (std::domain_error("beta_eval(): simple pole"));
+            }
+            if (ny.is_negative()) {
+                if (ny<=-nx)
+                    return numMINUSONE().power(nx)*beta(1-y-x, x);
+                else
+                    throw (std::domain_error("beta_eval(): simple pole"));
+            }
+            return gamma(x)*gamma(y)/gamma(x+y);
+        }
+        // no problem in numerator, but denominator has pole:
+        if ((nx+ny).is_real() &&
+            (nx+ny).is_integer() &&
+            !(nx+ny).is_positive())
+            return exZERO();
+        return gamma(x)*gamma(y)/gamma(x+y);
+    }
+    return beta(x,y).hold();
+}
+
+static ex beta_evalf(ex const & x, ex const & y)
+{
+    BEGIN_TYPECHECK
+        TYPECHECK(x,numeric)
+        TYPECHECK(y,numeric)
+    END_TYPECHECK(beta(x,y))
+    
+    return gamma(ex_to_numeric(x))*gamma(ex_to_numeric(y))
+        / gamma(ex_to_numeric(x+y));
+}
+
+static ex beta_diff(ex const & x, ex const & y, unsigned diff_param)
+{
+    GINAC_ASSERT(diff_param<2);
+    ex retval;
+    
+    if (diff_param==0)  // d/dx beta(x,y)
+        retval = (psi(x)-psi(x+y))*beta(x,y);
+    if (diff_param==1)  // d/dy beta(x,y)
+        retval = (psi(y)-psi(x+y))*beta(x,y);
+    return retval;
+}
+
+static ex beta_series(ex const & x, ex const & y, symbol const & s, ex const & point, int order)
+{
+	if (x.is_equal(s) && point.is_zero()) {
+		ex e = 1 / s - EulerGamma + s * (pow(Pi, 2) / 12 + pow(EulerGamma, 2) / 2) + Order(pow(s, 2));
+		return e.series(s, point, order);
+	} else
+		throw(std::logic_error("don't know the series expansion of this particular beta function"));
+}
+
+REGISTER_FUNCTION(beta, beta_eval, beta_evalf, beta_diff, beta_series);
 
 //////////
 // Psi-function (aka polygamma-function)

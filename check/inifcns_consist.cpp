@@ -169,8 +169,8 @@ static unsigned inifcns_consist_trans(void)
     return result;
 }
 
-/* Simple tests on the Gamma combinatorial function.  We stuff in arguments
- * where the result exists in closed form and check if it's ok. */
+/* Simple tests on the Gamma function.  We stuff in arguments where the results
+ * exists in closed form and check if it's ok. */
 static unsigned inifcns_consist_gamma(void)
 {
     unsigned result = 0;
@@ -208,6 +208,27 @@ static unsigned inifcns_consist_gamma(void)
     if (e != numeric(633935)*Pi) {
         clog << "512*(gamma(-13/2)+...+gamma(5/2))*gamma(15/2) erroneously returned "
              << e << " instead of 633935*Pi" << endl;
+        ++result;
+    }
+    
+    return result;
+}
+
+/* Simple tests on the Psi-function (aka polygamma-function).  We stuff in
+   arguments where the result exists in closed form and check if it's ok. */
+static unsigned inifcns_consist_psi(void)
+{
+    unsigned result = 0;
+    symbol x;
+    ex e;
+    
+    // We check psi(1) and psi(1/2) implicitly by calculating the curious
+    // little identity gamma(1)'/gamma(1) - gamma(1/2)'/gamma(1/2) == 2*log(2).
+    e += (gamma(x).diff(x)/gamma(x)).subs(x==numeric(1));
+    e -= (gamma(x).diff(x)/gamma(x)).subs(x==numeric(1,2));
+    if (e!=2*log(2)) {
+        clog << "gamma(1)'/gamma(1) - gamma(1/2)'/gamma(1/2) erroneously returned "
+             << e << " instead of 2*log(2)" << endl;
         ++result;
     }
     
@@ -253,6 +274,7 @@ unsigned inifcns_consist(void)
     result += inifcns_consist_cos();
     result += inifcns_consist_trans();
     result += inifcns_consist_gamma();
+    result += inifcns_consist_psi();
     result += inifcns_consist_zeta();
 
     if ( !result ) {
