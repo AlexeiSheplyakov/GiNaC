@@ -151,10 +151,9 @@ void pseries::archive(archive_node &n) const
     n.add_ex("point", point);
 }
 
-
-/*
- *  Functions overriding virtual functions from base classes
- */
+//////////
+// functions overriding virtual functions from bases classes
+//////////
 
 basic *pseries::duplicate() const
 {
@@ -165,20 +164,46 @@ basic *pseries::duplicate() const
 void pseries::print(ostream &os, unsigned upper_precedence) const
 {
     debugmsg("pseries print", LOGLEVEL_PRINT);
-    // This could be made better, since series expansion at x==1 might print
-    // -1+2*x+Order((-1+x)^2) instead of 1+2*(-1+x)+Order((-1+x)^2), which is
-    // correct but can be rather confusing.
-    convert_to_poly().print(os, upper_precedence);
+    for (epvector::const_iterator i=seq.begin(); i!=seq.end(); i++) {
+        // print a sign, if needed
+        if (i!=seq.begin())
+            os << '+';
+        if (!is_order_function(i->rest)) {
+            // print 'rest', i.e. the expansion coefficient
+            if (i->rest.info(info_flags::numeric) &&
+                i->rest.info(info_flags::positive)) {
+                os << i->rest;
+            } else
+                os << "(" << i->rest << ')';
+            // print 'coeff', something like (x-1)^42
+            if (!i->coeff.is_zero()) {
+                os << '*';
+                if (!point.is_zero())
+                    os << '(' << var-point << ')';
+                else
+                    os << var;
+                if (i->coeff.compare(_ex1())) {
+                    os << '^';
+                    if (i->coeff.info(info_flags::negative))
+                        os << '(' << i->coeff << ')';
+                    else
+                        os << i->coeff;
+                }
+            }
+        } else {
+            os << Order(power(var-point,i->coeff));
+        }
+    }
 }
 
 void pseries::printraw(ostream &os) const
 {
-	debugmsg("pseries printraw", LOGLEVEL_PRINT);
-	os << "pseries(" << var << ";" << point << ";";
-	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); i++) {
-		os << "(" << (*i).rest << "," << (*i).coeff << "),";
-	}
-	os << ")";
+    debugmsg("pseries printraw", LOGLEVEL_PRINT);
+    os << "pseries(" << var << ";" << point << ";";
+    for (epvector::const_iterator i=seq.begin(); i!=seq.end(); i++) {
+        os << "(" << (*i).rest << "," << (*i).coeff << "),";
+    }
+    os << ")";
 }
 
 void pseries::printtree(ostream & os, unsigned indent) const
@@ -264,37 +289,37 @@ int pseries::ldegree(const symbol &s) const
 ex pseries::coeff(const symbol &s, int n) const
 {
     if (var.is_equal(s)) {
-		if (seq.size() == 0)
-			return _ex0();
+        if (seq.size() == 0)
+            return _ex0();
 
-		// Binary search in sequence for given power
-		numeric looking_for = numeric(n);
-		int lo = 0, hi = seq.size() - 1;
-		while (lo <= hi) {
-			int mid = (lo + hi) / 2;
-			GINAC_ASSERT(is_ex_exactly_of_type(seq[mid].coeff, numeric));
-			int cmp = ex_to_numeric(seq[mid].coeff).compare(looking_for);
-			switch (cmp) {
-				case -1:
-					lo = mid + 1;
-					break;
-				case 0:
-					return seq[mid].rest;
-				case 1:
-					hi = mid - 1;
-					break;
-				default:
-					throw(std::logic_error("pseries::coeff: compare() didn't return -1, 0 or 1"));
-			}
-		}
-		return _ex0();
+        // Binary search in sequence for given power
+        numeric looking_for = numeric(n);
+        int lo = 0, hi = seq.size() - 1;
+        while (lo <= hi) {
+            int mid = (lo + hi) / 2;
+            GINAC_ASSERT(is_ex_exactly_of_type(seq[mid].coeff, numeric));
+            int cmp = ex_to_numeric(seq[mid].coeff).compare(looking_for);
+            switch (cmp) {
+                case -1:
+                    lo = mid + 1;
+                    break;
+                case 0:
+                    return seq[mid].rest;
+                case 1:
+                    hi = mid - 1;
+                    break;
+                default:
+                    throw(std::logic_error("pseries::coeff: compare() didn't return -1, 0 or 1"));
+            }
+        }
+        return _ex0();
     } else
         return convert_to_poly().coeff(s, n);
 }
 
 ex pseries::collect(const symbol &s) const
 {
-	return *this;
+    return *this;
 }
 
 /** Evaluate coefficients. */
@@ -302,9 +327,9 @@ ex pseries::eval(int level) const
 {
     if (level == 1)
         return this->hold();
-
-	if (level == -max_recursion_level)
-		throw (std::runtime_error("pseries::eval(): recursion limit exceeded"));
+    
+    if (level == -max_recursion_level)
+        throw (std::runtime_error("pseries::eval(): recursion limit exceeded"));
     
     // Construct a new series with evaluated coefficients
     epvector new_seq;
@@ -320,12 +345,12 @@ ex pseries::eval(int level) const
 /** Evaluate coefficients numerically. */
 ex pseries::evalf(int level) const
 {
-	if (level == 1)
-		return *this;
-
-	if (level == -max_recursion_level)
-		throw (std::runtime_error("pseries::evalf(): recursion limit exceeded"));
-
+    if (level == 1)
+        return *this;
+    
+    if (level == -max_recursion_level)
+        throw (std::runtime_error("pseries::evalf(): recursion limit exceeded"));
+    
     // Construct a new series with evaluated coefficients
     epvector new_seq;
     new_seq.reserve(seq.size());
@@ -339,21 +364,21 @@ ex pseries::evalf(int level) const
 
 ex pseries::subs(const lst & ls, const lst & lr) const
 {
-	// If expansion variable is being substituted, convert the series to a
-	// polynomial and do the substitution there because the result might
-	// no longer be a power series
-	if (ls.has(var))
-		return convert_to_poly(true).subs(ls, lr);
-
-	// Otherwise construct a new series with substituted coefficients and
-	// expansion point
-	epvector new_seq;
-	new_seq.reserve(seq.size());
-	epvector::const_iterator it = seq.begin(), itend = seq.end();
-	while (it != itend) {
-		new_seq.push_back(expair(it->rest.subs(ls, lr), it->coeff));
-		it++;
-	}
+    // If expansion variable is being substituted, convert the series to a
+    // polynomial and do the substitution there because the result might
+    // no longer be a power series
+    if (ls.has(var))
+        return convert_to_poly(true).subs(ls, lr);
+    
+    // Otherwise construct a new series with substituted coefficients and
+    // expansion point
+    epvector new_seq;
+    new_seq.reserve(seq.size());
+    epvector::const_iterator it = seq.begin(), itend = seq.end();
+    while (it != itend) {
+        new_seq.push_back(expair(it->rest.subs(ls, lr), it->coeff));
+        it++;
+    }
     return (new pseries(relational(var,point.subs(ls, lr)), new_seq))->setflag(status_flags::dynallocated);
 }
 
@@ -450,21 +475,21 @@ ex basic::series(const relational & r, int order) const
  *  @see ex::series */
 ex symbol::series(const relational & r, int order) const
 {
-	epvector seq;
+    epvector seq;
     const ex point = r.rhs();
     GINAC_ASSERT(is_ex_exactly_of_type(r.lhs(),symbol));
     const symbol *s = static_cast<symbol *>(r.lhs().bp);
     
-	if (this->is_equal(*s)) {
-		if (order > 0 && !point.is_zero())
-			seq.push_back(expair(point, _ex0()));
-		if (order > 1)
-			seq.push_back(expair(_ex1(), _ex1()));
-		else
-			seq.push_back(expair(Order(_ex1()), numeric(order)));
-	} else
-		seq.push_back(expair(*this, _ex0()));
-	return pseries(r, seq);
+    if (this->is_equal(*s)) {
+        if (order > 0 && !point.is_zero())
+            seq.push_back(expair(point, _ex0()));
+        if (order > 1)
+            seq.push_back(expair(_ex1(), _ex1()));
+        else
+            seq.push_back(expair(Order(_ex1()), numeric(order)));
+    } else
+        seq.push_back(expair(*this, _ex0()));
+    return pseries(r, seq);
 }
 
 
@@ -551,7 +576,7 @@ ex add::series(const relational & r, int order) const
     
     // Get first term from overall_coeff
     acc = overall_coeff.series(r, order);
-
+    
     // Add remaining terms
     epvector::const_iterator it = seq.begin();
     epvector::const_iterator itend = seq.end();
@@ -607,7 +632,7 @@ ex pseries::mul_series(const pseries &other) const
         nul.push_back(expair(Order(_ex1()), _ex0()));
         return pseries(relational(var,point), nul);
     }
-
+    
     // Series multiplication
     epvector new_seq;
     
@@ -761,25 +786,25 @@ ex pseries::series(const relational & r, int order) const
     GINAC_ASSERT(is_ex_exactly_of_type(r.lhs(),symbol));
     const symbol *s = static_cast<symbol *>(r.lhs().bp);
     
-	if (var.is_equal(*s) && point.is_equal(p)) {
-		if (order > degree(*s))
-			return *this;
-		else {
-	        epvector new_seq;
-	        epvector::const_iterator it = seq.begin(), itend = seq.end();
-			while (it != itend) {
-				int o = ex_to_numeric(it->coeff).to_int();
-				if (o >= order) {
-					new_seq.push_back(expair(Order(_ex1()), o));
-					break;
-				}
-				new_seq.push_back(*it);
-				it++;
-			}
-			return pseries(r, new_seq);
-		}
-	} else
-		return convert_to_poly().series(r, order);
+    if (var.is_equal(*s) && point.is_equal(p)) {
+        if (order > degree(*s))
+            return *this;
+        else {
+            epvector new_seq;
+            epvector::const_iterator it = seq.begin(), itend = seq.end();
+            while (it != itend) {
+                int o = ex_to_numeric(it->coeff).to_int();
+                if (o >= order) {
+                    new_seq.push_back(expair(Order(_ex1()), o));
+                    break;
+                }
+                new_seq.push_back(*it);
+                it++;
+            }
+            return pseries(r, new_seq);
+        }
+    } else
+        return convert_to_poly().series(r, order);
 }
 
 

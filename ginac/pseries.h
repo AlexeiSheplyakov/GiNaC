@@ -107,7 +107,7 @@ extern const type_info & typeid_pseries;
  *  @see is_ex_of_type */
 inline const pseries &ex_to_pseries(const ex &e)
 {
-	return static_cast<const pseries &>(*e.bp);
+    return static_cast<const pseries &>(*e.bp);
 }
 
 /** Convert the pseries object embedded in an expression to an ordinary
@@ -120,7 +120,7 @@ inline const pseries &ex_to_pseries(const ex &e)
  *  @see pseries::convert_to_poly */
 inline ex series_to_poly(const ex &e)
 {
-	return (static_cast<const pseries &>(*e.bp).convert_to_poly(true));
+    return (static_cast<const pseries &>(*e.bp).convert_to_poly(true));
 }
 
 #ifndef NO_NAMESPACE_GINAC

@@ -51,7 +51,6 @@
 #include <cln/cl_output.h>
 #include <cln/cl_integer_io.h>
 #include <cln/cl_integer_ring.h>
-#include <cln/cl_univpoly_integer.h>
 #include <cln/cl_rational_io.h>
 #include <cln/cl_rational_ring.h>
 #include <cln/cl_lfloat_class.h>
@@ -65,7 +64,6 @@
 #include <cl_output.h>
 #include <cl_integer_io.h>
 #include <cl_integer_ring.h>
-#include <cl_univpoly_integer.h>
 #include <cl_rational_io.h>
 #include <cl_rational_ring.h>
 #include <cl_lfloat_class.h>
@@ -1490,80 +1488,64 @@ const numeric bernoulli(const numeric & nn)
     // The Bernoulli numbers are rational numbers that may be computed using
     // the relation
     //
-    //     B_n = - 1/(n+1) * sum_{k=0}^{n-1}(binomial(n+1,k)*B_k)          (1)
+    //     B_n = - 1/(n+1) * sum_{k=0}^{n-1}(binomial(n+1,k)*B_k)
     //
     // with B(0) = 1.  Since the n'th Bernoulli number depends on all the
-    // previous ones, the computation is necessarily very expensive.
-    // We can do better by computing the tangent numbers, sometimes called
-    // zag numbers.  They are integers which speeds up computation
-    // considerably.  Their relation to the Bernoulli numbers is given by
-    //
-    //     B_n == T_{n-1} * (-)^(n/2-1) * n / (4^n-2^n)                    (2)
-    //
-    // for even n>=2.  We can calculate the tangent numbers as the tangent 
-    // polynomials T_n(x) evaluated at x == 0.  The T_n(x) satisfy the
-    // recurrence relation
-    //
-    //      T_{n+1}(x) == (1+x^2)*T_n(x)'
-    //
-    // with starting value T_0(x) = x, by which they will be computed. The
-    // n'th tangent polynomial has degree n+1.
-    //
-    // Method (2) is about 2-10 times faster than method (1) when it is
-    // implemented in CLN's efficient univariate polynomials and not much more
-    // memory consuming.  Since any application that needs B_n is likely to
-    // need B_k, for k<n as well, we store all results computed so far, which
-    // gives us the same convenient runtime behaviour as method (1).
+    // previous ones, the computation is necessarily very expensive.  There are
+    // several other ways of computing them, a particularly good one being
+    // cl_I s = 1;
+    // cl_I c = n+1;
+    // cl_RA Bern = 0;
+    // for (unsigned i=0; i<n; i++) {
+    //     c = exquo(c*(i-n),(i+2));
+    //     Bern = Bern + c*s/(i+2);
+    //     s = s + expt_pos(cl_I(i+2),n);
+    // }
+    // return Bern;
+    // 
+    // But if somebody works with the n'th Bernoulli number she is likely to
+    // also need all previous Bernoulli numbers we need a complete remember
+    // table and above divide and conquer algorithm is not suited to build one
+    // up.  The code below is adapted from Pari's function bernvec().
+    // 
+    // (There is an interesting relation with the tangent polynomials described
+    // in `Concrete Mathematics', which leads to a program twice as fast as our
+    // implementation below, but it requires storing one such polynomial in
+    // addition to the remember table.  This doubles the memory footprint so
+    // we don't use it.)
     
     // the special cases not covered by the algorithm below
-    if (nn.is_zero())
-        return _num1();
     if (!nn.compare(_num1()))
         return numeric(-1,2);
-    if (!nn.compare(_num2()))
-        return numeric(::cl_I(1)/::cl_I(6));
     if (nn.is_odd())
         return _num0();
     
-    // let CLN set up the integer ring we are working in
-    ::cl_univpoly_integer_ring myring = ::cl_find_univpoly_ring(::cl_I_ring);
-    
-    // store nonvanishing Bernoulli numbers and the last tangent poly here
+    // store nonvanishing Bernoulli numbers here
     static vector< ::cl_RA > results;
     static int highest_result = 0;
-    static ::cl_UP_I T_n = myring->create(1);
+    // algorithm not applicable to B(0), so just store it
+    if (results.size()==0)
+        results.push_back(::cl_RA(1));
     
-    // index of results vector
-    int m = (nn.to_int()-4)/2;
-    // look if the result is precomputed
-    if (m < highest_result)
-        return numeric(results[m]);
-    // reserve the whole chunk we'll need
-    if (results.capacity() < (unsigned)(m+1))
-        results.reserve(m+1);
-    
-    // create the generating polynomial T_gen = 1+x^2
-    ::cl_UP_I T_gen = myring->create(2);
-    ::set_coeff(T_gen, 0, cl_I(1));
-    ::set_coeff(T_gen, 2, cl_I(1));
-    ::finalize(T_gen);
-    // T_n will be iterated, start with T_1(x) == 1+x^2 == T_gen
-    if (highest_result==0)
-        T_n = T_gen;
-    // iterate to the n'th tangent polynomial
-    for (int n=highest_result; n<=m; ++n) {
-        // recur tangent polynomial twice
-        for (int i=0; i<2; ++i)
-            T_n = ::deriv(T_n)*T_gen;
-        // fetch T_{n-1}
-        ::cl_I T = ::coeff(T_n,0);
-        // compute B_n from the T_{n-1}:
-        ::cl_RA B = T * (n%2 ? ::cl_I(1) : ::cl_I(-1));
-        B = B * 2*(n+2) / ((::cl_I(1)<<4*(n+2))-(::cl_I(1)<<2*(n+2)));
+    int n = nn.to_long();
+    for (int i=highest_result; i<n/2; ++i) {
+        ::cl_RA B = 0;
+        long n = 8;
+        long m = 5;
+        long d1 = i;
+        long d2 = 2*i-1;
+        for (int j=i; j>0; --j) {
+            B = cl_I(n*m) * (B+results[j]) / (d1*d2);
+            n += 4;
+            m += 2;
+            d1 -= 1;
+            d2 -= 2;
+        }
+        B = (1 - ((B+1)/(2*i+3))) / (cl_I(1)<<(2*i+2));
         results.push_back(B);
         ++highest_result;
     }
-    return numeric(results[m]);
+    return results[n/2];
 }
 
 
