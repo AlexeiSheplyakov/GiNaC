@@ -326,7 +326,7 @@ ex numeric::evalf(int level) const
 
 int numeric::compare_same_type(basic const & other) const
 {
-    ASSERT(is_exactly_of_type(other, numeric));
+    GINAC_ASSERT(is_exactly_of_type(other, numeric));
     numeric const & o = static_cast<numeric &>(const_cast<basic &>(other));
 
     if (*value == *o.value) {
@@ -338,7 +338,7 @@ int numeric::compare_same_type(basic const & other) const
 
 bool numeric::is_equal_same_type(basic const & other) const
 {
-    ASSERT(is_exactly_of_type(other,numeric));
+    GINAC_ASSERT(is_exactly_of_type(other,numeric));
     numeric const *o = static_cast<numeric const *>(&other);
     
     return is_equal(*o);
@@ -714,7 +714,7 @@ bool numeric::operator>=(numeric const & other) const
  *  if the number is really an integer before calling this method. */
 int numeric::to_int(void) const
 {
-    ASSERT(is_integer());
+    GINAC_ASSERT(is_integer());
     return cl_I_to_int(The(cl_I)(*value));
 }
 
@@ -722,7 +722,7 @@ int numeric::to_int(void) const
  *  if the number is really not complex before calling this method. */
 double numeric::to_double(void) const
 {
-    ASSERT(is_real());
+    GINAC_ASSERT(is_real());
     return cl_double_approx(realpart(*value));
 }
 

@@ -65,9 +65,9 @@ public:
 #ifdef INLINE_EX_CONSTRUCTORS
     : bp(exZERO().bp)
         {
-            ASSERT(exZERO().bp!=0);
-            ASSERT(exZERO().bp->flags & status_flags::dynallocated);
-            ASSERT(bp!=0);
+            GINAC_ASSERT(exZERO().bp!=0);
+            GINAC_ASSERT(exZERO().bp->flags & status_flags::dynallocated);
+            GINAC_ASSERT(bp!=0);
             ++bp->refcount;
         }
 #else
@@ -77,8 +77,8 @@ public:
     ~ex()
 #ifdef INLINE_EX_CONSTRUCTORS
         {
-            ASSERT(bp!=0);
-            ASSERT(bp->flags & status_flags::dynallocated);
+            GINAC_ASSERT(bp!=0);
+            GINAC_ASSERT(bp->flags & status_flags::dynallocated);
             if (--bp->refcount == 0) {
                 delete bp;
             }
@@ -91,8 +91,8 @@ public:
 #ifdef INLINE_EX_CONSTRUCTORS
     : bp(other.bp)
         {
-            ASSERT(bp!=0);
-            ASSERT((bp->flags) & status_flags::dynallocated);
+            GINAC_ASSERT(bp!=0);
+            GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
             ++bp->refcount;
         }
 #else
@@ -102,10 +102,10 @@ public:
     ex const & operator=(ex const & other)
 #ifdef INLINE_EX_CONSTRUCTORS
         {
-            ASSERT(bp!=0);
-            ASSERT(bp->flags & status_flags::dynallocated);
-            ASSERT(other.bp!=0);
-            ASSERT(other.bp->flags & status_flags::dynallocated);
+            GINAC_ASSERT(bp!=0);
+            GINAC_ASSERT(bp->flags & status_flags::dynallocated);
+            GINAC_ASSERT(other.bp!=0);
+            GINAC_ASSERT(other.bp->flags & status_flags::dynallocated);
             ++other.bp->refcount;
             basic * tmpbp=other.bp;
             if (--bp->refcount==0) {
@@ -185,8 +185,8 @@ public:
     int compare(ex const & other) const
 #ifdef INLINE_EX_CONSTRUCTORS
         {
-            ASSERT(bp!=0);
-            ASSERT(other.bp!=0);
+            GINAC_ASSERT(bp!=0);
+            GINAC_ASSERT(other.bp!=0);
             if (bp==other.bp) {
                 // special case: both expression point to same basic, trivially equal
                 return 0; 
@@ -199,8 +199,8 @@ public:
     bool is_equal(ex const & other) const
 #ifdef INLINE_EX_CONSTRUCTORS
         {
-            ASSERT(bp!=0);
-            ASSERT(other.bp!=0);
+            GINAC_ASSERT(bp!=0);
+            GINAC_ASSERT(other.bp!=0);
             if (bp==other.bp) {
                 // special case: both expression point to same basic, trivially equal
                 return true; 

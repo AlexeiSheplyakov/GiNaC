@@ -87,14 +87,14 @@ indexed::indexed(ex const & i1) : exprseq(i1)
 {
     debugmsg("indexed constructor from ex",LOGLEVEL_CONSTRUCT);
     tinfo_key=TINFO_indexed;
-    ASSERT(all_of_type_idx());
+    GINAC_ASSERT(all_of_type_idx());
 }
 
 indexed::indexed(ex const & i1, ex const & i2) : exprseq(i1,i2)
 {
     debugmsg("indexed constructor from ex,ex",LOGLEVEL_CONSTRUCT);
     tinfo_key=TINFO_indexed;
-    ASSERT(all_of_type_idx());
+    GINAC_ASSERT(all_of_type_idx());
 }
 
 indexed::indexed(ex const & i1, ex const & i2, ex const & i3)
@@ -102,21 +102,21 @@ indexed::indexed(ex const & i1, ex const & i2, ex const & i3)
 {
     debugmsg("indexed constructor from ex,ex,ex",LOGLEVEL_CONSTRUCT);
     tinfo_key=TINFO_indexed;
-    ASSERT(all_of_type_idx());
+    GINAC_ASSERT(all_of_type_idx());
 }
 
 indexed::indexed(exvector const & iv) : exprseq(iv)
 {
     debugmsg("indexed constructor from exvector",LOGLEVEL_CONSTRUCT);
     tinfo_key=TINFO_indexed;
-    ASSERT(all_of_type_idx());
+    GINAC_ASSERT(all_of_type_idx());
 }
 
 indexed::indexed(exvector * ivp) : exprseq(ivp)
 {
     debugmsg("indexed constructor from exvector *",LOGLEVEL_CONSTRUCT);
     tinfo_key=TINFO_indexed;
-    ASSERT(all_of_type_idx());
+    GINAC_ASSERT(all_of_type_idx());
 }
 
 //////////
@@ -188,13 +188,13 @@ exvector indexed::get_indices(void) const
 
 int indexed::compare_same_type(basic const & other) const
 {
-    ASSERT(is_of_type(other,indexed));
+    GINAC_ASSERT(is_of_type(other,indexed));
     return exprseq::compare_same_type(other);
 }
 
 bool indexed::is_equal_same_type(basic const & other) const
 {
-    ASSERT(is_of_type(other,indexed));
+    GINAC_ASSERT(is_of_type(other,indexed));
     return exprseq::is_equal_same_type(other);
 }
 

@@ -53,7 +53,7 @@ basic::~basic()
 {
     debugmsg("basic destructor",LOGLEVEL_DESTRUCT);
     destroy(0);
-    ASSERT((!(flags & status_flags::dynallocated))||(refcount==0));
+    GINAC_ASSERT((!(flags & status_flags::dynallocated))||(refcount==0));
 }
 
 basic::basic(basic const & other) : flags(0), refcount(0), tinfo_key(TINFO_BASIC)
@@ -149,7 +149,7 @@ ex basic::operator[](int const i) const
 
 bool basic::has(ex const & other) const
 {
-    ASSERT(other.bp!=0);
+    GINAC_ASSERT(other.bp!=0);
     if (is_equal(*other.bp)) return true;
     if (nops()>0) {
         for (int i=0; i<nops(); i++) {
@@ -348,7 +348,7 @@ int basic::compare(basic const & other) const
         return 1;
     }
 
-    ASSERT(typeid(*this)==typeid(other));
+    GINAC_ASSERT(typeid(*this)==typeid(other));
 
     int cmpval=compare_same_type(other);
     if ((cmpval!=0)&&(hash_this<0x80000000U)) {
@@ -376,7 +376,7 @@ bool basic::is_equal(basic const & other) const
 
     if (typeid_this!=typeid_other) return false;
 
-    ASSERT(typeid(*this)==typeid(other));
+    GINAC_ASSERT(typeid(*this)==typeid(other));
 
     return is_equal_same_type(other);
 }

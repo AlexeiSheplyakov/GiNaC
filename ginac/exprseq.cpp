@@ -108,7 +108,7 @@ exprseq::exprseq(exvector const & s, bool discardable) :  basic(TINFO_exprseq)
 exprseq::exprseq(exvector * vp) : basic(TINFO_exprseq)
 {
     debugmsg("exprseq constructor from exvector *",LOGLEVEL_CONSTRUCT);
-    ASSERT(vp!=0);
+    GINAC_ASSERT(vp!=0);
     seq.swap(*vp);
     delete vp;
 }
@@ -323,7 +323,7 @@ ex exprseq::expand(unsigned options) const
 
 bool exprseq::has(ex const & other) const
 {
-    ASSERT(other.bp!=0);
+    GINAC_ASSERT(other.bp!=0);
     if (is_equal(*other.bp)) return true;
     for (exvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
         if ((*it).has(other)) return true;
@@ -371,7 +371,7 @@ ex exprseq::subs(lst const & ls, lst const & lr) const
 
 int exprseq::compare_same_type(basic const & other) const
 {
-    ASSERT(is_of_type(other,exprseq));
+    GINAC_ASSERT(is_of_type(other,exprseq));
     exprseq const & o=static_cast<exprseq const &>
                                     (const_cast<basic &>(other));
     int cmpval;
@@ -392,7 +392,7 @@ int exprseq::compare_same_type(basic const & other) const
 
 bool exprseq::is_equal_same_type(basic const & other) const
 {
-    ASSERT(is_of_type(other,exprseq));
+    GINAC_ASSERT(is_of_type(other,exprseq));
     exprseq const & o=static_cast<exprseq const &>
                                     (const_cast<basic &>(other));
     if (seq.size()!=o.seq.size()) return false;

@@ -87,7 +87,7 @@ static ex gamma_evalf(ex const & x)
 
 static ex gamma_diff(ex const & x, unsigned diff_param)
 {
-    ASSERT(diff_param==0);
+    GINAC_ASSERT(diff_param==0);
     
     return psi(exZERO(),x)*gamma(x);  // diff(log(gamma(x)),x)==psi(0,x)
 }
@@ -130,7 +130,7 @@ static ex psi_evalf(ex const & n, ex const & x)
 
 static ex psi_diff(ex const & n, ex const & x, unsigned diff_param)
 {
-    ASSERT(diff_param==0);
+    GINAC_ASSERT(diff_param==0);
     
     return psi(n+1, x);
 }

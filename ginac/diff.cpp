@@ -226,7 +226,7 @@ ex series::diff(symbol const & s) const
 
 ex ex::diff(symbol const & s, unsigned nth) const
 {
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
 
     if ( nth==0 ) {
         return *this;

@@ -130,8 +130,8 @@ int relational::nops() const
 
 ex & relational::let_op(int const i)
 {
-    ASSERT(i>=0);
-    ASSERT(i<2);
+    GINAC_ASSERT(i>=0);
+    GINAC_ASSERT(i<2);
 
     return i==0 ? lh : rh;
 }
@@ -170,7 +170,7 @@ ex relational::simplify_ncmul(exvector const & v) const
 
 int relational::compare_same_type(basic const & other) const
 {
-    ASSERT(is_exactly_of_type(other, relational));
+    GINAC_ASSERT(is_exactly_of_type(other, relational));
     relational const & oth=static_cast<relational const &>(const_cast<basic &>(other));
     
     int cmpval;
@@ -192,13 +192,13 @@ int relational::compare_same_type(basic const & other) const
 
 unsigned relational::return_type(void) const
 {
-    ASSERT(lh.return_type()==rh.return_type());
+    GINAC_ASSERT(lh.return_type()==rh.return_type());
     return lh.return_type();
 }
    
 unsigned relational::return_type_tinfo(void) const
 {
-    ASSERT(lh.return_type_tinfo()==rh.return_type_tinfo());
+    GINAC_ASSERT(lh.return_type_tinfo()==rh.return_type_tinfo());
     return lh.return_type_tinfo();
 }
 

@@ -228,7 +228,7 @@ bool lorentzidx::info(unsigned inf) const
 
 lorentzidx lorentzidx::create_anonymous_representative(void) const
 {
-    ASSERT(is_symbolic());
+    GINAC_ASSERT(is_symbolic());
     lorentzidx i_copy(*this);
     i_copy.serial=0;
     i_copy.name="anonymous_representative";

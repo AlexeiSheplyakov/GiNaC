@@ -354,8 +354,8 @@ int ${STRUCTURE}::nops() const
 
 ex & ${STRUCTURE}::let_op(int const i)
 {
-    ASSERT(i>=0);
-    ASSERT(i<nops());
+    GINAC_ASSERT(i>=0);
+    GINAC_ASSERT(i<nops());
 
     switch (i) {
 ${let_op_statements}
@@ -378,7 +378,7 @@ ${expand_statements}
 
 bool ${STRUCTURE}::has(ex const & other) const
 {
-    ASSERT(other.bp!=0);
+    GINAC_ASSERT(other.bp!=0);
     if (is_equal(*other.bp)) return true;
 ${has_statements}
     return false;
@@ -450,7 +450,7 @@ ${subs_statements}
 
 int ${STRUCTURE}::compare_same_type(basic const & other) const
 {
-    ASSERT(is_of_type(other,${STRUCTURE}));
+    GINAC_ASSERT(is_of_type(other,${STRUCTURE}));
     ${STRUCTURE} const & o=static_cast<${STRUCTURE} const &>
                                     (const_cast<basic &>(other));
     int cmpval;
@@ -460,7 +460,7 @@ ${compare_statements}
 
 bool ${STRUCTURE}::is_equal_same_type(basic const & other) const
 {
-    ASSERT(is_of_type(other,${STRUCTURE}));
+    GINAC_ASSERT(is_of_type(other,${STRUCTURE}));
     ${STRUCTURE} const & o=static_cast<${STRUCTURE} const &>
                                     (const_cast<basic &>(other));
 ${is_equal_statements}

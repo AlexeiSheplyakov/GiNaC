@@ -25,10 +25,12 @@
 
 #include <assert.h>
 
-#if defined(DO_GINAC_ASSERT) && !defined(ASSERT)
-#define ASSERT(X) assert(X)
+#if !defined(GINAC_ASSERT)
+#if defined(DO_GINAC_ASSERT)
+#define GINAC_ASSERT(X) assert(X)
 #else
-#define ASSERT(X) ((void)0)
+#define GINAC_ASSERT(X) ((void)0)
+#endif
 #endif
 
 #endif // ndef __GINAC_ASSERTION_H__

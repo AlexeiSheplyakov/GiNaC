@@ -72,8 +72,8 @@ if ($let_op) {
     $LET_OP_IMPLEMENTATION=<<END_OF_LET_OP_IMPLEMENTATION
 ex & ${CONTAINER}::let_op(int const i)
 {
-    ASSERT(i>=0);
-    ASSERT(i<nops());
+    GINAC_ASSERT(i>=0);
+    GINAC_ASSERT(i<nops());
 
     ${STLT}::iterator it=seq.begin();
     for (int j=0; j<i; j++) {
@@ -340,7 +340,7 @@ ${CONTAINER}::${CONTAINER}(${STLT} const & s, bool discardable) :  basic(TINFO_$
 ${CONTAINER}::${CONTAINER}(${STLT} * vp) : basic(TINFO_${CONTAINER})
 {
     debugmsg("${CONTAINER} constructor from ${STLT} *",LOGLEVEL_CONSTRUCT);
-    ASSERT(vp!=0);
+    GINAC_ASSERT(vp!=0);
     seq.swap(*vp);
     delete vp;
 }
@@ -555,7 +555,7 @@ ex ${CONTAINER}::expand(unsigned options) const
 
 bool ${CONTAINER}::has(ex const & other) const
 {
-    ASSERT(other.bp!=0);
+    GINAC_ASSERT(other.bp!=0);
     if (is_equal(*other.bp)) return true;
     for (${STLT}::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
         if ((*it).has(other)) return true;
@@ -603,7 +603,7 @@ ex ${CONTAINER}::subs(lst const & ls, lst const & lr) const
 
 int ${CONTAINER}::compare_same_type(basic const & other) const
 {
-    ASSERT(is_of_type(other,${CONTAINER}));
+    GINAC_ASSERT(is_of_type(other,${CONTAINER}));
     ${CONTAINER} const & o=static_cast<${CONTAINER} const &>
                                     (const_cast<basic &>(other));
     int cmpval;
@@ -624,7 +624,7 @@ int ${CONTAINER}::compare_same_type(basic const & other) const
 
 bool ${CONTAINER}::is_equal_same_type(basic const & other) const
 {
-    ASSERT(is_of_type(other,${CONTAINER}));
+    GINAC_ASSERT(is_of_type(other,${CONTAINER}));
     ${CONTAINER} const & o=static_cast<${CONTAINER} const &>
                                     (const_cast<basic &>(other));
     if (seq.size()!=o.seq.size()) return false;

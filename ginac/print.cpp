@@ -46,14 +46,14 @@ namespace GiNaC {
 void ex::print(ostream & os, unsigned upper_precedence) const
 {
     debugmsg("ex print",LOGLEVEL_PRINT);
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     bp->print(os,upper_precedence);
 }
 
 void ex::dbgprint(void) const
 {
     debugmsg("ex dbgprint",LOGLEVEL_PRINT);
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     bp->dbgprint();
 }
 

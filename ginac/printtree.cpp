@@ -45,7 +45,7 @@ namespace GiNaC {
 void ex::printtree(ostream & os, unsigned indent) const
 {
     debugmsg("ex printtree",LOGLEVEL_PRINT);
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     // os << "refcount=" << bp->refcount << " ";
     bp->printtree(os,indent);
 }
@@ -53,7 +53,7 @@ void ex::printtree(ostream & os, unsigned indent) const
 void ex::dbgprinttree(void) const
 {
     debugmsg("ex dbgprinttree",LOGLEVEL_PRINT);
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     bp->dbgprinttree();
 }
 

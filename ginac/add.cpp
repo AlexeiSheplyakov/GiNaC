@@ -87,7 +87,7 @@ add::add(ex const & lh, ex const & rh)
     tinfo_key = TINFO_add;
     overall_coeff=exZERO();
     construct_from_2_ex(lh,rh);
-    ASSERT(is_canonical());
+    GINAC_ASSERT(is_canonical());
 }
 
 add::add(exvector const & v)
@@ -96,7 +96,7 @@ add::add(exvector const & v)
     tinfo_key = TINFO_add;
     overall_coeff=exZERO();
     construct_from_exvector(v);
-    ASSERT(is_canonical());
+    GINAC_ASSERT(is_canonical());
 }
 
 /*
@@ -112,7 +112,7 @@ add::add(epvector const & v, bool do_not_canonicalize)
     } else {
         construct_from_epvector(v);
     }
-    ASSERT(is_canonical());
+    GINAC_ASSERT(is_canonical());
 }
 */
 
@@ -122,7 +122,7 @@ add::add(epvector const & v)
     tinfo_key = TINFO_add;
     overall_coeff=exZERO();
     construct_from_epvector(v);
-    ASSERT(is_canonical());
+    GINAC_ASSERT(is_canonical());
 }
 
 add::add(epvector const & v, ex const & oc)
@@ -131,18 +131,18 @@ add::add(epvector const & v, ex const & oc)
     tinfo_key = TINFO_add;
     overall_coeff=oc;
     construct_from_epvector(v);
-    ASSERT(is_canonical());
+    GINAC_ASSERT(is_canonical());
 }
 
 add::add(epvector * vp, ex const & oc)
 {
     debugmsg("add constructor from epvector *,ex",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_add;
-    ASSERT(vp!=0);
+    GINAC_ASSERT(vp!=0);
     overall_coeff=oc;
     construct_from_epvector(*vp);
     delete vp;
-    ASSERT(is_canonical());
+    GINAC_ASSERT(is_canonical());
 }
 
 //////////
@@ -276,13 +276,13 @@ ex add::eval(int level) const
     debugmsg("add eval",LOGLEVEL_MEMBER_FUNCTION);
 
     if ((level==1)&&(flags & status_flags::evaluated)) {
-#ifdef DOASSERT
+#ifdef DO_GINAC_ASSERT
         for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
-            ASSERT(!is_ex_exactly_of_type((*cit).rest,add));
-            ASSERT(!(is_ex_exactly_of_type((*cit).rest,numeric)&&
+            GINAC_ASSERT(!is_ex_exactly_of_type((*cit).rest,add));
+            GINAC_ASSERT(!(is_ex_exactly_of_type((*cit).rest,numeric)&&
                      (ex_to_numeric((*cit).coeff).compare(numONE())!=0)));
         }
-#endif // def DOASSERT
+#endif // def DO_GINAC_ASSERT
         return *this;
     }
 
@@ -296,13 +296,13 @@ ex add::eval(int level) const
         return (new add(evaled_seqp))->setflag(status_flags::dynallocated);
     }
 
-#ifdef DOASSERT
+#ifdef DO_GINAC_ASSERT
     for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
-        ASSERT(!is_ex_exactly_of_type((*cit).rest,add));
-        ASSERT(!(is_ex_exactly_of_type((*cit).rest,numeric)&&
+        GINAC_ASSERT(!is_ex_exactly_of_type((*cit).rest,add));
+        GINAC_ASSERT(!(is_ex_exactly_of_type((*cit).rest,numeric)&&
                  (ex_to_numeric((*cit).coeff).compare(numONE())!=0)));
     }
-#endif // def DOASSERT
+#endif // def DO_GINAC_ASSERT
 
     if (flags & status_flags::evaluated) {
         return *this;
@@ -394,19 +394,19 @@ ex add::eval(int level) const
                    setflag(status_flags::dynallocated);
     }
 
-#ifdef DOASSERT
+#ifdef DO_GINAC_ASSERT
     for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
-        ASSERT(!is_ex_exactly_of_type((*cit).rest,add));
+        GINAC_ASSERT(!is_ex_exactly_of_type((*cit).rest,add));
         if (is_ex_exactly_of_type((*cit).rest,numeric)) {
             dbgprint();
         }
-        ASSERT(!is_ex_exactly_of_type((*cit).rest,numeric));
+        GINAC_ASSERT(!is_ex_exactly_of_type((*cit).rest,numeric));
     }
-#endif // def DOASSERT
+#endif // def DO_GINAC_ASSERT
 
     if (flags & status_flags::evaluated) {
-        ASSERT(seq.size()>0);
-        ASSERT((seq.size()>1)||!overall_coeff.is_equal(exZERO()));
+        GINAC_ASSERT(seq.size()>0);
+        GINAC_ASSERT((seq.size()>1)||!overall_coeff.is_equal(exZERO()));
         return *this;
     }
 
@@ -483,7 +483,7 @@ expair add::split_ex_to_pair(ex const & e) const
 {
     if (is_ex_exactly_of_type(e,mul)) {
         mul const & mulref=ex_to_mul(e);
-        ASSERT(mulref.seq.size()>1);
+        GINAC_ASSERT(mulref.seq.size()>1);
         ex const & lastfactor_rest=(*(mulref.seq.end()-1)).rest;
         ex const & lastfactor_coeff=(*(mulref.seq.end()-1)).coeff;
         if (is_ex_exactly_of_type(lastfactor_rest,numeric) &&
@@ -528,10 +528,10 @@ expair add::split_ex_to_pair(ex const & e) const
 expair add::combine_ex_with_coeff_to_pair(ex const & e,
                                           ex const & c) const
 {
-    ASSERT(is_ex_exactly_of_type(c,numeric));
+    GINAC_ASSERT(is_ex_exactly_of_type(c,numeric));
     if (is_ex_exactly_of_type(e,mul)) {
         mul const & mulref=ex_to_mul(e);
-        ASSERT(mulref.seq.size()>1);
+        GINAC_ASSERT(mulref.seq.size()>1);
         ex const & lastfactor_rest=(*(mulref.seq.end()-1)).rest;
         ex const & lastfactor_coeff=(*(mulref.seq.end()-1)).coeff;
         if (is_ex_exactly_of_type(lastfactor_rest,numeric) &&
@@ -566,7 +566,7 @@ expair add::combine_ex_with_coeff_to_pair(ex const & e,
 expair add::combine_ex_with_coeff_to_pair(ex const & e,
                                           ex const & c) const
 {
-    ASSERT(is_ex_exactly_of_type(c,numeric));
+    GINAC_ASSERT(is_ex_exactly_of_type(c,numeric));
     if (is_ex_exactly_of_type(e,mul)) {
         mul const & mulref=ex_to_mul(e);
         ex numfactor=mulref.overall_coeff;
@@ -594,11 +594,11 @@ expair add::combine_ex_with_coeff_to_pair(ex const & e,
 expair add::combine_pair_with_coeff_to_pair(expair const & p,
                                             ex const & c) const
 {
-    ASSERT(is_ex_exactly_of_type(p.coeff,numeric));
-    ASSERT(is_ex_exactly_of_type(c,numeric));
+    GINAC_ASSERT(is_ex_exactly_of_type(p.coeff,numeric));
+    GINAC_ASSERT(is_ex_exactly_of_type(c,numeric));
 
     if (is_ex_exactly_of_type(p.rest,numeric)) {
-        ASSERT(ex_to_numeric(p.coeff).is_equal(numONE())); // should be normalized
+        GINAC_ASSERT(ex_to_numeric(p.coeff).is_equal(numONE())); // should be normalized
         return expair(ex_to_numeric(p.rest).mul_dyn(ex_to_numeric(c)),exONE());
     }
 

@@ -73,7 +73,7 @@ static ex zeta_evalf(ex const & x)
 
 static ex zeta_diff(ex const & x, unsigned diff_param)
 {
-    ASSERT(diff_param==0);
+    GINAC_ASSERT(diff_param==0);
     
     return exZERO();  // should return zeta(numONE(),x);
 }

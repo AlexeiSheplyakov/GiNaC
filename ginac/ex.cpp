@@ -43,17 +43,17 @@ namespace GiNaC {
 ex::ex() : bp(exZERO().bp)
 {
     debugmsg("ex default constructor",LOGLEVEL_CONSTRUCT);
-    ASSERT(exZERO().bp!=0);
-    ASSERT(exZERO().bp->flags & status_flags::dynallocated);
-    ASSERT(bp!=0);
+    GINAC_ASSERT(exZERO().bp!=0);
+    GINAC_ASSERT(exZERO().bp->flags & status_flags::dynallocated);
+    GINAC_ASSERT(bp!=0);
     ++bp->refcount;
 }
 
 ex::~ex()
 {
     debugmsg("ex destructor",LOGLEVEL_DESTRUCT);
-    ASSERT(bp!=0);
-    ASSERT(bp->flags & status_flags::dynallocated);
+    GINAC_ASSERT(bp!=0);
+    GINAC_ASSERT(bp->flags & status_flags::dynallocated);
     if (--bp->refcount == 0) {
         delete bp;
     }
@@ -62,18 +62,18 @@ ex::~ex()
 ex::ex(ex const & other) : bp(other.bp)
 {
     debugmsg("ex copy constructor",LOGLEVEL_CONSTRUCT);
-    ASSERT(bp!=0);
-    ASSERT((bp->flags) & status_flags::dynallocated);
+    GINAC_ASSERT(bp!=0);
+    GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
     ++bp->refcount;
 }
 
 ex const & ex::operator=(ex const & other)
 {
     debugmsg("ex operator=",LOGLEVEL_ASSIGNMENT);
-    ASSERT(bp!=0);
-    ASSERT(bp->flags & status_flags::dynallocated);
-    ASSERT(other.bp!=0);
-    ASSERT(other.bp->flags & status_flags::dynallocated);
+    GINAC_ASSERT(bp!=0);
+    GINAC_ASSERT(bp->flags & status_flags::dynallocated);
+    GINAC_ASSERT(other.bp!=0);
+    GINAC_ASSERT(other.bp->flags & status_flags::dynallocated);
     ++other.bp->refcount;
     basic * tmpbp=other.bp;
     if (--bp->refcount==0) {
@@ -151,10 +151,10 @@ void ex::swap(ex & other)
 {
     debugmsg("ex swap",LOGLEVEL_MEMBER_FUNCTION);
 
-    ASSERT(bp!=0);
-    ASSERT(bp->flags & status_flags::dynallocated);
-    ASSERT(other.bp!=0);
-    ASSERT(other.bp->flags & status_flags::dynallocated);
+    GINAC_ASSERT(bp!=0);
+    GINAC_ASSERT(bp->flags & status_flags::dynallocated);
+    GINAC_ASSERT(other.bp!=0);
+    GINAC_ASSERT(other.bp->flags & status_flags::dynallocated);
     
     basic * tmpbp=bp;
     bp=other.bp;
@@ -194,37 +194,37 @@ bool ex::info(unsigned inf) const
 
 int ex::nops() const
 {
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     return bp->nops();
 }
 
 ex ex::expand(unsigned options) const
 {
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     return bp->expand(options);
 }
 
 bool ex::has(ex const & other) const
 {
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     return bp->has(other);
 }
 
 int ex::degree(symbol const & s) const
 {
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     return bp->degree(s);
 }
 
 int ex::ldegree(symbol const & s) const
 {
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     return bp->ldegree(s);
 }
 
 ex ex::coeff(symbol const & s, int const n) const
 {
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     return bp->coeff(s,n);
 }
 
@@ -284,64 +284,64 @@ ex ex::denom(bool normalize) const
 
 ex ex::collect(symbol const & s) const
 {
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     return bp->collect(s);
 }
 
 ex ex::eval(int level) const
 {
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     return bp->eval(level);
 }
 
 ex ex::evalf(int level) const
 {
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     return bp->evalf(level);
 }
 
 ex ex::subs(lst const & ls, lst const & lr) const
 {
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     return bp->subs(ls,lr);
 }
 
 ex ex::subs(ex const & e) const
 {
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     return bp->subs(e);
 }
 
 exvector ex::get_indices(void) const
 {
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     return bp->get_indices();
 }
 
 ex ex::simplify_ncmul(exvector const & v) const
 {
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     return bp->simplify_ncmul(v);
 }
 
 ex ex::operator[](ex const & index) const
 {
     debugmsg("ex operator[ex]",LOGLEVEL_OPERATOR);
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     return (*bp)[index];
 }
 
 ex ex::operator[](int const i) const
 {
     debugmsg("ex operator[int]",LOGLEVEL_OPERATOR);
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     return (*bp)[i];
 }
 
 ex ex::op(int const i) const
 {
     debugmsg("ex op()",LOGLEVEL_MEMBER_FUNCTION);
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     return bp->op(i);
 }
 
@@ -349,15 +349,15 @@ ex & ex::let_op(int const i)
 {
     debugmsg("ex let_op()",LOGLEVEL_MEMBER_FUNCTION);
     makewriteable();
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     return bp->let_op(i);
 }
 
 #ifndef INLINE_EX_CONSTRUCTORS
 int ex::compare(ex const & other) const
 {
-    ASSERT(bp!=0);
-    ASSERT(other.bp!=0);
+    GINAC_ASSERT(bp!=0);
+    GINAC_ASSERT(other.bp!=0);
     if (bp==other.bp) {
         // special case: both expression point to same basic, trivially equal
         return 0; 
@@ -369,8 +369,8 @@ int ex::compare(ex const & other) const
 #ifndef INLINE_EX_CONSTRUCTORS
 bool ex::is_equal(ex const & other) const
 {
-    ASSERT(bp!=0);
-    ASSERT(other.bp!=0);
+    GINAC_ASSERT(bp!=0);
+    GINAC_ASSERT(other.bp!=0);
     if (bp==other.bp) {
         // special case: both expression point to same basic, trivially equal
         return true; 
@@ -381,19 +381,19 @@ bool ex::is_equal(ex const & other) const
 
 unsigned ex::return_type(void) const
 {
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     return bp->return_type();
 }
 
 unsigned ex::return_type_tinfo(void) const
 {
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     return bp->return_type_tinfo();
 }
 
 unsigned ex::gethash(void) const
 {
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     return bp->gethash();
 }
 
@@ -417,8 +417,8 @@ ex ex::exncmul(ex const & rh) const
 void ex::makewriteable()
 {
     debugmsg("ex makewriteable",LOGLEVEL_MEMBER_FUNCTION);
-    ASSERT(bp!=0);
-    ASSERT(bp->flags & status_flags::dynallocated);
+    GINAC_ASSERT(bp!=0);
+    GINAC_ASSERT(bp->flags & status_flags::dynallocated);
     if (bp->refcount > 1) {
         basic * bp2=bp->duplicate();
         ++bp2->refcount;
@@ -426,7 +426,7 @@ void ex::makewriteable()
         --bp->refcount;
         bp=bp2;
     }
-    ASSERT(bp->refcount == 1);
+    GINAC_ASSERT(bp->refcount == 1);
 }    
 
 void ex::construct_from_basic(basic const & other)
@@ -435,8 +435,8 @@ void ex::construct_from_basic(basic const & other)
         // cf. copy constructor
         ex const & tmpex = other.eval(1); // evaluate only one (top) level
         bp = tmpex.bp;
-        ASSERT(bp!=0);
-        ASSERT(bp->flags & status_flags::dynallocated);
+        GINAC_ASSERT(bp!=0);
+        GINAC_ASSERT(bp->flags & status_flags::dynallocated);
         ++bp->refcount;
         if ((other.flags & status_flags::dynallocated)&&(other.refcount==0)) {
             delete &const_cast<basic &>(other);
@@ -448,12 +448,12 @@ void ex::construct_from_basic(basic const & other)
             bp=other.duplicate();
             bp->setflag(status_flags::dynallocated);
         }
-        ASSERT(bp!=0);
+        GINAC_ASSERT(bp!=0);
         // bp->clearflag(status_flags::evaluated);
         ++bp->refcount;
     }
-    ASSERT(bp!=0);
-    ASSERT(bp->flags & status_flags::dynallocated);
+    GINAC_ASSERT(bp!=0);
+    GINAC_ASSERT(bp->flags & status_flags::dynallocated);
 }
 
 //////////

@@ -117,7 +117,7 @@ ex constant::evalf(int level) const
 
 int constant::compare_same_type(basic const & other) const
 {
-    ASSERT(is_exactly_of_type(other, constant));
+    GINAC_ASSERT(is_exactly_of_type(other, constant));
     // constant const & o=static_cast<constant &>(const_cast<basic &>(other));
     // return name.compare(o.name);
     const constant *o = static_cast<const constant *>(&other);
@@ -127,7 +127,7 @@ int constant::compare_same_type(basic const & other) const
 
 bool constant::is_equal_same_type(basic const & other) const
 {
-    ASSERT(is_exactly_of_type(other, constant));
+    GINAC_ASSERT(is_exactly_of_type(other, constant));
     const constant *o = static_cast<const constant *>(&other);
     return serial==o->serial;
 }

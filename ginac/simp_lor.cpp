@@ -103,7 +103,7 @@ simp_lor::simp_lor(simp_lor_types const t, ex const & i1, ex const & i2) :
 {
     debugmsg("simp_lor constructor from simp_lor_types,ex,ex",LOGLEVEL_CONSTRUCT);
     tinfo_key=TINFO_simp_lor;
-    ASSERT(all_of_type_lorentzidx());
+    GINAC_ASSERT(all_of_type_lorentzidx());
 }
 
 simp_lor::simp_lor(simp_lor_types const t, string const & n, ex const & i1) :
@@ -111,7 +111,7 @@ simp_lor::simp_lor(simp_lor_types const t, string const & n, ex const & i1) :
 {
     debugmsg("simp_lor constructor from simp_lor_types,string,ex",LOGLEVEL_CONSTRUCT);
     tinfo_key=TINFO_simp_lor;
-    ASSERT(all_of_type_lorentzidx());
+    GINAC_ASSERT(all_of_type_lorentzidx());
 }
 
 simp_lor::simp_lor(simp_lor_types const t, string const & n, exvector const & iv) :
@@ -119,7 +119,7 @@ simp_lor::simp_lor(simp_lor_types const t, string const & n, exvector const & iv
 {
     debugmsg("simp_lor constructor from simp_lor_types,string,exvector",LOGLEVEL_CONSTRUCT);
     tinfo_key=TINFO_simp_lor;
-    ASSERT(all_of_type_lorentzidx());
+    GINAC_ASSERT(all_of_type_lorentzidx());
 }
 
 simp_lor::simp_lor(simp_lor_types const t, string const & n, exvector * ivp) :
@@ -127,7 +127,7 @@ simp_lor::simp_lor(simp_lor_types const t, string const & n, exvector * ivp) :
 {
     debugmsg("simp_lor constructor from simp_lor_types,string,exvector*",LOGLEVEL_CONSTRUCT);
     tinfo_key=TINFO_simp_lor;
-    ASSERT(all_of_type_lorentzidx());
+    GINAC_ASSERT(all_of_type_lorentzidx());
 }
 
 //////////
@@ -239,7 +239,7 @@ ex simp_lor::eval(int level) const
 
 int simp_lor::compare_same_type(basic const & other) const
 {
-    ASSERT(other.tinfo() == TINFO_simp_lor);
+    GINAC_ASSERT(other.tinfo() == TINFO_simp_lor);
     const simp_lor *o = static_cast<const simp_lor *>(&other);
     if (type==o->type) {
         if (name==o->name) {
@@ -252,7 +252,7 @@ int simp_lor::compare_same_type(basic const & other) const
 
 bool simp_lor::is_equal_same_type(basic const & other) const
 {
-    ASSERT(other.tinfo() == TINFO_simp_lor);
+    GINAC_ASSERT(other.tinfo() == TINFO_simp_lor);
     const simp_lor *o = static_cast<const simp_lor *>(&other);
     if (type!=o->type) return false;
     if (name!=o->name) return false;
@@ -329,7 +329,7 @@ simp_lor lor_vec(string const & n, ex const & mu)
 
 ex simplify_simp_lor_mul(ex const & m, scalar_products const & sp)
 {
-    ASSERT(is_ex_exactly_of_type(m,mul));
+    GINAC_ASSERT(is_ex_exactly_of_type(m,mul));
     exvector v_contracted;
 
     // collect factors in an exvector, store squares twice
@@ -354,11 +354,11 @@ ex simplify_simp_lor_mul(ex const & m, scalar_products const & sp)
         if (is_ex_exactly_of_type(*it,simp_lor) &&
             (ex_to_simp_lor(*it).type==simp_lor::simp_lor_g)) {
             simp_lor const & g=ex_to_simp_lor(*it);
-            ASSERT(g.seq.size()==2);
+            GINAC_ASSERT(g.seq.size()==2);
             idx const & first_idx=ex_to_lorentzidx(g.seq[0]);
             idx const & second_idx=ex_to_lorentzidx(g.seq[1]);
             // g_{mu,mu} should have been contracted in simp_lor::eval()
-            ASSERT(!first_idx.is_equal(second_idx));
+            GINAC_ASSERT(!first_idx.is_equal(second_idx));
             ex saved_g=*it; // save to restore it later
 
             // try to contract first index
@@ -371,7 +371,7 @@ ex simplify_simp_lor_mul(ex const & m, scalar_products const & sp)
                     *it=saved_g;
                 } else {
                     // a contracted index should occur exactly once
-                    ASSERT(replacements==1);
+                    GINAC_ASSERT(replacements==1);
                     *it=exONE();
                     something_changed=true;
                 }
@@ -387,7 +387,7 @@ ex simplify_simp_lor_mul(ex const & m, scalar_products const & sp)
                     *it=saved_g;
                 } else {
                     // a contracted index should occur exactly once
-                    ASSERT(replacements==1);
+                    GINAC_ASSERT(replacements==1);
                     *it=exONE();
                     something_changed=true;
                 }
@@ -408,8 +408,8 @@ ex simplify_simp_lor_mul(ex const & m, scalar_products const & sp)
                     (ex_to_simp_lor(*it2).type==simp_lor::simp_lor_vec)) {
                     simp_lor const & vec1=ex_to_simp_lor(*it1);
                     simp_lor const & vec2=ex_to_simp_lor(*it2);
-                    ASSERT(vec1.seq.size()==1);
-                    ASSERT(vec2.seq.size()==1);
+                    GINAC_ASSERT(vec1.seq.size()==1);
+                    GINAC_ASSERT(vec2.seq.size()==1);
                     lorentzidx const & idx1=ex_to_lorentzidx(vec1.seq[0]);
                     lorentzidx const & idx2=ex_to_lorentzidx(vec2.seq[0]);
                     if (idx1.is_symbolic() &&
@@ -506,10 +506,10 @@ void scalar_products::debugprint(void) const
 
 spmapkey scalar_products::make_key(simp_lor const & v1, simp_lor const & v2)
 {
-    ASSERT(v1.type==simp_lor::simp_lor_vec);
-    ASSERT(v2.type==simp_lor::simp_lor_vec);
+    GINAC_ASSERT(v1.type==simp_lor::simp_lor_vec);
+    GINAC_ASSERT(v2.type==simp_lor::simp_lor_vec);
     lorentzidx anon=ex_to_lorentzidx(v1.seq[0]).create_anonymous_representative();
-    ASSERT(anon.is_equal_same_type(ex_to_lorentzidx(v2.seq[0]).create_anonymous_representative()));
+    GINAC_ASSERT(anon.is_equal_same_type(ex_to_lorentzidx(v2.seq[0]).create_anonymous_representative()));
     return spmapkey(strstrpair(v1.name,v2.name),anon);
 }
 

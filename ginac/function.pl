@@ -420,7 +420,7 @@ void function::printraw(ostream & os) const
 {
     debugmsg("function printraw",LOGLEVEL_PRINT);
 
-    ASSERT(serial<registered_functions().size());
+    GINAC_ASSERT(serial<registered_functions().size());
 
     os << "function(name=" << registered_functions()[serial].name;
     for (exvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
@@ -434,7 +434,7 @@ void function::print(ostream & os, unsigned upper_precedence) const
 {
     debugmsg("function print",LOGLEVEL_PRINT);
 
-    ASSERT(serial<registered_functions().size());
+    GINAC_ASSERT(serial<registered_functions().size());
 
     os << registered_functions()[serial].name;
     printseq(os,'(',',',')',exprseq::precedence,function::precedence);
@@ -444,7 +444,7 @@ void function::printtree(ostream & os, unsigned indent) const
 {
     debugmsg("function printtree",LOGLEVEL_PRINT);
 
-    ASSERT(serial<registered_functions().size());
+    GINAC_ASSERT(serial<registered_functions().size());
 
     os << string(indent,' ') << "function "
        << registered_functions()[serial].name
@@ -461,7 +461,7 @@ void function::printcsrc(ostream & os, unsigned type, unsigned upper_precedence)
 {
     debugmsg("function print csrc",LOGLEVEL_PRINT);
 
-    ASSERT(serial<registered_functions().size());
+    GINAC_ASSERT(serial<registered_functions().size());
 
 	// Print function name in lowercase
     string lname;
@@ -489,7 +489,7 @@ ex function::expand(unsigned options) const
 
 ex function::eval(int level) const
 {
-    ASSERT(serial<registered_functions().size());
+    GINAC_ASSERT(serial<registered_functions().size());
 
     exvector eseq=evalchildren(level);    
 
@@ -506,7 +506,7 @@ ${eval_switch_statement}
 
 ex function::evalf(int level) const
 {
-    ASSERT(serial<registered_functions().size());
+    GINAC_ASSERT(serial<registered_functions().size());
 
     exvector eseq=evalfchildren(level);
     
@@ -535,7 +535,7 @@ ex function::thisexprseq(exvector * vp) const
  *  \@see ex::series */
 ex function::series(symbol const & s, ex const & point, int order) const
 {
-    ASSERT(serial<registered_functions().size());
+    GINAC_ASSERT(serial<registered_functions().size());
 
     if (registered_functions()[serial].s==0) {
         return basic::series(s, point, order);
@@ -552,7 +552,7 @@ ${series_switch_statement}
 
 int function::compare_same_type(basic const & other) const
 {
-    ASSERT(is_of_type(other, function));
+    GINAC_ASSERT(is_of_type(other, function));
     function const & o=static_cast<function &>(const_cast<basic &>(other));
 
     if (serial!=o.serial) {
@@ -563,7 +563,7 @@ int function::compare_same_type(basic const & other) const
 
 bool function::is_equal_same_type(basic const & other) const
 {
-    ASSERT(is_of_type(other, function));
+    GINAC_ASSERT(is_of_type(other, function));
     function const & o=static_cast<function &>(const_cast<basic &>(other));
 
     if (serial!=o.serial) return false;
@@ -600,7 +600,7 @@ unsigned function::return_type_tinfo(void) const
 
 ex function::pdiff(unsigned diff_param) const // partial differentiation
 {
-    ASSERT(serial<registered_functions().size());
+    GINAC_ASSERT(serial<registered_functions().size());
     
     if (registered_functions()[serial].d==0) {
         throw(std::logic_error(string("function::pdiff(") + registered_functions()[serial].name + "): no diff function defined"));

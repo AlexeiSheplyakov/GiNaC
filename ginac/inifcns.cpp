@@ -149,8 +149,8 @@ ex lsolve(ex const &eqns, ex const &symbols)
         }
         ex sol=lsolve(lst(eqns),lst(symbols));
         
-        ASSERT(sol.nops()==1);
-        ASSERT(is_ex_exactly_of_type(sol.op(0),relational));
+        GINAC_ASSERT(sol.nops()==1);
+        GINAC_ASSERT(is_ex_exactly_of_type(sol.op(0),relational));
         
         return sol.op(0).op(1); // return rhs of first solution
     }

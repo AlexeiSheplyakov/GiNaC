@@ -53,7 +53,7 @@ inline unsigned rotate_left_31(unsigned n)
     if (n & 0x80000000U) {
         n=(n & 0x7FFFFFFFU) | 0x00000001U;
     }
-    ASSERT(n<0x80000000U);
+    GINAC_ASSERT(n<0x80000000U);
 
     return n;
 }

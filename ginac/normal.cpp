@@ -220,7 +220,7 @@ static numeric lcm_of_coefficients_denominators(const ex &e)
 
 numeric ex::integer_content(void) const
 {
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     return bp->integer_content();
 }
 
@@ -240,27 +240,27 @@ numeric add::integer_content(void) const
     epvector::const_iterator itend = seq.end();
     numeric c = numZERO();
     while (it != itend) {
-        ASSERT(!is_ex_exactly_of_type(it->rest,numeric));
-        ASSERT(is_ex_exactly_of_type(it->coeff,numeric));
+        GINAC_ASSERT(!is_ex_exactly_of_type(it->rest,numeric));
+        GINAC_ASSERT(is_ex_exactly_of_type(it->coeff,numeric));
         c = gcd(ex_to_numeric(it->coeff), c);
         it++;
     }
-    ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
+    GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
     c = gcd(ex_to_numeric(overall_coeff),c);
     return c;
 }
 
 numeric mul::integer_content(void) const
 {
-#ifdef DOASSERT
+#ifdef DO_GINAC_ASSERT
     epvector::const_iterator it = seq.begin();
     epvector::const_iterator itend = seq.end();
     while (it != itend) {
-        ASSERT(!is_ex_exactly_of_type(recombine_pair_to_ex(*it),numeric));
+        GINAC_ASSERT(!is_ex_exactly_of_type(recombine_pair_to_ex(*it),numeric));
         ++it;
     }
-#endif // def DOASSERT
-    ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
+#endif // def DO_GINAC_ASSERT
+    GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
     return abs(ex_to_numeric(overall_coeff));
 }
 
@@ -841,7 +841,7 @@ static ex sr_gcd(const ex &a, const ex &b, const symbol *x)
 
 numeric ex::max_coefficient(void) const
 {
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     return bp->max_coefficient();
 }
 
@@ -859,11 +859,11 @@ numeric add::max_coefficient(void) const
 {
     epvector::const_iterator it = seq.begin();
     epvector::const_iterator itend = seq.end();
-    ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
+    GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
     numeric cur_max = abs(ex_to_numeric(overall_coeff));
     while (it != itend) {
         numeric a;
-        ASSERT(!is_ex_exactly_of_type(it->rest,numeric));
+        GINAC_ASSERT(!is_ex_exactly_of_type(it->rest,numeric));
         a = abs(ex_to_numeric(it->coeff));
         if (a > cur_max)
             cur_max = a;
@@ -874,15 +874,15 @@ numeric add::max_coefficient(void) const
 
 numeric mul::max_coefficient(void) const
 {
-#ifdef DOASSERT
+#ifdef DO_GINAC_ASSERT
     epvector::const_iterator it = seq.begin();
     epvector::const_iterator itend = seq.end();
     while (it != itend) {
-        ASSERT(!is_ex_exactly_of_type(recombine_pair_to_ex(*it),numeric));
+        GINAC_ASSERT(!is_ex_exactly_of_type(recombine_pair_to_ex(*it),numeric));
         it++;
     }
-#endif // def DOASSERT
-    ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
+#endif // def DO_GINAC_ASSERT
+    GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
     return abs(ex_to_numeric(overall_coeff));
 }
 
@@ -897,7 +897,7 @@ numeric mul::max_coefficient(void) const
 
 ex ex::smod(const numeric &xi) const
 {
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     return bp->smod(xi);
 }
 
@@ -918,29 +918,29 @@ ex add::smod(const numeric &xi) const
     epvector::const_iterator it = seq.begin();
     epvector::const_iterator itend = seq.end();
     while (it != itend) {
-        ASSERT(!is_ex_exactly_of_type(it->rest,numeric));
+        GINAC_ASSERT(!is_ex_exactly_of_type(it->rest,numeric));
         numeric coeff = GiNaC::smod(ex_to_numeric(it->coeff), xi);
         if (!coeff.is_zero())
             newseq.push_back(expair(it->rest, coeff));
         it++;
     }
-    ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
+    GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
     numeric coeff = GiNaC::smod(ex_to_numeric(overall_coeff), xi);
     return (new add(newseq,coeff))->setflag(status_flags::dynallocated);
 }
 
 ex mul::smod(const numeric &xi) const
 {
-#ifdef DOASSERT
+#ifdef DO_GINAC_ASSERT
     epvector::const_iterator it = seq.begin();
     epvector::const_iterator itend = seq.end();
     while (it != itend) {
-        ASSERT(!is_ex_exactly_of_type(recombine_pair_to_ex(*it),numeric));
+        GINAC_ASSERT(!is_ex_exactly_of_type(recombine_pair_to_ex(*it),numeric));
         it++;
     }
-#endif // def DOASSERT
+#endif // def DO_GINAC_ASSERT
     mul * mulcopyp=new mul(*this);
-    ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
+    GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
     mulcopyp->overall_coeff = GiNaC::smod(ex_to_numeric(overall_coeff),xi);
     mulcopyp->clearflag(status_flags::evaluated);
     mulcopyp->clearflag(status_flags::hash_calculated);

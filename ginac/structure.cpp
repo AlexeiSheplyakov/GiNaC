@@ -125,13 +125,13 @@ void structure::printcsrc(ostream & os, unsigned type, unsigned upper_precedence
 
 int structure::compare_same_type(basic const & other) const
 {
-    ASSERT(is_of_type(other, structure));
+    GINAC_ASSERT(is_of_type(other, structure));
     return 0; // all structures are the same
 }
 
 bool structure::is_equal_same_type(basic const & other) const
 {
-    ASSERT(is_of_type(other, structure));
+    GINAC_ASSERT(is_of_type(other, structure));
     return true; // all structures are the same
 }
 

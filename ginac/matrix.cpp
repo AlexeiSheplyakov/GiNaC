@@ -143,7 +143,7 @@ ex matrix::expand(unsigned options) const
  *  itself or one of the elements 'has' it. */
 bool matrix::has(ex const & other) const
 {
-    ASSERT(other.bp!=0);
+    GINAC_ASSERT(other.bp!=0);
     
     // tautology: it is the expression itself
     if (is_equal(*other.bp)) return true;
@@ -213,7 +213,7 @@ ex matrix::evalf(int level) const
 
 int matrix::compare_same_type(basic const & other) const
 {
-    ASSERT(is_exactly_of_type(other, matrix));
+    GINAC_ASSERT(is_exactly_of_type(other, matrix));
     matrix const & o=static_cast<matrix &>(const_cast<basic &>(other));
     
     // compare number of rows
@@ -350,7 +350,7 @@ matrix matrix::transpose(void) const
  * called internally by matrix::determinant(). */
 ex determinant_numeric(const matrix & M)
 {
-    ASSERT(M.rows()==M.cols());  // cannot happen, just in case...
+    GINAC_ASSERT(M.rows()==M.cols());  // cannot happen, just in case...
     matrix tmp(M);
     ex det=exONE();
     ex piv;
@@ -399,7 +399,7 @@ int permutation_sign(vector<T> s)
  *  routine is only called internally by matrix::determinant(). */
 ex determinant_symbolic_perm(const matrix & M)
 {
-    ASSERT(M.rows()==M.cols());  // cannot happen, just in case...
+    GINAC_ASSERT(M.rows()==M.cols());  // cannot happen, just in case...
     
     if (M.rows()==1) {  // speed things up
         return M(0,0);
@@ -424,7 +424,7 @@ ex determinant_symbolic_perm(const matrix & M)
  *  called internally by matrix::determinant(). */
 ex determinant_symbolic_minor(const matrix & M)
 {
-    ASSERT(M.rows()==M.cols());  // cannot happen, just in case...
+    GINAC_ASSERT(M.rows()==M.cols());  // cannot happen, just in case...
     
     if (M.rows()==1) {  // end of recursion
         return M(0,0);
@@ -468,7 +468,7 @@ ex determinant_symbolic_minor(const matrix & M)
  *  that are very hard to canonicalize. */
 /*ex determinant_symbolic_leverrier(const matrix & M)
  *{
- *    ASSERT(M.rows()==M.cols());  // cannot happen, just in case...
+ *    GINAC_ASSERT(M.rows()==M.cols());  // cannot happen, just in case...
  *    
  *    matrix B(M);
  *    matrix I(M.row, M.col);
@@ -690,7 +690,7 @@ matrix matrix::fraction_free_elim(matrix const & vars,
     }
     */
     
-#ifdef DOASSERT
+#ifdef DO_GINAC_ASSERT
     // test if we really have an upper echelon matrix
     int zero_in_last_row=-1;
     for (int r=1; r<=m; ++r) {
@@ -702,10 +702,10 @@ matrix matrix::fraction_free_elim(matrix const & vars,
                 break;
             }
         }
-        ASSERT((zero_in_this_row>zero_in_last_row)||(zero_in_this_row=n));
+        GINAC_ASSERT((zero_in_this_row>zero_in_last_row)||(zero_in_this_row=n));
         zero_in_last_row=zero_in_this_row;
     }
-#endif // def DOASSERT
+#endif // def DO_GINAC_ASSERT
     
     // assemble solution
     matrix sol(n,1);
@@ -747,7 +747,7 @@ matrix matrix::fraction_free_elim(matrix const & vars,
     }
     */
     
-#ifdef DOASSERT
+#ifdef DO_GINAC_ASSERT
     // test solution with echelon matrix
     for (int r=1; r<=m; ++r) {
         ex e=0;
@@ -759,7 +759,7 @@ matrix matrix::fraction_free_elim(matrix const & vars,
             cout << "b.ffe_get(" << r<<",1)=" << b.ffe_get(r,1) << endl;
             cout << "diff=" << (e-b.ffe_get(r,1)).normal() << endl;
         }
-        ASSERT((e-b.ffe_get(r,1)).normal().is_zero());
+        GINAC_ASSERT((e-b.ffe_get(r,1)).normal().is_zero());
     }
 
     // test solution with original matrix
@@ -782,9 +782,9 @@ matrix matrix::fraction_free_elim(matrix const & vars,
             ex xxx=e-rhs.ffe_get(r,1);
             cerr << "xxx=" << xxx << endl << endl;
         }
-        ASSERT((e-rhs.ffe_get(r,1)).normal().is_zero());
+        GINAC_ASSERT((e-rhs.ffe_get(r,1)).normal().is_zero());
     }
-#endif // def DOASSERT
+#endif // def DO_GINAC_ASSERT
     
     return sol;
 }   

@@ -200,13 +200,13 @@ bool idx::info(unsigned inf) const
 
 ex idx::subs(lst const & ls, lst const & lr) const
 {
-    ASSERT(ls.nops()==lr.nops());
-#ifdef DOASSERT
+    GINAC_ASSERT(ls.nops()==lr.nops());
+#ifdef DO_GINAC_ASSERT
     for (int i=0; i<ls.nops(); i++) {
-        ASSERT(is_ex_exactly_of_type(ls.op(i),symbol)||
+        GINAC_ASSERT(is_ex_exactly_of_type(ls.op(i),symbol)||
                is_ex_of_type(ls.op(i),idx));
     }
-#endif // def DOASSERT
+#endif // def DO_GINAC_ASSERT
 
     for (int i=0; i<ls.nops(); i++) {
         if (is_equal(*(ls.op(i)).bp)) {
@@ -220,7 +220,7 @@ ex idx::subs(lst const & ls, lst const & lr) const
 
 int idx::compare_same_type(basic const & other) const
 {
-    ASSERT(is_of_type(other,idx));
+    GINAC_ASSERT(is_of_type(other,idx));
     idx const & o=static_cast<idx const &>
                              (const_cast<basic &>(other));
 
@@ -248,7 +248,7 @@ int idx::compare_same_type(basic const & other) const
 
 bool idx::is_equal_same_type(basic const & other) const
 {
-    ASSERT(is_of_type(other,idx));
+    GINAC_ASSERT(is_of_type(other,idx));
     idx const & o=static_cast<idx const &>
                              (const_cast<basic &>(other));
 
@@ -274,7 +274,7 @@ unsigned idx::calchash(void) const
 bool idx::is_co_contra_pair(basic const & other) const
 {
     // like is_equal_same_type(), but tests for different covariant status
-    ASSERT(is_of_type(other,idx));
+    GINAC_ASSERT(is_of_type(other,idx));
     idx const & o=static_cast<idx const &>
                              (const_cast<basic &>(other));
 
@@ -366,10 +366,10 @@ exvector idx_intersect(exvector const & iv1, exvector const & iv2)
     // assumes (but does not test) that each index occurs at most twice
     exvector iv_intersect;
     for (exvector::const_iterator cit1=iv1.begin(); cit1!=iv1.end(); ++cit1) {
-        ASSERT(is_ex_of_type(*cit1,idx));
+        GINAC_ASSERT(is_ex_of_type(*cit1,idx));
         if (ex_to_idx(*cit1).is_symbolic()) {
             for (exvector::const_iterator cit2=iv2.begin(); cit2!=iv2.end(); ++cit2) {
-                ASSERT(is_ex_of_type(*cit2,idx));
+                GINAC_ASSERT(is_ex_of_type(*cit2,idx));
                 if ((*cit1).is_equal(*cit2)) {
                     iv_intersect.push_back(*cit1);
                     break;
@@ -392,8 +392,8 @@ ex permute_free_index_to_front(exvector const & iv3, exvector const & iv2,
     // match (return value,iv2) to iv3 by permuting indices
     // iv3 is always cyclic
 
-    ASSERT(iv3.size()==3);
-    ASSERT(iv2.size()==2);
+    GINAC_ASSERT(iv3.size()==3);
+    GINAC_ASSERT(iv2.size()==2);
 
     *sig=1;
     
@@ -412,8 +412,8 @@ unsigned subs_index_in_exvector(exvector & v, ex const & is, ex const & ir)
     unsigned replacements=0;
     unsigned current_replacements;
 
-    ASSERT(is_ex_of_type(is,idx));
-    ASSERT(is_ex_of_type(ir,idx));
+    GINAC_ASSERT(is_ex_of_type(is,idx));
+    GINAC_ASSERT(is_ex_of_type(ir,idx));
    
     for (it=v.begin(); it!=v.end(); ++it) {
         current_replacements=count_index(*it,is);
@@ -438,7 +438,7 @@ unsigned count_index(ex const & e, ex const & i)
 ex subs_indices(ex const & e, exvector const & idxv_subs,
                 exvector const & idxv_repl)
 {
-    ASSERT(idxv_subs.size()==idxv_repl.size());
+    GINAC_ASSERT(idxv_subs.size()==idxv_repl.size());
     ex res=e;
     for (unsigned i=0; i<idxv_subs.size(); ++i) {
         res=res.subs(idxv_subs[i]==idxv_repl[i]);

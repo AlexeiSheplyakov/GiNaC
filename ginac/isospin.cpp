@@ -151,7 +151,7 @@ bool isospin::info(unsigned inf) const
 
 int isospin::compare_same_type(basic const & other) const
 {
-    ASSERT(other.tinfo() == TINFO_isospin);
+    GINAC_ASSERT(other.tinfo() == TINFO_isospin);
     const isospin *o = static_cast<const isospin *>(&other);
     if (serial==o->serial) {
         return indexed::compare_same_type(other);

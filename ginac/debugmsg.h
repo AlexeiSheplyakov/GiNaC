@@ -27,7 +27,7 @@
 
 #ifdef _DEBUG
 #define VERBOSE
-#define DOASSERT (VERBOSE||DEBUG)
+#define DO_GINAC_ASSERT (VERBOSE||DEBUG)
 #endif
 
 #define LOGLEVEL_CONSTRUCT          0x0001

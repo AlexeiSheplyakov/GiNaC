@@ -105,14 +105,14 @@ expairseq::expairseq(ex const & lh, ex const & rh) : basic(TINFO_expairseq)
 {
     debugmsg("expairseq constructor from ex,ex",LOGLEVEL_CONSTRUCT);
     construct_from_2_ex(lh,rh);
-    ASSERT(is_canonical());
+    GINAC_ASSERT(is_canonical());
 }
 
 expairseq::expairseq(exvector const & v) : basic(TINFO_expairseq)
 {
     debugmsg("expairseq constructor from exvector",LOGLEVEL_CONSTRUCT);
     construct_from_exvector(v);
-    ASSERT(is_canonical());
+    GINAC_ASSERT(is_canonical());
 }
 
 /*
@@ -128,7 +128,7 @@ expairseq::expairseq(epvector const & v, bool do_not_canonicalize) :
     } else {
         construct_from_epvector(v);
     }
-    ASSERT(is_canonical());
+    GINAC_ASSERT(is_canonical());
 }
 */
 
@@ -137,17 +137,17 @@ expairseq::expairseq(epvector const & v, ex const & oc) :
 {
     debugmsg("expairseq constructor from epvector,ex",LOGLEVEL_CONSTRUCT);
     construct_from_epvector(v);
-    ASSERT(is_canonical());
+    GINAC_ASSERT(is_canonical());
 }
 
 expairseq::expairseq(epvector * vp, ex const & oc) :
     basic(TINFO_expairseq), overall_coeff(oc)
 {
     debugmsg("expairseq constructor from epvector *,ex",LOGLEVEL_CONSTRUCT);
-    ASSERT(vp!=0);
+    GINAC_ASSERT(vp!=0);
     construct_from_epvector(*vp);
     delete vp;
-    ASSERT(is_canonical());
+    GINAC_ASSERT(is_canonical());
 }
 
 //////////
@@ -180,7 +180,7 @@ ex expairseq::op(int const i) const
     if (unsigned(i)<seq.size()) {
         return recombine_pair_to_ex(seq[i]);
     }
-    ASSERT(!overall_coeff.is_equal(default_overall_coeff()));
+    GINAC_ASSERT(!overall_coeff.is_equal(default_overall_coeff()));
     return overall_coeff;
 }
 
@@ -229,7 +229,7 @@ ex expairseq::subs(lst const & ls, lst const & lr) const
 
 int expairseq::compare_same_type(basic const & other) const
 {
-    ASSERT(is_of_type(other, expairseq));
+    GINAC_ASSERT(is_of_type(other, expairseq));
     expairseq const & o=static_cast<expairseq const &>(const_cast<basic &>(other));
 
     int cmpval;
@@ -246,7 +246,7 @@ int expairseq::compare_same_type(basic const & other) const
     //if (seq.size()==0) return 0; // empty expairseq's are equal
 
 #ifdef EXPAIRSEQ_USE_HASHTAB
-    ASSERT(hashtabsize==o.hashtabsize);
+    GINAC_ASSERT(hashtabsize==o.hashtabsize);
     if (hashtabsize==0) {
 #endif // def EXPAIRSEQ_USE_HASHTAB
         epvector::const_iterator cit1=seq.begin();
@@ -259,8 +259,8 @@ int expairseq::compare_same_type(basic const & other) const
             if (cmpval!=0) return cmpval;
         }
 
-        ASSERT(cit1==last1);
-        ASSERT(cit2==last2);
+        GINAC_ASSERT(cit1==last1);
+        GINAC_ASSERT(cit2==last2);
         
         return 0;
 #ifdef EXPAIRSEQ_USE_HASHTAB
@@ -314,7 +314,7 @@ bool expairseq::is_equal_same_type(basic const & other) const
         other.printtree(cout,0);
     }
         
-    ASSERT(hashtabsize==o.hashtabsize);
+    GINAC_ASSERT(hashtabsize==o.hashtabsize);
     
     if (hashtabsize==0) {
 #endif // def EXPAIRSEQ_USE_HASHTAB
@@ -417,7 +417,7 @@ expair expairseq::split_ex_to_pair(ex const & e) const
 expair expairseq::combine_ex_with_coeff_to_pair(ex const & e,
                                                 ex const & c) const
 {
-    ASSERT(is_ex_exactly_of_type(c,numeric));
+    GINAC_ASSERT(is_ex_exactly_of_type(c,numeric));
 
     return expair(e,c);
 }
@@ -425,8 +425,8 @@ expair expairseq::combine_ex_with_coeff_to_pair(ex const & e,
 expair expairseq::combine_pair_with_coeff_to_pair(expair const & p,
                                                   ex const & c) const
 {
-    ASSERT(is_ex_exactly_of_type(p.coeff,numeric));
-    ASSERT(is_ex_exactly_of_type(c,numeric));
+    GINAC_ASSERT(is_ex_exactly_of_type(p.coeff,numeric));
+    GINAC_ASSERT(is_ex_exactly_of_type(c,numeric));
     
     return expair(p.rest,ex_to_numeric(p.coeff).mul_dyn(ex_to_numeric(c)));
 }
@@ -448,16 +448,16 @@ ex expairseq::default_overall_coeff(void) const
 
 void expairseq::combine_overall_coeff(ex const & c)
 {
-    ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
-    ASSERT(is_ex_exactly_of_type(c,numeric));
+    GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
+    GINAC_ASSERT(is_ex_exactly_of_type(c,numeric));
     overall_coeff = ex_to_numeric(overall_coeff).add_dyn(ex_to_numeric(c));
 }
 
 void expairseq::combine_overall_coeff(ex const & c1, ex const & c2)
 {
-    ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
-    ASSERT(is_ex_exactly_of_type(c1,numeric));
-    ASSERT(is_ex_exactly_of_type(c2,numeric));
+    GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
+    GINAC_ASSERT(is_ex_exactly_of_type(c1,numeric));
+    GINAC_ASSERT(is_ex_exactly_of_type(c2,numeric));
     overall_coeff = ex_to_numeric(overall_coeff).
                         add_dyn(ex_to_numeric(c1).mul(ex_to_numeric(c2)));
 }
@@ -480,8 +480,8 @@ void expairseq::construct_from_2_ex_via_exvector(ex const & lh, ex const & rh)
     v.push_back(rh);
     construct_from_exvector(v);
 #ifdef EXPAIRSEQ_USE_HASHTAB
-    ASSERT((hashtabsize==0)||(hashtabsize>=minhashtabsize));
-    ASSERT(hashtabsize==calc_hashtabsize(seq.size()));
+    GINAC_ASSERT((hashtabsize==0)||(hashtabsize>=minhashtabsize));
+    GINAC_ASSERT(hashtabsize==calc_hashtabsize(seq.size()));
 #endif // def EXPAIRSEQ_USE_HASHTAB
 }
 
@@ -1008,9 +1008,9 @@ unsigned expairseq::calc_hashtabsize(unsigned sz) const
     //  size=nearest_power_of_2*hashtabfactor;
     size=nearest_power_of_2/hashtabfactor;
     if (size<minhashtabsize) return 0;
-    ASSERT(hashtabsize<=0x8000000U); // really max size due to 31 bit hashing
+    GINAC_ASSERT(hashtabsize<=0x8000000U); // really max size due to 31 bit hashing
     // hashtabsize must be a power of 2
-    ASSERT((1U << log2(size))==size);
+    GINAC_ASSERT((1U << log2(size))==size);
     return size;
 }
 
@@ -1026,8 +1026,8 @@ unsigned expairseq::calc_hashindex(ex const & e) const
         // last hashtab entry is reserved for numerics
         if (hashindex==hashmask) hashindex=0;
     }
-    ASSERT(hashindex>=0);
-    ASSERT((hashindex<hashtabsize)||(hashtabsize==0));
+    GINAC_ASSERT(hashindex>=0);
+    GINAC_ASSERT((hashindex<hashtabsize)||(hashtabsize==0));
     return hashindex;
 }
 
@@ -1035,7 +1035,7 @@ void expairseq::shrink_hashtab(void)
 {
     unsigned new_hashtabsize;
     while (hashtabsize!=(new_hashtabsize=calc_hashtabsize(seq.size()))) {
-        ASSERT(new_hashtabsize<hashtabsize);
+        GINAC_ASSERT(new_hashtabsize<hashtabsize);
         if (new_hashtabsize==0) {
             hashtab.clear();
             hashtabsize=0;
@@ -1093,15 +1093,15 @@ void expairseq::remove_hashtab_entry(epvector::const_iterator element)
             }
             ++epplit;
         }
-        ASSERT(erased);
+        GINAC_ASSERT(erased);
     }
-    ASSERT(erased);
+    GINAC_ASSERT(erased);
 }
 
 void expairseq::move_hashtab_entry(epvector::const_iterator oldpos,
                                    epvector::iterator newpos)
 {
-    ASSERT(hashtabsize!=0);
+    GINAC_ASSERT(hashtabsize!=0);
     
     // calculate hashindex of element which was moved
     unsigned hashindex=calc_hashindex((*newpos).rest);
@@ -1116,7 +1116,7 @@ void expairseq::move_hashtab_entry(epvector::const_iterator oldpos,
         }
         ++epplit;
     }
-    ASSERT(epplit!=eppl.end());
+    GINAC_ASSERT(epplit!=eppl.end());
 }
 
 void expairseq::sorted_insert(epplist & eppl, epp elem)
@@ -1222,7 +1222,7 @@ void expairseq::drop_coeff_0_terms(epvector::iterator & first_numeric,
             }
         }
     }
-    ASSERT(i==current-seq.begin());
+    GINAC_ASSERT(i==current-seq.begin());
 }
 
 bool expairseq::has_coeff_0(void) const
@@ -1265,7 +1265,7 @@ void expairseq::combine_same_terms(void)
     if (hashtabsize==0) {
         canonicalize();
         combine_same_terms_sorted_seq();
-        ASSERT(!has_coeff_0());
+        GINAC_ASSERT(!has_coeff_0());
         return;
     }
 
@@ -1280,7 +1280,7 @@ void expairseq::combine_same_terms(void)
 
     unsigned number_of_zeroes=0;
 
-    ASSERT(!has_coeff_0());
+    GINAC_ASSERT(!has_coeff_0());
     build_hashtab_and_combine(first_numeric,last_non_zero,touched,number_of_zeroes);
     /*
     cout << "in combine:" << endl;
@@ -1319,11 +1319,11 @@ void expairseq::combine_same_terms(void)
     }
 
     // shrink hashtabsize to calculated value
-    ASSERT(!has_coeff_0());
+    GINAC_ASSERT(!has_coeff_0());
 
     shrink_hashtab();
 
-    ASSERT(!has_coeff_0());
+    GINAC_ASSERT(!has_coeff_0());
 }
 
 #endif // def EXPAIRSEQ_USE_HASHTAB

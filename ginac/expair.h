@@ -38,7 +38,7 @@ public:
     ~expair() {}
     expair(expair const & other) : rest(other.rest), coeff(other.coeff)
     {
-        ASSERT(is_ex_exactly_of_type(coeff,numeric));
+        GINAC_ASSERT(is_ex_exactly_of_type(coeff,numeric));
     }
     expair const & operator=(expair const & other)
     {
@@ -50,12 +50,12 @@ public:
     }
     expair(ex const & r, ex const & c) : rest(r), coeff(c)
     {
-        ASSERT(is_ex_exactly_of_type(coeff,numeric));
+        GINAC_ASSERT(is_ex_exactly_of_type(coeff,numeric));
     }
     
     bool is_numeric_with_coeff_1(void) const
     {
-        ASSERT(is_ex_exactly_of_type(coeff,numeric));
+        GINAC_ASSERT(is_ex_exactly_of_type(coeff,numeric));
         return is_ex_exactly_of_type(rest,numeric) &&
                (ex_to_numeric(coeff).compare(numONE())==0);
     }

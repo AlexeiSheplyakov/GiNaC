@@ -51,7 +51,7 @@ namespace GiNaC {
 void ex::printcsrc(ostream & os, unsigned type, const char *var_name) const
 {
     debugmsg("ex print csrc", LOGLEVEL_PRINT);
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
 	switch (type) {
 		case csrc_types::ctype_float:
 			os << "float ";

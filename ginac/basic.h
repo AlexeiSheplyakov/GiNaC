@@ -66,7 +66,7 @@ public:
 #ifdef INLINE_BASIC_CONSTRUCTORS
     {
         destroy(0);
-        ASSERT((!(flags & status_flags::dynallocated))||(refcount==0));
+        GINAC_ASSERT((!(flags & status_flags::dynallocated))||(refcount==0));
     }
 #else
 ;

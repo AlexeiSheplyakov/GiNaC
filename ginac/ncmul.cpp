@@ -198,7 +198,7 @@ ex ncmul::expand(unsigned options) const
         exvector term;
         term=expanded_seq;
         for (l=0; l<number_of_adds; l++) {
-            ASSERT(is_ex_exactly_of_type(expanded_seq[positions_of_adds[l]],add));
+            GINAC_ASSERT(is_ex_exactly_of_type(expanded_seq[positions_of_adds[l]],add));
             add const & addref=ex_to_add(expanded_seq[positions_of_adds[l]]);
             term[positions_of_adds[l]]=addref.recombine_pair_to_ex(addref.seq[k[l]]);
         }
@@ -364,7 +364,7 @@ ex ncmul::eval(int level) const
         }
         ++i;
     }
-    ASSERT(count_commutative+count_noncommutative+count_noncommutative_composite==assocseq.size());
+    GINAC_ASSERT(count_commutative+count_noncommutative+count_noncommutative_composite==assocseq.size());
 
     // ncmul(...,c1,...,c2,...) ->
     //     *(c1,c2,ncmul(...)) (pull out commutative elements)
@@ -391,7 +391,7 @@ ex ncmul::eval(int level) const
     if (count_noncommutative_composite==0) {
         // there are neither commutative nor noncommutative_composite
         // elements in assocseq
-        ASSERT(count_commutative==0);
+        GINAC_ASSERT(count_commutative==0);
 
         exvectorvector evv;
         unsignedvector rttinfos;
@@ -416,15 +416,15 @@ ex ncmul::eval(int level) const
             }
         }
 
-#ifdef DOASSERT
-        ASSERT(evv.size()==rttinfos.size());
-        ASSERT(evv.size()>0);
+#ifdef DO_GINAC_ASSERT
+        GINAC_ASSERT(evv.size()==rttinfos.size());
+        GINAC_ASSERT(evv.size()>0);
         unsigned s=0;
         for (i=0; i<evv.size(); ++i) {
             s += evv[i].size();
         }
-        ASSERT(s==assocseq.size());
-#endif // def DOASSERT
+        GINAC_ASSERT(s==assocseq.size());
+#endif // def DO_GINAC_ASSERT
         
         // if all elements are of same type, simplify the string
         if (evv.size()==1) {
@@ -509,7 +509,7 @@ unsigned ncmul::return_type(void) const
         }
     }
     // all factors checked
-    ASSERT(!all_commutative); // not all factors should commute, because this is a ncmul();
+    GINAC_ASSERT(!all_commutative); // not all factors should commute, because this is a ncmul();
     return all_commutative ? return_types::commutative : return_types::noncommutative;
 }
    

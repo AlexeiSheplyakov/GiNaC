@@ -50,7 +50,7 @@ namespace GiNaC {
 void ex::printraw(ostream & os) const
 {
     debugmsg("ex printraw",LOGLEVEL_PRINT);
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     os << "ex(";
     bp->printraw(os);
     os << ")";

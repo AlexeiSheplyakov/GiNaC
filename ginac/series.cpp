@@ -97,7 +97,7 @@ series::series(ex const &var_, ex const &point_, epvector const &ops_)
     : basic(TINFO_series), seq(ops_), var(var_), point(point_)
 {
     debugmsg("series constructor from ex,ex,epvector", LOGLEVEL_CONSTRUCT);
-    ASSERT(is_ex_exactly_of_type(var_, symbol));
+    GINAC_ASSERT(is_ex_exactly_of_type(var_, symbol));
 }
 
 
@@ -627,7 +627,7 @@ ex power::series(symbol const & s, ex const & point, int order) const
  *  @return an expression holding a series object */
 ex ex::series(symbol const &s, ex const &point, int order) const
 {
-    ASSERT(bp!=0);
+    GINAC_ASSERT(bp!=0);
     return bp->series(s, point, order);
 }
 

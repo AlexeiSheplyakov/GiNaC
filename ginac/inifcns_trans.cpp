@@ -77,7 +77,7 @@ static ex exp_eval(ex const & x)
 
 static ex exp_diff(ex const & x, unsigned diff_param)
 {
-    ASSERT(diff_param==0);
+    GINAC_ASSERT(diff_param==0);
 
     return exp(x);
 }
@@ -125,7 +125,7 @@ static ex log_eval(ex const & x)
 
 static ex log_diff(ex const & x, unsigned diff_param)
 {
-    ASSERT(diff_param==0);
+    GINAC_ASSERT(diff_param==0);
 
     return power(x, -1);
 }
@@ -181,7 +181,7 @@ static ex sin_eval(ex const & x)
 
 static ex sin_diff(ex const & x, unsigned diff_param)
 {
-    ASSERT(diff_param==0);
+    GINAC_ASSERT(diff_param==0);
     
     return cos(x);
 }
@@ -237,7 +237,7 @@ static ex cos_eval(ex const & x)
 
 static ex cos_diff(ex const & x, unsigned diff_param)
 {
-    ASSERT(diff_param==0);
+    GINAC_ASSERT(diff_param==0);
 
     return numMINUSONE()*sin(x);
 }
@@ -299,7 +299,7 @@ static ex tan_eval(ex const & x)
 
 static ex tan_diff(ex const & x, unsigned diff_param)
 {
-    ASSERT(diff_param==0);
+    GINAC_ASSERT(diff_param==0);
     
     return (1+power(tan(x),exTWO()));
 }
@@ -347,7 +347,7 @@ static ex asin_eval(ex const & x)
 
 static ex asin_diff(ex const & x, unsigned diff_param)
 {
-    ASSERT(diff_param==0);
+    GINAC_ASSERT(diff_param==0);
     
     return power(1-power(x,exTWO()),exMINUSHALF());
 }
@@ -395,7 +395,7 @@ static ex acos_eval(ex const & x)
 
 static ex acos_diff(ex const & x, unsigned diff_param)
 {
-    ASSERT(diff_param==0);
+    GINAC_ASSERT(diff_param==0);
     
     return numMINUSONE()*power(1-power(x,exTWO()),exMINUSHALF());
 }
@@ -431,7 +431,7 @@ static ex atan_eval(ex const & x)
 
 static ex atan_diff(ex const & x, unsigned diff_param)
 {
-    ASSERT(diff_param==0);
+    GINAC_ASSERT(diff_param==0);
 
     return power(1+x*x, -1);
 }
@@ -464,7 +464,7 @@ static ex atan2_eval(ex const & y, ex const & x)
 
 static ex atan2_diff(ex const & y, ex const & x, unsigned diff_param)
 {
-    ASSERT(diff_param<2);
+    GINAC_ASSERT(diff_param<2);
     
     if (diff_param==0) {
         // d/dy atan(y,x)
@@ -518,7 +518,7 @@ static ex sinh_eval(ex const & x)
 
 static ex sinh_diff(ex const & x, unsigned diff_param)
 {
-    ASSERT(diff_param==0);
+    GINAC_ASSERT(diff_param==0);
     
     return cosh(x);
 }
@@ -567,7 +567,7 @@ static ex cosh_eval(ex const & x)
 
 static ex cosh_diff(ex const & x, unsigned diff_param)
 {
-    ASSERT(diff_param==0);
+    GINAC_ASSERT(diff_param==0);
     
     return sinh(x);
 }
@@ -616,7 +616,7 @@ static ex tanh_eval(ex const & x)
 
 static ex tanh_diff(ex const & x, unsigned diff_param)
 {
-    ASSERT(diff_param==0);
+    GINAC_ASSERT(diff_param==0);
     
     return exONE()-power(tanh(x),exTWO());
 }
@@ -652,7 +652,7 @@ static ex asinh_eval(ex const & x)
 
 static ex asinh_diff(ex const & x, unsigned diff_param)
 {
-    ASSERT(diff_param==0);
+    GINAC_ASSERT(diff_param==0);
     
     return power(1+power(x,exTWO()),exMINUSHALF());
 }
@@ -694,7 +694,7 @@ static ex acosh_eval(ex const & x)
 
 static ex acosh_diff(ex const & x, unsigned diff_param)
 {
-    ASSERT(diff_param==0);
+    GINAC_ASSERT(diff_param==0);
     
     return power(x-1,exMINUSHALF())*power(x+1,exMINUSHALF());
 }
@@ -733,7 +733,7 @@ static ex atanh_eval(ex const & x)
 
 static ex atanh_diff(ex const & x, unsigned diff_param)
 {
-    ASSERT(diff_param==0);
+    GINAC_ASSERT(diff_param==0);
     
     return power(exONE()-power(x,exTWO()),exMINUSONE());
 }

@@ -108,7 +108,7 @@ lst::lst(exlist const & s, bool discardable) :  basic(TINFO_lst)
 lst::lst(exlist * vp) : basic(TINFO_lst)
 {
     debugmsg("lst constructor from exlist *",LOGLEVEL_CONSTRUCT);
-    ASSERT(vp!=0);
+    GINAC_ASSERT(vp!=0);
     seq.swap(*vp);
     delete vp;
 }
@@ -308,8 +308,8 @@ int lst::nops() const
 
 ex & lst::let_op(int const i)
 {
-    ASSERT(i>=0);
-    ASSERT(i<nops());
+    GINAC_ASSERT(i>=0);
+    GINAC_ASSERT(i<nops());
 
     exlist::iterator it=seq.begin();
     for (int j=0; j<i; j++) {
@@ -334,7 +334,7 @@ ex lst::expand(unsigned options) const
 
 bool lst::has(ex const & other) const
 {
-    ASSERT(other.bp!=0);
+    GINAC_ASSERT(other.bp!=0);
     if (is_equal(*other.bp)) return true;
     for (exlist::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
         if ((*it).has(other)) return true;
@@ -382,7 +382,7 @@ ex lst::subs(lst const & ls, lst const & lr) const
 
 int lst::compare_same_type(basic const & other) const
 {
-    ASSERT(is_of_type(other,lst));
+    GINAC_ASSERT(is_of_type(other,lst));
     lst const & o=static_cast<lst const &>
                                     (const_cast<basic &>(other));
     int cmpval;
@@ -403,7 +403,7 @@ int lst::compare_same_type(basic const & other) const
 
 bool lst::is_equal_same_type(basic const & other) const
 {
-    ASSERT(is_of_type(other,lst));
+    GINAC_ASSERT(is_of_type(other,lst));
     lst const & o=static_cast<lst const &>
                                     (const_cast<basic &>(other));
     if (seq.size()!=o.seq.size()) return false;

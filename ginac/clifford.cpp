@@ -151,7 +151,7 @@ bool clifford::info(unsigned inf) const
 
 int clifford::compare_same_type(basic const & other) const
 {
-    ASSERT(other.tinfo() == TINFO_clifford);
+    GINAC_ASSERT(other.tinfo() == TINFO_clifford);
     const clifford *o = static_cast<const clifford *>(&other);
     if (serial==o->serial) {
         return indexed::compare_same_type(other);

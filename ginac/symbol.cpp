@@ -168,13 +168,13 @@ ex symbol::eval(int level) const
 
 ex symbol::subs(lst const & ls, lst const & lr) const
 {
-    ASSERT(ls.nops()==lr.nops());
-#ifdef DOASSERT
+    GINAC_ASSERT(ls.nops()==lr.nops());
+#ifdef DO_GINAC_ASSERT
     for (int i=0; i<ls.nops(); i++) {
-        ASSERT(is_ex_exactly_of_type(ls.op(i),symbol)||
+        GINAC_ASSERT(is_ex_exactly_of_type(ls.op(i),symbol)||
                is_ex_of_type(ls.op(i),idx));
     }
-#endif // def DOASSERT
+#endif // def DO_GINAC_ASSERT
 
     for (int i=0; i<ls.nops(); i++) {
         if (is_ex_exactly_of_type(ls.op(i),symbol)) {
@@ -188,7 +188,7 @@ ex symbol::subs(lst const & ls, lst const & lr) const
 
 int symbol::compare_same_type(basic const & other) const
 {
-    ASSERT(is_of_type(other,symbol));
+    GINAC_ASSERT(is_of_type(other,symbol));
     const symbol *o = static_cast<const symbol *>(&other);
     if (serial==o->serial) return 0;
     return serial < o->serial ? -1 : 1;
@@ -196,7 +196,7 @@ int symbol::compare_same_type(basic const & other) const
 
 bool symbol::is_equal_same_type(basic const & other) const
 {
-    ASSERT(is_of_type(other,symbol));
+    GINAC_ASSERT(is_of_type(other,symbol));
     const symbol *o = static_cast<const symbol *>(&other);
     return serial==o->serial;
 }
