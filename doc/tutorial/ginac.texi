@@ -4701,39 +4701,132 @@ provided by CLN are much better suited.
 @c    node-name, next, previous, up
 @section Symbolic functions
 
-The easiest and most instructive way to start with is probably to
-implement your own function.  GiNaC's functions are objects of class
-@code{function}.  The preprocessor is then used to convert the function
-names to objects with a corresponding serial number that is used
-internally to identify them.  You usually need not worry about this
-number.  New functions may be inserted into the system via a kind of
-`registry'.  It is your responsibility to care for some functions that
-are called when the user invokes certain methods.  These are usual
-C++-functions accepting a number of @code{ex} as arguments and returning
-one @code{ex}.  As an example, if we have a look at a simplified
-implementation of the cosine trigonometric function, we first need a
-function that is called when one wishes to @code{eval} it.  It could
-look something like this:
+The easiest and most instructive way to start extending GiNaC is probably to
+create your own symbolic functions. These are implemented with the help of
+two preprocessor macros:
+
+@cindex @code{DECLARE_FUNCTION}
+@cindex @code{REGISTER_FUNCTION}
+@example
+DECLARE_FUNCTION_<n>P(<name>)
+REGISTER_FUNCTION(<name>, <options>)
+@end example
+
+The @code{DECLARE_FUNCTION} macro will usually appear in a header file. It
+declares a C++ function with the given @samp{name} that takes exactly @samp{n}
+parameters of type @code{ex} and returns a newly constructed GiNaC
+@code{function} object that represents your function.
+
+The @code{REGISTER_FUNCTION} macro implements the function. It must be passed
+the same @samp{name} as the respective @code{DECLARE_FUNCTION} macro, and a
+set of options that associate the symbolic function with C++ functions you
+provide to implement the various methods such as evaluation, derivative,
+series expansion etc. They also describe additional attributes the function
+might have, such as symmetry and commutation properties, and a name for
+LaTeX output. Multiple options are separated by the member access operator
+@samp{.} and can be given in an arbitrary order.
+
+(By the way: in case you are worrying about all the macros above we can
+assure you that functions are GiNaC's most macro-intense classes. We have
+done our best to avoid macros where we can.)
+
+@subsection A minimal example
+
+Here is an example for the implementation of a function with two arguments
+that is not further evaluated:
 
 @example
-static ex cos_eval_method(const ex & x)
+DECLARE_FUNCTION_2P(myfcn)
+
+static ex myfcn_eval(const ex & x, const ex & y)
 @{
-    // if (!x%(2*Pi)) return 1
-    // if (!x%Pi) return -1
-    // if (!x%Pi/2) return 0
-    // care for other cases...
-    return cos(x).hold();
+    return myfcn(x, y).hold();
+@}
+
+REGISTER_FUNCTION(myfcn, eval_func(myfcn_eval))
+@end example
+
+Any code that has seen the @code{DECLARE_FUNCTION} line can use @code{myfcn()}
+in algebraic expressions:
+
+@example
+@{
+    ...
+    symbol x("x");
+    ex e = 2*myfcn(42, 3*x+1) - x;
+     // this calls myfcn_eval(42, 3*x+1), and inserts its return value into
+     // the actual expression
+    cout << e << endl;
+     // prints '2*myfcn(42,1+3*x)-x'
+    ...
 @}
 @end example
 
 @cindex @code{hold()}
 @cindex evaluation
-The last line returns @code{cos(x)} if we don't know what else to do and
-stops a potential recursive evaluation by saying @code{.hold()}, which
-sets a flag to the expression signaling that it has been evaluated.  We
-should also implement a method for numerical evaluation and since we are
-lazy we sweep the problem under the rug by calling someone else's
-function that does so, in this case the one in class @code{numeric}:
+The @code{eval_func()} option specifies the C++ function that implements
+the @code{eval()} method, GiNaC's anonymous evaluator. This function takes
+the same number of arguments as the associated symbolic function (two in this
+case) and returns the (possibly transformed or in some way simplified)
+symbolically evaluated function (@xref{Automatic evaluation}, for a description
+of the automatic evaluation process). If no (further) evaluation is to take
+place, the @code{eval_func()} function must return the original function
+with @code{.hold()}, to avoid a potential infinite recursion. If your
+symbolic functions produce a segmentation fault or stack overflow when
+using them in expressions, you are probably missing a @code{.hold()}
+somewhere.
+
+There is not much you can do with the @code{myfcn} function. It merely acts
+as a kind of container for its arguments (which is, however, sometimes
+perfectly sufficient). Let's have a look at the implementation of GiNaC's
+cosine function.
+
+@subsection The cosine function
+
+The GiNaC header file @file{inifcns.h} contains the line
+
+@example
+DECLARE_FUNCTION_1P(cos)
+@end example
+
+which declares to all programs using GiNaC that there is a function @samp{cos}
+that takes one @code{ex} as an argument. This is all they need to know to use
+this function in expressions.
+
+The implementation of the cosine function is in @file{inifcns_trans.cpp}. The
+@code{eval_func()} function looks something like this (actually, it doesn't
+look like this at all, but it should give you an idea what is going on):
+
+@example
+static ex cos_eval(const ex & x)
+@{
+    if (<x is a multiple of 2*Pi>)
+        return 1;
+    else if (<x is a multiple of Pi>)
+        return -1;
+    else if (<x is a multiple of Pi/2>)
+        return 0;
+    // more rules...
+
+    else if (<x has the form 'acos(y)'>)
+        return y;
+    else if (<x has the form 'asin(y)'>)
+        return sqrt(1-y^2);
+    // more rules...
+
+    else
+        return cos(x).hold();
+@}
+@end example
+
+In this way, @code{cos(4*Pi)} automatically becomes @math{1},
+@code{cos(asin(a+b))} becomes @code{sqrt(1-(a+b)^2)}, etc. If no reasonable
+symbolic transformation can be done, the unmodified function is returned
+with @code{.hold()}.
+
+GiNaC doesn't automatically transform @code{cos(2)} to @samp{-0.416146...}.
+The user has to call @code{evalf()} for that. This is implemented in a
+different function:
 
 @example
 static ex cos_evalf(const ex & x)
@@ -4745,9 +4838,15 @@ static ex cos_evalf(const ex & x)
 @}
 @end example
 
+Since we are lazy we defer the problem of numeric evaluation to somebody else,
+in this case the @code{cos()} function for @code{numeric} objects, which in
+turn hands it over to the @code{cos()} function in CLN. The @code{.hold()}
+isn't really needed here, but reminds us that the corresponding @code{eval()}
+function would require it in this place.
+
 Differentiation will surely turn up and so we need to tell @code{cos}
-what the first derivative is (higher derivatives (@code{.diff(x,3)} for
-instance are then handled automatically by @code{basic::diff} and
+what its first derivative is (higher derivatives, @code{.diff(x,3)} for
+instance, are then handled automatically by @code{basic::diff} and
 @code{ex::diff}):
 
 @example
@@ -4760,49 +4859,108 @@ static ex cos_deriv(const ex & x, unsigned diff_param)
 @cindex product rule
 The second parameter is obligatory but uninteresting at this point.  It
 specifies which parameter to differentiate in a partial derivative in
-case the function has more than one parameter and its main application
-is for correct handling of the chain rule.  For Taylor expansion, it is
-enough to know how to differentiate.  But if the function you want to
-implement does have a pole somewhere in the complex plane, you need to
-write another method for Laurent expansion around that point.
+case the function has more than one parameter, and its main application
+is for correct handling of the chain rule.
 
-Now that all the ingredients for @code{cos} have been set up, we need
-to tell the system about it.  This is done by a macro and we are not
-going to describe how it expands, please consult your preprocessor if you
-are curious:
+An implementation of the series expansion is not needed for @code{cos()} as
+it doesn't have any poles and GiNaC can do Taylor expansion by itself (as
+long as it knows what the derivative of @code{cos()} is). @code{tan()}, on
+the other hand, does have poles and may need to do Laurent expansion:
+
+@example
+static ex tan_series(const ex & x, const relational & rel,
+                     int order, unsigned options)
+@{
+    // Find the actual expansion point
+    const ex x_pt = x.subs(rel);
+
+    if (<x_pt is not an odd multiple of Pi/2>)
+        throw do_taylor();  // tell function::series() to do Taylor expansion
+
+    // On a pole, expand sin()/cos()
+    return (sin(x)/cos(x)).series(rel, order+2, options);
+@}
+@end example
+
+The @code{series()} implementation of a function @emph{must} return a
+@code{pseries} object, otherwise your code will crash.
+
+Now that all the ingredients have been set up, the @code{REGISTER_FUNCTION}
+macro is used to tell the system how the @code{cos()} function behaves:
 
 @example
 REGISTER_FUNCTION(cos, eval_func(cos_eval).
                        evalf_func(cos_evalf).
-                       derivative_func(cos_deriv));
+                       derivative_func(cos_deriv).
+                       latex_name("\\cos"));
 @end example
 
-The first argument is the function's name used for calling it and for
-output.  The second binds the corresponding methods as options to this
-object.  Options are separated by a dot and can be given in an arbitrary
-order.  GiNaC functions understand several more options which are always
-specified as @code{.option(params)}, for example a method for series
-expansion @code{.series_func(cos_series)}.  Again, if no series
-expansion method is given, GiNaC defaults to simple Taylor expansion,
-which is correct if there are no poles involved as is the case for the
-@code{cos} function.  The way GiNaC handles poles in case there are any
-is best understood by studying one of the examples, like the Gamma
-(@code{tgamma}) function for instance.  (In essence the function first
-checks if there is a pole at the evaluation point and falls back to
-Taylor expansion if there isn't.  Then, the pole is regularized by some
-suitable transformation.)  Also, the new function needs to be declared
-somewhere.  This may also be done by a convenient preprocessor macro:
+This registers the @code{cos_eval()}, @code{cos_evalf()} and
+@code{cos_deriv()} C++ functions with the @code{cos()} function, and also
+gives it a proper LaTeX name.
+
+@subsection Function options
+
+GiNaC functions understand several more options which are always
+specified as @code{.option(params)}. None of them are required, but you
+need to specify at least one option to @code{REGISTER_FUNCTION()} (usually
+the @code{eval()} method).
 
 @example
-DECLARE_FUNCTION_1P(cos)
+eval_func(<C++ function>)
+evalf_func(<C++ function>)
+derivative_func(<C++ function>)
+series_func(<C++ function>)
 @end example
 
-The suffix @code{_1P} stands for @emph{one parameter}.  Of course, this
-implementation of @code{cos} is very incomplete and lacks several safety
-mechanisms.  Please, have a look at the real implementation in GiNaC.
-(By the way: in case you are worrying about all the macros above we can
-assure you that functions are GiNaC's most macro-intense classes.  We
-have done our best to avoid macros where we can.)
+These specify the C++ functions that implement symbolic evaluation,
+numeric evaluation, partial derivatives, and series expansion, respectively.
+They correspond to the GiNaC methods @code{eval()}, @code{evalf()},
+@code{diff()} and @code{series()}.
+
+The @code{eval_func()} function needs to use @code{.hold()} if no further
+automatic evaluation is desired or possible.
+
+If no @code{series_func()} is given, GiNaC defaults to simple Taylor
+expansion, which is correct if there are no poles involved. If the function
+has poles in the complex plane, the @code{series_func()} needs to check
+whether the expansion point is on a pole and fall back to Taylor expansion
+if it isn't. Otherwise, the pole usually needs to be regularized by some
+suitable transformation.
+
+@example
+latex_name(const string & n)
+@end example
+
+specifies the LaTeX code that represents the name of the function in LaTeX
+output. The default is to put the function name in an @code{\mbox@{@}}.
+
+@example
+do_not_evalf_params()
+@end example
+
+This tells @code{evalf()} to not recursively evaluate the parameters of the
+function before calling the @code{evalf_func()}.
+
+@example
+set_return_type(unsigned return_type, unsigned return_type_tinfo)
+@end example
+
+This allows you to explicitly specify the commutation properties of the
+function (@xref{Non-commutative objects}, for an explanation of
+(non)commutativity in GiNaC). For example, you can use
+@code{set_return_type(return_types::noncommutative, TINFO_matrix)} to make
+GiNaC treat your function like a matrix. By default, functions inherit the
+commutation properties of their first argument.
+
+@example
+set_symmetry(const symmetry & s)
+@end example
+
+specifies the symmetry properties of the function with respect to its
+arguments. @xref{Indexed objects}, for an explanation of symmetry
+specifications. GiNaC will automatically rearrange the arguments of
+symmetric functions into a canonical order.
 
 
 @node Adding classes, A Comparison With Other CAS, Symbolic functions, Extending GiNaC
@@ -5281,16 +5439,44 @@ cout << e << endl;
 
 We have implemented only a small set of member functions to make the class
 work in the GiNaC framework. For a real algebraic class, there are probably
-some more functions that you will want to re-implement, such as
-@code{evalf()}, @code{series()} or @code{op()}. Have a look at @file{basic.h}
-or the header file of the class you want to make a subclass of to see
-what's there. One member function that you will most likely want to
-implement for terminal classes like the described string class is
-@code{calcchash()} that returns an @code{unsigned} hash value for the object
-which will allow GiNaC to compare and canonicalize expressions much more
-efficiently.
+some more functions that you might want to re-implement:
 
-You can, of course, also add your own new member functions. Remember,
+@example
+bool info(unsigned inf) const;
+ex evalf(int level = 0) const;
+ex series(const relational & r, int order, unsigned options = 0) const;
+ex derivative(const symbol & s) const;
+@end example
+
+If your class stores sub-expressions you will probably want to override
+
+@cindex @code{let_op()}
+@example
+unsigned nops() cont;
+ex op(int i) const;
+ex & let_op(int i);
+ex map(map_function & f) const;
+ex subs(const lst & ls, const lst & lr, bool no_pattern = false) const;
+@end example
+
+@code{let_op()} is a variant of @code{op()} that allows write access. The
+default implementation of @code{map()} uses it, so you have to implement
+either @code{let_op()} or @code{map()}.
+
+If your class stores any data that is not accessible via @code{op()}, you
+should also implement
+
+@cindex @code{calchash()}
+@example
+unsigned calchash(void) const;
+@end example
+
+This function returns an @code{unsigned} hash value for the object which
+will allow GiNaC to compare and canonicalize expressions much more
+efficiently. You should consult the implementation of some of the built-in
+GiNaC classes for examples of hash functions.
+
+You can, of course, also add your own new member functions. Remember
 that the RTTI may be used to get information about what kinds of objects
 you are dealing with (the position in the class hierarchy) and that you
 can always extract the bare object from an @code{ex} by stripping the
