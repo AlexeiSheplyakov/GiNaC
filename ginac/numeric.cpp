@@ -346,18 +346,27 @@ DEFAULT_UNARCHIVE(numeric)
  *  want to visibly distinguish from cl_LF.
  *
  *  @see numeric::print() */
-static void print_real_number(std::ostream &os, const cln::cl_R &num)
+static void print_real_number(const print_context & c, const cln::cl_R &x)
 {
 	cln::cl_print_flags ourflags;
-	if (cln::instanceof(num, cln::cl_RA_ring)) {
-		// case 1: integer or rational, nothing special to do:
-		cln::print_real(os, ourflags, num);
+	if (cln::instanceof(x, cln::cl_RA_ring)) {
+		// case 1: integer or rational
+		if (cln::instanceof(x, cln::cl_I_ring) ||
+		    !is_a<print_latex>(c)) {
+			cln::print_real(c.s, ourflags, x);
+		} else {  // rational output in LaTeX context
+			c.s << "\\frac{";
+			cln::print_real(c.s, ourflags, cln::numerator(cln::the<cln::cl_RA>(x)));
+			c.s << "}{";
+			cln::print_real(c.s, ourflags, cln::denominator(cln::the<cln::cl_RA>(x)));
+			c.s << '}';
+		}
 	} else {
 		// case 2: float
 		// make CLN believe this number has default_float_format, so it prints
 		// 'E' as exponent marker instead of 'L':
-		ourflags.default_float_format = cln::float_format(cln::the<cln::cl_F>(num));
-		cln::print_real(os, ourflags, num);
+		ourflags.default_float_format = cln::float_format(cln::the<cln::cl_F>(x));
+		cln::print_real(c.s, ourflags, x);
 	}
 }
 
@@ -419,10 +428,10 @@ void numeric::print(const print_context & c, unsigned level) const
 			// case 1, real:  x  or  -x
 			if ((precedence() <= level) && (!this->is_nonneg_integer())) {
 				c.s << par_open;
-				print_real_number(c.s, r);
+				print_real_number(c, r);
 				c.s << par_close;
 			} else {
-				print_real_number(c.s, r);
+				print_real_number(c, r);
 			}
 		} else {
 			if (cln::zerop(r)) {
@@ -432,7 +441,7 @@ void numeric::print(const print_context & c, unsigned level) const
 						c.s << par_open+imag_sym+par_close;
 					} else {
 						c.s << par_open;
-						print_real_number(c.s, i);
+						print_real_number(c, i);
 						c.s << mul_sym+imag_sym+par_close;
 					}
 				} else {
@@ -442,7 +451,7 @@ void numeric::print(const print_context & c, unsigned level) const
 						if (i == -1) {
 							c.s << "-" << imag_sym;
 						} else {
-							print_real_number(c.s, i);
+							print_real_number(c, i);
 							c.s << mul_sym+imag_sym;
 						}
 					}
@@ -451,12 +460,12 @@ void numeric::print(const print_context & c, unsigned level) const
 				// case 3, complex:  x+y*I  or  x-y*I  or  -x+y*I  or  -x-y*I
 				if (precedence() <= level)
 					c.s << par_open;
-				print_real_number(c.s, r);
+				print_real_number(c, r);
 				if (i < 0) {
 					if (i == -1) {
 						c.s << "-"+imag_sym;
 					} else {
-						print_real_number(c.s, i);
+						print_real_number(c, i);
 						c.s << mul_sym+imag_sym;
 					}
 				} else {
@@ -464,7 +473,7 @@ void numeric::print(const print_context & c, unsigned level) const
 						c.s << "+"+imag_sym;
 					} else {
 						c.s << "+";
-						print_real_number(c.s, i);
+						print_real_number(c, i);
 						c.s << mul_sym+imag_sym;
 					}
 				}
