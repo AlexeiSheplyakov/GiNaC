@@ -96,6 +96,9 @@ VERSION = @VERSION@
 YACC = @YACC@
 
 SUBDIRS = ginac check ginsh doc
+
+# Requires automake 1.4
+AUTOMAKE_OPTIONS = 1.4
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = config.h
