@@ -213,6 +213,13 @@ ex tensmetric::eval_indexed(const basic & i) const
 	const varidx & i1 = ex_to<varidx>(i.op(1));
 	const varidx & i2 = ex_to<varidx>(i.op(2));
 
+	// The dimension of the indices must be equal, otherwise we use the minimal
+	// dimension
+	if (!i1.get_dim().is_equal(i2.get_dim())) {
+		ex min_dim = i1.minimal_dim(i2);
+		return i.subs(lst(i1 == i1.replace_dim(min_dim), i2 == i2.replace_dim(min_dim)));
+	}
+
 	// A metric tensor with one covariant and one contravariant index gets
 	// replaced by a delta tensor
 	if (i1.is_covariant() != i2.is_covariant())
@@ -519,9 +526,6 @@ ex metric_tensor(const ex & i1, const ex & i2)
 {
 	if (!is_ex_of_type(i1, varidx) || !is_ex_of_type(i2, varidx))
 		throw(std::invalid_argument("indices of metric tensor must be of type varidx"));
-	ex dim = ex_to<idx>(i1).get_dim();
-	if (!dim.is_equal(ex_to<idx>(i2).get_dim()))
-		throw(std::invalid_argument("all indices of metric tensor must have the same dimension"));
 
 	return indexed(tensmetric(), sy_symm(), i1, i2);
 }
@@ -530,9 +534,6 @@ ex lorentz_g(const ex & i1, const ex & i2, bool pos_sig)
 {
 	if (!is_ex_of_type(i1, varidx) || !is_ex_of_type(i2, varidx))
 		throw(std::invalid_argument("indices of metric tensor must be of type varidx"));
-	ex dim = ex_to<idx>(i1).get_dim();
-	if (!dim.is_equal(ex_to<idx>(i2).get_dim()))
-		throw(std::invalid_argument("all indices of metric tensor must have the same dimension"));
 
 	return indexed(minkmetric(pos_sig), sy_symm(), i1, i2);
 }
