@@ -542,7 +542,7 @@ ex basic::subs(const ex & e) const
 	for (unsigned i=0; i<e.nops(); i++) {
 		ex r = e.op(i);
 		if (!r.info(info_flags::relation_equal)) {
-			throw(std::invalid_argument("basic::subs(ex): argument must be a list or equations"));
+			throw(std::invalid_argument("basic::subs(ex): argument must be a list of equations"));
 		}
 		ls.append(r.op(0));
 		lr.append(r.op(1));

@@ -61,7 +61,7 @@ static ex lgamma_eval(const ex & x)
 		if (x.info(info_flags::integer)) {
 			// lgamma(n) -> log((n-1)!) for postitive n
 			if (x.info(info_flags::posint))
-				return log(factorial(x.exadd(_ex_1())));
+				return log(factorial(x + _ex_1()));
 			else
 				throw (pole_error("lgamma_eval(): logarithmic pole",0));
 		}

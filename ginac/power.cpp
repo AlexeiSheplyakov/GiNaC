@@ -71,6 +71,8 @@ power::power(const ex & lh, const ex & rh) : basic(TINFO_power), basis(lh), expo
 	GINAC_ASSERT(basis.return_type()==return_types::commutative);
 }
 
+/** Ctor from an ex and a bare numeric.  This is somewhat more efficient than
+ *  the normal ctor from two ex whenever it can be used. */
 power::power(const ex & lh, const numeric & rh) : basic(TINFO_power), basis(lh), exponent(rh)
 {
 	debugmsg("power ctor from ex,numeric",LOGLEVEL_CONSTRUCT);

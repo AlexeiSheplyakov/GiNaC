@@ -112,17 +112,6 @@ void ex::dbgprinttree(void) const
 	bp->dbgprinttree();
 }
 
-bool ex::info(unsigned inf) const
-{
-	return bp->info(inf);
-}
-
-unsigned ex::nops() const
-{
-	GINAC_ASSERT(bp!=0);
-	return bp->nops();
-}
-
 ex ex::expand(unsigned options) const
 {
 	GINAC_ASSERT(bp!=0);
@@ -130,48 +119,6 @@ ex ex::expand(unsigned options) const
 		return *bp;
 	else
 		return bp->expand(options);
-}
-
-bool ex::has(const ex & other) const
-{
-	GINAC_ASSERT(bp!=0);
-	return bp->has(other);
-}
-
-int ex::degree(const ex & s) const
-{
-	GINAC_ASSERT(bp!=0);
-	return bp->degree(s);
-}
-
-int ex::ldegree(const ex & s) const
-{
-	GINAC_ASSERT(bp!=0);
-	return bp->ldegree(s);
-}
-
-ex ex::coeff(const ex & s, int n) const
-{
-	GINAC_ASSERT(bp!=0);
-	return bp->coeff(s,n);
-}
-
-ex ex::collect(const ex & s, bool distributed) const
-{
-	GINAC_ASSERT(bp!=0);
-	return bp->collect(s, distributed);
-}
-
-ex ex::eval(int level) const
-{
-	GINAC_ASSERT(bp!=0);
-	return bp->eval(level);
-}
-
-ex ex::evalf(int level) const
-{
-	GINAC_ASSERT(bp!=0);
-	return bp->evalf(level);
 }
 
 /** Compute partial derivative of an expression.
@@ -187,25 +134,6 @@ ex ex::diff(const symbol & s, unsigned nth) const
 		return *this;
 	else
 		return bp->diff(s, nth);
-}
-
-ex ex::subs(const lst & ls, const lst & lr) const
-{
-	GINAC_ASSERT(bp!=0);
-	return bp->subs(ls,lr);
-}
-
-ex ex::subs(const ex & e) const
-{
-	GINAC_ASSERT(bp!=0);
-	return bp->subs(e);
-}
-
-/** Return a vector containing the free indices of the object. */
-exvector ex::get_free_indices(void) const
-{
-	GINAC_ASSERT(bp!=0);
-	return bp->get_free_indices();
 }
 
 /** Simplify/canonicalize expression containing indexed objects. This
@@ -230,12 +158,6 @@ ex ex::simplify_indexed(const scalar_products & sp) const
 	return GiNaC::simplify_indexed(*this, sp);
 }
 
-ex ex::simplify_ncmul(const exvector & v) const
-{
-	GINAC_ASSERT(bp!=0);
-	return bp->simplify_ncmul(v);
-}
-
 ex ex::operator[](const ex & index) const
 {
 	debugmsg("ex operator[ex]",LOGLEVEL_OPERATOR);
@@ -248,14 +170,6 @@ ex ex::operator[](int i) const
 	debugmsg("ex operator[int]",LOGLEVEL_OPERATOR);
 	GINAC_ASSERT(bp!=0);
 	return (*bp)[i];
-}
-
-/** Return operand/member at position i. */
-ex ex::op(int i) const
-{
-	debugmsg("ex op()",LOGLEVEL_MEMBER_FUNCTION);
-	GINAC_ASSERT(bp!=0);
-	return bp->op(i);
 }
 
 /** Return modifyable operand/member at position i. */
@@ -271,7 +185,8 @@ ex & ex::let_op(int i)
 ex ex::lhs(void) const
 {
 	debugmsg("ex lhs()",LOGLEVEL_MEMBER_FUNCTION);
-	GINAC_ASSERT(is_ex_of_type(*this,relational));
+	if (!is_ex_of_type(*this,relational))
+		throw std::runtime_error("ex::lhs(): not a relation");
 	return (*static_cast<relational *>(bp)).lhs();
 }
 
@@ -279,26 +194,9 @@ ex ex::lhs(void) const
 ex ex::rhs(void) const
 {
 	debugmsg("ex rhs()",LOGLEVEL_MEMBER_FUNCTION);
-	GINAC_ASSERT(is_ex_of_type(*this,relational));
+	if (!is_ex_of_type(*this,relational))
+		throw std::runtime_error("ex::rhs(): not a relation");
 	return (*static_cast<relational *>(bp)).rhs();
-}
-
-unsigned ex::return_type(void) const
-{
-	GINAC_ASSERT(bp!=0);
-	return bp->return_type();
-}
-
-unsigned ex::return_type_tinfo(void) const
-{
-	GINAC_ASSERT(bp!=0);
-	return bp->return_type_tinfo();
-}
-
-unsigned ex::gethash(void) const
-{
-	GINAC_ASSERT(bp!=0);
-	return bp->gethash();
 }
 
 /** Used internally by operator+() to add two ex objects together. */

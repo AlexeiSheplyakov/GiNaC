@@ -80,13 +80,13 @@ public:
 	void printtree(std::ostream & os) const;
 	void dbgprint(void) const;
 	void dbgprinttree(void) const;
-	bool info(unsigned inf) const;
-	unsigned nops() const;
+	bool info(unsigned inf) const { return bp->info(inf); }
+	unsigned nops() const { return bp->nops(); }
 	ex expand(unsigned options=0) const;
-	bool has(const ex & other) const;
-	int degree(const ex & s) const;
-	int ldegree(const ex & s) const;
-	ex coeff(const ex & s, int n=1) const;
+	bool has(const ex & other) const { return bp->has(other); }
+	int degree(const ex & s) const { return bp->degree(s); }
+	int ldegree(const ex & s) const { return bp->ldegree(s); }
+	ex coeff(const ex & s, int n = 1) const { return bp->coeff(s, n); }
 	ex lcoeff(const ex & s) const { return coeff(s, degree(s)); }
 	ex tcoeff(const ex & s) const { return coeff(s, ldegree(s)); }
 	ex numer(void) const;
@@ -100,20 +100,20 @@ public:
 	ex to_rational(lst &repl_lst) const;
 	ex smod(const numeric &xi) const;
 	numeric max_coefficient(void) const;
-	ex collect(const ex & s, bool distributed = false) const;
-	ex eval(int level = 0) const;
-	ex evalf(int level = 0) const;
+	ex collect(const ex & s, bool distributed = false) const { return bp->collect(s, distributed); }
+	ex eval(int level = 0) const { return bp->eval(level); }
+	ex evalf(int level = 0) const { return bp->evalf(level); }
 	ex diff(const symbol & s, unsigned nth = 1) const;
 	ex series(const ex & r, int order, unsigned options = 0) const;
-	ex subs(const lst & ls, const lst & lr) const;
-	ex subs(const ex & e) const;
-	exvector get_free_indices(void) const;
+	ex subs(const lst & ls, const lst & lr) const { return bp->subs(ls, lr); }
+	ex subs(const ex & e) const { return bp->subs(e); }
+	exvector get_free_indices(void) const { return bp->get_free_indices(); }
 	ex simplify_indexed(void) const;
 	ex simplify_indexed(const scalar_products & sp) const;
-	ex simplify_ncmul(const exvector & v) const;
+	ex simplify_ncmul(const exvector & v) const { return bp->simplify_ncmul(v); }
 	ex operator[](const ex & index) const;
 	ex operator[](int i) const;
-	ex op(int i) const;
+	ex op(int i) const { return bp->op(i); }
 	ex & let_op(int i);
 	ex lhs(void) const;
 	ex rhs(void) const;
@@ -121,9 +121,9 @@ public:
 	bool is_equal(const ex & other) const;
 	bool is_zero(void) const { return is_equal(_ex0()); }
 	
-	unsigned return_type(void) const;
-	unsigned return_type_tinfo(void) const;
-	unsigned gethash(void) const;
+	unsigned return_type(void) const { return bp->return_type(); }
+	unsigned return_type_tinfo(void) const { return bp->return_type_tinfo(); }
+	unsigned gethash(void) const { return bp->gethash(); }
 	
 	ex exadd(const ex & rh) const;
 	ex exmul(const ex & rh) const;
