@@ -39,16 +39,12 @@
 #include "numeric.h"
 #include "symbol.h"
 
-#ifndef NO_NAMESPACE_GINAC
 using namespace GiNaC;
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 #include "input_parser.h"
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 // Table of all used symbols
 struct sym_def {
@@ -164,9 +160,7 @@ int ginac_yywrap()
 	return 1;
 }
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 // Set the input string
 void set_lexer_string(const std::string &s)
@@ -197,6 +191,4 @@ bool is_lexer_symbol_predefined(const ex &s)
 		return (*i).second.predefined;
 }
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

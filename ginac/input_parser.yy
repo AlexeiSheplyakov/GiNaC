@@ -39,9 +39,7 @@
 #include "matrix.h"
 #include "inifcns.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 #define YYERROR_VERBOSE 1
 
@@ -150,15 +148,11 @@ std::string get_parser_error(void)
 	return parser_error;
 }
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-
-using GiNaC::parser_error;
-#endif // ndef NO_NAMESPACE_GINAC
 
 // Error print routine (store error string in parser_error)
 int ginac_yyerror(char *s)
 {
-	parser_error = std::string(s) + " at " + std::string(ginac_yytext);
+	GiNaC::parser_error = std::string(s) + " at " + std::string(ginac_yytext);
 	return 0;
 }
