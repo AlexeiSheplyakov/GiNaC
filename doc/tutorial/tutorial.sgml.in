@@ -1,7 +1,7 @@
 <!DOCTYPE Book PUBLIC "-//Davenport//DTD DocBook V3.0//EN">
 
 <book>
-<title>GiNaC Tutorial MAJOR_VERSION.MINOR_VERSION</title>
+<title>GiNaC MAJOR_VERSION.MINOR_VERSION Tutorial</title>
 <bookinfo>
 <subtitle>An open framework for symbolic computation within the C++ programming language</subtitle>
 <bookbiblio>
