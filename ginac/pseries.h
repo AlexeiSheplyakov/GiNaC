@@ -67,7 +67,7 @@ public:
     ex collect(const symbol &s) const;
     ex eval(int level=0) const;
     ex evalf(int level=0) const;
-    ex series(const relational & r, int order, bool branchcut = true) const;
+    ex series(const relational & r, int order, unsigned options = 0) const;
     ex subs(const lst & ls, const lst & lr) const;
     ex normal(lst &sym_lst, lst &repl_lst, int level = 0) const;
     ex expand(unsigned options = 0) const;

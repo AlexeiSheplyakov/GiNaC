@@ -33,6 +33,19 @@ public:
          };
 };
 
+class series_options {
+public:
+    enum { suppress_branchcut        = 0x0001
+         };
+};
+
+class determinant_options {
+public:
+    enum { laplace,
+           bareiss
+         };
+};
+
 class status_flags {
 public:
     enum { dynallocated              = 0x0001,
@@ -124,7 +137,7 @@ public:
     enum { delete_never, // let table grow undefinitely, not recommmended, but currently default
            delete_lru,   // least recently used
            delete_lfu,   // least frequently used
-           delete_cyclic // first one in list (oldest)
+           delete_cyclic // first (oldest) one in list
     };
 };
 

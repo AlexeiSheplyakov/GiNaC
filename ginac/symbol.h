@@ -81,7 +81,7 @@ public:
     int ldegree(const symbol & s) const;
     ex coeff(const symbol & s, int n = 1) const;
     ex eval(int level = 0) const;
-    ex series(const relational & s, int order, bool branchcut = true) const;
+    ex series(const relational & s, int order, unsigned options = 0) const;
     ex normal(lst &sym_lst, lst &repl_lst, int level = 0) const;
     ex to_rational(lst &repl_lst) const;
     ex subs(const lst & ls, const lst & lr) const;

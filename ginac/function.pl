@@ -95,7 +95,7 @@ $typedef_derivative_funcp=generate(
 'const ex &','');
 
 $typedef_series_funcp=generate(
-'typedef ex (* series_funcp_${N})(${SEQ1}, const relational &, int, bool);'."\n",
+'typedef ex (* series_funcp_${N})(${SEQ1}, const relational &, int, unsigned);'."\n",
 'const ex &','');
 
 $eval_func_interface=generate('    function_options & eval_func(eval_funcp_${N} e);'."\n",'','');
@@ -145,9 +145,9 @@ $series_switch_statement=generate(
     <<'END_OF_SERIES_SWITCH_STATEMENT','seq[${N}-1]','');
     case ${N}:
         try {
-            res = ((series_funcp_${N})(registered_functions()[serial].series_f))(${SEQ1},r,order,branchcut);
+            res = ((series_funcp_${N})(registered_functions()[serial].series_f))(${SEQ1},r,order,options);
         } catch (do_taylor) {
-            res = basic::series(r, order, branchcut);
+            res = basic::series(r, order, options);
         }
         return res;
         break;
@@ -419,7 +419,7 @@ public:
     ex expand(unsigned options=0) const;
     ex eval(int level=0) const;
     ex evalf(int level=0) const;
-    ex series(const relational & r, int order, bool branchcut = true) const;
+    ex series(const relational & r, int order, unsigned options = 0) const;
     ex thisexprseq(const exvector & v) const;
     ex thisexprseq(exvector * vp) const;
 protected:
@@ -889,7 +889,7 @@ ex function::thisexprseq(exvector * vp) const
 
 /** Implementation of ex::series for functions.
  *  \@see ex::series */
-ex function::series(const relational & r, int order, bool branchcut = true) const
+ex function::series(const relational & r, int order, unsigned options = 0) const
 {
     GINAC_ASSERT(serial<registered_functions().size());
 

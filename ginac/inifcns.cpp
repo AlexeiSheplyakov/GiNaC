@@ -110,7 +110,7 @@ static ex csgn_eval(const ex & x)
 static ex csgn_series(const ex & arg,
                       const relational & rel,
                       int order,
-                      bool branchcut)
+                      unsigned options)
 {
     const ex arg_pt = arg.subs(rel);
     if (arg_pt.info(info_flags::numeric)) {
@@ -179,7 +179,7 @@ static ex Li2_deriv(const ex & x, unsigned deriv_param)
     return -log(1-x)/x;
 }
 
-static ex Li2_series(const ex &x, const relational &rel, int order, bool branchcut)
+static ex Li2_series(const ex &x, const relational &rel, int order, unsigned options)
 {
     const ex x_pt = x.subs(rel);
     if (x_pt.info(info_flags::numeric)) {
@@ -237,7 +237,8 @@ static ex Li2_series(const ex &x, const relational &rel, int order, bool branchc
             return ser.series(rel, order);
         }
         // third special case: x real, >=1 (branch cut)
-        if (ex_to_numeric(x_pt).is_real() && ex_to_numeric(x_pt)>1) {
+        if (!(options & series_options::suppress_branchcut) &&
+            ex_to_numeric(x_pt).is_real() && ex_to_numeric(x_pt)>1) {
             // method:
             // This is the branch cut: assemble the primitive series manually
             // and then add the corresponding complex step function.
@@ -250,7 +251,7 @@ static ex Li2_series(const ex &x, const relational &rel, int order, bool branchc
             // compute the intermediate terms:
             ex replarg = series(Li2(x), *s==foo, order);
             for (unsigned i=1; i<replarg.nops()-1; ++i)
-                seq.push_back(expair((replarg.op(i)/power(*s-foo,i)).series(foo==point,1,branchcut).op(0).subs(foo==*s),i));
+                seq.push_back(expair((replarg.op(i)/power(*s-foo,i)).series(foo==point,1,options).op(0).subs(foo==*s),i));
             // append an order term:
             seq.push_back(expair(Order(_ex1()), replarg.nops()-1));
             return pseries(rel, seq);
@@ -341,7 +342,7 @@ static ex Order_eval(const ex & x)
 	return Order(x).hold();
 }
 
-static ex Order_series(const ex & x, const relational & r, int order, bool branchcut)
+static ex Order_series(const ex & x, const relational & r, int order, unsigned options)
 {
 	// Just wrap the function into a pseries object
 	epvector new_seq;

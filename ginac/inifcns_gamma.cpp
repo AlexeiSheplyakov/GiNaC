@@ -88,7 +88,7 @@ static ex lgamma_deriv(const ex & x, unsigned deriv_param)
 static ex lgamma_series(const ex & arg,
                         const relational & rel,
                         int order,
-                        bool branchcut)
+                        unsigned options)
 {
     // method:
     // Taylor series where there is no pole falls back to psi function
@@ -184,7 +184,7 @@ static ex tgamma_deriv(const ex & x, unsigned deriv_param)
 static ex tgamma_series(const ex & arg,
                         const relational & rel,
                         int order,
-                        bool branchcut)
+                        unsigned options)
 {
     // method:
     // Taylor series where there is no pole falls back to psi function
@@ -283,7 +283,7 @@ static ex beta_series(const ex & arg1,
                       const ex & arg2,
                       const relational & rel,
                       int order,
-                      bool branchcut)
+                      unsigned options)
 {
     // method:
     // Taylor series where there is no pole of one of the tgamma functions
@@ -392,7 +392,7 @@ static ex psi1_deriv(const ex & x, unsigned deriv_param)
 static ex psi1_series(const ex & arg,
                       const relational & rel,
                       int order,
-                      bool branchcut)
+                      unsigned options)
 {
     // method:
     // Taylor series where there is no pole falls back to polygamma function
@@ -516,7 +516,7 @@ static ex psi2_series(const ex & n,
                       const ex & arg,
                       const relational & rel,
                       int order,
-                      bool branchcut)
+                      unsigned options)
 {
     // method:
     // Taylor series where there is no pole falls back to polygamma function

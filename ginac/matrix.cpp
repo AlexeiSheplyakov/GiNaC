@@ -382,8 +382,8 @@ matrix matrix::mul(const matrix & other) const
     
     exvector prod(row*other.col);
     
-    for (unsigned r1=0; r1<row; ++r1) {
-        for (unsigned c=0; c<col; ++c) {
+    for (unsigned r1=0; r1<rows(); ++r1) {
+        for (unsigned c=0; c<cols(); ++c) {
             if (m[r1*col+c].is_zero())
                 continue;
             for (unsigned r2=0; r2<other.col; ++r2)
@@ -397,13 +397,13 @@ matrix matrix::mul(const matrix & other) const
 /** operator() to access elements.
  *
  *  @param ro row of element
- *  @param co column of element 
+ *  @param co column of element
  *  @exception range_error (index out of range) */
 const ex & matrix::operator() (unsigned ro, unsigned co) const
 {
     if (ro<0 || ro>=row || co<0 || co>=col)
         throw (std::range_error("matrix::operator(): index out of range"));
-    
+
     return m[ro*col+co];
 }
 
@@ -626,9 +626,8 @@ matrix matrix::inverse(void) const
             throw (std::runtime_error("matrix::inverse(): singular matrix"));
         }
         if (indx != 0) {  // swap rows r and indx of matrix tmp
-            for (unsigned i=0; i<col; ++i) {
+            for (unsigned i=0; i<col; ++i)
                 tmp.m[r1*col+i].swap(tmp.m[indx*col+i]);
-            }
         }
         ex a1 = cpy.m[r1*col+r1];
         for (unsigned c=0; c<col; ++c) {
@@ -646,6 +645,16 @@ matrix matrix::inverse(void) const
         }
     }
     return tmp;
+}
+
+// superfluous helper function, to be removed:
+void matrix::swap(unsigned r1, unsigned c1, unsigned r2 ,unsigned c2)
+{
+    ensure_if_modifiable();
+    
+    ex tmp = (*this)(r1,c1);
+    set(r1,c1,(*this)(r2,c2));
+    set(r2,c2,tmp);
 }
 
 
@@ -678,30 +687,30 @@ matrix matrix::fraction_free_elim(const matrix & vars,
     for (unsigned k=0; (k<n)&&(r<m); ++k) {
         // find a nonzero pivot
         unsigned p;
-        for (p=r; (p<m)&&(a.m[p*a.cols()+k].is_zero()); ++p) {}
+        for (p=r; (p<m)&&(a(p,k).is_zero()); ++p) {}
         // pivot is in row p
         if (p<m) {
             if (p!=r) {
                 // swap rows p and r
                 for (unsigned j=k; j<n; ++j)
-                    a.m[p*a.cols()+j].swap(a.m[r*a.cols()+j]);
-                a.m[p*a.cols()].swap(a.m[r*a.cols()]);
+                    a.swap(p,j,r,j);
+                b.swap(p,0,r,0);
                 // keep track of sign changes due to row exchange
-                sign = -sign;
+                sign *= -1;
             }
             for (unsigned i=r+1; i<m; ++i) {
                 for (unsigned j=k+1; j<n; ++j) {
-                    a.set(i,j,(a.m[r*a.cols()+k]*a.m[i*a.cols()+j]
-                              -a.m[r*a.cols()+j]*a.m[i*a.cols()+k])/divisor);
-                    a.set(i,j,a.m[i*a.cols()+j].normal());
+                    a.set(i,j,(a(r,k)*a(i,j)
+                              -a(r,j)*a(i,k))/divisor);
+                    a.set(i,j,a(i,j).normal());
                 }
-                b.set(i,0,(a.m[r*a.cols()+k]*b.m[i*b.cols()]
-                          -b.m[r*b.cols()]*a.m[i*a.cols()+k])/divisor);
-                b.set(i,0,b.m[i*b.cols()].normal());
+                b.set(i,0,(a(r,k)*b(i,0)
+                          -b(r,0)*a(i,k))/divisor);
+                b.set(i,0,b(i,0).normal());
                 a.set(i,k,0);
             }
-            divisor = a.m[r*a.cols()+k];
-            r++;
+            divisor = a(r,k);
+            ++r;
         }
     }
     
@@ -711,7 +720,7 @@ matrix matrix::fraction_free_elim(const matrix & vars,
     for (unsigned r=0; r<m; ++r) {
         int zero_in_this_row=0;
         for (unsigned c=0; c<n; ++c) {
-            if (a.m[r*a.cols()+c].is_zero())
+            if (a(r,c).is_zero())
                zero_in_this_row++;
             else
                 break;
@@ -726,65 +735,65 @@ matrix matrix::fraction_free_elim(const matrix & vars,
     unsigned last_assigned_sol = n+1;
     for (int r=m-1; r>=0; --r) {
         unsigned first_non_zero = 1;
-        while ((first_non_zero<=n)&&(a.m[r*a.cols()+(first_non_zero-1)].is_zero()))
+        while ((first_non_zero<=n)&&(a(r,first_non_zero-1).is_zero()))
             first_non_zero++;
         if (first_non_zero>n) {
             // row consists only of zeroes, corresponding rhs must be 0 as well
-            if (!b.m[r*b.cols()].is_zero()) {
+            if (!b(r,0).is_zero()) {
                 throw (std::runtime_error("matrix::fraction_free_elim(): singular matrix"));
             }
         } else {
             // assign solutions for vars between first_non_zero+1 and
             // last_assigned_sol-1: free parameters
             for (unsigned c=first_non_zero; c<last_assigned_sol-1; ++c)
-                sol.set(c,0,vars.m[c*vars.cols()]);
-            ex e = b.m[r*b.cols()];
+                sol.set(c,0,vars(c,0));
+            ex e = b(r,0);
             for (unsigned c=first_non_zero; c<n; ++c)
-                e -= a.m[r*a.cols()+c]*sol.m[c*sol.cols()];
+                e -= a(r,c)*sol(c,0);
             sol.set(first_non_zero-1,0,
-                    (e/a.m[r*a.cols()+(first_non_zero-1)]).normal());
+                    (e/a(r,first_non_zero-1)).normal());
             last_assigned_sol = first_non_zero;
         }
     }
     // assign solutions for vars between 1 and
     // last_assigned_sol-1: free parameters
     for (unsigned c=0; c<last_assigned_sol-1; ++c)
-        sol.set(c,0,vars.m[c*vars.cols()]);
+        sol.set(c,0,vars(c,0));
     
 #ifdef DO_GINAC_ASSERT
     // test solution with echelon matrix
     for (unsigned r=0; r<m; ++r) {
         ex e = 0;
         for (unsigned c=0; c<n; ++c)
-            e += a.m[r*a.cols()+c]*sol.m[c*sol.cols()];
-        if (!(e-b.m[r*b.cols()]).normal().is_zero()) {
+            e += a(r,c)*sol(c,0);
+        if (!(e-b(r,0)).normal().is_zero()) {
             cout << "e=" << e;
-            cout << "b(" << r <<",0)=" << b.m[r*b.cols()] << endl;
-            cout << "diff=" << (e-b.m[r*b.cols()]).normal() << endl;
+            cout << "b(" << r <<",0)=" << b(r,0) << endl;
+            cout << "diff=" << (e-b(r,0)).normal() << endl;
         }
-        GINAC_ASSERT((e-b.m[r*b.cols()]).normal().is_zero());
+        GINAC_ASSERT((e-b(r,0)).normal().is_zero());
     }
     
     // test solution with original matrix
     for (unsigned r=0; r<m; ++r) {
         ex e = 0;
         for (unsigned c=0; c<n; ++c)
-            e += this->m[r*cols()+c]*sol.m[c*sol.cols()];
+            e += this->m[r*cols()+c]*sol(c,0);
         try {
-            if (!(e-rhs.m[r*rhs.cols()]).normal().is_zero()) {
+            if (!(e-rhs(r,0)).normal().is_zero()) {
                 cout << "e==" << e << endl;
                 e.printtree(cout);
                 ex en = e.normal();
                 cout << "e.normal()=" << en << endl;
                 en.printtree(cout);
-                cout << "rhs(" << r <<",0)=" << rhs.m[r*rhs.cols()] << endl;
-                cout << "diff=" << (e-rhs.m[r*rhs.cols()]).normal() << endl;
+                cout << "rhs(" << r <<",0)=" << rhs(r,0) << endl;
+                cout << "diff=" << (e-rhs(r,0)).normal() << endl;
             }
         } catch (...) {
-            ex xxx = e - rhs.m[r*rhs.cols()];
+            ex xxx = e - rhs(r,0);
             cerr << "xxx=" << xxx << endl << endl;
         }
-        GINAC_ASSERT((e-rhs.m[r*rhs.cols()]).normal().is_zero());
+        GINAC_ASSERT((e-rhs(r,0)).normal().is_zero());
     }
 #endif // def DO_GINAC_ASSERT
     

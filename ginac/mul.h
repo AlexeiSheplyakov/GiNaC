@@ -71,7 +71,7 @@ public:
     ex coeff(const symbol & s, int n = 1) const;
     ex eval(int level=0) const;
     ex evalf(int level=0) const;
-    ex series(const relational & s, int order, bool branchcut = true) const;
+    ex series(const relational & s, int order, unsigned options = 0) const;
     ex normal(lst &sym_lst, lst &repl_lst, int level = 0) const;
     numeric integer_content(void) const;
     ex smod(const numeric &xi) const;

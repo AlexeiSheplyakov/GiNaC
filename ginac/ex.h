@@ -252,7 +252,7 @@ public:
     ex eval(int level = 0) const;
     ex evalf(int level = 0) const;
     ex diff(const symbol & s, unsigned nth = 1) const;
-    ex series(const ex & r, int order, bool branchcut = true) const;
+    ex series(const ex & r, int order, unsigned options = 0) const;
     ex subs(const lst & ls, const lst & lr) const;
     ex subs(const ex & e) const;
     exvector get_indices(void) const;
@@ -395,8 +395,8 @@ inline ex evalf(const ex & thisex, int level = 0)
 inline ex diff(const ex & thisex, const symbol & s, unsigned nth = 1)
 { return thisex.diff(s, nth); }
 
-inline ex series(const ex & thisex, const ex & r, int order, bool branchcut = true)
-{ return thisex.series(r, order, branchcut); }
+inline ex series(const ex & thisex, const ex & r, int order, unsigned options = 0)
+{ return thisex.series(r, order, options); }
 
 inline ex subs(const ex & thisex, const ex & e)
 { return thisex.subs(e); }

@@ -484,7 +484,7 @@ bool pseries::is_terminating(void) const
 
 /** Default implementation of ex::series(). This performs Taylor expansion.
  *  @see ex::series */
-ex basic::series(const relational & r, int order, bool branchcut) const
+ex basic::series(const relational & r, int order, unsigned options) const
 {
     epvector seq;
     numeric fac(1);
@@ -518,7 +518,7 @@ ex basic::series(const relational & r, int order, bool branchcut) const
 
 /** Implementation of ex::series() for symbols.
  *  @see ex::series */
-ex symbol::series(const relational & r, int order, bool branchcut) const
+ex symbol::series(const relational & r, int order, unsigned options) const
 {
     epvector seq;
     const ex point = r.rhs();
@@ -615,12 +615,12 @@ ex pseries::add_series(const pseries &other) const
 /** Implementation of ex::series() for sums. This performs series addition when
  *  adding pseries objects.
  *  @see ex::series */
-ex add::series(const relational & r, int order, bool branchcut) const
+ex add::series(const relational & r, int order, unsigned options) const
 {
     ex acc; // Series accumulator
     
     // Get first term from overall_coeff
-    acc = overall_coeff.series(r, order, branchcut);
+    acc = overall_coeff.series(r, order, options);
     
     // Add remaining terms
     epvector::const_iterator it = seq.begin();
@@ -630,7 +630,7 @@ ex add::series(const relational & r, int order, bool branchcut) const
         if (is_ex_exactly_of_type(it->rest, pseries))
             op = it->rest;
         else
-            op = it->rest.series(r, order, branchcut);
+            op = it->rest.series(r, order, options);
         if (!it->coeff.is_equal(_ex1()))
             op = ex_to_pseries(op).mul_const(ex_to_numeric(it->coeff));
         
@@ -720,12 +720,12 @@ ex pseries::mul_series(const pseries &other) const
 /** Implementation of ex::series() for product. This performs series
  *  multiplication when multiplying series.
  *  @see ex::series */
-ex mul::series(const relational & r, int order, bool branchcut) const
+ex mul::series(const relational & r, int order, unsigned options) const
 {
     ex acc; // Series accumulator
     
     // Get first term from overall_coeff
-    acc = overall_coeff.series(r, order, branchcut);
+    acc = overall_coeff.series(r, order, options);
     
     // Multiply with remaining terms
     epvector::const_iterator it = seq.begin();
@@ -738,7 +738,7 @@ ex mul::series(const relational & r, int order, bool branchcut) const
             acc = ex_to_pseries(acc).mul_const(ex_to_numeric(f));
             continue;
         } else if (!is_ex_exactly_of_type(op, pseries))
-            op = op.series(r, order, branchcut);
+            op = op.series(r, order, options);
         if (!it->coeff.is_equal(_ex1()))
             op = ex_to_pseries(op).power_const(ex_to_numeric(it->coeff), order);
 
@@ -810,20 +810,20 @@ pseries pseries::shift_exponents(int deg) const
 /** Implementation of ex::series() for powers. This performs Laurent expansion
  *  of reciprocals of series at singularities.
  *  @see ex::series */
-ex power::series(const relational & r, int order, bool branchcut) const
+ex power::series(const relational & r, int order, unsigned options) const
 {
     ex e;
     if (!is_ex_exactly_of_type(basis, pseries)) {
         // Basis is not a series, may there be a singulary?
         if (!exponent.info(info_flags::negint))
-            return basic::series(r, order, branchcut);
+            return basic::series(r, order, options);
         
         // Expression is of type something^(-int), check for singularity
         if (!basis.subs(r).is_zero())
-            return basic::series(r, order, branchcut);
+            return basic::series(r, order, options);
         
         // Singularity encountered, expand basis into series
-        e = basis.series(r, order, branchcut);
+        e = basis.series(r, order, options);
     } else {
         // Basis is a series
         e = basis;
@@ -835,7 +835,7 @@ ex power::series(const relational & r, int order, bool branchcut) const
 
 
 /** Re-expansion of a pseries object. */
-ex pseries::series(const relational & r, int order, bool branchcut) const
+ex pseries::series(const relational & r, int order, unsigned options) const
 {
     const ex p = r.rhs();
     GINAC_ASSERT(is_ex_exactly_of_type(r.lhs(),symbol));
@@ -859,7 +859,7 @@ ex pseries::series(const relational & r, int order, bool branchcut) const
             return pseries(r, new_seq);
         }
     } else
-        return convert_to_poly().series(r, order, branchcut);
+        return convert_to_poly().series(r, order, options);
 }
 
 
@@ -870,9 +870,9 @@ ex pseries::series(const relational & r, int order, bool branchcut) const
  *
  *  @param r  expansion relation, lhs holds variable and rhs holds point
  *  @param order  truncation order of series calculations
- *  @param branchcut  when set to false, branch cuts are not honored
+ *  @param options  of class series_options
  *  @return an expression holding a pseries object */
-ex ex::series(const ex & r, int order, bool branchcut) const
+ex ex::series(const ex & r, int order, unsigned options) const
 {
     GINAC_ASSERT(bp!=0);
     ex e;
@@ -886,7 +886,7 @@ ex ex::series(const ex & r, int order, bool branchcut) const
         throw (std::logic_error("ex::series(): expansion point has unknown type"));
     
     try {
-        e = bp->series(rel_, order, branchcut);
+        e = bp->series(rel_, order, options);
     } catch (std::exception &x) {
         throw (std::logic_error(std::string("unable to compute series (") + x.what() + ")"));
     }

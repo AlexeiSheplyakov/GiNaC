@@ -138,7 +138,7 @@ public: // only const functions please (may break reference counting)
     virtual ex collect(const symbol & s) const;
     virtual ex eval(int level = 0) const;
     virtual ex evalf(int level = 0) const;
-    virtual ex series(const relational & r, int order, bool branchcut = true) const;
+    virtual ex series(const relational & r, int order, unsigned options = 0) const;
     virtual ex subs(const lst & ls, const lst & lr) const;
     virtual ex normal(lst &sym_lst, lst &repl_lst, int level = 0) const;
     virtual ex to_rational(lst &repl_lst) const;

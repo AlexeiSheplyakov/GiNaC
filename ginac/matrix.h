@@ -27,6 +27,11 @@
 #include "basic.h"
 #include "ex.h"
 
+namespace std {
+    // forward declaration, so <stdexcept> need not be included:
+    class range_error;
+}
+
 #ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
@@ -100,6 +105,7 @@ protected:
     int division_free_elimination(void);
     int fraction_free_elimination(bool det = false);
     int pivot(unsigned ro, bool symbolic=true);
+    void swap(unsigned r1, unsigned c1, unsigned r2 ,unsigned c2);
     
 // member variables
 protected:
@@ -109,9 +115,11 @@ protected:
     static unsigned precedence;
 };
 
+
 // global constants
 extern const matrix some_matrix;
 extern const type_info & typeid_matrix;
+
 
 // wrapper functions around member functions
 

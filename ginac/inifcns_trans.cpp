@@ -147,7 +147,7 @@ static ex log_deriv(const ex & x, unsigned deriv_param)
 static ex log_series(const ex &arg,
                      const relational &rel,
                      int order,
-                     bool branchcut)
+                     unsigned options)
 {
     GINAC_ASSERT(is_ex_exactly_of_type(rel.lhs(),symbol));
     ex arg_pt;
@@ -171,7 +171,7 @@ static ex log_series(const ex &arg,
         // Return a plain n*log(x) for the x^n part and series expand the
         // other part.  Add them together and reexpand again in order to have
         // one unnested pseries object.  All this also works for negative n.
-        const pseries argser = ex_to_pseries(arg.series(rel, order, branchcut));
+        const pseries argser = ex_to_pseries(arg.series(rel, order, options));
         const symbol *s = static_cast<symbol *>(rel.lhs().bp);
         const ex point = rel.rhs();
         const int n = argser.ldegree(*s);
@@ -179,12 +179,13 @@ static ex log_series(const ex &arg,
         seq.push_back(expair(n*log(*s-point), _ex0()));
         if (!argser.is_terminating() || argser.nops()!=1) {
             // in this case n more terms are needed
-            ex newarg = ex_to_pseries(arg.series(rel, order+n, branchcut)).shift_exponents(-n).convert_to_poly(true);
-            return pseries(rel, seq).add_series(ex_to_pseries(log(newarg).series(rel, order, branchcut)));
+            ex newarg = ex_to_pseries(arg.series(rel, order+n, options)).shift_exponents(-n).convert_to_poly(true);
+            return pseries(rel, seq).add_series(ex_to_pseries(log(newarg).series(rel, order, options)));
         } else  // it was a monomial
             return pseries(rel, seq);
     }
-    if (branchcut && arg_pt.info(info_flags::negative)) {
+    if (!(options & series_options::suppress_branchcut) &&
+         arg_pt.info(info_flags::negative)) {
         // method:
         // This is the branch cut: assemble the primitive series manually and
         // then add the corresponding complex step function.
@@ -444,7 +445,7 @@ static ex tan_deriv(const ex & x, unsigned deriv_param)
 static ex tan_series(const ex &x,
                      const relational &rel,
                      int order,
-                     bool branchcut)
+                     unsigned options)
 {
     // method:
     // Taylor series where there is no pole falls back to tan_deriv.
@@ -804,7 +805,7 @@ static ex tanh_deriv(const ex & x, unsigned deriv_param)
 static ex tanh_series(const ex &x,
                       const relational &rel,
                       int order,
-                      bool branchcut)
+                      unsigned options)
 {
     // method:
     // Taylor series where there is no pole falls back to tanh_deriv.
