@@ -876,7 +876,9 @@ inline bool is_exactly_a(const ex &obj)
 /** Return a reference to the basic-derived class T object embedded in an
  *  expression.  This is fast but unsafe: the result is undefined if the
  *  expression does not contain a T object at its top level.  Hence, you
- *  should generally check the type of e first.
+ *  should generally check the type of e first.  Also, you shouldn't cache
+ *  the returned reference because GiNaC's garbage collector may destroy
+ *  the referenced object any time it's used in another expression.
  *
  *  @param e expression
  *  @return reference to object of class T
