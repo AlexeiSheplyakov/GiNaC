@@ -138,10 +138,7 @@ protected:
     ex derivative(const symbol & s) const;
     int compare_same_type(const basic & other) const;
     bool is_equal_same_type(const basic & other) const;
-    unsigned calchash(void) const {
-        hashvalue=HASHVALUE_NUMERIC;
-        return HASHVALUE_NUMERIC;
-    }
+    unsigned calchash(void) const;
 
     // new virtual functions which can be overridden by derived classes
     // (none)
@@ -210,8 +207,11 @@ extern const numeric I;
 extern const type_info & typeid_numeric;
 extern _numeric_digits Digits;
 
-#define is_a_numeric_hash(x) ((x)==HASHVALUE_NUMERIC)
+//#define is_a_numeric_hash(x) ((x)==HASHVALUE_NUMERIC)
 // may have to be changed to ((x)>=0x80000000U)
+
+// has been changed
+//#define is_a_numeric_hash(x) ((x)&0x80000000U)
 
 // global functions
 

@@ -169,7 +169,7 @@ inline simp_lor &ex_to_nonconst_simp_lor(const ex &e)
 simp_lor lor_g(const ex & mu, const ex & nu);
 simp_lor lor_vec(const string & n, const ex & mu);
 ex simplify_simp_lor_mul(const ex & m, const scalar_products & sp);
-ex simplify_simp_lor(const ex & e, const scalar_products & sp);
+ex simplify_simp_lor(const ex & e, const scalar_products & sp=scalar_products());
 ex Dim(void);
 
 #ifndef NO_NAMESPACE_GINAC

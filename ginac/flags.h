@@ -118,6 +118,15 @@ public:
 	};
 };
 
+class remember_strategies {
+public:
+    enum { delete_never, // let table grow undefinitely, not recommmended, but currently default
+           delete_lru,   // least recently used
+           delete_lfu,   // least frequently used
+           delete_cyclic // first one in list (oldest)
+    };
+};
+
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
 #endif // ndef NO_NAMESPACE_GINAC

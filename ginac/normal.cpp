@@ -1076,7 +1076,7 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
             if (divide_in_z(p, g, ca ? *ca : dummy, var) && divide_in_z(q, g, cb ? *cb : dummy, var)) {
                 g *= gc;
                 ex lc = g.lcoeff(*x);
-                if (is_ex_exactly_of_type(lc, numeric) && lc.compare(_ex0()) < 0)
+                if (is_ex_exactly_of_type(lc, numeric) && ex_to_numeric(lc).is_negative())
                     return -g;
                 else
                     return g;
@@ -1442,7 +1442,8 @@ static ex frac_cancel(const ex &n, const ex &d)
 	// as defined by get_first_symbol() is made positive)
 	const symbol *x;
 	if (get_first_symbol(den, x)) {
-		if (den.unit(*x).compare(_ex0()) < 0) {
+                GINAC_ASSERT(is_ex_exactly_of_type(den.unit(*x),numeric));
+		if (ex_to_numeric(den.unit(*x)).is_negative()) {
 			num *= _ex_1();
 			den *= _ex_1();
 		}

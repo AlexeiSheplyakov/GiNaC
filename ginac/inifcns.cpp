@@ -62,7 +62,8 @@ static ex abs_eval(const ex & x)
         return abs(x).hold();
 }
 
-REGISTER_FUNCTION(abs, abs_eval, abs_evalf, NULL, NULL);
+REGISTER_FUNCTION(abs, evalf_func(abs_eval).
+                       evalf_func(abs_evalf));
 
 //////////
 // dilogarithm
@@ -79,7 +80,7 @@ static ex Li2_eval(const ex & x)
     return Li2(x).hold();
 }
 
-REGISTER_FUNCTION(Li2, Li2_eval, NULL, NULL, NULL);
+REGISTER_FUNCTION(Li2, eval_func(Li2_eval));
 
 //////////
 // trilogarithm
@@ -92,7 +93,7 @@ static ex Li3_eval(const ex & x)
     return Li3(x).hold();
 }
 
-REGISTER_FUNCTION(Li3, Li3_eval, NULL, NULL, NULL);
+REGISTER_FUNCTION(Li3, eval_func(Li3_eval));
 
 //////////
 // factorial
@@ -111,7 +112,8 @@ static ex factorial_eval(const ex & x)
         return factorial(x).hold();
 }
 
-REGISTER_FUNCTION(factorial, factorial_eval, factorial_evalf, NULL, NULL);
+REGISTER_FUNCTION(factorial, eval_func(factorial_eval).
+                             evalf_func(factorial_evalf));
 
 //////////
 // binomial
@@ -130,7 +132,8 @@ static ex binomial_eval(const ex & x, const ex &y)
         return binomial(x, y).hold();
 }
 
-REGISTER_FUNCTION(binomial, binomial_eval, binomial_evalf, NULL, NULL);
+REGISTER_FUNCTION(binomial, eval_func(binomial_eval).
+                            evalf_func(binomial_evalf));
 
 //////////
 // Order term function (for truncated power series)
@@ -163,7 +166,8 @@ static ex Order_series(const ex & x, const symbol & s, const ex & point, int ord
 	return pseries(s, point, new_seq);
 }
 
-REGISTER_FUNCTION(Order, Order_eval, NULL, NULL, Order_series);
+REGISTER_FUNCTION(Order, eval_func(Order_eval).
+                         series_func(Order_series));
 
 //////////
 // Solve linear system

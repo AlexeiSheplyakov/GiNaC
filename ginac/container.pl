@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
-if ($#ARGV!=0) {
-    die 'usage: container.pl type (type=lst or exprseq)';
+if (($#ARGV!=0) and ($#ARGV!=1)) {
+    die 'usage: container.pl type [maxargs] (type=lst or exprseq)';
 }
 
 if ($ARGV[0] eq 'lst') {
@@ -12,8 +12,11 @@ if ($ARGV[0] eq 'lst') {
     die 'only lst and exprseq supported';
 }
 
-#$type='lst';
-#$type='exprseq';
+if ($#ARGV==1) {
+    $maxargs=$ARGV[1];
+} else {
+    $maxargs=15; # must be greater or equal than the value used in function.pl
+}
 
 if ($type eq 'exprseq') {
 
@@ -86,6 +89,57 @@ END_OF_LET_OP_IMPLEMENTATION
     $LET_OP_IMPLEMENTATION="// ${CONTAINER}::let_op() will be implemented by user elsewhere";
 }
 
+sub generate_seq {
+    my ($seq_template,$n,$separator)=@_;
+    my ($res,$N);
+    
+    $res='';
+    for ($N=1; $N<=$n; $N++) {
+        $res .= eval('"' . $seq_template . '"');
+        if ($N!=$n) {
+            $res .= $separator;
+        }
+    }
+    return $res;
+}
+
+sub generate_from_to {
+    my ($template,$seq_template1,$seq_separator1,$seq_template2,
+        $seq_separator2,$from,$to)=@_;
+    my ($res,$N,$SEQ);
+
+    $res='';
+    for ($N=$from; $N<=$to; $N++) {
+        $SEQ1=generate_seq($seq_template1,$N,$seq_separator1);
+        $SEQ2=generate_seq($seq_template2,$N,$seq_separator2);
+        $res .= eval('"' . $template . '"');
+        $SEQ1=''; # to avoid main::SEQ1 used only once warning
+        $SEQ2=''; # same as above
+    }
+    return $res;
+}
+
+sub generate {
+    my ($template,$seq_template1,$seq_separator1,$seq_template2,
+        $seq_separator2)=@_;
+    return generate_from_to($template,$seq_template1,$seq_separator1,
+                            $seq_template2,$seq_separator2,1,$maxargs);
+}
+
+$constructors_interface=generate(
+'    explicit ${CONTAINER}(${SEQ1});'."\n",
+'const ex & param${N}',', ','','');
+
+$constructors_implementation=generate(
+    <<'END_OF_CONSTRUCTORS_IMPLEMENTATION','const ex & param${N}',', ','    seq.push_back(param${N});',"\n");
+${CONTAINER}::${CONTAINER}(${SEQ1}) : basic(TINFO_${CONTAINER})
+{
+    debugmsg(\"${CONTAINER} constructor from ${N}*ex\",LOGLEVEL_CONSTRUCT);
+    RESERVE(seq,${N});
+${SEQ2}
+}
+END_OF_CONSTRUCTORS_IMPLEMENTATION
+
 $interface=<<END_OF_INTERFACE;
 /** \@file ${CONTAINER}.h
  *
@@ -101,6 +155,7 @@ $interface=<<END_OF_INTERFACE;
  *                        \$let_op=${let_op}
  *                        \$open_bracket=${open_bracket}
  *                        \$close_bracket=${close_bracket}
+ *                        \$maxargs=${maxargs}
  *
  *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
  *
@@ -153,28 +208,7 @@ protected:
 public:
     ${CONTAINER}(${STLT} const & s, bool discardable=0);
     ${CONTAINER}(${STLT} * vp); // vp will be deleted
-    explicit ${CONTAINER}(const ex & e1);
-    explicit ${CONTAINER}(const ex & e1, const ex & e2);
-    explicit ${CONTAINER}(const ex & e1, const ex & e2, const ex & e3);
-    explicit ${CONTAINER}(const ex & e1, const ex & e2, const ex & e3,
-             const ex & e4);
-    explicit ${CONTAINER}(const ex & e1, const ex & e2, const ex & e3,
-             const ex & e4, const ex & e5);
-    explicit ${CONTAINER}(const ex & e1, const ex & e2, const ex & e3,
-             const ex & e4, const ex & e5, const ex & e6);
-    explicit ${CONTAINER}(const ex & e1, const ex & e2, const ex & e3,
-             const ex & e4, const ex & e5, const ex & e6,
-             const ex & e7);
-    explicit ${CONTAINER}(const ex & e1, const ex & e2, const ex & e3,
-             const ex & e4, const ex & e5, const ex & e6,
-             const ex & e7, const ex & e8);
-    explicit ${CONTAINER}(const ex & e1, const ex & e2, const ex & e3,
-             const ex & e4, const ex & e5, const ex & e6,
-             const ex & e7, const ex & e8, const ex & e9);
-    explicit ${CONTAINER}(const ex & e1, const ex & e2, const ex & e3,
-             const ex & e4, const ex & e5, const ex & e6,
-             const ex & e7, const ex & e8, const ex & e9,
-             const ex &e10);
+${constructors_interface}
 
 public:
     basic * duplicate() const;
@@ -259,6 +293,7 @@ $implementation=<<END_OF_IMPLEMENTATION;
  *                        \$let_op=${let_op}
  *                        \$open_bracket=${open_bracket}
  *                        \$close_bracket=${close_bracket}
+ *                        \$maxargs=${maxargs}
  *
  *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
  *
@@ -365,146 +400,7 @@ ${CONTAINER}::${CONTAINER}(${STLT} * vp) : basic(TINFO_${CONTAINER})
     delete vp;
 }
 
-${CONTAINER}::${CONTAINER}(const ex & e1) :  basic(TINFO_${CONTAINER})
-{
-    debugmsg("${CONTAINER} constructor from 1 ex",
-             LOGLEVEL_CONSTRUCT);
-    RESERVE(seq,1);
-    seq.push_back(e1);
-}
-
-${CONTAINER}::${CONTAINER}(const ex & e1, const ex & e2) : basic(TINFO_${CONTAINER})
-{
-    debugmsg("${CONTAINER} constructor from 2 ex",
-             LOGLEVEL_CONSTRUCT);
-    RESERVE(seq,2);
-    seq.push_back(e1);
-    seq.push_back(e2);
-}
-
-${CONTAINER}::${CONTAINER}(const ex & e1, const ex & e2, const ex & e3)
-    : basic(TINFO_${CONTAINER})
-{
-    debugmsg("${CONTAINER} constructor from 3 ex",
-             LOGLEVEL_CONSTRUCT);
-    RESERVE(seq,3);
-    seq.push_back(e1);
-    seq.push_back(e2);
-    seq.push_back(e3);
-}
-
-${CONTAINER}::${CONTAINER}(const ex & e1, const ex & e2, const ex & e3,
-                     const ex & e4) : basic(TINFO_${CONTAINER})
-{
-    debugmsg("${CONTAINER} constructor from 4 ex",
-             LOGLEVEL_CONSTRUCT);
-    RESERVE(seq,4);
-    seq.push_back(e1);
-    seq.push_back(e2);
-    seq.push_back(e3);
-    seq.push_back(e4);
-}
-
-${CONTAINER}::${CONTAINER}(const ex & e1, const ex & e2, const ex & e3,
-                     const ex & e4, const ex & e5) : basic(TINFO_${CONTAINER})
-{
-    debugmsg("${CONTAINER} constructor from 5 ex",
-             LOGLEVEL_CONSTRUCT);
-    RESERVE(seq,5);
-    seq.push_back(e1);
-    seq.push_back(e2);
-    seq.push_back(e3);
-    seq.push_back(e4);
-    seq.push_back(e5);
-}
-
-${CONTAINER}::${CONTAINER}(const ex & e1, const ex & e2, const ex & e3,
-                     const ex & e4, const ex & e5, const ex & e6)
-    : basic(TINFO_${CONTAINER})
-{
-    debugmsg("${CONTAINER} constructor from 6 ex",
-             LOGLEVEL_CONSTRUCT);
-    RESERVE(seq,6);
-    seq.push_back(e1);
-    seq.push_back(e2);
-    seq.push_back(e3);
-    seq.push_back(e4);
-    seq.push_back(e5);
-    seq.push_back(e6);
-}
-
-${CONTAINER}::${CONTAINER}(const ex & e1, const ex & e2, const ex & e3,
-                     const ex & e4, const ex & e5, const ex & e6,
-                     const ex & e7) : basic(TINFO_${CONTAINER})
-{
-    debugmsg("${CONTAINER} constructor from 7 ex",
-             LOGLEVEL_CONSTRUCT);
-    RESERVE(seq,7);
-    seq.push_back(e1);
-    seq.push_back(e2);
-    seq.push_back(e3);
-    seq.push_back(e4);
-    seq.push_back(e5);
-    seq.push_back(e6);
-    seq.push_back(e7);
-}
-
-${CONTAINER}::${CONTAINER}(const ex & e1, const ex & e2, const ex & e3,
-                     const ex & e4, const ex & e5, const ex & e6,
-                     const ex & e7, const ex & e8) : basic(TINFO_${CONTAINER})
-{
-    debugmsg("${CONTAINER} constructor from 8 ex",
-             LOGLEVEL_CONSTRUCT);
-    RESERVE(seq,8);
-    seq.push_back(e1);
-    seq.push_back(e2);
-    seq.push_back(e3);
-    seq.push_back(e4);
-    seq.push_back(e5);
-    seq.push_back(e6);
-    seq.push_back(e7);
-    seq.push_back(e8);
-}
-
-${CONTAINER}::${CONTAINER}(const ex & e1, const ex & e2, const ex & e3,
-                     const ex & e4, const ex & e5, const ex & e6,
-                     const ex & e7, const ex & e8, const ex & e9)
-    : basic(TINFO_${CONTAINER})
-{
-    debugmsg("${CONTAINER} constructor from 9 ex",
-             LOGLEVEL_CONSTRUCT);
-    RESERVE(seq,9);
-    seq.push_back(e1);
-    seq.push_back(e2);
-    seq.push_back(e3);
-    seq.push_back(e4);
-    seq.push_back(e5);
-    seq.push_back(e6);
-    seq.push_back(e7);
-    seq.push_back(e8);
-    seq.push_back(e9);
-}
-
-${CONTAINER}::${CONTAINER}(const ex & e1, const ex & e2, const ex & e3,
-                     const ex & e4, const ex & e5, const ex & e6,
-                     const ex & e7, const ex & e8, const ex & e9,
-                     const ex &e10)
-    : basic(TINFO_${CONTAINER})
-{
-    debugmsg("${CONTAINER} constructor from 10 ex",
-             LOGLEVEL_CONSTRUCT);
-    RESERVE(seq,10);
-    seq.push_back(e1);
-    seq.push_back(e2);
-    seq.push_back(e3);
-    seq.push_back(e4);
-    seq.push_back(e5);
-    seq.push_back(e6);
-    seq.push_back(e7);
-    seq.push_back(e8);
-    seq.push_back(e9);
-    seq.push_back(e10);
-}
+${constructors_implementation}
 
 //////////
 // archiving

@@ -126,7 +126,10 @@ static ex gamma_series(const ex & x, const symbol & s, const ex & pt, int order)
 }
 
 
-REGISTER_FUNCTION(gamma, gamma_eval, gamma_evalf, gamma_deriv, gamma_series);
+REGISTER_FUNCTION(gamma, eval_func(gamma_eval).
+                         evalf_func(gamma_evalf).
+                         derivative_func(gamma_deriv).
+                         series_func(gamma_series));
 
 
 //////////
@@ -229,7 +232,10 @@ static ex beta_series(const ex & x, const ex & y, const symbol & s, const ex & p
 }
 
 
-REGISTER_FUNCTION(beta, beta_eval, beta_evalf, beta_deriv, beta_series);
+REGISTER_FUNCTION(beta, eval_func(beta_eval).
+                        evalf_func(beta_evalf).
+                        derivative_func(beta_deriv).
+                        series_func(beta_series));
 
 
 //////////
@@ -319,7 +325,13 @@ static ex psi1_series(const ex & x, const symbol & s, const ex & pt, int order)
     return (psi(x+m+_ex1())-recur).series(s, pt, order);
 }
 
-const unsigned function_index_psi1 = function::register_new("psi", psi1_eval, psi1_evalf, psi1_deriv, psi1_series);
+const unsigned function_index_psi1 =
+    function::register_new(function_options("psi").
+                           eval_func(psi1_eval).
+                           evalf_func(psi1_evalf).
+			   derivative_func(psi1_deriv).
+			   series_func(psi1_series).
+			   overloaded(2));
 
 //////////
 // Psi-functions (aka polygamma-functions)  psi(0,x)==psi(x)
@@ -435,7 +447,14 @@ static ex psi2_series(const ex & n, const ex & x, const symbol & s, const ex & p
     return (psi(n, x+m+_ex1())-recur).series(s, pt, order);
 }
 
-const unsigned function_index_psi2 = function::register_new("psi", psi2_eval, psi2_evalf, psi2_deriv, psi2_series);
+const unsigned function_index_psi2 =
+    function::register_new(function_options("psi").
+                           eval_func(psi2_eval).
+                           evalf_func(psi2_evalf).
+			   derivative_func(psi2_deriv).
+			   series_func(psi2_series).
+			   overloaded(2));
+
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

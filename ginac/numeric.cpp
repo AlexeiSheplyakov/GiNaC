@@ -608,6 +608,16 @@ bool numeric::is_equal_same_type(const basic & other) const
     return this->is_equal(*o);
 }
 
+unsigned numeric::calchash(void) const
+{
+    return (hashvalue=cl_equal_hashcode(*value) | 0x80000000U);
+    /*
+    cout << *value << "->" << hashvalue << endl;
+    hashvalue=HASHVALUE_NUMERIC+1000U;
+    return HASHVALUE_NUMERIC+1000U;
+    */
+}
+
 /*
 unsigned numeric::calchash(void) const
 {

@@ -88,7 +88,9 @@ static ex exp_deriv(const ex & x, unsigned deriv_param)
     return exp(x);
 }
 
-REGISTER_FUNCTION(exp, exp_eval, exp_evalf, exp_deriv, NULL);
+REGISTER_FUNCTION(exp, eval_func(exp_eval).
+                       evalf_func(exp_evalf).
+                       derivative_func(exp_deriv));
 
 //////////
 // natural logarithm
@@ -141,7 +143,9 @@ static ex log_deriv(const ex & x, unsigned deriv_param)
     return power(x, _ex_1());
 }
 
-REGISTER_FUNCTION(log, log_eval, log_evalf, log_deriv, NULL);
+REGISTER_FUNCTION(log, eval_func(log_eval).
+                       evalf_func(log_evalf).
+                       derivative_func(log_deriv));
 
 //////////
 // sine (trigonometric function)
@@ -220,7 +224,9 @@ static ex sin_deriv(const ex & x, unsigned deriv_param)
     return cos(x);
 }
 
-REGISTER_FUNCTION(sin, sin_eval, sin_evalf, sin_deriv, NULL);
+REGISTER_FUNCTION(sin, eval_func(sin_eval).
+                       evalf_func(sin_evalf).
+                       derivative_func(sin_deriv));
 
 //////////
 // cosine (trigonometric function)
@@ -299,7 +305,9 @@ static ex cos_deriv(const ex & x, unsigned deriv_param)
     return _ex_1()*sin(x);
 }
 
-REGISTER_FUNCTION(cos, cos_eval, cos_evalf, cos_deriv, NULL);
+REGISTER_FUNCTION(cos, eval_func(cos_eval).
+                       evalf_func(cos_evalf).
+                       derivative_func(cos_deriv));
 
 //////////
 // tangent (trigonometric function)
@@ -387,7 +395,10 @@ static ex tan_series(const ex & x, const symbol & s, const ex & pt, int order)
     return (sin(x)/cos(x)).series(s, pt, order+2);
 }
 
-REGISTER_FUNCTION(tan, tan_eval, tan_evalf, tan_deriv, tan_series);
+REGISTER_FUNCTION(tan, eval_func(tan_eval).
+                       evalf_func(tan_evalf).
+                       derivative_func(tan_deriv).
+                       series_func(tan_series));
 
 //////////
 // inverse sine (arc sine)
@@ -436,7 +447,9 @@ static ex asin_deriv(const ex & x, unsigned deriv_param)
     return power(1-power(x,_ex2()),_ex_1_2());
 }
 
-REGISTER_FUNCTION(asin, asin_eval, asin_evalf, asin_deriv, NULL);
+REGISTER_FUNCTION(asin, eval_func(asin_eval).
+                        evalf_func(asin_evalf).
+                        derivative_func(asin_deriv));
 
 //////////
 // inverse cosine (arc cosine)
@@ -485,7 +498,9 @@ static ex acos_deriv(const ex & x, unsigned deriv_param)
     return _ex_1()*power(1-power(x,_ex2()),_ex_1_2());
 }
 
-REGISTER_FUNCTION(acos, acos_eval, acos_evalf, acos_deriv, NULL);
+REGISTER_FUNCTION(acos, eval_func(acos_eval).
+                        evalf_func(acos_evalf).
+                        derivative_func(acos_deriv));
 
 //////////
 // inverse tangent (arc tangent)
@@ -522,7 +537,9 @@ static ex atan_deriv(const ex & x, unsigned deriv_param)
     return power(_ex1()+power(x,_ex2()), _ex_1());
 }
 
-REGISTER_FUNCTION(atan, atan_eval, atan_evalf, atan_deriv, NULL);
+REGISTER_FUNCTION(atan, eval_func(atan_eval).
+                        evalf_func(atan_evalf).
+                        derivative_func(atan_deriv));
 
 //////////
 // inverse tangent (atan2(y,x))
@@ -560,7 +577,9 @@ static ex atan2_deriv(const ex & y, const ex & x, unsigned deriv_param)
     return -y*power(power(x,_ex2())+power(y,_ex2()),_ex_1());
 }
 
-REGISTER_FUNCTION(atan2, atan2_eval, atan2_evalf, atan2_deriv, NULL);
+REGISTER_FUNCTION(atan2, eval_func(atan2_eval).
+                         evalf_func(atan2_evalf).
+                         derivative_func(atan2_deriv));
 
 //////////
 // hyperbolic sine (trigonometric function)
@@ -612,7 +631,9 @@ static ex sinh_deriv(const ex & x, unsigned deriv_param)
     return cosh(x);
 }
 
-REGISTER_FUNCTION(sinh, sinh_eval, sinh_evalf, sinh_deriv, NULL);
+REGISTER_FUNCTION(sinh, eval_func(sinh_eval).
+                        evalf_func(sinh_evalf).
+                        derivative_func(sinh_deriv));
 
 //////////
 // hyperbolic cosine (trigonometric function)
@@ -664,7 +685,10 @@ static ex cosh_deriv(const ex & x, unsigned deriv_param)
     return sinh(x);
 }
 
-REGISTER_FUNCTION(cosh, cosh_eval, cosh_evalf, cosh_deriv, NULL);
+REGISTER_FUNCTION(cosh, eval_func(cosh_eval).
+                        evalf_func(cosh_evalf).
+                        derivative_func(cosh_deriv));
+
 
 //////////
 // hyperbolic tangent (trigonometric function)
@@ -728,7 +752,10 @@ static ex tanh_series(const ex & x, const symbol & s, const ex & pt, int order)
     return (sinh(x)/cosh(x)).series(s, pt, order+2);
 }
 
-REGISTER_FUNCTION(tanh, tanh_eval, tanh_evalf, tanh_deriv, tanh_series);
+REGISTER_FUNCTION(tanh, eval_func(tanh_eval).
+                        evalf_func(tanh_evalf).
+                        derivative_func(tanh_deriv).
+                        series_func(tanh_series));
 
 //////////
 // inverse hyperbolic sine (trigonometric function)
@@ -765,7 +792,9 @@ static ex asinh_deriv(const ex & x, unsigned deriv_param)
     return power(_ex1()+power(x,_ex2()),_ex_1_2());
 }
 
-REGISTER_FUNCTION(asinh, asinh_eval, asinh_evalf, asinh_deriv, NULL);
+REGISTER_FUNCTION(asinh, eval_func(asinh_eval).
+                         evalf_func(asinh_evalf).
+                         derivative_func(asinh_deriv));
 
 //////////
 // inverse hyperbolic cosine (trigonometric function)
@@ -808,7 +837,9 @@ static ex acosh_deriv(const ex & x, unsigned deriv_param)
     return power(x+_ex_1(),_ex_1_2())*power(x+_ex1(),_ex_1_2());
 }
 
-REGISTER_FUNCTION(acosh, acosh_eval, acosh_evalf, acosh_deriv, NULL);
+REGISTER_FUNCTION(acosh, eval_func(acosh_eval).
+                         evalf_func(acosh_evalf).
+                         derivative_func(acosh_deriv));
 
 //////////
 // inverse hyperbolic tangent (trigonometric function)
@@ -848,7 +879,9 @@ static ex atanh_deriv(const ex & x, unsigned deriv_param)
     return power(_ex1()-power(x,_ex2()),_ex_1());
 }
 
-REGISTER_FUNCTION(atanh, atanh_eval, atanh_evalf, atanh_deriv, NULL);
+REGISTER_FUNCTION(atanh, eval_func(atanh_eval).
+                         evalf_func(atanh_evalf).
+                         derivative_func(atanh_deriv));
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

@@ -726,6 +726,12 @@ matrix matrix::fraction_free_elim(const matrix & vars,
     
     matrix a(*this); // make a copy of the matrix
     matrix b(rhs);     // make a copy of the rhs vector
+
+    /*
+    cout << "before" << endl;
+    cout << "a=" << a << endl;
+    cout << "b=" << b << endl;
+    */
     
     // given an m x n matrix a, reduce it to upper echelon form
     unsigned m=a.row;
@@ -793,6 +799,12 @@ matrix matrix::fraction_free_elim(const matrix & vars,
         zero_in_last_row=zero_in_this_row;
     }
 #endif // def DO_GINAC_ASSERT
+
+    /*
+    cout << "after" << endl;
+    cout << "a=" << a << endl;
+    cout << "b=" << b << endl;
+    */
     
     // assemble solution
     matrix sol(n,1);
@@ -833,6 +845,8 @@ matrix matrix::fraction_free_elim(const matrix & vars,
         cout << vars.ffe_get(c,1) << "->" << sol.ffe_get(c,1) << endl;
     }
     */
+
+    // cout << "sol=" << sol << endl;
     
 #ifdef DO_GINAC_ASSERT
     // test solution with echelon matrix

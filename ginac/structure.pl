@@ -32,7 +32,7 @@ while ($decl =~ /^ ?(\w+) ([\w \,]+)\; ?((\/\*.*?\*\/)?)(.*)$/) {
         }
         $member=$2;
     }
-    if ($member !~ /^\w$/) {
+    if ($member !~ /^\w+$/) {
         die "illegal struct, must match 'struct name { type var; /*comment*/ ...};': $input_structure";
     }
     push @TYPES,$type;

@@ -16,12 +16,12 @@ sub generate_seq {
     return $res;
 }
 
-sub generate {
-    my ($template,$seq_template1,$seq_template2)=@_;
+sub generate_from_to {
+    my ($template,$seq_template1,$seq_template2,$from,$to)=@_;
     my ($res,$N,$SEQ);
 
     $res='';
-    for ($N=1; $N<=$maxargs; $N++) {
+    for ($N=$from; $N<=$to; $N++) {
         $SEQ1=generate_seq($seq_template1,$N);
         $SEQ2=generate_seq($seq_template2,$N);
         $res .= eval('"' . $template . '"');
@@ -31,8 +31,56 @@ sub generate {
     return $res;
 }
 
-$declare_function_macro_namespace=generate(
-    <<'END_OF_DECLARE_FUNCTION_MACRO_NAMESPACE','const GiNaC::ex & p${N}','p${N}');
+sub generate {
+    my ($template,$seq_template1,$seq_template2)=@_;
+    return generate_from_to($template,$seq_template1,$seq_template2,1,$maxargs);
+}
+
+$declare_function_macro_namespace = <<'END_OF_DECLARE_FUNCTION_1_AND_2P_MACRO_NAMESPACE';
+#ifdef CINT_CONVERSION_WORKAROUND
+
+#define DECLARE_FUNCTION_1P(NAME) \
+extern const unsigned function_index_##NAME; \
+inline GiNaC::function NAME(const GiNaC::ex & p1) { \
+    return GiNaC::function(function_index_##NAME, p1); \
+} \
+inline GiNaC::function NAME(const GiNaC::basic & p1) { \
+    return GiNaC::function(function_index_##NAME, GiNaC::ex(p1)); \
+}
+#define DECLARE_FUNCTION_2P(NAME) \
+extern const unsigned function_index_##NAME; \
+inline GiNaC::function NAME(const GiNaC::ex & p1, const GiNaC::ex & p2) { \
+    return GiNaC::function(function_index_##NAME, p1, p2); \
+} \
+inline GiNaC::function NAME(const GiNaC::basic & p1, const GiNaC::ex & p2) { \
+    return GiNaC::function(function_index_##NAME, GiNaC::ex(p1), p2); \
+} \
+inline GiNaC::function NAME(const GiNaC::ex & p1, const GiNaC::basic & p2) { \
+    return GiNaC::function(function_index_##NAME, p1, GiNaC::ex(p2)); \
+} \
+inline GiNaC::function NAME(const GiNaC::basic & p1, const GiNaC::basic & p2) { \
+    return GiNaC::function(function_index_##NAME, GiNaC::ex(p1), GiNaC::ex(p2)); \
+}
+
+#else // def CINT_CONVERSION_WORKAROUND
+
+#define DECLARE_FUNCTION_1P(NAME) \
+extern const unsigned function_index_##NAME; \
+inline GiNaC::function NAME(const GiNaC::ex & p1) { \
+    return GiNaC::function(function_index_##NAME, p1); \
+}
+#define DECLARE_FUNCTION_2P(NAME) \
+extern const unsigned function_index_##NAME; \
+inline GiNaC::function NAME(const GiNaC::ex & p1, const GiNaC::ex & p2) { \
+    return GiNaC::function(function_index_##NAME, p1, p2); \
+}
+
+#endif // def CINT_CONVERSION_WORKAROUND
+
+END_OF_DECLARE_FUNCTION_1_AND_2P_MACRO_NAMESPACE
+
+$declare_function_macro_namespace .= generate_from_to(
+    <<'END_OF_DECLARE_FUNCTION_MACRO_NAMESPACE','const GiNaC::ex & p${N}','p${N}',3,$maxargs);
 #define DECLARE_FUNCTION_${N}P(NAME) \\
 extern const unsigned function_index_##NAME; \\
 inline GiNaC::function NAME(${SEQ1}) { \\
@@ -41,8 +89,51 @@ inline GiNaC::function NAME(${SEQ1}) { \\
 
 END_OF_DECLARE_FUNCTION_MACRO_NAMESPACE
 
-$declare_function_macro_no_namespace=generate(
-    <<'END_OF_DECLARE_FUNCTION_MACRO_NO_NAMESPACE','const ex & p${N}','p${N}');
+$declare_function_macro_no_namespace = <<'END_OF_DECLARE_FUNCTION_1_AND_2P_MACRO_NO_NAMESPACE';
+#ifdef CINT_CONVERSION_WORKAROUND
+
+#define DECLARE_FUNCTION_1P(NAME) \
+extern const unsigned function_index_##NAME; \
+inline function NAME(const ex & p1) { \
+    return function(function_index_##NAME, p1); \
+} \
+inline function NAME(const basic & p1) { \
+    return function(function_index_##NAME, ex(p1)); \
+}
+#define DECLARE_FUNCTION_2P(NAME) \
+extern const unsigned function_index_##NAME; \
+inline function NAME(const ex & p1, const ex & p2) { \
+    return function(function_index_##NAME, p1, p2); \
+} \
+inline function NAME(const basic & p1, const ex & p2) { \
+    return function(function_index_##NAME, ex(p1), p2); \
+} \
+inline function NAME(const ex & p1, const basic & p2) { \
+    return function(function_index_##NAME, p1, ex(p2)); \
+} \
+inline function NAME(const basic & p1, const basic & p2) { \
+    return function(function_index_##NAME, ex(p1), ex(p2)); \
+}
+
+#else // def CINT_CONVERSION_WORKAROUND
+
+#define DECLARE_FUNCTION_1P(NAME) \
+extern const unsigned function_index_##NAME; \
+inline function NAME(const ex & p1) { \
+    return function(function_index_##NAME, p1); \
+}
+#define DECLARE_FUNCTION_2P(NAME) \
+extern const unsigned function_index_##NAME; \
+inline function NAME(const ex & p1, const ex & p2) { \
+    return function(function_index_##NAME, p1, p2); \
+}
+
+#endif // def CINT_CONVERSION_WORKAROUND
+
+END_OF_DECLARE_FUNCTION_1_AND_2P_MACRO_NO_NAMESPACE
+
+$declare_function_macro_no_namespace .= generate_from_to(
+    <<'END_OF_DECLARE_FUNCTION_MACRO_NO_NAMESPACE','const ex & p${N}','p${N}',3,$maxargs);
 #define DECLARE_FUNCTION_${N}P(NAME) \\
 extern const unsigned function_index_##NAME; \\
 inline function NAME(${SEQ1}) { \\
@@ -67,14 +158,17 @@ $typedef_series_funcp=generate(
 'typedef ex (* series_funcp_${N})(${SEQ1}, const symbol &, const ex &, int);'."\n",
 'const ex &','');
 
+$eval_func_interface=generate('    function_options & eval_func(eval_funcp_${N} e);'."\n",'','');
+
+$evalf_func_interface=generate('    function_options & evalf_func(evalf_funcp_${N} ef);'."\n",'','');
+
+$derivative_func_interface=generate('    function_options & derivative_func(derivative_funcp_${N} d);'."\n",'','');
+
+$series_func_interface=generate('    function_options & series_func(series_funcp_${N} s);'."\n",'','');
+
 $constructors_interface=generate(
 '    function(unsigned ser, ${SEQ1});'."\n",
 'const ex & param${N}','');
-
-$register_new_interface=generate(
-'    static unsigned register_new(const char * nm, eval_funcp_${N} e,'."\n".
-'                                 evalf_funcp_${N} ef=0, derivative_funcp_${N} d=0, series_funcp_${N} s=0);'.
-"\n",'','');
 
 $constructors_implementation=generate(
     <<'END_OF_CONSTRUCTORS_IMPLEMENTATION','const ex & param${N}','param${N}');
@@ -87,23 +181,23 @@ function::function(unsigned ser, ${SEQ1})
 END_OF_CONSTRUCTORS_IMPLEMENTATION
 
 $eval_switch_statement=generate(
-    <<'END_OF_EVAL_SWITCH_STATEMENT','eseq[${N}-1]','');
+    <<'END_OF_EVAL_SWITCH_STATEMENT','seq[${N}-1]','');
     case ${N}:
-        return ((eval_funcp_${N})(registered_functions()[serial].e))(${SEQ1});
+        eval_result=((eval_funcp_${N})(registered_functions()[serial].eval_f))(${SEQ1});
         break;
 END_OF_EVAL_SWITCH_STATEMENT
 
 $evalf_switch_statement=generate(
     <<'END_OF_EVALF_SWITCH_STATEMENT','eseq[${N}-1]','');
     case ${N}:
-        return ((evalf_funcp_${N})(registered_functions()[serial].ef))(${SEQ1});
+        return ((evalf_funcp_${N})(registered_functions()[serial].evalf_f))(${SEQ1});
         break;
 END_OF_EVALF_SWITCH_STATEMENT
 
 $diff_switch_statement=generate(
     <<'END_OF_DIFF_SWITCH_STATEMENT','seq[${N}-1]','');
     case ${N}:
-        return ((derivative_funcp_${N})(registered_functions()[serial].d))(${SEQ1},diff_param);
+        return ((derivative_funcp_${N})(registered_functions()[serial].derivative_f))(${SEQ1},diff_param);
         break;
 END_OF_DIFF_SWITCH_STATEMENT
 
@@ -111,7 +205,7 @@ $series_switch_statement=generate(
     <<'END_OF_SERIES_SWITCH_STATEMENT','seq[${N}-1]','');
     case ${N}:
         try {
-            res = ((series_funcp_${N})(registered_functions()[serial].s))(${SEQ1},s,point,order);
+            res = ((series_funcp_${N})(registered_functions()[serial].series_f))(${SEQ1},s,point,order);
         } catch (do_taylor) {
             res = basic::series(s, point, order);
         }
@@ -119,17 +213,45 @@ $series_switch_statement=generate(
         break;
 END_OF_SERIES_SWITCH_STATEMENT
 
-$register_new_implementation=generate(
-    <<'END_OF_REGISTER_NEW_IMPLEMENTATION','','');
-unsigned function::register_new(const char * nm, eval_funcp_${N} e,
-                                 evalf_funcp_${N} ef, derivative_funcp_${N} d, series_funcp_${N} s)
+$eval_func_implementation=generate(
+    <<'END_OF_EVAL_FUNC_IMPLEMENTATION','','');
+function_options & function_options::eval_func(eval_funcp_${N} e)
 {
-    registered_function_info rfi={nm,${N},0,eval_funcp(e),
-                                  evalf_funcp(ef),derivative_funcp(d),series_funcp(s)};
-    registered_functions().push_back(rfi);
-    return registered_functions().size()-1;
-}
-END_OF_REGISTER_NEW_IMPLEMENTATION
+    test_and_set_nparams(${N});
+    eval_f=eval_funcp(e);
+    return *this;
+}        
+END_OF_EVAL_FUNC_IMPLEMENTATION
+
+$evalf_func_implementation=generate(
+    <<'END_OF_EVALF_FUNC_IMPLEMENTATION','','');
+function_options & function_options::evalf_func(evalf_funcp_${N} ef)
+{
+    test_and_set_nparams(${N});
+    evalf_f=evalf_funcp(ef);
+    return *this;
+}        
+END_OF_EVALF_FUNC_IMPLEMENTATION
+
+$derivative_func_implementation=generate(
+    <<'END_OF_DERIVATIVE_FUNC_IMPLEMENTATION','','');
+function_options & function_options::derivative_func(derivative_funcp_${N} d)
+{
+    test_and_set_nparams(${N});
+    derivative_f=derivative_funcp(d);
+    return *this;
+}        
+END_OF_DERIVATIVE_FUNC_IMPLEMENTATION
+
+$series_func_implementation=generate(
+    <<'END_OF_SERIES_FUNC_IMPLEMENTATION','','');
+function_options & function_options::series_func(series_funcp_${N} s)
+{
+    test_and_set_nparams(${N});
+    series_f=series_funcp(s);
+    return *this;
+}        
+END_OF_SERIES_FUNC_IMPLEMENTATION
 
 $interface=<<END_OF_INTERFACE;
 /** \@file function.h
@@ -187,13 +309,31 @@ $declare_function_macro_no_namespace
 
 #ifndef NO_NAMESPACE_GINAC
 
-#define REGISTER_FUNCTION(NAME,E,EF,D,S) \\
-const unsigned function_index_##NAME=GiNaC::function::register_new(#NAME,E,EF,D,S);
+#define REGISTER_FUNCTION(NAME,OPT) \\
+const unsigned function_index_##NAME= \\
+    GiNaC::function::register_new(GiNaC::function_options(#NAME).OPT);
+
+#define REGISTER_FUNCTION_OLD(NAME,E,EF,D,S) \\
+const unsigned function_index_##NAME= \\
+    GiNaC::function::register_new(GiNaC::function_options(#NAME). \\
+                                  eval_func(E). \\
+                                  evalf_func(EF). \\
+                                  derivative_func(D). \\
+                                  series_func(S));
 
 #else // ndef NO_NAMESPACE_GINAC
 
-#define REGISTER_FUNCTION(NAME,E,EF,D,S) \\
-const unsigned function_index_##NAME=function::register_new(#NAME,E,EF,D,S);
+#define REGISTER_FUNCTION(NAME,OPT) \\
+const unsigned function_index_##NAME= \\
+    function::register_new(function_options(#NAME).OPT);
+
+#define REGISTER_FUNCTION_OLD(NAME,E,EF,D,S) \\
+const unsigned function_index_##NAME= \\
+    function::register_new(function_options(#NAME). \\
+                           eval_func(E). \\
+                           evalf_func(EF). \\
+                           derivative_func(D). \\
+                           series_func(S));
 
 #endif // ndef NO_NAMESPACE_GINAC
 
@@ -245,14 +385,53 @@ $typedef_derivative_funcp
 $typedef_series_funcp
 // end of generated lines
 
-struct registered_function_info {
-    const char * name;
+class function_options
+{
+    friend class function;
+public:
+    function_options();
+    function_options(string const & n, string const & tn=string());
+    ~function_options();
+    void initialize(void);
+    function_options & set_name(string const & n, string const & tn=string());
+// the following lines have been generated for max. ${maxargs} parameters
+$eval_func_interface
+$evalf_func_interface
+$derivative_func_interface
+$series_func_interface
+// end of generated lines
+    function_options & set_return_type(unsigned rt, unsigned rtt=0);
+    function_options & do_not_evalf_params(void);
+    function_options & remember(unsigned size, unsigned assoc_size=0,
+                                unsigned strategy=remember_strategies::delete_never);
+    function_options & overloaded(unsigned o);
+    void test_and_set_nparams(unsigned n);
+    string get_name(void) const { return name; }
+    unsigned get_nparams(void) const { return nparams; }
+
+protected:
+    string name;
+    string TeX_name;
+
     unsigned nparams;
-    unsigned options;
-    eval_funcp e;
-    evalf_funcp ef;
-    derivative_funcp d;
-    series_funcp s;
+
+    eval_funcp eval_f;
+    evalf_funcp evalf_f;
+    derivative_funcp derivative_f;
+    series_funcp series_f;
+
+    bool evalf_params_first;
+
+    bool use_return_type;
+    unsigned return_type;
+    unsigned return_type_tinfo;
+
+    bool use_remember;
+    unsigned remember_size;
+    unsigned remember_assoc_size;
+    unsigned remember_strategy;
+
+    unsigned functions_with_same_name;
 };
 
 /** The class function is used to implement builtin functions like sin, cos...
@@ -263,6 +442,10 @@ class function : public exprseq
 
     // CINT has a linking problem
     friend void ginsh_get_ginac_functions(void);
+
+    friend class remember_table_entry;
+    // friend class remember_table_list;
+    // friend class remember_table;
 
 // member functions
 
@@ -312,11 +495,11 @@ protected:
     // non-virtual functions in this class
 protected:
     ex pderivative(unsigned diff_param) const; // partial differentiation
-    static vector<registered_function_info> & registered_functions(void);
+    static vector<function_options> & registered_functions(void);
+    bool lookup_remember_table(ex & result) const;
+    void store_remember_table(ex const & result) const;
 public:
-    // the following lines have been generated for max. ${maxargs} parameters
-$register_new_interface
-    // end of generated lines
+    static unsigned register_new(function_options const & opt);
     unsigned getserial(void) const {return serial;}
     
 // member variables
@@ -381,6 +564,7 @@ $implementation=<<END_OF_IMPLEMENTATION;
 
 #include <string>
 #include <stdexcept>
+#include <list>
 
 #include "function.h"
 #include "ex.h"
@@ -392,6 +576,204 @@ $implementation=<<END_OF_IMPLEMENTATION;
 #ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
+
+function_options::function_options()
+{
+    initialize();
+}
+
+function_options::function_options(string const & n, string const & tn)
+{
+    initialize();
+    set_name(n,tn);
+}
+
+function_options::~function_options()
+{
+    // nothing to clean up at the moment
+}
+
+void function_options::initialize(void)
+{
+    set_name("unnamed_function","\\\\operatorname{unnamed}");
+    nparams=0;
+    eval_f=evalf_f=derivative_f=series_f=0;
+    evalf_params_first=true;
+    use_return_type=false;
+    use_remember=false;
+    functions_with_same_name=1;
+}
+
+function_options & function_options::set_name(string const & n,
+                                              string const & tn)
+{
+    name=n;
+    if (tn==string()) {
+        TeX_name="\\\\operatorname{"+name+"}";
+    } else {
+        TeX_name=tn;
+    }
+    return *this;
+}
+
+// the following lines have been generated for max. ${maxargs} parameters
+$eval_func_implementation
+$evalf_func_implementation
+$derivative_func_implementation
+$series_func_implementation
+// end of generated lines
+
+function_options & function_options::set_return_type(unsigned rt, unsigned rtt)
+{
+    use_return_type=true;
+    return_type=rt;
+    return_type_tinfo=rtt;
+    return *this;
+}
+
+function_options & function_options::do_not_evalf_params(void)
+{
+    evalf_params_first=false;
+    return *this;
+}
+
+function_options & function_options::remember(unsigned size,
+                                              unsigned assoc_size,
+                                              unsigned strategy)
+{
+    use_remember=true;
+    remember_size=size;
+    remember_assoc_size=assoc_size;
+    remember_strategy=strategy;
+    return *this;
+}
+
+function_options & function_options::overloaded(unsigned o)
+{
+    functions_with_same_name=o;
+    return *this;
+}
+    
+void function_options::test_and_set_nparams(unsigned n)
+{
+    if (nparams==0) {
+        nparams=n;
+    } else if (nparams!=n) {
+        // we do not throw an exception here because this code is
+        // usually executed before main(), so the exception could not
+        // caught anyhow
+        cerr << "WARNING: number of parameters ("
+             << n << ") differs from number set before (" 
+             << nparams << ")" << endl;
+    }
+}
+
+class remember_table_entry {
+public:
+    remember_table_entry(function const & f, ex const & r) :
+        hashvalue(f.gethash()), seq(f.seq), result(r)
+    {
+        last_access=0;
+        successful_hits=0;
+    }
+    bool is_equal(function const & f) const
+    {
+        GINAC_ASSERT(f.seq.size()==seq.size());
+        if (f.gethash()!=hashvalue) return false;
+        for (unsigned i=0; i<seq.size(); ++i) {
+            if (!seq[i].is_equal(f.seq[i])) return false;
+        }
+        last_access=access_counter++;
+        successful_hits++;
+        return true;
+    }
+    unsigned hashvalue;
+    exvector seq;
+    ex result;
+    mutable unsigned long last_access;
+    mutable unsigned successful_hits;
+
+    static unsigned access_counter;
+};    
+
+unsigned remember_table_entry::access_counter=0;
+
+class remember_table_list : public list<remember_table_entry> {
+public:
+    remember_table_list()
+    {
+        max_assoc_size=0;
+        delete_strategy=0;
+    }
+    remember_table_list(unsigned as, unsigned strat)
+    {
+        max_assoc_size=as;
+        delete_strategy=strat;
+    }
+    void add_entry(function const & f, ex const & result)
+    {
+        push_back(remember_table_entry(f,result));
+    }        
+    bool lookup_entry(function const & f, ex & result) const
+    {
+        for (const_iterator cit=begin(); cit!=end(); ++cit) {
+            if (cit->is_equal(f)) {
+                result=cit->result;
+                return true;
+            }
+        }
+        return false;
+    }
+protected:
+    unsigned max_assoc_size;
+    unsigned delete_strategy;
+};
+
+
+class remember_table : public vector<remember_table_list> {
+public:
+    remember_table()
+    {
+    }
+    remember_table(unsigned s, unsigned as, unsigned strat)
+    {
+        calc_size(s);
+        reserve(table_size);
+        for (unsigned i=0; i<table_size; ++i) {
+            push_back(remember_table_list(as,strat));
+        }
+    }
+    bool lookup_entry(function const & f, ex & result) const
+    {
+        unsigned entry=f.gethash() & (table_size-1);
+        if (entry>=size()) {
+            cerr << "entry=" << entry << ",size=" << size() << endl;
+        }
+        GINAC_ASSERT(entry<size());
+        return operator[](entry).lookup_entry(f,result);
+    }
+    void add_entry(function const & f, ex const & result)
+    {
+        unsigned entry=f.gethash() & (table_size-1);
+        GINAC_ASSERT(entry<size());
+        operator[](entry).add_entry(f,result);
+    }        
+    void calc_size(unsigned s)
+    {
+        // use some power of 2 next to s
+        table_size=1 << log2(s);
+    }
+protected:
+    unsigned table_size;
+};      
+
+// this is not declared as a static function in the class function
+// (like registered_function()) because of issues with cint
+static vector<remember_table> & remember_tables(void)
+{
+    static vector<remember_table> * rt=new vector<remember_table>;
+    return *rt;
+}
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(function, exprseq)
 
@@ -491,7 +873,7 @@ function::function(const archive_node &n, const lst &sym_lst) : inherited(n, sym
     string s;
     if (n.find_string("name", s)) {
         unsigned int ser = 0;
-        vector<registered_function_info>::const_iterator i = registered_functions().begin(), iend = registered_functions().end();
+        vector<function_options>::const_iterator i = registered_functions().begin(), iend = registered_functions().end();
         while (i != iend) {
             if (s == i->name) {
                 serial = ser;
@@ -605,17 +987,32 @@ ex function::eval(int level) const
 {
     GINAC_ASSERT(serial<registered_functions().size());
 
-    exvector eseq=evalchildren(level);    
-
-    if (registered_functions()[serial].e==0) {
-        return function(serial,eseq).hold();
+    if (level>1) {
+        // first evaluate children, then we will end up here again
+        return function(serial,evalchildren(level));
     }
+
+    if (registered_functions()[serial].eval_f==0) {
+        return this->hold();
+    }
+
+    bool use_remember=registered_functions()[serial].use_remember;
+    ex eval_result;
+    if (use_remember && lookup_remember_table(eval_result)) {
+        return eval_result;
+    }
+
     switch (registered_functions()[serial].nparams) {
         // the following lines have been generated for max. ${maxargs} parameters
 ${eval_switch_statement}
         // end of generated lines
+    default:
+        throw(std::logic_error("function::eval(): invalid nparams"));
     }
-    throw(std::logic_error("function::eval(): invalid nparams"));
+    if (use_remember) {
+        store_remember_table(eval_result);
+    }
+    return eval_result;
 }
 
 ex function::evalf(int level) const
@@ -624,7 +1021,7 @@ ex function::evalf(int level) const
 
     exvector eseq=evalfchildren(level);
     
-    if (registered_functions()[serial].ef==0) {
+    if (registered_functions()[serial].evalf_f==0) {
         return function(serial,eseq).hold();
     }
     switch (registered_functions()[serial].nparams) {
@@ -651,7 +1048,7 @@ ex function::series(const symbol & s, const ex & point, int order) const
 {
     GINAC_ASSERT(serial<registered_functions().size());
 
-    if (registered_functions()[serial].s==0) {
+    if (registered_functions()[serial].series_f==0) {
         return basic::series(s, point, order);
     }
     ex res;
@@ -745,7 +1142,7 @@ ex function::pderivative(unsigned diff_param) const // partial differentiation
 {
     GINAC_ASSERT(serial<registered_functions().size());
     
-    if (registered_functions()[serial].d==0) {
+    if (registered_functions()[serial].derivative_f==0) {
         throw(std::logic_error(string("function::pderivative(") + registered_functions()[serial].name + "): no diff function defined"));
     }
     switch (registered_functions()[serial].nparams) {
@@ -756,17 +1153,49 @@ ${diff_switch_statement}
     throw(std::logic_error("function::pderivative(): no diff function defined"));
 }
 
-vector<registered_function_info> & function::registered_functions(void)
+vector<function_options> & function::registered_functions(void)
 {
-    static vector<registered_function_info> * rf=new vector<registered_function_info>;
+    static vector<function_options> * rf=new vector<function_options>;
     return *rf;
+}
+
+bool function::lookup_remember_table(ex & result) const
+{
+    return remember_tables()[serial].lookup_entry(*this,result);
+}
+
+void function::store_remember_table(ex const & result) const
+{
+    remember_tables()[serial].add_entry(*this,result);
 }
 
 // public
 
-// the following lines have been generated for max. ${maxargs} parameters
-$register_new_implementation
-// end of generated lines
+unsigned function::register_new(function_options const & opt)
+{
+    unsigned same_name=0;
+    for (unsigned i=0; i<registered_functions().size(); ++i) {
+        if (registered_functions()[i].name==opt.name) {
+            same_name++;
+        }
+    }
+    if (same_name>=opt.functions_with_same_name) {
+        // we do not throw an exception here because this code is
+        // usually executed before main(), so the exception could not
+        // caught anyhow
+        cerr << "WARNING: function name " << opt.name
+             << " already in use!" << endl;
+    }
+    registered_functions().push_back(opt);
+    if (opt.use_remember) {
+        remember_tables().push_back(remember_table(opt.remember_size,
+                                                   opt.remember_assoc_size,
+                                                   opt.remember_strategy));
+    } else {
+        remember_tables().push_back(remember_table());
+    }
+    return registered_functions().size()-1;
+}
 
 //////////
 // static member variables
