@@ -46,7 +46,7 @@ int main()
         }
     } catch (exception const & e) {
         cout << "error: caught an exception: " << e.what() << endl;
-		result++;
+        result++;
     }
     
     if (result) {
