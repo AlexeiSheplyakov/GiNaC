@@ -22,14 +22,14 @@
 
 #include "checks.h"
 
-// determinants of some sparse symbolic size x size matrices over
-// an integral domain.
+/* determinants of some sparse symbolic matrices with coefficients in
+ * an integral domain. */
 static unsigned integdom_matrix_determinants(void)
 {
     unsigned result = 0;
     symbol a("a");
     
-    for (int size=3; size<17; ++size) {
+    for (int size=3; size<20; ++size) {
         matrix A(size,size);
         for (int r=0; r<size-1; ++r) {
             // populate one element in each row:
@@ -37,7 +37,7 @@ static unsigned integdom_matrix_determinants(void)
         }
         for (int c=0; c<size; ++c) {
             // set the last line to a linear combination of two other lines
-            // to guarantee that the determinant vanishes:
+            // to guarantee that the determinant is zero:
             A.set(size-1,c,A(0,c)-A(size-2,c));
         }
         if (!A.determinant().is_zero()) {
@@ -51,22 +51,60 @@ static unsigned integdom_matrix_determinants(void)
     return result;
 }
 
+/* determinants of some sparse symbolic matrices with multivariate rational
+ * function coefficients. */
 static unsigned rational_matrix_determinants(void)
 {
     unsigned result = 0;
     symbol a("a"), b("b"), c("c");
-    
-    for (int size=3; size<13; ++size) {
+
+    for (int size=3; size<8; ++size) {
         matrix A(size,size);
         for (int r=0; r<size-1; ++r) {
             // populate one element in each row:
-            // FIXME: the line using sparse_tree() should be used:
-            // A.set(r,unsigned(rand()%size),sparse_tree(a, b, c, 3, true, true)/sparse_tree(a, b, c, 2, true, true));
-            A.set(r,unsigned(rand()%size),dense_univariate_poly(a,4)/dense_univariate_poly(a,2));
+            ex numer = sparse_tree(a, b, c, 4, false, false, false);
+            ex denom;
+            do {
+                denom = sparse_tree(a, b, c, 1, false, false, false);
+            } while (denom.is_zero());
+            A.set(r,unsigned(rand()%size),numer/denom);
         }
         for (int c=0; c<size; ++c) {
             // set the last line to a linear combination of two other lines
-            // to guarantee that the determinant vanishes:
+            // to guarantee that the determinant is zero:
+            A.set(size-1,c,A(0,c)-A(size-2,c));
+        }
+        if (!A.determinant().is_zero()) {
+            clog << "Determinant of " << size << "x" << size << " matrix "
+                 << endl << A << endl
+                 << "was not found to vanish!" << endl;
+            ++result;
+        }
+    }
+    
+    return result;
+}
+
+/* Some quite wild determinants with functions and stuff like that. */
+static unsigned wild_matrix_determinants(void)
+{
+    unsigned result = 0;
+    symbol a("a"), b("b"), c("c");
+    
+    for (int size=3; size<6; ++size) {
+        matrix A(size,size);
+        for (int r=0; r<size-1; ++r) {
+            // populate one element in each row:
+            ex numer = sparse_tree(a, b, c, 3, true, true, false);
+            ex denom;
+            do {
+                denom = sparse_tree(a, b, c, 1, false, true, false);
+            } while (denom.is_zero());
+            A.set(r,unsigned(rand()%size),numer/denom);
+        }
+        for (int c=0; c<size; ++c) {
+            // set the last line to a linear combination of two other lines
+            // to guarantee that the determinant is zero:
             A.set(size-1,c,A(0,c)-A(size-2,c));
         }
         if (!A.determinant().is_zero()) {
@@ -89,6 +127,7 @@ unsigned check_matrices(void)
     
     result += integdom_matrix_determinants();  cout << '.' << flush;
     result += rational_matrix_determinants();  cout << '.' << flush;
+    result += wild_matrix_determinants();  cout << '.' << flush;
     
     if (!result) {
         cout << " passed " << endl;

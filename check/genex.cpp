@@ -58,11 +58,13 @@ dense_bivariate_poly(const symbol & x1, const symbol & x2, unsigned degree)
     return bipoly;
 }
 
+/* Chose a randum symbol or number from the argument list. */
 const ex
 random_symbol(const symbol & x,
               const symbol & y,
               const symbol & z,
-              bool rational = true)
+              bool rational = true,
+              bool complex = false)
 {
     ex e;
     switch (abs(rand()) % 4) {
@@ -76,13 +78,15 @@ random_symbol(const symbol & x,
             e = z;
             break;
         case 3: {
-            int c1 = rand() % 20 - 10;
-            int c2 = rand() % 20 - 10;
-            if (c1 == 0) c1 = 1;
-            if (c2 == 0) c2 = 1;
+            int c1;
+            do { c1 = rand()%20 - 10; } while (!c1);
+            int c2;
+            do { c2 = rand()%20 - 10; } while (!c2);
             if (!rational)
                 c2 = 1;
-            e = numeric(c1) / numeric(c2);
+            e = numeric(c1, c2);
+            if (complex && !(rand()%5))
+                e = e*I;
             break;
         }
     }
@@ -96,24 +100,33 @@ sparse_tree(const symbol & x,
             const symbol & z,
             int level,
             bool trig = false,    // true includes trigonomatric functions
-            bool rational = true) // false includes coefficients in Q
+            bool rational = true, // false excludes coefficients in Q
+            bool complex = false) // true includes complex numbers
 {
     if (level == 0)
-        return random_symbol(x,y,z,rational);
-    switch (abs(rand()) % 7) {
+        return random_symbol(x,y,z,rational,complex);
+    switch (abs(rand()) % 10) {
         case 0:
         case 1:
-            return add(sparse_tree(x,y,z,level-1, trig, rational),
-                       sparse_tree(x,y,z,level-1, trig, rational));
         case 2:
         case 3:
-            return mul(sparse_tree(x,y,z,level-1, trig, rational),
+            return add(sparse_tree(x,y,z,level-1, trig, rational),
                        sparse_tree(x,y,z,level-1, trig, rational));
         case 4:
         case 5:
-            return power(sparse_tree(x,y,z,level-1, trig, rational),
-                         abs(rand() % 4));
         case 6:
+            return mul(sparse_tree(x,y,z,level-1, trig, rational),
+                       sparse_tree(x,y,z,level-1, trig, rational));
+        case 7:
+        case 8: {
+            ex powbase;
+            do {
+                powbase = sparse_tree(x,y,z,level-1, trig, rational);
+            } while (powbase.is_zero());
+            return pow(powbase, abs(rand() % 4));
+            break;
+        }
+        case 9:
             if (trig) {
                 switch (abs(rand()) % 4) {
                     case 0:
@@ -122,10 +135,24 @@ sparse_tree(const symbol & x,
                         return cos(sparse_tree(x,y,z,level-1, trig, rational));
                     case 2:
                         return exp(sparse_tree(x,y,z,level-1, trig, rational));
-                    case 3:
-                        return log(sparse_tree(x,y,z,level-1, trig, rational));
+                    case 3: {
+                        ex logex;
+                        do {
+                            ex logarg;
+                            do {
+                                logarg = sparse_tree(x,y,z,level-1, trig, rational);
+                            } while (logarg.is_zero());
+                            // Keep the evaluator from accidentally plugging an
+                            // unwanted I in the tree:
+                            if (!complex && logarg.info(info_flags::negative))
+                                logarg = -logarg;
+                            logex = log(logarg);
+                        } while (logex.is_zero());
+                        return logex;
+                        break;
+                    }
                 }
             } else
-                return random_symbol(x,y,z,rational);
+                return random_symbol(x,y,z,rational,complex);
     }
 }
