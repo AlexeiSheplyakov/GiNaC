@@ -5,6 +5,7 @@ This file records noteworthy changes.
   the STL complex<> template or cln::complex()), rational numbers use cl_RA()
   in the CLN output, and small integers are printed in a more compact format
   (e.g. "2.0" instead of "2.0000000e+00").
+* function_options::set_return_type() now actually works.
 
 1.0.13 (27 January 2003)
 * Contracting epsilon tensors with Euclidean indices now works.
