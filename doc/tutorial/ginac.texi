@@ -2053,16 +2053,18 @@ To calculate the trace of an expression containing strings of Dirac gammas
 you use the function
 
 @example
-ex dirac_trace(const ex & e, unsigned char rl = 0);
+ex dirac_trace(const ex & e, unsigned char rl = 0, const ex & trONE = 4);
 @end example
 
 This function takes the trace of all gammas with the specified representation
-label; gammas with other labels are left standing. The @code{dirac_trace()}
-function is a linear functional that is equal to the usual trace only in
-@math{D = 4} dimensions. In particular, the functional is not cyclic in
-@math{D != 4} dimensions when acting on expressions containing @samp{gamma5},
-so it's not a proper trace. This @samp{gamma5} scheme is described in greater
-detail in @cite{The Role of gamma5 in Dimensional Regularization}.
+label; gammas with other labels are left standing. The last argument to
+@code{dirac_trace()} is the value to be returned for the trace of the unity
+element, which defaults to 4. The @code{dirac_trace()} function is a linear
+functional that is equal to the usual trace only in @math{D = 4} dimensions.
+In particular, the functional is not cyclic in @math{D != 4} dimensions when
+acting on expressions containing @samp{gamma5}, so it's not a proper trace.
+This @samp{gamma5} scheme is described in greater detail in
+@cite{The Role of gamma5 in Dimensional Regularization}.
 
 The value of the trace itself is also usually different in 4 and in
 @math{D != 4} dimensions:
