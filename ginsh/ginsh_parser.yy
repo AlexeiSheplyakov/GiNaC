@@ -469,6 +469,12 @@ static ex f_quo(const exprseq &e)
 	return quo(e[0], e[1], e[2]);
 }
 
+static ex f_rank(const exprseq &e)
+{
+	CHECK_ARG(0, matrix, rank);
+	return ex_to<matrix>(e[0]).rank();
+}
+
 static ex f_rem(const exprseq &e)
 {
 	return rem(e[0], e[1], e[2]);
@@ -581,6 +587,7 @@ static const fcn_init builtin_fcns[] = {
 	{"print_csrc", f_dummy, 0},  // for Tab-completion
 	{"print_latex", f_dummy, 0}, // for Tab-completion
 	{"quo", f_quo, 3},
+	{"rank", f_rank, 1},
 	{"rem", f_rem, 3},
 	{"series", f_series, 3},
 	{"sprem", f_sprem, 3},

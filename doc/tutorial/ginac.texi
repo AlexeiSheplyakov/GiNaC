@@ -2013,15 +2013,17 @@ more information about using matrices with indices, and about indices in
 general.
 
 The @code{matrix} class provides a couple of additional methods for
-computing determinants, traces, and characteristic polynomials:
+computing determinants, traces, characteristic polynomials and ranks:
 
 @cindex @code{determinant()}
 @cindex @code{trace()}
 @cindex @code{charpoly()}
+@cindex @code{rank()}
 @example
 ex matrix::determinant(unsigned algo=determinant_algo::automatic) const;
 ex matrix::trace() const;
 ex matrix::charpoly(const ex & lambda) const;
+unsigned matrix::rank() const;
 @end example
 
 The @samp{algo} argument of @code{determinant()} allows to select

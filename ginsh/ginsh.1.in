@@ -350,6 +350,9 @@ detail here. Please refer to the GiNaC documentation.
 .BI quo( expression ", " expression ", " symbol )
 \- quotient of polynomials
 .br
+.BI rank( matrix )
+\- rank of a matrix
+.br
 .BI rem( expression ", " expression ", " symbol )
 \- remainder of polynomials
 .br

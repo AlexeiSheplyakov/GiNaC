@@ -764,7 +764,7 @@ ex matrix::determinant(unsigned algo) const
 		else
 			return m[0].expand();
 	}
-	
+
 	// Compute the determinant
 	switch(algo) {
 		case determinant_algo::gauss: {
@@ -860,7 +860,7 @@ ex matrix::trace() const
 		tr += m[r*col+r];
 	
 	if (tr.info(info_flags::rational_function) &&
-		!tr.info(info_flags::crational_polynomial))
+	   !tr.info(info_flags::crational_polynomial))
 		return tr.normal();
 	else
 		return tr.expand();
@@ -973,8 +973,8 @@ matrix matrix::inverse() const
  *  @exception runtime_error (inconsistent linear system)
  *  @see       solve_algo */
 matrix matrix::solve(const matrix & vars,
-					 const matrix & rhs,
-					 unsigned algo) const
+                     const matrix & rhs,
+                     unsigned algo) const
 {
 	const unsigned m = this->rows();
 	const unsigned n = this->cols();
@@ -1064,6 +1064,29 @@ matrix matrix::solve(const matrix & vars,
 	}
 	
 	return sol;
+}
+
+
+/** Compute the rank of this matrix. */
+unsigned matrix::rank() const
+{
+	// Method:
+	// Transform this matrix into upper echelon form and then count the
+	// number of non-zero rows.
+
+	GINAC_ASSERT(row*col==m.capacity());
+
+	// Actually, any elimination scheme will do since we are only
+	// interested in the echelon matrix' zeros.
+	matrix to_eliminate = *this;
+	to_eliminate.fraction_free_elimination();
+
+	unsigned r = row*col;  // index of last non-zero element
+	while (r--) {
+		if (!to_eliminate.m[r].is_zero())
+			return 1+r/col;
+	}
+	return 0;
 }
 
 
@@ -1208,8 +1231,8 @@ int matrix::gauss_elimination(const bool det)
 	int sign = 1;
 	
 	unsigned r0 = 0;
-	for (unsigned r1=0; (r1<n-1)&&(r0<m-1); ++r1) {
-		int indx = pivot(r0, r1, true);
+	for (unsigned c0=0; c0<n && r0<m-1; ++c0) {
+		int indx = pivot(r0, c0, true);
 		if (indx == -1) {
 			sign = 0;
 			if (det)
@@ -1219,17 +1242,17 @@ int matrix::gauss_elimination(const bool det)
 			if (indx > 0)
 				sign = -sign;
 			for (unsigned r2=r0+1; r2<m; ++r2) {
-				if (!this->m[r2*n+r1].is_zero()) {
+				if (!this->m[r2*n+c0].is_zero()) {
 					// yes, there is something to do in this row
-					ex piv = this->m[r2*n+r1] / this->m[r0*n+r1];
-					for (unsigned c=r1+1; c<n; ++c) {
+					ex piv = this->m[r2*n+c0] / this->m[r0*n+c0];
+					for (unsigned c=c0+1; c<n; ++c) {
 						this->m[r2*n+c] -= piv * this->m[r0*n+c];
 						if (!this->m[r2*n+c].info(info_flags::numeric))
 							this->m[r2*n+c] = this->m[r2*n+c].normal();
 					}
 				}
 				// fill up left hand side with zeros
-				for (unsigned c=0; c<=r1; ++c)
+				for (unsigned c=r0; c<=c0; ++c)
 					this->m[r2*n+c] = _ex0;
 			}
 			if (det) {
@@ -1240,7 +1263,12 @@ int matrix::gauss_elimination(const bool det)
 			++r0;
 		}
 	}
-	
+	// clear remaining rows
+	for (unsigned r=r0+1; r<m; ++r) {
+		for (unsigned c=0; c<n; ++c)
+			this->m[r*n+c] = _ex0;
+	}
+
 	return sign;
 }
 
@@ -1262,8 +1290,8 @@ int matrix::division_free_elimination(const bool det)
 	int sign = 1;
 	
 	unsigned r0 = 0;
-	for (unsigned r1=0; (r1<n-1)&&(r0<m-1); ++r1) {
-		int indx = pivot(r0, r1, true);
+	for (unsigned c0=0; c0<n && r0<m-1; ++c0) {
+		int indx = pivot(r0, c0, true);
 		if (indx==-1) {
 			sign = 0;
 			if (det)
@@ -1273,10 +1301,10 @@ int matrix::division_free_elimination(const bool det)
 			if (indx>0)
 				sign = -sign;
 			for (unsigned r2=r0+1; r2<m; ++r2) {
-				for (unsigned c=r1+1; c<n; ++c)
-					this->m[r2*n+c] = (this->m[r0*n+r1]*this->m[r2*n+c] - this->m[r2*n+r1]*this->m[r0*n+c]).expand();
+				for (unsigned c=c0+1; c<n; ++c)
+					this->m[r2*n+c] = (this->m[r0*n+c0]*this->m[r2*n+c] - this->m[r2*n+c0]*this->m[r0*n+c]).expand();
 				// fill up left hand side with zeros
-				for (unsigned c=0; c<=r1; ++c)
+				for (unsigned c=r0; c<=c0; ++c)
 					this->m[r2*n+c] = _ex0;
 			}
 			if (det) {
@@ -1287,7 +1315,12 @@ int matrix::division_free_elimination(const bool det)
 			++r0;
 		}
 	}
-	
+	// clear remaining rows
+	for (unsigned r=r0+1; r<m; ++r) {
+		for (unsigned c=0; c<n; ++c)
+			this->m[r*n+c] = _ex0;
+	}
+
 	return sign;
 }
 
@@ -1360,8 +1393,8 @@ int matrix::fraction_free_elimination(const bool det)
 	}
 	
 	unsigned r0 = 0;
-	for (unsigned r1=0; (r1<n-1)&&(r0<m-1); ++r1) {
-		int indx = tmp_n.pivot(r0, r1, true);
+	for (unsigned c0=0; c0<n && r0<m-1; ++c0) {
+		int indx = tmp_n.pivot(r0, c0, true);
 		if (indx==-1) {
 			sign = 0;
 			if (det)
@@ -1371,17 +1404,17 @@ int matrix::fraction_free_elimination(const bool det)
 			if (indx>0) {
 				sign = -sign;
 				// tmp_n's rows r0 and indx were swapped, do the same in tmp_d:
-				for (unsigned c=r1; c<n; ++c)
+				for (unsigned c=c0; c<n; ++c)
 					tmp_d.m[n*indx+c].swap(tmp_d.m[n*r0+c]);
 			}
 			for (unsigned r2=r0+1; r2<m; ++r2) {
-				for (unsigned c=r1+1; c<n; ++c) {
-					dividend_n = (tmp_n.m[r0*n+r1]*tmp_n.m[r2*n+c]*
-					              tmp_d.m[r2*n+r1]*tmp_d.m[r0*n+c]
-					             -tmp_n.m[r2*n+r1]*tmp_n.m[r0*n+c]*
-					              tmp_d.m[r0*n+r1]*tmp_d.m[r2*n+c]).expand();
-					dividend_d = (tmp_d.m[r2*n+r1]*tmp_d.m[r0*n+c]*
-					              tmp_d.m[r0*n+r1]*tmp_d.m[r2*n+c]).expand();
+				for (unsigned c=c0+1; c<n; ++c) {
+					dividend_n = (tmp_n.m[r0*n+c0]*tmp_n.m[r2*n+c]*
+					              tmp_d.m[r2*n+c0]*tmp_d.m[r0*n+c]
+					             -tmp_n.m[r2*n+c0]*tmp_n.m[r0*n+c]*
+					              tmp_d.m[r0*n+c0]*tmp_d.m[r2*n+c]).expand();
+					dividend_d = (tmp_d.m[r2*n+c0]*tmp_d.m[r0*n+c]*
+					              tmp_d.m[r0*n+c0]*tmp_d.m[r2*n+c]).expand();
 					bool check = divide(dividend_n, divisor_n,
 					                    tmp_n.m[r2*n+c], true);
 					check &= divide(dividend_d, divisor_d,
@@ -1389,13 +1422,13 @@ int matrix::fraction_free_elimination(const bool det)
 					GINAC_ASSERT(check);
 				}
 				// fill up left hand side with zeros
-				for (unsigned c=0; c<=r1; ++c)
+				for (unsigned c=r0; c<=c0; ++c)
 					tmp_n.m[r2*n+c] = _ex0;
 			}
-			if ((r1<n-1)&&(r0<m-1)) {
+			if (c0<n && r0<m-1) {
 				// compute next iteration's divisor
-				divisor_n = tmp_n.m[r0*n+r1].expand();
-				divisor_d = tmp_d.m[r0*n+r1].expand();
+				divisor_n = tmp_n.m[r0*n+c0].expand();
+				divisor_d = tmp_d.m[r0*n+c0].expand();
 				if (det) {
 					// save space by deleting no longer needed elements
 					for (unsigned c=0; c<n; ++c) {
@@ -1407,6 +1440,12 @@ int matrix::fraction_free_elimination(const bool det)
 			++r0;
 		}
 	}
+	// clear remaining rows
+	for (unsigned r=r0+1; r<m; ++r) {
+		for (unsigned c=0; c<n; ++c)
+			tmp_n.m[r*n+c] = _ex0;
+	}
+
 	// repopulate *this matrix:
 	exvector::iterator it = this->m.begin(), itend = this->m.end();
 	tmp_n_it = tmp_n.m.begin();

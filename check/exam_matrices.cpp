@@ -241,6 +241,46 @@ static unsigned matrix_evalm()
 	return result;
 }
 
+static unsigned matrix_rank()
+{
+	unsigned result = 0;
+	symbol x("x"), y("y");
+	matrix m(3,3);
+
+	// the zero matrix always has rank 0
+	if (m.rank() != 0) {
+		clog << "The rank of " << m << " was not computed correctly." << endl;
+		++result;
+	}
+
+	// a trivial rank one example
+	m = 1, 0, 0,
+	    2, 0, 0,
+	    3, 0, 0;
+	if (m.rank() != 1) {
+		clog << "The rank of " << m << " was not computed correctly." << endl;
+		++result;
+	}
+
+	// an example from Maple's help with rank two
+	m = x,  1,  0,
+	    0,  0,  1,
+	   x*y, y,  1;
+	if (m.rank() != 2) {
+		clog << "The rank of " << m << " was not computed correctly." << endl;
+		++result;
+	}
+
+	// the 3x3 unit matrix has rank 3
+	m = ex_to<matrix>(unit_matrix(3,3));
+	if (m.rank() != 3) {
+		clog << "The rank of " << m << " was not computed correctly." << endl;
+		++result;
+	}
+
+	return result;	
+}
+
 static unsigned matrix_misc()
 {
 	unsigned result = 0;
@@ -305,6 +345,7 @@ unsigned exam_matrices()
 	result += matrix_invert3();  cout << '.' << flush;
 	result += matrix_solve2();  cout << '.' << flush;
 	result += matrix_evalm();  cout << "." << flush;
+	result += matrix_rank();  cout << "." << flush;
 	result += matrix_misc();  cout << '.' << flush;
 	
 	if (!result) {

@@ -148,6 +148,7 @@ public:
 	matrix inverse() const;
 	matrix solve(const matrix & vars, const matrix & rhs,
 	             unsigned algo = solve_algo::automatic) const;
+	unsigned rank() const;
 protected:
 	ex determinant_minor() const;
 	int gauss_elimination(const bool det = false);
@@ -202,6 +203,9 @@ inline ex charpoly(const matrix & m, const ex & lambda)
 
 inline matrix inverse(const matrix & m)
 { return m.inverse(); }
+
+inline unsigned rank(const matrix & m)
+{ return m.rank(); }
 
 // utility functions
 
