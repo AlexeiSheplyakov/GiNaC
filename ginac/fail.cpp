@@ -44,7 +44,7 @@ DEFAULT_CTORS(fail)
 DEFAULT_ARCHIVING(fail)
 
 //////////
-// functions overriding virtual functions from bases classes
+// functions overriding virtual functions from base classes
 //////////
 
 DEFAULT_COMPARE(fail)

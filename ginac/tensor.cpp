@@ -142,7 +142,7 @@ void tensepsilon::archive(archive_node &n) const
 }
 
 //////////
-// functions overriding virtual functions from bases classes
+// functions overriding virtual functions from base classes
 //////////
 
 DEFAULT_COMPARE(tensor)

@@ -135,7 +135,7 @@ void symmetry::archive(archive_node &n) const
 DEFAULT_UNARCHIVE(symmetry)
 
 //////////
-// functions overriding virtual functions from bases classes
+// functions overriding virtual functions from base classes
 //////////
 
 int symmetry::compare_same_type(const basic & other) const
@@ -154,6 +154,8 @@ void symmetry::print(const print_context & c, unsigned level = 0) const
 	if (children.empty()) {
 		if (indices.size() > 0)
 			c.s << *(indices.begin());
+		else
+			c.s << "none";
 	} else {
 		switch (type) {
 			case none: c.s << '!'; break;

@@ -102,12 +102,6 @@ void basic::archive(archive_node &n) const
 }
 
 //////////
-// functions overriding virtual functions from bases classes
-//////////
-
-// none
-
-//////////
 // new virtual functions which can be overridden by derived classes
 //////////
 

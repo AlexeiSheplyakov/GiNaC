@@ -77,7 +77,7 @@ void wildcard::archive(archive_node &n) const
 DEFAULT_UNARCHIVE(wildcard)
 
 //////////
-// functions overriding virtual functions from bases classes
+// functions overriding virtual functions from base classes
 //////////
 
 int wildcard::compare_same_type(const basic & other) const

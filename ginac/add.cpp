@@ -107,7 +107,7 @@ add::add(epvector * vp, const ex & oc)
 DEFAULT_ARCHIVING(add)
 
 //////////
-// functions overriding virtual functions from bases classes
+// functions overriding virtual functions from base classes
 //////////
 
 // public
@@ -339,12 +339,14 @@ ex add::eval(int level) const
 	}
 	
 	int seq_size = seq.size();
-	if (seq_size==0) {
+	if (seq_size == 0) {
 		// +(;c) -> c
 		return overall_coeff;
-	} else if ((seq_size==1) && overall_coeff.is_zero()) {
+	} else if (seq_size == 1 && overall_coeff.is_zero()) {
 		// +(x;0) -> x
 		return recombine_pair_to_ex(*(seq.begin()));
+	} else if (!overall_coeff.is_zero() && seq[0].rest.return_type() != return_types::commutative) {
+		throw (std::logic_error("add::eval(): sum of non-commutative objects has non-zero numeric term"));
 	}
 	return this->hold();
 }

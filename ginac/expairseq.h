@@ -83,7 +83,7 @@ public:
 	expairseq(const epvector & v, const ex & oc);
 	expairseq(epvector * vp, const ex & oc); // vp will be deleted
 	
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 public:
 	basic * duplicate() const;
 	void print(const print_context & c, unsigned level = 0) const;

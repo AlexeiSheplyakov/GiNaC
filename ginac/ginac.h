@@ -55,6 +55,7 @@
 #include "ncmul.h"
 
 #include "inifcns.h"
+#include "fderivative.h"
 #include "operators.h"
 
 #ifndef GINAC_BASE_ONLY

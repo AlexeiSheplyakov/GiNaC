@@ -49,7 +49,7 @@ public:
 public:
 	relational(const ex & lhs, const ex & rhs, operators oper=equal);
 	
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 	unsigned precedence(void) const {return 20;}

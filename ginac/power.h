@@ -46,7 +46,7 @@ public:
 	power(const ex & lh, const ex & rh) : inherited(TINFO_power), basis(lh), exponent(rh) {}
 	template<typename T> power(const ex & lh, const T & rh) : inherited(TINFO_power), basis(lh), exponent(rh) {}
 	
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 	unsigned precedence(void) const {return 60;}

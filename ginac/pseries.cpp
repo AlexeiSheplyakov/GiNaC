@@ -119,7 +119,7 @@ void pseries::archive(archive_node &n) const
 DEFAULT_UNARCHIVE(pseries)
 
 //////////
-// functions overriding virtual functions from bases classes
+// functions overriding virtual functions from base classes
 //////////
 
 void pseries::print(const print_context & c, unsigned level) const

@@ -87,8 +87,6 @@ protected:
 	ex derivative(const symbol & s) const;
 	int compare_same_type(const basic & other) const;
 	bool is_equal_same_type(const basic & other) const;
-	unsigned return_type(void) const;
-	unsigned return_type_tinfo(void) const;
 	unsigned calchash(void) const;
 	
 	// non-virtual functions in this class

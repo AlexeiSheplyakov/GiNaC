@@ -73,7 +73,7 @@ class su3one : public tensor
 {
 	GINAC_DECLARE_REGISTERED_CLASS(su3one, tensor)
 
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 };
@@ -83,7 +83,7 @@ class su3t : public tensor
 {
 	GINAC_DECLARE_REGISTERED_CLASS(su3t, tensor)
 
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
@@ -95,7 +95,7 @@ class su3f : public tensor
 {
 	GINAC_DECLARE_REGISTERED_CLASS(su3f, tensor)
 
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 	ex eval_indexed(const basic & i) const;
@@ -107,7 +107,7 @@ class su3d : public tensor
 {
 	GINAC_DECLARE_REGISTERED_CLASS(su3d, tensor)
 
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 	ex eval_indexed(const basic & i) const;

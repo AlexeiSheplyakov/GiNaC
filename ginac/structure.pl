@@ -170,7 +170,7 @@ protected:
 public:
 	${STRUCTURE}(${constructor_arglist});
 
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 public:
 	basic * duplicate() const;
 	void print(const print_context & c, unsigned level = 0) const;
@@ -313,7 +313,7 @@ ${STRUCTURE}::${STRUCTURE}(${constructor_arglist})
 }
 
 //////////
-// functions overriding virtual functions from bases classes
+// functions overriding virtual functions from base classes
 //////////
 
 // public

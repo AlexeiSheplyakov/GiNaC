@@ -263,7 +263,7 @@ static ex sin_eval(const ex & x)
 			return sign*_ex1();
 	}
 	
-	if (is_ex_exactly_of_type(x, function)) {
+	if (is_exactly_a<function>(x)) {
 		ex t = x.op(0);
 		// sin(asin(x)) -> x
 		if (is_ex_the_function(x, asin))
@@ -345,7 +345,7 @@ static ex cos_eval(const ex & x)
 			return sign*_ex0();
 	}
 	
-	if (is_ex_exactly_of_type(x, function)) {
+	if (is_exactly_a<function>(x)) {
 		ex t = x.op(0);
 		// cos(acos(x)) -> x
 		if (is_ex_the_function(x, acos))
@@ -423,7 +423,7 @@ static ex tan_eval(const ex & x)
 			throw (pole_error("tan_eval(): simple pole",1));
 	}
 	
-	if (is_ex_exactly_of_type(x, function)) {
+	if (is_exactly_a<function>(x)) {
 		ex t = x.op(0);
 		// tan(atan(x)) -> x
 		if (is_ex_the_function(x, atan))
@@ -736,7 +736,7 @@ static ex sinh_eval(const ex & x)
 		ex_to<numeric>(x/Pi).real().is_zero())  // sinh(I*x) -> I*sin(x)
 		return I*sin(x/I);
 	
-	if (is_ex_exactly_of_type(x, function)) {
+	if (is_exactly_a<function>(x)) {
 		ex t = x.op(0);
 		// sinh(asinh(x)) -> x
 		if (is_ex_the_function(x, asinh))
@@ -791,7 +791,7 @@ static ex cosh_eval(const ex & x)
 		ex_to<numeric>(x/Pi).real().is_zero())  // cosh(I*x) -> cos(x)
 		return cos(x/I);
 	
-	if (is_ex_exactly_of_type(x, function)) {
+	if (is_exactly_a<function>(x)) {
 		ex t = x.op(0);
 		// cosh(acosh(x)) -> x
 		if (is_ex_the_function(x, acosh))
@@ -846,7 +846,7 @@ static ex tanh_eval(const ex & x)
 		ex_to<numeric>(x/Pi).real().is_zero())  // tanh(I*x) -> I*tan(x);
 		return I*tan(x/I);
 	
-	if (is_ex_exactly_of_type(x, function)) {
+	if (is_exactly_a<function>(x)) {
 		ex t = x.op(0);
 		// tanh(atanh(x)) -> x
 		if (is_ex_the_function(x, atanh))

@@ -336,7 +336,7 @@ void numeric::archive(archive_node &n) const
 DEFAULT_UNARCHIVE(numeric)
 
 //////////
-// functions overriding virtual functions from bases classes
+// functions overriding virtual functions from base classes
 //////////
 
 /** Helper function to print a real number in a nicer way than is CLN's

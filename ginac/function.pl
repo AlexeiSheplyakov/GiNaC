@@ -158,7 +158,7 @@ END_OF_SERIES_FUNC_IMPLEMENTATION
 $interface=<<END_OF_INTERFACE;
 /** \@file function.h
  *
- *  Interface to abstract class function (new function concept). */
+ *  Interface to class of symbolic functions. */
 
 /*
  *  This file was generated automatically by function.pl.
@@ -240,6 +240,7 @@ $typedef_series_funcp
 class function_options
 {
 	friend class function;
+	friend class fderivative;
 public:
 	function_options();
 	function_options(std::string const & n, std::string const & tn=std::string());
@@ -305,7 +306,6 @@ class function : public exprseq
 	friend class remember_table_entry;
 	// friend class remember_table_list;
 	// friend class remember_table;
-	friend ex Derivative_eval(const ex &, const ex &);
 
 // member functions
 
@@ -319,7 +319,7 @@ $constructors_interface
 	function(unsigned ser, const exvector & v, bool discardable = false);
 	function(unsigned ser, exvector * vp); // vp will be deleted
 
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 	unsigned precedence(void) const {return 70;}
@@ -387,7 +387,7 @@ END_OF_INTERFACE
 $implementation=<<END_OF_IMPLEMENTATION;
 /** \@file function.cpp
  *
- *  Implementation of class function. */
+ *  Implementation of class of symbolic functions. */
 
 /*
  *  This file was generated automatically by function.pl.
@@ -416,12 +416,14 @@ $implementation=<<END_OF_IMPLEMENTATION;
 #include <list>
 
 #include "function.h"
+#include "fderivative.h"
 #include "ex.h"
 #include "lst.h"
 #include "symmetry.h"
 #include "print.h"
 #include "archive.h"
 #include "inifcns.h"
+#include "tostring.h"
 #include "utils.h"
 #include "debugmsg.h"
 #include "remember.h"
@@ -640,7 +642,7 @@ void function::archive(archive_node &n) const
 }
 
 //////////
-// functions overriding virtual functions from bases classes
+// functions overriding virtual functions from base classes
 //////////
 
 // public
@@ -732,7 +734,7 @@ ex function::eval(int level) const
 	// Canonicalize argument order according to the symmetry properties
 	if (seq.size() > 1 && !(opt.symtree.is_zero())) {
 		exvector v = seq;
-		GINAC_ASSERT(is_ex_exactly_of_type(opt.symtree, symmetry));
+		GINAC_ASSERT(is_of_type<symmetry>(opt.symtree));
 		int sig = canonicalize(v.begin(), ex_to<symmetry>(opt.symtree));
 		if (sig != INT_MAX) {
 			// Something has changed while sorting arguments, more evaluations later
@@ -846,25 +848,10 @@ ${series_switch_statement}
 ex function::derivative(const symbol & s) const
 {
 	ex result;
-	
+
 	if (serial == function_index_Order) {
 		// Order Term function only differentiates the argument
 		return Order(seq[0].diff(s));
-	} else if (serial == function_index_Derivative) {
-		// Inert derivative performs chain rule on the first argument only, and
-		// adds differentiation parameter to list (second argument)
-		GINAC_ASSERT(is_ex_exactly_of_type(seq[0], function));
-		GINAC_ASSERT(is_ex_exactly_of_type(seq[1], function));
-		ex fcn = seq[0];
-		ex arg_diff;
-		for (unsigned i=0; i!=fcn.nops(); i++) {
-			arg_diff = fcn.op(i).diff(s);
-			if (!arg_diff.is_zero()) {
-				lst new_lst = ex_to<lst>(seq[1]);
-				new_lst.append(i);
-				result += arg_diff * Derivative(fcn, new_lst);
-			}
-		}
 	} else {
 		// Chain rule
 		ex arg_diff;
@@ -945,9 +932,10 @@ ex function::pderivative(unsigned diff_param) const // partial differentiation
 {
 	GINAC_ASSERT(serial<registered_functions().size());
 	
-	if (registered_functions()[serial].derivative_f==0) {
-		return Derivative(*this, lst(ex(diff_param)));
-	}
+	// No derivative defined? Then return abstract derivative object
+	if (registered_functions()[serial].derivative_f == NULL)
+		return fderivative(serial, diff_param, seq);
+
 	switch (registered_functions()[serial].nparams) {
 		// the following lines have been generated for max. ${maxargs} parameters
 ${diff_switch_statement}

@@ -71,7 +71,7 @@ class diracone : public tensor
 {
 	GINAC_DECLARE_REGISTERED_CLASS(diracone, tensor)
 
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 };
@@ -82,7 +82,7 @@ class diracgamma : public tensor
 {
 	GINAC_DECLARE_REGISTERED_CLASS(diracgamma, tensor)
 
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
@@ -95,7 +95,7 @@ class diracgamma5 : public tensor
 {
 	GINAC_DECLARE_REGISTERED_CLASS(diracgamma5, tensor)
 
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 };

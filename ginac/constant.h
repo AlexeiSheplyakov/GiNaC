@@ -46,7 +46,7 @@ public:
 	constant(const std::string & initname, evalffunctype efun = 0, const std::string & texname = std::string());
 	constant(const std::string & initname, const numeric & initnumber, const std::string & texname = std::string());
 	
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 	int degree(const ex & s) const;

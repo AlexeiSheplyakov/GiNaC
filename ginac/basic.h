@@ -96,8 +96,6 @@ protected:
 	{
 		/* debugmsg("basic ctor with tinfo_key", LOGLEVEL_CONSTRUCT); */
 	}
-	// functions overriding virtual functions from bases classes
-	// none
 	
 	// new virtual functions which can be overridden by derived classes
 public: // only const functions please (may break reference counting)

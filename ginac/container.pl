@@ -430,7 +430,7 @@ void ${CONTAINER}::archive(archive_node &n) const
 }
 
 //////////
-// functions overriding virtual functions from bases classes
+// functions overriding virtual functions from base classes
 //////////
 
 // public

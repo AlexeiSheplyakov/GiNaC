@@ -45,7 +45,7 @@ public:
 	mul(epvector * vp, const ex & oc);
 	mul(const ex & lh, const ex & mh, const ex & rh);
 	
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 	unsigned precedence(void) const {return 50;}

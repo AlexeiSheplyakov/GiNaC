@@ -28,6 +28,7 @@
 #include "print.h"
 #include "archive.h"
 #include "debugmsg.h"
+#include "tostring.h"
 #include "utils.h"
 
 namespace GiNaC {
@@ -137,7 +138,7 @@ void symbol::archive(archive_node &n) const
 }
 
 //////////
-// functions overriding virtual functions from bases classes
+// functions overriding virtual functions from base classes
 //////////
 
 // public
@@ -240,16 +241,6 @@ bool symbol::is_equal_same_type(const basic & other) const
 	GINAC_ASSERT(is_of_type(other,symbol));
 	const symbol *o = static_cast<const symbol *>(&other);
 	return serial==o->serial;
-}
-
-unsigned symbol::return_type(void) const
-{
-	return return_types::commutative;
-}
-   
-unsigned symbol::return_type_tinfo(void) const
-{
-	return tinfo_key;
 }
 
 unsigned symbol::calchash(void) const

@@ -32,7 +32,7 @@ class fail : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS(fail, basic)
 	
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 protected:

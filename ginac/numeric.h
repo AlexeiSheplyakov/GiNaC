@@ -80,7 +80,7 @@ public:
 	numeric(double d);
 	numeric(const char *);
 	
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 	unsigned precedence(void) const {return 30;}

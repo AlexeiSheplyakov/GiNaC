@@ -177,7 +177,7 @@ void expairseq::archive(archive_node &n) const
 DEFAULT_UNARCHIVE(expairseq)
 
 //////////
-// functions overriding virtual functions from bases classes
+// functions overriding virtual functions from base classes
 //////////
 
 // public

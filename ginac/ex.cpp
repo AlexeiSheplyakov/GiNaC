@@ -44,18 +44,6 @@ namespace GiNaC {
 // none (all inlined)
 
 //////////
-// functions overriding virtual functions from bases classes
-//////////
-
-// none
-
-//////////
-// new virtual functions which can be overridden by derived classes
-//////////
-
-// none
-
-//////////
 // non-virtual functions in this class
 //////////
 

@@ -44,7 +44,7 @@ public:
 	add(const epvector & v, const ex & oc);
 	add(epvector * vp, const ex & oc);
 	
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 	unsigned precedence(void) const {return 40;}

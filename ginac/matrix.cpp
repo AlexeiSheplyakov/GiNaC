@@ -141,7 +141,7 @@ void matrix::archive(archive_node &n) const
 DEFAULT_UNARCHIVE(matrix)
 
 //////////
-// functions overriding virtual functions from bases classes
+// functions overriding virtual functions from base classes
 //////////
 
 // public

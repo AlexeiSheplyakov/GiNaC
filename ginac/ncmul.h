@@ -51,7 +51,7 @@ public:
 	ncmul(const exvector & v, bool discardable=false);
 	ncmul(exvector * vp); // vp will be deleted
 
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 	unsigned precedence(void) const {return 50;}

@@ -45,7 +45,7 @@ public:
 	 *  @return newly constructed index */
 	explicit idx(const ex & v, const ex & dim);
 
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 	bool info(unsigned inf) const;
@@ -106,7 +106,7 @@ public:
 	 *  @return newly constructed index */
 	varidx(const ex & v, const ex & dim, bool covariant = false);
 
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 	bool is_dummy_pair_same_type(const basic & other) const;
@@ -151,7 +151,7 @@ public:
 	 *  @return newly constructed index */
 	spinidx(const ex & v, const ex & dim = 2, bool covariant = false, bool dotted = false);
 
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 	bool is_dummy_pair_same_type(const basic & other) const;

@@ -109,7 +109,7 @@ ncmul::ncmul(exvector * vp) : inherited(vp)
 DEFAULT_ARCHIVING(ncmul)
 	
 //////////
-// functions overriding virtual functions from bases classes
+// functions overriding virtual functions from base classes
 //////////
 
 // public
@@ -140,7 +140,7 @@ void ncmul::print(const print_context & c, unsigned level) const
 
 bool ncmul::info(unsigned inf) const
 {
-	throw(std::logic_error("which flags have to be implemented in ncmul::info()?"));
+	return inherited::info(inf);
 }
 
 typedef std::vector<int> intvector;
@@ -151,12 +151,7 @@ ex ncmul::expand(unsigned options) const
 	exvector expanded_seq = expandchildren(options);
 	
 	// Now, look for all the factors that are sums and remember their
-	// position and number of terms. One remark is in order here: we do not
-	// take into account the overall_coeff of the add objects. This is
-	// because in GiNaC, all terms of a sum must be of the same type, so
-	// a non-zero overall_coeff (which can only be numeric) would imply that
-	// the sum only has commutative terms. But then it would never appear
-	// as a factor of an ncmul.
+	// position and number of terms.
 	intvector positions_of_adds(expanded_seq.size());
 	intvector number_of_add_operands(expanded_seq.size());
 
@@ -166,12 +161,12 @@ ex ncmul::expand(unsigned options) const
 	unsigned current_position = 0;
 	exvector::const_iterator last = expanded_seq.end();
 	for (exvector::const_iterator cit=expanded_seq.begin(); cit!=last; ++cit) {
-		if (is_ex_exactly_of_type(*cit, add)) {
+		if (is_exactly_a<add>(*cit)) {
 			positions_of_adds[number_of_adds] = current_position;
-			const add & expanded_addref = ex_to<add>(*cit);
-			number_of_add_operands[number_of_adds] = expanded_addref.seq.size();
-			number_of_expanded_terms *= expanded_addref.seq.size();
-			++number_of_adds;
+			unsigned num_ops = cit->nops();
+			number_of_add_operands[number_of_adds] = num_ops;
+			number_of_expanded_terms *= num_ops;
+			number_of_adds++;
 		}
 		++current_position;
 	}
@@ -190,11 +185,8 @@ ex ncmul::expand(unsigned options) const
 
 	while (true) {
 		exvector term = expanded_seq;
-		for (int i=0; i<number_of_adds; i++) {
-			GINAC_ASSERT(is_ex_exactly_of_type(expanded_seq[positions_of_adds[i]], add));
-			const add & addref = ex_to<add>(expanded_seq[positions_of_adds[i]]);
-			term[positions_of_adds[i]] = addref.recombine_pair_to_ex(addref.seq[k[i]]);
-		}
+		for (int i=0; i<number_of_adds; i++)
+			term[positions_of_adds[i]] = expanded_seq[positions_of_adds[i]].op(k[i]);
 		distrseq.push_back((new ncmul(term, true))->
 		                    setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0)));
 

@@ -760,7 +760,7 @@ const ex & _ex120(void)
 	// other ctors
 	// none
 
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 	// none
 	
 	// new virtual functions which can be overridden by derived classes
@@ -792,7 +792,7 @@ const ex & _ex120(void)
 // none
 
 //////////
-// functions overriding virtual functions from bases classes
+// functions overriding virtual functions from base classes
 //////////
 
 // public

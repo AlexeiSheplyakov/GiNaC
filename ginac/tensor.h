@@ -39,7 +39,7 @@ class tensor : public basic
 protected:
 	tensor(unsigned ti);
 
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 protected:
 	unsigned return_type(void) const { return return_types::noncommutative_composite; }
 };
@@ -51,7 +51,7 @@ class tensdelta : public tensor
 {
 	GINAC_DECLARE_REGISTERED_CLASS(tensdelta, tensor)
 
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 	ex eval_indexed(const basic & i) const;
@@ -66,7 +66,7 @@ class tensmetric : public tensor
 {
 	GINAC_DECLARE_REGISTERED_CLASS(tensmetric, tensor)
 
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 	ex eval_indexed(const basic & i) const;
@@ -86,7 +86,7 @@ public:
 	/** Construct Lorentz metric tensor with given signature. */
 	minkmetric(bool pos_sig);
 
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 	ex eval_indexed(const basic & i) const;
@@ -105,7 +105,7 @@ class spinmetric : public tensmetric
 {
 	GINAC_DECLARE_REGISTERED_CLASS(spinmetric, tensmetric)
 
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 	ex eval_indexed(const basic & i) const;
@@ -124,7 +124,7 @@ class tensepsilon : public tensor
 public:
 	tensepsilon(bool minkowski, bool pos_sig);
 
-	// functions overriding virtual functions from bases classes
+	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 	ex eval_indexed(const basic & i) const;

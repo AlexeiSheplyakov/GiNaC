@@ -36,6 +36,7 @@ const unsigned TINFO_constant      = 0x00021001U;
 
 const unsigned TINFO_exprseq       = 0x00030001U;
 const unsigned TINFO_function      = 0x00031001U;
+const unsigned TINFO_fderivative   = 0x00032001U;
 const unsigned TINFO_ncmul         = 0x00031002U;
 
 const unsigned TINFO_lst           = 0x00040001U;

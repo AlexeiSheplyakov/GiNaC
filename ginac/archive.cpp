@@ -27,7 +27,7 @@
 #include "registrar.h"
 #include "ex.h"
 #include "config.h"
-#include "utils.h"
+#include "tostring.h"
 
 namespace GiNaC {
 

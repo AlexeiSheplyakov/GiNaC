@@ -152,7 +152,7 @@ DEFAULT_UNARCHIVE(varidx)
 DEFAULT_UNARCHIVE(spinidx)
 
 //////////
-// functions overriding virtual functions from bases classes
+// functions overriding virtual functions from base classes
 //////////
 
 void idx::print(const print_context & c, unsigned level) const

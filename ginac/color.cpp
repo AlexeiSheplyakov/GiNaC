@@ -124,7 +124,7 @@ DEFAULT_ARCHIVING(su3f)
 DEFAULT_ARCHIVING(su3d)
 
 //////////
-// functions overriding virtual functions from bases classes
+// functions overriding virtual functions from base classes
 //////////
 
 int color::compare_same_type(const basic & other) const

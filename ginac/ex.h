@@ -70,12 +70,6 @@ public:
 	 *  symbols and other parser errors will throw an exception. */
 	ex(const std::string &s, const ex &l);
 	
-	// functions overriding virtual functions from bases classes
-	// none
-	
-	// new virtual functions which can be overridden by derived classes
-	// none
-
 	// non-virtual functions in this class
 public:
 	void swap(ex & other);

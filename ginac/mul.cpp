@@ -122,7 +122,7 @@ mul::mul(const ex & lh, const ex & mh, const ex & rh)
 DEFAULT_ARCHIVING(mul)
 
 //////////
-// functions overriding virtual functions from bases classes
+// functions overriding virtual functions from base classes
 //////////
 
 // public

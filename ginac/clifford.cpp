@@ -123,7 +123,7 @@ DEFAULT_ARCHIVING(diracgamma)
 DEFAULT_ARCHIVING(diracgamma5)
 
 //////////
-// functions overriding virtual functions from bases classes
+// functions overriding virtual functions from base classes
 //////////
 
 int clifford::compare_same_type(const basic & other) const

@@ -187,7 +187,7 @@ void indexed::archive(archive_node &n) const
 DEFAULT_UNARCHIVE(indexed)
 
 //////////
-// functions overriding virtual functions from bases classes
+// functions overriding virtual functions from base classes
 //////////
 
 void indexed::print(const print_context & c, unsigned level) const
@@ -201,7 +201,6 @@ void indexed::print(const print_context & c, unsigned level) const
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 		    << ", " << seq.size()-1 << " indices"
 		    << ", symmetry=" << symtree << std::endl;
-		c.s << std::endl;
 		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
 		seq[0].print(c, level + delta_indent);
 		printindices(c, level + delta_indent);
