@@ -219,11 +219,8 @@ unsigned exam_inifcns_nstdsums(void)
 	cout << "examining consistency of nestedsums functions" << flush;
 	clog << "----------consistency of nestedsums functions:" << endl;
 	
-	cout << "zeta" << flush;
 	result += inifcns_test_zeta();
-	cout << "S" << flush;
 	result += inifcns_test_S();
-	cout << "H/Li" << flush;
 	result += inifcns_test_HLi();
 	
 	if (!result) {
