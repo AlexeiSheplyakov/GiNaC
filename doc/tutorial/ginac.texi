@@ -1871,6 +1871,8 @@ that performs some more expensive operations:
 @item it (symbolically) calculates all possible dummy index summations/contractions
   with the predefined tensors (this will be explained in more detail in the
   next section)
+@item it detects contractions that vanish for symmetry reasons, for example
+  the contraction of a symmetric and a totally antisymmetric tensor
 @item as a special case of dummy index summation, it can replace scalar products
   of two tensors with a user-defined value
 @end itemize
@@ -2072,7 +2074,27 @@ The first two functions create an epsilon tensor in 2 or 3 Euclidean
 dimensions, the last function creates an epsilon tensor in a 4-dimensional
 Minkowski space (the last @code{bool} argument specifies whether the metric
 has negative or positive signature, as in the case of the Minkowski metric
-tensor).
+tensor):
+
+@example
+@{
+    varidx mu(symbol("mu"), 4), nu(symbol("nu"), 4), rho(symbol("rho"), 4),
+           sig(symbol("sig"), 4), lam(symbol("lam"), 4), bet(symbol("bet"), 4);
+    e = lorentz_eps(mu, nu, rho, sig) *
+        lorentz_eps(mu.toggle_variance(), nu.toggle_variance(), lam, bet);
+    cout << simplify_indexed(e) << endl;
+     // -> 2*eta~bet~rho*eta~sig~lam-2*eta~sig~bet*eta~rho~lam
+
+    idx i(symbol("i"), 3), j(symbol("j"), 3), k(symbol("k"), 3);
+    symbol A("A"), B("B");
+    e = epsilon_tensor(i, j, k) * indexed(A, j) * indexed(B, k);
+    cout << simplify_indexed(e) << endl;
+     // -> -B.k*A.j*eps.i.k.j
+    e = epsilon_tensor(i, j, k) * indexed(A, j) * indexed(A, k);
+    cout << simplify_indexed(e) << endl;
+     // -> 0
+@}
+@end example
 
 @subsection Linear algebra
 
@@ -2299,8 +2321,10 @@ Finally, the function
 ex dirac_slash(const ex & e, const ex & dim, unsigned char rl = 0);
 @end example
 
-creates a term of the form @samp{e.mu gamma~mu} with a new and unique index
-whose dimension is given by the @code{dim} argument.
+creates a term that represents a contraction of @samp{e} with the Dirac
+Lorentz vector (it behaves like a term of the form @samp{e.mu gamma~mu}
+with a unique index whose dimension is given by the @code{dim} argument).
+Such slashed expressions are printed with a trailing backslash, e.g. @samp{e\}.
 
 In products of dirac gammas, superfluous unity elements are automatically
 removed, squares are replaced by their values and @samp{gamma5} is
@@ -2315,13 +2339,12 @@ contractions in gamma strings, for example
     ex e = dirac_gamma(mu) * dirac_slash(a, D)
          * dirac_gamma(mu.toggle_variance());
     cout << e << endl;
-     // -> (gamma~mu*gamma~symbol10*gamma.mu)*a.symbol10
+     // -> gamma~mu*a\*gamma.mu
     e = e.simplify_indexed();
     cout << e << endl;
-     // -> -gamma~symbol10*a.symbol10*D+2*gamma~symbol10*a.symbol10
+     // -> -D*a\+2*a\
     cout << e.subs(D == 4) << endl;
-     // -> -2*gamma~symbol10*a.symbol10
-     // [ == -2 * dirac_slash(a, D) ]
+     // -> -2*a\
     ...
 @}
 @end example
