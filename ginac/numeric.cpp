@@ -1443,9 +1443,11 @@ const numeric bernoulli(const numeric & nn)
         return _num0();
     // Until somebody has the Blues and comes up with a much better idea and
     // codes it (preferably in CLN) we make this a remembering function which
-    // computes its results using the formula
+    // computes its results using the defining formula
     // B(nn) == - 1/(nn+1) * sum_{k=0}^{nn-1}(binomial(nn+1,k)*B(k))
     // whith B(0) == 1.
+    // Be warned, though: the Bernoulli numbers are probably computationally 
+    // very expensive anyhow and you shouldn't expect miracles to happen.
     static vector<numeric> results;
     static int highest_result = -1;
     int n = nn.sub(_num2()).div(_num2()).to_int();
