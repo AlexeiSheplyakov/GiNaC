@@ -222,8 +222,8 @@ public:
     ex coeff(const symbol & s, int n=1) const;
     ex lcoeff(const symbol & s) const { return coeff(s, degree(s)); }
     ex tcoeff(const symbol & s) const { return coeff(s, ldegree(s)); }
-    ex numer(bool normalize = true) const;
-    ex denom(bool normalize = true) const;
+    ex numer(void) const;
+    ex denom(void) const;
     ex unit(const symbol &x) const;
     ex content(const symbol &x) const;
     numeric integer_content(void) const;
@@ -354,11 +354,11 @@ inline int ldegree(const ex & thisex, const symbol & s)
 inline ex coeff(const ex & thisex, const symbol & s, int n=1)
 { return thisex.coeff(s, n); }
 
-inline ex numer(const ex & thisex, bool normalize = true)
-{ return thisex.numer(normalize); }
+inline ex numer(const ex & thisex)
+{ return thisex.numer(); }
 
-inline ex denom(const ex & thisex, bool normalize = true)
-{ return thisex.denom(normalize); }
+inline ex denom(const ex & thisex)
+{ return thisex.denom(); }
 
 inline ex normal(const ex & thisex, int level=0)
 { return thisex.normal(level); }

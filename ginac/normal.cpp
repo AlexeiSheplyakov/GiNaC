@@ -1557,18 +1557,41 @@ ex mul::normal(lst &sym_lst, lst &repl_lst, int level) const
  *  @see ex::normal */
 ex power::normal(lst &sym_lst, lst &repl_lst, int level) const
 {
-    if (exponent.info(info_flags::posint)) {
-        // Integer powers are distributed
-        ex n = basis.bp->normal(sym_lst, repl_lst, level-1);
-		return (new lst(power(n.op(0), exponent), power(n.op(1), exponent)))->setflag(status_flags::dynallocated);
-	} else if (exponent.info(info_flags::negint)) {
-        // Integer powers are distributed
-        ex n = basis.bp->normal(sym_lst, repl_lst, level-1);
-		return (new lst(power(n.op(1), -exponent), power(n.op(0), -exponent)))->setflag(status_flags::dynallocated);
-    } else {
-        // Non-integer powers are replaced by temporary symbol (after normalizing basis)
-		ex n = basis.bp->normal(sym_lst, repl_lst, level-1);
-		return (new lst(replace_with_symbol(power(n.op(0) / n.op(1), exponent), sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
+	// Normalize basis
+    ex n = basis.bp->normal(sym_lst, repl_lst, level-1);
+
+	if (exponent.info(info_flags::integer)) {
+
+	    if (exponent.info(info_flags::positive)) {
+
+			// (a/b)^n -> {a^n, b^n}
+			return (new lst(power(n.op(0), exponent), power(n.op(1), exponent)))->setflag(status_flags::dynallocated);
+
+		} else if (exponent.info(info_flags::negint)) {
+
+			// (a/b)^-n -> {b^n, a^n}
+			return (new lst(power(n.op(1), -exponent), power(n.op(0), -exponent)))->setflag(status_flags::dynallocated);
+		}
+
+	} else {
+		if (exponent.info(info_flags::positive)) {
+
+			// (a/b)^z -> {sym((a/b)^z), 1}
+			return (new lst(replace_with_symbol(power(n.op(0) / n.op(1), exponent), sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
+
+		} else {
+
+			if (n.op(1).is_equal(_ex1())) {
+
+				// a^-x -> {1, sym(a^x)}
+				return (new lst(_ex1(), replace_with_symbol(power(n.op(0), -exponent), sym_lst, repl_lst)))->setflag(status_flags::dynallocated);
+
+			} else {
+
+				// (a/b)^-x -> {(b/a)^x, 1}
+				return (new lst(replace_with_symbol(power(n.op(1) / n.op(0), -exponent), sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
+			}
+		}
     }
 }
 
@@ -1616,6 +1639,46 @@ ex ex::normal(int level) const
 
 	// Convert {numerator, denominator} form back to fraction
     return e.op(0) / e.op(1);
+}
+
+/** Numerator of an expression. If the expression is not of the normal form
+ *  "numerator/denominator", it is first converted to this form and then the
+ *  numerator is returned.
+ *
+ *  @see ex::normal
+ *  @return numerator */
+ex ex::numer(void) const
+{
+    lst sym_lst, repl_lst;
+
+    ex e = bp->normal(sym_lst, repl_lst, 0);
+	GINAC_ASSERT(is_ex_of_type(e, lst));
+
+	// Re-insert replaced symbols
+    if (sym_lst.nops() > 0)
+        return e.op(0).subs(sym_lst, repl_lst);
+	else
+		return e.op(0);
+}
+
+/** Denominator of an expression. If the expression is not of the normal form
+ *  "numerator/denominator", it is first converted to this form and then the
+ *  denominator is returned.
+ *
+ *  @see ex::normal
+ *  @return denominator */
+ex ex::denom(void) const
+{
+    lst sym_lst, repl_lst;
+
+    ex e = bp->normal(sym_lst, repl_lst, 0);
+	GINAC_ASSERT(is_ex_of_type(e, lst));
+
+	// Re-insert replaced symbols
+    if (sym_lst.nops() > 0)
+        return e.op(1).subs(sym_lst, repl_lst);
+	else
+		return e.op(1);
 }
 
 #ifndef NO_NAMESPACE_GINAC
