@@ -91,7 +91,7 @@ int wildcard::compare_same_type(const basic & other) const
 		return label < o.label ? -1 : 1;
 }
 
-void wildcard::print(const print_context & c, unsigned level = 0) const
+void wildcard::print(const print_context & c, unsigned level) const
 {
 	debugmsg("wildcard print", LOGLEVEL_PRINT);
 

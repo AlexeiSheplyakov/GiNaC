@@ -161,7 +161,7 @@ int symmetry::compare_same_type(const basic & other) const
 	return 0;
 }
 
-void symmetry::print(const print_context & c, unsigned level = 0) const
+void symmetry::print(const print_context & c, unsigned level) const
 {
 	debugmsg("symmetry print", LOGLEVEL_PRINT);
 

@@ -207,7 +207,7 @@ static void get_symbol_stats(const ex &a, const ex &b, sym_desc_vec &v)
 		it->ldeg_b = b.ldegree(*(it->sym));
 		++it;
 	}
-	sort(v.begin(), v.end());
+	std::sort(v.begin(), v.end());
 #if 0
 	std::clog << "Symbols:\n";
 	it = v.begin(); itend = v.end();
