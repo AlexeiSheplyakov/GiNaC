@@ -1629,7 +1629,7 @@ const numeric binomial(const numeric &n, const numeric &k)
 	}
 	
 	// should really be gamma(n+1)/gamma(k+1)/gamma(n-k+1) or a suitable limit
-	throw std::range_error("numeric::binomial(): don´t know how to evaluate that.");
+	throw std::range_error("numeric::binomial(): don't know how to evaluate that.");
 }
 
 
