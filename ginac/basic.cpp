@@ -497,7 +497,7 @@ ex basic::eval_indexed(const basic & i) const
  *  (or a subclass) and their indices are compatible. This function is used
  *  internally by simplify_indexed().
  *
- *  @param self First indexed expression; it's base object is *this
+ *  @param self First indexed expression; its base object is *this
  *  @param other Second indexed expression
  *  @return sum of self and other 
  *  @see ex::simplify_indexed() */
@@ -509,7 +509,7 @@ ex basic::add_indexed(const ex & self, const ex & other) const
 /** Multiply an indexed expression with a scalar. This function is used
  *  internally by simplify_indexed().
  *
- *  @param self Indexed expression; it's base object is *this
+ *  @param self Indexed expression; its base object is *this
  *  @param other Numeric value
  *  @return product of self and other
  *  @see ex::simplify_indexed() */
@@ -525,7 +525,7 @@ ex basic::scalar_mul_indexed(const ex & self, const numeric & other) const
  *  and that at least one dummy index has been found. This functions is
  *  used internally by simplify_indexed().
  *
- *  @param self Pointer to first indexed expression; it's base object is *this
+ *  @param self Pointer to first indexed expression; its base object is *this
  *  @param other Pointer to second indexed expression
  *  @param v The complete vector of factors
  *  @return true if the contraction was successful, false otherwise
