@@ -147,10 +147,12 @@ ex ex::subs(const ex & e, unsigned options) const
 {
 	if (e.info(info_flags::relation_equal)) {
 		exmap m;
-		const ex & s = e.lhs();
-		m.insert(std::make_pair(s, e.rhs()));
+		const ex & s = e.op(0);
+		m.insert(std::make_pair(s, e.op(1)));
 		if (is_exactly_a<mul>(s) || is_exactly_a<power>(s))
 			options |= subs_options::pattern_is_product;
+		else
+			options |= subs_options::pattern_is_not_product;
 		return bp->subs(m, options);
 	} else if (!e.info(info_flags::list))
 		throw(std::invalid_argument("basic::subs(ex): argument must be a list"));
@@ -162,8 +164,8 @@ ex ex::subs(const ex & e, unsigned options) const
 		ex r = *it;
 		if (!r.info(info_flags::relation_equal))
 			throw(std::invalid_argument("basic::subs(ex): argument must be a list of equations"));
-		const ex & s = r.lhs();
-		m.insert(std::make_pair(s, r.rhs()));
+		const ex & s = r.op(0);
+		m.insert(std::make_pair(s, r.op(1)));
 
 		// Search for products and powers in the expressions to be substituted
 		// (for an optimization in expairseq::subs())
