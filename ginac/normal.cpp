@@ -1700,7 +1700,6 @@ ex lcm(const ex &a, const ex &b, bool check_args)
  *  @return   vector of factors sorted in ascending degree */
 static exvector sqrfree_yun(const ex &a, const symbol &x)
 {
-	int i = 0;
 	exvector res;
 	ex w = a;
 	ex z = w.diff(x);
@@ -1716,7 +1715,6 @@ static exvector sqrfree_yun(const ex &a, const symbol &x)
 		z = y - w.diff(x);
 		g = gcd(w, z);
 		res.push_back(g);
-		++i;
 	} while (!z.is_zero());
 	return res;
 }
