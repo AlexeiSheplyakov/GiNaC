@@ -42,7 +42,7 @@ static unsigned expand_subs(unsigned size)
 	
 	// prepare aux so it will swallow anything but a1^2:
 	aux = -e + a[0] + a[1];
-	e = pow(e,2).expand().subs(a[0]==aux).expand();
+	e = pow(e,2).expand().subs(a[0]==aux, subs_options::subs_no_pattern).expand();
 	
 	if (e != pow(a[1],2)) {
 		clog << "Denny Fliegner's quick consistency check erroneously returned "
@@ -64,10 +64,10 @@ unsigned time_dennyfliegner()
 	vector<double> times;
 	timer breitling;
 	
-	sizes.push_back(25);
 	sizes.push_back(50);
 	sizes.push_back(100);
 	sizes.push_back(200);
+	sizes.push_back(500);
 	
 	for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i) {
 		breitling.start();
