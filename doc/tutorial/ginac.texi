@@ -1232,13 +1232,19 @@ a relation between them that signals equality, inequality and so on.
 They are created by simply using the C++ operators @code{==}, @code{!=},
 @code{<}, @code{<=}, @code{>} and @code{>=} between two expressions.
 
-@xref{Mathematical functions}, for examples where various applications of
-the @code{.subs()} method show how objects of class relational are used
-as arguments.  There they provide an intuitive syntax for substitutions.
-They can also used for creating systems of equations that are to be
-solved for unknown variables.  More applications of this class will
-appear throughout the next chapters.
-
+@xref{Mathematical functions}, for examples where various applications
+of the @code{.subs()} method show how objects of class relational are
+used as arguments.  There they provide an intuitive syntax for
+substitutions.  They are also used as arguments to the @code{ex::series}
+method, where the left hand side of the relation specifies the variable
+to expand in and the right hand side the expansion point.  They can also
+be used for creating systems of equations that are to be solved for
+unknown variables.  But the most common usage of objects of this class
+is rather inconspicuous in statements of the form @code{if
+(expand(pow(a+b,2))==a*a+2*a*b+b*b) @{...@}}.  Here, an implicit
+conversion from @code{relational} to @code{bool} takes place.  Note,
+however, that @code{==} here does not perform any simplifications, hence
+@code{expand()} must be called explicitly.
 
 
 @node Methods and Functions, Information About Expressions, Relations, Top
