@@ -519,15 +519,19 @@ want to have the documentation installed in some other directory than
 
 @end itemize
 
-In addition, you may specify some environment variables.
-@env{CXX} holds the path and the name of the C++ compiler
-in case you want to override the default in your path.  (The
-@command{configure} script searches your path for @command{c++},
-@command{g++}, @command{gcc}, @command{CC}, @command{cxx}
-and @command{cc++} in that order.)  It may be very useful to
-define some compiler flags with the @env{CXXFLAGS} environment
-variable, like optimization, debugging information and warning
-levels.  If omitted, it defaults to @option{-g -O2}.
+In addition, you may specify some environment variables.  @env{CXX}
+holds the path and the name of the C++ compiler in case you want to
+override the default in your path.  (The @command{configure} script
+searches your path for @command{c++}, @command{g++}, @command{gcc},
+@command{CC}, @command{cxx} and @command{cc++} in that order.)  It may
+be very useful to define some compiler flags with the @env{CXXFLAGS}
+environment variable, like optimization, debugging information and
+warning levels.  If omitted, it defaults to @option{-g
+-O2}.@footnote{The @command{configure} script is itself generated from
+the file @file{configure.in}.  It is only distributed in packaged
+releases of GiNaC.  If you got the naked sources, e.g. from CVS, you
+must generate @command{configure} along with the various
+@file{Makefile.in} by using the @command{autogen.sh} script.}
 
 The whole process is illustrated in the following two
 examples. (Substitute @command{setenv @var{VARIABLE} @var{value}} for
@@ -550,7 +554,7 @@ assertions and debugging information are switched on:
 @example
 $ export CXX=/usr/local/gnu/bin/c++
 $ export CPPFLAGS="$(CPPFLAGS) -I$(HOME)/include"
-$ export CXXFLAGS="$(CXXFLAGS) -DDO_GINAC_ASSERT -ggdb -Wall -ansi -pedantic"
+$ export CXXFLAGS="$(CXXFLAGS) -DDO_GINAC_ASSERT -ggdb -Wall -pedantic"
 $ export LDFLAGS="$(LDFLAGS) -L$(HOME)/lib"
 $ ./configure --disable-shared --prefix=$(HOME)
 @end example
