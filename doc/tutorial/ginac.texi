@@ -1354,21 +1354,31 @@ second one in the range 0@dots{}@math{n-1}.
 There are a couple of ways to construct matrices, with or without preset
 elements:
 
+@cindex @code{lst_to_matrix()}
+@cindex @code{diag_matrix()}
+@cindex @code{unit_matrix()}
+@cindex @code{symbolic_matrix()}
 @example
 matrix::matrix(unsigned r, unsigned c);
 matrix::matrix(unsigned r, unsigned c, const lst & l);
 ex lst_to_matrix(const lst & l);
 ex diag_matrix(const lst & l);
+ex unit_matrix(unsigned x);
+ex unit_matrix(unsigned r, unsigned c);
+ex symbolic_matrix(unsigned r, unsigned c, const string & base_name);
+ex symbolic_matrix(unsigned r, unsigned c, const string & base_name, const string & tex_base_name);
 @end example
 
 The first two functions are @code{matrix} constructors which create a matrix
 with @samp{r} rows and @samp{c} columns. The matrix elements can be
 initialized from a (flat) list of expressions @samp{l}. Otherwise they are
 all set to zero. The @code{lst_to_matrix()} function constructs a matrix
-from a list of lists, each list representing a matrix row. Finally,
-@code{diag_matrix()} constructs a diagonal matrix given the list of diagonal
-elements. Note that the last two functions return expressions, not matrix
-objects.
+from a list of lists, each list representing a matrix row. @code{diag_matrix()}
+constructs a diagonal matrix given the list of diagonal elements.
+@code{unit_matrix()} creates an @samp{x} by @samp{x} (or @samp{r} by @samp{c})
+unit matrix. And finally, @code{symbolic_matrix} constructs a matrix filled
+with newly generated symbols made of the specified base name and the
+position of each element in the matrix.
 
 Matrix elements can be accessed and set using the parenthesis (function call)
 operator:
@@ -1382,27 +1392,32 @@ It is also possible to access the matrix elements in a linear fashion with
 the @code{op()} method. But C++-style subscripting with square brackets
 @samp{[]} is not available.
 
-Here are a couple of examples that all construct the same 2x2 diagonal
-matrix:
+Here are a couple of examples of constructing matrices:
 
 @example
 @{
     symbol a("a"), b("b");
-    ex e;
 
     matrix M(2, 2);
     M(0, 0) = a;
     M(1, 1) = b;
-    e = M;
-
-    e = matrix(2, 2, lst(a, 0, 0, b));
-
-    e = lst_to_matrix(lst(lst(a, 0), lst(0, b)));
-
-    e = diag_matrix(lst(a, b));
-
-    cout << e << endl;
+    cout << M << endl;
      // -> [[a,0],[0,b]]
+
+    cout << matrix(2, 2, lst(a, 0, 0, b)) << endl;
+     // -> [[a,0],[0,b]]
+
+    cout << lst_to_matrix(lst(lst(a, 0), lst(0, b))) << endl;
+     // -> [[a,0],[0,b]]
+
+    cout << diag_matrix(lst(a, b)) << endl;
+     // -> [[a,0],[0,b]]
+
+    cout << unit_matrix(3) << endl;
+     // -> [[1,0,0],[0,1,0],[0,0,1]]
+
+    cout << symbolic_matrix(2, 3, "x") << endl;
+     // -> [[x00,x01,x02],[x10,x11,x12]]
 @}
 @end example
 
@@ -1492,6 +1507,9 @@ general.
 The @code{matrix} class provides a couple of additional methods for
 computing determinants, traces, and characteristic polynomials:
 
+@cindex @code{determinant()}
+@cindex @code{trace()}
+@cindex @code{charpoly()}
 @example
 ex matrix::determinant(unsigned algo = determinant_algo::automatic) const;
 ex matrix::trace(void) const;
