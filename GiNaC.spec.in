@@ -65,10 +65,10 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/ldconfig
 
 %post devel
-/sbin/install-info %{prefix}/info/ginac.info.gz %{prefix}/info/dir
+/sbin/install-info %{prefix}/info/ginac.info %{prefix}/info/dir
 
 %preun devel
-/sbin/install-info --delete %{prefix}/info/ginac.info.gz %{prefix}/info/dir
+/sbin/install-info --delete %{prefix}/info/ginac.info %{prefix}/info/dir
 
 %files
 %defattr(-, root, root)
