@@ -1,4 +1,17 @@
 This file records noteworthy changes.
 
-0.4 (26 November 1999)
-* First release
+0.4.0 (26 November 1999)
+* First public release
+
+0.4.1 (13 December 1999)
+* Series Expansion of Gamma function and some other trigonometric
+  functions at their poles works now.
+* Many more evaluations of special functions at points where
+  exact results exist.
+* info_flags::rational doesn't return true for complex extensions
+  any more---use info_flags::crational for the old behaviour.
+  info_flags::integer and -::cinteger work similarly, the same
+  holds for types like info_flags::rational_polynomial.
+
+
+
