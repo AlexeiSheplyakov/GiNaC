@@ -107,7 +107,7 @@ static unsigned clifford_check3(void)
 
 	symbol dim("D"), m("m"), q("q"), l("l"), ldotq("ldotq");
 	varidx mu(symbol("mu"), dim), nu(symbol("nu"), dim), rho(symbol("rho"), dim),
-	       sig(symbol("sig"), dim), kap(symbol("kap"), dim), lam(symbol("lam"), 4);
+	       sig(symbol("sig"), dim), kap(symbol("kap"), dim), lam(symbol("lam"), dim);
 	ex e;
 
 	e = dirac_gamma(mu);

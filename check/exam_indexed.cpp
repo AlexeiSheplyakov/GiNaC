@@ -123,20 +123,25 @@ static unsigned epsilon_check(void)
 	symbol s_mu("mu"), s_nu("nu"), s_rho("rho"), s_sigma("sigma"), s_tau("tau");
 	symbol d("d");
 	varidx mu(s_mu, 4), nu(s_nu, 4), rho(s_rho, 4), sigma(s_sigma, 4), tau(s_tau, 4);
+	varidx mu_co(s_mu, 4, true), nu_co(s_nu, 4, true), rho_co(s_rho, 4, true), sigma_co(s_sigma, 4, true), tau_co(s_tau, 4, true);
 
 	// antisymmetry
 	result += check_equal(lorentz_eps(mu, nu, rho, sigma) + lorentz_eps(sigma, rho, mu, nu), 0);
 
 	// convolution is zero
-	result += check_equal(lorentz_eps(mu, nu, rho, nu.toggle_variance()), 0);
-	result += check_equal(lorentz_eps(mu, nu, mu.toggle_variance(), nu.toggle_variance()), 0);
-	result += check_equal_simplify(lorentz_g(mu.toggle_variance(), nu.toggle_variance()) * lorentz_eps(mu, nu, rho, sigma), 0);
+	result += check_equal(lorentz_eps(mu, nu, rho, nu_co), 0);
+	result += check_equal(lorentz_eps(mu, nu, mu_co, nu_co), 0);
+	result += check_equal_simplify(lorentz_g(mu_co, nu_co) * lorentz_eps(mu, nu, rho, sigma), 0);
 
 	// contraction with symmetric tensor is zero
-	result += check_equal_simplify(lorentz_eps(mu, nu, rho, sigma) * indexed(d, sy_symm(), mu.toggle_variance(), nu.toggle_variance()), 0);
-	result += check_equal_simplify(lorentz_eps(mu, nu, rho, sigma) * indexed(d, sy_symm(), nu.toggle_variance(), sigma.toggle_variance(), rho.toggle_variance()), 0);
-	ex e = lorentz_eps(mu, nu, rho, sigma) * indexed(d, sy_symm(), mu.toggle_variance(), tau);
+	result += check_equal_simplify(lorentz_eps(mu, nu, rho, sigma) * indexed(d, sy_symm(), mu_co, nu_co), 0);
+	result += check_equal_simplify(lorentz_eps(mu, nu, rho, sigma) * indexed(d, sy_symm(), nu_co, sigma_co, rho_co), 0);
+	ex e = lorentz_eps(mu, nu, rho, sigma) * indexed(d, sy_symm(), mu_co, tau);
 	result += check_equal_simplify(e, e);
+
+	// contractions of epsilon tensors
+	result += check_equal_simplify(lorentz_eps(mu, nu, rho, sigma) * lorentz_eps(mu_co, nu_co, rho_co, sigma_co), -24);
+	result += check_equal_simplify(lorentz_eps(tau, nu, rho, sigma) * lorentz_eps(mu_co, nu_co, rho_co, sigma_co), -6 * delta_tensor(tau, mu_co));
 
 	return result;
 }
