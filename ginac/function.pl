@@ -337,6 +337,9 @@ public:
 	void print(std::ostream & os, unsigned upper_precedence=0) const;
 	void printtree(std::ostream & os, unsigned indent) const;
 	void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence=0) const;
+	int degree(const ex & s) const;
+	int ldegree(const ex & s) const;
+	ex coeff(const ex & s, int n = 1) const;
 	ex expand(unsigned options=0) const;
 	ex eval(int level=0) const;
 	ex evalf(int level=0) const;
@@ -706,6 +709,24 @@ void function::printcsrc(std::ostream & os, unsigned type, unsigned upper_preced
 ex function::expand(unsigned options) const
 {
 	return this->setflag(status_flags::expanded);
+}
+
+int function::degree(const ex & s) const
+{
+	return is_equal(*s.bp) ? 1 : 0;
+}
+
+int function::ldegree(const ex & s) const
+{
+	return is_equal(*s.bp) ? 1 : 0;
+}
+
+ex function::coeff(const ex & s, int n) const
+{
+	if (is_equal(*s.bp))
+		return n==1 ? _ex1() : _ex0();
+	else
+		return n==0 ? ex(*this) : _ex0();
 }
 
 ex function::eval(int level) const
