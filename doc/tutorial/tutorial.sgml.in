@@ -107,6 +107,7 @@ pointless) bivariate polynomial with some large coefficients:
 <title>My first GiNaC program (a bivariate polynomial)</title>
 <programlisting>
 #include &lt;ginac/ginac.h&gt;
+using namespace GiNaC;
 
 int main()
 {
@@ -137,6 +138,7 @@ variable.
 <title>My second GiNaC program (Hermite polynomials)</title>
 <programlisting>
 #include &lt;ginac/ginac.h&gt;
+using namespace GiNaC;
 
 ex HermitePoly(symbol x, int deg)
 {
@@ -539,6 +541,7 @@ Consider the simple sequence of code:
 <example><title>Simple copy-on-write semantics</title>
 <programlisting>
 #include &lt;ginac/ginac.h&gt;
+using namespace GiNaC;
 
 int main()
 {
@@ -572,6 +575,7 @@ make clear how powerful this can be.  <example><title>Advanced
 copy-on-write semantics</title>
 <programlisting>
 #include &lt;ginac/ginac.h&gt;
+using namespace GiNaC;
 
 int main()
 {
@@ -732,6 +736,7 @@ from C-float and construction from a string.
 <example><title>Construction of numbers</title>
 <programlisting>
 #include &lt;ginac/ginac.h&gt;
+using namespace GiNaC;
 
 int main()
 {
@@ -771,8 +776,8 @@ objects of class numeric that are constructed from then on will be
 stored with a precision matching that number of decimal digits:
 <example><title>Controlling the precision of floating point numbers</title>
 <programlisting> 
-#include
-&lt;ginac/ginac.h&gt;
+#include &lt;ginac/ginac.h&gt;
+using namespace GiNaC;
 
 void foo()
 {
@@ -818,6 +823,7 @@ with some multiple of its denominator and check what comes out:
 <example><title>Sample test on objects of type numeric</title>
 <programlisting>
 #include &lt;ginac/ginac.h&gt;
+using namespace GiNaC;
 
 int main()
 {
@@ -959,6 +965,7 @@ type <literal>add</literal> is called to hold the sum of that
 <example><title>Construction of <literal>add</literal> and <literal>mul</literal> objects</title>
 <programlisting>
 #include &lt;ginac/ginac.h&gt;
+using namespace GiNaC;
 
 int main()
 {
@@ -1056,6 +1063,7 @@ the simple example:
 <example><title>Methods vs. wrapper functions</title>
 <programlisting>
 #include &lt;ginac/ginac.h&gt;
+using namespace GiNaC;
 
 int main()
 {
@@ -1146,6 +1154,7 @@ in the following example:
 <example><title>Collecting expressions in multivariate polynomials</title>
 <programlisting>
 #include &lt;ginac/ginac.h&gt;
+using namespace GiNaC;
 
 int main()
 {
@@ -1205,6 +1214,7 @@ and <function>lcm(a,b)</function> returns the product of
 <example><title>Polynomal GCD/LCM</title>
 <programlisting>
 #include &lt;ginac/ginac.h&gt;
+using namespace GiNaC;
 
 int main()
 {
@@ -1243,6 +1253,7 @@ just like <literal>.expand()</literal>.</para>
 <example><title>Simple polynomial differentiation</title>
 <programlisting>
 #include &lt;ginac/ginac.h&gt;
+using namespace GiNaC;
 
 int main()
 {
@@ -1262,6 +1273,7 @@ int main()
 <example><title>Differentiation with nontrivial functions</title>
 <programlisting>
 #include &lt;ginac/ginac.h&gt;
+using namespace GiNaC;
 
 int main()
 {
@@ -1283,6 +1295,7 @@ storing the order of the series.  A sample program could read:
 <example><title>Series expansion</title>
 <programlisting>
 #include &lt;ginac/ginac.h&gt;
+using namespace GiNaC;
 
 int main()
 {
@@ -1313,9 +1326,11 @@ the fractions <literal>1/5</literal> and <literal>1/239</literal>.
 But, as we have seen, a series in GiNaC carries an order term with it.
 The preprocessor-macro <literal>series_to_poly</literal> may be used
 to strip this off:
-<example><title>Series expansion using M&eacute;chain's formula</title>
+<example><title>Series expansion using M&eacute;chain's formula for 
+<literal>Pi</literal></title>
 <programlisting>
 #include &lt;ginac/ginac.h&gt;
+using namespace GiNaC;
 
 ex mechain_pi(int degr)
 {
