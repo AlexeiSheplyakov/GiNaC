@@ -984,12 +984,21 @@ The above example prints the following output to screen:
 
 @example
 in 17 digits:
-0.333333333333333333
-3.14159265358979324
+0.33333333333333333334
+3.1415926535897932385
 in 60 digits:
-0.333333333333333333333333333333333333333333333333333333333333333333
-3.14159265358979323846264338327950288419716939937510582097494459231
+0.33333333333333333333333333333333333333333333333333333333333333333334
+3.1415926535897932384626433832795028841971693993751058209749445923078
 @end example
+
+@cindex rounding
+Note that the last number is not necessarily rounded as you would
+naively expect it to be rounded in the decimal system.  But note also,
+that in both cases you got a couple of extra digits.  This is because
+numbers are internally stored by CLN as chunks of binary digits in order
+to match your machine's word size and to not waste precision.  Thus, on
+architectures with differnt word size, the above output might even
+differ with regard to actually computed digits.
 
 It should be clear that objects of class @code{numeric} should be used
 for constructing numbers or for doing arithmetic with them.  The objects
