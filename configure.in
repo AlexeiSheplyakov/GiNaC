@@ -151,34 +151,56 @@ AC_SUBST(REFERENCE_TARGETS)
 
 dnl Configure GiNaC-cint
 AC_ARG_WITH(cint, [  --with-cint=CINTSYSDIR  build GiNaC-cint C++ interpreter [default=no]], , with_cint=no)
+dnl The variable GINACCINTDIR controls whether the subdirectory cint is entered
+dnl from the top-level Makefile or not.
 GINACCINTDIR=
 if test "x$with_cint" != "xno"; then
-  if test "x$with_cint" = "xyes"; then
-    if test "x$CINTSYSDIR" = "x"; then
-      AC_MSG_ERROR([please export \$CINTSYSDIR or specify --with-cint=CINTSYSDIR])
-    fi
-  else
+  dnl Maybe CINTSYSDIR was passed as an argument.  In this case it should 
+  dnl override any CINTSYSDIR variable already set.
+  if test "x$with_cint" != "xyes"; then
     CINTSYSDIR=$with_cint
     export CINTSYSDIR
   fi
-  AC_PATH_PROG(CINT, cint, "", $CINTSYSDIR:$PATH)
-  AC_PATH_PROG(MAKECINT, makecint, "", $CINTSYSDIR:$PATH)
-  if [[ "$CINT" -a "$MAKECINT" ]]; then
-    AC_MSG_RESULT([creating cint/Makefile])
-    (cd cint && \
-    $MAKECINT -mk Makefile.makecint -o ginaccint.bin -m \
-      -D OBSCURE_CINT_HACK "$CPPFLAGS" -cc "$CXXFLAGS" \
-      -I .. -I $CINTSYSDIR -m -H ../ginac/ginac.h \
-      -C++ ginaccint.bin.cpp \
-      -l -L../ginac/.libs -lginac -lcln \
-      -cint -M0x110; \
-    cd ..)
-    GINACCINTDIR="cint"
+  dnl Now have to handle two possbile cases, one with CINTSYSDIR set and one 
+  dnl without.  In the first one we search for cint and makecint in CINTSYSDIR
+  dnl and PATH, in the second there is only the PATH to search in.
+  if test "x$CINTSYSDIR" != "x"; then
+    AC_PATH_PROG(CINT, cint, , $CINTSYSDIR:$PATH)
+    AC_PATH_PROG(MAKECINT, makecint, , $CINTSYSDIR:$PATH)
+    if [[ "$CINT" -a "$MAKECINT" ]]; then
+      AC_MSG_RESULT([creating cint/Makefile])
+      (cd cint && \
+      $MAKECINT -mk Makefile.makecint -o ginaccint.bin -m \
+        -D OBSCURE_CINT_HACK "$CPPFLAGS" -cc "$CXXFLAGS" \
+        -I .. -I $CINTSYSDIR -m -H ../ginac/ginac.h \
+        -C++ ginaccint.bin.cpp \
+        -l -L../ginac/.libs -lginac -lcln \
+        -cint -M0x110; \
+      cd ..)
+      GINACCINTDIR="cint"
+      AC_SUBST(CINTSYSDIR)
+    else
+      GINAC_WARNING([I could not find cint and makecint (needed for building GiNaC-cint).])
+    fi
   else
-    GINAC_WARNING([I could not find cint and makecint (needed for building GiNaC-cint).])
+    AC_PATH_PROG(CINT, cint)
+    AC_PATH_PROG(MAKECINT, makecint)
+    if [[ "$CINT" -a "$MAKECINT" ]]; then
+      AC_MSG_RESULT([creating cint/Makefile])
+      (cd cint && \
+      $MAKECINT -mk Makefile.makecint -o ginaccint.bin -m \
+        -D OBSCURE_CINT_HACK "$CPPFLAGS" -cc "$CXXFLAGS" \
+        -I .. -m -H ../ginac/ginac.h \
+        -C++ ginaccint.bin.cpp \
+        -l -L../ginac/.libs -lginac -lcln \
+        -cint -M0x110; \
+      cd ..)
+      GINACCINTDIR="cint"
+    else
+      GINAC_WARNING([I could not find cint and makecint (needed for building GiNaC-cint).])
+    fi
   fi
 fi
-AC_SUBST(CINTSYSDIR)
 AC_SUBST(GINACCINTDIR)
 
 dnl Output makefiles etc.
