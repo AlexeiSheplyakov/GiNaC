@@ -20,7 +20,9 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <string>
 #include <iostream>
+#include <sstream>
 #include <algorithm>
 #include <map>
 #include <stdexcept>
@@ -229,7 +231,7 @@ ex matrix::eval(int level) const
 			m2[r*col+c] = m[r*col+c].eval(level);
 	
 	return (new matrix(row, col, m2))->setflag(status_flags::dynallocated |
-											   status_flags::evaluated );
+											   status_flags::evaluated);
 }
 
 ex matrix::subs(const lst & ls, const lst & lr, bool no_pattern) const
@@ -1454,15 +1456,15 @@ ex lst_to_matrix(const lst & l)
 			cols = l.op(i).nops();
 
 	// Allocate and fill matrix
-	matrix &m = *new matrix(rows, cols);
-	m.setflag(status_flags::dynallocated);
+	matrix &M = *new matrix(rows, cols);
+	M.setflag(status_flags::dynallocated);
 	for (i=0; i<rows; i++)
 		for (j=0; j<cols; j++)
 			if (l.op(i).nops() > j)
-				m(i, j) = l.op(i).op(j);
+				M(i, j) = l.op(i).op(j);
 			else
-				m(i, j) = _ex0;
-	return m;
+				M(i, j) = _ex0;
+	return M;
 }
 
 ex diag_matrix(const lst & l)
@@ -1483,6 +1485,43 @@ ex unit_matrix(unsigned r, unsigned c)
 	for (unsigned i=0; i<r && i<c; ++i)
 		Id(i,i) = _ex1;
 	return Id;
+}
+
+ex symbolic_matrix(unsigned r, unsigned c, const std::string & base_name, const std::string & tex_base_name)
+{
+	matrix &M = *new matrix(r, c);
+	M.setflag(status_flags::dynallocated | status_flags::evaluated);
+
+	bool long_format = (r > 10 || c > 10);
+	bool single_row = (r == 1 || c == 1);
+
+	for (unsigned i=0; i<r; i++) {
+		for (unsigned j=0; j<c; j++) {
+			std::ostringstream s1, s2;
+			s1 << base_name;
+			s2 << tex_base_name << "_{";
+			if (single_row) {
+				if (c == 1) {
+					s1 << i;
+					s2 << i << '}';
+				} else {
+					s1 << j;
+					s2 << j << '}';
+				}
+			} else {
+				if (long_format) {
+					s1 << '_' << i << '_' << j;
+					s2 << i << ';' << j << "}";
+				} else {
+					s1 << i << j;
+					s2 << i << j << '}';
+				}
+			}
+			M(i, j) = symbol(s1.str(), s2.str());
+		}
+	}
+
+	return M;
 }
 
 } // namespace GiNaC

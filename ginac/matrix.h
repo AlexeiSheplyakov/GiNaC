@@ -24,6 +24,7 @@
 #define __GINAC_MATRIX_H__
 
 #include <vector>
+#include <string>
 #include "basic.h"
 #include "ex.h"
 
@@ -144,12 +145,22 @@ extern ex lst_to_matrix(const lst & l);
 /** Convert list of diagonal elements to matrix. */
 extern ex diag_matrix(const lst & l);
 
-/** Create a r times c unit matrix. */
+/** Create an r times c unit matrix. */
 extern ex unit_matrix(unsigned r, unsigned c);
 
 /** Create a x times x unit matrix. */
 inline ex unit_matrix(unsigned x)
 { return unit_matrix(x, x); }
+
+/** Create an r times c matrix of newly generated symbols consisting of the
+ *  given base name plus the numeric row/column position of each element.
+ *  The base name for LaTeX output is specified separately. */
+extern ex symbolic_matrix(unsigned r, unsigned c, const std::string & base_name, const std::string & tex_base_name);
+
+/** Create an r times c matrix of newly generated symbols consisting of the
+ *  given base name plus the numeric row/column position of each element. */
+inline ex symbolic_matrix(unsigned r, unsigned c, const std::string & base_name)
+{ return symbolic_matrix(r, c, base_name, base_name); }
 
 } // namespace GiNaC
 
