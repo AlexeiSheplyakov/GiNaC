@@ -3176,8 +3176,9 @@ $2^n$
 @end tex
 dimensional algebra with
 generators @samp{e~k} satisfying the identities 
-@samp{e~i e~j + e~j e~i = B(i, j)} for some symmetric matrix (@code{metric})
-@math{B(i, j)}. Such generators are created by the function
+@samp{e~i e~j + e~j e~i = B(i, j)} for some matrix (@code{metric})
+@math{B(i, j)}, which may be non-symmetric. Such generators are created
+by the function
 
 @example
     ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl = 0);
@@ -3191,6 +3192,15 @@ Clifford algebras (which will commute with each other). Note that the call
 @code{clifford_unit(mu, minkmetric())} creates something very close to
 @code{dirac_gamma(mu)}. The method @code{clifford::get_metric()} returns a
 metric defining this Clifford number.
+
+If the matrix @math{B(i, j)} is in fact symmetric you may prefer to create
+the Clifford algebra units with a call like that
+
+@example
+    ex e = clifford_unit(mu, indexed(B, sy_symm(), i, j));
+@end example
+
+since this may yield some further automatic simplifications.
 
 Individual generators of a Clifford algebra can be accessed in several
 ways. For example 
@@ -3333,12 +3343,13 @@ The last provided function is
 @cindex @code{clifford_moebius_map()}
 @example
     ex clifford_moebius_map(const ex & a, const ex & b, const ex & c,
-                            const ex & d, const ex & v, const ex & G);
+                            const ex & d, const ex & v, const ex & G, unsigned char rl = 0);
+    ex clifford_moebius_map(const ex & M, const ex & v, const ex & G, unsigned char rl = 0);
 @end example 
 
 It takes a list or vector @code{v} and makes the Moebius
 (conformal or linear-fractional) transformation @samp{v ->
-(av+b)/(cv+d)} defined by the matrix @samp{[[a, b], [c, d]]}. The last
+(av+b)/(cv+d)} defined by the matrix @samp{M = [[a, b], [c, d]]}. The
 parameter @code{G} defines the metric of the surrounding
 (pseudo-)Euclidean space. The returned value of this function is a list
 of components of the resulting vector.

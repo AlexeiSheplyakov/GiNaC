@@ -1160,7 +1160,7 @@ lst clifford_to_lst (const ex & e, const ex & c, bool algebraic)
 }
 
 
-ex clifford_moebius_map(const ex & a, const ex & b, const ex & c, const ex & d, const ex & v, const ex & G)
+ex clifford_moebius_map(const ex & a, const ex & b, const ex & c, const ex & d, const ex & v, const ex & G, unsigned char rl)
 {
 	ex x, D;
 	if (is_a<indexed>(G)) 
@@ -1175,17 +1175,17 @@ ex clifford_moebius_map(const ex & a, const ex & b, const ex & c, const ex & d, 
 	if (! is_a<matrix>(v) && ! is_a<lst>(v))
 		throw(std::invalid_argument("parameter v should be either vector or list"));
 
-	x = lst_to_clifford(v, mu, G);
+	x = lst_to_clifford(v, mu, G, rl);
 	ex e = simplify_indexed(canonicalize_clifford((a * x + b) * clifford_inverse(c * x + d)));
 	ex cu = clifford_unit(mu, G);
 	return clifford_to_lst(e, cu, false);
 }
 
-ex clifford_moebius_map(const ex & M, const ex & v, const ex & G) 
+ex clifford_moebius_map(const ex & M, const ex & v, const ex & G, unsigned char rl)
 {
 	if (is_a<matrix>(M)) 
 		return clifford_moebius_map(ex_to<matrix>(M)(0,0), ex_to<matrix>(M)(0,1), 
-						ex_to<matrix>(M)(1,0), ex_to<matrix>(M)(1,1), v, G);
+						ex_to<matrix>(M)(1,0), ex_to<matrix>(M)(1,1), v, G, rl);
 	else
 		throw(std::invalid_argument("parameter M should be a matrix"));
 }
