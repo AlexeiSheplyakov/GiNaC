@@ -94,22 +94,22 @@ complains about unresolved objects try linking with libncurses, too.
 Working with the Cint C++ interpreter
 =====================================
 
-The interface to the Cint C++ interpreter is currently in an alpha
-state.  Please see <http://root.cern.ch/root/Cint.html> to learn about
-Cint and install it before installing ginaccint.  For the tool
-makecint to work properly it must know where Cint has its system
-directory.  This is usually done by exporting $CINTSYSDIR to point to
-the proper place.  With GiNaC you may either try to export that
-variable and type
+Please see <http://root.cern.ch/root/Cint.html> to learn about Cint
+and install it prior to installing ginaccint.  For the interpreter-
+compiler `makecint' to work properly, the Makefiles need to know where
+Cint has its system directory.  This is usually done by exporting
+$CINTSYSDIR to point to the proper place.  With GiNaC you may either
+try to export that variable and type
  $ ./configure --with-cint
-or specify it on the command line saying
+or specify it directly on the command line by saying
  $ ./configure --with-cint=/my/path/to/cintsysdir
-Good luck!
+Enjoy!
 
-  Known to work with:  |  Known not to work with:
------------------------+----------------------------
-  Cint 5.14.38         |  Cint before 5.14.37
+Here is an overview to gives you an idea if you can expect GiNaCcint 
+to compile, install and work properly:
 
-Due to a bug in Cint 5.14.38 compilation will fail with GCC 2.95.2,
-maybe even with all 2.95.x.  Currently you must use EGCS-1.1.x.  This
-is under investigation.
+ Cint version |   is known to work with   |  is known not to work with
+--------------+---------------------------+-----------------------------
+ < 5.14.37    |                           | (incompatible with GiNaC)
+   5.14.38    | egcs 1.1.1 (problematic)  | gcc.2.95.2
+   5.14.39    | egcs 1.1.1, gcc.2.95.2    | gcc <= 2.7.2.3
