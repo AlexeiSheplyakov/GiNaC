@@ -1504,17 +1504,18 @@ epvector * expairseq::subschildren(lst const & ls, lst const & lr) const
     // returns a NULL pointer if nothing had to be substituted
     // returns a pointer to a newly created epvector otherwise
     // (which has to be deleted somewhere else)
-
+    GINAC_ASSERT(ls.nops()==lr.nops());
+    
     epvector::const_iterator last=seq.end();
     epvector::const_iterator cit=seq.begin();
     while (cit!=last) {
         ex const & subsed_ex=(*cit).rest.subs(ls,lr);
         if (!are_ex_trivially_equal((*cit).rest,subsed_ex)) {
-
+            
             // something changed, copy seq, subs and return it
             epvector *s=new epvector;
             s->reserve(seq.size());
-
+            
             // copy parts of seq which are known not to have changed
             epvector::const_iterator cit2=seq.begin();
             while (cit2!=cit) {
@@ -1530,7 +1531,7 @@ epvector * expairseq::subschildren(lst const & ls, lst const & lr) const
                 s->push_back(combine_ex_with_coeff_to_pair((*cit2).rest.subs(ls,lr),
                                                            (*cit2).coeff));
                 ++cit2;
-	    }
+            }
             return s;
         }
         ++cit;

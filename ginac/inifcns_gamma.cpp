@@ -27,9 +27,12 @@
 #include "inifcns.h"
 #include "ex.h"
 #include "constant.h"
+#include "series.h"
 #include "numeric.h"
 #include "power.h"
+#include "relational.h"
 #include "symbol.h"
+#include "utils.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
@@ -43,7 +46,7 @@ namespace GiNaC {
  *  arguments and that's it. Somebody ought to provide some good numerical
  *  evaluation some day...
  *
- *  @exception fail_numeric("complex_infinity") or something similar... */
+ *  @exception std::domain_error("gamma_eval(): simple pole") */
 static ex gamma_eval(ex const & x)
 {
     if (x.info(info_flags::numeric)) {
@@ -58,7 +61,7 @@ static ex gamma_eval(ex const & x)
         }
         // trap half integer arguments:
         if ((x*2).info(info_flags::integer)) {
-            // trap positive x=(n+1/2)
+            // trap positive x==(n+1/2)
             // gamma(n+1/2) -> Pi^(1/2)*(1*3*..*(2*n-1))/(2^n)
             if ((x*2).info(info_flags::posint)) {
                 numeric n = ex_to_numeric(x).sub(numHALF());
@@ -66,7 +69,7 @@ static ex gamma_eval(ex const & x)
                 coefficient = coefficient.div(numTWO().power(n));
                 return coefficient * pow(Pi,numHALF());
             } else {
-                // trap negative x=(-n+1/2)
+                // trap negative x==(-n+1/2)
                 // gamma(-n+1/2) -> Pi^(1/2)*(-2)^n/(1*3*..*(2*n-1))
                 numeric n = abs(ex_to_numeric(x).sub(numHALF()));
                 numeric coefficient = numeric(-2).power(n);
@@ -96,12 +99,21 @@ static ex gamma_diff(ex const & x, unsigned diff_param)
 
 static ex gamma_series(ex const & x, symbol const & s, ex const & point, int order)
 {
-	// FIXME: Only handle one special case for now...
-	if (x.is_equal(s) && point.is_zero()) {
-		ex e = 1 / s - EulerGamma + s * (pow(Pi, 2) / 12 + pow(EulerGamma, 2) / 2) + Order(pow(s, 2));
-		return e.series(s, point, order);
-	} else
-		throw(std::logic_error("don't know the series expansion of this particular gamma function"));
+    // method:
+    // Taylor series where there is no pole falls back to psi functions.
+    // On a pole at -n use the identity
+    //   series(GAMMA(x),x=-n,order) ==
+    //   series(GAMMA(x+n+1)/(x*(x+1)...*(x+n)),x=-n,order+1);
+    ex xpoint = x.subs(s==point);
+    if (!xpoint.info(info_flags::integer) || xpoint.info(info_flags::positive))
+        throw do_taylor();
+    // if we got here we have to care for a simple pole at -n:
+    numeric n = -ex_to_numeric(xpoint);
+    ex ser_numer = gamma(x+n+exONE());
+    ex ser_denom = exONE();
+    for (numeric p; p<=n; ++p)
+        ser_denom *= x+p;
+    return (ser_numer/ser_denom).series(s, point, order+1);
 }
 
 REGISTER_FUNCTION(gamma, gamma_eval, gamma_evalf, gamma_diff, gamma_series);
@@ -166,16 +178,7 @@ static ex beta_diff(ex const & x, ex const & y, unsigned diff_param)
     return retval;
 }
 
-static ex beta_series(ex const & x, ex const & y, symbol const & s, ex const & point, int order)
-{
-	if (x.is_equal(s) && point.is_zero()) {
-		ex e = 1 / s - EulerGamma + s * (pow(Pi, 2) / 12 + pow(EulerGamma, 2) / 2) + Order(pow(s, 2));
-		return e.series(s, point, order);
-	} else
-		throw(std::logic_error("don't know the series expansion of this particular beta function"));
-}
-
-REGISTER_FUNCTION(beta, beta_eval, beta_evalf, beta_diff, beta_series);
+REGISTER_FUNCTION(beta, beta_eval, beta_evalf, beta_diff, NULL);
 
 //////////
 // Psi-function (aka polygamma-function)
@@ -240,8 +243,15 @@ static ex psi2_eval(ex const & n, ex const & x)
     // psi(0,x) -> psi(x)
     if (n.is_zero())
         return psi(x);
-    if (n.info(info_flags::numeric) && x.info(info_flags::numeric)) {
-        // do some stuff...
+    // psi(-1,x) -> log(gamma(x))
+    if (n.is_equal(exMINUSONE()))
+        return log(gamma(x));
+    if (n.info(info_flags::numeric) && n.info(info_flags::posint) &&
+        x.info(info_flags::numeric)) {
+        numeric nn = ex_to_numeric(n);
+        numeric nx = ex_to_numeric(x);
+        if (x.is_equal(exONE()))
+            return numMINUSONE().power(nn+numONE())*factorial(nn)*zeta(ex(nn+numONE()));
     }
     return psi(n, x).hold();
 }    

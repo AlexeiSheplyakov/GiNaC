@@ -182,7 +182,7 @@ ex series::eval(int level) const
 {
     if (level == 1)
         return this->hold();
-
+    
     // Construct a new series with evaluated coefficients
     epvector new_seq;
     new_seq.reserve(seq.size());
@@ -194,11 +194,11 @@ ex series::eval(int level) const
     return (new series(var, point, new_seq))->setflag(status_flags::dynallocated | status_flags::evaluated);
 }
 
+/** Evaluate numerically.  The order term is dropped. */
 ex series::evalf(int level) const
 {
     return convert_to_poly().evalf(level);
 }
-
 
 /*
  *  Construct expression (polynomial) out of series
@@ -211,7 +211,7 @@ ex series::convert_to_poly(bool no_order) const
 {
     ex e;
     epvector::const_iterator it = seq.begin(), itend = seq.end();
-
+    
     while (it != itend) {
         if (is_order_function(it->rest)) {
             if (!no_order)
@@ -238,7 +238,7 @@ ex basic::series(symbol const & s, ex const & point, int order) const
     ex coeff = deriv.subs(s == point);
     if (!coeff.is_zero())
         seq.push_back(expair(coeff, numeric(0)));
-
+    
     int n;
     for (n=1; n<order; n++) {
         fac = fac.mul(numeric(n));
@@ -251,7 +251,7 @@ ex basic::series(symbol const & s, ex const & point, int order) const
         if (!coeff.is_zero())
             seq.push_back(expair(coeff, numeric(n)));
     }
-
+    
     // Higher-order terms, if present
     deriv = deriv.diff(s);
     if (!deriv.is_zero())
@@ -274,7 +274,7 @@ ex series::add_series(const series &other) const
         nul.push_back(expair(Order(exONE()), exZERO()));
         return series(var, point, nul);
     }
-
+    
     // Series addition
     epvector new_seq;
     epvector::const_iterator a = seq.begin();
@@ -292,7 +292,7 @@ ex series::add_series(const series &other) const
             break;
         } else
             pow_a = ex_to_numeric((*a).coeff).to_int();
-
+        
         // If b is empty, fill up with elements from a and stop
         if (b == b_end) {
             while (a != a_end) {
@@ -302,7 +302,7 @@ ex series::add_series(const series &other) const
             break;
         } else
             pow_b = ex_to_numeric((*b).coeff).to_int();
-
+        
         // a and b are non-empty, compare powers
         if (pow_a < pow_b) {
             // a has lesser power, get coefficient from a
@@ -374,10 +374,10 @@ ex add::series(symbol const & s, ex const & point, int order) const
 ex add::series(symbol const & s, ex const & point, int order) const
 {
     ex acc; // Series accumulator
-
+    
     // Get first term from overall_coeff
     acc = overall_coeff.series(s,point,order);
-
+    
     // Add remaining terms
     epvector::const_iterator it = seq.begin();
     epvector::const_iterator itend = seq.end();
@@ -389,7 +389,7 @@ ex add::series(symbol const & s, ex const & point, int order) const
             op = it->rest.series(s, point, order);
         if (!it->coeff.is_equal(exONE()))
             op = ex_to_series(op).mul_const(ex_to_numeric(it->coeff));
-
+        
         // Series addition
         acc = ex_to_series(acc).add_series(ex_to_series(op));
     }
@@ -406,7 +406,7 @@ ex series::mul_const(const numeric &other) const
 {
     epvector new_seq;
     new_seq.reserve(seq.size());
-
+    
     epvector::const_iterator it = seq.begin(), itend = seq.end();
     while (it != itend) {
         if (!is_order_function(it->rest))
@@ -436,7 +436,7 @@ ex series::mul_series(const series &other) const
 
     // Series multiplication
     epvector new_seq;
-
+    
     const symbol *s = static_cast<symbol *>(var.bp);
     int a_max = degree(*s);
     int b_max = other.degree(*s);
@@ -444,7 +444,7 @@ ex series::mul_series(const series &other) const
     int b_min = other.ldegree(*s);
     int cdeg_min = a_min + b_min;
     int cdeg_max = a_max + b_max;
-
+    
     int higher_order_a = INT_MAX;
     int higher_order_b = INT_MAX;
     if (is_order_function(coeff(*s, a_max)))
@@ -454,7 +454,7 @@ ex series::mul_series(const series &other) const
     int higher_order_c = min(higher_order_a, higher_order_b);
     if (cdeg_max >= higher_order_c)
         cdeg_max = higher_order_c - 1;
-
+    
     for (int cdeg=cdeg_min; cdeg<=cdeg_max; cdeg++) {
         ex co = exZERO();
         // c(i)=a(0)b(i)+...+a(i)b(0)
@@ -473,8 +473,6 @@ ex series::mul_series(const series &other) const
 }
 
 
-/** Implementation of ex::series() for product. This performs series multiplication when multiplying series.
- *  @see ex::series */
 /*
 ex mul::series(symbol const & s, ex const & point, int order) const
 {
@@ -513,13 +511,16 @@ ex mul::series(symbol const & s, ex const & point, int order) const
 }
 */
 
+/** Implementation of ex::series() for product. This performs series
+ *  multiplication when multiplying series.
+ *  @see ex::series */
 ex mul::series(symbol const & s, ex const & point, int order) const
 {
     ex acc; // Series accumulator
-
+    
     // Get first term from overall_coeff
     acc = overall_coeff.series(s, point, order);
-
+    
     // Multiply with remaining terms
     epvector::const_iterator it = seq.begin();
     epvector::const_iterator itend = seq.end();
@@ -551,7 +552,7 @@ ex series::power_const(const numeric &p, int deg) const
     int i;
     const symbol *s = static_cast<symbol *>(var.bp);
     int ldeg = ldegree(*s);
-
+    
     // Calculate coefficients of powered series
     exvector co;
     co.reserve(deg);
@@ -572,7 +573,7 @@ ex series::power_const(const numeric &p, int deg) const
             all_sums_zero = false;
         co.push_back(co0 * sum / numeric(i));
     }
-
+    
     // Construct new series (of non-zero coefficients)
     epvector new_seq;
     bool higher_order = false;
@@ -600,18 +601,18 @@ ex power::series(symbol const & s, ex const & point, int order) const
         // Basis is not a series, may there be a singulary?
         if (!exponent.info(info_flags::negint))
             return basic::series(s, point, order);
-
+        
         // Expression is of type something^(-int), check for singularity
         if (!basis.subs(s == point).is_zero())
             return basic::series(s, point, order);
-
+        
         // Singularity encountered, expand basis into series
         e = basis.series(s, point, order);
     } else {
         // Basis is a series
         e = basis;
     }
-
+    
     // Power e
     return ex_to_series(e).power_const(ex_to_numeric(exponent), order);
 }

@@ -110,7 +110,12 @@ END_OF_DIFF_SWITCH_STATEMENT
 $series_switch_statement=generate(
     <<'END_OF_SERIES_SWITCH_STATEMENT','seq[${N}-1]','');
     case ${N}:
-        return ((series_funcp_${N})(registered_functions()[serial].s))(${SEQ1},s,point,order);
+        try {
+            res = ((series_funcp_${N})(registered_functions()[serial].s))(${SEQ1},s,point,order);
+        } catch (do_taylor) {
+            res = basic::series(s, point, order);
+        }
+        return res;
         break;
 END_OF_SERIES_SWITCH_STATEMENT
 
@@ -377,6 +382,7 @@ $implementation=<<END_OF_IMPLEMENTATION;
 
 #include "function.h"
 #include "ex.h"
+#include "utils.h"
 #include "debugmsg.h"
 
 #ifndef NO_GINAC_NAMESPACE
@@ -602,6 +608,7 @@ ex function::series(symbol const & s, ex const & point, int order) const
     if (registered_functions()[serial].s==0) {
         return basic::series(s, point, order);
     }
+    ex res;
     switch (registered_functions()[serial].nparams) {
         // the following lines have been generated for max. ${maxargs} parameters
 ${series_switch_statement}

@@ -73,19 +73,7 @@ static ex zeta_evalf(ex const & x)
     return zeta(ex_to_numeric(x));
 }
 
-static ex zeta_diff(ex const & x, unsigned diff_param)
-{
-    GINAC_ASSERT(diff_param==0);
-    
-    return exZERO();  // should return zeta(numONE(),x);
-}
-
-static ex zeta_series(ex const & x, symbol const & s, ex const & point, int order)
-{
-    throw(std::logic_error("don't know the series expansion of the zeta function"));
-}
-
-REGISTER_FUNCTION(zeta, zeta_eval, zeta_evalf, zeta_diff, zeta_series);
+REGISTER_FUNCTION(zeta, zeta_eval, zeta_evalf, NULL, NULL);
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC

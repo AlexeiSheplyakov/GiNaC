@@ -1566,9 +1566,15 @@ REGISTER_FUNCTION(cos, cos_eval_method, cos_evalf_method, cos_diff, NULL);
 
 The first argument is the function's name, the second, third and fourth
 bind the corresponding methods to this objects and the fifth is a slot
-for inserting a method for series expansion.  Also, the new function
-needs to be declared somewhere.  This may also be done by a convenient
-preprocessor macro:
+for inserting a method for series expansion.  (If set to @code{NULL} it
+defaults to simple Taylor expansion, which is correct if there are no
+poles involved.  The way GiNaC handles poles in case there are any is
+best understood by studying one of the examples, like the Gamma function
+for instance.  In essence the function first checks if there is a pole
+at the evaluation point and falls back to Taylor expansion if there
+isn't.  Then, the pole is regularized by some suitable transformation.)
+Also, the new function needs to be declared somewhere.  This may also be
+done by a convenient preprocessor macro:
 
 @example
 DECLARE_FUNCTION_1P(cos)

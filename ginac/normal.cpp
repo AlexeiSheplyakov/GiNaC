@@ -966,7 +966,7 @@ ex mul::smod(const numeric &xi) const
 }
 
 
-/** Exception thrown by heur_gcd() to signal failure */
+/** Exception thrown by heur_gcd() to signal failure. */
 class gcdheu_failed {};
 
 /** Compute GCD of multivariate polynomials using the heuristic GCD algorithm.

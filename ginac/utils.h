@@ -1,6 +1,7 @@
 /** @file utils.h
  *
- *  Interface to several small and furry utilities. */
+ *  Interface to several small and furry utilities needed within GiNaC but not
+ *  of interest to the user of the library. */
 
 /*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
@@ -39,6 +40,10 @@ string ToString(T const & t)
     ostrstream(buf,sizeof(buf)) << t << ends;
     return buf;
 }
+
+/** Exception thrown by classes which provide their own series expansion to
+ *  signal that ordinary Taylor expansion is safe. */
+class do_taylor {};
 
 unsigned log2(unsigned n);
 
@@ -91,18 +96,18 @@ template <class InputIterator1, class InputIterator2, class OutputIterator,
 OutputIterator mymerge(InputIterator1 first1, InputIterator1 last1,
                        InputIterator2 first2, InputIterator2 last2,
                        OutputIterator result, Compare comp) {
-  while (first1 != last1 && first2 != last2) {
-    if (comp(*first1, *first2)) {
-      *result = *first1;
-      ++first1;
+    while (first1 != last1 && first2 != last2) {
+        if (comp(*first1, *first2)) {
+            *result = *first1;
+            ++first1;
+        }
+        else {
+            *result = *first2;
+            ++first2;
+        }
+        ++result;
     }
-    else {
-      *result = *first2;
-      ++first2;
-    }
-    ++result;
-  }
-  return copy(first2, last2, copy(first1, last1, result));
+    return copy(first2, last2, copy(first1, last1, result));
 }
 
 // like merge(), but three lists with *last2<*first3
@@ -112,25 +117,25 @@ OutputIterator mymerge3(InputIterator1 first1, InputIterator1 last1,
                         InputIterator2 first2, InputIterator2 last2,
                         InputIterator3 first3, InputIterator3 last3,
                         OutputIterator result, Compare comp) {
-  while (first1 != last1 && first2 != last2) {
-    if (comp(*first1, *first2)) {
-      *result = *first1;
-      ++first1;
+    while (first1 != last1 && first2 != last2) {
+        if (comp(*first1, *first2)) {
+            *result = *first1;
+            ++first1;
+        }
+        else {
+            *result = *first2;
+            ++first2;
+        }
+        ++result;
     }
-    else {
-      *result = *first2;
-      ++first2;
+    
+    if (first1==last1) {
+        // list1 empty, copy rest of list2, then list3
+        return copy(first3, last3, copy(first2, last2, result));
+    } else {
+        // list2 empty, merge rest of list1 with list3
+        return mymerge(first1,last1,first3,last3,result,comp);
     }
-    ++result;
-  }
-
-  if (first1==last1) {
-    // list1 empty, copy rest of list2, then list3
-    return copy(first3, last3, copy(first2, last2, result));
-  } else {
-    // list2 empty, merge rest of list1 with list3
-    return mymerge(first1,last1,first3,last3,result,comp);
-  }
 }
 
 #ifndef NO_GINAC_NAMESPACE
