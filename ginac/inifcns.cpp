@@ -65,6 +65,51 @@ static ex abs_eval(const ex & x)
 REGISTER_FUNCTION(abs, eval_func(abs_eval).
                        evalf_func(abs_evalf));
 
+
+//////////
+// Complex sign
+//////////
+
+static ex csgn_evalf(const ex & x)
+{
+    BEGIN_TYPECHECK
+        TYPECHECK(x,numeric)
+    END_TYPECHECK(csgn(x))
+    
+    return csgn(ex_to_numeric(x));
+}
+
+static ex csgn_eval(const ex & x)
+{
+    if (is_ex_exactly_of_type(x, numeric))
+        return csgn(ex_to_numeric(x));
+    
+    if (is_ex_exactly_of_type(x, mul)) {
+        numeric oc = ex_to_numeric(x.op(x.nops()-1));
+        if (oc.is_real()) {
+            if (oc > 0)
+                // csgn(42*x) -> csgn(x)
+                return csgn(x/oc).hold();
+            else
+                // csgn(-42*x) -> -csgn(x)
+                return -csgn(x/oc).hold();
+        }
+        if (oc.real().is_zero()) {
+            if (oc.imag() > 0)
+                // csgn(42*I*x) -> csgn(I*x)
+                return csgn(I*x/oc).hold();
+            else
+                // csgn(-42*I*x) -> -csgn(I*x)
+                return -csgn(I*x/oc).hold();
+        }
+    }
+    
+    return csgn(x).hold();
+}
+
+REGISTER_FUNCTION(csgn, eval_func(csgn_eval).
+                        evalf_func(csgn_evalf));
+
 //////////
 // dilogarithm
 //////////

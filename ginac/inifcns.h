@@ -32,6 +32,9 @@ namespace GiNaC {
 
 /** Absolute value. */
 DECLARE_FUNCTION_1P(abs)
+    
+/** Complex sign. */
+DECLARE_FUNCTION_1P(csgn)
 
 /** Sine. */
 DECLARE_FUNCTION_1P(sin)

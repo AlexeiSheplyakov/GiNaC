@@ -144,6 +144,29 @@ static ex log_deriv(const ex & x, unsigned deriv_param)
     return power(x, _ex_1());
 }
 
+/*static ex log_series(const ex &x, const relational &rel, int order)
+{
+    const ex x_pt = x.subs(rel);
+    if (!x_pt.info(info_flags::negative) && !x_pt.is_zero())
+        throw do_taylor();  // caught by function::series()
+    // now we either have to care for the branch cut or the branch point:
+    if (x_pt.is_zero()) {  // branch point: return a plain log(x).
+        epvector seq;
+        seq.push_back(expair(log(x), _ex0()));
+        return pseries(rel, seq);
+    } // the branch cut:
+    const ex point = rel.rhs();
+    const symbol *s = static_cast<symbol *>(rel.lhs().bp);
+    const symbol foo;
+    // compute the formal series:
+    ex replx = series(log(x),*s==foo,order).subs(foo==point);
+    epvector seq;
+    // FIXME: this is probably off by 2 or so:
+    seq.push_back(expair(-I*csgn(x*I)*Pi,_ex0()));
+    seq.push_back(expair(Order(_ex1()),order));
+    return series(replx + pseries(rel, seq),rel,order);
+}*/
+
 static ex log_series(const ex &x, const relational &r, int order)
 {
 	if (x.subs(r).is_zero()) {
@@ -395,16 +418,16 @@ static ex tan_deriv(const ex & x, unsigned deriv_param)
     return (_ex1()+power(tan(x),_ex2()));
 }
 
-static ex tan_series(const ex &x, const relational &r, int order)
+static ex tan_series(const ex &x, const relational &rel, int order)
 {
     // method:
     // Taylor series where there is no pole falls back to tan_deriv.
     // On a pole simply expand sin(x)/cos(x).
-    const ex x_pt = x.subs(r);
+    const ex x_pt = x.subs(rel);
     if (!(2*x_pt/Pi).info(info_flags::odd))
         throw do_taylor();  // caught by function::series()
     // if we got here we have to care for a simple pole
-    return (sin(x)/cos(x)).series(r, order+2);
+    return (sin(x)/cos(x)).series(rel, order+2);
 }
 
 REGISTER_FUNCTION(tan, eval_func(tan_eval).
@@ -752,16 +775,16 @@ static ex tanh_deriv(const ex & x, unsigned deriv_param)
     return _ex1()-power(tanh(x),_ex2());
 }
 
-static ex tanh_series(const ex &x, const relational &r, int order)
+static ex tanh_series(const ex &x, const relational &rel, int order)
 {
     // method:
     // Taylor series where there is no pole falls back to tanh_deriv.
     // On a pole simply expand sinh(x)/cosh(x).
-    const ex x_pt = x.subs(r);
+    const ex x_pt = x.subs(rel);
     if (!(2*I*x_pt/Pi).info(info_flags::odd))
         throw do_taylor();  // caught by function::series()
     // if we got here we have to care for a simple pole
-    return (sinh(x)/cosh(x)).series(r, order+2);
+    return (sinh(x)/cosh(x)).series(rel, order+2);
 }
 
 REGISTER_FUNCTION(tanh, eval_func(tanh_eval).
