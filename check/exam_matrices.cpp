@@ -216,6 +216,31 @@ static unsigned matrix_solve2(void)
 	return result;
 }
 
+static unsigned matrix_evalm(void)
+{
+	unsigned result = 0;
+
+	matrix S(2, 2, lst(
+		1, 2,
+		3, 4
+	)), T(2, 2, lst(
+		1, 1,
+		2, -1
+	)), R(2, 2, lst(
+		27, 14,
+		36, 26
+	));
+
+	ex e = ((S + T) * (S + 2*T));
+	ex f = e.evalm();
+	if (!f.is_equal(R)) {
+		clog << "Evaluating " << e << " erroneously returned " << f << " instead of " << R << endl;
+		result++;
+	}
+
+	return result;
+}
+
 static unsigned matrix_misc(void)
 {
 	unsigned result = 0;
@@ -279,6 +304,7 @@ unsigned exam_matrices(void)
 	result += matrix_invert2();  cout << '.' << flush;
 	result += matrix_invert3();  cout << '.' << flush;
 	result += matrix_solve2();  cout << '.' << flush;
+	result += matrix_evalm();  cout << "." << flush;
 	result += matrix_misc();  cout << '.' << flush;
 	
 	if (!result) {
