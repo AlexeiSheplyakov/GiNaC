@@ -31,6 +31,7 @@
 #include "power.h"
 #include "relational.h"
 #include "indexed.h"
+#include "lst.h"
 #include "input_lexer.h"
 #include "debugmsg.h"
 #include "utils.h"
@@ -134,6 +135,13 @@ ex ex::diff(const symbol & s, unsigned nth) const
 		return *this;
 	else
 		return bp->diff(s, nth);
+}
+
+/** Check whether expression matches a specified pattern. */
+bool ex::match(const ex & pattern) const
+{
+	lst repl_lst;
+	return bp->match(pattern, repl_lst);
 }
 
 /** Simplify/canonicalize expression containing indexed objects. This

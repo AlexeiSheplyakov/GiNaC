@@ -105,6 +105,7 @@ public:
 	ex evalf(int level = 0) const { return bp->evalf(level); }
 	ex diff(const symbol & s, unsigned nth = 1) const;
 	ex series(const ex & r, int order, unsigned options = 0) const;
+	bool match(const ex & pattern) const;
 	bool match(const ex & pattern, lst & repl_lst) const { return bp->match(pattern, repl_lst); }
 	ex subs(const lst & ls, const lst & lr, bool no_pattern = false) const { return bp->subs(ls, lr, no_pattern); }
 	ex subs(const ex & e, bool no_pattern = false) const { return bp->subs(e, no_pattern); }

@@ -213,10 +213,10 @@ ex basic::operator[](int i) const
 	return op(i);
 }
 
-/** Search ocurrences.  An object  'has' an expression if it is the expression
+/** Search ocurrences.  An object 'has' an expression if it is the expression
  *  itself or one of the children 'has' it.  As a consequence (according to
  *  the definition of children) given e=x+y+z, e.has(x) is true but e.has(x+y)
- *  is false. */
+ *  is false.  The expression can also contain wildcards. */
 bool basic::has(const ex & other) const
 {
 	GINAC_ASSERT(other.bp!=0);
@@ -405,7 +405,22 @@ bool basic::contract_with(exvector::iterator self, exvector::iterator other, exv
  *  is added to repl_lst. */
 bool basic::match(const ex & pattern, lst & repl_lst) const
 {
-//clog << "match " << *this << " with " << pattern << ", repl_lst = " << repl_lst << endl;
+/*
+	Sweet sweet shapes, sweet sweet shapes,
+	Thats the key thing, right right.
+	Feed feed face, feed feed shapes,
+	But who is the king tonight?
+	Who is the king tonight?
+	Pattern is the thing, the key thing-a-ling,
+	But who is the king of pattern?
+	But who is the king, the king thing-a-ling,
+	Who is the king of Pattern?
+	Bog is the king, the king thing-a-ling,
+	Bog is the king of Pattern.
+	Ba bu-bu-bu-bu bu-bu-bu-bu-bu-bu bu-bu
+	Bog is the king of Pattern.
+*/
+
 	if (is_ex_exactly_of_type(pattern, wildcard)) {
 
 		// Wildcard matches anything, but check whether we already have found
@@ -458,7 +473,7 @@ ex basic::subs(const lst & ls, const lst & lr, bool no_pattern) const
 		for (unsigned i=0; i<ls.nops(); i++) {
 			lst repl_lst;
 			if (match(*ls.op(i).bp, repl_lst))
-				return lr.op(i).bp->subs(repl_lst, true); // avoid recursion when re-substituting the wildcards
+				return lr.op(i).bp->subs(repl_lst, true); // avoid infinite recursion when re-substituting the wildcards
 		}
 	}
 

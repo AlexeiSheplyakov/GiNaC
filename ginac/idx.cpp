@@ -305,17 +305,45 @@ int spinidx::compare_same_type(const basic & other) const
 	GINAC_ASSERT(is_of_type(other, spinidx));
 	const spinidx &o = static_cast<const spinidx &>(other);
 
+	// Check dottedness first so dummy indices will end up next to each other
+	if (dotted != o.dotted)
+		return dotted ? -1 : 1;
+
 	int cmpval = inherited::compare_same_type(other);
 	if (cmpval)
 		return cmpval;
 
-	// Check variance and dottedness last so dummy indices will end up next to each other
-	if (covariant != o.covariant)
-		return covariant ? -1 : 1;
-	if (dotted != o.dotted)
-		return dotted ? -1 : 1;
-
 	return 0;
+}
+
+bool idx::match(const ex & pattern, lst & repl_lst) const
+{
+	if (!is_ex_of_type(pattern, idx))
+		return false;
+	const idx &o = ex_to_idx(pattern);
+	if (!dim.is_equal(o.dim))
+		return false;
+	return value.match(o.value, repl_lst);
+}
+
+bool varidx::match(const ex & pattern, lst & repl_lst) const
+{
+	if (!is_ex_of_type(pattern, varidx))
+		return false;
+	const varidx &o = ex_to_varidx(pattern);
+	if (covariant != o.covariant)
+		return false;
+	return inherited::match(pattern, repl_lst);
+}
+
+bool spinidx::match(const ex & pattern, lst & repl_lst) const
+{
+	if (!is_ex_of_type(pattern, spinidx))
+		return false;
+	const spinidx &o = ex_to_spinidx(pattern);
+	if (dotted != o.dotted)
+		return false;
+	return inherited::match(pattern, repl_lst);
 }
 
 ex idx::subs(const lst & ls, const lst & lr, bool no_pattern) const

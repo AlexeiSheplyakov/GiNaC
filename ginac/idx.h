@@ -51,7 +51,7 @@ public:
 	bool info(unsigned inf) const;
 	unsigned nops() const;
 	ex & let_op(int i);
-protected:
+	bool match(const ex & pattern, lst & repl_lst) const;
 	ex subs(const lst & ls, const lst & lr, bool no_pattern = false) const;
 
 	// new virtual functions in this class
@@ -105,6 +105,7 @@ public:
 	// functions overriding virtual functions from bases classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
+	bool match(const ex & pattern, lst & repl_lst) const;
 	bool is_dummy_pair_same_type(const basic & other) const;
 
 	// non-virtual functions in this class
@@ -147,6 +148,7 @@ public:
 	// functions overriding virtual functions from bases classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
+	bool match(const ex & pattern, lst & repl_lst) const;
 	bool is_dummy_pair_same_type(const basic & other) const;
 
 	// non-virtual functions in this class

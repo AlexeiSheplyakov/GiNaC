@@ -324,7 +324,6 @@ ex expairseq::normal(lst &sym_lst, lst &repl_lst, int level) const
 
 bool expairseq::match(const ex & pattern, lst & repl_lst) const
 {
-//clog << "match " << *this << " with " << pattern << ", repl_lst = " << repl_lst << endl;
 	// This differs from basic::match() because we want "a+b+c+d" to
 	// match "d+*+b" with "*" being "a+c", and we want to honor commutativity
 
@@ -1659,47 +1658,89 @@ epvector expairseq::diffchildren(const symbol &y) const
 /** Member-wise substitute in this sequence.
  *
  *  @see expairseq::subs()
- *  @return pointer to epvector containing pairs after application of subs or zero
- *  pointer, if no members were changed. */
+ *  @return pointer to epvector containing pairs after application of subs,
+ *    or NULL pointer if no members were changed. */
 epvector * expairseq::subschildren(const lst &ls, const lst &lr, bool no_pattern) const
 {
-	// returns a NULL pointer if nothing had to be substituted
-	// returns a pointer to a newly created epvector otherwise
-	// (which has to be deleted somewhere else)
 	GINAC_ASSERT(ls.nops()==lr.nops());
-	
-	epvector::const_iterator last = seq.end();
-	epvector::const_iterator cit = seq.begin();
-	while (cit!=last) {
-		const ex &subsed_ex=(*cit).rest.subs(ls,lr,no_pattern);
-		if (!are_ex_trivially_equal((*cit).rest,subsed_ex)) {
-			
-			// something changed, copy seq, subs and return it
-			epvector *s = new epvector;
-			s->reserve(seq.size());
-			
-			// copy parts of seq which are known not to have changed
-			epvector::const_iterator cit2 = seq.begin();
-			while (cit2!=cit) {
-				s->push_back(*cit2);
-				++cit2;
-			}
-			// copy first changed element
-			s->push_back(combine_ex_with_coeff_to_pair(subsed_ex,
-			                                           (*cit2).coeff));
-			++cit2;
-			// copy rest
-			while (cit2!=last) {
-				s->push_back(combine_ex_with_coeff_to_pair((*cit2).rest.subs(ls,lr,no_pattern),
-				                                           (*cit2).coeff));
-				++cit2;
-			}
-			return s;
+
+	// The substitution is "complex" when any of the objects to be substituted
+	// is a product or power. In this case we have to recombine the pairs
+	// because the numeric coefficients may be part of the search pattern.
+	bool complex_subs = false;
+	for (unsigned i=0; i<ls.nops(); i++)
+		if (is_ex_exactly_of_type(ls.op(i), mul) || is_ex_exactly_of_type(ls.op(i), power)) {
+			complex_subs = true;
+			break;
 		}
-		++cit;
+
+	if (complex_subs) {
+
+		// Substitute in the recombined pairs
+		epvector::const_iterator cit = seq.begin(), last = seq.end();
+		while (cit != last) {
+
+			const ex &orig_ex = recombine_pair_to_ex(*cit);
+			const ex &subsed_ex = orig_ex.subs(ls, lr, no_pattern);
+			if (!are_ex_trivially_equal(orig_ex, subsed_ex)) {
+
+				// Something changed, copy seq, subs and return it
+				epvector *s = new epvector;
+				s->reserve(seq.size());
+
+				// Copy parts of seq which are known not to have changed
+				s->insert(s->begin(), seq.begin(), cit);
+
+				// Copy first changed element
+				s->push_back(split_ex_to_pair(subsed_ex));
+				++cit;
+
+				// Copy rest
+				while (cit != last) {
+					s->push_back(split_ex_to_pair(recombine_pair_to_ex(*cit).subs(ls, lr, no_pattern)));
+					++cit;
+				}
+				return s;
+			}
+
+			++cit;
+		}
+
+	} else {
+
+		// Substitute only in the "rest" part of the pairs
+		epvector::const_iterator cit = seq.begin(), last = seq.end();
+		while (cit != last) {
+
+			const ex &subsed_ex = cit->rest.subs(ls, lr, no_pattern);
+			if (!are_ex_trivially_equal(cit->rest, subsed_ex)) {
+			
+				// Something changed, copy seq, subs and return it
+				epvector *s = new epvector;
+				s->reserve(seq.size());
+
+				// Copy parts of seq which are known not to have changed
+				s->insert(s->begin(), seq.begin(), cit);
+			
+				// Copy first changed element
+				s->push_back(combine_ex_with_coeff_to_pair(subsed_ex, cit->coeff));
+				++cit;
+
+				// Copy rest
+				while (cit != last) {
+					s->push_back(combine_ex_with_coeff_to_pair(cit->rest.subs(ls, lr, no_pattern),
+					                                           cit->coeff));
+					++cit;
+				}
+				return s;
+			}
+
+			++cit;
+		}
 	}
 	
-	return 0; // signalling nothing has changed
+	// Nothing has changed
+	return NULL;
 }
 
 //////////
