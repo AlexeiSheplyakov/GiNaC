@@ -22,7 +22,10 @@
 
 #include "operators.h"
 #include "numeric.h"
+#include "add.h"
+#include "mul.h"
 #include "power.h"
+#include "ncmul.h"
 #include "relational.h"
 #include "print.h"
 #include "debugmsg.h"
@@ -30,54 +33,79 @@
 
 namespace GiNaC {
 
+/** Used internally by operator+() to add two ex objects together. */
+static inline const ex exadd(const ex & lh, const ex & rh)
+{
+	return (new add(lh,rh))->setflag(status_flags::dynallocated);
+}
+
+/** Used internally by operator*() to multiply two ex objects together. */
+static inline const ex exmul(const ex & lh, const ex & rh)
+{
+	// Check if we are constructing a mul object or a ncmul object.  Due to
+	// ncmul::eval()'s rule to pull out commutative elements we need to check
+	// only one of the elements.
+	if (rh.return_type()==return_types::commutative ||
+	    lh.return_type()==return_types::commutative)
+		return (new mul(lh,rh))->setflag(status_flags::dynallocated);
+	else
+		return (new ncmul(lh,rh))->setflag(status_flags::dynallocated);
+}
+
+/** Used internally by operator-() and friends to change the sign of an argument. */
+static inline const ex exminus(const ex & lh)
+{
+	return (new mul(lh,_ex_1()))->setflag(status_flags::dynallocated);
+}
+
 // binary arithmetic operators ex with ex
 
-ex operator+(const ex & lh, const ex & rh)
+const ex operator+(const ex & lh, const ex & rh)
 {
 	debugmsg("operator+(ex,ex)",LOGLEVEL_OPERATOR);
-	return lh.exadd(rh);
+	return exadd(lh, rh);
 }
 
-ex operator-(const ex & lh, const ex & rh)
+const ex operator-(const ex & lh, const ex & rh)
 {
 	debugmsg("operator-(ex,ex)",LOGLEVEL_OPERATOR);
-	return lh.exadd(rh.exmul(_ex_1()));
+	return exadd(lh, exminus(rh));
 }
 
-ex operator*(const ex & lh, const ex & rh)
+const ex operator*(const ex & lh, const ex & rh)
 {
 	debugmsg("operator*(ex,ex)",LOGLEVEL_OPERATOR);
-	return lh.exmul(rh);
+	return exmul(lh, rh);
 }
 
-ex operator/(const ex & lh, const ex & rh)
+const ex operator/(const ex & lh, const ex & rh)
 {
 	debugmsg("operator/(ex,ex)",LOGLEVEL_OPERATOR);
-	return lh.exmul(power(rh,_ex_1()));
+	return exmul(lh, power(rh,_ex_1()));
 }
 
 
 // binary arithmetic operators numeric with numeric
 
-numeric operator+(const numeric & lh, const numeric & rh)
+const numeric operator+(const numeric & lh, const numeric & rh)
 {
 	debugmsg("operator+(numeric,numeric)",LOGLEVEL_OPERATOR);
 	return lh.add(rh);
 }
 
-numeric operator-(const numeric & lh, const numeric & rh)
+const numeric operator-(const numeric & lh, const numeric & rh)
 {
 	debugmsg("operator-(numeric,numeric)",LOGLEVEL_OPERATOR);
 	return lh.sub(rh);
 }
 
-numeric operator*(const numeric & lh, const numeric & rh)
+const numeric operator*(const numeric & lh, const numeric & rh)
 {
 	debugmsg("operator*(numeric,numeric)",LOGLEVEL_OPERATOR);
 	return lh.mul(rh);
 }
 
-numeric operator/(const numeric & lh, const numeric & rh)
+const numeric operator/(const numeric & lh, const numeric & rh)
 {
 	debugmsg("operator/(numeric,ex)",LOGLEVEL_OPERATOR);
 	return lh.div(rh);
@@ -86,81 +114,123 @@ numeric operator/(const numeric & lh, const numeric & rh)
 
 // binary arithmetic assignment operators with ex
 
-const ex & operator+=(ex & lh, const ex & rh)
+ex & operator+=(ex & lh, const ex & rh)
 {
 	debugmsg("operator+=(ex,ex)",LOGLEVEL_OPERATOR);
-	return (lh=lh.exadd(rh));
+	return lh = exadd(lh, rh);
 }
 
-const ex & operator-=(ex & lh, const ex & rh)
+ex & operator-=(ex & lh, const ex & rh)
 {
 	debugmsg("operator-=(ex,ex)",LOGLEVEL_OPERATOR);
-	return (lh=lh.exadd(rh.exmul(_ex_1())));
+	return lh = exadd(lh, exminus(rh));
 }
 
-const ex & operator*=(ex & lh, const ex & rh)
+ex & operator*=(ex & lh, const ex & rh)
 {
 	debugmsg("operator*=(ex,ex)",LOGLEVEL_OPERATOR);
-	return (lh=lh.exmul(rh));
+	return lh = exmul(lh, rh);
 }
 
-const ex & operator/=(ex & lh, const ex & rh)
+ex & operator/=(ex & lh, const ex & rh)
 {
 	debugmsg("operator/=(ex,ex)",LOGLEVEL_OPERATOR);
-	return (lh=lh.exmul(power(rh,_ex_1())));
+	return lh = exmul(lh, power(rh,_ex_1()));
 }
 
 
 // binary arithmetic assignment operators with numeric
 
-const numeric & operator+=(numeric & lh, const numeric & rh)
+numeric & operator+=(numeric & lh, const numeric & rh)
 {
 	debugmsg("operator+=(numeric,numeric)",LOGLEVEL_OPERATOR);
-	return (lh=lh.add(rh));
+	lh = lh.add(rh);
+	return lh;
 }
 
-const numeric & operator-=(numeric & lh, const numeric & rh)
+numeric & operator-=(numeric & lh, const numeric & rh)
 {
 	debugmsg("operator-=(numeric,numeric)",LOGLEVEL_OPERATOR);
-	return (lh=lh.sub(rh));
+	lh = lh.sub(rh);
+	return lh;
 }
 
-const numeric & operator*=(numeric & lh, const numeric & rh)
+numeric & operator*=(numeric & lh, const numeric & rh)
 {
 	debugmsg("operator*=(numeric,numeric)",LOGLEVEL_OPERATOR);
-	return (lh=lh.mul(rh));
+	lh = lh.mul(rh);
+	return lh;
 }
 
-const numeric & operator/=(numeric & lh, const numeric & rh)
+numeric & operator/=(numeric & lh, const numeric & rh)
 {
 	debugmsg("operator/=(numeric,numeric)",LOGLEVEL_OPERATOR);
-	return (lh=lh.div(rh));
+	lh = lh.div(rh);
+	return lh;
 }
+
 
 // unary operators
 
-ex operator+(const ex & lh)
+const ex operator+(const ex & lh)
 {
 	debugmsg("operator+(ex)",LOGLEVEL_OPERATOR);
 	return lh;
 }
 
-ex operator-(const ex & lh)
+const ex operator-(const ex & lh)
 {
 	debugmsg("operator-(ex)",LOGLEVEL_OPERATOR);
-	return lh.exmul(_ex_1());
+	return exminus(lh);
 }
 
-numeric operator+(const numeric & lh)
+const numeric operator+(const numeric & lh)
 {
 	debugmsg("operator+(numeric)",LOGLEVEL_OPERATOR);
 	return lh;
 }
 
-numeric operator-(const numeric & lh)
+const numeric operator-(const numeric & lh)
 {
 	debugmsg("operator-(numeric)",LOGLEVEL_OPERATOR);
 	return _num_1().mul(lh);
+}
+
+
+// increment / decrement operators
+
+/** Expression prefix increment.  Adds 1 and returns incremented ex. */
+ex & operator++(ex & rh)
+{
+	debugmsg("operator++(ex)",LOGLEVEL_OPERATOR);
+	return rh = exadd(rh, _ex1());
+}
+
+/** Expression prefix decrement.  Subtracts 1 and returns decremented ex. */
+ex & operator--(ex & rh)
+{
+	debugmsg("operator--(ex)",LOGLEVEL_OPERATOR);
+	return rh = exadd(rh, _ex_1());
+}
+
+/** Expression postfix increment.  Returns the ex and leaves the original
+ *  incremented by 1. */
+const ex operator++(ex & lh, int)
+{
+	debugmsg("operator++(ex,int)",LOGLEVEL_OPERATOR);
+	ex tmp(lh);
+	lh = exadd(lh, _ex1());
+	return tmp;
+}
+
+/** Expression Postfix decrement.  Returns the ex and leaves the original
+ *  decremented by 1. */
+const ex operator--(ex & lh, int)
+{
+	debugmsg("operator--(ex,int)",LOGLEVEL_OPERATOR);
+	ex tmp(lh);
+	lh = exadd(lh, _ex_1());
+	return tmp;
 }
 
 /** Numeric prefix increment.  Adds 1 and returns incremented number. */
@@ -181,7 +251,7 @@ numeric& operator--(numeric & rh)
 
 /** Numeric postfix increment.  Returns the number and leaves the original
  *  incremented by 1. */
-numeric operator++(numeric & lh, int)
+const numeric operator++(numeric & lh, int)
 {
 	debugmsg("operator++(numeric,int)",LOGLEVEL_OPERATOR);
 	numeric tmp(lh);
@@ -191,7 +261,7 @@ numeric operator++(numeric & lh, int)
 
 /** Numeric Postfix decrement.  Returns the number and leaves the original
  *  decremented by 1. */
-numeric operator--(numeric & lh, int)
+const numeric operator--(numeric & lh, int)
 {
 	debugmsg("operator--(numeric,int)",LOGLEVEL_OPERATOR);
 	numeric tmp(lh);

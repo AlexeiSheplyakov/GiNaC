@@ -199,25 +199,6 @@ ex ex::rhs(void) const
 	return (*static_cast<relational *>(bp)).rhs();
 }
 
-/** Used internally by operator+() to add two ex objects together. */
-ex ex::exadd(const ex & rh) const
-{
-	return (new add(*this,rh))->setflag(status_flags::dynallocated);
-}
-
-/** Used internally by operator*() to multiply two ex objects together. */
-ex ex::exmul(const ex & rh) const
-{
-	// Check if we are constructing a mul object or a ncmul object.  Due to
-	// ncmul::eval()'s rule to pull out commutative elements we need to check
-	// only one of the elements.
-	if (rh.bp->return_type()==return_types::commutative ||
-	    bp->return_type()==return_types::commutative)
-		return (new mul(*this,rh))->setflag(status_flags::dynallocated);
-	else
-		return (new ncmul(*this,rh))->setflag(status_flags::dynallocated);
-}
-
 // private
 
 /** Make this ex writable (if more than one ex handle the same basic) by 

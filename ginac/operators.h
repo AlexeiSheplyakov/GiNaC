@@ -32,39 +32,46 @@ class numeric;
 class relational;
 
 // binary arithmetic operators ex with ex
-ex operator+(const ex & lh, const ex & rh);
-ex operator-(const ex & lh, const ex & rh);
-ex operator*(const ex & lh, const ex & rh);
-ex operator/(const ex & lh, const ex & rh);
+const ex operator+(const ex & lh, const ex & rh);
+const ex operator-(const ex & lh, const ex & rh);
+const ex operator*(const ex & lh, const ex & rh);
+const ex operator/(const ex & lh, const ex & rh);
 
 // binary arithmetic operators numeric with numeric
-numeric operator+(const numeric & lh, const numeric & rh);
-numeric operator-(const numeric & lh, const numeric & rh);
-numeric operator*(const numeric & lh, const numeric & rh);
-numeric operator/(const numeric & lh, const numeric & rh);
+const numeric operator+(const numeric & lh, const numeric & rh);
+const numeric operator-(const numeric & lh, const numeric & rh);
+const numeric operator*(const numeric & lh, const numeric & rh);
+const numeric operator/(const numeric & lh, const numeric & rh);
 
 // binary arithmetic assignment operators with ex
-const ex & operator+=(ex & lh, const ex & rh);
-const ex & operator-=(ex & lh, const ex & rh);
-const ex & operator*=(ex & lh, const ex & rh);
-const ex & operator/=(ex & lh, const ex & rh);
+ex & operator+=(ex & lh, const ex & rh);
+ex & operator-=(ex & lh, const ex & rh);
+ex & operator*=(ex & lh, const ex & rh);
+ex & operator/=(ex & lh, const ex & rh);
 
 // binary arithmetic assignment operators with numeric
-const numeric & operator+=(numeric & lh, const numeric & rh);
-const numeric & operator-=(numeric & lh, const numeric & rh);
-const numeric & operator*=(numeric & lh, const numeric & rh);
-const numeric & operator/=(numeric & lh, const numeric & rh);
+numeric & operator+=(numeric & lh, const numeric & rh);
+numeric & operator-=(numeric & lh, const numeric & rh);
+numeric & operator*=(numeric & lh, const numeric & rh);
+numeric & operator/=(numeric & lh, const numeric & rh);
 
 // unary operators
-ex operator+(const ex & lh);
-ex operator-(const ex & lh);
+const ex operator+(const ex & lh);
+const ex operator-(const ex & lh);
 
-numeric operator+(const numeric & lh);
-numeric operator-(const numeric & lh);
+const numeric operator+(const numeric & lh);
+const numeric operator-(const numeric & lh);
+
+// increment / decrement operators
+ex & operator++(ex & rh);
+ex & operator--(ex & rh);
+const ex operator++(ex & lh, int);
+const ex operator--(ex & lh, int);
+
 numeric& operator++(numeric & rh);
 numeric& operator--(numeric & rh);
-numeric operator++(numeric & lh, int);
-numeric operator--(numeric & lh, int);
+const numeric operator++(numeric & lh, int);
+const numeric operator--(numeric & lh, int);
 
 // binary relational operators ex with ex
 relational operator==(const ex & lh, const ex & rh);

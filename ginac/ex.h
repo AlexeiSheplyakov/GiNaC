@@ -52,7 +52,7 @@ public:
 	ex();
 	~ex();
 	ex(const ex & other);
-	const ex & operator=(const ex & other);
+	ex & operator=(const ex & other);
 	// other ctors
 public:
 	ex(const basic & other);
@@ -124,9 +124,6 @@ public:
 	unsigned return_type(void) const { return bp->return_type(); }
 	unsigned return_type_tinfo(void) const { return bp->return_type_tinfo(); }
 	unsigned gethash(void) const { return bp->gethash(); }
-	
-	ex exadd(const ex & rh) const;
-	ex exmul(const ex & rh) const;
 private:
 	void construct_from_basic(const basic & other);
 	void construct_from_int(int i);
@@ -212,16 +209,17 @@ ex::ex(const ex & other) : bp(other.bp)
 }
 
 inline
-const ex & ex::operator=(const ex & other)
+ex & ex::operator=(const ex & other)
 {
 	/*debugmsg("ex operator=",LOGLEVEL_ASSIGNMENT);*/
 	GINAC_ASSERT(bp!=0);
 	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
 	GINAC_ASSERT(other.bp!=0);
 	GINAC_ASSERT(other.bp->flags & status_flags::dynallocated);
+	// NB: must first increment other.bp->refcount, since other might be *this.
+	++other.bp->refcount;
 	if (--bp->refcount==0)
 		delete bp;
-	++other.bp->refcount;
 	bp = other.bp;
 #ifdef OBSCURE_CINT_HACK
 	update_last_created_or_assigned_bp();
