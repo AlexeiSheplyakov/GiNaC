@@ -519,7 +519,7 @@ numeric const & numeric::operator=(char const * s)
  *  csgn(x)==0 for x==0, csgn(x)==1 for Re(x)>0 or Re(x)=0 and Im(x)>0,
  *  csgn(x)==-1 for Re(x)<0 or Re(x)=0 and Im(x)<0.
  *
- *  @see numeric::compare(numeric const @ other) */
+ *  @see numeric::compare(numeric const & other) */
 int numeric::csgn(void) const
 {
     if (is_zero())

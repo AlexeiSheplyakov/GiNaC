@@ -84,15 +84,11 @@ void constant::print(ostream & os, unsigned upper_precedence) const
 void power::print(ostream & os, unsigned upper_precedence) const
 {
     debugmsg("power print",LOGLEVEL_PRINT);
-#if 1
     if (precedence<=upper_precedence) os << "(";
     basis.print(os,precedence);
     os << "^";
     exponent.print(os,precedence);
     if (precedence<=upper_precedence) os << ")";
-#else
-    os << "pow(" << basis << "," << exponent << ")";
-#endif
 }
 
 void fail::print(ostream & os, unsigned upper_precedence) const
@@ -109,49 +105,6 @@ void expairseq::printpair(ostream & os, expair const & p, unsigned upper_precede
     p.coeff.bp->print(os,precedence);
     os << "]]";
 }
-
-/*
-void expairseq::printseq(ostream & os, char delim, unsigned this_precedence,
-                         unsigned upper_precedence) const
-{
-    if (this_precedence<=upper_precedence) os << "(";
-    epvector::const_iterator itt,it,it_last,it_start;
-    it_last=seq.end();
-    --it_last;
-    it_start=seq.begin();
-
-    switch (delim) {
-    case '+':
-        for (it=seq.begin(); it!=it_last; ++it) {
-            itt = it +1;
-            expair const & k = *itt;
-            printpair(os,*it, this_precedence);
-            if (((is_ex_of_type(k.rest, numeric)) && (k.coeff*k.rest > 0) ) || ((!is_ex_of_type(k.rest, numeric)) && (k.coeff >0))){
-                os << "+";
-            }
-        }
-        printpair(os,*it,this_precedence);
-        break;
-        
-    case '*':
-        for (it = it_last ; it!=it_start; --it) {
-            if ((*it).rest.is_equal(exMINUSONE()) &&
-                (*it).coeff.is_equal(exONE())) {
-                os << "-";
-            } else {
-                printpair(os, *it,this_precedence);
-                os << delim;
-            }
-        }
-        printpair(os,*it,this_precedence);
-        break;
-    default:
-        clog << "Nobody expects the Spanish Inquisition: "
-             << "deliminator unknown!" << endl;
-    }
-    if (this_precedence<=upper_precedence) os << ")";
-}
-*/
 
 void expairseq::printseq(ostream & os, char delim, unsigned this_precedence,
                          unsigned upper_precedence) const
@@ -188,18 +141,16 @@ void add::print(ostream & os, unsigned upper_precedence) const
     for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
         coeff = ex_to_numeric(cit->coeff);
         if (!first) {
-            if (coeff < 0) os << '-'; else os << '+';
+            if (coeff.csgn()==-1) os << '-'; else os << '+';
         } else {
-            if (coeff < 0) os << '-';
+            if (coeff.csgn()==-1) os << '-';
             first=false;
         }
         if (coeff.compare(numONE()) && coeff.compare(numMINUSONE())) {
-            if (!coeff.is_real() && !coeff.real().is_zero()) os << '(';
-            if (coeff > 0)
-                os << coeff;
+            if (coeff.csgn()==-1)
+                (numMINUSONE()*coeff).print(os, precedence);
             else
-                os << numeric(-1)*coeff;
-            if (!coeff.is_real() && !coeff.real().is_zero()) os << ')';
+                coeff.print(os, precedence);
             os << '*';
         }
         os << cit->rest;
