@@ -188,7 +188,7 @@ void expairseq::do_print(const print_context & c, unsigned level) const
 
 void expairseq::do_print_tree(const print_tree & c, unsigned level) const
 {
-	c.s << std::string(level, ' ') << class_name()
+	c.s << std::string(level, ' ') << class_name() << " @" << this
 	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 	    << ", nops=" << nops()
 	    << std::endl;

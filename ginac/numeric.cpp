@@ -545,7 +545,7 @@ void numeric::do_print_csrc_cl_N(const print_csrc_cl_N & c, unsigned level) cons
 void numeric::do_print_tree(const print_tree & c, unsigned level) const
 {
 	c.s << std::string(level, ' ') << cln::the<cln::cl_N>(value)
-	    << " (" << class_name() << ")"
+	    << " (" << class_name() << ")" << " @" << this
 	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 	    << std::endl;
 }

@@ -237,7 +237,7 @@ void indexed::do_print_latex(const print_latex & c, unsigned level) const
 
 void indexed::do_print_tree(const print_tree & c, unsigned level) const
 {
-	c.s << std::string(level, ' ') << class_name()
+	c.s << std::string(level, ' ') << class_name() << " @" << this
 	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 	    << ", " << seq.size()-1 << " indices"
 	    << ", symmetry=" << symtree << std::endl;

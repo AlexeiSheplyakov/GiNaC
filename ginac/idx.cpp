@@ -163,7 +163,7 @@ void idx::do_print_latex(const print_latex & c, unsigned level) const
 
 void idx::do_print_tree(const print_tree & c, unsigned level) const
 {
-	c.s << std::string(level, ' ') << class_name()
+	c.s << std::string(level, ' ') << class_name() << " @" << this
 	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 	    << std::endl;
 	value.print(c, level +  c.delta_indent);
@@ -181,7 +181,7 @@ void varidx::do_print(const print_context & c, unsigned level) const
 
 void varidx::do_print_tree(const print_tree & c, unsigned level) const
 {
-	c.s << std::string(level, ' ') << class_name()
+	c.s << std::string(level, ' ') << class_name() << " @" << this
 	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 	    << (covariant ? ", covariant" : ", contravariant")
 	    << std::endl;
@@ -212,7 +212,7 @@ void spinidx::do_print_latex(const print_latex & c, unsigned level) const
 
 void spinidx::do_print_tree(const print_tree & c, unsigned level) const
 {
-	c.s << std::string(level, ' ') << class_name()
+	c.s << std::string(level, ' ') << class_name() << " @" << this
 	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 	    << (covariant ? ", covariant" : ", contravariant")
 	    << (dotted ? ", dotted" : ", undotted")

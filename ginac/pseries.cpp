@@ -188,7 +188,7 @@ void pseries::do_print_python(const print_python & c, unsigned level) const
 
 void pseries::do_print_tree(const print_tree & c, unsigned level) const
 {
-	c.s << std::string(level, ' ') << class_name()
+	c.s << std::string(level, ' ') << class_name() << " @" << this
 	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 	    << std::endl;
 	size_t num = seq.size();

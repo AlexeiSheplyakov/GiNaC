@@ -735,7 +735,7 @@ next_context:
 		if (is_a<print_tree>(c)) {
 
 			c.s << std::string(level, ' ') << class_name() << " "
-			    << opt.name
+			    << opt.name << " @" << this
 			    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 			    << ", nops=" << nops()
 			    << std::endl;

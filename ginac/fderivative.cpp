@@ -109,7 +109,7 @@ void fderivative::do_print(const print_context & c, unsigned level) const
 void fderivative::do_print_tree(const print_tree & c, unsigned level) const
 {
 	c.s << std::string(level, ' ') << class_name() << " "
-	    << registered_functions()[serial].name
+	    << registered_functions()[serial].name << " @" << this
 	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 	    << ", nops=" << nops()
 	    << ", params=";

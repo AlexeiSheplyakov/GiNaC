@@ -91,7 +91,7 @@ void wildcard::do_print(const print_context & c, unsigned level) const
 
 void wildcard::do_print_tree(const print_tree & c, unsigned level) const
 {
-	c.s << std::string(level, ' ') << class_name() << " (" << label << ")"
+	c.s << std::string(level, ' ') << class_name() << "(" << label << ")" << " @" << this
 	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 	    << std::endl;
 }
