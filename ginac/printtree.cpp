@@ -1,8 +1,9 @@
 /** @file printtree.cpp
  *
  * print in tree- (indented-) form, so developers can have a look at the
- * underlying structure.
- *
+ * underlying structure. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

@@ -1,7 +1,8 @@
 /** @file structure.cpp
  *
- *  Implementation of 'abstract' class structure.
- *
+ *  Implementation of 'abstract' class structure. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

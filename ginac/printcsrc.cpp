@@ -1,8 +1,9 @@
 /** @file printcsrc.cpp
  *
  *  The methods .printcsrc() are responsible for C-source output of
- *  objects.  All related helper-functions go in here as well.
- *
+ *  objects.  All related helper-functions go in here as well. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

@@ -1,8 +1,9 @@
 /** @file lst_suppl.cpp
  *
  *  Supplement to lst.cpp, contains the parts which were
- *  not automatically generated.
- *
+ *  not automatically generated. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

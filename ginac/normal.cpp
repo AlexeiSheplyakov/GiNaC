@@ -4,8 +4,9 @@
  *  multivariate polynomials and rational functions.
  *  These functions include polynomial quotient and remainder, GCD and LCM
  *  computation, square-free factorization and rational function normalization.
+ */
 
- *
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

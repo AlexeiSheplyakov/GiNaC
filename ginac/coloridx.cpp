@@ -1,7 +1,8 @@
 /** @file coloridx.cpp
  *
- *  Implementation of GiNaC's color indices.
- *
+ *  Implementation of GiNaC's color indices. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

@@ -4,8 +4,9 @@
  *  Its most important design principle is to completely hide the inner
  *  working of that other package from the user of GiNaC.  It must either 
  *  provide implementation of arithmetic operators and numerical evaluation
- *  of special functions or implement the interface to the bignum package.
- *
+ *  of special functions or implement the interface to the bignum package. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

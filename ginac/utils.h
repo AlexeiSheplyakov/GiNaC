@@ -1,7 +1,8 @@
 /** @file utils.h
  *
- *  Interface to several small and furry utilities.
- *
+ *  Interface to several small and furry utilities. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

@@ -1,7 +1,8 @@
 /** @file isospin.h
  *
- *  Interface to GiNaC's isospin objects.
- *
+ *  Interface to GiNaC's isospin objects. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

@@ -1,7 +1,8 @@
 /** @file power.h
  *
- *  Interface to GiNaC's symbolic exponentiation (basis^exponent).
- *
+ *  Interface to GiNaC's symbolic exponentiation (basis^exponent). */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

@@ -1,7 +1,8 @@
 /** @file indexed.cpp
  *
- *  Implementation of GiNaC's index carrying objects.
- *
+ *  Implementation of GiNaC's index carrying objects. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

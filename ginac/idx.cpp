@@ -1,7 +1,8 @@
 /** @file idx.cpp
  *
- *  Implementation of GiNaC's indices.
- *
+ *  Implementation of GiNaC's indices. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

@@ -1,7 +1,8 @@
 /** @file ginac.h
  *
- *  This include file includes all other public GiNaC headers.
- *
+ *  This include file includes all other public GiNaC headers. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

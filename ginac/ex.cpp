@@ -1,7 +1,8 @@
 /** @file ex.cpp
  *
- *  Implementation of GiNaC's light-weight expression handles.
- *
+ *  Implementation of GiNaC's light-weight expression handles. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

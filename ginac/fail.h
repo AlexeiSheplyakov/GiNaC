@@ -1,8 +1,9 @@
 /** @file fail.h
  *
  *  Interface to class signaling failure of operation. Considered obsolete all
- *  this stuff ought to be replaced by exceptions.
- *
+ *  this stuff ought to be replaced by exceptions. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

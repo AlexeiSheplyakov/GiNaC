@@ -1,7 +1,8 @@
 /** @file series.h
  *
- *  Interface to class for extended truncated power series.
- *
+ *  Interface to class for extended truncated power series. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

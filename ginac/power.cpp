@@ -1,7 +1,8 @@
 /** @file power.cpp
  *
- *  Implementation of GiNaC's symbolic exponentiation (basis^exponent).
- *
+ *  Implementation of GiNaC's symbolic exponentiation (basis^exponent). */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

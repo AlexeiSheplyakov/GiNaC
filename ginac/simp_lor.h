@@ -1,7 +1,8 @@
 /** @file simp_lor.h
  *
- *  Interface to GiNaC's simp_lor objects.
- *
+ *  Interface to GiNaC's simp_lor objects. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

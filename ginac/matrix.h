@@ -1,7 +1,8 @@
 /** @file matrix.h
  *
- *  Interface to symbolic matrices
- *
+ *  Interface to symbolic matrices */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

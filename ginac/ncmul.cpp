@@ -1,7 +1,8 @@
 /** @file ncmul.cpp
  *
- *  Implementation of GiNaC's non-commutative products of expressions.
- *
+ *  Implementation of GiNaC's non-commutative products of expressions. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

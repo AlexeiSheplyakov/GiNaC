@@ -1,7 +1,8 @@
 /** @file add.cpp
  *
- *  Implementation of GiNaC's sums of expressions.
- *
+ *  Implementation of GiNaC's sums of expressions. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

@@ -1,7 +1,8 @@
 /** @file idx.h
  *
- *  Interface to GiNaC's indices.
- *
+ *  Interface to GiNaC's indices. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

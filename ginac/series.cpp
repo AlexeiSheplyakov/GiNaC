@@ -1,8 +1,9 @@
 /** @file series.cpp
  *
  *  Implementation of class for extended truncated power-series and
- *  methods for series expansion.
- *
+ *  methods for series expansion. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

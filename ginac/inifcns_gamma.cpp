@@ -1,7 +1,8 @@
 /** @file inifcns_gamma.cpp
  *
- *  Implementation of Gamma function and some related stuff.
- *
+ *  Implementation of Gamma function and some related stuff. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

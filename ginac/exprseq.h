@@ -9,8 +9,9 @@
  *                        $prepend=0
  *                        $let_op=0
  *                        $open_bracket=(
- *                        $close_bracket=)
- *
+ *                        $close_bracket=) */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

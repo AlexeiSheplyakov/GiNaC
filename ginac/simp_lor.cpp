@@ -1,8 +1,9 @@
 /** @file simp_lor.cpp
  *
  *  Implementation of GiNaC's simp_lor objects.
- *  No real implementation yet, to be done.    
- *
+ *  No real implementation yet, to be done.     */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

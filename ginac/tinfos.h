@@ -1,7 +1,8 @@
 /** @file tinfos.h
  *
- *  Values for a do-it-yourself typeinfo scheme.
- *
+ *  Values for a do-it-yourself typeinfo scheme. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

@@ -1,7 +1,8 @@
 /** @file numeric.h
  *
- *  Makes the interface to the underlying bignum package available.
- *
+ *  Makes the interface to the underlying bignum package available. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

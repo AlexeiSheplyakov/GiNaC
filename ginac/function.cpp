@@ -4,8 +4,9 @@
  *
  *  This file was generated automatically by function.pl.
  *  Please do not modify it directly, edit the perl script instead!
- *  function.pl options: $maxargs=10
- *
+ *  function.pl options: $maxargs=10 */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
