@@ -1,8 +1,9 @@
 This file records noteworthy changes.
 
-1.0.3 (<date>)
+1.0.3 (21 December 2001)
 * Fixed a bug where quo() would call vector::reserve() with a negative
   argument.
+* Fix several bugs in code generation.
 
 1.0.2 (19 December 2001)
 * Input parser recognizes "sqrt()", which is also used in the output.
