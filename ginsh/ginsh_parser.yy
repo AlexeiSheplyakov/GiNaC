@@ -479,6 +479,12 @@ static ex f_series(const exprseq &e)
 	return e[0].series(e[1], ex_to<numeric>(e[2]).to_int());
 }
 
+static ex f_sprem(const exprseq &e)
+{
+	CHECK_ARG(2, symbol, sprem);
+	return sprem(e[0], e[1], ex_to<symbol>(e[2]));
+}
+
 static ex f_sqrfree2(const exprseq &e)
 {
 	CHECK_ARG(1, lst, sqrfree);
@@ -571,6 +577,7 @@ static const fcn_init builtin_fcns[] = {
 	{"quo", fcn_desc(f_quo, 3)},
 	{"rem", fcn_desc(f_rem, 3)},
 	{"series", fcn_desc(f_series, 3)},
+	{"sprem", fcn_desc(f_sprem, 3)},
 	{"sqrfree", fcn_desc(f_sqrfree1, 1)},
 	{"sqrfree", fcn_desc(f_sqrfree2, 2)},
 	{"sqrt", fcn_desc(f_sqrt, 1)},
