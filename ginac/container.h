@@ -354,7 +354,7 @@ public:
 	container_init<ex, STLT> operator=(const ex & x)
 	{
 		this->seq.push_back(x);
-		return container_init<ex, STLT>(seq);
+		return container_init<ex, STLT>(this->seq);
 	}
 
 	// functions overriding virtual functions from base classes

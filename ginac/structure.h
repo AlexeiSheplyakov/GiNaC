@@ -26,6 +26,7 @@
 #include <functional>
 
 #include "ex.h"
+#include "operators.h"
 #include "print.h"
 
 namespace GiNaC {
@@ -132,7 +133,7 @@ public:
 	ex evalf(int level = 0) const { return inherited::evalf(level); }
 	ex evalm() const { return inherited::evalm(); }
 protected:
-	ex eval_ncmul(const exvector & v) const { return hold_ncmul(v); }
+	ex eval_ncmul(const exvector & v) const { return this->hold_ncmul(v); }
 public:
 	ex eval_indexed(const basic & i) const { return i.hold(); }
 
