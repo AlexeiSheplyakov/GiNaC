@@ -36,7 +36,7 @@ namespace GiNaC {
 // exponential function
 //////////
 
-ex exp_evalf(ex const & x)
+static ex exp_evalf(ex const & x)
 {
     BEGIN_TYPECHECK
         TYPECHECK(x,numeric)
@@ -45,7 +45,7 @@ ex exp_evalf(ex const & x)
     return exp(ex_to_numeric(x)); // -> numeric exp(numeric)
 }
 
-ex exp_eval(ex const & x)
+static ex exp_eval(ex const & x)
 {
     // exp(0) -> 1
     if (x.is_zero()) {
@@ -75,7 +75,7 @@ ex exp_eval(ex const & x)
     return exp(x).hold();
 }    
 
-ex exp_diff(ex const & x, unsigned diff_param)
+static ex exp_diff(ex const & x, unsigned diff_param)
 {
     ASSERT(diff_param==0);
 
@@ -88,7 +88,7 @@ REGISTER_FUNCTION(exp, exp_eval, exp_evalf, exp_diff, NULL);
 // natural logarithm
 //////////
 
-ex log_evalf(ex const & x)
+static ex log_evalf(ex const & x)
 {
     BEGIN_TYPECHECK
         TYPECHECK(x,numeric)
@@ -97,7 +97,7 @@ ex log_evalf(ex const & x)
     return log(ex_to_numeric(x)); // -> numeric log(numeric)
 }
 
-ex log_eval(ex const & x)
+static ex log_eval(ex const & x)
 {
     if (x.info(info_flags::numeric)) {
         // log(1) -> 0
@@ -123,7 +123,7 @@ ex log_eval(ex const & x)
     return log(x).hold();
 }    
 
-ex log_diff(ex const & x, unsigned diff_param)
+static ex log_diff(ex const & x, unsigned diff_param)
 {
     ASSERT(diff_param==0);
 
@@ -136,7 +136,7 @@ REGISTER_FUNCTION(log, log_eval, log_evalf, log_diff, NULL);
 // sine (trigonometric function)
 //////////
 
-ex sin_evalf(ex const & x)
+static ex sin_evalf(ex const & x)
 {
     BEGIN_TYPECHECK
        TYPECHECK(x,numeric)
@@ -145,7 +145,7 @@ ex sin_evalf(ex const & x)
     return sin(ex_to_numeric(x)); // -> numeric sin(numeric)
 }
 
-ex sin_eval(ex const & x)
+static ex sin_eval(ex const & x)
 {
     // sin(n*Pi) -> 0
     ex xOverPi=x/Pi;
@@ -179,7 +179,7 @@ ex sin_eval(ex const & x)
     return sin(x).hold();
 }
 
-ex sin_diff(ex const & x, unsigned diff_param)
+static ex sin_diff(ex const & x, unsigned diff_param)
 {
     ASSERT(diff_param==0);
     
@@ -192,7 +192,7 @@ REGISTER_FUNCTION(sin, sin_eval, sin_evalf, sin_diff, NULL);
 // cosine (trigonometric function)
 //////////
 
-ex cos_evalf(ex const & x)
+static ex cos_evalf(ex const & x)
 {
     BEGIN_TYPECHECK
         TYPECHECK(x,numeric)
@@ -201,7 +201,7 @@ ex cos_evalf(ex const & x)
     return cos(ex_to_numeric(x)); // -> numeric cos(numeric)
 }
 
-ex cos_eval(ex const & x)
+static ex cos_eval(ex const & x)
 {
     // cos(n*Pi) -> {+|-}1
     ex xOverPi=x/Pi;
@@ -235,7 +235,7 @@ ex cos_eval(ex const & x)
     return cos(x).hold();
 }
 
-ex cos_diff(ex const & x, unsigned diff_param)
+static ex cos_diff(ex const & x, unsigned diff_param)
 {
     ASSERT(diff_param==0);
 
@@ -248,7 +248,7 @@ REGISTER_FUNCTION(cos, cos_eval, cos_evalf, cos_diff, NULL);
 // tangent (trigonometric function)
 //////////
 
-ex tan_evalf(ex const & x)
+static ex tan_evalf(ex const & x)
 {
     BEGIN_TYPECHECK
        TYPECHECK(x,numeric)
@@ -257,7 +257,7 @@ ex tan_evalf(ex const & x)
     return tan(ex_to_numeric(x));
 }
 
-ex tan_eval(ex const & x)
+static ex tan_eval(ex const & x)
 {
     // tan(n*Pi/3) -> {0|3^(1/2)|-(3^(1/2))}
     ex ThreeExOverPi=numTHREE()*x/Pi;
@@ -297,7 +297,7 @@ ex tan_eval(ex const & x)
     return tan(x).hold();
 }
 
-ex tan_diff(ex const & x, unsigned diff_param)
+static ex tan_diff(ex const & x, unsigned diff_param)
 {
     ASSERT(diff_param==0);
     
@@ -310,7 +310,7 @@ REGISTER_FUNCTION(tan, tan_eval, tan_evalf, tan_diff, NULL);
 // inverse sine (arc sine)
 //////////
 
-ex asin_evalf(ex const & x)
+static ex asin_evalf(ex const & x)
 {
     BEGIN_TYPECHECK
        TYPECHECK(x,numeric)
@@ -319,7 +319,7 @@ ex asin_evalf(ex const & x)
     return asin(ex_to_numeric(x)); // -> numeric asin(numeric)
 }
 
-ex asin_eval(ex const & x)
+static ex asin_eval(ex const & x)
 {
     if (x.info(info_flags::numeric)) {
         // asin(0) -> 0
@@ -345,7 +345,7 @@ ex asin_eval(ex const & x)
     return asin(x).hold();
 }
 
-ex asin_diff(ex const & x, unsigned diff_param)
+static ex asin_diff(ex const & x, unsigned diff_param)
 {
     ASSERT(diff_param==0);
     
@@ -358,7 +358,7 @@ REGISTER_FUNCTION(asin, asin_eval, asin_evalf, asin_diff, NULL);
 // inverse cosine (arc cosine)
 //////////
 
-ex acos_evalf(ex const & x)
+static ex acos_evalf(ex const & x)
 {
     BEGIN_TYPECHECK
        TYPECHECK(x,numeric)
@@ -367,7 +367,7 @@ ex acos_evalf(ex const & x)
     return acos(ex_to_numeric(x)); // -> numeric acos(numeric)
 }
 
-ex acos_eval(ex const & x)
+static ex acos_eval(ex const & x)
 {
     if (x.info(info_flags::numeric)) {
         // acos(1) -> 0
@@ -393,7 +393,7 @@ ex acos_eval(ex const & x)
     return acos(x).hold();
 }
 
-ex acos_diff(ex const & x, unsigned diff_param)
+static ex acos_diff(ex const & x, unsigned diff_param)
 {
     ASSERT(diff_param==0);
     
@@ -406,7 +406,7 @@ REGISTER_FUNCTION(acos, acos_eval, acos_evalf, acos_diff, NULL);
 // inverse tangent (arc tangent)
 //////////
 
-ex atan_evalf(ex const & x)
+static ex atan_evalf(ex const & x)
 {
     BEGIN_TYPECHECK
         TYPECHECK(x,numeric)
@@ -415,7 +415,7 @@ ex atan_evalf(ex const & x)
     return atan(ex_to_numeric(x)); // -> numeric atan(numeric)
 }
 
-ex atan_eval(ex const & x)
+static ex atan_eval(ex const & x)
 {
     if (x.info(info_flags::numeric)) {
         // atan(0) -> 0
@@ -429,7 +429,7 @@ ex atan_eval(ex const & x)
     return atan(x).hold();
 }    
 
-ex atan_diff(ex const & x, unsigned diff_param)
+static ex atan_diff(ex const & x, unsigned diff_param)
 {
     ASSERT(diff_param==0);
 
@@ -442,7 +442,7 @@ REGISTER_FUNCTION(atan, atan_eval, atan_evalf, atan_diff, NULL);
 // inverse tangent (atan2(y,x))
 //////////
 
-ex atan2_evalf(ex const & y, ex const & x)
+static ex atan2_evalf(ex const & y, ex const & x)
 {
     BEGIN_TYPECHECK
         TYPECHECK(y,numeric)
@@ -452,7 +452,7 @@ ex atan2_evalf(ex const & y, ex const & x)
     return atan(ex_to_numeric(y),ex_to_numeric(x)); // -> numeric atan(numeric)
 }
 
-ex atan2_eval(ex const & y, ex const & x)
+static ex atan2_eval(ex const & y, ex const & x)
 {
     if (y.info(info_flags::numeric) && !y.info(info_flags::rational) &&
         x.info(info_flags::numeric) && !x.info(info_flags::rational)) {
@@ -462,7 +462,7 @@ ex atan2_eval(ex const & y, ex const & x)
     return atan2(y,x).hold();
 }    
 
-ex atan2_diff(ex const & y, ex const & x, unsigned diff_param)
+static ex atan2_diff(ex const & y, ex const & x, unsigned diff_param)
 {
     ASSERT(diff_param<2);
 
@@ -480,7 +480,7 @@ REGISTER_FUNCTION(atan2, atan2_eval, atan2_evalf, atan2_diff, NULL);
 // hyperbolic sine (trigonometric function)
 //////////
 
-ex sinh_evalf(ex const & x)
+static ex sinh_evalf(ex const & x)
 {
     BEGIN_TYPECHECK
        TYPECHECK(x,numeric)
@@ -489,7 +489,7 @@ ex sinh_evalf(ex const & x)
     return sinh(ex_to_numeric(x)); // -> numeric sinh(numeric)
 }
 
-ex sinh_eval(ex const & x)
+static ex sinh_eval(ex const & x)
 {
     if (x.info(info_flags::numeric)) {
         // sinh(0) -> 0
@@ -516,7 +516,7 @@ ex sinh_eval(ex const & x)
     return sinh(x).hold();
 }
 
-ex sinh_diff(ex const & x, unsigned diff_param)
+static ex sinh_diff(ex const & x, unsigned diff_param)
 {
     ASSERT(diff_param==0);
     
@@ -529,7 +529,7 @@ REGISTER_FUNCTION(sinh, sinh_eval, sinh_evalf, sinh_diff, NULL);
 // hyperbolic cosine (trigonometric function)
 //////////
 
-ex cosh_evalf(ex const & x)
+static ex cosh_evalf(ex const & x)
 {
     BEGIN_TYPECHECK
        TYPECHECK(x,numeric)
@@ -538,7 +538,7 @@ ex cosh_evalf(ex const & x)
     return cosh(ex_to_numeric(x)); // -> numeric cosh(numeric)
 }
 
-ex cosh_eval(ex const & x)
+static ex cosh_eval(ex const & x)
 {
     if (x.info(info_flags::numeric)) {
         // cosh(0) -> 1
@@ -565,7 +565,7 @@ ex cosh_eval(ex const & x)
     return cosh(x).hold();
 }
 
-ex cosh_diff(ex const & x, unsigned diff_param)
+static ex cosh_diff(ex const & x, unsigned diff_param)
 {
     ASSERT(diff_param==0);
     
@@ -578,7 +578,7 @@ REGISTER_FUNCTION(cosh, cosh_eval, cosh_evalf, cosh_diff, NULL);
 // hyperbolic tangent (trigonometric function)
 //////////
 
-ex tanh_evalf(ex const & x)
+static ex tanh_evalf(ex const & x)
 {
     BEGIN_TYPECHECK
        TYPECHECK(x,numeric)
@@ -587,7 +587,7 @@ ex tanh_evalf(ex const & x)
     return tanh(ex_to_numeric(x)); // -> numeric tanh(numeric)
 }
 
-ex tanh_eval(ex const & x)
+static ex tanh_eval(ex const & x)
 {
     if (x.info(info_flags::numeric)) {
         // tanh(0) -> 0
@@ -614,7 +614,7 @@ ex tanh_eval(ex const & x)
     return tanh(x).hold();
 }
 
-ex tanh_diff(ex const & x, unsigned diff_param)
+static ex tanh_diff(ex const & x, unsigned diff_param)
 {
     ASSERT(diff_param==0);
     
@@ -627,7 +627,7 @@ REGISTER_FUNCTION(tanh, tanh_eval, tanh_evalf, tanh_diff, NULL);
 // inverse hyperbolic sine (trigonometric function)
 //////////
 
-ex asinh_evalf(ex const & x)
+static ex asinh_evalf(ex const & x)
 {
     BEGIN_TYPECHECK
        TYPECHECK(x,numeric)
@@ -636,7 +636,7 @@ ex asinh_evalf(ex const & x)
     return asinh(ex_to_numeric(x)); // -> numeric asinh(numeric)
 }
 
-ex asinh_eval(ex const & x)
+static ex asinh_eval(ex const & x)
 {
     if (x.info(info_flags::numeric)) {
         // asinh(0) -> 0
@@ -650,7 +650,7 @@ ex asinh_eval(ex const & x)
     return asinh(x).hold();
 }
 
-ex asinh_diff(ex const & x, unsigned diff_param)
+static ex asinh_diff(ex const & x, unsigned diff_param)
 {
     ASSERT(diff_param==0);
     
@@ -663,7 +663,7 @@ REGISTER_FUNCTION(asinh, asinh_eval, asinh_evalf, asinh_diff, NULL);
 // inverse hyperbolic cosine (trigonometric function)
 //////////
 
-ex acosh_evalf(ex const & x)
+static ex acosh_evalf(ex const & x)
 {
     BEGIN_TYPECHECK
        TYPECHECK(x,numeric)
@@ -672,7 +672,7 @@ ex acosh_evalf(ex const & x)
     return acosh(ex_to_numeric(x)); // -> numeric acosh(numeric)
 }
 
-ex acosh_eval(ex const & x)
+static ex acosh_eval(ex const & x)
 {
     if (x.info(info_flags::numeric)) {
         // acosh(0) -> Pi*I/2
@@ -692,7 +692,7 @@ ex acosh_eval(ex const & x)
     return acosh(x).hold();
 }
 
-ex acosh_diff(ex const & x, unsigned diff_param)
+static ex acosh_diff(ex const & x, unsigned diff_param)
 {
     ASSERT(diff_param==0);
     
@@ -705,7 +705,7 @@ REGISTER_FUNCTION(acosh, acosh_eval, acosh_evalf, acosh_diff, NULL);
 // inverse hyperbolic tangent (trigonometric function)
 //////////
 
-ex atanh_evalf(ex const & x)
+static ex atanh_evalf(ex const & x)
 {
     BEGIN_TYPECHECK
        TYPECHECK(x,numeric)
@@ -714,7 +714,7 @@ ex atanh_evalf(ex const & x)
     return atanh(ex_to_numeric(x)); // -> numeric atanh(numeric)
 }
 
-ex atanh_eval(ex const & x)
+static ex atanh_eval(ex const & x)
 {
     if (x.info(info_flags::numeric)) {
         // atanh(0) -> 0
@@ -731,7 +731,7 @@ ex atanh_eval(ex const & x)
     return atanh(x).hold();
 }
 
-ex atanh_diff(ex const & x, unsigned diff_param)
+static ex atanh_diff(ex const & x, unsigned diff_param)
 {
     ASSERT(diff_param==0);
     

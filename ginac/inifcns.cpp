@@ -42,7 +42,7 @@ namespace GiNaC {
 // dilogarithm
 //////////
 
-ex Li2_eval(ex const & x)
+static ex Li2_eval(ex const & x)
 {
     if (x.is_zero())
         return x;
@@ -59,7 +59,7 @@ REGISTER_FUNCTION(Li2, Li2_eval, NULL, NULL, NULL);
 // trilogarithm
 //////////
 
-ex Li3_eval(ex const & x)
+static ex Li3_eval(ex const & x)
 {
     if (x.is_zero())
         return x;
@@ -72,12 +72,12 @@ REGISTER_FUNCTION(Li3, Li3_eval, NULL, NULL, NULL);
 // factorial
 //////////
 
-ex factorial_evalf(ex const & x)
+static ex factorial_evalf(ex const & x)
 {
     return factorial(x).hold();
 }
 
-ex factorial_eval(ex const & x)
+static ex factorial_eval(ex const & x)
 {
     if (is_ex_exactly_of_type(x, numeric))
         return factorial(ex_to_numeric(x));
@@ -91,12 +91,12 @@ REGISTER_FUNCTION(factorial, factorial_eval, factorial_evalf, NULL, NULL);
 // binomial
 //////////
 
-ex binomial_evalf(ex const & x, ex const & y)
+static ex binomial_evalf(ex const & x, ex const & y)
 {
     return binomial(x, y).hold();
 }
 
-ex binomial_eval(ex const & x, ex const &y)
+static ex binomial_eval(ex const & x, ex const &y)
 {
     if (is_ex_exactly_of_type(x, numeric) && is_ex_exactly_of_type(y, numeric))
         return binomial(ex_to_numeric(x), ex_to_numeric(y));
@@ -110,7 +110,7 @@ REGISTER_FUNCTION(binomial, binomial_eval, binomial_evalf, NULL, NULL);
 // Order term function (for truncated power series)
 //////////
 
-ex Order_eval(ex const & x)
+static ex Order_eval(ex const & x)
 {
 	if (is_ex_exactly_of_type(x, numeric)) {
 
@@ -129,7 +129,7 @@ ex Order_eval(ex const & x)
 	return Order(x).hold();
 }
 
-ex Order_series(ex const & x, symbol const & s, ex const & point, int order)
+static ex Order_series(ex const & x, symbol const & s, ex const & point, int order)
 {
 	// Just wrap the function into a series object
 	epvector new_seq;

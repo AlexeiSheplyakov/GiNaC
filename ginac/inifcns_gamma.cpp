@@ -41,7 +41,7 @@ namespace GiNaC {
  *  evaluation some day...
  *
  *  @exception fail_numeric("complex_infinity") or something similar... */
-ex gamma_eval(ex const & x)
+static ex gamma_eval(ex const & x)
 {
     if ( x.info(info_flags::numeric) ) {
 
@@ -76,7 +76,7 @@ ex gamma_eval(ex const & x)
     return gamma(x).hold();
 }    
     
-ex gamma_evalf(ex const & x)
+static ex gamma_evalf(ex const & x)
 {
     BEGIN_TYPECHECK
         TYPECHECK(x,numeric)
@@ -85,14 +85,14 @@ ex gamma_evalf(ex const & x)
     return gamma(ex_to_numeric(x));
 }
 
-ex gamma_diff(ex const & x, unsigned diff_param)
+static ex gamma_diff(ex const & x, unsigned diff_param)
 {
     ASSERT(diff_param==0);
 
     return power(x, -1);	// FIXME
 }
 
-ex gamma_series(ex const & x, symbol const & s, ex const & point, int order)
+static ex gamma_series(ex const & x, symbol const & s, ex const & point, int order)
 {
 	// FIXME: Only handle one special case for now...
 	if (x.is_equal(s) && point.is_zero()) {
