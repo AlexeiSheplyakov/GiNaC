@@ -29,6 +29,7 @@ using namespace GiNaC;
 
 static unsigned lsolve1(void)
 {
+    // A trivial example.
     unsigned result = 0;
     symbol x("x");
     ex eq, aux;
@@ -46,6 +47,7 @@ static unsigned lsolve1(void)
 
 static unsigned lsolve2a(void)
 {
+    // An example from the Maple online-help.
     unsigned result = 0;
     symbol a("a"), b("b"), x("x"), y("y");
     lst eqns, vars;
@@ -73,6 +75,35 @@ static unsigned lsolve2a(void)
 
 static unsigned lsolve2b(void)
 {
+    // A boring example from Mathematica's online-help.
+    unsigned result = 0;
+    symbol x("x"), y("y");
+    lst eqns, vars;
+    ex sol;
+    
+    // Create the linear system [3*x+y==7,2*x-5*y==8]...
+    eqns.append(3*x+y==7).append(2*x-5*y==8);
+    // ...to be solved for [x,y]...
+    vars.append(x).append(y);
+    // ...and solve it:
+    sol = lsolve(eqns, vars);
+    ex sol_x = sol.op(0).rhs();  // rhs of solution for first variable (x)
+    ex sol_y = sol.op(1).rhs();  // rhs of solution for second variable (y)
+    
+    // It should have returned [x==43/17,y==-10/17]
+    if (!(sol_x - numeric(43,17)).is_zero() ||
+        !(sol_y - numeric(-10,17)).is_zero()) {
+        result++;
+        clog << "solution of the system " << eqns << " for " << vars
+             << " erroneously returned " << sol << endl;
+    }
+    
+    return result;
+}
+
+static unsigned lsolve2c(void)
+{
+    // An example from the Maple online-help.
     unsigned result = 0;
     symbol x("x"), y("y");
     lst eqns, vars;
@@ -86,7 +117,7 @@ static unsigned lsolve2b(void)
     sol = lsolve(eqns, vars);
     ex sol_x = sol.op(0).rhs();  // rhs of solution for first variable (x)
     ex sol_y = sol.op(1).rhs();  // rhs of solution for second variable (y)
-
+    
     // It should have returned [x==-3/2*I,y==-1/2]
     if (!(sol_x - numeric(-3,2)*I).is_zero() ||
         !(sol_y - numeric(-1,2)).is_zero()) {
@@ -108,6 +139,7 @@ unsigned linear_solve(void)
     result += lsolve1();
     result += lsolve2a();
     result += lsolve2b();
+    result += lsolve2c();
     
     if (!result) {
         cout << " passed ";
