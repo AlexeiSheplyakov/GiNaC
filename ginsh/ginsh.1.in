@@ -144,9 +144,6 @@ unary minus
 .B *
 multiplication
 .TP
-.B %
-non-commutative multiplication
-.TP
 .B /
 division
 .TP
@@ -404,6 +401,22 @@ The command
 will print a dump of GiNaC's internal representation for the given
 .IR expression .
 This is useful for debugging and for learning about GiNaC internals.
+.PP
+The command
+.RS
+.BI print_latex( expression );
+.RE
+prints a LaTeX representation of the given
+.IR expression .
+.PP
+The command
+.RS
+.BI print_csrc( expression );
+.RE
+prints the given
+.I expression
+in a way that can be used in a C or C++ program (complex numbers are not
+supported, though).
 .PP
 The command
 .RS

@@ -92,14 +92,15 @@ static void print_help_topics(void);
 %token T_NUMBER T_SYMBOL T_LITERAL T_DIGITS T_QUOTE T_QUOTE2 T_QUOTE3
 %token T_EQUAL T_NOTEQ T_LESSEQ T_GREATEREQ
 
-%token T_QUIT T_WARRANTY T_PRINT T_IPRINT T_TIME T_XYZZY T_INVENTORY T_LOOK T_SCORE
+%token T_QUIT T_WARRANTY T_PRINT T_IPRINT T_PRINTLATEX T_PRINTCSRC T_TIME
+%token T_XYZZY T_INVENTORY T_LOOK T_SCORE
 
 /* Operator precedence and associativity */
 %right '='
 %left T_EQUAL T_NOTEQ
 %left '<' '>' T_LESSEQ T_GREATEREQ
 %left '+' '-'
-%left '*' '/' '%'
+%left '*' '/'
 %nonassoc NEG
 %right '^'
 %nonassoc '!'
@@ -153,6 +154,22 @@ line	: ';'
 			cout << "#x" << hex << i << dec << endl;
 		} catch (exception &e) {
 			cerr << e.what() << endl;
+			YYERROR;
+		}
+	}
+	| T_PRINTLATEX '(' exp ')' ';' {
+		try {
+			$3.print(print_latex(std::cout)); cout << endl;
+		} catch (exception &e) {
+			std::cerr << e.what() << endl;
+			YYERROR;
+		}
+	}
+	| T_PRINTCSRC '(' exp ')' ';' {
+		try {
+			$3.print(print_csrc_double(std::cout)); cout << endl;
+		} catch (exception &e) {
+			std::cerr << e.what() << endl;
 			YYERROR;
 		}
 	}

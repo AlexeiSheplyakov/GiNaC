@@ -72,6 +72,8 @@ quit|exit		return T_QUIT;
 warranty		return T_WARRANTY;
 print			return T_PRINT;
 iprint			return T_IPRINT;
+print_latex		return T_PRINTLATEX;
+print_csrc		return T_PRINTCSRC;
 time			return T_TIME;
 xyzzy			return T_XYZZY;
 inventory		return T_INVENTORY;
