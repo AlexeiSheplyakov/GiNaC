@@ -2670,7 +2670,7 @@ The easiest way to print an expression is to write it to a stream:
 @{
     symbol x("x");
     ex e = 4.5+pow(x,2)*3/2;
-    cout << e << endl;    // prints '4.5+3/2*x^2'
+    cout << e << endl;    // prints '(4.5)+3/2*x^2'
     // ...
 @end example
 
@@ -2679,62 +2679,73 @@ to that used by most computer algebra systems, but not directly pastable
 into a GiNaC C++ program (note that in the above example, @code{pow(x,2)}
 is printed as @samp{x^2}).
 
+It is possible to print expressions in a number of different formats with
+the method
+
+@example
+void ex::print(const print_context & c, unsigned level = 0);
+@end example
+
+The type of @code{print_context} object passed in determines the format
+of the output. The possible types are defined in @file{ginac/print.h}.
+All constructors of @code{print_context} and derived classes take an
+@code{ostream &} as their first argument.
+
 To print an expression in a way that can be directly used in a C or C++
-program, you use the method
-
-@example
-void ex::printcsrc(ostream & os, unsigned type, const char *name);
-@end example
-
-This outputs a line in the form of a variable definition @code{<type> <name> = <expression>}.
-The possible types are defined in @file{ginac/flags.h} (@code{csrc_types})
-and mostly affect the way in which floating point numbers are written:
+program, you pass a @code{print_csrc} object like this:
 
 @example
     // ...
-    e.printcsrc(cout, csrc_types::ctype_float, "f");
-    e.printcsrc(cout, csrc_types::ctype_double, "d");
-    e.printcsrc(cout, csrc_types::ctype_cl_N, "n");
+    cout << "float f = ";
+    e.print(print_csrc_float(cout));
+    cout << ";\n";
+
+    cout << "double d = ";
+    e.print(print_csrc_double(cout));
+    cout << ";\n";
+
+    cout << "cl_N n = ";
+    e.print(print_csrc_cl_N(cout));
+    cout << ";\n";
     // ...
 @end example
+
+The three possible types mostly affect the way in which floating point
+numbers are written.
 
 The above example will produce (note the @code{x^2} being converted to @code{x*x}):
 
 @example
 float f = (3.000000e+00/2.000000e+00)*(x*x)+4.500000e+00;
 double d = (3.000000e+00/2.000000e+00)*(x*x)+4.500000e+00;
-cl_N n = (cl_F("3.0")/cl_F("2.0"))*(x*x)+cl_F("4.5");
+cl_N n = (cln::cl_F("3.0")/cln::cl_F("2.0"))*(x*x)+cln::cl_F("4.5");
 @end example
 
-Finally, there are the two methods @code{printraw()} and @code{printtree()} intended for GiNaC
-developers, that provide a dump of the internal structure of an expression for
-debugging purposes:
+The @code{print_context} type @code{print_tree} provdes a dump of the
+internal structure of an expression for debugging purposes:
 
 @example
     // ...
-    e.printraw(cout); cout << endl << endl;
-    e.printtree(cout);
+    e.print(print_tree(cout));
 @}
 @end example
 
 produces
 
 @example
-ex(+((power(ex(symbol(name=x,serial=1,hash=150875740,flags=11)),ex(numeric(2)),hash=2,flags=3),numeric(3/2)),,hash=0,flags=3))
-
-type=Q25GiNaC3add, hash=0 (0x0), flags=3, nops=2
-    power: hash=2 (0x2), flags=3
-        x (symbol): serial=1, hash=150875740 (0x8fe2e5c), flags=11
-        2 (numeric): hash=2147483714 (0x80000042), flags=11
-    3/2 (numeric): hash=2147483745 (0x80000061), flags=11
+add, hash=0x0, flags=0x3, nops=2
+    power, hash=0x9, flags=0x3, nops=2
+        x (symbol), serial=3, hash=0x44a113a6, flags=0xf
+        2 (numeric), hash=0x80000042, flags=0xf
+    3/2 (numeric), hash=0x80000061, flags=0xf
     -----
     overall_coeff
-    4.5L0 (numeric): hash=2147483723 (0x8000004b), flags=11
+    4.5L0 (numeric), hash=0x8000004b, flags=0xf
     =====
 @end example
 
-The @code{printtree()} method is also available in @command{ginsh} as the
-@code{print()} function.
+This kind of output is also available in @command{ginsh} as the @code{print()}
+function.
 
 
 @subsection Expression input
@@ -3383,18 +3394,19 @@ class mystring : public basic
 @{
     ...
 public:
-    void print(ostream &os, unsigned upper_precedence) const;
+    void print(const print_context &c, unsigned level = 0) const;
     ...
 @};
 
-void mystring::print(ostream &os, unsigned upper_precedence) const
+void mystring::print(const print_context &c, unsigned level) const
 @{
-    os << '\"' << str << '\"';
+    // print_context::s is a reference to an ostream
+    c.s << '\"' << str << '\"';
 @}
 @end example
 
-The @code{upper_precedence} argument is only required for container classes
-to correctly parenthesize the output. Let's try again to print the expression:
+The @code{level} argument is only required for container classes to
+correctly parenthesize the output. Let's try again to print the expression:
 
 @example
 cout << e << endl;
