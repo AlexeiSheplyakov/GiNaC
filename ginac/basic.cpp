@@ -363,17 +363,17 @@ ex basic::evalf(int level) const
 	return *this;
 }
 
+/** Function object to be applied by basic::evalm(). */
+struct evalm_map_function : public map_function {
+	ex operator()(const ex & e) { return GiNaC::evalm(e); }
+} fcn;
 /** Evaluate sums, products and integer powers of matrices. */
 ex basic::evalm(void) const
 {
 	if (nops() == 0)
 		return *this;
-	else {
-		struct evalm_map_function : public map_function {
-			ex operator()(const ex & e) { return GiNaC::evalm(e); }
-		} fcn;
+	else
 		return map(fcn);
-	}
 }
 
 /** Perform automatic symbolic evaluations on indexed expression that
