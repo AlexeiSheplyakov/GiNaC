@@ -82,6 +82,8 @@ const unsigned TINFO_su3d          = 0x000e100bU;
 const unsigned TINFO_diracone      = 0x000e100cU;
 const unsigned TINFO_diracgamma    = 0x000e100dU;
 const unsigned TINFO_diracgamma5   = 0x000e100eU;
+const unsigned TINFO_diracgammaL   = 0x000e100fU;
+const unsigned TINFO_diracgammaR   = 0x000e1010U;
 
 const unsigned TINFO_wildcard      = 0x000f0001U;
 

@@ -44,6 +44,8 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(diracone, tensor)
 GINAC_IMPLEMENT_REGISTERED_CLASS(diracgamma, tensor)
 GINAC_IMPLEMENT_REGISTERED_CLASS(diracgamma5, tensor)
 
+GINAC_IMPLEMENT_REGISTERED_CLASS(diracgammaL, tensor)
+GINAC_IMPLEMENT_REGISTERED_CLASS(diracgammaR, tensor)
 //////////
 // default ctor, dtor, copy ctor, assignment operator and helpers
 //////////
@@ -64,6 +66,8 @@ DEFAULT_CTORS(diracone)
 DEFAULT_CTORS(diracgamma)
 DEFAULT_CTORS(diracgamma5)
 
+DEFAULT_CTORS(diracgammaL)
+DEFAULT_CTORS(diracgammaR)
 //////////
 // other constructors
 //////////
@@ -117,6 +121,8 @@ DEFAULT_ARCHIVING(diracone)
 DEFAULT_ARCHIVING(diracgamma)
 DEFAULT_ARCHIVING(diracgamma5)
 
+DEFAULT_ARCHIVING(diracgammaL)
+DEFAULT_ARCHIVING(diracgammaR)
 //////////
 // functions overriding virtual functions from base classes
 //////////
@@ -144,7 +150,9 @@ bool clifford::match_same_type(const basic & other) const
 
 void clifford::print(const print_context & c, unsigned level) const
 {
-	if (!is_a<diracgamma5>(seq[0]) && !is_a<diracgamma>(seq[0]) && !is_a<diracone>(seq[0])) {
+	if (!is_a<diracgamma5>(seq[0]) && !is_a<diracgammaL>(seq[0]) &&
+	    !is_a<diracgammaR>(seq[0]) && !is_a<diracgamma>(seq[0]) &&
+	    !is_a<diracone>(seq[0])) {
 
 		// dirac_slash() object is printed differently
 		if (is_a<print_tree>(c))
@@ -165,10 +173,14 @@ void clifford::print(const print_context & c, unsigned level) const
 DEFAULT_COMPARE(diracone)
 DEFAULT_COMPARE(diracgamma)
 DEFAULT_COMPARE(diracgamma5)
+DEFAULT_COMPARE(diracgammaL)
+DEFAULT_COMPARE(diracgammaR)
 
 DEFAULT_PRINT_LATEX(diracone, "ONE", "\\mathbb{1}")
 DEFAULT_PRINT_LATEX(diracgamma, "gamma", "\\gamma")
 DEFAULT_PRINT_LATEX(diracgamma5, "gamma5", "{\\gamma^5}")
+DEFAULT_PRINT_LATEX(diracgammaL, "gammaL", "{\\gamma_L}")
+DEFAULT_PRINT_LATEX(diracgammaR, "gammaR", "{\\gamma_R}")
 
 /** This function decomposes gamma~mu -> (1, mu) and a\ -> (a.ix, ix) */
 static void base_and_index(const ex & c, ex & b, ex & i)
@@ -179,7 +191,7 @@ static void base_and_index(const ex & c, ex & b, ex & i)
 	if (is_a<diracgamma>(c.op(0))) { // proper dirac gamma object
 		i = c.op(1);
 		b = _ex1;
-	} else if (is_a<diracgamma5>(c.op(0))) { // gamma5
+	} else if (is_a<diracgamma5>(c.op(0)) || is_a<diracgammaL>(c.op(0)) || is_a<diracgammaR>(c.op(0))) { // gamma5/L/R
 		i = _ex0;
 		b = _ex1;
 	} else { // slash object, generate new dummy index
@@ -272,7 +284,7 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 }
 
 /** Perform automatic simplification on noncommutative product of clifford
- *  objects. This removes superfluous ONEs, permutes gamma5's to the front
+ *  objects. This removes superfluous ONEs, permutes gamma5/L/R's to the front
  *  and removes squares of gamma objects. */
 ex clifford::simplify_ncmul(const exvector & v) const
 {
@@ -290,17 +302,67 @@ ex clifford::simplify_ncmul(const exvector & v) const
 	bool something_changed = false;
 	int sign = 1;
 
-	// Anticommute gamma5's to the front
+	// Anticommute gamma5/L/R's to the front
 	if (s.size() >= 2) {
 		exvector::iterator first = s.begin(), next_to_last = s.end() - 2;
 		while (true) {
 			exvector::iterator it = next_to_last;
 			while (true) {
 				exvector::iterator it2 = it + 1;
-				if (is_a<clifford>(*it) && is_a<clifford>(*it2) && !is_a<diracgamma5>(it->op(0)) && is_a<diracgamma5>(it2->op(0))) {
-					it->swap(*it2);
-					sign = -sign;
-					something_changed = true;
+				if (is_a<clifford>(*it) && is_a<clifford>(*it2)) {
+					ex e1 = it->op(0), e2 = it2->op(0);
+
+					if (is_a<diracgamma5>(e2)) {
+
+						if (is_a<diracgammaL>(e1) || is_a<diracgammaR>(e1)) {
+
+							// gammaL/R gamma5 -> gamma5 gammaL/R
+							it->swap(*it2);
+							something_changed = true;
+
+						} else if (!is_a<diracgamma5>(e1)) {
+
+							// gamma5 gamma5 -> gamma5 gamma5 (do nothing)
+							// x gamma5 -> -gamma5 x
+							it->swap(*it2);
+							sign = -sign;
+							something_changed = true;
+						}
+
+					} else if (is_a<diracgammaL>(e2)) {
+
+						if (is_a<diracgammaR>(e1)) {
+
+							// gammaR gammaL -> 0
+							return _ex0;
+
+						} else if (!is_a<diracgammaL>(e1) && !is_a<diracgamma5>(e1)) {
+
+							// gammaL gammaL -> gammaL gammaL (do nothing)
+							// gamma5 gammaL -> gamma5 gammaL (do nothing)
+							// x gammaL -> gammaR x
+							it->swap(*it2);
+							*it = clifford(diracgammaR(), ex_to<clifford>(*it).get_representation_label());
+							something_changed = true;
+						}
+
+					} else if (is_a<diracgammaR>(e2)) {
+
+						if (is_a<diracgammaL>(e1)) {
+
+							// gammaL gammaR -> 0
+							return _ex0;
+
+						} else if (!is_a<diracgammaR>(e1) && !is_a<diracgamma5>(e1)) {
+
+							// gammaR gammaR -> gammaR gammaR (do nothing)
+							// gamma5 gammaR -> gamma5 gammaR (do nothing)
+							// x gammaR -> gammaL x
+							it->swap(*it2);
+							*it = clifford(diracgammaL(), ex_to<clifford>(*it).get_representation_label());
+							something_changed = true;
+						}
+					}
 				}
 				if (it == first)
 					break;
@@ -320,9 +382,14 @@ ex clifford::simplify_ncmul(const exvector & v) const
 			ex & b = it[1];
 			if (!is_a<clifford>(a) || !is_a<clifford>(b))
 				continue;
-			bool a_is_diracgamma = is_a<diracgamma>(a.op(0));
-			bool b_is_diracgamma = is_a<diracgamma>(b.op(0));
+
+			const ex & ag = a.op(0);
+			const ex & bg = b.op(0);
+			bool a_is_diracgamma = is_a<diracgamma>(ag);
+			bool b_is_diracgamma = is_a<diracgamma>(bg);
+
 			if (a_is_diracgamma && b_is_diracgamma) {
+
 				const ex & ia = a.op(1);
 				const ex & ib = b.op(1);
 				if (ia.is_equal(ib)) { // gamma~alpha gamma~alpha -> g~alpha~alpha
@@ -330,20 +397,46 @@ ex clifford::simplify_ncmul(const exvector & v) const
 					b = dirac_ONE(representation_label);
 					something_changed = true;
 				}
-			} else if (is_a<diracgamma5>(a.op(0)) && is_a<diracgamma5>(b.op(0))) {
+
+			} else if ((is_a<diracgamma5>(ag) && is_a<diracgamma5>(bg))) {
+
 				// Remove squares of gamma5
 				a = dirac_ONE(representation_label);
 				b = dirac_ONE(representation_label);
 				something_changed = true;
-			} else if (!a_is_diracgamma && !b_is_diracgamma) {
-				const ex & ba = a.op(0);
-				const ex & bb = b.op(0);
-				if (ba.is_equal(bb)) { // a\ a\ -> a^2
-					varidx ix((new symbol)->setflag(status_flags::dynallocated), ex_to<idx>(a.op(1)).get_dim());
-					a = indexed(ba, ix) * indexed(bb, ix.toggle_variance());
-					b = dirac_ONE(representation_label);
-					something_changed = true;
-				}
+
+			} else if ((is_a<diracgammaL>(ag) && is_a<diracgammaL>(bg))
+			        || (is_a<diracgammaR>(ag) && is_a<diracgammaR>(bg))) {
+
+				// Remove squares of gammaL/R
+				b = dirac_ONE(representation_label);
+				something_changed = true;
+
+			} else if (is_a<diracgammaL>(ag) && is_a<diracgammaR>(bg)) {
+
+				// gammaL and gammaR are orthogonal
+				return _ex0;
+
+			} else if (is_a<diracgamma5>(ag) && is_a<diracgammaL>(bg)) {
+
+				// gamma5 gammaL -> -gammaL
+				a = dirac_ONE(representation_label);
+				sign = -sign;
+				something_changed = true;
+
+			} else if (is_a<diracgamma5>(ag) && is_a<diracgammaR>(bg)) {
+
+				// gamma5 gammaR -> gammaR
+				a = dirac_ONE(representation_label);
+				something_changed = true;
+
+			} else if (!a_is_diracgamma && !b_is_diracgamma && ag.is_equal(bg)) {
+
+				// a\ a\ -> a^2
+				varidx ix((new symbol)->setflag(status_flags::dynallocated), ex_to<idx>(a.op(1)).get_dim());
+				a = indexed(ag, ix) * indexed(ag, ix.toggle_variance());
+				b = dirac_ONE(representation_label);
+				something_changed = true;
 			}
 		}
 	}
@@ -386,6 +479,16 @@ ex dirac_gamma(const ex & mu, unsigned char rl)
 ex dirac_gamma5(unsigned char rl)
 {
 	return clifford(diracgamma5(), rl);
+}
+
+ex dirac_gammaL(unsigned char rl)
+{
+	return clifford(diracgammaL(), rl);
+}
+
+ex dirac_gammaR(unsigned char rl)
+{
+	return clifford(diracgammaR(), rl);
 }
 
 ex dirac_gamma6(unsigned char rl)
@@ -460,9 +563,13 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 {
 	if (is_a<clifford>(e)) {
 
-		if (ex_to<clifford>(e).get_representation_label() == rl
-		 && is_a<diracone>(e.op(0)))
+		if (!ex_to<clifford>(e).get_representation_label() == rl)
+			return _ex0;
+		const ex & g = e.op(0);
+		if (is_a<diracone>(g))
 			return trONE;
+		else if (is_a<diracgammaL>(g) || is_a<diracgammaR>(g))
+			return trONE/2;
 		else
 			return _ex0;
 
@@ -484,8 +591,11 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 		if (!is_clifford_tinfo(e.return_type_tinfo(), rl))
 			return _ex0;
 
-		// Expand product, if necessary
-		ex e_expanded = e.expand();
+		// Substitute gammaL/R and expand product, if necessary
+		ex e_expanded = e.subs(lst(
+			dirac_gammaL(rl) == (dirac_ONE(rl)-dirac_gamma5(rl))/2,
+			dirac_gammaR(rl) == (dirac_ONE(rl)+dirac_gamma5(rl))/2
+		)).expand();
 		if (!is_a<ncmul>(e_expanded))
 			return dirac_trace(e_expanded, rl, trONE);
 

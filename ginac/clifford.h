@@ -52,8 +52,8 @@ public:
 	void print(const print_context & c, unsigned level = 0) const;
 
 protected:
-	bool match_same_type(const basic & other) const;
 	ex simplify_ncmul(const exvector & v) const;
+	bool match_same_type(const basic & other) const;
 	ex thisexprseq(const exvector & v) const;
 	ex thisexprseq(exvector * vp) const;
 	unsigned return_type(void) const { return return_types::noncommutative; }
@@ -104,6 +104,30 @@ public:
 };
 
 
+/** This class represents the Dirac gammaL object which behaves like
+ *  1/2 (1-gamma5). */
+class diracgammaL : public tensor
+{
+	GINAC_DECLARE_REGISTERED_CLASS(diracgammaL, tensor)
+
+	// functions overriding virtual functions from base classes
+public:
+	void print(const print_context & c, unsigned level = 0) const;
+};
+
+
+/** This class represents the Dirac gammaL object which behaves like
+ *  1/2 (1+gamma5). */
+class diracgammaR : public tensor
+{
+	GINAC_DECLARE_REGISTERED_CLASS(diracgammaR, tensor)
+
+	// functions overriding virtual functions from base classes
+public:
+	void print(const print_context & c, unsigned level = 0) const;
+};
+
+
 // global functions
 
 /** Specialization of is_exactly_a<clifford>(obj) for clifford objects. */
@@ -131,10 +155,20 @@ ex dirac_gamma(const ex & mu, unsigned char rl = 0);
  *  @return newly constructed object */
 ex dirac_gamma5(unsigned char rl = 0);
 
-/** This returns (dirac_ONE(rl) + dirac_gamma5(rl)). */
-ex dirac_gamma6(unsigned char rl = 0);
+/** Create a Dirac gammaL object.
+ *
+ *  @param rl Representation label
+ *  @return newly constructed object */
+ex dirac_gammaL(unsigned char rl = 0);
 
-/** This returns (dirac_ONE(rl) - dirac_gamma5(rl)). */
+/** Create a Dirac gammaR object.
+ *
+ *  @param rl Representation label
+ *  @return newly constructed object */
+ex dirac_gammaR(unsigned char rl = 0);
+
+// These functions are deprecated. Use dirac_gammaL/R() instead.
+ex dirac_gamma6(unsigned char rl = 0);
 ex dirac_gamma7(unsigned char rl = 0);
 
 /** Create a term of the form e_mu * gamma~mu with a unique index mu.

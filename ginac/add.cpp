@@ -315,7 +315,7 @@ ex add::coeff(const ex & s, int n) const
  *  x stands for a symbolic variables of type ex and c stands for such
  *  an expression that contain a plain number.
  *  - +(;c) -> c
- *  - +(x;1) -> x
+ *  - +(x;0) -> x
  *
  *  @param level cut-off in recursive evaluation */
 ex add::eval(int level) const
