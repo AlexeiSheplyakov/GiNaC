@@ -1867,6 +1867,18 @@ by the parser.  In particular, it turns out to be almost impossible to
 fix bugs in a traditional system.
 
 @item
+multiple interfaces: Though real GiNaC programs have to be written in
+some editor, then be compiled, linked and executed, there are more ways
+to work with the GiNaC engine.  Many people want to play with
+expressions interactively, as in traditional CASs.  Currently, two such
+windows into GiNaC have been implemented and many more are possible: the
+tiny @command{ginsh} that is part of the distribution exposes GiNaC's
+types to a command line and second, as a more consistent approach, an
+interactive interface to the @acronym{Cint} C++ interpreter has been put
+together (called @acronym{GiNaC-cint}) that allows an interactive
+scripting interface consistent with the C++ language.
+
+@item
 seemless integration: it is somewhere between difficult and impossible
 to call CAS functions from within a program written in C++ or any other
 programming language and vice versa.  With GiNaC, your symbolic routines
@@ -1893,18 +1905,6 @@ CAS.
 Of course it also has some disadvantages:
 
 @itemize @bullet
-
-@item
-not interactive: GiNaC programs have to be written in an editor,
-compiled and executed.  You cannot play with expressions interactively.
-However, such an extension is not inherently forbidden by design.  In
-fact, two interactive interfaces are possible: First, a shell that
-exposes GiNaC's types to a command line can readily be written (the tiny
-@command{ginsh} that is part of the distribution being an example).
-Second, as a more consistent approach, an interactive interface to the
-@acronym{CINT} C++ interpreter is under development (called
-@acronym{GiNaC-cint}) that will allow an interactive interface
-consistent with the C++ language.
 
 @item
 advanced features: GiNaC cannot compete with a program like
