@@ -1878,9 +1878,9 @@ indices into a canonical order which allows for some immediate simplifications:
      // -> 2*A.j.i
     cout << indexed(B, sy_anti(), i, j)
           + indexed(B, sy_anti(), j, i) << endl;
-     // -> -B.j.i
+     // -> 0
     cout << indexed(B, sy_anti(), i, j, k)
-          + indexed(B, sy_anti(), j, i, k) << endl;
+          - indexed(B, sy_anti(), j, k, i) << endl;
      // -> 0
     ...
 @end example
@@ -1895,8 +1895,8 @@ not dummy indices are called @dfn{free indices}. Numeric indices are neither
 dummy nor free indices.
 
 To be recognized as a dummy index pair, the two indices must be of the same
-class and dimension and their value must be the same single symbol (an index
-like @samp{2*n+1} is never a dummy index). If the indices are of class
+class and their value must be the same single symbol (an index like
+@samp{2*n+1} is never a dummy index). If the indices are of class
 @code{varidx} they must also be of opposite variance; if they are of class
 @code{spinidx} they must be both dotted or both undotted.
 
