@@ -431,7 +431,7 @@ ex expairseq::derivative(const symbol &s) const
 int expairseq::compare_same_type(const basic &other) const
 {
 	GINAC_ASSERT(is_of_type(other, expairseq));
-	const expairseq &o = static_cast<const expairseq &>(const_cast<basic &>(other));
+	const expairseq &o = static_cast<const expairseq &>(other);
 	
 	int cmpval;
 	
@@ -496,7 +496,7 @@ int expairseq::compare_same_type(const basic &other) const
 
 bool expairseq::is_equal_same_type(const basic &other) const
 {
-	const expairseq &o = dynamic_cast<const expairseq &>(const_cast<basic &>(other));
+	const expairseq &o = static_cast<const expairseq &>(other);
 	
 	// compare number of elements
 	if (seq.size()!=o.seq.size())

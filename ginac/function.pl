@@ -885,7 +885,7 @@ ex function::derivative(const symbol & s) const
 int function::compare_same_type(const basic & other) const
 {
 	GINAC_ASSERT(is_of_type(other, function));
-	const function & o=static_cast<function &>(const_cast<basic &>(other));
+	const function & o = static_cast<const function &>(other);
 
 	if (serial!=o.serial) {
 		return serial < o.serial ? -1 : 1;
@@ -896,7 +896,7 @@ int function::compare_same_type(const basic & other) const
 bool function::is_equal_same_type(const basic & other) const
 {
 	GINAC_ASSERT(is_of_type(other, function));
-	const function & o=static_cast<function &>(const_cast<basic &>(other));
+	const function & o = static_cast<const function &>(other);
 
 	if (serial!=o.serial) return false;
 	return exprseq::is_equal_same_type(o);
