@@ -23,10 +23,11 @@
 #ifndef __GINAC_EX_H__
 #define __GINAC_EX_H__
 
+#include <iosfwd>
+#include <functional>
+
 #include "basic.h"
 #include "operators.h"
-
-#include <functional>
 
 namespace GiNaC {
 

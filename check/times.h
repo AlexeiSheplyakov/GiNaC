@@ -24,7 +24,8 @@
 #define CHECKS_H
 
 #include <sys/resource.h>
-#include <stdlib.h>
+#include <cstdlib>
+#include <iostream>
 #include <sstream>
 #include <vector>
 #include "config.h"

@@ -1,6 +1,6 @@
-/** @file checks.cpp
+/** @file expair.cpp
  *
- *  Main program that calls the individual tests. */
+ *  Implementation of expression pairs (building blocks of expairseq). */
 
 /*
  *  GiNaC Copyright (C) 1999-2001 Johannes Gutenberg University Mainz, Germany
@@ -20,41 +20,18 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <stdexcept>
-#include <time.h>
+#include <iostream>
 
-#include "checks.h"
+#include "expair.h"
 
-int main()
+namespace GiNaC {
+
+void expair::print(std::ostream & os) const
 {
-	unsigned result = 0;
-	
-	srand((unsigned)time(NULL));
+	os << "expair:";
+	print_tree c(os);
+	rest.print(c, c.delta_indent);
+	coeff.print(c, c.delta_indent);
+}
 
-#define CHECK(which) \
-try { \
-	for (int i=0; i<1; ++i) \
-		result += check_ ## which (); \
-} catch (const exception &e) { \
-	cout << "Error: caught exception " << e.what() << endl; \
-	++result; \
-}
-	
-	CHECK(numeric)
-	CHECK(inifcns)
-	CHECK(matrices)
-	CHECK(lsolve)
-	
-	if (result) {
-		cout << "Error: something went wrong. ";
-		if (result == 1) {
-			cout << "(one failure)" << endl;
-		} else {
-			cout << "(" << result << " individual failures)" << endl;
-		}
-		cout << "please check checks.out against check.ref for more details."
-		     << endl << "happy debugging!" << endl;
-	}
-	
-	return result;
-}
+} // namespace GiNaC

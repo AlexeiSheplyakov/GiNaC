@@ -24,6 +24,7 @@
 #ifndef __GINAC_REMEMBER_H__
 #define __GINAC_REMEMBER_H__
 
+#include <iosfwd>
 #include <vector>
 #include <list>
 

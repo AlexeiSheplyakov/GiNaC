@@ -20,6 +20,9 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <iostream>
+#include <stdexcept>
+
 #include "clifford.h"
 #include "ex.h"
 #include "idx.h"
@@ -33,8 +36,6 @@
 #include "print.h"
 #include "archive.h"
 #include "utils.h"
-
-#include <stdexcept>
 
 namespace GiNaC {
 

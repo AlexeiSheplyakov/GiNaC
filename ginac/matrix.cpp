@@ -20,6 +20,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <iostream>
 #include <algorithm>
 #include <map>
 #include <stdexcept>
@@ -776,7 +777,7 @@ ex matrix::determinant(unsigned algo) const
 						++acc;
 				c_zeros.push_back(uintpair(acc,c));
 			}
-			sort(c_zeros.begin(),c_zeros.end());
+			std::sort(c_zeros.begin(),c_zeros.end());
 			std::vector<unsigned> pre_sort;
 			for (std::vector<uintpair>::const_iterator i=c_zeros.begin(); i!=c_zeros.end(); ++i)
 				pre_sort.push_back(i->second);

@@ -23,6 +23,7 @@
 #ifndef EXAMS_H
 #define EXAMS_H
 
+#include <iostream>
 #include "ginac.h"
 using namespace std;
 using namespace GiNaC;

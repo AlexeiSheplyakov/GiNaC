@@ -20,6 +20,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <iostream>
 #include <algorithm>
 #include <string>
 #include <stdexcept>
@@ -1056,7 +1057,7 @@ void expairseq::make_flat(const epvector &v)
 /** Brings this expairseq into a sorted (canonical) form. */
 void expairseq::canonicalize(void)
 {
-	sort(seq.begin(), seq.end(), expair_is_less());
+	std::sort(seq.begin(), seq.end(), expair_is_less());
 }
 
 

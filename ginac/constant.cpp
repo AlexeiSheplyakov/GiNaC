@@ -22,6 +22,7 @@
 
 #include <string>
 #include <stdexcept>
+#include <iostream>
 
 #include "constant.h"
 #include "numeric.h"

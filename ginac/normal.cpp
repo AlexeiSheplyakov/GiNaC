@@ -74,10 +74,10 @@ static int heur_gcd_failed = 0;
 static struct _stat_print {
 	_stat_print() {}
 	~_stat_print() {
-		cout << "gcd() called " << gcd_called << " times\n";
-		cout << "sr_gcd() called " << sr_gcd_called << " times\n";
-		cout << "heur_gcd() called " << heur_gcd_called << " times\n";
-		cout << "heur_gcd() failed " << heur_gcd_failed << " times\n";
+		std::cout << "gcd() called " << gcd_called << " times\n";
+		std::cout << "sr_gcd() called " << sr_gcd_called << " times\n";
+		std::cout << "heur_gcd() called " << heur_gcd_called << " times\n";
+		std::cout << "heur_gcd() failed " << heur_gcd_failed << " times\n";
 	}
 } stat_print;
 #endif

@@ -21,7 +21,6 @@
  */
 
 #include <stdexcept>
-#include <iostream>
 
 #include "exams.h"
 

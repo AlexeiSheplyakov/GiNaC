@@ -21,8 +21,6 @@
  */
 
 #include <stdexcept>
-#include <iostream>
-
 #include "times.h"
 
 int main()

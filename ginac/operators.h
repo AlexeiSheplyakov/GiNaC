@@ -23,7 +23,7 @@
 #ifndef __GINAC_OPERATORS_H__
 #define __GINAC_OPERATORS_H__
 
-#include <iostream>
+#include <iosfwd>
 
 namespace GiNaC {
 

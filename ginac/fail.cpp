@@ -1,7 +1,7 @@
 /** @file fail.cpp
  *
- *  Implementation of class signaling failure of operation. Considered obsolete
- *  (all of this is replaced by exceptions). */
+ *  Implementation of class signaling failure of operation. Considered
+ *  somewhat obsolete (most of this can be replaced by exceptions). */
 
 /*
  *  GiNaC Copyright (C) 1999-2001 Johannes Gutenberg University Mainz, Germany
@@ -20,6 +20,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
+#include <iostream>
 
 #include "fail.h"
 #include "print.h"

@@ -21,10 +21,9 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-// For rand() and friends:
-#include <stdlib.h>
-
+#include <cstdlib>
 #include "ginac.h"
+using namespace std;
 using namespace GiNaC;
 
 /* Create a dense univariate random polynomial in x.

@@ -25,9 +25,9 @@
 
 #include "ex.h"
 
+#include <iosfwd>
 #include <string>
 #include <vector>
-#include <iostream>
 
 namespace GiNaC {
 

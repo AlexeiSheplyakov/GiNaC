@@ -20,19 +20,20 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdlib>
+#include <iostream>
 #include <fstream>
 #include <stdexcept>
 
 #include "ginac.h"
 
+using namespace std;
 using namespace GiNaC;
 
 int main(int argc, char **argv)
 {
 	if (argc < 2) {
-		fprintf(stderr, "Usage: %s [-d] file...\n", argv[0]);
+		cerr << "Usage: " << argv[0] << " [-d] file..." << endl;
 		exit(1);
 	}
 	--argc; ++argv;

@@ -23,9 +23,7 @@
 #ifndef __GINAC_BASIC_H__
 #define __GINAC_BASIC_H__
 
-#include <iostream>
 #include <vector>
-
 // CINT needs <algorithm> to work properly with <vector>
 #include <algorithm>
 

@@ -23,11 +23,11 @@
 #ifndef CHECKS_H
 #define CHECKS_H
 
-// For rand() and friends:
-#include <stdlib.h>
-using namespace std;
+#include <iostream>
+
 #include "config.h"
 #include "ginac.h"
+using namespace std;
 using namespace GiNaC;
 
 // prototypes for the expression generating functions in:

@@ -1,6 +1,6 @@
 /** @file print.h
  *
- *  Helper classes for expression output. */
+ *  Definition of helper classes for expression output. */
 
 /*
  *  GiNaC Copyright (C) 1999-2001 Johannes Gutenberg University Mainz, Germany
@@ -23,7 +23,7 @@
 #ifndef __GINAC_PRINT_H__
 #define __GINAC_PRINT_H__
 
-#include <iostream>
+#include <iosfwd>
 #include <string>
 
 namespace GiNaC {
@@ -32,9 +32,11 @@ namespace GiNaC {
 class print_context
 {
 public:
-	print_context(std::ostream & os = std::cout) : s(os) {}
-	std::ostream & s; /**< stream to output to */
+	print_context();
+	print_context(std::ostream &);
 
+	std::ostream & s; /**< stream to output to */
+private:
 	// dummy virtual function to make the class polymorphic
 	virtual void dummy(void) {}
 };
@@ -43,49 +45,49 @@ public:
 class print_latex : public print_context
 {
 public:
-	print_latex(std::ostream & os = std::cout)
-	  : print_context(os) {}
+	print_latex();
+	print_latex(std::ostream &);
 };
 
 /** Context for tree-like output for debugging. */
 class print_tree : public print_context
 {
 public:
-	print_tree(std::ostream & os = std::cout, unsigned d = 4)
-	  : print_context(os), delta_indent(d) {}
-	unsigned delta_indent; /**< size of indentation step */
+	print_tree(unsigned d = 4);
+	print_tree(std::ostream &, unsigned d = 4);
+	const unsigned delta_indent; /**< size of indentation step */
 };
 
 /** Base context for C source output. */
 class print_csrc : public print_context
 {
 public:
-	print_csrc(std::ostream & os = std::cout)
-	  : print_context(os) {}
+	print_csrc();
+	print_csrc(std::ostream &);
 };
 
 /** Context for C source output using float numbers. */
 class print_csrc_float : public print_csrc
 {
 public:
-	print_csrc_float(std::ostream & os = std::cout)
-	  : print_csrc(os) {}
+	print_csrc_float();
+	print_csrc_float(std::ostream &);
 };
 
 /** Context for C source output using double numbers. */
 class print_csrc_double : public print_csrc
 {
 public:
-	print_csrc_double(std::ostream & os = std::cout)
-	  : print_csrc(os) {}
+	print_csrc_double();
+	print_csrc_double(std::ostream &);
 };
 
 /** Context for C source output using CLN numbers. */
 class print_csrc_cl_N : public print_csrc
 {
 public:
-	print_csrc_cl_N(std::ostream & os = std::cout)
-	  : print_csrc(os) {}
+	print_csrc_cl_N();
+	print_csrc_cl_N(std::ostream &);
 };
 
 /** Check if obj is a T, including base classes. */

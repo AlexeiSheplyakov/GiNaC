@@ -82,13 +82,7 @@ public:
 			return coeff.compare(other.coeff);
 	}
 	
-	void print(std::ostream & os) const
-	{
-		os << "expair:";
-		print_tree c(os);
-		rest.print(c, c.delta_indent);
-		coeff.print(c, c.delta_indent);
-	}
+	void print(std::ostream & os) const;
 	
 	/** True if this is of the form (numeric,ex(1)). */
 	bool is_canonical_numeric(void) const

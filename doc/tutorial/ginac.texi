@@ -179,6 +179,7 @@ manipulations.  Here is how to generate and print a simple (and rather
 pointless) bivariate polynomial with some large coefficients:
 
 @example
+#include <iostream>
 #include <ginac/ginac.h>
 using namespace std;
 using namespace GiNaC;
@@ -213,6 +214,7 @@ Next, there is a more meaningful C++ program that calls a function which
 generates Hermite polynomials in a specified free variable.
 
 @example
+#include <iostream>
 #include <ginac/ginac.h>
 using namespace std;
 using namespace GiNaC;
@@ -364,6 +366,9 @@ lambda^2-3*lambda+11
 [[1,1],[2,-1]]+2*[[1,3],[-3,2]]
 > evalm(");
 [[3,7],[-4,3]]
+> B = [ [0, 0, a], [b, 1, -b], [-1/a, 0, 0] ];
+> evalm(B^(2^12345));
+[[1,0,0],[0,1,0],[0,0,1]]
 @end example
 
 Multivariate polynomials and rational functions may be expanded,
@@ -913,6 +918,7 @@ It uses construction from C-integer, construction of fractions from two
 integers, construction from C-float and construction from a string:
 
 @example
+#include <iostream>
 #include <ginac/ginac.h>
 using namespace GiNaC;
 
@@ -951,6 +957,7 @@ then on will be stored with a precision matching that number of decimal
 digits:
 
 @example
+#include <iostream>
 #include <ginac/ginac.h>
 using namespace std;
 using namespace GiNaC;
@@ -1002,6 +1009,7 @@ As an example, let's construct some rational number, multiply it with
 some multiple of its denominator and test what comes out:
 
 @example
+#include <iostream>
 #include <ginac/ginac.h>
 using namespace std;
 using namespace GiNaC;
@@ -1527,6 +1535,7 @@ not visible in the output.
 A simple example shall illustrate the concepts:
 
 @example
+#include <iostream>
 #include <ginac/ginac.h>
 using namespace std;
 using namespace GiNaC;
@@ -3448,11 +3457,6 @@ An application is illustrated in the next example, where a multivariate
 polynomial is analyzed:
 
 @example
-#include <ginac/ginac.h>
-using namespace std;
-using namespace GiNaC;
-
-int main()
 @{
     symbol x("x"), y("y");
     ex PolyInp = 4*pow(x,3)*y + 5*x*pow(y,2) + 3*y
@@ -3662,13 +3666,9 @@ symbols afterwards. This algorithm is also available as a separate method
 @code{.to_rational()}, described below.
 
 This means that both expressions @code{t1} and @code{t2} are indeed
-simplified in this little program:
+simplified in this little code snippet:
 
 @example
-#include <ginac/ginac.h>
-using namespace GiNaC;
-
-int main()
 @{
     symbol x("x");
     ex t1 = (pow(x,2) + 2*x + 1)/(x + 1);
@@ -3753,17 +3753,16 @@ polynomial (class @code{add}) knows that its derivative is the sum of
 the derivatives of all the monomials:
 
 @example
-#include <ginac/ginac.h>
-using namespace GiNaC;
-
-int main()
 @{
     symbol x("x"), y("y"), z("z");
     ex P = pow(x, 5) + pow(x, 2) + y;
 
-    cout << P.diff(x,2) << endl;  // 20*x^3 + 2
+    cout << P.diff(x,2) << endl;
+     // -> 20*x^3 + 2
     cout << P.diff(y) << endl;    // 1
+     // -> 1
     cout << P.diff(z) << endl;    // 0
+     // -> 0
 @}
 @end example
 
@@ -5281,6 +5280,7 @@ no copying process is involved. Instead, the copying takes place as soon
 as you try to change the second.  Consider the simple sequence of code:
 
 @example
+#include <iostream>
 #include <ginac/ginac.h>
 using namespace std;
 using namespace GiNaC;
@@ -5313,11 +5313,6 @@ differentiation using the chain-rule should make clear how powerful this
 can be:
 
 @example
-#include <ginac/ginac.h>
-using namespace std;
-using namespace GiNaC;
-
-int main()
 @{
     symbol x("x"), y("y");
 
