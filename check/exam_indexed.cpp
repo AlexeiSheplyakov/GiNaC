@@ -375,6 +375,15 @@ static unsigned dummy_check()
 	e = indexed(p, mu.toggle_variance(), mu) - indexed(p, nu, nu.toggle_variance());
 	result += check_equal_simplify(e, 0);
 
+	// GiNaC 1.2.1 had a bug here because p.i*p.i -> (p.i)^2
+	e = indexed(p, i) * indexed(p, i) * indexed(p, j) + indexed(p, j);
+	ex fi = exprseq(e.get_free_indices());
+	if (!fi.is_equal(exprseq(j))) {
+		clog << "get_free_indices(" << e << ") erroneously returned "
+		     << fi << " instead of (.j)" << endl;
+		++result;
+	}
+
 	return result;
 }
 
