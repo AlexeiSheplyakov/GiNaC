@@ -1316,8 +1316,8 @@ and safe simplifications are carried out like transforming
 The GiNaC class @code{lst} serves for holding a @dfn{list} of arbitrary
 expressions. They are not as ubiquitous as in many other computer algebra
 packages, but are sometimes used to supply a variable number of arguments of
-the same type to GiNaC methods such as @code{subs()} and @code{to_rational()},
-so you should have a basic understanding of them.
+the same type to GiNaC methods such as @code{subs()} and some @code{matrix}
+constructors, so you should have a basic understanding of them.
 
 Lists of up to 16 expressions can be directly constructed from single
 expressions:
@@ -3246,6 +3246,7 @@ expressions via the @code{.subs()} method:
 
 @example
 ex ex::subs(const ex & e, unsigned options = 0);
+ex ex::subs(const exmap & m, unsigned options = 0);
 ex ex::subs(const lst & syms, const lst & repls, unsigned options = 0);
 @end example
 
@@ -3269,10 +3270,38 @@ In the first form, @code{subs()} accepts a relational of the form
 If you specify multiple substitutions, they are performed in parallel, so e.g.
 @code{subs(lst(x == y, y == x))} exchanges @samp{x} and @samp{y}.
 
-The second form of @code{subs()} takes two lists, one for the objects to be
+The second form of @code{subs()} takes an @code{exmap} object which is a
+pair associative container that maps expressions to expressions (currently
+implemented as a @code{std::map}). This is the most efficient one of the
+three @code{subs()} forms and should be used when the number of objects to
+be substituted is large or unknown.
+
+Using this form, the second example from above would look like this:
+
+@example
+@{
+    symbol x("x"), y("y");
+    ex e2 = x*y + x;
+
+    exmap m;
+    m[x] = -2;
+    m[y] = 4;
+    cout << "e2(-2, 4) = " << e2.subs(m) << endl;
+@}
+@end example
+
+The third form of @code{subs()} takes two lists, one for the objects to be
 replaced and one for the expressions to be substituted (both lists must
 contain the same number of elements). Using this form, you would write
-@code{subs(lst(x, y), lst(y, x))} to exchange @samp{x} and @samp{y}.
+
+@example
+@{
+    symbol x("x"), y("y");
+    ex e2 = x*y + x;
+
+    cout << "e2(-2, 4) = " << e2.subs(lst(x, y), lst(-2, 4)) << endl;
+@}
+@end example
 
 The optional last argument to @code{subs()} is a combination of
 @code{subs_options} flags. There are two options available:
@@ -4370,19 +4399,21 @@ general expressions by using the temporary replacement algorithm described
 above. You do this by calling
 
 @example
-ex ex::to_polynomial(lst &l);
+ex ex::to_polynomial(exmap & m);
+ex ex::to_polynomial(lst & l);
 @end example
 or
 @example
-ex ex::to_rational(lst &l);
+ex ex::to_rational(exmap & m);
+ex ex::to_rational(lst & l);
 @end example
 
-on the expression to be converted. The supplied @code{lst} will be filled
-with the generated temporary symbols and their replacement expressions in
-a format that can be used directly for the @code{subs()} method. It can also
-already contain a list of replacements from an earlier application of
-@code{.to_polynomial()} or @code{.to_rational()}, so it's possible to use
-it on multiple expressions and get consistent results.
+on the expression to be converted. The supplied @code{exmap} or @code{lst}
+will be filled with the generated temporary symbols and their replacement
+expressions in a format that can be used directly for the @code{subs()}
+method. It can also already contain a list of replacements from an earlier
+application of @code{.to_polynomial()} or @code{.to_rational()}, so it's
+possible to use it on multiple expressions and get consistent results.
 
 The difference betwerrn @code{.to_polynomial()} and @code{.to_rational()}
 is probably best illustrated with an example:
@@ -4415,9 +4446,9 @@ The following more useful example will print @samp{sin(x)-cos(x)}:
     ex a = pow(sin(x), 2) - pow(cos(x), 2);
     ex b = sin(x) + cos(x);
     ex q;
-    lst l;
-    divide(a.to_polynomial(l), b.to_polynomial(l), q);
-    cout << q.subs(l) << endl;
+    exmap m;
+    divide(a.to_polynomial(m), b.to_polynomial(m), q);
+    cout << q.subs(m) << endl;
 @}
 @end example
 
