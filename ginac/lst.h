@@ -34,6 +34,9 @@ typedef container<std::list> lst;
 /** Specialization of container::get_tinfo() for lst. */
 inline unsigned lst::get_tinfo() { return TINFO_lst; }
 
+/** Specialization of container::get_default_flags() for lst. */
+inline unsigned lst::get_default_flags() { return status_flags::not_shareable; }
+
 /** Specialization of container::get_open_delim() for lst. */
 inline char lst::get_open_delim() { return '{'; }
 

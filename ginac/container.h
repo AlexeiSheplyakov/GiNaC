@@ -81,6 +81,7 @@ public:
 protected:
 	// helpers
 	static unsigned get_tinfo() { return TINFO_fail; }
+	static unsigned get_default_flags() { return 0; }
 	static char get_open_delim() { return '('; }
 	static char get_close_delim() { return ')'; }
 
@@ -88,6 +89,8 @@ protected:
 public:
 	container(STLT const & s, bool discardable = false) : inherited(get_tinfo())
 	{
+		setflag(get_default_flags());
+
 		if (discardable)
 			this->seq.swap(const_cast<STLT &>(s));
 		else
@@ -96,23 +99,32 @@ public:
 
 	explicit container(std::auto_ptr<STLT> vp) : inherited(get_tinfo())
 	{
+		setflag(get_default_flags());
 		this->seq.swap(*vp);
 	}
 
 	container(exvector::const_iterator b, exvector::const_iterator e)
-	 : inherited(get_tinfo()), container_storage<C>(b, e) {}
+	 : inherited(get_tinfo()), container_storage<C>(b, e)
+	{
+		setflag(get_default_flags());
+	}
 
 	explicit container(const ex & p1)
-	 : inherited(get_tinfo()), container_storage<C>(1, p1) {}
+	 : inherited(get_tinfo()), container_storage<C>(1, p1)
+	{
+		setflag(get_default_flags());
+	}
 
 	container(const ex & p1, const ex & p2) : inherited(get_tinfo())
 	{
+		setflag(get_default_flags());
 		reserve(this->seq, 2);
 		this->seq.push_back(p1); this->seq.push_back(p2);
 	}
 
 	container(const ex & p1, const ex & p2, const ex & p3) : inherited(get_tinfo())
 	{
+		setflag(get_default_flags());
 		reserve(this->seq, 3);
 		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 	}
@@ -120,6 +132,7 @@ public:
 	container(const ex & p1, const ex & p2, const ex & p3,
 	                   const ex & p4) : inherited(get_tinfo())
 	{
+		setflag(get_default_flags());
 		reserve(this->seq, 4);
 		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 		this->seq.push_back(p4);
@@ -128,6 +141,7 @@ public:
 	container(const ex & p1, const ex & p2, const ex & p3,
 	          const ex & p4, const ex & p5) : inherited(get_tinfo())
 	{
+		setflag(get_default_flags());
 		reserve(this->seq, 5);
 		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 		this->seq.push_back(p4); this->seq.push_back(p5);
@@ -136,6 +150,7 @@ public:
 	container(const ex & p1, const ex & p2, const ex & p3,
 	          const ex & p4, const ex & p5, const ex & p6) : inherited(get_tinfo())
 	{
+		setflag(get_default_flags());
 		reserve(this->seq, 6);
 		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
@@ -145,6 +160,7 @@ public:
 	          const ex & p4, const ex & p5, const ex & p6,
 	          const ex & p7) : inherited(get_tinfo())
 	{
+		setflag(get_default_flags());
 		reserve(this->seq, 7);
 		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
@@ -155,6 +171,7 @@ public:
 	          const ex & p4, const ex & p5, const ex & p6,
 	          const ex & p7, const ex & p8) : inherited(get_tinfo())
 	{
+		setflag(get_default_flags());
 		reserve(this->seq, 8);
 		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
@@ -165,6 +182,7 @@ public:
 	          const ex & p4, const ex & p5, const ex & p6,
 	          const ex & p7, const ex & p8, const ex & p9) : inherited(get_tinfo())
 	{
+		setflag(get_default_flags());
 		reserve(this->seq, 9);
 		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
@@ -176,6 +194,7 @@ public:
 	          const ex & p7, const ex & p8, const ex & p9,
 	          const ex & p10) : inherited(get_tinfo())
 	{
+		setflag(get_default_flags());
 		reserve(this->seq, 10);
 		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
@@ -188,6 +207,7 @@ public:
 	          const ex & p7, const ex & p8, const ex & p9,
 	          const ex & p10, const ex & p11) : inherited(get_tinfo())
 	{
+		setflag(get_default_flags());
 		reserve(this->seq, 11);
 		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
@@ -200,6 +220,7 @@ public:
 	          const ex & p7, const ex & p8, const ex & p9,
 	          const ex & p10, const ex & p11, const ex & p12) : inherited(get_tinfo())
 	{
+		setflag(get_default_flags());
 		reserve(this->seq, 12);
 		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
@@ -213,6 +234,7 @@ public:
 	          const ex & p10, const ex & p11, const ex & p12,
 	          const ex & p13) : inherited(get_tinfo())
 	{
+		setflag(get_default_flags());
 		reserve(this->seq, 13);
 		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
@@ -227,6 +249,7 @@ public:
 	          const ex & p10, const ex & p11, const ex & p12,
 	          const ex & p13, const ex & p14) : inherited(get_tinfo())
 	{
+		setflag(get_default_flags());
 		reserve(this->seq, 14);
 		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
@@ -241,6 +264,7 @@ public:
 	          const ex & p10, const ex & p11, const ex & p12,
 	          const ex & p13, const ex & p14, const ex & p15) : inherited(get_tinfo())
 	{
+		setflag(get_default_flags());
 		reserve(this->seq, 15);
 		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
@@ -256,6 +280,7 @@ public:
 	          const ex & p13, const ex & p14, const ex & p15,
 	          const ex & p16) : inherited(get_tinfo())
 	{
+		setflag(get_default_flags());
 		reserve(this->seq, 16);
 		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
@@ -335,12 +360,17 @@ protected:
 
 /** Default constructor */
 template <template <class> class C>
-container<C>::container() : inherited(get_tinfo()) {}
+container<C>::container() : inherited(get_tinfo())
+{
+	setflag(get_default_flags());
+}
 
 /** Construct object from archive_node. */
 template <template <class> class C>
 container<C>::container(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
 {
+	setflag(get_default_flags());
+
 	for (unsigned int i=0; true; i++) {
 		ex e;
 		if (n.find_ex("seq", e, sym_lst, i))

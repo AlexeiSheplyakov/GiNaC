@@ -246,7 +246,7 @@ void ex::makewriteable()
  *  @see ex::compare(const basic &) */
 void ex::share(const ex & other) const
 {
-	if ((bp->flags & status_flags::not_shareable) || (other.bp->flags & status_flags::not_shareable))
+	if ((bp->flags | other.bp->flags) & status_flags::not_shareable)
 		return;
 
 	if (bp->refcount <= other.bp->refcount)
