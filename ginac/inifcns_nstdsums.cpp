@@ -939,9 +939,8 @@ numeric S_num(int n, int p, const numeric& x)
 	else if (!x.imag().is_rational())
 		prec = cln::float_format(cln::the<cln::cl_F>(cln::imagpart(value)));
 
-
 	// [Kol] (5.3)
-	if (cln::realpart(value) < -0.5) {
+	if ((cln::realpart(value) < -0.5) || (n == 0)) {
 
 		cln::cl_N result = cln::expt(cln::cl_I(-1),p) * cln::expt(cln::log(value),n)
 		                   * cln::expt(cln::log(1-value),p) / cln::factorial(n) / cln::factorial(p);
@@ -1028,6 +1027,10 @@ static ex S_eval(const ex& n, const ex& p, const ex& x)
 		if (x.info(info_flags::numeric) && (!x.info(info_flags::crational))) {
 			return S_num(ex_to<numeric>(n).to_int(), ex_to<numeric>(p).to_int(), ex_to<numeric>(x));
 		}
+	}
+	if (n.is_zero()) {
+		// [Kol] (5.3)
+		return pow(-log(1-x), p) / factorial(p);
 	}
 	return S(n, p, x).hold();
 }
