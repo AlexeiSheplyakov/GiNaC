@@ -28,8 +28,13 @@ numeric applications, graphical interfaces, etc.) under one roof.
 %setup
 
 %build
-./configure --prefix=%prefix
-make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
+CXXFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%prefix
+if [ "$SMP" != "" ]; then
+  (make "MAKE=make -k -j $SMP"; exit 0)
+  make
+else
+  make
+fi
 
 %install
 rm -rf $RPM_BUILD_ROOT
