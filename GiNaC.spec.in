@@ -98,11 +98,12 @@ fi
 %{_libdir}/*.a
 %{_libdir}/*.la
 %{_libdir}/*.so
-%{_includedir}/ginac/*.h
+%{_libdir}/pkgconfig/ginac.pc
+%{_includedir}/ginac
 %{_infodir}/*.info*
 %{_mandir}/man1/ginac-config.1*
 %{_bindir}/ginac-config
-%{_datadir}/aclocal/*
+%{_datadir}/aclocal/ginac.m4
 
 %files utils
 %defattr(-,root,root)
@@ -112,6 +113,9 @@ fi
 %{_mandir}/man1/viewgar.1*
 
 %changelog
+* Thu Nov 20 2003 Christian Bauer <Christian.Bauer@uni-mainz.de>
+- added pkg-config metadata file to devel package
+
 * Thu Nov  1 2001 Christian Bauer <Christian.Bauer@uni-mainz.de>
 - moved ginsh and viewgar to "utils" package
 

@@ -164,6 +164,7 @@ Makefile
 GiNaC.spec
 ginac-config
 ginac-config.1
+ginac.pc
 ginac/Makefile
 ginac/version.h
 check/Makefile
