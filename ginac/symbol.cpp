@@ -32,7 +32,7 @@
 
 namespace GiNaC {
 
-GINAC_IMPLEMENT_REGISTERED_CLASS_NO_CTORS(symbol, basic)
+GINAC_IMPLEMENT_REGISTERED_CLASS(symbol, basic)
 
 //////////
 // default ctor, dtor, copy ctor, assignment operator and helpers
@@ -53,7 +53,7 @@ void symbol::copy(const symbol & other)
 	TeX_name = other.TeX_name;
 	serial = other.serial;
 	asexinfop = other.asexinfop;
-	++asexinfop->refcount;
+	++(asexinfop->refcount);
 }
 
 void symbol::destroy(bool call_parent)
@@ -69,11 +69,6 @@ void symbol::destroy(bool call_parent)
 //////////
 
 // public
-
-symbol::symbol(const symbol & other)
-{
-	copy(other);
-}
 
 symbol::symbol(const std::string & initname) : inherited(TINFO_symbol)
 {
@@ -136,11 +131,6 @@ void symbol::archive(archive_node &n) const
 //////////
 
 // public
-
-basic *symbol::duplicate() const
-{
-	return new symbol(*this);
-}
 
 void symbol::print(const print_context & c, unsigned level) const
 {

@@ -37,7 +37,7 @@ namespace GiNaC {
  *  first place. */
 class symbol : public basic
 {
-	GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(symbol, basic)
+	GINAC_DECLARE_REGISTERED_CLASS(symbol, basic)
 	
 // types
 	
@@ -52,15 +52,6 @@ class symbol : public basic
 	
 // member functions
 	
-	// default ctor, dtor, copy ctor, assignment operator and helpers
-public:
-	symbol();
-	~symbol() { destroy(false); }
-	symbol(const symbol & other);
-protected:
-	void copy(const symbol & other); 
-	void destroy(bool call_parent);
-	
 	// other ctors
 public:
 	explicit symbol(const std::string & initname);
@@ -68,7 +59,6 @@ public:
 	
 	// functions overriding virtual functions from base classes
 public:
-	basic * duplicate() const;
 	void print(const print_context & c, unsigned level = 0) const;
 	bool info(unsigned inf) const;
 	ex eval(int level = 0) const;
@@ -78,7 +68,6 @@ public:
 	ex to_rational(lst &repl_lst) const;
 protected:
 	ex derivative(const symbol & s) const;
-	int compare_same_type(const basic & other) const;
 	bool is_equal_same_type(const basic & other) const;
 	unsigned calchash(void) const;
 	
