@@ -531,7 +531,7 @@ static ex rename_dummy_indices(const ex & e, exvector & global_dummy_indices, ex
 		int remaining = local_size - global_size;
 		exvector::const_iterator it = local_dummy_indices.begin(), itend = local_dummy_indices.end();
 		while (it != itend && remaining > 0) {
-			if (find_if(global_dummy_indices.begin(), global_dummy_indices.end(), bind2nd(ex_is_equal(), *it)) == global_dummy_indices.end()) {
+			if (find_if(global_dummy_indices.begin(), global_dummy_indices.end(), bind2nd(op0_is_equal(), *it)) == global_dummy_indices.end()) {
 				global_dummy_indices.push_back(*it);
 				global_size++;
 				remaining--;
