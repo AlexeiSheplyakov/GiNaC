@@ -647,7 +647,7 @@ matrix matrix::inverse(void) const
 		throw (std::logic_error("matrix::inverse(): matrix not square"));
 	
 	// NOTE: the Gauss-Jordan elimination used here can in principle be
-	// replaced this by two clever calls to gauss_elimination() and some to
+	// replaced by two clever calls to gauss_elimination() and some to
 	// transpose().  Wouldn't be more efficient (maybe less?), just more
 	// orthogonal.
 	matrix tmp(row,col);
@@ -673,14 +673,17 @@ matrix matrix::inverse(void) const
 		}
 		for (unsigned r2=0; r2<row; ++r2) {
 			if (r2 != r1) {
-				ex a2 = cpy.m[r2*col+r1];
-				for (unsigned c=0; c<col; ++c) {
-					cpy.m[r2*col+c] -= a2 * cpy.m[r1*col+c];
-					if (!cpy.m[r2*col+c].info(info_flags::numeric))
-						cpy.m[r2*col+c] = cpy.m[r2*col+c].normal();
-					tmp.m[r2*col+c] -= a2 * tmp.m[r1*col+c];
-					if (!tmp.m[r2*col+c].info(info_flags::numeric))
-						tmp.m[r2*col+c] = tmp.m[r2*col+c].normal();
+				if (!cpy.m[r2*col+r1].is_zero()) {
+					ex a2 = cpy.m[r2*col+r1];
+					// yes, there is something to do in this column
+					for (unsigned c=0; c<col; ++c) {
+						cpy.m[r2*col+c] -= a2 * cpy.m[r1*col+c];
+						if (!cpy.m[r2*col+c].info(info_flags::numeric))
+							cpy.m[r2*col+c] = cpy.m[r2*col+c].normal();
+						tmp.m[r2*col+c] -= a2 * tmp.m[r1*col+c];
+						if (!tmp.m[r2*col+c].info(info_flags::numeric))
+							tmp.m[r2*col+c] = tmp.m[r2*col+c].normal();
+					}
 				}
 			}
 		}
@@ -945,7 +948,7 @@ int matrix::gauss_elimination(const bool det)
 				sign = -sign;
 			for (unsigned r2=r0+1; r2<m; ++r2) {
 				if (!this->m[r2*n+r1].is_zero()) {
-					// there is something to do in this row
+					// yes, there is something to do in this row
 					ex piv = this->m[r2*n+r1] / this->m[r0*n+r1];
 					for (unsigned c=r1+1; c<n; ++c) {
 						this->m[r2*n+c] -= piv * this->m[r0*n+c];
@@ -1189,7 +1192,7 @@ int matrix::pivot(unsigned ro, unsigned co, bool symbolic)
 	// matrix needs pivoting, so swap rows k and ro
 	ensure_if_modifiable();
 	for (unsigned c=0; c<col; ++c)
-		m[k*col+c].swap(m[ro*col+c]);
+		this->m[k*col+c].swap(this->m[ro*col+c]);
 	
 	return k;
 }
