@@ -8,6 +8,9 @@ This file records noteworthy changes.
   - gamma() -> Gamma()
   - EulerGamma -> gamma
   - beta() -> Beta()
+* #include'ing ginac.h defines the preprocessor symbols GINACLIB_MAJOR_VERSION,
+  GINACLIB_MINOR_VERSION, and GINACLIB_MICRO_VERSION with the respective GiNaC
+  library version numbers.
 
 0.5.4 (15 March 2000)
 * Some algorithms in class matrix (notably determinant) were replaced by

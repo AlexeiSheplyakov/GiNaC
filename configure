@@ -3236,6 +3236,7 @@ Makefile
 GiNaC.spec
 ginac-config
 ginac/Makefile
+ginac/version.h
 check/Makefile
 ginsh/Makefile
 tools/Makefile
@@ -3384,6 +3385,7 @@ CONFIG_FILES=\${CONFIG_FILES-"Makefile
 GiNaC.spec
 ginac-config
 ginac/Makefile
+ginac/version.h
 check/Makefile
 ginsh/Makefile
 tools/Makefile
