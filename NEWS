@@ -1,6 +1,6 @@
 This file records noteworthy changes.
 
-0.8.2 (<date>)
+0.8.2 (24 April 2001)
 * degree(), ldegree(), coeff(), lcoeff(), tcoeff() and collect() work with
   non-symbols as the second argument in ginsh.
 * the argument to collect() can be a list of objects in which case the
