@@ -1331,16 +1331,17 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 	heur_gcd_called++;
 #endif
 
+	// Algorithms only works for non-vanishing input polynomials
+	if (a.is_zero() || b.is_zero())
+		return *new ex(fail());
+
 	// GCD of two numeric values -> CLN
     if (is_ex_exactly_of_type(a, numeric) && is_ex_exactly_of_type(b, numeric)) {
         numeric g = gcd(ex_to_numeric(a), ex_to_numeric(b));
-        numeric rg;
-        if (ca || cb)
-            rg = g.inverse();
         if (ca)
-            *ca = ex_to_numeric(a).mul(rg);
+            *ca = ex_to_numeric(a) / g;
         if (cb)
-            *cb = ex_to_numeric(b).mul(rg);
+            *cb = ex_to_numeric(b) / g;
         return g;
     }
 
@@ -1445,10 +1446,19 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args)
 	// GCD of numerics -> CLN
     if (is_ex_exactly_of_type(a, numeric) && is_ex_exactly_of_type(b, numeric)) {
         numeric g = gcd(ex_to_numeric(a), ex_to_numeric(b));
-        if (ca)
-            *ca = ex_to_numeric(a) / g;
-        if (cb)
-            *cb = ex_to_numeric(b) / g;
+		if (ca || cb) {
+			if (g.is_zero()) {
+				if (ca)
+					*ca = _ex0();
+				if (cb)
+					*cb = _ex0();
+			} else {
+		        if (ca)
+		            *ca = ex_to_numeric(a) / g;
+		        if (cb)
+		            *cb = ex_to_numeric(b) / g;
+			}
+		}
         return g;
     }
 
