@@ -319,30 +319,34 @@ ex integral::op(size_t i) const
 {
 	GINAC_ASSERT(i<4);
 
-	switch(i) {
-		case(0):
+	switch (i) {
+		case 0:
 			return x;
-		case(1):
+		case 1:
 			return a;
-		case(2):
+		case 2:
 			return b;
-		case(3):
+		case 3:
 			return f;
+		default:
+			throw (std::out_of_range("integral::op() out of range"));
 	}
 }
 
 ex & integral::let_op(size_t i)
 {
 	ensure_if_modifiable();
-	switch(i) {
-		case(0):
+	switch (i) {
+		case 0:
 			return x;
-		case(1):
+		case 1:
 			return a;
-		case(2):
+		case 2:
 			return b;
-		case(3):
+		case 3:
 			return f;
+		default:
+			throw (std::out_of_range("integral::let_op() out of range"));
 	}
 }
 
@@ -390,7 +394,8 @@ ex integral::expand(unsigned options) const
 }
 
 ex integral::derivative(const symbol & s) const
-{	if (s==x)
+{
+	if (s==x)
 		throw(logic_error("differentiation with respect to dummy variable"));
 	return b.diff(s)*f.subs(x==b)-a.diff(s)*f.subs(x==a)+integral(x, a, b, f.diff(s));
 }
