@@ -253,21 +253,43 @@ numeric::numeric(const char *s) : basic(TINFO_numeric)
 				term += "1";
 			imaginary = true;
 		}
-		const char *cs = term.c_str();
-		// CLN's short types are not useful within the GiNaC framework, hence
-		// we go straight to the construction of a long float.  Simply using
-		// cl_N(s) would require us to use add a CLN exponent mark, otherwise
-		// we would not be save from over-/underflows.
-		if (strchr(cs, '.'))
+		if (term.find(".") != std::string::npos) {
+			// CLN's short type cl_SF is not very useful within the GiNaC
+			// framework where we are mainly interested in the arbitrary
+			// precision type cl_LF.  Hence we go straight to the construction
+			// of generic floats.  In order to create them we have to convert
+			// our own floating point notation used for output and construction
+			// from char * to CLN's generic notation:
+			// 3.14      -->   3.14e0_<Digits>
+			// 31.4E-1   -->   31.4e-1_<Digits>
+			// and s on.
+			// No exponent marker?  Let's add a trivial one.
+			if (term.find("E") == std::string::npos)
+				term += "E0";
+			// E to lower case
+			term = term.replace(term.find("E"),1,"e");
+			// append _<Digits> to term
+#if defined(HAVE_SSTREAM)
+			std::ostringstream buf;
+			buf << unsigned(Digits) << std::ends;
+			term += "_" + buf.str();
+#else
+			char buf[14];
+			std::ostrstream(buf,sizeof(buf)) << unsigned(Digits) << std::ends;
+			term += "_" + string(buf);
+#endif
+			// construct float using cln::cl_F(const char *) ctor.
 			if (imaginary)
-				ctorval = ctorval + cln::complex(cln::cl_I(0),cln::cl_LF(cs));
+				ctorval = ctorval + cln::complex(cln::cl_I(0),cln::cl_F(term.c_str()));
 			else
-				ctorval = ctorval + cln::cl_LF(cs);
-		else
+				ctorval = ctorval + cln::cl_F(term.c_str());
+		} else {
+			// not a floating point number...
 			if (imaginary)
-				ctorval = ctorval + cln::complex(cln::cl_I(0),cln::cl_R(cs));
+				ctorval = ctorval + cln::complex(cln::cl_I(0),cln::cl_R(term.c_str()));
 			else
-				ctorval = ctorval + cln::cl_R(cs);
+				ctorval = ctorval + cln::cl_R(term.c_str());
+		}
 	} while(delim != std::string::npos);
 	value = ctorval;
 	calchash();
@@ -1920,18 +1942,19 @@ ex CatalanEvalf(void)
 }
 
 
-// It initializes to 17 digits, because in CLN float_format(17) turns out to
-// be 61 (<64) while float_format(18)=65.  We want to have a cl_LF instead 
-// of cl_SF, cl_FF or cl_DF but everything else is basically arbitrary.
 _numeric_digits::_numeric_digits()
   : digits(17)
 {
+	// It initializes to 17 digits, because in CLN float_format(17) turns out
+	// to be 61 (<64) while float_format(18)=65.  The reason is we want to
+	// have a cl_LF instead of cl_SF, cl_FF or cl_DF.
 	assert(!too_late);
 	too_late = true;
 	cln::default_float_format = cln::float_format(17);
 }
 
 
+/** Assign a native long to global Digits object. */
 _numeric_digits& _numeric_digits::operator=(long prec)
 {
 	digits = prec;
@@ -1940,12 +1963,15 @@ _numeric_digits& _numeric_digits::operator=(long prec)
 }
 
 
+/** Convert global Digits object to native type long. */
 _numeric_digits::operator long()
 {
+	// BTW, this is approx. unsigned(cln::default_float_format*0.301)-1
 	return (long)digits;
 }
 
 
+/** Append global Digits object to ostream. */
 void _numeric_digits::print(std::ostream & os) const
 {
 	debugmsg("_numeric_digits print", LOGLEVEL_PRINT);
