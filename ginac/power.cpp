@@ -655,31 +655,35 @@ ex power::expand(unsigned options) const
 // non-virtual functions in this class
 //////////
 
-/** expand a^n where a is an add and n is an integer.
+/** expand a^n where a is an add and n is a positive integer.
  *  @see power::expand */
 ex power::expand_add(const add & a, int n) const
 {
 	if (n==2)
 		return expand_add_2(a);
-	
-	int m = a.nops();
-	exvector sum;
-	sum.reserve((n+1)*(m-1));
+
+	const int m = a.nops();
+	exvector result;
+	// The number of terms will be the number of combinatorial compositions,
+	// i.e. the number of unordered arrangement of m nonnegative integers
+	// which sum up to n.  It is frequently written as C_n(m) and directly
+	// related with binomial coefficients:
+	result.reserve(binomial(numeric(n+m-1), numeric(m-1)).to_int());
 	intvector k(m-1);
 	intvector k_cum(m-1); // k_cum[l]:=sum(i=0,l,k[l]);
 	intvector upper_limit(m-1);
 	int l;
-	
-	for (int l=0; l<m-1; l++) {
+
+	for (int l=0; l<m-1; ++l) {
 		k[l] = 0;
 		k_cum[l] = 0;
 		upper_limit[l] = n;
 	}
-	
+
 	while (true) {
 		exvector term;
 		term.reserve(m+1);
-		for (l=0; l<m-1; l++) {
+		for (l=0; l<m-1; ++l) {
 			const ex & b = a.op(l);
 			GINAC_ASSERT(!is_exactly_a<add>(b));
 			GINAC_ASSERT(!is_exactly_a<power>(b) ||
@@ -693,7 +697,7 @@ ex power::expand_add(const add & a, int n) const
 			else
 				term.push_back(power(b,k[l]));
 		}
-		
+
 		const ex & b = a.op(l);
 		GINAC_ASSERT(!is_exactly_a<add>(b));
 		GINAC_ASSERT(!is_exactly_a<power>(b) ||
@@ -706,38 +710,35 @@ ex power::expand_add(const add & a, int n) const
 			term.push_back(expand_mul(ex_to<mul>(b),numeric(n-k_cum[m-2])));
 		else
 			term.push_back(power(b,n-k_cum[m-2]));
-		
+
 		numeric f = binomial(numeric(n),numeric(k[0]));
-		for (l=1; l<m-1; l++)
+		for (l=1; l<m-1; ++l)
 			f *= binomial(numeric(n-k_cum[l-1]),numeric(k[l]));
-		
+
 		term.push_back(f);
-		
-		// TODO: Can we optimize this?  Alex seemed to think so...
-		sum.push_back((new mul(term))->setflag(status_flags::dynallocated));
-		
+
+		result.push_back((new mul(term))->setflag(status_flags::dynallocated));
+
 		// increment k[]
 		l = m-2;
 		while ((l>=0) && ((++k[l])>upper_limit[l])) {
-			k[l] = 0;    
+			k[l] = 0;
 			--l;
 		}
 		if (l<0) break;
-		
+
 		// recalc k_cum[] and upper_limit[]
-		if (l==0)
-			k_cum[0] = k[0];
-		else
-			k_cum[l] = k_cum[l-1]+k[l];
-		
-		for (int i=l+1; i<m-1; i++)
+		k_cum[l] = (l==0 ? k[0] : k_cum[l-1]+k[l]);
+
+		for (int i=l+1; i<m-1; ++i)
 			k_cum[i] = k_cum[i-1]+k[i];
-		
-		for (int i=l+1; i<m-1; i++)
+
+		for (int i=l+1; i<m-1; ++i)
 			upper_limit[i] = n-k_cum[i-1];
 	}
-	return (new add(sum))->setflag(status_flags::dynallocated |
-	                               status_flags::expanded );
+
+	return (new add(result))->setflag(status_flags::dynallocated |
+	                                  status_flags::expanded);
 }
 
 
@@ -749,7 +750,7 @@ ex power::expand_add_2(const add & a) const
 	unsigned a_nops = a.nops();
 	sum.reserve((a_nops*(a_nops+1))/2);
 	epvector::const_iterator last = a.seq.end();
-	
+
 	// power(+(x,...,z;c),2)=power(+(x,...,z;0),2)+2*c*+(x,...,z;0)+c*c
 	// first part: ignore overall_coeff and expand other terms
 	for (epvector::const_iterator cit0=a.seq.begin(); cit0!=last; ++cit0) {
@@ -807,13 +808,15 @@ ex power::expand_add_2(const add & a) const
 	return (new add(sum))->setflag(status_flags::dynallocated | status_flags::expanded);
 }
 
-/** Expand factors of m in m^n where m is a mul and n is and integer
+/** Expand factors of m in m^n where m is a mul and n is and integer.
  *  @see power::expand */
 ex power::expand_mul(const mul & m, const numeric & n) const
 {
+	GINAC_ASSERT(n.is_integer());
+
 	if (n.is_zero())
 		return _ex1;
-	
+
 	epvector distrseq;
 	distrseq.reserve(m.seq.size());
 	epvector::const_iterator last = m.seq.end();
