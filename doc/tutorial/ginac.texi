@@ -4956,10 +4956,10 @@ Arguments equal to zero get considered, too. Riemann's zeta function @code{zeta}
 evaluates also for negative integers and positive even integers. For example:
 
 @example
-> Li({3,1},{x,1});
+> Li(@{3,1@},@{x,1@});
 S(2,2,x)
-> H({-3,2},1);
--zeta({3,2},{-1,-1})
+> H(@{-3,2@},1);
+-zeta(@{3,2@},@{-1,-1@})
 > S(3,1,1);
 1/90*Pi^4
 @end example
@@ -4972,10 +4972,10 @@ quickly be messed up, for example. Therefore GiNaC offers a C++ function
 @code{Li} (@code{eval()} already cares for the possible downgrade):
 
 @example
-> convert_H_to_Li({0,-2,-1,3},x);
-Li({3,1,3},{-x,1,-1})
-> convert_H_to_Li({2,-1,0},x);
--Li({2,1},{x,-1})*log(x)+2*Li({3,1},{x,-1})+Li({2,2},{x,-1})
+> convert_H_to_Li(@{0,-2,-1,3@},x);
+Li(@{3,1,3@},@{-x,1,-1@})
+> convert_H_to_Li(@{2,-1,0@},x);
+-Li(@{2,1@},@{x,-1@})*log(x)+2*Li(@{3,1@},@{x,-1@})+Li(@{2,2@},@{x,-1@})
 @end example
 
 Every function apart from the multiple polylogarithm @code{Li} can be numerically evaluated for
@@ -4990,7 +4990,7 @@ $x_1x_2\cdots x_i < 1$ holds.
 @example
 > Digits=100;
 100
-> evalf(zeta({3,1,3,1}));
+> evalf(zeta(@{3,1,3,1@}));
 0.005229569563530960100930652283899231589890420784634635522547448972148869544...
 @end example
 
