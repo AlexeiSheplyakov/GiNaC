@@ -381,7 +381,7 @@ ex quo(const ex &a, const ex &b, const symbol &x, bool check_args)
 	int rdeg = r.degree(x);
 	ex blcoeff = b.expand().coeff(x, bdeg);
 	bool blcoeff_is_numeric = is_ex_exactly_of_type(blcoeff, numeric);
-	exvector v; v.reserve(rdeg - bdeg + 1);
+	exvector v; v.reserve(std::max(rdeg - bdeg + 1, 0));
 	while (rdeg >= bdeg) {
 		ex term, rcoeff = r.coeff(x, rdeg);
 		if (blcoeff_is_numeric)
@@ -620,7 +620,7 @@ bool divide(const ex &a, const ex &b, ex &q, bool check_args)
 	int rdeg = r.degree(*x);
 	ex blcoeff = b.expand().coeff(*x, bdeg);
 	bool blcoeff_is_numeric = is_ex_exactly_of_type(blcoeff, numeric);
-	exvector v; v.reserve(rdeg - bdeg + 1);
+	exvector v; v.reserve(std::max(rdeg - bdeg + 1, 0));
 	while (rdeg >= bdeg) {
 		ex term, rcoeff = r.coeff(*x, rdeg);
 		if (blcoeff_is_numeric)
@@ -781,7 +781,7 @@ static bool divide_in_z(const ex &a, const ex &b, ex &q, sym_desc_vec::const_ite
 	int rdeg = adeg;
 	ex eb = b.expand();
 	ex blcoeff = eb.coeff(*x, bdeg);
-	exvector v; v.reserve(rdeg - bdeg + 1);
+	exvector v; v.reserve(std::max(rdeg - bdeg + 1, 0));
 	while (rdeg >= bdeg) {
 		ex term, rcoeff = r.coeff(*x, rdeg);
 		if (!divide_in_z(rcoeff, blcoeff, term, var+1))
