@@ -77,10 +77,10 @@ DEFAULT_DESTROY(pseries)
 pseries::pseries(const ex &rel_, const epvector &ops_) : basic(TINFO_pseries), seq(ops_)
 {
 	debugmsg("pseries ctor from ex,epvector", LOGLEVEL_CONSTRUCT);
-	GINAC_ASSERT(is_ex_exactly_of_type(rel_, relational));
-	GINAC_ASSERT(is_ex_exactly_of_type(rel_.lhs(),symbol));
+	GINAC_ASSERT(is_exactly_a<relational>(rel_));
+	GINAC_ASSERT(is_exactly_a<symbol>(rel_.lhs()));
 	point = rel_.rhs();
-	var = *static_cast<symbol *>(rel_.lhs().bp);
+	var = rel_.lhs();
 }
 
 
@@ -330,7 +330,7 @@ ex pseries::coeff(const ex &s, int n) const
 		int lo = 0, hi = seq.size() - 1;
 		while (lo <= hi) {
 			int mid = (lo + hi) / 2;
-			GINAC_ASSERT(is_ex_exactly_of_type(seq[mid].coeff, numeric));
+			GINAC_ASSERT(is_exactly_a<numeric>(seq[mid].coeff));
 			int cmp = ex_to<numeric>(seq[mid].coeff).compare(looking_for);
 			switch (cmp) {
 				case -1:
@@ -492,7 +492,7 @@ ex basic::series(const relational & r, int order, unsigned options) const
 	numeric fac(1);
 	ex deriv = *this;
 	ex coeff = deriv.subs(r);
-	const symbol &s = static_cast<symbol &>(*r.lhs().bp);
+	const symbol &s = ex_to<symbol>(r.lhs());
 	
 	if (!coeff.is_zero())
 		seq.push_back(expair(coeff, _ex0()));
@@ -524,10 +524,9 @@ ex symbol::series(const relational & r, int order, unsigned options) const
 {
 	epvector seq;
 	const ex point = r.rhs();
-	GINAC_ASSERT(is_ex_exactly_of_type(r.lhs(),symbol));
-	ex s = r.lhs();
-	
-	if (this->is_equal(*s.bp)) {
+	GINAC_ASSERT(is_exactly_a<symbol>(r.lhs()));
+
+	if (this->is_equal_same_type(ex_to<symbol>(r.lhs()))) {
 		if (order > 0 && !point.is_zero())
 			seq.push_back(expair(point, _ex0()));
 		if (order > 1)
@@ -875,8 +874,8 @@ ex power::series(const relational & r, int order, unsigned options) const
 ex pseries::series(const relational & r, int order, unsigned options) const
 {
 	const ex p = r.rhs();
-	GINAC_ASSERT(is_ex_exactly_of_type(r.lhs(),symbol));
-	const symbol &s = static_cast<symbol &>(*r.lhs().bp);
+	GINAC_ASSERT(is_exactly_a<symbol>(r.lhs()));
+	const symbol &s = ex_to<symbol>(r.lhs());
 	
 	if (var.is_equal(s) && point.is_equal(p)) {
 		if (order > degree(s))

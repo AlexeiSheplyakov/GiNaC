@@ -315,16 +315,16 @@ static ex Li2_series(const ex &x, const relational &rel, int order, unsigned opt
 			// method:
 			// This is the branch cut: assemble the primitive series manually
 			// and then add the corresponding complex step function.
-			const symbol *s = static_cast<symbol *>(rel.lhs().bp);
+			const symbol &s = ex_to<symbol>(rel.lhs());
 			const ex point = rel.rhs();
 			const symbol foo;
 			epvector seq;
 			// zeroth order term:
 			seq.push_back(expair(Li2(x_pt), _ex0()));
 			// compute the intermediate terms:
-			ex replarg = series(Li2(x), *s==foo, order);
+			ex replarg = series(Li2(x), s==foo, order);
 			for (unsigned i=1; i<replarg.nops()-1; ++i)
-				seq.push_back(expair((replarg.op(i)/power(*s-foo,i)).series(foo==point,1,options).op(0).subs(foo==*s),i));
+				seq.push_back(expair((replarg.op(i)/power(s-foo,i)).series(foo==point,1,options).op(0).subs(foo==s),i));
 			// append an order term:
 			seq.push_back(expair(Order(_ex1()), replarg.nops()-1));
 			return pseries(rel, seq);
@@ -420,8 +420,8 @@ static ex Order_series(const ex & x, const relational & r, int order, unsigned o
 	// Just wrap the function into a pseries object
 	epvector new_seq;
 	GINAC_ASSERT(is_ex_exactly_of_type(r.lhs(),symbol));
-	const symbol *s = static_cast<symbol *>(r.lhs().bp);
-	new_seq.push_back(expair(Order(_ex1()), numeric(std::min(x.ldegree(*s), order))));
+	const symbol &s = ex_to<symbol>(r.lhs());
+	new_seq.push_back(expair(Order(_ex1()), numeric(std::min(x.ldegree(s), order))));
 	return pseries(r, new_seq);
 }
 

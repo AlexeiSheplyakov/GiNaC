@@ -292,24 +292,24 @@ static ex beta_series(const ex & arg1,
 	const ex arg1_pt = arg1.subs(rel);
 	const ex arg2_pt = arg2.subs(rel);
 	GINAC_ASSERT(is_ex_exactly_of_type(rel.lhs(),symbol));
-	const symbol *s = static_cast<symbol *>(rel.lhs().bp);
+	const symbol &s = ex_to<symbol>(rel.lhs());
 	ex arg1_ser, arg2_ser, arg1arg2_ser;
 	if ((!arg1_pt.info(info_flags::integer) || arg1_pt.info(info_flags::positive)) &&
 	    (!arg2_pt.info(info_flags::integer) || arg2_pt.info(info_flags::positive)))
 		throw do_taylor();  // caught by function::series()
 	// trap the case where arg1 is on a pole:
 	if (arg1.info(info_flags::integer) && !arg1.info(info_flags::positive))
-		arg1_ser = tgamma(arg1+*s).series(rel, order, options);
+		arg1_ser = tgamma(arg1+s).series(rel, order, options);
 	else
 		arg1_ser = tgamma(arg1).series(rel,order);
 	// trap the case where arg2 is on a pole:
 	if (arg2.info(info_flags::integer) && !arg2.info(info_flags::positive))
-		arg2_ser = tgamma(arg2+*s).series(rel, order, options);
+		arg2_ser = tgamma(arg2+s).series(rel, order, options);
 	else
 		arg2_ser = tgamma(arg2).series(rel,order);
 	// trap the case where arg1+arg2 is on a pole:
 	if ((arg1+arg2).info(info_flags::integer) && !(arg1+arg2).info(info_flags::positive))
-		arg1arg2_ser = tgamma(arg2+arg1+*s).series(rel, order, options);
+		arg1arg2_ser = tgamma(arg2+arg1+s).series(rel, order, options);
 	else
 		arg1arg2_ser = tgamma(arg2+arg1).series(rel,order);
 	// compose the result (expanding all the terms):

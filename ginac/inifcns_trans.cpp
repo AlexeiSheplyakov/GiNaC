@@ -164,27 +164,35 @@ static ex log_series(const ex &arg,
 		// This is the branch point: Series expand the argument first, then
 		// trivially factorize it to isolate that part which has constant
 		// leading coefficient in this fashion:
-		//   x^n + Order(x^(n+m))  ->  x^n * (1 + Order(x^m)).
+		//   x^n + x^(n+1) +...+ Order(x^(n+m))  ->  x^n * (1 + x +...+ Order(x^m)).
 		// Return a plain n*log(x) for the x^n part and series expand the
 		// other part.  Add them together and reexpand again in order to have
 		// one unnested pseries object.  All this also works for negative n.
-		const pseries argser = ex_to<pseries>(arg.series(rel, order, options));
-		const symbol *s = static_cast<symbol *>(rel.lhs().bp);
+		pseries argser;          // series expansion of log's argument
+		unsigned extra_ord = 0;  // extra expansion order
+		do {
+			// oops, the argument expanded to a pure Order(x^something)...
+			argser = ex_to<pseries>(arg.series(rel, order+extra_ord, options));
+			++extra_ord;
+		} while (!argser.is_terminating() && argser.nops()==1);
+
+		const symbol &s = ex_to<symbol>(rel.lhs());
 		const ex point = rel.rhs();
-		const int n = argser.ldegree(*s);
+		const int n = argser.ldegree(s);
 		epvector seq;
 		// construct what we carelessly called the n*log(x) term above
-		ex coeff = argser.coeff(*s, n);
+		const ex coeff = argser.coeff(s, n);
 		// expand the log, but only if coeff is real and > 0, since otherwise
 		// it would make the branch cut run into the wrong direction
 		if (coeff.info(info_flags::positive))
-			seq.push_back(expair(n*log(*s-point)+log(coeff), _ex0()));
+			seq.push_back(expair(n*log(s-point)+log(coeff), _ex0()));
 		else
-			seq.push_back(expair(log(coeff*pow(*s-point, n)), _ex0()));
+			seq.push_back(expair(log(coeff*pow(s-point, n)), _ex0()));
+
 		if (!argser.is_terminating() || argser.nops()!=1) {
-			// in this case n more terms are needed
+			// in this case n more (or less) terms are needed
 			// (sadly, to generate them, we have to start from the beginning)
-			ex newarg = ex_to<pseries>((arg/coeff).series(rel, order+n, options)).shift_exponents(-n).convert_to_poly(true);
+			const ex newarg = ex_to<pseries>((arg/coeff).series(rel, order+n, options)).shift_exponents(-n).convert_to_poly(true);
 			return pseries(rel, seq).add_series(ex_to<pseries>(log(newarg).series(rel, order, options)));
 		} else  // it was a monomial
 			return pseries(rel, seq);
@@ -194,10 +202,10 @@ static ex log_series(const ex &arg,
 		// method:
 		// This is the branch cut: assemble the primitive series manually and
 		// then add the corresponding complex step function.
-		const symbol *s = static_cast<symbol *>(rel.lhs().bp);
+		const symbol &s = ex_to<symbol>(rel.lhs());
 		const ex point = rel.rhs();
 		const symbol foo;
-		const ex replarg = series(log(arg), *s==foo, order).subs(foo==point);
+		const ex replarg = series(log(arg), s==foo, order).subs(foo==point);
 		epvector seq;
 		seq.push_back(expair(-I*csgn(arg*I)*Pi, _ex0()));
 		seq.push_back(expair(Order(_ex1()), order));
@@ -639,10 +647,10 @@ static ex atan_series(const ex &arg,
 		// method:
 		// This is the branch cut: assemble the primitive series manually and
 		// then add the corresponding complex step function.
-		const symbol *s = static_cast<symbol *>(rel.lhs().bp);
+		const symbol &s = ex_to<symbol>(rel.lhs());
 		const ex point = rel.rhs();
 		const symbol foo;
-		const ex replarg = series(atan(arg), *s==foo, order).subs(foo==point);
+		const ex replarg = series(atan(arg), s==foo, order).subs(foo==point);
 		ex Order0correction = replarg.op(0)+csgn(arg)*Pi*_ex_1_2();
 		if ((I*arg_pt)<_ex0())
 			Order0correction += log((I*arg_pt+_ex_1())/(I*arg_pt+_ex1()))*I*_ex_1_2();
@@ -1024,10 +1032,10 @@ static ex atanh_series(const ex &arg,
  		// method:
  		// This is the branch cut: assemble the primitive series manually and
  		// then add the corresponding complex step function.
- 		const symbol *s = static_cast<symbol *>(rel.lhs().bp);
+ 		const symbol &s = ex_to<symbol>(rel.lhs());
  		const ex point = rel.rhs();
  		const symbol foo;
- 		const ex replarg = series(atanh(arg), *s==foo, order).subs(foo==point);
+ 		const ex replarg = series(atanh(arg), s==foo, order).subs(foo==point);
 		ex Order0correction = replarg.op(0)+csgn(I*arg)*Pi*I*_ex1_2();
 		if (arg_pt<_ex0())
 			Order0correction += log((arg_pt+_ex_1())/(arg_pt+_ex1()))*_ex1_2();
