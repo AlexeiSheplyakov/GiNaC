@@ -151,4 +151,6 @@ sparse_tree(const symbol & x,
 			} else
 				return random_symbol(x,y,z,rational,complex);
 	}
+
+	return 0;
 }
