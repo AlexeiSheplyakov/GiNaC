@@ -529,9 +529,10 @@ bool pseries::is_terminating() const
 ex basic::series(const relational & r, int order, unsigned options) const
 {
 	epvector seq;
+	const symbol &s = ex_to<symbol>(r.lhs());
 
 	// default for order-values that make no sense for Taylor expansion
-	if (order <= 0) {
+	if ((order <= 0) && this->has(s)) {
 		seq.push_back(expair(Order(_ex1), order));
 		return pseries(r, seq);
 	}
@@ -540,8 +541,7 @@ ex basic::series(const relational & r, int order, unsigned options) const
 	numeric fac = 1;
 	ex deriv = *this;
 	ex coeff = deriv.subs(r, subs_options::no_pattern);
-	const symbol &s = ex_to<symbol>(r.lhs());
-	
+
 	if (!coeff.is_zero()) {
 		seq.push_back(expair(coeff, _ex0));
 	}
