@@ -939,57 +939,64 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 
 ex canonicalize_clifford(const ex & e)
 {
-	// Scan for any ncmul objects
-	exmap srl;
-	ex aux = e.to_rational(srl);
-	for (exmap::iterator i = srl.begin(); i != srl.end(); ++i) {
+	pointer_to_map_function fcn(canonicalize_clifford);
 
-		ex lhs = i->first;
-		ex rhs = i->second;
+	if (is_a<matrix>(e)    // || is_a<pseries>(e) || is_a<integral>(e)
+		|| is_a<lst>(e)) {
+		return e.map(fcn);
+	} else {
+		// Scan for any ncmul objects
+		exmap srl;
+		ex aux = e.to_rational(srl);
+		for (exmap::iterator i = srl.begin(); i != srl.end(); ++i) {
 
-		if (is_exactly_a<ncmul>(rhs)
-		 && rhs.return_type() == return_types::noncommutative
-		 && is_clifford_tinfo(rhs.return_type_tinfo())) {
+			ex lhs = i->first;
+			ex rhs = i->second;
 
-			// Expand product, if necessary
-			ex rhs_expanded = rhs.expand();
-			if (!is_a<ncmul>(rhs_expanded)) {
-				i->second = canonicalize_clifford(rhs_expanded);
-				continue;
+			if (is_exactly_a<ncmul>(rhs)
+					&& rhs.return_type() == return_types::noncommutative
+					&& is_clifford_tinfo(rhs.return_type_tinfo())) {
 
-			} else if (!is_a<clifford>(rhs.op(0)))
-				continue;
+				// Expand product, if necessary
+				ex rhs_expanded = rhs.expand();
+				if (!is_a<ncmul>(rhs_expanded)) {
+					i->second = canonicalize_clifford(rhs_expanded);
+					continue;
 
-			exvector v;
-			v.reserve(rhs.nops());
-			for (size_t j=0; j<rhs.nops(); j++)
-				v.push_back(rhs.op(j));
+				} else if (!is_a<clifford>(rhs.op(0)))
+					continue;
 
-			// Stupid recursive bubble sort because we only want to swap adjacent gammas
-			exvector::iterator it = v.begin(), next_to_last = v.end() - 1;
-			if (is_a<diracgamma5>(it->op(0)) || is_a<diracgammaL>(it->op(0)) || is_a<diracgammaR>(it->op(0)))
-				++it;
-			while (it != next_to_last) {
-				if (it[0].compare(it[1]) > 0) {
-					ex save0 = it[0], save1 = it[1];
-					ex b1, i1, b2, i2;
-					base_and_index(it[0], b1, i1);
-					base_and_index(it[1], b2, i2);
- 					it[0] = (ex_to<clifford>(save0).get_metric(i1, i2) * b1 * b2).simplify_indexed();
-					it[1] = v.size() == 2 ? _ex2 * dirac_ONE(ex_to<clifford>(it[1]).get_representation_label()) : _ex2;
-					ex sum = ncmul(v);
-					it[0] = save1;
-					it[1] = save0;
-					sum -= ncmul(v, true);
-					i->second = canonicalize_clifford(sum);
-					goto next_sym;
+				exvector v;
+				v.reserve(rhs.nops());
+				for (size_t j=0; j<rhs.nops(); j++)
+					v.push_back(rhs.op(j));
+
+				// Stupid recursive bubble sort because we only want to swap adjacent gammas
+				exvector::iterator it = v.begin(), next_to_last = v.end() - 1;
+				if (is_a<diracgamma5>(it->op(0)) || is_a<diracgammaL>(it->op(0)) || is_a<diracgammaR>(it->op(0)))
+					++it;
+				while (it != next_to_last) {
+					if (it[0].compare(it[1]) > 0) {
+						ex save0 = it[0], save1 = it[1];
+						ex b1, i1, b2, i2;
+						base_and_index(it[0], b1, i1);
+						base_and_index(it[1], b2, i2);
+						it[0] = (ex_to<clifford>(save0).get_metric(i1, i2) * b1 * b2).simplify_indexed();
+						it[1] = v.size() == 2 ? _ex2 * dirac_ONE(ex_to<clifford>(it[1]).get_representation_label()) : _ex2;
+						ex sum = ncmul(v);
+						it[0] = save1;
+						it[1] = save0;
+						sum -= ncmul(v, true);
+						i->second = canonicalize_clifford(sum);
+						goto next_sym;
+					}
+					++it;
 				}
-				++it;
-			}
 next_sym:	;
+			}
 		}
+		return aux.subs(srl, subs_options::no_pattern).simplify_indexed();
 	}
-	return aux.subs(srl, subs_options::no_pattern).simplify_indexed();
 }
 
 ex clifford_prime(const ex & e)
@@ -997,9 +1004,8 @@ ex clifford_prime(const ex & e)
 	pointer_to_map_function fcn(clifford_prime);
 	if (is_a<clifford>(e) && is_a<cliffordunit>(e.op(0))) {
 		return -e;
-	} else if (is_a<add>(e)) {
-		return e.map(fcn);
-	} else if (is_a<ncmul>(e)) {
+	} else if (is_a<add>(e) || is_a<ncmul>(e)  // || is_a<pseries>(e) || is_a<integral>(e)
+			|| is_a<matrix>(e) || is_a<lst>(e)) {
 		return e.map(fcn);
 	} else if (is_a<power>(e)) {
 		return pow(clifford_prime(e.op(0)), e.op(1));
@@ -1012,11 +1018,8 @@ ex remove_dirac_ONE(const ex & e)
 	pointer_to_map_function fcn(remove_dirac_ONE);
 	if (is_a<clifford>(e) && is_a<diracone>(e.op(0))) {
 		return 1;
-	} else if (is_a<add>(e)) {
-		return e.map(fcn);
-	} else if (is_a<ncmul>(e)) {
-		return e.map(fcn);
-	} else if (is_a<mul>(e)) {
+	} else if (is_a<add>(e) || is_a<ncmul>(e) || is_a<mul>(e)  // || is_a<pseries>(e) || is_a<integral>(e)
+			|| is_a<matrix>(e) || is_a<lst>(e)) {
 		return e.map(fcn);
 	} else if (is_a<power>(e)) {
 		return pow(remove_dirac_ONE(e.op(0)), e.op(1));
