@@ -1101,6 +1101,8 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 
 ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args)
 {
+//clog << "gcd(" << a << "," << b << ")\n";
+
 	// Partially factored cases (to avoid expanding large expressions)
 	if (is_ex_exactly_of_type(a, mul)) {
 		if (is_ex_exactly_of_type(b, mul) && b.nops() > a.nops())

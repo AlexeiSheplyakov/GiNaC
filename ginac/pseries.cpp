@@ -242,16 +242,30 @@ int pseries::ldegree(const symbol &s) const
 ex pseries::coeff(const symbol &s, int n) const
 {
     if (var.is_equal(s)) {
-        epvector::const_iterator it = seq.begin(), itend = seq.end();
-        while (it != itend) {
-            int pow = ex_to_numeric(it->coeff).to_int();
-            if (pow == n)
-                return it->rest;
-            if (pow > n)
-                return _ex0();
-            it++;
-        }
-        return _ex0();
+		if (seq.size() == 0)
+			return _ex0();
+
+		// Binary search in sequence for given power
+		numeric looking_for = numeric(n);
+		int lo = 0, hi = seq.size() - 1;
+		while (lo <= hi) {
+			int mid = (lo + hi) / 2;
+			GINAC_ASSERT(is_ex_exactly_of_type(seq[mid].coeff, numeric));
+			int cmp = ex_to_numeric(seq[mid].coeff).compare(looking_for);
+			switch (cmp) {
+				case -1:
+					lo = mid + 1;
+					break;
+				case 0:
+					return seq[mid].rest;
+				case 1:
+					hi = mid - 1;
+					break;
+				default:
+					throw(std::logic_error("pseries::coeff: compare() didn't return -1, 0 or 1"));
+			}
+		}
+		return _ex0();
     } else
         return convert_to_poly().coeff(s, n);
 }
