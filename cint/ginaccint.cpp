@@ -31,8 +31,11 @@ int main(int argc, char * *argv)
 	else
 		setenv("LD_LIBRARY_PATH", (std::string(LD_LIBRARY_PATH)+':'+libdir).c_str(), 1);
 	
-	// hard-wire CINTSYSDIR, inherited from configure, if it is not set
-	setenv("CINTSYSDIR", CINTSYSDIR.c_str(), 0);
+	// hard-wire CINTSYSDIR, inherited from configure, but only if it has
+	// been set therein (to allow for system-wide installations of cint)
+	// and without overriding it if the user has specified it.
+	if (CINTSYSDIR != "@CINTSYSDIR@")
+		setenv("CINTSYSDIR", CINTSYSDIR.c_str(), 0);
 	
 	// execute the real thing
 	int error = execve(binprog.c_str(), argv, environ);
