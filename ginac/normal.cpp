@@ -811,6 +811,8 @@ ex ex::primpart(const symbol &x, const ex &c) const
 
 static ex sr_gcd(const ex &a, const ex &b, const symbol *x)
 {
+//clog << "sr_gcd(" << a << "," << b << ")\n";
+
     // Sort c and d so that c has higher degree
     ex c, d;
     int adeg = a.degree(*x), bdeg = b.degree(*x);
@@ -1021,6 +1023,9 @@ class gcdheu_failed {};
 
 static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const_iterator var)
 {
+//clog << "heur_gcd(" << a << "," << b << ")\n";
+
+	// Trivial cases
     if (is_ex_exactly_of_type(a, numeric) && is_ex_exactly_of_type(b, numeric)) {
         numeric g = gcd(ex_to_numeric(a), ex_to_numeric(b));
         numeric rg;
@@ -1053,8 +1058,10 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 
     // 6 tries maximum
     for (int t=0; t<6; t++) {
-        if (xi.int_length() * maxdeg > 50000)
+        if (xi.int_length() * maxdeg > 100000) {
+//clog << "giving up heur_gcd, xi.int_length = " << xi.int_length() << ", maxdeg = " << maxdeg << endl;
             throw gcdheu_failed();
+		}
 
         // Apply evaluation homomorphism and calculate GCD
         ex gamma = heur_gcd(p.subs(*x == xi), q.subs(*x == xi), NULL, NULL, var+1).expand();
