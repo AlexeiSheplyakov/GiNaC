@@ -22,6 +22,9 @@ This file records noteworthy changes.
 * Added preliminary (re)implementations of color and clifford classes.
 * simplify_indexed(): contraction of symmetric and antisymmetric tensors
   is zero.
+* Replaced the various print*() member functions by a single print() that
+  takes a print_context object that determines the output formatting. This
+  should make it easier to add more output types.
 * Some bugfixes (indexed objects, archive writing).
 
 0.8.0 (24 March 2001)
