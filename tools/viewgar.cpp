@@ -25,7 +25,10 @@
 #include <stdexcept>
 
 #include "ginac.h"
+
+#ifndef NO_NAMESPACE_GINAC
 using namespace GiNaC;
+#endif // ndef NO_NAMESPACE_GINAC
 
 int main(int argc, char **argv)
 {
