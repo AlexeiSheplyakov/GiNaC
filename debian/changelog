@@ -1,3 +1,9 @@
+ginac (1.0.14-1) unstable; urgency=low
+
+  * New upstream (bugfix only) release.
+
+ -- Christian Bauer <cbauer@ginac.de>  Sat,  1 Mar 2003 17:29:13 +0100
+
 ginac (1.0.13-1) unstable; urgency=low
 
   * New upstream (bugfix only) release.

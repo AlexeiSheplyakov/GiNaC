@@ -1,6 +1,6 @@
 This file records noteworthy changes.
 
-1.0.14 (<date>)
+1.0.14 (1 March 2003)
 * Improved the C-source output: complex numbers are printed correctly (using
   the STL complex<> template or cln::complex()), rational numbers use cl_RA()
   in the CLN output, and small integers are printed in a more compact format
