@@ -604,6 +604,10 @@ $constructors_implementation
 function::function(unsigned ser, const exprseq & es) : exprseq(es), serial(ser)
 {
 	tinfo_key = TINFO_function;
+
+	// Force re-evaluation even if the exprseq was already evaluated
+	// (the exprseq copy constructor copies the flags)
+	clearflag(status_flags::evaluated);
 }
 
 function::function(unsigned ser, const exvector & v, bool discardable) 
