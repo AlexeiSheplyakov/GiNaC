@@ -172,40 +172,18 @@ REGISTER_FUNCTION(Order, eval_func(Order_eval).
                          series_func(Order_series));
 
 //////////
-// Inert differentiation
-//////////
-
-static ex Diff_eval(const ex & f, const ex & x)
-{
-	return Diff(f, x).hold();
-}
-
-static ex Diff_deriv(const ex & f, const ex & x, unsigned deriv_param)
-{
-	GINAC_ASSERT(deriv_param == 0 || deriv_param == 1);
-	if (deriv_param == 1)
-		return Diff(Diff(f, x), x);
-	else
-		return _ex0();
-}
-
-REGISTER_FUNCTION(Diff, eval_func(Diff_eval).
-                        derivative_func(Diff_deriv));
-
-//////////
 // Inert partial differentiation operator
 //////////
 
-static ex Derivative_eval(const ex & f, const ex & n)
+static ex Derivative_eval(const ex & f, const ex & l)
 {
-	if (is_ex_exactly_of_type(n, numeric) && ex_to_numeric(n).is_nonneg_integer()) {
-		unsigned i = ex_to_numeric(n).to_int();
-		if (is_ex_exactly_of_type(f, function)) {
-			if (i < f.nops() && is_ex_exactly_of_type(f.op(i), symbol))
-				return Diff(f, f.op(i));
-		}
+	if (!is_ex_exactly_of_type(f, function)) {
+        throw(std::invalid_argument("Derivative(): 1st argument must be a function"));
 	}
-	return Derivative(f, n).hold();
+    if (!is_ex_exactly_of_type(l, lst)) {
+        throw(std::invalid_argument("Derivative(): 2nd argument must be a list"));
+    }
+	return Derivative(f, l).hold();
 }
 
 REGISTER_FUNCTION(Derivative, eval_func(Derivative_eval));

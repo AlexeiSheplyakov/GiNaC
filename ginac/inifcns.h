@@ -123,9 +123,6 @@ DECLARE_FUNCTION_2P(binomial)
 /** Order term function (for truncated power series). */
 DECLARE_FUNCTION_1P(Order)
 
-/** Inert differentiation. */
-DECLARE_FUNCTION_2P(Diff)
-
 /** Inert partial differentiation operator. */
 DECLARE_FUNCTION_2P(Derivative)
 
