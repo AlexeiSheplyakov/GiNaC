@@ -3898,14 +3898,14 @@ Only calling the series method makes the last output simplify to
 @math{1-v^2/c^2+O(v^10)}, without that call we would just have a long
 series raised to the power @math{-2}.
 
-@cindex M@'echain's formula
+@cindex Machin's formula
 As another instructive application, let us calculate the numerical 
 value of Archimedes' constant
 @tex
 $\pi$
 @end tex
 (for which there already exists the built-in constant @code{Pi}) 
-using M@'echain's amazing formula
+using Machin's amazing formula
 @tex
 $\pi=16$~atan~$\!\left(1 \over 5 \right)-4$~atan~$\!\left(1 \over 239 \right)$.
 @end tex
@@ -3923,7 +3923,7 @@ the order term off:
 #include <ginac/ginac.h>
 using namespace GiNaC;
 
-ex mechain_pi(int degr)
+ex machin_pi(int degr)
 @{
     symbol x;
     ex pi_expansion = series_to_poly(atan(x).series(x,degr));
@@ -3938,7 +3938,7 @@ int main()
     using std::endl;  // ...dealing with this namespace std.
     ex pi_frac;
     for (int i=2; i<12; i+=2) @{
-        pi_frac = mechain_pi(i);
+        pi_frac = machin_pi(i);
         cout << i << ":\t" << pi_frac << endl
              << "\t" << pi_frac.evalf() << endl;
     @}
