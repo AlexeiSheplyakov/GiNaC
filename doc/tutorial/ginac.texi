@@ -5921,6 +5921,89 @@ in non-CLN C source output, but as @code{abs(x)} in all other formats.
 
 There is currently no equivalent of @code{set_print_func()} for functions.
 
+@subsection Adding new output formats
+
+Creating a new output format involves subclassing @code{print_context},
+which is somewhat similar to adding a new algebraic class
+(@pxref{Adding classes}). There is a macro @code{GINAC_DECLARE_PRINT_CONTEXT}
+that needs to go into the class definition, and a corresponding macro
+@code{GINAC_IMPLEMENT_PRINT_CONTEXT} that has to appear at global scope.
+Every @code{print_context} class needs to provide a default constructor
+and a constructor from an @code{std::ostream} and an @code{unsigned}
+options value.
+
+Here is an example for a user-defined @code{print_context} class:
+
+@example
+class print_myformat : public print_dflt
+@{
+    GINAC_DECLARE_PRINT_CONTEXT(print_myformat, print_dflt)
+public:
+    print_myformat(std::ostream & os, unsigned opt = 0)
+     : print_dflt(os, opt) @{@}
+@};
+
+print_myformat::print_myformat() : print_dflt(std::cout) @{@}
+
+GINAC_IMPLEMENT_PRINT_CONTEXT(print_myformat, print_dflt)
+@end example
+
+That's all there is to it. None of the actual expression output logic is
+implemented in this class. It merely serves as a selector for choosing
+a particular format. The algorithms for printing expressions in the new
+format are implemented as print methods, as described above.
+
+@code{print_myformat} is a subclass of @code{print_dflt}, so it behaves
+exactly like GiNaC's default output format:
+
+@example
+@{
+    symbol x("x");
+    ex e = pow(x, 2) + 1;
+
+    // this prints "1+x^2"
+    cout << e << endl;
+    
+    // this also prints "1+x^2"
+    e.print(print_myformat()); cout << endl;
+
+    ...
+@}
+@end example
+
+To fill @code{print_myformat} with life, we need to supply appropriate
+print methods with @code{set_print_func()}, like this:
+
+@example
+// This prints powers with '**' instead of '^'. See the LaTeX output
+// example above for explanations.
+void print_power_as_myformat(const power & p,
+                             const print_myformat & c,
+                             unsigned level)
+@{
+    unsigned power_prec = p.precedence();
+    if (level >= power_prec)
+        c.s << '(';
+    p.op(0).print(c, power_prec);
+    c.s << "**";
+    p.op(1).print(c, power_prec);
+    if (level >= power_prec)
+        c.s << ')';
+@}
+
+@{
+    ...
+    // install a new print method for power objects
+    set_print_func<power, print_myformat>(print_power_as_myformat);
+
+    // now this prints "1+x**2"
+    e.print(print_myformat()); cout << endl;
+
+    // but the default format is still "1+x^2"
+    cout << e << endl;
+@}
+@end example
+
 
 @node Structures, Adding classes, Printing, Extending GiNaC
 @c    node-name, next, previous, up
