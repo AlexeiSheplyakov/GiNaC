@@ -88,15 +88,15 @@ public:
 	container(STLT const & s, bool discardable = false) : inherited(get_tinfo())
 	{
 		if (discardable)
-			seq.swap(const_cast<STLT &>(s));
+			this->seq.swap(const_cast<STLT &>(s));
 		else
-			seq = s;
+			this->seq = s;
 	}
 
 	explicit container(STLT * vp) : inherited(get_tinfo())
 	{
 		GINAC_ASSERT(vp);
-		seq.swap(*vp);
+		this->seq.swap(*vp);
 		delete vp;
 	}
 
@@ -108,68 +108,68 @@ public:
 
 	container(const ex & p1, const ex & p2) : inherited(get_tinfo())
 	{
-		reserve(seq, 2);
-		seq.push_back(p1); seq.push_back(p2);
+		reserve(this->seq, 2);
+		this->seq.push_back(p1); this->seq.push_back(p2);
 	}
 
 	container(const ex & p1, const ex & p2, const ex & p3) : inherited(get_tinfo())
 	{
-		reserve(seq, 3);
-		seq.push_back(p1); seq.push_back(p2); seq.push_back(p3);
+		reserve(this->seq, 3);
+		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 	}
 
 	container(const ex & p1, const ex & p2, const ex & p3,
 	                   const ex & p4) : inherited(get_tinfo())
 	{
-		reserve(seq, 4);
-		seq.push_back(p1); seq.push_back(p2); seq.push_back(p3);
-		seq.push_back(p4);
+		reserve(this->seq, 4);
+		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
+		this->seq.push_back(p4);
 	}
 
 	container(const ex & p1, const ex & p2, const ex & p3,
 	          const ex & p4, const ex & p5) : inherited(get_tinfo())
 	{
-		reserve(seq, 5);
-		seq.push_back(p1); seq.push_back(p2); seq.push_back(p3);
-		seq.push_back(p4); seq.push_back(p5);
+		reserve(this->seq, 5);
+		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
+		this->seq.push_back(p4); this->seq.push_back(p5);
 	}
 
 	container(const ex & p1, const ex & p2, const ex & p3,
 	          const ex & p4, const ex & p5, const ex & p6) : inherited(get_tinfo())
 	{
-		reserve(seq, 6);
-		seq.push_back(p1); seq.push_back(p2); seq.push_back(p3);
-		seq.push_back(p4); seq.push_back(p5); seq.push_back(p6);
+		reserve(this->seq, 6);
+		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
+		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
 	}
 
 	container(const ex & p1, const ex & p2, const ex & p3,
 	          const ex & p4, const ex & p5, const ex & p6,
 	          const ex & p7) : inherited(get_tinfo())
 	{
-		reserve(seq, 7);
-		seq.push_back(p1); seq.push_back(p2); seq.push_back(p3);
-		seq.push_back(p4); seq.push_back(p5); seq.push_back(p6);
-		seq.push_back(p7);
+		reserve(this->seq, 7);
+		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
+		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
+		this->seq.push_back(p7);
 	}
 
 	container(const ex & p1, const ex & p2, const ex & p3,
 	          const ex & p4, const ex & p5, const ex & p6,
 	          const ex & p7, const ex & p8) : inherited(get_tinfo())
 	{
-		reserve(seq, 8);
-		seq.push_back(p1); seq.push_back(p2); seq.push_back(p3);
-		seq.push_back(p4); seq.push_back(p5); seq.push_back(p6);
-		seq.push_back(p7); seq.push_back(p8);
+		reserve(this->seq, 8);
+		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
+		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
+		this->seq.push_back(p7); this->seq.push_back(p8);
 	}
 
 	container(const ex & p1, const ex & p2, const ex & p3,
 	          const ex & p4, const ex & p5, const ex & p6,
 	          const ex & p7, const ex & p8, const ex & p9) : inherited(get_tinfo())
 	{
-		reserve(seq, 9);
-		seq.push_back(p1); seq.push_back(p2); seq.push_back(p3);
-		seq.push_back(p4); seq.push_back(p5); seq.push_back(p6);
-		seq.push_back(p7); seq.push_back(p8); seq.push_back(p9);
+		reserve(this->seq, 9);
+		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
+		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
+		this->seq.push_back(p7); this->seq.push_back(p8); this->seq.push_back(p9);
 	}
 
 	container(const ex & p1, const ex & p2, const ex & p3,
@@ -177,11 +177,11 @@ public:
 	          const ex & p7, const ex & p8, const ex & p9,
 	          const ex & p10) : inherited(get_tinfo())
 	{
-		reserve(seq, 10);
-		seq.push_back(p1); seq.push_back(p2); seq.push_back(p3);
-		seq.push_back(p4); seq.push_back(p5); seq.push_back(p6);
-		seq.push_back(p7); seq.push_back(p8); seq.push_back(p9);
-		seq.push_back(p10);
+		reserve(this->seq, 10);
+		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
+		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
+		this->seq.push_back(p7); this->seq.push_back(p8); this->seq.push_back(p9);
+		this->seq.push_back(p10);
 	}
 
 	container(const ex & p1, const ex & p2, const ex & p3,
@@ -189,11 +189,11 @@ public:
 	          const ex & p7, const ex & p8, const ex & p9,
 	          const ex & p10, const ex & p11) : inherited(get_tinfo())
 	{
-		reserve(seq, 11);
-		seq.push_back(p1); seq.push_back(p2); seq.push_back(p3);
-		seq.push_back(p4); seq.push_back(p5); seq.push_back(p6);
-		seq.push_back(p7); seq.push_back(p8); seq.push_back(p9);
-		seq.push_back(p10); seq.push_back(p11);
+		reserve(this->seq, 11);
+		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
+		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
+		this->seq.push_back(p7); this->seq.push_back(p8); this->seq.push_back(p9);
+		this->seq.push_back(p10); this->seq.push_back(p11);
 	}
 
 	container(const ex & p1, const ex & p2, const ex & p3,
@@ -201,11 +201,11 @@ public:
 	          const ex & p7, const ex & p8, const ex & p9,
 	          const ex & p10, const ex & p11, const ex & p12) : inherited(get_tinfo())
 	{
-		reserve(seq, 12);
-		seq.push_back(p1); seq.push_back(p2); seq.push_back(p3);
-		seq.push_back(p4); seq.push_back(p5); seq.push_back(p6);
-		seq.push_back(p7); seq.push_back(p8); seq.push_back(p9);
-		seq.push_back(p10); seq.push_back(p11); seq.push_back(p12);
+		reserve(this->seq, 12);
+		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
+		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
+		this->seq.push_back(p7); this->seq.push_back(p8); this->seq.push_back(p9);
+		this->seq.push_back(p10); this->seq.push_back(p11); this->seq.push_back(p12);
 	}
 
 	container(const ex & p1, const ex & p2, const ex & p3,
@@ -214,12 +214,12 @@ public:
 	          const ex & p10, const ex & p11, const ex & p12,
 	          const ex & p13) : inherited(get_tinfo())
 	{
-		reserve(seq, 13);
-		seq.push_back(p1); seq.push_back(p2); seq.push_back(p3);
-		seq.push_back(p4); seq.push_back(p5); seq.push_back(p6);
-		seq.push_back(p7); seq.push_back(p8); seq.push_back(p9);
-		seq.push_back(p10); seq.push_back(p11); seq.push_back(p12);
-		seq.push_back(p13);
+		reserve(this->seq, 13);
+		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
+		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
+		this->seq.push_back(p7); this->seq.push_back(p8); this->seq.push_back(p9);
+		this->seq.push_back(p10); this->seq.push_back(p11); this->seq.push_back(p12);
+		this->seq.push_back(p13);
 	}
 
 	container(const ex & p1, const ex & p2, const ex & p3,
@@ -228,12 +228,12 @@ public:
 	          const ex & p10, const ex & p11, const ex & p12,
 	          const ex & p13, const ex & p14) : inherited(get_tinfo())
 	{
-		reserve(seq, 14);
-		seq.push_back(p1); seq.push_back(p2); seq.push_back(p3);
-		seq.push_back(p4); seq.push_back(p5); seq.push_back(p6);
-		seq.push_back(p7); seq.push_back(p8); seq.push_back(p9);
-		seq.push_back(p10); seq.push_back(p11); seq.push_back(p12);
-		seq.push_back(p13); seq.push_back(p14);
+		reserve(this->seq, 14);
+		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
+		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
+		this->seq.push_back(p7); this->seq.push_back(p8); this->seq.push_back(p9);
+		this->seq.push_back(p10); this->seq.push_back(p11); this->seq.push_back(p12);
+		this->seq.push_back(p13); this->seq.push_back(p14);
 	}
 
 	container(const ex & p1, const ex & p2, const ex & p3,
@@ -242,12 +242,12 @@ public:
 	          const ex & p10, const ex & p11, const ex & p12,
 	          const ex & p13, const ex & p14, const ex & p15) : inherited(get_tinfo())
 	{
-		reserve(seq, 15);
-		seq.push_back(p1); seq.push_back(p2); seq.push_back(p3);
-		seq.push_back(p4); seq.push_back(p5); seq.push_back(p6);
-		seq.push_back(p7); seq.push_back(p8); seq.push_back(p9);
-		seq.push_back(p10); seq.push_back(p11); seq.push_back(p12);
-		seq.push_back(p13); seq.push_back(p14); seq.push_back(p15);
+		reserve(this->seq, 15);
+		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
+		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
+		this->seq.push_back(p7); this->seq.push_back(p8); this->seq.push_back(p9);
+		this->seq.push_back(p10); this->seq.push_back(p11); this->seq.push_back(p12);
+		this->seq.push_back(p13); this->seq.push_back(p14); this->seq.push_back(p15);
 	}
 
 	container(const ex & p1, const ex & p2, const ex & p3,
@@ -257,13 +257,13 @@ public:
 	          const ex & p13, const ex & p14, const ex & p15,
 	          const ex & p16) : inherited(get_tinfo())
 	{
-		reserve(seq, 16);
-		seq.push_back(p1); seq.push_back(p2); seq.push_back(p3);
-		seq.push_back(p4); seq.push_back(p5); seq.push_back(p6);
-		seq.push_back(p7); seq.push_back(p8); seq.push_back(p9);
-		seq.push_back(p10); seq.push_back(p11); seq.push_back(p12);
-		seq.push_back(p13); seq.push_back(p14); seq.push_back(p15);
-		seq.push_back(p16);
+		reserve(this->seq, 16);
+		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
+		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
+		this->seq.push_back(p7); this->seq.push_back(p8); this->seq.push_back(p9);
+		this->seq.push_back(p10); this->seq.push_back(p11); this->seq.push_back(p12);
+		this->seq.push_back(p13); this->seq.push_back(p14); this->seq.push_back(p15);
+		this->seq.push_back(p16);
 	}
 
 	// functions overriding virtual functions from base classes
@@ -271,7 +271,7 @@ public:
 	void print(const print_context & c, unsigned level = 0) const;
 	bool info(unsigned inf) const { return inherited::info(inf); }
 	unsigned precedence() const { return 10; }
-	size_t nops() const { return seq.size(); }
+	size_t nops() const { return this->seq.size(); }
 	ex op(size_t i) const;
 	ex & let_op(size_t i);
 	ex eval(int level = 0) const;
@@ -298,18 +298,18 @@ protected:
 private:
 	void sort_(std::random_access_iterator_tag)
 	{
-		std::sort(seq.begin(), seq.end(), ex_is_less());
+		std::sort(this->seq.begin(), this->seq.end(), ex_is_less());
 	}
 
 	void sort_(std::input_iterator_tag)
 	{
-		seq.sort(ex_is_less());
+		this->seq.sort(ex_is_less());
 	}
 
 	void unique_()
 	{
-		typename STLT::iterator p = std::unique(seq.begin(), seq.end(), ex_is_equal());
-		seq.erase(p, seq.end());
+		typename STLT::iterator p = std::unique(this->seq.begin(), this->seq.end(), ex_is_equal());
+		this->seq.erase(p, this->seq.end());
 	}
 
 public:
@@ -321,10 +321,10 @@ public:
 	container & sort();
 	container & unique();
 
-	const_iterator begin() const {return seq.begin();}
-	const_iterator end() const {return seq.end();}
-	const_reverse_iterator rbegin() const {return seq.rbegin();}
-	const_reverse_iterator rend() const {return seq.rend();}
+	const_iterator begin() const {return this->seq.begin();}
+	const_iterator end() const {return this->seq.end();}
+	const_reverse_iterator rbegin() const {return this->seq.rbegin();}
+	const_reverse_iterator rend() const {return this->seq.rend();}
 
 protected:
 	STLT evalchildren(int level) const;
@@ -342,7 +342,7 @@ container<C>::container(const archive_node &n, lst &sym_lst) : inherited(n, sym_
 	for (unsigned int i=0; true; i++) {
 		ex e;
 		if (n.find_ex("seq", e, sym_lst, i))
-			seq.push_back(e);
+			this->seq.push_back(e);
 		else
 			break;
 	}
@@ -360,7 +360,7 @@ template <template <class> class C>
 void container<C>::archive(archive_node &n) const
 {
 	inherited::archive(n);
-	const_iterator i = seq.begin(), end = seq.end();
+	const_iterator i = this->seq.begin(), end = this->seq.end();
 	while (i != end) {
 		n.add_ex("seq", *i);
 		++i;
@@ -376,7 +376,7 @@ void container<C>::print(const print_context & c, unsigned level) const
 		    << ", nops=" << nops()
 		    << std::endl;
 		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
-		const_iterator i = seq.begin(), end = seq.end();
+		const_iterator i = this->seq.begin(), end = this->seq.end();
 		while (i != end) {
 			i->print(c, level + delta_indent);
 			++i;
@@ -398,7 +398,7 @@ ex container<C>::op(size_t i) const
 {
 	GINAC_ASSERT(i < nops());
 
-	const_iterator it = seq.begin();
+	const_iterator it = this->seq.begin();
 	advance(it, i);
 	return *it;
 }
@@ -409,7 +409,7 @@ ex & container<C>::let_op(size_t i)
 	GINAC_ASSERT(i < nops());
 
 	ensure_if_modifiable();
-	typename STLT::iterator it = seq.begin();
+	typename STLT::iterator it = this->seq.begin();
 	advance(it, i);
 	return *it;
 }
@@ -440,7 +440,7 @@ int container<C>::compare_same_type(const basic & other) const
 	GINAC_ASSERT(is_a<container>(other));
 	const container & o = static_cast<const container &>(other);
 
-	const_iterator it1 = seq.begin(), it1end = seq.end(),
+	const_iterator it1 = this->seq.begin(), it1end = this->seq.end(),
 	               it2 = o.seq.begin(), it2end = o.seq.end();
 
 	while (it1 != it1end && it2 != it2end) {
@@ -459,10 +459,10 @@ bool container<C>::is_equal_same_type(const basic & other) const
 	GINAC_ASSERT(is_a<container>(other));
 	const container & o = static_cast<const container &>(other);
 
-	if (seq.size() != o.seq.size())
+	if (this->seq.size() != o.seq.size())
 		return false;
 
-	const_iterator it1 = seq.begin(), it1end = seq.end(), it2 = o.seq.begin();
+	const_iterator it1 = this->seq.begin(), it1end = this->seq.end(), it2 = o.seq.begin();
 	while (it1 != it1end) {
 		if (!it1->is_equal(*it2))
 			return false;
@@ -477,7 +477,7 @@ template <template <class> class C>
 container<C> & container<C>::prepend(const ex & b)
 {
 	ensure_if_modifiable();
-	seq.push_front(b);
+	this->seq.push_front(b);
 	return *this;
 }
 
@@ -486,7 +486,7 @@ template <template <class> class C>
 container<C> & container<C>::append(const ex & b)
 {
 	ensure_if_modifiable();
-	seq.push_back(b);
+	this->seq.push_back(b);
 	return *this;
 }
 
@@ -495,7 +495,7 @@ template <template <class> class C>
 container<C> & container<C>::remove_first()
 {
 	ensure_if_modifiable();
-	seq.pop_front();
+	this->seq.pop_front();
 	return *this;
 }
 
@@ -504,7 +504,7 @@ template <template <class> class C>
 container<C> & container<C>::remove_last()
 {
 	ensure_if_modifiable();
-	seq.pop_back();
+	this->seq.pop_back();
 	return *this;
 }
 
@@ -513,7 +513,7 @@ template <template <class> class C>
 container<C> & container<C>::remove_all()
 {
 	ensure_if_modifiable();
-	seq.clear();
+	this->seq.clear();
 	return *this;
 }
 
@@ -522,14 +522,14 @@ template <template <class> class C>
 container<C> & container<C>::sort()
 {
 	ensure_if_modifiable();
-	sort_(std::iterator_traits<typename STLT::iterator>::iterator_category());
+	sort_(typename std::iterator_traits<typename STLT::iterator>::iterator_category());
 	return *this;
 }
 
 /** Specialization of container::unique_() for std::list. */
 inline void container<std::list>::unique_()
 {
-	seq.unique(ex_is_equal());
+	this->seq.unique(ex_is_equal());
 }
 
 /** Remove adjacent duplicate elements. */
@@ -550,8 +550,8 @@ void container<C>::printseq(const print_context & c, char openbracket, char deli
 	if (this_precedence <= upper_precedence)
 		c.s << openbracket;
 
-	if (!seq.empty()) {
-		const_iterator it = seq.begin(), itend = seq.end();
+	if (!this->seq.empty()) {
+		const_iterator it = this->seq.begin(), itend = this->seq.end();
 		--itend;
 		while (it != itend) {
 			it->print(c, this_precedence);
@@ -569,15 +569,15 @@ template <template <class> class C>
 typename container<C>::STLT container<C>::evalchildren(int level) const
 {
 	if (level == 1)
-		return seq;
+		return this->seq;
 	else if (level == -max_recursion_level)
 		throw std::runtime_error("max recursion level reached");
 
 	STLT s;
-	reserve(s, seq.size());
+	reserve(s, this->seq.size());
 
 	--level;
-	const_iterator it = seq.begin(), itend = seq.end();
+	const_iterator it = this->seq.begin(), itend = this->seq.end();
 	while (it != itend) {
 		s.push_back(it->eval(level));
 		++it;
@@ -593,14 +593,14 @@ typename container<C>::STLT *container<C>::subschildren(const exmap & m, unsigne
 	// returns a pointer to a newly created epvector otherwise
 	// (which has to be deleted somewhere else)
 
-	const_iterator cit = seq.begin(), end = seq.end();
+	const_iterator cit = this->seq.begin(), end = this->seq.end();
 	while (cit != end) {
 		const ex & subsed_ex = cit->subs(m, options);
 		if (!are_ex_trivially_equal(*cit, subsed_ex)) {
 
 			// copy first part of seq which hasn't changed
-			STLT *s = new STLT(seq.begin(), cit);
-			reserve(*s, seq.size());
+			STLT *s = new STLT(this->seq.begin(), cit);
+			reserve(*s, this->seq.size());
 
 			// insert changed element
 			s->push_back(subsed_ex);

@@ -24,7 +24,7 @@
 
 namespace GiNaC {
 
-GINAC_IMPLEMENT_REGISTERED_CLASS(lst, basic)
+template <> GINAC_IMPLEMENT_REGISTERED_CLASS(lst, basic)
 
 /** Specialization of container::info() for lst. */
 bool lst::info(unsigned inf) const

@@ -24,7 +24,7 @@
 
 namespace GiNaC {
 
-GINAC_IMPLEMENT_REGISTERED_CLASS(exprseq, basic)
+template <> GINAC_IMPLEMENT_REGISTERED_CLASS(exprseq, basic)
 
 /** Specialization of container::info() for exprseq. */
 bool exprseq::info(unsigned inf) const

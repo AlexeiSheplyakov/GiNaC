@@ -41,6 +41,8 @@ static unsigned check_series(const ex &e, const ex &point, const ex &d, int orde
 // Series expansion
 static unsigned exam_series1()
 {
+	using GiNaC::log;
+
 	unsigned result = 0;
 	ex e, d;
 	
@@ -233,6 +235,8 @@ static unsigned exam_series9()
 // Series expansion of Li2((x==2)^2), caring about branch-cut
 static unsigned exam_series10()
 {
+	using GiNaC::log;
+
 	ex e = Li2(pow(x,2));
 	ex d = Li2(4) + (-log(3) + I*Pi*csgn(I-I*pow(x,2))) * (x-2)
 	       + (numeric(-2,3) + log(3)/4 - I*Pi/4*csgn(I-I*pow(x,2))) * pow(x-2,2)
@@ -245,6 +249,8 @@ static unsigned exam_series10()
 // Series expansion of logarithms around branch points
 static unsigned exam_series11()
 {
+	using GiNaC::log;
+
 	unsigned result = 0;
 	ex e, d;
 	symbol a("a");
@@ -285,6 +291,8 @@ static unsigned exam_series11()
 // Series expansion of other functions around branch points
 static unsigned exam_series12()
 {
+	using GiNaC::log;
+
 	unsigned result = 0;
 	ex e, d;
 	

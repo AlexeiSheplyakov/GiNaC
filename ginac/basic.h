@@ -242,35 +242,6 @@ inline bool is_exactly_a(const class basic &obj)
 	return obj.tinfo() == T::reg_info.tinfo_key;
 }
 
-/** Check if ex is a handle to a T, including base classes. */
-template <class T>
-inline bool is_a(const ex &obj)
-{
-	return is_a<T>(*obj.bp);
-}
-
-/** Check if ex is a handle to a T, not including base classes. */
-template <class T>
-inline bool is_exactly_a(const ex &obj)
-{
-	return is_exactly_a<T>(*obj.bp);
-}
-
-/** Return a reference to the basic-derived class T object embedded in an
- *  expression.  This is fast but unsafe: the result is undefined if the
- *  expression does not contain a T object at its top level.  Hence, you
- *  should generally check the type of e first.
- *
- *  @param e expression
- *  @return reference to pseries object
- *  @see is_exactly_a<class T>() */
-template <class T>
-inline const T &ex_to(const ex &e)
-{
-	GINAC_ASSERT(is_a<T>(e));
-	return static_cast<const T &>(*e.bp);
-}
-
 } // namespace GiNaC
 
 #endif // ndef __GINAC_BASIC_H__

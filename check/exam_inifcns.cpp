@@ -26,6 +26,8 @@
 /* Assorted tests on other transcendental functions. */
 static unsigned inifcns_consist_trans()
 {
+	using GiNaC::asin; using GiNaC::acos;
+
 	unsigned result = 0;
 	symbol x("x");
 	ex chk;
@@ -163,6 +165,8 @@ static unsigned inifcns_consist_gamma()
    arguments where the result exists in closed form and check if it's ok. */
 static unsigned inifcns_consist_psi()
 {
+	using GiNaC::log;
+
 	unsigned result = 0;
 	symbol x;
 	ex e, f;
