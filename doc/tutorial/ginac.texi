@@ -2093,11 +2093,13 @@ square root (@code{sqrt}) both have their branch cuts running along the
 negative real axis where the points on the axis itself belong to the
 upper part (i.e. continuous with quadrant II).  The inverse
 trigonometric and hyperbolic functions are not defined for complex
-arguments by the C++ standard, however.  Here, we follow the conventions
-used by CLN, which in turn follow the carefully designed definitions
-in the Common Lisp standard.  Hopefully, future revisions of the C++
+arguments by the C++ standard, however.  In GiNaC we follow the
+conventions used by CLN, which in turn follow the carefully designed
+definitions in the Common Lisp standard.  It should be noted that this
+convention is identical to the one used by the C99 standard and by most
+serious CAS.  It is to be expected that future revisions of the C++
 standard incorporate these functions in the complex domain in a manner
-compatible with Common Lisp.
+compatible with C99.
 
 
 @node Input/Output, Extending GiNaC, Built-in Functions, Methods and Functions
