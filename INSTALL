@@ -33,7 +33,7 @@ As with any autoconfiguring GNU software, installation is as easy as this:
  $ make install
 
 Known to work with:
-  - Linux/x86, EGCS-1.1.2 or GCC 2-95.1/2-95.2
+  - Linux/x86, EGCS-1.1.x and GCC 2-95.x
 
 The "configure" script can be given a number of options to enable and
 disable various features. For a complete list, type:
@@ -109,3 +109,7 @@ Good luck!
   Known to work with:  |  Known not to work with:
 -----------------------+----------------------------
   Cint 5.14.38         |  Cint before 5.14.37
+
+Due to a bug in Cint 5.14.38 compilation will fail with GCC 2.95.2,
+maybe even with all 2.95.x.  Currently you must use EGCS-1.1.x.  This
+is under investigation.
