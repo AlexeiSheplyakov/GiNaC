@@ -13,8 +13,6 @@
  *      Isabella Bierenbaum <bierenbaum@thep.physik.uni-mainz.de> and
  *      Dirk Kreimer <dkreimer@bu.edu>.
  *  For details, please ask for the diploma theses of Isabella Bierenbaum.
- *  Also, this file is based on an early version of their program, they now
- *  have production-code that is somewhat more efficient than the stuff below.
  */
 
 /*
@@ -38,10 +36,16 @@
 #include "times.h"
 #include <utility>
 #include <vector>
+#include <set>
+#include <map>
+#include <typeinfo>
 #include <stdexcept>
 
 // whether to run this beast or not:
 static const bool do_test = true;
+
+// regularization parameter:
+static const symbol x("x");
 
 typedef pair<unsigned, unsigned> ijpair;
 typedef pair<class node, bool> child;
@@ -82,7 +86,9 @@ public:
 	virtual ~vertex() { }
 	virtual vertex* copy(void) const = 0;
 	virtual ijpair get_increment(void) const { return indices; }
-	virtual ex evaluate(const symbol &x) const = 0; 
+	virtual const ex evaluate(const symbol &x, const unsigned grad) const = 0;
+	bool operator==(const vertex &v) const { return (indices==v.indices); }
+	bool operator<(const vertex &v) const { return (indices<v.indices); }
 protected:
 	ijpair indices;
 };
@@ -93,28 +99,44 @@ protected:
  */
 class Sigma : public vertex {
 public:
-	Sigma(ijpair ij = ijpair(0,0), bool f = true) : vertex(ij), flag(f) { }
+	Sigma(ijpair ij = ijpair(0,0)) : vertex(ij) { }
 	vertex* copy(void) const { return new Sigma(*this); }
-	ijpair get_increment(void) const;
-	ex evaluate(const symbol &x) const;
+	ijpair get_increment(void) const { return ijpair(indices.first+indices.second+1, 0); }
+	const ex evaluate(const symbol &x, const unsigned grad) const;
 private:
-	bool flag;
 };
 
-ijpair Sigma::get_increment(void) const
+const ex Sigma::evaluate(const symbol &x, const unsigned grad) const
 {
-	if (flag == true)
-	    return  ijpair(indices.first+1, indices.second);
-	else
-	    return  ijpair(indices.first, indices.second+1);
+	// c.f. comments in node::evaluate()
+	static map<Sigma,ex> catalog;
+	static unsigned prev_grad = 0;
+	if (grad>prev_grad) {
+		catalog.clear();
+		prev_grad = grad;
+	}
+	map<Sigma,ex>::iterator pos = catalog.find(*this);
+	if (pos==catalog.end()) {
+		int i = indices.first;
+		int j = indices.second;
+		const ex result = ((F_ab(0,i,1,j,x)+F_ab(1,i,1,j,x)-F_ab(1,i,0,j,x))/2).series(x==0, grad).expand();
+		pos = catalog.insert(map<Sigma,ex>::value_type(*this,result)).first;
+		if (grad<prev_grad)
+			prev_grad = grad;
+	}
+	return pos->second;
 }
 
-ex Sigma::evaluate(const symbol &x) const
-{
-	int i = indices.first;
-	int j = indices.second;
-	return (F_ab(0,i,1,j,x)+F_ab(1,i,1,j,x)-F_ab(1,i,0,j,x))/2;
-}
+
+/** Class of vertices of type Sigma_flipped, sitting in the upper fermionline of Vacuum; no consequences for Gamma. */
+class Sigma_flipped : public Sigma {
+public:
+	Sigma_flipped(ijpair ij = ijpair(0,0)) : Sigma(ij) { }
+	vertex* copy(void) const { return new Sigma_flipped(*this); }
+	ijpair get_increment(void) const { return ijpair(0, indices.first+indices.second+1); }
+	const ex evaluate(const symbol &x, const unsigned grad) const { return Sigma::evaluate(x, grad); }
+private:
+};
 
 
 /*
@@ -125,15 +147,29 @@ public:
 	Gamma(ijpair ij = ijpair(0,0)) : vertex(ij) { }
 	vertex* copy(void) const { return new Gamma(*this); }
   	ijpair get_increment(void) const { return ijpair(indices.first+indices.second+1, 0); }
-	ex evaluate(const symbol &x) const;
+	const ex evaluate(const symbol &x, const unsigned grad) const;
 private:
 };
 
-ex Gamma::evaluate(const symbol &x) const
+const ex Gamma::evaluate(const symbol &x, const unsigned grad) const
 {
-	int i = indices.first;
-	int j = indices.second;
-	return F_ab(1,i,1,j,x);
+	// c.f. comments in node::evaluate()
+	static map<Gamma,ex> catalog;
+	static unsigned prev_grad = 0;
+	if (prev_grad<grad) {
+		catalog.clear();
+		prev_grad = grad;
+	}
+	map<Gamma,ex>::iterator pos = catalog.find(*this);
+	if (pos==catalog.end()) {
+		int i = indices.first;
+		int j = indices.second;
+		const ex result = (F_ab(1,i,1,j,x)).series(x==0,grad).expand();
+		pos = catalog.insert(map<Gamma,ex>::value_type(*this,result)).first;
+		if (grad<prev_grad)
+			prev_grad = grad;
+	}
+	return pos->second;
 }
 
 
@@ -145,15 +181,29 @@ public:
 	Vacuum(ijpair ij = ijpair(0,0)) : vertex(ij) { }
 	vertex* copy(void) const { return new Vacuum(*this); }
 	ijpair get_increment() const { return ijpair(0, indices.first+indices.second+1); }
-	ex evaluate(const symbol &x) const;
+	const ex evaluate(const symbol &x, const unsigned grad) const;
 private:
 };
 
-ex Vacuum::evaluate(const symbol &x) const
+const ex Vacuum::evaluate(const symbol &x, const unsigned grad) const
 {
-	int i = indices.first;
-	int j = indices.second;
-	return (-TrOne*(F_ab(0,i,1,j,x)-F_ab(1,i,1,j,x)+F_ab(1,i,0,j,x)))/2;
+	// c.f. comments in node::evaluate()
+	static map<Vacuum,ex> catalog;
+	static unsigned prev_grad = 0;
+	if (prev_grad<grad) {
+		catalog.clear();
+		prev_grad = grad;
+	}
+	map<Vacuum,ex>::iterator pos = catalog.find(*this);
+	if (pos==catalog.end()) {
+		int i = indices.first;
+		int j = indices.second;
+		const ex result = ((-TrOne*(F_ab(0,i,1,j,x)-F_ab(1,i,1,j,x)+F_ab(1,i,0,j,x)))/2).series(x==0,grad).expand();
+		pos = catalog.insert(map<Vacuum,ex>::value_type(*this,result)).first;
+		if (grad<prev_grad)
+			prev_grad = grad;
+	}
+	return pos->second;
 }
 
 
@@ -167,50 +217,96 @@ public:
 	const node & operator=(const node &);
 	~node() { delete vert; }
 	void add_child(const node &, bool = false);
-	ex evaluate(const symbol &x, unsigned grad) const;
+	const ex evaluate(const symbol &x, unsigned grad) const;
 	unsigned total_edges(void) const;
+	bool operator==(const node &) const;
+	bool operator<(const node &) const;
 private:
 	vertex *vert;
-	vector<child> children;
+	multiset<child> children;
 };
 
 const node & node::operator=(const node &n)
 {
-	delete vert;
-	vert = (n.vert)->copy();
-	children = n.children;
+	if (this!=&n) {
+		delete vert;
+		vert = (n.vert)->copy();
+		children = n.children;
+	}
 	return *this;
 }
 
 void node::add_child(const node &childnode, bool cut)
 {
-	children.push_back(child(childnode, cut));
+	children.insert(child(childnode, cut));
 	if(!cut)
 		vert->increment_indices(childnode.vert->get_increment());
 }
 
-ex node::evaluate(const symbol &x, unsigned grad) const
+const ex node::evaluate(const symbol &x, unsigned grad) const
 {
-	ex product = 1;
-	for (vector<child>::const_iterator i=children.begin(); i!=children.end(); ++i) {
-		if (!i->second)
-			product *= i->first.evaluate(x,grad);
-		else
-			product *= -div_part(i->first.evaluate(x,grad),x,grad);
+	static map<node,ex> catalog;    // lookup table for already evaluated subnodes
+	static unsigned prev_grad = 0;  // grad argument that the catalog has been build for
+	if (grad>prev_grad) {
+		// We haven't computed far enough last time.  Our catalog cannot cope with
+		// the demands for this value of grad so let's clear it.
+		catalog.clear();
+		prev_grad = grad;
 	}
-	return (product * vert->evaluate(x));
+	ex product = 1;   // accumulator for all the children
+	for (multiset<child>::const_iterator i=children.begin(); i!=children.end(); ++i) {
+		map<node,ex>::iterator pos = catalog.find(i->first);
+		if (pos==catalog.end()) {
+			pos = catalog.insert(map<node,ex>::value_type(i->first,i->first.evaluate(x,grad).series(x==0,grad).expand())).first;
+			if (grad<prev_grad) {
+				// We have just spoiled the catalog by inserting a series computed
+				// to lower grad than the others in it.  So let's make sure next time
+				// we don't use one of the newly inserted ones by bumping prev_grad
+				// down to the current value of grad.
+				prev_grad = grad;
+			}
+		}
+		if (!i->second)
+			product *= pos->second;
+		else
+			product *= -div_part(pos->second,x,grad);
+	}
+	return (product * vert->evaluate(x,grad));
 }
 
 unsigned node::total_edges(void) const
 {
 	unsigned accu = 0;
-	for (vector<child>::const_iterator i=children.begin(); i!=children.end(); ++i) {
+	for (multiset<child>::const_iterator i=children.begin(); i!=children.end(); ++i) {
 		accu += i->first.total_edges();
 		++accu;
 	}
 	return accu;
 }
 
+bool node::operator==(const node &n) const
+{
+	// Are the types of the top-level node vertices equal?
+	if (typeid(*vert)!=typeid(*n.vert))
+		return false;
+	// Are the indices of the top-level nodes equal?
+	if (!(*vert==*n.vert))
+		return false;
+	// Are the sets of children equal, one by one?
+	return (children==n.children);
+}
+
+bool node::operator<(const node &n) const
+{
+	// Are the types of the top-level node vertices different?
+	if (typeid(*vert)!=typeid(*n.vert))
+		return typeid(*vert).before(typeid(*n.vert));
+	// Are the indices of the top-level nodes different?
+	if (!(*vert==*n.vert))
+		return (vert<n.vert);
+	// Are the sets of children different, one by one?
+	return (children<n.children);
+}
 
 /*
  * These operators let us write down trees in an intuitive way, by adding
@@ -225,21 +321,75 @@ const node operator+(const node &n, const child &c)
 	nn.add_child(c.first, c.second);
 	return nn;
 }
+
 void operator+=(node &n, const child &c)
 {
 	n.add_child(c.first, c.second);
 }
 
-/*
- * Build this sample rooted tree characterized by a certain combination of
- * cut or uncut edges as specified by the unsigned parameter:
- *              Gamma
- *              /   \
- *         Sigma     Vacuum
- *        /   \       /   \
- *    Sigma Sigma  Sigma0 Sigma
+
+/*                Gamma
+ *                  |
+ *                Gamma
  */
-static node mytree(unsigned cuts=0)
+static const node tree1(unsigned cuts=0)
+{
+	return (Gamma()
+	        + child(Gamma(),
+	                bool(cuts & 1)));
+}
+
+/*                Gamma
+ *               /  |  \
+ *        Vacuum  Gamma  Vacuum
+ *       /   |  \
+ *  Sigma Sigma Sigma0
+ */
+static const node tree2(unsigned cuts=0)
+{
+	return (Gamma()
+	        + child(Vacuum()
+	                + child(Sigma(), bool(cuts & 1))
+	                + child(Sigma(), bool(cuts & 2))
+	                + child(Sigma_flipped(), bool(cuts & 4)),
+	                bool(cuts & 8))
+	        + child(Gamma(), bool(cuts & 16))
+	        + child(Gamma(), bool(cuts & 32)));
+}
+
+/*                Gamma
+ *                  |
+ *                Gamma
+ *                  |
+ *                Gamma
+ *                /   \
+ *           Vacuum    Gamma
+ *           /    \       \
+ *        Sigma  Sigma   Sigma
+ */
+static const node tree3(unsigned cuts=0)
+{
+	return (Gamma()
+	        + child(Gamma()
+	                + child(Gamma()
+	                        + child(Gamma()
+	                                + child(Sigma(), bool(cuts & 1)),
+	                                bool(cuts & 2))
+	                        + child(Vacuum()
+	                                + child(Sigma(), bool(cuts & 4))
+	                                + child(Sigma(), bool(cuts & 8)),
+	                        bool(cuts & 16)),
+	                bool(cuts & 32)),
+	        bool(cuts & 64)));
+}
+
+/*                Gamma
+ *                /   \
+ *           Sigma     Vacuum
+ *          /   \       /   \
+ *      Sigma Sigma  Sigma0 Sigma
+ */
+static const node tree4(unsigned cuts=0)
 {
 	return (Gamma()
 	        + child(Sigma()
@@ -247,36 +397,75 @@ static node mytree(unsigned cuts=0)
 	                + child(Sigma(), bool(cuts & 2)),
 	                bool(cuts & 4))
 	        + child(Vacuum()
-	                + child(Sigma(ijpair(0,0),false), bool(cuts & 8))
+	                + child(Sigma_flipped(), bool(cuts & 8))
 	                + child(Sigma(), bool(cuts & 16)),
 	                bool(cuts & 32)));
 }
 
-
-static unsigned test(void)
+/*                Sigma
+ *               /  |  \
+ *         Sigma Vacuum  Vacuum
+ *               /    \       \
+ *            Sigma  Sigma0   Sigma
+ */
+static const node tree5(unsigned cuts=0)
 {
-	const symbol x("x");
-	
-	const unsigned edges = mytree().total_edges();
-   	const unsigned vertices = edges+1;
+	return (Sigma()
+	        + child(Sigma(), bool(cuts & 1))
+	        + child(Vacuum()
+	                + child(Sigma(), bool(cuts & 2))
+	                + child(Sigma_flipped(), bool(cuts & 4)),
+	                bool(cuts & 8))
+	        + child(Vacuum()
+	                + child(Sigma(), bool(cuts & 16)),
+	                bool(cuts & 32)));
+}
+
+/*               Vacuum
+ *               /    \
+ *           Sigma    Sigma0
+ *             |        |
+ *           Sigma    Sigma
+ *                      |
+ *                    Vacuum
+ */
+static const node tree6(unsigned cuts=0)
+{
+	return (Vacuum()
+	        + child(Sigma()
+	                + child(Sigma(), bool(cuts & 1)),
+	                bool(cuts & 2))
+	        + child(Sigma_flipped()
+	                + child(Sigma()
+	                        + child(Vacuum(), bool(cuts & 4)),
+	                        bool(cuts & 8)),
+	                bool(cuts & 16)));
+}
+
+static unsigned test_tree(node (*tree_generator)(unsigned=0))
+{
+	const int edges = tree_generator().total_edges();
+   	const int vertices = edges+1;
 	
 	// fill a vector of all possible 2^edges combinations of cuts...
 	vector<node> counter;
 	for (unsigned i=0; i<(1U<<edges); ++i)
-		counter.push_back(mytree(i));
+		counter.push_back(tree_generator(i));
 	
-	// ...the sum, when evaluated, is the antipode...
-	ex accu = 0;
+	// ...the sum, when evaluated and reexpanded, is the antipode...
+	ex result = 0;
 	for (vector<node>::iterator i=counter.begin(); i!=counter.end(); ++i)
-		accu += i->evaluate(x,vertices);
-	
-	// ...which is only interesting term-wise in the series expansion...
-	ex result = accu.series(x==0,vertices).expand().normal();
+		result = (result+i->evaluate(x,vertices)).series(x==0,vertices).expand();
 	
 	// ...and has the nice property that in each term all the Eulers cancel:
 	if (result.has(Euler)) {
 		clog << "The antipode was miscalculated\nAntipode==" << result
 		     << "\nshould not have any occurrence of Euler" << endl;
+		return 1;
+	} else if (result.ldegree(x)!=-vertices || result.degree(x)!=0) {
+		clog << "The antipode was miscalculated\nAntipode==" << result
+		     << "\nshould run from x^(" << -vertices << ") to x^(0) but it runs from x^("
+		     << result.ldegree(x) << ") to x^(" << result.degree(x) << ")" << endl;
 		return 1;
 	}
 	return 0;
@@ -285,21 +474,19 @@ static unsigned test(void)
 unsigned time_antipode(void)
 {
 	unsigned result = 0;
-	unsigned count = 0;
 	timer jaeger_le_coultre;
-	double time = .0;
 	
-	cout << "timing computation of an antipode in Yukawa theory" << flush;
-	clog << "-------computation of an antipode in Yukawa theory" << endl;
+	cout << "timing computation of antipodes in Yukawa theory" << flush;
+	clog << "-------computation of antipodes in Yukawa theory" << endl;
 	
 	if (do_test) {
 		jaeger_le_coultre.start();
-		// correct for very small times:
-		do {
-			result = test();
-			++count;
-		} while ((time=jaeger_le_coultre.read())<0.1 && !result);
-		cout << '.' << flush;
+		result += test_tree(tree1);  cout << '.' << flush;
+		result += test_tree(tree2);  cout << '.' << flush;
+		result += test_tree(tree3);  cout << '.' << flush;
+		result += test_tree(tree4);  cout << '.' << flush;
+		result += test_tree(tree5);  cout << '.' << flush;
+		result += test_tree(tree6);  cout << '.' << flush;
 		
 		if (!result) {
 			cout << " passed ";
@@ -307,7 +494,7 @@ unsigned time_antipode(void)
 		} else {
 			cout << " failed ";
 		}
-		cout << int(1000*(time/count))*0.001 << 's' << endl;
+		cout << int(1000*jaeger_le_coultre.read())*0.001 << "s (total)" << endl;
 	} else {
 		cout << " disabled" << endl;
 		clog << "(no output)" << endl;
