@@ -83,6 +83,7 @@ class numeric : public basic
     friend const numeric atanh(const numeric & x);
     friend const numeric zeta(const numeric & x);
     friend const numeric bernoulli(const numeric & n);
+    friend const numeric fibonacci(const numeric & n);
     friend numeric abs(const numeric & x);
     friend numeric mod(const numeric & a, const numeric & b);
     friend numeric smod(const numeric & a, const numeric & b);

@@ -146,7 +146,7 @@ numeric::numeric(int i) : basic(TINFO_numeric)
 {
     debugmsg("numeric constructor from int",LOGLEVEL_CONSTRUCT);
     // Not the whole int-range is available if we don't cast to long
-    // first. This is due to the behaviour of the cl_I-ctor, which
+    // first.  This is due to the behaviour of the cl_I-ctor, which
     // emphasizes efficiency:
     value = new cl_I((long) i);
     calchash();
@@ -159,7 +159,7 @@ numeric::numeric(unsigned int i) : basic(TINFO_numeric)
 {
     debugmsg("numeric constructor from uint",LOGLEVEL_CONSTRUCT);
     // Not the whole uint-range is available if we don't cast to ulong
-    // first. This is due to the behaviour of the cl_I-ctor, which
+    // first.  This is due to the behaviour of the cl_I-ctor, which
     // emphasizes efficiency:
     value = new cl_I((unsigned long)i);
     calchash();
@@ -511,11 +511,11 @@ bool numeric::info(unsigned inf) const
     case info_flags::negative:
         return is_negative();
     case info_flags::nonnegative:
-        return compare(_num0())>=0;
+        return !is_negative();
     case info_flags::posint:
         return is_pos_integer();
     case info_flags::negint:
-        return is_integer() && (compare(_num0())<0);
+        return is_integer() && is_negative();
     case info_flags::nonnegint:
         return is_nonneg_integer();
     case info_flags::even:
@@ -1477,23 +1477,50 @@ const numeric bernoulli(const numeric & nn)
  *  @exception range_error (argument must be an integer) */
 const numeric fibonacci(const numeric & n)
 {
-    if (!n.is_integer()) {
+    if (!n.is_integer())
         throw (std::range_error("numeric::fibonacci(): argument must be integer"));
-    }
-    // For positive arguments compute the nearest integer to
-    // ((1+sqrt(5))/2)^n/sqrt(5).  For negative arguments, apply an additional
-    // sign.  Note that we are falling back to longs, but this should suffice
-    // for all times.
-    int sig = 1;
-    const long nn = ::abs(n.to_double());
-    if (n.is_negative() && n.is_even())
-        sig =-1;
+    // The following addition formula holds:
+    //      F(n+m)   = F(m-1)*F(n) + F(m)*F(n+1)  for m >= 1, n >= 0.
+    // (Proof: For fixed m, the LHS and the RHS satisfy the same recurrence
+    // w.r.t. n, and the initial values (n=0, n=1) agree. Hence all values
+    // agree.)
+    // Replace m by m+1:
+    //      F(n+m+1) = F(m)*F(n) + F(m+1)*F(n+1)      for m >= 0, n >= 0
+    // Now put in m = n, to get
+    //      F(2n) = (F(n+1)-F(n))*F(n) + F(n)*F(n+1) = F(n)*(2*F(n+1) - F(n))
+    //      F(2n+1) = F(n)^2 + F(n+1)^2
+    // hence
+    //      F(2n+2) = F(n+1)*(2*F(n) + F(n+1))
+    if (n.is_zero())
+        return _num0();
+    if (n.is_negative())
+        if (n.is_even())
+            return -fibonacci(-n);
+        else
+            return fibonacci(-n);
     
-    // Need a precision of ((1+sqrt(5))/2)^-n.
-    cl_float_format_t prec = ::cl_float_format((int)(0.208987641*nn+5));
-    cl_R sqrt5 = ::sqrt(::cl_float(5,prec));
-    cl_R phi = (1+sqrt5)/2;
-    return numeric(::round1(::expt(phi,nn)/sqrt5)*sig);
+    cl_I u(0);
+    cl_I v(1);
+    cl_I m = The(cl_I)(*n.value) >> 1L;  // floor(n/2);
+    for (uintL bit=::integer_length(m); bit>0; --bit) {
+        // Since a squaring is cheaper than a multiplication, better use
+        // three squarings instead of one multiplication and two squarings.
+        cl_I u2 = ::square(u);
+        cl_I v2 = ::square(v);
+        if (::logbitp(bit-1, m)) {
+            v = ::square(u + v) - u2;
+            u = u2 + v2;
+        } else {
+            u = v2 - ::square(v - u);
+            v = u2 + v2;
+        }
+    }
+    if (n.is_even())
+        // Here we don't use the squaring formula because one multiplication
+        // is cheaper than two squarings.
+        return u * ((v << 1) - u);
+    else
+        return ::square(u) + ::square(v);    
 }
 
 
