@@ -36,7 +36,6 @@
 #include "inifcns.h"
 #include "lst.h"
 #include "mul.h"
-#include "ncmul.h"
 #include "numeric.h"
 #include "power.h"
 #include "relational.h"

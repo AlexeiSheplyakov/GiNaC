@@ -21,6 +21,7 @@
  */
 
 #include <stdexcept>
+#include <algorithm>
 
 #include "indexed.h"
 #include "idx.h"
@@ -252,31 +253,6 @@ int indexed::compare_same_type(const basic & other) const
 // implement mixed symmetries, canonicalize_indices() will only be able to
 // reorder index pairs with known symmetry properties, while sort_index_vector()
 // always sorts the whole vector.
-
-/** Bring a vector of indices into a canonic order (don't care about the
- *  symmetry of the objects carrying the indices). Dummy indices will lie
- *  next to each other after the sorting.
- *
- *  @param v Index vector to be sorted */
-static void sort_index_vector(exvector &v)
-{
-	// Nothing to sort if less than 2 elements
-	if (v.size() < 2)
-		return;
-
-	// Simple bubble sort algorithm should be sufficient for the small
-	// number of indices expected
-	exvector::iterator it1 = v.begin(), itend = v.end(), next_to_last_idx = itend - 1;
-	while (it1 != next_to_last_idx) {
-		exvector::iterator it2 = it1 + 1;
-		while (it2 != itend) {
-			if (it1->compare(*it2) > 0)
-				it1->swap(*it2);
-			it2++;
-		}
-		it1++;
-	}
-}
 
 /** Bring a vector of indices into a canonic order. This operation only makes
  *  sense if the object carrying these indices is either symmetric or totally
@@ -570,9 +546,75 @@ exvector power::get_free_indices(void) const
 	return basis.get_free_indices();
 }
 
+/* Function object for STL sort() */
+struct ex_is_less {
+	bool operator() (const ex &lh, const ex &rh) const
+	{
+		return lh.compare(rh) < 0;
+	}
+};
+
+/** Rename dummy indices in an expression.
+ *
+ *  @param e Expression to be worked on
+ *  @param local_dummy_indices The set of dummy indices that appear in the
+ *    expression "e"
+ *  @param global_dummy_indices The set of dummy indices that have appeared
+ *    before and which we would like to use in "e", too. This gets updated
+ *    by the function */
+static ex rename_dummy_indices(const ex & e, exvector & global_dummy_indices, exvector & local_dummy_indices)
+{
+	int global_size = global_dummy_indices.size(),
+	    local_size = local_dummy_indices.size();
+
+	// Any local dummy indices at all?
+	if (local_size == 0)
+		return e;
+
+	sort(local_dummy_indices.begin(), local_dummy_indices.end(), ex_is_less());
+
+	if (global_size < local_size) {
+
+		// More local indices than we encountered before, add the new ones
+		// to the global set
+		int remaining = local_size - global_size;
+		exvector::const_iterator it = local_dummy_indices.begin(), itend = local_dummy_indices.end();
+		while (it != itend && remaining > 0) {
+			exvector::const_iterator git = global_dummy_indices.begin(), gitend = global_dummy_indices.end();
+			while (git != gitend) {
+				if (it->is_equal(*git))
+					goto found;
+				git++;
+			}
+			global_dummy_indices.push_back(*it);
+			global_size++;
+			remaining--;
+found:		it++;
+		}
+		sort(global_dummy_indices.begin(), global_dummy_indices.end(), ex_is_less());
+	}
+
+	// Replace index symbols in expression
+	GINAC_ASSERT(local_size <= global_size);
+	bool all_equal = true;
+	lst local_syms, global_syms;
+	for (unsigned i=0; i<local_size; i++) {
+		ex loc_sym = local_dummy_indices[i].op(0);
+		ex glob_sym = global_dummy_indices[i].op(0);
+		if (!loc_sym.is_equal(glob_sym))
+			all_equal = false;
+		local_syms.append(loc_sym);
+		global_syms.append(glob_sym);
+	}
+	if (all_equal)
+		return e;
+	else
+		return e.subs(local_syms, global_syms);
+}
+
 /** Simplify product of indexed expressions (commutative, noncommutative and
  *  simple squares), return list of free indices. */
-ex simplify_indexed_product(const ex & e, exvector & free_indices, const scalar_products & sp)
+ex simplify_indexed_product(const ex & e, exvector & free_indices, exvector & dummy_indices, const scalar_products & sp)
 {
 	// Remember whether the product was commutative or noncommutative
 	// (because we chop it into factors and need to reassemble later)
@@ -677,7 +719,7 @@ contraction_done:
 					// simplify_ncmul() the chance to re-order and canonicalize
 					// the product
 					ex r = (non_commutative ? ex(ncmul(v)) : ex(mul(v)));
-					return simplify_indexed(r, free_indices, sp);
+					return simplify_indexed(r, free_indices, dummy_indices, sp);
 				}
 
 				// Both objects may have new indices now or they might
@@ -690,20 +732,23 @@ contraction_done:
 	}
 
 	// Find free indices (concatenate them all and call find_free_and_dummy())
-	exvector un, dummy_indices;
+	exvector un, local_dummy_indices;
 	it1 = v.begin(); itend = v.end();
 	while (it1 != itend) {
 		exvector free_indices_of_factor = it1->get_free_indices();
 		un.insert(un.end(), free_indices_of_factor.begin(), free_indices_of_factor.end());
 		it1++;
 	}
-	find_free_and_dummy(un, free_indices, dummy_indices);
+	find_free_and_dummy(un, free_indices, local_dummy_indices);
 
 	ex r;
 	if (something_changed)
 		r = non_commutative ? ex(ncmul(v)) : ex(mul(v));
 	else
 		r = e;
+
+	// Dummy index renaming
+	r = rename_dummy_indices(r, dummy_indices, local_dummy_indices);
 
 	// Product of indexed object with a scalar?
 	if (is_ex_exactly_of_type(r, mul) && r.nops() == 2
@@ -714,17 +759,18 @@ contraction_done:
 }
 
 /** Simplify indexed expression, return list of free indices. */
-ex simplify_indexed(const ex & e, exvector & free_indices, const scalar_products & sp)
+ex simplify_indexed(const ex & e, exvector & free_indices, exvector & dummy_indices, const scalar_products & sp)
 {
 	// Expand the expression
 	ex e_expanded = e.expand();
 
 	// Simplification of single indexed object: just find the free indices
+	// (and perform dummy index renaming if 
 	if (is_ex_of_type(e_expanded, indexed)) {
 		const indexed &i = ex_to_indexed(e_expanded);
-		exvector dummy_indices;
-		find_free_and_dummy(i.seq.begin() + 1, i.seq.end(), free_indices, dummy_indices);
-		return e_expanded;
+		exvector local_dummy_indices;
+		find_free_and_dummy(i.seq.begin() + 1, i.seq.end(), free_indices, local_dummy_indices);
+		return rename_dummy_indices(e_expanded, dummy_indices, local_dummy_indices);
 	}
 
 	// Simplification of sum = sum of simplifications, check consistency of
@@ -736,7 +782,7 @@ ex simplify_indexed(const ex & e, exvector & free_indices, const scalar_products
 
 		for (unsigned i=0; i<e_expanded.nops(); i++) {
 			exvector free_indices_of_term;
-			ex term = simplify_indexed(e_expanded.op(i), free_indices_of_term, sp);
+			ex term = simplify_indexed(e_expanded.op(i), free_indices_of_term, dummy_indices, sp);
 			if (!term.is_zero()) {
 				if (first) {
 					free_indices = free_indices_of_term;
@@ -760,7 +806,7 @@ ex simplify_indexed(const ex & e, exvector & free_indices, const scalar_products
 	if (is_ex_exactly_of_type(e_expanded, mul)
 	 || is_ex_exactly_of_type(e_expanded, ncmul)
 	 || (is_ex_exactly_of_type(e_expanded, power) && is_ex_of_type(e_expanded.op(0), indexed) && e_expanded.op(1).is_equal(_ex2())))
-		return simplify_indexed_product(e_expanded, free_indices, sp);
+		return simplify_indexed_product(e_expanded, free_indices, dummy_indices, sp);
 
 	// Cannot do anything
 	free_indices.clear();
@@ -769,15 +815,15 @@ ex simplify_indexed(const ex & e, exvector & free_indices, const scalar_products
 
 ex simplify_indexed(const ex & e)
 {
-	exvector free_indices;
+	exvector free_indices, dummy_indices;
 	scalar_products sp;
-	return simplify_indexed(e, free_indices, sp);
+	return simplify_indexed(e, free_indices, dummy_indices, sp);
 }
 
 ex simplify_indexed(const ex & e, const scalar_products & sp)
 {
-	exvector free_indices;
-	return simplify_indexed(e, free_indices, sp);
+	exvector free_indices, dummy_indices;
+	return simplify_indexed(e, free_indices, dummy_indices, sp);
 }
 
 //////////

@@ -432,11 +432,6 @@ ex ncmul::eval(int level) const
 										  status_flags::evaluated);
 }
 
-ex ncmul::subs(const lst & ls, const lst & lr) const
-{
-	return ncmul(subschildren(ls, lr));
-}
-
 ex ncmul::thisexprseq(const exvector & v) const
 {
 	return (new ncmul(v))->setflag(status_flags::dynallocated);

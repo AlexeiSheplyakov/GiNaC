@@ -60,7 +60,6 @@ public:
 	ex expand(unsigned options=0) const;
 	ex coeff(const ex & s, int n=1) const;
 	ex eval(int level=0) const;
-	ex subs(const lst & ls, const lst & lr) const;
 	exvector get_free_indices(void) const;
 	ex thisexprseq(const exvector & v) const;
 	ex thisexprseq(exvector * vp) const;

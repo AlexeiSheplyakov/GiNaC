@@ -991,7 +991,6 @@ void expairseq::make_flat(const epvector &v)
 	return;
 }
 
-
 /** Brings this expairseq into a sorted (canonical) form. */
 void expairseq::canonicalize(void)
 {

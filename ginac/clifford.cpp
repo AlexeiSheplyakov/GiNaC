@@ -446,4 +446,62 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 	return _ex0();
 }
 
+ex canonicalize_clifford(const ex & e)
+{
+	if (is_ex_exactly_of_type(e, add)) {
+
+		ex sum = _ex0();
+		for (unsigned i=0; i<e.nops(); i++)
+			sum += canonicalize_clifford(e.op(i));
+		return sum;
+
+	} else if (is_ex_exactly_of_type(e, mul)) {
+
+		ex prod = _ex1();
+		for (unsigned i=0; i<e.nops(); i++)
+			prod *= canonicalize_clifford(e.op(i));
+		return prod;
+
+	} else if (is_ex_exactly_of_type(e, ncmul)) {
+
+		// Expand product, if necessary
+		ex e_expanded = e.expand();
+		if (!is_ex_of_type(e_expanded, ncmul))
+			return canonicalize_clifford(e_expanded);
+
+		if (!is_ex_of_type(e.op(0), clifford))
+			return e;
+
+		exvector v;
+		v.reserve(e.nops());
+		for (int i=0; i<e.nops(); i++)
+			v.push_back(e.op(i));
+
+		// Stupid bubble sort because we only want to swap adjacent gammas
+		exvector::iterator itstart = v.begin(), itend = v.end(), next_to_last = itend - 1;
+		if (is_ex_of_type(itstart->op(0), diracgamma5))
+			itstart++;
+		while (next_to_last != itstart) {
+			exvector::iterator it = itstart;
+			while (it != next_to_last) {
+				if (it[0].op(1).compare(it[1].op(1)) > 0) {
+					ex save0 = it[0], save1 = it[1];
+					it[0] = lorentz_g(it[0].op(1), it[1].op(1));
+					it[1] = _ex2();
+					ex sum = ncmul(v);
+					it[0] = save1;
+					it[1] = save0;
+					sum -= ncmul(v);
+					return canonicalize_clifford(sum);
+				}
+				it++;
+			}
+			next_to_last--;
+		}
+		return ncmul(v);
+	}
+
+	return e;
+}
+
 } // namespace GiNaC

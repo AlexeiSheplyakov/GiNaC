@@ -39,8 +39,8 @@ class indexed : public exprseq
 {
 	GINAC_DECLARE_REGISTERED_CLASS(indexed, exprseq)
 
-	friend ex simplify_indexed(const ex & e, exvector & free_indices, const scalar_products & sp);
-	friend ex simplify_indexed_product(const ex & e, exvector & free_indices, const scalar_products & sp);
+	friend ex simplify_indexed(const ex & e, exvector & free_indices, exvector & dummy_indices, const scalar_products & sp);
+	friend ex simplify_indexed_product(const ex & e, exvector & free_indices, exvector & dummy_indices, const scalar_products & sp);
 
 	// types
 public:
