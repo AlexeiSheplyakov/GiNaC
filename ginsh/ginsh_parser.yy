@@ -50,6 +50,12 @@ static char *orig_basic_word_break_characters;
 static const char *orig_basic_word_break_characters;
 #endif
 
+#if (GINAC_RL_VERSION_MAJOR >= 5)
+#define GINAC_RL_COMPLETER_CAST(a) const_cast<char *>((a))
+#else
+#define GINAC_RL_COMPLETER_CAST(a) (a)
+#endif
+
 // Expression stack for %, %% and %%%
 static void push(const ex &e);
 static ex exstack[3];
@@ -817,7 +823,7 @@ static char **fcn_completion(const char *text, int start, int end)
 		// For shell commands, revert back to filename completion
 		rl_completion_append_character = orig_completion_append_character;
 		rl_basic_word_break_characters = orig_basic_word_break_characters;
-		rl_completer_word_break_characters = rl_basic_word_break_characters;
+		rl_completer_word_break_characters = GINAC_RL_COMPLETER_CAST(rl_basic_word_break_characters);
 #if (GINAC_RL_VERSION_MAJOR < 4) || (GINAC_RL_VERSION_MAJOR == 4 && GINAC_RL_VERSION_MINOR < 2)
 		return completion_matches(const_cast<char *>(text), (CPFunction *)filename_completion_function);
 #else
@@ -827,7 +833,7 @@ static char **fcn_completion(const char *text, int start, int end)
 		// Otherwise, complete function names
 		rl_completion_append_character = '(';
 		rl_basic_word_break_characters = " \t\n\"#$%&'()*+,-./:;<=>?@[\\]^`{|}~";
-		rl_completer_word_break_characters = rl_basic_word_break_characters;
+		rl_completer_word_break_characters = GINAC_RL_COMPLETER_CAST(rl_basic_word_break_characters);
 #if (GINAC_RL_VERSION_MAJOR < 4) || (GINAC_RL_VERSION_MAJOR == 4 && GINAC_RL_VERSION_MINOR < 2)
 		return completion_matches(const_cast<char *>(text), (CPFunction *)fcn_generator);
 #else
