@@ -1263,7 +1263,8 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 
 
 /** Compute GCD (Greatest Common Divisor) of multivariate polynomials a(X)
- *  and b(X) in Z[X].
+ *  and b(X) in Z[X]. Optionally also compute the cofactors of a and b,
+ *  defined by a = ca * gcd(a, b) and b = cb * gcd(a, b).
  *
  *  @param a  first multivariate polynomial
  *  @param b  second multivariate polynomial
