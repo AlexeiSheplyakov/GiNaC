@@ -10,7 +10,7 @@
 dnl AM_PATH_GINAC([MINIMUM-VERSION, [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]]])
 dnl Test for GiNaC, and define GINACLIB_CPPFLAGS and GINACLIB_LIBS
 dnl
-AC_DEFUN(AM_PATH_GINAC,
+AC_DEFUN([AM_PATH_GINAC],
 [dnl 
 dnl Get the cppflags and libraries from the ginac-config script
 dnl
