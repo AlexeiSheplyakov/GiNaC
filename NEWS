@@ -1,13 +1,14 @@
 This file records noteworthy changes.
 
-1.0.5 (<date>)
+1.0.5 (27 January 2002)
 * (l)degree(s), coeff(s, n) and collect(s) were extended to accept expressions
   of any class (except add/mul/ncmul/numeric) for "s". They should even work
   if "s" is a "power" object, as long as the exponent is non-integer, but with
   some limitations. For example, you can "collect(a*2^x+b*2^x, 2^x)" to get
   "(a+b)*2^x", but "degree(2^(3*x), 2^x)" yields 0 instead of 3).
+* Fixed a small output bug.
 
-1.0.4 (24 January 2001)
+1.0.4 (24 January 2002)
 * Speedup in expand().
 * Faster Bernoulli numbers (Markus Nullmeier).
 * Some minor bugfixes and documentation updates.
