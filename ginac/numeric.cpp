@@ -359,7 +359,12 @@ void numeric::print(const print_context & c, unsigned level) const
 			c.s.precision(16);
 		else
 			c.s.precision(7);
-		if (this->is_rational() && !this->is_integer()) {
+		if (is_a<print_csrc_cl_N>(c) && this->is_integer()) {
+			c.s << "cln::cl_I(\"";
+			const cln::cl_R r = cln::realpart(cln::the<cln::cl_N>(value));
+			print_real_number(c,r);
+			c.s << "\")";
+		} else if (this->is_rational() && !this->is_integer()) {
 			if (compare(_num0) > 0) {
 				c.s << "(";
 				if (is_a<print_csrc_cl_N>(c))
@@ -381,7 +386,7 @@ void numeric::print(const print_context & c, unsigned level) const
 			c.s << ")";
 		} else {
 			if (is_a<print_csrc_cl_N>(c))
-				c.s << "cln::cl_F(\"" << evalf() << "\")";
+				c.s << "cln::cl_F(\"" << evalf() << "_" << Digits << "\")";
 			else
 				c.s << to_double();
 		}
