@@ -51,6 +51,7 @@ static ex gamma_evalf(const ex & x)
     return gamma(ex_to_numeric(x));
 }
 
+
 /** Evaluation of gamma(x). Knows about integer arguments, half-integer
  *  arguments and that's it. Somebody ought to provide some good numerical
  *  evaluation some day...
@@ -92,6 +93,7 @@ static ex gamma_eval(const ex & x)
     return gamma(x).hold();
 }    
 
+
 static ex gamma_diff(const ex & x, unsigned diff_param)
 {
     GINAC_ASSERT(diff_param==0);
@@ -100,6 +102,7 @@ static ex gamma_diff(const ex & x, unsigned diff_param)
     // d/dx  gamma(x) -> psi(x)*gamma(x)
     return psi(x)*gamma(x);
 }
+
 
 static ex gamma_series(const ex & x, const symbol & s, const ex & pt, int order)
 {
@@ -116,14 +119,15 @@ static ex gamma_series(const ex & x, const symbol & s, const ex & pt, int order)
         throw do_taylor();  // caught by function::series()
     // if we got here we have to care for a simple pole at -m:
     numeric m = -ex_to_numeric(x_pt);
-    ex ser_numer = gamma(x+m+_ex1());
     ex ser_denom = _ex1();
     for (numeric p; p<=m; ++p)
         ser_denom *= x+p;
-    return (ser_numer/ser_denom).series(s, pt, order+1);
+    return (gamma(x+m+_ex1())/ser_denom).series(s, pt, order+1);
 }
 
+
 REGISTER_FUNCTION(gamma, gamma_eval, gamma_evalf, gamma_diff, gamma_series);
+
 
 //////////
 // Beta-function
@@ -136,9 +140,9 @@ static ex beta_evalf(const ex & x, const ex & y)
         TYPECHECK(y,numeric)
     END_TYPECHECK(beta(x,y))
     
-    return gamma(ex_to_numeric(x))*gamma(ex_to_numeric(y))
-        / gamma(ex_to_numeric(x+y));
+    return gamma(ex_to_numeric(x))*gamma(ex_to_numeric(y))/gamma(ex_to_numeric(x+y));
 }
+
 
 static ex beta_eval(const ex & x, const ex & y)
 {
@@ -176,6 +180,7 @@ static ex beta_eval(const ex & x, const ex & y)
     return beta(x,y).hold();
 }
 
+
 static ex beta_diff(const ex & x, const ex & y, unsigned diff_param)
 {
     GINAC_ASSERT(diff_param<2);
@@ -189,6 +194,7 @@ static ex beta_diff(const ex & x, const ex & y, unsigned diff_param)
         retval = (psi(y)-psi(x+y))*beta(x,y);
     return retval;
 }
+
 
 static ex beta_series(const ex & x, const ex & y, const symbol & s, const ex & pt, int order)
 {
@@ -222,7 +228,9 @@ static ex beta_series(const ex & x, const ex & y, const symbol & s, const ex & p
     return (x_ser*y_ser/xy_ser).series(s,pt,order);
 }
 
+
 REGISTER_FUNCTION(beta, beta_eval, beta_evalf, beta_diff, beta_series);
+
 
 //////////
 // Psi-function (aka digamma-function)
