@@ -154,9 +154,6 @@ AC_SUBST(REFERENCE_TARGETS)
 dnl Configure GiNaC-cint
 GINACCINTDIR=
 if test "x$with_cint" != "xno"; then
-  if test "x$enable_static" != "xyes"; then
-    AC_MSG_ERROR([currently GiNaC-cint needs to build a static libginac])
-  fi
   if test "x$with_cint" = "xyes"; then
     if test "x$CINTSYSDIR" = "x"; then
       AC_MSG_ERROR([please export \$CINTSYSDIR or specify --with-cint=CINTSYSDIR])

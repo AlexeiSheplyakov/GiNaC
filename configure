@@ -3027,9 +3027,6 @@ fi
 
 GINACCINTDIR=
 if test "x$with_cint" != "xno"; then
-  if test "x$enable_static" != "xyes"; then
-    { echo "configure: error: currently GiNaC-cint needs to build a static libginac" 1>&2; exit 1; }
-  fi
   if test "x$with_cint" = "xyes"; then
     if test "x$CINTSYSDIR" = "x"; then
       { echo "configure: error: please export \$CINTSYSDIR or specify --with-cint=CINTSYSDIR" 1>&2; exit 1; }
@@ -3041,7 +3038,7 @@ if test "x$with_cint" != "xno"; then
   # Extract the first word of "cint", so it can be a program name with args.
 set dummy cint; ac_word=$2
 echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:3045: checking for $ac_word" >&5
+echo "configure:3042: checking for $ac_word" >&5
 if eval "test \"`echo '$''{'ac_cv_path_CINT'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -3077,7 +3074,7 @@ fi
   # Extract the first word of "makecint", so it can be a program name with args.
 set dummy makecint; ac_word=$2
 echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:3081: checking for $ac_word" >&5
+echo "configure:3078: checking for $ac_word" >&5
 if eval "test \"`echo '$''{'ac_cv_path_MAKECINT'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
