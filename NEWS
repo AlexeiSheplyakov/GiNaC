@@ -3,8 +3,15 @@ This file records noteworthy changes.
 1.2.0 (<insert date>)
 * Added a structure<T> template class for the easy creation of user-defined
   algebraic classes.
+* <visitors>
+* <new-style printing>
+* <noncommutative symbols>
 * Improved the speed of subs() and normal() by the use of maps instead of
   lists.
+* quo(), rem(), prem(), sprem(), decomp_rational(), unit(), content(),
+  primpart() and matrix::charpoly() now take a "const ex &" instead of a
+  "const symbol &".
+* <object fusion>
 * Many internal reorganizations and optimizations.
 * Caveats for class implementors:
    - basic::copy() and basic::destroy() are gone; classes derived from
@@ -16,6 +23,10 @@ This file records noteworthy changes.
      nops()/op()/let_op()). If you have a custom implementation of subs()
      that calls basic::subs() after substituting subexpressions, this needs
      to be changed to a call to subs_one_level().
+   - lst::thislst() and exprseq::thisexprseq() renamed to thiscontainer().
+   - thiscontainer() and associated constructors now take a std::auto_ptr.
+   - Overloading basic::print() is now deprecated. You should use
+     print_func<>() class options instead.
 
 1.1.0 (3 April 2003)
 * Removed deprecated macros is_ex_a, is_ex_exactly_a and friends for good.
