@@ -48,10 +48,7 @@ public:
 	
 	// functions overriding virtual functions from bases classes
 public:
-	void print(std::ostream & os, unsigned upper_precedence = 0) const;
-	void printraw(std::ostream & os) const;
-	void printtree(std::ostream & os, unsigned indent) const;
-	void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence = 0) const;
+	void print(const print_context & c, unsigned level = 0) const;
 	int degree(const ex & s) const;
 	int ldegree(const ex & s) const;
 	ex coeff(const ex & s, int n = 1) const;

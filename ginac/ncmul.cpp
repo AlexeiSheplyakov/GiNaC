@@ -28,6 +28,7 @@
 #include "ex.h"
 #include "add.h"
 #include "mul.h"
+#include "print.h"
 #include "archive.h"
 #include "debugmsg.h"
 #include "utils.h"
@@ -112,36 +113,28 @@ DEFAULT_ARCHIVING(ncmul)
 
 // public
 
-void ncmul::print(std::ostream & os, unsigned upper_precedence) const
+void ncmul::print(const print_context & c, unsigned level) const
 {
-	debugmsg("ncmul print",LOGLEVEL_PRINT);
-	printseq(os,'(','*',')',precedence,upper_precedence);
-}
+	debugmsg("ncmul print", LOGLEVEL_PRINT);
 
-void ncmul::printraw(std::ostream & os) const
-{
-	debugmsg("ncmul printraw",LOGLEVEL_PRINT);
-	os << "ncmul(";
-	for (exvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
-		(*it).bp->printraw(os);
-		os << ",";
-	}
-	os << ",hash=" << hashvalue << ",flags=" << flags;
-	os << ")";
-}
+	if (is_of_type(c, print_tree)) {
 
-void ncmul::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
-{
-	debugmsg("ncmul print csrc",LOGLEVEL_PRINT);
-	exvector::const_iterator it;
-	exvector::const_iterator itend = seq.end()-1;
-	os << "ncmul(";
-	for (it=seq.begin(); it!=itend; ++it) {
-		(*it).bp->printcsrc(os,precedence);
-		os << ",";
-	}
-	(*it).bp->printcsrc(os,precedence);
-	os << ")";
+		inherited::print(c, level);
+
+	} else if (is_of_type(c, print_csrc)) {
+
+		c.s << "ncmul(";
+		exvector::const_iterator it = seq.begin(), itend = seq.end()-1;
+		while (it != itend) {
+			it->print(c, precedence);
+			c.s << ",";
+			it++;
+		}
+		it->print(c, precedence);
+		c.s << ")";
+
+	} else
+		printseq(c, '(', '*', ')', precedence, level);
 }
 
 bool ncmul::info(unsigned inf) const

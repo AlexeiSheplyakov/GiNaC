@@ -87,9 +87,7 @@ public:
 	// functions overriding virtual functions from bases classes
 public:
 	basic * duplicate() const;
-	void print(std::ostream & os, unsigned upper_precedence=0) const;
-	void printraw(std::ostream & os) const;
-	void printtree(std::ostream & os, unsigned indent) const;
+	void print(const print_context & c, unsigned level = 0) const;
 	bool info(unsigned inf) const;
 	unsigned nops() const;
 	ex op(int i) const;
@@ -111,10 +109,10 @@ protected:
 protected:
 	virtual ex thisexpairseq(const epvector & v, const ex & oc) const;
 	virtual ex thisexpairseq(epvector * vp, const ex & oc) const;
-	virtual void printseq(std::ostream & os, char delim,
+	virtual void printseq(const print_context & c, char delim,
 	                      unsigned this_precedence,
 	                      unsigned upper_precedence) const;
-	virtual void printpair(std::ostream & os, const expair & p,
+	virtual void printpair(const print_context & c, const expair & p,
 	                       unsigned upper_precedence) const;
 	virtual expair split_ex_to_pair(const ex & e) const;
 	virtual expair combine_ex_with_coeff_to_pair(const ex & e,

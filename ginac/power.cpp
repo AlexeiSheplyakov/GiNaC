@@ -32,6 +32,7 @@
 #include "inifcns.h"
 #include "relational.h"
 #include "symbol.h"
+#include "print.h"
 #include "archive.h"
 #include "debugmsg.h"
 #include "utils.h"
@@ -102,106 +103,92 @@ DEFAULT_UNARCHIVE(power)
 
 // public
 
-void power::print(std::ostream & os, unsigned upper_precedence) const
-{
-	debugmsg("power print",LOGLEVEL_PRINT);
-	if (exponent.is_equal(_ex1_2())) {
-		os << "sqrt(" << basis << ")";
-	} else {
-		if (precedence<=upper_precedence) os << "(";
-		basis.print(os,precedence);
-		os << "^";
-		exponent.print(os,precedence);
-		if (precedence<=upper_precedence) os << ")";
-	}
-}
-
-void power::printraw(std::ostream & os) const
-{
-	debugmsg("power printraw",LOGLEVEL_PRINT);
-
-	os << class_name() << "(";
-	basis.printraw(os);
-	os << ",";
-	exponent.printraw(os);
-	os << ",hash=" << hashvalue << ",flags=" << flags << ")";
-}
-
-void power::printtree(std::ostream & os, unsigned indent) const
-{
-	debugmsg("power printtree",LOGLEVEL_PRINT);
-
-	os << std::string(indent,' ') << class_name()
-	   << ", hash=" << hashvalue
-	   << " (0x" << std::hex << hashvalue << std::dec << ")"
-	   << ", flags=" << flags << std::endl;
-	basis.printtree(os, indent+delta_indent);
-	exponent.printtree(os, indent+delta_indent);
-}
-
-static void print_sym_pow(std::ostream & os, unsigned type, const symbol &x, int exp)
+static void print_sym_pow(const print_context & c, const symbol &x, int exp)
 {
 	// Optimal output of integer powers of symbols to aid compiler CSE.
 	// C.f. ISO/IEC 14882:1998, section 1.9 [intro execution], paragraph 15
 	// to learn why such a hack is really necessary.
 	if (exp == 1) {
-		x.printcsrc(os, type, 0);
+		x.print(c);
 	} else if (exp == 2) {
-		x.printcsrc(os, type, 0);
-		os << "*";
-		x.printcsrc(os, type, 0);
+		x.print(c);
+		c.s << "*";
+		x.print(c);
 	} else if (exp & 1) {
-		x.printcsrc(os, 0);
-		os << "*";
-		print_sym_pow(os, type, x, exp-1);
+		x.print(c);
+		c.s << "*";
+		print_sym_pow(c, x, exp-1);
 	} else {
-		os << "(";
-		print_sym_pow(os, type, x, exp >> 1);
-		os << ")*(";
-		print_sym_pow(os, type, x, exp >> 1);
-		os << ")";
+		c.s << "(";
+		print_sym_pow(c, x, exp >> 1);
+		c.s << ")*(";
+		print_sym_pow(c, x, exp >> 1);
+		c.s << ")";
 	}
 }
 
-void power::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
+void power::print(const print_context & c, unsigned level) const
 {
-	debugmsg("power print csrc", LOGLEVEL_PRINT);
-	
-	// Integer powers of symbols are printed in a special, optimized way
-	if (exponent.info(info_flags::integer)
-	 && (is_ex_exactly_of_type(basis, symbol) || is_ex_exactly_of_type(basis, constant))) {
-		int exp = ex_to_numeric(exponent).to_int();
-		if (exp > 0)
-			os << "(";
-		else {
-			exp = -exp;
-			if (type == csrc_types::ctype_cl_N)
-				os << "recip(";
+	debugmsg("power print", LOGLEVEL_PRINT);
+
+	if (is_of_type(c, print_tree)) {
+
+		inherited::print(c, level);
+
+	} else if (is_of_type(c, print_csrc)) {
+
+		// Integer powers of symbols are printed in a special, optimized way
+		if (exponent.info(info_flags::integer)
+		 && (is_ex_exactly_of_type(basis, symbol) || is_ex_exactly_of_type(basis, constant))) {
+			int exp = ex_to_numeric(exponent).to_int();
+			if (exp > 0)
+				c.s << "(";
+			else {
+				exp = -exp;
+				if (is_of_type(c, print_csrc_cl_N))
+					c.s << "recip(";
+				else
+					c.s << "1.0/(";
+			}
+			print_sym_pow(c, ex_to_symbol(basis), exp);
+			c.s << ")";
+
+		// <expr>^-1 is printed as "1.0/<expr>" or with the recip() function of CLN
+		} else if (exponent.compare(_num_1()) == 0) {
+			if (is_of_type(c, print_csrc_cl_N))
+				c.s << "recip(";
 			else
-				os << "1.0/(";
+				c.s << "1.0/(";
+			basis.print(c);
+			c.s << ")";
+
+		// Otherwise, use the pow() or expt() (CLN) functions
+		} else {
+			if (is_of_type(c, print_csrc_cl_N))
+				c.s << "expt(";
+			else
+				c.s << "pow(";
+			basis.print(c);
+			c.s << ",";
+			exponent.print(c);
+			c.s << ")";
 		}
-		print_sym_pow(os, type, static_cast<const symbol &>(*basis.bp), exp);
-		os << ")";
 
-	// <expr>^-1 is printed as "1.0/<expr>" or with the recip() function of CLN
-	} else if (exponent.compare(_num_1()) == 0) {
-		if (type == csrc_types::ctype_cl_N)
-			os << "recip(";
-		else
-			os << "1.0/(";
-		basis.bp->printcsrc(os, type, 0);
-		os << ")";
-
-	// Otherwise, use the pow() or expt() (CLN) functions
 	} else {
-		if (type == csrc_types::ctype_cl_N)
-			os << "expt(";
-		else
-			os << "pow(";
-		basis.bp->printcsrc(os, type, 0);
-		os << ",";
-		exponent.bp->printcsrc(os, type, 0);
-		os << ")";
+
+		if (exponent.is_equal(_ex1_2())) {
+			c.s << "sqrt(";
+			basis.print(c);
+			c.s << ")";
+		} else {
+			if (precedence <= level)
+				c.s << "(";
+			basis.print(c, precedence);
+			c.s << "^";
+			exponent.print(c, precedence);
+			if (precedence <= level)
+				c.s << ")";
+		}
 	}
 }
 

@@ -333,10 +333,7 @@ $constructors_interface
 
 	// functions overriding virtual functions from bases classes
 public:
-	void printraw(std::ostream & os) const; 
-	void print(std::ostream & os, unsigned upper_precedence=0) const;
-	void printtree(std::ostream & os, unsigned indent) const;
-	void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence=0) const;
+	void print(const print_context & c, unsigned level = 0) const;
 	int degree(const ex & s) const;
 	int ldegree(const ex & s) const;
 	ex coeff(const ex & s, int n = 1) const;
@@ -382,11 +379,6 @@ inline const function &ex_to_function(const ex &e)
 #define is_ex_the_function(OBJ, FUNCNAME) \\
 	(is_ex_exactly_of_type(OBJ, function) && static_cast<GiNaC::function *>(OBJ.bp)->getserial() == function_index_##FUNCNAME)
 
-// global constants
-
-extern const function some_function;
-extern const std::type_info & typeid_function;
-
 } // namespace GiNaC
 
 #endif // ndef __GINAC_FUNCTION_H__
@@ -427,6 +419,7 @@ $implementation=<<END_OF_IMPLEMENTATION;
 #include "function.h"
 #include "ex.h"
 #include "lst.h"
+#include "print.h"
 #include "archive.h"
 #include "inifcns.h"
 #include "utils.h"
@@ -639,71 +632,46 @@ void function::archive(archive_node &n) const
 
 // public
 
-void function::printraw(std::ostream & os) const
+void function::print(const print_context & c, unsigned level) const
 {
-	debugmsg("function printraw",LOGLEVEL_PRINT);
+	debugmsg("function print", LOGLEVEL_PRINT);
 
 	GINAC_ASSERT(serial<registered_functions().size());
 
-	os << class_name() << "(name=" << registered_functions()[serial].name;
-	for (exvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
-		os << ",";
-		(*it).bp->print(os);
+	if (is_of_type(c, print_tree)) {
+
+		c.s << std::string(level, ' ') << class_name() << " "
+		    << registered_functions()[serial].name
+		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+		    << ", nops=" << nops()
+		    << std::endl;
+		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
+		for (unsigned i=0; i<nops(); ++i)
+			seq[i].print(c, level + delta_indent);
+		c.s << std::string(level + delta_indent, ' ') << "=====" << std::endl;
+
+	} else if (is_of_type(c, print_csrc)) {
+
+		// Print function name in lowercase
+		std::string lname = registered_functions()[serial].name;
+		for (unsigned i=0; i<lname.size(); i++)
+			lname[i] = tolower(lname[i]);
+		c.s << lname << "(";
+
+		// Print arguments, separated by commas
+		exvector::const_iterator it = seq.begin(), itend = seq.end();
+		while (it != itend) {
+			it->print(c);
+			it++;
+			if (it != itend)
+				c.s << ",";
+		}
+		c.s << ")";
+
+	} else {
+		c.s << registered_functions()[serial].name;
+		printseq(c, '(', ',', ')', exprseq::precedence, function::precedence);
 	}
-	os << ")";
-}
-
-void function::print(std::ostream & os, unsigned upper_precedence) const
-{
-	debugmsg("function print",LOGLEVEL_PRINT);
-
-	GINAC_ASSERT(serial<registered_functions().size());
-
-	os << registered_functions()[serial].name;
-	printseq(os,'(',',',')',exprseq::precedence,function::precedence);
-}
-
-void function::printtree(std::ostream & os, unsigned indent) const
-{
-	debugmsg("function printtree",LOGLEVEL_PRINT);
-
-	GINAC_ASSERT(serial<registered_functions().size());
-
-	os << std::string(indent,' ') << class_name() << " "
-	   << registered_functions()[serial].name
-	   << ", hash=" << hashvalue 
-	   << " (0x" << std::hex << hashvalue << std::dec << ")"
-	   << ", flags=" << flags
-	   << ", nops=" << nops() << std::endl;
-	for (unsigned i=0; i<nops(); ++i) {
-		seq[i].printtree(os,indent+delta_indent);
-	}
-	os << std::string(indent+delta_indent,' ') << "=====" << std::endl;
-}
-
-void function::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
-{
-	debugmsg("function print csrc",LOGLEVEL_PRINT);
-
-	GINAC_ASSERT(serial<registered_functions().size());
-
-	// Print function name in lowercase
-	std::string lname;
-	lname=registered_functions()[serial].name;
-	for (unsigned i=0; i<lname.size(); i++)
-		lname[i] = tolower(lname[i]);
-	os << lname << "(";
-
-	// Print arguments, separated by commas
-	exvector::const_iterator it = seq.begin();
-	exvector::const_iterator itend = seq.end();
-	while (it != itend) {
-		it->bp->printcsrc(os, type, 0);
-		it++;
-		if (it != itend)
-			os << ",";
-	}
-	os << ")";
 }
 
 ex function::expand(unsigned options) const
@@ -988,19 +956,6 @@ unsigned function::find_function(const std::string &name, unsigned nparams)
 	}
 	throw (std::runtime_error("no function '" + name + "' with " + ToString(nparams) + " parameters defined"));
 }
-
-//////////
-// static member variables
-//////////
-
-// none
-
-//////////
-// global constants
-//////////
-
-const function some_function;
-const std::type_info & typeid_function=typeid(some_function);
 
 } // namespace GiNaC
 

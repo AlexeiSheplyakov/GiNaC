@@ -173,9 +173,7 @@ public:
 	// functions overriding virtual functions from bases classes
 public:
 	basic * duplicate() const;
-	void printraw(ostream & os) const;
-	void print(ostream & os, unsigned upper_precedence=0) const;
-	void printtree(ostream & os, unsigned indent) const;
+	void print(const print_context & c, unsigned level = 0) const;
 	int nops() const;
 	ex & let_op(int i);
 	ex expand(unsigned options=0) const;
@@ -253,6 +251,7 @@ ${input_structure}
 #include <iostream>
 
 #include "${STRUCTURE}.h"
+#include "print.h"
 
 namespace GiNaC {
 
@@ -328,22 +327,10 @@ basic * ${STRUCTURE}::duplicate() const
 	return new ${STRUCTURE}(*this);
 }
 
-void ${STRUCTURE}::printraw(ostream & os) const
+void ${STRUCTURE}::print(const print_context & c, unsigned level) const
 {
-	debugmsg("${STRUCTURE} printraw",LOGLEVEL_PRINT);
-	os << class_name() << "()";
-}
-
-void ${STRUCTURE}::print(ostream & os, unsigned upper_precedence) const
-{
-	debugmsg("${STRUCTURE} print",LOGLEVEL_PRINT);
-	os << class_name() << "()";
-}
-
-void ${STRUCTURE}::printtree(ostream & os, unsigned indent) const
-{
-	debugmsg("${STRUCTURE} printtree",LOGLEVEL_PRINT);
-	os << "${STRUCTURE}()";
+	debugmsg("${STRUCTURE} print", LOGLEVEL_PRINT);
+	c.s << class_name() << "()";
 }
 
 int ${STRUCTURE}::nops() const

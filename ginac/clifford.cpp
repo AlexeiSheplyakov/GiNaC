@@ -24,6 +24,7 @@
 #include "ex.h"
 #include "idx.h"
 #include "ncmul.h"
+#include "print.h"
 #include "archive.h"
 #include "debugmsg.h"
 #include "utils.h"

@@ -16,7 +16,7 @@ ginacinclude_HEADERS = ginac.h add.h archive.h basic.h constant.h ex.h \
   expair.h expairseq.h exprseq.h fail.h flags.h function.h inifcns.h \
   lst.h matrix.h mul.h ncmul.h normal.h numeric.h operators.h power.h \
   registrar.h relational.h pseries.h structure.h symbol.h tinfos.h assertion.h \
-  version.h idx.h indexed.h tensor.h color.h clifford.h
+  version.h idx.h indexed.h tensor.h color.h clifford.h print.h
 LFLAGS = -Pginac_yy -olex.yy.c
 YFLAGS = -p ginac_yy -d
 EXTRA_DIST = container.pl function.pl structure.pl input_parser.h version.h.in

@@ -25,6 +25,7 @@
 
 #include "symbol.h"
 #include "lst.h"
+#include "print.h"
 #include "archive.h"
 #include "debugmsg.h"
 #include "utils.h"
@@ -131,33 +132,19 @@ basic *symbol::duplicate() const
 	return new symbol(*this);
 }
 
-void symbol::print(std::ostream & os, unsigned upper_precedence) const
+void symbol::print(const print_context & c, unsigned level) const
 {
-	debugmsg("symbol print",LOGLEVEL_PRINT);
-	os << name;
-}
+	debugmsg("symbol print", LOGLEVEL_PRINT);
 
-void symbol::printraw(std::ostream & os) const
-{
-	debugmsg("symbol printraw",LOGLEVEL_PRINT);
-	os << class_name() << "(" << "name=" << name << ",serial=" << serial
-	   << ",hash=" << hashvalue << ",flags=" << flags << ")";
-}
+	if (is_of_type(c, print_tree)) {
 
-void symbol::printtree(std::ostream & os, unsigned indent) const
-{
-	debugmsg("symbol printtree",LOGLEVEL_PRINT);
-	os << std::string(indent,' ') << name << " (symbol): "
-	   << "serial=" << serial
-	   << ", hash=" << hashvalue
-	   << " (0x" << std::hex << hashvalue << std::dec << ")"
-	   << ", flags=" << flags << std::endl;
-}
+		c.s << std::string(level, ' ') << name << " (" << class_name() << ")"
+		    << ", serial=" << serial
+		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+		    << std::endl;
 
-void symbol::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
-{
-	debugmsg("symbol print csrc", LOGLEVEL_PRINT);
-	os << name;
+	} else
+		c.s << name;
 }
 
 bool symbol::info(unsigned inf) const

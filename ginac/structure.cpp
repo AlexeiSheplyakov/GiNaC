@@ -65,10 +65,8 @@ void structure::printtree(std::ostream & os, unsigned indent) const
 {
 	debugmsg("structure printtree",LOGLEVEL_PRINT);
 
-	os << std::string(indent,' ') << "structure "
-	   << "hash=" << hashvalue
-	   << " (0x" << std::hex << hashvalue << std::dec << ")"
-	   << ", flags=" << flags << std::endl;
+	os << std::string(indent,' ') << class_name() << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+	   << std::endl;
 }
 
 void structure::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const

@@ -29,6 +29,7 @@
 #include "ncmul.h"
 #include "numeric.h"
 #include "power.h" // for sqrt()
+#include "print.h"
 #include "archive.h"
 #include "debugmsg.h"
 #include "utils.h"

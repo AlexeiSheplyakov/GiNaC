@@ -76,10 +76,8 @@ public:
 	// non-virtual functions in this class
 public:
 	void swap(ex & other);
-	void printraw(std::ostream & os) const;
-	void printtree(std::ostream & os, unsigned indent=0) const;
-	void print(std::ostream & os, unsigned upper_precedence=0) const;
-	void printcsrc(std::ostream & os, unsigned type, const char *var_name) const;
+	void print(const print_context & c, unsigned level = 0) const;
+	void printtree(std::ostream & os) const;
 	void dbgprint(void) const;
 	void dbgprinttree(void) const;
 	bool info(unsigned inf) const;

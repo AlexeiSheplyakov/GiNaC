@@ -24,7 +24,6 @@
 #define __GINAC_BASIC_H__
 
 #include <iostream>
-#include <typeinfo>
 #include <vector>
 
 // CINT needs <algorithm> to work properly with <vector>
@@ -44,6 +43,7 @@ class lst;
 class numeric;
 class relational;
 class archive_node;
+class print_context;
 
 // Cint doesn't like vector<..,default_alloc> but malloc_alloc is
 // unstandardized and not supported by newer GCCs.
@@ -60,8 +60,6 @@ class basic
 	GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(basic, void)
 	
 	friend class ex;
-	
-// member functions
 	
 	// default ctor, dtor, copy ctor assignment operator and helpers
 public:
@@ -101,10 +99,7 @@ protected:
 	// new virtual functions which can be overridden by derived classes
 public: // only const functions please (may break reference counting)
 	virtual basic * duplicate() const;
-	virtual void print(std::ostream & os,unsigned upper_precedence = 0) const;
-	virtual void printraw(std::ostream & os) const;
-	virtual void printtree(std::ostream & os, unsigned indent) const;
-	virtual void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence = 0) const;
+	virtual void print(const print_context & c, unsigned level = 0) const;
 	virtual void dbgprint(void) const;
 	virtual void dbgprinttree(void) const;
 	virtual bool info(unsigned inf) const;
@@ -158,14 +153,12 @@ public:
 protected:
 	void ensure_if_modifiable(void) const;
 	
-// member variables
-	
+	// member variables
 protected:
 	unsigned tinfo_key;                 ///< typeinfo
 	mutable unsigned flags;             ///< of type status_flags
 	mutable unsigned hashvalue;         ///< hash value
 	static unsigned precedence;         ///< precedence for printing parens
-	static unsigned delta_indent;       ///< precedence for printtree
 private:
 	unsigned refcount;                  ///< Number of reference counts
 };

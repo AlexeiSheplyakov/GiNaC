@@ -24,6 +24,7 @@
 #include "numeric.h"
 #include "power.h"
 #include "relational.h"
+#include "print.h"
 #include "debugmsg.h"
 #include "utils.h"
 
@@ -240,7 +241,7 @@ relational operator>=(const ex & lh, const ex & rh)
 
 std::ostream & operator<<(std::ostream & os, const ex & e)
 {
-	e.print(os);
+	e.print(print_context(os));
 	return os;
 }
 

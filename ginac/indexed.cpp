@@ -29,6 +29,7 @@
 #include "ncmul.h"
 #include "power.h"
 #include "lst.h"
+#include "print.h"
 #include "archive.h"
 #include "utils.h"
 #include "debugmsg.h"
@@ -176,42 +177,38 @@ DEFAULT_UNARCHIVE(indexed)
 // functions overriding virtual functions from bases classes
 //////////
 
-void indexed::printraw(std::ostream & os) const
-{
-	debugmsg("indexed printraw", LOGLEVEL_PRINT);
-	GINAC_ASSERT(seq.size() > 0);
-
-	os << class_name() << "(";
-	seq[0].printraw(os);
-	os << ",indices=";
-	printrawindices(os);
-	os << ",hash=" << hashvalue << ",flags=" << flags << ")";
-}
-
-void indexed::printtree(std::ostream & os, unsigned indent) const
-{
-	debugmsg("indexed printtree", LOGLEVEL_PRINT);
-	GINAC_ASSERT(seq.size() > 0);
-
-	os << std::string(indent, ' ') << class_name() << ", " << seq.size()-1 << " indices";
-	os << ",hash=" << hashvalue << ",flags=" << flags << std::endl;
-	printtreeindices(os, indent);
-}
-
-void indexed::print(std::ostream & os, unsigned upper_precedence) const
+void indexed::print(const print_context & c, unsigned level) const
 {
 	debugmsg("indexed print", LOGLEVEL_PRINT);
 	GINAC_ASSERT(seq.size() > 0);
 
-	const ex & base = seq[0];
-	bool need_parens = is_ex_exactly_of_type(base, add) || is_ex_exactly_of_type(base, mul)
-	                || is_ex_exactly_of_type(base, ncmul) || is_ex_exactly_of_type(base, power);
-	if (need_parens)
-		os << "(";
-	os << base;
-	if (need_parens)
-		os << ")";
-	printindices(os);
+	if (is_of_type(c, print_tree)) {
+
+		c.s << std::string(level, ' ') << class_name()
+		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+		    << ", " << seq.size()-1 << " indices";
+		switch (symmetry) {
+			case symmetric: c.s << ", symmetric"; break;
+			case antisymmetric: c.s << ", antisymmetric"; break;
+			default: break;
+		}
+		c.s << std::endl;
+		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
+		seq[0].print(c, level + delta_indent);
+		printindices(c, level + delta_indent);
+
+	} else {
+
+		const ex & base = seq[0];
+		bool need_parens = is_ex_exactly_of_type(base, add) || is_ex_exactly_of_type(base, mul)
+		                || is_ex_exactly_of_type(base, ncmul) || is_ex_exactly_of_type(base, power);
+		if (need_parens)
+			c.s << "(";
+		base.print(c);
+		if (need_parens)
+			c.s << ")";
+		printindices(c, level);
+	}
 }
 
 bool indexed::info(unsigned inf) const
@@ -409,38 +406,12 @@ ex indexed::expand(unsigned options) const
 // non-virtual functions in this class
 //////////
 
-void indexed::printrawindices(std::ostream & os) const
+void indexed::printindices(const print_context & c, unsigned level) const
 {
 	if (seq.size() > 1) {
 		exvector::const_iterator it=seq.begin() + 1, itend = seq.end();
 		while (it != itend) {
-			it->printraw(os);
-			it++;
-			if (it != itend)
-				os << ",";
-		}
-	}
-}
-
-void indexed::printtreeindices(std::ostream & os, unsigned indent) const
-{
-	if (seq.size() > 1) {
-		exvector::const_iterator it=seq.begin() + 1, itend = seq.end();
-		while (it != itend) {
-			os << std::string(indent + delta_indent, ' ');
-			it->printraw(os);
-			os << std::endl;
-			it++;
-		}
-	}
-}
-
-void indexed::printindices(std::ostream & os) const
-{
-	if (seq.size() > 1) {
-		exvector::const_iterator it=seq.begin() + 1, itend = seq.end();
-		while (it != itend) {
-			it->print(os);
+			it->print(c, level);
 			it++;
 		}
 	}

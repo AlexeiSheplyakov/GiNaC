@@ -25,11 +25,10 @@
 #include "idx.h"
 #include "symbol.h"
 #include "lst.h"
+#include "print.h"
 #include "archive.h"
 #include "utils.h"
 #include "debugmsg.h"
-
-#include "exprseq.h" // !!
 
 namespace GiNaC {
 
@@ -122,59 +121,58 @@ DEFAULT_UNARCHIVE(varidx)
 // functions overriding virtual functions from bases classes
 //////////
 
-void idx::printraw(std::ostream & os) const
-{
-	debugmsg("idx printraw", LOGLEVEL_PRINT);
-
-	os << class_name() << "(";
-	value.printraw(os);
-	os << ",dim=";
-	dim.printraw(os);
-	os << ",hash=" << hashvalue << ",flags=" << flags;
-	os << ")";
-}
-
-void idx::printtree(std::ostream & os, unsigned indent) const
-{
-	debugmsg("idx printtree",LOGLEVEL_PRINT);
-
-	os << std::string(indent, ' ') << "type=" << class_name();
-	value.printtree(os, indent + delta_indent);
-	os << std::string(indent, ' ');
-	os << ", hash=" << hashvalue
-	   << " (0x" << std::hex << hashvalue << std::dec << ")"
-	   << ", flags=" << flags << std::endl;
-}
-
-void idx::print(std::ostream & os, unsigned upper_precedence) const
+void idx::print(const print_context & c, unsigned level) const
 {
 	debugmsg("idx print", LOGLEVEL_PRINT);
 
-	os << ".";
+	if (is_of_type(c, print_tree)) {
 
-	bool need_parens = !(is_ex_exactly_of_type(value, numeric) || is_ex_of_type(value, symbol));
-	if (need_parens)
-		os << "(";
-	os << value;
-	if (need_parens)
-		os << ")";
+		c.s << std::string(level, ' ') << class_name()
+		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+		    << std::endl;
+		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
+		value.print(c, level + delta_indent);
+		dim.print(c, level + delta_indent);
+
+	} else {
+
+		c.s << ".";
+		bool need_parens = !(is_ex_exactly_of_type(value, numeric) || is_ex_of_type(value, symbol));
+		if (need_parens)
+			c.s << "(";
+		c.s << value;
+		if (need_parens)
+			c.s << ")";
+	}
 }
 
-void varidx::print(std::ostream & os, unsigned upper_precedence) const
+void varidx::print(const print_context & c, unsigned level) const
 {
 	debugmsg("varidx print", LOGLEVEL_PRINT);
 
-	if (covariant)
-		os << ".";
-	else
-		os << "~";
+	if (is_of_type(c, print_tree)) {
 
-	bool need_parens = !(is_ex_exactly_of_type(value, numeric) || is_ex_of_type(value, symbol));
-	if (need_parens)
-		os << "(";
-	os << value;
-	if (need_parens)
-		os << ")";
+		c.s << std::string(level, ' ') << class_name()
+		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+		    << (covariant ? ", covariant" : ", contravariant")
+		    << std::endl;
+		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
+		value.print(c, level + delta_indent);
+		dim.print(c, level + delta_indent);
+
+	} else {
+
+		if (covariant)
+			c.s << ".";
+		else
+			c.s << "~";
+		bool need_parens = !(is_ex_exactly_of_type(value, numeric) || is_ex_of_type(value, symbol));
+		if (need_parens)
+			c.s << "(";
+		c.s << value;
+		if (need_parens)
+			c.s << ")";
+	}
 }
 
 bool idx::info(unsigned inf) const

@@ -142,15 +142,6 @@ public:
 	};
 };
 
-class csrc_types {
-public:
-	enum {
-		ctype_float,
-		ctype_double,
-		ctype_cl_N
-	};
-};
-
 /** Strategies how to clean up the function remember cache.
  *  @see remember_table */
 class remember_strategies {

@@ -85,10 +85,7 @@ public:
 	
 	// functions overriding virtual functions from bases classes
 public:
-	void print(std::ostream &os, unsigned precedence = 0) const;
-	void printraw(std::ostream &os) const;
-	void printtree(std::ostream &os, unsigned indent) const;
-	void printcsrc(std::ostream &os, unsigned type, unsigned precedence=0) const;
+	void print(const print_context & c, unsigned level = 0) const;
 	bool info(unsigned inf) const;
 	bool has(const ex &other) const;
 	ex eval(int level = 0) const;

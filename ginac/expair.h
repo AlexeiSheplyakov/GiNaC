@@ -25,6 +25,7 @@
 
 #include "ex.h"
 #include "numeric.h"
+#include "print.h"
 
 namespace GiNaC {
 
@@ -81,14 +82,12 @@ public:
 			return coeff.compare(other.coeff);
 	}
 	
-	/** Output to ostream in ugly raw format. */
-	void printraw(std::ostream & os) const
+	void print(std::ostream & os) const
 	{
-		os << "expair(";
-		rest.printraw(os);
-		os << ",";
-		coeff.printraw(os);
-		os << ")";
+		os << "expair:";
+		print_tree c(os);
+		rest.print(c, c.delta_indent);
+		coeff.print(c, c.delta_indent);
 	}
 	
 	/** True if this is of the form (numeric,ex(1)). */

@@ -62,7 +62,7 @@ class diracone : public tensor
 
 	// functions overriding virtual functions from bases classes
 public:
-	void print(std::ostream & os, unsigned upper_precedence=0) const;
+	void print(const print_context & c, unsigned level = 0) const;
 };
 
 
@@ -73,7 +73,7 @@ class diracgamma : public tensor
 
 	// functions overriding virtual functions from bases classes
 public:
-	void print(std::ostream & os, unsigned upper_precedence=0) const;
+	void print(const print_context & c, unsigned level = 0) const;
 	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
 };
 

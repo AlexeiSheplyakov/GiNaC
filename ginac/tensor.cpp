@@ -29,6 +29,7 @@
 #include "relational.h"
 #include "lst.h"
 #include "numeric.h"
+#include "print.h"
 #include "archive.h"
 #include "utils.h"
 #include "debugmsg.h"

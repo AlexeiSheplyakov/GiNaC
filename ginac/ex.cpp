@@ -76,64 +76,30 @@ void ex::swap(ex & other)
 	other.bp = tmpbp;
 }
 
-/** Output formatted to be useful as ginsh input. */
-void ex::print(std::ostream & os, unsigned upper_precedence) const
+/** Print expression to stream. The formatting of the output is determined
+ *  by the kind of print_context object that is passed. Possible formattings
+ *  include ginsh-parsable output (the default), tree-like output for
+ *  debugging, and C++ source.
+ *  @see print_context */
+void ex::print(const print_context & c, unsigned level) const
 {
-	debugmsg("ex print",LOGLEVEL_PRINT);
+	debugmsg("ex print", LOGLEVEL_PRINT);
 	GINAC_ASSERT(bp!=0);
-	bp->print(os,upper_precedence);
+	bp->print(c, level);
 }
 
-/** Unreadable output with detailed type information. */
-void ex::printraw(std::ostream & os) const
+/** Print expression to stream in a tree-like format suitable for debugging. */
+void ex::printtree(std::ostream & os) const
 {
-	debugmsg("ex printraw",LOGLEVEL_PRINT);
+	debugmsg("ex printtree", LOGLEVEL_PRINT);
 	GINAC_ASSERT(bp!=0);
-	os << "ex(";
-	bp->printraw(os);
-	os << ")";
-}
-
-/** Very detailed and unreadable output with type information and all this. */
-void ex::printtree(std::ostream & os, unsigned indent) const
-{
-	debugmsg("ex printtree",LOGLEVEL_PRINT);
-	GINAC_ASSERT(bp!=0);
-	// os << "refcount=" << bp->refcount << " ";
-	bp->printtree(os,indent);
-}
-
-/** Print expression as a C++ statement. The output looks like
- *  "<type> <var_name> = <expression>;". The "type" parameter has an effect
- *  on how number literals are printed.
- *
- *  @param os output stream
- *  @param type variable type (one of the csrc_types)
- *  @param var_name variable name to be printed */
-void ex::printcsrc(std::ostream & os, unsigned type, const char *var_name) const
-{
-	debugmsg("ex print csrc", LOGLEVEL_PRINT);
-	GINAC_ASSERT(bp!=0);
-	switch (type) {
-		case csrc_types::ctype_float:
-			os << "float ";
-			break;
-		case csrc_types::ctype_double:
-			os << "double ";
-			break;
-		case csrc_types::ctype_cl_N:
-			os << "cl_N ";
-			break;
-	}
-	os << var_name << " = ";
-	bp->printcsrc(os, type, 0);
-	os << ";\n";
+	bp->print(print_tree(os));
 }
 
 /** Little wrapper arount print to be called within a debugger. */
 void ex::dbgprint(void) const
 {
-	debugmsg("ex dbgprint",LOGLEVEL_PRINT);
+	debugmsg("ex dbgprint", LOGLEVEL_PRINT);
 	GINAC_ASSERT(bp!=0);
 	bp->dbgprint();
 }
@@ -141,7 +107,7 @@ void ex::dbgprint(void) const
 /** Little wrapper arount printtree to be called within a debugger. */
 void ex::dbgprinttree(void) const
 {
-	debugmsg("ex dbgprinttree",LOGLEVEL_PRINT);
+	debugmsg("ex dbgprinttree", LOGLEVEL_PRINT);
 	GINAC_ASSERT(bp!=0);
 	bp->dbgprinttree();
 }

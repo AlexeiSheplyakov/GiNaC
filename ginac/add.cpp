@@ -111,107 +111,105 @@ DEFAULT_ARCHIVING(add)
 
 // public
 
-void add::print(std::ostream & os, unsigned upper_precedence) const
+void add::print(const print_context & c, unsigned level) const
 {
-	debugmsg("add print",LOGLEVEL_PRINT);
-	if (precedence<=upper_precedence) os << "(";
-	numeric coeff;
-	bool first = true;
-	// first print the overall numeric coefficient, if present:
-	if (!overall_coeff.is_zero()) {
-		os << overall_coeff;
-		first = false;
-	}
-	// then proceed with the remaining factors:
-	for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
-		coeff = ex_to_numeric(cit->coeff);
-		if (!first) {
-			if (coeff.csgn()==-1) os << '-'; else os << '+';
-		} else {
-			if (coeff.csgn()==-1) os << '-';
+	debugmsg("add print", LOGLEVEL_PRINT);
+
+	if (is_of_type(c, print_tree)) {
+
+		inherited::print(c, level);
+
+	} else if (is_of_type(c, print_csrc)) {
+
+		if (precedence <= level)
+			c.s << "(";
+	
+		// Print arguments, separated by "+"
+		epvector::const_iterator it = seq.begin(), itend = seq.end();
+		while (it != itend) {
+		
+			// If the coefficient is -1, it is replaced by a single minus sign
+			if (it->coeff.compare(_num1()) == 0) {
+				it->rest.bp->print(c, precedence);
+			} else if (it->coeff.compare(_num_1()) == 0) {
+				c.s << "-";
+				it->rest.bp->print(c, precedence);
+			} else if (ex_to_numeric(it->coeff).numer().compare(_num1()) == 0) {
+				it->rest.bp->print(c, precedence);
+				c.s << "/";
+				ex_to_numeric(it->coeff).denom().print(c, precedence);
+			} else if (ex_to_numeric(it->coeff).numer().compare(_num_1()) == 0) {
+				c.s << "-";
+				it->rest.bp->print(c, precedence);
+				c.s << "/";
+				ex_to_numeric(it->coeff).denom().print(c, precedence);
+			} else {
+				it->coeff.bp->print(c, precedence);
+				c.s << "*";
+				it->rest.bp->print(c, precedence);
+			}
+		
+			// Separator is "+", except if the following expression would have a leading minus sign
+			it++;
+			if (it != itend && !(it->coeff.compare(_num0()) < 0 || (it->coeff.compare(_num1()) == 0 && is_ex_exactly_of_type(it->rest, numeric) && it->rest.compare(_num0()) < 0)))
+				c.s << "+";
+		}
+	
+		if (!overall_coeff.is_zero()) {
+			if (overall_coeff.info(info_flags::positive))
+				c.s << '+';
+			overall_coeff.bp->print(c, precedence);
+		}
+	
+		if (precedence <= level)
+			c.s << ")";
+
+	} else {
+
+		if (precedence <= level)
+			c.s << "(";
+
+		numeric coeff;
+		bool first = true;
+
+		// First print the overall numeric coefficient, if present
+		if (!overall_coeff.is_zero()) {
+			overall_coeff.print(c, precedence);
 			first = false;
 		}
-		if (!coeff.is_equal(_num1()) &&
-		    !coeff.is_equal(_num_1())) {
-			if (coeff.is_rational()) {
-				if (coeff.is_negative())
-					os << -coeff;
-				else
-					os << coeff;
+
+		// Then proceed with the remaining factors
+		epvector::const_iterator it = seq.begin(), itend = seq.end();
+		while (it != itend) {
+			coeff = ex_to_numeric(it->coeff);
+			if (!first) {
+				if (coeff.csgn() == -1) c.s << '-'; else c.s << '+';
 			} else {
-				if (coeff.csgn()==-1)
-					(-coeff).print(os, precedence);
-				else
-					coeff.print(os, precedence);
+				if (coeff.csgn() == -1) c.s << '-';
+				first = false;
 			}
-			os << '*';
+			if (!coeff.is_equal(_num1()) &&
+			    !coeff.is_equal(_num_1())) {
+				if (coeff.is_rational()) {
+					if (coeff.is_negative())
+						(-coeff).print(c, precedence);
+					else
+						coeff.print(c, precedence);
+				} else {
+					if (coeff.csgn() == -1)
+						(-coeff).print(c, precedence);
+					else
+						coeff.print(c, precedence);
+				}
+				c.s << '*';
+			}
+			it->rest.print(c, precedence);
+			it++;
 		}
-		cit->rest.print(os, precedence);
-	}
-	if (precedence<=upper_precedence) os << ")";
-}
 
-void add::printraw(std::ostream & os) const
-{
-	debugmsg("add printraw",LOGLEVEL_PRINT);
-
-	os << "+(";
-	for (epvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
-		os << "(";
-		(*it).rest.bp->printraw(os);
-		os << ",";
-		(*it).coeff.bp->printraw(os);        
-		os << "),";
+		if (precedence <= level)
+			c.s << ")";
 	}
-	os << ",hash=" << hashvalue << ",flags=" << flags;
-	os << ")";
-}
-
-void add::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
-{
-	debugmsg("add print csrc", LOGLEVEL_PRINT);
-	if (precedence <= upper_precedence)
-		os << "(";
-	
-	// Print arguments, separated by "+"
-	epvector::const_iterator it = seq.begin();
-	epvector::const_iterator itend = seq.end();
-	while (it != itend) {
-		
-		// If the coefficient is -1, it is replaced by a single minus sign
-		if (it->coeff.compare(_num1()) == 0) {
-			it->rest.bp->printcsrc(os, type, precedence);
-		} else if (it->coeff.compare(_num_1()) == 0) {
-			os << "-";
-			it->rest.bp->printcsrc(os, type, precedence);
-		} else if (ex_to_numeric(it->coeff).numer().compare(_num1()) == 0) {
-			it->rest.bp->printcsrc(os, type, precedence);
-			os << "/";
-			ex_to_numeric(it->coeff).denom().printcsrc(os, type, precedence);
-		} else if (ex_to_numeric(it->coeff).numer().compare(_num_1()) == 0) {
-			os << "-";
-			it->rest.bp->printcsrc(os, type, precedence);
-			os << "/";
-			ex_to_numeric(it->coeff).denom().printcsrc(os, type, precedence);
-		} else {
-			it->coeff.bp->printcsrc(os, type, precedence);
-			os << "*";
-			it->rest.bp->printcsrc(os, type, precedence);
-		}
-		
-		// Separator is "+", except if the following expression would have a leading minus sign
-		it++;
-		if (it != itend && !(it->coeff.compare(_num0()) < 0 || (it->coeff.compare(_num1()) == 0 && is_ex_exactly_of_type(it->rest, numeric) && it->rest.compare(_num0()) < 0)))
-			os << "+";
-	}
-	
-	if (!overall_coeff.is_zero()) {
-		if (overall_coeff.info(info_flags::positive)) os << '+';
-		overall_coeff.bp->printcsrc(os,type,precedence);
-	}
-	
-	if (precedence <= upper_precedence)
-		os << ")";
 }
 
 bool add::info(unsigned inf) const

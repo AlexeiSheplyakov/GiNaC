@@ -26,6 +26,7 @@
 
 #include "expairseq.h"
 #include "lst.h"
+#include "print.h"
 #include "archive.h"
 #include "debugmsg.h"
 #include "utils.h"
@@ -186,102 +187,89 @@ basic *expairseq::duplicate() const
 	return new expairseq(*this);
 }
 
-void expairseq::print(std::ostream &os, unsigned upper_precedence) const
+void expairseq::print(const print_context & c, unsigned level) const
 {
 	debugmsg("expairseq print",LOGLEVEL_PRINT);
-	os << "[[";
-	printseq(os,',',precedence,upper_precedence);
-	os << "]]";
-}
 
-void expairseq::printraw(std::ostream &os) const
-{
-	debugmsg("expairseq printraw",LOGLEVEL_PRINT);
-	os << class_name() << "(";
-	for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
-		os << "(";
-		(*cit).rest.printraw(os);
-		os << ",";
-		(*cit).coeff.printraw(os);
-		os << "),";
-	}
-	os << ")";
-}
+	if (is_of_type(c, print_tree)) {
 
-void expairseq::printtree(std::ostream &os, unsigned indent) const
-{
-	debugmsg("expairseq printtree",LOGLEVEL_PRINT);
+		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
 
-	os << std::string(indent,' ') << "type=" << class_name()
-	   << ", hash=" << hashvalue
-	   << " (0x" << std::hex << hashvalue << std::dec << ")"
-	   << ", flags=" << flags
-	   << ", nops=" << nops() << std::endl;
-	for (unsigned i=0; i<seq.size(); ++i) {
-		seq[i].rest.printtree(os,indent+delta_indent);
-		seq[i].coeff.printtree(os,indent+delta_indent);
-		if (i!=seq.size()-1)
-			os << std::string(indent+delta_indent,' ') << "-----" << std::endl;
-	}
-	if (!overall_coeff.is_equal(default_overall_coeff())) {
-		os << std::string(indent+delta_indent,' ') << "-----" << std::endl;
-		os << std::string(indent+delta_indent,' ') << "overall_coeff" << std::endl;
-		overall_coeff.printtree(os,indent+delta_indent);
-	}
-	os << std::string(indent+delta_indent,' ') << "=====" << std::endl;
-#if EXPAIRSEQ_USE_HASHTAB
-	os << std::string(indent+delta_indent,' ')
-	   << "hashtab size " << hashtabsize << std::endl;
-	if (hashtabsize==0) return;
-#define MAXCOUNT 5
-	unsigned count[MAXCOUNT+1];
-	for (int i=0; i<MAXCOUNT+1; ++i)
-		count[i] = 0;
-	unsigned this_bin_fill;
-	unsigned cum_fill_sq = 0;
-	unsigned cum_fill = 0;
-	for (unsigned i=0; i<hashtabsize; ++i) {
-		this_bin_fill = 0;
-		if (hashtab[i].size()>0) {
-			os << std::string(indent+delta_indent,' ') 
-			   << "bin " << i << " with entries ";
-			for (epplist::const_iterator it=hashtab[i].begin();
-			     it!=hashtab[i].end(); ++it) {
-				os << *it-seq.begin() << " ";
-				++this_bin_fill;
-			}
-			os << std::endl;
-			cum_fill += this_bin_fill;
-			cum_fill_sq += this_bin_fill*this_bin_fill;
+		c.s << std::string(level, ' ') << class_name()
+		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+		    << ", nops=" << nops()
+		    << std::endl;
+		for (unsigned i=0; i<seq.size(); ++i) {
+			seq[i].rest.print(c, level + delta_indent);
+			seq[i].coeff.print(c, level + delta_indent);
+			if (i != seq.size()-1)
+				c.s << std::string(level + delta_indent, ' ') << "-----" << std::endl;
 		}
-		if (this_bin_fill<MAXCOUNT)
-			++count[this_bin_fill];
-		else
-			++count[MAXCOUNT];
-	}
-	unsigned fact = 1;
-	double cum_prob = 0;
-	double lambda = (1.0*seq.size())/hashtabsize;
-	for (int k=0; k<MAXCOUNT; ++k) {
-		if (k>0)
-			fact *= k;
-		double prob = std::pow(lambda,k)/fact * std::exp(-lambda);
-		cum_prob += prob;
-		os << std::string(indent+delta_indent,' ') << "bins with " << k << " entries: "
-		   << int(1000.0*count[k]/hashtabsize)/10.0 << "% (expected: "
-		   << int(prob*1000)/10.0 << ")" << std::endl;
-	}
-	os << std::string(indent+delta_indent,' ') << "bins with more entries: "
-	   << int(1000.0*count[MAXCOUNT]/hashtabsize)/10.0 << "% (expected: "
-	   << int((1-cum_prob)*1000)/10.0 << ")" << std::endl;
+		if (!overall_coeff.is_equal(default_overall_coeff())) {
+			c.s << std::string(level + delta_indent, ' ') << "-----" << std::endl
+			    << std::string(level + delta_indent, ' ') << "overall_coeff" << std::endl;
+			overall_coeff.print(c, level + delta_indent);
+		}
+		c.s << std::string(level + delta_indent,' ') << "=====" << std::endl;
+#if EXPAIRSEQ_USE_HASHTAB
+		c.s << std::string(level + delta_indent,' ')
+		    << "hashtab size " << hashtabsize << std::endl;
+		if (hashtabsize == 0) return;
+#define MAXCOUNT 5
+		unsigned count[MAXCOUNT+1];
+		for (int i=0; i<MAXCOUNT+1; ++i)
+			count[i] = 0;
+		unsigned this_bin_fill;
+		unsigned cum_fill_sq = 0;
+		unsigned cum_fill = 0;
+		for (unsigned i=0; i<hashtabsize; ++i) {
+			this_bin_fill = 0;
+			if (hashtab[i].size() > 0) {
+				c.s << std::string(level + delta_indent, ' ')
+				    << "bin " << i << " with entries ";
+				for (epplist::const_iterator it=hashtab[i].begin();
+				     it!=hashtab[i].end(); ++it) {
+					c.s << *it-seq.begin() << " ";
+					++this_bin_fill;
+				}
+				os << std::endl;
+				cum_fill += this_bin_fill;
+				cum_fill_sq += this_bin_fill*this_bin_fill;
+			}
+			if (this_bin_fill<MAXCOUNT)
+				++count[this_bin_fill];
+			else
+				++count[MAXCOUNT];
+		}
+		unsigned fact = 1;
+		double cum_prob = 0;
+		double lambda = (1.0*seq.size()) / hashtabsize;
+		for (int k=0; k<MAXCOUNT; ++k) {
+			if (k>0)
+				fact *= k;
+			double prob = std::pow(lambda,k)/fact * std::exp(-lambda);
+			cum_prob += prob;
+			c.s << std::string(level + delta_indent, ' ') << "bins with " << k << " entries: "
+			    << int(1000.0*count[k]/hashtabsize)/10.0 << "% (expected: "
+			    << int(prob*1000)/10.0 << ")" << std::endl;
+		}
+		c.s << std::string(level + delta_indent, ' ') << "bins with more entries: "
+		    << int(1000.0*count[MAXCOUNT]/hashtabsize)/10.0 << "% (expected: "
+		    << int((1-cum_prob)*1000)/10.0 << ")" << std::endl;
 	
-	os << std::string(indent+delta_indent,' ') << "variance: "
-	   << 1.0/hashtabsize*cum_fill_sq-(1.0/hashtabsize*cum_fill)*(1.0/hashtabsize*cum_fill)
-	   << std::endl;
-	os << std::string(indent+delta_indent,' ') << "average fill: "
-	   << (1.0*cum_fill)/hashtabsize
-	   << " (should be equal to " << (1.0*seq.size())/hashtabsize << ")" << std::endl;
+		c.s << std::string(level + delta_indent, ' ') << "variance: "
+		    << 1.0/hashtabsize*cum_fill_sq-(1.0/hashtabsize*cum_fill)*(1.0/hashtabsize*cum_fill)
+		    << std::endl;
+		c.s << std::string(level + delta_indent, ' ') << "average fill: "
+		    << (1.0*cum_fill)/hashtabsize
+		    << " (should be equal to " << (1.0*seq.size())/hashtabsize << ")" << std::endl;
 #endif // EXPAIRSEQ_USE_HASHTAB
+
+	} else {
+		c.s << "[[";
+		printseq(c, ',', precedence, level);
+		c.s << "]]";
+	}
 }
 
 bool expairseq::info(unsigned inf) const
@@ -434,9 +422,9 @@ bool expairseq::is_equal_same_type(const basic &other) const
 	// compare number of elements in each hashtab entry
 	if (hashtabsize!=o.hashtabsize) {
 		std::cout << "this:" << std::endl;
-		printtree(std::cout,0);
+		print(print_tree(std::cout));
 		std::cout << "other:" << std::endl;
-		other.printtree(std::cout,0);
+		other.print(print_tree(std::cout));
 	}
 		
 	GINAC_ASSERT(hashtabsize==o.hashtabsize);
@@ -549,34 +537,34 @@ ex expairseq::thisexpairseq(epvector *vp, const ex &oc) const
 	return expairseq(vp,oc);
 }
 
-void expairseq::printpair(std::ostream &os, const expair &p, unsigned upper_precedence) const
+void expairseq::printpair(const print_context & c, const expair & p, unsigned upper_precedence) const
 {
-	os << "[[";
-	p.rest.bp->print(os,precedence);
-	os << ",";
-	p.coeff.bp->print(os,precedence);
-	os << "]]";
+	c.s << "[[";
+	p.rest.bp->print(c, precedence);
+	c.s << ",";
+	p.coeff.bp->print(c, precedence);
+	c.s << "]]";
 }
 
-void expairseq::printseq(std::ostream &os, char delim,
+void expairseq::printseq(const print_context & c, char delim,
                          unsigned this_precedence,
                          unsigned upper_precedence) const
 {
-	if (this_precedence<=upper_precedence)
-		os << "(";
-	epvector::const_iterator it,it_last;
-	it_last=seq.end();
-	--it_last;
+	if (this_precedence <= upper_precedence)
+		c.s << "(";
+	epvector::const_iterator it, it_last = seq.end() - 1;
 	for (it=seq.begin(); it!=it_last; ++it) {
-		printpair(os,*it,this_precedence);
-		os << delim;
+		printpair(c, *it, this_precedence);
+		c.s << delim;
 	}
-	printpair(os,*it,this_precedence);
-	if (!overall_coeff.is_equal(default_overall_coeff()))
-		os << delim << overall_coeff;
+	printpair(c, *it, this_precedence);
+	if (!overall_coeff.is_equal(default_overall_coeff())) {
+		c.s << delim;
+		overall_coeff.print(c, this_precedence);
+	}
 	
-	if (this_precedence<=upper_precedence)
-		os << ")";
+	if (this_precedence <= upper_precedence)
+		c.s << ")";
 }
 
 
@@ -1399,32 +1387,32 @@ void expairseq::combine_same_terms(void)
  *  debugging or in assertions since being sorted is an invariance. */
 bool expairseq::is_canonical() const
 {
-	if (seq.size()<=1)
+	if (seq.size() <= 1)
 		return 1;
 	
 #if EXPAIRSEQ_USE_HASHTAB
-	if (hashtabsize>0) return 1; // not canoncalized
+	if (hashtabsize > 0) return 1; // not canoncalized
 #endif // EXPAIRSEQ_USE_HASHTAB
 	
 	epvector::const_iterator it = seq.begin();
 	epvector::const_iterator it_last = it;
 	for (++it; it!=seq.end(); it_last=it, ++it) {
-		if (!((*it_last).is_less(*it)||(*it_last).is_equal(*it))) {
-			if (!is_ex_exactly_of_type((*it_last).rest,numeric)||
+		if (!((*it_last).is_less(*it) || (*it_last).is_equal(*it))) {
+			if (!is_ex_exactly_of_type((*it_last).rest,numeric) ||
 				!is_ex_exactly_of_type((*it).rest,numeric)) {
 				// double test makes it easier to set a breakpoint...
-				if (!is_ex_exactly_of_type((*it_last).rest,numeric)||
+				if (!is_ex_exactly_of_type((*it_last).rest,numeric) ||
 					!is_ex_exactly_of_type((*it).rest,numeric)) {
-					printpair(std::clog,*it_last,0);
+					printpair(std::clog, *it_last, 0);
 					std::clog << ">";
-					printpair(std::clog,*it,0);
+					printpair(std::clog, *it, 0);
 					std::clog << "\n";
 					std::clog << "pair1:" << std::endl;
-					(*it_last).rest.printtree(std::clog);
-					(*it_last).coeff.printtree(std::clog);
+					(*it_last).rest.print(print_tree(std::clog));
+					(*it_last).coeff.print(print_tree(std::clog));
 					std::clog << "pair2:" << std::endl;
-					(*it).rest.printtree(std::clog);
-					(*it).coeff.printtree(std::clog);
+					(*it).rest.print(print_tree(std::clog));
+					(*it).coeff.print(print_tree(std::clog));
 					return 0;
 				}
 			}

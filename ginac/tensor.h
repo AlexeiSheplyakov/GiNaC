@@ -53,7 +53,7 @@ class tensdelta : public tensor
 
 	// functions overriding virtual functions from bases classes
 public:
-	void print(std::ostream & os, unsigned upper_precedence=0) const;
+	void print(const print_context & c, unsigned level = 0) const;
 	ex eval_indexed(const basic & i) const;
 	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
 };
@@ -68,7 +68,7 @@ class tensmetric : public tensor
 
 	// functions overriding virtual functions from bases classes
 public:
-	void print(std::ostream & os, unsigned upper_precedence=0) const;
+	void print(const print_context & c, unsigned level = 0) const;
 	ex eval_indexed(const basic & i) const;
 	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
 };
@@ -88,7 +88,7 @@ public:
 
 	// functions overriding virtual functions from bases classes
 public:
-	void print(std::ostream & os, unsigned upper_precedence=0) const;
+	void print(const print_context & c, unsigned level = 0) const;
 	ex eval_indexed(const basic & i) const;
 
 	// member variables
@@ -110,7 +110,7 @@ public:
 
 	// functions overriding virtual functions from bases classes
 public:
-	void print(std::ostream & os, unsigned upper_precedence=0) const;
+	void print(const print_context & c, unsigned level = 0) const;
 	ex eval_indexed(const basic & i) const;
 
 	// member variables

@@ -30,6 +30,7 @@
 #include "ex.h"
 #include "normal.h"
 #include "archive.h"
+#include "print.h"
 
 #include "constant.h"
 #include "fail.h"

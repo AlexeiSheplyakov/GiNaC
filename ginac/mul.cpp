@@ -126,99 +126,99 @@ DEFAULT_ARCHIVING(mul)
 
 // public
 
-void mul::print(std::ostream & os, unsigned upper_precedence) const
+void mul::print(const print_context & c, unsigned level) const
 {
-	debugmsg("mul print",LOGLEVEL_PRINT);
-	if (precedence<=upper_precedence) os << "(";
-	bool first = true;
-	// first print the overall numeric coefficient:
-	numeric coeff = ex_to_numeric(overall_coeff);
-	if (coeff.csgn()==-1) os << '-';
-	if (!coeff.is_equal(_num1()) &&
-		!coeff.is_equal(_num_1())) {
-		if (coeff.is_rational()) {
-			if (coeff.is_negative())
-				os << -coeff;
-			else
-				os << coeff;
-		} else {
-			if (coeff.csgn()==-1)
-				(-coeff).print(os, precedence);
-			else
-				coeff.print(os, precedence);
+	debugmsg("mul print", LOGLEVEL_PRINT);
+
+	if (is_of_type(c, print_tree)) {
+
+		inherited::print(c, level);
+
+	} else if (is_of_type(c, print_csrc)) {
+
+		if (precedence <= level)
+			c.s << "(";
+
+		if (!overall_coeff.is_equal(_ex1())) {
+			overall_coeff.bp->print(c, precedence);
+			c.s << "*";
 		}
-		os << '*';
-	}
-	// then proceed with the remaining factors:
-	for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
-		if (!first) {
-			os << '*';
-		} else {
-			first=false;
-		}
-		recombine_pair_to_ex(*cit).print(os,precedence);
-	}
-	if (precedence<=upper_precedence) os << ")";
-}
-
-void mul::printraw(std::ostream & os) const
-{
-	debugmsg("mul printraw",LOGLEVEL_PRINT);
-
-	os << "*(";
-	for (epvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
-		os << "(";
-		(*it).rest.bp->printraw(os);
-		os << ",";
-		(*it).coeff.bp->printraw(os);
-		os << "),";
-	}
-	os << ",hash=" << hashvalue << ",flags=" << flags;
-	os << ")";
-}
-
-void mul::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
-{
-	debugmsg("mul print csrc", LOGLEVEL_PRINT);
-	if (precedence <= upper_precedence)
-		os << "(";
-
-	if (!overall_coeff.is_equal(_ex1())) {
-		overall_coeff.bp->printcsrc(os,type,precedence);
-		os << "*";
-	}
 	
-	// Print arguments, separated by "*" or "/"
-	epvector::const_iterator it = seq.begin();
-	epvector::const_iterator itend = seq.end();
-	while (it != itend) {
+		// Print arguments, separated by "*" or "/"
+		epvector::const_iterator it = seq.begin(), itend = seq.end();
+		while (it != itend) {
 
-		// If the first argument is a negative integer power, it gets printed as "1.0/<expr>"
-		if (it == seq.begin() && ex_to_numeric(it->coeff).is_integer() && it->coeff.compare(_num0()) < 0) {
-			if (type == csrc_types::ctype_cl_N)
-				os << "recip(";
-			else
-				os << "1.0/";
+			// If the first argument is a negative integer power, it gets printed as "1.0/<expr>"
+			if (it == seq.begin() && ex_to_numeric(it->coeff).is_integer() && it->coeff.compare(_num0()) < 0) {
+				if (is_of_type(c, print_csrc_cl_N))
+					c.s << "recip(";
+				else
+					c.s << "1.0/";
+			}
+
+			// If the exponent is 1 or -1, it is left out
+			if (it->coeff.compare(_ex1()) == 0 || it->coeff.compare(_num_1()) == 0)
+				it->rest.print(c, precedence);
+			else {
+				// Outer parens around ex needed for broken gcc-2.95 parser:
+				(ex(power(it->rest, abs(ex_to_numeric(it->coeff))))).print(c, level);
+			}
+
+			// Separator is "/" for negative integer powers, "*" otherwise
+			++it;
+			if (it != itend) {
+				if (ex_to_numeric(it->coeff).is_integer() && it->coeff.compare(_num0()) < 0)
+					c.s << "/";
+				else
+					c.s << "*";
+			}
 		}
 
-		// If the exponent is 1 or -1, it is left out
-		if (it->coeff.compare(_ex1()) == 0 || it->coeff.compare(_num_1()) == 0)
-			it->rest.bp->printcsrc(os, type, precedence);
-		else
-			// outer parens around ex needed for broken gcc-2.95 parser:
-			(ex(power(it->rest, abs(ex_to_numeric(it->coeff))))).bp->printcsrc(os, type, upper_precedence);
+		if (precedence <= level)
+			c.s << ")";
 
-		// Separator is "/" for negative integer powers, "*" otherwise
-		++it;
-		if (it != itend) {
-			if (ex_to_numeric(it->coeff).is_integer() && it->coeff.compare(_num0()) < 0)
-				os << "/";
-			else
-				os << "*";
+	} else {
+
+		if (precedence <= level)
+			c.s << "(";
+
+		bool first = true;
+
+		// First print the overall numeric coefficient
+		numeric coeff = ex_to_numeric(overall_coeff);
+		if (coeff.csgn() == -1)
+			c.s << '-';
+		if (!coeff.is_equal(_num1()) &&
+			!coeff.is_equal(_num_1())) {
+			if (coeff.is_rational()) {
+				if (coeff.is_negative())
+					(-coeff).print(c, precedence);
+				else
+					coeff.print(c, precedence);
+			} else {
+				if (coeff.csgn() == -1)
+					(-coeff).print(c, precedence);
+				else
+					coeff.print(c, precedence);
+			}
+			c.s << '*';
 		}
+
+		// Then proceed with the remaining factors
+		epvector::const_iterator it = seq.begin(), itend = seq.end();
+		while (it != itend) {
+			if (!first) {
+				c.s << '*';
+			} else {
+				first = false;
+			}
+			recombine_pair_to_ex(*it).print(c, precedence);
+			it++;
+		}
+
+		if (precedence <= level)
+			c.s << ")";
 	}
-	if (precedence <= upper_precedence)
-		os << ")";
 }
 
 bool mul::info(unsigned inf) const
@@ -327,7 +327,7 @@ ex mul::eval(int level) const
 		             (!(ex_to_numeric((*cit).coeff).is_integer())));
 		GINAC_ASSERT(!(cit->is_canonical_numeric()));
 		if (is_ex_exactly_of_type(recombine_pair_to_ex(*cit),numeric))
-		    printtree(std::cerr,0);
+		    print(print_tree(std::cerr));
 		GINAC_ASSERT(!is_ex_exactly_of_type(recombine_pair_to_ex(*cit),numeric));
 		/* for paranoia */
 		expair p = split_ex_to_pair(recombine_pair_to_ex(*cit));

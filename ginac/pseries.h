@@ -42,9 +42,7 @@ public:
 
 	// functions overriding virtual functions from base classes
 public:
-	void print(std::ostream &os, unsigned upper_precedence = 0) const;
-	void printraw(std::ostream &os) const;
-	void printtree(std::ostream & os, unsigned indent) const;
+	void print(const print_context & c, unsigned level = 0) const;
 	unsigned nops(void) const;
 	ex op(int i) const;
 	ex &let_op(int i);

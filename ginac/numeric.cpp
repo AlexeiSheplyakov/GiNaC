@@ -40,6 +40,7 @@
 
 #include "numeric.h"
 #include "ex.h"
+#include "print.h"
 #include "archive.h"
 #include "debugmsg.h"
 #include "utils.h"
@@ -365,125 +366,112 @@ static void print_real_number(std::ostream &os, const cln::cl_R &num)
  *  with the other routines and produces something compatible to ginsh input.
  *  
  *  @see print_real_number() */
-void numeric::print(std::ostream &os, unsigned upper_precedence) const
+void numeric::print(const print_context & c, unsigned level) const
 {
 	debugmsg("numeric print", LOGLEVEL_PRINT);
-	cln::cl_R r = cln::realpart(cln::the<cln::cl_N>(value));
-	cln::cl_R i = cln::imagpart(cln::the<cln::cl_N>(value));
-	if (cln::zerop(i)) {
-		// case 1, real:  x  or  -x
-		if ((precedence<=upper_precedence) && (!this->is_nonneg_integer())) {
-			os << "(";
-			print_real_number(os, r);
-			os << ")";
-		} else {
-			print_real_number(os, r);
-		}
-	} else {
-		if (cln::zerop(r)) {
-			// case 2, imaginary:  y*I  or  -y*I
-			if ((precedence<=upper_precedence) && (i < 0)) {
-				if (i == -1) {
-					os << "(-I)";
-				} else {
-					os << "(";
-					print_real_number(os, i);
-					os << "*I)";
-				}
+
+	if (is_of_type(c, print_tree)) {
+
+		c.s << std::string(level, ' ') << cln::the<cln::cl_N>(value)
+		    << " (" << class_name() << ")"
+		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+		    << std::endl;
+
+	} else if (is_of_type(c, print_csrc)) {
+
+		std::ios::fmtflags oldflags = c.s.flags();
+		c.s.setf(std::ios::scientific);
+		if (this->is_rational() && !this->is_integer()) {
+			if (compare(_num0()) > 0) {
+				c.s << "(";
+				if (is_of_type(c, print_csrc_cl_N))
+					c.s << "cln::cl_F(\"" << numer().evalf() << "\")";
+				else
+					c.s << numer().to_double();
 			} else {
-				if (i == 1) {
-					os << "I";
-				} else {
+				c.s << "-(";
+				if (is_of_type(c, print_csrc_cl_N))
+					c.s << "cln::cl_F(\"" << -numer().evalf() << "\")";
+				else
+					c.s << -numer().to_double();
+			}
+			c.s << "/";
+			if (is_of_type(c, print_csrc_cl_N))
+				c.s << "cln::cl_F(\"" << denom().evalf() << "\")";
+			else
+				c.s << denom().to_double();
+			c.s << ")";
+		} else {
+			if (is_of_type(c, print_csrc_cl_N))
+				c.s << "cln::cl_F(\"" << evalf() << "\")";
+			else
+				c.s << to_double();
+		}
+		c.s.flags(oldflags);
+
+	} else {
+
+		cln::cl_R r = cln::realpart(cln::the<cln::cl_N>(value));
+		cln::cl_R i = cln::imagpart(cln::the<cln::cl_N>(value));
+		if (cln::zerop(i)) {
+			// case 1, real:  x  or  -x
+			if ((precedence <= level) && (!this->is_nonneg_integer())) {
+				c.s << "(";
+				print_real_number(c.s, r);
+				c.s << ")";
+			} else {
+				print_real_number(c.s, r);
+			}
+		} else {
+			if (cln::zerop(r)) {
+				// case 2, imaginary:  y*I  or  -y*I
+				if ((precedence <= level) && (i < 0)) {
 					if (i == -1) {
-						os << "-I";
+						c.s << "(-I)";
 					} else {
-						print_real_number(os, i);
-						os << "*I";
+						c.s << "(";
+						print_real_number(c.s, i);
+						c.s << "*I)";
+					}
+				} else {
+					if (i == 1) {
+						c.s << "I";
+					} else {
+						if (i == -1) {
+							c.s << "-I";
+						} else {
+							print_real_number(c.s, i);
+							c.s << "*I";
+						}
 					}
 				}
-			}
-		} else {
-			// case 3, complex:  x+y*I  or  x-y*I  or  -x+y*I  or  -x-y*I
-			if (precedence <= upper_precedence)
-				os << "(";
-			print_real_number(os, r);
-			if (i < 0) {
-				if (i == -1) {
-					os << "-I";
-				} else {
-					print_real_number(os, i);
-					os << "*I";
-				}
 			} else {
-				if (i == 1) {
-					os << "+I";
+				// case 3, complex:  x+y*I  or  x-y*I  or  -x+y*I  or  -x-y*I
+				if (precedence <= level)
+					c.s << "(";
+				print_real_number(c.s, r);
+				if (i < 0) {
+					if (i == -1) {
+						c.s << "-I";
+					} else {
+						print_real_number(c.s, i);
+						c.s << "*I";
+					}
 				} else {
-					os << "+";
-					print_real_number(os, i);
-					os << "*I";
+					if (i == 1) {
+						c.s << "+I";
+					} else {
+						c.s << "+";
+						print_real_number(c.s, i);
+						c.s << "*I";
+					}
 				}
+				if (precedence <= level)
+					c.s << ")";
 			}
-			if (precedence <= upper_precedence)
-				os << ")";
 		}
 	}
 }
-
-
-void numeric::printraw(std::ostream &os) const
-{
-	// The method printraw doesn't do much, it simply uses CLN's operator<<()
-	// for output, which is ugly but reliable. e.g: 2+2i
-	debugmsg("numeric printraw", LOGLEVEL_PRINT);
-	os << class_name() << "(" << cln::the<cln::cl_N>(value) << ")";
-}
-
-
-void numeric::printtree(std::ostream &os, unsigned indent) const
-{
-	debugmsg("numeric printtree", LOGLEVEL_PRINT);
-	os << std::string(indent,' ') << cln::the<cln::cl_N>(value)
-	   << " (numeric): "
-	   << "hash=" << hashvalue
-	   << " (0x" << std::hex << hashvalue << std::dec << ")"
-	   << ", flags=" << flags << std::endl;
-}
-
-
-void numeric::printcsrc(std::ostream &os, unsigned type, unsigned upper_precedence) const
-{
-	debugmsg("numeric print csrc", LOGLEVEL_PRINT);
-	std::ios::fmtflags oldflags = os.flags();
-	os.setf(std::ios::scientific);
-	if (this->is_rational() && !this->is_integer()) {
-		if (compare(_num0()) > 0) {
-			os << "(";
-			if (type == csrc_types::ctype_cl_N)
-				os << "cln::cl_F(\"" << numer().evalf() << "\")";
-			else
-				os << numer().to_double();
-		} else {
-			os << "-(";
-			if (type == csrc_types::ctype_cl_N)
-				os << "cln::cl_F(\"" << -numer().evalf() << "\")";
-			else
-				os << -numer().to_double();
-		}
-		os << "/";
-		if (type == csrc_types::ctype_cl_N)
-			os << "cln::cl_F(\"" << denom().evalf() << "\")";
-		else
-			os << denom().to_double();
-		os << ")";
-	} else {
-		if (type == csrc_types::ctype_cl_N)
-			os << "cln::cl_F(\"" << evalf() << "\")";
-		else
-			os << to_double();
-	}
-	os.flags(oldflags);
-}
-
 
 bool numeric::info(unsigned inf) const
 {

@@ -21,7 +21,6 @@
  */
 
 #include <iostream>
-#include <typeinfo>
 #include <stdexcept>
 
 #include "basic.h"
@@ -31,6 +30,7 @@
 #include "symbol.h"
 #include "lst.h"
 #include "ncmul.h"
+#include "print.h"
 #include "archive.h"
 #include "utils.h"
 #include "debugmsg.h"
@@ -109,46 +109,25 @@ void basic::archive(archive_node &n) const
 
 // public
 
-/** Output to ostream formatted as parsable (as in ginsh) input.
- *  Generally, superfluous parenthesis should be avoided as far as possible. */
-void basic::print(std::ostream & os, unsigned upper_precedence) const
+/** Output to stream.
+ *  @param c print context object that describes the output formatting
+ *  @param level value that is used to identify the precedence or indentation
+ *               level for placing parentheses and formatting */
+void basic::print(const print_context & c, unsigned level) const
 {
-	debugmsg("basic print",LOGLEVEL_PRINT);
-	os << "[" << class_name() << " object]";
-}
+	debugmsg("basic print", LOGLEVEL_PRINT);
 
-/** Output to ostream in ugly raw format, so brave developers can have a look
- *  at the underlying structure. */
-void basic::printraw(std::ostream & os) const
-{
-	debugmsg("basic printraw",LOGLEVEL_PRINT);
-	os << "[" << class_name() << " object]";
-}
+	if (is_of_type(c, print_tree)) {
 
-/** Output to ostream formatted in tree- (indented-) form, so developers can
- *  have a look at the underlying structure. */
-void basic::printtree(std::ostream & os, unsigned indent) const
-{
-	debugmsg("basic printtree",LOGLEVEL_PRINT);
-	os << std::string(indent,' ') << "type=" << class_name()
-	   << ", hash=" << hashvalue
-	   << " (0x" << std::hex << hashvalue << std::dec << ")"
-	   << ", flags=" << flags
-	   << ", nops=" << nops() << std::endl;
-	for (unsigned i=0; i<nops(); ++i) {
-		op(i).printtree(os,indent+delta_indent);
-	}
-}
+		c.s << std::string(level, ' ') << class_name()
+		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+		    << ", nops=" << nops()
+		    << std::endl;
+		for (unsigned i=0; i<nops(); ++i)
+			op(i).print(c, level + static_cast<const print_tree &>(c).delta_indent);
 
-/** Output to ostream formatted as C-source.
- *
- *  @param os a stream for output
- *  @param type variable type (one of the csrc_types)
- *  @param upper_precedence operator precedence of caller
- *  @see ex::printcsrc */
-void basic::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
-{
-	debugmsg("basic print csrc", LOGLEVEL_PRINT);
+	} else
+		c.s << "[" << class_name() << " object]";
 }
 
 /** Little wrapper arount print to be called within a debugger.
@@ -156,7 +135,7 @@ void basic::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedenc
  *  debugger because it might not know what cout is.  This method can be
  *  invoked with no argument and it will simply print to stdout.
  *
- *  @see basic::print*/
+ *  @see basic::print */
 void basic::dbgprint(void) const
 {
 	this->print(std::cerr);
@@ -169,7 +148,7 @@ void basic::dbgprint(void) const
  *  @see basic::printtree */
 void basic::dbgprinttree(void) const
 {
-	this->printtree(std::cerr,0);
+	this->print(print_tree(std::cerr));
 }
 
 /** Create a new copy of this on the heap.  One can think of this as simulating
@@ -512,18 +491,18 @@ int basic::compare(const basic & other) const
 	if (typeid_this<typeid_other) {
 // 		std::cout << "hash collision, different types: " 
 // 		          << *this << " and " << other << std::endl;
-// 		this->printraw(std::cout);
+// 		this->print(print_tree(std::cout));
 // 		std::cout << " and ";
-// 		other.printraw(std::cout);
+// 		other.print(print_tree(std::cout));
 // 		std::cout << std::endl;
 		return -1;
 	}
 	if (typeid_this>typeid_other) {
 // 		std::cout << "hash collision, different types: " 
 // 		          << *this << " and " << other << std::endl;
-// 		this->printraw(std::cout);
+// 		this->print(print_tree(std::cout));
 // 		std::cout << " and ";
-// 		other.printraw(std::cout);
+// 		other.print(print_tree(std::cout));
 // 		std::cout << std::endl;
 		return 1;
 	}
@@ -534,9 +513,9 @@ int basic::compare(const basic & other) const
 // 	if ((cmpval!=0) && (hash_this<0x80000000U)) {
 // 		std::cout << "hash collision, same type: " 
 // 		          << *this << " and " << other << std::endl;
-// 		this->printraw(std::cout);
+// 		this->print(print_tree(std::cout));
 // 		std::cout << " and ";
-// 		other.printraw(std::cout);
+// 		other.print(print_tree(std::cout));
 // 		std::cout << std::endl;
 // 	}
 // 	return cmpval;
@@ -587,7 +566,6 @@ void basic::ensure_if_modifiable(void) const
 // protected
 
 unsigned basic::precedence = 70;
-unsigned basic::delta_indent = 4;
 
 //////////
 // global variables

@@ -47,9 +47,7 @@ public:
 	
 	// functions overriding virtual functions from bases classes
 public:
-	void print(std::ostream & os, unsigned upper_precedence) const;
-	void printraw(std::ostream & os) const;
-	void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const;
+	void print(const print_context & c, unsigned level) const;
 	bool info(unsigned inf) const;
 	int degree(const ex & s) const;
 	int ldegree(const ex & s) const;

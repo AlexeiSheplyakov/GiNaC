@@ -25,16 +25,17 @@
 #include <stdexcept>
 
 #include "matrix.h"
-#include "archive.h"
 #include "numeric.h"
 #include "lst.h"
 #include "idx.h"
 #include "indexed.h"
-#include "utils.h"
-#include "debugmsg.h"
 #include "power.h"
 #include "symbol.h"
 #include "normal.h"
+#include "print.h"
+#include "archive.h"
+#include "utils.h"
+#include "debugmsg.h"
 
 namespace GiNaC {
 
@@ -145,36 +146,35 @@ DEFAULT_UNARCHIVE(matrix)
 
 // public
 
-void matrix::print(std::ostream & os, unsigned upper_precedence) const
+void matrix::print(const print_context & c, unsigned level) const
 {
-	debugmsg("matrix print",LOGLEVEL_PRINT);
-	os << "[[ ";
-	for (unsigned r=0; r<row-1; ++r) {
-		os << "[[";
-		for (unsigned c=0; c<col-1; ++c)
-			os << m[r*col+c] << ",";
-		os << m[col*(r+1)-1] << "]], ";
-	}
-	os << "[[";
-	for (unsigned c=0; c<col-1; ++c)
-		os << m[(row-1)*col+c] << ",";
-	os << m[row*col-1] << "]] ]]";
-}
+	debugmsg("matrix print", LOGLEVEL_PRINT);
 
-void matrix::printraw(std::ostream & os) const
-{
-	debugmsg("matrix printraw",LOGLEVEL_PRINT);
-	os << class_name() << "(" << row << "," << col <<",";
-	for (unsigned r=0; r<row-1; ++r) {
-		os << "(";
-		for (unsigned c=0; c<col-1; ++c)
-			os << m[r*col+c] << ",";
-		os << m[col*(r-1)-1] << "),";
+	if (is_of_type(c, print_tree)) {
+
+		inherited::print(c, level);
+
+	} else {
+
+		c.s << "[[ ";
+		for (unsigned y=0; y<row-1; ++y) {
+			c.s << "[[";
+			for (unsigned x=0; x<col-1; ++x) {
+				m[y*col+x].print(c);
+				c.s << ",";
+			}
+			m[col*(y+1)-1].print(c);
+			c.s << "]], ";
+		}
+		c.s << "[[";
+		for (unsigned x=0; x<col-1; ++x) {
+			m[(row-1)*col+x].print(c);
+			c.s << ",";
+		}
+		m[row*col-1].print(c);
+		c.s << "]] ]]";
+
 	}
-	os << "(";
-	for (unsigned c=0; c<col-1; ++c)
-		os << m[(row-1)*col+c] << ",";
-	os << m[row*col-1] << "))";
 }
 
 /** nops is defined to be rows x columns. */

@@ -72,10 +72,7 @@ public:
 	// functions overriding virtual functions from base classes
 public:
 	basic * duplicate() const;
-	void print(std::ostream & os, unsigned upper_precedence = 0) const;
-	void printraw(std::ostream & os) const;
-	void printtree(std::ostream & os, unsigned indent) const;
-	void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence = 0) const;
+	void print(const print_context & c, unsigned level = 0) const;
 	bool info(unsigned inf) const;
 	ex expand(unsigned options = 0) const;
 	bool has(const ex & other) const;

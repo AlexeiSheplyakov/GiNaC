@@ -204,9 +204,7 @@ public:
 ${constructors_interface}
 
 public:
-	void printraw(std::ostream & os) const;
-	void print(std::ostream & os, unsigned upper_precedence=0) const;
-	void printtree(std::ostream & os, unsigned indent) const;
+	void print(const print_context & c, unsigned level = 0) const;
 	bool info(unsigned inf) const;
 	unsigned nops() const;
 	ex & let_op(int i);
@@ -226,9 +224,9 @@ public:
 	virtual ${CONTAINER} & append(const ex & b);
 ${PREPEND_INTERFACE}
 protected:
-	virtual void printseq(std::ostream & os, char openbracket, char delim,
+	virtual void printseq(const print_context & c, char openbracket, char delim,
 	                      char closebracket, unsigned this_precedence,
-	                      unsigned upper_precedence=0) const;
+	                      unsigned upper_precedence = 0) const;
 	virtual ex this${CONTAINER}(${STLT} const & v) const;
 	virtual ex this${CONTAINER}(${STLT} * vp) const;
 
@@ -244,11 +242,6 @@ protected:
 	${STLT} seq;
 	static unsigned precedence;
 };
-
-// global constants
-
-extern const ${CONTAINER} some_${CONTAINER};
-extern const std::type_info & typeid_${CONTAINER};
 
 // utility functions
 inline const ${CONTAINER} &ex_to_${CONTAINER}(const ex &e)
@@ -306,6 +299,7 @@ $implementation=<<END_OF_IMPLEMENTATION;
 
 #include "${CONTAINER}.h"
 #include "ex.h"
+#include "print.h"
 #include "archive.h"
 #include "debugmsg.h"
 
@@ -406,38 +400,25 @@ void ${CONTAINER}::archive(archive_node &n) const
 
 // public
 
-void ${CONTAINER}::printraw(std::ostream & os) const
+void ${CONTAINER}::print(const print_context & c, unsigned level) const
 {
-	debugmsg("${CONTAINER} printraw",LOGLEVEL_PRINT);
+	debugmsg("${CONTAINER} print", LOGLEVEL_PRINT);
 
-	os << class_name() << "(";
-	for (${STLT}::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
-		(*cit).bp->printraw(os);
-		os << ",";
+	if (is_of_type(c, print_tree)) {
+
+		c.s << std::string(level, ' ') << class_name()
+		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+		    << ", nops=" << nops()
+		    << std::endl;
+		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
+		for (${STLT}::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit)
+			cit->print(c, level + delta_indent);
+		c.s << std::string(level + delta_indent,' ') << "=====" << std::endl;
+
+	} else {
+		// always print brackets around seq, ignore upper_precedence
+		printseq(c, '${open_bracket}', ',', '${close_bracket}', precedence, precedence+1);
 	}
-	os << ")";
-}
-
-void ${CONTAINER}::print(std::ostream & os, unsigned upper_precedence) const
-{
-	debugmsg("${CONTAINER} print",LOGLEVEL_PRINT);
-	// always print brackets around seq, ignore upper_precedence
-	printseq(os,'${open_bracket}',',','${close_bracket}',precedence,precedence+1);
-}
-
-void ${CONTAINER}::printtree(std::ostream & os, unsigned indent) const
-{
-	debugmsg("${CONTAINER} printtree",LOGLEVEL_PRINT);
-
-	os << std::string(indent,' ') << "type=" << class_name()
-	   << ", hash=" << hashvalue 
-	   << " (0x" << std::hex << hashvalue << std::dec << ")"
-	   << ", flags=" << flags
-	   << ", nops=" << nops() << std::endl;
-	for (${STLT}::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
-		(*cit).printtree(os,indent+delta_indent);
-	}
-	os << std::string(indent+delta_indent,' ') << "=====" << std::endl;
 }
 
 // ${CONTAINER}::info() will be implemented by user elsewhere";
@@ -570,23 +551,26 @@ ${PREPEND_IMPLEMENTATION}
 
 // protected
 
-void ${CONTAINER}::printseq(std::ostream & os, char openbracket, char delim,
+void ${CONTAINER}::printseq(const print_context & c, char openbracket, char delim,
                             char closebracket, unsigned this_precedence,
                             unsigned upper_precedence) const
 {
-	if (this_precedence<=upper_precedence) os << openbracket;
-	if (seq.size()!=0) {
-		${STLT}::const_iterator it,it_last;
-		it=seq.begin();
-		it_last=seq.end();
-		--it_last;
-		for (; it!=it_last; ++it) {
-			(*it).bp->print(os,this_precedence);
-			os << delim;
+	if (this_precedence <= upper_precedence)
+		c.s << openbracket;
+
+	if (seq.size() != 0) {
+		${STLT}::const_iterator it = seq.begin(), itend = seq.end();
+		--itend;
+		while (it != itend) {
+			it->print(c, this_precedence);
+			c.s << delim;
+			it++;
 		}
-		(*it).bp->print(os,this_precedence);
+		it->print(c, this_precedence);
 	}
-	if (this_precedence<=upper_precedence) os << closebracket;
+
+	if (this_precedence <= upper_precedence)
+		c.s << closebracket;
 }
 
 ex ${CONTAINER}::this${CONTAINER}(${STLT} const & v) const
@@ -748,13 +732,6 @@ ${STLT} * ${CONTAINER}::subschildren(const lst & ls, const lst & lr) const
 // protected
 
 unsigned ${CONTAINER}::precedence = 10;
-
-//////////
-// global constants
-//////////
-
-const ${CONTAINER} some_${CONTAINER};
-const std::type_info & typeid_${CONTAINER} = typeid(some_${CONTAINER});
 
 } // namespace GiNaC
 

@@ -22,6 +22,7 @@
  */
 
 #include "fail.h"
+#include "print.h"
 #include "archive.h"
 #include "debugmsg.h"
 #include "utils.h"

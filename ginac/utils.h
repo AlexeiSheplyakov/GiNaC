@@ -292,10 +292,13 @@ int classname::compare_same_type(const basic & other) const \
 }
 
 #define DEFAULT_PRINT(classname, text) \
-void classname::print(std::ostream & os, unsigned upper_precedence) const \
+void classname::print(const print_context & c, unsigned level) const \
 { \
 	debugmsg(#classname " print", LOGLEVEL_PRINT); \
-	os << text; \
+	if (is_of_type(c, print_tree)) \
+		inherited::print(c, level); \
+	else \
+		c.s << text; \
 }
 
 } // namespace GiNaC

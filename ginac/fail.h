@@ -34,7 +34,7 @@ class fail : public basic
 	
 	// functions overriding virtual functions from bases classes
 public:
-	void print(std::ostream & os, unsigned upper_precedence=0) const;
+	void print(const print_context & c, unsigned level = 0) const;
 protected:
 	unsigned return_type(void) const { return return_types::noncommutative_composite; };
 };

@@ -26,6 +26,7 @@
 #include "constant.h"
 #include "numeric.h"
 #include "ex.h"
+#include "print.h"
 #include "archive.h"
 #include "debugmsg.h"
 #include "utils.h"
@@ -126,32 +127,18 @@ void constant::archive(archive_node &n) const
 
 // public
 
-void constant::print(std::ostream & os, unsigned upper_precedence) const
+void constant::print(const print_context & c, unsigned level) const
 {
-	debugmsg("constant print",LOGLEVEL_PRINT);
-	os << name;
-}
+	debugmsg("constant print", LOGLEVEL_PRINT);
 
-void constant::printraw(std::ostream & os) const
-{
-	debugmsg("constant printraw",LOGLEVEL_PRINT);
-	os << class_name() << "(" << name << ")";
-}
+	if (is_of_type(c, print_tree)) {
 
-void constant::printtree(std::ostream & os, unsigned indent) const
-{
-	debugmsg("constant printtree",LOGLEVEL_PRINT);
-	os << std::string(indent,' ') << name
-	   << ", type=" << class_name()
-	   << ", hash=" << hashvalue
-	   << " (0x" << std::hex << hashvalue << std::dec << ")"
-	   << ", flags=" << flags << std::endl;
-}
+		c.s << std::string(level, ' ') << name << " (" << class_name() << ")"
+		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+		    << std::endl;
 
-void constant::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
-{
-	debugmsg("constant print csrc",LOGLEVEL_PRINT);
-	os << name;
+	} else
+		c.s << name;
 }
 
 int constant::degree(const ex & s) const

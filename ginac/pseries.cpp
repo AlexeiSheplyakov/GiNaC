@@ -31,6 +31,7 @@
 #include "power.h"
 #include "relational.h"
 #include "symbol.h"
+#include "print.h"
 #include "archive.h"
 #include "utils.h"
 #include "debugmsg.h"
@@ -121,73 +122,73 @@ DEFAULT_UNARCHIVE(pseries)
 // functions overriding virtual functions from bases classes
 //////////
 
-void pseries::print(std::ostream &os, unsigned upper_precedence) const
+void pseries::print(const print_context & c, unsigned level) const
 {
 	debugmsg("pseries print", LOGLEVEL_PRINT);
-	if (precedence<=upper_precedence) os << "(";
-	// objects of type pseries must not have any zero entries, so the
-	// trivial (zero) pseries needs a special treatment here:
-	if (seq.size()==0)
-		os << '0';
-	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i) {
-		// print a sign, if needed
-		if (i!=seq.begin())
-			os << '+';
-		if (!is_order_function(i->rest)) {
-			// print 'rest', i.e. the expansion coefficient
-			if (i->rest.info(info_flags::numeric) &&
-				i->rest.info(info_flags::positive)) {
-				os << i->rest;
-			} else
-				os << "(" << i->rest << ')';
-			// print 'coeff', something like (x-1)^42
-			if (!i->coeff.is_zero()) {
-				os << '*';
-				if (!point.is_zero())
-					os << '(' << var-point << ')';
-				else
-					os << var;
-				if (i->coeff.compare(_ex1())) {
-					os << '^';
-					if (i->coeff.info(info_flags::negative))
-						os << '(' << i->coeff << ')';
-					else
-						os << i->coeff;
-				}
-			}
-		} else {
-			os << Order(power(var-point,i->coeff));
+
+	if (is_of_type(c, print_tree)) {
+
+		c.s << std::string(level, ' ') << class_name()
+		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+		    << std::endl;
+		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
+		for (unsigned i=0; i<seq.size(); ++i) {
+			seq[i].rest.print(c, level + delta_indent);
+			seq[i].coeff.print(c, level + delta_indent);
+			c.s << std::string(level + delta_indent, ' ') << "-----" << std::endl;
 		}
+		var.print(c, level + delta_indent);
+		point.print(c, level + delta_indent);
+
+	} else {
+
+		if (precedence <= level)
+			c.s << "(";
+
+		// objects of type pseries must not have any zero entries, so the
+		// trivial (zero) pseries needs a special treatment here:
+		if (seq.size() == 0)
+			c.s << '0';
+		for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i) {
+			// print a sign, if needed
+			if (i != seq.begin())
+				c.s << '+';
+			if (!is_order_function(i->rest)) {
+				// print 'rest', i.e. the expansion coefficient
+				if (i->rest.info(info_flags::numeric) &&
+					i->rest.info(info_flags::positive)) {
+					i->rest.print(c);
+				} else {
+					c.s << '(';
+					i->rest.print(c);
+					c.s << ')';
+				}
+				// print 'coeff', something like (x-1)^42
+				if (!i->coeff.is_zero()) {
+					c.s << '*';
+					if (!point.is_zero()) {
+						c.s << '(';
+						(var-point).print(c);
+						c.s << ')';
+					} else
+						var.print(c);
+					if (i->coeff.compare(_ex1())) {
+						c.s << '^';
+						if (i->coeff.info(info_flags::negative)) {
+							c.s << '(';
+							i->coeff.print(c);
+							c.s << ')';
+						} else
+							i->coeff.print(c);
+					}
+				}
+			} else
+				Order(power(var-point,i->coeff)).print(c);
+		}
+
+		if (precedence <= level)
+			c.s << ")";
 	}
-	if (precedence<=upper_precedence) os << ")";
-}
-
-
-void pseries::printraw(std::ostream &os) const
-{
-	debugmsg("pseries printraw", LOGLEVEL_PRINT);
-	os << class_name() << "(" << var << ";" << point << ";";
-	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i)
-		os << "(" << (*i).rest << "," << (*i).coeff << "),";
-	os << ")";
-}
-
-
-void pseries::printtree(std::ostream & os, unsigned indent) const
-{
-	debugmsg("pseries printtree",LOGLEVEL_PRINT);
-	os << std::string(indent,' ') << class_name()
-	   << ", hash=" << hashvalue
-	   << " (0x" << std::hex << hashvalue << std::dec << ")"
-	   << ", flags=" << flags << std::endl;
-	for (unsigned i=0; i<seq.size(); ++i) {
-		seq[i].rest.printtree(os,indent+delta_indent);
-		seq[i].coeff.printtree(os,indent+delta_indent);
-		if (i!=seq.size()-1)
-			os << std::string(indent+delta_indent,' ') << "-----" << std::endl;
-	}
-	var.printtree(os, indent+delta_indent);
-	point.printtree(os, indent+delta_indent);
 }
 
 int pseries::compare_same_type(const basic & other) const
