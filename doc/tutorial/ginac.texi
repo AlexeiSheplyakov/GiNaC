@@ -685,6 +685,7 @@ meta-class for storing all mathematical objects.
 * Matrices::                     Matrices.
 * Indexed objects::              Handling indexed quantities.
 * Non-commutative objects::      Algebras with non-commutative products.
+* Hash Maps::                    A faster alternative to std::map<>.
 @end menu
 
 
@@ -2536,7 +2537,7 @@ one form for @samp{F} and explicitly multiply it with a matrix representation
 of the metric tensor.
 
 
-@node Non-commutative objects, Methods and Functions, Indexed objects, Basic Concepts
+@node Non-commutative objects, Hash Maps, Indexed objects, Basic Concepts
 @c    node-name, next, previous, up
 @section Non-commutative objects
 
@@ -2946,7 +2947,43 @@ standing. For example:
 @end example
 
 
-@node Methods and Functions, Information About Expressions, Non-commutative objects, Top
+@node Hash Maps, Methods and Functions, Non-commutative objects, Basic Concepts
+@c    node-name, next, previous, up
+@section Hash Maps
+@cindex hash maps
+@cindex @code{exhashmap} (class)
+
+For your convenience, GiNaC offers the container template @code{exhashmap<T>}
+that can be used as a drop-in replacement for the STL
+@code{std::map<ex, T, ex_is_less>}, using hash tables to provide faster,
+typically constant-time, element look-up than @code{map<>}.
+
+@code{exhashmap<>} supports all @code{map<>} members and operations, with the
+following differences:
+
+@itemize @bullet
+@item
+no @code{lower_bound()} and @code{upper_bound()} methods
+@item
+no reverse iterators, no @code{rbegin()}/@code{rend()}
+@item 
+no @code{operator<(exhashmap, exhashmap)}
+@item
+the comparison function object @code{key_compare} is hardcoded to
+@code{ex_is_less}
+@item
+the constructor @code{exhashmap(size_t n)} allows specifying the minimum
+initial hash table size (the actual table size after construction may be
+larger than the specified value)
+@item
+the method @code{size_t bucket_count()} returns the current size of the hash
+table
+@item 
+@code{insert()} and @code{erase()} operations invalidate all iterators
+@end itemize
+
+
+@node Methods and Functions, Information About Expressions, Hash Maps, Top
 @c    node-name, next, previous, up
 @chapter Methods and Functions
 @cindex polynomial
