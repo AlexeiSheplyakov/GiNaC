@@ -156,7 +156,6 @@ ex color::simplify_ncmul(const exvector & v) const
 {
 	exvector s;
 	s.reserve(v.size());
-	unsigned rl = ex_to_color(v[0]).get_representation_label();
 
 	// Remove superfluous ONEs
 	exvector::const_iterator it = v.begin(), itend = v.end();
@@ -167,7 +166,7 @@ ex color::simplify_ncmul(const exvector & v) const
 	}
 
 	if (s.size() == 0)
-		return color(su3one(), rl);
+		return color(su3one(), representation_label);
 	else
 		return simplified_ncmul(s);
 }
@@ -357,8 +356,12 @@ bool su3d::contract_with(exvector::iterator self, exvector::iterator other, exve
 	if (is_ex_exactly_of_type(other->op(0), su3d)) {
 
 		// Find the dummy indices of the contraction
-		exvector dummy_indices;
-		dummy_indices = ex_to_indexed(*self).get_dummy_indices(ex_to_indexed(*other));
+		exvector self_indices = ex_to_indexed(*self).get_indices();
+		exvector other_indices = ex_to_indexed(*other).get_indices();
+		exvector all_indices = self_indices;
+		all_indices.insert(all_indices.end(), other_indices.begin(), other_indices.end());
+		exvector free_indices, dummy_indices;
+		find_free_and_dummy(all_indices, free_indices, dummy_indices);
 
 		// d.abc*d.abc=40/3
 		if (dummy_indices.size() == 3) {
@@ -368,11 +371,12 @@ bool su3d::contract_with(exvector::iterator self, exvector::iterator other, exve
 
 		// d.akl*d.bkl=5/3*delta.ab
 		} else if (dummy_indices.size() == 2) {
-			exvector a = index_set_difference(ex_to_indexed(*self).get_indices(), dummy_indices);
-			exvector b = index_set_difference(ex_to_indexed(*other).get_indices(), dummy_indices);
-			GINAC_ASSERT(a.size() > 0);
-			GINAC_ASSERT(b.size() > 0);
-			*self = numeric(5, 3) * delta_tensor(a[0], b[0]);
+			exvector a;
+			back_insert_iterator<exvector> ita(a);
+			ita = set_difference(self_indices.begin(), self_indices.end(), dummy_indices.begin(), dummy_indices.end(), ita, ex_is_less());
+			ita = set_difference(other_indices.begin(), other_indices.end(), dummy_indices.begin(), dummy_indices.end(), ita, ex_is_less());
+			GINAC_ASSERT(a.size() == 2);
+			*self = numeric(5, 3) * delta_tensor(a[0], a[1]);
 			*other = _ex1();
 			return true;
 		}

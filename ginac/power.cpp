@@ -673,9 +673,7 @@ ex power::expand_add(const add & a, int n) const
 			cout << "k_cum[" << i << "]=" << k_cum[i] << endl;
 			cout << "upper_limit[" << i << "]=" << upper_limit[i] << endl;
 		}
-		for (exvector::const_iterator cit=term.begin(); cit!=term.end(); ++cit) {
-			cout << *cit << endl;
-		}
+		for_each(term.begin(), term.end(), ostream_iterator<ex>(cout, "\n"));
 		cout << "end term" << endl;
 		*/
 		

@@ -214,7 +214,6 @@ ex clifford::simplify_ncmul(const exvector & v) const
 {
 	exvector s;
 	s.reserve(v.size());
-	unsigned rl = ex_to_clifford(v[0]).get_representation_label();
 
 	// Remove superfluous ONEs
 	exvector::const_iterator cit = v.begin(), citend = v.end();
@@ -266,7 +265,7 @@ ex clifford::simplify_ncmul(const exvector & v) const
 				const ex & ib = b.op(1);
 				if (ia.is_equal(ib)) {
 					a = lorentz_g(ia, ib);
-					b = dirac_ONE(rl);
+					b = dirac_ONE(representation_label);
 					something_changed = true;
 				}
 			}
@@ -275,7 +274,7 @@ ex clifford::simplify_ncmul(const exvector & v) const
 	}
 
 	if (s.size() == 0)
-		return clifford(diracone(), rl) * sign;
+		return clifford(diracone(), representation_label) * sign;
 	if (something_changed)
 		return nonsimplified_ncmul(s) * sign;
 	else
@@ -478,25 +477,21 @@ ex canonicalize_clifford(const ex & e)
 			v.push_back(e.op(i));
 
 		// Stupid bubble sort because we only want to swap adjacent gammas
-		exvector::iterator itstart = v.begin(), itend = v.end(), next_to_last = itend - 1;
-		if (is_ex_of_type(itstart->op(0), diracgamma5))
-			itstart++;
-		while (next_to_last != itstart) {
-			exvector::iterator it = itstart;
-			while (it != next_to_last) {
-				if (it[0].op(1).compare(it[1].op(1)) > 0) {
-					ex save0 = it[0], save1 = it[1];
-					it[0] = lorentz_g(it[0].op(1), it[1].op(1));
-					it[1] = _ex2();
-					ex sum = ncmul(v);
-					it[0] = save1;
-					it[1] = save0;
-					sum -= ncmul(v);
-					return canonicalize_clifford(sum);
-				}
-				it++;
+		exvector::iterator it = v.begin(), next_to_last = v.end() - 1;
+		if (is_ex_of_type(it->op(0), diracgamma5))
+			it++;
+		while (it != next_to_last) {
+			if (it[0].op(1).compare(it[1].op(1)) > 0) {
+				ex save0 = it[0], save1 = it[1];
+				it[0] = lorentz_g(it[0].op(1), it[1].op(1));
+				it[1] = _ex2();
+				ex sum = ncmul(v);
+				it[0] = save1;
+				it[1] = save0;
+				sum -= ncmul(v);
+				return canonicalize_clifford(sum);
 			}
-			next_to_last--;
+			it++;
 		}
 		return ncmul(v);
 	}

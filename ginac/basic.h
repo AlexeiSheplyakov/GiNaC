@@ -154,10 +154,6 @@ public:
 	/** Clear some status_flags. */
 	const basic & clearflag(unsigned f) const {flags &= ~f; return *this;}
 
-	/** Get relative precedence level (useful for implementing pretty-printed
-	 *  output). */
-	unsigned get_precedence(void) const {return precedence;}
-
 protected:
 	void ensure_if_modifiable(void) const;
 	

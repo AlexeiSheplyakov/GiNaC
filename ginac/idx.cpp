@@ -21,6 +21,7 @@
  */
 
 #include <stdexcept>
+#include <algorithm>
 
 #include "idx.h"
 #include "symbol.h"
@@ -443,28 +444,35 @@ bool is_dummy_pair(const ex & e1, const ex & e2)
 	return is_dummy_pair(ex_to_idx(e1), ex_to_idx(e2));
 }
 
-/** Bring a vector of indices into a canonic order. Dummy indices will lie
- *  next to each other after the sorting. */
-static void sort_index_vector(exvector &v)
+// Shaker sort is sufficient for the expected small number of indices
+template <class It, class Cmp>
+inline void shaker_sort(It first, It last, Cmp comp)
 {
-	// Nothing to sort if less than 2 elements
-	if (v.size() < 2)
+	if (first == last)
 		return;
-
-	// Simple bubble sort algorithm should be sufficient for the small
-	// number of indices expected
-	exvector::iterator it1 = v.begin(), itend = v.end(), next_to_last_idx = itend - 1;
-	while (it1 != next_to_last_idx) {
-		exvector::iterator it2 = it1 + 1;
-		while (it2 != itend) {
-			if (it1->compare(*it2) > 0)
-				it1->swap(*it2);
-			it2++;
+	--last;
+	if (first == last)
+		return;
+	It flag = first;
+	do {
+		It i;
+		for (i=last; i>first; --i) {
+			if (comp(*i, i[-1])) {
+				iter_swap(i-1, i);
+				flag = i - 1;
+			}
 		}
-		it1++;
-	}
+		++flag;
+		first = flag;
+		for (i=first; i<last; ++i) {
+			if (comp(i[1], *i)) {
+				iter_swap(i, i+1);
+				flag = i + 1;
+			}
+		}
+		last = flag - 1;
+	} while (first <= last);
 }
-
 
 void find_free_and_dummy(exvector::const_iterator it, exvector::const_iterator itend, exvector & out_free, exvector & out_dummy)
 {
@@ -485,7 +493,7 @@ void find_free_and_dummy(exvector::const_iterator it, exvector::const_iterator i
 	// Sort index vector. This will cause dummy indices come to lie next
 	// to each other (because the sort order is defined to guarantee this).
 	exvector v(it, itend);
-	sort_index_vector(v);
+	shaker_sort(v.begin(), v.end(), ex_is_less());
 
 	// Find dummy pairs and free indices
 	it = v.begin(); itend = v.end();
@@ -504,29 +512,6 @@ void find_free_and_dummy(exvector::const_iterator it, exvector::const_iterator i
 	}
 	if (ex_to_idx(*last).is_symbolic())
 		out_free.push_back(*last);
-}
-
-exvector index_set_difference(const exvector & set1, const exvector & set2)
-{
-	exvector ret;
-
-	exvector::const_iterator ait = set1.begin(), aitend = set1.end();
-	while (ait != aitend) {
-		exvector::const_iterator bit = set2.begin(), bitend = set2.end();
-		bool found = false;
-		while (bit != bitend) {
-			if (ait->is_equal(*bit)) {
-				found = true;
-				break;
-			}
-			bit++;
-		}
-		if (!found)
-			ret.push_back(*ait);
-		ait++;
-	}
-
-	return ret;
 }
 
 } // namespace GiNaC

@@ -28,6 +28,7 @@
 
 #include <string>
 #include <stdexcept>
+#include <functional>
 #if defined(HAVE_SSTREAM)
 #include <sstream>
 #elif defined(HAVE_STRSTREAM)
@@ -146,7 +147,14 @@ int permutation_sign(std::vector<T> s)
 	return sigma;
 }
 
-void append_exvector_to_exvector(exvector & dest, const exvector & source);
+/* Function objects for STL sort() etc. */
+struct ex_is_less : public binary_function<ex, ex, bool> {
+	bool operator() (const ex &lh, const ex &rh) const { return lh.compare(rh) < 0; }
+};
+
+struct ex_is_equal : public binary_function<ex, ex, bool> {
+	bool operator() (const ex &lh, const ex &rh) const { return lh.is_equal(rh); }
+};
 
 // Collection of `construct on first use' wrappers for safely avoiding
 // internal object replication without running into the `static

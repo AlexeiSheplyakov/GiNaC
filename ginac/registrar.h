@@ -81,6 +81,7 @@ public: \
 	classname(const classname & other); \
 	const classname & operator=(const classname & other); \
 	basic * duplicate() const; \
+	unsigned get_precedence(void) const {return precedence;} \
 protected: \
 	void copy(const classname & other); \
 	void destroy(bool call_parent); \

@@ -91,7 +91,6 @@ protected:
 	unsigned row;             ///< number of rows
 	unsigned col;             ///< number of columns
 	exvector m;               ///< representation (cols indexed first)
-	static unsigned precedence;
 };
 
 

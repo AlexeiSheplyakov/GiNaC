@@ -225,6 +225,12 @@ bool indexed::info(unsigned inf) const
 	return inherited::info(inf);
 }
 
+struct idx_is_not : public binary_function<ex, unsigned, bool> {
+	bool operator() (const ex & e, unsigned inf) const {
+		return !(ex_to_idx(e).get_value().info(inf));
+	}
+};
+
 bool indexed::all_index_values_are(unsigned inf) const
 {
 	// No indices? Then no property can be fulfilled
@@ -232,14 +238,7 @@ bool indexed::all_index_values_are(unsigned inf) const
 		return false;
 
 	// Check all indices
-	exvector::const_iterator it = seq.begin() + 1, itend = seq.end();
-	while (it != itend) {
-		GINAC_ASSERT(is_ex_of_type(*it, idx));
-		if (!ex_to_idx(*it).get_value().info(inf))
-			return false;
-		it++;
-	}
-	return true;
+	return find_if(seq.begin() + 1, seq.end(), bind2nd(idx_is_not(), inf)) == seq.end();
 }
 
 int indexed::compare_same_type(const basic & other) const
@@ -454,15 +453,7 @@ static bool indices_consistent(const exvector & v1, const exvector & v2)
 	if (v1.size() != v2.size())
 		return false;
 
-	// And also the indices themselves
-	exvector::const_iterator ait = v1.begin(), aitend = v1.end(),
-	                         bit = v2.begin(), bitend = v2.end();
-	while (ait != aitend) {
-		if (!ait->is_equal(*bit))
-			return false;
-		ait++; bit++;
-	}
-	return true;
+	return equal(v1.begin(), v1.end(), v2.begin(), ex_is_equal());
 }
 
 exvector indexed::get_indices(void) const
@@ -546,14 +537,6 @@ exvector power::get_free_indices(void) const
 	return basis.get_free_indices();
 }
 
-/* Function object for STL sort() */
-struct ex_is_less {
-	bool operator() (const ex &lh, const ex &rh) const
-	{
-		return lh.compare(rh) < 0;
-	}
-};
-
 /** Rename dummy indices in an expression.
  *
  *  @param e Expression to be worked on
@@ -571,8 +554,6 @@ static ex rename_dummy_indices(const ex & e, exvector & global_dummy_indices, ex
 	if (local_size == 0)
 		return e;
 
-	sort(local_dummy_indices.begin(), local_dummy_indices.end(), ex_is_less());
-
 	if (global_size < local_size) {
 
 		// More local indices than we encountered before, add the new ones
@@ -580,18 +561,13 @@ static ex rename_dummy_indices(const ex & e, exvector & global_dummy_indices, ex
 		int remaining = local_size - global_size;
 		exvector::const_iterator it = local_dummy_indices.begin(), itend = local_dummy_indices.end();
 		while (it != itend && remaining > 0) {
-			exvector::const_iterator git = global_dummy_indices.begin(), gitend = global_dummy_indices.end();
-			while (git != gitend) {
-				if (it->is_equal(*git))
-					goto found;
-				git++;
+			if (find_if(global_dummy_indices.begin(), global_dummy_indices.end(), bind2nd(ex_is_equal(), *it)) == global_dummy_indices.end()) {
+				global_dummy_indices.push_back(*it);
+				global_size++;
+				remaining--;
 			}
-			global_dummy_indices.push_back(*it);
-			global_size++;
-			remaining--;
-found:		it++;
+			it++;
 		}
-		sort(global_dummy_indices.begin(), global_dummy_indices.end(), ex_is_less());
 	}
 
 	// Replace index symbols in expression
@@ -601,10 +577,11 @@ found:		it++;
 	for (unsigned i=0; i<local_size; i++) {
 		ex loc_sym = local_dummy_indices[i].op(0);
 		ex glob_sym = global_dummy_indices[i].op(0);
-		if (!loc_sym.is_equal(glob_sym))
+		if (!loc_sym.is_equal(glob_sym)) {
 			all_equal = false;
-		local_syms.append(loc_sym);
-		global_syms.append(glob_sym);
+			local_syms.append(loc_sym);
+			global_syms.append(glob_sym);
+		}
 	}
 	if (all_equal)
 		return e;
@@ -732,14 +709,23 @@ contraction_done:
 	}
 
 	// Find free indices (concatenate them all and call find_free_and_dummy())
-	exvector un, local_dummy_indices;
+	// and all dummy indices that appear
+	exvector un, individual_dummy_indices;
 	it1 = v.begin(); itend = v.end();
 	while (it1 != itend) {
-		exvector free_indices_of_factor = it1->get_free_indices();
+		exvector free_indices_of_factor;
+		if (is_ex_of_type(*it1, indexed)) {
+			exvector dummy_indices_of_factor;
+			find_free_and_dummy(ex_to_indexed(*it1).seq.begin() + 1, ex_to_indexed(*it1).seq.end(), free_indices_of_factor, dummy_indices_of_factor);
+			individual_dummy_indices.insert(individual_dummy_indices.end(), dummy_indices_of_factor.begin(), dummy_indices_of_factor.end());
+		} else
+			free_indices_of_factor = it1->get_free_indices();
 		un.insert(un.end(), free_indices_of_factor.begin(), free_indices_of_factor.end());
 		it1++;
 	}
+	exvector local_dummy_indices;
 	find_free_and_dummy(un, free_indices, local_dummy_indices);
+	local_dummy_indices.insert(local_dummy_indices.end(), individual_dummy_indices.begin(), individual_dummy_indices.end());
 
 	ex r;
 	if (something_changed)
@@ -765,7 +751,7 @@ ex simplify_indexed(const ex & e, exvector & free_indices, exvector & dummy_indi
 	ex e_expanded = e.expand();
 
 	// Simplification of single indexed object: just find the free indices
-	// (and perform dummy index renaming if 
+	// and perform dummy index renaming
 	if (is_ex_of_type(e_expanded, indexed)) {
 		const indexed &i = ex_to_indexed(e_expanded);
 		exvector local_dummy_indices;

@@ -241,10 +241,6 @@ inline unsigned count_free_indices(const exvector & v)
 	return free_indices.size();
 }
 
-/** Given two index vectors, find those indices that appear in the first
- *  vector but not in the second one (asymmetric set difference). */
-exvector index_set_difference(const exvector & set1, const exvector & set2);
-
 } // namespace GiNaC
 
 #endif // ndef __GINAC_IDX_H__

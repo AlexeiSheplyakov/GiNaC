@@ -59,13 +59,6 @@ unsigned log2(unsigned n)
 }
 #endif
 
-/** Append one exvector to another */
-void append_exvector_to_exvector(exvector & dest, const exvector & source)
-{
-	dest.reserve(dest.size() + source.size());
-	dest.insert(dest.end(), source.begin(), source.end());
-}
-
 //////////
 // `construct on first use' chest of numbers
 //////////
