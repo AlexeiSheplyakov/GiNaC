@@ -90,5 +90,5 @@ ginactutorialdir = $(ginacdocdir)/tutorial
 ginactutorial_DATA = $(TUTORIAL_TARGETS)
 EXTRA_DATA = index.html tutorial.ps
 
-CLEANFILES = *.html *.png *.ps latex tutorial.sgml HTML.manifest
+CLEANFILES = *.html *.png *.ps *.tex *.log *.aux *.dvi *.eps tutorial.sgml HTML.manifest
 EXTRA_DIST = tutorial.sgml.in $(FIG)
