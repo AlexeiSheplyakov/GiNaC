@@ -1100,12 +1100,12 @@ ex integral::series(const relational & r, int order, unsigned options) const
 	fexpansion.reserve(fseries.nops());
 	for (size_t i=0; i<fseries.nops(); ++i) {
 		ex currcoeff = ex_to<pseries>(fseries).coeffop(i);
-		fexpansion.push_back(expair(
-			currcoeff == Order(_ex1)
-				? currcoeff
-				: integral(x, a.subs(r), b.subs(r), currcoeff),
-			ex_to<pseries>(fseries).exponop(i)
-		));
+		currcoeff = (currcoeff == Order(_ex1))
+			? currcoeff
+			: integral(x, a.subs(r), b.subs(r), currcoeff);
+		if (currcoeff != 0)
+			fexpansion.push_back(
+				expair(currcoeff, ex_to<pseries>(fseries).exponop(i)));
 	}
 
 	// Expanding lower boundary
@@ -1118,7 +1118,7 @@ ex integral::series(const relational & r, int order, unsigned options) const
 			break;
 		ex currexpon = ex_to<pseries>(fseries).exponop(i);
 		int orderforf = order-ex_to<numeric>(currexpon).to_int()-1;
-		currcoeff=currcoeff.series(r, orderforf);
+		currcoeff = currcoeff.series(r, orderforf);
 		ex term = ex_to<pseries>(aseries).power_const(ex_to<numeric>(currexpon+1),order);
 		term = ex_to<pseries>(term).mul_const(ex_to<numeric>(-1/(currexpon+1)));
 		term = ex_to<pseries>(term).mul_series(ex_to<pseries>(currcoeff));
@@ -1134,7 +1134,7 @@ ex integral::series(const relational & r, int order, unsigned options) const
 			break;
 		ex currexpon = ex_to<pseries>(fseries).exponop(i);
 		int orderforf = order-ex_to<numeric>(currexpon).to_int()-1;
-		currcoeff=currcoeff.series(r, orderforf);
+		currcoeff = currcoeff.series(r, orderforf);
 		ex term = ex_to<pseries>(bseries).power_const(ex_to<numeric>(currexpon+1),order);
 		term = ex_to<pseries>(term).mul_const(ex_to<numeric>(1/(currexpon+1)));
 		term = ex_to<pseries>(term).mul_series(ex_to<pseries>(currcoeff));
