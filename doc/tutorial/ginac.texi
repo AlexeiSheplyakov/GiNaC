@@ -5451,12 +5451,7 @@ that is not further evaluated:
 @example
 DECLARE_FUNCTION_2P(myfcn)
 
-static ex myfcn_eval(const ex & x, const ex & y)
-@{
-    return myfcn(x, y).hold();
-@}
-
-REGISTER_FUNCTION(myfcn, eval_func(myfcn_eval))
+REGISTER_FUNCTION(myfcn, dummy())
 @end example
 
 Any code that has seen the @code{DECLARE_FUNCTION} line can use @code{myfcn()}
@@ -5466,33 +5461,20 @@ in algebraic expressions:
 @{
     ...
     symbol x("x");
-    ex e = 2*myfcn(42, 3*x+1) - x;
-     // this calls myfcn_eval(42, 3*x+1), and inserts its return value into
-     // the actual expression
+    ex e = 2*myfcn(42, 1+3*x) - x;
     cout << e << endl;
      // prints '2*myfcn(42,1+3*x)-x'
     ...
 @}
 @end example
 
-@cindex @code{hold()}
-@cindex evaluation
-The @code{eval_func()} option specifies the C++ function that implements
-the @code{eval()} method, GiNaC's anonymous evaluator. This function takes
-the same number of arguments as the associated symbolic function (two in this
-case) and returns the (possibly transformed or in some way simplified)
-symbolically evaluated function (@xref{Automatic evaluation}, for a description
-of the automatic evaluation process). If no (further) evaluation is to take
-place, the @code{eval_func()} function must return the original function
-with @code{.hold()}, to avoid a potential infinite recursion. If your
-symbolic functions produce a segmentation fault or stack overflow when
-using them in expressions, you are probably missing a @code{.hold()}
-somewhere.
+The @code{dummy()} option in the @code{REGISTER_FUNCTION} line signifies
+"no options". A function with no options specified merely acts as a kind of
+container for its arguments. It is a pure "dummy" function with no associated
+logic (which is, however, sometimes perfectly sufficient).
 
-There is not much you can do with the @code{myfcn} function. It merely acts
-as a kind of container for its arguments (which is, however, sometimes
-perfectly sufficient). Let's have a look at the implementation of GiNaC's
-cosine function.
+Let's now have a look at the implementation of GiNaC's cosine function for an
+example of how to make an "intelligent" function.
 
 @subsection The cosine function
 
@@ -5506,9 +5488,38 @@ which declares to all programs using GiNaC that there is a function @samp{cos}
 that takes one @code{ex} as an argument. This is all they need to know to use
 this function in expressions.
 
-The implementation of the cosine function is in @file{inifcns_trans.cpp}. The
-@code{eval_func()} function looks something like this (actually, it doesn't
-look like this at all, but it should give you an idea what is going on):
+The implementation of the cosine function is in @file{inifcns_trans.cpp}. Here
+is its @code{REGISTER_FUNCTION} line:
+
+@example
+REGISTER_FUNCTION(cos, eval_func(cos_eval).
+                       evalf_func(cos_evalf).
+                       derivative_func(cos_deriv).
+                       latex_name("\\cos"));
+@end example
+
+There are four options defined for the cosine function. One of them
+(@code{latex_name}) gives the function a proper name for LaTeX output; the
+other three indicate the C++ functions in which the "brains" of the cosine
+function are defined.
+
+@cindex @code{hold()}
+@cindex evaluation
+The @code{eval_func()} option specifies the C++ function that implements
+the @code{eval()} method, GiNaC's anonymous evaluator. This function takes
+the same number of arguments as the associated symbolic function (one in this
+case) and returns the (possibly transformed or in some way simplified)
+symbolically evaluated function (@xref{Automatic evaluation}, for a description
+of the automatic evaluation process). If no (further) evaluation is to take
+place, the @code{eval_func()} function must return the original function
+with @code{.hold()}, to avoid a potential infinite recursion. If your
+symbolic functions produce a segmentation fault or stack overflow when
+using them in expressions, you are probably missing a @code{.hold()}
+somewhere.
+
+The @code{eval_func()} function for the cosine looks something like this
+(actually, it doesn't look like this at all, but it should give you an idea
+what is going on):
 
 @example
 static ex cos_eval(const ex & x)
@@ -5529,6 +5540,20 @@ static ex cos_eval(const ex & x)
 
     else
         return cos(x).hold();
+@}
+@end example
+
+This function is called every time the cosine is used in a symbolic expression:
+
+@example
+@{
+    ...
+    e = cos(Pi);
+     // this calls cos_eval(Pi), and inserts its return value into
+     // the actual expression
+    cout << e << endl;
+     // prints '-1'
+    ...
 @}
 @end example
 
@@ -5598,26 +5623,13 @@ static ex tan_series(const ex & x, const relational & rel,
 The @code{series()} implementation of a function @emph{must} return a
 @code{pseries} object, otherwise your code will crash.
 
-Now that all the ingredients have been set up, the @code{REGISTER_FUNCTION}
-macro is used to tell the system how the @code{cos()} function behaves:
-
-@example
-REGISTER_FUNCTION(cos, eval_func(cos_eval).
-                       evalf_func(cos_evalf).
-                       derivative_func(cos_deriv).
-                       latex_name("\\cos"));
-@end example
-
-This registers the @code{cos_eval()}, @code{cos_evalf()} and
-@code{cos_deriv()} C++ functions with the @code{cos()} function, and also
-gives it a proper LaTeX name.
-
 @subsection Function options
 
 GiNaC functions understand several more options which are always
 specified as @code{.option(params)}. None of them are required, but you
-need to specify at least one option to @code{REGISTER_FUNCTION()} (usually
-the @code{eval()} method).
+need to specify at least one option to @code{REGISTER_FUNCTION()}. There
+is a do-nothing option called @code{dummy()} which you can use to define
+functions without any special options.
 
 @example
 eval_func(<C++ function>)
