@@ -161,4 +161,5 @@ using GiNaC::parser_error;
 int ginac_yyerror(char *s)
 {
 	parser_error = std::string(s) + " at " + std::string(ginac_yytext);
+	return 0;
 }
