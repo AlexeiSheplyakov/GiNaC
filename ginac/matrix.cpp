@@ -1062,7 +1062,7 @@ int matrix::fraction_free_elimination(bool det)
     // and D{m[k+1](r,c)} by
     //     D{m[k-1](k-1,k-1)}.
     
-    GINAC_ASSERT(det || row==col);
+    GINAC_ASSERT(!det || row==col);
     ensure_if_modifiable();
     if (rows()==1)
         return 1;
