@@ -647,6 +647,8 @@ ex mul::expand(unsigned options) const
 		}
 		++cit;
 	}
+	if (expanded_seqp)
+		delete expanded_seqp;
 
 	if (is_ex_exactly_of_type(last_expanded,add)) {
 		add const & finaladd = ex_to_add(last_expanded);
