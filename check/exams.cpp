@@ -50,6 +50,7 @@ try { \
 	EXAM(indexed)
 	EXAM(color)
 	EXAM(clifford)
+	EXAM(archive)
 	EXAM(misc)
 	
 	if (result) {
