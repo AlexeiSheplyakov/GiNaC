@@ -26,9 +26,9 @@ main()
     return 0;
 }], ginac_cv_rlversion=`cat 'conftest.out'`, ginac_cv_rlversion='unknown', ginac_cv_rlversion='4.2')])
 if test "x${ginac_cv_rlversion}" != "xunknown"; then
-  RL_VERSION_MAJOR=`echo ${ginac_cv_rlversion} | sed -e 's/\([[0-9]]\)\.\([[0-9]]\)/\1/'`
+  RL_VERSION_MAJOR=`echo ${ginac_cv_rlversion} | sed -e 's/\([[0-9]]*\)\.\([[0-9]]*\).*/\1/'`
   AC_DEFINE_UNQUOTED(GINAC_RL_VERSION_MAJOR, $RL_VERSION_MAJOR, [Major version of installed readline library.])
-  RL_VERSION_MINOR=`echo ${ginac_cv_rlversion} | sed -e 's/\([[0-9]]\)\.\([[0-9]]\)/\2/'`
+  RL_VERSION_MINOR=`echo ${ginac_cv_rlversion} | sed -e 's/\([[0-9]]*\)\.\([[0-9]]*\).*/\2/'`
   AC_DEFINE_UNQUOTED(GINAC_RL_VERSION_MINOR, $RL_VERSION_MINOR, [Minor version of installed readline library.])
 else
   GINAC_WARNING([I could not run a test of libreadline (needed for building ginsh).])
