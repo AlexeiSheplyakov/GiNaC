@@ -602,6 +602,17 @@ insane amounts of memory and CPU time.  Feel free to kill them if your
 machine catches fire.  Another quite important intent is to allow people
 to fiddle around with optimization.
 
+By default, the only documentation that will be built is this tutorial
+in @file{.info} format. To build the GiNaC tutorial and reference manual
+in HTML, DVI, PostScript, or PDF formats, use one of
+
+@example
+$ make html
+$ make dvi
+$ make ps
+$ make pdf
+@end example
+
 Generally, the top-level Makefile runs recursively to the
 subdirectories.  It is therefore safe to go into any subdirectory
 (@code{doc/}, @code{ginsh/}, @dots{}) and simply type @code{make}
@@ -637,7 +648,7 @@ All the header files will be installed into @file{@var{PREFIX}/include/ginac/}
 (or @file{@var{INCLUDEDIR}/ginac/}, if specified).
 
 @item
-All documentation (HTML and Postscript) will be stuffed into
+All documentation (info) will be stuffed into
 @file{@var{PREFIX}/share/doc/GiNaC/} (or
 @file{@var{DATADIR}/doc/GiNaC/}, if @var{DATADIR} was specified).
 

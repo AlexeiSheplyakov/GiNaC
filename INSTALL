@@ -28,6 +28,14 @@ Known not to work with:
   - GCC 2.96 or earlier because proper exception and standard library support
     is missing there.
 
+To build the GiNaC tutorial and reference manual in HTML, DVI, PostScript,
+or PDF formats, use one of
+
+ $ make html
+ $ make dvi
+ $ make ps
+ $ make pdf
+
 The "configure" script can be given a number of options to enable and
 disable various features. For a complete list, type:
 
@@ -40,6 +48,7 @@ A few of the more important ones:
  --exec-prefix=EPREFIX  install architecture-dependent files in EPREFIX
                         [defaults to the value given to --prefix]
  --disable-shared       suppress the creation of a shared version of libginac
+ --disable-static       suppress the creation of a static version of libginac
 
 More detailed installation instructions can be found in the documentation,
 in the doc/ directory.

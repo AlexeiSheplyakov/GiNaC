@@ -72,10 +72,6 @@ AM_PROG_LIBTOOL
 AM_PROG_LEX
 AC_PROG_YACC
 
-dnl Configure options.
-AC_ARG_ENABLE(html-doc, [  --enable-html-doc       build HTML documentation [default=no]], , enable_html_doc=no)
-AC_ARG_ENABLE(ps-doc,   [  --enable-ps-doc         build PostScript documentation [default=no]], , enable_ps_doc=no)
-
 dnl Check for data types which are needed by the hash function 
 dnl (golden_ratio_hash).
 AC_CHECK_SIZEOF(long, 4)
@@ -136,27 +132,10 @@ dnl Documentation needs only be built when extending it, so never mind if it
 dnl cannot find those helpers:
 AC_PATH_PROG(DOXYGEN, doxygen, "")
 AC_PATH_PROG(LATEX, latex, "")
+AC_PATH_PROG(PDFLATEX, pdflatex, "")
 AC_PATH_PROG(MAKEINDEX, makeindex, "")
 AC_PATH_PROG(DVIPS, dvips, "")
 AC_PATH_PROG(FIG2DEV, fig2dev, "")
-
-dnl Determine which documentation shall be built
-TUTORIAL_TARGETS=
-REFERENCE_TARGETS=
-if test "x${enable_html_doc}" = "xyes"; then
-  TUTORIAL_TARGETS="$TUTORIAL_TARGETS ginac.html"
-  if [[ "$DOXYGEN" ]]; then
-    REFERENCE_TARGETS="$REFERENCE_TARGETS index.html"
-  fi
-fi
-if test "x${enable_ps_doc}" = "xyes"; then
-  TUTORIAL_TARGETS="$TUTORIAL_TARGETS ginac.ps"
-  if [[ "$DOXYGEN" ]]; then
-    REFERENCE_TARGETS="$REFERENCE_TARGETS reference.ps"
-  fi
-fi
-AC_SUBST(TUTORIAL_TARGETS)
-AC_SUBST(REFERENCE_TARGETS)
 
 dnl Output makefiles etc.
 AC_CONFIG_FILES([
@@ -175,6 +154,10 @@ tools/viewgar.1
 doc/Makefile
 doc/tutorial/Makefile
 doc/reference/Makefile
+doc/reference/DoxyfileHTML
+doc/reference/DoxyfileTEX
+doc/reference/DoxyfilePDF
+doc/reference/Doxyfooter
 ])
 AC_CONFIG_COMMANDS([default],[[chmod +x ginac-config]],[[]])
 AC_OUTPUT

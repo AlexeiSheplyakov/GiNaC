@@ -1,32 +1,39 @@
 ## Process this file with automake to produce Makefile.in
 
+# Targets
+html: html_files/index.html
+dvi: reference.dvi
+ps: reference.ps
+pdf: reference.pdf
+
 # This section produces HTML'ed and TeX'ed developer's reference from the
 # sources with a JavaDoc-like tool (in this case doxygen):
-index.html:
+html_files::
+	@[ -d html_files ] || mkdir html_files >/dev/null 2>&1
+
+html_files/index.html:
 	@if [ "${DOXYGEN}" ]; then \
 	  echo "Running ${DOXYGEN} DoxyfileHTML..."; \
-	  (cd ${srcdir}; \
-	  ${DOXYGEN} DoxyfileHTML); \
+	  ${DOXYGEN} DoxyfileHTML; \
 	else \
 	  echo "warning: target reference_html disabled by configuration"; \
 	fi
 
 latex::
-	@[ -d ${srcdir}/latex ] || mkdir ${srcdir}/latex >/dev/null 2>&1
+	@[ -d latex ] || mkdir latex >/dev/null 2>&1
 
 latex/reference.tex:
 	@if [ "${DOXYGEN}" ]; then \
 	  echo "Running ${DOXYGEN} DoxyfileTEX..."; \
-	  (cd ${srcdir}; \
-	  ${DOXYGEN} DoxyfileTEX); \
-	  mv ${srcdir}/latex/refman.tex ${srcdir}/latex/reference.tex; \
+	  ${DOXYGEN} DoxyfileTEX; \
+	  mv latex/refman.tex latex/reference.tex; \
 	else \
 	  echo "warning: target reference.tex disabled by configuration"; \
 	fi
 
 latex/reference.dvi: latex/reference.tex
 	@if [ "${LATEX}" -a "${MAKEINDEX}" ]; then \
-	  (cd ${srcdir}/latex; \
+	  (cd latex; \
 	  ${LATEX} reference.tex && \
 	  ${MAKEINDEX} reference.idx && \
 	  ${LATEX} reference.tex); \
@@ -37,36 +44,40 @@ latex/reference.dvi: latex/reference.tex
 latex/reference.ps: latex/reference.dvi
 	@if [ "${DVIPS}" ]; then \
 	  echo "Running ${DVIPS} -o reference.ps reference.dvi..."; \
-	  (cd ${srcdir}/latex; ${DVIPS} -o reference.ps reference.dvi); \
+	  (cd latex; ${DVIPS} -o reference.ps reference.dvi); \
 	else \
 	  echo "warning: target reference.ps disabled by configuration"; \
 	fi
 
-reference.ps: latex latex/reference.ps
-	cp ${srcdir}/latex/reference.ps reference.ps
+pdflatex::
+	@[ -d pdflatex ] || mkdir pdflatex >/dev/null 2>&1
 
-ginacreferencedir = `test -z "@REFERENCE_TARGETS@" || echo @datadir@/doc/GiNaC/reference`
-ginacreference_DATA = @REFERENCE_TARGETS@
-
-CLEANFILES = *.html *.png doxygen.css *.ps latex/*
-EXTRA_DIST = DoxyfileHTML DoxyfileTEX Doxyfooter
-
-install-data-local:
-	$(mkinstalldirs) $(DESTDIR)$(ginacreferencedir)
-	@if [ -f $(srcdir)/doxygen.css ]; then \
-	  echo " $(INSTALL_DATA) $(srcdir)/doxygen.css $(DESTDIR)$(ginacreferencedir)/doxygen.css"; \
-	  $(INSTALL_DATA) $(srcdir)/doxygen.css $(DESTDIR)$(ginacreferencedir)/doxygen.css; \
+pdflatex/reference.tex:
+	@if [ "${DOXYGEN}" ]; then \
+	  echo "Running ${DOXYGEN} DoxyfilePDF..."; \
+	  ${DOXYGEN} DoxyfilePDF; \
+	  mv pdflatex/refman.tex pdflatex/reference.tex; \
+	else \
+	  echo "warning: target reference.pdf disabled by configuration"; \
 	fi
-	@for p in `echo $(srcdir)/*.html | sed -e 's,[^ ]*/,,g' -e 's,\*\.html,,'`; do \
-	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p"; \
-	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p; \
-	done
-	@for p in `echo $(srcdir)/*.png | sed -e 's,[^ ]*/,,g' -e 's,\*\.png,,'`; do \
-	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p"; \
-	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p; \
-	done
 
-uninstall-local:
-	rm -f $(DESTDIR)$(ginacreferencedir)/doxygen.css
-	rm -f $(DESTDIR)$(ginacreferencedir)/*.html
-	rm -f $(DESTDIR)$(ginacreferencedir)/*.png
+pdflatex/reference.pdf: pdflatex/reference.tex
+	@if [ "${PDFLATEX}" -a "${MAKEINDEX}" ]; then \
+	  (cd pdflatex; \
+	  ${PDFLATEX} reference.tex && \
+	  ${MAKEINDEX} reference.idx && \
+	  ${PDFLATEX} reference.tex); \
+	else \
+	  echo "warning: target reference.pdf disabled by configuration"; \
+	fi
+
+reference.dvi: latex latex/reference.dvi
+	cp latex/reference.dvi reference.dvi
+
+reference.ps: latex latex/reference.ps
+	cp latex/reference.ps reference.ps
+
+reference.pdf: pdflatex pdflatex/reference.pdf
+	cp pdflatex/reference.pdf reference.pdf
+
+CLEANFILES = reference.dvi reference.ps reference.pdf html_files/* latex/* pdflatex/*
