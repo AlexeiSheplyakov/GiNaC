@@ -510,19 +510,17 @@ ex lsolve(const ex &eqns, const ex &symbols)
 }
 
 /** non-commutative power. */
-ex ncpower(const ex &basis, unsigned exponent)
+ex ncpow(const ex & basis, unsigned exponent)
 {
-	if (exponent==0) {
+	if (exponent == 0)
 		return _ex1();
-	}
 
 	exvector v;
 	v.reserve(exponent);
-	for (unsigned i=0; i<exponent; ++i) {
+	for (unsigned i=0; i<exponent; ++i)
 		v.push_back(basis);
-	}
 
-	return ncmul(v,1);
+	return ncmul(v, true);
 }
 
 /** Force inclusion of functions from initcns_gamma and inifcns_zeta

@@ -133,7 +133,8 @@ DECLARE_FUNCTION_2P(Derivative)
 
 ex lsolve(const ex &eqns, const ex &symbols);
 
-ex ncpower(const ex &basis, unsigned exponent);
+/** Power of non-commutative basis. */
+ex ncpow(const ex & basis, unsigned exponent);
 
 inline bool is_order_function(const ex & e)
 {

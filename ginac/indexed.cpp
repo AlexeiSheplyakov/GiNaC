@@ -710,7 +710,7 @@ contraction_done:
 					// Non-commutative products are always re-expanded to give
 					// simplify_ncmul() the chance to re-order and canonicalize
 					// the product
-					ex r = (non_commutative ? ex(ncmul(v)) : ex(mul(v)));
+					ex r = (non_commutative ? ex(ncmul(v, true)) : ex(mul(v)));
 					return simplify_indexed(r, free_indices, dummy_indices, sp);
 				}
 
@@ -744,7 +744,7 @@ contraction_done:
 
 	ex r;
 	if (something_changed)
-		r = non_commutative ? ex(ncmul(v)) : ex(mul(v));
+		r = non_commutative ? ex(ncmul(v, true)) : ex(mul(v));
 	else
 		r = e;
 

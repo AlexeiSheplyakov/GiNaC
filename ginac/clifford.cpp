@@ -26,6 +26,8 @@
 #include "ncmul.h"
 #include "symbol.h"
 #include "numeric.h" // for I
+#include "lst.h"
+#include "relational.h"
 #include "print.h"
 #include "archive.h"
 #include "debugmsg.h"
@@ -336,6 +338,13 @@ static bool is_clifford_tinfo(unsigned ti, unsigned char rl)
 	return ti == (TINFO_clifford + rl);
 }
 
+/** Check whether a given tinfo key (as returned by return_type_tinfo()
+ *  is that of a clifford object (with an arbitrary representation label). */
+static bool is_clifford_tinfo(unsigned ti)
+{
+	return (ti & ~0xff) == TINFO_clifford;
+}
+
 ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 {
 	if (is_ex_of_type(e, clifford)) {
@@ -439,7 +448,7 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 							}
 							int sign = permutation_sign(iv);
 							result += sign * eps0123(idx1, idx2, idx3, idx4)
-							        * dirac_trace(ncmul(v), rl, trONE);
+							        * dirac_trace(ncmul(v, true), rl, trONE);
 						}
 					}
 				}
@@ -491,56 +500,54 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 
 ex canonicalize_clifford(const ex & e)
 {
-	if (is_ex_exactly_of_type(e, add)) {
+	// Scan for any ncmul objects
+	lst srl;
+	ex aux = e.to_rational(srl);
+	for (unsigned i=0; i<srl.nops(); i++) {
 
-		ex sum = _ex0();
-		for (unsigned i=0; i<e.nops(); i++)
-			sum += canonicalize_clifford(e.op(i));
-		return sum;
+		ex lhs = srl.op(i).lhs();
+		ex rhs = srl.op(i).rhs();
 
-	} else if (is_ex_exactly_of_type(e, mul)) {
+		if (is_ex_exactly_of_type(rhs, ncmul)
+		 && rhs.return_type() == return_types::noncommutative
+		 && is_clifford_tinfo(rhs.return_type_tinfo())) {
 
-		ex prod = _ex1();
-		for (unsigned i=0; i<e.nops(); i++)
-			prod *= canonicalize_clifford(e.op(i));
-		return prod;
+			// Expand product, if necessary
+			ex rhs_expanded = rhs.expand();
+			if (!is_ex_of_type(rhs_expanded, ncmul)) {
+				srl.let_op(i) = (lhs == canonicalize_clifford(rhs_expanded));
+				continue;
 
-	} else if (is_ex_exactly_of_type(e, ncmul)) {
+			} else if (!is_ex_of_type(rhs.op(0), clifford))
+				continue;
 
-		// Expand product, if necessary
-		ex e_expanded = e.expand();
-		if (!is_ex_of_type(e_expanded, ncmul))
-			return canonicalize_clifford(e_expanded);
+			exvector v;
+			v.reserve(rhs.nops());
+			for (unsigned j=0; j<rhs.nops(); j++)
+				v.push_back(rhs.op(j));
 
-		if (!is_ex_of_type(e.op(0), clifford))
-			return e;
-
-		exvector v;
-		v.reserve(e.nops());
-		for (int i=0; i<e.nops(); i++)
-			v.push_back(e.op(i));
-
-		// Stupid bubble sort because we only want to swap adjacent gammas
-		exvector::iterator it = v.begin(), next_to_last = v.end() - 1;
-		if (is_ex_of_type(it->op(0), diracgamma5))
-			it++;
-		while (it != next_to_last) {
-			if (it[0].op(1).compare(it[1].op(1)) > 0) {
-				ex save0 = it[0], save1 = it[1];
-				it[0] = lorentz_g(it[0].op(1), it[1].op(1));
-				it[1] = _ex2();
-				ex sum = ncmul(v);
-				it[0] = save1;
-				it[1] = save0;
-				sum -= ncmul(v);
-				return canonicalize_clifford(sum);
+			// Stupid bubble sort because we only want to swap adjacent gammas
+			exvector::iterator it = v.begin(), next_to_last = v.end() - 1;
+			if (is_ex_of_type(it->op(0), diracgamma5))
+				it++;
+			while (it != next_to_last) {
+				if (it[0].op(1).compare(it[1].op(1)) > 0) {
+					ex save0 = it[0], save1 = it[1];
+					it[0] = lorentz_g(it[0].op(1), it[1].op(1));
+					it[1] = _ex2();
+					ex sum = ncmul(v);
+					it[0] = save1;
+					it[1] = save0;
+					sum -= ncmul(v, true);
+					srl.let_op(i) = (lhs == canonicalize_clifford(sum));
+					goto next_sym;
+				}
+				it++;
 			}
-			it++;
+next_sym:	;
 		}
-		return ncmul(v);
 	}
-
-	return e;
+	return aux.subs(srl);
 }
 
 } // namespace GiNaC

@@ -797,31 +797,6 @@ ex power::expand_mul(const mul & m, const numeric & n) const
 }
 
 /*
-ex power::expand_commutative_3(const ex & basis, const numeric & exponent,
-                               unsigned options) const
-{
-	// obsolete
-
-	exvector distrseq;
-	epvector splitseq;
-
-	const add & addref=static_cast<const add &>(*basis.bp);
-
-	splitseq=addref.seq;
-	splitseq.pop_back();
-	ex first_operands=add(splitseq);
-	ex last_operand=addref.recombine_pair_to_ex(*(addref.seq.end()-1));
-	
-	int n=exponent.to_int();
-	for (int k=0; k<=n; k++) {
-		distrseq.push_back(binomial(n,k) * power(first_operands,numeric(k))
-		                                 * power(last_operand,numeric(n-k)));
-	}
-	return ex((new add(distrseq))->setflag(status_flags::expanded | status_flags::dynallocated)).expand(options);
-}
-*/
-
-/*
 ex power::expand_noncommutative(const ex & basis, const numeric & exponent,
 								unsigned options) const
 {

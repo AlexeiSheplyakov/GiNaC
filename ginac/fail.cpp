@@ -1,7 +1,7 @@
 /** @file fail.cpp
  *
- *  Implementation of class signaling failure of operation. Considered
- *  obsolete all this stuff ought to be replaced by exceptions. */
+ *  Implementation of class signaling failure of operation. Considered obsolete
+ *  (all of this is replaced by exceptions). */
 
 /*
  *  GiNaC Copyright (C) 1999-2001 Johannes Gutenberg University Mainz, Germany
