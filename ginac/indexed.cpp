@@ -30,6 +30,7 @@
 #include "ncmul.h"
 #include "power.h"
 #include "lst.h"
+#include "inifcns.h"
 #include "print.h"
 #include "archive.h"
 #include "utils.h"
@@ -825,6 +826,16 @@ ex simplify_indexed(const ex & e, const scalar_products & sp)
 {
 	exvector free_indices, dummy_indices;
 	return simplify_indexed(e, free_indices, dummy_indices, sp);
+}
+
+ex symmetrize(const ex & e)
+{
+	return symmetrize(e, e.get_free_indices());
+}
+
+ex antisymmetrize(const ex & e)
+{
+	return antisymmetrize(e, e.get_free_indices());
 }
 
 //////////

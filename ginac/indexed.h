@@ -263,6 +263,11 @@ ex simplify_indexed(const ex & e);
  *  @return simplified expression */
 ex simplify_indexed(const ex & e, const scalar_products & sp);
 
+/** Symmetrize expression over its free indices. */
+ex symmetrize(const ex & e);
+
+/** Antisymmetrize expression over its free indices. */
+ex antisymmetrize(const ex & e);
 
 } // namespace GiNaC
 

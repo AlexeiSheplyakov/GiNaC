@@ -472,36 +472,6 @@ bool is_dummy_pair(const ex & e1, const ex & e2)
 	return is_dummy_pair(ex_to_idx(e1), ex_to_idx(e2));
 }
 
-// Shaker sort is sufficient for the expected small number of indices
-template <class It, class Cmp>
-inline void shaker_sort(It first, It last, Cmp comp)
-{
-	if (first == last)
-		return;
-	--last;
-	if (first == last)
-		return;
-	It flag = first;
-	do {
-		It i;
-		for (i=last; i>first; --i) {
-			if (comp(*i, i[-1])) {
-				iter_swap(i-1, i);
-				flag = i - 1;
-			}
-		}
-		++flag;
-		first = flag;
-		for (i=first; i<last; ++i) {
-			if (comp(i[1], *i)) {
-				iter_swap(i, i+1);
-				flag = i + 1;
-			}
-		}
-		last = flag - 1;
-	} while (first <= last);
-}
-
 void find_free_and_dummy(exvector::const_iterator it, exvector::const_iterator itend, exvector & out_free, exvector & out_dummy)
 {
 	out_free.clear();

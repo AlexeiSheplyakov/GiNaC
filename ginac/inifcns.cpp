@@ -523,6 +523,71 @@ ex ncpow(const ex & basis, unsigned exponent)
 	return ncmul(v, true);
 }
 
+// Symmetrize/antisymmetrize over a vector of objects
+static ex symm(const ex & e, exvector::const_iterator first, exvector::const_iterator last, bool asymmetric)
+{
+	// Need at least 2 objects for this operation
+	int num = last - first;
+	if (num < 2)
+		return e;
+
+	// Sort object vector, transform it into a list, and make a copy so we
+	// will know which objects get substituted for which
+	exvector iv(first, last);
+	sort(iv.begin(), iv.end(), ex_is_less());
+	exlist iv_lst;
+	iv_lst.insert(iv_lst.begin(), iv.begin(), iv.end());
+	lst orig_lst(iv_lst);
+
+	// With n objects there are n! possible permutations
+	int num_perms = factorial(numeric(num)).to_int();
+
+	// Loop over all permutations (the first permutation, which is the
+	// identity, is unrolled)
+	ex sum = e;
+	int i = 1;
+	do {
+		next_permutation(iv_lst.begin(), iv_lst.end(), ex_is_less());
+		ex term = e.subs(orig_lst, lst(iv_lst));
+		if (asymmetric) {
+			exlist test_lst = iv_lst;
+			term *= permutation_sign(test_lst.begin(), test_lst.end(), ex_is_less());
+		}
+		sum += term;
+		i++;
+	} while (i < num_perms);
+
+	return sum / num_perms;
+}
+
+ex symmetrize(const ex & e, exvector::const_iterator first, exvector::const_iterator last)
+{
+	return symm(e, first, last, false);
+}
+
+ex antisymmetrize(const ex & e, exvector::const_iterator first, exvector::const_iterator last)
+{
+	return symm(e, first, last, true);
+}
+
+ex symmetrize(const ex & e, const lst & l)
+{
+	exvector v;
+	v.reserve(l.nops());
+	for (unsigned i=0; i<l.nops(); i++)
+		v.push_back(l.op(i));
+	return symm(e, v.begin(), v.end(), false);
+}
+
+ex antisymmetrize(const ex & e, const lst & l)
+{
+	exvector v;
+	v.reserve(l.nops());
+	for (unsigned i=0; i<l.nops(); i++)
+		v.push_back(l.op(i));
+	return symm(e, v.begin(), v.end(), true);
+}
+
 /** Force inclusion of functions from initcns_gamma and inifcns_zeta
  *  for static lib (so ginsh will see them). */
 unsigned force_include_tgamma = function_index_tgamma;

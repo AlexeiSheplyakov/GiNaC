@@ -446,7 +446,7 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 								iv.push_back(n);
 								v.push_back(e.op(n));
 							}
-							int sign = permutation_sign(iv);
+							int sign = permutation_sign(iv.begin(), iv.end());
 							result += sign * eps0123(idx1, idx2, idx3, idx4)
 							        * dirac_trace(ncmul(v, true), rl, trONE);
 						}

@@ -127,24 +127,106 @@ inline unsigned golden_ratio_hash(unsigned n)
 #endif
 }
 
-// Compute the sign of a permutation of a vector of things.
-template <typename T>
-int permutation_sign(std::vector<T> s)
+/* Compute the sign of a permutation of a container, with and without an
+   explicitly supplied comparison function. The containers gets modified
+   during the operation. */
+template <class It>
+int permutation_sign(It first, It last)
 {
-	if (s.size() < 2)
+	if (first == last)
 		return 0;
-	int sigma = 1;
-	for (typename std::vector<T>::iterator i=s.begin(); i!=s.end()-1; ++i) {
-		for (typename std::vector<T>::iterator j=i+1; j!=s.end(); ++j) {
-			if (*i == *j)
-				return 0;
-			if (*i > *j) {
-				iter_swap(i,j);
-				sigma = -sigma;
+	It i = first;
+	++i;
+	if (i == last)
+		return 0;
+	i = first;
+	It next_to_last = last;
+	--next_to_last;
+
+	int sign = 1;
+	while (i != next_to_last) {
+		It j = i;
+		++j;
+		while (j != last) {
+			if (!(*i < *j)) {
+				if (!(*j < *i))
+					return 0;
+				iter_swap(i, j);
+				sign = -sign;
 			}
+			++j;
 		}
+		++i;
 	}
-	return sigma;
+	return sign;
+}
+
+/** Compute the sign of a permutation of a container */
+template <class It, class Cmp>
+int permutation_sign(It first, It last, Cmp comp)
+{
+	if (first == last)
+		return 0;
+	It i = first;
+	++i;
+	if (i == last)
+		return 0;
+	i = first;
+	It next_to_last = last;
+	--next_to_last;
+
+	int sign = 1;
+	while (i != next_to_last) {
+		It j = i;
+		++j;
+		while (j != last) {
+			if (!comp(*i, *j)) {
+				if (!comp(*j, *i))
+					return 0;
+				iter_swap(i, j);
+				sign = -sign;
+			}
+			++j;
+		}
+		++i;
+	}
+	return sign;
+}
+
+/* Implementation of shaker sort, only compares adjacent elements. */
+template <class It, class Cmp>
+inline void shaker_sort(It first, It last, Cmp comp)
+{
+	if (first == last)
+		return;
+	--last;
+	if (first == last)
+		return;
+	It flag = first;
+	do {
+		It i = last, other = last;
+		--other;
+		while (i > first) {
+			if (comp(*i, *other)) {
+				iter_swap(other, i);
+				flag = other;
+			}
+			--i; --other;
+		}
+		++flag;
+		first = flag;
+		i = first; other = first;
+		++other;
+		while (i < last) {
+			if (comp(*other, *i)) {
+				iter_swap(i, other);
+				flag = other;
+			}
+			++i; ++other;
+		}
+		last = flag;
+		--last;
+	} while (first <= last);
 }
 
 /* Function objects for STL sort() etc. */

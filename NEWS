@@ -10,6 +10,7 @@ This file records noteworthy changes.
   optionally containing wildcard objects. These are constructed with the
   call "wild(<unsigned>)" and are denoted as "$0", "$1" etc. in the output
   and in ginsh.
+* Added symmetrize() and antisymmetrize() functions.
 * Fixed possible crash when calling subs() on expressions with non-commutative
   products.
 

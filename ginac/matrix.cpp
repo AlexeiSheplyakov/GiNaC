@@ -756,7 +756,7 @@ ex matrix::determinant(unsigned algo) const
 			std::vector<unsigned> pre_sort;
 			for (std::vector<uintpair>::iterator i=c_zeros.begin(); i!=c_zeros.end(); ++i)
 				pre_sort.push_back(i->second);
-			int sign = permutation_sign(pre_sort);
+			int sign = permutation_sign(pre_sort.begin(), pre_sort.end());
 			exvector result(row*col);  // represents sorted matrix
 			unsigned c = 0;
 			for (std::vector<unsigned>::iterator i=pre_sort.begin();

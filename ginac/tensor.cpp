@@ -305,7 +305,7 @@ ex tensepsilon::eval_indexed(const basic & i) const
 		v.reserve(i.nops() - 1);
 		for (unsigned j=1; j<i.nops(); j++)
 			v.push_back(ex_to_numeric(ex_to_idx(i.op(j)).get_value()).to_int());
-		int sign = permutation_sign(v);
+		int sign = permutation_sign(v.begin(), v.end());
 
 		// In a Minkowski space, check for covariant indices
 		if (minkowski) {
