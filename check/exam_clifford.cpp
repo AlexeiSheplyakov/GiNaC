@@ -51,7 +51,7 @@ static unsigned clifford_check1(void)
 	unsigned result = 0;
 
 	symbol dim("D");
-	varidx mu(symbol("mu"), dim), nu(symbol("nu"), dim);
+	varidx mu(symbol("mu"), dim), nu(symbol("nu"), dim), rho(symbol("rho"), dim);
 	ex e;
 
 	e = dirac_ONE() * dirac_ONE();
@@ -71,6 +71,11 @@ static unsigned clifford_check1(void)
 	e = dirac_gamma(mu) * dirac_gamma(nu) *
 	    dirac_gamma(mu.toggle_variance()) * dirac_gamma(nu.toggle_variance());
 	result += check_equal_simplify(e, 2*dim*dirac_ONE()-pow(dim, 2)*dirac_ONE());
+
+	e = dirac_gamma(nu.toggle_variance()) * dirac_gamma(rho.toggle_variance()) *
+	    dirac_gamma(mu) * dirac_gamma(rho) * dirac_gamma(nu);
+	e = e.simplify_indexed().collect(dirac_gamma(mu));
+	result += check_equal(e, pow(2 - dim, 2).expand() * dirac_gamma(mu));
 
 	return result;
 }
@@ -171,6 +176,40 @@ static unsigned clifford_check3(void)
 	return result;
 }
 
+static unsigned clifford_check4(void)
+{
+	// simplify_indexed()/dirac_trace() cross-checks
+
+	unsigned result = 0;
+
+	symbol dim("D");
+	varidx mu(symbol("mu"), dim), nu(symbol("nu"), dim), rho(symbol("rho"), dim),
+	       sig(symbol("sig"), dim), lam(symbol("lam"), dim);
+	ex e, t1, t2;
+
+	e = dirac_gamma(mu) * dirac_gamma(nu) * dirac_gamma(rho) * dirac_gamma(mu.toggle_variance());
+	t1 = dirac_trace(e).simplify_indexed();
+	t2 = dirac_trace(e.simplify_indexed());
+	result += check_equal((t1 - t2).expand(), 0);
+
+	e = dirac_gamma(mu) * dirac_gamma(nu) * dirac_gamma(rho) * dirac_gamma(sig) * dirac_gamma(mu.toggle_variance()) * dirac_gamma(lam);
+	t1 = dirac_trace(e).simplify_indexed();
+	t2 = dirac_trace(e.simplify_indexed());
+	result += check_equal((t1 - t2).expand(), 0);
+
+	e = dirac_gamma(sig) * dirac_gamma(mu) * dirac_gamma(nu) * dirac_gamma(rho) * dirac_gamma(nu.toggle_variance()) * dirac_gamma(mu.toggle_variance());
+	t1 = dirac_trace(e).simplify_indexed();
+	t2 = dirac_trace(e.simplify_indexed());
+	result += check_equal((t1 - t2).expand(), 0);
+
+	e = dirac_gamma(mu) * dirac_gamma(nu) * dirac_gamma(rho) * dirac_gamma(mu.toggle_variance()) * dirac_gamma(sig) * dirac_gamma(nu.toggle_variance());
+	t1 = dirac_trace(e).simplify_indexed();
+	t2 = dirac_trace(e.simplify_indexed());
+	result += check_equal((t1 - t2).expand(), 0);
+
+	return result;
+}
+
 unsigned exam_clifford(void)
 {
 	unsigned result = 0;
@@ -181,6 +220,7 @@ unsigned exam_clifford(void)
 	result += clifford_check1();  cout << '.' << flush;
 	result += clifford_check2();  cout << '.' << flush;
 	result += clifford_check3();  cout << '.' << flush;
+	result += clifford_check4();  cout << '.' << flush;
 	
 	if (!result) {
 		cout << " passed " << endl;

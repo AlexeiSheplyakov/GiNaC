@@ -31,7 +31,7 @@ unsigned exam_archive(void)
 	cout << "examining archiving system" << flush;
 	clog << "----------archiving system:" << endl;
 
-	symbol x("x"), y("y"), mu("mu"), dim("dim");
+	symbol x("x"), y("y"), mu("mu"), dim("dim", "\\Delta");
 	ex e, f;
 
 	// This expression is complete nonsense but it contains every type of
