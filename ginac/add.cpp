@@ -511,9 +511,6 @@ ex add::recombine_pair_to_ex(const expair & p) const
 
 ex add::expand(unsigned options) const
 {
-	if (options == 0 && (flags & status_flags::expanded))
-		return *this;
-	
 	epvector *vp = expandchildren(options);
 	if (vp == NULL) {
 		// the terms have not changed, so it is safe to declare this expanded

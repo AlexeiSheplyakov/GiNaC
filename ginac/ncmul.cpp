@@ -147,69 +147,69 @@ typedef std::vector<int> intvector;
 
 ex ncmul::expand(unsigned options) const
 {
-	exvector sub_expanded_seq;
-	intvector positions_of_adds;
-	intvector number_of_add_operands;
+	// First, expand the children
+	exvector expanded_seq = expandchildren(options);
 
-	exvector expanded_seq=expandchildren(options);
+	// Now, look for all the factors that are sums and remember their
+	// position and number of terms. One remark is in order here: we do not
+	// take into account the overall_coeff of the add objects. This is
+	// because in GiNaC, all terms of a sum must be of the same type, so
+	// a non-zero overall_coeff (which can only be numeric) would imply that
+	// the sum only has commutative terms. But then it would never appear
+	// as a factor of an ncmul.
+	intvector positions_of_adds(expanded_seq.size());
+	intvector number_of_add_operands(expanded_seq.size());
 
-	positions_of_adds.resize(expanded_seq.size());
-	number_of_add_operands.resize(expanded_seq.size());
+	int number_of_adds = 0;
+	int number_of_expanded_terms = 1;
 
-	int number_of_adds=0;
-	int number_of_expanded_terms=1;
-
-	unsigned current_position=0;
-	exvector::const_iterator last=expanded_seq.end();
+	unsigned current_position = 0;
+	exvector::const_iterator last = expanded_seq.end();
 	for (exvector::const_iterator cit=expanded_seq.begin(); cit!=last; ++cit) {
-		if (is_ex_exactly_of_type((*cit),add)) {
-			positions_of_adds[number_of_adds]=current_position;
-			const add & expanded_addref=ex_to<add>(*cit);
-			number_of_add_operands[number_of_adds]=expanded_addref.seq.size();
+		if (is_ex_exactly_of_type(*cit, add)) {
+			positions_of_adds[number_of_adds] = current_position;
+			const add & expanded_addref = ex_to<add>(*cit);
+			number_of_add_operands[number_of_adds] = expanded_addref.seq.size();
 			number_of_expanded_terms *= expanded_addref.seq.size();
 			number_of_adds++;
 		}
 		current_position++;
 	}
 
-	if (number_of_adds==0) {
-		return (new ncmul(expanded_seq,1))->setflag(status_flags::dynallocated ||
-													(options == 0 ? status_flags::expanded : 0));
-	}
+	// If there are no sums, we are done
+	if (number_of_adds == 0)
+		return (new ncmul(expanded_seq, true))->
+		        setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0));
 
+	// Now, form all possible products of the terms of the sums with the
+	// remaining factors, and add them together
 	exvector distrseq;
 	distrseq.reserve(number_of_expanded_terms);
 
-	intvector k;
-	k.resize(number_of_adds);
-	
-	int l;
-	for (l=0; l<number_of_adds; l++) {
-		k[l]=0;
-	}
+	intvector k(number_of_adds);
 
-	while (1) {
-		exvector term;
-		term=expanded_seq;
-		for (l=0; l<number_of_adds; l++) {
-			GINAC_ASSERT(is_ex_exactly_of_type(expanded_seq[positions_of_adds[l]],add));
-			const add & addref=ex_to<add>(expanded_seq[positions_of_adds[l]]);
-			term[positions_of_adds[l]]=addref.recombine_pair_to_ex(addref.seq[k[l]]);
+	while (true) {
+		exvector term = expanded_seq;
+		for (int i=0; i<number_of_adds; i++) {
+			GINAC_ASSERT(is_ex_exactly_of_type(expanded_seq[positions_of_adds[i]], add));
+			const add & addref = ex_to<add>(expanded_seq[positions_of_adds[i]]);
+			term[positions_of_adds[i]] = addref.recombine_pair_to_ex(addref.seq[k[i]]);
 		}
-		distrseq.push_back((new ncmul(term,1))->setflag(status_flags::dynallocated |
-														(options == 0 ? status_flags::expanded : 0)));
+		distrseq.push_back((new ncmul(term, true))->
+		                    setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0)));
 
 		// increment k[]
-		l=number_of_adds-1;
-		while ((l>=0)&&((++k[l])>=number_of_add_operands[l])) {
-			k[l]=0;    
+		int l = number_of_adds-1;
+		while ((l>=0) && ((++k[l]) >= number_of_add_operands[l])) {
+			k[l] = 0;
 			l--;
 		}
-		if (l<0) break;
+		if (l<0)
+			break;
 	}
 
-	return (new add(distrseq))->setflag(status_flags::dynallocated |
-										(options == 0 ? status_flags::expanded : 0));
+	return (new add(distrseq))->
+	        setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0));
 }
 
 int ncmul::degree(const ex & s) const

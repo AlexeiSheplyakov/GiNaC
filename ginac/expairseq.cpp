@@ -311,7 +311,10 @@ ex expairseq::map(map_function & f) const
 		++cit;
 	}
 
-	return thisexpairseq(v, f(overall_coeff));
+	if (overall_coeff.is_equal(default_overall_coeff()))
+		return thisexpairseq(v, default_overall_coeff());
+	else
+		return thisexpairseq(v, f(overall_coeff));
 }
 
 ex expairseq::eval(int level) const
