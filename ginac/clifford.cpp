@@ -139,9 +139,9 @@ DEFAULT_COMPARE(diracone)
 DEFAULT_COMPARE(diracgamma)
 DEFAULT_COMPARE(diracgamma5)
 
-DEFAULT_PRINT(diracone, "ONE")
-DEFAULT_PRINT(diracgamma, "gamma")
-DEFAULT_PRINT(diracgamma5, "gamma5")
+DEFAULT_PRINT_LATEX(diracone, "ONE", "\\mathbb{1}")
+DEFAULT_PRINT_LATEX(diracgamma, "gamma", "\\gamma")
+DEFAULT_PRINT_LATEX(diracgamma5, "gamma5", "{\\gamma^5}")
 
 /** Contraction of a gamma matrix with something else. */
 bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const
@@ -151,34 +151,35 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 	GINAC_ASSERT(is_ex_of_type(self->op(0), diracgamma));
 	unsigned char rl = ex_to_clifford(*self).get_representation_label();
 
-	if (is_ex_of_type(other->op(0), diracgamma)) {
+	if (is_ex_of_type(*other, clifford)) {
 
 		ex dim = ex_to_idx(self->op(1)).get_dim();
 
-		// gamma~mu*gamma.mu = dim*ONE
+		// gamma~mu gamma.mu = dim ONE
 		if (other - self == 1) {
 			*self = dim;
 			*other = dirac_ONE(rl);
 			return true;
 
-		// gamma~mu*gamma~alpha*gamma.mu = (2-dim)*gamma~alpha
+		// gamma~mu gamma~alpha gamma.mu = (2-dim) gamma~alpha
 		} else if (other - self == 2
 		        && is_ex_of_type(self[1], clifford)) {
 			*self = 2 - dim;
 			*other = _ex1();
 			return true;
 
-		// gamma~mu*gamma~alpha*gamma~beta*gamma.mu = 4*g~alpha~beta+(dim-4)*gamam~alpha*gamma~beta
+		// gamma~mu gamma~alpha gamma~beta gamma.mu = 4 g~alpha~beta + (dim-4) gamam~alpha gamma~beta
 		} else if (other - self == 3
 		        && is_ex_of_type(self[1], clifford)
 		        && is_ex_of_type(self[2], clifford)) {
-			*self = 4 * metric_tensor(self[1].op(1), self[2].op(1)) * dirac_ONE(rl) + (dim - 4) * self[1] * self[2];
+			*self = 4 * lorentz_g(self[1].op(1), self[2].op(1)) * dirac_ONE(rl) + (dim - 4) * self[1] * self[2];
 			self[1] = _ex1();
 			self[2] = _ex1();
 			*other = _ex1();
 			return true;
 
-		// gamma~mu*gamma~alpha*gamma~beta*gamma~delta*gamma.mu = -2*gamma~delta*gamma~beta*gamma~alpha+(4-dim)*gamma~alpha*gamma~beta*gamma~delta
+#if 0
+		// gamma~mu gamma~alpha gamma~beta gamma~delta gamma.mu = -2 gamma~delta gamma~beta gamma~alpha + (4-dim) gamma~alpha gamma~beta gamma~delta
 		} else if (other - self == 4
 		        && is_ex_of_type(self[1], clifford)
 		        && is_ex_of_type(self[2], clifford)
@@ -187,6 +188,30 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 			self[1] = _ex1();
 			self[2] = _ex1();
 			self[3] = _ex1();
+			*other = _ex1();
+			return true;
+#endif
+
+		// gamma~mu S gamma~alpha gamma.mu = 2 gamma~alpha S - gamma~mu S gamma.mu gamma~alpha
+		// (commutate contracted indices towards each other, simplify_indexed()
+		// will re-expand and re-run the simplification)
+		} else {
+			exvector::iterator it = self + 1, next_to_last = other - 1;
+			while (it != other) {
+				if (!is_ex_of_type(*it, clifford))
+					return false;
+				it++;
+			}
+
+			it = self + 1;
+			ex S = _ex1();
+			while (it != next_to_last) {
+				S *= *it;
+				*it++ = _ex1();
+			}
+
+			*self = 2 * (*next_to_last) * S - (*self) * S * (*other) * (*next_to_last);
+			*next_to_last = _ex1();
 			*other = _ex1();
 			return true;
 		}
@@ -364,12 +389,12 @@ ex dirac_trace(const ex & e, unsigned char rl)
 		if (has_gamma5) {
 
 			// Trace of gamma5 * odd number of gammas and trace of
-			// gamma5 * gamma_mu * gamma_nu are zero
+			// gamma5 * gamma.mu * gamma.nu are zero
 			if ((num & 1) == 0 || num == 3)
 				return _ex0();
 
 			// Tr gamma5 S_2k =
-			//   epsilon0123_mu1_mu2_mu3_mu4 * Tr gamma_mu1 gamma_mu2 gamma_mu3 gamma_mu4 S_2k
+			//   epsilon0123.mu1.mu2.mu3.mu4 * Tr gamma.mu1 gamma.mu2 gamma.mu3 gamma.mu4 S_2k
 			ex dim = ex_to_idx(e.op(1).op(1)).get_dim();
 			varidx mu1((new symbol)->setflag(status_flags::dynallocated), dim),
 			       mu2((new symbol)->setflag(status_flags::dynallocated), dim),
@@ -393,17 +418,17 @@ ex dirac_trace(const ex & e, unsigned char rl)
 			if ((num & 1) == 1)
 				return _ex0();
 
-			// Tr gamma_mu gamma_nu = 4 g_mu_nu
+			// Tr gamma.mu gamma.nu = 4 g.mu.nu
 			if (num == 2)
 				return 4 * lorentz_g(e.op(0).op(1), e.op(1).op(1));
 
 			// Traces of 4 or more gammas are computed recursively:
-			// Tr gamma_mu1 gamma_mu2 ... gamma_mun =
-			//   + eta_mu1_mu2 * Tr gamma_mu3 ... gamma_mun
-			//   - eta_mu1_mu3 * Tr gamma_mu2 gamma_mu4 ... gamma_mun
-			//   + eta_mu1_mu4 * Tr gamma_mu3 gamma_mu3 gamma_mu5 ... gamma_mun
+			// Tr gamma.mu1 gamma.mu2 ... gamma.mun =
+			//   + g.mu1.mu2 * Tr gamma.mu3 ... gamma.mun
+			//   - g.mu1.mu3 * Tr gamma.mu2 gamma.mu4 ... gamma.mun
+			//   + g.mu1.mu4 * Tr gamma.mu3 gamma.mu3 gamma.mu5 ... gamma.mun
 			//   - ...
-			//   + eta_mu1_mun * Tr gamma_mu2 ... gamma_mu(n-1)
+			//   + g.mu1.mun * Tr gamma.mu2 ... gamma.mu(n-1)
 			exvector v(num - 2);
 			int sign = 1;
 			const ex &ix1 = e.op(0).op(1);

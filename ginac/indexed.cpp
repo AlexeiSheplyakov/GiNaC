@@ -199,14 +199,20 @@ void indexed::print(const print_context & c, unsigned level) const
 
 	} else {
 
+		bool is_tex = is_of_type(c, print_latex);
 		const ex & base = seq[0];
 		bool need_parens = is_ex_exactly_of_type(base, add) || is_ex_exactly_of_type(base, mul)
-		                || is_ex_exactly_of_type(base, ncmul) || is_ex_exactly_of_type(base, power);
+		                || is_ex_exactly_of_type(base, ncmul) || is_ex_exactly_of_type(base, power)
+		                || is_ex_of_type(base, indexed);
+		if (is_tex)
+			c.s << "{";
 		if (need_parens)
 			c.s << "(";
 		base.print(c);
 		if (need_parens)
 			c.s << ")";
+		if (is_tex)
+			c.s << "}";
 		printindices(c, level);
 	}
 }
@@ -409,10 +415,40 @@ ex indexed::expand(unsigned options) const
 void indexed::printindices(const print_context & c, unsigned level) const
 {
 	if (seq.size() > 1) {
+
 		exvector::const_iterator it=seq.begin() + 1, itend = seq.end();
-		while (it != itend) {
-			it->print(c, level);
-			it++;
+
+		if (is_of_type(c, print_latex)) {
+
+			// TeX output: group by variance
+			bool first = true;
+			bool covariant = true;
+
+			while (it != itend) {
+				bool cur_covariant = (is_ex_of_type(*it, varidx) ? ex_to_varidx(*it).is_covariant() : true);
+				if (first || cur_covariant != covariant) {
+					if (!first)
+						c.s << "}";
+					covariant = cur_covariant;
+					if (covariant)
+						c.s << "_{";
+					else
+						c.s << "^{";
+				}
+				it->print(c, level);
+				c.s << " ";
+				first = false;
+				it++;
+			}
+			c.s << "}";
+
+		} else {
+
+			// Ordinary output
+			while (it != itend) {
+				it->print(c, level);
+				it++;
+			}
 		}
 	}
 }
@@ -631,11 +667,12 @@ try_again:
 			if (contracted) {
 contraction_done:
 				if (is_ex_exactly_of_type(*it1, add) || is_ex_exactly_of_type(*it2, add)
-				 || is_ex_exactly_of_type(*it1, mul) || is_ex_exactly_of_type(*it2, mul)) {
+				 || is_ex_exactly_of_type(*it1, mul) || is_ex_exactly_of_type(*it2, mul)
+				 || is_ex_exactly_of_type(*it1, ncmul) || is_ex_exactly_of_type(*it2, ncmul)) {
 
 					// One of the factors became a sum or product:
 					// re-expand expression and run again
-					ex r = non_commutative ? ex(ncmul(v)) : ex(mul(v));
+					ex r = (non_commutative ? ex(ncmul(v)) : ex(mul(v)));
 					return simplify_indexed(r, free_indices, sp);
 				}
 

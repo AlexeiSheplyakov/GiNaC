@@ -136,11 +136,12 @@ void idx::print(const print_context & c, unsigned level) const
 
 	} else {
 
-		c.s << ".";
+		if (!is_of_type(c, print_latex))
+			c.s << ".";
 		bool need_parens = !(is_ex_exactly_of_type(value, numeric) || is_ex_of_type(value, symbol));
 		if (need_parens)
 			c.s << "(";
-		c.s << value;
+		value.print(c);
 		if (need_parens)
 			c.s << ")";
 	}
@@ -162,14 +163,16 @@ void varidx::print(const print_context & c, unsigned level) const
 
 	} else {
 
-		if (covariant)
-			c.s << ".";
-		else
-			c.s << "~";
+		if (!is_of_type(c, print_latex)) {
+			if (covariant)
+				c.s << ".";
+			else
+				c.s << "~";
+		}
 		bool need_parens = !(is_ex_exactly_of_type(value, numeric) || is_ex_of_type(value, symbol));
 		if (need_parens)
 			c.s << "(";
-		c.s << value;
+		value.print(c);
 		if (need_parens)
 			c.s << ")";
 	}

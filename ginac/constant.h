@@ -43,8 +43,8 @@ class constant : public basic
 	
 	// other ctors
 public:
-	constant(const std::string & initname, evalffunctype efun = 0);
-	constant(const std::string & initname, const numeric & initnumber);
+	constant(const std::string & initname, evalffunctype efun = 0, const std::string & texname = std::string());
+	constant(const std::string & initname, const numeric & initnumber, const std::string & texname = std::string());
 	
 	// functions overriding virtual functions from bases classes
 public:
@@ -67,10 +67,11 @@ protected:
 // member variables
 	
 private:
-	std::string name;   ///< printname of this constant
+	std::string name;     ///< printname of this constant
+	std::string TeX_name; ///< LaTeX name
 	evalffunctype ef;
-	numeric *number;    ///< numerical value this constant evalf()s to
-	unsigned serial;    ///< unique serial number for comparison
+	numeric *number;      ///< numerical value this constant evalf()s to
+	unsigned serial;      ///< unique serial number for comparison
 	static unsigned next_serial;
 };
 

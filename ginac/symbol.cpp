@@ -41,7 +41,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_NO_CTORS(symbol, basic)
 symbol::symbol() : inherited(TINFO_symbol), serial(next_serial++)
 {
 	debugmsg("symbol default ctor", LOGLEVEL_CONSTRUCT);
-	name = autoname_prefix()+ToString(serial);
+	name = TeX_name = autoname_prefix()+ToString(serial);
 	asexinfop = new assigned_ex_info;
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
@@ -51,6 +51,7 @@ void symbol::copy(const symbol & other)
 {
 	inherited::copy(other);
 	name = other.name;
+	TeX_name = other.TeX_name;
 	serial = other.serial;
 	asexinfop = other.asexinfop;
 	++asexinfop->refcount;
@@ -80,6 +81,17 @@ symbol::symbol(const std::string & initname) : inherited(TINFO_symbol)
 {
 	debugmsg("symbol ctor from string", LOGLEVEL_CONSTRUCT);
 	name = initname;
+	TeX_name = default_TeX_name();
+	serial = next_serial++;
+	asexinfop = new assigned_ex_info;
+	setflag(status_flags::evaluated | status_flags::expanded);
+}
+
+symbol::symbol(const std::string & initname, const std::string & texname) : inherited(TINFO_symbol)
+{
+	debugmsg("symbol ctor from string", LOGLEVEL_CONSTRUCT);
+	name = initname;
+	TeX_name = texname;
 	serial = next_serial++;
 	asexinfop = new assigned_ex_info;
 	setflag(status_flags::evaluated | status_flags::expanded);
@@ -96,6 +108,8 @@ symbol::symbol(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst
 	serial = next_serial++;
 	if (!(n.find_string("name", name)))
 		name = autoname_prefix() + ToString(serial);
+	if (!(n.find_string("TeXname", TeX_name)))
+		TeX_name = default_TeX_name();
 	asexinfop = new assigned_ex_info;
 	setflag(status_flags::evaluated);
 }
@@ -118,6 +132,8 @@ void symbol::archive(archive_node &n) const
 {
 	inherited::archive(n);
 	n.add_string("name", name);
+	if (TeX_name != default_TeX_name())
+		n.add_string("TeX_name", TeX_name);
 }
 
 //////////
@@ -143,25 +159,9 @@ void symbol::print(const print_context & c, unsigned level) const
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 		    << std::endl;
 
-	} else if (is_of_type(c, print_latex)) {
-		if (name=="alpha"        || name=="beta"         || name=="gamma"
-		 || name=="delta"        || name=="epsilon"      || name=="varepsilon"
-		 || name=="zeta"         || name=="eta"          || name=="theta"
-		 || name=="vartheta"     || name=="iota"         || name=="kappa"
-		 || name=="lambda"       || name=="mu"           || name=="nu"
-		 || name=="xi"           || name=="omicron"      || name=="pi"
-		 || name=="varpi"        || name=="rho"          || name=="varrho"
-		 || name=="sigma"        || name=="varsigma"     || name=="tau"
-		 || name=="upsilon"      || name=="phi"          || name=="varphix"
-		 || name=="chi"          || name=="psi"          || name=="omega"
-		 || name=="Gamma"        || name=="Delta"        || name=="Theta"
-		 || name=="Lambda"       || name=="Xi"           || name=="Pi"
-		 || name=="Sigma"        || name=="Upsilon"      || name=="Phi"
-		 || name=="Psi"          || name=="Omega")
-			c.s << "\\" << name;
-		else
-			c.s << name;
-	} else
+	} else if (is_of_type(c, print_latex))
+		c.s << TeX_name;
+	else
 		c.s << name;
 }
 
@@ -311,6 +311,28 @@ std::string & symbol::autoname_prefix(void)
 {
 	static std::string *s = new std::string("symbol");
 	return *s;
+}
+
+/** Return default TeX name for symbol. This recognizes some greek letters. */
+std::string symbol::default_TeX_name(void) const
+{
+	if (name=="alpha"        || name=="beta"         || name=="gamma"
+	 || name=="delta"        || name=="epsilon"      || name=="varepsilon"
+	 || name=="zeta"         || name=="eta"          || name=="theta"
+	 || name=="vartheta"     || name=="iota"         || name=="kappa"
+	 || name=="lambda"       || name=="mu"           || name=="nu"
+	 || name=="xi"           || name=="omicron"      || name=="pi"
+	 || name=="varpi"        || name=="rho"          || name=="varrho"
+	 || name=="sigma"        || name=="varsigma"     || name=="tau"
+	 || name=="upsilon"      || name=="phi"          || name=="varphix"
+	 || name=="chi"          || name=="psi"          || name=="omega"
+	 || name=="Gamma"        || name=="Delta"        || name=="Theta"
+	 || name=="Lambda"       || name=="Xi"           || name=="Pi"
+	 || name=="Sigma"        || name=="Upsilon"      || name=="Phi"
+	 || name=="Psi"          || name=="Omega")
+		return "\\" + name;
+	else
+		return name;
 }
 
 //////////

@@ -301,6 +301,18 @@ void classname::print(const print_context & c, unsigned level) const \
 		c.s << text; \
 }
 
+#define DEFAULT_PRINT_LATEX(classname, text, latex) \
+void classname::print(const print_context & c, unsigned level) const \
+{ \
+	debugmsg(#classname " print", LOGLEVEL_PRINT); \
+	if (is_of_type(c, print_tree)) \
+		inherited::print(c, level); \
+	else if (is_of_type(c, print_latex)) \
+		c.s << latex; \
+	else \
+		c.s << text; \
+}
+
 } // namespace GiNaC
 
 #endif // ndef __GINAC_UTILS_H__

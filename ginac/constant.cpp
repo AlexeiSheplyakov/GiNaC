@@ -41,7 +41,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(constant, basic)
 
 // public
 
-constant::constant() : basic(TINFO_constant), name(""), ef(0), number(0), serial(next_serial++)
+constant::constant() : basic(TINFO_constant), ef(0), number(0), serial(next_serial++)
 {
 	debugmsg("constant default ctor",LOGLEVEL_CONSTRUCT);
 }
@@ -53,6 +53,7 @@ void constant::copy(const constant & other)
 {
 	inherited::copy(other);
 	name = other.name;
+	TeX_name = other.TeX_name;
 	serial = other.serial;
 	ef = other.ef;
 	if (other.number != 0)
@@ -74,17 +75,25 @@ void constant::destroy(bool call_parent)
 
 // public
 
-constant::constant(const std::string & initname, evalffunctype efun)
+constant::constant(const std::string & initname, evalffunctype efun, const std::string & texname)
   : basic(TINFO_constant), name(initname), ef(efun), number(0), serial(next_serial++)
 {
 	debugmsg("constant ctor from string, function",LOGLEVEL_CONSTRUCT);
+	if (texname.empty())
+		TeX_name = "\\mbox{" + name + "}";
+	else
+		TeX_name = texname;
 	setflag(status_flags::evaluated);
 }
 
-constant::constant(const std::string & initname, const numeric & initnumber)
+constant::constant(const std::string & initname, const numeric & initnumber, const std::string & texname)
   : basic(TINFO_constant), name(initname), ef(0), number(new numeric(initnumber)), serial(next_serial++)
 {
 	debugmsg("constant ctor from string, numeric",LOGLEVEL_CONSTRUCT);
+	if (texname.empty())
+		TeX_name = "\\mbox{" + name + "}";
+	else
+		TeX_name = texname;
 	setflag(status_flags::evaluated);
 }
 
@@ -135,16 +144,9 @@ void constant::print(const print_context & c, unsigned level) const
 		c.s << std::string(level, ' ') << name << " (" << class_name() << ")"
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 		    << std::endl;
-	} else if (is_of_type(c, print_latex)) {
-		if (name=="Pi")
-			c.s << "\\pi";
-		else if (name=="Euler")
-			c.s << "\\gamma_E";
-		else if (name=="Catalan")
-			c.s << "G";
-		else
-			c.s << "\\mbox{"+name+"}";
-	} else
+	} else if (is_of_type(c, print_latex))
+		c.s << TeX_name;
+	else
 		c.s << name;
 }
 
@@ -237,13 +239,13 @@ unsigned constant::next_serial = 0;
 //////////
 
 /**  Pi. (3.14159...)  Diverts straight into CLN for evalf(). */
-const constant Pi("Pi", PiEvalf);
+const constant Pi("Pi", PiEvalf, "\\pi");
 
 /** Euler's constant. (0.57721...)  Sometimes called Euler-Mascheroni constant.
  *  Diverts straight into CLN for evalf(). */
-const constant Euler("Euler", EulerEvalf);
+const constant Euler("Euler", EulerEvalf, "\\gamma_E");
 
 /** Catalan's constant. (0.91597...)  Diverts straight into CLN for evalf(). */
-const constant Catalan("Catalan", CatalanEvalf);
+const constant Catalan("Catalan", CatalanEvalf, "G");
 
 } // namespace GiNaC

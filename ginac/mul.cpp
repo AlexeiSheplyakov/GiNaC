@@ -405,7 +405,16 @@ ex mul::evalf(int level) const
 
 ex mul::simplify_ncmul(const exvector & v) const
 {
-	throw(std::logic_error("mul::simplify_ncmul() should never have been called!"));
+	if (seq.size()==0) {
+		return inherited::simplify_ncmul(v);
+	}
+
+	// Find first noncommutative element and call its simplify_ncmul()
+	for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
+		if (cit->rest.return_type() == return_types::noncommutative)
+			return cit->rest.simplify_ncmul(v);
+	}
+	return inherited::simplify_ncmul(v);
 }
 
 // protected

@@ -68,6 +68,7 @@ protected:
 	// other ctors
 public:
 	explicit symbol(const std::string & initname);
+	explicit symbol(const std::string & initname, const std::string & texname);
 	
 	// functions overriding virtual functions from base classes
 public:
@@ -99,13 +100,15 @@ public:
 	std::string get_name(void) const { return name; }
 private:
 	std::string & autoname_prefix(void);
+	std::string default_TeX_name(void) const;
 
 // member variables
 
 protected:
 	assigned_ex_info * asexinfop;   ///< ptr to assigned expression, deprecated
-	unsigned serial;    ///< unique serial number for comparison
-	std::string name;   ///< printname of this symbol
+	unsigned serial;       ///< unique serial number for comparison
+	std::string name;      ///< printname of this symbol
+	std::string TeX_name;  ///< LaTeX name of this symbol
 private:
 	static unsigned next_serial;
 };

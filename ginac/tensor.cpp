@@ -162,10 +162,10 @@ int tensepsilon::compare_same_type(const basic & other) const
 		return inherited::compare_same_type(other);
 }
 
-DEFAULT_PRINT(tensdelta, "delta")
+DEFAULT_PRINT_LATEX(tensdelta, "delta", "\\delta")
 DEFAULT_PRINT(tensmetric, "g")
-DEFAULT_PRINT(minkmetric, "eta")
-DEFAULT_PRINT(tensepsilon, "eps")
+DEFAULT_PRINT_LATEX(minkmetric, "eta", "\\eta")
+DEFAULT_PRINT_LATEX(tensepsilon, "eps", "\\epsilon")
 
 /** Automatic symbolic evaluation of an indexed delta tensor. */
 ex tensdelta::eval_indexed(const basic & i) const
