@@ -68,7 +68,7 @@ const basic & basic::operator=(const basic & other)
 		// The other object is of a derived class, so clear the flags as they
 		// might no longer apply (especially hash_calculated). Oh, and don't
 		// copy the tinfo_key: it is already set correctly for this object.
-		flags = 0;
+		fl &= ~(status_flags::evaluated | status_flags::expanded | status_flags::hash_calculated);
 	} else {
 		// The objects are of the exact same class, so copy the hash value.
 		hashvalue = other.hashvalue;
