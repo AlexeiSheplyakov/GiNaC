@@ -208,7 +208,7 @@ ex lsolve(ex const &eqns, ex const &symbols)
     } catch (runtime_error const & e) {
         // probably singular matrix (or other error)
         // return empty solution list
-        cerr << e.what() << endl;
+        // cerr << e.what() << endl;
         return lst();
     }
     
