@@ -114,12 +114,6 @@ template<> inline bool is_exactly_a<symbol>(const basic & obj)
 inline void unassign(symbol & symarg)
 { symarg.unassign(); }
 
-inline int degree(const symbol & a, const ex & s)
-{ return a.degree(s); }
-
-inline int ldegree(const symbol & a, const ex & s)
-{ return a.ldegree(s); }
-
 } // namespace GiNaC
 
 #endif // ndef __GINAC_SYMBOL_H__
