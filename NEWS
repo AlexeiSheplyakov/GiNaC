@@ -1,5 +1,8 @@
 This file records noteworthy changes.
 
+0.5.1 (14 February 2000)
+* Fixes a small number of bugs.
+
 0.5.0 (7 February 2000)
 * Expressions can be written ("archived") to files and read therefrom.
 * Addition of GiNaC-cint, which lets you write complete programs in
