@@ -252,7 +252,7 @@ void ex::makewriteable()
 }
 
 /** Share equal objects between expressions.
- *  @see ex::compare(const basic &) */
+ *  @see ex::compare(const ex &) */
 void ex::share(const ex & other) const
 {
 	if ((bp->flags | other.bp->flags) & status_flags::not_shareable)
