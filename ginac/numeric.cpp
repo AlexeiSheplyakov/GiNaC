@@ -93,10 +93,10 @@ numeric::numeric(int i) : basic(TINFO_numeric)
 	// emphasizes efficiency.  However, if the integer is small enough
 	// we save space and dereferences by using an immediate type.
 	// (C.f. <cln/object.h>)
-	if (i < (1U<<cl_value_len-1))
+	if (i < (1L << (cl_value_len-1)) && i >= -(1L << (cl_value_len-1)))
 		value = cln::cl_I(i);
 	else
-		value = cln::cl_I((long) i);
+		value = cln::cl_I(static_cast<long>(i));
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
@@ -108,10 +108,10 @@ numeric::numeric(unsigned int i) : basic(TINFO_numeric)
 	// emphasizes efficiency.  However, if the integer is small enough
 	// we save space and dereferences by using an immediate type.
 	// (C.f. <cln/object.h>)
-	if (i < (1U<<cl_value_len-1))
+	if (i < (1U << (cl_value_len-1)))
 		value = cln::cl_I(i);
 	else
-		value = cln::cl_I((unsigned long) i);
+		value = cln::cl_I(static_cast<unsigned long>(i));
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
@@ -129,7 +129,8 @@ numeric::numeric(unsigned long i) : basic(TINFO_numeric)
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
-/** Ctor for rational numerics a/b.
+
+/** Constructor for rational numerics a/b.
  *
  *  @exception overflow_error (division by zero) */
 numeric::numeric(long numer, long denom) : basic(TINFO_numeric)
