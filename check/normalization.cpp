@@ -26,7 +26,7 @@
 using namespace GiNaC;
 #endif // ndef NO_NAMESPACE_GINAC
 
-static symbol x("x"), y("y"), z("z");
+static symbol w("w"), x("x"), y("y"), z("z");
 
 static unsigned check_normal(const ex &e, const ex &d)
 {
@@ -55,21 +55,31 @@ static unsigned normal1(void)
     result += check_normal(e, d);
     
     // Fraction addition
-    e = numeric(2)/x + y/3;
-    d = (x*y/3 + 2) / x;
+    e = 2/x + y/3;
+    d = (x*y + 6) / (x*3);
     result += check_normal(e, d);
     
-    // Fraction addition
     e = pow(x, -1) + x/(x+1);
     d = (pow(x, 2)+x+1)/(x*(x+1));
     result += check_normal(e, d);
     
     // Fraction cancellation
+	e = numeric(1)/2 * z * (2*x + 2*y);
+	d = z * (x + y);
+	result += check_normal(e, d);
+
+	e = numeric(1)/6 * z * (3*x + 3*y) * (2*x + 2*w);
+	d = z * (x + y) * (x + w);
+	result += check_normal(e, d);
+
+	e = (3*x + 3*y) * (w/3 + z/3);
+	d = (x + y) * (w + z);
+	result += check_normal(e, d);
+
     e = (pow(x, 2) - pow(y, 2)) / pow(x-y, 3);
     d = (x + y) / (pow(x, 2) + pow(y, 2) - x * y * 2);
     result += check_normal(e, d);
     
-    // Fraction cancellation
     e = (pow(x, -1) + x) / (pow(x , 2) * 2 + 2);
     d = pow(x * 2, -1);
     result += check_normal(e, d);

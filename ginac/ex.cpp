@@ -238,33 +238,7 @@ void ex::dbgprinttree(void) const
 
 bool ex::info(unsigned inf) const
 {
-    if (inf == info_flags::normal_form) {
-
-    // Polynomials are in normal form
-    if (info(info_flags::polynomial))
-        return true;
-
-    // polynomial^(-int) is in normal form
-    if (is_ex_exactly_of_type(*this, power))
-        return op(1).info(info_flags::negint);
-
-    // polynomial^(int) * polynomial^(int) * ... is in normal form
-    if (!is_ex_exactly_of_type(*this, mul))
-        return false;
-    for (unsigned i=0; i<nops(); i++) {
-        if (is_ex_exactly_of_type(op(i), power)) {
-            if (!op(i).op(1).info(info_flags::integer))
-                return false;
-            if (!op(i).op(0).info(info_flags::polynomial))
-                return false;
-        } else
-            if (!op(i).info(info_flags::polynomial))
-                return false;
-    }
-    return true;
-    } else {
-        return bp->info(inf);
-    }
+    return bp->info(inf);
 }
 
 unsigned ex::nops() const
@@ -306,13 +280,17 @@ ex ex::coeff(const symbol & s, int n) const
 ex ex::numer(bool normalize) const
 {
     ex n;
-    if (normalize && !info(info_flags::normal_form))
+    if (normalize)
         n = normal();
     else
         n = *this;
 
+	// number
+	if (is_ex_exactly_of_type(n, numeric))
+		return ex_to_numeric(n).numer();
+
     // polynomial
-    if (n.info(info_flags::polynomial))
+    if (n.info(info_flags::cinteger_polynomial))
         return n;
 
     // something^(-int)
@@ -324,8 +302,13 @@ ex ex::numer(bool normalize) const
         return n;
     ex res = _ex1();
     for (unsigned i=0; i<n.nops(); i++) {
-        if (!is_ex_exactly_of_type(n.op(i), power) || !n.op(i).op(1).info(info_flags::negint))
+		if (is_ex_exactly_of_type(n.op(i), power) && n.op(i).op(1).info(info_flags::negint)) {
+			// something^(-int) belongs to the denominator
+		} else if (is_ex_exactly_of_type(n.op(i), numeric)) {
+			res *= ex_to_numeric(n.op(i)).numer();
+		} else {
             res *= n.op(i);
+		}
     }
     return res;
 }
@@ -333,13 +316,17 @@ ex ex::numer(bool normalize) const
 ex ex::denom(bool normalize) const
 {
     ex n;
-    if (normalize && !info(info_flags::normal_form))
+    if (normalize)
         n = normal();
     else
         n = *this;
 
+	// number
+	if (is_ex_exactly_of_type(n, numeric))
+		return ex_to_numeric(n).denom();
+
     // polynomial
-    if (n.info(info_flags::polynomial))
+    if (n.info(info_flags::cinteger_polynomial))
         return _ex1();
 
     // something^(-int)
@@ -351,8 +338,13 @@ ex ex::denom(bool normalize) const
         return _ex1();
     ex res = _ex1();
     for (unsigned i=0; i<n.nops(); i++) {
-        if (is_ex_exactly_of_type(n.op(i), power) && n.op(i).op(1).info(info_flags::negint))
+        if (is_ex_exactly_of_type(n.op(i), power) && n.op(i).op(1).info(info_flags::negint)) {
             res *= power(n.op(i), -1);
+		} else if (is_ex_exactly_of_type(n.op(i), numeric)) {
+			res *= ex_to_numeric(n.op(i)).denom();
+		} else {
+			// everything else belongs to the numerator
+		}
     }
     return res;
 }

@@ -1248,7 +1248,7 @@ factored_b:
 ex lcm(const ex &a, const ex &b, bool check_args)
 {
     if (is_ex_exactly_of_type(a, numeric) && is_ex_exactly_of_type(b, numeric))
-        return gcd(ex_to_numeric(a), ex_to_numeric(b));
+        return lcm(ex_to_numeric(a), ex_to_numeric(b));
     if (check_args && !a.info(info_flags::rational_polynomial) || !b.info(info_flags::rational_polynomial))
         throw(std::invalid_argument("lcm: arguments must be polynomials over the rationals"));
     
@@ -1333,9 +1333,18 @@ ex sqrfree(const ex &a, const symbol &x)
  *  Normal form of rational functions
  */
 
-// Create a symbol for replacing the expression "e" (or return a previously
-// assigned symbol). The symbol is appended to sym_list and returned, the
-// expression is appended to repl_list.
+/*
+ *  Note: The internal normal() functions (= basic::normal() and overloaded
+ *  functions) all return lists of the form {numerator, denominator}. This
+ *  is to get around mul::eval()'s automatic expansion of numeric coefficients.
+ *  E.g. (a+b)/3 is automatically converted to a/3+b/3 but we want to keep
+ *  the information that (a+b) is the numerator and 3 is the denominator.
+ */
+
+/** Create a symbol for replacing the expression "e" (or return a previously
+ *  assigned symbol). The symbol is appended to sym_list and returned, the
+ *  expression is appended to repl_list.
+ *  @see ex::normal */
 static ex replace_with_symbol(const ex &e, lst &sym_lst, lst &repl_lst)
 {
     // Expression already in repl_lst? Then return the assigned symbol
@@ -1360,15 +1369,15 @@ static ex replace_with_symbol(const ex &e, lst &sym_lst, lst &repl_lst)
  *  @see ex::normal */
 ex basic::normal(lst &sym_lst, lst &repl_lst, int level) const
 {
-    return replace_with_symbol(*this, sym_lst, repl_lst);
+    return (new lst(replace_with_symbol(*this, sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
 }
 
 
-/** Implementation of ex::normal() for symbols. This returns the unmodifies symbol.
+/** Implementation of ex::normal() for symbols. This returns the unmodified symbol.
  *  @see ex::normal */
 ex symbol::normal(lst &sym_lst, lst &repl_lst, int level) const
 {
-    return *this;
+    return (new lst(*this, _ex1()))->setflag(status_flags::dynallocated);
 }
 
 
@@ -1378,39 +1387,41 @@ ex symbol::normal(lst &sym_lst, lst &repl_lst, int level) const
  *  @see ex::normal */
 ex numeric::normal(lst &sym_lst, lst &repl_lst, int level) const
 {
-    if (is_real())
-        if (is_rational())
-            return *this;
-        else
-            return replace_with_symbol(*this, sym_lst, repl_lst);
-    else { // complex
-        numeric re = real(), im = imag();
+	numeric num = numer();
+	ex numex = num;
+
+    if (num.is_real()) {
+        if (!num.is_integer())
+            numex = replace_with_symbol(numex, sym_lst, repl_lst);
+    } else { // complex
+        numeric re = num.real(), im = num.imag();
         ex re_ex = re.is_rational() ? re : replace_with_symbol(re, sym_lst, repl_lst);
         ex im_ex = im.is_rational() ? im : replace_with_symbol(im, sym_lst, repl_lst);
-        return re_ex + im_ex * replace_with_symbol(I, sym_lst, repl_lst);
+        numex = re_ex + im_ex * replace_with_symbol(I, sym_lst, repl_lst);
     }
+
+	// Denominator is always a real integer (see numeric::denom())
+	return (new lst(numex, denom()))->setflag(status_flags::dynallocated);
 }
 
 
 /** Fraction cancellation.
  *  @param n  numerator
  *  @param d  denominator
- *  @return cancelled fraction n/d */
+ *  @return cancelled fraction {n, d} as a list */
 static ex frac_cancel(const ex &n, const ex &d)
 {
     ex num = n;
     ex den = d;
     numeric pre_factor = _num1();
 
+//clog << "frac_cancel num = " << num << ", den = " << den << endl;
+
     // Handle special cases where numerator or denominator is 0
     if (num.is_zero())
-        return _ex0();
+		return (new lst(_ex0(), _ex1()))->setflag(status_flags::dynallocated);
     if (den.expand().is_zero())
         throw(std::overflow_error("frac_cancel: division by zero in frac_cancel"));
-
-    // More special cases
-    if (is_ex_exactly_of_type(den, numeric))
-        return num / den;
 
     // Bring numerator and denominator to Z[X] by multiplying with
     // LCM of all coefficients' denominators
@@ -1436,7 +1447,9 @@ static ex frac_cancel(const ex &n, const ex &d)
 			den *= _ex_1();
 		}
 	}
-    return pre_factor * num / den;
+
+	// Return result as list
+    return (new lst(num * pre_factor.numer(), den * pre_factor.denom()))->setflag(status_flags::dynallocated);
 }
 
 
@@ -1445,47 +1458,67 @@ static ex frac_cancel(const ex &n, const ex &d)
  *  @see ex::normal */
 ex add::normal(lst &sym_lst, lst &repl_lst, int level) const
 {
-    // Normalize and expand children
+    // Normalize and expand children, chop into summands
     exvector o;
     o.reserve(seq.size()+1);
     epvector::const_iterator it = seq.begin(), itend = seq.end();
     while (it != itend) {
+
+		// Normalize and expand child
         ex n = recombine_pair_to_ex(*it).bp->normal(sym_lst, repl_lst, level-1).expand();
-        if (is_ex_exactly_of_type(n, add)) {
-            epvector::const_iterator bit = (static_cast<add *>(n.bp))->seq.begin(), bitend = (static_cast<add *>(n.bp))->seq.end();
+
+		// If numerator is a sum, chop into summands
+        if (is_ex_exactly_of_type(n.op(0), add)) {
+            epvector::const_iterator bit = ex_to_add(n.op(0)).seq.begin(), bitend = ex_to_add(n.op(0)).seq.end();
             while (bit != bitend) {
-                o.push_back(recombine_pair_to_ex(*bit));
+                o.push_back((new lst(recombine_pair_to_ex(*bit), n.op(1)))->setflag(status_flags::dynallocated));
                 bit++;
             }
-            o.push_back((static_cast<add *>(n.bp))->overall_coeff);
+
+			// The overall_coeff is already normalized (== rational), we just
+			// split it into numerator and denominator
+			GINAC_ASSERT(ex_to_numeric(ex_to_add(n.op(0)).overall_coeff).is_rational());
+			numeric overall = ex_to_numeric(ex_to_add(n.op(0)).overall_coeff);
+            o.push_back((new lst(overall.numer(), overall.denom()))->setflag(status_flags::dynallocated));
         } else
             o.push_back(n);
         it++;
     }
     o.push_back(overall_coeff.bp->normal(sym_lst, repl_lst, level-1));
 
+	// o is now a vector of {numerator, denominator} lists
+
     // Determine common denominator
     ex den = _ex1();
     exvector::const_iterator ait = o.begin(), aitend = o.end();
     while (ait != aitend) {
-        den = lcm((*ait).denom(false), den, false);
+        den = lcm(ait->op(1), den, false);
         ait++;
     }
 
     // Add fractions
-    if (den.is_equal(_ex1()))
-        return (new add(o))->setflag(status_flags::dynallocated);
-    else {
+    if (den.is_equal(_ex1())) {
+
+		// Common denominator is 1, simply add all numerators
+        exvector num_seq;
+		for (ait=o.begin(); ait!=aitend; ait++) {
+			num_seq.push_back(ait->op(0));
+		}
+		return (new lst((new add(num_seq))->setflag(status_flags::dynallocated), den))->setflag(status_flags::dynallocated);
+
+	} else {
+
+		// Perform fractional addition
         exvector num_seq;
         for (ait=o.begin(); ait!=aitend; ait++) {
             ex q;
-            if (!divide(den, (*ait).denom(false), q, false)) {
+            if (!divide(den, ait->op(1), q, false)) {
                 // should not happen
                 throw(std::runtime_error("invalid expression in add::normal, division failed"));
             }
-            num_seq.push_back((*ait).numer(false) * q);
+            num_seq.push_back(ait->op(0) * q);
         }
-        ex num = add(num_seq);
+        ex num = (new add(num_seq))->setflag(status_flags::dynallocated);
 
         // Cancel common factors from num/den
         return frac_cancel(num, den);
@@ -1498,17 +1531,23 @@ ex add::normal(lst &sym_lst, lst &repl_lst, int level) const
  *  @see ex::normal() */
 ex mul::normal(lst &sym_lst, lst &repl_lst, int level) const
 {
-    // Normalize children
-    exvector o;
-    o.reserve(seq.size()+1);
+    // Normalize children, separate into numerator and denominator
+	ex num = _ex1();
+	ex den = _ex1(); 
+	ex n;
     epvector::const_iterator it = seq.begin(), itend = seq.end();
     while (it != itend) {
-        o.push_back(recombine_pair_to_ex(*it).bp->normal(sym_lst, repl_lst, level-1));
+		n = recombine_pair_to_ex(*it).bp->normal(sym_lst, repl_lst, level-1);
+		num *= n.op(0);
+		den *= n.op(1);
         it++;
     }
-    o.push_back(overall_coeff.bp->normal(sym_lst, repl_lst, level-1));
-    ex n = (new mul(o))->setflag(status_flags::dynallocated);
-    return frac_cancel(n.numer(false), n.denom(false));
+	n = overall_coeff.bp->normal(sym_lst, repl_lst, level-1);
+	num *= n.op(0);
+	den *= n.op(1);
+
+	// Perform fraction cancellation
+    return frac_cancel(num, den);
 }
 
 
@@ -1518,16 +1557,18 @@ ex mul::normal(lst &sym_lst, lst &repl_lst, int level) const
  *  @see ex::normal */
 ex power::normal(lst &sym_lst, lst &repl_lst, int level) const
 {
-    if (exponent.info(info_flags::integer)) {
+    if (exponent.info(info_flags::posint)) {
         // Integer powers are distributed
         ex n = basis.bp->normal(sym_lst, repl_lst, level-1);
-        ex num = n.numer(false);
-        ex den = n.denom(false);
-        return power(num, exponent) / power(den, exponent);
+		return (new lst(power(n.op(0), exponent), power(n.op(1), exponent)))->setflag(status_flags::dynallocated);
+	} else if (exponent.info(info_flags::negint)) {
+        // Integer powers are distributed
+        ex n = basis.bp->normal(sym_lst, repl_lst, level-1);
+		return (new lst(power(n.op(1), -exponent), power(n.op(0), -exponent)))->setflag(status_flags::dynallocated);
     } else {
         // Non-integer powers are replaced by temporary symbol (after normalizing basis)
-        ex n = power(basis.bp->normal(sym_lst, repl_lst, level-1), exponent);
-        return replace_with_symbol(n, sym_lst, repl_lst);
+		ex n = basis.bp->normal(sym_lst, repl_lst, level-1);
+		return (new lst(replace_with_symbol(power(n.op(0) / n.op(1), exponent), sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
     }
 }
 
@@ -1545,9 +1586,8 @@ ex pseries::normal(lst &sym_lst, lst &repl_lst, int level) const
         new_seq.push_back(expair(it->rest.normal(), it->coeff));
         it++;
     }
-
     ex n = pseries(var, point, new_seq);
-    return replace_with_symbol(n, sym_lst, repl_lst);
+	return (new lst(replace_with_symbol(n, sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
 }
 
 
@@ -1566,11 +1606,16 @@ ex pseries::normal(lst &sym_lst, lst &repl_lst, int level) const
 ex ex::normal(int level) const
 {
     lst sym_lst, repl_lst;
+
     ex e = bp->normal(sym_lst, repl_lst, level);
+	GINAC_ASSERT(is_ex_of_type(e, lst));
+
+	// Re-insert replaced symbols
     if (sym_lst.nops() > 0)
-        return e.subs(sym_lst, repl_lst);
-    else
-        return e;
+        e = e.subs(sym_lst, repl_lst);
+
+	// Convert {numerator, denominator} form back to fraction
+    return e.op(0) / e.op(1);
 }
 
 #ifndef NO_NAMESPACE_GINAC

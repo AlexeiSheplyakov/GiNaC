@@ -231,6 +231,11 @@ inline const ${CONTAINER} &ex_to_${CONTAINER}(const ex &e)
     return static_cast<const ${CONTAINER} &>(*e.bp);
 }
 
+inline ${CONTAINER} &ex_to_nonconst_${CONTAINER}(const ex &e)
+{
+    return static_cast<${CONTAINER} &>(*e.bp);
+}
+
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
 #endif // ndef NO_NAMESPACE_GINAC

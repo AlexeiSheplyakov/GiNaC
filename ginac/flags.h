@@ -89,9 +89,6 @@ public:
            crational_polynomial,
            rational_function,
 
-           // answered by class ex
-           normal_form,
-           
            // answered by class indexed
            indexed,      // class can carry indices
            has_indices,  // object has at least one index
