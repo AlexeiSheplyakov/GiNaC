@@ -2041,6 +2041,8 @@ GiNaC contains the following predefined mathematical functions:
 @tab exponential function
 @item @code{log(x)}
 @tab natural logarithm
+@item @code{Li2(x)}
+@tab Dilogarithm
 @item @code{zeta(x)}
 @tab Riemann's zeta function
 @item @code{zeta(n, x)}
