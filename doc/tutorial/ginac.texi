@@ -1605,6 +1605,8 @@ that performs some more expensive operations:
 @itemize
 @item it checks the consistency of free indices in sums in the same way
   @code{get_free_indices()} does
+@item it tries to give dumy indices that appear in different terms of a sum
+  the same name to allow simplifications like @math{a_i*b_i-a_j*b_j=0}
 @item it (symbolically) calculates all possible dummy index summations/contractions
   with the predefined tensors (this will be explained in more detail in the
   next section)
@@ -2026,8 +2028,10 @@ ex dirac_slash(const ex & e, const ex & dim, unsigned char rl = 0);
 creates a term of the form @samp{e.mu gamma~mu} with a new and unique index
 whose dimension is given by the @code{dim} argument.
 
-The @code{simplify_indexed()} function performs contractions in gamma strings
-if possible, for example
+In products of dirac gammas, superfluous unity elements are automatically
+removed, squares are replaced by their values and @samp{gamma5} is
+anticommuted to the front. The @code{simplify_indexed()} function performs
+contractions in gamma strings, for example
 
 @example
 @{
@@ -2114,6 +2118,23 @@ QED:
 @}
 @end example
 
+The @code{canonicalize_clifford()} function reorders all gamma products that
+appear in an expression to a canonical (but not necessarily simple) form.
+You can use this to compare two expressions or for further simplifications:
+
+@example
+@{
+    varidx mu(symbol("mu"), 4), nu(symbol("nu"), 4);
+    ex e = dirac_gamma(mu) * dirac_gamma(nu) + dirac_gamma(nu) * dirac_gamma(mu);
+    cout << e << endl;
+     // -> gamma~mu*gamma~nu+gamma~nu*gamma~mu
+
+    e = canonicalize_clifford(e);
+    cout << e << endl;
+     // -> 2*eta~mu~nu
+@}
+@end example
+
 
 @cindex @code{color} (class)
 @subsection Color algebra
@@ -2186,6 +2207,14 @@ expressions containing color objects:
     e = color_h(a, b, c) * color_h(a, b, c);
     cout << e.simplify_indexed() << endl;
      // -> -32/3
+
+    e = color_h(a, b, c) * color_T(b) * color_T(c);
+    cout << e.simplify_indexed() << endl;
+     // -> -2/3*T.a
+
+    e = color_h(a, b, c) * color_T(a) * color_T(b) * color_T(c);
+    cout << e.simplify_indexed() << endl;
+     // -> -8/9*ONE
 
     e = color_T(k) * color_T(a) * color_T(b) * color_T(k);
     cout << e.simplify_indexed() << endl;
