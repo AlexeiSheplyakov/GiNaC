@@ -902,7 +902,7 @@ ex matrix::determinant_minor(void) const
 				if (Pkey[fc-1]<fc+c)
 					break;
 			}
-			if (fc<n-c)
+			if (fc<n-c && fc>0)
 				for (unsigned j=fc; j<n-c; ++j)
 					Pkey[j] = Pkey[j-1]+1;
 		} while(fc);
