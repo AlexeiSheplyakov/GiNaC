@@ -76,7 +76,6 @@ public:
 		return *this;
 	}
 
-private:
 	void set_print_func(unsigned id, const print_functor & f)
 	{
 		if (id >= print_dispatch_table.size())
@@ -84,6 +83,7 @@ private:
 		print_dispatch_table[id] = f;
 	}
 
+private:
 	const char *name;         /**< Class name. */
 	const char *parent_name;  /**< Name of superclass. */
 	unsigned tinfo_key;       /**< TINFO_* key. */
@@ -101,8 +101,9 @@ public: \
 private: \
 	static GiNaC::registered_class_info reg_info; \
 public: \
-	static const GiNaC::registered_class_info &get_class_info_static() { return reg_info; } \
+	static GiNaC::registered_class_info &get_class_info_static() { return reg_info; } \
 	virtual const GiNaC::registered_class_info &get_class_info() const { return classname::get_class_info_static(); } \
+	virtual GiNaC::registered_class_info &get_class_info() { return classname::get_class_info_static(); } \
 	virtual const char *class_name() const { return classname::get_class_info_static().options.get_name(); } \
 	\
 	classname(const GiNaC::archive_node &n, GiNaC::lst &sym_lst); \
@@ -150,6 +151,21 @@ extern unsigned find_tinfo_key(const std::string &class_name);
 
 /** Find unarchiving function by class name. */
 extern unarch_func find_unarch_func(const std::string &class_name);
+
+
+/** Add or replace a print method. */
+template <class Alg, class Ctx, class T, class C>
+extern void set_print_func(void f(const T &, const C & c, unsigned))
+{
+	Alg::get_class_info_static().options.set_print_func(Ctx::get_class_info_static().options.get_id(), f);
+}
+
+/** Add or replace a print method. */
+template <class Alg, class Ctx, class T, class C>
+extern void set_print_func(void (T::*f)(const C &, unsigned))
+{
+	Alg::get_class_info_static().options.set_print_func(Ctx::get_class_info_static().options.get_id(), f);
+}
 
 
 } // namespace GiNaC
