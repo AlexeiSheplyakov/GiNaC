@@ -34,6 +34,7 @@ namespace GiNaC {
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(idx, basic)
 GINAC_IMPLEMENT_REGISTERED_CLASS(varidx, idx)
+GINAC_IMPLEMENT_REGISTERED_CLASS(spinidx, varidx)
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -50,6 +51,12 @@ varidx::varidx() : covariant(false)
 	tinfo_key = TINFO_varidx;
 }
 
+spinidx::spinidx() : dotted(false)
+{
+	debugmsg("spinidx default constructor", LOGLEVEL_CONSTRUCT);
+	tinfo_key = TINFO_spinidx;
+}
+
 void idx::copy(const idx & other)
 {
 	inherited::copy(other);
@@ -63,8 +70,15 @@ void varidx::copy(const varidx & other)
 	covariant = other.covariant;
 }
 
+void spinidx::copy(const spinidx & other)
+{
+	inherited::copy(other);
+	dotted = other.dotted;
+}
+
 DEFAULT_DESTROY(idx)
 DEFAULT_DESTROY(varidx)
+DEFAULT_DESTROY(spinidx)
 
 //////////
 // other constructors
@@ -84,6 +98,12 @@ varidx::varidx(const ex & v, const ex & d, bool cov) : inherited(v, d), covarian
 	tinfo_key = TINFO_varidx;
 }
 
+spinidx::spinidx(const ex & v, const ex & d, bool cov, bool dot) : inherited(v, d, cov), dotted(dot)
+{
+	debugmsg("spinidx constructor from ex,ex,bool,bool", LOGLEVEL_CONSTRUCT);
+	tinfo_key = TINFO_spinidx;
+}
+
 //////////
 // archiving
 //////////
@@ -101,6 +121,12 @@ varidx::varidx(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst
 	n.find_bool("covariant", covariant);
 }
 
+spinidx::spinidx(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+{
+	debugmsg("spinidx constructor from archive_node", LOGLEVEL_CONSTRUCT);
+	n.find_bool("dotted", dotted);
+}
+
 void idx::archive(archive_node &n) const
 {
 	inherited::archive(n);
@@ -114,8 +140,15 @@ void varidx::archive(archive_node &n) const
 	n.add_bool("covariant", covariant);
 }
 
+void spinidx::archive(archive_node &n) const
+{
+	inherited::archive(n);
+	n.add_bool("dotted", dotted);
+}
+
 DEFAULT_UNARCHIVE(idx)
 DEFAULT_UNARCHIVE(varidx)
+DEFAULT_UNARCHIVE(spinidx)
 
 //////////
 // functions overriding virtual functions from bases classes
@@ -178,6 +211,47 @@ void varidx::print(const print_context & c, unsigned level) const
 	}
 }
 
+void spinidx::print(const print_context & c, unsigned level) const
+{
+	debugmsg("spinidx print", LOGLEVEL_PRINT);
+
+	if (is_of_type(c, print_tree)) {
+
+		c.s << std::string(level, ' ') << class_name()
+		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+		    << (covariant ? ", covariant" : ", contravariant")
+		    << (dotted ? ", dotted" : ", undotted")
+		    << std::endl;
+		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
+		value.print(c, level + delta_indent);
+		dim.print(c, level + delta_indent);
+
+	} else {
+
+		bool is_tex = is_of_type(c, print_latex);
+		if (!is_tex) {
+			if (covariant)
+				c.s << ".";
+			else
+				c.s << "~";
+		}
+		if (dotted) {
+			if (is_tex)
+				c.s << "\\dot{";
+			else
+				c.s << "*";
+		}
+		bool need_parens = !(is_ex_exactly_of_type(value, numeric) || is_ex_of_type(value, symbol));
+		if (need_parens)
+			c.s << "(";
+		value.print(c);
+		if (need_parens)
+			c.s << ")";
+		if (is_tex && dotted)
+			c.s << "}";
+	}
+}
+
 bool idx::info(unsigned inf) const
 {
 	if (inf == info_flags::idx)
@@ -222,6 +296,24 @@ int varidx::compare_same_type(const basic & other) const
 	// Check variance last so dummy indices will end up next to each other
 	if (covariant != o.covariant)
 		return covariant ? -1 : 1;
+	return 0;
+}
+
+int spinidx::compare_same_type(const basic & other) const
+{
+	GINAC_ASSERT(is_of_type(other, spinidx));
+	const spinidx &o = static_cast<const spinidx &>(other);
+
+	int cmpval = inherited::compare_same_type(other);
+	if (cmpval)
+		return cmpval;
+
+	// Check variance and dottedness last so dummy indices will end up next to each other
+	if (covariant != o.covariant)
+		return covariant ? -1 : 1;
+	if (dotted != o.dotted)
+		return dotted ? -1 : 1;
+
 	return 0;
 }
 
@@ -287,6 +379,18 @@ bool varidx::is_dummy_pair_same_type(const basic & other) const
 	return inherited::is_dummy_pair_same_type(other);
 }
 
+bool spinidx::is_dummy_pair_same_type(const basic & other) const
+{
+	const spinidx &o = static_cast<const spinidx &>(other);
+
+	// Dottedness must be the same
+	if (dotted != o.dotted)
+		return false;
+
+	return inherited::is_dummy_pair_same_type(other);
+}
+
+
 //////////
 // non-virtual functions
 //////////
@@ -295,6 +399,23 @@ ex varidx::toggle_variance(void) const
 {
 	varidx *i_copy = static_cast<varidx *>(duplicate());
 	i_copy->covariant = !i_copy->covariant;
+	i_copy->clearflag(status_flags::hash_calculated);
+	return i_copy->setflag(status_flags::dynallocated);
+}
+
+ex spinidx::toggle_dot(void) const
+{
+	spinidx *i_copy = static_cast<spinidx *>(duplicate());
+	i_copy->dotted = !i_copy->dotted;
+	i_copy->clearflag(status_flags::hash_calculated);
+	return i_copy->setflag(status_flags::dynallocated);
+}
+
+ex spinidx::toggle_variance_dot(void) const
+{
+	spinidx *i_copy = static_cast<spinidx *>(duplicate());
+	i_copy->covariant = !i_copy->covariant;
+	i_copy->dotted = !i_copy->dotted;
 	i_copy->clearflag(status_flags::hash_calculated);
 	return i_copy->setflag(status_flags::dynallocated);
 }

@@ -66,11 +66,13 @@ const unsigned TINFO_structure     = 0x000c0001U;
 
 const unsigned TINFO_idx           = 0x000d0001U;
 const unsigned TINFO_varidx        = 0x000d1001U;
+const unsigned TINFO_spinidx       = 0x000d2001U;
 
 const unsigned TINFO_tensor        = 0x000e0001U;
 const unsigned TINFO_tensdelta     = 0x000e1001U;
 const unsigned TINFO_tensmetric    = 0x000e1002U;
 const unsigned TINFO_minkmetric    = 0x000e2001U;
+const unsigned TINFO_spinmetric    = 0x000e2002U;
 const unsigned TINFO_tensepsilon   = 0x000e1003U;
 const unsigned TINFO_su3one        = 0x000e1008U;
 const unsigned TINFO_su3t          = 0x000e1009U;

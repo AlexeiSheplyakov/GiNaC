@@ -124,6 +124,53 @@ protected:
 };
 
 
+/** This class holds a spinor index that can be dotted or undotted and that
+ *  also has a variance. This is used in the Weyl-van-der-Waerden formalism
+ *  where the dot indicates complex conjugation. There is an associated
+ *  (asymmetric) metric tensor that can be used to raise/lower spinor
+ *  indices. */
+class spinidx : public varidx
+{
+	GINAC_DECLARE_REGISTERED_CLASS(spinidx, varidx)
+
+	// other constructors
+public:
+	/** Construct index with given value, dimension, variance and dot.
+	 *
+	 *  @param v Value of index (numeric or symbolic)
+	 *  @param dim Dimension of index space (numeric or symbolic)
+	 *  @param covariant Make covariant index (default is contravariant)
+	 *  @param dotted Make covariant dotted (default is undotted)
+	 *  @return newly constructed index */
+	spinidx(const ex & v, const ex & dim = 2, bool covariant = false, bool dotted = false);
+
+	// functions overriding virtual functions from bases classes
+public:
+	void print(const print_context & c, unsigned level = 0) const;
+	bool is_dummy_pair_same_type(const basic & other) const;
+
+	// non-virtual functions in this class
+public:
+	/** Check whether the index is dotted. */
+	bool is_dotted(void) const {return dotted;}
+
+	/** Check whether the index is not dotted. */
+	bool is_undotted(void) const {return !dotted;}
+
+	/** Make a new index with the same value and variance but the opposite
+	 *  dottedness. */
+	ex toggle_dot(void) const;
+
+	/** Make a new index with the same value but opposite variance and
+	 *  dottedness. */
+	ex toggle_variance_dot(void) const;
+
+	// member variables
+protected:
+	bool dotted;
+};
+
+
 // utility functions
 inline const idx &ex_to_idx(const ex & e)
 {
@@ -133,6 +180,11 @@ inline const idx &ex_to_idx(const ex & e)
 inline const varidx &ex_to_varidx(const ex & e)
 {
 	return static_cast<const varidx &>(*e.bp);
+}
+
+inline const spinidx &ex_to_spinidx(const ex & e)
+{
+	return static_cast<const spinidx &>(*e.bp);
 }
 
 /** Check whether two indices form a dummy pair. */

@@ -215,6 +215,11 @@ public:
 	/** Register scalar product pair and its value. */
 	void add(const ex & v1, const ex & v2, const ex & sp);
 
+	/** Register list of vectors. This adds all possible pairs of products
+	 *  a.i * b.i with the value a*b (note that this is not a scalar vector
+	 *  product but an ordinary product of scalars). */
+	void add_vectors(const lst & l);
+
 	/** Clear all registered scalar products. */
 	void clear(void);
 

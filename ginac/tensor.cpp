@@ -40,6 +40,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(tensor, basic)
 GINAC_IMPLEMENT_REGISTERED_CLASS(tensdelta, tensor)
 GINAC_IMPLEMENT_REGISTERED_CLASS(tensmetric, tensor)
 GINAC_IMPLEMENT_REGISTERED_CLASS(minkmetric, tensmetric)
+GINAC_IMPLEMENT_REGISTERED_CLASS(spinmetric, tensmetric)
 GINAC_IMPLEMENT_REGISTERED_CLASS(tensepsilon, tensor)
 
 //////////
@@ -54,6 +55,8 @@ tensor::tensor(unsigned ti) : inherited(ti)
 DEFAULT_CTORS(tensor)
 DEFAULT_CTORS(tensdelta)
 DEFAULT_CTORS(tensmetric)
+DEFAULT_COPY(spinmetric)
+DEFAULT_DESTROY(spinmetric)
 DEFAULT_DESTROY(minkmetric)
 DEFAULT_DESTROY(tensepsilon)
 
@@ -61,6 +64,12 @@ minkmetric::minkmetric() : pos_sig(false)
 {
 	debugmsg("minkmetric default constructor", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_minkmetric;
+}
+
+spinmetric::spinmetric()
+{
+	debugmsg("spinmetric default constructor", LOGLEVEL_CONSTRUCT);
+	tinfo_key = TINFO_spinmetric;
 }
 
 minkmetric::minkmetric(bool ps) : pos_sig(ps)
@@ -101,6 +110,7 @@ void tensepsilon::copy(const tensepsilon & other)
 DEFAULT_ARCHIVING(tensor)
 DEFAULT_ARCHIVING(tensdelta)
 DEFAULT_ARCHIVING(tensmetric)
+DEFAULT_ARCHIVING(spinmetric)
 DEFAULT_UNARCHIVE(minkmetric)
 DEFAULT_UNARCHIVE(tensepsilon)
 
@@ -137,6 +147,7 @@ void tensepsilon::archive(archive_node &n) const
 DEFAULT_COMPARE(tensor)
 DEFAULT_COMPARE(tensdelta)
 DEFAULT_COMPARE(tensmetric)
+DEFAULT_COMPARE(spinmetric)
 
 int minkmetric::compare_same_type(const basic & other) const
 {
@@ -165,7 +176,8 @@ int tensepsilon::compare_same_type(const basic & other) const
 DEFAULT_PRINT_LATEX(tensdelta, "delta", "\\delta")
 DEFAULT_PRINT(tensmetric, "g")
 DEFAULT_PRINT_LATEX(minkmetric, "eta", "\\eta")
-DEFAULT_PRINT_LATEX(tensepsilon, "eps", "\\epsilon")
+DEFAULT_PRINT_LATEX(spinmetric, "eps", "\\varepsilon")
+DEFAULT_PRINT_LATEX(tensepsilon, "eps", "\\varepsilon")
 
 /** Automatic symbolic evaluation of an indexed delta tensor. */
 ex tensdelta::eval_indexed(const basic & i) const
@@ -240,6 +252,37 @@ ex minkmetric::eval_indexed(const basic & i) const
 
 	// Perform the usual evaluations of a metric tensor
 	return inherited::eval_indexed(i);
+}
+
+/** Automatic symbolic evaluation of an indexed metric tensor. */
+ex spinmetric::eval_indexed(const basic & i) const
+{
+	GINAC_ASSERT(is_of_type(i, indexed));
+	GINAC_ASSERT(i.nops() == 3);
+	GINAC_ASSERT(is_ex_of_type(i.op(0), spinmetric));
+	GINAC_ASSERT(is_ex_of_type(i.op(1), spinidx));
+	GINAC_ASSERT(is_ex_of_type(i.op(2), spinidx));
+
+	const spinidx & i1 = ex_to_spinidx(i.op(1));
+	const spinidx & i2 = ex_to_spinidx(i.op(2));
+
+	// Convolutions are zero
+	if (static_cast<const indexed &>(i).get_dummy_indices().size() != 0)
+		return _ex0();
+
+	// Numeric evaluation
+	if (static_cast<const indexed &>(i).all_index_values_are(info_flags::nonnegint)) {
+		int n1 = ex_to_numeric(i1.get_value()).to_int(), n2 = ex_to_numeric(i2.get_value()).to_int();
+		if (n1 == n2)
+			return _ex0();
+		else if (n1 < n2)
+			return _ex1();
+		else
+			return _ex_1();
+	}
+
+	// No further simplifications
+	return i.hold();
 }
 
 /** Automatic symbolic evaluation of an indexed epsilon tensor. */
@@ -370,6 +413,85 @@ again:
 	return false;
 }
 
+/** Contraction of an indexed spinor metric with something else. */
+bool spinmetric::contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const
+{
+	GINAC_ASSERT(is_ex_of_type(*self, indexed));
+	GINAC_ASSERT(is_ex_of_type(*other, indexed));
+	GINAC_ASSERT(self->nops() == 3);
+	GINAC_ASSERT(is_ex_of_type(self->op(0), spinmetric));
+
+	// Contractions between spinor metrics
+	if (is_ex_of_type(other->op(0), spinmetric)) {
+		const idx &self_i1 = ex_to_idx(self->op(1));
+		const idx &self_i2 = ex_to_idx(self->op(2));
+		const idx &other_i1 = ex_to_idx(other->op(1));
+		const idx &other_i2 = ex_to_idx(other->op(2));
+
+		if (is_dummy_pair(self_i1, other_i1)) {
+			if (is_dummy_pair(self_i2, other_i2))
+				*self = _ex2();
+			else
+				*self = delta_tensor(self_i2, other_i2);
+			*other = _ex1();
+			return true;
+		} else if (is_dummy_pair(self_i1, other_i2)) {
+			if (is_dummy_pair(self_i2, other_i1))
+				*self = _ex_2();
+			else
+				*self = -delta_tensor(self_i2, other_i1);
+			*other = _ex1();
+			return true;
+		} else if (is_dummy_pair(self_i2, other_i1)) {
+			*self = -delta_tensor(self_i1, other_i2);
+			*other = _ex1();
+			return true;
+		} else if (is_dummy_pair(self_i2, other_i2)) {
+			*self = delta_tensor(self_i1, other_i1);
+			*other = _ex1();
+			return true;
+		}
+	}
+
+	// If contracting with the delta tensor, let the delta do it
+	// (don't raise/lower delta indices)
+	if (is_ex_of_type(other->op(0), tensdelta))
+		return false;
+
+	// Try to contract first index
+	const idx *self_idx = &ex_to_idx(self->op(1));
+	const idx *free_idx = &ex_to_idx(self->op(2));
+	bool first_index_tried = false;
+	int sign = 1;
+
+again:
+	if (self_idx->is_symbolic()) {
+		for (int i=1; i<other->nops(); i++) {
+			const idx &other_idx = ex_to_idx(other->op(i));
+			if (is_dummy_pair(*self_idx, other_idx)) {
+
+				// Contraction found, remove metric tensor and substitute
+				// index in second object
+				*self = (static_cast<const spinidx *>(self_idx)->is_covariant() ? sign : -sign);
+				*other = other->subs(other_idx == *free_idx);
+				return true;
+			}
+		}
+	}
+
+	if (!first_index_tried) {
+
+		// No contraction with first index found, try second index
+		self_idx = &ex_to_idx(self->op(2));
+		free_idx = &ex_to_idx(self->op(1));
+		first_index_tried = true;
+		sign = -sign;
+		goto again;
+	}
+
+	return false;
+}
+
 //////////
 // global functions
 //////////
@@ -396,6 +518,16 @@ ex lorentz_g(const ex & i1, const ex & i2, bool pos_sig)
 		throw(std::invalid_argument("indices of metric tensor must be of type varidx"));
 
 	return indexed(minkmetric(pos_sig), indexed::symmetric, i1, i2);
+}
+
+ex spinor_metric(const ex & i1, const ex & i2)
+{
+	if (!is_ex_of_type(i1, spinidx) || !is_ex_of_type(i2, spinidx))
+		throw(std::invalid_argument("indices of spinor metric must be of type spinidx"));
+	if (!ex_to_idx(i1).get_dim().is_equal(2) || !ex_to_idx(i2).get_dim().is_equal(2))
+		throw(std::runtime_error("index dimension for spinor metric must be 2"));
+
+	return indexed(spinmetric(), indexed::antisymmetric, i1, i2);
 }
 
 ex epsilon_tensor(const ex & i1, const ex & i2)

@@ -154,10 +154,11 @@ DEFAULT_PRINT(su3d, "d")
  *  objects. This removes superfluous ONEs. */
 ex color::simplify_ncmul(const exvector & v) const
 {
-	//!! TODO: sort by representation label
 	exvector s;
 	s.reserve(v.size());
+	unsigned rl = ex_to_color(v[0]).get_representation_label();
 
+	// Remove superfluous ONEs
 	exvector::const_iterator it = v.begin(), itend = v.end();
 	while (it != itend) {
 		if (!is_ex_of_type(it->op(0), su3one))
@@ -166,9 +167,7 @@ ex color::simplify_ncmul(const exvector & v) const
 	}
 
 	if (s.size() == 0)
-		return color(su3one());
-	else if (s.size() == v.size())
-		return simplified_ncmul(v);
+		return color(su3one(), rl);
 	else
 		return simplified_ncmul(s);
 }
@@ -296,6 +295,56 @@ ex su3f::eval_indexed(const basic & i) const
 	return i.hold();
 }
 
+
+/** Contraction of generator with something else. */
+bool su3t::contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const
+{
+	GINAC_ASSERT(is_ex_of_type(*self, indexed));
+	GINAC_ASSERT(is_ex_of_type(*other, indexed));
+	GINAC_ASSERT(self->nops() == 2);
+	GINAC_ASSERT(is_ex_of_type(self->op(0), su3t));
+	unsigned char rl = ex_to_color(*self).get_representation_label();
+
+	if (is_ex_exactly_of_type(other->op(0), su3t)) {
+
+		// T.a T.a = 4/3 ONE
+		if (other - self == 1) {
+			*self = numeric(4, 3);
+			*other = color_ONE(rl);
+			return true;
+
+		// T.a T.b T.a = -1/6 T.b
+		} else if (other - self == 2
+		        && is_ex_of_type(self[1], color)) {
+			*self = numeric(-1, 6);
+			*other = _ex1();
+			return true;
+
+		// T.a S T.a = 1/2 Tr(S) - 1/6 S
+		} else {
+			exvector::iterator it = self + 1;
+			while (it != other) {
+				if (!is_ex_of_type(*it, color)) {
+					return false;
+				}
+				it++;
+			}
+
+			it = self + 1;
+			ex S = _ex1();
+			while (it != other) {
+				S *= *it;
+				*it++ = _ex1();
+			}
+
+			*self = color_trace(S, rl) * color_ONE(rl) / 2 - S / 6;
+			*other = _ex1();
+			return true;
+		}
+	}
+
+	return false;
+}
 
 /** Contraction of an indexed symmetric structure constant with something else. */
 bool su3d::contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const

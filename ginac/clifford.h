@@ -126,6 +126,12 @@ ex dirac_gamma(const ex & mu, unsigned char rl = 0);
  *  @return newly constructed object */
 ex dirac_gamma5(unsigned char rl = 0);
 
+/** This returns (dirac_ONE(rl) + dirac_gamma5(rl)). */
+ex dirac_gamma6(unsigned char rl = 0);
+
+/** This returns (dirac_ONE(rl) - dirac_gamma5(rl)). */
+ex dirac_gamma7(unsigned char rl = 0);
+
 /** Create a term of the form e_mu * gamma~mu with a unique index mu.
  *
  *  @param dim Dimension of index

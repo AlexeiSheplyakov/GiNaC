@@ -85,6 +85,7 @@ class su3t : public tensor
 	// functions overriding virtual functions from bases classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
+	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
 };
 
 /** This class represents the tensor of antisymmetric su(3) structure

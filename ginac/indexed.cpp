@@ -666,12 +666,16 @@ try_again:
 			}
 			if (contracted) {
 contraction_done:
-				if (is_ex_exactly_of_type(*it1, add) || is_ex_exactly_of_type(*it2, add)
+				if (non_commutative
+				 || is_ex_exactly_of_type(*it1, add) || is_ex_exactly_of_type(*it2, add)
 				 || is_ex_exactly_of_type(*it1, mul) || is_ex_exactly_of_type(*it2, mul)
 				 || is_ex_exactly_of_type(*it1, ncmul) || is_ex_exactly_of_type(*it2, ncmul)) {
 
 					// One of the factors became a sum or product:
 					// re-expand expression and run again
+					// Non-commutative products are always re-expanded to give
+					// simplify_ncmul() the chance to re-order and canonicalize
+					// the product
 					ex r = (non_commutative ? ex(ncmul(v)) : ex(mul(v)));
 					return simplify_indexed(r, free_indices, sp);
 				}
@@ -783,6 +787,19 @@ ex simplify_indexed(const ex & e, const scalar_products & sp)
 void scalar_products::add(const ex & v1, const ex & v2, const ex & sp)
 {
 	spm[make_key(v1, v2)] = sp;
+}
+
+void scalar_products::add_vectors(const lst & l)
+{
+	// Add all possible pairs of products
+	unsigned num = l.nops();
+	for (unsigned i=0; i<num; i++) {
+		ex a = l.op(i);
+		for (unsigned j=0; j<num; j++) {
+			ex b = l.op(j);
+			add(a, b, a*b);
+		}
+	}
 }
 
 void scalar_products::clear(void)

@@ -178,20 +178,6 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 			*other = _ex1();
 			return true;
 
-#if 0
-		// gamma~mu gamma~alpha gamma~beta gamma~delta gamma.mu = -2 gamma~delta gamma~beta gamma~alpha + (4-dim) gamma~alpha gamma~beta gamma~delta
-		} else if (other - self == 4
-		        && is_ex_of_type(self[1], clifford)
-		        && is_ex_of_type(self[2], clifford)
-		        && is_ex_of_type(self[3], clifford)) {
-			*self = -2 * self[3] * self[2] * self[1] + (4 - dim) * self[1] * self[2] * self[3];
-			self[1] = _ex1();
-			self[2] = _ex1();
-			self[3] = _ex1();
-			*other = _ex1();
-			return true;
-#endif
-
 		// gamma~mu S gamma~alpha gamma.mu = 2 gamma~alpha S - gamma~mu S gamma.mu gamma~alpha
 		// (commutate contracted indices towards each other, simplify_indexed()
 		// will re-expand and re-run the simplification)
@@ -325,6 +311,16 @@ ex dirac_gamma(const ex & mu, unsigned char rl)
 ex dirac_gamma5(unsigned char rl)
 {
 	return clifford(diracgamma5(), rl);
+}
+
+ex dirac_gamma6(unsigned char rl)
+{
+	return clifford(diracone(), rl) + clifford(diracgamma5(), rl);
+}
+
+ex dirac_gamma7(unsigned char rl)
+{
+	return clifford(diracone(), rl) - clifford(diracgamma5(), rl);
 }
 
 ex dirac_slash(const ex & e, const ex & dim, unsigned char rl)

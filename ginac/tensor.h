@@ -97,6 +97,22 @@ private:
 };
 
 
+/** This class represents an antisymmetric spinor metric tensor which
+ *  can be used to raise/lower indices of 2-component Weyl spinors. If
+ *  indexed, it must have exactly two indices of the same type which
+ *  must be of class spinidx or a subclass and have dimension 2. */
+class spinmetric : public tensmetric
+{
+	GINAC_DECLARE_REGISTERED_CLASS(spinmetric, tensmetric)
+
+	// functions overriding virtual functions from bases classes
+public:
+	void print(const print_context & c, unsigned level = 0) const;
+	ex eval_indexed(const basic & i) const;
+	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
+};
+
+
 /** This class represents the totally antisymmetric epsilon tensor. If
  *  indexed, all indices must be of the same type and their number must
  *  be equal to the dimension of the index space. */
@@ -154,6 +170,16 @@ ex metric_tensor(const ex & i1, const ex & i2);
  *  @param pos_sig Whether the signature is positive
  *  @return newly constructed Lorentz metric tensor */
 ex lorentz_g(const ex & i1, const ex & i2, bool pos_sig = false);
+
+/** Create a spinor metric tensor with specified indices. The indices must be
+ *  of class spinidx or a subclass and have a dimension of 2. The spinor
+ *  metric is an antisymmetric tensor with a matrix representation of
+ *  [[ [[ 0, 1 ]], [[ -1, 0 ]] ]].
+ *
+ *  @param i1 First index
+ *  @param i2 Second index
+ *  @return newly constructed spinor metric tensor */
+ex spinor_metric(const ex & i1, const ex & i2);
 
 /** Create an epsilon tensor in a Euclidean space with two indices. The
  *  indices must be of class idx or a subclass, and have a dimension of 2.
