@@ -220,6 +220,73 @@ static unsigned exam_series9(void)
 	return check_series(e,2,d,5);
 }
 
+// Series expansion of logarithms around branch points
+static unsigned exam_series10(void)
+{
+	unsigned result = 0;
+	ex e, d;
+	symbol a("a");
+	
+	e = log(x);
+	d = log(x);
+	result += check_series(e,0,d,5);
+	
+	e = log(3/x);
+	d = log(3)-log(x);
+	result += check_series(e,0,d,5);
+	
+	e = log(3*pow(x,2));
+	d = log(3)+2*log(x);
+	result += check_series(e,0,d,5);
+	
+	// These ones must not be expanded because it would result in a branch cut
+	// running in the wrong direction. (Other systems tend to get this wrong.)
+	e = log(-x);
+	d = e;
+	result += check_series(e,0,d,5);
+	
+	e = log(I*(x-123));
+	d = e;
+	result += check_series(e,123,d,5);
+	
+	e = log(a*x);
+	d = e;  // we don't know anything about a!
+	result += check_series(e,0,d,5);
+	
+	e = log((1-x)/x);
+	d = log(1-x) - (x-1) + pow(x-1,2)/2 - pow(x-1,3)/3 + Order(pow(x-1,4));
+	result += check_series(e,1,d,4);
+	
+	return result;
+}
+
+// Series expansion of other functions around branch points
+static unsigned exam_series11(void)
+{
+	unsigned result = 0;
+	ex e, d;
+	
+	// NB: Mma and Maple give different results, but they agree if one
+	// takes into account that by assumption |x|<1.
+	e = atan(x);
+	d = (I*log(2)/2-I*log(1+I*x)/2) + (x-I)/4 + I*pow(x-I,2)/16 + Order(pow(x-I,3));
+	result += check_series(e,I,d,3);
+	
+	// NB: here, at -I, Mathematica disagrees, but it is wrong -- they
+	// pick up a complex phase by incorrectly expanding logarithms.
+	e = atan(x);
+	d = (-I*log(2)/2+I*log(1-I*x)/2) + (x+I)/4 - I*pow(x+I,2)/16 + Order(pow(x+I,3));
+	result += check_series(e,-I,d,3);
+	
+	// This is basically the same as above, the branch point is at +/-1:
+	e = atanh(x);
+	d = (-log(2)/2+log(x+1)/2) + (x+1)/4 + pow(x+1,2)/16 + Order(pow(x+1,3));
+	result += check_series(e,-1,d,3);
+	
+	return result;
+}
+
+
 unsigned exam_pseries(void)
 {
 	unsigned result = 0;
@@ -236,6 +303,8 @@ unsigned exam_pseries(void)
 	result += exam_series7();  cout << '.' << flush;
 	result += exam_series8();  cout << '.' << flush;
 	result += exam_series9();  cout << '.' << flush;
+	result += exam_series10();  cout << '.' << flush;
+	result += exam_series11();  cout << '.' << flush;
 	
 	if (!result) {
 		cout << " passed " << endl;

@@ -158,7 +158,7 @@ static ex log_series(const ex &arg,
 	} catch (pole_error) {
 		must_expand_arg = true;
 	}
-	// or we are at the branch cut anyways
+	// or we are at the branch point anyways
 	if (arg_pt.is_zero())
 		must_expand_arg = true;
 	
@@ -176,23 +176,31 @@ static ex log_series(const ex &arg,
 		const ex point = rel.rhs();
 		const int n = argser.ldegree(*s);
 		epvector seq;
-		seq.push_back(expair(n*log(*s-point), _ex0()));
+		// construct what we carelessly called the n*log(x) term above
+		ex coeff = argser.coeff(*s, n);
+		// expand the log, but only if coeff is real and > 0, since otherwise
+		// it would make the branch cut run into the wrong direction
+		if (coeff.info(info_flags::positive))
+			seq.push_back(expair(n*log(*s-point)+log(coeff), _ex0()));
+		else
+			seq.push_back(expair(log(coeff*pow(*s-point, n)), _ex0()));
 		if (!argser.is_terminating() || argser.nops()!=1) {
 			// in this case n more terms are needed
-			ex newarg = ex_to_pseries(arg.series(rel, order+n, options)).shift_exponents(-n).convert_to_poly(true);
+			// (sadly, to generate them, we have to start from the beginning)
+			ex newarg = ex_to_pseries((arg/coeff).series(rel, order+n, options)).shift_exponents(-n).convert_to_poly(true);
 			return pseries(rel, seq).add_series(ex_to_pseries(log(newarg).series(rel, order, options)));
 		} else  // it was a monomial
 			return pseries(rel, seq);
 	}
 	if (!(options & series_options::suppress_branchcut) &&
-		 arg_pt.info(info_flags::negative)) {
+	     arg_pt.info(info_flags::negative)) {
 		// method:
 		// This is the branch cut: assemble the primitive series manually and
 		// then add the corresponding complex step function.
 		const symbol *s = static_cast<symbol *>(rel.lhs().bp);
 		const ex point = rel.rhs();
 		const symbol foo;
-		ex replarg = series(log(arg), *s==foo, order, false).subs(foo==point);
+		ex replarg = series(log(arg), *s==foo, order).subs(foo==point);
 		epvector seq;
 		seq.push_back(expair(-I*csgn(arg*I)*Pi, _ex0()));
 		seq.push_back(expair(Order(_ex1()), order));
@@ -608,7 +616,7 @@ static ex atan_deriv(const ex & x, unsigned deriv_param)
 	return power(_ex1()+power(x,_ex2()), _ex_1());
 }
 
-static ex atan_series(const ex &x,
+static ex atan_series(const ex &arg,
                       const relational &rel,
                       int order,
                       unsigned options)
@@ -620,16 +628,35 @@ static ex atan_series(const ex &x,
 	// one running from -I down the imaginary axis.  The points I and -I are
 	// poles.
 	// On the branch cuts and the poles series expand
-	//     log((1+I*x)/(1-I*x))/(2*I)
+	//     (log(1+I*x)-log(1-I*x))/(2*I)
 	// instead.
-	// (The constant term on the cut itself could be made simpler.)
-	const ex x_pt = x.subs(rel);
-	if (!(I*x_pt).info(info_flags::real))
+	const ex arg_pt = arg.subs(rel);
+	if (!(I*arg_pt).info(info_flags::real))
 		throw do_taylor();     // Re(x) != 0
-	if ((I*x_pt).info(info_flags::real) && abs(I*x_pt)<_ex1())
+	if ((I*arg_pt).info(info_flags::real) && abs(I*arg_pt)<_ex1())
 		throw do_taylor();     // Re(x) == 0, but abs(x)<1
-	// if we got here we have to care for cuts and poles
-	return (log((1+I*x)/(1-I*x))/(2*I)).series(rel, order, options);
+	// care for the poles, using the defining formula for atan()...
+	if (arg_pt.is_equal(I) || arg_pt.is_equal(-I))
+		return ((log(1+I*arg)-log(1-I*arg))/(2*I)).series(rel, order, options);
+	if (!(options & series_options::suppress_branchcut)) {
+		// method:
+		// This is the branch cut: assemble the primitive series manually and
+		// then add the corresponding complex step function.
+		const symbol *s = static_cast<symbol *>(rel.lhs().bp);
+		const ex point = rel.rhs();
+		const symbol foo;
+		ex replarg = series(atan(arg), *s==foo, order).subs(foo==point);
+		ex Order0correction = replarg.op(0)+csgn(arg)*Pi*_ex_1_2();
+		if ((I*arg_pt)<_ex0())
+			Order0correction += log((I*arg_pt+_ex_1())/(I*arg_pt+_ex1()))*I*_ex_1_2();
+		else
+			Order0correction += log((I*arg_pt+_ex1())/(I*arg_pt+_ex_1()))*I*_ex1_2();
+		epvector seq;
+		seq.push_back(expair(Order0correction, _ex0()));
+		seq.push_back(expair(Order(_ex1()), order));
+		return series(replarg - pseries(rel, seq), rel, order);
+	}
+	throw do_taylor();
 }
 
 REGISTER_FUNCTION(atan, eval_func(atan_eval).
@@ -979,27 +1006,47 @@ static ex atanh_deriv(const ex & x, unsigned deriv_param)
 	return power(_ex1()-power(x,_ex2()),_ex_1());
 }
 
-static ex atanh_series(const ex &x,
+static ex atanh_series(const ex &arg,
                        const relational &rel,
                        int order,
                        unsigned options)
 {
 	GINAC_ASSERT(is_ex_exactly_of_type(rel.lhs(),symbol));
 	// method:
-	// Taylor series where there is no pole or cut falls back to atan_deriv.
+	// Taylor series where there is no pole or cut falls back to atanh_deriv.
 	// There are two branch cuts, one runnig from 1 up the real axis and one
 	// one running from -1 down the real axis.  The points 1 and -1 are poles
 	// On the branch cuts and the poles series expand
-	//     log((1+x)/(1-x))/(2*I)
+	//     (log(1+x)-log(1-x))/2
 	// instead.
-	// (The constant term on the cut itself could be made simpler.)
-	const ex x_pt = x.subs(rel);
-	if (!(x_pt).info(info_flags::real))
+	const ex arg_pt = arg.subs(rel);
+	if (!(arg_pt).info(info_flags::real))
 		throw do_taylor();     // Im(x) != 0
-	if ((x_pt).info(info_flags::real) && abs(x_pt)<_ex1())
+	if ((arg_pt).info(info_flags::real) && abs(arg_pt)<_ex1())
 		throw do_taylor();     // Im(x) == 0, but abs(x)<1
-	// if we got here we have to care for cuts and poles
-	return (log((1+x)/(1-x))/2).series(rel, order, options);
+	// care for the poles, using the defining formula for atanh()...
+	if (arg_pt.is_equal(_ex1()) || arg_pt.is_equal(_ex_1()))
+		return ((log(_ex1()+arg)-log(_ex1()-arg))*_ex1_2()).series(rel, order, options);
+	// ...and the branch cuts (the discontinuity at the cut being just I*Pi)
+	if (!(options & series_options::suppress_branchcut)) {
+ 		// method:
+ 		// This is the branch cut: assemble the primitive series manually and
+ 		// then add the corresponding complex step function.
+ 		const symbol *s = static_cast<symbol *>(rel.lhs().bp);
+ 		const ex point = rel.rhs();
+ 		const symbol foo;
+ 		ex replarg = series(atanh(arg), *s==foo, order).subs(foo==point);
+		ex Order0correction = replarg.op(0)+csgn(I*arg)*Pi*I*_ex1_2();
+		if (arg_pt<_ex0())
+			Order0correction += log((arg_pt+_ex_1())/(arg_pt+_ex1()))*_ex1_2();
+		else
+			Order0correction += log((arg_pt+_ex1())/(arg_pt+_ex_1()))*_ex_1_2();
+ 		epvector seq;
+		seq.push_back(expair(Order0correction, _ex0()));
+ 		seq.push_back(expair(Order(_ex1()), order));
+ 		return series(replarg - pseries(rel, seq), rel, order);
+	}
+	throw do_taylor();
 }
 
 REGISTER_FUNCTION(atanh, eval_func(atanh_eval).

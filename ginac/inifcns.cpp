@@ -114,7 +114,8 @@ static ex csgn_series(const ex & arg,
 {
 	const ex arg_pt = arg.subs(rel);
 	if (arg_pt.info(info_flags::numeric)
-	 && ex_to_numeric(arg_pt).real().is_zero())
+	    && ex_to_numeric(arg_pt).real().is_zero()
+	    && !(options & series_options::suppress_branchcut))
 		throw (std::domain_error("csgn_series(): on imaginary axis"));
 	
 	epvector seq;
