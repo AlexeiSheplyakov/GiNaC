@@ -104,6 +104,111 @@ basic * relational::duplicate() const
     return new relational(*this);
 }
 
+void relational::print(ostream & os, unsigned upper_precedence) const
+{
+    debugmsg("relational print",LOGLEVEL_PRINT);
+    if (precedence<=upper_precedence) os << "(";
+    lh.print(os,precedence);
+    switch (o) {
+    case equal:
+        os << "==";
+        break;
+    case not_equal:
+        os << "!=";
+        break;
+    case less:
+        os << "<";
+        break;
+    case less_or_equal:
+        os << "<=";
+        break;
+    case greater:
+        os << ">";
+        break;
+    case greater_or_equal:
+        os << ">=";
+        break;
+    default:
+        os << "(INVALID RELATIONAL OPERATOR)";
+    }
+    rh.print(os,precedence);
+    if (precedence<=upper_precedence) os << ")";
+}
+
+void relational::printraw(ostream & os) const
+{
+    debugmsg("relational printraw",LOGLEVEL_PRINT);
+    os << "RELATIONAL(";
+    lh.printraw(os);
+    os << ",";
+    rh.printraw(os);
+    os << ",";
+    switch (o) {
+    case equal:
+        os << "==";
+        break;
+    case not_equal:
+        os << "!=";
+        break;
+    case less:
+        os << "<";
+        break;
+    case less_or_equal:
+        os << "<=";
+        break;
+    case greater:
+        os << ">";
+        break;
+    case greater_or_equal:
+        os << ">=";
+        break;
+    default:
+        os << "(INVALID RELATIONAL OPERATOR)";
+    }
+    os << ")";
+}
+
+void relational::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) const
+{
+    debugmsg("relational print csrc", LOGLEVEL_PRINT);
+    if (precedence<=upper_precedence)
+        os << "(";
+
+    // Print left-hand expression
+    lh.bp->printcsrc(os, type, precedence);
+
+    // Print relational operator
+    switch (o) {
+        case equal:
+            os << "==";
+            break;
+        case not_equal:
+            os << "!=";
+            break;
+        case less:
+            os << "<";
+            break;
+        case less_or_equal:
+            os << "<=";
+            break;
+        case greater:
+            os << ">";
+            break;
+        case greater_or_equal:
+            os << ">=";
+            break;
+        default:
+            os << "(INVALID RELATIONAL OPERATOR)";
+            break;
+    }
+
+    // Print right-hand operator
+    rh.bp->printcsrc(os, type, precedence);
+
+    if (precedence <= upper_precedence)
+        os << ")";
+}
+
 bool relational::info(unsigned inf) const
 {
     switch (inf) {

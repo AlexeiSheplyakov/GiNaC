@@ -297,7 +297,7 @@ static unsigned numeric_consist4(void)
     // square roots of squares of integers:
     passed = true;
     for (int i=0; i<42; ++i) {
-        if ( !sqrt(numeric(i*i)).is_integer() ) {
+        if (!sqrt(numeric(i*i)).is_integer()) {
             passed = false;
         }
     }
@@ -310,7 +310,7 @@ static unsigned numeric_consist4(void)
     passed = true;
     for (int num=0; num<41; ++num) {
         for (int den=1; den<42; ++den) {
-            if ( !sqrt(numeric(num*num)/numeric(den*den)).is_rational() ) {
+            if (!sqrt(numeric(num*num)/numeric(den*den)).is_rational()) {
                 passed = false;
             }
         }

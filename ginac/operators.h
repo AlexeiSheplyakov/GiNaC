@@ -40,24 +40,6 @@ ex operator*(ex const & lh, ex const & rh);
 ex operator/(ex const & lh, ex const & rh);
 ex operator%(ex const & lh, ex const & rh); // non-commutative multiplication
 
-/*
-
-// binary arithmetic operators ex with numeric
-ex operator+(ex const & lh, numeric const & rh);
-ex operator-(ex const & lh, numeric const & rh);
-ex operator*(ex const & lh, numeric const & rh);
-ex operator/(ex const & lh, numeric const & rh);
-ex operator%(ex const & lh, numeric const & rh); // non-commutative multiplication
-
-// binary arithmetic operators numeric with ex
-ex operator+(numeric const & lh, ex const & rh);
-ex operator-(numeric const & lh, ex const & rh);
-ex operator*(numeric const & lh, ex const & rh);
-ex operator/(numeric const & lh, ex const & rh);
-ex operator%(numeric const & lh, ex const & rh); // non-commutative multiplication
-
-*/
-
 // binary arithmetic operators numeric with numeric
 numeric operator+(numeric const & lh, numeric const & rh);
 numeric operator-(numeric const & lh, numeric const & rh);
@@ -70,17 +52,6 @@ ex const & operator-=(ex & lh, ex const & rh);
 ex const & operator*=(ex & lh, ex const & rh);
 ex const & operator/=(ex & lh, ex const & rh);
 ex const & operator%=(ex & lh, ex const & rh); // non-commutative multiplication
-
-/*
-  
-// binary arithmetic assignment operators with numeric
-ex const & operator+=(ex & lh, numeric const & rh);
-ex const & operator-=(ex & lh, numeric const & rh);
-ex const & operator*=(ex & lh, numeric const & rh);
-ex const & operator/=(ex & lh, numeric const & rh);
-ex const & operator%=(ex & lh, numeric const & rh); // non-commutative multiplication
-
-*/
 
 // binary arithmetic assignment operators with numeric
 numeric const & operator+=(numeric & lh, numeric const & rh);
@@ -106,26 +77,6 @@ relational operator<(ex const & lh, ex const & rh);
 relational operator<=(ex const & lh, ex const & rh);
 relational operator>(ex const & lh, ex const & rh);
 relational operator>=(ex const & lh, ex const & rh);
-
-/*
-
-// binary relational operators ex with numeric
-relational operator==(ex const & lh, numeric const & rh);
-relational operator!=(ex const & lh, numeric const & rh);
-relational operator<(ex const & lh, numeric const & rh);
-relational operator<=(ex const & lh, numeric const & rh);
-relational operator>(ex const & lh, numeric const & rh);
-relational operator>=(ex const & lh, numeric const & rh);
-
-// binary relational operators numeric with ex
-relational operator==(numeric const & lh, ex const & rh);
-relational operator!=(numeric const & lh, ex const & rh);
-relational operator<(numeric const & lh, ex const & rh);
-relational operator<=(numeric const & lh, ex const & rh);
-relational operator>(numeric const & lh, ex const & rh);
-relational operator>=(numeric const & lh, ex const & rh);
-
-*/
 
 // input/output stream operators
 ostream & operator<<(ostream & os, ex const & e);

@@ -29,6 +29,9 @@
 #include "constant.h"
 #include "numeric.h"
 #include "power.h"
+#include "relational.h"
+#include "symbol.h"
+#include "utils.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
@@ -71,11 +74,11 @@ static ex exp_eval(ex const & x)
         return x.op(0);
     
     // exp(float)
-    if (x.info(info_flags::numeric) && !x.info(info_flags::rational))
+    if (x.info(info_flags::numeric) && !x.info(info_flags::crational))
         return exp_evalf(x);
     
     return exp(x).hold();
-}    
+}
 
 static ex exp_diff(ex const & x, unsigned diff_param)
 {
@@ -118,12 +121,18 @@ static ex log_eval(ex const & x)
         if (x.is_equal(exZERO()))
             throw(std::domain_error("log_eval(): log(0)"));
         // log(float)
-        if (!x.info(info_flags::rational))
+        if (!x.info(info_flags::crational))
             return log_evalf(x);
+    }
+    // log(exp(t)) -> t (for real-valued t):
+    if (is_ex_the_function(x, exp)) {
+        ex t=x.op(0);
+        if (t.info(info_flags::real))
+            return t;
     }
     
     return log(x).hold();
-}    
+}
 
 static ex log_diff(ex const & x, unsigned diff_param)
 {
@@ -149,17 +158,19 @@ static ex sin_evalf(ex const & x)
 
 static ex sin_eval(ex const & x)
 {
-    // sin(n*Pi) -> 0
     ex xOverPi=x/Pi;
-    if (xOverPi.info(info_flags::integer))
-        return exZERO();
-    
-    // sin((2n+1)*Pi/2) -> {+|-}1
-    ex xOverPiMinusHalf=xOverPi-exHALF();
-    if (xOverPiMinusHalf.info(info_flags::even))
-        return exONE();
-    else if (xOverPiMinusHalf.info(info_flags::odd))
-        return exMINUSONE();
+    if (xOverPi.info(info_flags::numeric)) {
+        // sin(n*Pi) -> 0
+        if (xOverPi.info(info_flags::integer))
+            return exZERO();
+        
+        // sin((2n+1)*Pi/2) -> {+|-}1
+        ex xOverPiMinusHalf=xOverPi-exHALF();
+        if (xOverPiMinusHalf.info(info_flags::even))
+            return exONE();
+        else if (xOverPiMinusHalf.info(info_flags::odd))
+            return exMINUSONE();
+    }
     
     if (is_ex_exactly_of_type(x, function)) {
         ex t=x.op(0);
@@ -175,7 +186,7 @@ static ex sin_eval(ex const & x)
     }
     
     // sin(float) -> float
-    if (x.info(info_flags::numeric) && !x.info(info_flags::rational))
+    if (x.info(info_flags::numeric) && !x.info(info_flags::crational))
         return sin_evalf(x);
     
     return sin(x).hold();
@@ -205,17 +216,19 @@ static ex cos_evalf(ex const & x)
 
 static ex cos_eval(ex const & x)
 {
-    // cos(n*Pi) -> {+|-}1
     ex xOverPi=x/Pi;
-    if (xOverPi.info(info_flags::even))
-        return exONE();
-    else if (xOverPi.info(info_flags::odd))
-        return exMINUSONE();
-    
-    // cos((2n+1)*Pi/2) -> 0
-    ex xOverPiMinusHalf=xOverPi-exHALF();
-    if (xOverPiMinusHalf.info(info_flags::integer))
-        return exZERO();
+    if (xOverPi.info(info_flags::numeric)) {
+        // cos(n*Pi) -> {+|-}1
+        if (xOverPi.info(info_flags::even))
+            return exONE();
+        else if (xOverPi.info(info_flags::odd))
+            return exMINUSONE();
+        
+        // cos((2n+1)*Pi/2) -> 0
+        ex xOverPiMinusHalf=xOverPi-exHALF();
+        if (xOverPiMinusHalf.info(info_flags::integer))
+            return exZERO();
+    }
     
     if (is_ex_exactly_of_type(x, function)) {
         ex t=x.op(0);
@@ -231,7 +244,7 @@ static ex cos_eval(ex const & x)
     }
     
     // cos(float) -> float
-    if (x.info(info_flags::numeric) && !x.info(info_flags::rational))
+    if (x.info(info_flags::numeric) && !x.info(info_flags::crational))
         return cos_evalf(x);
     
     return cos(x).hold();
@@ -292,7 +305,7 @@ static ex tan_eval(ex const & x)
     }
     
     // tan(float) -> float
-    if (x.info(info_flags::numeric) && !x.info(info_flags::rational)) {
+    if (x.info(info_flags::numeric) && !x.info(info_flags::crational)) {
         return tan_evalf(x);
     }
     
@@ -306,7 +319,19 @@ static ex tan_diff(ex const & x, unsigned diff_param)
     return (1+power(tan(x),exTWO()));
 }
 
-REGISTER_FUNCTION(tan, tan_eval, tan_evalf, tan_diff, NULL);
+static ex tan_series(ex const & x, symbol const & s, ex const & point, int order)
+{
+    // method:
+    // Taylor series where there is no pole falls back to tan_diff.
+    // On a pole simply expand sin(x)/cos(x).
+    ex xpoint = x.subs(s==point);
+    if (!(2*xpoint/Pi).info(info_flags::odd))
+        throw do_taylor();
+    // if we got here we have to care for a simple pole
+    return (sin(x)/cos(x)).series(s, point, order+2);
+}
+
+REGISTER_FUNCTION(tan, tan_eval, tan_evalf, tan_diff, tan_series);
 
 //////////
 // inverse sine (arc sine)
@@ -340,7 +365,7 @@ static ex asin_eval(ex const & x)
         if (x.is_equal(exMINUSONE()))
             return numeric(-1,2)*Pi;
         // asin(float) -> float
-        if (!x.info(info_flags::rational))
+        if (!x.info(info_flags::crational))
             return asin_evalf(x);
     }
     
@@ -388,7 +413,7 @@ static ex acos_eval(ex const & x)
         if (x.is_equal(exMINUSONE()))
             return Pi;
         // acos(float) -> float
-        if (!x.info(info_flags::rational))
+        if (!x.info(info_flags::crational))
             return acos_evalf(x);
     }
     
@@ -424,7 +449,7 @@ static ex atan_eval(ex const & x)
         if (x.is_equal(exZERO()))
             return exZERO();
         // atan(float) -> float
-        if (!x.info(info_flags::rational))
+        if (!x.info(info_flags::crational))
             return atan_evalf(x);
     }
     
@@ -456,8 +481,8 @@ static ex atan2_evalf(ex const & y, ex const & x)
 
 static ex atan2_eval(ex const & y, ex const & x)
 {
-    if (y.info(info_flags::numeric) && !y.info(info_flags::rational) &&
-        x.info(info_flags::numeric) && !x.info(info_flags::rational)) {
+    if (y.info(info_flags::numeric) && !y.info(info_flags::crational) &&
+        x.info(info_flags::numeric) && !x.info(info_flags::crational)) {
         return atan2_evalf(y,x);
     }
     
@@ -498,8 +523,22 @@ static ex sinh_eval(ex const & x)
         if (x.is_zero())
             return exZERO();
         // sinh(float) -> float
-        if (!x.info(info_flags::rational))
+        if (!x.info(info_flags::crational))
             return sinh_evalf(x);
+    }
+    
+    ex xOverPiI=x/Pi/I;
+    if (xOverPiI.info(info_flags::numeric)) {
+        // sinh(n*Pi*I) -> 0
+        if (xOverPiI.info(info_flags::integer))
+            return exZERO();
+        
+        // sinh((2n+1)*Pi*I/2) -> {+|-}I
+        ex xOverPiIMinusHalf=xOverPiI-exHALF();
+        if (xOverPiIMinusHalf.info(info_flags::even))
+            return I;
+        else if (xOverPiIMinusHalf.info(info_flags::odd))
+            return -I;
     }
     
     if (is_ex_exactly_of_type(x, function)) {
@@ -547,8 +586,22 @@ static ex cosh_eval(ex const & x)
         if (x.is_zero())
             return exONE();
         // cosh(float) -> float
-        if (!x.info(info_flags::rational))
+        if (!x.info(info_flags::crational))
             return cosh_evalf(x);
+    }
+    
+    ex xOverPiI=x/Pi/I;
+    if (xOverPiI.info(info_flags::numeric)) {
+        // cosh(n*Pi*I) -> {+|-}1
+        if (xOverPiI.info(info_flags::even))
+            return exONE();
+        else if (xOverPiI.info(info_flags::odd))
+            return exMINUSONE();
+        
+        // cosh((2n+1)*Pi*I/2) -> 0
+        ex xOverPiIMinusHalf=xOverPiI-exHALF();
+        if (xOverPiIMinusHalf.info(info_flags::integer))
+            return exZERO();
     }
     
     if (is_ex_exactly_of_type(x, function)) {
@@ -596,7 +649,7 @@ static ex tanh_eval(ex const & x)
         if (x.is_zero())
             return exZERO();
         // tanh(float) -> float
-        if (!x.info(info_flags::rational))
+        if (!x.info(info_flags::crational))
             return tanh_evalf(x);
     }
     
@@ -623,7 +676,19 @@ static ex tanh_diff(ex const & x, unsigned diff_param)
     return exONE()-power(tanh(x),exTWO());
 }
 
-REGISTER_FUNCTION(tanh, tanh_eval, tanh_evalf, tanh_diff, NULL);
+static ex tanh_series(ex const & x, symbol const & s, ex const & point, int order)
+{
+    // method:
+    // Taylor series where there is no pole falls back to tanh_diff.
+    // On a pole simply expand sinh(x)/cosh(x).
+    ex xpoint = x.subs(s==point);
+    if (!(2*I*xpoint/Pi).info(info_flags::odd))
+        throw do_taylor();
+    // if we got here we have to care for a simple pole
+    return (sinh(x)/cosh(x)).series(s, point, order+2);
+}
+
+REGISTER_FUNCTION(tanh, tanh_eval, tanh_evalf, tanh_diff, tanh_series);
 
 //////////
 // inverse hyperbolic sine (trigonometric function)
@@ -645,7 +710,7 @@ static ex asinh_eval(ex const & x)
         if (x.is_zero())
             return exZERO();
         // asinh(float) -> float
-        if (!x.info(info_flags::rational))
+        if (!x.info(info_flags::crational))
             return asinh_evalf(x);
     }
     
@@ -687,7 +752,7 @@ static ex acosh_eval(ex const & x)
         if (x.is_equal(exMINUSONE()))
             return Pi*I;
         // acosh(float) -> float
-        if (!x.info(info_flags::rational))
+        if (!x.info(info_flags::crational))
             return acosh_evalf(x);
     }
     
@@ -726,7 +791,7 @@ static ex atanh_eval(ex const & x)
         if (x.is_equal(exONE()) || x.is_equal(exONE()))
             throw (std::domain_error("atanh_eval(): infinity"));
         // atanh(float) -> float
-        if (!x.info(info_flags::rational))
+        if (!x.info(info_flags::crational))
             return atanh_evalf(x);
     }
     

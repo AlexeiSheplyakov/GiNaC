@@ -81,9 +81,17 @@ DECLARE_FUNCTION_1P(Li2)
 /** Trilogarithm. */
 DECLARE_FUNCTION_1P(Li3)
 
+// overloading at work: we cannot use the macros
 /** Riemann's Zeta-function. */
-DECLARE_FUNCTION_1P(zeta)
-//DECLARE_FUNCTION_2P(zeta)
+extern const unsigned function_index_zeta1;
+inline function zeta(ex const & p1) {
+    return function(function_index_zeta1, p1);
+}
+/** Derivatives of Riemann's Zeta-function. */
+extern const unsigned function_index_zeta2;
+inline function zeta(ex const & p1, ex const & p2) {
+    return function(function_index_zeta2, p1, p2);
+}
 
 /** Gamma-function. */
 DECLARE_FUNCTION_1P(gamma)
@@ -91,18 +99,17 @@ DECLARE_FUNCTION_1P(gamma)
 /** Beta-function. */
 DECLARE_FUNCTION_2P(beta)
 
+// overloading at work: we cannot use the macros
 /** Psi-function (aka polygamma-function). */
-// overloading @ work: we cannot use the macros
 extern const unsigned function_index_psi1;
 inline function psi(ex const & p1) {
     return function(function_index_psi1, p1);
 }
+/** Derivatives of Psi-function (aka polygamma-functions). */
 extern const unsigned function_index_psi2;
 inline function psi(ex const & p1, ex const & p2) {
     return function(function_index_psi2, p1, p2);
 }
-//DECLARE_FUNCTION_1P(psi)
-//DECLARE_FUNCTION_2P(psi)
     
 /** Factorial function. */
 DECLARE_FUNCTION_1P(factorial)
@@ -119,7 +126,7 @@ ex ncpower(ex const &basis, unsigned exponent);
 
 inline bool is_order_function(ex const & e)
 {
-	return is_ex_the_function(e, Order);
+    return is_ex_the_function(e, Order);
 }
 
 #ifndef NO_GINAC_NAMESPACE

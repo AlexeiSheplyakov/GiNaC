@@ -90,9 +90,9 @@ public:
     // functions overriding virtual functions from bases classes
 public:
     basic * duplicate() const;
+    void print(ostream & os, unsigned upper_precedence=0) const;
     void printraw(ostream & os) const;
     void printtree(ostream & os, unsigned indent) const;
-    void print(ostream & os, unsigned upper_precedence=0) const;
     bool info(unsigned inf) const;
     int nops() const;
     ex op(int const i) const;

@@ -98,7 +98,7 @@ VERSION = @VERSION@
 YACC = @YACC@
 
 lib_LTLIBRARIES = libginac.la
-libginac_la_SOURCES = add.cpp basic.cpp constant.cpp diff.cpp ex.cpp   expairseq.cpp exprseq.cpp fail.cpp function.cpp inifcns.cpp   inifcns_trans.cpp inifcns_zeta.cpp inifcns_gamma.cpp matrix.cpp mul.cpp   normal.cpp numeric.cpp operators.cpp power.cpp print.cpp printraw.cpp   printtree.cpp printcsrc.cpp relational.cpp symbol.cpp utils.cpp series.cpp   ncmul.cpp clifford.cpp structure.cpp color.cpp indexed.cpp idx.cpp   isospin.cpp exprseq_suppl.cpp lst.cpp lst_suppl.cpp simp_lor.cpp   coloridx.cpp lorentzidx.cpp debugmsg.h utils.h
+libginac_la_SOURCES = add.cpp basic.cpp constant.cpp diff.cpp ex.cpp   expairseq.cpp exprseq.cpp fail.cpp function.cpp inifcns.cpp   inifcns_trans.cpp inifcns_zeta.cpp inifcns_gamma.cpp matrix.cpp mul.cpp   normal.cpp numeric.cpp operators.cpp power.cpp relational.cpp symbol.cpp   utils.cpp series.cpp ncmul.cpp clifford.cpp structure.cpp color.cpp   indexed.cpp idx.cpp isospin.cpp exprseq_suppl.cpp lst.cpp lst_suppl.cpp   simp_lor.cpp coloridx.cpp lorentzidx.cpp debugmsg.h utils.h
 
 libginac_la_LDFLAGS = -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)   -release $(LT_RELEASE)
 
@@ -120,10 +120,10 @@ libginac_la_LIBADD =
 libginac_la_OBJECTS =  add.lo basic.lo constant.lo diff.lo ex.lo \
 expairseq.lo exprseq.lo fail.lo function.lo inifcns.lo inifcns_trans.lo \
 inifcns_zeta.lo inifcns_gamma.lo matrix.lo mul.lo normal.lo numeric.lo \
-operators.lo power.lo print.lo printraw.lo printtree.lo printcsrc.lo \
-relational.lo symbol.lo utils.lo series.lo ncmul.lo clifford.lo \
-structure.lo color.lo indexed.lo idx.lo isospin.lo exprseq_suppl.lo \
-lst.lo lst_suppl.lo simp_lor.lo coloridx.lo lorentzidx.lo
+operators.lo power.lo relational.lo symbol.lo utils.lo series.lo \
+ncmul.lo clifford.lo structure.lo color.lo indexed.lo idx.lo isospin.lo \
+exprseq_suppl.lo lst.lo lst_suppl.lo simp_lor.lo coloridx.lo \
+lorentzidx.lo
 CXXFLAGS = @CXXFLAGS@
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -150,8 +150,7 @@ DEP_FILES =  .deps/add.P .deps/basic.P .deps/clifford.P .deps/color.P \
 .deps/inifcns_gamma.P .deps/inifcns_trans.P .deps/inifcns_zeta.P \
 .deps/isospin.P .deps/lorentzidx.P .deps/lst.P .deps/lst_suppl.P \
 .deps/matrix.P .deps/mul.P .deps/ncmul.P .deps/normal.P .deps/numeric.P \
-.deps/operators.P .deps/power.P .deps/print.P .deps/printcsrc.P \
-.deps/printraw.P .deps/printtree.P .deps/relational.P .deps/series.P \
+.deps/operators.P .deps/power.P .deps/relational.P .deps/series.P \
 .deps/simp_lor.P .deps/structure.P .deps/symbol.P .deps/utils.P
 SOURCES = $(libginac_la_SOURCES)
 OBJECTS = $(libginac_la_OBJECTS)
@@ -288,7 +287,7 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$d/$$file $(distdir)/$$file; \
+	    cp -pr $$/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \

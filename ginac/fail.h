@@ -50,8 +50,8 @@ protected:
     // functions overriding virtual functions from bases classes
 public:
     basic * duplicate() const;
-    void printraw(ostream & os) const;
     void print(ostream & os, unsigned upper_precedence=0) const;
+    void printraw(ostream & os) const;
 protected:
     int compare_same_type(basic const & other) const;
     unsigned return_type(void) const { return return_types::noncommutative_composite; };

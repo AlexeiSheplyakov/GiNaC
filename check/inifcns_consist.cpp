@@ -277,7 +277,7 @@ unsigned inifcns_consist(void)
     result += inifcns_consist_psi();
     result += inifcns_consist_zeta();
 
-    if ( !result ) {
+    if (!result) {
         cout << " passed ";
         clog << "(no output)" << endl;
     } else {

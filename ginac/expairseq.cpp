@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <string>
 #include <stdexcept>
+#include <cmath>
 
 #include "expairseq.h"
 #include "lst.h"
@@ -162,6 +163,104 @@ basic * expairseq::duplicate() const
 {
     debugmsg("expairseq duplicate",LOGLEVEL_DUPLICATE);
     return new expairseq(*this);
+}
+
+void expairseq::print(ostream & os, unsigned upper_precedence) const
+{
+    debugmsg("expairseq print",LOGLEVEL_PRINT);
+    os << "[[";
+    printseq(os,',',precedence,upper_precedence);
+    os << "]]";
+}
+
+void expairseq::printraw(ostream & os) const
+{
+    debugmsg("expairseq printraw",LOGLEVEL_PRINT);
+
+    os << "expairseq(";
+    for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
+        os << "(";
+        (*cit).rest.printraw(os);
+        os << ",";
+        (*cit).coeff.printraw(os);
+        os << "),";
+    }
+    os << ")";
+}
+
+void expairseq::printtree(ostream & os, unsigned indent) const
+{
+    debugmsg("expairseq printtree",LOGLEVEL_PRINT);
+
+    os << string(indent,' ') << "type=" << typeid(*this).name()
+       << ", hash=" << hashvalue << " (0x" << hex << hashvalue << dec << ")"
+       << ", flags=" << flags
+       << ", nops=" << nops() << endl;
+    for (unsigned i=0; i<seq.size(); ++i) {
+        seq[i].rest.printtree(os,indent+delta_indent);
+        seq[i].coeff.printtree(os,indent+delta_indent);
+        if (i!=seq.size()-1) {
+            os << string(indent+delta_indent,' ') << "-----" << endl;
+        }
+    }
+    if (!overall_coeff.is_equal(default_overall_coeff())) {
+        os << string(indent+delta_indent,' ') << "-----" << endl;
+        os << string(indent+delta_indent,' ') << "overall_coeff" << endl;
+        overall_coeff.printtree(os,indent+delta_indent);
+    }
+    os << string(indent+delta_indent,' ') << "=====" << endl;
+#ifdef EXPAIRSEQ_USE_HASHTAB
+    os << string(indent+delta_indent,' ')
+       << "hashtab size " << hashtabsize << endl;
+    if (hashtabsize==0) return;
+#define MAXCOUNT 5
+    unsigned count[MAXCOUNT+1];
+    for (int i=0; i<MAXCOUNT+1; ++i) count[i]=0;
+    unsigned this_bin_fill;
+    unsigned cum_fill_sq=0;
+    unsigned cum_fill=0;
+    for (unsigned i=0; i<hashtabsize; ++i) {
+        this_bin_fill=0;
+        if (hashtab[i].size()>0) {
+            os << string(indent+delta_indent,' ') 
+               << "bin " << i << " with entries ";
+            for (epplist::const_iterator it=hashtab[i].begin();
+                 it!=hashtab[i].end(); ++it) {
+                os << *it-seq.begin() << " ";
+                this_bin_fill++;
+            }
+            os << endl;
+            cum_fill += this_bin_fill;
+            cum_fill_sq += this_bin_fill*this_bin_fill;
+        }
+        if (this_bin_fill<MAXCOUNT) {
+            ++count[this_bin_fill];
+        } else {
+            ++count[MAXCOUNT];
+        }
+    }
+    unsigned fact=1;
+    double cum_prob=0;
+    double lambda=(1.0*seq.size())/hashtabsize;
+    for (int k=0; k<MAXCOUNT; ++k) {
+        if (k>0) fact *= k;
+        double prob=pow(lambda,k)/fact*exp(-lambda);
+        cum_prob += prob;
+        os << string(indent+delta_indent,' ') << "bins with " << k << " entries: "
+           << int(1000.0*count[k]/hashtabsize)/10.0 << "% (expected: "
+           << int(prob*1000)/10.0 << ")" << endl;
+    }
+    os << string(indent+delta_indent,' ') << "bins with more entries: "
+       << int(1000.0*count[MAXCOUNT]/hashtabsize)/10.0 << "% (expected: "
+       << int((1-cum_prob)*1000)/10.0 << ")" << endl;
+    
+    os << string(indent+delta_indent,' ') << "variance: "
+       << 1.0/hashtabsize*cum_fill_sq-(1.0/hashtabsize*cum_fill)*(1.0/hashtabsize*cum_fill)
+       << endl;
+    os << string(indent+delta_indent,' ') << "average fill: "
+       << (1.0*cum_fill)/hashtabsize
+       << " (should be equal to " << (1.0*seq.size())/hashtabsize << ")" << endl;
+#endif // def EXPAIRSEQ_USE_HASHTAB
 }
 
 bool expairseq::info(unsigned inf) const
@@ -411,6 +510,33 @@ ex expairseq::thisexpairseq(epvector * vp, ex const & oc) const
     return expairseq(vp,oc);
 }
 
+void expairseq::printpair(ostream & os, expair const & p, unsigned upper_precedence) const
+{
+    os << "[[";
+    p.rest.bp->print(os,precedence);
+    os << ",";
+    p.coeff.bp->print(os,precedence);
+    os << "]]";
+}
+
+void expairseq::printseq(ostream & os, char delim, unsigned this_precedence,
+                         unsigned upper_precedence) const
+{
+    if (this_precedence<=upper_precedence) os << "(";
+    epvector::const_iterator it,it_last;
+    it_last=seq.end();
+    --it_last;
+    for (it=seq.begin(); it!=it_last; ++it) {
+        printpair(os,*it,this_precedence);
+        os << delim;
+    }
+    printpair(os,*it,this_precedence);
+    if (!overall_coeff.is_equal(default_overall_coeff())) {
+        os << delim << overall_coeff;
+    }
+    if (this_precedence<=upper_precedence) os << ")";
+}
+    
 expair expairseq::split_ex_to_pair(ex const & e) const
 {
     return expair(e,exONE());
@@ -1421,7 +1547,7 @@ epvector * expairseq::evalchildren(int level) const
         ex const & evaled_ex=(*cit).rest.eval(level);
         if (!are_ex_trivially_equal((*cit).rest,evaled_ex)) {
 
-	    // something changed, copy seq, eval and return it
+            // something changed, copy seq, eval and return it
             epvector *s=new epvector;
             s->reserve(seq.size());
 

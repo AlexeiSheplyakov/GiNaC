@@ -55,8 +55,8 @@ public:
     // functions overriding virtual functions from base classes
 public:
     basic *duplicate() const;
-    void printraw(ostream &os) const;
     void print(ostream &os, unsigned upper_precedence=0) const;
+    void printraw(ostream &os) const;
     int degree(symbol const &s) const;
     int ldegree(symbol const &s) const;
     ex coeff(symbol const &s, int const n=1) const;

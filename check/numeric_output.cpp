@@ -34,7 +34,7 @@ unsigned numeric_output(void)
     clog << "---------output of numeric types:" << endl;
     
     unsigned long Digits_before = Digits;
-    Digits = 200;
+    Digits = 222;
     clog << "Using " << Digits << " digits" << endl;
     clog << Pi << " evalfs to: " << Pi.evalf() << endl;
     clog << Catalan << " evalfs to: " << Catalan.evalf() << endl;

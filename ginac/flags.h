@@ -50,6 +50,8 @@ public:
            real,
            rational,
            integer,
+           crational,
+           cinteger,
            positive,
            negative,
            nonnegative,
@@ -81,7 +83,9 @@ public:
            // answered by classes numeric, symbol, add, mul, power
            polynomial,
            integer_polynomial,
+           cinteger_polynomial,
            rational_polynomial,
+           crational_polynomial,
            rational_function,
 
            // answered by class ex

@@ -114,9 +114,9 @@ protected:
     // new virtual functions which can be overridden by derived classes
 public: // only const functions please (may break reference counting)
     virtual basic * duplicate() const;
+    virtual void print(ostream & os,unsigned upper_precedence=0) const;
     virtual void printraw(ostream & os) const;
     virtual void printtree(ostream & os, unsigned indent) const;
-    virtual void print(ostream & os,unsigned upper_precedence=0) const;
     virtual void printcsrc(ostream & os, unsigned type, unsigned upper_precedence=0) const;
     virtual void dbgprint(void) const;
     virtual void dbgprinttree(void) const;

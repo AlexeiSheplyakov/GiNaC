@@ -113,6 +113,33 @@ basic * constant::duplicate() const
     return new constant(*this);
 }
 
+void constant::print(ostream & os, unsigned upper_precedence) const
+{
+    debugmsg("constant print",LOGLEVEL_PRINT);
+    os << name;
+}
+
+void constant::printraw(ostream & os) const
+{
+    debugmsg("constant printraw",LOGLEVEL_PRINT);
+    os << "constant(" << name << ")";
+}
+
+void constant::printtree(ostream & os, unsigned indent) const
+{
+    debugmsg("constant printtree",LOGLEVEL_PRINT);
+    os << string(indent,' ') << name
+       << ", type=" << typeid(*this).name()
+       << ", hash=" << hashvalue << " (0x" << hex << hashvalue << dec << ")"
+       << ", flags=" << flags << endl;
+}
+
+void constant::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) const
+{
+    debugmsg("constant print csrc",LOGLEVEL_PRINT);
+    os << name;
+}
+
 ex constant::evalf(int level) const
 {
     if (ef!=0) {

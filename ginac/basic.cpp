@@ -110,6 +110,59 @@ basic::basic(unsigned ti) : flags(0), refcount(0), tinfo_key(ti)
 
 // public
 
+/** Output to stream formatted to be useful as ginsh input. */
+void basic::print(ostream & os, unsigned upper_precedence) const
+{
+    debugmsg("basic print",LOGLEVEL_PRINT);
+    os << "[basic object]";
+}
+
+/** Output to stream in ugly raw format, so brave developers can have a look
+ * at the underlying structure. */
+void basic::printraw(ostream & os) const
+{
+    debugmsg("basic printraw",LOGLEVEL_PRINT);
+    os << "[basic object]";
+}
+
+/** Output to stream formatted in tree- (indented-) form, so developers can
+ *  have a look at the underlying structure. */
+void basic::printtree(ostream & os, unsigned indent) const
+{
+    debugmsg("basic printtree",LOGLEVEL_PRINT);
+    os << string(indent,' ') << "type=" << typeid(*this).name()
+       << ", hash=" << hashvalue << " (0x" << hex << hashvalue << dec << ")"
+       << ", flags=" << flags
+       << ", nops=" << nops() << endl;
+    for (int i=0; i<nops(); ++i) {
+        op(i).printtree(os,indent+delta_indent);
+    }
+}
+
+/** Output to stream formatted as C-source.
+ *
+ *  @param os a stream for output
+ *  @param type variable type (one of the csrc_types)
+ *  @param upper_precedence operator precedence of caller
+ *  @see ex::printcsrc */
+void basic::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) const
+{
+    debugmsg("basic print csrc", LOGLEVEL_PRINT);
+}
+
+/** Little wrapper arount print to be called within a debugger. */
+void basic::dbgprint(void) const
+{
+    print(cerr);
+    cerr << endl;
+}
+
+/** Little wrapper arount printtree to be called within a debugger. */
+void basic::dbgprinttree(void) const
+{
+    printtree(cerr,0);
+}
+
 basic * basic::duplicate() const
 {
     debugmsg("basic duplicate",LOGLEVEL_DUPLICATE);

@@ -59,8 +59,8 @@ public:
     // functions overriding virtual functions from bases classes
 public:
     basic * duplicate() const;
-    void printraw(ostream & os) const;
     void print(ostream & os, unsigned upper_precedence=0) const;
+    void printraw(ostream & os) const;
     int nops() const;
     ex & let_op(int const i);
     ex expand(unsigned options=0) const;

@@ -235,12 +235,12 @@ ex ex::diff(symbol const & s, unsigned nth) const
 {
     GINAC_ASSERT(bp!=0);
 
-    if ( nth==0 ) {
+    if (nth==0) {
         return *this;
     }
 
     ex ndiff = bp->diff(s);
-    while ( nth>1 ) {
+    while (nth>1) {
         ndiff = ndiff.diff(s);
         --nth;
     }

@@ -42,6 +42,15 @@ namespace GiNaC {
 // Gamma-function
 //////////
 
+static ex gamma_evalf(ex const & x)
+{
+    BEGIN_TYPECHECK
+        TYPECHECK(x,numeric)
+    END_TYPECHECK(gamma(x))
+    
+    return gamma(ex_to_numeric(x));
+}
+
 /** Evaluation of gamma(x). Knows about integer arguments, half-integer
  *  arguments and that's it. Somebody ought to provide some good numerical
  *  evaluation some day...
@@ -81,15 +90,6 @@ static ex gamma_eval(ex const & x)
     return gamma(x).hold();
 }    
 
-static ex gamma_evalf(ex const & x)
-{
-    BEGIN_TYPECHECK
-        TYPECHECK(x,numeric)
-    END_TYPECHECK(gamma(x))
-    
-    return gamma(ex_to_numeric(x));
-}
-
 static ex gamma_diff(ex const & x, unsigned diff_param)
 {
     GINAC_ASSERT(diff_param==0);
@@ -121,6 +121,17 @@ REGISTER_FUNCTION(gamma, gamma_eval, gamma_evalf, gamma_diff, gamma_series);
 //////////
 // Beta-function
 //////////
+
+static ex beta_evalf(ex const & x, ex const & y)
+{
+    BEGIN_TYPECHECK
+        TYPECHECK(x,numeric)
+        TYPECHECK(y,numeric)
+    END_TYPECHECK(beta(x,y))
+    
+    return gamma(ex_to_numeric(x))*gamma(ex_to_numeric(y))
+        / gamma(ex_to_numeric(x+y));
+}
 
 static ex beta_eval(ex const & x, ex const & y)
 {
@@ -155,17 +166,6 @@ static ex beta_eval(ex const & x, ex const & y)
     return beta(x,y).hold();
 }
 
-static ex beta_evalf(ex const & x, ex const & y)
-{
-    BEGIN_TYPECHECK
-        TYPECHECK(x,numeric)
-        TYPECHECK(y,numeric)
-    END_TYPECHECK(beta(x,y))
-    
-    return gamma(ex_to_numeric(x))*gamma(ex_to_numeric(y))
-        / gamma(ex_to_numeric(x+y));
-}
-
 static ex beta_diff(ex const & x, ex const & y, unsigned diff_param)
 {
     GINAC_ASSERT(diff_param<2);
@@ -183,6 +183,15 @@ REGISTER_FUNCTION(beta, beta_eval, beta_evalf, beta_diff, NULL);
 //////////
 // Psi-function (aka polygamma-function)
 //////////
+
+static ex psi1_evalf(ex const & x)
+{
+    BEGIN_TYPECHECK
+        TYPECHECK(x,numeric)
+    END_TYPECHECK(psi(x))
+    
+    return psi(ex_to_numeric(x));
+}
 
 /** Evaluation of polygamma-function psi(x). 
  *  Somebody ought to provide some good numerical evaluation some day... */
@@ -214,15 +223,6 @@ static ex psi1_eval(ex const & x)
     return psi(x).hold();
 }
 
-static ex psi1_evalf(ex const & x)
-{
-    BEGIN_TYPECHECK
-        TYPECHECK(x,numeric)
-    END_TYPECHECK(psi(x))
-    
-    return psi(ex_to_numeric(x));
-}
-
 static ex psi1_diff(ex const & x, unsigned diff_param)
 {
     GINAC_ASSERT(diff_param==0);
@@ -235,6 +235,16 @@ const unsigned function_index_psi1 = function::register_new("psi", psi1_eval, ps
 //////////
 // Psi-functions (aka polygamma-functions)  psi(0,x)==psi(x)
 //////////
+
+static ex psi2_evalf(ex const & n, ex const & x)
+{
+    BEGIN_TYPECHECK
+        TYPECHECK(n,numeric)
+        TYPECHECK(x,numeric)
+    END_TYPECHECK(psi(n,x))
+    
+    return psi(ex_to_numeric(n), ex_to_numeric(x));
+}
 
 /** Evaluation of polygamma-function psi(n,x). 
  *  Somebody ought to provide some good numerical evaluation some day... */
@@ -255,16 +265,6 @@ static ex psi2_eval(ex const & n, ex const & x)
     }
     return psi(n, x).hold();
 }    
-
-static ex psi2_evalf(ex const & n, ex const & x)
-{
-    BEGIN_TYPECHECK
-        TYPECHECK(n,numeric)
-        TYPECHECK(x,numeric)
-    END_TYPECHECK(psi(n,x))
-    
-    return psi(ex_to_numeric(n), ex_to_numeric(x));
-}
 
 static ex psi2_diff(ex const & n, ex const & x, unsigned diff_param)
 {

@@ -126,10 +126,10 @@ static unsigned matrix_invert2(void)
     matrix m_i = m.inverse();
     ex det = m.determinant().expand();
     
-    if ( (normal(m_i(0,0)*det) != d) ||
-         (normal(m_i(0,1)*det) != -b) ||
-         (normal(m_i(1,0)*det) != -c) ||
-         (normal(m_i(1,1)*det) != a) ) {
+    if ((normal(m_i(0,0)*det) != d) ||
+        (normal(m_i(0,1)*det) != -b) ||
+        (normal(m_i(1,0)*det) != -c) ||
+        (normal(m_i(1,1)*det) != a)) {
         clog << "inversion of 2x2 matrix " << m
              << " erroneously returned " << m_i << endl;
         return 1;
@@ -149,15 +149,15 @@ static unsigned matrix_invert3(void)
     matrix m_i = m.inverse();
     ex det = m.determinant().normal().expand();
     
-    if ( (normal(m_i(0,0)*det) != (e*i-f*h)) ||
-         (normal(m_i(0,1)*det) != (c*h-b*i)) ||
-         (normal(m_i(0,2)*det) != (b*f-c*e)) ||
-         (normal(m_i(1,0)*det) != (f*g-d*i)) ||
-         (normal(m_i(1,1)*det) != (a*i-c*g)) ||
-         (normal(m_i(1,2)*det) != (c*d-a*f)) ||
-         (normal(m_i(2,0)*det) != (d*h-e*g)) ||
-         (normal(m_i(2,1)*det) != (b*g-a*h)) ||
-         (normal(m_i(2,2)*det) != (a*e-b*d)) ) {
+    if ((normal(m_i(0,0)*det) != (e*i-f*h)) ||
+        (normal(m_i(0,1)*det) != (c*h-b*i)) ||
+        (normal(m_i(0,2)*det) != (b*f-c*e)) ||
+        (normal(m_i(1,0)*det) != (f*g-d*i)) ||
+        (normal(m_i(1,1)*det) != (a*i-c*g)) ||
+        (normal(m_i(1,2)*det) != (c*d-a*f)) ||
+        (normal(m_i(2,0)*det) != (d*h-e*g)) ||
+        (normal(m_i(2,1)*det) != (b*g-a*h)) ||
+        (normal(m_i(2,2)*det) != (a*e-b*d))) {
         clog << "inversion of 3x3 matrix " << m
              << " erroneously returned " << m_i << endl;
         return 1;

@@ -1,9 +1,9 @@
 /** @file paranoia_check.cpp
  *
  *  This set of tests checks for some of GiNaC's oopses which showed up during
- *  development.  Things were evaluated wrongly and so.  It should not find such
- *  a sick behaviour again.  But since we are paranoic and we want to exclude
- *  that behaviour for good... */
+ *  development.  Things were evaluated wrongly and so.  Such a sick behaviour
+ *  shouldn't occur any more.  But we are paranoic and we want to exclude these
+ *  these oopses for good, so we run those stupid tests... */
 
 /*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
@@ -43,7 +43,7 @@ static unsigned paranoia_check1(void)
     g = e / f;
 
     // In the first one expand did not do any job at all:
-    if ( !g.expand().is_equal(x) ) {
+    if (!g.expand().is_equal(x)) {
         clog << "e = x*y*z; f = y*z; expand(e/f) erroneously returned "
              << g.expand() << endl;
         ++result;

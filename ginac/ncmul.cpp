@@ -146,6 +146,39 @@ basic * ncmul::duplicate() const
     return new ncmul(*this);
 }
 
+void ncmul::print(ostream & os, unsigned upper_precedence) const
+{
+    debugmsg("ncmul print",LOGLEVEL_PRINT);
+    printseq(os,'(','%',')',precedence,upper_precedence);
+}
+
+void ncmul::printraw(ostream & os) const
+{
+    debugmsg("ncmul printraw",LOGLEVEL_PRINT);
+
+    os << "%(";
+    for (exvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
+        (*it).bp->printraw(os);
+        os << ",";
+    }
+    os << ",hash=" << hashvalue << ",flags=" << flags;
+    os << ")";
+}
+
+void ncmul::printcsrc(ostream & os, unsigned upper_precedence) const
+{
+    debugmsg("ncmul print csrc",LOGLEVEL_PRINT);
+    exvector::const_iterator it;
+    exvector::const_iterator itend = seq.end()-1;
+    os << "ncmul(";
+    for (it=seq.begin(); it!=itend; ++it) {
+        (*it).bp->printcsrc(os,precedence);
+        os << ",";
+    }
+    (*it).bp->printcsrc(os,precedence);
+    os << ")";
+}
+
 bool ncmul::info(unsigned inf) const
 {
     throw(std::logic_error("which flags have to be implemented in ncmul::info()?"));

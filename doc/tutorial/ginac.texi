@@ -173,7 +173,7 @@ leaves many open questions.
 @section How to use it from within C++
 
 The GiNaC open framework for symbolic computation within the C++ programming
-language does not try to define a language of it's own as conventional
+language does not try to define a language of its own as conventional
 CAS do.  Instead, it extends the capabilities of C++ by symbolic
 manipulations.  Here is how to generate and print a simple (and rather
 pointless) bivariate polynomial with some large coefficients:
@@ -256,7 +256,7 @@ convenient window into GiNaC's capabilities.
 @c    node-name, next, previous, up
 @section What it can do for you
 
-@cindex @code{ginsh}
+@cindex @command{ginsh}
 After invoking @command{ginsh} one can test and experiment with GiNaC's
 features much like in other Computer Algebra Systems except that it does
 not provide programming constructs like loops or conditionals.  For a
@@ -364,6 +364,7 @@ You can differentiate functions and expand them as Taylor or Laurent
 series (the third argument of @code{series} is the evaluation point, the
 fourth defines the order):
 
+@cindex Zeta function
 @example
 > diff(tan(x),x);
 tan(x)^2+1
@@ -371,15 +372,24 @@ tan(x)^2+1
 x-1/6*x^3+Order(x^4)
 > series(1/tan(x),x,0,4);
 x^(-1)-1/3*x+Order(x^2)
+> series(gamma(x),x,0,3);
+x^(-1)-EulerGamma+(1/12*Pi^2+1/2*EulerGamma^2)*x
++(-1/3*zeta(3)-1/12*Pi^2*EulerGamma-1/6*EulerGamma^3)*x^2+Order(x^3)
+> evalf(");
+x^(-1.0)-0.5772156649015328606+(0.98905599532797255544)*x
+-(0.90747907608088628905)*x^2+Order(x^(3.0))
 > series(gamma(2*sin(x)-2),x,Pi/2,6);
 -(x-1/2*Pi)^(-2)+(-1/12*Pi^2-1/2*EulerGamma^2-1/240)*(x-1/2*Pi)^2
 -EulerGamma-1/12+Order((x-1/2*Pi)^3)
 @end example
 
-If you ever wanted to convert units in C or C++ and found this
-is cumbersome, here is the solution.  Symbolic types can always be
-used as tags for different types of objects.  Converting from wrong
-units to the metric system is therefore easy:
+Here we have made use of the @command{ginsh}-command @code{"} to pop the
+previously evaluated element from @command{ginsh}'s internal stack.
+
+If you ever wanted to convert units in C or C++ and found this is
+cumbersome, here is the solution.  Symbolic types can always be used as
+tags for different types of objects.  Converting from wrong units to the
+metric system is therefore easy:
 
 @example
 > in=.0254*m;
@@ -455,7 +465,7 @@ when developing because it considerably speeds up compilation.
 @option{--prefix=@var{PREFIX}}: The directory where the compiled library
 and headers are installed. It defaults to @file{/usr/local} which means
 that the library is installed in the directory @file{/usr/local/lib},
-the header files in @file{/usr/local/include/GiNaC} and the documentation
+the header files in @file{/usr/local/include/ginac} and the documentation
 (like this one) into @file{/usr/local/share/doc/GiNaC}.
 
 @item
@@ -469,7 +479,7 @@ to have the header files installed in some other directory than
 @file{@var{PREFIX}/include/ginac/}. For instance, if you specify
 @option{--includedir=/usr/include} you will end up with the header files
 sitting in the directory @file{/usr/include/ginac/}. Note that the
-subdirectory @file{GiNaC} is enforced by this process in order to
+subdirectory @file{ginac} is enforced by this process in order to
 keep the header files separated from others.  This avoids some
 clashes and allows for an easier deinstallation of GiNaC. This ought
 to be considered A Good Thing (tm).
@@ -507,7 +517,7 @@ $ ./configure
 And here is a configuration for a private static GiNaC library with
 several components sitting in custom places (site-wide @acronym{GCC} and
 private @acronym{CLN}).  The compiler is pursuaded to be picky and full
-assertions and debugging are switched on:
+assertions and debugging information are switched on:
 
 @example
 $ export CXX=/usr/local/gnu/bin/c++
@@ -623,8 +633,9 @@ meta-class for storing all mathematical objects.
 * Symbols::                      Symbolic objects.
 * Numbers::                      Numerical objects.
 * Constants::                    Pre-defined constants.
-* Fundamental operations::       The power, add and mul classes.
+* Fundamental containers::       The power, add and mul classes.
 * Built-in functions::           Mathematical functions.
+* Relations::                    Equality, Inequality and all that.
 @end menu
 
 
@@ -670,17 +681,19 @@ GiNaC's class hierarchy consists of several classes representing
 mathematical objects, all of which (except for @code{ex} and some
 helpers) are internally derived from one abstract base class called
 @code{basic}.  You do not have to deal with objects of class
-@code{basic}, instead you'll be dealing with symbols and functions of
-symbols.  You'll soon learn in this chapter how many of the functions on
-symbols are really classes.  This is because simple symbolic arithmetic
-is not supported by languages like C++ so in a certain way GiNaC has to
-implement its own arithmetic.
+@code{basic}, instead you'll be dealing with symbols, numbers,
+containers of expressions and so on.  You'll soon learn in this chapter
+how many of the functions on symbols are really classes.  This is
+because simple symbolic arithmetic is not supported by languages like
+C++ so in a certain way GiNaC has to implement its own arithmetic.
 
-To give an idea about what kinds of symbolic composits may be built we
+@cindex container
+@cindex atom
+To get an idea about what kinds of symbolic composits may be built we
 have a look at the most important classes in the class hierarchy.  The
 oval classes are atomic ones and the squared classes are containers.
-The dashed line symbolizes a "points to" or "handles" relationship while
-the solid lines stand for "inherits from" relationship in the class
+The dashed line symbolizes a `points to' or `handles' relationship while
+the solid lines stand for `inherits from' relationship in the class
 hierarchy:
 
 @image{classhierarchy}
@@ -693,15 +706,17 @@ classes derived from them share certain features.  An example would be
 consisting of one expression and a number (@code{numeric}).  What
 @emph{is} visible to the user are the derived classes @code{add} and
 @code{mul}, representing sums of terms and products, respectively.
-We'll come back later to some more details about these two classes and
-motivate the use of pairs in sums and products here.
+@xref{Internal Structures}, where these two classes are described in
+more detail.
 
 
 @node Symbols, Numbers, The Class Hierarchy, Basic Concepts
 @c    node-name, next, previous, up
 @section Symbols
 @cindex Symbols (class @code{symbol})
+@cindex hierarchy of classes
 
+@cindex atom
 Symbols are for symbolic manipulation what atoms are for chemistry.  You
 can declare objects of class @code{symbol} as any other object simply by
 saying @code{symbol x,y;}.  There is, however, a catch in here having to
@@ -727,6 +742,7 @@ function that declares a symbol with a name already existent in a symbol
 in the calling function.  Again, comparing them (using @code{operator==}
 for instance) will always reveal their difference.  Watch out, please.
 
+@cindex @code{subs()}
 Although symbols can be assigned expressions for internal reasons, you
 should not do it (and we are not going to tell you how it is done).  If
 you want to replace a symbol with something else in an expression, you
@@ -738,7 +754,10 @@ can use the expression's @code{.subs()} method.
 @section Numbers
 @cindex numbers (class @code{numeric})
 
+@cindex GMP
 @cindex CLN
+@cindex rational
+@cindex fraction
 For storing numerical things, GiNaC uses Bruno Haible's library
 @acronym{CLN}.  The classes therein serve as foundation classes for
 GiNaC.  @acronym{CLN} stands for Class Library for Numbers or
@@ -790,21 +809,22 @@ implicit constructor from C-integers directly to expressions handling
 numerics at work in most of our examples.  This design really becomes
 convenient when one declares own functions having more than one
 parameter but it forbids using implicit constructors because that would
-lead to ambiguities.
+lead to compile-time ambiguities.
 
 It may be tempting to construct numbers writing @code{numeric r(3/2)}.
 This would, however, call C's built-in operator @code{/} for integers
 first and result in a numeric holding a plain integer 1.  @strong{Never
-use @code{/} on integers!} Use the constructor from two integers
-instead, as shown in the example above.  Writing @code{numeric(1)/2} may
-look funny but works also.
+use the operator @code{/} on integers} unless you know exactly what you
+are doing!  Use the constructor from two integers instead, as shown in
+the example above.  Writing @code{numeric(1)/2} may look funny but works
+also.
 
 @cindex @code{Digits}
 @cindex accuracy
 We have seen now the distinction between exact numbers and floating
 point numbers.  Clearly, the user should never have to worry about
-dynamically created exact numbers, since their "exactness" always
-determines how they ought to be handled, i.e. how "long" they are.  The
+dynamically created exact numbers, since their `exactness' always
+determines how they ought to be handled, i.e. how `long' they are.  The
 situation is different for floating point numbers.  Their accuracy is
 controlled by one @emph{global} variable, called @code{Digits}.  (For
 those readers who know about Maple: it behaves very much like Maple's
@@ -897,50 +917,53 @@ zero.  The full set of tests that can be applied is listed in the
 following table.
 
 @cartouche
-@multitable @columnfractions .33 .67
-@item Method @tab Returns true if@dots{}
+@multitable @columnfractions .30 .70
+@item @strong{Method} @tab @strong{Returns true if the object is@dots{}}
 @item @code{.is_zero()}
-@tab object is equal to zero
+@tab @dots{}equal to zero
 @item @code{.is_positive()}
-@tab object is not complex and greater than 0
+@tab @dots{}not complex and greater than 0
 @item @code{.is_integer()}
-@tab object is a (non-complex) integer
+@tab @dots{}a (non-complex) integer
 @item @code{.is_pos_integer()}
-@tab object is an integer and greater than 0
+@tab @dots{}an integer and greater than 0
 @item @code{.is_nonneg_integer()}
-@tab object is an integer and greater equal 0
+@tab @dots{}an integer and greater equal 0
 @item @code{.is_even()}
-@tab object is an even integer
+@tab @dots{}an even integer
 @item @code{.is_odd()}
-@tab object is an odd integer
+@tab @dots{}an odd integer
 @item @code{.is_prime()}
-@tab object is a prime integer (probabilistic primality test)
+@tab @dots{}a prime integer (probabilistic primality test)
 @item @code{.is_rational()}
-@tab object is an exact rational number (integers are rational, too)
+@tab @dots{}an exact rational number (integers are rational, too)
 @item @code{.is_real()}
-@tab object is a real integer, rational or float (i.e. is not complex)
+@tab @dots{}a real integer, rational or float (i.e. is not complex)
 @item @code{.is_cinteger()}
-@tab object is a (complex) integer, such as @math{2-3*I}
+@tab @dots{}a (complex) integer, such as @math{2-3*I}
 @item @code{.is_crational()}
-@tab object is an exact (complex) rational number (such as @math{2/3+7/2*I})
+@tab @dots{}an exact (complex) rational number (such as @math{2/3+7/2*I})
 @end multitable
 @end cartouche
 
 
-@node Constants, Fundamental operations, Numbers, Basic Concepts
+@node Constants, Fundamental containers, Numbers, Basic Concepts
 @c    node-name, next, previous, up
 @section Constants
 @cindex constants (class @code{constant})
-@cindex @code{evalf()}
 
+@cindex @code{Pi}
+@cindex @code{Catalan}
+@cindex @code{EulerGamma}
+@cindex @code{evalf()}
 Constants behave pretty much like symbols except that they return some
 specific number when the method @code{.evalf()} is called.
 
 The predefined known constants are:
 
 @cartouche
-@multitable @columnfractions .14 .29 .57
-@item Name @tab Common Name @tab Numerical Value (35 digits)
+@multitable @columnfractions .14 .30 .56
+@item @strong{Name} @tab @strong{Common Name} @tab @strong{Numerical Value (to 35 digits)}
 @item @code{Pi}
 @tab Archimedes' constant
 @tab 3.14159265358979323846264338327950288
@@ -954,10 +977,10 @@ The predefined known constants are:
 @end cartouche
 
 
-@node Fundamental operations, Built-in functions, Constants, Basic Concepts
+@node Fundamental containers, Built-in functions, Constants, Basic Concepts
 @c    node-name, next, previous, up
-@section Fundamental operations: the @code{power}, @code{add} and @code{mul} classes
-@cindex polynomials
+@section Fundamental containers: the @code{power}, @code{add} and @code{mul} classes
+@cindex polynomial
 @cindex @code{add}
 @cindex @code{mul}
 @cindex @code{power}
@@ -983,6 +1006,7 @@ int main()
 @}
 @end example
 
+@cindex @code{pow()}
 For exponentiation, you have already seen the somewhat clumsy (though C-ish)
 statement @code{pow(x,2);} to represent @code{x} squared.  This direct
 construction is necessary since we cannot safely overload the constructor
@@ -1038,16 +1062,22 @@ expression twice, either implicitly or explicitly, results in the same
 canonical form.
 
 
-@node Built-in functions, Important Algorithms, Fundamental operations, Basic Concepts
+@node Built-in functions, Relations, Fundamental containers, Basic Concepts
 @c    node-name, next, previous, up
 @section Built-in functions
+@cindex functions (class @code{function})
+@cindex trigonometric function
+@cindex hyperbolic function
 
-There are quite a number of useful functions built into GiNaC.  They are
-all objects of class @code{function}.  They accept one or more
+There are quite a number of useful functions hard-wired into GiNaC.  For
+instance, all trigonometric and hyperbolic functions are implemented.
+They are all objects of class @code{function}.  They accept one or more
 expressions as arguments and return one expression.  If the arguments
 are not numerical, the evaluation of the function may be halted, as it
 does in the next example:
 
+@cindex Gamma function
+@cindex @code{subs()}
 @example
 #include <ginac/ginac.h>
 using namespace GiNaC;
@@ -1079,10 +1109,27 @@ Most of these functions can be differentiated, series expanded and so
 on.  Read the next chapter in order to learn more about this.
 
 
-@node Important Algorithms, Polynomial Expansion, Built-in functions, Top
+@node Relations, Important Algorithms, Built-in functions, Basic Concepts
+@c    node-name, next, previous, up
+@section Relations
+@cindex relations (class @code{relational})
+
+Sometimes, a relation holding between two expressions must be stored
+somehow.  The class @code{relational} is a convenient container for such
+purposes.  A relation is by definition a container for two @code{ex} and
+a relation between them that signals equality, inequality and so on.
+They are created by simply using the C++ operators @code{==}, @code{!=},
+@code{<}, @code{<=}, @code{>} and @code{>=} between two expressions.
+
+@xref{Built-in functions}, for examples where various applications of
+the @code{.subs()} method show how objects of class relational are used
+as arguments.  There they provide an intuitive syntax for substitutions.
+
+
+@node Important Algorithms, Polynomial Expansion, Relations, Top
 @c    node-name, next, previous, up
 @chapter Important Algorithms
-@cindex polynomials
+@cindex polynomial
 
 In this chapter the most important algorithms provided by GiNaC will be
 described.  Some of them are implemented as functions on expressions,
@@ -1105,6 +1152,7 @@ int main()
 @}
 @end example
 
+@cindex @code{subs()}
 The general rule is that wherever methods accept one or more parameters
 (@var{arg1}, @var{arg2}, @dots{}) the order of arguments the function
 wrapper accepts is the same but preceded by the object to act on
@@ -1119,8 +1167,8 @@ here.  Also, users of MuPAD will in most cases feel more comfortable
 with GiNaC's convention.  All function wrappers are always implemented
 as simple inline functions which just call the corresponding method and
 are only provided for users uncomfortable with OO who are dead set to
-avoid method invocations.  Generally, a chain of function wrappers is
-much harder to read than a chain of methods and should therefore be
+avoid method invocations.  Generally, nested function wrappers are much
+harder to read than a sequence of methods and should therefore be
 avoided if possible.  On the other hand, not everything in GiNaC is a
 method on class @code{ex} and sometimes calling a function cannot be
 avoided.
@@ -1177,6 +1225,8 @@ Note that the original polynomial needs to be in expanded form in order
 to be able to find the coefficients properly.  The range of occuring
 coefficients can be checked using the two methods
 
+@cindex @code{degree()}
+@cindex @code{ldegree()}
 @example
 int ex::degree(symbol const & s);
 int ex::ldegree(symbol const & s);
@@ -1185,7 +1235,7 @@ int ex::ldegree(symbol const & s);
 where @code{degree()} returns the highest coefficient and
 @code{ldegree()} the lowest one.  (These two methods work also reliably
 on non-expanded input polynomials).  An application is illustrated in
-the next example, where a multivariate polynomial is analysed:
+the next example, where a multivariate polynomial is analyzed:
 
 @example
 #include <ginac/ginac.h>
@@ -1303,6 +1353,7 @@ normalized to @code{P_a/P_b} = @code{(4*y+z)/(y+3*z)}.
 @c    node-name, next, previous, up
 @section Symbolic Differentiation
 @cindex differentiation
+@cindex @code{diff()}
 @cindex chain rule
 @cindex product rule
 
@@ -1500,8 +1551,8 @@ evaluate themselves numerically to a precision declared at runtime
 (using @code{Digits}).  Some may be evaluated at certain points, but not
 generally.  This ought to be fixed.  However, doing numerical
 computations with GiNaC's quite abstract classes is doomed to be
-inefficient.  For this purpose, the underlying bignum-package
-@acronym{CLN} is much better suited.
+inefficient.  For this purpose, the underlying foundation classes
+provided by @acronym{CLN} are much better suited.
 
 
 @node Symbolic functions, A Comparison With Other CAS, What does not belong into GiNaC, Extending GiNaC
@@ -1510,7 +1561,7 @@ inefficient.  For this purpose, the underlying bignum-package
 
 The easiest and most instructive way to start with is probably to
 implement your own function.  Objects of class @code{function} are
-inserted into the system via a kind of "registry".  They get a serial
+inserted into the system via a kind of `registry'.  They get a serial
 number that is used internally to identify them but you usually need not
 worry about this.  What you have to care for are functions that are
 called when the user invokes certain methods.  These are usual
@@ -1523,14 +1574,16 @@ look something like this:
 @example
 static ex cos_eval_method(ex const & x)
 @{
-    // if x%2*Pi return 1
-    // if x%Pi return -1
-    // if x%Pi/2 return 0
+    // if (!x%(2*Pi)) return 1
+    // if (!x%Pi) return -1
+    // if (!x%Pi/2) return 0
     // care for other cases...
     return cos(x).hold();
 @}
 @end example
 
+@cindex @code{hold()}
+@cindex evaluation
 The last line returns @code{cos(x)} if we don't know what else to do and
 stops a potential recursive evaluation by saying @code{.hold()}.  We
 should also implement a method for numerical evaluation and since we are
@@ -1598,7 +1651,7 @@ have done our best to avoid them where we can.)
 That's it. May the source be with you!
 
 
-@node A Comparison With Other CAS, Internal Structures, Symbolic functions, Top
+@node A Comparison With Other CAS, Advantages, Symbolic functions, Top
 @c    node-name, next, previous, up
 @chapter A Comparison With Other CAS
 @cindex advocacy
@@ -1608,8 +1661,15 @@ other, traditional Computer Algebra Systems, like @emph{Maple},
 @emph{Mathematica} or @emph{Reduce}, where it has advantages and
 disadvantages over these systems.
 
+@menu
+* Advantages::                       Stengths of the GiNaC approach.
+* Disadvantages::                    Weaknesses of the GiNaC approach.
+* Why C++?::                         Attractiveness of C++.
+@end menu
 
-@heading Advantages
+@node Advantages, Disadvantages, A Comparison With Other CAS, A Comparison With Other CAS
+@c    node-name, next, previous, up
+@section Advantages
 
 GiNaC has several advantages over traditional Computer
 Algebra Systems, like 
@@ -1619,9 +1679,10 @@ Algebra Systems, like
 @item
 familiar language: all common CAS implement their own proprietary
 grammar which you have to learn first (and maybe learn again when your
-vendor chooses to "enhance" it).  With GiNaC you can write your program
+vendor decides to `enhance' it).  With GiNaC you can write your program
 in common C++, which is standardized.
 
+@cindex STL
 @item
 structured data types: you can build up structured data types using
 @code{struct}s or @code{class}es together with STL features instead of
@@ -1660,7 +1721,7 @@ programming language and vice versa.  With GiNaC, your symbolic routines
 are part of your program.  You can easily call third party libraries,
 e.g. for numerical evaluation or graphical interaction.  All other
 approaches are much more cumbersome: they range from simply ignoring the
-problem (i.e. @emph{Maple}) to providing a method for "embedding" the
+problem (i.e. @emph{Maple}) to providing a method for `embedding' the
 system (i.e. @emph{Yacas}).
 
 @item
@@ -1673,7 +1734,9 @@ CAS.
 @end itemize
 
 
-@heading Disadvantages
+@node Disadvantages, Why C++?, Advantages, A Comparison With Other CAS
+@c    node-name, next, previous, up
+@section Disadvantages
 
 Of course it also has some disadvantages:
 
@@ -1681,18 +1744,19 @@ Of course it also has some disadvantages:
 
 @item
 not interactive: GiNaC programs have to be written in an editor,
-compiled and executed. You cannot play with expressions interactively.
+compiled and executed.  You cannot play with expressions interactively.
 However, such an extension is not inherently forbidden by design.  In
-fact, two interactive interfaces are possible: First, a simple shell
-that exposes GiNaC's types to a command line can readily be written (and
-has been written) and second, as a more consistent approach we plan an
-integration with the @acronym{CINT} C++ interpreter.
+fact, two interactive interfaces are possible: First, a shell that
+exposes GiNaC's types to a command line can readily be written (the tiny
+@command{ginsh} that is part of the distribution being an example) and
+second, as a more consistent approach we are working on an integration
+with the @acronym{CINT} C++ interpreter.
 
 @item
 advanced features: GiNaC cannot compete with a program like
 @emph{Reduce} which exists for more than 30 years now or @emph{Maple}
 which grows since 1981 by the work of dozens of programmers, with
-respect to mathematical features. Integration, factorization,
+respect to mathematical features.  Integration, factorization,
 non-trivial simplifications, limits etc. are missing in GiNaC (and are
 not planned for the near future).
 
@@ -1702,31 +1766,35 @@ platform dependent features (it should compile on any ANSI compliant C++
 compiler), the currently used version of the CLN library (fast large
 integer and arbitrary precision arithmetics) can be compiled only on
 systems with a recently new C++ compiler from the GNU Compiler
-Collection (@acronym{GCC}).  GiNaC uses recent language features like
-explicit constructors, mutable members, RTTI, @code{dynamic_cast}s and
-STL, so ANSI compliance is meant literally.  Recent @acronym{GCC}
-versions starting at 2.95, although itself not yet ANSI compliant,
-support all needed features.
+Collection (@acronym{GCC}).@footnote{This is because CLN uses
+PROVIDE/REQUIRE like macros to let the compiler gather all static
+initializations, which works for GNU C++ only.}  GiNaC uses recent
+language features like explicit constructors, mutable members, RTTI,
+@code{dynamic_cast}s and STL, so ANSI compliance is meant literally.
+Recent @acronym{GCC} versions starting at 2.95, although itself not yet
+ANSI compliant, support all needed features.
     
 @end itemize
 
 
-@heading Why C++?
+@node Why C++?, Internal Structures, Disadvantages, A Comparison With Other CAS
+@c    node-name, next, previous, up
+@section Why C++?
 
 Why did we choose to implement GiNaC in C++ instead of Java or any other
-language? C++ is not perfect: type checking is not strict (casting is
+language?  C++ is not perfect: type checking is not strict (casting is
 possible), separation between interface and implementation is not
 complete, object oriented design is not enforced.  The main reason is
-the often scolded feature of operator overloading in C++. While it may
+the often scolded feature of operator overloading in C++.  While it may
 be true that operating on classes with a @code{+} operator is rarely
-meaningful, it is perfectly suited for algebraic expressions. Writing
+meaningful, it is perfectly suited for algebraic expressions.  Writing
 @math{3x+5y} as @code{3*x+5*y} instead of
-@code{x.times(3).plus(y.times(5))} looks much more natural. Furthermore,
-the main developers are more familiar with C++ than with any other
-programming language.
+@code{x.times(3).plus(y.times(5))} looks much more natural.
+Furthermore, the main developers are more familiar with C++ than with
+any other programming language.
 
 
-@node Internal Structures, Expressions are reference counted, A Comparison With Other CAS, Top
+@node Internal Structures, Expressions are reference counted, Why C++? , Top
 @c    node-name, next, previous, up
 @appendix Internal Structures
 
@@ -1849,10 +1917,10 @@ fashion:
 @cindex pair-wise representation
 However, doing so results in a rather deeply nested tree which will
 quickly become inefficient to manipulate.  We can improve on this by
-representing the sum instead as a sequence of terms, each one being a
-pair of a purely numeric multiplicative coefficient and its rest.  In
-the same spirit we can store the multiplication as a sequence of terms,
-each having a numeric exponent and a possibly complicated base, the tree
+representing the sum as a sequence of terms, each one being a pair of a
+purely numeric multiplicative coefficient and its rest.  In the same
+spirit we can store the multiplication as a sequence of terms, each
+having a numeric exponent and a possibly complicated base, the tree
 becomes much more flat:
 
 @image{reppair}
@@ -1871,15 +1939,15 @@ this is avoided by adding a field that carries an overall numeric
 coefficient.  This results in the realistic picture of internal
 representation for
 @tex
-$2d^3 \left( 4a + 5b - 3 \right)$
+$2d^3 \left( 4a + 5b - 3 \right)$:
 @end tex
 @ifnottex
-@math{2*d^3*(4*a+5*b-3)}
+@math{2*d^3*(4*a+5*b-3)}:
 @end ifnottex
-:
 
 @image{repreal}
 
+@cindex radical
 This also allows for a better handling of numeric radicals, since
 @code{sqrt(2)} can now be carried along calculations.  Now it should be
 clear, why both classes @code{add} and @code{mul} are derived from the
@@ -1923,16 +1991,17 @@ Prints '-I' flags pointing to the installed header files.
 Prints out the linker flags necessary to link a program against GiNaC.
 @item --prefix[=@var{PREFIX}]
 If @var{PREFIX} is specified, overrides the configured value of @env{$prefix}.
-(And of exec-prefix, unless --exec-prefix is also specified)
+(And of exec-prefix, unless @code{--exec-prefix} is also specified)
 Otherwise, prints out the configured value of @env{$prefix}.
 @item --exec-prefix[=@var{PREFIX}]
 If @var{PREFIX} is specified, overrides the configured value of @env{$exec_prefix}.
 Otherwise, prints out the configured value of @env{$exec_prefix}.
 @end table
 
-Typically, @command{ginac-config} will be used within a configure script,
-as described below. It, however, can also be used directly
-from the command line to compile a simple program. For example:
+Typically, @command{ginac-config} will be used within a configure
+script, as described below. It, however, can also be used directly from
+the command line using backquotes to compile a simple program. For
+example:
 
 @example
 c++ -o simple `ginac-config --cppflags` simple.cpp `ginac-config --libs`
@@ -1971,7 +2040,7 @@ either found in the user's path, or from the environment variable
 @env{GINACLIB_CONFIG}.
 
 @item
-Tests the installed libraries to make sure that there version
+Tests the installed libraries to make sure that their version
 is later than @var{MINIMUM-VERSION}. (A default version will be used
 if not specified)
 
@@ -2118,7 +2187,7 @@ That command does the following:
 @display
 If a GiNaC version greater than 0.4.0 is found, adds @env{$GINACLIB_LIBS} to 
 @env{$LIBS} and @env{$GINACLIB_CPPFLAGS} to @env{$CPPFLAGS}. Otherwise, dies
-with the error message "need to have GiNaC installed"
+with the error message `need to have GiNaC installed'
 @end display
 
 And the @file{Makefile.am}, which will be used to build the Makefile.

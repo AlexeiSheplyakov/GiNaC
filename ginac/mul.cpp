@@ -174,15 +174,107 @@ basic * mul::duplicate() const
     return new mul(*this);
 }
 
+void mul::print(ostream & os, unsigned upper_precedence) const
+{
+    debugmsg("mul print",LOGLEVEL_PRINT);
+    if (precedence<=upper_precedence) os << "(";
+    bool first=true;
+    // first print the overall numeric coefficient:
+    if (ex_to_numeric(overall_coeff).csgn()==-1) os << '-';
+    if (!overall_coeff.is_equal(exONE()) &&
+        !overall_coeff.is_equal(exMINUSONE())) {
+        if (ex_to_numeric(overall_coeff).csgn()==-1)
+            (numMINUSONE()*overall_coeff).print(os, precedence);
+        else
+            overall_coeff.print(os, precedence);
+        os << '*';
+    }
+    // then proceed with the remaining factors:
+    for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
+        if (!first) {
+            os << '*';
+        } else {
+            first=false;
+        }
+        recombine_pair_to_ex(*cit).print(os,precedence);
+    }
+    if (precedence<=upper_precedence) os << ")";
+}
+
+void mul::printraw(ostream & os) const
+{
+    debugmsg("mul printraw",LOGLEVEL_PRINT);
+
+    os << "*(";
+    for (epvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
+        os << "(";
+        (*it).rest.bp->printraw(os);
+        os << ",";
+        (*it).coeff.bp->printraw(os);
+        os << "),";
+    }
+    os << ",hash=" << hashvalue << ",flags=" << flags;
+    os << ")";
+}
+
+void mul::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) const
+{
+    debugmsg("mul print csrc", LOGLEVEL_PRINT);
+    if (precedence <= upper_precedence)
+        os << "(";
+
+    if (!overall_coeff.is_equal(exONE())) {
+        overall_coeff.bp->printcsrc(os,type,precedence);
+        os << "*";
+    }
+    
+    // Print arguments, separated by "*" or "/"
+    epvector::const_iterator it = seq.begin();
+    epvector::const_iterator itend = seq.end();
+    while (it != itend) {
+
+        // If the first argument is a negative integer power, it gets printed as "1.0/<expr>"
+        if (it == seq.begin() && ex_to_numeric(it->coeff).is_integer() && it->coeff.compare(numZERO()) < 0) {
+            if (type == csrc_types::ctype_cl_N)
+                os << "recip(";
+            else
+                os << "1.0/";
+        }
+
+        // If the exponent is 1 or -1, it is left out
+        if (it->coeff.compare(exONE()) == 0 || it->coeff.compare(numMINUSONE()) == 0)
+            it->rest.bp->printcsrc(os, type, precedence);
+        else
+            // outer parens around ex needed for broken gcc-2.95 parser:
+            (ex(power(it->rest, abs(ex_to_numeric(it->coeff))))).bp->printcsrc(os, type, upper_precedence);
+
+        // Separator is "/" for negative integer powers, "*" otherwise
+        it++;
+        if (it != itend) {
+            if (ex_to_numeric(it->coeff).is_integer() && it->coeff.compare(numZERO()) < 0)
+                os << "/";
+            else
+                os << "*";
+        }
+    }
+    if (precedence <= upper_precedence)
+        os << ")";
+}
+
 bool mul::info(unsigned inf) const
 {
     // TODO: optimize
-    if (inf==info_flags::polynomial || inf==info_flags::integer_polynomial || inf==info_flags::rational_polynomial || inf==info_flags::rational_function) {
+    if (inf==info_flags::polynomial ||
+        inf==info_flags::integer_polynomial ||
+        inf==info_flags::cinteger_polynomial ||
+        inf==info_flags::rational_polynomial ||
+        inf==info_flags::crational_polynomial ||
+        inf==info_flags::rational_function) {
         for (epvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
             if (!(recombine_pair_to_ex(*it).info(inf)))
                 return false;
         }
-        return true;
+        return overall_coeff.info(inf);
     } else {
         return expairseq::info(inf);
     }
@@ -366,10 +458,10 @@ unsigned mul::return_type(void) const
             all_commutative=0;
         }
         if ((rt==return_types::noncommutative)&&(!all_commutative)) {
-	        // another nc element found, compare type_infos
+            // another nc element found, compare type_infos
             if ((*cit_noncommutative_element).rest.return_type_tinfo()!=(*cit).rest.return_type_tinfo()) {
-	        // diffent types -> mul is ncc
-	        return return_types::noncommutative_composite;
+                // diffent types -> mul is ncc
+                return return_types::noncommutative_composite;
             }
         }
     }

@@ -110,10 +110,43 @@ basic * symbol::duplicate() const
     return new symbol(*this);
 }
 
+void symbol::print(ostream & os, unsigned upper_precedence) const
+{
+    debugmsg("symbol print",LOGLEVEL_PRINT);
+    os << name;
+}
+
+void symbol::printraw(ostream & os) const
+{
+    debugmsg("symbol printraw",LOGLEVEL_PRINT);
+    os << "symbol(" << "name=" << name << ",serial=" << serial
+       << ",hash=" << hashvalue << ",flags=" << flags << ")";
+}
+
+void symbol::printtree(ostream & os, unsigned indent) const
+{
+    debugmsg("symbol printtree",LOGLEVEL_PRINT);
+    os << string(indent,' ') << name << " (symbol): "
+       << "serial=" << serial
+       << ", hash=" << hashvalue << " (0x" << hex << hashvalue << dec << ")"
+       << ", flags=" << flags << endl;
+}
+
+void symbol::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) const
+{
+    debugmsg("symbol print csrc", LOGLEVEL_PRINT);
+    os << name;
+}
+
 bool symbol::info(unsigned inf) const
 {
     if (inf==info_flags::symbol) return true;
-    if (inf==info_flags::polynomial || inf==info_flags::integer_polynomial || inf==info_flags::rational_polynomial || inf==info_flags::rational_function) {
+    if (inf==info_flags::polynomial ||
+        inf==info_flags::integer_polynomial ||
+        inf==info_flags::cinteger_polynomial ||
+        inf==info_flags::rational_polynomial ||
+        inf==info_flags::crational_polynomial ||
+        inf==info_flags::rational_function) {
         return true;
     } else {
         return basic::info(inf);

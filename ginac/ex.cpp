@@ -149,6 +149,7 @@ ex::ex(double const d)
 
 // public
 
+/** Swap the contents of two expressions. */
 void ex::swap(ex & other)
 {
     debugmsg("ex swap",LOGLEVEL_MEMBER_FUNCTION);
@@ -161,6 +162,74 @@ void ex::swap(ex & other)
     basic * tmpbp=bp;
     bp=other.bp;
     other.bp=tmpbp;
+}
+
+/** Output formatted to be useful as ginsh input. */
+void ex::print(ostream & os, unsigned upper_precedence) const
+{
+    debugmsg("ex print",LOGLEVEL_PRINT);
+    GINAC_ASSERT(bp!=0);
+    bp->print(os,upper_precedence);
+}
+
+void ex::printraw(ostream & os) const
+{
+    debugmsg("ex printraw",LOGLEVEL_PRINT);
+    GINAC_ASSERT(bp!=0);
+    os << "ex(";
+    bp->printraw(os);
+    os << ")";
+}
+
+void ex::printtree(ostream & os, unsigned indent) const
+{
+    debugmsg("ex printtree",LOGLEVEL_PRINT);
+    GINAC_ASSERT(bp!=0);
+    // os << "refcount=" << bp->refcount << " ";
+    bp->printtree(os,indent);
+}
+
+/** Print expression as a C++ statement. The output looks like
+ *  "<type> <var_name> = <expression>;". The "type" parameter has an effect
+ *  on how number literals are printed.
+ *
+ *  @param os output stream
+ *  @param type variable type (one of the csrc_types)
+ *  @param var_name variable name to be printed */
+void ex::printcsrc(ostream & os, unsigned type, const char *var_name) const
+{
+    debugmsg("ex print csrc", LOGLEVEL_PRINT);
+    GINAC_ASSERT(bp!=0);
+    switch (type) {
+        case csrc_types::ctype_float:
+            os << "float ";
+            break;
+        case csrc_types::ctype_double:
+            os << "double ";
+            break;
+        case csrc_types::ctype_cl_N:
+            os << "cl_N ";
+            break;
+    }
+    os << var_name << " = ";
+    bp->printcsrc(os, type, 0);
+    os << ";\n";
+}
+
+/** Little wrapper arount print to be called within a debugger. */
+void ex::dbgprint(void) const
+{
+    debugmsg("ex dbgprint",LOGLEVEL_PRINT);
+    GINAC_ASSERT(bp!=0);
+    bp->dbgprint();
+}
+
+/** Little wrapper arount printtree to be called within a debugger. */
+void ex::dbgprinttree(void) const
+{
+    debugmsg("ex dbgprinttree",LOGLEVEL_PRINT);
+    GINAC_ASSERT(bp!=0);
+    bp->dbgprinttree();
 }
 
 bool ex::info(unsigned inf) const
@@ -433,7 +502,7 @@ void ex::makewriteable()
 
 void ex::construct_from_basic(basic const & other)
 {
-    if ( (other.flags & status_flags::evaluated)==0 ) {
+    if ((other.flags & status_flags::evaluated)==0) {
         // cf. copy constructor
         ex const & tmpex = other.eval(1); // evaluate only one (top) level
         bp = tmpex.bp;

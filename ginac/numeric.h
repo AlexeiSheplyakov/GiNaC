@@ -79,6 +79,7 @@ class numeric : public basic
     friend numeric asinh(numeric const & x);
     friend numeric acosh(numeric const & x);
     friend numeric atanh(numeric const & x);
+    friend numeric zeta(numeric const & x);
     friend numeric bernoulli(numeric const & n);
     friend numeric abs(numeric const & x);
     friend numeric mod(numeric const & a, numeric const & b);
@@ -125,9 +126,9 @@ public:
     // functions overriding virtual functions from bases classes
 public:
     basic * duplicate() const;
+    void print(ostream & os, unsigned precedence=0) const;
     void printraw(ostream & os) const;
     void printtree(ostream & os, unsigned indent) const;
-    void print(ostream & os, unsigned precedence=0) const;
     void printcsrc(ostream & os, unsigned type, unsigned precedence=0) const;
     bool info(unsigned inf) const;
     ex evalf(int level=0) const;
@@ -309,6 +310,12 @@ inline bool is_rational(numeric const & x)
 inline bool is_real(numeric const & x)
 { return x.is_real(); }
 
+inline bool is_cinteger(numeric const & x)
+{ return x.is_cinteger(); }
+
+inline bool is_crational(numeric const & x)
+{ return x.is_crational(); }
+
 inline numeric real(numeric const & x)
 { return x.real(); }
 
@@ -330,7 +337,7 @@ ex CatalanEvalf(void);
 // utility functions
 inline const numeric &ex_to_numeric(const ex &e)
 {
-	return static_cast<const numeric &>(*e.bp);
+    return static_cast<const numeric &>(*e.bp);
 }
 
 #ifndef NO_GINAC_NAMESPACE

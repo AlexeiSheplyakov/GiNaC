@@ -1308,21 +1308,20 @@ ex numeric::normal(lst &sym_lst, lst &repl_lst, int level) const
     if (is_real())
         if (is_rational())
             return *this;
-		else
-		    return replace_with_symbol(*this, sym_lst, repl_lst);
+        else
+            return replace_with_symbol(*this, sym_lst, repl_lst);
     else { // complex
         numeric re = real(), im = imag();
-		ex re_ex = re.is_rational() ? re : replace_with_symbol(re, sym_lst, repl_lst);
-		ex im_ex = im.is_rational() ? im : replace_with_symbol(im, sym_lst, repl_lst);
-		return re_ex + im_ex * replace_with_symbol(I, sym_lst, repl_lst);
-	}
+        ex re_ex = re.is_rational() ? re : replace_with_symbol(re, sym_lst, repl_lst);
+        ex im_ex = im.is_rational() ? im : replace_with_symbol(im, sym_lst, repl_lst);
+        return re_ex + im_ex * replace_with_symbol(I, sym_lst, repl_lst);
+    }
 }
 
 
 /*
  *  Helper function for fraction cancellation (returns cancelled fraction n/d)
  */
-
 static ex frac_cancel(const ex &n, const ex &d)
 {
     ex num = n;

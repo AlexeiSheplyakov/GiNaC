@@ -92,6 +92,18 @@ basic * fail::duplicate() const
     return new fail(*this);
 }
 
+void fail::print(ostream & os, unsigned upper_precedence) const
+{
+    debugmsg("fail print",LOGLEVEL_PRINT);
+    os << "FAIL";
+}
+
+void fail::printraw(ostream & os) const
+{
+    debugmsg("fail printraw",LOGLEVEL_PRINT);
+    os << "FAIL";
+}
+
 // protected
 
 int fail::compare_same_type(basic const & other) const

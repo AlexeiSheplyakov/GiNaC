@@ -159,15 +159,115 @@ basic * add::duplicate() const
     return new add(*this);
 }
 
+void add::print(ostream & os, unsigned upper_precedence) const
+{
+    debugmsg("add print",LOGLEVEL_PRINT);
+    if (precedence<=upper_precedence) os << "(";
+    numeric coeff;
+    bool first=true;
+    for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
+        coeff = ex_to_numeric(cit->coeff);
+        if (!first) {
+            if (coeff.csgn()==-1) os << '-'; else os << '+';
+        } else {
+            if (coeff.csgn()==-1) os << '-';
+            first=false;
+        }
+        if (!coeff.is_equal(numONE()) &&
+            !coeff.is_equal(numMINUSONE())) {
+            if (coeff.csgn()==-1)
+                (numMINUSONE()*coeff).print(os, precedence);
+            else
+                coeff.print(os, precedence);
+            os << '*';
+        }
+        os << cit->rest;
+    }
+    // print the overall numeric coefficient, if present:
+    if (!overall_coeff.is_zero()) {
+        if (overall_coeff.info(info_flags::positive)) os << '+';
+        os << overall_coeff;
+    }
+    if (precedence<=upper_precedence) os << ")";
+}
+
+void add::printraw(ostream & os) const
+{
+    debugmsg("add printraw",LOGLEVEL_PRINT);
+
+    os << "+(";
+    for (epvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
+        os << "(";
+        (*it).rest.bp->printraw(os);
+        os << ",";
+        (*it).coeff.bp->printraw(os);        
+        os << "),";
+    }
+    os << ",hash=" << hashvalue << ",flags=" << flags;
+    os << ")";
+}
+
+void add::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) const
+{
+    debugmsg("add print csrc", LOGLEVEL_PRINT);
+    if (precedence <= upper_precedence)
+        os << "(";
+
+    // Print arguments, separated by "+"
+    epvector::const_iterator it = seq.begin();
+    epvector::const_iterator itend = seq.end();
+    while (it != itend) {
+
+        // If the coefficient is -1, it is replaced by a single minus sign
+        if (it->coeff.compare(numONE()) == 0) {
+            it->rest.bp->printcsrc(os, type, precedence);
+        } else if (it->coeff.compare(numMINUSONE()) == 0) {
+            os << "-";
+            it->rest.bp->printcsrc(os, type, precedence);
+        } else if (ex_to_numeric(it->coeff).numer().compare(numONE()) == 0) {
+            it->rest.bp->printcsrc(os, type, precedence);
+            os << "/";
+            ex_to_numeric(it->coeff).denom().printcsrc(os, type, precedence);
+        } else if (ex_to_numeric(it->coeff).numer().compare(numMINUSONE()) == 0) {
+            os << "-";
+            it->rest.bp->printcsrc(os, type, precedence);
+            os << "/";
+            ex_to_numeric(it->coeff).denom().printcsrc(os, type, precedence);
+        } else {
+            it->coeff.bp->printcsrc(os, type, precedence);
+            os << "*";
+            it->rest.bp->printcsrc(os, type, precedence);
+        }
+
+        // Separator is "+", except if the following expression would have a leading minus sign
+        it++;
+        if (it != itend && !(it->coeff.compare(numZERO()) < 0 || (it->coeff.compare(numONE()) == 0 && is_ex_exactly_of_type(it->rest, numeric) && it->rest.compare(numZERO()) < 0)))
+            os << "+";
+    }
+    
+    if (!overall_coeff.is_equal(exZERO())) {
+        if (overall_coeff.info(info_flags::positive)) os << '+';
+        overall_coeff.bp->printcsrc(os,type,precedence);
+    }
+    
+    if (precedence <= upper_precedence)
+        os << ")";
+}
+
 bool add::info(unsigned inf) const
 {
     // TODO: optimize
-    if (inf==info_flags::polynomial || inf==info_flags::integer_polynomial || inf==info_flags::rational_polynomial || inf==info_flags::rational_function) {
+    if (inf==info_flags::polynomial ||
+        inf==info_flags::integer_polynomial ||
+        inf==info_flags::cinteger_polynomial ||
+        inf==info_flags::rational_polynomial ||
+        inf==info_flags::crational_polynomial ||
+        inf==info_flags::rational_function) {
         for (epvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
             if (!(recombine_pair_to_ex(*it).info(inf)))
                 return false;
         }
-        return true;
+        return overall_coeff.info(inf);
     } else {
         return expairseq::info(inf);
     }

@@ -112,6 +112,22 @@ basic *series::duplicate() const
     return new series(*this);
 }
 
+void series::print(ostream &os, unsigned upper_precedence) const
+{
+	debugmsg("symbol print", LOGLEVEL_PRINT);
+	convert_to_poly().print(os, upper_precedence);
+}
+
+void series::printraw(ostream &os) const
+{
+	debugmsg("symbol printraw", LOGLEVEL_PRINT);
+	os << "series(" << var << ";" << point << ";";
+	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); i++) {
+		os << "(" << (*i).rest << "," << (*i).coeff << "),";
+	}
+	os << ")";
+}
+
 // Highest degree of variable
 int series::degree(symbol const &s) const
 {

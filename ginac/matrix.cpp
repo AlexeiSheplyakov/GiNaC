@@ -119,6 +119,42 @@ basic * matrix::duplicate() const
     return new matrix(*this);
 }
 
+void matrix::print(ostream & os, unsigned upper_precedence) const
+{
+    debugmsg("matrix print",LOGLEVEL_PRINT);
+    os << "[[ ";
+    for (int r=0; r<row-1; ++r) {
+        os << "[[";
+        for (int c=0; c<col-1; ++c) {
+            os << m[r*col+c] << ",";
+        }
+        os << m[col*(r+1)-1] << "]], ";
+    }
+    os << "[[";
+    for (int c=0; c<col-1; ++c) {
+        os << m[(row-1)*col+c] << ",";
+    }
+    os << m[row*col-1] << "]] ]]";
+}
+
+void matrix::printraw(ostream & os) const
+{
+    debugmsg("matrix printraw",LOGLEVEL_PRINT);
+    os << "matrix(" << row << "," << col <<",";
+    for (int r=0; r<row-1; ++r) {
+        os << "(";
+        for (int c=0; c<col-1; ++c) {
+            os << m[r*col+c] << ",";
+        }
+        os << m[col*(r-1)-1] << "),";
+    }
+    os << "(";
+    for (int c=0; c<col-1; ++c) {
+        os << m[(row-1)*col+c] << ",";
+    }
+    os << m[row*col-1] << "))";
+}
+
 /** nops is defined to be rows x columns. */
 int matrix::nops() const
 {

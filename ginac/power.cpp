@@ -116,9 +116,110 @@ basic * power::duplicate() const
     return new power(*this);
 }
 
+void power::print(ostream & os, unsigned upper_precedence) const
+{
+    debugmsg("power print",LOGLEVEL_PRINT);
+    if (precedence<=upper_precedence) os << "(";
+    basis.print(os,precedence);
+    os << "^";
+    exponent.print(os,precedence);
+    if (precedence<=upper_precedence) os << ")";
+}
+
+void power::printraw(ostream & os) const
+{
+    debugmsg("power printraw",LOGLEVEL_PRINT);
+
+    os << "power(";
+    basis.printraw(os);
+    os << ",";
+    exponent.printraw(os);
+    os << ",hash=" << hashvalue << ",flags=" << flags << ")";
+}
+
+void power::printtree(ostream & os, unsigned indent) const
+{
+    debugmsg("power printtree",LOGLEVEL_PRINT);
+
+    os << string(indent,' ') << "power: "
+       << "hash=" << hashvalue << " (0x" << hex << hashvalue << dec << ")"
+       << ", flags=" << flags << endl;
+    basis.printtree(os,indent+delta_indent);
+    exponent.printtree(os,indent+delta_indent);
+}
+
+static void print_sym_pow(ostream & os, unsigned type, const symbol &x, int exp)
+{
+    // Optimal output of integer powers of symbols to aid compiler CSE
+    if (exp == 1) {
+        x.printcsrc(os, type, 0);
+    } else if (exp == 2) {
+        x.printcsrc(os, type, 0);
+        os << "*";
+        x.printcsrc(os, type, 0);
+    } else if (exp & 1) {
+        x.printcsrc(os, 0);
+        os << "*";
+        print_sym_pow(os, type, x, exp-1);
+    } else {
+        os << "(";
+        print_sym_pow(os, type, x, exp >> 1);
+        os << ")*(";
+        print_sym_pow(os, type, x, exp >> 1);
+        os << ")";
+    }
+}
+
+void power::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) const
+{
+    debugmsg("power print csrc", LOGLEVEL_PRINT);
+    
+    // Integer powers of symbols are printed in a special, optimized way
+    if (exponent.info(info_flags::integer) &&
+        (is_ex_exactly_of_type(basis, symbol) ||
+         is_ex_exactly_of_type(basis, constant))) {
+        int exp = ex_to_numeric(exponent).to_int();
+        if (exp > 0)
+            os << "(";
+        else {
+            exp = -exp;
+            if (type == csrc_types::ctype_cl_N)
+                os << "recip(";
+            else
+                os << "1.0/(";
+        }
+        print_sym_pow(os, type, static_cast<const symbol &>(*basis.bp), exp);
+        os << ")";
+
+    // <expr>^-1 is printed as "1.0/<expr>" or with the recip() function of CLN
+    } else if (exponent.compare(numMINUSONE()) == 0) {
+        if (type == csrc_types::ctype_cl_N)
+            os << "recip(";
+        else
+            os << "1.0/(";
+        basis.bp->printcsrc(os, type, 0);
+        os << ")";
+
+    // Otherwise, use the pow() or expt() (CLN) functions
+    } else {
+        if (type == csrc_types::ctype_cl_N)
+            os << "expt(";
+        else
+            os << "pow(";
+        basis.bp->printcsrc(os, type, 0);
+        os << ",";
+        exponent.bp->printcsrc(os, type, 0);
+        os << ")";
+    }
+}
+
 bool power::info(unsigned inf) const
 {
-    if (inf==info_flags::polynomial || inf==info_flags::integer_polynomial || inf==info_flags::rational_polynomial) {
+    if (inf==info_flags::polynomial ||
+        inf==info_flags::integer_polynomial ||
+        inf==info_flags::cinteger_polynomial ||
+        inf==info_flags::rational_polynomial ||
+        inf==info_flags::crational_polynomial) {
         return exponent.info(info_flags::nonnegint);
     } else if (inf==info_flags::rational_function) {
         return exponent.info(info_flags::integer);
@@ -239,17 +340,17 @@ ex power::eval(int level) const
     if (basis_is_numerical && exponent_is_numerical) {
         // ^(c1,c2) -> c1^c2 (c1, c2 numeric(),
         // except if c1,c2 are rational, but c1^c2 is not)
-        bool basis_is_rational = num_basis->is_rational();
-        bool exponent_is_rational = num_exponent->is_rational();
+        bool basis_is_crational = num_basis->is_crational();
+        bool exponent_is_crational = num_exponent->is_crational();
         numeric res = (*num_basis).power(*num_exponent);
         
-        if ((!basis_is_rational || !exponent_is_rational)
-            || res.is_rational()) {
+        if ((!basis_is_crational || !exponent_is_crational)
+            || res.is_crational()) {
             return res;
         }
         GINAC_ASSERT(!num_exponent->is_integer());  // has been handled by now
         // ^(c1,n/m) -> *(c1^q,c1^(n/m-q)), 0<(n/m-h)<1, q integer
-        if (basis_is_rational && exponent_is_rational
+        if (basis_is_crational && exponent_is_crational
             && num_exponent->is_real()
             && !num_exponent->is_integer()) {
             numeric r, q, n, m;

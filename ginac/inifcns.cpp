@@ -252,7 +252,7 @@ ex ncpower(ex const &basis, unsigned exponent)
 /** Force inclusion of functions from initcns_gamma and inifcns_zeta
  *  for static lib (so ginsh will see them). */
 unsigned force_include_gamma = function_index_gamma;
-unsigned force_include_zeta = function_index_zeta;
+unsigned force_include_zeta1 = function_index_zeta1;
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
