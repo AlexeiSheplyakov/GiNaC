@@ -47,10 +47,9 @@ public:
 	ex op(int i) const;
 	ex & let_op(int i);
 	ex expand(unsigned options=0) const;
-	bool has(const ex & other) const;
 	ex eval(int level=0) const;
 	ex evalf(int level=0) const;
-	ex subs(const lst & ls, const lst & lr) const;
+	ex subs(const lst & ls, const lst & lr, bool no_pattern = false) const;
 	ex eval_indexed(const basic & i) const;
 	ex add_indexed(const ex & self, const ex & other) const;
 	ex scalar_mul_indexed(const ex & self, const numeric & other) const;

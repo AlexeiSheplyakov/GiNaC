@@ -211,12 +211,11 @@ public:
 	unsigned nops() const;
 	ex & let_op(int i);
 	ex expand(unsigned options=0) const;
-	bool has(const ex & other) const;
 	ex eval(int level=0) const;
 	ex evalf(int level=0) const;
 	ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
 	ex derivative(const symbol & s) const;
-	ex subs(const lst & ls, const lst & lr) const;
+	ex subs(const lst & ls, const lst & lr, bool no_pattern = false) const;
 protected:
 	bool is_equal_same_type(const basic & other) const;
 	unsigned return_type(void) const;
@@ -238,7 +237,7 @@ protected:
 	${STLT} evalfchildren(int level) const;
 	${STLT} normalchildren(int level) const;
 	${STLT} diffchildren(const symbol & s) const;
-	${STLT} * subschildren(const lst & ls, const lst & lr) const;
+	${STLT} * subschildren(const lst & ls, const lst & lr, bool no_pattern = false) const;
 
 protected:
 	${STLT} seq;
@@ -442,18 +441,6 @@ ex ${CONTAINER}::expand(unsigned options) const
 	return this${CONTAINER}(s);
 }
 
-// a ${CONTAINER} 'has' an expression if it is this expression itself or a child 'has' it
-
-bool ${CONTAINER}::has(const ex & other) const
-{
-	GINAC_ASSERT(other.bp!=0);
-	if (is_equal(*other.bp)) return true;
-	for (${STLT}::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
-		if ((*it).has(other)) return true;
-	}
-	return false;
-}
-
 ex ${CONTAINER}::eval(int level) const
 {
 	if (level==1) {
@@ -481,13 +468,13 @@ ex ${CONTAINER}::derivative(const symbol & s) const
 	return this${CONTAINER}(diffchildren(s));
 }
 
-ex ${CONTAINER}::subs(const lst & ls, const lst & lr) const
+ex ${CONTAINER}::subs(const lst & ls, const lst & lr, bool no_pattern) const
 {
-	${STLT} * vp=subschildren(ls,lr);
-	if (vp==0)
-		return inherited::subs(ls, lr);
-
-	return this${CONTAINER}(vp);
+	${STLT} *vp = subschildren(ls, lr, no_pattern);
+	if (vp)
+		return this${CONTAINER}(vp).bp->basic::subs(ls, lr, no_pattern);
+	else
+		return basic::subs(ls, lr, no_pattern);
 }
 
 // protected
@@ -676,19 +663,7 @@ ${STLT} ${CONTAINER}::diffchildren(const symbol & y) const
 	return s;
 }
 
-/* obsolete subschildren
-${STLT} ${CONTAINER}::subschildren(const lst & ls, const lst & lr) const
-{
-	${STLT} s;
-	RESERVE(s,seq.size());
-	for (${STLT}::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
-		s.push_back((*it).subs(ls,lr));
-	}
-	return s;
-}
-*/
-
-${STLT} * ${CONTAINER}::subschildren(const lst & ls, const lst & lr) const
+${STLT} * ${CONTAINER}::subschildren(const lst & ls, const lst & lr, bool no_pattern) const
 {
 	// returns a NULL pointer if nothing had to be substituted
 	// returns a pointer to a newly created epvector otherwise
@@ -697,7 +672,7 @@ ${STLT} * ${CONTAINER}::subschildren(const lst & ls, const lst & lr) const
 	${STLT}::const_iterator last=seq.end();
 	${STLT}::const_iterator cit=seq.begin();
 	while (cit!=last) {
-		const ex & subsed_ex=(*cit).subs(ls,lr);
+		const ex & subsed_ex=(*cit).subs(ls,lr,no_pattern);
 		if (!are_ex_trivially_equal(*cit,subsed_ex)) {
 
 			// something changed, copy seq, subs and return it
@@ -715,7 +690,7 @@ ${STLT} * ${CONTAINER}::subschildren(const lst & ls, const lst & lr) const
 			++cit2;
 			// copy rest
 			while (cit2!=last) {
-				s->push_back((*cit2).subs(ls,lr));
+				s->push_back((*cit2).subs(ls,lr,no_pattern));
 				++cit2;
 			}
 			return s;

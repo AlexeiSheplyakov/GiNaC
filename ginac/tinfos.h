@@ -82,6 +82,8 @@ const unsigned TINFO_diracone      = 0x000e100cU;
 const unsigned TINFO_diracgamma    = 0x000e100dU;
 const unsigned TINFO_diracgamma5   = 0x000e100eU;
 
+const unsigned TINFO_wildcard      = 0x000f0001U;
+
 } // namespace GiNaC
 
 #endif // ndef __GINAC_TINFOS_H__

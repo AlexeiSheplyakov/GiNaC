@@ -52,7 +52,7 @@ public:
 	unsigned nops() const;
 	ex & let_op(int i);
 protected:
-	ex subs(const lst & ls, const lst & lr) const;
+	ex subs(const lst & ls, const lst & lr, bool no_pattern = false) const;
 
 	// new virtual functions in this class
 public:

@@ -208,22 +208,6 @@ ex matrix::expand(unsigned options) const
 	return matrix(row, col, tmp);
 }
 
-/** Search ocurrences.  A matrix 'has' an expression if it is the expression
- *  itself or one of the elements 'has' it. */
-bool matrix::has(const ex & other) const
-{
-	GINAC_ASSERT(other.bp!=0);
-	
-	// tautology: it is the expression itself
-	if (is_equal(*other.bp)) return true;
-	
-	// search all the elements
-	for (exvector::const_iterator r=m.begin(); r!=m.end(); ++r)
-		if ((*r).has(other)) return true;
-	
-	return false;
-}
-
 /** Evaluate matrix entry by entry. */
 ex matrix::eval(int level) const
 {
@@ -272,14 +256,14 @@ ex matrix::evalf(int level) const
 	return matrix(row, col, m2);
 }
 
-ex matrix::subs(const lst & ls, const lst & lr) const
+ex matrix::subs(const lst & ls, const lst & lr, bool no_pattern) const
 {
 	exvector m2(row * col);
 	for (unsigned r=0; r<row; ++r)
 		for (unsigned c=0; c<col; ++c)
-			m2[r*col+c] = m[r*col+c].subs(ls, lr);
+			m2[r*col+c] = m[r*col+c].subs(ls, lr, no_pattern);
 
-	return matrix(row, col, m2);
+	return ex(matrix(row, col, m2)).bp->basic::subs(ls, lr, no_pattern);
 }
 
 // protected

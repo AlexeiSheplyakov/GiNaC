@@ -5,6 +5,11 @@ This file records noteworthy changes.
   simplified to "2*a.i*a.i".
 * Added canonicalize_clifford() function that can be helpful when comparing
   expressions containing Dirac matrices.
+* Added a new function match() for performing pattern matching. subs() and
+  has() also accept patterns as arguments. A pattern can be any expression,
+  optionally containing wildcard objects. These are constructed with the
+  call "wild(<unsigned>)" and are denoted as "$0", "$1" etc. in the output
+  and in ginsh.
 * Fixed possible crash when calling subs() on expressions with non-commutative
   products.
 

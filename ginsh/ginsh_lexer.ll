@@ -113,6 +113,9 @@ score			return T_SCORE;
 				return T_SYMBOL;
 			}
 
+			/* wildcards */
+\${D}+			yylval = wild(atoi(yytext + 1)); return T_LITERAL;
+
 			/* everything else */
 .			return *yytext;
 

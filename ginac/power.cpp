@@ -472,17 +472,16 @@ ex power::evalf(int level) const
 	return power(ebasis,eexponent);
 }
 
-ex power::subs(const lst & ls, const lst & lr) const
+ex power::subs(const lst & ls, const lst & lr, bool no_pattern) const
 {
-	const ex & subsed_basis=basis.subs(ls,lr);
-	const ex & subsed_exponent=exponent.subs(ls,lr);
+	const ex &subsed_basis = basis.subs(ls, lr, no_pattern);
+	const ex &subsed_exponent = exponent.subs(ls, lr, no_pattern);
 
-	if (are_ex_trivially_equal(basis,subsed_basis)&&
-		are_ex_trivially_equal(exponent,subsed_exponent)) {
-		return inherited::subs(ls, lr);
-	}
-	
-	return power(subsed_basis, subsed_exponent);
+	if (are_ex_trivially_equal(basis, subsed_basis)
+	 && are_ex_trivially_equal(exponent, subsed_exponent))
+		return basic::subs(ls, lr, no_pattern);
+	else
+		return ex(power(subsed_basis, subsed_exponent)).bp->basic::subs(ls, lr, no_pattern);
 }
 
 ex power::simplify_ncmul(const exvector & v) const

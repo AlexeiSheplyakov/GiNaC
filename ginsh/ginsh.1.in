@@ -292,6 +292,9 @@ detail here. Please refer to the GiNaC documentation.
 .BI lsolve( equation-list ", " symbol-list )
 \- solve system of linear equations
 .br
+.BI match( expression ", " pattern )
+\- check whether expression matches a pattern; returns a list of wildcard substitutions or "FAIL" if there is no match
+.br
 .BI nops( expression )
 \- number of operands in expression
 .br

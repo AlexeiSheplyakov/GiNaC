@@ -105,8 +105,9 @@ public:
 	ex evalf(int level = 0) const { return bp->evalf(level); }
 	ex diff(const symbol & s, unsigned nth = 1) const;
 	ex series(const ex & r, int order, unsigned options = 0) const;
-	ex subs(const lst & ls, const lst & lr) const { return bp->subs(ls, lr); }
-	ex subs(const ex & e) const { return bp->subs(e); }
+	bool match(const ex & pattern, lst & repl_lst) const { return bp->match(pattern, repl_lst); }
+	ex subs(const lst & ls, const lst & lr, bool no_pattern = false) const { return bp->subs(ls, lr, no_pattern); }
+	ex subs(const ex & e, bool no_pattern = false) const { return bp->subs(e, no_pattern); }
 	exvector get_free_indices(void) const { return bp->get_free_indices(); }
 	ex simplify_indexed(void) const;
 	ex simplify_indexed(const scalar_products & sp) const;
@@ -369,6 +370,9 @@ inline ex diff(const ex & thisex, const symbol & s, unsigned nth = 1)
 
 inline ex series(const ex & thisex, const ex & r, int order, unsigned options = 0)
 { return thisex.series(r, order, options); }
+
+inline bool match(const ex & thisex, const ex & pattern, lst & repl_lst)
+{ return thisex.match(pattern, repl_lst); }
 
 inline ex subs(const ex & thisex, const ex & e)
 { return thisex.subs(e); }

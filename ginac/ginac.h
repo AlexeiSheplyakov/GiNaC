@@ -41,6 +41,7 @@
 #include "relational.h"
 #include "structure.h"
 #include "symbol.h"
+#include "wildcard.h"
 
 #include "expair.h"
 #include "expairseq.h"

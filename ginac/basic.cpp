@@ -33,6 +33,7 @@
 #include "symbol.h"
 #include "lst.h"
 #include "ncmul.h"
+#include "relational.h"
 #include "print.h"
 #include "archive.h"
 #include "utils.h"
@@ -219,7 +220,8 @@ ex basic::operator[](int i) const
 bool basic::has(const ex & other) const
 {
 	GINAC_ASSERT(other.bp!=0);
-	if (is_equal(*other.bp)) return true;
+	lst repl_lst;
+	if (match(*other.bp, repl_lst)) return true;
 	if (nops()>0) {
 		for (unsigned i=0; i<nops(); i++)
 			if (op(i).has(other))
@@ -398,15 +400,66 @@ bool basic::contract_with(exvector::iterator self, exvector::iterator other, exv
 	return false;
 }
 
+/** Check whether the expression matches a given pattern. For every wildcard
+ *  object in the pattern, an expression of the form "wildcard == matching_expression"
+ *  is added to repl_lst. */
+bool basic::match(const ex & pattern, lst & repl_lst) const
+{
+//clog << "match " << *this << " with " << pattern << ", repl_lst = " << repl_lst << endl;
+	if (is_ex_exactly_of_type(pattern, wildcard)) {
+
+		// Wildcard matches anything, but check whether we already have found
+		// a match for that wildcard first (if so, it the earlier match must
+		// be the same expression)
+		for (unsigned i=0; i<repl_lst.nops(); i++) {
+			if (repl_lst.op(i).op(0).is_equal(pattern))
+				return is_equal(*repl_lst.op(i).op(1).bp);
+		}
+		repl_lst.append(pattern == *this);
+		return true;
+
+	} else {
+
+		// Expression must be of the same type as the pattern
+		if (tinfo() != pattern.bp->tinfo())
+			return false;
+
+		// Number of subexpressions must match
+		if (nops() != pattern.nops())
+			return false;
+
+		// No subexpressions? Then just compare the objects (there can't be
+		// wildcards in the pattern)
+		if (nops() == 0)
+			return is_equal(*pattern.bp);
+
+		// Otherwise the subexpressions must match one-to-one
+		for (unsigned i=0; i<nops(); i++)
+			if (!op(i).match(pattern.op(i), repl_lst))
+				return false;
+
+		// Looks similar enough, match found
+		return true;
+	}
+}
+
 /** Substitute a set of objects by arbitrary expressions. The ex returned
  *  will already be evaluated. */
-ex basic::subs(const lst & ls, const lst & lr) const
+ex basic::subs(const lst & ls, const lst & lr, bool no_pattern) const
 {
 	GINAC_ASSERT(ls.nops() == lr.nops());
 
-	for (unsigned i=0; i<ls.nops(); i++) {
-		if (is_equal(*ls.op(i).bp))
-			return lr.op(i);
+	if (no_pattern) {
+		for (unsigned i=0; i<ls.nops(); i++) {
+			if (is_equal(*ls.op(i).bp))
+				return lr.op(i);
+		}
+	} else {
+		for (unsigned i=0; i<ls.nops(); i++) {
+			lst repl_lst;
+			if (match(*ls.op(i).bp, repl_lst))
+				return lr.op(i).bp->subs(repl_lst, true); // avoid recursion when re-substituting the wildcards
+		}
 	}
 
 	return *this;
@@ -535,10 +588,10 @@ ex basic::expand(unsigned options) const
  *  replacement arguments: 1) a relational like object==ex and 2) a list of
  *  relationals lst(object1==ex1,object2==ex2,...), which is converted to
  *  subs(lst(object1,object2,...),lst(ex1,ex2,...)). */
-ex basic::subs(const ex & e) const
+ex basic::subs(const ex & e, bool no_pattern) const
 {
 	if (e.info(info_flags::relation_equal)) {
-		return subs(lst(e));
+		return subs(lst(e), no_pattern);
 	}
 	if (!e.info(info_flags::list)) {
 		throw(std::invalid_argument("basic::subs(ex): argument must be a list"));
@@ -553,7 +606,7 @@ ex basic::subs(const ex & e) const
 		ls.append(r.op(0));
 		lr.append(r.op(1));
 	}
-	return subs(ls, lr);
+	return subs(ls, lr, no_pattern);
 }
 
 /** Compare objects to establish canonical ordering.

@@ -24,7 +24,6 @@
 #include <stdexcept>
 
 #include "color.h"
-#include "ex.h"
 #include "idx.h"
 #include "ncmul.h"
 #include "numeric.h"

@@ -400,6 +400,15 @@ static ex f_ldegree(const exprseq &e)
 	return e[0].ldegree(e[1]);
 }
 
+static ex f_match(const exprseq &e)
+{
+	lst repl_lst;
+	if (e[0].match(e[1], repl_lst))
+		return repl_lst;
+	else
+		return fail();
+}
+
 static ex f_normal2(const exprseq &e)
 {
 	CHECK_ARG(1, numeric, normal);
@@ -530,6 +539,7 @@ static const fcn_init builtin_fcns[] = {
 	{"lcoeff", fcn_desc(f_lcoeff, 2)},
 	{"ldegree", fcn_desc(f_ldegree, 2)},
 	{"lsolve", fcn_desc(f_lsolve, 2)},
+	{"match", fcn_desc(f_match, 2)},
 	{"nops", fcn_desc(f_nops, 1)},
 	{"normal", fcn_desc(f_normal1, 1)},
 	{"normal", fcn_desc(f_normal2, 2)},

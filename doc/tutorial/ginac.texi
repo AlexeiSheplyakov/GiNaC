@@ -4216,8 +4216,14 @@ work in the GiNaC framework. For a real algebraic class, there are probably
 some more functions that you will want to re-implement, such as
 @code{evalf()}, @code{series()} or @code{op()}. Have a look at @file{basic.h}
 or the header file of the class you want to make a subclass of to see
-what's there. You can, of course, also add your own new member functions.
-In this case you will probably want to define a little helper function like
+what's there. One member function that you will most likely want to
+implement for terminal classes like the described string class is
+@code{calcchash()} that returns an @code{unsigned} hash value for the object
+which will allow GiNaC to compare and canonicalize expressions much more
+efficiently.
+
+You can, of course, also add your own new member functions. In this case you
+will probably want to define a little helper function like
 
 @example
 inline const mystring &ex_to_mystring(const ex &e)
@@ -4226,9 +4232,9 @@ inline const mystring &ex_to_mystring(const ex &e)
 @}
 @end example
 
-that let's you get at the object inside an expression (after you have verified
-that the type is correct) so you can call member functions that are specific
-to the class.
+that let's you get at the object inside an expression (after you have
+verified that the type is correct) so you can call member functions that are
+specific to the class.
 
 That's it. May the source be with you!
 

@@ -97,7 +97,8 @@ public:
 	ex evalf(int level=0) const;
 	ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
 	ex to_rational(lst &repl_lst) const;
-	ex subs(const lst & ls, const lst & lr) const;
+	bool match(const ex & pattern, lst & repl_lst) const;
+	ex subs(const lst & ls, const lst & lr, bool no_pattern = false) const;
 protected:
 	ex derivative(const symbol & s) const;
 	int compare_same_type(const basic & other) const;
@@ -168,7 +169,7 @@ protected:
 	epvector evalfchildren(int level) const;
 	epvector normalchildren(int level) const;
 	epvector diffchildren(const symbol & s) const;
-	epvector * subschildren(const lst & ls, const lst & lr) const;
+	epvector * subschildren(const lst & ls, const lst & lr, bool no_pattern = false) const;
 	
 // member variables
 	

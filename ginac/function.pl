@@ -344,6 +344,7 @@ public:
 	ex evalf(int level=0) const;
 	unsigned calchash(void) const;
 	ex series(const relational & r, int order, unsigned options = 0) const;
+	bool match(const ex & pattern, lst & repl_lst) const;
 	ex thisexprseq(const exvector & v) const;
 	ex thisexprseq(exvector * vp) const;
 protected:
@@ -799,6 +800,14 @@ ${series_switch_statement}
 		// end of generated lines
 	}
 	throw(std::logic_error("function::series(): invalid nparams"));
+}
+
+bool function::match(const ex & pattern, lst & repl_lst) const
+{
+	// Serial number must match
+	if (is_ex_of_type(pattern, function) && serial != ex_to_function(pattern).serial)
+		return false;
+	return inherited::match(pattern, repl_lst);
 }
 
 // protected
