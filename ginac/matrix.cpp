@@ -53,9 +53,9 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(matrix, basic,
 //////////
 
 /** Default ctor.  Initializes to 1 x 1-dimensional zero-matrix. */
-matrix::matrix() : inherited(TINFO_matrix), row(1), col(1)
+matrix::matrix() : inherited(TINFO_matrix), row(1), col(1), m(1, _ex0)
 {
-	m.push_back(_ex0);
+	setflag(status_flags::not_shareable);
 }
 
 //////////
@@ -69,25 +69,28 @@ matrix::matrix() : inherited(TINFO_matrix), row(1), col(1)
  *  @param r number of rows
  *  @param c number of cols */
 matrix::matrix(unsigned r, unsigned c)
-  : inherited(TINFO_matrix), row(r), col(c)
+  : inherited(TINFO_matrix), row(r), col(c), m(r*c, _ex0)
 {
-	m.resize(r*c, _ex0);
+	setflag(status_flags::not_shareable);
 }
 
 // protected
 
 /** Ctor from representation, for internal use only. */
 matrix::matrix(unsigned r, unsigned c, const exvector & m2)
-  : inherited(TINFO_matrix), row(r), col(c), m(m2) {}
+  : inherited(TINFO_matrix), row(r), col(c), m(m2)
+{
+	setflag(status_flags::not_shareable);
+}
 
 /** Construct matrix from (flat) list of elements. If the list has fewer
  *  elements than the matrix, the remaining matrix elements are set to zero.
  *  If the list has more elements than the matrix, the excessive elements are
  *  thrown away. */
 matrix::matrix(unsigned r, unsigned c, const lst & l)
-  : inherited(TINFO_matrix), row(r), col(c)
+  : inherited(TINFO_matrix), row(r), col(c), m(r*c, _ex0)
 {
-	m.resize(r*c, _ex0);
+	setflag(status_flags::not_shareable);
 
 	size_t i = 0;
 	for (lst::const_iterator it = l.begin(); it != l.end(); ++it, ++i) {
@@ -105,6 +108,8 @@ matrix::matrix(unsigned r, unsigned c, const lst & l)
 
 matrix::matrix(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
 {
+	setflag(status_flags::not_shareable);
+
 	if (!(n.find_unsigned("row", row)) || !(n.find_unsigned("col", col)))
 		throw (std::runtime_error("unknown matrix dimensions in archive"));
 	m.reserve(row * col);
@@ -845,7 +850,7 @@ ex matrix::trace() const
  *  @return    characteristic polynomial as new expression
  *  @exception logic_error (matrix not square)
  *  @see       matrix::determinant() */
-ex matrix::charpoly(const symbol & lambda) const
+ex matrix::charpoly(const ex & lambda) const
 {
 	if (row != col)
 		throw (std::logic_error("matrix::charpoly(): matrix not square"));
@@ -865,13 +870,13 @@ ex matrix::charpoly(const symbol & lambda) const
 
 		matrix B(*this);
 		ex c = B.trace();
-		ex poly = power(lambda,row)-c*power(lambda,row-1);
+		ex poly = power(lambda, row) - c*power(lambda, row-1);
 		for (unsigned i=1; i<row; ++i) {
 			for (unsigned j=0; j<row; ++j)
 				B.m[j*col+j] -= c;
 			B = this->mul(B);
 			c = B.trace() / ex(i+1);
-			poly -= c*power(lambda,row-i-1);
+			poly -= c*power(lambda, row-i-1);
 		}
 		if (row%2)
 			return -poly;

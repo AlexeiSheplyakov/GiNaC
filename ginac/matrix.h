@@ -76,7 +76,7 @@ public:
 	matrix transpose() const;
 	ex determinant(unsigned algo = determinant_algo::automatic) const;
 	ex trace() const;
-	ex charpoly(const symbol & lambda) const;
+	ex charpoly(const ex & lambda) const;
 	matrix inverse() const;
 	matrix solve(const matrix & vars, const matrix & rhs,
 	             unsigned algo = solve_algo::automatic) const;
@@ -129,7 +129,7 @@ inline ex determinant(const matrix & m, unsigned options = determinant_algo::aut
 inline ex trace(const matrix & m)
 { return m.trace(); }
 
-inline ex charpoly(const matrix & m, const symbol & lambda)
+inline ex charpoly(const matrix & m, const ex & lambda)
 { return m.charpoly(lambda); }
 
 inline matrix inverse(const matrix & m)
