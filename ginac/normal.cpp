@@ -1762,6 +1762,14 @@ ex pseries::normal(lst &sym_lst, lst &repl_lst, int level) const
 }
 
 
+/** Implementation of ex::normal() for relationals. It normalizes both sides.
+ *  @see ex::normal */
+ex relational::normal(lst &sym_lst, lst &repl_lst, int level) const
+{
+	return (new lst(relational(lh.normal(), rh.normal(), o), _ex1()))->setflag(status_flags::dynallocated);
+}
+
+
 /** Normalization of rational functions.
  *  This function converts an expression to its normal form
  *  "numerator/denominator", where numerator and denominator are (relatively
