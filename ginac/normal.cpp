@@ -471,14 +471,14 @@ ex decomp_rational(const ex &a, const symbol &x)
 }
 
 
-/** Pseudo-remainder of polynomials a(x) and b(x) in Z[x].
+/** Pseudo-remainder of polynomials a(x) and b(x) in Q[x].
  *
  *  @param a  first polynomial in x (dividend)
  *  @param b  second polynomial in x (divisor)
  *  @param x  a and b are polynomials in x
  *  @param check_args  check whether a and b are polynomials with rational
  *         coefficients (defaults to "true")
- *  @return pseudo-remainder of a(x) and b(x) in Z[x] */
+ *  @return pseudo-remainder of a(x) and b(x) in Q[x] */
 ex prem(const ex &a, const ex &b, const symbol &x, bool check_args)
 {
 	if (b.is_zero())
@@ -523,14 +523,14 @@ ex prem(const ex &a, const ex &b, const symbol &x, bool check_args)
 }
 
 
-/** Sparse pseudo-remainder of polynomials a(x) and b(x) in Z[x].
+/** Sparse pseudo-remainder of polynomials a(x) and b(x) in Q[x].
  *
  *  @param a  first polynomial in x (dividend)
  *  @param b  second polynomial in x (divisor)
  *  @param x  a and b are polynomials in x
  *  @param check_args  check whether a and b are polynomials with rational
  *         coefficients (defaults to "true")
- *  @return sparse pseudo-remainder of a(x) and b(x) in Z[x] */
+ *  @return sparse pseudo-remainder of a(x) and b(x) in Q[x] */
 ex sprem(const ex &a, const ex &b, const symbol &x, bool check_args)
 {
 	if (b.is_zero())

@@ -42,8 +42,11 @@ extern ex rem(const ex &a, const ex &b, const symbol &x, bool check_args = true)
 // Decompose rational function a(x)=N(x)/D(x) into Q(x)+R(x)/D(x) with degree(R, x) < degree(D, x)
 extern ex decomp_rational(const ex &a, const symbol &x);
 
-// Pseudo-remainder of polynomials a(x) and b(x) in Z[x]
+// Pseudo-remainder of polynomials a(x) and b(x) in Q[x]
 extern ex prem(const ex &a, const ex &b, const symbol &x, bool check_args = true);
+
+// Pseudo-remainder of polynomials a(x) and b(x) in Q[x]
+extern ex sprem(const ex &a, const ex &b, const symbol &x, bool check_args = true);
 
 // Exact polynomial division of a(X) by b(X) in Q[X] (quotient returned in q), returns false when exact division fails
 extern bool divide(const ex &a, const ex &b, ex &q, bool check_args = true);
