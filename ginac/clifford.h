@@ -178,6 +178,7 @@ ex dirac_gammaR(unsigned char rl = 0);
 
 /** Create a term of the form e_mu * gamma~mu with a unique index mu.
  *
+ *  @param e Original expression
  *  @param dim Dimension of index
  *  @param rl Representation label */
 ex dirac_slash(const ex & e, const ex & dim, unsigned char rl = 0);

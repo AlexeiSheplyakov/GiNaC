@@ -1287,14 +1287,14 @@ const numeric exp(const numeric &x)
 
 /** Natural logarithm.
  *
- *  @param z complex number
+ *  @param x complex number
  *  @return  arbitrary precision numerical log(x).
  *  @exception pole_error("log(): logarithmic pole",0) */
-const numeric log(const numeric &z)
+const numeric log(const numeric &x)
 {
-	if (z.is_zero())
+	if (x.is_zero())
 		throw pole_error("log(): logarithmic pole",0);
-	return cln::log(z.to_cl_N());
+	return cln::log(x.to_cl_N());
 }
 
 
@@ -1345,8 +1345,8 @@ const numeric acos(const numeric &x)
 
 /** Arcustangent.
  *
- *  @param z complex number
- *  @return atan(z)
+ *  @param x complex number
+ *  @return atan(x)
  *  @exception pole_error("atan(): logarithmic pole",0) */
 const numeric atan(const numeric &x)
 {
@@ -1927,16 +1927,16 @@ const numeric lcm(const numeric &a, const numeric &b)
 
 
 /** Numeric square root.
- *  If possible, sqrt(z) should respect squares of exact numbers, i.e. sqrt(4)
+ *  If possible, sqrt(x) should respect squares of exact numbers, i.e. sqrt(4)
  *  should return integer 2.
  *
- *  @param z numeric argument
- *  @return square root of z. Branch cut along negative real axis, the negative
- *  real axis itself where imag(z)==0 and real(z)<0 belongs to the upper part
- *  where imag(z)>0. */
-const numeric sqrt(const numeric &z)
+ *  @param x numeric argument
+ *  @return square root of x. Branch cut along negative real axis, the negative
+ *  real axis itself where imag(x)==0 and real(x)<0 belongs to the upper part
+ *  where imag(x)>0. */
+const numeric sqrt(const numeric &x)
 {
-	return cln::sqrt(z.to_cl_N());
+	return cln::sqrt(x.to_cl_N());
 }
 
 

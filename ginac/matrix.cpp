@@ -938,6 +938,7 @@ matrix matrix::inverse() const
  *
  *  @param vars n x p matrix, all elements must be symbols 
  *  @param rhs m x p matrix
+ *  @param algo selects the solving algorithm
  *  @return n x p solution matrix
  *  @exception logic_error (incompatible matrices)
  *  @exception invalid_argument (1st argument must be matrix of symbols)

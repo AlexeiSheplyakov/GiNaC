@@ -176,17 +176,20 @@ public:
 	void archive_ex(const ex &e, const char *name);
 
 	/** Retrieve expression from archive by name.
-	 *  @param sym_lst list of pre-defined symbols */
+	 *  @param sym_lst list of pre-defined symbols
+	 *  @param name name of expression */
 	ex unarchive_ex(const lst &sym_lst, const char *name) const;
 
 	/** Retrieve expression from archive by index.
 	 *  @param sym_lst list of pre-defined symbols
+	 *  @param index index of expression
      *  @see count_expressions */
 	ex unarchive_ex(const lst &sym_lst, unsigned index = 0) const;
 
 	/** Retrieve expression and its name from archive by index.
 	 *  @param sym_lst list of pre-defined symbols
 	 *  @param name receives the name of the expression
+	 *  @param index index of expression
      *  @see count_expressions */
 	ex unarchive_ex(const lst &sym_lst, std::string &name, unsigned index = 0) const;
 

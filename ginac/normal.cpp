@@ -300,7 +300,6 @@ static ex multiply_lcm(const ex &e, const numeric &lcm)
 /** Compute the integer content (= GCD of all numeric coefficients) of an
  *  expanded polynomial.
  *
- *  @param e  expanded polynomial
  *  @return integer content */
 numeric ex::integer_content() const
 {
@@ -1003,7 +1002,6 @@ static ex sr_gcd(const ex &a, const ex &b, sym_desc_vec::const_iterator var)
 /** Return maximum (absolute value) coefficient of a polynomial.
  *  This function is used internally by heur_gcd().
  *
- *  @param e  expanded multivariate polynomial
  *  @return maximum coefficient
  *  @see heur_gcd */
 numeric ex::max_coefficient() const
@@ -1220,6 +1218,8 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
  *
  *  @param a  first multivariate polynomial
  *  @param b  second multivariate polynomial
+ *  @param ca pointer to expression that will receive the cofactor of a, or NULL
+ *  @param cb pointer to expression that will receive the cofactor of b, or NULL
  *  @param check_args  check whether a and b are polynomials with rational
  *         coefficients (defaults to "true")
  *  @return the GCD as a new expression */
@@ -1498,7 +1498,7 @@ static exvector sqrfree_yun(const ex &a, const symbol &x)
 /** Compute a square-free factorization of a multivariate polynomial in Q[X].
  *
  *  @param a  multivariate polynomial over Q[X]
- *  @param x  lst of variables to factor in, may be left empty for autodetection
+ *  @param l  lst of variables to factor in, may be left empty for autodetection
  *  @return   a square-free factorization of \p a.
  *
  * \note
