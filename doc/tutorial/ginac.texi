@@ -730,7 +730,7 @@ classes @code{add} and @code{mul}, representing sums of terms and products,
 respectively.  We'll come back later to some more details about these
 two classes and motivate the use of pairs in sums and products here.
 
-@subsection Digression: Internal representation of products and sums
+@unnumberedsubsec Digression: Internal representation of products and sums
 
 Although it should be completely transparent for the user of
 GiNaC a short discussion of this topic helps to understand the sources
@@ -827,7 +827,8 @@ For storing numerical things, GiNaC uses Bruno Haible's library
 classes for GiNaC.  @acronym{CLN} stands for Class Library
 for Numbers or alternatively for Common Lisp Numbers.  In order to
 find out more about @acronym{CLN}'s internals the reader is
-refered to the documentation of that library.  Suffice to say that it
+refered to the documentation of that library.  @inforef{Introduction, , cln},
+for more information. Suffice to say that it
 is by itself build on top of another library, the GNU Multiple
 Precision library @acronym{GMP}, which is an extremely fast
 library for arbitrary long integers and rationals as well as arbitrary
@@ -1732,7 +1733,7 @@ GiNaC is comparable in speed with other CAS.
 
 @heading Disadvantages
 
-Of course it also has some disadvantages
+Of course it also has some disadvantages:
 
 @itemize @bullet
 
