@@ -2662,7 +2662,7 @@ fi
     "fail")
         LIBS="${saved_LIBS}"
         echo "$ac_t""" 1>&6
-        echo "configure: warning: linking with libcln failed" 1>&2
+        { echo "configure: error: linking with libcln failed, maybe forgot to set \$LDFLAGS?" 1>&2; exit 1; }
     ;;
     *)
         LIBS="${saved_LIBS}"

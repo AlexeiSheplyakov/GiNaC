@@ -67,7 +67,7 @@ dnl linking failed:
     "fail")
         LIBS="${saved_LIBS}"
         AC_MSG_RESULT([])
-        AC_MSG_WARN([linking with libcln failed])
+        AC_MSG_ERROR([linking with libcln failed, maybe forgot to set \$LDFLAGS?])
     ;;
 dnl should never ever get here:
     *)
