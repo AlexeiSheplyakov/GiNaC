@@ -137,6 +137,7 @@ static unsigned series4(void)
     unsigned result = 0;
     ex e, d;
     
+    // gamma(-1):
     e = gamma(2*x);
     d = pow(x+1,-1)*numeric(1,4) +
         pow(x+1,0)*(numeric(3,4) -
@@ -165,6 +166,7 @@ static unsigned series4(void)
         Order(pow(x+1,4));
     result += check_series(e, -1, d, 4);
     
+    // tan(Pi/2)
     e = tan(x*Pi/2);
     d = pow(x-1,-1)/Pi*(-2) +
         pow(x-1,1)*Pi/6 +

@@ -220,7 +220,7 @@ static unsigned inifcns_consist_psi(void)
 {
     unsigned result = 0;
     symbol x;
-    ex e;
+    ex e, f;
     
     // We check psi(1) and psi(1/2) implicitly by calculating the curious
     // little identity gamma(1)'/gamma(1) - gamma(1/2)'/gamma(1/2) == 2*log(2).
