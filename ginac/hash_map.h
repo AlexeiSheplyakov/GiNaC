@@ -83,7 +83,7 @@ class exhashmap;
 template <typename T, template <class> class A>
 class exhashmap {
 public:
-	static const unsigned min_num_buckets = 5; // must be prime
+	static const unsigned min_num_buckets = 31; // must be prime
 
 	// Standard types
 	typedef ex key_type;
@@ -215,9 +215,9 @@ public:
 
 protected:
 	// Private data
-	Table hashtab;         ///< Vector of buckets, each bucket is kept sorted
-	size_type num_buckets; ///< Number of buckets (= hashtab.size())
 	size_type num_entries; ///< Number of values stored in container (cached for faster operation of size())
+	size_type num_buckets; ///< Number of buckets (= hashtab.size())
+	Table hashtab;         ///< Vector of buckets, each bucket is kept sorted
 
 	/** Return index of key in hash table. */
 	static size_type hash_index(const key_type &x, size_type nbuckets)
@@ -265,24 +265,16 @@ protected:
 
 public:
 	// 23.3.1.1 Construct/copy/destroy
-	exhashmap() : num_buckets(min_num_buckets), num_entries(0)
-	{
-		hashtab.resize(num_buckets);
-		empty_all_buckets();
-	}
+	exhashmap()
+	 : num_entries(0), num_buckets(min_num_buckets), hashtab(num_buckets, std::make_pair(EMPTY, std::make_pair(0, mapped_type()))) {}
 
-	explicit exhashmap(size_type nbuckets) : num_entries(0)
-	{
-		num_buckets = internal::next_prime(nbuckets);
-		hashtab.resize(num_buckets);
-		empty_all_buckets();
-	}
+	explicit exhashmap(size_type nbuckets)
+	 : num_entries(0), num_buckets(internal::next_prime(nbuckets)), hashtab(num_buckets, std::make_pair(EMPTY, std::make_pair(0, mapped_type()))) {}
 
 	template <class InputIterator>
-	exhashmap(InputIterator first, InputIterator last) : num_buckets(min_num_buckets), num_entries(0)
+	exhashmap(InputIterator first, InputIterator last)
+	 : num_entries(0), num_buckets(min_num_buckets), hashtab(num_buckets, std::make_pair(EMPTY, std::make_pair(0, mapped_type())))
 	{
-		hashtab.resize(num_buckets);
-		empty_all_buckets();
 		insert(first, last);
 	}
 
@@ -583,7 +575,7 @@ void exhashmap<T, A>::clear()
 	for (table_iterator i = hashtab.begin(); i != hashtab.end(); ++i) {
 		i->first = EMPTY;
 		i->second.first = 0;
-		i->second.second = T();
+		i->second.second = mapped_type();
 	}
 	num_entries = 0;
 }
