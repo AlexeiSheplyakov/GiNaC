@@ -103,6 +103,7 @@ VERSION = @VERSION@
 YACC = @YACC@
 
 SUBDIRS = @GINACCINTDIR@ ginac check ginsh tools doc
+DIST_SUBDIRS = cint ginac check ginsh tools doc
 
 # Requires automake 1.4
 AUTOMAKE_OPTIONS = 1.4
@@ -357,14 +358,14 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$d/$$file $(distdir)/$$file; \
+	    cp -pr $$/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
 	    || cp -p $$d/$$file $(distdir)/$$file || :; \
 	  fi; \
 	done
-	for subdir in $(SUBDIRS); do \
+	for subdir in $(DIST_SUBDIRS); do \
 	  if test "$$subdir" = .; then :; else \
 	    test -d $(distdir)/$$subdir \
 	    || mkdir $(distdir)/$$subdir \

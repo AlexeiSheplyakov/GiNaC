@@ -106,9 +106,10 @@ bin_PROGRAMS = ginaccint.bin
 bin_SCRIPTS = ginaccint
 noinst_LTLIBRARIES = libginac.la
 ginaccint_bin_SOURCES = ginaccint.bin.cpp dummies.cpp dummies.h
+libginac_la_SOURCES = 
 man_MANS = ginaccint.1
 
-EXTRA_DIST = dummies.pl
+EXTRA_DIST = $(man_MANS) dummies.pl
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES =  ginaccint
@@ -121,8 +122,7 @@ LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 libginac_la_LDFLAGS = 
 libginac_la_LIBADD = 
-libginac_la_SOURCES = libginac.la.c
-libginac_la_OBJECTS =  libginac.la.lo
+libginac_la_OBJECTS = 
 PROGRAMS =  $(bin_PROGRAMS)
 
 ginaccint_bin_OBJECTS =  ginaccint.bin.o dummies.o
@@ -152,9 +152,9 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/dummies.P .deps/ginaccint.bin.P .deps/libginac.la.P
-SOURCES = libginac.la.c $(ginaccint_bin_SOURCES)
-OBJECTS = libginac.la.lo $(ginaccint_bin_OBJECTS)
+DEP_FILES =  .deps/dummies.P .deps/ginaccint.bin.P
+SOURCES = $(libginac_la_SOURCES) $(ginaccint_bin_SOURCES)
+OBJECTS = $(libginac_la_OBJECTS) $(ginaccint_bin_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -339,7 +339,7 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$d/$$file $(distdir)/$$file; \
+	    cp -pr $$/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
