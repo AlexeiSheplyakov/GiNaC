@@ -272,16 +272,17 @@ ex pseries::coeff(const symbol &s, int n) const
 
 ex pseries::collect(const symbol &s) const
 {
-	if (var.is_equal(s))
-		return convert_to_poly();
-	else
-		return inherited::collect(s);
+	return *this;
 }
 
+/** Evaluate coefficients. */
 ex pseries::eval(int level) const
 {
     if (level == 1)
         return this->hold();
+
+	if (level == -max_recursion_level)
+		throw (std::runtime_error("pseries::eval(): recursion limit exceeded"));
     
     // Construct a new series with evaluated coefficients
     epvector new_seq;
@@ -294,10 +295,24 @@ ex pseries::eval(int level) const
     return (new pseries(var, point, new_seq))->setflag(status_flags::dynallocated | status_flags::evaluated);
 }
 
-/** Evaluate numerically.  The order term is dropped. */
+/** Evaluate coefficients numerically. */
 ex pseries::evalf(int level) const
 {
-    return convert_to_poly().evalf(level);
+	if (level == 1)
+		return *this;
+
+	if (level == -max_recursion_level)
+		throw (std::runtime_error("pseries::evalf(): recursion limit exceeded"));
+
+    // Construct a new series with evaluated coefficients
+    epvector new_seq;
+    new_seq.reserve(seq.size());
+    epvector::const_iterator it = seq.begin(), itend = seq.end();
+    while (it != itend) {
+        new_seq.push_back(expair(it->rest.evalf(level-1), it->coeff));
+        it++;
+    }
+    return (new pseries(var, point, new_seq))->setflag(status_flags::dynallocated | status_flags::evaluated);
 }
 
 ex pseries::subs(const lst & ls, const lst & lr) const
