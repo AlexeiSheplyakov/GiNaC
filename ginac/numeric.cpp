@@ -1124,66 +1124,17 @@ numeric factorial(const numeric & nn)
  *  useful in cases, like for exact results of Gamma(n+1/2) for instance.)
  *
  *  @param n  integer argument >= -1
- *  @return n!! == n * (n-2) * (n-4) * ... * ({1|2}) with 0!! == 1 == (-1)!!
+ *  @return n!! == n * (n-2) * (n-4) * ... * ({1|2}) with 0!! == (-1)!! == 1
  *  @exception range_error (argument must be integer >= -1) */
 numeric doublefactorial(const numeric & nn)
 {
-    // META-NOTE:  The whole shit here will become obsolete and may be moved
-    // out once CLN learns about double factorial, which should be as soon as
-    // 1.0.3 rolls out!
-    
-    // We store the results separately for even and odd arguments.  This has
-    // the advantage that we don't have to compute any even result at all if
-    // the function is always called with odd arguments and vice versa.  There
-    // is no tradeoff involved in this, it is guaranteed to save time as well
-    // as memory.  (If this is not enough justification consider the Gamma
-    // function of half integer arguments: it only needs odd doublefactorials.)
-    static vector<numeric> evenresults;
-    static int highest_evenresult = -1;
-    static vector<numeric> oddresults;
-    static int highest_oddresult = -1;
-    
     if (nn == numeric(-1)) {
         return _num1();
     }
     if (!nn.is_nonneg_integer()) {
         throw (std::range_error("numeric::doublefactorial(): argument must be integer >= -1"));
     }
-    if (nn.is_even()) {
-        int n = nn.div(_num2()).to_int();
-        if (n <= highest_evenresult) {
-            return evenresults[n];
-        }
-        if (evenresults.capacity() < (unsigned)(n+1)) {
-            evenresults.reserve(n+1);
-        }
-        if (highest_evenresult < 0) {
-            evenresults.push_back(_num1());
-            highest_evenresult=0;
-        }
-        for (int i=highest_evenresult+1; i<=n; i++) {
-            evenresults.push_back(numeric(evenresults[i-1].mul(numeric(i*2))));
-        }
-        highest_evenresult=n;
-        return evenresults[n];
-    } else {
-        int n = nn.sub(_num1()).div(_num2()).to_int();
-        if (n <= highest_oddresult) {
-            return oddresults[n];
-        }
-        if (oddresults.capacity() < (unsigned)n) {
-            oddresults.reserve(n+1);
-        }
-        if (highest_oddresult < 0) {
-            oddresults.push_back(_num1());
-            highest_oddresult=0;
-        }
-        for (int i=highest_oddresult+1; i<=n; i++) {
-            oddresults.push_back(numeric(oddresults[i-1].mul(numeric(i*2+1))));
-        }
-        highest_oddresult=n;
-        return oddresults[n];
-    }
+    return numeric(::doublefactorial(nn.to_int()));  // -> CLN
 }
 
 /** The Binomial coefficients.  It computes the binomial coefficients.  For
