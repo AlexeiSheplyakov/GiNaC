@@ -1468,7 +1468,7 @@ const numeric binomial(const numeric & n, const numeric & k)
         }
     }
     
-    // should really be gamma(n+1)/(gamma(r+1)/gamma(n-r+1) or a suitable limit
+    // should really be gamma(n+1)/gamma(r+1)/gamma(n-r+1) or a suitable limit
     throw (std::range_error("numeric::binomial(): don´t know how to evaluate that."));
 }
 
@@ -1492,29 +1492,29 @@ const numeric bernoulli(const numeric & nn)
     // codes it (preferably in CLN) we make this a remembering function which
     // computes its results using the defining formula
     // B(nn) == - 1/(nn+1) * sum_{k=0}^{nn-1}(binomial(nn+1,k)*B(k))
-    // whith B(0) == 1.
+    // with B(0) == 1.
     // Be warned, though: the Bernoulli numbers are computationally very
     // expensive anyhow and you shouldn't expect miracles to happen.
-    static vector<numeric> results;
+    static vector<cl_RA> results;
     static int highest_result = -1;
     int n = nn.sub(_num2()).div(_num2()).to_int();
     if (n <= highest_result)
-        return results[n];
+        return numeric(results[n]);
     if (results.capacity() < (unsigned)(n+1))
         results.reserve(n+1);
     
-    numeric tmp;  // used to store the sum
+    cl_RA tmp;  // used to store the sum
     for (int i=highest_result+1; i<=n; ++i) {
         // the first two elements:
-        tmp = numeric(-2*i-1,2);
+        tmp = cl_I(-2*i-1)/cl_I(2);
         // accumulate the remaining elements:
         for (int j=0; j<i; ++j)
-            tmp += binomial(numeric(2*i+3),numeric(j*2+2))*results[j];
+            tmp = tmp + ::binomial(2*i+3,j*2+2)*results[j];
         // divide by -(nn+1) and store result:
-        results.push_back(-tmp/numeric(2*i+3));
+        results.push_back(tmp/cl_I(-2*i-3));
     }
-    highest_result=n;
-    return results[n];
+    highest_result = n;
+    return numeric(results[n]);
 }
 
 
