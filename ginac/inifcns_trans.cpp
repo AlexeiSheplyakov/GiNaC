@@ -589,6 +589,8 @@ static ex atan_eval(const ex & x)
 		// atan(-1) -> -Pi/4
 		if (x.is_equal(_ex_1()))
 			return _ex_1_4()*Pi;
+		if (x.is_equal(I) || x.is_equal(-I))
+			throw (pole_error("atan_eval(): logarithmic pole",0));
 		// atan(float) -> float
 		if (!x.info(info_flags::crational))
 			return atan_evalf(x);
