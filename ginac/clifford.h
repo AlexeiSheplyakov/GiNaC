@@ -31,19 +31,21 @@ namespace GiNaC {
 
 /** This class holds an object representing an element of the Clifford
  *  algebra (the Dirac gamma matrices). These objects only carry Lorentz
- *  indices. Spinor indices are hidden. */
+ *  indices. Spinor indices are hidden. A representation label (an unsigned
+ *  8-bit integer) is used to distinguish elements from different Clifford
+ *  algebras (objects with different labels commute). */
 class clifford : public indexed
 {
 	GINAC_DECLARE_REGISTERED_CLASS(clifford, indexed)
 
 	// other constructors
 public:
-	clifford(const ex & b);
-	clifford(const ex & b, const ex & mu);
+	clifford(const ex & b, unsigned char rl = 0);
+	clifford(const ex & b, const ex & mu, unsigned char rl = 0);
 
 	// internal constructors
-	clifford(const exvector & v, bool discardable = false);
-	clifford(exvector * vp); // vp will be deleted
+	clifford(unsigned char rl, const exvector & v, bool discardable = false);
+	clifford(unsigned char rl, exvector * vp); // vp will be deleted
 
 	// functions overriding virtual functions from base classes
 protected:
@@ -51,7 +53,11 @@ protected:
 	ex thisexprseq(const exvector & v) const;
 	ex thisexprseq(exvector * vp) const;
 	unsigned return_type(void) const { return return_types::noncommutative; }
-	unsigned return_type_tinfo(void) const { return TINFO_clifford; }
+	unsigned return_type_tinfo(void) const { return TINFO_clifford + representation_label; }
+
+	// member variables
+private:
+	unsigned char representation_label; /**< Representation label to distinguish independent spin lines */
 };
 
 
@@ -78,6 +84,17 @@ public:
 };
 
 
+/** This class represents the Dirac gamma5 object. */
+class diracgamma5 : public tensor
+{
+	GINAC_DECLARE_REGISTERED_CLASS(diracgamma5, tensor)
+
+	// functions overriding virtual functions from bases classes
+public:
+	void print(const print_context & c, unsigned level = 0) const;
+};
+
+
 // global functions
 inline const clifford &ex_to_clifford(const ex &e)
 {
@@ -87,14 +104,22 @@ inline const clifford &ex_to_clifford(const ex &e)
 
 /** Create a Clifford unity object.
  *
+ *  @param rl Representation label
  *  @return newly constructed object */
-ex dirac_one(void);
+ex dirac_ONE(unsigned char rl = 0);
 
 /** Create a Dirac gamma object.
  *
  *  @param mu Index (must be of class varidx or a derived class)
+ *  @param rl Representation label
  *  @return newly constructed gamma object */
-ex dirac_gamma(const ex & mu);
+ex dirac_gamma(const ex & mu, unsigned char rl = 0);
+
+/** Create a Dirac gamma5 object.
+ *
+ *  @param rl Representation label
+ *  @return newly constructed object */
+ex dirac_gamma5(unsigned char rl = 0);
 
 
 } // namespace GiNaC

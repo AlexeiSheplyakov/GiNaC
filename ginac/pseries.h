@@ -49,7 +49,7 @@ public:
 	int degree(const ex &s) const;
 	int ldegree(const ex &s) const;
 	ex coeff(const ex &s, int n = 1) const;
-	ex collect(const ex &s) const;
+	ex collect(const ex &s, bool distributed = false) const;
 	ex eval(int level=0) const;
 	ex evalf(int level=0) const;
 	ex series(const relational & r, int order, unsigned options = 0) const;

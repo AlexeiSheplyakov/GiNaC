@@ -53,8 +53,12 @@ const unsigned TINFO_numeric       = 0x00090001U;
 const unsigned TINFO_pseries       = 0x000a0001U;
 
 const unsigned TINFO_indexed       = 0x000b0001U;
-const unsigned TINFO_color         = 0x000b1001U;
-const unsigned TINFO_clifford      = 0x000b1002U;
+const unsigned TINFO_color         = 0x000b1000U;
+// reserved up to                    0x000b10ffU
+// for color algebras (only used for return_type_tinfo())
+const unsigned TINFO_clifford      = 0x000b1100U;
+// reserved up to                    0x000b11ffU
+// for clifford algebras (only used for return_type_tinfo())
 
 const unsigned TINFO_structure     = 0x000c0001U;
 // reserved up to                    0x000cffffU
@@ -72,8 +76,9 @@ const unsigned TINFO_su3one        = 0x000e1008U;
 const unsigned TINFO_su3t          = 0x000e1009U;
 const unsigned TINFO_su3f          = 0x000e100aU;
 const unsigned TINFO_su3d          = 0x000e100bU;
-const unsigned TINFO_diracgamma    = 0x000e100cU;
-const unsigned TINFO_diracone      = 0x000e100dU;
+const unsigned TINFO_diracone      = 0x000e100cU;
+const unsigned TINFO_diracgamma    = 0x000e100dU;
+const unsigned TINFO_diracgamma5   = 0x000e100eU;
 
 } // namespace GiNaC
 

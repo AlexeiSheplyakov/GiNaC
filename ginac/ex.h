@@ -100,7 +100,7 @@ public:
 	ex to_rational(lst &repl_lst) const;
 	ex smod(const numeric &xi) const;
 	numeric max_coefficient(void) const;
-	ex collect(const ex & s) const;
+	ex collect(const ex & s, bool distributed = false) const;
 	ex eval(int level = 0) const;
 	ex evalf(int level = 0) const;
 	ex diff(const symbol & s, unsigned nth = 1) const;
@@ -357,8 +357,8 @@ inline ex normal(const ex & thisex, int level=0)
 inline ex to_rational(const ex & thisex, lst & repl_lst)
 { return thisex.to_rational(repl_lst); }
 
-inline ex collect(const ex & thisex, const ex & s)
-{ return thisex.collect(s); }
+inline ex collect(const ex & thisex, const ex & s, bool distributed = false)
+{ return thisex.collect(s, distributed); }
 
 inline ex eval(const ex & thisex, int level = 0)
 { return thisex.eval(level); }

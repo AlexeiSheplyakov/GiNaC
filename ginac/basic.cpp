@@ -220,31 +220,103 @@ bool basic::has(const ex & other) const
 	return false;
 }
 
-/** Return degree of highest power in symbol s. */
+/** Return degree of highest power in object s. */
 int basic::degree(const ex & s) const
 {
 	return 0;
 }
 
-/** Return degree of lowest power in symbol s. */
+/** Return degree of lowest power in object s. */
 int basic::ldegree(const ex & s) const
 {
 	return 0;
 }
 
-/** Return coefficient of degree n in symbol s. */
+/** Return coefficient of degree n in object s. */
 ex basic::coeff(const ex & s, int n) const
 {
 	return n==0 ? *this : _ex0();
 }
 
-/** Sort expression in terms of powers of some symbol.
- *  @param s symbol to sort in. */
-ex basic::collect(const ex & s) const
+/** Sort expression in terms of powers of some object(s).
+ *  @param s object(s) to sort in
+ *  @param distributed recursive or distributed form (only used when s is a list) */
+ex basic::collect(const ex & s, bool distributed) const
 {
 	ex x;
-	for (int n=this->ldegree(s); n<=this->degree(s); ++n)
-		x += this->coeff(s,n)*power(s,n);
+	if (is_ex_of_type(s, lst)) {
+
+		// List of objects specified
+		if (s.nops() == 1)
+			return collect(s.op(0));
+
+		else if (distributed) {
+
+			// Get lower/upper degree of all symbols in list
+			int num = s.nops();
+			struct sym_info {
+				ex sym;
+				int ldeg, deg;
+				int cnt;  // current degree, 'counter'
+				ex coeff; // coefficient for degree 'cnt'
+			};
+			sym_info *si = new sym_info[num];
+			ex c = *this;
+			for (int i=0; i<num; i++) {
+				si[i].sym = s.op(i);
+				si[i].ldeg = si[i].cnt = this->ldegree(si[i].sym);
+				si[i].deg = this->degree(si[i].sym);
+				c = si[i].coeff = c.coeff(si[i].sym, si[i].cnt);
+			}
+
+			while (true) {
+
+				// Calculate coeff*x1^c1*...*xn^cn
+				ex y = _ex1();
+				for (int i=0; i<num; i++) {
+					int cnt = si[i].cnt;
+					y *= power(si[i].sym, cnt);
+				}
+				x += y * si[num - 1].coeff;
+
+				// Increment counters
+				int n = num - 1;
+				while (true) {
+					si[n].cnt++;
+					if (si[n].cnt <= si[n].deg) {
+						// Update coefficients
+						ex c;
+						if (n == 0)
+							c = *this;
+						else
+							c = si[n - 1].coeff;
+						for (int i=n; i<num; i++)
+							c = si[i].coeff = c.coeff(si[i].sym, si[i].cnt);
+						break;
+					}
+					if (n == 0)
+						goto done;
+					si[n].cnt = si[n].ldeg;
+					n--;
+				}
+			}
+
+done:		delete[] si;
+
+		} else {
+
+			// Recursive form
+			x = *this;
+			for (int n=s.nops()-1; n>=0; n--)
+				x = x.collect(s[n]);
+		}
+
+	} else {
+
+		// Only one object specified
+		for (int n=this->ldegree(s); n<=this->degree(s); ++n)
+			x += this->coeff(s,n)*power(s,n);
+	}
 	
 	// correct for lost fractional arguments and return
 	return x + (*this - x).expand();

@@ -71,30 +71,30 @@ DEFAULT_CTORS(su3d)
 /** Construct object without any color index. This constructor is for
  *  internal use only. Use the color_ONE() function instead.
  *  @see color_ONE */
-color::color(const ex & b, unsigned rl) : inherited(b), representation_label(rl)
+color::color(const ex & b, unsigned char rl) : inherited(b), representation_label(rl)
 {
-	debugmsg("color constructor from ex,unsigned", LOGLEVEL_CONSTRUCT);
+	debugmsg("color constructor from ex,unsigned char", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_color;
 }
 
 /** Construct object with one color index. This constructor is for internal
  *  use only. Use the color_T() function instead.
  *  @see color_T */
-color::color(const ex & b, const ex & i1, unsigned rl) : inherited(b, i1), representation_label(rl)
+color::color(const ex & b, const ex & i1, unsigned char rl) : inherited(b, i1), representation_label(rl)
 {
-	debugmsg("color constructor from ex,ex,unsigned", LOGLEVEL_CONSTRUCT);
+	debugmsg("color constructor from ex,ex,unsigned char", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_color;
 }
 
-color::color(unsigned rl, const exvector & v, bool discardable) : inherited(indexed::unknown, v, discardable), representation_label(rl)
+color::color(unsigned char rl, const exvector & v, bool discardable) : inherited(indexed::unknown, v, discardable), representation_label(rl)
 {
-	debugmsg("color constructor from unsigned,exvector", LOGLEVEL_CONSTRUCT);
+	debugmsg("color constructor from unsigned char,exvector", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_color;
 }
 
-color::color(unsigned rl, exvector * vp) : inherited(indexed::unknown, vp), representation_label(rl)
+color::color(unsigned char rl, exvector * vp) : inherited(indexed::unknown, vp), representation_label(rl)
 {
-	debugmsg("color constructor from unsigned,exvector *", LOGLEVEL_CONSTRUCT);
+	debugmsg("color constructor from unsigned char,exvector *", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_color;
 }
 
@@ -105,13 +105,15 @@ color::color(unsigned rl, exvector * vp) : inherited(indexed::unknown, vp), repr
 color::color(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
 	debugmsg("color constructor from archive_node", LOGLEVEL_CONSTRUCT);
-	n.find_unsigned("representation", representation_label);
+	unsigned rl;
+	n.find_unsigned("label", rl);
+	representation_label = rl;
 }
 
 void color::archive(archive_node &n) const
 {
 	inherited::archive(n);
-	n.add_unsigned("representation", representation_label);
+	n.add_unsigned("label", representation_label);
 }
 
 DEFAULT_UNARCHIVE(color)
@@ -367,12 +369,12 @@ bool su3f::contract_with(exvector::iterator self, exvector::iterator other, exve
 // global functions
 //////////
 
-ex color_ONE(unsigned rl)
+ex color_ONE(unsigned char rl)
 {
 	return color(su3one(), rl);
 }
 
-ex color_T(const ex & a, unsigned rl)
+ex color_T(const ex & a, unsigned char rl)
 {
 	if (!is_ex_of_type(a, idx))
 		throw(std::invalid_argument("indices of color_T must be of type idx"));

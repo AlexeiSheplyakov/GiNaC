@@ -112,7 +112,7 @@ public: // only const functions please (may break reference counting)
 	virtual int degree(const ex & s) const;
 	virtual int ldegree(const ex & s) const;
 	virtual ex coeff(const ex & s, int n = 1) const;
-	virtual ex collect(const ex & s) const;
+	virtual ex collect(const ex & s, bool distributed = false) const;
 	virtual ex eval(int level = 0) const;
 	virtual ex evalf(int level = 0) const;
 	virtual ex series(const relational & r, int order, unsigned options = 0) const;

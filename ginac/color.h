@@ -31,24 +31,23 @@ namespace GiNaC {
 
 /** This class holds a generator T_a or the unity element of the Lie algebra
  *  of SU(3), as used for calculations in quantum chromodynamics. A
- *  representation label (an unsigned integer) is used to distinguish
- *  elements from different Lie algebra representations (only objects with
- *  the same label "interact" with each other). These objects implement an
- *  abstract representation of the group, not a specific matrix
- *  representation. The indices used for color objects should not have a
- *  variance. */
+ *  representation label (an unsigned 8-bit integer) is used to distinguish
+ *  elements from different Lie algebras (objects with different labels
+ *  commute). These objects implement an abstract representation of the
+ *  group, not a specific matrix representation. The indices used for color
+ *  objects should not have a variance. */
 class color : public indexed
 {
 	GINAC_DECLARE_REGISTERED_CLASS(color, indexed)
 
 	// other constructors
 public:
-	color(const ex & b, unsigned rl = 0);
-	color(const ex & b, const ex & i1, unsigned rl = 0);
+	color(const ex & b, unsigned char rl = 0);
+	color(const ex & b, const ex & i1, unsigned char rl = 0);
 
 	// internal constructors
-	color(unsigned rl, const exvector & v, bool discardable = false);
-	color(unsigned rl, exvector * vp); // vp will be deleted
+	color(unsigned char rl, const exvector & v, bool discardable = false);
+	color(unsigned char rl, exvector * vp); // vp will be deleted
 
 	// functions overriding virtual functions from base classes
 protected:
@@ -56,11 +55,11 @@ protected:
 	ex thisexprseq(const exvector & v) const;
 	ex thisexprseq(exvector * vp) const;
 	unsigned return_type(void) const { return return_types::noncommutative; }
-	unsigned return_type_tinfo(void) const { return TINFO_color; }
+	unsigned return_type_tinfo(void) const { return TINFO_color + representation_label; }
 
 	// member variables
 private:
-	unsigned representation_label; /**< Representation label to distinguish independent color matrices coming from separated fermion lines */
+	unsigned char representation_label; /**< Representation label to distinguish independent color matrices coming from separated fermion lines */
 };
 
 
@@ -122,14 +121,14 @@ inline const color &ex_to_color(const ex &e)
  *
  *  @param rl Representation label
  *  @return newly constructed unity element */
-ex color_ONE(unsigned rl = 0);
+ex color_ONE(unsigned char rl = 0);
 
 /** Create an su(3) generator.
  *
  *  @param a Index
  *  @param rl Representation label
  *  @return newly constructed unity generator */
-ex color_T(const ex & a, unsigned rl = 0);
+ex color_T(const ex & a, unsigned char rl = 0);
 
 /** Create an su(3) antisymmetric structure constant.
  *

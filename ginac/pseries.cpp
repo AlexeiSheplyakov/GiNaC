@@ -348,7 +348,7 @@ ex pseries::coeff(const ex &s, int n) const
 }
 
 /** Does nothing. */
-ex pseries::collect(const ex &s) const
+ex pseries::collect(const ex &s, bool distributed) const
 {
 	return *this;
 }

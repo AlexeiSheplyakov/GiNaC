@@ -156,10 +156,10 @@ ex ex::coeff(const ex & s, int n) const
 	return bp->coeff(s,n);
 }
 
-ex ex::collect(const ex & s) const
+ex ex::collect(const ex & s, bool distributed) const
 {
 	GINAC_ASSERT(bp!=0);
-	return bp->collect(s);
+	return bp->collect(s, distributed);
 }
 
 ex ex::eval(int level) const
