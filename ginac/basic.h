@@ -179,6 +179,7 @@ extern type_info const & typeid_basic;
 extern int max_recursion_level;
 
 // convenience macros
+
 #define is_of_type(OBJ,TYPE) \
     (dynamic_cast<TYPE *>(const_cast<GiNaC::basic *>(&OBJ))!=0)
 
@@ -190,40 +191,6 @@ extern int max_recursion_level;
 
 #define is_ex_exactly_of_type(OBJ,TYPE) \
     ((*(OBJ).bp).tinfo()==GiNaC::TINFO_##TYPE)
-
-
-// global functions
-
-inline unsigned rotate_left_31(unsigned n)
-{
-    // clear highest bit and shift 1 bit to the left
-    n=(n & 0x7FFFFFFFU) << 1;
-
-    // overflow? clear highest bit and set lowest bit
-    if (n & 0x80000000U) {
-        n=(n & 0x7FFFFFFFU) | 0x00000001U;
-    }
-
-    ASSERT(n<0x80000000U);
-
-    return n;
-}
-
-inline unsigned golden_ratio_hash(unsigned n)
-{
-#if 0
-	// This requires ´long long´ (or an equivalent 64 bit type)---which is,
-    // unfortunately, not ANSI-compliant:
-	unsigned long long l = n * 0x4f1bbcddLL;
-	return (l & 0x7fffffffU) ^ (l >> 32);
-#else
-	// This requires ´long double´ to have a mantissa of at least 64 bit---
-    // which is not guaranteed by any standard:
-    const static long double golden_ratio=.618033988749894848204586834370;
-    long double m=golden_ratio*n;
-    return unsigned((m-int(m))*0x80000000);
-#endif
-}
 
 } // namespace GiNaC
 

@@ -24,6 +24,7 @@
 
 namespace GiNaC {
 
+/** Integer binary logarithm */
 unsigned log2(unsigned n)
 {
     unsigned k;
@@ -31,6 +32,8 @@ unsigned log2(unsigned n)
     return k;
 }
 
+/** Compare two pointers (just to establish some sort of canonical order).
+ *  @return -1, 0, or 1 */
 int compare_pointers(void const * a, void const * b)
 {
     if (a<b) {
@@ -41,7 +44,8 @@ int compare_pointers(void const * a, void const * b)
     return 0;
 }
 
-// comment skeletton for header files
+
+// comment skeleton for header files
 
 
 // member functions
@@ -66,7 +70,7 @@ int compare_pointers(void const * a, void const * b)
     
 
 
-// comment skeletton for implementation files
+// comment skeleton for implementation files
 
 
 //////////

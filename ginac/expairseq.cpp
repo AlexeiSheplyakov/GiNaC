@@ -27,6 +27,7 @@
 #include "expairseq.h"
 #include "lst.h"
 #include "debugmsg.h"
+#include "utils.h"
 
 namespace GiNaC {
 

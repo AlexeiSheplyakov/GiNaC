@@ -26,6 +26,7 @@
 #include <strstream>
 #include <string>
 #include "config.h"
+#include "assertion.h"
 
 namespace GiNaC {
 
@@ -40,6 +41,47 @@ string ToString(T const & t)
 unsigned log2(unsigned n);
 
 int compare_pointers(void const * a, void const * b);
+
+/** Rotate lower 31 bits of unsigned value by one bit to the left
+ *  (upper bits get cleared). */
+inline unsigned rotate_left_31(unsigned n)
+{
+    // clear highest bit and shift 1 bit to the left
+    n=(n & 0x7FFFFFFFU) << 1;
+
+    // overflow? clear highest bit and set lowest bit
+    if (n & 0x80000000U) {
+        n=(n & 0x7FFFFFFFU) | 0x00000001U;
+    }
+    ASSERT(n<0x80000000U);
+
+    return n;
+}
+
+/** Golden ratio hash function. */
+inline unsigned golden_ratio_hash(unsigned n)
+{
+	// This function requires arithmetic with at least 64 significant bits
+#if SIZEOF_LONG_DOUBLE > 8
+	// If "long double" is bigger than 64 bits, we assume that the mantissa
+	// has at least 64 bits. This is not guaranteed but it's a good guess.
+    const static long double golden_ratio = .618033988749894848204586834370;
+    long double m = golden_ratio * n;
+    return unsigned((m - int(m)) * 0x80000000);
+#elif SIZEOF_LONG >= 8
+	// "long" has 64 bits, so we prefer it because it might be more efficient
+	// than "long long"
+	unsigned long l = n * 0x4f1bbcddL;
+	return (l & 0x7fffffffU) ^ (l >> 32);
+#elif SIZEOF_LONG_LONG >= 8
+	// This requires ´long long´ (or an equivalent 64 bit type)---which is,
+    // unfortunately, not ANSI-compliant:
+	unsigned long long l = n * 0x4f1bbcddLL;
+	return (l & 0x7fffffffU) ^ (l >> 32);
+#else
+#error "No 64 bit data type. You lose."
+#endif
+}
 
 // modified from stl_algo.h: always do com(*first1,*first2) instead of comp(*first2,*first1)
 template <class InputIterator1, class InputIterator2, class OutputIterator,

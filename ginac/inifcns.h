@@ -81,13 +81,13 @@ DECLARE_FUNCTION_1P(Li3)
 
 /** Riemann's Zeta-function. */
 DECLARE_FUNCTION_1P(zeta)
-DECLARE_FUNCTION_2P(zeta)
-    
+//DECLARE_FUNCTION_2P(zeta)
+
 /** Gamma-function. */
 DECLARE_FUNCTION_1P(gamma)
 
 /** Psi-function (aka polygamma-function). */
-DECLARE_FUNCTION_1P(psi)
+//DECLARE_FUNCTION_1P(psi)
 DECLARE_FUNCTION_2P(psi)
     
 /** Factorial function. */
