@@ -4,23 +4,21 @@ This file records noteworthy changes.
 * In the output and in ginsh, lists are now delimited by { } braces, and
   matrices are delimited by single [ ] brackets.
 * simplify_indexed() renames dummy indices so, e.g., "a.i*a.i+a.j*a.j" gets
-  simplified to "2*a.i*a.i".
+  simplified to "2*a.i*a.i" (or "2*a.j*a.j").
 * New functions/methods:
    - canonicalize_clifford() (helpful when comparing expressions containing
      Dirac matrices)
    - symmetrize() and antisymmetrize()
-   - numer_denom() (return numerator and denominator)
+   - numer_denom() (return numerator and denominator in one call)
    - map() (apply function to subexpressions)
-   - evalm() (evaluate sums and products of matrices)
+   - evalm() (evaluate sums, products and integer powers of matrices)
 * Added a new function match() for performing pattern matching. subs() and
   has() also accept patterns as arguments. A pattern can be any expression,
   optionally containing wildcard objects. These are constructed with the
   call "wild(<unsigned>)" and are denoted as "$0", "$1" etc. in the output
   and in ginsh.
-* Fixed possible crash when calling subs() on expressions with non-commutative
-  products.
-* Positive integer powers of non-commutative expressions are automatically
-  expanded.
+* Positive integer powers of non-commutative expressions (except matrices)
+  are automatically expanded.
 * Removed cint subdirectory, ginaccint is a separate package now due to 
   packaging considerations.
 * Several little bugfixes.
