@@ -43,9 +43,9 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(symbol, basic)
 symbol::symbol() : inherited(TINFO_symbol)
 {
     debugmsg("symbol default constructor", LOGLEVEL_CONSTRUCT);
-    serial=next_serial++;
-    name=autoname_prefix()+ToString(serial);
-    asexinfop=new assigned_ex_info;
+    serial = next_serial++;
+    name = autoname_prefix()+ToString(serial);
+    asexinfop = new assigned_ex_info;
     setflag(status_flags::evaluated);
 }
 
@@ -64,9 +64,9 @@ symbol::symbol(const symbol & other)
 void symbol::copy(const symbol & other)
 {
     inherited::copy(other);
-    name=other.name;
-    serial=other.serial;
-    asexinfop=other.asexinfop;
+    name = other.name;
+    serial = other.serial;
+    asexinfop = other.asexinfop;
     ++asexinfop->refcount;
 }
 
@@ -95,9 +95,9 @@ void symbol::destroy(bool call_parent)
 symbol::symbol(const string & initname) : inherited(TINFO_symbol)
 {
     debugmsg("symbol constructor from string", LOGLEVEL_CONSTRUCT);
-    name=initname;
-    serial=next_serial++;
-    asexinfop=new assigned_ex_info;
+    name = initname;
+    serial = next_serial++;
+    asexinfop = new assigned_ex_info;
     setflag(status_flags::evaluated);
 }
 

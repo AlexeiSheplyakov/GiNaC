@@ -250,7 +250,10 @@ unsigned ex::nops() const
 ex ex::expand(unsigned options) const
 {
     GINAC_ASSERT(bp!=0);
-    return bp->expand(options);
+    if (bp->flags & status_flags::expanded)
+        return *bp;
+    else
+        return bp->expand(options);
 }
 
 bool ex::has(const ex & other) const

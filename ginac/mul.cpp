@@ -301,7 +301,7 @@ typedef vector<int> intvector;
 
 int mul::degree(const symbol & s) const
 {
-    int deg_sum=0;
+    int deg_sum = 0;
     for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
         deg_sum+=(*cit).rest.degree(s) * ex_to_numeric((*cit).coeff).to_int();
     }
@@ -310,7 +310,7 @@ int mul::degree(const symbol & s) const
 
 int mul::ldegree(const symbol & s) const
 {
-    int deg_sum=0;
+    int deg_sum = 0;
     for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
         deg_sum+=(*cit).rest.ldegree(s) * ex_to_numeric((*cit).coeff).to_int();
     }
@@ -418,7 +418,7 @@ ex mul::eval(int level) const
         return (new add(distrseq,
                         ex_to_numeric(addref.overall_coeff).
                         mul_dyn(ex_to_numeric(overall_coeff))))
-            ->setflag(status_flags::dynallocated  |
+            ->setflag(status_flags::dynallocated |
                       status_flags::evaluated );
     }
     return this->hold();
@@ -473,7 +473,7 @@ ex mul::derivative(const symbol & s) const
 
     // D(a*b*c)=D(a)*b*c+a*D(b)*c+a*b*D(c)
     for (unsigned i=0; i!=seq.size(); i++) {
-        epvector sub_seq=seq;
+        epvector sub_seq = seq;
         sub_seq[i] = split_ex_to_pair(sub_seq[i].coeff*
                                       power(sub_seq[i].rest,sub_seq[i].coeff-1)*
                                       sub_seq[i].rest.diff(s));
@@ -499,7 +499,7 @@ unsigned mul::return_type(void) const
         return return_types::commutative;
     }
 
-    bool all_commutative=1;
+    bool all_commutative = 1;
     unsigned rt;
     epvector::const_iterator cit_noncommutative_element; // point to first found nc element
 
@@ -508,8 +508,8 @@ unsigned mul::return_type(void) const
         if (rt==return_types::noncommutative_composite) return rt; // one ncc -> mul also ncc
         if ((rt==return_types::noncommutative)&&(all_commutative)) {
             // first nc element found, remember position
-            cit_noncommutative_element=cit;
-            all_commutative=0;
+            cit_noncommutative_element = cit;
+            all_commutative = 0;
         }
         if ((rt==return_types::noncommutative)&&(!all_commutative)) {
             // another nc element found, compare type_infos
@@ -652,20 +652,23 @@ bool mul::can_make_flat(const expair & p) const
 
 ex mul::expand(unsigned options) const
 {
+    if (flags & status_flags::expanded)
+        return *this;
+    
     exvector sub_expanded_seq;
     intvector positions_of_adds;
     intvector number_of_add_operands;
-
+    
     epvector * expanded_seqp = expandchildren(options);
-
+    
     const epvector & expanded_seq = expanded_seqp==0 ? seq : *expanded_seqp;
-
+    
     positions_of_adds.resize(expanded_seq.size());
     number_of_add_operands.resize(expanded_seq.size());
-
+    
     int number_of_adds = 0;
     int number_of_expanded_terms = 1;
-
+    
     unsigned current_position = 0;
     epvector::const_iterator last = expanded_seq.end();
     for (epvector::const_iterator cit=expanded_seq.begin(); cit!=last; ++cit) {
@@ -680,19 +683,19 @@ ex mul::expand(unsigned options) const
         }
         current_position++;
     }
-
+    
     if (number_of_adds==0) {
         if (expanded_seqp==0) {
             return this->setflag(status_flags::expanded);
         }
         return (new mul(expanded_seqp,overall_coeff))->
-                     setflag(status_flags::dynallocated ||
-                             status_flags::expanded);
+            setflag(status_flags::dynallocated |
+                    status_flags::expanded);
     }
-
+    
     exvector distrseq;
     distrseq.reserve(number_of_expanded_terms);
-
+    
     intvector k;
     k.resize(number_of_adds);
     
@@ -700,49 +703,31 @@ ex mul::expand(unsigned options) const
     for (l=0; l<number_of_adds; l++) {
         k[l]=0;
     }
-
+    
     while (1) {
         epvector term;
-        term=expanded_seq;
+        term = expanded_seq;
         for (l=0; l<number_of_adds; l++) {
             const add & addref=ex_to_add(expanded_seq[positions_of_adds[l]].rest);
             GINAC_ASSERT(term[positions_of_adds[l]].coeff.compare(_ex1())==0);
             term[positions_of_adds[l]]=split_ex_to_pair(addref.op(k[l]));
         }
-        /*
-        cout << "mul::expand() term begin" << endl;
-        for (epvector::const_iterator cit=term.begin(); cit!=term.end(); ++cit) {
-            cout << "rest" << endl;
-            (*cit).rest.printtree(cout);
-            cout << "coeff" << endl;
-            (*cit).coeff.printtree(cout);
-        }
-        cout << "mul::expand() term end" << endl;
-        */
         distrseq.push_back((new mul(term,overall_coeff))->
-                                setflag(status_flags::dynallocated |
-                                        status_flags::expanded));
-
+                           setflag(status_flags::dynallocated |
+                                   status_flags::expanded));
+        
         // increment k[]
         l=number_of_adds-1;
-        while ((l>=0)&&((++k[l])>=number_of_add_operands[l])) {
+        while ((l>=0) && ((++k[l])>=number_of_add_operands[l])) {
             k[l]=0;    
             l--;
         }
         if (l<0) break;
     }
-
-    if (expanded_seqp!=0) {
+    
+    if (expanded_seqp!=0)
         delete expanded_seqp;
-    }
-    /*
-    cout << "mul::expand() distrseq begin" << endl;
-    for (exvector::const_iterator cit=distrseq.begin(); cit!=distrseq.end(); ++cit) {
-        (*cit).printtree(cout);
-    }
-    cout << "mul::expand() distrseq end" << endl;
-    */
-
+    
     return (new add(distrseq))->setflag(status_flags::dynallocated |
                                         status_flags::expanded);
 }
@@ -765,11 +750,11 @@ epvector * mul::expandchildren(unsigned options) const
         const ex & factor = recombine_pair_to_ex(*cit);
         const ex & expanded_factor = factor.expand(options);
         if (!are_ex_trivially_equal(factor,expanded_factor)) {
-
+            
             // something changed, copy seq, eval and return it
             epvector *s=new epvector;
             s->reserve(seq.size());
-
+            
             // copy parts of seq which are known not to have changed
             epvector::const_iterator cit2 = seq.begin();
             while (cit2!=cit) {

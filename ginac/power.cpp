@@ -329,11 +329,10 @@ ex power::eval(int level) const
     
     debugmsg("power eval",LOGLEVEL_MEMBER_FUNCTION);
 
-    if ((level==1)&&(flags & status_flags::evaluated)) {
+    if ((level==1) && (flags & status_flags::evaluated))
         return *this;
-    } else if (level == -max_recursion_level) {
+    else if (level == -max_recursion_level)
         throw(std::runtime_error("max recursion level reached"));
-    }
     
     const ex & ebasis    = level==1 ? basis    : basis.eval(level-1);
     const ex & eexponent = level==1 ? exponent : exponent.eval(level-1);
@@ -554,20 +553,24 @@ unsigned power::return_type_tinfo(void) const
 
 ex power::expand(unsigned options) const
 {
+    if (flags & status_flags::expanded)
+        return *this;
+    
     ex expanded_basis = basis.expand(options);
     
-    if (!is_ex_exactly_of_type(exponent,numeric)||
+    if (!is_ex_exactly_of_type(exponent,numeric) ||
         !ex_to_numeric(exponent).is_integer()) {
         if (are_ex_trivially_equal(basis,expanded_basis)) {
             return this->hold();
         } else {
             return (new power(expanded_basis,exponent))->
-                    setflag(status_flags::dynallocated);
+                setflag(status_flags::dynallocated |
+                        status_flags::expanded);
         }
     }
     
     // integer numeric exponent
-    const numeric & num_exponent=ex_to_numeric(exponent);
+    const numeric & num_exponent = ex_to_numeric(exponent);
     int int_exponent = num_exponent.to_int();
     
     if (int_exponent > 0 && is_ex_exactly_of_type(expanded_basis,add)) {
@@ -583,7 +586,8 @@ ex power::expand(unsigned options) const
         return this->hold();
     } else {
         return (new power(expanded_basis,exponent))->
-               setflag(status_flags::dynallocated);
+               setflag(status_flags::dynallocated |
+                       status_flags::expanded);
     }
 }
 
@@ -613,20 +617,20 @@ ex power::expand_add(const add & a, int n) const
     int l;
     
     for (int l=0; l<m-1; l++) {
-        k[l]=0;
-        k_cum[l]=0;
-        upper_limit[l]=n;
+        k[l] = 0;
+        k_cum[l] = 0;
+        upper_limit[l] = n;
     }
     
     while (1) {
         exvector term;
         term.reserve(m+1);
         for (l=0; l<m-1; l++) {
-            const ex & b=a.op(l);
+            const ex & b = a.op(l);
             GINAC_ASSERT(!is_ex_exactly_of_type(b,add));
             GINAC_ASSERT(!is_ex_exactly_of_type(b,power)||
-                   !is_ex_exactly_of_type(ex_to_power(b).exponent,numeric)||
-                   !ex_to_numeric(ex_to_power(b).exponent).is_pos_integer());
+                         !is_ex_exactly_of_type(ex_to_power(b).exponent,numeric)||
+                         !ex_to_numeric(ex_to_power(b).exponent).is_pos_integer());
             if (is_ex_exactly_of_type(b,mul)) {
                 term.push_back(expand_mul(ex_to_mul(b),numeric(k[l])));
             } else {
@@ -634,18 +638,18 @@ ex power::expand_add(const add & a, int n) const
             }
         }
         
-        const ex & b=a.op(l);
+        const ex & b = a.op(l);
         GINAC_ASSERT(!is_ex_exactly_of_type(b,add));
         GINAC_ASSERT(!is_ex_exactly_of_type(b,power)||
-               !is_ex_exactly_of_type(ex_to_power(b).exponent,numeric)||
-               !ex_to_numeric(ex_to_power(b).exponent).is_pos_integer());
+                     !is_ex_exactly_of_type(ex_to_power(b).exponent,numeric)||
+                     !ex_to_numeric(ex_to_power(b).exponent).is_pos_integer());
         if (is_ex_exactly_of_type(b,mul)) {
             term.push_back(expand_mul(ex_to_mul(b),numeric(n-k_cum[m-2])));
         } else {
             term.push_back(power(b,n-k_cum[m-2]));
         }
         
-        numeric f=binomial(numeric(n),numeric(k[0]));
+        numeric f = binomial(numeric(n),numeric(k[0]));
         for (l=1; l<m-1; l++) {
             f=f*binomial(numeric(n-k_cum[l-1]),numeric(k[l]));
         }
@@ -689,11 +693,12 @@ ex power::expand_add(const add & a, int n) const
             upper_limit[i]=n-k_cum[i-1];
         }   
     }
-    return (new add(sum))->setflag(status_flags::dynallocated);
+    return (new add(sum))->setflag(status_flags::dynallocated |
+                                   status_flags::expanded );
 }
 
 
-/** Special case of power::expand. Expands a^2 where a is an add.
+/** Special case of power::expand_add. Expands a^2 where a is an add.
  *  @see power::expand_add */
 ex power::expand_add_2(const add & a) const
 {
@@ -753,10 +758,11 @@ ex power::expand_add_2(const add & a) const
         
     GINAC_ASSERT(sum.size()==(a_nops*(a_nops+1))/2);
     
-    return (new add(sum))->setflag(status_flags::dynallocated);
+    return (new add(sum))->setflag(status_flags::dynallocated |
+                                   status_flags::expanded );
 }
 
-/** Expand m^n where m is a mul and n is and integer
+/** Expand factors of m in m^n where m is a mul and n is and integer
  *  @see power::expand */
 ex power::expand_mul(const mul & m, const numeric & n) const
 {
@@ -765,8 +771,8 @@ ex power::expand_mul(const mul & m, const numeric & n) const
     
     epvector distrseq;
     distrseq.reserve(m.seq.size());
-    epvector::const_iterator last=m.seq.end();
-    epvector::const_iterator cit=m.seq.begin();
+    epvector::const_iterator last = m.seq.end();
+    epvector::const_iterator cit = m.seq.begin();
     while (cit!=last) {
         if (is_ex_exactly_of_type((*cit).rest,numeric)) {
             distrseq.push_back(m.combine_pair_with_coeff_to_pair(*cit,n));
@@ -779,7 +785,7 @@ ex power::expand_mul(const mul & m, const numeric & n) const
         ++cit;
     }
     return (new mul(distrseq,ex_to_numeric(m.overall_coeff).power_dyn(n)))
-                 ->setflag(status_flags::dynallocated);
+        ->setflag(status_flags::dynallocated);
 }
 
 /*
@@ -803,9 +809,8 @@ ex power::expand_commutative_3(const ex & basis, const numeric & exponent,
         distrseq.push_back(binomial(n,k)*power(first_operands,numeric(k))*
                            power(last_operand,numeric(n-k)));
     }
-    return ex((new add(distrseq))->setflag(status_flags::sub_expanded |
-                                           status_flags::expanded |
-                                           status_flags::dynallocated  )).
+    return ex((new add(distrseq))->setflag(status_flags::expanded |
+                                           status_flags::dynallocated )).
            expand(options);
 }
 */

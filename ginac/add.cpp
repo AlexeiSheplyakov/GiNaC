@@ -528,12 +528,16 @@ ex add::recombine_pair_to_ex(const expair & p) const
 
 ex add::expand(unsigned options) const
 {
+    if (flags & status_flags::expanded)
+        return *this;
+    
     epvector * vp = expandchildren(options);
     if (vp==0) {
         return *this;
     }
-    return (new add(vp,overall_coeff))->setflag(status_flags::expanded    |
-                                                status_flags::dynallocated );
+    return (new add(vp,overall_coeff))->
+        setflag(status_flags::expanded |
+                status_flags::dynallocated);
 }
 
 //////////

@@ -94,9 +94,10 @@ numeric::numeric() : basic(TINFO_numeric)
 {
     debugmsg("numeric default constructor", LOGLEVEL_CONSTRUCT);
     value = new cl_N;
-    *value=cl_I(0);
+    *value = cl_I(0);
     calchash();
-    setflag(status_flags::evaluated|
+    setflag(status_flags::evaluated |
+            status_flags::expanded |
             status_flags::hash_calculated);
 }
 

@@ -539,7 +539,7 @@ unsigned expairseq::calchash(void) const
 
 ex expairseq::expand(unsigned options) const
 {
-    epvector * vp=expandchildren(options);
+    epvector * vp = expandchildren(options);
     if (vp==0) {
         return *this;
     }

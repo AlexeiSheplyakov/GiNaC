@@ -943,7 +943,7 @@ ex matrix::determinant_minor(void) const
                 else
                     det += m[Pkey[r]*this->col+c]*A[Mkey];
             }
-            // prevent build-up of deep nesting of expressions saves some time:
+            // prevent build-up of deep nesting of expressions saves time:
             det = det.expand();
             // store the new determinant at its place in B:
             B.insert(Rmap_value(Pkey,det));
