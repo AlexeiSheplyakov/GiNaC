@@ -769,28 +769,31 @@ ex function::evalf(int level) const
 {
 	GINAC_ASSERT(serial<registered_functions().size());
 
+	const function_options &opt = registered_functions()[serial];
+
 	// Evaluate children first
 	exvector eseq;
-	if (level == 1)
+	if (level == 1 || !(opt.evalf_params_first))
 		eseq = seq;
 	else if (level == -max_recursion_level)
 		throw(std::runtime_error("max recursion level reached"));
-	else
+	else {
 		eseq.reserve(seq.size());
-	--level;
-	exvector::const_iterator it = seq.begin(), itend = seq.end();
-	while (it != itend) {
-		eseq.push_back(it->evalf(level));
-		++it;
+		--level;
+		exvector::const_iterator it = seq.begin(), itend = seq.end();
+		while (it != itend) {
+			eseq.push_back(it->evalf(level));
+			++it;
+		}
 	}
-	
-	if (registered_functions()[serial].evalf_f==0) {
+
+	if (opt.evalf_f==0) {
 		return function(serial,eseq).hold();
 	}
 	current_serial = serial;
-	if (registered_functions()[serial].evalf_use_exvector_args)
-		return ((evalf_funcp_exvector)(registered_functions()[serial].evalf_f))(seq);
-	switch (registered_functions()[serial].nparams) {
+	if (opt.evalf_use_exvector_args)
+		return ((evalf_funcp_exvector)(opt.evalf_f))(seq);
+	switch (opt.nparams) {
 		// the following lines have been generated for max. ${maxargs} parameters
 ${evalf_switch_statement}
 		// end of generated lines
