@@ -469,6 +469,16 @@ ex matrix::determinant(void) const
     if (numeric_flag)
         return determinant_numeric();
     
+    if (5*sparse_count<row*col) {     // MAGIC, maybe 10 some bright day?
+        matrix M(*this);
+        // int sign = M.division_free_elimination();
+        int sign = M.fraction_free_elimination();
+        if (normal_flag)
+            return sign*M(row-1,col-1).normal();
+        else
+            return sign*M(row-1,col-1).expand();
+    }
+    
     // Now come the minor expansion schemes.  We always develop such that the
     // smallest minors (i.e, the trivial 1x1 ones) are on the rightmost column.
     // For this to be efficient it turns out that the emptiest columns (i.e.
@@ -498,11 +508,6 @@ ex matrix::determinant(void) const
             result[r*col+c] = m[r*col+(*i)];
     }
     
-    if (0*sparse_count>row*col) {     // MAGIC, maybe 10 some day?
-        if (normal_flag)
-            return sign*matrix(row,col,result).determinant_minor_sparse().normal();
-        return sign*matrix(row,col,result).determinant_minor_sparse();
-    }
     if (normal_flag)
         return sign*matrix(row,col,result).determinant_minor_dense().normal();
     return sign*matrix(row,col,result).determinant_minor_dense();
