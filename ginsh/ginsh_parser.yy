@@ -35,20 +35,10 @@
 #include <unistd.h>
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-extern "C" {
-#include <readline/readline.h>
-#include <readline/history.h>
-}
-
 #include <map>
 #include <string>
 #include <stdexcept>
 
-#include <ginac/ginac.h>
 #include "ginsh.h"
 
 // Original readline settings
@@ -497,7 +487,7 @@ static ex f_ginac_function(const exprseq &es, int serial)
 	return function(serial, es).eval(1);
 }
 
-void ginsh_get_ginac_functions(void)
+void GiNaC::ginsh_get_ginac_functions(void)
 {
 	vector<registered_function_info>::const_iterator i = function::registered_functions().begin(), end = function::registered_functions().end();
 	unsigned serial = 0;

@@ -22,6 +22,25 @@
 #ifndef GINSH_H
 #define GINSH_H
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#ifdef HAVE_READLINE_READLINE_H
+extern "C" {
+#include <readline/readline.h>
+}
+#endif
+
+#ifdef HAVE_READLINE_HISTORY_H
+extern "C" {
+#include <readline/history.h>
+}
+#endif
+
+#include <ginac/ginac.h>
+using namespace GiNaC;
+
 // yacc stack type
 #define YYSTYPE ex
 

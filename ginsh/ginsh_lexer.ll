@@ -28,16 +28,9 @@
 %{
 #include "config.h"
 
-#include <stdio.h>
-extern "C" {
-#include <readline/readline.h>
-#include <readline/history.h>
-}
 #include <map>
 
-#include <ginac/ginac.h>
 #include "ginsh.h"
-
 #include "ginsh_parser.h"
 
 #define YY_INPUT(buf, result, max_size) (result = ginsh_input(buf, max_size))
@@ -131,9 +124,9 @@ static int ginsh_input(char *buf, int max_size)
 {
 	int result;
 	if (yy_current_buffer->yy_is_interactive) {
-		int actual;
-
+#ifdef HAVE_LIBREADLINE
 		// Do we need to read a new line?
+		int actual;
 		if (line_length == 0) {
 
 			// Free old line
@@ -164,7 +157,17 @@ static int ginsh_input(char *buf, int max_size)
 		line_length -= actual;
 		line_ptr += actual;
 		result = actual;
-
+#else
+		printf("> "); fflush(stdout);
+		int c = '*', n;
+		for (n = 0; n < max_size && (c = getc(yyin)) != EOF && c != '\n'; ++n)
+			buf[n] = (char)c;
+		if (c == '\n')
+			buf[n++] = (char)c;
+		if (c == EOF && ferror(yyin))
+			YY_FATAL_ERROR("input in flex scanner failed");
+		result = n;
+#endif
 	} else if (((result = fread(buf, 1, max_size, yyin)) == 0) && ferror(yyin))
 		YY_FATAL_ERROR("input in flex scanner failed");
 
