@@ -103,6 +103,26 @@ static unsigned metric_check(void)
 	return result;
 }
 
+static unsigned epsilon_check(void)
+{
+	// checks identities of the epsilon tensor
+
+	unsigned result = 0;
+
+	symbol s_mu("mu"), s_nu("nu"), s_rho("rho"), s_sigma("sigma");
+	varidx mu(s_mu, 4), nu(s_nu, 4), rho(s_rho, 4), sigma(s_sigma, 4);
+
+	// antisymmetry
+	result += check_equal(lorentz_eps(mu, nu, rho, sigma) + lorentz_eps(sigma, rho, mu, nu), 0);
+
+	// convolution is zero
+	result += check_equal(lorentz_eps(mu, nu, rho, nu.toggle_variance()), 0);
+	result += check_equal(lorentz_eps(mu, nu, mu.toggle_variance(), nu.toggle_variance()), 0);
+	result += check_equal_simplify(lorentz_g(mu.toggle_variance(), nu.toggle_variance()) * lorentz_eps(mu, nu, rho, sigma), 0);
+
+	return result;
+}
+
 static unsigned symmetry_check(void)
 {
 	// check symmetric/antisymmetric objects
@@ -194,6 +214,7 @@ unsigned exam_indexed(void)
 
 	result += delta_check();  cout << '.' << flush;
 	result += metric_check();  cout << '.' << flush;
+	result += epsilon_check();  cout << '.' << flush;
 	result += symmetry_check();  cout << '.' << flush;
 	result += edyn_check();  cout << '.' << flush;
 	
