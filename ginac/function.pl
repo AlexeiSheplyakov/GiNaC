@@ -504,7 +504,6 @@ function_options& function_options::series_func(series_funcp_exvector s)
 	return *this;
 }
 
-
 function_options & function_options::set_return_type(unsigned rt, unsigned rtt)
 {
 	use_return_type = true;
@@ -913,18 +912,36 @@ bool function::match_same_type(const basic & other) const
 
 unsigned function::return_type(void) const
 {
-	if (seq.empty())
-		return return_types::commutative;
-	else
-		return seq.begin()->return_type();
+	const function_options &opt = registered_functions()[serial];
+
+	if (opt.use_return_type) {
+		// Return type was explicitly specified
+		return opt.return_type;
+	} else {
+		// Default behavior is to use the return type of the first
+		// argument. Thus, exp() of a matrix behaves like a matrix, etc.
+		if (seq.empty())
+			return return_types::commutative;
+		else
+			return seq.begin()->return_type();
+	}
 }
 
 unsigned function::return_type_tinfo(void) const
 {
-	if (seq.empty())
-		return tinfo_key;
-	else
-		return seq.begin()->return_type_tinfo();
+	const function_options &opt = registered_functions()[serial];
+
+	if (opt.use_return_type) {
+		// Return type was explicitly specified
+		return opt.return_type_tinfo;
+	} else {
+		// Default behavior is to use the return type of the first
+		// argument. Thus, exp() of a matrix behaves like a matrix, etc.
+		if (seq.empty())
+			return tinfo_key;
+		else
+			return seq.begin()->return_type_tinfo();
+	}
 }
 
 //////////
