@@ -95,7 +95,7 @@ exp	: T_NUMBER		{$$ = $1;}
 	| T_DIGITS		{$$ = $1;}
 	| T_SYMBOL '(' exprseq ')' {
 		unsigned i = function::find_function(ex_to_symbol($1).getname(), $3.nops());
-		$$ = function(i, static_cast<const exprseq &>(*($3.bp)));
+		$$ = function(i, static_cast<const exprseq &>(*($3.bp))).eval(1);
 	}
 	| exp T_EQUAL exp	{$$ = $1 == $3;}
 	| exp T_NOTEQ exp	{$$ = $1 != $3;}
