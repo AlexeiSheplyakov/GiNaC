@@ -501,8 +501,8 @@ bool tensepsilon::contract_with(exvector::iterator self, exvector::iterator othe
 		// Contraction of two epsilon tensors is a determinant
 		bool variance = is_a<varidx>(self->op(1));
 		matrix M(num, num);
-		for (int i=0; i<num; i++) {
-			for (int j=0; j<num; j++) {
+		for (unsigned i=0; i<num; i++) {
+			for (unsigned j=0; j<num; j++) {
 				if (minkowski)
 					M(i, j) = lorentz_g(self->op(i+1), other->op(j+1), pos_sig);
 				else if (variance)

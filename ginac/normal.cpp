@@ -2222,13 +2222,11 @@ ex power::normal(lst &sym_lst, lst &repl_lst, int level) const
 				// (a/b)^-x -> {sym((b/a)^x), 1}
 				return (new lst(replace_with_symbol(power(n_basis.op(1) / n_basis.op(0), -n_exponent), sym_lst, repl_lst), _ex1))->setflag(status_flags::dynallocated);
 			}
-
-		} else {	// n_exponent not numeric
-
-			// (a/b)^x -> {sym((a/b)^x, 1}
-			return (new lst(replace_with_symbol(power(n_basis.op(0) / n_basis.op(1), n_exponent), sym_lst, repl_lst), _ex1))->setflag(status_flags::dynallocated);
 		}
 	}
+
+	// (a/b)^x -> {sym((a/b)^x, 1}
+	return (new lst(replace_with_symbol(power(n_basis.op(0) / n_basis.op(1), n_exponent), sym_lst, repl_lst), _ex1))->setflag(status_flags::dynallocated);
 }
 
 

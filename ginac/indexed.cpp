@@ -809,7 +809,7 @@ contraction_done:
 	// zero. This detects things like eps.i.j.k * p.j * p.k = 0.
 	if (local_dummy_indices.size() >= 2) {
 		lst dummy_syms;
-		for (int i=0; i<local_dummy_indices.size(); i++)
+		for (exvector::size_type i=0; i<local_dummy_indices.size(); i++)
 			dummy_syms.append(local_dummy_indices[i].op(0));
 		if (r.symmetrize(dummy_syms).is_zero()) {
 			free_indices.clear();
@@ -959,7 +959,7 @@ ex simplify_indexed(const ex & e, exvector & free_indices, exvector & dummy_indi
 
 		// Yes, construct list of all dummy index symbols
 		lst dummy_syms;
-		for (int i=0; i<dummy_indices.size(); i++)
+		for (exvector::size_type i=0; i<dummy_indices.size(); i++)
 			dummy_syms.append(dummy_indices[i].op(0));
 
 		// Chop the sum into terms and symmetrize each one over the dummy
