@@ -6,3 +6,4 @@ check_ginac_SOURCES = paranoia_check.cpp numeric_output.cpp numeric_consist.cpp 
   series_expansion.cpp fcntimer.cpp main.cpp check.h
 check_ginac_LDADD = ../ginac/libginac.la
 TESTS = run_checks
+CLEANFILES = result.out
