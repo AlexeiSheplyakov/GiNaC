@@ -86,6 +86,49 @@ static unsigned exam_expand_power(void)
 	return result;
 }
 
+static unsigned exam_sqrfree(void)
+{
+	unsigned result = 0;
+	symbol x("x"), y("y");
+	ex e1, e2;
+	
+	e1 = (1+x)*pow((2+x),2)*pow((3+x),3)*pow((4+x),4);
+	e2 = sqrfree(expand(e1),lst(x));
+	if (e1 != e2) {
+		clog << "sqrfree(expand(" << e1 << ")) erroneously returned "
+		     << e2 << endl;
+		++result;
+	}
+	
+	e1 = (x+y)*pow((x+2*y),2)*pow((x+3*y),3)*pow((x+4*y),4);
+	e2 = sqrfree(expand(e1));
+	if (e1 != e2) {
+		clog << "sqrfree(expand(" << e1 << ")) erroneously returned "
+		     << e2 << endl;
+		++result;
+	}
+	e2 = sqrfree(expand(e1),lst(x));
+	if (e1 != e2) {
+		clog << "sqrfree(expand(" << e1 << "),[x]) erroneously returned "
+		     << e2 << endl;
+		++result;
+	}
+	e2 = sqrfree(expand(e1),lst(y));
+	if (e1 != e2) {
+		clog << "sqrfree(expand(" << e1 << "),[y]) erroneously returned "
+		     << e2 << endl;
+		++result;
+	}
+	e2 = sqrfree(expand(e1),lst(x,y));
+	if (e1 != e2) {
+		clog << "sqrfree(expand(" << e1 << "),[x,y]) erroneously returned "
+		     << e2 << endl;
+		++result;
+	}
+	
+	return result;
+}
+
 unsigned exam_misc(void)
 {
 	unsigned result = 0;
@@ -96,6 +139,7 @@ unsigned exam_misc(void)
 	result += exam_expand_subs();  cout << '.' << flush;
 	result += exam_expand_subs2();  cout << '.' << flush;
 	result += exam_expand_power(); cout << '.' << flush;
+	result += exam_sqrfree(); cout << '.' << flush;
 	
 	if (!result) {
 		cout << " passed " << endl;
