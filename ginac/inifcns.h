@@ -113,6 +113,25 @@ template<> inline bool is_the_function<class zeta_SERIAL>(const ex& x)
 	return is_the_function<zeta1_SERIAL>(x) || is_the_function<zeta2_SERIAL>(x);
 }
 
+// overloading at work: we cannot use the macros here
+/** Generalized multiple polylogarithm. */
+class G2_SERIAL { public: static unsigned serial; };
+template<typename T1, typename T2>
+inline function G(const T1& x, const T2& y) {
+	return function(G2_SERIAL::serial, ex(x), ex(y));
+}
+/** Generalized multiple polylogarithm with explicit imaginary parts. */
+class G3_SERIAL { public: static unsigned serial; };
+template<typename T1, typename T2, typename T3>
+inline function G(const T1& x, const T2& s, const T3& y) {
+	return function(G3_SERIAL::serial, ex(x), ex(s), ex(y));
+}
+class G_SERIAL;
+template<> inline bool is_the_function<class G_SERIAL>(const ex& x)
+{
+	return is_the_function<G2_SERIAL>(x) || is_the_function<G3_SERIAL>(x);
+}
+
 /** Polylogarithm and multiple polylogarithm. */
 DECLARE_FUNCTION_2P(Li)
 

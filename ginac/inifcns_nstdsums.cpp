@@ -5,7 +5,8 @@
  *  The functions are:
  *    classical polylogarithm              Li(n,x)
  *    multiple polylogarithm               Li(lst(m_1,...,m_k),lst(x_1,...,x_k))
- *    nielsen's generalized polylogarithm  S(n,p,x)
+ *                                         G(lst(a_1,...,a_k),y) or G(lst(a_1,...,a_k),lst(s_1,...,s_k),y)
+ *    Nielsen's generalized polylogarithm  S(n,p,x)
  *    harmonic polylogarithm               H(m,x) or H(lst(m_1,...,m_k),x)
  *    multiple zeta value                  zeta(m) or zeta(lst(m_1,...,m_k))
  *    alternating Euler sum                zeta(m,s) or zeta(lst(m_1,...,m_k),lst(s_1,...,s_k))
@@ -17,31 +18,31 @@
  *      [Cra] Fast Evaluation of Multiple Zeta Sums, R.E.Crandall, Math.Comp. 67 (1998), pp. 1163-1172.
  *      [ReV] Harmonic Polylogarithms, E.Remiddi, J.A.M.Vermaseren, Int.J.Mod.Phys. A15 (2000), pp. 725-754
  *      [BBB] Special Values of Multiple Polylogarithms, J.Borwein, D.Bradley, D.Broadhurst, P.Lisonek, Trans.Amer.Math.Soc. 353/3 (2001), pp. 907-941
+ *      [VSW] Numerical evalutation of multiple polylogarithms, J.Vollinga, S.Weinzierl
  *
  *    - The order of parameters and arguments of Li and zeta is defined according to the nested sums
  *      representation. The parameters for H are understood as in [ReV]. They can be in expanded --- only
  *      0, 1 and -1 --- or in compactified --- a string with zeros in front of 1 or -1 is written as a single
  *      number --- notation.
  *
- *    - Except for the multiple polylogarithm all functions can be nummerically evaluated with arguments in
- *      the whole complex plane. Multiple polylogarithms evaluate only if for each argument x_i the product
- *      x_1 * x_2 * ... * x_i is smaller than one. The parameters for Li, zeta and S must be positive integers.
- *      If you want to have an alternating Euler sum, you have to give the signs of the parameters as a
- *      second argument s to zeta(m,s) containing 1 and -1.
+ *    - All functions can be nummerically evaluated with arguments in the whole complex plane. The parameters
+ *      for Li, zeta and S must be positive integers. If you want to have an alternating Euler sum, you have
+ *      to give the signs of the parameters as a second argument s to zeta(m,s) containing 1 and -1.
  *
  *    - The calculation of classical polylogarithms is speeded up by using Bernoulli numbers and 
  *      look-up tables. S uses look-up tables as well. The zeta function applies the algorithms in
- *      [Cra] and [BBB] for speed up.
+ *      [Cra] and [BBB] for speed up. Multiple polylogarithms use Hoelder convolution [BBB].
  *
- *    - The functions have no series expansion into nested sums. To do this, you have to convert these functions
- *      into the appropriate objects from the nestedsums library, do the expansion and convert the
- *      result back.
+ *    - The functions have no means to do a series expansion into nested sums. To do this, you have to convert
+ *      these functions into the appropriate objects from the nestedsums library, do the expansion and convert
+ *      the result back.
  *
  *    - Numerical testing of this implementation has been performed by doing a comparison of results
  *      between this software and the commercial M.......... 4.1. Multiple zeta values have been checked
  *      by means of evaluations into simple zeta values. Harmonic polylogarithms have been checked by
  *      comparison to S(n,p,x) for corresponding parameter combinations and by continuity checks
- *      around |x|=1 along with comparisons to corresponding zeta functions.
+ *      around |x|=1 along with comparisons to corresponding zeta functions. Multiple polylogarithms were
+ *      checked against H and zeta and by means of shuffle and quasi-shuffle relations.
  *
  */
 
@@ -63,6 +64,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <sstream>
 #include <stdexcept>
 #include <vector>
 #include <cln/cln.h>
@@ -183,7 +185,6 @@ void fill_Xn(int n)
 	xnsize++;
 }
 
-
 // doubles the number of entries in each Xn[]
 void double_Xn()
 {
@@ -192,7 +193,7 @@ void double_Xn()
 	for (int i=1; i<=xninitsizestep/2; ++i) {
 		Xn[0].push_back(bernoulli((i+pos0)*2).to_cl_N());
 	}
-	if (Xn.size() > 0) {
+	if (Xn.size() > 1) {
 		int xend = xninitsize + xninitsizestep;
 		cln::cl_N result;
 		// X_1
@@ -380,7 +381,7 @@ cln::cl_N Li_projection(int n, const cln::cl_N& x, const cln::float_format_t& pr
 
 
 // helper function for classical polylog Li
-numeric Li_num(int n, const numeric& x)
+numeric Lin_numeric(int n, const numeric& x)
 {
 	if (n == 1) {
 		// just a log
@@ -397,7 +398,16 @@ numeric Li_num(int n, const numeric& x)
 		// [Kol] (2.22)
 		return -(1-cln::expt(cln::cl_I(2),1-n)) * cln::zeta(n);
 	}
-	
+	if (abs(x.real()) < 0.4 && abs(abs(x)-1) < 0.01) {
+		cln::cl_N x_ = ex_to<numeric>(x).to_cl_N();
+		cln::cl_N result = -cln::expt(cln::log(x_), n-1) * cln::log(1-x_) / cln::factorial(n-1);
+		for (int j=0; j<n-1; j++) {
+			result = result + (S_num(n-j-1, 1, 1).to_cl_N() - S_num(1, n-j-1, 1-x_).to_cl_N())
+				* cln::expt(cln::log(x_), j) / cln::factorial(j);
+		}
+		return result;
+	}
+
 	// what is the desired float format?
 	// first guess: default format
 	cln::float_format_t prec = cln::default_float_format;
@@ -431,7 +441,7 @@ numeric Li_num(int n, const numeric& x)
 		cln::cl_N add;
 		for (int j=0; j<n-1; j++) {
 			add = add + (1+cln::expt(cln::cl_I(-1),n-j)) * (1-cln::expt(cln::cl_I(2),1-n+j))
-			            * Li_num(n-j,1).to_cl_N() * cln::expt(cln::log(-value),j) / cln::factorial(j);
+			            * Lin_numeric(n-j,1).to_cl_N() * cln::expt(cln::log(-value),j) / cln::factorial(j);
 		}
 		result = result - add;
 		return result;
@@ -458,6 +468,7 @@ numeric Li_num(int n, const numeric& x)
 namespace {
 
 
+// performs the actual series summation for multiple polylogarithms
 cln::cl_N multipleLi_do_sum(const std::vector<int>& s, const std::vector<cln::cl_N>& x)
 {
 	const int j = s.size();
@@ -486,8 +497,671 @@ cln::cl_N multipleLi_do_sum(const std::vector<int>& s, const std::vector<cln::cl
 	return t[0];
 }
 
+
+// converts parameter types and calls multipleLi_do_sum (convenience function for G_numeric)
+cln::cl_N mLi_do_summation(const lst& m, const lst& x)
+{
+	std::vector<int> m_int;
+	std::vector<cln::cl_N> x_cln;
+	for (lst::const_iterator itm = m.begin(), itx = x.begin(); itm != m.end(); ++itm, ++itx) {
+		m_int.push_back(ex_to<numeric>(*itm).to_int());
+		x_cln.push_back(ex_to<numeric>(*itx).to_cl_N());
+	}
+	return multipleLi_do_sum(m_int, x_cln);
+}
+
+
 // forward declaration for Li_eval()
 lst convert_parameter_Li_to_H(const lst& m, const lst& x, ex& pf);
+
+
+// holding dummy-symbols for the G/Li transformations
+std::vector<ex> gsyms;
+
+
+// type used by the transformation functions for G
+typedef std::vector<int> Gparameter;
+
+
+// G_eval1-function for G transformations
+ex G_eval1(int a, int scale)
+{
+	if (a != 0) {
+		const ex& scs = gsyms[std::abs(scale)];
+		const ex& as = gsyms[std::abs(a)];
+		if (as != scs) {
+			return -log(1 - scs/as);
+		} else {
+			return -zeta(1);
+		}
+	} else {
+		return log(gsyms[std::abs(scale)]);
+	}
+}
+
+
+// G_eval-function for G transformations
+ex G_eval(const Gparameter& a, int scale)
+{
+	// check for properties of G
+	ex sc = gsyms[std::abs(scale)];
+	lst newa;
+	bool all_zero = true;
+	bool all_ones = true;
+	int count_ones = 0;
+	for (Gparameter::const_iterator it = a.begin(); it != a.end(); ++it) {
+		if (*it != 0) {
+			const ex sym = gsyms[std::abs(*it)];
+			newa.append(sym);
+			all_zero = false;
+			if (sym != sc) {
+				all_ones = false;
+			}
+			if (all_ones) {
+				++count_ones;
+			}
+		} else {
+			all_ones = false;
+		}
+	}
+
+	// care about divergent G: shuffle to separate divergencies that will be canceled
+	// later on in the transformation
+	if (newa.nops() > 1 && newa.op(0) == sc && !all_ones && a.front()!=0) {
+		// do shuffle
+		Gparameter short_a;
+		Gparameter::const_iterator it = a.begin();
+		++it;
+		for (; it != a.end(); ++it) {
+			short_a.push_back(*it);
+		}
+		ex result = G_eval1(a.front(), scale) * G_eval(short_a, scale);
+		it = short_a.begin();
+		for (int i=1; i<count_ones; ++i) {
+			++it;
+		}
+		for (; it != short_a.end(); ++it) {
+
+			Gparameter newa;
+			Gparameter::const_iterator it2 = short_a.begin();
+			for (--it2; it2 != it;) {
+				++it2;
+				newa.push_back(*it2);
+			}
+			newa.push_back(a[0]);
+			++it2;
+			for (; it2 != short_a.end(); ++it2) {
+				newa.push_back(*it2);	
+			}
+			result -= G_eval(newa, scale);
+		}
+		return result / count_ones;
+	}
+
+	// G({1,...,1};y) -> G({1};y)^k / k!
+	if (all_ones && a.size() > 1) {
+		return pow(G_eval1(a.front(),scale), count_ones) / factorial(count_ones);
+	}
+
+	// G({0,...,0};y) -> log(y)^k / k!
+	if (all_zero) {
+		return pow(log(gsyms[std::abs(scale)]), a.size()) / factorial(a.size());
+	}
+
+	// no special cases anymore -> convert it into Li
+	lst m;
+	lst x;
+	ex argbuf = gsyms[std::abs(scale)];
+	ex mval = _ex1;
+	for (Gparameter::const_iterator it=a.begin(); it!=a.end(); ++it) {
+		if (*it != 0) {
+			const ex& sym = gsyms[std::abs(*it)];
+			x.append(argbuf / sym);
+			m.append(mval);
+			mval = _ex1;
+			argbuf = sym;
+		} else {
+			++mval;
+		}
+	}
+	return pow(-1, x.nops()) * Li(m, x);
+}
+
+
+// converts data for G: pending_integrals -> a
+Gparameter convert_pending_integrals_G(const Gparameter& pending_integrals)
+{
+	GINAC_ASSERT(pending_integrals.size() != 1);
+
+	if (pending_integrals.size() > 0) {
+		// get rid of the first element, which would stand for the new upper limit
+		Gparameter new_a(pending_integrals.begin()+1, pending_integrals.end());
+		return new_a;
+	} else {
+		// just return empty parameter list
+		Gparameter new_a;
+		return new_a;
+	}
+}
+
+
+// check the parameters a and scale for G and return information about convergence, depth, etc.
+// convergent     : true if G(a,scale) is convergent
+// depth          : depth of G(a,scale)
+// trailing_zeros : number of trailing zeros of a
+// min_it         : iterator of a pointing on the smallest element in a
+Gparameter::const_iterator check_parameter_G(const Gparameter& a, int scale,
+		bool& convergent, int& depth, int& trailing_zeros, Gparameter::const_iterator& min_it)
+{
+	convergent = true;
+	depth = 0;
+	trailing_zeros = 0;
+	min_it = a.end();
+	Gparameter::const_iterator lastnonzero = a.end();
+	for (Gparameter::const_iterator it = a.begin(); it != a.end(); ++it) {
+		if (std::abs(*it) > 0) {
+			++depth;
+			trailing_zeros = 0;
+			lastnonzero = it;
+			if (std::abs(*it) < scale) {
+				convergent = false;
+				if ((min_it == a.end()) || (std::abs(*it) < std::abs(*min_it))) {
+					min_it = it;
+				}
+			}
+		} else {
+			++trailing_zeros;
+		}
+	}
+	return ++lastnonzero;
+}
+
+
+// add scale to pending_integrals if pending_integrals is empty
+Gparameter prepare_pending_integrals(const Gparameter& pending_integrals, int scale)
+{
+	GINAC_ASSERT(pending_integrals.size() != 1);
+
+	if (pending_integrals.size() > 0) {
+		return pending_integrals;
+	} else {
+		Gparameter new_pending_integrals;
+		new_pending_integrals.push_back(scale);
+		return new_pending_integrals;
+	}
+}
+
+
+// handles trailing zeroes for an otherwise convergent integral
+ex trailing_zeros_G(const Gparameter& a, int scale)
+{
+	bool convergent;
+	int depth, trailing_zeros;
+	Gparameter::const_iterator last, dummyit;
+	last = check_parameter_G(a, scale, convergent, depth, trailing_zeros, dummyit);
+
+	GINAC_ASSERT(convergent);
+
+	if ((trailing_zeros > 0) && (depth > 0)) {
+		ex result;
+		Gparameter new_a(a.begin(), a.end()-1);
+		result += G_eval1(0, scale) * trailing_zeros_G(new_a, scale);
+		for (Gparameter::const_iterator it = a.begin(); it != last; ++it) {
+			Gparameter new_a(a.begin(), it);
+			new_a.push_back(0);
+			new_a.insert(new_a.end(), it, a.end()-1);
+			result -= trailing_zeros_G(new_a, scale);
+		}
+
+		return result / trailing_zeros;
+	} else {
+		return G_eval(a, scale);
+	}
+}
+
+
+// G transformation [VSW] (57),(58)
+ex depth_one_trafo_G(const Gparameter& pending_integrals, const Gparameter& a, int scale)
+{
+	// pendint = ( y1, b1, ..., br )
+	//       a = ( 0, ..., 0, amin )
+	//   scale = y2
+	//
+	// int_0^y1 ds1/(s1-b1) ... int dsr/(sr-br) G(0, ..., 0, sr; y2)
+	// where sr replaces amin
+
+	GINAC_ASSERT(a.back() != 0);
+	GINAC_ASSERT(a.size() > 0);
+
+	ex result;
+	Gparameter new_pending_integrals = prepare_pending_integrals(pending_integrals, std::abs(a.back()));
+	const int psize = pending_integrals.size();
+
+	// length == 1
+	// G(sr_{+-}; y2 ) = G(y2_{-+}; sr) - G(0; sr) + ln(-y2_{-+})
+
+	if (a.size() == 1) {
+
+	  // ln(-y2_{-+})
+	  result += log(gsyms[ex_to<numeric>(scale).to_int()]);
+		if (a.back() > 0) {
+			new_pending_integrals.push_back(-scale);
+			result += I*Pi;
+		} else {
+			new_pending_integrals.push_back(scale);
+			result -= I*Pi;
+		}
+		if (psize) {
+			result *= trailing_zeros_G(convert_pending_integrals_G(pending_integrals), pending_integrals.front());
+		}
+		
+		// G(y2_{-+}; sr)
+		result += trailing_zeros_G(convert_pending_integrals_G(new_pending_integrals), new_pending_integrals.front());
+		
+		// G(0; sr)
+		new_pending_integrals.back() = 0;
+		result -= trailing_zeros_G(convert_pending_integrals_G(new_pending_integrals), new_pending_integrals.front());
+
+		return result;
+	}
+
+	// length > 1
+	// G_m(sr_{+-}; y2) = -zeta_m + int_0^y2 dt/t G_{m-1}( (1/y2)_{+-}; 1/t )
+	//                            - int_0^sr dt/t G_{m-1}( (1/y2)_{+-}; 1/t )
+
+	//term zeta_m
+	result -= zeta(a.size());
+	if (psize) {
+		result *= trailing_zeros_G(convert_pending_integrals_G(pending_integrals), pending_integrals.front());
+	}
+	
+	// term int_0^sr dt/t G_{m-1}( (1/y2)_{+-}; 1/t )
+	//    = int_0^sr dt/t G_{m-1}( t_{+-}; y2 )
+	Gparameter new_a(a.begin()+1, a.end());
+	new_pending_integrals.push_back(0);
+	result -= depth_one_trafo_G(new_pending_integrals, new_a, scale);
+	
+	// term int_0^y2 dt/t G_{m-1}( (1/y2)_{+-}; 1/t )
+	//    = int_0^y2 dt/t G_{m-1}( t_{+-}; y2 )
+	Gparameter new_pending_integrals_2;
+	new_pending_integrals_2.push_back(scale);
+	new_pending_integrals_2.push_back(0);
+	if (psize) {
+		result += trailing_zeros_G(convert_pending_integrals_G(pending_integrals), pending_integrals.front())
+		          * depth_one_trafo_G(new_pending_integrals_2, new_a, scale);
+	} else {
+		result += depth_one_trafo_G(new_pending_integrals_2, new_a, scale);
+	}
+
+	return result;
+}
+
+
+// forward declaration
+ex shuffle_G(const Gparameter & a0, const Gparameter & a1, const Gparameter & a2,
+	     const Gparameter& pendint, const Gparameter& a_old, int scale);
+
+
+// G transformation [VSW]
+ex G_transform(const Gparameter& pendint, const Gparameter& a, int scale)
+{
+	// main recursion routine
+	//
+	// pendint = ( y1, b1, ..., br )
+	//       a = ( a1, ..., amin, ..., aw )
+	//   scale = y2
+	//
+	// int_0^y1 ds1/(s1-b1) ... int dsr/(sr-br) G(a1,...,sr,...,aw,y2)
+	// where sr replaces amin
+
+	// find smallest alpha, determine depth and trailing zeros, and check for convergence
+	bool convergent;
+	int depth, trailing_zeros;
+	Gparameter::const_iterator min_it;
+	Gparameter::const_iterator firstzero = 
+		check_parameter_G(a, scale, convergent, depth, trailing_zeros, min_it);
+	int min_it_pos = min_it - a.begin();
+
+	// special case: all a's are zero
+	if (depth == 0) {
+		ex result;
+
+		if (a.size() == 0) {
+		  result = 1;
+		} else {
+		  result = G_eval(a, scale);
+		}
+		if (pendint.size() > 0) {
+		  result *= trailing_zeros_G(convert_pending_integrals_G(pendint), pendint.front());
+		} 
+		return result;
+	}
+
+	// handle trailing zeros
+	if (trailing_zeros > 0) {
+		ex result;
+		Gparameter new_a(a.begin(), a.end()-1);
+		result += G_eval1(0, scale) * G_transform(pendint, new_a, scale);
+		for (Gparameter::const_iterator it = a.begin(); it != firstzero; ++it) {
+			Gparameter new_a(a.begin(), it);
+			new_a.push_back(0);
+			new_a.insert(new_a.end(), it, a.end()-1);
+			result -= G_transform(pendint, new_a, scale);
+		}
+		return result / trailing_zeros;
+	}
+
+	// convergence case
+	if (convergent) {
+		if (pendint.size() > 0) {
+			return G_eval(convert_pending_integrals_G(pendint), pendint.front()) * G_eval(a, scale);
+		} else {
+			return G_eval(a, scale);
+		}
+	}
+
+	// call basic transformation for depth equal one
+	if (depth == 1) {
+		return depth_one_trafo_G(pendint, a, scale);
+	}
+
+	// do recursion
+	// int_0^y1 ds1/(s1-b1) ... int dsr/(sr-br) G(a1,...,sr,...,aw,y2)
+	//  =  int_0^y1 ds1/(s1-b1) ... int dsr/(sr-br) G(a1,...,0,...,aw,y2)
+	//   + int_0^y1 ds1/(s1-b1) ... int dsr/(sr-br) int_0^{sr} ds_{r+1} d/ds_{r+1} G(a1,...,s_{r+1},...,aw,y2)
+
+	// smallest element in last place
+	if (min_it + 1 == a.end()) {
+		do { --min_it; } while (*min_it == 0);
+		Gparameter empty;
+		Gparameter a1(a.begin(),min_it+1);
+		Gparameter a2(min_it+1,a.end());
+
+		ex result = G_transform(pendint,a2,scale)*G_transform(empty,a1,scale);
+
+		result -= shuffle_G(empty,a1,a2,pendint,a,scale);
+		return result;
+	}
+
+	Gparameter empty;
+	Gparameter::iterator changeit;
+
+	// first term G(a_1,..,0,...,a_w;a_0)
+	Gparameter new_pendint = prepare_pending_integrals(pendint, a[min_it_pos]);
+	Gparameter new_a = a;
+	new_a[min_it_pos] = 0;
+	ex result = G_transform(empty, new_a, scale);
+	if (pendint.size() > 0) {
+		result *= trailing_zeros_G(convert_pending_integrals_G(pendint), pendint.front());
+	}
+
+	// other terms
+	changeit = new_a.begin() + min_it_pos;
+	changeit = new_a.erase(changeit);
+	if (changeit != new_a.begin()) {
+		// smallest in the middle
+		new_pendint.push_back(*changeit);
+		result -= trailing_zeros_G(convert_pending_integrals_G(new_pendint), new_pendint.front())
+			* G_transform(empty, new_a, scale);
+		int buffer = *changeit;
+		*changeit = *min_it;
+		result += G_transform(new_pendint, new_a, scale);
+		*changeit = buffer;
+		new_pendint.pop_back();
+		--changeit;
+		new_pendint.push_back(*changeit);
+		result += trailing_zeros_G(convert_pending_integrals_G(new_pendint), new_pendint.front())
+			* G_transform(empty, new_a, scale);
+		*changeit = *min_it;
+		result -= G_transform(new_pendint, new_a, scale);
+	} else {
+		// smallest at the front
+		new_pendint.push_back(scale);
+		result += trailing_zeros_G(convert_pending_integrals_G(new_pendint), new_pendint.front())
+			* G_transform(empty, new_a, scale);
+		new_pendint.back() =  *changeit;
+		result -= trailing_zeros_G(convert_pending_integrals_G(new_pendint), new_pendint.front())
+			* G_transform(empty, new_a, scale);
+		*changeit = *min_it;
+		result += G_transform(new_pendint, new_a, scale);
+	}
+	return result;
+}
+
+
+// shuffles the two parameter list a1 and a2 and calls G_transform for every term except
+// for the one that is equal to a_old
+ex shuffle_G(const Gparameter & a0, const Gparameter & a1, const Gparameter & a2,
+	     const Gparameter& pendint, const Gparameter& a_old, int scale) 
+{
+	if (a1.size()==0 && a2.size()==0) {
+		// veto the one configuration we don't want
+		if ( a0 == a_old ) return 0;
+
+		return G_transform(pendint,a0,scale);
+	}
+
+	if (a2.size()==0) {
+		Gparameter empty;
+		Gparameter aa0 = a0;
+		aa0.insert(aa0.end(),a1.begin(),a1.end());
+		return shuffle_G(aa0,empty,empty,pendint,a_old,scale);
+	}
+
+	if (a1.size()==0) {
+		Gparameter empty;
+		Gparameter aa0 = a0;
+		aa0.insert(aa0.end(),a2.begin(),a2.end());
+		return shuffle_G(aa0,empty,empty,pendint,a_old,scale);
+	}
+
+	Gparameter a1_removed(a1.begin()+1,a1.end());
+	Gparameter a2_removed(a2.begin()+1,a2.end());
+
+	Gparameter a01 = a0;
+	Gparameter a02 = a0;
+
+	a01.push_back( a1[0] );
+	a02.push_back( a2[0] );
+
+	return shuffle_G(a01,a1_removed,a2,pendint,a_old,scale)
+	     + shuffle_G(a02,a1,a2_removed,pendint,a_old,scale);
+}
+
+
+// handles the transformations and the numerical evaluation of G
+// the parameter x, s and y must only contain numerics
+ex G_numeric(const lst& x, const lst& s, const ex& y)
+{
+	// check for convergence and necessary accelerations
+	bool need_trafo = false;
+	bool need_hoelder = false;
+	int depth = 0;
+	for (lst::const_iterator it = x.begin(); it != x.end(); ++it) {
+		if (!(*it).is_zero()) {
+			++depth;
+			if (abs(*it) - y < -pow(10,-Digits+2)) {
+				need_trafo = true;
+				break;
+			}
+			if (abs((abs(*it) - y)/y) < 0.01) {
+				need_hoelder = true;
+			}
+		}
+	}
+	if (x.op(x.nops()-1).is_zero()) {
+		need_trafo = true;
+	}
+	if (depth == 1 && !need_trafo) {
+		return -Li(x.nops(), y / x.op(x.nops()-1)).evalf();
+	}
+	
+	// convergence transformation
+	if (need_trafo) {
+
+		// sort (|x|<->position) to determine indices
+		std::multimap<ex,int> sortmap;
+		int size = 0;
+		for (int i=0; i<x.nops(); ++i) {
+			if (!x[i].is_zero()) {
+				sortmap.insert(std::pair<ex,int>(abs(x[i]), i));
+				++size;
+			}
+		}
+		// include upper limit (scale)
+		sortmap.insert(std::pair<ex,int>(abs(y), x.nops()));
+
+		// generate missing dummy-symbols
+		int i = 1;
+		gsyms.clear();
+		gsyms.push_back(symbol("GSYMS_ERROR"));
+		ex lastentry;
+		for (std::multimap<ex,int>::const_iterator it = sortmap.begin(); it != sortmap.end(); ++it) {
+			if (it != sortmap.begin()) {
+				if (it->second < x.nops()) {
+					if (x[it->second] == lastentry) {
+						gsyms.push_back(gsyms.back());
+						continue;
+					}
+				} else {
+					if (y == lastentry) {
+						gsyms.push_back(gsyms.back());
+						continue;
+					}
+				}
+			}
+			std::ostringstream os;
+			os << "a" << i;
+			gsyms.push_back(symbol(os.str()));
+			++i;
+			if (it->second < x.nops()) {
+				lastentry = x[it->second];
+			} else {
+				lastentry = y;
+			}
+		}
+
+		// fill position data according to sorted indices and prepare substitution list
+		Gparameter a(x.nops());
+		lst subslst;
+		int pos = 1;
+		int scale;
+		for (std::multimap<ex,int>::const_iterator it = sortmap.begin(); it != sortmap.end(); ++it) {
+			if (it->second < x.nops()) {
+				if (s[it->second] > 0) {
+					a[it->second] = pos;
+				} else {
+					a[it->second] = -pos;
+				}
+				subslst.append(gsyms[pos] == x[it->second]);
+			} else {
+				scale = pos;
+				subslst.append(gsyms[pos] == y);
+			}
+			++pos;
+		}
+
+		// do transformation
+		Gparameter pendint;
+		ex result = G_transform(pendint, a, scale);
+		// replace dummy symbols with their values
+		result = result.eval().expand();
+		result = result.subs(subslst).evalf();
+		
+		return result;
+	}
+
+	// do acceleration transformation (hoelder convolution [BBB])
+	if (need_hoelder) {
+		
+		ex result;
+		const int size = x.nops();
+		lst newx;
+		for (lst::const_iterator it = x.begin(); it != x.end(); ++it) {
+			newx.append(*it / y);
+		}
+		
+		for (int r=0; r<=size; ++r) {
+			ex buffer = pow(-1, r);
+			ex p = 2;
+			bool adjustp;
+			do {
+				adjustp = false;
+				for (lst::const_iterator it = newx.begin(); it != newx.end(); ++it) {
+					if (*it == 1/p) {
+						p += (3-p)/2; 
+						adjustp = true;
+						continue;
+					}
+				}
+			} while (adjustp);
+			ex q = p / (p-1);
+			lst qlstx;
+			lst qlsts;
+			for (int j=r; j>=1; --j) {
+				qlstx.append(1-newx.op(j-1));
+				if (newx.op(j-1).info(info_flags::real) && newx.op(j-1) > 1 && newx.op(j-1) <= 2) {
+					qlsts.append( s.op(j-1));
+				} else {
+					qlsts.append( -s.op(j-1));
+				}
+			}
+			if (qlstx.nops() > 0) {
+				buffer *= G_numeric(qlstx, qlsts, 1/q);
+			}
+			lst plstx;
+			lst plsts;
+			for (int j=r+1; j<=size; ++j) {
+				plstx.append(newx.op(j-1));
+				plsts.append(s.op(j-1));
+			}
+			if (plstx.nops() > 0) {
+				buffer *= G_numeric(plstx, plsts, 1/p);
+			}
+			result += buffer;
+		}
+		return result;
+	}
+	
+	// do summation
+	lst newx;
+	lst m;
+	int mcount = 1;
+	ex sign = 1;
+	ex factor = y;
+	for (lst::const_iterator it = x.begin(); it != x.end(); ++it) {
+		if ((*it).is_zero()) {
+			++mcount;
+		} else {
+			newx.append(factor / (*it));
+			factor = *it;
+			m.append(mcount);
+			mcount = 1;
+			sign = -sign;
+		}
+	}
+
+	return sign * numeric(mLi_do_summation(m, newx));
+}
+
+
+ex mLi_numeric(const lst& m, const lst& x)
+{
+	// let G_numeric do the transformation
+	lst newx;
+	lst s;
+	ex factor = 1;
+	for (lst::const_iterator itm = m.begin(), itx = x.begin(); itm != m.end(); ++itm, ++itx) {
+		for (int i = 1; i < *itm; ++i) {
+			newx.append(0);
+			s.append(1);
+		}
+		newx.append(factor / *itx);
+		factor /= *itx;
+		s.append(1);
+	}
+	return pow(-1, m.nops()) * G_numeric(newx, s, _ex1);
+}
 
 
 } // end of anonymous namespace
@@ -495,133 +1169,335 @@ lst convert_parameter_Li_to_H(const lst& m, const lst& x, ex& pf);
 
 //////////////////////////////////////////////////////////////////////
 //
-// Classical polylogarithm and multiple polylogarithm  Li(n,x)
+// Generalized multiple polylogarithm  G(x, y) and G(x, s, y)
 //
 // GiNaC function
 //
 //////////////////////////////////////////////////////////////////////
 
 
-static ex Li_evalf(const ex& x1, const ex& x2)
+static ex G2_evalf(const ex& x_, const ex& y)
+{
+	if (!y.info(info_flags::positive)) {
+		return G(x_, y).hold();
+	}
+	lst x = is_a<lst>(x_) ? ex_to<lst>(x_) : lst(x_);
+	if (x.nops() == 0) {
+		return _ex1;
+	}
+	if (x.op(0) == y) {
+		return G(x_, y).hold();
+	}
+	lst s;
+	bool all_zero = true;
+	for (lst::const_iterator it = x.begin(); it != x.end(); ++it) {
+		if (!(*it).info(info_flags::numeric)) {
+			return G(x_, y).hold();
+		}
+		if (*it != _ex0) {
+			all_zero = false;
+		}
+		s.append(+1);
+	}
+	if (all_zero) {
+		return pow(log(y), x.nops()) / factorial(x.nops());
+	}
+	return G_numeric(x, s, y);
+}
+
+
+static ex G2_eval(const ex& x_, const ex& y)
+{
+	//TODO eval to MZV or H or S or Lin
+
+	if (!y.info(info_flags::positive)) {
+		return G(x_, y).hold();
+	}
+	lst x = is_a<lst>(x_) ? ex_to<lst>(x_) : lst(x_);
+	if (x.nops() == 0) {
+		return _ex1;
+	}
+	if (x.op(0) == y) {
+		return G(x_, y).hold();
+	}
+	lst s;
+	bool all_zero = true;
+	bool crational = true;
+	for (lst::const_iterator it = x.begin(); it != x.end(); ++it) {
+		if (!(*it).info(info_flags::numeric)) {
+			return G(x_, y).hold();
+		}
+		if (!(*it).info(info_flags::crational)) {
+			crational = false;
+		}
+		if (*it != _ex0) {
+			all_zero = false;
+		}
+		s.append(+1);
+	}
+	if (all_zero) {
+		return pow(log(y), x.nops()) / factorial(x.nops());
+	}
+	if (!y.info(info_flags::crational)) {
+		crational = false;
+	}
+	if (crational) {
+		return G(x_, y).hold();
+	}
+	return G_numeric(x, s, y);
+}
+
+
+unsigned G2_SERIAL::serial = function::register_new(function_options("G", 2).
+                                evalf_func(G2_evalf).
+                                eval_func(G2_eval).
+                                do_not_evalf_params().
+                                overloaded(2));
+//TODO
+//                                derivative_func(G2_deriv).
+//                                print_func<print_latex>(G2_print_latex).
+
+
+static ex G3_evalf(const ex& x_, const ex& s_, const ex& y)
+{
+	if (!y.info(info_flags::positive)) {
+		return G(x_, s_, y).hold();
+	}
+	lst x = is_a<lst>(x_) ? ex_to<lst>(x_) : lst(x_);
+	lst s = is_a<lst>(s_) ? ex_to<lst>(s_) : lst(s_);
+	if (x.nops() != s.nops()) {
+		return G(x_, s_, y).hold();
+	}
+	if (x.nops() == 0) {
+		return _ex1;
+	}
+	if (x.op(0) == y) {
+		return G(x_, s_, y).hold();
+	}
+	lst sn;
+	bool all_zero = true;
+	for (lst::const_iterator itx = x.begin(), its = s.begin(); itx != x.end(); ++itx, ++its) {
+		if (!(*itx).info(info_flags::numeric)) {
+			return G(x_, y).hold();
+		}
+		if (!(*its).info(info_flags::real)) {
+			return G(x_, y).hold();
+		}
+		if (*itx != _ex0) {
+			all_zero = false;
+		}
+		if (*its >= 0) {
+			sn.append(+1);
+		} else {
+			sn.append(-1);
+		}
+	}
+	if (all_zero) {
+		return pow(log(y), x.nops()) / factorial(x.nops());
+	}
+	return G_numeric(x, sn, y);
+}
+
+
+static ex G3_eval(const ex& x_, const ex& s_, const ex& y)
+{
+	//TODO eval to MZV or H or S or Lin
+
+	if (!y.info(info_flags::positive)) {
+		return G(x_, s_, y).hold();
+	}
+	lst x = is_a<lst>(x_) ? ex_to<lst>(x_) : lst(x_);
+	lst s = is_a<lst>(s_) ? ex_to<lst>(s_) : lst(s_);
+	if (x.nops() != s.nops()) {
+		return G(x_, s_, y).hold();
+	}
+	if (x.nops() == 0) {
+		return _ex1;
+	}
+	if (x.op(0) == y) {
+		return G(x_, s_, y).hold();
+	}
+	lst sn;
+	bool all_zero = true;
+	bool crational = true;
+	for (lst::const_iterator itx = x.begin(), its = s.begin(); itx != x.end(); ++itx, ++its) {
+		if (!(*itx).info(info_flags::numeric)) {
+			return G(x_, s_, y).hold();
+		}
+		if (!(*its).info(info_flags::real)) {
+			return G(x_, s_, y).hold();
+		}
+		if (!(*itx).info(info_flags::crational)) {
+			crational = false;
+		}
+		if (*itx != _ex0) {
+			all_zero = false;
+		}
+		if (*its >= 0) {
+			sn.append(+1);
+		} else {
+			sn.append(-1);
+		}
+	}
+	if (all_zero) {
+		return pow(log(y), x.nops()) / factorial(x.nops());
+	}
+	if (!y.info(info_flags::crational)) {
+		crational = false;
+	}
+	if (crational) {
+		return G(x_, s_, y).hold();
+	}
+	return G_numeric(x, sn, y);
+}
+
+
+unsigned G3_SERIAL::serial = function::register_new(function_options("G", 3).
+                                evalf_func(G3_evalf).
+                                eval_func(G3_eval).
+                                do_not_evalf_params().
+                                overloaded(2));
+//TODO
+//                                derivative_func(G3_deriv).
+//                                print_func<print_latex>(G3_print_latex).
+
+
+//////////////////////////////////////////////////////////////////////
+//
+// Classical polylogarithm and multiple polylogarithm  Li(m,x)
+//
+// GiNaC function
+//
+//////////////////////////////////////////////////////////////////////
+
+
+static ex Li_evalf(const ex& m_, const ex& x_)
 {
 	// classical polylogs
-	if (is_a<numeric>(x1) && is_a<numeric>(x2)) {
-		return Li_num(ex_to<numeric>(x1).to_int(), ex_to<numeric>(x2));
-	}
-	if (is_a<numeric>(x1) && !is_a<lst>(x2)) {
-		// try to numerically evaluate second argument
-		ex x2_val = x2.evalf();
-		if (is_a<numeric>(x2_val)) {
-			return Li_num(ex_to<numeric>(x1).to_int(), ex_to<numeric>(x2_val));
+	if (m_.info(info_flags::posint)) {
+		if (x_.info(info_flags::numeric)) {
+			return Lin_numeric(ex_to<numeric>(m_).to_int(), ex_to<numeric>(x_));
 		} else {
-			return Li(x1, x2).hold();
+			// try to numerically evaluate second argument
+			ex x_val = x_.evalf();
+			if (x_val.info(info_flags::numeric)) {
+				return Lin_numeric(ex_to<numeric>(m_).to_int(), ex_to<numeric>(x_val));
+			}
 		}
 	}
 	// multiple polylogs
-	else if (is_a<lst>(x1) && is_a<lst>(x2)) {
-		ex conv = 1;
-		for (int i=0; i<x1.nops(); i++) {
-			if (!x1.op(i).info(info_flags::posint)) {
-				return Li(x1, x2).hold();
+	if (is_a<lst>(m_) && is_a<lst>(x_)) {
+
+		const lst& m = ex_to<lst>(m_);
+		const lst& x = ex_to<lst>(x_);
+		if (m.nops() != x.nops()) {
+			return Li(m_,x_).hold();
+		}
+		if (x.nops() == 0) {
+			return _ex1;
+		}
+		if ((m.op(0) == _ex1) && (x.op(0) == _ex1)) {
+			return Li(m_,x_).hold();
+		}
+
+		for (lst::const_iterator itm = m.begin(), itx = x.begin(); itm != m.end(); ++itm, ++itx) {
+			if (!(*itm).info(info_flags::posint)) {
+				return Li(m_, x_).hold();
 			}
-			if (!is_a<numeric>(x2.op(i))) {
-				return Li(x1, x2).hold();
+			if (!(*itx).info(info_flags::numeric)) {
+				return Li(m_, x_).hold();
 			}
-			conv *= x2.op(i);
-			if (abs(conv) >= 1) {
-				return Li(x1, x2).hold();
+			if (*itx == _ex0) {
+				return _ex0;
 			}
 		}
 
-		std::vector<int> m;
-		std::vector<cln::cl_N> x;
-		for (int i=0; i<ex_to<numeric>(x1.nops()).to_int(); i++) {
-			m.push_back(ex_to<numeric>(x1.op(i)).to_int());
-			x.push_back(ex_to<numeric>(x2.op(i)).to_cl_N());
-		}
-
-		return numeric(multipleLi_do_sum(m, x));
+		return mLi_numeric(m, x);
 	}
 
-	return Li(x1,x2).hold();
+	return Li(m_,x_).hold();
 }
 
 
 static ex Li_eval(const ex& m_, const ex& x_)
 {
-	if (m_.nops() < 2) {
-		ex m;
-		if (is_a<lst>(m_)) {
-			m = m_.op(0);
-		} else {
-			m = m_;
-		}
-		ex x;
+	if (is_a<lst>(m_)) {
 		if (is_a<lst>(x_)) {
-			x = x_.op(0);
-		} else {
-			x = x_;
-		}
-		if (x == _ex0) {
-			return _ex0;
-		}
-		if (x == _ex1) {
-			return zeta(m);
-		}
-		if (x == _ex_1) {
-			return (pow(2,1-m)-1) * zeta(m);
-		}
-		if (m == _ex1) {
-			return -log(1-x);
-		}
-		if (m.info(info_flags::posint) && x.info(info_flags::numeric) && (!x.info(info_flags::crational))) {
-			return Li_num(ex_to<numeric>(m).to_int(), ex_to<numeric>(x));
-		}
-	} else {
-		bool ish = true;
-		bool iszeta = true;
-		bool iszero = false;
-		bool doevalf = false;
-		bool doevalfveto = true;
-		const lst& m = ex_to<lst>(m_);
-		const lst& x = ex_to<lst>(x_);
-		lst::const_iterator itm = m.begin();
-		lst::const_iterator itx = x.begin();
-		for (; itm != m.end(); itm++, itx++) {
-			if (!(*itm).info(info_flags::posint)) {
-				return Li(m_, x_).hold();
+			// multiple polylogs
+			const lst& m = ex_to<lst>(m_);
+			const lst& x = ex_to<lst>(x_);
+			if (m.nops() != x.nops()) {
+				return Li(m_,x_).hold();
 			}
-			if ((*itx != _ex1) && (*itx != _ex_1)) {
-				if (itx != x.begin()) {
-					ish = false;
+			if (x.nops() == 0) {
+				return _ex1;
+			}
+			bool is_H = true;
+			bool is_zeta = true;
+			bool do_evalf = true;
+			bool crational = true;
+			for (lst::const_iterator itm = m.begin(), itx = x.begin(); itm != m.end(); ++itm, ++itx) {
+				if (!(*itm).info(info_flags::posint)) {
+					return Li(m_,x_).hold();
 				}
-				iszeta = false;
+				if ((*itx != _ex1) && (*itx != _ex_1)) {
+					if (itx != x.begin()) {
+						is_H = false;
+					}
+					is_zeta = false;
+				}
+				if (*itx == _ex0) {
+					return _ex0;
+				}
+				if (!(*itx).info(info_flags::numeric)) {
+					do_evalf = false;
+				}
+				if (!(*itx).info(info_flags::crational)) {
+					crational = false;
+				}
 			}
-			if (*itx == _ex0) {
-				iszero = true;
+			if (is_zeta) {
+				return zeta(m_,x_);
 			}
-			if (!(*itx).info(info_flags::numeric)) {
-				doevalfveto = false;
+			if (is_H) {
+				ex prefactor;
+				lst newm = convert_parameter_Li_to_H(m, x, prefactor);
+				return prefactor * H(newm, x[0]);
 			}
-			if (!(*itx).info(info_flags::crational)) {
-				doevalf = true;
+			if (do_evalf && !crational) {
+				return mLi_numeric(m,x);
 			}
 		}
-		if (iszeta) {
-			return zeta(m_, x_);
+		return Li(m_, x_).hold();
+	} else if (is_a<lst>(x_)) {
+		return Li(m_, x_).hold();
+	}
+
+	// classical polylogs
+	if (x_ == _ex0) {
+		return _ex0;
+	}
+	if (x_ == _ex1) {
+		return zeta(m_);
+	}
+	if (x_ == _ex_1) {
+		return (pow(2,1-m_)-1) * zeta(m_);
+	}
+	if (m_ == _ex1) {
+		return -log(1-x_);
+	}
+	if (m_ == _ex2) {
+		if (x_.is_equal(I)) {
+			return power(Pi,_ex2)/_ex_48 + Catalan*I;
 		}
-		if (iszero) {
-			return _ex0;
-		}
-		if (ish) {
-			ex pf;
-			lst newm = convert_parameter_Li_to_H(m, x, pf);
-			return pf * H(newm, x[0]);
-		}
-		if (doevalfveto && doevalf) {
-			return Li(m_, x_).evalf();
+		if (x_.is_equal(-I)) {
+			return power(Pi,_ex2)/_ex_48 - Catalan*I;
 		}
 	}
+	if (m_.info(info_flags::posint) && x_.info(info_flags::numeric) && !x_.info(info_flags::crational)) {
+		return Lin_numeric(ex_to<numeric>(m_).to_int(), ex_to<numeric>(x_));
+	}
+
 	return Li(m_, x_).hold();
 }
 
@@ -1391,12 +2267,12 @@ lst convert_parameter_Li_to_H(const lst& m, const lst& x, ex& pf)
 	lst res;
 	lst::const_iterator itm = m.begin();
 	lst::const_iterator itx = ++x.begin();
-	ex signum = _ex1;
+	int signum = 1;
 	pf = _ex1;
 	res.append(*itm);
 	itm++;
 	while (itx != x.end()) {
-		signum *= *itx;
+		signum *= (*itx > 0) ? 1 : -1;
 		pf *= signum;
 		res.append((*itm) * signum);
 		itm++;
