@@ -45,10 +45,11 @@ class relational;
 class archive_node;
 class print_context;
 
-// Cint doesn't like vector<..,default_alloc> but malloc_alloc is
-// unstandardized and not supported by newer GCCs.
-#if defined(__GNUC__) && ((__GNUC__ == 2) && (__GNUC_MINOR__ < 97))
-  typedef std::vector<ex,malloc_alloc> exvector;
+// Cint currently doesn't like vector<..,default_alloc> but malloc_alloc is
+// unstandardized and not supported by newer GCCs.  This ugly hack will go
+// away soon!
+#if (defined(__GNUC__) && (__GNUC__ == 2) && (__GNUC_MINOR__ < 97)) || (defined(G__GNUC) && (G__GNUC == 2) && (G__GNUC_MINOR < 97))
+  typedef std::vector<GiNaC::ex,malloc_alloc> exvector;
 #else
   typedef std::vector<ex> exvector;
 #endif

@@ -490,7 +490,7 @@ ex basic::series(const relational & r, int order, unsigned options) const
 	const symbol &s = static_cast<symbol &>(*r.lhs().bp);
 	
 	if (!coeff.is_zero())
-		seq.push_back(expair(coeff, numeric(0)));
+		seq.push_back(expair(coeff, _ex0()));
 	
 	int n;
 	for (n=1; n<order; ++n) {
