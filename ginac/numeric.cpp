@@ -1062,6 +1062,17 @@ numeric atanh(numeric const & x)
     return ::atanh(*x.value);  // -> CLN
 }
 
+/** Numeric evaluation of Riemann's Zeta function.  Currently works only for
+ *  integer arguments. */
+numeric zeta(numeric const & x)
+{
+    if (x.is_integer())
+        return ::cl_zeta(x.to_int());  // -> CLN
+    else
+        clog << "zeta(): Does anybody know good way to calculate this numerically?" << endl;
+    return numeric(0);
+}
+
 /** The gamma function.
  *  This is only a stub! */
 numeric gamma(numeric const & x)

@@ -3,12 +3,12 @@
 lib_LTLIBRARIES = libginac.la
 libginac_la_SOURCES = add.cpp basic.cpp constant.cpp diff.cpp ex.cpp \
   expairseq.cpp exprseq.cpp fail.cpp function.cpp inifcns.cpp \
-  inifcns_trans.cpp inifcns_gamma.cpp matrix.cpp mul.cpp normal.cpp \
-  numeric.cpp operators.cpp power.cpp print.cpp printraw.cpp printtree.cpp \
-  printcsrc.cpp relational.cpp symbol.cpp utils.cpp series.cpp ncmul.cpp \
-  clifford.cpp structure.cpp color.cpp indexed.cpp idx.cpp isospin.cpp \
-  exprseq_suppl.cpp lst.cpp lst_suppl.cpp simp_lor.cpp coloridx.cpp \
-  lorentzidx.cpp debugmsg.h utils.h
+  inifcns_trans.cpp inifcns_zeta.cpp inifcns_gamma.cpp matrix.cpp mul.cpp \
+  normal.cpp numeric.cpp operators.cpp power.cpp print.cpp printraw.cpp \
+  printtree.cpp printcsrc.cpp relational.cpp symbol.cpp utils.cpp series.cpp \
+  ncmul.cpp clifford.cpp structure.cpp color.cpp indexed.cpp idx.cpp \
+  isospin.cpp exprseq_suppl.cpp lst.cpp lst_suppl.cpp simp_lor.cpp \
+  coloridx.cpp lorentzidx.cpp debugmsg.h utils.h
 libginac_la_LDFLAGS = -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \
   -release $(LT_RELEASE)
 ginacincludedir = $(includedir)/ginac

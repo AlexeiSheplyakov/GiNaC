@@ -79,10 +79,15 @@ DECLARE_FUNCTION_1P(Li2)
 /** Trilogarithm. */
 DECLARE_FUNCTION_1P(Li3)
 
-/** Gamma function. */
+/** Riemann's Zeta-function. */
+DECLARE_FUNCTION_1P(zeta)
+DECLARE_FUNCTION_2P(zeta)
+    
+/** Gamma-function. */
 DECLARE_FUNCTION_1P(gamma)
 
-/** Psi function (aka polygamma-function) */
+/** Psi-function (aka polygamma-function). */
+DECLARE_FUNCTION_1P(psi)
 DECLARE_FUNCTION_2P(psi)
     
 /** Factorial function. */

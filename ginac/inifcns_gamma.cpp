@@ -1,6 +1,7 @@
 /** @file inifcns_gamma.cpp
  *
- *  Implementation of Gamma function and some related stuff. */
+ *  Implementation of Gamma-function, Polygamma-functions, and some related
+ *  stuff. */
 
 /*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
@@ -33,7 +34,7 @@
 namespace GiNaC {
 
 //////////
-// gamma function
+// Gamma-function
 //////////
 
 /** Evaluation of gamma(x). Knows about integer arguments, half-integer
@@ -44,7 +45,6 @@ namespace GiNaC {
 static ex gamma_eval(ex const & x)
 {
     if (x.info(info_flags::numeric)) {
-
         // trap integer arguments:
         if ( x.info(info_flags::integer) ) {
             // gamma(n+1) -> n! for postitive n
@@ -88,8 +88,8 @@ static ex gamma_evalf(ex const & x)
 static ex gamma_diff(ex const & x, unsigned diff_param)
 {
     ASSERT(diff_param==0);
-
-    return psi(exZERO(),x)*gamma(x);
+    
+    return psi(exZERO(),x)*gamma(x);  // diff(log(gamma(x)),x)==psi(0,x)
 }
 
 static ex gamma_series(ex const & x, symbol const & s, ex const & point, int order)
@@ -105,7 +105,7 @@ static ex gamma_series(ex const & x, symbol const & s, ex const & point, int ord
 REGISTER_FUNCTION(gamma, gamma_eval, gamma_evalf, gamma_diff, gamma_series);
 
 //////////
-// psi function (aka polygamma function)
+// Psi-function (aka polygamma-function)
 //////////
 
 /** Evaluation of polygamma-function psi(n,x). 
