@@ -30,29 +30,34 @@ static unsigned vandermonde_det(unsigned size)
 {
 	unsigned result = 0;
 	symbol a("a");
-	
+
 	// construct Vandermonde matrix:
 	matrix M(size,size);
 	for (unsigned ro=0; ro<size; ++ro) {
 		for (unsigned co=0; co<size; ++co) {
 			if (ro%2)
-				M.set(ro,co,pow(-pow(a,1+ro/2),co));
+				M(ro,co) = pow(-pow(a,1+ro/2),co);
 			else
-				M.set(ro,co,pow(pow(a,1+ro/2),co));
+				M(ro,co) = pow(pow(a,1+ro/2),co);
 		}
 	}
-	
+
 	// compute determinant:
-	ex vdet = M.determinant();
-	
-	// dirty consistency check of result:
-	if (!vdet.subs(a==1).is_zero()) {
+	ex det = M.determinant();
+
+	// check the result:
+	ex vanddet = 1;
+	for (unsigned i=0; i<size; ++i)
+		for (unsigned j=0; j<i; ++j)
+			vanddet *= M(i,1) - M(j,1);
+
+	if (expand(det - vanddet) != 0) {
 		clog << "Determaint of Vandermonde matrix " << endl
 		     << "M==" << M << endl
-		     << "was miscalculated: det(M)==" << vdet << endl;
+		     << "was miscalculated: det(M)==" << det << endl;
 		++result;
 	}
-	
+
 	return result;
 }
 
