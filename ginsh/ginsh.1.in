@@ -82,6 +82,14 @@ when they are used. To refer to the unevaluated symbol, put single quotes
 .RB ( ' )
 around the name, as demonstrated for the "unassign" command above.
 .PP
+Symbols are considered to be in the complex domain by default, i.e. they are
+treated as if they stand in for complex numbers. This behavior can be changed
+by using the keywords
+.BI real_symbols
+and 
+.BI complex_symbols
+and affects all newly created symbols.
+.PP
 The following symbols are pre-defined constants that cannot be assigned
 a value by the user:
 .RS
