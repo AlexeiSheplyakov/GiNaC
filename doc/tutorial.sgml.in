@@ -243,7 +243,9 @@ allow one to conclude that <literal>42*Pi</literal> is equal to
 <literal>0</literal>.)</para>
 
 <para>Linear equation systems can be solved along with basic linear
-algebra manipulations over symbolic expressions:
+algebra manipulations over symbolic expressions.  In C++ there is a
+matrix class for this purpose but we can see what it can do using 
+<literal>ginsh</literal>'s notation of double brackets to type them in:
 <screen>
 > lsolve(a+x*y==z,x);
 y^(-1)*(z-a);
@@ -692,7 +694,7 @@ catch in here having to do with the fact that C++ is a compiled
 language.  The information about the symbol's name is thrown away by
 the compiler but at a later stage you may want to print expressions
 holding your symbols.  In order to avoid confusion GiNaC's symbols are
-able to know their own name.  This is accompilshed by declaring its
+able to know their own name.  This is accomplished by declaring its
 name for output at construction time in the fashion <literal>symbol
 x("x");</literal>.</para>
 
@@ -977,7 +979,7 @@ int main()
 <literal>x</literal> squared.  This direct construction is necessary
 since we cannot safely overload the constructor <literal>^</literal>
 in <literal>C++</literal> to construct a <literal>power</literal>
-object.  If we did, it would have two counterintuitive effects:
+object.  If we did, it would have several counterintuitive effects:
 <itemizedlist>
   <listitem>
     <para>Due to <literal>C</literal>'s operator precedence,
@@ -985,16 +987,26 @@ object.  If we did, it would have two counterintuitive effects:
   </listitem>
   <listitem>
     <para>Due to the binding of the operator <literal>^</literal>, 
-    <literal>x^2^3</literal> would result in <literal>x^8</literal>. 
+    <literal>x^a^b</literal> would result in <literal>(x^a)^b</literal>. 
     This would be confusing since most (though not all) other CAS 
-    interpret this as <literal>x^6</literal>.</para>
+    interpret this as <literal>x^(a^b)</literal>.
+  </listitem>
+  <listitem>
+    <para>Also, expressions involving integer exponents are very 
+    frequently used, which makes it even more dangerous to overload 
+    <literal>^</literal> since it is then hard to distinguish between the
+    semantics as exponentiation and the one for exclusive or.  (It would
+    be embarassing to return <literal>1</literal> where one has requested 
+    <literal>2^3</literal>.)</para>
   </listitem>
 </itemizedlist>
-Both effects are contrary to mathematical notation and differ from the
+All effects are contrary to mathematical notation and differ from the
 way most other CAS handle exponentiation, therefore overloading
-<literal>^</literal> is ruled out.  (Also note, that the other
-frequently used exponentiation operator <literal>**</literal> does not
-exist at all in <literal>C++</literal>).</para>
+<literal>^</literal> is ruled out for GiNaC's C++ part.  The situation
+is different in <literal>ginsh</literal>, there the
+exponentiation-<literal>^</literal> exists.  (Also note, that the
+other frequently used exponentiation operator <literal>**</literal>
+does not exist at all in <literal>C++</literal>).</para>
 
 <para>To be somewhat more precise, objects of the three classes
 described here, are all containers for other expressions.  An object
@@ -1102,8 +1114,9 @@ can be repeated.  In our expample, two possibilies would be
 <para>To bring an expression into expanded form, its method
 <function>.expand()</function> may be called.  In our example above,
 this corresponds to <literal>4*x*y + x*z + 20*y^2 + 21*y*z +
-4*z^2</literal>.  There is no canonical form in GiNaC.  Be prepared to
-see different orderings of terms in such sums!  </para>
+4*z^2</literal>.  Again, since the canonical form in GiNaC is not
+easily guessable you should be prepared to see different orderings of
+terms in such sums!</para>
 
 </sect1>
 
@@ -1267,7 +1280,7 @@ int main()
 
 <sect1><title>Series Expansion</title>
 
-<para>Expressions know how to expand themselfes as a Taylor series or
+<para>Expressions know how to expand themselves as a Taylor series or
 (more generally) a Laurent series.  As in most conventional Computer
 Algebra Systems no distinction is made between those two.  There is a
 class of its own for storing such series as well as a class for
