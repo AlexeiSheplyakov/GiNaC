@@ -51,6 +51,30 @@ class archive_node
 	friend std::istream &operator>>(std::istream &is, archive_node &ar);
 
 public:
+	/** Property data types */
+	enum property_type {
+		PTYPE_BOOL,
+		PTYPE_UNSIGNED,
+		PTYPE_STRING,
+		PTYPE_NODE
+	};
+
+	/** Information about a stored property. A vector of these structures
+	 *  is returned by get_properties().
+	 *  @see get_properties */
+	struct property_info {
+		property_info() {}
+		property_info(property_type t, const std::string &n, unsigned c = 1) : type(t), name(n), count(c) {}
+		~property_info() {}
+
+		property_info(const property_info &other) : type(other.type), name(other.name), count(other.count) {}
+		const property_info &operator=(const property_info &other);
+
+		property_type type;	/**< Data type of property. */
+		std::string name;   /**< Name of property. */
+		unsigned count;     /**< Number of occurrences. */
+	};
+
 	archive_node() : a(*dummy_ar_creator()), has_expression(false) {} // hack for cint which always requires a default constructor
 	archive_node(archive &ar) : a(ar), has_expression(false) {}
 	archive_node(archive &ar, const ex &expr);
@@ -59,33 +83,49 @@ public:
 	archive_node(const archive_node &other);
 	const archive_node &operator=(const archive_node &other);
 
-	bool has_same_ex_as(const archive_node &other) const;
-
+	/** Add property of type "bool" to node. */
 	void add_bool(const std::string &name, bool value);
+
+	/** Add property of type "unsigned int" to node. */
 	void add_unsigned(const std::string &name, unsigned int value);
+
+	/** Add property of type "string" to node. */
 	void add_string(const std::string &name, const std::string &value);
+
+	/** Add property of type "ex" to node. */
 	void add_ex(const std::string &name, const ex &value);
 
+	/** Retrieve property of type "bool" from node.
+	 *  @return "true" if property was found, "false" otherwise */
 	bool find_bool(const std::string &name, bool &ret) const;
+
+	/** Retrieve property of type "unsigned" from node.
+	 *  @return "true" if property was found, "false" otherwise */
 	bool find_unsigned(const std::string &name, unsigned int &ret) const;
+
+	/** Retrieve property of type "string" from node.
+	 *  @return "true" if property was found, "false" otherwise */
 	bool find_string(const std::string &name, std::string &ret) const;
+
+	/** Retrieve property of type "ex" from node.
+	 *  @return "true" if property was found, "false" otherwise */
 	bool find_ex(const std::string &name, ex &ret, const lst &sym_lst, unsigned int index = 0) const;
 
+	/** Retrieve property of type "ex" from node, returning the node of
+	 *  the sub-expression. */
+	const archive_node &find_ex_node(const std::string &name, unsigned int index = 0) const;
+
+	/** Return vector of properties stored in node. */
+	void get_properties(std::vector<property_info> &v) const;
+
 	ex unarchive(const lst &sym_lst) const;
+	bool has_same_ex_as(const archive_node &other) const;
 
 	void forget(void);
 	void printraw(std::ostream &os) const;
 
 private:
 	static archive* dummy_ar_creator(void);
-
-	/** Property data types */
-	enum property_type {
-		PTYPE_BOOL,
-		PTYPE_UNSIGNED,
-		PTYPE_STRING,
-		PTYPE_NODE
-	};
 
 	/** Archived property (data type, name and associated data) */
 	struct property {
@@ -96,9 +136,9 @@ private:
 		property(const property &other) : type(other.type), name(other.name), value(other.value) {}
 		const property &operator=(const property &other);
 
-		property_type type;	/**< Data type of property. */
-		archive_atom name;	/**< Name of property. */
-		unsigned int value;	/**< Stored value. */
+		property_type type; /**< Data type of property. */
+		archive_atom name;  /**< Name of property. */
+		unsigned int value; /**< Stored value. */
 	};
 
 	/** Reference to the archive to which this node belongs. */
@@ -137,16 +177,37 @@ public:
 	/** Construct archive from expression using the specified name. */
 	archive(const ex &e, const char *n) {archive_ex(e, n);}
 
-	archive_node_id add_node(const archive_node &n);
-	archive_node &get_node(archive_node_id id);
-
+	/** Archive an expression.
+	 *  @param e the expression to be archived
+	 *  @param name name under which the expression is stored */
 	void archive_ex(const ex &e, const char *name);
+
+	/** Retrieve expression from archive by name.
+	 *  @param sym_lst list of pre-defined symbols */
 	ex unarchive_ex(const lst &sym_lst, const char *name) const;
+
+	/** Retrieve expression from archive by index.
+	 *  @param sym_lst list of pre-defined symbols
+     *  @see count_expressions */
 	ex unarchive_ex(const lst &sym_lst, unsigned int index = 0) const;
+
+	/** Retrieve expression and its name from archive by index.
+	 *  @param sym_lst list of pre-defined symbols
+	 *  @param name receives the name of the expression
+     *  @see count_expressions */
 	ex unarchive_ex(const lst &sym_lst, std::string &name, unsigned int index = 0) const;
+
+	/** Return number of archived expressions. */
 	unsigned int num_expressions(void) const;
 
+	/** Return reference to top node of an expression specified by index. */
+	const archive_node &get_top_node(unsigned int index = 0) const;
+
+	/** Clear all archived expressions. */
 	void clear(void);
+
+	archive_node_id add_node(const archive_node &n);
+	archive_node &get_node(archive_node_id id);
 
 	void forget(void);
 	void printraw(std::ostream &os) const;

@@ -32,9 +32,6 @@
 namespace GiNaC {
 
 
-/** Archive an expression.
- *  @param ex  the expression to be archived
- *  @param name  name under which the expression is stored */
 void archive::archive_ex(const ex &e, const char *name)
 {
 	// Create root node (which recursively archives the whole expression tree)
@@ -77,8 +74,6 @@ archive_node &archive::get_node(archive_node_id id)
 }
 
 
-/** Retrieve expression from archive by name.
- *  @param sym_lst  list of pre-defined symbols */
 ex archive::unarchive_ex(const lst &sym_lst, const char *name) const
 {
 	// Find root node
@@ -90,15 +85,13 @@ ex archive::unarchive_ex(const lst &sym_lst, const char *name) const
 			goto found;
 		i++;
 	}
-	throw (std::logic_error("expression with name '" + name_string + "' not found in archive"));
+	throw (std::runtime_error("expression with name '" + name_string + "' not found in archive"));
 
 found:
 	// Recursively unarchive all nodes, starting at the root node
 	return nodes[i->root].unarchive(sym_lst);
 }
 
-/** Retrieve expression from archive by index.
- *  @param sym_lst  list of pre-defined symbols */
 ex archive::unarchive_ex(const lst &sym_lst, unsigned int index) const
 {
 	if (index >= exprs.size())
@@ -108,8 +101,6 @@ ex archive::unarchive_ex(const lst &sym_lst, unsigned int index) const
 	return nodes[exprs[index].root].unarchive(sym_lst);
 }
 
-/** Retrieve expression and its name from archive by index.
- *  @param sym_lst  list of pre-defined symbols */
 ex archive::unarchive_ex(const lst &sym_lst, std::string &name, unsigned int index) const
 {
 	if (index >= exprs.size())
@@ -122,11 +113,17 @@ ex archive::unarchive_ex(const lst &sym_lst, std::string &name, unsigned int ind
 	return nodes[exprs[index].root].unarchive(sym_lst);
 }
 
-
-/** Return number of archived expressions. */
 unsigned int archive::num_expressions(void) const
 {
 	return exprs.size();
+}
+
+const archive_node &archive::get_top_node(unsigned int index) const
+{
+	if (index >= exprs.size())
+		throw (std::range_error("index of archived expression out of range"));
+
+	return nodes[exprs[index].root];
 }
 
 
@@ -358,25 +355,21 @@ bool archive_node::has_same_ex_as(const archive_node &other) const
 }
 
 
-/** Add property of type "bool" to node. */
 void archive_node::add_bool(const std::string &name, bool value)
 {
 	props.push_back(property(a.atomize(name), PTYPE_BOOL, value));
 }
 
-/** Add property of type "unsigned int" to node. */
 void archive_node::add_unsigned(const std::string &name, unsigned int value)
 {
 	props.push_back(property(a.atomize(name), PTYPE_UNSIGNED, value));
 }
 
-/** Add property of type "string" to node. */
 void archive_node::add_string(const std::string &name, const std::string &value)
 {
 	props.push_back(property(a.atomize(name), PTYPE_STRING, a.atomize(value)));
 }
 
-/** Add property of type "ex" to node. */
 void archive_node::add_ex(const std::string &name, const ex &value)
 {
 	// Recursively create an archive_node and add its ID to the properties of this node
@@ -385,8 +378,6 @@ void archive_node::add_ex(const std::string &name, const ex &value)
 }
 
 
-/** Retrieve property of type "bool" from node.
- *  @return "true" if property was found, "false" otherwise */
 bool archive_node::find_bool(const std::string &name, bool &ret) const
 {
 	archive_atom name_atom = a.atomize(name);
@@ -401,8 +392,6 @@ bool archive_node::find_bool(const std::string &name, bool &ret) const
 	return false;
 }
 
-/** Retrieve property of type "unsigned" from node.
- *  @return "true" if property was found, "false" otherwise */
 bool archive_node::find_unsigned(const std::string &name, unsigned int &ret) const
 {
 	archive_atom name_atom = a.atomize(name);
@@ -417,8 +406,6 @@ bool archive_node::find_unsigned(const std::string &name, unsigned int &ret) con
 	return false;
 }
 
-/** Retrieve property of type "string" from node.
- *  @return "true" if property was found, "false" otherwise */
 bool archive_node::find_string(const std::string &name, std::string &ret) const
 {
 	archive_atom name_atom = a.atomize(name);
@@ -433,8 +420,6 @@ bool archive_node::find_string(const std::string &name, std::string &ret) const
 	return false;
 }
 
-/** Retrieve property of type "ex" from node.
- *  @return "true" if property was found, "false" otherwise */
 bool archive_node::find_ex(const std::string &name, ex &ret, const lst &sym_lst, unsigned int index) const
 {
 	archive_atom name_atom = a.atomize(name);
@@ -453,6 +438,47 @@ bool archive_node::find_ex(const std::string &name, ex &ret, const lst &sym_lst,
 found:
 	ret = a.get_node(i->value).unarchive(sym_lst);
 	return true;
+}
+
+const archive_node &archive_node::find_ex_node(const std::string &name, unsigned int index) const
+{
+	archive_atom name_atom = a.atomize(name);
+	std::vector<property>::const_iterator i = props.begin(), iend = props.end();
+	unsigned int found_index = 0;
+	while (i != iend) {
+		if (i->type == PTYPE_NODE && i->name == name_atom) {
+			if (found_index == index)
+				return a.get_node(i->value);
+			found_index++;
+		}
+		i++;
+	}
+	throw (std::runtime_error("property with name '" + name + "' not found in archive node"));
+}
+
+
+void archive_node::get_properties(std::vector<archive_node::property_info> &v) const
+{
+	v.clear();
+	std::vector<property>::const_iterator i = props.begin(), iend = props.end();
+	while (i != iend) {
+		property_type type = i->type;
+		string name = a.unatomize(i->name);
+
+		std::vector<property_info>::iterator a = v.begin(), aend = v.end();
+		bool found = false;
+		while (a != aend) {
+			if (a->type == type && a->name == name) {
+				a->count++;
+				found = true;
+				break;
+			}
+			a++;
+		}
+		if (!found)
+			v.push_back(property_info(type, name));
+		i++;
+	}	
 }
 
 
@@ -476,6 +502,17 @@ ex archive_node::unarchive(const lst &sym_lst) const
 }
 
 
+/** Assignment operator of property_info. */
+const archive_node::property_info &archive_node::property_info::operator=(const property_info &other)
+{
+	if (this != &other) {
+		type = other.type;
+		name = other.name;
+		count = other.count;
+	}
+	return *this;
+}
+
 /** Assignment operator of property. */
 const archive_node::property &archive_node::property::operator=(const property &other)
 {
@@ -488,7 +525,6 @@ const archive_node::property &archive_node::property::operator=(const property &
 }
 
 
-/** Clear all archived expressions. */
 void archive::clear(void)
 {
 	atoms.clear();
