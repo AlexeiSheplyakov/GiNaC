@@ -167,8 +167,8 @@ void greeting(void)
 {
 	std::cout << "Welcome to GiNaC-cint (" << PACKAGE << " V" << VERSION
 	          << ", Cint V" << G__CINTVERSION << ")\n";
-	std::cout << "  __,  _______  GiNaC: (C) 1999-2000 Johannes Gutenberg University Mainz,\n"
-	          << " (__) *       | Germany.  Cint C/C++ interpreter: (C) 1995-2000 Masaharu\n"
+	std::cout << "  __,  _______  GiNaC: (C) 1999-2001 Johannes Gutenberg University Mainz,\n"
+	          << " (__) *       | Germany.  Cint C/C++ interpreter: (C) 1995-2001 Masaharu\n"
 	          << "  ._) i N a C | Goto and Agilent Technologies, Japan.  This is free software\n"
 	          << "<-------------' with ABSOLUTELY NO WARRANTY.  For details, type `.warranty'\n"
 	          << "Type `.help' for help.\n\n";

@@ -155,7 +155,7 @@ $interface=<<END_OF_INTERFACE;
  *                        \$close_bracket=${close_bracket}
  *                        \$maxargs=${maxargs}
  *
- *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2001 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -187,8 +187,14 @@ $interface=<<END_OF_INTERFACE;
 namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
 
-// typedef std::${STLHEADER}<ex> ${STLT};
-typedef std::${STLHEADER}<ex,malloc_alloc> ${STLT}; // CINT does not like ${STLHEADER}<...,default_alloc>
+
+// Cint does not like ${STLHEADER}<..,default_alloc> but malloc_alloc is
+// unstandardized and not supported by newer GCCs.
+#if defined(__GNUC__) && ((__GNUC__ == 2) && (__GNUC_MINOR__ < 97))
+typedef std::${STLHEADER}<ex,malloc_alloc> ${STLT};
+#else
+typedef std::${STLHEADER}<ex> ${STLT};
+#endif
 
 class ${CONTAINER} : public basic
 {
@@ -293,7 +299,7 @@ $implementation=<<END_OF_IMPLEMENTATION;
  *                        \$close_bracket=${close_bracket}
  *                        \$maxargs=${maxargs}
  *
- *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2001 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by

@@ -74,7 +74,8 @@ Problems with CLN
 You should use at least CLN-1.1, since during the development of
 GiNaC various bugs have been discovered and fixed in earlier versions.
 Please install CLN properly on your system before continuing with
-GiNaC.
+GiNaC.  When using GCC3 as compiler please use at least CLN-1.1.1
+since some parts of GiNaC won't build with CLN-1.1.
 
 Problems with building ginsh
 ----------------------------
@@ -110,4 +111,4 @@ to compile, install and work properly:
 --------------+----------------------------------------------------------
  < 5.14.39    | `VERBOTEN' by license (please bite your favorite lawyer)
  < 5.14.60    | since GiNaC version 0.7, these do not compile any more
-   5.14.62-69 | compiles fine, works well
+   5.14.62-71 | compiles fine, works well with GCC 2.95.x.  GCC3 no go.

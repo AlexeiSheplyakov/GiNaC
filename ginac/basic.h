@@ -3,7 +3,7 @@
  *  Interface to GiNaC's ABC. */
 
 /*
- *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2001 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -47,8 +47,13 @@ class numeric;
 class relational;
 class archive_node;
 
-// typedef std::vector<ex> exvector;
-typedef std::vector<ex,malloc_alloc> exvector; // CINT does not like vector<...,default_alloc>
+// Cint doesn't like vector<..,default_alloc> but malloc_alloc is
+// unstandardized and not supported by newer GCCs.
+#if defined(__GNUC__) && ((__GNUC__ == 2) && (__GNUC_MINOR__ < 97))
+typedef std::vector<ex,malloc_alloc> exvector;
+#else
+typedef std::vector<ex> exvector;
+#endif
 
 #define INLINE_BASIC_CONSTRUCTORS
 

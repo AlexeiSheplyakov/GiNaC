@@ -3,7 +3,7 @@
  *  Interface to GiNaC's color objects. */
 
 /*
- *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2001 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -36,8 +36,13 @@ const unsigned MAX_REPRESENTATION_LABELS = 4;
 const unsigned COLOR_EIGHT = 8; // N*N-1
 const unsigned COLOR_THREE = 3; // N
 
-// typedef std::vector<exvector> exvectorvector;
-typedef std::vector<exvector,malloc_alloc> exvectorvector; // CINT does not like vector<...,default_alloc>
+// Cint doesn't like vector<..,default_alloc> but malloc_alloc is
+// unstandardized and not supported by newer GCCs.
+#if defined(__GNUC__) && ((__GNUC__ == 2) && (__GNUC_MINOR__ < 97))
+typedef std::vector<exvector,malloc_alloc> exvectorvector;
+#else
+typedef std::vector<exvector> exvectorvector;
+#endif
 
 /** Base class for color object */
 class color : public indexed
