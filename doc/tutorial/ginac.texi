@@ -5750,6 +5750,9 @@ E.Remiddi, J.A.M.Vermaseren, Int.J.Mod.Phys. A15 (2000), pp. 725-754
 @cite{Special Values of Multiple Polylogarithms}, 
 J.Borwein, D.Bradley, D.Broadhurst, P.Lisonek, Trans.Amer.Math.Soc. 353/3 (2001), pp. 907-941
 
+@cite{Numerical Evaluation of Multiple Polylogarithms}, 
+J.Vollinga, S.Weinzierl, hep-ph/0410259
+
 @node Complex Conjugation, Solving Linear Systems of Equations, Multiple polylogarithms, Methods and Functions
 @c    node-name, next, previous, up
 @section Complex Conjugation
