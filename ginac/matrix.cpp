@@ -460,24 +460,28 @@ ex matrix::determinant(void) const
     bool normal_flag = false;
     unsigned sparse_count = 0;  // count non-zero elements
     for (exvector::const_iterator r=m.begin(); r!=m.end(); ++r) {
-        if (!(*r).is_zero()) {
+        if (!(*r).is_zero())
             ++sparse_count;
-        }
-        if (!(*r).info(info_flags::numeric)) {
+        if (!(*r).info(info_flags::numeric))
             numeric_flag = false;
-        }
         if ((*r).info(info_flags::rational_function) &&
-            !(*r).info(info_flags::crational_polynomial)) {
+            !(*r).info(info_flags::crational_polynomial))
             normal_flag = true;
-        }
     }
     
     if (numeric_flag)  // purely numeric matrix
         return determinant_numeric();
-    
     // Does anybody really know when a matrix is sparse?
-    if (4*sparse_count<row*col) {  // < row/2 nonzero elements average in a row
-        return determinant_bareiss(normal_flag);
+    // Maybe <~row/2.2 nonzero elements average in a row?
+    if (5*sparse_count<=row*col) {
+        // copy *this:
+        matrix tmp(*this);
+        int sign;
+        sign = tmp.fraction_free_elimination(true);
+        if (normal_flag)
+            return (sign*tmp.m[row*col-1]).normal();
+        else
+            return (sign*tmp.m[row*col-1]).expand();
     }
     
     // Now come the minor expansion schemes.  We always develop such that the
@@ -564,7 +568,7 @@ ex matrix::charpoly(const symbol & lambda) const
     
     // The pure numeric case is traditionally rather common.  Hence, it is
     // trapped and we use Leverrier's algorithm which goes as row^3 for
-    // every coefficient.  The expensive section is the matrix multiplication.
+    // every coefficient.  The expensive part is the matrix multiplication.
     if (numeric_flag) {
         matrix B(*this);
         ex c = B.trace();
@@ -669,7 +673,7 @@ ex matrix::ffe_get(unsigned r, unsigned c) const
 matrix matrix::fraction_free_elim(const matrix & vars,
                                   const matrix & rhs) const
 {
-    // FIXME: use implementation of matrix::fraction_free_elim
+    // FIXME: use implementation of matrix::fraction_free_elimination
     if ((row != rhs.row) || (col != vars.row) || (rhs.col != vars.col))
         throw (std::logic_error("matrix::fraction_free_elim(): incompatible matrices"));
     
@@ -712,18 +716,13 @@ matrix matrix::fraction_free_elim(const matrix & vars,
             divisor = a.ffe_get(r,k);
             r++;
         }
-    }
-    // optionally compute the determinant for square or augmented matrices
-    // if (r==m+1) { det = sign*divisor; } else { det = 0; }
-    
-    /*
-    for (unsigned r=1; r<=m; ++r) {
-        for (unsigned c=1; c<=n; ++c) {
-            cout << a.ffe_get(r,c) << "\t";
-        }
-        cout << " | " <<  b.ffe_get(r,1) << endl;
-    }
-    */
+    }    
+//     for (unsigned r=1; r<=m; ++r) {
+//         for (unsigned c=1; c<=n; ++c) {
+//             cout << a.ffe_get(r,c) << "\t";
+//         }
+//         cout << " | " <<  b.ffe_get(r,1) << endl;
+//     }
     
 #ifdef DO_GINAC_ASSERT
     // test if we really have an upper echelon matrix
@@ -731,7 +730,7 @@ matrix matrix::fraction_free_elim(const matrix & vars,
     for (unsigned r=1; r<=m; ++r) {
         int zero_in_this_row=0;
         for (unsigned c=1; c<=n; ++c) {
-            if (a.ffe_get(r,c).is_equal(_ex0()))
+            if (a.ffe_get(r,c).is_zero())
                zero_in_this_row++;
             else
                 break;
@@ -740,12 +739,6 @@ matrix matrix::fraction_free_elim(const matrix & vars,
         zero_in_last_row = zero_in_this_row;
     }
 #endif // def DO_GINAC_ASSERT
-    
-    /*
-    cout << "after" << endl;
-    cout << "a=" << a << endl;
-    cout << "b=" << b << endl;
-    */
     
     // assemble solution
     matrix sol(n,1);
@@ -1015,112 +1008,6 @@ ex matrix::determinant_minor(void) const
     return det;
 }
 
-/** Helper function to divide rational functions, as needed in any Bareiss
- *  elimination scheme over a quotient field.
- *  
- *  @see divide() */
-bool rat_divide(const ex & a, const ex & b, ex & q, bool check_args = true)
-{
-    q = _ex0();
-    if (b.is_zero())
-        throw(std::overflow_error("rat_divide(): division by zero"));
-    if (a.is_zero())
-        return true;
-    if (is_ex_exactly_of_type(b, numeric)) {
-        q = a / b;
-        return true;
-    } else if (is_ex_exactly_of_type(a, numeric))
-        return false;
-    ex a_n = a.numer();
-    ex a_d = a.denom();
-    ex b_n = b.numer();
-    ex b_d = b.denom();
-    ex n;  // new numerator
-    ex d;  // new denominator
-    bool check = true;
-    check &= divide(a_n, b_n, n, check_args);
-    check &= divide(a_d, b_d, d, check_args);
-    q = n/d;
-    return check;
-}
-
-
-/** Determinant computed by using fraction free elimination.  This
- *  routine is only called internally by matrix::determinant().
- *
- *  @param normalize may be set to false only in integral domains. */
-ex matrix::determinant_bareiss(bool normalize) const
-{
-    if (rows()==1)
-        return m[0];
-    
-    int sign = 1;
-    ex divisor = 1;
-    ex dividend;
-    
-    // we populate a tmp matrix to subsequently operate on, it should
-    // be normalized even though this algorithm doesn't need GCDs since
-    // the elements of *this might be unnormalized, which complicates
-    // things:
-    matrix tmp(*this);
-    exvector::const_iterator i = m.begin();
-    exvector::iterator ti = tmp.m.begin();
-    for (; i!= m.end(); ++i, ++ti) {
-        if (normalize)
-            (*ti) = (*i).normal();
-        else
-            (*ti) = (*i);
-    }
-    
-    for (unsigned r1=0; r1<row-1; ++r1) {
-        int indx = tmp.pivot(r1);
-        if (indx==-1)
-            return _ex0();
-        if (indx>0)
-            sign = -sign;
-        if (r1>0) {
-            divisor = tmp.m[(r1-1)*col+(r1-1)].expand();
-            // delete the elements we don't need anymore:
-            for (unsigned c=0; c<col; ++c)
-                tmp.m[(r1-1)*col+c] = _ex0();
-        }
-        for (unsigned r2=r1+1; r2<row; ++r2) {
-            for (unsigned c=r1+1; c<col; ++c) {
-                lst srl;  // symbol replacement list for .to_rational()
-                dividend = (tmp.m[r1*tmp.col+r1]*tmp.m[r2*tmp.col+c]
-                           -tmp.m[r2*tmp.col+r1]*tmp.m[r1*tmp.col+c]).expand();
-                if (normalize) {
-#ifdef DO_GINAC_ASSERT
-                    GINAC_ASSERT(rat_divide(dividend.to_rational(srl),
-                                            divisor.to_rational(srl),
-                                            tmp.m[r2*tmp.col+c],true));
-#else
-                    rat_divide(dividend.to_rational(srl),
-                               divisor.to_rational(srl),
-                               tmp.m[r2*tmp.col+c],false);
-#endif                    
-                }
-                else {
-#ifdef DO_GINAC_ASSERT
-                    GINAC_ASSERT(divide(dividend.to_rational(srl),
-                                        divisor.to_rational(srl),
-                                        tmp.m[r2*tmp.col+c],true));
-#else
-                    divide(dividend.to_rational(srl),
-                           divisor.to_rational(srl),
-                           tmp.m[r2*tmp.col+c],false);
-#endif                    
-                }
-                tmp.m[r2*tmp.col+c] = tmp.m[r2*tmp.col+c].subs(srl);
-            }
-            for (unsigned c=0; c<=r1; ++c)
-                tmp.m[r2*tmp.col+c] = _ex0();
-        }
-    }
-    
-    return sign*tmp.m[tmp.row*tmp.col-1];
-}
-
 
 /** Perform the steps of an ordinary Gaussian elimination to bring the matrix
  *  into an upper echelon form.
@@ -1177,52 +1064,128 @@ int matrix::division_free_elimination(void)
 
 
 /** Perform the steps of Bareiss' one-step fraction free elimination to bring
- *  the matrix into an upper echelon form.
- *
+ *  the matrix into an upper echelon form.  Fraction free elimination means
+ *  that divide is used straightforwardly, without computing GCDs first.  This
+ *  is possible, since we know the divisor at each step.
+ *  
+ *  @param det may be set to true to save a lot of space if one is only
+ *  interested in the last element (i.e. for calculating determinants), the
+ *  others are set to zero in this case.
  *  @return sign is 1 if an even number of rows was swapped, -1 if an odd
  *  number of rows was swapped and 0 if the matrix is singular. */
-int matrix::fraction_free_elimination(void)
+int matrix::fraction_free_elimination(bool det)
 {
+    // Method:
+    // (single-step fraction free elimination scheme, already known to Jordan)
+    //
+    // Usual division-free elimination sets m[0](r,c) = m(r,c) and then sets
+    //     m[k+1](r,c) = m[k](k,k) * m[k](r,c) - m[k](r,k) * m[k](k,c).
+    //
+    // Bareiss (fraction-free) elimination in addition divides that element
+    // by m[k-1](k-1,k-1) for k>1, where it can be shown by means of the
+    // Sylvester determinant that this really divides m[k+1](r,c).
+    //
+    // We also allow rational functions where the original prove still holds.
+    // However, we must care for numerator and denominator separately and
+    // "manually" work in the integral domains because of subtle cancellations
+    // (see below).  This blows up the bookkeeping a bit and the formula has
+    // to be modified to expand like this (N{x} stands for numerator of x,
+    // D{x} for denominator of x):
+    //     N{m[k+1](r,c)} = N{m[k](k,k)}*N{m[k](r,c)}*D{m[k](r,k)}*D{m[k](k,c)}
+    //                     -N{m[k](r,k)}*N{m[k](k,c)}*D{m[k](k,k)}*D{m[k](r,c)}
+    //     D{m[k+1](r,c)} = D{m[k](k,k)}*D{m[k](r,c)}*D{m[k](r,k)}*D{m[k](k,c)}
+    // where for k>1 we now divide N{m[k+1](r,c)} by
+    //     N{m[k-1](k-1,k-1)}
+    // and D{m[k+1](r,c)} by
+    //     D{m[k-1](k-1,k-1)}.
+    
+    GINAC_ASSERT(det || row==col);
     ensure_if_modifiable();
+    if (rows()==1)
+        return 1;
     
-    // first normal all elements:
-    for (exvector::iterator i=m.begin(); i!=m.end(); ++i)
-        (*i) = (*i).normal();
-    
-    // FIXME: this is unfinished, once matrix::determinant_bareiss is
-    // bulletproof, some code ought to be copy from there to here.
     int sign = 1;
-    ex divisor = 1;
-    ex dividend;
-    lst srl;      // symbol replacement list for .to_rational()
+    ex divisor_n = 1;
+    ex divisor_d = 1;
+    ex dividend_n;
+    ex dividend_d;
+    
+    // We populate temporary matrices to subsequently operate on.  There is
+    // one holding numerators and another holding denominators of entries.
+    // This is a must since the evaluator (or even earlier mul's constructor)
+    // might cancel some trivial element which causes divide() to fail.  The
+    // elements are normalized first (yes, even though this algorithm doesn't
+    // need GCDs) since the elements of *this might be unnormalized, which
+    // makes things more complicated than they need to be.
+    matrix tmp_n(*this);
+    matrix tmp_d(row,col);  // for denominators, if needed
+    lst srl;  // symbol replacement list
+    exvector::iterator it = m.begin();
+    exvector::iterator tmp_n_it = tmp_n.m.begin();
+    exvector::iterator tmp_d_it = tmp_d.m.begin();
+    for (; it!= m.end(); ++it, ++tmp_n_it, ++tmp_d_it) {
+        (*tmp_n_it) = (*it).normal().to_rational(srl);
+        (*tmp_d_it) = (*tmp_n_it).denom();
+        (*tmp_n_it) = (*tmp_n_it).numer();
+    }
     
     for (unsigned r1=0; r1<row-1; ++r1) {
-        int indx = pivot(r1);
-        if (indx==-1)
-            return 0;  // Note: leaves *this in a messy state.
-        if (indx>0)
+//         cout << "==<" << r1 << ">" << string(60,'=') << endl;
+        int indx = tmp_n.pivot(r1);
+        if (det && indx==-1)
+            return 0;  // FIXME: what to do if det is false?
+        if (indx>0) {
             sign = -sign;
-        if (r1>0)
-            divisor = this->m[(r1-1)*col+(r1-1)].expand();
+            // rows r1 and indx were swapped, so pivot matrix tmp_d:
+            for (unsigned c=0; c<col; ++c)
+                tmp_d.m[row*indx+c].swap(tmp_d.m[row*r1+c]);
+        }
+//         cout << tmp_n << endl;
+//         cout << tmp_d << endl;
+        if (r1>0) {
+            divisor_n = tmp_n.m[(r1-1)*col+(r1-1)].expand();
+            divisor_d = tmp_d.m[(r1-1)*col+(r1-1)].expand();
+            // save space by deleting no longer needed elements:
+            if (det) {
+                for (unsigned c=0; c<col; ++c) {
+                    tmp_n.m[(r1-1)*col+c] = 0;
+                    tmp_d.m[(r1-1)*col+c] = 1;
+                }
+            }
+        }
         for (unsigned r2=r1+1; r2<row; ++r2) {
             for (unsigned c=r1+1; c<col; ++c) {
-                dividend = (this->m[r1*col+r1]*this->m[r2*col+c]
-                           -this->m[r2*col+r1]*this->m[r1*col+c]).expand();
-#ifdef DO_GINAC_ASSERT
-                GINAC_ASSERT(divide(dividend.to_rational(srl),
-                                    divisor.to_rational(srl),
-                                    this->m[r2*col+c]));
-#else
-                divide(dividend.to_rational(srl),
-                       divisor.to_rational(srl),
-                       this->m[r2*col+c]);
-#endif // DO_GINAC_ASSERT
-                this->m[r2*col+c] = this->m[r2*col+c].subs(srl);
+                dividend_n = (tmp_n.m[r1*col+r1]*tmp_n.m[r2*col+c]*
+                              tmp_d.m[r2*col+r1]*tmp_d.m[r1*col+c]
+                             -tmp_n.m[r2*col+r1]*tmp_n.m[r1*col+c]*
+                              tmp_d.m[r1*col+r1]*tmp_d.m[r2*col+c]).expand();
+                dividend_d = (tmp_d.m[r2*col+r1]*tmp_d.m[r1*col+c]*
+                              tmp_d.m[r1*col+r1]*tmp_d.m[r2*col+c]).expand();
+//                 cout << "Element " << r2 << ',' << c << endl;
+//                 cout << "dividend_n==" << dividend_n << endl;
+//                 cout << "dividend_d==" << dividend_d << endl;
+//                 cout << " divisor_n==" << divisor_n << endl;
+//                 cout << " divisor_d==" << divisor_d << endl;
+//                 cout << string(20,'-') << endl;
+                bool check = divide(dividend_n, divisor_n,
+                                    tmp_n.m[r2*col+c],true);
+                check &= divide(dividend_d, divisor_d,
+                                tmp_d.m[r2*col+c],true);
+                GINAC_ASSERT(check);
             }
+            // fill up left hand side.
             for (unsigned c=0; c<=r1; ++c)
-                this->m[r2*col+c] = _ex0();
+                tmp_n.m[r2*col+c] = _ex0();
         }
+//         cout << tmp_n << endl;
+//         cout << tmp_d << endl;        
     }
+    // repopulate *this matrix:
+    it = m.begin();
+    tmp_n_it = tmp_n.m.begin();
+    tmp_d_it = tmp_d.m.begin();
+    for (; it!= m.end(); ++it, ++tmp_n_it, ++tmp_d_it)
+        (*it) = ((*tmp_n_it)/(*tmp_d_it)).subs(srl);
     
     return sign;
 }

@@ -284,12 +284,14 @@ ex basic::collect(const symbol & s) const
 /* Perform automatic symbolic evaluations on expression. */
 ex basic::eval(int level) const
 {
+    // There is nothing to do for basic objects:
     return this->hold();
 }
 
 /** Evaluate object numerically. */
 ex basic::evalf(int level) const
 {
+    // There is nothing to do for basic objects:
     return *this;
 }
 

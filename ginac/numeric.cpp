@@ -221,12 +221,12 @@ numeric::numeric(double d) : basic(TINFO_numeric)
 
 
 numeric::numeric(const char *s) : basic(TINFO_numeric)
-{   // MISSING: treatment of complex and ints and rationals.
+{   // MISSING: treatment of complex numbers
     debugmsg("numeric constructor from string",LOGLEVEL_CONSTRUCT);
     if (strchr(s, '.'))
         value = new cl_LF(s);
     else
-        value = new cl_I(s);
+        value = new cl_R(s);
     calchash();
     setflag(status_flags::evaluated|
             status_flags::hash_calculated);
@@ -489,42 +489,44 @@ void numeric::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) 
 bool numeric::info(unsigned inf) const
 {
     switch (inf) {
-    case info_flags::numeric:
-    case info_flags::polynomial:
-    case info_flags::rational_function:
-        return true;
-    case info_flags::real:
-        return is_real();
-    case info_flags::rational:
-    case info_flags::rational_polynomial:
-        return is_rational();
-    case info_flags::crational:
-    case info_flags::crational_polynomial:
-        return is_crational();
-    case info_flags::integer:
-    case info_flags::integer_polynomial:
-        return is_integer();
-    case info_flags::cinteger:
-    case info_flags::cinteger_polynomial:
-        return is_cinteger();
-    case info_flags::positive:
-        return is_positive();
-    case info_flags::negative:
-        return is_negative();
-    case info_flags::nonnegative:
-        return !is_negative();
-    case info_flags::posint:
-        return is_pos_integer();
-    case info_flags::negint:
-        return is_integer() && is_negative();
-    case info_flags::nonnegint:
-        return is_nonneg_integer();
-    case info_flags::even:
-        return is_even();
-    case info_flags::odd:
-        return is_odd();
-    case info_flags::prime:
-        return is_prime();
+        case info_flags::numeric:
+        case info_flags::polynomial:
+        case info_flags::rational_function:
+            return true;
+        case info_flags::real:
+            return is_real();
+        case info_flags::rational:
+        case info_flags::rational_polynomial:
+            return is_rational();
+        case info_flags::crational:
+        case info_flags::crational_polynomial:
+            return is_crational();
+        case info_flags::integer:
+        case info_flags::integer_polynomial:
+            return is_integer();
+        case info_flags::cinteger:
+        case info_flags::cinteger_polynomial:
+            return is_cinteger();
+        case info_flags::positive:
+            return is_positive();
+        case info_flags::negative:
+            return is_negative();
+        case info_flags::nonnegative:
+            return !is_negative();
+        case info_flags::posint:
+            return is_pos_integer();
+        case info_flags::negint:
+            return is_integer() && is_negative();
+        case info_flags::nonnegint:
+            return is_nonneg_integer();
+        case info_flags::even:
+            return is_even();
+        case info_flags::odd:
+            return is_odd();
+        case info_flags::prime:
+            return is_prime();
+        case info_flags::algebraic:
+            return !is_real();
     }
     return false;
 }

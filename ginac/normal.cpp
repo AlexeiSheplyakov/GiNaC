@@ -516,7 +516,8 @@ bool divide(const ex &a, const ex &b, ex &q, bool check_args)
         return true;
     }
 #endif
-    if (check_args && (!a.info(info_flags::rational_polynomial) || !b.info(info_flags::rational_polynomial)))
+    if (check_args && (!a.info(info_flags::rational_polynomial) ||
+                       !b.info(info_flags::rational_polynomial)))
         throw(std::invalid_argument("divide: arguments must be polynomials over the rationals"));
 
     // Find first symbol

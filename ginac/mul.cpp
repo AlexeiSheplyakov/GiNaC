@@ -280,21 +280,28 @@ void mul::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) cons
 
 bool mul::info(unsigned inf) const
 {
-    // TODO: optimize
-    if (inf==info_flags::polynomial ||
-        inf==info_flags::integer_polynomial ||
-        inf==info_flags::cinteger_polynomial ||
-        inf==info_flags::rational_polynomial ||
-        inf==info_flags::crational_polynomial ||
-        inf==info_flags::rational_function) {
-        for (epvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
-            if (!(recombine_pair_to_ex(*it).info(inf)))
-                return false;
+    switch (inf) {
+        case info_flags::polynomial:
+        case info_flags::integer_polynomial:
+        case info_flags::cinteger_polynomial:
+        case info_flags::rational_polynomial:
+        case info_flags::crational_polynomial:
+        case info_flags::rational_function: {
+            for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i) {
+                if (!(recombine_pair_to_ex(*i).info(inf)))
+                    return false;
+            }
+            return overall_coeff.info(inf);
         }
-        return overall_coeff.info(inf);
-    } else {
-        return inherited::info(inf);
+        case info_flags::algebraic: {
+            for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i) {
+                if ((recombine_pair_to_ex(*i).info(inf)))
+                    return true;
+            }
+            return false;
+        }
     }
+    return inherited::info(inf);
 }
 
 typedef vector<int> intvector;
@@ -419,7 +426,7 @@ ex mul::eval(int level) const
                         ex_to_numeric(addref.overall_coeff).
                         mul_dyn(ex_to_numeric(overall_coeff))))
             ->setflag(status_flags::dynallocated |
-                      status_flags::evaluated );
+                      status_flags::evaluated);
     }
     return this->hold();
 }

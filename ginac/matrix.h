@@ -97,10 +97,9 @@ public:
 protected:
     ex determinant_numeric(void) const;
     ex determinant_minor(void) const;
-    ex determinant_bareiss(bool normalize=true) const;
     int gauss_elimination(void);
-    int fraction_free_elimination(void);
     int division_free_elimination(void);
+    int fraction_free_elimination(bool det = false);
     int pivot(unsigned ro, bool symbolic=true);
 private:  // FIXME: these should be obsoleted
     void ffe_swap(unsigned r1, unsigned c1, unsigned r2 ,unsigned c2);

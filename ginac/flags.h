@@ -45,7 +45,7 @@ public:
 /** Possible attributes an object can have. */
 class info_flags {
 public:
-    enum { 
+    enum {
            // answered by class numeric
            numeric,
            real,
@@ -62,7 +62,7 @@ public:
            even,
            odd,
            prime,
-
+           
            // answered by class relation
            relation,
            relation_equal,
@@ -71,16 +71,16 @@ public:
            relation_less_or_equal,
            relation_greater,
            relation_greater_or_equal,
-
+           
            // answered by class symbol
            symbol,
-
+           
            // answered by class lst
            list,
-
+           
            // answered by class exprseq
            exprseq,
-
+           
            // answered by classes numeric, symbol, add, mul, power
            polynomial,
            integer_polynomial,
@@ -88,17 +88,18 @@ public:
            rational_polynomial,
            crational_polynomial,
            rational_function,
-
+           algebraic,
+           
            // answered by class indexed
            indexed,      // class can carry indices
            has_indices,  // object has at least one index
-
+           
            // answered by class idx
            idx,
-
+           
            // answered by class coloridx
            coloridx,
-
+           
            // answered by class lorentzidx
            lorentzidx
     };

@@ -250,17 +250,20 @@ void power::printcsrc(ostream & os, unsigned type, unsigned upper_precedence) co
 
 bool power::info(unsigned inf) const
 {
-    if (inf==info_flags::polynomial ||
-        inf==info_flags::integer_polynomial ||
-        inf==info_flags::cinteger_polynomial ||
-        inf==info_flags::rational_polynomial ||
-        inf==info_flags::crational_polynomial) {
-        return exponent.info(info_flags::nonnegint);
-    } else if (inf==info_flags::rational_function) {
-        return exponent.info(info_flags::integer);
-    } else {
-        return inherited::info(inf);
+    switch (inf) {
+        case info_flags::polynomial:
+        case info_flags::integer_polynomial:
+        case info_flags::cinteger_polynomial:
+        case info_flags::rational_polynomial:
+        case info_flags::crational_polynomial:
+            return exponent.info(info_flags::nonnegint);
+        case info_flags::rational_function:
+            return exponent.info(info_flags::integer);
+        case info_flags::algebraic:
+            return (!exponent.info(info_flags::integer) ||
+                    basis.info(inf));
     }
+    return inherited::info(inf);
 }
 
 unsigned power::nops() const
