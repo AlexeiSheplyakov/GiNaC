@@ -77,6 +77,7 @@ class numeric : public basic
     friend numeric asinh(numeric const & x);
     friend numeric acosh(numeric const & x);
     friend numeric atanh(numeric const & x);
+    friend numeric bernoulli(numeric const & n);
     friend numeric abs(numeric const & x);
     friend numeric mod(numeric const & a, numeric const & b);
     friend numeric smod(numeric const & a, numeric const & b);
@@ -244,6 +245,7 @@ numeric psi(numeric const & n, numeric const & x);
 numeric factorial(numeric const & n);
 numeric doublefactorial(numeric const & n);
 numeric binomial(numeric const & n, numeric const & k);
+numeric bernoulli(numeric const & n);
 
 numeric abs(numeric const & x);
 numeric mod(numeric const & a, numeric const & b);

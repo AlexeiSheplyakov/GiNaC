@@ -1111,7 +1111,7 @@ numeric doublefactorial(numeric const & nn)
 {
     // META-NOTE:  The whole shit here will become obsolete and may be moved
     // out once CLN learns about double factorial, which should be as soon as
-    // 1.0.3 rolls out.
+    // 1.0.3 rolls out!
     
     // We store the results separately for even and odd arguments.  This has
     // the advantage that we don't have to compute any even result at all if
@@ -1124,21 +1124,21 @@ numeric doublefactorial(numeric const & nn)
     static vector<numeric> oddresults;
     static int highest_oddresult = -1;
     
-    if ( nn == numeric(-1) ) {
+    if (nn == numeric(-1)) {
         return numONE();
     }
-    if ( !nn.is_nonneg_integer() ) {
+    if (!nn.is_nonneg_integer()) {
         throw (std::range_error("numeric::doublefactorial(): argument must be integer >= -1"));
     }
-    if ( nn.is_even() ) {
+    if (nn.is_even()) {
         int n = nn.div(numTWO()).to_int();
-        if ( n <= highest_evenresult ) {
+        if (n <= highest_evenresult) {
             return evenresults[n];
         }
-        if ( evenresults.capacity() < (unsigned)(n+1) ) {
+        if (evenresults.capacity() < (unsigned)(n+1)) {
             evenresults.reserve(n+1);
         }
-        if ( highest_evenresult < 0 ) {
+        if (highest_evenresult < 0) {
             evenresults.push_back(numONE());
             highest_evenresult=0;
         }
@@ -1149,13 +1149,13 @@ numeric doublefactorial(numeric const & nn)
         return evenresults[n];
     } else {
         int n = nn.sub(numONE()).div(numTWO()).to_int();
-        if ( n <= highest_oddresult ) {
+        if (n <= highest_oddresult) {
             return oddresults[n];
         }
-        if ( oddresults.capacity() < (unsigned)n ) {
+        if (oddresults.capacity() < (unsigned)n) {
             oddresults.reserve(n+1);
         }
-        if ( highest_oddresult < 0 ) {
+        if (highest_oddresult < 0) {
             oddresults.push_back(numONE());
             highest_oddresult=0;
         }
@@ -1167,19 +1167,67 @@ numeric doublefactorial(numeric const & nn)
     }
 }
 
-/** The Binomial function. It computes the binomial coefficients. If the
- *  arguments are both nonnegative integers and 0 <= k <= n, then
- *  binomial(n, k) = n!/k!/(n-k)! which is the number of ways of choosing k
- *  objects from n distinct objects. If k > n, then binomial(n,k) returns 0. */
+/** The Binomial coefficients.  It computes the binomial coefficients.  For
+ *  integer n and k and positive n this is the number of ways of choosing k
+ *  objects from n distinct objects.  If n is negative, the formula
+ *  binomial(n,k) == (-1)^k*binomial(k-n-1,k) is used to compute the result. */
 numeric binomial(numeric const & n, numeric const & k)
 {
-    if (n.is_nonneg_integer() && k.is_nonneg_integer()) {
-        return numeric(::binomial(n.to_int(),k.to_int()));  // -> CLN
-    } else {
-        // should really be gamma(n+1)/(gamma(r+1)/gamma(n-r+1)
-        return numeric(0);
+    if (n.is_integer() && k.is_integer()) {
+        if (n.is_nonneg_integer()) {
+            if (k.compare(n)!=1 && k.compare(numZERO())!=-1)
+                return numeric(::binomial(n.to_int(),k.to_int()));  // -> CLN
+            else
+                return numZERO();
+        } else {
+            return numMINUSONE().power(k)*binomial(k-n-numONE(),k);
+        }        
     }
-    // return factorial(n).div(factorial(k).mul(factorial(n.sub(k))));
+    
+    // should really be gamma(n+1)/(gamma(r+1)/gamma(n-r+1) or a suitable limit
+    throw (std::range_error("numeric::binomial(): don´t know how to evaluate that."));
+}
+
+/** Bernoulli number.  The nth Bernoulli number is the coefficient of x^n/n!
+ *  in the expansion of the function x/(e^x-1).
+ *
+ *  @return the nth Bernoulli number (a rational number).
+ *  @exception range_error (argument must be integer >= 0) */
+numeric bernoulli(numeric const & nn)
+{
+    if (!nn.is_integer() || nn.is_negative())
+        throw (std::range_error("numeric::bernoulli(): argument must be integer >= 0"));
+    if (nn.is_zero())
+        return numONE();
+    if (!nn.compare(numONE()))
+        return numeric(-1,2);
+    if (nn.is_odd())
+        return numZERO();
+    // Until somebody has the Blues and comes up with a much better idea and
+    // codes it (preferably in CLN) we make this a remembering function which
+    // computes its results using the formula
+    // B(nn) == - 1/(nn+1) * sum_{k=0}^{nn-1}(binomial(nn+1,k)*B(k))
+    // whith B(0) == 1.
+    static vector<numeric> results;
+    static int highest_result = -1;
+    int n = nn.sub(numTWO()).div(numTWO()).to_int();
+    if (n <= highest_result)
+        return results[n];
+    if (results.capacity() < (unsigned)(n+1))
+        results.reserve(n+1);
+    
+    numeric tmp;  // used to store the sum
+    for (int i=highest_result+1; i<=n; ++i) {
+        // the first two elements:
+        tmp = numeric(-2*i-1,2);
+        // accumulate the remaining elements:
+        for (int j=0; j<i; ++j)
+            tmp += binomial(numeric(2*i+3),numeric(j*2+2))*results[j];
+        // divide by -(nn+1) and store result:
+        results.push_back(-tmp/numeric(2*i+3));
+    }
+    highest_result=n;
+    return results[n];
 }
 
 /** Absolute value. */

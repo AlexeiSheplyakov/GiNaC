@@ -39,9 +39,10 @@ namespace GiNaC {
 static ex zeta_eval(ex const & x)
 {
     if (x.info(info_flags::numeric)) {
+        numeric y = ex_to_numeric(x);
         // trap integer arguments:
-        if (x.info(info_flags::integer)) {
-            if (x.is_zero())
+        if (y.is_integer()) {
+            if (y.is_zero())
                 return -exHALF();
             if (!x.compare(exONE()))
                 throw(std::domain_error("zeta(1): infinity"));
@@ -49,20 +50,18 @@ static ex zeta_eval(ex const & x)
                 if (x.info(info_flags::odd))
                     return zeta(x).hold();
                 else
-                    // return bernoulli(ex_to_numeric(x))*pow(Pi,x)*numTWO().power(ex_to_numeric(x))/factorial(x);
-                    throw (std::domain_error("you found a missing feature"));
+                    return abs(bernoulli(y))*pow(Pi,x)*numTWO().power(y-numONE())/factorial(y);
             } else {
                 if (x.info(info_flags::odd))
-                    // return -bernoulli(1-ex_to_numeric(x))/(1-ex_to_numeric(x))
-                    throw (std::domain_error("you found a missing feature"));
-                else 
+                    return -bernoulli(numONE()-y)/(numONE()-y);
+                else
                     return numZERO();
             }
         }
     }
     return zeta(x).hold();
 }
-    
+
 static ex zeta_evalf(ex const & x)
 {
     BEGIN_TYPECHECK
