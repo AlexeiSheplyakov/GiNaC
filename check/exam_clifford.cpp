@@ -255,7 +255,7 @@ static unsigned clifford_check6(const matrix & A)
 	       psi(symbol("psi"),4), lam(symbol("lambda"), 4),
 	       xi(symbol("xi"), 4),  rho(symbol("rho"),4);
 
-	ex G = indexed(A, sy_symm(), psi, xi);
+	ex G = A;
 
 	matrix A2(4, 4);
 	A2 = A.mul(A);
@@ -275,13 +275,13 @@ static unsigned clifford_check6(const matrix & A)
 	result += check_equal_simplify(e, A.trace() * dirac_ONE());
 
 	e = clifford_unit(nu, G) * clifford_unit(nu, G);
-	result += check_equal_simplify(e, G.subs(psi == nu).subs(xi == nu) * dirac_ONE());
+	result += check_equal_simplify(e, indexed(G, sy_symm(), nu, nu) * dirac_ONE());
 
 	e = clifford_unit(nu, G) * clifford_unit(nu.toggle_variance(), G) * clifford_unit(mu, G);
 	result += check_equal_simplify(e, A.trace() * clifford_unit(mu, G));
 
 	e = clifford_unit(nu, G) * clifford_unit(mu, G) * clifford_unit(nu.toggle_variance(), G);
-	result += check_equal_simplify(e, 2*G.subs(psi == mu).subs(xi == mu)*clifford_unit(mu, G) - A.trace()*clifford_unit(mu, G));
+	result += check_equal_simplify(e, 2*indexed(G, sy_symm(), mu, mu)*clifford_unit(mu, G) - A.trace()*clifford_unit(mu, G));
 
 	e = clifford_unit(nu, G) * clifford_unit(nu.toggle_variance(), G)
 	  * clifford_unit(mu, G) * clifford_unit(mu.toggle_variance(), G);
@@ -311,7 +311,7 @@ static unsigned clifford_check6(const matrix & A)
 
 	// canonicalize_clifford() checks
 	e = clifford_unit(mu, G) * clifford_unit(nu, G) + clifford_unit(nu, G) * clifford_unit(mu, G);
-	result += check_equal(canonicalize_clifford(e), 2*dirac_ONE()*G.subs(psi == mu).subs(xi == nu));
+	result += check_equal(canonicalize_clifford(e), 2*dirac_ONE()*indexed(G, sy_symm(), mu, nu));
 
 	e = (clifford_unit(mu, G) * clifford_unit(nu, G) * clifford_unit(lam, G)
 	   + clifford_unit(nu, G) * clifford_unit(lam, G) * clifford_unit(mu, G)
@@ -319,9 +319,9 @@ static unsigned clifford_check6(const matrix & A)
 	   - clifford_unit(nu, G) * clifford_unit(mu, G) * clifford_unit(lam, G)
 	   - clifford_unit(lam, G) * clifford_unit(nu, G) * clifford_unit(mu, G)
 	   - clifford_unit(mu, G) * clifford_unit(lam, G) * clifford_unit(nu, G)) / 6
-	  + G.subs(psi == mu).subs(xi == nu) * clifford_unit(lam, G)
-	  - G.subs(psi == mu).subs(xi == lam) * clifford_unit(nu, G)
-	  + G.subs(psi == nu).subs(xi == lam) * clifford_unit(mu, G)
+	  + indexed(G, sy_symm(), mu, nu) * clifford_unit(lam, G)
+	  - indexed(G, sy_symm(), mu, lam) * clifford_unit(nu, G)
+	  + indexed(G, sy_symm(), nu, lam) * clifford_unit(mu, G)
 	  - clifford_unit(mu, G) * clifford_unit(nu, G) * clifford_unit(lam, G);
 	result += check_equal(canonicalize_clifford(e), 0);
 
@@ -347,7 +347,7 @@ static unsigned clifford_check7()
 
 	ex e;
 
-	ex G = lorentz_g(psi, xi);
+	ex G = minkmetric();
 
 	e = dirac_ONE() * dirac_ONE();
 	result += check_equal(e, dirac_ONE());
@@ -374,7 +374,7 @@ static unsigned clifford_check7()
 
 	// canonicalize_clifford() checks
 	e = clifford_unit(mu, G) * clifford_unit(nu, G) + clifford_unit(nu, G) * clifford_unit(mu, G);
-	result += check_equal(canonicalize_clifford(e), 2*dirac_ONE()*G.subs(psi == mu).subs(xi == nu));
+	result += check_equal(canonicalize_clifford(e), 2*dirac_ONE()*indexed(G, sy_symm(), mu, nu));
 
 	e = (clifford_unit(mu, G) * clifford_unit(nu, G) * clifford_unit(lam, G)
 	   + clifford_unit(nu, G) * clifford_unit(lam, G) * clifford_unit(mu, G)
@@ -382,9 +382,9 @@ static unsigned clifford_check7()
 	   - clifford_unit(nu, G) * clifford_unit(mu, G) * clifford_unit(lam, G)
 	   - clifford_unit(lam, G) * clifford_unit(nu, G) * clifford_unit(mu, G)
 	   - clifford_unit(mu, G) * clifford_unit(lam, G) * clifford_unit(nu, G)) / 6
-	  + G.subs(psi == mu).subs(xi == nu) * clifford_unit(lam, G)
-	  - G.subs(psi == mu).subs(xi == lam) * clifford_unit(nu, G)
-	  + G.subs(psi == nu).subs(xi == lam) * clifford_unit(mu, G)
+	  + indexed(G, sy_symm(), mu, nu) * clifford_unit(lam, G)
+	  - indexed(G, sy_symm(), mu, lam) * clifford_unit(nu, G)
+	  + indexed(G, sy_symm(), nu, lam) * clifford_unit(mu, G)
 	  - clifford_unit(mu, G) * clifford_unit(nu, G) * clifford_unit(lam, G);
 	result += check_equal(canonicalize_clifford(e), 0);
 
