@@ -2302,6 +2302,7 @@ avoided.
 * Rational Expressions::            Working with rational functions.
 * Symbolic Differentiation::
 * Series Expansion::                Taylor and Laurent expansion.
+* Symmetrization::
 * Built-in Functions::              List of predefined mathematical functions.
 * Input/Output::                    Input and output of expressions.
 @end menu
@@ -3252,7 +3253,7 @@ When you run it, it produces the sequence @code{1}, @code{-1}, @code{5},
 @code{i} by two since all odd Euler numbers vanish anyways.
 
 
-@node Series Expansion, Built-in Functions, Symbolic Differentiation, Methods and Functions
+@node Series Expansion, Symmetrization, Symbolic Differentiation, Methods and Functions
 @c    node-name, next, previous, up
 @section Series expansion
 @cindex @code{series()}
@@ -3362,7 +3363,49 @@ program, it will type out:
 @end example
 
 
-@node Built-in Functions, Input/Output, Series Expansion, Methods and Functions
+@node Symmetrization, Built-in Functions, Series Expansion, Methods and Functions
+@c    node-name, next, previous, up
+@section Symmetrization
+
+The two functions
+
+@example
+ex symmetrize(const ex & e, const lst & l);
+ex antisymmetrize(const ex & e, const lst & l);
+@end example
+
+symmetrize an expression by returning the symmetric or antisymmetric sum
+over all permutations of the specified list of objects, weighted by the
+number of permutations.
+
+The two additional functions
+
+@example
+ex symmetrize(const ex & e);
+ex antisymmetrize(const ex & e);
+@end example
+
+symmetrize or antisymmetrize an expression over its free indices.
+
+Symmetrization is most useful with indexed expressions but can be used with
+almost any kind of object (anything that is @code{subs()}able):
+
+@example
+@{
+    idx i(symbol("i"), 3), j(symbol("j"), 3), k(symbol("k"), 3);
+    symbol A("A"), B("B"), a("a"), b("b"), c("c");
+                                           
+    cout << symmetrize(indexed(A, i, j)) << endl;
+     // -> 1/2*A.j.i+1/2*A.i.j
+    cout << antisymmetrize(indexed(A, i, j, k), lst(i, j)) << endl;
+     // -> -1/2*A.j.i.k+1/2*A.i.j.k
+    cout << symmetrize(lst(a, b, c), lst(a, b, c)) << endl;
+     // -> 1/6*[a,b,c]+1/6*[c,a,b]+1/6*[b,a,c]+1/6*[c,b,a]+1/6*[b,c,a]+1/6*[a,c,b]
+@}
+@end example
+
+
+@node Built-in Functions, Input/Output, Symmetrization, Methods and Functions
 @c    node-name, next, previous, up
 @section Predefined mathematical functions
 
