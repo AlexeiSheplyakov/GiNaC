@@ -282,9 +282,12 @@ ex & power::let_op(int i)
 int power::degree(const symbol & s) const
 {
 	if (is_exactly_of_type(*exponent.bp,numeric)) {
-		if ((*basis.bp).compare(s)==0)
-			return ex_to_numeric(exponent).to_int();
-		else
+		if ((*basis.bp).compare(s)==0) {
+			if (ex_to_numeric(exponent).is_integer())
+				return ex_to_numeric(exponent).to_int();
+			else
+				return 0;
+		} else
 			return basis.degree(s) * ex_to_numeric(exponent).to_int();
 	}
 	return 0;
@@ -293,9 +296,12 @@ int power::degree(const symbol & s) const
 int power::ldegree(const symbol & s) const 
 {
 	if (is_exactly_of_type(*exponent.bp,numeric)) {
-		if ((*basis.bp).compare(s)==0)
-			return ex_to_numeric(exponent).to_int();
-		else
+		if ((*basis.bp).compare(s)==0) {
+			if (ex_to_numeric(exponent).is_integer())
+				return ex_to_numeric(exponent).to_int();
+			else
+				return 0;
+		} else
 			return basis.ldegree(s) * ex_to_numeric(exponent).to_int();
 	}
 	return 0;
@@ -305,17 +311,27 @@ ex power::coeff(const symbol & s, int n) const
 {
 	if ((*basis.bp).compare(s)!=0) {
 		// basis not equal to s
-		if (n==0) {
+		if (n == 0)
 			return *this;
-		} else {
+		else
 			return _ex0();
+	} else {
+		// basis equal to s
+		if (is_exactly_of_type(*exponent.bp, numeric) && ex_to_numeric(exponent).is_integer()) {
+			// integer exponent
+			int int_exp = ex_to_numeric(exponent).to_int();
+			if (n == int_exp)
+				return _ex1();
+			else
+				return _ex0();
+		} else {
+			// non-integer exponents are treated as zero
+			if (n == 0)
+				return *this;
+			else
+				return _ex0();
 		}
-	} else if (is_exactly_of_type(*exponent.bp,numeric)&&
-			   (static_cast<const numeric &>(*exponent.bp).compare(numeric(n))==0)) {
-		return _ex1();
 	}
-
-	return _ex0();
 }
 
 ex power::eval(int level) const

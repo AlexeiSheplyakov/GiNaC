@@ -310,7 +310,8 @@ int mul::degree(const symbol & s) const
 {
 	int deg_sum = 0;
 	for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
-		deg_sum+=(*cit).rest.degree(s) * ex_to_numeric((*cit).coeff).to_int();
+		if (ex_to_numeric(cit->coeff).is_integer())
+			deg_sum+=cit->rest.degree(s) * ex_to_numeric(cit->coeff).to_int();
 	}
 	return deg_sum;
 }
@@ -319,7 +320,8 @@ int mul::ldegree(const symbol & s) const
 {
 	int deg_sum = 0;
 	for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
-		deg_sum+=(*cit).rest.ldegree(s) * ex_to_numeric((*cit).coeff).to_int();
+		if (ex_to_numeric(cit->coeff).is_integer())
+			deg_sum+=cit->rest.ldegree(s) * ex_to_numeric(cit->coeff).to_int();
 	}
 	return deg_sum;
 }

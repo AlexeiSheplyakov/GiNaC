@@ -1,5 +1,11 @@
 This file records noteworthy changes.
 
+0.6.5 ()
+* Non-integer powers of a symbol are treated as constants by (l)degree() and
+  coeff(). Using these functions on an expression containing such powers used
+  to fail with an internal error message. The side-effect is that collect()
+  can be used on expressions which are not polynomials.
+
 0.6.4 (10 August 2000)
 * Complete revamp of methods in class matrix.  Some redundant (and poor)
   implementations of elimination schemes were thrown out.  The code is now
