@@ -1,0 +1,307 @@
+# Makefile.in generated automatically by automake 1.3 from Makefile.am
+
+# Copyright (C) 1994, 1995, 1996, 1997, 1998 Free Software Foundation, Inc.
+# This Makefile.in is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
+
+# This section produces HTML'ed and TeX'ed versions of the tutorial using a
+# SGML to TeX converter (in this case jade).  As a dirty hack, we are doing
+# some regexpese to tutorial.sgml prior to parsing it, in order to allow for
+# different graphics output.  This seems to be an ugly limitation of docbook...
+
+
+SHELL = /bin/sh
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+
+DISTDIR =
+
+pkgdatadir = $(datadir)/@PACKAGE@
+pkglibdir = $(libdir)/@PACKAGE@
+pkgincludedir = $(includedir)/@PACKAGE@
+
+top_builddir = ../..
+
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOMAKE = @AUTOMAKE@
+AUTOHEADER = @AUTOHEADER@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+transform = @program_transform_name@
+
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+host_alias = @host_alias@
+host_triplet = @host@
+CC = @CC@
+CXX = @CXX@
+CXXCPP = @CXXCPP@
+DOXYGEN = @DOXYGEN@
+DVIPS = @DVIPS@
+FIG2DEV = @FIG2DEV@
+GINACLIB_BINARY_AGE = @GINACLIB_BINARY_AGE@
+GINACLIB_INTERFACE_AGE = @GINACLIB_INTERFACE_AGE@
+GINACLIB_MAJOR_VERSION = @GINACLIB_MAJOR_VERSION@
+GINACLIB_MICRO_VERSION = @GINACLIB_MICRO_VERSION@
+GINACLIB_MINOR_VERSION = @GINACLIB_MINOR_VERSION@
+GINACLIB_VERSION = @GINACLIB_VERSION@
+JADE = @JADE@
+JADETEX = @JADETEX@
+LATEX = @LATEX@
+LD = @LD@
+LEX = @LEX@
+LIBTOOL = @LIBTOOL@
+LN_S = @LN_S@
+LT_AGE = @LT_AGE@
+LT_CURRENT = @LT_CURRENT@
+LT_RELEASE = @LT_RELEASE@
+LT_REVISION = @LT_REVISION@
+MAINT = @MAINT@
+MAKEINDEX = @MAKEINDEX@
+MAKEINFO = @MAKEINFO@
+NM = @NM@
+PACKAGE = @PACKAGE@
+RANLIB = @RANLIB@
+REFERENCE_TARGETS = @REFERENCE_TARGETS@
+TUTORIAL_TARGETS = @TUTORIAL_TARGETS@
+VERSION = @VERSION@
+YACC = @YACC@
+
+FIG = classhierarchy.fig rep_naive.fig rep_pair.fig
+PNG = $(addsuffix .png, $(basename $(FIG)))
+EPS = $(addsuffix .eps, $(basename $(FIG)))
+
+SUFFIXES = .fig .png .eps
+
+JADEARGS_TEX = -t tex -o tutorial.tex -d /usr/lib/sgml/stylesheet/dsssl/docbook/nwalsh/print/docbook.dsl
+JADEARGS_HTML = -t sgml -d /usr/lib/sgml/stylesheet/dsssl/docbook/nwalsh/html/docbook.dsl
+
+ginacdocdir = $(datadir)/doc/GiNaC
+ginactutorialdir = $(ginacdocdir)/tutorial
+ginactutorial_DATA = $(TUTORIAL_TARGETS)
+EXTRA_DATA = index.html tutorial.ps
+
+CLEANFILES = *.html *.png *.ps latex tutorial.sgml HTML.manifest
+EXTRA_DIST = tutorial.sgml.in $(FIG)
+mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+CONFIG_HEADER = ../../config.h
+CONFIG_CLEAN_FILES = 
+DATA =  $(ginactutorial_DATA)
+
+DIST_COMMON =  Makefile.am Makefile.in
+
+
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+
+TAR = tar
+GZIP = --best
+all: Makefile $(DATA)
+
+.SUFFIXES:
+.SUFFIXES: .eps .fig .png
+$(srcdir)/Makefile.in: @MAINT@ Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4)
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu doc/tutorial/Makefile
+
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
+	cd $(top_builddir) \
+	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
+
+
+install-ginactutorialDATA: $(ginactutorial_DATA)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(ginactutorialdir)
+	@list='$(ginactutorial_DATA)'; for p in $$list; do \
+	  if test -f $(srcdir)/$$p; then \
+	    echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p"; \
+	    $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p; \
+	  else if test -f $$p; then \
+	    echo " $(INSTALL_DATA) $$p $(DESTDIR)$(ginactutorialdir)/$$p"; \
+	    $(INSTALL_DATA) $$p $(DESTDIR)$(ginactutorialdir)/$$p; \
+	  fi; fi; \
+	done
+
+uninstall-ginactutorialDATA:
+	@$(NORMAL_UNINSTALL)
+	list='$(ginactutorial_DATA)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(ginactutorialdir)/$$p; \
+	done
+tags: TAGS
+TAGS:
+
+
+distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
+
+subdir = doc/tutorial
+
+distdir: $(DISTFILES)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(top_distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
+	cd $(top_srcdir) \
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu doc/tutorial/Makefile
+	@for file in $(DISTFILES); do \
+	  d=$(srcdir); \
+	  test -f $(distdir)/$$file \
+	  || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	  || cp -p $$d/$$file $(distdir)/$$file; \
+	done
+info:
+dvi:
+check: all
+	$(MAKE)
+installcheck:
+install-exec: 
+	@$(NORMAL_INSTALL)
+
+install-data: install-ginactutorialDATA install-data-local
+	@$(NORMAL_INSTALL)
+
+install: install-exec install-data all
+	@:
+
+uninstall: uninstall-ginactutorialDATA uninstall-local
+
+install-strip:
+	$(MAKE) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' INSTALL_SCRIPT='$(INSTALL_PROGRAM)' install
+installdirs:
+	$(mkinstalldirs)  $(DATADIR)$(ginactutorialdir)
+
+
+mostlyclean-generic:
+	-test -z "$(MOSTLYCLEANFILES)" || rm -f $(MOSTLYCLEANFILES)
+
+clean-generic:
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
+
+distclean-generic:
+	-rm -f Makefile $(DISTCLEANFILES)
+	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
+	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
+
+maintainer-clean-generic:
+	-test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
+	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
+mostlyclean:  mostlyclean-generic
+
+clean:  clean-generic mostlyclean
+
+distclean:  distclean-generic clean
+	-rm -f config.status
+	-rm -f libtool
+
+maintainer-clean:  maintainer-clean-generic distclean
+	@echo "This command is intended for maintainers to use;"
+	@echo "it deletes files that may require special tools to rebuild."
+
+.PHONY: uninstall-ginactutorialDATA install-ginactutorialDATA tags \
+distdir info dvi installcheck install-exec install-data install \
+uninstall all installdirs mostlyclean-generic distclean-generic \
+clean-generic maintainer-clean-generic clean mostlyclean distclean \
+maintainer-clean
+
+
+%.eps: %.fig
+	@if [ "${FIG2DEV}" ]; then \
+	  echo "Running ${FIG2DEV} -L ps -m 0.8 $< $@..."; \
+	  ${FIG2DEV} -L ps -m 0.8 $< $@; \
+	else \
+	  echo "warning: fig2dev was not found by configure"; \
+	fi
+
+%.png: %.fig
+	@if [ "${FIG2DEV}" ]; then \
+	  echo "Running ${FIG2DEV} -L png $< $@..."; \
+	  ${FIG2DEV} -L png $< $@; \
+	else \
+	  echo "warning: fig2dev was not found by configure"; \
+	fi
+
+index.html: tutorial.sgml.in $(PNG)
+	@if [ "${JADE}" ]; then \
+	  sed -e 's/graext/png/g' -e 's/GRAEXT/GIF/g' tutorial.sgml.in > tutorial.sgml; \
+	  echo "Running ${JADE} ${JADEARGS_HTML} tutorial.sgml..."; \
+	  ${JADE} ${JADEARGS_HTML} tutorial.sgml; \
+	  if [ -f book1.html ]; then mv book1.html index.html; fi; \
+	else \
+	  echo "warning: target tutorial_html disabled by configuration"; \
+	fi
+
+tutorial.tex: tutorial.sgml.in $(EPS)
+	@if [ "${JADE}" -a "${LATEX}" ]; then \
+	  sed -e 's/graext/eps/g' -e 's/GRAEXT/EPS/g' tutorial.sgml.in > tutorial.sgml; \
+	  echo "Running ${JADE} ${JADEARGS_TEX} tutorial.sgml..."; \
+	  ${JADE} ${JADEARGS_TEX} tutorial.sgml ; \
+	else \
+	  echo "warning: target tutorial.tex disabled by configuration"; \
+	fi
+
+tutorial.dvi: tutorial.tex
+	@if [ "${JADETEX}" ]; then \
+	  echo "Running ${JADETEX} tutorial.tex..."; \
+	  ${JADETEX} tutorial.tex && ${JADETEX} tutorial.tex && ${JADETEX} tutorial.tex; \
+	else \
+	  echo "warning: target tutorial.dvi disabled by configuration"; \
+	fi
+
+tutorial.ps: tutorial.dvi
+	@if [ "${DVIPS}" ]; then \
+	  echo "Running ${DVIPS} tutorial.dvi -o tutorial.ps..."; \
+	  ${DVIPS} tutorial.dvi -o tutorial.ps; \
+	else \
+	  echo "warning: target tutorial.ps disabled by configuration"; \
+	fi
+
+install-data-local:
+	@for p in *.html; do \
+	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p"; \
+	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p; \
+	done
+	@for p in *.png; do \
+	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p"; \
+	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p; \
+	done
+
+uninstall-local:
+	@for p in *.html; do \
+	  echo " rm -f $(DESTDIR)$(ginactutorialdir)/$$p"; \
+	  rm -f $(DESTDIR)$(ginactutorialdir)/$$p; \
+	done
+	@for p in *.png; do \
+	  echo " rm -f $(DESTDIR)$(ginactutorialdir)/$$p"; \
+	  rm -f $(DESTDIR)$(ginactutorialdir)/$$p; \
+	done
+
+# Tell versions [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

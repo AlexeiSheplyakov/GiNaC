@@ -1,0 +1,74 @@
+## Process this file with automake to produce Makefile.in
+
+# This section produces HTML'ed and TeX'ed developer's reference from the
+# sources with a JavaDoc-like tool (in this case doxygen):
+index.html:
+	@if [ "${DOXYGEN}" ]; then \
+	  echo "Running ${DOXYGEN} DoxyfileHTML..."; \
+	  ${DOXYGEN} DoxyfileHTML; \
+	else \
+	  echo "warning: target reference_html disabled by configuration"; \
+	fi
+
+latex::
+	@[ -d ${srcdir}/latex ] || mkdir ${srcdir}/latex >/dev/null 2>&1
+
+latex/reference.tex:
+	@if [ "${DOXYGEN}" ]; then \
+	  echo "Running ${DOXYGEN} DoxyfileTEX..."; \
+	  ${DOXYGEN} DoxyfileTEX; \
+	  mv ${srcdir}/latex/refman.tex ${srcdir}/latex/reference.tex; \
+	else \
+	  echo "warning: target reference.tex disabled by configuration"; \
+	fi
+
+latex/reference.dvi: latex/reference.tex
+	@if [ "${LATEX}" -a "${MAKEINDEX}" ]; then \
+	  (cd ${srcdir}/latex; \
+	  ${LATEX} reference.tex && \
+	  ${MAKEINDEX} reference.idx && \
+	  ${LATEX} reference.tex); \
+	else \
+	  echo "warning: target reference.dvi disabled by configuration"; \
+	fi
+
+latex/reference.ps: latex/reference.dvi
+	@if [ "${DVIPS}" ]; then \
+	  echo "Running ${DVIPS} -o reference.ps reference.dvi..."; \
+	  (cd ${srcdir}/latex; ${DVIPS} -o reference.ps reference.dvi); \
+	else \
+	  echo "warning: target reference.ps disabled by configuration"; \
+	fi
+
+reference.ps: latex latex/reference.ps
+	cp ${srcdir}/latex/reference.ps reference.ps
+
+install-data-local:
+	$(INSTALL_DATA) $(srcdir)/doxygen.css $(DESTDIR)$(ginacreferencedir)/doxygen.css
+	@for p in *.html; do \
+	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p"; \
+	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p; \
+	done
+	@for p in *.gif; do \
+	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p"; \
+	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p; \
+	done
+
+uninstall-local:
+	rm -f $(DESTDIR)$(ginacreferencedir)/doxygen.css
+	@for p in *.html; do \
+	  echo " rm -f $(DESTDIR)$(ginacreferencedir)/$$p"; \
+	  rm -f $(DESTDIR)$(ginacreferencedir)/$$p; \
+	done
+	@for p in *.gif; do \
+	  echo " rm -f $(DESTDIR)$(ginacreferencedir)/$$p"; \
+	  rm -f $(DESTDIR)$(ginacreferencedir)/$$p; \
+	done
+
+ginacdocdir = $(datadir)/doc/GiNaC
+ginacreferencedir = $(ginacdocdir)/reference
+ginacreference_DATA = $(REFERENCE_TARGETS)
+EXTRA_DATA = index.html reference.ps
+
+CLEANFILES = *.html *.gif doxygen.css *.ps latex/*
+EXTRA_DIST = DoxyfileHTML DoxyfileTEX Doxyfooter
