@@ -1300,6 +1300,9 @@ avoided.
 
 @subsection Checking expression types
 @cindex @code{is_ex_of_type()}
+@cindex @code{ex_to_numeric()}
+@cindex @code{ex_to_@dots{}}
+@cindex @code{Converting ex to other classes}
 @cindex @code{info()}
 
 Sometimes it's useful to check whether a given expression is a plain number,
@@ -1309,6 +1312,20 @@ GiNaC provides two functions for this (the first one is actually a macro):
 @example
 bool is_ex_of_type(const ex & e, TYPENAME t);
 bool ex::info(unsigned flag);
+@end example
+
+When the test made by @code{is_ex_of_type()} returns true, it is safe to
+call one of the functions @code{ex_to_@dots{}}, where @code{@dots{}} is
+one of the class names (@xref{The Class Hierarchy}, for a list of all
+classes). For example, assuming @code{e} is an @code{ex}:
+
+@example
+@{
+    @dots{}
+    if (is_ex_of_type(e, numeric))
+        numeric n = ex_to_numeric(e);
+    @dots{}
+@}
 @end example
 
 @code{is_ex_of_type()} allows you to check whether the top-level object of
