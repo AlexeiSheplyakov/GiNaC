@@ -162,13 +162,13 @@ basic *pseries::duplicate() const
 
 void pseries::print(ostream &os, unsigned upper_precedence) const
 {
-	debugmsg("symbol print", LOGLEVEL_PRINT);
-	convert_to_poly().print(os, upper_precedence);
+    debugmsg("pseries print", LOGLEVEL_PRINT);
+    convert_to_poly().print(os, upper_precedence);
 }
 
 void pseries::printraw(ostream &os) const
 {
-	debugmsg("symbol printraw", LOGLEVEL_PRINT);
+	debugmsg("pseries printraw", LOGLEVEL_PRINT);
 	os << "pseries(" << var << ";" << point << ";";
 	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); i++) {
 		os << "(" << (*i).rest << "," << (*i).coeff << "),";
@@ -178,14 +178,14 @@ void pseries::printraw(ostream &os) const
 
 unsigned pseries::nops(void) const
 {
-	return seq.size();
+    return seq.size();
 }
 
 ex pseries::op(int i) const
 {
-	if (i < 0 || i >= seq.size())
-	    throw (std::out_of_range("op() out of range"));
-	return seq[i].rest * power(var - point, seq[i].coeff);
+    if (i < 0 || unsigned(i) >= seq.size())
+        throw (std::out_of_range("op() out of range"));
+    return seq[i].rest * power(var - point, seq[i].coeff);
 }
 
 ex &pseries::let_op(int i)
@@ -377,8 +377,8 @@ ex symbol::series(const symbol & s, const ex & point, int order) const
 }
 
 
-/** Add one series object to another, producing a pseries object that represents
- *  the sum.
+/** Add one series object to another, producing a pseries object that
+ *  represents the sum.
  *
  *  @param other  pseries object to add with
  *  @return the sum as a pseries */
@@ -480,8 +480,8 @@ ex add::series(const symbol & s, const ex & point, int order) const
 }
 
 
-/** Multiply a pseries object with a numeric constant, producing a pseries object
- *  that represents the product.
+/** Multiply a pseries object with a numeric constant, producing a pseries
+ *  object that represents the product.
  *
  *  @param other  constant to multiply with
  *  @return the product as a pseries */
