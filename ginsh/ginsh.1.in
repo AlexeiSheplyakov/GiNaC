@@ -356,6 +356,9 @@ detail here. Please refer to the GiNaC documentation.
 .BI rem( expression ", " expression ", " symbol )
 \- remainder of polynomials
 .br
+.BI resultant( expression ", " expression ", " symbol )
+\- resultant of two polynomials with respect to symbol s
+.br
 .BI series( expression ", " relation-or-symbol ", " order )
 \- series expansion
 .br

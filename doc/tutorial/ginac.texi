@@ -4723,7 +4723,7 @@ content parts). The product of unit, content, and primitive part is the
 original polynomial.
 
 
-@subsection GCD and LCM
+@subsection GCD, LCM and resultant
 @cindex GCD
 @cindex LCM
 @cindex @code{gcd()}
@@ -4760,6 +4760,38 @@ int main()
 @}
 @end example
 
+@cindex resultant
+@cindex @code{resultant()}
+
+The resultant of two expressions only makes sense with polynomials.
+It is always computed with respect to a specific symbol within the
+expressions. The function has the interface
+
+@example
+ex resultant(const ex & a, const ex & b, const symbol & s);
+@end example
+
+Resultants are symmetric in @code{a} and @code{b}. The following example
+computes the resultant of two expressions with respect to @code{x} and
+@code{y}, respectively:
+
+@example
+#include <ginac/ginac.h>
+using namespace GiNaC;
+
+int main()
+@{
+    symbol x("x"), y("y");
+
+    ex e1 = x+pow(y,2), e2 = 2*pow(x,3)-1; // x+y^2, 2*x^3-1
+    ex r;
+    
+    r = resultant (e1, e2, x); 
+    // -> 1+2*y^6
+    r = resultant (e1, e2, y); 
+    // -> 1-4*x^3+4*x^6
+@}
+@end example
 
 @subsection Square-free decomposition
 @cindex square-free decomposition

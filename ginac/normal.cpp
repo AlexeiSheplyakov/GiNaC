@@ -2375,4 +2375,33 @@ ex collect_common_factors(const ex & e)
 }
 
 
+/** Resultant of two expressions e1,e2 with respect to symbol s.
+ *  Method: Compute determinant of Sylvester matrix of e1,e2,s.  */
+ex resultant(const ex & e1, const ex & e2, const ex & s)
+{
+	const ex ee1 = e1.expand();
+	const ex ee2 = e2.expand();
+	const int h1 = ee1.degree(s);
+	const int l1 = ee1.ldegree(s);
+	const int h2 = ee2.degree(s);
+	const int l2 = ee2.ldegree(s);
+
+	const int msize = h1 + h2;
+	matrix m(msize, msize);
+
+	for (int l = h1; l >= l1; --l) {
+		const ex e = ee1.coeff(s, l);
+		for (int k = 0; k < h2; ++k)
+			m(k, k+h1-l) = e;
+	}
+	for (int l = h2; l >= l2; --l) {
+		const ex e = ee2.coeff(s, l);
+		for (int k = 0; k < h1; ++k)
+			m(k+h2, k+h2-l) = e;
+	}
+
+	return m.determinant();
+}
+
+
 } // namespace GiNaC

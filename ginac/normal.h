@@ -66,6 +66,9 @@ extern ex sqrfree_parfrac(const ex & a, const symbol & x);
 // Collect common factors in sums.
 extern ex collect_common_factors(const ex & e);
 
+// Resultant of two polynomials e1,e2 with respect to symbol s.
+extern ex resultant(const ex & e1, const ex & e2, const ex & s);
+
 } // namespace GiNaC
 
 #endif // ndef __GINAC_NORMAL_H__

@@ -480,6 +480,12 @@ static ex f_rem(const exprseq &e)
 	return rem(e[0], e[1], e[2]);
 }
 
+static ex f_resultant(const exprseq &e)
+{
+	CHECK_ARG(2, symbol, resultant);
+	return resultant(e[0], e[1], ex_to<symbol>(e[2]));
+}
+
 static ex f_series(const exprseq &e)
 {
 	CHECK_ARG(2, numeric, series);
@@ -589,6 +595,7 @@ static const fcn_init builtin_fcns[] = {
 	{"quo", f_quo, 3},
 	{"rank", f_rank, 1},
 	{"rem", f_rem, 3},
+	{"resultant", f_resultant, 3},
 	{"series", f_series, 3},
 	{"sprem", f_sprem, 3},
 	{"sqrfree", f_sqrfree1, 1},
