@@ -40,16 +40,28 @@ static ex zeta_eval(ex const & x)
 {
     if (x.info(info_flags::numeric)) {
         // trap integer arguments:
-        if ( x.info(info_flags::integer) ) {
-            if ( x.info(info_flags::posint) ) {
-                return numZERO();  // FIXME
+        if (x.info(info_flags::integer)) {
+            if (x.is_zero())
+                return -exHALF();
+            if (!x.compare(exONE()))
+                throw(std::domain_error("zeta(1): infinity"));
+            if (x.info(info_flags::posint)) {
+                if (x.info(info_flags::odd))
+                    return zeta(x).hold();
+                else
+                    // return bernoulli(ex_to_numeric(x))*pow(Pi,x)*numTWO().power(ex_to_numeric(x))/factorial(x);
+                    throw (std::domain_error("you found a missing feature"));
             } else {
-                return numZERO();  // FIXME
+                if (x.info(info_flags::odd))
+                    // return -bernoulli(1-ex_to_numeric(x))/(1-ex_to_numeric(x))
+                    throw (std::domain_error("you found a missing feature"));
+                else 
+                    return numZERO();
             }
         }
     }
     return zeta(x).hold();
-}    
+}
     
 static ex zeta_evalf(ex const & x)
 {
