@@ -2992,7 +2992,7 @@ static void my_print2(const archive_node & n)
     n.find_string("class", class_name);
     cout << class_name << "(";
 
-    vector<archive_node::property_info> p;
+    archive_node::propinfovector p;
     n.get_properties(p);
 
     unsigned num = p.size();
