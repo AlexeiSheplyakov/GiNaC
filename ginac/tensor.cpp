@@ -499,7 +499,7 @@ bool tensepsilon::contract_with(exvector::iterator self, exvector::iterator othe
 {
 	GINAC_ASSERT(is_ex_of_type(*self, indexed));
 	GINAC_ASSERT(is_ex_of_type(*other, indexed));
-	GINAC_ASSERT(is_ex_of_type(self->op(0), spinmetric));
+	GINAC_ASSERT(is_ex_of_type(self->op(0), tensepsilon));
 	unsigned num = self->nops() - 1;
 
 	if (is_ex_exactly_of_type(other->op(0), tensepsilon) && num+1 == other->nops()) {
