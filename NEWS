@@ -16,6 +16,8 @@ This file records noteworthy changes.
 * ex::to_rational() provides a way to extend the domain of functions like
   gcd() and divide() that only work on polynomials or rational functions (the
   good old ex::subs() method reverses this process)
+* Calling diff() on a function that has no derivative defined returns the
+  inert derivative function "Derivative".
 * Several new timings in the check target.  Some of them may be rather rude 
   at your machine, feel free to interrupt them.
 
