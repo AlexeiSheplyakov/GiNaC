@@ -785,7 +785,15 @@ ex mul::series(const relational & r, int order, unsigned options) const
 	const epvector::const_iterator itend = seq.end();
 	for (epvector::const_iterator it=itbeg; it!=itend; ++it) {
 
-		ex buf = recombine_pair_to_ex(*it);
+		ex expon = it->coeff;
+		int factor = 1;
+		ex buf;
+		if (expon.info(info_flags::integer)) {
+			buf = it->rest;
+			factor = ex_to<numeric>(expon).to_int();
+		} else {
+			buf = recombine_pair_to_ex(*it);
+		}
 
 		int real_ldegree = 0;
 		try {
@@ -801,7 +809,7 @@ ex mul::series(const relational & r, int order, unsigned options) const
 			} while (real_ldegree == orderloop);
 		}
 
-		ldegrees.push_back(real_ldegree);
+		ldegrees.push_back(factor * real_ldegree);
 	}
 
 	int degsum = std::accumulate(ldegrees.begin(), ldegrees.end(), 0);
