@@ -1640,9 +1640,9 @@ representation @code{diag(1,1,1,...)}. It is constructed by the function
 @cindex @code{metric_tensor()}
 @subsubsection General metric tensor
 
-The function @code{metric_tensor()} creates a general metric tensor with
-two indices that can be used to raise/lower tensor indices. The metric
-tensor is denoted as @samp{g} in the output and if its indices are of
+The function @code{metric_tensor()} creates a general symmetric metric
+tensor with two indices that can be used to raise/lower tensor indices. The
+metric tensor is denoted as @samp{g} in the output and if its indices are of
 mixed variance it is automatically replaced by a delta tensor:
 
 @example
