@@ -539,7 +539,6 @@ static ex rename_dummy_indices(const ex & e, exvector & global_dummy_indices, ex
 			}
 			it++;
 		}
-		shaker_sort(global_dummy_indices.begin(), global_dummy_indices.end(), ex_is_less(), ex_swap());
 
 		// If this is the first set of local indices, do nothing
 		if (old_global_size == 0)
@@ -554,6 +553,7 @@ static ex rename_dummy_indices(const ex & e, exvector & global_dummy_indices, ex
 	shaker_sort(local_syms.begin(), local_syms.end(), ex_is_less(), ex_swap());
 	for (unsigned i=0; i<global_size; i++)
 		global_syms.push_back(global_dummy_indices[i].op(0));
+	shaker_sort(global_syms.begin(), global_syms.end(), ex_is_less(), ex_swap());
 
 	// Remove common indices
 	exlist local_uniq, global_uniq;

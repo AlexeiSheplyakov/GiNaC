@@ -94,8 +94,15 @@ exp	: T_NUMBER		{$$ = $1;}
 	| T_LITERAL		{$$ = $1;}
 	| T_DIGITS		{$$ = $1;}
 	| T_SYMBOL '(' exprseq ')' {
-		unsigned i = function::find_function(ex_to<symbol>($1).get_name(), $3.nops());
-		$$ = function(i, ex_to<exprseq>($3)).eval(1);
+		string n = ex_to<symbol>($1).get_name();
+		if (n == "sqrt") {
+			if ($3.nops() != 1)
+				throw (std::runtime_error("too many arguments to sqrt()"));
+			$$ = sqrt($3.op(0));
+		} else {
+			unsigned i = function::find_function(n, $3.nops());
+			$$ = function(i, ex_to<exprseq>($3)).eval(1);
+		}
 	}
 	| exp T_EQUAL exp	{$$ = $1 == $3;}
 	| exp T_NOTEQ exp	{$$ = $1 != $3;}

@@ -238,8 +238,10 @@ int power::degree(const ex & s) const
 			return ex_to<numeric>(exponent).to_int();
 		else
 			return basis.degree(s) * ex_to<numeric>(exponent).to_int();
-	}
-	return 0;
+	} else if (basis.has(s))
+		throw(std::runtime_error("power::degree(): undefined degree because of non-integer exponent"));
+	else
+		return 0;
 }
 
 int power::ldegree(const ex & s) const 
@@ -249,8 +251,10 @@ int power::ldegree(const ex & s) const
 			return ex_to<numeric>(exponent).to_int();
 		else
 			return basis.ldegree(s) * ex_to<numeric>(exponent).to_int();
-	}
-	return 0;
+	} else if (basis.has(s))
+		throw(std::runtime_error("power::ldegree(): undefined degree because of non-integer exponent"));
+	else
+		return 0;
 }
 
 ex power::coeff(const ex & s, int n) const

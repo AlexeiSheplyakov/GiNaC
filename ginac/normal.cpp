@@ -581,14 +581,15 @@ ex sprem(const ex &a, const ex &b, const symbol &x, bool check_args)
  *  @param check_args  check whether a and b are polynomials with rational
  *         coefficients (defaults to "true")
  *  @return "true" when exact division succeeds (quotient returned in q),
- *          "false" otherwise */
+ *          "false" otherwise (q left untouched) */
 bool divide(const ex &a, const ex &b, ex &q, bool check_args)
 {
-	q = _ex0;
 	if (b.is_zero())
 		throw(std::overflow_error("divide: division by zero"));
-	if (a.is_zero())
+	if (a.is_zero()) {
+		q = _ex0;
 		return true;
+	}
 	if (is_ex_exactly_of_type(b, numeric)) {
 		q = a / b;
 		return true;
@@ -611,8 +612,10 @@ bool divide(const ex &a, const ex &b, ex &q, bool check_args)
 
 	// Polynomial long division (recursive)
 	ex r = a.expand();
-	if (r.is_zero())
+	if (r.is_zero()) {
+		q = _ex0;
 		return true;
+	}
 	int bdeg = b.degree(*x);
 	int rdeg = r.degree(*x);
 	ex blcoeff = b.expand().coeff(*x, bdeg);
