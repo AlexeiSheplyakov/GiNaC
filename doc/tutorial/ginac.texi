@@ -2999,6 +2999,9 @@ avoided.
 * Series Expansion::                Taylor and Laurent expansion.
 * Symmetrization::
 * Built-in Functions::              List of predefined mathematical functions.
+* Multiple polylogarithms::
+* Complex Conjugation::
+* Built-in Functions::              List of predefined mathematical functions.
 * Solving Linear Systems of Equations::
 * Input/Output::                    Input and output of expressions.
 @end menu
@@ -4755,7 +4758,7 @@ almost any kind of object (anything that is @code{subs()}able):
 @}
 @end example
 
-@node Built-in Functions, Complex Conjugation, Symmetrization, Methods and Functions
+@node Built-in Functions, Multiple polylogarithms, Symmetrization, Methods and Functions
 @c    node-name, next, previous, up
 @section Predefined mathematical functions
 @c
@@ -4885,6 +4888,8 @@ serious CAS.  It is to be expected that future revisions of the C++
 standard incorporate these functions in the complex domain in a manner
 compatible with C99.
 
+@node Multiple polylogarithms, Complex Conjugation, Built-in Functions, Methods and Functions
+@c    node-name, next, previous, up
 @subsection Multiple polylogarithms
 
 @cindex polylogarithm
@@ -5031,7 +5036,7 @@ E.Remiddi, J.A.M.Vermaseren, Int.J.Mod.Phys. A15 (2000), pp. 725-754
 @cite{Special Values of Multiple Polylogarithms}, 
 J.Borwein, D.Bradley, D.Broadhurst, P.Lisonek, Trans.Amer.Math.Soc. 353/3 (2001), pp. 907-941
 
-@node Complex Conjugation, Solving Linear Systems of Equations, Built-in Functions, Methods and Functions
+@node Complex Conjugation, Solving Linear Systems of Equations, Multiple polylogarithms, Methods and Functions
 @c    node-name, next, previous, up
 @section Complex Conjugation
 @c
