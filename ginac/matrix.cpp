@@ -1205,7 +1205,7 @@ ex matrix::determinant_minor() const
 					Pkey[j] = Pkey[j-1]+1;
 		} while(fc);
 		// next column, so change the role of A and B:
-		A = B;
+		A.swap(B);
 		B.clear();
 	}
 	
