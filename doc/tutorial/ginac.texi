@@ -734,7 +734,7 @@ containers of expressions and so on.
 
 @cindex container
 @cindex atom
-To get an idea about what kinds of symbolic composits may be built we
+To get an idea about what kinds of symbolic composites may be built we
 have a look at the most important classes in the class hierarchy and
 some of the relations among the classes:
 
@@ -895,7 +895,7 @@ can use the expression's @code{.subs()} method (@pxref{Substituting Expressions}
 For storing numerical things, GiNaC uses Bruno Haible's library CLN.
 The classes therein serve as foundation classes for GiNaC.  CLN stands
 for Class Library for Numbers or alternatively for Common Lisp Numbers.
-In order to find out more about CLN's internals the reader is refered to
+In order to find out more about CLN's internals, the reader is referred to
 the documentation of that library.  @inforef{Introduction, , cln}, for
 more information. Suffice to say that it is by itself build on top of
 another library, the GNU Multiple Precision library GMP, which is an
@@ -1009,7 +1009,7 @@ naively expect it to be rounded in the decimal system.  But note also,
 that in both cases you got a couple of extra digits.  This is because
 numbers are internally stored by CLN as chunks of binary digits in order
 to match your machine's word size and to not waste precision.  Thus, on
-architectures with differnt word size, the above output might even
+architectures with different word size, the above output might even
 differ with regard to actually computed digits.
 
 It should be clear that objects of class @code{numeric} should be used
@@ -3033,6 +3033,7 @@ Notes:
   are also valid patterns.
 @end itemize
 
+@subsection Matching expressions
 @cindex @code{match()}
 The most basic application of patterns is to check whether an expression
 matches a given pattern. This is done by the function
@@ -3142,6 +3143,7 @@ FAIL
 @{$0==x^2@}
 @end example
 
+@subsection Matching parts of expressions
 @cindex @code{has()}
 A more general way to look for patterns in expressions is provided by the
 member function
@@ -3210,6 +3212,7 @@ sin(y)*a+sin(x)*b+sin(x)*a+sin(y)*b
 @{sin(y),sin(x)@}
 @end example
 
+@subsection Substituting expressions
 @cindex @code{subs()}
 Probably the most useful application of patterns is to use them for
 substituting expressions with the @code{subs()} method. Wildcards can be
@@ -5750,7 +5753,7 @@ simple_SOURCES = simple.cpp
 @end example
 
 This @file{Makefile.am}, says that we are building a single executable,
-from a single sourcefile @file{simple.cpp}. Since every program
+from a single source file @file{simple.cpp}. Since every program
 we are building uses GiNaC we simply added the GiNaC options
 to @env{$LIBS} and @env{$CPPFLAGS}, but in other circumstances, we might
 want to specify them on a per-program basis: for instance by
