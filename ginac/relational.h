@@ -52,15 +52,15 @@ public:
 public:
     relational();
     ~relational();
-    relational(relational const & other);
-    relational const & operator=(relational const & other);
+    relational(const relational & other);
+    const relational & operator=(const relational & other);
 protected:
-    void copy(relational const & other);
+    void copy(const relational & other);
     void destroy(bool call_parent);
 
     // other constructors
 public:
-    relational(ex const & lhs, ex const & rhs, operators oper=equal);
+    relational(const ex & lhs, const ex & rhs, operators oper=equal);
     
     // functions overriding virtual functions from bases classes
 public:
@@ -70,12 +70,12 @@ public:
     void printcsrc(ostream & os, unsigned type, unsigned upper_precedence=0) const;
     bool info(unsigned inf) const;
     unsigned nops() const;
-    ex & let_op(int const i);
+    ex & let_op(int i);
     ex eval(int level=0) const;
     ex evalf(int level=0) const;
-    ex simplify_ncmul(exvector const & v) const;
+    ex simplify_ncmul(const exvector & v) const;
 protected:
-    int compare_same_type(basic const & other) const;
+    int compare_same_type(const basic & other) const;
     unsigned return_type(void) const;
     unsigned return_type_tinfo(void) const;
 
@@ -98,7 +98,7 @@ protected:
 // global constants
 
 extern const relational some_relational;
-extern type_info const & typeid_relational;
+extern const type_info & typeid_relational;
 
 // utility functions
 inline const relational &ex_to_relational(const ex &e)

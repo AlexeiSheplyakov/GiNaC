@@ -62,7 +62,7 @@ ex::~ex()
     }
 }
 
-ex::ex(ex const & other) : bp(other.bp)
+ex::ex(const ex & other) : bp(other.bp)
 {
     debugmsg("ex copy constructor",LOGLEVEL_CONSTRUCT);
     GINAC_ASSERT(bp!=0);
@@ -70,7 +70,7 @@ ex::ex(ex const & other) : bp(other.bp)
     ++bp->refcount;
 }
 
-ex const & ex::operator=(ex const & other)
+const ex & ex::operator=(const ex & other)
 {
     debugmsg("ex operator=",LOGLEVEL_ASSIGNMENT);
     GINAC_ASSERT(bp!=0);
@@ -95,14 +95,14 @@ ex const & ex::operator=(ex const & other)
 // public
 
 #ifndef INLINE_EX_CONSTRUCTORS
-ex::ex(basic const & other)
+ex::ex(const basic & other)
 {
     debugmsg("ex constructor from basic",LOGLEVEL_CONSTRUCT);
     construct_from_basic(other);
 }
 #endif
 
-ex::ex(int const i)
+ex::ex(int i)
 {
     debugmsg("ex constructor from int",LOGLEVEL_CONSTRUCT);
     switch (i) {  // some tiny efficiency-hack (FIXME: is this ok?)
@@ -123,19 +123,19 @@ ex::ex(int const i)
     }
 }
 
-ex::ex(unsigned int const i)
+ex::ex(unsigned int i)
 {
     debugmsg("ex constructor from unsigned int",LOGLEVEL_CONSTRUCT);
     construct_from_basic(numeric(i));
 }
 
-ex::ex(long const i)
+ex::ex(long i)
 {
     debugmsg("ex constructor from long",LOGLEVEL_CONSTRUCT);
     construct_from_basic(numeric(i));
 }
 
-ex::ex(unsigned long const i)
+ex::ex(unsigned long i)
 {
     debugmsg("ex constructor from unsigned long",LOGLEVEL_CONSTRUCT);
     construct_from_basic(numeric(i));
@@ -291,25 +291,25 @@ ex ex::expand(unsigned options) const
     return bp->expand(options);
 }
 
-bool ex::has(ex const & other) const
+bool ex::has(const ex & other) const
 {
     GINAC_ASSERT(bp!=0);
     return bp->has(other);
 }
 
-int ex::degree(symbol const & s) const
+int ex::degree(const symbol & s) const
 {
     GINAC_ASSERT(bp!=0);
     return bp->degree(s);
 }
 
-int ex::ldegree(symbol const & s) const
+int ex::ldegree(const symbol & s) const
 {
     GINAC_ASSERT(bp!=0);
     return bp->ldegree(s);
 }
 
-ex ex::coeff(symbol const & s, int const n) const
+ex ex::coeff(const symbol & s, int n) const
 {
     GINAC_ASSERT(bp!=0);
     return bp->coeff(s,n);
@@ -369,7 +369,7 @@ ex ex::denom(bool normalize) const
     return res;
 }
 
-ex ex::collect(symbol const & s) const
+ex ex::collect(const symbol & s) const
 {
     GINAC_ASSERT(bp!=0);
     return bp->collect(s);
@@ -387,13 +387,13 @@ ex ex::evalf(int level) const
     return bp->evalf(level);
 }
 
-ex ex::subs(lst const & ls, lst const & lr) const
+ex ex::subs(const lst & ls, const lst & lr) const
 {
     GINAC_ASSERT(bp!=0);
     return bp->subs(ls,lr);
 }
 
-ex ex::subs(ex const & e) const
+ex ex::subs(const ex & e) const
 {
     GINAC_ASSERT(bp!=0);
     return bp->subs(e);
@@ -405,34 +405,34 @@ exvector ex::get_indices(void) const
     return bp->get_indices();
 }
 
-ex ex::simplify_ncmul(exvector const & v) const
+ex ex::simplify_ncmul(const exvector & v) const
 {
     GINAC_ASSERT(bp!=0);
     return bp->simplify_ncmul(v);
 }
 
-ex ex::operator[](ex const & index) const
+ex ex::operator[](const ex & index) const
 {
     debugmsg("ex operator[ex]",LOGLEVEL_OPERATOR);
     GINAC_ASSERT(bp!=0);
     return (*bp)[index];
 }
 
-ex ex::operator[](int const i) const
+ex ex::operator[](int i) const
 {
     debugmsg("ex operator[int]",LOGLEVEL_OPERATOR);
     GINAC_ASSERT(bp!=0);
     return (*bp)[i];
 }
 
-ex ex::op(int const i) const
+ex ex::op(int i) const
 {
     debugmsg("ex op()",LOGLEVEL_MEMBER_FUNCTION);
     GINAC_ASSERT(bp!=0);
     return bp->op(i);
 }
 
-ex & ex::let_op(int const i)
+ex & ex::let_op(int i)
 {
     debugmsg("ex let_op()",LOGLEVEL_MEMBER_FUNCTION);
     makewriteable();
@@ -441,7 +441,7 @@ ex & ex::let_op(int const i)
 }
 
 #ifndef INLINE_EX_CONSTRUCTORS
-int ex::compare(ex const & other) const
+int ex::compare(const ex & other) const
 {
     GINAC_ASSERT(bp!=0);
     GINAC_ASSERT(other.bp!=0);
@@ -454,7 +454,7 @@ int ex::compare(ex const & other) const
 #endif // ndef INLINE_EX_CONSTRUCTORS
 
 #ifndef INLINE_EX_CONSTRUCTORS
-bool ex::is_equal(ex const & other) const
+bool ex::is_equal(const ex & other) const
 {
     GINAC_ASSERT(bp!=0);
     GINAC_ASSERT(other.bp!=0);
@@ -484,17 +484,17 @@ unsigned ex::gethash(void) const
     return bp->gethash();
 }
 
-ex ex::exadd(ex const & rh) const
+ex ex::exadd(const ex & rh) const
 {
     return (new add(*this,rh))->setflag(status_flags::dynallocated);
 }
 
-ex ex::exmul(ex const & rh) const
+ex ex::exmul(const ex & rh) const
 {
     return (new mul(*this,rh))->setflag(status_flags::dynallocated);
 }
 
-ex ex::exncmul(ex const & rh) const
+ex ex::exncmul(const ex & rh) const
 {
     return (new ncmul(*this,rh))->setflag(status_flags::dynallocated);
 }
@@ -516,11 +516,11 @@ void ex::makewriteable()
     GINAC_ASSERT(bp->refcount == 1);
 }    
 
-void ex::construct_from_basic(basic const & other)
+void ex::construct_from_basic(const basic & other)
 {
     if ((other.flags & status_flags::evaluated)==0) {
         // cf. copy constructor
-        ex const & tmpex = other.eval(1); // evaluate only one (top) level
+        const ex & tmpex = other.eval(1); // evaluate only one (top) level
         bp = tmpex.bp;
         GINAC_ASSERT(bp!=0);
         GINAC_ASSERT(bp->flags & status_flags::dynallocated);

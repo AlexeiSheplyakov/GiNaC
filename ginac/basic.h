@@ -82,7 +82,7 @@ public:
 ;
 #endif // def INLINE_BASIC_CONSTRUCTORS
 
-    basic(basic const & other)
+    basic(const basic & other)
 #ifdef INLINE_BASIC_CONSTRUCTORS
     {
         copy(other);
@@ -91,10 +91,10 @@ public:
 ;
 #endif // def INLINE_BASIC_CONSTRUCTORS
 
-    virtual basic const & operator=(basic const & other);
+    virtual const basic & operator=(const basic & other);
     
 protected:
-    void copy(basic const & other)
+    void copy(const basic & other)
     {
         flags = other.flags & ~status_flags::dynallocated;
         hashvalue = other.hashvalue;
@@ -126,29 +126,29 @@ public: // only const functions please (may break reference counting)
     virtual void dbgprinttree(void) const;
     virtual bool info(unsigned inf) const;
     virtual unsigned nops() const;
-    virtual ex op(int const i) const;
-    virtual ex & let_op(int const i);
-    virtual ex operator[](ex const & index) const;
-    virtual ex operator[](int const i) const;
-    virtual bool has(ex const & other) const;
-    virtual int degree(symbol const & s) const;
-    virtual int ldegree(symbol const & s) const;
-    virtual ex coeff(symbol const & s, int const n=1) const;
-    virtual ex collect(symbol const & s) const;
+    virtual ex op(int i) const;
+    virtual ex & let_op(int i);
+    virtual ex operator[](const ex & index) const;
+    virtual ex operator[](int i) const;
+    virtual bool has(const ex & other) const;
+    virtual int degree(const symbol & s) const;
+    virtual int ldegree(const symbol & s) const;
+    virtual ex coeff(const symbol & s, int n=1) const;
+    virtual ex collect(const symbol & s) const;
     virtual ex eval(int level=0) const;
     virtual ex evalf(int level=0) const;
-    virtual ex diff(symbol const & s) const;
-    virtual ex series(symbol const & s, ex const & point, int order) const;
-    virtual ex subs(lst const & ls, lst const & lr) const;
+    virtual ex diff(const symbol & s) const;
+    virtual ex series(const symbol & s, const ex & point, int order) const;
+    virtual ex subs(const lst & ls, const lst & lr) const;
     virtual ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
     virtual numeric integer_content(void) const;
     virtual ex smod(const numeric &xi) const;
     virtual numeric max_coefficient(void) const;
     virtual exvector get_indices(void) const;
-    virtual ex simplify_ncmul(exvector const & v) const;
+    virtual ex simplify_ncmul(const exvector & v) const;
 protected: // non-const functions should be called from class ex only
-    virtual int compare_same_type(basic const & other) const;
-    virtual bool is_equal_same_type(basic const & other) const;
+    virtual int compare_same_type(const basic & other) const;
+    virtual bool is_equal_same_type(const basic & other) const;
     virtual unsigned return_type(void) const;
     virtual unsigned return_type_tinfo(void) const;
     virtual unsigned calchash(void) const;
@@ -156,15 +156,15 @@ protected: // non-const functions should be called from class ex only
 
     // non-virtual functions in this class
 public:
-    ex subs(ex const & e) const;
-    int compare(basic const & other) const;
-    bool is_equal(basic const & other) const;
-    basic const & hold(void) const;
+    ex subs(const ex & e) const;
+    int compare(const basic & other) const;
+    bool is_equal(const basic & other) const;
+    const basic & hold(void) const;
     unsigned gethash(void) const {if (flags & status_flags::hash_calculated) return hashvalue; else return calchash();}
     unsigned tinfo(void) const {return tinfo_key;}
 protected:
-    basic const & setflag(unsigned f) const {flags |= f; return *this;}
-    basic const & clearflag(unsigned f) const {flags &= ~f; return *this;}
+    const basic & setflag(unsigned f) const {flags |= f; return *this;}
+    const basic & clearflag(unsigned f) const {flags &= ~f; return *this;}
     void ensure_if_modifiable(void) const;
 
 // member variables
@@ -182,7 +182,7 @@ private:
 // global constants
 
 extern const basic some_basic;
-extern type_info const & typeid_basic;
+extern const type_info & typeid_basic;
 
 // global variables
 

@@ -42,20 +42,20 @@ class lorentzidx : public idx
 public:
     lorentzidx();
     ~lorentzidx();
-    lorentzidx (lorentzidx const & other);
-    lorentzidx const & operator=(lorentzidx const & other);
+    lorentzidx (const lorentzidx & other);
+    const lorentzidx & operator=(const lorentzidx & other);
 protected:
-    void copy(lorentzidx const & other);
+    void copy(const lorentzidx & other);
     void destroy(bool call_parent);
 
     // other constructors
 public:
     explicit lorentzidx(bool cov, bool oonly=false, unsigned dimp=0);
-    explicit lorentzidx(string const & n, bool cov=false,
+    explicit lorentzidx(const string & n, bool cov=false,
                         bool oonly=false, unsigned dimp=0);
-    explicit lorentzidx(char const * n, bool cov=false,
+    explicit lorentzidx(const char * n, bool cov=false,
                         bool oonly=false, unsigned dimp=0);
-    explicit lorentzidx(unsigned const v, bool cov=false);
+    explicit lorentzidx(unsigned v, bool cov=false);
 
     // functions overriding virtual functions from bases classes
 public:
@@ -83,7 +83,7 @@ protected:
 // global constants
 
 extern const lorentzidx some_lorentzidx;
-extern type_info const & typeid_lorentzidx;
+extern const type_info & typeid_lorentzidx;
 
 // utility functions
 inline const lorentzidx &ex_to_lorentzidx(const ex &e)

@@ -58,14 +58,14 @@ class symbol : public basic
 public:
     symbol();
     ~symbol();
-    symbol(symbol const & other);
+    symbol(const symbol & other);
 protected:
-    void copy(symbol const & other); 
+    void copy(const symbol & other); 
     void destroy(bool call_parent);
 
     // other constructors
 public:
-    explicit symbol(string const & initname);
+    explicit symbol(const string & initname);
 
     // functions overriding virtual functions from base classes
 public:
@@ -76,28 +76,28 @@ public:
     void printcsrc(ostream & os, unsigned type, unsigned upper_precedence=0) const;
     bool info(unsigned inf) const;
     ex expand(unsigned options=0) const;
-    bool has(ex const & other) const;
-    int degree(symbol const & s) const;
-    int ldegree(symbol const & s) const;
-    ex coeff(symbol const & s, int const n = 1) const;
+    bool has(const ex & other) const;
+    int degree(const symbol & s) const;
+    int ldegree(const symbol & s) const;
+    ex coeff(const symbol & s, int n = 1) const;
     ex eval(int level = 0) const;
-    ex diff(symbol const & s) const;
-    ex series(symbol const & s, ex const & point, int order) const;
+    ex diff(const symbol & s) const;
+    ex series(const symbol & s, const ex & point, int order) const;
     ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
-    ex subs(lst const & ls, lst const & lr) const;
+    ex subs(const lst & ls, const lst & lr) const;
 protected:
-    int compare_same_type(basic const & other) const;
-    bool is_equal_same_type(basic const & other) const;
+    int compare_same_type(const basic & other) const;
+    bool is_equal_same_type(const basic & other) const;
     unsigned return_type(void) const;
     unsigned return_type_tinfo(void) const;
     unsigned calchash(void) const;
     
     // non-virtual functions in this class
 public:
-    void assign(ex const & value);
+    void assign(const ex & value);
     void unassign(void);
-    ex diff(symbol const & s, unsigned nth) const;
-    void setname(string const & n) {name=n;}
+    ex diff(const symbol & s, unsigned nth) const;
+    void setname(const string & n) {name=n;}
     string getname(void) const {return name;}
 private:
     string & autoname_prefix(void);
@@ -115,7 +115,7 @@ private:
 // global constants
 
 extern const symbol some_symbol;
-extern type_info const & typeid_symbol;
+extern const type_info & typeid_symbol;
 
 // utility functions
 inline const symbol &ex_to_symbol(const ex &e)
@@ -127,10 +127,10 @@ inline const symbol &ex_to_symbol(const ex &e)
 inline void unassign(symbol & symarg)
 { return symarg.unassign(); }
 
-inline int degree(symbol const & a, symbol const & s)
+inline int degree(const symbol & a, const symbol & s)
 { return a.degree(s); }
 
-inline int ldegree(symbol const & a, symbol const & s)
+inline int ldegree(const symbol & a, const symbol & s)
 { return a.ldegree(s); }
 
 #ifndef NO_GINAC_NAMESPACE

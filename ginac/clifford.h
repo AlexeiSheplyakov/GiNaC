@@ -40,15 +40,15 @@ class clifford : public indexed
 public:
     clifford();
     ~clifford();
-    clifford(clifford const & other);
-    clifford const & operator=(clifford const & other);
+    clifford(const clifford & other);
+    const clifford & operator=(const clifford & other);
 protected:
-    void copy(clifford const & other); 
+    void copy(const clifford & other); 
     void destroy(bool call_parent);
 
     // other constructors
 public:
-    explicit clifford(string const & initname);
+    explicit clifford(const string & initname);
 
     // functions overriding virtual functions from base classes
 public:
@@ -59,8 +59,8 @@ public:
     void printcsrc(ostream & os, unsigned type, unsigned upper_precedence=0) const;
     bool info(unsigned inf) const;
 protected:
-    int compare_same_type(basic const & other) const;
-    ex simplify_ncmul(exvector const & v) const;
+    int compare_same_type(const basic & other) const;
+    ex simplify_ncmul(const exvector & v) const;
     unsigned calchash(void) const;
 
     // new virtual functions which can be overridden by derived classes
@@ -68,7 +68,7 @@ protected:
     
     // non-virtual functions in this class
 public:
-    void setname(string const & n);
+    void setname(const string & n);
 private:
     string & autoname_prefix(void);
 
@@ -84,7 +84,7 @@ private:
 // global constants
 
 extern const clifford some_clifford;
-extern type_info const & typeid_clifford;
+extern const type_info & typeid_clifford;
 
 // utility functions
 inline const clifford &ex_to_clifford(const ex &e)

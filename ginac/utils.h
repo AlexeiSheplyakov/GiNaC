@@ -47,7 +47,7 @@ class do_taylor {};
 
 unsigned log2(unsigned n);
 
-int compare_pointers(void const * a, void const * b);
+int compare_pointers(const void * a, const void * b);
 
 /** Rotate lower 31 bits of unsigned value by one bit to the left
  *  (upper bits get cleared). */
@@ -147,100 +147,100 @@ OutputIterator mymerge3(InputIterator1 first1, InputIterator1 last1,
 class numeric;
 class ex;
 
-numeric const & _num_120(void);   // -120
-ex const & _ex_120(void);
-numeric const & _num_60(void);    // -60
-ex const & _ex_60(void);
-numeric const & _num_30(void);    // -30
-ex const & _ex_30(void);
-numeric const & _num_25(void);    // -25
-ex const & _ex_25(void);
-numeric const & _num_24(void);    // -24
-ex const & _ex_24(void);
-numeric const & _num_20(void);    // -20
-ex const & _ex_20(void);
-numeric const & _num_18(void);    // -18
-ex const & _ex_18(void);
-numeric const & _num_15(void);    // -15
-ex const & _ex_15(void);
-numeric const & _num_12(void);    // -12
-ex const & _ex_12(void);
-numeric const & _num_11(void);    // -11
-ex const & _ex_11(void);
-numeric const & _num_10(void);    // -10
-ex const & _ex_10(void);
-numeric const & _num_9(void);     // -9
-ex const & _ex_9(void);
-numeric const & _num_8(void);     // -8
-ex const & _ex_8(void);
-numeric const & _num_7(void);     // -7
-ex const & _ex_7(void);
-numeric const & _num_6(void);     // -6
-ex const & _ex_6(void);
-numeric const & _num_5(void);     // -5
-ex const & _ex_5(void);
-numeric const & _num_4(void);     // -4
-ex const & _ex_4(void);
-numeric const & _num_3(void);     // -3
-ex const & _ex_3(void);
-numeric const & _num_2(void);     // -2
-ex const & _ex_2(void);
-numeric const & _num_1(void);     // -1
-ex const & _ex_1(void);
-numeric const & _num_1_2(void);   // -1/2
-ex const & _ex_1_2(void);
-numeric const & _num_1_3(void);   // -1/3
-ex const & _ex_1_3(void);
-numeric const & _num_1_4(void);   // -1/4
-ex const & _ex_1_4(void);
-numeric const & _num0(void);      //  0
-ex const & _ex0(void);
-numeric const & _num1_4(void);    //  1/4
-ex const & _ex1_4(void);
-numeric const & _num1_3(void);    //  1/3
-ex const & _ex1_3(void);
-numeric const & _num1_2(void);    //  1/2
-ex const & _ex1_2(void);
-numeric const & _num1(void);      //  1
-ex const & _ex1(void);
-numeric const & _num2(void);      //  2
-ex const & _ex2(void);
-numeric const & _num3(void);      //  3
-ex const & _ex3(void);
-numeric const & _num4(void);      //  4
-ex const & _ex4(void);
-numeric const & _num5(void);      //  5
-ex const & _ex5(void);
-numeric const & _num6(void);      //  6
-ex const & _ex6(void);
-numeric const & _num7(void);      //  7
-ex const & _ex7(void);
-numeric const & _num8(void);      //  8
-ex const & _ex8(void);
-numeric const & _num9(void);      //  9
-ex const & _ex9(void);
-numeric const & _num10(void);     //  10
-ex const & _ex10(void);
-numeric const & _num11(void);     //  11
-ex const & _ex11(void);
-numeric const & _num12(void);     //  12
-ex const & _ex12(void);
-numeric const & _num15(void);     //  15
-ex const & _ex15(void);
-numeric const & _num18(void);     //  18
-ex const & _ex18(void);
-numeric const & _num20(void);     //  20
-ex const & _ex20(void);
-numeric const & _num24(void);     //  24
-ex const & _ex24(void);
-numeric const & _num25(void);     //  25
-ex const & _ex25(void);
-numeric const & _num30(void);     //  30
-ex const & _ex30(void);
-numeric const & _num60(void);     //  60
-ex const & _ex60(void);
-numeric const & _num120(void);    //  120
-ex const & _ex120(void);
+const numeric & _num_120(void);   // -120
+const ex & _ex_120(void);
+const numeric & _num_60(void);    // -60
+const ex & _ex_60(void);
+const numeric & _num_30(void);    // -30
+const ex & _ex_30(void);
+const numeric & _num_25(void);    // -25
+const ex & _ex_25(void);
+const numeric & _num_24(void);    // -24
+const ex & _ex_24(void);
+const numeric & _num_20(void);    // -20
+const ex & _ex_20(void);
+const numeric & _num_18(void);    // -18
+const ex & _ex_18(void);
+const numeric & _num_15(void);    // -15
+const ex & _ex_15(void);
+const numeric & _num_12(void);    // -12
+const ex & _ex_12(void);
+const numeric & _num_11(void);    // -11
+const ex & _ex_11(void);
+const numeric & _num_10(void);    // -10
+const ex & _ex_10(void);
+const numeric & _num_9(void);     // -9
+const ex & _ex_9(void);
+const numeric & _num_8(void);     // -8
+const ex & _ex_8(void);
+const numeric & _num_7(void);     // -7
+const ex & _ex_7(void);
+const numeric & _num_6(void);     // -6
+const ex & _ex_6(void);
+const numeric & _num_5(void);     // -5
+const ex & _ex_5(void);
+const numeric & _num_4(void);     // -4
+const ex & _ex_4(void);
+const numeric & _num_3(void);     // -3
+const ex & _ex_3(void);
+const numeric & _num_2(void);     // -2
+const ex & _ex_2(void);
+const numeric & _num_1(void);     // -1
+const ex & _ex_1(void);
+const numeric & _num_1_2(void);   // -1/2
+const ex & _ex_1_2(void);
+const numeric & _num_1_3(void);   // -1/3
+const ex & _ex_1_3(void);
+const numeric & _num_1_4(void);   // -1/4
+const ex & _ex_1_4(void);
+const numeric & _num0(void);      //  0
+const ex & _ex0(void);
+const numeric & _num1_4(void);    //  1/4
+const ex & _ex1_4(void);
+const numeric & _num1_3(void);    //  1/3
+const ex & _ex1_3(void);
+const numeric & _num1_2(void);    //  1/2
+const ex & _ex1_2(void);
+const numeric & _num1(void);      //  1
+const ex & _ex1(void);
+const numeric & _num2(void);      //  2
+const ex & _ex2(void);
+const numeric & _num3(void);      //  3
+const ex & _ex3(void);
+const numeric & _num4(void);      //  4
+const ex & _ex4(void);
+const numeric & _num5(void);      //  5
+const ex & _ex5(void);
+const numeric & _num6(void);      //  6
+const ex & _ex6(void);
+const numeric & _num7(void);      //  7
+const ex & _ex7(void);
+const numeric & _num8(void);      //  8
+const ex & _ex8(void);
+const numeric & _num9(void);      //  9
+const ex & _ex9(void);
+const numeric & _num10(void);     //  10
+const ex & _ex10(void);
+const numeric & _num11(void);     //  11
+const ex & _ex11(void);
+const numeric & _num12(void);     //  12
+const ex & _ex12(void);
+const numeric & _num15(void);     //  15
+const ex & _ex15(void);
+const numeric & _num18(void);     //  18
+const ex & _ex18(void);
+const numeric & _num20(void);     //  20
+const ex & _ex20(void);
+const numeric & _num24(void);     //  24
+const ex & _ex24(void);
+const numeric & _num25(void);     //  25
+const ex & _ex25(void);
+const numeric & _num30(void);     //  30
+const ex & _ex30(void);
+const numeric & _num60(void);     //  60
+const ex & _ex60(void);
+const numeric & _num120(void);    //  120
+const ex & _ex120(void);
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC

@@ -44,20 +44,20 @@ class add : public expairseq
 public:
     add();
     ~add();
-    add(add const & other);
-    add const & operator=(add const & other);
+    add(const add & other);
+    const add & operator=(const add & other);
 protected:
-    void copy(add const & other);
+    void copy(const add & other);
     void destroy(bool call_parent);
 
     // other constructors
 public:
-    add(ex const & lh, ex const & rh);
-    add(exvector const & v);
-    add(epvector const & v);
-    //add(epvector const & v, bool do_not_canonicalize=0);
-    add(epvector const & v, ex const & oc);
-    add(epvector * vp, ex const & oc);
+    add(const ex & lh, const ex & rh);
+    add(const exvector & v);
+    add(const epvector & v);
+    //add(const epvector & v, bool do_not_canonicalize=0);
+    add(const epvector & v, const ex & oc);
+    add(epvector * vp, const ex & oc);
 
     // functions overriding virtual functions from bases classes
 public:
@@ -66,31 +66,31 @@ public:
     void printraw(ostream & os) const;
     void printcsrc(ostream & os, unsigned type, unsigned upper_precedence=0) const;
     bool info(unsigned inf) const;
-    int degree(symbol const & s) const;
-    int ldegree(symbol const & s) const;
-    ex coeff(symbol const & s, int const n=1) const;
+    int degree(const symbol & s) const;
+    int ldegree(const symbol & s) const;
+    ex coeff(const symbol & s, int n=1) const;
     ex eval(int level=0) const;
-    ex diff(symbol const & s) const;
-    ex series(symbol const & s, ex const & point, int order) const;
+    ex diff(const symbol & s) const;
+    ex series(const symbol & s, const ex & point, int order) const;
     ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
     numeric integer_content(void) const;
     ex smod(const numeric &xi) const;
     numeric max_coefficient(void) const;
     exvector get_indices(void) const;
-    ex simplify_ncmul(exvector const & v) const;
+    ex simplify_ncmul(const exvector & v) const;
 protected:
-    int compare_same_type(basic const & other) const;
-    bool is_equal_same_type(basic const & other) const;
+    int compare_same_type(const basic & other) const;
+    bool is_equal_same_type(const basic & other) const;
     unsigned return_type(void) const;
     unsigned return_type_tinfo(void) const;
-    ex thisexpairseq(epvector const & v, ex const & oc) const;
-    ex thisexpairseq(epvector * vp, ex const & oc) const;
-    expair split_ex_to_pair(ex const & e) const;
-    expair combine_ex_with_coeff_to_pair(ex const & e,
-                                         ex const & c) const;
-    expair combine_pair_with_coeff_to_pair(expair const & p,
-                                           ex const & c) const;
-    ex recombine_pair_to_ex(expair const & p) const;
+    ex thisexpairseq(const epvector & v, const ex & oc) const;
+    ex thisexpairseq(epvector * vp, const ex & oc) const;
+    expair split_ex_to_pair(const ex & e) const;
+    expair combine_ex_with_coeff_to_pair(const ex & e,
+                                         const ex & c) const;
+    expair combine_pair_with_coeff_to_pair(const expair & p,
+                                           const ex & c) const;
+    ex recombine_pair_to_ex(const expair & p) const;
     ex expand(unsigned options=0) const;
     
     // new virtual functions which can be overridden by derived classes
@@ -108,7 +108,7 @@ protected:
 // global constants
 
 extern const add some_add;
-extern type_info const & typeid_add;
+extern const type_info & typeid_add;
 
 // utility functions
 inline const add &ex_to_add(const ex &e)

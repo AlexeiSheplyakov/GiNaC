@@ -55,13 +55,13 @@ symbol::~symbol()
     destroy(0);
 }
 
-symbol::symbol(symbol const & other)
+symbol::symbol(const symbol & other)
 {
     debugmsg("symbol copy constructor", LOGLEVEL_CONSTRUCT);
     copy(other);
 }
 
-void symbol::copy(symbol const & other)
+void symbol::copy(const symbol & other)
 {
     inherited::copy(other);
     name=other.name;
@@ -92,7 +92,7 @@ void symbol::destroy(bool call_parent)
 
 // public
 
-symbol::symbol(string const & initname) : inherited(TINFO_symbol)
+symbol::symbol(const string & initname) : inherited(TINFO_symbol)
 {
     debugmsg("symbol constructor from string", LOGLEVEL_CONSTRUCT);
     name=initname;
@@ -196,23 +196,23 @@ ex symbol::expand(unsigned options) const
     return this->hold();
 }
 
-bool symbol::has(ex const & other) const
+bool symbol::has(const ex & other) const
 {
     if (is_equal(*other.bp)) return true;
     return false;
 }
 
-int symbol::degree(symbol const & s) const
+int symbol::degree(const symbol & s) const
 {
     return compare_same_type(s)==0 ? 1 : 0;
 }
 
-int symbol::ldegree(symbol const & s) const
+int symbol::ldegree(const symbol & s) const
 {
     return compare_same_type(s)==0 ? 1 : 0;
 }
 
-ex symbol::coeff(symbol const & s, int const n) const
+ex symbol::coeff(const symbol & s, int n) const
 {
     if (compare_same_type(s)==0) {
         return n==1 ? _ex1() : _ex0();
@@ -239,7 +239,7 @@ ex symbol::eval(int level) const
     }
 }
 
-ex symbol::subs(lst const & ls, lst const & lr) const
+ex symbol::subs(const lst & ls, const lst & lr) const
 {
     GINAC_ASSERT(ls.nops()==lr.nops());
 #ifdef DO_GINAC_ASSERT
@@ -259,7 +259,7 @@ ex symbol::subs(lst const & ls, lst const & lr) const
 
 // protected
 
-int symbol::compare_same_type(basic const & other) const
+int symbol::compare_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_of_type(other,symbol));
     const symbol *o = static_cast<const symbol *>(&other);
@@ -267,7 +267,7 @@ int symbol::compare_same_type(basic const & other) const
     return serial < o->serial ? -1 : 1;
 }
 
-bool symbol::is_equal_same_type(basic const & other) const
+bool symbol::is_equal_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_of_type(other,symbol));
     const symbol *o = static_cast<const symbol *>(&other);
@@ -304,7 +304,7 @@ unsigned symbol::calchash(void) const
 
 // public
 
-void symbol::assign(ex const & value)
+void symbol::assign(const ex & value)
 {
     asexinfop->is_assigned=1;
     asexinfop->assigned_expression=value;
@@ -343,7 +343,7 @@ unsigned symbol::next_serial=0;
 //////////
 
 const symbol some_symbol;
-type_info const & typeid_symbol=typeid(some_symbol);
+const type_info & typeid_symbol=typeid(some_symbol);
 
 //////////
 // subclass assigned_ex_info

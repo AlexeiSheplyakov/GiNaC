@@ -46,16 +46,16 @@ class constant : public basic
 public:
     constant();
     ~constant();
-    constant(constant const & other);
-    // constant const & operator=(constant const & other); /* it's pervert! */
+    constant(const constant & other);
+    // const constant & operator=(const constant & other); /* it's pervert! */
 protected:
-    void copy(constant const & other);
+    void copy(const constant & other);
     void destroy(bool call_parent);
 
     // other constructors
 public:
-    constant(string const & initname, evalffunctype efun=0);
-    constant(string const & initname, numeric const & initnumber);
+    constant(const string & initname, evalffunctype efun=0);
+    constant(const string & initname, const numeric & initnumber);
 
     // functions overriding virtual functions from bases classes
 public:
@@ -65,10 +65,10 @@ public:
     void printtree(ostream & os, unsigned indent) const;
     void printcsrc(ostream & os, unsigned type, unsigned upper_precedence=0) const;
     ex evalf(int level=0) const;
-    ex diff(symbol const & s) const;
+    ex diff(const symbol & s) const;
 protected:
-    int compare_same_type(basic const & other) const;
-    bool is_equal_same_type(basic const & other) const;
+    int compare_same_type(const basic & other) const;
+    bool is_equal_same_type(const basic & other) const;
     
     // new virtual functions which can be overridden by derived classes
     // none
@@ -90,7 +90,7 @@ private:
 // global constants
 
 extern const constant some_constant;
-extern type_info const & typeid_constant;
+extern const type_info & typeid_constant;
 
 // extern const numeric I;
 extern const constant Pi;

@@ -1316,7 +1316,7 @@ being polynomials in the remaining variables.  The method
 @code{collect()} accomplishes this task.  Here is its declaration:
 
 @example
-ex ex::collect(symbol const & s);
+ex ex::collect(const symbol & s);
 @end example
 
 Note that the original polynomial needs to be in expanded form in order
@@ -1326,8 +1326,8 @@ coefficients can be checked using the two methods
 @cindex @code{degree()}
 @cindex @code{ldegree()}
 @example
-int ex::degree(symbol const & s);
-int ex::ldegree(symbol const & s);
+int ex::degree(const symbol & s);
+int ex::ldegree(const symbol & s);
 @end example
 
 where @code{degree()} returns the highest coefficient and
@@ -1677,7 +1677,7 @@ function that is called when one wishes to @code{eval} it.  It could
 look something like this:
 
 @example
-static ex cos_eval_method(ex const & x)
+static ex cos_eval_method(const ex & x)
 @{
     // if (!x%(2*Pi)) return 1
     // if (!x%Pi) return -1
@@ -1696,7 +1696,7 @@ lazy we sweep the problem under the rug by calling someone else's
 function that does so, in this case the one in class @code{numeric}:
 
 @example
-static ex cos_evalf_method(ex const & x)
+static ex cos_evalf_method(const ex & x)
 @{
     return sin(ex_to_numeric(x));
 @}
@@ -1706,7 +1706,7 @@ Differentiation will surely turn up and so we need to tell
 @code{sin} how to differentiate itself:
 
 @example
-static ex cos_diff_method(ex const & x, unsigned diff_param)
+static ex cos_diff_method(const ex & x, unsigned diff_param)
 @{
     return cos(x);
 @}

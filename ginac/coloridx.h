@@ -42,18 +42,18 @@ class coloridx : public idx
 public:
     coloridx();
     ~coloridx();
-    coloridx (coloridx const & other);
-    coloridx const & operator=(coloridx const & other);
+    coloridx (const coloridx & other);
+    const coloridx & operator=(const coloridx & other);
 protected:
-    void copy(coloridx const & other);
+    void copy(const coloridx & other);
     void destroy(bool call_parent);
 
     // other constructors
 public:
     explicit coloridx(bool cov);
-    explicit coloridx(string const & n, bool cov=false);
-    explicit coloridx(char const * n, bool cov=false);
-    explicit coloridx(unsigned const v, bool cov=false); 
+    explicit coloridx(const string & n, bool cov=false);
+    explicit coloridx(const char * n, bool cov=false);
+    explicit coloridx(unsigned v, bool cov=false); 
 
     // functions overriding virtual functions from bases classes
 public:
@@ -76,7 +76,7 @@ public:
 // global constants
 
 extern const coloridx some_coloridx;
-extern type_info const & typeid_coloridx;
+extern const type_info & typeid_coloridx;
 
 // utility functions
 inline const coloridx &ex_to_coloridx(const ex &e)

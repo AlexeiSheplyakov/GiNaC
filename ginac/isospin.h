@@ -39,15 +39,15 @@ class isospin : public indexed
 public:
     isospin();
     ~isospin();
-    isospin(isospin const & other);
-    isospin const & operator=(isospin const & other);
+    isospin(const isospin & other);
+    const isospin & operator=(const isospin & other);
 protected:
-    void copy(isospin const & other); 
+    void copy(const isospin & other); 
     void destroy(bool call_parent);
 
     // other constructors
 public:
-    explicit isospin(string const & initname);
+    explicit isospin(const string & initname);
 
     // functions overriding virtual functions from base classes
 public:
@@ -58,8 +58,8 @@ public:
     void printcsrc(ostream & os, unsigned type, unsigned upper_precedence=0) const;
     bool info(unsigned inf) const;
 protected:
-    int compare_same_type(basic const & other) const;
-    ex simplify_ncmul(exvector const & v) const;
+    int compare_same_type(const basic & other) const;
+    ex simplify_ncmul(const exvector & v) const;
     unsigned calchash(void) const;
 
     // new virtual functions which can be overridden by derived classes
@@ -67,7 +67,7 @@ protected:
     
     // non-virtual functions in this class
 public:
-    void setname(string const & n);
+    void setname(const string & n);
 private:
     string & autoname_prefix(void);
 
@@ -83,7 +83,7 @@ private:
 // global constants
 
 extern const isospin some_isospin;
-extern type_info const & typeid_isospin;
+extern const type_info & typeid_isospin;
 
 // utility functions
 inline const isospin &ex_to_isospin(const ex &e)

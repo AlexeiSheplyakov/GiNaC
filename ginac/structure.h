@@ -30,7 +30,7 @@ namespace GiNaC {
 #endif // ndef NO_GINAC_NAMESPACE
 
 struct registered_structure_info {
-    char const * name;
+    const char * name;
 };
 
 /** The class structure is used to implement user defined classes
@@ -47,10 +47,10 @@ class structure : public basic
 public:
     structure();
     ~structure();
-    structure(structure const & other);
-    structure const & operator=(structure const & other);
+    structure(const structure & other);
+    const structure & operator=(const structure & other);
 protected:
-    void copy(structure const & other);
+    void copy(const structure & other);
     void destroy(bool call_parent);
 
     // other constructors
@@ -64,8 +64,8 @@ public:
     void printtree(ostream & os, unsigned indent) const;
     void printcsrc(ostream & os, unsigned type, unsigned upper_precedence=0) const;
 protected:
-    int compare_same_type(basic const & other) const;
-    bool is_equal_same_type(basic const & other) const;
+    int compare_same_type(const basic & other) const;
+    bool is_equal_same_type(const basic & other) const;
     
     // new virtual functions which can be overridden by derived classes
     // none
@@ -74,7 +74,7 @@ protected:
 protected:
     static vector<registered_structure_info> & registered_structures(void);
 public:
-    static unsigned register_new(char const * nm);
+    static unsigned register_new(const char * nm);
 
 // member variables
 // none
@@ -84,7 +84,7 @@ public:
 // global constants
 
 extern const structure some_structure;
-extern type_info const & typeid_structure;
+extern const type_info & typeid_structure;
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC

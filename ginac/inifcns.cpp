@@ -45,7 +45,7 @@ namespace GiNaC {
 // absolute value
 //////////
 
-static ex abs_evalf(ex const & x)
+static ex abs_evalf(const ex & x)
 {
     BEGIN_TYPECHECK
         TYPECHECK(x,numeric)
@@ -54,7 +54,7 @@ static ex abs_evalf(ex const & x)
     return abs(ex_to_numeric(x));
 }
 
-static ex abs_eval(ex const & x)
+static ex abs_eval(const ex & x)
 {
     if (is_ex_exactly_of_type(x, numeric))
         return abs(ex_to_numeric(x));
@@ -68,7 +68,7 @@ REGISTER_FUNCTION(abs, abs_eval, abs_evalf, NULL, NULL);
 // dilogarithm
 //////////
 
-static ex Li2_eval(ex const & x)
+static ex Li2_eval(const ex & x)
 {
     if (x.is_zero())
         return x;
@@ -85,7 +85,7 @@ REGISTER_FUNCTION(Li2, Li2_eval, NULL, NULL, NULL);
 // trilogarithm
 //////////
 
-static ex Li3_eval(ex const & x)
+static ex Li3_eval(const ex & x)
 {
     if (x.is_zero())
         return x;
@@ -98,12 +98,12 @@ REGISTER_FUNCTION(Li3, Li3_eval, NULL, NULL, NULL);
 // factorial
 //////////
 
-static ex factorial_evalf(ex const & x)
+static ex factorial_evalf(const ex & x)
 {
     return factorial(x).hold();
 }
 
-static ex factorial_eval(ex const & x)
+static ex factorial_eval(const ex & x)
 {
     if (is_ex_exactly_of_type(x, numeric))
         return factorial(ex_to_numeric(x));
@@ -117,12 +117,12 @@ REGISTER_FUNCTION(factorial, factorial_eval, factorial_evalf, NULL, NULL);
 // binomial
 //////////
 
-static ex binomial_evalf(ex const & x, ex const & y)
+static ex binomial_evalf(const ex & x, const ex & y)
 {
     return binomial(x, y).hold();
 }
 
-static ex binomial_eval(ex const & x, ex const &y)
+static ex binomial_eval(const ex & x, const ex &y)
 {
     if (is_ex_exactly_of_type(x, numeric) && is_ex_exactly_of_type(y, numeric))
         return binomial(ex_to_numeric(x), ex_to_numeric(y));
@@ -136,7 +136,7 @@ REGISTER_FUNCTION(binomial, binomial_eval, binomial_evalf, NULL, NULL);
 // Order term function (for truncated power series)
 //////////
 
-static ex Order_eval(ex const & x)
+static ex Order_eval(const ex & x)
 {
 	if (is_ex_exactly_of_type(x, numeric)) {
 
@@ -155,7 +155,7 @@ static ex Order_eval(ex const & x)
 	return Order(x).hold();
 }
 
-static ex Order_series(ex const & x, symbol const & s, ex const & point, int order)
+static ex Order_series(const ex & x, const symbol & s, const ex & point, int order)
 {
 	// Just wrap the function into a pseries object
 	epvector new_seq;
@@ -169,7 +169,7 @@ REGISTER_FUNCTION(Order, Order_eval, NULL, NULL, Order_series);
 // Solve linear system
 //////////
 
-ex lsolve(ex const &eqns, ex const &symbols)
+ex lsolve(const ex &eqns, const ex &symbols)
 {
     // solve a system of linear equations
     if (eqns.info(info_flags::relation_equal)) {
@@ -234,7 +234,7 @@ ex lsolve(ex const &eqns, ex const &symbols)
     matrix solution;
     try {
         solution=sys.fraction_free_elim(vars,rhs);
-    } catch (runtime_error const & e) {
+    } catch (const runtime_error & e) {
         // probably singular matrix (or other error)
         // return empty solution list
         // cerr << e.what() << endl;
@@ -261,7 +261,7 @@ ex lsolve(ex const &eqns, ex const &symbols)
 }
 
 /** non-commutative power. */
-ex ncpower(ex const &basis, unsigned exponent)
+ex ncpower(const ex &basis, unsigned exponent)
 {
     if (exponent==0) {
         return _ex1();

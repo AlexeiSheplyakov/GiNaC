@@ -43,14 +43,14 @@ class color : public indexed
 {
 // friends
 
-    friend color color_ONE(unsigned const rl);
-    friend color color_T(ex const & a, unsigned const rl);
-    friend color color_f(ex const & a, ex const & b, ex const & c);
-    friend color color_d(ex const & a, ex const & b, ex const & c);
-    friend ex color_h(ex const & a, ex const & b, ex const & c);
-    friend color color_delta8(ex const & a, ex const & b);
-    friend unsigned subs_index_in_exvector(exvector & v, ex const & is, ex const & ir);
-    friend void split_color_string_in_parts(exvector const & v, exvector & delta8vec,
+    friend color color_ONE(unsigned rl);
+    friend color color_T(const ex & a, unsigned rl);
+    friend color color_f(const ex & a, const ex & b, const ex & c);
+    friend color color_d(const ex & a, const ex & b, const ex & c);
+    friend ex color_h(const ex & a, const ex & b, const ex & c);
+    friend color color_delta8(const ex & a, const ex & b);
+    friend unsigned subs_index_in_exvector(exvector & v, const ex & is, const ex & ir);
+    friend void split_color_string_in_parts(const exvector & v, exvector & delta8vec,
                                             exvector & fvec, exvector & dvec,
                                             exvectorvector & Tvecs,
                                             exvectorvector & ONEvecs,
@@ -58,10 +58,10 @@ class color : public indexed
     friend exvector recombine_color_string(exvector & delta8vec, exvector & fvec,
                                            exvector & dvec, exvectorvector & Tvecs,
                                            exvectorvector & ONEvecs, exvector & unknownvec);
-    friend ex color_trace_of_one_representation_label(exvector const & v);
-    friend ex color_trace(exvector const & v, unsigned const rl);
-    friend ex simplify_pure_color_string(ex const & e);
-    friend ex simplify_color(ex const & e);
+    friend ex color_trace_of_one_representation_label(const exvector & v);
+    friend ex color_trace(const exvector & v, unsigned rl);
+    friend ex simplify_pure_color_string(const ex & e);
+    friend ex simplify_color(const ex & e);
 
     
 // types
@@ -81,21 +81,21 @@ public:
 public:
     color();
     ~color();
-    color(color const & other);
-    color const & operator=(color const & other);
+    color(const color & other);
+    const color & operator=(const color & other);
 protected:
-    void copy(color const & other); 
+    void copy(const color & other); 
     void destroy(bool call_parent);
 
     // other constructors
 protected:
-    color(color_types const t, unsigned const rl=0);
-    color(color_types const t, ex const & i1, unsigned const rl=0);
-    color(color_types const t, ex const & i1, ex const & i2, unsigned const rl=0);
-    color(color_types const t, ex const & i1, ex const & i2, ex const & i3,
-          unsigned const rl=0);
-    color(color_types const t, exvector const & iv, unsigned const rl=0);
-    color(color_types const t, exvector * ivp, unsigned const rl=0);
+    color(color_types const t, unsigned rl=0);
+    color(color_types const t, const ex & i1, unsigned rl=0);
+    color(color_types const t, const ex & i1, const ex & i2, unsigned rl=0);
+    color(color_types const t, const ex & i1, const ex & i2, const ex & i3,
+          unsigned rl=0);
+    color(color_types const t, const exvector & iv, unsigned rl=0);
+    color(color_types const t, exvector * ivp, unsigned rl=0);
     
     // functions overriding virtual functions from base classes
 public:
@@ -107,10 +107,10 @@ public:
     bool info(unsigned inf) const;
     ex eval(int level=0) const;
 protected:
-    int compare_same_type(basic const & other) const;
-    bool is_equal_same_type(basic const & other) const;
-    ex simplify_ncmul(exvector const & v) const;
-    ex thisexprseq(exvector const & v) const;
+    int compare_same_type(const basic & other) const;
+    bool is_equal_same_type(const basic & other) const;
+    ex simplify_ncmul(const exvector & v) const;
+    ex thisexprseq(const exvector & v) const;
     ex thisexprseq(exvector * vp) const;
 
     // new virtual functions which can be overridden by derived classes
@@ -130,7 +130,7 @@ protected:
 // global constants
 
 extern const color some_color;
-extern type_info const & typeid_color;
+extern const type_info & typeid_color;
 
 // global functions
 inline const color &ex_to_color(const ex &e)
@@ -143,13 +143,13 @@ inline color &ex_to_nonconst_color(const ex &e)
 	return static_cast<color &>(*e.bp);
 }
 
-color color_ONE(unsigned const rl=0);
-color color_T(ex const & a, unsigned const rl=0);
-color color_f(ex const & a, ex const & b, ex const & c);
-color color_d(ex const & a, ex const & b, ex const & c);
-ex color_h(ex const & a, ex const & b, ex const & c);
-color color_delta8(ex const & a, ex const & b);
-void split_color_string_in_parts(exvector const & v, exvector & delta8vec,
+color color_ONE(unsigned rl=0);
+color color_T(const ex & a, unsigned rl=0);
+color color_f(const ex & a, const ex & b, const ex & c);
+color color_d(const ex & a, const ex & b, const ex & c);
+ex color_h(const ex & a, const ex & b, const ex & c);
+color color_delta8(const ex & a, const ex & b);
+void split_color_string_in_parts(const exvector & v, exvector & delta8vec,
                                  exvector & fvec, exvector & dvec,
                                  exvectorvector & Tvecs,
                                  exvectorvector & ONEvecs,
@@ -157,14 +157,14 @@ void split_color_string_in_parts(exvector const & v, exvector & delta8vec,
 exvector recombine_color_string(exvector & delta8vec, exvector & fvec,
                                 exvector & dvec, exvectorvector & Tvecs,
                                 exvectorvector & ONEvecs, exvector & unknownvec);
-ex color_trace_of_one_representation_label(exvector const & v);
-ex color_trace(exvector const & v, unsigned const rl=0);
-ex simplify_pure_color_string(ex const & e);
-ex simplify_color(ex const & e);
+ex color_trace_of_one_representation_label(const exvector & v);
+ex color_trace(const exvector & v, unsigned rl=0);
+ex simplify_pure_color_string(const ex & e);
+ex simplify_color(const ex & e);
 
-ex brute_force_sum_color_indices(ex const & e);
+ex brute_force_sum_color_indices(const ex & e);
 
-void append_exvector_to_exvector(exvector & dest, exvector const & source);
+void append_exvector_to_exvector(exvector & dest, const exvector & source);
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC

@@ -54,13 +54,13 @@ mul::~mul()
     destroy(0);
 }
 
-mul::mul(mul const & other)
+mul::mul(const mul & other)
 {
     debugmsg("mul copy constructor",LOGLEVEL_CONSTRUCT);
     copy(other);
 }
 
-mul const & mul::operator=(mul const & other)
+const mul & mul::operator=(const mul & other)
 {
     debugmsg("mul operator=",LOGLEVEL_ASSIGNMENT);
     if (this != &other) {
@@ -72,7 +72,7 @@ mul const & mul::operator=(mul const & other)
 
 // protected
 
-void mul::copy(mul const & other)
+void mul::copy(const mul & other)
 {
     inherited::copy(other);
 }
@@ -88,7 +88,7 @@ void mul::destroy(bool call_parent)
 
 // public
 
-mul::mul(ex const & lh, ex const & rh)
+mul::mul(const ex & lh, const ex & rh)
 {
     debugmsg("mul constructor from ex,ex",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_mul;
@@ -97,7 +97,7 @@ mul::mul(ex const & lh, ex const & rh)
     GINAC_ASSERT(is_canonical());
 }
 
-mul::mul(exvector const & v)
+mul::mul(const exvector & v)
 {
     debugmsg("mul constructor from exvector",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_mul;
@@ -107,7 +107,7 @@ mul::mul(exvector const & v)
 }
 
 /*
-mul::mul(epvector const & v, bool do_not_canonicalize)
+mul::mul(const epvector & v, bool do_not_canonicalize)
 {
     debugmsg("mul constructor from epvector,bool",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_mul;
@@ -123,7 +123,7 @@ mul::mul(epvector const & v, bool do_not_canonicalize)
 }
 */
 
-mul::mul(epvector const & v)
+mul::mul(const epvector & v)
 {
     debugmsg("mul constructor from epvector",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_mul;
@@ -132,7 +132,7 @@ mul::mul(epvector const & v)
     GINAC_ASSERT(is_canonical());
 }
 
-mul::mul(epvector const & v, ex const & oc)
+mul::mul(const epvector & v, const ex & oc)
 {
     debugmsg("mul constructor from epvector,ex",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_mul;
@@ -141,7 +141,7 @@ mul::mul(epvector const & v, ex const & oc)
     GINAC_ASSERT(is_canonical());
 }
 
-mul::mul(epvector * vp, ex const & oc)
+mul::mul(epvector * vp, const ex & oc)
 {
     debugmsg("mul constructor from epvector *,ex",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_mul;
@@ -152,7 +152,7 @@ mul::mul(epvector * vp, ex const & oc)
     GINAC_ASSERT(is_canonical());
 }
 
-mul::mul(ex const & lh, ex const & mh, ex const & rh)
+mul::mul(const ex & lh, const ex & mh, const ex & rh)
 {
     debugmsg("mul constructor from ex,ex,ex",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_mul;
@@ -316,7 +316,7 @@ bool mul::info(unsigned inf) const
 
 typedef vector<int> intvector;
 
-int mul::degree(symbol const & s) const
+int mul::degree(const symbol & s) const
 {
     int deg_sum=0;
     for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
@@ -325,7 +325,7 @@ int mul::degree(symbol const & s) const
     return deg_sum;
 }
 
-int mul::ldegree(symbol const & s) const
+int mul::ldegree(const symbol & s) const
 {
     int deg_sum=0;
     for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
@@ -334,7 +334,7 @@ int mul::ldegree(symbol const & s) const
     return deg_sum;
 }
 
-ex mul::coeff(symbol const & s, int const n) const
+ex mul::coeff(const symbol & s, int n) const
 {
     exvector coeffseq;
     coeffseq.reserve(seq.size()+1);
@@ -425,7 +425,7 @@ ex mul::eval(int level) const
                is_ex_exactly_of_type((*seq.begin()).rest,add) &&
                ex_to_numeric((*seq.begin()).coeff).is_equal(_num1())) {
         // *(+(x,y,...);c) -> +(*(x,c),*(y,c),...) (c numeric(), no powers of +())
-        add const & addref=ex_to_add((*seq.begin()).rest);
+        const add & addref=ex_to_add((*seq.begin()).rest);
         epvector distrseq;
         distrseq.reserve(addref.seq.size());
         for (epvector::const_iterator cit=addref.seq.begin(); cit!=addref.seq.end(); ++cit) {
@@ -455,19 +455,19 @@ exvector mul::get_indices(void) const
     return iv;
 }
 
-ex mul::simplify_ncmul(exvector const & v) const
+ex mul::simplify_ncmul(const exvector & v) const
 {
     throw(std::logic_error("mul::simplify_ncmul() should never have been called!"));
 }
 
 // protected
 
-int mul::compare_same_type(basic const & other) const
+int mul::compare_same_type(const basic & other) const
 {
     return inherited::compare_same_type(other);
 }
 
-bool mul::is_equal_same_type(basic const & other) const
+bool mul::is_equal_same_type(const basic & other) const
 {
     return inherited::is_equal_same_type(other);
 }
@@ -519,20 +519,20 @@ unsigned mul::return_type_tinfo(void) const
     return tinfo_key;
 }
 
-ex mul::thisexpairseq(epvector const & v, ex const & oc) const
+ex mul::thisexpairseq(const epvector & v, const ex & oc) const
 {
     return (new mul(v,oc))->setflag(status_flags::dynallocated);
 }
 
-ex mul::thisexpairseq(epvector * vp, ex const & oc) const
+ex mul::thisexpairseq(epvector * vp, const ex & oc) const
 {
     return (new mul(vp,oc))->setflag(status_flags::dynallocated);
 }
 
-expair mul::split_ex_to_pair(ex const & e) const
+expair mul::split_ex_to_pair(const ex & e) const
 {
     if (is_ex_exactly_of_type(e,power)) {
-        power const & powerref=ex_to_power(e);
+        const power & powerref=ex_to_power(e);
         if (is_ex_exactly_of_type(powerref.exponent,numeric)) {
             return expair(powerref.basis,powerref.exponent);
         }
@@ -540,8 +540,8 @@ expair mul::split_ex_to_pair(ex const & e) const
     return expair(e,_ex1());
 }
     
-expair mul::combine_ex_with_coeff_to_pair(ex const & e,
-                                          ex const & c) const
+expair mul::combine_ex_with_coeff_to_pair(const ex & e,
+                                          const ex & c) const
 {
     // to avoid duplication of power simplification rules,
     // we create a temporary power object
@@ -553,8 +553,8 @@ expair mul::combine_ex_with_coeff_to_pair(ex const & e,
     return split_ex_to_pair(power(e,c));
 }
     
-expair mul::combine_pair_with_coeff_to_pair(expair const & p,
-                                            ex const & c) const
+expair mul::combine_pair_with_coeff_to_pair(const expair & p,
+                                            const ex & c) const
 {
     // to avoid duplication of power simplification rules,
     // we create a temporary power object
@@ -566,7 +566,7 @@ expair mul::combine_pair_with_coeff_to_pair(expair const & p,
     return split_ex_to_pair(power(recombine_pair_to_ex(p),c));
 }
     
-ex mul::recombine_pair_to_ex(expair const & p) const
+ex mul::recombine_pair_to_ex(const expair & p) const
 {
     // if (p.coeff.compare(_ex1())==0) {
     // if (are_ex_trivially_equal(p.coeff,_ex1())) {
@@ -605,14 +605,14 @@ ex mul::default_overall_coeff(void) const
     return _ex1();
 }
 
-void mul::combine_overall_coeff(ex const & c)
+void mul::combine_overall_coeff(const ex & c)
 {
     GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
     GINAC_ASSERT(is_ex_exactly_of_type(c,numeric));
     overall_coeff = ex_to_numeric(overall_coeff).mul_dyn(ex_to_numeric(c));
 }
 
-void mul::combine_overall_coeff(ex const & c1, ex const & c2)
+void mul::combine_overall_coeff(const ex & c1, const ex & c2)
 {
     GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
     GINAC_ASSERT(is_ex_exactly_of_type(c1,numeric));
@@ -621,7 +621,7 @@ void mul::combine_overall_coeff(ex const & c1, ex const & c2)
                         mul_dyn(ex_to_numeric(c1).power(ex_to_numeric(c2)));
 }
 
-bool mul::can_make_flat(expair const & p) const
+bool mul::can_make_flat(const expair & p) const
 {
     GINAC_ASSERT(is_ex_exactly_of_type(p.coeff,numeric));
     // this assertion will probably fail somewhere
@@ -638,7 +638,7 @@ ex mul::expand(unsigned options) const
 
     epvector * expanded_seqp=expandchildren(options);
 
-    epvector const & expanded_seq = expanded_seqp==0 ? seq : *expanded_seqp;
+    const epvector & expanded_seq = expanded_seqp==0 ? seq : *expanded_seqp;
 
     positions_of_adds.resize(expanded_seq.size());
     number_of_add_operands.resize(expanded_seq.size());
@@ -652,7 +652,7 @@ ex mul::expand(unsigned options) const
         if (is_ex_exactly_of_type((*cit).rest,add)&&
             (ex_to_numeric((*cit).coeff).is_equal(_num1()))) {
             positions_of_adds[number_of_adds]=current_position;
-            add const & expanded_addref=ex_to_add((*cit).rest);
+            const add & expanded_addref=ex_to_add((*cit).rest);
             unsigned addref_nops=expanded_addref.nops();
             number_of_add_operands[number_of_adds]=addref_nops;
             number_of_expanded_terms *= addref_nops;
@@ -685,7 +685,7 @@ ex mul::expand(unsigned options) const
         epvector term;
         term=expanded_seq;
         for (l=0; l<number_of_adds; l++) {
-            add const & addref=ex_to_add(expanded_seq[positions_of_adds[l]].rest);
+            const add & addref=ex_to_add(expanded_seq[positions_of_adds[l]].rest);
             GINAC_ASSERT(term[positions_of_adds[l]].coeff.compare(_ex1())==0);
             term[positions_of_adds[l]]=split_ex_to_pair(addref.op(k[l]));
         }
@@ -742,8 +742,8 @@ epvector * mul::expandchildren(unsigned options) const
     epvector::const_iterator last=seq.end();
     epvector::const_iterator cit=seq.begin();
     while (cit!=last) {
-        ex const & factor=recombine_pair_to_ex(*cit);
-        ex const & expanded_factor=factor.expand(options);
+        const ex & factor=recombine_pair_to_ex(*cit);
+        const ex & expanded_factor=factor.expand(options);
         if (!are_ex_trivially_equal(factor,expanded_factor)) {
 
             // something changed, copy seq, eval and return it
@@ -786,7 +786,7 @@ unsigned mul::precedence=50;
 //////////
 
 const mul some_mul;
-type_info const & typeid_mul=typeid(some_mul);
+const type_info & typeid_mul=typeid(some_mul);
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC

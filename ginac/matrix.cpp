@@ -54,13 +54,13 @@ matrix::~matrix()
     debugmsg("matrix destructor",LOGLEVEL_DESTRUCT);
 }
 
-matrix::matrix(matrix const & other)
+matrix::matrix(const matrix & other)
 {
     debugmsg("matrix copy constructor",LOGLEVEL_CONSTRUCT);
     copy(other);
 }
 
-matrix const & matrix::operator=(matrix const & other)
+const matrix & matrix::operator=(const matrix & other)
 {
     debugmsg("matrix operator=",LOGLEVEL_ASSIGNMENT);
     if (this != &other) {
@@ -72,7 +72,7 @@ matrix const & matrix::operator=(matrix const & other)
 
 // protected
 
-void matrix::copy(matrix const & other)
+void matrix::copy(const matrix & other)
 {
     inherited::copy(other);
     row=other.row;
@@ -105,7 +105,7 @@ matrix::matrix(unsigned r, unsigned c)
 // protected
 
 /** Ctor from representation, for internal use only. */
-matrix::matrix(unsigned r, unsigned c, exvector const & m2)
+matrix::matrix(unsigned r, unsigned c, const exvector & m2)
     : inherited(TINFO_matrix), row(r), col(c), m(m2)
 {
     debugmsg("matrix constructor from unsigned,unsigned,exvector",LOGLEVEL_CONSTRUCT);
@@ -205,7 +205,7 @@ unsigned matrix::nops() const
 }
 
 /** returns matrix entry at position (i/col, i%col). */
-ex & matrix::let_op(int const i)
+ex & matrix::let_op(int i)
 {
     return m[i];
 }
@@ -222,7 +222,7 @@ ex matrix::expand(unsigned options) const
 
 /** Search ocurrences.  A matrix 'has' an expression if it is the expression
  *  itself or one of the elements 'has' it. */
-bool matrix::has(ex const & other) const
+bool matrix::has(const ex & other) const
 {
     GINAC_ASSERT(other.bp!=0);
     
@@ -292,10 +292,10 @@ ex matrix::evalf(int level) const
 
 // protected
 
-int matrix::compare_same_type(basic const & other) const
+int matrix::compare_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_exactly_of_type(other, matrix));
-    matrix const & o=static_cast<matrix &>(const_cast<basic &>(other));
+    const matrix & o=static_cast<matrix &>(const_cast<basic &>(other));
     
     // compare number of rows
     if (row != o.rows()) {
@@ -328,7 +328,7 @@ int matrix::compare_same_type(basic const & other) const
 /** Sum of matrices.
  *
  *  @exception logic_error (incompatible matrices) */
-matrix matrix::add(matrix const & other) const
+matrix matrix::add(const matrix & other) const
 {
     if (col != other.col || row != other.row) {
         throw (std::logic_error("matrix::add(): incompatible matrices"));
@@ -348,7 +348,7 @@ matrix matrix::add(matrix const & other) const
 /** Difference of matrices.
  *
  *  @exception logic_error (incompatible matrices) */
-matrix matrix::sub(matrix const & other) const
+matrix matrix::sub(const matrix & other) const
 {
     if (col != other.col || row != other.row) {
         throw (std::logic_error("matrix::sub(): incompatible matrices"));
@@ -368,7 +368,7 @@ matrix matrix::sub(matrix const & other) const
 /** Product of matrices.
  *
  *  @exception logic_error (incompatible matrices) */
-matrix matrix::mul(matrix const & other) const
+matrix matrix::mul(const matrix & other) const
 {
     if (col != other.row) {
         throw (std::logic_error("matrix::mul(): incompatible matrices"));
@@ -390,7 +390,7 @@ matrix matrix::mul(matrix const & other) const
  *  @param ro row of element
  *  @param co column of element 
  *  @exception range_error (index out of range) */
-ex const & matrix::operator() (unsigned ro, unsigned co) const
+const ex & matrix::operator() (unsigned ro, unsigned co) const
 {
     if (ro<0 || ro>=row || co<0 || co>=col) {
         throw (std::range_error("matrix::operator(): index out of range"));
@@ -625,7 +625,7 @@ ex matrix::trace(void) const
  *  @return    characteristic polynomial as new expression
  *  @exception logic_error (matrix not square)
  *  @see       matrix::determinant() */
-ex matrix::charpoly(ex const & lambda) const
+ex matrix::charpoly(const ex & lambda) const
 {
     if (row != col) {
         throw (std::logic_error("matrix::charpoly(): matrix not square"));
@@ -711,8 +711,8 @@ ex matrix::ffe_get(unsigned r, unsigned c) const
  *  @param rhs m x p matrix
  *  @exception logic_error (incompatible matrices)
  *  @exception runtime_error (singular matrix) */
-matrix matrix::fraction_free_elim(matrix const & vars,
-                                  matrix const & rhs) const
+matrix matrix::fraction_free_elim(const matrix & vars,
+                                  const matrix & rhs) const
 {
     if ((row != rhs.row) || (col != vars.row) || (rhs.col != vars.col)) {
         throw (std::logic_error("matrix::solve(): incompatible matrices"));
@@ -871,7 +871,7 @@ matrix matrix::fraction_free_elim(matrix const & vars,
 }   
     
 /** Solve simultaneous set of equations. */
-matrix matrix::solve(matrix const & v) const
+matrix matrix::solve(const matrix & v) const
 {
     if (!(row == col && col == v.row)) {
         throw (std::logic_error("matrix::solve(): incompatible matrices"));
@@ -951,7 +951,7 @@ int matrix::pivot(unsigned ro)
 //////////
 
 const matrix some_matrix;
-type_info const & typeid_matrix=typeid(some_matrix);
+const type_info & typeid_matrix=typeid(some_matrix);
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC

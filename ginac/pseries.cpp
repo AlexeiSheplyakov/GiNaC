@@ -56,13 +56,13 @@ pseries::~pseries()
     destroy(false);
 }
 
-pseries::pseries(pseries const &other)
+pseries::pseries(const pseries &other)
 {
     debugmsg("pseries copy constructor", LOGLEVEL_CONSTRUCT);
     copy(other);
 }
 
-pseries const &pseries::operator=(pseries const & other)
+const pseries &pseries::operator=(const pseries & other)
 {
     debugmsg("pseries operator=", LOGLEVEL_ASSIGNMENT);
     if (this != &other) {
@@ -72,7 +72,7 @@ pseries const &pseries::operator=(pseries const & other)
     return *this;
 }
 
-void pseries::copy(pseries const &other)
+void pseries::copy(const pseries &other)
 {
     inherited::copy(other);
     seq = other.seq;
@@ -101,7 +101,7 @@ void pseries::destroy(bool call_parent)
  *  @param point_  expansion point
  *  @param ops_  vector of {coefficient, power} pairs (coefficient must not be zero)
  *  @return newly constructed pseries */
-pseries::pseries(ex const &var_, ex const &point_, epvector const &ops_)
+pseries::pseries(const ex &var_, const ex &point_, const epvector &ops_)
     : basic(TINFO_pseries), seq(ops_), var(var_), point(point_)
 {
     debugmsg("pseries constructor from ex,ex,epvector", LOGLEVEL_CONSTRUCT);
@@ -193,7 +193,7 @@ ex &pseries::let_op(int i)
     throw (std::logic_error("let_op not defined for pseries"));
 }
 
-int pseries::degree(symbol const &s) const
+int pseries::degree(const symbol &s) const
 {
     if (var.is_equal(s)) {
         // Return last exponent
@@ -216,7 +216,7 @@ int pseries::degree(symbol const &s) const
     }
 }
 
-int pseries::ldegree(symbol const &s) const
+int pseries::ldegree(const symbol &s) const
 {
     if (var.is_equal(s)) {
         // Return first exponent
@@ -239,7 +239,7 @@ int pseries::ldegree(symbol const &s) const
     }
 }
 
-ex pseries::coeff(symbol const &s, int const n) const
+ex pseries::coeff(const symbol &s, int n) const
 {
     if (var.is_equal(s)) {
         epvector::const_iterator it = seq.begin(), itend = seq.end();
@@ -278,7 +278,7 @@ ex pseries::evalf(int level) const
     return convert_to_poly().evalf(level);
 }
 
-ex pseries::subs(lst const & ls, lst const & lr) const
+ex pseries::subs(const lst & ls, const lst & lr) const
 {
 	// If expansion variable is being substituted, convert the series to a
 	// polynomial and do the substitution there because the result might
@@ -329,7 +329,7 @@ ex pseries::convert_to_poly(bool no_order) const
 
 /** Default implementation of ex::series(). This performs Taylor expansion.
  *  @see ex::series */
-ex basic::series(symbol const & s, ex const & point, int order) const
+ex basic::series(const symbol & s, const ex & point, int order) const
 {
     epvector seq;
     numeric fac(1);
@@ -361,7 +361,7 @@ ex basic::series(symbol const & s, ex const & point, int order) const
 
 /** Implementation of ex::series() for symbols.
  *  @see ex::series */
-ex symbol::series(symbol const & s, ex const & point, int order) const
+ex symbol::series(const symbol & s, const ex & point, int order) const
 {
 	epvector seq;
 	if (is_equal(s)) {
@@ -454,7 +454,7 @@ ex pseries::add_series(const pseries &other) const
 /** Implementation of ex::series() for sums. This performs series addition when
  *  adding pseries objects.
  *  @see ex::series */
-ex add::series(symbol const & s, ex const & point, int order) const
+ex add::series(const symbol & s, const ex & point, int order) const
 {
     ex acc; // Series accumulator
     
@@ -559,7 +559,7 @@ ex pseries::mul_series(const pseries &other) const
 /** Implementation of ex::series() for product. This performs series
  *  multiplication when multiplying series.
  *  @see ex::series */
-ex mul::series(symbol const & s, ex const & point, int order) const
+ex mul::series(const symbol & s, const ex & point, int order) const
 {
     ex acc; // Series accumulator
     
@@ -639,7 +639,7 @@ ex pseries::power_const(const numeric &p, int deg) const
 /** Implementation of ex::series() for powers. This performs Laurent expansion
  *  of reciprocals of series at singularities.
  *  @see ex::series */
-ex power::series(symbol const & s, ex const & point, int order) const
+ex power::series(const symbol & s, const ex & point, int order) const
 {
     ex e;
     if (!is_ex_exactly_of_type(basis, pseries)) {
@@ -672,7 +672,7 @@ ex power::series(symbol const & s, ex const & point, int order) const
  *  @param point  expansion point
  *  @param order  truncation order of series calculations
  *  @return an expression holding a pseries object */
-ex ex::series(symbol const &s, ex const &point, int order) const
+ex ex::series(const symbol &s, const ex &point, int order) const
 {
     GINAC_ASSERT(bp!=0);
     return bp->series(s, point, order);
@@ -681,7 +681,7 @@ ex ex::series(symbol const &s, ex const &point, int order) const
 
 // Global constants
 const pseries some_pseries;
-type_info const & typeid_pseries = typeid(some_pseries);
+const type_info & typeid_pseries = typeid(some_pseries);
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC

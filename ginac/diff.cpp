@@ -44,7 +44,7 @@ namespace GiNaC {
 
 /** Default implementation of ex::diff(). It prints and error message and returns a fail object.
  *  @see ex::diff */
-ex basic::diff(symbol const & s) const
+ex basic::diff(const symbol & s) const
 {
     throw(std::logic_error("differentiation not supported by this type"));
 }
@@ -53,7 +53,7 @@ ex basic::diff(symbol const & s) const
 /** Implementation of ex::diff() for a numeric. It always returns 0.
  *
  *  @see ex::diff */
-ex numeric::diff(symbol const & s) const
+ex numeric::diff(const symbol & s) const
 {
     return _ex0();
 }
@@ -63,7 +63,7 @@ ex numeric::diff(symbol const & s) const
  *  It returns 1 or 0.
  *
  *  @see ex::diff */
-ex symbol::diff(symbol const & s) const
+ex symbol::diff(const symbol & s) const
 {
     if (compare_same_type(s)) {
         return _ex0();
@@ -75,7 +75,7 @@ ex symbol::diff(symbol const & s) const
 /** Implementation of ex::diff() for a constant. It always returns 0.
  *
  *  @see ex::diff */
-ex constant::diff(symbol const & s) const
+ex constant::diff(const symbol & s) const
 {
     return _ex0();
 }
@@ -85,7 +85,7 @@ ex constant::diff(symbol const & s) const
  *
  *  @param nth order of differentiation
  *  @see ex::diff */
-ex symbol::diff(symbol const & s, unsigned nth) const
+ex symbol::diff(const symbol & s, unsigned nth) const
 {
     if (compare_same_type(s)) {
         switch (nth) {
@@ -106,7 +106,7 @@ ex symbol::diff(symbol const & s, unsigned nth) const
 
 /** Implementation of ex::diff() for an indexed object. It always returns 0.
  *  @see ex::diff */
-ex indexed::diff(symbol const & s) const
+ex indexed::diff(const symbol & s) const
 {
         return _ex0();
 }
@@ -114,7 +114,7 @@ ex indexed::diff(symbol const & s) const
 
 /** Implementation of ex::diff() for an expairseq. It differentiates all elements of the sequence.
  *  @see ex::diff */
-ex expairseq::diff(symbol const & s) const
+ex expairseq::diff(const symbol & s) const
 {
     return thisexpairseq(diffchildren(s),overall_coeff);
 }
@@ -122,7 +122,7 @@ ex expairseq::diff(symbol const & s) const
 
 /** Implementation of ex::diff() for a sum. It differentiates each term.
  *  @see ex::diff */
-ex add::diff(symbol const & s) const
+ex add::diff(const symbol & s) const
 {
     // D(a+b+c)=D(a)+D(b)+D(c)
     return (new add(diffchildren(s)))->setflag(status_flags::dynallocated);
@@ -131,7 +131,7 @@ ex add::diff(symbol const & s) const
 
 /** Implementation of ex::diff() for a product. It applies the product rule.
  *  @see ex::diff */
-ex mul::diff(symbol const & s) const
+ex mul::diff(const symbol & s) const
 {
     exvector new_seq;
     new_seq.reserve(seq.size());
@@ -150,7 +150,7 @@ ex mul::diff(symbol const & s) const
 
 /** Implementation of ex::diff() for a non-commutative product. It always returns 0.
  *  @see ex::diff */
-ex ncmul::diff(symbol const & s) const
+ex ncmul::diff(const symbol & s) const
 {
     return _ex0();
 }
@@ -158,7 +158,7 @@ ex ncmul::diff(symbol const & s) const
 
 /** Implementation of ex::diff() for a power.
  *  @see ex::diff */
-ex power::diff(symbol const & s) const
+ex power::diff(const symbol & s) const
 {
     if (exponent.info(info_flags::real)) {
         // D(b^r) = r * b^(r-1) * D(b) (faster than the formula below)
@@ -175,7 +175,7 @@ ex power::diff(symbol const & s) const
 /** Implementation of ex::diff() for functions. It applies the chain rule,
  *  except for the Order term function.
  *  @see ex::diff */
-ex function::diff(symbol const & s) const
+ex function::diff(const symbol & s) const
 {
     exvector new_seq;
     
@@ -202,7 +202,7 @@ ex function::diff(symbol const & s) const
 
 /** Implementation of ex::diff() for a power series. It treats the series as a polynomial.
  *  @see ex::diff */
-ex pseries::diff(symbol const & s) const
+ex pseries::diff(const symbol & s) const
 {
     if (s == var) {
         epvector new_seq;
@@ -232,7 +232,7 @@ ex pseries::diff(symbol const & s) const
  *  @param nth  order of derivative (default 1)
  *  @return partial derivative as a new expression */
 
-ex ex::diff(symbol const & s, unsigned nth) const
+ex ex::diff(const symbol & s, unsigned nth) const
 {
     GINAC_ASSERT(bp!=0);
 

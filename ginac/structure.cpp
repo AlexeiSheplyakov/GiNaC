@@ -47,13 +47,13 @@ structure::~structure()
     destroy(0);
 }
 
-structure::structure(structure const & other)
+structure::structure(const structure & other)
 {
     debugmsg("structure copy constructor",LOGLEVEL_CONSTRUCT);
     copy(other);
 }
 
-structure const & structure::operator=(structure const & other)
+const structure & structure::operator=(const structure & other)
 {
     debugmsg("structure operator=",LOGLEVEL_ASSIGNMENT);
     if (this != &other) {
@@ -65,7 +65,7 @@ structure const & structure::operator=(structure const & other)
 
 // protected
 
-void structure::copy(structure const & other)
+void structure::copy(const structure & other)
 {
     basic::copy(other);
 }
@@ -125,13 +125,13 @@ void structure::printcsrc(ostream & os, unsigned type, unsigned upper_precedence
 
 // protected
 
-int structure::compare_same_type(basic const & other) const
+int structure::compare_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_of_type(other, structure));
     return 0; // all structures are the same
 }
 
-bool structure::is_equal_same_type(basic const & other) const
+bool structure::is_equal_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_of_type(other, structure));
     return true; // all structures are the same
@@ -157,7 +157,7 @@ vector<registered_structure_info> & structure::registered_structures(void)
 
 // public
 
-unsigned structure::register_new(char const * nm)
+unsigned structure::register_new(const char * nm)
 {
     registered_structure_info rsi={nm};
     registered_structures().push_back(rsi);
@@ -175,7 +175,7 @@ unsigned structure::register_new(char const * nm)
 //////////
 
 const structure some_structure;
-type_info const & typeid_structure=typeid(some_structure);
+const type_info & typeid_structure=typeid(some_structure);
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC

@@ -51,13 +51,13 @@ relational::~relational()
     destroy(0);
 }
 
-relational::relational(relational const & other)
+relational::relational(const relational & other)
 {
     debugmsg("relational copy constructor",LOGLEVEL_CONSTRUCT);
     copy(other);
 }
 
-relational const & relational::operator=(relational const & other)
+const relational & relational::operator=(const relational & other)
 {
     debugmsg("relational operator=",LOGLEVEL_ASSIGNMENT);
     if (this != &other) {
@@ -69,7 +69,7 @@ relational const & relational::operator=(relational const & other)
 
 // protected
 
-void relational::copy(relational const & other)
+void relational::copy(const relational & other)
 {
     basic::copy(other);
     lh=other.lh;
@@ -88,7 +88,7 @@ void relational::destroy(bool call_parent)
 
 // public
 
-relational::relational(ex const & lhs, ex const & rhs, operators oper) : basic(TINFO_relational)
+relational::relational(const ex & lhs, const ex & rhs, operators oper) : basic(TINFO_relational)
 {
     debugmsg("relational constructor ex,ex,operator",LOGLEVEL_CONSTRUCT);
     lh=lhs;
@@ -270,7 +270,7 @@ unsigned relational::nops() const
     return 2;
 }
 
-ex & relational::let_op(int const i)
+ex & relational::let_op(int i)
 {
     GINAC_ASSERT(i>=0);
     GINAC_ASSERT(i<2);
@@ -303,17 +303,17 @@ ex relational::evalf(int level) const
             setflag(status_flags::dynallocated);
 }
 
-ex relational::simplify_ncmul(exvector const & v) const
+ex relational::simplify_ncmul(const exvector & v) const
 {
     return lh.simplify_ncmul(v);
 }
 
 // protected
 
-int relational::compare_same_type(basic const & other) const
+int relational::compare_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_exactly_of_type(other, relational));
-    relational const & oth=static_cast<relational const &>(const_cast<basic &>(other));
+    const relational & oth=static_cast<const relational &>(const_cast<basic &>(other));
     
     int cmpval;
     
@@ -404,7 +404,7 @@ unsigned relational::precedence=20;
 //////////
 
 const relational some_relational;
-type_info const & typeid_relational=typeid(some_relational);
+const type_info & typeid_relational=typeid(some_relational);
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC

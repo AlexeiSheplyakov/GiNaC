@@ -41,19 +41,19 @@ class indexed : public exprseq
 public:
     indexed();
     ~indexed();
-    indexed(indexed const & other);
-    indexed const & operator=(indexed const & other);
+    indexed(const indexed & other);
+    const indexed & operator=(const indexed & other);
 protected:
-    void copy(indexed const & other); 
+    void copy(const indexed & other); 
     void destroy(bool call_parent);
 
     // other constructors
 public:
-    indexed(ex const & i1);
-    indexed(ex const & i1, ex const & i2);
-    indexed(ex const & i1, ex const & i2, ex const & i3);
-    indexed(ex const & i1, ex const & i2, ex const & i3, ex const & i4);
-    indexed(exvector const & iv);
+    indexed(const ex & i1);
+    indexed(const ex & i1, const ex & i2);
+    indexed(const ex & i1, const ex & i2, const ex & i3);
+    indexed(const ex & i1, const ex & i2, const ex & i3, const ex & i4);
+    indexed(const exvector & iv);
     indexed(exvector * iv);
 
     // functions overriding virtual functions from base classes
@@ -64,14 +64,14 @@ public:
     void print(ostream & os, unsigned upper_precedence=0) const;
     void printcsrc(ostream & os, unsigned type, unsigned upper_precedence) const;
     bool info(unsigned inf) const;
-    ex diff(symbol const & s) const;
+    ex diff(const symbol & s) const;
     exvector get_indices(void) const;
 protected:
-    int compare_same_type(basic const & other) const;
-    bool is_equal_same_type(basic const & other) const;
+    int compare_same_type(const basic & other) const;
+    bool is_equal_same_type(const basic & other) const;
     unsigned return_type(void) const;
     unsigned return_type_tinfo(void) const;
-    ex thisexprseq(exvector const & v) const;
+    ex thisexprseq(const exvector & v) const;
     ex thisexprseq(exvector * vp) const;
 
     // new virtual functions which can be overridden by derived classes
@@ -91,7 +91,7 @@ protected:
 // global constants
 
 extern const indexed some_indexed;
-extern type_info const & typeid_indexed;
+extern const type_info & typeid_indexed;
 
 // utility functions
 inline const indexed &ex_to_indexed(const ex &e)

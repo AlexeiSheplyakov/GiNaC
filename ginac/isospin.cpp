@@ -53,13 +53,13 @@ isospin::~isospin()
     destroy(0);
 }
 
-isospin::isospin(isospin const & other)
+isospin::isospin(const isospin & other)
 {
     debugmsg("isospin copy constructor",LOGLEVEL_CONSTRUCT);
     copy (other);
 }
 
-isospin const & isospin::operator=(isospin const & other)
+const isospin & isospin::operator=(const isospin & other)
 {
     debugmsg("isospin operator=",LOGLEVEL_ASSIGNMENT);
     if (this != &other) {
@@ -71,7 +71,7 @@ isospin const & isospin::operator=(isospin const & other)
 
 // protected
 
-void isospin::copy(isospin const & other)
+void isospin::copy(const isospin & other)
 {
     indexed::copy(other);
     name=other.name;
@@ -91,7 +91,7 @@ void isospin::destroy(bool call_parent)
 
 // public
 
-isospin::isospin(string const & initname)
+isospin::isospin(const string & initname)
 {
     debugmsg("isospin constructor from string",LOGLEVEL_CONSTRUCT);
     name=initname;
@@ -151,7 +151,7 @@ bool isospin::info(unsigned inf) const
 
 // protected
 
-int isospin::compare_same_type(basic const & other) const
+int isospin::compare_same_type(const basic & other) const
 {
     GINAC_ASSERT(other.tinfo() == TINFO_isospin);
     const isospin *o = static_cast<const isospin *>(&other);
@@ -161,7 +161,7 @@ int isospin::compare_same_type(basic const & other) const
     return serial < o->serial ? -1 : 1;
 }
 
-ex isospin::simplify_ncmul(exvector const & v) const
+ex isospin::simplify_ncmul(const exvector & v) const
 {
     return simplified_ncmul(v);
 }
@@ -185,7 +185,7 @@ unsigned isospin::calchash(void) const
 // non-virtual functions in this class
 //////////
 
-void isospin::setname(string const & n)
+void isospin::setname(const string & n)
 {
     name=n;
 }
@@ -211,7 +211,7 @@ unsigned isospin::next_serial=0;
 //////////
 
 const isospin some_isospin;
-type_info const & typeid_isospin=typeid(some_isospin);
+const type_info & typeid_isospin=typeid(some_isospin);
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC

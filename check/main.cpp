@@ -45,7 +45,7 @@ int main()
             result += fcntimer(series_expansion);
             result += fcntimer(lortensor_check);
         }
-    } catch (exception const & e) {
+    } catch (const exception &e) {
         cout << "error: caught an exception: " << e.what() << endl;
         result++;
     }

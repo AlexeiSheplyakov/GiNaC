@@ -54,7 +54,7 @@ constant::~constant()
     destroy(0);
 }
 
-constant::constant(constant const & other)
+constant::constant(const constant & other)
 {
     debugmsg("constant copy constructor",LOGLEVEL_CONSTRUCT);
     copy(other);
@@ -62,7 +62,7 @@ constant::constant(constant const & other)
 
 // protected
 
-void constant::copy(constant const & other)
+void constant::copy(const constant & other)
 {
     basic::copy(other);
     name=other.name;
@@ -89,7 +89,7 @@ void constant::destroy(bool call_parent)
 
 // public
 
-constant::constant(string const & initname, evalffunctype efun) :
+constant::constant(const string & initname, evalffunctype efun) :
     basic(TINFO_constant), name(initname), ef(efun),
     // number(0), fct_assigned(true), serial(next_serial++)
     number(0), serial(next_serial++)
@@ -97,7 +97,7 @@ constant::constant(string const & initname, evalffunctype efun) :
     debugmsg("constant constructor from string, function",LOGLEVEL_CONSTRUCT);
 }
 
-constant::constant(string const & initname, numeric const & initnumber) :
+constant::constant(const string & initname, const numeric & initnumber) :
     basic(TINFO_constant), name(initname), ef(0),
     number(new numeric(initnumber)), /* fct_assigned(false),*/ serial(next_serial++)
 {
@@ -191,17 +191,17 @@ ex constant::evalf(int level) const
 
 // protected
 
-int constant::compare_same_type(basic const & other) const
+int constant::compare_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_exactly_of_type(other, constant));
-    // constant const & o=static_cast<constant &>(const_cast<basic &>(other));
+    // const constant & o=static_cast<constant &>(const_cast<basic &>(other));
     // return name.compare(o.name);
     const constant *o = static_cast<const constant *>(&other);
     if (serial==o->serial) return 0;
     return serial < o->serial ? -1 : 1;
 }
 
-bool constant::is_equal_same_type(basic const & other) const
+bool constant::is_equal_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_exactly_of_type(other, constant));
     const constant *o = static_cast<const constant *>(&other);
@@ -231,7 +231,7 @@ unsigned constant::next_serial=0;
 //////////
 
 const constant some_constant;
-type_info const & typeid_constant=typeid(some_constant);
+const type_info & typeid_constant=typeid(some_constant);
 
 /**  Pi. (3.14159...)  Diverts straight into CLN for evalf(). */
 const constant Pi("Pi", PiEvalf);

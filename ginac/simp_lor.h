@@ -41,7 +41,7 @@ typedef pair<strstrpair,lorentzidx> spmapkey;
 class spmapkey_is_less
 {
 public:
-    bool operator()(spmapkey const & lh, spmapkey const & rh) const
+    bool operator()(const spmapkey & lh, const spmapkey & rh) const
     {
         /*
         cerr << "spmapkey_is_less" << endl;
@@ -70,12 +70,12 @@ class simp_lor;
 class scalar_products
 {
 public:
-    void reg(simp_lor const & v1, simp_lor const & v2, ex const & sp);
-    bool is_defined(simp_lor const & v1, simp_lor const & v2) const;
-    ex evaluate(simp_lor const & v1, simp_lor const & v2) const;
+    void reg(const simp_lor & v1, const simp_lor & v2, const ex & sp);
+    bool is_defined(const simp_lor & v1, const simp_lor & v2) const;
+    ex evaluate(const simp_lor & v1, const simp_lor & v2) const;
     void debugprint(void) const;
 protected:
-    static spmapkey make_key(simp_lor const & v1, simp_lor const & v2);
+    static spmapkey make_key(const simp_lor & v1, const simp_lor & v2);
 protected:
     spmap spm;
 };
@@ -86,10 +86,10 @@ class simp_lor : public indexed
 // friends
 
     friend class scalar_products;
-    friend simp_lor lor_g(ex const & mu, ex const & nu);
-    friend simp_lor lor_vec(string const & n, ex const & mu);
-    friend ex simplify_simp_lor_mul(ex const & m, scalar_products const & sp);
-    friend ex simplify_simp_lor(ex const & e, scalar_products const & sp);
+    friend simp_lor lor_g(const ex & mu, const ex & nu);
+    friend simp_lor lor_vec(const string & n, const ex & mu);
+    friend ex simplify_simp_lor_mul(const ex & m, const scalar_products & sp);
+    friend ex simplify_simp_lor(const ex & e, const scalar_products & sp);
     
 // types
 
@@ -105,19 +105,19 @@ public:
 public:
     simp_lor();
     ~simp_lor();
-    simp_lor(simp_lor const & other);
-    simp_lor const & operator=(simp_lor const & other);
+    simp_lor(const simp_lor & other);
+    const simp_lor & operator=(const simp_lor & other);
 protected:
-    void copy(simp_lor const & other); 
+    void copy(const simp_lor & other); 
     void destroy(bool call_parent);
 
     // other constructors
 protected:
     simp_lor(simp_lor_types const t);
-    simp_lor(simp_lor_types const t, ex const & i1, ex const & i2);
-    simp_lor(simp_lor_types const t, string const & n, ex const & i1);
-    simp_lor(simp_lor_types const t, string const & n, exvector const & iv);
-    simp_lor(simp_lor_types const t, string const & n, exvector * ivp);
+    simp_lor(simp_lor_types const t, const ex & i1, const ex & i2);
+    simp_lor(simp_lor_types const t, const string & n, const ex & i1);
+    simp_lor(simp_lor_types const t, const string & n, const exvector & iv);
+    simp_lor(simp_lor_types const t, const string & n, exvector * ivp);
     
     // functions overriding virtual functions from base classes
 public:
@@ -129,11 +129,11 @@ public:
     bool info(unsigned inf) const;
     ex eval(int level=0) const;
 protected:
-    int compare_same_type(basic const & other) const;
-    bool is_equal_same_type(basic const & other) const;
+    int compare_same_type(const basic & other) const;
+    bool is_equal_same_type(const basic & other) const;
     unsigned return_type(void) const;
     unsigned return_type_tinfo(void) const;
-    ex thisexprseq(exvector const & v) const;
+    ex thisexprseq(const exvector & v) const;
     ex thisexprseq(exvector * vp) const;
 
     // new virtual functions which can be overridden by derived classes
@@ -153,7 +153,7 @@ protected:
 // global constants
 
 extern const simp_lor some_simp_lor;
-extern type_info const & typeid_simp_lor;
+extern const type_info & typeid_simp_lor;
 
 // utility functions
 inline const simp_lor &ex_to_simp_lor(const ex &e)
@@ -166,10 +166,10 @@ inline simp_lor &ex_to_nonconst_simp_lor(const ex &e)
 	return static_cast<simp_lor &>(*e.bp);
 }
 
-simp_lor lor_g(ex const & mu, ex const & nu);
-simp_lor lor_vec(string const & n, ex const & mu);
-ex simplify_simp_lor_mul(ex const & m, scalar_products const & sp);
-ex simplify_simp_lor(ex const & e, scalar_products const & sp);
+simp_lor lor_g(const ex & mu, const ex & nu);
+simp_lor lor_vec(const string & n, const ex & mu);
+ex simplify_simp_lor_mul(const ex & m, const scalar_products & sp);
+ex simplify_simp_lor(const ex & e, const scalar_products & sp);
 ex Dim(void);
 
 #ifndef NO_GINAC_NAMESPACE

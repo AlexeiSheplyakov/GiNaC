@@ -50,13 +50,13 @@ lorentzidx::~lorentzidx()
     destroy(0);
 }
 
-lorentzidx::lorentzidx(lorentzidx const & other)
+lorentzidx::lorentzidx(const lorentzidx & other)
 {
     debugmsg("lorentzidx copy constructor",LOGLEVEL_CONSTRUCT);
     copy(other);
 }
 
-lorentzidx const & lorentzidx::operator=(lorentzidx const & other)
+const lorentzidx & lorentzidx::operator=(const lorentzidx & other)
 {
     debugmsg("lorentzidx operator=",LOGLEVEL_ASSIGNMENT);
     if (this != &other) {
@@ -68,7 +68,7 @@ lorentzidx const & lorentzidx::operator=(lorentzidx const & other)
 
 // protected
 
-void lorentzidx::copy(lorentzidx const & other)
+void lorentzidx::copy(const lorentzidx & other)
 {
     idx::copy(other);
     orthogonal_only=other.orthogonal_only;
@@ -99,7 +99,7 @@ lorentzidx::lorentzidx(bool cov, bool oonly, unsigned dimp) :
     tinfo_key=TINFO_lorentzidx;
 }
 
-lorentzidx::lorentzidx(string const & n, bool cov, bool oonly, unsigned dimp)
+lorentzidx::lorentzidx(const string & n, bool cov, bool oonly, unsigned dimp)
     : idx(n,cov), orthogonal_only(oonly), dim_parallel_space(dimp)
 {
     debugmsg("lorentzidx constructor from string,bool,bool,unsigned",
@@ -107,7 +107,7 @@ lorentzidx::lorentzidx(string const & n, bool cov, bool oonly, unsigned dimp)
     tinfo_key=TINFO_lorentzidx;
 }
 
-lorentzidx::lorentzidx(char const * n, bool cov, bool oonly, unsigned dimp)
+lorentzidx::lorentzidx(const char * n, bool cov, bool oonly, unsigned dimp)
     : idx(n,cov), orthogonal_only(oonly), dim_parallel_space(dimp)
 {
     debugmsg("lorentzidx constructor from char*,bool,bool,unsigned",
@@ -115,7 +115,7 @@ lorentzidx::lorentzidx(char const * n, bool cov, bool oonly, unsigned dimp)
     tinfo_key=TINFO_lorentzidx;
 }
 
-lorentzidx::lorentzidx(unsigned const v, bool cov) : idx(v,cov),
+lorentzidx::lorentzidx(unsigned v, bool cov) : idx(v,cov),
     orthogonal_only(false), dim_parallel_space(0)
 {
     debugmsg("lorentzidx constructor from unsigned,bool",LOGLEVEL_CONSTRUCT);
@@ -251,7 +251,7 @@ lorentzidx lorentzidx::create_anonymous_representative(void) const
 //////////
 
 const lorentzidx some_lorentzidx;
-type_info const & typeid_lorentzidx=typeid(some_lorentzidx);
+const type_info & typeid_lorentzidx=typeid(some_lorentzidx);
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC

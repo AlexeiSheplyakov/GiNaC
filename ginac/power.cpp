@@ -60,13 +60,13 @@ power::~power()
     destroy(0);
 }
 
-power::power(power const & other)
+power::power(const power & other)
 {
     debugmsg("power copy constructor",LOGLEVEL_CONSTRUCT);
     copy(other);
 }
 
-power const & power::operator=(power const & other)
+const power & power::operator=(const power & other)
 {
     debugmsg("power operator=",LOGLEVEL_ASSIGNMENT);
     if (this != &other) {
@@ -78,7 +78,7 @@ power const & power::operator=(power const & other)
 
 // protected
 
-void power::copy(power const & other)
+void power::copy(const power & other)
 {
     inherited::copy(other);
     basis=other.basis;
@@ -96,13 +96,13 @@ void power::destroy(bool call_parent)
 
 // public
 
-power::power(ex const & lh, ex const & rh) : basic(TINFO_power), basis(lh), exponent(rh)
+power::power(const ex & lh, const ex & rh) : basic(TINFO_power), basis(lh), exponent(rh)
 {
     debugmsg("power constructor from ex,ex",LOGLEVEL_CONSTRUCT);
     GINAC_ASSERT(basis.return_type()==return_types::commutative);
 }
 
-power::power(ex const & lh, numeric const & rh) : basic(TINFO_power), basis(lh), exponent(rh)
+power::power(const ex & lh, const numeric & rh) : basic(TINFO_power), basis(lh), exponent(rh)
 {
     debugmsg("power constructor from ex,numeric",LOGLEVEL_CONSTRUCT);
     GINAC_ASSERT(basis.return_type()==return_types::commutative);
@@ -267,7 +267,7 @@ unsigned power::nops() const
     return 2;
 }
 
-ex & power::let_op(int const i)
+ex & power::let_op(int i)
 {
     GINAC_ASSERT(i>=0);
     GINAC_ASSERT(i<2);
@@ -275,7 +275,7 @@ ex & power::let_op(int const i)
     return i==0 ? basis : exponent;
 }
 
-int power::degree(symbol const & s) const
+int power::degree(const symbol & s) const
 {
     if (is_exactly_of_type(*exponent.bp,numeric)) {
         if ((*basis.bp).compare(s)==0)
@@ -286,7 +286,7 @@ int power::degree(symbol const & s) const
     return 0;
 }
 
-int power::ldegree(symbol const & s) const 
+int power::ldegree(const symbol & s) const 
 {
     if (is_exactly_of_type(*exponent.bp,numeric)) {
         if ((*basis.bp).compare(s)==0)
@@ -297,7 +297,7 @@ int power::ldegree(symbol const & s) const
     return 0;
 }
 
-ex power::coeff(symbol const & s, int const n) const
+ex power::coeff(const symbol & s, int n) const
 {
     if ((*basis.bp).compare(s)!=0) {
         // basis not equal to s
@@ -307,7 +307,7 @@ ex power::coeff(symbol const & s, int const n) const
             return _ex0();
         }
     } else if (is_exactly_of_type(*exponent.bp,numeric)&&
-               (static_cast<numeric const &>(*exponent.bp).compare(numeric(n))==0)) {
+               (static_cast<const numeric &>(*exponent.bp).compare(numeric(n))==0)) {
         return _ex1();
     }
 
@@ -334,8 +334,8 @@ ex power::eval(int level) const
         throw(std::runtime_error("max recursion level reached"));
     }
     
-    ex const & ebasis    = level==1 ? basis    : basis.eval(level-1);
-    ex const & eexponent = level==1 ? exponent : exponent.eval(level-1);
+    const ex & ebasis    = level==1 ? basis    : basis.eval(level-1);
+    const ex & eexponent = level==1 ? exponent : exponent.eval(level-1);
 
     bool basis_is_numerical=0;
     bool exponent_is_numerical=0;
@@ -416,11 +416,11 @@ ex power::eval(int level) const
     // (c1, c2 numeric(), c2 integer or -1 < c1 <= 1,
     // case c1=1 should not happen, see below!)
     if (exponent_is_numerical && is_ex_exactly_of_type(ebasis,power)) {
-        power const & sub_power=ex_to_power(ebasis);
-        ex const & sub_basis=sub_power.basis;
-        ex const & sub_exponent=sub_power.exponent;
+        const power & sub_power=ex_to_power(ebasis);
+        const ex & sub_basis=sub_power.basis;
+        const ex & sub_exponent=sub_power.exponent;
         if (is_ex_exactly_of_type(sub_exponent,numeric)) {
-            numeric const & num_sub_exponent=ex_to_numeric(sub_exponent);
+            const numeric & num_sub_exponent=ex_to_numeric(sub_exponent);
             GINAC_ASSERT(num_sub_exponent!=numeric(1));
             if (num_exponent->is_integer() || abs(num_sub_exponent)<1) {
                 return power(sub_basis,num_sub_exponent.mul(*num_exponent));
@@ -438,9 +438,9 @@ ex power::eval(int level) const
     // ^(*(...,x,c1),c2) -> ^(*(...,x;-1),c2)*(-c1)^c2 (c1, c2 numeric(), c1<0)
     if (exponent_is_numerical && is_ex_exactly_of_type(ebasis,mul)) {
         GINAC_ASSERT(!num_exponent->is_integer()); // should have been handled above
-        mul const & mulref=ex_to_mul(ebasis);
+        const mul & mulref=ex_to_mul(ebasis);
         if (!mulref.overall_coeff.is_equal(_ex1())) {
-            numeric const & num_coeff=ex_to_numeric(mulref.overall_coeff);
+            const numeric & num_coeff=ex_to_numeric(mulref.overall_coeff);
             if (num_coeff.is_real()) {
                 if (num_coeff.is_positive()>0) {
                     mul * mulp=new mul(mulref);
@@ -494,10 +494,10 @@ ex power::evalf(int level) const
     return power(ebasis,eexponent);
 }
 
-ex power::subs(lst const & ls, lst const & lr) const
+ex power::subs(const lst & ls, const lst & lr) const
 {
-    ex const & subsed_basis=basis.subs(ls,lr);
-    ex const & subsed_exponent=exponent.subs(ls,lr);
+    const ex & subsed_basis=basis.subs(ls,lr);
+    const ex & subsed_exponent=exponent.subs(ls,lr);
 
     if (are_ex_trivially_equal(basis,subsed_basis)&&
         are_ex_trivially_equal(exponent,subsed_exponent)) {
@@ -507,17 +507,17 @@ ex power::subs(lst const & ls, lst const & lr) const
     return power(subsed_basis, subsed_exponent);
 }
 
-ex power::simplify_ncmul(exvector const & v) const
+ex power::simplify_ncmul(const exvector & v) const
 {
     return inherited::simplify_ncmul(v);
 }
 
 // protected
 
-int power::compare_same_type(basic const & other) const
+int power::compare_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_exactly_of_type(other, power));
-    power const & o=static_cast<power const &>(const_cast<basic &>(other));
+    const power & o=static_cast<const power &>(const_cast<basic &>(other));
 
     int cmpval;
     cmpval=basis.compare(o.basis);
@@ -552,7 +552,7 @@ ex power::expand(unsigned options) const
     }
 
     // integer numeric exponent
-    numeric const & num_exponent=ex_to_numeric(exponent);
+    const numeric & num_exponent=ex_to_numeric(exponent);
     int int_exponent = num_exponent.to_int();
 
     if (int_exponent > 0 && is_ex_exactly_of_type(expanded_basis,add)) {
@@ -582,7 +582,7 @@ ex power::expand(unsigned options) const
 // non-virtual functions in this class
 //////////
 
-ex power::expand_add(add const & a, int const n) const
+ex power::expand_add(const add & a, int n) const
 {
     // expand a^n where a is an add and n is an integer
 
@@ -608,7 +608,7 @@ ex power::expand_add(add const & a, int const n) const
         exvector term;
         term.reserve(m+1);
         for (l=0; l<m-1; l++) {
-            ex const & b=a.op(l);
+            const ex & b=a.op(l);
             GINAC_ASSERT(!is_ex_exactly_of_type(b,add));
             GINAC_ASSERT(!is_ex_exactly_of_type(b,power)||
                    !is_ex_exactly_of_type(ex_to_power(b).exponent,numeric)||
@@ -620,7 +620,7 @@ ex power::expand_add(add const & a, int const n) const
             }
         }
 
-        ex const & b=a.op(l);
+        const ex & b=a.op(l);
         GINAC_ASSERT(!is_ex_exactly_of_type(b,add));
         GINAC_ASSERT(!is_ex_exactly_of_type(b,power)||
                !is_ex_exactly_of_type(ex_to_power(b).exponent,numeric)||
@@ -678,7 +678,7 @@ ex power::expand_add(add const & a, int const n) const
     return (new add(sum))->setflag(status_flags::dynallocated);
 }
 
-ex power::expand_add_2(add const & a) const
+ex power::expand_add_2(const add & a) const
 {
     // special case: expand a^2 where a is an add
 
@@ -690,8 +690,8 @@ ex power::expand_add_2(add const & a) const
     // power(+(x,...,z;c),2)=power(+(x,...,z;0),2)+2*c*+(x,...,z;0)+c*c
     // first part: ignore overall_coeff and expand other terms
     for (epvector::const_iterator cit0=a.seq.begin(); cit0!=last; ++cit0) {
-        ex const & r=(*cit0).rest;
-        ex const & c=(*cit0).coeff;
+        const ex & r=(*cit0).rest;
+        const ex & c=(*cit0).coeff;
         
         GINAC_ASSERT(!is_ex_exactly_of_type(r,add));
         GINAC_ASSERT(!is_ex_exactly_of_type(r,power)||
@@ -719,8 +719,8 @@ ex power::expand_add_2(add const & a) const
         }
             
         for (epvector::const_iterator cit1=cit0+1; cit1!=last; ++cit1) {
-            ex const & r1=(*cit1).rest;
-            ex const & c1=(*cit1).coeff;
+            const ex & r1=(*cit1).rest;
+            const ex & c1=(*cit1).coeff;
             sum.push_back(a.combine_ex_with_coeff_to_pair((new mul(r,r1))->setflag(status_flags::dynallocated),
                                                           _num2().mul(ex_to_numeric(c)).mul_dyn(ex_to_numeric(c1))));
         }
@@ -741,7 +741,7 @@ ex power::expand_add_2(add const & a) const
     return (new add(sum))->setflag(status_flags::dynallocated);
 }
 
-ex power::expand_mul(mul const & m, numeric const & n) const
+ex power::expand_mul(const mul & m, const numeric & n) const
 {
     // expand m^n where m is a mul and n is and integer
 
@@ -769,7 +769,7 @@ ex power::expand_mul(mul const & m, numeric const & n) const
 }
 
 /*
-ex power::expand_commutative_3(ex const & basis, numeric const & exponent,
+ex power::expand_commutative_3(const ex & basis, const numeric & exponent,
                              unsigned options) const
 {
     // obsolete
@@ -777,7 +777,7 @@ ex power::expand_commutative_3(ex const & basis, numeric const & exponent,
     exvector distrseq;
     epvector splitseq;
 
-    add const & addref=static_cast<add const &>(*basis.bp);
+    const add & addref=static_cast<const add &>(*basis.bp);
 
     splitseq=addref.seq;
     splitseq.pop_back();
@@ -797,7 +797,7 @@ ex power::expand_commutative_3(ex const & basis, numeric const & exponent,
 */
 
 /*
-ex power::expand_noncommutative(ex const & basis, numeric const & exponent,
+ex power::expand_noncommutative(const ex & basis, const numeric & exponent,
                                 unsigned options) const
 {
     ex rest_power=ex(power(basis,exponent.add(_num_1()))).
@@ -821,11 +821,11 @@ unsigned power::precedence=60;
 //////////
 
 const power some_power;
-type_info const & typeid_power=typeid(some_power);
+const type_info & typeid_power=typeid(some_power);
 
 // helper function
 
-ex sqrt(ex const & a)
+ex sqrt(const ex & a)
 {
     return power(a,_ex1_2());
 }

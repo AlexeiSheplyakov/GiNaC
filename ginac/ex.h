@@ -38,7 +38,7 @@ class status_flags;
 class symbol;
 class lst;
 
-extern ex const & _ex0(void);  /* FIXME: should this pollute headers? */
+extern const ex & _ex0(void);  /* FIXME: should this pollute headers? */
 
 // typedef vector<ex> exvector;
 
@@ -84,7 +84,7 @@ public:
 ;
 #endif // def INLINE_EX_CONSTRUCTORS
         
-    ex(ex const & other)
+    ex(const ex & other)
 #ifdef INLINE_EX_CONSTRUCTORS
     : bp(other.bp)
         {
@@ -99,7 +99,7 @@ public:
 ;
 #endif // def INLINE_EX_CONSTRUCTORS
         
-    ex const & operator=(ex const & other)
+    const ex & operator=(const ex & other)
 #ifdef INLINE_EX_CONSTRUCTORS
         {
             GINAC_ASSERT(bp!=0);
@@ -123,7 +123,7 @@ public:
 
     // other constructors
 public:
-    ex(basic const & other)
+    ex(const basic & other)
 #ifdef INLINE_EX_CONSTRUCTORS
         {
             construct_from_basic(other);
@@ -135,10 +135,10 @@ public:
 ;
 #endif // def INLINE_EX_CONSTRUCTORS
     
-    ex(int const i);
-    ex(unsigned int const i);
-    ex(long const i);
-    ex(unsigned long const i);
+    ex(int i);
+    ex(unsigned int i);
+    ex(long i);
+    ex(unsigned long i);
     ex(double const d);
 
     // functions overriding virtual functions from bases classes
@@ -159,12 +159,12 @@ public:
     bool info(unsigned inf) const;
     unsigned nops() const;
     ex expand(unsigned options=0) const;
-    bool has(ex const & other) const;
-    int degree(symbol const & s) const;
-    int ldegree(symbol const & s) const;
-    ex coeff(symbol const & s, int const n=1) const;
-    ex lcoeff(symbol const & s) const { return coeff(s, degree(s)); }
-    ex tcoeff(symbol const & s) const { return coeff(s, ldegree(s)); }
+    bool has(const ex & other) const;
+    int degree(const symbol & s) const;
+    int ldegree(const symbol & s) const;
+    ex coeff(const symbol & s, int n=1) const;
+    ex lcoeff(const symbol & s) const { return coeff(s, degree(s)); }
+    ex tcoeff(const symbol & s) const { return coeff(s, ldegree(s)); }
     ex numer(bool normalize = true) const;
     ex denom(bool normalize = true) const;
     ex unit(const symbol &x) const;
@@ -175,20 +175,20 @@ public:
     ex normal(int level = 0) const;
     ex smod(const numeric &xi) const;
     numeric max_coefficient(void) const;
-    ex collect(symbol const & s) const;
+    ex collect(const symbol & s) const;
     ex eval(int level = 0) const;
     ex evalf(int level = 0) const;
-    ex diff(symbol const & s, unsigned nth = 1) const;
-    ex series(symbol const & s, ex const & point, int order = 6) const;
-    ex subs(lst const & ls, lst const & lr) const;
-    ex subs(ex const & e) const;
+    ex diff(const symbol & s, unsigned nth = 1) const;
+    ex series(const symbol & s, const ex & point, int order = 6) const;
+    ex subs(const lst & ls, const lst & lr) const;
+    ex subs(const ex & e) const;
     exvector get_indices(void) const;
-    ex simplify_ncmul(exvector const & v) const;
-    ex operator[](ex const & index) const;
-    ex operator[](int const i) const;
-    ex op(int const i) const;
-    ex & let_op(int const i);
-    int compare(ex const & other) const
+    ex simplify_ncmul(const exvector & v) const;
+    ex operator[](const ex & index) const;
+    ex operator[](int i) const;
+    ex op(int i) const;
+    ex & let_op(int i);
+    int compare(const ex & other) const
 #ifdef INLINE_EX_CONSTRUCTORS
         {
             GINAC_ASSERT(bp!=0);
@@ -202,7 +202,7 @@ public:
 #else
 ;
 #endif // def INLINE_EX_CONSTRUCTORS
-    bool is_equal(ex const & other) const
+    bool is_equal(const ex & other) const
 #ifdef INLINE_EX_CONSTRUCTORS
         {
             GINAC_ASSERT(bp!=0);
@@ -222,11 +222,11 @@ public:
     unsigned return_type_tinfo(void) const;
     unsigned gethash(void) const;
 
-    ex exadd(ex const & rh) const;
-    ex exmul(ex const & rh) const;
-    ex exncmul(ex const & rh) const;
+    ex exadd(const ex & rh) const;
+    ex exmul(const ex & rh) const;
+    ex exncmul(const ex & rh) const;
 private:
-    void construct_from_basic(basic const & other);
+    void construct_from_basic(const basic & other);
     void makewriteable();
 
 #ifdef OBSCURE_CINT_HACK
@@ -269,52 +269,52 @@ inline bool are_ex_trivially_equal(const ex &e1, const ex &e2)
 }
 
 // wrapper functions around member functions
-inline unsigned nops(ex const & thisex)
+inline unsigned nops(const ex & thisex)
 { return thisex.nops(); }
 
-inline ex expand(ex const & thisex, unsigned options = 0)
+inline ex expand(const ex & thisex, unsigned options = 0)
 { return thisex.expand(options); }
 
-inline bool has(ex const & thisex, ex const & other)
+inline bool has(const ex & thisex, const ex & other)
 { return thisex.has(other); }
 
-inline int degree(ex const & thisex, symbol const & s)
+inline int degree(const ex & thisex, const symbol & s)
 { return thisex.degree(s); }
 
-inline int ldegree(ex const & thisex, symbol const & s)
+inline int ldegree(const ex & thisex, const symbol & s)
 { return thisex.ldegree(s); }
 
-inline ex coeff(ex const & thisex, symbol const & s, int const n=1)
+inline ex coeff(const ex & thisex, const symbol & s, int n=1)
 { return thisex.coeff(s, n); }
 
-inline ex numer(ex const & thisex, bool normalize = true)
+inline ex numer(const ex & thisex, bool normalize = true)
 { return thisex.numer(normalize); }
 
-inline ex denom(ex const & thisex, bool normalize = true)
+inline ex denom(const ex & thisex, bool normalize = true)
 { return thisex.denom(normalize); }
 
-inline ex normal(ex const & thisex, int level=0)
+inline ex normal(const ex & thisex, int level=0)
 { return thisex.normal(level); }
 
-inline ex collect(ex const & thisex, symbol const & s)
+inline ex collect(const ex & thisex, const symbol & s)
 { return thisex.collect(s); }
 
-inline ex eval(ex const & thisex, int level = 0)
+inline ex eval(const ex & thisex, int level = 0)
 { return thisex.eval(level); }
 
-inline ex evalf(ex const & thisex, int level = 0)
+inline ex evalf(const ex & thisex, int level = 0)
 { return thisex.evalf(level); }
 
-inline ex diff(ex const & thisex, symbol const & s, unsigned nth = 1)
+inline ex diff(const ex & thisex, const symbol & s, unsigned nth = 1)
 { return thisex.diff(s, nth); }
 
-inline ex series(ex const & thisex, symbol const & s, ex const & point, int order = 6)
+inline ex series(const ex & thisex, const symbol & s, const ex & point, int order = 6)
 { return thisex.series(s, point, order); }
 
-inline ex subs(ex const & thisex, ex const & e)
+inline ex subs(const ex & thisex, const ex & e)
 { return thisex.subs(e); }
 
-inline ex subs(ex const & thisex, lst const & ls, lst const & lr)
+inline ex subs(const ex & thisex, const lst & ls, const lst & lr)
 { return thisex.subs(ls, lr); }
 
 inline void swap(ex & e1, ex & e2)

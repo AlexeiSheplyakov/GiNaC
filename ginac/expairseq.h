@@ -73,10 +73,10 @@ public:
         {
             destroy(0);
         }
-    expairseq(expairseq const & other);
-    expairseq const & operator=(expairseq const & other);
+    expairseq(const expairseq & other);
+    const expairseq & operator=(const expairseq & other);
 protected:
-    void copy(expairseq const & other);
+    void copy(const expairseq & other);
     void destroy(bool call_parent)
         {
             if (call_parent) basic::destroy(call_parent);
@@ -84,10 +84,10 @@ protected:
 
     // other constructors
 public:
-    expairseq(ex const & lh, ex const & rh);
-    expairseq(exvector const & v);
-    expairseq(epvector const & v, ex const & oc);
-    expairseq(epvector * vp, ex const & oc); // vp will be deleted
+    expairseq(const ex & lh, const ex & rh);
+    expairseq(const exvector & v);
+    expairseq(const epvector & v, const ex & oc);
+    expairseq(epvector * vp, const ex & oc); // vp will be deleted
 
     // functions overriding virtual functions from bases classes
 public:
@@ -97,52 +97,52 @@ public:
     void printtree(ostream & os, unsigned indent) const;
     bool info(unsigned inf) const;
     unsigned nops() const;
-    ex op(int const i) const;
-    ex & let_op(int const i);
+    ex op(int i) const;
+    ex & let_op(int i);
     ex eval(int level=0) const;
     ex evalf(int level=0) const;
     ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
-    ex diff(symbol const & s) const;
-    ex subs(lst const & ls, lst const & lr) const;
+    ex diff(const symbol & s) const;
+    ex subs(const lst & ls, const lst & lr) const;
 protected:
-    int compare_same_type(basic const & other) const;
-    bool is_equal_same_type(basic const & other) const;
+    int compare_same_type(const basic & other) const;
+    bool is_equal_same_type(const basic & other) const;
     unsigned return_type(void) const;
     unsigned calchash(void) const;
     ex expand(unsigned options=0) const;
 
     // new virtual functions which can be overridden by derived classes
 protected:
-    virtual ex thisexpairseq(epvector const & v, ex const & oc) const;
-    virtual ex thisexpairseq(epvector * vp, ex const & oc) const;
+    virtual ex thisexpairseq(const epvector & v, const ex & oc) const;
+    virtual ex thisexpairseq(epvector * vp, const ex & oc) const;
     virtual void printseq(ostream & os, char delim, unsigned this_precedence,
                           unsigned upper_precedence) const;
-    virtual void printpair(ostream & os, expair const & p,
+    virtual void printpair(ostream & os, const expair & p,
                            unsigned upper_precedence) const;
-    virtual expair split_ex_to_pair(ex const & e) const;
-    virtual expair combine_ex_with_coeff_to_pair(ex const & e,
-                                                 ex const & c) const;
-    virtual expair combine_pair_with_coeff_to_pair(expair const & p,
-                                                   ex const & c) const;
-    virtual ex recombine_pair_to_ex(expair const & p) const;
+    virtual expair split_ex_to_pair(const ex & e) const;
+    virtual expair combine_ex_with_coeff_to_pair(const ex & e,
+                                                 const ex & c) const;
+    virtual expair combine_pair_with_coeff_to_pair(const expair & p,
+                                                   const ex & c) const;
+    virtual ex recombine_pair_to_ex(const expair & p) const;
     virtual bool expair_needs_further_processing(epp it);
     virtual ex default_overall_coeff(void) const;
-    virtual void combine_overall_coeff(ex const & c);
-    virtual void combine_overall_coeff(ex const & c1, ex const & c2);
-    virtual bool can_make_flat(expair const & p) const;
+    virtual void combine_overall_coeff(const ex & c);
+    virtual void combine_overall_coeff(const ex & c1, const ex & c2);
+    virtual bool can_make_flat(const expair & p) const;
     
     // non-virtual functions in this class
 protected:
-    void construct_from_2_ex_via_exvector(ex const & lh, ex const & rh);
-    void construct_from_2_ex(ex const & lh, ex const & rh);
-    void construct_from_2_expairseq(expairseq const & s1,
-                                    expairseq const & s2);
-    void construct_from_expairseq_ex(expairseq const & s,
-                                     ex const & e);
-    void construct_from_exvector(exvector const & v);
-    void construct_from_epvector(epvector const & v);
-    void make_flat(exvector const & v);
-    void make_flat(epvector const & v);
+    void construct_from_2_ex_via_exvector(const ex & lh, const ex & rh);
+    void construct_from_2_ex(const ex & lh, const ex & rh);
+    void construct_from_2_expairseq(const expairseq & s1,
+                                    const expairseq & s2);
+    void construct_from_expairseq_ex(const expairseq & s,
+                                     const ex & e);
+    void construct_from_exvector(const exvector & v);
+    void construct_from_epvector(const epvector & v);
+    void make_flat(const exvector & v);
+    void make_flat(const epvector & v);
     epvector * bubblesort(epvector::iterator itbegin, epvector::iterator itend);
     epvector * mergesort(epvector::iterator itbegin, epvector::iterator itend);
     void canonicalize(void);
@@ -150,7 +150,7 @@ protected:
 #ifdef EXPAIRSEQ_USE_HASHTAB
     void combine_same_terms(void);
     unsigned calc_hashtabsize(unsigned sz) const;
-    unsigned calc_hashindex(ex const & e) const;
+    unsigned calc_hashindex(const ex & e) const;
     void shrink_hashtab(void);
     void remove_hashtab_entry(epvector::const_iterator element);
     void move_hashtab_entry(epvector::const_iterator oldpos,
@@ -172,8 +172,8 @@ protected:
     epvector * evalchildren(int level) const;
     epvector evalfchildren(int level) const;
     epvector normalchildren(int level) const;
-    epvector diffchildren(symbol const & s) const;
-    epvector * subschildren(lst const & ls, lst const & lr) const;
+    epvector diffchildren(const symbol & s) const;
+    epvector * subschildren(const lst & ls, const lst & lr) const;
     
 // member variables
     
@@ -194,7 +194,7 @@ protected:
 // global constants
 
 extern const expairseq some_expairseq;
-extern type_info const & typeid_expairseq;
+extern const type_info & typeid_expairseq;
 
 // utility functions
 inline const expairseq &ex_to_expairseq(const ex &e)

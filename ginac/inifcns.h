@@ -87,12 +87,12 @@ DECLARE_FUNCTION_1P(Li3)
 // overloading at work: we cannot use the macros
 /** Riemann's Zeta-function. */
 extern const unsigned function_index_zeta1;
-inline function zeta(ex const & p1) {
+inline function zeta(const ex & p1) {
     return function(function_index_zeta1, p1);
 }
 /** Derivatives of Riemann's Zeta-function. */
 extern const unsigned function_index_zeta2;
-inline function zeta(ex const & p1, ex const & p2) {
+inline function zeta(const ex & p1, const ex & p2) {
     return function(function_index_zeta2, p1, p2);
 }
 
@@ -105,12 +105,12 @@ DECLARE_FUNCTION_2P(beta)
 // overloading at work: we cannot use the macros
 /** Psi-function (aka digamma-function). */
 extern const unsigned function_index_psi1;
-inline function psi(ex const & p1) {
+inline function psi(const ex & p1) {
     return function(function_index_psi1, p1);
 }
 /** Derivatives of Psi-function (aka polygamma-functions). */
 extern const unsigned function_index_psi2;
-inline function psi(ex const & p1, ex const & p2) {
+inline function psi(const ex & p1, const ex & p2) {
     return function(function_index_psi2, p1, p2);
 }
     
@@ -123,11 +123,11 @@ DECLARE_FUNCTION_2P(binomial)
 /** Order term function (for truncated power series). */
 DECLARE_FUNCTION_1P(Order)
 
-ex lsolve(ex const &eqns, ex const &symbols);
+ex lsolve(const ex &eqns, const ex &symbols);
 
-ex ncpower(ex const &basis, unsigned exponent);
+ex ncpower(const ex &basis, unsigned exponent);
 
-inline bool is_order_function(ex const & e)
+inline bool is_order_function(const ex & e)
 {
     return is_ex_the_function(e, Order);
 }

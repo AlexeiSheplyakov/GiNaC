@@ -42,15 +42,15 @@ class pseries : public basic
 public:
     pseries();
     ~pseries();
-    pseries(pseries const &other);
-    pseries const &operator=(pseries const &other);
+    pseries(const pseries &other);
+    const pseries &operator=(const pseries &other);
 protected:
-    void copy(pseries const &other);
+    void copy(const pseries &other);
     void destroy(bool call_parent);
 
     // other constructors
 public:
-    pseries(ex const &var_, ex const &point_, epvector const &ops_);
+    pseries(const ex &var_, const ex &point_, const epvector &ops_);
 
     // functions overriding virtual functions from base classes
 public:
@@ -60,14 +60,14 @@ public:
     unsigned nops(void) const;
     ex op(int i) const;
     ex &let_op(int i);
-    int degree(symbol const &s) const;
-    int ldegree(symbol const &s) const;
-    ex coeff(symbol const &s, int const n=1) const;
+    int degree(const symbol &s) const;
+    int ldegree(const symbol &s) const;
+    ex coeff(const symbol &s, int n=1) const;
     ex eval(int level=0) const;
     ex evalf(int level=0) const;
     ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
-    ex diff(symbol const & s) const;
-    ex subs(lst const & ls, lst const & lr) const;
+    ex diff(const symbol & s) const;
+    ex subs(const lst & ls, const lst & lr) const;
 
     // non-virtual functions in this class
 public:
@@ -92,7 +92,7 @@ protected:
 
 // global constants
 extern const pseries some_pseries;
-extern type_info const & typeid_pseries;
+extern const type_info & typeid_pseries;
 
 /** Return a reference to the pseries object embedded in an expression.
  *  The result is undefined if the expression does not contain a pseries

@@ -204,7 +204,7 @@ numeric::numeric(double d) : basic(TINFO_numeric)
             status_flags::hash_calculated);
 }
 
-numeric::numeric(char const *s) : basic(TINFO_numeric)
+numeric::numeric(const char *s) : basic(TINFO_numeric)
 {   // MISSING: treatment of complex and ints and rationals.
     debugmsg("numeric constructor from string",LOGLEVEL_CONSTRUCT);
     if (strchr(s, '.'))
@@ -456,7 +456,7 @@ ex numeric::evalf(int level) const
 
 // protected
 
-int numeric::compare_same_type(basic const & other) const
+int numeric::compare_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_exactly_of_type(other, numeric));
     const numeric & o = static_cast<numeric &>(const_cast<basic &>(other));
@@ -468,7 +468,7 @@ int numeric::compare_same_type(basic const & other) const
     return compare(o);    
 }
 
-bool numeric::is_equal_same_type(basic const & other) const
+bool numeric::is_equal_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_exactly_of_type(other,numeric));
     const numeric *o = static_cast<const numeric *>(&other);
@@ -624,7 +624,7 @@ const numeric & numeric::operator=(double d)
     return operator=(numeric(d));
 }
 
-const numeric & numeric::operator=(char const * s)
+const numeric & numeric::operator=(const char * s)
 {
     return operator=(numeric(s));
 }
@@ -1000,7 +1000,7 @@ unsigned numeric::precedence = 30;
 //////////
 
 const numeric some_numeric;
-type_info const & typeid_numeric=typeid(some_numeric);
+const type_info & typeid_numeric=typeid(some_numeric);
 /** Imaginary unit.  This is not a constant but a numeric since we are
  *  natively handing complex numbers anyways. */
 const numeric I = numeric(complex(cl_I(0),cl_I(1)));
@@ -1471,7 +1471,7 @@ void _numeric_digits::print(ostream & os) const
     os << digits;
 }
 
-ostream& operator<<(ostream& os, _numeric_digits const & e)
+ostream& operator<<(ostream& os, const _numeric_digits & e)
 {
     e.print(os);
     return os;

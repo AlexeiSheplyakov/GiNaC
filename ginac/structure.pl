@@ -71,7 +71,7 @@ sub generate {
 
 $number_of_members=$#MEMBERS+1;
 $constructor_arglist=generate('ex tmp_${MEMBER}',', ');
-$member_access_functions=generate('    ex const & ${MEMBER}(void) { return m_${MEMBER}; }',"\n");
+$member_access_functions=generate('    const ex & ${MEMBER}(void) { return m_${MEMBER}; }',"\n");
 $op_access_indices_decl=generate('    static unsigned op_${MEMBER};',"\n");
 $op_access_indices_def=generate('unsigned ${STRUCTURE}::op_${MEMBER}=${N}-1;',"\n");
 $members=generate('    ex m_${MEMBER}; ${COMMENT}',"\n");
@@ -179,17 +179,17 @@ public:
     void print(ostream & os, unsigned upper_precedence=0) const;
     void printtree(ostream & os, unsigned indent) const;
     int nops() const;
-    ex & let_op(int const i);
+    ex & let_op(int i);
     ex expand(unsigned options=0) const;
-    bool has(ex const & other) const;
+    bool has(const ex & other) const;
     ex eval(int level=0) const;
     ex evalf(int level=0) const;
     ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
-    ex diff(symbol const & s) const;
-    ex subs(lst const & ls, lst const & lr) const;
+    ex diff(const symbol & s) const;
+    ex subs(const lst & ls, const lst & lr) const;
 protected:
-    int compare_same_type(basic const & other) const;
-    bool is_equal_same_type(basic const & other) const;
+    int compare_same_type(const basic & other) const;
+    bool is_equal_same_type(const basic & other) const;
     unsigned return_type(void) const;
 
     // new virtual functions which can be overridden by derived classes
@@ -210,7 +210,7 @@ ${op_access_indices_decl}
 // global constants
 
 extern const ${STRUCTURE} some_${STRUCTURE};
-extern type_info const & typeid_${STRUCTURE};
+extern const type_info & typeid_${STRUCTURE};
 extern const unsigned tinfo_${STRUCTURE};
 
 // macros
@@ -358,7 +358,7 @@ int ${STRUCTURE}::nops() const
     return ${number_of_members};
 }
 
-ex & ${STRUCTURE}::let_op(int const i)
+ex & ${STRUCTURE}::let_op(int i)
 {
     GINAC_ASSERT(i>=0);
     GINAC_ASSERT(i<nops());
@@ -382,7 +382,7 @@ ${expand_statements}
 
 // a ${STRUCTURE} 'has' an expression if it is this expression itself or a child 'has' it
 
-bool ${STRUCTURE}::has(ex const & other) const
+bool ${STRUCTURE}::has(const ex & other) const
 {
     GINAC_ASSERT(other.bp!=0);
     if (is_equal(*other.bp)) return true;
@@ -436,13 +436,13 @@ ${normal_statements}
 /** ${STRUCTURE}::diff() differentiates the children.
     there is no need to check for triavially equal, since diff usually
     does not return itself unevaluated. */
-ex ${STRUCTURE}::diff(symbol const & s) const
+ex ${STRUCTURE}::diff(const symbol & s) const
 {
 ${diff_statements}
     return ${STRUCTURE}(${temporary_arglist});
 }
 
-ex ${STRUCTURE}::subs(lst const & ls, lst const & lr) const
+ex ${STRUCTURE}::subs(const lst & ls, const lst & lr) const
 {
     bool all_are_trivially_equal=true;
 ${subs_statements}
@@ -454,7 +454,7 @@ ${subs_statements}
 
 // protected
 
-int ${STRUCTURE}::compare_same_type(basic const & other) const
+int ${STRUCTURE}::compare_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_of_type(other,${STRUCTURE}));
     ${STRUCTURE} const & o=static_cast<${STRUCTURE} const &>
@@ -464,7 +464,7 @@ ${compare_statements}
     return 0;
 }
 
-bool ${STRUCTURE}::is_equal_same_type(basic const & other) const
+bool ${STRUCTURE}::is_equal_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_of_type(other,${STRUCTURE}));
     ${STRUCTURE} const & o=static_cast<${STRUCTURE} const &>
@@ -511,7 +511,7 @@ ${op_access_indices_def}
 //////////
 
 const ${STRUCTURE} some_${STRUCTURE};
-type_info const & typeid_${STRUCTURE}=typeid(some_${STRUCTURE});
+const type_info & typeid_${STRUCTURE}=typeid(some_${STRUCTURE});
 const unsigned tinfo_${STRUCTURE}=structure::register_new("${STRUCTURE}");
 
 #ifndef NO_GINAC_NAMESPACE

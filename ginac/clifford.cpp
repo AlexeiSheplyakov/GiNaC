@@ -53,13 +53,13 @@ clifford::~clifford()
     destroy(0);
 }
 
-clifford::clifford(clifford const & other)
+clifford::clifford(const clifford & other)
 {
     debugmsg("clifford copy constructor",LOGLEVEL_CONSTRUCT);
     copy (other);
 }
 
-clifford const & clifford::operator=(clifford const & other)
+const clifford & clifford::operator=(const clifford & other)
 {
     debugmsg("clifford operator=",LOGLEVEL_ASSIGNMENT);
     if (this != &other) {
@@ -71,7 +71,7 @@ clifford const & clifford::operator=(clifford const & other)
 
 // protected
 
-void clifford::copy(clifford const & other)
+void clifford::copy(const clifford & other)
 {
     indexed::copy(other);
     name=other.name;
@@ -91,7 +91,7 @@ void clifford::destroy(bool call_parent)
 
 // public
 
-clifford::clifford(string const & initname)
+clifford::clifford(const string & initname)
 {
     debugmsg("clifford constructor from string",LOGLEVEL_CONSTRUCT);
     name=initname;
@@ -151,7 +151,7 @@ bool clifford::info(unsigned inf) const
 
 // protected
 
-int clifford::compare_same_type(basic const & other) const
+int clifford::compare_same_type(const basic & other) const
 {
     GINAC_ASSERT(other.tinfo() == TINFO_clifford);
     const clifford *o = static_cast<const clifford *>(&other);
@@ -161,7 +161,7 @@ int clifford::compare_same_type(basic const & other) const
     return serial < o->serial ? -1 : 1;
 }
 
-ex clifford::simplify_ncmul(exvector const & v) const
+ex clifford::simplify_ncmul(const exvector & v) const
 {
     return simplified_ncmul(v);
 }
@@ -185,7 +185,7 @@ unsigned clifford::calchash(void) const
 // non-virtual functions in this class
 //////////
 
-void clifford::setname(string const & n)
+void clifford::setname(const string & n)
 {
     name=n;
 }
@@ -211,7 +211,7 @@ unsigned clifford::next_serial=0;
 //////////
 
 const clifford some_clifford;
-type_info const & typeid_clifford=typeid(some_clifford);
+const type_info & typeid_clifford=typeid(some_clifford);
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC

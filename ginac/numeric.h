@@ -116,7 +116,7 @@ public:
     explicit numeric(unsigned long i);
     explicit numeric(long numer, long denom);
     explicit numeric(double d);
-    explicit numeric(char const *);
+    explicit numeric(const char *);
     numeric(cl_N const & z);
 
     // functions overriding virtual functions from bases classes
@@ -128,14 +128,14 @@ public:
     void printcsrc(ostream & os, unsigned type, unsigned precedence=0) const;
     bool info(unsigned inf) const;
     ex evalf(int level=0) const;
-    ex diff(symbol const & s) const;
+    ex diff(const symbol & s) const;
     ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
     numeric integer_content(void) const;
     ex smod(const numeric &xi) const;
     numeric max_coefficient(void) const;
 protected:
-    int compare_same_type(basic const & other) const;
-    bool is_equal_same_type(basic const & other) const;
+    int compare_same_type(const basic & other) const;
+    bool is_equal_same_type(const basic & other) const;
     unsigned calchash(void) const {
         hashvalue=HASHVALUE_NUMERIC;
         return HASHVALUE_NUMERIC;
@@ -161,7 +161,7 @@ public:
     const numeric & operator=(long i);
     const numeric & operator=(unsigned long i);
     const numeric & operator=(double d);
-    const numeric & operator=(char const * s);
+    const numeric & operator=(const char * s);
     numeric inverse(void) const;
     int csgn(void) const;
     int compare(const numeric & other) const;
@@ -204,7 +204,7 @@ protected:
 
 extern const numeric some_numeric;
 extern const numeric I;
-extern type_info const & typeid_numeric;
+extern const type_info & typeid_numeric;
 extern _numeric_digits Digits;
 
 #define is_a_numeric_hash(x) ((x)==HASHVALUE_NUMERIC)

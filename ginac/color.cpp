@@ -58,13 +58,13 @@ color::~color()
     destroy(0);
 }
 
-color::color(color const & other)
+color::color(const color & other)
 {
     debugmsg("color copy constructor",LOGLEVEL_CONSTRUCT);
     copy (other);
 }
 
-color const & color::operator=(color const & other)
+const color & color::operator=(const color & other)
 {
     debugmsg("color operator=",LOGLEVEL_ASSIGNMENT);
     if (this != &other) {
@@ -76,7 +76,7 @@ color const & color::operator=(color const & other)
 
 // protected
 
-void color::copy(color const & other)
+void color::copy(const color & other)
 {
     indexed::copy(other);
     type=other.type;
@@ -96,7 +96,7 @@ void color::destroy(bool call_parent)
 
 // protected
 
-color::color(color_types const t, unsigned const rl) : type(t), representation_label(rl)
+color::color(color_types const t, unsigned rl) : type(t), representation_label(rl)
 {
     debugmsg("color constructor from color_types,unsigned",LOGLEVEL_CONSTRUCT);
     GINAC_ASSERT(representation_label<MAX_REPRESENTATION_LABELS);
@@ -104,7 +104,7 @@ color::color(color_types const t, unsigned const rl) : type(t), representation_l
     GINAC_ASSERT(all_of_type_coloridx());
 }
 
-color::color(color_types const t, ex const & i1, unsigned const rl)
+color::color(color_types const t, const ex & i1, unsigned rl)
     : indexed(i1), type(t), representation_label(rl)
 {
     debugmsg("color constructor from color_types,ex,unsigned",LOGLEVEL_CONSTRUCT);
@@ -113,7 +113,7 @@ color::color(color_types const t, ex const & i1, unsigned const rl)
     GINAC_ASSERT(all_of_type_coloridx());
 }
 
-color::color(color_types const t, ex const & i1, ex const & i2, unsigned const rl)
+color::color(color_types const t, const ex & i1, const ex & i2, unsigned rl)
     : indexed(i1,i2), type(t), representation_label(rl)
 {
     debugmsg("color constructor from color_types,ex,ex,unsigned",LOGLEVEL_CONSTRUCT);
@@ -122,8 +122,8 @@ color::color(color_types const t, ex const & i1, ex const & i2, unsigned const r
     GINAC_ASSERT(all_of_type_coloridx());
 }
 
-color::color(color_types const t, ex const & i1, ex const & i2, ex const & i3,
-             unsigned const rl) : indexed(i1,i2,i3), type(t), representation_label(rl)
+color::color(color_types const t, const ex & i1, const ex & i2, const ex & i3,
+             unsigned rl) : indexed(i1,i2,i3), type(t), representation_label(rl)
 {
     debugmsg("color constructor from color_types,ex,ex,ex,unsigned",LOGLEVEL_CONSTRUCT);
     GINAC_ASSERT(representation_label<MAX_REPRESENTATION_LABELS);
@@ -131,7 +131,7 @@ color::color(color_types const t, ex const & i1, ex const & i2, ex const & i3,
     GINAC_ASSERT(all_of_type_coloridx());
 }
 
-color::color(color_types const t, exvector const & iv, unsigned const rl)
+color::color(color_types const t, const exvector & iv, unsigned rl)
     : indexed(iv), type(t), representation_label(rl)
 {
     debugmsg("color constructor from color_types,exvector,unsigned",LOGLEVEL_CONSTRUCT);
@@ -140,7 +140,7 @@ color::color(color_types const t, exvector const & iv, unsigned const rl)
     GINAC_ASSERT(all_of_type_coloridx());
 }
 
-color::color(color_types const t, exvector * ivp, unsigned const rl)
+color::color(color_types const t, exvector * ivp, unsigned rl)
     : indexed(ivp), type(t), representation_label(rl)
 {
     debugmsg("color constructor from color_types,exvector *,unsigned",LOGLEVEL_CONSTRUCT);
@@ -257,8 +257,8 @@ ex color::eval(int level) const
     case color_delta8:
         {
             GINAC_ASSERT(seq.size()==2);
-            coloridx const & idx1=ex_to_coloridx(seq[0]);
-            coloridx const & idx2=ex_to_coloridx(seq[1]);
+            const coloridx & idx1=ex_to_coloridx(seq[0]);
+            const coloridx & idx2=ex_to_coloridx(seq[1]);
             
             // check for delta8_{a,a} where a is a symbolic index, replace by 8
             if ((idx1.is_symbolic())&&(idx1.is_equal_same_type(idx2))) {
@@ -279,9 +279,9 @@ ex color::eval(int level) const
         // check for d_{a,a,c} (=0) when a is symbolic
         {
             GINAC_ASSERT(seq.size()==3);
-            coloridx const & idx1=ex_to_coloridx(seq[0]);
-            coloridx const & idx2=ex_to_coloridx(seq[1]);
-            coloridx const & idx3=ex_to_coloridx(seq[2]);
+            const coloridx & idx1=ex_to_coloridx(seq[0]);
+            const coloridx & idx2=ex_to_coloridx(seq[1]);
+            const coloridx & idx3=ex_to_coloridx(seq[2]);
             
             if (idx1.is_equal_same_type(idx2) && idx1.is_symbolic()) {
                 return _ex0();
@@ -312,9 +312,9 @@ ex color::eval(int level) const
     case color_f:
         {
             GINAC_ASSERT(seq.size()==3);
-            coloridx const & idx1=ex_to_coloridx(seq[0]);
-            coloridx const & idx2=ex_to_coloridx(seq[1]);
-            coloridx const & idx3=ex_to_coloridx(seq[2]);
+            const coloridx & idx1=ex_to_coloridx(seq[0]);
+            const coloridx & idx2=ex_to_coloridx(seq[1]);
+            const coloridx & idx3=ex_to_coloridx(seq[2]);
             
             // check for three numeric indices
             if (!(idx1.is_symbolic()||idx2.is_symbolic()||idx3.is_symbolic())) {
@@ -348,7 +348,7 @@ ex color::eval(int level) const
     
 // protected
 
-int color::compare_same_type(basic const & other) const
+int color::compare_same_type(const basic & other) const
 {
     GINAC_ASSERT(other.tinfo() == TINFO_color);
     const color *o = static_cast<const color *>(&other);
@@ -361,7 +361,7 @@ int color::compare_same_type(basic const & other) const
     return type < o->type ? -1 : 1;
 }
 
-bool color::is_equal_same_type(basic const & other) const
+bool color::is_equal_same_type(const basic & other) const
 {
     GINAC_ASSERT(other.tinfo() == TINFO_color);
     const color *o = static_cast<const color *>(&other);
@@ -372,7 +372,7 @@ bool color::is_equal_same_type(basic const & other) const
 
 #include <iostream>
 
-ex color::simplify_ncmul(exvector const & v) const
+ex color::simplify_ncmul(const exvector & v) const
 {
     // simplifications: contract delta8_{a,b} where possible
     //                  sort delta8,f,d,T(rl=0),T(rl=1),...,ONE(rl=0),ONE(rl=1),...
@@ -390,8 +390,8 @@ ex color::simplify_ncmul(exvector const & v) const
         if (is_ex_exactly_of_type(*it,color) && (ex_to_color(*it).type==color_delta8)) {
             color & d8=ex_to_nonconst_color(*it);
             GINAC_ASSERT(d8.seq.size()==2);
-            coloridx const & first_idx=ex_to_coloridx(d8.seq[0]);
-            coloridx const & second_idx=ex_to_coloridx(d8.seq[1]);
+            const coloridx & first_idx=ex_to_coloridx(d8.seq[0]);
+            const coloridx & second_idx=ex_to_coloridx(d8.seq[1]);
             // delta8_{a,a} should have been contracted in color::eval()
             GINAC_ASSERT((!first_idx.is_equal(second_idx))||(!first_idx.is_symbolic()));
             ex saved_delta8=*it; // save to restore it later
@@ -455,8 +455,8 @@ ex color::simplify_ncmul(exvector const & v) const
             for (exvector::iterator it2=fvec.begin(); it2!=fvec.end(); ++it2) {
                 GINAC_ASSERT(is_ex_exactly_of_type(*it1,color));
                 GINAC_ASSERT(is_ex_exactly_of_type(*it2,color));
-                color const & col1=ex_to_color(*it1);
-                color const & col2=ex_to_color(*it2);
+                const color & col1=ex_to_color(*it1);
+                const color & col2=ex_to_color(*it2);
                 exvector iv_intersect=idx_intersect(col1.seq,col2.seq);
                 if (iv_intersect.size()>=2) return _ex0();
             }
@@ -469,8 +469,8 @@ ex color::simplify_ncmul(exvector const & v) const
             for (exvector::iterator it2=it1+1; it2!=dvec.end(); ++it2) {
                 GINAC_ASSERT(is_ex_exactly_of_type(*it1,color));
                 GINAC_ASSERT(is_ex_exactly_of_type(*it2,color));
-                color const & col1=ex_to_color(*it1);
-                color const & col2=ex_to_color(*it2);
+                const color & col1=ex_to_color(*it1);
+                const color & col2=ex_to_color(*it2);
                 exvector iv_intersect=idx_intersect(col1.seq,col2.seq);
                 if (iv_intersect.size()>=2) {
                     if (iv_intersect.size()==3) {
@@ -496,8 +496,8 @@ ex color::simplify_ncmul(exvector const & v) const
             for (exvector::iterator it2=it1+1; it2!=fvec.end(); ++it2) {
                 GINAC_ASSERT(is_ex_exactly_of_type(*it1,color));
                 GINAC_ASSERT(is_ex_exactly_of_type(*it2,color));
-                color const & col1=ex_to_color(*it1);
-                color const & col2=ex_to_color(*it2);
+                const color & col1=ex_to_color(*it1);
+                const color & col2=ex_to_color(*it2);
                 exvector iv_intersect=idx_intersect(col1.seq,col2.seq);
                 if (iv_intersect.size()>=2) {
                     if (iv_intersect.size()==3) {
@@ -531,7 +531,7 @@ ex color::simplify_ncmul(exvector const & v) const
                 // d_{a,b,c} T_b T_c = 5/6 T_a
                 for (exvector::iterator it2=dvec.begin(); it2!=dvec.end(); ++it2) {
                     GINAC_ASSERT(is_ex_exactly_of_type(*it2,color)&&ex_to_color(*it2).type==color_d);
-                    color const & dref=ex_to_color(*it2);
+                    const color & dref=ex_to_color(*it2);
                     exvector iv_intersect=idx_intersect(dref.seq,iv);
                     if (iv_intersect.size()==2) {
                         int sig; // unimportant, since symmetric
@@ -547,7 +547,7 @@ ex color::simplify_ncmul(exvector const & v) const
                 // f_{a,b,c} T_b T_c = 3/2 I T_a
                 for (exvector::iterator it2=fvec.begin(); it2!=fvec.end(); ++it2) {
                     GINAC_ASSERT(is_ex_exactly_of_type(*it2,color)&&ex_to_color(*it2).type==color_f);
-                    color const & fref=ex_to_color(*it2);
+                    const color & fref=ex_to_color(*it2);
                     exvector iv_intersect=idx_intersect(fref.seq,iv);
                     if (iv_intersect.size()==2) {
                         int sig;
@@ -579,7 +579,7 @@ ex color::simplify_ncmul(exvector const & v) const
                                                    ONEvecs,unknownvec));
 }
 
-ex color::thisexprseq(exvector const & v) const
+ex color::thisexprseq(const exvector & v) const
 {
     return color(type,v,representation_label);
 }
@@ -619,43 +619,43 @@ bool color::all_of_type_coloridx(void) const
 //////////
 
 const color some_color;
-type_info const & typeid_color=typeid(some_color);
+const type_info & typeid_color=typeid(some_color);
 
 //////////
 // friend functions
 //////////
 
-color color_ONE(unsigned const rl)
+color color_ONE(unsigned rl)
 {
     return color(color::color_ONE,rl);
 }
 
-color color_T(ex const & a, unsigned const rl)
+color color_T(const ex & a, unsigned rl)
 {
     return color(color::color_T,a,rl);
 }
 
-color color_f(ex const & a, ex const & b, ex const & c)
+color color_f(const ex & a, const ex & b, const ex & c)
 {
     return color(color::color_f,a,b,c);
 }
 
-color color_d(ex const & a, ex const & b, ex const & c)
+color color_d(const ex & a, const ex & b, const ex & c)
 {
     return color(color::color_d,a,b,c);
 }
 
-ex color_h(ex const & a, ex const & b, ex const & c)
+ex color_h(const ex & a, const ex & b, const ex & c)
 {
     return color(color::color_d,a,b,c)+I*color(color::color_f,a,b,c);
 }
 
-color color_delta8(ex const & a, ex const & b)
+color color_delta8(const ex & a, const ex & b)
 {
     return color(color::color_delta8,a,b);
 }
 
-void split_color_string_in_parts(exvector const & v, exvector & delta8vec,
+void split_color_string_in_parts(const exvector & v, exvector & delta8vec,
                                  exvector & fvec, exvector & dvec,
                                  exvectorvector & Tvecs,
                                  exvectorvector & ONEvecs,
@@ -727,7 +727,7 @@ exvector recombine_color_string(exvector & delta8vec, exvector & fvec,
     return v;
 }
 
-ex color_trace_of_one_representation_label(exvector const & v)
+ex color_trace_of_one_representation_label(const exvector & v)
 {
     if (v.size()==0) {
         return numeric(COLOR_THREE);
@@ -746,8 +746,8 @@ ex color_trace_of_one_representation_label(exvector const & v)
     v1.pop_back();
     exvector v2=v1;
 
-    ex const & last_index=ex_to_color(last_element).seq[0];
-    ex const & next_to_last_index=ex_to_color(next_to_last_element).seq[0];
+    const ex & last_index=ex_to_color(last_element).seq[0];
+    const ex & next_to_last_index=ex_to_color(next_to_last_element).seq[0];
     ex summation_index=coloridx();
 
     v2.push_back(color_T(summation_index)); // don't care about the representation_label
@@ -768,7 +768,7 @@ ex color_trace_of_one_representation_label(exvector const & v)
     */
 }
 
-ex color_trace(exvector const & v, unsigned const rl)
+ex color_trace(const exvector & v, unsigned rl)
 {
     GINAC_ASSERT(rl<MAX_REPRESENTATION_LABELS);
     
@@ -811,7 +811,7 @@ ex color_trace(exvector const & v, unsigned const rl)
     return nonsimplified_ncmul(v_rest);
 }
 
-ex simplify_pure_color_string(ex const & e)
+ex simplify_pure_color_string(const ex & e)
 {
     GINAC_ASSERT(is_ex_exactly_of_type(e,ncmul));
 
@@ -839,8 +839,8 @@ ex simplify_pure_color_string(ex const & e)
                     GINAC_ASSERT(is_ex_exactly_of_type(t2,color)&&
                            (ex_to_color(t2).type==color::color_T)&&
                            (ex_to_color(t2).seq.size()==1));
-                    coloridx const & idx1=ex_to_coloridx(ex_to_color(t1).seq[0]);
-                    coloridx const & idx2=ex_to_coloridx(ex_to_color(t2).seq[0]);
+                    const coloridx & idx1=ex_to_coloridx(ex_to_color(t1).seq[0]);
+                    const coloridx & idx2=ex_to_coloridx(ex_to_color(t2).seq[0]);
                     
                     if (idx1.is_equal(idx2) && idx1.is_symbolic()) {
                         exvector S;
@@ -869,7 +869,7 @@ ex simplify_pure_color_string(ex const & e)
     return e;
 }
     
-ex simplify_color(ex const & e)
+ex simplify_color(const ex & e)
 {
     // all simplification is done on expanded objects
     ex e_expanded=e.expand();
@@ -910,7 +910,7 @@ ex simplify_color(ex const & e)
     return e_expanded;
 }
 
-ex brute_force_sum_color_indices(ex const & e)
+ex brute_force_sum_color_indices(const ex & e)
 {
     exvector iv_all=e.get_indices();
     exvector iv_double;
@@ -961,7 +961,7 @@ ex brute_force_sum_color_indices(ex const & e)
     return sum;
 }
 
-void append_exvector_to_exvector(exvector & dest, exvector const & source)
+void append_exvector_to_exvector(exvector & dest, const exvector & source)
 {
     for (exvector::const_iterator cit=source.begin(); cit!=source.end(); ++cit) {
         dest.push_back(*cit);

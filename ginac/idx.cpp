@@ -52,13 +52,13 @@ idx::~idx()
     destroy(0);
 }
 
-idx::idx(idx const & other)
+idx::idx(const idx & other)
 {
     debugmsg("idx copy constructor",LOGLEVEL_CONSTRUCT);
     copy(other);
 }
 
-idx const & idx::operator=(idx const & other)
+const idx & idx::operator=(const idx & other)
 {
     debugmsg("idx operator=",LOGLEVEL_ASSIGNMENT);
     if (this != &other) {
@@ -70,7 +70,7 @@ idx const & idx::operator=(idx const & other)
 
 // protected
 
-void idx::copy(idx const & other)
+void idx::copy(const idx & other)
 {
     basic::copy(other);
     serial=other.serial;
@@ -98,21 +98,21 @@ idx::idx(bool cov) : basic(TINFO_idx), symbolic(true), covariant(cov)
     name="index"+ToString(serial);
 }
 
-idx::idx(string const & n, bool cov) : basic(TINFO_idx),  
+idx::idx(const string & n, bool cov) : basic(TINFO_idx),  
     symbolic(true), name(n), covariant(cov)
 {
     debugmsg("idx constructor from string,bool",LOGLEVEL_CONSTRUCT);
     serial=next_serial++;
 }
 
-idx::idx(char const * n, bool cov) : basic(TINFO_idx),  
+idx::idx(const char * n, bool cov) : basic(TINFO_idx),  
     symbolic(true), name(n), covariant(cov)
 {
     debugmsg("idx constructor from char*,bool",LOGLEVEL_CONSTRUCT);
     serial=next_serial++;
 }
 
-idx::idx(unsigned const v, bool cov) : basic(TINFO_idx),
+idx::idx(unsigned v, bool cov) : basic(TINFO_idx),
     symbolic(false), value(v), covariant(cov)
 {
     debugmsg("idx constructor from unsigned,bool",LOGLEVEL_CONSTRUCT);
@@ -200,7 +200,7 @@ bool idx::info(unsigned inf) const
     return basic::info(inf);
 }
 
-ex idx::subs(lst const & ls, lst const & lr) const
+ex idx::subs(const lst & ls, const lst & lr) const
 {
     GINAC_ASSERT(ls.nops()==lr.nops());
 #ifdef DO_GINAC_ASSERT
@@ -220,10 +220,10 @@ ex idx::subs(lst const & ls, lst const & lr) const
 
 // protected
 
-int idx::compare_same_type(basic const & other) const
+int idx::compare_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_of_type(other,idx));
-    idx const & o=static_cast<idx const &>
+    const idx & o=static_cast<const idx &>
                              (const_cast<basic &>(other));
 
     if (covariant!=o.covariant) {
@@ -248,10 +248,10 @@ int idx::compare_same_type(basic const & other) const
     return o.symbolic ? -1 : 1;
 }
 
-bool idx::is_equal_same_type(basic const & other) const
+bool idx::is_equal_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_of_type(other,idx));
-    idx const & o=static_cast<idx const &>
+    const idx & o=static_cast<const idx &>
                              (const_cast<basic &>(other));
 
     if (covariant!=o.covariant) return false;
@@ -273,11 +273,11 @@ unsigned idx::calchash(void) const
 
 // public
 
-bool idx::is_co_contra_pair(basic const & other) const
+bool idx::is_co_contra_pair(const basic & other) const
 {
     // like is_equal_same_type(), but tests for different covariant status
     GINAC_ASSERT(is_of_type(other,idx));
-    idx const & o=static_cast<idx const &>
+    const idx & o=static_cast<const idx &>
                              (const_cast<basic &>(other));
 
     if (covariant==o.covariant) return false;
@@ -328,7 +328,7 @@ unsigned idx::next_serial=0;
 //////////
 
 const idx some_idx;
-type_info const & typeid_idx=typeid(some_idx);
+const type_info & typeid_idx=typeid(some_idx);
 
 //////////
 // other functions
@@ -362,7 +362,7 @@ int canonicalize_indices(exvector & iv, bool antisymmetric)
     return something_changed ? sig : INT_MAX;
 }
 
-exvector idx_intersect(exvector const & iv1, exvector const & iv2)
+exvector idx_intersect(const exvector & iv1, const exvector & iv2)
 {
     // build a vector of symbolic indices contained in iv1 and iv2 simultaneously
     // assumes (but does not test) that each index occurs at most twice
@@ -388,7 +388,7 @@ exvector idx_intersect(exvector const & iv1, exvector const & iv2)
         return iv3[A]; \
     }
 
-ex permute_free_index_to_front(exvector const & iv3, exvector const & iv2,
+ex permute_free_index_to_front(const exvector & iv3, const exvector & iv2,
                                bool antisymmetric, int * sig)
 {
     // match (return value,iv2) to iv3 by permuting indices
@@ -408,7 +408,7 @@ ex permute_free_index_to_front(exvector const & iv3, exvector const & iv2,
     throw(std::logic_error("permute_free_index_to_front(): no valid permutation found"));
 }
     
-unsigned subs_index_in_exvector(exvector & v, ex const & is, ex const & ir)
+unsigned subs_index_in_exvector(exvector & v, const ex & is, const ex & ir)
 {
     exvector::iterator it;
     unsigned replacements=0;
@@ -427,7 +427,7 @@ unsigned subs_index_in_exvector(exvector & v, ex const & is, ex const & ir)
     return replacements;
 }
 
-unsigned count_index(ex const & e, ex const & i)
+unsigned count_index(const ex & e, const ex & i)
 {
     exvector idxv=e.get_indices();
     unsigned count=0;
@@ -437,8 +437,8 @@ unsigned count_index(ex const & e, ex const & i)
     return count;
 }
 
-ex subs_indices(ex const & e, exvector const & idxv_subs,
-                exvector const & idxv_repl)
+ex subs_indices(const ex & e, const exvector & idxv_subs,
+                const exvector & idxv_repl)
 {
     GINAC_ASSERT(idxv_subs.size()==idxv_repl.size());
     ex res=e;

@@ -35,8 +35,8 @@ class ncmul : public exprseq
     GINAC_DECLARE_REGISTERED_CLASS(ncmul, exprseq)
 
     friend class power;
-    friend ex nonsimplified_ncmul(exvector const & v);
-    friend ex simplified_ncmul(exvector const & v);
+    friend ex nonsimplified_ncmul(const exvector & v);
+    friend ex simplified_ncmul(const exvector & v);
 
 // member functions
 
@@ -44,23 +44,23 @@ class ncmul : public exprseq
 public:
     ncmul();
     ~ncmul();
-    ncmul(ncmul const & other);
-    ncmul const & operator=(ncmul const & other);
+    ncmul(const ncmul & other);
+    const ncmul & operator=(const ncmul & other);
 protected:
-    void copy(ncmul const & other);
+    void copy(const ncmul & other);
     void destroy(bool call_parent);
 
     // other constructors
 public:
-    ncmul(ex const & lh, ex const & rh);
-    ncmul(ex const & f1, ex const & f2, ex const & f3);
-    ncmul(ex const & f1, ex const & f2, ex const & f3,
-          ex const & f4);
-    ncmul(ex const & f1, ex const & f2, ex const & f3,
-          ex const & f4, ex const & f5);
-    ncmul(ex const & f1, ex const & f2, ex const & f3,
-          ex const & f4, ex const & f5, ex const & f6);
-    ncmul(exvector const & v, bool discardable=false);
+    ncmul(const ex & lh, const ex & rh);
+    ncmul(const ex & f1, const ex & f2, const ex & f3);
+    ncmul(const ex & f1, const ex & f2, const ex & f3,
+          const ex & f4);
+    ncmul(const ex & f1, const ex & f2, const ex & f3,
+          const ex & f4, const ex & f5);
+    ncmul(const ex & f1, const ex & f2, const ex & f3,
+          const ex & f4, const ex & f5, const ex & f6);
+    ncmul(const exvector & v, bool discardable=false);
     ncmul(exvector * vp); // vp will be deleted
 
     // functions overriding virtual functions from bases classes
@@ -70,18 +70,18 @@ public:
     void printraw(ostream & os) const;
     void printcsrc(ostream & os, unsigned upper_precedence) const;
     bool info(unsigned inf) const;
-    int degree(symbol const & s) const;
-    int ldegree(symbol const & s) const;
+    int degree(const symbol & s) const;
+    int ldegree(const symbol & s) const;
     ex expand(unsigned options=0) const;
-    ex coeff(symbol const & s, int const n=1) const;
+    ex coeff(const symbol & s, int n=1) const;
     ex eval(int level=0) const;
-    ex diff(symbol const & s) const;
-    ex subs(lst const & ls, lst const & lr) const;
+    ex diff(const symbol & s) const;
+    ex subs(const lst & ls, const lst & lr) const;
     exvector get_indices(void) const;
-    ex thisexprseq(exvector const & v) const;
+    ex thisexprseq(const exvector & v) const;
     ex thisexprseq(exvector * vp) const;
 protected:
-    int compare_same_type(basic const & other) const;
+    int compare_same_type(const basic & other) const;
     unsigned return_type(void) const;
     unsigned return_type_tinfo(void) const;
     
@@ -90,11 +90,11 @@ protected:
 
     // non-virtual functions in this class
 protected:
-    unsigned count_factors(ex const & e) const;
-    void append_factors(exvector & v, ex const & e) const;
+    unsigned count_factors(const ex & e) const;
+    void append_factors(exvector & v, const ex & e) const;
     exvector expandchildren(unsigned options) const;
 public:
-    exvector const & get_factors(void) const;
+    const exvector & get_factors(void) const;
 
 // member variables
 
@@ -105,12 +105,12 @@ protected:
 // global constants
 
 extern const ncmul some_ncmul;
-extern type_info const & typeid_ncmul;
+extern const type_info & typeid_ncmul;
 
 // friend funtions 
 
-ex nonsimplified_ncmul(exvector const & v);
-ex simplified_ncmul(exvector const & v);
+ex nonsimplified_ncmul(const exvector & v);
+ex simplified_ncmul(const exvector & v);
 
 // utility functions
 inline const ncmul &ex_to_ncmul(const ex &e)

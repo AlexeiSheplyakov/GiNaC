@@ -61,14 +61,14 @@ basic::~basic()
     GINAC_ASSERT((!(flags & status_flags::dynallocated))||(refcount==0));
 }
 
-basic::basic(basic const & other) : flags(0), refcount(0), tinfo_key(TINFO_BASIC)
+basic::basic(const basic & other) : flags(0), refcount(0), tinfo_key(TINFO_BASIC)
 {
     debugmsg("basic copy constructor", LOGLEVEL_CONSTRUCT);
     copy(other);
 }
 #endif
 
-basic const & basic::operator=(basic const & other)
+const basic & basic::operator=(const basic & other)
 {
     debugmsg("basic operator=", LOGLEVEL_ASSIGNMENT);
     if (this != &other) {
@@ -81,7 +81,7 @@ basic const & basic::operator=(basic const & other)
 // protected
 
 #if 0
-void basic::copy(basic const & other)
+void basic::copy(const basic & other)
 {
     flags=other.flags & ~ status_flags::dynallocated;
     hashvalue=other.hashvalue;
@@ -211,30 +211,30 @@ unsigned basic::nops() const
     return 0;
 }
 
-ex basic::op(int const i) const
+ex basic::op(int i) const
 {
     return (const_cast<basic *>(this))->let_op(i);
 }
 
-ex & basic::let_op(int const i)
+ex & basic::let_op(int i)
 {
     throw(std::out_of_range("op() out of range"));
 }
 
-ex basic::operator[](ex const & index) const
+ex basic::operator[](const ex & index) const
 {
     if (is_exactly_of_type(*index.bp,numeric)) {
-        return op(static_cast<numeric const &>(*index.bp).to_int());
+        return op(static_cast<const numeric &>(*index.bp).to_int());
     }
     throw(std::invalid_argument("non-numeric indices not supported by this type"));
 }
 
-ex basic::operator[](int const i) const
+ex basic::operator[](int i) const
 {
     return op(i);
 }
 
-bool basic::has(ex const & other) const
+bool basic::has(const ex & other) const
 {
     GINAC_ASSERT(other.bp!=0);
     if (is_equal(*other.bp)) return true;
@@ -246,22 +246,22 @@ bool basic::has(ex const & other) const
     return false;
 }
 
-int basic::degree(symbol const & s) const
+int basic::degree(const symbol & s) const
 {
     return 0;
 }
 
-int basic::ldegree(symbol const & s) const
+int basic::ldegree(const symbol & s) const
 {
     return 0;
 }
 
-ex basic::coeff(symbol const & s, int const n) const
+ex basic::coeff(const symbol & s, int n) const
 {
     return n==0 ? *this : _ex0();
 }
 
-ex basic::collect(symbol const & s) const
+ex basic::collect(const symbol & s) const
 {
     ex x;
     int ldeg=ldegree(s);
@@ -282,7 +282,7 @@ ex basic::evalf(int level) const
     return *this;
 }
 
-ex basic::subs(lst const & ls, lst const & lr) const
+ex basic::subs(const lst & ls, const lst & lr) const
 {
     return *this;
 }
@@ -292,19 +292,19 @@ exvector basic::get_indices(void) const
     return exvector(); // return an empty exvector
 }
 
-ex basic::simplify_ncmul(exvector const & v) const
+ex basic::simplify_ncmul(const exvector & v) const
 {
     return simplified_ncmul(v);
 }
 
 // protected
 
-int basic::compare_same_type(basic const & other) const
+int basic::compare_same_type(const basic & other) const
 {
     return compare_pointers(this, &other);
 }
 
-bool basic::is_equal_same_type(basic const & other) const
+bool basic::is_equal_same_type(const basic & other) const
 {
     return compare_same_type(other)==0;
 }
@@ -349,7 +349,7 @@ ex basic::expand(unsigned options) const
 
 // public
 
-ex basic::subs(ex const & e) const
+ex basic::subs(const ex & e) const
 {
     // accept 2 types of replacement expressions:
     //   - symbol==ex
@@ -382,7 +382,7 @@ ex basic::subs(ex const & e) const
 /** Compare objects to establish canonical order.
  *  All compare functions return: -1 for *this less than other, 0 equal,
  *  1 greater. */
-int basic::compare(basic const & other) const
+int basic::compare(const basic & other) const
 {
     unsigned hash_this = gethash();
     unsigned hash_other = other.gethash();
@@ -432,7 +432,7 @@ int basic::compare(basic const & other) const
     return cmpval;
 }
 
-bool basic::is_equal(basic const & other) const
+bool basic::is_equal(const basic & other) const
 {
     unsigned hash_this = gethash();
     unsigned hash_other = other.gethash();
@@ -451,7 +451,7 @@ bool basic::is_equal(basic const & other) const
 
 // protected
 
-basic const & basic::hold(void) const
+const basic & basic::hold(void) const
 {
     return setflag(status_flags::evaluated);
 }
@@ -477,7 +477,7 @@ unsigned basic::delta_indent=4;
 //////////
 
 const basic some_basic;
-type_info const & typeid_basic=typeid(some_basic);
+const type_info & typeid_basic=typeid(some_basic);
 
 //////////
 // global variables

@@ -38,10 +38,10 @@ class fail : public basic
 public:
     fail();
     ~fail();
-    fail(fail const & other);
-    fail const & operator=(fail const & other);
+    fail(const fail & other);
+    const fail & operator=(const fail & other);
 protected:
-    void copy(fail const & other);
+    void copy(const fail & other);
     void destroy(bool call_parent);
 
     // other constructors
@@ -53,7 +53,7 @@ public:
     void print(ostream & os, unsigned upper_precedence=0) const;
     void printraw(ostream & os) const;
 protected:
-    int compare_same_type(basic const & other) const;
+    int compare_same_type(const basic & other) const;
     unsigned return_type(void) const { return return_types::noncommutative_composite; };
     
     // new virtual functions which can be overridden by derived classes
@@ -69,7 +69,7 @@ protected:
 // global constants
 
 extern const fail some_fail;
-extern type_info const & typeid_fail;
+extern const type_info & typeid_fail;
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC

@@ -48,16 +48,16 @@ class matrix : public basic
 public:
     matrix();
     ~matrix();
-    matrix(matrix const & other);
-    matrix const & operator=(matrix const & other);
+    matrix(const matrix & other);
+    const matrix & operator=(const matrix & other);
 protected:
-    void copy(matrix const & other);
+    void copy(const matrix & other);
     void destroy(bool call_parent);
 
     // other constructors
 public:
     matrix(unsigned r, unsigned c);
-    matrix(unsigned r, unsigned c, exvector const & m2);
+    matrix(unsigned r, unsigned c, const exvector & m2);
    
     // functions overriding virtual functions from bases classes
 public:
@@ -65,14 +65,14 @@ public:
     void print(ostream & os, unsigned upper_precedence=0) const;
     void printraw(ostream & os) const;
     unsigned nops() const;
-    ex & let_op(int const i);
+    ex & let_op(int i);
     ex expand(unsigned options=0) const;
-    bool has(ex const & other) const;
+    bool has(const ex & other) const;
     ex eval(int level=0) const;
     ex evalf(int level=0) const;
-    // ex subs(lst const & ls, lst const & lr) const;
+    // ex subs(const lst & ls, const lst & lr) const;
 protected:
-    int compare_same_type(basic const & other) const;
+    int compare_same_type(const basic & other) const;
     unsigned return_type(void) const { return return_types::noncommutative; };
     // new virtual functions which can be overridden by derived classes
     // (none)
@@ -83,18 +83,18 @@ public:
         { return row; }
     unsigned cols() const            //! get number of columns.
         { return col; }
-    matrix add(matrix const & other) const;
-    matrix sub(matrix const & other) const;
-    matrix mul(matrix const & other) const;
-    ex const & operator() (unsigned ro, unsigned co) const;
+    matrix add(const matrix & other) const;
+    matrix sub(const matrix & other) const;
+    matrix mul(const matrix & other) const;
+    const ex & operator() (unsigned ro, unsigned co) const;
     matrix & set(unsigned ro, unsigned co, ex value);
     matrix transpose(void) const;
     ex determinant(bool normalized=true) const;
     ex trace(void) const;
-    ex charpoly(ex const & lambda) const;
+    ex charpoly(const ex & lambda) const;
     matrix inverse(void) const;
-    matrix fraction_free_elim(matrix const & vars, matrix const & v) const;
-    matrix solve(matrix const & v) const;
+    matrix fraction_free_elim(const matrix & vars, const matrix & v) const;
+    matrix solve(const matrix & v) const;
 protected:
     int pivot(unsigned ro);
     void ffe_swap(unsigned r1, unsigned c1, unsigned r2 ,unsigned c2);
@@ -111,44 +111,44 @@ protected:
 
 // global constants
 extern const matrix some_matrix;
-extern type_info const & typeid_matrix;
+extern const type_info & typeid_matrix;
 
 // wrapper functions around member functions
 
-inline unsigned nops(matrix const & m)
+inline unsigned nops(const matrix & m)
 { return m.nops(); }
 
-inline ex expand(matrix const & m, unsigned options=0)
+inline ex expand(const matrix & m, unsigned options=0)
 { return m.expand(options); }
 
-inline bool has(matrix const & m, ex const & other)
+inline bool has(const matrix & m, const ex & other)
 { return m.has(other); }
 
-inline ex eval(matrix const & m, int level=0)
+inline ex eval(const matrix & m, int level=0)
 { return m.eval(level); }
 
-inline ex evalf(matrix const & m, int level=0)
+inline ex evalf(const matrix & m, int level=0)
 { return m.evalf(level); }
 
-inline unsigned rows(matrix const & m)
+inline unsigned rows(const matrix & m)
 { return m.rows(); }
 
-inline unsigned cols(matrix const & m)
+inline unsigned cols(const matrix & m)
 { return m.cols(); }
 
-inline matrix transpose(matrix const & m)
+inline matrix transpose(const matrix & m)
 { return m.transpose(); }
 
-inline ex determinant(matrix const & m, bool normalized=true)
+inline ex determinant(const matrix & m, bool normalized=true)
 { return m.determinant(normalized); }
 
-inline ex trace(matrix const & m)
+inline ex trace(const matrix & m)
 { return m.trace(); }
 
-inline ex charpoly(matrix const & m, ex const & lambda)
+inline ex charpoly(const matrix & m, const ex & lambda)
 { return m.charpoly(lambda); }
 
-inline matrix inverse(matrix const & m)
+inline matrix inverse(const matrix & m)
 { return m.inverse(); }
 
 // utility functions

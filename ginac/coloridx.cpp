@@ -50,13 +50,13 @@ coloridx::~coloridx()
     destroy(0);
 }
 
-coloridx::coloridx(coloridx const & other)
+coloridx::coloridx(const coloridx & other)
 {
     debugmsg("coloridx copy constructor",LOGLEVEL_CONSTRUCT);
     copy(other);
 }
 
-coloridx const & coloridx::operator=(coloridx const & other)
+const coloridx & coloridx::operator=(const coloridx & other)
 {
     debugmsg("coloridx operator=",LOGLEVEL_ASSIGNMENT);
     if (this != &other) {
@@ -68,7 +68,7 @@ coloridx const & coloridx::operator=(coloridx const & other)
 
 // protected
 
-void coloridx::copy(coloridx const & other)
+void coloridx::copy(const coloridx & other)
 {
     idx::copy(other);
 }
@@ -92,19 +92,19 @@ coloridx::coloridx(bool cov) : idx(cov)
     tinfo_key=TINFO_coloridx;
 }
 
-coloridx::coloridx(string const & n, bool cov) : idx(n,cov)
+coloridx::coloridx(const string & n, bool cov) : idx(n,cov)
 {
     debugmsg("coloridx constructor from string,bool",LOGLEVEL_CONSTRUCT);
     tinfo_key=TINFO_coloridx;
 }
 
-coloridx::coloridx(char const * n, bool cov) : idx(n,cov)
+coloridx::coloridx(const char * n, bool cov) : idx(n,cov)
 {
     debugmsg("coloridx constructor from char*,bool",LOGLEVEL_CONSTRUCT);
     tinfo_key=TINFO_coloridx;
 }
 
-coloridx::coloridx(unsigned const v, bool cov) : idx(v,cov)
+coloridx::coloridx(unsigned v, bool cov) : idx(v,cov)
 {
     debugmsg("coloridx constructor from unsigned,bool",LOGLEVEL_CONSTRUCT);
     tinfo_key=TINFO_coloridx;
@@ -213,7 +213,7 @@ bool coloridx::info(unsigned inf) const
 //////////
 
 const coloridx some_coloridx;
-type_info const & typeid_coloridx=typeid(some_coloridx);
+const type_info & typeid_coloridx=typeid(some_coloridx);
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC

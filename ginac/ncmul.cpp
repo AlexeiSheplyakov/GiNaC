@@ -56,13 +56,13 @@ ncmul::~ncmul()
     destroy(0);
 }
 
-ncmul::ncmul(ncmul const & other)
+ncmul::ncmul(const ncmul & other)
 {
     debugmsg("ncmul copy constructor",LOGLEVEL_CONSTRUCT);
     copy(other);
 }
 
-ncmul const & ncmul::operator=(ncmul const & other)
+const ncmul & ncmul::operator=(const ncmul & other)
 {
     debugmsg("ncmul operator=",LOGLEVEL_ASSIGNMENT);
     if (this != &other) {
@@ -74,7 +74,7 @@ ncmul const & ncmul::operator=(ncmul const & other)
 
 // protected
 
-void ncmul::copy(ncmul const & other)
+void ncmul::copy(const ncmul & other)
 {
     inherited::copy(other);
 }
@@ -90,43 +90,43 @@ void ncmul::destroy(bool call_parent)
 
 // public
 
-ncmul::ncmul(ex const & lh, ex const & rh) :
+ncmul::ncmul(const ex & lh, const ex & rh) :
     inherited(lh,rh)
 {
     debugmsg("ncmul constructor from ex,ex",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_ncmul;
 }
 
-ncmul::ncmul(ex const & f1, ex const & f2, ex const & f3) :
+ncmul::ncmul(const ex & f1, const ex & f2, const ex & f3) :
     inherited(f1,f2,f3)
 {
     debugmsg("ncmul constructor from 3 ex",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_ncmul;
 }
 
-ncmul::ncmul(ex const & f1, ex const & f2, ex const & f3,
-      ex const & f4) : inherited(f1,f2,f3,f4)
+ncmul::ncmul(const ex & f1, const ex & f2, const ex & f3,
+      const ex & f4) : inherited(f1,f2,f3,f4)
 {
     debugmsg("ncmul constructor from 4 ex",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_ncmul;
 }
 
-ncmul::ncmul(ex const & f1, ex const & f2, ex const & f3,
-      ex const & f4, ex const & f5) : inherited(f1,f2,f3,f4,f5)
+ncmul::ncmul(const ex & f1, const ex & f2, const ex & f3,
+      const ex & f4, const ex & f5) : inherited(f1,f2,f3,f4,f5)
 {
     debugmsg("ncmul constructor from 5 ex",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_ncmul;
 }
 
-ncmul::ncmul(ex const & f1, ex const & f2, ex const & f3,
-      ex const & f4, ex const & f5, ex const & f6) :
+ncmul::ncmul(const ex & f1, const ex & f2, const ex & f3,
+      const ex & f4, const ex & f5, const ex & f6) :
     inherited(f1,f2,f3,f4,f5,f6)
 {
     debugmsg("ncmul constructor from 6 ex",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_ncmul;
 }
 
-ncmul::ncmul(exvector const & v, bool discardable) : inherited(v,discardable)
+ncmul::ncmul(const exvector & v, bool discardable) : inherited(v,discardable)
 {
     debugmsg("ncmul constructor from exvector,bool",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_ncmul;
@@ -232,7 +232,7 @@ ex ncmul::expand(unsigned options) const
     for (exvector::const_iterator cit=expanded_seq.begin(); cit!=last; ++cit) {
         if (is_ex_exactly_of_type((*cit),add)) {
             positions_of_adds[number_of_adds]=current_position;
-            add const & expanded_addref=ex_to_add(*cit);
+            const add & expanded_addref=ex_to_add(*cit);
             number_of_add_operands[number_of_adds]=expanded_addref.seq.size();
             number_of_expanded_terms *= expanded_addref.seq.size();
             number_of_adds++;
@@ -261,7 +261,7 @@ ex ncmul::expand(unsigned options) const
         term=expanded_seq;
         for (l=0; l<number_of_adds; l++) {
             GINAC_ASSERT(is_ex_exactly_of_type(expanded_seq[positions_of_adds[l]],add));
-            add const & addref=ex_to_add(expanded_seq[positions_of_adds[l]]);
+            const add & addref=ex_to_add(expanded_seq[positions_of_adds[l]]);
             term[positions_of_adds[l]]=addref.recombine_pair_to_ex(addref.seq[k[l]]);
         }
         distrseq.push_back((new ncmul(term,1))->setflag(status_flags::dynallocated |
@@ -280,7 +280,7 @@ ex ncmul::expand(unsigned options) const
                                         status_flags::expanded);
 }
 
-int ncmul::degree(symbol const & s) const
+int ncmul::degree(const symbol & s) const
 {
     int deg_sum=0;
     for (exvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
@@ -289,7 +289,7 @@ int ncmul::degree(symbol const & s) const
     return deg_sum;
 }
 
-int ncmul::ldegree(symbol const & s) const
+int ncmul::ldegree(const symbol & s) const
 {
     int deg_sum=0;
     for (exvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
@@ -298,7 +298,7 @@ int ncmul::ldegree(symbol const & s) const
     return deg_sum;
 }
 
-ex ncmul::coeff(symbol const & s, int const n) const
+ex ncmul::coeff(const symbol & s, int n) const
 {
     exvector coeffseq;
     coeffseq.reserve(seq.size());
@@ -332,7 +332,7 @@ ex ncmul::coeff(symbol const & s, int const n) const
     return _ex0();
 }
 
-unsigned ncmul::count_factors(ex const & e) const
+unsigned ncmul::count_factors(const ex & e) const
 {
     if ((is_ex_exactly_of_type(e,mul)&&(e.return_type()!=return_types::commutative))||
         (is_ex_exactly_of_type(e,ncmul))) {
@@ -345,7 +345,7 @@ unsigned ncmul::count_factors(ex const & e) const
     return 1;
 }
         
-void ncmul::append_factors(exvector & v, ex const & e) const
+void ncmul::append_factors(exvector & v, const ex & e) const
 {
     if ((is_ex_exactly_of_type(e,mul)&&(e.return_type()!=return_types::commutative))||
         (is_ex_exactly_of_type(e,ncmul))) {
@@ -521,12 +521,12 @@ exvector ncmul::get_indices(void) const
     return iv;
 }
 
-ex ncmul::subs(lst const & ls, lst const & lr) const
+ex ncmul::subs(const lst & ls, const lst & lr) const
 {
     return ncmul(subschildren(ls, lr));
 }
 
-ex ncmul::thisexprseq(exvector const & v) const
+ex ncmul::thisexprseq(const exvector & v) const
 {
     return (new ncmul(v))->setflag(status_flags::dynallocated);
 }
@@ -538,7 +538,7 @@ ex ncmul::thisexprseq(exvector * vp) const
 
 // protected
 
-int ncmul::compare_same_type(basic const & other) const
+int ncmul::compare_same_type(const basic & other) const
 {
     return inherited::compare_same_type(other);
 }
@@ -612,7 +612,7 @@ exvector ncmul::expandchildren(unsigned options) const
     return s;
 }
 
-exvector const & ncmul::get_factors(void) const
+const exvector & ncmul::get_factors(void) const
 {
     return seq;
 }
@@ -631,18 +631,18 @@ unsigned ncmul::precedence=50;
 //////////
 
 const ncmul some_ncmul;
-type_info const & typeid_ncmul=typeid(some_ncmul);
+const type_info & typeid_ncmul=typeid(some_ncmul);
 
 //////////
 // friend functions
 //////////
 
-ex nonsimplified_ncmul(exvector const & v)
+ex nonsimplified_ncmul(const exvector & v)
 {
     return (new ncmul(v))->setflag(status_flags::dynallocated);
 }
 
-ex simplified_ncmul(exvector const & v)
+ex simplified_ncmul(const exvector & v)
 {
     if (v.size()==0) {
         return _ex1();

@@ -53,13 +53,13 @@ add::~add()
     destroy(0);
 }
 
-add::add(add const & other)
+add::add(const add & other)
 {
     debugmsg("add copy constructor",LOGLEVEL_CONSTRUCT);
     copy(other);
 }
 
-add const & add::operator=(add const & other)
+const add & add::operator=(const add & other)
 {
     debugmsg("add operator=",LOGLEVEL_ASSIGNMENT);
     if (this != &other) {
@@ -71,7 +71,7 @@ add const & add::operator=(add const & other)
 
 // protected
 
-void add::copy(add const & other)
+void add::copy(const add & other)
 {
     inherited::copy(other);
 }
@@ -87,7 +87,7 @@ void add::destroy(bool call_parent)
 
 // public
 
-add::add(ex const & lh, ex const & rh)
+add::add(const ex & lh, const ex & rh)
 {
     debugmsg("add constructor from ex,ex",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_add;
@@ -96,7 +96,7 @@ add::add(ex const & lh, ex const & rh)
     GINAC_ASSERT(is_canonical());
 }
 
-add::add(exvector const & v)
+add::add(const exvector & v)
 {
     debugmsg("add constructor from exvector",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_add;
@@ -106,7 +106,7 @@ add::add(exvector const & v)
 }
 
 /*
-add::add(epvector const & v, bool do_not_canonicalize)
+add::add(const epvector & v, bool do_not_canonicalize)
 {
     debugmsg("add constructor from epvector,bool",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_add;
@@ -122,7 +122,7 @@ add::add(epvector const & v, bool do_not_canonicalize)
 }
 */
 
-add::add(epvector const & v)
+add::add(const epvector & v)
 {
     debugmsg("add constructor from epvector",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_add;
@@ -131,7 +131,7 @@ add::add(epvector const & v)
     GINAC_ASSERT(is_canonical());
 }
 
-add::add(epvector const & v, ex const & oc)
+add::add(const epvector & v, const ex & oc)
 {
     debugmsg("add constructor from epvector,ex",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_add;
@@ -140,7 +140,7 @@ add::add(epvector const & v, ex const & oc)
     GINAC_ASSERT(is_canonical());
 }
 
-add::add(epvector * vp, ex const & oc)
+add::add(epvector * vp, const ex & oc)
 {
     debugmsg("add constructor from epvector *,ex",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_add;
@@ -346,7 +346,7 @@ bool add::info(unsigned inf) const
     }
 }
 
-int add::degree(symbol const & s) const
+int add::degree(const symbol & s) const
 {
     int deg=INT_MIN;
     if (!overall_coeff.is_equal(_ex0())) {
@@ -360,7 +360,7 @@ int add::degree(symbol const & s) const
     return deg;
 }
 
-int add::ldegree(symbol const & s) const
+int add::ldegree(const symbol & s) const
 {
     int deg=INT_MAX;
     if (!overall_coeff.is_equal(_ex0())) {
@@ -374,7 +374,7 @@ int add::ldegree(symbol const & s) const
     return deg;
 }
 
-ex add::coeff(symbol const & s, int const n) const
+ex add::coeff(const symbol & s, int n) const
 {
     epvector coeffseq;
     coeffseq.reserve(seq.size());
@@ -443,7 +443,7 @@ exvector add::get_indices(void) const
     return (seq.begin())->rest.get_indices();
 }    
 
-ex add::simplify_ncmul(exvector const & v) const
+ex add::simplify_ncmul(const exvector & v) const
 {
     if (seq.size()==0) {
         return inherited::simplify_ncmul(v);
@@ -453,12 +453,12 @@ ex add::simplify_ncmul(exvector const & v) const
 
 // protected
 
-int add::compare_same_type(basic const & other) const
+int add::compare_same_type(const basic & other) const
 {
     return inherited::compare_same_type(other);
 }
 
-bool add::is_equal_same_type(basic const & other) const
+bool add::is_equal_same_type(const basic & other) const
 {
     return inherited::is_equal_same_type(other);
 }
@@ -479,20 +479,20 @@ unsigned add::return_type_tinfo(void) const
     return (*seq.begin()).rest.return_type_tinfo();
 }
 
-ex add::thisexpairseq(epvector const & v, ex const & oc) const
+ex add::thisexpairseq(const epvector & v, const ex & oc) const
 {
     return (new add(v,oc))->setflag(status_flags::dynallocated);
 }
 
-ex add::thisexpairseq(epvector * vp, ex const & oc) const
+ex add::thisexpairseq(epvector * vp, const ex & oc) const
 {
     return (new add(vp,oc))->setflag(status_flags::dynallocated);
 }
 
-expair add::split_ex_to_pair(ex const & e) const
+expair add::split_ex_to_pair(const ex & e) const
 {
     if (is_ex_exactly_of_type(e,mul)) {
-        mul const & mulref=ex_to_mul(e);
+        const mul & mulref=ex_to_mul(e);
         ex numfactor=mulref.overall_coeff;
         // mul * mulcopyp=static_cast<mul *>(mulref.duplicate());
         mul * mulcopyp=new mul(mulref);
@@ -504,12 +504,12 @@ expair add::split_ex_to_pair(ex const & e) const
     return expair(e,_ex1());
 }
 
-expair add::combine_ex_with_coeff_to_pair(ex const & e,
-                                          ex const & c) const
+expair add::combine_ex_with_coeff_to_pair(const ex & e,
+                                          const ex & c) const
 {
     GINAC_ASSERT(is_ex_exactly_of_type(c,numeric));
     if (is_ex_exactly_of_type(e,mul)) {
-        mul const & mulref=ex_to_mul(e);
+        const mul & mulref=ex_to_mul(e);
         ex numfactor=mulref.overall_coeff;
         //mul * mulcopyp=static_cast<mul *>(mulref.duplicate());
         mul * mulcopyp=new mul(mulref);
@@ -532,8 +532,8 @@ expair add::combine_ex_with_coeff_to_pair(ex const & e,
     return expair(e,c);
 }
     
-expair add::combine_pair_with_coeff_to_pair(expair const & p,
-                                            ex const & c) const
+expair add::combine_pair_with_coeff_to_pair(const expair & p,
+                                            const ex & c) const
 {
     GINAC_ASSERT(is_ex_exactly_of_type(p.coeff,numeric));
     GINAC_ASSERT(is_ex_exactly_of_type(c,numeric));
@@ -546,7 +546,7 @@ expair add::combine_pair_with_coeff_to_pair(expair const & p,
     return expair(p.rest,ex_to_numeric(p.coeff).mul_dyn(ex_to_numeric(c)));
 }
     
-ex add::recombine_pair_to_ex(expair const & p) const
+ex add::recombine_pair_to_ex(const expair & p) const
 {
     //if (p.coeff.compare(_ex1())==0) {
     //if (are_ex_trivially_equal(p.coeff,_ex1())) {
@@ -592,7 +592,7 @@ unsigned add::precedence=40;
 //////////
 
 const add some_add;
-type_info const & typeid_add=typeid(some_add);
+const type_info & typeid_add=typeid(some_add);
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC

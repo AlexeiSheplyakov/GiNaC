@@ -51,13 +51,13 @@ indexed::~indexed()
     destroy(0);
 }
 
-indexed::indexed(indexed const & other)
+indexed::indexed(const indexed & other)
 {
     debugmsg("indexed copy constructor",LOGLEVEL_CONSTRUCT);
     copy (other);
 }
 
-indexed const & indexed::operator=(indexed const & other)
+const indexed & indexed::operator=(const indexed & other)
 {
     debugmsg("indexed operator=",LOGLEVEL_ASSIGNMENT);
     if (this != &other) {
@@ -69,7 +69,7 @@ indexed const & indexed::operator=(indexed const & other)
 
 // protected
 
-void indexed::copy(indexed const & other)
+void indexed::copy(const indexed & other)
 {
     inherited::copy(other);
 }
@@ -87,21 +87,21 @@ void indexed::destroy(bool call_parent)
 
 // public
 
-indexed::indexed(ex const & i1) : inherited(i1)
+indexed::indexed(const ex & i1) : inherited(i1)
 {
     debugmsg("indexed constructor from ex",LOGLEVEL_CONSTRUCT);
     tinfo_key=TINFO_indexed;
     GINAC_ASSERT(all_of_type_idx());
 }
 
-indexed::indexed(ex const & i1, ex const & i2) : inherited(i1,i2)
+indexed::indexed(const ex & i1, const ex & i2) : inherited(i1,i2)
 {
     debugmsg("indexed constructor from ex,ex",LOGLEVEL_CONSTRUCT);
     tinfo_key=TINFO_indexed;
     GINAC_ASSERT(all_of_type_idx());
 }
 
-indexed::indexed(ex const & i1, ex const & i2, ex const & i3)
+indexed::indexed(const ex & i1, const ex & i2, const ex & i3)
     : inherited(i1,i2,i3)
 {
     debugmsg("indexed constructor from ex,ex,ex",LOGLEVEL_CONSTRUCT);
@@ -109,7 +109,7 @@ indexed::indexed(ex const & i1, ex const & i2, ex const & i3)
     GINAC_ASSERT(all_of_type_idx());
 }
 
-indexed::indexed(ex const & i1, ex const & i2, ex const & i3, ex const & i4)
+indexed::indexed(const ex & i1, const ex & i2, const ex & i3, const ex & i4)
     : inherited(i1,i2,i3,i4)
 {
     debugmsg("indexed constructor from ex,ex,ex,ex",LOGLEVEL_CONSTRUCT);
@@ -117,7 +117,7 @@ indexed::indexed(ex const & i1, ex const & i2, ex const & i3, ex const & i4)
     GINAC_ASSERT(all_of_type_idx());
 }
 
-indexed::indexed(exvector const & iv) : inherited(iv)
+indexed::indexed(const exvector & iv) : inherited(iv)
 {
     debugmsg("indexed constructor from exvector",LOGLEVEL_CONSTRUCT);
     tinfo_key=TINFO_indexed;
@@ -220,13 +220,13 @@ exvector indexed::get_indices(void) const
 
 // protected
 
-int indexed::compare_same_type(basic const & other) const
+int indexed::compare_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_of_type(other,indexed));
     return inherited::compare_same_type(other);
 }
 
-bool indexed::is_equal_same_type(basic const & other) const
+bool indexed::is_equal_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_of_type(other,indexed));
     return inherited::is_equal_same_type(other);
@@ -242,7 +242,7 @@ unsigned indexed::return_type_tinfo(void) const
     return tinfo_key;
 }
 
-ex indexed::thisexprseq(exvector const & v) const
+ex indexed::thisexprseq(const exvector & v) const
 {
     return indexed(v);
 }
@@ -324,7 +324,7 @@ bool indexed::all_of_type_idx(void) const
 //////////
 
 const indexed some_indexed;
-type_info const & typeid_indexed=typeid(some_indexed);
+const type_info & typeid_indexed=typeid(some_indexed);
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC

@@ -48,13 +48,13 @@ fail::~fail()
     destroy(0);
 }
 
-fail::fail(fail const & other)
+fail::fail(const fail & other)
 {
     debugmsg("fail copy constructor",LOGLEVEL_CONSTRUCT);
     copy(other);
 }
 
-fail const & fail::operator=(fail const & other)
+const fail & fail::operator=(const fail & other)
 {
     debugmsg("fail operator=",LOGLEVEL_ASSIGNMENT);
     if (this != &other) {
@@ -66,7 +66,7 @@ fail const & fail::operator=(fail const & other)
 
 // protected
 
-void fail::copy(fail const & other)
+void fail::copy(const fail & other)
 {
     inherited::copy(other);
 }
@@ -131,7 +131,7 @@ void fail::printraw(ostream & os) const
 
 // protected
 
-int fail::compare_same_type(basic const & other) const
+int fail::compare_same_type(const basic & other) const
 {
 	// two fails are always identical
     return 0;
@@ -160,7 +160,7 @@ int fail::compare_same_type(basic const & other) const
 //////////
 
 const fail some_fail;
-type_info const & typeid_fail=typeid(some_fail);
+const type_info & typeid_fail=typeid(some_fail);
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC

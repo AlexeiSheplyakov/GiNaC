@@ -38,31 +38,31 @@ namespace GiNaC {
 
 // binary arithmetic operators ex with ex
 
-ex operator+(ex const & lh, ex const & rh)
+ex operator+(const ex & lh, const ex & rh)
 {
     debugmsg("operator+(ex,ex)",LOGLEVEL_OPERATOR);
     return lh.exadd(rh);
 }
 
-ex operator-(ex const & lh, ex const & rh)
+ex operator-(const ex & lh, const ex & rh)
 {
     debugmsg("operator-(ex,ex)",LOGLEVEL_OPERATOR);
     return lh.exadd(rh.exmul(_ex_1()));
 }
 
-ex operator*(ex const & lh, ex const & rh)
+ex operator*(const ex & lh, const ex & rh)
 {
     debugmsg("operator*(ex,ex)",LOGLEVEL_OPERATOR);
     return lh.exmul(rh);
 }
 
-ex operator/(ex const & lh, ex const & rh)
+ex operator/(const ex & lh, const ex & rh)
 {
     debugmsg("operator*(ex,ex)",LOGLEVEL_OPERATOR);
     return lh.exmul(power(rh,_ex_1()));
 }
 
-ex operator%(ex const & lh, ex const & rh)
+ex operator%(const ex & lh, const ex & rh)
 {
     debugmsg("operator%(ex,ex)",LOGLEVEL_OPERATOR);
     return lh.exncmul(rh);
@@ -71,25 +71,25 @@ ex operator%(ex const & lh, ex const & rh)
 
 // binary arithmetic operators numeric with numeric
 
-numeric operator+(numeric const & lh, numeric const & rh)
+numeric operator+(const numeric & lh, const numeric & rh)
 {
     debugmsg("operator+(numeric,numeric)",LOGLEVEL_OPERATOR);
     return lh.add(rh);
 }
 
-numeric operator-(numeric const & lh, numeric const & rh)
+numeric operator-(const numeric & lh, const numeric & rh)
 {
     debugmsg("operator-(numeric,numeric)",LOGLEVEL_OPERATOR);
     return lh.sub(rh);
 }
 
-numeric operator*(numeric const & lh, numeric const & rh)
+numeric operator*(const numeric & lh, const numeric & rh)
 {
     debugmsg("operator*(numeric,numeric)",LOGLEVEL_OPERATOR);
     return lh.mul(rh);
 }
 
-numeric operator/(numeric const & lh, numeric const & rh)
+numeric operator/(const numeric & lh, const numeric & rh)
 {
     debugmsg("operator/(numeric,ex)",LOGLEVEL_OPERATOR);
     return lh.div(rh);
@@ -98,31 +98,31 @@ numeric operator/(numeric const & lh, numeric const & rh)
 
 // binary arithmetic assignment operators with ex
 
-ex const & operator+=(ex & lh, ex const & rh)
+const ex & operator+=(ex & lh, const ex & rh)
 {
     debugmsg("operator+=(ex,ex)",LOGLEVEL_OPERATOR);
     return (lh=lh+rh);
 }
 
-ex const & operator-=(ex & lh, ex const & rh)
+const ex & operator-=(ex & lh, const ex & rh)
 {
     debugmsg("operator-=(ex,ex)",LOGLEVEL_OPERATOR);
     return (lh=lh-rh);
 }
 
-ex const & operator*=(ex & lh, ex const & rh)
+const ex & operator*=(ex & lh, const ex & rh)
 {
     debugmsg("operator*=(ex,ex)",LOGLEVEL_OPERATOR);
     return (lh=lh*rh);
 }
 
-ex const & operator/=(ex & lh, ex const & rh)
+const ex & operator/=(ex & lh, const ex & rh)
 {
     debugmsg("operator/=(ex,ex)",LOGLEVEL_OPERATOR);
     return (lh=lh/rh);
 }
 
-ex const & operator%=(ex & lh, ex const & rh)
+const ex & operator%=(ex & lh, const ex & rh)
 {
     debugmsg("operator%=(ex,ex)",LOGLEVEL_OPERATOR);
     return (lh=lh%rh);
@@ -131,25 +131,25 @@ ex const & operator%=(ex & lh, ex const & rh)
 
 // binary arithmetic assignment operators with numeric
 
-numeric const & operator+=(numeric & lh, numeric const & rh)
+const numeric & operator+=(numeric & lh, const numeric & rh)
 {
     debugmsg("operator+=(numeric,numeric)",LOGLEVEL_OPERATOR);
     return (lh=lh.add(rh));
 }
 
-numeric const & operator-=(numeric & lh, numeric const & rh)
+const numeric & operator-=(numeric & lh, const numeric & rh)
 {
     debugmsg("operator-=(numeric,numeric)",LOGLEVEL_OPERATOR);
     return (lh=lh.sub(rh));
 }
 
-numeric const & operator*=(numeric & lh, numeric const & rh)
+const numeric & operator*=(numeric & lh, const numeric & rh)
 {
     debugmsg("operator*=(numeric,numeric)",LOGLEVEL_OPERATOR);
     return (lh=lh.mul(rh));
 }
 
-numeric const & operator/=(numeric & lh, numeric const & rh)
+const numeric & operator/=(numeric & lh, const numeric & rh)
 {
     debugmsg("operator/=(numeric,numeric)",LOGLEVEL_OPERATOR);
     return (lh=lh.div(rh));
@@ -157,22 +157,22 @@ numeric const & operator/=(numeric & lh, numeric const & rh)
 
 // unary operators
 
-ex operator+(ex const & lh)
+ex operator+(const ex & lh)
 {
     return lh;
 }
 
-ex operator-(ex const & lh)
+ex operator-(const ex & lh)
 {
     return lh.exmul(_ex_1());
 }
 
-numeric operator+(numeric const & lh)
+numeric operator+(const numeric & lh)
 {
     return lh;
 }
 
-numeric operator-(numeric const & lh)
+numeric operator-(const numeric & lh)
 {
     return _num_1()*lh;
 }
@@ -211,37 +211,37 @@ numeric operator--(numeric & lh, int)
 
 // binary relational operators ex with ex
 
-relational operator==(ex const & lh, ex const & rh)
+relational operator==(const ex & lh, const ex & rh)
 {
     debugmsg("operator==(ex,ex)",LOGLEVEL_OPERATOR);
     return relational(lh,rh,relational::equal);
 }
 
-relational operator!=(ex const & lh, ex const & rh)
+relational operator!=(const ex & lh, const ex & rh)
 {
     debugmsg("operator!=(ex,ex)",LOGLEVEL_OPERATOR);
     return relational(lh,rh,relational::not_equal);
 }
 
-relational operator<(ex const & lh, ex const & rh)
+relational operator<(const ex & lh, const ex & rh)
 {
     debugmsg("operator<(ex,ex)",LOGLEVEL_OPERATOR);
     return relational(lh,rh,relational::less);
 }
 
-relational operator<=(ex const & lh, ex const & rh)
+relational operator<=(const ex & lh, const ex & rh)
 {
     debugmsg("operator<=(ex,ex)",LOGLEVEL_OPERATOR);
     return relational(lh,rh,relational::less_or_equal);
 }
 
-relational operator>(ex const & lh, ex const & rh)
+relational operator>(const ex & lh, const ex & rh)
 {
     debugmsg("operator>(ex,ex)",LOGLEVEL_OPERATOR);
     return relational(lh,rh,relational::greater);
 }
 
-relational operator>=(ex const & lh, ex const & rh)
+relational operator>=(const ex & lh, const ex & rh)
 {
     debugmsg("operator>=(ex,ex)",LOGLEVEL_OPERATOR);
     return relational(lh,rh,relational::greater_or_equal);
@@ -251,37 +251,37 @@ relational operator>=(ex const & lh, ex const & rh)
 
 // binary relational operators ex with numeric
 
-relational operator==(ex const & lh, numeric const & rh)
+relational operator==(const ex & lh, const numeric & rh)
 {
     debugmsg("operator==(ex,numeric)",LOGLEVEL_OPERATOR);
     return relational(lh,rh,relational::equal);
 }
 
-relational operator!=(ex const & lh, numeric const & rh)
+relational operator!=(const ex & lh, const numeric & rh)
 {
     debugmsg("operator!=(ex,numeric)",LOGLEVEL_OPERATOR);
     return relational(lh,rh,relational::not_equal);
 }
 
-relational operator<(ex const & lh, numeric const & rh)
+relational operator<(const ex & lh, const numeric & rh)
 {
     debugmsg("operator<(ex,numeric)",LOGLEVEL_OPERATOR);
     return relational(lh,rh,relational::less);
 }
 
-relational operator<=(ex const & lh, numeric const & rh)
+relational operator<=(const ex & lh, const numeric & rh)
 {
     debugmsg("operator<=(ex,numeric)",LOGLEVEL_OPERATOR);
     return relational(lh,rh,relational::less_or_equal);
 }
 
-relational operator>(ex const & lh, numeric const & rh)
+relational operator>(const ex & lh, const numeric & rh)
 {
     debugmsg("operator>(ex,numeric)",LOGLEVEL_OPERATOR);
     return relational(lh,rh,relational::greater);
 }
 
-relational operator>=(ex const & lh, numeric const & rh)
+relational operator>=(const ex & lh, const numeric & rh)
 {
     debugmsg("operator>=(ex,numeric)",LOGLEVEL_OPERATOR);
     return relational(lh,rh,relational::greater_or_equal);
@@ -289,37 +289,37 @@ relational operator>=(ex const & lh, numeric const & rh)
 
 // binary relational operators numeric with ex
 
-relational operator==(numeric const & lh, ex const & rh)
+relational operator==(const numeric & lh, const ex & rh)
 {
     debugmsg("operator==(numeric,ex)",LOGLEVEL_OPERATOR);
     return relational(lh,rh,relational::equal);
 }
 
-relational operator!=(numeric const & lh, ex const & rh)
+relational operator!=(const numeric & lh, const ex & rh)
 {
     debugmsg("operator!=(numeric,ex)",LOGLEVEL_OPERATOR);
     return relational(lh,rh,relational::not_equal);
 }
 
-relational operator<(numeric const & lh, ex const & rh)
+relational operator<(const numeric & lh, const ex & rh)
 {
     debugmsg("operator<(numeric,ex)",LOGLEVEL_OPERATOR);
     return relational(lh,rh,relational::less);
 }
 
-relational operator<=(numeric const & lh, ex const & rh)
+relational operator<=(const numeric & lh, const ex & rh)
 {
     debugmsg("operator<=(numeric,ex)",LOGLEVEL_OPERATOR);
     return relational(lh,rh,relational::less_or_equal);
 }
 
-relational operator>(numeric const & lh, ex const & rh)
+relational operator>(const numeric & lh, const ex & rh)
 {
     debugmsg("operator>(numeric,ex)",LOGLEVEL_OPERATOR);
     return relational(lh,rh,relational::greater);
 }
 
-relational operator>=(numeric const & lh, ex const & rh)
+relational operator>=(const numeric & lh, const ex & rh)
 {
     debugmsg("operator>=(numeric,ex)",LOGLEVEL_OPERATOR);
     return relational(lh,rh,relational::greater_or_equal);
@@ -329,7 +329,7 @@ relational operator>=(numeric const & lh, ex const & rh)
 
 // input/output stream operators
 
-ostream & operator<<(ostream & os, ex const & e)
+ostream & operator<<(ostream & os, const ex & e)
 {
     e.print(os);
     return os;

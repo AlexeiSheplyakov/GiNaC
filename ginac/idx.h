@@ -40,18 +40,18 @@ class idx : public basic
 public:
     idx();
     ~idx();
-    idx (idx const & other);
-    idx const & operator=(idx const & other);
+    idx (const idx & other);
+    const idx & operator=(const idx & other);
 protected:
-    void copy(idx const & other);
+    void copy(const idx & other);
     void destroy(bool call_parent);
 
     // other constructors
 public:
     explicit idx(bool cov);
-    explicit idx(string const & n, bool cov=false);
-    explicit idx(char const * n, bool cov=false);
-    explicit idx(unsigned const v, bool cov=false); 
+    explicit idx(const string & n, bool cov=false);
+    explicit idx(const char * n, bool cov=false);
+    explicit idx(unsigned v, bool cov=false); 
 
     // functions overriding virtual functions from bases classes
 public:
@@ -61,14 +61,14 @@ public:
     void print(ostream & os, unsigned upper_precedence=0) const;
     bool info(unsigned inf) const;
 protected:
-    int compare_same_type(basic const & other) const;
-    bool is_equal_same_type(basic const & other) const;
+    int compare_same_type(const basic & other) const;
+    bool is_equal_same_type(const basic & other) const;
     unsigned calchash(void) const;
-    ex subs(lst const & ls, lst const & lr) const;
+    ex subs(const lst & ls, const lst & lr) const;
 
     // new virtual functions which can be overridden by derived classes
 public:
-    virtual bool is_co_contra_pair(basic const & other) const;
+    virtual bool is_co_contra_pair(const basic & other) const;
     virtual ex toggle_covariant(void) const;
 
     // non-virtual functions in this class
@@ -76,7 +76,7 @@ public:
     bool is_symbolic(void) const;
     unsigned get_value(void) const;
     bool is_covariant(void) const;
-    void setname(string const & n) {name=n;}
+    void setname(const string & n) {name=n;}
     string getname(void) const {return name;}
 
     // member variables
@@ -92,7 +92,7 @@ protected:
 // global constants
 
 extern const idx some_idx;
-extern type_info const & typeid_idx;
+extern const type_info & typeid_idx;
 
 // utility functions
 inline const idx &ex_to_idx(const ex &e)
@@ -105,13 +105,13 @@ inline const idx &ex_to_idx(const ex &e)
 // typedef vector<ex> exvector;
 
 int canonicalize_indices(exvector & iv, bool antisymmetric=false);
-exvector idx_intersect(exvector const & iv1, exvector const & iv2);
-ex permute_free_index_to_front(exvector const & iv3, exvector const & iv2,
+exvector idx_intersect(const exvector & iv1, const exvector & iv2);
+ex permute_free_index_to_front(const exvector & iv3, const exvector & iv2,
                                bool antisymmetric, int * sig);
-unsigned subs_index_in_exvector(exvector & v, ex const & is, ex const & ir);
-ex subs_indices(ex const & e, exvector const & idxv_contra,
-                exvector const & idxv_co);
-unsigned count_index(ex const & e, ex const & i);
+unsigned subs_index_in_exvector(exvector & v, const ex & is, const ex & ir);
+ex subs_indices(const ex & e, const exvector & idxv_contra,
+                const exvector & idxv_co);
+unsigned count_index(const ex & e, const ex & i);
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC

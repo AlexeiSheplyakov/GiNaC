@@ -38,11 +38,11 @@ class expair
 public:
     expair() {}
     ~expair() {}
-    expair(expair const & other) : rest(other.rest), coeff(other.coeff)
+    expair(const expair & other) : rest(other.rest), coeff(other.coeff)
     {
         GINAC_ASSERT(is_ex_exactly_of_type(coeff,numeric));
     }
-    expair const & operator=(expair const & other)
+    const expair & operator=(const expair & other)
     {
         if (this != &other) {
             rest=other.rest;
@@ -50,7 +50,7 @@ public:
         }
         return *this;
     }
-    expair(ex const & r, ex const & c) : rest(r), coeff(c)
+    expair(const ex & r, const ex & c) : rest(r), coeff(c)
     {
         GINAC_ASSERT(is_ex_exactly_of_type(coeff,numeric));
     }
@@ -62,16 +62,16 @@ public:
                (coeff.is_equal(ex(1)));
     }
 
-    bool is_equal(expair const & other) const
+    bool is_equal(const expair & other) const
     {
         return (rest.is_equal(other.rest) && coeff.is_equal(other.coeff));
     }
-    bool is_less(expair const & other) const 
+    bool is_less(const expair & other) const 
     {
         return (rest.compare(other.rest)<0) ||
                (!(other.rest.compare(rest)<0) && (coeff.compare(other.coeff)<0));
     }
-    int compare(expair const & other) const
+    int compare(const expair & other) const
     {
         int cmpval=rest.compare(other.rest);
         if (cmpval!=0) return cmpval;
@@ -79,7 +79,7 @@ public:
         return cmpval;
     }
 
-    bool is_less_old2(expair const & other) const 
+    bool is_less_old2(const expair & other) const 
     {
         /*
         bool this_numeric_with_coeff_1=is_numeric_with_coeff_1();
@@ -118,7 +118,7 @@ public:
                (!(other.rest.compare(rest)<0) &&
                  (coeff.compare(other.coeff)<0));
     }
-    int compare_old2(expair const & other) const
+    int compare_old2(const expair & other) const
     {
         if (is_ex_exactly_of_type(rest,numeric) &&
             is_ex_exactly_of_type(other.rest,numeric)) {
@@ -155,12 +155,12 @@ public:
         if (cmpval!=0) return cmpval;
         return coeff.compare(other.coeff);
     }
-    bool is_less_old(expair const & other) const 
+    bool is_less_old(const expair & other) const 
     {
         return (rest.compare(other.rest)<0) ||
                (!(other.rest.compare(rest)<0) && (coeff.compare(other.coeff)<0));
     }
-    int compare_old(expair const & other) const
+    int compare_old(const expair & other) const
     {
         int cmpval=rest.compare(other.rest);
         if (cmpval!=0) return cmpval;
@@ -184,7 +184,7 @@ public:
 class expair_is_less
 {
 public:
-    bool operator()(expair const & lh, expair const & rh) const
+    bool operator()(const expair & lh, const expair & rh) const
     {
         return lh.is_less(rh);
     }
@@ -193,7 +193,7 @@ public:
 class expair_is_less_old
 {
 public:
-    bool operator()(expair const & lh, expair const & rh) const
+    bool operator()(const expair & lh, const expair & rh) const
     {
         return lh.is_less_old(rh);
     }

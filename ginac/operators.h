@@ -34,11 +34,11 @@ class numeric;
 class relational;
 
 // binary arithmetic operators ex with ex
-ex operator+(ex const & lh, ex const & rh);
-ex operator-(ex const & lh, ex const & rh);
-ex operator*(ex const & lh, ex const & rh);
-ex operator/(ex const & lh, ex const & rh);
-ex operator%(ex const & lh, ex const & rh); // non-commutative multiplication
+ex operator+(const ex & lh, const ex & rh);
+ex operator-(const ex & lh, const ex & rh);
+ex operator*(const ex & lh, const ex & rh);
+ex operator/(const ex & lh, const ex & rh);
+ex operator%(const ex & lh, const ex & rh); // non-commutative multiplication
 
 // binary arithmetic operators numeric with numeric
 numeric operator+(const numeric & lh, const numeric & rh);
@@ -47,11 +47,11 @@ numeric operator*(const numeric & lh, const numeric & rh);
 numeric operator/(const numeric & lh, const numeric & rh);
 
 // binary arithmetic assignment operators with ex
-ex const & operator+=(ex & lh, ex const & rh);
-ex const & operator-=(ex & lh, ex const & rh);
-ex const & operator*=(ex & lh, ex const & rh);
-ex const & operator/=(ex & lh, ex const & rh);
-ex const & operator%=(ex & lh, ex const & rh); // non-commutative multiplication
+const ex & operator+=(ex & lh, const ex & rh);
+const ex & operator-=(ex & lh, const ex & rh);
+const ex & operator*=(ex & lh, const ex & rh);
+const ex & operator/=(ex & lh, const ex & rh);
+const ex & operator%=(ex & lh, const ex & rh); // non-commutative multiplication
 
 // binary arithmetic assignment operators with numeric
 const numeric & operator+=(numeric & lh, const numeric & rh);
@@ -60,8 +60,8 @@ const numeric & operator*=(numeric & lh, const numeric & rh);
 const numeric & operator/=(numeric & lh, const numeric & rh);
 
 // unary operators
-ex operator+(ex const & lh);
-ex operator-(ex const & lh);
+ex operator+(const ex & lh);
+ex operator-(const ex & lh);
 
 numeric operator+(const numeric & lh);
 numeric operator-(const numeric & lh);
@@ -71,15 +71,15 @@ numeric operator++(numeric & lh, int);
 numeric operator--(numeric & lh, int);
 
 // binary relational operators ex with ex
-relational operator==(ex const & lh, ex const & rh);
-relational operator!=(ex const & lh, ex const & rh);
-relational operator<(ex const & lh, ex const & rh);
-relational operator<=(ex const & lh, ex const & rh);
-relational operator>(ex const & lh, ex const & rh);
-relational operator>=(ex const & lh, ex const & rh);
+relational operator==(const ex & lh, const ex & rh);
+relational operator!=(const ex & lh, const ex & rh);
+relational operator<(const ex & lh, const ex & rh);
+relational operator<=(const ex & lh, const ex & rh);
+relational operator>(const ex & lh, const ex & rh);
+relational operator>=(const ex & lh, const ex & rh);
 
 // input/output stream operators
-ostream & operator<<(ostream & os, ex const & e);
+ostream & operator<<(ostream & os, const ex & e);
 istream & operator>>(istream & is, ex & e);
 
 #ifndef NO_GINAC_NAMESPACE

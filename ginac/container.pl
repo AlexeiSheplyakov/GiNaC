@@ -52,11 +52,11 @@ if ($reserve) {
 
 if ($prepend) {
     $PREPEND_INTERFACE=<<END_OF_PREPEND_INTERFACE;
-    virtual ${CONTAINER} & prepend(ex const & b);
+    virtual ${CONTAINER} & prepend(const ex & b);
 END_OF_PREPEND_INTERFACE
 
     $PREPEND_IMPLEMENTATION=<<END_OF_PREPEND_IMPLEMENTATION;
-${CONTAINER} & ${CONTAINER}::prepend(ex const & b)
+${CONTAINER} & ${CONTAINER}::prepend(const ex & b)
 {
     ensure_if_modifiable();
     seq.push_front(b);
@@ -70,7 +70,7 @@ END_OF_PREPEND_IMPLEMENTATION
 
 if ($let_op) {
     $LET_OP_IMPLEMENTATION=<<END_OF_LET_OP_IMPLEMENTATION
-ex & ${CONTAINER}::let_op(int const i)
+ex & ${CONTAINER}::let_op(int i)
 {
     GINAC_ASSERT(i>=0);
     GINAC_ASSERT(i<nops());
@@ -153,28 +153,28 @@ protected:
 public:
     ${CONTAINER}(${STLT} const & s, bool discardable=0);
     ${CONTAINER}(${STLT} * vp); // vp will be deleted
-    explicit ${CONTAINER}(ex const & e1);
-    explicit ${CONTAINER}(ex const & e1, ex const & e2);
-    explicit ${CONTAINER}(ex const & e1, ex const & e2, ex const & e3);
-    explicit ${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
-             ex const & e4);
-    explicit ${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
-             ex const & e4, ex const & e5);
-    explicit ${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
-             ex const & e4, ex const & e5, ex const & e6);
-    explicit ${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
-             ex const & e4, ex const & e5, ex const & e6,
-             ex const & e7);
-    explicit ${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
-             ex const & e4, ex const & e5, ex const & e6,
-             ex const & e7, ex const & e8);
-    explicit ${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
-             ex const & e4, ex const & e5, ex const & e6,
-             ex const & e7, ex const & e8, ex const & e9);
-    explicit ${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
-             ex const & e4, ex const & e5, ex const & e6,
-             ex const & e7, ex const & e8, ex const & e9,
-             ex const &e10);
+    explicit ${CONTAINER}(const ex & e1);
+    explicit ${CONTAINER}(const ex & e1, const ex & e2);
+    explicit ${CONTAINER}(const ex & e1, const ex & e2, const ex & e3);
+    explicit ${CONTAINER}(const ex & e1, const ex & e2, const ex & e3,
+             const ex & e4);
+    explicit ${CONTAINER}(const ex & e1, const ex & e2, const ex & e3,
+             const ex & e4, const ex & e5);
+    explicit ${CONTAINER}(const ex & e1, const ex & e2, const ex & e3,
+             const ex & e4, const ex & e5, const ex & e6);
+    explicit ${CONTAINER}(const ex & e1, const ex & e2, const ex & e3,
+             const ex & e4, const ex & e5, const ex & e6,
+             const ex & e7);
+    explicit ${CONTAINER}(const ex & e1, const ex & e2, const ex & e3,
+             const ex & e4, const ex & e5, const ex & e6,
+             const ex & e7, const ex & e8);
+    explicit ${CONTAINER}(const ex & e1, const ex & e2, const ex & e3,
+             const ex & e4, const ex & e5, const ex & e6,
+             const ex & e7, const ex & e8, const ex & e9);
+    explicit ${CONTAINER}(const ex & e1, const ex & e2, const ex & e3,
+             const ex & e4, const ex & e5, const ex & e6,
+             const ex & e7, const ex & e8, const ex & e9,
+             const ex &e10);
 
 public:
     basic * duplicate() const;
@@ -183,22 +183,22 @@ public:
     void printtree(ostream & os, unsigned indent) const;
     bool info(unsigned inf) const;
     unsigned nops() const;
-    ex & let_op(int const i);
+    ex & let_op(int i);
     ex expand(unsigned options=0) const;
-    bool has(ex const & other) const;
+    bool has(const ex & other) const;
     ex eval(int level=0) const;
     ex evalf(int level=0) const;
     ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
-    ex diff(symbol const & s) const;
-    ex subs(lst const & ls, lst const & lr) const;
+    ex diff(const symbol & s) const;
+    ex subs(const lst & ls, const lst & lr) const;
 protected:
-    int compare_same_type(basic const & other) const;
-    bool is_equal_same_type(basic const & other) const;
+    int compare_same_type(const basic & other) const;
+    bool is_equal_same_type(const basic & other) const;
     unsigned return_type(void) const;
 
     // new virtual functions which can be overridden by derived classes
 public:
-    virtual ${CONTAINER} & append(ex const & b);
+    virtual ${CONTAINER} & append(const ex & b);
 ${PREPEND_INTERFACE}
 protected:
     virtual void printseq(ostream & os, char openbracket, char delim,
@@ -212,8 +212,8 @@ protected:
     ${STLT} evalchildren(int level) const;
     ${STLT} evalfchildren(int level) const;
     ${STLT} normalchildren(int level) const;
-    ${STLT} diffchildren(symbol const & s) const;
-    ${STLT} * subschildren(lst const & ls, lst const & lr) const;
+    ${STLT} diffchildren(const symbol & s) const;
+    ${STLT} * subschildren(const lst & ls, const lst & lr) const;
 
 protected:
     ${STLT} seq;
@@ -223,7 +223,7 @@ protected:
 // global constants
 
 extern const ${CONTAINER} some_${CONTAINER};
-extern type_info const & typeid_${CONTAINER};
+extern const type_info & typeid_${CONTAINER};
 
 // utility functions
 inline const ${CONTAINER} &ex_to_${CONTAINER}(const ex &e)
@@ -360,7 +360,7 @@ ${CONTAINER}::${CONTAINER}(${STLT} * vp) : basic(TINFO_${CONTAINER})
     delete vp;
 }
 
-${CONTAINER}::${CONTAINER}(ex const & e1) :  basic(TINFO_${CONTAINER})
+${CONTAINER}::${CONTAINER}(const ex & e1) :  basic(TINFO_${CONTAINER})
 {
     debugmsg("${CONTAINER} constructor from 1 ex",
              LOGLEVEL_CONSTRUCT);
@@ -368,7 +368,7 @@ ${CONTAINER}::${CONTAINER}(ex const & e1) :  basic(TINFO_${CONTAINER})
     seq.push_back(e1);
 }
 
-${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2) : basic(TINFO_${CONTAINER})
+${CONTAINER}::${CONTAINER}(const ex & e1, const ex & e2) : basic(TINFO_${CONTAINER})
 {
     debugmsg("${CONTAINER} constructor from 2 ex",
              LOGLEVEL_CONSTRUCT);
@@ -377,7 +377,7 @@ ${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2) : basic(TINFO_${CONTAIN
     seq.push_back(e2);
 }
 
-${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3)
+${CONTAINER}::${CONTAINER}(const ex & e1, const ex & e2, const ex & e3)
     : basic(TINFO_${CONTAINER})
 {
     debugmsg("${CONTAINER} constructor from 3 ex",
@@ -388,8 +388,8 @@ ${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3)
     seq.push_back(e3);
 }
 
-${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
-                     ex const & e4) : basic(TINFO_${CONTAINER})
+${CONTAINER}::${CONTAINER}(const ex & e1, const ex & e2, const ex & e3,
+                     const ex & e4) : basic(TINFO_${CONTAINER})
 {
     debugmsg("${CONTAINER} constructor from 4 ex",
              LOGLEVEL_CONSTRUCT);
@@ -400,8 +400,8 @@ ${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
     seq.push_back(e4);
 }
 
-${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
-                     ex const & e4, ex const & e5) : basic(TINFO_${CONTAINER})
+${CONTAINER}::${CONTAINER}(const ex & e1, const ex & e2, const ex & e3,
+                     const ex & e4, const ex & e5) : basic(TINFO_${CONTAINER})
 {
     debugmsg("${CONTAINER} constructor from 5 ex",
              LOGLEVEL_CONSTRUCT);
@@ -413,8 +413,8 @@ ${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
     seq.push_back(e5);
 }
 
-${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
-                     ex const & e4, ex const & e5, ex const & e6)
+${CONTAINER}::${CONTAINER}(const ex & e1, const ex & e2, const ex & e3,
+                     const ex & e4, const ex & e5, const ex & e6)
     : basic(TINFO_${CONTAINER})
 {
     debugmsg("${CONTAINER} constructor from 6 ex",
@@ -428,9 +428,9 @@ ${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
     seq.push_back(e6);
 }
 
-${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
-                     ex const & e4, ex const & e5, ex const & e6,
-                     ex const & e7) : basic(TINFO_${CONTAINER})
+${CONTAINER}::${CONTAINER}(const ex & e1, const ex & e2, const ex & e3,
+                     const ex & e4, const ex & e5, const ex & e6,
+                     const ex & e7) : basic(TINFO_${CONTAINER})
 {
     debugmsg("${CONTAINER} constructor from 7 ex",
              LOGLEVEL_CONSTRUCT);
@@ -444,9 +444,9 @@ ${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
     seq.push_back(e7);
 }
 
-${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
-                     ex const & e4, ex const & e5, ex const & e6,
-                     ex const & e7, ex const & e8) : basic(TINFO_${CONTAINER})
+${CONTAINER}::${CONTAINER}(const ex & e1, const ex & e2, const ex & e3,
+                     const ex & e4, const ex & e5, const ex & e6,
+                     const ex & e7, const ex & e8) : basic(TINFO_${CONTAINER})
 {
     debugmsg("${CONTAINER} constructor from 8 ex",
              LOGLEVEL_CONSTRUCT);
@@ -461,9 +461,9 @@ ${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
     seq.push_back(e8);
 }
 
-${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
-                     ex const & e4, ex const & e5, ex const & e6,
-                     ex const & e7, ex const & e8, ex const & e9)
+${CONTAINER}::${CONTAINER}(const ex & e1, const ex & e2, const ex & e3,
+                     const ex & e4, const ex & e5, const ex & e6,
+                     const ex & e7, const ex & e8, const ex & e9)
     : basic(TINFO_${CONTAINER})
 {
     debugmsg("${CONTAINER} constructor from 9 ex",
@@ -480,10 +480,10 @@ ${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
     seq.push_back(e9);
 }
 
-${CONTAINER}::${CONTAINER}(ex const & e1, ex const & e2, ex const & e3,
-                     ex const & e4, ex const & e5, ex const & e6,
-                     ex const & e7, ex const & e8, ex const & e9,
-                     ex const &e10)
+${CONTAINER}::${CONTAINER}(const ex & e1, const ex & e2, const ex & e3,
+                     const ex & e4, const ex & e5, const ex & e6,
+                     const ex & e7, const ex & e8, const ex & e9,
+                     const ex &e10)
     : basic(TINFO_${CONTAINER})
 {
     debugmsg("${CONTAINER} constructor from 10 ex",
@@ -602,7 +602,7 @@ ex ${CONTAINER}::expand(unsigned options) const
 
 // a ${CONTAINER} 'has' an expression if it is this expression itself or a child 'has' it
 
-bool ${CONTAINER}::has(ex const & other) const
+bool ${CONTAINER}::has(const ex & other) const
 {
     GINAC_ASSERT(other.bp!=0);
     if (is_equal(*other.bp)) return true;
@@ -634,12 +634,12 @@ ex ${CONTAINER}::normal(lst &sym_lst, lst &repl_lst, int level) const
     return n.bp->basic::normal(sym_lst,repl_lst,level);
 }
 
-ex ${CONTAINER}::diff(symbol const & s) const
+ex ${CONTAINER}::diff(const symbol & s) const
 {
     return this${CONTAINER}(diffchildren(s));
 }
 
-ex ${CONTAINER}::subs(lst const & ls, lst const & lr) const
+ex ${CONTAINER}::subs(const lst & ls, const lst & lr) const
 {
     ${STLT} * vp=subschildren(ls,lr);
     if (vp==0) {
@@ -650,7 +650,7 @@ ex ${CONTAINER}::subs(lst const & ls, lst const & lr) const
 
 // protected
 
-int ${CONTAINER}::compare_same_type(basic const & other) const
+int ${CONTAINER}::compare_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_of_type(other,${CONTAINER}));
     ${CONTAINER} const & o=static_cast<${CONTAINER} const &>
@@ -671,7 +671,7 @@ int ${CONTAINER}::compare_same_type(basic const & other) const
     return 1;
 }
 
-bool ${CONTAINER}::is_equal_same_type(basic const & other) const
+bool ${CONTAINER}::is_equal_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_of_type(other,${CONTAINER}));
     ${CONTAINER} const & o=static_cast<${CONTAINER} const &>
@@ -699,7 +699,7 @@ unsigned ${CONTAINER}::return_type(void) const
 
 // public
 
-${CONTAINER} & ${CONTAINER}::append(ex const & b)
+${CONTAINER} & ${CONTAINER}::append(const ex & b)
 {
     ensure_if_modifiable();
     seq.push_back(b);
@@ -821,7 +821,7 @@ ${STLT} ${CONTAINER}::normalchildren(int level) const
     return s;
 }
 
-${STLT} ${CONTAINER}::diffchildren(symbol const & y) const
+${STLT} ${CONTAINER}::diffchildren(const symbol & y) const
 {
     ${STLT} s;
     RESERVE(s,seq.size());
@@ -832,7 +832,7 @@ ${STLT} ${CONTAINER}::diffchildren(symbol const & y) const
 }
 
 /* obsolete subschildren
-${STLT} ${CONTAINER}::subschildren(lst const & ls, lst const & lr) const
+${STLT} ${CONTAINER}::subschildren(const lst & ls, const lst & lr) const
 {
     ${STLT} s;
     RESERVE(s,seq.size());
@@ -843,7 +843,7 @@ ${STLT} ${CONTAINER}::subschildren(lst const & ls, lst const & lr) const
 }
 */
 
-${STLT} * ${CONTAINER}::subschildren(lst const & ls, lst const & lr) const
+${STLT} * ${CONTAINER}::subschildren(const lst & ls, const lst & lr) const
 {
     // returns a NULL pointer if nothing had to be substituted
     // returns a pointer to a newly created epvector otherwise
@@ -852,7 +852,7 @@ ${STLT} * ${CONTAINER}::subschildren(lst const & ls, lst const & lr) const
     ${STLT}::const_iterator last=seq.end();
     ${STLT}::const_iterator cit=seq.begin();
     while (cit!=last) {
-        ex const & subsed_ex=(*cit).subs(ls,lr);
+        const ex & subsed_ex=(*cit).subs(ls,lr);
         if (!are_ex_trivially_equal(*cit,subsed_ex)) {
 
             // something changed, copy seq, subs and return it
@@ -894,7 +894,7 @@ unsigned ${CONTAINER}::precedence=10;
 //////////
 
 const ${CONTAINER} some_${CONTAINER};
-type_info const & typeid_${CONTAINER}=typeid(some_${CONTAINER});
+const type_info & typeid_${CONTAINER}=typeid(some_${CONTAINER});
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC

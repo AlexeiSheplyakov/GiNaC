@@ -38,15 +38,15 @@ namespace GiNaC {
 class lortensor : public indexed
 {
     // friends
-    friend lortensor lortensor_g(ex const & mu, ex const & nu);
-    // friend lortensor lortensor_delta(ex const & mu, ex const & nu);
-    friend lortensor lortensor_epsilon(ex const & mu, ex const & nu,
-                                       ex const & rho, ex const & sigma);
-    friend lortensor lortensor_rankn(string const & n, exvector const & iv);
-    friend lortensor lortensor_rank1(string const & n, ex const & mu);
-    friend lortensor lortensor_rank2(string const & n, ex const & mu, ex const & nu);
-    friend ex simplify_lortensor_mul(ex const & m);
-    friend ex simplify_lortensor(ex const & e);
+    friend lortensor lortensor_g(const ex & mu, const ex & nu);
+    // friend lortensor lortensor_delta(const ex & mu, const ex & nu);
+    friend lortensor lortensor_epsilon(const ex & mu, const ex & nu,
+                                       const ex & rho, const ex & sigma);
+    friend lortensor lortensor_rankn(const string & n, const exvector & iv);
+    friend lortensor lortensor_rank1(const string & n, const ex & mu);
+    friend lortensor lortensor_rank2(const string & n, const ex & mu, const ex & nu);
+    friend ex simplify_lortensor_mul(const ex & m);
+    friend ex simplify_lortensor(const ex & e);
     
     // types
 
@@ -66,23 +66,23 @@ public:
 public:
     lortensor();
     ~lortensor();
-    lortensor(lortensor const & other);
-    lortensor const & operator=(lortensor const & other);
+    lortensor(const lortensor & other);
+    const lortensor & operator=(const lortensor & other);
 protected:
-    void copy(lortensor const & other);
+    void copy(const lortensor & other);
     void destroy(bool call_parent);
 
     // other constructors
 protected:
-    lortensor(lortensor_types const lt, string const & n);
-    lortensor(lortensor_types const lt, string const & n, ex const & mu);
-    lortensor(lortensor_types const lt, string const & n, ex const & mu, ex const & nu);
-    lortensor(lortensor_types const lt, string const & n, ex const & mu, ex const & nu,
-              ex const & rho);
-    lortensor(lortensor_types const lt, string const & n, ex const & mu, ex const & nu, ex const & rho, ex const & sigma);
-    lortensor(lortensor_types const lt, string const & n, exvector const & iv);
-    lortensor(lortensor_types const lt, string const & n, unsigned s, exvector const & iv);
-    lortensor(lortensor_types const lt, string const & n, unsigned s, exvector * ivp);
+    lortensor(lortensor_types const lt, const string & n);
+    lortensor(lortensor_types const lt, const string & n, const ex & mu);
+    lortensor(lortensor_types const lt, const string & n, const ex & mu, const ex & nu);
+    lortensor(lortensor_types const lt, const string & n, const ex & mu, const ex & nu,
+              const ex & rho);
+    lortensor(lortensor_types const lt, const string & n, const ex & mu, const ex & nu, const ex & rho, const ex & sigma);
+    lortensor(lortensor_types const lt, const string & n, const exvector & iv);
+    lortensor(lortensor_types const lt, const string & n, unsigned s, const exvector & iv);
+    lortensor(lortensor_types const lt, const string & n, unsigned s, exvector * ivp);
     
     //functions overriding virtual functions from base classes
 public:
@@ -94,11 +94,11 @@ public:
     bool info(unsigned inf) const;
     ex eval(int level=0) const;
 protected:
-    int compare_same_type(basic const & other) const;
-    bool is_equal_same_type(basic const & other) const;
+    int compare_same_type(const basic & other) const;
+    bool is_equal_same_type(const basic & other) const;
     unsigned return_type(void) const;
     unsigned return_type_tinfo(void) const;
-    ex thisexprseq(exvector const & v) const;
+    ex thisexprseq(const exvector & v) const;
     ex thisexprseq(exvector * vp) const;
 
     // new virtual functions which can be overridden by derived classes
@@ -106,7 +106,7 @@ protected:
 
     //non virtual functions in this class
 public:
-    void setname(string const & n);
+    void setname(const string & n);
     string getname(void) const {return name;}
 protected:
     bool all_of_type_lorentzidx(void) const;
@@ -126,7 +126,7 @@ private:
 // global constants
 
     extern const lortensor some_lortensor;
-    extern type_info const & typeid_lortensor;
+    extern const type_info & typeid_lortensor;
 
 // utility functions
     
@@ -140,9 +140,9 @@ inline lortensor &ex_to_nonconst_lortensor(const ex &e)
 	return static_cast<lortensor &>(*e.bp);
 }
 
-lortensor lortensor_g(ex const & mu, ex const & nu);
-ex simplify_lortensor_mul(ex const & m);
-ex simplify_lortensor(ex const & e);
+lortensor lortensor_g(const ex & mu, const ex & nu);
+ex simplify_lortensor_mul(const ex & m);
+ex simplify_lortensor(const ex & e);
 ex Dim(void);    
 
 #ifndef NO_GINAC_NAMESPACE

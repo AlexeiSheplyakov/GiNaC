@@ -65,13 +65,13 @@ lortensor::~lortensor()
     destroy(0);
 }
 
-lortensor::lortensor(lortensor const & other)
+lortensor::lortensor(const lortensor & other)
 {
     debugmsg("lortensor copy constructor",LOGLEVEL_CONSTRUCT);
     copy (other);
 }
 
-lortensor const & lortensor::operator=(lortensor const & other)
+const lortensor & lortensor::operator=(const lortensor & other)
 {
     debugmsg("lortensor operator=",LOGLEVEL_ASSIGNMENT);
     if (this != & other) {
@@ -83,7 +83,7 @@ lortensor const & lortensor::operator=(lortensor const & other)
 
 //protected
 
-void lortensor::copy(lortensor const & other)
+void lortensor::copy(const lortensor & other)
 {
     indexed::copy(other);
     type=other.type;
@@ -104,14 +104,14 @@ void lortensor::destroy(bool call_parent)
 
 // protected
 
-lortensor::lortensor(lortensor_types const lt, string const & n) : type(lt), name(n)
+lortensor::lortensor(lortensor_types const lt, const string & n) : type(lt), name(n)
 {
     debugmsg("lortensor constructor from lortensor_types,string",LOGLEVEL_CONSTRUCT);
     serial=next_serial++;
     tinfo_key=TINFO_lortensor;
 }
 
-lortensor::lortensor(lortensor_types const lt, string const & n, ex const & mu) : indexed(mu), type(lt), name(n)
+lortensor::lortensor(lortensor_types const lt, const string & n, const ex & mu) : indexed(mu), type(lt), name(n)
 {
     debugmsg("lortensor constructor from lortensor_types,string,ex",LOGLEVEL_CONSTRUCT);
     serial=next_serial++;    
@@ -119,7 +119,7 @@ lortensor::lortensor(lortensor_types const lt, string const & n, ex const & mu) 
     tinfo_key=TINFO_lortensor;
 }
 
-lortensor::lortensor(lortensor_types const lt, string const & n, ex const & mu, ex const & nu) : indexed(mu,nu), type(lt), name(n)
+lortensor::lortensor(lortensor_types const lt, const string & n, const ex & mu, const ex & nu) : indexed(mu,nu), type(lt), name(n)
 {
     debugmsg("lortensor constructor from lortensor_types,string,ex,ex",LOGLEVEL_CONSTRUCT);
     serial=next_serial++;
@@ -127,7 +127,7 @@ lortensor::lortensor(lortensor_types const lt, string const & n, ex const & mu, 
     tinfo_key=TINFO_lortensor;
 }
 
-lortensor::lortensor(lortensor_types const lt, string const & n, ex const & mu, ex const & nu, ex const & rho) : indexed(mu,nu,rho), type(lt), name(n)
+lortensor::lortensor(lortensor_types const lt, const string & n, const ex & mu, const ex & nu, const ex & rho) : indexed(mu,nu,rho), type(lt), name(n)
 {
     debugmsg("lortensor constructor from lortensor_types,string,ex,ex,ex",LOGLEVEL_CONSTRUCT);
     serial=next_serial++;
@@ -135,7 +135,7 @@ lortensor::lortensor(lortensor_types const lt, string const & n, ex const & mu, 
     tinfo_key=TINFO_lortensor;
 }
 
-lortensor::lortensor(lortensor_types const lt, string const & n, ex const & mu, ex const & nu, ex const & rho, ex const & sigma) : indexed(mu,nu,rho,sigma), type(lt), name(n)
+lortensor::lortensor(lortensor_types const lt, const string & n, const ex & mu, const ex & nu, const ex & rho, const ex & sigma) : indexed(mu,nu,rho,sigma), type(lt), name(n)
 {
     debugmsg("lortensor constructor from lortensor_types,string,ex,ex,ex,ex",LOGLEVEL_CONSTRUCT);
     serial=next_serial++;
@@ -143,7 +143,7 @@ lortensor::lortensor(lortensor_types const lt, string const & n, ex const & mu, 
     tinfo_key=TINFO_lortensor;
 }
 
-lortensor::lortensor(lortensor_types const lt, string const & n, exvector const & iv) : indexed(iv), type(lt), name(n)
+lortensor::lortensor(lortensor_types const lt, const string & n, const exvector & iv) : indexed(iv), type(lt), name(n)
 {
     debugmsg("lortensor constructor from lortensor_types,string,exvector",LOGLEVEL_CONSTRUCT);
     serial=next_serial++;
@@ -151,14 +151,14 @@ lortensor::lortensor(lortensor_types const lt, string const & n, exvector const 
     tinfo_key=TINFO_lortensor;
 }
 
-lortensor::lortensor(lortensor_types const lt, string const & n, unsigned s, exvector const & iv) : indexed(iv), type(lt), name(n), serial(s)
+lortensor::lortensor(lortensor_types const lt, const string & n, unsigned s, const exvector & iv) : indexed(iv), type(lt), name(n), serial(s)
 {
     debugmsg("lortensor constructor from lortensor_types,string,unsigned,exvector",LOGLEVEL_CONSTRUCT);
     GINAC_ASSERT(all_of_type_lorentzidx());
     tinfo_key=TINFO_lortensor;
 }
 
-lortensor::lortensor(lortensor_types const lt, string const & n, unsigned s, exvector *ivp) : indexed(ivp), type(lt), name(n), serial(s)
+lortensor::lortensor(lortensor_types const lt, const string & n, unsigned s, exvector *ivp) : indexed(ivp), type(lt), name(n), serial(s)
 {
     debugmsg("lortensor constructor from lortensor_types,string,unsigned,exvector",LOGLEVEL_CONSTRUCT);
     GINAC_ASSERT(all_of_type_lorentzidx());
@@ -246,8 +246,8 @@ ex lortensor::eval(int level) const
             //something has changed while sorting indices, more evaluations later
             return ex(sig) *lortensor(type,name,iv);
         }
-        lorentzidx const & idx1=ex_to_lorentzidx(seq[0]);
-        lorentzidx const & idx2=ex_to_lorentzidx(seq[1]);
+        const lorentzidx & idx1=ex_to_lorentzidx(seq[0]);
+        const lorentzidx & idx2=ex_to_lorentzidx(seq[1]);
         if ((!idx1.is_symbolic()) && (!idx2.is_symbolic())) {
             //both indices are numeric
             if ((idx1.get_value()==idx2.get_value())) {
@@ -277,7 +277,7 @@ ex lortensor::eval(int level) const
 
 //protected
 
-int lortensor::compare_same_type(basic const & other) const
+int lortensor::compare_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_of_type(other,lortensor));
     const lortensor *o = static_cast <const lortensor *> (&other);
@@ -292,7 +292,7 @@ int lortensor::compare_same_type(basic const & other) const
     return type < o->type ? -1 : 1;            
 }
 
-bool lortensor::is_equal_same_type(basic const & other) const
+bool lortensor::is_equal_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_of_type(other,lortensor));
     const lortensor *o=static_cast<const lortensor *> (&other);
@@ -311,7 +311,7 @@ unsigned lortensor::return_type_tinfo(void) const
 {
     return tinfo_key;
 }
-ex lortensor::thisexprseq(exvector const & v) const
+ex lortensor::thisexprseq(const exvector & v) const
 {
     return lortensor(type,name,serial,v);
 }
@@ -326,7 +326,7 @@ ex lortensor::thisexprseq(exvector *vp) const
 
 // protected
 
-void lortensor::setname(string const & n)
+void lortensor::setname(const string & n)
 {
     name=n;
 }
@@ -361,27 +361,27 @@ unsigned lortensor::next_serial=0;
 // friend functions
 //////////
 
-lortensor lortensor_g(ex const & mu, ex const & nu)
+lortensor lortensor_g(const ex & mu, const ex & nu)
 {
     return lortensor(lortensor::lortensor_g,"",mu,nu);
 }
 
-lortensor lortensor_epsilon(ex const & mu, ex const & nu, ex const & rho, ex const & sigma)
+lortensor lortensor_epsilon(const ex & mu, const ex & nu, const ex & rho, const ex & sigma)
 {
     return lortensor(lortensor::lortensor_epsilon,"",mu,nu,rho,sigma);
 }
 
-lortensor lortensor_rank1(string const & n, ex const & mu)
+lortensor lortensor_rank1(const string & n, const ex & mu)
 {
     return lortensor(lortensor::lortensor_rank1,n,mu);
 }
 
-lortensor lortensor_rank2(string const & n, ex const & mu, ex const & nu)
+lortensor lortensor_rank2(const string & n, const ex & mu, const ex & nu)
 {
     return lortensor(lortensor::lortensor_rank2,n,mu,nu);
 }
 
-ex simplify_lortensor_mul(ex const & m)
+ex simplify_lortensor_mul(const ex & m)
 {
     GINAC_ASSERT(is_ex_exactly_of_type(m,mul));
     exvector v_contracted;
@@ -407,10 +407,10 @@ ex simplify_lortensor_mul(ex const & m)
         // process only lor_g objects
         if (is_ex_exactly_of_type(*it,lortensor) &&
             (ex_to_lortensor(*it).type==lortensor::lortensor_g)) {            
-            lortensor const & g=ex_to_lortensor(*it);
+            const lortensor & g=ex_to_lortensor(*it);
             GINAC_ASSERT(g.seq.size()==2);
-            idx const & first_idx=ex_to_lorentzidx(g.seq[0]);
-            idx const & second_idx=ex_to_lorentzidx(g.seq[1]);
+            const idx & first_idx=ex_to_lorentzidx(g.seq[0]);
+            const idx & second_idx=ex_to_lorentzidx(g.seq[1]);
             // g_{mu,mu} should have been contracted in lortensor::eval()
             GINAC_ASSERT(!first_idx.is_equal(second_idx));
             ex saved_g=*it; // save to restore it later
@@ -455,7 +455,7 @@ ex simplify_lortensor_mul(ex const & m)
     return m;
 }
 
-ex simplify_lortensor(ex const & e)
+ex simplify_lortensor(const ex & e)
 {
     // all simplification is done on expanded objects
     ex e_expanded=e.expand();

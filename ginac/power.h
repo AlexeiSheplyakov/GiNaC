@@ -47,16 +47,16 @@ class power : public basic
 public:
     power();
     ~power();
-    power(power const & other);
-    power const & operator=(power const & other);
+    power(const power & other);
+    const power & operator=(const power & other);
 protected:
-    void copy(power const & other);
+    void copy(const power & other);
     void destroy(bool call_parent);
 
     // other constructors
 public:
-    power(ex const & lh, ex const & rh);
-    power(ex const & lh, numeric const & rh);
+    power(const ex & lh, const ex & rh);
+    power(const ex & lh, const numeric & rh);
 
     // functions overriding virtual functions from bases classes
 public:
@@ -67,19 +67,19 @@ public:
     void printcsrc(ostream & os, unsigned type, unsigned upper_precedence=0) const;
     bool info(unsigned inf) const;
     unsigned nops() const;
-    ex & let_op(int const i);
-    int degree(symbol const & s) const;
-    int ldegree(symbol const & s) const;
-    ex coeff(symbol const & s, int const n=1) const;
+    ex & let_op(int i);
+    int degree(const symbol & s) const;
+    int ldegree(const symbol & s) const;
+    ex coeff(const symbol & s, int n=1) const;
     ex eval(int level=0) const;
     ex evalf(int level=0) const;
-    ex diff(symbol const & s) const;
-    ex series(symbol const & s, ex const & point, int order) const;
-    ex subs(lst const & ls, lst const & lr) const;
+    ex diff(const symbol & s) const;
+    ex series(const symbol & s, const ex & point, int order) const;
+    ex subs(const lst & ls, const lst & lr) const;
     ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
-    ex simplify_ncmul(exvector const & v) const;
+    ex simplify_ncmul(const exvector & v) const;
 protected:
-    int compare_same_type(basic const & other) const;
+    int compare_same_type(const basic & other) const;
     unsigned return_type(void) const;
     unsigned return_type_tinfo(void) const;
     ex expand(unsigned options=0) const;
@@ -89,12 +89,12 @@ protected:
     
     // non-virtual functions in this class
 protected:
-    ex expand_add(add const & a, int const n) const;
-    ex expand_add_2(add const & a) const;
-    ex expand_mul(mul const & m, numeric const & n) const;
-    //ex expand_commutative_3(ex const & basis, numeric const & exponent,
+    ex expand_add(const add & a, int n) const;
+    ex expand_add_2(const add & a) const;
+    ex expand_mul(const mul & m, const numeric & n) const;
+    //ex expand_commutative_3(const ex & basis, const numeric & exponent,
     //                         unsigned options) const;
-    // ex expand_noncommutative(ex const & basis, numeric const & exponent, unsigned options) const;
+    // ex expand_noncommutative(const ex & basis, const numeric & exponent, unsigned options) const;
 
 // member variables
 
@@ -107,7 +107,7 @@ protected:
 // global constants
 
 extern const power some_power;
-extern type_info const & typeid_power;
+extern const type_info & typeid_power;
 
 // utility functions
 inline const power &ex_to_power(const ex &e)
@@ -121,12 +121,12 @@ inline const power &ex_to_power(const ex &e)
  *
  *  @param b the basis expression
  *  @param e the exponent expression */
-inline ex pow(ex const & b, ex const & e)
+inline ex pow(const ex & b, const ex & e)
 { return power(b,e); }
 
 /** Square root expression.  Returns a power-object with exponent 1/2 as a new
  *  expression.  */
-ex sqrt(ex const & a);
+ex sqrt(const ex & a);
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC

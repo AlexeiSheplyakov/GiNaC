@@ -57,13 +57,13 @@ simp_lor::~simp_lor()
     destroy(0);
 }
 
-simp_lor::simp_lor(simp_lor const & other)
+simp_lor::simp_lor(const simp_lor & other)
 {
     debugmsg("simp_lor copy constructor",LOGLEVEL_CONSTRUCT);
     copy (other);
 }
 
-simp_lor const & simp_lor::operator=(simp_lor const & other)
+const simp_lor & simp_lor::operator=(const simp_lor & other)
 {
     debugmsg("simp_lor operator=",LOGLEVEL_ASSIGNMENT);
     if (this != &other) {
@@ -75,7 +75,7 @@ simp_lor const & simp_lor::operator=(simp_lor const & other)
 
 // protected
 
-void simp_lor::copy(simp_lor const & other)
+void simp_lor::copy(const simp_lor & other)
 {
     indexed::copy(other);
     type=other.type;
@@ -101,7 +101,7 @@ simp_lor::simp_lor(simp_lor_types const t) : type(t)
     tinfo_key=TINFO_simp_lor;
 }
 
-simp_lor::simp_lor(simp_lor_types const t, ex const & i1, ex const & i2) :
+simp_lor::simp_lor(simp_lor_types const t, const ex & i1, const ex & i2) :
     indexed(i1,i2), type(t)
 {
     debugmsg("simp_lor constructor from simp_lor_types,ex,ex",LOGLEVEL_CONSTRUCT);
@@ -109,7 +109,7 @@ simp_lor::simp_lor(simp_lor_types const t, ex const & i1, ex const & i2) :
     GINAC_ASSERT(all_of_type_lorentzidx());
 }
 
-simp_lor::simp_lor(simp_lor_types const t, string const & n, ex const & i1) :
+simp_lor::simp_lor(simp_lor_types const t, const string & n, const ex & i1) :
     indexed(i1), type(t), name(n)
 {
     debugmsg("simp_lor constructor from simp_lor_types,string,ex",LOGLEVEL_CONSTRUCT);
@@ -117,7 +117,7 @@ simp_lor::simp_lor(simp_lor_types const t, string const & n, ex const & i1) :
     GINAC_ASSERT(all_of_type_lorentzidx());
 }
 
-simp_lor::simp_lor(simp_lor_types const t, string const & n, exvector const & iv) :
+simp_lor::simp_lor(simp_lor_types const t, const string & n, const exvector & iv) :
     indexed(iv), type(t), name(n)
 {
     debugmsg("simp_lor constructor from simp_lor_types,string,exvector",LOGLEVEL_CONSTRUCT);
@@ -125,7 +125,7 @@ simp_lor::simp_lor(simp_lor_types const t, string const & n, exvector const & iv
     GINAC_ASSERT(all_of_type_lorentzidx());
 }
 
-simp_lor::simp_lor(simp_lor_types const t, string const & n, exvector * ivp) :
+simp_lor::simp_lor(simp_lor_types const t, const string & n, exvector * ivp) :
     indexed(ivp), type(t), name(n)
 {
     debugmsg("simp_lor constructor from simp_lor_types,string,exvector*",LOGLEVEL_CONSTRUCT);
@@ -207,8 +207,8 @@ ex simp_lor::eval(int level) const
             if (sig==0) return _ex0();
             return ex(sig)*simp_lor(type,name,iv);
         }
-        lorentzidx const & idx1=ex_to_lorentzidx(seq[0]);
-        lorentzidx const & idx2=ex_to_lorentzidx(seq[1]);
+        const lorentzidx & idx1=ex_to_lorentzidx(seq[0]);
+        const lorentzidx & idx2=ex_to_lorentzidx(seq[1]);
         if ((!idx1.is_symbolic())&&(!idx2.is_symbolic())) {
             // both indices are numeric
             if ((idx1.get_value()==idx2.get_value())) {
@@ -240,7 +240,7 @@ ex simp_lor::eval(int level) const
     
 // protected
 
-int simp_lor::compare_same_type(basic const & other) const
+int simp_lor::compare_same_type(const basic & other) const
 {
     GINAC_ASSERT(other.tinfo() == TINFO_simp_lor);
     const simp_lor *o = static_cast<const simp_lor *>(&other);
@@ -253,7 +253,7 @@ int simp_lor::compare_same_type(basic const & other) const
     return type < o->type ? -1 : 1;
 }
 
-bool simp_lor::is_equal_same_type(basic const & other) const
+bool simp_lor::is_equal_same_type(const basic & other) const
 {
     GINAC_ASSERT(other.tinfo() == TINFO_simp_lor);
     const simp_lor *o = static_cast<const simp_lor *>(&other);
@@ -272,7 +272,7 @@ unsigned simp_lor::return_type_tinfo(void) const
     return tinfo_key;
 }
 
-ex simp_lor::thisexprseq(exvector const & v) const
+ex simp_lor::thisexprseq(const exvector & v) const
 {
     return simp_lor(type,name,v);
 }
@@ -314,23 +314,23 @@ bool simp_lor::all_of_type_lorentzidx(void) const
 //////////
 
 const simp_lor some_simp_lor;
-type_info const & typeid_simp_lor=typeid(some_simp_lor);
+const type_info & typeid_simp_lor=typeid(some_simp_lor);
 
 //////////
 // friend functions
 //////////
 
-simp_lor lor_g(ex const & mu, ex const & nu)
+simp_lor lor_g(const ex & mu, const ex & nu)
 {
     return simp_lor(simp_lor::simp_lor_g,mu,nu);
 }
 
-simp_lor lor_vec(string const & n, ex const & mu)
+simp_lor lor_vec(const string & n, const ex & mu)
 {
     return simp_lor(simp_lor::simp_lor_vec,n,mu);
 }
 
-ex simplify_simp_lor_mul(ex const & m, scalar_products const & sp)
+ex simplify_simp_lor_mul(const ex & m, const scalar_products & sp)
 {
     GINAC_ASSERT(is_ex_exactly_of_type(m,mul));
     exvector v_contracted;
@@ -356,10 +356,10 @@ ex simplify_simp_lor_mul(ex const & m, scalar_products const & sp)
         // process only lor_g objects
         if (is_ex_exactly_of_type(*it,simp_lor) &&
             (ex_to_simp_lor(*it).type==simp_lor::simp_lor_g)) {
-            simp_lor const & g=ex_to_simp_lor(*it);
+            const simp_lor & g=ex_to_simp_lor(*it);
             GINAC_ASSERT(g.seq.size()==2);
-            idx const & first_idx=ex_to_lorentzidx(g.seq[0]);
-            idx const & second_idx=ex_to_lorentzidx(g.seq[1]);
+            const idx & first_idx=ex_to_lorentzidx(g.seq[0]);
+            const idx & second_idx=ex_to_lorentzidx(g.seq[1]);
             // g_{mu,mu} should have been contracted in simp_lor::eval()
             GINAC_ASSERT(!first_idx.is_equal(second_idx));
             ex saved_g=*it; // save to restore it later
@@ -409,12 +409,12 @@ ex simplify_simp_lor_mul(ex const & m, scalar_products const & sp)
             while ((it2!=v_contracted.end())&&!jump_to_next) {
                 if (is_ex_exactly_of_type(*it2,simp_lor) && 
                     (ex_to_simp_lor(*it2).type==simp_lor::simp_lor_vec)) {
-                    simp_lor const & vec1=ex_to_simp_lor(*it1);
-                    simp_lor const & vec2=ex_to_simp_lor(*it2);
+                    const simp_lor & vec1=ex_to_simp_lor(*it1);
+                    const simp_lor & vec2=ex_to_simp_lor(*it2);
                     GINAC_ASSERT(vec1.seq.size()==1);
                     GINAC_ASSERT(vec2.seq.size()==1);
-                    lorentzidx const & idx1=ex_to_lorentzidx(vec1.seq[0]);
-                    lorentzidx const & idx2=ex_to_lorentzidx(vec2.seq[0]);
+                    const lorentzidx & idx1=ex_to_lorentzidx(vec1.seq[0]);
+                    const lorentzidx & idx2=ex_to_lorentzidx(vec2.seq[0]);
                     if (idx1.is_symbolic() &&
                         idx1.is_co_contra_pair(idx2) &&
                         sp.is_defined(vec1,vec2)) {
@@ -436,7 +436,7 @@ ex simplify_simp_lor_mul(ex const & m, scalar_products const & sp)
     return m;
 }
 
-ex simplify_simp_lor(ex const & e, scalar_products const & sp)
+ex simplify_simp_lor(const ex & e, const scalar_products & sp)
 {
     // all simplification is done on expanded objects
     ex e_expanded=e.expand();
@@ -469,8 +469,8 @@ ex simplify_simp_lor(ex const & e, scalar_products const & sp)
 // helper classes
 //////////
 
-void scalar_products::reg(simp_lor const & v1, simp_lor const & v2,
-                          ex const & sp)
+void scalar_products::reg(const simp_lor & v1, const simp_lor & v2,
+                          const ex & sp)
 {
     if (v1.compare_same_type(v2)>0) {
         reg(v2,v1,sp);
@@ -479,7 +479,7 @@ void scalar_products::reg(simp_lor const & v1, simp_lor const & v2,
     spm[make_key(v1,v2)]=sp;
 }
 
-bool scalar_products::is_defined(simp_lor const & v1, simp_lor const & v2) const
+bool scalar_products::is_defined(const simp_lor & v1, const simp_lor & v2) const
 {
     if (v1.compare_same_type(v2)>0) {
         return is_defined(v2,v1);
@@ -487,7 +487,7 @@ bool scalar_products::is_defined(simp_lor const & v1, simp_lor const & v2) const
     return spm.find(make_key(v1,v2))!=spm.end();
 }
 
-ex scalar_products::evaluate(simp_lor const & v1, simp_lor const & v2) const
+ex scalar_products::evaluate(const simp_lor & v1, const simp_lor & v2) const
 {
     if (v1.compare_same_type(v2)>0) {
         return evaluate(v2,v1);
@@ -499,7 +499,7 @@ void scalar_products::debugprint(void) const
 {
     cerr << "map size=" << spm.size() << endl;
     for (spmap::const_iterator cit=spm.begin(); cit!=spm.end(); ++cit) {
-        spmapkey const & k=(*cit).first;
+        const spmapkey & k=(*cit).first;
         cerr << "item key=((" << k.first.first
              << "," << k.first.second << "),";
         k.second.printraw(cerr);
@@ -507,7 +507,7 @@ void scalar_products::debugprint(void) const
     }
 }
 
-spmapkey scalar_products::make_key(simp_lor const & v1, simp_lor const & v2)
+spmapkey scalar_products::make_key(const simp_lor & v1, const simp_lor & v2)
 {
     GINAC_ASSERT(v1.type==simp_lor::simp_lor_vec);
     GINAC_ASSERT(v2.type==simp_lor::simp_lor_vec);

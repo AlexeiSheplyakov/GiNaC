@@ -32,7 +32,7 @@ sub generate {
 }
 
 $declare_function_macro_namespace=generate(
-    <<'END_OF_DECLARE_FUNCTION_MACRO_NAMESPACE','GiNaC::ex const & p${N}','p${N}');
+    <<'END_OF_DECLARE_FUNCTION_MACRO_NAMESPACE','const GiNaC::ex & p${N}','p${N}');
 #define DECLARE_FUNCTION_${N}P(NAME) \\
 extern const unsigned function_index_##NAME; \\
 inline GiNaC::function NAME(${SEQ1}) { \\
@@ -42,7 +42,7 @@ inline GiNaC::function NAME(${SEQ1}) { \\
 END_OF_DECLARE_FUNCTION_MACRO_NAMESPACE
 
 $declare_function_macro_no_namespace=generate(
-    <<'END_OF_DECLARE_FUNCTION_MACRO_NO_NAMESPACE','ex const & p${N}','p${N}');
+    <<'END_OF_DECLARE_FUNCTION_MACRO_NO_NAMESPACE','const ex & p${N}','p${N}');
 #define DECLARE_FUNCTION_${N}P(NAME) \\
 extern const unsigned function_index_##NAME; \\
 inline function NAME(${SEQ1}) { \\
@@ -53,31 +53,31 @@ END_OF_DECLARE_FUNCTION_MACRO_NO_NAMESPACE
 
 $typedef_eval_funcp=generate(
 'typedef ex (* eval_funcp_${N})(${SEQ1});'."\n",
-'ex const &','');
+'const ex &','');
 
 $typedef_evalf_funcp=generate(
 'typedef ex (* evalf_funcp_${N})(${SEQ1});'."\n",
-'ex const &','');
+'const ex &','');
 
 $typedef_diff_funcp=generate(
 'typedef ex (* diff_funcp_${N})(${SEQ1}, unsigned);'."\n",
-'ex const &','');
+'const ex &','');
 
 $typedef_series_funcp=generate(
-'typedef ex (* series_funcp_${N})(${SEQ1}, symbol const &, ex const &, int);'."\n",
-'ex const &','');
+'typedef ex (* series_funcp_${N})(${SEQ1}, const symbol &, const ex &, int);'."\n",
+'const ex &','');
 
 $constructors_interface=generate(
 '    function(unsigned ser, ${SEQ1});'."\n",
-'ex const & param${N}','');
+'const ex & param${N}','');
 
 $register_new_interface=generate(
-'    static unsigned register_new(char const * nm, eval_funcp_${N} e,'."\n".
+'    static unsigned register_new(const char * nm, eval_funcp_${N} e,'."\n".
 '                                 evalf_funcp_${N} ef=0, diff_funcp_${N} d=0, series_funcp_${N} s=0);'.
 "\n",'','');
 
 $constructors_implementation=generate(
-    <<'END_OF_CONSTRUCTORS_IMPLEMENTATION','ex const & param${N}','param${N}');
+    <<'END_OF_CONSTRUCTORS_IMPLEMENTATION','const ex & param${N}','param${N}');
 function::function(unsigned ser, ${SEQ1})
     : exprseq(${SEQ2}), serial(ser)
 {
@@ -121,7 +121,7 @@ END_OF_SERIES_SWITCH_STATEMENT
 
 $register_new_implementation=generate(
     <<'END_OF_REGISTER_NEW_IMPLEMENTATION','','');
-unsigned function::register_new(char const * nm, eval_funcp_${N} e,
+unsigned function::register_new(const char * nm, eval_funcp_${N} e,
                                  evalf_funcp_${N} ef, diff_funcp_${N} d, series_funcp_${N} s)
 {
     registered_function_info rfi={nm,${N},0,eval_funcp(e),
@@ -246,7 +246,7 @@ $typedef_series_funcp
 // end of generated lines
 
 struct registered_function_info {
-    char const * name;
+    const char * name;
     unsigned nparams;
     unsigned options;
     eval_funcp e;
@@ -270,10 +270,10 @@ class function : public exprseq
 public:
     function();
     ~function();
-    function(function const & other);
-    function const & operator=(function const & other);
+    function(const function & other);
+    const function & operator=(const function & other);
 protected:
-    void copy(function const & other);
+    void copy(const function & other);
     void destroy(bool call_parent);
 
     // other constructors
@@ -282,8 +282,8 @@ public:
     // the following lines have been generated for max. ${maxargs} parameters
 $constructors_interface
     // end of generated lines
-    function(unsigned ser, exprseq const & es);
-    function(unsigned ser, exvector const & v, bool discardable=0);
+    function(unsigned ser, const exprseq & es);
+    function(unsigned ser, const exvector & v, bool discardable=0);
     function(unsigned ser, exvector * vp); // vp will be deleted
 
     // functions overriding virtual functions from bases classes
@@ -296,13 +296,13 @@ public:
     ex expand(unsigned options=0) const;
     ex eval(int level=0) const;
     ex evalf(int level=0) const;
-    ex diff(symbol const & s) const;
-    ex series(symbol const & s, ex const & point, int order) const;
-    ex thisexprseq(exvector const & v) const;
+    ex diff(const symbol & s) const;
+    ex series(const symbol & s, const ex & point, int order) const;
+    ex thisexprseq(const exvector & v) const;
     ex thisexprseq(exvector * vp) const;
 protected:
-    int compare_same_type(basic const & other) const;
-    bool is_equal_same_type(basic const & other) const;
+    int compare_same_type(const basic & other) const;
+    bool is_equal_same_type(const basic & other) const;
     unsigned return_type(void) const;
     unsigned return_type_tinfo(void) const;
     
@@ -342,7 +342,7 @@ protected:
 // global constants
 
 extern const function some_function;
-extern type_info const & typeid_function;
+extern const type_info & typeid_function;
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
@@ -412,13 +412,13 @@ function::~function()
     destroy(0);
 }
 
-function::function(function const & other)
+function::function(const function & other)
 {
     debugmsg("function copy constructor",LOGLEVEL_CONSTRUCT);
     copy(other);
 }
 
-function const & function::operator=(function const & other)
+const function & function::operator=(const function & other)
 {
     debugmsg("function operator=",LOGLEVEL_ASSIGNMENT);
     if (this != &other) {
@@ -430,7 +430,7 @@ function const & function::operator=(function const & other)
 
 // protected
 
-void function::copy(function const & other)
+void function::copy(const function & other)
 {
     exprseq::copy(other);
     serial=other.serial;
@@ -457,13 +457,13 @@ function::function(unsigned ser) : serial(ser)
 $constructors_implementation
 // end of generated lines
 
-function::function(unsigned ser, exprseq const & es) : exprseq(es), serial(ser)
+function::function(unsigned ser, const exprseq & es) : exprseq(es), serial(ser)
 {
     debugmsg("function constructor from unsigned,exprseq",LOGLEVEL_CONSTRUCT);
     tinfo_key = TINFO_function;
 }
 
-function::function(unsigned ser, exvector const & v, bool discardable) 
+function::function(unsigned ser, const exvector & v, bool discardable) 
     : exprseq(v,discardable), serial(ser)
 {
     debugmsg("function constructor from string,exvector,bool",LOGLEVEL_CONSTRUCT);
@@ -634,7 +634,7 @@ ${evalf_switch_statement}
     throw(std::logic_error("function::evalf(): invalid nparams"));
 }
 
-ex function::thisexprseq(exvector const & v) const
+ex function::thisexprseq(const exvector & v) const
 {
     return function(serial,v);
 }
@@ -646,7 +646,7 @@ ex function::thisexprseq(exvector * vp) const
 
 /** Implementation of ex::series for functions.
  *  \@see ex::series */
-ex function::series(symbol const & s, ex const & point, int order) const
+ex function::series(const symbol & s, const ex & point, int order) const
 {
     GINAC_ASSERT(serial<registered_functions().size());
 
@@ -664,10 +664,10 @@ ${series_switch_statement}
 
 // protected
 
-int function::compare_same_type(basic const & other) const
+int function::compare_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_of_type(other, function));
-    function const & o=static_cast<function &>(const_cast<basic &>(other));
+    const function & o=static_cast<function &>(const_cast<basic &>(other));
 
     if (serial!=o.serial) {
         return serial < o.serial ? -1 : 1;
@@ -675,10 +675,10 @@ int function::compare_same_type(basic const & other) const
     return exprseq::compare_same_type(o);
 }
 
-bool function::is_equal_same_type(basic const & other) const
+bool function::is_equal_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_of_type(other, function));
-    function const & o=static_cast<function &>(const_cast<basic &>(other));
+    const function & o=static_cast<function &>(const_cast<basic &>(other));
 
     if (serial!=o.serial) return false;
     return exprseq::is_equal_same_type(o);
@@ -750,7 +750,7 @@ $register_new_implementation
 //////////
 
 const function some_function;
-type_info const & typeid_function=typeid(some_function);
+const type_info & typeid_function=typeid(some_function);
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
