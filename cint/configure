@@ -29,7 +29,8 @@ echo "ok, cint seems to be in \$PATH"
 makecint -mk Makefile -o ginaccint -m \
  -D OBSCURE_CINT_HACK -D NO_GINAC_NAMESPACE \
  -I .. -I $CINTSYSDIR \
- -m -H ../ginac/ginac.h -C++ dummy_ginsh.cpp -C++ ginaccint.cpp \
+ -m -H ../ginac/ginac.h -H cint_workaround.h \
+ -C++ dummy_ginsh.cpp -C++ ginaccint.cpp \
  -l ../ginac/.libs/libginac.a -lcln \
  -cint -M0x10
 echo "ok, makecint has created the Makefile"
