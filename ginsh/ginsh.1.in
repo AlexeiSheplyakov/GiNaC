@@ -311,6 +311,9 @@ detail here. Please refer to the GiNaC documentation.
 .BI numer( expression )
 \- numerator of a rational function
 .br
+.BI numer_denom( expression )
+\- numerator and denumerator of a rational function as a list
+.br
 .BI op( expression ", " number )
 \- extract operand from expression
 .br

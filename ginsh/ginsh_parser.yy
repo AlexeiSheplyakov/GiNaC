@@ -274,19 +274,28 @@ static void push(const ex &e)
  *  Built-in functions
  */
 
+static ex f_collect(const exprseq &e) {return e[0].collect(e[1]);}
+static ex f_collect_distributed(const exprseq &e) {return e[0].collect(e[1], true);}
+static ex f_degree(const exprseq &e) {return e[0].degree(e[1]);}
 static ex f_denom(const exprseq &e) {return e[0].denom();}
 static ex f_eval1(const exprseq &e) {return e[0].eval();}
 static ex f_evalf1(const exprseq &e) {return e[0].evalf();}
 static ex f_expand(const exprseq &e) {return e[0].expand();}
 static ex f_gcd(const exprseq &e) {return gcd(e[0], e[1]);}
+static ex f_has(const exprseq &e) {return e[0].has(e[1]) ? ex(1) : ex(0);}
 static ex f_lcm(const exprseq &e) {return lcm(e[0], e[1]);}
+static ex f_lcoeff(const exprseq &e) {return e[0].lcoeff(e[1]);}
+static ex f_ldegree(const exprseq &e) {return e[0].ldegree(e[1]);}
 static ex f_lsolve(const exprseq &e) {return lsolve(e[0], e[1]);}
 static ex f_nops(const exprseq &e) {return e[0].nops();}
 static ex f_normal1(const exprseq &e) {return e[0].normal();}
 static ex f_numer(const exprseq &e) {return e[0].numer();}
+static ex f_numer_denom(const exprseq &e) {return e[0].numer_denom();}
 static ex f_pow(const exprseq &e) {return pow(e[0], e[1]);}
 static ex f_sqrt(const exprseq &e) {return sqrt(e[0]);}
+static ex f_sqrfree1(const exprseq &e) {return sqrfree(e[0]);}
 static ex f_subs2(const exprseq &e) {return e[0].subs(e[1]);}
+static ex f_tcoeff(const exprseq &e) {return e[0].tcoeff(e[1]);}
 
 #define CHECK_ARG(num, type, fcn) if (!is_ex_of_type(e[num], type)) throw(std::invalid_argument("argument " #num " to " #fcn "() must be a " #type))
 
@@ -303,25 +312,10 @@ static ex f_coeff(const exprseq &e)
 	return e[0].coeff(e[1], ex_to_numeric(e[2]).to_int());
 }
 
-static ex f_collect(const exprseq &e)
-{
-	return e[0].collect(e[1]);
-}
-
-static ex f_collect_distributed(const exprseq &e)
-{
-	return e[0].collect(e[1], true);
-}
-
 static ex f_content(const exprseq &e)
 {
 	CHECK_ARG(1, symbol, content);
 	return e[0].content(ex_to_symbol(e[1]));
-}
-
-static ex f_degree(const exprseq &e)
-{
-	return e[0].degree(e[1]);
 }
 
 static ex f_determinant(const exprseq &e)
@@ -373,11 +367,6 @@ static ex f_evalf2(const exprseq &e)
 	return e[0].evalf(ex_to_numeric(e[1]).to_int());
 }
 
-static ex f_has(const exprseq &e)
-{
-	return e[0].has(e[1]) ? ex(1) : ex(0);
-}
-
 static ex f_inverse(const exprseq &e)
 {
 	CHECK_ARG(0, matrix, inverse);
@@ -388,16 +377,6 @@ static ex f_is(const exprseq &e)
 {
 	CHECK_ARG(0, relational, is);
 	return (bool)ex_to_relational(e[0]) ? ex(1) : ex(0);
-}
-
-static ex f_lcoeff(const exprseq &e)
-{
-	return e[0].lcoeff(e[1]);
-}
-
-static ex f_ldegree(const exprseq &e)
-{
-	return e[0].ldegree(e[1]);
 }
 
 static ex f_match(const exprseq &e)
@@ -454,11 +433,6 @@ static ex f_series(const exprseq &e)
 	return e[0].series(e[1], ex_to_numeric(e[2]).to_int());
 }
 
-static ex f_sqrfree1(const exprseq &e)
-{
-	return sqrfree(e[0]);
-}
-
 static ex f_sqrfree2(const exprseq &e)
 {
 	CHECK_ARG(1, lst, sqrfree);
@@ -470,11 +444,6 @@ static ex f_subs3(const exprseq &e)
 	CHECK_ARG(1, lst, subs);
 	CHECK_ARG(2, lst, subs);
 	return e[0].subs(ex_to_lst(e[1]), ex_to_lst(e[2]));
-}
-
-static ex f_tcoeff(const exprseq &e)
-{
-	return e[0].tcoeff(e[1]);
 }
 
 static ex f_trace(const exprseq &e)
@@ -544,6 +513,7 @@ static const fcn_init builtin_fcns[] = {
 	{"normal", fcn_desc(f_normal1, 1)},
 	{"normal", fcn_desc(f_normal2, 2)},
 	{"numer", fcn_desc(f_numer, 1)},
+	{"numer_denom", fcn_desc(f_numer_denom, 1)},
 	{"op", fcn_desc(f_op, 2)},
 	{"pow", fcn_desc(f_pow, 2)},
 	{"prem", fcn_desc(f_prem, 3)},
