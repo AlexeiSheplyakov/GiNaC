@@ -447,6 +447,7 @@ static ex tan_series(const ex &x,
                      int order,
                      unsigned options)
 {
+	GINAC_ASSERT(is_ex_exactly_of_type(rel.lhs(),symbol));
 	// method:
 	// Taylor series where there is no pole falls back to tan_deriv.
 	// On a pole simply expand sin(x)/cos(x).
@@ -454,7 +455,7 @@ static ex tan_series(const ex &x,
 	if (!(2*x_pt/Pi).info(info_flags::odd))
 		throw do_taylor();  // caught by function::series()
 	// if we got here we have to care for a simple pole
-	return (sin(x)/cos(x)).series(rel, order+2);
+	return (sin(x)/cos(x)).series(rel, order+2, options);
 }
 
 REGISTER_FUNCTION(tan, eval_func(tan_eval).
@@ -607,9 +608,34 @@ static ex atan_deriv(const ex & x, unsigned deriv_param)
 	return power(_ex1()+power(x,_ex2()), _ex_1());
 }
 
+static ex atan_series(const ex &x,
+                      const relational &rel,
+                      int order,
+                      unsigned options)
+{
+	GINAC_ASSERT(is_ex_exactly_of_type(rel.lhs(),symbol));
+	// method:
+	// Taylor series where there is no pole or cut falls back to atan_deriv.
+	// There are two branch cuts, one runnig from I up the imaginary axis and
+	// one running from -I down the imaginary axis.  The points I and -I are
+	// poles.
+	// On the branch cuts and the poles series expand
+	//     log((1+I*x)/(1-I*x))/(2*I)
+	// instead.
+	// (The constant term on the cut itself could be made simpler.)
+	const ex x_pt = x.subs(rel);
+	if (!(I*x_pt).info(info_flags::real))
+		throw do_taylor();     // Re(x) != 0
+	if ((I*x_pt).info(info_flags::real) && abs(I*x_pt)<_ex1())
+		throw do_taylor();     // Re(x) == 0, but abs(x)<1
+	// if we got here we have to care for cuts and poles
+	return (log((1+I*x)/(1-I*x))/(2*I)).series(rel, order, options);
+}
+
 REGISTER_FUNCTION(atan, eval_func(atan_eval).
                         evalf_func(atan_evalf).
-                        derivative_func(atan_deriv));
+                        derivative_func(atan_deriv).
+                        series_func(atan_series));
 
 //////////
 // inverse tangent (atan2(y,x))
@@ -815,6 +841,7 @@ static ex tanh_series(const ex &x,
                       int order,
                       unsigned options)
 {
+	GINAC_ASSERT(is_ex_exactly_of_type(rel.lhs(),symbol));
 	// method:
 	// Taylor series where there is no pole falls back to tanh_deriv.
 	// On a pole simply expand sinh(x)/cosh(x).
@@ -822,7 +849,7 @@ static ex tanh_series(const ex &x,
 	if (!(2*I*x_pt/Pi).info(info_flags::odd))
 		throw do_taylor();  // caught by function::series()
 	// if we got here we have to care for a simple pole
-	return (sinh(x)/cosh(x)).series(rel, order+2);
+	return (sinh(x)/cosh(x)).series(rel, order+2, options);
 }
 
 REGISTER_FUNCTION(tanh, eval_func(tanh_eval).
@@ -952,9 +979,34 @@ static ex atanh_deriv(const ex & x, unsigned deriv_param)
 	return power(_ex1()-power(x,_ex2()),_ex_1());
 }
 
+static ex atanh_series(const ex &x,
+                       const relational &rel,
+                       int order,
+                       unsigned options)
+{
+	GINAC_ASSERT(is_ex_exactly_of_type(rel.lhs(),symbol));
+	// method:
+	// Taylor series where there is no pole or cut falls back to atan_deriv.
+	// There are two branch cuts, one runnig from 1 up the real axis and one
+	// one running from -1 down the real axis.  The points 1 and -1 are poles
+	// On the branch cuts and the poles series expand
+	//     log((1+x)/(1-x))/(2*I)
+	// instead.
+	// (The constant term on the cut itself could be made simpler.)
+	const ex x_pt = x.subs(rel);
+	if (!(x_pt).info(info_flags::real))
+		throw do_taylor();     // Im(x) != 0
+	if ((x_pt).info(info_flags::real) && abs(x_pt)<_ex1())
+		throw do_taylor();     // Im(x) == 0, but abs(x)<1
+	// if we got here we have to care for cuts and poles
+	return (log((1+x)/(1-x))/2).series(rel, order, options);
+}
+
 REGISTER_FUNCTION(atanh, eval_func(atanh_eval).
                          evalf_func(atanh_evalf).
-                         derivative_func(atanh_deriv));
+                         derivative_func(atanh_deriv).
+                         series_func(atanh_series));
+
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
