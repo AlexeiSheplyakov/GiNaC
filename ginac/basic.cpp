@@ -125,14 +125,26 @@ void basic::archive(archive_node &n) const
  *               level for placing parentheses and formatting */
 void basic::print(const print_context & c, unsigned level) const
 {
+	print_dispatch(get_class_info(), c, level);
+}
+
+/** Like print(), but dispatch to the specified class. Can be used by
+ *  implementations of print methods to dispatch to the method of the
+ *  superclass.
+ *
+ *  @see basic::print */
+void basic::print_dispatch(const registered_class_info & ri, const print_context & c, unsigned level) const
+{
 	// Double dispatch on object type and print_context type
-	const registered_class_info * reg_info = &get_class_info();
+	const registered_class_info * reg_info = &ri;
 	const print_context_class_info * pc_info = &c.get_class_info();
 
 next_class:
+std::clog << "searching class " << reg_info->options.get_name() << std::endl;
 	const std::vector<print_functor> & pdt = reg_info->options.get_print_dispatch_table();
 
 next_context:
+std::clog << "searching context " << pc_info->options.get_name() << ", ID " << pc_info->options.get_id() << std::endl;
 	unsigned id = pc_info->options.get_id();
 	if (id >= pdt.size() || !(pdt[id].is_valid())) {
 
@@ -161,6 +173,8 @@ next_context:
 	} else {
 
 		// Call method
+std::clog << "method found, calling" << std::endl;
+std::clog << " this = " << class_name() << ", context = " << c.class_name() << std::endl;
 		pdt[id](*this, c, level);
 	}
 }

@@ -79,7 +79,7 @@ $print_func_interface=generate(
     template <class Ctx> function_options & print_func(print_funcp_${N} p)
     {
     	test_and_set_nparams(${N});
-    	set_print_func(Ctx::reg_info.options.get_id(), print_funcp(p));
+    	set_print_func(Ctx::get_class_info_static().options.get_id(), print_funcp(p));
     	return *this;
     }
 END_OF_PRINT_FUNC_INTERFACE
@@ -274,7 +274,7 @@ $print_func_interface
 	template <class Ctx> function_options & print_func(print_funcp_exvector p)
 	{
 		print_use_exvector_args = true;
-		set_print_func(Ctx::reg_info.options.get_id(), print_funcp(p));
+		set_print_func(Ctx::get_class_info_static().options.get_id(), print_funcp(p));
 		return *this;
 	}
 

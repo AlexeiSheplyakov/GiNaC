@@ -192,6 +192,19 @@ protected: // functions that should be called from class ex only
 	
 	// non-virtual functions in this class
 public:
+	/** Like print(), but dispatch to the specified class. Can be used by
+	 *  implementations of print methods to dispatch to the method of the
+	 *  superclass.
+	 *
+	 *  @see basic::print */
+	template <class T>
+	void print_dispatch(const print_context & c, unsigned level) const
+	{
+		print_dispatch(T::get_class_info_static(), c, level);
+	}
+
+	void print_dispatch(const registered_class_info & ri, const print_context & c, unsigned level) const;
+
 	ex subs_one_level(const exmap & m, unsigned options) const;
 	ex diff(const symbol & s, unsigned nth = 1) const;
 	int compare(const basic & other) const;
@@ -209,7 +222,6 @@ public:
 protected:
 	void ensure_if_modifiable() const;
 
-private:
 	void do_print(const print_context & c, unsigned level) const;
 	void do_print_tree(const print_tree & c, unsigned level) const;
 	void do_print_python_repr(const print_python_repr & c, unsigned level) const;
@@ -244,7 +256,7 @@ inline bool is_a(const basic &obj)
 template <class T>
 inline bool is_exactly_a(const basic &obj)
 {
-	return obj.tinfo() == T::reg_info.options.get_id();
+	return obj.tinfo() == T::get_class_info_static().options.get_id();
 }
 
 } // namespace GiNaC

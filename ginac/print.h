@@ -69,19 +69,23 @@ public: \
 	typedef supername inherited; \
 	friend class function_options; \
 	friend class registered_class_options; \
-private: \
-	static GiNaC::print_context_class_info reg_info; \
 public: \
-	virtual const GiNaC::print_context_class_info &get_class_info() const { return reg_info; } \
-	virtual const char *class_name() const { return reg_info.options.get_name(); } \
+	static const GiNaC::print_context_class_info &get_class_info_static(); \
+	virtual const GiNaC::print_context_class_info &get_class_info() const { return classname::get_class_info_static(); } \
+	virtual const char *class_name() const { return classname::get_class_info_static().options.get_name(); } \
 	\
 	classname(); \
-	classname * duplicate() const { return new classname(*this); } \
+	virtual classname * duplicate() const { return new classname(*this); } \
 private:
 
 /** Macro for inclusion in the implementation of each print_context class. */
 #define GINAC_IMPLEMENT_PRINT_CONTEXT(classname, supername) \
-	GiNaC::print_context_class_info classname::reg_info = GiNaC::print_context_class_info(print_context_options(#classname, #supername, next_print_context_id++));
+const GiNaC::print_context_class_info &classname::get_class_info_static() \
+{ \
+	static GiNaC::print_context_class_info reg_info = GiNaC::print_context_class_info(GiNaC::print_context_options(#classname, #supername, GiNaC::next_print_context_id++)); \
+	return reg_info; \
+}
+
 
 extern unsigned next_print_context_id;
 

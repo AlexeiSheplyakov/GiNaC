@@ -58,21 +58,21 @@ public:
 	template <class Ctx, class T, class C>
 	registered_class_options & print_func(void f(const T &, const C & c, unsigned))
 	{
-		set_print_func(Ctx::reg_info.options.get_id(), f);
+		set_print_func(Ctx::get_class_info_static().options.get_id(), f);
 		return *this;
 	}
 
 	template <class Ctx, class T, class C>
 	registered_class_options & print_func(void (T::*f)(const C &, unsigned))
 	{
-		set_print_func(Ctx::reg_info.options.get_id(), f);
+		set_print_func(Ctx::get_class_info_static().options.get_id(), f);
 		return *this;
 	}
 
 	template <class Ctx>
 	registered_class_options & print_func(const print_functor & f)
 	{
-		set_print_func(Ctx::reg_info.options.get_id(), f);
+		set_print_func(Ctx::get_class_info_static().options.get_id(), f);
 		return *this;
 	}
 
@@ -98,12 +98,12 @@ typedef class_info<registered_class_options> registered_class_info;
 #define GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(classname, supername) \
 public: \
 	typedef supername inherited; \
-	template <class isexaclass> friend bool is_exactly_a(const GiNaC::basic &obj); \
 private: \
 	static GiNaC::registered_class_info reg_info; \
 public: \
-	virtual const GiNaC::registered_class_info &get_class_info() const { return reg_info; } \
-	virtual const char *class_name() const { return reg_info.options.get_name(); } \
+	static const GiNaC::registered_class_info &get_class_info_static() { return reg_info; } \
+	virtual const GiNaC::registered_class_info &get_class_info() const { return classname::get_class_info_static(); } \
+	virtual const char *class_name() const { return classname::get_class_info_static().options.get_name(); } \
 	\
 	classname(const GiNaC::archive_node &n, GiNaC::lst &sym_lst); \
 	virtual void archive(GiNaC::archive_node &n) const; \
@@ -122,9 +122,9 @@ public: \
 	GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(classname, supername) \
 public: \
 	classname(); \
-	classname * duplicate() const { return new classname(*this); } \
+	virtual classname * duplicate() const { return new classname(*this); } \
 	\
-	void accept(GiNaC::visitor & v) const \
+	virtual void accept(GiNaC::visitor & v) const \
 	{ \
 		if (visitor *p = dynamic_cast<visitor *>(&v)) \
 			p->visit(*this); \
@@ -132,7 +132,7 @@ public: \
 			inherited::accept(v); \
 	} \
 protected: \
-	int compare_same_type(const GiNaC::basic & other) const; \
+	virtual int compare_same_type(const GiNaC::basic & other) const; \
 private:
 
 /** Macro for inclusion in the implementation of each registered class. */
