@@ -1,6 +1,7 @@
 This file records noteworthy changes.
 
 0.9.3 (<insert date>)
+* series expansion now much more consistent for small order expansion.
 * lsolve() accepts an algorithmic hint as parameter.
 
 0.9.2 (31 July 2001)

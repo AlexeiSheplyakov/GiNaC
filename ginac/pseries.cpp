@@ -499,21 +499,23 @@ ex basic::series(const relational & r, int order, unsigned options) const
 	
 	int n;
 	for (n=1; n<order; ++n) {
-		fac = fac.mul(numeric(n));
+		fac = fac.mul(n);
+		// We need to test for zero in order to see if the series terminates.
+		// The problem is that there is no such thing as a perfect test for
+		// zero.  Expanding the term occasionally helps a little...
 		deriv = deriv.diff(s).expand();
-		if (deriv.is_zero()) {
-			// Series terminates
+		if (deriv.is_zero())  // Series terminates
 			return pseries(r, seq);
-		}
+
 		coeff = deriv.subs(r);
 		if (!coeff.is_zero())
-			seq.push_back(expair(fac.inverse() * coeff, numeric(n)));
+			seq.push_back(expair(fac.inverse() * coeff, n));
 	}
 	
 	// Higher-order terms, if present
 	deriv = deriv.diff(s);
 	if (!deriv.expand().is_zero())
-		seq.push_back(expair(Order(_ex1()), numeric(n)));
+		seq.push_back(expair(Order(_ex1()), n));
 	return pseries(r, seq);
 }
 
