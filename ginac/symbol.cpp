@@ -25,6 +25,7 @@
 #include "symbol.h"
 #include "lst.h"
 #include "utils.h"
+#include "idx.h"
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers

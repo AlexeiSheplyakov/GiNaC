@@ -70,6 +70,8 @@ public:
     bool is_symbolic(void) const;
     unsigned get_value(void) const;
     bool is_covariant(void) const;
+    void setname(string const & n) {name=n;}
+    string getname(void) const {return name;}
 
     // member variables
 protected:
