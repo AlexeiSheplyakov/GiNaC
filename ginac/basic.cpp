@@ -201,21 +201,27 @@ basic * basic::duplicate() const
     return new basic(*this);
 }
 
+/** Information about the object.
+ *
+ *  @see class info_flags */
 bool basic::info(unsigned inf) const
 {
     return false; // all possible properties are false for basic objects
 }
 
+/** Number of operands/members. */
 unsigned basic::nops() const
 {
     return 0;
 }
 
+/** Return operand/member at position i. */
 ex basic::op(int i) const
 {
     return (const_cast<basic *>(this))->let_op(i);
 }
 
+/** Return modifyable operand/member at position i. */
 ex & basic::let_op(int i)
 {
     throw(std::out_of_range("op() out of range"));

@@ -42,6 +42,7 @@ public:
          };
 };
 
+/** Possible attributes an object can have. */
 class info_flags {
 public:
     enum { 
