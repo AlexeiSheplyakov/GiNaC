@@ -78,6 +78,18 @@ GiNaC.
 Working with the Cint C++ interpreter
 =====================================
 
-You need to specify
-  --with-cint=$CINTSYSDIR
-...
+The interface to the Cint C++ interpreter is currently in an alpha
+state.  Please see <http://root.cern.ch/root/Cint.html> to learn about
+Cint and install it before installing ginaccint.  For the tool
+makecint to work properly it must know where Cint has its system
+directory.  This is usually done by exporting $CINTSYSDIR to point to
+the proper place.  With GiNaC you may either try to export that
+variable and type
+ $ ./configure --with-cint
+or specify it on the command line saying
+ $ ./configure --with-cint=/my/path/to/cintsysdir
+Good luck!
+
+  Known to work with:  |  Known not to work with:   
+-----------------------+----------------------------
+  Cint 5.14.26         |  Cint 5.14.29              

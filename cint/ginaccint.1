@@ -30,7 +30,7 @@ in C++.  It is not necessary to explicitly invoke a print command as
 the last expression is automatically printed:
 .nf
 GiNaC> pow(x+y,4).expand();
-out2 = x^4+4*x^3*y+6*x^2*y^2+4*x*y^3+y^4
+Out2 = x^4+4*x^3*y+6*x^2*y^2+4*x*y^3+y^4
 .fi
 Statements are generally closed by either when a closing brace 
 .RB ( } )
@@ -124,6 +124,19 @@ in your Cint distribution.  Please take the time to track down any bug
 you encounter as far as possible and contact Masaharu Goto
 <MXJ02154@niftyserve.or.jp> for Cint-related bugs and
 <ginac-bugs@ginac.de> for any bugs in the GiNaC engine.
+
+Only expressions (class
+.BR ex )
+are typed out and available through 
+.BR "\fBOut\fP\fInum\fP" 
+and 
+.BR LAST
+after declaring them.  This accounts for some funny behaviour, like
+.BR fibonacci(7)
+doesn't print, but
+.BR fibonacci(7)*1
+does, since this is not a naked number but an expression holding
+that number.
 
 .SH AUTHOR
 .TP

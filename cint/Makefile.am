@@ -15,7 +15,7 @@ libginac.la:
 	  $(MAKE) clean)
 
 ginaccint.bin: libginac.la ginaccint.bin.cpp
-	$(MAKE) -f Makefile.makecint
+	(export CINTSYSDIR=$(CINTSYSDIR); $(MAKE) -f Makefile.makecint PATH=$(PATH):$(CINTSYSDIR))
 
 EXTRA_DIST = dummies.pl
 
