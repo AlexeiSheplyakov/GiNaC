@@ -274,7 +274,7 @@ static ex Li2_series(const ex &x, const relational &rel, int order, unsigned opt
 			// method:
 			// construct series manually in a dummy symbol s
 			const symbol s;
-			ex ser = zeta(2);
+			ex ser = zeta(_ex2());
 			// manually construct the primitive expansion
 			for (int i=1; i<order; ++i)
 				ser += pow(1-s,i) * (numeric(1,i)*(I*Pi+log(s-1)) - numeric(1,i*i));

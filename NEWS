@@ -1,6 +1,9 @@
 This file records noteworthy changes.
 
 0.9.1 (<date>)
+* Ctors of class numeric are not explicit any more.  All built-in callers for
+  pseudofunctions are now templated and default to ex arguments which relaxes
+  the need for explicit ctors.
 * New functions/methods:
    - find()
    - remove_first(), remove_last(), sort() and unique() for lists

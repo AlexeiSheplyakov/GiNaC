@@ -43,8 +43,8 @@ class power : public basic
 	
 	// other ctors
 public:
-	power(const ex & lh, const ex & rh);
-	power(const ex & lh, const numeric & rh);
+	power(const ex & lh, const ex & rh) : inherited(TINFO_power), basis(lh), exponent(rh) {}
+	template<typename T> power(const ex & lh, const T & rh) : inherited(TINFO_power), basis(lh), exponent(rh) {}
 	
 	// functions overriding virtual functions from bases classes
 public:
@@ -80,9 +80,6 @@ protected:
 	ex expand_add(const add & a, int n) const;
 	ex expand_add_2(const add & a) const;
 	ex expand_mul(const mul & m, const numeric & n) const;
-	//ex expand_commutative_3(const ex & basis, const numeric & exponent,
-	//                        unsigned options) const;
-	//ex expand_noncommutative(const ex & basis, const numeric & exponent, unsigned options) const;
 	
 // member variables
 	
@@ -115,6 +112,11 @@ template<> inline bool is_exactly_a<power>(const basic & obj)
 inline ex pow(const ex & b, const ex & e)
 {
 	return power(b, e);
+}
+template<typename T1, typename T2>
+inline ex pow(const T1 & b, const T2 & e)
+{
+	return power(ex(b), ex(e));
 }
 
 /** Square root expression.  Returns a power-object with exponent 1/2. */

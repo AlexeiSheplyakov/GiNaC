@@ -149,7 +149,7 @@ ex ncmul::expand(unsigned options) const
 {
 	// First, expand the children
 	exvector expanded_seq = expandchildren(options);
-
+	
 	// Now, look for all the factors that are sums and remember their
 	// position and number of terms. One remark is in order here: we do not
 	// take into account the overall_coeff of the add objects. This is
@@ -171,9 +171,9 @@ ex ncmul::expand(unsigned options) const
 			const add & expanded_addref = ex_to<add>(*cit);
 			number_of_add_operands[number_of_adds] = expanded_addref.seq.size();
 			number_of_expanded_terms *= expanded_addref.seq.size();
-			number_of_adds++;
+			++number_of_adds;
 		}
-		current_position++;
+		++current_position;
 	}
 
 	// If there are no sums, we are done

@@ -709,11 +709,11 @@ ex mul::expand(unsigned options) const
 	}
 	if (expanded_seqp)
 		delete expanded_seqp;
-
+	
 	// Now the only remaining thing to do is to multiply the factors which
 	// were not sums into the "last_expanded" sum
 	if (is_ex_exactly_of_type(last_expanded, add)) {
-		add const & finaladd = ex_to<add>(last_expanded);
+		const add & finaladd = ex_to<add>(last_expanded);
 		exvector distrseq;
 		int n = finaladd.nops();
 		distrseq.reserve(n);

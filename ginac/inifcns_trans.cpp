@@ -56,7 +56,7 @@ static ex exp_eval(const ex & x)
 		return _ex1();
 	}
 	// exp(n*Pi*I/2) -> {+1|+I|-1|-I}
-	ex TwoExOverPiI=(_ex2()*x)/(Pi*I);
+	const ex TwoExOverPiI=(_ex2()*x)/(Pi*I);
 	if (TwoExOverPiI.info(info_flags::integer)) {
 		numeric z=mod(ex_to<numeric>(TwoExOverPiI),_num4());
 		if (z.is_equal(_num0()))
@@ -199,7 +199,7 @@ static ex log_series(const ex &arg,
 		const symbol *s = static_cast<symbol *>(rel.lhs().bp);
 		const ex point = rel.rhs();
 		const symbol foo;
-		ex replarg = series(log(arg), *s==foo, order).subs(foo==point);
+		const ex replarg = series(log(arg), *s==foo, order).subs(foo==point);
 		epvector seq;
 		seq.push_back(expair(-I*csgn(arg*I)*Pi, _ex0()));
 		seq.push_back(expair(Order(_ex1()), order));
@@ -230,7 +230,7 @@ static ex sin_evalf(const ex & x)
 static ex sin_eval(const ex & x)
 {
 	// sin(n/d*Pi) -> { all known non-nested radicals }
-	ex SixtyExOverPi = _ex60()*x/Pi;
+	const ex SixtyExOverPi = _ex60()*x/Pi;
 	ex sign = _ex1();
 	if (SixtyExOverPi.info(info_flags::integer)) {
 		numeric z = mod(ex_to<numeric>(SixtyExOverPi),_num120());
@@ -312,7 +312,7 @@ static ex cos_evalf(const ex & x)
 static ex cos_eval(const ex & x)
 {
 	// cos(n/d*Pi) -> { all known non-nested radicals }
-	ex SixtyExOverPi = _ex60()*x/Pi;
+	const ex SixtyExOverPi = _ex60()*x/Pi;
 	ex sign = _ex1();
 	if (SixtyExOverPi.info(info_flags::integer)) {
 		numeric z = mod(ex_to<numeric>(SixtyExOverPi),_num120());
@@ -394,7 +394,7 @@ static ex tan_evalf(const ex & x)
 static ex tan_eval(const ex & x)
 {
 	// tan(n/d*Pi) -> { all known non-nested radicals }
-	ex SixtyExOverPi = _ex60()*x/Pi;
+	const ex SixtyExOverPi = _ex60()*x/Pi;
 	ex sign = _ex1();
 	if (SixtyExOverPi.info(info_flags::integer)) {
 		numeric z = mod(ex_to<numeric>(SixtyExOverPi),_num60());
@@ -650,7 +650,7 @@ static ex atan_series(const ex &arg,
 		const symbol *s = static_cast<symbol *>(rel.lhs().bp);
 		const ex point = rel.rhs();
 		const symbol foo;
-		ex replarg = series(atan(arg), *s==foo, order).subs(foo==point);
+		const ex replarg = series(atan(arg), *s==foo, order).subs(foo==point);
 		ex Order0correction = replarg.op(0)+csgn(arg)*Pi*_ex_1_2();
 		if ((I*arg_pt)<_ex0())
 			Order0correction += log((I*arg_pt+_ex_1())/(I*arg_pt+_ex1()))*I*_ex_1_2();
@@ -1043,7 +1043,7 @@ static ex atanh_series(const ex &arg,
  		const symbol *s = static_cast<symbol *>(rel.lhs().bp);
  		const ex point = rel.rhs();
  		const symbol foo;
- 		ex replarg = series(atanh(arg), *s==foo, order).subs(foo==point);
+ 		const ex replarg = series(atanh(arg), *s==foo, order).subs(foo==point);
 		ex Order0correction = replarg.op(0)+csgn(I*arg)*Pi*I*_ex1_2();
 		if (arg_pt<_ex0())
 			Order0correction += log((arg_pt+_ex_1())/(arg_pt+_ex1()))*_ex1_2();

@@ -72,13 +72,13 @@ class numeric : public basic
 	
 	// other ctors
 public:
-	explicit numeric(int i);
-	explicit numeric(unsigned int i);
-	explicit numeric(long i);
-	explicit numeric(unsigned long i);
-	explicit numeric(long numer, long denom);
-	explicit numeric(double d);
-	explicit numeric(const char *);
+	numeric(int i);
+	numeric(unsigned int i);
+	numeric(long i);
+	numeric(unsigned long i);
+	numeric(long numer, long denom);
+	numeric(double d);
+	numeric(const char *);
 	
 	// functions overriding virtual functions from bases classes
 public:

@@ -1082,9 +1082,9 @@ void expairseq::combine_same_terms_sorted_seq(void)
 		// possible from then on the sequence has changed and must be compacted
 		bool must_copy = false;
 		while (itin2!=last) {
-			if ((*itin1).rest.compare(itin2->rest)==0) {
-				(*itin1).coeff = ex_to<numeric>(itin1->coeff).
-				                 add_dyn(ex_to<numeric>(itin2->coeff));
+			if (itin1->rest.compare(itin2->rest)==0) {
+				itin1->coeff = ex_to<numeric>(itin1->coeff).
+				               add_dyn(ex_to<numeric>(itin2->coeff));
 				if (expair_needs_further_processing(itin1))
 					needs_further_processing = true;
 				must_copy = true;

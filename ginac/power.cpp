@@ -67,17 +67,7 @@ DEFAULT_DESTROY(power)
 // other ctors
 //////////
 
-power::power(const ex & lh, const ex & rh) : inherited(TINFO_power), basis(lh), exponent(rh)
-{
-	debugmsg("power ctor from ex,ex",LOGLEVEL_CONSTRUCT);
-}
-
-/** Ctor from an ex and a bare numeric.  This is somewhat more efficient than
- *  the normal ctor from two ex whenever it can be used. */
-power::power(const ex & lh, const numeric & rh) : inherited(TINFO_power), basis(lh), exponent(rh)
-{
-	debugmsg("power ctor from ex,numeric",LOGLEVEL_CONSTRUCT);
-}
+// all inlined
 
 //////////
 // archiving
@@ -493,8 +483,8 @@ ex power::evalf(int level) const
 
 ex power::evalm(void) const
 {
-	ex ebasis = basis.evalm();
-	ex eexponent = exponent.evalm();
+	const ex ebasis = basis.evalm();
+	const ex eexponent = exponent.evalm();
 	if (is_ex_of_type(ebasis,matrix)) {
 		if (is_ex_of_type(eexponent,numeric)) {
 			return (new matrix(ex_to<matrix>(ebasis).pow(eexponent)))->setflag(status_flags::dynallocated);
@@ -658,7 +648,7 @@ ex power::expand_add(const add & a, int n) const
 		upper_limit[l] = n;
 	}
 	
-	while (1) {
+	while (true) {
 		exvector term;
 		term.reserve(m+1);
 		for (l=0; l<m-1; l++) {
@@ -695,23 +685,12 @@ ex power::expand_add(const add & a, int n) const
 		
 		term.push_back(f);
 		
-		/*
-		cout << "begin term" << endl;
-		for (int i=0; i<m-1; i++) {
-			cout << "k[" << i << "]=" << k[i] << endl;
-			cout << "k_cum[" << i << "]=" << k_cum[i] << endl;
-			cout << "upper_limit[" << i << "]=" << upper_limit[i] << endl;
-		}
-		for_each(term.begin(), term.end(), ostream_iterator<ex>(cout, "\n"));
-		cout << "end term" << endl;
-		*/
-		
-		// TODO: optimize this
+		// TODO: Can we optimize this?  Alex seemed to think so...
 		sum.push_back((new mul(term))->setflag(status_flags::dynallocated));
 		
 		// increment k[]
 		l = m-2;
-		while ((l>=0)&&((++k[l])>upper_limit[l])) {
+		while ((l>=0) && ((++k[l])>upper_limit[l])) {
 			k[l] = 0;    
 			--l;
 		}
@@ -730,7 +709,7 @@ ex power::expand_add(const add & a, int n) const
 			upper_limit[i] = n-k_cum[i-1];
 	}
 	return (new add(sum))->setflag(status_flags::dynallocated |
-								   status_flags::expanded );
+	                               status_flags::expanded );
 }
 
 
@@ -746,8 +725,8 @@ ex power::expand_add_2(const add & a) const
 	// power(+(x,...,z;c),2)=power(+(x,...,z;0),2)+2*c*+(x,...,z;0)+c*c
 	// first part: ignore overall_coeff and expand other terms
 	for (epvector::const_iterator cit0=a.seq.begin(); cit0!=last; ++cit0) {
-		const ex & r = (*cit0).rest;
-		const ex & c = (*cit0).coeff;
+		const ex & r = cit0->rest;
+		const ex & c = cit0->coeff;
 		
 		GINAC_ASSERT(!is_ex_exactly_of_type(r,add));
 		GINAC_ASSERT(!is_ex_exactly_of_type(r,power) ||
@@ -776,8 +755,8 @@ ex power::expand_add_2(const add & a) const
 		}
 			
 		for (epvector::const_iterator cit1=cit0+1; cit1!=last; ++cit1) {
-			const ex & r1 = (*cit1).rest;
-			const ex & c1 = (*cit1).coeff;
+			const ex & r1 = cit1->rest;
+			const ex & c1 = cit1->coeff;
 			sum.push_back(a.combine_ex_with_coeff_to_pair((new mul(r,r1))->setflag(status_flags::dynallocated),
 			                                              _num2().mul(ex_to<numeric>(c)).mul_dyn(ex_to<numeric>(c1))));
 		}
@@ -823,18 +802,6 @@ ex power::expand_mul(const mul & m, const numeric & n) const
 	}
 	return (new mul(distrseq,ex_to<numeric>(m.overall_coeff).power_dyn(n)))->setflag(status_flags::dynallocated);
 }
-
-/*
-ex power::expand_noncommutative(const ex & basis, const numeric & exponent,
-								unsigned options) const
-{
-	ex rest_power = ex(power(basis,exponent.add(_num_1()))).
-	                expand(options | expand_options::internal_do_not_expand_power_operands);
-
-	return ex(mul(rest_power,basis),0).
-	       expand(options | expand_options::internal_do_not_expand_mul_operands);
-}
-*/
 
 // helper function
 

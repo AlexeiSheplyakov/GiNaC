@@ -856,28 +856,16 @@ using namespace GiNaC;
 
 int main()
 @{
-    numeric two(2);                       // exact integer 2
+    numeric two = 2;                      // exact integer 2
     numeric r(2,3);                       // exact fraction 2/3
     numeric e(2.71828);                   // floating point number
-    numeric p("3.1415926535897932385");   // floating point number
+    numeric p = "3.14159265358979323846"; // constructor from string
     // Trott's constant in scientific notation:
     numeric trott("1.0841015122311136151E-2");
     
     std::cout << two*p << std::endl;  // floating point 6.283...
 @}
 @end example
-
-Note that all those constructors are @emph{explicit} which means you are
-not allowed to write @code{numeric two=2;}.  This is because the basic
-objects to be handled by GiNaC are the expressions @code{ex} and we want
-to keep things simple and wish objects like @code{pow(x,2)} to be
-handled the same way as @code{pow(x,a)}, which means that we need to
-allow a general @code{ex} as base and exponent.  Therefore there is an
-implicit constructor from C-integers directly to expressions handling
-numerics at work in most of our examples.  This design really becomes
-convenient when one declares own functions having more than one
-parameter but it forbids using implicit constructors because that would
-lead to compile-time ambiguities.
 
 It may be tempting to construct numbers writing @code{numeric r(3/2)}.
 This would, however, call C's built-in operator @code{/} for integers
@@ -1196,11 +1184,12 @@ There are quite a number of useful functions hard-wired into GiNaC.  For
 instance, all trigonometric and hyperbolic functions are implemented
 (@xref{Built-in Functions}, for a complete list).
 
-These functions are all objects of class @code{function}.  They accept
-one or more expressions as arguments and return one expression.  If the
-arguments are not numerical, the evaluation of the function may be
-halted, as it does in the next example, showing how a function returns
-itself twice and finally an expression that may be really useful:
+These functions (better called @emph{pseudofunctions}) are all objects
+of class @code{function}.  They accept one or more expressions as
+arguments and return one expression.  If the arguments are not
+numerical, the evaluation of the function may be halted, as it does in
+the next example, showing how a function returns itself twice and
+finally an expression that may be really useful:
 
 @cindex Gamma function
 @cindex @code{subs()}
@@ -1222,6 +1211,18 @@ itself twice and finally an expression that may be really useful:
 Besides evaluation most of these functions allow differentiation, series
 expansion and so on.  Read the next chapter in order to learn more about
 this.
+
+It must be noted that these pseudofunctions are created by inline
+functions, where the argument list is templated.  This means that
+whenever you call @code{GiNaC::sin(1)} it is equivalent to
+@code{sin(ex(1))} and will therefore not result in a floating point
+numeber.  Unless of course the function prototype is explicitly
+overridden -- which is the case for arguments of type @code{numeric}
+(not wrapped inside an @code{ex}).  Hence, in order to obtain a floating
+point number of class @code{numeric} you should call
+@code{sin(numeric(1))}.  This is almost the same as calling
+@code{sin(1).evalf()} except that the latter will return a numeric
+wrapped inside an @code{ex}.
 
 
 @node Relations, Matrices, Mathematical functions, Basic Concepts

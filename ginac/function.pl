@@ -15,65 +15,68 @@ sub generate_seq {
 }
 
 sub generate_from_to {
-	my ($template,$seq_template1,$seq_template2,$from,$to)=@_;
+	my ($template,$seq_template1,$seq_template2,$seq_template3,$from,$to)=@_;
 	my ($res,$N,$SEQ);
 
 	$res='';
 	for ($N=$from; $N<=$to; $N++) {
 		$SEQ1=generate_seq($seq_template1,$N);
 		$SEQ2=generate_seq($seq_template2,$N);
+		$SEQ3=generate_seq($seq_template3,$N);
 		$res .= eval('"' . $template . '"');
 		$SEQ1=''; # to avoid main::SEQ1 used only once warning
 		$SEQ2=''; # same as above
+		$SEQ3=''; # same as above
 	}
 	return $res;
 }
 
 sub generate {
-	my ($template,$seq_template1,$seq_template2)=@_;
-	return generate_from_to($template,$seq_template1,$seq_template2,1,$maxargs);
+	my ($template,$seq_template1,$seq_template2,$seq_template3)=@_;
+	return generate_from_to($template,$seq_template1,$seq_template2,$seq_template3,1,$maxargs);
 }
 
-$declare_function_macro = generate_from_to(
-	<<'END_OF_DECLARE_FUNCTION_MACRO','const GiNaC::ex & p${N}','p${N}',1,$maxargs);
+$declare_function_macro = generate(
+	<<'END_OF_DECLARE_FUNCTION_MACRO','typename T${N}','const T${N} & p${N}','GiNaC::ex(p${N})');
 #define DECLARE_FUNCTION_${N}P(NAME) \\
 extern const unsigned function_index_##NAME; \\
-inline const GiNaC::function NAME(${SEQ1}) { \\
-	return GiNaC::function(function_index_##NAME, ${SEQ2}); \\
+template<${SEQ1}> \\
+inline const GiNaC::function NAME(${SEQ2}) { \\
+	return GiNaC::function(function_index_##NAME, ${SEQ3}); \\
 }
 
 END_OF_DECLARE_FUNCTION_MACRO
 
 $typedef_eval_funcp=generate(
 'typedef ex (* eval_funcp_${N})(${SEQ1});'."\n",
-'const ex &','');
+'const ex &','','');
 
 $typedef_evalf_funcp=generate(
 'typedef ex (* evalf_funcp_${N})(${SEQ1});'."\n",
-'const ex &','');
+'const ex &','','');
 
 $typedef_derivative_funcp=generate(
 'typedef ex (* derivative_funcp_${N})(${SEQ1}, unsigned);'."\n",
-'const ex &','');
+'const ex &','','');
 
 $typedef_series_funcp=generate(
 'typedef ex (* series_funcp_${N})(${SEQ1}, const relational &, int, unsigned);'."\n",
-'const ex &','');
+'const ex &','','');
 
-$eval_func_interface=generate('    function_options & eval_func(eval_funcp_${N} e);'."\n",'','');
+$eval_func_interface=generate('    function_options & eval_func(eval_funcp_${N} e);'."\n",'','','');
 
-$evalf_func_interface=generate('    function_options & evalf_func(evalf_funcp_${N} ef);'."\n",'','');
+$evalf_func_interface=generate('    function_options & evalf_func(evalf_funcp_${N} ef);'."\n",'','','');
 
-$derivative_func_interface=generate('    function_options & derivative_func(derivative_funcp_${N} d);'."\n",'','');
+$derivative_func_interface=generate('    function_options & derivative_func(derivative_funcp_${N} d);'."\n",'','','');
 
-$series_func_interface=generate('    function_options & series_func(series_funcp_${N} s);'."\n",'','');
+$series_func_interface=generate('    function_options & series_func(series_funcp_${N} s);'."\n",'','','');
 
 $constructors_interface=generate(
 '    function(unsigned ser, ${SEQ1});'."\n",
-'const ex & param${N}','');
+'const ex & param${N}','','');
 
 $constructors_implementation=generate(
-	<<'END_OF_CONSTRUCTORS_IMPLEMENTATION','const ex & param${N}','param${N}');
+	<<'END_OF_CONSTRUCTORS_IMPLEMENTATION','const ex & param${N}','param${N}','');
 function::function(unsigned ser, ${SEQ1})
 	: exprseq(${SEQ2}), serial(ser)
 {
@@ -83,26 +86,26 @@ function::function(unsigned ser, ${SEQ1})
 END_OF_CONSTRUCTORS_IMPLEMENTATION
 
 $eval_switch_statement=generate(
-	<<'END_OF_EVAL_SWITCH_STATEMENT','seq[${N}-1]','');
+	<<'END_OF_EVAL_SWITCH_STATEMENT','seq[${N}-1]','','');
 	case ${N}:
 		eval_result = ((eval_funcp_${N})(registered_functions()[serial].eval_f))(${SEQ1});
 		break;
 END_OF_EVAL_SWITCH_STATEMENT
 
 $evalf_switch_statement=generate(
-	<<'END_OF_EVALF_SWITCH_STATEMENT','eseq[${N}-1]','');
+	<<'END_OF_EVALF_SWITCH_STATEMENT','eseq[${N}-1]','','');
 	case ${N}:
 		return ((evalf_funcp_${N})(registered_functions()[serial].evalf_f))(${SEQ1});
 END_OF_EVALF_SWITCH_STATEMENT
 
 $diff_switch_statement=generate(
-	<<'END_OF_DIFF_SWITCH_STATEMENT','seq[${N}-1]','');
+	<<'END_OF_DIFF_SWITCH_STATEMENT','seq[${N}-1]','','');
 	case ${N}:
 		return ((derivative_funcp_${N})(registered_functions()[serial].derivative_f))(${SEQ1},diff_param);
 END_OF_DIFF_SWITCH_STATEMENT
 
 $series_switch_statement=generate(
-	<<'END_OF_SERIES_SWITCH_STATEMENT','seq[${N}-1]','');
+	<<'END_OF_SERIES_SWITCH_STATEMENT','seq[${N}-1]','','');
 	case ${N}:
 		try {
 			res = ((series_funcp_${N})(registered_functions()[serial].series_f))(${SEQ1},r,order,options);
@@ -113,7 +116,7 @@ $series_switch_statement=generate(
 END_OF_SERIES_SWITCH_STATEMENT
 
 $eval_func_implementation=generate(
-	<<'END_OF_EVAL_FUNC_IMPLEMENTATION','','');
+	<<'END_OF_EVAL_FUNC_IMPLEMENTATION','','','');
 function_options & function_options::eval_func(eval_funcp_${N} e)
 {
 	test_and_set_nparams(${N});
@@ -123,7 +126,7 @@ function_options & function_options::eval_func(eval_funcp_${N} e)
 END_OF_EVAL_FUNC_IMPLEMENTATION
 
 $evalf_func_implementation=generate(
-	<<'END_OF_EVALF_FUNC_IMPLEMENTATION','','');
+	<<'END_OF_EVALF_FUNC_IMPLEMENTATION','','','');
 function_options & function_options::evalf_func(evalf_funcp_${N} ef)
 {
 	test_and_set_nparams(${N});
@@ -133,7 +136,7 @@ function_options & function_options::evalf_func(evalf_funcp_${N} ef)
 END_OF_EVALF_FUNC_IMPLEMENTATION
 
 $derivative_func_implementation=generate(
-	<<'END_OF_DERIVATIVE_FUNC_IMPLEMENTATION','','');
+	<<'END_OF_DERIVATIVE_FUNC_IMPLEMENTATION','','','');
 function_options & function_options::derivative_func(derivative_funcp_${N} d)
 {
 	test_and_set_nparams(${N});
@@ -143,7 +146,7 @@ function_options & function_options::derivative_func(derivative_funcp_${N} d)
 END_OF_DERIVATIVE_FUNC_IMPLEMENTATION
 
 $series_func_implementation=generate(
-	<<'END_OF_SERIES_FUNC_IMPLEMENTATION','','');
+	<<'END_OF_SERIES_FUNC_IMPLEMENTATION','','','');
 function_options & function_options::series_func(series_funcp_${N} s)
 {
 	test_and_set_nparams(${N});
@@ -984,14 +987,14 @@ unsigned function::register_new(function_options const & opt)
 		// usually executed before main(), so the exception could not
 		// caught anyhow
 		std::cerr << "WARNING: function name " << opt.name
-				  << " already in use!" << std::endl;
+		          << " already in use!" << std::endl;
 	}
 	registered_functions().push_back(opt);
 	if (opt.use_remember) {
 		remember_table::remember_tables().
 			push_back(remember_table(opt.remember_size,
-									 opt.remember_assoc_size,
-									 opt.remember_strategy));
+			                         opt.remember_assoc_size,
+			                         opt.remember_strategy));
 	} else {
 		remember_table::remember_tables().push_back(remember_table());
 	}
