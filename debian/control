@@ -3,9 +3,9 @@ Section: math
 Priority: optional
 Maintainer: Richard Kreckel <kreckel@ginac.de>
 Standards-Version: 3.1.1
-Build-Depends: debhelper, cln-dev (>=1.1.0), libgmp3-dev, libreadline4-dev, flex, bison
+Build-Depends: debhelper, libcln-dev, libgmp3-dev, libreadline4-dev, flex, bison
 
-Package: libginac
+Package: libginac0
 Architecture: any
 Section: libs
 Depends: libc6
@@ -21,7 +21,7 @@ Description: The GiNaC framework (runtime library)
 Package: libginac-dev
 Architecture: any
 Section: devel
-Depends: libginac, libc6-dev, g++ (>=2.95.2), cln-dev (>=1.1.0)
+Depends: libginac0 (= ${Source-Version}), libc6-dev, g++, libcln-dev
 Recommends: info | info-browser
 Suggests: ginac-tools
 Description: The GiNaC framework (development files)
@@ -42,6 +42,6 @@ Description: Some tools for the GiNaC framework
  library for doing symbolic (i.e. non-numeric) computation directly in the C++
  programming language.
  .
- This package provides some additional tools, like the ginsh (GiNaC interactive
- shell) and viewgar (for inspecting GiNaC archive files).  See
+ This package provides some additional tools, like the popular ginsh (GiNaC
+ interactive shell) and viewgar (for inspecting GiNaC archive files).  See
  <http://www.ginac.de/> for detailed information about the GiNaC framework.
