@@ -29,7 +29,7 @@
 static unsigned vandermonde_det(unsigned size)
 {
 	unsigned result = 0;
-	symbol a("a");
+	const symbol a("a");
 
 	// construct Vandermonde matrix:
 	matrix M(size,size);
@@ -72,10 +72,10 @@ unsigned time_vandermonde(void)
 	vector<double> times;
 	timer swatch;
 	
-	sizes.push_back(4);
 	sizes.push_back(6);
 	sizes.push_back(8);
 	sizes.push_back(10);
+	sizes.push_back(12);
 	
 	for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i) {
 		int count = 1;

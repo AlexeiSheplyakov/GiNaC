@@ -28,18 +28,19 @@
 static unsigned toeplitz_det(unsigned size)
 {
 	unsigned result = 0;
-	symbol a("a"), b("b");
-	ex p[8] = {a,
-	           b,
-	           a+b,
-	           pow(a,2) + a*b + pow(b,2),
-	           pow(a,3) + pow(a,2)*b - a*pow(b,2) + pow(b,3),
-	           pow(a,4) + pow(a,3)*b + pow(a*b,2) + a*pow(b,3) + pow(b,4),
-	           pow(a,5) + pow(a,4)*b + pow(a,3)*pow(b,2) - pow(a,2)*pow(b,3) + a*pow(b,4) + pow(b,5),
-	           pow(a,6) + pow(a,5)*b + pow(a,4)*pow(b,2) + pow(a*b,3) + pow(a,2)*pow(b,4) + a*pow(b,5) + pow(b,6)
+	const symbol a("a"), b("b");
+	ex p[9] = {ex("a",lst(a,b)),
+	           ex("b",lst(a,b)),
+	           ex("a+b",lst(a,b)),
+	           ex("a^2+a*b+b^2",lst(a,b)),
+	           ex("a^3+a^2*b-a*b^2+b^3",lst(a,b)),
+	           ex("a^4+a^3*b+a^2*b^2+a*b^3+b^4",lst(a,b)),
+	           ex("a^5+a^4*b+a^3*b^2-a^2*b^3+a*b^4+b^5",lst(a,b)),
+	           ex("a^6+a^5*b+a^4*b^2+a^3*b^3+a^2*b^4+a*b^5+b^6",lst(a,b)),
+	           ex("a^7+a^6*b+a^5*b^2+a^4*b^3-a^3*b^4+a^2*b^5+a*b^6+b^7",lst(a,b))
 	};
-	
-	// construct Toeplitz matrix:
+
+	// construct Toeplitz matrix (diagonal structure: [[x,y,z],[y,x,y],[z,y,x]]):
 	matrix M(size,size);
 	for (unsigned ro=0; ro<size; ++ro) {
 		for (unsigned nd=ro; nd<size; ++nd) {
@@ -47,10 +48,10 @@ static unsigned toeplitz_det(unsigned size)
 			M.set(nd,nd-ro,p[ro]);
 		}
 	}
-	
+
 	// compute determinant:
 	ex tdet = M.determinant();
-	
+
 	// dirty consistency check of result:
 	if (!tdet.subs(a==0).subs(b==0).is_zero()) {
 		clog << "Determaint of Toeplitz matrix " << endl
@@ -58,26 +59,26 @@ static unsigned toeplitz_det(unsigned size)
 		     << "was miscalculated: det(M)==" << tdet << endl;
 		++result;
 	}
-	
+
 	return result;
 }
 
 unsigned time_toeplitz(void)
 {
 	unsigned result = 0;
-	
+
 	cout << "timing determinant of polyvariate symbolic Toeplitz matrices" << flush;
 	clog << "-------determinant of polyvariate symbolic Toeplitz matrices:" << endl;
-	
+
 	vector<unsigned> sizes;
 	vector<double> times;
 	timer longines;
-	
-	sizes.push_back(5);
+
 	sizes.push_back(6);
 	sizes.push_back(7);
 	sizes.push_back(8);
-	
+	sizes.push_back(9);
+
 	for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i) {
 		int count = 1;
 		longines.start();
@@ -90,7 +91,7 @@ unsigned time_toeplitz(void)
 		times.push_back(longines.read()/count);
 		cout << '.' << flush;
 	}
-	
+
 	if (!result) {
 		cout << " passed ";
 		clog << "(no output)" << endl;
@@ -105,6 +106,6 @@ unsigned time_toeplitz(void)
 	for (vector<double>::iterator i=times.begin(); i!=times.end(); ++i)
 		cout << '\t' << int(1000*(*i))*0.001;
 	cout << endl;
-	
+
 	return result;
 }
