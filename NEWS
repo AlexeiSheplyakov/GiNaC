@@ -3,6 +3,7 @@ This file records noteworthy changes.
 0.9.4 (<insert date here>)
 * Functions have better support for external scripting languages.
 * Interface cleanups and bugfixes.
+* Fix bug in evalf() that prevented things like 2^Pi being computed.
 
 0.9.3 (16 August 2001)
 * series expansion now much more consistent for small order expansion.
