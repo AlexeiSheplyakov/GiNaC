@@ -4768,7 +4768,7 @@ It is always computed with respect to a specific symbol within the
 expressions. The function has the interface
 
 @example
-ex resultant(const ex & a, const ex & b, const symbol & s);
+ex resultant(const ex & a, const ex & b, const ex & s);
 @end example
 
 Resultants are symmetric in @code{a} and @code{b}. The following example
@@ -4786,9 +4786,9 @@ int main()
     ex e1 = x+pow(y,2), e2 = 2*pow(x,3)-1; // x+y^2, 2*x^3-1
     ex r;
     
-    r = resultant (e1, e2, x); 
+    r = resultant(e1, e2, x); 
     // -> 1+2*y^6
-    r = resultant (e1, e2, y); 
+    r = resultant(e1, e2, y); 
     // -> 1-4*x^3+4*x^6
 @}
 @end example
