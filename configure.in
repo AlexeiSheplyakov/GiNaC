@@ -152,7 +152,6 @@ AC_SUBST(TUTORIAL_TARGETS)
 AC_SUBST(REFERENCE_TARGETS)
 
 dnl Configure GiNaC-cint
-LIBGINACCINT=
 GINACCINTDIR=
 if test "x$with_cint" != "xno"; then
   if test "x$enable_static" != "xyes"; then
@@ -172,19 +171,18 @@ if test "x$with_cint" != "xno"; then
     AC_MSG_RESULT([creating cint/Makefile])
     (cd cint && \
     $MAKECINT -mk Makefile.makecint -o ginaccint.bin -m \
-      -D OBSCURE_CINT_HACK -D CINT_CONVERSION_WORKAROUND -D NO_NAMESPACE_GINAC \
-      -I .. -I $CINTSYSDIR -m -H ../ginac/ginac.h dummies.h \
-      -C++ dummies.cpp -C++ ginaccint.bin.cpp \
-      -l ./libginac.a -lcln -cint -M0x10; \
+      -D OBSCURE_CINT_HACK \
+      -I .. -I $CINTSYSDIR -m -H ../ginac/ginac.h \
+      -C++ ginaccint.bin.cpp \
+      -l -L../ginac/.libs -lginac -lcln \
+      -cint -M0x10; \
     cd ..)
-    LIBGINACCINT="libginac.a"
     GINACCINTDIR="cint"
   else
     AC_MSG_ERROR([Cannot configure GiNaC-cint])
   fi
 fi
 AC_SUBST(CINTSYSDIR)
-AC_SUBST(LIBGINACCINT)
 AC_SUBST(GINACCINTDIR)
 
 dnl Output makefiles etc.

@@ -3025,7 +3025,6 @@ fi
 
 
 
-LIBGINACCINT=
 GINACCINTDIR=
 if test "x$with_cint" != "xno"; then
   if test "x$enable_static" != "xyes"; then
@@ -3042,7 +3041,7 @@ if test "x$with_cint" != "xno"; then
   # Extract the first word of "cint", so it can be a program name with args.
 set dummy cint; ac_word=$2
 echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:3046: checking for $ac_word" >&5
+echo "configure:3045: checking for $ac_word" >&5
 if eval "test \"`echo '$''{'ac_cv_path_CINT'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -3078,7 +3077,7 @@ fi
   # Extract the first word of "makecint", so it can be a program name with args.
 set dummy makecint; ac_word=$2
 echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:3082: checking for $ac_word" >&5
+echo "configure:3081: checking for $ac_word" >&5
 if eval "test \"`echo '$''{'ac_cv_path_MAKECINT'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -3115,18 +3114,17 @@ fi
     echo "$ac_t""creating cint/Makefile" 1>&6
     (cd cint && \
     $MAKECINT -mk Makefile.makecint -o ginaccint.bin -m \
-      -D OBSCURE_CINT_HACK -D CINT_CONVERSION_WORKAROUND -D NO_NAMESPACE_GINAC \
-      -I .. -I $CINTSYSDIR -m -H ../ginac/ginac.h dummies.h \
-      -C++ dummies.cpp -C++ ginaccint.bin.cpp \
-      -l ./libginac.a -lcln -cint -M0x10; \
+      -D OBSCURE_CINT_HACK \
+      -I .. -I $CINTSYSDIR -m -H ../ginac/ginac.h \
+      -C++ ginaccint.bin.cpp \
+      -l -L../ginac/.libs -lginac -lcln \
+      -cint -M0x10; \
     cd ..)
-    LIBGINACCINT="libginac.a"
     GINACCINTDIR="cint"
   else
     { echo "configure: error: Cannot configure GiNaC-cint" 1>&2; exit 1; }
   fi
 fi
-
 
 
 
@@ -3338,7 +3336,6 @@ s%@REFERENCE_TARGETS@%$REFERENCE_TARGETS%g
 s%@CINT@%$CINT%g
 s%@MAKECINT@%$MAKECINT%g
 s%@CINTSYSDIR@%$CINTSYSDIR%g
-s%@LIBGINACCINT@%$LIBGINACCINT%g
 s%@GINACCINTDIR@%$GINACCINTDIR%g
 
 CEOF

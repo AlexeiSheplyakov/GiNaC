@@ -83,7 +83,6 @@ GINACLIB_VERSION = @GINACLIB_VERSION@
 GINSH_LIBS = @GINSH_LIBS@
 LATEX = @LATEX@
 LEX = @LEX@
-LIBGINACCINT = @LIBGINACCINT@
 LIBTERMCAP = @LIBTERMCAP@
 LIBTOOL = @LIBTOOL@
 LN_S = @LN_S@
@@ -105,28 +104,20 @@ YACC = @YACC@
 
 bin_PROGRAMS = ginaccint.bin
 bin_SCRIPTS = ginaccint
-noinst_LTLIBRARIES = libginac.la
-ginaccint_bin_SOURCES = ginaccint.bin.cpp dummies.cpp dummies.h
-libginac_la_SOURCES = 
+# noinst_LTLIBRARIES = ../ginac/libginac.la
+ginaccint_bin_SOURCES = ginaccint.bin.cpp
 man_MANS = ginaccint.1
-
-EXTRA_DIST = $(man_MANS) dummies.pl
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES =  ginaccint
-LTLIBRARIES =  $(noinst_LTLIBRARIES)
+PROGRAMS =  $(bin_PROGRAMS)
 
 
 DEFS = @DEFS@ -I. -I$(srcdir) -I..
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
-libginac_la_LDFLAGS = 
-libginac_la_LIBADD = 
-libginac_la_OBJECTS = 
-PROGRAMS =  $(bin_PROGRAMS)
-
-ginaccint_bin_OBJECTS =  ginaccint.bin.o dummies.o
+ginaccint_bin_OBJECTS =  ginaccint.bin.o
 ginaccint_bin_LDADD = $(LDADD)
 ginaccint_bin_DEPENDENCIES = 
 ginaccint_bin_LDFLAGS = 
@@ -137,11 +128,6 @@ CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@
-CFLAGS = @CFLAGS@
-COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-CCLD = $(CC)
-LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
 man1dir = $(mandir)/man1
 MANS = $(man_MANS)
 
@@ -153,9 +139,9 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/dummies.P .deps/ginaccint.bin.P
-SOURCES = $(libginac_la_SOURCES) $(ginaccint_bin_SOURCES)
-OBJECTS = $(libginac_la_OBJECTS) $(ginaccint_bin_OBJECTS)
+DEP_FILES =  .deps/ginaccint.bin.P
+SOURCES = $(ginaccint_bin_SOURCES)
+OBJECTS = $(ginaccint_bin_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -170,14 +156,30 @@ Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 ginaccint: $(top_builddir)/config.status ginaccint.in
 	cd $(top_builddir) && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
-mostlyclean-noinstLTLIBRARIES:
+mostlyclean-binPROGRAMS:
 
-clean-noinstLTLIBRARIES:
-	-test -z "$(noinst_LTLIBRARIES)" || rm -f $(noinst_LTLIBRARIES)
+clean-binPROGRAMS:
+	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
 
-distclean-noinstLTLIBRARIES:
+distclean-binPROGRAMS:
 
-maintainer-clean-noinstLTLIBRARIES:
+maintainer-clean-binPROGRAMS:
+
+install-binPROGRAMS: $(bin_PROGRAMS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(bindir)
+	@list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo " $(LIBTOOL)  --mode=install $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`"; \
+	    $(LIBTOOL)  --mode=install $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+	  else :; fi; \
+	done
+
+uninstall-binPROGRAMS:
+	@$(NORMAL_UNINSTALL)
+	list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+	done
 
 .s.o:
 	$(COMPILE) -c $<
@@ -210,31 +212,6 @@ clean-libtool:
 distclean-libtool:
 
 maintainer-clean-libtool:
-
-mostlyclean-binPROGRAMS:
-
-clean-binPROGRAMS:
-	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
-
-distclean-binPROGRAMS:
-
-maintainer-clean-binPROGRAMS:
-
-install-binPROGRAMS: $(bin_PROGRAMS)
-	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(bindir)
-	@list='$(bin_PROGRAMS)'; for p in $$list; do \
-	  if test -f $$p; then \
-	    echo " $(LIBTOOL)  --mode=install $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`"; \
-	    $(LIBTOOL)  --mode=install $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
-	  else :; fi; \
-	done
-
-uninstall-binPROGRAMS:
-	@$(NORMAL_UNINSTALL)
-	list='$(bin_PROGRAMS)'; for p in $$list; do \
-	  rm -f $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
-	done
 
 install-binSCRIPTS: $(bin_SCRIPTS)
 	@$(NORMAL_INSTALL)
@@ -417,7 +394,7 @@ install-am: all-am
 install: install-am
 uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS uninstall-man
 uninstall: uninstall-am
-all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(SCRIPTS) $(MANS)
+all-am: Makefile $(PROGRAMS) $(SCRIPTS) $(MANS)
 all-redirect: all-am
 install-strip:
 	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
@@ -435,42 +412,38 @@ distclean-generic:
 	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
 
 maintainer-clean-generic:
-mostlyclean-am:  mostlyclean-noinstLTLIBRARIES mostlyclean-compile \
-		mostlyclean-libtool mostlyclean-binPROGRAMS \
-		mostlyclean-tags mostlyclean-depend mostlyclean-generic
+mostlyclean-am:  mostlyclean-binPROGRAMS mostlyclean-compile \
+		mostlyclean-libtool mostlyclean-tags mostlyclean-depend \
+		mostlyclean-generic
 
 mostlyclean: mostlyclean-am
 
-clean-am:  clean-noinstLTLIBRARIES clean-compile clean-libtool \
-		clean-binPROGRAMS clean-tags clean-depend clean-generic \
-		mostlyclean-am
+clean-am:  clean-binPROGRAMS clean-compile clean-libtool clean-tags \
+		clean-depend clean-generic mostlyclean-am
 
 clean: clean-am
 
-distclean-am:  distclean-noinstLTLIBRARIES distclean-compile \
-		distclean-libtool distclean-binPROGRAMS distclean-tags \
-		distclean-depend distclean-generic clean-am
+distclean-am:  distclean-binPROGRAMS distclean-compile distclean-libtool \
+		distclean-tags distclean-depend distclean-generic \
+		clean-am
 	-rm -f libtool
 
 distclean: distclean-am
 
-maintainer-clean-am:  maintainer-clean-noinstLTLIBRARIES \
+maintainer-clean-am:  maintainer-clean-binPROGRAMS \
 		maintainer-clean-compile maintainer-clean-libtool \
-		maintainer-clean-binPROGRAMS maintainer-clean-tags \
-		maintainer-clean-depend maintainer-clean-generic \
-		distclean-am
+		maintainer-clean-tags maintainer-clean-depend \
+		maintainer-clean-generic distclean-am
 	@echo "This command is intended for maintainers to use;"
 	@echo "it deletes files that may require special tools to rebuild."
 
 maintainer-clean: maintainer-clean-am
 
-.PHONY: mostlyclean-noinstLTLIBRARIES distclean-noinstLTLIBRARIES \
-clean-noinstLTLIBRARIES maintainer-clean-noinstLTLIBRARIES \
+.PHONY: mostlyclean-binPROGRAMS distclean-binPROGRAMS clean-binPROGRAMS \
+maintainer-clean-binPROGRAMS uninstall-binPROGRAMS install-binPROGRAMS \
 mostlyclean-compile distclean-compile clean-compile \
 maintainer-clean-compile mostlyclean-libtool distclean-libtool \
-clean-libtool maintainer-clean-libtool mostlyclean-binPROGRAMS \
-distclean-binPROGRAMS clean-binPROGRAMS maintainer-clean-binPROGRAMS \
-uninstall-binPROGRAMS install-binPROGRAMS uninstall-binSCRIPTS \
+clean-libtool maintainer-clean-libtool uninstall-binSCRIPTS \
 install-binSCRIPTS install-man1 uninstall-man1 install-man \
 uninstall-man tags mostlyclean-tags distclean-tags clean-tags \
 maintainer-clean-tags distdir mostlyclean-depend distclean-depend \
@@ -482,32 +455,17 @@ distclean-generic clean-generic maintainer-clean-generic clean \
 mostlyclean distclean maintainer-clean
 
 
-# Build a modified library in the ginac-subdir and put it into the cint-subdir:
-libginac.la:
-	(cd ../ginac && \
-	  $(MAKE) clean; \
-	  $(MAKE) CXXFLAGS="$$CXXFLAGS -DNO_NAMESPACE_GINAC" && \
-	  $(MAKE) install-libLTLIBRARIES prefix=`pwd`/../cint libdir=`pwd`/../cint && \
-	  $(MAKE) clean)
-
-ginaccint.bin: libginac.la ginaccint.bin.cpp
+ginaccint.bin: ginaccint.bin.cpp
 	(export CINTSYSDIR=$(CINTSYSDIR); $(MAKE) -f Makefile.makecint PATH=$(PATH):$(CINTSYSDIR))
-
-# Files which are generated by perl scripts
-$(srcdir)/dummies.h $(srcdir)/dummies.cpp: $(srcdir)/dummies.pl
-	cd $(srcdir) && perl -w dummies.pl
-
-# Force build of headers before compilation
-$(srcdir)/ginaccint.bin.cpp: $(srcdir)/dummies.h
 
 # Force targets clean and distclean to call Makecint's own Makefile
 makecint_clean:
 	(if [ -f Makefile.makecint ]; then $(MAKE) -f Makefile.makecint clean; fi)
 
 clean: makecint_clean
-	-rm -f libginac*
 
 distclean: makecint_clean
+	rm -f Makefile.makecint
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
