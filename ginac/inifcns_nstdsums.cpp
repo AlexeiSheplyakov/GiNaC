@@ -29,7 +29,7 @@
  *      If you want to have an alternating Euler sum, you have to give the signs of the parameters as a
  *      second argument s to zeta(m,s) containing 1 and -1.
  *
- *    - The calculation of classical polylogarithms is speed up by using Bernoulli numbers and 
+ *    - The calculation of classical polylogarithms is speeded up by using Bernoulli numbers and 
  *      look-up tables. S uses look-up tables as well. The zeta function applies the algorithms in
  *      [Cra] and [BBB] for speed up.
  *
@@ -102,6 +102,9 @@ namespace {
 // lookup table for factors built from Bernoulli numbers
 // see fill_Xn()
 std::vector<std::vector<cln::cl_N> > Xn;
+// initial size of Xn that should suffice for 32bit machines (must be even)
+const int xninitsizestep = 26;
+int xninitsize = xninitsizestep;
 int xnsize = 0;
 
 
@@ -117,17 +120,14 @@ int xnsize = 0;
 // The second index in Xn corresponds to the index from the actual sum.
 void fill_Xn(int n)
 {
-	// rule of thumb. needs to be improved. TODO
-	const int initsize = Digits * 3 / 2;
-
 	if (n>1) {
 		// calculate X_2 and higher (corresponding to Li_4 and higher)
-		std::vector<cln::cl_N> buf(initsize);
+		std::vector<cln::cl_N> buf(xninitsize);
 		std::vector<cln::cl_N>::iterator it = buf.begin();
 		cln::cl_N result;
 		*it = -(cln::expt(cln::cl_I(2),n+1) - 1) / cln::expt(cln::cl_I(2),n+1); // i == 1
 		it++;
-		for (int i=2; i<=initsize; i++) {
+		for (int i=2; i<=xninitsize; i++) {
 			if (i&1) {
 				result = 0; // k == 0
 			} else {
@@ -147,14 +147,14 @@ void fill_Xn(int n)
 		Xn.push_back(buf);
 	} else if (n==1) {
 		// special case to handle the X_0 correct
-		std::vector<cln::cl_N> buf(initsize);
+		std::vector<cln::cl_N> buf(xninitsize);
 		std::vector<cln::cl_N>::iterator it = buf.begin();
 		cln::cl_N result;
 		*it = cln::cl_I(-3)/cln::cl_I(4); // i == 1
 		it++;
 		*it = cln::cl_I(17)/cln::cl_I(36); // i == 2
 		it++;
-		for (int i=3; i<=initsize; i++) {
+		for (int i=3; i<=xninitsize; i++) {
 			if (i & 1) {
 				result = -Xn[0][(i-3)/2]/2;
 				*it = (cln::binomial(i,1)/cln::cl_I(2) + cln::binomial(i,i-1)/cln::cl_I(i))*result;
@@ -171,9 +171,9 @@ void fill_Xn(int n)
 		Xn.push_back(buf);
 	} else {
 		// calculate X_0
-		std::vector<cln::cl_N> buf(initsize/2);
+		std::vector<cln::cl_N> buf(xninitsize/2);
 		std::vector<cln::cl_N>::iterator it = buf.begin();
-		for (int i=1; i<=initsize/2; i++) {
+		for (int i=1; i<=xninitsize/2; i++) {
 			*it = bernoulli(i*2).to_cl_N();
 			it++;
 		}
@@ -181,6 +181,53 @@ void fill_Xn(int n)
 	}
 
 	xnsize++;
+}
+
+
+// doubles the number of entries in each Xn[]
+void double_Xn()
+{
+	const int pos0 = xninitsize / 2;
+	// X_0
+	for (int i=1; i<=xninitsizestep/2; ++i) {
+		Xn[0].push_back(bernoulli((i+pos0)*2).to_cl_N());
+	}
+	if (Xn.size() > 0) {
+		int xend = xninitsize + xninitsizestep;
+		cln::cl_N result;
+		// X_1
+		for (int i=xninitsize+1; i<=xend; ++i) {
+			if (i & 1) {
+				result = -Xn[0][(i-3)/2]/2;
+				Xn[1].push_back((cln::binomial(i,1)/cln::cl_I(2) + cln::binomial(i,i-1)/cln::cl_I(i))*result);
+			} else {
+				result = Xn[0][i/2-1] + Xn[0][i/2-1]/(i+1);
+				for (int k=1; k<i/2; k++) {
+					result = result + cln::binomial(i,k*2) * Xn[0][k-1] * Xn[0][i/2-k-1] / (k*2+1);
+				}
+				Xn[1].push_back(result);
+			}
+		}
+		// X_n
+		for (int n=2; n<Xn.size(); ++n) {
+			for (int i=xninitsize+1; i<=xend; ++i) {
+				if (i & 1) {
+					result = 0; // k == 0
+				} else {
+					result = Xn[0][i/2-1]; // k == 0
+				}
+				for (int k=1; k<i-1; ++k) {
+					if ( !(((i-k) & 1) && ((i-k) > 1)) ) {
+						result = result + cln::binomial(i,k) * Xn[0][(i-k)/2-1] * Xn[n-1][k-1] / (k+1);
+					}
+				}
+				result = result - cln::binomial(i,i-1) * Xn[n-1][i-2] / 2 / i; // k == i-1
+				result = result + Xn[n-1][i-1] / (i+1); // k == i
+				Xn[n].push_back(result);
+			}
+		}
+	}
+	xninitsize += xninitsizestep;
 }
 
 
@@ -207,6 +254,7 @@ cln::cl_N Li2_do_sum(const cln::cl_N& x)
 cln::cl_N Li2_do_sum_Xn(const cln::cl_N& x)
 {
 	std::vector<cln::cl_N>::const_iterator it = Xn[0].begin();
+	std::vector<cln::cl_N>::const_iterator xend = Xn[0].end();
 	cln::cl_N u = -cln::log(1-x);
 	cln::cl_N factor = u * cln::cl_float(1, cln::float_format(Digits));
 	cln::cl_N res = u - u*u/4;
@@ -216,8 +264,12 @@ cln::cl_N Li2_do_sum_Xn(const cln::cl_N& x)
 		resbuf = res;
 		factor = factor * u*u / (2*i * (2*i+1));
 		res = res + (*it) * factor;
-		it++; // should we check it? or rely on initsize? ...
 		i++;
+		if (++it == xend) {
+			double_Xn();
+			it = Xn[0].begin() + (i-1);
+			xend = Xn[0].end();
+		}
 	} while (res != resbuf);
 	return res;
 }
@@ -244,6 +296,7 @@ cln::cl_N Lin_do_sum(int n, const cln::cl_N& x)
 cln::cl_N Lin_do_sum_Xn(int n, const cln::cl_N& x)
 {
 	std::vector<cln::cl_N>::const_iterator it = Xn[n-2].begin();
+	std::vector<cln::cl_N>::const_iterator xend = Xn[n-2].end();
 	cln::cl_N u = -cln::log(1-x);
 	cln::cl_N factor = u * cln::cl_float(1, cln::float_format(Digits));
 	cln::cl_N res = u;
@@ -253,8 +306,12 @@ cln::cl_N Lin_do_sum_Xn(int n, const cln::cl_N& x)
 		resbuf = res;
 		factor = factor * u / i;
 		res = res + (*it) * factor;
-		it++; // should we check it? or rely on initsize? ...
 		i++;
+		if (++it == xend) {
+			double_Xn();
+			it = Xn[n-2].begin() + (i-2);
+			xend = Xn[n-2].end();
+		}
 	} while (res != resbuf);
 	return res;
 }
