@@ -307,6 +307,26 @@ static unsigned spinor_check(void)
 	return result;
 }
 
+static unsigned dummy_check(void)
+{
+	// check dummy index renaming
+
+	unsigned result = 0;
+
+	symbol p("p"), q("q");
+	idx i(symbol("i"), 3), j(symbol("j"), 3), n(symbol("n"), 3);
+	ex e;
+
+	e = indexed(p, i) * indexed(q, i) - indexed(p, j) * indexed(q, j);
+	result += check_equal_simplify(e, 0);
+
+	e = indexed(p, i) * indexed(p, i) * indexed(q, j) * indexed(q, j)
+	  - indexed(p, n) * indexed(p, n) * indexed(q, j) * indexed(q, j);
+	result += check_equal_simplify(e, 0);
+
+	return result;
+}
+
 unsigned exam_indexed(void)
 {
 	unsigned result = 0;
@@ -321,6 +341,7 @@ unsigned exam_indexed(void)
 	result += scalar_product_check();  cout << '.' << flush;
 	result += edyn_check();  cout << '.' << flush;
 	result += spinor_check(); cout << '.' << flush;
+	result += dummy_check(); cout << '.' << flush;
 	
 	if (!result) {
 		cout << " passed " << endl;

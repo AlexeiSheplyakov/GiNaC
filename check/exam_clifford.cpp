@@ -210,6 +210,34 @@ static unsigned clifford_check4(void)
 	return result;
 }
 
+static unsigned clifford_check5(void)
+{
+	// canonicalize_clifford() checks
+
+	unsigned result = 0;
+
+	symbol dim("D");
+	varidx mu(symbol("mu"), dim), nu(symbol("nu"), dim), lam(symbol("lam"), dim);
+	ex e;
+
+	e = dirac_gamma(mu) * dirac_gamma(nu) + dirac_gamma(nu) * dirac_gamma(mu);
+	result += check_equal(canonicalize_clifford(e), 2*lorentz_g(mu, nu));
+
+	e = (dirac_gamma(mu) * dirac_gamma(nu) * dirac_gamma(lam)
+	   + dirac_gamma(nu) * dirac_gamma(lam) * dirac_gamma(mu)
+	   + dirac_gamma(lam) * dirac_gamma(mu) * dirac_gamma(nu)
+	   - dirac_gamma(nu) * dirac_gamma(mu) * dirac_gamma(lam)
+	   - dirac_gamma(lam) * dirac_gamma(nu) * dirac_gamma(mu)
+	   - dirac_gamma(mu) * dirac_gamma(lam) * dirac_gamma(nu)) / 6
+	  + lorentz_g(mu, nu) * dirac_gamma(lam)
+	  - lorentz_g(mu, lam) * dirac_gamma(nu)
+	  + lorentz_g(nu, lam) * dirac_gamma(mu)
+	  - dirac_gamma(mu) * dirac_gamma(nu) * dirac_gamma(lam);
+	result += check_equal(canonicalize_clifford(e), 0);
+
+	return result;
+}
+
 unsigned exam_clifford(void)
 {
 	unsigned result = 0;
@@ -221,6 +249,7 @@ unsigned exam_clifford(void)
 	result += clifford_check2();  cout << '.' << flush;
 	result += clifford_check3();  cout << '.' << flush;
 	result += clifford_check4();  cout << '.' << flush;
+	result += clifford_check5();  cout << '.' << flush;
 	
 	if (!result) {
 		cout << " passed " << endl;
