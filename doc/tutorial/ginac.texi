@@ -4182,8 +4182,9 @@ int ex::ldegree(const ex & s);
 @end example
 
 which also work reliably on non-expanded input polynomials (they even work
-on rational functions, returning the asymptotic degree). To extract
-a coefficient with a certain power from an expanded polynomial you use
+on rational functions, returning the asymptotic degree). By definition, the
+degree of zero is zero. To extract a coefficient with a certain power from
+an expanded polynomial you use
 
 @example
 ex ex::coeff(const ex & s, int n);
