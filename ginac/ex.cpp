@@ -23,14 +23,7 @@
 #include <iostream>
 #include <stdexcept>
 
-#if defined(VERBOSE)
-#  define GINAC_CONDITIONAL_INLINE
-#  include "ex.h"
-#  undef GINAC_CONDITIONAL_INLINE
-#else
-#  include "ex.h"
-#endif
-
+#include "ex.h"
 #include "add.h"
 #include "mul.h"
 #include "ncmul.h"
@@ -403,7 +396,6 @@ void ex::construct_from_basic(const basic & other)
 			bp->setflag(status_flags::dynallocated);
 		}
 		GINAC_ASSERT(bp!=0);
-		// bp->clearflag(status_flags::evaluated);
 		++bp->refcount;
 	}
 	GINAC_ASSERT(bp!=0);
