@@ -324,7 +324,7 @@ std::string symbol::default_TeX_name(void) const
 	 || name=="xi"           || name=="omicron"      || name=="pi"
 	 || name=="varpi"        || name=="rho"          || name=="varrho"
 	 || name=="sigma"        || name=="varsigma"     || name=="tau"
-	 || name=="upsilon"      || name=="phi"          || name=="varphix"
+	 || name=="upsilon"      || name=="phi"          || name=="varphi"
 	 || name=="chi"          || name=="psi"          || name=="omega"
 	 || name=="Gamma"        || name=="Delta"        || name=="Theta"
 	 || name=="Lambda"       || name=="Xi"           || name=="Pi"

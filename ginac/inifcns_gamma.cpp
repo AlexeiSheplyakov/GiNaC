@@ -418,6 +418,7 @@ const unsigned function_index_psi1 =
 	                       evalf_func(psi1_evalf).
 	                       derivative_func(psi1_deriv).
 	                       series_func(psi1_series).
+	                       latex_name("\\psi").
 	                       overloaded(2));
 
 //////////
@@ -544,7 +545,7 @@ const unsigned function_index_psi2 =
 	                       evalf_func(psi2_evalf).
 	                       derivative_func(psi2_deriv).
 	                       series_func(psi2_series).
-                           latex_name("\\psi").
+	                       latex_name("\\psi").
 	                       overloaded(2));
 
 

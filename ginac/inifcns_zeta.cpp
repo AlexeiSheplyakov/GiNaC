@@ -83,7 +83,7 @@ const unsigned function_index_zeta1 =
 	                       eval_func(zeta1_eval).
 	                       evalf_func(zeta1_evalf).
 	                       derivative_func(zeta1_deriv).
-                           latex_name("\\zeta").
+	                       latex_name("\\zeta").
 	                       overloaded(2));
 
 //////////
@@ -117,6 +117,7 @@ const unsigned function_index_zeta2 =
 	function::register_new(function_options("zeta").
 	                       eval_func(zeta2_eval).
 	                       derivative_func(zeta2_deriv).
+	                       latex_name("\\zeta").
 	                       overloaded(2));
 
 } // namespace GiNaC
