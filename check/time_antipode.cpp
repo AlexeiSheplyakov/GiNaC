@@ -9,8 +9,12 @@
  *  point of view it boils down to power series expansion.  It also has quite
  *  an intriguing check for consistency, which is why we include it here.
  *
- *  This program is based on work by Isabella Bierenbaum and Dirk Kreimer.
- *  For details, please see the diploma theses of Isabella Bierenbaum.
+ *  This program is based on work by
+ *      Isabella Bierenbaum <bierenbaum@thep.physik.uni-mainz.de> and
+ *      Dirk Kreimer <dkreimer@bu.edu>.
+ *  For details, please ask for the diploma theses of Isabella Bierenbaum.
+ *  Also, this file is based on an early version of their program, they now
+ *  have production-code that is somewhat more efficient than the stuff below.
  */
 
 /*
@@ -33,7 +37,8 @@
 
 #include "times.h"
 #include <utility>
-#include <list>
+#include <vector>
+#include <stdexcept>
 
 // whether to run this beast or not:
 static const bool do_test = true;
@@ -46,13 +51,9 @@ const constant TrOne("Tr[One]", numeric(4));
 /* Extract only the divergent part of a series and discard the rest. */
 static ex div_part(const ex &exarg, const symbol &x, unsigned grad)
 {
-	unsigned order = grad;
-	ex exser;
-	// maybe we have to generate more terms on the series (obnoxious):
-	do {
-		exser = exarg.series(x==0, order);
-		++order;
-	} while (exser.degree(x) < 0);
+	const ex exser = exarg.series(x==0, grad);
+	if (exser.degree(x)<0)
+		throw runtime_error("divergent part truncation disaster");
 	ex exser_trunc;
 	for (int i=exser.ldegree(x); i<0; ++i)
 		exser_trunc += exser.coeff(x,i)*pow(x,i);
@@ -170,7 +171,7 @@ public:
 	unsigned total_edges(void) const;
 private:
 	vertex *vert;
-	list<child> children;
+	vector<child> children;
 };
 
 const node & node::operator=(const node &n)
@@ -191,7 +192,7 @@ void node::add_child(const node &childnode, bool cut)
 ex node::evaluate(const symbol &x, unsigned grad) const
 {
 	ex product = 1;
-	for (list<child>::const_iterator i=children.begin(); i!=children.end(); ++i) {
+	for (vector<child>::const_iterator i=children.begin(); i!=children.end(); ++i) {
 		if (!i->second)
 			product *= i->first.evaluate(x,grad);
 		else
@@ -203,7 +204,7 @@ ex node::evaluate(const symbol &x, unsigned grad) const
 unsigned node::total_edges(void) const
 {
 	unsigned accu = 0;
-	for (list<child>::const_iterator i=children.begin(); i!=children.end(); ++i) {
+	for (vector<child>::const_iterator i=children.begin(); i!=children.end(); ++i) {
 		accu += i->first.total_edges();
 		++accu;
 	}
