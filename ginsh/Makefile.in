@@ -107,6 +107,7 @@ YACC = @YACC@
 bin_PROGRAMS = ginsh
 ginsh_SOURCES = ginsh_parser.yy ginsh_lexer.ll ginsh.h
 ginsh_LDADD = ../ginac/libginac.la $(GINSH_LIBS)
+CPPFLAGS = -DIN_GINAC
 INCLUDES = -I$(srcdir)/../ginac
 man_MANS = ginsh.1
 YFLAGS = -d
@@ -118,7 +119,6 @@ PROGRAMS =  $(bin_PROGRAMS)
 
 
 DEFS = @DEFS@ -I. -I$(srcdir) -I..
-CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 ginsh_OBJECTS =  ginsh_parser.o ginsh_lexer.o
@@ -317,7 +317,7 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$d/$$file $(distdir)/$$file; \
+	    cp -pr $$/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \

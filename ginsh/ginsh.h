@@ -41,7 +41,11 @@ extern "C" {
 }
 #endif
 
+#ifdef IN_GINAC
 #include "ginac.h"
+#else
+#include <ginac/ginac.h>
+#endif
 
 #ifndef NO_NAMESPACE_GINAC
 using namespace GiNaC;
