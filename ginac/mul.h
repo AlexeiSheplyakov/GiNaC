@@ -82,8 +82,6 @@ protected:
     unsigned return_type_tinfo(void) const;
     ex thisexpairseq(epvector const & v, ex const & oc) const;
     ex thisexpairseq(epvector * vp, ex const & oc) const;
-    void printpair(ostream & os, expair const & p,
-                   unsigned upper_precedence) const;
     expair split_ex_to_pair(ex const & e) const;
     expair combine_ex_with_coeff_to_pair(ex const & e,
                                          ex const & c) const;

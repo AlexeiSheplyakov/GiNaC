@@ -224,7 +224,7 @@ void numeric::printraw(ostream & os) const
 void numeric::print(ostream & os, unsigned upper_precedence) const
 {
     debugmsg("numeric print", LOGLEVEL_PRINT);
-    if (is_real()) {  
+    if (is_real()) {
         // case 1, real:  x  or  -x
         if ((precedence<=upper_precedence) && (!is_pos_integer())) {
             os << "(" << *value << ")";
@@ -515,10 +515,35 @@ numeric const & numeric::operator=(char const * s)
     return operator=(numeric(s));
 }
 
+/** Return the complex half-plane (left or right) in which the number lies.
+ *  csgn(x)==0 for x==0, csgn(x)==1 for Re(x)>0 or Re(x)=0 and Im(x)>0,
+ *  csgn(x)==-1 for Re(x)<0 or Re(x)=0 and Im(x)<0.
+ *
+ *  @see numeric::compare(numeric const @ other) */
+int numeric::csgn(void) const
+{
+    if (is_zero())
+        return 0;
+    if (!zerop(realpart(*value))) {
+        if (plusp(realpart(*value)))
+            return 1;
+        else
+            return -1;
+    } else {
+        if (plusp(imagpart(*value)))
+            return 1;
+        else
+            return -1;
+    }
+}
+
 /** This method establishes a canonical order on all numbers.  For complex
  *  numbers this is not possible in a mathematically consistent way but we need
  *  to establish some order and it ought to be fast.  So we simply define it
- *  similar to Maple's csgn. */
+ *  to be compatible with our method csgn.
+ *
+ *  @return csgn(*this-other)
+ *  @see numeric::csgn(void) */
 int numeric::compare(numeric const & other) const
 {
     // Comparing two real numbers?
@@ -1065,6 +1090,10 @@ numeric factorial(numeric const & nn)
  *  @exception range_error (argument must be integer >= -1) */
 numeric doublefactorial(numeric const & nn)
 {
+    // META-NOTE:  The whole shit here will become obsolete and may be moved
+    // out once CLN learns about double factorial, which should be as soon as
+    // 1.0.3 rolls out.
+    
     // We store the results separately for even and odd arguments.  This has
     // the advantage that we don't have to compute any even result at all if
     // the function is always called with odd arguments and vice versa.  There

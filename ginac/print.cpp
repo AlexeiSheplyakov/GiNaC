@@ -179,42 +179,32 @@ void expairseq::print(ostream & os, unsigned upper_precedence) const
     os << "]]";
 }
 
-void add::printpair(ostream & os, expair const & p, unsigned upper_precedence) const
-{
-    os << "(";
-    if (p.coeff == -1) {
-        os << "-";
-    } else {
-        if (p.coeff != 1) {
-            os << p.coeff;
-            os << "*";
-        }
-    }
-    os << p.rest;
-    os << ")";
-}
-    
 void add::print(ostream & os, unsigned upper_precedence) const
 {
     debugmsg("add print",LOGLEVEL_PRINT);
     if (precedence<=upper_precedence) os << "(";
+    numeric coeff;
     bool first=true;
     for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
+        coeff = ex_to_numeric(cit->coeff);
         if (!first) {
-            if (cit->coeff > 0) os << '+';
+            if (coeff < 0) os << '-'; else os << '+';
         } else {
+            if (coeff < 0) os << '-';
             first=false;
         }
-        if (cit->coeff == -1) {
-            os << "-";
-        } else {
-            if (cit->coeff != 1) {
-                (cit->coeff).print(os,precedence);
-                os << "*";
-            }
+        if (coeff.compare(numONE()) && coeff.compare(numMINUSONE())) {
+            if (!coeff.is_real() && !coeff.real().is_zero()) os << '(';
+            if (coeff > 0)
+                os << coeff;
+            else
+                os << numeric(-1)*coeff;
+            if (!coeff.is_real() && !coeff.real().is_zero()) os << ')';
+            os << '*';
         }
         os << cit->rest;
     }
+    // print the overall numeric coefficient, if present:
     if (!overall_coeff.is_zero()) {
         if (overall_coeff > 0) os << '+';
         os << overall_coeff;
@@ -222,18 +212,6 @@ void add::print(ostream & os, unsigned upper_precedence) const
     if (precedence<=upper_precedence) os << ")";
 }
 
-void mul::printpair(ostream & os, expair const & p, unsigned upper_precedence) const
-{
-    os << "(";
-    if (p.coeff.compare(exONE())==0) {
-        p.rest.print(os,upper_precedence);
-    } else {
-        // outer parens around ex needed for broken gcc-2.95 parser:
-        (ex(power(p.rest,p.coeff))).print(os,upper_precedence);
-    }
-    os << ")";
-}
-    
 void mul::print(ostream & os, unsigned upper_precedence) const
 {
     debugmsg("mul print",LOGLEVEL_PRINT);

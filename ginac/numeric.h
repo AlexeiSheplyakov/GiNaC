@@ -170,6 +170,7 @@ public:
     numeric power_dyn(numeric const & other) const { return power(other); }
     */
     numeric inverse(void) const;
+    int csgn(void) const;
     int compare(numeric const & other) const;
     bool is_equal(numeric const & other) const;
     bool is_zero(void) const;
@@ -265,6 +266,9 @@ struct numeric_fail
 // wrapper functions around member functions
 inline numeric inverse(numeric const & x)
 { return x.inverse(); }
+
+inline bool csgn(numeric const & x)
+{ return x.csgn(); }
 
 inline bool is_zero(numeric const & x)
 { return x.is_zero(); }
