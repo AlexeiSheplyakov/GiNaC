@@ -1,13 +1,14 @@
 This file records noteworthy changes.
 
-1.0.2 (<date>)
-* Input parser recognizes "sqrt()", which is also used in the output
+1.0.2 (19 December 2001)
+* Input parser recognizes "sqrt()", which is also used in the output.
 * divide(a,b,q) only modifies q if the division succeeds; also, divide(a,b,a)
-  works now
+  works now.
 * Fixed small bug in dummy index renaming which could cause it to not
-  recognize renamable indices in some cases
+  recognize renamable indices in some cases.
 * power::degree() and power::ldegree() throw an exception when encountering
-  a non-integer exponent
+  a non-integer exponent.
+* Add output-support for Python bindings.
 
 1.0.1 (22 November 2001)
 * Function sqrfree() handles a few more cases now.
