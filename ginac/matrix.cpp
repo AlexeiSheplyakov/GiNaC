@@ -638,8 +638,8 @@ matrix matrix::pow(const ex & expn) const
 			for (unsigned r=0; r<row; ++r)
 				result(r,r) = _ex1();
 			numeric b(1);
-			// this loop computes the representation of k in base 2 and multiplies
-			// the factors whenever needed:
+			// this loop computes the representation of k in base 2 and
+			// multiplies the factors whenever needed:
 			while (b.compare(k)<=0) {
 				b *= numeric(2);
 				numeric r(mod(k,b));
@@ -647,7 +647,8 @@ matrix matrix::pow(const ex & expn) const
 					k -= r;
 					result = result.mul(prod);
 				}
-				prod = prod.mul(prod);
+				if (b.compare(k)<=0)
+					prod = prod.mul(prod);
 			}
 			return result;
 		}
