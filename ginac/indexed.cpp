@@ -653,10 +653,8 @@ try_again:
 	exvector un, dummy_indices;
 	it1 = v.begin(); itend = v.end();
 	while (it1 != itend) {
-		if (is_ex_of_type(*it1, indexed)) {
-			const indexed & o = ex_to_indexed(*it1);
-			un.insert(un.end(), o.seq.begin() + 1, o.seq.end());
-		}
+		exvector free_indices_of_factor = it1->get_free_indices();
+		un.insert(un.end(), free_indices_of_factor.begin(), free_indices_of_factor.end());
 		it1++;
 	}
 	find_free_and_dummy(un, free_indices, dummy_indices);

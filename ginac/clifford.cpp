@@ -117,15 +117,40 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 
 	if (is_ex_of_type(other->op(0), diracgamma)) {
 
+		ex dim = ex_to_idx(self->op(1)).get_dim();
+
 		// gamma~mu*gamma.mu = dim*ONE
 		if (other - self == 1) {
-			*self = ex_to_idx(self->op(1)).get_dim();
+			*self = dim;
 			*other = dirac_one();
 			return true;
 
 		// gamma~mu*gamma~alpha*gamma.mu = (2-dim)*gamma~alpha
-		} else if (other - self == 2) {
-			*self = 2 - ex_to_idx(self->op(1)).get_dim();
+		} else if (other - self == 2
+		        && is_ex_of_type(self[1], clifford)) {
+			*self = 2 - dim;
+			*other = _ex1();
+			return true;
+
+		// gamma~mu*gamma~alpha*gamma~beta*gamma.mu = 4*g~alpha~beta+(dim-4)*gamam~alpha*gamma~beta
+		} else if (other - self == 3
+		        && is_ex_of_type(self[1], clifford)
+		        && is_ex_of_type(self[2], clifford)) {
+			*self = 4 * metric_tensor(self[1].op(1), self[2].op(1)) * dirac_one() + (dim - 4) * self[1] * self[2];
+			self[1] = _ex1();
+			self[2] = _ex1();
+			*other = _ex1();
+			return true;
+
+		// gamma~mu*gamma~alpha*gamma~beta*gamma~delta*gamma.mu = -2*gamma~delta*gamma~beta*gamma~alpha+(4-dim)*gamma~alpha*gamma~beta*gamma~delta
+		} else if (other - self == 4
+		        && is_ex_of_type(self[1], clifford)
+		        && is_ex_of_type(self[2], clifford)
+		        && is_ex_of_type(self[3], clifford)) {
+			*self = -2 * self[3] * self[2] * self[1] + (4 - dim) * self[1] * self[2] * self[3];
+			self[1] = _ex1();
+			self[2] = _ex1();
+			self[3] = _ex1();
 			*other = _ex1();
 			return true;
 		}
