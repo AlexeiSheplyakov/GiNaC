@@ -49,5 +49,7 @@ private:
 // prototypes for all individual timings should be unsigned fcn():
 unsigned time_dennyfliegner();
 unsigned time_gammaseries();
+unsigned time_vandermonde();
+unsigned time_toeplitz();
 
 #endif // ndef CHECKS_H

@@ -64,15 +64,16 @@ unsigned time_dennyfliegner(void)
     vector<double> times;
     timer rolex;
     
-    sizes.push_back(40);
-    sizes.push_back(60);
+    sizes.push_back(25);
+    sizes.push_back(50);
     sizes.push_back(100);
-    sizes.push_back(150);
+    sizes.push_back(200);
     
     for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i) {
         rolex.start();
-        result += expand_subs(*i);  cout << '.' << flush;
+        result += expand_subs(*i);
         times.push_back(rolex.read());
+        cout << '.' << flush;
     }
     
     if (!result) {
@@ -83,13 +84,11 @@ unsigned time_dennyfliegner(void)
     }
     // print the report:
     cout << endl << "    size:  ";
-    for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i) {
+    for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i)
         cout << '\t' << (*i);
-    }
     cout << endl << "    time/s:";
-    for (vector<double>::iterator i=times.begin(); i!=times.end(); ++i) {
-        cout << '\t' << (*i);
-    }
+    for (vector<double>::iterator i=times.begin(); i!=times.end(); ++i)
+        cout << '\t' << int(1000*(*i))*0.001;
     cout << endl;
     
     return result;

@@ -113,7 +113,7 @@ int main()
         } else {
             cout << "(" << result << " individual failures)" << endl;
         }
-        cout << "please check exam.out against exam.ref for more details."
+        cout << "please check exams.out against exams.ref for more details."
              << endl << "happy debugging!" << endl;
     }
     

@@ -45,6 +45,22 @@ int main()
         ++result;
     }
     
+    try {
+        for (int i=0; i<1; ++i)
+            result += time_vandermonde();
+    } catch (const exception &e) {
+        cout << "Error: caught exception " << e.what() << endl;
+        ++result;
+    }
+    
+    try {
+        for (int i=0; i<1; ++i)
+            result += time_toeplitz();
+    } catch (const exception &e) {
+        cout << "Error: caught exception " << e.what() << endl;
+        ++result;
+    }
+        
     if (result) {
         cout << "Error: something went wrong. ";
         if (result == 1) {

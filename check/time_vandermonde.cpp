@@ -1,6 +1,10 @@
-/** @file time_gammaseries.cpp
+/** @file time_vandermonde.cpp
  *
- *  Some timings on series expansion of the gamma function around a pole. */
+ *  Calculates determinants of dense symbolic Vandermonde materices with
+ *  monomials in one single variable as entries.
+ *  For 4x4 our matrix would look like this:
+ *  [[1,a,a^2,a^3], [1,-a,a^2,-a^3], [1,a^2,a^4,a^6], [1,-a^2,a^4,-a^6]]
+ */
 
 /*
  *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
@@ -22,47 +26,60 @@
 
 #include "times.h"
 
-unsigned gammaseries(unsigned order)
+static unsigned vandermonde_det(unsigned size)
 {
     unsigned result = 0;
-    symbol x;
+    symbol a("a");
     
-    ex myseries = series(gamma(x),x,0,order);
-    // compute the last coefficient numerically:
-    ex last_coeff = myseries.coeff(x,order-1).evalf();
-    // compute a bound for that coefficient using a variation of the leading
-    // term in Stirling's formula:
-    ex bound = evalf(exp(ex(-.57721566490153286*(order-1)))/(order-1));
-    if (evalf(abs((last_coeff-pow(-1,order))/bound)) > numeric(1)) {
-        clog << "The " << order-1
-             << "th order coefficient in the power series expansion of gamma(0) was erroneously found to be "
-             << last_coeff << ", violating a simple estimate." << endl;
+    // construct Vandermonde matrix:
+    matrix M(size,size);
+    for (unsigned ro=0; ro<size; ++ro)
+        for (unsigned co=0; co<size; ++co)
+            if (ro%2)
+                M.set(ro,co,pow(-pow(a,1+ro/2),co));
+            else
+                M.set(ro,co,pow(pow(a,1+ro/2),co));
+    
+    // compute determinant:
+    ex vdet = M.determinant();
+    
+    // dirty consistency check of result:
+    if (!vdet.subs(a==1).is_zero()) {
+        clog << "Determaint of Vandermonde matrix " << endl
+             << "M==" << M << endl
+             << "was miscalculated: det(M)==" << vdet << endl;
         ++result;
     }
     
     return result;
 }
 
-unsigned time_gammaseries(void)
+unsigned time_vandermonde(void)
 {
     unsigned result = 0;
     
-    cout << "timing Laurent series expansion of gamma function" << flush;
-    clog << "-------Laurent series expansion of gamma function:" << endl;
+    cout << "timing determinant of univariate symbolic Vandermonde matrices" << flush;
+    clog << "-------determinant of univariate symbolic Vandermonde matrices:" << endl;
     
     vector<unsigned> sizes;
     vector<double> times;
-    timer omega;
+    timer swatch;
     
+    sizes.push_back(4);
+    sizes.push_back(6);
+    sizes.push_back(8);
     sizes.push_back(10);
-    sizes.push_back(15);
-    sizes.push_back(20);
-    sizes.push_back(25);
     
     for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i) {
-        omega.start();
-        result += gammaseries(*i);
-        times.push_back(omega.read());
+        int count = 1;
+        swatch.start();
+        result += vandermonde_det(*i);
+        // correct for very small times:
+        while (swatch.read()<0.02) {
+            vandermonde_det(*i);
+            ++count;
+        }
+        times.push_back(swatch.read()/count);
         cout << '.' << flush;
     }
     
@@ -73,9 +90,9 @@ unsigned time_gammaseries(void)
         cout << " failed ";
     }
     // print the report:
-    cout << endl << "    order: ";
+    cout << endl << "    dim:   ";
     for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i)
-        cout << '\t' << (*i);
+        cout << '\t' << *i << 'x' << *i;
     cout << endl << "    time/s:";
     for (vector<double>::iterator i=times.begin(); i!=times.end(); ++i)
         cout << '\t' << int(1000*(*i))*0.001;

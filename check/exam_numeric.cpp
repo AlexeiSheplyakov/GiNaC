@@ -301,6 +301,25 @@ static unsigned exam_numeric4(void)
     return result;
 }
 
+/* This test examines that simplifications of the form 5^(3/2) -> 5*5^(1/2)
+ * are carried out properly. */
+static unsigned exam_numeric5(void)
+{
+    unsigned result = 0;
+    
+    // A variation of one of Ramanujan's wonderful identities must be
+    // verifiable with very primitive means:
+    ex e1 = pow(1 + pow(3,numeric(1,5)) - pow(3,numeric(2,5)),3);
+    ex e2 = expand(e1 - 10 + 5*pow(3,numeric(3,5)));
+    if (!e2.is_zero()) {
+        clog << "expand((1+3^(1/5)-3^(2/5))^3-10+5*3^(3/5)) returned "
+             << e2 << " instead of 0." << endl;
+        ++result;
+    }
+    
+    return result;
+}
+
 unsigned exam_numeric(void)
 {
     unsigned result = 0;
@@ -312,6 +331,7 @@ unsigned exam_numeric(void)
     result += exam_numeric2();  cout << '.' << flush;
     result += exam_numeric3();  cout << '.' << flush;
     result += exam_numeric4();  cout << '.' << flush;
+    result += exam_numeric5();  cout << '.' << flush;
     
     if (!result) {
         cout << " passed " << endl;

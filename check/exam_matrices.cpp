@@ -55,7 +55,7 @@ static unsigned matrix_determinants(void)
     m3.set(0,0,a).set(0,1,b).set(0,2,c);
     m3.set(1,0,d).set(1,1,e).set(1,2,f);
     m3.set(2,0,g).set(2,1,h).set(2,2,i);
-    det = m3.determinant().expand();
+    det = m3.determinant();
     if (det != (a*e*i - a*f*h - d*b*i + d*c*h + g*b*f - g*c*e)) {
         clog << "determinant of 3x3 matrix " << m3
              << " erroneously returned " << det << endl;
@@ -76,10 +76,14 @@ static unsigned matrix_determinants(void)
     // check dense symbolic 2x2 matrix determinant
     m2.set(0,0,a/(a-b)).set(0,1,numeric(1));
     m2.set(1,0,b/(a-b)).set(1,1,numeric(1));
-    det = m2.determinant(true);
+    det = m2.determinant();
     if (det != 1) {
-        clog << "determinant of 2x2 matrix " << m2
-             << " erroneously returned " << det << endl;
+        if (det.normal() == 1)  // only half wrong
+            clog << "determinant of 2x2 matrix " << m2
+                 << " was returned unnormalized as " << det << endl;
+        else  // totally wrong
+            clog << "determinant of 2x2 matrix " << m2
+                 << " erroneously returned " << det << endl;
         ++result;
     }
 
@@ -108,28 +112,31 @@ static unsigned matrix_determinants(void)
 
 static unsigned matrix_invert1(void)
 {
+    unsigned result = 0;
     matrix m(1,1);
     symbol a("a");
-
+    
     m.set(0,0,a);
     matrix m_i = m.inverse();
     
     if (m_i(0,0) != pow(a,-1)) {
         clog << "inversion of 1x1 matrix " << m
              << " erroneously returned " << m_i << endl;
-        return 1;
+        ++result;
     }
-    return 0;
+    
+    return result;
 }
 
 static unsigned matrix_invert2(void)
 {
+    unsigned result = 0;
     matrix m(2,2);
     symbol a("a"), b("b"), c("c"), d("d");
     m.set(0,0,a).set(0,1,b);
     m.set(1,0,c).set(1,1,d);
     matrix m_i = m.inverse();
-    ex det = m.determinant().expand();
+    ex det = m.determinant();
     
     if ((normal(m_i(0,0)*det) != d) ||
         (normal(m_i(0,1)*det) != -b) ||
@@ -137,13 +144,15 @@ static unsigned matrix_invert2(void)
         (normal(m_i(1,1)*det) != a)) {
         clog << "inversion of 2x2 matrix " << m
              << " erroneously returned " << m_i << endl;
-        return 1;
+        ++result;
     }
-    return 0;
+    
+    return result;
 }
 
 static unsigned matrix_invert3(void)
 {
+    unsigned result = 0;
     matrix m(3,3);
     symbol a("a"), b("b"), c("c");
     symbol d("d"), e("e"), f("f");
@@ -152,7 +161,7 @@ static unsigned matrix_invert3(void)
     m.set(1,0,d).set(1,1,e).set(1,2,f);
     m.set(2,0,g).set(2,1,h).set(2,2,i);
     matrix m_i = m.inverse();
-    ex det = m.determinant().normal().expand();
+    ex det = m.determinant();
     
     if ((normal(m_i(0,0)*det) != (e*i-f*h)) ||
         (normal(m_i(0,1)*det) != (c*h-b*i)) ||
@@ -165,9 +174,10 @@ static unsigned matrix_invert3(void)
         (normal(m_i(2,2)*det) != (a*e-b*d))) {
         clog << "inversion of 3x3 matrix " << m
              << " erroneously returned " << m_i << endl;
-        return 1;
+        ++result;
     }
-    return 0;
+    
+    return result;
 }
 
 static unsigned matrix_misc(void)
@@ -206,11 +216,11 @@ static unsigned matrix_misc(void)
     // produce a runtime-error by inverting a singular matrix and catch it
     matrix m4(2,2);
     matrix m5;
-    bool caught=false;
+    bool caught = false;
     try {
         m5 = inverse(m4);
     } catch (std::runtime_error err) {
-        caught=true;
+        caught = true;
     }
     if (!caught) {
         cerr << "singular 2x2 matrix " << m4
@@ -227,7 +237,7 @@ unsigned exam_matrices(void)
     
     cout << "examining symbolic matrix manipulations" << flush;
     clog << "----------symbolic matrix manipulations:" << endl;
-
+    
     result += matrix_determinants();  cout << '.' << flush;
     result += matrix_invert1();  cout << '.' << flush;
     result += matrix_invert2();  cout << '.' << flush;
