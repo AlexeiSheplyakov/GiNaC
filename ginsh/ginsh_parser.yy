@@ -1,7 +1,23 @@
-/*
- *  ginsh.y - GiNaC Interactive Shell, input grammar definition
+/** @file ginsh_parser.yy
  *
- *  This file must be processed with yacc/bison
+ *  Input grammar definition for ginsh.
+ *  This file must be processed with yacc/bison.
+ *
+ *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -207,9 +223,6 @@ row	: exp			{$$ = lst($1);}
  */
 
 %%
-const int GINSH_VERSION = 0;
-const int GINSH_REVISION = 3;
-
 // Error print routine
 int yyerror(char *s)
 {
@@ -582,7 +595,7 @@ int main(int argc, char **argv)
 {
 	// Print banner in interactive mode
 	if (isatty(0)) {
-		cout << "ginsh - GiNaC Interactive Shell V" << GINSH_VERSION << "." << GINSH_REVISION << endl;
+		cout << "ginsh - GiNaC Interactive Shell (" << PACKAGE << " " << VERSION << ")\n";
 		cout << "Copyright (C) 1999 Johannes Gutenberg Universitaet Mainz, Germany\n";
 		cout << "This is free software, and you are welcome to redistribute it\n";
 		cout << "under certain conditions; see the file COPYING for details.\n"; 
