@@ -308,15 +308,15 @@ ex indexed::eval(int level) const
 
 	// If the base object is a product, pull out the numeric factor
 	if (is_ex_exactly_of_type(base, mul) && is_ex_exactly_of_type(base.op(base.nops() - 1), numeric)) {
-		exvector v = seq;
+		exvector v(seq);
 		ex f = ex_to_numeric(base.op(base.nops() - 1));
 		v[0] = seq[0] / f;
 		return f * thisexprseq(v);
 	}
 
 	// Canonicalize indices according to the symmetry properties
-	if (seq.size() > 2 && (symmetry != unknown && symmetry != mixed)) {
-		exvector v = seq;
+	if (seq.size() > 2 && (symmetry == symmetric || symmetry == antisymmetric)) {
+		exvector v(seq);
 		int sig = canonicalize_indices(v.begin() + 1, v.end(), symmetry == antisymmetric);
 		if (sig != INT_MAX) {
 			// Something has changed while sorting indices, more evaluations later

@@ -533,10 +533,9 @@ static ex symm(const ex & e, exvector::const_iterator first, exvector::const_ite
 
 	// Sort object vector, transform it into a list, and make a copy so we
 	// will know which objects get substituted for which
-	exvector iv(first, last);
-	sort(iv.begin(), iv.end(), ex_is_less());
 	exlist iv_lst;
-	iv_lst.insert(iv_lst.begin(), iv.begin(), iv.end());
+	iv_lst.insert(iv_lst.begin(), first, last);
+	shaker_sort(iv_lst.begin(), iv_lst.end(), ex_is_less());
 	lst orig_lst(iv_lst);
 
 	// With n objects there are n! possible permutations

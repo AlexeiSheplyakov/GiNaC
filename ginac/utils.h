@@ -128,68 +128,111 @@ inline unsigned golden_ratio_hash(unsigned n)
 }
 
 /* Compute the sign of a permutation of a container, with and without an
-   explicitly supplied comparison function. The containers gets modified
-   during the operation. */
+   explicitly supplied comparison function. If the sign returned is 1 or -1,
+   the container is sorted after the operation. */
 template <class It>
-int permutation_sign(It first, It last)
+inline int permutation_sign(It first, It last)
 {
 	if (first == last)
 		return 0;
-	It i = first;
-	++i;
-	if (i == last)
+	--last;
+	if (first == last)
 		return 0;
-	i = first;
-	It next_to_last = last;
-	--next_to_last;
-
+	It flag = first;
 	int sign = 1;
-	while (i != next_to_last) {
-		It j = i;
-		++j;
-		while (j != last) {
-			if (!(*i < *j)) {
-				if (!(*j < *i))
-					return 0;
-				iter_swap(i, j);
+
+	do {
+		It i = last, other = last;
+		--other;
+		bool swapped = false;
+		while (i != first) {
+			if (*i < *other) {
+				iter_swap(other, i);
+				flag = other;
+				swapped = true;
 				sign = -sign;
-			}
-			++j;
+			} else if (!(*other < *i))
+				return 0;
+			--i; --other;
 		}
-		++i;
-	}
+		if (!swapped)
+			return sign;
+		++flag;
+		if (flag == last)
+			return sign;
+		first = flag;
+		i = first; other = first;
+		++other;
+		swapped = false;
+		while (i != last) {
+			if (*other < *i) {
+				iter_swap(i, other);
+				flag = other;
+				swapped = true;
+				sign = -sign;
+			} else if (!(*i < *other))
+				return 0;
+			++i; ++other;
+		}
+		if (!swapped)
+			return sign;
+		last = flag;
+		--last;
+	} while (first != last);
+
 	return sign;
 }
 
-/** Compute the sign of a permutation of a container */
 template <class It, class Cmp>
-int permutation_sign(It first, It last, Cmp comp)
+inline int permutation_sign(It first, It last, Cmp comp)
 {
 	if (first == last)
 		return 0;
-	It i = first;
-	++i;
-	if (i == last)
+	--last;
+	if (first == last)
 		return 0;
-	i = first;
-	It next_to_last = last;
-	--next_to_last;
-
+	It flag = first;
 	int sign = 1;
-	while (i != next_to_last) {
-		It j = i;
-		++j;
-		while (j != last) {
-			if (!comp(*i, *j)) {
-				if (!comp(*j, *i))
-					return 0;
-				iter_swap(i, j);
+
+	do {
+		It i = last, other = last;
+		--other;
+		bool swapped = false;
+		while (i != first) {
+			if (comp(*i, *other)) {
+				iter_swap(other, i);
+				flag = other;
+				swapped = true;
 				sign = -sign;
-			}
-			++j;
+			} else if (!comp(*other, *i))
+				return 0;
+			--i; --other;
 		}
-		++i;
-	}
+		if (!swapped)
+			return sign;
+		++flag;
+		if (flag == last)
+			return sign;
+		first = flag;
+		i = first; other = first;
+		++other;
+		swapped = false;
+		while (i != last) {
+			if (comp(*other, *i)) {
+				iter_swap(i, other);
+				flag = other;
+				swapped = true;
+				sign = -sign;
+			} else if (!comp(*i, *other))
+				return 0;
+			++i; ++other;
+		}
+		if (!swapped)
+			return sign;
+		last = flag;
+		--last;
+	} while (first != last);
+
 	return sign;
 }
 
@@ -203,30 +246,41 @@ inline void shaker_sort(It first, It last, Cmp comp)
 	if (first == last)
 		return;
 	It flag = first;
+
 	do {
 		It i = last, other = last;
 		--other;
-		while (i > first) {
+		bool swapped = false;
+		while (i != first) {
 			if (comp(*i, *other)) {
 				iter_swap(other, i);
 				flag = other;
+				swapped = true;
 			}
 			--i; --other;
 		}
+		if (!swapped)
+			return;
 		++flag;
+		if (flag == last)
+			return;
 		first = flag;
 		i = first; other = first;
 		++other;
-		while (i < last) {
+		swapped = false;
+		while (i != last) {
 			if (comp(*other, *i)) {
 				iter_swap(i, other);
 				flag = other;
+				swapped = true;
 			}
 			++i; ++other;
 		}
+		if (!swapped)
+			return;
 		last = flag;
 		--last;
-	} while (first <= last);
+	} while (first != last);
 }
 
 /* Function objects for STL sort() etc. */
