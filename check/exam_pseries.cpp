@@ -98,6 +98,11 @@ static unsigned exam_series1(void)
 	d = 1 + t + pow(t, 2) / 2 + pow(t, 3) / 6 + pow(t, 4) / 24 + pow(t, 5) / 120 + pow(t, 6) / 720 + pow(t, 7) / 5040 + Order(pow(x, 8));
 	result += check_series(e, 0, d.expand());
 	
+	e = log(x);
+	d = e;
+	result += check_series(e, 0, d, 1);
+	result += check_series(e, 0, d, 2);
+	
 	return result;
 }
 
