@@ -54,7 +54,7 @@ public:
 	ex eval(int level=0) const;
 	ex evalm() const;
 	ex series(const relational & r, int order, unsigned options = 0) const;
-	ex normal(exmap & repl, int level=0) const;
+	ex normal(exmap & repl, exmap & rev_lookup, int level=0) const;
 	numeric integer_content() const;
 	ex smod(const numeric &xi) const;
 	numeric max_coefficient() const;

@@ -105,7 +105,7 @@ public:
 	ex eval(int level = 0) const;
 	ex evalf(int level = 0) const;
 	ex subs(const exmap & m, unsigned options = 0) const { return subs_one_level(m, options); } // overwrites basic::subs() for performance reasons
-	ex normal(exmap & repl, int level = 0) const;
+	ex normal(exmap & repl, exmap & rev_lookup, int level = 0) const;
 	ex to_rational(lst &repl_lst) const;
 	ex to_polynomial(lst &repl_lst) const;
 	numeric integer_content() const;

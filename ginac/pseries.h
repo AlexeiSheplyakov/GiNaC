@@ -54,7 +54,7 @@ public:
 	ex evalf(int level=0) const;
 	ex series(const relational & r, int order, unsigned options = 0) const;
 	ex subs(const exmap & m, unsigned options = 0) const;
-	ex normal(exmap & repl, int level = 0) const;
+	ex normal(exmap & repl, exmap & rev_lookup, int level = 0) const;
 	ex expand(unsigned options = 0) const;
 protected:
 	ex derivative(const symbol & s) const;

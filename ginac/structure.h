@@ -181,7 +181,7 @@ public:
 	ex series(const relational & r, int order, unsigned options = 0) const { return inherited::series(r, order, options); }
 
 	// rational functions
-	ex normal(exmap & repl, int level = 0) const { return inherited::normal(repl, level); }
+	ex normal(exmap & repl, exmap & rev_lookup, int level = 0) const { return inherited::normal(repl, rev_lookup, level); }
 	ex to_rational(lst & repl_lst) const { return inherited::to_rational(repl_lst); }
 	ex to_polynomial(lst & repl_lst) const { return inherited::to_polynomial(repl_lst); }
 
