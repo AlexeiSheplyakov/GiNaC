@@ -224,12 +224,17 @@ static numeric lcm_of_coefficients_denominators(const ex &e)
  *  @param e  multivariate polynomial (need not be expanded)
  *  @param lcm  LCM to multiply in */
 
-static ex multiply_lcm(const ex &e, const ex &lcm)
+static ex multiply_lcm(const ex &e, const numeric &lcm)
 {
 	if (is_ex_exactly_of_type(e, mul)) {
 		ex c = _ex1();
-		for (unsigned i=0; i<e.nops(); i++)
-			c *= multiply_lcm(e.op(i), lcmcoeff(e.op(i), _num1()));
+		numeric lcm_accum = _num1();
+		for (unsigned i=0; i<e.nops(); i++) {
+			numeric op_lcm = lcmcoeff(e.op(i), _num1());
+			c *= multiply_lcm(e.op(i), op_lcm);
+			lcm_accum *= op_lcm;
+		}
+		c *= lcm / lcm_accum;
 		return c;
 	} else if (is_ex_exactly_of_type(e, add)) {
 		ex c = _ex0();
@@ -237,7 +242,7 @@ static ex multiply_lcm(const ex &e, const ex &lcm)
 			c += multiply_lcm(e.op(i), lcm);
 		return c;
 	} else if (is_ex_exactly_of_type(e, power)) {
-		return pow(multiply_lcm(e.op(0), pow(lcm, 1/e.op(1))), e.op(1));
+		return pow(multiply_lcm(e.op(0), lcm.power(ex_to_numeric(e.op(1)).inverse())), e.op(1));
 	} else
 		return e * lcm;
 }
@@ -1395,7 +1400,7 @@ static ex frac_cancel(const ex &n, const ex &d)
 {
     ex num = n;
     ex den = d;
-    ex pre_factor = _ex1();
+    numeric pre_factor = _num1();
 
     // Handle special cases where numerator or denominator is 0
     if (num.is_zero())
@@ -1409,8 +1414,8 @@ static ex frac_cancel(const ex &n, const ex &d)
 
     // Bring numerator and denominator to Z[X] by multiplying with
     // LCM of all coefficients' denominators
-    ex num_lcm = lcm_of_coefficients_denominators(num);
-    ex den_lcm = lcm_of_coefficients_denominators(den);
+    numeric num_lcm = lcm_of_coefficients_denominators(num);
+    numeric den_lcm = lcm_of_coefficients_denominators(den);
 	num = multiply_lcm(num, num_lcm);
 	den = multiply_lcm(den, den_lcm);
     pre_factor = den_lcm / num_lcm;
