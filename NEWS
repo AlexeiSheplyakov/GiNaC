@@ -1,5 +1,13 @@
 This file records noteworthy changes.
 
+1.0.15 (<date>)
+* Added on-line help and Tab-completion for print(), iprint(), print_latex()
+  and print_csrc() in ginsh.
+* Fixed a bug in the unarchiving of sums and products: terms were not
+  reordered in a canonical way.
+* Fixed a bug in normal()/numer_denom(): denominator was not made unit
+  normal if it was a simple number
+
 1.0.14 (1 March 2003)
 * Improved the C-source output: complex numbers are printed correctly (using
   the STL complex<> template or cln::complex()), rational numbers use cl_RA()
