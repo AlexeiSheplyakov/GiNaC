@@ -51,6 +51,7 @@
 #include <cln/cl_output.h>
 #include <cln/cl_integer_io.h>
 #include <cln/cl_integer_ring.h>
+#include <cln/cl_univpoly_integer.h>
 #include <cln/cl_rational_io.h>
 #include <cln/cl_rational_ring.h>
 #include <cln/cl_lfloat_class.h>
@@ -64,6 +65,7 @@
 #include <cl_output.h>
 #include <cl_integer_io.h>
 #include <cl_integer_ring.h>
+#include <cl_univpoly_integer.h>
 #include <cl_rational_io.h>
 #include <cl_rational_ring.h>
 #include <cl_lfloat_class.h>
@@ -1482,39 +1484,86 @@ const numeric bernoulli(const numeric & nn)
 {
     if (!nn.is_integer() || nn.is_negative())
         throw (std::range_error("numeric::bernoulli(): argument must be integer >= 0"));
+    
+    // Method:
+    //
+    // The Bernoulli numbers are rational numbers that may be computed using
+    // the relation
+    //
+    //     B_n = - 1/(n+1) * sum_{k=0}^{n-1}(binomial(n+1,k)*B_k)          (1)
+    //
+    // with B(0) = 1.  Since the n'th Bernoulli number depends on all the
+    // previous ones, the computation is necessarily very expensive.
+    // We can do better by computing the tangent numbers, sometimes called
+    // zag numbers.  They are integers which speeds up computation
+    // considerably.  Their relation to the Bernoulli numbers is given by
+    //
+    //     B_n == T_{n-1} * (-)^(n/2-1) * n / (4^n-2^n)                    (2)
+    //
+    // for even n>=2.  We can calculate the tangent numbers as the tangent 
+    // polynomials T_n(x) evaluated at x == 0.  The T_n(x) satisfy the
+    // recurrence relation
+    //
+    //      T_{n+1}(x) == (1+x^2)*T_n(x)'
+    //
+    // with starting value T_0(x) = x, by which they will be computed. The
+    // n'th tangent polynomial has degree n+1.
+    //
+    // Method (2) is about 2-10 times faster than method (1) when it is
+    // implemented in CLN's efficient univariate polynomials and not much more
+    // memory consuming.  Since any application that needs B_n is likely to
+    // need B_k, for k<n as well, we store all results computed so far, which
+    // gives us the same convenient runtime behaviour as method (1).
+    
+    // the special cases not covered by the algorithm below
     if (nn.is_zero())
         return _num1();
     if (!nn.compare(_num1()))
         return numeric(-1,2);
+    if (!nn.compare(_num2()))
+        return numeric(::cl_I(1)/::cl_I(6));
     if (nn.is_odd())
         return _num0();
-    // Until somebody has the blues and comes up with a much better idea and
-    // codes it (preferably in CLN) we make this a remembering function which
-    // computes its results using the defining formula
-    // B(nn) == - 1/(nn+1) * sum_{k=0}^{nn-1}(binomial(nn+1,k)*B(k))
-    // with B(0) == 1.
-    // Be warned, though: the Bernoulli numbers are computationally very
-    // expensive anyhow and you shouldn't expect miracles to happen.
-    static vector<cl_RA> results;
-    static int highest_result = -1;
-    int n = nn.sub(_num2()).div(_num2()).to_int();
-    if (n <= highest_result)
-        return numeric(results[n]);
-    if (results.capacity() < (unsigned)(n+1))
-        results.reserve(n+1);
     
-    cl_RA tmp;  // used to store the sum
-    for (int i=highest_result+1; i<=n; ++i) {
-        // the first two elements:
-        tmp = cl_I(-2*i-1)/cl_I(2);
-        // accumulate the remaining elements:
-        for (int j=0; j<i; ++j)
-            tmp = tmp + ::binomial(2*i+3,j*2+2)*results[j];
-        // divide by -(nn+1) and store result:
-        results.push_back(tmp/cl_I(-2*i-3));
+    // let CLN set up the integer ring we are working in
+    ::cl_univpoly_integer_ring myring = ::cl_find_univpoly_ring(::cl_I_ring);
+    
+    // store nonvanishing Bernoulli numbers and the last tangent poly here
+    static vector< ::cl_RA > results;
+    static int highest_result = 0;
+    static ::cl_UP_I T_n = myring->create(1);
+    
+    // index of results vector
+    int m = (nn.to_int()-4)/2;
+    // look if the result is precomputed
+    if (m < highest_result)
+        return numeric(results[m]);
+    // reserve the whole chunk we'll need
+    if (results.capacity() < (unsigned)(m+1))
+        results.reserve(m+1);
+    
+    // create the generating polynomial T_gen = 1+x^2
+    ::cl_UP_I T_gen = myring->create(2);
+    ::set_coeff(T_gen, 0, cl_I(1));
+    ::set_coeff(T_gen, 2, cl_I(1));
+    ::finalize(T_gen);
+    // T_n will be iterated, start with T_1(x) == 1+x^2 == T_gen
+    if (highest_result==0)
+        T_n = T_gen;
+    // iterate to the n'th tangent polynomial
+    for (int n=highest_result; n<=m; ++n) {
+        // recur tangent polynomial twice
+        for (int i=0; i<2; ++i)
+            T_n = ::deriv(T_n)*T_gen;
+        // fetch T_{n-1}
+        ::cl_I T = ::coeff(T_n,0);
+        // compute B_n from the T_{n-1}:
+        ::cl_RA B = T * (n%2 ? ::cl_I(1) : ::cl_I(-1));
+        B = B * 2*(n+2) / ((::cl_I(1)<<4*(n+2))-(::cl_I(1)<<2*(n+2)));
+        results.push_back(B);
+        ++highest_result;
     }
-    highest_result = n;
-    return numeric(results[n]);
+    return numeric(results[m]);
 }
 
 
@@ -1528,8 +1577,16 @@ const numeric fibonacci(const numeric & n)
 {
     if (!n.is_integer())
         throw (std::range_error("numeric::fibonacci(): argument must be integer"));
+    // Method:
+    //
+    // This is based on an implementation that can be found in CLN's example
+    // directory.  There, it is done recursively, which may be more elegant
+    // than our non-recursive implementation that has to resort to some bit-
+    // fiddling.  This is, however, a matter of taste.
     // The following addition formula holds:
+    //
     //      F(n+m)   = F(m-1)*F(n) + F(m)*F(n+1)  for m >= 1, n >= 0.
+    //
     // (Proof: For fixed m, the LHS and the RHS satisfy the same recurrence
     // w.r.t. n, and the initial values (n=0, n=1) agree. Hence all values
     // agree.)

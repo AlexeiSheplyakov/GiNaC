@@ -199,7 +199,7 @@ public:
 
 protected:
     static unsigned precedence;
-    cl_N *value;
+    ::cl_N *value;
 };
 
 // global constants
