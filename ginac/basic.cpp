@@ -265,7 +265,7 @@ ex basic::coeff(const ex & s, int n) const
 	return n==0 ? *this : _ex0();
 }
 
-/** Sort expression in terms of powers of some object(s).
+/** Sort expanded expression in terms of powers of some object(s).
  *  @param s object(s) to sort in
  *  @param distributed recursive or distributed form (only used when s is a list) */
 ex basic::collect(const ex & s, bool distributed) const
