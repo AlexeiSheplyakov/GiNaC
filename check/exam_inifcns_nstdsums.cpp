@@ -26,64 +26,82 @@
 #include <fstream>
 
 
+/*
+ * The data in the following include file has been produced by the following
+ * Mathematica (V4.1) script:
+ *
+ *
+ *    x={0.2,0.7 ,1,1.4,3.0 }
+ *    y={0,0.3,-0.8,3.0}
+ *    st = OpenAppend["exam_inifcns_nstdsums_data.raw"]
+ *    Do[
+ *      Do[
+ *        Do[Write[st, i]; Write[st,j]; Write[st,x[[k]]+I*y[[l]]];
+ *          Write[ st,N[PolyLog[i,j,x[[k]]+I*y[[l]]]]],{i,3},{j,3}], {k,5}],{l,4}]
+ *    Do[
+ *      Do[
+ *        Do[Write[st, i]; Write[st,j]; Write[st,-x[[k]]+I*y[[l]]];
+ *          Write[ st,N[PolyLog[i,j,-x[[k]]+I*y[[l]]]]],{i,3},{j,3}], {k,5}], {l,4}]
+ *    Close[st]
+ *
+ *    
+ * and postprocessed by the following shell script
+ *
+ *
+ *    #/bin/sh
+ *    IFS=$'\n'
+ *    cat exam_inifcns_nstdsums_data.raw | sed -e 's/\*\^/E/g' > exam_inifcns_nstdsums_data.raw2
+ *    echo 'string data[] = {' > exam_inifcns_nstdsums_data.raw3
+ *    for i in `cat exam_inifcns_nstdsums_data.raw2`; do echo \"$i\",; done >> exam_inifcns_nstdsums_data.raw3
+ *    echo '"-999"};' >> exam_inifcns_nstdsums.h
+ *
+ *
+ */
+#include "exam_inifcns_nstdsums.h"
+
+
+// adjust this if you want to process more S(n,p,x) data
+const int MAX_NDIM = 5;
+const int MAX_PDIM = 5;
+
+// signals end of data
+const int ENDMARK = -999;
+
 struct point
 {
 	ex x;
 	ex res;
 };
 
-
-const int NDIM = 5;
-const int PDIM = 5;
-
 typedef vector<point> vp;
 
-vp pp[NDIM][PDIM];
+vp pp[MAX_NDIM][MAX_PDIM];
+
 
 
 static unsigned inifcns_consist_S(void)
 {
 	unsigned result = 0;
 	
-	ifstream in("exam_inifcns_nstdsums_data");
-
-	if (!in) {
-		clog << "exam_inifcns_nstdsums_data not readable!" << endl;
-		return 666;
-	}
-
-	string str;
 	point ppbuf;
-
-	while (1) {
-		getline(in,str);
-		if (!in)
+	int i = 0;
+	while (true) {
+		ex en(data[i++],symbol());
+		if (en == ENDMARK) {
 			break;
-		ex en(str,symbol());
-		getline(in,str);
-		if (!in)
-			break;
-		ex ep(str,symbol());
-		getline(in,str);
-		if (!in)
-			break;
-		ex x(str,symbol());
-		getline(in,str);
-		if (!in)
-			break;
-		ex res(str,symbol());
-
+		}
 		numeric n = ex_to<numeric>(en);
+		ex ep(data[i++],symbol());
 		numeric p = ex_to<numeric>(ep);
-
+		ex x(data[i++],symbol());
+		ex res(data[i++],symbol());
+		
 		ppbuf.x = x;
 		ppbuf.res = res;
 
 		pp[n.to_int()-1][p.to_int()-1].push_back(ppbuf);
 	}
-
-	in.close();
-
+	
 	vp::iterator it;
 	int error = 0;
 

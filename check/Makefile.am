@@ -8,7 +8,8 @@ checks_SOURCES =  check_numeric.cpp check_inifcns.cpp check_matrices.cpp \
 checks_LDADD = ../ginac/libginac.la
 
 exams_SOURCES = exam_paranoia.cpp exam_numeric.cpp exam_powerlaws.cpp \
-  exam_inifcns.cpp exam_inifcns_nstdsums.cpp exam_differentiation.cpp \
+  exam_inifcns.cpp exam_inifcns_nstdsums.cpp exam_inifcns_nstdsums.h \
+  exam_differentiation.cpp \
   exam_polygcd.cpp exam_normalization.cpp exam_pseries.cpp exam_matrices.cpp \
   exam_lsolve.cpp exam_indexed.cpp exam_color.cpp exam_clifford.cpp \
   exam_archive.cpp exam_structure.cpp exam_misc.cpp exams.cpp exams.h
@@ -25,5 +26,5 @@ times_LDADD = ../ginac/libginac.la
 
 INCLUDES = -I$(srcdir)/../ginac -I../ginac
 
-CLEANFILES = exams.out checks.out times.out exam.gar exam_inifcns_nstdsums_data
+CLEANFILES = exams.out checks.out times.out exam.gar
 EXTRA_DIST = exams.ref checks.ref times.ref run_exams run_checks run_times
