@@ -319,6 +319,12 @@ static ex f_content(const exprseq &e)
 	return e[0].content(ex_to<symbol>(e[1]));
 }
 
+static ex f_decomp_rational(const exprseq &e)
+{
+	CHECK_ARG(1, symbol, decomp_rational);
+	return decomp_rational(e[0], ex_to<symbol>(e[1]));
+}
+
 static ex f_determinant(const exprseq &e)
 {
 	CHECK_ARG(0, matrix, determinant);
@@ -489,6 +495,7 @@ static const fcn_init builtin_fcns[] = {
 	{"collect", fcn_desc(f_collect, 2)},
 	{"collect_distributed", fcn_desc(f_collect_distributed, 2)},
 	{"content", fcn_desc(f_content, 2)},
+	{"decomp_rational", fcn_desc(f_decomp_rational, 2)},
 	{"degree", fcn_desc(f_degree, 2)},
 	{"denom", fcn_desc(f_denom, 1)},
 	{"determinant", fcn_desc(f_determinant, 1)},

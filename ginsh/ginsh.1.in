@@ -246,6 +246,9 @@ detail here. Please refer to the GiNaC documentation.
 .BI content( expression ", " symbol )
 \- content part of a polynomial
 .br
+.BI decomp_rational( expression ", " symbol )
+\- decompose rational function into polynomial and proper rational function
+.br
 .BI degree( expression ", " object )
 \- degree of a polynomial
 .br
