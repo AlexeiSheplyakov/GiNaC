@@ -65,7 +65,7 @@ protected:
 
     // other constructors
 public:
-    explicit symbol(const string & initname);
+    explicit symbol(const std::string & initname);
 
     // functions overriding virtual functions from base classes
 public:
@@ -97,17 +97,17 @@ protected:
 public:
     void assign(const ex & value);
     void unassign(void);
-    void setname(const string & n) {name=n;}
-    string getname(void) const {return name;}
+    void setname(const std::string & n) {name=n;}
+    std::string getname(void) const {return name;}
 private:
-    string & autoname_prefix(void);
+    std::string & autoname_prefix(void);
 
 // member variables
 
 protected:
     assigned_ex_info * asexinfop;
     unsigned serial;  //!< unique serial number for comparision
-    string name;
+    std::string name;
 private:
     static unsigned next_serial;
 };

@@ -24,8 +24,10 @@
 #ifndef __GINAC_INPUT_LEXER_H__
 #define __GINAC_INPUT_LEXER_H__
 
+extern "C" {
 #include <stdio.h>
-
+}
+    
 #include "config.h"
 
 // yacc stack type

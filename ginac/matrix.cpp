@@ -1114,7 +1114,7 @@ int matrix::fraction_free_elimination(bool det)
     for (unsigned r1=0; r1<row-1; ++r1) {
         int indx = tmp_n.pivot(r1);
         if (det && indx==-1)
-            return 0;  // FIXME: what to do if det is false?
+            return 0;  // FIXME: what to do if det is false, some day?
         if (indx>0) {
             sign = -sign;
             // rows r1 and indx were swapped, so pivot matrix tmp_d:

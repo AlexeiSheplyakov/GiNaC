@@ -92,7 +92,7 @@ void symbol::destroy(bool call_parent)
 
 // public
 
-symbol::symbol(const string & initname) : inherited(TINFO_symbol)
+symbol::symbol(const std::string & initname) : inherited(TINFO_symbol)
 {
     debugmsg("symbol constructor from string", LOGLEVEL_CONSTRUCT);
     name = initname;
@@ -164,7 +164,7 @@ void symbol::printraw(ostream & os) const
 void symbol::printtree(ostream & os, unsigned indent) const
 {
     debugmsg("symbol printtree",LOGLEVEL_PRINT);
-    os << string(indent,' ') << name << " (symbol): "
+    os << std::string(indent,' ') << name << " (symbol): "
        << "serial=" << serial
        << ", hash=" << hashvalue << " (0x" << hex << hashvalue << dec << ")"
        << ", flags=" << flags << endl;
@@ -335,9 +335,9 @@ void symbol::unassign(void)
 
 // private
 
-string & symbol::autoname_prefix(void)
+std::string & symbol::autoname_prefix(void)
 {
-    static string * s=new string("symbol");
+    static std::string * s=new std::string("symbol");
     return *s;
 }
 

@@ -23,7 +23,9 @@
 #ifndef __GINAC_ASSERTION_H__
 #define __GINAC_ASSERTION_H__
 
+extern "C" {
 #include <assert.h>
+}
 
 #if !defined(GINAC_ASSERT)
 #if defined(DO_GINAC_ASSERT)
