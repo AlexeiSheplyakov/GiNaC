@@ -26,6 +26,8 @@
 #include "indexed.h"
 #include "tensor.h"
 
+#include <set>
+
 namespace GiNaC {
 
 
@@ -168,6 +170,18 @@ ex color_d(const ex & a, const ex & b, const ex & c);
 
 /** This returns the linear combination d.a.b.c+I*f.a.b.c. */
 ex color_h(const ex & a, const ex & b, const ex & c);
+
+/** Calculate color traces over the specified set of representation labels.
+ *
+ *  @param e Expression to take the trace of
+ *  @param rls Set of representation labels */
+ex color_trace(const ex & e, const std::set<unsigned char> & rls);
+
+/** Calculate color traces over the specified list of representation labels.
+ *
+ *  @param e Expression to take the trace of
+ *  @param rll List of representation labels */
+ex color_trace(const ex & e, const lst & rll);
 
 /** Calculate the trace of an expression containing color objects with a
  *  specified representation label.

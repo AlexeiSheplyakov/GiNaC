@@ -1128,6 +1128,7 @@ ex simplify_indexed(const ex & e, exvector & free_indices, exvector & dummy_indi
  *  performs contraction of dummy indices where possible and checks whether
  *  the free indices in sums are consistent.
  *
+ *  @param options Simplification options (currently unused)
  *  @return simplified expression */
 ex ex::simplify_indexed(unsigned options) const
 {
@@ -1142,6 +1143,7 @@ ex ex::simplify_indexed(unsigned options) const
  *  scalar products by known values if desired.
  *
  *  @param sp Scalar products to be replaced automatically
+ *  @param options Simplification options (currently unused)
  *  @return simplified expression */
 ex ex::simplify_indexed(const scalar_products & sp, unsigned options) const
 {

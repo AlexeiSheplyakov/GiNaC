@@ -527,12 +527,32 @@ static bool is_color_tinfo(unsigned ti, unsigned char rl)
 	return ti == (TINFO_color + rl);
 }
 
-ex color_trace(const ex & e, unsigned char rl)
+/** Check whether a given tinfo key (as returned by return_type_tinfo()
+ *  is that of a color object (with an arbitrary representation label). */
+static bool is_color_tinfo(unsigned ti)
+{
+	return (ti & ~0xff) == TINFO_color;
+}
+
+/** Extract representation label from tinfo key (as returned by
+ *  return_type_tinfo()). */
+static unsigned char get_representation_label(unsigned ti)
+{
+	return ti & 0xff;
+}
+
+ex color_trace(const ex & e, const std::set<unsigned char> & rls)
 {
 	if (is_a<color>(e)) {
 
-		if (ex_to<color>(e).get_representation_label() == rl
-		 && is_a<su3one>(e.op(0)))
+		unsigned char rl = ex_to<color>(e).get_representation_label();
+
+		// Are we taking the trace over this object's representation label?
+		if (rls.find(rl) == rls.end())
+			return e;
+
+		// Yes, all generators are traceless, except for color_ONE
+		if (is_a<su3one>(e.op(0)))
 			return _ex3;
 		else
 			return _ex0;
@@ -543,8 +563,8 @@ ex color_trace(const ex & e, unsigned char rl)
 		ex prod = _ex1;
 		for (size_t i=0; i<e.nops(); i++) {
 			const ex &o = e.op(i);
-			if (is_color_tinfo(o.return_type_tinfo(), rl))
-				prod *= color_trace(o, rl);
+			if (is_color_tinfo(o.return_type_tinfo()))
+				prod *= color_trace(o, rls);
 			else
 				prod *= o;
 		}
@@ -552,13 +572,16 @@ ex color_trace(const ex & e, unsigned char rl)
 
 	} else if (is_exactly_a<ncmul>(e)) {
 
-		if (!is_color_tinfo(e.return_type_tinfo(), rl))
-			return _ex0;
+		unsigned char rl = get_representation_label(e.return_type_tinfo());
 
-		// Expand product, if necessary
+		// Are we taking the trace over this string's representation label?
+		if (rls.find(rl) == rls.end())
+			return e;
+
+		// Yes, expand product if necessary
 		ex e_expanded = e.expand();
 		if (!is_a<ncmul>(e_expanded))
-			return color_trace(e_expanded, rl);
+			return color_trace(e_expanded, rls);
 
 		size_t num = e.nops();
 
@@ -597,11 +620,32 @@ ex color_trace(const ex & e, unsigned char rl)
 	} else if (e.nops() > 0) {
 
 		// Trace maps to all other container classes (this includes sums)
-		pointer_to_map_function_1arg<unsigned char> fcn(color_trace, rl);
+		pointer_to_map_function_1arg<const std::set<unsigned char> &> fcn(color_trace, rls);
 		return e.map(fcn);
 
 	} else
 		return _ex0;
+}
+
+ex color_trace(const ex & e, const lst & rll)
+{
+	// Convert list to set
+	std::set<unsigned char> rls;
+	for (lst::const_iterator i = rll.begin(); i != rll.end(); ++i) {
+		if (i->info(info_flags::nonnegint))
+			rls.insert(ex_to<numeric>(*i).to_int());
+	}
+
+	return color_trace(e, rls);
+}
+
+ex color_trace(const ex & e, unsigned char rl)
+{
+	// Convert label to set
+	std::set<unsigned char> rls;
+	rls.insert(rl);
+
+	return color_trace(e, rls);
 }
 
 } // namespace GiNaC

@@ -28,6 +28,8 @@
 #include "symbol.h"
 #include "idx.h"
 
+#include <set>
+
 namespace GiNaC {
 
 
@@ -225,6 +227,26 @@ ex dirac_gammaR(unsigned char rl = 0);
  *  @param dim Dimension of index
  *  @param rl Representation label */
 ex dirac_slash(const ex & e, const ex & dim, unsigned char rl = 0);
+
+/** Calculate dirac traces over the specified set of representation labels.
+ *  The computed trace is a linear functional that is equal to the usual
+ *  trace only in D = 4 dimensions. In particular, the functional is not
+ *  always cyclic in D != 4 dimensions when gamma5 is involved.
+ *
+ *  @param e Expression to take the trace of
+ *  @param rls Set of representation labels
+ *  @param trONE Expression to be returned as the trace of the unit matrix */
+ex dirac_trace(const ex & e, const std::set<unsigned char> & rls, const ex & trONE = 4);
+
+/** Calculate dirac traces over the specified list of representation labels.
+ *  The computed trace is a linear functional that is equal to the usual
+ *  trace only in D = 4 dimensions. In particular, the functional is not
+ *  always cyclic in D != 4 dimensions when gamma5 is involved.
+ *
+ *  @param e Expression to take the trace of
+ *  @param rll List of representation labels
+ *  @param trONE Expression to be returned as the trace of the unit matrix */
+ex dirac_trace(const ex & e, const lst & rll, const ex & trONE = 4);
 
 /** Calculate the trace of an expression containing gamma objects with
  *  a specified representation label. The computed trace is a linear

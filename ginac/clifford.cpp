@@ -250,6 +250,14 @@ static void base_and_index(const ex & c, ex & b, ex & i)
 	}
 }
 
+/** Predicate for finding non-clifford objects. */
+struct is_not_a_clifford : public std::unary_function<ex, bool> {
+	bool operator()(const ex & e)
+	{
+		return !is_a<clifford>(e);
+	}
+};
+
 /** Contraction of a gamma matrix with something else. */
 bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const
 {
@@ -268,21 +276,23 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 		if (ex_to<clifford>(*other).get_representation_label() != rl)
 			return false;
 
+		size_t num = other - self;
+
 		// gamma~mu gamma.mu = dim ONE
-		if (other - self == 1) {
+		if (num == 1) {
 			*self = dim;
 			*other = dirac_ONE(rl);
 			return true;
 
 		// gamma~mu gamma~alpha gamma.mu = (2-dim) gamma~alpha
-		} else if (other - self == 2
+		} else if (num == 2
 		        && is_a<clifford>(self[1])) {
 			*self = 2 - dim;
 			*other = _ex1;
 			return true;
 
 		// gamma~mu gamma~alpha gamma~beta gamma.mu = 4 g~alpha~beta + (dim-4) gamam~alpha gamma~beta
-		} else if (other - self == 3
+		} else if (num == 3
 		        && is_a<clifford>(self[1])
 		        && is_a<clifford>(self[2])) {
 			ex b1, i1, b2, i2;
@@ -295,7 +305,7 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 			return true;
 
 		// gamma~mu gamma~alpha gamma~beta gamma~delta gamma.mu = -2 gamma~delta gamma~beta gamma~alpha - (dim-4) gamam~alpha gamma~beta gamma~delta
-		} else if (other - self == 4
+		} else if (num == 4
 		        && is_a<clifford>(self[1])
 		        && is_a<clifford>(self[2])
 		        && is_a<clifford>(self[3])) {
@@ -306,27 +316,45 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 			*other = _ex1;
 			return true;
 
+		// gamma~mu Sodd gamma.mu = -2 Sodd_R
+		// (Chisholm identity in 4 dimensions)
+		} else if (!((other - self) & 1) && dim.is_equal(4)) {
+			if (std::find_if(self + 1, other, is_not_a_clifford()) != other)
+				return false;
+
+			*self = ncmul(exvector(std::reverse_iterator<exvector::const_iterator>(other), std::reverse_iterator<exvector::const_iterator>(self + 1)), true);
+			std::fill(self + 1, other, _ex1);
+			*other = _ex_2;
+			return true;
+
+		// gamma~mu Sodd gamma~alpha gamma.mu = 2 gamma~alpha Sodd + 2 Sodd_R gamma~alpha
+		// (commutate contracted indices towards each other, then use
+		// Chisholm identity in 4 dimensions)
+		} else if (((other - self) & 1) && dim.is_equal(4)) {
+			if (std::find_if(self + 1, other, is_not_a_clifford()) != other)
+				return false;
+
+			exvector::iterator next_to_last = other - 1;
+			ex S = ncmul(exvector(self + 1, next_to_last), true);
+			ex SR = ncmul(exvector(std::reverse_iterator<exvector::const_iterator>(next_to_last), std::reverse_iterator<exvector::const_iterator>(self + 1)), true);
+
+			*self = (*next_to_last) * S + SR * (*next_to_last);
+			std::fill(self + 1, other, _ex1);
+			*other = _ex2;
+			return true;
+
 		// gamma~mu S gamma~alpha gamma.mu = 2 gamma~alpha S - gamma~mu S gamma.mu gamma~alpha
 		// (commutate contracted indices towards each other, simplify_indexed()
 		// will re-expand and re-run the simplification)
 		} else {
-			exvector::iterator it = self + 1, next_to_last = other - 1;
-			while (it != other) {
-				if (!is_a<clifford>(*it))
-					return false;
-				++it;
-			}
+			if (std::find_if(self + 1, other, is_not_a_clifford()) != other)
+				return false;
 
-			it = self + 1;
-			ex S = _ex1;
-			while (it != next_to_last) {
-				S *= *it;
-				*it++ = _ex1;
-			}
+			exvector::iterator next_to_last = other - 1;
+			ex S = ncmul(exvector(self + 1, next_to_last), true);
 
 			*self = 2 * (*next_to_last) * S - (*self) * S * (*other) * (*next_to_last);
-			*next_to_last = _ex1;
-			*other = _ex1;
+			std::fill(self + 1, other + 1, _ex1);
 			return true;
 		}
 
@@ -702,6 +730,13 @@ static bool is_clifford_tinfo(unsigned ti)
 	return (ti & ~0xff) == TINFO_clifford;
 }
 
+/** Extract representation label from tinfo key (as returned by
+ *  return_type_tinfo()). */
+static unsigned char get_representation_label(unsigned ti)
+{
+	return ti & 0xff;
+}
+
 /** Take trace of a string of an even number of Dirac gammas given a vector
  *  of indices. */
 static ex trace_string(exvector::const_iterator ix, size_t num)
@@ -738,12 +773,17 @@ static ex trace_string(exvector::const_iterator ix, size_t num)
 	return result;
 }
 
-ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
+ex dirac_trace(const ex & e, const std::set<unsigned char> & rls, const ex & trONE)
 {
 	if (is_a<clifford>(e)) {
 
-		if (!ex_to<clifford>(e).get_representation_label() == rl)
-			return _ex0;
+		unsigned char rl = ex_to<clifford>(e).get_representation_label();
+
+		// Are we taking the trace over this object's representation label?
+		if (rls.find(rl) == rls.end())
+			return e;
+
+		// Yes, all elements are traceless, except for dirac_ONE and dirac_L/R
 		const ex & g = e.op(0);
 		if (is_a<diracone>(g))
 			return trONE;
@@ -758,8 +798,8 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 		ex prod = _ex1;
 		for (size_t i=0; i<e.nops(); i++) {
 			const ex &o = e.op(i);
-			if (is_clifford_tinfo(o.return_type_tinfo(), rl))
-				prod *= dirac_trace(o, rl, trONE);
+			if (is_clifford_tinfo(o.return_type_tinfo()))
+				prod *= dirac_trace(o, rls, trONE);
 			else
 				prod *= o;
 		}
@@ -767,8 +807,11 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 
 	} else if (is_exactly_a<ncmul>(e)) {
 
-		if (!is_clifford_tinfo(e.return_type_tinfo(), rl))
-			return _ex0;
+		unsigned char rl = get_representation_label(e.return_type_tinfo());
+
+		// Are we taking the trace over this string's representation label?
+		if (rls.find(rl) == rls.end())
+			return e;
 
 		// Substitute gammaL/R and expand product, if necessary
 		ex e_expanded = e.subs(lst(
@@ -776,7 +819,7 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 			dirac_gammaR(rl) == (dirac_ONE(rl)+dirac_gamma5(rl))/2
 		), subs_options::no_pattern).expand();
 		if (!is_a<ncmul>(e_expanded))
-			return dirac_trace(e_expanded, rl, trONE);
+			return dirac_trace(e_expanded, rls, trONE);
 
 		// gamma5 gets moved to the front so this check is enough
 		bool has_gamma5 = is_a<diracgamma5>(e.op(0).op(0));
@@ -860,12 +903,34 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 	} else if (e.nops() > 0) {
 
 		// Trace maps to all other container classes (this includes sums)
-		pointer_to_map_function_2args<unsigned char, const ex &> fcn(dirac_trace, rl, trONE);
+		pointer_to_map_function_2args<const std::set<unsigned char> &, const ex &> fcn(dirac_trace, rls, trONE);
 		return e.map(fcn);
 
 	} else
 		return _ex0;
 }
+
+ex dirac_trace(const ex & e, const lst & rll, const ex & trONE)
+{
+	// Convert list to set
+	std::set<unsigned char> rls;
+	for (lst::const_iterator i = rll.begin(); i != rll.end(); ++i) {
+		if (i->info(info_flags::nonnegint))
+			rls.insert(ex_to<numeric>(*i).to_int());
+	}
+
+	return dirac_trace(e, rls, trONE);
+}
+
+ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
+{
+	// Convert label to set
+	std::set<unsigned char> rls;
+	rls.insert(rl);
+
+	return dirac_trace(e, rls, trONE);
+}
+
 
 ex canonicalize_clifford(const ex & e)
 {
