@@ -143,8 +143,10 @@ static unsigned symmetry_check(void)
 
 static unsigned edyn_check(void)
 {
-	// relativistic electrodynamics: check transformation laws of electric
-	// and magnetic fields by applying a Lorentz boost to the field tensor
+	// Relativistic electrodynamics
+
+	// Test 1: check transformation laws of electric and magnetic fields by
+	// applying a Lorentz boost to the field tensor
 
 	unsigned result = 0;
 
@@ -201,6 +203,39 @@ static unsigned edyn_check(void)
 	result += check_equal(Bx_p, Bx);
 	result += check_equal(By_p, gamma * (By + beta * Ez));
 	result += check_equal(Bz_p, gamma * (Bz - beta * Ey));
+
+	// Test 2: check energy density and Poynting vector of electromagnetic field
+
+	// Minkowski metric
+	matrix eta(4, 4);
+	eta.set(0, 0, 1);
+	eta.set(1, 1, -1);
+	eta.set(2, 2, -1);
+	eta.set(3, 3, -1);
+
+	// Covariant field tensor
+	ex F_mu_nu = (indexed(eta, mu.toggle_variance(), rho.toggle_variance())
+	            * indexed(eta, nu.toggle_variance(), sigma.toggle_variance())
+	            * indexed(F, rho, sigma)).simplify_indexed();
+
+	// Energy-momentum tensor
+	ex T = (-indexed(eta, rho, sigma) * F_mu_nu.subs(s_nu == s_rho) 
+	        * F_mu_nu.subs(lst(s_mu == s_nu, s_nu == s_sigma))
+	      + indexed(eta, mu.toggle_variance(), nu.toggle_variance())
+	        * F_mu_nu.subs(lst(s_mu == s_rho, s_nu == s_sigma))
+	        * indexed(F, rho, sigma) / 4).simplify_indexed() / (4 * Pi);
+
+	// Extract energy density and Poynting vector
+	ex E = T.subs(lst(s_mu == 0, s_nu == 0)).normal();
+	ex Px = T.subs(lst(s_mu == 0, s_nu == 1));
+	ex Py = T.subs(lst(s_mu == 0, s_nu == 2)); 
+	ex Pz = T.subs(lst(s_mu == 0, s_nu == 3));
+
+	// Check results
+	result += check_equal(E, (Ex*Ex+Ey*Ey+Ez*Ez+Bx*Bx+By*By+Bz*Bz) / (8 * Pi));
+	result += check_equal(Px, (Ez*By-Ey*Bz) / (4 * Pi));
+	result += check_equal(Py, (Ex*Bz-Ez*Bx) / (4 * Pi));
+	result += check_equal(Pz, (Ey*Bx-Ex*By) / (4 * Pi));
 
 	return result;
 }
