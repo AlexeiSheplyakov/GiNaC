@@ -16,6 +16,6 @@ times_SOURCES = time_dennyfliegner.cpp time_gammaseries.cpp \
   time_lw_Pprime.cpp time_lw_Q.cpp time_lw_Qprime.cpp \
   timer.cpp times.cpp times.h
 times_LDADD = ../ginac/libginac.la
-INCLUDES = -I$(srcdir)/../ginac
+INCLUDES = -I$(srcdir)/../ginac -I../ginac
 CLEANFILES = exams.out checks.out times.out
 EXTRA_DIST = exams.ref checks.ref times.ref run_exams run_checks run_times

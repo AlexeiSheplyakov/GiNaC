@@ -4,6 +4,6 @@ bin_PROGRAMS = viewgar
 viewgar_SOURCES = viewgar.cpp
 viewgar_LDADD = ../ginac/libginac.la
 
-INCLUDES = -I$(srcdir)/../ginac
+INCLUDES = -I$(srcdir)/../ginac -I../ginac
 
 man_MANS = viewgar.1
