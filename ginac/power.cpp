@@ -551,7 +551,7 @@ ex power::derivative(const symbol & s) const
 
 int power::compare_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_exactly_of_type(other, power));
+	GINAC_ASSERT(is_exactly_a<power>(other));
 	const power &o = static_cast<const power &>(other);
 
 	int cmpval = basis.compare(o.basis);
@@ -671,13 +671,13 @@ ex power::expand_add(const add & a, int n) const
 		term.reserve(m+1);
 		for (l=0; l<m-1; l++) {
 			const ex & b = a.op(l);
-			GINAC_ASSERT(!is_ex_exactly_of_type(b,add));
-			GINAC_ASSERT(!is_ex_exactly_of_type(b,power) ||
-			             !is_ex_exactly_of_type(ex_to<power>(b).exponent,numeric) ||
+			GINAC_ASSERT(!is_exactly_a<add>(b));
+			GINAC_ASSERT(!is_exactly_a<power>(b) ||
+			             !is_exactly_a<numeric>(ex_to<power>(b).exponent) ||
 			             !ex_to<numeric>(ex_to<power>(b).exponent).is_pos_integer() ||
-			             !is_ex_exactly_of_type(ex_to<power>(b).basis,add) ||
-			             !is_ex_exactly_of_type(ex_to<power>(b).basis,mul) ||
-			             !is_ex_exactly_of_type(ex_to<power>(b).basis,power));
+			             !is_exactly_a<add>(ex_to<power>(b).basis) ||
+			             !is_exactly_a<mul>(ex_to<power>(b).basis) ||
+			             !is_exactly_a<power>(ex_to<power>(b).basis));
 			if (is_ex_exactly_of_type(b,mul))
 				term.push_back(expand_mul(ex_to<mul>(b),numeric(k[l])));
 			else
@@ -685,13 +685,13 @@ ex power::expand_add(const add & a, int n) const
 		}
 		
 		const ex & b = a.op(l);
-		GINAC_ASSERT(!is_ex_exactly_of_type(b,add));
-		GINAC_ASSERT(!is_ex_exactly_of_type(b,power) ||
-		             !is_ex_exactly_of_type(ex_to<power>(b).exponent,numeric) ||
+		GINAC_ASSERT(!is_exactly_a<add>(b));
+		GINAC_ASSERT(!is_exactly_a<power>(b) ||
+		             !is_exactly_a<numeric>(ex_to<power>(b).exponent) ||
 		             !ex_to<numeric>(ex_to<power>(b).exponent).is_pos_integer() ||
-		             !is_ex_exactly_of_type(ex_to<power>(b).basis,add) ||
-		             !is_ex_exactly_of_type(ex_to<power>(b).basis,mul) ||
-		             !is_ex_exactly_of_type(ex_to<power>(b).basis,power));
+		             !is_exactly_a<add>(ex_to<power>(b).basis) ||
+		             !is_exactly_a<mul>(ex_to<power>(b).basis) ||
+		             !is_exactly_a<power>(ex_to<power>(b).basis));
 		if (is_ex_exactly_of_type(b,mul))
 			term.push_back(expand_mul(ex_to<mul>(b),numeric(n-k_cum[m-2])));
 		else
@@ -746,13 +746,13 @@ ex power::expand_add_2(const add & a) const
 		const ex & r = cit0->rest;
 		const ex & c = cit0->coeff;
 		
-		GINAC_ASSERT(!is_ex_exactly_of_type(r,add));
-		GINAC_ASSERT(!is_ex_exactly_of_type(r,power) ||
-		             !is_ex_exactly_of_type(ex_to<power>(r).exponent,numeric) ||
+		GINAC_ASSERT(!is_exactly_a<add>(r));
+		GINAC_ASSERT(!is_exactly_a<power>(r) ||
+		             !is_exactly_a<numeric>(ex_to<power>(r).exponent) ||
 		             !ex_to<numeric>(ex_to<power>(r).exponent).is_pos_integer() ||
-		             !is_ex_exactly_of_type(ex_to<power>(r).basis,add) ||
-		             !is_ex_exactly_of_type(ex_to<power>(r).basis,mul) ||
-		             !is_ex_exactly_of_type(ex_to<power>(r).basis,power));
+		             !is_exactly_a<add>(ex_to<power>(r).basis) ||
+		             !is_exactly_a<mul>(ex_to<power>(r).basis) ||
+		             !is_exactly_a<power>(ex_to<power>(r).basis));
 		
 		if (are_ex_trivially_equal(c,_ex1())) {
 			if (is_ex_exactly_of_type(r,mul)) {

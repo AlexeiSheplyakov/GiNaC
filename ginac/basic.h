@@ -179,7 +179,7 @@ extern int max_recursion_level;
 
 /** Check if obj is a T, including base classes. */
 template <class T>
-inline bool is_a(const basic & obj)
+inline bool is_a(const basic &obj)
 {
 	return dynamic_cast<const T *>(&obj)!=0;
 }
@@ -188,28 +188,29 @@ inline bool is_a(const basic & obj)
  *  inefficient default.  It should in all time-critical cases be overridden
  *  by template specializations that don't create a temporary. */
 template <class T>
-inline bool is_exactly_a(const class basic & obj)
+inline bool is_exactly_a(const class basic &obj)
 {
 	const T foo; return foo.tinfo()==obj.tinfo();
 }
 
 /** Check if ex is a handle to a T, including base classes. */
 template <class T>
-inline bool is_a(const ex & obj)
+inline bool is_a(const ex &obj)
 {
 	return is_a<T>(*obj.bp);
 }
 
 /** Check if ex is a handle to a T, not including base classes. */
 template <class T>
-inline bool is_exactly_a(const ex & obj)
+inline bool is_exactly_a(const ex &obj)
 {
 	return is_exactly_a<T>(*obj.bp);
 }
 
 /** Return a reference to the basic-derived class T object embedded in an
  *  expression.  This is fast but unsafe: the result is undefined if the
- *  expression does not contain a T object at its top level.
+ *  expression does not contain a T object at its top level.  Hence, you
+ *  should generally check the type of e first.
  *
  *  @param e expression
  *  @return reference to pseries object

@@ -89,13 +89,13 @@ exp	: T_NUMBER		{$$ = $1;}
 		if (is_lexer_symbol_predefined($1))
 			$$ = $1.eval();
 		else
-			throw (std::runtime_error("unknown symbol '" + ex_to_symbol($1).get_name() + "'"));
+			throw (std::runtime_error("unknown symbol '" + ex_to<symbol>($1).get_name() + "'"));
 	}
 	| T_LITERAL		{$$ = $1;}
 	| T_DIGITS		{$$ = $1;}
 	| T_SYMBOL '(' exprseq ')' {
-		unsigned i = function::find_function(ex_to_symbol($1).get_name(), $3.nops());
-		$$ = function(i, static_cast<const exprseq &>(*($3.bp))).eval(1);
+		unsigned i = function::find_function(ex_to<symbol>($1).get_name(), $3.nops());
+		$$ = function(i, ex_to<exprseq>($3)).eval(1);
 	}
 	| exp T_EQUAL exp	{$$ = $1 == $3;}
 	| exp T_NOTEQ exp	{$$ = $1 != $3;}
@@ -113,11 +113,11 @@ exp	: T_NUMBER		{$$ = $1;}
 	| exp '!'		{$$ = factorial($1);}
 	| '(' exp ')'		{$$ = $2;}
 	| '{' list_or_empty '}'	{$$ = $2;}
-	| '[' matrix ']'	{$$ = lst_to_matrix(ex_to_lst($2));}
+	| '[' matrix ']'	{$$ = lst_to_matrix(ex_to<lst>($2));}
 	;
 
 exprseq	: exp			{$$ = exprseq($1);}
-	| exprseq ',' exp	{exprseq es(static_cast<exprseq &>(*($1.bp))); $$ = es.append($3);}
+	| exprseq ',' exp	{exprseq es(ex_to<exprseq>($1)); $$ = es.append($3);}
 	;
 
 list_or_empty: /* empty */	{$$ = *new lst;}
@@ -125,15 +125,15 @@ list_or_empty: /* empty */	{$$ = *new lst;}
 	;
 
 list	: exp			{$$ = lst($1);}
-	| list ',' exp		{lst l(static_cast<lst &>(*($1.bp))); $$ = l.append($3);}
+	| list ',' exp		{lst l(ex_to<lst>($1)); $$ = l.append($3);}
 	;
 
 matrix	: '[' row ']'		{$$ = lst($2);}
-	| matrix ',' '[' row ']' {lst l(static_cast<lst &>(*($1.bp))); $$ = l.append($4);}
+	| matrix ',' '[' row ']' {lst l(ex_to<lst>($1)); $$ = l.append($4);}
 	;
 
 row	: exp			{$$ = lst($1);}
-	| row ',' exp		{lst l(static_cast<lst &>(*($1.bp))); $$ = l.append($3);}
+	| row ',' exp		{lst l(ex_to<lst>($1)); $$ = l.append($3);}
 	;
 
 

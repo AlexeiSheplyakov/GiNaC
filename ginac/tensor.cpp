@@ -153,7 +153,7 @@ DEFAULT_COMPARE(spinmetric)
 
 int minkmetric::compare_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_of_type(other, minkmetric));
+	GINAC_ASSERT(is_a<minkmetric>(other));
 	const minkmetric &o = static_cast<const minkmetric &>(other);
 
 	if (pos_sig != o.pos_sig)
@@ -164,7 +164,7 @@ int minkmetric::compare_same_type(const basic & other) const
 
 int tensepsilon::compare_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_of_type(other, tensepsilon));
+	GINAC_ASSERT(is_a<tensepsilon>(other));
 	const tensepsilon &o = static_cast<const tensepsilon &>(other);
 
 	if (minkowski != o.minkowski)
@@ -184,9 +184,9 @@ DEFAULT_PRINT_LATEX(tensepsilon, "eps", "\\varepsilon")
 /** Automatic symbolic evaluation of an indexed delta tensor. */
 ex tensdelta::eval_indexed(const basic & i) const
 {
-	GINAC_ASSERT(is_of_type(i, indexed));
+	GINAC_ASSERT(is_a<indexed>(i));
 	GINAC_ASSERT(i.nops() == 3);
-	GINAC_ASSERT(is_ex_of_type(i.op(0), tensdelta));
+	GINAC_ASSERT(is_a<tensdelta>(i.op(0)));
 
 	const idx & i1 = ex_to<idx>(i.op(1));
 	const idx & i2 = ex_to<idx>(i.op(2));
@@ -211,11 +211,11 @@ ex tensdelta::eval_indexed(const basic & i) const
 /** Automatic symbolic evaluation of an indexed metric tensor. */
 ex tensmetric::eval_indexed(const basic & i) const
 {
-	GINAC_ASSERT(is_of_type(i, indexed));
+	GINAC_ASSERT(is_a<indexed>(i));
 	GINAC_ASSERT(i.nops() == 3);
-	GINAC_ASSERT(is_ex_of_type(i.op(0), tensmetric));
-	GINAC_ASSERT(is_ex_of_type(i.op(1), varidx));
-	GINAC_ASSERT(is_ex_of_type(i.op(2), varidx));
+	GINAC_ASSERT(is_a<tensmetric>(i.op(0)));
+	GINAC_ASSERT(is_a<varidx>(i.op(1)));
+	GINAC_ASSERT(is_a<varidx>(i.op(2)));
 
 	const varidx & i1 = ex_to<varidx>(i.op(1));
 	const varidx & i2 = ex_to<varidx>(i.op(2));
@@ -232,11 +232,11 @@ ex tensmetric::eval_indexed(const basic & i) const
 /** Automatic symbolic evaluation of an indexed Lorentz metric tensor. */
 ex minkmetric::eval_indexed(const basic & i) const
 {
-	GINAC_ASSERT(is_of_type(i, indexed));
+	GINAC_ASSERT(is_a<indexed>(i));
 	GINAC_ASSERT(i.nops() == 3);
-	GINAC_ASSERT(is_ex_of_type(i.op(0), minkmetric));
-	GINAC_ASSERT(is_ex_of_type(i.op(1), varidx));
-	GINAC_ASSERT(is_ex_of_type(i.op(2), varidx));
+	GINAC_ASSERT(is_a<minkmetric>(i.op(0)));
+	GINAC_ASSERT(is_a<varidx>(i.op(1)));
+	GINAC_ASSERT(is_a<varidx>(i.op(2)));
 
 	const varidx & i1 = ex_to<varidx>(i.op(1));
 	const varidx & i2 = ex_to<varidx>(i.op(2));
@@ -259,11 +259,11 @@ ex minkmetric::eval_indexed(const basic & i) const
 /** Automatic symbolic evaluation of an indexed metric tensor. */
 ex spinmetric::eval_indexed(const basic & i) const
 {
-	GINAC_ASSERT(is_of_type(i, indexed));
+	GINAC_ASSERT(is_a<indexed>(i));
 	GINAC_ASSERT(i.nops() == 3);
-	GINAC_ASSERT(is_ex_of_type(i.op(0), spinmetric));
-	GINAC_ASSERT(is_ex_of_type(i.op(1), spinidx));
-	GINAC_ASSERT(is_ex_of_type(i.op(2), spinidx));
+	GINAC_ASSERT(is_a<spinmetric>(i.op(0)));
+	GINAC_ASSERT(is_a<spinidx>(i.op(1)));
+	GINAC_ASSERT(is_a<spinidx>(i.op(2)));
 
 	const spinidx & i1 = ex_to<spinidx>(i.op(1));
 	const spinidx & i2 = ex_to<spinidx>(i.op(2));
@@ -290,9 +290,9 @@ ex spinmetric::eval_indexed(const basic & i) const
 /** Automatic symbolic evaluation of an indexed epsilon tensor. */
 ex tensepsilon::eval_indexed(const basic & i) const
 {
-	GINAC_ASSERT(is_of_type(i, indexed));
+	GINAC_ASSERT(is_a<indexed>(i));
 	GINAC_ASSERT(i.nops() > 1);
-	GINAC_ASSERT(is_ex_of_type(i.op(0), tensepsilon));
+	GINAC_ASSERT(is_a<tensepsilon>(i.op(0)));
 
 	// Convolutions are zero
 	if (!(static_cast<const indexed &>(i).get_dummy_indices().empty()))
@@ -333,10 +333,10 @@ ex tensepsilon::eval_indexed(const basic & i) const
 /** Contraction of an indexed delta tensor with something else. */
 bool tensdelta::contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const
 {
-	GINAC_ASSERT(is_ex_of_type(*self, indexed));
-	GINAC_ASSERT(is_ex_of_type(*other, indexed));
+	GINAC_ASSERT(is_a<indexed>(*self));
+	GINAC_ASSERT(is_a<indexed>(*other));
 	GINAC_ASSERT(self->nops() == 3);
-	GINAC_ASSERT(is_ex_of_type(self->op(0), tensdelta));
+	GINAC_ASSERT(is_a<tensdelta>(self->op(0)));
 
 	// Try to contract first index
 	const idx *self_idx = &ex_to<idx>(self->op(1));
@@ -373,10 +373,10 @@ again:
 /** Contraction of an indexed metric tensor with something else. */
 bool tensmetric::contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const
 {
-	GINAC_ASSERT(is_ex_of_type(*self, indexed));
-	GINAC_ASSERT(is_ex_of_type(*other, indexed));
+	GINAC_ASSERT(is_a<indexed>(*self));
+	GINAC_ASSERT(is_a<indexed>(*other));
 	GINAC_ASSERT(self->nops() == 3);
-	GINAC_ASSERT(is_ex_of_type(self->op(0), tensmetric));
+	GINAC_ASSERT(is_a<tensmetric>(self->op(0)));
 
 	// If contracting with the delta tensor, let the delta do it
 	// (don't raise/lower delta indices)
@@ -418,10 +418,10 @@ again:
 /** Contraction of an indexed spinor metric with something else. */
 bool spinmetric::contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const
 {
-	GINAC_ASSERT(is_ex_of_type(*self, indexed));
-	GINAC_ASSERT(is_ex_of_type(*other, indexed));
+	GINAC_ASSERT(is_a<indexed>(*self));
+	GINAC_ASSERT(is_a<indexed>(*other));
 	GINAC_ASSERT(self->nops() == 3);
-	GINAC_ASSERT(is_ex_of_type(self->op(0), spinmetric));
+	GINAC_ASSERT(is_a<spinmetric>(self->op(0)));
 
 	// Contractions between spinor metrics
 	if (is_ex_of_type(other->op(0), spinmetric)) {
@@ -497,9 +497,9 @@ again:
 /** Contraction of epsilon tensor with something else. */
 bool tensepsilon::contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const
 {
-	GINAC_ASSERT(is_ex_of_type(*self, indexed));
-	GINAC_ASSERT(is_ex_of_type(*other, indexed));
-	GINAC_ASSERT(is_ex_of_type(self->op(0), tensepsilon));
+	GINAC_ASSERT(is_a<indexed>(*self));
+	GINAC_ASSERT(is_a<indexed>(*other));
+	GINAC_ASSERT(is_a<tensepsilon>(self->op(0)));
 	unsigned num = self->nops() - 1;
 
 	if (is_ex_exactly_of_type(other->op(0), tensepsilon) && num+1 == other->nops()) {

@@ -208,7 +208,7 @@ void pseries::print(const print_context & c, unsigned level) const
 
 int pseries::compare_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_of_type(other, pseries));
+	GINAC_ASSERT(is_a<pseries>(other));
 	const pseries &o = static_cast<const pseries &>(other);
 	
 	// first compare the lengths of the series...

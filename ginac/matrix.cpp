@@ -150,7 +150,7 @@ void matrix::print(const print_context & c, unsigned level) const
 {
 	debugmsg("matrix print", LOGLEVEL_PRINT);
 
-	if (is_of_type(c, print_tree)) {
+	if (is_a<print_tree>(c)) {
 
 		inherited::print(c, level);
 
@@ -236,8 +236,8 @@ ex matrix::subs(const lst & ls, const lst & lr, bool no_pattern) const
 
 int matrix::compare_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_exactly_of_type(other, matrix));
-	const matrix & o = static_cast<const matrix &>(other);
+	GINAC_ASSERT(is_exactly_a<matrix>(other));
+	const matrix &o = static_cast<const matrix &>(other);
 	
 	// compare number of rows
 	if (row != o.rows())
@@ -261,7 +261,7 @@ int matrix::compare_same_type(const basic & other) const
 
 bool matrix::match_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_exactly_of_type(other, matrix));
+	GINAC_ASSERT(is_exactly_a<matrix>(other));
 	const matrix & o = static_cast<const matrix &>(other);
 	
 	// The number of rows and columns must be the same. This is necessary to
@@ -272,8 +272,8 @@ bool matrix::match_same_type(const basic & other) const
 /** Automatic symbolic evaluation of an indexed matrix. */
 ex matrix::eval_indexed(const basic & i) const
 {
-	GINAC_ASSERT(is_of_type(i, indexed));
-	GINAC_ASSERT(is_ex_of_type(i.op(0), matrix));
+	GINAC_ASSERT(is_a<indexed>(i));
+	GINAC_ASSERT(is_a<matrix>(i.op(0)));
 
 	bool all_indices_unsigned = static_cast<const indexed &>(i).all_index_values_are(info_flags::nonnegint);
 
@@ -349,9 +349,9 @@ ex matrix::eval_indexed(const basic & i) const
 /** Sum of two indexed matrices. */
 ex matrix::add_indexed(const ex & self, const ex & other) const
 {
-	GINAC_ASSERT(is_ex_of_type(self, indexed));
-	GINAC_ASSERT(is_ex_of_type(self.op(0), matrix));
-	GINAC_ASSERT(is_ex_of_type(other, indexed));
+	GINAC_ASSERT(is_a<indexed>(self));
+	GINAC_ASSERT(is_a<matrix>(self.op(0)));
+	GINAC_ASSERT(is_a<indexed>(other));
 	GINAC_ASSERT(self.nops() == 2 || self.nops() == 3);
 
 	// Only add two matrices
@@ -385,8 +385,8 @@ ex matrix::add_indexed(const ex & self, const ex & other) const
 /** Product of an indexed matrix with a number. */
 ex matrix::scalar_mul_indexed(const ex & self, const numeric & other) const
 {
-	GINAC_ASSERT(is_ex_of_type(self, indexed));
-	GINAC_ASSERT(is_ex_of_type(self.op(0), matrix));
+	GINAC_ASSERT(is_a<indexed>(self));
+	GINAC_ASSERT(is_a<matrix>(self.op(0)));
 	GINAC_ASSERT(self.nops() == 2 || self.nops() == 3);
 
 	const matrix &self_matrix = ex_to<matrix>(self.op(0));
@@ -400,10 +400,10 @@ ex matrix::scalar_mul_indexed(const ex & self, const numeric & other) const
 /** Contraction of an indexed matrix with something else. */
 bool matrix::contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const
 {
-	GINAC_ASSERT(is_ex_of_type(*self, indexed));
-	GINAC_ASSERT(is_ex_of_type(*other, indexed));
+	GINAC_ASSERT(is_a<indexed>(*self));
+	GINAC_ASSERT(is_a<indexed>(*other));
 	GINAC_ASSERT(self->nops() == 2 || self->nops() == 3);
-	GINAC_ASSERT(is_ex_of_type(self->op(0), matrix));
+	GINAC_ASSERT(is_a<matrix>(self->op(0)));
 
 	// Only contract with other matrices
 	if (!is_ex_of_type(other->op(0), matrix))
@@ -1401,11 +1401,11 @@ int matrix::pivot(unsigned ro, unsigned co, bool symbolic)
 			++k;
 	} else {
 		// search largest element in column co beginning at row ro
-		GINAC_ASSERT(is_ex_of_type(this->m[k*col+co],numeric));
+		GINAC_ASSERT(is_a<numeric>(this->m[k*col+co]));
 		unsigned kmax = k+1;
 		numeric mmax = abs(ex_to<numeric>(m[kmax*col+co]));
 		while (kmax<row) {
-			GINAC_ASSERT(is_ex_of_type(this->m[kmax*col+co],numeric));
+			GINAC_ASSERT(is_a<numeric>(this->m[kmax*col+co]));
 			numeric tmp = ex_to<numeric>(this->m[kmax*col+co]);
 			if (abs(tmp) > mmax) {
 				mmax = tmp;

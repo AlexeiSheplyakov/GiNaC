@@ -365,12 +365,6 @@ protected:
 };
 
 // utility functions/macros
-/** Return the object of type function handled by an ex.
- *  This is unsafe: you need to check the type first. */
-inline const function &ex_to_function(const ex &e)
-{
-	return static_cast<const function &>(*e.bp);
-}
 
 /** Specialization of is_exactly_a<function>(obj) for objects of type function. */
 template<> inline bool is_exactly_a<function>(const basic & obj)
@@ -379,7 +373,7 @@ template<> inline bool is_exactly_a<function>(const basic & obj)
 }
 
 #define is_ex_the_function(OBJ, FUNCNAME) \\
-	(is_exactly_a<function>(OBJ) && static_cast<GiNaC::function *>(OBJ.bp)->get_serial() == function_index_##FUNCNAME)
+	(is_exactly_a<GiNaC::function>(OBJ) && ex_to<GiNaC::function>(OBJ).get_serial() == function_index_##FUNCNAME)
 
 } // namespace GiNaC
 
@@ -707,17 +701,17 @@ ex function::expand(unsigned options) const
 
 int function::degree(const ex & s) const
 {
-	return is_equal(*s.bp) ? 1 : 0;
+	return is_equal(ex_to<basic>(s)) ? 1 : 0;
 }
 
 int function::ldegree(const ex & s) const
 {
-	return is_equal(*s.bp) ? 1 : 0;
+	return is_equal(ex_to<basic>(s)) ? 1 : 0;
 }
 
 ex function::coeff(const ex & s, int n) const
 {
-	if (is_equal(*s.bp))
+	if (is_equal(ex_to<basic>(s)))
 		return n==1 ? _ex1() : _ex0();
 	else
 		return n==0 ? ex(*this) : _ex0();

@@ -182,13 +182,6 @@ protected:
 
 // utility functions
 
-/** Return the expairseq object handled by an ex.  Deprecated: use ex_to<expairseq>().
- *  This is unsafe: you need to check the type first. */
-inline const expairseq &ex_to_expairseq(const ex &e)
-{
-	return static_cast<const expairseq &>(*e.bp);
-}
-
 /** Specialization of is_exactly_a<expairseq>(obj) for expairseq objects. */
 template<> inline bool is_exactly_a<expairseq>(const basic & obj)
 {

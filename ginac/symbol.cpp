@@ -153,14 +153,14 @@ void symbol::print(const print_context & c, unsigned level) const
 {
 	debugmsg("symbol print", LOGLEVEL_PRINT);
 
-	if (is_of_type(c, print_tree)) {
+	if (is_a<print_tree>(c)) {
 
 		c.s << std::string(level, ' ') << name << " (" << class_name() << ")"
 		    << ", serial=" << serial
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 		    << std::endl;
 
-	} else if (is_of_type(c, print_latex))
+	} else if (is_a<print_latex>(c))
 		c.s << TeX_name;
 	else
 		c.s << name;
@@ -230,7 +230,7 @@ ex symbol::derivative(const symbol & s) const
 
 int symbol::compare_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_of_type(other,symbol));
+	GINAC_ASSERT(is_a<symbol>(other));
 	const symbol *o = static_cast<const symbol *>(&other);
 	if (serial==o->serial) return 0;
 	return serial < o->serial ? -1 : 1;
@@ -238,7 +238,7 @@ int symbol::compare_same_type(const basic & other) const
 
 bool symbol::is_equal_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_of_type(other,symbol));
+	GINAC_ASSERT(is_a<symbol>(other));
 	const symbol *o = static_cast<const symbol *>(&other);
 	return serial==o->serial;
 }

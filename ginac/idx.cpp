@@ -276,7 +276,7 @@ ex & idx::let_op(int i)
  *  must be such that dummy indices lie next to each other. */
 int idx::compare_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_of_type(other, idx));
+	GINAC_ASSERT(is_a<idx>(other));
 	const idx &o = static_cast<const idx &>(other);
 
 	int cmpval = value.compare(o.value);
@@ -287,7 +287,7 @@ int idx::compare_same_type(const basic & other) const
 
 bool idx::match_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_of_type(other, idx));
+	GINAC_ASSERT(is_a<idx>(other));
 	const idx &o = static_cast<const idx &>(other);
 
 	return dim.is_equal(o.dim);
@@ -295,7 +295,7 @@ bool idx::match_same_type(const basic & other) const
 
 int varidx::compare_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_of_type(other, varidx));
+	GINAC_ASSERT(is_a<varidx>(other));
 	const varidx &o = static_cast<const varidx &>(other);
 
 	int cmpval = inherited::compare_same_type(other);
@@ -310,7 +310,7 @@ int varidx::compare_same_type(const basic & other) const
 
 bool varidx::match_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_of_type(other, varidx));
+	GINAC_ASSERT(is_a<varidx>(other));
 	const varidx &o = static_cast<const varidx &>(other);
 
 	if (covariant != o.covariant)
@@ -320,7 +320,7 @@ bool varidx::match_same_type(const basic & other) const
 
 int spinidx::compare_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_of_type(other, spinidx));
+	GINAC_ASSERT(is_a<spinidx>(other));
 	const spinidx &o = static_cast<const spinidx &>(other);
 
 	// Check dottedness first so dummy indices will end up next to each other
@@ -336,7 +336,7 @@ int spinidx::compare_same_type(const basic & other) const
 
 bool spinidx::match_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_of_type(other, spinidx));
+	GINAC_ASSERT(is_a<spinidx>(other));
 	const spinidx &o = static_cast<const spinidx &>(other);
 
 	if (dotted != o.dotted)
@@ -357,7 +357,7 @@ ex idx::subs(const lst & ls, const lst & lr, bool no_pattern) const
 
 	// First look for index substitutions
 	for (unsigned i=0; i<ls.nops(); i++) {
-		if (is_equal(*(ls.op(i)).bp)) {
+		if (is_equal(ex_to<basic>(ls.op(i)))) {
 
 			// Substitution index->index
 			if (is_ex_of_type(lr.op(i), idx))

@@ -407,10 +407,10 @@ static ex Order_eval(const ex & x)
 		else
 			return _ex0();
 	} else if (is_ex_exactly_of_type(x, mul)) {
-		mul *m = static_cast<mul *>(x.bp);
+		const mul &m = ex_to<mul>(x);
 		// O(c*expr) -> O(expr)
-		if (is_ex_exactly_of_type(m->op(m->nops() - 1), numeric))
-			return Order(x / m->op(m->nops() - 1)).hold();
+		if (is_ex_exactly_of_type(m.op(m.nops() - 1), numeric))
+			return Order(x / m.op(m.nops() - 1)).hold();
 	}
 	return Order(x).hold();
 }
@@ -419,7 +419,7 @@ static ex Order_series(const ex & x, const relational & r, int order, unsigned o
 {
 	// Just wrap the function into a pseries object
 	epvector new_seq;
-	GINAC_ASSERT(is_ex_exactly_of_type(r.lhs(),symbol));
+	GINAC_ASSERT(is_exactly_a<symbol>(r.lhs()));
 	const symbol &s = ex_to<symbol>(r.lhs());
 	new_seq.push_back(expair(Order(_ex1()), numeric(std::min(x.ldegree(s), order))));
 	return pseries(r, new_seq);
@@ -444,7 +444,7 @@ ex lsolve(const ex &eqns, const ex &symbols, unsigned options)
 		const ex sol = lsolve(lst(eqns),lst(symbols));
 		
 		GINAC_ASSERT(sol.nops()==1);
-		GINAC_ASSERT(is_ex_exactly_of_type(sol.op(0),relational));
+		GINAC_ASSERT(is_exactly_a<relational>(sol.op(0)));
 		
 		return sol.op(0).op(1); // return rhs of first solution
 	}

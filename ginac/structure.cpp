@@ -52,7 +52,7 @@ void structure::print(const print_context & c, unsigned level) const
 {
 	debugmsg("structure print",LOGLEVEL_PRINT);
 
-	if (is_of_type(c, print_tree)) {
+	if (is_a<print_tree>(c)) {
 
 		c.s << std::string(level, ' ') << class_name()
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
@@ -68,7 +68,7 @@ DEFAULT_COMPARE(structure)
 
 bool structure::is_equal_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_of_type(other, structure));
+	GINAC_ASSERT(is_a<structure>(other));
 	return true; // all structures are the same
 }
 

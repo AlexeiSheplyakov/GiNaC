@@ -174,7 +174,7 @@ indexed::indexed(const archive_node &n, const lst &sym_lst) : inherited(n, sym_l
 				symtree = sy_none();
 				break;
 		}
-		ex_to_nonconst_symmetry(symtree).validate(seq.size() - 1);
+		const_cast<symmetry &>(ex_to<symmetry>(symtree)).validate(seq.size() - 1);
 	}
 }
 
@@ -250,7 +250,7 @@ bool indexed::all_index_values_are(unsigned inf) const
 
 int indexed::compare_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_of_type(other, indexed));
+	GINAC_ASSERT(is_a<indexed>(other));
 	return inherited::compare_same_type(other);
 }
 
@@ -277,7 +277,7 @@ ex indexed::eval(int level) const
 	// Canonicalize indices according to the symmetry properties
 	if (seq.size() > 2) {
 		exvector v = seq;
-		GINAC_ASSERT(is_ex_exactly_of_type(symtree, symmetry));
+		GINAC_ASSERT(is_exactly_a<symmetry>(symtree));
 		int sig = canonicalize(v.begin() + 1, ex_to<symmetry>(symtree));
 		if (sig != INT_MAX) {
 			// Something has changed while sorting indices, more evaluations later
@@ -288,22 +288,22 @@ ex indexed::eval(int level) const
 	}
 
 	// Let the class of the base object perform additional evaluations
-	return base.bp->eval_indexed(*this);
+	return ex_to<basic>(base).eval_indexed(*this);
 }
 
 int indexed::degree(const ex & s) const
 {
-	return is_equal(*s.bp) ? 1 : 0;
+	return is_equal(ex_to<basic>(s)) ? 1 : 0;
 }
 
 int indexed::ldegree(const ex & s) const
 {
-	return is_equal(*s.bp) ? 1 : 0;
+	return is_equal(ex_to<basic>(s)) ? 1 : 0;
 }
 
 ex indexed::coeff(const ex & s, int n) const
 {
-	if (is_equal(*s.bp))
+	if (is_equal(ex_to<basic>(s)))
 		return n==1 ? _ex1() : _ex0();
 	else
 		return n==0 ? ex(*this) : _ex0();
@@ -406,7 +406,7 @@ void indexed::validate(void) const
 	if (!symtree.is_zero()) {
 		if (!is_ex_exactly_of_type(symtree, symmetry))
 			throw(std::invalid_argument("symmetry of indexed object must be of type symmetry"));
-		ex_to_nonconst_symmetry(symtree).validate(seq.size() - 1);
+		const_cast<symmetry &>(ex_to<symmetry>(symtree)).validate(seq.size() - 1);
 	}
 }
 
@@ -669,12 +669,12 @@ try_again:
 			}
 
 			// Try to contract the first one with the second one
-			contracted = it1->op(0).bp->contract_with(it1, it2, v);
+			contracted = ex_to<basic>(it1->op(0)).contract_with(it1, it2, v);
 			if (!contracted) {
 
 				// That didn't work; maybe the second object knows how to
 				// contract itself with the first one
-				contracted = it2->op(0).bp->contract_with(it2, it1, v);
+				contracted = ex_to<basic>(it2->op(0)).contract_with(it2, it1, v);
 			}
 			if (contracted) {
 contraction_done:
@@ -745,7 +745,7 @@ contraction_done:
 	// Product of indexed object with a scalar?
 	if (is_ex_exactly_of_type(r, mul) && r.nops() == 2
 	 && is_ex_exactly_of_type(r.op(1), numeric) && is_ex_of_type(r.op(0), indexed))
-		return r.op(0).op(0).bp->scalar_mul_indexed(r.op(0), ex_to<numeric>(r.op(1)));
+		return ex_to<basic>(r.op(0).op(0)).scalar_mul_indexed(r.op(0), ex_to<numeric>(r.op(1)));
 	else
 		return r;
 }
@@ -784,7 +784,7 @@ ex simplify_indexed(const ex & e, exvector & free_indices, exvector & dummy_indi
 					if (!indices_consistent(free_indices, free_indices_of_term))
 						throw (std::runtime_error("simplify_indexed: inconsistent indices in sum"));
 					if (is_ex_of_type(sum, indexed) && is_ex_of_type(term, indexed))
-						sum = sum.op(0).bp->add_indexed(sum, term);
+						sum = ex_to<basic>(sum.op(0)).add_indexed(sum, term);
 					else
 						sum += term;
 				}

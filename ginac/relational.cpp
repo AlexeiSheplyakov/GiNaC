@@ -101,7 +101,7 @@ void relational::print(const print_context & c, unsigned level) const
 {
 	debugmsg("relational print",LOGLEVEL_PRINT);
 
-	if (is_of_type(c, print_tree)) {
+	if (is_a<print_tree>(c)) {
 
 		inherited::print(c, level);
 
@@ -192,7 +192,7 @@ ex relational::simplify_ncmul(const exvector & v) const
 
 int relational::compare_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_exactly_of_type(other, relational));
+	GINAC_ASSERT(is_exactly_a<relational>(other));
 	const relational &oth = static_cast<const relational &>(other);
 	
 	if (o == oth.o) {
@@ -207,7 +207,7 @@ int relational::compare_same_type(const basic & other) const
 
 bool relational::match_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_exactly_of_type(other, relational));
+	GINAC_ASSERT(is_exactly_a<relational>(other));
 	const relational &oth = static_cast<const relational &>(other);
 
 	return o == oth.o;

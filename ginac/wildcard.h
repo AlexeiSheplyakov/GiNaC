@@ -59,13 +59,6 @@ private:
 
 // utility functions
 
-/** Return the wildcard object handled by an ex.  Deprecated: use ex_to<wildcard>().
- *  This is unsafe: you need to check the type first. */
-inline const wildcard &ex_to_wildcard(const ex &e)
-{
-	return static_cast<const wildcard &>(*e.bp);
-}
-
 /** Specialization of is_exactly_a<wildcard>(obj) for wildcard objects. */
 template<> inline bool is_exactly_a<wildcard>(const basic & obj)
 {

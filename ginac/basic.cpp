@@ -34,6 +34,7 @@
 #include "lst.h"
 #include "ncmul.h"
 #include "relational.h"
+#include "wildcard.h"
 #include "print.h"
 #include "archive.h"
 #include "utils.h"
@@ -213,9 +214,8 @@ ex basic::operator[](int i) const
  *  but e.has(x+y) is false. */
 bool basic::has(const ex & pattern) const
 {
-	GINAC_ASSERT(pattern.bp!=0);
 	lst repl_lst;
-	if (match(*pattern.bp, repl_lst))
+	if (match(pattern, repl_lst))
 		return true;
 	for (unsigned i=0; i<nops(); i++)
 		if (op(i).has(pattern))
@@ -471,7 +471,7 @@ bool basic::match(const ex & pattern, lst & repl_lst) const
 		// be the same expression)
 		for (unsigned i=0; i<repl_lst.nops(); i++) {
 			if (repl_lst.op(i).op(0).is_equal(pattern))
-				return is_equal(*repl_lst.op(i).op(1).bp);
+				return is_equal(ex_to<basic>(repl_lst.op(i).op(1)));
 		}
 		repl_lst.append(pattern == *this);
 		return true;
@@ -479,7 +479,7 @@ bool basic::match(const ex & pattern, lst & repl_lst) const
 	} else {
 
 		// Expression must be of the same type as the pattern
-		if (tinfo() != pattern.bp->tinfo())
+		if (tinfo() != ex_to<basic>(pattern).tinfo())
 			return false;
 
 		// Number of subexpressions must match
@@ -489,10 +489,10 @@ bool basic::match(const ex & pattern, lst & repl_lst) const
 		// No subexpressions? Then just compare the objects (there can't be
 		// wildcards in the pattern)
 		if (nops() == 0)
-			return is_equal_same_type(*pattern.bp);
+			return is_equal_same_type(ex_to<basic>(pattern));
 
 		// Check whether attributes that are not subexpressions match
-		if (!match_same_type(*pattern.bp))
+		if (!match_same_type(ex_to<basic>(pattern)))
 			return false;
 
 		// Otherwise the subexpressions must match one-to-one
@@ -513,14 +513,14 @@ ex basic::subs(const lst & ls, const lst & lr, bool no_pattern) const
 
 	if (no_pattern) {
 		for (unsigned i=0; i<ls.nops(); i++) {
-			if (is_equal(*ls.op(i).bp))
+			if (is_equal(ex_to<basic>(ls.op(i))))
 				return lr.op(i);
 		}
 	} else {
 		for (unsigned i=0; i<ls.nops(); i++) {
 			lst repl_lst;
-			if (match(*ls.op(i).bp, repl_lst))
-				return lr.op(i).bp->subs(repl_lst, true); // avoid infinite recursion when re-substituting the wildcards
+			if (match(ex_to<basic>(ls.op(i)), repl_lst))
+				return lr.op(i).subs(repl_lst, true); // avoid infinite recursion when re-substituting the wildcards
 		}
 	}
 
@@ -675,7 +675,7 @@ ex basic::expand(unsigned options) const
 		return (options == 0) ? setflag(status_flags::expanded) : *this;
 	else {
 		expand_map_function map_expand(options);
-		return map(map_expand).bp->setflag(options == 0 ? status_flags::expanded : 0);
+		return ex_to<basic>(map(map_expand)).setflag(options == 0 ? status_flags::expanded : 0);
 	}
 }
 

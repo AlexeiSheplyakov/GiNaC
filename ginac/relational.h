@@ -83,13 +83,6 @@ protected:
 
 // utility functions
 
-/** Return the relational object handled by an ex.  Deprecated: use ex_to<relational>().
- *  This is unsafe: you need to check the type first. */
-inline const relational &ex_to_relational(const ex &e)
-{
-	return static_cast<const relational &>(*e.bp);
-}
-
 /** Specialization of is_exactly_a<relational>(obj) for relational objects. */
 template<> inline bool is_exactly_a<relational>(const basic & obj)
 {

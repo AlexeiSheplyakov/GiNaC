@@ -106,13 +106,6 @@ public:
 
 // global functions
 
-/** Return the clifford object handled by an ex.  Deprecated: use ex_to<clifford>().
- *  This is unsafe: you need to check the type first. */
-inline const clifford &ex_to_clifford(const ex &e)
-{
-	return static_cast<const clifford &>(*e.bp);
-}
-
 /** Specialization of is_exactly_a<clifford>(obj) for clifford objects. */
 template<> inline bool is_exactly_a<clifford>(const basic & obj)
 {

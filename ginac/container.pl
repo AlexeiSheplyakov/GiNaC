@@ -271,22 +271,10 @@ protected:
 
 // utility functions
 
-/** Return the ${CONTAINER} object handled by an ex.  Deprecated: use ex_to<${CONTAINER}>().
- *  This is unsafe: you need to check the type first. */
-inline const ${CONTAINER} &ex_to_${CONTAINER}(const ex &e)
-{
-	return static_cast<const ${CONTAINER} &>(*e.bp);
-}
-
 /** Specialization of is_exactly_a<${CONTAINER}>(obj) for ${CONTAINER} objects. */
 template<> inline bool is_exactly_a<${CONTAINER}>(const basic & obj)
 {
 	return obj.tinfo()==TINFO_${CONTAINER};
-}
-
-inline ${CONTAINER} &ex_to_nonconst_${CONTAINER}(const ex &e)
-{
-	return static_cast<${CONTAINER} &>(*e.bp);
 }
 
 } // namespace GiNaC
@@ -495,7 +483,7 @@ ex ${CONTAINER}::subs(const lst & ls, const lst & lr, bool no_pattern) const
 {
 	${STLT} *vp = subschildren(ls, lr, no_pattern);
 	if (vp)
-		return this${CONTAINER}(vp).bp->basic::subs(ls, lr, no_pattern);
+		return ex_to<basic>(this${CONTAINER}(vp)).basic::subs(ls, lr, no_pattern);
 	else
 		return basic::subs(ls, lr, no_pattern);
 }

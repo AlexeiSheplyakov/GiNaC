@@ -322,12 +322,12 @@ numeric add::integer_content(void) const
 	epvector::const_iterator itend = seq.end();
 	numeric c = _num0();
 	while (it != itend) {
-		GINAC_ASSERT(!is_ex_exactly_of_type(it->rest,numeric));
-		GINAC_ASSERT(is_ex_exactly_of_type(it->coeff,numeric));
+		GINAC_ASSERT(!is_exactly_a<numeric>(it->rest));
+		GINAC_ASSERT(is_exactly_a<numeric>(it->coeff));
 		c = gcd(ex_to<numeric>(it->coeff), c);
 		it++;
 	}
-	GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
+	GINAC_ASSERT(is_exactly_a<numeric>(overall_coeff));
 	c = gcd(ex_to<numeric>(overall_coeff),c);
 	return c;
 }
@@ -338,11 +338,11 @@ numeric mul::integer_content(void) const
 	epvector::const_iterator it = seq.begin();
 	epvector::const_iterator itend = seq.end();
 	while (it != itend) {
-		GINAC_ASSERT(!is_ex_exactly_of_type(recombine_pair_to_ex(*it),numeric));
+		GINAC_ASSERT(!is_exactly_a<numeric>(recombine_pair_to_ex(*it)));
 		++it;
 	}
 #endif // def DO_GINAC_ASSERT
-	GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
+	GINAC_ASSERT(is_exactly_a<numeric>(overall_coeff));
 	return abs(ex_to<numeric>(overall_coeff));
 }
 
@@ -1228,11 +1228,11 @@ numeric add::max_coefficient(void) const
 {
 	epvector::const_iterator it = seq.begin();
 	epvector::const_iterator itend = seq.end();
-	GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
+	GINAC_ASSERT(is_exactly_a<numeric>(overall_coeff));
 	numeric cur_max = abs(ex_to<numeric>(overall_coeff));
 	while (it != itend) {
 		numeric a;
-		GINAC_ASSERT(!is_ex_exactly_of_type(it->rest,numeric));
+		GINAC_ASSERT(!is_exactly_a<numeric>(it->rest));
 		a = abs(ex_to<numeric>(it->coeff));
 		if (a > cur_max)
 			cur_max = a;
@@ -1247,11 +1247,11 @@ numeric mul::max_coefficient(void) const
 	epvector::const_iterator it = seq.begin();
 	epvector::const_iterator itend = seq.end();
 	while (it != itend) {
-		GINAC_ASSERT(!is_ex_exactly_of_type(recombine_pair_to_ex(*it),numeric));
+		GINAC_ASSERT(!is_exactly_a<numeric>(recombine_pair_to_ex(*it)));
 		it++;
 	}
 #endif // def DO_GINAC_ASSERT
-	GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
+	GINAC_ASSERT(is_exactly_a<numeric>(overall_coeff));
 	return abs(ex_to<numeric>(overall_coeff));
 }
 
@@ -1279,13 +1279,13 @@ ex add::smod(const numeric &xi) const
 	epvector::const_iterator it = seq.begin();
 	epvector::const_iterator itend = seq.end();
 	while (it != itend) {
-		GINAC_ASSERT(!is_ex_exactly_of_type(it->rest,numeric));
+		GINAC_ASSERT(!is_exactly_a<numeric>(it->rest));
 		numeric coeff = GiNaC::smod(ex_to<numeric>(it->coeff), xi);
 		if (!coeff.is_zero())
 			newseq.push_back(expair(it->rest, coeff));
 		it++;
 	}
-	GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
+	GINAC_ASSERT(is_exactly_a<numeric>(overall_coeff));
 	numeric coeff = GiNaC::smod(ex_to<numeric>(overall_coeff), xi);
 	return (new add(newseq,coeff))->setflag(status_flags::dynallocated);
 }
@@ -1296,12 +1296,12 @@ ex mul::smod(const numeric &xi) const
 	epvector::const_iterator it = seq.begin();
 	epvector::const_iterator itend = seq.end();
 	while (it != itend) {
-		GINAC_ASSERT(!is_ex_exactly_of_type(recombine_pair_to_ex(*it),numeric));
+		GINAC_ASSERT(!is_exactly_a<numeric>(recombine_pair_to_ex(*it)));
 		it++;
 	}
 #endif // def DO_GINAC_ASSERT
 	mul * mulcopyp = new mul(*this);
-	GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
+	GINAC_ASSERT(is_exactly_a<numeric>(overall_coeff));
 	mulcopyp->overall_coeff = GiNaC::smod(ex_to<numeric>(overall_coeff),xi);
 	mulcopyp->clearflag(status_flags::evaluated);
 	mulcopyp->clearflag(status_flags::hash_calculated);
@@ -2030,7 +2030,7 @@ static ex frac_cancel(const ex &n, const ex &d)
 	// as defined by get_first_symbol() is made positive)
 	const symbol *x;
 	if (get_first_symbol(den, x)) {
-		GINAC_ASSERT(is_ex_exactly_of_type(den.unit(*x),numeric));
+		GINAC_ASSERT(is_exactly_a<numeric>(den.unit(*x)));
 		if (ex_to<numeric>(den.unit(*x)).is_negative()) {
 			num *= _ex_1();
 			den *= _ex_1();
@@ -2226,7 +2226,7 @@ ex ex::normal(int level) const
 	lst sym_lst, repl_lst;
 
 	ex e = bp->normal(sym_lst, repl_lst, level);
-	GINAC_ASSERT(is_ex_of_type(e, lst));
+	GINAC_ASSERT(is_a<lst>(e));
 
 	// Re-insert replaced symbols
 	if (sym_lst.nops() > 0)
@@ -2247,7 +2247,7 @@ ex ex::numer(void) const
 	lst sym_lst, repl_lst;
 
 	ex e = bp->normal(sym_lst, repl_lst, 0);
-	GINAC_ASSERT(is_ex_of_type(e, lst));
+	GINAC_ASSERT(is_a<lst>(e));
 
 	// Re-insert replaced symbols
 	if (sym_lst.nops() > 0)
@@ -2267,7 +2267,7 @@ ex ex::denom(void) const
 	lst sym_lst, repl_lst;
 
 	ex e = bp->normal(sym_lst, repl_lst, 0);
-	GINAC_ASSERT(is_ex_of_type(e, lst));
+	GINAC_ASSERT(is_a<lst>(e));
 
 	// Re-insert replaced symbols
 	if (sym_lst.nops() > 0)
@@ -2287,7 +2287,7 @@ ex ex::numer_denom(void) const
 	lst sym_lst, repl_lst;
 
 	ex e = bp->normal(sym_lst, repl_lst, 0);
-	GINAC_ASSERT(is_ex_of_type(e, lst));
+	GINAC_ASSERT(is_a<lst>(e));
 
 	// Re-insert replaced symbols
 	if (sym_lst.nops() > 0)

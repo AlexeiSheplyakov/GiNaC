@@ -328,10 +328,10 @@ ex add::eval(int level) const
 #ifdef DO_GINAC_ASSERT
 	epvector::const_iterator i = seq.begin(), end = seq.end();
 	while (i != end) {
-		GINAC_ASSERT(!is_ex_exactly_of_type(i->rest,add));
+		GINAC_ASSERT(!is_exactly_a<add>(i->rest));
 		if (is_ex_exactly_of_type(i->rest,numeric))
 			dbgprint();
-		GINAC_ASSERT(!is_ex_exactly_of_type(i->rest,numeric));
+		GINAC_ASSERT(!is_exactly_a<numeric>(i->rest));
 		++i;
 	}
 #endif // def DO_GINAC_ASSERT
@@ -470,7 +470,7 @@ expair add::split_ex_to_pair(const ex & e) const
 expair add::combine_ex_with_coeff_to_pair(const ex & e,
 										  const ex & c) const
 {
-	GINAC_ASSERT(is_ex_exactly_of_type(c, numeric));
+	GINAC_ASSERT(is_exactly_a<numeric>(c));
 	if (is_ex_exactly_of_type(e, mul)) {
 		const mul &mulref(ex_to<mul>(e));
 		ex numfactor = mulref.overall_coeff;
@@ -496,8 +496,8 @@ expair add::combine_ex_with_coeff_to_pair(const ex & e,
 expair add::combine_pair_with_coeff_to_pair(const expair & p,
 											const ex & c) const
 {
-	GINAC_ASSERT(is_ex_exactly_of_type(p.coeff,numeric));
-	GINAC_ASSERT(is_ex_exactly_of_type(c,numeric));
+	GINAC_ASSERT(is_exactly_a<numeric>(p.coeff));
+	GINAC_ASSERT(is_exactly_a<numeric>(c));
 
 	if (is_ex_exactly_of_type(p.rest,numeric)) {
 		GINAC_ASSERT(ex_to<numeric>(p.coeff).is_equal(_num1())); // should be normalized

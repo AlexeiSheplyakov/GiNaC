@@ -26,7 +26,10 @@
 
 #include "expairseq.h"
 #include "lst.h"
+#include "mul.h"
+#include "power.h"
 #include "relational.h"
+#include "wildcard.h"
 #include "print.h"
 #include "archive.h"
 #include "debugmsg.h"
@@ -38,6 +41,7 @@
 
 namespace GiNaC {
 
+	
 GINAC_IMPLEMENT_REGISTERED_CLASS_NO_CTORS(expairseq, basic)
 
 //////////
@@ -188,7 +192,7 @@ basic *expairseq::duplicate() const
 	return new expairseq(*this);
 }
 
-void expairseq::print(const print_context & c, unsigned level) const
+void expairseq::print(const print_context &c, unsigned level) const
 {
 	debugmsg("expairseq print",LOGLEVEL_PRINT);
 
@@ -300,7 +304,7 @@ ex &expairseq::let_op(int i)
 	throw(std::logic_error("let_op not defined for expairseq and derived classes (add,mul,...)"));
 }
 
-ex expairseq::map(map_function & f) const
+ex expairseq::map(map_function &f) const
 {
 	epvector *v = new epvector;
 	v->reserve(seq.size());
@@ -335,7 +339,7 @@ bool expairseq::match(const ex & pattern, lst & repl_lst) const
 	// This differs from basic::match() because we want "a+b+c+d" to
 	// match "d+*+b" with "*" being "a+c", and we want to honor commutativity
 
-	if (tinfo() == pattern.bp->tinfo()) {
+	if (this->tinfo() == ex_to<basic>(pattern).tinfo()) {
 
 		// Check whether global wildcard (one that matches the "rest of the
 		// expression", like "*" above) is present
@@ -389,7 +393,7 @@ found:		;
 			ex rest = thisexpairseq(vp, default_overall_coeff());
 			for (unsigned i=0; i<repl_lst.nops(); i++) {
 				if (repl_lst.op(i).op(0).is_equal(global_wildcard))
-					return rest.is_equal(*repl_lst.op(i).op(1).bp);
+					return rest.is_equal(repl_lst.op(i).op(1));
 			}
 			repl_lst.append(global_wildcard == rest);
 			return true;
@@ -408,7 +412,7 @@ ex expairseq::subs(const lst &ls, const lst &lr, bool no_pattern) const
 {
 	epvector *vp = subschildren(ls, lr, no_pattern);
 	if (vp)
-		return thisexpairseq(vp, overall_coeff).bp->basic::subs(ls, lr, no_pattern);
+		return ex_to<basic>(thisexpairseq(vp, overall_coeff)).basic::subs(ls, lr, no_pattern);
 	else
 		return basic::subs(ls, lr, no_pattern);
 }
@@ -417,7 +421,7 @@ ex expairseq::subs(const lst &ls, const lst &lr, bool no_pattern) const
 
 int expairseq::compare_same_type(const basic &other) const
 {
-	GINAC_ASSERT(is_of_type(other, expairseq));
+	GINAC_ASSERT(is_a<expairseq>(other));
 	const expairseq &o = static_cast<const expairseq &>(other);
 	
 	int cmpval;
@@ -552,7 +556,7 @@ unsigned expairseq::return_type(void) const
 
 unsigned expairseq::calchash(void) const
 {
-	unsigned v = golden_ratio_hash(tinfo());
+	unsigned v = golden_ratio_hash(this->tinfo());
 	epvector::const_iterator i = seq.begin(), end = seq.end();
 	while (i != end) {
 #if !EXPAIRSEQ_USE_HASHTAB
@@ -615,9 +619,9 @@ ex expairseq::thisexpairseq(epvector *vp, const ex &oc) const
 void expairseq::printpair(const print_context & c, const expair & p, unsigned upper_precedence) const
 {
 	c.s << "[[";
-	p.rest.bp->print(c, precedence());
+	p.rest.print(c, precedence());
 	c.s << ",";
-	p.coeff.bp->print(c, precedence());
+	p.coeff.print(c, precedence());
 	c.s << "]]";
 }
 
@@ -654,7 +658,7 @@ expair expairseq::split_ex_to_pair(const ex &e) const
 expair expairseq::combine_ex_with_coeff_to_pair(const ex &e,
                                                 const ex &c) const
 {
-	GINAC_ASSERT(is_ex_exactly_of_type(c,numeric));
+	GINAC_ASSERT(is_exactly_a<numeric>(c));
 	
 	return expair(e,c);
 }
@@ -663,8 +667,8 @@ expair expairseq::combine_ex_with_coeff_to_pair(const ex &e,
 expair expairseq::combine_pair_with_coeff_to_pair(const expair &p,
                                                   const ex &c) const
 {
-	GINAC_ASSERT(is_ex_exactly_of_type(p.coeff,numeric));
-	GINAC_ASSERT(is_ex_exactly_of_type(c,numeric));
+	GINAC_ASSERT(is_exactly_a<numeric>(p.coeff));
+	GINAC_ASSERT(is_exactly_a<numeric>(c));
 	
 	return expair(p.rest,ex_to<numeric>(p.coeff).mul_dyn(ex_to<numeric>(c)));
 }
@@ -692,16 +696,16 @@ ex expairseq::default_overall_coeff(void) const
 
 void expairseq::combine_overall_coeff(const ex &c)
 {
-	GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
-	GINAC_ASSERT(is_ex_exactly_of_type(c,numeric));
+	GINAC_ASSERT(is_exactly_a<numeric>(overall_coeff));
+	GINAC_ASSERT(is_exactly_a<numeric>(c));
 	overall_coeff = ex_to<numeric>(overall_coeff).add_dyn(ex_to<numeric>(c));
 }
 
 void expairseq::combine_overall_coeff(const ex &c1, const ex &c2)
 {
-	GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
-	GINAC_ASSERT(is_ex_exactly_of_type(c1,numeric));
-	GINAC_ASSERT(is_ex_exactly_of_type(c2,numeric));
+	GINAC_ASSERT(is_exactly_a<numeric>(overall_coeff));
+	GINAC_ASSERT(is_exactly_a<numeric>(c1));
+	GINAC_ASSERT(is_exactly_a<numeric>(c2));
 	overall_coeff = ex_to<numeric>(overall_coeff).
 	                add_dyn(ex_to<numeric>(c1).mul(ex_to<numeric>(c2)));
 }
@@ -731,8 +735,8 @@ void expairseq::construct_from_2_ex_via_exvector(const ex &lh, const ex &rh)
 
 void expairseq::construct_from_2_ex(const ex &lh, const ex &rh)
 {
-	if (lh.bp->tinfo()==tinfo()) {
-		if (rh.bp->tinfo()==tinfo()) {
+	if (ex_to<basic>(lh).tinfo()==this->tinfo()) {
+		if (ex_to<basic>(rh).tinfo()==this->tinfo()) {
 #if EXPAIRSEQ_USE_HASHTAB
 			unsigned totalsize = ex_to<expairseq>(lh).seq.size() +
 			                     ex_to<expairseq>(rh).seq.size();
@@ -759,7 +763,7 @@ void expairseq::construct_from_2_ex(const ex &lh, const ex &rh)
 #endif // EXPAIRSEQ_USE_HASHTAB
 			return;
 		}
-	} else if (rh.bp->tinfo()==tinfo()) {
+	} else if (ex_to<basic>(rh).tinfo()==this->tinfo()) {
 #if EXPAIRSEQ_USE_HASHTAB
 		unsigned totalsize=ex_to<expairseq>(rh).seq.size()+1;
 		if (calc_hashtabsize(totalsize)!=0) {
@@ -799,7 +803,7 @@ void expairseq::construct_from_2_ex(const ex &lh, const ex &rh)
 			
 			int cmpval = p1.rest.compare(p2.rest);
 			if (cmpval==0) {
-				p1.coeff=ex_to<numeric>(p1.coeff).add_dyn(ex_to<numeric>(p2.coeff));
+				p1.coeff = ex_to<numeric>(p1.coeff).add_dyn(ex_to<numeric>(p2.coeff));
 				if (!ex_to<numeric>(p1.coeff).is_zero()) {
 					// no further processing is necessary, since this
 					// one element will usually be recombined in eval()
@@ -838,10 +842,10 @@ void expairseq::construct_from_2_expairseq(const expairseq &s1,
 		int cmpval = (*first1).rest.compare((*first2).rest);
 		if (cmpval==0) {
 			// combine terms
-			const numeric &newcoeff = ex_to<numeric>((*first1).coeff).
-			                           add(ex_to<numeric>((*first2).coeff));
+			const numeric &newcoeff = ex_to<numeric>(first1->coeff).
+			                           add(ex_to<numeric>(first2->coeff));
 			if (!newcoeff.is_zero()) {
-				seq.push_back(expair((*first1).rest,newcoeff));
+				seq.push_back(expair(first1->rest,newcoeff));
 				if (expair_needs_further_processing(seq.end()-1)) {
 					needs_further_processing = true;
 				}
@@ -980,7 +984,7 @@ void expairseq::make_flat(const exvector &v)
 	
 	cit = v.begin();
 	while (cit!=v.end()) {
-		if (cit->bp->tinfo()==this->tinfo()) {
+		if (ex_to<basic>(*cit).tinfo()==this->tinfo()) {
 			++nexpairseqs;
 			noperands += ex_to<expairseq>(*cit).seq.size();
 		}
@@ -993,7 +997,7 @@ void expairseq::make_flat(const exvector &v)
 	// copy elements and split off numerical part
 	cit = v.begin();
 	while (cit!=v.end()) {
-		if (cit->bp->tinfo()==this->tinfo()) {
+		if (ex_to<basic>(*cit).tinfo()==this->tinfo()) {
 			const expairseq &subseqref = ex_to<expairseq>(*cit);
 			combine_overall_coeff(subseqref.overall_coeff);
 			epvector::const_iterator cit_s = subseqref.seq.begin();
@@ -1024,7 +1028,7 @@ void expairseq::make_flat(const epvector &v)
 	
 	cit = v.begin();
 	while (cit!=v.end()) {
-		if (cit->rest.bp->tinfo()==this->tinfo()) {
+		if (ex_to<basic>(cit->rest).tinfo()==this->tinfo()) {
 			++nexpairseqs;
 			noperands += ex_to<expairseq>(cit->rest).seq.size();
 		}
@@ -1037,7 +1041,7 @@ void expairseq::make_flat(const epvector &v)
 	// copy elements and split off numerical part
 	cit = v.begin();
 	while (cit!=v.end()) {
-		if (cit->rest.bp->tinfo()==this->tinfo() &&
+		if (ex_to<basic>(cit->rest).tinfo()==this->tinfo() &&
 		    this->can_make_flat(*cit)) {
 			const expairseq &subseqref = ex_to<expairseq>(cit->rest);
 			combine_overall_coeff(ex_to<numeric>(subseqref.overall_coeff),

@@ -132,13 +132,6 @@ inline matrix inverse(const matrix & m)
 
 // utility functions
 
-/** Return the matrix object handled by an ex.  Deprecated: use ex_to<matrix>().
- *  This is unsafe: you need to check the type first. */
-inline const matrix &ex_to_matrix(const ex &e)
-{
-	return static_cast<const matrix &>(*e.bp);
-}
-
 /** Specialization of is_exactly_a<matrix>(obj) for matrix objects. */
 template<> inline bool is_exactly_a<matrix>(const basic & obj)
 {

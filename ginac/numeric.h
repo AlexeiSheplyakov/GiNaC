@@ -286,13 +286,6 @@ ex CatalanEvalf(void);
 
 // utility functions
 
-/** Return the numeric object handled by an ex.  Deprecated: use ex_to<numeric>().
- *  This is unsafe: you need to check the type first. */
-inline const numeric &ex_to_numeric(const ex &e)
-{
-	return static_cast<const numeric &>(*e.bp);
-}
-
 /** Specialization of is_exactly_a<numeric>(obj) for numeric objects. */
 template<> inline bool is_exactly_a<numeric>(const basic & obj)
 {

@@ -28,6 +28,7 @@
 #include "ncmul.h"
 #include "symmetry.h"
 #include "numeric.h"
+#include "mul.h"
 #include "power.h" // for sqrt()
 #include "symbol.h"
 #include "print.h"
@@ -129,7 +130,7 @@ DEFAULT_ARCHIVING(su3d)
 
 int color::compare_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_of_type(other, color));
+	GINAC_ASSERT(is_a<color>(other));
 	const color &o = static_cast<const color &>(other);
 
 	if (representation_label != o.representation_label) {
@@ -142,7 +143,7 @@ int color::compare_same_type(const basic & other) const
 
 bool color::match_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_of_type(other, color));
+	GINAC_ASSERT(is_a<color>(other));
 	const color &o = static_cast<const color &>(other);
 
 	return representation_label == o.representation_label;
@@ -223,9 +224,9 @@ static ex permute_free_index_to_front(const exvector & iv3, const exvector & iv2
 /** Automatic symbolic evaluation of indexed symmetric structure constant. */
 ex su3d::eval_indexed(const basic & i) const
 {
-	GINAC_ASSERT(is_of_type(i, indexed));
+	GINAC_ASSERT(is_a<indexed>(i));
 	GINAC_ASSERT(i.nops() == 4);
-	GINAC_ASSERT(is_ex_of_type(i.op(0), su3d));
+	GINAC_ASSERT(is_a<su3d>(i.op(0)));
 
 	// Convolutions are zero
 	if (!(static_cast<const indexed &>(i).get_dummy_indices().empty()))
@@ -268,9 +269,9 @@ ex su3d::eval_indexed(const basic & i) const
 /** Automatic symbolic evaluation of indexed antisymmetric structure constant. */
 ex su3f::eval_indexed(const basic & i) const
 {
-	GINAC_ASSERT(is_of_type(i, indexed));
+	GINAC_ASSERT(is_a<indexed>(i));
 	GINAC_ASSERT(i.nops() == 4);
-	GINAC_ASSERT(is_ex_of_type(i.op(0), su3f));
+	GINAC_ASSERT(is_a<su3f>(i.op(0)));
 
 	// Numeric evaluation
 	if (static_cast<const indexed &>(i).all_index_values_are(info_flags::nonnegint)) {
@@ -306,10 +307,10 @@ ex su3f::eval_indexed(const basic & i) const
 /** Contraction of generator with something else. */
 bool su3t::contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const
 {
-	GINAC_ASSERT(is_ex_of_type(*self, indexed));
-	GINAC_ASSERT(is_ex_of_type(*other, indexed));
+	GINAC_ASSERT(is_a<indexed>(*self));
+	GINAC_ASSERT(is_a<indexed>(*other));
 	GINAC_ASSERT(self->nops() == 2);
-	GINAC_ASSERT(is_ex_of_type(self->op(0), su3t));
+	GINAC_ASSERT(is_a<su3t>(self->op(0)));
 	unsigned char rl = ex_to<color>(*self).get_representation_label();
 
 	if (is_ex_exactly_of_type(other->op(0), su3t)) {
@@ -356,10 +357,10 @@ bool su3t::contract_with(exvector::iterator self, exvector::iterator other, exve
 /** Contraction of an indexed symmetric structure constant with something else. */
 bool su3d::contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const
 {
-	GINAC_ASSERT(is_ex_of_type(*self, indexed));
-	GINAC_ASSERT(is_ex_of_type(*other, indexed));
+	GINAC_ASSERT(is_a<indexed>(*self));
+	GINAC_ASSERT(is_a<indexed>(*other));
 	GINAC_ASSERT(self->nops() == 4);
-	GINAC_ASSERT(is_ex_of_type(self->op(0), su3d));
+	GINAC_ASSERT(is_a<su3d>(self->op(0)));
 
 	if (is_ex_exactly_of_type(other->op(0), su3d)) {
 
@@ -415,10 +416,10 @@ bool su3d::contract_with(exvector::iterator self, exvector::iterator other, exve
 /** Contraction of an indexed antisymmetric structure constant with something else. */
 bool su3f::contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const
 {
-	GINAC_ASSERT(is_ex_of_type(*self, indexed));
-	GINAC_ASSERT(is_ex_of_type(*other, indexed));
+	GINAC_ASSERT(is_a<indexed>(*self));
+	GINAC_ASSERT(is_a<indexed>(*other));
 	GINAC_ASSERT(self->nops() == 4);
-	GINAC_ASSERT(is_ex_of_type(self->op(0), su3f));
+	GINAC_ASSERT(is_a<su3f>(self->op(0)));
 
 	if (is_ex_exactly_of_type(other->op(0), su3f)) { // f*d is handled by su3d class
 

@@ -353,12 +353,12 @@ ex mul::eval(int level) const
 #ifdef DO_GINAC_ASSERT
 	epvector::const_iterator i = seq.begin(), end = seq.end();
 	while (i != end) {
-		GINAC_ASSERT((!is_ex_exactly_of_type(i->rest, mul)) ||
+		GINAC_ASSERT((!is_exactly_a<mul>(i->rest)) ||
 		             (!(ex_to<numeric>(i->coeff).is_integer())));
 		GINAC_ASSERT(!(i->is_canonical_numeric()));
 		if (is_ex_exactly_of_type(recombine_pair_to_ex(*i), numeric))
 		    print(print_tree(std::cerr));
-		GINAC_ASSERT(!is_ex_exactly_of_type(recombine_pair_to_ex(*i), numeric));
+		GINAC_ASSERT(!is_exactly_a<numeric>(recombine_pair_to_ex(*i)));
 		/* for paranoia */
 		expair p = split_ex_to_pair(recombine_pair_to_ex(*i));
 		GINAC_ASSERT(p.rest.is_equal(i->rest));
@@ -648,22 +648,22 @@ ex mul::default_overall_coeff(void) const
 
 void mul::combine_overall_coeff(const ex & c)
 {
-	GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
-	GINAC_ASSERT(is_ex_exactly_of_type(c,numeric));
+	GINAC_ASSERT(is_exactly_a<numeric>(overall_coeff));
+	GINAC_ASSERT(is_exactly_a<numeric>(c));
 	overall_coeff = ex_to<numeric>(overall_coeff).mul_dyn(ex_to<numeric>(c));
 }
 
 void mul::combine_overall_coeff(const ex & c1, const ex & c2)
 {
-	GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
-	GINAC_ASSERT(is_ex_exactly_of_type(c1,numeric));
-	GINAC_ASSERT(is_ex_exactly_of_type(c2,numeric));
+	GINAC_ASSERT(is_exactly_a<numeric>(overall_coeff));
+	GINAC_ASSERT(is_exactly_a<numeric>(c1));
+	GINAC_ASSERT(is_exactly_a<numeric>(c2));
 	overall_coeff = ex_to<numeric>(overall_coeff).mul_dyn(ex_to<numeric>(c1).power(ex_to<numeric>(c2)));
 }
 
 bool mul::can_make_flat(const expair & p) const
 {
-	GINAC_ASSERT(is_ex_exactly_of_type(p.coeff,numeric));
+	GINAC_ASSERT(is_exactly_a<numeric>(p.coeff));
 	// this assertion will probably fail somewhere
 	// it would require a more careful make_flat, obeying the power laws
 	// probably should return true only if p.coeff is integer

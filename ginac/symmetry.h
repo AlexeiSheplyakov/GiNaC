@@ -99,10 +99,6 @@ private:
 
 
 // global functions
-inline symmetry &ex_to_nonconst_symmetry(const ex &e)
-{
-	return static_cast<symmetry &>(*e.bp);
-}
 
 inline symmetry sy_none(void) { return symmetry(); }
 inline symmetry sy_none(const symmetry &c1, const symmetry &c2) { return symmetry(symmetry::none, c1, c2); }

@@ -190,7 +190,7 @@ ex constant::derivative(const symbol & s) const
 
 int constant::compare_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_exactly_of_type(other, constant));
+	GINAC_ASSERT(is_exactly_a<constant>(other));
 	const constant &o = static_cast<const constant &>(other);
 
 	if (serial == o.serial)
@@ -201,7 +201,7 @@ int constant::compare_same_type(const basic & other) const
 
 bool constant::is_equal_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_exactly_of_type(other, constant));
+	GINAC_ASSERT(is_exactly_a<constant>(other));
 	const constant &o = static_cast<const constant &>(other);
 
 	return serial == o.serial;

@@ -198,7 +198,7 @@ ex fderivative::derivative(const symbol & s) const
 
 int fderivative::compare_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_of_type(other, fderivative));
+	GINAC_ASSERT(is_a<fderivative>(other));
 	const fderivative & o = static_cast<const fderivative &>(other);
 
 	if (parameter_set != o.parameter_set)
@@ -209,7 +209,7 @@ int fderivative::compare_same_type(const basic & other) const
 
 bool fderivative::is_equal_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_of_type(other, fderivative));
+	GINAC_ASSERT(is_a<fderivative>(other));
 	const fderivative & o = static_cast<const fderivative &>(other);
 
 	if (parameter_set != o.parameter_set)
@@ -220,7 +220,7 @@ bool fderivative::is_equal_same_type(const basic & other) const
 
 bool fderivative::match_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_of_type(other, fderivative));
+	GINAC_ASSERT(is_a<fderivative>(other));
 	const fderivative & o = static_cast<const fderivative &>(other);
 
 	return parameter_set == o.parameter_set;

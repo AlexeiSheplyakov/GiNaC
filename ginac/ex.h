@@ -46,7 +46,11 @@ class scalar_products;
  *  a thing a proxy class.) */
 class ex
 {
-	friend class basic;
+	friend class archive_node;
+	friend bool are_ex_trivially_equal(const ex &, const ex &);
+	template<class T> friend const T &ex_to(const ex &);
+	template<class T> friend bool is_a(const ex &);
+	template<class T> friend bool is_exactly_a(const ex &);
 	
 // member functions
 	
@@ -172,7 +176,7 @@ protected:
 // member variables
 
 public:
-	basic *bp;      ///< pointer to basic object managed by this
+	basic *bp;      ///< pointer to basic object managed by this, direct manipulation deprecated
 #ifdef OBSCURE_CINT_HACK
 	static basic * last_created_or_assigned_bp;
 	static basic * dummy_bp;

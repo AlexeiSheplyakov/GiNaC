@@ -215,7 +215,7 @@ void ex::makewriteable()
 void ex::construct_from_basic(const basic & other)
 {
 	if (!(other.flags & status_flags::evaluated)) {
-		const ex & tmpex(other.eval(1)); // evaluate only one (top) level
+		const ex & tmpex = other.eval(1); // evaluate only one (top) level
 		bp = tmpex.bp;
 		GINAC_ASSERT(bp->flags & status_flags::dynallocated);
 		++bp->refcount;

@@ -82,7 +82,7 @@ DEFAULT_UNARCHIVE(wildcard)
 
 int wildcard::compare_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_of_type(other, wildcard));
+	GINAC_ASSERT(is_a<wildcard>(other));
 	const wildcard &o = static_cast<const wildcard &>(other);
 
 	if (label == o.label)
@@ -95,7 +95,7 @@ void wildcard::print(const print_context & c, unsigned level) const
 {
 	debugmsg("wildcard print", LOGLEVEL_PRINT);
 
-	if (is_of_type(c, print_tree)) {
+	if (is_a<print_tree>(c)) {
 		c.s << std::string(level, ' ') << class_name() << " (" << label << ")"
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 		    << std::endl;

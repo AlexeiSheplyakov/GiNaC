@@ -209,7 +209,7 @@ exp	: T_NUMBER		{$$ = $1;}
 		}
 	}
 	| T_DIGITS '=' T_NUMBER	{$$ = $3; Digits = ex_to<numeric>($3).to_int();}
-	| T_SYMBOL '=' exp	{$$ = $3; ex_to_nonconst_symbol($1).assign($3);}
+	| T_SYMBOL '=' exp	{$$ = $3; const_cast<symbol&>(ex_to<symbol>($1)).assign($3);}
 	| exp T_EQUAL exp	{$$ = $1 == $3;}
 	| exp T_NOTEQ exp	{$$ = $1 != $3;}
 	| exp '<' exp		{$$ = $1 < $3;}
@@ -490,7 +490,7 @@ static ex f_transpose(const exprseq &e)
 static ex f_unassign(const exprseq &e)
 {
 	CHECK_ARG(0, symbol, unassign);
-	ex_to_nonconst_symbol(e[0]).unassign();
+	const_cast<symbol&>(ex_to<symbol>(e[0])).unassign();
 	return e[0];
 }
 

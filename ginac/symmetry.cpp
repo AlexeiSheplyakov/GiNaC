@@ -154,7 +154,7 @@ DEFAULT_UNARCHIVE(symmetry)
 
 int symmetry::compare_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_of_type(other, symmetry));
+	GINAC_ASSERT(is_a<symmetry>(other));
 
 	// All symmetry trees are equal. They are not supposed to appear in
 	// ordinary expressions anyway...
@@ -165,7 +165,7 @@ void symmetry::print(const print_context & c, unsigned level) const
 {
 	debugmsg("symmetry print", LOGLEVEL_PRINT);
 
-	if (is_of_type(c, print_tree)) {
+	if (is_a<print_tree>(c)) {
 
 		c.s << std::string(level, ' ') << class_name()
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
@@ -231,7 +231,7 @@ symmetry &symmetry::add(const symmetry &c)
 {
 	// All children must have the same number of indices
 	if (type != none && !children.empty()) {
-		GINAC_ASSERT(is_ex_exactly_of_type(children[0], symmetry));
+		GINAC_ASSERT(is_exactly_a<symmetry>(children[0]));
 		if (ex_to<symmetry>(children[0]).indices.size() != c.indices.size())
 			throw (std::logic_error("symmetry:add(): children must have same number of indices"));
 	}
@@ -272,8 +272,8 @@ public:
 
 	bool operator() (const ex &lh, const ex &rh) const
 	{
-		GINAC_ASSERT(is_ex_exactly_of_type(lh, symmetry));
-		GINAC_ASSERT(is_ex_exactly_of_type(rh, symmetry));
+		GINAC_ASSERT(is_exactly_a<symmetry>(lh));
+		GINAC_ASSERT(is_exactly_a<symmetry>(rh));
 		GINAC_ASSERT(ex_to<symmetry>(lh).indices.size() == ex_to<symmetry>(rh).indices.size());
 		std::set<unsigned>::const_iterator ait = ex_to<symmetry>(lh).indices.begin(), aitend = ex_to<symmetry>(lh).indices.end(), bit = ex_to<symmetry>(rh).indices.begin();
 		while (ait != aitend) {
@@ -298,8 +298,8 @@ public:
 
 	void operator() (const ex &lh, const ex &rh)
 	{
-		GINAC_ASSERT(is_ex_exactly_of_type(lh, symmetry));
-		GINAC_ASSERT(is_ex_exactly_of_type(rh, symmetry));
+		GINAC_ASSERT(is_exactly_a<symmetry>(lh));
+		GINAC_ASSERT(is_exactly_a<symmetry>(rh));
 		GINAC_ASSERT(ex_to<symmetry>(lh).indices.size() == ex_to<symmetry>(rh).indices.size());
 		std::set<unsigned>::const_iterator ait = ex_to<symmetry>(lh).indices.begin(), aitend = ex_to<symmetry>(lh).indices.end(), bit = ex_to<symmetry>(rh).indices.begin();
 		while (ait != aitend) {
@@ -321,7 +321,7 @@ int canonicalize(exvector::iterator v, const symmetry &symm)
 	int sign = 1;
 	exvector::const_iterator first = symm.children.begin(), last = symm.children.end();
 	while (first != last) {
-		GINAC_ASSERT(is_ex_exactly_of_type(*first, symmetry));
+		GINAC_ASSERT(is_exactly_a<symmetry>(*first));
 		int child_sign = canonicalize(v, ex_to<symmetry>(*first));
 		if (child_sign == 0)
 			return 0;

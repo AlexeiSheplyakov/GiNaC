@@ -101,17 +101,8 @@ protected:
 	ex point;
 };
 
-/** Return a reference to the pseries object embedded in an expression.
- *  The result is undefined if the expression does not contain a pseries
- *  object at its top level.
- *
- *  @param e expression
- *  @return reference to pseries object
- *  @see is_a<> */
-inline const pseries &ex_to_pseries(const ex &e)
-{
-	return static_cast<const pseries &>(*e.bp);
-}
+
+// utility functions
 
 /** Specialization of is_exactly_a<pseries>(obj) for pseries objects. */
 template<> inline bool is_exactly_a<pseries>(const basic & obj)
@@ -129,7 +120,7 @@ template<> inline bool is_exactly_a<pseries>(const basic & obj)
  *  @see pseries::convert_to_poly */
 inline ex series_to_poly(const ex &e)
 {
-	return (static_cast<const pseries &>(*e.bp).convert_to_poly(true));
+	return (ex_to<pseries>(e).convert_to_poly(true));
 }
 
 inline bool is_terminating(const pseries & s)

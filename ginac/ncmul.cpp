@@ -118,11 +118,11 @@ void ncmul::print(const print_context & c, unsigned level) const
 {
 	debugmsg("ncmul print", LOGLEVEL_PRINT);
 
-	if (is_of_type(c, print_tree)) {
+	if (is_a<print_tree>(c)) {
 
 		inherited::print(c, level);
 
-	} else if (is_of_type(c, print_csrc)) {
+	} else if (is_a<print_csrc>(c)) {
 
 		c.s << "ncmul(";
 		exvector::const_iterator it = seq.begin(), itend = seq.end()-1;
