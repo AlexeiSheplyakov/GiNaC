@@ -1301,6 +1301,9 @@ void expairseq::drop_coeff_0_terms(epvector::iterator &first_numeric,
 	GINAC_ASSERT(i==current-seq.begin());
 }
 
+/** True if one of the coeffs vanishes, otherwise false.
+ *  This would be an invariant violation, so this should only be used for
+ *  debugging purposes. */
 bool expairseq::has_coeff_0(void) const
 {
 	for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {

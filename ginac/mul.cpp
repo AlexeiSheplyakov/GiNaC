@@ -303,7 +303,7 @@ ex mul::coeff(const symbol & s, int n) const
 	if (n==0) {
 		// product of individual coeffs
 		// if a non-zero power of s is found, the resulting product will be 0
-		epvector::const_iterator it=seq.begin();
+		epvector::const_iterator it = seq.begin();
 		while (it!=seq.end()) {
 			coeffseq.push_back(recombine_pair_to_ex(*it).coeff(s,n));
 			++it;
@@ -311,15 +311,15 @@ ex mul::coeff(const symbol & s, int n) const
 		coeffseq.push_back(overall_coeff);
 		return (new mul(coeffseq))->setflag(status_flags::dynallocated);
 	}
-		 
+	
 	epvector::const_iterator it=seq.begin();
-	bool coeff_found=0;
+	bool coeff_found = 0;
 	while (it!=seq.end()) {
-		ex t=recombine_pair_to_ex(*it);
-		ex c=t.coeff(s,n);
+		ex t = recombine_pair_to_ex(*it);
+		ex c = t.coeff(s,n);
 		if (!c.is_zero()) {
 			coeffseq.push_back(c);
-			coeff_found=1;
+			coeff_found = 1;
 		} else {
 			coeffseq.push_back(t);
 		}
