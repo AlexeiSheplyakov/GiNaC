@@ -1,6 +1,6 @@
 This file records noteworthy changes.
 
-0.6.0 (...)
+0.6.0 (11 May 2000)
 * IMPORTANT: Several interface changes make programs written with GiNaC 
   much clearer but break compatibility with older versions:
   - f(x).series(x,p[,o]) -> f(x).series(x==p,o)
@@ -14,9 +14,10 @@ This file records noteworthy changes.
 * Expressions can be constructed from strings like this:
     ex e("2*x+y", lst(x, y));
 * ex::to_rational() provides a way to extend the domain of functions like
-  gcd() and divide() that only work on polynomials or rational functions
+  gcd() and divide() that only work on polynomials or rational functions (the
+  good old ex::subs() method reverses this process)
 * Several new timings in the check target.  Some of them may be rather rude 
-  at your machine.
+  at your machine, feel free to interrupt them.
 
 0.5.4 (15 March 2000)
 * Some algorithms in class matrix (notably determinant) were replaced by
