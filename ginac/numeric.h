@@ -316,14 +316,6 @@ inline numeric numer(numeric const & x)
 inline numeric denom(numeric const & x)
 { return x.denom(); }
 
-/* do we need this any more? */
-//inline numeric factorial(int n)
-//{ return factorial(numeric(n)); }
-
-/* do we need this any more? */
-//inline numeric binomial(int n, int k)
-//{ return binomial(numeric(n), numeric(k)); }
-
 ex IEvalf(void);
 ex PiEvalf(void);
 ex EulerGammaEvalf(void);

@@ -753,7 +753,8 @@ inline cl_heap_ratio* TheRatio (const cl_N& obj)
 
 /** Numerator.  Computes the numerator of rational numbers, rationalized
  *  numerator of complex if real and imaginary part are both rational numbers
- *  (i.e numer(4/3+5/6*I) == 8+5*I), the number itself in all other cases. */
+ *  (i.e numer(4/3+5/6*I) == 8+5*I), the number carrying the sign in all other
+ *  cases. */
 numeric numeric::numer(void) const
 {
     if (is_integer()) {
