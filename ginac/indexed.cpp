@@ -332,7 +332,7 @@ bool indexed::all_of_type_idx(void) const
 //////////
 
 const indexed some_indexed;
-const type_info & typeid_indexed=typeid(some_indexed);
+const std::type_info & typeid_indexed = typeid(some_indexed);
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

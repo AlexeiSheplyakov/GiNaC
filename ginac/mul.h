@@ -115,7 +115,7 @@ protected:
 // global constants
 
 extern const mul some_mul;
-extern const type_info & typeid_mul;
+extern const std::type_info & typeid_mul;
 
 // utility functions
 inline const mul &ex_to_mul(const ex &e)

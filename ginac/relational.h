@@ -102,7 +102,7 @@ protected:
 // global constants
 
 extern const relational some_relational;
-extern const type_info & typeid_relational;
+extern const std::type_info & typeid_relational;
 
 // utility functions
 inline const relational &ex_to_relational(const ex &e)

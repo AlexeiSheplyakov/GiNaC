@@ -255,7 +255,7 @@ protected:
 // global constants
 
 extern const ${CONTAINER} some_${CONTAINER};
-extern const type_info & typeid_${CONTAINER};
+extern const std::type_info & typeid_${CONTAINER};
 
 // utility functions
 inline const ${CONTAINER} &ex_to_${CONTAINER}(const ex &e)
@@ -793,7 +793,7 @@ unsigned ${CONTAINER}::precedence=10;
 //////////
 
 const ${CONTAINER} some_${CONTAINER};
-const type_info & typeid_${CONTAINER}=typeid(some_${CONTAINER});
+const std::type_info & typeid_${CONTAINER} = typeid(some_${CONTAINER});
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

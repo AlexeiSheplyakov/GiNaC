@@ -493,7 +493,7 @@ ex Dim(void)
 //////////
 
 const lortensor some_lortensor;
-const type_info & typeid_lortensor=typeid(some_lortensor);
+const std::type_info & typeid_lortensor = typeid(some_lortensor);
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

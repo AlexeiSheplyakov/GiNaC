@@ -224,7 +224,7 @@ std::ostream &operator<<(std::ostream &os, const archive &ar)
 	unsigned int num_atoms = ar.atoms.size();
 	write_unsigned(os, num_atoms);
 	for (unsigned int i=0; i<num_atoms; i++)
-		os << ar.atoms[i] << ends;
+		os << ar.atoms[i] << std::ends;
 
 	// Write expressions
 	unsigned int num_exprs = ar.exprs.size();
@@ -526,11 +526,11 @@ void archive::printraw(std::ostream &os) const
 		std::vector<std::string>::const_iterator i = atoms.begin(), iend = atoms.end();
 		archive_atom id = 0;
 		while (i != iend) {
-			os << " " << id << " " << *i << endl;
+			os << " " << id << " " << *i << std::endl;
 			i++; id++;
 		}
 	}
-	os << endl;
+	os << std::endl;
 
 	// Dump expressions
 	os << "Expressions:\n";
@@ -538,11 +538,11 @@ void archive::printraw(std::ostream &os) const
 		std::vector<archived_ex>::const_iterator i = exprs.begin(), iend = exprs.end();
 		unsigned int index = 0;
 		while (i != iend) {
-			os << " " << index << " \"" << unatomize(i->name) << "\" root node " << i->root << endl;
+			os << " " << index << " \"" << unatomize(i->name) << "\" root node " << i->root << std::endl;
 			i++; index++;
 		}
 	}
-	os << endl;
+	os << std::endl;
 
 	// Dump nodes
 	os << "Nodes:\n";
@@ -577,7 +577,7 @@ void archive_node::printraw(std::ostream &os) const
 			case PTYPE_NODE: os << "node"; break;
 			default: os << "<unknown>"; break;
 		}
-		os << " \"" << a.unatomize(i->name) << "\" " << i->value << endl;
+		os << " \"" << a.unatomize(i->name) << "\" " << i->value << std::endl;
 		i++;
 	}
 }

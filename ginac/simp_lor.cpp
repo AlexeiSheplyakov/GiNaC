@@ -314,7 +314,7 @@ bool simp_lor::all_of_type_lorentzidx(void) const
 //////////
 
 const simp_lor some_simp_lor;
-const type_info & typeid_simp_lor = typeid(some_simp_lor);
+const std::type_info & typeid_simp_lor = typeid(some_simp_lor);
 
 //////////
 // friend functions
@@ -500,8 +500,8 @@ void scalar_products::debugprint(void) const
 		const spmapkey & k=(*cit).first;
 		std::cerr << "item key=((" << k.first.first
 		          << "," << k.first.second << "),";
-		k.second.printraw(cerr);
-		cerr << ") value=" << (*cit).second << std::endl;
+		k.second.printraw(std::cerr);
+		std::cerr << ") value=" << (*cit).second << std::endl;
 	}
 }
 

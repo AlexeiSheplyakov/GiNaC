@@ -185,7 +185,7 @@ private:
 // global constants
 
 extern const basic some_basic;
-extern const type_info & typeid_basic;
+extern const std::type_info & typeid_basic;
 
 // global variables
 

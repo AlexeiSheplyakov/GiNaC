@@ -160,7 +160,7 @@ int fail::compare_same_type(const basic & other) const
 //////////
 
 const fail some_fail;
-const type_info & typeid_fail=typeid(some_fail);
+const std::type_info & typeid_fail = typeid(some_fail);
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

@@ -94,7 +94,7 @@ protected:
 // global constants
 
 extern const idx some_idx;
-extern const type_info & typeid_idx;
+extern const std::type_info & typeid_idx;
 
 // utility functions
 inline const idx &ex_to_idx(const ex &e)

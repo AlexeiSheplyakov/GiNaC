@@ -212,7 +212,7 @@ unsigned clifford::next_serial=0;
 //////////
 
 const clifford some_clifford;
-const type_info & typeid_clifford=typeid(some_clifford);
+const std::type_info & typeid_clifford = typeid(some_clifford);
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

@@ -85,7 +85,7 @@ private:
 // global constants
 
 extern const isospin some_isospin;
-extern const type_info & typeid_isospin;
+extern const std::type_info & typeid_isospin;
 
 // utility functions
 inline const isospin &ex_to_isospin(const ex &e)

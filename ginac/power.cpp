@@ -845,7 +845,7 @@ unsigned power::precedence = 60;
 //////////
 
 const power some_power;
-const type_info & typeid_power=typeid(some_power);
+const std::type_info & typeid_power=typeid(some_power);
 
 // helper function
 

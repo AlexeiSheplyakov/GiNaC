@@ -632,7 +632,7 @@ unsigned ncmul::precedence=50;
 //////////
 
 const ncmul some_ncmul;
-const type_info & typeid_ncmul=typeid(some_ncmul);
+const std::type_info & typeid_ncmul = typeid(some_ncmul);
 
 //////////
 // friend functions

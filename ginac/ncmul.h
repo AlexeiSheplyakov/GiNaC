@@ -105,7 +105,7 @@ protected:
 // global constants
 
 extern const ncmul some_ncmul;
-extern const type_info & typeid_ncmul;
+extern const std::type_info & typeid_ncmul;
 
 // friend funtions 
 

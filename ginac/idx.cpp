@@ -373,7 +373,7 @@ unsigned idx::next_serial=0;
 //////////
 
 const idx some_idx;
-const type_info & typeid_idx=typeid(some_idx);
+const std::type_info & typeid_idx = typeid(some_idx);
 
 //////////
 // other functions

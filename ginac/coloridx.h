@@ -78,7 +78,7 @@ public:
 // global constants
 
 extern const coloridx some_coloridx;
-extern const type_info & typeid_coloridx;
+extern const std::type_info & typeid_coloridx;
 
 // utility functions
 inline const coloridx &ex_to_coloridx(const ex &e)

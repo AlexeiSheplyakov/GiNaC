@@ -293,7 +293,7 @@ lorentzidx lorentzidx::create_anonymous_representative(void) const
 //////////
 
 const lorentzidx some_lorentzidx;
-const type_info & typeid_lorentzidx=typeid(some_lorentzidx);
+const std::type_info & typeid_lorentzidx = typeid(some_lorentzidx);
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

@@ -249,7 +249,7 @@ unsigned isospin::next_serial=0;
 //////////
 
 const isospin some_isospin;
-const type_info & typeid_isospin=typeid(some_isospin);
+const std::type_info & typeid_isospin = typeid(some_isospin);
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

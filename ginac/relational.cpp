@@ -401,7 +401,7 @@ unsigned relational::precedence=20;
 //////////
 
 const relational some_relational;
-const type_info & typeid_relational=typeid(some_relational);
+const std::type_info & typeid_relational = typeid(some_relational);
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

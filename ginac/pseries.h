@@ -99,7 +99,7 @@ protected:
 
 // global constants
 extern const pseries some_pseries;
-extern const type_info & typeid_pseries;
+extern const std::type_info & typeid_pseries;
 
 /** Return a reference to the pseries object embedded in an expression.
  *  The result is undefined if the expression does not contain a pseries

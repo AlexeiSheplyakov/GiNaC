@@ -49,7 +49,7 @@ namespace GiNaC {
 ex parsed_ex;
 
 // Last error message returned by parser
-static string parser_error;
+static std::string parser_error;
 %}
 
 /* Tokens (T_LITERAL means a literal value returned by the parser, but not
@@ -78,8 +78,8 @@ input	: exp {
 		try {
 			parsed_ex = $1;
 			YYACCEPT;
-		} catch (exception &e) {
-			parser_error = e.what();
+		} catch (std::exception &err) {
+			parser_error = err.what();
 			YYERROR;
 		}
 	}
@@ -146,7 +146,7 @@ row	: exp			{$$ = lst($1);}
 
 %%
 // Get last error encountered by parser
-string get_parser_error(void)
+std::string get_parser_error(void)
 {
 	return parser_error;
 }
@@ -160,5 +160,5 @@ using GiNaC::parser_error;
 // Error print routine (store error string in parser_error)
 int ginac_yyerror(char *s)
 {
-	parser_error = string(s) + " at " + string(ginac_yytext);
+	parser_error = std::string(s) + " at " + std::string(ginac_yytext);
 }

@@ -1212,7 +1212,7 @@ unsigned numeric::precedence = 30;
 //////////
 
 const numeric some_numeric;
-const type_info & typeid_numeric=typeid(some_numeric);
+const std::type_info & typeid_numeric = typeid(some_numeric);
 /** Imaginary unit.  This is not a constant but a numeric since we are
  *  natively handing complex numbers anyways. */
 const numeric I = numeric(::complex(cl_I(0),cl_I(1)));

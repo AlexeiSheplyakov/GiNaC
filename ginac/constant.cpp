@@ -235,7 +235,7 @@ unsigned constant::next_serial=0;
 //////////
 
 const constant some_constant;
-const type_info & typeid_constant=typeid(some_constant);
+const std::type_info & typeid_constant = typeid(some_constant);
 
 /**  Pi. (3.14159...)  Diverts straight into CLN for evalf(). */
 const constant Pi("Pi", PiEvalf);

@@ -538,7 +538,7 @@ unsigned basic::delta_indent = 4;
 //////////
 
 const basic some_basic;
-const type_info & typeid_basic=typeid(some_basic);
+const std::type_info & typeid_basic = typeid(some_basic);
 
 //////////
 // global variables

@@ -134,7 +134,7 @@ protected:
 // global constants
 
 extern const color some_color;
-extern const type_info & typeid_color;
+extern const std::type_info & typeid_color;
 
 // global functions
 inline const color &ex_to_color(const ex &e)

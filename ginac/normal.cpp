@@ -196,7 +196,7 @@ static void get_symbol_stats(const ex &a, const ex &b, sym_desc_vec &v)
 		int deg_b = b.degree(*(it->sym));
 		it->deg_a = deg_a;
 		it->deg_b = deg_b;
-		it->max_deg = max(deg_a, deg_b);
+		it->max_deg = std::max(deg_a,deg_b);
 		it->ldeg_a = a.ldegree(*(it->sym));
 		it->ldeg_b = b.ldegree(*(it->sym));
 		it++;
@@ -1353,10 +1353,11 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 	numeric rgc = gc.inverse();
 	ex p = a * rgc;
 	ex q = b * rgc;
-	int maxdeg = max(p.degree(x), q.degree(x));
-
+	int maxdeg =  std::max(p.degree(x),q.degree(x));
+	
 	// Find evaluation point
-	numeric mp = p.max_coefficient(), mq = q.max_coefficient();
+	numeric mp = p.max_coefficient();
+	numeric mq = q.max_coefficient();
 	numeric xi;
 	if (mp > mq)
 		xi = mq * _num2() + _num2();
@@ -1595,7 +1596,7 @@ factored_b:
 	// Cancel trivial common factor
 	int ldeg_a = var->ldeg_a;
 	int ldeg_b = var->ldeg_b;
-	int min_ldeg = min(ldeg_a, ldeg_b);
+	int min_ldeg = std::min(ldeg_a,ldeg_b);
 	if (min_ldeg > 0) {
 		ex common = power(x, min_ldeg);
 //std::clog << "trivial common factor " << common << endl;

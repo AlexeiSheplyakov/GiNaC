@@ -50,7 +50,7 @@ namespace GiNaC {
 class ex;
 
 /** Set the input string to be parsed by ginac_yyparse() (used internally). */
-extern void set_lexer_string(const string &s);
+extern void set_lexer_string(const std::string &s);
 
 /** Set the list of predefined symbols for the lexer (used internally). */
 extern void set_lexer_symbols(ex l);

@@ -652,7 +652,7 @@ bool color::all_of_type_coloridx(void) const
 //////////
 
 const color some_color;
-const type_info & typeid_color=typeid(some_color);
+const std::type_info & typeid_color = typeid(some_color);
 
 //////////
 // friend functions

@@ -108,7 +108,7 @@ protected:
 // global constants
 
 extern const add some_add;
-extern const type_info & typeid_add;
+extern const std::type_info & typeid_add;
 
 // utility functions
 inline const add &ex_to_add(const ex &e)

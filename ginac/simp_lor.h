@@ -62,7 +62,7 @@ public:
 	}
 };
 
-typedef map<spmapkey,ex,spmapkey_is_less> spmap;
+typedef std::map<spmapkey,ex,spmapkey_is_less> spmap;
 
 class simp_lor;
 
@@ -154,7 +154,7 @@ protected:
 // global constants
 
 extern const simp_lor some_simp_lor;
-extern const type_info & typeid_simp_lor;
+extern const std::type_info & typeid_simp_lor;
 
 // utility functions
 inline const simp_lor &ex_to_simp_lor(const ex &e)

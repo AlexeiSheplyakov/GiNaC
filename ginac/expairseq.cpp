@@ -1522,16 +1522,16 @@ bool expairseq::is_canonical() const
 				// double test makes it easier to set a breakpoint...
 				if (!is_ex_exactly_of_type((*it_last).rest,numeric)||
 					!is_ex_exactly_of_type((*it).rest,numeric)) {
-					printpair(cout,*it_last,0);
-					cout << ">";
-					printpair(cout,*it,0);
-					cout << "\n";
-					cout << "pair1:" << std::endl;
-					(*it_last).rest.printtree(cout);
-					(*it_last).coeff.printtree(cout);
-					cout << "pair2:" << std::endl;
-					(*it).rest.printtree(cout);
-					(*it).coeff.printtree(cout);
+					printpair(std::clog,*it_last,0);
+					std::clog << ">";
+					printpair(std::clog,*it,0);
+					std::clog << "\n";
+					std::clog << "pair1:" << std::endl;
+					(*it_last).rest.printtree(std::clog);
+					(*it_last).coeff.printtree(std::clog);
+					std::clog << "pair2:" << std::endl;
+					(*it).rest.printtree(std::clog);
+					(*it).coeff.printtree(std::clog);
 					return 0;
 				}
 			}
@@ -1734,7 +1734,7 @@ unsigned expairseq::hashtabfactor=1;
 //////////
 
 const expairseq some_expairseq;
-const type_info & typeid_expairseq=typeid(some_expairseq);
+const std::type_info & typeid_expairseq = typeid(some_expairseq);
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

@@ -84,7 +84,7 @@ private:
 // global constants
 
 extern const clifford some_clifford;
-extern const type_info & typeid_clifford;
+extern const std::type_info & typeid_clifford;
 
 // utility functions
 inline const clifford &ex_to_clifford(const ex &e)

@@ -123,7 +123,7 @@ private:
 // global constants
 
 extern const lortensor some_lortensor;
-extern const type_info & typeid_lortensor;
+extern const std::type_info & typeid_lortensor;
 
 // utility functions
 	

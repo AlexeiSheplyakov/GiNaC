@@ -894,7 +894,7 @@ ex ex::series(const ex & r, int order, unsigned options) const
 
 // Global constants
 const pseries some_pseries;
-const type_info & typeid_pseries = typeid(some_pseries);
+const std::type_info & typeid_pseries = typeid(some_pseries);
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

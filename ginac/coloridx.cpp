@@ -239,7 +239,7 @@ bool coloridx::info(unsigned inf) const
 //////////
 
 const coloridx some_coloridx;
-const type_info & typeid_coloridx=typeid(some_coloridx);
+const std::type_info & typeid_coloridx = typeid(some_coloridx);
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

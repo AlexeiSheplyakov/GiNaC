@@ -105,7 +105,6 @@ static ex lgamma_series(const ex & arg,
 	ex recur;
 	for (numeric p; p<=m; ++p)
 		recur += log(arg+p);
-	cout << recur << endl;
 	return (lgamma(arg+m+_ex1())-recur).series(rel, order, options);
 }
 

@@ -111,7 +111,7 @@ protected:
 
 // global constants
 extern const matrix some_matrix;
-extern const type_info & typeid_matrix;
+extern const std::type_info & typeid_matrix;
 
 
 // wrapper functions around member functions
@@ -119,16 +119,16 @@ extern const type_info & typeid_matrix;
 inline unsigned nops(const matrix & m)
 { return m.nops(); }
 
-inline ex expand(const matrix & m, unsigned options=0)
+inline ex expand(const matrix & m, unsigned options = 0)
 { return m.expand(options); }
 
 inline bool has(const matrix & m, const ex & other)
 { return m.has(other); }
 
-inline ex eval(const matrix & m, int level=0)
+inline ex eval(const matrix & m, int level = 0)
 { return m.eval(level); }
 
-inline ex evalf(const matrix & m, int level=0)
+inline ex evalf(const matrix & m, int level = 0)
 { return m.evalf(level); }
 
 inline unsigned rows(const matrix & m)

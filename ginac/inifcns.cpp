@@ -489,7 +489,7 @@ ex lsolve(const ex &eqns, const ex &symbols)
 	matrix solution;
 	try {
 		solution = sys.solve(vars,rhs);
-	} catch (const runtime_error & e) {
+	} catch (const std::runtime_error & e) {
 		// Probably singular matrix or otherwise overdetermined system:
 		// It is consistent to return an empty list
 		return lst();

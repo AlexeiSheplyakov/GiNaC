@@ -784,7 +784,7 @@ unsigned mul::precedence = 50;
 //////////
 
 const mul some_mul;
-const type_info & typeid_mul = typeid(some_mul);
+const std::type_info & typeid_mul = typeid(some_mul);
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

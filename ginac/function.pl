@@ -467,7 +467,7 @@ inline const function &ex_to_function(const ex &e)
 // global constants
 
 extern const function some_function;
-extern const type_info & typeid_function;
+extern const std::type_info & typeid_function;
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
@@ -1081,7 +1081,7 @@ unsigned function::find_function(const std::string &name, unsigned nparams)
 //////////
 
 const function some_function;
-const type_info & typeid_function=typeid(some_function);
+const std::type_info & typeid_function=typeid(some_function);
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

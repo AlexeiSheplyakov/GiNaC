@@ -207,7 +207,7 @@ protected:
 
 extern const numeric some_numeric;
 extern const numeric I;
-extern const type_info & typeid_numeric;
+extern const std::type_info & typeid_numeric;
 extern _numeric_digits Digits;
 
 //#define is_a_numeric_hash(x) ((x)==HASHVALUE_NUMERIC)

@@ -197,7 +197,7 @@ protected:
 // global constants
 
 extern const expairseq some_expairseq;
-extern const type_info & typeid_expairseq;
+extern const std::type_info & typeid_expairseq;
 
 // utility functions
 inline const expairseq &ex_to_expairseq(const ex &e)
