@@ -12,6 +12,8 @@ This file records noteworthy changes.
      gamma~0 in p.mu*gamma~mu should be p.0 but is returned as 0
    - using coeff(), tcoeff(), lcoeff() or collect() on elements of
      noncommutative products might return wrong or surprising results
+* Likewise, subs() can be used to substitute functions, tensors and indexed
+  expressions.
 * Added preliminary (re)implementations of color and clifford classes.
 * simplify_indexed(): contraction of symmetric and antisymmetric tensors
   is zero.
