@@ -14,7 +14,7 @@ Source: ftp://ftpthep.physik.uni-mainz.de/pub/GiNaC/GiNaC-%{ver}.tar.gz
 BuildRoot: /tmp/GiNaC-%{PACKAGE_VERSION}-root
 Packager: Christian Bauer <Christian.Bauer@uni-mainz.de>
 URL: http://www.ginac.de/
-Prereq: install-info
+Prereq: /sbin/install-info
 Docdir: %{prefix}/doc
 
 %description
@@ -45,12 +45,12 @@ gzip -9n $RPM_BUILD_ROOT%{prefix}/info/*
 rm -rf $RPM_BUILD_ROOT
 
 %post -p /sbin/ldconfig
-install-info %{prefix}/info/ginac.info.gz %{prefix}/info/dir
+/sbin/install-info %{prefix}/info/ginac.info.gz %{prefix}/info/dir
 
 %postun -p /sbin/ldconfig
 
 %preun
-install-info --delete %{prefix}/info/ginac.info.gz %{prefix}/info/dir
+/sbin/install-info --delete %{prefix}/info/ginac.info.gz %{prefix}/info/dir
 
 %files
 %defattr(-, root, root)
