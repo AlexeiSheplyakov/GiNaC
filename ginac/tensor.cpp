@@ -348,8 +348,8 @@ again:
 				try {
 					// minimal_dim() throws an exception when index dimensions are not comparable
 					ex min_dim = self_idx->minimal_dim(other_idx);
-					*self = _ex1;
 					*other = other->subs(other_idx == free_idx->replace_dim(min_dim));
+					*self = _ex1; // *other is assigned first because assigning *self invalidates free_idx
 					return true;
 				} catch (std::exception &e) {
 					return false;
@@ -459,9 +459,10 @@ again:
 			if (is_dummy_pair(*self_idx, other_idx)) {
 
 				// Contraction found, remove metric tensor and substitute
-				// index in second object
-				*self = (static_cast<const spinidx *>(self_idx)->is_covariant() ? sign : -sign);
+				// index in second object (assign *self last because this
+				// invalidates free_idx)
 				*other = other->subs(other_idx == *free_idx);
+				*self = (static_cast<const spinidx *>(self_idx)->is_covariant() ? sign : -sign);
 				return true;
 			}
 		}
