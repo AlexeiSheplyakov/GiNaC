@@ -2706,82 +2706,10 @@ else
   echo "$ac_t""no" 1>&6
 fi
 
-# Extract the first word of "jade", so it can be a program name with args.
-set dummy jade; ac_word=$2
-echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:2713: checking for $ac_word" >&5
-if eval "test \"`echo '$''{'ac_cv_path_JADE'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  case "$JADE" in
-  /*)
-  ac_cv_path_JADE="$JADE" # Let the user override the test with a path.
-  ;;
-  ?:/*)			 
-  ac_cv_path_JADE="$JADE" # Let the user override the test with a dos path.
-  ;;
-  *)
-  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS=":"
-  ac_dummy="$PATH"
-  for ac_dir in $ac_dummy; do 
-    test -z "$ac_dir" && ac_dir=.
-    if test -f $ac_dir/$ac_word; then
-      ac_cv_path_JADE="$ac_dir/$ac_word"
-      break
-    fi
-  done
-  IFS="$ac_save_ifs"
-  test -z "$ac_cv_path_JADE" && ac_cv_path_JADE=""""
-  ;;
-esac
-fi
-JADE="$ac_cv_path_JADE"
-if test -n "$JADE"; then
-  echo "$ac_t""$JADE" 1>&6
-else
-  echo "$ac_t""no" 1>&6
-fi
-
-# Extract the first word of "jadetex", so it can be a program name with args.
-set dummy jadetex; ac_word=$2
-echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:2749: checking for $ac_word" >&5
-if eval "test \"`echo '$''{'ac_cv_path_JADETEX'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  case "$JADETEX" in
-  /*)
-  ac_cv_path_JADETEX="$JADETEX" # Let the user override the test with a path.
-  ;;
-  ?:/*)			 
-  ac_cv_path_JADETEX="$JADETEX" # Let the user override the test with a dos path.
-  ;;
-  *)
-  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS=":"
-  ac_dummy="$PATH"
-  for ac_dir in $ac_dummy; do 
-    test -z "$ac_dir" && ac_dir=.
-    if test -f $ac_dir/$ac_word; then
-      ac_cv_path_JADETEX="$ac_dir/$ac_word"
-      break
-    fi
-  done
-  IFS="$ac_save_ifs"
-  test -z "$ac_cv_path_JADETEX" && ac_cv_path_JADETEX=""""
-  ;;
-esac
-fi
-JADETEX="$ac_cv_path_JADETEX"
-if test -n "$JADETEX"; then
-  echo "$ac_t""$JADETEX" 1>&6
-else
-  echo "$ac_t""no" 1>&6
-fi
-
 # Extract the first word of "latex", so it can be a program name with args.
 set dummy latex; ac_word=$2
 echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:2785: checking for $ac_word" >&5
+echo "configure:2713: checking for $ac_word" >&5
 if eval "test \"`echo '$''{'ac_cv_path_LATEX'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -2817,7 +2745,7 @@ fi
 # Extract the first word of "makeindex", so it can be a program name with args.
 set dummy makeindex; ac_word=$2
 echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:2821: checking for $ac_word" >&5
+echo "configure:2749: checking for $ac_word" >&5
 if eval "test \"`echo '$''{'ac_cv_path_MAKEINDEX'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -2853,7 +2781,7 @@ fi
 # Extract the first word of "dvips", so it can be a program name with args.
 set dummy dvips; ac_word=$2
 echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:2857: checking for $ac_word" >&5
+echo "configure:2785: checking for $ac_word" >&5
 if eval "test \"`echo '$''{'ac_cv_path_DVIPS'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -2889,7 +2817,7 @@ fi
 # Extract the first word of "fig2dev", so it can be a program name with args.
 set dummy fig2dev; ac_word=$2
 echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:2893: checking for $ac_word" >&5
+echo "configure:2821: checking for $ac_word" >&5
 if eval "test \"`echo '$''{'ac_cv_path_FIG2DEV'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -2926,12 +2854,11 @@ fi
 TUTORIAL_TARGETS=
 REFERENCE_TARGETS=
 if [ "x$enable_html_doc" = "xyes" ]; then
-  TUTORIAL_TARGETS="$TUTORIAL_TARGETS index.html"
+  TUTORIAL_TARGETS="$TUTORIAL_TARGETS ginac.html"
   REFERENCE_TARGETS="$REFERENCE_TARGETS index.html"
 fi
 if [ "x$enable_ps_doc" = "xyes" ]; then
-# currently doesn't work
-#  TUTORIAL_TARGETS="$TUTORIAL_TARGETS tutorial.ps"
+  TUTORIAL_TARGETS="$TUTORIAL_TARGETS ginac.ps"
   REFERENCE_TARGETS="$REFERENCE_TARGETS reference.ps"
 fi
 
@@ -3128,8 +3055,6 @@ s%@LEX_OUTPUT_ROOT@%$LEX_OUTPUT_ROOT%g
 s%@YACC@%$YACC%g
 s%@GINSH_LIBS@%$GINSH_LIBS%g
 s%@DOXYGEN@%$DOXYGEN%g
-s%@JADE@%$JADE%g
-s%@JADETEX@%$JADETEX%g
 s%@LATEX@%$LATEX%g
 s%@MAKEINDEX@%$MAKEINDEX%g
 s%@DVIPS@%$DVIPS%g

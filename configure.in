@@ -97,8 +97,6 @@ dnl Check for utilities needed by the different kinds of documentation.
 dnl Documantation needs only be built when extending it, so never mind if it
 dnl cannot find those helpers:
 AC_PATH_PROG(DOXYGEN, doxygen, "")
-AC_PATH_PROG(JADE, jade, "")
-AC_PATH_PROG(JADETEX, jadetex, "")
 AC_PATH_PROG(LATEX, latex, "")
 AC_PATH_PROG(MAKEINDEX, makeindex, "")
 AC_PATH_PROG(DVIPS, dvips, "")
@@ -108,12 +106,11 @@ dnl Determine which documentation shall be built
 TUTORIAL_TARGETS=
 REFERENCE_TARGETS=
 if [[ "x$enable_html_doc" = "xyes" ]]; then
-  TUTORIAL_TARGETS="$TUTORIAL_TARGETS index.html"
+  TUTORIAL_TARGETS="$TUTORIAL_TARGETS ginac.html"
   REFERENCE_TARGETS="$REFERENCE_TARGETS index.html"
 fi
 if [[ "x$enable_ps_doc" = "xyes" ]]; then
-# currently doesn't work
-#  TUTORIAL_TARGETS="$TUTORIAL_TARGETS tutorial.ps"
+  TUTORIAL_TARGETS="$TUTORIAL_TARGETS ginac.ps"
   REFERENCE_TARGETS="$REFERENCE_TARGETS reference.ps"
 fi
 AC_SUBST(TUTORIAL_TARGETS)

@@ -10,10 +10,7 @@
 # even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.
 
-# This section produces HTML'ed and TeX'ed versions of the tutorial using a
-# SGML to TeX converter (in this case jade).  As a dirty hack, we are doing
-# some regexpese to tutorial.sgml prior to parsing it, in order to allow for
-# different graphics output.  This seems to be an ugly limitation of docbook...
+# Graphics file conversion
 
 
 SHELL = @SHELL@
@@ -79,8 +76,6 @@ GINACLIB_MICRO_VERSION = @GINACLIB_MICRO_VERSION@
 GINACLIB_MINOR_VERSION = @GINACLIB_MINOR_VERSION@
 GINACLIB_VERSION = @GINACLIB_VERSION@
 GINSH_LIBS = @GINSH_LIBS@
-JADE = @JADE@
-JADETEX = @JADETEX@
 LATEX = @LATEX@
 LD = @LD@
 LEX = @LEX@
@@ -102,27 +97,31 @@ TUTORIAL_TARGETS = @TUTORIAL_TARGETS@
 VERSION = @VERSION@
 YACC = @YACC@
 
-FIG = classhierarchy.fig rep_naive.fig rep_pair.fig rep_real.fig
+FIG = classhierarchy.fig repnaive.fig reppair.fig repreal.fig
 PNG = $(addsuffix .png, $(basename $(FIG)))
 EPS = $(addsuffix .eps, $(basename $(FIG)))
 
 SUFFIXES = .fig .png .eps
 
-JADEARGS_TEX = -t tex -o tutorial.tex -d /usr/lib/sgml/stylesheet/dsssl/docbook/nwalsh/print/docbook.dsl
-JADEARGS_HTML = -t sgml -d /usr/lib/sgml/stylesheet/dsssl/docbook/nwalsh/html/docbook.dsl
+info_TEXINFOS = ginac.texi
 
 ginacdocdir = $(datadir)/doc/GiNaC
 ginactutorialdir = $(ginacdocdir)/tutorial
 ginactutorial_DATA = @TUTORIAL_TARGETS@
 
-CLEANFILES = *.html *.png *.ps *.tex *.log *.aux *.dvi *.eps tutorial.sgml HTML.manifest
-EXTRA_DIST = tutorial.sgml.in $(FIG)
+CLEANFILES = $(EPS) $(PNG) *.html
+EXTRA_DIST = $(FIG)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../../config.h
 CONFIG_CLEAN_FILES = 
+TEXI2DVI = texi2dvi
+INFO_DEPS = ginac.info
+DVIS = ginac.dvi
+TEXINFOS = ginac.texi
 DATA =  $(ginactutorial_DATA)
 
-DIST_COMMON =  Makefile.am Makefile.in
+DIST_COMMON =  Makefile.am Makefile.in mdate-sh stamp-vti texinfo.tex \
+version.texi
 
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
@@ -131,7 +130,7 @@ TAR = tar
 GZIP_ENV = --best
 all: all-redirect
 .SUFFIXES:
-.SUFFIXES: .eps .fig .png
+.SUFFIXES: .dvi .eps .fig .info .png .ps .texi .texinfo .txi
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
 	cd $(top_srcdir) && $(AUTOMAKE) --gnu doc/tutorial/Makefile
 
@@ -139,6 +138,144 @@ Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 	cd $(top_builddir) \
 	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
+
+$(srcdir)/version.texi: @MAINTAINER_MODE_TRUE@stamp-vti
+	@:
+
+$(srcdir)/stamp-vti: ginac.texi $(top_srcdir)/configure.in
+	@echo "@set UPDATED `$(SHELL) $(srcdir)/mdate-sh $(srcdir)/ginac.texi`" > vti.tmp
+	@echo "@set EDITION $(VERSION)" >> vti.tmp
+	@echo "@set VERSION $(VERSION)" >> vti.tmp
+	@cmp -s vti.tmp $(srcdir)/version.texi \
+	  || (echo "Updating $(srcdir)/version.texi"; \
+	      cp vti.tmp $(srcdir)/version.texi)
+	-@rm -f vti.tmp
+	@cp $(srcdir)/version.texi $@
+
+mostlyclean-vti:
+	-rm -f vti.tmp
+
+clean-vti:
+
+distclean-vti:
+
+maintainer-clean-vti:
+	-@MAINTAINER_MODE_TRUE@rm -f $(srcdir)/stamp-vti $(srcdir)/version.texi
+
+ginac.info: ginac.texi version.texi
+ginac.dvi: ginac.texi version.texi
+
+
+.texi.info:
+	@cd $(srcdir) && rm -f $@ $@-[0-9] $@-[0-9][0-9]
+	cd $(srcdir) \
+	  && $(MAKEINFO) `echo $< | sed 's,.*/,,'`
+
+.texi.dvi:
+	TEXINPUTS=.:$$TEXINPUTS \
+	  MAKEINFO='$(MAKEINFO) -I $(srcdir)' $(TEXI2DVI) $<
+
+.texi:
+	@cd $(srcdir) && rm -f $@ $@-[0-9] $@-[0-9][0-9]
+	cd $(srcdir) \
+	  && $(MAKEINFO) `echo $< | sed 's,.*/,,'`
+
+.texinfo.info:
+	@cd $(srcdir) && rm -f $@ $@-[0-9] $@-[0-9][0-9]
+	cd $(srcdir) \
+	  && $(MAKEINFO) `echo $< | sed 's,.*/,,'`
+
+.texinfo:
+	@cd $(srcdir) && rm -f $@ $@-[0-9] $@-[0-9][0-9]
+	cd $(srcdir) \
+	  && $(MAKEINFO) `echo $< | sed 's,.*/,,'`
+
+.texinfo.dvi:
+	TEXINPUTS=.:$$TEXINPUTS \
+	  MAKEINFO='$(MAKEINFO) -I $(srcdir)' $(TEXI2DVI) $<
+
+.txi.info:
+	@cd $(srcdir) && rm -f $@ $@-[0-9] $@-[0-9][0-9]
+	cd $(srcdir) \
+	  && $(MAKEINFO) `echo $< | sed 's,.*/,,'`
+
+.txi.dvi:
+	TEXINPUTS=.:$$TEXINPUTS \
+	  MAKEINFO='$(MAKEINFO) -I $(srcdir)' $(TEXI2DVI) $<
+
+.txi:
+	@cd $(srcdir) && rm -f $@ $@-[0-9] $@-[0-9][0-9]
+	cd $(srcdir) \
+	  && $(MAKEINFO) `echo $< | sed 's,.*/,,'`
+.dvi.ps:
+	$(DVIPS) $< -o $@
+
+install-info-am: $(INFO_DEPS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(infodir)
+	@list='$(INFO_DEPS)'; \
+	for file in $$list; do \
+	  d=$(srcdir); \
+	  for ifile in `cd $$d && echo $$file $$file-[0-9] $$file-[0-9][0-9]`; do \
+	    if test -f $$d/$$ifile; then \
+	      echo " $(INSTALL_DATA) $$d/$$ifile $(DESTDIR)$(infodir)/$$ifile"; \
+	      $(INSTALL_DATA) $$d/$$ifile $(DESTDIR)$(infodir)/$$ifile; \
+	    else : ; fi; \
+	  done; \
+	done
+	@$(POST_INSTALL)
+	@if $(SHELL) -c 'install-info --version | sed 1q | fgrep -s -v -i debian' >/dev/null 2>&1; then \
+	  list='$(INFO_DEPS)'; \
+	  for file in $$list; do \
+	    echo " install-info --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/$$file";\
+	    install-info --info-dir=$(DESTDIR)$(infodir) $(DESTDIR)$(infodir)/$$file || :;\
+	  done; \
+	else : ; fi
+
+uninstall-info:
+	$(PRE_UNINSTALL)
+	@if $(SHELL) -c 'install-info --version | sed 1q | fgrep -s -v -i debian' >/dev/null 2>&1; then \
+	  ii=yes; \
+	else ii=; fi; \
+	list='$(INFO_DEPS)'; \
+	for file in $$list; do \
+	  test -z "$ii" \
+	    || install-info --info-dir=$(DESTDIR)$(infodir) --remove $$file; \
+	done
+	@$(NORMAL_UNINSTALL)
+	list='$(INFO_DEPS)'; \
+	for file in $$list; do \
+	  (cd $(DESTDIR)$(infodir) && rm -f $$file $$file-[0-9] $$file-[0-9][0-9]); \
+	done
+
+dist-info: $(INFO_DEPS)
+	list='$(INFO_DEPS)'; \
+	for base in $$list; do \
+	  d=$(srcdir); \
+	  for file in `cd $$d && eval echo $$base*`; do \
+	    test -f $(distdir)/$$file \
+	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	    || cp -p $$d/$$file $(distdir)/$$file; \
+	  done; \
+	done
+
+mostlyclean-aminfo:
+	-rm -f ginac.aux ginac.cp ginac.cps ginac.dvi ginac.fn ginac.fns \
+	  ginac.ky ginac.kys ginac.ps ginac.log ginac.pg ginac.toc \
+	  ginac.tp ginac.tps ginac.vr ginac.vrs ginac.op ginac.tr \
+	  ginac.cv ginac.cn
+
+clean-aminfo:
+
+distclean-aminfo:
+
+maintainer-clean-aminfo:
+	cd $(srcdir) && for i in $(INFO_DEPS); do \
+	  rm -f $$i; \
+	  if test "`echo $$i-[0-9]*`" != "$$i-[0-9]*"; then \
+	    rm -f $$i-[0-9]*; \
+	  fi; \
+	done
 
 install-ginactutorialDATA: $(ginactutorial_DATA)
 	@$(NORMAL_INSTALL)
@@ -182,9 +319,10 @@ distdir: $(DISTFILES)
 	    || cp -p $$d/$$file $(distdir)/$$file || :; \
 	  fi; \
 	done
-info-am:
+	$(MAKE) $(AM_MAKEFLAGS) top_distdir="$(top_distdir)" distdir="$(distdir)" dist-info
+info-am: $(INFO_DEPS)
 info: info-am
-dvi-am:
+dvi-am: $(DVIS)
 dvi: dvi-am
 check-am: all-am
 check: check-am
@@ -193,20 +331,20 @@ installcheck: installcheck-am
 install-exec-am:
 install-exec: install-exec-am
 
-install-data-am: install-ginactutorialDATA install-data-local
+install-data-am: install-info-am install-ginactutorialDATA
 install-data: install-data-am
 
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
 install: install-am
-uninstall-am: uninstall-ginactutorialDATA uninstall-local
+uninstall-am: uninstall-info uninstall-ginactutorialDATA
 uninstall: uninstall-am
-all-am: Makefile $(DATA)
+all-am: Makefile $(INFO_DEPS) $(DATA)
 all-redirect: all-am
 install-strip:
 	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
 installdirs:
-	$(mkinstalldirs)  $(DESTDIR)$(ginactutorialdir)
+	$(mkinstalldirs)  $(DESTDIR)$(infodir) $(DESTDIR)$(ginactutorialdir)
 
 
 mostlyclean-generic:
@@ -219,32 +357,35 @@ distclean-generic:
 	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
 
 maintainer-clean-generic:
-mostlyclean-am:  mostlyclean-generic
+mostlyclean-am:  mostlyclean-vti mostlyclean-aminfo mostlyclean-generic
 
 mostlyclean: mostlyclean-am
 
-clean-am:  clean-generic mostlyclean-am
+clean-am:  clean-vti clean-aminfo clean-generic mostlyclean-am
 
 clean: clean-am
 
-distclean-am:  distclean-generic clean-am
+distclean-am:  distclean-vti distclean-aminfo distclean-generic clean-am
 	-rm -f libtool
 
 distclean: distclean-am
 
-maintainer-clean-am:  maintainer-clean-generic distclean-am
+maintainer-clean-am:  maintainer-clean-vti maintainer-clean-aminfo \
+		maintainer-clean-generic distclean-am
 	@echo "This command is intended for maintainers to use;"
 	@echo "it deletes files that may require special tools to rebuild."
 
 maintainer-clean: maintainer-clean-am
 
-.PHONY: uninstall-ginactutorialDATA install-ginactutorialDATA tags \
-distdir info-am info dvi-am dvi check check-am installcheck-am \
-installcheck install-exec-am install-exec install-data-local \
-install-data-am install-data install-am install uninstall-local \
-uninstall-am uninstall all-redirect all-am all installdirs \
-mostlyclean-generic distclean-generic clean-generic \
-maintainer-clean-generic clean mostlyclean distclean maintainer-clean
+.PHONY: mostlyclean-vti distclean-vti clean-vti maintainer-clean-vti \
+install-info-am uninstall-info mostlyclean-aminfo distclean-aminfo \
+clean-aminfo maintainer-clean-aminfo uninstall-ginactutorialDATA \
+install-ginactutorialDATA tags distdir info-am info dvi-am dvi check \
+check-am installcheck-am installcheck install-exec-am install-exec \
+install-data-am install-data install-am install uninstall-am uninstall \
+all-redirect all-am all installdirs mostlyclean-generic \
+distclean-generic clean-generic maintainer-clean-generic clean \
+mostlyclean distclean maintainer-clean
 
 
 %.eps: %.fig
@@ -263,66 +404,33 @@ maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 	  echo "warning: fig2dev was not found by configure"; \
 	fi
 
-index.html: tutorial.sgml.in $(PNG)
-	@if [ "${JADE}" ]; then \
-	  sed -e "s/MAJOR_VERSION/${GINACLIB_MAJOR_VERSION}/" \
-	      -e "s/MINOR_VERSION/${GINACLIB_MINOR_VERSION}/" \
-	      -e 's/graext/png/g' \
-	      -e 's/GRAEXT/GIF/g' tutorial.sgml.in > tutorial.sgml; \
-	  echo "Running ${JADE} ${JADEARGS_HTML} tutorial.sgml..."; \
-	  ${JADE} ${JADEARGS_HTML} tutorial.sgml; \
-	  if [ -f book1.html ]; then mv book1.html index.html; fi; \
-	else \
-	  echo "warning: target tutorial_html disabled by configuration"; \
-	fi
+ginac.dvi: $(EPS)
 
-tutorial.tex: tutorial.sgml.in $(EPS)
-	@if [ "${JADE}" -a "${LATEX}" ]; then \
-	  sed -e "s/MAJOR_VERSION/${GINACLIB_MAJOR_VERSION}/" \
-	      -e "s/MINOR_VERSION/${GINACLIB_MINOR_VERSION}/" \
-	      -e 's/graext/eps/g' \
-	      -e 's/GRAEXT/EPS/g' tutorial.sgml.in > tutorial.sgml; \
-	  echo "Running ${JADE} ${JADEARGS_TEX} tutorial.sgml..."; \
-	  ${JADE} ${JADEARGS_TEX} tutorial.sgml ; \
-	else \
-	  echo "warning: target tutorial.tex disabled by configuration"; \
-	fi
+ginac.html: ginac.texi version.texi $(PNG)
+	cd $(srcdir) \
+	  && $(MAKEINFO) --html `echo $< | sed 's,.*/,,'`
 
-tutorial.dvi: tutorial.tex
-	@if [ "${JADETEX}" ]; then \
-	  echo "Running ${JADETEX} tutorial.tex..."; \
-	  ${JADETEX} tutorial.tex && ${JADETEX} tutorial.tex && ${JADETEX} tutorial.tex; \
-	else \
-	  echo "warning: target tutorial.dvi disabled by configuration"; \
-	fi
+#CLEANFILES = *.html *.png *.ps *.tex *.log *.aux *.dvi *.eps tutorial.sgml HTML.manifest
 
-tutorial.ps: tutorial.dvi
-	@if [ "${DVIPS}" ]; then \
-	  echo "Running ${DVIPS} tutorial.dvi -o tutorial.ps..."; \
-	  ${DVIPS} tutorial.dvi -o tutorial.ps; \
-	else \
-	  echo "warning: target tutorial.ps disabled by configuration"; \
-	fi
+#install-data-local:
+#	@for p in *.html; do \
+#	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p"; \
+#	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p; \
+#	done
+#	@for p in *.png; do \
+#	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p"; \
+#	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p; \
+#	done
 
-install-data-local:
-	@for p in *.html; do \
-	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p"; \
-	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p; \
-	done
-	@for p in *.png; do \
-	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p"; \
-	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginactutorialdir)/$$p; \
-	done
-
-uninstall-local:
-	@for p in *.html; do \
-	  echo " rm -f $(DESTDIR)$(ginactutorialdir)/$$p"; \
-	  rm -f $(DESTDIR)$(ginactutorialdir)/$$p; \
-	done
-	@for p in *.png; do \
-	  echo " rm -f $(DESTDIR)$(ginactutorialdir)/$$p"; \
-	  rm -f $(DESTDIR)$(ginactutorialdir)/$$p; \
-	done
+#uninstall-local:
+#	@for p in *.html; do \
+#	  echo " rm -f $(DESTDIR)$(ginactutorialdir)/$$p"; \
+#	  rm -f $(DESTDIR)$(ginactutorialdir)/$$p; \
+#	done
+#	@for p in *.png; do \
+#	  echo " rm -f $(DESTDIR)$(ginactutorialdir)/$$p"; \
+#	  rm -f $(DESTDIR)$(ginactutorialdir)/$$p; \
+#	done
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
