@@ -479,7 +479,7 @@ static ex f_dummy(const exprseq &e)
 // Table for initializing the "fcns" map
 struct fcn_init {
 	const char *name;
-	const fcn_desc &desc;
+	const fcn_desc desc;
 };
 
 static const fcn_init builtin_fcns[] = {
