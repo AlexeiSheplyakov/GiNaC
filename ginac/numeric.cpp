@@ -90,10 +90,10 @@ numeric::numeric(int i) : basic(TINFO_numeric)
 {
 	// Not the whole int-range is available if we don't cast to long
 	// first.  This is due to the behaviour of the cl_I-ctor, which
-	// emphasizes efficiency.  However, if the integer is small enough, 
-	// i.e. satisfies cl_immediate_p(), we save space and dereferences by
-	// using an immediate type:
-	if (cln::cl_immediate_p(i))
+	// emphasizes efficiency.  However, if the integer is small enough
+	// we save space and dereferences by using an immediate type.
+	// (C.f. <cln/object.h>)
+	if (i < (1U<<cl_value_len-1))
 		value = cln::cl_I(i);
 	else
 		value = cln::cl_I((long) i);
@@ -105,10 +105,10 @@ numeric::numeric(unsigned int i) : basic(TINFO_numeric)
 {
 	// Not the whole uint-range is available if we don't cast to ulong
 	// first.  This is due to the behaviour of the cl_I-ctor, which
-	// emphasizes efficiency.  However, if the integer is small enough, 
-	// i.e. satisfies cl_immediate_p(), we save space and dereferences by
-	// using an immediate type:
-	if (cln::cl_immediate_p(i))
+	// emphasizes efficiency.  However, if the integer is small enough
+	// we save space and dereferences by using an immediate type.
+	// (C.f. <cln/object.h>)
+	if (i < (1U<<cl_value_len-1))
 		value = cln::cl_I(i);
 	else
 		value = cln::cl_I((unsigned long) i);
@@ -1537,24 +1537,37 @@ const numeric bernoulli(const numeric &nn)
 
 	// algorithm not applicable to B(2), so just store it
 	if (!next_r) {
+		results.push_back(); // results[0] is not used
 		results.push_back(cln::recip(cln::cl_RA(6)));
 		next_r = 4;
 	}
+	if (n<next_r)
+		return results[n/2];
+
+	results.reserve(n/2 + 1);
 	for (unsigned p=next_r; p<=n;  p+=2) {
-		cln::cl_I  c = 1;
+		cln::cl_I  c = 1;  // seed for binonmial coefficients
 		cln::cl_RA b = cln::cl_RA(1-p)/2;
 		const unsigned p3 = p+3;
-		const unsigned p2 = p+2;
 		const unsigned pm = p-2;
-		unsigned i, k;
-		for (i=2, k=0; i <= pm; i += 2, k++) {
-			c = cln::exquo(c * ((p3 - i)*(p2 - i)), (i - 1)*i);
-			b = b + c * results[k];
-		}
-		results.push_back(-b / (p+1));
-		next_r += 2;
+		unsigned i, k, p_2;
+		// test if intermediate unsigned int can be represented by immediate
+		// objects by CLN (i.e. < 2^29 for 32 Bit machines, see <cln/object.h>)
+		if (p < (1UL<<cl_value_len/2)) {
+			for (i=2, k=1, p_2=p/2; i<=pm; i+=2, ++k, --p_2) {
+				c = cln::exquo(c * ((p3-i) * p_2), (i-1)*k);
+				b = b + c*results[k];
+			}
+		} else {
+			for (i=2, k=1, p_2=p/2; i<=pm; i+=2, ++k, --p_2) {
+				c = cln::exquo((c * (p3-i)) * p_2, cln::cl_I(i-1)*k);
+				b = b + c*results[k];
+			}
+ 		}
+		results.push_back(-b/(p+1));
 	}
-	return results[n/2 - 1];
+	next_r = n+2;
+	return results[n/2];
 }
 
 
