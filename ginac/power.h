@@ -3,7 +3,7 @@
  *  Interface to GiNaC's symbolic exponentiation (basis^exponent). */
 
 /*
- *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -65,6 +65,7 @@ public:
 	ex to_rational(exmap & repl) const;
 	ex to_polynomial(exmap & repl) const;
 	exvector get_free_indices() const;
+	ex conjugate() const;
 protected:
 	ex derivative(const symbol & s) const;
 	ex eval_ncmul(const exvector & v) const;

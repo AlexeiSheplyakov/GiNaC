@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's symbolic exponentiation (basis^exponent). */
 
 /*
- *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -556,6 +556,16 @@ ex power::subs(const exmap & m, unsigned options) const
 ex power::eval_ncmul(const exvector & v) const
 {
 	return inherited::eval_ncmul(v);
+}
+
+ex power::conjugate() const
+{
+	ex newbasis = basis.conjugate();
+	ex newexponent = exponent.conjugate();
+	if (are_ex_trivially_equal(basis, newbasis) && are_ex_trivially_equal(exponent, newexponent)) {
+		return *this;
+	}
+	return (new power(newbasis, newexponent))->setflag(status_flags::dynallocated);
 }
 
 // protected

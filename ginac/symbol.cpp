@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's symbolic objects. */
 
 /*
- *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@
 #include "archive.h"
 #include "tostring.h"
 #include "utils.h"
+#include "inifcns.h"
 
 namespace GiNaC {
 
@@ -42,7 +43,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(symbol, basic,
 //////////
 
 symbol::symbol()
- : inherited(TINFO_symbol), asexinfop(new assigned_ex_info), serial(next_serial++), name(autoname_prefix() + ToString(serial)), TeX_name(name), ret_type(return_types::commutative), ret_type_tinfo(TINFO_symbol)
+ : inherited(TINFO_symbol), asexinfop(new assigned_ex_info), serial(next_serial++), name(autoname_prefix() + ToString(serial)), TeX_name(name), ret_type(return_types::commutative), ret_type_tinfo(TINFO_symbol), domain(symbol_options::complex)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
@@ -53,26 +54,26 @@ symbol::symbol()
 
 // public
 
-symbol::symbol(const std::string & initname)
- : inherited(TINFO_symbol), asexinfop(new assigned_ex_info), serial(next_serial++), name(initname), TeX_name(default_TeX_name()), ret_type(return_types::commutative), ret_type_tinfo(TINFO_symbol)
+symbol::symbol(const std::string & initname, unsigned domain)
+ : inherited(TINFO_symbol), asexinfop(new assigned_ex_info), serial(next_serial++), name(initname), TeX_name(default_TeX_name()), ret_type(return_types::commutative), ret_type_tinfo(TINFO_symbol), domain(domain)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
-symbol::symbol(const std::string & initname, const std::string & texname)
- : inherited(TINFO_symbol), asexinfop(new assigned_ex_info), serial(next_serial++), name(initname), TeX_name(texname), ret_type(return_types::commutative), ret_type_tinfo(TINFO_symbol)
+symbol::symbol(const std::string & initname, const std::string & texname, unsigned domain)
+ : inherited(TINFO_symbol), asexinfop(new assigned_ex_info), serial(next_serial++), name(initname), TeX_name(texname), ret_type(return_types::commutative), ret_type_tinfo(TINFO_symbol), domain(domain)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
-symbol::symbol(const std::string & initname, unsigned rt, unsigned rtt)
- : inherited(TINFO_symbol), asexinfop(new assigned_ex_info), serial(next_serial++), name(initname), TeX_name(default_TeX_name()), ret_type(rt), ret_type_tinfo(rtt)
+symbol::symbol(const std::string & initname, unsigned rt, unsigned rtt, unsigned domain)
+ : inherited(TINFO_symbol), asexinfop(new assigned_ex_info), serial(next_serial++), name(initname), TeX_name(default_TeX_name()), ret_type(rt), ret_type_tinfo(rtt), domain(domain)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
-symbol::symbol(const std::string & initname, const std::string & texname, unsigned rt, unsigned rtt)
- : inherited(TINFO_symbol), asexinfop(new assigned_ex_info), serial(next_serial++), name(initname), TeX_name(texname), ret_type(rt), ret_type_tinfo(rtt)
+symbol::symbol(const std::string & initname, const std::string & texname, unsigned rt, unsigned rtt, unsigned domain)
+ : inherited(TINFO_symbol), asexinfop(new assigned_ex_info), serial(next_serial++), name(initname), TeX_name(texname), ret_type(rt), ret_type_tinfo(rtt), domain(domain)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
@@ -83,12 +84,14 @@ symbol::symbol(const std::string & initname, const std::string & texname, unsign
 
 /** Construct object from archive_node. */
 symbol::symbol(const archive_node &n, lst &sym_lst)
- : inherited(n, sym_lst), asexinfop(new assigned_ex_info), serial(next_serial++), ret_type(return_types::commutative), ret_type_tinfo(TINFO_symbol)
+ : inherited(n, sym_lst), asexinfop(new assigned_ex_info), serial(next_serial++)
 {
-	if (!(n.find_string("name", name)))
+	if (!n.find_string("name", name))
 		name = autoname_prefix() + ToString(serial);
-	if (!(n.find_string("TeXname", TeX_name)))
+	if (!n.find_string("TeXname", TeX_name))
 		TeX_name = default_TeX_name();
+	if (!n.find_unsigned("domain", domain))
+		domain = symbol_options::complex;
 	if (!n.find_unsigned("return_type", ret_type))
 		ret_type = return_types::commutative;
 	if (!n.find_unsigned("return_type_tinfo", ret_type_tinfo))
@@ -119,6 +122,8 @@ void symbol::archive(archive_node &n) const
 	n.add_string("name", name);
 	if (TeX_name != default_TeX_name())
 		n.add_string("TeX_name", TeX_name);
+	if (domain != symbol_options::complex)
+		n.add_unsigned("domain", domain);
 	if (ret_type != return_types::commutative)
 		n.add_unsigned("return_type", ret_type);
 	if (ret_type_tinfo != TINFO_symbol)
@@ -146,6 +151,7 @@ void symbol::do_print_tree(const print_tree & c, unsigned level) const
 	c.s << std::string(level, ' ') << name << " (" << class_name() << ")" << " @" << this
 	    << ", serial=" << serial
 	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+	    << ", domain=" << domain
 	    << std::endl;
 }
 
@@ -184,6 +190,15 @@ ex symbol::eval(int level) const
 			return (asexinfop->assigned_expression).eval(level);
 	} else {
 		return this->hold();
+	}
+}
+
+ex symbol::conjugate() const
+{
+	if (this->domain == symbol_options::complex) {
+		return GiNaC::conjugate(*this).hold();
+	} else {
+		return *this;
 	}
 }
 

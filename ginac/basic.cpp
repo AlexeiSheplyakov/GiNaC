@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's ABC. */
 
 /*
- *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -672,6 +672,11 @@ ex basic::diff(const symbol & s, unsigned nth) const
 exvector basic::get_free_indices() const
 {
 	return exvector(); // return an empty exvector
+}
+
+ex basic::conjugate() const
+{
+	return *this;
 }
 
 ex basic::eval_ncmul(const exvector & v) const

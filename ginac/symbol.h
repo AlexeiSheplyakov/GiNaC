@@ -3,7 +3,7 @@
  *  Interface to GiNaC's symbolic objects. */
 
 /*
- *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -54,10 +54,10 @@ class symbol : public basic
 	
 	// other constructors
 public:
-	explicit symbol(const std::string & initname);
-	symbol(const std::string & initname, const std::string & texname);
-	symbol(const std::string & initname, unsigned rt, unsigned rtt);
-	symbol(const std::string & initname, const std::string & texname, unsigned rt, unsigned rtt);
+	explicit symbol(const std::string & initname, unsigned domain = symbol_options::complex);
+	symbol(const std::string & initname, const std::string & texname, unsigned domain = symbol_options::complex);
+	symbol(const std::string & initname, unsigned rt, unsigned rtt, unsigned domain = symbol_options::complex);
+	symbol(const std::string & initname, const std::string & texname, unsigned rt, unsigned rtt, unsigned domain = symbol_options::complex);
 	
 	// functions overriding virtual functions from base classes
 public:
@@ -71,6 +71,7 @@ public:
 	ex to_polynomial(exmap & repl) const;
 	unsigned return_type() const { return ret_type; }
 	unsigned return_type_tinfo() const { return ret_type_tinfo; }
+	ex conjugate() const;
 protected:
 	ex derivative(const symbol & s) const;
 	bool is_equal_same_type(const basic & other) const;
@@ -82,6 +83,7 @@ public:
 	void unassign();
 	void set_name(const std::string & n) { name = n; }
 	std::string get_name() const { return name; }
+	unsigned get_domain() const { return domain; }
 protected:
 	void do_print(const print_context & c, unsigned level) const;
 	void do_print_latex(const print_latex & c, unsigned level) const;
@@ -98,6 +100,7 @@ protected:
 	unsigned serial;                 ///< unique serial number for comparison
 	std::string name;                ///< printname of this symbol
 	std::string TeX_name;            ///< LaTeX name of this symbol
+	unsigned domain;                 ///< domain of symbol, complex (default) or real
 	unsigned ret_type;               ///< value returned by return_type()
 	unsigned ret_type_tinfo;         ///< value returned by return_type_tinfo()
 private:

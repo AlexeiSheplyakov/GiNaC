@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's non-commutative products of expressions. */
 
 /*
- *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -454,6 +454,25 @@ ex ncmul::thiscontainer(const exvector & v) const
 ex ncmul::thiscontainer(std::auto_ptr<exvector> vp) const
 {
 	return (new ncmul(vp))->setflag(status_flags::dynallocated);
+}
+
+ex ncmul::conjugate() const
+{
+	if (return_type() != return_types::noncommutative) {
+		return exprseq::conjugate();
+	}
+
+	if (return_type_tinfo() & 0xffffff00U != TINFO_clifford) {
+		return exprseq::conjugate();
+	}
+
+	exvector ev;
+	ev.reserve(nops());
+	for (const_iterator i=end(); i!=begin();) {
+		--i;
+		ev.push_back(i->conjugate());
+	}
+	return (new ncmul(ev, true))->setflag(status_flags::dynallocated).eval();
 }
 
 // protected

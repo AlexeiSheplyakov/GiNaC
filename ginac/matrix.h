@@ -3,7 +3,7 @@
  *  Interface to symbolic matrices */
 
 /*
- *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -120,6 +120,7 @@ public:
 	ex add_indexed(const ex & self, const ex & other) const;
 	ex scalar_mul_indexed(const ex & self, const numeric & other) const;
 	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
+	ex conjugate() const;
 
 protected:
 	bool match_same_type(const basic & other) const;

@@ -3,7 +3,7 @@
  *  Interface to class for extended truncated power series. */
 
 /*
- *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -55,6 +55,7 @@ public:
 	ex subs(const exmap & m, unsigned options = 0) const;
 	ex normal(exmap & repl, exmap & rev_lookup, int level = 0) const;
 	ex expand(unsigned options = 0) const;
+	ex conjugate() const;
 protected:
 	ex derivative(const symbol & s) const;
 

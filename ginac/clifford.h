@@ -3,7 +3,7 @@
  *  Interface to GiNaC's clifford algebra (Dirac gamma) objects. */
 
 /*
- *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -104,6 +104,9 @@ class diracgamma5 : public tensor
 {
 	GINAC_DECLARE_REGISTERED_CLASS(diracgamma5, tensor)
 
+	// functions overriding virtual functions from base classes
+	ex conjugate() const;
+
 	// non-virtual functions in this class
 protected:
 	void do_print(const print_context & c, unsigned level) const;
@@ -117,6 +120,9 @@ class diracgammaL : public tensor
 {
 	GINAC_DECLARE_REGISTERED_CLASS(diracgammaL, tensor)
 
+	// functions overriding virtual functions from base classes
+	ex conjugate() const;
+
 	// non-virtual functions in this class
 protected:
 	void do_print(const print_context & c, unsigned level) const;
@@ -129,6 +135,9 @@ protected:
 class diracgammaR : public tensor
 {
 	GINAC_DECLARE_REGISTERED_CLASS(diracgammaR, tensor)
+
+	// functions overriding virtual functions from base classes
+	ex conjugate() const;
 
 	// non-virtual functions in this class
 protected:

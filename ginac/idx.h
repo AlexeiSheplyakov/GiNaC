@@ -3,7 +3,7 @@
  *  Interface to GiNaC's indices. */
 
 /*
- *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -172,6 +172,8 @@ public:
 	// functions overriding virtual functions from base classes
 public:
 	bool is_dummy_pair_same_type(const basic & other) const;
+	// complex conjugation
+	ex conjugate() const { return toggle_dot(); }
 
 protected:
 	bool match_same_type(const basic & other) const;

@@ -1,3 +1,23 @@
+#  This perl script automatically generates function.h and function.cpp
+
+#  function.pl options: \$maxargs=${maxargs}
+# 
+#  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
+# 
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+# 
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+# 
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
 $maxargs=14;
 
 sub generate_seq {
@@ -54,6 +74,10 @@ $typedef_evalf_funcp=generate(
 'typedef ex (* evalf_funcp_${N})(${SEQ1});'."\n",
 'const ex &','','');
 
+$typedef_conjugate_funcp=generate(
+'typedef ex (* conjugate_funcp_${N})(${SEQ1});'."\n",
+'const ex &','','');
+
 $typedef_derivative_funcp=generate(
 'typedef ex (* derivative_funcp_${N})(${SEQ1}, unsigned);'."\n",
 'const ex &','','');
@@ -69,6 +93,8 @@ $typedef_print_funcp=generate(
 $eval_func_interface=generate('    function_options & eval_func(eval_funcp_${N} e);'."\n",'','','');
 
 $evalf_func_interface=generate('    function_options & evalf_func(evalf_funcp_${N} ef);'."\n",'','','');
+
+$conjugate_func_interface=generate('    function_options & conjugate_func(conjugate_funcp_${N} d);'."\n",'','','');
 
 $derivative_func_interface=generate('    function_options & derivative_func(derivative_funcp_${N} d);'."\n",'','','');
 
@@ -109,6 +135,12 @@ $evalf_switch_statement=generate(
 	case ${N}:
 		return ((evalf_funcp_${N})(opt.evalf_f))(${SEQ1});
 END_OF_EVALF_SWITCH_STATEMENT
+
+$conjugate_switch_statement=generate(
+	<<'END_OF_DIFF_SWITCH_STATEMENT','seq[${N}-1]','','');
+	case ${N}:
+		return ((conjugate_funcp_${N})(opt.conjugate_f))(${SEQ1});
+END_OF_DIFF_SWITCH_STATEMENT
 
 $diff_switch_statement=generate(
 	<<'END_OF_DIFF_SWITCH_STATEMENT','seq[${N}-1]','','');
@@ -154,6 +186,16 @@ function_options & function_options::evalf_func(evalf_funcp_${N} ef)
 }
 END_OF_EVALF_FUNC_IMPLEMENTATION
 
+$conjugate_func_implementation=generate(
+	<<'END_OF_CONJUGATE_FUNC_IMPLEMENTATION','','','');
+function_options & function_options::conjugate_func(conjugate_funcp_${N} c)
+{
+	test_and_set_nparams(${N});
+	conjugate_f = conjugate_funcp(c);
+	return *this;
+}
+END_OF_CONJUGATE_FUNC_IMPLEMENTATION
+
 $derivative_func_implementation=generate(
 	<<'END_OF_DERIVATIVE_FUNC_IMPLEMENTATION','','','');
 function_options & function_options::derivative_func(derivative_funcp_${N} d)
@@ -184,7 +226,7 @@ $interface=<<END_OF_INTERFACE;
  *  Please do not modify it directly, edit the perl script instead!
  *  function.pl options: \$maxargs=${maxargs}
  *
- *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -227,6 +269,7 @@ class symmetry;
 
 typedef ex (* eval_funcp)();
 typedef ex (* evalf_funcp)();
+typedef ex (* conjugate_funcp)();
 typedef ex (* derivative_funcp)();
 typedef ex (* series_funcp)();
 typedef void (* print_funcp)();
@@ -234,6 +277,7 @@ typedef void (* print_funcp)();
 // the following lines have been generated for max. ${maxargs} parameters
 $typedef_eval_funcp
 $typedef_evalf_funcp
+$typedef_conjugate_funcp
 $typedef_derivative_funcp
 $typedef_series_funcp
 $typedef_print_funcp
@@ -243,6 +287,7 @@ $typedef_print_funcp
 // of individual ex objects.  Then, the number of arguments is not limited.
 typedef ex (* eval_funcp_exvector)(const exvector &);
 typedef ex (* evalf_funcp_exvector)(const exvector &);
+typedef ex (* conjugate_funcp_exvector)(const exvector &);
 typedef ex (* derivative_funcp_exvector)(const exvector &, unsigned);
 typedef ex (* series_funcp_exvector)(const exvector &, const relational &, int, unsigned);
 typedef void (* print_funcp_exvector)(const exvector &, const print_context &);
@@ -264,12 +309,14 @@ public:
 // the following lines have been generated for max. ${maxargs} parameters
 $eval_func_interface
 $evalf_func_interface
+$conjugate_func_interface
 $derivative_func_interface
 $series_func_interface
 $print_func_interface
 // end of generated lines
 	function_options & eval_func(eval_funcp_exvector e);
 	function_options & evalf_func(evalf_funcp_exvector ef);
+	function_options & conjugate_func(conjugate_funcp_exvector d);
 	function_options & derivative_func(derivative_funcp_exvector d);
 	function_options & series_func(series_funcp_exvector s);
 
@@ -302,6 +349,7 @@ protected:
 
 	eval_funcp eval_f;
 	evalf_funcp evalf_f;
+	conjugate_funcp conjugate_f;
 	derivative_funcp derivative_f;
 	series_funcp series_f;
 	std::vector<print_funcp> print_dispatch_table;
@@ -319,6 +367,7 @@ protected:
 
 	bool eval_use_exvector_args;
 	bool evalf_use_exvector_args;
+	bool conjugate_use_exvector_args;
 	bool derivative_use_exvector_args;
 	bool series_use_exvector_args;
 	bool print_use_exvector_args;
@@ -372,6 +421,7 @@ public:
 	ex series(const relational & r, int order, unsigned options = 0) const;
 	ex thiscontainer(const exvector & v) const;
 	ex thiscontainer(std::auto_ptr<exvector> vp) const;
+	ex conjugate() const;
 protected:
 	ex derivative(const symbol & s) const;
 	bool is_equal_same_type(const basic & other) const;
@@ -435,7 +485,7 @@ $implementation=<<END_OF_IMPLEMENTATION;
  *  Please do not modify it directly, edit the perl script instead!
  *  function.pl options: \$maxargs=${maxargs}
  *
- *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -496,11 +546,12 @@ void function_options::initialize()
 {
 	set_name("unnamed_function", "\\\\mbox{unnamed}");
 	nparams = 0;
-	eval_f = evalf_f = derivative_f = series_f = 0;
+	eval_f = evalf_f = conjugate_f = derivative_f = series_f = 0;
 	evalf_params_first = true;
 	use_return_type = false;
 	eval_use_exvector_args = false;
 	evalf_use_exvector_args = false;
+	conjugate_use_exvector_args = false;
 	derivative_use_exvector_args = false;
 	series_use_exvector_args = false;
 	print_use_exvector_args = false;
@@ -529,6 +580,7 @@ function_options & function_options::latex_name(std::string const & tn)
 // the following lines have been generated for max. ${maxargs} parameters
 $eval_func_implementation
 $evalf_func_implementation
+$conjugate_func_implementation
 $derivative_func_implementation
 $series_func_implementation
 // end of generated lines
@@ -543,6 +595,12 @@ function_options& function_options::evalf_func(evalf_funcp_exvector ef)
 {
 	evalf_use_exvector_args = true;
 	evalf_f = evalf_funcp(ef);
+	return *this;
+}
+function_options& function_options::conjugate_func(conjugate_funcp_exvector c)
+{
+	conjugate_use_exvector_args = true;
+	conjugate_f = conjugate_funcp(c);
 	return *this;
 }
 function_options& function_options::derivative_func(derivative_funcp_exvector d)
@@ -924,6 +982,28 @@ ${series_switch_statement}
 		// end of generated lines
 	}
 	throw(std::logic_error("function::series(): invalid nparams"));
+}
+
+/** Implementation of ex::conjugate for functions. */
+ex function::conjugate() const
+{
+	GINAC_ASSERT(serial<registered_functions().size());
+	const function_options & opt = registered_functions()[serial];
+
+	if (opt.conjugate_f==0) {
+		return exprseq::conjugate();
+	}
+
+	if (opt.conjugate_use_exvector_args) {
+		return ((conjugate_funcp_exvector)(opt.conjugate_f))(seq);
+	}
+
+	switch (opt.nparams) {
+		// the following lines have been generated for max. ${maxargs} parameters
+${conjugate_switch_statement}
+		// end of generated lines
+	}
+	throw(std::logic_error("function::conjugate(): invalid nparams"));
 }
 
 // protected

@@ -3,7 +3,7 @@
  *  Implementation of sequences of expression pairs. */
 
 /*
- *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -308,6 +308,42 @@ ex expairseq::eval(int level) const
 		return this->hold();
 	
 	return (new expairseq(vp, overall_coeff))->setflag(status_flags::dynallocated | status_flags::evaluated);
+}
+
+epvector* conjugateepvector(const epvector&epv)
+{
+	epvector *newepv = 0;
+	for (epvector::const_iterator i=epv.begin(); i!=epv.end(); ++i) {
+		if(newepv) {
+			newepv->push_back(i->conjugate());
+			continue;
+		}
+		expair x = i->conjugate();
+		if (x.is_equal(*i)) {
+			continue;
+		}
+		newepv = new epvector;
+		newepv->reserve(epv.size());
+		for (epvector::const_iterator j=epv.begin(); j!=i; ++j) {
+			newepv->push_back(*j);
+		}
+		newepv->push_back(x);
+	}
+	return newepv;
+}
+
+ex expairseq::conjugate() const
+{
+	epvector* newepv = conjugateepvector(seq);
+	ex x = overall_coeff.conjugate();
+	if (!newepv && are_ex_trivially_equal(x, overall_coeff)) {
+		return *this;
+	}
+	ex result = thisexpairseq(newepv ? *newepv : seq, x);
+	if (newepv) {
+		delete newepv;
+	}
+	return result;
 }
 
 bool expairseq::match(const ex & pattern, lst & repl_lst) const

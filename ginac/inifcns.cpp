@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's initially known functions. */
 
 /*
- *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -40,6 +40,38 @@
 namespace GiNaC {
 
 //////////
+// complex conjugate
+//////////
+
+static ex conjugate_evalf(const ex & arg)
+{
+	if (is_exactly_a<numeric>(arg)) {
+		return ex_to<numeric>(arg).conjugate();
+	}
+	return conjugate(arg).hold();
+}
+
+static ex conjugate_eval(const ex & arg)
+{
+	return arg.conjugate();
+}
+
+static void conjugate_print_latex(const ex & arg, const print_context & c)
+{
+	c.s << "\bar{"; arg.print(c); c.s << "}";
+}
+
+static ex conjugate_conjugate(const ex & arg)
+{
+	return arg;
+}
+
+REGISTER_FUNCTION(conjugate, eval_func(conjugate_eval).
+                       evalf_func(conjugate_evalf).
+                       print_func<print_latex>(conjugate_print_latex).
+                       conjugate_func(conjugate_conjugate));
+
+//////////
 // absolute value
 //////////
 
@@ -69,11 +101,17 @@ static void abs_print_csrc_float(const ex & arg, const print_context & c)
 	c.s << "fabs("; arg.print(c); c.s << ")";
 }
 
+static ex abs_conjugate(const ex & arg)
+{
+	return abs(arg);
+}
+
 REGISTER_FUNCTION(abs, eval_func(abs_eval).
                        evalf_func(abs_evalf).
                        print_func<print_latex>(abs_print_latex).
                        print_func<print_csrc_float>(abs_print_csrc_float).
-                       print_func<print_csrc_double>(abs_print_csrc_float));
+                       print_func<print_csrc_double>(abs_print_csrc_float).
+                       conjugate_func(abs_conjugate));
 
 
 //////////
@@ -133,9 +171,15 @@ static ex csgn_series(const ex & arg,
 	return pseries(rel,seq);
 }
 
+static ex csgn_conjugate(const ex& arg)
+{
+	return csgn(arg);
+}
+
 REGISTER_FUNCTION(csgn, eval_func(csgn_eval).
                         evalf_func(csgn_evalf).
-                        series_func(csgn_series));
+                        series_func(csgn_series).
+                        conjugate_func(csgn_conjugate));
 
 
 //////////
@@ -210,11 +254,17 @@ static ex eta_series(const ex & x, const ex & y,
 	return pseries(rel,seq);
 }
 
+static ex eta_conjugate(const ex & x, const ex & y)
+{
+	return -eta(x,y);
+}
+
 REGISTER_FUNCTION(eta, eval_func(eta_eval).
                        evalf_func(eta_evalf).
                        series_func(eta_series).
                        latex_name("\\eta").
-                       set_symmetry(sy_symm(0, 1)));
+                       set_symmetry(sy_symm(0, 1)).
+                       conjugate_func(eta_conjugate));
 
 
 //////////
@@ -416,8 +466,14 @@ static ex factorial_eval(const ex & x)
 		return factorial(x).hold();
 }
 
+static ex factorial_conjugate(const ex & x)
+{
+	return factorial(x);
+}
+
 REGISTER_FUNCTION(factorial, eval_func(factorial_eval).
-                             evalf_func(factorial_evalf));
+                             evalf_func(factorial_evalf).
+                             conjugate_func(factorial_conjugate));
 
 //////////
 // binomial
@@ -436,8 +492,17 @@ static ex binomial_eval(const ex & x, const ex &y)
 		return binomial(x, y).hold();
 }
 
+// At the moment the numeric evaluation of a binomail function always
+// gives a real number, but if this would be implemented using the gamma
+// function, also complex conjugation should be changed (or rather, deleted).
+static ex binomial_conjugate(const ex & x, const ex & y)
+{
+	return binomial(x,y);
+}
+
 REGISTER_FUNCTION(binomial, eval_func(binomial_eval).
-                            evalf_func(binomial_evalf));
+                            evalf_func(binomial_evalf).
+                            conjugate_func(binomial_conjugate));
 
 //////////
 // Order term function (for truncated power series)
@@ -470,11 +535,17 @@ static ex Order_series(const ex & x, const relational & r, int order, unsigned o
 	return pseries(r, new_seq);
 }
 
+static ex Order_conjugate(const ex & x)
+{
+	return Order(x);
+}
+
 // Differentiation is handled in function::derivative because of its special requirements
 
 REGISTER_FUNCTION(Order, eval_func(Order_eval).
                          series_func(Order_series).
-                         latex_name("\\mathcal{O}"));
+                         latex_name("\\mathcal{O}").
+                         conjugate_func(Order_conjugate));
 
 //////////
 // Solve linear system

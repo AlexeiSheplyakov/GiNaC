@@ -3,7 +3,7 @@
  *  Wrapper template for making GiNaC classes out of STL containers. */
 
 /*
- *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -123,7 +123,6 @@ private:
 	container_init();
 	STLT & stlt;
 };
-
 
 /** Wrapper template for making GiNaC classes out of STL containers. */
 template <template <class> class C>
@@ -368,6 +367,32 @@ public:
 	ex subs(const exmap & m, unsigned options = 0) const;
 
 protected:
+	ex conjugate() const
+	{
+		STLT* newcont = 0;
+		for (const_iterator i=seq.begin(); i!=seq.end(); ++i) {
+			if (newcont) {
+				newcont->push_back(i->conjugate());
+				continue;
+			}
+			ex x = i->conjugate();
+			if (are_ex_trivially_equal(x, *i)) {
+				continue;
+			}
+			newcont = new STLT;
+			reserve (*newcont, seq.size());
+			for (const_iterator j=seq.begin(); j!=i; ++j) {
+				newcont->push_back(*j);
+			}
+			newcont->push_back(x);
+		}
+		if (newcont) {
+			ex result = thiscontainer(*newcont);
+			delete newcont;
+			return result;
+		}
+		return *this;
+	}
 	bool is_equal_same_type(const basic & other) const;
 
 	// new virtual functions which can be overridden by derived classes

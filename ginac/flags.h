@@ -3,7 +3,7 @@
  *  Collection of all flags used through the GiNaC framework. */
 
 /*
- *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -44,6 +44,17 @@ public:
 		subs_algebraic = 0x0002,  // for backwards compatibility
         pattern_is_product = 0x0004,     ///< used internally by expairseq::subschildren()
         pattern_is_not_product = 0x0008  ///< used internally by expairseq::subschildren()
+	};
+};
+
+/** Flags to decide how conjugate should treat a symbol */
+class symbol_options {
+public:
+	enum {
+		/** Symbol is treated like a complex valued expression */
+		complex,
+		/** Symbol is treated like a real valued expression */
+		real
 	};
 };
 

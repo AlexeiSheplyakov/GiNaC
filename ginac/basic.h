@@ -3,7 +3,7 @@
  *  Interface to GiNaC's ABC. */
 
 /*
- *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -182,7 +182,11 @@ public:
 	virtual unsigned return_type() const;
 	virtual unsigned return_type_tinfo() const;
 
-protected: // functions that should be called from class ex only
+	// complex conjugation
+	virtual ex conjugate() const;
+
+	// functions that should be called from class ex only
+protected:
 	virtual int compare_same_type(const basic & other) const;
 	virtual bool is_equal_same_type(const basic & other) const;
 

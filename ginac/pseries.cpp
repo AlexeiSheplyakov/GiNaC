@@ -4,7 +4,7 @@
  *  methods for series expansion. */
 
 /*
- *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -405,6 +405,23 @@ ex pseries::evalf(int level) const
 		++it;
 	}
 	return (new pseries(relational(var,point), new_seq))->setflag(status_flags::dynallocated | status_flags::evaluated);
+}
+
+ex pseries::conjugate() const
+{
+	epvector * newseq = conjugateepvector(seq);
+	ex newvar = var.conjugate();
+	ex newpoint = point.conjugate();
+
+	if (!newseq	&& are_ex_trivially_equal(newvar, var) && are_ex_trivially_equal(point, newpoint)) {
+		return *this;
+	}
+
+	ex result = (new pseries(newvar==newpoint, newseq ? *newseq : seq))->setflag(status_flags::dynallocated);
+	if (newseq) {
+		delete newseq;
+	}
+	return result;
 }
 
 ex pseries::subs(const exmap & m, unsigned options) const

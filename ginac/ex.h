@@ -3,7 +3,7 @@
  *  Interface to GiNaC's light-weight expression handles. */
 
 /*
- *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -131,6 +131,9 @@ public:
 	ex & operator[](size_t i);
 	ex lhs() const;
 	ex rhs() const;
+
+	// complex conjugation
+	ex conjugate() const { return bp->conjugate(); }
 
 	// pattern matching
 	bool has(const ex & pattern) const { return bp->has(pattern); }

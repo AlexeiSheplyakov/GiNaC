@@ -3,7 +3,7 @@
  *  Interface to sequences of expression pairs. */
 
 /*
- *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -49,6 +49,10 @@ typedef epvector::iterator epp;             ///< expair-vector pointer
 typedef std::list<epp> epplist;             ///< list of expair-vector pointers
 typedef std::vector<epplist> epplistvector; ///< vector of epplist
 
+/** Complex conjugate every element of an epvector. Returns zero if this
+ *  does not change anything. */
+epvector* conjugateepvector(const epvector&);
+
 /** A sequence of class expair.
  *  This is used for time-critical classes like sums and products of terms
  *  since handling a list of coeff and rest is much faster than handling a
@@ -81,6 +85,7 @@ public:
 	ex to_polynomial(exmap & repl) const;
 	bool match(const ex & pattern, lst & repl_lst) const;
 	ex subs(const exmap & m, unsigned options = 0) const;
+	ex conjugate() const;
 protected:
 	bool is_equal_same_type(const basic & other) const;
 	unsigned return_type() const;

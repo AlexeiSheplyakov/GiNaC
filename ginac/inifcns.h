@@ -3,7 +3,7 @@
  *  Interface to GiNaC's initially known functions. */
 
 /*
- *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -28,6 +28,9 @@
 
 namespace GiNaC {
 
+/** Complex conjugate. */
+DECLARE_FUNCTION_1P(conjugate)
+	
 /** Absolute value. */
 DECLARE_FUNCTION_1P(abs)
 	

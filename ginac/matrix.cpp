@@ -3,7 +3,7 @@
  *  Implementation of symbolic matrices */
 
 /*
- *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -232,6 +232,34 @@ ex matrix::subs(const exmap & mp, unsigned options) const
 			m2[r*col+c] = m[r*col+c].subs(mp, options);
 
 	return matrix(row, col, m2).subs_one_level(mp, options);
+}
+
+/** Complex conjugate every matrix entry. */
+ex matrix::conjugate() const
+{
+	exvector * ev = 0;
+	for (exvector::const_iterator i=m.begin(); i!=m.end(); ++i) {
+		ex x = i->conjugate();
+		if (ev) {
+			ev->push_back(x);
+			continue;
+		}
+		if (are_ex_trivially_equal(x, *i)) {
+			continue;
+		}
+		ev = new exvector;
+		ev->reserve(m.size());
+		for (exvector::const_iterator j=m.begin(); j!=i; ++j) {
+			ev->push_back(*j);
+		}
+		ev->push_back(x);
+	}
+	if (ev) {
+		ex result = matrix(row, col, *ev);
+		delete ev;
+		return result;
+	}
+	return *this;
 }
 
 // protected

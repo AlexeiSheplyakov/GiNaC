@@ -3,7 +3,7 @@
  *  Definition of expression pairs (building blocks of expairseq). */
 
 /*
- *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2004 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -84,7 +84,9 @@ public:
 		rest.swap(other.rest);
 		coeff.swap(other.coeff);
 	}
-	
+
+	const expair conjugate() const;
+
 	ex rest;    ///< first member of pair, an arbitrary expression
 	ex coeff;   ///< second member of pair, must be numeric
 };
