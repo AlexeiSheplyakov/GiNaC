@@ -206,6 +206,7 @@ ${constructors_interface}
 
 public:
 	void print(const print_context & c, unsigned level = 0) const;
+	unsigned precedence(void) const {return 10;}
 	bool info(unsigned inf) const;
 	unsigned nops() const;
 	ex & let_op(int i);
@@ -241,7 +242,6 @@ protected:
 
 protected:
 	${STLT} seq;
-	static unsigned precedence;
 };
 
 // utility functions
@@ -418,7 +418,7 @@ void ${CONTAINER}::print(const print_context & c, unsigned level) const
 
 	} else {
 		// always print brackets around seq, ignore upper_precedence
-		printseq(c, '${open_bracket}', ',', '${close_bracket}', precedence, precedence+1);
+		printseq(c, '${open_bracket}', ',', '${close_bracket}', precedence(), precedence()+1);
 	}
 }
 
@@ -725,14 +725,6 @@ ${STLT} * ${CONTAINER}::subschildren(const lst & ls, const lst & lr) const
 	
 	return 0; // nothing has changed
 }
-
-//////////
-// static member variables
-//////////
-
-// protected
-
-unsigned ${CONTAINER}::precedence = 10;
 
 } // namespace GiNaC
 

@@ -121,7 +121,7 @@ void add::print(const print_context & c, unsigned level) const
 
 	} else if (is_of_type(c, print_csrc)) {
 
-		if (precedence <= level)
+		if (precedence() <= level)
 			c.s << "(";
 	
 		// Print arguments, separated by "+"
@@ -130,23 +130,23 @@ void add::print(const print_context & c, unsigned level) const
 		
 			// If the coefficient is -1, it is replaced by a single minus sign
 			if (it->coeff.compare(_num1()) == 0) {
-				it->rest.bp->print(c, precedence);
+				it->rest.bp->print(c, precedence());
 			} else if (it->coeff.compare(_num_1()) == 0) {
 				c.s << "-";
-				it->rest.bp->print(c, precedence);
+				it->rest.bp->print(c, precedence());
 			} else if (ex_to_numeric(it->coeff).numer().compare(_num1()) == 0) {
-				it->rest.bp->print(c, precedence);
+				it->rest.bp->print(c, precedence());
 				c.s << "/";
-				ex_to_numeric(it->coeff).denom().print(c, precedence);
+				ex_to_numeric(it->coeff).denom().print(c, precedence());
 			} else if (ex_to_numeric(it->coeff).numer().compare(_num_1()) == 0) {
 				c.s << "-";
-				it->rest.bp->print(c, precedence);
+				it->rest.bp->print(c, precedence());
 				c.s << "/";
-				ex_to_numeric(it->coeff).denom().print(c, precedence);
+				ex_to_numeric(it->coeff).denom().print(c, precedence());
 			} else {
-				it->coeff.bp->print(c, precedence);
+				it->coeff.bp->print(c, precedence());
 				c.s << "*";
-				it->rest.bp->print(c, precedence);
+				it->rest.bp->print(c, precedence());
 			}
 		
 			// Separator is "+", except if the following expression would have a leading minus sign
@@ -158,15 +158,15 @@ void add::print(const print_context & c, unsigned level) const
 		if (!overall_coeff.is_zero()) {
 			if (overall_coeff.info(info_flags::positive))
 				c.s << '+';
-			overall_coeff.bp->print(c, precedence);
+			overall_coeff.bp->print(c, precedence());
 		}
 	
-		if (precedence <= level)
+		if (precedence() <= level)
 			c.s << ")";
 
 	} else {
 
-		if (precedence <= level) {
+		if (precedence() <= level) {
 			if (is_of_type(c, print_latex))
 				c.s << "{(";
 			else
@@ -181,7 +181,7 @@ void add::print(const print_context & c, unsigned level) const
 			if (!is_of_type(c, print_tree))
 				overall_coeff.print(c, 0);
 			else
-				overall_coeff.print(c, precedence);
+				overall_coeff.print(c, precedence());
 			first = false;
 		}
 
@@ -204,20 +204,20 @@ void add::print(const print_context & c, unsigned level) const
 						coeff.print(c);
 				} else {
 					if (coeff.csgn() == -1)
-						(-coeff).print(c, precedence);
+						(-coeff).print(c, precedence());
 					else
-						coeff.print(c, precedence);
+						coeff.print(c, precedence());
 				}
 				if (is_of_type(c, print_latex))
 					c.s << ' ';
 				else
 					c.s << '*';
 			}
-			it->rest.print(c, precedence);
+			it->rest.print(c, precedence());
 			it++;
 		}
 
-		if (precedence <= level) {
+		if (precedence() <= level) {
 			if (is_of_type(c, print_latex))
 				c.s << ")}";
 			else
@@ -467,13 +467,5 @@ ex add::expand(unsigned options) const
 	
 	return (new add(vp,overall_coeff))->setflag(status_flags::expanded | status_flags::dynallocated);
 }
-
-//////////
-// static member variables
-//////////
-
-// protected
-
-unsigned add::precedence = 40;
 
 } // namespace GiNaC

@@ -189,16 +189,16 @@ void power::print(const print_context & c, unsigned level) const
 			else
 				c.s << ")";
 		} else {
-			if (precedence <= level) {
+			if (precedence() <= level) {
 				if (is_of_type(c, print_latex))
 					c.s << "{(";
 				else
 					c.s << "(";
 			}
-			basis.print(c, precedence);
+			basis.print(c, precedence());
 			c.s << "^";
-			exponent.print(c, precedence);
-			if (precedence <= level) {
+			exponent.print(c, precedence());
+			if (precedence() <= level) {
 				if (is_of_type(c, print_latex))
 					c.s << ")}";
 				else
@@ -829,14 +829,6 @@ ex power::expand_noncommutative(const ex & basis, const numeric & exponent,
 	       expand(options | expand_options::internal_do_not_expand_mul_operands);
 }
 */
-
-//////////
-// static member variables
-//////////
-
-// protected
-
-unsigned power::precedence = 60;
 
 // helper function
 

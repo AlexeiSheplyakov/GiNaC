@@ -54,6 +54,7 @@ public:
 	// functions overriding virtual functions from bases classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
+	unsigned precedence(void) const {return 50;}
 	bool info(unsigned inf) const;
 	int degree(const ex & s) const;
 	int ldegree(const ex & s) const;
@@ -78,11 +79,6 @@ protected:
 	exvector expandchildren(unsigned options) const;
 public:
 	const exvector & get_factors(void) const;
-
-// member variables
-
-protected:
-	static unsigned precedence;
 };
 
 // friend funtions 

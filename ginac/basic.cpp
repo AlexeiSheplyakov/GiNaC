@@ -154,6 +154,12 @@ void basic::dbgprinttree(void) const
 	this->print(print_tree(std::cerr));
 }
 
+/** Return relative operator precedence (for parenthizing output). */
+unsigned basic::precedence(void) const
+{
+	return 70;
+}
+
 /** Create a new copy of this on the heap.  One can think of this as simulating
  *  a virtual copy constructor which is needed for instance by the refcounted
  *  construction of an ex from a basic. */
@@ -634,14 +640,6 @@ void basic::ensure_if_modifiable(void) const
 	if (this->refcount>1)
 		throw(std::runtime_error("cannot modify multiply referenced object"));
 }
-
-//////////
-// static member variables
-//////////
-
-// protected
-
-unsigned basic::precedence = 70;
 
 //////////
 // global variables

@@ -107,9 +107,9 @@ void relational::print(const print_context & c, unsigned level) const
 
 	} else {
 
-		if (precedence <= level)
+		if (precedence() <= level)
 			c.s << "(";
-		lh.print(c, precedence);
+		lh.print(c, precedence());
 		switch (o) {
 		case equal:
 			c.s << "==";
@@ -132,8 +132,8 @@ void relational::print(const print_context & c, unsigned level) const
 		default:
 			c.s << "(INVALID RELATIONAL OPERATOR)";
 		}
-		rh.print(c, precedence);
-		if (precedence <= level)
+		rh.print(c, precedence());
+		if (precedence() <= level)
 			c.s << ")";
 	}
 }
@@ -281,13 +281,5 @@ relational::operator bool() const
 		throw(std::logic_error("invalid relational operator"));
 	}
 }
-
-//////////
-// static member variables
-//////////
-
-// protected
-
-unsigned relational::precedence = 20;
 
 } // namespace GiNaC

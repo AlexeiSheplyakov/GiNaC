@@ -126,15 +126,15 @@ void ncmul::print(const print_context & c, unsigned level) const
 		c.s << "ncmul(";
 		exvector::const_iterator it = seq.begin(), itend = seq.end()-1;
 		while (it != itend) {
-			it->print(c, precedence);
+			it->print(c, precedence());
 			c.s << ",";
 			it++;
 		}
-		it->print(c, precedence);
+		it->print(c, precedence());
 		c.s << ")";
 
 	} else
-		printseq(c, '(', '*', ')', precedence, level);
+		printseq(c, '(', '*', ')', precedence(), level);
 }
 
 bool ncmul::info(unsigned inf) const
@@ -529,14 +529,6 @@ const exvector & ncmul::get_factors(void) const
 {
 	return seq;
 }
-
-//////////
-// static member variables
-//////////
-
-// protected
-
-unsigned ncmul::precedence = 50;
 
 //////////
 // friend functions

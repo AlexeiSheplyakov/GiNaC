@@ -85,6 +85,7 @@ public:
 	// functions overriding virtual functions from bases classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
+	unsigned precedence(void) const {return 30;}
 	bool info(unsigned inf) const;
 	bool has(const ex &other) const;
 	ex eval(int level = 0) const;
@@ -160,7 +161,6 @@ public:
 // member variables
 
 protected:
-	static unsigned precedence;
 	cln::cl_number value;
 };
 

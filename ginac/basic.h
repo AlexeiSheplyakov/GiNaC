@@ -103,6 +103,7 @@ public: // only const functions please (may break reference counting)
 	virtual void print(const print_context & c, unsigned level = 0) const;
 	virtual void dbgprint(void) const;
 	virtual void dbgprinttree(void) const;
+	virtual unsigned precedence(void) const;
 	virtual bool info(unsigned inf) const;
 	virtual unsigned nops() const;
 	virtual ex op(int i) const;
@@ -162,7 +163,6 @@ protected:
 	unsigned tinfo_key;                 ///< typeinfo
 	mutable unsigned flags;             ///< of type status_flags
 	mutable unsigned hashvalue;         ///< hash value
-	static unsigned precedence;         ///< precedence for printing parens
 private:
 	unsigned refcount;                  ///< Number of reference counts
 };

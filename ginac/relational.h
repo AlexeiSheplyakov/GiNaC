@@ -52,6 +52,7 @@ public:
 	// functions overriding virtual functions from bases classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
+	unsigned precedence(void) const {return 20;}
 	bool info(unsigned inf) const;
 	unsigned nops() const;
 	ex & let_op(int i);
@@ -78,7 +79,6 @@ protected:
 	ex lh;
 	ex rh;
 	operators o;
-	static unsigned precedence;
 };
 
 // utility functions

@@ -88,6 +88,7 @@ public:
 public:
 	basic * duplicate() const;
 	void print(const print_context & c, unsigned level = 0) const;
+	unsigned precedence(void) const {return 10;}
 	bool info(unsigned inf) const;
 	unsigned nops() const;
 	ex op(int i) const;
@@ -174,7 +175,6 @@ protected:
 protected:
 	epvector seq;
 	ex overall_coeff;
-	static unsigned precedence;
 #if EXPAIRSEQ_USE_HASHTAB
 	epplistvector hashtab;
 	unsigned hashtabsize;

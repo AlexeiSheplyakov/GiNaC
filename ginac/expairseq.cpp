@@ -267,7 +267,7 @@ void expairseq::print(const print_context & c, unsigned level) const
 
 	} else {
 		c.s << "[[";
-		printseq(c, ',', precedence, level);
+		printseq(c, ',', precedence(), level);
 		c.s << "]]";
 	}
 }
@@ -540,9 +540,9 @@ ex expairseq::thisexpairseq(epvector *vp, const ex &oc) const
 void expairseq::printpair(const print_context & c, const expair & p, unsigned upper_precedence) const
 {
 	c.s << "[[";
-	p.rest.bp->print(c, precedence);
+	p.rest.bp->print(c, precedence());
 	c.s << ",";
-	p.coeff.bp->print(c, precedence);
+	p.coeff.bp->print(c, precedence());
 	c.s << "]]";
 }
 
@@ -1630,10 +1630,6 @@ epvector * expairseq::subschildren(const lst &ls, const lst &lr) const
 //////////
 // static member variables
 //////////
-
-// protected
-
-unsigned expairseq::precedence = 10;
 
 #if EXPAIRSEQ_USE_HASHTAB
 unsigned expairseq::maxhashtabsize = 0x4000000U;

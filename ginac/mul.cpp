@@ -136,11 +136,11 @@ void mul::print(const print_context & c, unsigned level) const
 
 	} else if (is_of_type(c, print_csrc)) {
 
-		if (precedence <= level)
+		if (precedence() <= level)
 			c.s << "(";
 
 		if (!overall_coeff.is_equal(_ex1())) {
-			overall_coeff.bp->print(c, precedence);
+			overall_coeff.bp->print(c, precedence());
 			c.s << "*";
 		}
 	
@@ -158,7 +158,7 @@ void mul::print(const print_context & c, unsigned level) const
 
 			// If the exponent is 1 or -1, it is left out
 			if (it->coeff.compare(_ex1()) == 0 || it->coeff.compare(_num_1()) == 0)
-				it->rest.print(c, precedence);
+				it->rest.print(c, precedence());
 			else {
 				// Outer parens around ex needed for broken gcc-2.95 parser:
 				(ex(power(it->rest, abs(ex_to_numeric(it->coeff))))).print(c, level);
@@ -174,12 +174,12 @@ void mul::print(const print_context & c, unsigned level) const
 			}
 		}
 
-		if (precedence <= level)
+		if (precedence() <= level)
 			c.s << ")";
 
 	} else {
 
-		if (precedence <= level) {
+		if (precedence() <= level) {
 			if (is_of_type(c, print_latex))
 				c.s << "{(";
 			else
@@ -201,9 +201,9 @@ void mul::print(const print_context & c, unsigned level) const
 					coeff.print(c);
 			} else {
 				if (coeff.csgn() == -1)
-					(-coeff).print(c, precedence);
+					(-coeff).print(c, precedence());
 				else
-					coeff.print(c, precedence);
+					coeff.print(c, precedence());
 			}
 			if (is_of_type(c, print_latex))
 				c.s << ' ';
@@ -222,11 +222,11 @@ void mul::print(const print_context & c, unsigned level) const
 			} else {
 				first = false;
 			}
-			recombine_pair_to_ex(*it).print(c, precedence);
+			recombine_pair_to_ex(*it).print(c, precedence());
 			it++;
 		}
 
-		if (precedence <= level) {
+		if (precedence() <= level) {
 			if (is_of_type(c, print_latex))
 				c.s << ")}";
 			else
@@ -716,13 +716,5 @@ epvector * mul::expandchildren(unsigned options) const
 	
 	return 0; // nothing has changed
 }
-
-//////////
-// static member variables
-//////////
-
-// protected
-
-unsigned mul::precedence = 50;
 
 } // namespace GiNaC

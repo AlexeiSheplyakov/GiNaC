@@ -418,7 +418,7 @@ void numeric::print(const print_context & c, unsigned level) const
 		const cln::cl_R i = cln::imagpart(cln::the<cln::cl_N>(value));
 		if (cln::zerop(i)) {
 			// case 1, real:  x  or  -x
-			if ((precedence <= level) && (!this->is_nonneg_integer())) {
+			if ((precedence() <= level) && (!this->is_nonneg_integer())) {
 				c.s << par_open;
 				print_real_number(c.s, r);
 				c.s << par_close;
@@ -428,7 +428,7 @@ void numeric::print(const print_context & c, unsigned level) const
 		} else {
 			if (cln::zerop(r)) {
 				// case 2, imaginary:  y*I  or  -y*I
-				if ((precedence <= level) && (i < 0)) {
+				if ((precedence() <= level) && (i < 0)) {
 					if (i == -1) {
 						c.s << par_open+imag_sym+par_close;
 					} else {
@@ -450,7 +450,7 @@ void numeric::print(const print_context & c, unsigned level) const
 				}
 			} else {
 				// case 3, complex:  x+y*I  or  x-y*I  or  -x+y*I  or  -x-y*I
-				if (precedence <= level)
+				if (precedence() <= level)
 					c.s << par_open;
 				print_real_number(c.s, r);
 				if (i < 0) {
@@ -469,7 +469,7 @@ void numeric::print(const print_context & c, unsigned level) const
 						c.s << mul_sym+imag_sym;
 					}
 				}
-				if (precedence <= level)
+				if (precedence() <= level)
 					c.s << par_close;
 			}
 		}
@@ -1147,15 +1147,6 @@ int numeric::int_length(void) const
 	else
 		return 0;
 }
-
-
-//////////
-// static member variables
-//////////
-
-// protected
-
-unsigned numeric::precedence = 30;
 
 //////////
 // global constants

@@ -142,7 +142,7 @@ void pseries::print(const print_context & c, unsigned level) const
 
 	} else {
 
-		if (precedence <= level)
+		if (precedence() <= level)
 			c.s << "(";
 		
 		std::string par_open = is_of_type(c, print_latex) ? "{(" : "(";
@@ -198,7 +198,7 @@ void pseries::print(const print_context & c, unsigned level) const
 				Order(power(var-point,i->coeff)).print(c);
 		}
 
-		if (precedence <= level)
+		if (precedence() <= level)
 			c.s << ")";
 	}
 }
@@ -924,13 +924,5 @@ ex ex::series(const ex & r, int order, unsigned options) const
 	}
 	return e;
 }
-
-//////////
-// static member variables
-//////////
-
-// protected
-
-unsigned pseries::precedence = 38;  // for clarity just below add::precedence
 
 } // namespace GiNaC

@@ -335,6 +335,7 @@ $constructors_interface
 	// functions overriding virtual functions from bases classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
+	unsigned precedence(void) const {return 70;}
 	int degree(const ex & s) const;
 	int ldegree(const ex & s) const;
 	ex coeff(const ex & s, int n = 1) const;
@@ -678,10 +679,10 @@ void function::print(const print_context & c, unsigned level) const
 
 	} else if is_of_type(c, print_latex) {
 		c.s << registered_functions()[serial].TeX_name;
-		printseq(c, '(', ',', ')', exprseq::precedence, function::precedence);
+		printseq(c, '(', ',', ')', exprseq::precedence(), function::precedence());
 	} else {
 		c.s << registered_functions()[serial].name;
-		printseq(c, '(', ',', ')', exprseq::precedence, function::precedence);
+		printseq(c, '(', ',', ')', exprseq::precedence(), function::precedence());
 	}
 }
 

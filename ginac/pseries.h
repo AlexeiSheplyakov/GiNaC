@@ -43,6 +43,7 @@ public:
 	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
+	unsigned precedence(void) const {return 38;} // for clarity just below add::precedence
 	unsigned nops(void) const;
 	ex op(int i) const;
 	ex &let_op(int i);
@@ -98,8 +99,6 @@ protected:
 
 	/** Expansion point */
 	ex point;
-
-	static unsigned precedence;
 };
 
 /** Return a reference to the pseries object embedded in an expression.
