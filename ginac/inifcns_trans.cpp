@@ -472,7 +472,7 @@ static ex tan_series(const ex &x,
 	if (!(2*x_pt/Pi).info(info_flags::odd))
 		throw do_taylor();  // caught by function::series()
 	// if we got here we have to care for a simple pole
-	return (sin(x)/cos(x)).series(rel, order+2, options);
+	return (sin(x)/cos(x)).series(rel, order, options);
 }
 
 REGISTER_FUNCTION(tan, eval_func(tan_eval).
@@ -882,7 +882,7 @@ static ex tanh_series(const ex &x,
 	if (!(2*I*x_pt/Pi).info(info_flags::odd))
 		throw do_taylor();  // caught by function::series()
 	// if we got here we have to care for a simple pole
-	return (sinh(x)/cosh(x)).series(rel, order+2, options);
+	return (sinh(x)/cosh(x)).series(rel, order, options);
 }
 
 REGISTER_FUNCTION(tanh, eval_func(tanh_eval).

@@ -193,7 +193,7 @@ static ex tgamma_series(const ex & arg,
 	//   tgamma(x) == tgamma(x+1) / x
 	// from which follows
 	//   series(tgamma(x),x==-m,order) ==
-	//   series(tgamma(x+m+1)/(x*(x+1)*...*(x+m)),x==-m,order+1);
+	//   series(tgamma(x+m+1)/(x*(x+1)*...*(x+m)),x==-m,order);
 	const ex arg_pt = arg.subs(rel, subs_options::no_pattern);
 	if (!arg_pt.info(info_flags::integer) || arg_pt.info(info_flags::positive))
 		throw do_taylor();  // caught by function::series()
@@ -202,7 +202,7 @@ static ex tgamma_series(const ex & arg,
 	ex ser_denom = _ex1;
 	for (numeric p; p<=m; ++p)
 		ser_denom *= arg+p;
-	return (tgamma(arg+m+_ex1)/ser_denom).series(rel, order+1, options);
+	return (tgamma(arg+m+_ex1)/ser_denom).series(rel, order, options);
 }
 
 
