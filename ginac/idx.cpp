@@ -242,11 +242,16 @@ ex idx::op(size_t i) const
 
 ex idx::map(map_function & f) const
 {
-	idx *copy = duplicate();
-	copy->setflag(status_flags::dynallocated);
-	copy->clearflag(status_flags::hash_calculated);
-	copy->value = f(value);
-	return *copy;
+	const ex &mapped_value = f(value);
+	if (are_ex_trivially_equal(value, mapped_value))
+		return *this;
+	else {
+		idx *copy = duplicate();
+		copy->setflag(status_flags::dynallocated);
+		copy->clearflag(status_flags::hash_calculated);
+		copy->value = mapped_value;
+		return *copy;
+	}
 }
 
 /** Returns order relation between two indices of the same type. The order

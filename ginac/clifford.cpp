@@ -106,12 +106,12 @@ clifford::clifford(const ex & b, const ex & mu, const ex & metr, unsigned char r
 	tinfo_key = TINFO_clifford;
 }
 
-clifford::clifford(unsigned char rl, const ex & metr, const exvector & v, bool discardable) : inherited(sy_none(), v, discardable), representation_label(rl), metric(metr)
+clifford::clifford(unsigned char rl, const ex & metr, const exvector & v, bool discardable) : inherited(not_symmetric(), v, discardable), representation_label(rl), metric(metr)
 {
 	tinfo_key = TINFO_clifford;
 }
 
-clifford::clifford(unsigned char rl, const ex & metr, std::auto_ptr<exvector> vp) : inherited(sy_none(), vp), representation_label(rl), metric(metr)
+clifford::clifford(unsigned char rl, const ex & metr, std::auto_ptr<exvector> vp) : inherited(not_symmetric(), vp), representation_label(rl), metric(metr)
 {
 	tinfo_key = TINFO_clifford;
 }
@@ -634,7 +634,8 @@ ex diracgammaR::conjugate() const
 
 ex dirac_ONE(unsigned char rl)
 {
-	return clifford(diracone(), rl);
+	static ex ONE = (new diracone)->setflag(status_flags::dynallocated);
+	return clifford(ONE, rl);
 }
 
 ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl)
@@ -654,26 +655,31 @@ ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl)
 
 ex dirac_gamma(const ex & mu, unsigned char rl)
 {
+	static ex gamma = (new diracgamma)->setflag(status_flags::dynallocated);
+
 	if (!is_a<varidx>(mu))
 		throw(std::invalid_argument("index of Dirac gamma must be of type varidx"));
 
 	ex dim = ex_to<idx>(mu).get_dim();
-	return clifford(diracgamma(), mu, lorentz_g(varidx((new symbol)->setflag(status_flags::dynallocated), dim),varidx((new symbol)->setflag(status_flags::dynallocated), dim)), rl);
+	return clifford(gamma, mu, lorentz_g(varidx((new symbol)->setflag(status_flags::dynallocated), dim),varidx((new symbol)->setflag(status_flags::dynallocated), dim)), rl);
 }
 
 ex dirac_gamma5(unsigned char rl)
 {
-	return clifford(diracgamma5(), rl);
+	static ex gamma5 = (new diracgamma5)->setflag(status_flags::dynallocated);
+	return clifford(gamma5, rl);
 }
 
 ex dirac_gammaL(unsigned char rl)
 {
-	return clifford(diracgammaL(), rl);
+	static ex gammaL = (new diracgammaL)->setflag(status_flags::dynallocated);
+	return clifford(gammaL, rl);
 }
 
 ex dirac_gammaR(unsigned char rl)
 {
-	return clifford(diracgammaR(), rl);
+	static ex gammaR = (new diracgammaR)->setflag(status_flags::dynallocated);
+	return clifford(gammaR, rl);
 }
 
 ex dirac_slash(const ex & e, const ex & dim, unsigned char rl)

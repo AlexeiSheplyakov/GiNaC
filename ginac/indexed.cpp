@@ -48,7 +48,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(indexed, exprseq,
 // default constructor
 //////////
 
-indexed::indexed() : symtree(sy_none())
+indexed::indexed() : symtree(not_symmetric())
 {
 	tinfo_key = TINFO_indexed;
 }
@@ -57,31 +57,31 @@ indexed::indexed() : symtree(sy_none())
 // other constructors
 //////////
 
-indexed::indexed(const ex & b) : inherited(b), symtree(sy_none())
+indexed::indexed(const ex & b) : inherited(b), symtree(not_symmetric())
 {
 	tinfo_key = TINFO_indexed;
 	validate();
 }
 
-indexed::indexed(const ex & b, const ex & i1) : inherited(b, i1), symtree(sy_none())
+indexed::indexed(const ex & b, const ex & i1) : inherited(b, i1), symtree(not_symmetric())
 {
 	tinfo_key = TINFO_indexed;
 	validate();
 }
 
-indexed::indexed(const ex & b, const ex & i1, const ex & i2) : inherited(b, i1, i2), symtree(sy_none())
+indexed::indexed(const ex & b, const ex & i1, const ex & i2) : inherited(b, i1, i2), symtree(not_symmetric())
 {
 	tinfo_key = TINFO_indexed;
 	validate();
 }
 
-indexed::indexed(const ex & b, const ex & i1, const ex & i2, const ex & i3) : inherited(b, i1, i2, i3), symtree(sy_none())
+indexed::indexed(const ex & b, const ex & i1, const ex & i2, const ex & i3) : inherited(b, i1, i2, i3), symtree(not_symmetric())
 {
 	tinfo_key = TINFO_indexed;
 	validate();
 }
 
-indexed::indexed(const ex & b, const ex & i1, const ex & i2, const ex & i3, const ex & i4) : inherited(b, i1, i2, i3, i4), symtree(sy_none())
+indexed::indexed(const ex & b, const ex & i1, const ex & i2, const ex & i3, const ex & i4) : inherited(b, i1, i2, i3, i4), symtree(not_symmetric())
 {
 	tinfo_key = TINFO_indexed;
 	validate();
@@ -105,7 +105,7 @@ indexed::indexed(const ex & b, const symmetry & symm, const ex & i1, const ex & 
 	validate();
 }
 
-indexed::indexed(const ex & b, const exvector & v) : inherited(b), symtree(sy_none())
+indexed::indexed(const ex & b, const exvector & v) : inherited(b), symtree(not_symmetric())
 {
 	seq.insert(seq.end(), v.begin(), v.end());
 	tinfo_key = TINFO_indexed;
@@ -152,7 +152,7 @@ indexed::indexed(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
 				symtree = sy_anti();
 				break;
 			default:
-				symtree = sy_none();
+				symtree = not_symmetric();
 				break;
 		}
 		const_cast<symmetry &>(ex_to<symmetry>(symtree)).validate(seq.size() - 1);

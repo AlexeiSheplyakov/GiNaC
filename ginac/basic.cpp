@@ -307,12 +307,23 @@ ex basic::map(map_function & f) const
 	if (num == 0)
 		return *this;
 
-	basic *copy = duplicate();
-	copy->setflag(status_flags::dynallocated);
-	copy->clearflag(status_flags::hash_calculated | status_flags::expanded);
-	for (size_t i=0; i<num; i++)
-		copy->let_op(i) = f(copy->op(i));
-	return *copy;
+	basic *copy = NULL;
+	for (size_t i=0; i<num; i++) {
+		const ex & o = op(i);
+		const ex & n = f(o);
+		if (!are_ex_trivially_equal(o, n)) {
+			if (copy == NULL)
+				copy = duplicate();
+			copy->let_op(i) = n;
+		}
+	}
+
+	if (copy) {
+		copy->setflag(status_flags::dynallocated);
+		copy->clearflag(status_flags::hash_calculated | status_flags::expanded);
+		return *copy;
+	} else
+		return *this;
 }
 
 /** Return degree of highest power in object s. */
@@ -781,7 +792,7 @@ unsigned basic::calchash() const
 struct expand_map_function : public map_function {
 	unsigned options;
 	expand_map_function(unsigned o) : options(o) {}
-	ex operator()(const ex & e) { return expand(e, options); }
+	ex operator()(const ex & e) { return e.expand(options); }
 };
 
 /** Expand expression, i.e. multiply it out and return the result as a new

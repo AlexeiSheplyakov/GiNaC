@@ -245,6 +245,72 @@ void symmetry::validate(unsigned n)
 // global functions
 //////////
 
+static const symmetry & index0()
+{
+	static ex s = (new symmetry(0))->setflag(status_flags::dynallocated);
+	return ex_to<symmetry>(s);
+}
+
+static const symmetry & index1()
+{
+	static ex s = (new symmetry(1))->setflag(status_flags::dynallocated);
+	return ex_to<symmetry>(s);
+}
+
+static const symmetry & index2()
+{
+	static ex s = (new symmetry(2))->setflag(status_flags::dynallocated);
+	return ex_to<symmetry>(s);
+}
+
+static const symmetry & index3()
+{
+	static ex s = (new symmetry(3))->setflag(status_flags::dynallocated);
+	return ex_to<symmetry>(s);
+}
+
+const symmetry & not_symmetric()
+{
+	static ex s = (new symmetry)->setflag(status_flags::dynallocated);
+	return ex_to<symmetry>(s);
+}
+
+const symmetry & symmetric2()
+{
+	static ex s = (new symmetry(symmetry::symmetric, index0(), index1()))->setflag(status_flags::dynallocated);
+	return ex_to<symmetry>(s);
+}
+
+const symmetry & symmetric3()
+{
+	static ex s = (new symmetry(symmetry::symmetric, index0(), index1()))->add(index2()).setflag(status_flags::dynallocated);
+	return ex_to<symmetry>(s);
+}
+
+const symmetry & symmetric4()
+{
+	static ex s = (new symmetry(symmetry::symmetric, index0(), index1()))->add(index2()).add(index3()).setflag(status_flags::dynallocated);
+	return ex_to<symmetry>(s);
+}
+
+const symmetry & antisymmetric2()
+{
+	static ex s = (new symmetry(symmetry::antisymmetric, index0(), index1()))->setflag(status_flags::dynallocated);
+	return ex_to<symmetry>(s);
+}
+
+const symmetry & antisymmetric3()
+{
+	static ex s = (new symmetry(symmetry::antisymmetric, index0(), index1()))->add(index2()).setflag(status_flags::dynallocated);
+	return ex_to<symmetry>(s);
+}
+
+const symmetry & antisymmetric4()
+{
+	static ex s = (new symmetry(symmetry::antisymmetric, index0(), index1()))->add(index2()).add(index3()).setflag(status_flags::dynallocated);
+	return ex_to<symmetry>(s);
+}
+
 class sy_is_less : public std::binary_function<ex, ex, bool> {
 	exvector::iterator v;
 

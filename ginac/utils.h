@@ -440,7 +440,7 @@ extern const ex _ex120;
 // Helper macros for class implementations (mostly useful for trivial classes)
 
 #define DEFAULT_CTOR(classname) \
-classname::classname() : inherited(TINFO_##classname) {}
+classname::classname() : inherited(TINFO_##classname) { setflag(status_flags::evaluated | status_flags::expanded); }
 
 #define DEFAULT_UNARCHIVE(classname) \
 ex classname::unarchive(const archive_node &n, lst &sym_lst) \

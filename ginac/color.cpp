@@ -89,12 +89,12 @@ color::color(const ex & b, const ex & i1, unsigned char rl) : inherited(b, i1), 
 	tinfo_key = TINFO_color;
 }
 
-color::color(unsigned char rl, const exvector & v, bool discardable) : inherited(sy_none(), v, discardable), representation_label(rl)
+color::color(unsigned char rl, const exvector & v, bool discardable) : inherited(not_symmetric(), v, discardable), representation_label(rl)
 {
 	tinfo_key = TINFO_color;
 }
 
-color::color(unsigned char rl, std::auto_ptr<exvector> vp) : inherited(sy_none(), vp), representation_label(rl)
+color::color(unsigned char rl, std::auto_ptr<exvector> vp) : inherited(not_symmetric(), vp), representation_label(rl)
 {
 	tinfo_key = TINFO_color;
 }
@@ -475,37 +475,44 @@ bool su3f::contract_with(exvector::iterator self, exvector::iterator other, exve
 
 ex color_ONE(unsigned char rl)
 {
-	return color(su3one(), rl);
+	static ex ONE = (new su3one)->setflag(status_flags::dynallocated);
+	return color(ONE, rl);
 }
 
 ex color_T(const ex & a, unsigned char rl)
 {
+	static ex t = (new su3t)->setflag(status_flags::dynallocated);
+
 	if (!is_a<idx>(a))
 		throw(std::invalid_argument("indices of color_T must be of type idx"));
 	if (!ex_to<idx>(a).get_dim().is_equal(8))
 		throw(std::invalid_argument("index dimension for color_T must be 8"));
 
-	return color(su3t(), a, rl);
+	return color(t, a, rl);
 }
 
 ex color_f(const ex & a, const ex & b, const ex & c)
 {
+	static ex f = (new su3f)->setflag(status_flags::dynallocated);
+
 	if (!is_a<idx>(a) || !is_a<idx>(b) || !is_a<idx>(c))
 		throw(std::invalid_argument("indices of color_f must be of type idx"));
 	if (!ex_to<idx>(a).get_dim().is_equal(8) || !ex_to<idx>(b).get_dim().is_equal(8) || !ex_to<idx>(c).get_dim().is_equal(8))
 		throw(std::invalid_argument("index dimension for color_f must be 8"));
 
-	return indexed(su3f(), sy_anti(), a, b, c);
+	return indexed(f, antisymmetric3(), a, b, c);
 }
 
 ex color_d(const ex & a, const ex & b, const ex & c)
 {
+	static ex d = (new su3d)->setflag(status_flags::dynallocated);
+
 	if (!is_a<idx>(a) || !is_a<idx>(b) || !is_a<idx>(c))
 		throw(std::invalid_argument("indices of color_d must be of type idx"));
 	if (!ex_to<idx>(a).get_dim().is_equal(8) || !ex_to<idx>(b).get_dim().is_equal(8) || !ex_to<idx>(c).get_dim().is_equal(8))
 		throw(std::invalid_argument("index dimension for color_d must be 8"));
 
-	return indexed(su3d(), sy_symm(), a, b, c);
+	return indexed(d, symmetric3(), a, b, c);
 }
 
 ex color_h(const ex & a, const ex & b, const ex & c)

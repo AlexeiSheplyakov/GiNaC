@@ -164,7 +164,14 @@ ex relational::op(size_t i) const
 
 ex relational::map(map_function & f) const
 {
-	return (new relational(f(lh), f(rh), o))->setflag(status_flags::dynallocated);
+	const ex &mapped_lh = f(lh);
+	const ex &mapped_rh = f(rh);
+
+	if (!are_ex_trivially_equal(lh, mapped_lh)
+	 || !are_ex_trivially_equal(rh, mapped_rh))
+		return (new relational(mapped_lh, mapped_rh, o))->setflag(status_flags::dynallocated);
+	else
+		return *this;
 }
 
 ex relational::eval(int level) const

@@ -80,7 +80,7 @@ protected:
 	void do_print_csrc(const print_context & c, unsigned level) const;
 	size_t count_factors(const ex & e) const;
 	void append_factors(exvector & v, const ex & e) const;
-	exvector expandchildren(unsigned options) const;
+	std::auto_ptr<exvector> expandchildren(unsigned options) const;
 public:
 	const exvector & get_factors() const;
 };

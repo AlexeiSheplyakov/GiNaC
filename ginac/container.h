@@ -502,7 +502,7 @@ void container<C>::do_print(const print_context & c, unsigned level) const
 template <template <class> class C>
 void container<C>::do_print_tree(const print_tree & c, unsigned level) const
 {
-	c.s << std::string(level, ' ') << class_name()
+	c.s << std::string(level, ' ') << class_name() << " @" << this
 	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 	    << ", nops=" << nops()
 	    << std::endl;
@@ -724,8 +724,8 @@ template <template <class> class C>
 std::auto_ptr<typename container<C>::STLT> container<C>::subschildren(const exmap & m, unsigned options) const
 {
 	// returns a NULL pointer if nothing had to be substituted
-	// returns a pointer to a newly created epvector otherwise
-	// (and relinquishes responsibility for the epvector)
+	// returns a pointer to a newly created STLT otherwise
+	// (and relinquishes responsibility for the STLT)
 
 	const_iterator cit = this->seq.begin(), end = this->seq.end();
 	while (cit != end) {

@@ -534,40 +534,51 @@ bool tensepsilon::contract_with(exvector::iterator self, exvector::iterator othe
 
 ex delta_tensor(const ex & i1, const ex & i2)
 {
+	static ex delta = (new tensdelta)->setflag(status_flags::dynallocated);
+
 	if (!is_a<idx>(i1) || !is_a<idx>(i2))
 		throw(std::invalid_argument("indices of delta tensor must be of type idx"));
 
-	return indexed(tensdelta(), sy_symm(), i1, i2);
+	return indexed(delta, symmetric2(), i1, i2);
 }
 
 ex metric_tensor(const ex & i1, const ex & i2)
 {
+	static ex metric = (new tensmetric)->setflag(status_flags::dynallocated);
+
 	if (!is_a<varidx>(i1) || !is_a<varidx>(i2))
 		throw(std::invalid_argument("indices of metric tensor must be of type varidx"));
 
-	return indexed(tensmetric(), sy_symm(), i1, i2);
+	return indexed(metric, symmetric2(), i1, i2);
 }
 
 ex lorentz_g(const ex & i1, const ex & i2, bool pos_sig)
 {
+	static ex metric_neg = (new minkmetric(false))->setflag(status_flags::dynallocated);
+	static ex metric_pos = (new minkmetric(true))->setflag(status_flags::dynallocated);
+
 	if (!is_a<varidx>(i1) || !is_a<varidx>(i2))
 		throw(std::invalid_argument("indices of metric tensor must be of type varidx"));
 
-	return indexed(minkmetric(pos_sig), sy_symm(), i1, i2);
+	return indexed(pos_sig ? metric_pos : metric_neg, symmetric2(), i1, i2);
 }
 
 ex spinor_metric(const ex & i1, const ex & i2)
 {
+	static ex metric = (new spinmetric)->setflag(status_flags::dynallocated);
+
 	if (!is_a<spinidx>(i1) || !is_a<spinidx>(i2))
 		throw(std::invalid_argument("indices of spinor metric must be of type spinidx"));
 	if (!ex_to<idx>(i1).get_dim().is_equal(2) || !ex_to<idx>(i2).get_dim().is_equal(2))
 		throw(std::runtime_error("index dimension for spinor metric must be 2"));
 
-	return indexed(spinmetric(), sy_anti(), i1, i2);
+	return indexed(metric, antisymmetric2(), i1, i2);
 }
 
 ex epsilon_tensor(const ex & i1, const ex & i2)
 {
+	static ex epsilon = (new tensepsilon)->setflag(status_flags::dynallocated);
+
 	if (!is_a<idx>(i1) || !is_a<idx>(i2))
 		throw(std::invalid_argument("indices of epsilon tensor must be of type idx"));
 
@@ -577,11 +588,13 @@ ex epsilon_tensor(const ex & i1, const ex & i2)
 	if (!ex_to<idx>(i1).get_dim().is_equal(_ex2))
 		throw(std::runtime_error("index dimension of epsilon tensor must match number of indices"));
 
-	return indexed(tensepsilon(), sy_anti(), i1, i2);
+	return indexed(epsilon, antisymmetric2(), i1, i2);
 }
 
 ex epsilon_tensor(const ex & i1, const ex & i2, const ex & i3)
 {
+	static ex epsilon = (new tensepsilon)->setflag(status_flags::dynallocated);
+
 	if (!is_a<idx>(i1) || !is_a<idx>(i2) || !is_a<idx>(i3))
 		throw(std::invalid_argument("indices of epsilon tensor must be of type idx"));
 
@@ -591,11 +604,14 @@ ex epsilon_tensor(const ex & i1, const ex & i2, const ex & i3)
 	if (!ex_to<idx>(i1).get_dim().is_equal(_ex3))
 		throw(std::runtime_error("index dimension of epsilon tensor must match number of indices"));
 
-	return indexed(tensepsilon(), sy_anti(), i1, i2, i3);
+	return indexed(epsilon, antisymmetric3(), i1, i2, i3);
 }
 
 ex lorentz_eps(const ex & i1, const ex & i2, const ex & i3, const ex & i4, bool pos_sig)
 {
+	static ex epsilon_neg = (new tensepsilon(true, false))->setflag(status_flags::dynallocated);
+	static ex epsilon_pos = (new tensepsilon(true, true))->setflag(status_flags::dynallocated);
+
 	if (!is_a<varidx>(i1) || !is_a<varidx>(i2) || !is_a<varidx>(i3) || !is_a<varidx>(i4))
 		throw(std::invalid_argument("indices of Lorentz epsilon tensor must be of type varidx"));
 
@@ -605,7 +621,7 @@ ex lorentz_eps(const ex & i1, const ex & i2, const ex & i3, const ex & i4, bool 
 	if (!ex_to<idx>(i1).get_dim().is_equal(_ex4))
 		throw(std::runtime_error("index dimension of epsilon tensor must match number of indices"));
 
-	return indexed(tensepsilon(true, pos_sig), sy_anti(), i1, i2, i3, i4);
+	return indexed(pos_sig ? epsilon_pos : epsilon_neg, antisymmetric4(), i1, i2, i3, i4);
 }
 
 } // namespace GiNaC

@@ -120,6 +120,16 @@ inline symmetry sy_cycl(const symmetry &c1, const symmetry &c2) { return symmetr
 inline symmetry sy_cycl(const symmetry &c1, const symmetry &c2, const symmetry &c3) { return symmetry(symmetry::cyclic, c1, c2).add(c3); }
 inline symmetry sy_cycl(const symmetry &c1, const symmetry &c2, const symmetry &c3, const symmetry &c4) { return symmetry(symmetry::cyclic, c1, c2).add(c3).add(c4); }
 
+// These return references to preallocated common symmetries (similar to
+// the numeric flyweights).
+const symmetry & not_symmetric();
+const symmetry & symmetric2();
+const symmetry & symmetric3();
+const symmetry & symmetric4();
+const symmetry & antisymmetric2();
+const symmetry & antisymmetric3();
+const symmetry & antisymmetric4();
+
 /** Canonicalize the order of elements of an expression vector, according to
  *  the symmetry properties defined in a symmetry tree.
  *

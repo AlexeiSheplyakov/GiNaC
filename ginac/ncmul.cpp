@@ -127,7 +127,8 @@ typedef std::vector<int> intvector;
 ex ncmul::expand(unsigned options) const
 {
 	// First, expand the children
-	exvector expanded_seq = expandchildren(options);
+	std::auto_ptr<exvector> vp = expandchildren(options);
+	const exvector &expanded_seq = vp.get() ? *vp : this->seq;
 	
 	// Now, look for all the factors that are sums and remember their
 	// position and number of terms.
@@ -151,9 +152,13 @@ ex ncmul::expand(unsigned options) const
 	}
 
 	// If there are no sums, we are done
-	if (number_of_adds == 0)
-		return (new ncmul(expanded_seq, true))->
-		        setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0));
+	if (number_of_adds == 0) {
+		if (vp.get())
+			return (new ncmul(vp))->
+			        setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0));
+		else
+			return *this;
+	}
 
 	// Now, form all possible products of the terms of the sums with the
 	// remaining factors, and add them together
@@ -561,16 +566,34 @@ unsigned ncmul::return_type_tinfo() const
 // non-virtual functions in this class
 //////////
 
-exvector ncmul::expandchildren(unsigned options) const
+std::auto_ptr<exvector> ncmul::expandchildren(unsigned options) const
 {
-	exvector s;
-	s.reserve(seq.size());
-	exvector::const_iterator it = seq.begin(), itend = seq.end();
-	while (it != itend) {
-		s.push_back(it->expand(options));
-		it++;
+	const_iterator cit = this->seq.begin(), end = this->seq.end();
+	while (cit != end) {
+		const ex & expanded_ex = cit->expand(options);
+		if (!are_ex_trivially_equal(*cit, expanded_ex)) {
+
+			// copy first part of seq which hasn't changed
+			std::auto_ptr<exvector> s(new exvector(this->seq.begin(), cit));
+			reserve(*s, this->seq.size());
+
+			// insert changed element
+			s->push_back(expanded_ex);
+			++cit;
+
+			// copy rest
+			while (cit != end) {
+				s->push_back(cit->expand(options));
+				++cit;
+			}
+
+			return s;
+		}
+
+		++cit;
 	}
-	return s;
+
+	return std::auto_ptr<exvector>(0); // nothing has changed
 }
 
 const exvector & ncmul::get_factors() const

@@ -246,7 +246,14 @@ ex power::op(size_t i) const
 
 ex power::map(map_function & f) const
 {
-	return (new power(f(basis), f(exponent)))->setflag(status_flags::dynallocated);
+	const ex &mapped_basis = f(basis);
+	const ex &mapped_exponent = f(exponent);
+
+	if (!are_ex_trivially_equal(basis, mapped_basis)
+	 || !are_ex_trivially_equal(exponent, mapped_exponent))
+		return (new power(mapped_basis, mapped_exponent))->setflag(status_flags::dynallocated);
+	else
+		return *this;
 }
 
 int power::degree(const ex & s) const
