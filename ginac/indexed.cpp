@@ -499,10 +499,27 @@ exvector ncmul::get_free_indices() const
 	return free_indices;
 }
 
+struct is_summation_idx : public std::unary_function<ex, bool> {
+	bool operator()(const ex & e)
+	{
+		return is_dummy_pair(e, e);
+	}
+};
+
 exvector power::get_free_indices() const
 {
-	// Return free indices of basis
-	return basis.get_free_indices();
+	// Get free indices of basis
+	exvector basis_indices = basis.get_free_indices();
+
+	if (exponent.info(info_flags::even)) {
+		// If the exponent is an even number, then any "free" index that
+		// forms a dummy pair with itself is actually a summation index
+		exvector really_free;
+		std::remove_copy_if(basis_indices.begin(), basis_indices.end(),
+		                    std::back_inserter(really_free), is_summation_idx());
+		return really_free;
+	} else
+		return basis_indices;
 }
 
 /** Rename dummy indices in an expression.
