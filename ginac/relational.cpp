@@ -193,21 +193,16 @@ ex relational::simplify_ncmul(const exvector & v) const
 int relational::compare_same_type(const basic & other) const
 {
 	GINAC_ASSERT(is_exactly_of_type(other, relational));
-	const relational & oth=static_cast<const relational &>(const_cast<basic &>(other));
-	
-	int cmpval;
+	const relational &oth = static_cast<const relational &>(other);
 	
 	if (o == oth.o) {
-		cmpval = lh.compare(oth.lh);
-		if (cmpval==0)
-			return rh.compare(oth.rh);
-		else
+		int cmpval = lh.compare(oth.lh);
+		if (cmpval)
 			return cmpval;
+		else
+			return rh.compare(oth.rh);
 	}
-	if (o<oth.o)
-		return -1;
-	else
-		return 1;
+	return (o < oth.o) ? -1 : 1;
 }
 
 unsigned relational::return_type(void) const

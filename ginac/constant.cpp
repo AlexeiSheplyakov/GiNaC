@@ -191,18 +191,20 @@ ex constant::derivative(const symbol & s) const
 int constant::compare_same_type(const basic & other) const
 {
 	GINAC_ASSERT(is_exactly_of_type(other, constant));
-	// const constant & o=static_cast<constant &>(const_cast<basic &>(other));
-	// return name.compare(o.name);
-	const constant *o = static_cast<const constant *>(&other);
-	if (serial==o->serial) return 0;
-	return serial < o->serial ? -1 : 1;
+	const constant &o = static_cast<const constant &>(other);
+
+	if (serial == o.serial)
+		return 0;
+	else
+		return serial < o.serial ? -1 : 1;
 }
 
 bool constant::is_equal_same_type(const basic & other) const
 {
 	GINAC_ASSERT(is_exactly_of_type(other, constant));
-	const constant *o = static_cast<const constant *>(&other);
-	return serial==o->serial;
+	const constant &o = static_cast<const constant &>(other);
+
+	return serial == o.serial;
 }
 
 unsigned constant::calchash(void) const

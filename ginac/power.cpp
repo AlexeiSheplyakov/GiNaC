@@ -544,14 +544,13 @@ ex power::derivative(const symbol & s) const
 int power::compare_same_type(const basic & other) const
 {
 	GINAC_ASSERT(is_exactly_of_type(other, power));
-	const power & o=static_cast<const power &>(const_cast<basic &>(other));
+	const power &o = static_cast<const power &>(other);
 
-	int cmpval;
-	cmpval=basis.compare(o.basis);
-	if (cmpval==0) {
+	int cmpval = basis.compare(o.basis);
+	if (cmpval)
+		return cmpval;
+	else
 		return exponent.compare(o.exponent);
-	}
-	return cmpval;
 }
 
 unsigned power::return_type(void) const

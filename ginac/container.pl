@@ -467,35 +467,36 @@ ex ${CONTAINER}::subs(const lst & ls, const lst & lr, bool no_pattern) const
 int ${CONTAINER}::compare_same_type(const basic & other) const
 {
 	GINAC_ASSERT(is_a<${CONTAINER}>(other));
-	${CONTAINER} const & o=static_cast<${CONTAINER} const &>
-									(const_cast<basic &>(other));
-	int cmpval;
-	${STLT}::const_iterator it1=seq.begin();
-	${STLT}::const_iterator it2=o.seq.begin();
+	${CONTAINER} const & o = static_cast<const ${CONTAINER} &>(other);
 
-	for (; (it1!=seq.end())&&(it2!=o.seq.end()); ++it1, ++it2) {
-		cmpval=(*it1).compare(*it2);
-		if (cmpval!=0) return cmpval;
+	${STLT}::const_iterator it1 = seq.begin(), it1end = seq.end(),
+	                        it2 = o.seq.begin(), it2end = o.seq.end();
+
+	while (it1 != it1end && it2 != it2end) {
+		int cmpval = it1->compare(*it2);
+		if (cmpval)
+			return cmpval;
+		++it1; ++it2;
 	}
 
-	if (it1==seq.end()) {
-		return (it2==o.seq.end() ? 0 : -1);
-	}
-
-	return 1;
+	return (it1 == it1end) ? (it2 == it2end ? 0 : -1) : 1;
 }
 
 bool ${CONTAINER}::is_equal_same_type(const basic & other) const
 {
 	GINAC_ASSERT(is_a<${CONTAINER}>(other));
-	${CONTAINER} const & o = static_cast<${CONTAINER} const &>(const_cast<basic &>(other));
-	if (seq.size()!=o.seq.size()) return false;
+	${CONTAINER} const &o = static_cast<const ${CONTAINER} &>(other);
 
-	${STLT}::const_iterator it1 = seq.begin();
-	${STLT}::const_iterator it2 = o.seq.begin();
+	if (seq.size() != o.seq.size())
+		return false;
 
-	for (; it1!=seq.end(); ++it1, ++it2) {
-		if (!(*it1).is_equal(*it2)) return false;
+	${STLT}::const_iterator it1 = seq.begin(), it1end = seq.end(),
+	                        it2 = o.seq.begin();
+
+	while (it1 != it1end) {
+		if (!it1->is_equal(*it2))
+			return false;
+		++it1; ++it2;
 	}
 
 	return true;

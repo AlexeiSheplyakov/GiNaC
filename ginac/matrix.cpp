@@ -237,7 +237,7 @@ ex matrix::subs(const lst & ls, const lst & lr, bool no_pattern) const
 int matrix::compare_same_type(const basic & other) const
 {
 	GINAC_ASSERT(is_exactly_of_type(other, matrix));
-	const matrix & o = static_cast<matrix &>(const_cast<basic &>(other));
+	const matrix & o = static_cast<const matrix &>(other);
 	
 	// compare number of rows
 	if (row != o.rows())

@@ -433,8 +433,7 @@ ${subs_statements}
 int ${STRUCTURE}::compare_same_type(const basic & other) const
 {
 	GINAC_ASSERT(is_of_type(other,${STRUCTURE}));
-	${STRUCTURE} const & o=static_cast<${STRUCTURE} const &>
-									(const_cast<basic &>(other));
+	${STRUCTURE} const &o = static_cast<const ${STRUCTURE} &>(other);
 	int cmpval;
 ${compare_statements}
 	return 0;
@@ -443,8 +442,7 @@ ${compare_statements}
 bool ${STRUCTURE}::is_equal_same_type(const basic & other) const
 {
 	GINAC_ASSERT(is_of_type(other,${STRUCTURE}));
-	${STRUCTURE} const & o=static_cast<${STRUCTURE} const &>
-									(const_cast<basic &>(other));
+	${STRUCTURE} const &o = static_cast<const ${STRUCTURE} &>(other);
 ${is_equal_statements}
 	return true;
 }

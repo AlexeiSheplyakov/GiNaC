@@ -531,7 +531,7 @@ bool numeric::has(const ex &other) const
 {
 	if (!is_exactly_of_type(*other.bp, numeric))
 		return false;
-	const numeric &o = static_cast<numeric &>(const_cast<basic &>(*other.bp));
+	const numeric &o = static_cast<const numeric &>(*other.bp);
 	if (this->is_equal(o) || this->is_equal(-o))
 		return true;
 	if (o.imag().is_zero())  // e.g. scan for 3 in -3*I
@@ -576,7 +576,7 @@ ex numeric::evalf(int level) const
 int numeric::compare_same_type(const basic &other) const
 {
 	GINAC_ASSERT(is_exactly_of_type(other, numeric));
-	const numeric &o = static_cast<numeric &>(const_cast<basic &>(other));
+	const numeric &o = static_cast<const numeric &>(other);
 	
 	return this->compare(o);
 }
@@ -585,9 +585,9 @@ int numeric::compare_same_type(const basic &other) const
 bool numeric::is_equal_same_type(const basic &other) const
 {
 	GINAC_ASSERT(is_exactly_of_type(other,numeric));
-	const numeric *o = static_cast<const numeric *>(&other);
+	const numeric &o = static_cast<const numeric &>(other);
 	
-	return this->is_equal(*o);
+	return this->is_equal(o);
 }
 
 
