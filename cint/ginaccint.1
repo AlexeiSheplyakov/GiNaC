@@ -6,11 +6,12 @@ GiNaC-cint \- An interactive interface for GiNaC based on the Cint C/C++ interpr
 .SH DESCRIPTION
 .B ginaccint
 is an interactive frontend for the GiNaC symbolic computation
-framework.  It is a tool that lets you write interactive programs in
-C++ that directly make use of GiNaC's classes and thus a more complete
-replacement for traditional interactive computer algebra systems than
-\fBginsh\fP(1) is.  Programs may be composed as scripts and later compiled
-with the native compiler and linked into the system.
+framework.  It is a tool that lets you write interactive programs
+(scripts) in C++ that directly make use of GiNaC's classes.  Thus it
+is a more complete replacement for traditional interactive computer
+algebra systems than \fBginsh\fP(1) is.  Programs may be composed as
+scripts and later compiled with the native compiler and linked into
+the system.
 .SH USAGE
 .SS INPUT FORMAT
 After startup, ginsh displays a prompt signifying that it is ready to
@@ -25,14 +26,14 @@ statements as
 GiNaC> symbol x("x"), y("y"), z;
 .fi
 which defines two named symbols and an anonymous one for later usage.
-All GiNaC methods and functions are available as they would be typed
+All GiNaC methods and functions are available as they would be coded
 in C++.  It is not necessary to explicitly invoke a print command as
 the last expression is automatically printed:
 .nf
 GiNaC> pow(x+y,4).expand();
 Out2 = x^4+4*x^3*y+6*x^2*y^2+4*x*y^3+y^4
 .fi
-Statements are generally closed by either when a closing brace 
+Statements are generally closed either when a closing brace 
 .RB ( } )
 matches the first opening brace
 .RB ( { ) 
@@ -42,7 +43,7 @@ is encountered.
 
 .SS SPECIAL COMMANDS
 .IP "\fB.cint\fR"
-Switch to cint interactive mode.
+Switch to cint's interactive mode.
 .IP "\fB.function\fR"
 
 Allow a function definition in interactive mode.  GiNaC-cint must be
@@ -51,7 +52,7 @@ function definition in valid C++ syntax may be typed in.  It becomes
 immediatly available for usage.
 
 .IP "\fBquit;\fR"
-Exit from GiNaC-Cint.  Same as 
+Exit from GiNaC-cint.  Same as 
 .BR "exit;" ,
 .BR "bye;" ,
 .BR ".q" ,
