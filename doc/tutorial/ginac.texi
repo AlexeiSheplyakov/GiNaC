@@ -7394,6 +7394,7 @@ The following shows how to build a simple package using automake
 and the @samp{AM_PATH_GINAC} macro. The program used here is @file{simple.cpp}:
 
 @example
+#include <iostream>
 #include <ginac/ginac.h>
 
 int main()
