@@ -98,7 +98,7 @@ static ex lgamma_series(const ex & arg,
 	// from which follows
 	//   series(lgamma(x),x==-m,order) ==
 	//   series(lgamma(x+m+1)-log(x)...-log(x+m)),x==-m,order);
-	const ex arg_pt = arg.subs(rel);
+	const ex arg_pt = arg.subs(rel, subs_options::no_pattern);
 	if (!arg_pt.info(info_flags::integer) || arg_pt.info(info_flags::positive))
 		throw do_taylor();  // caught by function::series()
 	// if we got here we have to care for a simple pole of tgamma(-m):
@@ -194,7 +194,7 @@ static ex tgamma_series(const ex & arg,
 	// from which follows
 	//   series(tgamma(x),x==-m,order) ==
 	//   series(tgamma(x+m+1)/(x*(x+1)*...*(x+m)),x==-m,order+1);
-	const ex arg_pt = arg.subs(rel);
+	const ex arg_pt = arg.subs(rel, subs_options::no_pattern);
 	if (!arg_pt.info(info_flags::integer) || arg_pt.info(info_flags::positive))
 		throw do_taylor();  // caught by function::series()
 	// if we got here we have to care for a simple pole at -m:
@@ -294,8 +294,8 @@ static ex beta_series(const ex & arg1,
 	// Taylor series where there is no pole of one of the tgamma functions
 	// falls back to beta function evaluation.  Otherwise, fall back to
 	// tgamma series directly.
-	const ex arg1_pt = arg1.subs(rel);
-	const ex arg2_pt = arg2.subs(rel);
+	const ex arg1_pt = arg1.subs(rel, subs_options::no_pattern);
+	const ex arg2_pt = arg2.subs(rel, subs_options::no_pattern);
 	GINAC_ASSERT(is_a<symbol>(rel.lhs()));
 	const symbol &s = ex_to<symbol>(rel.lhs());
 	ex arg1_ser, arg2_ser, arg1arg2_ser;
@@ -411,7 +411,7 @@ static ex psi1_series(const ex & arg,
 	// from which follows
 	//   series(psi(x),x==-m,order) ==
 	//   series(psi(x+m+1) - 1/x - 1/(x+1) - 1/(x+m)),x==-m,order);
-	const ex arg_pt = arg.subs(rel);
+	const ex arg_pt = arg.subs(rel, subs_options::no_pattern);
 	if (!arg_pt.info(info_flags::integer) || arg_pt.info(info_flags::positive))
 		throw do_taylor();  // caught by function::series()
 	// if we got here we have to care for a simple pole at -m:
@@ -538,7 +538,7 @@ static ex psi2_series(const ex & n,
 	//   series(psi(x),x==-m,order) == 
 	//   series(psi(x+m+1) - (-1)^n * n! * ((x)^(-n-1) + (x+1)^(-n-1) + ...
 	//                                      ... + (x+m)^(-n-1))),x==-m,order);
-	const ex arg_pt = arg.subs(rel);
+	const ex arg_pt = arg.subs(rel, subs_options::no_pattern);
 	if (!arg_pt.info(info_flags::integer) || arg_pt.info(info_flags::positive))
 		throw do_taylor();  // caught by function::series()
 	// if we got here we have to care for a pole of order n+1 at -m:

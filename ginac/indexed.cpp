@@ -560,7 +560,7 @@ static ex rename_dummy_indices(const ex & e, exvector & global_dummy_indices, ex
 	else {
 		while (global_uniq.size() > local_uniq.size())
 			global_uniq.pop_back();
-		return e.subs(lst(local_uniq.begin(), local_uniq.end()), lst(global_uniq.begin(), global_uniq.end()));
+		return e.subs(lst(local_uniq.begin(), local_uniq.end()), lst(global_uniq.begin(), global_uniq.end()), subs_options::no_pattern);
 	}
 }
 
@@ -599,7 +599,7 @@ bool reposition_dummy_indices(ex & e, exvector & variant_dummy_indices, exvector
 					e = e.subs(lst(
 						*it2 == ex_to<varidx>(*it2).toggle_variance(),
 						ex_to<varidx>(*it2).toggle_variance() == *it2
-					));
+					), subs_options::no_pattern);
 					something_changed = true;
 					it2 = ex_to<indexed>(e).seq.begin() + (it2 - it2start);
 					it2start = ex_to<indexed>(e).seq.begin();
@@ -614,7 +614,7 @@ bool reposition_dummy_indices(ex & e, exvector & variant_dummy_indices, exvector
 		for (vit = moved_indices.begin(), vitend = moved_indices.end(); vit != vitend; ++vit) {
 			if (it2->op(0).is_equal(vit->op(0))) {
 				if (ex_to<varidx>(*it2).is_contravariant()) {
-					e = e.subs(*it2 == ex_to<varidx>(*it2).toggle_variance());
+					e = e.subs(*it2 == ex_to<varidx>(*it2).toggle_variance(), subs_options::no_pattern);
 					something_changed = true;
 					it2 = ex_to<indexed>(e).seq.begin() + (it2 - it2start);
 					it2start = ex_to<indexed>(e).seq.begin();

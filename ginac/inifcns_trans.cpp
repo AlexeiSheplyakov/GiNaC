@@ -152,7 +152,7 @@ static ex log_series(const ex &arg,
 	bool must_expand_arg = false;
 	// maybe substitution of rel into arg fails because of a pole
 	try {
-		arg_pt = arg.subs(rel);
+		arg_pt = arg.subs(rel, subs_options::no_pattern);
 	} catch (pole_error) {
 		must_expand_arg = true;
 	}
@@ -206,7 +206,7 @@ static ex log_series(const ex &arg,
 		const symbol &s = ex_to<symbol>(rel.lhs());
 		const ex &point = rel.rhs();
 		const symbol foo;
-		const ex replarg = series(log(arg), s==foo, order).subs(foo==point);
+		const ex replarg = series(log(arg), s==foo, order).subs(foo==point, subs_options::no_pattern);
 		epvector seq;
 		seq.push_back(expair(-I*csgn(arg*I)*Pi, _ex0));
 		seq.push_back(expair(Order(_ex1), order));
@@ -465,7 +465,7 @@ static ex tan_series(const ex &x,
 	// method:
 	// Taylor series where there is no pole falls back to tan_deriv.
 	// On a pole simply expand sin(x)/cos(x).
-	const ex x_pt = x.subs(rel);
+	const ex x_pt = x.subs(rel, subs_options::no_pattern);
 	if (!(2*x_pt/Pi).info(info_flags::odd))
 		throw do_taylor();  // caught by function::series()
 	// if we got here we have to care for a simple pole
@@ -636,7 +636,7 @@ static ex atan_series(const ex &arg,
 	// On the branch cuts and the poles series expand
 	//     (log(1+I*x)-log(1-I*x))/(2*I)
 	// instead.
-	const ex arg_pt = arg.subs(rel);
+	const ex arg_pt = arg.subs(rel, subs_options::no_pattern);
 	if (!(I*arg_pt).info(info_flags::real))
 		throw do_taylor();     // Re(x) != 0
 	if ((I*arg_pt).info(info_flags::real) && abs(I*arg_pt)<_ex1)
@@ -651,7 +651,7 @@ static ex atan_series(const ex &arg,
 		const symbol &s = ex_to<symbol>(rel.lhs());
 		const ex &point = rel.rhs();
 		const symbol foo;
-		const ex replarg = series(atan(arg), s==foo, order).subs(foo==point);
+		const ex replarg = series(atan(arg), s==foo, order).subs(foo==point, subs_options::no_pattern);
 		ex Order0correction = replarg.op(0)+csgn(arg)*Pi*_ex_1_2;
 		if ((I*arg_pt)<_ex0)
 			Order0correction += log((I*arg_pt+_ex_1)/(I*arg_pt+_ex1))*I*_ex_1_2;
@@ -875,7 +875,7 @@ static ex tanh_series(const ex &x,
 	// method:
 	// Taylor series where there is no pole falls back to tanh_deriv.
 	// On a pole simply expand sinh(x)/cosh(x).
-	const ex x_pt = x.subs(rel);
+	const ex x_pt = x.subs(rel, subs_options::no_pattern);
 	if (!(2*I*x_pt/Pi).info(info_flags::odd))
 		throw do_taylor();  // caught by function::series()
 	// if we got here we have to care for a simple pole
@@ -1020,7 +1020,7 @@ static ex atanh_series(const ex &arg,
 	// On the branch cuts and the poles series expand
 	//     (log(1+x)-log(1-x))/2
 	// instead.
-	const ex arg_pt = arg.subs(rel);
+	const ex arg_pt = arg.subs(rel, subs_options::no_pattern);
 	if (!(arg_pt).info(info_flags::real))
 		throw do_taylor();     // Im(x) != 0
 	if ((arg_pt).info(info_flags::real) && abs(arg_pt)<_ex1)
@@ -1036,7 +1036,7 @@ static ex atanh_series(const ex &arg,
  		const symbol &s = ex_to<symbol>(rel.lhs());
  		const ex &point = rel.rhs();
  		const symbol foo;
- 		const ex replarg = series(atanh(arg), s==foo, order).subs(foo==point);
+ 		const ex replarg = series(atanh(arg), s==foo, order).subs(foo==point, subs_options::no_pattern);
 		ex Order0correction = replarg.op(0)+csgn(I*arg)*Pi*I*_ex1_2;
 		if (arg_pt<_ex0)
 			Order0correction += log((arg_pt+_ex_1)/(arg_pt+_ex1))*_ex1_2;

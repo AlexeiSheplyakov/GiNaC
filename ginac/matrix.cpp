@@ -1388,7 +1388,7 @@ int matrix::fraction_free_elimination(const bool det)
 	tmp_n_it = tmp_n.m.begin();
 	tmp_d_it = tmp_d.m.begin();
 	while (it != itend)
-		*it++ = ((*tmp_n_it++)/(*tmp_d_it++)).subs(srl);
+		*it++ = ((*tmp_n_it++)/(*tmp_d_it++)).subs(srl, subs_options::no_pattern);
 	
 	return sign;
 }

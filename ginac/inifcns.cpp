@@ -109,7 +109,7 @@ static ex csgn_series(const ex & arg,
                       int order,
                       unsigned options)
 {
-	const ex arg_pt = arg.subs(rel);
+	const ex arg_pt = arg.subs(rel, subs_options::no_pattern);
 	if (arg_pt.info(info_flags::numeric)
 	    && ex_to<numeric>(arg_pt).real().is_zero()
 	    && !(options & series_options::suppress_branchcut))
@@ -186,8 +186,8 @@ static ex eta_series(const ex & x, const ex & y,
                      int order,
                      unsigned options)
 {
-	const ex x_pt = x.subs(rel);
-	const ex y_pt = y.subs(rel);
+	const ex x_pt = x.subs(rel, subs_options::no_pattern);
+	const ex y_pt = y.subs(rel, subs_options::no_pattern);
 	if ((x_pt.info(info_flags::numeric) && x_pt.info(info_flags::negative)) ||
 	    (y_pt.info(info_flags::numeric) && y_pt.info(info_flags::negative)) ||
 	    ((x_pt*y_pt).info(info_flags::numeric) && (x_pt*y_pt).info(info_flags::negative)))
@@ -255,7 +255,7 @@ static ex Li2_deriv(const ex & x, unsigned deriv_param)
 
 static ex Li2_series(const ex &x, const relational &rel, int order, unsigned options)
 {
-	const ex x_pt = x.subs(rel);
+	const ex x_pt = x.subs(rel, subs_options::no_pattern);
 	if (x_pt.info(info_flags::numeric)) {
 		// First special case: x==0 (derivatives have poles)
 		if (x_pt.is_zero()) {
@@ -277,7 +277,7 @@ static ex Li2_series(const ex &x, const relational &rel, int order, unsigned opt
 			for (int i=1; i<order; ++i)
 				ser += pow(s,i) / pow(numeric(i), _num2);
 			// substitute the argument's series expansion
-			ser = ser.subs(s==x.series(rel, order));
+			ser = ser.subs(s==x.series(rel, order), subs_options::no_pattern);
 			// maybe that was terminating, so add a proper order term
 			epvector nseq;
 			nseq.push_back(expair(Order(_ex1), order));
@@ -302,7 +302,7 @@ static ex Li2_series(const ex &x, const relational &rel, int order, unsigned opt
 			for (int i=1; i<order; ++i)
 				ser += pow(1-s,i) * (numeric(1,i)*(I*Pi+log(s-1)) - numeric(1,i*i));
 			// substitute the argument's series expansion
-			ser = ser.subs(s==x.series(rel, order));
+			ser = ser.subs(s==x.series(rel, order), subs_options::no_pattern);
 			// maybe that was terminating, so add a proper order term
 			epvector nseq;
 			nseq.push_back(expair(Order(_ex1), order));
@@ -325,7 +325,7 @@ static ex Li2_series(const ex &x, const relational &rel, int order, unsigned opt
 			// compute the intermediate terms:
 			ex replarg = series(Li2(x), s==foo, order);
 			for (size_t i=1; i<replarg.nops()-1; ++i)
-				seq.push_back(expair((replarg.op(i)/power(s-foo,i)).series(foo==point,1,options).op(0).subs(foo==s),i));
+				seq.push_back(expair((replarg.op(i)/power(s-foo,i)).series(foo==point,1,options).op(0).subs(foo==s, subs_options::no_pattern),i));
 			// append an order term:
 			seq.push_back(expair(Order(_ex1), replarg.nops()-1));
 			return pseries(rel, seq);

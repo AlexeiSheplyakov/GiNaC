@@ -588,7 +588,7 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 		ex e_expanded = e.subs(lst(
 			dirac_gammaL(rl) == (dirac_ONE(rl)-dirac_gamma5(rl))/2,
 			dirac_gammaR(rl) == (dirac_ONE(rl)+dirac_gamma5(rl))/2
-		)).expand();
+		), subs_options::no_pattern).expand();
 		if (!is_a<ncmul>(e_expanded))
 			return dirac_trace(e_expanded, rl, trONE);
 
@@ -734,7 +734,7 @@ ex canonicalize_clifford(const ex & e)
 next_sym:	;
 		}
 	}
-	return aux.subs(srl).simplify_indexed();
+	return aux.subs(srl, subs_options::no_pattern).simplify_indexed();
 }
 
 } // namespace GiNaC

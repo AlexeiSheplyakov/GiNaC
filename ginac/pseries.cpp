@@ -503,7 +503,7 @@ ex basic::series(const relational & r, int order, unsigned options) const
 	epvector seq;
 	numeric fac = 1;
 	ex deriv = *this;
-	ex coeff = deriv.subs(r);
+	ex coeff = deriv.subs(r, subs_options::no_pattern);
 	const symbol &s = ex_to<symbol>(r.lhs());
 	
 	if (!coeff.is_zero())
@@ -519,7 +519,7 @@ ex basic::series(const relational & r, int order, unsigned options) const
 		if (deriv.is_zero())  // Series terminates
 			return pseries(r, seq);
 
-		coeff = deriv.subs(r);
+		coeff = deriv.subs(r, subs_options::no_pattern);
 		if (!coeff.is_zero())
 			seq.push_back(expair(fac.inverse() * coeff, n));
 	}
@@ -861,7 +861,7 @@ ex power::series(const relational & r, int order, unsigned options) const
 	// Basis is not a series, may there be a singularity?
 	bool must_expand_basis = false;
 	try {
-		basis.subs(r);
+		basis.subs(r, subs_options::no_pattern);
 	} catch (pole_error) {
 		must_expand_basis = true;
 	}
@@ -871,7 +871,7 @@ ex power::series(const relational & r, int order, unsigned options) const
 		return basic::series(r, order, options);
 		
 	// Is the expression of type 0^something?
-	if (!must_expand_basis && !basis.subs(r).is_zero())
+	if (!must_expand_basis && !basis.subs(r, subs_options::no_pattern).is_zero())
 		return basic::series(r, order, options);
 
 	// Singularity encountered, is the basis equal to (var - point)?

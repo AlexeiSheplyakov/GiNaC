@@ -730,12 +730,12 @@ static bool divide_in_z(const ex &a, const ex &b, ex &q, sym_desc_vec::const_ite
 	numeric point = _num0;
 	ex c;
 	for (i=0; i<=adeg; i++) {
-		ex bs = b.subs(*x == point);
+		ex bs = b.subs(*x == point, subs_options::no_pattern);
 		while (bs.is_zero()) {
 			point += _num1;
-			bs = b.subs(*x == point);
+			bs = b.subs(*x == point, subs_options::no_pattern);
 		}
-		if (!divide_in_z(a.subs(*x == point), bs, c, var+1))
+		if (!divide_in_z(a.subs(*x == point, subs_options::no_pattern), bs, c, var+1))
 			return false;
 		alpha.push_back(point);
 		u.push_back(c);
@@ -1187,7 +1187,7 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 
 		// Apply evaluation homomorphism and calculate GCD
 		ex cp, cq;
-		ex gamma = heur_gcd(p.subs(x == xi), q.subs(x == xi), &cp, &cq, var+1).expand();
+		ex gamma = heur_gcd(p.subs(x == xi, subs_options::no_pattern), q.subs(x == xi, subs_options::no_pattern), &cp, &cq, var+1).expand();
 		if (!is_exactly_a<fail>(gamma)) {
 
 			// Reconstruct polynomial from GCD of mapped polynomials
@@ -1695,7 +1695,7 @@ static ex replace_with_symbol(const ex & e, exmap & repl)
 	// replacement expression doesn't itself contain symbols from repl,
 	// because subs() is not recursive
 	ex es = (new symbol)->setflag(status_flags::dynallocated);
-	ex e_replaced = e.subs(repl);
+	ex e_replaced = e.subs(repl, subs_options::no_pattern);
 	repl[es] = e_replaced;
 	return es;
 }
@@ -1716,7 +1716,7 @@ static ex replace_with_symbol(const ex & e, lst & repl_lst)
 	// replacement expression doesn't itself contain symbols from the repl_lst,
 	// because subs() is not recursive
 	ex es = (new symbol)->setflag(status_flags::dynallocated);
-	ex e_replaced = e.subs(repl_lst);
+	ex e_replaced = e.subs(repl_lst, subs_options::no_pattern);
 	repl_lst.append(es == e_replaced);
 	return es;
 }
@@ -2027,7 +2027,7 @@ ex ex::normal(int level) const
 
 	// Re-insert replaced symbols
 	if (!repl.empty())
-		e = e.subs(repl);
+		e = e.subs(repl, subs_options::no_pattern);
 
 	// Convert {numerator, denominator} form back to fraction
 	return e.op(0) / e.op(1);
@@ -2050,7 +2050,7 @@ ex ex::numer() const
 	if (repl.empty())
 		return e.op(0);
 	else
-		return e.op(0).subs(repl);
+		return e.op(0).subs(repl, subs_options::no_pattern);
 }
 
 /** Get denominator of an expression. If the expression is not of the normal
@@ -2070,7 +2070,7 @@ ex ex::denom() const
 	if (repl.empty())
 		return e.op(1);
 	else
-		return e.op(1).subs(repl);
+		return e.op(1).subs(repl, subs_options::no_pattern);
 }
 
 /** Get numerator and denominator of an expression. If the expresison is not
@@ -2090,7 +2090,7 @@ ex ex::numer_denom() const
 	if (repl.empty())
 		return e;
 	else
-		return e.subs(repl);
+		return e.subs(repl, subs_options::no_pattern);
 }
 
 
@@ -2333,7 +2333,7 @@ ex collect_common_factors(const ex & e)
 		lst repl;
 		ex factor = 1;
 		ex r = find_common_factor(e, factor, repl);
-		return factor.subs(repl) * r.subs(repl);
+		return factor.subs(repl, subs_options::no_pattern) * r.subs(repl, subs_options::no_pattern);
 
 	} else
 		return e;
