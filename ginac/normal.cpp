@@ -190,27 +190,56 @@ static numeric lcmcoeff(const ex &e, const numeric &l)
 {
     if (e.info(info_flags::rational))
         return lcm(ex_to_numeric(e).denom(), l);
-    else if (is_ex_exactly_of_type(e, add) || is_ex_exactly_of_type(e, mul)) {
+    else if (is_ex_exactly_of_type(e, add)) {
         numeric c = _num1();
         for (unsigned i=0; i<e.nops(); i++)
             c = lcmcoeff(e.op(i), c);
         return lcm(c, l);
+    } else if (is_ex_exactly_of_type(e, mul)) {
+        numeric c = _num1();
+        for (unsigned i=0; i<e.nops(); i++)
+            c *= lcmcoeff(e.op(i), _num1());
+        return lcm(c, l);
     } else if (is_ex_exactly_of_type(e, power))
-        return lcmcoeff(e.op(0), l);
+        return pow(lcmcoeff(e.op(0), l), ex_to_numeric(e.op(1)));
     return l;
 }
 
 /** Compute LCM of denominators of coefficients of a polynomial.
  *  Given a polynomial with rational coefficients, this function computes
  *  the LCM of the denominators of all coefficients. This can be used
- *  To bring a polynomial from Q[X] to Z[X].
+ *  to bring a polynomial from Q[X] to Z[X].
  *
- *  @param e  multivariate polynomial
+ *  @param e  multivariate polynomial (need not be expanded)
  *  @return LCM of denominators of coefficients */
 
 static numeric lcm_of_coefficients_denominators(const ex &e)
 {
-    return lcmcoeff(e.expand(), _num1());
+    return lcmcoeff(e, _num1());
+}
+
+/** Bring polynomial from Q[X] to Z[X] by multiplying in the previously
+ *  determined LCM of the coefficient's denominators.
+ *
+ *  @param e  multivariate polynomial (need not be expanded)
+ *  @param lcm  LCM to multiply in */
+
+static ex multiply_lcm(const ex &e, const ex &lcm)
+{
+	if (is_ex_exactly_of_type(e, mul)) {
+		ex c = _ex1();
+		for (int i=0; i<e.nops(); i++)
+			c *= multiply_lcm(e.op(i), lcmcoeff(e.op(i), _num1()));
+		return c;
+	} else if (is_ex_exactly_of_type(e, add)) {
+		ex c = _ex0();
+		for (int i=0; i<e.nops(); i++)
+			c += multiply_lcm(e.op(i), lcm);
+		return c;
+	} else if (is_ex_exactly_of_type(e, power)) {
+		return pow(multiply_lcm(e.op(0), pow(lcm, 1/e.op(1))), e.op(1));
+	} else
+		return e * lcm;
 }
 
 
@@ -1067,6 +1096,49 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 
 ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args)
 {
+	// Partially factored cases (to avoid expanding large expressions)
+	if (is_ex_exactly_of_type(a, mul)) {
+		if (is_ex_exactly_of_type(b, mul) && b.nops() > a.nops())
+			goto factored_b;
+factored_a:
+		ex g = _ex1();
+		ex acc_ca = _ex1();
+		ex part_b = b;
+		for (int i=0; i<a.nops(); i++) {
+			ex part_ca, part_cb;
+			g *= gcd(a.op(i), part_b, &part_ca, &part_cb, check_args);
+			acc_ca *= part_ca;
+			part_b = part_cb;
+		}
+		if (ca)
+			*ca = acc_ca;
+		if (cb) {
+			if (!divide(b, g, *cb))
+                throw(std::runtime_error("invalid expression in gcd(), division failed"));
+		}
+		return g;
+	} else if (is_ex_exactly_of_type(b, mul)) {
+		if (is_ex_exactly_of_type(a, mul) && a.nops() > b.nops())
+			goto factored_a;
+factored_b:
+		ex g = _ex1();
+		ex acc_cb = _ex1();
+		ex part_a = a;
+		for (int i=0; i<b.nops(); i++) {
+			ex part_ca, part_cb;
+			g *= gcd(part_a, b.op(i), &part_ca, &part_cb, check_args);
+			acc_cb *= part_cb;
+			part_a = part_ca;
+		}
+		if (ca) {
+			if (!divide(a, g, *ca))
+                throw(std::runtime_error("invalid expression in gcd(), division failed"));
+		}
+		if (cb)
+			*cb = acc_cb;
+		return g;
+	}
+
     // Some trivial cases
 	ex aex = a.expand(), bex = b.expand();
     if (aex.is_zero()) {
@@ -1154,7 +1226,7 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args)
         g = *new ex(fail());
     }
     if (is_ex_exactly_of_type(g, fail)) {
-// clog << "heuristics failed" << endl;
+//clog << "heuristics failed" << endl;
         g = sr_gcd(aex, bex, x);
         if (ca)
             divide(aex, g, *ca, false);
@@ -1319,9 +1391,10 @@ ex numeric::normal(lst &sym_lst, lst &repl_lst, int level) const
 }
 
 
-/*
- *  Helper function for fraction cancellation (returns cancelled fraction n/d)
- */
+/** Fraction cancellation.
+ *  @param n  numerator
+ *  @param d  denominator
+ *  @return cancelled fraction n/d */
 static ex frac_cancel(const ex &n, const ex &d)
 {
     ex num = n;
@@ -1337,15 +1410,13 @@ static ex frac_cancel(const ex &n, const ex &d)
     // More special cases
     if (is_ex_exactly_of_type(den, numeric))
         return num / den;
-    if (num.is_zero())
-        return _ex0();
 
     // Bring numerator and denominator to Z[X] by multiplying with
     // LCM of all coefficients' denominators
     ex num_lcm = lcm_of_coefficients_denominators(num);
     ex den_lcm = lcm_of_coefficients_denominators(den);
-    num *= num_lcm;
-    den *= den_lcm;
+	num = multiply_lcm(num, num_lcm);
+	den = multiply_lcm(den, den_lcm);
     pre_factor = den_lcm / num_lcm;
 
     // Cancel GCD from numerator and denominator
