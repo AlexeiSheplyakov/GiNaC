@@ -233,9 +233,11 @@ ex simp_lor::eval(int level) const
 				// at least one off-diagonal
 				return _ex0();
 			}
-		} else if (idx1.is_symbolic() &&
-		           idx1.is_co_contra_pair(idx2)) {
-			return Dim() - 2;
+		} else if (idx1.is_symbolic() && idx1.is_co_contra_pair(idx2)) {
+			if (idx1.is_orthogonal_only())
+				return Dim() - idx1.get_dim_parallel_space();
+			else
+				return Dim();
 		}
 	}
 
