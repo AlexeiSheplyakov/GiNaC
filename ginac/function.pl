@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-$maxargs=10;
+$maxargs=13;
 
 sub generate_seq {
     my ($seq_template,$n)=@_;

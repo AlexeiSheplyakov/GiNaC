@@ -62,7 +62,7 @@ static ex abs_eval(const ex & x)
         return abs(x).hold();
 }
 
-REGISTER_FUNCTION(abs, evalf_func(abs_eval).
+REGISTER_FUNCTION(abs, eval_func(abs_eval).
                        evalf_func(abs_evalf));
 
 //////////
