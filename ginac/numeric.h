@@ -232,7 +232,7 @@ const numeric asinh(const numeric & x);
 const numeric acosh(const numeric & x);
 const numeric atanh(const numeric & x);
 const numeric zeta(const numeric & x);
-const numeric gamma(const numeric & x);
+const numeric Gamma(const numeric & x);
 const numeric psi(const numeric & x);
 const numeric psi(const numeric & n, const numeric & x);
 const numeric factorial(const numeric & n);
@@ -322,7 +322,7 @@ inline numeric denom(const numeric & x)
 // numeric evaluation functions for class constant objects:
 
 ex PiEvalf(void);
-ex EulerGammaEvalf(void);
+ex gammaEvalf(void);
 ex CatalanEvalf(void);
 
 

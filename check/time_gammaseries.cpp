@@ -1,6 +1,6 @@
 /** @file time_gammaseries.cpp
  *
- *  Some timings on series expansion of the gamma function around a pole. */
+ *  Some timings on series expansion of the Gamma function around a pole. */
 
 /*
  *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
@@ -22,12 +22,12 @@
 
 #include "times.h"
 
-unsigned gammaseries(unsigned order)
+unsigned Gammaseries(unsigned order)
 {
     unsigned result = 0;
     symbol x;
     
-    ex myseries = series(gamma(x),x,0,order);
+    ex myseries = series(Gamma(x),x,0,order);
     // compute the last coefficient numerically:
     ex last_coeff = myseries.coeff(x,order-1).evalf();
     // compute a bound for that coefficient using a variation of the leading
@@ -35,7 +35,7 @@ unsigned gammaseries(unsigned order)
     ex bound = evalf(exp(ex(-.57721566490153286*(order-1)))/(order-1));
     if (evalf(abs((last_coeff-pow(-1,order))/bound)) > numeric(1)) {
         clog << "The " << order-1
-             << "th order coefficient in the power series expansion of gamma(0) was erroneously found to be "
+             << "th order coefficient in the power series expansion of Gamma(0) was erroneously found to be "
              << last_coeff << ", violating a simple estimate." << endl;
         ++result;
     }
@@ -47,8 +47,8 @@ unsigned time_gammaseries(void)
 {
     unsigned result = 0;
     
-    cout << "timing Laurent series expansion of gamma function" << flush;
-    clog << "-------Laurent series expansion of gamma function:" << endl;
+    cout << "timing Laurent series expansion of Gamma function" << flush;
+    clog << "-------Laurent series expansion of Gamma function:" << endl;
     
     vector<unsigned> sizes;
     vector<double> times;
@@ -61,7 +61,7 @@ unsigned time_gammaseries(void)
     
     for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i) {
         omega.start();
-        result += gammaseries(*i);
+        result += Gammaseries(*i);
         times.push_back(omega.read());
         cout << '.' << flush;
     }

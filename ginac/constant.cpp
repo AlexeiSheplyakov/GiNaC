@@ -125,8 +125,8 @@ ex constant::unarchive(const archive_node &n, const lst &sym_lst)
             return Pi;
         else if (s == Catalan.name)
             return Catalan;
-        else if (s == EulerGamma.name)
-            return EulerGamma;
+        else if (s == gamma.name)
+            return gamma;
         else
             throw (std::runtime_error("unknown constant '" + s + "' in archive"));
     } else
@@ -244,7 +244,7 @@ const type_info & typeid_constant=typeid(some_constant);
 /**  Pi. (3.14159...)  Diverts straight into CLN for evalf(). */
 const constant Pi("Pi", PiEvalf);
 /** Catalan's constant. (0.91597...)  Diverts straight into CLN for evalf(). */
-const constant EulerGamma("EulerGamma", EulerGammaEvalf);
+const constant gamma("gamma", gammaEvalf);
 /** Euler's constant. (0.57721...)  Sometimes called Euler-Mascheroni constant.
  *  Diverts straight into CLN for evalf(). */
 const constant Catalan("Catalan", CatalanEvalf);

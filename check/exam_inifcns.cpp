@@ -100,37 +100,37 @@ static unsigned inifcns_consist_gamma(void)
     unsigned result = 0;
     ex e;
     
-    e = gamma(ex(1));
+    e = Gamma(ex(1));
     for (int i=2; i<8; ++i)
-        e += gamma(ex(i));
+        e += Gamma(ex(i));
     if (e != numeric(874)) {
-        clog << "gamma(1)+...+gamma(7) erroneously returned "
+        clog << "Gamma(1)+...+Gamma(7) erroneously returned "
              << e << " instead of 874" << endl;
         ++result;
     }
     
-    e = gamma(ex(1));
+    e = Gamma(ex(1));
     for (int i=2; i<8; ++i)
-        e *= gamma(ex(i));    
+        e *= Gamma(ex(i));    
     if (e != numeric(24883200)) {
-        clog << "gamma(1)*...*gamma(7) erroneously returned "
+        clog << "Gamma(1)*...*Gamma(7) erroneously returned "
              << e << " instead of 24883200" << endl;
         ++result;
     }
     
-    e = gamma(ex(numeric(5, 2)))*gamma(ex(numeric(9, 2)))*64;
+    e = Gamma(ex(numeric(5, 2)))*Gamma(ex(numeric(9, 2)))*64;
     if (e != 315*Pi) {
-        clog << "64*gamma(5/2)*gamma(9/2) erroneously returned "
+        clog << "64*Gamma(5/2)*Gamma(9/2) erroneously returned "
              << e << " instead of 315*Pi" << endl;
         ++result;
     }
     
-    e = gamma(ex(numeric(-13, 2)));
+    e = Gamma(ex(numeric(-13, 2)));
     for (int i=-13; i<7; i=i+2)
-        e += gamma(ex(numeric(i, 2)));
-    e = (e*gamma(ex(numeric(15, 2)))*numeric(512));
+        e += Gamma(ex(numeric(i, 2)));
+    e = (e*Gamma(ex(numeric(15, 2)))*numeric(512));
     if (e != numeric(633935)*Pi) {
-        clog << "512*(gamma(-13/2)+...+gamma(5/2))*gamma(15/2) erroneously returned "
+        clog << "512*(Gamma(-13/2)+...+Gamma(5/2))*Gamma(15/2) erroneously returned "
              << e << " instead of 633935*Pi" << endl;
         ++result;
     }
@@ -147,11 +147,11 @@ static unsigned inifcns_consist_psi(void)
     ex e, f;
     
     // We check psi(1) and psi(1/2) implicitly by calculating the curious
-    // little identity gamma(1)'/gamma(1) - gamma(1/2)'/gamma(1/2) == 2*log(2).
-    e += (gamma(x).diff(x)/gamma(x)).subs(x==numeric(1));
-    e -= (gamma(x).diff(x)/gamma(x)).subs(x==numeric(1,2));
+    // little identity Gamma(1)'/Gamma(1) - Gamma(1/2)'/Gamma(1/2) == 2*log(2).
+    e += (Gamma(x).diff(x)/Gamma(x)).subs(x==numeric(1));
+    e -= (Gamma(x).diff(x)/Gamma(x)).subs(x==numeric(1,2));
     if (e!=2*log(2)) {
-        clog << "gamma(1)'/gamma(1) - gamma(1/2)'/gamma(1/2) erroneously returned "
+        clog << "Gamma(1)'/Gamma(1) - Gamma(1/2)'/Gamma(1/2) erroneously returned "
              << e << " instead of 2*log(2)" << endl;
         ++result;
     }

@@ -1,5 +1,11 @@
 This file records noteworthy changes.
 
+0.6.0 (...)
+* Important interface changes:
+  gamma() -> Gamma()
+  EulerGamma -> gamma
+  beta() -> Beta()
+
 0.5.4 (15 March 2000)
 * Some algorithms in class matrix (notably determinant) were replaced by
   less brain-dead ones and should now have much better performance.

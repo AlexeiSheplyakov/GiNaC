@@ -773,13 +773,13 @@ int main(int argc, char **argv)
 	insert_fcn_help("atan", "inverse tangent function");
 	insert_fcn_help("atan2", "inverse tangent function with two arguments");
 	insert_fcn_help("atanh", "inverse hyperbolic tangent function");
-	insert_fcn_help("beta", "beta function");
+	insert_fcn_help("Beta", "Beta function");
 	insert_fcn_help("binomial", "binomial function");
 	insert_fcn_help("cos", "cosine function");
 	insert_fcn_help("cosh", "hyperbolic cosine function");
 	insert_fcn_help("exp", "exponential function");
 	insert_fcn_help("factorial", "factorial function");
-	insert_fcn_help("gamma", "gamma function");
+	insert_fcn_help("Gamma", "Gamma function");
 	insert_fcn_help("log", "natural logarithm");
 	insert_fcn_help("psi", "psi function\npsi(x) is the digamma function, psi(n,x) the nth polygamma function");
 	insert_fcn_help("sin", "sine function");

@@ -1382,11 +1382,11 @@ const numeric zeta(const numeric & x)
 }
 
 
-/** The gamma function.
+/** The Gamma function.
  *  This is only a stub! */
-const numeric gamma(const numeric & x)
+const numeric Gamma(const numeric & x)
 {
-    clog << "gamma(" << x
+    clog << "Gamma(" << x
          << "): Does anybody know good way to calculate this numerically?"
          << endl;
     return numeric(0);
@@ -1732,7 +1732,7 @@ ex PiEvalf(void)
 
 
 /** Floating point evaluation of Euler's constant Gamma. */
-ex EulerGammaEvalf(void)
+ex gammaEvalf(void)
 { 
     return numeric(::cl_eulerconst(cl_default_float_format));  // -> CLN
 }

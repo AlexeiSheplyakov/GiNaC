@@ -97,10 +97,10 @@ inline function zeta(const ex & p1, const ex & p2) {
 }
 
 /** Gamma-function. */
-DECLARE_FUNCTION_1P(gamma)
+DECLARE_FUNCTION_1P(Gamma)
 
 /** Beta-function. */
-DECLARE_FUNCTION_2P(beta)
+DECLARE_FUNCTION_2P(Beta)
 
 // overloading at work: we cannot use the macros
 /** Psi-function (aka digamma-function). */
