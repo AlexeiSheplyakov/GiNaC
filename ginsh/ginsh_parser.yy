@@ -766,7 +766,7 @@ static char **fcn_completion(const char *text, int start, int end)
 		rl_basic_word_break_characters = orig_basic_word_break_characters;
 		rl_completer_word_break_characters = rl_basic_word_break_characters;
 #if (GINAC_RL_VERSION_MAJOR < 4) || (GINAC_RL_VERSION_MAJOR == 4 && GINAC_RL_VERSION_MINOR < 2)
-		return completion_matches(text, (CPFunction *)filename_completion_function);
+		return completion_matches(const_cast<char *>(text), (CPFunction *)filename_completion_function);
 #else
 		return rl_completion_matches(text, rl_filename_completion_function);
 #endif
@@ -776,7 +776,7 @@ static char **fcn_completion(const char *text, int start, int end)
 		rl_basic_word_break_characters = " \t\n\"#$%&'()*+,-./:;<=>?@[\\]^`{|}~";
 		rl_completer_word_break_characters = rl_basic_word_break_characters;
 #if (GINAC_RL_VERSION_MAJOR < 4) || (GINAC_RL_VERSION_MAJOR == 4 && GINAC_RL_VERSION_MINOR < 2)
-		return completion_matches(text, (CPFunction *)fcn_generator);
+		return completion_matches(const_cast<char *>(text), (CPFunction *)fcn_generator);
 #else
 		return rl_completion_matches(text, fcn_generator);
 #endif
