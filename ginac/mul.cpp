@@ -693,9 +693,10 @@ ex mul::expand(unsigned options) const
 				exvector distrseq;
 				distrseq.reserve(n1*n2);
 				for (int i1=0; i1<n1; ++i1) {
-					for (int i2=0; i2<n2; ++i2) {
-						distrseq.push_back(add1.op(i1) * add2.op(i2));
-					}
+					// cache the first operand (for efficiency):
+					const ex op1 = add1.op(i1);
+					for (int i2=0; i2<n2; ++i2)
+						distrseq.push_back(op1 * add2.op(i2));
 				}
 				last_expanded = (new add(distrseq))->
 				                 setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0));
