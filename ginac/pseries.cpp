@@ -266,7 +266,7 @@ int pseries::degree(const ex &s) const
 	if (var.is_equal(s)) {
 		// Return last exponent
 		if (seq.size())
-			return ex_to<numeric>((*(seq.end() - 1)).coeff).to_int();
+			return ex_to<numeric>((seq.end()-1)->coeff).to_int();
 		else
 			return 0;
 	} else {
@@ -294,7 +294,7 @@ int pseries::ldegree(const ex &s) const
 	if (var.is_equal(s)) {
 		// Return first exponent
 		if (seq.size())
-			return ex_to<numeric>((*(seq.begin())).coeff).to_int();
+			return ex_to<numeric>((seq.begin())->coeff).to_int();
 		else
 			return 0;
 	} else {
@@ -682,7 +682,6 @@ ex pseries::mul_series(const pseries &other) const
 	
 	// Series multiplication
 	epvector new_seq;
-	
 	int a_max = degree(var);
 	int b_max = other.degree(var);
 	int a_min = ldegree(var);
@@ -723,30 +722,25 @@ ex pseries::mul_series(const pseries &other) const
  *  @see ex::series */
 ex mul::series(const relational & r, int order, unsigned options) const
 {
-	ex acc; // Series accumulator
-	
-	// Get first term from overall_coeff
-	acc = overall_coeff.series(r, order, options);
-	
+	pseries acc; // Series accumulator
+
 	// Multiply with remaining terms
-	epvector::const_iterator it = seq.begin();
-	epvector::const_iterator itend = seq.end();
-	for (; it!=itend; ++it) {
+	const epvector::const_iterator itbeg = seq.begin();
+	const epvector::const_iterator itend = seq.end();
+	for (epvector::const_iterator it=itbeg; it!=itend; ++it) {
 		ex op = it->rest;
-		if (op.info(info_flags::numeric)) {
-			// series * const (special case, faster)
-			ex f = power(op, it->coeff);
-			acc = ex_to<pseries>(acc).mul_const(ex_to<numeric>(f));
-			continue;
-		} else if (!is_ex_exactly_of_type(op, pseries))
+		if (!is_ex_exactly_of_type(op, pseries))
 			op = op.series(r, order, options);
 		if (!it->coeff.is_equal(_ex1()))
 			op = ex_to<pseries>(op).power_const(ex_to<numeric>(it->coeff), order);
 
 		// Series multiplication
-		acc = ex_to<pseries>(acc).mul_series(ex_to<pseries>(op));
+		if (it==itbeg)
+			acc = ex_to<pseries>(op);
+		else
+			acc = ex_to<pseries>(acc.mul_series(ex_to<pseries>(op)));
 	}
-	return acc;
+	return acc.mul_const(ex_to<numeric>(overall_coeff));
 }
 
 
@@ -778,17 +772,19 @@ ex pseries::power_const(const numeric &p, int deg) const
 	// then of course x^(p*m) but the recurrence formula still holds.
 	
 	if (seq.empty()) {
-		// as a spacial case, handle the empty (zero) series honoring the
+		// as a special case, handle the empty (zero) series honoring the
 		// usual power laws such as implemented in power::eval()
 		if (p.real().is_zero())
-			throw (std::domain_error("pseries::power_const(): pow(0,I) is undefined"));
+			throw std::domain_error("pseries::power_const(): pow(0,I) is undefined");
 		else if (p.real().is_negative())
-			throw (pole_error("pseries::power_const(): division by zero",1));
+			throw pole_error("pseries::power_const(): division by zero",1);
 		else
 			return *this;
 	}
 	
-	int ldeg = ldegree(var);
+	const int ldeg = ldegree(var);
+	if (!(p*ldeg).is_integer())
+		throw std::runtime_error("pseries::power_const(): trying to assemble a Puiseux series");
 	
 	// Compute coefficients of the powered series
 	exvector co;
@@ -807,7 +803,7 @@ ex pseries::power_const(const numeric &p, int deg) const
 		}
 		if (!sum.is_zero())
 			all_sums_zero = false;
-		co.push_back(sum / coeff(var, ldeg) / numeric(i));
+		co.push_back(sum / coeff(var, ldeg) / i);
 	}
 	
 	// Construct new series (of non-zero coefficients)
@@ -815,14 +811,14 @@ ex pseries::power_const(const numeric &p, int deg) const
 	bool higher_order = false;
 	for (int i=0; i<deg; ++i) {
 		if (!co[i].is_zero())
-			new_seq.push_back(expair(co[i], numeric(i) + p * ldeg));
+			new_seq.push_back(expair(co[i], p * ldeg + i));
 		if (is_order_function(co[i])) {
 			higher_order = true;
 			break;
 		}
 	}
 	if (!higher_order && !all_sums_zero)
-		new_seq.push_back(expair(Order(_ex1()), numeric(deg) + p * ldeg));
+		new_seq.push_back(expair(Order(_ex1()), p * ldeg + deg));
 	return pseries(relational(var,point), new_seq);
 }
 
