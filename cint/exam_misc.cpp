@@ -12,19 +12,17 @@ unsigned result = 0;
 		++result;
 }
 /*
- * Denny Fliegner's test using vector<symbol> is rather hard on Cint.  If
- * it fails due to missing <sstream> it's due to your compiler not being
- * fully ANSI-compliant.  Don't worry.
+ * Denny Fliegner's test using vector<symbol> tests Cint's memory management.
  */
 #include <sstream>
 {
 	vector<symbol> a;
 	ex bigsum = 0;
 	for (int i=0; i<42; ++i) {
-        ostringstream buf;
-        buf << "a" << i << ends;
-        a.push_back(symbol(buf.str()));
-        bigsum += a[i];
+		ostringstream buf;
+		buf << "a" << i << ends;
+		a.push_back(symbol(buf.str()));
+		bigsum += a[i];
 	}
 	ex sbtrct = -bigsum + a[0] + a[1];
 	if (pow(bigsum,2).expand().subs(a[0]==sbtrct).expand() != pow(a[1],2))
