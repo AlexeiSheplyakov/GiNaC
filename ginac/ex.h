@@ -344,6 +344,11 @@ bool ex::is_equal(const ex & other) const
 
 
 // utility functions
+
+/** Compare two objects of class quickly without doing a deep tree traversal.
+ *  @return "true" if they are equal
+ *          "false" if equality cannot be established quickly (e1 and e2 may
+ *          still be equal, in this case. */
 inline bool are_ex_trivially_equal(const ex &e1, const ex &e2)
 {
 	return e1.bp == e2.bp;
