@@ -98,7 +98,7 @@ static unsigned exam_lsolve2b(void)
 
 static unsigned exam_lsolve2c(void)
 {
-    // An example from the Maple online help.
+    // A more interesting example from the Maple online help.
     unsigned result = 0;
     symbol x("x"), y("y");
     lst eqns, vars;

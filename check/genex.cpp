@@ -1,7 +1,7 @@
 /** @file genex.cpp
  *
- *  Provides some routines for generating expressions that are later used as input
- *  in the consistency checks. */
+ *  Provides some routines for generating expressions that are later used as 
+ *  input in the consistency checks. */
 
 /*
  *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
@@ -44,7 +44,8 @@ dense_univariate_poly(const symbol & x, unsigned degree)
 }
 
 /* Create a dense bivariate random polynomial in x1 and x2.
- * (of the form 9 + 52*x1 - 27*x1^2 + 84*x2 + 7*x2^2 - 12*x1*x2 if degree ==2) */
+ * (of the form 9 + 52*x1 - 27*x1^2 + 84*x2 + 7*x2^2 - 12*x1*x2 if degree==2)
+ */
 const ex
 dense_bivariate_poly(const symbol & x1, const symbol & x2, unsigned degree)
 {
@@ -55,4 +56,76 @@ dense_bivariate_poly(const symbol & x1, const symbol & x2, unsigned degree)
             bipoly += numeric((rand()-RAND_MAX/2))*pow(x1,i1)*pow(x2,i2);
     
     return bipoly;
+}
+
+const ex
+random_symbol(const symbol & x,
+              const symbol & y,
+              const symbol & z,
+              bool rational = true)
+{
+    ex e;
+    switch (abs(rand()) % 4) {
+        case 0:
+            e = x;
+            break;
+        case 1:
+            e = y;
+            break;
+        case 2:
+            e = z;
+            break;
+        case 3: {
+            int c1 = rand() % 20 - 10;
+            int c2 = rand() % 20 - 10;
+            if (c1 == 0) c1 = 1;
+            if (c2 == 0) c2 = 1;
+            if (!rational)
+                c2 = 1;
+            e = numeric(c1) / numeric(c2);
+            break;
+        }
+    }
+    return e;
+}
+
+/* Create a sparse random tree in three symbols. */
+const ex
+sparse_tree(const symbol & x,
+            const symbol & y,
+            const symbol & z,
+            int level,
+            bool trig = false,    // true includes trigonomatric functions
+            bool rational = true) // false includes coefficients in Q
+{
+    if (level == 0)
+        return random_symbol(x,y,z,rational);
+    switch (abs(rand()) % 7) {
+    case 0:
+    case 1:
+        return add(sparse_tree(x,y,z,level-1, trig, rational),
+                       sparse_tree(x,y,z,level-1, trig, rational));
+        case 2:
+        case 3:
+            return mul(sparse_tree(x,y,z,level-1, trig, rational),
+                       sparse_tree(x,y,z,level-1, trig, rational));
+        case 4:
+        case 5:
+            return power(sparse_tree(x,y,z,level-1, trig, rational),
+                         abs(rand() % 4));
+        case 6:
+            if (trig) {
+                switch (abs(rand()) % 4) {
+                    case 0:
+                        return sin(sparse_tree(x,y,z,level-1, trig, rational));
+                    case 1:
+                        return cos(sparse_tree(x,y,z,level-1, trig, rational));
+                    case 2:
+                        return exp(sparse_tree(x,y,z,level-1, trig, rational));
+                    case 3:
+                        return log(sparse_tree(x,y,z,level-1, trig, rational));
+                }
+            } else
+                return random_symbol(x,y,z,rational);
+    }
 }

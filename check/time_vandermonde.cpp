@@ -33,12 +33,14 @@ static unsigned vandermonde_det(unsigned size)
     
     // construct Vandermonde matrix:
     matrix M(size,size);
-    for (unsigned ro=0; ro<size; ++ro)
-        for (unsigned co=0; co<size; ++co)
+    for (unsigned ro=0; ro<size; ++ro) {
+        for (unsigned co=0; co<size; ++co) {
             if (ro%2)
                 M.set(ro,co,pow(-pow(a,1+ro/2),co));
             else
                 M.set(ro,co,pow(pow(a,1+ro/2),co));
+        }
+    }
     
     // compute determinant:
     ex vdet = M.determinant();

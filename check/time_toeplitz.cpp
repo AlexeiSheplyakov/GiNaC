@@ -41,11 +41,12 @@ static unsigned toeplitz_det(unsigned size)
     
     // construct Toeplitz matrix:
     matrix M(size,size);
-    for (unsigned ro=0; ro<size; ++ro)
+    for (unsigned ro=0; ro<size; ++ro) {
         for (unsigned nd=ro; nd<size; ++nd) {
             M.set(nd-ro,nd,p[ro]);
             M.set(nd,nd-ro,p[ro]);
         }
+    }
     
     // compute determinant:
     ex tdet = M.determinant();
