@@ -38,7 +38,7 @@ unsigned exam_normalization();
 unsigned exam_pseries();
 unsigned exam_matrices();
 unsigned exam_lsolve();
-unsigned exam_noncommut();
+unsigned exam_indexed();
 unsigned exam_misc();
 
 #endif // ndef EXAMS_H

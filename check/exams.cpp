@@ -100,7 +100,7 @@ int main()
 	}
 	
 	try {
-		result += exam_noncommut();
+		result += exam_indexed();
 	} catch (const exception &e) {
 		cout << "Error: caught exception " << e.what() << endl;
 		++result;
