@@ -350,14 +350,20 @@ a matrix class for this purpose but we can see what it can do using
 @example
 > lsolve(a+x*y==z,x);
 y^(-1)*(z-a);
-> lsolve([3*x+5*y == 7, -2*x+10*y == -5], [x, y]);
-[x==19/8,y==-1/40]
-> M = [[ [[1, 3]], [[-3, 2]] ]];
-[[ [[1,3]], [[-3,2]] ]]
+> lsolve(@{3*x+5*y == 7, -2*x+10*y == -5@}, @{x, y@});
+@{x==19/8,y==-1/40@}
+> M = [ [1, 3], [-3, 2] ];
+[[1,3],[-3,2]]
 > determinant(M);
 11
 > charpoly(M,lambda);
 lambda^2-3*lambda+11
+> A = [ [1, 1], [2, -1] ];
+[[1,1],[2,-1]]
+> A+2*M;
+[[1,1],[2,-1]]+2*[[1,3],[-3,2]]
+> evalm(");
+[[3,7],[-4,3]]
 @end example
 
 Multivariate polynomials and rational functions may be expanded,
@@ -758,7 +764,7 @@ $\sqrt{2}$
 @dots{}
 @item @code{pseries} @tab Power Series, e.g. @math{x-1/6*x^3+1/120*x^5+O(x^7)}
 @item @code{function} @tab A symbolic function like @math{sin(2*x)}
-@item @code{lst} @tab Lists of expressions [@math{x}, @math{2*y}, @math{3+z}]
+@item @code{lst} @tab Lists of expressions @{@math{x}, @math{2*y}, @math{3+z}@}
 @item @code{matrix} @tab @math{n}x@math{m} matrices of expressions
 @item @code{relational} @tab A relation like the identity @math{x}@code{==}@math{y}
 @item @code{indexed} @tab Indexed object like @math{A_ij}
@@ -1161,8 +1167,8 @@ Finally you can append or prepend an expression to a list with the
 
 @example
     // ...
-    l.append(4*x);   // l is now [x, 2, y, x+y, 4*x]
-    l.prepend(0);    // l is now [0, x, 2, y, x+y, 4*x]
+    l.append(4*x);   // l is now @{x, 2, y, x+y, 4*x@}
+    l.prepend(0);    // l is now @{0, x, 2, y, x+y, 4*x@}
 @}
 @end example
 
@@ -1786,7 +1792,7 @@ It is output as @samp{eps}:
 @}
 @end example
 
-The matrix representation of the spinor metric is @code{[[ [[ 0, 1 ]], [[ -1, 0 ]] ]]}.
+The matrix representation of the spinor metric is @code{[[0, 1], [-1, 0]]}.
 
 @cindex @code{epsilon_tensor()}
 @cindex @code{lorentz_eps()}
@@ -1832,11 +1838,11 @@ and scalar products):
 
     ex e = indexed(A, i, j) * indexed(X, j);
     cout << e.simplify_indexed() << endl;
-     // -> [[ [[2*y+x]], [[4*y+3*x]] ]].i
+     // -> [[2*y+x],[4*y+3*x]].i
 
     e = indexed(A, i, j) * indexed(X, i) + indexed(X, j) * 2;
     cout << e.simplify_indexed() << endl;
-     // -> [[ [[3*y+3*x,6*y+2*x]] ]].j
+     // -> [[3*y+3*x,6*y+2*x]].j
 @}
 @end example
 
@@ -1970,14 +1976,8 @@ Other representation labels yield a different @code{return_type_tinfo()},
 but it's the same for any two objects with the same label. This is also true
 for color objects.
 
-As a last note, powers of non-commutative objects are not allowed in GiNaC.
-You can use the function
-
-@example
-ex ncpow(const ex & basis, unsigned exponent)
-@end example
-
-instead which returns an expanded product (e.g. @code{ncpow(a*b, 2)} becomes
+As a last note, positive integer powers of non-commutative objects are
+automatically expanded in GiNaC. For example, @code{pow(a*b, 2)} becomes
 @samp{a*b*a*b} if @samp{a} and @samp{b} are non-commutative expressions).
 
 
@@ -2688,47 +2688,47 @@ match fails, and the list of wildcard replacements otherwise):
 
 @example
 > match((x+y)^a,(x+y)^a);
-[]
+@{@}
 > match((x+y)^a,(x+y)^b);
 FAIL
 > match((x+y)^a,$1^$2);
-[$1==x+y,$2==a]
+@{$1==x+y,$2==a@}
 > match((x+y)^a,$1^$1);
 FAIL
 > match((x+y)^(x+y),$1^$1);
-[$1==x+y]
+@{$1==x+y@}
 > match((x+y)^(x+y),$1^$2);
-[$1==x+y,$2==x+y]
+@{$1==x+y,$2==x+y@}
 > match((a+b)*(a+c),($1+b)*($1+c));
-[$1==a]
+@{$1==a@}
 > match((a+b)*(a+c),(a+$1)*(a+$2));
-[$1==c,$2==b]
+@{$1==c,$2==b@}
   (Unpredictable. The result might also be [$1==c,$2==b].)
 > match((a+b)*(a+c),($1+$2)*($1+$3));
   (The result is undefined. Due to the sequential nature of the algorithm
    and the re-ordering of terms in GiNaC, the match for the first factor
-   may be [$1==a,$2==b] in which case the match for the second factor
-   succeeds, or it may be [$1==b,$2==a] which causes the second match to
+   may be @{$1==a,$2==b@} in which case the match for the second factor
+   succeeds, or it may be @{$1==b,$2==a@} which causes the second match to
    fail.)
 > match(a*(x+y)+a*z+b,a*$1+$2);
-  (This is also ambiguous and may return either [$1==z,$2==a*(x+y)+b] or
-   [$1=x+y,$2=a*z+b].)
+  (This is also ambiguous and may return either @{$1==z,$2==a*(x+y)+b@} or
+   @{$1=x+y,$2=a*z+b@}.)
 > match(a+b+c+d+e+f,c);
 FAIL
 > match(a+b+c+d+e+f,c+$0);
-[$0==a+e+b+f+d]
+@{$0==a+e+b+f+d@}
 > match(a+b+c+d+e+f,c+e+$0);
-[$0==a+b+f+d]
+@{$0==a+b+f+d@}
 > match(a+b,a+b+$0);
-[$0==0]
+@{$0==0@}
 > match(a*b^2,a^$1*b^$2);
 FAIL
   (The matching is syntactic, not algebraic, and "a" doesn't match "a^$1"
    even if a==a^1.)
 > match(x*atan2(x,x^2),$0*atan2($0,$0^2));
-[$0==x]
+@{$0==x@}
 > match(atan2(y,x^2),atan2(y,$0));
-[$0==x^2]
+@{$0==x^2@}
 @end example
 
 @cindex @code{has()}
@@ -3406,7 +3406,7 @@ almost any kind of object (anything that is @code{subs()}able):
     cout << indexed(A, i, j, k).antisymmetrize(lst(i, j)) << endl;
      // -> -1/2*A.j.i.k+1/2*A.i.j.k
     cout << lst(a, b, c).symmetrize(lst(a, b, c)) << endl;
-     // -> 1/6*[a,b,c]+1/6*[c,a,b]+1/6*[b,a,c]+1/6*[c,b,a]+1/6*[b,c,a]+1/6*[a,c,b]
+     // -> 1/6*@{a,b,c@}+1/6*@{c,a,b@}+1/6*@{b,a,c@}+1/6*@{c,b,a@}+1/6*@{b,c,a@}+1/6*@{a,c,b@}
 @}
 @end example
 
