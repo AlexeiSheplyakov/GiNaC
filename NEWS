@@ -1,7 +1,8 @@
 This file records noteworthy changes.
 
 0.9.4 (<date>)
-* interface cleanups and bugfixes.
+* Functions have better support for external scripting languages.
+* Interface cleanups and bugfixes.
 
 0.9.3 (16 August 2001)
 * series expansion now much more consistent for small order expansion.
