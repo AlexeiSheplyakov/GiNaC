@@ -1,3 +1,9 @@
+ginac (0.9.4-2) unstable; urgency=low
+
+  * Add build-dependency on flex and bison; closes: #113172.
+
+ -- Richard Kreckel <kreckel@ginac.de>  Mon, 24 Sep 2001 16:17:04 +0200
+
 ginac (0.9.4-1) unstable; urgency=low
 
   * New upstream release.
