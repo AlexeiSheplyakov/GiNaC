@@ -11,6 +11,8 @@
 extern "C" G__value G__exec_tempfile G__P((char *file));
 extern "C" void G__store_undo_position(void);
 
+#define PROMPT "GiNaC> "
+
 #ifdef OBSCURE_CINT_HACK
 
 #include <strstream>
@@ -113,9 +115,11 @@ void process_tempfile(string const & command)
 {
 #ifdef OBSCURE_CINT_HACK
     static G__value ref_symbol = exec_tempfile("symbol ginac_cint_internal_symbol; ginac_cint_internal_symbol;");
-    static G__value ref_ex = exec_tempfile("ex ginac_cint_internal_ex; ginac_cint_internal_ex;");
     static G__value ref_function = exec_tempfile("sin(ginac_cint_internal_symbol);");
-    static G__value ref_power = exec_tempfile("power(ginac_cint_internal_symbol,ginac_cint_internal_symbol);");
+    static G__value ref_power = exec_tempfile("power(ex(ginac_cint_internal_symbol),ex(ginac_cint_internal_symbol));");
+    static G__value ref_numeric = exec_tempfile("numeric ginac_cint_internal_numeric; ginac_cint_internal_numeric;");
+    static G__value ref_ex = exec_tempfile("ex ginac_cint_internal_ex; ginac_cint_internal_ex;");
+    static bool basic_type_warning_already_displayed=false;
 #endif // def OBSCURE_CINT_HACK
 
     G__value retval = exec_tempfile(command);
@@ -146,6 +150,22 @@ void process_tempfile(string const & command)
                       +"LLAST=LAST;\n"
                       +"LAST="+varname+";\n"
                       +"cout << \""+varname+" = \" << "+varname+" << endl << endl;");
+    } else if (TYPES_EQUAL(retval,ref_symbol)||
+               TYPES_EQUAL(retval,ref_function)||
+               TYPES_EQUAL(retval,ref_power)||
+               TYPES_EQUAL(retval,ref_numeric)) {
+        if (!basic_type_warning_already_displayed) {
+            cout << "WARNING: The return value of the last expression you entered was a symbol," << endl
+                 << "function, power or numeric, which cannot be safely displayed." << endl
+                 << "To force the output, cast it explicitly to type 'ex' or use 'cout'," << endl
+                 << "for example (assume 'x' is a symbol):" << endl
+                 << PROMPT "ex(x);" << endl
+                 << "OutX = x" << endl << endl
+                 << PROMPT "cout << x << endl;" << endl
+                 << "x" << endl << endl
+                 << "This warning will not be shown again." << endl;
+            basic_type_warning_already_displayed=true;
+        }
     }
 #endif // def OBSCURE_CINT_HACK
 }
@@ -175,13 +195,15 @@ int main(void)
     
     G__init_cint("cint");    /* initialize cint */
 
-    exec_tempfile("#include <string>\n");
+    // no longer needed as of cint 5.14.31
+    // exec_tempfile("#include <string>\n");
+
     exec_tempfile("ex LAST,LLAST,LLLAST;\n");
     
     bool quit = false;
     bool next_command_is_function=false;    
     while (!quit) {
-        strcpy(prompt,"GiNaC> ");
+        strcpy(prompt,PROMPT);
         int open_braces = 0;
         bool end_of_command = false;
         string command;
