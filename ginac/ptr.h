@@ -142,6 +142,7 @@ public:
 	inline friend std::ostream & operator<<(std::ostream & os, const ptr<T> & rhs)
 	{
 		os << rhs.p;
+		return os;
 	}
 
 private:
