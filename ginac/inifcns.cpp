@@ -33,6 +33,7 @@
 #include "relational.h"
 #include "pseries.h"
 #include "symbol.h"
+#include "symmetry.h"
 #include "utils.h"
 
 namespace GiNaC {
@@ -198,7 +199,8 @@ static ex eta_series(const ex & x, const ex & y,
 REGISTER_FUNCTION(eta, eval_func(eta_eval).
                        evalf_func(eta_evalf).
 				       series_func(eta_series).
-                       latex_name("\\eta"));
+                       latex_name("\\eta").
+                       set_symmetry(sy_symm(0, 1)));
 
 
 //////////
