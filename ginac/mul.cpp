@@ -28,7 +28,6 @@
 #include "power.h"
 #include "matrix.h"
 #include "archive.h"
-#include "debugmsg.h"
 #include "utils.h"
 
 namespace GiNaC {
@@ -36,12 +35,11 @@ namespace GiNaC {
 GINAC_IMPLEMENT_REGISTERED_CLASS(mul, expairseq)
 
 //////////
-// default ctor, dctor, copy ctor assignment operator and helpers
+// default ctor, dtor, copy ctor, assignment operator and helpers
 //////////
 
 mul::mul()
 {
-	debugmsg("mul default ctor",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_mul;
 }
 
@@ -56,7 +54,6 @@ DEFAULT_DESTROY(mul)
 
 mul::mul(const ex & lh, const ex & rh)
 {
-	debugmsg("mul ctor from ex,ex",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_mul;
 	overall_coeff = _ex1;
 	construct_from_2_ex(lh,rh);
@@ -65,7 +62,6 @@ mul::mul(const ex & lh, const ex & rh)
 
 mul::mul(const exvector & v)
 {
-	debugmsg("mul ctor from exvector",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_mul;
 	overall_coeff = _ex1;
 	construct_from_exvector(v);
@@ -74,7 +70,6 @@ mul::mul(const exvector & v)
 
 mul::mul(const epvector & v)
 {
-	debugmsg("mul ctor from epvector",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_mul;
 	overall_coeff = _ex1;
 	construct_from_epvector(v);
@@ -83,7 +78,6 @@ mul::mul(const epvector & v)
 
 mul::mul(const epvector & v, const ex & oc)
 {
-	debugmsg("mul ctor from epvector,ex",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_mul;
 	overall_coeff = oc;
 	construct_from_epvector(v);
@@ -92,7 +86,6 @@ mul::mul(const epvector & v, const ex & oc)
 
 mul::mul(epvector * vp, const ex & oc)
 {
-	debugmsg("mul ctor from epvector *,ex",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_mul;
 	GINAC_ASSERT(vp!=0);
 	overall_coeff = oc;
@@ -103,7 +96,6 @@ mul::mul(epvector * vp, const ex & oc)
 
 mul::mul(const ex & lh, const ex & mh, const ex & rh)
 {
-	debugmsg("mul ctor from ex,ex,ex",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_mul;
 	exvector factors;
 	factors.reserve(3);
@@ -129,8 +121,6 @@ DEFAULT_ARCHIVING(mul)
 
 void mul::print(const print_context & c, unsigned level) const
 {
-	debugmsg("mul print", LOGLEVEL_PRINT);
-
 	if (is_a<print_tree>(c)) {
 
 		inherited::print(c, level);
@@ -341,8 +331,6 @@ ex mul::coeff(const ex & s, int n) const
  *  @param level cut-off in recursive evaluation */
 ex mul::eval(int level) const
 {
-	debugmsg("mul eval",LOGLEVEL_MEMBER_FUNCTION);
-	
 	epvector *evaled_seqp = evalchildren(level);
 	if (evaled_seqp) {
 		// do more evaluation later

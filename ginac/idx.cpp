@@ -29,7 +29,6 @@
 #include "print.h"
 #include "archive.h"
 #include "utils.h"
-#include "debugmsg.h"
 
 namespace GiNaC {
 
@@ -38,23 +37,18 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(varidx, idx)
 GINAC_IMPLEMENT_REGISTERED_CLASS(spinidx, varidx)
 
 //////////
-// default constructor, destructor, copy constructor assignment operator and helpers
+// default ctor, dtor, copy ctor, assignment operator and helpers
 //////////
 
-idx::idx() : inherited(TINFO_idx)
-{
-	debugmsg("idx default constructor", LOGLEVEL_CONSTRUCT);
-}
+idx::idx() : inherited(TINFO_idx) {}
 
 varidx::varidx() : covariant(false)
 {
-	debugmsg("varidx default constructor", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_varidx;
 }
 
 spinidx::spinidx() : dotted(false)
 {
-	debugmsg("spinidx default constructor", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_spinidx;
 }
 
@@ -87,7 +81,6 @@ DEFAULT_DESTROY(spinidx)
 
 idx::idx(const ex & v, const ex & d) : inherited(TINFO_idx), value(v), dim(d)
 {
-	debugmsg("idx constructor from ex,ex", LOGLEVEL_CONSTRUCT);
 	if (is_dim_numeric())
 		if (!dim.info(info_flags::posint))
 			throw(std::invalid_argument("dimension of space must be a positive integer"));
@@ -95,13 +88,11 @@ idx::idx(const ex & v, const ex & d) : inherited(TINFO_idx), value(v), dim(d)
 
 varidx::varidx(const ex & v, const ex & d, bool cov) : inherited(v, d), covariant(cov)
 {
-	debugmsg("varidx constructor from ex,ex,bool", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_varidx;
 }
 
 spinidx::spinidx(const ex & v, const ex & d, bool cov, bool dot) : inherited(v, d, cov), dotted(dot)
 {
-	debugmsg("spinidx constructor from ex,ex,bool,bool", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_spinidx;
 }
 
@@ -111,20 +102,17 @@ spinidx::spinidx(const ex & v, const ex & d, bool cov, bool dot) : inherited(v, 
 
 idx::idx(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("idx constructor from archive_node", LOGLEVEL_CONSTRUCT);
 	n.find_ex("value", value, sym_lst);
 	n.find_ex("dim", dim, sym_lst);
 }
 
 varidx::varidx(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("varidx constructor from archive_node", LOGLEVEL_CONSTRUCT);
 	n.find_bool("covariant", covariant);
 }
 
 spinidx::spinidx(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("spinidx constructor from archive_node", LOGLEVEL_CONSTRUCT);
 	n.find_bool("dotted", dotted);
 }
 
@@ -157,8 +145,6 @@ DEFAULT_UNARCHIVE(spinidx)
 
 void idx::print(const print_context & c, unsigned level) const
 {
-	debugmsg("idx print", LOGLEVEL_PRINT);
-
 	if (is_of_type(c, print_tree)) {
 
 		c.s << std::string(level, ' ') << class_name()
@@ -183,8 +169,6 @@ void idx::print(const print_context & c, unsigned level) const
 
 void varidx::print(const print_context & c, unsigned level) const
 {
-	debugmsg("varidx print", LOGLEVEL_PRINT);
-
 	if (is_of_type(c, print_tree)) {
 
 		c.s << std::string(level, ' ') << class_name()
@@ -214,8 +198,6 @@ void varidx::print(const print_context & c, unsigned level) const
 
 void spinidx::print(const print_context & c, unsigned level) const
 {
-	debugmsg("spinidx print", LOGLEVEL_PRINT);
-
 	if (is_of_type(c, print_tree)) {
 
 		c.s << std::string(level, ' ') << class_name()

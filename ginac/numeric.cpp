@@ -35,7 +35,6 @@
 #include "ex.h"
 #include "print.h"
 #include "archive.h"
-#include "debugmsg.h"
 #include "tostring.h"
 #include "utils.h"
 
@@ -63,14 +62,12 @@ namespace GiNaC {
 GINAC_IMPLEMENT_REGISTERED_CLASS(numeric, basic)
 
 //////////
-// default ctor, dtor, copy ctor assignment
-// operator and helpers
+// default ctor, dtor, copy ctor, assignment operator and helpers
 //////////
 
 /** default ctor. Numerically it initializes to an integer zero. */
 numeric::numeric() : basic(TINFO_numeric)
 {
-	debugmsg("numeric default ctor", LOGLEVEL_CONSTRUCT);
 	value = cln::cl_I(0);
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
@@ -91,7 +88,6 @@ DEFAULT_DESTROY(numeric)
 
 numeric::numeric(int i) : basic(TINFO_numeric)
 {
-	debugmsg("numeric ctor from int",LOGLEVEL_CONSTRUCT);
 	// Not the whole int-range is available if we don't cast to long
 	// first.  This is due to the behaviour of the cl_I-ctor, which
 	// emphasizes efficiency.  However, if the integer is small enough, 
@@ -107,7 +103,6 @@ numeric::numeric(int i) : basic(TINFO_numeric)
 
 numeric::numeric(unsigned int i) : basic(TINFO_numeric)
 {
-	debugmsg("numeric ctor from uint",LOGLEVEL_CONSTRUCT);
 	// Not the whole uint-range is available if we don't cast to ulong
 	// first.  This is due to the behaviour of the cl_I-ctor, which
 	// emphasizes efficiency.  However, if the integer is small enough, 
@@ -123,7 +118,6 @@ numeric::numeric(unsigned int i) : basic(TINFO_numeric)
 
 numeric::numeric(long i) : basic(TINFO_numeric)
 {
-	debugmsg("numeric ctor from long",LOGLEVEL_CONSTRUCT);
 	value = cln::cl_I(i);
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
@@ -131,7 +125,6 @@ numeric::numeric(long i) : basic(TINFO_numeric)
 
 numeric::numeric(unsigned long i) : basic(TINFO_numeric)
 {
-	debugmsg("numeric ctor from ulong",LOGLEVEL_CONSTRUCT);
 	value = cln::cl_I(i);
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
@@ -141,7 +134,6 @@ numeric::numeric(unsigned long i) : basic(TINFO_numeric)
  *  @exception overflow_error (division by zero) */
 numeric::numeric(long numer, long denom) : basic(TINFO_numeric)
 {
-	debugmsg("numeric ctor from long/long",LOGLEVEL_CONSTRUCT);
 	if (!denom)
 		throw std::overflow_error("division by zero");
 	value = cln::cl_I(numer) / cln::cl_I(denom);
@@ -151,7 +143,6 @@ numeric::numeric(long numer, long denom) : basic(TINFO_numeric)
 
 numeric::numeric(double d) : basic(TINFO_numeric)
 {
-	debugmsg("numeric ctor from double",LOGLEVEL_CONSTRUCT);
 	// We really want to explicitly use the type cl_LF instead of the
 	// more general cl_F, since that would give us a cl_DF only which
 	// will not be promoted to cl_LF if overflow occurs:
@@ -164,7 +155,6 @@ numeric::numeric(double d) : basic(TINFO_numeric)
  *  notation like "2+5*I". */
 numeric::numeric(const char *s) : basic(TINFO_numeric)
 {
-	debugmsg("numeric ctor from string",LOGLEVEL_CONSTRUCT);
 	cln::cl_N ctorval = 0;
 	// parse complex numbers (functional but not completely safe, unfortunately
 	// std::string does not understand regexpese):
@@ -236,7 +226,6 @@ numeric::numeric(const char *s) : basic(TINFO_numeric)
  *  only. */
 numeric::numeric(const cln::cl_N &z) : basic(TINFO_numeric)
 {
-	debugmsg("numeric ctor from cl_N", LOGLEVEL_CONSTRUCT);
 	value = z;
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
@@ -247,7 +236,6 @@ numeric::numeric(const cln::cl_N &z) : basic(TINFO_numeric)
 
 numeric::numeric(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("numeric ctor from archive_node", LOGLEVEL_CONSTRUCT);
 	cln::cl_N ctorval = 0;
 
 	// Read number as string
@@ -347,8 +335,6 @@ static void print_real_number(const print_context & c, const cln::cl_R &x)
  *  @see print_real_number() */
 void numeric::print(const print_context & c, unsigned level) const
 {
-	debugmsg("numeric print", LOGLEVEL_PRINT);
-
 	if (is_a<print_tree>(c)) {
 
 		c.s << std::string(level, ' ') << cln::the<cln::cl_N>(value)
@@ -1835,7 +1821,6 @@ _numeric_digits::operator long()
 /** Append global Digits object to ostream. */
 void _numeric_digits::print(std::ostream &os) const
 {
-	debugmsg("_numeric_digits print", LOGLEVEL_PRINT);
 	os << digits;
 }
 

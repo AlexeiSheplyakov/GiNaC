@@ -34,7 +34,6 @@
 #include "print.h"
 #include "archive.h"
 #include "utils.h"
-#include "debugmsg.h"
 
 namespace GiNaC {
 
@@ -45,10 +44,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(pseries, basic)
  *  Default ctor, dtor, copy ctor, assignment operator and helpers
  */
 
-pseries::pseries() : basic(TINFO_pseries)
-{
-	debugmsg("pseries default ctor", LOGLEVEL_CONSTRUCT);
-}
+pseries::pseries() : inherited(TINFO_pseries) { }
 
 void pseries::copy(const pseries &other)
 {
@@ -76,7 +72,6 @@ DEFAULT_DESTROY(pseries)
  *  @return newly constructed pseries */
 pseries::pseries(const ex &rel_, const epvector &ops_) : basic(TINFO_pseries), seq(ops_)
 {
-	debugmsg("pseries ctor from ex,epvector", LOGLEVEL_CONSTRUCT);
 	GINAC_ASSERT(is_exactly_a<relational>(rel_));
 	GINAC_ASSERT(is_exactly_a<symbol>(rel_.lhs()));
 	point = rel_.rhs();
@@ -90,7 +85,6 @@ pseries::pseries(const ex &rel_, const epvector &ops_) : basic(TINFO_pseries), s
 
 pseries::pseries(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("pseries ctor from archive_node", LOGLEVEL_CONSTRUCT);
 	for (unsigned int i=0; true; ++i) {
 		ex rest;
 		ex coeff;
@@ -124,8 +118,6 @@ DEFAULT_UNARCHIVE(pseries)
 
 void pseries::print(const print_context & c, unsigned level) const
 {
-	debugmsg("pseries print", LOGLEVEL_PRINT);
-
 	if (is_a<print_tree>(c)) {
 
 		c.s << std::string(level, ' ') << class_name()

@@ -33,7 +33,6 @@
 #include "tinfos.h"
 #include "assertion.h"
 #include "registrar.h"
-/*#include "debugmsg.h"*/
 
 namespace GiNaC {
 
@@ -64,16 +63,12 @@ class basic
 	
 	friend class ex;
 	
-	// default ctor, dtor, copy ctor assignment operator and helpers
+	// default ctor, dtor, copy ctor, assignment operator and helpers
 public:
-	basic() : tinfo_key(TINFO_basic), flags(0), refcount(0)
-	{
-		/* debugmsg("basic default ctor", LOGLEVEL_CONSTRUCT); */
-	}
+	basic() : tinfo_key(TINFO_basic), flags(0), refcount(0) {}
 	/** basic dtor, virtual because class ex will delete objects via ptr. */
 	virtual ~basic()
 	{
-		/* debugmsg("basic dtor", LOGLEVEL_DESTRUCT); */
 		destroy(false);
 		GINAC_ASSERT((!(flags & status_flags::dynallocated))||(refcount==0));
 	}
@@ -92,10 +87,7 @@ protected:
 	
 	// other ctors
 	/** ctor with specified tinfo_key */
-	basic(unsigned ti) : tinfo_key(ti), flags(0), refcount(0)
-	{
-		/* debugmsg("basic ctor with tinfo_key", LOGLEVEL_CONSTRUCT); */
-	}
+	basic(unsigned ti) : tinfo_key(ti), flags(0), refcount(0) {}
 	
 	// new virtual functions which can be overridden by derived classes
 public: // only const functions please (may break reference counting)

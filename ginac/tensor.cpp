@@ -34,7 +34,6 @@
 #include "print.h"
 #include "archive.h"
 #include "utils.h"
-#include "debugmsg.h"
 
 namespace GiNaC {
 
@@ -46,13 +45,8 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(spinmetric, tensmetric)
 GINAC_IMPLEMENT_REGISTERED_CLASS(tensepsilon, tensor)
 
 //////////
-// default constructor, destructor, copy constructor assignment operator and helpers
+// default ctor, dtor, copy ctor, assignment operator and helpers
 //////////
-
-tensor::tensor(unsigned ti) : inherited(ti)
-{
-	debugmsg("tensor constructor from unsigned", LOGLEVEL_CONSTRUCT); \
-}
 
 DEFAULT_CTORS(tensor)
 DEFAULT_CTORS(tensdelta)
@@ -64,19 +58,16 @@ DEFAULT_DESTROY(tensepsilon)
 
 minkmetric::minkmetric() : pos_sig(false)
 {
-	debugmsg("minkmetric default constructor", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_minkmetric;
 }
 
 spinmetric::spinmetric()
 {
-	debugmsg("spinmetric default constructor", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_spinmetric;
 }
 
 minkmetric::minkmetric(bool ps) : pos_sig(ps)
 {
-	debugmsg("minkmetric constructor from bool", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_minkmetric;
 }
 
@@ -88,13 +79,11 @@ void minkmetric::copy(const minkmetric & other)
 
 tensepsilon::tensepsilon() : minkowski(false), pos_sig(false)
 {
-	debugmsg("tensepsilon default constructor", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_tensepsilon;
 }
 
 tensepsilon::tensepsilon(bool mink, bool ps) : minkowski(mink), pos_sig(ps)
 {
-	debugmsg("tensepsilon constructor from bool,bool", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_tensepsilon;
 }
 
@@ -118,7 +107,6 @@ DEFAULT_UNARCHIVE(tensepsilon)
 
 minkmetric::minkmetric(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("minkmetric constructor from archive_node", LOGLEVEL_CONSTRUCT);
 	n.find_bool("pos_sig", pos_sig);
 }
 
@@ -130,7 +118,6 @@ void minkmetric::archive(archive_node &n) const
 
 tensepsilon::tensepsilon(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("tensepsilon constructor from archive_node", LOGLEVEL_CONSTRUCT);
 	n.find_bool("minkowski", minkowski);
 	n.find_bool("pos_sig", pos_sig);
 }

@@ -168,7 +168,6 @@ $constructors_implementation=generate(
 	<<'END_OF_CONSTRUCTORS_IMPLEMENTATION','const ex & param${N}',', ','	seq.push_back(param${N});',"\n");
 ${CONTAINER}::${CONTAINER}(${SEQ1}) : basic(TINFO_${CONTAINER})
 {
-	debugmsg(\"${CONTAINER} ctor from ${N}*ex\",LOGLEVEL_CONSTRUCT);
 	RESERVE(seq,${N});
 ${SEQ2}
 }
@@ -324,7 +323,6 @@ $implementation=<<END_OF_IMPLEMENTATION;
 #include "ex.h"
 #include "print.h"
 #include "archive.h"
-#include "debugmsg.h"
 
 namespace GiNaC {
 
@@ -333,15 +331,12 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(${CONTAINER}, basic)
 ${RESERVE_IMPLEMENTATION}
 
 //////////
-// default ctor, dtor, copy ctor assignment operator and helpers
+// default ctor, dtor, copy ctor, assignment operator and helpers
 //////////
 
 // public
 
-${CONTAINER}::${CONTAINER}() : basic(TINFO_${CONTAINER})
-{
-	debugmsg("${CONTAINER} default ctor",LOGLEVEL_CONSTRUCT);
-}
+${CONTAINER}::${CONTAINER}() : basic(TINFO_${CONTAINER}) {}
 
 // protected
 
@@ -365,7 +360,6 @@ void ${CONTAINER}::destroy(bool call_parent)
 
 ${CONTAINER}::${CONTAINER}(${STLT} const & s, bool discardable) :  basic(TINFO_${CONTAINER})
 {
-	debugmsg("${CONTAINER} ctor from ${STLT}", LOGLEVEL_CONSTRUCT);
 	if (discardable) {
 		seq.swap(const_cast<${STLT} &>(s));
 	} else {
@@ -375,7 +369,6 @@ ${CONTAINER}::${CONTAINER}(${STLT} const & s, bool discardable) :  basic(TINFO_$
 
 ${CONTAINER}::${CONTAINER}(${STLT} * vp) : basic(TINFO_${CONTAINER})
 {
-	debugmsg("${CONTAINER} ctor from ${STLT} *",LOGLEVEL_CONSTRUCT);
 	GINAC_ASSERT(vp!=0);
 	seq.swap(*vp);
 	delete vp;
@@ -390,7 +383,6 @@ ${constructors_implementation}
 /** Construct object from archive_node. */
 ${CONTAINER}::${CONTAINER}(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("${CONTAINER} ctor from archive_node", LOGLEVEL_CONSTRUCT);
 	for (unsigned int i=0; true; i++) {
 		ex e;
 		if (n.find_ex("seq", e, sym_lst, i))
@@ -425,8 +417,6 @@ void ${CONTAINER}::archive(archive_node &n) const
 
 void ${CONTAINER}::print(const print_context & c, unsigned level) const
 {
-	debugmsg("${CONTAINER} print", LOGLEVEL_PRINT);
-
 	if (is_a<print_tree>(c)) {
 
 		c.s << std::string(level, ' ') << class_name()

@@ -34,19 +34,17 @@
 #include "print.h"
 #include "archive.h"
 #include "utils.h"
-#include "debugmsg.h"
 
 namespace GiNaC {
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(indexed, exprseq)
 
 //////////
-// default constructor, destructor, copy constructor assignment operator and helpers
+// default ctor, dtor, copy ctor, assignment operator and helpers
 //////////
 
 indexed::indexed() : symtree(sy_none())
 {
-	debugmsg("indexed default constructor", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
 }
 
@@ -64,63 +62,54 @@ DEFAULT_DESTROY(indexed)
 
 indexed::indexed(const ex & b) : inherited(b), symtree(sy_none())
 {
-	debugmsg("indexed constructor from ex", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
 	validate();
 }
 
 indexed::indexed(const ex & b, const ex & i1) : inherited(b, i1), symtree(sy_none())
 {
-	debugmsg("indexed constructor from ex,ex", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
 	validate();
 }
 
 indexed::indexed(const ex & b, const ex & i1, const ex & i2) : inherited(b, i1, i2), symtree(sy_none())
 {
-	debugmsg("indexed constructor from ex,ex,ex", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
 	validate();
 }
 
 indexed::indexed(const ex & b, const ex & i1, const ex & i2, const ex & i3) : inherited(b, i1, i2, i3), symtree(sy_none())
 {
-	debugmsg("indexed constructor from ex,ex,ex,ex", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
 	validate();
 }
 
 indexed::indexed(const ex & b, const ex & i1, const ex & i2, const ex & i3, const ex & i4) : inherited(b, i1, i2, i3, i4), symtree(sy_none())
 {
-	debugmsg("indexed constructor from ex,ex,ex,ex,ex", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
 	validate();
 }
 
 indexed::indexed(const ex & b, const symmetry & symm, const ex & i1, const ex & i2) : inherited(b, i1, i2), symtree(symm)
 {
-	debugmsg("indexed constructor from ex,symmetry,ex,ex", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
 	validate();
 }
 
 indexed::indexed(const ex & b, const symmetry & symm, const ex & i1, const ex & i2, const ex & i3) : inherited(b, i1, i2, i3), symtree(symm)
 {
-	debugmsg("indexed constructor from ex,symmetry,ex,ex,ex", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
 	validate();
 }
 
 indexed::indexed(const ex & b, const symmetry & symm, const ex & i1, const ex & i2, const ex & i3, const ex & i4) : inherited(b, i1, i2, i3, i4), symtree(symm)
 {
-	debugmsg("indexed constructor from ex,symmetry,ex,ex,ex,ex", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
 	validate();
 }
 
 indexed::indexed(const ex & b, const exvector & v) : inherited(b), symtree(sy_none())
 {
-	debugmsg("indexed constructor from ex,exvector", LOGLEVEL_CONSTRUCT);
 	seq.insert(seq.end(), v.begin(), v.end());
 	tinfo_key = TINFO_indexed;
 	validate();
@@ -128,7 +117,6 @@ indexed::indexed(const ex & b, const exvector & v) : inherited(b), symtree(sy_no
 
 indexed::indexed(const ex & b, const symmetry & symm, const exvector & v) : inherited(b), symtree(symm)
 {
-	debugmsg("indexed constructor from ex,symmetry,exvector", LOGLEVEL_CONSTRUCT);
 	seq.insert(seq.end(), v.begin(), v.end());
 	tinfo_key = TINFO_indexed;
 	validate();
@@ -136,19 +124,16 @@ indexed::indexed(const ex & b, const symmetry & symm, const exvector & v) : inhe
 
 indexed::indexed(const symmetry & symm, const exprseq & es) : inherited(es), symtree(symm)
 {
-	debugmsg("indexed constructor from symmetry,exprseq", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
 }
 
 indexed::indexed(const symmetry & symm, const exvector & v, bool discardable) : inherited(v, discardable), symtree(symm)
 {
-	debugmsg("indexed constructor from symmetry,exvector", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
 }
 
 indexed::indexed(const symmetry & symm, exvector * vp) : inherited(vp), symtree(symm)
 {
-	debugmsg("indexed constructor from symmetry,exvector *", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
 }
 
@@ -158,7 +143,6 @@ indexed::indexed(const symmetry & symm, exvector * vp) : inherited(vp), symtree(
 
 indexed::indexed(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("indexed constructor from archive_node", LOGLEVEL_CONSTRUCT);
 	if (!n.find_ex("symmetry", symtree, sym_lst)) {
 		// GiNaC versions <= 0.9.0 had an unsigned "symmetry" property
 		unsigned symm = 0;
@@ -192,7 +176,6 @@ DEFAULT_UNARCHIVE(indexed)
 
 void indexed::print(const print_context & c, unsigned level) const
 {
-	debugmsg("indexed print", LOGLEVEL_PRINT);
 	GINAC_ASSERT(seq.size() > 0);
 
 	if (is_of_type(c, print_tree)) {

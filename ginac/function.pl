@@ -80,7 +80,6 @@ $constructors_implementation=generate(
 function::function(unsigned ser, ${SEQ1})
 	: exprseq(${SEQ2}), serial(ser)
 {
-	debugmsg(\"function ctor from unsigned,${N}*ex\",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_function;
 }
 END_OF_CONSTRUCTORS_IMPLEMENTATION
@@ -440,7 +439,6 @@ $implementation=<<END_OF_IMPLEMENTATION;
 #include "inifcns.h"
 #include "tostring.h"
 #include "utils.h"
-#include "debugmsg.h"
 #include "remember.h"
 
 namespace GiNaC {
@@ -589,14 +587,13 @@ unsigned function::current_serial = 0;
 GINAC_IMPLEMENT_REGISTERED_CLASS(function, exprseq)
 
 //////////
-// default ctor, dtor, copy ctor assignment operator and helpers
+// default ctor, dtor, copy ctor, assignment operator and helpers
 //////////
 
 // public
 
 function::function() : serial(0)
 {
-	debugmsg("function default ctor",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_function;
 }
 
@@ -622,7 +619,6 @@ void function::destroy(bool call_parent)
 
 function::function(unsigned ser) : serial(ser)
 {
-	debugmsg("function ctor from unsigned",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_function;
 }
 
@@ -632,21 +628,18 @@ $constructors_implementation
 
 function::function(unsigned ser, const exprseq & es) : exprseq(es), serial(ser)
 {
-	debugmsg("function ctor from unsigned,exprseq",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_function;
 }
 
 function::function(unsigned ser, const exvector & v, bool discardable) 
   : exprseq(v,discardable), serial(ser)
 {
-	debugmsg("function ctor from string,exvector,bool",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_function;
 }
 
 function::function(unsigned ser, exvector * vp) 
   : exprseq(vp), serial(ser)
 {
-	debugmsg("function ctor from unsigned,exvector *",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_function;
 }
 
@@ -657,8 +650,6 @@ function::function(unsigned ser, exvector * vp)
 /** Construct object from archive_node. */
 function::function(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("function ctor from archive_node", LOGLEVEL_CONSTRUCT);
-
 	// Find serial number by function name
 	std::string s;
 	if (n.find_string("name", s)) {
@@ -698,8 +689,6 @@ void function::archive(archive_node &n) const
 
 void function::print(const print_context & c, unsigned level) const
 {
-	debugmsg("function print", LOGLEVEL_PRINT);
-
 	GINAC_ASSERT(serial<registered_functions().size());
 
 	if (is_of_type(c, print_tree)) {

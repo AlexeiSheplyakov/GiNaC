@@ -27,7 +27,6 @@
 #include "mul.h"
 #include "matrix.h"
 #include "archive.h"
-#include "debugmsg.h"
 #include "utils.h"
 
 namespace GiNaC {
@@ -35,12 +34,11 @@ namespace GiNaC {
 GINAC_IMPLEMENT_REGISTERED_CLASS(add, expairseq)
 
 //////////
-// default constructor, destructor, copy constructor assignment operator and helpers
+// default ctor, dtor, copy ctor, assignment operator and helpers
 //////////
 
 add::add()
 {
-	debugmsg("add default constructor",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_add;
 }
 
@@ -55,7 +53,6 @@ DEFAULT_DESTROY(add)
 
 add::add(const ex & lh, const ex & rh)
 {
-	debugmsg("add constructor from ex,ex",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_add;
 	overall_coeff = _ex0;
 	construct_from_2_ex(lh,rh);
@@ -64,7 +61,6 @@ add::add(const ex & lh, const ex & rh)
 
 add::add(const exvector & v)
 {
-	debugmsg("add constructor from exvector",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_add;
 	overall_coeff = _ex0;
 	construct_from_exvector(v);
@@ -73,7 +69,6 @@ add::add(const exvector & v)
 
 add::add(const epvector & v)
 {
-	debugmsg("add constructor from epvector",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_add;
 	overall_coeff = _ex0;
 	construct_from_epvector(v);
@@ -82,7 +77,6 @@ add::add(const epvector & v)
 
 add::add(const epvector & v, const ex & oc)
 {
-	debugmsg("add constructor from epvector,ex",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_add;
 	overall_coeff = oc;
 	construct_from_epvector(v);
@@ -91,7 +85,6 @@ add::add(const epvector & v, const ex & oc)
 
 add::add(epvector * vp, const ex & oc)
 {
-	debugmsg("add constructor from epvector *,ex",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_add;
 	GINAC_ASSERT(vp!=0);
 	overall_coeff = oc;
@@ -114,8 +107,6 @@ DEFAULT_ARCHIVING(add)
 
 void add::print(const print_context & c, unsigned level) const
 {
-	debugmsg("add print", LOGLEVEL_PRINT);
-
 	if (is_a<print_tree>(c)) {
 
 		inherited::print(c, level);
@@ -316,8 +307,6 @@ ex add::coeff(const ex & s, int n) const
  *  @param level cut-off in recursive evaluation */
 ex add::eval(int level) const
 {
-	debugmsg("add eval",LOGLEVEL_MEMBER_FUNCTION);
-	
 	epvector *evaled_seqp = evalchildren(level);
 	if (evaled_seqp) {
 		// do more evaluation later
@@ -378,7 +367,7 @@ ex add::evalm(void) const
 				sum = sum.add(ex_to<matrix>(m));
 		} else
 			all_matrices = false;
-		it++;
+		++it;
 	}
 
 	if (all_matrices) {

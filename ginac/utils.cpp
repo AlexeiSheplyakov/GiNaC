@@ -384,7 +384,7 @@ library_init::~library_init()
 
 // member functions
 
-	// default ctor, dtor, copy ctor assignment operator and helpers
+	// default ctor, dtor, copy ctor, assignment operator and helpers
 	// none
 
 	// other ctors
@@ -408,7 +408,7 @@ library_init::~library_init()
 
 
 //////////
-// default ctor, dtor, copy ctor assignment operator and helpers
+// default ctor, dtor, copy ctor, assignment operator and helpers
 //////////
 
 // public

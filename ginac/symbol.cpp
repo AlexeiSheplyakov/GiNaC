@@ -27,7 +27,6 @@
 #include "lst.h"
 #include "print.h"
 #include "archive.h"
-#include "debugmsg.h"
 #include "tostring.h"
 #include "utils.h"
 
@@ -36,12 +35,11 @@ namespace GiNaC {
 GINAC_IMPLEMENT_REGISTERED_CLASS_NO_CTORS(symbol, basic)
 
 //////////
-// default ctor, dtor, copy ctor assignment operator and helpers
+// default ctor, dtor, copy ctor, assignment operator and helpers
 //////////
 
 symbol::symbol() : inherited(TINFO_symbol), serial(next_serial++)
 {
-	debugmsg("symbol default ctor", LOGLEVEL_CONSTRUCT);
 	name = TeX_name = autoname_prefix()+ToString(serial);
 	asexinfop = new assigned_ex_info;
 	setflag(status_flags::evaluated | status_flags::expanded);
@@ -74,13 +72,11 @@ void symbol::destroy(bool call_parent)
 
 symbol::symbol(const symbol & other)
 {
-	debugmsg("symbol copy ctor", LOGLEVEL_CONSTRUCT);
 	copy(other);
 }
 
 symbol::symbol(const std::string & initname) : inherited(TINFO_symbol)
 {
-	debugmsg("symbol ctor from string", LOGLEVEL_CONSTRUCT);
 	name = initname;
 	TeX_name = default_TeX_name();
 	serial = next_serial++;
@@ -90,7 +86,6 @@ symbol::symbol(const std::string & initname) : inherited(TINFO_symbol)
 
 symbol::symbol(const std::string & initname, const std::string & texname) : inherited(TINFO_symbol)
 {
-	debugmsg("symbol ctor from string", LOGLEVEL_CONSTRUCT);
 	name = initname;
 	TeX_name = texname;
 	serial = next_serial++;
@@ -105,7 +100,6 @@ symbol::symbol(const std::string & initname, const std::string & texname) : inhe
 /** Construct object from archive_node. */
 symbol::symbol(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("symbol ctor from archive_node", LOGLEVEL_CONSTRUCT);
 	serial = next_serial++;
 	if (!(n.find_string("name", name)))
 		name = autoname_prefix() + ToString(serial);
@@ -145,14 +139,11 @@ void symbol::archive(archive_node &n) const
 
 basic *symbol::duplicate() const
 {
-	debugmsg("symbol duplicate", LOGLEVEL_DUPLICATE);
 	return new symbol(*this);
 }
 
 void symbol::print(const print_context & c, unsigned level) const
 {
-	debugmsg("symbol print", LOGLEVEL_PRINT);
-
 	if (is_a<print_tree>(c)) {
 
 		c.s << std::string(level, ' ') << name << " (" << class_name() << ")"

@@ -74,7 +74,7 @@ class ex
 	
 // member functions
 	
-	// default ctor, dtor, copy ctor assignment operator and helpers
+	// default ctor, dtor, copy ctor, assignment operator and helpers
 public:
 	ex();
 	~ex();
@@ -210,7 +210,6 @@ public:
 inline
 ex::ex()
 {
-	/* debugmsg("ex default ctor",LOGLEVEL_CONSTRUCT); */
 	extern const class numeric *_num0_p;
 	bp = (basic*)_num0_p;
 	GINAC_ASSERT(bp!=0);
@@ -224,7 +223,6 @@ ex::ex()
 inline
 ex::~ex()
 {
-	/*debugmsg("ex dtor",LOGLEVEL_DESTRUCT);*/
 	GINAC_ASSERT(bp!=0);
 	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
 	if (--bp->refcount == 0)
@@ -234,7 +232,6 @@ ex::~ex()
 inline
 ex::ex(const ex & other) : bp(other.bp)
 {
-	/*debugmsg("ex copy ctor",LOGLEVEL_CONSTRUCT);*/
 	GINAC_ASSERT(bp!=0);
 	GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
 	++bp->refcount;
@@ -246,7 +243,6 @@ ex::ex(const ex & other) : bp(other.bp)
 inline
 ex & ex::operator=(const ex & other)
 {
-	/*debugmsg("ex operator=",LOGLEVEL_ASSIGNMENT);*/
 	GINAC_ASSERT(bp!=0);
 	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
 	GINAC_ASSERT(other.bp!=0);
@@ -265,7 +261,6 @@ ex & ex::operator=(const ex & other)
 inline
 ex::ex(const basic & other)
 {
-	/*debugmsg("ex ctor from basic",LOGLEVEL_CONSTRUCT);*/
 	construct_from_basic(other);
 #ifdef OBSCURE_CINT_HACK
 	update_last_created_or_assigned_bp();
@@ -275,7 +270,6 @@ ex::ex(const basic & other)
 inline
 ex::ex(int i)
 {
-	/*debugmsg("ex ctor from int",LOGLEVEL_CONSTRUCT);*/
 	construct_from_int(i);
 #ifdef OBSCURE_CINT_HACK
 	update_last_created_or_assigned_bp();
@@ -285,7 +279,6 @@ ex::ex(int i)
 inline
 ex::ex(unsigned int i)
 {
-	/*debugmsg("ex ctor from unsigned int",LOGLEVEL_CONSTRUCT);*/
 	construct_from_uint(i);
 #ifdef OBSCURE_CINT_HACK
 	update_last_created_or_assigned_bp();
@@ -295,7 +288,6 @@ ex::ex(unsigned int i)
 inline
 ex::ex(long i)
 {
-	/*debugmsg("ex ctor from long",LOGLEVEL_CONSTRUCT);*/
 	construct_from_long(i);
 #ifdef OBSCURE_CINT_HACK
 	update_last_created_or_assigned_bp();
@@ -305,7 +297,6 @@ ex::ex(long i)
 inline
 ex::ex(unsigned long i)
 {
-	/*debugmsg("ex ctor from unsigned long",LOGLEVEL_CONSTRUCT);*/
 	construct_from_ulong(i);
 #ifdef OBSCURE_CINT_HACK
 	update_last_created_or_assigned_bp();
@@ -315,7 +306,6 @@ ex::ex(unsigned long i)
 inline
 ex::ex(double const d)
 {
-	/*debugmsg("ex ctor from double",LOGLEVEL_CONSTRUCT);*/
 	construct_from_double(d);
 #ifdef OBSCURE_CINT_HACK
 	update_last_created_or_assigned_bp();
@@ -325,7 +315,6 @@ ex::ex(double const d)
 inline
 ex::ex(const std::string &s, const ex &l)
 {
-	/*debugmsg("ex ctor from string,lst",LOGLEVEL_CONSTRUCT);*/
 	construct_from_string_and_lst(s, l);
 #ifdef OBSCURE_CINT_HACK
 	update_last_created_or_assigned_bp();

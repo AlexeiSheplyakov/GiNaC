@@ -7,8 +7,8 @@ libginac_la_SOURCES = add.cpp archive.cpp basic.cpp constant.cpp ex.cpp \
   normal.cpp numeric.cpp operators.cpp power.cpp registrar.cpp relational.cpp \
   symbol.cpp pseries.cpp utils.cpp ncmul.cpp structure.cpp exprseq_suppl.cpp \
   lst.cpp lst_suppl.cpp input_parser.yy input_lexer.ll input_lexer.h \
-  remember.h remember.cpp debugmsg.h utils.h idx.cpp indexed.cpp tensor.cpp \
-  color.cpp clifford.cpp wildcard.cpp symmetry.cpp fderivative.cpp tostring.h
+  remember.h remember.cpp utils.h idx.cpp indexed.cpp tensor.cpp color.cpp \
+  clifford.cpp wildcard.cpp symmetry.cpp fderivative.cpp tostring.h
 libginac_la_LDFLAGS = -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \
   -release $(LT_RELEASE)
 ginacincludedir = $(includedir)/ginac

@@ -77,7 +77,7 @@ public: \
 	GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(classname, supername) \
 public: \
 	classname(); \
-	~classname() { /*debugmsg(#classname " dtor", LOGLEVEL_DESTRUCT);*/ destroy(false); } \
+	~classname() { destroy(false); } \
 	classname(const classname & other); \
 	const classname & operator=(const classname & other); \
 	basic * duplicate() const; \
@@ -97,14 +97,9 @@ private:
  *  from 'basic' (such as the assignment operator). */
 #define GINAC_IMPLEMENT_REGISTERED_CLASS(classname, supername) \
 	GINAC_IMPLEMENT_REGISTERED_CLASS_NO_CTORS(classname, supername) \
-classname::classname(const classname & other) \
-{ \
-	/*debugmsg(#classname " copy ctor", LOGLEVEL_CONSTRUCT);*/ \
-	copy(other); \
-} \
+classname::classname(const classname & other) { copy(other); } \
 const classname & classname::operator=(const classname & other) \
 { \
-	/*debugmsg(#classname " operator=", LOGLEVEL_ASSIGNMENT);*/ \
 	if (this != &other) { \
 		destroy(true); \
 		copy(other); \
@@ -112,7 +107,6 @@ const classname & classname::operator=(const classname & other) \
 	return *this; \
 } \
 basic * classname::duplicate() const { \
-	/*debugmsg(#classname " duplicate", LOGLEVEL_DUPLICATE);*/ \
 	return new classname(*this); \
 }
 

@@ -32,7 +32,6 @@
 #include "mul.h"
 #include "print.h"
 #include "archive.h"
-#include "debugmsg.h"
 #include "utils.h"
 
 #include <stdexcept>
@@ -45,12 +44,11 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(diracgamma, tensor)
 GINAC_IMPLEMENT_REGISTERED_CLASS(diracgamma5, tensor)
 
 //////////
-// default constructor, destructor, copy constructor assignment operator and helpers
+// default ctor, dtor, copy ctor, assignment operator and helpers
 //////////
 
 clifford::clifford() : representation_label(0)
 {
-	debugmsg("clifford default constructor", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_clifford;
 }
 
@@ -74,7 +72,6 @@ DEFAULT_CTORS(diracgamma5)
  *  @see dirac_ONE */
 clifford::clifford(const ex & b, unsigned char rl) : inherited(b), representation_label(rl)
 {
-	debugmsg("clifford constructor from ex", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_clifford;
 }
 
@@ -83,20 +80,17 @@ clifford::clifford(const ex & b, unsigned char rl) : inherited(b), representatio
  *  @see dirac_gamma */
 clifford::clifford(const ex & b, const ex & mu, unsigned char rl) : inherited(b, mu), representation_label(rl)
 {
-	debugmsg("clifford constructor from ex,ex", LOGLEVEL_CONSTRUCT);
 	GINAC_ASSERT(is_a<varidx>(mu));
 	tinfo_key = TINFO_clifford;
 }
 
 clifford::clifford(unsigned char rl, const exvector & v, bool discardable) : inherited(sy_none(), v, discardable), representation_label(rl)
 {
-	debugmsg("clifford constructor from unsigned char,exvector", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_clifford;
 }
 
 clifford::clifford(unsigned char rl, exvector * vp) : inherited(sy_none(), vp), representation_label(rl)
 {
-	debugmsg("clifford constructor from unsigned char,exvector *", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_clifford;
 }
 
@@ -106,7 +100,6 @@ clifford::clifford(unsigned char rl, exvector * vp) : inherited(sy_none(), vp), 
 
 clifford::clifford(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("clifford constructor from archive_node", LOGLEVEL_CONSTRUCT);
 	unsigned rl;
 	n.find_unsigned("label", rl);
 	representation_label = rl;

@@ -472,10 +472,7 @@ void classname::destroy(bool call_parent) \
 }
 
 #define DEFAULT_CTORS(classname) \
-classname::classname() : inherited(TINFO_##classname) \
-{ \
-	debugmsg(#classname " default constructor", LOGLEVEL_CONSTRUCT); \
-} \
+classname::classname() : inherited(TINFO_##classname) {} \
 DEFAULT_COPY(classname) \
 DEFAULT_DESTROY(classname)
 
@@ -486,10 +483,7 @@ ex classname::unarchive(const archive_node &n, const lst &sym_lst) \
 }
 
 #define DEFAULT_ARCHIVING(classname) \
-classname::classname(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst) \
-{ \
-	debugmsg(#classname " constructor from archive_node", LOGLEVEL_CONSTRUCT); \
-} \
+classname::classname(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst) {} \
 DEFAULT_UNARCHIVE(classname) \
 void classname::archive(archive_node &n) const \
 { \
@@ -506,7 +500,6 @@ int classname::compare_same_type(const basic & other) const \
 #define DEFAULT_PRINT(classname, text) \
 void classname::print(const print_context & c, unsigned level) const \
 { \
-	debugmsg(#classname " print", LOGLEVEL_PRINT); \
 	if (is_a<print_tree>(c)) \
 		inherited::print(c, level); \
 	else \
@@ -516,7 +509,6 @@ void classname::print(const print_context & c, unsigned level) const \
 #define DEFAULT_PRINT_LATEX(classname, text, latex) \
 void classname::print(const print_context & c, unsigned level) const \
 { \
-	debugmsg(#classname " print", LOGLEVEL_PRINT); \
 	if (is_a<print_tree>(c)) \
 		inherited::print(c, level); \
 	else if (is_a<print_latex>(c)) \

@@ -28,7 +28,6 @@
 #include "ex.h"
 #include "print.h"
 #include "archive.h"
-#include "debugmsg.h"
 #include "utils.h"
 
 namespace GiNaC {
@@ -36,15 +35,12 @@ namespace GiNaC {
 GINAC_IMPLEMENT_REGISTERED_CLASS(constant, basic)
 
 //////////
-// default ctor, dtor, copy ctor assignment operator and helpers
+// default ctor, dtor, copy ctor, assignment operator and helpers
 //////////
 
 // public
 
-constant::constant() : basic(TINFO_constant), ef(0), number(0), serial(next_serial++)
-{
-	debugmsg("constant default ctor",LOGLEVEL_CONSTRUCT);
-}
+constant::constant() : basic(TINFO_constant), ef(0), number(0), serial(next_serial++) {}
 
 // protected
 
@@ -78,7 +74,6 @@ void constant::destroy(bool call_parent)
 constant::constant(const std::string & initname, evalffunctype efun, const std::string & texname)
   : basic(TINFO_constant), name(initname), ef(efun), number(0), serial(next_serial++)
 {
-	debugmsg("constant ctor from string, function",LOGLEVEL_CONSTRUCT);
 	if (texname.empty())
 		TeX_name = "\\mbox{" + name + "}";
 	else
@@ -89,7 +84,6 @@ constant::constant(const std::string & initname, evalffunctype efun, const std::
 constant::constant(const std::string & initname, const numeric & initnumber, const std::string & texname)
   : basic(TINFO_constant), name(initname), ef(0), number(new numeric(initnumber)), serial(next_serial++)
 {
-	debugmsg("constant ctor from string, numeric",LOGLEVEL_CONSTRUCT);
 	if (texname.empty())
 		TeX_name = "\\mbox{" + name + "}";
 	else
@@ -101,10 +95,7 @@ constant::constant(const std::string & initname, const numeric & initnumber, con
 // archiving
 //////////
 
-constant::constant(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
-{
-	debugmsg("constant ctor from archive_node", LOGLEVEL_CONSTRUCT);
-}
+constant::constant(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst) {}
 
 ex constant::unarchive(const archive_node &n, const lst &sym_lst)
 {
@@ -138,8 +129,6 @@ void constant::archive(archive_node &n) const
 
 void constant::print(const print_context & c, unsigned level) const
 {
-	debugmsg("constant print", LOGLEVEL_PRINT);
-
 	if (is_a<print_tree>(c)) {
 		c.s << std::string(level, ' ') << name << " (" << class_name() << ")"
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec

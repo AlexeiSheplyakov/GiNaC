@@ -31,7 +31,6 @@
 #include "matrix.h"
 #include "print.h"
 #include "archive.h"
-#include "debugmsg.h"
 #include "utils.h"
 
 namespace GiNaC {
@@ -39,12 +38,11 @@ namespace GiNaC {
 GINAC_IMPLEMENT_REGISTERED_CLASS(ncmul, exprseq)
 
 //////////
-// default constructor, destructor, copy constructor assignment operator and helpers
+// default ctor, dtor, copy ctor, assignment operator and helpers
 //////////
 
 ncmul::ncmul()
 {
-	debugmsg("ncmul default constructor",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_ncmul;
 }
 
@@ -59,46 +57,39 @@ DEFAULT_DESTROY(ncmul)
 
 ncmul::ncmul(const ex & lh, const ex & rh) : inherited(lh,rh)
 {
-	debugmsg("ncmul constructor from ex,ex",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_ncmul;
 }
 
 ncmul::ncmul(const ex & f1, const ex & f2, const ex & f3) : inherited(f1,f2,f3)
 {
-	debugmsg("ncmul constructor from 3 ex",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_ncmul;
 }
 
 ncmul::ncmul(const ex & f1, const ex & f2, const ex & f3,
              const ex & f4) : inherited(f1,f2,f3,f4)
 {
-	debugmsg("ncmul constructor from 4 ex",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_ncmul;
 }
 
 ncmul::ncmul(const ex & f1, const ex & f2, const ex & f3,
              const ex & f4, const ex & f5) : inherited(f1,f2,f3,f4,f5)
 {
-	debugmsg("ncmul constructor from 5 ex",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_ncmul;
 }
 
 ncmul::ncmul(const ex & f1, const ex & f2, const ex & f3,
              const ex & f4, const ex & f5, const ex & f6) : inherited(f1,f2,f3,f4,f5,f6)
 {
-	debugmsg("ncmul constructor from 6 ex",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_ncmul;
 }
 
 ncmul::ncmul(const exvector & v, bool discardable) : inherited(v,discardable)
 {
-	debugmsg("ncmul constructor from exvector,bool",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_ncmul;
 }
 
 ncmul::ncmul(exvector * vp) : inherited(vp)
 {
-	debugmsg("ncmul constructor from exvector *",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_ncmul;
 }
 
@@ -116,8 +107,6 @@ DEFAULT_ARCHIVING(ncmul)
 
 void ncmul::print(const print_context & c, unsigned level) const
 {
-	debugmsg("ncmul print", LOGLEVEL_PRINT);
-
 	if (is_a<print_tree>(c)) {
 
 		inherited::print(c, level);

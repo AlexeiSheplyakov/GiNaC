@@ -52,14 +52,10 @@ class symbol : public basic
 	
 // member functions
 	
-	// default ctor, dtor, copy ctor assignment operator and helpers
+	// default ctor, dtor, copy ctor, assignment operator and helpers
 public:
 	symbol();
-	~symbol()
-	{
-		/*debugmsg("symbol dtor", LOGLEVEL_DESTRUCT);*/
-		destroy(false);
-	}
+	~symbol() { destroy(false); }
 	symbol(const symbol & other);
 protected:
 	void copy(const symbol & other); 

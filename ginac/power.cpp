@@ -36,7 +36,6 @@
 #include "symbol.h"
 #include "print.h"
 #include "archive.h"
-#include "debugmsg.h"
 #include "utils.h"
 
 namespace GiNaC {
@@ -46,13 +45,10 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(power, basic)
 typedef std::vector<int> intvector;
 
 //////////
-// default ctor, dtor, copy ctor assignment operator and helpers
+// default ctor, dtor, copy ctor, assignment operator and helpers
 //////////
 
-power::power() : inherited(TINFO_power)
-{
-	debugmsg("power default ctor",LOGLEVEL_CONSTRUCT);
-}
+power::power() : inherited(TINFO_power) { }
 
 void power::copy(const power & other)
 {
@@ -75,7 +71,6 @@ DEFAULT_DESTROY(power)
 
 power::power(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("power ctor from archive_node", LOGLEVEL_CONSTRUCT);
 	n.find_ex("basis", basis, sym_lst);
 	n.find_ex("exponent", exponent, sym_lst);
 }
@@ -121,8 +116,6 @@ static void print_sym_pow(const print_context & c, const symbol &x, int exp)
 
 void power::print(const print_context & c, unsigned level) const
 {
-	debugmsg("power print", LOGLEVEL_PRINT);
-
 	if (is_a<print_tree>(c)) {
 
 		inherited::print(c, level);
@@ -303,8 +296,6 @@ ex power::coeff(const ex & s, int n) const
  *  @param level cut-off in recursive evaluation */
 ex power::eval(int level) const
 {
-	debugmsg("power eval",LOGLEVEL_MEMBER_FUNCTION);
-	
 	if ((level==1) && (flags & status_flags::evaluated))
 		return *this;
 	else if (level == -max_recursion_level)
@@ -478,8 +469,6 @@ ex power::eval(int level) const
 
 ex power::evalf(int level) const
 {
-	debugmsg("power evalf",LOGLEVEL_MEMBER_FUNCTION);
-	
 	ex ebasis;
 	ex eexponent;
 	
@@ -490,7 +479,7 @@ ex power::evalf(int level) const
 		throw(std::runtime_error("max recursion level reached"));
 	} else {
 		ebasis = basis.evalf(level-1);
-		if (!is_ex_exactly_of_type(exponent,numeric))
+		if (!is_exactly_a<numeric>(exponent))
 			eexponent = exponent.evalf(level-1);
 		else
 			eexponent = exponent;

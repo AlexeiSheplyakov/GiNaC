@@ -24,19 +24,17 @@
 #include "print.h"
 #include "archive.h"
 #include "utils.h"
-#include "debugmsg.h"
 
 namespace GiNaC {
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(wildcard, basic)
 
 //////////
-// default constructor, destructor, copy constructor assignment operator and helpers
+// default ctor, dtor, copy ctor, assignment operator and helpers
 //////////
 
 wildcard::wildcard() : label(0)
 {
-	debugmsg("wildcard default constructor", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_wildcard;
 }
 
@@ -54,7 +52,6 @@ DEFAULT_DESTROY(wildcard)
 
 wildcard::wildcard(unsigned l) : label(l)
 {
-	debugmsg("wildcard constructor from unsigned", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_wildcard;
 }
 
@@ -64,7 +61,6 @@ wildcard::wildcard(unsigned l) : label(l)
 
 wildcard::wildcard(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("wildcard constructor from archive_node", LOGLEVEL_CONSTRUCT);
 	n.find_unsigned("label", label);
 }
 
@@ -93,8 +89,6 @@ int wildcard::compare_same_type(const basic & other) const
 
 void wildcard::print(const print_context & c, unsigned level) const
 {
-	debugmsg("wildcard print", LOGLEVEL_PRINT);
-
 	if (is_a<print_tree>(c)) {
 		c.s << std::string(level, ' ') << class_name() << " (" << label << ")"
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec

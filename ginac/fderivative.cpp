@@ -23,7 +23,6 @@
 #include "fderivative.h"
 #include "print.h"
 #include "archive.h"
-#include "debugmsg.h"
 #include "utils.h"
 
 namespace GiNaC {
@@ -31,12 +30,11 @@ namespace GiNaC {
 GINAC_IMPLEMENT_REGISTERED_CLASS(fderivative, function)
 
 //////////
-// default constructor, destructor, copy constructor assignment operator and helpers
+// default ctor, dtor, copy ctor, assignment operator and helpers
 //////////
 
 fderivative::fderivative()
 {
-	debugmsg("fderivative default constructor", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_fderivative;
 }
 
@@ -54,20 +52,17 @@ DEFAULT_DESTROY(fderivative)
 
 fderivative::fderivative(unsigned ser, unsigned param, const exvector & args) : function(ser, args)
 {
-	debugmsg("fderivative constructor from unsigned,unsigned,exvector", LOGLEVEL_CONSTRUCT);
 	parameter_set.insert(param);
 	tinfo_key = TINFO_fderivative;
 }
 
 fderivative::fderivative(unsigned ser, const paramset & params, const exvector & args) : function(ser, args), parameter_set(params)
 {
-	debugmsg("fderivative constructor from unsigned,paramset,exvector", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_fderivative;
 }
 
 fderivative::fderivative(unsigned ser, const paramset & params, exvector * vp) : function(ser, vp), parameter_set(params)
 {
-	debugmsg("fderivative constructor from unsigned,paramset,exvector *", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_fderivative;
 }
 
@@ -77,7 +72,6 @@ fderivative::fderivative(unsigned ser, const paramset & params, exvector * vp) :
 
 fderivative::fderivative(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("fderivative constructor from archive_node", LOGLEVEL_CONSTRUCT);
 	unsigned i = 0;
 	while (true) {
 		unsigned u;
@@ -85,7 +79,7 @@ fderivative::fderivative(const archive_node &n, const lst &sym_lst) : inherited(
 			parameter_set.insert(u);
 		else
 			break;
-		i++;
+		++i;
 	}
 }
 
@@ -107,8 +101,6 @@ DEFAULT_UNARCHIVE(fderivative)
 
 void fderivative::print(const print_context & c, unsigned level) const
 {
-	debugmsg("fderivative print", LOGLEVEL_PRINT);
-
 	if (is_a<print_tree>(c)) {
 
 		c.s << std::string(level, ' ') << class_name() << " "

@@ -38,27 +38,24 @@
 #include "print.h"
 #include "archive.h"
 #include "utils.h"
-#include "debugmsg.h"
 
 namespace GiNaC {
 
 GINAC_IMPLEMENT_REGISTERED_CLASS_NO_CTORS(basic, void)
 
 //////////
-// default ctor, dtor, copy ctor assignment operator and helpers
+// default ctor, dtor, copy ctor, assignment operator and helpers
 //////////
 
 // public
 
 basic::basic(const basic & other) : tinfo_key(TINFO_basic), flags(0), refcount(0)
 {
-	debugmsg("basic copy ctor", LOGLEVEL_CONSTRUCT);
 	copy(other);
 }
 
 const basic & basic::operator=(const basic & other)
 {
-	debugmsg("basic operator=", LOGLEVEL_ASSIGNMENT);
 	if (this != &other) {
 		destroy(true);
 		copy(other);
@@ -83,8 +80,6 @@ const basic & basic::operator=(const basic & other)
 /** Construct object from archive_node. */
 basic::basic(const archive_node &n, const lst &sym_lst) : flags(0), refcount(0)
 {
-	debugmsg("basic ctor from archive_node", LOGLEVEL_CONSTRUCT);
-
 	// Reconstruct tinfo_key from class name
 	std::string class_name;
 	if (n.find_string("class", class_name))
@@ -114,8 +109,6 @@ void basic::archive(archive_node &n) const
  *               level for placing parentheses and formatting */
 void basic::print(const print_context & c, unsigned level) const
 {
-	debugmsg("basic print", LOGLEVEL_PRINT);
-
 	if (is_of_type(c, print_tree)) {
 
 		c.s << std::string(level, ' ') << class_name()
@@ -161,7 +154,6 @@ unsigned basic::precedence(void) const
  *  construction of an ex from a basic. */
 basic * basic::duplicate() const
 {
-	debugmsg("basic duplicate",LOGLEVEL_DUPLICATE);
 	return new basic(*this);
 }
 

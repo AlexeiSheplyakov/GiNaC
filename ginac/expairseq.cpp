@@ -32,7 +32,6 @@
 #include "wildcard.h"
 #include "print.h"
 #include "archive.h"
-#include "debugmsg.h"
 #include "utils.h"
 
 #if EXPAIRSEQ_USE_HASHTAB
@@ -58,20 +57,18 @@ public:
 };
 
 //////////
-// default ctor, dtor, copy ctor assignment operator and helpers
+// default ctor, dtor, copy ctor, assignment operator and helpers
 //////////
 
 // public
 
 expairseq::expairseq(const expairseq &other)
 {
-	debugmsg("expairseq copy ctor",LOGLEVEL_CONSTRUCT);
 	copy(other);
 }
 
 const expairseq &expairseq::operator=(const expairseq &other)
 {
-	debugmsg("expairseq operator=",LOGLEVEL_ASSIGNMENT);
 	if (this != &other) {
 		destroy(true);
 		copy(other);
@@ -115,14 +112,12 @@ DEFAULT_DESTROY(expairseq)
 
 expairseq::expairseq(const ex &lh, const ex &rh) : inherited(TINFO_expairseq)
 {
-	debugmsg("expairseq ctor from ex,ex",LOGLEVEL_CONSTRUCT);
 	construct_from_2_ex(lh,rh);
 	GINAC_ASSERT(is_canonical());
 }
 
 expairseq::expairseq(const exvector &v) : inherited(TINFO_expairseq)
 {
-	debugmsg("expairseq ctor from exvector",LOGLEVEL_CONSTRUCT);
 	construct_from_exvector(v);
 	GINAC_ASSERT(is_canonical());
 }
@@ -130,7 +125,6 @@ expairseq::expairseq(const exvector &v) : inherited(TINFO_expairseq)
 expairseq::expairseq(const epvector &v, const ex &oc)
   : inherited(TINFO_expairseq), overall_coeff(oc)
 {
-	debugmsg("expairseq ctor from epvector,ex",LOGLEVEL_CONSTRUCT);
 	construct_from_epvector(v);
 	GINAC_ASSERT(is_canonical());
 }
@@ -138,7 +132,6 @@ expairseq::expairseq(const epvector &v, const ex &oc)
 expairseq::expairseq(epvector *vp, const ex &oc)
   : inherited(TINFO_expairseq), overall_coeff(oc)
 {
-	debugmsg("expairseq ctor from epvector *,ex",LOGLEVEL_CONSTRUCT);
 	GINAC_ASSERT(vp!=0);
 	construct_from_epvector(*vp);
 	delete vp;
@@ -154,7 +147,6 @@ expairseq::expairseq(const archive_node &n, const lst &sym_lst) : inherited(n, s
 	, hashtabsize(0)
 #endif
 {
-	debugmsg("expairseq ctor from archive_node", LOGLEVEL_CONSTRUCT);
 	for (unsigned int i=0; true; i++) {
 		ex rest;
 		ex coeff;
@@ -188,14 +180,11 @@ DEFAULT_UNARCHIVE(expairseq)
 
 basic *expairseq::duplicate() const
 {
-	debugmsg("expairseq duplicate",LOGLEVEL_DUPLICATE);
 	return new expairseq(*this);
 }
 
 void expairseq::print(const print_context &c, unsigned level) const
 {
-	debugmsg("expairseq print",LOGLEVEL_PRINT);
-
 	if (is_of_type(c, print_tree)) {
 
 		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;

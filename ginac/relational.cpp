@@ -27,20 +27,16 @@
 #include "print.h"
 #include "archive.h"
 #include "utils.h"
-#include "debugmsg.h"
 
 namespace GiNaC {
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(relational, basic)
 
 //////////
-// default ctor, dtor, copy ctor assignment operator and helpers
+// default ctor, dtor, copy ctor, assignment operator and helpers
 //////////
 
-relational::relational() : basic(TINFO_relational)
-{
-	debugmsg("relational default ctor",LOGLEVEL_CONSTRUCT);
-}
+relational::relational() : basic(TINFO_relational) {}
 
 void relational::copy(const relational & other)
 {
@@ -58,13 +54,7 @@ DEFAULT_DESTROY(relational)
 
 // public
 
-relational::relational(const ex & lhs, const ex & rhs, operators oper) : basic(TINFO_relational)
-{
-	debugmsg("relational ctor ex,ex,operator",LOGLEVEL_CONSTRUCT);
-	lh=lhs;
-	rh=rhs;
-	o=oper;
-}
+relational::relational(const ex & lhs, const ex & rhs, operators oper) : basic(TINFO_relational), lh(lhs), rh(rhs), o(oper) {}
 
 //////////
 // archiving
@@ -72,7 +62,6 @@ relational::relational(const ex & lhs, const ex & rhs, operators oper) : basic(T
 
 relational::relational(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("relational ctor from archive_node", LOGLEVEL_CONSTRUCT);
 	unsigned int opi;
 	if (!(n.find_unsigned("op", opi)))
 		throw (std::runtime_error("unknown relational operator in archive"));
@@ -99,8 +88,6 @@ DEFAULT_UNARCHIVE(relational)
 
 void relational::print(const print_context & c, unsigned level) const
 {
-	debugmsg("relational print",LOGLEVEL_PRINT);
-
 	if (is_a<print_tree>(c)) {
 
 		inherited::print(c, level);

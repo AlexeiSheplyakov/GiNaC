@@ -30,7 +30,6 @@
 #include "print.h"
 #include "archive.h"
 #include "utils.h"
-#include "debugmsg.h"
 
 namespace GiNaC {
 
@@ -51,12 +50,11 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(symmetry, basic)
 */
 
 //////////
-// default constructor, destructor, copy constructor assignment operator and helpers
+// default ctor, dtor, copy ctor, assignment operator and helpers
 //////////
 
 symmetry::symmetry() : type(none)
 {
-	debugmsg("symmetry default constructor", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_symmetry;
 }
 
@@ -76,14 +74,12 @@ DEFAULT_DESTROY(symmetry)
 
 symmetry::symmetry(unsigned i) : type(none)
 {
-	debugmsg("symmetry constructor from unsigned", LOGLEVEL_CONSTRUCT);
 	indices.insert(i);
 	tinfo_key = TINFO_symmetry;
 }
 
 symmetry::symmetry(symmetry_type t, const symmetry &c1, const symmetry &c2) : type(t)
 {
-	debugmsg("symmetry constructor from symmetry_type,symmetry &,symmetry &", LOGLEVEL_CONSTRUCT);
 	add(c1); add(c2);
 	tinfo_key = TINFO_symmetry;
 }
@@ -95,8 +91,6 @@ symmetry::symmetry(symmetry_type t, const symmetry &c1, const symmetry &c2) : ty
 /** Construct object from archive_node. */
 symmetry::symmetry(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("symmetry ctor from archive_node", LOGLEVEL_CONSTRUCT);
-
 	unsigned t;
 	if (!(n.find_unsigned("type", t)))
 		throw (std::runtime_error("unknown symmetry type in archive"));
@@ -163,8 +157,6 @@ int symmetry::compare_same_type(const basic & other) const
 
 void symmetry::print(const print_context & c, unsigned level) const
 {
-	debugmsg("symmetry print", LOGLEVEL_PRINT);
-
 	if (is_a<print_tree>(c)) {
 
 		c.s << std::string(level, ' ') << class_name()

@@ -33,7 +33,6 @@
 #include "symbol.h"
 #include "print.h"
 #include "archive.h"
-#include "debugmsg.h"
 #include "utils.h"
 
 namespace GiNaC {
@@ -45,12 +44,11 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(su3f, tensor)
 GINAC_IMPLEMENT_REGISTERED_CLASS(su3d, tensor)
 
 //////////
-// default constructor, destructor, copy constructor assignment operator and helpers
+// default ctor, dtor, copy ctor, assignment operator and helpers
 //////////
 
 color::color() : representation_label(0)
 {
-	debugmsg("color default constructor", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_color;
 }
 
@@ -75,7 +73,6 @@ DEFAULT_CTORS(su3d)
  *  @see color_ONE */
 color::color(const ex & b, unsigned char rl) : inherited(b), representation_label(rl)
 {
-	debugmsg("color constructor from ex,unsigned char", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_color;
 }
 
@@ -84,19 +81,16 @@ color::color(const ex & b, unsigned char rl) : inherited(b), representation_labe
  *  @see color_T */
 color::color(const ex & b, const ex & i1, unsigned char rl) : inherited(b, i1), representation_label(rl)
 {
-	debugmsg("color constructor from ex,ex,unsigned char", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_color;
 }
 
 color::color(unsigned char rl, const exvector & v, bool discardable) : inherited(sy_none(), v, discardable), representation_label(rl)
 {
-	debugmsg("color constructor from unsigned char,exvector", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_color;
 }
 
 color::color(unsigned char rl, exvector * vp) : inherited(sy_none(), vp), representation_label(rl)
 {
-	debugmsg("color constructor from unsigned char,exvector *", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_color;
 }
 
@@ -106,7 +100,6 @@ color::color(unsigned char rl, exvector * vp) : inherited(sy_none(), vp), repres
 
 color::color(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("color constructor from archive_node", LOGLEVEL_CONSTRUCT);
 	unsigned rl;
 	n.find_unsigned("label", rl);
 	representation_label = rl;

@@ -156,7 +156,7 @@ class ${STRUCTURE} : public structure
 {
 // member functions
 
-	// default ctor, dtor, copy ctor assignment operator and helpers
+	// default ctor, dtor, copy ctor, assignment operator and helpers
 public:
 	${STRUCTURE}();
 	~${STRUCTURE}();
@@ -260,25 +260,21 @@ namespace GiNaC {
 
 ${STRUCTURE}::${STRUCTURE}()
 {
-	debugmsg("${STRUCTURE} default ctor",LOGLEVEL_CONSTRUCT);
 	tinfo_key=tinfo_${STRUCTURE};
 }
 
 ${STRUCTURE}::~${STRUCTURE}()
 {
-	debugmsg("${STRUCTURE} destructor",LOGLEVEL_DESTRUCT);
 	destroy(false);
 }
 
 ${STRUCTURE}::${STRUCTURE}(${STRUCTURE} const & other)
 {
-	debugmsg("${STRUCTURE} copy ctor",LOGLEVEL_CONSTRUCT);
 	copy(other);
 }
 
 ${STRUCTURE} const & ${STRUCTURE}::operator=(${STRUCTURE} const & other)
 {
-	debugmsg("${STRUCTURE} operator=",LOGLEVEL_ASSIGNMENT);
 	if (this != &other) {
 		destroy(true);
 		copy(other);
@@ -308,7 +304,6 @@ void ${STRUCTURE}::destroy(bool call_parent)
 ${STRUCTURE}::${STRUCTURE}(${constructor_arglist}) 
 	: ${constructor_statements}
 {
-	debugmsg("${STRUCTURE} ctor from children", LOGLEVEL_CONSTRUCT);
 	tinfo_key=tinfo_${STRUCTURE};
 }
 
@@ -320,13 +315,11 @@ ${STRUCTURE}::${STRUCTURE}(${constructor_arglist})
 
 basic * ${STRUCTURE}::duplicate() const
 {
-	debugmsg("${STRUCTURE} duplicate",LOGLEVEL_DUPLICATE);
 	return new ${STRUCTURE}(*this);
 }
 
 void ${STRUCTURE}::print(const print_context & c, unsigned level) const
 {
-	debugmsg("${STRUCTURE} print", LOGLEVEL_PRINT);
 	c.s << class_name() << "()";
 }
 

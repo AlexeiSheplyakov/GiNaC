@@ -28,7 +28,6 @@
 #include "ncmul.h"
 #include "relational.h"
 #include "print.h"
-#include "debugmsg.h"
 #include "utils.h"
 
 namespace GiNaC {
@@ -62,25 +61,21 @@ static inline const ex exminus(const ex & lh)
 
 const ex operator+(const ex & lh, const ex & rh)
 {
-	debugmsg("operator+(ex,ex)",LOGLEVEL_OPERATOR);
 	return exadd(lh, rh);
 }
 
 const ex operator-(const ex & lh, const ex & rh)
 {
-	debugmsg("operator-(ex,ex)",LOGLEVEL_OPERATOR);
 	return exadd(lh, exminus(rh));
 }
 
 const ex operator*(const ex & lh, const ex & rh)
 {
-	debugmsg("operator*(ex,ex)",LOGLEVEL_OPERATOR);
 	return exmul(lh, rh);
 }
 
 const ex operator/(const ex & lh, const ex & rh)
 {
-	debugmsg("operator/(ex,ex)",LOGLEVEL_OPERATOR);
 	return exmul(lh, power(rh,_ex_1));
 }
 
@@ -89,25 +84,21 @@ const ex operator/(const ex & lh, const ex & rh)
 
 const numeric operator+(const numeric & lh, const numeric & rh)
 {
-	debugmsg("operator+(numeric,numeric)",LOGLEVEL_OPERATOR);
 	return lh.add(rh);
 }
 
 const numeric operator-(const numeric & lh, const numeric & rh)
 {
-	debugmsg("operator-(numeric,numeric)",LOGLEVEL_OPERATOR);
 	return lh.sub(rh);
 }
 
 const numeric operator*(const numeric & lh, const numeric & rh)
 {
-	debugmsg("operator*(numeric,numeric)",LOGLEVEL_OPERATOR);
 	return lh.mul(rh);
 }
 
 const numeric operator/(const numeric & lh, const numeric & rh)
 {
-	debugmsg("operator/(numeric,ex)",LOGLEVEL_OPERATOR);
 	return lh.div(rh);
 }
 
@@ -116,25 +107,21 @@ const numeric operator/(const numeric & lh, const numeric & rh)
 
 ex & operator+=(ex & lh, const ex & rh)
 {
-	debugmsg("operator+=(ex,ex)",LOGLEVEL_OPERATOR);
 	return lh = exadd(lh, rh);
 }
 
 ex & operator-=(ex & lh, const ex & rh)
 {
-	debugmsg("operator-=(ex,ex)",LOGLEVEL_OPERATOR);
 	return lh = exadd(lh, exminus(rh));
 }
 
 ex & operator*=(ex & lh, const ex & rh)
 {
-	debugmsg("operator*=(ex,ex)",LOGLEVEL_OPERATOR);
 	return lh = exmul(lh, rh);
 }
 
 ex & operator/=(ex & lh, const ex & rh)
 {
-	debugmsg("operator/=(ex,ex)",LOGLEVEL_OPERATOR);
 	return lh = exmul(lh, power(rh,_ex_1));
 }
 
@@ -143,28 +130,24 @@ ex & operator/=(ex & lh, const ex & rh)
 
 numeric & operator+=(numeric & lh, const numeric & rh)
 {
-	debugmsg("operator+=(numeric,numeric)",LOGLEVEL_OPERATOR);
 	lh = lh.add(rh);
 	return lh;
 }
 
 numeric & operator-=(numeric & lh, const numeric & rh)
 {
-	debugmsg("operator-=(numeric,numeric)",LOGLEVEL_OPERATOR);
 	lh = lh.sub(rh);
 	return lh;
 }
 
 numeric & operator*=(numeric & lh, const numeric & rh)
 {
-	debugmsg("operator*=(numeric,numeric)",LOGLEVEL_OPERATOR);
 	lh = lh.mul(rh);
 	return lh;
 }
 
 numeric & operator/=(numeric & lh, const numeric & rh)
 {
-	debugmsg("operator/=(numeric,numeric)",LOGLEVEL_OPERATOR);
 	lh = lh.div(rh);
 	return lh;
 }
@@ -174,25 +157,21 @@ numeric & operator/=(numeric & lh, const numeric & rh)
 
 const ex operator+(const ex & lh)
 {
-	debugmsg("operator+(ex)",LOGLEVEL_OPERATOR);
 	return lh;
 }
 
 const ex operator-(const ex & lh)
 {
-	debugmsg("operator-(ex)",LOGLEVEL_OPERATOR);
 	return exminus(lh);
 }
 
 const numeric operator+(const numeric & lh)
 {
-	debugmsg("operator+(numeric)",LOGLEVEL_OPERATOR);
 	return lh;
 }
 
 const numeric operator-(const numeric & lh)
 {
-	debugmsg("operator-(numeric)",LOGLEVEL_OPERATOR);
 	return _num_1.mul(lh);
 }
 
@@ -202,14 +181,12 @@ const numeric operator-(const numeric & lh)
 /** Expression prefix increment.  Adds 1 and returns incremented ex. */
 ex & operator++(ex & rh)
 {
-	debugmsg("operator++(ex)",LOGLEVEL_OPERATOR);
 	return rh = exadd(rh, _ex1);
 }
 
 /** Expression prefix decrement.  Subtracts 1 and returns decremented ex. */
 ex & operator--(ex & rh)
 {
-	debugmsg("operator--(ex)",LOGLEVEL_OPERATOR);
 	return rh = exadd(rh, _ex_1);
 }
 
@@ -217,7 +194,6 @@ ex & operator--(ex & rh)
  *  incremented by 1. */
 const ex operator++(ex & lh, int)
 {
-	debugmsg("operator++(ex,int)",LOGLEVEL_OPERATOR);
 	ex tmp(lh);
 	lh = exadd(lh, _ex1);
 	return tmp;
@@ -227,7 +203,6 @@ const ex operator++(ex & lh, int)
  *  decremented by 1. */
 const ex operator--(ex & lh, int)
 {
-	debugmsg("operator--(ex,int)",LOGLEVEL_OPERATOR);
 	ex tmp(lh);
 	lh = exadd(lh, _ex_1);
 	return tmp;
@@ -236,7 +211,6 @@ const ex operator--(ex & lh, int)
 /** Numeric prefix increment.  Adds 1 and returns incremented number. */
 numeric& operator++(numeric & rh)
 {
-	debugmsg("operator++(numeric)",LOGLEVEL_OPERATOR);
 	rh = rh.add(_num1);
 	return rh;
 }
@@ -244,7 +218,6 @@ numeric& operator++(numeric & rh)
 /** Numeric prefix decrement.  Subtracts 1 and returns decremented number. */
 numeric& operator--(numeric & rh)
 {
-	debugmsg("operator--(numeric)",LOGLEVEL_OPERATOR);
 	rh = rh.add(_num_1);
 	return rh;
 }
@@ -253,7 +226,6 @@ numeric& operator--(numeric & rh)
  *  incremented by 1. */
 const numeric operator++(numeric & lh, int)
 {
-	debugmsg("operator++(numeric,int)",LOGLEVEL_OPERATOR);
 	numeric tmp(lh);
 	lh = lh.add(_num1);
 	return tmp;
@@ -263,7 +235,6 @@ const numeric operator++(numeric & lh, int)
  *  decremented by 1. */
 const numeric operator--(numeric & lh, int)
 {
-	debugmsg("operator--(numeric,int)",LOGLEVEL_OPERATOR);
 	numeric tmp(lh);
 	lh = lh.add(_num_1);
 	return tmp;
@@ -273,37 +244,31 @@ const numeric operator--(numeric & lh, int)
 
 const relational operator==(const ex & lh, const ex & rh)
 {
-	debugmsg("operator==(ex,ex)",LOGLEVEL_OPERATOR);
 	return relational(lh,rh,relational::equal);
 }
 
 const relational operator!=(const ex & lh, const ex & rh)
 {
-	debugmsg("operator!=(ex,ex)",LOGLEVEL_OPERATOR);
 	return relational(lh,rh,relational::not_equal);
 }
 
 const relational operator<(const ex & lh, const ex & rh)
 {
-	debugmsg("operator<(ex,ex)",LOGLEVEL_OPERATOR);
 	return relational(lh,rh,relational::less);
 }
 
 const relational operator<=(const ex & lh, const ex & rh)
 {
-	debugmsg("operator<=(ex,ex)",LOGLEVEL_OPERATOR);
 	return relational(lh,rh,relational::less_or_equal);
 }
 
 const relational operator>(const ex & lh, const ex & rh)
 {
-	debugmsg("operator>(ex,ex)",LOGLEVEL_OPERATOR);
 	return relational(lh,rh,relational::greater);
 }
 
 const relational operator>=(const ex & lh, const ex & rh)
 {
-	debugmsg("operator>=(ex,ex)",LOGLEVEL_OPERATOR);
 	return relational(lh,rh,relational::greater_or_equal);
 }
 

@@ -63,7 +63,7 @@ class expairseq : public basic
 
 // member functions
 
-	// default ctor, dtor, copy ctor assignment operator and helpers
+	// default ctor, dtor, copy ctor, assignment operator and helpers
 public:
 	expairseq() : basic(TINFO_expairseq)
 #if EXPAIRSEQ_USE_HASHTAB

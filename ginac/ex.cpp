@@ -32,7 +32,6 @@
 #include "lst.h"
 #include "relational.h"
 #include "input_lexer.h"
-#include "debugmsg.h"
 #include "utils.h"
 
 namespace GiNaC {
@@ -52,8 +51,6 @@ namespace GiNaC {
 /** Efficiently swap the contents of two expressions. */
 void ex::swap(ex & other)
 {
-	debugmsg("ex swap",LOGLEVEL_MEMBER_FUNCTION);
-
 	GINAC_ASSERT(bp!=0);
 	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
 	GINAC_ASSERT(other.bp!=0);
@@ -71,7 +68,6 @@ void ex::swap(ex & other)
  *  @see print_context */
 void ex::print(const print_context & c, unsigned level) const
 {
-	debugmsg("ex print", LOGLEVEL_PRINT);
 	GINAC_ASSERT(bp!=0);
 	bp->print(c, level);
 }
@@ -79,7 +75,6 @@ void ex::print(const print_context & c, unsigned level) const
 /** Print expression to stream in a tree-like format suitable for debugging. */
 void ex::printtree(std::ostream & os) const
 {
-	debugmsg("ex printtree", LOGLEVEL_PRINT);
 	GINAC_ASSERT(bp!=0);
 	bp->print(print_tree(os));
 }
@@ -87,7 +82,6 @@ void ex::printtree(std::ostream & os) const
 /** Little wrapper arount print to be called within a debugger. */
 void ex::dbgprint(void) const
 {
-	debugmsg("ex dbgprint", LOGLEVEL_PRINT);
 	GINAC_ASSERT(bp!=0);
 	bp->dbgprint();
 }
@@ -95,7 +89,6 @@ void ex::dbgprint(void) const
 /** Little wrapper arount printtree to be called within a debugger. */
 void ex::dbgprinttree(void) const
 {
-	debugmsg("ex dbgprinttree", LOGLEVEL_PRINT);
 	GINAC_ASSERT(bp!=0);
 	bp->dbgprinttree();
 }
@@ -152,14 +145,12 @@ bool ex::find(const ex & pattern, lst & found) const
 
 ex ex::operator[](const ex & index) const
 {
-	debugmsg("ex operator[ex]",LOGLEVEL_OPERATOR);
 	GINAC_ASSERT(bp!=0);
 	return (*bp)[index];
 }
 
 ex ex::operator[](int i) const
 {
-	debugmsg("ex operator[int]",LOGLEVEL_OPERATOR);
 	GINAC_ASSERT(bp!=0);
 	return (*bp)[i];
 }
@@ -167,7 +158,6 @@ ex ex::operator[](int i) const
 /** Return modifyable operand/member at position i. */
 ex & ex::let_op(int i)
 {
-	debugmsg("ex let_op()",LOGLEVEL_MEMBER_FUNCTION);
 	makewriteable();
 	GINAC_ASSERT(bp!=0);
 	return bp->let_op(i);
@@ -176,7 +166,6 @@ ex & ex::let_op(int i)
 /** Left hand side of relational expression. */
 ex ex::lhs(void) const
 {
-	debugmsg("ex lhs()",LOGLEVEL_MEMBER_FUNCTION);
 	if (!is_ex_of_type(*this,relational))
 		throw std::runtime_error("ex::lhs(): not a relation");
 	return (*static_cast<relational *>(bp)).lhs();
@@ -185,7 +174,6 @@ ex ex::lhs(void) const
 /** Right hand side of relational expression. */
 ex ex::rhs(void) const
 {
-	debugmsg("ex rhs()",LOGLEVEL_MEMBER_FUNCTION);
 	if (!is_ex_of_type(*this,relational))
 		throw std::runtime_error("ex::rhs(): not a relation");
 	return (*static_cast<relational *>(bp)).rhs();
@@ -197,7 +185,6 @@ ex ex::rhs(void) const
  *  unlinking the object and creating an unshared copy of it. */
 void ex::makewriteable()
 {
-	debugmsg("ex makewriteable",LOGLEVEL_MEMBER_FUNCTION);
 	GINAC_ASSERT(bp!=0);
 	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
 	if (bp->refcount > 1) {

@@ -24,7 +24,6 @@
 #include "fail.h"
 #include "print.h"
 #include "archive.h"
-#include "debugmsg.h"
 #include "utils.h"
 
 namespace GiNaC {
@@ -32,7 +31,7 @@ namespace GiNaC {
 GINAC_IMPLEMENT_REGISTERED_CLASS(fail, basic)
 
 //////////
-// default ctor, dtor, copy ctor assignment operator and helpers
+// default ctor, dtor, copy ctor, assignment operator and helpers
 //////////
 
 DEFAULT_CTORS(fail)

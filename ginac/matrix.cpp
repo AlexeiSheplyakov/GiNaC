@@ -35,7 +35,6 @@
 #include "print.h"
 #include "archive.h"
 #include "utils.h"
-#include "debugmsg.h"
 
 namespace GiNaC {
 
@@ -48,7 +47,6 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(matrix, basic)
 /** Default ctor.  Initializes to 1 x 1-dimensional zero-matrix. */
 matrix::matrix() : inherited(TINFO_matrix), row(1), col(1)
 {
-	debugmsg("matrix default ctor",LOGLEVEL_CONSTRUCT);
 	m.push_back(_ex0);
 }
 
@@ -75,7 +73,6 @@ DEFAULT_DESTROY(matrix)
 matrix::matrix(unsigned r, unsigned c)
   : inherited(TINFO_matrix), row(r), col(c)
 {
-	debugmsg("matrix ctor from unsigned,unsigned",LOGLEVEL_CONSTRUCT);
 	m.resize(r*c, _ex0);
 }
 
@@ -83,10 +80,7 @@ matrix::matrix(unsigned r, unsigned c)
 
 /** Ctor from representation, for internal use only. */
 matrix::matrix(unsigned r, unsigned c, const exvector & m2)
-  : inherited(TINFO_matrix), row(r), col(c), m(m2)
-{
-	debugmsg("matrix ctor from unsigned,unsigned,exvector",LOGLEVEL_CONSTRUCT);
-}
+  : inherited(TINFO_matrix), row(r), col(c), m(m2) {}
 
 /** Construct matrix from (flat) list of elements. If the list has fewer
  *  elements than the matrix, the remaining matrix elements are set to zero.
@@ -95,7 +89,6 @@ matrix::matrix(unsigned r, unsigned c, const exvector & m2)
 matrix::matrix(unsigned r, unsigned c, const lst & l)
   : inherited(TINFO_matrix), row(r), col(c)
 {
-	debugmsg("matrix ctor from unsigned,unsigned,lst",LOGLEVEL_CONSTRUCT);
 	m.resize(r*c, _ex0);
 
 	for (unsigned i=0; i<l.nops(); i++) {
@@ -113,7 +106,6 @@ matrix::matrix(unsigned r, unsigned c, const lst & l)
 
 matrix::matrix(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("matrix ctor from archive_node", LOGLEVEL_CONSTRUCT);
 	if (!(n.find_unsigned("row", row)) || !(n.find_unsigned("col", col)))
 		throw (std::runtime_error("unknown matrix dimensions in archive"));
 	m.reserve(row * col);
@@ -148,8 +140,6 @@ DEFAULT_UNARCHIVE(matrix)
 
 void matrix::print(const print_context & c, unsigned level) const
 {
-	debugmsg("matrix print", LOGLEVEL_PRINT);
-
 	if (is_a<print_tree>(c)) {
 
 		inherited::print(c, level);
@@ -201,8 +191,6 @@ ex & matrix::let_op(int i)
 /** Evaluate matrix entry by entry. */
 ex matrix::eval(int level) const
 {
-	debugmsg("matrix eval",LOGLEVEL_MEMBER_FUNCTION);
-	
 	// check if we have to do anything at all
 	if ((level==1)&&(flags & status_flags::evaluated))
 		return *this;

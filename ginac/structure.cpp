@@ -24,7 +24,6 @@
 
 #include "structure.h"
 #include "archive.h"
-#include "debugmsg.h"
 #include "utils.h"
 #include "print.h"
 
@@ -33,7 +32,7 @@ namespace GiNaC {
 GINAC_IMPLEMENT_REGISTERED_CLASS(structure, basic)
 
 //////////
-// default ctor, dtor, copy ctor assignment operator and helpers
+// default ctor, dtor, copy ctor, assignment operator and helpers
 //////////
 
 DEFAULT_CTORS(structure)
@@ -50,8 +49,6 @@ DEFAULT_ARCHIVING(structure)
 
 void structure::print(const print_context & c, unsigned level) const
 {
-	debugmsg("structure print",LOGLEVEL_PRINT);
-
 	if (is_a<print_tree>(c)) {
 
 		c.s << std::string(level, ' ') << class_name()
