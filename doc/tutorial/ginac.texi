@@ -931,10 +931,22 @@ int main()
     numeric trott("1.0841015122311136151E-2");
     
     std::cout << two*p << std::endl;  // floating point 6.283...
+    ...
+@end example
+
+@cindex @code{I}
+@cindex complex numbers
+The imaginary unit in GiNaC is a predefined @code{numeric} object with the
+name @code{I}:
+
+@example
+    ...
+    numeric z1 = 2-3*I;                    // exact complex number 2-3i
+    numeric z2 = 5.9+1.6*I;                // complex floating point number
 @}
 @end example
 
-It may be tempting to construct numbers writing @code{numeric r(3/2)}.
+It may be tempting to construct fractions by writing @code{numeric r(3/2)}.
 This would, however, call C's built-in operator @code{/} for integers
 first and result in a numeric holding a plain integer 1.  @strong{Never
 use the operator @code{/} on integers} unless you know exactly what you
