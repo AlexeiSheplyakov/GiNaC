@@ -377,21 +377,19 @@ REGISTER_FUNCTION(binomial, eval_func(binomial_eval).
 
 static ex Order_eval(const ex & x)
 {
-	if (is_ex_exactly_of_type(x, numeric)) {
-
-		// O(c)=O(1)
-		return Order(_ex1()).hold();
-
-	} else if (is_ex_exactly_of_type(x, mul)) {
-
-	 	mul *m = static_cast<mul *>(x.bp);
-		if (is_ex_exactly_of_type(m->op(m->nops() - 1), numeric)) {
-
-			// O(c*expr)=O(expr)
-			return Order(x / m->op(m->nops() - 1)).hold();
-		}
-	}
-	return Order(x).hold();
+    if (is_ex_exactly_of_type(x, numeric)) {
+        // O(c) -> O(1) or 0
+        if (!x.is_zero())
+            return Order(_ex1()).hold();
+        else
+            return _ex0();
+    } else if (is_ex_exactly_of_type(x, mul)) {
+        mul *m = static_cast<mul *>(x.bp);
+        // O(c*expr) -> O(expr)
+        if (is_ex_exactly_of_type(m->op(m->nops() - 1), numeric))
+            return Order(x / m->op(m->nops() - 1)).hold();
+    }
+    return Order(x).hold();
 }
 
 static ex Order_series(const ex & x, const relational & r, int order, unsigned options)
