@@ -3,7 +3,7 @@
 #   Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001
 #   Free Software Foundation, Inc.
 
-timestamp='2001-06-08'
+timestamp='2001-07-27'
 
 # This file is (in principle) common to ALL GNU software.
 # The presence of a machine in this file suggests that SOME GNU software
@@ -232,13 +232,13 @@ case $basic_machine in
 		| hppa64 \
 		| alpha | alphaev[4-8] | alphaev56 | alphapca5[67] \
 		| alphaev6[78] \
-		| we32k | ns16k | clipper | i370 | sh | sh[34] \
+		| we32k | ns16k | clipper | i370 | sh | sh[34] | sh[34]eb \
 		| powerpc | powerpcle \
 		| 1750a | dsp16xx | pdp10 | pdp11 \
 		| mips16 | mips64 | mipsel | mips64el \
 		| mips64orion | mips64orionel | mipstx39 | mipstx39el \
 		| mips64vr4300 | mips64vr4300el | mips64vr4100 | mips64vr4100el \
-		| mips64vr5000 | miprs64vr5000el | mcore | s390 | s390x \
+		| mips64vr5000 | mips64vr5000el | mcore | s390 | s390x \
 		| sparc | sparclet | sparclite | sparc64 | sparcv9 | sparcv9b \
 		| v850 | c4x \
 		| thumb | d10v | d30v | fr30 | avr | openrisc | tic80 \
@@ -946,7 +946,7 @@ case $basic_machine in
 	we32k)
 		basic_machine=we32k-att
 		;;
-	sh3 | sh4)
+	sh3 | sh4 | sh3eb | sh4eb)
 		basic_machine=sh-unknown
 		;;
 	sparc | sparcv9 | sparcv9b)
