@@ -217,6 +217,7 @@ inline bool is_exactly_a(const ex & obj)
 template <class T>
 inline const T &ex_to(const ex &e)
 {
+	GINAC_ASSERT(is_a<T>(e));
 	return static_cast<const T &>(*e.bp);
 }
 
