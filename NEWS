@@ -1,6 +1,6 @@
 This file records noteworthy changes.
 
-0.9.0 (<date>)
+0.9.0 (7 June 2001)
 * In the output and in ginsh, lists are now delimited by { } braces, and
   matrices are delimited by single [ ] brackets.
 * simplify_indexed() renames dummy indices so, e.g., "a.i*a.i+a.j*a.j" gets
