@@ -107,7 +107,7 @@ static unsigned differentiation1(void)
     return result;
 }
 
-// Trigonometric and transcendental functions
+// Trigonometric functions
 static unsigned differentiation2(void)
 {
     unsigned result = 0;
@@ -152,7 +152,17 @@ static unsigned differentiation2(void)
     d = -2*b*pow(e2,2)*pow(x,4) + 2*b*pow(sin(e1),2)*pow(x,4)
         - 2*sin(e1)*pow(x,2) - y*e2*pow(x,4);
     result += check_diff(e, y, d, 2);
+
+	return result;
+}
     
+// exp function
+static unsigned differentiation3(void)
+{
+    unsigned result = 0;
+    symbol x("x"), y("y"), a("a"), b("b");
+    ex e1, e2, e, d;
+
     // construct expression e to be diff'ed:
     e2 = exp(e1);
     e = b*pow(e2, 2) + y*e2 + a;
@@ -169,6 +179,16 @@ static unsigned differentiation2(void)
     
     d = 4*b*pow(e2,2)*pow(x,4) + 2*e2*pow(x,2) + y*e2*pow(x,4);
     result += check_diff(e, y, d, 2);
+
+	return result;
+}
+
+// log functions
+static unsigned differentiation4(void)
+{
+    unsigned result = 0;
+    symbol x("x"), y("y"), a("a"), b("b");
+    ex e1, e2, e, d;
     
     // construct expression e to be diff'ed:
     e2 = log(e1);
@@ -188,8 +208,18 @@ static unsigned differentiation2(void)
     d = 2*b*pow(x,4)*pow(e1,-2) - 2*b*e2*pow(e1,-2)*pow(x,4)
         + 2*pow(x,2)/e1 - y*pow(x,4)*pow(e1,-2);
     result += check_diff(e, y, d, 2);
+
+	return result;
+}
+
+// Functions with two variables
+static unsigned differentiation5(void)
+{
+    unsigned result = 0;
+    symbol x("x"), y("y"), a("a"), b("b");
+    ex e1, e2, e, d;
     
-    // test for functions with two variables: atan2
+    // test atan2
     e1 = y*pow(x, 2) + a*x + b;
     e2 = x*pow(y, 2) + b*y + a;
     e = atan2(e1,e2);
@@ -212,7 +242,7 @@ static unsigned differentiation2(void)
 }
 
 // Series
-static unsigned differentiation3(void)
+static unsigned differentiation6(void)
 {
     symbol x("x");
     ex e, d, ed;
@@ -241,6 +271,9 @@ unsigned differentiation(void)
     result += differentiation1();
     result += differentiation2();
     result += differentiation3();
+    result += differentiation4();
+    result += differentiation5();
+    result += differentiation6();
     
     if (!result) {
         cout << " passed ";
