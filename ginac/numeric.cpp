@@ -498,6 +498,21 @@ bool numeric::info(unsigned inf) const
 	return false;
 }
 
+int numeric::degree(const ex & s) const
+{
+	return 0;
+}
+
+int numeric::ldegree(const ex & s) const
+{
+	return 0;
+}
+
+ex numeric::coeff(const ex & s, int n) const
+{
+	return n==0 ? *this : _ex0;
+}
+
 /** Disassemble real part and imaginary part to scan for the occurrence of a
  *  single number.  Also handles the imaginary unit.  It ignores the sign on
  *  both this and the argument, which may lead to what might appear as funny

@@ -176,24 +176,6 @@ bool symbol::info(unsigned inf) const
 		return inherited::info(inf);
 }
 
-int symbol::degree(const ex & s) const
-{
-	return is_equal(ex_to<basic>(s)) ? 1 : 0;
-}
-
-int symbol::ldegree(const ex & s) const
-{
-	return is_equal(ex_to<basic>(s)) ? 1 : 0;
-}
-
-ex symbol::coeff(const ex & s, int n) const
-{
-	if (is_equal(ex_to<basic>(s)))
-		return n==1 ? _ex1 : _ex0;
-	else
-		return n==0 ? *this : _ex0;
-}
-
 ex symbol::eval(int level) const
 {
 	if (level == -max_recursion_level)

@@ -71,9 +71,6 @@ public:
 	basic * duplicate() const;
 	void print(const print_context & c, unsigned level = 0) const;
 	bool info(unsigned inf) const;
-	int degree(const ex & s) const;
-	int ldegree(const ex & s) const;
-	ex coeff(const ex & s, int n = 1) const;
 	ex eval(int level = 0) const;
 	ex evalf(int level = 0) const { return *this; } // overwrites basic::evalf() for performance reasons
 	ex series(const relational & s, int order, unsigned options = 0) const;

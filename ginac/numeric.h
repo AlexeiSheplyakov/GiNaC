@@ -85,6 +85,9 @@ public:
 	void print(const print_context & c, unsigned level = 0) const;
 	unsigned precedence(void) const {return 30;}
 	bool info(unsigned inf) const;
+	int degree(const ex & s) const;
+	int ldegree(const ex & s) const;
+	ex coeff(const ex & s, int n = 1) const;
 	bool has(const ex &other) const;
 	ex eval(int level = 0) const;
 	ex evalf(int level = 0) const;

@@ -244,7 +244,9 @@ ex power::map(map_function & f) const
 
 int power::degree(const ex & s) const
 {
-	if (is_ex_exactly_of_type(exponent, numeric) && ex_to<numeric>(exponent).is_integer()) {
+	if (is_equal(ex_to<basic>(s)))
+		return 1;
+	else if (is_ex_exactly_of_type(exponent, numeric) && ex_to<numeric>(exponent).is_integer()) {
 		if (basis.is_equal(s))
 			return ex_to<numeric>(exponent).to_int();
 		else
@@ -257,7 +259,9 @@ int power::degree(const ex & s) const
 
 int power::ldegree(const ex & s) const 
 {
-	if (is_ex_exactly_of_type(exponent, numeric) && ex_to<numeric>(exponent).is_integer()) {
+	if (is_equal(ex_to<basic>(s)))
+		return 1;
+	else if (is_ex_exactly_of_type(exponent, numeric) && ex_to<numeric>(exponent).is_integer()) {
 		if (basis.is_equal(s))
 			return ex_to<numeric>(exponent).to_int();
 		else
@@ -270,7 +274,9 @@ int power::ldegree(const ex & s) const
 
 ex power::coeff(const ex & s, int n) const
 {
-	if (!basis.is_equal(s)) {
+	if (is_equal(ex_to<basic>(s)))
+		return n==1 ? _ex1 : _ex0;
+	else if (!basis.is_equal(s)) {
 		// basis not equal to s
 		if (n == 0)
 			return *this;

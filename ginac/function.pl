@@ -320,9 +320,6 @@ $constructors_interface
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 	unsigned precedence(void) const {return 70;}
-	int degree(const ex & s) const;
-	int ldegree(const ex & s) const;
-	ex coeff(const ex & s, int n = 1) const;
 	ex expand(unsigned options=0) const;
 	ex eval(int level=0) const;
 	ex evalf(int level=0) const;
@@ -717,24 +714,6 @@ ex function::expand(unsigned options) const
 		return inherited::expand(options);
 	else
 		return (options == 0) ? setflag(status_flags::expanded) : *this;
-}
-
-int function::degree(const ex & s) const
-{
-	return is_equal(ex_to<basic>(s)) ? 1 : 0;
-}
-
-int function::ldegree(const ex & s) const
-{
-	return is_equal(ex_to<basic>(s)) ? 1 : 0;
-}
-
-ex function::coeff(const ex & s, int n) const
-{
-	if (is_equal(ex_to<basic>(s)))
-		return n==1 ? _ex1 : _ex0;
-	else
-		return n==0 ? ex(*this) : _ex0;
 }
 
 ex function::eval(int level) const

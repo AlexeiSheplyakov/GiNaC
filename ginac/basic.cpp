@@ -236,19 +236,22 @@ ex basic::map(map_function & f) const
 /** Return degree of highest power in object s. */
 int basic::degree(const ex & s) const
 {
-	return 0;
+	return is_equal(ex_to<basic>(s)) ? 1 : 0;
 }
 
 /** Return degree of lowest power in object s. */
 int basic::ldegree(const ex & s) const
 {
-	return 0;
+	return is_equal(ex_to<basic>(s)) ? 1 : 0;
 }
 
 /** Return coefficient of degree n in object s. */
 ex basic::coeff(const ex & s, int n) const
 {
-	return n==0 ? *this : _ex0;
+	if (is_equal(ex_to<basic>(s)))
+		return n==1 ? _ex1 : _ex0;
+	else
+		return n==0 ? *this : _ex0;
 }
 
 /** Sort expanded expression in terms of powers of some object(s).
