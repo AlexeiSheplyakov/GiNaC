@@ -71,6 +71,7 @@ public:
 	matrix mul(const matrix & other) const;
 	matrix mul(const numeric & other) const;
 	matrix mul_scalar(const ex & other) const;
+	matrix pow(const ex & expn) const;
 	const ex & operator() (unsigned ro, unsigned co) const;
 	matrix & set(unsigned ro, unsigned co, ex value);
 	matrix transpose(void) const;

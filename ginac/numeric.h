@@ -200,7 +200,6 @@ const numeric doublefactorial(const numeric &n);
 const numeric binomial(const numeric &n, const numeric &k);
 const numeric bernoulli(const numeric &n);
 const numeric fibonacci(const numeric &n);
-const numeric abs(const numeric &x);
 const numeric isqrt(const numeric &x);
 const numeric sqrt(const numeric &x);
 const numeric abs(const numeric &x);

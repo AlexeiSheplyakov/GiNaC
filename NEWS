@@ -1,6 +1,6 @@
 This file records noteworthy changes.
 
-0.8.4 (<date>)
+0.9.0 (<date>)
 * In the output and in ginsh, lists are now delimited by { } braces, and
   matrices are delimited by single [ ] brackets.
 * simplify_indexed() renames dummy indices so, e.g., "a.i*a.i+a.j*a.j" gets
@@ -21,6 +21,7 @@ This file records noteworthy changes.
   products.
 * Positive integer powers of non-commutative expressions are automatically
   expanded.
+* Several little bugfixes.
 
 0.8.3 (11 May 2001)
 * color and clifford classes are functional and documented.

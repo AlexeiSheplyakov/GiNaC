@@ -207,14 +207,12 @@ void ex::makewriteable()
  *  @see ex::ex(const basic &) */
 void ex::construct_from_basic(const basic & other)
 {
-	if ((other.flags & status_flags::evaluated)==0) {
-		// cf. copy ctor
-		const ex & tmpex = other.eval(1); // evaluate only one (top) level
+	if (!(other.flags & status_flags::evaluated)) {
+		const ex & tmpex(other.eval(1)); // evaluate only one (top) level
 		bp = tmpex.bp;
-		GINAC_ASSERT(bp!=0);
 		GINAC_ASSERT(bp->flags & status_flags::dynallocated);
 		++bp->refcount;
-		if ((other.flags & status_flags::dynallocated)&&(other.refcount==0))
+		if ((other.refcount==0) && (other.flags & status_flags::dynallocated))
 			delete &const_cast<basic &>(other);
 	} else {
 		if (other.flags & status_flags::dynallocated) {

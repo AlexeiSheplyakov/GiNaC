@@ -31,6 +31,7 @@
 #include "ncmul.h"
 #include "numeric.h"
 #include "inifcns.h"
+#include "matrix.h"
 #include "symbol.h"
 #include "print.h"
 #include "archive.h"
@@ -450,8 +451,10 @@ ex power::eval(int level) const
 			}
 		}
 
-		// ^(nc,c1) -> ncmul(nc,nc,...) (c1 positive integer)
-		if (num_exponent->is_pos_integer() && ebasis.return_type() != return_types::commutative) {
+		// ^(nc,c1) -> ncmul(nc,nc,...) (c1 positive integer, unless nc is a matrix)
+		if (num_exponent->is_pos_integer() &&
+		    ebasis.return_type() != return_types::commutative &&
+		    !is_ex_of_type(ebasis,matrix)) {
 			return ncmul(exvector(num_exponent->to_int(), ebasis), true);
 		}
 	}
@@ -485,6 +488,18 @@ ex power::evalf(int level) const
 	}
 
 	return power(ebasis,eexponent);
+}
+
+ex power::evalm(void) const
+{
+	ex ebasis = basis.evalm();
+	ex eexponent = exponent.evalm();
+	if (is_ex_of_type(ebasis,matrix)) {
+		if (is_ex_of_type(eexponent,numeric)) {
+			return (new matrix(ex_to_matrix(ebasis).pow(eexponent)))->setflag(status_flags::dynallocated);
+		}
+	}
+	return (new power(ebasis, eexponent))->setflag(status_flags::dynallocated);
 }
 
 ex power::subs(const lst & ls, const lst & lr, bool no_pattern) const

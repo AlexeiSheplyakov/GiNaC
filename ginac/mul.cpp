@@ -144,7 +144,7 @@ void mul::print(const print_context & c, unsigned level) const
 			overall_coeff.bp->print(c, precedence());
 			c.s << "*";
 		}
-	
+
 		// Print arguments, separated by "*" or "/"
 		epvector::const_iterator it = seq.begin(), itend = seq.end();
 		while (it != itend) {

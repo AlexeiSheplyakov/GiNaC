@@ -678,7 +678,7 @@ void function::print(const print_context & c, unsigned level) const
 		}
 		c.s << ")";
 
-	} else if is_of_type(c, print_latex) {
+	} else if (is_of_type(c, print_latex)) {
 		c.s << registered_functions()[serial].TeX_name;
 		printseq(c, '(', ',', ')', exprseq::precedence(), function::precedence());
 	} else {
