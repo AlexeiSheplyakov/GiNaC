@@ -2741,6 +2741,8 @@ next section.
 @node Pattern Matching and Advanced Substitutions, Polynomial Arithmetic, Substituting Expressions, Methods and Functions
 @c    node-name, next, previous, up
 @section Pattern matching and advanced substitutions
+@cindex @code{wildcard} (class)
+@cindex Pattern matching
 
 GiNaC allows the use of patterns for checking whether an expression is of a
 certain form or contains subexpressions of a certain form, and for
