@@ -183,14 +183,14 @@ void set_lexer_symbols(ex l)
 		return;
 	for (int i=0; i<l.nops(); i++) {
 		if (is_ex_exactly_of_type(l.op(i), symbol))
-			syms[ex_to_symbol(l.op(i)).getname()] = sym_def(l.op(i), true);
+			syms[ex_to_symbol(l.op(i)).get_name()] = sym_def(l.op(i), true);
 	}
 }
 
 // Check whether symbol was predefined
 bool is_lexer_symbol_predefined(const ex &s)
 {
-	sym_tab::const_iterator i = syms.find(ex_to_symbol(s).getname());
+	sym_tab::const_iterator i = syms.find(ex_to_symbol(s).get_name());
 	if (i == syms.end())
 		return false;
 	else

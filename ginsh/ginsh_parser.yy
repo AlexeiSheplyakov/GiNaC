@@ -151,7 +151,7 @@ line	: ';'
 			YYERROR;
 		}
 	}
-	| '?' T_SYMBOL 		{print_help(ex_to_symbol($2).getname());}
+	| '?' T_SYMBOL 		{print_help(ex_to_symbol($2).get_name());}
 	| '?' T_TIME		{print_help("time");}
 	| '?' '?'		{print_help_topics();}
 	| T_QUIT		{YYACCEPT;}
@@ -589,7 +589,7 @@ void GiNaC::ginsh_get_ginac_functions(void)
 
 static fcn_tab::const_iterator find_function(const ex &sym, int req_params)
 {
-	const string &name = ex_to_symbol(sym).getname();
+	const string &name = ex_to_symbol(sym).get_name();
 	typedef fcn_tab::const_iterator I;
 	pair<I, I> b = fcns.equal_range(name);
 	if (b.first == b.second)

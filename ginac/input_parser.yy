@@ -91,12 +91,12 @@ exp	: T_NUMBER		{$$ = $1;}
 		if (is_lexer_symbol_predefined($1))
 			$$ = $1.eval();
 		else
-			throw (std::runtime_error("unknown symbol '" + ex_to_symbol($1).getname() + "'"));
+			throw (std::runtime_error("unknown symbol '" + ex_to_symbol($1).get_name() + "'"));
 	}
 	| T_LITERAL		{$$ = $1;}
 	| T_DIGITS		{$$ = $1;}
 	| T_SYMBOL '(' exprseq ')' {
-		unsigned i = function::find_function(ex_to_symbol($1).getname(), $3.nops());
+		unsigned i = function::find_function(ex_to_symbol($1).get_name(), $3.nops());
 		$$ = function(i, static_cast<const exprseq &>(*($3.bp))).eval(1);
 	}
 	| exp T_EQUAL exp	{$$ = $1 == $3;}
