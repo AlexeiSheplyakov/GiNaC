@@ -101,9 +101,9 @@ sparse_tree(const symbol & x,
     if (level == 0)
         return random_symbol(x,y,z,rational);
     switch (abs(rand()) % 7) {
-    case 0:
-    case 1:
-        return add(sparse_tree(x,y,z,level-1, trig, rational),
+        case 0:
+        case 1:
+            return add(sparse_tree(x,y,z,level-1, trig, rational),
                        sparse_tree(x,y,z,level-1, trig, rational));
         case 2:
         case 3:

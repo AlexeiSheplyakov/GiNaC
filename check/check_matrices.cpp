@@ -22,17 +22,47 @@
 
 #include "checks.h"
 
-// determinants of some sparse symbolic size x size matrices
-static unsigned matrix_determinants(void)
+// determinants of some sparse symbolic size x size matrices over
+// an integral domain.
+static unsigned integdom_matrix_determinants(void)
 {
     unsigned result = 0;
     symbol a("a");
-
+    
     for (int size=3; size<17; ++size) {
         matrix A(size,size);
         for (int r=0; r<size-1; ++r) {
             // populate one element in each row:
             A.set(r,unsigned(rand()%size),dense_univariate_poly(a,5));
+        }
+        for (int c=0; c<size; ++c) {
+            // set the last line to a linear combination of two other lines
+            // to guarantee that the determinant vanishes:
+            A.set(size-1,c,A(0,c)-A(size-2,c));
+        }
+        if (!A.determinant().is_zero()) {
+            clog << "Determinant of " << size << "x" << size << " matrix "
+                 << endl << A << endl
+                 << "was not found to vanish!" << endl;
+            ++result;
+        }
+    }
+    
+    return result;
+}
+
+static unsigned rational_matrix_determinants(void)
+{
+    unsigned result = 0;
+    symbol a("a"), b("b"), c("c");
+    
+    for (int size=3; size<13; ++size) {
+        matrix A(size,size);
+        for (int r=0; r<size-1; ++r) {
+            // populate one element in each row:
+            // FIXME: the line using sparse_tree() should be used:
+            // A.set(r,unsigned(rand()%size),sparse_tree(a, b, c, 3, true, true)/sparse_tree(a, b, c, 2, true, true));
+            A.set(r,unsigned(rand()%size),dense_univariate_poly(a,4)/dense_univariate_poly(a,2));
         }
         for (int c=0; c<size; ++c) {
             // set the last line to a linear combination of two other lines
@@ -57,7 +87,8 @@ unsigned check_matrices(void)
     cout << "checking symbolic matrix manipulations" << flush;
     clog << "---------symbolic matrix manipulations:" << endl;
     
-    result += matrix_determinants();  cout << '.' << flush;
+    result += integdom_matrix_determinants();  cout << '.' << flush;
+    result += rational_matrix_determinants();  cout << '.' << flush;
     
     if (!result) {
         cout << " passed " << endl;

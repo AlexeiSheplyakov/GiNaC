@@ -22,33 +22,39 @@
  */
 
 #include "times.h"
-#include "time_lw_w101n.h"
 
 static unsigned test(void)
 {
-    matrix m(101,101);
-    for (unsigned r=0; r<101; ++r) {
-        for (unsigned c=0; c<10; ++c) {
-            m.set(r,
-                  unsigned(ex_to_numeric(w101_numeric[r][2*c+1]).to_int()-1),
-                  w101_numeric[r][2*c+2]);
-        }
-    }
+    // create the matrix from test P...
+    const unsigned n = 10;
+    matrix m(n*n+1,n*n+1);
+    for (unsigned i=1; i<=n*n; ++i)
+        m.set(i-1,i-1,1);
+    for (unsigned i=1; i<=n*n; ++i)
+        if (!(i%n))
+            m.set(i-1,n*n,1);
+    for (unsigned i=1; i<=n*n; ++i)
+        if (!((i-1)%n))
+            m.set(n*n,i-1,n-(i-1)/n);
+    for(unsigned i=1; i<=n; ++i)
+        for (unsigned j=1; j<=n; ++j)
+            if (i-j)
+                for (unsigned k=1; k<n; ++k)
+                    m.set((i-1)*n+k-1,(j-1)*n+k,n+1-j);
+    // ...and then another, more dense one:
     matrix m2(m);
     ex a;
-    for (unsigned r=0; r<101; ++r) {
+    for (unsigned r=0; r<=n*n; ++r) {
         a = m2(r,0);
-        for (unsigned c=0; c<100; ++c) {
+        for (unsigned c=0; c<n*n; ++c)
             m2.set(r,c,m2(r,c+1));
-        }
         m2.set(r,100,a);
     }
-    for (unsigned r=0; r<101; ++r) {
-        for (unsigned c=0; c<101; ++c) {
+    for (unsigned r=0; r<=n*n; ++r)
+        for (unsigned c=0; c<=n*n; ++c)
             if (!m(r,c).is_zero())
                 m2.set(r,c,m(r,c));
-        }
-    }
+    
     ex det = m2.determinant();
     
     if (det!=numeric("140816284877507872414776")) {

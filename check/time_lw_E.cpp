@@ -63,7 +63,7 @@ unsigned time_lw_E(void)
     } else {
         cout << " failed ";
     }
-    cout << int(1000*(time/count))*0.001 << 's' << endl;
+    cout << int(100000*(time/count))*0.00001 << 's' << endl;
     
     return result;
 }

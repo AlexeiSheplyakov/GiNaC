@@ -35,6 +35,8 @@ using namespace GiNaC;
 // prototypes for the expression generating functions in:
 const ex dense_univariate_poly(const symbol & x, unsigned degree);
 const ex dense_bivariate_poly(const symbol & x1, const symbol & x2, unsigned degree);
+const ex sparse_tree(const symbol & x, const symbol & y, const symbol & z,
+                     int level, bool trig = false, bool rational = true);
 
 // prototypes for all individual checks should be unsigned fcn():
 unsigned check_numeric();
