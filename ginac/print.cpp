@@ -146,7 +146,8 @@ void add::print(ostream & os, unsigned upper_precedence) const
             if (coeff.csgn()==-1) os << '-';
             first=false;
         }
-        if (coeff.compare(numONE()) && coeff.compare(numMINUSONE())) {
+        if (!coeff.is_equal(numONE()) &&
+            !coeff.is_equal(numMINUSONE())) {
             if (coeff.csgn()==-1)
                 (numMINUSONE()*coeff).print(os, precedence);
             else
@@ -168,10 +169,17 @@ void mul::print(ostream & os, unsigned upper_precedence) const
     debugmsg("mul print",LOGLEVEL_PRINT);
     if (precedence<=upper_precedence) os << "(";
     bool first=true;
-    if (!overall_coeff.is_equal(exONE())) {
-        overall_coeff.print(os,precedence);
-        first=false;
+    // first print the overall numeric coefficient:
+    if (ex_to_numeric(overall_coeff).csgn()==-1) os << '-';
+    if (!overall_coeff.is_equal(exONE()) &&
+        !overall_coeff.is_equal(exMINUSONE())) {
+        if (ex_to_numeric(overall_coeff).csgn()==-1)
+            (numMINUSONE()*overall_coeff).print(os, precedence);
+        else
+            overall_coeff.print(os, precedence);
+        os << '*';
     }
+    // then proceed with the remaining factors:
     for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
         if (!first) {
             os << '*';
