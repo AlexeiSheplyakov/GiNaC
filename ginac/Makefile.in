@@ -98,12 +98,12 @@ VERSION = @VERSION@
 YACC = @YACC@
 
 lib_LTLIBRARIES = libginac.la
-libginac_la_SOURCES = add.cpp basic.cpp constant.cpp diff.cpp ex.cpp   expairseq.cpp exprseq.cpp fail.cpp function.cpp inifcns.cpp   inifcns_trans.cpp inifcns_zeta.cpp inifcns_gamma.cpp matrix.cpp mul.cpp   normal.cpp numeric.cpp operators.cpp power.cpp relational.cpp symbol.cpp   utils.cpp series.cpp ncmul.cpp clifford.cpp structure.cpp color.cpp   indexed.cpp idx.cpp isospin.cpp exprseq_suppl.cpp lst.cpp lst_suppl.cpp   simp_lor.cpp coloridx.cpp lorentzidx.cpp debugmsg.h utils.h
+libginac_la_SOURCES = add.cpp basic.cpp constant.cpp diff.cpp ex.cpp   expairseq.cpp exprseq.cpp fail.cpp function.cpp inifcns.cpp   inifcns_trans.cpp inifcns_zeta.cpp inifcns_gamma.cpp matrix.cpp mul.cpp   normal.cpp numeric.cpp operators.cpp power.cpp relational.cpp symbol.cpp   utils.cpp series.cpp ncmul.cpp clifford.cpp structure.cpp color.cpp   indexed.cpp idx.cpp isospin.cpp exprseq_suppl.cpp lst.cpp lst_suppl.cpp   simp_lor.cpp coloridx.cpp lorentzidx.cpp lortensor.cpp debugmsg.h utils.h 
 
 libginac_la_LDFLAGS = -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)   -release $(LT_RELEASE)
 
 ginacincludedir = $(includedir)/ginac
-ginacinclude_HEADERS = ginac.h add.h basic.h clifford.h color.h coloridx.h   constant.h ex.h expair.h expairseq.h exprseq.h fail.h flags.h function.h   idx.h indexed.h inifcns.h isospin.h lorentzidx.h lst.h matrix.h mul.h   ncmul.h normal.h numeric.h operators.h power.h relational.h series.h   simp_lor.h structure.h symbol.h tinfos.h assertion.h
+ginacinclude_HEADERS = ginac.h add.h basic.h clifford.h color.h coloridx.h   constant.h ex.h expair.h expairseq.h exprseq.h fail.h flags.h function.h   idx.h indexed.h inifcns.h isospin.h lorentzidx.h lst.h matrix.h mul.h   ncmul.h normal.h numeric.h operators.h power.h relational.h series.h   simp_lor.h structure.h symbol.h lortensor.h tinfos.h assertion.h
 
 EXTRA_DIST = container.pl function.pl structure.pl
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -123,7 +123,7 @@ inifcns_zeta.lo inifcns_gamma.lo matrix.lo mul.lo normal.lo numeric.lo \
 operators.lo power.lo relational.lo symbol.lo utils.lo series.lo \
 ncmul.lo clifford.lo structure.lo color.lo indexed.lo idx.lo isospin.lo \
 exprseq_suppl.lo lst.lo lst_suppl.lo simp_lor.lo coloridx.lo \
-lorentzidx.lo
+lorentzidx.lo lortensor.lo
 CXXFLAGS = @CXXFLAGS@
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -148,10 +148,11 @@ DEP_FILES =  .deps/add.P .deps/basic.P .deps/clifford.P .deps/color.P \
 .deps/expairseq.P .deps/exprseq.P .deps/exprseq_suppl.P .deps/fail.P \
 .deps/function.P .deps/idx.P .deps/indexed.P .deps/inifcns.P \
 .deps/inifcns_gamma.P .deps/inifcns_trans.P .deps/inifcns_zeta.P \
-.deps/isospin.P .deps/lorentzidx.P .deps/lst.P .deps/lst_suppl.P \
-.deps/matrix.P .deps/mul.P .deps/ncmul.P .deps/normal.P .deps/numeric.P \
-.deps/operators.P .deps/power.P .deps/relational.P .deps/series.P \
-.deps/simp_lor.P .deps/structure.P .deps/symbol.P .deps/utils.P
+.deps/isospin.P .deps/lorentzidx.P .deps/lortensor.P .deps/lst.P \
+.deps/lst_suppl.P .deps/matrix.P .deps/mul.P .deps/ncmul.P \
+.deps/normal.P .deps/numeric.P .deps/operators.P .deps/power.P \
+.deps/relational.P .deps/series.P .deps/simp_lor.P .deps/structure.P \
+.deps/symbol.P .deps/utils.P
 SOURCES = $(libginac_la_SOURCES)
 OBJECTS = $(libginac_la_OBJECTS)
 

@@ -60,6 +60,7 @@ const unsigned TINFO_clifford     = 0x000b1101U;
 const unsigned TINFO_color        = 0x000b1201U;
 const unsigned TINFO_isospin      = 0x000b1301U;
 const unsigned TINFO_simp_lor     = 0x000b1401U;
+const unsigned TINFO_lortensor    = 0x000b1501U;
 
 const unsigned TINFO_structure    = 0x000c0001U;
 // reserved up to                   0x000cffffU

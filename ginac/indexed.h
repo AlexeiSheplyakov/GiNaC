@@ -50,6 +50,7 @@ public:
     indexed(ex const & i1);
     indexed(ex const & i1, ex const & i2);
     indexed(ex const & i1, ex const & i2, ex const & i3);
+    indexed(ex const & i1, ex const & i2, ex const & i3, ex const & i4);
     indexed(exvector const & iv);
     indexed(exvector * iv);
 

@@ -107,6 +107,14 @@ indexed::indexed(ex const & i1, ex const & i2, ex const & i3)
     GINAC_ASSERT(all_of_type_idx());
 }
 
+indexed::indexed(ex const & i1, ex const & i2, ex const & i3, ex const & i4)
+    : exprseq(i1,i2,i3,i4)
+{
+    debugmsg("indexed constructor from ex,ex,ex,ex",LOGLEVEL_CONSTRUCT);
+    tinfo_key=TINFO_indexed;
+    GINAC_ASSERT(all_of_type_idx());
+}
+
 indexed::indexed(exvector const & iv) : exprseq(iv)
 {
     debugmsg("indexed constructor from exvector",LOGLEVEL_CONSTRUCT);
