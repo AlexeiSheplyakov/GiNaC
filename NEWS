@@ -2,7 +2,8 @@ This file records noteworthy changes.
 
 0.9.1 (<date>)
 * New functions/methods:
-   - remove_first() and remove_last() for lists
+   - find()
+   - remove_first(), remove_last(), sort() and unique() for lists
    - symmetrize_cyclic()
    - decomp_rational()
 * Instead of just totally symmetric or antisymmetric, complex symmetries
@@ -19,13 +20,16 @@ This file records noteworthy changes.
   take the trace on both sides, using diff() on a matrix differentiates every
   element etc.
 * diff() works properly with non-commutative products and indexed objects.
+* New option flag "expand_function_args" for expand().
 * Supplement some (now deprecated) macros by inlined template functions:
   - is_of_type(foo, type) -> is_a<type>(foo)
   - is_ex_of_type(foo, type) -> is_a<type>(foo)
   - is_exaclty_of_type(foo, type) -> is_exaclty_a<type>(foo)
   - is_ex_exaclty_of_type(foo, type) -> is_exaclty_a<type>(foo)
   - ex_to_foobar(baz)  ->  ex_to<foobar>(baz)
-* rem(c, p[x], x) erroneously returned p[x] instead of c.
+* rem(c, p[x], x) (c: numeric, p[x]: polynomial) erroneously returned p[x]
+  instead of c.
+* Small bugfixes in pattern matching.
 
 0.9.0 (7 June 2001)
 * In the output and in ginsh, lists are now delimited by { } braces, and

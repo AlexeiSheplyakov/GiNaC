@@ -115,7 +115,7 @@ void ex::dbgprinttree(void) const
 ex ex::expand(unsigned options) const
 {
 	GINAC_ASSERT(bp!=0);
-	if (bp->flags & status_flags::expanded)
+	if (options == 0 && (bp->flags & status_flags::expanded)) // The "expanded" flag only covers the standard options; someone might want to re-expand with different options
 		return *bp;
 	else
 		return bp->expand(options);
@@ -141,6 +141,25 @@ bool ex::match(const ex & pattern) const
 {
 	lst repl_lst;
 	return bp->match(pattern, repl_lst);
+}
+
+/** Find all occurrences of a pattern. The found matches are appended to
+ *  the "found" list. If the expression itself matches the pattern, the
+ *  children are not further examined. This function returns true when any
+ *  matches were found. */
+bool ex::find(const ex & pattern, lst & found) const
+{
+	if (match(pattern)) {
+		found.append(*this);
+		found.sort();
+		found.unique();
+		return true;
+	}
+	bool any_found = false;
+	for (unsigned i=0; i<nops(); i++)
+		if (op(i).find(pattern, found))
+			any_found = true;
+	return any_found;
 }
 
 ex ex::operator[](const ex & index) const

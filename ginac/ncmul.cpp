@@ -174,7 +174,7 @@ ex ncmul::expand(unsigned options) const
 
 	if (number_of_adds==0) {
 		return (new ncmul(expanded_seq,1))->setflag(status_flags::dynallocated ||
-													status_flags::expanded);
+													(options == 0 ? status_flags::expanded : 0));
 	}
 
 	exvector distrseq;
@@ -197,7 +197,7 @@ ex ncmul::expand(unsigned options) const
 			term[positions_of_adds[l]]=addref.recombine_pair_to_ex(addref.seq[k[l]]);
 		}
 		distrseq.push_back((new ncmul(term,1))->setflag(status_flags::dynallocated |
-														status_flags::expanded));
+														(options == 0 ? status_flags::expanded : 0)));
 
 		// increment k[]
 		l=number_of_adds-1;
@@ -209,7 +209,7 @@ ex ncmul::expand(unsigned options) const
 	}
 
 	return (new add(distrseq))->setflag(status_flags::dynallocated |
-										status_flags::expanded);
+										(options == 0 ? status_flags::expanded : 0));
 }
 
 int ncmul::degree(const ex & s) const

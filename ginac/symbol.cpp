@@ -179,14 +179,6 @@ bool symbol::info(unsigned inf) const
 		return inherited::info(inf);
 }
 
-bool symbol::has(const ex & other) const
-{
-	if (this->is_equal(*other.bp))
-		return true;
-	else
-		return false;
-}
-
 int symbol::degree(const ex & s) const
 {
 	return is_equal(*s.bp) ? 1 : 0;

@@ -23,6 +23,7 @@ if ($type eq 'exprseq') {
 	$STLHEADER="vector";
 	$reserve=1;
 	$prepend=0;
+	$sort=0;
 	$let_op=0;
 	$open_bracket='(';
 	$close_bracket=')';
@@ -34,6 +35,7 @@ if ($type eq 'exprseq') {
 	$STLHEADER="list";
 	$reserve=0;
 	$prepend=1;
+	$sort=1;
 	$let_op=1;
 	$open_bracket='{';
 	$close_bracket='}';
@@ -64,6 +66,7 @@ ${CONTAINER} & ${CONTAINER}::prepend(const ex & b)
 	seq.push_front(b);
 	return *this;
 }
+
 ${CONTAINER} & ${CONTAINER}::remove_first(void)
 {
 	ensure_if_modifiable();
@@ -74,6 +77,32 @@ END_OF_PREPEND_IMPLEMENTATION
 } else {
 	$PREPEND_INTERFACE="    // no prepend possible for ${CONTAINER}";
 	$PREPEND_IMPLEMENTATION="";
+}
+
+if ($sort) {
+	$SORT_INTERFACE=<<END_OF_SORT_INTERFACE;
+	virtual ${CONTAINER} & sort(void);
+	virtual ${CONTAINER} & unique(void);
+END_OF_SORT_INTERFACE
+
+	$SORT_IMPLEMENTATION=<<END_OF_SORT_IMPLEMENTATION;
+${CONTAINER} & ${CONTAINER}::sort(void)
+{
+	ensure_if_modifiable();
+	seq.sort(ex_is_less());
+	return *this;
+}
+
+${CONTAINER} & ${CONTAINER}::unique(void)
+{
+	ensure_if_modifiable();
+	seq.unique(ex_is_equal());
+	return *this;
+}
+END_OF_SORT_IMPLEMENTATION
+} else {
+	$SORT_INTERFACE="    // no sort possible for ${CONTAINER}";
+	$SORT_IMPLEMENTATION="";
 }
 
 if ($let_op) {
@@ -157,6 +186,7 @@ $interface=<<END_OF_INTERFACE;
  *                        \$STLHEADER=${STLHEADER}
  *                        \$reserve=${reserve}
  *                        \$prepend=${prepend}
+ *                        \$sort=${sort}
  *                        \$let_op=${let_op}
  *                        \$open_bracket=${open_bracket}
  *                        \$close_bracket=${close_bracket}
@@ -222,6 +252,7 @@ public:
 	virtual ${CONTAINER} & append(const ex & b);
 	virtual ${CONTAINER} & remove_last(void);
 ${PREPEND_INTERFACE}
+${SORT_INTERFACE}
 protected:
 	virtual void printseq(const print_context & c, char openbracket, char delim,
 	                      char closebracket, unsigned this_precedence,
@@ -439,6 +470,8 @@ ${LET_OP_IMPLEMENTATION}
 
 ex ${CONTAINER}::map(map_function & f) const
 {
+	// This implementation is here because basic::map() uses let_op()
+	// which is not defined for all containers
 	${STLT} s;
 	RESERVE(s,seq.size());
 	${STLT}::const_iterator i = seq.begin(), end = seq.end();
@@ -533,6 +566,8 @@ ${CONTAINER} & ${CONTAINER}::remove_last(void)
 }
 
 ${PREPEND_IMPLEMENTATION}
+
+${SORT_IMPLEMENTATION}
 
 // protected
 

@@ -141,6 +141,7 @@ protected: // functions that should be called from class ex only
 	virtual ex derivative(const symbol & s) const;
 	virtual int compare_same_type(const basic & other) const;
 	virtual bool is_equal_same_type(const basic & other) const;
+	virtual bool match_same_type(const basic & other) const;
 	virtual unsigned calchash(void) const;
 	virtual ex simplify_ncmul(const exvector & v) const;
 	

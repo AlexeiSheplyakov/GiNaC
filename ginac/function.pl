@@ -273,6 +273,7 @@ $series_func_interface
 	void test_and_set_nparams(unsigned n);
 	std::string get_name(void) const { return name; }
 	unsigned get_nparams(void) const { return nparams; }
+	bool has_derivative(void) const { return derivative_f != NULL; }
 
 protected:
 	std::string name;
@@ -315,6 +316,7 @@ class function : public exprseq
 	friend class remember_table_entry;
 	// friend class remember_table_list;
 	// friend class remember_table;
+	friend ex Derivative_eval(const ex &, const ex &);
 
 // member functions
 
@@ -340,12 +342,12 @@ public:
 	ex evalf(int level=0) const;
 	unsigned calchash(void) const;
 	ex series(const relational & r, int order, unsigned options = 0) const;
-	bool match(const ex & pattern, lst & repl_lst) const;
 	ex thisexprseq(const exvector & v) const;
 	ex thisexprseq(exvector * vp) const;
 protected:
 	ex derivative(const symbol & s) const;
 	bool is_equal_same_type(const basic & other) const;
+	bool match_same_type(const basic & other) const;
 	unsigned return_type(void) const;
 	unsigned return_type_tinfo(void) const;
 	
@@ -702,7 +704,11 @@ void function::print(const print_context & c, unsigned level) const
 
 ex function::expand(unsigned options) const
 {
-	return this->setflag(status_flags::expanded);
+	// Only expand arguments when asked to do so
+	if (options & expand_options::expand_function_args)
+		return inherited::expand(options);
+	else
+		return (options == 0) ? setflag(status_flags::expanded) : *this;
 }
 
 int function::degree(const ex & s) const
@@ -843,16 +849,7 @@ ${series_switch_statement}
 	throw(std::logic_error("function::series(): invalid nparams"));
 }
 
-bool function::match(const ex & pattern, lst & repl_lst) const
-{
-	// Serial number must match
-	if (is_ex_of_type(pattern, function) && serial != ex_to<function>(pattern).serial)
-		return false;
-	return inherited::match(pattern, repl_lst);
-}
-
 // protected
-
 
 /** Implementation of ex::diff() for functions. It applies the chain rule,
  *  except for the Order term function.
@@ -902,10 +899,10 @@ int function::compare_same_type(const basic & other) const
 	GINAC_ASSERT(is_of_type(other, function));
 	const function & o = static_cast<const function &>(other);
 
-	if (serial!=o.serial) {
+	if (serial != o.serial)
 		return serial < o.serial ? -1 : 1;
-	}
-	return exprseq::compare_same_type(o);
+	else
+		return exprseq::compare_same_type(o);
 }
 
 bool function::is_equal_same_type(const basic & other) const
@@ -913,8 +910,18 @@ bool function::is_equal_same_type(const basic & other) const
 	GINAC_ASSERT(is_of_type(other, function));
 	const function & o = static_cast<const function &>(other);
 
-	if (serial!=o.serial) return false;
-	return exprseq::is_equal_same_type(o);
+	if (serial != o.serial)
+		return false;
+	else
+		return exprseq::is_equal_same_type(o);
+}
+
+bool function::match_same_type(const basic & other) const
+{
+	GINAC_ASSERT(is_of_type(other, function));
+	const function & o = static_cast<const function &>(other);
+
+	return serial == o.serial;
 }
 
 unsigned function::return_type(void) const

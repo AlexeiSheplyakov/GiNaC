@@ -429,7 +429,7 @@ ex pseries::expand(unsigned options) const
 		++i;
 	}
 	return (new pseries(relational(var,point), newseq))
-	        ->setflag(status_flags::dynallocated | status_flags::expanded);
+	        ->setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0));
 }
 
 /** Implementation of ex::diff() for a power series.  It treats the series as a

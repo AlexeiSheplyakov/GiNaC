@@ -52,11 +52,11 @@ public:
 	unsigned nops() const;
 	ex & let_op(int i);
 	ex evalf(int level = 0) const;
-	bool match(const ex & pattern, lst & repl_lst) const;
 	ex subs(const lst & ls, const lst & lr, bool no_pattern = false) const;
 
 protected:
 	ex derivative(const symbol & s) const;
+	bool match_same_type(const basic & other) const;
 
 	// new virtual functions in this class
 public:
@@ -109,8 +109,10 @@ public:
 	// functions overriding virtual functions from bases classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
-	bool match(const ex & pattern, lst & repl_lst) const;
 	bool is_dummy_pair_same_type(const basic & other) const;
+
+protected:
+	bool match_same_type(const basic & other) const;
 
 	// non-virtual functions in this class
 public:
@@ -152,8 +154,10 @@ public:
 	// functions overriding virtual functions from bases classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
-	bool match(const ex & pattern, lst & repl_lst) const;
 	bool is_dummy_pair_same_type(const basic & other) const;
+
+protected:
+	bool match_same_type(const basic & other) const;
 
 	// non-virtual functions in this class
 public:

@@ -129,7 +129,7 @@ DEFAULT_ARCHIVING(su3d)
 
 int color::compare_same_type(const basic & other) const
 {
-	GINAC_ASSERT(other.tinfo() == TINFO_color);
+	GINAC_ASSERT(is_of_type(other, color));
 	const color &o = static_cast<const color &>(other);
 
 	if (representation_label != o.representation_label) {
@@ -138,6 +138,14 @@ int color::compare_same_type(const basic & other) const
 	}
 
 	return inherited::compare_same_type(other);
+}
+
+bool color::match_same_type(const basic & other) const
+{
+	GINAC_ASSERT(is_of_type(other, color));
+	const color &o = static_cast<const color &>(other);
+
+	return representation_label == o.representation_label;
 }
 
 DEFAULT_COMPARE(su3one)

@@ -375,6 +375,13 @@ static ex f_evalf2(const exprseq &e)
 	return e[0].evalf(ex_to<numeric>(e[1]).to_int());
 }
 
+static ex f_find(const exprseq &e)
+{
+	lst found;
+	e[0].find(e[1], found);
+	return found;
+}
+
 static ex f_inverse(const exprseq &e)
 {
 	CHECK_ARG(0, matrix, inverse);
@@ -510,6 +517,7 @@ static const fcn_init builtin_fcns[] = {
 	{"evalf", fcn_desc(f_evalf2, 2)},
 	{"evalm", fcn_desc(f_evalm, 1)},
 	{"expand", fcn_desc(f_expand, 1)},
+	{"find", fcn_desc(f_find, 2)},
 	{"gcd", fcn_desc(f_gcd, 2)},
 	{"has", fcn_desc(f_has, 2)},
 	{"inverse", fcn_desc(f_inverse, 1)},

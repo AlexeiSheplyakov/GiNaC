@@ -565,7 +565,7 @@ unsigned power::return_type_tinfo(void) const
 
 ex power::expand(unsigned options) const
 {
-	if (flags & status_flags::expanded)
+	if (options == 0 && (flags & status_flags::expanded))
 		return *this;
 	
 	ex expanded_basis = basis.expand(options);
@@ -604,7 +604,7 @@ ex power::expand(unsigned options) const
 		if (are_ex_trivially_equal(basis,expanded_basis) && are_ex_trivially_equal(exponent,expanded_exponent)) {
 			return this->hold();
 		} else {
-			return (new power(expanded_basis,expanded_exponent))->setflag(status_flags::dynallocated | status_flags::expanded);
+			return (new power(expanded_basis,expanded_exponent))->setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0));
 		}
 	}
 	
@@ -624,7 +624,7 @@ ex power::expand(unsigned options) const
 	if (are_ex_trivially_equal(basis,expanded_basis) && are_ex_trivially_equal(exponent,expanded_exponent))
 		return this->hold();
 	else
-		return (new power(expanded_basis,expanded_exponent))->setflag(status_flags::dynallocated | status_flags::expanded);
+		return (new power(expanded_basis,expanded_exponent))->setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0));
 }
 
 //////////

@@ -28,8 +28,8 @@
 namespace GiNaC {
 
 
-/** This class acts as a wildcard for subs(), match() and has(). An integer
- *  label is used to identify different wildcards. */
+/** This class acts as a wildcard for subs(), match(), has() and find(). An
+ *  integer label is used to identify different wildcards. */
 class wildcard : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS(wildcard, basic)
@@ -42,8 +42,10 @@ public:
 	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
-	unsigned calchash(void) const;
 	bool match(const ex & pattern, lst & repl_lst) const;
+
+protected:
+	unsigned calchash(void) const;
 
 	// non-virtual functions in this class
 public:

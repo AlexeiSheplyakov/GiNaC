@@ -49,6 +49,7 @@ public:
 
 	// functions overriding virtual functions from base classes
 protected:
+	bool match_same_type(const basic & other) const;
 	ex simplify_ncmul(const exvector & v) const;
 	ex thisexprseq(const exvector & v) const;
 	ex thisexprseq(exvector * vp) const;

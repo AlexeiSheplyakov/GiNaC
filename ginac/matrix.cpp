@@ -259,6 +259,16 @@ int matrix::compare_same_type(const basic & other) const
 	return 0;
 }
 
+bool matrix::match_same_type(const basic & other) const
+{
+	GINAC_ASSERT(is_exactly_of_type(other, matrix));
+	const matrix & o = static_cast<const matrix &>(other);
+	
+	// The number of rows and columns must be the same. This is necessary to
+	// prevent a 2x3 matrix from matching a 3x2 one.
+	return row == o.rows() && col == o.cols();
+}
+
 /** Automatic symbolic evaluation of an indexed matrix. */
 ex matrix::eval_indexed(const basic & i) const
 {

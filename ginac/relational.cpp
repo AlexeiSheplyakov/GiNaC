@@ -205,6 +205,14 @@ int relational::compare_same_type(const basic & other) const
 	return (o < oth.o) ? -1 : 1;
 }
 
+bool relational::match_same_type(const basic & other) const
+{
+	GINAC_ASSERT(is_exactly_of_type(other, relational));
+	const relational &oth = static_cast<const relational &>(other);
+
+	return o == oth.o;
+}
+
 unsigned relational::return_type(void) const
 {
 	GINAC_ASSERT(lh.return_type()==rh.return_type());

@@ -53,10 +53,10 @@ public:
 	ex add_indexed(const ex & self, const ex & other) const;
 	ex scalar_mul_indexed(const ex & self, const numeric & other) const;
 	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
+
 protected:
+	bool match_same_type(const basic & other) const;
 	unsigned return_type(void) const { return return_types::noncommutative; };
-	// new virtual functions which can be overridden by derived classes
-	// (none)
 	
 	// non-virtual functions in this class
 public:

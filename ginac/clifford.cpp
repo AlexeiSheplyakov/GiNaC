@@ -128,7 +128,7 @@ DEFAULT_ARCHIVING(diracgamma5)
 
 int clifford::compare_same_type(const basic & other) const
 {
-	GINAC_ASSERT(other.tinfo() == TINFO_clifford);
+	GINAC_ASSERT(is_of_type(other, clifford));
 	const clifford &o = static_cast<const clifford &>(other);
 
 	if (representation_label != o.representation_label) {
@@ -137,6 +137,14 @@ int clifford::compare_same_type(const basic & other) const
 	}
 
 	return inherited::compare_same_type(other);
+}
+
+bool clifford::match_same_type(const basic & other) const
+{
+	GINAC_ASSERT(is_of_type(other, clifford));
+	const clifford &o = static_cast<const clifford &>(other);
+
+	return representation_label == o.representation_label;
 }
 
 DEFAULT_COMPARE(diracone)

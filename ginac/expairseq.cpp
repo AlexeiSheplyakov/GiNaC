@@ -579,7 +579,7 @@ ex expairseq::expand(unsigned options) const
 	epvector *vp = expandchildren(options);
 	if (vp == NULL) {
 		// The terms have not changed, so it is safe to declare this expanded
-		return this->setflag(status_flags::expanded);
+		return (options == 0) ? setflag(status_flags::expanded) : *this;
 	} else
 		return thisexpairseq(vp, overall_coeff);
 }

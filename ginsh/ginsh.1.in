@@ -110,8 +110,8 @@ symbol that controls the numeric precision of calculations with inexact numbers.
 Assigning an integer value to digits will change the precision to the given
 number of decimal places.
 .SS WILDCARDS
-The has(), match() and subs() functions accept wildcards as placeholders for
-expressions. These have the syntax
+The has(), find(), match() and subs() functions accept wildcards as placeholders
+for expressions. These have the syntax
 .RS
 .BI $ number
 .RE
@@ -278,6 +278,9 @@ detail here. Please refer to the GiNaC documentation.
 .br
 .BI expand( expression )
 \- expands an expression
+.br
+.BI find( expression ", " expression )
+\- returns a list of all occurrences of a pattern in an expression
 .br
 .BI gcd( expression ", " expression )
 \- greatest common divisor

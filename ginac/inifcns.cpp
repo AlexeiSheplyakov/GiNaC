@@ -413,18 +413,39 @@ REGISTER_FUNCTION(Order, eval_func(Order_eval).
 // Inert partial differentiation operator
 //////////
 
-static ex Derivative_eval(const ex & f, const ex & l)
+ex Derivative_eval(const ex & f, const ex & l)
 {
-	if (!is_ex_exactly_of_type(f, function)) {
+	if (!is_ex_of_type(f, function))
 		throw(std::invalid_argument("Derivative(): 1st argument must be a function"));
-	}
-	if (!is_ex_exactly_of_type(l, lst)) {
+	if (!is_ex_of_type(l, lst))
 		throw(std::invalid_argument("Derivative(): 2nd argument must be a list"));
+
+#if 0
+	// Perform differentiations if possible
+	const function &fcn = ex_to<function>(f);
+	if (fcn.registered_functions()[fcn.get_serial()].has_derivative() && l.nops() > 0) {
+
+		// The function actually seems to have a derivative, let's calculate it
+		ex d = fcn.pderivative(ex_to_numeric(l.op(0)).to_int());
+
+		// If this was the last differentiation, return the result
+		if (l.nops() == 1)
+			return d;
+
+		// Otherwise recursively continue as long as the derivative is still
+		// a function
+		if (is_ex_of_type(d, function)) {
+			lst l_copy = ex_to<lst>(l);
+			l_copy.remove_first();
+			return Derivative(d, l_copy);
+		}
 	}
+#endif
 	return Derivative(f, l).hold();
 }
 
-REGISTER_FUNCTION(Derivative, eval_func(Derivative_eval));
+REGISTER_FUNCTION(Derivative, eval_func(Derivative_eval).
+                              latex_name("\\mathrm{D}"));
 
 //////////
 // Solve linear system

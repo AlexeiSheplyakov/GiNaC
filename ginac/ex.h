@@ -86,9 +86,10 @@ public:
 	bool info(unsigned inf) const { return bp->info(inf); }
 	unsigned nops() const { return bp->nops(); }
 	ex expand(unsigned options=0) const;
-	bool has(const ex & other) const { return bp->has(other); }
+	bool has(const ex & pattern) const { return bp->has(pattern); }
 	ex map(map_function & f) const { return bp->map(f); }
 	ex map(ex (*f)(const ex & e)) const;
+	bool find(const ex & pattern, lst & found) const;
 	int degree(const ex & s) const { return bp->degree(s); }
 	int ldegree(const ex & s) const { return bp->ldegree(s); }
 	ex coeff(const ex & s, int n = 1) const { return bp->coeff(s, n); }
@@ -346,8 +347,11 @@ inline unsigned nops(const ex & thisex)
 inline ex expand(const ex & thisex, unsigned options = 0)
 { return thisex.expand(options); }
 
-inline bool has(const ex & thisex, const ex & other)
-{ return thisex.has(other); }
+inline bool has(const ex & thisex, const ex & pattern)
+{ return thisex.has(pattern); }
+
+inline bool find(const ex & thisex, const ex & pattern, lst & found)
+{ return thisex.find(pattern, found); }
 
 inline int degree(const ex & thisex, const ex & s)
 { return thisex.degree(s); }

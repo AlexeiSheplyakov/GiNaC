@@ -29,7 +29,8 @@ class expand_options {
 public:
 	enum {
 		expand_trigonometric = 0x0001,
-		expand_indexed = 0x0002
+		expand_indexed = 0x0002,
+		expand_function_args = 0x0004
 	};
 };
 

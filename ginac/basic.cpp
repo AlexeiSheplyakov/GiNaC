@@ -213,18 +213,18 @@ ex basic::operator[](int i) const
 	return op(i);
 }
 
-/** Search ocurrences.  An object 'has' an expression if it is the expression
- *  itself or one of the children 'has' it.  As a consequence (according to
- *  the definition of children) given e=x+y+z, e.has(x) is true but e.has(x+y)
- *  is false.  The expression can also contain wildcards. */
-bool basic::has(const ex & other) const
+/** Test for occurrence of a pattern.  An object 'has' a pattern if it matches
+ *  the pattern itself or one of the children 'has' it.  As a consequence
+ *  (according to the definition of children) given e=x+y+z, e.has(x) is true
+ *  but e.has(x+y) is false. */
+bool basic::has(const ex & pattern) const
 {
-	GINAC_ASSERT(other.bp!=0);
+	GINAC_ASSERT(pattern.bp!=0);
 	lst repl_lst;
-	if (match(*other.bp, repl_lst))
+	if (match(*pattern.bp, repl_lst))
 		return true;
 	for (unsigned i=0; i<nops(); i++)
-		if (op(i).has(other))
+		if (op(i).has(pattern))
 			return true;
 	
 	return false;
@@ -274,6 +274,8 @@ ex basic::collect(const ex & s, bool distributed) const
 	if (is_ex_of_type(s, lst)) {
 
 		// List of objects specified
+		if (s.nops() == 0)
+			return *this;
 		if (s.nops() == 1)
 			return collect(s.op(0));
 
@@ -459,7 +461,7 @@ bool basic::match(const ex & pattern, lst & repl_lst) const
 	But who is the king tonight?
 	Who is the king tonight?
 	Pattern is the thing, the key thing-a-ling,
-	But who is the king of pattern?
+	But who is the king of Pattern?
 	But who is the king, the king thing-a-ling,
 	Who is the king of Pattern?
 	Bog is the king, the king thing-a-ling,
@@ -493,7 +495,11 @@ bool basic::match(const ex & pattern, lst & repl_lst) const
 		// No subexpressions? Then just compare the objects (there can't be
 		// wildcards in the pattern)
 		if (nops() == 0)
-			return is_equal(*pattern.bp);
+			return is_equal_same_type(*pattern.bp);
+
+		// Check whether attributes that are not subexpressions match
+		if (!match_same_type(*pattern.bp))
+			return false;
 
 		// Otherwise the subexpressions must match one-to-one
 		for (unsigned i=0; i<nops(); i++)
@@ -604,7 +610,24 @@ int basic::compare_same_type(const basic & other) const
  *  than an order relation and then it can be overridden. */
 bool basic::is_equal_same_type(const basic & other) const
 {
-	return this->compare_same_type(other)==0;
+	return compare_same_type(other)==0;
+}
+
+/** Returns true if the attributes of two objects are similar enough for
+ *  a match. This function must not match subexpressions (this is already
+ *  done by basic::match()). Only attributes not accessible by op() should
+ *  be compared. This is also the reason why this function doesn't take the
+ *  wildcard replacement list from match() as an argument: only subexpressions
+ *  are subject to wildcard matches. Also, this function only needs to be
+ *  implemented for container classes because is_equal_same_type() is
+ *  automatically used instead of match_same_type() if nops() == 0.
+ *
+ *  @see basic::match */
+bool basic::match_same_type(const basic & other) const
+{
+	// The default is to only consider subexpressions, but not any other
+	// attributes
+	return true;
 }
 
 unsigned basic::return_type(void) const
@@ -655,10 +678,10 @@ struct expand_map_function : public map_function {
 ex basic::expand(unsigned options) const
 {
 	if (nops() == 0)
-		return this->setflag(status_flags::expanded);
+		return (options == 0) ? setflag(status_flags::expanded) : *this;
 	else {
 		expand_map_function map_expand(options);
-		return map(map_expand).bp->setflag(status_flags::expanded);
+		return map(map_expand).bp->setflag(options == 0 ? status_flags::expanded : 0);
 	}
 }
 
@@ -759,7 +782,7 @@ bool basic::is_equal(const basic & other) const
 	
 	GINAC_ASSERT(typeid(*this)==typeid(other));
 	
-	return this->is_equal_same_type(other);
+	return is_equal_same_type(other);
 }
 
 // protected
@@ -769,7 +792,7 @@ bool basic::is_equal(const basic & other) const
  *  @see basic::eval */
 const basic & basic::hold(void) const
 {
-	return this->setflag(status_flags::evaluated);
+	return setflag(status_flags::evaluated);
 }
 
 /** Ensure the object may be modified without hurting others, throws if this

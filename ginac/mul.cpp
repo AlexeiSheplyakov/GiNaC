@@ -668,7 +668,7 @@ bool mul::can_make_flat(const expair & p) const
 
 ex mul::expand(unsigned options) const
 {
-	if (flags & status_flags::expanded)
+	if (options == 0 && (flags & status_flags::expanded))
 		return *this;
 	
 	exvector sub_expanded_seq;
@@ -700,7 +700,7 @@ ex mul::expand(unsigned options) const
 						distrseq.push_back(add1.op(i1)*add2.op(i2));
 					}
 				}
-				last_expanded = (new add(distrseq))->setflag(status_flags::dynallocated | status_flags::expanded);
+				last_expanded = (new add(distrseq))->setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0));
 			} else {
 				non_adds.push_back(split_ex_to_pair(last_expanded));
 				last_expanded = (*cit).rest;
@@ -721,14 +721,14 @@ ex mul::expand(unsigned options) const
 		for (int i=0; i<n; ++i) {
 			epvector factors = non_adds;
 			factors.push_back(split_ex_to_pair(finaladd.op(i)));
-			distrseq.push_back((new mul(factors,overall_coeff))->setflag(status_flags::dynallocated | status_flags::expanded));
+			distrseq.push_back((new mul(factors,overall_coeff))->setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0)));
 		}
 		return ((new add(distrseq))->
-		        setflag(status_flags::dynallocated | status_flags::expanded));
+		        setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0)));
 	}
 	non_adds.push_back(split_ex_to_pair(last_expanded));
 	return (new mul(non_adds, overall_coeff))->
-	        setflag(status_flags::dynallocated | status_flags::expanded);
+	        setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0));
 }
 
   

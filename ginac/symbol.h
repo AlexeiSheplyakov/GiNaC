@@ -75,7 +75,6 @@ public:
 	basic * duplicate() const;
 	void print(const print_context & c, unsigned level = 0) const;
 	bool info(unsigned inf) const;
-	bool has(const ex & other) const;
 	int degree(const ex & s) const;
 	int ldegree(const ex & s) const;
 	ex coeff(const ex & s, int n = 1) const;

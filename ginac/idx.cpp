@@ -285,6 +285,14 @@ int idx::compare_same_type(const basic & other) const
 	return dim.compare(o.dim);
 }
 
+bool idx::match_same_type(const basic & other) const
+{
+	GINAC_ASSERT(is_of_type(other, idx));
+	const idx &o = static_cast<const idx &>(other);
+
+	return dim.is_equal(o.dim);
+}
+
 int varidx::compare_same_type(const basic & other) const
 {
 	GINAC_ASSERT(is_of_type(other, varidx));
@@ -298,6 +306,16 @@ int varidx::compare_same_type(const basic & other) const
 	if (covariant != o.covariant)
 		return covariant ? -1 : 1;
 	return 0;
+}
+
+bool varidx::match_same_type(const basic & other) const
+{
+	GINAC_ASSERT(is_of_type(other, varidx));
+	const varidx &o = static_cast<const varidx &>(other);
+
+	if (covariant != o.covariant)
+		return false;
+	return inherited::match_same_type(other);
 }
 
 int spinidx::compare_same_type(const basic & other) const
@@ -316,41 +334,21 @@ int spinidx::compare_same_type(const basic & other) const
 	return 0;
 }
 
+bool spinidx::match_same_type(const basic & other) const
+{
+	GINAC_ASSERT(is_of_type(other, spinidx));
+	const spinidx &o = static_cast<const spinidx &>(other);
+
+	if (dotted != o.dotted)
+		return false;
+	return inherited::match_same_type(other);
+}
+
 /** By default, basic::evalf would evaluate the index value but we don't want
  *  a.1 to become a.(1.0). */
 ex idx::evalf(int level) const
 {
 	return *this;
-}
-
-bool idx::match(const ex & pattern, lst & repl_lst) const
-{
-	if (!is_ex_of_type(pattern, idx))
-		return false;
-	const idx &o = ex_to<idx>(pattern);
-	if (!dim.is_equal(o.dim))
-		return false;
-	return value.match(o.value, repl_lst);
-}
-
-bool varidx::match(const ex & pattern, lst & repl_lst) const
-{
-	if (!is_ex_of_type(pattern, varidx))
-		return false;
-	const varidx &o = ex_to<varidx>(pattern);
-	if (covariant != o.covariant)
-		return false;
-	return inherited::match(pattern, repl_lst);
-}
-
-bool spinidx::match(const ex & pattern, lst & repl_lst) const
-{
-	if (!is_ex_of_type(pattern, spinidx))
-		return false;
-	const spinidx &o = ex_to<spinidx>(pattern);
-	if (dotted != o.dotted)
-		return false;
-	return inherited::match(pattern, repl_lst);
 }
 
 ex idx::subs(const lst & ls, const lst & lr, bool no_pattern) const
