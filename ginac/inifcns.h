@@ -26,7 +26,9 @@
 #include <ginac/function.h>
 #include <ginac/ex.h>
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 /** Sine. */
 DECLARE_FUNCTION_1P(sin)
@@ -116,6 +118,8 @@ inline bool is_order_function(ex const & e)
 	return is_ex_the_function(e, Order);
 }
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE
 
 #endif // ndef __GINAC_INIFCNS_H__

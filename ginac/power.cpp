@@ -33,7 +33,9 @@
 #include "symbol.h"
 #include "debugmsg.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 typedef vector<int> intvector;
 
@@ -721,4 +723,6 @@ unsigned power::precedence=60;
 const power some_power;
 type_info const & typeid_power=typeid(some_power);
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE

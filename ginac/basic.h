@@ -27,11 +27,16 @@
 #include <typeinfo>
 #include <vector>
 
+// CINT needs <algorithm> to work properly with <vector> 
+#include <algorithm>
+
 #include <ginac/flags.h>
 #include <ginac/tinfos.h>
 #include <ginac/assertion.h>
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 class basic;
 class ex;
@@ -39,7 +44,8 @@ class symbol;
 class lst;
 class numeric;
 
-typedef vector<ex> exvector;
+//typedef vector<ex> exvector;
+typedef vector<ex,malloc_alloc> exvector; // CINT does not like vector<...,default_alloc>
 
 #define INLINE_BASIC_CONSTRUCTORS
 
@@ -180,6 +186,8 @@ extern int max_recursion_level;
 
 // convenience macros
 
+#ifndef NO_GINAC_NAMESPACE
+
 #define is_of_type(OBJ,TYPE) \
     (dynamic_cast<TYPE *>(const_cast<GiNaC::basic *>(&OBJ))!=0)
 
@@ -192,6 +200,25 @@ extern int max_recursion_level;
 #define is_ex_exactly_of_type(OBJ,TYPE) \
     ((*(OBJ).bp).tinfo()==GiNaC::TINFO_##TYPE)
 
+#else // ndef NO_GINAC_NAMESPACE
+
+#define is_of_type(OBJ,TYPE) \
+    (dynamic_cast<TYPE *>(const_cast<basic *>(&OBJ))!=0)
+
+#define is_exactly_of_type(OBJ,TYPE) \
+    ((OBJ).tinfo()==TINFO_##TYPE)
+
+#define is_ex_of_type(OBJ,TYPE) \
+    (dynamic_cast<TYPE *>(const_cast<basic *>((OBJ).bp))!=0)
+
+#define is_ex_exactly_of_type(OBJ,TYPE) \
+    ((*(OBJ).bp).tinfo()==TINFO_##TYPE)
+
+#endif // ndef NO_GINAC_NAMESPACE
+
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE
 
 #endif // ndef __GINAC_BASIC_H__
+

@@ -40,7 +40,9 @@
 #include "symbol.h"
 #include "debugmsg.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 void ex::printtree(ostream & os, unsigned indent) const
 {
@@ -181,4 +183,6 @@ void expairseq::printtree(ostream & os, unsigned indent) const
 #endif // def EXPAIRSEQ_USE_HASHTAB
 }
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE

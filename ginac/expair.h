@@ -26,7 +26,9 @@
 #include <ginac/ex.h>
 #include <ginac/numeric.h>
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 /** A pair of expressions.
  *  This similar to, but slightly extended STL's pair<> but we need to account
@@ -197,6 +199,8 @@ public:
     }
 };
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE
 
 #endif // ndef __GINAC_EXPAIR_H__

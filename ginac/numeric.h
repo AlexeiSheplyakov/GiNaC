@@ -30,7 +30,9 @@
 class cl_N;     // We want to include cln.h only in numeric.cpp in order to 
                 // avoid namespace pollution and keep compile-time low.
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 #define HASHVALUE_NUMERIC 0x80000001U
 
@@ -329,6 +331,8 @@ inline const numeric &ex_to_numeric(const ex &e)
 	return static_cast<const numeric &>(*e.bp);
 }
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE
 
 #endif // ndef __GINAC_NUMERIC_H__

@@ -41,7 +41,9 @@
 #include "symbol.h"
 #include "debugmsg.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 void ex::print(ostream & os, unsigned upper_precedence) const
 {
@@ -259,4 +261,6 @@ void matrix::print(ostream & os, unsigned upper_precedence) const
     os << m[row*col-1] << "]] ]]";
 }
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE

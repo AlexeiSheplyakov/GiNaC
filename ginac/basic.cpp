@@ -34,7 +34,9 @@
 #include "utils.h"
 #include "debugmsg.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -417,4 +419,6 @@ type_info const & typeid_basic=typeid(some_basic);
 
 int max_recursion_level=1024;
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE

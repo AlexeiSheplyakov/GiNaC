@@ -23,7 +23,9 @@
 #ifndef __GINAC_FLAGS_H__
 #define __GINAC_FLAGS_H__
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 class expand_options {
 public:
@@ -114,6 +116,8 @@ public:
 	};
 };
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE
 
 #endif // ndef __GINAC_FLAGS_H__

@@ -28,7 +28,9 @@
 #include <ginac/idx.h>
 #include <ginac/ex.h>
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 class coloridx : public idx
 {
@@ -82,6 +84,8 @@ inline const coloridx &ex_to_coloridx(const ex &e)
 	return static_cast<const coloridx &>(*e.bp);
 }
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE
 
 #endif // ndef __GINAC_COLORIDX_H__

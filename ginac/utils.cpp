@@ -22,7 +22,9 @@
 
 #include "utils.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 /** Integer binary logarithm */
 unsigned log2(unsigned n)
@@ -119,4 +121,6 @@ int compare_pointers(void const * a, void const * b)
 // private
 // none
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE

@@ -30,8 +30,9 @@
 #include "symbol.h"
 #include "debugmsg.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
-
+#endif // ndef NO_GINAC_NAMESPACE
 
 /*
  *  Default constructor, destructor, copy constructor, assignment operator and helpers
@@ -636,4 +637,6 @@ ex ex::series(symbol const &s, ex const &point, int order) const
 const series some_series;
 type_info const & typeid_series = typeid(some_series);
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE

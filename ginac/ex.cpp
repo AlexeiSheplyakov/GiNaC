@@ -30,7 +30,9 @@
 #include "power.h"
 #include "debugmsg.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -514,4 +516,6 @@ ex const & exMINUSHALF(void)
     return *eMINUSHALF;
 }
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE

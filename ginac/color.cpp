@@ -35,7 +35,9 @@
 #include "relational.h"
 #include "debugmsg.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -965,4 +967,7 @@ void append_exvector_to_exvector(exvector & dest, exvector const & source)
     }
 }
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE
+

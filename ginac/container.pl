@@ -123,12 +123,19 @@ $interface=<<END_OF_INTERFACE;
 #define __GINAC_${CONTAINER_UC}_H__
 
 #include <${STLHEADER}>
+
+// CINT needs <algorithm> to work properly with <vector> and <list> 
+#include <algorithm>
+
 #include <ginac/basic.h>
 #include <ginac/ex.h>
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
-typedef ${STLHEADER}<ex> ${STLT};
+// typedef ${STLHEADER}<ex> ${STLT};
+typedef ${STLHEADER}<ex,malloc_alloc> ${STLT}; // CINT does not like ${STLHEADER}<...,default_alloc>
 
 class ${CONTAINER} : public basic
 {
@@ -223,7 +230,9 @@ inline const ${CONTAINER} &ex_to_${CONTAINER}(const ex &e)
     return static_cast<const ${CONTAINER} &>(*e.bp);
 }
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE
 
 #endif // ndef __GINAC_${CONTAINER_UC}_H__
 
@@ -269,7 +278,9 @@ $implementation=<<END_OF_IMPLEMENTATION;
 #include "ex.h"
 #include "debugmsg.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 ${RESERVE_IMPLEMENTATION}
 
@@ -847,7 +858,9 @@ unsigned ${CONTAINER}::precedence=10;
 const ${CONTAINER} some_${CONTAINER};
 type_info const & typeid_${CONTAINER}=typeid(some_${CONTAINER});
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE
 
 END_OF_IMPLEMENTATION
 

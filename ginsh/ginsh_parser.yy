@@ -554,7 +554,10 @@ static ex f_ginac_function(const exprseq &es, int serial)
 }
 
 // All registered GiNaC functions
-void GiNaC::ginsh_get_ginac_functions(void)
+#ifndef NO_GINAC_NAMESPACE
+#else // ndef NO_GINAC_NAMESPACE
+void ginsh_get_ginac_functions(void)
+#endif // ndef NO_GINAC_NAMESPACE
 {
 	vector<registered_function_info>::const_iterator i = function::registered_functions().begin(), end = function::registered_functions().end();
 	unsigned serial = 0;

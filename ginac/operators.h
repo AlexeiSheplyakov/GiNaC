@@ -25,7 +25,9 @@
 
 #include <iostream>
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 class ex;
 class numeric;
@@ -129,6 +131,8 @@ relational operator>=(numeric const & lh, ex const & rh);
 ostream & operator<<(ostream & os, ex const & e);
 istream & operator>>(istream & is, ex & e);
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE
 
 #endif // ndef __GINAC_OPERATORS_H__

@@ -22,7 +22,10 @@
  */
 
 #include <ginac/ginac.h>
+
+#ifndef NO_GINAC_NAMESPACE
 using namespace GiNaC;
+#endif // ndef NO_GINAC_NAMESPACE
 
 const int MAX_VARIABLES = 5;
 

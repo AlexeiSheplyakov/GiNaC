@@ -26,7 +26,9 @@
 #include "utils.h"
 #include "debugmsg.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -213,4 +215,6 @@ bool coloridx::info(unsigned inf) const
 const coloridx some_coloridx;
 type_info const & typeid_coloridx=typeid(some_coloridx);
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE

@@ -29,7 +29,9 @@
 #include "debugmsg.h"
 #include "utils.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 #ifdef EXPAIRSEQ_USE_HASHTAB
 #error "FIXME: expair_needs_further_processing not yet implemented for hashtabs, sorry. A.F."
@@ -1627,4 +1629,6 @@ unsigned expairseq::hashtabfactor=1;
 const expairseq some_expairseq;
 type_info const & typeid_expairseq=typeid(some_expairseq);
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE

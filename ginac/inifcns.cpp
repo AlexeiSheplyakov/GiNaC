@@ -36,7 +36,9 @@
 #include "series.h"
 #include "symbol.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 //////////
 // dilogarithm
@@ -252,4 +254,6 @@ ex ncpower(ex const &basis, unsigned exponent)
 unsigned force_include_gamma = function_index_gamma;
 unsigned force_include_zeta = function_index_zeta;
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE

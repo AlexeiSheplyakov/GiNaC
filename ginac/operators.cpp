@@ -31,7 +31,9 @@
 #include "relational.h"
 #include "debugmsg.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 // binary arithmetic operators ex with ex
 
@@ -438,4 +440,6 @@ istream & operator>>(istream & is, ex & e)
     throw(std::logic_error("input from streams not yet implemented"));
 }
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE

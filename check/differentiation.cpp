@@ -21,7 +21,10 @@
  */
 
 #include <ginac/ginac.h>
+
+#ifndef NO_GINAC_NAMESPACE
 using namespace GiNaC;
+#endif // ndef NO_GINAC_NAMESPACE
 
 static unsigned check_diff(const ex &e, const symbol &x,
                            const ex &d, unsigned nth=1)

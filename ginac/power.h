@@ -26,7 +26,9 @@
 #include <ginac/basic.h>
 #include <ginac/ex.h>
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 class numeric;
 class add;
@@ -125,6 +127,8 @@ inline ex pow(ex const & b, ex const & e)
 inline ex sqrt(ex const & a)
 { return power(a,exHALF()); }
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE
 
 #endif // ndef __GINAC_POWER_H__

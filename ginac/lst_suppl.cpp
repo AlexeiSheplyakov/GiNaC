@@ -23,7 +23,9 @@
 
 #include "lst.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 bool lst::info(unsigned inf) const
 {
@@ -31,4 +33,6 @@ bool lst::info(unsigned inf) const
     return basic::info(inf);
 }
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE

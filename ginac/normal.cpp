@@ -46,7 +46,9 @@
 #include "series.h"
 #include "symbol.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 // If comparing expressions (ex::compare()) is fast, you can set this to 1.
 // Some routines like quo(), rem() and gcd() will then return a quick answer
@@ -908,7 +910,11 @@ ex basic::smod(const numeric &xi) const
 
 ex numeric::smod(const numeric &xi) const
 {
+#ifndef NO_GINAC_NAMESPACE
     return GiNaC::smod(*this, xi);
+#else // ndef NO_GINAC_NAMESPACE
+    return ::smod(*this, xi);
+#endif // ndef NO_GINAC_NAMESPACE
 }
 
 ex add::smod(const numeric &xi) const
@@ -919,13 +925,21 @@ ex add::smod(const numeric &xi) const
     epvector::const_iterator itend = seq.end();
     while (it != itend) {
         GINAC_ASSERT(!is_ex_exactly_of_type(it->rest,numeric));
+#ifndef NO_GINAC_NAMESPACE
         numeric coeff = GiNaC::smod(ex_to_numeric(it->coeff), xi);
+#else // ndef NO_GINAC_NAMESPACE
+        numeric coeff = ::smod(ex_to_numeric(it->coeff), xi);
+#endif // ndef NO_GINAC_NAMESPACE
         if (!coeff.is_zero())
             newseq.push_back(expair(it->rest, coeff));
         it++;
     }
     GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
+#ifndef NO_GINAC_NAMESPACE
     numeric coeff = GiNaC::smod(ex_to_numeric(overall_coeff), xi);
+#else // ndef NO_GINAC_NAMESPACE
+    numeric coeff = ::smod(ex_to_numeric(overall_coeff), xi);
+#endif // ndef NO_GINAC_NAMESPACE
     return (new add(newseq,coeff))->setflag(status_flags::dynallocated);
 }
 
@@ -941,7 +955,11 @@ ex mul::smod(const numeric &xi) const
 #endif // def DO_GINAC_ASSERT
     mul * mulcopyp=new mul(*this);
     GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
+#ifndef NO_GINAC_NAMESPACE
     mulcopyp->overall_coeff = GiNaC::smod(ex_to_numeric(overall_coeff),xi);
+#else // ndef NO_GINAC_NAMESPACE
+    mulcopyp->overall_coeff = ::smod(ex_to_numeric(overall_coeff),xi);
+#endif // ndef NO_GINAC_NAMESPACE
     mulcopyp->clearflag(status_flags::evaluated);
     mulcopyp->clearflag(status_flags::hash_calculated);
     return mulcopyp->setflag(status_flags::dynallocated);
@@ -1484,4 +1502,6 @@ ex ex::normal(int level) const
         return e;
 }
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE

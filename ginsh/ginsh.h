@@ -42,7 +42,10 @@ extern "C" {
 #endif
 
 #include <ginac/ginac.h>
+
+#ifndef NO_GINAC_NAMESPACE
 using namespace GiNaC;
+#endif // ndef NO_GINAC_NAMESPACE
 
 // yacc stack type
 #define YYSTYPE ex

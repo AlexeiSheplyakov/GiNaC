@@ -25,7 +25,9 @@
 
 #include <ginac/basic.h>
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 struct registered_structure_info {
     char const * name;
@@ -84,6 +86,8 @@ public:
 extern const structure some_structure;
 extern type_info const & typeid_structure;
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE
 
 #endif // ndef __GINAC_STRUCTURE_H__

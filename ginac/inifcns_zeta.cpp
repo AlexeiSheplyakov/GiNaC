@@ -30,7 +30,9 @@
 #include "power.h"
 #include "symbol.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 //////////
 // Riemann's Zeta-function
@@ -85,4 +87,6 @@ static ex zeta_series(ex const & x, symbol const & s, ex const & point, int orde
 
 REGISTER_FUNCTION(zeta, zeta_eval, zeta_evalf, zeta_diff, zeta_series);
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE

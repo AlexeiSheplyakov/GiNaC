@@ -27,7 +27,9 @@
 #include <ginac/basic.h>
 #include <ginac/operators.h>
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 class ex;
 class expand_options;
@@ -36,7 +38,7 @@ class status_flags;
 class symbol;
 class lst;
 
-typedef vector<ex> exvector;
+// typedef vector<ex> exvector;
 
 // enum definitions
 
@@ -284,6 +286,9 @@ inline ex subs(ex const & thisex, lst const & ls, lst const & lr)
 inline void swap(ex & e1, ex & e2)
 { e1.swap(e2); }
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE
 
 #endif // ndef __GINAC_EX_H__
+

@@ -27,7 +27,9 @@
 #include <ginac/indexed.h>
 #include <ginac/ex.h>
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 /** Base class for clifford object */
 class clifford : public indexed
@@ -90,6 +92,8 @@ inline const clifford &ex_to_clifford(const ex &e)
 	return static_cast<const clifford &>(*e.bp);
 }
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE
 
 #endif // ndef __GINAC_CLIFFORD_H__

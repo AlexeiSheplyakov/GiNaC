@@ -27,7 +27,9 @@
 #include <ginac/basic.h>
 #include <ginac/ex.h>
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 /** Basic CAS symbol.  It has a name because it must know how to output itself.
  *  It may be assigned an expression, but this feature is only intended for
@@ -127,6 +129,8 @@ inline int degree(symbol const & a, symbol const & s)
 inline int ldegree(symbol const & a, symbol const & s)
 { return a.ldegree(s); }
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE
 
 #endif // ndef __GINAC_SYMBOL_H__

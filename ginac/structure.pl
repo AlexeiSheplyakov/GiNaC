@@ -150,7 +150,9 @@ ${input_structure}
 
 #include <ginac/structure.h>
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 class ${STRUCTURE} : public structure
 {
@@ -215,7 +217,9 @@ extern const unsigned tinfo_${STRUCTURE};
 
 #define ex_to_${STRUCTURE}(X) (static_cast<${STRUCTURE} const &>(*(X).bp))
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE
 
 #endif // ndef _${STRUCTURE_UC}_H_
 
@@ -254,7 +258,9 @@ ${input_structure}
 
 #include "${STRUCTURE}.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -508,7 +514,9 @@ const ${STRUCTURE} some_${STRUCTURE};
 type_info const & typeid_${STRUCTURE}=typeid(some_${STRUCTURE});
 const unsigned tinfo_${STRUCTURE}=structure::register_new("${STRUCTURE}");
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE
 
 END_OF_IMPLEMENTATION
 

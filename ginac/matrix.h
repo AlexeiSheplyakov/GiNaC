@@ -27,7 +27,9 @@
 #include <ginac/basic.h>
 #include <ginac/ex.h>
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 /** Symbolic matrices. */
 class matrix : public basic
@@ -152,6 +154,8 @@ inline const matrix &ex_to_matrix(const ex &e)
 	return static_cast<const matrix &>(*e.bp);
 }
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE
 
 #endif // ndef __GINAC_MATRIX_H__

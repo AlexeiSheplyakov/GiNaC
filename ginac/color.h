@@ -28,7 +28,9 @@
 #include <ginac/indexed.h>
 #include <ginac/ex.h>
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 const unsigned MAX_REPRESENTATION_LABELS = 4;
 const unsigned COLOR_EIGHT = 8; // N*N-1
@@ -162,6 +164,8 @@ ex brute_force_sum_color_indices(ex const & e);
 
 void append_exvector_to_exvector(exvector & dest, exvector const & source);
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE
 
 #endif // ndef __GINAC_COLOR_H__

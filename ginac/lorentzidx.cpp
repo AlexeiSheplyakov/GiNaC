@@ -26,7 +26,9 @@
 #include "utils.h"
 #include "debugmsg.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -251,4 +253,6 @@ lorentzidx lorentzidx::create_anonymous_representative(void) const
 const lorentzidx some_lorentzidx;
 type_info const & typeid_lorentzidx=typeid(some_lorentzidx);
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE

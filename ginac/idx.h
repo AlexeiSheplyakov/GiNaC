@@ -24,11 +24,13 @@
 #define __GINAC_IDX_H__
 
 #include <string>
-#include <vector>
+//#include <vector>
 #include <ginac/basic.h>
 #include <ginac/ex.h>
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 class idx : public basic
 {
@@ -100,7 +102,7 @@ inline const idx &ex_to_idx(const ex &e)
 
 // global functions
 
-typedef vector<ex> exvector;
+// typedef vector<ex> exvector;
 
 int canonicalize_indices(exvector & iv, bool antisymmetric=false);
 exvector idx_intersect(exvector const & iv1, exvector const & iv2);
@@ -111,6 +113,8 @@ ex subs_indices(ex const & e, exvector const & idxv_contra,
                 exvector const & idxv_co);
 unsigned count_index(ex const & e, ex const & i);
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE
 
 #endif // ndef __GINAC_IDX_H__

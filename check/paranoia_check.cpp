@@ -24,7 +24,10 @@
  */
 
 #include <ginac/ginac.h>
+
+#ifndef NO_GINAC_NAMESPACE
 using namespace GiNaC;
+#endif // ndef NO_GINAC_NAMESPACE
 
 // The very first pair of historic problems had its roots in power.cpp and was
 // finally resolved on April 27th. (Fixing the first on April 23rd actually

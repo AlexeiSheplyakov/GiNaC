@@ -24,7 +24,9 @@
 #ifndef __GINAC_NORMAL_H__
 #define __GINAC_NORMAL_H__
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 class ex;
 class symbol;
@@ -50,6 +52,8 @@ extern ex lcm(const ex &a, const ex &b, bool check_args = true);
 // Square-free factorization of a polynomial a(x)
 extern ex sqrfree(const ex &a, const symbol &x);
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE
 
 #endif // ndef __GINAC_NORMAL_H__

@@ -30,7 +30,9 @@
 #include "numeric.h"
 #include "power.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 //////////
 // exponential function
@@ -740,4 +742,6 @@ static ex atanh_diff(ex const & x, unsigned diff_param)
 
 REGISTER_FUNCTION(atanh, atanh_eval, atanh_evalf, atanh_diff, NULL);
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE

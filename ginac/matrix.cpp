@@ -26,7 +26,9 @@
 #include "matrix.h"
 #include "debugmsg.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 //////////
 // default constructor, destructor, copy constructor, assignment operator
@@ -872,4 +874,6 @@ int matrix::pivot(int ro)
 const matrix some_matrix;
 type_info const & typeid_matrix=typeid(some_matrix);
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE

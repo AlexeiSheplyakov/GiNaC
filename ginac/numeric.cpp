@@ -40,7 +40,9 @@
 #include <cln.h>
 #endif
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 // linker has no problems finding text symbols for numerator or denominator
 //#define SANE_LINKER
@@ -1453,4 +1455,6 @@ bool _numeric_digits::too_late = false;
  *  assignment from C++ unsigned ints and evaluated like any built-in type. */
 _numeric_digits Digits;
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE

@@ -24,7 +24,9 @@
 #include "exprseq.h"
 #include "ex.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 bool exprseq::info(unsigned inf) const
 {
@@ -40,4 +42,6 @@ ex & exprseq::let_op(int const i)
     return seq[i];
 }
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE

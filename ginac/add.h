@@ -25,7 +25,9 @@
 
 #include <ginac/expairseq.h>
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 /** Sum of expressions. */
 class add : public expairseq
@@ -112,6 +114,8 @@ inline const add &ex_to_add(const ex &e)
 	return static_cast<const add &>(*e.bp);
 }
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE
 
 #endif // ndef __GINAC_ADD_H__

@@ -29,7 +29,9 @@
 #include "idx.h"
 #include "debugmsg.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -281,4 +283,6 @@ symbol::assigned_ex_info::assigned_ex_info(void) : is_assigned(0), refcount(1)
 {
 }
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE

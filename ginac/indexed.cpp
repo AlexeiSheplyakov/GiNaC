@@ -27,7 +27,9 @@
 #include "idx.h"
 #include "debugmsg.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -292,4 +294,6 @@ bool indexed::all_of_type_idx(void) const
 const indexed some_indexed;
 type_info const & typeid_indexed=typeid(some_indexed);
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE

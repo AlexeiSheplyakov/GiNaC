@@ -28,7 +28,9 @@
 #include "config.h"
 #include "assertion.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 template<class T>
 string ToString(T const & t)
@@ -131,6 +133,8 @@ OutputIterator mymerge3(InputIterator1 first1, InputIterator1 last1,
   }
 }
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE
 
 #endif // ndef __GINAC_UTILS_H__

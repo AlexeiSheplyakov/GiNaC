@@ -24,7 +24,9 @@
 #include "fail.h"
 #include "debugmsg.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -123,4 +125,6 @@ int fail::compare_same_type(basic const & other) const
 const fail some_fail;
 type_info const & typeid_fail=typeid(some_fail);
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE

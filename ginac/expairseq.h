@@ -25,9 +25,15 @@
 
 #include <vector>
 #include <list>
+
+// CINT needs <algorithm> to work properly with <vector> and <list>
+//#include <algorithm>
+
 #include <ginac/expair.h>
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 //#define EXPAIRSEQ_USE_HASHTAB
 
@@ -194,6 +200,8 @@ inline const expairseq &ex_to_expairseq(const ex &e)
 	return static_cast<const expairseq &>(*e.bp);
 }
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE
 
 #endif // ndef __GINAC_EXPAIRSEQ_H__

@@ -28,7 +28,9 @@
 #include "ex.h"
 #include "debugmsg.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -165,4 +167,6 @@ const constant EulerGamma("EulerGamma", EulerGammaEvalf);
  *  Diverts straight into CLN for evalf(). */
 const constant Catalan("Catalan", CatalanEvalf);
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE

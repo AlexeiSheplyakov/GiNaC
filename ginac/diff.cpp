@@ -37,7 +37,9 @@
 #include "series.h"
 #include "symbol.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 /** Default implementation of ex::diff(). It prints and error message and returns a fail object.
  *  @see ex::diff */
@@ -245,4 +247,6 @@ ex ex::diff(symbol const & s, unsigned nth) const
     return ndiff;
 }
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE

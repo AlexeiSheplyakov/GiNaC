@@ -39,7 +39,9 @@
 #include "symbol.h"
 #include "debugmsg.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 /** Print expression as a C++ statement. The output looks like
  *  "<type> <var_name> = <expression>;". The "type" parameter has an effect
@@ -330,4 +332,6 @@ void relational::printcsrc(ostream & os, unsigned type, unsigned upper_precedenc
 		os << ")";
 }
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE

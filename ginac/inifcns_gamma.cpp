@@ -31,7 +31,9 @@
 #include "power.h"
 #include "symbol.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 //////////
 // Gamma-function
@@ -197,4 +199,6 @@ static ex psi2_diff(ex const & n, ex const & x, unsigned diff_param)
 
 const unsigned function_index_psi2 = function::register_new("psi", psi2_eval, psi2_evalf, psi2_diff, NULL);
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE

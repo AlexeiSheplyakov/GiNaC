@@ -28,7 +28,9 @@
 #include "power.h"
 #include "debugmsg.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -1014,4 +1016,6 @@ unsigned mul::precedence=50;
 const mul some_mul;
 type_info const & typeid_mul=typeid(some_mul);
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE

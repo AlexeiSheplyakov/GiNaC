@@ -26,7 +26,9 @@
 #include <string>
 #include <ginac/basic.h>
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 /** This class holds constants, symbols with specific numerical value. Each
  *  object of this class must either provide their own function to evaluate it
@@ -90,6 +92,8 @@ extern const constant Pi;
 extern const constant Catalan;
 extern const constant EulerGamma;
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE
 
 #endif // ndef __GINAC_CONSTANT_H__

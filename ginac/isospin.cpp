@@ -29,7 +29,9 @@
 #include "utils.h"
 #include "debugmsg.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -211,4 +213,7 @@ unsigned isospin::next_serial=0;
 const isospin some_isospin;
 type_info const & typeid_isospin=typeid(some_isospin);
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE
+

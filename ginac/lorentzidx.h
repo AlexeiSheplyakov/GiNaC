@@ -27,7 +27,9 @@
 #include <vector>
 #include <ginac/idx.h>
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 class lorentzidx : public idx
 {
@@ -89,6 +91,8 @@ inline const lorentzidx &ex_to_lorentzidx(const ex &e)
 	return static_cast<const lorentzidx &>(*e.bp);
 }
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE
 
 #endif // ndef __GINAC_LORENTZIDX_H__

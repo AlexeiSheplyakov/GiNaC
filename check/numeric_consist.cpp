@@ -23,7 +23,10 @@
 
 #include <stdlib.h>
 #include <ginac/ginac.h>
+
+#ifndef NO_GINAC_NAMESPACE
 using namespace GiNaC;
+#endif // ndef NO_GINAC_NAMESPACE
 
 /* Simple and maybe somewhat pointless consistency tests of assorted tests and
  * conversions. */

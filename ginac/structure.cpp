@@ -25,7 +25,9 @@
 #include "structure.h"
 #include "debugmsg.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -175,4 +177,6 @@ unsigned structure::register_new(char const * nm)
 const structure some_structure;
 type_info const & typeid_structure=typeid(some_structure);
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE

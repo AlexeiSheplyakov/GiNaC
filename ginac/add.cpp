@@ -27,7 +27,9 @@
 #include "mul.h"
 #include "debugmsg.h"
 
+#ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
+#endif // ndef NO_GINAC_NAMESPACE
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -653,4 +655,6 @@ unsigned add::precedence=40;
 const add some_add;
 type_info const & typeid_add=typeid(some_add);
 
+#ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC
+#endif // ndef NO_GINAC_NAMESPACE
