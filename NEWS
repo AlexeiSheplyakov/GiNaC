@@ -13,6 +13,7 @@ This file records noteworthy changes.
   dummy indices and checks the consistency of indices in sums.
 * sqrfree() factorization fixed and improved syntactically.
 * subs() works on matrices.
+* Fixed memory leak in expand().
 
 0.7.3 (28 February 2001)
 * Several bugfixes and minor performance tunings.
