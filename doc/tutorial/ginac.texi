@@ -3201,6 +3201,42 @@ This function object could then be used like this:
 @}
 @end example
 
+Here is another example for you to meditate over. It removes quadratic
+terms in a variable from an expanded polynomial:
+
+@example
+struct map_rem_quad : public map_function @{
+    ex var;
+    map_rem_quad(const ex & var_) : var(var_) @{@}
+
+    ex operator()(const ex & e)
+    @{
+        if (is_a<add>(e) || is_a<mul>(e))
+     	    return e.map(*this);
+        else if (is_a<power>(e) && e.op(0).is_equal(var) && e.op(1).info(info_flags::even))
+            return 0;
+        else
+            return e;
+    @}
+@};
+
+...
+
+@{
+    symbol x("x"), y("y");
+
+    ex e;
+    for (int i=0; i<8; i++)
+        e += pow(x, i) * pow(y, 8-i) * (i+1);
+    cout << e << endl;
+     // -> 4*y^5*x^3+5*y^4*x^4+8*y*x^7+7*y^2*x^6+2*y^7*x+6*y^3*x^5+3*y^6*x^2+y^8
+
+    map_rem_quad rem_quad(x);
+    cout << rem_quad(e) << endl;
+     // -> 4*y^5*x^3+8*y*x^7+2*y^7*x+6*y^3*x^5+y^8
+@}
+@end example
+
 @command{ginsh} offers a slightly different implementation of @code{map()}
 that allows applying algebraic functions to operands. The second argument
 to @code{map()} is an expression containing the wildcard @samp{$0} which
