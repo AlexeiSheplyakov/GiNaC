@@ -1724,18 +1724,15 @@ tensor).
 @subsection Linear algebra
 
 The @code{matrix} class can be used with indices to do some simple linear
-algebra (sums and products of vectors and matrices, traces and scalar
-products):
+algebra (linear combinations and products of vectors and matrices, traces
+and scalar products):
 
 @example
 @{
     idx i(symbol("i"), 2), j(symbol("j"), 2);
     symbol x("x"), y("y");
 
-    matrix A(2, 2), X(2, 1);
-    A.set(0, 0, 1); A.set(0, 1, 2);
-    A.set(1, 0, 3); A.set(1, 1, 4);
-    X.set(0, 0, x); X.set(1, 0, y);
+    matrix A(2, 2, lst(1, 2, 3, 4)), X(2, 1, lst(x, y));
 
     cout << indexed(A, i, i) << endl;
      // -> 5
@@ -1744,9 +1741,9 @@ products):
     cout << e.simplify_indexed() << endl;
      // -> [[ [[2*y+x]], [[4*y+3*x]] ]].i
 
-    e = indexed(A, i, j) * indexed(X, i) + indexed(X, j);
+    e = indexed(A, i, j) * indexed(X, i) + indexed(X, j) * 2;
     cout << e.simplify_indexed() << endl;
-     // -> [[ [[3*y+2*x,5*y+2*x]] ]].j
+     // -> [[ [[3*y+3*x,6*y+2*x]] ]].j
 @}
 @end example
 
