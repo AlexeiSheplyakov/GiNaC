@@ -27,11 +27,6 @@
 #include "basic.h"
 #include "ex.h"
 
-namespace std {
-    // forward declaration, so <stdexcept> need not be included:
-    class range_error;
-}
-
 #ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
@@ -82,9 +77,9 @@ protected:
     
     // non-virtual functions in this class
 public:
-    unsigned rows(void) const        //! get number of rows.
+    unsigned rows(void) const        //! Get number of rows.
         { return row; }
-    unsigned cols(void) const        //! get number of columns.
+    unsigned cols(void) const        //! Get number of columns.
         { return col; }
     matrix add(const matrix & other) const;
     matrix sub(const matrix & other) const;
@@ -92,7 +87,7 @@ public:
     const ex & operator() (unsigned ro, unsigned co) const;
     matrix & set(unsigned ro, unsigned co, ex value);
     matrix transpose(void) const;
-    ex determinant(void) const;
+    ex determinant(unsigned options = determinant_algo::automatic) const;
     ex trace(void) const;
     ex charpoly(const symbol & lambda) const;
     matrix inverse(void) const;
@@ -105,7 +100,6 @@ protected:
     int division_free_elimination(void);
     int fraction_free_elimination(bool det = false);
     int pivot(unsigned ro, bool symbolic=true);
-    void swap(unsigned r1, unsigned c1, unsigned r2 ,unsigned c2);
     
 // member variables
 protected:
@@ -147,8 +141,8 @@ inline unsigned cols(const matrix & m)
 inline matrix transpose(const matrix & m)
 { return m.transpose(); }
 
-inline ex determinant(const matrix & m)
-{ return m.determinant(); }
+inline ex determinant(const matrix & m, unsigned options = determinant_algo::automatic)
+{ return m.determinant(options); }
 
 inline ex trace(const matrix & m)
 { return m.trace(); }

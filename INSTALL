@@ -113,3 +113,4 @@ to compile, install and work properly:
  < 5.14.39    | `VERBOTEN' by license (please bite your favorite lawyer)
  < 5.14.39,40 | compiles but does not feel happy at all (inconsistent!)
    5.14.41    | tested on egcs 1.1.1, gcc 2.95.2: only minor weirdnesses
+   5.14.44    | G__cpp_ginaccint.C needs manual fixes, doesn't work well

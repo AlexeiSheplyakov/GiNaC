@@ -3,7 +3,7 @@
 #   Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000
 #   Free Software Foundation, Inc.
 
-version='2000-06-13'
+version='2000-07-24'
 
 # This file is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by
@@ -1087,6 +1087,17 @@ EOF
 	exit 0 ;;
     DS/*:UNIX_System_V:*:*)
 	echo ${UNAME_MACHINE}-${UNAME_SYSTEM}-${UNAME_RELEASE}
+	exit 0 ;;
+    *:Plan9:*:*)
+	# "uname -m" is not consistent, so use $cputype instead. 386
+	# is converted to i386 for consistency with other x86
+	# operating systems.
+	if test "$cputype" = "386"; then
+	    UNAME_MACHINE=i386
+	else
+	    UNAME_MACHINE="$cputype"
+	fi
+	echo ${UNAME_MACHINE}-unknown-plan9
 	exit 0 ;;
 esac
 

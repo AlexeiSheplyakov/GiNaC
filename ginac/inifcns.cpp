@@ -45,21 +45,21 @@ namespace GiNaC {
 // absolute value
 //////////
 
-static ex abs_evalf(const ex & x)
+static ex abs_evalf(const ex & arg)
 {
     BEGIN_TYPECHECK
-        TYPECHECK(x,numeric)
-    END_TYPECHECK(abs(x))
+        TYPECHECK(arg,numeric)
+    END_TYPECHECK(abs(arg))
     
-    return abs(ex_to_numeric(x));
+    return abs(ex_to_numeric(arg));
 }
 
-static ex abs_eval(const ex & x)
+static ex abs_eval(const ex & arg)
 {
-    if (is_ex_exactly_of_type(x, numeric))
-        return abs(ex_to_numeric(x));
+    if (is_ex_exactly_of_type(arg, numeric))
+        return abs(ex_to_numeric(arg));
     else
-        return abs(x).hold();
+        return abs(arg).hold();
 }
 
 REGISTER_FUNCTION(abs, eval_func(abs_eval).
@@ -70,41 +70,41 @@ REGISTER_FUNCTION(abs, eval_func(abs_eval).
 // Complex sign
 //////////
 
-static ex csgn_evalf(const ex & x)
+static ex csgn_evalf(const ex & arg)
 {
     BEGIN_TYPECHECK
-        TYPECHECK(x,numeric)
-    END_TYPECHECK(csgn(x))
+        TYPECHECK(arg,numeric)
+    END_TYPECHECK(csgn(arg))
     
-    return csgn(ex_to_numeric(x));
+    return csgn(ex_to_numeric(arg));
 }
 
-static ex csgn_eval(const ex & x)
+static ex csgn_eval(const ex & arg)
 {
-    if (is_ex_exactly_of_type(x, numeric))
-        return csgn(ex_to_numeric(x));
+    if (is_ex_exactly_of_type(arg, numeric))
+        return csgn(ex_to_numeric(arg));
     
-    else if (is_ex_exactly_of_type(x, mul)) {
-        numeric oc = ex_to_numeric(x.op(x.nops()-1));
+    else if (is_ex_exactly_of_type(arg, mul)) {
+        numeric oc = ex_to_numeric(arg.op(arg.nops()-1));
         if (oc.is_real()) {
             if (oc > 0)
                 // csgn(42*x) -> csgn(x)
-                return csgn(x/oc).hold();
+                return csgn(arg/oc).hold();
             else
                 // csgn(-42*x) -> -csgn(x)
-                return -csgn(x/oc).hold();
+                return -csgn(arg/oc).hold();
         }
         if (oc.real().is_zero()) {
             if (oc.imag() > 0)
                 // csgn(42*I*x) -> csgn(I*x)
-                return csgn(I*x/oc).hold();
+                return csgn(I*arg/oc).hold();
             else
                 // csgn(-42*I*x) -> -csgn(I*x)
-                return -csgn(I*x/oc).hold();
+                return -csgn(I*arg/oc).hold();
         }
 	}
    
-    return csgn(x).hold();
+    return csgn(arg).hold();
 }
 
 static ex csgn_series(const ex & arg,
@@ -113,13 +113,10 @@ static ex csgn_series(const ex & arg,
                       unsigned options)
 {
     const ex arg_pt = arg.subs(rel);
-    if (arg_pt.info(info_flags::numeric)) {
-        if (ex_to_numeric(arg_pt).real().is_zero())
-            throw (std::domain_error("csgn_series(): on imaginary axis"));
-        epvector seq;
-        seq.push_back(expair(csgn(arg_pt), _ex0()));
-        return pseries(rel,seq);
-    }
+    if (arg_pt.info(info_flags::numeric) &&
+        ex_to_numeric(arg_pt).real().is_zero())
+        throw (std::domain_error("csgn_series(): on imaginary axis"));
+    
     epvector seq;
     seq.push_back(expair(csgn(arg_pt), _ex0()));
     return pseries(rel,seq);
@@ -128,6 +125,61 @@ static ex csgn_series(const ex & arg,
 REGISTER_FUNCTION(csgn, eval_func(csgn_eval).
                         evalf_func(csgn_evalf).
                         series_func(csgn_series));
+
+
+//////////
+// Eta function: log(x*y) == log(x) + log(y) + eta(x,y).
+//////////
+
+static ex eta_evalf(const ex & x, const ex & y)
+{
+    BEGIN_TYPECHECK
+        TYPECHECK(x,numeric)
+        TYPECHECK(y,numeric)
+    END_TYPECHECK(eta(x,y))
+        
+    numeric xim = imag(ex_to_numeric(x));
+    numeric yim = imag(ex_to_numeric(y));
+    numeric xyim = imag(ex_to_numeric(x*y));
+    return evalf(I/4*Pi)*((csgn(-xim)+1)*(csgn(-yim)+1)*(csgn(xyim)+1)-(csgn(xim)+1)*(csgn(yim)+1)*(csgn(-xyim)+1));
+}
+
+static ex eta_eval(const ex & x, const ex & y)
+{
+    if (is_ex_exactly_of_type(x, numeric) &&
+        is_ex_exactly_of_type(y, numeric)) {
+        // don't call eta_evalf here because it would call Pi.evalf()!
+        numeric xim = imag(ex_to_numeric(x));
+        numeric yim = imag(ex_to_numeric(y));
+        numeric xyim = imag(ex_to_numeric(x*y));
+        return (I/4)*Pi*((csgn(-xim)+1)*(csgn(-yim)+1)*(csgn(xyim)+1)-(csgn(xim)+1)*(csgn(yim)+1)*(csgn(-xyim)+1));
+    }
+    
+    return eta(x,y).hold();
+}
+
+static ex eta_series(const ex & arg1,
+                     const ex & arg2,
+                     const relational & rel,
+                     int order,
+                     unsigned options)
+{
+    const ex arg1_pt = arg1.subs(rel);
+    const ex arg2_pt = arg2.subs(rel);
+    if (ex_to_numeric(arg1_pt).imag().is_zero() ||
+        ex_to_numeric(arg2_pt).imag().is_zero() ||
+        ex_to_numeric(arg1_pt*arg2_pt).imag().is_zero()) {
+        throw (std::domain_error("eta_series(): on discontinuity"));
+    }
+    epvector seq;
+    seq.push_back(expair(eta(arg1_pt,arg2_pt), _ex0()));
+    return pseries(rel,seq);
+}
+
+REGISTER_FUNCTION(eta, eval_func(eta_eval).
+                       evalf_func(eta_evalf).
+                       series_func(eta_series));
+
 
 //////////
 // dilogarithm

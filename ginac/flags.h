@@ -39,9 +39,11 @@ public:
          };
 };
 
-class determinant_options {
+class determinant_algo {
 public:
-    enum { laplace,
+    enum { automatic,
+           gauss,
+           laplace,
            bareiss
          };
 };

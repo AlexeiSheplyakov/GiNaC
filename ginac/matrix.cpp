@@ -152,7 +152,7 @@ void matrix::archive(archive_node &n) const
     exvector::const_iterator i = m.begin(), iend = m.end();
     while (i != iend) {
         n.add_ex("m", *i);
-        i++;
+        ++i;
     }
 }
 
@@ -174,15 +174,13 @@ void matrix::print(std::ostream & os, unsigned upper_precedence) const
     os << "[[ ";
     for (unsigned r=0; r<row-1; ++r) {
         os << "[[";
-        for (unsigned c=0; c<col-1; ++c) {
+        for (unsigned c=0; c<col-1; ++c)
             os << m[r*col+c] << ",";
-        }
         os << m[col*(r+1)-1] << "]], ";
     }
     os << "[[";
-    for (unsigned c=0; c<col-1; ++c) {
+    for (unsigned c=0; c<col-1; ++c)
         os << m[(row-1)*col+c] << ",";
-    }
     os << m[row*col-1] << "]] ]]";
 }
 
@@ -192,15 +190,13 @@ void matrix::printraw(std::ostream & os) const
     os << "matrix(" << row << "," << col <<",";
     for (unsigned r=0; r<row-1; ++r) {
         os << "(";
-        for (unsigned c=0; c<col-1; ++c) {
+        for (unsigned c=0; c<col-1; ++c)
             os << m[r*col+c] << ",";
-        }
         os << m[col*(r-1)-1] << "),";
     }
     os << "(";
-    for (unsigned c=0; c<col-1; ++c) {
+    for (unsigned c=0; c<col-1; ++c)
         os << m[(row-1)*col+c] << ",";
-    }
     os << m[row*col-1] << "))";
 }
 
@@ -219,6 +215,9 @@ ex matrix::op(int i) const
 /** returns matrix entry at position (i/col, i%col). */
 ex & matrix::let_op(int i)
 {
+    GINAC_ASSERT(i>=0);
+    GINAC_ASSERT(i<nops());
+    
     return m[i];
 }
 
@@ -226,9 +225,9 @@ ex & matrix::let_op(int i)
 ex matrix::expand(unsigned options) const
 {
     exvector tmp(row*col);
-    for (unsigned i=0; i<row*col; ++i) {
-        tmp[i]=m[i].expand(options);
-    }
+    for (unsigned i=0; i<row*col; ++i)
+        tmp[i] = m[i].expand(options);
+    
     return matrix(row, col, tmp);
 }
 
@@ -242,9 +241,9 @@ bool matrix::has(const ex & other) const
     if (is_equal(*other.bp)) return true;
     
     // search all the elements
-    for (exvector::const_iterator r=m.begin(); r!=m.end(); ++r) {
+    for (exvector::const_iterator r=m.begin(); r!=m.end(); ++r)
         if ((*r).has(other)) return true;
-    }
+    
     return false;
 }
 
@@ -263,12 +262,10 @@ ex matrix::eval(int level) const
     
     // eval() entry by entry
     exvector m2(row*col);
-    --level;    
-    for (unsigned r=0; r<row; ++r) {
-        for (unsigned c=0; c<col; ++c) {
+    --level;
+    for (unsigned r=0; r<row; ++r)
+        for (unsigned c=0; c<col; ++c)
             m2[r*col+c] = m[r*col+c].eval(level);
-        }
-    }
     
     return (new matrix(row, col, m2))->setflag(status_flags::dynallocated |
                                                status_flags::evaluated );
@@ -291,11 +288,10 @@ ex matrix::evalf(int level) const
     // evalf() entry by entry
     exvector m2(row*col);
     --level;
-    for (unsigned r=0; r<row; ++r) {
-        for (unsigned c=0; c<col; ++c) {
+    for (unsigned r=0; r<row; ++r)
+        for (unsigned c=0; c<col; ++c)
             m2[r*col+c] = m[r*col+c].evalf(level);
-        }
-    }
+    
     return matrix(row, col, m2);
 }
 
@@ -343,11 +339,9 @@ matrix matrix::add(const matrix & other) const
     exvector sum(this->m);
     exvector::iterator i;
     exvector::const_iterator ci;
-    for (i=sum.begin(), ci=other.m.begin();
-         i!=sum.end();
-         ++i, ++ci) {
+    for (i=sum.begin(), ci=other.m.begin(); i!=sum.end(); ++i, ++ci)
         (*i) += (*ci);
-    }
+    
     return matrix(row,col,sum);
 }
 
@@ -363,11 +357,9 @@ matrix matrix::sub(const matrix & other) const
     exvector dif(this->m);
     exvector::iterator i;
     exvector::const_iterator ci;
-    for (i=dif.begin(), ci=other.m.begin();
-         i!=dif.end();
-         ++i, ++ci) {
+    for (i=dif.begin(), ci=other.m.begin(); i!=dif.end(); ++i, ++ci)
         (*i) -= (*ci);
-    }
+    
     return matrix(row,col,dif);
 }
 
@@ -438,7 +430,7 @@ matrix matrix::transpose(void) const
 
 /** Determinant of square matrix.  This routine doesn't actually calculate the
  *  determinant, it only implements some heuristics about which algorithm to
- *  call.  If all the elements of the matrix are elements of an integral domain
+ *  run.  If all the elements of the matrix are elements of an integral domain
  *  the determinant is also in that integral domain and the result is expanded
  *  only.  If one or more elements are from a quotient field the determinant is
  *  usually also in that quotient field and the result is normalized before it
@@ -446,85 +438,105 @@ matrix matrix::transpose(void) const
  *  [[a/(a-b),1],[b/(a-b),1]] is returned as unity.  (In this respect, it
  *  behaves like MapleV and unlike Mathematica.)
  *
+ *  @param     algo allows to chose an algorithm
  *  @return    the determinant as a new expression
- *  @exception logic_error (matrix not square) */
-ex matrix::determinant(void) const
+ *  @exception logic_error (matrix not square)
+ *  @see       determinant_algo */
+ex matrix::determinant(unsigned algo) const
 {
     if (row!=col)
         throw (std::logic_error("matrix::determinant(): matrix not square"));
     GINAC_ASSERT(row*col==m.capacity());
     if (this->row==1)  // continuation would be pointless
         return m[0];
-    
-    // Gather some information about the matrix:
+        
+    // Gather some statistical information about this matrix:
     bool numeric_flag = true;
     bool normal_flag = false;
-    unsigned sparse_count = 0;  // count non-zero elements
+    unsigned sparse_count = 0;  // counts non-zero elements
     for (exvector::const_iterator r=m.begin(); r!=m.end(); ++r) {
-        if (!(*r).is_zero())
+        lst srl;  // symbol replacement list
+        ex rtest = (*r).to_rational(srl);
+        if (!rtest.is_zero())
             ++sparse_count;
-        if (!(*r).info(info_flags::numeric))
+        if (!rtest.info(info_flags::numeric))
             numeric_flag = false;
-        if ((*r).info(info_flags::rational_function) &&
-            !(*r).info(info_flags::crational_polynomial))
+        if (!rtest.info(info_flags::crational_polynomial) &&
+             rtest.info(info_flags::rational_function))
             normal_flag = true;
     }
     
-    // Purely numeric matrix handled by Gauss elimination
-    if (numeric_flag) {
-        ex det = 1;
-        matrix tmp(*this);
-        int sign = tmp.gauss_elimination();
-        for (int d=0; d<row; ++d)
-            det *= tmp.m[d*col+d];
-        return (sign*det);
+    // Here is the heuristics in case this routine has to decide:
+    if (algo == determinant_algo::automatic) {
+        // Minor expansion is generally a good starting point:
+        algo = determinant_algo::laplace;
+        // Does anybody know when a matrix is really sparse?
+        // Maybe <~row/2.236 nonzero elements average in a row?
+        if (5*sparse_count<=row*col)
+            algo = determinant_algo::bareiss;
+        // Purely numeric matrix can be handled by Gauss elimination.
+        // This overrides any prior decisions.
+        if (numeric_flag)
+            algo = determinant_algo::gauss;
     }
     
-    // Does anybody know when a matrix is really sparse?
-    // Maybe <~row/2.2 nonzero elements average in a row?
-    if (5*sparse_count<=row*col) {
-        // copy *this:
-        matrix tmp(*this);
-        int sign;
-        sign = tmp.fraction_free_elimination(true);
-        if (normal_flag)
-            return (sign*tmp.m[row*col-1]).normal();
-        else
-            return (sign*tmp.m[row*col-1]).expand();
+    switch(algo) {
+        case determinant_algo::gauss: {
+            ex det = 1;
+            matrix tmp(*this);
+            int sign = tmp.gauss_elimination();
+            for (unsigned d=0; d<row; ++d)
+                det *= tmp.m[d*col+d];
+            if (normal_flag)
+                return (sign*det).normal();
+            else
+                return (sign*det).expand();
+        }
+        case determinant_algo::bareiss: {
+            matrix tmp(*this);
+            int sign;
+            sign = tmp.fraction_free_elimination(true);
+            if (normal_flag)
+                return (sign*tmp.m[row*col-1]).normal();
+            else
+                return (sign*tmp.m[row*col-1]).expand();
+        }
+        case determinant_algo::laplace:
+        default: {
+            // This is the minor expansion scheme.  We always develop such
+            // that the smallest minors (i.e, the trivial 1x1 ones) are on the
+            // rightmost column.  For this to be efficient it turns out that
+            // the emptiest columns (i.e. the ones with most zeros) should be
+            // the ones on the right hand side.  Therefore we presort the
+            // columns of the matrix:
+            typedef std::pair<unsigned,unsigned> uintpair;
+            std::vector<uintpair> c_zeros;  // number of zeros in column
+            for (unsigned c=0; c<col; ++c) {
+                unsigned acc = 0;
+                for (unsigned r=0; r<row; ++r)
+                    if (m[r*col+c].is_zero())
+                        ++acc;
+                c_zeros.push_back(uintpair(acc,c));
+            }
+            sort(c_zeros.begin(),c_zeros.end());
+            std::vector<unsigned> pre_sort;
+            for (std::vector<uintpair>::iterator i=c_zeros.begin(); i!=c_zeros.end(); ++i)
+                pre_sort.push_back(i->second);
+            int sign = permutation_sign(pre_sort);
+            exvector result(row*col);  // represents sorted matrix
+            unsigned c = 0;
+            for (std::vector<unsigned>::iterator i=pre_sort.begin();
+                 i!=pre_sort.end();
+                 ++i,++c) {
+                for (unsigned r=0; r<row; ++r)
+                    result[r*col+c] = m[r*col+(*i)];
+            }
+            
+            if (normal_flag)
+                return sign*matrix(row,col,result).determinant_minor().normal();
+            return sign*matrix(row,col,result).determinant_minor();
+        }
     }
-    
-    // Now come the minor expansion schemes.  We always develop such that the
-    // smallest minors (i.e, the trivial 1x1 ones) are on the rightmost column.
-    // For this to be efficient it turns out that the emptiest columns (i.e.
-    // the ones with most zeros) should be the ones on the right hand side.
-    // Therefore we presort the columns of the matrix:
-    typedef std::pair<unsigned,unsigned> uintpair;  // # of zeros, column
-    std::vector<uintpair> c_zeros;  // number of zeros in column
-    for (unsigned c=0; c<col; ++c) {
-        unsigned acc = 0;
-        for (unsigned r=0; r<row; ++r)
-            if (m[r*col+c].is_zero())
-                ++acc;
-        c_zeros.push_back(uintpair(acc,c));
-    }
-    sort(c_zeros.begin(),c_zeros.end());
-    // unfortunately std::vector<uintpair> can't be used for permutation_sign.
-    std::vector<unsigned> pre_sort;
-    for (std::vector<uintpair>::iterator i=c_zeros.begin(); i!=c_zeros.end(); ++i)
-        pre_sort.push_back(i->second);
-    int sign = permutation_sign(pre_sort);
-    exvector result(row*col);  // represents sorted matrix
-    unsigned c = 0;
-    for (std::vector<unsigned>::iterator i=pre_sort.begin();
-         i!=pre_sort.end();
-         ++i,++c) {
-        for (unsigned r=0; r<row; ++r)
-            result[r*col+c] = m[r*col+(*i)];
-    }
-    
-    if (normal_flag)
-        return sign*matrix(row,col,result).determinant_minor().normal();
-    return sign*matrix(row,col,result).determinant_minor();
 }
 
 
@@ -647,16 +659,6 @@ matrix matrix::inverse(void) const
     return tmp;
 }
 
-// superfluous helper function, to be removed:
-void matrix::swap(unsigned r1, unsigned c1, unsigned r2 ,unsigned c2)
-{
-    ensure_if_modifiable();
-    
-    ex tmp = (*this)(r1,c1);
-    set(r1,c1,(*this)(r2,c2));
-    set(r2,c2,tmp);
-}
-
 
 /** Solve a set of equations for an m x n matrix by fraction-free Gaussian
  *  elimination.  Based on algorithm 9.1 from 'Algorithms for Computer Algebra'
@@ -669,7 +671,7 @@ void matrix::swap(unsigned r1, unsigned c1, unsigned r2 ,unsigned c2)
 matrix matrix::fraction_free_elim(const matrix & vars,
                                   const matrix & rhs) const
 {
-    // FIXME: use implementation of matrix::fraction_free_elimination
+    // FIXME: use implementation of matrix::fraction_free_elimination instead!
     if ((row != rhs.row) || (col != vars.row) || (rhs.col != vars.col))
         throw (std::logic_error("matrix::fraction_free_elim(): incompatible matrices"));
     
@@ -687,29 +689,29 @@ matrix matrix::fraction_free_elim(const matrix & vars,
     for (unsigned k=0; (k<n)&&(r<m); ++k) {
         // find a nonzero pivot
         unsigned p;
-        for (p=r; (p<m)&&(a(p,k).is_zero()); ++p) {}
+        for (p=r; (p<m)&&(a.m[p*a.cols()+k].is_zero()); ++p) {}
         // pivot is in row p
         if (p<m) {
             if (p!=r) {
                 // swap rows p and r
                 for (unsigned j=k; j<n; ++j)
-                    a.swap(p,j,r,j);
-                b.swap(p,0,r,0);
+                    a.m[p*a.cols()+j].swap(a.m[r*a.cols()+j]);
+                b.m[p*b.cols()].swap(b.m[r*b.cols()]);
                 // keep track of sign changes due to row exchange
                 sign *= -1;
             }
             for (unsigned i=r+1; i<m; ++i) {
                 for (unsigned j=k+1; j<n; ++j) {
-                    a.set(i,j,(a(r,k)*a(i,j)
-                              -a(r,j)*a(i,k))/divisor);
-                    a.set(i,j,a(i,j).normal());
+                    a.set(i,j,(a.m[r*a.cols()+k]*a.m[i*a.cols()+j]
+                              -a.m[r*a.cols()+j]*a.m[i*a.cols()+k])/divisor);
+                    a.set(i,j,a.m[i*a.cols()+j].normal());
                 }
-                b.set(i,0,(a(r,k)*b(i,0)
-                          -b(r,0)*a(i,k))/divisor);
-                b.set(i,0,b(i,0).normal());
-                a.set(i,k,0);
+                b.set(i,0,(a.m[r*a.cols()+k]*b.m[i*b.cols()]
+                          -b.m[r*b.cols()]*a.m[i*a.cols()+k])/divisor);
+                b.set(i,0,b.m[i*b.cols()].normal());
+                a.set(i,k,_ex0());
             }
-            divisor = a(r,k);
+            divisor = a.m[r*a.cols()+k];
             ++r;
         }
     }
@@ -720,8 +722,8 @@ matrix matrix::fraction_free_elim(const matrix & vars,
     for (unsigned r=0; r<m; ++r) {
         int zero_in_this_row=0;
         for (unsigned c=0; c<n; ++c) {
-            if (a(r,c).is_zero())
-               zero_in_this_row++;
+            if (a.m[r*a.cols()+c].is_zero())
+               ++zero_in_this_row;
             else
                 break;
         }
@@ -739,26 +741,26 @@ matrix matrix::fraction_free_elim(const matrix & vars,
             first_non_zero++;
         if (first_non_zero>n) {
             // row consists only of zeroes, corresponding rhs must be 0 as well
-            if (!b(r,0).is_zero()) {
+            if (!b.m[r*b.cols()].is_zero()) {
                 throw (std::runtime_error("matrix::fraction_free_elim(): singular matrix"));
             }
         } else {
             // assign solutions for vars between first_non_zero+1 and
             // last_assigned_sol-1: free parameters
             for (unsigned c=first_non_zero; c<last_assigned_sol-1; ++c)
-                sol.set(c,0,vars(c,0));
-            ex e = b(r,0);
+                sol.set(c,0,vars.m[c*vars.cols()]);
+            ex e = b.m[r*b.cols()];
             for (unsigned c=first_non_zero; c<n; ++c)
-                e -= a(r,c)*sol(c,0);
+                e -= a.m[r*a.cols()+c]*sol.m[c*sol.cols()];
             sol.set(first_non_zero-1,0,
-                    (e/a(r,first_non_zero-1)).normal());
+                    (e/(a.m[r*a.cols()+(first_non_zero-1)])).normal());
             last_assigned_sol = first_non_zero;
         }
     }
     // assign solutions for vars between 1 and
     // last_assigned_sol-1: free parameters
     for (unsigned c=0; c<last_assigned_sol-1; ++c)
-        sol.set(c,0,vars(c,0));
+        sol.set(c,0,vars.m[c*vars.cols()]);
     
 #ifdef DO_GINAC_ASSERT
     // test solution with echelon matrix
@@ -1159,7 +1161,7 @@ int matrix::pivot(unsigned ro, bool symbolic)
     
     if (symbolic) {  // search first non-zero
         for (unsigned r=ro; r<row; ++r) {
-            if (!m[r*col+ro].is_zero()) {
+            if (!m[r*col+ro].expand().is_zero()) {
                 k = r;
                 break;
             }

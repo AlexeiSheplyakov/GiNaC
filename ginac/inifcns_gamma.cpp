@@ -63,11 +63,10 @@ static ex lgamma_eval(const ex & x)
         // trap integer arguments:
         if (x.info(info_flags::integer)) {
             // lgamma(n) -> log((n-1)!) for postitive n
-            if (x.info(info_flags::posint)) {
+            if (x.info(info_flags::posint))
                 return log(factorial(x.exadd(_ex_1())));
-            } else {
+            else
                 throw (pole_error("lgamma_eval(): logarithmic pole",0));
-            }
         }
         //  lgamma_evalf should be called here once it becomes available
     }
@@ -98,15 +97,16 @@ static ex lgamma_series(const ex & arg,
     // from which follows
     //   series(lgamma(x),x==-m,order) ==
     //   series(lgamma(x+m+1)-log(x)...-log(x+m)),x==-m,order);
-    // This, however, seems to fail utterly because you run into branch-cut
-    // problems.  Somebody ought to implement it some day using an asymptotic
-    // series for tgamma:
     const ex arg_pt = arg.subs(rel);
     if (!arg_pt.info(info_flags::integer) || arg_pt.info(info_flags::positive))
         throw do_taylor();  // caught by function::series()
     // if we got here we have to care for a simple pole of tgamma(-m):
-    throw (std::overflow_error("lgamma_series: please implement my at the poles"));
-    return _ex0();  // not reached
+    numeric m = -ex_to_numeric(arg_pt);
+    ex recur;
+    for (numeric p; p<=m; ++p)
+        recur += log(arg+p);
+    cout << recur << endl;
+    return (lgamma(arg+m+_ex1())-recur).series(rel, order, options);
 }
 
 
@@ -202,7 +202,7 @@ static ex tgamma_series(const ex & arg,
     ex ser_denom = _ex1();
     for (numeric p; p<=m; ++p)
         ser_denom *= arg+p;
-    return (tgamma(arg+m+_ex1())/ser_denom).series(rel, order+1);
+    return (tgamma(arg+m+_ex1())/ser_denom).series(rel, order+1, options);
 }
 
 
@@ -299,21 +299,21 @@ static ex beta_series(const ex & arg1,
         throw do_taylor();  // caught by function::series()
     // trap the case where arg1 is on a pole:
     if (arg1.info(info_flags::integer) && !arg1.info(info_flags::positive))
-        arg1_ser = tgamma(arg1+*s).series(rel,order);
+        arg1_ser = tgamma(arg1+*s).series(rel, order, options);
     else
         arg1_ser = tgamma(arg1).series(rel,order);
     // trap the case where arg2 is on a pole:
     if (arg2.info(info_flags::integer) && !arg2.info(info_flags::positive))
-        arg2_ser = tgamma(arg2+*s).series(rel,order);
+        arg2_ser = tgamma(arg2+*s).series(rel, order, options);
     else
         arg2_ser = tgamma(arg2).series(rel,order);
     // trap the case where arg1+arg2 is on a pole:
     if ((arg1+arg2).info(info_flags::integer) && !(arg1+arg2).info(info_flags::positive))
-        arg1arg2_ser = tgamma(arg2+arg1+*s).series(rel,order);
+        arg1arg2_ser = tgamma(arg2+arg1+*s).series(rel, order, options);
     else
         arg1arg2_ser = tgamma(arg2+arg1).series(rel,order);
     // compose the result (expanding all the terms):
-    return (arg1_ser*arg2_ser/arg1arg2_ser).series(rel,order).expand();
+    return (arg1_ser*arg2_ser/arg1arg2_ser).series(rel, order, options).expand();
 }
 
 
@@ -410,7 +410,7 @@ static ex psi1_series(const ex & arg,
     ex recur;
     for (numeric p; p<=m; ++p)
         recur += power(arg+p,_ex_1());
-    return (psi(arg+m+_ex1())-recur).series(rel, order);
+    return (psi(arg+m+_ex1())-recur).series(rel, order, options);
 }
 
 const unsigned function_index_psi1 =
@@ -536,7 +536,7 @@ static ex psi2_series(const ex & n,
     for (numeric p; p<=m; ++p)
         recur += power(arg+p,-n+_ex_1());
     recur *= factorial(n)*power(_ex_1(),n);
-    return (psi(n, arg+m+_ex1())-recur).series(rel, order);
+    return (psi(n, arg+m+_ex1())-recur).series(rel, order, options);
 }
 
 const unsigned function_index_psi2 =

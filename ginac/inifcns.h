@@ -36,6 +36,9 @@ DECLARE_FUNCTION_1P(abs)
 /** Complex sign. */
 DECLARE_FUNCTION_1P(csgn)
 
+/** Eta function: log(a*b) == log(a) + log(b) + eta(a, b). */
+DECLARE_FUNCTION_2P(eta)
+
 /** Sine. */
 DECLARE_FUNCTION_1P(sin)
 
@@ -87,7 +90,7 @@ DECLARE_FUNCTION_1P(Li2)
 /** Trilogarithm. */
 DECLARE_FUNCTION_1P(Li3)
 
-// overloading at work: we cannot use the macros
+// overloading at work: we cannot use the macros here
 /** Riemann's Zeta-function. */
 extern const unsigned function_index_zeta1;
 inline function zeta(const ex & p1) {
@@ -106,7 +109,7 @@ DECLARE_FUNCTION_1P(tgamma)
 /** Beta-function. */
 DECLARE_FUNCTION_2P(beta)
 
-// overloading at work: we cannot use the macros
+// overloading at work: we cannot use the macros here
 /** Psi-function (aka digamma-function). */
 extern const unsigned function_index_psi1;
 inline function psi(const ex & p1) {

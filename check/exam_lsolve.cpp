@@ -32,7 +32,7 @@ static unsigned exam_lsolve1(void)
     eq = (3*x+5 == numeric(8));
     aux = lsolve(eq, x);
     if (aux != 1) {
-        result++;
+        ++result;
         clog << "solution of 3*x+5==8 erroneously returned "
              << aux << endl;
     }
@@ -60,7 +60,7 @@ static unsigned exam_lsolve2a(void)
     // It should have returned [x==(3+b^2)/(a+b),y==(3-a*b)/(a+b)]
     if (!normal(sol_x - (3+pow(b,2))/(a+b)).is_zero() ||
         !normal(sol_y - (3-a*b)/(a+b)).is_zero()) {
-        result++;
+        ++result;
         clog << "solution of the system " << eqns << " for " << vars
              << " erroneously returned " << sol << endl;
     }
@@ -88,7 +88,7 @@ static unsigned exam_lsolve2b(void)
     // It should have returned [x==43/17,y==-10/17]
     if (!(sol_x - numeric(43,17)).is_zero() ||
         !(sol_y - numeric(-10,17)).is_zero()) {
-        result++;
+        ++result;
         clog << "solution of the system " << eqns << " for " << vars
              << " erroneously returned " << sol << endl;
     }
@@ -116,7 +116,35 @@ static unsigned exam_lsolve2c(void)
     // It should have returned [x==-3/2*I,y==-1/2]
     if (!(sol_x - numeric(-3,2)*I).is_zero() ||
         !(sol_y - numeric(-1,2)).is_zero()) {
-        result++;
+        ++result;
+        clog << "solution of the system " << eqns << " for " << vars
+             << " erroneously returned " << sol << endl;
+    }
+    
+    return result;
+}
+
+static unsigned exam_lsolve2S(void)
+{
+    // A degenerate example that went wrong in GiNaC 0.6.2.
+    unsigned result = 0;
+    symbol x("x"), y("y"), t("t");
+    lst eqns, vars;
+    ex sol;
+    
+    // Create the linear system [0*x+0*y==0,0*x+1*y==t]...
+    eqns.append(0*x+0*y==0).append(0*x+1*y==t);
+    // ...to be solved for [x,y]...
+    vars.append(x).append(y);
+    // ...and solve it:
+    sol = lsolve(eqns, vars);
+    ex sol_x = sol.op(0).rhs();  // rhs of solution for first variable (x)
+    ex sol_y = sol.op(1).rhs();  // rhs of solution for second variable (y)
+    
+    // It should have returned [x==x,y==t]
+    if (!(sol_x - x).is_zero() ||
+        !(sol_y - t).is_zero()) {
+        ++result;
         clog << "solution of the system " << eqns << " for " << vars
              << " erroneously returned " << sol << endl;
     }
@@ -135,6 +163,7 @@ unsigned exam_lsolve(void)
     result += exam_lsolve2a();  cout << '.' << flush;
     result += exam_lsolve2b();  cout << '.' << flush;
     result += exam_lsolve2c();  cout << '.' << flush;
+    result += exam_lsolve2S();  cout << '.' << flush;
     
     if (!result) {
         cout << " passed " << endl;
