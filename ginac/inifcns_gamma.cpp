@@ -86,7 +86,9 @@ static ex gamma_eval(const ex & x)
                 return coefficient*power(Pi,_ex1_2());
             }
         }
+        //  gamma_evalf should be called here once it becomes available
     }
+    
     return gamma(x).hold();
 }    
 
@@ -204,13 +206,7 @@ static ex beta_series(const ex & x, const ex & y, const symbol & s, const ex & p
         (!ypoint.info(info_flags::integer) || ypoint.info(info_flags::positive)))
         throw do_taylor();  // caught by function::series()
     // if we got here we have to care for a simple pole at -m:
-    throw (std::domain_error("beta_series(): please code me"));
-    /*numeric m = -ex_to_numeric(xpoint);
-     *ex ser_numer = gamma(x+m+_ex1());
-     *ex ser_denom = _ex1();
-     *for (numeric p; p<=m; ++p)
-     *    ser_denom *= x+p;
-     *return (ser_numer/ser_denom).series(s, point, order+1);*/
+    throw (std::domain_error("beta_series(): Mama, please code me!"));
 }
 
 REGISTER_FUNCTION(beta, beta_eval, beta_evalf, beta_diff, beta_series);
@@ -233,28 +229,43 @@ static ex psi1_evalf(const ex & x)
 static ex psi1_eval(const ex & x)
 {
     if (x.info(info_flags::numeric)) {
-        if (x.info(info_flags::integer) && !x.info(info_flags::positive))
-            throw (std::domain_error("psi_eval(): simple pole"));
-        if (x.info(info_flags::positive)) {
-            // psi(n) -> 1 + 1/2 +...+ 1/(n-1) - EulerGamma
-            if (x.info(info_flags::integer)) {
+        numeric nx = ex_to_numeric(x);
+        if (nx.is_integer()) {
+            // integer case 
+            if (nx.is_positive()) {
+                // psi(n) -> 1 + 1/2 +...+ 1/(n-1) - EulerGamma
                 numeric rat(0);
-                for (numeric i(ex_to_numeric(x)-_num1()); i.is_positive(); --i)
+                for (numeric i(nx+_num_1()); i.is_positive(); --i)
                     rat += i.inverse();
                 return rat-EulerGamma;
-            }
-            // psi((2m+1)/2) -> 2/(2m+1) + 2/2m +...+ 2/1 - EulerGamma - 2log(2)
-            if ((_ex2()*x).info(info_flags::integer)) {
-                numeric rat(0);
-                for (numeric i((ex_to_numeric(x)-_num1())*_num2()); i.is_positive(); i-=_num2())
-                    rat += _num2()*i.inverse();
-                return rat-EulerGamma-_ex2()*log(_ex2());
-            }
-            if (x.compare(_ex1())==1) {
-                // should call numeric, since >1
+            } else {
+                // for non-positive integers there is a pole:
+                throw (std::domain_error("psi_eval(): simple pole"));
             }
         }
+        if ((_num2()*nx).is_integer()) {
+            // half integer case
+            if (nx.is_positive()) {
+                // psi((2m+1)/2) -> 2/(2m+1) + 2/2m +...+ 2/1 - EulerGamma - 2log(2)
+                numeric rat(0);
+                for (numeric i((nx+_num_1())*_num2()); i.is_positive(); i-=_num2())
+                                      rat += _num2()*i.inverse();
+                                      return rat-EulerGamma-_ex2()*log(_ex2());
+            } else {
+                // use the recurrence relation
+                //   psi(-m-1/2) == psi(-m-1/2+1) - 1 / (-m-1/2)
+                // to relate psi(-m-1/2) to psi(1/2):
+                //   psi(-m-1/2) == psi(1/2) + r
+                // where r == ((-1/2)^(-1) + ... + (-m-1/2)^(-1))
+                numeric recur(0);
+                for (numeric p(nx); p<0; ++p)
+                    recur -= pow(p, _num_1());
+                return recur+psi(_ex1_2());
+            }
+        }
+        //  psi1_evalf should be called here once it becomes available
     }
+    
     return psi(x).hold();
 }
 
@@ -318,24 +329,53 @@ static ex psi2_eval(const ex & n, const ex & x)
         numeric nn = ex_to_numeric(n);
         numeric nx = ex_to_numeric(x);
         if (nx.is_integer()) {
+            // integer case 
             if (nx.is_equal(_num1()))
-                return pow(_num_1(), nn+_num1())*factorial(nn)*zeta(ex(nn+_num1()));
+                // use psi(n,1) == (-)^(n+1) * n! * zeta(n+1)
+                return pow(_num_1(),nn+_num1())*factorial(nn)*zeta(ex(nn+_num1()));
             if (nx.is_positive()) {
                 // use the recurrence relation
                 //   psi(n,m) == psi(n,m+1) - (-)^n * n! / m^(n+1)
                 // to relate psi(n,m) to psi(n,1):
                 //   psi(n,m) == psi(n,1) + r
                 // where r == (-)^n * n! * (1^(-n-1) + ... + (m-1)^(-n-1))
-                numeric recur;
+                numeric recur(0);
                 for (numeric p(1); p<nx; ++p)
                     recur += pow(p, -nn+_num_1());
                 recur *= factorial(nn)*pow(_num_1(), nn);
                 return recur+psi(n,_ex1());
+            } else {
+                // for non-positive integers there is a pole:
+                throw (std::domain_error("psi2_eval(): pole"));
             }
-            // for non-positive integers there is a pole:
-            throw (std::domain_error("psi2_eval(): pole"));
         }
+        if ((_num2()*nx).is_integer()) {
+            // half integer case
+            if (nx.is_equal(_num1_2()))
+                // use psi(n,1/2) == (-)^(n+1) * n! * (2^(n+1)-1) * zeta(n+1)
+                return pow(_num_1(),nn+_num1())*factorial(nn)*(pow(_num2(),nn+_num1()) + _num_1())*zeta(ex(nn+_num1()));
+            if (nx.is_positive()) {
+                numeric m = nx - _num1_2();
+                // use the multiplication formula
+                //   psi(n,2*m) == (psi(n,m) + psi(n,m+1/2)) / 2^(n+1)
+                // to revert to positive integer case
+                return psi(n,_num2()*m)*pow(_num2(),nn+_num1())-psi(n,m);
+            } else {
+                // use the recurrence relation
+                //   psi(n,-m-1/2) == psi(n,-m-1/2+1) - (-)^n * n! / (-m-1/2)^(n+1)
+                // to relate psi(n,-m-1/2) to psi(n,1/2):
+                //   psi(n,-m-1/2) == psi(n,1/2) + r
+                // where r == (-)^(n+1) * n! * ((-1/2)^(-n-1) + ... + (-m-1/2)^(-n-1))
+                numeric recur(0);
+                for (numeric p(nx); p<0; ++p)
+                    recur += pow(p, -nn+_num_1());
+                recur *= factorial(nn)*pow(_num_1(), nn+_num_1());
+                return recur+psi(n,_ex1_2());
+            }
+        }
+        //  psi2_evalf should be called here once it becomes available
     }
+    
     return psi(n, x).hold();
 }    
 
