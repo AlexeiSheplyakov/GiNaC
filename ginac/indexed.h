@@ -173,11 +173,14 @@ public:
 	 *  @see class info_flags */
 	bool all_index_values_are(unsigned inf) const;
 
+	/** Return a vector containing the dummy indices of the object, if any. */
+	exvector get_dummy_indices(void) const;
+
 protected:
 	void printrawindices(std::ostream & os) const;
 	void printtreeindices(std::ostream & os, unsigned indent) const;
 	void printindices(std::ostream & os) const;
-	bool all_indices_of_type_idx(void) const;
+	void assert_all_indices_of_type_idx(void) const;
 
 	// member variables
 protected:

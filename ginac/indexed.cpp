@@ -66,56 +66,56 @@ indexed::indexed(const ex & b) : inherited(b), symmetry(unknown)
 {
 	debugmsg("indexed constructor from ex", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
-	GINAC_ASSERT(all_indices_of_type_idx());
+	assert_all_indices_of_type_idx();
 }
 
 indexed::indexed(const ex & b, const ex & i1) : inherited(b, i1), symmetry(unknown)
 {
 	debugmsg("indexed constructor from ex,ex", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
-	GINAC_ASSERT(all_indices_of_type_idx());
+	assert_all_indices_of_type_idx();
 }
 
 indexed::indexed(const ex & b, const ex & i1, const ex & i2) : inherited(b, i1, i2), symmetry(unknown)
 {
 	debugmsg("indexed constructor from ex,ex,ex", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
-	GINAC_ASSERT(all_indices_of_type_idx());
+	assert_all_indices_of_type_idx();
 }
 
 indexed::indexed(const ex & b, const ex & i1, const ex & i2, const ex & i3) : inherited(b, i1, i2, i3), symmetry(unknown)
 {
 	debugmsg("indexed constructor from ex,ex,ex,ex", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
-	GINAC_ASSERT(all_indices_of_type_idx());
+	assert_all_indices_of_type_idx();
 }
 
 indexed::indexed(const ex & b, const ex & i1, const ex & i2, const ex & i3, const ex & i4) : inherited(b, i1, i2, i3, i4), symmetry(unknown)
 {
 	debugmsg("indexed constructor from ex,ex,ex,ex,ex", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
-	GINAC_ASSERT(all_indices_of_type_idx());
+	assert_all_indices_of_type_idx();
 }
 
 indexed::indexed(const ex & b, symmetry_type symm, const ex & i1, const ex & i2) : inherited(b, i1, i2), symmetry(symm)
 {
 	debugmsg("indexed constructor from ex,symmetry,ex,ex", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
-	GINAC_ASSERT(all_indices_of_type_idx());
+	assert_all_indices_of_type_idx();
 }
 
 indexed::indexed(const ex & b, symmetry_type symm, const ex & i1, const ex & i2, const ex & i3) : inherited(b, i1, i2, i3), symmetry(symm)
 {
 	debugmsg("indexed constructor from ex,symmetry,ex,ex,ex", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
-	GINAC_ASSERT(all_indices_of_type_idx());
+	assert_all_indices_of_type_idx();
 }
 
 indexed::indexed(const ex & b, symmetry_type symm, const ex & i1, const ex & i2, const ex & i3, const ex & i4) : inherited(b, i1, i2, i3, i4), symmetry(symm)
 {
 	debugmsg("indexed constructor from ex,symmetry,ex,ex,ex,ex", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
-	GINAC_ASSERT(all_indices_of_type_idx());
+	assert_all_indices_of_type_idx();
 }
 
 indexed::indexed(const ex & b, const exvector & v) : inherited(b), symmetry(unknown)
@@ -123,7 +123,7 @@ indexed::indexed(const ex & b, const exvector & v) : inherited(b), symmetry(unkn
 	debugmsg("indexed constructor from ex,exvector", LOGLEVEL_CONSTRUCT);
 	seq.insert(seq.end(), v.begin(), v.end());
 	tinfo_key = TINFO_indexed;
-	GINAC_ASSERT(all_indices_of_type_idx());
+	assert_all_indices_of_type_idx();
 }
 
 indexed::indexed(const ex & b, symmetry_type symm, const exvector & v) : inherited(b), symmetry(symm)
@@ -131,28 +131,28 @@ indexed::indexed(const ex & b, symmetry_type symm, const exvector & v) : inherit
 	debugmsg("indexed constructor from ex,symmetry,exvector", LOGLEVEL_CONSTRUCT);
 	seq.insert(seq.end(), v.begin(), v.end());
 	tinfo_key = TINFO_indexed;
-	GINAC_ASSERT(all_indices_of_type_idx());
+	assert_all_indices_of_type_idx();
 }
 
 indexed::indexed(symmetry_type symm, const exprseq & es) : inherited(es), symmetry(symm)
 {
 	debugmsg("indexed constructor from symmetry,exprseq", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
-	GINAC_ASSERT(all_indices_of_type_idx());
+	assert_all_indices_of_type_idx();
 }
 
 indexed::indexed(symmetry_type symm, const exvector & v, bool discardable) : inherited(v, discardable), symmetry(symm)
 {
 	debugmsg("indexed constructor from symmetry,exvector", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
-	GINAC_ASSERT(all_indices_of_type_idx());
+	assert_all_indices_of_type_idx();
 }
 
 indexed::indexed(symmetry_type symm, exvector * vp) : inherited(vp), symmetry(symm)
 {
 	debugmsg("indexed constructor from symmetry,exvector *", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_indexed;
-	GINAC_ASSERT(all_indices_of_type_idx());
+	assert_all_indices_of_type_idx();
 }
 
 //////////
@@ -426,16 +426,15 @@ void indexed::printindices(std::ostream & os) const
 /** Check whether all indices are of class idx. This function is used
  *  internally to make sure that all constructed indexed objects really
  *  carry indices and not some other classes. */
-bool indexed::all_indices_of_type_idx(void) const
+void indexed::assert_all_indices_of_type_idx(void) const
 {
 	GINAC_ASSERT(seq.size() > 0);
 	exvector::const_iterator it = seq.begin() + 1, itend = seq.end();
 	while (it != itend) {
 		if (!is_ex_of_type(*it, idx))
-			return false;
+			throw(std::invalid_argument("indices of indexed object must be of type idx"));
 		it++;
 	}
-	return true;
 }
 
 //////////
@@ -500,6 +499,13 @@ static bool indices_consistent(const exvector & v1, const exvector & v2)
 		ait++; bit++;
 	}
 	return true;
+}
+
+exvector indexed::get_dummy_indices(void) const
+{
+	exvector free_indices, dummy_indices;
+	find_free_and_dummy(seq.begin() + 1, seq.end(), free_indices, dummy_indices);
+	return dummy_indices;
 }
 
 exvector indexed::get_free_indices(void) const

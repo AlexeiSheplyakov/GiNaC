@@ -21,6 +21,7 @@
  */
 
 #include <stdexcept>
+#include <vector>
 
 #include "tensor.h"
 #include "idx.h"
@@ -43,6 +44,13 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(tensepsilon, tensor)
 // default constructor, destructor, copy constructor assignment operator and helpers
 //////////
 
+#define DEFAULT_DESTROY(classname) \
+void classname::destroy(bool call_parent) \
+{ \
+	if (call_parent) \
+		inherited::destroy(call_parent); \
+}
+
 #define DEFAULT_CTORS(classname) \
 classname::classname() : inherited(TINFO_##classname) \
 { \
@@ -52,11 +60,7 @@ void classname::copy(const classname & other) \
 { \
 	inherited::copy(other); \
 } \
-void classname::destroy(bool call_parent) \
-{ \
-	if (call_parent) \
-		inherited::destroy(call_parent); \
-}
+DEFAULT_DESTROY(classname)
 
 tensor::tensor(unsigned ti) : inherited(ti)
 {
@@ -66,7 +70,8 @@ tensor::tensor(unsigned ti) : inherited(ti)
 DEFAULT_CTORS(tensor)
 DEFAULT_CTORS(tensdelta)
 DEFAULT_CTORS(tensmetric)
-DEFAULT_CTORS(tensepsilon)
+DEFAULT_DESTROY(minkmetric)
+DEFAULT_DESTROY(tensepsilon)
 
 minkmetric::minkmetric() : pos_sig(false)
 {
@@ -86,25 +91,41 @@ void minkmetric::copy(const minkmetric & other)
 	pos_sig = other.pos_sig;
 }
 
-void minkmetric::destroy(bool call_parent)
+tensepsilon::tensepsilon() : minkowski(false), pos_sig(false)
 {
-	if (call_parent)
-		inherited::destroy(call_parent);
+	debugmsg("tensepsilon default constructor", LOGLEVEL_CONSTRUCT);
+	tinfo_key = TINFO_tensepsilon;
+}
+
+tensepsilon::tensepsilon(bool mink, bool ps) : minkowski(mink), pos_sig(ps)
+{
+	debugmsg("tensepsilon constructor from bool,bool", LOGLEVEL_CONSTRUCT);
+	tinfo_key = TINFO_tensepsilon;
+}
+
+void tensepsilon::copy(const tensepsilon & other)
+{
+	inherited::copy(other);
+	minkowski = other.minkowski;
+	pos_sig = other.pos_sig;
 }
 
 //////////
 // archiving
 //////////
 
+#define DEFAULT_UNARCHIVE(classname) \
+ex classname::unarchive(const archive_node &n, const lst &sym_lst) \
+{ \
+	return (new classname(n, sym_lst))->setflag(status_flags::dynallocated); \
+}
+
 #define DEFAULT_ARCHIVING(classname) \
 classname::classname(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst) \
 { \
 	debugmsg(#classname " constructor from archive_node", LOGLEVEL_CONSTRUCT); \
 } \
-ex classname::unarchive(const archive_node &n, const lst &sym_lst) \
-{ \
-	return (new classname(n, sym_lst))->setflag(status_flags::dynallocated); \
-} \
+DEFAULT_UNARCHIVE(classname) \
 void classname::archive(archive_node &n) const \
 { \
 	inherited::archive(n); \
@@ -113,7 +134,8 @@ void classname::archive(archive_node &n) const \
 DEFAULT_ARCHIVING(tensor)
 DEFAULT_ARCHIVING(tensdelta)
 DEFAULT_ARCHIVING(tensmetric)
-DEFAULT_ARCHIVING(tensepsilon)
+DEFAULT_UNARCHIVE(minkmetric)
+DEFAULT_UNARCHIVE(tensepsilon)
 
 minkmetric::minkmetric(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
@@ -121,14 +143,23 @@ minkmetric::minkmetric(const archive_node &n, const lst &sym_lst) : inherited(n,
 	n.find_bool("pos_sig", pos_sig);
 }
 
-ex minkmetric::unarchive(const archive_node &n, const lst &sym_lst)
-{
-	return (new minkmetric(n, sym_lst))->setflag(status_flags::dynallocated);
-}
-
 void minkmetric::archive(archive_node &n) const
 {
 	inherited::archive(n);
+	n.add_bool("pos_sig", pos_sig);
+}
+
+tensepsilon::tensepsilon(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+{
+	debugmsg("tensepsilon constructor from archive_node", LOGLEVEL_CONSTRUCT);
+	n.find_bool("minkowski", minkowski);
+	n.find_bool("pos_sig", pos_sig);
+}
+
+void tensepsilon::archive(archive_node &n) const
+{
+	inherited::archive(n);
+	n.add_bool("minkowski", minkowski);
 	n.add_bool("pos_sig", pos_sig);
 }
 
@@ -146,7 +177,6 @@ int classname::compare_same_type(const basic & other) const \
 DEFAULT_COMPARE(tensor)
 DEFAULT_COMPARE(tensdelta)
 DEFAULT_COMPARE(tensmetric)
-DEFAULT_COMPARE(tensepsilon)
 
 int minkmetric::compare_same_type(const basic & other) const
 {
@@ -154,6 +184,19 @@ int minkmetric::compare_same_type(const basic & other) const
 	const minkmetric &o = static_cast<const minkmetric &>(other);
 
 	if (pos_sig != o.pos_sig)
+		return pos_sig ? -1 : 1;
+	else
+		return inherited::compare_same_type(other);
+}
+
+int tensepsilon::compare_same_type(const basic & other) const
+{
+	GINAC_ASSERT(is_of_type(other, tensepsilon));
+	const tensepsilon &o = static_cast<const tensepsilon &>(other);
+
+	if (minkowski != o.minkowski)
+		return minkowski ? -1 : 1;
+	else if (pos_sig != o.pos_sig)
 		return pos_sig ? -1 : 1;
 	else
 		return inherited::compare_same_type(other);
@@ -247,6 +290,49 @@ ex minkmetric::eval_indexed(const basic & i) const
 
 	// Perform the usual evaluations of a metric tensor
 	return inherited::eval_indexed(i);
+}
+
+/** Automatic symbolic evaluation of an indexed epsilon tensor. */
+ex tensepsilon::eval_indexed(const basic & i) const
+{
+	GINAC_ASSERT(is_of_type(i, indexed));
+	GINAC_ASSERT(i.nops() > 1);
+	GINAC_ASSERT(is_ex_of_type(i.op(0), tensepsilon));
+
+	// Convolutions are zero
+	if (static_cast<const indexed &>(i).get_dummy_indices().size() != 0)
+		return _ex0();
+
+	// Numeric evaluation
+	if (static_cast<const indexed &>(i).all_index_values_are(info_flags::nonnegint)) {
+
+		// Get sign of index permutation (the indices should already be in
+		// a canonic order but we can't assume what exactly that order is)
+		vector<int> v;
+		v.reserve(i.nops() - 1);
+		for (unsigned j=1; j<i.nops(); j++)
+			v.push_back(ex_to_numeric(ex_to_idx(i.op(j)).get_value()).to_int());
+		int sign = permutation_sign(v);
+
+		// In a Minkowski space, check for covariant indices
+		if (minkowski) {
+			for (unsigned j=1; j<i.nops(); j++) {
+				const ex & x = i.op(j);
+				if (!is_ex_of_type(x, varidx))
+					throw(std::runtime_error("indices of epsilon tensor in Minkowski space must be of type varidx"));
+				if (ex_to_varidx(x).is_covariant())
+					if (ex_to_idx(x).get_value().is_zero())
+						sign = (pos_sig ? -sign : sign);
+					else
+						sign = (pos_sig ? sign : -sign);
+			}
+		}
+
+		return sign;
+	}
+
+	// No further simplifications
+	return i.hold();
 }
 
 /** Contraction of an indexed delta tensor with something else. */
@@ -366,10 +452,42 @@ ex epsilon_tensor(const ex & i1, const ex & i2)
 {
 	if (!is_ex_of_type(i1, idx) || !is_ex_of_type(i2, idx))
 		throw(std::invalid_argument("indices of epsilon tensor must be of type idx"));
-	if (!ex_to_idx(i1).get_dim().is_equal(_ex2()) || !ex_to_idx(i2).get_dim().is_equal(_ex2()))
-		throw(std::invalid_argument("index dimension of epsilon tensor must match number of indices"));
+
+	ex dim = ex_to_idx(i1).get_dim();
+	if (!dim.is_equal(ex_to_idx(i2).get_dim()))
+		throw(std::invalid_argument("all indices of epsilon tensor must have the same dimension"));
+	if (!ex_to_idx(i1).get_dim().is_equal(_ex2()))
+		throw(std::runtime_error("index dimension of epsilon tensor must match number of indices"));
 
 	return indexed(tensepsilon(), indexed::antisymmetric, i1, i2);
+}
+
+ex epsilon_tensor(const ex & i1, const ex & i2, const ex & i3)
+{
+	if (!is_ex_of_type(i1, idx) || !is_ex_of_type(i2, idx) || !is_ex_of_type(i3, idx))
+		throw(std::invalid_argument("indices of epsilon tensor must be of type idx"));
+
+	ex dim = ex_to_idx(i1).get_dim();
+	if (!dim.is_equal(ex_to_idx(i2).get_dim()) || !dim.is_equal(ex_to_idx(i3).get_dim()))
+		throw(std::invalid_argument("all indices of epsilon tensor must have the same dimension"));
+	if (!ex_to_idx(i1).get_dim().is_equal(_ex3()))
+		throw(std::runtime_error("index dimension of epsilon tensor must match number of indices"));
+
+	return indexed(tensepsilon(), indexed::antisymmetric, i1, i2, i3);
+}
+
+ex lorentz_eps(const ex & i1, const ex & i2, const ex & i3, const ex & i4, bool pos_sig)
+{
+	if (!is_ex_of_type(i1, varidx) || !is_ex_of_type(i2, varidx) || !is_ex_of_type(i3, varidx) || !is_ex_of_type(i4, varidx))
+		throw(std::invalid_argument("indices of Lorentz epsilon tensor must be of type varidx"));
+
+	ex dim = ex_to_idx(i1).get_dim();
+	if (!dim.is_equal(ex_to_idx(i2).get_dim()) || !dim.is_equal(ex_to_idx(i3).get_dim()) || !dim.is_equal(ex_to_idx(i4).get_dim()))
+		throw(std::invalid_argument("all indices of epsilon tensor must have the same dimension"));
+	if (!ex_to_idx(i1).get_dim().is_equal(_ex4()))
+		throw(std::runtime_error("index dimension of epsilon tensor must match number of indices"));
+
+	return indexed(tensepsilon(true, pos_sig), indexed::antisymmetric, i1, i2, i3, i4);
 }
 
 } // namespace GiNaC

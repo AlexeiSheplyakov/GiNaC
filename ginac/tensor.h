@@ -104,9 +104,19 @@ class tensepsilon : public tensor
 {
 	GINAC_DECLARE_REGISTERED_CLASS(tensepsilon, tensor)
 
+	// other constructors
+public:
+	tensepsilon(bool minkowski, bool pos_sig);
+
 	// functions overriding virtual functions from bases classes
 public:
 	void print(std::ostream & os, unsigned upper_precedence=0) const;
+	ex eval_indexed(const basic & i) const;
+
+	// member variables
+private:
+	bool minkowski; /**< If true, tensor is in Minkowski-type space. Otherwise it is in a Euclidean space. */
+	bool pos_sig;  /**< If true, the metric is assumed to be diag(-1,1,1...). Otherwise it is diag(1,-1,-1,...). This is only relevant if minkowski = true. */
 };
 
 
@@ -145,13 +155,33 @@ ex metric_tensor(const ex & i1, const ex & i2);
  *  @return newly constructed Lorentz metric tensor */
 ex lorentz_g(const ex & i1, const ex & i2, bool pos_sig = false);
 
-/** Create an epsilon tensor with two indices. The indices must be of class
- *  idx or a subclass, and have a dimension of 2.
+/** Create an epsilon tensor in a Euclidean space with two indices. The
+ *  indices must be of class idx or a subclass, and have a dimension of 2.
  *
  *  @param i1 First index
  *  @param i2 Second index
  *  @return newly constructed epsilon tensor */
 ex epsilon_tensor(const ex & i1, const ex & i2);
+
+/** Create an epsilon tensor in a Euclidean space with three indices. The
+ *  indices must be of class idx or a subclass, and have a dimension of 3.
+ *
+ *  @param i1 First index
+ *  @param i2 Second index
+ *  @param i3 Third index
+ *  @return newly constructed epsilon tensor */
+ex epsilon_tensor(const ex & i1, const ex & i2, const ex & i3);
+
+/** Create an epsilon tensor in a Minkowski space with four indices. The
+ *  indices must be of class varidx or a subclass, and have a dimension of 4.
+ *
+ *  @param i1 First index
+ *  @param i2 Second index
+ *  @param i3 Third index
+ *  @param i4 Fourth index
+ *  @param pos_sig Whether the signature of the metric is positive
+ *  @return newly constructed epsilon tensor */
+ex lorentz_eps(const ex & i1, const ex & i2, const ex & i3, const ex & i4, bool pos_sig = false);
 
 } // namespace GiNaC
 

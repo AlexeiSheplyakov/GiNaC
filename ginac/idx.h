@@ -80,7 +80,6 @@ public:
 	/** Check whether the dimension is symbolic. */
 	bool is_dim_symbolic(void) const {return !is_ex_exactly_of_type(dim, numeric);}
 
-	// member variables
 protected:
 	ex value; /**< Expression that constitutes the index (numeric or symbolic name) */
 	ex dim;   /**< Dimension of space (can be symbolic or numeric) */
