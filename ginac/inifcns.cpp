@@ -191,6 +191,11 @@ static ex Li2_series(const ex &x, const relational &rel, int order)
         // reexpand will collapse the series again
         ser = ser.series(rel,order);
         return ser;
+        // NOTE: Of course, this still does not allow us to compute anything
+        // like sin(Li2(x)).series(x==0,2), since then this code here is not
+        // reached and the derivative of sin(Li2(x)) doesn't allow the
+        // substitution x==0.  Probably limits *are* needed for the general
+        // cases.
     }
     // second problematic case: x real, >=1 (branch cut)
     return pseries();
