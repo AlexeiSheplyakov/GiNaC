@@ -55,7 +55,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(basic, void,
 /** basic copy constructor: implicitly assumes that the other class is of
  *  the exact same type (as it's used by duplicate()), so it can copy the
  *  tinfo_key and the hash value. */
-basic::basic(const basic & other) : tinfo_key(other.tinfo_key), flags(other.flags & ~status_flags::dynallocated), hashvalue(other.hashvalue), refcount(0)
+basic::basic(const basic & other) : tinfo_key(other.tinfo_key), flags(other.flags & ~status_flags::dynallocated), hashvalue(other.hashvalue)
 {
 	GINAC_ASSERT(typeid(*this) == typeid(other));
 }
@@ -74,7 +74,7 @@ const basic & basic::operator=(const basic & other)
 		hashvalue = other.hashvalue;
 	}
 	flags = fl;
-	refcount = 0;
+	set_refcount(0);
 	return *this;
 }
 
@@ -93,7 +93,7 @@ const basic & basic::operator=(const basic & other)
 //////////
 
 /** Construct object from archive_node. */
-basic::basic(const archive_node &n, lst &sym_lst) : flags(0), refcount(0)
+basic::basic(const archive_node &n, lst &sym_lst) : flags(0)
 {
 	// Reconstruct tinfo_key from class name
 	std::string class_name;
@@ -866,7 +866,7 @@ const basic & basic::hold() const
  *  is not the case. */
 void basic::ensure_if_modifiable() const
 {
-	if (refcount > 1)
+	if (get_refcount() > 1)
 		throw(std::runtime_error("cannot modify multiply referenced object"));
 	clearflag(status_flags::hash_calculated | status_flags::evaluated);
 }

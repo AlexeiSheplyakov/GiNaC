@@ -31,6 +31,7 @@
 
 #include "flags.h"
 #include "tinfos.h"
+#include "ptr.h"
 #include "assertion.h"
 #include "registrar.h"
 
@@ -43,7 +44,6 @@ class numeric;
 class relational;
 class archive_node;
 class print_context;
-template <class> class ptr;
 
 typedef std::vector<ex> exvector;
 typedef std::map<ex, ex, ex_is_less> exmap;
@@ -66,25 +66,23 @@ protected:
 };
 
 
-/** This class is the ABC (abstract base class) of GiNaC's class hierarchy.
- *  It is responsible for the reference counting. */
-class basic
+/** This class is the ABC (abstract base class) of GiNaC's class hierarchy. */
+class basic : public refcounted
 {
 	GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(basic, void)
 	
 	friend class ex;
-	friend class ptr<basic>;
 	
 	// default constructor, destructor, copy constructor and assignment operator
 protected:
-	basic() : tinfo_key(TINFO_basic), flags(0), refcount(0) {}
+	basic() : tinfo_key(TINFO_basic), flags(0) {}
 
 public:
 	/** basic destructor, virtual because class ex will delete objects of
 	 *  derived classes via a basic*. */
 	virtual ~basic()
 	{
-		GINAC_ASSERT((!(flags & status_flags::dynallocated))||(refcount==0));
+		GINAC_ASSERT((!(flags & status_flags::dynallocated)) || (get_refcount() == 0));
 	}
 	basic(const basic & other);
 	const basic & operator=(const basic & other);
@@ -92,7 +90,7 @@ public:
 protected:
 	/** Constructor with specified tinfo_key (used by derived classes instead
 	 *  of the default constructor to avoid assigning tinfo_key twice). */
-	basic(unsigned ti) : tinfo_key(ti), flags(0), refcount(0) {}
+	basic(unsigned ti) : tinfo_key(ti), flags(0) {}
 	
 	// new virtual functions which can be overridden by derived classes
 public: // only const functions please (may break reference counting)
@@ -231,8 +229,6 @@ protected:
 	unsigned tinfo_key;                 ///< typeinfo
 	mutable unsigned flags;             ///< of type status_flags
 	mutable unsigned hashvalue;         ///< hash value
-private:
-	size_t refcount;                    ///< reference counter, managed by ptr<basic>
 };
 
 

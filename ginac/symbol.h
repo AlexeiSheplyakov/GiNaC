@@ -43,14 +43,11 @@ class symbol : public basic
 // types
 	
 	/** Symbols as keys to expressions - only for ginsh. */
-	class assigned_ex_info {
-		friend class ptr<assigned_ex_info>;
+	class assigned_ex_info : public refcounted {
 	public:
 		assigned_ex_info() throw();  ///< Default ctor
 		bool is_assigned;            ///< True if there is an expression assigned
 		ex assigned_expression;      ///< The actual expression
-	private:
-		size_t refcount;             ///< Reference counter, managed by ptr<assigned_ex_info>
 	};
 
 // member functions

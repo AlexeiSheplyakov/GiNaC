@@ -23,6 +23,7 @@
 #ifndef __GINAC_PTR_H__
 #define __GINAC_PTR_H__
 
+#include <cstddef> // for size_t
 #include <functional>
 #include <iosfwd>
 
@@ -30,12 +31,28 @@
 
 namespace GiNaC {
 
+
+/** Base class for reference-counted objects. */
+class refcounted {
+public:
+	refcounted() throw() : refcount(0) {}
+
+	size_t add_reference() throw() { return ++refcount; }
+	size_t remove_reference() throw() { return --refcount; }
+	size_t get_refcount() const throw() { return refcount; }
+	void set_refcount(size_t r) throw() { refcount = r; }
+
+private:
+	size_t refcount; ///< reference counter
+};
+
+
 /** Class of (intrusively) reference-counted pointers that support
  *  copy-on-write semantics.
  *
  *  Requirements for T:
- *    T::refcount member that supports ++refcount, --refcount, refcount = 1,
- *      refcount == 0 and refcount > 1
+ *    must support the refcounted interface (usually by being derived
+ *      from refcounted)
  *    T* T::duplicate() member function (only if makewriteable() is used) */
 template <class T> class ptr {
 	friend class std::less< ptr<T> >;
@@ -48,24 +65,24 @@ public:
     // no default ctor: a ptr is never unbound
 
 	/** Bind ptr to newly created object, start reference counting. */
-	ptr(T *t) throw() : p(t) { GINAC_ASSERT(p); p->refcount = 1; }
+	ptr(T *t) throw() : p(t) { GINAC_ASSERT(p); p->set_refcount(1); }
 
 	/** Bind ptr to existing reference-counted object. */
-	explicit ptr(T &t) throw() : p(&t) { ++p->refcount; }
+	explicit ptr(T &t) throw() : p(&t) { p->add_reference(); }
 
-	ptr(const ptr & other) throw() : p(other.p) { ++p->refcount; }
+	ptr(const ptr & other) throw() : p(other.p) { p->add_reference(); }
 
 	~ptr()
 	{
-		if (--p->refcount == 0)
+		if (p->remove_reference() == 0)
 			delete p;
 	}
 
 	ptr &operator=(const ptr & other)
 	{
-		// NB: must first increment other.p->refcount, since other might be *this.
-		++other.p->refcount;
-		if (--p->refcount == 0)
+		// NB: must first add reference to "other", since other might be *this.
+		other.p->add_reference();
+		if (p->remove_reference() == 0)
 			delete p;
 		p = other.p;
 		return *this;
@@ -80,10 +97,10 @@ public:
 	 *  This ensures that the object is not shared by any other ptrs. */
 	void makewritable()
 	{
-		if (p->refcount > 1) {
+		if (p->get_refcount() > 1) {
 			T *p2 = p->duplicate();
-			p2->refcount = 1;
-			--p->refcount;
+			p2->set_refcount(1);
+			p->remove_reference();
 			p = p2;
 		}
 	}
@@ -129,6 +146,7 @@ private:
 };
 
 } // namespace GiNaC
+
 
 namespace std {
 

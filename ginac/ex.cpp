@@ -239,7 +239,7 @@ void ex::makewriteable()
 {
 	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
 	bp.makewritable();
-	GINAC_ASSERT(bp->refcount == 1);
+	GINAC_ASSERT(bp->get_refcount() == 1);
 }
 
 /** Share equal objects between expressions.
@@ -249,7 +249,7 @@ void ex::share(const ex & other) const
 	if ((bp->flags | other.bp->flags) & status_flags::not_shareable)
 		return;
 
-	if (bp->refcount <= other.bp->refcount)
+	if (bp->get_refcount() <= other.bp->get_refcount())
 		bp = other.bp;
 	else
 		other.bp = bp;
@@ -287,7 +287,7 @@ ptr<basic> ex::construct_from_basic(const basic & other)
 		// it means that eval() hit case b) above. The original object is
 		// no longer needed (it evaluated into something different), so we
 		// delete it (because nobody else will).
-		if ((other.refcount==0) && (other.flags & status_flags::dynallocated))
+		if ((other.get_refcount() == 0) && (other.flags & status_flags::dynallocated))
 			delete &other; // yes, you can apply delete to a const pointer
 
 		// We can't return a basic& here because the tmpex is destroyed as
@@ -310,7 +310,7 @@ ptr<basic> ex::construct_from_basic(const basic & other)
 			// on the heap.
 			basic *bp = other.duplicate();
 			bp->setflag(status_flags::dynallocated);
-			GINAC_ASSERT(bp->refcount == 0);
+			GINAC_ASSERT(bp->get_refcount() == 0);
 			return bp;
 		}
 	}
@@ -372,7 +372,7 @@ basic & ex::construct_from_int(int i)
 	default:
 		basic *bp = new numeric(i);
 		bp->setflag(status_flags::dynallocated);
-		GINAC_ASSERT(bp->refcount == 0);
+		GINAC_ASSERT(bp->get_refcount() == 0);
 		return *bp;
 	}
 }
@@ -409,7 +409,7 @@ basic & ex::construct_from_uint(unsigned int i)
 	default:
 		basic *bp = new numeric(i);
 		bp->setflag(status_flags::dynallocated);
-		GINAC_ASSERT(bp->refcount == 0);
+		GINAC_ASSERT(bp->get_refcount() == 0);
 		return *bp;
 	}
 }
@@ -470,7 +470,7 @@ basic & ex::construct_from_long(long i)
 	default:
 		basic *bp = new numeric(i);
 		bp->setflag(status_flags::dynallocated);
-		GINAC_ASSERT(bp->refcount == 0);
+		GINAC_ASSERT(bp->get_refcount() == 0);
 		return *bp;
 	}
 }
@@ -507,7 +507,7 @@ basic & ex::construct_from_ulong(unsigned long i)
 	default:
 		basic *bp = new numeric(i);
 		bp->setflag(status_flags::dynallocated);
-		GINAC_ASSERT(bp->refcount == 0);
+		GINAC_ASSERT(bp->get_refcount() == 0);
 		return *bp;
 	}
 }
@@ -516,7 +516,7 @@ basic & ex::construct_from_double(double d)
 {
 	basic *bp = new numeric(d);
 	bp->setflag(status_flags::dynallocated);
-	GINAC_ASSERT(bp->refcount == 0);
+	GINAC_ASSERT(bp->get_refcount() == 0);
 	return *bp;
 }
 
