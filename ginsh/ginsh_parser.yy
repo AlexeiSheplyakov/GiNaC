@@ -152,6 +152,7 @@ line	: ';'
 		}
 	}
 	| '?' T_SYMBOL 		{print_help(ex_to_symbol($2).getname());}
+	| '?' T_TIME		{print_help("time");}
 	| '?' '?'		{print_help_topics();}
 	| T_QUIT		{YYACCEPT;}
 	| T_WARRANTY {
