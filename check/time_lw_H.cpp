@@ -44,7 +44,7 @@ static unsigned test(unsigned n)
 
 	ex hilbdet = 1;
 	for (unsigned r=0; r<n; ++r)
-	    hilbdet *= pow(factorial(r),3)/(factorial(r+n));
+		hilbdet *= pow(factorial(r),3)/(factorial(r+n));
 
 	if (det != hilbdet) {
 		clog << "determinant of " << n << "x" << n << " erroneously returned " << det << endl;
