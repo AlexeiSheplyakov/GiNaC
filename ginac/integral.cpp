@@ -203,7 +203,7 @@ ex integral::evalf(int level) const
 }
 
 int integral::max_integration_level = 15;
-ex integral::relative_integration_error = power(10,-8).evalf();
+ex integral::relative_integration_error = 1e-8;
 
 ex subsvalue(const ex & var, const ex & value, const ex & fun)
 {
