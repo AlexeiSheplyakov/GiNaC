@@ -315,6 +315,7 @@ static unsigned dummy_check(void)
 
 	symbol p("p"), q("q");
 	idx i(symbol("i"), 3), j(symbol("j"), 3), n(symbol("n"), 3);
+	varidx mu(symbol("mu"), 4), nu(symbol("nu"), 4);
 	ex e;
 
 	e = indexed(p, i) * indexed(q, i) - indexed(p, j) * indexed(q, j);
@@ -322,6 +323,9 @@ static unsigned dummy_check(void)
 
 	e = indexed(p, i) * indexed(p, i) * indexed(q, j) * indexed(q, j)
 	  - indexed(p, n) * indexed(p, n) * indexed(q, j) * indexed(q, j);
+	result += check_equal_simplify(e, 0);
+
+	e = indexed(p, mu, mu.toggle_variance()) - indexed(p, nu, nu.toggle_variance());
 	result += check_equal_simplify(e, 0);
 
 	return result;
