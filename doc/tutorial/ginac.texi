@@ -280,8 +280,23 @@ integers:
 1/3
 @end example
 
-All numbers occuring in GiNaC's expressions can be converted into floating
-point numbers with the @code{evalf} method, to arbitrary accuracy:
+Exact numbers are always retained as exact numbers and only evaluated as
+floating point numbers if requested.  For instance, with numeric
+radicals is dealt pretty much as with symbols.  Products of sums of them
+can be expanded:
+
+@example
+> expand((1+a^(1/5)-a^(2/5))^3);
+1+3*a+3*a^(1/5)-5*a^(3/5)-a^(6/5)
+> expand((1+3^(1/5)-3^(2/5))^3);
+10-5*3^(3/5)
+> evalf((1+3^(1/5)-3^(2/5))^3);
+0.33408977534118624238
+@end example
+
+The function @code{evalf} that was used above converts any number in
+GiNaC's expressions into floating point numbers.  This can be done to
+arbitrary predefined accuracy:
 
 @example
 > evalf(1/7);
