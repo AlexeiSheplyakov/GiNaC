@@ -131,7 +131,7 @@ inline unsigned golden_ratio_hash(unsigned n)
    explicitly supplied comparison function. If the sign returned is 1 or -1,
    the container is sorted after the operation. */
 template <class It>
-inline int permutation_sign(It first, It last)
+int permutation_sign(It first, It last)
 {
 	if (first == last)
 		return 0;
@@ -184,7 +184,7 @@ inline int permutation_sign(It first, It last)
 }
 
 template <class It, class Cmp>
-inline int permutation_sign(It first, It last, Cmp comp)
+int permutation_sign(It first, It last, Cmp comp)
 {
 	if (first == last)
 		return 0;
@@ -238,7 +238,7 @@ inline int permutation_sign(It first, It last, Cmp comp)
 
 /* Implementation of shaker sort, only compares adjacent elements. */
 template <class It, class Cmp>
-inline void shaker_sort(It first, It last, Cmp comp)
+void shaker_sort(It first, It last, Cmp comp)
 {
 	if (first == last)
 		return;

@@ -524,7 +524,7 @@ ex canonicalize_clifford(const ex & e)
 			for (unsigned j=0; j<rhs.nops(); j++)
 				v.push_back(rhs.op(j));
 
-			// Stupid bubble sort because we only want to swap adjacent gammas
+			// Stupid recursive bubble sort because we only want to swap adjacent gammas
 			exvector::iterator it = v.begin(), next_to_last = v.end() - 1;
 			if (is_ex_of_type(it->op(0), diracgamma5))
 				it++;

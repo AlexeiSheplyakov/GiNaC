@@ -538,25 +538,18 @@ static ex symm(const ex & e, exvector::const_iterator first, exvector::const_ite
 	shaker_sort(iv_lst.begin(), iv_lst.end(), ex_is_less());
 	lst orig_lst(iv_lst);
 
-	// With n objects there are n! possible permutations
-	int num_perms = factorial(numeric(num)).to_int();
-
 	// Loop over all permutations (the first permutation, which is the
 	// identity, is unrolled)
 	ex sum = e;
-	int i = 1;
-	do {
-		next_permutation(iv_lst.begin(), iv_lst.end(), ex_is_less());
+	while (next_permutation(iv_lst.begin(), iv_lst.end(), ex_is_less())) {
 		ex term = e.subs(orig_lst, lst(iv_lst));
 		if (asymmetric) {
 			exlist test_lst = iv_lst;
 			term *= permutation_sign(test_lst.begin(), test_lst.end(), ex_is_less());
 		}
 		sum += term;
-		i++;
-	} while (i < num_perms);
-
-	return sum / num_perms;
+	}
+	return sum / factorial(numeric(num));
 }
 
 ex symmetrize(const ex & e, exvector::const_iterator first, exvector::const_iterator last)
