@@ -686,7 +686,7 @@ ex mul::expand(unsigned options) const
 			(cit->coeff.is_equal(_ex1))) {
 			++number_of_adds;
 			if (is_ex_exactly_of_type(last_expanded, add)) {
-#if 1
+#if 0
 				// Expand a product of two sums, simple and robust version.
 				const add & add1 = ex_to<add>(last_expanded);
 				const add & add2 = ex_to<add>(cit->rest);
@@ -696,21 +696,25 @@ ex mul::expand(unsigned options) const
 				exvector distrseq;
 				distrseq.reserve(n2);
 				for (int i1=0; i1<n1; ++i1) {
+					distrseq.clear();
 					// cache the first operand (for efficiency):
 					const ex op1 = add1.op(i1);
 					for (int i2=0; i2<n2; ++i2)
 						distrseq.push_back(op1 * add2.op(i2));
 					tmp_accu += (new add(distrseq))->
 					             setflag(status_flags::dynallocated);
-					distrseq.clear();
 				}
 				last_expanded = tmp_accu;
 #else
 				// Expand a product of two sums, aggressive version.
-				// Caring for the overall coefficients in separate loops can give
-				// a performance gain of up to 20%!
-				const add & add1 = ex_to<add>(last_expanded);
-				const add & add2 = ex_to<add>(cit->rest);
+				// Caring for the overall coefficients in separate loops can
+				// sometimes give a performance gain of up to 15%!
+
+				const int sizedifference = ex_to<add>(last_expanded).seq.size()-ex_to<add>(cit->rest).seq.size();
+				// add2 is for the inner loop and should be the bigger of the two sums
+				// in the presence of asymptotically good sorting:
+				const add& add1 = (sizedifference<0 ? ex_to<add>(last_expanded) : ex_to<add>(cit->rest));
+				const add& add2 = (sizedifference<0 ? ex_to<add>(cit->rest) : ex_to<add>(last_expanded));
 				const epvector::const_iterator add1begin = add1.seq.begin();
 				const epvector::const_iterator add1end   = add1.seq.end();
 				const epvector::const_iterator add2begin = add2.seq.begin();
@@ -734,8 +738,7 @@ ex mul::expand(unsigned options) const
 							distrseq.push_back(expair(i->rest, ex_to<numeric>(i->coeff).mul_dyn(ex_to<numeric>(add2.overall_coeff))));
 				}
 				// Compute the new overall coefficient and put it together:
-				ex tmp_accu = (new add(distrseq, ex_to<numeric>(add1.overall_coeff).mul(ex_to<numeric>(add2.overall_coeff))))->
-				               setflag(status_flags::dynallocated);
+				ex tmp_accu = (new add(distrseq, add1.overall_coeff*add2.overall_coeff))->setflag(status_flags::dynallocated);
 				// Multiply explicitly all non-numeric terms of add1 and add2:
 				for (epvector::const_iterator i1=add1begin; i1!=add1end; ++i1) {
 					// We really have to combine terms here in order to compactify
@@ -747,7 +750,7 @@ ex mul::expand(unsigned options) const
 						// since that would violate an invariant of expairseq:
 						const ex rest = (new mul(i1->rest, i2->rest))->setflag(status_flags::dynallocated);
 						if (is_ex_exactly_of_type(rest, numeric))
-							oc *= ex_to<numeric>(rest).mul_dyn(ex_to<numeric>(i1->coeff).mul_dyn(ex_to<numeric>(i2->coeff)));
+							oc += ex_to<numeric>(rest).mul(ex_to<numeric>(i1->coeff).mul(ex_to<numeric>(i2->coeff)));
 						else
 							distrseq.push_back(expair(rest, ex_to<numeric>(i1->coeff).mul_dyn(ex_to<numeric>(i2->coeff))));
 					}
