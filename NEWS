@@ -1,5 +1,12 @@
 This file records noteworthy changes.
 
+0.5.3 (23 February 2000)
+* A more flexible scheme for registering functions was implemented.
+* Some Bugfixes.
+
+0.5.2 (16 February 2000)
+* Mainly fixes a bug in the packaging of release 0.5.1.
+
 0.5.1 (14 February 2000)
 * Fixes a small number of bugs.
 
@@ -7,7 +14,7 @@ This file records noteworthy changes.
 * Expressions can be written ("archived") to files and read therefrom.
 * Addition of GiNaC-cint, which lets you write complete programs in
   an interactive shell-like manner in your favoured programming
-  language (C++).
+  language (i.e. C++).
 
 0.4.1 (13 December 1999)
 * Series Expansion of Gamma function and some other trigonometric
