@@ -63,8 +63,8 @@ typedef ex (*fcnp)(const exprseq &e);
 typedef ex (*fcnp2)(const exprseq &e, int serial);
 
 struct fcn_desc {
-	fcn_desc() : p(NULL), num_params(0) {}
-	fcn_desc(fcnp func, int num) : p(func), num_params(num), is_ginac(false) {}
+	fcn_desc() : p(NULL), num_params(0), is_ginac(false), serial(0) {}
+	fcn_desc(fcnp func, int num) : p(func), num_params(num), is_ginac(false), serial(0) {}
 	fcn_desc(fcnp2 func, int num, int ser) : p((fcnp)func), num_params(num), is_ginac(true), serial(ser) {}
 
 	fcnp p;		// Pointer to function
@@ -294,6 +294,7 @@ static void push(const ex &e)
 
 static ex f_collect(const exprseq &e) {return e[0].collect(e[1]);}
 static ex f_collect_distributed(const exprseq &e) {return e[0].collect(e[1], true);}
+static ex f_collect_common_factors(const exprseq &e) {return collect_common_factors(e[0]);}
 static ex f_degree(const exprseq &e) {return e[0].degree(e[1]);}
 static ex f_denom(const exprseq &e) {return e[0].denom();}
 static ex f_eval1(const exprseq &e) {return e[0].eval();}
@@ -531,65 +532,67 @@ static ex f_dummy(const exprseq &e)
 // Tables for initializing the "fcns" map and the function help topics
 struct fcn_init {
 	const char *name;
-	const fcn_desc desc;
+	fcnp p;
+	int num_params;
 };
 
 static const fcn_init builtin_fcns[] = {
-	{"charpoly", fcn_desc(f_charpoly, 2)},
-	{"coeff", fcn_desc(f_coeff, 3)},
-	{"collect", fcn_desc(f_collect, 2)},
-	{"collect_distributed", fcn_desc(f_collect_distributed, 2)},
-	{"content", fcn_desc(f_content, 2)},
-	{"decomp_rational", fcn_desc(f_decomp_rational, 2)},
-	{"degree", fcn_desc(f_degree, 2)},
-	{"denom", fcn_desc(f_denom, 1)},
-	{"determinant", fcn_desc(f_determinant, 1)},
-	{"diag", fcn_desc(f_diag, 0)},
-	{"diff", fcn_desc(f_diff2, 2)},
-	{"diff", fcn_desc(f_diff3, 3)},
-	{"divide", fcn_desc(f_divide, 2)},
-	{"eval", fcn_desc(f_eval1, 1)},
-	{"eval", fcn_desc(f_eval2, 2)},
-	{"evalf", fcn_desc(f_evalf1, 1)},
-	{"evalf", fcn_desc(f_evalf2, 2)},
-	{"evalm", fcn_desc(f_evalm, 1)},
-	{"expand", fcn_desc(f_expand, 1)},
-	{"find", fcn_desc(f_find, 2)},
-	{"gcd", fcn_desc(f_gcd, 2)},
-	{"has", fcn_desc(f_has, 2)},
-	{"inverse", fcn_desc(f_inverse, 1)},
-	{"is", fcn_desc(f_is, 1)},
-	{"lcm", fcn_desc(f_lcm, 2)},
-	{"lcoeff", fcn_desc(f_lcoeff, 2)},
-	{"ldegree", fcn_desc(f_ldegree, 2)},
-	{"lsolve", fcn_desc(f_lsolve, 2)},
-	{"map", fcn_desc(f_map, 2)},
-	{"match", fcn_desc(f_match, 2)},
-	{"nops", fcn_desc(f_nops, 1)},
-	{"normal", fcn_desc(f_normal1, 1)},
-	{"normal", fcn_desc(f_normal2, 2)},
-	{"numer", fcn_desc(f_numer, 1)},
-	{"numer_denom", fcn_desc(f_numer_denom, 1)},
-	{"op", fcn_desc(f_op, 2)},
-	{"pow", fcn_desc(f_pow, 2)},
-	{"prem", fcn_desc(f_prem, 3)},
-	{"primpart", fcn_desc(f_primpart, 2)},
-	{"quo", fcn_desc(f_quo, 3)},
-	{"rem", fcn_desc(f_rem, 3)},
-	{"series", fcn_desc(f_series, 3)},
-	{"sprem", fcn_desc(f_sprem, 3)},
-	{"sqrfree", fcn_desc(f_sqrfree1, 1)},
-	{"sqrfree", fcn_desc(f_sqrfree2, 2)},
-	{"sqrt", fcn_desc(f_sqrt, 1)},
-	{"subs", fcn_desc(f_subs2, 2)},
-	{"subs", fcn_desc(f_subs3, 3)},
-	{"tcoeff", fcn_desc(f_tcoeff, 2)},
-	{"time", fcn_desc(f_dummy, 0)},
-	{"trace", fcn_desc(f_trace, 1)},
-	{"transpose", fcn_desc(f_transpose, 1)},
-	{"unassign", fcn_desc(f_unassign, 1)},
-	{"unit", fcn_desc(f_unit, 2)},
-	{NULL, fcn_desc(f_dummy, 0)}	// End marker
+	{"charpoly", f_charpoly, 2},
+	{"coeff", f_coeff, 3},
+	{"collect", f_collect, 2},
+	{"collect_common_factors", f_collect_common_factors, 1},
+	{"collect_distributed", f_collect_distributed, 2},
+	{"content", f_content, 2},
+	{"decomp_rational", f_decomp_rational, 2},
+	{"degree", f_degree, 2},
+	{"denom", f_denom, 1},
+	{"determinant", f_determinant, 1},
+	{"diag", f_diag, 0},
+	{"diff", f_diff2, 2},
+	{"diff", f_diff3, 3},
+	{"divide", f_divide, 2},
+	{"eval", f_eval1, 1},
+	{"eval", f_eval2, 2},
+	{"evalf", f_evalf1, 1},
+	{"evalf", f_evalf2, 2},
+	{"evalm", f_evalm, 1},
+	{"expand", f_expand, 1},
+	{"find", f_find, 2},
+	{"gcd", f_gcd, 2},
+	{"has", f_has, 2},
+	{"inverse", f_inverse, 1},
+	{"is", f_is, 1},
+	{"lcm", f_lcm, 2},
+	{"lcoeff", f_lcoeff, 2},
+	{"ldegree", f_ldegree, 2},
+	{"lsolve", f_lsolve, 2},
+	{"map", f_map, 2},
+	{"match", f_match, 2},
+	{"nops", f_nops, 1},
+	{"normal", f_normal1, 1},
+	{"normal", f_normal2, 2},
+	{"numer", f_numer, 1},
+	{"numer_denom", f_numer_denom, 1},
+	{"op", f_op, 2},
+	{"pow", f_pow, 2},
+	{"prem", f_prem, 3},
+	{"primpart", f_primpart, 2},
+	{"quo", f_quo, 3},
+	{"rem", f_rem, 3},
+	{"series", f_series, 3},
+	{"sprem", f_sprem, 3},
+	{"sqrfree", f_sqrfree1, 1},
+	{"sqrfree", f_sqrfree2, 2},
+	{"sqrt", f_sqrt, 1},
+	{"subs", f_subs2, 2},
+	{"subs", f_subs3, 3},
+	{"tcoeff", f_tcoeff, 2},
+	{"time", f_dummy, 0},
+	{"trace", f_trace, 1},
+	{"transpose", f_transpose, 1},
+	{"unassign", f_unassign, 1},
+	{"unit", f_unit, 2},
+	{NULL, f_dummy, 0}	// End marker
 };
 
 struct fcn_help_init {
@@ -638,7 +641,7 @@ static const fcn_help_init builtin_help[] = {
 static void insert_fcns(const fcn_init *p)
 {
 	while (p->name) {
-		fcns.insert(make_pair(string(p->name), p->desc));
+		fcns.insert(make_pair(string(p->name), fcn_desc(p->p, p->num_params)));
 		p++;
 	}
 }

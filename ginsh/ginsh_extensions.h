@@ -24,7 +24,7 @@
 
 // Table of names and descriptors of functions to be added
 static const fcn_init extended_fcns[] = {
-	{NULL, fcn_desc(f_dummy, 0)} // End marker
+	{NULL, f_dummy, 0} // End marker
 };
 
 // Table of help strings for functions

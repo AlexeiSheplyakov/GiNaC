@@ -240,6 +240,9 @@ detail here. Please refer to the GiNaC documentation.
 .BI collect_distributed( expression ", " list )
 \- collects coefficients of like powers (result in distributed form)
 .br
+.BI collect_common_factors( expression )
+\- collects common factors from the terms of sums
+.br
 .BI content( expression ", " symbol )
 \- content part of a polynomial
 .br
