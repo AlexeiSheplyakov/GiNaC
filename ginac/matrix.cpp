@@ -612,8 +612,11 @@ matrix matrix::pow(const ex & expn) const
 			for (unsigned r=0; r<row; ++r)
 				result(r,r) = _ex1();
 			numeric b(1);
-			// this loop computes the representation of k in base 2 and
-			// multiplies the factors whenever needed:
+			// This loop computes the representation of k in base 2 from right
+			// to left(!) and multiplies the factors whenever needed.  Note
+			// that this is not entirely optimal but close to optimal and
+			// "better" algorithms are much harder to implement.  (See Knuth,
+			// TAoCP2, section "Evaluation of Powers" for a good discussion.)
 			while (b.compare(k)<=0) {
 				b *= numeric(2);
 				numeric r(mod(k,b));
