@@ -69,7 +69,7 @@ class ex
 	
 	// default constructor, copy constructor and assignment operator
 public:
-	ex();
+	ex() throw();
 #ifdef OBSCURE_CINT_HACK
 	ex(const ex & other);
 	ex & operator=(const ex & other);
@@ -97,35 +97,35 @@ public:
 		friend class ex;
 
 	public:
-		const_iterator() {}
-		const_iterator(const basic *bp_, size_t i_) : bp(bp_), i(i_) {}
+		const_iterator() throw() {}
+		const_iterator(const basic *bp_, size_t i_) throw() : bp(bp_), i(i_) {}
 
-		bool operator==(const const_iterator &other) const
+		bool operator==(const const_iterator &other) const throw()
 		{
 			return bp == other.bp && i == other.i;
 		}
 
-		bool operator!=(const const_iterator &other) const
+		bool operator!=(const const_iterator &other) const throw()
 		{
 			return !(*this == other);
 		}
 
-		bool operator<(const const_iterator &other) const
+		bool operator<(const const_iterator &other) const throw()
 		{
 			return i < other.i;
 		}
 
-		bool operator>(const const_iterator &other) const
+		bool operator>(const const_iterator &other) const throw()
 		{
 			return other < *this;
 		}
 
-		bool operator<=(const const_iterator &other) const
+		bool operator<=(const const_iterator &other) const throw()
 		{
 			return !(other < *this);
 		}
 
-		bool operator>=(const const_iterator &other) const
+		bool operator>=(const const_iterator &other) const throw()
 		{
 			return !(*this < other);
 		}
@@ -146,66 +146,67 @@ public:
 		}
 #endif
 
-		const_iterator &operator++()
+		const_iterator &operator++() throw()
 		{
 			++i;
 			return *this;
 		}
 
-		const_iterator operator++(int)
+		const_iterator operator++(int) throw()
 		{
 			const_iterator tmp = *this;
 			++i;
 			return tmp;
 		}
 
-		const_iterator &operator+=(difference_type n)
+		const_iterator &operator+=(difference_type n) throw()
 		{
 			i += n;
 			return *this;
 		}
 
-		const_iterator operator+(difference_type n) const
+		const_iterator operator+(difference_type n) const throw()
 		{
 			return const_iterator(bp, i + n);
 		}
 
-		inline friend const_iterator operator+(difference_type n, const const_iterator &it)
+		inline friend const_iterator operator+(difference_type n, const const_iterator &it) throw()
 		{
 			return const_iterator(it.bp, it.i + n);
 		}
 
-		const_iterator &operator--()
+		const_iterator &operator--() throw()
 		{
 			--i;
 			return *this;
 		}
 
-		const_iterator operator--(int)
+		const_iterator operator--(int) throw()
 		{
 			const_iterator tmp = *this;
 			--i;
 			return tmp;
 		}
 
-		const_iterator &operator-=(difference_type n)
+		const_iterator &operator-=(difference_type n) throw()
 		{
 			i -= n;
 			return *this;
 		}
 
-		const_iterator operator-(difference_type n) const
+		const_iterator operator-(difference_type n) const throw()
 		{
 			return const_iterator(bp, i - n);
 		}
 
-		inline friend difference_type operator-(const const_iterator &lhs, const const_iterator &rhs)
+		inline friend difference_type operator-(const const_iterator &lhs, const const_iterator &rhs) throw()
 		{
 			return lhs.i - rhs.i;
 		}
 
-		reference operator[](difference_type n) const
+		ex operator[](difference_type n) const
 		{
+			return bp->op(i + n);
 		}
 
 	protected:
@@ -213,8 +214,8 @@ public:
 		size_t i;
 	};
 
-	const_iterator begin() const { return const_iterator(get_pointer(bp), 0); }
-	const_iterator end() const { return const_iterator(get_pointer(bp), bp->nops()); }
+	const_iterator begin() const throw() { return const_iterator(get_pointer(bp), 0); }
+	const_iterator end() const throw() { return const_iterator(get_pointer(bp), bp->nops()); }
 
 #if 0
 	// This doesn't work because of the "reference to temporary" problem
@@ -227,7 +228,7 @@ public:
 	// non-virtual functions in this class
 public:
 	/** Efficiently swap the contents of two expressions. */
-	void swap(ex & other)
+	void swap(ex & other) throw()
 	{
 		GINAC_ASSERT(bp->flags & status_flags::dynallocated);
 		GINAC_ASSERT(other.bp->flags & status_flags::dynallocated);
@@ -387,7 +388,7 @@ public:
 extern const basic *_num0_bp;
 
 inline
-ex::ex() : bp(*const_cast<basic *>(_num0_bp))
+ex::ex() throw() : bp(*const_cast<basic *>(_num0_bp))
 {
 	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
 #ifdef OBSCURE_CINT_HACK

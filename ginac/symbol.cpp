@@ -296,7 +296,7 @@ unsigned symbol::next_serial = 0;
 //////////
 
 /** Default ctor.  Defaults to unassigned. */
-symbol::assigned_ex_info::assigned_ex_info() : is_assigned(false)
+symbol::assigned_ex_info::assigned_ex_info() throw() : is_assigned(false)
 {
 }
 

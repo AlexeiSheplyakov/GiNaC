@@ -46,11 +46,11 @@ class symbol : public basic
 	class assigned_ex_info {
 		friend class ptr<assigned_ex_info>;
 	public:
-		assigned_ex_info();     ///< Default ctor
-		bool is_assigned;       ///< True if there is an expression assigned
-		ex assigned_expression; ///< The actual expression
+		assigned_ex_info() throw();  ///< Default ctor
+		bool is_assigned;            ///< True if there is an expression assigned
+		ex assigned_expression;      ///< The actual expression
 	private:
-		size_t refcount;        ///< Reference counter, managed by ptr<assigned_ex_info>
+		size_t refcount;             ///< Reference counter, managed by ptr<assigned_ex_info>
 	};
 
 // member functions

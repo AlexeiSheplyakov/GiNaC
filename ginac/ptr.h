@@ -48,12 +48,12 @@ public:
     // no default ctor: a ptr is never unbound
 
 	/** Bind ptr to newly created object, start reference counting. */
-	ptr(T *t) : p(t) { GINAC_ASSERT(p); p->refcount = 1; }
+	ptr(T *t) throw() : p(t) { GINAC_ASSERT(p); p->refcount = 1; }
 
 	/** Bind ptr to existing reference-counted object. */
-	explicit ptr(T &t) : p(&t) { ++p->refcount; }
+	explicit ptr(T &t) throw() : p(&t) { ++p->refcount; }
 
-	ptr(const ptr & other) : p(other.p) { ++p->refcount; }
+	ptr(const ptr & other) throw() : p(other.p) { ++p->refcount; }
 
 	~ptr()
 	{
@@ -71,10 +71,10 @@ public:
 		return *this;
 	}
 
-	T &operator*() const { return *p; }
-	T *operator->() const { return p; }
+	T &operator*() const throw() { return *p; }
+	T *operator->() const throw() { return p; }
 
-	friend inline T *get_pointer(const ptr & x) { return x.p; }
+	friend inline T *get_pointer(const ptr & x) throw() { return x.p; }
 
 	/** Announce your intention to modify the object bound to this ptr.
 	 *  This ensures that the object is not shared by any other ptrs. */
@@ -89,7 +89,7 @@ public:
 	}
 
 	/** Swap the bound object of this ptr with another ptr. */
-	void swap(ptr & other)
+	void swap(ptr & other) throw()
 	{
 		T *t = p;
 		p = other.p;
@@ -102,22 +102,22 @@ public:
 	// to different (probably derived) types and raw pointers.
 
 	template <class U>
-	bool operator==(const ptr<U> & rhs) const { return p == get_pointer(rhs); }
+	bool operator==(const ptr<U> & rhs) const throw() { return p == get_pointer(rhs); }
 
 	template <class U>
-	bool operator!=(const ptr<U> & rhs) const { return p != get_pointer(rhs); }
+	bool operator!=(const ptr<U> & rhs) const throw() { return p != get_pointer(rhs); }
 
 	template <class U>
-	inline friend bool operator==(const ptr & lhs, const U * rhs) { return lhs.p == rhs; }
+	inline friend bool operator==(const ptr & lhs, const U * rhs) throw() { return lhs.p == rhs; }
 
 	template <class U>
-	inline friend bool operator!=(const ptr & lhs, const U * rhs) { return lhs.p != rhs; }
+	inline friend bool operator!=(const ptr & lhs, const U * rhs) throw() { return lhs.p != rhs; }
 
 	template <class U>
-	inline friend bool operator==(const U * lhs, const ptr & rhs) { return lhs == rhs.p; }
+	inline friend bool operator==(const U * lhs, const ptr & rhs) throw() { return lhs == rhs.p; }
 
 	template <class U>
-	inline friend bool operator!=(const U * lhs, const ptr & rhs) { return lhs != rhs.p; }
+	inline friend bool operator!=(const U * lhs, const ptr & rhs) throw() { return lhs != rhs.p; }
 
 	inline friend std::ostream & operator<<(std::ostream & os, const ptr<T> & rhs)
 	{
