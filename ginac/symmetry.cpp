@@ -304,7 +304,7 @@ public:
 
 int canonicalize(exvector::iterator v, const symmetry &symm)
 {
-	// Less than two indices? Then do nothing
+	// Less than two elements? Then do nothing
 	if (symm.indices.size() < 2)
 		return INT_MAX;
 
@@ -334,6 +334,8 @@ int canonicalize(exvector::iterator v, const symmetry &symm)
 		case symmetry::antisymmetric:
 			// Sort the children in ascending order, keeping track of the signum
 			sign *= permutation_sign(first, last, sy_is_less(v), sy_swap(v, something_changed));
+			if (sign == 0)
+				return 0;
 			break;
 		case symmetry::cyclic:
 			// Permute the smallest child to the front
