@@ -1,5 +1,13 @@
 This file records noteworthy changes.
 
+0.8.2 (<date>)
+* degree(), ldegree(), coeff(), lcoeff(), tcoeff() and collect() work with
+  non-symbols as the second argument in ginsh.
+* the argument to collect() can be a list of objects in which case the
+  result is either a recursively collected polynomial, or a polynomial in
+  a distributed form with terms like coeff*x1^e1*...*xn^en, as specified by
+  the second argument to collect().
+
 0.8.1 (16 April 2001)
 * degree(), ldegree(), coeff(), lcoeff(), tcoeff() and collect() can now
   be used with constants, functions and indexed expressions as well, so you
