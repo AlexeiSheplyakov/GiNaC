@@ -4323,19 +4323,19 @@ static void my_print2(const archive_node & n)
             switch (p[i].type) @{
                 case archive_node::PTYPE_BOOL: @{
                     bool x;
-                    n.find_bool(name, x);
+                    n.find_bool(name, x, j);
                     cout << (x ? "true" : "false");
                     break;
                 @}
                 case archive_node::PTYPE_UNSIGNED: @{
                     unsigned x;
-                    n.find_unsigned(name, x);
+                    n.find_unsigned(name, x, j);
                     cout << x;
                     break;
                 @}
                 case archive_node::PTYPE_STRING: @{
                     string x;
-                    n.find_string(name, x);
+                    n.find_string(name, x, j);
                     cout << '\"' << x << '\"';
                     break;
                 @}
