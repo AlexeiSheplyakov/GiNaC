@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's products of expressions. */
 
 /*
- *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -628,7 +628,7 @@ ex mul::expand(unsigned options) const
             (ex_to_numeric((*cit).coeff).is_equal(_num1()))) {
             positions_of_adds[number_of_adds]=current_position;
             add const & expanded_addref=ex_to_add((*cit).rest);
-            int addref_nops=expanded_addref.nops();
+            unsigned addref_nops=expanded_addref.nops();
             number_of_add_operands[number_of_adds]=addref_nops;
             number_of_expanded_terms *= addref_nops;
             number_of_adds++;

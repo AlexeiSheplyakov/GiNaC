@@ -4,7 +4,7 @@
  *  No real implementation yet, to be done.     */
 
 /*
- *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -336,16 +336,16 @@ ex simplify_simp_lor_mul(ex const & m, scalar_products const & sp)
     exvector v_contracted;
 
     // collect factors in an exvector, store squares twice
-    int n=m.nops();
+    unsigned n=m.nops();
     v_contracted.reserve(2*n);
-    for (int i=0; i<n; ++i) {
+    for (unsigned i=0; i<n; ++i) {
         ex f=m.op(i);
         if (is_ex_exactly_of_type(f,power)&&f.op(1).is_equal(_ex2())) {
             v_contracted.push_back(f.op(0));
             v_contracted.push_back(f.op(0));
         } else {
             v_contracted.push_back(f);
-	}
+        }
     }
 
     unsigned replacements;
@@ -444,9 +444,9 @@ ex simplify_simp_lor(ex const & e, scalar_products const & sp)
     // simplification of sum=sum of simplifications
     if (is_ex_exactly_of_type(e_expanded,add)) {
         ex sum=_ex0();
-        for (int i=0; i<e_expanded.nops(); ++i) {
+        for (unsigned i=0; i<e_expanded.nops(); ++i)
             sum += simplify_simp_lor(e_expanded.op(i),sp);
-        }
+        
         return sum;
     }
 

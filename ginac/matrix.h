@@ -3,7 +3,7 @@
  *  Interface to symbolic matrices */
 
 /*
- *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ public:
     basic * duplicate() const;
     void print(ostream & os, unsigned upper_precedence=0) const;
     void printraw(ostream & os) const;
-    int nops() const;
+    unsigned nops() const;
     ex & let_op(int const i);
     ex expand(unsigned options=0) const;
     bool has(ex const & other) const;
@@ -112,7 +112,7 @@ extern type_info const & typeid_matrix;
 
 // wrapper functions around member functions
 
-inline int nops(matrix const & m)
+inline unsigned nops(matrix const & m)
 { return m.nops(); }
 
 inline ex expand(matrix const & m, unsigned options=0)

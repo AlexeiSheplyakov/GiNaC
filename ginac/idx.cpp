@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's indices. */
 
 /*
- *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -204,13 +204,13 @@ ex idx::subs(lst const & ls, lst const & lr) const
 {
     GINAC_ASSERT(ls.nops()==lr.nops());
 #ifdef DO_GINAC_ASSERT
-    for (int i=0; i<ls.nops(); i++) {
+    for (unsigned i=0; i<ls.nops(); i++) {
         GINAC_ASSERT(is_ex_exactly_of_type(ls.op(i),symbol)||
                is_ex_of_type(ls.op(i),idx));
     }
 #endif // def DO_GINAC_ASSERT
 
-    for (int i=0; i<ls.nops(); i++) {
+    for (unsigned i=0; i<ls.nops(); i++) {
         if (is_equal(*(ls.op(i)).bp)) {
             return lr.op(i);
         }

@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's initially known functions. */
 
 /*
- *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -188,7 +188,7 @@ ex lsolve(ex const &eqns, ex const &symbols)
     if (!eqns.info(info_flags::list)) {
         throw(std::invalid_argument("lsolve: 1st argument must be a list"));
     }
-    for (int i=0; i<eqns.nops(); i++) {
+    for (unsigned i=0; i<eqns.nops(); i++) {
         if (!eqns.op(i).info(info_flags::relation_equal)) {
             throw(std::invalid_argument("lsolve: 1st argument must be a list of equations"));
         }
@@ -196,7 +196,7 @@ ex lsolve(ex const &eqns, ex const &symbols)
     if (!symbols.info(info_flags::list)) {
         throw(std::invalid_argument("lsolve: 2nd argument must be a list"));
     }
-    for (int i=0; i<symbols.nops(); i++) {
+    for (unsigned i=0; i<symbols.nops(); i++) {
         if (!symbols.op(i).info(info_flags::symbol)) {
             throw(std::invalid_argument("lsolve: 2nd argument must be a list of symbols"));
         }
@@ -207,10 +207,10 @@ ex lsolve(ex const &eqns, ex const &symbols)
     matrix rhs(eqns.nops(),1);
     matrix vars(symbols.nops(),1);
     
-    for (int r=0; r<eqns.nops(); r++) {
+    for (unsigned r=0; r<eqns.nops(); r++) {
         ex eq=eqns.op(r).op(0)-eqns.op(r).op(1); // lhs-rhs==0
         ex linpart=eq;
-        for (int c=0; c<symbols.nops(); c++) {
+        for (unsigned c=0; c<symbols.nops(); c++) {
             ex co=eq.coeff(ex_to_symbol(symbols.op(c)),1);
             linpart -= co*symbols.op(c);
             sys.set(r,c,co);
@@ -220,7 +220,7 @@ ex lsolve(ex const &eqns, ex const &symbols)
     }
     
     // test if system is linear and fill vars matrix
-    for (int i=0; i<symbols.nops(); i++) {
+    for (unsigned i=0; i<symbols.nops(); i++) {
         vars.set(i,0,symbols.op(i));
         if (sys.has(symbols.op(i))) {
             throw(std::logic_error("lsolve: system is not linear"));
@@ -253,7 +253,7 @@ ex lsolve(ex const &eqns, ex const &symbols)
     
     // return list of the form lst(var1==sol1,var2==sol2,...)
     lst sollist;
-    for (int i=0; i<symbols.nops(); i++) {
+    for (unsigned i=0; i<symbols.nops(); i++) {
         sollist.append(symbols.op(i)==solution(i,0));
     }
     

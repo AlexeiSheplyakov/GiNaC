@@ -3,7 +3,7 @@
  *  Interface to GiNaC's light-weight expression handles. */
 
 /*
- *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -157,7 +157,7 @@ public:
     void dbgprint(void) const;
     void dbgprinttree(void) const;
     bool info(unsigned inf) const;
-    int nops() const;
+    unsigned nops() const;
     ex expand(unsigned options=0) const;
     bool has(ex const & other) const;
     int degree(symbol const & s) const;
@@ -271,7 +271,7 @@ inline bool are_ex_trivially_equal(const ex &e1, const ex &e2)
 }
 
 // wrapper functions around member functions
-inline int nops(ex const & thisex)
+inline unsigned nops(ex const & thisex)
 { return thisex.nops(); }
 
 inline ex expand(ex const & thisex, unsigned options = 0)

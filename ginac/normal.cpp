@@ -7,7 +7,7 @@
  */
 
 /*
- *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -74,7 +74,7 @@ static bool get_first_symbol(const ex &e, const symbol *&x)
         x = static_cast<symbol *>(e.bp);
         return true;
     } else if (is_ex_exactly_of_type(e, add) || is_ex_exactly_of_type(e, mul)) {
-        for (int i=0; i<e.nops(); i++)
+        for (unsigned i=0; i<e.nops(); i++)
             if (get_first_symbol(e.op(i), x))
                 return true;
     } else if (is_ex_exactly_of_type(e, power)) {
@@ -141,7 +141,7 @@ static void collect_symbols(const ex &e, sym_desc_vec &v)
     if (is_ex_exactly_of_type(e, symbol)) {
         add_symbol(static_cast<symbol *>(e.bp), v);
     } else if (is_ex_exactly_of_type(e, add) || is_ex_exactly_of_type(e, mul)) {
-        for (int i=0; i<e.nops(); i++)
+        for (unsigned i=0; i<e.nops(); i++)
             collect_symbols(e.op(i), v);
     } else if (is_ex_exactly_of_type(e, power)) {
         collect_symbols(e.op(0), v);
@@ -192,9 +192,8 @@ static numeric lcmcoeff(const ex &e, const numeric &l)
         return lcm(ex_to_numeric(e).denom(), l);
     else if (is_ex_exactly_of_type(e, add) || is_ex_exactly_of_type(e, mul)) {
         numeric c = _num1();
-        for (int i=0; i<e.nops(); i++) {
+        for (unsigned i=0; i<e.nops(); i++)
             c = lcmcoeff(e.op(i), c);
-        }
         return lcm(c, l);
     } else if (is_ex_exactly_of_type(e, power))
         return lcmcoeff(e.op(0), l);
@@ -1267,7 +1266,7 @@ ex sqrfree(const ex &a, const symbol &x)
 static ex replace_with_symbol(const ex &e, lst &sym_lst, lst &repl_lst)
 {
     // Expression already in repl_lst? Then return the assigned symbol
-    for (int i=0; i<repl_lst.nops(); i++)
+    for (unsigned i=0; i<repl_lst.nops(); i++)
         if (repl_lst.op(i).is_equal(e))
             return sym_lst.op(i);
 

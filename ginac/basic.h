@@ -3,7 +3,7 @@
  *  Interface to GiNaC's ABC. */
 
 /*
- *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -121,7 +121,7 @@ public: // only const functions please (may break reference counting)
     virtual void dbgprint(void) const;
     virtual void dbgprinttree(void) const;
     virtual bool info(unsigned inf) const;
-    virtual int nops() const;
+    virtual unsigned nops() const;
     virtual ex op(int const i) const;
     virtual ex & let_op(int const i);
     virtual ex operator[](ex const & index) const;

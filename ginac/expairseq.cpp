@@ -3,7 +3,7 @@
  *  Implementation of sequences of expression pairs. */
 
 /*
- *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -268,7 +268,7 @@ bool expairseq::info(unsigned inf) const
     return basic::info(inf);
 }
 
-int expairseq::nops() const
+unsigned expairseq::nops() const
 {
     if (overall_coeff.is_equal(default_overall_coeff())) {
         return seq.size();

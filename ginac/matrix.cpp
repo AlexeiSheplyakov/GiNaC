@@ -3,7 +3,7 @@
  *  Implementation of symbolic matrices */
 
 /*
- *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -157,7 +157,7 @@ void matrix::printraw(ostream & os) const
 }
 
 /** nops is defined to be rows x columns. */
-int matrix::nops() const
+unsigned matrix::nops() const
 {
     return row*col;
 }

@@ -3,7 +3,7 @@
  *  Interface to sequences of expression pairs. */
 
 /*
- *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -94,7 +94,7 @@ public:
     void printraw(ostream & os) const;
     void printtree(ostream & os, unsigned indent) const;
     bool info(unsigned inf) const;
-    int nops() const;
+    unsigned nops() const;
     ex op(int const i) const;
     ex & let_op(int const i);
     ex eval(int level=0) const;

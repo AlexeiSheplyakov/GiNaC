@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's non-commutative products of expressions. */
 
 /*
- *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -311,9 +311,9 @@ unsigned ncmul::count_factors(ex const & e) const
     if ((is_ex_exactly_of_type(e,mul)&&(e.return_type()!=return_types::commutative))||
         (is_ex_exactly_of_type(e,ncmul))) {
         unsigned factors=0;
-        for (int i=0; i<e.nops(); i++) {
+        for (unsigned i=0; i<e.nops(); i++)
             factors += count_factors(e.op(i));
-        }
+        
         return factors;
     }
     return 1;
@@ -323,9 +323,9 @@ void ncmul::append_factors(exvector & v, ex const & e) const
 {
     if ((is_ex_exactly_of_type(e,mul)&&(e.return_type()!=return_types::commutative))||
         (is_ex_exactly_of_type(e,ncmul))) {
-        for (int i=0; i<e.nops(); i++) {
+        for (unsigned i=0; i<e.nops(); i++)
             append_factors(v,e.op(i));
-        }
+        
         return;
     }
     v.push_back(e);

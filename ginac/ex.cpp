@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's light-weight expression handles. */
 
 /*
- *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -263,7 +263,7 @@ bool ex::info(unsigned inf) const
     // polynomial^(int) * polynomial^(int) * ... is in normal form
     if (!is_ex_exactly_of_type(*this, mul))
         return false;
-    for (int i=0; i<nops(); i++) {
+    for (unsigned i=0; i<nops(); i++) {
         if (is_ex_exactly_of_type(op(i), power)) {
             if (!op(i).op(1).info(info_flags::integer))
                 return false;
@@ -279,7 +279,7 @@ bool ex::info(unsigned inf) const
     }
 }
 
-int ex::nops() const
+unsigned ex::nops() const
 {
     GINAC_ASSERT(bp!=0);
     return bp->nops();
@@ -335,7 +335,7 @@ ex ex::numer(bool normalize) const
     if (!is_ex_exactly_of_type(n, mul))
         return n;
     ex res = _ex1();
-    for (int i=0; i<n.nops(); i++) {
+    for (unsigned i=0; i<n.nops(); i++) {
         if (!is_ex_exactly_of_type(n.op(i), power) || !n.op(i).op(1).info(info_flags::negint))
             res *= n.op(i);
     }
@@ -362,7 +362,7 @@ ex ex::denom(bool normalize) const
     if (!is_ex_exactly_of_type(n, mul))
         return _ex1();
     ex res = _ex1();
-    for (int i=0; i<n.nops(); i++) {
+    for (unsigned i=0; i<n.nops(); i++) {
         if (is_ex_exactly_of_type(n.op(i), power) && n.op(i).op(1).info(info_flags::negint))
             res *= power(n.op(i), -1);
     }

@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's ABC. */
 
 /*
- *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -134,7 +134,7 @@ void basic::printtree(ostream & os, unsigned indent) const
        << ", hash=" << hashvalue << " (0x" << hex << hashvalue << dec << ")"
        << ", flags=" << flags
        << ", nops=" << nops() << endl;
-    for (int i=0; i<nops(); ++i) {
+    for (unsigned i=0; i<nops(); ++i) {
         op(i).printtree(os,indent+delta_indent);
     }
 }
@@ -174,7 +174,7 @@ bool basic::info(unsigned inf) const
     return false; // all possible properties are false for basic objects
 }
 
-int basic::nops() const
+unsigned basic::nops() const
 {
     return 0;
 }
@@ -207,7 +207,7 @@ bool basic::has(ex const & other) const
     GINAC_ASSERT(other.bp!=0);
     if (is_equal(*other.bp)) return true;
     if (nops()>0) {
-        for (int i=0; i<nops(); i++) {
+        for (unsigned i=0; i<nops(); i++) {
             if (op(i).has(other)) return true;
         }
     }
@@ -290,7 +290,7 @@ unsigned basic::return_type_tinfo(void) const
 unsigned basic::calchash(void) const
 {
     unsigned v=golden_ratio_hash(tinfo());
-    for (int i=0; i<nops(); i++) {
+    for (unsigned i=0; i<nops(); i++) {
         v=rotate_left_31(v);
         v ^= (const_cast<basic *>(this))->let_op(i).gethash();
     }
@@ -332,7 +332,7 @@ ex basic::subs(ex const & e) const
     }
     lst ls;
     lst lr;
-    for (int i=0; i<e.nops(); i++) {
+    for (unsigned i=0; i<e.nops(); i++) {
         if (!e.op(i).info(info_flags::relation_equal)) {
             throw(std::invalid_argument("basic::subs(ex): argument must be a list or equations"));
         }

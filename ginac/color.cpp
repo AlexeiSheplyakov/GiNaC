@@ -4,7 +4,7 @@
  *  No real implementation yet, to be done.     */
 
 /*
- *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -877,25 +877,25 @@ ex simplify_color(ex const & e)
     // simplification of sum=sum of simplifications
     if (is_ex_exactly_of_type(e_expanded,add)) {
         ex sum=_ex0();
-        for (int i=0; i<e_expanded.nops(); ++i) {
+        for (unsigned i=0; i<e_expanded.nops(); ++i)
             sum += simplify_color(e_expanded.op(i));
-        }
+        
         return sum;
     }
 
     // simplification of commutative product=commutative product of simplifications
     if (is_ex_exactly_of_type(e_expanded,mul)) {
         ex prod=_ex1();
-        for (int i=0; i<e_expanded.nops(); ++i) {
+        for (unsigned i=0; i<e_expanded.nops(); ++i)
             prod *= simplify_color(e_expanded.op(i));
-        }
+        
         return prod;
     }
 
     // simplification of noncommutative product: test if everything is color
     if (is_ex_exactly_of_type(e_expanded,ncmul)) {
         bool all_color=true;
-        for (int i=0; i<e_expanded.nops(); ++i) {
+        for (unsigned i=0; i<e_expanded.nops(); ++i) {
             if (!is_ex_exactly_of_type(e_expanded.op(i),color)) {
                 all_color=false;
                 break;
