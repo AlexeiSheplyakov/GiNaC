@@ -1,4 +1,4 @@
-Prerequisites
+PREREQUISITES
 =============
 
 GiNaC requires the CLN library by Bruno Haible, available at either
@@ -21,7 +21,7 @@ distribution before trying to compile GiNaC-cint.  (See section
 `Working with the Cint C++ interpreter' below.)
 
 
-Installation
+INSTALLATION
 ============
 
 As with any autoconfiguring GNU software, installation is as easy as this:
@@ -64,8 +64,11 @@ make          |  ~4m   |  ~6m   |  ~10m  | building shared and static lib
 make check    |  ~2m   |  ~2m   |  ~7m   | mostly due to compilation
 
 
+COMMON PROBLEMS
+===============
+
 Problems with CLN
-=================
+-----------------
 
 You should use at least CLN V1.0.3, since during the development of
 GiNaC various bugs have been discovered and fixed in earlier versions.
@@ -73,6 +76,16 @@ To protect you, the "configure" script checks for a feature that was
 added in V1.0.3 so it won't continue with earlier versions anyhow.
 Please install CLN properly on your system before continuing with
 GiNaC.
+
+Problems with building ginsh
+----------------------------
+
+The most common reason why this doesn't succeed is the absence of
+libreadline and/or the corresponding header files.  Depending on what
+your system/distribution is, you will have to install a package called
+libreadline and maybe libreadline-dev.  If your system's vendor
+doesn't supply such packages, go to <ftp://ftp.gnu.org/gnu/readline/>
+and compile it yourself.  After that it should work fine.
 
 
 Working with the Cint C++ interpreter

@@ -19,9 +19,9 @@ dnl (don't we all *love* M4?)...
 
 GINACLIB_MAJOR_VERSION=0
 GINACLIB_MINOR_VERSION=5
-GINACLIB_MICRO_VERSION=1
-GINACLIB_INTERFACE_AGE=1
-GINACLIB_BINARY_AGE=1
+GINACLIB_MICRO_VERSION=2
+GINACLIB_INTERFACE_AGE=2
+GINACLIB_BINARY_AGE=2
 GINACLIB_VERSION=$GINACLIB_MAJOR_VERSION.$GINACLIB_MINOR_VERSION.$GINACLIB_MICRO_VERSION
 
 AC_SUBST(GINACLIB_MAJOR_VERSION)
@@ -87,9 +87,13 @@ AC_LANG_CPLUSPLUS
 
 dnl Check for stuff needed for building the GiNaC interactive shell (ginsh).
 AC_CHECK_HEADERS(unistd.h)
-AC_CHECK_HEADERS(readline/readline.h readline/history.h)
+AC_CHECK_HEADER(readline/readline.h, ,
+  GINAC_WARNING([I could not find the header file readline/readline.h (needed for ginsh).]))
+AC_CHECK_HEADER(readline/history.h, ,
+  GINAC_WARNING([I could not find the header file readline/history.h (needed for ginsh).]))
 save_LIBS=$LIBS
-AC_CHECK_LIB(readline, readline)
+AC_CHECK_LIB(readline, readline, ,
+  GINAC_WARNING([I could not find libreadline (needed by ginsh).]))
 GINSH_LIBS=$LIBS
 LIBS=$save_LIBS
 AC_SUBST(GINSH_LIBS)
@@ -103,7 +107,7 @@ dnl Make sure all the necessary new-style headers are installed on the system.
 dnl If one of them cannot be found the system is probably not ANSI-conform
 dnl enough so trying the .h-style headers is a waste of time.
 AC_CHECK_HEADERS(iostream vector map string list typeinfo iterator stdexcept algorithm, ,
-    AC_MSG_ERROR(need to have ANSI compliant headers))
+  AC_MSG_ERROR(need to have ANSI compliant headers))
 AC_CHECK_HEADERS(sstream strstream)
 
 dnl We need to have Bruno Haible's CLN installed (macros are in acinclude.m4):
@@ -194,4 +198,5 @@ doc/reference/Makefile
 cint/Makefile
 cint/ginaccint
 ], [chmod +x ginac-config cint/ginaccint])
-echo "Configuration done. Now type \"make\"."
+dnl Display a final warning if there has been a GINAC_ERROR or a GINAC_WARNING
+GINAC_CHECK_ERRORS

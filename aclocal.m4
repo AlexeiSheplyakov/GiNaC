@@ -66,15 +66,54 @@ dnl linking failed:
     "fail")
         LIBS="${saved_LIBS}"
         AC_MSG_RESULT([no])
-        AC_MSG_ERROR([You either need to set \$LDFLAGS or update CLN])
-    ;;
-dnl should never ever get here:
-    *)
-        LIBS="${saved_LIBS}"
-        AC_MSG_WARN([you found a bug in the configure script!])
+        GINAC_ERROR([I could not successfully link a test-program against libcln and run it.
+   You either need to set \$LDFLAGS or install/update the CLN library.])
     ;;
     esac
 ])
+
+dnl Usage: GINAC_ERROR(message)
+dnl This macro displays the warning "message" and sets the flag ginac_error
+dnl to yes.
+AC_DEFUN(GINAC_ERROR,[
+ginac_error_txt="$ginac_error_txt
+** $1
+"
+ginac_error=yes])
+
+dnl Usage: GINAC_WARNING(message)
+dnl This macro displays the warning "message" and sets the flag ginac_warning
+dnl to yes.
+AC_DEFUN(GINAC_WARNING,[
+ginac_warning_txt="$ginac_warning_txt
+== $1
+"
+ginac_warning=yes])
+
+dnl Usage: GINAC_CHECK_ERRORS
+dnl (preferably to be put at end of configure.in)
+dnl This macro displays a warning message if GINAC_ERROR or GINAC_WARNING 
+dnl has occured previously.
+AC_DEFUN(GINAC_CHECK_ERRORS,[
+if test "x${ginac_error}" = "xyes"; then
+  echo "**** The following problems have been detected by configure."
+  echo "**** Please check the messages below before running \"make\"."
+  echo "**** (see the section 'Common Problems' in the INSTALL file)"
+  echo "$ginac_error_txt"
+  if test "x${ginac_warning_txt}" != "x"; then
+    echo "${ginac_warning_txt}"
+  fi
+  echo "deleting cache ${cache_file}"
+  rm -f $cache_file
+  else 
+    if test x$ginac_warning = xyes; then
+      echo "=== The following minor problems have been detected by configure."
+      echo "=== Please check the messages below before running \"make\"."
+      echo "=== (see the section 'Common Problems' in the INSTALL file)"
+      echo "$ginac_warning_txt"
+    fi
+  echo "Configuration of GiNaC $VERSION done. Now type \"make\"."
+fi])
 
 # Like AC_CONFIG_HEADER, but automatically create stamp file.
 
