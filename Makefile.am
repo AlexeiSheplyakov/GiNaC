@@ -8,12 +8,15 @@ AUTOMAKE_OPTIONS = 1.4
 # GiNaC runtime configuration script
 bin_SCRIPTS = ginac-config
 
-# All the rest of the distributed files
-EXTRA_DIST = ginac.m4 GiNaC.spec
+# Man pages
+man_MANS = ginac-config.1
 
 # M4 macro file for inclusion with autoconf
 m4datadir = $(datadir)/aclocal
 m4data_DATA = ginac.m4
+
+# All the rest of the distributed files
+EXTRA_DIST = ginac.m4 GiNaC.spec
 
 # Rule to build tar-bzipped distribution package
 $(PACKAGE)-$(VERSION).tar.gz: dist

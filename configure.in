@@ -183,11 +183,14 @@ AC_OUTPUT([
 Makefile
 GiNaC.spec
 ginac-config
+ginac-config.1
 ginac/Makefile
 ginac/version.h
 check/Makefile
 ginsh/Makefile
+ginsh/ginsh.1
 tools/Makefile
+tools/viewgar.1
 doc/Makefile
 doc/tutorial/Makefile
 doc/reference/Makefile

@@ -5,6 +5,7 @@ This file records noteworthy changes.
   coeff(). Using these functions on an expression containing such powers used
   to fail with an internal error message. The side-effect is that collect()
   can be used on expressions which are not polynomials.
+* Added a man page for the ginac-config script.
 
 0.6.4 (10 August 2000)
 * Complete revamp of methods in class matrix.  Some redundant (and poor)
