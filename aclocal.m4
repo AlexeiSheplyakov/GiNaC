@@ -20,12 +20,12 @@ dnl Generally, it is a bad idea to put specialized header files for a library
 dnl into a generic directory like /usr/local/include/.  Instead, one should put
 dnl them into a subdirectory.  GiNaC does it, NTL does it.  Unfortunately, CLN
 dnl doesn't do so but some people choose to do it by hand.  In these cases we
-dnl need to #include <CLN/cln.h>, otherwise #include <cln.h>.  This macro
+dnl need to #include <cln/cln.h>, otherwise #include <cln.h>.  This macro
 dnl tries to be clever and find out the correct way by defining the variable
 dnl HAVE_CLN_CLN_H in config.h:
 AC_DEFUN(GINAC_CHECK_CLN_H,
     [AC_PROVIDE([$0])
-    AC_CHECK_HEADERS(CLN/cln.h, ,
+    AC_CHECK_HEADERS(cln/cln.h, ,
         AC_CHECK_HEADERS(cln.h, ,
             AC_MSG_ERROR([cannot find header for Bruno Haible's CLN]);
         )
@@ -43,7 +43,7 @@ AC_DEFUN(GINAC_CHECK_LIBCLN,
         [LIBS="-lcln"
         case "${ac_cv_header_CLN_cln_h}" in
         "yes")
-            AC_TRY_LINK([#include <CLN/cln.h>],
+            AC_TRY_LINK([#include <cln/cln.h>],
                 [factorial(1);],
                 ginac_cv_lib_cln_link="-lcln",
                 ginac_cv_lib_cln_link="fail")
@@ -86,7 +86,7 @@ AC_DEFUN(GINAC_CHECK_LIBCLN_SANITY,
         [
         case "${ac_cv_header_CLN_cln_h}" in
         "yes")
-            AC_TRY_RUN([#include <CLN/cln.h>
+            AC_TRY_RUN([#include <cln/cln.h>
 int main() {
 cl_RA q(3); q = q/2; cl_RA p(3); p = p/2;
 if (q+p != 3) return 1; else return 0;
