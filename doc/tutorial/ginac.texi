@@ -1162,6 +1162,30 @@ can be applied is listed in the following table.
 @end multitable
 @end cartouche
 
+@subsection Converting numbers
+
+Sometimes it is desirable to convert a @code{numeric} object back to a
+built-in arithmetic type (@code{int}, @code{double}, etc.). The @code{numeric}
+class provides a couple of methods for this purpose:
+
+@cindex @code{to_int()}
+@cindex @code{to_long()}
+@cindex @code{to_double()}
+@cindex @code{to_cl_N()}
+@example
+int numeric::to_int() const;
+long numeric::to_long() const;
+double numeric::to_double() const;
+cln::cl_N numeric::to_cl_N() const;
+@end example
+
+@code{to_int()} and @code{to_long()} only work when the number they are
+applied on is an exact integer. Otherwise the program will halt with a
+message like @samp{Not a 32-bit integer}. @code{to_double()} applied on a
+rational number will return a floating-point approximation. Both
+@code{to_int()/to_long()} and @code{to_double()} discard the imaginary
+part of complex numbers.
+
 
 @node Constants, Fundamental containers, Numbers, Basic Concepts
 @c    node-name, next, previous, up
@@ -2876,6 +2900,7 @@ avoided.
 
 @menu
 * Information About Expressions::
+* Numerical Evaluation::
 * Substituting Expressions::
 * Pattern Matching and Advanced Substitutions::
 * Applying a Function on Subexpressions::
@@ -2891,7 +2916,7 @@ avoided.
 @end menu
 
 
-@node Information About Expressions, Substituting Expressions, Methods and Functions, Methods and Functions
+@node Information About Expressions, Numerical Evaluation, Methods and Functions, Methods and Functions
 @c    node-name, next, previous, up
 @section Getting information about expressions
 
@@ -3159,7 +3184,47 @@ if @code{*this} sorts before @code{other}, and @math{1} if @code{*this} sorts
 after @code{other}.
 
 
-@node Substituting Expressions, Pattern Matching and Advanced Substitutions, Information About Expressions, Methods and Functions
+@node Numerical Evaluation, Substituting Expressions, Information About Expressions, Methods and Functions
+@c    node-name, next, previous, up
+@section Numercial Evaluation
+@cindex @code{evalf()}
+
+GiNaC keeps algebraic expressions, numbers and constants in their exact form.
+To evaluate them using floating-point arithmetic you need to call
+
+@example
+ex ex::evalf(int level = 0) const;
+@end example
+
+@cindex @code{Digits}
+The accuracy of the evaluation is controlled by the global object @code{Digits}
+which can be assigned an integer value. The default value of @code{Digits}
+is 17. @xref{Numbers}, for more information and examples.
+
+To evaluate an expression to a @code{double} floating-point number you can
+call @code{evalf()} followed by @code{numeric::to_double()}, like this:
+
+@example
+@{
+    // Approximate sin(x/Pi)
+    symbol x("x");
+    ex e = series(sin(x/Pi), x == 0, 6);
+
+    // Evaluate numerically at x=0.1
+    ex f = evalf(e.subs(x == 0.1));
+
+    // ex_to<numeric> is an unsafe cast, so check the type first
+    if (is_a<numeric>(f)) @{
+        double d = ex_to<numeric>(f).to_double();
+        cout << d << endl;
+         // -> 0.0318256
+    @} else
+        // error
+@}
+@end example
+
+
+@node Substituting Expressions, Pattern Matching and Advanced Substitutions, Numerical Evaluation, Methods and Functions
 @c    node-name, next, previous, up
 @section Substituting expressions
 @cindex @code{subs()}
