@@ -562,22 +562,24 @@ ex antisymmetrize(const ex & e, exvector::const_iterator first, exvector::const_
 	return symm(e, first, last, true);
 }
 
-ex symmetrize(const ex & e, const lst & l)
+/** Symmetrize expression over a list of objects (symbols, indices). */
+ex ex::symmetrize(const lst & l) const
 {
 	exvector v;
 	v.reserve(l.nops());
 	for (unsigned i=0; i<l.nops(); i++)
 		v.push_back(l.op(i));
-	return symm(e, v.begin(), v.end(), false);
+	return symm(*this, v.begin(), v.end(), false);
 }
 
-ex antisymmetrize(const ex & e, const lst & l)
+/** Antisymmetrize expression over a list of objects (symbols, indices). */
+ex ex::antisymmetrize(const lst & l) const
 {
 	exvector v;
 	v.reserve(l.nops());
 	for (unsigned i=0; i<l.nops(); i++)
 		v.push_back(l.op(i));
-	return symm(e, v.begin(), v.end(), true);
+	return symm(*this, v.begin(), v.end(), true);
 }
 
 /** Force inclusion of functions from initcns_gamma and inifcns_zeta

@@ -145,9 +145,6 @@ inline ex symmetrize(const ex & e, const exvector & v)
 	return symmetrize(e, v.begin(), v.end());
 }
 
-/** Symmetrize expression over a list of objects (symbols, indices). */
-ex symmetrize(const ex & e, const lst & l);
-
 /** Antisymmetrize expression over a set of objects (symbols, indices). */
 ex antisymmetrize(const ex & e, exvector::const_iterator first, exvector::const_iterator last);
 
@@ -157,9 +154,7 @@ inline ex antisymmetrize(const ex & e, const exvector & v)
 	return antisymmetrize(e, v.begin(), v.end());
 }
 
-/** Antisymmetrize expression over a list of objects (symbols, indices). */
-ex antisymmetrize(const ex & e, const lst & l);
-
+/** Check whether a function is the Order (O(n)) function. */
 inline bool is_order_function(const ex & e)
 {
 	return is_ex_the_function(e, Order);

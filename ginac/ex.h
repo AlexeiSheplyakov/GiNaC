@@ -91,6 +91,7 @@ public:
 	ex tcoeff(const ex & s) const { return coeff(s, ldegree(s)); }
 	ex numer(void) const;
 	ex denom(void) const;
+	ex numer_denom(void) const;
 	ex unit(const symbol &x) const;
 	ex content(const symbol &x) const;
 	numeric integer_content(void) const;
@@ -112,6 +113,10 @@ public:
 	exvector get_free_indices(void) const { return bp->get_free_indices(); }
 	ex simplify_indexed(void) const;
 	ex simplify_indexed(const scalar_products & sp) const;
+	ex symmetrize(void) const;
+	ex symmetrize(const lst & l) const;
+	ex antisymmetrize(void) const;
+	ex antisymmetrize(const lst & l) const;
 	ex simplify_ncmul(const exvector & v) const { return bp->simplify_ncmul(v); }
 	ex operator[](const ex & index) const;
 	ex operator[](int i) const;
@@ -351,6 +356,9 @@ inline ex numer(const ex & thisex)
 inline ex denom(const ex & thisex)
 { return thisex.denom(); }
 
+inline ex numer_denom(const ex & thisex)
+{ return thisex.numer_denom(); }
+
 inline ex normal(const ex & thisex, int level=0)
 { return thisex.normal(level); }
 
@@ -380,6 +388,24 @@ inline ex subs(const ex & thisex, const ex & e)
 
 inline ex subs(const ex & thisex, const lst & ls, const lst & lr)
 { return thisex.subs(ls, lr); }
+
+inline ex simplify_indexed(const ex & thisex)
+{ return thisex.simplify_indexed(); }
+
+inline ex simplify_indexed(const ex & thisex, const scalar_products & sp)
+{ return thisex.simplify_indexed(sp); }
+
+inline ex symmetrize(const ex & thisex)
+{ return thisex.symmetrize(); }
+
+inline ex symmetrize(const ex & thisex, const lst & l)
+{ return thisex.symmetrize(l); }
+
+inline ex antisymmetrize(const ex & thisex)
+{ return thisex.antisymmetrize(); }
+
+inline ex antisymmetrize(const ex & thisex, const lst & l)
+{ return thisex.antisymmetrize(l); }
 
 inline ex op(const ex & thisex, int i)
 { return thisex.op(i); }

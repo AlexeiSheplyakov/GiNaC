@@ -244,31 +244,6 @@ inline const indexed &ex_to_indexed(const ex &e)
 	return static_cast<const indexed &>(*e.bp);
 }
 
-
-/** Simplify/canonicalize expression containing indexed objects. This
- *  performs contraction of dummy indices where possible and checks whether
- *  the free indices in sums are consistent.
- *
- *  @param e The expression to be simplified
- *  @return simplified expression */
-ex simplify_indexed(const ex & e);
-
-/** Simplify/canonicalize expression containing indexed objects. This
- *  performs contraction of dummy indices where possible, checks whether
- *  the free indices in sums are consistent, and automatically replaces
- *  scalar products by known values if desired.
- *
- *  @param e The expression to be simplified
- *  @param sp Scalar products to be replaced automatically
- *  @return simplified expression */
-ex simplify_indexed(const ex & e, const scalar_products & sp);
-
-/** Symmetrize expression over its free indices. */
-ex symmetrize(const ex & e);
-
-/** Antisymmetrize expression over its free indices. */
-ex antisymmetrize(const ex & e);
-
 } // namespace GiNaC
 
 #endif // ndef __GINAC_INDEXED_H__

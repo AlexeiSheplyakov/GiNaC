@@ -2118,9 +2118,9 @@ ex ex::normal(int level) const
 	return e.op(0) / e.op(1);
 }
 
-/** Numerator of an expression. If the expression is not of the normal form
- *  "numerator/denominator", it is first converted to this form and then the
- *  numerator is returned.
+/** Get numerator of an expression. If the expression is not of the normal
+ *  form "numerator/denominator", it is first converted to this form and
+ *  then the numerator is returned.
  *
  *  @see ex::normal
  *  @return numerator */
@@ -2138,9 +2138,9 @@ ex ex::numer(void) const
 		return e.op(0);
 }
 
-/** Denominator of an expression. If the expression is not of the normal form
- *  "numerator/denominator", it is first converted to this form and then the
- *  denominator is returned.
+/** Get denominator of an expression. If the expression is not of the normal
+ *  form "numerator/denominator", it is first converted to this form and
+ *  then the denominator is returned.
  *
  *  @see ex::normal
  *  @return denominator */
@@ -2156,6 +2156,26 @@ ex ex::denom(void) const
 		return e.op(1).subs(sym_lst, repl_lst);
 	else
 		return e.op(1);
+}
+
+/** Get numerator and denominator of an expression. If the expresison is not
+ *  of the normal form "numerator/denominator", it is first converted to this
+ *  form and then a list [numerator, denominator] is returned.
+ *
+ *  @see ex::normal
+ *  @return a list [numerator, denominator] */
+ex ex::numer_denom(void) const
+{
+	lst sym_lst, repl_lst;
+
+	ex e = bp->normal(sym_lst, repl_lst, 0);
+	GINAC_ASSERT(is_ex_of_type(e, lst));
+
+	// Re-insert replaced symbols
+	if (sym_lst.nops() > 0)
+		return e.subs(sym_lst, repl_lst);
+	else
+		return e;
 }
 
 

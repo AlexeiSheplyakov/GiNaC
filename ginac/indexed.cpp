@@ -30,7 +30,7 @@
 #include "ncmul.h"
 #include "power.h"
 #include "lst.h"
-#include "inifcns.h"
+#include "inifcns.h" // for symmetrize()
 #include "print.h"
 #include "archive.h"
 #include "utils.h"
@@ -815,27 +815,41 @@ ex simplify_indexed(const ex & e, exvector & free_indices, exvector & dummy_indi
 	return e_expanded;
 }
 
-ex simplify_indexed(const ex & e)
+/** Simplify/canonicalize expression containing indexed objects. This
+ *  performs contraction of dummy indices where possible and checks whether
+ *  the free indices in sums are consistent.
+ *
+ *  @return simplified expression */
+ex ex::simplify_indexed(void) const
 {
 	exvector free_indices, dummy_indices;
 	scalar_products sp;
-	return simplify_indexed(e, free_indices, dummy_indices, sp);
+	return GiNaC::simplify_indexed(*this, free_indices, dummy_indices, sp);
 }
 
-ex simplify_indexed(const ex & e, const scalar_products & sp)
+/** Simplify/canonicalize expression containing indexed objects. This
+ *  performs contraction of dummy indices where possible, checks whether
+ *  the free indices in sums are consistent, and automatically replaces
+ *  scalar products by known values if desired.
+ *
+ *  @param sp Scalar products to be replaced automatically
+ *  @return simplified expression */
+ex ex::simplify_indexed(const scalar_products & sp) const
 {
 	exvector free_indices, dummy_indices;
-	return simplify_indexed(e, free_indices, dummy_indices, sp);
+	return GiNaC::simplify_indexed(*this, free_indices, dummy_indices, sp);
 }
 
-ex symmetrize(const ex & e)
+/** Symmetrize expression over its free indices. */
+ex ex::symmetrize(void) const
 {
-	return symmetrize(e, e.get_free_indices());
+	return GiNaC::symmetrize(*this, get_free_indices());
 }
 
-ex antisymmetrize(const ex & e)
+/** Antisymmetrize expression over its free indices. */
+ex ex::antisymmetrize(void) const
 {
-	return antisymmetrize(e, e.get_free_indices());
+	return GiNaC::antisymmetrize(*this, get_free_indices());
 }
 
 //////////
