@@ -92,4 +92,5 @@ Good luck!
 
   Known to work with:  |  Known not to work with:   
 -----------------------+----------------------------
-  Cint 5.14.26         |  Cint 5.14.29              
+  Cint 5.14.25         |  Cint 5.14.29              
+  Cint 5.14.26         |                            
