@@ -261,8 +261,8 @@ static unsigned differentiation6(void)
     e = sin(x).series(x, 0, 8);
     d = cos(x).series(x, 0, 7);
     ed = e.diff(x);
-    ed = static_cast<series *>(ed.bp)->convert_to_poly();
-    d = static_cast<series *>(d.bp)->convert_to_poly();
+    ed = series_to_poly(ed);
+    d = series_to_poly(d);
     
     if ((ed - d).compare(ex(0)) != 0) {
         clog << "derivative of " << e << " by " << x << " returned "

@@ -31,7 +31,7 @@ static symbol x("x");
 static unsigned check_series(const ex &e, const ex &point, const ex &d, int order = 8)
 {
     ex es = e.series(x, point, order);
-    ex ep = static_cast<series *>(es.bp)->convert_to_poly();
+    ex ep = static_cast<const pseries &>(*es.bp).convert_to_poly();
     if (!(ep - d).is_zero()) {
         clog << "series expansion of " << e << " at " << point
              << " erroneously returned " << ep << " (instead of " << d
@@ -131,8 +131,28 @@ static unsigned series3(void)
     return result;
 }
 
-// Series of special functions
+// Order term handling
 static unsigned series4(void)
+{
+    unsigned result = 0;
+    ex e, d;
+
+    e = 1 + x + pow(x, 2) + pow(x, 3);
+    d = Order(1);
+    result += check_series(e, 0, d, 0);
+    d = 1 + Order(x);
+    result += check_series(e, 0, d, 1);
+    d = 1 + x + Order(pow(x, 2));
+    result += check_series(e, 0, d, 2);
+    d = 1 + x + pow(x, 2) + Order(pow(x, 3));
+    result += check_series(e, 0, d, 3);
+    d = 1 + x + pow(x, 2) + pow(x, 3);
+    result += check_series(e, 0, d, 4);
+    return result;
+}
+
+// Series of special functions
+static unsigned series5(void)
 {
     unsigned result = 0;
     ex e, d;
@@ -190,6 +210,7 @@ unsigned series_expansion(void)
     result += series2();
     result += series3();
     result += series4();
+    result += series5();
     
     if (!result) {
         cout << " passed ";
