@@ -1,33 +1,49 @@
-# Note that this is NOT a relocatable package
-%define ver @VERSION@
-%define rel 1
-%define prefix /usr
+%define name @PACKAGE@
+%define version @VERSION@
+%define release 1
 
 Summary: C++ library for symbolic calculations
-Name: GiNaC
-Version: %ver
-Release: %rel
+Name: %{name}
+Version: %{version}
+Release: %{release}
 Copyright: GPL
-Group: Libraries
-Source: ftp://ftpthep.physik.uni-mainz.de/pub/GiNaC/GiNaC-%{ver}.tar.gz
-BuildRoot: /tmp/GiNaC-%{PACKAGE_VERSION}-root
+Group: System Environment/Libraries
+Source: ftp://ftpthep.physik.uni-mainz.de/pub/GiNaC/%{name}-%{version}.tar.gz
+BuildRoot: /tmp/%{name}-buildroot
 Packager: Christian Bauer <Christian.Bauer@uni-mainz.de>
 URL: http://www.ginac.de/
 Prereq: /sbin/install-info
+Prefix: %{_prefix}
 Docdir: %{prefix}/doc
 
 %description
-GiNaC (which stands for "GiNaC is Not a CAS (computer algebra system)") is a
-C++ library for symbolic calculations. It is designed to allow the creation
-of integrated systems that embed symbolic manipulations together with more
-established areas of computer science (like computation-intense numeric
-applications, graphical interfaces, etc.) under one roof.
+GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is an
+open framework for symbolic computation within the C++ programming language.
+
+It includes the ginsh ("GiNaC interactive shell") which provides a simple and
+easy-to-use CAS-like interface to GiNaC for non-programmers.
+
+
+%package devel
+Summary: Libraries, includes and more to develop GiNaC applications
+Group: Development/Libraries
+Requires: %{name}
+
+%description devel
+GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is an
+open framework for symbolic computation within the C++ programming language.
+
+This is the libraries, include files and other resources you can use to
+develop GiNaC applications.
+
 
 %prep
-%setup
+rm -rf $RPM_BUILD_ROOT
+
+%setup -q
 
 %build
-CXXFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%prefix
+CXXFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%{prefix}
 if [ "$SMP" != "" ]; then
   (make "MAKE=make -k -j $SMP"; exit 0)
   make
@@ -37,35 +53,48 @@ fi
 
 %install
 rm -rf $RPM_BUILD_ROOT
-make prefix=$RPM_BUILD_ROOT%{prefix} install-strip
-gzip -9 $RPM_BUILD_ROOT%{prefix}/info/*
+make prefix=$RPM_BUILD_ROOT/%{prefix} install-strip
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %post
 /sbin/ldconfig
-/sbin/install-info %{prefix}/info/ginac.info.gz %{prefix}/info/dir
 
 %postun
 /sbin/ldconfig
 
-%preun
+%post devel
+/sbin/install-info %{prefix}/info/ginac.info.gz %{prefix}/info/dir
+
+%preun devel
 /sbin/install-info --delete %{prefix}/info/ginac.info.gz %{prefix}/info/dir
 
 %files
 %defattr(-, root, root)
 %doc AUTHORS COPYING ChangeLog NEWS README
 %{prefix}/lib/lib*.so*
+%{prefix}/man/man1/ginsh.1
+%{prefix}/man/man1/viewgar.1
+%{prefix}/bin/ginsh
+%{prefix}/bin/viewgar
+
+%files devel
+%defattr(-, root, root)
+%doc AUTHORS COPYING ChangeLog NEWS README
 %{prefix}/lib/*a
 %{prefix}/include/*
 %{prefix}/info/*
-%{prefix}/man/man1/*
-%{prefix}/share/doc/GiNaC/*
+%{prefix}/man/man1/*-config.1
+%{prefix}/bin/*-config
+%{prefix}/share/doc/%{name}/*
 %{prefix}/share/aclocal/*
-%{prefix}/bin/*
 
 %changelog
+* Wed Jan 26 2000 Christian Bauer <Christian.Bauer@uni-mainz.de>
+
+- split into user and devel packages
+
 * Wed Dec  1 1999 Christian Bauer <Christian.Bauer@uni-mainz.de>
 
 - aclocal macros get installed
