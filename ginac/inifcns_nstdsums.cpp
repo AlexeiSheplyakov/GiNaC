@@ -507,6 +507,15 @@ static ex Li_evalf(const ex& x1, const ex& x2)
 	if (is_a<numeric>(x1) && is_a<numeric>(x2)) {
 		return Li_num(ex_to<numeric>(x1).to_int(), ex_to<numeric>(x2));
 	}
+	if (is_a<numeric>(x1) && !is_a<lst>(x2)) {
+		// try to numerically evaluate second argument
+		ex x2_val = x2.evalf();
+		if (is_a<numeric>(x2_val)) {
+			return Li_num(ex_to<numeric>(x1).to_int(), ex_to<numeric>(x2_val));
+		} else {
+			return Li(x1, x2).hold();
+		}
+	}
 	// multiple polylogs
 	else if (is_a<lst>(x1) && is_a<lst>(x2)) {
 		ex conv = 1;
@@ -1058,8 +1067,15 @@ numeric S_num(int n, int p, const numeric& x)
 
 static ex S_evalf(const ex& n, const ex& p, const ex& x)
 {
-	if (n.info(info_flags::posint) && p.info(info_flags::posint) && is_a<numeric>(x)) {
-		return S_num(ex_to<numeric>(n).to_int(), ex_to<numeric>(p).to_int(), ex_to<numeric>(x));
+	if (n.info(info_flags::posint) && p.info(info_flags::posint)) {
+		if (is_a<numeric>(x)) {
+			return S_num(ex_to<numeric>(n).to_int(), ex_to<numeric>(p).to_int(), ex_to<numeric>(x));
+		} else {
+			ex x_val = x.evalf();
+			if (is_a<numeric>(x_val)) {
+				return S_num(ex_to<numeric>(n).to_int(), ex_to<numeric>(p).to_int(), ex_to<numeric>(x_val));
+			}
+		}
 	}
 	return S(n, p, x).hold();
 }
@@ -1900,18 +1916,27 @@ cln::cl_N H_do_sum(const std::vector<int>& m, const cln::cl_N& x)
 
 static ex H_evalf(const ex& x1, const ex& x2)
 {
-	if (is_a<lst>(x1) && is_a<numeric>(x2)) {
+	if (is_a<lst>(x1)) {
+		
+		cln::cl_N x;
+		if (is_a<numeric>(x2)) {
+			x = ex_to<numeric>(x2).to_cl_N();
+		} else {
+			ex x2_val = x2.evalf();
+			if (is_a<numeric>(x2_val)) {
+				x = ex_to<numeric>(x2_val).to_cl_N();
+			}
+		}
+
 		for (int i=0; i<x1.nops(); i++) {
 			if (!x1.op(i).info(info_flags::integer)) {
-				return H(x1,x2).hold();
+				return H(x1, x2).hold();
 			}
 		}
 		if (x1.nops() < 1) {
-			return H(x1,x2).hold();
+			return H(x1, x2).hold();
 		}
 
-		cln::cl_N x = ex_to<numeric>(x2).to_cl_N();
-		
 		const lst& morg = ex_to<lst>(x1);
 		// remove trailing zeros ...
 		if (*(--morg.end()) == 0) {
