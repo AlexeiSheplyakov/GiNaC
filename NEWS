@@ -1,8 +1,9 @@
 This file records noteworthy changes.
 
-1.0.4 (<date>)
+1.0.4 (24 January 2001)
+* Speedup in expand().
 * Faster Bernoulli numbers (Markus Nullmeier).
-* Minor bugfixes and some documentation updates.
+* Some minor bugfixes and documentation updates.
 
 1.0.3 (21 December 2001)
 * Fixed a bug where quo() would call vector::reserve() with a negative
