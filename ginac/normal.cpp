@@ -1140,7 +1140,7 @@ static ex sr_gcd(const ex &a, const ex &b, sym_desc_vec::const_iterator var)
         c = d;
         cdeg = ddeg;
 //std::clog << " dividing...\n";
-        if (!divide_in_z(r, ri * pow(psi, delta), d, var+1))
+        if (!divide_in_z(r, ri * pow(psi, delta), d, var))
             throw(std::runtime_error("invalid expression in sr_gcd(), division failed"));
         ddeg = d.degree(x);
         if (ddeg == 0) {
