@@ -163,6 +163,7 @@ class node {
 public:
 	node(const vertex &v) { vert = v.copy(); }
 	node(const node &n) { vert = (n.vert)->copy(); children = n.children; }
+	const node & operator=(const node &);
 	~node() { delete vert; }
 	void add_child(const node &, bool = false);
 	ex evaluate(const symbol &x, unsigned grad) const;
@@ -171,6 +172,13 @@ private:
 	vertex *vert;
 	list<child> children;
 };
+
+const node & node::operator=(const node &n)
+{
+	delete vert;
+	vert = (n.vert)->copy();
+	children = n.children;
+}
 
 void node::add_child(const node &childnode, bool cut)
 {
@@ -209,7 +217,7 @@ unsigned node::total_edges(void) const
  * written using calls to node's method add_child() because it allows for
  * editor-assisted indentation.
  */
-node operator+(const node &n, const child &c)
+const node operator+(const node &n, const child &c)
 {
 	node nn(n);
 	nn.add_child(c.first, c.second);

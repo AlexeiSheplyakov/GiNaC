@@ -139,7 +139,7 @@ static unsigned exam_operator_semantics(void)
 	ex e1, e2;
 	int i1, i2;
 	
-	// Assignment should not return const ex:
+	// Assignment should not return const ex though it may be obfuscated:
 	e1 = 7; e2 = 4;
 	i1 = 7; i2 = 4;
 	(e1 = e2) = 2;
