@@ -144,7 +144,7 @@ void power::print(const print_context & c, unsigned level) const
 		 && (is_ex_exactly_of_type(basis, symbol) || is_ex_exactly_of_type(basis, constant))) {
 			int exp = ex_to_numeric(exponent).to_int();
 			if (exp > 0)
-				c.s << "(";
+				c.s << '(';
 			else {
 				exp = -exp;
 				if (is_of_type(c, print_csrc_cl_N))
@@ -153,7 +153,7 @@ void power::print(const print_context & c, unsigned level) const
 					c.s << "1.0/(";
 			}
 			print_sym_pow(c, ex_to_symbol(basis), exp);
-			c.s << ")";
+			c.s << ')';
 
 		// <expr>^-1 is printed as "1.0/<expr>" or with the recip() function of CLN
 		} else if (exponent.compare(_num_1()) == 0) {
@@ -162,7 +162,7 @@ void power::print(const print_context & c, unsigned level) const
 			else
 				c.s << "1.0/(";
 			basis.print(c);
-			c.s << ")";
+			c.s << ')';
 
 		// Otherwise, use the pow() or expt() (CLN) functions
 		} else {
@@ -171,9 +171,9 @@ void power::print(const print_context & c, unsigned level) const
 			else
 				c.s << "pow(";
 			basis.print(c);
-			c.s << ",";
+			c.s << ',';
 			exponent.print(c);
-			c.s << ")";
+			c.s << ')';
 		}
 
 	} else {
@@ -185,9 +185,9 @@ void power::print(const print_context & c, unsigned level) const
 				c.s << "sqrt(";
 			basis.print(c);
 			if (is_of_type(c, print_latex))
-				c.s << "}";
+				c.s << '}';
 			else
-				c.s << ")";
+				c.s << ')';
 		} else {
 			if (precedence() <= level) {
 				if (is_of_type(c, print_latex))
@@ -196,13 +196,17 @@ void power::print(const print_context & c, unsigned level) const
 					c.s << "(";
 			}
 			basis.print(c, precedence());
-			c.s << "^";
+			c.s << '^';
+			if (is_of_type(c, print_latex))
+				c.s << '{';
 			exponent.print(c, precedence());
+			if (is_of_type(c, print_latex))
+				c.s << '}';
 			if (precedence() <= level) {
 				if (is_of_type(c, print_latex))
 					c.s << ")}";
 				else
-					c.s << ")";
+					c.s << ')';
 			}
 		}
 	}

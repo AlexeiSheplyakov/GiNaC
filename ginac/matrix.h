@@ -101,9 +101,6 @@ inline unsigned nops(const matrix & m)
 inline ex expand(const matrix & m, unsigned options = 0)
 { return m.expand(options); }
 
-inline bool has(const matrix & m, const ex & other)
-{ return m.has(other); }
-
 inline ex eval(const matrix & m, int level = 0)
 { return m.eval(level); }
 
