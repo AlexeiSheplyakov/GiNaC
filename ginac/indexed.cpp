@@ -629,12 +629,12 @@ try_again:
 				continue;
 
 			// At least one dummy index, is it a defined scalar product?
+			bool contracted = false;
 			if (free.size() == 0) {
 				if (sp.is_defined(*it1, *it2)) {
 					*it1 = sp.evaluate(*it1, *it2);
 					*it2 = _ex1();
-					something_changed = true;
-					goto try_again;
+					goto contraction_done;
 				}
 			}
 
@@ -649,7 +649,7 @@ try_again:
 			}
 
 			// Try to contract the first one with the second one
-			bool contracted = it1->op(0).bp->contract_with(it1, it2, v);
+			contracted = it1->op(0).bp->contract_with(it1, it2, v);
 			if (!contracted) {
 
 				// That didn't work; maybe the second object knows how to
@@ -657,11 +657,20 @@ try_again:
 				contracted = it2->op(0).bp->contract_with(it2, it1, v);
 			}
 			if (contracted) {
-				something_changed = true;
+contraction_done:
+				if (is_ex_exactly_of_type(*it1, add) || is_ex_exactly_of_type(*it2, add)
+				 || is_ex_exactly_of_type(*it1, mul) || is_ex_exactly_of_type(*it2, mul)) {
+
+					// One of the factors became a sum or product:
+					// re-expand expression and run again
+					ex r = non_commutative ? ex(ncmul(v)) : ex(mul(v));
+					return simplify_indexed(r, free_indices, sp);
+				}
 
 				// Both objects may have new indices now or they might
 				// even not be indexed objects any more, so we have to
 				// start over
+				something_changed = true;
 				goto try_again;
 			}
 		}
@@ -678,12 +687,9 @@ try_again:
 	find_free_and_dummy(un, free_indices, dummy_indices);
 
 	ex r;
-	if (something_changed) {
-		if (non_commutative)
-			r = ncmul(v);
-		else
-			r = mul(v);
-	} else
+	if (something_changed)
+		r = non_commutative ? ex(ncmul(v)) : ex(mul(v));
+	else
 		r = e;
 
 	// Product of indexed object with a scalar?
