@@ -549,8 +549,8 @@ bool basic::match(const ex & pattern, lst & repl_lst) const
 	if (is_exactly_a<wildcard>(pattern)) {
 
 		// Wildcard matches anything, but check whether we already have found
-		// a match for that wildcard first (if so, it the earlier match must
-		// be the same expression)
+		// a match for that wildcard first (if so, the earlier match must be
+		// the same expression)
 		for (lst::const_iterator it = repl_lst.begin(); it != repl_lst.end(); ++it) {
 			if (it->op(0).is_equal(pattern))
 				return is_equal(ex_to<basic>(it->op(1)));
