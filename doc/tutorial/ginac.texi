@@ -3138,16 +3138,20 @@ normalized to @code{P_a/P_b} = @code{(4*y+z)/(y+3*z)}.
 @cindex denominator
 @cindex @code{numer()}
 @cindex @code{denom()}
+@cindex @code{numer_denom()}
 
 The numerator and denominator of an expression can be obtained with
 
 @example
 ex ex::numer();
 ex ex::denom();
+ex ex::numer_denom();
 @end example
 
 These functions will first normalize the expression as described above and
-then return the numerator or denominator, respectively.
+then return the numerator, denominator, or both as a list, respectively.
+If you need both numerator and denominator, calling @code{numer_denom()} is
+faster than using @code{numer()} and @code{denom()} separately.
 
 
 @subsection Converting to a rational expression
@@ -3366,23 +3370,25 @@ program, it will type out:
 @node Symmetrization, Built-in Functions, Series Expansion, Methods and Functions
 @c    node-name, next, previous, up
 @section Symmetrization
+@cindex @code{symmetrize()}
+@cindex @code{antisymmetrize()}
 
-The two functions
+The two methods
 
 @example
-ex symmetrize(const ex & e, const lst & l);
-ex antisymmetrize(const ex & e, const lst & l);
+ex ex::symmetrize(const lst & l);
+ex ex::antisymmetrize(const lst & l);
 @end example
 
 symmetrize an expression by returning the symmetric or antisymmetric sum
 over all permutations of the specified list of objects, weighted by the
 number of permutations.
 
-The two additional functions
+The two additional methods
 
 @example
-ex symmetrize(const ex & e);
-ex antisymmetrize(const ex & e);
+ex ex::symmetrize();
+ex ex::antisymmetrize();
 @end example
 
 symmetrize or antisymmetrize an expression over its free indices.
@@ -3395,11 +3401,11 @@ almost any kind of object (anything that is @code{subs()}able):
     idx i(symbol("i"), 3), j(symbol("j"), 3), k(symbol("k"), 3);
     symbol A("A"), B("B"), a("a"), b("b"), c("c");
                                            
-    cout << symmetrize(indexed(A, i, j)) << endl;
+    cout << indexed(A, i, j).symmetrize() << endl;
      // -> 1/2*A.j.i+1/2*A.i.j
-    cout << antisymmetrize(indexed(A, i, j, k), lst(i, j)) << endl;
+    cout << indexed(A, i, j, k).antisymmetrize(lst(i, j)) << endl;
      // -> -1/2*A.j.i.k+1/2*A.i.j.k
-    cout << symmetrize(lst(a, b, c), lst(a, b, c)) << endl;
+    cout << lst(a, b, c).symmetrize(lst(a, b, c)) << endl;
      // -> 1/6*[a,b,c]+1/6*[c,a,b]+1/6*[b,a,c]+1/6*[c,b,a]+1/6*[b,c,a]+1/6*[a,c,b]
 @}
 @end example
