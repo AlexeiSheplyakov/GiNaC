@@ -124,7 +124,7 @@ CLASS_DIAGRAMS       = YES
 # function will be appended as a block of code to the documentation of.
 # that member or function.
 
-SOURCE_BROWSER       = YES
+SOURCE_BROWSER       = NO
 
 # If the CASE_SENSE_NAMES tag is set to NO (the default) then Doxygen
 # will only generate file names in lower case letters. If set to
@@ -138,7 +138,7 @@ CASE_SENSE_NAMES     = YES
 # will generate a verbatim copy of the header file for each class for
 # which an include is specified. Set to NO to disable this.
 
-VERBATIM_HEADERS     = YES
+VERBATIM_HEADERS     = NO
 
 # If the JAVADOC_AUTOBRIEF tag is set to YES (the default) then Doxygen
 # will interpret the first line (until the first dot) of a JavaDoc-style
