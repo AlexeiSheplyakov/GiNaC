@@ -26,7 +26,7 @@ static unsigned check_diff(const ex &e, const symbol &x,
 						   const ex &d, unsigned nth=1)
 {
 	ex ed = e.diff(x, nth);
-	if ((ed - d).compare(ex(0)) != 0) {
+	if (!(ed - d).is_zero()) {
 		switch (nth) {
 		case 0:
 			clog << "zeroth ";
@@ -223,7 +223,7 @@ static unsigned exam_differentiation6()
 	ed = series_to_poly(ed);
 	d = series_to_poly(d);
 	
-	if ((ed - d).compare(ex(0)) != 0) {
+	if (!(ed - d).is_zero()) {
 		clog << "derivative of " << e << " by " << x << " returned "
 		     << ed << " instead of " << d << ")" << endl;
 		return 1;
