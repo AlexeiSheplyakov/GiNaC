@@ -23,8 +23,8 @@
 #ifndef __GINAC_SERIES_H__
 #define __GINAC_SERIES_H__
 
-#include <ginac/basic.h>
-#include <ginac/expairseq.h>
+#include "basic.h"
+#include "expairseq.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {

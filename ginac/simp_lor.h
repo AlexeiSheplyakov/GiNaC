@@ -28,8 +28,8 @@
 #include <utility>
 #include <map>
 #include <iostream>
-#include <ginac/indexed.h>
-#include <ginac/lorentzidx.h>
+#include "indexed.h"
+#include "lorentzidx.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {

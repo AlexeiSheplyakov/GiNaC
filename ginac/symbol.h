@@ -24,8 +24,8 @@
 #define __GINAC_SYMBOL_H__
 
 #include <string>
-#include <ginac/basic.h>
-#include <ginac/ex.h>
+#include "basic.h"
+#include "ex.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {

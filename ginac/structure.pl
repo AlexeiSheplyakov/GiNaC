@@ -148,7 +148,7 @@ ${input_structure}
 #ifndef __GINAC_${STRUCTURE_UC}_H__
 #define __GINAC_${STRUCTURE_UC}_H__
 
-#include <ginac/structure.h>
+#include "structure.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {

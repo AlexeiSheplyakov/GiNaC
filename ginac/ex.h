@@ -24,8 +24,8 @@
 #define __GINAC_EX_H__
 
 #include <iostream>
-#include <ginac/basic.h>
-#include <ginac/operators.h>
+#include "basic.h"
+#include "operators.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {

@@ -5,7 +5,8 @@
 index.html:
 	@if [ "${DOXYGEN}" ]; then \
 	  echo "Running ${DOXYGEN} DoxyfileHTML..."; \
-	  ${DOXYGEN} DoxyfileHTML; \
+	  (cd ${srcdir}; \
+	  ${DOXYGEN} DoxyfileHTML); \
 	else \
 	  echo "warning: target reference_html disabled by configuration"; \
 	fi
@@ -16,7 +17,8 @@ latex::
 latex/reference.tex:
 	@if [ "${DOXYGEN}" ]; then \
 	  echo "Running ${DOXYGEN} DoxyfileTEX..."; \
-	  ${DOXYGEN} DoxyfileTEX; \
+	  (cd ${srcdir}; \
+	  ${DOXYGEN} DoxyfileTEX); \
 	  mv ${srcdir}/latex/refman.tex ${srcdir}/latex/reference.tex; \
 	else \
 	  echo "warning: target reference.tex disabled by configuration"; \
@@ -55,26 +57,16 @@ install-data-local:
 	  echo " $(INSTALL_DATA) $(srcdir)/doxygen.css $(DESTDIR)$(ginacreferencedir)/doxygen.css"; \
 	  $(INSTALL_DATA) $(srcdir)/doxygen.css $(DESTDIR)$(ginacreferencedir)/doxygen.css; \
 	fi
-	@for p in *.html; do \
-	  if [ -f $(srcdir)/$$p ]; then \
-	    echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p"; \
-	    $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p; \
-	  fi; \
+	@for p in `echo $(srcdir)/*.html | sed 's,[^ ]*/,,g'`; do \
+	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p"; \
+	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p; \
 	done
-	@for p in *.gif; do \
-	  if [ -f $(srcdir)/$$p ]; then \
-	    echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p"; \
-	    $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p; \
-	  fi; \
+	@for p in `echo $(srcdir)/*.gif | sed 's,[^ ]*/,,g'`; do \
+	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p"; \
+	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p; \
 	done
 
 uninstall-local:
 	rm -f $(DESTDIR)$(ginacreferencedir)/doxygen.css
-	@for p in *.html; do \
-	  echo " rm -f $(DESTDIR)$(ginacreferencedir)/$$p"; \
-	  rm -f $(DESTDIR)$(ginacreferencedir)/$$p; \
-	done
-	@for p in *.gif; do \
-	  echo " rm -f $(DESTDIR)$(ginacreferencedir)/$$p"; \
-	  rm -f $(DESTDIR)$(ginacreferencedir)/$$p; \
-	done
+	rm -f $(DESTDIR)$(ginacreferencedir)/*.html
+	rm -f $(DESTDIR)$(ginacreferencedir)/*.gif

@@ -3,6 +3,7 @@
 bin_PROGRAMS = ginsh
 ginsh_SOURCES = ginsh_parser.yy ginsh_lexer.ll ginsh.h
 ginsh_LDADD = ../ginac/libginac.la $(GINSH_LIBS)
+INCLUDES = -I$(srcdir)/../ginac
 man_MANS = ginsh.1
 YFLAGS = -d
 EXTRA_DIST = $(man_MANS) ginsh_parser.h ginsh_fcn_help.sed ginsh_op_help.sed

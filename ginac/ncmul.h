@@ -23,7 +23,7 @@
 #ifndef __GINAC_NCMUL_H__
 #define __GINAC_NCMUL_H__
 
-#include <ginac/exprseq.h>
+#include "exprseq.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {

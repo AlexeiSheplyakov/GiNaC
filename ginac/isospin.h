@@ -24,7 +24,7 @@
 #define __GINAC_ISOSPIN_H__
 
 #include <string>
-#include <ginac/indexed.h>
+#include "indexed.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {

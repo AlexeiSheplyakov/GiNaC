@@ -24,7 +24,7 @@
 #define __GINAC_INDEXED_H__
 
 #include <string>
-#include <ginac/exprseq.h>
+#include "exprseq.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {

@@ -30,10 +30,10 @@
 // CINT needs <algorithm> to work properly with <vector> 
 #include <algorithm>
 
-#include <ginac/flags.h>
-#include <ginac/tinfos.h>
-#include <ginac/assertion.h>
-#include <ginac/registrar.h>
+#include "flags.h"
+#include "tinfos.h"
+#include "assertion.h"
+#include "registrar.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {

@@ -24,7 +24,7 @@
 #ifndef __GINAC_FAIL_H__
 #define __GINAC_FAIL_H__
 
-#include <ginac/basic.h>
+#include "basic.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {

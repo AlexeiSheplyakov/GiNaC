@@ -29,7 +29,7 @@
 // CINT needs <algorithm> to work properly with <vector> and <list>
 //#include <algorithm>
 
-#include <ginac/expair.h>
+#include "expair.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {

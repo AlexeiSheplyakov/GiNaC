@@ -23,8 +23,8 @@
 #ifndef __GINAC_POWER_H__
 #define __GINAC_POWER_H__
 
-#include <ginac/basic.h>
-#include <ginac/ex.h>
+#include "basic.h"
+#include "ex.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {

@@ -169,7 +169,7 @@ $interface=<<END_OF_INTERFACE;
 #include <algorithm>
 #endif // def __CINT__
 
-#include <ginac/exprseq.h>
+#include "exprseq.h"
 
 #ifndef NO_GINAC_NAMESPACE
 

@@ -8,18 +8,18 @@ TXT = $(addsuffix .txt, $(basename $(FIG)))
 
 SUFFIXES = .fig .png .eps .txt
 
-%.eps: %.fig
+.fig.eps:
 	@if [ "${FIG2DEV}" ]; then \
 	  echo "Running ${FIG2DEV} -L eps -m 0.9 $< $@..."; \
-	  ${FIG2DEV} -L eps -m 0.9 $< $@; \
+	  cd $(srcdir) && ${FIG2DEV} -L eps -m 0.9 $< $@; \
 	else \
 	  echo "warning: fig2dev was not found by configure"; \
 	fi
 
-%.png: %.fig
+.fig.png:
 	@if [ "${FIG2DEV}" ]; then \
 	  echo "Running ${FIG2DEV} -L png $< $@..."; \
-	  ${FIG2DEV} -L png $< $@; \
+	  cd $(srcdir) && ${FIG2DEV} -L png $< $@; \
 	else \
 	  echo "warning: fig2dev was not found by configure"; \
 	fi

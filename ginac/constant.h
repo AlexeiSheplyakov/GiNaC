@@ -24,7 +24,7 @@
 #define __GINAC_CONSTANT_H__
 
 #include <string>
-#include <ginac/basic.h>
+#include "basic.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {

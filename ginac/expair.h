@@ -23,8 +23,8 @@
 #ifndef __GINAC_EXPAIR_H__
 #define __GINAC_EXPAIR_H__
 
-#include <ginac/ex.h>
-#include <ginac/numeric.h>
+#include "ex.h"
+#include "numeric.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {

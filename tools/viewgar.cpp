@@ -24,7 +24,7 @@
 #include <fstream>
 #include <stdexcept>
 
-#include <ginac/ginac.h>
+#include "ginac.h"
 using namespace GiNaC;
 
 int main(int argc, char **argv)

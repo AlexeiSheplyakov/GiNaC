@@ -23,8 +23,8 @@
 #ifndef __GINAC_INIFCNS_H__
 #define __GINAC_INIFCNS_H__
 
-#include <ginac/function.h>
-#include <ginac/ex.h>
+#include "function.h"
+#include "ex.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {

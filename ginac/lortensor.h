@@ -25,10 +25,10 @@
 
 #include <string>
 #include <vector>
-#include "config.h"
 #include <iostream>
-#include <ginac/indexed.h>
-#include <ginac/lorentzidx.h>
+#include "config.h"
+#include "indexed.h"
+#include "lorentzidx.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {

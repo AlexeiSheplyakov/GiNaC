@@ -23,7 +23,7 @@
 #ifndef __GINAC_ARCHIVE_H__
 #define __GINAC_ARCHIVE_H__
 
-#include <ginac/ex.h>
+#include "ex.h"
 
 #include <string>
 #include <vector>

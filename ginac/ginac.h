@@ -23,45 +23,45 @@
 #ifndef __GINAC_H__
 #define __GINAC_H__
 
-#include <ginac/basic.h>
+#include "basic.h"
 
-#include <ginac/ex.h>
-#include <ginac/normal.h>
-#include <ginac/archive.h>
+#include "ex.h"
+#include "normal.h"
+#include "archive.h"
 
-#include <ginac/constant.h>
-#include <ginac/fail.h>
-#include <ginac/idx.h>
-#include <ginac/lst.h>
-#include <ginac/matrix.h>
-#include <ginac/numeric.h>
-#include <ginac/power.h>
-#include <ginac/relational.h>
-#include <ginac/structure.h>
-#include <ginac/symbol.h>
+#include "constant.h"
+#include "fail.h"
+#include "idx.h"
+#include "lst.h"
+#include "matrix.h"
+#include "numeric.h"
+#include "power.h"
+#include "relational.h"
+#include "structure.h"
+#include "symbol.h"
 
-#include <ginac/expair.h>
-#include <ginac/expairseq.h>
-#include <ginac/add.h>
-#include <ginac/mul.h>
-#include <ginac/pseries.h>
+#include "expair.h"
+#include "expairseq.h"
+#include "add.h"
+#include "mul.h"
+#include "pseries.h"
 
-#include <ginac/exprseq.h>
-#include <ginac/function.h>
-#include <ginac/ncmul.h>
+#include "exprseq.h"
+#include "function.h"
+#include "ncmul.h"
 
-#include <ginac/inifcns.h>
-#include <ginac/operators.h>
+#include "inifcns.h"
+#include "operators.h"
 
 #ifndef GINAC_BASE_ONLY
-#include <ginac/indexed.h>
-#include <ginac/clifford.h>
-#include <ginac/coloridx.h>
-#include <ginac/color.h>
-#include <ginac/isospin.h>
-#include <ginac/lorentzidx.h>
-#include <ginac/simp_lor.h>
-#include <ginac/lortensor.h>
+#include "indexed.h"
+#include "clifford.h"
+#include "coloridx.h"
+#include "color.h"
+#include "isospin.h"
+#include "lorentzidx.h"
+#include "simp_lor.h"
+#include "lortensor.h"
 #endif // ndef GINAC_BASE_ONLY
 
 #endif // ndef __GINAC_H__

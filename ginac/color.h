@@ -25,8 +25,8 @@
 
 #include <string>
 #include <vector>
-#include <ginac/indexed.h>
-#include <ginac/ex.h>
+#include "indexed.h"
+#include "ex.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {

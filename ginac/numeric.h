@@ -24,8 +24,8 @@
 #define __GINAC_NUMERIC_H__
 
 #include <strstream>
-#include <ginac/basic.h>
-#include <ginac/ex.h>
+#include "basic.h"
+#include "ex.h"
 
 class cl_N;     // We want to include cln.h only in numeric.cpp in order to 
                 // avoid namespace pollution and keep compile-time low.

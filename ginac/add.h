@@ -23,7 +23,7 @@
 #ifndef __GINAC_ADD_H__
 #define __GINAC_ADD_H__
 
-#include <ginac/expairseq.h>
+#include "expairseq.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {

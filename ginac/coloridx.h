@@ -25,8 +25,8 @@
 
 #include <string>
 #include <vector>
-#include <ginac/idx.h>
-#include <ginac/ex.h>
+#include "idx.h"
+#include "ex.h"
 
 #ifndef NO_GINAC_NAMESPACE
 namespace GiNaC {
