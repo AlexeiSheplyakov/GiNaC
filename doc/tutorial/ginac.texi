@@ -1543,11 +1543,12 @@ static ex cos_diff_method(ex const & x, unsigned diff_param)
 
 @cindex product rule
 The second parameter is obligatory but uninteresting at this point.  It
-is used for correct handling of the product rule only.  For Taylor
-expansion, it is enough to know how to differentiate.  But if the
-function you want to implement does have a pole somewhere in the complex
-plane, you need to write another method for Laurent expansion around
-that point.
+specifies which parameter to differentiate in a partial derivative in
+case the function has more than one parameter and its main application
+is for correct handling of the chain rule.  For Taylor expansion, it is
+enough to know how to differentiate.  But if the function you want to
+implement does have a pole somewhere in the complex plane, you need to
+write another method for Laurent expansion around that point.
 
 Now that all the ingrediences for @code{cos} have been set up, we need
 to tell the system about it.  This is done by a macro and we are not
