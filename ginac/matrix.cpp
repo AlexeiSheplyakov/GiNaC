@@ -850,7 +850,7 @@ ex matrix::charpoly(const symbol & lambda) const
 	
 	bool numeric_flag = true;
 	exvector::const_iterator r = m.begin(), rend = m.end();
-	while (r != rend) {
+	while (r!=rend && numeric_flag==true) {
 		if (!r->info(info_flags::numeric))
 			numeric_flag = false;
 		++r;
