@@ -31,13 +31,13 @@ AC_DEFUN(GINAC_CHECK_LIBCLN,
         [LIBS="-lcln"
         case "${ac_cv_header_cln_cln_h}" in
         "yes")
-            AC_TRY_LINK([#include <cln/cln.h>],
+            AC_TRY_LINK([#include <cln/cl_integer.h>],
                 [doublefactorial(2);],
                 ginac_cv_lib_cln_link="-lcln",
                 ginac_cv_lib_cln_link="fail")
             ;;
         *)
-            AC_TRY_LINK([#include <cln.h>],
+            AC_TRY_LINK([#include <cl_integer.h>],
                 [doublefactorial(2);],
                 ginac_cv_lib_cln_link="-lcln",
                 ginac_cv_lib_cln_link="fail")
