@@ -181,13 +181,21 @@ void mul::print(ostream & os, unsigned upper_precedence) const
     if (precedence<=upper_precedence) os << "(";
     bool first=true;
     // first print the overall numeric coefficient:
-    if (ex_to_numeric(overall_coeff).csgn()==-1) os << '-';
-    if (!overall_coeff.is_equal(_ex1()) &&
-        !overall_coeff.is_equal(_ex_1())) {
-        if (ex_to_numeric(overall_coeff).csgn()==-1)
-            (_num_1()*overall_coeff).print(os, precedence);
-        else
-            overall_coeff.print(os, precedence);
+    numeric coeff = ex_to_numeric(overall_coeff);
+    if (coeff.csgn()==-1) os << '-';
+    if (!coeff.is_equal(_num1()) &&
+        !coeff.is_equal(_num_1())) {
+        if (coeff.is_rational()) {
+            if (coeff.is_negative())
+                os << -coeff;
+            else
+                os << coeff;
+        } else {
+            if (coeff.csgn()==-1)
+                (-coeff).print(os, precedence);
+            else
+                coeff.print(os, precedence);
+        }
         os << '*';
     }
     // then proceed with the remaining factors:

@@ -105,7 +105,22 @@ ex::ex(basic const & other)
 ex::ex(int const i)
 {
     debugmsg("ex constructor from int",LOGLEVEL_CONSTRUCT);
-    construct_from_basic(numeric(i));
+    switch (i) {  // some tiny efficiency-hack (FIXME: is this ok?)
+        case -1:
+            bp = _ex_1().bp;
+            ++bp->refcount;
+            break;
+        case 0:
+            bp = _ex0().bp;
+            ++bp->refcount;
+            break;
+        case 1:
+            bp = _ex1().bp;
+            ++bp->refcount;
+            break;
+        default:
+            construct_from_basic(numeric(i));
+    }
 }
 
 ex::ex(unsigned int const i)

@@ -50,9 +50,9 @@ static ex Li2_eval(ex const & x)
     if (x.is_zero())
         return x;
     if (x.is_equal(_ex1()))
-        return power(Pi, 2) / 6;
+        return power(Pi, _ex2()) / _ex6();
     if (x.is_equal(_ex_1()))
-        return -power(Pi, 2) / 12;
+        return -power(Pi, _ex2()) / _ex12();
     return Li2(x).hold();
 }
 
@@ -142,7 +142,10 @@ static ex Order_series(ex const & x, symbol const & s, ex const & point, int ord
 
 REGISTER_FUNCTION(Order, Order_eval, NULL, NULL, Order_series);
 
-/** linear solve. */
+//////////
+// Solve linear system
+//////////
+
 ex lsolve(ex const &eqns, ex const &symbols)
 {
     // solve a system of linear equations
@@ -180,7 +183,7 @@ ex lsolve(ex const &eqns, ex const &symbols)
     matrix sys(eqns.nops(),symbols.nops());
     matrix rhs(eqns.nops(),1);
     matrix vars(symbols.nops(),1);
-
+    
     for (int r=0; r<eqns.nops(); r++) {
         ex eq=eqns.op(r).op(0)-eqns.op(r).op(1); // lhs-rhs==0
         ex linpart=eq;

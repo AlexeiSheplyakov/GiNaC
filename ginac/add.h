@@ -72,7 +72,7 @@ public:
     ex series(symbol const & s, ex const & point, int order) const;
     ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
     numeric integer_content(void) const;
-    ex smod(numeric const &xi) const;
+    ex smod(const numeric &xi) const;
     numeric max_coefficient(void) const;
     exvector get_indices(void) const;
     ex simplify_ncmul(exvector const & v) const;

@@ -160,7 +160,7 @@ basic * add::duplicate() const
     return new add(*this);
 }
 
-void add::print(ostream & os, unsigned upper_precedence) const
+/*void add::print(ostream & os, unsigned upper_precedence) const
 {
     debugmsg("add print",LOGLEVEL_PRINT);
     if (precedence<=upper_precedence) os << "(";
@@ -176,10 +176,17 @@ void add::print(ostream & os, unsigned upper_precedence) const
         }
         if (!coeff.is_equal(_num1()) &&
             !coeff.is_equal(_num_1())) {
-            if (coeff.csgn()==-1)
-                (_num_1()*coeff).print(os, precedence);
-            else
-                coeff.print(os, precedence);
+            if (coeff.is_rational()) {
+                if (coeff.is_negative())
+                    os << -coeff;
+                else
+                    os << coeff;
+            } else {
+                if (coeff.csgn()==-1)
+                    (-coeff).print(os, precedence);
+                else
+                    coeff.print(os, precedence);
+            }
             os << '*';
         }
         os << cit->rest;
@@ -188,6 +195,46 @@ void add::print(ostream & os, unsigned upper_precedence) const
     if (!overall_coeff.is_zero()) {
         if (overall_coeff.info(info_flags::positive)) os << '+';
         os << overall_coeff;
+    }
+    if (precedence<=upper_precedence) os << ")";
+}*/
+
+void add::print(ostream & os, unsigned upper_precedence) const
+{
+    debugmsg("add print",LOGLEVEL_PRINT);
+    if (precedence<=upper_precedence) os << "(";
+    numeric coeff;
+    bool first = true;
+    // first print the overall numeric coefficient, if present:
+    if (!overall_coeff.is_zero()) {
+        os << overall_coeff;
+        first = false;
+    }
+    // then proceed with the remaining factors:
+    for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
+        coeff = ex_to_numeric(cit->coeff);
+        if (!first) {
+            if (coeff.csgn()==-1) os << '-'; else os << '+';
+        } else {
+            if (coeff.csgn()==-1) os << '-';
+            first = false;
+        }
+        if (!coeff.is_equal(_num1()) &&
+            !coeff.is_equal(_num_1())) {
+            if (coeff.is_rational()) {
+                if (coeff.is_negative())
+                    os << -coeff;
+                else
+                    os << coeff;
+            } else {
+                if (coeff.csgn()==-1)
+                    (-coeff).print(os, precedence);
+                else
+                    coeff.print(os, precedence);
+            }
+            os << '*';
+        }
+        os << cit->rest;
     }
     if (precedence<=upper_precedence) os << ")";
 }

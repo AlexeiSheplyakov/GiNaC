@@ -53,6 +53,118 @@ int compare_pointers(void const * a, void const * b)
 // `construct on first use' chest of numbers
 //////////
 
+// numeric -60
+numeric const & _num_60(void)
+{
+    const static ex e = ex(numeric(-60));
+    const static numeric * n = static_cast<const numeric *>(e.bp);
+    return *n;
+}
+
+ex const & _ex_60(void)
+{
+    static ex * e = new ex(_num_60());
+    return *e;
+}
+
+// numeric -120
+numeric const & _num_120(void)
+{
+    const static ex e = ex(numeric(-120));
+    const static numeric * n = static_cast<const numeric *>(e.bp);
+    return *n;
+}
+
+ex const & _ex_120(void)
+{
+    static ex * e = new ex(_num_120());
+    return *e;
+}
+
+// numeric -30
+numeric const & _num_30(void)
+{
+    const static ex e = ex(numeric(-30));
+    const static numeric * n = static_cast<const numeric *>(e.bp);
+    return *n;
+}
+
+ex const & _ex_30(void)
+{
+    static ex * e = new ex(_num_30());
+    return *e;
+}
+
+// numeric -25
+numeric const & _num_25(void)
+{
+    const static ex e = ex(numeric(-25));
+    const static numeric * n = static_cast<const numeric *>(e.bp);
+    return *n;
+}
+
+ex const & _ex_25(void)
+{
+    static ex * e = new ex(_num_25());
+    return *e;
+}
+
+// numeric -24
+numeric const & _num_24(void)
+{
+    const static ex e = ex(numeric(-24));
+    const static numeric * n = static_cast<const numeric *>(e.bp);
+    return *n;
+}
+
+ex const & _ex_24(void)
+{
+    static ex * e = new ex(_num_24());
+    return *e;
+}
+
+// numeric -20
+numeric const & _num_20(void)
+{
+    const static ex e = ex(numeric(-20));
+    const static numeric * n = static_cast<const numeric *>(e.bp);
+    return *n;
+}
+
+ex const & _ex_20(void)
+{
+    static ex * e = new ex(_num_20());
+    return *e;
+}
+
+// numeric -18
+numeric const & _num_18(void)
+{
+    const static ex e = ex(numeric(-18));
+    const static numeric * n = static_cast<const numeric *>(e.bp);
+    return *n;
+}
+
+ex const & _ex_18(void)
+{
+    static ex * e = new ex(_num_18());
+    return *e;
+}
+
+// numeric -15
+numeric const & _num_15(void)
+{
+    const static ex e = ex(numeric(-15));
+    const static numeric * n = static_cast<const numeric *>(e.bp);
+    return *n;
+}
+
+ex const & _ex_15(void)
+{
+    static ex * e = new ex(_num_15());
+    return *e;
+}
+
 // numeric -12
 numeric const & _num_12(void)
 {
@@ -249,6 +361,20 @@ ex const & _ex_1_3(void)
     return *e;
 }    
 
+// numeric -1/4
+numeric const & _num_1_4(void)
+{
+    const static ex e = ex(numeric(-1,4));
+    const static numeric * n = static_cast<const numeric *>(e.bp);
+    return *n;
+}
+
+ex const & _ex_1_4(void)
+{
+    static ex * e = new ex(_num_1_4());
+    return *e;
+}    
+
 // numeric  0
 numeric const & _num0(void)
 {
@@ -262,6 +388,20 @@ ex const & _ex0(void)
     static ex * e = new ex(_num0());
     return *e;
 }
+
+// numeric  1/4
+numeric const & _num1_4(void)
+{
+    const static ex e = ex(numeric(1,4));
+    const static numeric * n = static_cast<const numeric *>(e.bp);
+    return *n;
+}
+
+ex const & _ex1_4(void)
+{
+    static ex * e = new ex(_num1_4());
+    return *e;
+}    
 
 // numeric  1/3
 numeric const & _num1_3(void)
@@ -456,6 +596,118 @@ numeric const & _num12(void)
 ex const & _ex12(void)
 {
     static ex * e = new ex(_num12());
+    return *e;
+}
+
+// numeric  15
+numeric const & _num15(void)
+{
+    const static ex e = ex(numeric(15));
+    const static numeric * n = static_cast<const numeric *>(e.bp);
+    return *n;
+}
+
+ex const & _ex15(void)
+{
+    static ex * e = new ex(_num15());
+    return *e;
+}
+
+// numeric  18
+numeric const & _num18(void)
+{
+    const static ex e = ex(numeric(18));
+    const static numeric * n = static_cast<const numeric *>(e.bp);
+    return *n;
+}
+
+ex const & _ex18(void)
+{
+    static ex * e = new ex(_num18());
+    return *e;
+}
+
+// numeric  20
+numeric const & _num20(void)
+{
+    const static ex e = ex(numeric(20));
+    const static numeric * n = static_cast<const numeric *>(e.bp);
+    return *n;
+}
+
+ex const & _ex20(void)
+{
+    static ex * e = new ex(_num20());
+    return *e;
+}
+
+// numeric  24
+numeric const & _num24(void)
+{
+    const static ex e = ex(numeric(24));
+    const static numeric * n = static_cast<const numeric *>(e.bp);
+    return *n;
+}
+
+ex const & _ex24(void)
+{
+    static ex * e = new ex(_num24());
+    return *e;
+}
+
+// numeric  25
+numeric const & _num25(void)
+{
+    const static ex e = ex(numeric(25));
+    const static numeric * n = static_cast<const numeric *>(e.bp);
+    return *n;
+}
+
+ex const & _ex25(void)
+{
+    static ex * e = new ex(_num25());
+    return *e;
+}
+
+// numeric  30
+numeric const & _num30(void)
+{
+    const static ex e = ex(numeric(30));
+    const static numeric * n = static_cast<const numeric *>(e.bp);
+    return *n;
+}
+
+ex const & _ex30(void)
+{
+    static ex * e = new ex(_num30());
+    return *e;
+}
+
+// numeric  60
+numeric const & _num60(void)
+{
+    const static ex e = ex(numeric(60));
+    const static numeric * n = static_cast<const numeric *>(e.bp);
+    return *n;
+}
+
+ex const & _ex60(void)
+{
+    static ex * e = new ex(_num60());
+    return *e;
+}
+
+// numeric  120
+numeric const & _num120(void)
+{
+    const static ex e = ex(numeric(120));
+    const static numeric * n = static_cast<const numeric *>(e.bp);
+    return *n;
+}
+
+ex const & _ex120(void)
+{
+    static ex * e = new ex(_num120());
     return *e;
 }
 

@@ -138,7 +138,7 @@ public: // only const functions please (may break reference counting)
     virtual ex subs(lst const & ls, lst const & lr) const;
     virtual ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
     virtual numeric integer_content(void) const;
-    virtual ex smod(numeric const &xi) const;
+    virtual ex smod(const numeric &xi) const;
     virtual numeric max_coefficient(void) const;
     virtual exvector get_indices(void) const;
     virtual ex simplify_ncmul(exvector const & v) const;

@@ -62,7 +62,7 @@ static ex zeta1_eval(ex const & x)
                 if (x.info(info_flags::odd))
                     return zeta(x).hold();
                 else
-                    return abs(bernoulli(y))*pow(Pi,x)*_num2().power(y-_num1())/factorial(y);
+                    return abs(bernoulli(y))*pow(Pi,x)*pow(_num2(),y-_num1())/factorial(y);
             } else {
                 if (x.info(info_flags::odd))
                     return -bernoulli(_num1()-y)/(_num1()-y);

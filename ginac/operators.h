@@ -41,10 +41,10 @@ ex operator/(ex const & lh, ex const & rh);
 ex operator%(ex const & lh, ex const & rh); // non-commutative multiplication
 
 // binary arithmetic operators numeric with numeric
-numeric operator+(numeric const & lh, numeric const & rh);
-numeric operator-(numeric const & lh, numeric const & rh);
-numeric operator*(numeric const & lh, numeric const & rh);
-numeric operator/(numeric const & lh, numeric const & rh);
+numeric operator+(const numeric & lh, const numeric & rh);
+numeric operator-(const numeric & lh, const numeric & rh);
+numeric operator*(const numeric & lh, const numeric & rh);
+numeric operator/(const numeric & lh, const numeric & rh);
 
 // binary arithmetic assignment operators with ex
 ex const & operator+=(ex & lh, ex const & rh);
@@ -54,17 +54,17 @@ ex const & operator/=(ex & lh, ex const & rh);
 ex const & operator%=(ex & lh, ex const & rh); // non-commutative multiplication
 
 // binary arithmetic assignment operators with numeric
-numeric const & operator+=(numeric & lh, numeric const & rh);
-numeric const & operator-=(numeric & lh, numeric const & rh);
-numeric const & operator*=(numeric & lh, numeric const & rh);
-numeric const & operator/=(numeric & lh, numeric const & rh);
+const numeric & operator+=(numeric & lh, const numeric & rh);
+const numeric & operator-=(numeric & lh, const numeric & rh);
+const numeric & operator*=(numeric & lh, const numeric & rh);
+const numeric & operator/=(numeric & lh, const numeric & rh);
 
 // unary operators
 ex operator+(ex const & lh);
 ex operator-(ex const & lh);
 
-numeric operator+(numeric const & lh);
-numeric operator-(numeric const & lh);
+numeric operator+(const numeric & lh);
+numeric operator-(const numeric & lh);
 numeric& operator++(numeric & rh);
 numeric& operator--(numeric & rh);
 numeric operator++(numeric & lh, int);

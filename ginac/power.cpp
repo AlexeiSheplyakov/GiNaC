@@ -120,11 +120,15 @@ basic * power::duplicate() const
 void power::print(ostream & os, unsigned upper_precedence) const
 {
     debugmsg("power print",LOGLEVEL_PRINT);
-    if (precedence<=upper_precedence) os << "(";
-    basis.print(os,precedence);
-    os << "^";
-    exponent.print(os,precedence);
-    if (precedence<=upper_precedence) os << ")";
+    if (exponent.is_equal(_ex1_2())) {
+        os << "sqrt(" << basis << ")";
+    } else {
+        if (precedence<=upper_precedence) os << "(";
+        basis.print(os,precedence);
+        os << "^";
+        exponent.print(os,precedence);
+        if (precedence<=upper_precedence) os << ")";
+    }
 }
 
 void power::printraw(ostream & os) const

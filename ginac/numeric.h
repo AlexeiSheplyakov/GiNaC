@@ -64,34 +64,34 @@ private:
 class numeric : public basic
 {
 // friends
-    friend numeric exp(numeric const & x);
-    friend numeric log(numeric const & x);
-    friend numeric sin(numeric const & x);
-    friend numeric cos(numeric const & x);
-    friend numeric tan(numeric const & x);
-    friend numeric asin(numeric const & x);
-    friend numeric acos(numeric const & x);
-    friend numeric atan(numeric const & x);
-    friend numeric atan(numeric const & y, numeric const & x);
-    friend numeric sinh(numeric const & x);
-    friend numeric cosh(numeric const & x);
-    friend numeric tanh(numeric const & x);
-    friend numeric asinh(numeric const & x);
-    friend numeric acosh(numeric const & x);
-    friend numeric atanh(numeric const & x);
-    friend numeric zeta(numeric const & x);
-    friend numeric bernoulli(numeric const & n);
-    friend numeric abs(numeric const & x);
-    friend numeric mod(numeric const & a, numeric const & b);
-    friend numeric smod(numeric const & a, numeric const & b);
-    friend numeric irem(numeric const & a, numeric const & b);
-    friend numeric irem(numeric const & a, numeric const & b, numeric & q);
-    friend numeric iquo(numeric const & a, numeric const & b);
-    friend numeric iquo(numeric const & a, numeric const & b, numeric & r);
-    friend numeric sqrt(numeric const & x);
-    friend numeric isqrt(numeric const & x);
-    friend numeric gcd(numeric const & a, numeric const & b);
-    friend numeric lcm(numeric const & a, numeric const & b);
+    friend numeric exp(const numeric & x);
+    friend numeric log(const numeric & x);
+    friend numeric sin(const numeric & x);
+    friend numeric cos(const numeric & x);
+    friend numeric tan(const numeric & x);
+    friend numeric asin(const numeric & x);
+    friend numeric acos(const numeric & x);
+    friend numeric atan(const numeric & x);
+    friend numeric atan(const numeric & y, const numeric & x);
+    friend numeric sinh(const numeric & x);
+    friend numeric cosh(const numeric & x);
+    friend numeric tanh(const numeric & x);
+    friend numeric asinh(const numeric & x);
+    friend numeric acosh(const numeric & x);
+    friend numeric atanh(const numeric & x);
+    friend numeric zeta(const numeric & x);
+    friend numeric bernoulli(const numeric & n);
+    friend numeric abs(const numeric & x);
+    friend numeric mod(const numeric & a, const numeric & b);
+    friend numeric smod(const numeric & a, const numeric & b);
+    friend numeric irem(const numeric & a, const numeric & b);
+    friend numeric irem(const numeric & a, const numeric & b, numeric & q);
+    friend numeric iquo(const numeric & a, const numeric & b);
+    friend numeric iquo(const numeric & a, const numeric & b, numeric & r);
+    friend numeric sqrt(const numeric & x);
+    friend numeric isqrt(const numeric & x);
+    friend numeric gcd(const numeric & a, const numeric & b);
+    friend numeric lcm(const numeric & a, const numeric & b);
 
 // member functions
 
@@ -100,10 +100,10 @@ class numeric : public basic
 public:
     numeric();
     ~numeric();
-    numeric(numeric const & other);
-    numeric const & operator=(numeric const & other);
+    numeric(const numeric & other);
+    const numeric & operator=(const numeric & other);
 protected:
-    void copy(numeric const & other);
+    void copy(const numeric & other);
     void destroy(bool call_parent);
 
     // other constructors
@@ -129,7 +129,7 @@ public:
     ex diff(symbol const & s) const;
     ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
     numeric integer_content(void) const;
-    ex smod(numeric const &xi) const;
+    ex smod(const numeric &xi) const;
     numeric max_coefficient(void) const;
 protected:
     int compare_same_type(basic const & other) const;
@@ -144,33 +144,26 @@ protected:
 
     // non-virtual functions in this class
 public:
-    numeric add(numeric const & other) const;
-    numeric sub(numeric const & other) const;
-    numeric mul(numeric const & other) const;
-    numeric div(numeric const & other) const;
-    numeric power(numeric const & other) const;
-    numeric const & add_dyn(numeric const & other) const;
-    numeric const & sub_dyn(numeric const & other) const;
-    numeric const & mul_dyn(numeric const & other) const;
-    numeric const & div_dyn(numeric const & other) const;
-    numeric const & power_dyn(numeric const & other) const;
-    numeric const & operator=(int i);
-    numeric const & operator=(unsigned int i);
-    numeric const & operator=(long i);
-    numeric const & operator=(unsigned long i);
-    numeric const & operator=(double d);
-    numeric const & operator=(char const * s);
-    /*
-    numeric add_dyn(numeric const & other) const   { return add(other);   }
-    numeric sub_dyn(numeric const & other) const   { return sub(other);   }
-    numeric mul_dyn(numeric const & other) const   { return mul(other);   }
-    numeric div_dyn(numeric const & other) const   { return div(other);   }
-    numeric power_dyn(numeric const & other) const { return power(other); }
-    */
+    numeric add(const numeric & other) const;
+    numeric sub(const numeric & other) const;
+    numeric mul(const numeric & other) const;
+    numeric div(const numeric & other) const;
+    numeric power(const numeric & other) const;
+    const numeric & add_dyn(const numeric & other) const;
+    const numeric & sub_dyn(const numeric & other) const;
+    const numeric & mul_dyn(const numeric & other) const;
+    const numeric & div_dyn(const numeric & other) const;
+    const numeric & power_dyn(const numeric & other) const;
+    const numeric & operator=(int i);
+    const numeric & operator=(unsigned int i);
+    const numeric & operator=(long i);
+    const numeric & operator=(unsigned long i);
+    const numeric & operator=(double d);
+    const numeric & operator=(char const * s);
     numeric inverse(void) const;
     int csgn(void) const;
-    int compare(numeric const & other) const;
-    bool is_equal(numeric const & other) const;
+    int compare(const numeric & other) const;
+    bool is_equal(const numeric & other) const;
     bool is_zero(void) const;
     bool is_positive(void) const;
     bool is_negative(void) const;
@@ -184,12 +177,12 @@ public:
     bool is_real(void) const;
     bool is_cinteger(void) const;
     bool is_crational(void) const;
-    bool operator==(numeric const & other) const;
-    bool operator!=(numeric const & other) const;
-    bool operator<(numeric const & other) const;
-    bool operator<=(numeric const & other) const;
-    bool operator>(numeric const & other) const;
-    bool operator>=(numeric const & other) const;
+    bool operator==(const numeric & other) const;
+    bool operator!=(const numeric & other) const;
+    bool operator<(const numeric & other) const;
+    bool operator<=(const numeric & other) const;
+    bool operator>(const numeric & other) const;
+    bool operator>=(const numeric & other) const;
     int to_int(void) const;
     double to_double(void) const;
     numeric real(void) const;
@@ -217,42 +210,42 @@ extern _numeric_digits Digits;
 
 // global functions
 
-numeric exp(numeric const & x);
-numeric log(numeric const & x);
-numeric sin(numeric const & x);
-numeric cos(numeric const & x);
-numeric tan(numeric const & x);
-numeric asin(numeric const & x);
-numeric acos(numeric const & x);
-numeric atan(numeric const & x);
-numeric atan(numeric const & y, numeric const & x);
-numeric sinh(numeric const & x);
-numeric cosh(numeric const & x);
-numeric tanh(numeric const & x);
-numeric asinh(numeric const & x);
-numeric acosh(numeric const & x);
-numeric atanh(numeric const & x);
-numeric zeta(numeric const & x);
-numeric gamma(numeric const & x);
-numeric psi(numeric const & x);
-numeric psi(numeric const & n, numeric const & x);
-numeric factorial(numeric const & n);
-numeric doublefactorial(numeric const & n);
-numeric binomial(numeric const & n, numeric const & k);
-numeric bernoulli(numeric const & n);
+numeric exp(const numeric & x);
+numeric log(const numeric & x);
+numeric sin(const numeric & x);
+numeric cos(const numeric & x);
+numeric tan(const numeric & x);
+numeric asin(const numeric & x);
+numeric acos(const numeric & x);
+numeric atan(const numeric & x);
+numeric atan(const numeric & y, const numeric & x);
+numeric sinh(const numeric & x);
+numeric cosh(const numeric & x);
+numeric tanh(const numeric & x);
+numeric asinh(const numeric & x);
+numeric acosh(const numeric & x);
+numeric atanh(const numeric & x);
+numeric zeta(const numeric & x);
+numeric gamma(const numeric & x);
+numeric psi(const numeric & x);
+numeric psi(const numeric & n, const numeric & x);
+numeric factorial(const numeric & n);
+numeric doublefactorial(const numeric & n);
+numeric binomial(const numeric & n, const numeric & k);
+numeric bernoulli(const numeric & n);
 
-numeric abs(numeric const & x);
-numeric mod(numeric const & a, numeric const & b);
-numeric smod(numeric const & a, numeric const & b);
-numeric irem(numeric const & a, numeric const & b);
-numeric irem(numeric const & a, numeric const & b, numeric & q);
-numeric iquo(numeric const & a, numeric const & b);
-numeric iquo(numeric const & a, numeric const & b, numeric & r);
-numeric sqrt(numeric const & x);
-numeric isqrt(numeric const & x);
+numeric abs(const numeric & x);
+numeric mod(const numeric & a, const numeric & b);
+numeric smod(const numeric & a, const numeric & b);
+numeric irem(const numeric & a, const numeric & b);
+numeric irem(const numeric & a, const numeric & b, numeric & q);
+numeric iquo(const numeric & a, const numeric & b);
+numeric iquo(const numeric & a, const numeric & b, numeric & r);
+numeric sqrt(const numeric & x);
+numeric isqrt(const numeric & x);
 
-numeric gcd(numeric const & a, numeric const & b);
-numeric lcm(numeric const & a, numeric const & b);
+numeric gcd(const numeric & a, const numeric & b);
+numeric lcm(const numeric & a, const numeric & b);
 
 /** Exception thrown by numeric members to signal failure */
 struct numeric_fail
@@ -262,58 +255,61 @@ struct numeric_fail
 };
 
 // wrapper functions around member functions
-inline numeric inverse(numeric const & x)
+inline numeric pow(const numeric & x, const numeric & y)
+{ return x.power(y); }
+
+inline numeric inverse(const numeric & x)
 { return x.inverse(); }
 
-inline bool csgn(numeric const & x)
+inline bool csgn(const numeric & x)
 { return x.csgn(); }
 
-inline bool is_zero(numeric const & x)
+inline bool is_zero(const numeric & x)
 { return x.is_zero(); }
 
-inline bool is_positive(numeric const & x)
+inline bool is_positive(const numeric & x)
 { return x.is_positive(); }
 
-inline bool is_integer(numeric const & x)
+inline bool is_integer(const numeric & x)
 { return x.is_integer(); }
 
-inline bool is_pos_integer(numeric const & x)
+inline bool is_pos_integer(const numeric & x)
 { return x.is_pos_integer(); }
 
-inline bool is_nonneg_integer(numeric const & x)
+inline bool is_nonneg_integer(const numeric & x)
 { return x.is_nonneg_integer(); }
 
-inline bool is_even(numeric const & x)
+inline bool is_even(const numeric & x)
 { return x.is_even(); }
 
-inline bool is_odd(numeric const & x)
+inline bool is_odd(const numeric & x)
 { return x.is_odd(); }
 
-inline bool is_prime(numeric const & x)
+inline bool is_prime(const numeric & x)
 { return x.is_prime(); }
 
-inline bool is_rational(numeric const & x)
+inline bool is_rational(const numeric & x)
 { return x.is_rational(); }
 
-inline bool is_real(numeric const & x)
+inline bool is_real(const numeric & x)
 { return x.is_real(); }
 
-inline bool is_cinteger(numeric const & x)
+inline bool is_cinteger(const numeric & x)
 { return x.is_cinteger(); }
 
-inline bool is_crational(numeric const & x)
+inline bool is_crational(const numeric & x)
 { return x.is_crational(); }
 
-inline numeric real(numeric const & x)
+inline numeric real(const numeric & x)
 { return x.real(); }
 
-inline numeric imag(numeric const & x)
+inline numeric imag(const numeric & x)
 { return x.imag(); }
 
-inline numeric numer(numeric const & x)
+inline numeric numer(const numeric & x)
 { return x.numer(); }
 
-inline numeric denom(numeric const & x)
+inline numeric denom(const numeric & x)
 { return x.denom(); }
 
 // numeric evaluation functions for class constant objects:

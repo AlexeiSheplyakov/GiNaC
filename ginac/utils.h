@@ -146,65 +146,101 @@ OutputIterator mymerge3(InputIterator1 first1, InputIterator1 last1,
 
 class numeric;
 class ex;
-                       
+
+numeric const & _num_120(void);   // -120
+ex const & _ex_120(void);
+numeric const & _num_60(void);    // -60
+ex const & _ex_60(void);
+numeric const & _num_30(void);    // -30
+ex const & _ex_30(void);
+numeric const & _num_25(void);    // -25
+ex const & _ex_25(void);
+numeric const & _num_24(void);    // -24
+ex const & _ex_24(void);
+numeric const & _num_20(void);    // -20
+ex const & _ex_20(void);
+numeric const & _num_18(void);    // -18
+ex const & _ex_18(void);
+numeric const & _num_15(void);    // -15
+ex const & _ex_15(void);
 numeric const & _num_12(void);    // -12
+ex const & _ex_12(void);
 numeric const & _num_11(void);    // -11
+ex const & _ex_11(void);
 numeric const & _num_10(void);    // -10
+ex const & _ex_10(void);
 numeric const & _num_9(void);     // -9
+ex const & _ex_9(void);
 numeric const & _num_8(void);     // -8
+ex const & _ex_8(void);
 numeric const & _num_7(void);     // -7
+ex const & _ex_7(void);
 numeric const & _num_6(void);     // -6
+ex const & _ex_6(void);
 numeric const & _num_5(void);     // -5
+ex const & _ex_5(void);
 numeric const & _num_4(void);     // -4
+ex const & _ex_4(void);
 numeric const & _num_3(void);     // -3
+ex const & _ex_3(void);
 numeric const & _num_2(void);     // -2
+ex const & _ex_2(void);
 numeric const & _num_1(void);     // -1
+ex const & _ex_1(void);
 numeric const & _num_1_2(void);   // -1/2
+ex const & _ex_1_2(void);
 numeric const & _num_1_3(void);   // -1/3
+ex const & _ex_1_3(void);
+numeric const & _num_1_4(void);   // -1/4
+ex const & _ex_1_4(void);
 numeric const & _num0(void);      //  0
+ex const & _ex0(void);
+numeric const & _num1_4(void);    //  1/4
+ex const & _ex1_4(void);
 numeric const & _num1_3(void);    //  1/3
+ex const & _ex1_3(void);
 numeric const & _num1_2(void);    //  1/2
+ex const & _ex1_2(void);
 numeric const & _num1(void);      //  1
+ex const & _ex1(void);
 numeric const & _num2(void);      //  2
+ex const & _ex2(void);
 numeric const & _num3(void);      //  3
+ex const & _ex3(void);
 numeric const & _num4(void);      //  4
+ex const & _ex4(void);
 numeric const & _num5(void);      //  5
+ex const & _ex5(void);
 numeric const & _num6(void);      //  6
+ex const & _ex6(void);
 numeric const & _num7(void);      //  7
+ex const & _ex7(void);
 numeric const & _num8(void);      //  8
+ex const & _ex8(void);
 numeric const & _num9(void);      //  9
+ex const & _ex9(void);
 numeric const & _num10(void);     //  10
+ex const & _ex10(void);
 numeric const & _num11(void);     //  11
+ex const & _ex11(void);
 numeric const & _num12(void);     //  12
-ex const & _ex_12(void);          // -12
-ex const & _ex_11(void);          // -11
-ex const & _ex_10(void);          // -10
-ex const & _ex_9(void);           // -9
-ex const & _ex_8(void);           // -8
-ex const & _ex_7(void);           // -7
-ex const & _ex_6(void);           // -6
-ex const & _ex_5(void);           // -5
-ex const & _ex_4(void);           // -4
-ex const & _ex_3(void);           // -3
-ex const & _ex_2(void);           // -2
-ex const & _ex_1(void);           // -1
-ex const & _ex_1_2(void);         // -1/2
-ex const & _ex_1_3(void);         // -1/3
-ex const & _ex0(void);            //  0
-ex const & _ex1_3(void);          //  1/3
-ex const & _ex1_2(void);          //  1/2
-ex const & _ex1(void);            //  1
-ex const & _ex2(void);            //  2
-ex const & _ex3(void);            //  3
-ex const & _ex4(void);            //  4
-ex const & _ex5(void);            //  5
-ex const & _ex6(void);            //  6
-ex const & _ex7(void);            //  7
-ex const & _ex8(void);            //  8
-ex const & _ex9(void);            //  9
-ex const & _ex10(void);           //  10
-ex const & _ex11(void);           //  11
-ex const & _ex12(void);           //  12
+ex const & _ex12(void);
+numeric const & _num15(void);     //  15
+ex const & _ex15(void);
+numeric const & _num18(void);     //  18
+ex const & _ex18(void);
+numeric const & _num20(void);     //  20
+ex const & _ex20(void);
+numeric const & _num24(void);     //  24
+ex const & _ex24(void);
+numeric const & _num25(void);     //  25
+ex const & _ex25(void);
+numeric const & _num30(void);     //  30
+ex const & _ex30(void);
+numeric const & _num60(void);     //  60
+ex const & _ex60(void);
+numeric const & _num120(void);    //  120
+ex const & _ex120(void);
 
 #ifndef NO_GINAC_NAMESPACE
 } // namespace GiNaC

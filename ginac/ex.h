@@ -44,7 +44,7 @@ extern ex const & _ex0(void);  /* FIXME: should this pollute headers? */
 
 #define INLINE_EX_CONSTRUCTORS
 
-/** Lightweight interface to GiNaC's symbolic objects. Basically all it does is
+/** Lightweight wrapper for GiNaC's symbolic objects.  Basically all it does is
  *  to hold a pointer to the other objects, manage the reference counting and
  *  provide methods for manipulation of these objects. */
 class ex
