@@ -386,7 +386,7 @@ static ex tan_eval(const ex & x)
         if (z.is_equal(_num25())) // tan(5/12*Pi) -> 2+sqrt(3)
             return sign*(power(_ex3(),_ex1_2())+_ex2());
         if (z.is_equal(_num30())) // tan(Pi/2)    -> infinity
-            throw (std::domain_error("tan_eval(): infinity"));
+            throw (std::domain_error("tan_eval(): simple pole"));
     }
     
     if (is_ex_exactly_of_type(x, function)) {
@@ -896,8 +896,8 @@ static ex atanh_eval(const ex & x)
         if (x.is_zero())
             return _ex0();
         // atanh({+|-}1) -> throw
-        if (x.is_equal(_ex1()) || x.is_equal(_ex1()))
-            throw (std::domain_error("atanh_eval(): infinity"));
+        if (x.is_equal(_ex1()) || x.is_equal(_ex_1()))
+            throw (std::domain_error("atanh_eval(): logarithmic pole"));
         // atanh(float) -> float
         if (!x.info(info_flags::crational))
             return atanh_evalf(x);
