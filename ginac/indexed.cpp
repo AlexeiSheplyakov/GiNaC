@@ -550,7 +550,7 @@ static ex rename_dummy_indices(const ex & e, exvector & global_dummy_indices, ex
 	for (unsigned i=0; i<local_size; i++)
 		local_syms.push_back(local_dummy_indices[i].op(0));
 	shaker_sort(local_syms.begin(), local_syms.end(), ex_is_less(), ex_swap());
-	for (unsigned i=0; i<global_size; i++)
+	for (unsigned i=0; i<local_size; i++) // don't use more global symbols than necessary
 		global_syms.push_back(global_dummy_indices[i].op(0));
 	shaker_sort(global_syms.begin(), global_syms.end(), ex_is_less(), ex_swap());
 
