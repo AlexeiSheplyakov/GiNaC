@@ -105,7 +105,7 @@ YACC = @YACC@
 
 TESTS = run_exams run_checks run_times
 check_PROGRAMS = exams checks times
-exams_SOURCES = exam_paranoia.cpp exam_numeric.cpp exam_powerlaws.cpp   exam_differentiation.cpp exam_polygcd.cpp exam_normalization.cpp   exam_pseries.cpp exam_matrices.cpp exam_lsolve.cpp exam_noncommut.cpp   exam_misc.cpp exams.cpp exams.h
+exams_SOURCES = exam_paranoia.cpp exam_numeric.cpp exam_powerlaws.cpp   exam_inifcns.cpp exam_differentiation.cpp exam_polygcd.cpp   exam_normalization.cpp exam_pseries.cpp exam_matrices.cpp exam_lsolve.cpp   exam_noncommut.cpp exam_misc.cpp exams.cpp exams.h
 
 exams_LDADD = ../ginac/libginac.la
 checks_SOURCES = check_numeric.cpp check_inifcns.cpp check_matrices.cpp   check_lsolve.cpp genex.cpp checks.cpp checks.h
@@ -126,9 +126,9 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 exams_OBJECTS =  exam_paranoia.o exam_numeric.o exam_powerlaws.o \
-exam_differentiation.o exam_polygcd.o exam_normalization.o \
-exam_pseries.o exam_matrices.o exam_lsolve.o exam_noncommut.o \
-exam_misc.o exams.o
+exam_inifcns.o exam_differentiation.o exam_polygcd.o \
+exam_normalization.o exam_pseries.o exam_matrices.o exam_lsolve.o \
+exam_noncommut.o exam_misc.o exams.o
 exams_DEPENDENCIES =  ../ginac/libginac.la
 exams_LDFLAGS = 
 checks_OBJECTS =  check_numeric.o check_inifcns.o check_matrices.o \
@@ -158,13 +158,13 @@ TAR = tar
 GZIP_ENV = --best
 DEP_FILES =  .deps/check_inifcns.P .deps/check_lsolve.P \
 .deps/check_matrices.P .deps/check_numeric.P .deps/checks.P \
-.deps/exam_differentiation.P .deps/exam_lsolve.P .deps/exam_matrices.P \
-.deps/exam_misc.P .deps/exam_noncommut.P .deps/exam_normalization.P \
-.deps/exam_numeric.P .deps/exam_paranoia.P .deps/exam_polygcd.P \
-.deps/exam_powerlaws.P .deps/exam_pseries.P .deps/exams.P .deps/genex.P \
-.deps/time_dennyfliegner.P .deps/time_gammaseries.P \
-.deps/time_toeplitz.P .deps/time_vandermonde.P .deps/timer.P \
-.deps/times.P
+.deps/exam_differentiation.P .deps/exam_inifcns.P .deps/exam_lsolve.P \
+.deps/exam_matrices.P .deps/exam_misc.P .deps/exam_noncommut.P \
+.deps/exam_normalization.P .deps/exam_numeric.P .deps/exam_paranoia.P \
+.deps/exam_polygcd.P .deps/exam_powerlaws.P .deps/exam_pseries.P \
+.deps/exams.P .deps/genex.P .deps/time_dennyfliegner.P \
+.deps/time_gammaseries.P .deps/time_toeplitz.P .deps/time_vandermonde.P \
+.deps/timer.P .deps/times.P
 SOURCES = $(exams_SOURCES) $(checks_SOURCES) $(times_SOURCES)
 OBJECTS = $(exams_OBJECTS) $(checks_OBJECTS) $(times_OBJECTS)
 

@@ -33,6 +33,7 @@ using namespace GiNaC;
 unsigned exam_paranoia();
 unsigned exam_numeric();
 unsigned exam_powerlaws();
+unsigned exam_inifcns();
 unsigned exam_differentiation();
 unsigned exam_polygcd();
 unsigned exam_normalization();

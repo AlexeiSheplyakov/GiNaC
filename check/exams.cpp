@@ -51,6 +51,13 @@ int main()
     }
     
     try {
+        result += exam_inifcns();
+    } catch (const exception &e) {
+        cout << "Error: caught exception " << e.what() << endl;
+        ++result;
+    }
+    
+    try {
         result += exam_differentiation();
     } catch (const exception &e) {
         cout << "Error: caught exception " << e.what() << endl;
