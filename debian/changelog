@@ -1,3 +1,9 @@
+ginac (0.9.1-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Richard Kreckel <kreckel@ginac.de>  Wed, 27 Jun 2001 21:47:30 +0200
+
 ginac (0.9.0-1) unstable; urgency=low
 
   * New upstream release.  This separates the ginaccint stuff off into
