@@ -26,46 +26,46 @@ unsigned tgammaseries(unsigned order)
 {
 	unsigned result = 0;
 	symbol x;
-	
+
 	ex myseries = series(tgamma(x),x==0,order);
 	// compute the last coefficient numerically:
 	ex last_coeff = myseries.coeff(x,order-1).evalf();
 	// compute a bound for that coefficient using a variation of the leading
 	// term in Stirling's formula:
-	ex bound = evalf(exp(ex(-.57721566490153286*(order-1)))/(order-1));
-	if (evalf(abs((last_coeff-pow(-1,order))/bound)) > numeric(1)) {
+	ex bound = exp(-.57721566490153286*(order-1))/(order-1);
+	if (abs((last_coeff-pow(-1,order))/bound) > 1) {
 		clog << "The " << order-1
 		     << "th order coefficient in the power series expansion of tgamma(0) was erroneously found to be "
 		     << last_coeff << ", violating a simple estimate." << endl;
 		++result;
 	}
-	
+
 	return result;
 }
 
 unsigned time_gammaseries(void)
 {
 	unsigned result = 0;
-	
+
 	cout << "timing Laurent series expansion of Gamma function" << flush;
 	clog << "-------Laurent series expansion of Gamma function:" << endl;
-	
+
 	vector<unsigned> sizes;
 	vector<double> times;
 	timer omega;
-	
+
 	sizes.push_back(10);
 	sizes.push_back(15);
 	sizes.push_back(20);
 	sizes.push_back(25);
-	
+
 	for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i) {
 		omega.start();
 		result += tgammaseries(*i);
 		times.push_back(omega.read());
 		cout << '.' << flush;
 	}
-	
+
 	if (!result) {
 		cout << " passed ";
 		clog << "(no output)" << endl;
