@@ -11,6 +11,10 @@ This file records noteworthy changes.
 * #include'ing ginac.h defines the preprocessor symbols GINACLIB_MAJOR_VERSION,
   GINACLIB_MINOR_VERSION, and GINACLIB_MICRO_VERSION with the respective GiNaC
   library version numbers.
+* Expressions can be constructed from strings like this:
+    ex e("2*x+y", lst(x, y));
+* ex::to_rational() provides a way to extend the domain of functions like
+  gcd() and divide() that only work on polynomials or rational functions
 * Several new timings in the check target.  Some of them may be rather rude 
   at your machine.
 
