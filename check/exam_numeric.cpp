@@ -79,7 +79,7 @@ static unsigned exam_numeric1(void)
 	}
 	
 	e2 = test_int1 + a;
-	if (ex_to<numeric>(e2).is_integer()) {
+	if (e2.info(info_flags::integer)) {
 		clog << "expression " << e2
 		     << " erroneously recognized as integer" << endl;
 		++result;
