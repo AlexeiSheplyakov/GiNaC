@@ -1,3 +1,19 @@
+ginac (1.0.2-1) unstable; urgency=low
+
+  * New upstream (bugfix only) release.
+
+ -- Richard Kreckel <kreckel@ginac.de>  Wed, 19 Dec 2001 18:43:33 +0100
+
+ginac (1.0.1-1) unstable; urgency=low
+
+  * New upstream release.
+    This is a bugfix release that by the way fixes the readline-version
+    build-problem introduced by libreadline version 4.2a; closes: #121608.
+  * Automatic shared library dependencies for libginac0, instead of just
+    libc6 dependency; closes: #120794.
+
+ -- Richard Kreckel <kreckel@ginac.de>  Tue,  4 Dec 2001 17:17:17 +0100
+
 ginac (1.0.0-1) unstable; urgency=low
 
   * New upstream release.

@@ -8,7 +8,7 @@ Build-Depends: debhelper, libcln-dev, libgmp3-dev, libreadline4-dev, flex, bison
 Package: libginac0
 Architecture: any
 Section: libs
-Depends: libc6
+Depends: ${shlibs:Depends}
 Suggests: ginac-tools
 Description: The GiNaC framework (runtime library)
  GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is a
