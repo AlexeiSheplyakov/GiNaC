@@ -171,7 +171,7 @@ if test "x$with_cint" != "xno"; then
       -I .. -I $CINTSYSDIR -m -H ../ginac/ginac.h \
       -C++ ginaccint.bin.cpp \
       -l -L../ginac/.libs -lginac -lcln \
-      -cint -M0x10; \
+      -cint -M0x110; \
     cd ..)
     GINACCINTDIR="cint"
   else
