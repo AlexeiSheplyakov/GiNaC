@@ -56,6 +56,7 @@ public:
 	ex eval_integ() const;
 protected:
 	ex derivative(const symbol & s) const;
+	ex series(const relational & r, int order, unsigned options = 0) const;
 
 	// new virtual functions which can be overridden by derived classes
 	// none

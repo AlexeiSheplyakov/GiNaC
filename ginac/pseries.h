@@ -56,6 +56,7 @@ public:
 	ex normal(exmap & repl, exmap & rev_lookup, int level = 0) const;
 	ex expand(unsigned options = 0) const;
 	ex conjugate() const;
+	ex eval_integ() const;
 protected:
 	ex derivative(const symbol & s) const;
 
@@ -82,6 +83,10 @@ public:
 	/** Returns true if there is no order term, i.e. the series terminates and
 	 *  false otherwise. */
 	bool is_terminating() const;
+
+	/** Get coefficients and exponents. */
+	ex coeffop(size_t i) const;
+	ex exponop(size_t i) const;
 
 	ex add_series(const pseries &other) const;
 	ex mul_const(const numeric &other) const;

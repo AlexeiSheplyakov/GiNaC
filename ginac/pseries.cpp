@@ -33,6 +33,7 @@
 #include "relational.h"
 #include "operators.h"
 #include "symbol.h"
+#include "integral.h"
 #include "archive.h"
 #include "utils.h"
 
@@ -266,6 +267,8 @@ ex pseries::op(size_t i) const
 	if (i >= seq.size())
 		throw (std::out_of_range("op() out of range"));
 
+	if (is_order_function(seq[i].rest))
+		return Order(power(var-point, seq[i].coeff));
 	return seq[i].rest * power(var - point, seq[i].coeff);
 }
 
@@ -424,6 +427,31 @@ ex pseries::conjugate() const
 	return result;
 }
 
+ex pseries::eval_integ() const
+{
+	epvector *newseq = NULL;
+	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i) {
+		if (newseq) {
+			newseq->push_back(expair(i->rest.eval_integ(), i->coeff));
+			continue;
+		}
+		ex newterm = i->rest.eval_integ();
+		if (!are_ex_trivially_equal(newterm, i->rest)) {
+			newseq = new epvector;
+			newseq->reserve(seq.size());
+			for (epvector::const_iterator j=seq.begin(); j!=i; ++j)
+				newseq->push_back(*j);
+			newseq->push_back(expair(newterm, i->coeff));
+		}
+	}
+
+	ex newpoint = point.eval_integ();
+	if (newseq || !are_ex_trivially_equal(newpoint, point))
+		return (new pseries(var==newpoint, *newseq))
+		       ->setflag(status_flags::dynallocated);
+	return *this;
+}
+
 ex pseries::subs(const exmap & m, unsigned options) const
 {
 	// If expansion variable is being substituted, convert the series to a
@@ -517,6 +545,20 @@ ex pseries::convert_to_poly(bool no_order) const
 bool pseries::is_terminating() const
 {
 	return seq.empty() || !is_order_function((seq.end()-1)->rest);
+}
+
+ex pseries::coeffop(size_t i) const
+{
+	if (i >=nops())
+		throw (std::out_of_range("coeffop() out of range"));
+	return seq[i].rest;
+}
+
+ex pseries::exponop(size_t i) const
+{
+	if (i >= nops())
+		throw (std::out_of_range("exponop() out of range"));
+	return seq[i].coeff;
 }
 
 
@@ -729,6 +771,11 @@ ex pseries::mul_series(const pseries &other) const
 		nul.push_back(expair(Order(_ex1), _ex0));
 		return pseries(relational(var,point), nul);
 	}
+
+	if (seq.empty() || other.seq.empty()) {
+		return (new pseries(var==point, epvector()))
+		       ->setflag(status_flags::dynallocated);
+	}
 	
 	// Series multiplication
 	epvector new_seq;
@@ -880,7 +927,14 @@ ex pseries::power_const(const numeric &p, int deg) const
 		throw std::runtime_error("pseries::power_const(): trying to assemble a Puiseux series");
 
 	// adjust number of coefficients
-	deg = deg - (p*ldeg).to_int();
+	int numcoeff = deg - (p*ldeg).to_int();
+	if (numcoeff <= 0) {
+		epvector epv;
+		epv.reserve(1);
+		epv.push_back(expair(Order(_ex1), deg));
+		return (new pseries(relational(var,point), epv))
+		       ->setflag(status_flags::dynallocated);
+	}
 	
 	// O(x^n)^(-m) is undefined
 	if (seq.size() == 1 && is_order_function(seq[0].rest) && p.real().is_negative())
@@ -888,9 +942,9 @@ ex pseries::power_const(const numeric &p, int deg) const
 	
 	// Compute coefficients of the powered series
 	exvector co;
-	co.reserve(deg);
+	co.reserve(numcoeff);
 	co.push_back(power(coeff(var, ldeg), p));
-	for (int i=1; i<deg; ++i) {
+	for (int i=1; i<numcoeff; ++i) {
 		ex sum = _ex0;
 		for (int j=1; j<=i; ++j) {
 			ex c = coeff(var, j + ldeg);
@@ -906,7 +960,7 @@ ex pseries::power_const(const numeric &p, int deg) const
 	// Construct new series (of non-zero coefficients)
 	epvector new_seq;
 	bool higher_order = false;
-	for (int i=0; i<deg; ++i) {
+	for (int i=0; i<numcoeff; ++i) {
 		if (!co[i].is_zero())
 			new_seq.push_back(expair(co[i], p * ldeg + i));
 		if (is_order_function(co[i])) {
@@ -915,7 +969,7 @@ ex pseries::power_const(const numeric &p, int deg) const
 		}
 	}
 	if (!higher_order)
-		new_seq.push_back(expair(Order(_ex1), p * ldeg + deg));
+		new_seq.push_back(expair(Order(_ex1), p * ldeg + numcoeff));
 
 	return pseries(relational(var,point), new_seq);
 }
@@ -1033,6 +1087,61 @@ ex pseries::series(const relational & r, int order, unsigned options) const
 		}
 	} else
 		return convert_to_poly().series(r, order, options);
+}
+
+ex integral::series(const relational & r, int order, unsigned options) const
+{
+	if (x.subs(r) != x)
+		throw std::logic_error("Cannot series expand wrt dummy variable");
+	
+	// Expanding integrant with r substituted taken in boundaries.
+	ex fseries = f.series(r, order, options);
+	epvector fexpansion;
+	fexpansion.reserve(fseries.nops());
+	for (size_t i=0; i<fseries.nops(); ++i) {
+		ex currcoeff = ex_to<pseries>(fseries).coeffop(i);
+		fexpansion.push_back(expair(
+			currcoeff == Order(_ex1)
+				? currcoeff
+				: integral(x, a.subs(r), b.subs(r), currcoeff),
+			ex_to<pseries>(fseries).exponop(i)
+		));
+	}
+
+	// Expanding lower boundary
+	ex result = (new pseries(r, fexpansion))->setflag(status_flags::dynallocated);
+	ex aseries = (a-a.subs(r)).series(r, order, options);
+	fseries = f.series(x == (a.subs(r)), order, options);
+	for (size_t i=0; i<fseries.nops(); ++i) {
+		ex currcoeff = ex_to<pseries>(fseries).coeffop(i);
+		if (is_order_function(currcoeff))
+			break;
+		ex currexpon = ex_to<pseries>(fseries).exponop(i);
+		int orderforf = order-ex_to<numeric>(currexpon).to_int()-1;
+		currcoeff=currcoeff.series(r, orderforf);
+		ex term = ex_to<pseries>(aseries).power_const(ex_to<numeric>(currexpon+1),order);
+		term = ex_to<pseries>(term).mul_const(ex_to<numeric>(-1/(currexpon+1)));
+		term = ex_to<pseries>(term).mul_series(ex_to<pseries>(currcoeff));
+		result = ex_to<pseries>(result).add_series(ex_to<pseries>(term));
+	}
+
+	// Expanding upper boundary
+	ex bseries = (b-b.subs(r)).series(r, order, options);
+	fseries = f.series(x == (b.subs(r)), order, options);
+	for (size_t i=0; i<fseries.nops(); ++i) {
+		ex currcoeff = ex_to<pseries>(fseries).coeffop(i);
+		if (is_order_function(currcoeff))
+			break;
+		ex currexpon = ex_to<pseries>(fseries).exponop(i);
+		int orderforf = order-ex_to<numeric>(currexpon).to_int()-1;
+		currcoeff=currcoeff.series(r, orderforf);
+		ex term = ex_to<pseries>(bseries).power_const(ex_to<numeric>(currexpon+1),order);
+		term = ex_to<pseries>(term).mul_const(ex_to<numeric>(1/(currexpon+1)));
+		term = ex_to<pseries>(term).mul_series(ex_to<pseries>(currcoeff));
+		result = ex_to<pseries>(result).add_series(ex_to<pseries>(term));
+	}
+
+	return result;
 }
 
 
