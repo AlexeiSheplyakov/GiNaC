@@ -22,7 +22,7 @@ command, GiNaC-cint exits at this point.
 Otherwise it displays a prompt signifying that it is ready to
 accept your input. All C++ statements are valid as input, extended by
 GiNaC's numeric or symbolic expressions.  E.g.
-.BR fibonacci(24)/1104;
+.BR fibonacci(numeric(24))/1104;
 returns a GiNaC object of class
 .BR "ex" ,
 which in this case represents the numeric 42.  Symbols are declared by 
@@ -147,7 +147,7 @@ Out1 = -2*(1+x)^(-3)*(-2-x+x^2)+(-1+2*x)*(1+x)^(-2)
 GiNaC> s.normal();
 Out2 = (-2+x)*(1+x)^(-1)
 GiNaC> for (int i=2; i<20; i+=2) {
-     >     cout << "B(" << i << ")==" << bernoulli(i) << endl;
+     >     cout << "B(" << i << ")==" << bernoulli(numeric(i)) << endl;
      > }
 B(2)==1/6
 B(4)==-1/30
@@ -200,9 +200,9 @@ are typed out and available through
 and 
 .BR LAST
 after declaring them.  This accounts for some funny behaviour, like
-.BR fibonacci(7)
+.BR fibonacci(numeric(7))
 doesn't print, but
-.BR fibonacci(7)*1
+.BR fibonacci(numeric(7))*1
 does, since this is not a naked number but an expression holding
 that number. A warning message is printed in this case only for
 the first occurence.
@@ -246,12 +246,16 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 .SS CINT COPYRIGHT
 Copyright \(co of Cint and associated tools are owned by Agilent
-Technologies Japan Company and the author.  Acknowledgement to the
-author by e-mail is recommended at installation.  Source code, binary
-executable or library of Cint and associated tools can be used,
-modified and distributed free of charge for any purpose provided that
-the copyright notice appear in all copies and that both that copyright
-notice and this permission notice appear in documentation.
-Registration is requested, at this moment, for commercial use.  Send
-e-mail to the author <MXJ02154@niftyserve.or.jp>.  The registration is
-free.
+Technologies Japan Company and the author (Masaharu Goto).  Source
+code, binary executable or library of Cint and associated tools can be
+used, modified and distributed with no royalty for any purpose
+provided that the copyright notice appear in all copies and that both
+that copyright notice and this permission notice appear in supporting
+documentation.  Registration is recommended for commercial use
+(=Selling a software that uses cint as a component).  Send e-mail to
+the author (MXJ02154@niftyserve.or.jp) with your name, e-mail address,
+institute, purpose of using cint and computer platform.  If a
+modification is made on any of the source or documentation, it has to
+be clearly documented and expressed.  Agilent Technologies Japan and
+the author make no representations about the suitability of this
+software for any purpose.
