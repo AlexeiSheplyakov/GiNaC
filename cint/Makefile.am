@@ -10,7 +10,7 @@ man_MANS = ginaccint.1
 ginaccint.bin: ginaccint.bin.cpp
 	(export CINTSYSDIR=$(CINTSYSDIR); $(MAKE) -f Makefile.makecint PATH=$(PATH):$(CINTSYSDIR))
 
-TESTS = exam_paranoia.cpp exam_mansamples.cpp
+TESTS = exam_paranoia.cpp exam_mansamples.cpp exam_misc.cpp
 
 EXTRA_DIST = $(man_MANS) $(TESTS)
 

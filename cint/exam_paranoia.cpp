@@ -1,5 +1,5 @@
 #! ./run_exams --silent
-int result = 0;
+unsigned result = 0;
 /*
  * Old Cint versions messed up unary and binary operators:
  */

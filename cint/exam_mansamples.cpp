@@ -1,5 +1,5 @@
 #! ./run_exams --silent
-int result = 0;
+unsigned result = 0;
 symbol x("x"), y("y"), z("z");
 {
     ex a = pow(x,2)-x-2;
@@ -19,7 +19,7 @@ ex EulerNumber(unsigned n)
     const ex generator = pow(cosh(xi),-1);
     return generator.diff(xi,n).subs(xi==0);
 }
-if (EulerNumber(42) != ex(numeric("-10364622733519612119397957304745185976310201"))) {
+if (EulerNumber(42) != numeric("-10364622733519612119397957304745185976310201")) {
     ++result;
 }
 ex f = expand((x*y*z-1)*(x*y*z+3));

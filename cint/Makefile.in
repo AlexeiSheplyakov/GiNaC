@@ -111,7 +111,7 @@ ginaccint_SOURCES = ginaccint.cpp
 ginaccint_bin_SOURCES = ginaccint.bin.cpp
 man_MANS = ginaccint.1
 
-TESTS = exam_paranoia.cpp exam_mansamples.cpp
+TESTS = exam_paranoia.cpp exam_mansamples.cpp exam_misc.cpp
 
 EXTRA_DIST = $(man_MANS) $(TESTS)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
