@@ -292,8 +292,8 @@ This file records noteworthy changes.
 * Supplement some (now deprecated) macros by inlined template functions:
   - is_of_type(foo, type) -> is_a<type>(foo)
   - is_ex_of_type(foo, type) -> is_a<type>(foo)
-  - is_exaclty_of_type(foo, type) -> is_exaclty_a<type>(foo)
-  - is_ex_exaclty_of_type(foo, type) -> is_exaclty_a<type>(foo)
+  - is_exactly_of_type(foo, type) -> is_exactly_a<type>(foo)
+  - is_ex_exactly_of_type(foo, type) -> is_exactly_a<type>(foo)
   - ex_to_foobar(baz)  ->  ex_to<foobar>(baz)
 * rem(c, p[x], x) (c: numeric, p[x]: polynomial) erroneously returned p[x]
   instead of c.
