@@ -382,6 +382,32 @@ ex add::evalm() const
 		return (new add(s, overall_coeff))->setflag(status_flags::dynallocated);
 }
 
+ex add::conjugate() const
+{
+	exvector *v = 0;
+	for (int i=0; i<nops(); ++i) {
+		if (v) {
+			v->push_back(op(i).conjugate());
+			continue;
+		}
+		ex term = op(i);
+		ex ccterm = term.conjugate();
+		if (are_ex_trivially_equal(term, ccterm))
+			continue;
+		v = new exvector;
+		v->reserve(nops());
+		for (int j=0; j<i; ++j)
+			v->push_back(op(j));
+		v->push_back(ccterm);
+	}
+	if (v) {
+		ex result = add(*v);
+		delete v;
+		return result;
+	}
+	return *this;
+}
+
 ex add::eval_ncmul(const exvector & v) const
 {
 	if (seq.empty())
