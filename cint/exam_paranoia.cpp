@@ -16,7 +16,7 @@ int result = 0;
 {
     symbol x;
     ex a = x;
-    if (bool(a != a)) {
+    if (a != a) {
         ++result;
     }
 }

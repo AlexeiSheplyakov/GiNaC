@@ -3,8 +3,8 @@
 
 #include "G__ci.h"   /* G__atpause is defined in G__ci.h */
 
-#if (!defined(G__CINTVERSION)) || (G__CINTVERSION < 501438)
-#error You need at least cint 5.14.38 to compile GiNaC-cint. Download it via http from root.cern.ch/root/Cint.html or via ftp from ftpthep.physik.uni-mainz.de/pub/cint
+#if (!defined(G__CINTVERSION)) || (G__CINTVERSION < 501439)
+#error You need at least cint 5.14.39 to compile GiNaC-cint. Download it via http from root.cern.ch/root/Cint.html or via ftp from ftpthep.physik.uni-mainz.de/pub/cint
 #endif // (!defined(G__CINTVERSION)) || (G__CINTVERSION < 501438)
 
 #include <iostream>
@@ -86,7 +86,8 @@ G__value exec_tempfile(string const & command)
 char * process_permanentfile(string const & command)
 {
     char *tmpfilename = tempnam(NULL,"ginac");
-    cout << "creating file " << tmpfilename << endl;
+    if (!silent)
+        cout << "creating file " << tmpfilename << endl;
     ofstream fout;
     fout.open(tmpfilename);
     fout << command << endl;
@@ -170,7 +171,7 @@ void greeting(void)
          << " (__) *       | Germany.  Cint C/C++ interpreter: (C) 1995-2000 Masaharu\n"
          << "  ._) i N a C | Goto and Agilent Technologies, Japan.  This is free software\n"
          << "<-------------' with ABSOLUTELY NO WARRANTY.  For details, type `.warranty'\n"
-         << "Type .help for help.\n\n";
+         << "Type `.help' for help.\n\n";
     return;
 }
 
@@ -313,7 +314,8 @@ string preprocess(char const * const line, bool & comment, bool & single_quote,
 void cleanup(void)
 {
     for (cplist::iterator it=filenames.begin(); it!=filenames.end(); ++it) {
-        cout << "removing file " << *it << endl;
+        if (!silent)
+            cout << "removing file " << *it << endl;
         remove(*it);
         free(*it);
     }
@@ -470,7 +472,8 @@ bool readlines(istream * is,
             (is_command(command,preprocessed,"q"))) {
             quit = true;
         } else if (is_command(command,preprocessed,"function")) {
-            cout << "next expression can be a function definition" << endl;
+            if (!silent)
+                cout << "next expression can be a function definition" << endl;
             next_command_is_function = true;
         } else if (is_command(command,preprocessed,"cint")) {
             cout << endl << "switching to cint interactive mode" << endl;
