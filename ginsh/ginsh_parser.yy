@@ -394,6 +394,19 @@ static ex f_is(const exprseq &e)
 	return (bool)ex_to<relational>(e[0]) ? ex(1) : ex(0);
 }
 
+class apply_map_function : public map_function {
+	ex apply;
+public:
+	apply_map_function(const ex & a) : apply(a) {}
+	ex operator()(const ex & e) { return apply.subs(wild() == e, true); }
+};
+
+static ex f_map(const exprseq &e)
+{
+	apply_map_function fcn(e[1]);
+	return e[0].map(fcn);
+}
+
 static ex f_match(const exprseq &e)
 {
 	lst repl_lst;
@@ -526,6 +539,7 @@ static const fcn_init builtin_fcns[] = {
 	{"lcoeff", fcn_desc(f_lcoeff, 2)},
 	{"ldegree", fcn_desc(f_ldegree, 2)},
 	{"lsolve", fcn_desc(f_lsolve, 2)},
+	{"map", fcn_desc(f_map, 2)},
 	{"match", fcn_desc(f_match, 2)},
 	{"nops", fcn_desc(f_nops, 1)},
 	{"normal", fcn_desc(f_normal1, 1)},

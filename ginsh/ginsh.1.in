@@ -279,14 +279,14 @@ detail here. Please refer to the GiNaC documentation.
 .BI expand( expression )
 \- expands an expression
 .br
-.BI find( expression ", " expression )
+.BI find( expression ", " pattern )
 \- returns a list of all occurrences of a pattern in an expression
 .br
 .BI gcd( expression ", " expression )
 \- greatest common divisor
 .br
-.BI has( expression ", " expression )
-\- returns "1" if the first expression contains the second (which may contain wildcards) as a subexpression, "0" otherwise
+.BI has( expression ", " pattern )
+\- returns "1" if the first expression contains the pattern as a subexpression, "0" otherwise
 .br
 .BI inverse( matrix )
 \- inverse of a matrix
@@ -305,6 +305,9 @@ detail here. Please refer to the GiNaC documentation.
 .br
 .BI lsolve( equation-list ", " symbol-list )
 \- solve system of linear equations
+.br
+.BI map( expression ", " pattern )
+\- apply function to each operand; the function to be applied is specified as a pattern with the "$0" wildcard standing for the operands
 .br
 .BI match( expression ", " pattern )
 \- check whether expression matches a pattern; returns a list of wildcard substitutions or "FAIL" if there is no match
