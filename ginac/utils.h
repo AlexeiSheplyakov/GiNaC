@@ -138,6 +138,26 @@ OutputIterator mymerge3(InputIterator1 first1, InputIterator1 last1,
     }
 }
 
+// Compute the sign of a permutation of a vector of things.
+template <typename T>
+int permutation_sign(vector<T> s)
+{
+    if (s.size() < 2)
+        return 0;
+    int sigma = 1;
+    for (typename vector<T>::iterator i=s.begin(); i!=s.end()-1; ++i) {
+        for (typename vector<T>::iterator j=i+1; j!=s.end(); ++j) {
+            if (*i == *j)
+                return 0;
+            if (*i > *j) {
+                iter_swap(i,j);
+                sigma = -sigma;
+            }
+        }
+    }
+    return sigma;
+}
+
 // Collection of `construct on first use' wrappers for safely avoiding
 // internal object replication without running into the `static
 // initialization order fiasco'.  This chest of numbers helps speed up

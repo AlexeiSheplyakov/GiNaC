@@ -1,7 +1,6 @@
-/** @file linear_solve.cpp
+/** @file exam_lsolve.cpp
  *
- * These test routines do some simple checks on solving linear systems of
- * symbolic equations. */
+ *  These exams test solving small linear systems of symbolic equations. */
 
 /*
  *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
@@ -21,13 +20,9 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "ginac.h"
+#include "exams.h"
 
-#ifndef NO_NAMESPACE_GINAC
-using namespace GiNaC;
-#endif // ndef NO_NAMESPACE_GINAC
-
-static unsigned lsolve1(void)
+static unsigned exam_lsolve1(void)
 {
     // A trivial example.
     unsigned result = 0;
@@ -45,9 +40,9 @@ static unsigned lsolve1(void)
     return result;
 }
 
-static unsigned lsolve2a(void)
+static unsigned exam_lsolve2a(void)
 {
-    // An example from the Maple online-help.
+    // An example from the Maple online help.
     unsigned result = 0;
     symbol a("a"), b("b"), x("x"), y("y");
     lst eqns, vars;
@@ -73,9 +68,9 @@ static unsigned lsolve2a(void)
     return result;
 }
 
-static unsigned lsolve2b(void)
+static unsigned exam_lsolve2b(void)
 {
-    // A boring example from Mathematica's online-help.
+    // A boring example from Mathematica's online help.
     unsigned result = 0;
     symbol x("x"), y("y");
     lst eqns, vars;
@@ -101,9 +96,9 @@ static unsigned lsolve2b(void)
     return result;
 }
 
-static unsigned lsolve2c(void)
+static unsigned exam_lsolve2c(void)
 {
-    // An example from the Maple online-help.
+    // An example from the Maple online help.
     unsigned result = 0;
     symbol x("x"), y("y");
     lst eqns, vars;
@@ -129,23 +124,23 @@ static unsigned lsolve2c(void)
     return result;
 }
 
-unsigned linear_solve(void)
+unsigned exam_lsolve(void)
 {
     unsigned result = 0;
     
-    cout << "checking linear solve..." << flush;
-    clog << "---------linear solve:" << endl;
+    cout << "examining linear solve" << flush;
+    clog << "----------linear solve:" << endl;
     
-    result += lsolve1();
-    result += lsolve2a();
-    result += lsolve2b();
-    result += lsolve2c();
+    result += exam_lsolve1();  cout << '.' << flush;
+    result += exam_lsolve2a();  cout << '.' << flush;
+    result += exam_lsolve2b();  cout << '.' << flush;
+    result += exam_lsolve2c();  cout << '.' << flush;
     
     if (!result) {
-        cout << " passed ";
+        cout << " passed " << endl;
         clog << "(no output)" << endl;
     } else {
-        cout << " failed ";
+        cout << " failed " << endl;
     }
     
     return result;

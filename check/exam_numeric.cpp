@@ -1,7 +1,7 @@
-/** @file numeric_consist.cpp
+/** @file exam_numeric.cpp
  *
- *  This test routine creates some numbers and check the result of several
- *  boolean tests on these numbers like is_integer() etc... */
+ *  These exams creates some numbers and check the result of several boolean
+ *  tests on these numbers like is_integer() etc... */
 
 /*
  *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
@@ -21,16 +21,11 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <stdlib.h>
-#include "ginac.h"
-
-#ifndef NO_NAMESPACE_GINAC
-using namespace GiNaC;
-#endif // ndef NO_NAMESPACE_GINAC
+#include "exams.h"
 
 /* Simple and maybe somewhat pointless consistency tests of assorted tests and
  * conversions. */
-static unsigned numeric_consist1(void)
+static unsigned exam_numeric1(void)
 {
     unsigned result = 0;
     numeric test_int1(42);
@@ -107,23 +102,6 @@ static unsigned numeric_consist1(void)
         ++result;
     }
     
-    // Check some numerator and denominator calculations:
-    for (int i=0; i<10; ++i) {
-        int re_q, im_q;
-        do { re_q = rand(); } while (re_q == 0);
-        do { im_q = rand(); } while (im_q == 0);
-        numeric r(rand()-RAND_MAX/2, re_q);
-        numeric i(rand()-RAND_MAX/2, im_q);
-        numeric z = r + I*i;
-        numeric p = numer(z);
-        numeric q = denom(z);
-        numeric res = p/q;
-        if (res != z) {
-            clog << z << " erroneously transformed into " 
-                 << p << "/" << q << " by numer() and denom()" << endl;
-            ++result;
-        }
-    }    
     return result;
 }
 
@@ -132,7 +110,7 @@ static unsigned numeric_consist1(void)
  * Implementing a workaround sadly introduced another bug on May 28th 1999
  * that was fixed on May 31st.  The workaround turned out to be stupid and
  * the original bug in CLN was finally killed on September 2nd. */
-static unsigned numeric_consist2(void)
+static unsigned exam_numeric2(void)
 {
     unsigned result = 0;
     
@@ -171,7 +149,7 @@ static unsigned numeric_consist2(void)
 
 /* Assorted tests to ensure some crucial functions behave exactly as specified
  * in the documentation. */
-static unsigned numeric_consist3(void)
+static unsigned exam_numeric3(void)
 {
     unsigned result = 0;
     numeric calc_rem, calc_quo;
@@ -289,7 +267,7 @@ static unsigned numeric_consist3(void)
 
 /* Now we perform some less trivial checks about several functions which should
  * return exact numbers if possible. */
-static unsigned numeric_consist4(void)
+static unsigned exam_numeric4(void)
 {
     unsigned result = 0;
     bool passed;
@@ -323,23 +301,23 @@ static unsigned numeric_consist4(void)
     return result;
 }
 
-unsigned numeric_consist(void)
+unsigned exam_numeric(void)
 {
     unsigned result = 0;
-
-    cout << "checking consistency of numeric types..." << flush;
-    clog << "---------consistency of numeric types:" << endl;
     
-    result += numeric_consist1();
-    result += numeric_consist2();
-    result += numeric_consist3();
-    result += numeric_consist4();
-
+    cout << "examining consistency of numeric types" << flush;
+    clog << "----------consistency of numeric types:" << endl;
+    
+    result += exam_numeric1();  cout << '.' << flush;
+    result += exam_numeric2();  cout << '.' << flush;
+    result += exam_numeric3();  cout << '.' << flush;
+    result += exam_numeric4();  cout << '.' << flush;
+    
     if (!result) {
-        cout << " passed ";
+        cout << " passed " << endl;
         clog << "(no output)" << endl;
     } else {
-        cout << " failed ";
+        cout << " failed " << endl;
     }
     
     return result;

@@ -1,4 +1,4 @@
-/** @file differentiation.cpp
+/** @file exam_differentiation.cpp
  *
  *  Tests for symbolic differentiation, including various functions. */
 
@@ -20,11 +20,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "ginac.h"
-
-#ifndef NO_NAMESPACE_GINAC
-using namespace GiNaC;
-#endif // ndef NO_NAMESPACE_GINAC
+#include "exams.h"
 
 static unsigned check_diff(const ex &e, const symbol &x,
                            const ex &d, unsigned nth=1)
@@ -59,7 +55,7 @@ static unsigned check_diff(const ex &e, const symbol &x,
 }
 
 // Simple (expanded) polynomials
-static unsigned differentiation1(void)
+static unsigned exam_differentiation1(void)
 {
     unsigned result = 0;
     symbol x("x"), y("y");
@@ -111,7 +107,7 @@ static unsigned differentiation1(void)
 }
 
 // Trigonometric functions
-static unsigned differentiation2(void)
+static unsigned exam_differentiation2(void)
 {
     unsigned result = 0;
     symbol x("x"), y("y"), a("a"), b("b");
@@ -160,7 +156,7 @@ static unsigned differentiation2(void)
 }
     
 // exp function
-static unsigned differentiation3(void)
+static unsigned exam_differentiation3(void)
 {
     unsigned result = 0;
     symbol x("x"), y("y"), a("a"), b("b");
@@ -188,7 +184,7 @@ static unsigned differentiation3(void)
 }
 
 // log functions
-static unsigned differentiation4(void)
+static unsigned exam_differentiation4(void)
 {
     unsigned result = 0;
     symbol x("x"), y("y"), a("a"), b("b");
@@ -218,7 +214,7 @@ static unsigned differentiation4(void)
 }
 
 // Functions with two variables
-static unsigned differentiation5(void)
+static unsigned exam_differentiation5(void)
 {
     unsigned result = 0;
     symbol x("x"), y("y"), a("a"), b("b");
@@ -253,7 +249,7 @@ static unsigned differentiation5(void)
 }
 
 // Series
-static unsigned differentiation6(void)
+static unsigned exam_differentiation6(void)
 {
     symbol x("x");
     ex e, d, ed;
@@ -272,25 +268,25 @@ static unsigned differentiation6(void)
     return 0;
 }
 
-unsigned differentiation(void)
+unsigned exam_differentiation(void)
 {
     unsigned result = 0;
     
-    cout << "checking symbolic differentiation..." << flush;
-    clog << "---------symbolic differentiation:" << endl;
+    cout << "examining symbolic differentiation" << flush;
+    clog << "----------symbolic differentiation:" << endl;
     
-    result += differentiation1();
-    result += differentiation2();
-    result += differentiation3();
-    result += differentiation4();
-    result += differentiation5();
-    result += differentiation6();
+    result += exam_differentiation1();  cout << '.' << flush;
+    result += exam_differentiation2();  cout << '.' << flush;
+    result += exam_differentiation3();  cout << '.' << flush;
+    result += exam_differentiation4();  cout << '.' << flush;
+    result += exam_differentiation5();  cout << '.' << flush;
+    result += exam_differentiation6();  cout << '.' << flush;
     
     if (!result) {
-        cout << " passed ";
+        cout << " passed " << endl;
         clog << "(no output)" << endl;
     } else {
-        cout << " failed ";
+        cout << " failed " << endl;
     }
     return result;
 }

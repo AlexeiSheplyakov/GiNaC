@@ -1,6 +1,6 @@
-/** @file main.cpp
+/** @file checks.cpp
  *
- *  Main program that calls all individual tests. */
+ *  Main program that calls the individual tests. */
 
 /*
  *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
@@ -22,44 +22,58 @@
 
 #include <stdexcept>
 #include <iostream>
+#include <time.h>
 
-#include "check.h"
+#include "checks.h"
 
 int main()
 {
     unsigned result = 0;
     
+    srand((unsigned)time(NULL));
+    
     try {
-        for (int i=0; i<1; ++i) {
-            result += fcntimer(paranoia_check);
-            result += fcntimer(numeric_output);
-            result += fcntimer(numeric_consist);
-            result += fcntimer(powerlaws);
-            result += fcntimer(expand_subs);
-            result += fcntimer(inifcns_consist);
-            result += fcntimer(differentiation);
-            result += fcntimer(poly_gcd);
-            result += fcntimer(normalization);
-            result += fcntimer(matrix_checks);
-            result += fcntimer(linear_solve);
-            result += fcntimer(series_expansion);
-            result += fcntimer(lortensor_check);
-        }
+        for (int i=0; i<1; ++i)
+            result += check_numeric();
     } catch (const exception &e) {
-        cout << "error: caught an exception: " << e.what() << endl;
-        result++;
+        cout << "Error: caught exception " << e.what() << endl;
+        ++result;
+    }
+    
+    try {
+        for (int i=0; i<1; ++i)
+            result += check_inifcns();
+    } catch (const exception &e) {
+        cout << "Error: caught exception " << e.what() << endl;
+        ++result;
+    }
+    
+    try {
+        for (int i=0; i<1; ++i)
+            result += check_matrices();
+    } catch (const exception &e) {
+        cout << "Error: caught exception " << e.what() << endl;
+        ++result;
+    }
+    
+    try {
+        for (int i=0; i<1; ++i)
+            result += check_lsolve();
+    } catch (const exception &e) {
+        cout << "Error: caught exception " << e.what() << endl;
+        ++result;
     }
     
     if (result) {
-        cout << "error: something went wrong. ";
+        cout << "Error: something went wrong. ";
         if (result == 1) {
             cout << "(one failure)" << endl;
         } else {
             cout << "(" << result << " individual failures)" << endl;
         }
-        cout << "please check result.out against result.ref for more details."
+        cout << "please check check.out against check.ref for more details."
              << endl << "happy debugging!" << endl;
     }
-
+    
     return result;
 }

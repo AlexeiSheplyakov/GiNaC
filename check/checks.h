@@ -1,4 +1,4 @@
-/** @file check.h
+/** @file checks.h
  *
  *  Prototypes for all individual checks. */
 
@@ -20,26 +20,26 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef CHECK_H
-#define CHECK_H
+#ifndef CHECKS_H
+#define CHECKS_H
 
-// fcntimer is defined in timer.cpp and used for timing check functions only:
-unsigned fcntimer(unsigned fcn());
+// For rand() and friends:
+#include <stdlib.h>
 
-// prototypes for all individual checks must be unsigned fcn() in order to be
-// able to use fcntimer() as a wrapper:
-unsigned paranoia_check();
-unsigned numeric_output();
-unsigned numeric_consist();
-unsigned powerlaws();
-unsigned expand_subs();
-unsigned inifcns_consist();
-unsigned differentiation();
-unsigned poly_gcd();
-unsigned normalization();
-unsigned matrix_checks();
-unsigned linear_solve();
-unsigned series_expansion();
-unsigned lortensor_check();
+#include "ginac.h"
 
-#endif // ndef CHECK_H
+#ifndef NO_NAMESPACE_GINAC
+using namespace GiNaC;
+#endif // ndef NO_NAMESPACE_GINAC
+
+// prototypes for the expression generating functions in:
+const ex dense_univariate_poly(const symbol & x, unsigned degree);
+const ex dense_bivariate_poly(const symbol & x1, const symbol & x2, unsigned degree);
+
+// prototypes for all individual checks should be unsigned fcn():
+unsigned check_numeric();
+unsigned check_inifcns();
+unsigned check_matrices();
+unsigned check_lsolve();
+
+#endif // ndef CHECKS_H

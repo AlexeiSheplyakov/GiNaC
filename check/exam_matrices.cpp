@@ -1,6 +1,6 @@
-/** @file matrix_checks.cpp
+/** @file exam_matrices.cpp
  *
- *  Here we test manipulations on GiNaC's symbolic matrices. */
+ *  Here we examine manipulations on GiNaC's symbolic matrices. */
 
 /*
  *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
@@ -21,17 +21,13 @@
  */
 
 #include <stdexcept>
-#include "ginac.h"
-
-#ifndef NO_NAMESPACE_GINAC
-using namespace GiNaC;
-#endif // ndef NO_NAMESPACE_GINAC
+#include "exams.h"
 
 static unsigned matrix_determinants(void)
 {
     unsigned result = 0;
     ex det;
-    matrix m1(1,1), m2(2,2), m3(3,3);
+    matrix m1(1,1), m2(2,2), m3(3,3), m4(4,4);
     symbol a("a"), b("b"), c("c");
     symbol d("d"), e("e"), f("f");
     symbol g("g"), h("h"), i("i");
@@ -87,6 +83,15 @@ static unsigned matrix_determinants(void)
         ++result;
     }
 
+    // check sparse symbolic 4x4 matrix determinant
+    m4.set(0,1,a).set(1,0,b).set(3,2,c).set(2,3,d);
+    det = m4.determinant();
+    if (det != a*b*c*d) {
+        clog << "determinant of 4x4 matrix " << m4
+             << " erroneously returned " << det << endl;
+        ++result;
+    }
+    
     // check characteristic polynomial
     m3.set(0,0,a).set(0,1,-2).set(0,2,2);
     m3.set(1,0,3).set(1,1,a-1).set(1,2,2);
@@ -204,8 +209,7 @@ static unsigned matrix_misc(void)
     bool caught=false;
     try {
         m5 = inverse(m4);
-    }
-    catch (std::runtime_error err) {
+    } catch (std::runtime_error err) {
         caught=true;
     }
     if (!caught) {
@@ -217,24 +221,24 @@ static unsigned matrix_misc(void)
     return result;
 }
 
-unsigned matrix_checks(void)
+unsigned exam_matrices(void)
 {
     unsigned result = 0;
     
-    cout << "checking symbolic matrix manipulations..." << flush;
-    clog << "---------symbolic matrix manipulations:" << endl;
-    
-    result += matrix_determinants();
-    result += matrix_invert1();
-    result += matrix_invert2();
-    result += matrix_invert3();
-    result += matrix_misc();
+    cout << "examining symbolic matrix manipulations" << flush;
+    clog << "----------symbolic matrix manipulations:" << endl;
+
+    result += matrix_determinants();  cout << '.' << flush;
+    result += matrix_invert1();  cout << '.' << flush;
+    result += matrix_invert2();  cout << '.' << flush;
+    result += matrix_invert3();  cout << '.' << flush;
+    result += matrix_misc();  cout << '.' << flush;
     
     if (!result) {
-        cout << " passed ";
+        cout << " passed " << endl;
         clog << "(no output)" << endl;
     } else {
-        cout << " failed ";
+        cout << " failed " << endl;
     }
     
     return result;

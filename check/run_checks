@@ -1,5 +1,4 @@
 #! /bin/sh
-echo "Running checks..."
-./check_ginac 2>result.out
-echo "Comparing output..."
-cmp ${srcdir}/result.ref result.out
+echo "GiNaC will now run through some rather costly consistency checks:"
+./checks 2>checks.out
+cmp ${srcdir}/checks.ref checks.out

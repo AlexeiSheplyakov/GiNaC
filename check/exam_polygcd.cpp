@@ -1,4 +1,4 @@
-/** @file poly_gcd.cpp
+/** @file exam_polygcd.cpp
  *
  *  Some test with polynomial GCD calculations. See also the checks for
  *  rational function normalization in normalization.cpp. */
@@ -21,13 +21,9 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "ginac.h"
+#include "exams.h"
 
-#ifndef NO_NAMESPACE_GINAC
-using namespace GiNaC;
-#endif // ndef NO_NAMESPACE_GINAC
-
-const int MAX_VARIABLES = 5;
+const int MAX_VARIABLES = 3;
 
 static symbol x("x"), z("z");
 static symbol y[MAX_VARIABLES];
@@ -215,7 +211,7 @@ static unsigned poly_gcd7(void)
 	ex p = x - y * z + 1;
 	ex q = x - y + z * 3;
 
-	for (int j=1; j<=3; j++) {
+	for (int j=1; j<=MAX_VARIABLES; j++) {
 		for (int k=j+1; k<=4; k++) {
 			ex d = pow(p, j) * pow(q, j);
 			ex f = pow(p, j) * pow(q, k);
@@ -230,28 +226,29 @@ static unsigned poly_gcd7(void)
 	return 0;
 }
 
-unsigned poly_gcd(void)
+unsigned exam_polygcd(void)
 {
     unsigned result = 0;
-
-	cout << "checking polynomial GCD computation..." << flush;
-	clog << "---------polynomial GCD computation:" << endl;
-
-	result += poly_gcd1();
-	result += poly_gcd2();
-	result += poly_gcd3();
-//	result += poly_gcd3p();	// takes extremely long (PRS "worst" case)
-	result += poly_gcd4();
-	result += poly_gcd5();
-	result += poly_gcd5p();
-	result += poly_gcd6();
-	result += poly_gcd7();
-
+    
+	cout << "examining polynomial GCD computation" << flush;
+	clog << "----------polynomial GCD computation:" << endl;
+    
+	result += poly_gcd1();  cout << '.' << flush;
+	result += poly_gcd2();  cout << '.' << flush;
+	result += poly_gcd3();  cout << '.' << flush;
+    result += poly_gcd3p();	 cout << '.' << flush; // takes extremely long (PRS "worst" case)
+	result += poly_gcd4();  cout << '.' << flush;
+	result += poly_gcd5();  cout << '.' << flush;
+	result += poly_gcd5p();  cout << '.' << flush;
+	result += poly_gcd6();  cout << '.' << flush;
+	result += poly_gcd7();  cout << '.' << flush;
+    
 	if (!result) {
-		cout << " passed ";
+		cout << " passed " << endl;
         clog << "(no output)" << endl;
     } else {
-		cout << " failed ";
+		cout << " failed " << endl;
     }
+    
 	return result;
 }

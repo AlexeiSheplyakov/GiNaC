@@ -212,10 +212,10 @@ ex lsolve(const ex &eqns, const ex &symbols)
     matrix vars(symbols.nops(),1);
     
     for (unsigned r=0; r<eqns.nops(); r++) {
-        ex eq=eqns.op(r).op(0)-eqns.op(r).op(1); // lhs-rhs==0
-        ex linpart=eq;
+        ex eq = eqns.op(r).op(0)-eqns.op(r).op(1); // lhs-rhs==0
+        ex linpart = eq;
         for (unsigned c=0; c<symbols.nops(); c++) {
-            ex co=eq.coeff(ex_to_symbol(symbols.op(c)),1);
+            ex co = eq.coeff(ex_to_symbol(symbols.op(c)),1);
             linpart -= co*symbols.op(c);
             sys.set(r,c,co);
         }
@@ -226,18 +226,16 @@ ex lsolve(const ex &eqns, const ex &symbols)
     // test if system is linear and fill vars matrix
     for (unsigned i=0; i<symbols.nops(); i++) {
         vars.set(i,0,symbols.op(i));
-        if (sys.has(symbols.op(i))) {
+        if (sys.has(symbols.op(i)))
             throw(std::logic_error("lsolve: system is not linear"));
-        }
-        if (rhs.has(symbols.op(i))) {
+        if (rhs.has(symbols.op(i)))
             throw(std::logic_error("lsolve: system is not linear"));
-        }
     }
     
     //matrix solution=sys.solve(rhs);
     matrix solution;
     try {
-        solution=sys.fraction_free_elim(vars,rhs);
+        solution = sys.fraction_free_elim(vars,rhs);
     } catch (const runtime_error & e) {
         // probably singular matrix (or other error)
         // return empty solution list

@@ -37,10 +37,7 @@ class matrix : public basic
     GINAC_DECLARE_REGISTERED_CLASS(matrix, basic)
 
 // friends
-    friend ex determinant_numeric(const matrix & m);
-    friend ex determinant_symbolic_perm(const matrix & m);
-    friend ex determinant_symbolic_minor(const matrix & m);
-
+// (none)
 // member functions
 
     // default constructor, destructor, copy constructor, assignment operator
@@ -95,9 +92,16 @@ public:
     ex charpoly(const ex & lambda) const;
     matrix inverse(void) const;
     matrix fraction_free_elim(const matrix & vars, const matrix & v) const;
-    matrix solve(const matrix & v) const;
+    matrix solve(const matrix & vars, const matrix & rhs) const;
+    matrix old_solve(const matrix & v) const;  // FIXME: may be removed
 protected:
-    int pivot(unsigned ro);
+    ex determinant_numeric(void) const;
+    ex determinant_symbolic_minor(void) const;
+    ex determinant_symbolic_perm(void) const;
+    int gauss_elimination(void);
+    int fraction_free_elimination(void);
+    int pivot(unsigned ro, bool symbolic=true);
+private:  // FIXME: these should be obsoleted
     void ffe_swap(unsigned r1, unsigned c1, unsigned r2 ,unsigned c2);
     void ffe_set(unsigned r, unsigned c, ex e);
     ex ffe_get(unsigned r, unsigned c) const;

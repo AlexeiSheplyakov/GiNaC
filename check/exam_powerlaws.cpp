@@ -1,4 +1,4 @@
-/** @file powerlaws.cpp
+/** @file exam_powerlaws.cpp
  *
  *  Tests for power laws.  You shouldn't try to draw much inspiration from
  *  this code, it is a sanity check rather deeply rooted in GiNaC's classes. */
@@ -21,13 +21,9 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "ginac.h"
+#include "exams.h"
 
-#ifndef NO_NAMESPACE_GINAC
-using namespace GiNaC;
-#endif // ndef NO_NAMESPACE_GINAC
-
-static unsigned powerlaws1(void)
+static unsigned exam_powerlaws1(void)
 {
     // (x^a)^b = x^(a*b)
     
@@ -103,7 +99,7 @@ static unsigned powerlaws1(void)
     return 0;
 }
 
-static unsigned powerlaws2(void)
+static unsigned exam_powerlaws2(void)
 {
     // (a*x)^b = a^b * x^b
     
@@ -201,7 +197,7 @@ static unsigned powerlaws2(void)
     return 0;
 }
 
-static unsigned powerlaws3(void)
+static unsigned exam_powerlaws3(void)
 {
     // numeric evaluation
 
@@ -240,7 +236,7 @@ static unsigned powerlaws3(void)
     return 0;
 }
 
-static unsigned powerlaws4(void)
+static unsigned exam_powerlaws4(void)
 {
     // test for mul::eval()
 
@@ -264,23 +260,24 @@ static unsigned powerlaws4(void)
     return 0;
 }
 
-unsigned powerlaws(void)
+unsigned exam_powerlaws(void)
 {
     unsigned result = 0;
     
-    cout << "checking power laws..." << flush;
-    clog << "---------power laws:" << endl;
+    cout << "examining power laws" << flush;
+    clog << "----------power laws:" << endl;
     
-    result += powerlaws1();
-    result += powerlaws2();
-    result += powerlaws3();
-    result += powerlaws4();
+    result += exam_powerlaws1();  cout << '.' << flush;
+    result += exam_powerlaws2();  cout << '.' << flush;
+    result += exam_powerlaws3();  cout << '.' << flush;
+    result += exam_powerlaws4();  cout << '.' << flush;
     
     if (!result) {
-        cout << " passed ";
+        cout << " passed " << endl;
         clog << "(no output)" << endl;
     } else {
-        cout << " failed ";
+        cout << " failed " << endl;
     }
+    
     return result;
 }

@@ -1,4 +1,4 @@
-/** @file paranoia_check.cpp
+/** @file exam_paranoia.cpp
  *
  *  This set of tests checks for some of GiNaC's oopses which showed up during
  *  development.  Things were evaluated wrongly and so.  Such a sick behaviour
@@ -23,16 +23,12 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "ginac.h"
-
-#ifndef NO_NAMESPACE_GINAC
-using namespace GiNaC;
-#endif // ndef NO_NAMESPACE_GINAC
+#include "exams.h"
 
 // The very first pair of historic problems had its roots in power.cpp and was
 // finally resolved on April 27th 1999. (Fixing the first on April 23rd
 // actually introduced the second.)
-static unsigned paranoia_check1(void)
+static unsigned exam_paranoia1(void)
 {
     unsigned result = 0;
     symbol x("x"), y("y"), z("z");
@@ -63,7 +59,7 @@ static unsigned paranoia_check1(void)
 // And here the second oops which showed up until May 17th 1999.  It had to do
 // with lexicographic canonicalization and thus showed up only if the variables
 // had the names as given here:
-static unsigned paranoia_check2(void)
+static unsigned exam_paranoia2(void)
 {
     unsigned result = 0;
     symbol x("x"), y("y"), z("z");
@@ -99,7 +95,7 @@ static unsigned paranoia_check2(void)
 // The third bug was introduced on May 18th 1999, discovered on May 19 and
 // fixed that same day.  It worked when x was substituted by 1 but not with
 // other numbers:
-static unsigned paranoia_check3(void)
+static unsigned exam_paranoia3(void)
 {
     unsigned result = 0;
     symbol x("x"), y("y");
@@ -128,7 +124,7 @@ static unsigned paranoia_check3(void)
 }
 
 // The fourth bug was also discovered on May 19th 1999 and fixed immediately:
-static unsigned paranoia_check4(void)
+static unsigned exam_paranoia4(void)
 {
     unsigned result = 0;
     symbol x("x");
@@ -153,7 +149,7 @@ static unsigned paranoia_check4(void)
 }
 
 // The fifth oops was discovered on May 20th 1999 and fixed a day later:
-static unsigned paranoia_check5(void)
+static unsigned exam_paranoia5(void)
 {
     unsigned result = 0;
     symbol x("x"), y("y");
@@ -172,7 +168,7 @@ static unsigned paranoia_check5(void)
 }
 
 // This one was discovered on Jun 1st 1999 and fixed the same day:
-static unsigned paranoia_check6(void)
+static unsigned exam_paranoia6(void)
 {
     unsigned result = 0;
     symbol x("x");
@@ -190,7 +186,7 @@ static unsigned paranoia_check6(void)
 
 // This one was introduced on June 1st 1999 by some aggressive manual
 // optimization. Discovered and fixed on June 2nd.
-static unsigned paranoia_check7(void)
+static unsigned exam_paranoia7(void)
 {
     unsigned result = 0;
     symbol x("x"), y("y");
@@ -210,7 +206,7 @@ static unsigned paranoia_check7(void)
 // This one was a result of the rewrite of mul::max_coefficient when we
 // introduced the overall_coefficient field in expairseq objects on Oct 1st
 // 1999. Fixed on Oct 4th.
-static unsigned paranoia_check8(void)
+static unsigned exam_paranoia8(void)
 {
     unsigned result = 0;
     symbol x("x");
@@ -236,7 +232,7 @@ static unsigned paranoia_check8(void)
 // Z[X]. multiply_lcm() forgot to multiply the x-linear term with the LCM of
 // the coefficient's denominators (2 in this case).  Introduced on Jan 25th
 // 2000 and fixed on Jan 31th.
-static unsigned paranoia_check9(void)
+static unsigned exam_paranoia9(void)
 {
     unsigned result = 0;
     symbol x("x");
@@ -255,7 +251,7 @@ static unsigned paranoia_check9(void)
 // and on Feb 13th 2000 I found out that things like 2^(3/2) throw an exception
 // "power::eval(): pow(0,0) is undefined" instead of simplifying to 2*2^(1/2).
 // It was fixed that same day.
-static unsigned paranoia_check10(void)
+static unsigned exam_paranoia10(void)
 {
     unsigned result = 0;
     
@@ -280,7 +276,7 @@ static unsigned paranoia_check10(void)
 // add::normal() forgot to multiply the denominator of the overall_coeff of
 // its expanded and normalized children with the denominator of the expanded
 // child (did you get this? Well, never mind...). Fixed on Feb 21th 2000.
-static unsigned paranoia_check11(void)
+static unsigned exam_paranoia11(void)
 {
     unsigned result = 0;
 	symbol x("x");
@@ -296,31 +292,31 @@ static unsigned paranoia_check11(void)
     return result;
 }
 
-unsigned paranoia_check(void)
+unsigned exam_paranoia(void)
 {
     unsigned result = 0;
-
-    cout << "checking several ex-bugs just out of pure paranoia..." << flush;
-    clog << "---------several ex-bugs just out of pure paranoia:" << endl;
-
-    result += paranoia_check1();
-    result += paranoia_check2();
-    result += paranoia_check3();
-    result += paranoia_check4();
-    result += paranoia_check5();
-    result += paranoia_check6();
-    result += paranoia_check7();
-    result += paranoia_check8();
-    result += paranoia_check9();
-    result += paranoia_check10();
-    result += paranoia_check11();
-
+    
+    cout << "examining several historic failures just out of paranoia" << flush;
+    clog << "----------several historic failures:" << endl;
+    
+    result += exam_paranoia1();  cout << '.' << flush;
+    result += exam_paranoia2();  cout << '.' << flush;
+    result += exam_paranoia3();  cout << '.' << flush;
+    result += exam_paranoia4();  cout << '.' << flush;
+    result += exam_paranoia5();  cout << '.' << flush;
+    result += exam_paranoia6();  cout << '.' << flush;
+    result += exam_paranoia7();  cout << '.' << flush;
+    result += exam_paranoia8();  cout << '.' << flush;
+    result += exam_paranoia9();  cout << '.' << flush;
+    result += exam_paranoia10();  cout << '.' << flush;
+    result += exam_paranoia11();  cout << '.' << flush;
+    
     if (!result) {
-        cout << " passed ";
+        cout << " passed " << endl;
         clog << "(no output)" << endl;
     } else {
-        cout << " failed ";
+        cout << " failed " << endl;
     }
-
+    
     return result;
 }

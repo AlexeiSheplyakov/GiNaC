@@ -1,16 +1,10 @@
-/** @file expand_subs.cpp
+/** @file time_dennyfliegner.cpp
  *
  *  The first test routine implements Denny Fliegner's quick consistency check:
- *     e = (a0 + a1 + a2 + a3 + ...)^2
- *     expand e
- *     substitute a0 by (-a2 - a3 - ...) in e
- *     expand e
- *  after which e should be just a1^2.
- *  In addition, a simpler modification is tested in the second test:
- *     e = (a0 + a1)^200
- *     expand e
- *     substitute a0 by -a1 in e
- *  after which e should return 0 (without expanding). */
+ *  1)  e = (a0 + a1 + a2 + a3 + ...)^2, in expanded form
+ *  2)  substitute a0 by (-a2 - a3 - ...) in e
+ *  3)  expand e
+ *  after which e should be just a1^2. */
 
 /*
  *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
@@ -30,65 +24,56 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "times.h"
 
-#include "ginac.h"
+#define VECSIZE 200
 
-#ifndef NO_NAMESPACE_GINAC
-using namespace GiNaC;
-#endif // ndef NO_NAMESPACE_GINAC
-
-#define VECSIZE 100
-
-static unsigned expand_subs1(void)
+static unsigned expand_subs(unsigned size)
 {
+    unsigned result = 0;
     symbol a1("a1");
     symbol a[VECSIZE];
     ex e, aux;
-
+    
     a[1] = a1;
-    for (unsigned i=0; i<VECSIZE; ++i) {
+    for (unsigned i=0; i<size; ++i) {
         e = e + a[i];
     }
-
+    
     // prepare aux so it will swallow anything but a1^2:
     aux = -e + a[0] + a[1];
     e = expand(subs(expand(pow(e, 2)), a[0] == aux));
-
+    
     if (e != pow(a1,2)) {
         clog << "Denny Fliegner's quick consistency check erroneously returned "
              << e << "." << endl;
-        return 1;
+        ++result;
     }
-    return 0;
+    
+    return result;
 }
 
-static unsigned expand_subs2(void)
-{
-    symbol a("a"), b("b");
-    ex e, f;
-
-    // Here the final expand() should be superflous. For no particular reason
-    // at all, we don't use the wrapper-functions but the methods instead:
-    e = pow(a+b,200).expand();
-    f = e.subs(a == -b);
-
-    if (f != 0) {
-        clog << "e = pow(a+b,200).expand(); f = e.subs(a == -b); erroneously returned "
-             << f << " instead of simplifying to 0." << endl;
-        return 1;
-    }
-    return 0;
-}
-
-unsigned expand_subs(void)
+unsigned time_dennyfliegner(void)
 {
     unsigned result = 0;
-
-    cout << "checking commutative expansion and substitution..." << flush;
-    clog << "---------commutative expansion and substitution:" << endl;
     
-    result += expand_subs1();
-    result += expand_subs2();
+    cout << "timing commutative expansion and substitution" << flush;
+    clog << "-------commutative expansion and substitution:" << endl;
+    
+    vector<unsigned> sizes;
+    vector<double> times;
+    timer rolex;
+    
+    sizes.push_back(40);
+    sizes.push_back(60);
+    sizes.push_back(100);
+    sizes.push_back(150);
+    
+    for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i) {
+        rolex.start();
+        result += expand_subs(*i);  cout << '.' << flush;
+        times.push_back(rolex.read());
+    }
     
     if (!result) {
         cout << " passed ";
@@ -96,6 +81,16 @@ unsigned expand_subs(void)
     } else {
         cout << " failed ";
     }
-
+    // print the report:
+    cout << endl << "    size:  ";
+    for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i) {
+        cout << '\t' << (*i);
+    }
+    cout << endl << "    time/s:";
+    for (vector<double>::iterator i=times.begin(); i!=times.end(); ++i) {
+        cout << '\t' << (*i);
+    }
+    cout << endl;
+    
     return result;
 }

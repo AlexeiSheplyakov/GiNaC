@@ -21,6 +21,9 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#ifndef __GINAC_REMEMBER_H__
+#define __GINAC_REMEMBER_H__
+
 #include <vector>
 #include <list>
 
@@ -65,7 +68,7 @@ protected:
 };
 
 /** The remember table is organized like an n-fold associative cache
-    in a microprocessor. The table has a width of 's' (which is rounded
+    in a microprocessor.  The table has a width of 's' (which is rounded
     to table_size, some power of 2 near 's', internally) and a depth of 'as'
     (unless you choose that entries are never discarded). The place where
     an entry is stored depends on the hashvalue of the parameters of the
@@ -97,3 +100,5 @@ protected:
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
 #endif // ndef NO_NAMESPACE_GINAC
+
+#endif // ndef __GINAC_REMEMBER_H__

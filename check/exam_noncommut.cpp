@@ -1,4 +1,4 @@
-/** @file lortensor_check.cpp
+/** @file exam_noncommut.cpp
  *
  *  Here we test manipulations on GiNaC's lortensors. */
 
@@ -20,12 +20,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <stdexcept>
-#include "ginac.h"
-
-#ifndef NO_NAMESPACE_GINAC
-using namespace GiNaC;
-#endif // ndef NO_NAMESPACE_GINAC
+#include "exams.h"
 
 static unsigned lortensor_check1(void)
 {
@@ -90,21 +85,21 @@ static unsigned lortensor_check2(void)
     return result;
 }
 
-unsigned lortensor_check(void)
+unsigned exam_noncommut(void)
 {
     unsigned result = 0;
     
-    cout << "checking manipulations of lortensor objects..." << flush;
-    clog << "---------manipulations of lortensor objects:" << endl;
+    cout << "examining behaviour of noncommutative objects" << flush;
+    clog << "----------behaviour of noncommutative objects:" << endl;
     
-    result += lortensor_check1();
-    result += lortensor_check2();
+    result += lortensor_check1();  cout << '.' << flush;
+    result += lortensor_check2();  cout << '.' << flush;
     
     if (!result) {
-        cout << " passed ";
+        cout << " passed " << endl;
         clog << "(no output)" << endl;
     } else {
-        cout << " failed ";
+        cout << " failed " << endl;
     }
     
     return result;    

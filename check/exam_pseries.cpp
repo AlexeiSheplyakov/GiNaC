@@ -1,4 +1,4 @@
-/** @file series_expansion.cpp
+/** @file exam_pseries.cpp
  *
  *  Series expansion test (Laurent and Taylor series). */
 
@@ -20,11 +20,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "ginac.h"
-
-#ifndef NO_NAMESPACE_GINAC
-using namespace GiNaC;
-#endif // ndef NO_NAMESPACE_GINAC
+#include "exams.h"
 
 static symbol x("x");
 
@@ -43,7 +39,7 @@ static unsigned check_series(const ex &e, const ex &point, const ex &d, int orde
 }
 
 // Series expansion
-static unsigned series1(void)
+static unsigned exam_series1(void)
 {
     unsigned result = 0;
     ex e, d;
@@ -106,7 +102,7 @@ static unsigned series1(void)
 }
 
 // Series addition
-static unsigned series2(void)
+static unsigned exam_series2(void)
 {
     unsigned result = 0;
     ex e, d;
@@ -119,7 +115,7 @@ static unsigned series2(void)
 }
 
 // Series multiplication
-static unsigned series3(void)
+static unsigned exam_series3(void)
 {
     unsigned result = 0;
     ex e, d;
@@ -132,7 +128,7 @@ static unsigned series3(void)
 }
 
 // Order term handling
-static unsigned series4(void)
+static unsigned exam_series4(void)
 {
     unsigned result = 0;
     ex e, d;
@@ -152,7 +148,7 @@ static unsigned series4(void)
 }
 
 // Series of special functions
-static unsigned series5(void)
+static unsigned exam_series5(void)
 {
     unsigned result = 0;
     ex e, d;
@@ -199,24 +195,24 @@ static unsigned series5(void)
     return result;
 }
 
-unsigned series_expansion(void)
+unsigned exam_pseries(void)
 {
     unsigned result = 0;
     
-    cout << "checking series expansion..." << flush;
-    clog << "---------series expansion:" << endl;
+    cout << "examining series expansion" << flush;
+    clog << "----------series expansion:" << endl;
     
-    result += series1();
-    result += series2();
-    result += series3();
-    result += series4();
-    result += series5();
+    result += exam_series1();  cout << '.' << flush;
+    result += exam_series2();  cout << '.' << flush;
+    result += exam_series3();  cout << '.' << flush;
+    result += exam_series4();  cout << '.' << flush;
+    result += exam_series5();  cout << '.' << flush;
     
     if (!result) {
-        cout << " passed ";
+        cout << " passed " << endl;
         clog << "(no output)" << endl;
     } else {
-        cout << " failed ";
+        cout << " failed " << endl;
     }
     return result;
 }

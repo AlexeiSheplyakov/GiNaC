@@ -1,5 +1,13 @@
 This file records noteworthy changes.
 
+0.5.4 (?? 2000)
+* Algorithms in class matrix (determinant and solve) were replaced by
+  less brain-dead ones and should now have much better performance.
+* Checks were reorganized and split up into three parts:
+  a) exams (small tests with predefined input)
+  b) checks (lenghty consistency checks)
+  c) timings (for crude benchmarking)
+
 0.5.3 (23 February 2000)
 * A more flexible scheme for registering functions was implemented,
   allowing for remembering, too.

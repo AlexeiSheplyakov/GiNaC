@@ -18,6 +18,9 @@
 /* The number of bytes in a long long.  */
 #undef SIZEOF_LONG_LONG
 
+/* Define if you have the tgetent function.  */
+#undef HAVE_TGETENT
+
 /* Define if you have the <algorithm> header file.  */
 #undef HAVE_ALGORITHM
 

@@ -1,4 +1,4 @@
-/** @file inifcns_consist.cpp
+/** @file check_inifcns.cpp
  *
  *  This test routine applies assorted tests on initially known higher level
  *  functions. */
@@ -21,17 +21,13 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "ginac.h"
-
-#ifndef NO_NAMESPACE_GINAC
-using namespace GiNaC;
-#endif // ndef NO_NAMESPACE_GINAC
+#include "checks.h"
 
 /* Some tests on the sine trigonometric function. */
 static unsigned inifcns_consist_sin(void)
 {
     unsigned result = 0;
-    bool errorflag;
+    bool errorflag = false;
     
     // sin(n*Pi) == 0?
     errorflag = false;
@@ -68,7 +64,7 @@ static unsigned inifcns_consist_sin(void)
     errorflag = false;
     ex argument;
     numeric epsilon(double(1e-8));
-    for (int n=-240; n<=240; ++n) {
+    for (int n=-340; n<=340; ++n) {
         argument = n*Pi/60;
         if (abs(sin(evalf(argument))-evalf(sin(argument)))>epsilon) {
             clog << "sin(" << argument << ") returns "
@@ -123,7 +119,7 @@ static unsigned inifcns_consist_cos(void)
     errorflag = false;
     ex argument;
     numeric epsilon(double(1e-8));
-    for (int n=-240; n<=240; ++n) {
+    for (int n=-340; n<=340; ++n) {
         argument = n*Pi/60;
         if (abs(cos(evalf(argument))-evalf(cos(argument)))>epsilon) {
             clog << "cos(" << argument << ") returns "
@@ -151,7 +147,7 @@ static unsigned inifcns_consist_tan(void)
     errorflag = false;
     ex argument;
     numeric epsilon(double(1e-8));
-    for (int n=-240; n<=240; ++n) {
+    for (int n=-340; n<=340; ++n) {
         if (!(n%30) && (n%60))  // skip poles
             ++n;
         argument = n*Pi/60;
@@ -332,26 +328,26 @@ static unsigned inifcns_consist_zeta(void)
     return result;
 }
 
-unsigned inifcns_consist(void)
+unsigned check_inifcns(void)
 {
     unsigned result = 0;
 
-    cout << "checking consistency of symbolic functions..." << flush;
+    cout << "checking consistency of symbolic functions" << flush;
     clog << "---------consistency of symbolic functions:" << endl;
     
-    result += inifcns_consist_sin();
-    result += inifcns_consist_cos();
-    result += inifcns_consist_tan();
-    result += inifcns_consist_trans();
-    result += inifcns_consist_gamma();
-    result += inifcns_consist_psi();
-    result += inifcns_consist_zeta();
+    result += inifcns_consist_sin();  cout << '.' << flush;
+    result += inifcns_consist_cos();  cout << '.' << flush;
+    result += inifcns_consist_tan();  cout << '.' << flush;
+    result += inifcns_consist_trans();  cout << '.' << flush;
+    result += inifcns_consist_gamma();  cout << '.' << flush;
+    result += inifcns_consist_psi();  cout << '.' << flush;
+    result += inifcns_consist_zeta();  cout << '.' << flush;
 
     if (!result) {
-        cout << " passed ";
+        cout << " passed " << endl;
         clog << "(no output)" << endl;
     } else {
-        cout << " failed ";
+        cout << " failed " << endl;
     }
     
     return result;
