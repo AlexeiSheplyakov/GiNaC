@@ -178,6 +178,23 @@ void pseries::printraw(ostream &os) const
 	os << ")";
 }
 
+void pseries::printtree(ostream & os, unsigned indent) const
+{
+    debugmsg("pseries printtree",LOGLEVEL_PRINT);
+    os << string(indent,' ') << "pseries " 
+       << ", hash=" << hashvalue << " (0x" << hex << hashvalue << dec << ")"
+       << ", flags=" << flags << endl;
+    for (unsigned i=0; i<seq.size(); ++i) {
+        seq[i].rest.printtree(os,indent+delta_indent);
+        seq[i].coeff.printtree(os,indent+delta_indent);
+        if (i!=seq.size()-1) {
+            os << string(indent+delta_indent,' ') << "-----" << endl;
+        }
+    }
+    var.printtree(os, indent+delta_indent);
+    point.printtree(os, indent+delta_indent);
+}
+
 unsigned pseries::nops(void) const
 {
     return seq.size();

@@ -57,6 +57,7 @@ public:
     basic *duplicate() const;
     void print(ostream &os, unsigned upper_precedence=0) const;
     void printraw(ostream &os) const;
+    void printtree(ostream & os, unsigned indent) const;
     unsigned nops(void) const;
     ex op(int i) const;
     ex &let_op(int i);
