@@ -212,14 +212,6 @@ $declare_function_macro
 const unsigned function_index_##NAME= \\
 	GiNaC::function::register_new(GiNaC::function_options(#NAME).OPT);
 
-#define REGISTER_FUNCTION_OLD(NAME,E,EF,D,S) \\
-const unsigned function_index_##NAME= \\
-	GiNaC::function::register_new(GiNaC::function_options(#NAME). \\
-	                              eval_func(E). \\
-	                              evalf_func(EF). \\
-	                              derivative_func(D). \\
-	                              series_func(S));
-
 #define BEGIN_TYPECHECK \\
 bool automatic_typecheck=true;
 
