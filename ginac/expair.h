@@ -102,9 +102,17 @@ public:
 	ex coeff;   ///< second member of pair, must be numeric
 };
 
-/** Function objects for insertion into third argument of STL's sort() etc. */
+/** Function object for insertion into third argument of STL's sort() etc. */
 struct expair_is_less : public std::binary_function<expair, expair, bool> {
 	bool operator()(const expair &lh, const expair &rh) const { return lh.is_less(rh); }
+};
+
+/** Function object not caring about the numerical coefficients for insertion
+ *  into third argument of STL's sort().  Note that this does not define a
+ *  strict weak ordering since for any symbol x we have neither 3*x<2*x or
+ *  2*x<3*x.  Handle with care! */
+struct expair_rest_is_less : public std::binary_function<expair, expair, bool> {
+	bool operator()(const expair &lh, const expair &rh) const { return (lh.rest.compare(rh.rest)<0); }
 };
 
 struct expair_swap : public std::binary_function<expair, expair, void> {

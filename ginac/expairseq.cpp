@@ -126,6 +126,7 @@ expairseq::expairseq(const exvector &v) : inherited(TINFO_expairseq)
 expairseq::expairseq(const epvector &v, const ex &oc)
   : inherited(TINFO_expairseq), overall_coeff(oc)
 {
+	GINAC_ASSERT(is_a<numeric>(oc));
 	construct_from_epvector(v);
 	GINAC_ASSERT(is_canonical());
 }
@@ -134,6 +135,7 @@ expairseq::expairseq(epvector *vp, const ex &oc)
   : inherited(TINFO_expairseq), overall_coeff(oc)
 {
 	GINAC_ASSERT(vp!=0);
+	GINAC_ASSERT(is_a<numeric>(oc));
 	construct_from_epvector(*vp);
 	delete vp;
 	GINAC_ASSERT(is_canonical());
@@ -1057,7 +1059,7 @@ void expairseq::make_flat(const epvector &v)
 /** Brings this expairseq into a sorted (canonical) form. */
 void expairseq::canonicalize(void)
 {
-	std::sort(seq.begin(), seq.end(), expair_is_less());
+	std::sort(seq.begin(), seq.end(), expair_rest_is_less());
 }
 
 
