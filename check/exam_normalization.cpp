@@ -203,6 +203,7 @@ static unsigned exam_content()
 	result += check_content(5*x-15, x, 5, 5, x-3);
 	result += check_content(5*x*y-15*y*y, x, 5, 5*y, x-3*y);
 	result += check_content(-15*x/2+ex(25)/3, x, ex(5)/6, ex(5)/6, 9*x-10);
+	result += check_content(-x*y, x, 1, y, x);
 
 	return result;
 }
