@@ -46,13 +46,12 @@ static unsigned check_equal_simplify(const ex &e1, const ex &e2)
 
 static unsigned color_check1(void)
 {
-	// checks general identities and contractions
+	// checks general identities and contractions of the structure constants
 
 	unsigned result = 0;
 
 	idx a(symbol("a"), 8), b(symbol("b"), 8), c(symbol("c"), 8), d(symbol("d"), 8);
 
-	// structure constants
 	result += check_equal(color_d(a, c, a), 0);
 	result += check_equal_simplify(color_d(a, b, c) * color_d(b, d, c), numeric(5,3) * delta_tensor(a, d));
 	result += check_equal_simplify(color_d(idx(5, 8), b, c) * color_d(b, idx(5, 8), c), numeric(5,3));
@@ -79,6 +78,54 @@ static unsigned color_check1(void)
 	return result;
 }
 
+static unsigned color_check2(void)
+{
+	// checks general identities and contractions of the generators
+
+	unsigned result = 0;
+
+	idx a(symbol("a"), 8), b(symbol("b"), 8), c(symbol("c"), 8), k(symbol("k"), 8);
+	ex e;
+
+	e = color_T(k) * color_T(k);
+	result += check_equal_simplify(e, 4 * color_ONE() / 3);
+	e = color_T(k) * color_T(a) * color_T(k);
+	result += check_equal_simplify(e, -color_T(a) / 6);
+	e = color_T(k) * color_T(a) * color_T(b) *  color_T(k);
+	result += check_equal_simplify(e, delta_tensor(a, b) * color_ONE() / 4 - color_T(a) * color_T(b) / 6);
+	e = color_T(k) * color_T(a) * color_T(b) *  color_T(c) * color_T(k);
+	result += check_equal_simplify(e, (color_h(a, b, c) * color_ONE() / 8).expand() - color_T(a) * color_T(b) * color_T(c) / 6);
+	e = color_T(a) * color_T(b) * color_T(a) *  color_T(b);
+	result += check_equal_simplify(e, -2 * color_ONE() / 9);
+	e = color_T(a) * color_T(b) * color_T(b) *  color_T(a);
+	result += check_equal_simplify(e, 16 * color_ONE() / 9);
+	e = color_T(a) * color_T(b) * color_T(c) * color_T(c) * color_T(b) *  color_T(a);
+	result += check_equal_simplify(e, 64 * color_ONE() / 27);
+
+	return result;
+}
+
+static unsigned color_check3(void)
+{
+	// checks traces
+
+	unsigned result = 0;
+
+	idx a(symbol("a"), 8), b(symbol("b"), 8), c(symbol("c"), 8), k(symbol("k"), 8);
+	ex e;
+
+	e = color_ONE();
+	result += check_equal(color_trace(e), 3);
+	e = color_T(a);
+	result += check_equal(color_trace(e), 0);
+	e = color_T(a) * color_T(b);
+	result += check_equal(color_trace(e), delta_tensor(a, b) / 2);
+	e = color_T(a) * color_T(b) * color_T(c);
+	result += check_equal(color_trace(e), color_h(a, b, c) / 4);
+
+	return result;
+}
+
 unsigned exam_color(void)
 {
 	unsigned result = 0;
@@ -87,6 +134,8 @@ unsigned exam_color(void)
 	clog << "----------color objects:" << endl;
 
 	result += color_check1();  cout << '.' << flush;
+	result += color_check2();  cout << '.' << flush;
+	result += color_check3();  cout << '.' << flush;
 	
 	if (!result) {
 		cout << " passed " << endl;

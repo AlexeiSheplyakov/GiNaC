@@ -40,7 +40,7 @@ unsigned exam_archive(void)
 	    * epsilon_tensor(idx(fail(), 3), idx(0, 3), idx(y/2, 3))
 	  + lorentz_g(
 	      varidx(lst(x, -11*y, acos(2*x).series(x==3-5*I, 3)) * color_ONE()
-	        * metric_tensor(varidx(0, 5), varidx(2, 4)), zeta(3)),
+	        * metric_tensor(spinidx(0, 5, false, true), varidx(2, 4)), zeta(3)),
 	      varidx(diag_matrix(lst(-1, Euler, atan(x/y==-15*I/17)))
 	        * delta_tensor(idx(x, 2), idx(y, 3)), log(cos(128.0/(x*y))), true),
 	      true

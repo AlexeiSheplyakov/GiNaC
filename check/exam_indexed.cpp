@@ -274,6 +274,39 @@ static unsigned edyn_check(void)
 	return result;
 }
 
+static unsigned spinor_check(void)
+{
+	// check identities of the spinor metric
+
+	unsigned result = 0;
+
+	symbol psi("psi");
+	spinidx A(symbol("A"), 2), B(symbol("B"), 2), C(symbol("C"), 2);
+	ex A_co = A.toggle_variance(), B_co = B.toggle_variance();
+	ex e;
+
+	e = spinor_metric(A_co, B_co) * spinor_metric(A, B);
+	result += check_equal_simplify(e, 2);
+	e = spinor_metric(A_co, B_co) * spinor_metric(B, A);
+	result += check_equal_simplify(e, -2);
+	e = spinor_metric(A_co, B_co) * spinor_metric(A, C);
+	result += check_equal_simplify(e, delta_tensor(B_co, C));
+	e = spinor_metric(A_co, B_co) * spinor_metric(B, C);
+	result += check_equal_simplify(e, -delta_tensor(A_co, C));
+	e = spinor_metric(A_co, B_co) * spinor_metric(C, A);
+	result += check_equal_simplify(e, -delta_tensor(B_co, C));
+	e = spinor_metric(A, B) * indexed(psi, B_co);
+	result += check_equal_simplify(e, indexed(psi, A));
+	e = spinor_metric(A, B) * indexed(psi, A_co);
+	result += check_equal_simplify(e, -indexed(psi, B));
+	e = spinor_metric(A_co, B_co) * indexed(psi, B);
+	result += check_equal_simplify(e, -indexed(psi, A_co));
+	e = spinor_metric(A_co, B_co) * indexed(psi, A);
+	result += check_equal_simplify(e, indexed(psi, B_co));
+
+	return result;
+}
+
 unsigned exam_indexed(void)
 {
 	unsigned result = 0;
@@ -287,6 +320,7 @@ unsigned exam_indexed(void)
 	result += symmetry_check();  cout << '.' << flush;
 	result += scalar_product_check();  cout << '.' << flush;
 	result += edyn_check();  cout << '.' << flush;
+	result += spinor_check(); cout << '.' << flush;
 	
 	if (!result) {
 		cout << " passed " << endl;
