@@ -362,7 +362,7 @@ static unsigned exam_paranoia15(void)
 	// this used to produce "1+4*sqrt(2)+4*2" which would never evaluate
 	// to "9+4*sqrt(2)"
 
-	if (!(q-9-4*pow(2, numeric(1, 2).is_zero()) {
+	if (!(q-9-4*pow(2, numeric(1, 2))).is_zero()) {
 		clog << "expand((sqrt(2)*2+1)^2) erroneously returned " << q << " instead of 9-4*sqrt(2)\n";
 		++result;
 	}
