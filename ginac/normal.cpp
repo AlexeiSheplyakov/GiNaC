@@ -34,7 +34,6 @@
 #include "constant.h"
 #include "expairseq.h"
 #include "fail.h"
-#include "indexed.h"
 #include "inifcns.h"
 #include "lst.h"
 #include "mul.h"
@@ -140,8 +139,17 @@ struct sym_desc {
 	/** Maximum of deg_a and deg_b (Used for sorting) */
 	int max_deg;
 
+	/** Maximum number of terms of leading coefficient of symbol in both polynomials */
+	int max_lcnops;
+
 	/** Commparison operator for sorting */
-	bool operator<(const sym_desc &x) const {return max_deg < x.max_deg;}
+	bool operator<(const sym_desc &x) const
+	{
+		if (max_deg == x.max_deg)
+			return max_lcnops < x.max_lcnops;
+		else
+			return max_deg < x.max_deg;
+	}
 };
 
 // Vector of sym_desc structures
@@ -196,7 +204,8 @@ static void get_symbol_stats(const ex &a, const ex &b, sym_desc_vec &v)
 		int deg_b = b.degree(*(it->sym));
 		it->deg_a = deg_a;
 		it->deg_b = deg_b;
-		it->max_deg = std::max(deg_a,deg_b);
+		it->max_deg = std::max(deg_a, deg_b);
+		it->max_lcnops = std::max(a.lcoeff(*(it->sym)).nops(), b.lcoeff(*(it->sym)).nops());
 		it->ldeg_a = a.ldegree(*(it->sym));
 		it->ldeg_b = b.ldegree(*(it->sym));
 		it++;
@@ -206,7 +215,7 @@ static void get_symbol_stats(const ex &a, const ex &b, sym_desc_vec &v)
 	std::clog << "Symbols:\n";
 	it = v.begin(); itend = v.end();
 	while (it != itend) {
-		std::clog << " " << *it->sym << ": deg_a=" << it->deg_a << ", deg_b=" << it->deg_b << ", ldeg_a=" << it->ldeg_a << ", ldeg_b=" << it->ldeg_b << ", max_deg=" << it->max_deg << endl;
+		std::clog << " " << *it->sym << ": deg_a=" << it->deg_a << ", deg_b=" << it->deg_b << ", ldeg_a=" << it->ldeg_a << ", ldeg_b=" << it->ldeg_b << ", max_deg=" << it->max_deg << ", max_lcnops=" << it->max_lcnops << endl;
 		std::clog << "  lcoeff_a=" << a.lcoeff(*(it->sym)) << ", lcoeff_b=" << b.lcoeff(*(it->sym)) << endl;
 		it++;
 	}
