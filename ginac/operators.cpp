@@ -271,37 +271,37 @@ const numeric operator--(numeric & lh, int)
 
 // binary relational operators ex with ex
 
-relational operator==(const ex & lh, const ex & rh)
+const relational operator==(const ex & lh, const ex & rh)
 {
 	debugmsg("operator==(ex,ex)",LOGLEVEL_OPERATOR);
 	return relational(lh,rh,relational::equal);
 }
 
-relational operator!=(const ex & lh, const ex & rh)
+const relational operator!=(const ex & lh, const ex & rh)
 {
 	debugmsg("operator!=(ex,ex)",LOGLEVEL_OPERATOR);
 	return relational(lh,rh,relational::not_equal);
 }
 
-relational operator<(const ex & lh, const ex & rh)
+const relational operator<(const ex & lh, const ex & rh)
 {
 	debugmsg("operator<(ex,ex)",LOGLEVEL_OPERATOR);
 	return relational(lh,rh,relational::less);
 }
 
-relational operator<=(const ex & lh, const ex & rh)
+const relational operator<=(const ex & lh, const ex & rh)
 {
 	debugmsg("operator<=(ex,ex)",LOGLEVEL_OPERATOR);
 	return relational(lh,rh,relational::less_or_equal);
 }
 
-relational operator>(const ex & lh, const ex & rh)
+const relational operator>(const ex & lh, const ex & rh)
 {
 	debugmsg("operator>(ex,ex)",LOGLEVEL_OPERATOR);
 	return relational(lh,rh,relational::greater);
 }
 
-relational operator>=(const ex & lh, const ex & rh)
+const relational operator>=(const ex & lh, const ex & rh)
 {
 	debugmsg("operator>=(ex,ex)",LOGLEVEL_OPERATOR);
 	return relational(lh,rh,relational::greater_or_equal);

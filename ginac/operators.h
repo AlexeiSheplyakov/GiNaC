@@ -74,12 +74,12 @@ const numeric operator++(numeric & lh, int);
 const numeric operator--(numeric & lh, int);
 
 // binary relational operators ex with ex
-relational operator==(const ex & lh, const ex & rh);
-relational operator!=(const ex & lh, const ex & rh);
-relational operator<(const ex & lh, const ex & rh);
-relational operator<=(const ex & lh, const ex & rh);
-relational operator>(const ex & lh, const ex & rh);
-relational operator>=(const ex & lh, const ex & rh);
+const relational operator==(const ex & lh, const ex & rh);
+const relational operator!=(const ex & lh, const ex & rh);
+const relational operator<(const ex & lh, const ex & rh);
+const relational operator<=(const ex & lh, const ex & rh);
+const relational operator>(const ex & lh, const ex & rh);
+const relational operator>=(const ex & lh, const ex & rh);
 
 // input/output stream operators
 std::ostream & operator<<(std::ostream & os, const ex & e);
