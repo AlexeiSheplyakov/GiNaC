@@ -86,7 +86,7 @@ static ex lst2matrix(const ex &l);
 %token T_NUMBER T_SYMBOL T_LITERAL T_DIGITS T_QUOTE T_QUOTE2 T_QUOTE3
 %token T_EQUAL T_NOTEQ T_LESSEQ T_GREATEREQ T_MATRIX_BEGIN T_MATRIX_END
 
-%token T_QUIT T_PRINT T_READ T_WRITE T_TIME T_XYZZY T_INVENTORY T_LOOK T_SCORE
+%token T_QUIT T_WARRANTY T_PRINT T_READ T_WRITE T_TIME T_XYZZY T_INVENTORY T_LOOK T_SCORE
 
 /* Operator precedence and associativity */
 %right '='
@@ -139,6 +139,20 @@ line	: ';'
 	| '?' T_SYMBOL 		{print_help(ex_to_symbol($2).getname());}
 	| '?' '?'		{print_help_topics();}
 	| T_QUIT		{YYACCEPT;}
+	| T_WARRANTY {
+		cout << "This program is free software; you can redistribute it and/or modify it under\n";
+		cout << "the terms of the GNU General Public License as published by the Free Software\n";
+		cout << "Foundation; either version 2 of the License, or (at your option) any later\n";
+		cout << "version.\n";
+		cout << "This program is distributed in the hope that it will be useful, but WITHOUT\n";
+		cout << "ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS\n";
+		cout << "FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more\n";
+		cout << "details.\n";
+		cout << "You should have received a copy of the GNU General Public License along with\n";
+		cout << "this program. If not, write to the Free Software Foundation, 675 Mass Ave,\n";
+		cout << "Cambridge, MA 02139, USA.\n";
+
+	}
 	| T_XYZZY		{cout << "Nothing happens.\n";}
 	| T_INVENTORY		{cout << "You're not carrying anything.\n";}
 	| T_LOOK		{cout << "You're in a twisty little maze of passages, all alike.\n";}
@@ -728,7 +742,7 @@ void greeting(void)
     cout << "  __,  _______  Copyright (C) 1999-2000 Johannes Gutenberg University Mainz,\n"
          << " (__) *       | Germany.  This is free software with ABSOLUTELY NO WARRANTY.\n"
          << "  ._) i N a C | You are welcome to redistribute it under certain conditions;\n"
-         << "<-------------' see the file COPYING for details." << endl;
+         << "<-------------' see the file COPYING for details.\n" << endl;
     cout << "Type ?? for a list of help topics." << endl;
 }
 

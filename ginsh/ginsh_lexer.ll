@@ -67,6 +67,7 @@ Digits			yylval = (long)Digits; return T_DIGITS;
 
 			/* keywords */
 quit|exit		return T_QUIT;
+warranty		return T_WARRANTY;
 print			return T_PRINT;
 read			return T_READ;
 write			return T_WRITE;

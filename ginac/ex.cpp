@@ -28,6 +28,7 @@
 #include "ncmul.h"
 #include "numeric.h"
 #include "power.h"
+#include "relational.h"
 #include "debugmsg.h"
 #include "utils.h"
 
@@ -427,6 +428,7 @@ ex ex::operator[](int i) const
     return (*bp)[i];
 }
 
+/** Return operand/member at position i. */
 ex ex::op(int i) const
 {
     debugmsg("ex op()",LOGLEVEL_MEMBER_FUNCTION);
@@ -434,12 +436,29 @@ ex ex::op(int i) const
     return bp->op(i);
 }
 
+/** Return modifyable operand/member at position i. */
 ex & ex::let_op(int i)
 {
     debugmsg("ex let_op()",LOGLEVEL_MEMBER_FUNCTION);
     makewriteable();
     GINAC_ASSERT(bp!=0);
     return bp->let_op(i);
+}
+
+/** Left hand side of relational expression. */
+ex ex::lhs(void) const
+{
+    debugmsg("ex lhs()",LOGLEVEL_MEMBER_FUNCTION);
+    GINAC_ASSERT(is_ex_of_type(*this,relational));
+    return (*static_cast<relational *>(bp)).lhs();
+}
+
+/** Right hand side of relational expression. */
+ex ex::rhs(void) const
+{
+    debugmsg("ex rhs()",LOGLEVEL_MEMBER_FUNCTION);
+    GINAC_ASSERT(is_ex_of_type(*this,relational));
+    return (*static_cast<relational *>(bp)).rhs();
 }
 
 #ifndef INLINE_EX_CONSTRUCTORS

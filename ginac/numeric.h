@@ -117,8 +117,8 @@ public:
     explicit numeric(long numer, long denom);
     explicit numeric(double d);
     explicit numeric(const char *);
-    numeric(cl_N const & z);
-
+    numeric(const cl_N & z);
+    
     // functions overriding virtual functions from bases classes
 public:
     basic * duplicate() const;

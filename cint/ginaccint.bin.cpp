@@ -156,7 +156,8 @@ void greeting(void)
          << "  __,  _______  requested, at this moment, for commercial use.  Send e-mail to" << endl
          << " (__) *       | <MXJ02154@niftyserve.or.jp>.  The registration is free." << endl
          << "  ._) i N a C | The GiNaC framework is Copyright by Johannes Gutenberg Univ.," << endl
-         << "<-------------' Germany and licensed under the terms and conditions of the GPL." << endl << endl;
+         << "<-------------' Germany and licensed under the terms and conditions of the GPL." << endl
+         << endl;
 }
 
 int main(void) 
@@ -183,7 +184,7 @@ int main(void)
         string command;
         while (!end_of_command) {
             line = G__input(prompt);
-        
+            
             int pos = 0;
             bool double_quote=false;
             bool single_quote=false;

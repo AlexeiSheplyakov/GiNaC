@@ -245,6 +245,8 @@ public:
     ex operator[](int i) const;
     ex op(int i) const;
     ex & let_op(int i);
+    ex lhs(void) const;
+    ex rhs(void) const;
     int compare(const ex & other) const
 #ifdef INLINE_EX_CONSTRUCTORS
         {
@@ -381,6 +383,18 @@ inline ex subs(const ex & thisex, const ex & e)
 
 inline ex subs(const ex & thisex, const lst & ls, const lst & lr)
 { return thisex.subs(ls, lr); }
+
+inline ex op(const ex & thisex, int i)
+{ return thisex.op(i); }
+
+inline ex lhs(const ex & thisex)
+{ return thisex.lhs(); }
+
+inline ex rhs(const ex & thisex)
+{ return thisex.rhs(); }
+
+inline bool is_zero(const ex & thisex)
+{ return thisex.is_zero(); }
 
 inline void swap(ex & e1, ex & e2)
 { e1.swap(e2); }

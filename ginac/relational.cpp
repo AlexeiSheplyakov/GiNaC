@@ -348,7 +348,17 @@ unsigned relational::return_type_tinfo(void) const
 // new virtual functions which can be overridden by derived classes
 //////////
 
-// none
+/** Left hand side of relational. */
+ex relational::lhs(void) const
+{
+    return lh;
+}
+
+/** Right hand side of relational. */
+ex relational::rhs(void) const
+{
+    return rh;    
+}
 
 //////////
 // non-virtual functions in this class

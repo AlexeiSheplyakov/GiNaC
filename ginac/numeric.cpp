@@ -231,7 +231,7 @@ numeric::numeric(const char *s) : basic(TINFO_numeric)
 
 /** Ctor from CLN types.  This is for the initiated user or internal use
  *  only. */
-numeric::numeric(cl_N const & z) : basic(TINFO_numeric)
+numeric::numeric(const cl_N & z) : basic(TINFO_numeric)
 {
     debugmsg("numeric constructor from cl_N", LOGLEVEL_CONSTRUCT);
     value = new cl_N(z);

@@ -38,7 +38,7 @@ unsigned differentiation();
 unsigned poly_gcd();
 unsigned normalization();
 unsigned matrix_checks();
-unsigned lsolve_onedim();
+unsigned linear_solve();
 unsigned series_expansion();
 unsigned lortensor_check();
 

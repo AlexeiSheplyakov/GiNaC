@@ -41,7 +41,7 @@ int main()
             result += fcntimer(poly_gcd);
             result += fcntimer(normalization);
             result += fcntimer(matrix_checks);
-            result += fcntimer(lsolve_onedim);
+            result += fcntimer(linear_solve);
             result += fcntimer(series_expansion);
             result += fcntimer(lortensor_check);
         }

@@ -80,7 +80,9 @@ protected:
     unsigned return_type_tinfo(void) const;
 
     // new virtual functions which can be overridden by derived classes
-    // none
+public:
+    virtual ex lhs(void) const;
+    virtual ex rhs(void) const;
 
     // non-virtual functions in this class
 public:

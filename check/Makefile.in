@@ -106,7 +106,7 @@ YACC = @YACC@
 
 TESTS = run_checks
 check_PROGRAMS = check_ginac
-check_ginac_SOURCES = paranoia_check.cpp numeric_output.cpp   numeric_consist.cpp powerlaws.cpp expand_subs.cpp inifcns_consist.cpp   differentiation.cpp poly_gcd.cpp normalization.cpp lsolve_onedim.cpp   matrix_checks.cpp series_expansion.cpp lortensor_check.cpp   fcntimer.cpp main.cpp check.h
+check_ginac_SOURCES = paranoia_check.cpp numeric_output.cpp   numeric_consist.cpp powerlaws.cpp expand_subs.cpp inifcns_consist.cpp   differentiation.cpp poly_gcd.cpp normalization.cpp matrix_checks.cpp   linear_solve.cpp series_expansion.cpp lortensor_check.cpp   fcntimer.cpp main.cpp check.h
 
 check_ginac_LDADD = ../ginac/libginac.la
 INCLUDES = -I$(srcdir)/../ginac
@@ -122,8 +122,8 @@ LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 check_ginac_OBJECTS =  paranoia_check.o numeric_output.o \
 numeric_consist.o powerlaws.o expand_subs.o inifcns_consist.o \
-differentiation.o poly_gcd.o normalization.o lsolve_onedim.o \
-matrix_checks.o series_expansion.o lortensor_check.o fcntimer.o main.o
+differentiation.o poly_gcd.o normalization.o matrix_checks.o \
+linear_solve.o series_expansion.o lortensor_check.o fcntimer.o main.o
 check_ginac_DEPENDENCIES =  ../ginac/libginac.la
 check_ginac_LDFLAGS = 
 CXXFLAGS = @CXXFLAGS@
@@ -144,8 +144,8 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = tar
 GZIP_ENV = --best
 DEP_FILES =  .deps/differentiation.P .deps/expand_subs.P \
-.deps/fcntimer.P .deps/inifcns_consist.P .deps/lortensor_check.P \
-.deps/lsolve_onedim.P .deps/main.P .deps/matrix_checks.P \
+.deps/fcntimer.P .deps/inifcns_consist.P .deps/linear_solve.P \
+.deps/lortensor_check.P .deps/main.P .deps/matrix_checks.P \
 .deps/normalization.P .deps/numeric_consist.P .deps/numeric_output.P \
 .deps/paranoia_check.P .deps/poly_gcd.P .deps/powerlaws.P \
 .deps/series_expansion.P
@@ -254,7 +254,7 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$/$$file $(distdir)/$$file; \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
