@@ -84,7 +84,6 @@ GINACLIB_MINOR_VERSION = @GINACLIB_MINOR_VERSION@
 GINACLIB_VERSION = @GINACLIB_VERSION@
 GINSH_LIBS = @GINSH_LIBS@
 LATEX = @LATEX@
-LD = @LD@
 LEX = @LEX@
 LIBTERMCAP = @LIBTERMCAP@
 LIBTOOL = @LIBTOOL@
@@ -97,7 +96,6 @@ MAINT = @MAINT@
 MAKECINT = @MAKECINT@
 MAKEINDEX = @MAKEINDEX@
 MAKEINFO = @MAKEINFO@
-NM = @NM@
 OBJDUMP = @OBJDUMP@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
@@ -327,7 +325,7 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$/$$file $(distdir)/$$file; \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \

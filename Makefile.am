@@ -15,8 +15,8 @@ EXTRA_DIST = autogen.sh ginac.m4
 m4datadir = $(datadir)/aclocal
 m4data_DATA = ginac.m4
 
-# Rule to build tar-gzipped distribution package
-$(PACKAGE)-$(VERSION).tar.gz: dist
+# Rule to build tar-bzipped distribution package
+$(PACKAGE)-$(VERSION).tar.bz2: dist
 
 # Rule to build RPM distribution package
 rpm: $(PACKAGE)-$(VERSION).tar.gz

@@ -649,28 +649,6 @@ matrix matrix::inverse(void) const
 }
 
 
-// superfluous helper function, to be removed:
-void matrix::ffe_swap(unsigned r1, unsigned c1, unsigned r2 ,unsigned c2)
-{
-    ensure_if_modifiable();
-    
-    ex tmp = ffe_get(r1,c1);
-    ffe_set(r1,c1,ffe_get(r2,c2));
-    ffe_set(r2,c2,tmp);
-}
-
-// superfluous helper function, to be removed:
-void matrix::ffe_set(unsigned r, unsigned c, ex e)
-{
-    set(r-1,c-1,e);
-}
-
-// superfluous helper function, to be removed:
-ex matrix::ffe_get(unsigned r, unsigned c) const
-{
-    return operator()(r-1,c-1);
-}
-
 /** Solve a set of equations for an m x n matrix by fraction-free Gaussian
  *  elimination.  Based on algorithm 9.1 from 'Algorithms for Computer Algebra'
  *  by Keith O. Geddes et al.
@@ -694,52 +672,46 @@ matrix matrix::fraction_free_elim(const matrix & vars,
     unsigned n = a.col;
     int sign = 1;
     ex divisor = 1;
-    unsigned r = 1;
+    unsigned r = 0;
     
     // eliminate below row r, with pivot in column k
-    for (unsigned k=1; (k<=n)&&(r<=m); ++k) {
+    for (unsigned k=0; (k<n)&&(r<m); ++k) {
         // find a nonzero pivot
         unsigned p;
-        for (p=r; (p<=m)&&(a.ffe_get(p,k).is_equal(_ex0())); ++p) {}
+        for (p=r; (p<m)&&(a.m[p*a.cols()+k].is_zero()); ++p) {}
         // pivot is in row p
-        if (p<=m) {
+        if (p<m) {
             if (p!=r) {
-                // switch rows p and r
-                for (unsigned j=k; j<=n; ++j)
-                    a.ffe_swap(p,j,r,j);
-                b.ffe_swap(p,1,r,1);
+                // swap rows p and r
+                for (unsigned j=k; j<n; ++j)
+                    a.m[p*a.cols()+j].swap(a.m[r*a.cols()+j]);
+                a.m[p*a.cols()].swap(a.m[r*a.cols()]);
                 // keep track of sign changes due to row exchange
                 sign = -sign;
             }
-            for (unsigned i=r+1; i<=m; ++i) {
-                for (unsigned j=k+1; j<=n; ++j) {
-                    a.ffe_set(i,j,(a.ffe_get(r,k)*a.ffe_get(i,j)
-                                  -a.ffe_get(r,j)*a.ffe_get(i,k))/divisor);
-                    a.ffe_set(i,j,a.ffe_get(i,j).normal() /*.normal() */ );
+            for (unsigned i=r+1; i<m; ++i) {
+                for (unsigned j=k+1; j<n; ++j) {
+                    a.set(i,j,(a.m[r*a.cols()+k]*a.m[i*a.cols()+j]
+                              -a.m[r*a.cols()+j]*a.m[i*a.cols()+k])/divisor);
+                    a.set(i,j,a.m[i*a.cols()+j].normal());
                 }
-                b.ffe_set(i,1,(a.ffe_get(r,k)*b.ffe_get(i,1)
-                              -b.ffe_get(r,1)*a.ffe_get(i,k))/divisor);
-                b.ffe_set(i,1,b.ffe_get(i,1).normal() /*.normal() */ );
-                a.ffe_set(i,k,0);
+                b.set(i,0,(a.m[r*a.cols()+k]*b.m[i*b.cols()]
+                          -b.m[r*b.cols()]*a.m[i*a.cols()+k])/divisor);
+                b.set(i,0,b.m[i*b.cols()].normal());
+                a.set(i,k,0);
             }
-            divisor = a.ffe_get(r,k);
+            divisor = a.m[r*a.cols()+k];
             r++;
         }
-    }    
-//     for (unsigned r=1; r<=m; ++r) {
-//         for (unsigned c=1; c<=n; ++c) {
-//             cout << a.ffe_get(r,c) << "\t";
-//         }
-//         cout << " | " <<  b.ffe_get(r,1) << endl;
-//     }
+    }
     
 #ifdef DO_GINAC_ASSERT
     // test if we really have an upper echelon matrix
     int zero_in_last_row = -1;
-    for (unsigned r=1; r<=m; ++r) {
+    for (unsigned r=0; r<m; ++r) {
         int zero_in_this_row=0;
-        for (unsigned c=1; c<=n; ++c) {
-            if (a.ffe_get(r,c).is_zero())
+        for (unsigned c=0; c<n; ++c) {
+            if (a.m[r*a.cols()+c].is_zero())
                zero_in_this_row++;
             else
                 break;
@@ -752,69 +724,67 @@ matrix matrix::fraction_free_elim(const matrix & vars,
     // assemble solution
     matrix sol(n,1);
     unsigned last_assigned_sol = n+1;
-    for (unsigned r=m; r>0; --r) {
+    for (int r=m-1; r>=0; --r) {
         unsigned first_non_zero = 1;
-        while ((first_non_zero<=n)&&(a.ffe_get(r,first_non_zero).is_zero()))
+        while ((first_non_zero<=n)&&(a.m[r*a.cols()+(first_non_zero-1)].is_zero()))
             first_non_zero++;
         if (first_non_zero>n) {
             // row consists only of zeroes, corresponding rhs must be 0 as well
-            if (!b.ffe_get(r,1).is_zero()) {
+            if (!b.m[r*b.cols()].is_zero()) {
                 throw (std::runtime_error("matrix::fraction_free_elim(): singular matrix"));
             }
         } else {
             // assign solutions for vars between first_non_zero+1 and
             // last_assigned_sol-1: free parameters
-            for (unsigned c=first_non_zero+1; c<=last_assigned_sol-1; ++c) {
-                sol.ffe_set(c,1,vars.ffe_get(c,1));
-            }
-            ex e = b.ffe_get(r,1);
-            for (unsigned c=first_non_zero+1; c<=n; ++c) {
-                e=e-a.ffe_get(r,c)*sol.ffe_get(c,1);
-            }
-            sol.ffe_set(first_non_zero,1,
-                        (e/a.ffe_get(r,first_non_zero)).normal());
+            for (unsigned c=first_non_zero; c<last_assigned_sol-1; ++c)
+                sol.set(c,0,vars.m[c*vars.cols()]);
+            ex e = b.m[r*b.cols()];
+            for (unsigned c=first_non_zero; c<n; ++c)
+                e -= a.m[r*a.cols()+c]*sol.m[c*sol.cols()];
+            sol.set(first_non_zero-1,0,
+                    (e/a.m[r*a.cols()+(first_non_zero-1)]).normal());
             last_assigned_sol = first_non_zero;
         }
     }
     // assign solutions for vars between 1 and
     // last_assigned_sol-1: free parameters
-    for (unsigned c=1; c<=last_assigned_sol-1; ++c)
-        sol.ffe_set(c,1,vars.ffe_get(c,1));
+    for (unsigned c=0; c<last_assigned_sol-1; ++c)
+        sol.set(c,0,vars.m[c*vars.cols()]);
     
 #ifdef DO_GINAC_ASSERT
     // test solution with echelon matrix
-    for (unsigned r=1; r<=m; ++r) {
+    for (unsigned r=0; r<m; ++r) {
         ex e = 0;
-        for (unsigned c=1; c<=n; ++c)
-            e = e+a.ffe_get(r,c)*sol.ffe_get(c,1);
-        if (!(e-b.ffe_get(r,1)).normal().is_zero()) {
+        for (unsigned c=0; c<n; ++c)
+            e += a.m[r*a.cols()+c]*sol.m[c*sol.cols()];
+        if (!(e-b.m[r*b.cols()]).normal().is_zero()) {
             cout << "e=" << e;
-            cout << "b.ffe_get(" << r<<",1)=" << b.ffe_get(r,1) << endl;
-            cout << "diff=" << (e-b.ffe_get(r,1)).normal() << endl;
+            cout << "b(" << r <<",0)=" << b.m[r*b.cols()] << endl;
+            cout << "diff=" << (e-b.m[r*b.cols()]).normal() << endl;
         }
-        GINAC_ASSERT((e-b.ffe_get(r,1)).normal().is_zero());
+        GINAC_ASSERT((e-b.m[r*b.cols()]).normal().is_zero());
     }
     
     // test solution with original matrix
-    for (unsigned r=1; r<=m; ++r) {
+    for (unsigned r=0; r<m; ++r) {
         ex e = 0;
-        for (unsigned c=1; c<=n; ++c)
-            e = e+ffe_get(r,c)*sol.ffe_get(c,1);
+        for (unsigned c=0; c<n; ++c)
+            e += this->m[r*cols()+c]*sol.m[c*sol.cols()];
         try {
-            if (!(e-rhs.ffe_get(r,1)).normal().is_zero()) {
-                cout << "e=" << e << endl;
+            if (!(e-rhs.m[r*rhs.cols()]).normal().is_zero()) {
+                cout << "e==" << e << endl;
                 e.printtree(cout);
                 ex en = e.normal();
                 cout << "e.normal()=" << en << endl;
                 en.printtree(cout);
-                cout << "rhs.ffe_get(" << r<<",1)=" << rhs.ffe_get(r,1) << endl;
-                cout << "diff=" << (e-rhs.ffe_get(r,1)).normal() << endl;
+                cout << "rhs(" << r <<",0)=" << rhs.m[r*rhs.cols()] << endl;
+                cout << "diff=" << (e-rhs.m[r*rhs.cols()]).normal() << endl;
             }
         } catch (...) {
-            ex xxx = e - rhs.ffe_get(r,1);
+            ex xxx = e - rhs.m[r*rhs.cols()];
             cerr << "xxx=" << xxx << endl << endl;
         }
-        GINAC_ASSERT((e-rhs.ffe_get(r,1)).normal().is_zero());
+        GINAC_ASSERT((e-rhs.m[r*rhs.cols()]).normal().is_zero());
     }
 #endif // def DO_GINAC_ASSERT
     

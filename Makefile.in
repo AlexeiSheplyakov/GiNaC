@@ -82,7 +82,6 @@ GINACLIB_MINOR_VERSION = @GINACLIB_MINOR_VERSION@
 GINACLIB_VERSION = @GINACLIB_VERSION@
 GINSH_LIBS = @GINSH_LIBS@
 LATEX = @LATEX@
-LD = @LD@
 LEX = @LEX@
 LIBTERMCAP = @LIBTERMCAP@
 LIBTOOL = @LIBTOOL@
@@ -95,7 +94,6 @@ MAINT = @MAINT@
 MAKECINT = @MAKECINT@
 MAKEINDEX = @MAKEINDEX@
 MAKEINFO = @MAKEINFO@
-NM = @NM@
 OBJDUMP = @OBJDUMP@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
@@ -360,7 +358,7 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$/$$file $(distdir)/$$file; \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
@@ -455,8 +453,8 @@ installdirs mostlyclean-generic distclean-generic clean-generic \
 maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
 
-# Rule to build tar-gzipped distribution package
-$(PACKAGE)-$(VERSION).tar.gz: dist
+# Rule to build tar-bzipped distribution package
+$(PACKAGE)-$(VERSION).tar.bz2: dist
 
 # Rule to build RPM distribution package
 rpm: $(PACKAGE)-$(VERSION).tar.gz

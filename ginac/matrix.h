@@ -100,10 +100,6 @@ protected:
     int division_free_elimination(void);
     int fraction_free_elimination(bool det = false);
     int pivot(unsigned ro, bool symbolic=true);
-private:  // FIXME: these should be obsoleted
-    void ffe_swap(unsigned r1, unsigned c1, unsigned r2 ,unsigned c2);
-    void ffe_set(unsigned r, unsigned c, ex e);
-    ex ffe_get(unsigned r, unsigned c) const;
     
 // member variables
 protected:

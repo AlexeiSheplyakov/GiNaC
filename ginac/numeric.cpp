@@ -1504,7 +1504,7 @@ const numeric bernoulli(const numeric & nn)
     // return Bern;
     // 
     // But if somebody works with the n'th Bernoulli number she is likely to
-    // also need all previous Bernoulli numbers we need a complete remember
+    // also need all previous Bernoulli numbers. So we need a complete remember
     // table and above divide and conquer algorithm is not suited to build one
     // up.  The code below is adapted from Pari's function bernvec().
     // 

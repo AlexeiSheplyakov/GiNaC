@@ -192,7 +192,7 @@ doc/Makefile
 doc/tutorial/Makefile
 doc/reference/Makefile
 cint/Makefile
-cint/ginaccint
-], [chmod +x ginac-config cint/ginaccint])
+cint/launch.h
+], [chmod +x ginac-config])
 dnl Display a final warning if there has been a GINAC_ERROR or a GINAC_WARNING
 GINAC_CHECK_ERRORS
