@@ -292,6 +292,25 @@ static unsigned exam_paranoia11(void)
     return result;
 }
 
+// This one returned 0 because add::normal() incorrectly assumed that if the
+// common denominator is 1, all the denominators would be 1 (they can in fact
+// be +/-1). Fixed on Aug 2nd 2000.
+static unsigned exam_paranoia12(void)
+{
+    unsigned result = 0;
+	symbol x("x");
+
+	ex e = 2-2*(1+x)/(-1-x);
+	ex f = e.normal();
+	ex d = 4;
+
+	if (!(f - d).expand().is_zero()) {
+		clog << "normal(" << e << ") returns " << f << " instead of " << d << endl;
+		++result;
+	}
+	return result;
+}
+
 unsigned exam_paranoia(void)
 {
     unsigned result = 0;
@@ -310,6 +329,7 @@ unsigned exam_paranoia(void)
     result += exam_paranoia9();  cout << '.' << flush;
     result += exam_paranoia10();  cout << '.' << flush;
     result += exam_paranoia11();  cout << '.' << flush;
+    result += exam_paranoia12();  cout << '.' << flush;
     
     if (!result) {
         cout << " passed " << endl;
