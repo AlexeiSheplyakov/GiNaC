@@ -11,4 +11,4 @@ Version: @VERSION@
 #          GINACLIB_LIBS and GINACLIB_CPPFLAGS
 #Requires: cln >= 1.1.0
 Libs: -L${libdir} -lginac @GINACLIB_LIBS@
-Cflags: -I${includedir}/ginac @GINACLIB_CPPFLAGS@
+Cflags: -I${includedir} @GINACLIB_CPPFLAGS@
