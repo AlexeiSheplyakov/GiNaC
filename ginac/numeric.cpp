@@ -233,7 +233,7 @@ numeric::numeric(const char *s) : basic(TINFO_numeric)
 #else
 			char buf[14];
 			std::ostrstream(buf,sizeof(buf)) << unsigned(Digits) << std::ends;
-			term += "_" + string(buf);
+			term += "_" + std::string(buf);
 #endif
 			// construct float using cln::cl_F(const char *) ctor.
 			if (imaginary)
