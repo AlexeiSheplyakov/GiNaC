@@ -411,6 +411,14 @@ void indexed::validate(void) const
 	}
 }
 
+/** Implementation of ex::diff() for an indexed object always returns 0.
+ *
+ *  @see ex::diff */
+ex indexed::derivative(const symbol & s) const
+{
+	return _ex0();
+}
+
 //////////
 // global functions
 //////////
@@ -557,7 +565,8 @@ static ex rename_dummy_indices(const ex & e, exvector & global_dummy_indices, ex
 	for (unsigned i=0; i<local_size; i++) {
 		ex loc_sym = local_dummy_indices[i].op(0);
 		ex glob_sym = global_dummy_indices[i].op(0);
-		if (!loc_sym.is_equal(glob_sym)) {
+		if (!loc_sym.is_equal(glob_sym)
+		 && ex_to<idx>(local_dummy_indices[i]).get_dim().is_equal(ex_to<idx>(global_dummy_indices[i]).get_dim())) {
 			all_equal = false;
 			local_syms.append(loc_sym);
 			global_syms.append(glob_sym);

@@ -57,8 +57,6 @@ public:
 	unsigned nops() const;
 	ex & let_op(int i);
 	ex eval(int level=0) const;
-	ex evalf(int level=0) const;
-	ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
 	ex simplify_ncmul(const exvector & v) const;
 protected:
 	unsigned return_type(void) const;

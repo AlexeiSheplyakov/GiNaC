@@ -240,7 +240,7 @@ ex basic::map(map_function & f) const
 
 	basic *copy = duplicate();
 	copy->setflag(status_flags::dynallocated);
-	copy->clearflag(status_flags::hash_calculated);
+	copy->clearflag(status_flags::hash_calculated | status_flags::expanded);
 	ex e(*copy);
 	for (unsigned i=0; i<num; i++)
 		e.let_op(i) = f(e.op(i));
@@ -356,24 +356,42 @@ ex basic::eval(int level) const
 	return this->hold();
 }
 
+/** Function object to be applied by basic::evalf(). */
+struct evalf_map_function : public map_function {
+	int level;
+	evalf_map_function(int l) : level(l) {}
+	ex operator()(const ex & e) { return evalf(e, level); }
+};
+
 /** Evaluate object numerically. */
 ex basic::evalf(int level) const
 {
-	// There is nothing to do for basic objects:
-	return *this;
+	if (nops() == 0)
+		return *this;
+	else {
+		if (level == 1)
+			return *this;
+		else if (level == -max_recursion_level)
+			throw(std::runtime_error("max recursion level reached"));
+		else {
+			evalf_map_function map_evalf(level - 1);
+			return map(map_evalf);
+		}
+	}
 }
 
 /** Function object to be applied by basic::evalm(). */
 struct evalm_map_function : public map_function {
-	ex operator()(const ex & e) { return GiNaC::evalm(e); }
-} fcn;
+	ex operator()(const ex & e) { return evalm(e); }
+} map_evalm;
+
 /** Evaluate sums, products and integer powers of matrices. */
 ex basic::evalm(void) const
 {
 	if (nops() == 0)
 		return *this;
 	else
-		return map(fcn);
+		return map(map_evalm);
 }
 
 /** Perform automatic symbolic evaluations on indexed expression that
@@ -548,13 +566,25 @@ ex basic::simplify_ncmul(const exvector & v) const
 
 // protected
 
-/** Default implementation of ex::diff(). It simply throws an error message.
+/** Function object to be applied by basic::derivative(). */
+struct derivative_map_function : public map_function {
+	const symbol &s;
+	derivative_map_function(const symbol &sym) : s(sym) {}
+	ex operator()(const ex & e) { return diff(e, s); }
+};
+
+/** Default implementation of ex::diff(). It maps the operation on the
+ *  operands (or returns 0 when the object has no operands).
  *
- *  @exception logic_error (differentiation not supported by this type)
  *  @see ex::diff */
 ex basic::derivative(const symbol & s) const
 {
-	throw(std::logic_error("differentiation not supported by this type"));
+	if (nops() == 0)
+		return _ex0();
+	else {
+		derivative_map_function map_derivative(s);
+		return map(map_derivative);
+	}
 }
 
 /** Returns order relation between two objects of same type.  This needs to be
@@ -613,11 +643,23 @@ unsigned basic::calchash(void) const
 	return v;
 }
 
+/** Function object to be applied by basic::expand(). */
+struct expand_map_function : public map_function {
+	unsigned options;
+	expand_map_function(unsigned o) : options(o) {}
+	ex operator()(const ex & e) { return expand(e, options); }
+};
+
 /** Expand expression, i.e. multiply it out and return the result as a new
  *  expression. */
 ex basic::expand(unsigned options) const
 {
-	return this->setflag(status_flags::expanded);
+	if (nops() == 0)
+		return this->setflag(status_flags::expanded);
+	else {
+		expand_map_function map_expand(options);
+		return map(map_expand).bp->setflag(status_flags::expanded);
+	}
 }
 
 

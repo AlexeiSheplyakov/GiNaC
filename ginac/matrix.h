@@ -46,9 +46,7 @@ public:
 	unsigned nops() const;
 	ex op(int i) const;
 	ex & let_op(int i);
-	ex expand(unsigned options=0) const;
 	ex eval(int level=0) const;
-	ex evalf(int level=0) const;
 	ex evalm(void) const {return *this;}
 	ex subs(const lst & ls, const lst & lr, bool no_pattern = false) const;
 	ex eval_indexed(const basic & i) const;

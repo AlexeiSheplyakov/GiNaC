@@ -179,11 +179,6 @@ bool symbol::info(unsigned inf) const
 		return inherited::info(inf);
 }
 
-ex symbol::expand(unsigned options) const
-{
-	return this->hold();
-}
-
 bool symbol::has(const ex & other) const
 {
 	if (this->is_equal(*other.bp))

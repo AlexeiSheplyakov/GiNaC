@@ -51,8 +51,12 @@ public:
 	bool info(unsigned inf) const;
 	unsigned nops() const;
 	ex & let_op(int i);
+	ex evalf(int level = 0) const;
 	bool match(const ex & pattern, lst & repl_lst) const;
 	ex subs(const lst & ls, const lst & lr, bool no_pattern = false) const;
+
+protected:
+	ex derivative(const symbol & s) const;
 
 	// new virtual functions in this class
 public:

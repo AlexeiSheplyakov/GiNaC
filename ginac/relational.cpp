@@ -183,17 +183,6 @@ ex relational::eval(int level) const
 	return (new relational(lh.eval(level-1),rh.eval(level-1),o))->setflag(status_flags::dynallocated | status_flags::evaluated);
 }
 
-ex relational::evalf(int level) const
-{
-	if (level==1)
-		return *this;
-	
-	if (level==-max_recursion_level)
-		throw(std::runtime_error("max recursion level reached"));
-	
-	return (new relational(lh.eval(level-1),rh.eval(level-1),o))->setflag(status_flags::dynallocated);
-}
-
 ex relational::simplify_ncmul(const exvector & v) const
 {
 	return lh.simplify_ncmul(v);

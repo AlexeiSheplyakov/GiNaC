@@ -325,17 +325,6 @@ ex expairseq::eval(int level) const
 	return (new expairseq(vp,overall_coeff))->setflag(status_flags::dynallocated | status_flags::evaluated);
 }
 
-ex expairseq::evalf(int level) const
-{
-	return thisexpairseq(evalfchildren(level),overall_coeff.evalf(level-1));
-}
-
-ex expairseq::normal(lst &sym_lst, lst &repl_lst, int level) const
-{
-	ex n = thisexpairseq(normalchildren(level),overall_coeff);
-	return n.bp->basic::normal(sym_lst,repl_lst,level);
-}
-
 bool expairseq::match(const ex & pattern, lst & repl_lst) const
 {
 	// This differs from basic::match() because we want "a+b+c+d" to
@@ -419,14 +408,6 @@ ex expairseq::subs(const lst &ls, const lst &lr, bool no_pattern) const
 }
 
 // protected
-
-/** Implementation of ex::diff() for an expairseq.
- *  It differentiates all elements of the sequence.
- *  @see ex::diff */
-ex expairseq::derivative(const symbol &s) const
-{
-	return thisexpairseq(diffchildren(s),overall_coeff);
-}
 
 int expairseq::compare_same_type(const basic &other) const
 {
@@ -592,13 +573,11 @@ unsigned expairseq::calchash(void) const
 ex expairseq::expand(unsigned options) const
 {
 	epvector *vp = expandchildren(options);
-	if (vp==0) {
-		// the terms have not changed, so it is safe to declare this expanded
-		setflag(status_flags::expanded);
-		return *this;
-	}
-	
-	return thisexpairseq(vp,overall_coeff);
+	if (vp == NULL) {
+		// The terms have not changed, so it is safe to declare this expanded
+		return this->setflag(status_flags::expanded);
+	} else
+		return thisexpairseq(vp, overall_coeff);
 }
 
 //////////
@@ -1601,71 +1580,6 @@ epvector * expairseq::evalchildren(int level) const
 	}
 	
 	return 0; // signalling nothing has changed
-}
-
-
-/** Member-wise evaluate numerically all expairs in this sequence.
- *
- *  @see expairseq::evalf()
- *  @return epvector with all entries evaluated numerically. */
-epvector expairseq::evalfchildren(int level) const
-{
-	if (level==1)
-		return seq;
-	
-	if (level==-max_recursion_level)
-		throw(std::runtime_error("max recursion level reached"));
-	
-	epvector s;
-	s.reserve(seq.size());
-	
-	--level;
-	for (epvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
-		s.push_back(combine_ex_with_coeff_to_pair((*it).rest.evalf(level),
-		                                          (*it).coeff.evalf(level)));
-	}
-	return s;
-}
-
-
-/** Member-wise normalize all expairs in this sequence.
- *
- *  @see expairseq::normal()
- *  @return epvector with all entries normalized. */
-epvector expairseq::normalchildren(int level) const
-{
-	if (level==1)
-		return seq;
-	
-	if (level==-max_recursion_level)
-		throw(std::runtime_error("max recursion level reached"));
-	
-	epvector s;
-	s.reserve(seq.size());
-	
-	--level;
-	for (epvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
-		s.push_back(combine_ex_with_coeff_to_pair((*it).rest.normal(level),
-		                                          (*it).coeff));
-	}
-	return s;
-}
-
-
-/** Member-wise differentiate all expairs in this sequence.
- *
- *  @see expairseq::diff()
- *  @return epvector with all entries differentiated. */
-epvector expairseq::diffchildren(const symbol &y) const
-{
-	epvector s;
-	s.reserve(seq.size());
-	
-	for (epvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
-		s.push_back(combine_ex_with_coeff_to_pair((*it).rest.diff(y),
-		                                          (*it).coeff));
-	}
-	return s;
 }
 
 

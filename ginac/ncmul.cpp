@@ -475,11 +475,21 @@ ex ncmul::thisexprseq(exvector * vp) const
 
 // protected
 
-/** Implementation of ex::diff() for a non-commutative product. It always returns 0.
+/** Implementation of ex::diff() for a non-commutative product. It applies
+ *  the product rule.
  *  @see ex::diff */
 ex ncmul::derivative(const symbol & s) const
 {
-	return _ex0();
+	exvector addseq;
+	addseq.reserve(seq.size());
+	
+	// D(a*b*c) = D(a)*b*c + a*D(b)*c + a*b*D(c)
+	for (unsigned i=0; i!=seq.size(); ++i) {
+		exvector ncmulseq = seq;
+		ncmulseq[i] = seq[i].diff(s);
+		addseq.push_back((new ncmul(ncmulseq))->setflag(status_flags::dynallocated));
+	}
+	return (new add(addseq))->setflag(status_flags::dynallocated);
 }
 
 int ncmul::compare_same_type(const basic & other) const

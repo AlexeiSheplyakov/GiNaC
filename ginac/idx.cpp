@@ -316,6 +316,13 @@ int spinidx::compare_same_type(const basic & other) const
 	return 0;
 }
 
+/** By default, basic::evalf would evaluate the index value but we don't want
+ *  a.1 to become a.(1.0). */
+ex idx::evalf(int level) const
+{
+	return *this;
+}
+
 bool idx::match(const ex & pattern, lst & repl_lst) const
 {
 	if (!is_ex_of_type(pattern, idx))
@@ -375,6 +382,14 @@ ex idx::subs(const lst & ls, const lst & lr, bool no_pattern) const
 	i_copy->value = subsed_value;
 	i_copy->clearflag(status_flags::hash_calculated);
 	return i_copy->setflag(status_flags::dynallocated);
+}
+
+/** Implementation of ex::diff() for an index always returns 0.
+ *
+ *  @see ex::diff */
+ex idx::derivative(const symbol & s) const
+{
+	return _ex0();
 }
 
 //////////

@@ -83,7 +83,7 @@ constant::constant(const std::string & initname, evalffunctype efun, const std::
 		TeX_name = "\\mbox{" + name + "}";
 	else
 		TeX_name = texname;
-	setflag(status_flags::evaluated);
+	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
 constant::constant(const std::string & initname, const numeric & initnumber, const std::string & texname)
@@ -94,7 +94,7 @@ constant::constant(const std::string & initname, const numeric & initnumber, con
 		TeX_name = "\\mbox{" + name + "}";
 	else
 		TeX_name = texname;
-	setflag(status_flags::evaluated);
+	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
 //////////
@@ -180,7 +180,7 @@ ex constant::evalf(int level) const
 
 // protected
 
-/** Implementation of ex::diff() for a constant. It always returns 0.
+/** Implementation of ex::diff() for a constant always returns 0.
  *
  *  @see ex::diff */
 ex constant::derivative(const symbol & s) const

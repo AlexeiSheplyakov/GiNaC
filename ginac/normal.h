@@ -39,6 +39,9 @@ extern ex quo(const ex &a, const ex &b, const symbol &x, bool check_args = true)
 // Remainder r(x) of polynomials a(x) and b(x) in Q[x], so that a(x)=b(x)*q(x)+r(x)
 extern ex rem(const ex &a, const ex &b, const symbol &x, bool check_args = true);
 
+// Decompose rational function a(x)=N(x)/D(x) into Q(x)+R(x)/D(x) with degree(R, x) < degree(D, x)
+extern ex decomp_rational(const ex &a, const symbol &x);
+
 // Pseudo-remainder of polynomials a(x) and b(x) in Z[x]
 extern ex prem(const ex &a, const ex &b, const symbol &x, bool check_args = true);
 
@@ -53,6 +56,9 @@ extern ex lcm(const ex &a, const ex &b, bool check_args = true);
 
 // Square-free factorization of a polynomial a(x)
 extern ex sqrfree(const ex &a, const lst &l = lst());
+
+// Square-free partial fraction decomposition of a rational function a(x)
+extern ex sqrfree_parfrac(const ex & a, const symbol & x);
 
 } // namespace GiNaC
 

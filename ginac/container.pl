@@ -211,11 +211,7 @@ public:
 	unsigned nops() const;
 	ex & let_op(int i);
 	ex map(map_function & f) const;
-	ex expand(unsigned options=0) const;
 	ex eval(int level=0) const;
-	ex evalf(int level=0) const;
-	ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
-	ex derivative(const symbol & s) const;
 	ex subs(const lst & ls, const lst & lr, bool no_pattern = false) const;
 protected:
 	bool is_equal_same_type(const basic & other) const;
@@ -236,9 +232,6 @@ protected:
 protected:
 	bool is_canonical() const;
 	${STLT} evalchildren(int level) const;
-	${STLT} evalfchildren(int level) const;
-	${STLT} normalchildren(int level) const;
-	${STLT} diffchildren(const symbol & s) const;
 	${STLT} * subschildren(const lst & ls, const lst & lr, bool no_pattern = false) const;
 
 protected:
@@ -452,42 +445,12 @@ ex ${CONTAINER}::map(map_function & f) const
 	return this${CONTAINER}(s);
 }
 
-ex ${CONTAINER}::expand(unsigned options) const
-{
-	${STLT} s;
-	RESERVE(s,seq.size());
-	for (${STLT}::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
-		s.push_back((*it).expand(options));
-	}
-
-	return this${CONTAINER}(s);
-}
-
 ex ${CONTAINER}::eval(int level) const
 {
 	if (level==1) {
 		return this->hold();
 	}
 	return this${CONTAINER}(evalchildren(level));
-}
-
-ex ${CONTAINER}::evalf(int level) const
-{
-	return this${CONTAINER}(evalfchildren(level));
-}
-
-/** Implementation of ex::normal() for ${CONTAINER}s. It normalizes the arguments
- *  and replaces the ${CONTAINER} by a temporary symbol.
- *  \@see ex::normal */
-ex ${CONTAINER}::normal(lst &sym_lst, lst &repl_lst, int level) const
-{
-	ex n=this${CONTAINER}(normalchildren(level));
-	return n.bp->basic::normal(sym_lst,repl_lst,level);
-}
-
-ex ${CONTAINER}::derivative(const symbol & s) const
-{
-	return this${CONTAINER}(diffchildren(s));
 }
 
 ex ${CONTAINER}::subs(const lst & ls, const lst & lr, bool no_pattern) const
@@ -641,52 +604,6 @@ ${STLT} ${CONTAINER}::evalchildren(int level) const
 	--level;
 	for (${STLT}::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
 		s.push_back((*it).eval(level));
-	}
-	return s;
-}
-
-${STLT} ${CONTAINER}::evalfchildren(int level) const
-{
-	${STLT} s;
-	RESERVE(s,seq.size());
-
-	if (level==1) {
-		return seq;
-	}
-	if (level == -max_recursion_level) {
-		throw(std::runtime_error("max recursion level reached"));
-	}
-	--level;
-	for (${STLT}::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
-		s.push_back((*it).evalf(level));
-	}
-	return s;
-}
-
-${STLT} ${CONTAINER}::normalchildren(int level) const
-{
-	${STLT} s;
-	RESERVE(s,seq.size());
-
-	if (level==1) {
-		return seq;
-	}
-	if (level == -max_recursion_level) {
-		throw(std::runtime_error("max recursion level reached"));
-	}
-	--level;
-	for (${STLT}::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
-		s.push_back((*it).normal(level));
-	}
-	return s;
-}
-
-${STLT} ${CONTAINER}::diffchildren(const symbol & y) const
-{
-	${STLT} s;
-	RESERVE(s,seq.size());
-	for (${STLT}::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
-		s.push_back((*it).diff(y));
 	}
 	return s;
 }

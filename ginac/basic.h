@@ -112,6 +112,7 @@ public: // only const functions please (may break reference counting)
 	virtual ex & let_op(int i);
 	virtual ex operator[](const ex & index) const;
 	virtual ex operator[](int i) const;
+	virtual ex expand(unsigned options = 0) const;
 	virtual bool has(const ex & other) const;
 	virtual ex map(map_function & f) const;
 	virtual int degree(const ex & s) const;
@@ -130,19 +131,18 @@ public: // only const functions please (may break reference counting)
 	virtual ex smod(const numeric &xi) const;
 	virtual numeric max_coefficient(void) const;
 	virtual exvector get_free_indices(void) const;
-	virtual ex simplify_ncmul(const exvector & v) const;
 	virtual ex eval_indexed(const basic & i) const;
 	virtual ex add_indexed(const ex & self, const ex & other) const;
 	virtual ex scalar_mul_indexed(const ex & self, const numeric & other) const;
 	virtual bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
-protected: // non-const functions should be called from class ex only
+	virtual unsigned return_type(void) const;
+	virtual unsigned return_type_tinfo(void) const;
+protected: // functions that should be called from class ex only
 	virtual ex derivative(const symbol & s) const;
 	virtual int compare_same_type(const basic & other) const;
 	virtual bool is_equal_same_type(const basic & other) const;
-	virtual unsigned return_type(void) const;
-	virtual unsigned return_type_tinfo(void) const;
 	virtual unsigned calchash(void) const;
-	virtual ex expand(unsigned options = 0) const;
+	virtual ex simplify_ncmul(const exvector & v) const;
 	
 	// non-virtual functions in this class
 public:

@@ -381,10 +381,19 @@ ex add::simplify_ncmul(const exvector & v) const
 
 /** Implementation of ex::diff() for a sum. It differentiates each term.
  *  @see ex::diff */
-ex add::derivative(const symbol & s) const
+ex add::derivative(const symbol & y) const
 {
-	// D(a+b+c)=D(a)+D(b)+D(c)
-	return (new add(diffchildren(s)))->setflag(status_flags::dynallocated);
+	epvector *s = new epvector();
+	s->reserve(seq.size());
+	
+	// Only differentiate the "rest" parts of the expairs. This is faster
+	// than the default implementation in basic::derivative() although
+	// if performs the same function (differentiate each term).
+	for (epvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
+		s->push_back(combine_ex_with_coeff_to_pair((*it).rest.diff(y),
+		                                           (*it).coeff));
+	}
+	return (new add(s, _ex0()))->setflag(status_flags::dynallocated);
 }
 
 int add::compare_same_type(const basic & other) const
@@ -492,10 +501,9 @@ ex add::expand(unsigned options) const
 		return *this;
 	
 	epvector * vp = expandchildren(options);
-	if (vp==0) {
+	if (vp == NULL) {
 		// the terms have not changed, so it is safe to declare this expanded
-		setflag(status_flags::expanded);
-		return *this;
+		return this->setflag(status_flags::expanded);
 	}
 	
 	return (new add(vp,overall_coeff))->setflag(status_flags::expanded | status_flags::dynallocated);

@@ -773,7 +773,20 @@ ex function::evalf(int level) const
 {
 	GINAC_ASSERT(serial<registered_functions().size());
 
-	exvector eseq=evalfchildren(level);
+	// Evaluate children first
+	exvector eseq;
+	if (level == 1)
+		eseq = seq;
+	else if (level == -max_recursion_level)
+		throw(std::runtime_error("max recursion level reached"));
+	else
+		eseq.reserve(seq.size());
+	level--;
+	exvector::const_iterator it = seq.begin(), itend = seq.end();
+	while (it != itend) {
+		eseq.push_back((*it).evalf(level));
+		it++;
+	}
 	
 	if (registered_functions()[serial].evalf_f==0) {
 		return function(serial,eseq).hold();

@@ -151,6 +151,7 @@ public:
 	exvector get_free_indices(void) const;
 
 protected:
+	ex derivative(const symbol & s) const;
 	ex thisexprseq(const exvector & v) const;
 	ex thisexprseq(exvector * vp) const;
 	unsigned return_type(void) const { return return_types::commutative; }

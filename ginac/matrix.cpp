@@ -198,16 +198,6 @@ ex & matrix::let_op(int i)
 	return m[i];
 }
 
-/** expands the elements of a matrix entry by entry. */
-ex matrix::expand(unsigned options) const
-{
-	exvector tmp(row*col);
-	for (unsigned i=0; i<row*col; ++i)
-		tmp[i] = m[i].expand(options);
-	
-	return matrix(row, col, tmp);
-}
-
 /** Evaluate matrix entry by entry. */
 ex matrix::eval(int level) const
 {
@@ -230,30 +220,6 @@ ex matrix::eval(int level) const
 	
 	return (new matrix(row, col, m2))->setflag(status_flags::dynallocated |
 											   status_flags::evaluated );
-}
-
-/** Evaluate matrix numerically entry by entry. */
-ex matrix::evalf(int level) const
-{
-	debugmsg("matrix evalf",LOGLEVEL_MEMBER_FUNCTION);
-		
-	// check if we have to do anything at all
-	if (level==1)
-		return *this;
-	
-	// emergency break
-	if (level == -max_recursion_level) {
-		throw (std::runtime_error("matrix::evalf(): recursion limit exceeded"));
-	}
-	
-	// evalf() entry by entry
-	exvector m2(row*col);
-	--level;
-	for (unsigned r=0; r<row; ++r)
-		for (unsigned c=0; c<col; ++c)
-			m2[r*col+c] = m[r*col+c].evalf(level);
-	
-	return matrix(row, col, m2);
 }
 
 ex matrix::subs(const lst & ls, const lst & lr, bool no_pattern) const
