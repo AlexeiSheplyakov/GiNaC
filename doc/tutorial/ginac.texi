@@ -180,6 +180,7 @@ pointless) bivariate polynomial with some large coefficients:
 
 @example
 #include <ginac/ginac.h>
+using namespace std;
 using namespace GiNaC;
 
 int main()
@@ -213,6 +214,7 @@ generates Hermite polynomials in a specified free variable.
 
 @example
 #include <ginac/ginac.h>
+using namespace std;
 using namespace GiNaC;
 
 ex HermitePoly(const symbol & x, int n)
@@ -849,7 +851,7 @@ int main()
     // Trott's constant in scientific notation:
     numeric trott("1.0841015122311136151E-2");
     
-    cout << two*p << endl;  // floating point 6.283...
+    std::cout << two*p << std::endl;  // floating point 6.283...
 @}
 @end example
 
@@ -888,6 +890,7 @@ digits:
 
 @example
 #include <ginac/ginac.h>
+using namespace std;
 using namespace GiNaC;
 
 void foo()
@@ -938,6 +941,7 @@ some multiple of its denominator and test what comes out:
 
 @example
 #include <ginac/ginac.h>
+using namespace std;
 using namespace GiNaC;
 
 // some very important constants:
@@ -1042,21 +1046,16 @@ Simple polynomial expressions are written down in GiNaC pretty much like
 in other CAS or like expressions involving numerical variables in C.
 The necessary operators @code{+}, @code{-}, @code{*} and @code{/} have
 been overloaded to achieve this goal.  When you run the following
-program, the constructor for an object of type @code{mul} is
+code snippet, the constructor for an object of type @code{mul} is
 automatically called to hold the product of @code{a} and @code{b} and
 then the constructor for an object of type @code{add} is called to hold
 the sum of that @code{mul} object and the number one:
 
 @example
-#include <ginac/ginac.h>
-using namespace GiNaC;
-
-int main()
-@{
+    ...
     symbol a("a"), b("b");
     ex MyTerm = 1+a*b;
-    // ...
-@}
+    ...
 @end example
 
 @cindex @code{pow()}
@@ -1064,7 +1063,7 @@ For exponentiation, you have already seen the somewhat clumsy (though C-ish)
 statement @code{pow(x,2);} to represent @code{x} squared.  This direct
 construction is necessary since we cannot safely overload the constructor
 @code{^} in C++ to construct a @code{power} object.  If we did, it would
-have several counterintuitive effects:
+have several counterintuitive and undesired effects:
 
 @itemize @bullet
 @item
@@ -1173,37 +1172,27 @@ There are quite a number of useful functions hard-wired into GiNaC.  For
 instance, all trigonometric and hyperbolic functions are implemented
 (@xref{Built-in Functions}, for a complete list).
 
-These functions are all objects of class @code{function}.  They accept one
-or more expressions as arguments and return one expression.  If the arguments
-are not numerical, the evaluation of the function may be halted, as it
-does in the next example:
+These functions are all objects of class @code{function}.  They accept
+one or more expressions as arguments and return one expression.  If the
+arguments are not numerical, the evaluation of the function may be
+halted, as it does in the next example, showing how a function returns
+itself twice and finally an expression that may be really useful:
 
 @cindex Gamma function
 @cindex @code{subs()}
 @example
-#include <ginac/ginac.h>
-using namespace GiNaC;
-
-int main()
-@{
-    symbol x("x"), y("y");
-    
+    ...
+    symbol x("x"), y("y");    
     ex foo = x+y/2;
-    cout << "tgamma(" << foo << ") -> " << tgamma(foo) << endl;
+    cout << tgamma(foo) << endl;
+     // -> tgamma(x+(1/2)*y)
     ex bar = foo.subs(y==1);
-    cout << "tgamma(" << bar << ") -> " << tgamma(bar) << endl;
+    cout << tgamma(bar) << endl;
+     // -> tgamma(x+1/2)
     ex foobar = bar.subs(x==7);
-    cout << "tgamma(" << foobar << ") -> " << tgamma(foobar) << endl;
-@}
-@end example
-
-This program shows how the function returns itself twice and finally an
-expression that may be really useful:
-
-@example
-tgamma(x+(1/2)*y) -> tgamma(x+(1/2)*y)
-tgamma(x+1/2) -> tgamma(x+1/2)
-tgamma(15/2) -> (135135/128)*Pi^(1/2)
+    cout << tgamma(foobar) << endl;
+     // -> (135135/128)*Pi^(1/2)
+    ...
 @end example
 
 Besides evaluation most of these functions allow differentiation, series
@@ -1283,6 +1272,7 @@ A simple example shall illustrate the concepts:
 
 @example
 #include <ginac/ginac.h>
+using namespace std;
 using namespace GiNaC;
 
 int main()
@@ -1776,16 +1766,10 @@ alternatively call it in a functional way as shown in the simple
 example:
 
 @example
-#include <ginac/ginac.h>
-using namespace GiNaC;
-
-int main()
-@{
-    ex x = numeric(1.0);
-    
-    cout << "As method:   " << sin(x).evalf() << endl;
-    cout << "As function: " << evalf(sin(x)) << endl;
-@}
+    ...
+    cout << "As method:   " << sin(1).evalf() << endl;
+    cout << "As function: " << evalf(sin(1)) << endl;
+    ...
 @end example
 
 @cindex @code{subs()}
@@ -2137,6 +2121,7 @@ polynomial is analyzed:
 
 @example
 #include <ginac/ginac.h>
+using namespace std;
 using namespace GiNaC;
 
 int main()
@@ -2304,8 +2289,8 @@ int main()
     symbol x("x");
     ex t1 = (pow(x,2) + 2*x + 1)/(x + 1);
     ex t2 = (pow(sin(x),2) + 2*sin(x) + 1)/(sin(x) + 1);
-    cout << "t1 is " << t1.normal() << endl;
-    cout << "t2 is " << t2.normal() << endl;
+    std::cout << "t1 is " << t1.normal() << std::endl;
+    std::cout << "t2 is " << t2.normal() << std::endl;
 @}
 @end example
 
@@ -2424,7 +2409,7 @@ ex EulerNumber(unsigned n)
 int main()
 @{
     for (unsigned i=0; i<11; i+=2)
-        cout << EulerNumber(i) << endl;
+        std::cout << EulerNumber(i) << std::endl;
     return 0;
 @}
 @end example
@@ -2454,6 +2439,7 @@ term).  A sample application from special relativity could read:
 
 @example
 #include <ginac/ginac.h>
+using namespace std;
 using namespace GiNaC;
 
 int main()
@@ -2511,6 +2497,8 @@ ex mechain_pi(int degr)
 
 int main()
 @{
+    using std::cout;  // just for fun, another way of...
+    using std::endl;  // ...dealing with this namespace std.
     ex pi_frac;
     for (int i=2; i<12; i+=2) @{
         pi_frac = mechain_pi(i);
@@ -2743,6 +2731,7 @@ With this constructor, it's also easy to implement interactive GiNaC programs:
 #include <string>
 #include <stdexcept>
 #include <ginac/ginac.h>
+using namespace std;
 using namespace GiNaC;
 
 int main()
@@ -2774,8 +2763,9 @@ of class @code{archive} and archive expressions in it, giving each
 expression a unique name:
 
 @example
-#include <ginac/ginac.h>
 #include <fstream>
+using namespace std;
+#include <ginac/ginac.h>
 using namespace GiNaC;
 
 int main()
@@ -3662,6 +3652,7 @@ as you try to change the second.  Consider the simple sequence of code:
 
 @example
 #include <ginac/ginac.h>
+using namespace std;
 using namespace GiNaC;
 
 int main()
@@ -3693,6 +3684,7 @@ can be:
 
 @example
 #include <ginac/ginac.h>
+using namespace std;
 using namespace GiNaC;
 
 int main()
@@ -3986,13 +3978,13 @@ and the @samp{AM_PATH_GINAC} macro. The program used here is @file{simple.cpp}:
 
 @example
 #include <ginac/ginac.h>
-using namespace GiNaC;
 
 int main(void)
 @{
-    symbol x("x");
-    ex a = sin(x); 
-    cout << "Derivative of " << a << " is " << a.diff(x) << endl;
+    GiNaC::symbol x("x");
+    GiNaC::ex a = GiNaC::sin(x);
+    std::cout << "Derivative of " << a 
+              << " is " << a.diff(x) << std::endl;
     return 0;
 @}
 @end example
