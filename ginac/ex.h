@@ -530,8 +530,8 @@ class const_preorder_iterator : public std::iterator<std::forward_iterator_tag, 
 public:
 	const_preorder_iterator() throw() {}
 
-	// Provide implicit conversion from const_iterator, so begin() and
-	// end() can be used to create const_preorder_iterators
+	// Provide implicit conversion from const_iterator, so ex::begin() and
+	// ex::end() can be used to create const_preorder_iterators
 	const_preorder_iterator(const const_iterator & cit)
 	{
 		s.push(internal::_iter_rep(cit.e, cit.i, cit.e.nops()));
@@ -540,8 +540,7 @@ public:
 public:
 	ex operator*() const
 	{
-		const internal::_iter_rep & r = s.top();
-		return r.e.op(r.i);
+		return s.top().e;
 	}
 
 	std::auto_ptr<ex> operator->() const
@@ -564,7 +563,7 @@ public:
 
 	bool operator==(const const_preorder_iterator &other) const throw()
 	{
-		return s == other.s;
+		return s.top() == other.s.top();
 	}
 
 	bool operator!=(const const_preorder_iterator &other) const throw()
@@ -573,21 +572,20 @@ public:
 	}
 
 private:
-	std::stack<internal::_iter_rep> s;
+	std::stack<internal::_iter_rep, std::vector<internal::_iter_rep> > s;
 
 	void increment()
 	{
-		internal::_iter_rep & current = s.top();
-		const ex & child = current.e.op(current.i);
-		size_t n = child.nops();
-		if (n)
-			s.push(internal::_iter_rep(child, 0, n));
-		else
-			++current.i;
-
 		while (s.top().i == s.top().i_end && s.size() > 1) {
 			s.pop();
 			++s.top().i;
+		}
+
+		internal::_iter_rep & current = s.top();
+
+		if (current.i != current.i_end) {
+			const ex & child = current.e.op(current.i);
+			s.push(internal::_iter_rep(child, 0, child.nops()));
 		}
 	}
 };
@@ -597,19 +595,21 @@ class const_postorder_iterator : public std::iterator<std::forward_iterator_tag,
 public:
 	const_postorder_iterator() throw() {}
 
-	// Provide implicit conversion from const_iterator, so begin() and
-	// end() can be used to create const_postorder_iterators
+	// Provide implicit conversion from const_iterator, so ex::begin() and
+	// ex::end() can be used to create const_postorder_iterators
 	const_postorder_iterator(const const_iterator & cit)
 	{
-		s.push(internal::_iter_rep(cit.e, cit.i, cit.e.nops()));
-		descend();
+		size_t n = cit.e.nops();
+		if (cit.i != n) {
+			s.push(internal::_iter_rep(cit.e, cit.i, n));
+			descend();
+		}
 	}
 
 public:
 	ex operator*() const
 	{
-		const internal::_iter_rep & r = s.top();
-		return r.e.op(r.i);
+		return s.top().e;
 	}
 
 	std::auto_ptr<ex> operator->() const
@@ -641,12 +641,12 @@ public:
 	}
 
 private:
-	std::stack<internal::_iter_rep> s;
+	std::stack<internal::_iter_rep, std::vector<internal::_iter_rep> > s;
 
 	void descend()
 	{
-		while (s.top().i != s.top().i_end && s.top().e.op(s.top().i).nops() > 0) {
-			const internal::_iter_rep & current = s.top();
+		while (s.top().i != s.top().i_end) {
+			internal::_iter_rep & current = s.top();
 			const ex & child = current.e.op(current.i);
 			s.push(internal::_iter_rep(child, 0, child.nops()));
 		}
@@ -654,10 +654,12 @@ private:
 
 	void increment()
 	{
-		++s.top().i;
-		descend();
-		if (s.top().i == s.top().i_end && s.size() > 1)
+		if (s.top().i == s.top().i_end)
 			s.pop();
+		if (s.size() > 0) {
+			++s.top().i;
+			descend();
+		}
 	}
 };
 
