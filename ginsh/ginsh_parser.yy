@@ -295,15 +295,18 @@ static ex f_charpoly(const exprseq &e)
 
 static ex f_coeff(const exprseq &e)
 {
-	CHECK_ARG(1, symbol, coeff);
 	CHECK_ARG(2, numeric, coeff);
-	return e[0].coeff(ex_to_symbol(e[1]), ex_to_numeric(e[2]).to_int());
+	return e[0].coeff(e[1], ex_to_numeric(e[2]).to_int());
 }
 
 static ex f_collect(const exprseq &e)
 {
-	CHECK_ARG(1, symbol, collect);
-	return e[0].collect(ex_to_symbol(e[1]));
+	return e[0].collect(e[1]);
+}
+
+static ex f_collect_distributed(const exprseq &e)
+{
+	return e[0].collect(e[1], true);
 }
 
 static ex f_content(const exprseq &e)
@@ -314,8 +317,7 @@ static ex f_content(const exprseq &e)
 
 static ex f_degree(const exprseq &e)
 {
-	CHECK_ARG(1, symbol, degree);
-	return e[0].degree(ex_to_symbol(e[1]));
+	return e[0].degree(e[1]);
 }
 
 static ex f_determinant(const exprseq &e)
@@ -352,7 +354,7 @@ static ex f_divide(const exprseq &e)
 	if (divide(e[0], e[1], q))
 		return q;
 	else
-		return *new fail();
+		return fail();
 }
 
 static ex f_eval2(const exprseq &e)
@@ -386,14 +388,12 @@ static ex f_is(const exprseq &e)
 
 static ex f_lcoeff(const exprseq &e)
 {
-	CHECK_ARG(1, symbol, lcoeff);
-	return e[0].lcoeff(ex_to_symbol(e[1]));
+	return e[0].lcoeff(e[1]);
 }
 
 static ex f_ldegree(const exprseq &e)
 {
-	CHECK_ARG(1, symbol, ldegree);
-	return e[0].ldegree(ex_to_symbol(e[1]));
+	return e[0].ldegree(e[1]);
 }
 
 static ex f_normal2(const exprseq &e)
@@ -461,8 +461,7 @@ static ex f_subs3(const exprseq &e)
 
 static ex f_tcoeff(const exprseq &e)
 {
-	CHECK_ARG(1, symbol, tcoeff);
-	return e[0].tcoeff(ex_to_symbol(e[1]));
+	return e[0].tcoeff(e[1]);
 }
 
 static ex f_trace(const exprseq &e)
@@ -505,6 +504,7 @@ static const fcn_init builtin_fcns[] = {
 	{"charpoly", fcn_desc(f_charpoly, 2)},
 	{"coeff", fcn_desc(f_coeff, 3)},
 	{"collect", fcn_desc(f_collect, 2)},
+	{"collect_distributed", fcn_desc(f_collect_distributed, 2)},
 	{"content", fcn_desc(f_content, 2)},
 	{"degree", fcn_desc(f_degree, 2)},
 	{"denom", fcn_desc(f_denom, 1)},

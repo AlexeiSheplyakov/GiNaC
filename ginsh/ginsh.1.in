@@ -229,16 +229,19 @@ detail here. Please refer to the GiNaC documentation.
 .BI charpoly( matrix ", " symbol )
 \- characteristic polynomial of a matrix
 .br
-.BI coeff( expression ", " symbol ", " number )
-\- extracts coefficient of symbol^number from a polynomial
+.BI coeff( expression ", " object ", " number )
+\- extracts coefficient of object^number from a polynomial
 .br
-.BI collect( expression ", " symbol )
-\- collects coefficients of like powers
+.BI collect( expression ", " object-or-list )
+\- collects coefficients of like powers (result in recursive form)
+.br
+.BI collect_distributed( expression ", " list )
+\- collects coefficients of like powers (result in distributed form)
 .br
 .BI content( expression ", " symbol )
 \- content part of a polynomial
 .br
-.BI degree( expression ", " symbol )
+.BI degree( expression ", " object )
 \- degree of a polynomial
 .br
 .BI denom( expression )
@@ -280,10 +283,10 @@ detail here. Please refer to the GiNaC documentation.
 .BI lcm( expression ", " expression )
 \- least common multiple
 .br
-.BI lcoeff( expression ", " symbol )
+.BI lcoeff( expression ", " object )
 \- leading coefficient of a polynomial
 .br
-.BI ldegree( expression ", " symbol )
+.BI ldegree( expression ", " object )
 \- low degree of a polynomial
 .br
 .BI lsolve( equation-list ", " symbol-list )
@@ -330,7 +333,7 @@ detail here. Please refer to the GiNaC documentation.
 .BI subs( expression ", " look-for-list ", " replace-by-list )
 \- substitute subexpressions
 .br
-.BI tcoeff( expression ", " symbol )
+.BI tcoeff( expression ", " object )
 \- trailing coefficient of a polynomial
 .br
 .BI time( expression )
