@@ -312,28 +312,22 @@ static unsigned exam_paranoia12(void)
 	return result;
 }
 
-// This one called numeric(0).inverse() in heur_gcd().
+// This one caused a division by 0 because heur_gcd() didn't check its
+// input polynomials against 0. Fixed on Aug 4th 2000.
 static unsigned exam_paranoia13(void)
 {
     unsigned result = 0;
-    symbol a("a"), b("b"), c("c");
-    
-    ex e = c - (b*a-c*a)/(4-a);
-    ex f;
-    ex d = (b*a-4*c)/(a-4);
-    try {
-        f = e.normal();
-        if (!(f - d).expand().is_zero()) {
-            clog << "normal(" << e << ") returns " << f
-                 << " instead of " << d << endl;
-            ++result;
-        }
-    } catch (const exception & err) {
-        clog << "normal(" << e << ") cought an exception: "
-             << err.what() << endl;
-        ++result;
-    }
-    return result;
+	symbol a("a"), b("b"), c("c");
+
+	ex e = (b*a-c*a)/(4-a);
+	ex f = e.normal();
+	ex d = (c*a-b*a)/(a-4);
+
+	if (!(f - d).expand().is_zero()) {
+		clog << "normal(" << e << ") returns " << f << " instead of " << d << endl;
+		++result;
+	}
+	return result;
 }
 
 unsigned exam_paranoia(void)
