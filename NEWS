@@ -14,6 +14,8 @@ This file records noteworthy changes.
 * sqrfree() factorization fixed and improved syntactically.
 * subs() works on matrices.
 * Fixed memory leak in expand().
+* Operator% for objects of class ncmul has gone.  Use operator* now for that
+  case too, which is much more natural.
 
 0.7.3 (28 February 2001)
 * Several bugfixes and minor performance tunings.

@@ -55,12 +55,6 @@ ex operator/(const ex & lh, const ex & rh)
 	return lh.exmul(power(rh,_ex_1()));
 }
 
-ex operator%(const ex & lh, const ex & rh)
-{
-	debugmsg("operator%(ex,ex)",LOGLEVEL_OPERATOR);
-	return lh.exncmul(rh);
-}
-
 
 // binary arithmetic operators numeric with numeric
 
@@ -113,12 +107,6 @@ const ex & operator/=(ex & lh, const ex & rh)
 {
 	debugmsg("operator/=(ex,ex)",LOGLEVEL_OPERATOR);
 	return (lh=lh.exmul(power(rh,_ex_1())));
-}
-
-const ex & operator%=(ex & lh, const ex & rh)
-{
-	debugmsg("operator%=(ex,ex)",LOGLEVEL_OPERATOR);
-	return (lh=lh%rh);
 }
 
 

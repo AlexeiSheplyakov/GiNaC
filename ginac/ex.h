@@ -129,7 +129,6 @@ public:
 	
 	ex exadd(const ex & rh) const;
 	ex exmul(const ex & rh) const;
-	ex exncmul(const ex & rh) const;
 private:
 	void construct_from_basic(const basic & other);
 	void construct_from_int(int i);

@@ -36,7 +36,6 @@ ex operator+(const ex & lh, const ex & rh);
 ex operator-(const ex & lh, const ex & rh);
 ex operator*(const ex & lh, const ex & rh);
 ex operator/(const ex & lh, const ex & rh);
-ex operator%(const ex & lh, const ex & rh); // non-commutative multiplication
 
 // binary arithmetic operators numeric with numeric
 numeric operator+(const numeric & lh, const numeric & rh);
@@ -49,7 +48,6 @@ const ex & operator+=(ex & lh, const ex & rh);
 const ex & operator-=(ex & lh, const ex & rh);
 const ex & operator*=(ex & lh, const ex & rh);
 const ex & operator/=(ex & lh, const ex & rh);
-const ex & operator%=(ex & lh, const ex & rh); // non-commutative multiplication
 
 // binary arithmetic assignment operators with numeric
 const numeric & operator+=(numeric & lh, const numeric & rh);

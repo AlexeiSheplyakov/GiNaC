@@ -215,7 +215,6 @@ exp	: T_NUMBER		{$$ = $1;}
 	| exp '-' exp		{$$ = $1 - $3;}
 	| exp '*' exp		{$$ = $1 * $3;}
 	| exp '/' exp		{$$ = $1 / $3;}
-	| exp '%' exp		{$$ = $1 % $3;}
 	| '-' exp %prec NEG	{$$ = -$2;}
 	| '+' exp %prec NEG	{$$ = $2;}
 	| exp '^' exp		{$$ = power($1, $3);}

@@ -143,13 +143,13 @@ void ncmul::archive(archive_node &n) const
 void ncmul::print(std::ostream & os, unsigned upper_precedence) const
 {
 	debugmsg("ncmul print",LOGLEVEL_PRINT);
-	printseq(os,'(','%',')',precedence,upper_precedence);
+	printseq(os,'(','*',')',precedence,upper_precedence);
 }
 
 void ncmul::printraw(std::ostream & os) const
 {
 	debugmsg("ncmul printraw",LOGLEVEL_PRINT);
-	os << "%(";
+	os << "ncmul(";
 	for (exvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
 		(*it).bp->printraw(os);
 		os << ",";
@@ -344,7 +344,7 @@ ex ncmul::eval(int level) const
 	//                      ncmul(ncmul(x1,x2,...),X,ncmul(y1,y2,...)
 	//                      (X noncommutative_composite)
 
-	if ((level==1)&&(flags & status_flags::evaluated)) {
+	if ((level==1) && (flags & status_flags::evaluated)) {
 		return *this;
 	}
 
@@ -353,16 +353,14 @@ ex ncmul::eval(int level) const
 	// ncmul(...,*(x1,x2),...,ncmul(x3,x4),...) ->
 	//     ncmul(...,x1,x2,...,x3,x4,...) (associativity)
 	unsigned factors=0;
-	for (exvector::const_iterator cit=evaledseq.begin(); cit!=evaledseq.end(); ++cit) {
+	for (exvector::const_iterator cit=evaledseq.begin(); cit!=evaledseq.end(); ++cit)
 		factors += count_factors(*cit);
-	}
-
+	
 	exvector assocseq;
 	assocseq.reserve(factors);
-	for (exvector::const_iterator cit=evaledseq.begin(); cit!=evaledseq.end(); ++cit) {
+	for (exvector::const_iterator cit=evaledseq.begin(); cit!=evaledseq.end(); ++cit)
 		append_factors(assocseq,*cit);
-	}
-
+	
 	// ncmul(x) -> x
 	if (assocseq.size()==1) return *(seq.begin());
 
@@ -402,11 +400,10 @@ ex ncmul::eval(int level) const
 		exvector noncommutativeseq;
 		noncommutativeseq.reserve(assocseq.size()-count_commutative);
 		for (i=0; i<assocseq.size(); ++i) {
-			if (rettypes[i]==return_types::commutative) {
+			if (rettypes[i]==return_types::commutative)
 				commutativeseq.push_back(assocseq[i]);
-			} else {
+			else
 				noncommutativeseq.push_back(assocseq[i]);
-			}
 		}
 		commutativeseq.push_back((new ncmul(noncommutativeseq,1))->setflag(status_flags::dynallocated));
 		return (new mul(commutativeseq))->setflag(status_flags::dynallocated);
@@ -454,16 +451,15 @@ ex ncmul::eval(int level) const
 #endif // def DO_GINAC_ASSERT
 		
 		// if all elements are of same type, simplify the string
-		if (evv.size()==1) {
+		if (evv.size()==1)
 			return evv[0][0].simplify_ncmul(evv[0]);
-		}
 		
 		exvector splitseq;
 		splitseq.reserve(evv.size());
 		for (i=0; i<evv.size(); ++i) {
 			splitseq.push_back((new ncmul(evv[i]))->setflag(status_flags::dynallocated));
 		}
-
+		
 		return (new mul(splitseq))->setflag(status_flags::dynallocated);
 	}
 	
