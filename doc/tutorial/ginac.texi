@@ -707,36 +707,26 @@ mathematical objects, all of which (except for @code{ex} and some
 helpers) are internally derived from one abstract base class called
 @code{basic}.  You do not have to deal with objects of class
 @code{basic}, instead you'll be dealing with symbols, numbers,
-containers of expressions and so on.  You'll soon learn in this chapter
-how many of the functions on symbols are really classes.  This is
-because simple symbolic arithmetic is not supported by languages like
-C++ so in a certain way GiNaC has to implement its own arithmetic.
+containers of expressions and so on.
 
 @cindex container
 @cindex atom
 To get an idea about what kinds of symbolic composits may be built we
-have a look at the most important classes in the class hierarchy.  The
-oval classes are atomic ones and the squared classes are containers.
-The dashed line symbolizes a `points to' or `handles' relationship while
-the solid lines stand for `inherits from' relationship in the class
-hierarchy:
+have a look at the most important classes in the class hierarchy and
+some of the relations among the classes:
 
 @image{classhierarchy}
 
-Some of the classes shown here (the ones sitting in white boxes) are
-abstract base classes that are of no interest at all for the user.  They
-are used internally in order to avoid code duplication if two or more
-classes derived from them share certain features.  An example would be
-@code{expairseq}, which is a container for a sequence of pairs each
-consisting of one expression and a number (@code{numeric}).  What
-@emph{is} visible to the user are the derived classes @code{add} and
-@code{mul}, representing sums of terms and products, respectively.
-@xref{Internal Structures}, where these two classes are described in
-more detail.
-
-At this point, we only summarize what kind of mathematical objects are
-stored in the different classes in above diagram in order to give you a
-overview:
+The abstract classes shown here (the ones without drop-shadow) are of no
+interest for the user.  They are used internally in order to avoid code
+duplication if two or more classes derived from them share certain
+features.  An example is @code{expairseq}, a container for a sequence of
+pairs each consisting of one expression and a number (@code{numeric}).
+What @emph{is} visible to the user are the derived classes @code{add}
+and @code{mul}, representing sums and products.  @xref{Internal
+Structures}, where these two classes are described in more detail.  The
+following table shortly summarizes what kinds of mathematical objects
+are stored in the different classes:
 
 @cartouche
 @multitable @columnfractions .22 .78
@@ -749,8 +739,8 @@ $\pi$
 @math{Pi}
 @end ifnottex
 @item @code{numeric} @tab All kinds of numbers, @math{42}, @math{7/3*I}, @math{3.14159}@dots{}
-@item @code{add} @tab Sums like @math{x+y} or @math{a+(2*b)+3}
-@item @code{mul} @tab Products like @math{x*y} or @math{a*(x+y+z)*b*2}
+@item @code{add} @tab Sums like @math{x+y} or @math{a-(2*b)+3}
+@item @code{mul} @tab Products like @math{x*y} or @math{2*a^2*(x+y+z)/b}
 @item @code{power} @tab Exponentials such as @math{x^2}, @math{a^b}, 
 @tex
 $\sqrt{2}$
@@ -759,15 +749,14 @@ $\sqrt{2}$
 @code{sqrt(}@math{2}@code{)}
 @end ifnottex
 @dots{}
-@item @code{pseries} @tab Power Series, e.g. @math{x+1/6*x^3+1/120*x^5+O(x^7)}
+@item @code{pseries} @tab Power Series, e.g. @math{x-1/6*x^3+1/120*x^5+O(x^7)}
 @item @code{function} @tab A symbolic function like @math{sin(2*x)}
 @item @code{lst} @tab Lists of expressions [@math{x}, @math{2*y}, @math{3+z}]
 @item @code{matrix} @tab @math{n}x@math{m} matrices of expressions
 @item @code{relational} @tab A relation like the identity @math{x}@code{==}@math{y}
-@item @code{color} @tab Element of the @math{SU(3)} Lie-algebra
+@item @code{color}, @code{coloridx} @tab Element and index of the @math{SU(3)} Lie-algebra
 @item @code{isospin} @tab Element of the @math{SU(2)} Lie-algebra
-@item @code{idx} @tab Index of a tensor object
-@item @code{coloridx} @tab Index of a @math{SU(3)} tensor
+@item @code{idx} @tab Index of a general tensor object
 @end multitable
 @end cartouche
 
@@ -2350,11 +2339,13 @@ provided by @acronym{CLN} are much better suited.
 @section Symbolic functions
 
 The easiest and most instructive way to start with is probably to
-implement your own function.  Objects of class @code{function} are
-inserted into the system via a kind of `registry'.  They get a serial
-number that is used internally to identify them but you usually need not
-worry about this.  What you have to care for are functions that are
-called when the user invokes certain methods.  These are usual
+implement your own function.  GiNaC's functions are objects of class
+@code{function}.  The preprocessor is then used to convert the function
+names to objects with a corresponding serial number that is used
+internally to identify them.  You usually need not worry about this
+number.  New functions may be inserted into the system via a kind of
+`registry'.  It is your responsibility to care for some functions that
+are called when the user invokes certain methods.  These are usual
 C++-functions accepting a number of @code{ex} as arguments and returning
 one @code{ex}.  As an example, if we have a look at a simplified
 implementation of the cosine trigonometric function, we first need a
