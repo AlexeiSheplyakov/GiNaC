@@ -36,6 +36,8 @@
 #include "series.h"
 #include "symbol.h"
 
+namespace GiNaC {
+
 //////////
 // dilogarithm
 //////////
@@ -244,3 +246,5 @@ ex ncpower(ex const &basis, unsigned exponent)
 
     return ncmul(v,1);
 }
+
+} // namespace GiNaC

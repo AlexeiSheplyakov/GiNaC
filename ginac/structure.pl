@@ -119,7 +119,9 @@ $types_ok_statements=generate(
 $interface=<<END_OF_INTERFACE;
 /** \@file ${STRUCTURE}.h
  *
- *  Definition of GiNaC's user defined structure ${STRUCTURE}. 
+ *  Definition of GiNaC's user defined structure ${STRUCTURE}. */
+
+/*
  *  This file was generated automatically by structure.pl.
  *  Please do not modify it directly, edit the perl script instead!
  *
@@ -146,7 +148,9 @@ ${input_structure}
 #ifndef __GINAC_${STRUCTURE_UC}_H__
 #define __GINAC_${STRUCTURE_UC}_H__
 
-#include <ginac/ginac.h>
+#include <ginac/structure.h>
+
+namespace GiNaC {
 
 class ${STRUCTURE} : public structure
 {
@@ -211,6 +215,8 @@ extern const unsigned tinfo_${STRUCTURE};
 
 #define ex_to_${STRUCTURE}(X) (static_cast<${STRUCTURE} const &>(*(X).bp))
 
+} // namespace GiNaC
+
 #endif // ndef _${STRUCTURE_UC}_H_
 
 END_OF_INTERFACE
@@ -218,7 +224,9 @@ END_OF_INTERFACE
 $implementation=<<END_OF_IMPLEMENTATION;
 /** \@file ${STRUCTURE}.cpp
  *
- *  Implementation of GiNaC's user defined structure ${STRUCTURE}. 
+ *  Implementation of GiNaC's user defined structure ${STRUCTURE}. */
+
+/*
  *  This file was generated automatically by STRUCTURE.pl.
  *  Please do not modify it directly, edit the perl script instead!
  *
@@ -244,7 +252,9 @@ ${input_structure}
 
 #include <iostream>
 
-#include "ginac.h"
+#include "${STRUCTURE}.h"
+
+namespace GiNaC {
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -497,6 +507,8 @@ ${op_access_indices_def}
 const ${STRUCTURE} some_${STRUCTURE};
 type_info const & typeid_${STRUCTURE}=typeid(some_${STRUCTURE});
 const unsigned tinfo_${STRUCTURE}=structure::register_new("${STRUCTURE}");
+
+} // namespace GiNaC
 
 END_OF_IMPLEMENTATION
 

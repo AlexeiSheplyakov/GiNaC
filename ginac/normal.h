@@ -21,8 +21,10 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef NORMAL_H
-#define NORMAL_H
+#ifndef __GINAC_NORMAL_H__
+#define __GINAC_NORMAL_H__
+
+namespace GiNaC {
 
 class ex;
 class symbol;
@@ -48,4 +50,6 @@ extern ex lcm(const ex &a, const ex &b, bool check_args = true);
 // Square-free factorization of a polynomial a(x)
 extern ex sqrfree(const ex &a, const symbol &x);
 
-#endif
+} // namespace GiNaC
+
+#endif // ndef __GINAC_NORMAL_H__

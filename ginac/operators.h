@@ -25,6 +25,8 @@
 
 #include <iostream>
 
+namespace GiNaC {
+
 class ex;
 class numeric;
 class relational;
@@ -122,5 +124,7 @@ relational operator>=(numeric const & lh, ex const & rh);
 // input/output stream operators
 ostream & operator<<(ostream & os, ex const & e);
 istream & operator>>(istream & is, ex & e);
+
+} // namespace GiNaC
 
 #endif // ndef __GINAC_OPERATORS_H__

@@ -25,6 +25,8 @@
  */
 
 #include <stdexcept>
+#include <algorithm>
+#include <map>
 
 #include "normal.h"
 #include "basic.h"
@@ -43,6 +45,8 @@
 #include "relational.h"
 #include "series.h"
 #include "symbol.h"
+
+namespace GiNaC {
 
 // If comparing expressions (ex::compare()) is fast, you can set this to 1.
 // Some routines like quo(), rem() and gcd() will then return a quick answer
@@ -81,8 +85,6 @@ static bool get_first_symbol(const ex &e, const symbol *&x)
 /*
  *  Statistical information about symbols in polynomials
  */
-
-#include <algorithm>
 
 /** This structure holds information about the highest and lowest degrees
  *  in which a symbol appears in two multivariate polynomials "a" and "b".
@@ -488,8 +490,6 @@ bool divide(const ex &a, const ex &b, ex &q, bool check_args)
 /*
  *  Remembering
  */
-
-#include <map>
 
 typedef pair<ex, ex> ex2;
 typedef pair<ex, bool> exbool;
@@ -908,7 +908,7 @@ ex basic::smod(const numeric &xi) const
 
 ex numeric::smod(const numeric &xi) const
 {
-    return ::smod(*this, xi);
+    return GiNaC::smod(*this, xi);
 }
 
 ex add::smod(const numeric &xi) const
@@ -919,13 +919,13 @@ ex add::smod(const numeric &xi) const
     epvector::const_iterator itend = seq.end();
     while (it != itend) {
         ASSERT(!is_ex_exactly_of_type(it->rest,numeric));
-        numeric coeff = ::smod(ex_to_numeric(it->coeff), xi);
+        numeric coeff = GiNaC::smod(ex_to_numeric(it->coeff), xi);
         if (!coeff.is_zero())
             newseq.push_back(expair(it->rest, coeff));
         it++;
     }
     ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
-    numeric coeff = ::smod(ex_to_numeric(overall_coeff), xi);
+    numeric coeff = GiNaC::smod(ex_to_numeric(overall_coeff), xi);
     return (new add(newseq,coeff))->setflag(status_flags::dynallocated);
 }
 
@@ -941,7 +941,7 @@ ex mul::smod(const numeric &xi) const
 #endif // def DOASSERT
     mul * mulcopyp=new mul(*this);
     ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
-    mulcopyp->overall_coeff=::smod(ex_to_numeric(overall_coeff),xi);
+    mulcopyp->overall_coeff = GiNaC::smod(ex_to_numeric(overall_coeff),xi);
     mulcopyp->clearflag(status_flags::evaluated);
     mulcopyp->clearflag(status_flags::hash_calculated);
     return mulcopyp->setflag(status_flags::dynallocated);
@@ -1484,3 +1484,5 @@ ex ex::normal(int level) const
     else
         return e;
 }
+
+} // namespace GiNaC

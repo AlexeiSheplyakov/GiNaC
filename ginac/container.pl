@@ -89,7 +89,9 @@ END_OF_LET_OP_IMPLEMENTATION
 $interface=<<END_OF_INTERFACE;
 /** \@file ${CONTAINER}.h
  *
- *  Definition of GiNaC's ${CONTAINER}. 
+ *  Definition of GiNaC's ${CONTAINER}. */
+
+/*
  *  This file was generated automatically by container.pl.
  *  Please do not modify it directly, edit the perl script instead!
  *  container.pl options: \$CONTAINER=${CONTAINER}
@@ -122,6 +124,9 @@ $interface=<<END_OF_INTERFACE;
 
 #include <${STLHEADER}>
 #include <ginac/basic.h>
+#include <ginac/ex.h>
+
+namespace GiNaC {
 
 typedef ${STLHEADER}<ex> ${STLT};
 
@@ -212,9 +217,13 @@ protected:
 extern const ${CONTAINER} some_${CONTAINER};
 extern type_info const & typeid_${CONTAINER};
 
-// macros
+// utility functions
+inline const ${CONTAINER} &ex_to_${CONTAINER}(const ex &e)
+{
+    return static_cast<const ${CONTAINER} &>(*e.bp);
+}
 
-#define ex_to_${CONTAINER}(X) (static_cast<${CONTAINER} const &>(*(X).bp))
+} // namespace GiNaC
 
 #endif // ndef __GINAC_${CONTAINER_UC}_H__
 
@@ -223,7 +232,9 @@ END_OF_INTERFACE
 $implementation=<<END_OF_IMPLEMENTATION;
 /** \@file ${CONTAINER}.cpp
  *
- *  Implementation of GiNaC's ${CONTAINER}. 
+ *  Implementation of GiNaC's ${CONTAINER}. */
+
+/*
  *  This file was generated automatically by container.pl.
  *  Please do not modify it directly, edit the perl script instead!
  *  container.pl options: \$CONTAINER=${CONTAINER}
@@ -256,6 +267,9 @@ $implementation=<<END_OF_IMPLEMENTATION;
 
 #include "${CONTAINER}.h"
 #include "ex.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 ${RESERVE_IMPLEMENTATION}
 
@@ -832,6 +846,8 @@ unsigned ${CONTAINER}::precedence=10;
 
 const ${CONTAINER} some_${CONTAINER};
 type_info const & typeid_${CONTAINER}=typeid(some_${CONTAINER});
+
+} // namespace GiNaC
 
 END_OF_IMPLEMENTATION
 

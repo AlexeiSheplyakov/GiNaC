@@ -24,6 +24,9 @@
 #include <stdexcept>
 
 #include "matrix.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 //////////
 // default constructor, destructor, copy constructor, assignment operator
@@ -868,3 +871,5 @@ int matrix::pivot(int ro)
 
 const matrix some_matrix;
 type_info const & typeid_matrix=typeid(some_matrix);
+
+} // namespace GiNaC

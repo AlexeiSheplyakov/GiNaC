@@ -28,6 +28,9 @@
 #include "ncmul.h"
 #include "numeric.h"
 #include "power.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -511,3 +514,4 @@ ex const & exMINUSHALF(void)
     return *eMINUSHALF;
 }
 
+} // namespace GiNaC

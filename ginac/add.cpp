@@ -25,6 +25,9 @@
 
 #include "add.h"
 #include "mul.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -420,9 +423,9 @@ ex add::eval(int level) const
 
 exvector add::get_indices(void) const
 {
-    // all terms in the sum should have the same indices (compatible tensors)
-    // however this is not checked, since there is no function yet which
-    // compares indices (idxvector can be unsorted) !!!!!!!!!!!
+    // FIXME: all terms in the sum should have the same indices (compatible
+    // tensors) however this is not checked, since there is no function yet
+    // which compares indices (idxvector can be unsorted)
     if (seq.size()==0) {
         return exvector();
     }
@@ -650,5 +653,4 @@ unsigned add::precedence=40;
 const add some_add;
 type_info const & typeid_add=typeid(some_add);
 
-
-
+} // namespace GiNaC

@@ -28,6 +28,9 @@
 #include "ex.h"
 #include "add.h"
 #include "mul.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -588,4 +591,4 @@ ex simplified_ncmul(exvector const & v)
                                    status_flags::evaluated);
 }
 
-
+} // namespace GiNaC

@@ -1,6 +1,6 @@
-/** @file check.h
+/** @file assertion.h
  *
- *  Prototypes for all individual checks. */
+ *  Assertion macro definition. */
 
 /*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
@@ -20,25 +20,15 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef CHECK_H
-#define CHECK_H
+#ifndef __GINAC_ASSERTION_H__
+#define __GINAC_ASSERTION_H__
 
-// fcntimer is defined in timer.cpp and used for timing check functions only:
-unsigned fcntimer(unsigned fcn());
+#include <assert.h>
 
-// prototypes for all individual checks must be unsigned fcn() in order to be
-// able to use fcntimer() as a wrapper:
-unsigned paranoia_check();
-unsigned numeric_output();
-unsigned numeric_consist();
-unsigned powerlaws();
-unsigned expand_subs();
-unsigned inifcns_consist();
-unsigned differentiation();
-unsigned poly_gcd();
-unsigned normalization();
-unsigned matrix_checks();
-unsigned lsolve_onedim();
-unsigned series_expansion();
+#if defined(DO_GINAC_ASSERT) && !defined(ASSERT)
+#define ASSERT(X) assert(X)
+#else
+#define ASSERT(X) ((void)0)
+#endif
 
-#endif // ndef CHECK_H
+#endif // ndef __GINAC_ASSERTION_H__

@@ -27,6 +27,9 @@
 #include "ex.h"
 #include "ncmul.h"
 #include "utils.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -208,3 +211,4 @@ unsigned clifford::next_serial=0;
 const clifford some_clifford;
 type_info const & typeid_clifford=typeid(some_clifford);
 
+} // namespace GiNaC

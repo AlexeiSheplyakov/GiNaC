@@ -24,6 +24,9 @@
 
 #include "relational.h"
 #include "numeric.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -261,3 +264,4 @@ unsigned relational::precedence=20;
 const relational some_relational;
 type_info const & typeid_relational=typeid(some_relational);
 
+} // namespace GiNaC

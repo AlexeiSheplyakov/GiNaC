@@ -1,7 +1,8 @@
 /** @file numeric_output.cpp
  *
- *  Test output of numeric types.
- *
+ *  Test output of numeric types. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,6 +21,7 @@
  */
 
 #include <ginac/ginac.h>
+using namespace GiNaC;
 
 unsigned numeric_output(void)
 {

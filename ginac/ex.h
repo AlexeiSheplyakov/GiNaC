@@ -27,6 +27,8 @@
 #include <ginac/basic.h>
 #include <ginac/operators.h>
 
+namespace GiNaC {
+
 class ex;
 class expand_options;
 class status_flags;
@@ -63,7 +65,6 @@ public:
 #ifdef INLINE_EX_CONSTRUCTORS
     : bp(exZERO().bp)
         {
-            debugmsg("ex default constructor",LOGLEVEL_CONSTRUCT);
             ASSERT(exZERO().bp!=0);
             ASSERT(exZERO().bp->flags & status_flags::dynallocated);
             ASSERT(bp!=0);
@@ -76,7 +77,6 @@ public:
     ~ex()
 #ifdef INLINE_EX_CONSTRUCTORS
         {
-            debugmsg("ex destructor",LOGLEVEL_DESTRUCT);
             ASSERT(bp!=0);
             ASSERT(bp->flags & status_flags::dynallocated);
             if (--bp->refcount == 0) {
@@ -91,7 +91,6 @@ public:
 #ifdef INLINE_EX_CONSTRUCTORS
     : bp(other.bp)
         {
-            debugmsg("ex copy constructor",LOGLEVEL_CONSTRUCT);
             ASSERT(bp!=0);
             ASSERT((bp->flags) & status_flags::dynallocated);
             ++bp->refcount;
@@ -103,7 +102,6 @@ public:
     ex const & operator=(ex const & other)
 #ifdef INLINE_EX_CONSTRUCTORS
         {
-            debugmsg("ex operator=",LOGLEVEL_ASSIGNMENT);
             ASSERT(bp!=0);
             ASSERT(bp->flags & status_flags::dynallocated);
             ASSERT(other.bp!=0);
@@ -125,7 +123,6 @@ public:
     ex(basic const & other)
 #ifdef INLINE_EX_CONSTRUCTORS
     {
-        debugmsg("ex constructor from basic",LOGLEVEL_CONSTRUCT);
         construct_from_basic(other);
     }
 #else
@@ -230,8 +227,13 @@ private:
 
 public:
     basic *bp;
-
 };
+
+// utility functions
+inline bool are_ex_trivially_equal(const ex &e1, const ex &e2)
+{
+	return e1.bp == e2.bp;
+}
 
 // wrapper functions around member functions
 inline int nops(ex const & thisex)
@@ -281,5 +283,7 @@ inline ex subs(ex const & thisex, lst const & ls, lst const & lr)
 
 inline void swap(ex & e1, ex & e2)
 { e1.swap(e2); }
+
+} // namespace GiNaC
 
 #endif // ndef __GINAC_EX_H__

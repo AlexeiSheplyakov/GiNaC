@@ -31,6 +31,9 @@
 #include "numeric.h"
 #include "relational.h"
 #include "symbol.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 typedef vector<int> intvector;
 
@@ -510,7 +513,7 @@ ex power::expand_add(add const & a, int const n) const
         cout << "end term" << endl;
         */
 
-        // TODO: optimize!!!!!!!!
+        // TODO: optimize this
         sum.push_back((new mul(term))->setflag(status_flags::dynallocated));
         
         // increment k[]
@@ -717,3 +720,5 @@ unsigned power::precedence=60;
 
 const power some_power;
 type_info const & typeid_power=typeid(some_power);
+
+} // namespace GiNaC

@@ -23,46 +23,50 @@
 #ifndef __GINAC_TINFOS_H__
 #define __GINAC_TINFOS_H__
 
-#define TINFO_basic        0x00000001U
+namespace GiNaC {
 
-#define TINFO_expairseq    0x00010001U
-#define TINFO_add          0x00011001U
-#define TINFO_mul          0x00011002U
+const unsigned TINFO_basic        = 0x00000001U;
 
-#define TINFO_symbol       0x00020001U
-#define TINFO_constant     0x00021001U
+const unsigned TINFO_expairseq    = 0x00010001U;
+const unsigned TINFO_add          = 0x00011001U;
+const unsigned TINFO_mul          = 0x00011002U;
 
-#define TINFO_exprseq      0x00030001U
-#define TINFO_function     0x00031001U
-#define TINFO_ncmul        0x00031002U
+const unsigned TINFO_symbol       = 0x00020001U;
+const unsigned TINFO_constant     = 0x00021001U;
 
-#define TINFO_lst          0x00040001U
+const unsigned TINFO_exprseq      = 0x00030001U;
+const unsigned TINFO_function     = 0x00031001U;
+const unsigned TINFO_ncmul        = 0x00031002U;
 
-#define TINFO_matrix       0x00050001U
+const unsigned TINFO_lst          = 0x00040001U;
 
-#define TINFO_power        0x00060001U
+const unsigned TINFO_matrix       = 0x00050001U;
 
-#define TINFO_relational   0x00070001U
+const unsigned TINFO_power        = 0x00060001U;
 
-#define TINFO_fail         0x00080001U
+const unsigned TINFO_relational   = 0x00070001U;
 
-#define TINFO_numeric      0x00090001U
+const unsigned TINFO_fail         = 0x00080001U;
 
-#define TINFO_series       0x000a0001U
+const unsigned TINFO_numeric      = 0x00090001U;
 
-#define TINFO_indexed      0x000b0001U
-#define TINFO_algebra      0x000b1001U
-#define TINFO_clifford     0x000b1101U
-#define TINFO_color        0x000b1201U
-#define TINFO_isospin      0x000b1301U
-#define TINFO_simp_lor     0x000b1401U
+const unsigned TINFO_series       = 0x000a0001U;
 
-#define TINFO_structure    0x000c0001U
-// reserved up to          0x000cffffU
+const unsigned TINFO_indexed      = 0x000b0001U;
+const unsigned TINFO_algebra      = 0x000b1001U;
+const unsigned TINFO_clifford     = 0x000b1101U;
+const unsigned TINFO_color        = 0x000b1201U;
+const unsigned TINFO_isospin      = 0x000b1301U;
+const unsigned TINFO_simp_lor     = 0x000b1401U;
+
+const unsigned TINFO_structure    = 0x000c0001U;
+// reserved up to                   0x000cffffU
 // for user defined structures
 
-#define TINFO_idx          0x000d0001U
-#define TINFO_coloridx     0x000d1001U
-#define TINFO_lorentzidx   0x000d1002U
+const unsigned TINFO_idx          = 0x000d0001U;
+const unsigned TINFO_coloridx     = 0x000d1001U;
+const unsigned TINFO_lorentzidx   = 0x000d1002U;
+
+} // namespace GiNaC
 
 #endif // ndef __GINAC_TINFOS_H__

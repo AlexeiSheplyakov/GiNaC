@@ -30,6 +30,8 @@
 #include "numeric.h"
 #include "power.h"
 
+namespace GiNaC {
+
 //////////
 // exponential function
 //////////
@@ -737,3 +739,5 @@ ex atanh_diff(ex const & x, unsigned diff_param)
 }
 
 REGISTER_FUNCTION(atanh, atanh_eval, atanh_evalf, atanh_diff, NULL);
+
+} // namespace GiNaC

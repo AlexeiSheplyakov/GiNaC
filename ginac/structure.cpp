@@ -23,6 +23,9 @@
 #include <string>
 
 #include "structure.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -172,3 +175,4 @@ unsigned structure::register_new(char const * nm)
 const structure some_structure;
 type_info const & typeid_structure=typeid(some_structure);
 
+} // namespace GiNaC

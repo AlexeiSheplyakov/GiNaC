@@ -37,6 +37,9 @@
 #include "relational.h"
 #include "series.h"
 #include "symbol.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 /** Print expression as a C++ statement. The output looks like
  *  "<type> <var_name> = <expression>;". The "type" parameter has an effect
@@ -326,3 +329,5 @@ void relational::printcsrc(ostream & os, unsigned type, unsigned upper_precedenc
     if (precedence <= upper_precedence)
 		os << ")";
 }
+
+} // namespace GiNaC

@@ -60,6 +60,6 @@
 #include <ginac/isospin.h>
 #include <ginac/lorentzidx.h>
 #include <ginac/simp_lor.h>
-#endif /* ndef GINAC_BASE_ONLY */
+#endif // ndef GINAC_BASE_ONLY
 
-#endif /* ndef __GINAC_H__ */
+#endif // ndef __GINAC_H__

@@ -1,12 +1,12 @@
 /** @file function.cpp
  *
- *  Implementation of class function.
- *
- *  This file was generated automatically by function.pl.
- *  Please do not modify it directly, edit the perl script instead!
- *  function.pl options: $maxargs=10 */
+ *  Implementation of class function. */
 
 /*
+ *  This file was generated automatically by function.pl.
+ *  Please do not modify it directly, edit the perl script instead!
+ *  function.pl options: $maxargs=10
+ *
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -29,6 +29,9 @@
 
 #include "function.h"
 #include "ex.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -606,4 +609,6 @@ unsigned function::register_new(char const * nm, eval_funcp_10 e,
 
 const function some_function;
 type_info const & typeid_function=typeid(some_function);
+
+} // namespace GiNaC
 

@@ -26,6 +26,8 @@
 
 #include <ginac/basic.h>
 
+namespace GiNaC {
+
 class fail : public basic
 {
 // member functions
@@ -67,6 +69,6 @@ protected:
 extern const fail some_fail;
 extern type_info const & typeid_fail;
 
+} // namespace GiNaC
+
 #endif // ndef __GINAC_FAIL_H__
-
-

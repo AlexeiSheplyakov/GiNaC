@@ -24,6 +24,8 @@
 #include "exprseq.h"
 #include "ex.h"
 
+namespace GiNaC {
+
 bool exprseq::info(unsigned inf) const
 {
     if (inf==info_flags::exprseq) return 1;
@@ -38,3 +40,4 @@ ex & exprseq::let_op(int const i)
     return seq[i];
 }
 
+} // namespace GiNaC

@@ -28,6 +28,9 @@
 #include "power.h"
 #include "relational.h"
 #include "symbol.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 
 /*
@@ -632,3 +635,5 @@ ex ex::series(symbol const &s, ex const &point, int order) const
 // Global constants
 const series some_series;
 type_info const & typeid_series = typeid(some_series);
+
+} // namespace GiNaC

@@ -30,6 +30,7 @@
 #include "numeric.h"
 #include "ex.h"
 #include "config.h"
+#include "debugmsg.h"
 
 // CLN should not pollute the global namespace, hence we include it here
 // instead of in some header file where it would propagate to other parts:
@@ -38,6 +39,8 @@
 #else
 #include <cln.h>
 #endif
+
+namespace GiNaC {
 
 // linker has no problems finding text symbols for numerator or denominator
 //#define SANE_LINKER
@@ -851,7 +854,7 @@ const numeric some_numeric;
 type_info const & typeid_numeric=typeid(some_numeric);
 /** Imaginary unit.  This is not a constant but a numeric since we are
  *  natively handing complex numbers anyways. */
-const numeric I = (complex(cl_I(0),cl_I(1)));
+const numeric I = numeric(complex(cl_I(0),cl_I(1)));
 
 //////////
 // global functions
@@ -904,7 +907,7 @@ numeric const & numHALF(void)
  *  @return  arbitrary precision numerical exp(x). */
 numeric exp(numeric const & x)
 {
-    return exp(*x.value);  // -> CLN
+    return ::exp(*x.value);  // -> CLN
 }
 
 /** Natural logarithm.
@@ -916,7 +919,7 @@ numeric log(numeric const & z)
 {
     if (z.is_zero())
         throw (std::overflow_error("log(): logarithmic singularity"));
-    return log(*z.value);  // -> CLN
+    return ::log(*z.value);  // -> CLN
 }
 
 /** Numeric sine (trigonometric function).
@@ -924,7 +927,7 @@ numeric log(numeric const & z)
  *  @return  arbitrary precision numerical sin(x). */
 numeric sin(numeric const & x)
 {
-    return sin(*x.value);  // -> CLN
+    return ::sin(*x.value);  // -> CLN
 }
 
 /** Numeric cosine (trigonometric function).
@@ -932,7 +935,7 @@ numeric sin(numeric const & x)
  *  @return  arbitrary precision numerical cos(x). */
 numeric cos(numeric const & x)
 {
-    return cos(*x.value);  // -> CLN
+    return ::cos(*x.value);  // -> CLN
 }
     
 /** Numeric tangent (trigonometric function).
@@ -940,7 +943,7 @@ numeric cos(numeric const & x)
  *  @return  arbitrary precision numerical tan(x). */
 numeric tan(numeric const & x)
 {
-    return tan(*x.value);  // -> CLN
+    return ::tan(*x.value);  // -> CLN
 }
     
 /** Numeric inverse sine (trigonometric function).
@@ -948,7 +951,7 @@ numeric tan(numeric const & x)
  *  @return  arbitrary precision numerical asin(x). */
 numeric asin(numeric const & x)
 {
-    return asin(*x.value);  // -> CLN
+    return ::asin(*x.value);  // -> CLN
 }
     
 /** Numeric inverse cosine (trigonometric function).
@@ -956,7 +959,7 @@ numeric asin(numeric const & x)
  *  @return  arbitrary precision numerical acos(x). */
 numeric acos(numeric const & x)
 {
-    return acos(*x.value);  // -> CLN
+    return ::acos(*x.value);  // -> CLN
 }
     
 /** Arcustangents.
@@ -970,7 +973,7 @@ numeric atan(numeric const & x)
         x.real().is_zero() &&
         !abs(x.imag()).is_equal(numONE()))
         throw (std::overflow_error("atan(): logarithmic singularity"));
-    return atan(*x.value);  // -> CLN
+    return ::atan(*x.value);  // -> CLN
 }
 
 /** Arcustangents.
@@ -981,7 +984,7 @@ numeric atan(numeric const & x)
 numeric atan(numeric const & y, numeric const & x)
 {
     if (x.is_real() && y.is_real())
-        return atan(realpart(*x.value), realpart(*y.value));  // -> CLN
+        return ::atan(realpart(*x.value), realpart(*y.value));  // -> CLN
     else
         throw (std::invalid_argument("numeric::atan(): complex argument"));        
 }
@@ -991,7 +994,7 @@ numeric atan(numeric const & y, numeric const & x)
  *  @return  arbitrary precision numerical sinh(x). */
 numeric sinh(numeric const & x)
 {
-    return sinh(*x.value);  // -> CLN
+    return ::sinh(*x.value);  // -> CLN
 }
 
 /** Numeric hyperbolic cosine (trigonometric function).
@@ -999,7 +1002,7 @@ numeric sinh(numeric const & x)
  *  @return  arbitrary precision numerical cosh(x). */
 numeric cosh(numeric const & x)
 {
-    return cosh(*x.value);  // -> CLN
+    return ::cosh(*x.value);  // -> CLN
 }
     
 /** Numeric hyperbolic tangent (trigonometric function).
@@ -1007,7 +1010,7 @@ numeric cosh(numeric const & x)
  *  @return  arbitrary precision numerical tanh(x). */
 numeric tanh(numeric const & x)
 {
-    return tanh(*x.value);  // -> CLN
+    return ::tanh(*x.value);  // -> CLN
 }
     
 /** Numeric inverse hyperbolic sine (trigonometric function).
@@ -1015,7 +1018,7 @@ numeric tanh(numeric const & x)
  *  @return  arbitrary precision numerical asinh(x). */
 numeric asinh(numeric const & x)
 {
-    return asinh(*x.value);  // -> CLN
+    return ::asinh(*x.value);  // -> CLN
 }
 
 /** Numeric inverse hyperbolic cosine (trigonometric function).
@@ -1023,7 +1026,7 @@ numeric asinh(numeric const & x)
  *  @return  arbitrary precision numerical acosh(x). */
 numeric acosh(numeric const & x)
 {
-    return acosh(*x.value);  // -> CLN
+    return ::acosh(*x.value);  // -> CLN
 }
 
 /** Numeric inverse hyperbolic tangent (trigonometric function).
@@ -1031,7 +1034,7 @@ numeric acosh(numeric const & x)
  *  @return  arbitrary precision numerical atanh(x). */
 numeric atanh(numeric const & x)
 {
-    return atanh(*x.value);  // -> CLN
+    return ::atanh(*x.value);  // -> CLN
 }
 
 /** The gamma function.
@@ -1051,7 +1054,7 @@ numeric factorial(numeric const & nn)
         throw (std::range_error("numeric::factorial(): argument must be integer >= 0"));
     }
     
-    return numeric(factorial(nn.to_int()));  // -> CLN
+    return numeric(::factorial(nn.to_int()));  // -> CLN
 }
 
 /** The double factorial combinatorial function.  (Scarcely used, but still
@@ -1123,7 +1126,7 @@ numeric doublefactorial(numeric const & nn)
 numeric binomial(numeric const & n, numeric const & k)
 {
     if (n.is_nonneg_integer() && k.is_nonneg_integer()) {
-        return numeric(binomial(n.to_int(),k.to_int()));  // -> CLN
+        return numeric(::binomial(n.to_int(),k.to_int()));  // -> CLN
     } else {
         // should really be gamma(n+1)/(gamma(r+1)/gamma(n-r+1)
         return numeric(0);
@@ -1134,7 +1137,7 @@ numeric binomial(numeric const & n, numeric const & k)
 /** Absolute value. */
 numeric abs(numeric const & x)
 {
-    return abs(*x.value);  // -> CLN
+    return ::abs(*x.value);  // -> CLN
 }
 
 /** Modulus (in positive representation).
@@ -1147,7 +1150,7 @@ numeric abs(numeric const & x)
 numeric mod(numeric const & a, numeric const & b)
 {
     if (a.is_integer() && b.is_integer()) {
-        return mod(The(cl_I)(*a.value), The(cl_I)(*b.value));  // -> CLN
+        return ::mod(The(cl_I)(*a.value), The(cl_I)(*b.value));  // -> CLN
     }
     else {
         return numZERO();  // Throw?
@@ -1162,7 +1165,7 @@ numeric smod(numeric const & a, numeric const & b)
 {
     if (a.is_integer() && b.is_integer()) {
         cl_I b2 = The(cl_I)(ceiling1(The(cl_I)(*b.value) / 2)) - 1;
-        return mod(The(cl_I)(*a.value) + b2, The(cl_I)(*b.value)) - b2;
+        return ::mod(The(cl_I)(*a.value) + b2, The(cl_I)(*b.value)) - b2;
     } else {
         return numZERO();  // Throw?
     }
@@ -1177,7 +1180,7 @@ numeric smod(numeric const & a, numeric const & b)
 numeric irem(numeric const & a, numeric const & b)
 {
     if (a.is_integer() && b.is_integer()) {
-        return rem(The(cl_I)(*a.value), The(cl_I)(*b.value));  // -> CLN
+        return ::rem(The(cl_I)(*a.value), The(cl_I)(*b.value));  // -> CLN
     }
     else {
         return numZERO();  // Throw?
@@ -1245,7 +1248,7 @@ numeric iquo(numeric const & a, numeric const & b, numeric & r)
  *  where imag(z)>0. */
 numeric sqrt(numeric const & z)
 {
-    return sqrt(*z.value);  // -> CLN
+    return ::sqrt(*z.value);  // -> CLN
 }
 
 /** Integer numeric square root. */
@@ -1253,7 +1256,7 @@ numeric isqrt(numeric const & x)
 {
 	if (x.is_integer()) {
 		cl_I root;
-		isqrt(The(cl_I)(*x.value), &root);	// -> CLN
+		::isqrt(The(cl_I)(*x.value), &root);	// -> CLN
 		return root;
 	} else
 		return numZERO();  // Throw?
@@ -1266,7 +1269,7 @@ numeric isqrt(numeric const & x)
 numeric gcd(numeric const & a, numeric const & b)
 {
     if (a.is_integer() && b.is_integer())
-        return gcd(The(cl_I)(*a.value), The(cl_I)(*b.value));	// -> CLN
+        return ::gcd(The(cl_I)(*a.value), The(cl_I)(*b.value));	// -> CLN
     else
         return numONE();
 }
@@ -1278,7 +1281,7 @@ numeric gcd(numeric const & a, numeric const & b)
 numeric lcm(numeric const & a, numeric const & b)
 {
     if (a.is_integer() && b.is_integer())
-        return lcm(The(cl_I)(*a.value), The(cl_I)(*b.value));	// -> CLN
+        return ::lcm(The(cl_I)(*a.value), The(cl_I)(*b.value));	// -> CLN
     else
         return *a.value * *b.value;
 }
@@ -1344,3 +1347,5 @@ bool _numeric_digits::too_late = false;
 /** Accuracy in decimal digits.  Only object of this type!  Can be set using
  *  assignment from C++ unsigned ints and evaluated like any built-in type. */
 _numeric_digits Digits;
+
+} // namespace GiNaC

@@ -31,6 +31,8 @@
 #include <ginac/indexed.h>
 #include <ginac/lorentzidx.h>
 
+namespace GiNaC {
+
 typedef pair<string,string> strstrpair;
 typedef pair<strstrpair,lorentzidx> spmapkey;
 
@@ -151,10 +153,16 @@ protected:
 extern const simp_lor some_simp_lor;
 extern type_info const & typeid_simp_lor;
 
-// macros
+// utility functions
+inline const simp_lor &ex_to_simp_lor(const ex &e)
+{
+	return static_cast<const simp_lor &>(*e.bp);
+}
 
-#define ex_to_simp_lor(X) static_cast<simp_lor const &>(*(X).bp)
-#define ex_to_nonconst_simp_lor(X) static_cast<simp_lor &>(*(X).bp)
+inline simp_lor &ex_to_nonconst_simp_lor(const ex &e)
+{
+	return static_cast<simp_lor &>(*e.bp);
+}
 
 simp_lor lor_g(ex const & mu, ex const & nu);
 simp_lor lor_vec(string const & n, ex const & mu);
@@ -162,6 +170,6 @@ ex simplify_simp_lor_mul(ex const & m, scalar_products const & sp);
 ex simplify_simp_lor(ex const & e, scalar_products const & sp);
 ex Dim(void);
 
+} // namespace GiNaC
+
 #endif // ndef _SIMP__GINAC_LOR_H__
-
-

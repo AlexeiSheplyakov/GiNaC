@@ -25,6 +25,8 @@
 
 #include <ginac/basic.h>
 
+namespace GiNaC {
+
 struct registered_structure_info {
     char const * name;
 };
@@ -82,5 +84,6 @@ public:
 extern const structure some_structure;
 extern type_info const & typeid_structure;
 
-#endif // ndef __GINAC_STRUCTURE_H__
+} // namespace GiNaC
 
+#endif // ndef __GINAC_STRUCTURE_H__

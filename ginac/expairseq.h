@@ -27,6 +27,8 @@
 #include <list>
 #include <ginac/expair.h>
 
+namespace GiNaC {
+
 //#define EXPAIRSEQ_USE_HASHTAB
 
 typedef vector<expair> epvector;
@@ -34,7 +36,6 @@ typedef epvector::iterator epviter;
 
 inline void iter_swap(epvector::iterator it1, epvector::iterator it2)
 {
-    debugmsg("iter_swap epvector",LOGLEVEL_NONMEMBER_FUNCTION);
     (*it1).rest.swap((*it2).rest);
     (*it1).coeff.swap((*it2).coeff);
 }
@@ -59,11 +60,9 @@ public:
         , hashtabsize(0)
 #endif // def EXPAIRSEQ_USE_HASHTAB
         {
-            debugmsg("expairseq default constructor",LOGLEVEL_CONSTRUCT);
         }
     ~expairseq()
         {
-            debugmsg("expairseq destructor",LOGLEVEL_DESTRUCT);
             destroy(0);
         }
     expairseq(expairseq const & other);
@@ -189,6 +188,12 @@ protected:
 extern const expairseq some_expairseq;
 extern type_info const & typeid_expairseq;
 
-#define ex_to_expairseq(X) static_cast<expairseq const &>(*(X).bp)
+// utility functions
+inline const expairseq &ex_to_expairseq(const ex &e)
+{
+	return static_cast<const expairseq &>(*e.bp);
+}
+
+} // namespace GiNaC
 
 #endif // ndef __GINAC_EXPAIRSEQ_H__

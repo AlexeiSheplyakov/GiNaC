@@ -1,6 +1,8 @@
 /** @file exprseq.cpp
  *
- *  Implementation of GiNaC's exprseq. 
+ *  Implementation of GiNaC's exprseq. */
+
+/*
  *  This file was generated automatically by container.pl.
  *  Please do not modify it directly, edit the perl script instead!
  *  container.pl options: $CONTAINER=exprseq
@@ -9,9 +11,8 @@
  *                        $prepend=0
  *                        $let_op=0
  *                        $open_bracket=(
- *                        $close_bracket=) */
-
-/*
+ *                        $close_bracket=)
+ *
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -34,6 +35,9 @@
 
 #include "exprseq.h"
 #include "ex.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 #define RESERVE(s,size) (s).reserve(size)
 
@@ -610,4 +614,6 @@ unsigned exprseq::precedence=10;
 
 const exprseq some_exprseq;
 type_info const & typeid_exprseq=typeid(some_exprseq);
+
+} // namespace GiNaC
 

@@ -27,6 +27,8 @@
 #include <vector>
 #include <ginac/idx.h>
 
+namespace GiNaC {
+
 class lorentzidx : public idx
 {
     friend class simp_lor;
@@ -81,8 +83,12 @@ protected:
 extern const lorentzidx some_lorentzidx;
 extern type_info const & typeid_lorentzidx;
 
-// macros
+// utility functions
+inline const lorentzidx &ex_to_lorentzidx(const ex &e)
+{
+	return static_cast<const lorentzidx &>(*e.bp);
+}
 
-#define ex_to_lorentzidx(X) (static_cast<lorentzidx const &>(*(X).bp))
+} // namespace GiNaC
 
 #endif // ndef __GINAC_LORENTZIDX_H__

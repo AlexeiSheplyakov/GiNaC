@@ -27,6 +27,9 @@
 #include "ex.h"
 #include "ncmul.h"
 #include "utils.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -208,3 +211,4 @@ unsigned isospin::next_serial=0;
 const isospin some_isospin;
 type_info const & typeid_isospin=typeid(some_isospin);
 
+} // namespace GiNaC

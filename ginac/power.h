@@ -26,6 +26,8 @@
 #include <ginac/basic.h>
 #include <ginac/ex.h>
 
+namespace GiNaC {
+
 class numeric;
 class add;
 
@@ -103,7 +105,11 @@ protected:
 extern const power some_power;
 extern type_info const & typeid_power;
 
-#define ex_to_power(X) static_cast<power const &>(*(X).bp)
+// utility functions
+inline const power &ex_to_power(const ex &e)
+{
+	return static_cast<const power &>(*e.bp);
+}
 
 // wrapper functions
 
@@ -119,5 +125,6 @@ inline ex pow(ex const & b, ex const & e)
 inline ex sqrt(ex const & a)
 { return power(a,exHALF()); }
 
-#endif // ndef __GINAC_POWER_H__
+} // namespace GiNaC
 
+#endif // ndef __GINAC_POWER_H__

@@ -26,6 +26,9 @@
 #include <string>
 #include <vector>
 #include <ginac/basic.h>
+#include <ginac/ex.h>
+
+namespace GiNaC {
 
 class idx : public basic
 {
@@ -89,11 +92,13 @@ protected:
 extern const idx some_idx;
 extern type_info const & typeid_idx;
 
-// macros
+// utility functions
+inline const idx &ex_to_idx(const ex &e)
+{
+	return static_cast<const idx &>(*e.bp);
+}
 
-#define ex_to_idx(X) (static_cast<idx const &>(*(X).bp))
-
-// other functions
+// global functions
 
 typedef vector<ex> exvector;
 
@@ -105,5 +110,7 @@ unsigned subs_index_in_exvector(exvector & v, ex const & is, ex const & ir);
 ex subs_indices(ex const & e, exvector const & idxv_contra,
                 exvector const & idxv_co);
 unsigned count_index(ex const & e, ex const & i);
+
+} // namespace GiNaC
 
 #endif // ndef __GINAC_IDX_H__

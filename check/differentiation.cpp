@@ -1,7 +1,8 @@
 /** @file differentiation.cpp
  *
- *  Tests for symbolic differentiation, including various functions.
- *
+ *  Tests for symbolic differentiation, including various functions. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,6 +21,7 @@
  */
 
 #include <ginac/ginac.h>
+using namespace GiNaC;
 
 static unsigned check_diff(const ex &e, const symbol &x,
                            const ex &d, unsigned nth=1)

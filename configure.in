@@ -75,14 +75,14 @@ dnl enough so trying the .h-style headers is a waste of time.
 AC_CHECK_HEADERS(iostream vector map string list typeinfo iterator strstream stdexcept algorithm, ,
     AC_MSG_ERROR(need to have ANSI compliant headers))
 
-dnl We need to have Bruno Haible's CLN installed (macros are in aclocal.m4):
-GINAC_CHECK_CLN_H
-GINAC_CHECK_LIBCLN
-
 dnl Check for stuff needed for building the GiNaC interactive shell (ginsh):
 AC_CHECK_HEADERS(unistd.h)
 AC_CHECK_HEADERS(readline/readline.h readline/history.h)
 AC_CHECK_LIB(readline, readline)
+
+dnl We need to have Bruno Haible's CLN installed (macros are in acinclude.m4):
+GINAC_CHECK_CLN_H
+GINAC_CHECK_LIBCLN
 
 dnl Check for utilities needed by the different kinds of documentation.
 dnl Documantation needs only be built when extending it, so never mind if it

@@ -38,6 +38,9 @@
 #include "relational.h"
 #include "series.h"
 #include "symbol.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 void ex::printtree(ostream & os, unsigned indent) const
 {
@@ -178,3 +181,4 @@ void expairseq::printtree(ostream & os, unsigned indent) const
 #endif // def EXPAIRSEQ_USE_HASHTAB
 }
 
+} // namespace GiNaC

@@ -25,6 +25,9 @@
 #include "indexed.h"
 #include "ex.h"
 #include "idx.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -289,3 +292,4 @@ bool indexed::all_of_type_idx(void) const
 const indexed some_indexed;
 type_info const & typeid_indexed=typeid(some_indexed);
 
+} // namespace GiNaC

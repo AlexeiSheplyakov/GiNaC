@@ -25,11 +25,14 @@
 
 #include <strstream>
 #include <ginac/basic.h>
-
-#define HASHVALUE_NUMERIC 0x80000001U
+#include <ginac/ex.h>
 
 class cl_N;     // We want to include cln.h only in numeric.cpp in order to 
                 // avoid namespace pollution and keep compile-time low.
+
+namespace GiNaC {
+
+#define HASHVALUE_NUMERIC 0x80000001U
 
 /** This class is used to instantiate a global object Digits which
  *  behaves just like Maple's Digits.  We need an object rather than a
@@ -318,7 +321,12 @@ ex PiEvalf(void);
 ex EulerGammaEvalf(void);
 ex CatalanEvalf(void);
 
-#define ex_to_numeric(X) static_cast<numeric const &>(*(X).bp)
+// utility functions
+inline const numeric &ex_to_numeric(const ex &e)
+{
+	return static_cast<const numeric &>(*e.bp);
+}
 
+} // namespace GiNaC
 
 #endif // ndef __GINAC_NUMERIC_H__

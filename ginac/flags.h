@@ -23,6 +23,8 @@
 #ifndef __GINAC_FLAGS_H__
 #define __GINAC_FLAGS_H__
 
+namespace GiNaC {
+
 class expand_options {
 public:
     enum { expand_trigonometric      = 0x0001
@@ -111,5 +113,7 @@ public:
 		ctype_cl_N
 	};
 };
+
+} // namespace GiNaC
 
 #endif // ndef __GINAC_FLAGS_H__

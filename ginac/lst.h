@@ -1,6 +1,8 @@
 /** @file lst.h
  *
- *  Definition of GiNaC's lst. 
+ *  Definition of GiNaC's lst. */
+
+/*
  *  This file was generated automatically by container.pl.
  *  Please do not modify it directly, edit the perl script instead!
  *  container.pl options: $CONTAINER=lst
@@ -9,9 +11,8 @@
  *                        $prepend=1
  *                        $let_op=1
  *                        $open_bracket=[
- *                        $close_bracket=] */
-
-/*
+ *                        $close_bracket=]
+ *
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -34,6 +35,9 @@
 
 #include <list>
 #include <ginac/basic.h>
+#include <ginac/ex.h>
+
+namespace GiNaC {
 
 typedef list<ex> exlist;
 
@@ -125,9 +129,13 @@ protected:
 extern const lst some_lst;
 extern type_info const & typeid_lst;
 
-// macros
+// utility functions
+inline const lst &ex_to_lst(const ex &e)
+{
+    return static_cast<const lst &>(*e.bp);
+}
 
-#define ex_to_lst(X) (static_cast<lst const &>(*(X).bp))
+} // namespace GiNaC
 
 #endif // ndef __GINAC_LST_H__
 

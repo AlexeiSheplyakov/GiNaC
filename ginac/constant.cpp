@@ -26,6 +26,9 @@
 #include "constant.h"
 #include "numeric.h"
 #include "ex.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -161,3 +164,5 @@ const constant EulerGamma("EulerGamma", EulerGammaEvalf);
 /** Euler's constant. (0.57721...)  Sometimes called Euler-Mascheroni constant.
  *  Diverts straight into CLN for evalf(). */
 const constant Catalan("Catalan", CatalanEvalf);
+
+} // namespace GiNaC

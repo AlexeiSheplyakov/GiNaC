@@ -26,6 +26,8 @@
 #include <string>
 #include <ginac/indexed.h>
 
+namespace GiNaC {
+
 /** Base class for isospin object */
 class isospin : public indexed
 {
@@ -81,10 +83,12 @@ private:
 extern const isospin some_isospin;
 extern type_info const & typeid_isospin;
 
-// macros
+// utility functions
+inline const isospin &ex_to_isospin(const ex &e)
+{
+	return static_cast<const isospin &>(*e.bp);
+}
 
-#define ex_to_isospin(X) static_cast<isospin const &>(*(X).bp)
+} // namespace GiNaC
 
 #endif // ndef __GINAC_ISOSPIN_H__
-
-

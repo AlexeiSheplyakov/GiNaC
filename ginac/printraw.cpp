@@ -43,6 +43,9 @@
 #include "relational.h"
 #include "series.h"
 #include "symbol.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 void ex::printraw(ostream & os) const
 {
@@ -221,3 +224,5 @@ void matrix::printraw(ostream & os) const
     }
     os << m[row*col-1] << "))";
 }
+
+} // namespace GiNaC

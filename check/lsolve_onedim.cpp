@@ -1,8 +1,9 @@
 /** @file lsolve_onedim.cpp
  *
  * This test routine does some simple checks on solving a polynomial for a
- * variable.
- *
+ * variable. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,6 +22,7 @@
  */
 
 #include <ginac/ginac.h>
+using namespace GiNaC;
 
 unsigned lsolve_onedim(void)
 {

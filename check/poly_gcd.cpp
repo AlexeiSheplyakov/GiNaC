@@ -1,8 +1,9 @@
 /** @file poly_gcd.cpp
  *
  *  Some test with polynomial GCD calculations. See also the checks for
- *  rational function normalization in normalization.cpp.
- *
+ *  rational function normalization in normalization.cpp. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,6 +22,7 @@
  */
 
 #include <ginac/ginac.h>
+using namespace GiNaC;
 
 const int MAX_VARIABLES = 5;
 

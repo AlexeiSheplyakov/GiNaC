@@ -27,6 +27,9 @@
 #include "lst.h"
 #include "relational.h"
 #include "utils.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -443,6 +446,4 @@ ex subs_indices(ex const & e, exvector const & idxv_subs,
     return res;
 }
 
-
-
-
+} // namespace GiNaC

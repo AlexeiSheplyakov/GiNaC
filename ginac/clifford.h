@@ -25,6 +25,9 @@
 
 #include <string>
 #include <ginac/indexed.h>
+#include <ginac/ex.h>
+
+namespace GiNaC {
 
 /** Base class for clifford object */
 class clifford : public indexed
@@ -81,10 +84,12 @@ private:
 extern const clifford some_clifford;
 extern type_info const & typeid_clifford;
 
-// macros
+// utility functions
+inline const clifford &ex_to_clifford(const ex &e)
+{
+	return static_cast<const clifford &>(*e.bp);
+}
 
-#define ex_to_clifford(X) static_cast<clifford const &>(*(X).bp)
+} // namespace GiNaC
 
 #endif // ndef __GINAC_CLIFFORD_H__
-
-

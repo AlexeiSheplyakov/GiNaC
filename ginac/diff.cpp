@@ -37,6 +37,8 @@
 #include "series.h"
 #include "symbol.h"
 
+namespace GiNaC {
+
 /** Default implementation of ex::diff(). It prints and error message and returns a fail object.
  *  @see ex::diff */
 ex basic::diff(symbol const & s) const
@@ -198,7 +200,7 @@ ex series::diff(symbol const & s) const
         epvector new_seq;
         epvector::const_iterator it = seq.begin(), itend = seq.end();
         
-        //!! coeff might depend on var
+        // FIXME: coeff might depend on var
         while (it != itend) {
             if (is_order_function(it->rest)) {
                 new_seq.push_back(expair(it->rest, it->coeff - 1));
@@ -237,3 +239,5 @@ ex ex::diff(symbol const & s, unsigned nth) const
     }
     return ndiff;
 }
+
+} // namespace GiNaC

@@ -24,6 +24,9 @@
 
 #include "lorentzidx.h"
 #include "utils.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -248,5 +251,4 @@ lorentzidx lorentzidx::create_anonymous_representative(void) const
 const lorentzidx some_lorentzidx;
 type_info const & typeid_lorentzidx=typeid(some_lorentzidx);
 
-
-
+} // namespace GiNaC

@@ -27,6 +27,9 @@
 #include "lst.h"
 #include "utils.h"
 #include "idx.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -277,3 +280,5 @@ type_info const & typeid_symbol=typeid(some_symbol);
 symbol::assigned_ex_info::assigned_ex_info(void) : is_assigned(0), refcount(1)
 {
 }
+
+} // namespace GiNaC

@@ -27,6 +27,8 @@
 #include <string>
 #include "config.h"
 
+namespace GiNaC {
+
 template<class T>
 string ToString(T const & t)
 {
@@ -38,9 +40,6 @@ string ToString(T const & t)
 unsigned log2(unsigned n);
 
 int compare_pointers(void const * a, void const * b);
-
-#define DYNCONSTCAST(FINALTYPE,BASICTYPE,EXPRESSION) \
-    dynamic_cast<FINALTYPE>(const_cast<BASICTYPE>(EXPRESSION))
 
 // modified from stl_algo.h: always do com(*first1,*first2) instead of comp(*first2,*first1)
 template <class InputIterator1, class InputIterator2, class OutputIterator,
@@ -89,5 +88,7 @@ OutputIterator mymerge3(InputIterator1 first1, InputIterator1 last1,
     return mymerge(first1,last1,first3,last3,result,comp);
   }
 }
+
+} // namespace GiNaC
 
 #endif // ndef __GINAC_UTILS_H__

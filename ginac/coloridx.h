@@ -26,6 +26,9 @@
 #include <string>
 #include <vector>
 #include <ginac/idx.h>
+#include <ginac/ex.h>
+
+namespace GiNaC {
 
 class coloridx : public idx
 {
@@ -73,8 +76,12 @@ public:
 extern const coloridx some_coloridx;
 extern type_info const & typeid_coloridx;
 
-// macros
+// utility functions
+inline const coloridx &ex_to_coloridx(const ex &e)
+{
+	return static_cast<const coloridx &>(*e.bp);
+}
 
-#define ex_to_coloridx(X) (static_cast<coloridx const &>(*(X).bp))
+} // namespace GiNaC
 
 #endif // ndef __GINAC_COLORIDX_H__

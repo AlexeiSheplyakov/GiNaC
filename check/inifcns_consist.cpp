@@ -1,8 +1,9 @@
 /** @file inifcns_consist.cpp
  *
  *  This test routine applies assorted tests on initially known higher level
- *  functions.
- *
+ *  functions. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,6 +22,7 @@
  */
 
 #include <ginac/ginac.h>
+using namespace GiNaC;
 
 /* Simple tests on the sine trigonometric function. */
 static unsigned inifcns_consist_sin(void)

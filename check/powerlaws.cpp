@@ -1,8 +1,9 @@
 /** @file powerlaws.cpp
  *
  *  Tests for power laws.  You shouldn't try to draw much inspiration from
- *  this code, it is a sanity check rather deeply rooted in GiNaC's classes.
- *
+ *  this code, it is a sanity check rather deeply rooted in GiNaC's classes. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,6 +22,7 @@
  */
 
 #include <ginac/ginac.h>
+using namespace GiNaC;
 
 static unsigned powerlaws1(void)
 {

@@ -24,6 +24,9 @@
 
 #include "coloridx.h"
 #include "utils.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -210,5 +213,4 @@ bool coloridx::info(unsigned inf) const
 const coloridx some_coloridx;
 type_info const & typeid_coloridx=typeid(some_coloridx);
 
-
-
+} // namespace GiNaC

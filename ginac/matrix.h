@@ -27,6 +27,8 @@
 #include <ginac/basic.h>
 #include <ginac/ex.h>
 
+namespace GiNaC {
+
 /** Symbolic matrices. */
 class matrix : public basic
 {
@@ -144,8 +146,12 @@ inline ex charpoly(matrix const & m, ex const & lambda)
 inline matrix inverse(matrix const & m)
 { return m.inverse(); }
 
-// macros
+// utility functions
+inline const matrix &ex_to_matrix(const ex &e)
+{
+	return static_cast<const matrix &>(*e.bp);
+}
 
-#define ex_to_matrix(X) (static_cast<matrix const &>(*(X).bp))
+} // namespace GiNaC
 
 #endif // ndef __GINAC_MATRIX_H__

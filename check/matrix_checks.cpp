@@ -1,7 +1,8 @@
 /** @file matrix_checks.cpp
  *
- *  Here we test manipulations on GiNaC's symbolic matrices.
- *
+ *  Here we test manipulations on GiNaC's symbolic matrices. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,6 +22,7 @@
 
 #include <stdexcept>
 #include <ginac/ginac.h>
+using namespace GiNaC;
 
 static unsigned matrix_determinants(void)
 {

@@ -26,6 +26,8 @@
 #include <ginac/ex.h>
 #include <ginac/numeric.h>
 
+namespace GiNaC {
+
 /** A pair of expressions.
  *  This similar to, but slightly extended STL's pair<> but we need to account
  *  for methods like .compare() */
@@ -194,5 +196,7 @@ public:
         return lh.is_less_old(rh);
     }
 };
+
+} // namespace GiNaC
 
 #endif // ndef __GINAC_EXPAIR_H__

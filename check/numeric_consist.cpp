@@ -1,8 +1,9 @@
 /** @file numeric_consist.cpp
  *
  *  This test routine creates some numbers and check the result of several
- *  boolean tests on these numbers like is_integer() etc...
- *
+ *  boolean tests on these numbers like is_integer() etc... */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 #include <ginac/ginac.h>
+using namespace GiNaC;
 
 /* Simple and maybe somewhat pointless consistency tests of assorted tests and
  * conversions. */

@@ -1,12 +1,12 @@
 /** @file function.h
  *
- *  Interface to abstract class function (new function concept).
- *
- *  This file was generated automatically by function.pl.
- *  Please do not modify it directly, edit the perl script instead!
- *  function.pl options: $maxargs=10 */
+ *  Interface to abstract class function (new function concept). */
 
 /*
+ *  This file was generated automatically by function.pl.
+ *  Please do not modify it directly, edit the perl script instead!
+ *  function.pl options: $maxargs=10
+ *
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -31,74 +31,72 @@
 #include <vector>
 #include <ginac/exprseq.h>
 
-class function;
-
 // the following lines have been generated for max. 10 parameters
 #define DECLARE_FUNCTION_1P(NAME) \
 extern unsigned function_index_##NAME; \
-inline function NAME(ex const & p1) { \
-    return function(function_index_##NAME, p1); \
+inline GiNaC::function NAME(GiNaC::ex const & p1) { \
+    return GiNaC::function(function_index_##NAME, p1); \
 }
 
 #define DECLARE_FUNCTION_2P(NAME) \
 extern unsigned function_index_##NAME; \
-inline function NAME(ex const & p1, ex const & p2) { \
-    return function(function_index_##NAME, p1, p2); \
+inline GiNaC::function NAME(GiNaC::ex const & p1, GiNaC::ex const & p2) { \
+    return GiNaC::function(function_index_##NAME, p1, p2); \
 }
 
 #define DECLARE_FUNCTION_3P(NAME) \
 extern unsigned function_index_##NAME; \
-inline function NAME(ex const & p1, ex const & p2, ex const & p3) { \
-    return function(function_index_##NAME, p1, p2, p3); \
+inline GiNaC::function NAME(GiNaC::ex const & p1, GiNaC::ex const & p2, GiNaC::ex const & p3) { \
+    return GiNaC::function(function_index_##NAME, p1, p2, p3); \
 }
 
 #define DECLARE_FUNCTION_4P(NAME) \
 extern unsigned function_index_##NAME; \
-inline function NAME(ex const & p1, ex const & p2, ex const & p3, ex const & p4) { \
-    return function(function_index_##NAME, p1, p2, p3, p4); \
+inline GiNaC::function NAME(GiNaC::ex const & p1, GiNaC::ex const & p2, GiNaC::ex const & p3, GiNaC::ex const & p4) { \
+    return GiNaC::function(function_index_##NAME, p1, p2, p3, p4); \
 }
 
 #define DECLARE_FUNCTION_5P(NAME) \
 extern unsigned function_index_##NAME; \
-inline function NAME(ex const & p1, ex const & p2, ex const & p3, ex const & p4, ex const & p5) { \
-    return function(function_index_##NAME, p1, p2, p3, p4, p5); \
+inline GiNaC::function NAME(GiNaC::ex const & p1, GiNaC::ex const & p2, GiNaC::ex const & p3, GiNaC::ex const & p4, GiNaC::ex const & p5) { \
+    return GiNaC::function(function_index_##NAME, p1, p2, p3, p4, p5); \
 }
 
 #define DECLARE_FUNCTION_6P(NAME) \
 extern unsigned function_index_##NAME; \
-inline function NAME(ex const & p1, ex const & p2, ex const & p3, ex const & p4, ex const & p5, ex const & p6) { \
-    return function(function_index_##NAME, p1, p2, p3, p4, p5, p6); \
+inline GiNaC::function NAME(GiNaC::ex const & p1, GiNaC::ex const & p2, GiNaC::ex const & p3, GiNaC::ex const & p4, GiNaC::ex const & p5, GiNaC::ex const & p6) { \
+    return GiNaC::function(function_index_##NAME, p1, p2, p3, p4, p5, p6); \
 }
 
 #define DECLARE_FUNCTION_7P(NAME) \
 extern unsigned function_index_##NAME; \
-inline function NAME(ex const & p1, ex const & p2, ex const & p3, ex const & p4, ex const & p5, ex const & p6, ex const & p7) { \
-    return function(function_index_##NAME, p1, p2, p3, p4, p5, p6, p7); \
+inline GiNaC::function NAME(GiNaC::ex const & p1, GiNaC::ex const & p2, GiNaC::ex const & p3, GiNaC::ex const & p4, GiNaC::ex const & p5, GiNaC::ex const & p6, GiNaC::ex const & p7) { \
+    return GiNaC::function(function_index_##NAME, p1, p2, p3, p4, p5, p6, p7); \
 }
 
 #define DECLARE_FUNCTION_8P(NAME) \
 extern unsigned function_index_##NAME; \
-inline function NAME(ex const & p1, ex const & p2, ex const & p3, ex const & p4, ex const & p5, ex const & p6, ex const & p7, ex const & p8) { \
-    return function(function_index_##NAME, p1, p2, p3, p4, p5, p6, p7, p8); \
+inline GiNaC::function NAME(GiNaC::ex const & p1, GiNaC::ex const & p2, GiNaC::ex const & p3, GiNaC::ex const & p4, GiNaC::ex const & p5, GiNaC::ex const & p6, GiNaC::ex const & p7, GiNaC::ex const & p8) { \
+    return GiNaC::function(function_index_##NAME, p1, p2, p3, p4, p5, p6, p7, p8); \
 }
 
 #define DECLARE_FUNCTION_9P(NAME) \
 extern unsigned function_index_##NAME; \
-inline function NAME(ex const & p1, ex const & p2, ex const & p3, ex const & p4, ex const & p5, ex const & p6, ex const & p7, ex const & p8, ex const & p9) { \
-    return function(function_index_##NAME, p1, p2, p3, p4, p5, p6, p7, p8, p9); \
+inline GiNaC::function NAME(GiNaC::ex const & p1, GiNaC::ex const & p2, GiNaC::ex const & p3, GiNaC::ex const & p4, GiNaC::ex const & p5, GiNaC::ex const & p6, GiNaC::ex const & p7, GiNaC::ex const & p8, GiNaC::ex const & p9) { \
+    return GiNaC::function(function_index_##NAME, p1, p2, p3, p4, p5, p6, p7, p8, p9); \
 }
 
 #define DECLARE_FUNCTION_10P(NAME) \
 extern unsigned function_index_##NAME; \
-inline function NAME(ex const & p1, ex const & p2, ex const & p3, ex const & p4, ex const & p5, ex const & p6, ex const & p7, ex const & p8, ex const & p9, ex const & p10) { \
-    return function(function_index_##NAME, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10); \
+inline GiNaC::function NAME(GiNaC::ex const & p1, GiNaC::ex const & p2, GiNaC::ex const & p3, GiNaC::ex const & p4, GiNaC::ex const & p5, GiNaC::ex const & p6, GiNaC::ex const & p7, GiNaC::ex const & p8, GiNaC::ex const & p9, GiNaC::ex const & p10) { \
+    return GiNaC::function(function_index_##NAME, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10); \
 }
 
 
 // end of generated lines
 
 #define REGISTER_FUNCTION(NAME,E,EF,D,S) \
-unsigned function_index_##NAME=function::register_new(#NAME,E,EF,D,S);
+unsigned function_index_##NAME=GiNaC::function::register_new(#NAME,E,EF,D,S);
 
 #define BEGIN_TYPECHECK \
 bool automatic_typecheck=true;
@@ -109,7 +107,7 @@ if (!is_ex_exactly_of_type(VAR,TYPE)) { \
 } else
 
 #define TYPECHECK_INTEGER(VAR) \
-if (!(VAR).info(info_flags::integer)) { \
+if (!(VAR).info(GiNaC::info_flags::integer)) { \
     automatic_typecheck=false; \
 } else
 
@@ -118,6 +116,10 @@ if (!(VAR).info(info_flags::integer)) { \
 if (!automatic_typecheck) { \
     return RV.hold(); \
 }
+
+namespace GiNaC {
+
+class function;
 
 typedef ex (* eval_funcp)();
 typedef ex (* evalf_funcp)();
@@ -281,11 +283,14 @@ protected:
 // utility macros
 
 #define is_ex_the_function(OBJ, FUNCNAME) \
-    (is_ex_exactly_of_type(OBJ, function) && static_cast<function *>(OBJ.bp)->getserial() == function_index_##FUNCNAME)
+    (is_ex_exactly_of_type(OBJ, function) && static_cast<GiNaC::function *>(OBJ.bp)->getserial() == function_index_##FUNCNAME)
 
 // global constants
 
 extern const function some_function;
 extern type_info const & typeid_function;
 
+} // namespace GiNaC
+
 #endif // ndef __GINAC_FUNCTION_H__
+

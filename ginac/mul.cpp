@@ -26,6 +26,9 @@
 #include "mul.h"
 #include "add.h"
 #include "power.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -1011,4 +1014,4 @@ unsigned mul::precedence=50;
 const mul some_mul;
 type_info const & typeid_mul=typeid(some_mul);
 
-
+} // namespace GiNaC

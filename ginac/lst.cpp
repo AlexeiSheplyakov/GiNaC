@@ -1,6 +1,8 @@
 /** @file lst.cpp
  *
- *  Implementation of GiNaC's lst. 
+ *  Implementation of GiNaC's lst. */
+
+/*
  *  This file was generated automatically by container.pl.
  *  Please do not modify it directly, edit the perl script instead!
  *  container.pl options: $CONTAINER=lst
@@ -9,9 +11,8 @@
  *                        $prepend=1
  *                        $let_op=1
  *                        $open_bracket=[
- *                        $close_bracket=] */
-
-/*
+ *                        $close_bracket=]
+ *
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -34,6 +35,9 @@
 
 #include "lst.h"
 #include "ex.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 #define RESERVE(s,size) // no reserve needed for list
 
@@ -627,4 +631,6 @@ unsigned lst::precedence=10;
 
 const lst some_lst;
 type_info const & typeid_lst=typeid(some_lst);
+
+} // namespace GiNaC
 

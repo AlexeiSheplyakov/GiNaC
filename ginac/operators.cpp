@@ -29,6 +29,9 @@
 #include "numeric.h"
 #include "power.h"
 #include "relational.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 // binary arithmetic operators ex with ex
 
@@ -403,3 +406,4 @@ istream & operator>>(istream & is, ex & e)
     throw(std::logic_error("input from streams not yet implemented"));
 }
 
+} // namespace GiNaC

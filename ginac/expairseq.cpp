@@ -26,9 +26,12 @@
 
 #include "expairseq.h"
 #include "lst.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 #ifdef EXPAIRSEQ_USE_HASHTAB
-#error "!!!!!!!!TODO: expair_needs_further_processing not yet implemented for hashtabs, sorry. A.F."
+#error "FIXME: expair_needs_further_processing not yet implemented for hashtabs, sorry. A.F."
 #endif // def EXPAIRSEQ_USE_HASHTAB
 
 //////////
@@ -1623,3 +1626,4 @@ unsigned expairseq::hashtabfactor=1;
 const expairseq some_expairseq;
 type_info const & typeid_expairseq=typeid(some_expairseq);
 
+} // namespace GiNaC

@@ -32,6 +32,9 @@
 #include "lst.h"
 #include "ncmul.h"
 #include "utils.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -413,3 +416,5 @@ type_info const & typeid_basic=typeid(some_basic);
 //////////
 
 int max_recursion_level=1024;
+
+} // namespace GiNaC

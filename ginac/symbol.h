@@ -27,6 +27,8 @@
 #include <ginac/basic.h>
 #include <ginac/ex.h>
 
+namespace GiNaC {
+
 /** Basic CAS symbol.  It has a name because it must know how to output itself.
  *  It may be assigned an expression, but this feature is only intended for
  *  programs like 'ginsh' that want to associate symbols with expressions.
@@ -109,9 +111,11 @@ private:
 extern const symbol some_symbol;
 extern type_info const & typeid_symbol;
 
-// macros
-
-#define ex_to_symbol(X) static_cast<symbol const &>(*(X).bp)
+// utility functions
+inline const symbol &ex_to_symbol(const ex &e)
+{
+	return static_cast<const symbol &>(*e.bp);
+}
 
 // wrapper functions around member functions
 inline void unassign(symbol & symarg)
@@ -122,5 +126,7 @@ inline int degree(symbol const & a, symbol const & s)
 
 inline int ldegree(symbol const & a, symbol const & s)
 { return a.ldegree(s); }
+
+} // namespace GiNaC
 
 #endif // ndef __GINAC_SYMBOL_H__

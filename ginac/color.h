@@ -26,10 +26,13 @@
 #include <string>
 #include <vector>
 #include <ginac/indexed.h>
+#include <ginac/ex.h>
 
-#define MAX_REPRESENTATION_LABELS 4
-#define COLOR_EIGHT 8 // N*N-1
-#define COLOR_THREE 3 // N
+namespace GiNaC {
+
+const int MAX_REPRESENTATION_LABELS = 4;
+const int COLOR_EIGHT = 8; // N*N-1
+const int COLOR_THREE = 3; // N
 
 /** Base class for color object */
 class color : public indexed
@@ -125,10 +128,16 @@ protected:
 extern const color some_color;
 extern type_info const & typeid_color;
 
-// macros
+// global functions
+inline const color &ex_to_color(const ex &e)
+{
+	return static_cast<const color &>(*e.bp);
+}
 
-#define ex_to_color(X) static_cast<color const &>(*(X).bp)
-#define ex_to_nonconst_color(X) static_cast<color &>(*(X).bp)
+inline color &ex_to_nonconst_color(const ex &e)
+{
+	return static_cast<color &>(*e.bp);
+}
 
 color color_ONE(unsigned const rl=0);
 color color_T(ex const & a, unsigned const rl=0);
@@ -153,6 +162,6 @@ ex brute_force_sum_color_indices(ex const & e);
 
 void append_exvector_to_exvector(exvector & dest, exvector const & source);
 
+} // namespace GiNaC
+
 #endif // ndef __GINAC_COLOR_H__
-
-

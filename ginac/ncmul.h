@@ -25,6 +25,8 @@
 
 #include <ginac/exprseq.h>
 
+namespace GiNaC {
+
 /** Non-commutative product of expressions. */
 class ncmul : public exprseq
 {
@@ -106,7 +108,12 @@ extern type_info const & typeid_ncmul;
 ex nonsimplified_ncmul(exvector const & v);
 ex simplified_ncmul(exvector const & v);
 
-#define ex_to_ncmul(X) static_cast<ncmul const &>(*(X).bp)
+// utility functions
+inline const ncmul &ex_to_ncmul(const ex &e)
+{
+	return static_cast <const ncmul &>(*e.bp);
+}
+
+} // namespace GiNaC
 
 #endif // ndef __GINAC_NCMUL_H__
-

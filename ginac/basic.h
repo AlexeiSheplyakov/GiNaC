@@ -29,7 +29,9 @@
 
 #include <ginac/flags.h>
 #include <ginac/tinfos.h>
-#include <ginac/debugmsg.h>
+#include <ginac/assertion.h>
+
+namespace GiNaC {
 
 class basic;
 class ex;
@@ -55,8 +57,6 @@ public:
 #ifdef INLINE_BASIC_CONSTRUCTORS
     : tinfo_key(TINFO_basic), flags(0), refcount(0)
     {
-        debugmsg("basic default constructor",LOGLEVEL_CONSTRUCT);
-        // nothing to do
     }
 #else
 ;
@@ -65,7 +65,6 @@ public:
     virtual ~basic()
 #ifdef INLINE_BASIC_CONSTRUCTORS
     {
-        debugmsg("basic destructor",LOGLEVEL_DESTRUCT);
         destroy(0);
         ASSERT((!(flags & status_flags::dynallocated))||(refcount==0));
     }
@@ -76,7 +75,6 @@ public:
     basic(basic const & other)
 #ifdef INLINE_BASIC_CONSTRUCTORS
     {
-        debugmsg("basic copy constructor",LOGLEVEL_CONSTRUCT);
         copy(other);
     }
 #else
@@ -99,8 +97,6 @@ protected:
 #ifdef INLINE_BASIC_CONSTRUCTORS
     : tinfo_key(ti), flags(0), refcount(0)
     {
-        debugmsg("basic constructor with tinfo_key",LOGLEVEL_CONSTRUCT);
-        // nothing to do
     }
 #else
 ;
@@ -183,21 +179,18 @@ extern type_info const & typeid_basic;
 extern int max_recursion_level;
 
 // convenience macros
-
 #define is_of_type(OBJ,TYPE) \
-    (dynamic_cast<TYPE *>(const_cast<basic *>(&OBJ))!=0)
+    (dynamic_cast<TYPE *>(const_cast<GiNaC::basic *>(&OBJ))!=0)
 
 #define is_exactly_of_type(OBJ,TYPE) \
-    ((OBJ).tinfo()==TINFO_##TYPE)
+    ((OBJ).tinfo()==GiNaC::TINFO_##TYPE)
 
 #define is_ex_of_type(OBJ,TYPE) \
-    (dynamic_cast<TYPE *>(const_cast<basic *>((OBJ).bp))!=0)
+    (dynamic_cast<TYPE *>(const_cast<GiNaC::basic *>((OBJ).bp))!=0)
 
 #define is_ex_exactly_of_type(OBJ,TYPE) \
-    ((*(OBJ).bp).tinfo()==TINFO_##TYPE)
+    ((*(OBJ).bp).tinfo()==GiNaC::TINFO_##TYPE)
 
-#define are_ex_trivially_equal(EX1,EX2) \
-    ((EX1).bp==(EX2).bp)
 
 // global functions
 
@@ -231,5 +224,7 @@ inline unsigned golden_ratio_hash(unsigned n)
     return unsigned((m-int(m))*0x80000000);
 #endif
 }
+
+} // namespace GiNaC
 
 #endif // ndef __GINAC_BASIC_H__

@@ -39,6 +39,9 @@
 #include "relational.h"
 #include "series.h"
 #include "symbol.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 void ex::print(ostream & os, unsigned upper_precedence) const
 {
@@ -318,3 +321,5 @@ void matrix::print(ostream & os, unsigned upper_precedence) const
     }
     os << m[row*col-1] << "]] ]]";
 }
+
+} // namespace GiNaC

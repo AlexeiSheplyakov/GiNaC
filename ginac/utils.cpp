@@ -22,6 +22,8 @@
 
 #include "utils.h"
 
+namespace GiNaC {
+
 unsigned log2(unsigned n)
 {
     unsigned k;
@@ -113,6 +115,4 @@ int compare_pointers(void const * a, void const * b)
 // private
 // none
 
-
-
-
+} // namespace GiNaC

@@ -22,6 +22,9 @@
  */
 
 #include "fail.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -120,3 +123,4 @@ int fail::compare_same_type(basic const & other) const
 const fail some_fail;
 type_info const & typeid_fail=typeid(some_fail);
 
+} // namespace GiNaC

@@ -26,6 +26,8 @@
 #include <string>
 #include <ginac/exprseq.h>
 
+namespace GiNaC {
+
 /** Base class for non-commutative indexed objects */
 class indexed : public exprseq
 {
@@ -86,10 +88,12 @@ protected:
 extern const indexed some_indexed;
 extern type_info const & typeid_indexed;
 
-// macros
+// utility functions
+inline const indexed &ex_to_indexed(const ex &e)
+{
+	return static_cast<const indexed &>(*e.bp);
+}
 
-#define ex_to_indexed(X) static_cast<indexed const &>(*(X).bp)
+} // namespace GiNaC
 
 #endif // ndef __GINAC_INDEXED_H__
-
-

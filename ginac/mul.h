@@ -25,6 +25,8 @@
 
 #include <ginac/expairseq.h>
 
+namespace GiNaC {
+
 /** Product of expressions. */
 class mul : public expairseq
 {
@@ -113,6 +115,12 @@ protected:
 extern const mul some_mul;
 extern type_info const & typeid_mul;
 
-#define ex_to_mul(X) static_cast<mul const &>(*(X).bp)
+// utility functions
+inline const mul &ex_to_mul(const ex &e)
+{
+	return static_cast<const mul &>(*e.bp);
+}
+
+} // namespace GiNaC
 
 #endif // ndef __GINAC_MUL_H__

@@ -33,6 +33,9 @@
 #include "ncmul.h"
 #include "numeric.h"
 #include "relational.h"
+#include "debugmsg.h"
+
+namespace GiNaC {
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -746,7 +749,7 @@ ex color_trace_of_one_representation_label(exvector const & v)
 
     v2.push_back(color_T(summation_index)); // don't care about the representation_label
     
-    // check this formula for SU(N) with N!=3 !!!!!!!!!
+    // FIXME: check this formula for SU(N) with N!=3
     return numeric(1)/numeric(2*COLOR_THREE)*color_delta8(next_to_last_index,last_index)
            % color_trace_of_one_representation_label(v1)
           +numeric(1)/numeric(2)*color_h(next_to_last_index,last_index,summation_index)
@@ -858,7 +861,7 @@ ex simplify_pure_color_string(ex const & e)
         }
     }
     
-    // TODO: higher contractions!!!!!!!!!!!!!
+    // FIXME: higher contractions
     
     return e;
 }
@@ -962,15 +965,4 @@ void append_exvector_to_exvector(exvector & dest, exvector const & source)
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
+} // namespace GiNaC

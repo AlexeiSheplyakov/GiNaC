@@ -3,8 +3,9 @@
  *  This set of tests checks for some of GiNaC's oopses which showed up during
  *  development.  Things were evaluated wrongly and so.  It should not find such
  *  a sick behaviour again.  But since we are paranoic and we want to exclude
- *  that behaviour for good...
- *
+ *  that behaviour for good... */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,6 +24,7 @@
  */
 
 #include <ginac/ginac.h>
+using namespace GiNaC;
 
 // The very first pair of historic problems had its roots in power.cpp and was
 // finally resolved on April 27th. (Fixing the first on April 23rd actually

@@ -26,6 +26,8 @@
 #include <ginac/basic.h>
 #include <ginac/ex.h>
 
+namespace GiNaC {
+
 /** This class holds a relation consisting of two expressions and a logical
  *  relation between them. */
 class relational : public basic
@@ -95,8 +97,12 @@ protected:
 extern const relational some_relational;
 extern type_info const & typeid_relational;
 
-#define ex_to_relational(X) static_cast<relational const &>(*(X).bp)
+// utility functions
+inline const relational &ex_to_relational(const ex &e)
+{
+	return static_cast<const relational &>(*e.bp);
+}
+
+} // namespace GiNaC
 
 #endif // ndef __GINAC_RELATIONAL_H__
-
-

@@ -10,8 +10,9 @@
  *     e = (a0 + a1)^200
  *     expand e
  *     substitute a0 by -a1 in e
- *  after which e should return 0 (without expanding).
- *
+ *  after which e should return 0 (without expanding). */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -31,6 +32,7 @@
 
 
 #include <ginac/ginac.h>
+using namespace GiNaC;
 
 #define VECSIZE 100
 

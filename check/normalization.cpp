@@ -1,7 +1,8 @@
 /** @file normalization.cpp
  *
- *  Rational function normalization test suite.
- *
+ *  Rational function normalization test suite. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,6 +21,7 @@
  */
 
 #include <ginac/ginac.h>
+using namespace GiNaC;
 
 static symbol x("x"), y("y"), z("z");
 

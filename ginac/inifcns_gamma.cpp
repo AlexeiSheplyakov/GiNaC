@@ -30,6 +30,8 @@
 #include "power.h"
 #include "symbol.h"
 
+namespace GiNaC {
+
 //////////
 // gamma function
 //////////
@@ -87,12 +89,12 @@ ex gamma_diff(ex const & x, unsigned diff_param)
 {
     ASSERT(diff_param==0);
 
-    return power(x, -1);	//!!
+    return power(x, -1);	// FIXME
 }
 
 ex gamma_series(ex const & x, symbol const & s, ex const & point, int order)
 {
-	//!! Only handle one special case for now...
+	// FIXME: Only handle one special case for now...
 	if (x.is_equal(s) && point.is_zero()) {
 		ex e = 1 / s - EulerGamma + s * (power(Pi, 2) / 12 + power(EulerGamma, 2) / 2) + Order(power(s, 2));
 		return e.series(s, point, order);
@@ -101,3 +103,5 @@ ex gamma_series(ex const & x, symbol const & s, ex const & point, int order)
 }
 
 REGISTER_FUNCTION(gamma, gamma_eval, gamma_evalf, gamma_diff, gamma_series);
+
+} // namespace GiNaC

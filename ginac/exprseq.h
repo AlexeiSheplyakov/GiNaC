@@ -1,6 +1,8 @@
 /** @file exprseq.h
  *
- *  Definition of GiNaC's exprseq. 
+ *  Definition of GiNaC's exprseq. */
+
+/*
  *  This file was generated automatically by container.pl.
  *  Please do not modify it directly, edit the perl script instead!
  *  container.pl options: $CONTAINER=exprseq
@@ -9,9 +11,8 @@
  *                        $prepend=0
  *                        $let_op=0
  *                        $open_bracket=(
- *                        $close_bracket=) */
-
-/*
+ *                        $close_bracket=)
+ *
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -34,6 +35,9 @@
 
 #include <vector>
 #include <ginac/basic.h>
+#include <ginac/ex.h>
+
+namespace GiNaC {
 
 typedef vector<ex> exvector;
 
@@ -124,9 +128,13 @@ protected:
 extern const exprseq some_exprseq;
 extern type_info const & typeid_exprseq;
 
-// macros
+// utility functions
+inline const exprseq &ex_to_exprseq(const ex &e)
+{
+    return static_cast<const exprseq &>(*e.bp);
+}
 
-#define ex_to_exprseq(X) (static_cast<exprseq const &>(*(X).bp))
+} // namespace GiNaC
 
 #endif // ndef __GINAC_EXPRSEQ_H__
 

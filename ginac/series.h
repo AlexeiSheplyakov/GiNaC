@@ -26,6 +26,8 @@
 #include <ginac/basic.h>
 #include <ginac/expairseq.h>
 
+namespace GiNaC {
+
 /** This class holds a extended truncated power series (positive and negative
  *  integer powers). It consists of expression coefficients (only non-zero
  *  coefficients are stored), an expansion variable and an expansion point.
@@ -86,7 +88,17 @@ protected:
 extern const series some_series;
 extern type_info const & typeid_series;
 
-#define ex_to_series(X) (static_cast<class series const &>(*(X).bp))
-#define series_to_poly(X) (static_cast<series const &>(*(X).bp).convert_to_poly(true))
+// utility functions
+inline const series &ex_to_series(const ex &e)
+{
+	return static_cast<const series &>(*e.bp);
+}
+
+inline ex series_to_poly(const ex &e)
+{
+	return (static_cast<const series &>(*e.bp).convert_to_poly(true));
+}
+
+} // namespace GiNaC
 
 #endif // ndef __GINAC_SERIES_H__

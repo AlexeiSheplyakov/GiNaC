@@ -23,6 +23,8 @@
 #ifndef __GINAC_DEBUGMSG_H__
 #define __GINAC_DEBUGMSG_H__
 
+#include <iostream>
+
 #ifdef _DEBUG
 #define VERBOSE
 #define DOASSERT (VERBOSE||DEBUG)
@@ -39,21 +41,12 @@
 #define LOGLEVEL_ALL                0xffff
 
 #define LOGMASK (LOGLEVEL_PRINT)
-// #define LOGMASK (LOGLEVEL_PRINT | LOGLEVEL_ASSIGNMENT | LOGLEVEL_OPERATOR | LOGLEVEL_DUPLICATE | LOGLEVEL_OPERATOR | LOGLEVEL_MEMBER_FUNCTION | LOGLEVEL_NONMEMBER_FUNCTION )
-
-#include <assert.h>
-#include <iostream>
+// #define LOGMASK (LOGLEVEL_PRINT | LOGLEVEL_ASSIGNMENT | LOGLEVEL_OPERATOR | LOGLEVEL_DUPLICATE | LOGLEVEL_OPERATOR | LOGLEVEL_MEMBER_FUNCTION | LOGLEVEL_NONMEMBER_FUNCTION)
 
 #ifdef VERBOSE
 #define debugmsg(msg, loglevel) if ((loglevel) & ~LOGMASK) clog << (msg) << endl;
 #else
 #define debugmsg(msg, loglevel)
 #endif // def VERBOSE
-
-#ifdef DOASSERT
-#define ASSERT(X) assert(X)
-#else
-#define ASSERT(X) ((void)0)
-#endif
 
 #endif // ndef __GINAC_DEBUGMSG_H__

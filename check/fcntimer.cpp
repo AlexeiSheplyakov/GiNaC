@@ -1,7 +1,8 @@
 /** @file fcntimer.cpp
  *
- *  Function execution timer.
- *
+ *  Function execution timer. */
+
+/*
  *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify

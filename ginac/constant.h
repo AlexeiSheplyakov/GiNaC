@@ -26,6 +26,8 @@
 #include <string>
 #include <ginac/basic.h>
 
+namespace GiNaC {
+
 /** This class holds constants, symbols with specific numerical value. Each
  *  object of this class must either provide their own function to evaluate it
  *  to class numeric or provide the constant as a numeric (if it's an exact
@@ -87,5 +89,7 @@ extern type_info const & typeid_constant;
 extern const constant Pi;
 extern const constant Catalan;
 extern const constant EulerGamma;
+
+} // namespace GiNaC
 
 #endif // ndef __GINAC_CONSTANT_H__
