@@ -64,8 +64,8 @@ unsigned log2(unsigned n)
 const numeric & _num_120(void)
 {
 	const static ex e = ex(numeric(-120));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex_120(void)
@@ -78,8 +78,8 @@ const ex & _ex_120(void)
 const numeric & _num_60(void)
 {
 	const static ex e = ex(numeric(-60));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex_60(void)
@@ -92,8 +92,8 @@ const ex & _ex_60(void)
 const numeric & _num_48(void)
 {
 	const static ex e = ex(numeric(-48));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex_48(void)
@@ -106,8 +106,8 @@ const ex & _ex_48(void)
 const numeric & _num_30(void)
 {
 	const static ex e = ex(numeric(-30));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex_30(void)
@@ -120,8 +120,8 @@ const ex & _ex_30(void)
 const numeric & _num_25(void)
 {
 	const static ex e = ex(numeric(-25));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex_25(void)
@@ -134,8 +134,8 @@ const ex & _ex_25(void)
 const numeric & _num_24(void)
 {
 	const static ex e = ex(numeric(-24));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex_24(void)
@@ -148,8 +148,8 @@ const ex & _ex_24(void)
 const numeric & _num_20(void)
 {
 	const static ex e = ex(numeric(-20));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex_20(void)
@@ -162,8 +162,8 @@ const ex & _ex_20(void)
 const numeric & _num_18(void)
 {
 	const static ex e = ex(numeric(-18));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex_18(void)
@@ -176,8 +176,8 @@ const ex & _ex_18(void)
 const numeric & _num_15(void)
 {
 	const static ex e = ex(numeric(-15));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex_15(void)
@@ -190,8 +190,8 @@ const ex & _ex_15(void)
 const numeric & _num_12(void)
 {
 	const static ex e = ex(numeric(-12));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex_12(void)
@@ -204,8 +204,8 @@ const ex & _ex_12(void)
 const numeric & _num_11(void)
 {
 	const static ex e = ex(numeric(-11));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex_11(void)
@@ -218,8 +218,8 @@ const ex & _ex_11(void)
 const numeric & _num_10(void)
 {
 	const static ex e = ex(numeric(-10));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex_10(void)
@@ -232,8 +232,8 @@ const ex & _ex_10(void)
 const numeric & _num_9(void)
 {
 	const static ex e = ex(numeric(-9));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex_9(void)
@@ -246,8 +246,8 @@ const ex & _ex_9(void)
 const numeric & _num_8(void)
 {
 	const static ex e = ex(numeric(-8));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex_8(void)
@@ -260,8 +260,8 @@ const ex & _ex_8(void)
 const numeric & _num_7(void)
 {
 	const static ex e = ex(numeric(-7));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex_7(void)
@@ -274,8 +274,8 @@ const ex & _ex_7(void)
 const numeric & _num_6(void)
 {
 	const static ex e = ex(numeric(-6));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex_6(void)
@@ -288,8 +288,8 @@ const ex & _ex_6(void)
 const numeric & _num_5(void)
 {
 	const static ex e = ex(numeric(-5));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex_5(void)
@@ -302,8 +302,8 @@ const ex & _ex_5(void)
 const numeric & _num_4(void)
 {
 	const static ex e = ex(numeric(-4));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex_4(void)
@@ -316,8 +316,8 @@ const ex & _ex_4(void)
 const numeric & _num_3(void)
 {
 	const static ex e = ex(numeric(-3));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex_3(void)
@@ -330,8 +330,8 @@ const ex & _ex_3(void)
 const numeric & _num_2(void)
 {
 	const static ex e = ex(numeric(-2));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex_2(void)
@@ -344,8 +344,8 @@ const ex & _ex_2(void)
 const numeric & _num_1(void)
 {
 	const static ex e = ex(numeric(-1));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex_1(void)
@@ -358,8 +358,8 @@ const ex & _ex_1(void)
 const numeric & _num_1_2(void)
 {
 	const static ex e = ex(numeric(-1,2));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex_1_2(void)
@@ -372,8 +372,8 @@ const ex & _ex_1_2(void)
 const numeric & _num_1_3(void)
 {
 	const static ex e = ex(numeric(-1,3));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex_1_3(void)
@@ -386,8 +386,8 @@ const ex & _ex_1_3(void)
 const numeric & _num_1_4(void)
 {
 	const static ex e = ex(numeric(-1,4));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex_1_4(void)
@@ -400,8 +400,8 @@ const ex & _ex_1_4(void)
 const numeric & _num0(void)
 {
 	const static ex e = ex(numeric(0));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex0(void)
@@ -414,8 +414,8 @@ const ex & _ex0(void)
 const numeric & _num1_4(void)
 {
 	const static ex e = ex(numeric(1,4));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex1_4(void)
@@ -428,8 +428,8 @@ const ex & _ex1_4(void)
 const numeric & _num1_3(void)
 {
 	const static ex e = ex(numeric(1,3));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex1_3(void)
@@ -442,8 +442,8 @@ const ex & _ex1_3(void)
 const numeric & _num1_2(void)
 {
 	const static ex e = ex(numeric(1,2));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex1_2(void)
@@ -456,8 +456,8 @@ const ex & _ex1_2(void)
 const numeric & _num1(void)
 {
 	const static ex e = ex(numeric(1));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex1(void)
@@ -470,8 +470,8 @@ const ex & _ex1(void)
 const numeric & _num2(void)
 {
 	const static ex e = ex(numeric(2));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex2(void)
@@ -484,8 +484,8 @@ const ex & _ex2(void)
 const numeric & _num3(void)
 {
 	const static ex e = ex(numeric(3));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex3(void)
@@ -498,8 +498,8 @@ const ex & _ex3(void)
 const numeric & _num4(void)
 {
 	const static ex e = ex(numeric(4));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex4(void)
@@ -512,8 +512,8 @@ const ex & _ex4(void)
 const numeric & _num5(void)
 {
 	const static ex e = ex(numeric(5));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex5(void)
@@ -526,8 +526,8 @@ const ex & _ex5(void)
 const numeric & _num6(void)
 {
 	const static ex e = ex(numeric(6));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex6(void)
@@ -540,8 +540,8 @@ const ex & _ex6(void)
 const numeric & _num7(void)
 {
 	const static ex e = ex(numeric(7));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex7(void)
@@ -554,8 +554,8 @@ const ex & _ex7(void)
 const numeric & _num8(void)
 {
 	const static ex e = ex(numeric(8));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex8(void)
@@ -568,8 +568,8 @@ const ex & _ex8(void)
 const numeric & _num9(void)
 {
 	const static ex e = ex(numeric(9));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex9(void)
@@ -582,8 +582,8 @@ const ex & _ex9(void)
 const numeric & _num10(void)
 {
 	const static ex e = ex(numeric(10));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex10(void)
@@ -596,8 +596,8 @@ const ex & _ex10(void)
 const numeric & _num11(void)
 {
 	const static ex e = ex(numeric(11));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex11(void)
@@ -610,8 +610,8 @@ const ex & _ex11(void)
 const numeric & _num12(void)
 {
 	const static ex e = ex(numeric(12));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex12(void)
@@ -624,8 +624,8 @@ const ex & _ex12(void)
 const numeric & _num15(void)
 {
 	const static ex e = ex(numeric(15));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex15(void)
@@ -638,8 +638,8 @@ const ex & _ex15(void)
 const numeric & _num18(void)
 {
 	const static ex e = ex(numeric(18));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex18(void)
@@ -652,8 +652,8 @@ const ex & _ex18(void)
 const numeric & _num20(void)
 {
 	const static ex e = ex(numeric(20));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex20(void)
@@ -666,8 +666,8 @@ const ex & _ex20(void)
 const numeric & _num24(void)
 {
 	const static ex e = ex(numeric(24));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex24(void)
@@ -680,8 +680,8 @@ const ex & _ex24(void)
 const numeric & _num25(void)
 {
 	const static ex e = ex(numeric(25));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex25(void)
@@ -694,8 +694,8 @@ const ex & _ex25(void)
 const numeric & _num30(void)
 {
 	const static ex e = ex(numeric(30));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex30(void)
@@ -708,8 +708,8 @@ const ex & _ex30(void)
 const numeric & _num48(void)
 {
 	const static ex e = ex(numeric(48));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex48(void)
@@ -722,8 +722,8 @@ const ex & _ex48(void)
 const numeric & _num60(void)
 {
 	const static ex e = ex(numeric(60));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex60(void)
@@ -736,8 +736,8 @@ const ex & _ex60(void)
 const numeric & _num120(void)
 {
 	const static ex e = ex(numeric(120));
-	const static numeric * n = static_cast<const numeric *>(e.bp);
-	return *n;
+	const static numeric &n = ex_to<numeric>(e);
+	return n;
 }
 
 const ex & _ex120(void)
