@@ -3103,8 +3103,8 @@ Algebraic objects inside expressions can be replaced with arbitrary
 expressions via the @code{.subs()} method:
 
 @example
-ex ex::subs(const ex & e);
-ex ex::subs(const lst & syms, const lst & repls);
+ex ex::subs(const ex & e, unsigned options = 0);
+ex ex::subs(const lst & syms, const lst & repls, unsigned options = 0);
 @end example
 
 In the first form, @code{subs()} accepts a relational of the form
@@ -3131,6 +3131,15 @@ The second form of @code{subs()} takes two lists, one for the objects to be
 replaced and one for the expressions to be substituted (both lists must
 contain the same number of elements). Using this form, you would write
 @code{subs(lst(x, y), lst(y, x))} to exchange @samp{x} and @samp{y}.
+
+The optional last argument to @code{subs()} is a combination of
+@code{subs_options} flags. There are two options available:
+@code{subs_options::subs_no_pattern} disables pattern matching, which makes
+large @code{subs()} operations significantly faster if you are not using
+patterns. The second option, @code{subs_options::subs_algebraic} enables
+algebraic substitutions in products and powers.
+@ref{Pattern Matching and Advanced Substitutions}, for more information
+about patterns and algebraic substitutions.
 
 @code{subs()} performs syntactic substitution of any complete algebraic
 object; it does not try to match sub-expressions as is demonstrated by the
@@ -3435,14 +3444,13 @@ The last example would be written in C++ in this way:
 @end example
 
 @subsection Algebraic substitutions
-The @code{subs()} method has an extra, optional, argument. This argument can
-be used to pass one of the @code{subs_options} to it. The only option that is
-currently available is the @code{subs_algebraic} option which affects
-products and powers. If you want to substitute some factors of a product, you
-only need to list these factors in your pattern. Furthermore, if an (integer)
-power of some expression occurs in your pattern and in the expression that you
-want the substitution to occur in, it can be substituted as many times as
-possible, without getting negative powers.
+Supplying the @code{subs_options::subs_algebraic} option to @code{subs()}
+enables smarter, algebraic substitutions in products and powers. If you want
+to substitute some factors of a product, you only need to list these factors
+in your pattern. Furthermore, if an (integer) power of some expression occurs
+in your pattern and in the expression that you want the substitution to occur
+in, it can be substituted as many times as possible, without getting negative
+powers.
 
 An example clarifies it all (hopefully):
 
@@ -3863,7 +3871,7 @@ x*z}.
 To bring an expression into expanded form, its method
 
 @example
-ex ex::expand();
+ex ex::expand(unsigned options = 0);
 @end example
 
 may be called.  In our example above, this corresponds to @math{4*x*y +
