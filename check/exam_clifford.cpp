@@ -232,7 +232,7 @@ static unsigned clifford_check5()
 	ex e;
 
 	e = dirac_gamma(mu) * dirac_gamma(nu) + dirac_gamma(nu) * dirac_gamma(mu);
-	result += check_equal(canonicalize_clifford(e), 2*lorentz_g(mu, nu));
+	result += check_equal(canonicalize_clifford(e), 2*dirac_ONE()*lorentz_g(mu, nu));
 
 	e = (dirac_gamma(mu) * dirac_gamma(nu) * dirac_gamma(lam)
 	   + dirac_gamma(nu) * dirac_gamma(lam) * dirac_gamma(mu)

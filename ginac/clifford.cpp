@@ -757,7 +757,7 @@ ex canonicalize_clifford(const ex & e)
 					base_and_index(it[0], b1, i1);
 					base_and_index(it[1], b2, i2);
 					it[0] = (lorentz_g(i1, i2) * b1 * b2).simplify_indexed();
-					it[1] = _ex2;
+					it[1] = v.size() == 2 ? _ex2 * dirac_ONE(ex_to<clifford>(it[1]).get_representation_label()) : _ex2;
 					ex sum = ncmul(v);
 					it[0] = save1;
 					it[1] = save0;

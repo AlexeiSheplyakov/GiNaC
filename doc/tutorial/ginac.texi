@@ -2828,7 +2828,7 @@ You can use this to compare two expressions or for further simplifications:
 
     e = canonicalize_clifford(e);
     cout << e << endl;
-     // -> 2*eta~mu~nu
+     // -> 2*ONE*eta~mu~nu
 @}
 @end example
 
