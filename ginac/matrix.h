@@ -30,6 +30,65 @@
 
 namespace GiNaC {
 
+
+/** Helper template to allow initialization of matrices via an overloaded
+ *  comma operator (idea stolen from Blitz++). */
+template <typename T, typename It>
+class matrix_init {
+public:
+	matrix_init(It i) : iter(i) {}
+
+	matrix_init<T, It> operator,(const T & x)
+	{
+		*iter = x;
+		return matrix_init<T, It>(++iter);
+	}
+
+	// The following specializations produce much tighter code than the
+	// general case above
+
+	matrix_init<T, It> operator,(int x)
+	{
+		*iter = T(x);
+		return matrix_init<T, It>(++iter);
+	}
+
+	matrix_init<T, It> operator,(unsigned int x)
+	{
+		*iter = T(x);
+		return matrix_init<T, It>(++iter);
+	}
+
+	matrix_init<T, It> operator,(long x)
+	{
+		*iter = T(x);
+		return matrix_init<T, It>(++iter);
+	}
+
+	matrix_init<T, It> operator,(unsigned long x)
+	{
+		*iter = T(x);
+		return matrix_init<T, It>(++iter);
+	}
+
+	matrix_init<T, It> operator,(double x)
+	{
+		*iter = T(x);
+		return matrix_init<T, It>(++iter);
+	}
+
+	matrix_init<T, It> operator,(const symbol & x)
+	{
+		*iter = T(x);
+		return matrix_init<T, It>(++iter);
+	}
+
+private:
+	matrix_init();
+	It iter;
+};
+
+
 /** Symbolic matrices. */
 class matrix : public basic
 {
@@ -40,6 +99,14 @@ public:
 	matrix(unsigned r, unsigned c);
 	matrix(unsigned r, unsigned c, const exvector & m2);
 	matrix(unsigned r, unsigned c, const lst & l);
+
+	// First step of initialization of matrix with a comma-separated seqeuence
+	// of expressions. Subsequent steps are handled by matrix_init<>::operator,().
+	matrix_init<ex, exvector::iterator> operator=(const ex & x)
+	{
+		m[0] = x;
+		return matrix_init<ex, exvector::iterator>(++m.begin());
+	}
 	
 	// functions overriding virtual functions from base classes
 public:

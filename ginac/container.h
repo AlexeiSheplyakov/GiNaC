@@ -67,6 +67,64 @@ template <>
 inline void container_storage<std::vector>::reserve(std::vector<ex> & v, size_t n) { v.reserve(n); }
 
 
+/** Helper template to allow initialization of containers via an overloaded
+ *  comma operator (idea stolen from Blitz++). */
+template <typename T, typename STLT>
+class container_init {
+public:
+	container_init(STLT & s) : stlt(s) {}
+
+	container_init<T, STLT> operator,(const T & x)
+	{
+		stlt.push_back(x);
+		return container_init<T, STLT>(stlt);
+	}
+
+	// The following specializations produce much tighter code than the
+	// general case above
+
+	container_init<T, STLT> operator,(int x)
+	{
+		stlt.push_back(x);
+		return container_init<T, STLT>(stlt);
+	}
+
+	container_init<T, STLT> operator,(unsigned int x)
+	{
+		stlt.push_back(x);
+		return container_init<T, STLT>(stlt);
+	}
+
+	container_init<T, STLT> operator,(long x)
+	{
+		stlt.push_back(x);
+		return container_init<T, STLT>(stlt);
+	}
+
+	container_init<T, STLT> operator,(unsigned long x)
+	{
+		stlt.push_back(x);
+		return container_init<T, STLT>(stlt);
+	}
+
+	container_init<T, STLT> operator,(double x)
+	{
+		stlt.push_back(x);
+		return container_init<T, STLT>(stlt);
+	}
+
+	container_init<T, STLT> operator,(const symbol & x)
+	{
+		stlt.push_back(T(x));
+		return container_init<T, STLT>(stlt);
+	}
+
+private:
+	container_init();
+	STLT & stlt;
+};
+
+
 /** Wrapper template for making GiNaC classes out of STL containers. */
 template <template <class> class C>
 class container : public basic, public container_storage<C> {
@@ -288,6 +346,15 @@ public:
 		this->seq.push_back(p10); this->seq.push_back(p11); this->seq.push_back(p12);
 		this->seq.push_back(p13); this->seq.push_back(p14); this->seq.push_back(p15);
 		this->seq.push_back(p16);
+	}
+
+	// First step of initialization of container with a comma-separated
+	// sequence of expressions. Subsequent steps are handled by
+	// container_init<>::operator,().
+	container_init<ex, STLT> operator=(const ex & x)
+	{
+		this->seq.push_back(x);
+		return container_init<ex, STLT>(seq);
 	}
 
 	// functions overriding virtual functions from base classes

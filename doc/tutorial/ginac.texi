@@ -1338,14 +1338,27 @@ packages, but are sometimes used to supply a variable number of arguments of
 the same type to GiNaC methods such as @code{subs()} and some @code{matrix}
 constructors, so you should have a basic understanding of them.
 
-Lists of up to 16 expressions can be directly constructed from single
+Lists can be constructed by assigning a comma-separated sequence of
 expressions:
 
 @example
 @{
     symbol x("x"), y("y");
-    lst l(x, 2, y, x+y);
-    // now, l is a list holding the expressions 'x', '2', 'y', and 'x+y'
+    lst l;
+    l = x, 2, y, x+y;
+    // now, l is a list holding the expressions 'x', '2', 'y', and 'x+y',
+    // in that order
+    ...
+@end example
+
+There are also constructors that allow direct creation of lists of up to
+16 expressions, which is often more convenient but slightly less efficient:
+
+@example
+    ...
+    // This produces the same list 'l' as above:
+    // lst l(x, 2, y, x+y);
+    // lst l = lst(x, 2, y, x+y);
     ...
 @end example
 
@@ -1400,10 +1413,10 @@ the C++ standard library:
 @example
     ...
     // print the elements of the list (requires #include <iterator>)
-    copy(l.begin(), l.end(), ostream_iterator<ex>(cout, "\n"));
+    std::copy(l.begin(), l.end(), ostream_iterator<ex>(cout, "\n"));
 
     // sum up the elements of the list (requires #include <numeric>)
-    ex sum = accumulate(l.begin(), l.end(), ex(0));
+    ex sum = std::accumulate(l.begin(), l.end(), ex(0));
     cout << sum << endl;  // prints '2+2*x+2*y'
     ...
 @end example
@@ -1450,8 +1463,9 @@ You can bring the elements of a list into a canonical order with @code{sort()}:
 
 @example
     ...
-    lst l1(x, 2, y, x+y);
-    lst l2(2, x+y, x, y);
+    lst l1, l2;
+    l1 = x, 2, y, x+y;
+    l2 = 2, x+y, x, y;
     l1.sort();
     l2.sort();
     // l1 and l2 are now equal
@@ -1463,7 +1477,8 @@ elements with @code{unique()}:
 
 @example
     ...
-    lst l3(x, 2, 2, 2, y, x+y, y+x);
+    lst l3;
+    l3 = x, 2, 2, 2, y, x+y, y+x;
     l3.unique();        // l3 is now @{x, 2, y, x+y@}
 @}
 @end example
@@ -1559,16 +1574,39 @@ matrix with @math{m} rows and @math{n} columns are accessed with two
 second one in the range 0@dots{}@math{n-1}.
 
 There are a couple of ways to construct matrices, with or without preset
-elements:
+elements. The constructor
+
+@example
+matrix::matrix(unsigned r, unsigned c);
+@end example
+
+creates a matrix with @samp{r} rows and @samp{c} columns with all elements
+set to zero.
+
+The fastest way to create a matrix with preinitialized elements is to assign
+a list of comma-separated expressions to an empty matrix (see below for an
+example). But you can also specify the elements as a (flat) list with
+
+@example
+matrix::matrix(unsigned r, unsigned c, const lst & l);
+@end example
+
+The function
 
 @cindex @code{lst_to_matrix()}
+@example
+ex lst_to_matrix(const lst & l);
+@end example
+
+constructs a matrix from a list of lists, each list representing a matrix row.
+
+There is also a set of functions for creating some special types of
+matrices:
+
 @cindex @code{diag_matrix()}
 @cindex @code{unit_matrix()}
 @cindex @code{symbolic_matrix()}
 @example
-matrix::matrix(unsigned r, unsigned c);
-matrix::matrix(unsigned r, unsigned c, const lst & l);
-ex lst_to_matrix(const lst & l);
 ex diag_matrix(const lst & l);
 ex unit_matrix(unsigned x);
 ex unit_matrix(unsigned r, unsigned c);
@@ -1576,16 +1614,11 @@ ex symbolic_matrix(unsigned r, unsigned c, const string & base_name);
 ex symbolic_matrix(unsigned r, unsigned c, const string & base_name, const string & tex_base_name);
 @end example
 
-The first two functions are @code{matrix} constructors which create a matrix
-with @samp{r} rows and @samp{c} columns. The matrix elements can be
-initialized from a (flat) list of expressions @samp{l}. Otherwise they are
-all set to zero. The @code{lst_to_matrix()} function constructs a matrix
-from a list of lists, each list representing a matrix row. @code{diag_matrix()}
-constructs a diagonal matrix given the list of diagonal elements.
-@code{unit_matrix()} creates an @samp{x} by @samp{x} (or @samp{r} by @samp{c})
-unit matrix. And finally, @code{symbolic_matrix} constructs a matrix filled
-with newly generated symbols made of the specified base name and the
-position of each element in the matrix.
+@code{diag_matrix()} constructs a diagonal matrix given the list of diagonal
+elements. @code{unit_matrix()} creates an @samp{x} by @samp{x} (or @samp{r}
+by @samp{c}) unit matrix. And finally, @code{symbolic_matrix} constructs a
+matrix filled with newly generated symbols made of the specified base name
+and the position of each element in the matrix.
 
 Matrix elements can be accessed and set using the parenthesis (function call)
 operator:
@@ -1599,16 +1632,22 @@ It is also possible to access the matrix elements in a linear fashion with
 the @code{op()} method. But C++-style subscripting with square brackets
 @samp{[]} is not available.
 
-Here are a couple of examples of constructing matrices:
+Here are a couple of examples for constructing matrices:
 
 @example
 @{
     symbol a("a"), b("b");
 
     matrix M(2, 2);
-    M(0, 0) = a;
-    M(1, 1) = b;
+    M = a, 0,
+        0, b;
     cout << M << endl;
+     // -> [[a,0],[0,b]]
+
+    matrix M2(2, 2);
+    M2(0, 0) = a;
+    M2(1, 1) = b;
+    cout << M2 << endl;
      // -> [[a,0],[0,b]]
 
     cout << matrix(2, 2, lst(a, 0, 0, b)) << endl;
@@ -1647,9 +1686,13 @@ and @math{C}:
 
 @example
 @{
-    matrix A(2, 2, lst(1, 2, 3, 4));
-    matrix B(2, 2, lst(-1, 0, 2, 1));
-    matrix C(2, 2, lst(8, 4, 2, 1));
+    matrix A(2, 2), B(2, 2), C(2, 2);
+    A =  1, 2,
+         3, 4;
+    B = -1, 0,
+         2, 1;
+    C =  8, 4,
+         2, 1;
 
     matrix result = A.mul(B).sub(C.mul_scalar(2));
     cout << result << endl;
@@ -2448,7 +2491,10 @@ and scalar products):
     symbol x("x"), y("y");
 
     // A is a 2x2 matrix, X is a 2x1 vector
-    matrix A(2, 2, lst(1, 2, 3, 4)), X(2, 1, lst(x, y));
+    matrix A(2, 2), X(2, 1);
+    A = 1, 2,
+        3, 4;
+    X = x, y;
 
     cout << indexed(A, i, i) << endl;
      // -> 5
@@ -4792,16 +4838,16 @@ GiNaC contains the following predefined mathematical functions:
 @item @code{Order(x)}
 @tab order term function in truncated power series
 @cindex @code{Order()}
-@item @code{Li(n,x)}
+@item @code{Li(n, x)}
 @tab polylogarithm
 @cindex @code{Li()}
-@item @code{S(n,p,x)}
+@item @code{S(n, p, x)}
 @tab Nielsen's generalized polylogarithm
 @cindex @code{S()}
-@item @code{H(m_lst,x)}
+@item @code{H(m_lst, x)}
 @tab harmonic polylogarithm
 @cindex @code{H()}
-@item @code{Li(m_lst,x_lst)}
+@item @code{Li(m_lst, x_lst)}
 @tab multiple polylogarithm
 @cindex @code{Li()}
 @item @code{mZeta(m_lst)}
@@ -4851,12 +4897,11 @@ let us solve the two equations @code{a*x+b*y==3} and @code{x-y==b}:
 @example
 @{
     symbol a("a"), b("b"), x("x"), y("y");
-    lst eqns;
-    eqns.append(a*x+b*y==3).append(x-y==b);
-    lst vars;
-    vars.append(x).append(y);
+    lst eqns, vars;
+    eqns = a*x+b*y==3, x-y==b;
+    vars = x, y;
     cout << lsolve(eqns, vars) << endl;
-    // -> @{x==(3+b^2)/(b+a),y==(3-b*a)/(b+a)@}
+     // -> @{x==(3+b^2)/(b+a),y==(3-b*a)/(b+a)@}
 @end example
 
 When the linear equations @code{eqns} are underdetermined, the solution
@@ -5199,7 +5244,8 @@ And the stored expressions can be retrieved by their name:
 
 @example
     // ...
-    lst syms(x, y);
+    lst syms;
+    syms = x, y;
 
     ex ex1 = a2.unarchive_ex(syms, "foo");
     ex ex2 = a2.unarchive_ex(syms, "the second one");
