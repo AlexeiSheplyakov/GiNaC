@@ -1,18 +1,33 @@
 /** @file numeric.h
  *
- *  Makes the interface to the underlying bignum package available. */
+ *  Makes the interface to the underlying bignum package available.
+ *
+ *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
-#ifndef _NUMERIC_H_
-#define _NUMERIC_H_
+#ifndef __GINAC_NUMERIC_H__
+#define __GINAC_NUMERIC_H__
 
 #include <strstream>
 
 #define HASHVALUE_NUMERIC 0x80000001U
 
-class numeric;  // Forward declaration, so basic doesn't argue...
 class cl_N;     // We want to include cln.h only in numeric.cpp in order to 
                 // avoid namespace pollution and keep compile-time low.
-#include "basic.h"
 
 /** This class is used to instantiate a global object Digits which
  *  behaves just like Maple's Digits.  We need an object rather than a
@@ -304,4 +319,4 @@ ex CatalanEvalf(void);
 #define ex_to_numeric(X) static_cast<numeric const &>(*(X).bp)
 
 
-#endif // ndef _NUMERIC_H_
+#endif // ndef __GINAC_NUMERIC_H__

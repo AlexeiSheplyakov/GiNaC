@@ -1,16 +1,28 @@
 /** @file constant.h
  *
- *  Interface to GiNaC's constant types and some special constants. */
+ *  Interface to GiNaC's constant types and some special constants.
+ *
+ *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
-#ifndef _CONSTANT_H_
-#define _CONSTANT_H_
+#ifndef __GINAC_CONSTANT_H__
+#define __GINAC_CONSTANT_H__
 
 #include <string>
-
-class constant;
-
-#include "ex.h"
-#include "numeric.h"
 
 /** This class holds constants, symbols with specific numerical value. Each
  *  object of this class must either provide their own function to evaluate it
@@ -74,4 +86,4 @@ extern const constant Pi;
 extern const constant Catalan;
 extern const constant EulerGamma;
 
-#endif // ndef _CONSTANT_H_
+#endif // ndef __GINAC_CONSTANT_H__

@@ -1,16 +1,29 @@
 /** @file color.h
  *
- *  Interface to GiNaC's color objects. */
+ *  Interface to GiNaC's color objects.
+ *
+ *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
-#ifndef _COLOR_H_
-#define _COLOR_H_
+#ifndef __GINAC_COLOR_H__
+#define __GINAC_COLOR_H__
 
 #include <string>
 #include <vector>
-
-class color;
-
-#include "indexed.h"
 
 #define MAX_REPRESENTATION_LABELS 4
 #define COLOR_EIGHT 8 // N*N-1
@@ -138,6 +151,6 @@ ex brute_force_sum_color_indices(ex const & e);
 
 void append_exvector_to_exvector(exvector & dest, exvector const & source);
 
-#endif // ndef _COLOR_H_
+#endif // ndef __GINAC_COLOR_H__
 
 

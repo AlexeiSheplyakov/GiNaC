@@ -1,16 +1,34 @@
-// check/expand_subs.cpp
-
-/* The first test routine implements Denny Fliegner's quick consistency check:
+/** @file expand_subs.cpp
+ *
+ *  The first test routine implements Denny Fliegner's quick consistency check:
  *     e = (a0 + a1 + a2 + a3 + ...)^2
  *     expand e
  *     substitute a0 by (-a2 - a3 - ...) in e
  *     expand e
- * after which e should be just a1^2.
- * In addition, a simpler modification is tested in the second test:
+ *  after which e should be just a1^2.
+ *  In addition, a simpler modification is tested in the second test:
  *     e = (a0 + a1)^200
  *     expand e
  *     substitute a0 by -a1 in e
- * after which e should return 0 (without expanding). */
+ *  after which e should return 0 (without expanding).
+ *
+ *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
 
 #include <ginac/ginac.h>
 

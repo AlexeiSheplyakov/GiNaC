@@ -4,12 +4,30 @@
  *  Its most important design principle is to completely hide the inner
  *  working of that other package from the user of GiNaC.  It must either 
  *  provide implementation of arithmetic operators and numerical evaluation
- *  of special functions or implement the interface to the bignum package. */
+ *  of special functions or implement the interface to the bignum package.
+ *
+ *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 #include <vector>
 #include <stdexcept>
 
 #include "ginac.h"
+#include "config.h"
 
 // CLN should not pollute the global namespace, hence we include it here
 // instead of in some header file where it would propagate to other parts:

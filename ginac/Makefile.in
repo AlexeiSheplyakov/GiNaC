@@ -65,6 +65,12 @@ CXXCPP = @CXXCPP@
 DOXYGEN = @DOXYGEN@
 DVIPS = @DVIPS@
 FIG2DEV = @FIG2DEV@
+GINACLIB_BINARY_AGE = @GINACLIB_BINARY_AGE@
+GINACLIB_INTERFACE_AGE = @GINACLIB_INTERFACE_AGE@
+GINACLIB_MAJOR_VERSION = @GINACLIB_MAJOR_VERSION@
+GINACLIB_MICRO_VERSION = @GINACLIB_MICRO_VERSION@
+GINACLIB_MINOR_VERSION = @GINACLIB_MINOR_VERSION@
+GINACLIB_VERSION = @GINACLIB_VERSION@
 JADE = @JADE@
 JADETEX = @JADETEX@
 LATEX = @LATEX@
@@ -72,6 +78,10 @@ LD = @LD@
 LEX = @LEX@
 LIBTOOL = @LIBTOOL@
 LN_S = @LN_S@
+LT_AGE = @LT_AGE@
+LT_CURRENT = @LT_CURRENT@
+LT_RELEASE = @LT_RELEASE@
+LT_REVISION = @LT_REVISION@
 MAINT = @MAINT@
 MAKEINDEX = @MAKEINDEX@
 MAKEINFO = @MAKEINFO@
@@ -90,6 +100,8 @@ libginac_la_SOURCES = add.cpp basic.cpp constant.cpp diff.cpp ex.cpp \
   clifford.cpp structure.cpp color.cpp indexed.cpp idx.cpp isospin.cpp \
   exprseq_suppl.cpp lst.cpp lst_suppl.cpp simp_lor.cpp coloridx.cpp \
   lorentzidx.cpp utils.h
+libginac_la_LDFLAGS = -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \
+  -release $(LT_RELEASE)
 ginacincludedir = $(includedir)/ginac
 ginacinclude_HEADERS = ginac.h add.h basic.h clifford.h color.h coloridx.h \
   constant.h debugmsg.h ex.h expair.h expairseq.h exprseq.h fail.h flags.h \
@@ -106,7 +118,6 @@ DEFS = @DEFS@ -I. -I$(srcdir) -I..
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
-libginac_la_LDFLAGS = 
 libginac_la_LIBADD = 
 libginac_la_OBJECTS =  add.lo basic.lo constant.lo diff.lo ex.lo \
 expairseq.lo exprseq.lo fail.lo function.lo inifcns.lo inifcns_trans.lo \

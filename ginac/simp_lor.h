@@ -1,20 +1,32 @@
 /** @file simp_lor.h
  *
- *  Interface to GiNaC's simp_lor objects. */
+ *  Interface to GiNaC's simp_lor objects.
+ *
+ *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
-#ifndef _SIMP_LOR_H_
-#define _SIMP_LOR_H_
+#ifndef _SIMP__GINAC_LOR_H__
+#define _SIMP__GINAC_LOR_H__
 
 #include <string>
 #include <vector>
 #include <utility>
 #include <map>
 #include <iostream>
-
-class simp_lor;
-
-#include "indexed.h"
-#include "lorentzidx.h"
 
 typedef pair<string,string> strstrpair;
 typedef pair<strstrpair,lorentzidx> spmapkey;
@@ -147,6 +159,6 @@ ex simplify_simp_lor_mul(ex const & m, scalar_products const & sp);
 ex simplify_simp_lor(ex const & e, scalar_products const & sp);
 ex Dim(void);
 
-#endif // ndef _SIMP_LOR_H_
+#endif // ndef _SIMP__GINAC_LOR_H__
 
 

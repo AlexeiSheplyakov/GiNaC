@@ -1,13 +1,26 @@
 /** @file relational.h
  *
- *  Interface to relations between expressions. */
+ *  Interface to relations between expressions.
+ *
+ *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
-#ifndef _RELATIONAL_H_
-#define _RELATIONAL_H_
-
-class relational;
-
-#include "basic.h"
+#ifndef __GINAC_RELATIONAL_H__
+#define __GINAC_RELATIONAL_H__
 
 /** This class holds a relation consisting of two expressions and a logical
  *  relation between them. */
@@ -80,6 +93,6 @@ extern type_info const & typeid_relational;
 
 #define ex_to_relational(X) static_cast<relational const &>(*(X).bp)
 
-#endif // ndef _RELATIONAL_H_
+#endif // ndef __GINAC_RELATIONAL_H__
 
 

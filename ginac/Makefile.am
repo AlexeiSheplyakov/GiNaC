@@ -8,6 +8,8 @@ libginac_la_SOURCES = add.cpp basic.cpp constant.cpp diff.cpp ex.cpp \
   clifford.cpp structure.cpp color.cpp indexed.cpp idx.cpp isospin.cpp \
   exprseq_suppl.cpp lst.cpp lst_suppl.cpp simp_lor.cpp coloridx.cpp \
   lorentzidx.cpp utils.h
+libginac_la_LDFLAGS = -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \
+  -release $(LT_RELEASE)
 ginacincludedir = $(includedir)/ginac
 ginacinclude_HEADERS = ginac.h add.h basic.h clifford.h color.h coloridx.h \
   constant.h debugmsg.h ex.h expair.h expairseq.h exprseq.h fail.h flags.h \

@@ -4,18 +4,32 @@
  *
  *  This file was generated automatically by function.pl.
  *  Please do not modify it directly, edit the perl script instead!
- *  function.pl options: $maxargs=10 */
+ *  function.pl options: $maxargs=10
+ *
+ *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
-#ifndef _FUNCTION_H_
-#define _FUNCTION_H_
+#ifndef __GINAC_FUNCTION_H__
+#define __GINAC_FUNCTION_H__
 
 #include <string>
 #include <vector>
-#include "config.h"
 
 class function;
-
-#include "exprseq.h"
 
 // the following lines have been generated for max. 10 parameters
 #define DECLARE_FUNCTION_1P(NAME) \
@@ -272,5 +286,5 @@ protected:
 extern const function some_function;
 extern type_info const & typeid_function;
 
-#endif // ndef _FUNCTION_H_
+#endif // ndef __GINAC_FUNCTION_H__
 

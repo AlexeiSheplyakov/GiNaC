@@ -98,13 +98,29 @@ $interface=<<END_OF_INTERFACE;
  *                        \$prepend=${prepend}
  *                        \$let_op=${let_op}
  *                        \$open_bracket=${open_bracket}
- *                        \$close_bracket=${close_bracket} */
+ *                        \$close_bracket=${close_bracket}
+ *
+ *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
-#ifndef _${CONTAINER_UC}_H_
-#define _${CONTAINER_UC}_H_
+#ifndef __GINAC_${CONTAINER_UC}_H__
+#define __GINAC_${CONTAINER_UC}_H__
 
 #include <${STLHEADER}>
-
 #include <ginac/ginac.h>
 
 typedef ${STLHEADER}<ex> ${STLT};
@@ -200,7 +216,7 @@ extern type_info const & typeid_${CONTAINER};
 
 #define ex_to_${CONTAINER}(X) (static_cast<${CONTAINER} const &>(*(X).bp))
 
-#endif // ndef _${CONTAINER_UC}_H_
+#endif // ndef __GINAC_${CONTAINER_UC}_H__
 
 END_OF_INTERFACE
 
@@ -216,7 +232,24 @@ $implementation=<<END_OF_IMPLEMENTATION;
  *                        \$prepend=${prepend}
  *                        \$let_op=${let_op}
  *                        \$open_bracket=${open_bracket}
- *                        \$close_bracket=${close_bracket} */
+ *                        \$close_bracket=${close_bracket}
+ *
+ *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 #include <iostream>
 #include <stdexcept>

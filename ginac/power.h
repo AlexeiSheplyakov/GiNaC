@@ -1,9 +1,26 @@
 /** @file power.h
  *
- *  Interface to GiNaC's symbolic exponentiation (basis^exponent). */
+ *  Interface to GiNaC's symbolic exponentiation (basis^exponent).
+ *
+ *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
-#ifndef _POWER_H_
-#define _POWER_H_
+#ifndef __GINAC_POWER_H__
+#define __GINAC_POWER_H__
 
 class power;
 class numeric;
@@ -99,5 +116,5 @@ inline ex pow(ex const & b, ex const & e)
 inline ex sqrt(ex const & a)
 { return power(a,exHALF()); }
 
-#endif // ndef _POWER_H_
+#endif // ndef __GINAC_POWER_H__
 

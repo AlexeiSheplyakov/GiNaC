@@ -1,15 +1,26 @@
 /** @file series.h
  *
- *  Interface to class for extended truncated power series. */
+ *  Interface to class for extended truncated power series.
+ *
+ *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
-#ifndef _SERIES_H_
-#define _SERIES_H_
-
-#include "basic.h"
-#include "ex.h"
-#include "expairseq.h"
-#include "symbol.h"
-
+#ifndef __GINAC_SERIES_H__
+#define __GINAC_SERIES_H__
 
 /** This class holds a extended truncated power series (positive and negative
  *  integer powers). It consists of expression coefficients (only non-zero
@@ -74,4 +85,4 @@ extern type_info const & typeid_series;
 #define ex_to_series(X) (static_cast<class series const &>(*(X).bp))
 #define series_to_poly(X) (static_cast<series const &>(*(X).bp).convert_to_poly(true))
 
-#endif
+#endif // ndef __GINAC_SERIES_H__

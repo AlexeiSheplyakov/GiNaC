@@ -1,13 +1,26 @@
 /** @file ncmul.h
  *
- *  Interface to GiNaC's non-commutative products of expressions. */
+ *  Interface to GiNaC's non-commutative products of expressions.
+ *
+ *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
-#ifndef _NCMUL_H_
-#define _NCMUL_H_
-
-#include "exprseq.h"
-
-class ncmul;
+#ifndef __GINAC_NCMUL_H__
+#define __GINAC_NCMUL_H__
 
 /** Non-commutative product of expressions. */
 class ncmul : public exprseq
@@ -92,5 +105,5 @@ ex simplified_ncmul(exvector const & v);
 
 #define ex_to_ncmul(X) static_cast<ncmul const &>(*(X).bp)
 
-#endif // ndef _NCMUL_H_
+#endif // ndef __GINAC_NCMUL_H__
 

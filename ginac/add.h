@@ -1,11 +1,26 @@
 /** @file add.h
  *
- *  Interface to GiNaC's sums of expressions. */
+ *  Interface to GiNaC's sums of expressions.
+ *
+ *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
-#ifndef _ADD_H_
-#define _ADD_H_
-
-#include "expairseq.h"
+#ifndef __GINAC_ADD_H__
+#define __GINAC_ADD_H__
 
 /** Sum of expressions. */
 class add : public expairseq
@@ -90,5 +105,5 @@ extern type_info const & typeid_add;
 
 #define ex_to_add(X) static_cast<add const &>(*(X).bp)
 
-#endif // ndef _ADD_H_
+#endif // ndef __GINAC_ADD_H__
 

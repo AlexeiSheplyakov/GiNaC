@@ -1,14 +1,29 @@
 /** @file idx.h
  *
- *  Interface to GiNaC's indices. */
+ *  Interface to GiNaC's indices.
+ *
+ *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
-#ifndef _IDX_H_
-#define _IDX_H_
+#ifndef __GINAC_IDX_H__
+#define __GINAC_IDX_H__
 
 #include <string>
 #include <vector>
-
-#include "basic.h"
 
 class idx : public basic
 {
@@ -87,4 +102,4 @@ ex subs_indices(ex const & e, exvector const & idxv_contra,
                 exvector const & idxv_co);
 unsigned count_index(ex const & e, ex const & i);
 
-#endif // ndef _IDX_H_
+#endif // ndef __GINAC_IDX_H__

@@ -1,12 +1,26 @@
 /** @file inifcns.h
  *
- *  Interface to GiNaC's initially known functions. */
+ *  Interface to GiNaC's initially known functions.
+ *
+ *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
-#ifndef _INIFCNS_H_
-#define _INIFCNS_H_
-
-#include "numeric.h"
-#include "function.h"
+#ifndef __GINAC_INIFCNS_H__
+#define __GINAC_INIFCNS_H__
 
 /** Sine. */
 DECLARE_FUNCTION_1P(sin)
@@ -80,4 +94,4 @@ inline bool is_order_function(ex const & e)
 	return is_ex_the_function(e, Order);
 }
 
-#endif // ndef _INIFCNS_H_
+#endif // ndef __GINAC_INIFCNS_H__
