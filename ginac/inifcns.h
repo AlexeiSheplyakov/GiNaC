@@ -116,24 +116,8 @@ DECLARE_FUNCTION_2P(Li)
 /** Nielsen's generalized polylogarithm. */
 DECLARE_FUNCTION_3P(S)
 
-// overloading at work: we cannot use the macros here
-/** Harmonic polylogarithm with only positive parameters. */
-class H2_SERIAL { public: static unsigned serial; };
-template<typename T1, typename T2>
-inline function H(const T1& p1, const T2& p2) {
-	return function(H2_SERIAL::serial, ex(p1), ex(p2));
-}
-/** Harmonic polylogarithm with signed parameters. */
-class H3_SERIAL { public: static unsigned serial; };
-template<typename T1, typename T2, typename T3>
-inline function H(const T1& p1, const T2& p2, const T3& p3) {
-	return function(H3_SERIAL::serial, ex(p1), ex(p2), ex(p3));
-}
-class H_SERIAL;
-template<> inline bool is_the_function<class H_SERIAL>(const ex& x)
-{
-	return is_the_function<H2_SERIAL>(x) || is_the_function<H3_SERIAL>(x);
-}
+/** Harmonic polylogarithm. */
+DECLARE_FUNCTION_2P(H)
 
 /** Gamma-function. */
 DECLARE_FUNCTION_1P(lgamma)
@@ -181,7 +165,7 @@ inline bool is_order_function(const ex & e)
 /** Converts a given list containing parameters for H in Remiddi/Vermaseren notation into
  *  the corresponding GiNaC functions.
  */
-ex convert_H_notation(const ex& parameterlst, const ex& arg);
+ex convert_H_to_Li(const ex& parameterlst, const ex& arg);
 
 } // namespace GiNaC
 

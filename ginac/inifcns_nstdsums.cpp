@@ -18,18 +18,22 @@
  *    	[ReV] Harmonic Polylogarithms, E.Remiddi, J.A.M.Vermaseren, Int.J.Mod.Phys. A15 (2000), pp. 725-754
  *    	[BBB] Special Values of Multiple Polylogarithms, J.Borwein, D.Bradley, D.Broadhurst, P.Lisonek, Trans.Amer.Math.Soc. 353/3 (2001), pp. 907-941
  *
- *    - The order of parameters and arguments of H, Li and zeta is defined according to their order in the
- *      nested sums representation.
+ *    - The order of parameters and arguments of Li and zeta is defined according to the nested sums
+ *      representation. The parameters for H are understood as in [ReV]. They can be in expanded --- only 
+ *      0, 1 and -1 --- or in compactified --- a string with zeros in front of 1 or -1 is written as a single
+ *      number --- notation. 
  *    	
  *    - Except for the multiple polylogarithm all functions can be nummerically evaluated with arguments in
- *      the whole complex plane. Multiple polylogarithms evaluate only if each argument x_i is smaller than
- *      one. The parameters for every function (n, p or n_i) must be positive integers.
+ *      the whole complex plane. Multiple polylogarithms evaluate only if for each argument x_i the product
+ *      x_1 * x_2 * ... * x_i is smaller than one. The parameters for Li, zeta and S must be positive integers.
+ *      If you want to have an alternating Euler sum, you have to give the signs of the parameters as a
+ *      second argument s to zeta(m,s) containing 1 and -1.
  *      
  *    - The calculation of classical polylogarithms is speed up by using Bernoulli numbers and 
  *      look-up tables. S uses look-up tables as well. The zeta function applies the algorithms in
  *      [Cra] and [BBB] for speed up.
  *      
- *    - The functions have no series expansion as nested sums. To do it, you have to convert these functions
+ *    - The functions have no series expansion into nested sums. To do this, you have to convert these functions
  *      into the appropriate objects from the nestedsums library, do the expansion and convert the
  *      result back. 
  *      
@@ -77,11 +81,6 @@
 #include "symbol.h"
 #include "utils.h"
 #include "wildcard.h"
-
-
-//DEBUG
-#include <iostream>
-using namespace std;
 
 
 namespace GiNaC {
@@ -405,18 +404,6 @@ cln::cl_N multipleLi_do_sum(const std::vector<int>& s, const std::vector<cln::cl
 {
 	const int j = s.size();
 
-	//DEBUG
-	cout << "m ";
-	for (int i=0; i<s.size(); i++) {
-		cout << s[i] << " ";
-	}
-	cout << endl;
-	cout << "x ";
-	for (int i=0; i<x.size(); i++) {
-		cout << x[i] << " ";
-	}
-	cout << endl;
-
 	std::vector<cln::cl_N> t(j);
 	cln::cl_F one = cln::cl_float(1, cln::float_format(Digits));
 
@@ -438,9 +425,6 @@ cln::cl_N multipleLi_do_sum(const std::vector<int>& s, const std::vector<cln::cl
 		}
 	} while (t[0] != t0buf);
 
-	//DEBUG
-	cout << "end " << q << " " << t[0] << endl;
-	
 	return t[0];
 }
 
@@ -455,27 +439,6 @@ cln::cl_N multipleLi_do_sum(const std::vector<int>& s, const std::vector<cln::cl
 // GiNaC function
 //
 //////////////////////////////////////////////////////////////////////
-
-
-static ex Li_eval(const ex& x1, const ex& x2)
-{
-	if (x2.is_zero()) {
-		return _ex0;
-	}
-	else {
-		if (x2.info(info_flags::numeric) && (!x2.info(info_flags::crational)))
-			return Li_num(ex_to<numeric>(x1).to_int(), ex_to<numeric>(x2));
-		if (is_a<lst>(x2)) {
-			for (int i=0; i<x2.nops(); i++) {
-				if (!is_a<numeric>(x2.op(i))) {
-					return Li(x1,x2).hold();
-				}
-			}
-			return Li(x1,x2).evalf();
-		}
-		return Li(x1,x2).hold();
-	}
-}
 
 
 static ex Li_evalf(const ex& x1, const ex& x2)
@@ -514,6 +477,27 @@ static ex Li_evalf(const ex& x1, const ex& x2)
 }
 
 
+static ex Li_eval(const ex& x1, const ex& x2)
+{
+	if (x2.is_zero()) {
+		return _ex0;
+	}
+	else {
+		if (x2.info(info_flags::numeric) && (!x2.info(info_flags::crational)))
+			return Li_num(ex_to<numeric>(x1).to_int(), ex_to<numeric>(x2));
+		if (is_a<lst>(x2)) {
+			for (int i=0; i<x2.nops(); i++) {
+				if (!is_a<numeric>(x2.op(i))) {
+					return Li(x1,x2).hold();
+				}
+			}
+			return Li(x1,x2).evalf();
+		}
+		return Li(x1,x2).hold();
+	}
+}
+
+
 static ex Li_series(const ex& x1, const ex& x2, const relational& rel, int order, unsigned options)
 {
 	epvector seq;
@@ -536,12 +520,47 @@ static ex Li_deriv(const ex& x1, const ex& x2, unsigned deriv_param)
 }
 
 
+static void Li_print_latex(const ex& m_, const ex& x_, const print_context& c)
+{
+	lst m;
+	if (is_a<lst>(m_)) {
+		m = ex_to<lst>(m_);
+	} else {
+		m = lst(m_);
+	}
+	lst x;
+	if (is_a<lst>(x_)) {
+		x = ex_to<lst>(x_);
+	} else {
+		x = lst(x_);
+	}
+	c.s << "\\mbox{Li}_{";
+	lst::const_iterator itm = m.begin();
+	(*itm).print(c);
+	itm++;
+	for (; itm != m.end(); itm++) {
+		c.s << ",";
+		(*itm).print(c);
+	}
+	c.s << "}(";
+	lst::const_iterator itx = x.begin();
+	(*itx).print(c);
+	itx++;
+	for (; itx != x.end(); itx++) {
+		c.s << ",";
+		(*itx).print(c);
+	}
+	c.s << ")";
+}
+
+
 REGISTER_FUNCTION(Li,
-		eval_func(Li_eval).
 		evalf_func(Li_evalf).
-		do_not_evalf_params().
+		eval_func(Li_eval).
 		series_func(Li_series).
-		derivative_func(Li_deriv));
+		derivative_func(Li_deriv).
+		print_func<print_latex>(Li_print_latex).
+		do_not_evalf_params());
 
 
 //////////////////////////////////////////////////////////////////////
@@ -903,6 +922,15 @@ numeric S_num(int n, int p, const numeric& x)
 //////////////////////////////////////////////////////////////////////
 
 
+static ex S_evalf(const ex& x1, const ex& x2, const ex& x3)
+{
+	if (is_a<numeric>(x1) && is_a<numeric>(x2) && is_a<numeric>(x3)) {
+		return S_num(ex_to<numeric>(x1).to_int(), ex_to<numeric>(x2).to_int(), ex_to<numeric>(x3));
+	}
+	return S(x1,x2,x3).hold();
+}
+
+
 static ex S_eval(const ex& x1, const ex& x2, const ex& x3)
 {
 	if (x2 == 1) {
@@ -910,15 +938,6 @@ static ex S_eval(const ex& x1, const ex& x2, const ex& x3)
 	}
 	if (x3.info(info_flags::numeric) && (!x3.info(info_flags::crational)) && 
 			x1.info(info_flags::posint) && x2.info(info_flags::posint)) {
-		return S_num(ex_to<numeric>(x1).to_int(), ex_to<numeric>(x2).to_int(), ex_to<numeric>(x3));
-	}
-	return S(x1,x2,x3).hold();
-}
-
-
-static ex S_evalf(const ex& x1, const ex& x2, const ex& x3)
-{
-	if (is_a<numeric>(x1) && is_a<numeric>(x2) && is_a<numeric>(x3)) {
 		return S_num(ex_to<numeric>(x1).to_int(), ex_to<numeric>(x2).to_int(), ex_to<numeric>(x3));
 	}
 	return S(x1,x2,x3).hold();
@@ -947,19 +966,32 @@ static ex S_deriv(const ex& x1, const ex& x2, const ex& x3, unsigned deriv_param
 }
 
 
+static void S_print_latex(const ex& n, const ex& p, const ex& x, const print_context& c)
+{
+	c.s << "\\mbox{S}_{";
+	n.print(c);
+	c.s << ",";
+	p.print(c);
+	c.s << "}(";
+	x.print(c);
+	c.s << ")";
+}
+
+
 REGISTER_FUNCTION(S,
-		eval_func(S_eval).
 		evalf_func(S_evalf).
-		do_not_evalf_params().
+		eval_func(S_eval).
 		series_func(S_series).
-		derivative_func(S_deriv));
+		derivative_func(S_deriv).
+		print_func<print_latex>(S_print_latex).
+		do_not_evalf_params());
 
 
 //////////////////////////////////////////////////////////////////////
 //
-// Harmonic polylogarithm  H(m,x) and H(m,s,x)
+// Harmonic polylogarithm  H(m,x)
 //
-// helper function
+// helper functions
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -968,8 +1000,244 @@ REGISTER_FUNCTION(S,
 namespace {
 
 
-// forward declaration
-ex convert_from_RV(const lst& parameterlst, const ex& arg);
+// convert parameters from H to Li representation
+// parameters are expected to be in expanded form, i.e. only 0, 1 and -1
+// returns true if some parameters are negative
+bool convert_parameter_H_to_Li(const lst& l, lst& m, lst& s, ex& pf)
+{
+	// expand parameter list
+	lst mexp;
+	for (lst::const_iterator it = l.begin(); it != l.end(); it++) {
+		if (*it > 1) {
+			for (ex count=*it-1; count > 0; count--) {
+				mexp.append(0);
+			}
+			mexp.append(1);
+		} else if (*it < -1) {
+			for (ex count=*it+1; count < 0; count++) {
+				mexp.append(0);
+			}
+			mexp.append(-1);
+		} else {
+			mexp.append(*it);
+		}
+	}
+	
+	ex signum = 1;
+	pf = 1;
+	bool has_negative_parameters = false;
+	ex acc = 1;
+	for (lst::const_iterator it = mexp.begin(); it != mexp.end(); it++) {
+		if (*it == 0) {
+			acc++;
+			continue;
+		}
+		if (*it > 0) {
+			m.append((*it+acc-1) * signum);
+		} else {
+			m.append((*it-acc+1) * signum);
+		}
+		acc = 1;
+		signum = *it;
+		pf *= *it;
+		if (pf < 0) {
+			has_negative_parameters = true;
+		}
+	}
+	if (has_negative_parameters) {
+		for (int i=0; i<m.nops(); i++) {
+			if (m.op(i) < 0) {
+				m.let_op(i) = -m.op(i);
+				s.append(-1);
+			} else {
+				s.append(1);
+			}
+		}
+	}
+	for (; acc > 1; acc--) {
+		throw std::runtime_error("ERROR!");
+		m.append(0);
+	}
+	
+	return has_negative_parameters;
+}
+
+
+// recursivly transforms H to corresponding multiple polylogarithms
+struct map_trafo_H_convert_to_Li : public map_function
+{
+	ex operator()(const ex& e)
+	{
+		if (is_a<add>(e) || is_a<mul>(e)) {
+			return e.map(*this);
+		}
+		if (is_a<function>(e)) {
+			std::string name = ex_to<function>(e).get_name();
+			if (name == "H") {
+				lst parameter;
+				if (is_a<lst>(e.op(0))) {
+						parameter = ex_to<lst>(e.op(0));
+				} else {
+					parameter = lst(e.op(0));
+				}
+				ex arg = e.op(1);
+
+				lst m;
+				lst s;
+				ex pf;
+				if (convert_parameter_H_to_Li(parameter, m, s, pf)) {
+					s.let_op(0) = s.op(0) * arg;
+					return pf * Li(m, s).hold();
+				} else {
+					for (int i=0; i<m.nops(); i++) {
+						s.append(1);
+					}
+					s.let_op(0) = s.op(0) * arg;
+					return Li(m, s).hold();
+				}
+			}
+		}
+		return e;
+	}
+};
+
+
+// recursivly transforms H to corresponding zetas
+struct map_trafo_H_convert_to_zeta : public map_function
+{
+	ex operator()(const ex& e)
+	{
+		if (is_a<add>(e) || is_a<mul>(e)) {
+			return e.map(*this);
+		}
+		if (is_a<function>(e)) {
+			std::string name = ex_to<function>(e).get_name();
+			if (name == "H") {
+				lst parameter;
+				if (is_a<lst>(e.op(0))) {
+						parameter = ex_to<lst>(e.op(0));
+				} else {
+					parameter = lst(e.op(0));
+				}
+
+				lst m;
+				lst s;
+				ex pf;
+				if (convert_parameter_H_to_Li(parameter, m, s, pf)) {
+					return pf * zeta(m, s);
+				} else {
+					return zeta(m);
+				}
+			}
+		}
+		return e;
+	}
+};
+
+
+// remove trailing zeros from H-parameters
+struct map_trafo_H_reduce_trailing_zeros : public map_function
+{
+	ex operator()(const ex& e)
+	{
+		if (is_a<add>(e) || is_a<mul>(e)) {
+			return e.map(*this);
+		}
+		if (is_a<function>(e)) {
+			std::string name = ex_to<function>(e).get_name();
+			if (name == "H") {
+				lst parameter;
+				if (is_a<lst>(e.op(0))) {
+						parameter = ex_to<lst>(e.op(0));
+				} else {
+					parameter = lst(e.op(0));
+				}
+				ex arg = e.op(1);
+				if (parameter.op(parameter.nops()-1) == 0) {
+					
+					//
+					if (parameter.nops() == 1) {
+						return log(arg);
+					}
+					
+					//
+					lst::const_iterator it = parameter.begin();
+					while ((it != parameter.end()) && (*it == 0)) {
+						it++;
+					}
+					if (it == parameter.end()) {
+						return pow(log(arg),parameter.nops()) / factorial(parameter.nops());
+					}
+					
+					//
+					parameter.remove_last();
+					int lastentry = parameter.nops();
+					while ((lastentry > 0) && (parameter[lastentry-1] == 0)) {
+						lastentry--;
+					}
+					
+					//
+					ex result = log(arg) * H(parameter,arg).hold();
+					ex acc = 0;
+					for (ex i=0; i<lastentry; i++) {
+						if (parameter[i] > 0) {
+							parameter[i]++;
+							result -= (acc + parameter[i]-1) * H(parameter, arg).hold();
+							parameter[i]--;
+							acc = 0;
+						} else if (parameter[i] < 0) {
+							parameter[i]--;
+							result -= (acc + abs(parameter[i]+1)) * H(parameter, arg).hold();
+							parameter[i]++;
+							acc = 0;
+						} else {
+							acc++;
+						}
+					}
+					
+					if (lastentry < parameter.nops()) {
+						result = result / (parameter.nops()-lastentry+1);
+						return result.map(*this);
+					} else {
+						return result;
+					}
+				}
+			}
+		}
+		return e;
+	}
+};
+
+
+// returns an expression with zeta functions corresponding to the parameter list for H
+ex convert_H_to_zeta(const lst& l)
+{
+	symbol xtemp("xtemp");
+	map_trafo_H_reduce_trailing_zeros filter;
+	map_trafo_H_convert_to_zeta filter2;
+	return filter2(filter(H(l, xtemp).hold())).subs(xtemp == 1);
+}
+
+
+// convert signs form Li to H representation
+// not used yet!
+lst convert_parameter_Li_to_H(const lst& l, ex& pf)
+{
+	lst res;
+	lst::const_iterator it = l.begin();
+	ex signum = *it;
+	pf = *it;
+	res.append(*it);
+	it++;
+	while (it != l.end()) {
+		signum = *it * signum;
+		res.append(signum);
+		pf *= signum;
+		it++;
+	}
+
+	return res;
+}
 
 
 // multiplies an one-dimensional H with another H
@@ -1072,40 +1340,9 @@ struct map_trafo_H_mult : public map_function
 };
 
 
-// do integration [ReV] (49)
-// put parameter 1 in front of existing parameters
-ex trafo_H_prepend_one(const ex& e, const ex& arg)
-{
-	ex h;
-	std::string name;
-	if (is_a<function>(e)) {
-		name = ex_to<function>(e).get_name();
-	}
-	if (name == "H") {
-		h = e;
-	} else {
-		for (int i=0; i<e.nops(); i++) {
-			if (is_a<function>(e.op(i))) {
-				std::string name = ex_to<function>(e.op(i)).get_name();
-				if (name == "H") {
-					h = e.op(i);
-				}
-			}
-		}
-	}
-	if (h != 0) {
-		lst newparameter = ex_to<lst>(h.op(0));
-		newparameter.prepend(1);
-		return e.subs(h == H(newparameter, h.op(1)).hold());
-	} else {
-		return e * H(lst(1),1-arg).hold();
-	}
-}
-
-
 // do integration [ReV] (55)
 // put parameter 0 in front of existing parameters
-ex trafo_H_prepend_zero(const ex& e, const ex& arg)
+ex trafo_H_1tx_prepend_zero(const ex& e, const ex& arg)
 {
 	ex h;
 	std::string name;
@@ -1127,7 +1364,7 @@ ex trafo_H_prepend_zero(const ex& e, const ex& arg)
 	if (h != 0) {
 		lst newparameter = ex_to<lst>(h.op(0));
 		newparameter.prepend(0);
-		ex addzeta = convert_from_RV(newparameter, 1).subs(H(wild(1),wild(2))==zeta(wild(1)));
+		ex addzeta = convert_H_to_zeta(newparameter);
 		return e.subs(h == (addzeta-H(newparameter, h.op(1)).hold())).expand();
 	} else {
 		return e * (-H(lst(0),1/arg).hold());
@@ -1135,87 +1372,99 @@ ex trafo_H_prepend_zero(const ex& e, const ex& arg)
 }
 
 
-// do x -> 1-x transformation
-struct map_trafo_H_1mx : public map_function
+// do integration [ReV] (55)
+// put parameter -1 in front of existing parameters
+ex trafo_H_1tx_prepend_minusone(const ex& e, const ex& arg)
 {
-	ex operator()(const ex& e)
-	{
-		if (is_a<add>(e) || is_a<mul>(e)) {
-			return e.map(*this);
-		}
-		
-		if (is_a<function>(e)) {
-			std::string name = ex_to<function>(e).get_name();
-			if (name == "H") {
-
-				lst parameter = ex_to<lst>(e.op(0));
-				ex arg = e.op(1);
-
-				// if all parameters are either zero or one return the transformed function
-				if (find(parameter.begin(), parameter.end(), 0) == parameter.end()) {
-					lst newparameter;
-					for (int i=parameter.nops(); i>0; i--) {
-						newparameter.append(0);
-					}
-					return pow(-1, parameter.nops()) * H(newparameter, 1-arg).hold();
-				} else if (find(parameter.begin(), parameter.end(), 1) == parameter.end()) {
-					lst newparameter;
-					for (int i=parameter.nops(); i>0; i--) {
-						newparameter.append(1);
-					}
-					return pow(-1, parameter.nops()) * H(newparameter, 1-arg).hold();
+	ex h;
+	std::string name;
+	if (is_a<function>(e)) {
+		name = ex_to<function>(e).get_name();
+	}
+	if (name == "H") {
+		h = e;
+	} else {
+		for (int i=0; i<e.nops(); i++) {
+			if (is_a<function>(e.op(i))) {
+				std::string name = ex_to<function>(e.op(i)).get_name();
+				if (name == "H") {
+					h = e.op(i);
 				}
-
-				lst newparameter = parameter;
-				newparameter.remove_first();
-
-				if (parameter.op(0) == 0) {
-
-					// leading zero
-					ex res = convert_from_RV(parameter, 1).subs(H(wild(1),wild(2))==zeta(wild(1)));
-					map_trafo_H_1mx recursion;
-					ex buffer = recursion(H(newparameter, arg).hold());
-					if (is_a<add>(buffer)) {
-						for (int i=0; i<buffer.nops(); i++) {
-							res -= trafo_H_prepend_one(buffer.op(i), arg);
-						}
-					} else {
-						res -= trafo_H_prepend_one(buffer, arg);
-					}
-					return res;
-
-				} else {
-
-					// leading one
-					map_trafo_H_1mx recursion;
-					map_trafo_H_mult unify;
-					ex res;
-					int firstzero = 0;
-					while (parameter.op(firstzero) == 1) {
-						firstzero++;
-					}
-					for (int i=firstzero-1; i<parameter.nops()-1; i++) {
-						lst newparameter;
-						int j=0;
-						for (; j<=i; j++) {
-							newparameter.append(parameter[j+1]);
-						}
-						newparameter.append(1);
-						for (; j<parameter.nops()-1; j++) {
-							newparameter.append(parameter[j+1]);
-						}
-						res -= H(newparameter, arg).hold();
-					}
-					return (unify((-H(lst(0), 1-arg).hold() * recursion(H(newparameter, arg).hold())).expand()) +
-							recursion(res)) / firstzero;
-
-				}
-
 			}
 		}
-		return e;
 	}
-};
+	if (h != 0) {
+		lst newparameter = ex_to<lst>(h.op(0));
+		newparameter.prepend(-1);
+		ex addzeta = convert_H_to_zeta(newparameter);
+		return e.subs(h == (addzeta-H(newparameter, h.op(1)).hold())).expand();
+	} else {
+		ex addzeta = convert_H_to_zeta(lst(-1));
+		return (e * (addzeta - H(lst(-1),1/arg).hold())).expand();
+	}
+}
+
+
+// do integration [ReV] (55)
+// put parameter -1 in front of existing parameters
+ex trafo_H_1mxt1px_prepend_minusone(const ex& e, const ex& arg)
+{
+	ex h;
+	std::string name;
+	if (is_a<function>(e)) {
+		name = ex_to<function>(e).get_name();
+	}
+	if (name == "H") {
+		h = e;
+	} else {
+		for (int i=0; i<e.nops(); i++) {
+			if (is_a<function>(e.op(i))) {
+				std::string name = ex_to<function>(e.op(i)).get_name();
+				if (name == "H") {
+					h = e.op(i);
+				}
+			}
+		}
+	}
+	if (h != 0) {
+		lst newparameter = ex_to<lst>(h.op(0));
+		newparameter.prepend(-1);
+		return e.subs(h == H(newparameter, h.op(1)).hold()).expand();
+	} else {
+		return (e * H(lst(-1),(1-arg)/(1+arg)).hold()).expand();
+	}
+}
+
+
+// do integration [ReV] (55)
+// put parameter 1 in front of existing parameters
+ex trafo_H_1mxt1px_prepend_one(const ex& e, const ex& arg)
+{
+	ex h;
+	std::string name;
+	if (is_a<function>(e)) {
+		name = ex_to<function>(e).get_name();
+	}
+	if (name == "H") {
+		h = e;
+	} else {
+		for (int i=0; i<e.nops(); i++) {
+			if (is_a<function>(e.op(i))) {
+				std::string name = ex_to<function>(e.op(i)).get_name();
+				if (name == "H") {
+					h = e.op(i);
+				}
+			}
+		}
+	}
+	if (h != 0) {
+		lst newparameter = ex_to<lst>(h.op(0));
+		newparameter.prepend(1);
+		return e.subs(h == H(newparameter, h.op(1)).hold()).expand();
+	} else {
+		return (e * H(lst(1),(1-arg)/(1+arg)).hold()).expand();
+	}
+}
 
 
 // do x -> 1/x transformation
@@ -1234,13 +1483,42 @@ struct map_trafo_H_1overx : public map_function
 				lst parameter = ex_to<lst>(e.op(0));
 				ex arg = e.op(1);
 
-				// if all parameters are either zero or one return the transformed function
-				if (find(parameter.begin(), parameter.end(), 0) == parameter.end()) {
-					map_trafo_H_mult unify;
-					return unify((pow(H(lst(1),1/arg).hold() + H(lst(0),1/arg).hold() - I*Pi, parameter.nops()) / 
-								factorial(parameter.nops())).expand());
-				} else if (find(parameter.begin(), parameter.end(), 1) == parameter.end()) {
-					return pow(-1, parameter.nops()) * H(parameter, 1/arg).hold();
+				// special cases if all parameters are either 0, 1 or -1
+				bool allthesame = true;
+				if (parameter.op(0) == 0) {
+					for (int i=1; i<parameter.nops(); i++) {
+						if (parameter.op(i) != 0) {
+							allthesame = false;
+							break;
+						}
+					}
+					if (allthesame) {
+						return pow(-1, parameter.nops()) * H(parameter, 1/arg).hold();
+					}
+				} else if (parameter.op(0) == -1) {
+					for (int i=1; i<parameter.nops(); i++) {
+						if (parameter.op(i) != -1) {
+							allthesame = false;
+							break;
+						}
+					}
+					if (allthesame) {
+						map_trafo_H_mult unify;
+						return unify((pow(H(lst(-1),1/arg).hold() - H(lst(0),1/arg).hold(), parameter.nops()) / 
+									factorial(parameter.nops())).expand());
+					}
+				} else {
+					for (int i=1; i<parameter.nops(); i++) {
+						if (parameter.op(i) != 1) {
+							allthesame = false;
+							break;
+						}
+					}
+					if (allthesame) {
+						map_trafo_H_mult unify;
+						return unify((pow(H(lst(1),1/arg).hold() + H(lst(0),1/arg).hold() - I*Pi, parameter.nops()) / 
+							factorial(parameter.nops())).expand());
+					}
 				}
 
 				lst newparameter = parameter;
@@ -1249,15 +1527,30 @@ struct map_trafo_H_1overx : public map_function
 				if (parameter.op(0) == 0) {
 					
 					// leading zero
-					ex res = convert_from_RV(parameter, 1).subs(H(wild(1),wild(2))==zeta(wild(1)));
+					ex res = convert_H_to_zeta(parameter);
 					map_trafo_H_1overx recursion;
 					ex buffer = recursion(H(newparameter, arg).hold());
 					if (is_a<add>(buffer)) {
 						for (int i=0; i<buffer.nops(); i++) {
-							res += trafo_H_prepend_zero(buffer.op(i), arg);
+							res += trafo_H_1tx_prepend_zero(buffer.op(i), arg);
 						}
 					} else {
-						res += trafo_H_prepend_zero(buffer, arg);
+						res += trafo_H_1tx_prepend_zero(buffer, arg);
+					}
+					return res;
+
+				} else if (parameter.op(0) == -1) {
+
+					// leading negative one
+					ex res = convert_H_to_zeta(parameter);
+					map_trafo_H_1overx recursion;
+					ex buffer = recursion(H(newparameter, arg).hold());
+					if (is_a<add>(buffer)) {
+						for (int i=0; i<buffer.nops(); i++) {
+							res += trafo_H_1tx_prepend_zero(buffer.op(i), arg) - trafo_H_1tx_prepend_minusone(buffer.op(i), arg);
+						}
+					} else {
+						res += trafo_H_1tx_prepend_zero(buffer, arg) - trafo_H_1tx_prepend_minusone(buffer, arg);
 					}
 					return res;
 
@@ -1295,185 +1588,127 @@ struct map_trafo_H_1overx : public map_function
 };
 
 
-// remove trailing zeros from H-parameters
-struct map_trafo_H_reduce_trailing_zeros : public map_function
+// do x -> (1-x)/(1+x) transformation
+struct map_trafo_H_1mxt1px : public map_function
 {
 	ex operator()(const ex& e)
 	{
 		if (is_a<add>(e) || is_a<mul>(e)) {
 			return e.map(*this);
 		}
+
 		if (is_a<function>(e)) {
 			std::string name = ex_to<function>(e).get_name();
 			if (name == "H") {
-				lst parameter;
-				if (is_a<lst>(e.op(0))) {
-						parameter = ex_to<lst>(e.op(0));
-				} else {
-					parameter = lst(e.op(0));
-				}
-				ex arg = e.op(1);
-				if (parameter.op(parameter.nops()-1) == 0) {
-					
-					//
-					if (parameter.nops() == 1) {
-						return log(arg);
-					}
-					
-					//
-					lst::const_iterator it = parameter.begin();
-					while ((it != parameter.end()) && (*it == 0)) {
-						it++;
-					}
-					if (it == parameter.end()) {
-						return pow(log(arg),parameter.nops()) / factorial(parameter.nops());
-					}
-					
-					//
-					parameter.remove_last();
-					int lastentry = parameter.nops();
-					while ((lastentry > 0) && (parameter[lastentry-1] == 0)) {
-						lastentry--;
-					}
-					
-					//
-					ex result = log(arg) * H(parameter,arg).hold();
-					for (ex i=0; i<lastentry; i++) {
-						if (parameter[i] > 0) {
-							parameter[i]++;
-							result -= (parameter[i]-1) * H(parameter, arg).hold();
-							parameter[i]--;
-						} else {
-							parameter[i]--;
-							result -= abs(parameter[i]+1) * H(parameter, arg).hold();
-							parameter[i]++;
-						}
-					}
-					
-					if (lastentry < parameter.nops()) {
-						result = result / (parameter.nops()-lastentry+1);
-						return result.map(*this);
-					} else {
-						return result;
-					}
-				}
-			}
-		}
-		return e;
-	}
-};
 
-
-// transform H(m,x) with signed m to H(m,s,x)
-struct map_trafo_H_convert_signed_m : public map_function
-{
-	ex operator()(const ex& e)
-	{
-		if (is_a<add>(e) || is_a<mul>(e)) {
-			return e.map(*this);
-		}
-		if (is_a<function>(e)) {
-			std::string name = ex_to<function>(e).get_name();
-			if (name == "H") {
-				lst parameter;
-				if (is_a<lst>(e.op(0))) {
-						parameter = ex_to<lst>(e.op(0));
-				} else {
-					parameter = lst(e.op(0));
-				}
-				ex arg = e.op(1);
-				bool signedflag = false;
-				for (int i=0; i<parameter.nops(); i++) {
-					if (parameter.op(i) < 0) {
-						signedflag = true;
-						break;
-					}
-				}
-				if (signedflag) {
-					lst signs;
-					for (int i=0; i<parameter.nops(); i++) {
-						if (parameter.op(i) > 0) {
-							signs.append(1);
-						} else {
-							signs.append(-1);
-							parameter.let_op(i) = -parameter.op(i);
-						}
-					}
-					return H(parameter, signs, arg).hold();
-				}
-			}
-		}
-		return e;
-	}
-};
-
-
-// recursively call convert_from_RV on expression
-struct map_trafo_H_convert : public map_function
-{
-	ex operator()(const ex& e)
-	{
-		if (is_a<add>(e) || is_a<mul>(e) || is_a<power>(e)) {
-			return e.map(*this);
-		}
-		if (is_a<function>(e)) {
-			std::string name = ex_to<function>(e).get_name();
-			if (name == "H") {
 				lst parameter = ex_to<lst>(e.op(0));
 				ex arg = e.op(1);
-				return convert_from_RV(parameter, arg);
+
+				// special cases if all parameters are either 0, 1 or -1
+				bool allthesame = true;
+				if (parameter.op(0) == 0) {
+					for (int i=1; i<parameter.nops(); i++) {
+						if (parameter.op(i) != 0) {
+							allthesame = false;
+							break;
+						}
+					}
+					if (allthesame) {
+						map_trafo_H_mult unify;
+						return unify((pow(-H(lst(1),(1-arg)/(1+arg)).hold() - H(lst(-1),(1-arg)/(1+arg)).hold(), parameter.nops()) / 
+									factorial(parameter.nops())).expand());
+					}
+				} else if (parameter.op(0) == -1) {
+					for (int i=1; i<parameter.nops(); i++) {
+						if (parameter.op(i) != -1) {
+							allthesame = false;
+							break;
+						}
+					}
+					if (allthesame) {
+						map_trafo_H_mult unify;
+						return unify((pow(log(2) - H(lst(-1),(1-arg)/(1+arg)).hold(), parameter.nops()) / 
+									factorial(parameter.nops())).expand());
+					}
+				} else {
+					for (int i=1; i<parameter.nops(); i++) {
+						if (parameter.op(i) != 1) {
+							allthesame = false;
+							break;
+						}
+					}
+					if (allthesame) {
+						map_trafo_H_mult unify;
+						return unify((pow(-log(2) - H(lst(0),(1-arg)/(1+arg)).hold() + H(lst(-1),(1-arg)/(1+arg)).hold(), parameter.nops()) / 
+							factorial(parameter.nops())).expand());
+					}
+				}
+
+				lst newparameter = parameter;
+				newparameter.remove_first();
+
+				if (parameter.op(0) == 0) {
+
+					// leading zero
+					ex res = convert_H_to_zeta(parameter);
+					map_trafo_H_1mxt1px recursion;
+					ex buffer = recursion(H(newparameter, arg).hold());
+					if (is_a<add>(buffer)) {
+						for (int i=0; i<buffer.nops(); i++) {
+							res -= trafo_H_1mxt1px_prepend_one(buffer.op(i), arg) + trafo_H_1mxt1px_prepend_minusone(buffer.op(i), arg);
+						}
+					} else {
+						res -= trafo_H_1mxt1px_prepend_one(buffer, arg) + trafo_H_1mxt1px_prepend_minusone(buffer, arg);
+					}
+					return res;
+
+				} else if (parameter.op(0) == -1) {
+
+					// leading negative one
+					ex res = convert_H_to_zeta(parameter);
+					map_trafo_H_1mxt1px recursion;
+					ex buffer = recursion(H(newparameter, arg).hold());
+					if (is_a<add>(buffer)) {
+						for (int i=0; i<buffer.nops(); i++) {
+							res -= trafo_H_1mxt1px_prepend_minusone(buffer.op(i), arg);
+						}
+					} else {
+						res -= trafo_H_1mxt1px_prepend_minusone(buffer, arg);
+					}
+					return res;
+
+				} else {
+
+					// leading one
+					map_trafo_H_1mxt1px recursion;
+					map_trafo_H_mult unify;
+					ex res = H(lst(1), arg).hold() * H(newparameter, arg).hold();
+					int firstzero = 0;
+					while (parameter.op(firstzero) == 1) {
+						firstzero++;
+					}
+					for (int i=firstzero-1; i<parameter.nops()-1; i++) {
+						lst newparameter;
+						int j=0;
+						for (; j<=i; j++) {
+							newparameter.append(parameter[j+1]);
+						}
+						newparameter.append(1);
+						for (; j<parameter.nops()-1; j++) {
+							newparameter.append(parameter[j+1]);
+						}
+						res -= H(newparameter, arg).hold();
+					}
+					res = recursion(res).expand() / firstzero;
+					return unify(res);
+
+				}
+
 			}
 		}
 		return e;
 	}
 };
-
-
-// translate notation from nested sums to Remiddi/Vermaseren
-lst convert_to_RV(const lst& o)
-{
-	lst res;
-	for (lst::const_iterator it = o.begin(); it != o.end(); it++) {
-		if (*it > 0) {
-			for (ex i=0; i<(*it)-1; i++) {
-				res.append(0);
-			}
-			res.append(1);
-		} else {
-			for (ex i=0; i<(-*it)-1; i++) {
-				res.append(0);
-			}
-			res.append(-1);
-		}
-	}
-	return res;
-}
-
-
-// translate notation from Remiddi/Vermaseren to nested sums
-ex convert_from_RV(const lst& parameterlst, const ex& arg)
-{
-	lst newparameterlst;
-
-	lst::const_iterator it = parameterlst.begin();
-	int count = 1;
-	while (it != parameterlst.end()) {
-		if (*it == 0) {
-			count++;
-		} else {
-			newparameterlst.append((*it>0) ? count : -count);
-			count = 1;
-		}
-		it++;
-	}
-	for (int i=1; i<count; i++) {
-		newparameterlst.append(0);
-	}
-	
-	map_trafo_H_reduce_trailing_zeros filter1;
-	map_trafo_H_convert_signed_m filter2;
-	return filter2(filter1(H(newparameterlst, arg).hold()));
-}
 
 
 // do the actual summation.
@@ -1497,7 +1732,7 @@ cln::cl_N H_do_sum(const std::vector<int>& m, const cln::cl_N& x)
 		t[0] = t[0] + t[1] * factor / cln::expt(cln::cl_I(q+j-1), m[0]);
 		factor = factor * x;
 	} while (t[0] != t0buf);
-	
+
 	return t[0];
 }
 
@@ -1514,17 +1749,131 @@ cln::cl_N H_do_sum(const std::vector<int>& m, const cln::cl_N& x)
 //////////////////////////////////////////////////////////////////////
 
 
-static ex H2_eval(const ex& x1, const ex& x2)
+static ex H_evalf(const ex& x1, const ex& x2)
+{
+	if (is_a<lst>(x1) && is_a<numeric>(x2)) {
+		for (int i=0; i<x1.nops(); i++) {
+			if (!x1.op(i).info(info_flags::integer)) {
+				return H(x1,x2).hold();
+			}
+		}
+		if (x1.nops() < 1) {
+			return H(x1,x2).hold();
+		}
+
+		cln::cl_N x = ex_to<numeric>(x2).to_cl_N();
+		
+		const lst& morg = ex_to<lst>(x1);
+		// remove trailing zeros ...
+		if (*(--morg.end()) == 0) {
+			symbol xtemp("xtemp");
+			map_trafo_H_reduce_trailing_zeros filter;
+			return filter(H(x1, xtemp).hold()).subs(xtemp==x2).evalf();
+		}
+		// ... and expand parameter notation
+		lst m;
+		for (lst::const_iterator it = morg.begin(); it != morg.end(); it++) {
+			if (*it > 1) {
+				for (ex count=*it-1; count > 0; count--) {
+					m.append(0);
+				}
+				m.append(1);
+			} else if (*it < -1) {
+				for (ex count=*it+1; count < 0; count++) {
+					m.append(0);
+				}
+				m.append(-1);
+			} else {
+				m.append(*it);
+			}
+		}
+
+		// since the transformations produce a lot of terms, they are only efficient for
+		// argument near one.
+		// no transformation needed -> do summation
+		if (cln::abs(x) < 0.95) {
+			lst m_lst;
+			lst s_lst;
+			ex pf;
+			if (convert_parameter_H_to_Li(m, m_lst, s_lst, pf)) {
+				// negative parameters -> s_lst is filled
+				std::vector<int> m_int;
+				std::vector<cln::cl_N> x_cln;
+				for (lst::const_iterator it_int = m_lst.begin(), it_cln = s_lst.begin(); 
+				     it_int != m_lst.end(); it_int++, it_cln++) {
+					m_int.push_back(ex_to<numeric>(*it_int).to_int());
+					x_cln.push_back(ex_to<numeric>(*it_cln).to_cl_N());
+				}
+				x_cln.front() = x_cln.front() * x;
+				return pf * numeric(multipleLi_do_sum(m_int, x_cln));
+			} else {
+				// only positive parameters
+				//TODO
+				if (m_lst.nops() == 1) {
+					return Li(m_lst.op(0), x2).evalf();
+				}
+				std::vector<int> m_int;
+				for (lst::const_iterator it = m_lst.begin(); it != m_lst.end(); it++) {
+					m_int.push_back(ex_to<numeric>(*it).to_int());
+				}
+				return numeric(H_do_sum(m_int, x));
+			}
+		}
+
+		ex res = 1;	
+		
+		// ensure that the realpart of the argument is positive
+		if (cln::realpart(x) < 0) {
+			x = -x;
+			for (int i=0; i<m.nops(); i++) {
+				if (m.op(i) != 0) {
+					m.let_op(i) = -m.op(i);
+					res *= -1;
+				}
+			}
+		}
+
+		// choose transformations
+		symbol xtemp("xtemp");
+		if (cln::abs(x-1) < 1.4142) {
+			// x -> (1-x)/(1+x)
+			map_trafo_H_1mxt1px trafo;
+			res *= trafo(H(m, xtemp));
+		} else {
+			// x -> 1/x
+			map_trafo_H_1overx trafo;
+			res *= trafo(H(m, xtemp));
+		}
+
+		// simplify result
+// TODO
+//		map_trafo_H_convert converter;
+//		res = converter(res).expand();
+//		lst ll;
+//		res.find(H(wild(1),wild(2)), ll);
+//		res.find(zeta(wild(1)), ll);
+//		res.find(zeta(wild(1),wild(2)), ll);
+//		res = res.collect(ll);
+
+		return res.subs(xtemp == numeric(x)).evalf();
+	}
+
+	return H(x1,x2).hold();
+}
+
+
+static ex H_eval(const ex& x1, const ex& x2)
 {
 	if (x2 == 0) {
 		return 0;
 	}
-	if (x2 == 1) {
-		return zeta(x1);
-	}
-	if (x1.nops() == 1) {
-		return Li(x1.op(0), x2);
-	}
+//TODO
+//	if (x2 == 1) {
+//		return zeta(x1);
+//	}
+//	if (x1.nops() == 1) {
+//		return Li(x1.op(0), x2);
+//	}
 	if (x2.info(info_flags::numeric) && (!x2.info(info_flags::crational))) {
 		return H(x1,x2).evalf();
 	}
@@ -1532,61 +1881,7 @@ static ex H2_eval(const ex& x1, const ex& x2)
 }
 
 
-static ex H2_evalf(const ex& x1, const ex& x2)
-{
-	if (is_a<lst>(x1) && is_a<numeric>(x2)) {
-		for (int i=0; i<x1.nops(); i++) {
-			if (!x1.op(i).info(info_flags::posint)) {
-				return H(x1,x2).hold();
-			}
-		}
-		if (x1.nops() < 1) {
-			return _ex1;
-		}
-		if (x1.nops() == 1) {
-			return Li(x1.op(0), x2).evalf();
-		}
-		cln::cl_N x = ex_to<numeric>(x2).to_cl_N();
-		if (x == 1) {
-			return zeta(x1).evalf();
-		}
-
-		// choose trafo
-		if (cln::abs(x) > 1) {
-			symbol xtemp("xtemp");
-			map_trafo_H_1overx trafo;
-			ex res = trafo(H(convert_to_RV(ex_to<lst>(x1)), xtemp));
-			map_trafo_H_convert converter;
-			res = converter(res);
-			return res.subs(xtemp==x2).evalf();
-		}
-
-		// since the x->1-x transformation produces a lot of terms, it is only
-		// efficient for argument near one.
-		if (cln::realpart(x) > 0.95) {
-			symbol xtemp("xtemp");
-			map_trafo_H_1mx trafo;
-			ex res = trafo(H(convert_to_RV(ex_to<lst>(x1)), xtemp));
-			map_trafo_H_convert converter;
-			res = converter(res);
-			return res.subs(xtemp==x2).evalf();
-		}
-
-		// no trafo -> do summation
-		int count = x1.nops();
-		std::vector<int> r(count);
-		for (int i=0; i<count; i++) {
-			r[i] = ex_to<numeric>(x1.op(i)).to_int();
-		}
-
-		return numeric(H_do_sum(r,x));
-	}
-
-	return H(x1,x2).hold();
-}
-
-
-static ex H2_series(const ex& x1, const ex& x2, const relational& rel, int order, unsigned options)
+static ex H_series(const ex& x1, const ex& x2, const relational& rel, int order, unsigned options)
 {
 	epvector seq;
 	seq.push_back(expair(H(x1,x2), 0));
@@ -1594,7 +1889,7 @@ static ex H2_series(const ex& x1, const ex& x2, const relational& rel, int order
 }
 
 
-static ex H2_deriv(const ex& x1, const ex& x2, unsigned deriv_param)
+static ex H_deriv(const ex& x1, const ex& x2, unsigned deriv_param)
 {
 	GINAC_ASSERT(deriv_param < 2);
 	if (deriv_param == 0) {
@@ -1619,171 +1914,47 @@ static ex H2_deriv(const ex& x1, const ex& x2, unsigned deriv_param)
 }
 
 
-unsigned H2_SERIAL::serial =
-			function::register_new(function_options("H").
-						eval_func(H2_eval).
-						evalf_func(H2_evalf).
-						do_not_evalf_params().
-						derivative_func(H2_deriv).
-						latex_name("\\mbox{H}").
-						overloaded(2));
-
-
-//////////////////////////////////////////////////////////////////////
-//
-// Harmonic polylogarithm  H(m,s,x)
-//
-// GiNaC function
-//
-//////////////////////////////////////////////////////////////////////
-
-
-static ex H3_eval(const ex& x1, const ex& x2, const ex& x3)
+static void H_print_latex(const ex& m_, const ex& x, const print_context& c)
 {
-	if (x3 == 0) {
-		return 0;
-	}
-	if (x3 == 1) {
-		return zeta(x1, x2);
-	}
-	if (x3.info(info_flags::numeric) && (!x3.info(info_flags::crational))) {
-		return H(x1, x2, x3).evalf();
-	}
-	return H(x1, x2, x3).hold();
-}
-
-
-static ex H3_evalf(const ex& x1, const ex& x2, const ex& x3)
-{
-	if (is_a<lst>(x1) && is_a<numeric>(x3)) {
-		for (int i=0; i<x1.nops(); i++) {
-			if (!x1.op(i).info(info_flags::posint)) {
-				return H(x1, x2, x3).hold();
-			}
-		}
-		if (x1.nops() < 1) {
-			return _ex1;
-		}
-		if (x1.nops() == 1) {
-			return x2.op(0) * Li(x1.op(0), x2.op(0)*x3).evalf();
-		}
-		cln::cl_N x = ex_to<numeric>(x3).to_cl_N();
-		if (x == 1) {
-			return zeta(x1, x2).evalf();
-		}
-
-		// choose trafo
-		if (cln::abs(x) > 1) {
-			//TODO
-			return H(x1, x2, x3).hold();
-//			symbol xtemp("xtemp");
-//			lst para = ex_to<lst>(x1);
-//			for (int i=0; i<para.nops(); i++) {
-//				para.let_op(i) = para.op(i) * x2.op(i);
-//			}
-//			map_trafo_H_1overx trafo;
-//			ex res = trafo(H(convert_to_RV(para), xtemp));
-//			map_trafo_H_convert converter;
-//			res = converter(res);
-//			return res.subs(xtemp==x3).evalf();
-		}
-
-//		// since the x->1-x transformation produces a lot of terms, it is only
-//		// efficient for argument near one.
-//		if (cln::realpart(x) > 0.95) {
-//			symbol xtemp("xtemp");
-//			map_trafo_H_1mx trafo;
-//			ex res = trafo(H(convert_to_RV(ex_to<lst>(x1)), xtemp));
-//			map_trafo_H_convert converter;
-//			res = converter(res);
-//			return res.subs(xtemp==x2).evalf();
-//		}
-
-		// no trafo -> do summation
-		int count = x1.nops();
-		std::vector<int> m(count);
-		std::vector<cln::cl_N> s(count);
-		cln::cl_N signbuf = 1;
-		for (int i=0; i<count; i++) {
-			m[i] = ex_to<numeric>(x1.op(i)).to_int();
-			signbuf = signbuf * ex_to<numeric>(x2.op(i)).to_cl_N();
-			s[i] = signbuf;
-		}
-		s[0] = s[0] * ex_to<numeric>(x3).to_cl_N();
-
-		return numeric(signbuf * multipleLi_do_sum(m, s));
-	}
-
-	return H(x1, x2, x3).hold();
-}
-
-
-static ex H3_series(const ex& x1, const ex& x2, const ex& x3, const relational& rel, int order, unsigned options)
-{
-	epvector seq;
-	seq.push_back(expair(H(x1, x2, x3), 0));
-	return pseries(rel, seq);
-}
-
-
-static ex H3_deriv(const ex& x1, const ex& x2, const ex& x3, unsigned deriv_param)
-{
-	//TODO
-	
-	GINAC_ASSERT(deriv_param < 2);
-	if (deriv_param == 0) {
-		return _ex0;
-	}
-	if (is_a<lst>(x1)) {
-		lst newparameter = ex_to<lst>(x1);
-		if (x1.op(0) == 1) {
-			newparameter.remove_first();
-			return 1/(1-x2) * H(newparameter, x2);
-		} else {
-			newparameter[0]--;
-			return H(newparameter, x2).hold() / x2;
-		}
+	lst m;
+	if (is_a<lst>(m_)) {
+		m = ex_to<lst>(m_);
 	} else {
-		if (x1 == 1) {
-			return 1/(1-x2);
-		} else {
-			return H(x1-1, x2).hold() / x2;
-		}
+		m = lst(m_);
 	}
+	c.s << "\\mbox{H}_{";
+	lst::const_iterator itm = m.begin();
+	(*itm).print(c);
+	itm++;
+	for (; itm != m.end(); itm++) {
+		c.s << ",";
+		(*itm).print(c);
+	}
+	c.s << "}(";
+	x.print(c);
+	c.s << ")";
 }
 
 
-unsigned H3_SERIAL::serial =
-			function::register_new(function_options("H").
-						eval_func(H3_eval).
-						evalf_func(H3_evalf).
-						do_not_evalf_params().
-						derivative_func(H3_deriv).
-						latex_name("\\mbox{H}").
-						overloaded(2));
+REGISTER_FUNCTION(H,
+		evalf_func(H_evalf).
+		eval_func(H_eval).
+		series_func(H_series).
+		derivative_func(H_deriv).
+		print_func<print_latex>(H_print_latex).
+		do_not_evalf_params());
 
 
-ex convert_H_notation(const ex& parameterlst, const ex& arg)
+// takes a parameter list for H and returns an expression with corresponding multiple polylogarithms
+ex convert_H_to_Li(const ex& parameterlst, const ex& arg)
 {
+	map_trafo_H_reduce_trailing_zeros filter;
+	map_trafo_H_convert_to_Li filter2;
 	if (is_a<lst>(parameterlst)) {
-		for (int i=0; i<parameterlst.nops(); i++) {
-			if (parameterlst.op(i) == 1) continue;
-			if (parameterlst.op(i) == 0) continue;
-			if (parameterlst.op(i) == -1) continue;
-			throw std::runtime_error("first parameter has to be a list containing only 0, 1 or -1!");
-		}
-		return convert_from_RV(ex_to<lst>(parameterlst), arg).eval();
+		return filter2(filter(H(parameterlst, arg).hold())).eval();
+	} else {
+		return filter2(filter(H(lst(parameterlst), arg).hold())).eval();
 	}
-	if (parameterlst == 1) {
-		return -log(1-arg);
-	}
-	if (parameterlst == 0) {
-		return log(arg);
-	}
-	if (parameterlst == -1) {
-		return log(1+arg);
-	}
-	throw std::runtime_error("first parameter has to be a list containing only 0, 1 or -1!");
 }
 
 
@@ -2244,13 +2415,33 @@ static ex zeta1_deriv(const ex& x, unsigned deriv_param)
 }
 
 
+static void zeta1_print_latex(const ex& x, const print_context& c)
+{
+	c.s << "\\zeta(";
+	if (is_a<lst>(x)) {
+		lst arg;
+		arg = ex_to<lst>(x);
+		lst::const_iterator it = arg.begin();
+		(*it).print(c);
+		it++;
+		for (; it != arg.end(); it++) {
+			c.s << ",";
+			(*it).print(c);
+		}
+	} else {
+		x.print(c);
+	}
+	c.s << ")";
+}
+
+
 unsigned zeta1_SERIAL::serial =
 			function::register_new(function_options("zeta").
-						eval_func(zeta1_eval).
 						evalf_func(zeta1_evalf).
-						do_not_evalf_params().
+						eval_func(zeta1_eval).
 						derivative_func(zeta1_deriv).
-						latex_name("\\zeta").
+						print_func<print_latex>(zeta1_print_latex).
+						do_not_evalf_params().
 						overloaded(2));
 
 
@@ -2345,13 +2536,53 @@ static ex zeta2_deriv(const ex& x, const ex& s, unsigned deriv_param)
 }
 
 
+static void zeta2_print_latex(const ex& x, const ex& s, const print_context& c)
+{
+	lst arg;
+	if (is_a<lst>(x)) {
+		arg = ex_to<lst>(x);
+	} else {
+		arg = lst(x);
+	}
+	lst sig;
+	if (is_a<lst>(s)) {
+		sig = ex_to<lst>(s);
+	} else {
+		sig = lst(s);
+	}
+	c.s << "\\zeta(";
+	lst::const_iterator itarg = arg.begin();
+	lst::const_iterator itsig = sig.begin();
+	if (*itsig < 0) {
+		c.s << "\\overline{";
+		(*itarg).print(c);
+		c.s << "}";
+	} else {
+		(*itarg).print(c);
+	}
+	itsig++;
+	itarg++;
+	for (; itarg != arg.end(); itarg++, itsig++) {
+		c.s << ",";
+		if (*itsig < 0) {
+			c.s << "\\overline{";
+			(*itarg).print(c);
+			c.s << "}";
+		} else {
+			(*itarg).print(c);
+		}
+	}
+	c.s << ")";
+}
+
+
 unsigned zeta2_SERIAL::serial =
 			function::register_new(function_options("zeta").
-						eval_func(zeta2_eval).
 						evalf_func(zeta2_evalf).
-						do_not_evalf_params().
+						eval_func(zeta2_eval).
 						derivative_func(zeta2_deriv).
-						latex_name("\\zeta").
+						print_func<print_latex>(zeta2_print_latex).
+						do_not_evalf_params().
 						overloaded(2));
 
 
