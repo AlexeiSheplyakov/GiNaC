@@ -237,9 +237,9 @@ inline bool is_a(const basic &obj)
  *  inefficient default.  It should in all time-critical cases be overridden
  *  by template specializations that use the TINFO_* constants directly. */
 template <class T>
-inline bool is_exactly_a(const class basic &obj)
+inline bool is_exactly_a(const basic &obj)
 {
-	return obj.tinfo() == T::reg_info.tinfo_key;
+	return obj.tinfo() == T::reg_info.options.get_id();
 }
 
 } // namespace GiNaC

@@ -116,7 +116,7 @@ class structure : public basic, public ComparisonPolicy<T> {
 	GINAC_DECLARE_REGISTERED_CLASS(structure, basic)
 
 	// helpers
-	static unsigned get_tinfo() { return reg_info.tinfo_key; }
+	static unsigned get_tinfo() { return reg_info.options.tinfo_key; }
 	static const char *get_class_name() { return "structure"; }
 
 	// constructors
@@ -256,10 +256,7 @@ int structure<T, CP>::compare_same_type(const basic & other) const
 }
 
 template <class T, template <class> class CP>
-registered_class_info structure<T, CP>::reg_info(structure::get_class_name(), "basic", next_structure_tinfo_key++, &structure::unarchive);
-
-template <class T, template <class> class CP>
-const char *structure<T, CP>::class_name() const { return reg_info.name; }
+registered_class_info structure<T, CP>::reg_info = registered_class_info(registered_class_options(structure::get_class_name(), "basic", next_structure_tinfo_key++, &structure::unarchive));
 
 
 } // namespace GiNaC

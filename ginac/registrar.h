@@ -26,9 +26,10 @@
 #include <string>
 #include <list>
 
+#include "class_info.h"
+
 namespace GiNaC {
 
-class registered_class_info;
 class ex;
 class archive_node;
 
@@ -40,35 +41,37 @@ typedef container<std::list> lst;
 typedef ex (*unarch_func)(const archive_node &n, lst &sym_lst);
 
 
-/** Head of list of all registered_class_info structures. */
-extern registered_class_info *first_registered_class;
-
-
 /** This structure stores information about a registered GiNaC class. */
-struct registered_class_info {
-	registered_class_info(const char *n, const char *s, unsigned int k, unarch_func f)
-		: name(n), super(s), tinfo_key(k), unarchive(f)
-	{
-		// Add structure to list
-		next = first_registered_class;
-		first_registered_class = this;
-	}
+class registered_class_options {
+public:
+	registered_class_options(const char *n, const char *p, unsigned ti, unarch_func f)
+	 : name(n), parent_name(p), tinfo_key(ti), unarchive(f) {}
 
-	registered_class_info *next;  /**< Pointer to next registered_class_info in list. */
-	const char *name;             /**< Class name. */
-	const char *super;            /**< Name of superclass. */
-	unsigned int tinfo_key;       /**< TINFO_* key. */
-	unarch_func unarchive;        /**< Pointer to unarchiving function. */
+	const char *get_name() const { return name; }
+	const char *get_parent_name() const { return parent_name; }
+	unsigned get_id() const { return tinfo_key; }
+	unarch_func get_unarch_func() const { return unarchive; }
+
+private:
+	const char *name;         /**< Class name. */
+	const char *parent_name;  /**< Name of superclass. */
+	unsigned tinfo_key;       /**< TINFO_* key. */
+	unarch_func unarchive;    /**< Pointer to unarchiving function. */
 };
+
+typedef class_info<registered_class_options> registered_class_info;
 
 
 /** Primary macro for inclusion in the declaration of each registered class. */
 #define GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(classname, supername) \
 public: \
 	typedef supername inherited; \
-	\
+	template <class isexaclass> friend bool is_exactly_a(const GiNaC::basic &obj); \
+private: \
 	static GiNaC::registered_class_info reg_info; \
-	virtual const char *class_name() const; \
+public: \
+	virtual const GiNaC::registered_class_info &get_class_info() const { return reg_info; } \
+	virtual const char *class_name() const { return reg_info.options.get_name(); } \
 	\
 	classname(const GiNaC::archive_node &n, GiNaC::lst &sym_lst); \
 	virtual void archive(GiNaC::archive_node &n) const; \
@@ -100,16 +103,18 @@ protected: \
 	int compare_same_type(const GiNaC::basic & other) const; \
 private:
 
-/** Macro for inclusion in the implementation of each registered class.
- *  It defines some members that are the same in all classes derived from
- *  'basic'. */
+/** Macro for inclusion in the implementation of each registered class. */
 #define GINAC_IMPLEMENT_REGISTERED_CLASS(classname, supername) \
-	GiNaC::registered_class_info classname::reg_info(#classname, #supername, TINFO_##classname, &classname::unarchive); \
-	const char *classname::class_name() const {return reg_info.name;}
+	GiNaC::registered_class_info classname::reg_info = GiNaC::registered_class_info(GiNaC::registered_class_options(#classname, #supername, TINFO_##classname, &classname::unarchive));
+
+/** Macro for inclusion in the implementation of each registered class.
+ *  Additional options can be specified. */
+#define GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(classname, supername, options) \
+	GiNaC::registered_class_info classname::reg_info = GiNaC::registered_class_info(GiNaC::registered_class_options(#classname, #supername, TINFO_##classname, &classname::unarchive).options);
 
 
 /** Find TINFO_* key by class name. */
-extern unsigned int find_tinfo_key(const std::string &class_name);
+extern unsigned find_tinfo_key(const std::string &class_name);
 
 /** Find unarchiving function by class name. */
 extern unarch_func find_unarch_func(const std::string &class_name);

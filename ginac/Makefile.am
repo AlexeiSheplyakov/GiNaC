@@ -13,12 +13,12 @@ libginac_la_SOURCES = add.cpp archive.cpp basic.cpp clifford.cpp color.cpp \
 libginac_la_LDFLAGS = -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \
   -release $(LT_RELEASE)
 ginacincludedir = $(includedir)/ginac
-ginacinclude_HEADERS = ginac.h add.h archive.h assertion.h basic.h clifford.h \
-  color.h constant.h container.h ex.h expair.h expairseq.h exprseq.h fail.h \
-  fderivative.h flags.h function.h idx.h indexed.h inifcns.h lst.h matrix.h \
-  mul.h ncmul.h normal.h numeric.h operators.h power.h print.h pseries.h ptr.h \
-  registrar.h relational.h structure.h symbol.h symmetry.h tensor.h tinfos.h \
-  version.h wildcard.h
+ginacinclude_HEADERS = ginac.h add.h archive.h assertion.h basic.h class_info.h \
+  clifford.h color.h constant.h container.h ex.h expair.h expairseq.h exprseq.h \
+  fail.h fderivative.h flags.h function.h idx.h indexed.h inifcns.h lst.h \
+  matrix.h mul.h ncmul.h normal.h numeric.h operators.h power.h print.h \
+  pseries.h ptr.h registrar.h relational.h structure.h symbol.h symmetry.h \
+  tensor.h tinfos.h version.h wildcard.h
 LFLAGS = -Pginac_yy -olex.yy.c
 YFLAGS = -p ginac_yy -d
 EXTRA_DIST = function.pl input_parser.h version.h.in
