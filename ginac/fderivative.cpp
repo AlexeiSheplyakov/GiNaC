@@ -109,7 +109,7 @@ void fderivative::print(const print_context & c, unsigned level) const
 {
 	debugmsg("fderivative print", LOGLEVEL_PRINT);
 
-	if (is_of_type(c, print_tree)) {
+	if (is_a<print_tree>(c)) {
 
 		c.s << std::string(level, ' ') << class_name() << " "
 		    << registered_functions()[serial].name
@@ -120,7 +120,7 @@ void fderivative::print(const print_context & c, unsigned level) const
 		--end;
 		while (i != end)
 			c.s << *i++ << ",";
-		c.s << *i << endl;
+		c.s << *i << std::endl;
 		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
 		for (unsigned i=0; i<seq.size(); ++i)
 			seq[i].print(c, level + delta_indent);
