@@ -27,7 +27,7 @@
 using namespace GiNaC;
 #endif // ndef NO_GINAC_NAMESPACE
 
-/* Simple tests on the sine trigonometric function. */
+/* Some tests on the sine trigonometric function. */
 static unsigned inifcns_consist_sin(void)
 {
     unsigned result = 0;
@@ -36,11 +36,12 @@ static unsigned inifcns_consist_sin(void)
     // sin(n*Pi) == 0?
     errorflag = false;
     for (int n=-10; n<=10; ++n) {
-        if ( sin(n*Pi).eval() != numeric(0) ||
+        if (sin(n*Pi).eval() != numeric(0) ||
             !sin(n*Pi).eval().info(info_flags::integer))
             errorflag = true;
     }
     if (errorflag) {
+        // we don't count each of those errors
         clog << "sin(n*Pi) with integer n does not always return exact 0"
              << endl;
         ++result;
@@ -49,7 +50,7 @@ static unsigned inifcns_consist_sin(void)
     // sin((n+1/2)*Pi) == {+|-}1?
     errorflag = false;
     for (int n=-10; n<=10; ++n) {
-        if (! sin((n+numeric(1,2))*Pi).eval().info(info_flags::integer) ||
+        if (!sin((n+numeric(1,2))*Pi).eval().info(info_flags::integer) ||
             !(sin((n+numeric(1,2))*Pi).eval() == numeric(1) ||
               sin((n+numeric(1,2))*Pi).eval() == numeric(-1)))
             errorflag = true;
@@ -57,6 +58,25 @@ static unsigned inifcns_consist_sin(void)
     if (errorflag) {
         clog << "sin((n+1/2)*Pi) with integer n does not always return exact {+|-}1"
              << endl;
+        ++result;
+    }
+    
+    // compare sin((q*Pi).evalf()) with sin(q*Pi).eval().evalf() at various
+    // points.  E.g. if sin(Pi/10) returns something symbolic this should be
+    // equal to sqrt(5)/4-1/4.  This routine will spot programming mistakes
+    // of this kind:
+    errorflag = false;
+    ex argument;
+    numeric epsilon(double(1e-8));
+    for (int n=-240; n<=240; ++n) {
+        argument = n*Pi/60;
+        if (abs(sin(evalf(argument))-evalf(sin(argument)))>epsilon) {
+            clog << "sin(" << argument << ") returns "
+                 << sin(argument) << endl;
+            errorflag = true;
+        }
+    }
+    if (errorflag) {
         ++result;
     }
     
@@ -72,7 +92,7 @@ static unsigned inifcns_consist_cos(void)
     // cos((n+1/2)*Pi) == 0?
     errorflag = false;
     for (int n=-10; n<=10; ++n) {
-        if ( cos((n+numeric(1,2))*Pi).eval() != numeric(0) ||
+        if (cos((n+numeric(1,2))*Pi).eval() != numeric(0) ||
             !cos((n+numeric(1,2))*Pi).eval().info(info_flags::integer))
             errorflag = true;
     }
@@ -85,7 +105,7 @@ static unsigned inifcns_consist_cos(void)
     // cos(n*Pi) == 0?
     errorflag = false;
     for (int n=-10; n<=10; ++n) {
-        if (! cos(n*Pi).eval().info(info_flags::integer) ||
+        if (!cos(n*Pi).eval().info(info_flags::integer) ||
             !(cos(n*Pi).eval() == numeric(1) ||
               cos(n*Pi).eval() == numeric(-1)))
             errorflag = true;
@@ -93,6 +113,55 @@ static unsigned inifcns_consist_cos(void)
     if (errorflag) {
         clog << "cos(n*Pi) with integer n does not always return exact {+|-}1"
              << endl;
+        ++result;
+    }
+    
+    // compare cos((q*Pi).evalf()) with cos(q*Pi).eval().evalf() at various
+    // points.  E.g. if cos(Pi/12) returns something symbolic this should be
+    // equal to 1/4*(1+1/3*sqrt(3))*sqrt(6).  This routine will spot
+    // programming mistakes of this kind:
+    errorflag = false;
+    ex argument;
+    numeric epsilon(double(1e-8));
+    for (int n=-240; n<=240; ++n) {
+        argument = n*Pi/60;
+        if (abs(cos(evalf(argument))-evalf(cos(argument)))>epsilon) {
+            clog << "cos(" << argument << ") returns "
+                 << cos(argument) << endl;
+            errorflag = true;
+        }
+    }
+    if (errorflag) {
+        ++result;
+    }
+    
+    return result;
+}
+
+/* Simple tests on the tangent trigonometric function. */
+static unsigned inifcns_consist_tan(void)
+{
+    unsigned result = 0;
+    bool errorflag;
+    
+    // compare tan((q*Pi).evalf()) with tan(q*Pi).eval().evalf() at various
+    // points.  E.g. if tan(Pi/12) returns something symbolic this should be
+    // equal to 2-sqrt(3).  This routine will spot programming mistakes of 
+    // this kind:
+    errorflag = false;
+    ex argument;
+    numeric epsilon(double(1e-8));
+    for (int n=-240; n<=240; ++n) {
+        if (!(n%30) && (n%60))  // skip poles
+            ++n;
+        argument = n*Pi/60;
+        if (abs(tan(evalf(argument))-evalf(tan(argument)))>epsilon) {
+            clog << "tan(" << argument << ") returns "
+                 << tan(argument) << endl;
+            errorflag = true;
+        }
+    }
+    if (errorflag) {
         ++result;
     }
     
@@ -272,6 +341,7 @@ unsigned inifcns_consist(void)
     
     result += inifcns_consist_sin();
     result += inifcns_consist_cos();
+    result += inifcns_consist_tan();
     result += inifcns_consist_trans();
     result += inifcns_consist_gamma();
     result += inifcns_consist_psi();
