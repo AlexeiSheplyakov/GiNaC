@@ -174,7 +174,10 @@ void add::print(const print_context & c, unsigned level) const
 
 		// First print the overall numeric coefficient, if present
 		if (!overall_coeff.is_zero()) {
-			overall_coeff.print(c, precedence);
+			if (!is_of_type(c, print_tree))
+				overall_coeff.print(c, 0);
+			else
+				overall_coeff.print(c, precedence);
 			first = false;
 		}
 
