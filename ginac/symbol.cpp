@@ -224,7 +224,7 @@ ex symbol::eval(int level) const
 ex symbol::conjugate() const
 {
 	if (this->domain == domain::complex) {
-		return GiNaC::conjugate(*this).hold();
+		return GiNaC::conjugate_function(*this).hold();
 	} else {
 		return *this;
 	}

@@ -48,7 +48,7 @@ static ex conjugate_evalf(const ex & arg)
 	if (is_exactly_a<numeric>(arg)) {
 		return ex_to<numeric>(arg).conjugate();
 	}
-	return conjugate(arg).hold();
+	return conjugate_function(arg).hold();
 }
 
 static ex conjugate_eval(const ex & arg)
@@ -66,10 +66,11 @@ static ex conjugate_conjugate(const ex & arg)
 	return arg;
 }
 
-REGISTER_FUNCTION(conjugate, eval_func(conjugate_eval).
+REGISTER_FUNCTION(conjugate_function, eval_func(conjugate_eval).
                        evalf_func(conjugate_evalf).
                        print_func<print_latex>(conjugate_print_latex).
-                       conjugate_func(conjugate_conjugate));
+                       conjugate_func(conjugate_conjugate).
+                       set_name("conjugate","conjugate"));
 
 //////////
 // absolute value

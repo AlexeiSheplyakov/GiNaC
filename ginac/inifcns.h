@@ -29,7 +29,7 @@
 namespace GiNaC {
 
 /** Complex conjugate. */
-DECLARE_FUNCTION_1P(conjugate)
+DECLARE_FUNCTION_1P(conjugate_function)
 	
 /** Absolute value. */
 DECLARE_FUNCTION_1P(abs)

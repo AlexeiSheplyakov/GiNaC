@@ -752,6 +752,9 @@ inline size_t nops(const ex & thisex)
 inline ex expand(const ex & thisex, unsigned options = 0)
 { return thisex.expand(options); }
 
+inline ex conjugate(const ex & thisex)
+{ return thisex.conjugate(); }
+
 inline bool has(const ex & thisex, const ex & pattern)
 { return thisex.has(pattern); }
 
