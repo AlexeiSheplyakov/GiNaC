@@ -33,10 +33,12 @@ class fail : public basic
 	GINAC_DECLARE_REGISTERED_CLASS(fail, basic)
 	
 	// functions overriding virtual functions from base classes
-public:
-	void print(const print_context & c, unsigned level = 0) const;
 protected:
 	unsigned return_type() const { return return_types::noncommutative_composite; };
+
+	// non-virtual functions in this class
+protected:
+	void do_print(const print_context & c, unsigned level) const;
 };
 
 /** Specialization of is_exactly_a<fail>(obj) for fail objects. */

@@ -29,7 +29,10 @@
 
 namespace GiNaC {
 
-GINAC_IMPLEMENT_REGISTERED_CLASS(wildcard, basic)
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(wildcard, basic,
+  print_func<print_context>(&wildcard::do_print).
+  print_func<print_tree>(&wildcard::do_print_tree).
+  print_func<print_python_repr>(&wildcard::do_print_python_repr))
 
 //////////
 // default constructor
@@ -82,16 +85,21 @@ int wildcard::compare_same_type(const basic & other) const
 		return label < o.label ? -1 : 1;
 }
 
-void wildcard::print(const print_context & c, unsigned level) const
+void wildcard::do_print(const print_context & c, unsigned level) const
 {
-	if (is_a<print_tree>(c)) {
-		c.s << std::string(level, ' ') << class_name() << " (" << label << ")"
-		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
-		    << std::endl;
-	} else if (is_a<print_python_repr>(c)) {
-		c.s << class_name() << '(' << label << ')';
-	} else
-		c.s << "$" << label;
+	c.s << "$" << label;
+}
+
+void wildcard::do_print_tree(const print_tree & c, unsigned level) const
+{
+	c.s << std::string(level, ' ') << class_name() << " (" << label << ")"
+	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+	    << std::endl;
+}
+
+void wildcard::do_print_python_repr(const print_python_repr & c, unsigned level) const
+{
+	c.s << class_name() << '(' << label << ')';
 }
 
 unsigned wildcard::calchash() const

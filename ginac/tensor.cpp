@@ -40,11 +40,26 @@
 namespace GiNaC {
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(tensor, basic)
-GINAC_IMPLEMENT_REGISTERED_CLASS(tensdelta, tensor)
-GINAC_IMPLEMENT_REGISTERED_CLASS(tensmetric, tensor)
-GINAC_IMPLEMENT_REGISTERED_CLASS(minkmetric, tensmetric)
-GINAC_IMPLEMENT_REGISTERED_CLASS(spinmetric, tensmetric)
-GINAC_IMPLEMENT_REGISTERED_CLASS(tensepsilon, tensor)
+
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(tensdelta, tensor,
+  print_func<print_dflt>(&tensdelta::do_print).
+  print_func<print_latex>(&tensdelta::do_print_latex))
+
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(tensmetric, tensor,
+  print_func<print_dflt>(&tensmetric::do_print).
+  print_func<print_latex>(&tensmetric::do_print))
+
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(minkmetric, tensmetric,
+  print_func<print_dflt>(&minkmetric::do_print).
+  print_func<print_latex>(&minkmetric::do_print_latex))
+
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(spinmetric, tensmetric,
+  print_func<print_dflt>(&spinmetric::do_print).
+  print_func<print_latex>(&spinmetric::do_print_latex))
+
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(tensepsilon, tensor,
+  print_func<print_dflt>(&tensepsilon::do_print).
+  print_func<print_latex>(&tensepsilon::do_print_latex))
 
 //////////
 // constructors

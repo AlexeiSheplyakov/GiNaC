@@ -60,9 +60,13 @@ class tensdelta : public tensor
 
 	// functions overriding virtual functions from base classes
 public:
-	void print(const print_context & c, unsigned level = 0) const;
 	ex eval_indexed(const basic & i) const;
 	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
+
+	// non-virtual functions in this class
+protected:
+	void do_print(const print_context & c, unsigned level) const;
+	void do_print_latex(const print_latex & c, unsigned level) const;
 };
 
 
@@ -75,9 +79,12 @@ class tensmetric : public tensor
 
 	// functions overriding virtual functions from base classes
 public:
-	void print(const print_context & c, unsigned level = 0) const;
 	ex eval_indexed(const basic & i) const;
 	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
+
+	// non-virtual functions in this class
+protected:
+	void do_print(const print_context & c, unsigned level) const;
 };
 
 
@@ -95,8 +102,12 @@ public:
 
 	// functions overriding virtual functions from base classes
 public:
-	void print(const print_context & c, unsigned level = 0) const;
 	ex eval_indexed(const basic & i) const;
+
+	// non-virtual functions in this class
+protected:
+	void do_print(const print_context & c, unsigned level) const;
+	void do_print_latex(const print_latex & c, unsigned level) const;
 
 	// member variables
 private:
@@ -114,9 +125,13 @@ class spinmetric : public tensmetric
 
 	// functions overriding virtual functions from base classes
 public:
-	void print(const print_context & c, unsigned level = 0) const;
 	ex eval_indexed(const basic & i) const;
 	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
+
+	// non-virtual functions in this class
+protected:
+	void do_print(const print_context & c, unsigned level) const;
+	void do_print_latex(const print_latex & c, unsigned level) const;
 };
 
 
@@ -133,9 +148,13 @@ public:
 
 	// functions overriding virtual functions from base classes
 public:
-	void print(const print_context & c, unsigned level = 0) const;
 	ex eval_indexed(const basic & i) const;
 	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
+
+	// non-virtual functions in this class
+protected:
+	void do_print(const print_context & c, unsigned level) const;
+	void do_print_latex(const print_latex & c, unsigned level) const;
 
 	// member variables
 private:

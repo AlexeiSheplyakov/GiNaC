@@ -39,10 +39,22 @@
 namespace GiNaC {
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(color, indexed)
-GINAC_IMPLEMENT_REGISTERED_CLASS(su3one, tensor)
-GINAC_IMPLEMENT_REGISTERED_CLASS(su3t, tensor)
-GINAC_IMPLEMENT_REGISTERED_CLASS(su3f, tensor)
-GINAC_IMPLEMENT_REGISTERED_CLASS(su3d, tensor)
+
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(su3one, tensor,
+  print_func<print_dflt>(&su3one::do_print).
+  print_func<print_latex>(&su3one::do_print_latex))
+
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(su3t, tensor,
+  print_func<print_dflt>(&su3t::do_print).
+  print_func<print_latex>(&su3t::do_print))
+
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(su3f, tensor,
+  print_func<print_dflt>(&su3f::do_print).
+  print_func<print_latex>(&su3f::do_print))
+
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(su3d, tensor,
+  print_func<print_dflt>(&su3d::do_print).
+  print_func<print_latex>(&su3d::do_print))
 
 //////////
 // default constructors

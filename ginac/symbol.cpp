@@ -32,7 +32,11 @@
 
 namespace GiNaC {
 
-GINAC_IMPLEMENT_REGISTERED_CLASS(symbol, basic)
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(symbol, basic,
+  print_func<print_context>(&symbol::do_print).
+  print_func<print_latex>(&symbol::do_print_latex).
+  print_func<print_tree>(&symbol::do_print_tree).
+  print_func<print_python_repr>(&symbol::do_print_python_repr))
 
 //////////
 // default constructor
@@ -108,24 +112,30 @@ void symbol::archive(archive_node &n) const
 
 // public
 
-void symbol::print(const print_context & c, unsigned level) const
+void symbol::do_print(const print_context & c, unsigned level) const
 {
-	if (is_a<print_tree>(c)) {
+	c.s << name;
+}
 
-		c.s << std::string(level, ' ') << name << " (" << class_name() << ")"
-		    << ", serial=" << serial
-		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
-		    << std::endl;
+void symbol::do_print_latex(const print_latex & c, unsigned level) const
+{
+	c.s << TeX_name;
+}
 
-	} else if (is_a<print_latex>(c)) {
-		c.s << TeX_name;
-	} else if (is_a<print_python_repr>(c)) {
-		c.s << class_name() << "('" << name;
-		if (TeX_name != default_TeX_name())
-			c.s << "','" << TeX_name;
-		c.s << "')";
-	} else
-		c.s << name;
+void symbol::do_print_tree(const print_tree & c, unsigned level) const
+{
+	c.s << std::string(level, ' ') << name << " (" << class_name() << ")"
+	    << ", serial=" << serial
+	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+	    << std::endl;
+}
+
+void symbol::do_print_python_repr(const print_python_repr & c, unsigned level) const
+{
+	c.s << class_name() << "('" << name;
+	if (TeX_name != default_TeX_name())
+		c.s << "','" << TeX_name;
+	c.s << "')";
 }
 
 bool symbol::info(unsigned inf) const

@@ -40,12 +40,29 @@
 
 namespace GiNaC {
 
-GINAC_IMPLEMENT_REGISTERED_CLASS(clifford, indexed)
-GINAC_IMPLEMENT_REGISTERED_CLASS(diracone, tensor)
-GINAC_IMPLEMENT_REGISTERED_CLASS(diracgamma, tensor)
-GINAC_IMPLEMENT_REGISTERED_CLASS(diracgamma5, tensor)
-GINAC_IMPLEMENT_REGISTERED_CLASS(diracgammaL, tensor)
-GINAC_IMPLEMENT_REGISTERED_CLASS(diracgammaR, tensor)
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(clifford, indexed,
+  print_func<print_dflt>(&clifford::do_print_dflt).
+  print_func<print_latex>(&clifford::do_print_latex))
+
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(diracone, tensor,
+  print_func<print_dflt>(&diracone::do_print).
+  print_func<print_latex>(&diracone::do_print_latex))
+
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(diracgamma, tensor,
+  print_func<print_dflt>(&diracgamma::do_print).
+  print_func<print_latex>(&diracgamma::do_print_latex))
+
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(diracgamma5, tensor,
+  print_func<print_dflt>(&diracgamma5::do_print).
+  print_func<print_latex>(&diracgamma5::do_print_latex))
+
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(diracgammaL, tensor,
+  print_func<print_context>(&diracgammaL::do_print).
+  print_func<print_latex>(&diracgammaL::do_print_latex))
+
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(diracgammaR, tensor,
+  print_func<print_context>(&diracgammaR::do_print).
+  print_func<print_latex>(&diracgammaR::do_print_latex))
 
 //////////
 // default constructors
@@ -142,26 +159,32 @@ bool clifford::match_same_type(const basic & other) const
 	return representation_label == o.representation_label;
 }
 
-void clifford::print(const print_context & c, unsigned level) const
+static bool is_dirac_slash(const ex & seq0)
 {
-	if (!is_a<diracgamma5>(seq[0]) && !is_a<diracgammaL>(seq[0]) &&
-	    !is_a<diracgammaR>(seq[0]) && !is_a<diracgamma>(seq[0]) &&
-	    !is_a<diracone>(seq[0])) {
+	return !is_a<diracgamma5>(seq0) && !is_a<diracgammaL>(seq0) &&
+	       !is_a<diracgammaR>(seq0) && !is_a<diracgamma>(seq0) &&
+	       !is_a<diracone>(seq0);
+}
 
-		// dirac_slash() object is printed differently
-		if (is_a<print_tree>(c))
-			inherited::print(c, level);
-		else if (is_a<print_latex>(c)) {
-			c.s << "{";
-			seq[0].print(c, level);
-			c.s << "\\hspace{-1.0ex}/}";
-		} else {
-			seq[0].print(c, level);
-			c.s << "\\";
-		}
-
+void clifford::do_print_dflt(const print_dflt & c, unsigned level) const
+{
+	// dirac_slash() object is printed differently
+	if (is_dirac_slash(seq[0])) {
+		seq[0].print(c, level);
+		c.s << "\\";
 	} else
-		inherited::print(c, level);
+		this->print_dispatch<inherited>(c, level);
+}
+
+void clifford::do_print_latex(const print_latex & c, unsigned level) const
+{
+	// dirac_slash() object is printed differently
+	if (is_dirac_slash(seq[0])) {
+		c.s << "{";
+		seq[0].print(c, level);
+		c.s << "\\hspace{-1.0ex}/}";
+	} else
+		this->print_dispatch<inherited>(c, level);
 }
 
 DEFAULT_COMPARE(diracone)

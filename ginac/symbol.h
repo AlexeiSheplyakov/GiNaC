@@ -62,7 +62,6 @@ public:
 	
 	// functions overriding virtual functions from base classes
 public:
-	void print(const print_context & c, unsigned level = 0) const;
 	bool info(unsigned inf) const;
 	ex eval(int level = 0) const;
 	ex evalf(int level = 0) const { return *this; } // overwrites basic::evalf() for performance reasons
@@ -82,6 +81,11 @@ public:
 	void unassign();
 	void set_name(const std::string & n) { name = n; }
 	std::string get_name() const { return name; }
+protected:
+	void do_print(const print_context & c, unsigned level) const;
+	void do_print_latex(const print_latex & c, unsigned level) const;
+	void do_print_tree(const print_tree & c, unsigned level) const;
+	void do_print_python_repr(const print_python_repr & c, unsigned level) const;
 private:
 	std::string & autoname_prefix();
 	std::string default_TeX_name() const;
