@@ -43,9 +43,15 @@ static unsigned exam_series1()
 {
 	using GiNaC::log;
 
+	symbol a("a");
+	symbol b("b");
 	unsigned result = 0;
 	ex e, d;
 	
+	e = pow(a+b, x);
+	d = 1 + Order(pow(x, 1));
+	result += check_series(e, 0, d, 1);
+
 	e = sin(x);
 	d = x - pow(x, 3) / 6 + pow(x, 5) / 120 - pow(x, 7) / 5040 + Order(pow(x, 8));
 	result += check_series(e, 0, d);
@@ -119,12 +125,10 @@ static unsigned exam_series1()
 	d = 1 + Order(pow(x, 2));
 	result += check_series(e, 0, d, 2);
 
-	symbol a("a");
 	e = pow(x, 4) * sin(a) + pow(x, 2);
 	d = pow(x, 2) + Order(pow(x, 3));
 	result += check_series(e, 0, d, 3);
 
-	symbol b("b");
 	e = log(a*x + b*x*x*log(x));
 	d = log(a*x) + b/a*log(x)*x - pow(b/a, 2)/2*pow(log(x)*x, 2) + Order(pow(x, 3));
 	result += check_series(e, 0, d, 3);
