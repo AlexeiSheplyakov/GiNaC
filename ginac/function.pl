@@ -508,7 +508,11 @@ protected:
     unsigned serial;
 };
 
-// utility macros
+// utility functions/macros
+inline const function &ex_to_function(const ex &e)
+{
+    return static_cast<const function &>(*e.bp);
+}
 
 #ifndef NO_NAMESPACE_GINAC
 
@@ -1041,7 +1045,7 @@ ex function::pderivative(unsigned diff_param) const // partial differentiation
     GINAC_ASSERT(serial<registered_functions().size());
     
     if (registered_functions()[serial].derivative_f==0) {
-        throw(std::logic_error(string("function::pderivative(") + registered_functions()[serial].name + "): no diff function defined"));
+        return Derivative(*this, diff_param);
     }
     switch (registered_functions()[serial].nparams) {
         // the following lines have been generated for max. ${maxargs} parameters

@@ -1574,19 +1574,20 @@ ex power::normal(lst &sym_lst, lst &repl_lst, int level) const
 			// (a/b)^n -> {a^n, b^n}
 			return (new lst(power(n.op(0), exponent), power(n.op(1), exponent)))->setflag(status_flags::dynallocated);
 
-		} else if (exponent.info(info_flags::negint)) {
+		} else if (exponent.info(info_flags::negative)) {
 
 			// (a/b)^-n -> {b^n, a^n}
 			return (new lst(power(n.op(1), -exponent), power(n.op(0), -exponent)))->setflag(status_flags::dynallocated);
 		}
 
 	} else {
+
 		if (exponent.info(info_flags::positive)) {
 
-			// (a/b)^z -> {sym((a/b)^z), 1}
+			// (a/b)^x -> {sym((a/b)^x), 1}
 			return (new lst(replace_with_symbol(power(n.op(0) / n.op(1), exponent), sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
 
-		} else {
+		} else if (exponent.info(info_flags::negative)) {
 
 			if (n.op(1).is_equal(_ex1())) {
 
@@ -1595,9 +1596,14 @@ ex power::normal(lst &sym_lst, lst &repl_lst, int level) const
 
 			} else {
 
-				// (a/b)^-x -> {(b/a)^x, 1}
+				// (a/b)^-x -> {sym((b/a)^x), 1}
 				return (new lst(replace_with_symbol(power(n.op(1) / n.op(0), -exponent), sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
 			}
+
+		} else {	// exponent not numeric
+
+			// (a/b)^x -> {sym((a/b)^x, 1}
+			return (new lst(replace_with_symbol(power(n.op(0) / n.op(1), exponent), sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
 		}
     }
 }

@@ -151,7 +151,6 @@ line	: ';'
 		cout << "You should have received a copy of the GNU General Public License along with\n";
 		cout << "this program. If not, write to the Free Software Foundation, 675 Mass Ave,\n";
 		cout << "Cambridge, MA 02139, USA.\n";
-
 	}
 	| T_XYZZY		{cout << "Nothing happens.\n";}
 	| T_INVENTORY		{cout << "You're not carrying anything.\n";}

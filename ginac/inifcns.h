@@ -123,6 +123,12 @@ DECLARE_FUNCTION_2P(binomial)
 /** Order term function (for truncated power series). */
 DECLARE_FUNCTION_1P(Order)
 
+/** Inert differentiation. */
+DECLARE_FUNCTION_2P(Diff)
+
+/** Inert partial differentiation operator. */
+DECLARE_FUNCTION_2P(Derivative)
+
 ex lsolve(const ex &eqns, const ex &symbols);
 
 ex ncpower(const ex &basis, unsigned exponent);
