@@ -7026,7 +7026,7 @@ inserted.  But it may be useful to remember that this is not what
 happens.  Knowing this will enable you to write much more efficient
 code.  If you still have an uncertain feeling with copy-on-write
 semantics, we recommend you have a look at the
-@uref{http://www.cerfnet.com/~mpcline/c++-faq-lite/, C++-FAQ lite} by
+@uref{http://www.parashift.com/c++-faq-lite/, C++-FAQ lite} by
 Marshall Cline.  Chapter 16 covers this issue and presents an
 implementation which is pretty close to the one in GiNaC.
 
