@@ -128,7 +128,7 @@ expairseq::expairseq(const epvector &v, const ex &oc)
 expairseq::expairseq(std::auto_ptr<epvector> vp, const ex &oc)
   : inherited(TINFO_expairseq), overall_coeff(oc)
 {
-	GINAC_ASSERT(vp!=0);
+	GINAC_ASSERT(vp.get()!=0);
 	GINAC_ASSERT(is_a<numeric>(oc));
 	construct_from_epvector(*vp);
 	GINAC_ASSERT(is_canonical());

@@ -89,7 +89,7 @@ add::add(const epvector & v, const ex & oc)
 add::add(std::auto_ptr<epvector> vp, const ex & oc)
 {
 	tinfo_key = TINFO_add;
-	GINAC_ASSERT(vp!=0);
+	GINAC_ASSERT(vp.get()!=0);
 	overall_coeff = oc;
 	construct_from_epvector(*vp);
 	GINAC_ASSERT(is_canonical());
