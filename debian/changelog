@@ -1,3 +1,9 @@
+ginac (0.8.3-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Richard Kreckel <kreckel@ginac.de>  Thu, 10 May 2001 22:17:15 +0200
+
 ginac (0.8.2-1) unstable; urgency=low
 
   * Initial Debian release.
