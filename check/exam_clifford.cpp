@@ -54,13 +54,42 @@ static unsigned clifford_check1(void)
 	varidx mu(symbol("mu"), dim), nu(symbol("nu"), dim);
 	ex e;
 
+	e = dirac_ONE() * dirac_ONE();
+	result += check_equal(e, dirac_ONE());
+
+	e = dirac_ONE() * dirac_gamma(mu) * dirac_ONE();
+	result += check_equal(e, dirac_gamma(mu));
+
+	e = dirac_gamma(varidx(2, dim)) * dirac_gamma(varidx(1, dim)) *
+	    dirac_gamma(varidx(1, dim)) * dirac_gamma(varidx(2, dim));
+	result += check_equal(e, dirac_ONE());
+
 	e = dirac_gamma(mu) * dirac_gamma(nu) *
 	    dirac_gamma(nu.toggle_variance()) * dirac_gamma(mu.toggle_variance());
-	result += check_equal_simplify(e, pow(dim, 2) * dirac_one());
+	result += check_equal_simplify(e, pow(dim, 2) * dirac_ONE());
 
 	e = dirac_gamma(mu) * dirac_gamma(nu) *
 	    dirac_gamma(mu.toggle_variance()) * dirac_gamma(nu.toggle_variance());
-	result += check_equal_simplify(e, 2*dim*dirac_one()-pow(dim, 2)*dirac_one());
+	result += check_equal_simplify(e, 2*dim*dirac_ONE()-pow(dim, 2)*dirac_ONE());
+
+	return result;
+}
+
+static unsigned clifford_check2(void)
+{
+	// checks identities relating to gamma5
+
+	unsigned result = 0;
+
+	symbol dim("D");
+	varidx mu(symbol("mu"), dim), nu(symbol("nu"), dim);
+	ex e;
+
+	e = dirac_gamma(mu) * dirac_gamma5() + dirac_gamma5() * dirac_gamma(mu);
+	result += check_equal(e, 0);
+
+	e = dirac_gamma5() * dirac_gamma(mu) * dirac_gamma5() + dirac_gamma(mu);
+	result += check_equal(e, 0);
 
 	return result;
 }
@@ -73,6 +102,7 @@ unsigned exam_clifford(void)
 	clog << "----------clifford objects:" << endl;
 
 	result += clifford_check1();  cout << '.' << flush;
+	result += clifford_check2();  cout << '.' << flush;
 	
 	if (!result) {
 		cout << " passed " << endl;

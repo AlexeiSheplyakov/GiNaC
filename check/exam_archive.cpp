@@ -36,7 +36,7 @@ unsigned exam_archive(void)
 
 	// This expression is complete nonsense but it contains every type of
 	// GiNaC object
-	e = -42 * x * pow(y, sin(y*Catalan)) * dirac_one()
+	e = -42 * x * pow(y, sin(y*Catalan)) * dirac_ONE()
 	    * epsilon_tensor(idx(fail(), 3), idx(0, 3), idx(y/2, 3))
 	  + lorentz_g(
 	      varidx(lst(x, -11*y, acos(2*x).series(x==3-5*I, 3)) * color_ONE()
