@@ -6,6 +6,7 @@ AC_PREREQ(2.13)
 dnl Configure options
 AC_ARG_ENABLE(html-doc, [  --enable-html-doc       build HTML documentation [default=yes]], , enable_html_doc=yes)
 AC_ARG_ENABLE(ps-doc,   [  --enable-ps-doc         build PostScript documentation [default=yes]], , enable_ps_doc=yes)
+AC_ARG_WITH(cint, [  --with-cint             build GiNaC-cint C++ interpreter [default=no]], with_cint=no])
 
 dnl GiNaC library version information
 dnl
@@ -19,7 +20,7 @@ dnl set GINACLIB_BINARY_AGE and GINACLIB_INTERFACE_AGE to 0.
 dnl
 dnl NOTE: these can't be renamed to GINAC_MAJOR_VERSION etc. because
 dnl autoconf sees "AC_MAJOR_VERSION" and complains about an undefined macro
-dnl (don't we all *love* autoconf?)...
+dnl (don't we all *love* M4?)...
 
 GINACLIB_MAJOR_VERSION=0
 GINACLIB_MINOR_VERSION=4
