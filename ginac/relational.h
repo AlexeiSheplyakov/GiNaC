@@ -57,6 +57,7 @@ public:
 	unsigned nops() const;
 	ex & let_op(int i);
 	ex eval(int level=0) const;
+	ex subs(const lst & ls, const lst & lr, bool no_pattern = false) const;
 	ex simplify_ncmul(const exvector & v) const;
 
 protected:
