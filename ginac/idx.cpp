@@ -157,7 +157,7 @@ void idx::print(const print_context & c, unsigned level) const
 	} else {
 
 		if (is_a<print_latex>(c))
-			c.s << "_{";
+			c.s << "{";
 		else
 			c.s << ".";
 		bool need_parens = !(is_ex_exactly_of_type(value, numeric) || is_ex_of_type(value, symbol));
@@ -184,12 +184,9 @@ void varidx::print(const print_context & c, unsigned level) const
 		dim.print(c, level + delta_indent);
 
 	} else {
-		if (is_a<print_latex>(c)) {
-			if (covariant)
-				c.s << "_{";
-			else
-				c.s << "^{";
-		} else {
+		if (is_a<print_latex>(c))
+			c.s << "{";
+		else {
 			if (covariant)
 				c.s << ".";
 			else

@@ -328,9 +328,10 @@ void indexed::printindices(const print_context & c, unsigned level) const
 
 			while (it != itend) {
 				bool cur_covariant = (is_ex_of_type(*it, varidx) ? ex_to<varidx>(*it).is_covariant() : true);
-				if (first || cur_covariant != covariant) {
+				if (first || cur_covariant != covariant) { // Variance changed
+					// The empty {} prevents indices from ending up on top of each other
 					if (!first)
-						c.s << "}";
+						c.s << "}{}";
 					covariant = cur_covariant;
 					if (covariant)
 						c.s << "_{";
