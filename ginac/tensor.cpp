@@ -268,7 +268,7 @@ ex spinmetric::eval_indexed(const basic & i) const
 	const spinidx & i2 = ex_to<spinidx>(i.op(2));
 
 	// Convolutions are zero
-	if (static_cast<const indexed &>(i).get_dummy_indices().size() != 0)
+	if (!(static_cast<const indexed &>(i).get_dummy_indices().empty()))
 		return _ex0();
 
 	// Numeric evaluation
@@ -294,7 +294,7 @@ ex tensepsilon::eval_indexed(const basic & i) const
 	GINAC_ASSERT(is_ex_of_type(i.op(0), tensepsilon));
 
 	// Convolutions are zero
-	if (static_cast<const indexed &>(i).get_dummy_indices().size() != 0)
+	if (!(static_cast<const indexed &>(i).get_dummy_indices().empty()))
 		return _ex0();
 
 	// Numeric evaluation

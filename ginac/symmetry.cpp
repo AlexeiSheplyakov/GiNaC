@@ -164,9 +164,10 @@ void symmetry::print(const print_context & c, unsigned level = 0) const
 			default: c.s << '?'; break;
 		}
 		c.s << '(';
-		for (unsigned i=0; i<children.size(); i++) {
+		unsigned num = children.size();
+		for (unsigned i=0; i<num; i++) {
 			children[i].print(c);
-			if (i != children.size() - 1)
+			if (i != num - 1)
 				c.s << ",";
 		}
 		c.s << ')';

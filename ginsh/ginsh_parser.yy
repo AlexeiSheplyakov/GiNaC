@@ -570,7 +570,7 @@ void GiNaC::ginsh_get_ginac_functions(void)
 	unsigned serial = 0;
 	while (i != end) {
 		fcns.insert(make_pair(i->get_name(), fcn_desc(f_ginac_function, i->get_nparams(), serial)));
-		i++;
+		++i;
 		serial++;
 	}
 }
@@ -681,7 +681,7 @@ static char *fcn_generator(char *text, int state)
 	// Return the next function which partially matches
 	while (index != fcns.end()) {
 		const char *fcn_name = index->first.c_str();
-		index++;
+		++index;
 		if (strncmp(fcn_name, text, len) == 0)
 			return strdup(fcn_name);
 	}

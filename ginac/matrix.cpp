@@ -503,10 +503,10 @@ matrix matrix::add(const matrix & other) const
 		throw std::logic_error("matrix::add(): incompatible matrices");
 	
 	exvector sum(this->m);
-	exvector::iterator i;
-	exvector::const_iterator ci;
-	for (i=sum.begin(), ci=other.m.begin(); i!=sum.end(); ++i, ++ci)
-		(*i) += (*ci);
+	exvector::iterator i = sum.begin(), end = sum.end();
+	exvector::const_iterator ci = other.m.begin();
+	while (i != end)
+		*i++ += *ci++;
 	
 	return matrix(row,col,sum);
 }
@@ -521,10 +521,10 @@ matrix matrix::sub(const matrix & other) const
 		throw std::logic_error("matrix::sub(): incompatible matrices");
 	
 	exvector dif(this->m);
-	exvector::iterator i;
-	exvector::const_iterator ci;
-	for (i=dif.begin(), ci=other.m.begin(); i!=dif.end(); ++i, ++ci)
-		(*i) -= (*ci);
+	exvector::iterator i = dif.begin(), end = dif.end();
+	exvector::const_iterator ci = other.m.begin();
+	while (i != end)
+		*i++ -= *ci++;
 	
 	return matrix(row,col,dif);
 }
@@ -689,9 +689,10 @@ ex matrix::determinant(unsigned algo) const
 	bool numeric_flag = true;
 	bool normal_flag = false;
 	unsigned sparse_count = 0;  // counts non-zero elements
-	for (exvector::const_iterator r=m.begin(); r!=m.end(); ++r) {
+	exvector::const_iterator r = m.begin(), rend = m.end();
+	while (r != rend) {
 		lst srl;  // symbol replacement list
-		ex rtest = (*r).to_rational(srl);
+		ex rtest = r->to_rational(srl);
 		if (!rtest.is_zero())
 			++sparse_count;
 		if (!rtest.info(info_flags::numeric))
@@ -699,6 +700,7 @@ ex matrix::determinant(unsigned algo) const
 		if (!rtest.info(info_flags::crational_polynomial) &&
 			 rtest.info(info_flags::rational_function))
 			normal_flag = true;
+		++r;
 	}
 	
 	// Here is the heuristics in case this routine has to decide:
@@ -778,13 +780,13 @@ ex matrix::determinant(unsigned algo) const
 			}
 			sort(c_zeros.begin(),c_zeros.end());
 			std::vector<unsigned> pre_sort;
-			for (std::vector<uintpair>::iterator i=c_zeros.begin(); i!=c_zeros.end(); ++i)
+			for (std::vector<uintpair>::const_iterator i=c_zeros.begin(); i!=c_zeros.end(); ++i)
 				pre_sort.push_back(i->second);
 			std::vector<unsigned> pre_sort_test(pre_sort); // permutation_sign() modifies the vector so we make a copy here
 			int sign = permutation_sign(pre_sort_test.begin(), pre_sort_test.end());
 			exvector result(row*col);  // represents sorted matrix
 			unsigned c = 0;
-			for (std::vector<unsigned>::iterator i=pre_sort.begin();
+			for (std::vector<unsigned>::const_iterator i=pre_sort.begin();
 				 i!=pre_sort.end();
 				 ++i,++c) {
 				for (unsigned r=0; r<row; ++r)
@@ -840,10 +842,11 @@ ex matrix::charpoly(const symbol & lambda) const
 		throw (std::logic_error("matrix::charpoly(): matrix not square"));
 	
 	bool numeric_flag = true;
-	for (exvector::const_iterator r=m.begin(); r!=m.end(); ++r) {
-		if (!(*r).info(info_flags::numeric)) {
+	exvector::const_iterator r = m.begin(), rend = m.end();
+	while (r != rend) {
+		if (!r->info(info_flags::numeric))
 			numeric_flag = false;
-		}
+		++r;
 	}
 	
 	// The pure numeric case is traditionally rather common.  Hence, it is
@@ -950,9 +953,11 @@ matrix matrix::solve(const matrix & vars,
 	
 	// Gather some statistical information about the augmented matrix:
 	bool numeric_flag = true;
-	for (exvector::const_iterator r=aug.m.begin(); r!=aug.m.end(); ++r) {
-		if (!(*r).info(info_flags::numeric))
+	exvector::const_iterator r = aug.m.begin(), rend = aug.m.end();
+	while (r != rend) {
+		if (!r->info(info_flags::numeric))
 			numeric_flag = false;
+		++r;
 	}
 	
 	// Here is the heuristics in case this routine has to decide:
@@ -1299,13 +1304,13 @@ int matrix::fraction_free_elimination(const bool det)
 	matrix tmp_n(*this);
 	matrix tmp_d(m,n);  // for denominators, if needed
 	lst srl;  // symbol replacement list
-	exvector::iterator it = this->m.begin();
-	exvector::iterator tmp_n_it = tmp_n.m.begin();
-	exvector::iterator tmp_d_it = tmp_d.m.begin();
-	for (; it!= this->m.end(); ++it, ++tmp_n_it, ++tmp_d_it) {
-		(*tmp_n_it) = (*it).normal().to_rational(srl);
-		(*tmp_d_it) = (*tmp_n_it).denom();
-		(*tmp_n_it) = (*tmp_n_it).numer();
+	exvector::const_iterator cit = this->m.begin(), citend = this->m.end();
+	exvector::iterator tmp_n_it = tmp_n.m.begin(), tmp_d_it = tmp_d.m.begin();
+	while (cit != citend) {
+		ex nd = cit->normal().to_rational(srl).numer_denom();
+		++cit;
+		*tmp_n_it++ = nd.op(0);
+		*tmp_d_it++ = nd.op(1);
 	}
 	
 	unsigned r0 = 0;
@@ -1357,11 +1362,11 @@ int matrix::fraction_free_elimination(const bool det)
 		}
 	}
 	// repopulate *this matrix:
-	it = this->m.begin();
+	exvector::iterator it = this->m.begin(), itend = this->m.end();
 	tmp_n_it = tmp_n.m.begin();
 	tmp_d_it = tmp_d.m.begin();
-	for (; it!= this->m.end(); ++it, ++tmp_n_it, ++tmp_d_it)
-		(*it) = ((*tmp_n_it)/(*tmp_d_it)).subs(srl);
+	while (it != itend)
+		*it++ = ((*tmp_n_it++)/(*tmp_d_it++)).subs(srl);
 	
 	return sign;
 }

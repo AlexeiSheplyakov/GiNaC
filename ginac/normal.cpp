@@ -155,11 +155,11 @@ typedef std::vector<sym_desc> sym_desc_vec;
 // Add symbol the sym_desc_vec (used internally by get_symbol_stats())
 static void add_symbol(const symbol *s, sym_desc_vec &v)
 {
-	sym_desc_vec::iterator it = v.begin(), itend = v.end();
+	sym_desc_vec::const_iterator it = v.begin(), itend = v.end();
 	while (it != itend) {
 		if (it->sym->compare(*s) == 0)  // If it's already in there, don't add it a second time
 			return;
-		it++;
+		++it;
 	}
 	sym_desc d;
 	d.sym = s;
@@ -205,7 +205,7 @@ static void get_symbol_stats(const ex &a, const ex &b, sym_desc_vec &v)
 		it->max_lcnops = std::max(a.lcoeff(*(it->sym)).nops(), b.lcoeff(*(it->sym)).nops());
 		it->ldeg_a = a.ldegree(*(it->sym));
 		it->ldeg_b = b.ldegree(*(it->sym));
-		it++;
+		++it;
 	}
 	sort(v.begin(), v.end());
 #if 0
@@ -214,7 +214,7 @@ static void get_symbol_stats(const ex &a, const ex &b, sym_desc_vec &v)
 	while (it != itend) {
 		std::clog << " " << *it->sym << ": deg_a=" << it->deg_a << ", deg_b=" << it->deg_b << ", ldeg_a=" << it->ldeg_a << ", ldeg_b=" << it->ldeg_b << ", max_deg=" << it->max_deg << ", max_lcnops=" << it->max_lcnops << endl;
 		std::clog << "  lcoeff_a=" << a.lcoeff(*(it->sym)) << ", lcoeff_b=" << b.lcoeff(*(it->sym)) << endl;
-		it++;
+		++it;
 	}
 #endif
 }
@@ -1755,6 +1755,7 @@ ex sqrfree(const ex &a, const lst &l)
 	if (is_ex_of_type(a,numeric) ||     // algorithm does not trap a==0
 	    is_ex_of_type(a,symbol))        // shortcut
 		return a;
+
 	// If no lst of variables to factorize in was specified we have to
 	// invent one now.  Maybe one can optimize here by reversing the order
 	// or so, I don't know.
@@ -1762,34 +1763,46 @@ ex sqrfree(const ex &a, const lst &l)
 	if (l.nops()==0) {
 		sym_desc_vec sdv;
 		get_symbol_stats(a, _ex0(), sdv);
-		for (sym_desc_vec::iterator it=sdv.begin(); it!=sdv.end(); ++it)
+		sym_desc_vec::const_iterator it = sdv.begin(), itend = sdv.end();
+		while (it != itend) {
 			args.append(*it->sym);
+			++it;
+		}
 	} else {
 		args = l;
 	}
+
 	// Find the symbol to factor in at this stage
 	if (!is_ex_of_type(args.op(0), symbol))
 		throw (std::runtime_error("sqrfree(): invalid factorization variable"));
 	const symbol x = ex_to<symbol>(args.op(0));
+
 	// convert the argument from something in Q[X] to something in Z[X]
 	numeric lcm = lcm_of_coefficients_denominators(a);
 	ex tmp = multiply_lcm(a,lcm);
+
 	// find the factors
 	exvector factors = sqrfree_yun(tmp,x);
+
 	// construct the next list of symbols with the first element popped
-	lst newargs;
-	for (int i=1; i<args.nops(); ++i)
-		newargs.append(args.op(i));
+	lst newargs = args;
+	newargs.remove_first();
+
 	// recurse down the factors in remaining vars
 	if (newargs.nops()>0) {
-		for (exvector::iterator i=factors.begin(); i!=factors.end(); ++i)
+		exvector::iterator i = factors.begin(), end = factors.end();
+		while (i != end) {
 			*i = sqrfree(*i, newargs);
+			++i;
+		}
 	}
+
 	// Done with recursion, now construct the final result
 	ex result = _ex1();
-	exvector::iterator it = factors.begin();
-	for (int p = 1; it!=factors.end(); ++it, ++p)
+	exvector::const_iterator it = factors.begin(), itend = factors.end();
+	for (int p = 1; it!=itend; ++it, ++p)
 		result *= power(*it, p);
+
 	// Yun's algorithm does not account for constant factors.  (For
 	// univariate polynomials it works only in the monic case.)  We can
 	// correct this by inserting what has been lost back into the result:
@@ -2191,10 +2204,12 @@ ex power::normal(lst &sym_lst, lst &repl_lst, int level) const
 ex pseries::normal(lst &sym_lst, lst &repl_lst, int level) const
 {
 	epvector newseq;
-	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i) {
+	epvector::const_iterator i = seq.begin(), end = seq.end();
+	while (i != end) {
 		ex restexp = i->rest.normal();
 		if (!restexp.is_zero())
 			newseq.push_back(expair(restexp, i->coeff));
+		++i;
 	}
 	ex n = pseries(relational(var,point), newseq);
 	return (new lst(replace_with_symbol(n, sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
@@ -2345,14 +2360,16 @@ ex expairseq::to_rational(lst &repl_lst) const
 {
 	epvector s;
 	s.reserve(seq.size());
-	for (epvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
-		s.push_back(split_ex_to_pair(recombine_pair_to_ex(*it).to_rational(repl_lst)));
-		// s.push_back(combine_ex_with_coeff_to_pair((*it).rest.to_rational(repl_lst),
+	epvector::const_iterator i = seq.begin(), end = seq.end();
+	while (i != end) {
+		s.push_back(split_ex_to_pair(recombine_pair_to_ex(*i).to_rational(repl_lst)));
+		++i;
 	}
 	ex oc = overall_coeff.to_rational(repl_lst);
 	if (oc.info(info_flags::numeric))
 		return thisexpairseq(s, overall_coeff);
-	else s.push_back(combine_ex_with_coeff_to_pair(oc,_ex1()));
+	else
+		s.push_back(combine_ex_with_coeff_to_pair(oc, _ex1()));
 	return thisexpairseq(s, default_overall_coeff());
 }
 

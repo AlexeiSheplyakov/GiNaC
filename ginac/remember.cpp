@@ -44,7 +44,8 @@ bool remember_table_entry::is_equal(function const & f) const
 {
 	GINAC_ASSERT(f.seq.size()==seq.size());
 	if (f.gethash()!=hashvalue) return false;
-	for (unsigned i=0; i<seq.size(); ++i)
+	unsigned num = seq.size();
+	for (unsigned i=0; i<num; ++i)
 		if (!seq[i].is_equal(f.seq[i])) return false;
 	++last_access = access_counter;
 	++successful_hits;
@@ -120,11 +121,13 @@ void remember_table_list::add_entry(function const & f, ex const & result)
 
 bool remember_table_list::lookup_entry(function const & f, ex & result) const
 {
-	for (const_iterator cit=begin(); cit!=end(); ++cit) {
-		if ((*cit).is_equal(f)) {
-			result = (*cit).get_result();
+	const_iterator i = begin(), iend = end();
+	while (i != iend) {
+		if (i->is_equal(f)) {
+			result = i->get_result();
 			return true;
 		}
+		++i;
 	}
 	return false;
 }

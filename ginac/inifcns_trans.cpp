@@ -108,7 +108,7 @@ static ex log_evalf(const ex & x)
 static ex log_eval(const ex & x)
 {
 	if (x.info(info_flags::numeric)) {
-		if (x.is_equal(_ex0()))  // log(0) -> infinity
+		if (x.is_zero())         // log(0) -> infinity
 			throw(pole_error("log_eval(): log(0)",0));
 		if (x.info(info_flags::real) && x.info(info_flags::negative))
 			return (log(-x)+I*Pi);
@@ -595,7 +595,7 @@ static ex atan_eval(const ex & x)
 {
 	if (x.info(info_flags::numeric)) {
 		// atan(0) -> 0
-		if (x.is_equal(_ex0()))
+		if (x.is_zero())
 			return _ex0();
 		// atan(1) -> Pi/4
 		if (x.is_equal(_ex1()))

@@ -132,7 +132,8 @@ void pseries::print(const print_context & c, unsigned level) const
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 		    << std::endl;
 		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
-		for (unsigned i=0; i<seq.size(); ++i) {
+		unsigned num = seq.size();
+		for (unsigned i=0; i<num; ++i) {
 			seq[i].rest.print(c, level + delta_indent);
 			seq[i].coeff.print(c, level + delta_indent);
 			c.s << std::string(level + delta_indent, ' ') << "-----" << std::endl;
@@ -150,9 +151,10 @@ void pseries::print(const print_context & c, unsigned level) const
 		
 		// objects of type pseries must not have any zero entries, so the
 		// trivial (zero) pseries needs a special treatment here:
-		if (seq.size() == 0)
+		if (seq.empty())
 			c.s << '0';
-		for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i) {
+		epvector::const_iterator i = seq.begin(), end = seq.end();
+		while (i != end) {
 			// print a sign, if needed
 			if (i != seq.begin())
 				c.s << '+';
@@ -196,6 +198,7 @@ void pseries::print(const print_context & c, unsigned level) const
 				}
 			} else
 				Order(power(var-point,i->coeff)).print(c);
+			++i;
 		}
 
 		if (precedence() <= level)
@@ -319,7 +322,7 @@ int pseries::ldegree(const ex &s) const
 ex pseries::coeff(const ex &s, int n) const
 {
 	if (var.is_equal(s)) {
-		if (seq.size() == 0)
+		if (seq.empty())
 			return _ex0();
 		
 		// Binary search in sequence for given power
@@ -418,10 +421,12 @@ ex pseries::subs(const lst & ls, const lst & lr, bool no_pattern) const
 ex pseries::expand(unsigned options) const
 {
 	epvector newseq;
-	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i) {
+	epvector::const_iterator i = seq.begin(), end = seq.end();
+	while (i != end) {
 		ex restexp = i->rest.expand();
 		if (!restexp.is_zero())
 			newseq.push_back(expair(restexp, i->coeff));
+		++i;
 	}
 	return (new pseries(relational(var,point), newseq))
 	        ->setflag(status_flags::dynallocated | status_flags::expanded);
@@ -471,7 +476,7 @@ ex pseries::convert_to_poly(bool no_order) const
 
 bool pseries::is_terminating(void) const
 {
-	return seq.size() == 0 || !is_order_function((seq.end()-1)->rest);
+	return seq.empty() || !is_order_function((seq.end()-1)->rest);
 }
 
 
@@ -771,7 +776,7 @@ ex pseries::power_const(const numeric &p, int deg) const
 	// repeat the above derivation.  The leading power of C2(x) = A2(x)^2 is
 	// then of course x^(p*m) but the recurrence formula still holds.
 	
-	if (seq.size()==0) {
+	if (seq.empty()) {
 		// as a spacial case, handle the empty (zero) series honoring the
 		// usual power laws such as implemented in power::eval()
 		if (p.real().is_zero())
@@ -824,9 +829,12 @@ ex pseries::power_const(const numeric &p, int deg) const
 /** Return a new pseries object with the powers shifted by deg. */
 pseries pseries::shift_exponents(int deg) const
 {
-	epvector newseq(seq);
-	for (epvector::iterator i=newseq.begin(); i!=newseq.end(); ++i)
-		i->coeff = i->coeff + deg;
+	epvector newseq = seq;
+	epvector::iterator i = newseq.begin(), end  = newseq.end();
+	while (i != end) {
+		i->coeff += deg;
+		++i;
+	}
 	return pseries(relational(var, point), newseq);
 }
 

@@ -44,7 +44,6 @@ namespace GiNaC {
 #define EXPAIRSEQ_USE_HASHTAB 0
 
 typedef std::vector<expair> epvector;       ///< expair-vector
-typedef epvector::iterator epviter;         ///< expair-vector iterator
 typedef epvector::iterator epp;             ///< expair-vector pointer
 typedef std::list<epp> epplist;             ///< list of expair-vector pointers
 typedef std::vector<epplist> epplistvector; ///< vector of epplist

@@ -190,7 +190,7 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 			while (it != other) {
 				if (!is_ex_of_type(*it, clifford))
 					return false;
-				it++;
+				++it;
 			}
 
 			it = self + 1;
@@ -243,11 +243,11 @@ ex clifford::simplify_ncmul(const exvector & v) const
 				}
 				if (it == first)
 					break;
-				it--;
+				--it;
 			}
 			if (next_to_last == first)
 				break;
-			next_to_last--;
+			--next_to_last;
 		}
 	}
 
@@ -272,11 +272,11 @@ ex clifford::simplify_ncmul(const exvector & v) const
 					something_changed = true;
 				}
 			}
-			it++;
+			++it;
 		}
 	}
 
-	if (s.size() == 0)
+	if (s.empty())
 		return clifford(diracone(), representation_label) * sign;
 	if (something_changed)
 		return nonsimplified_ncmul(s) * sign;
@@ -526,7 +526,7 @@ ex canonicalize_clifford(const ex & e)
 			// Stupid recursive bubble sort because we only want to swap adjacent gammas
 			exvector::iterator it = v.begin(), next_to_last = v.end() - 1;
 			if (is_ex_of_type(it->op(0), diracgamma5))
-				it++;
+				++it;
 			while (it != next_to_last) {
 				if (it[0].op(1).compare(it[1].op(1)) > 0) {
 					ex save0 = it[0], save1 = it[1];
@@ -539,7 +539,7 @@ ex canonicalize_clifford(const ex & e)
 					srl.let_op(i) = (lhs == canonicalize_clifford(sum));
 					goto next_sym;
 				}
-				it++;
+				++it;
 			}
 next_sym:	;
 		}

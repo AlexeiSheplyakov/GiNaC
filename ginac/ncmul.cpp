@@ -214,18 +214,24 @@ ex ncmul::expand(unsigned options) const
 
 int ncmul::degree(const ex & s) const
 {
-	int deg_sum=0;
-	for (exvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
-		deg_sum+=(*cit).degree(s);
+	// Sum up degrees of factors
+	int deg_sum = 0;
+	exvector::const_iterator i = seq.begin(), end = seq.end();
+	while (i != end) {
+		deg_sum += i->degree(s);
+		++i;
 	}
 	return deg_sum;
 }
 
 int ncmul::ldegree(const ex & s) const
 {
-	int deg_sum=0;
-	for (exvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
-		deg_sum+=(*cit).ldegree(s);
+	// Sum up degrees of factors
+	int deg_sum = 0;
+	exvector::const_iterator i = seq.begin(), end = seq.end();
+	while (i != end) {
+		deg_sum += i->degree(s);
+		++i;
 	}
 	return deg_sum;
 }
@@ -235,7 +241,7 @@ ex ncmul::coeff(const ex & s, int n) const
 	exvector coeffseq;
 	coeffseq.reserve(seq.size());
 
-	if (n==0) {
+	if (n == 0) {
 		// product of individual coeffs
 		// if a non-zero power of s is found, the resulting product will be 0
 		exvector::const_iterator it=seq.begin();
@@ -246,17 +252,17 @@ ex ncmul::coeff(const ex & s, int n) const
 		return (new ncmul(coeffseq,1))->setflag(status_flags::dynallocated);
 	}
 		 
-	exvector::const_iterator it=seq.begin();
-	bool coeff_found=0;
-	while (it!=seq.end()) {
-		ex c=(*it).coeff(s,n);
-		if (!c.is_zero()) {
-			coeffseq.push_back(c);
-			coeff_found=1;
+	exvector::const_iterator i = seq.begin(), end = seq.end();
+	bool coeff_found = false;
+	while (i != end) {
+		ex c = i->coeff(s,n);
+		if (c.is_zero()) {
+			coeffseq.push_back(*i);
 		} else {
-			coeffseq.push_back(*it);
+			coeffseq.push_back(c);
+			coeff_found = true;
 		}
-		++it;
+		++i;
 	}
 
 	if (coeff_found) return (new ncmul(coeffseq,1))->setflag(status_flags::dynallocated);
@@ -283,10 +289,8 @@ void ncmul::append_factors(exvector & v, const ex & e) const
 		(is_ex_exactly_of_type(e,ncmul))) {
 		for (unsigned i=0; i<e.nops(); i++)
 			append_factors(v,e.op(i));
-		
-		return;
-	}
-	v.push_back(e);
+	} else 
+		v.push_back(e);
 }
 
 typedef std::vector<unsigned> unsignedvector;
@@ -318,30 +322,33 @@ ex ncmul::eval(int level) const
 
 	// ncmul(...,*(x1,x2),...,ncmul(x3,x4),...) ->
 	//     ncmul(...,x1,x2,...,x3,x4,...) (associativity)
-	unsigned factors=0;
-	for (exvector::const_iterator cit=evaledseq.begin(); cit!=evaledseq.end(); ++cit)
-		factors += count_factors(*cit);
+	unsigned factors = 0;
+	exvector::const_iterator cit = evaledseq.begin(), citend = evaledseq.end();
+	while (cit != citend)
+		factors += count_factors(*cit++);
 	
 	exvector assocseq;
 	assocseq.reserve(factors);
-	for (exvector::const_iterator cit=evaledseq.begin(); cit!=evaledseq.end(); ++cit)
-		append_factors(assocseq,*cit);
+	cit = evaledseq.begin();
+	while (cit != citend)
+		append_factors(assocseq, *cit++);
 	
 	// ncmul(x) -> x
 	if (assocseq.size()==1) return *(seq.begin());
 
 	// ncmul() -> 1
-	if (assocseq.size()==0) return _ex1();
+	if (assocseq.empty()) return _ex1();
 
 	// determine return types
 	unsignedvector rettypes;
 	rettypes.reserve(assocseq.size());
-	unsigned i=0;
+	unsigned i = 0;
 	unsigned count_commutative=0;
 	unsigned count_noncommutative=0;
 	unsigned count_noncommutative_composite=0;
-	for (exvector::const_iterator cit=assocseq.begin(); cit!=assocseq.end(); ++cit) {
-		switch (rettypes[i]=(*cit).return_type()) {
+	cit = assocseq.begin(); citend = assocseq.end();
+	while (cit != citend) {
+		switch (rettypes[i] = cit->return_type()) {
 		case return_types::commutative:
 			count_commutative++;
 			break;
@@ -354,7 +361,7 @@ ex ncmul::eval(int level) const
 		default:
 			throw(std::logic_error("ncmul::eval(): invalid return type"));
 		}
-		++i;
+		++i; ++cit;
 	}
 	GINAC_ASSERT(count_commutative+count_noncommutative+count_noncommutative_composite==assocseq.size());
 
@@ -365,7 +372,8 @@ ex ncmul::eval(int level) const
 		commutativeseq.reserve(count_commutative+1);
 		exvector noncommutativeseq;
 		noncommutativeseq.reserve(assocseq.size()-count_commutative);
-		for (i=0; i<assocseq.size(); ++i) {
+		unsigned num = assocseq.size();
+		for (unsigned i=0; i<num; ++i) {
 			if (rettypes[i]==return_types::commutative)
 				commutativeseq.push_back(assocseq[i]);
 			else
@@ -383,48 +391,51 @@ ex ncmul::eval(int level) const
 		// elements in assocseq
 		GINAC_ASSERT(count_commutative==0);
 
+		unsigned assoc_num = assocseq.size();
 		exvectorvector evv;
 		unsignedvector rttinfos;
-		evv.reserve(assocseq.size());
-		rttinfos.reserve(assocseq.size());
+		evv.reserve(assoc_num);
+		rttinfos.reserve(assoc_num);
 
-		for (exvector::const_iterator cit=assocseq.begin(); cit!=assocseq.end(); ++cit) {
-			unsigned ti=(*cit).return_type_tinfo();
+		cit = assocseq.begin(), citend = assocseq.end();
+		while (cit != citend) {
+			unsigned ti = cit->return_type_tinfo();
+			unsigned rtt_num = rttinfos.size();
 			// search type in vector of known types
-			for (i=0; i<rttinfos.size(); ++i) {
-				if (ti==rttinfos[i]) {
+			for (i=0; i<rtt_num; ++i) {
+				if (ti == rttinfos[i]) {
 					evv[i].push_back(*cit);
 					break;
 				}
 			}
-			if (i>=rttinfos.size()) {
+			if (i >= rtt_num) {
 				// new type
 				rttinfos.push_back(ti);
 				evv.push_back(exvector());
-				(*(evv.end()-1)).reserve(assocseq.size());
-				(*(evv.end()-1)).push_back(*cit);
+				(evv.end()-1)->reserve(assoc_num);
+				(evv.end()-1)->push_back(*cit);
 			}
+			++cit;
 		}
 
+		unsigned evv_num = evv.size();
 #ifdef DO_GINAC_ASSERT
-		GINAC_ASSERT(evv.size()==rttinfos.size());
-		GINAC_ASSERT(evv.size()>0);
+		GINAC_ASSERT(evv_num == rttinfos.size());
+		GINAC_ASSERT(evv_num > 0);
 		unsigned s=0;
-		for (i=0; i<evv.size(); ++i) {
+		for (i=0; i<evv_num; ++i)
 			s += evv[i].size();
-		}
-		GINAC_ASSERT(s==assocseq.size());
+		GINAC_ASSERT(s == assoc_num);
 #endif // def DO_GINAC_ASSERT
 		
 		// if all elements are of same type, simplify the string
-		if (evv.size()==1)
+		if (evv_num == 1)
 			return evv[0][0].simplify_ncmul(evv[0]);
 		
 		exvector splitseq;
-		splitseq.reserve(evv.size());
-		for (i=0; i<evv.size(); ++i) {
+		splitseq.reserve(evv_num);
+		for (i=0; i<evv_num; ++i)
 			splitseq.push_back((new ncmul(evv[i]))->setflag(status_flags::dynallocated));
-		}
 		
 		return (new mul(splitseq))->setflag(status_flags::dynallocated);
 	}
@@ -480,14 +491,17 @@ ex ncmul::thisexprseq(exvector * vp) const
  *  @see ex::diff */
 ex ncmul::derivative(const symbol & s) const
 {
+	unsigned num = seq.size();
 	exvector addseq;
-	addseq.reserve(seq.size());
+	addseq.reserve(num);
 	
 	// D(a*b*c) = D(a)*b*c + a*D(b)*c + a*b*D(c)
-	for (unsigned i=0; i!=seq.size(); ++i) {
-		exvector ncmulseq = seq;
-		ncmulseq[i] = seq[i].diff(s);
+	exvector ncmulseq = seq;
+	for (unsigned i=0; i<num; ++i) {
+		ex e = seq[i].diff(s);
+		e.swap(ncmulseq[i]);
 		addseq.push_back((new ncmul(ncmulseq))->setflag(status_flags::dynallocated));
+		e.swap(ncmulseq[i]);
 	}
 	return (new add(addseq))->setflag(status_flags::dynallocated);
 }
@@ -499,30 +513,30 @@ int ncmul::compare_same_type(const basic & other) const
 
 unsigned ncmul::return_type(void) const
 {
-	if (seq.size()==0) {
-		// ncmul without factors: should not happen, but commutes
+	if (seq.empty())
 		return return_types::commutative;
-	}
 
-	bool all_commutative=1;
-	unsigned rt;
-	exvector::const_iterator cit_noncommutative_element; // point to first found nc element
+	bool all_commutative = true;
+	exvector::const_iterator noncommutative_element; // point to first found nc element
 
-	for (exvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
-		rt=(*cit).return_type();
-		if (rt==return_types::noncommutative_composite) return rt; // one ncc -> mul also ncc
-		if ((rt==return_types::noncommutative)&&(all_commutative)) {
+	exvector::const_iterator i = seq.begin(), end = seq.end();
+	while (i != end) {
+		unsigned rt = i->return_type();
+		if (rt == return_types::noncommutative_composite)
+			return rt; // one ncc -> mul also ncc
+		if ((rt == return_types::noncommutative) && (all_commutative)) {
 			// first nc element found, remember position
-			cit_noncommutative_element=cit;
-			all_commutative=0;
+			noncommutative_element = i;
+			all_commutative = false;
 		}
-		if ((rt==return_types::noncommutative)&&(!all_commutative)) {
+		if ((rt == return_types::noncommutative) && (!all_commutative)) {
 			// another nc element found, compare type_infos
-			if ((*cit_noncommutative_element).return_type_tinfo()!=(*cit).return_type_tinfo()) {
+			if (noncommutative_element->return_type_tinfo() != i->return_type_tinfo()) {
 				// diffent types -> mul is ncc
 				return return_types::noncommutative_composite;
 			}
 		}
+		++i;
 	}
 	// all factors checked
 	GINAC_ASSERT(!all_commutative); // not all factors should commute, because this is a ncmul();
@@ -531,16 +545,17 @@ unsigned ncmul::return_type(void) const
    
 unsigned ncmul::return_type_tinfo(void) const
 {
-	if (seq.size()==0) {
-		// mul without factors: should not happen
+	if (seq.empty())
 		return tinfo_key;
-	}
+
 	// return type_info of first noncommutative element
-	for (exvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
-		if ((*cit).return_type()==return_types::noncommutative) {
-			return (*cit).return_type_tinfo();
-		}
+	exvector::const_iterator i = seq.begin(), end = seq.end();
+	while (i != end) {
+		if (i->return_type() == return_types::noncommutative)
+			return i->return_type_tinfo();
+		++i;
 	}
+
 	// no noncommutative element found, should not happen
 	return tinfo_key;
 }
@@ -583,13 +598,13 @@ ex nonsimplified_ncmul(const exvector & v)
 
 ex simplified_ncmul(const exvector & v)
 {
-	if (v.size()==0) {
+	if (v.empty())
 		return _ex1();
-	} else if (v.size()==1) {
+	else if (v.size() == 1)
 		return v[0];
-	}
-	return (new ncmul(v))->setflag(status_flags::dynallocated |
-	                               status_flags::evaluated);
+	else
+		return (new ncmul(v))->setflag(status_flags::dynallocated |
+		                               status_flags::evaluated);
 }
 
 } // namespace GiNaC

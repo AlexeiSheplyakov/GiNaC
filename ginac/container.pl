@@ -200,7 +200,7 @@ class ${CONTAINER} : public basic
 	GINAC_DECLARE_REGISTERED_CLASS(${CONTAINER}, basic)
 
 public:
-	${CONTAINER}(${STLT} const & s, bool discardable=0);
+	${CONTAINER}(${STLT} const & s, bool discardable = false);
 	${CONTAINER}(${STLT} * vp); // vp will be deleted
 ${constructors_interface}
 
@@ -391,10 +391,10 @@ ex ${CONTAINER}::unarchive(const archive_node &n, const lst &sym_lst)
 void ${CONTAINER}::archive(archive_node &n) const
 {
 	inherited::archive(n);
-	${STLT}::const_iterator i = seq.begin(), iend = seq.end();
-	while (i != iend) {
+	${STLT}::const_iterator i = seq.begin(), end = seq.end();
+	while (i != end) {
 		n.add_ex("seq", *i);
-		i++;
+		++i;
 	}
 }
 
@@ -415,8 +415,11 @@ void ${CONTAINER}::print(const print_context & c, unsigned level) const
 		    << ", nops=" << nops()
 		    << std::endl;
 		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
-		for (${STLT}::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit)
-			cit->print(c, level + delta_indent);
+		${STLT}::const_iterator i = seq.begin(), end = seq.end();
+		while (i != end) {
+			i->print(c, level + delta_indent);
+			++i;
+		}
 		c.s << std::string(level + delta_indent,' ') << "=====" << std::endl;
 
 	} else {
@@ -438,8 +441,10 @@ ex ${CONTAINER}::map(map_function & f) const
 {
 	${STLT} s;
 	RESERVE(s,seq.size());
-	for (${STLT}::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
-		s.push_back(f(*it));
+	${STLT}::const_iterator i = seq.begin(), end = seq.end();
+	while (i != end) {
+		s.push_back(f(*i));
+		++i;
 	}
 
 	return this${CONTAINER}(s);
@@ -538,13 +543,13 @@ void ${CONTAINER}::printseq(const print_context & c, char openbracket, char deli
 	if (this_precedence <= upper_precedence)
 		c.s << openbracket;
 
-	if (seq.size() != 0) {
+	if (!seq.empty()) {
 		${STLT}::const_iterator it = seq.begin(), itend = seq.end();
 		--itend;
 		while (it != itend) {
 			it->print(c, this_precedence);
 			c.s << delim;
-			it++;
+			++it;
 		}
 		it->print(c, this_precedence);
 	}
@@ -577,11 +582,11 @@ bool ${CONTAINER}::is_canonical() const
 {
 	if (seq.size()<=1) { return 1; }
 
-	${STLT}::const_iterator it=seq.begin();
+	${STLT}::const_iterator it = seq.begin(), itend = seq.end();
 	${STLT}::const_iterator it_last=it;
-	for (++it; it!=seq.end(); it_last=it, ++it) {
-		if ((*it_last).compare(*it)>0) {
-			if ((*it_last).compare(*it)>0) {
+	for (++it; it!=itend; it_last=it, ++it) {
+		if (it_last->compare(*it)>0) {
+			if (it_last->compare(*it)>0) {
 				std::cout << *it_last << ">" << *it << "\\n";
 				return 0;
 			}
@@ -603,8 +608,10 @@ ${STLT} ${CONTAINER}::evalchildren(int level) const
 		throw(std::runtime_error("max recursion level reached"));
 	}
 	--level;
-	for (${STLT}::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
-		s.push_back((*it).eval(level));
+	${STLT}::const_iterator it = seq.begin(), itend = seq.end();
+	while (it != itend) {
+		s.push_back(it->eval(level));
+		++it;
 	}
 	return s;
 }
@@ -615,28 +622,29 @@ ${STLT} * ${CONTAINER}::subschildren(const lst & ls, const lst & lr, bool no_pat
 	// returns a pointer to a newly created epvector otherwise
 	// (which has to be deleted somewhere else)
 
-	${STLT}::const_iterator last=seq.end();
-	${STLT}::const_iterator cit=seq.begin();
-	while (cit!=last) {
-		const ex & subsed_ex=(*cit).subs(ls,lr,no_pattern);
-		if (!are_ex_trivially_equal(*cit,subsed_ex)) {
+	${STLT}::const_iterator cit = seq.begin(), end = seq.end();
+	while (cit != end) {
+		const ex & subsed_ex = cit->subs(ls, lr, no_pattern);
+		if (!are_ex_trivially_equal(*cit, subsed_ex)) {
 
 			// something changed, copy seq, subs and return it
 			${STLT} *s=new ${STLT};
-			RESERVE(*s,seq.size());
+			RESERVE(*s, seq.size());
 
 			// copy parts of seq which are known not to have changed
-			${STLT}::const_iterator cit2=seq.begin();
-			while (cit2!=cit) {
+			${STLT}::const_iterator cit2 = seq.begin();
+			while (cit2 != cit) {
 				s->push_back(*cit2);
 				++cit2;
 			}
+
 			// copy first changed element
 			s->push_back(subsed_ex);
 			++cit2;
+
 			// copy rest
-			while (cit2!=last) {
-				s->push_back((*cit2).subs(ls,lr,no_pattern));
+			while (cit2 != end) {
+				s->push_back(cit2->subs(ls, lr, no_pattern));
 				++cit2;
 			}
 			return s;

@@ -325,7 +325,7 @@ public:
 $constructors_interface
 	// end of generated lines
 	function(unsigned ser, const exprseq & es);
-	function(unsigned ser, const exvector & v, bool discardable=0);
+	function(unsigned ser, const exvector & v, bool discardable = false);
 	function(unsigned ser, exvector * vp); // vp will be deleted
 
 	// functions overriding virtual functions from bases classes
@@ -668,7 +668,7 @@ void function::print(const print_context & c, unsigned level) const
 		    << ", nops=" << nops()
 		    << std::endl;
 		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
-		for (unsigned i=0; i<nops(); ++i)
+		for (unsigned i=0; i<seq.size(); ++i)
 			seq[i].print(c, level + delta_indent);
 		c.s << std::string(level + delta_indent, ' ') << "=====" << std::endl;
 
@@ -676,7 +676,8 @@ void function::print(const print_context & c, unsigned level) const
 
 		// Print function name in lowercase
 		std::string lname = registered_functions()[serial].name;
-		for (unsigned i=0; i<lname.size(); i++)
+		unsigned num = lname.size();
+		for (unsigned i=0; i<num; i++)
 			lname[i] = tolower(lname[i]);
 		c.s << lname << "(";
 
@@ -881,7 +882,8 @@ ex function::derivative(const symbol & s) const
 	} else {
 		// Chain rule
 		ex arg_diff;
-		for (unsigned i=0; i!=seq.size(); i++) {
+		unsigned num = seq.size();
+		for (unsigned i=0; i<num; i++) {
 			arg_diff = seq[i].diff(s);
 			// We apply the chain rule only when it makes sense.  This is not
 			// just for performance reasons but also to allow functions to
@@ -917,18 +919,18 @@ bool function::is_equal_same_type(const basic & other) const
 
 unsigned function::return_type(void) const
 {
-	if (seq.size()==0) {
+	if (seq.empty())
 		return return_types::commutative;
-	}
-	return (*seq.begin()).return_type();
+	else
+		return seq.begin()->return_type();
 }
 
 unsigned function::return_type_tinfo(void) const
 {
-	if (seq.size()==0) {
+	if (seq.empty())
 		return tinfo_key;
-	}
-	return (*seq.begin()).return_type_tinfo();
+	else
+		return seq.begin()->return_type_tinfo();
 }
 
 //////////

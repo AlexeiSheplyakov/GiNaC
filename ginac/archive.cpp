@@ -483,7 +483,7 @@ void archive_node::get_properties(propinfovector &v) const
 				found = true;
 				break;
 			}
-			a++;
+			++a;
 		}
 		if (!found)
 			v.push_back(property_info(type, name));
@@ -546,11 +546,7 @@ void archive::clear(void)
 /** Delete cached unarchived expressions in all archive_nodes (mainly for debugging). */
 void archive::forget(void)
 {
-	std::vector<archive_node>::iterator i = nodes.begin(), iend = nodes.end();
-	while (i != iend) {
-		i->forget();
-		i++;
-	}
+	for_each(nodes.begin(), nodes.end(), std::mem_fun_ref(&archive_node::forget));
 }
 
 /** Delete cached unarchived expressions from node (for debugging). */

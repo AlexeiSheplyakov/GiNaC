@@ -645,12 +645,13 @@ try_again:
 			// Check whether the two factors share dummy indices
 			exvector free, dummy;
 			find_free_and_dummy(un, free, dummy);
-			if (dummy.size() == 0)
+			unsigned num_dummies = dummy.size();
+			if (num_dummies == 0)
 				continue;
 
 			// At least one dummy index, is it a defined scalar product?
 			bool contracted = false;
-			if (free.size() == 0) {
+			if (free.empty()) {
 				if (sp.is_defined(*it1, *it2)) {
 					*it1 = sp.evaluate(*it1, *it2);
 					*it2 = _ex1();
@@ -659,13 +660,13 @@ try_again:
 			}
 
 			// Contraction of symmetric with antisymmetric object is zero
-			if (dummy.size() > 1
+			if (num_dummies > 1
 			 && ex_to<symmetry>(ex_to<indexed>(*it1).symtree).has_symmetry()
 			 && ex_to<symmetry>(ex_to<indexed>(*it2).symtree).has_symmetry()) {
 
 				// Check all pairs of dummy indices
-				for (unsigned idx1=0; idx1<dummy.size()-1; idx1++) {
-					for (unsigned idx2=idx1+1; idx2<dummy.size(); idx2++) {
+				for (unsigned idx1=0; idx1<num_dummies-1; idx1++) {
+					for (unsigned idx2=idx1+1; idx2<num_dummies; idx2++) {
 
 						// Try and swap the index pair and check whether the
 						// relative sign changed
@@ -890,10 +891,12 @@ ex scalar_products::evaluate(const ex & v1, const ex & v2) const
 void scalar_products::debugprint(void) const
 {
 	std::cerr << "map size=" << spm.size() << std::endl;
-	for (spmap::const_iterator cit=spm.begin(); cit!=spm.end(); ++cit) {
-		const spmapkey & k = cit->first;
+	spmap::const_iterator i = spm.begin(), end = spm.end();
+	while (i != end) {
+		const spmapkey & k = i->first;
 		std::cerr << "item key=(" << k.first << "," << k.second;
-		std::cerr << "), value=" << cit->second << std::endl;
+		std::cerr << "), value=" << i->second << std::endl;
+		++i;
 	}
 }
 

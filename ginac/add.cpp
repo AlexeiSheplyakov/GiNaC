@@ -236,16 +236,20 @@ bool add::info(unsigned inf) const
 		case info_flags::rational_polynomial:
 		case info_flags::crational_polynomial:
 		case info_flags::rational_function: {
-			for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i) {
+			epvector::const_iterator i = seq.begin(), end = seq.end();
+			while (i != end) {
 				if (!(recombine_pair_to_ex(*i).info(inf)))
 					return false;
+				++i;
 			}
 			return overall_coeff.info(inf);
 		}
 		case info_flags::algebraic: {
-			for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i) {
+			epvector::const_iterator i = seq.begin(), end = seq.end();
+			while (i != end) {
 				if ((recombine_pair_to_ex(*i).info(inf)))
 					return true;
+				++i;
 			}
 			return false;
 		}
@@ -256,14 +260,16 @@ bool add::info(unsigned inf) const
 int add::degree(const ex & s) const
 {
 	int deg = INT_MIN;
-	if (!overall_coeff.is_equal(_ex0()))
+	if (!overall_coeff.is_zero())
 		deg = 0;
 	
-	int cur_deg;
-	for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
-		cur_deg = (*cit).rest.degree(s);
-		if (cur_deg>deg)
+	// Find maximum of degrees of individual terms
+	epvector::const_iterator i = seq.begin(), end = seq.end();
+	while (i != end) {
+		int cur_deg = i->rest.degree(s);
+		if (cur_deg > deg)
 			deg = cur_deg;
+		++i;
 	}
 	return deg;
 }
@@ -271,30 +277,34 @@ int add::degree(const ex & s) const
 int add::ldegree(const ex & s) const
 {
 	int deg = INT_MAX;
-	if (!overall_coeff.is_equal(_ex0()))
+	if (!overall_coeff.is_zero())
 		deg = 0;
 	
-	int cur_deg;
-	for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
-		cur_deg = (*cit).rest.ldegree(s);
-		if (cur_deg<deg) deg=cur_deg;
+	// Find minimum of degrees of individual terms
+	epvector::const_iterator i = seq.begin(), end = seq.end();
+	while (i != end) {
+		int cur_deg = i->rest.ldegree(s);
+		if (cur_deg < deg)
+			deg = cur_deg;
+		++i;
 	}
 	return deg;
 }
 
 ex add::coeff(const ex & s, int n) const
 {
-	epvector coeffseq;
-	
-	epvector::const_iterator it=seq.begin();
-	while (it!=seq.end()) {
-		ex restcoeff = it->rest.coeff(s,n);
+	epvector *coeffseq = new epvector();
+
+	// Calculate sum of coefficients in each term
+	epvector::const_iterator i = seq.begin(), end = seq.end();
+	while (i != end) {
+		ex restcoeff = i->rest.coeff(s, n);
 		if (!restcoeff.is_zero())
-			coeffseq.push_back(combine_ex_with_coeff_to_pair(restcoeff,it->coeff));
-		++it;
+			coeffseq->push_back(combine_ex_with_coeff_to_pair(restcoeff, i->coeff));
+		++i;
 	}
-	
-	return (new add(coeffseq, n==0 ? overall_coeff : default_overall_coeff()))->setflag(status_flags::dynallocated);
+
+	return (new add(coeffseq, n==0 ? overall_coeff : _ex0()))->setflag(status_flags::dynallocated);
 }
 
 ex add::eval(int level) const
@@ -304,19 +314,21 @@ ex add::eval(int level) const
 	
 	debugmsg("add eval",LOGLEVEL_MEMBER_FUNCTION);
 	
-	epvector * evaled_seqp = evalchildren(level);
-	if (evaled_seqp!=0) {
+	epvector *evaled_seqp = evalchildren(level);
+	if (evaled_seqp) {
 		// do more evaluation later
-		return (new add(evaled_seqp,overall_coeff))->
+		return (new add(evaled_seqp, overall_coeff))->
 		       setflag(status_flags::dynallocated);
 	}
 	
 #ifdef DO_GINAC_ASSERT
-	for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
-		GINAC_ASSERT(!is_ex_exactly_of_type((*cit).rest,add));
-		if (is_ex_exactly_of_type((*cit).rest,numeric))
+	epvector::const_iterator i = seq.begin(), end = seq.end();
+	while (i != end) {
+		GINAC_ASSERT(!is_ex_exactly_of_type(i->rest,add));
+		if (is_ex_exactly_of_type(i->rest,numeric))
 			dbgprint();
-		GINAC_ASSERT(!is_ex_exactly_of_type((*cit).rest,numeric));
+		GINAC_ASSERT(!is_ex_exactly_of_type(i->rest,numeric));
+		++i;
 	}
 #endif // def DO_GINAC_ASSERT
 	
@@ -330,7 +342,7 @@ ex add::eval(int level) const
 	if (seq_size==0) {
 		// +(;c) -> c
 		return overall_coeff;
-	} else if ((seq_size==1) && overall_coeff.is_equal(_ex0())) {
+	} else if ((seq_size==1) && overall_coeff.is_zero()) {
 		// +(x;0) -> x
 		return recombine_pair_to_ex(*(seq.begin()));
 	}
@@ -363,18 +375,19 @@ ex add::evalm(void) const
 		it++;
 	}
 
-	if (all_matrices)
+	if (all_matrices) {
+		delete s;
 		return sum + overall_coeff;
-	else
+	} else
 		return (new add(s, overall_coeff))->setflag(status_flags::dynallocated);
 }
 
 ex add::simplify_ncmul(const exvector & v) const
 {
-	if (seq.size()==0) {
+	if (seq.empty())
 		return inherited::simplify_ncmul(v);
-	}
-	return (*seq.begin()).rest.simplify_ncmul(v);
+	else
+		return seq.begin()->rest.simplify_ncmul(v);
 }    
 
 // protected
@@ -389,9 +402,10 @@ ex add::derivative(const symbol & y) const
 	// Only differentiate the "rest" parts of the expairs. This is faster
 	// than the default implementation in basic::derivative() although
 	// if performs the same function (differentiate each term).
-	for (epvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
-		s->push_back(combine_ex_with_coeff_to_pair((*it).rest.diff(y),
-		                                           (*it).coeff));
+	epvector::const_iterator i = seq.begin(), end = seq.end();
+	while (i != end) {
+		s->push_back(combine_ex_with_coeff_to_pair(i->rest.diff(y), i->coeff));
+		++i;
 	}
 	return (new add(s, _ex0()))->setflag(status_flags::dynallocated);
 }
@@ -408,18 +422,18 @@ bool add::is_equal_same_type(const basic & other) const
 
 unsigned add::return_type(void) const
 {
-	if (seq.size()==0) {
+	if (seq.empty())
 		return return_types::commutative;
-	}
-	return (*seq.begin()).rest.return_type();
+	else
+		return seq.begin()->rest.return_type();
 }
    
 unsigned add::return_type_tinfo(void) const
 {
-	if (seq.size()==0) {
+	if (seq.empty())
 		return tinfo_key;
-	}
-	return (*seq.begin()).rest.return_type_tinfo();
+	else
+		return seq.begin()->rest.return_type_tinfo();
 }
 
 ex add::thisexpairseq(const epvector & v, const ex & oc) const
@@ -500,13 +514,13 @@ ex add::expand(unsigned options) const
 	if (flags & status_flags::expanded)
 		return *this;
 	
-	epvector * vp = expandchildren(options);
+	epvector *vp = expandchildren(options);
 	if (vp == NULL) {
 		// the terms have not changed, so it is safe to declare this expanded
 		return this->setflag(status_flags::expanded);
 	}
 	
-	return (new add(vp,overall_coeff))->setflag(status_flags::expanded | status_flags::dynallocated);
+	return (new add(vp, overall_coeff))->setflag(status_flags::expanded | status_flags::dynallocated);
 }
 
 } // namespace GiNaC

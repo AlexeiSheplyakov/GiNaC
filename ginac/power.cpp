@@ -787,8 +787,10 @@ ex power::expand_add_2(const add & a) const
 	
 	// second part: add terms coming from overall_factor (if != 0)
 	if (!a.overall_coeff.is_zero()) {
-		for (epvector::const_iterator cit=a.seq.begin(); cit!=a.seq.end(); ++cit) {
-			sum.push_back(a.combine_pair_with_coeff_to_pair(*cit,ex_to<numeric>(a.overall_coeff).mul_dyn(_num2())));
+		epvector::const_iterator i = a.seq.begin(), end = a.seq.end();
+		while (i != end) {
+			sum.push_back(a.combine_pair_with_coeff_to_pair(*i, ex_to<numeric>(a.overall_coeff).mul_dyn(_num2())));
+			++i;
 		}
 		sum.push_back(expair(ex_to<numeric>(a.overall_coeff).power_dyn(_num2()),_ex1()));
 	}

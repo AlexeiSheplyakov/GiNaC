@@ -359,7 +359,6 @@ static void print_real_number(std::ostream &os, const cln::cl_R &num)
 		ourflags.default_float_format = cln::float_format(cln::the<cln::cl_F>(num));
 		cln::print_real(os, ourflags, num);
 	}
-	return;
 }
 
 /** This method adds to the output so it blends more consistently together
@@ -1574,7 +1573,7 @@ const numeric bernoulli(const numeric &nn)
 	static std::vector< cln::cl_RA > results;
 	static int highest_result = 0;
 	// algorithm not applicable to B(0), so just store it
-	if (results.size()==0)
+	if (results.empty())
 		results.push_back(cln::cl_RA(1));
 	
 	int n = nn.to_long();

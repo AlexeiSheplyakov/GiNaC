@@ -200,10 +200,11 @@ void expairseq::print(const print_context & c, unsigned level) const
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 		    << ", nops=" << nops()
 		    << std::endl;
-		for (unsigned i=0; i<seq.size(); ++i) {
+		unsigned num = seq.size();
+		for (unsigned i=0; i<num; ++i) {
 			seq[i].rest.print(c, level + delta_indent);
 			seq[i].coeff.print(c, level + delta_indent);
-			if (i != seq.size()-1)
+			if (i != num - 1)
 				c.s << std::string(level + delta_indent, ' ') << "-----" << std::endl;
 		}
 		if (!overall_coeff.is_equal(default_overall_coeff())) {
@@ -365,7 +366,7 @@ bool expairseq::match(const ex & pattern, lst & repl_lst) const
 					ops.erase(it);
 					goto found;
 				}
-				it++;
+				++it;
 			}
 			return false; // no match found
 found:		;
@@ -376,9 +377,10 @@ found:		;
 			// Assign all the remaining terms to the global wildcard (unless
 			// it has already been matched before, in which case the matches
 			// must be equal)
+			unsigned num = ops.size();
 			epvector *vp = new epvector();
-			vp->reserve(ops.size());
-			for (unsigned i=0; i<ops.size(); i++)
+			vp->reserve(num);
+			for (unsigned i=0; i<num; i++)
 				vp->push_back(split_ex_to_pair(ops[i]));
 			ex rest = thisexpairseq(vp, default_overall_coeff());
 			for (unsigned i=0; i<repl_lst.nops(); i++) {
@@ -547,15 +549,17 @@ unsigned expairseq::return_type(void) const
 unsigned expairseq::calchash(void) const
 {
 	unsigned v = golden_ratio_hash(tinfo());
-	for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
+	epvector::const_iterator i = seq.begin(), end = seq.end();
+	while (i != end) {
 #if !EXPAIRSEQ_USE_HASHTAB
 		v = rotate_left_31(v); // rotation would spoil commutativity
 #endif // EXPAIRSEQ_USE_HASHTAB
-		v ^= cit->rest.gethash();
+		v ^= i->rest.gethash();
 #if !EXPAIRSEQ_USE_HASHTAB
 		v = rotate_left_31(v);
-		v ^= cit->coeff.gethash();
+		v ^= i->coeff.gethash();
 #endif // EXPAIRSEQ_USE_HASHTAB
+		++i;
 	}
 	
 	v ^= overall_coeff.gethash();
@@ -942,7 +946,6 @@ void expairseq::construct_from_exvector(const exvector &v)
 	canonicalize();
 	combine_same_terms_sorted_seq();
 #endif // EXPAIRSEQ_USE_HASHTAB
-	return;
 }
 
 void expairseq::construct_from_epvector(const epvector &v)
@@ -959,7 +962,6 @@ void expairseq::construct_from_epvector(const epvector &v)
 	canonicalize();
 	combine_same_terms_sorted_seq();
 #endif // EXPAIRSEQ_USE_HASHTAB
-	return;
 }
 
 /** Combine this expairseq with argument exvector.
@@ -1004,8 +1006,6 @@ void expairseq::make_flat(const exvector &v)
 		}
 		++cit;
 	}
-	
-	return;
 }
 
 /** Combine this expairseq with argument epvector.
@@ -1055,15 +1055,12 @@ void expairseq::make_flat(const epvector &v)
 		}
 		++cit;
 	}
-	return;
 }
 
 /** Brings this expairseq into a sorted (canonical) form. */
 void expairseq::canonicalize(void)
 {
-	// canonicalize
-	sort(seq.begin(),seq.end(),expair_is_less());
-	return;
+	sort(seq.begin(), seq.end(), expair_is_less());
 }
 
 
@@ -1113,7 +1110,6 @@ void expairseq::combine_same_terms_sorted_seq(void)
 		seq.clear();
 		construct_from_epvector(v);
 	}
-	return;
 }
 
 #if EXPAIRSEQ_USE_HASHTAB
@@ -1240,7 +1236,7 @@ void expairseq::move_hashtab_entry(epvector::const_iterator oldpos,
 
 void expairseq::sorted_insert(epplist &eppl, epp elem)
 {
-	epplist::iterator current = eppl.begin();
+	epplist::const_iterator current = eppl.begin();
 	while ((current!=eppl.end())&&((*(*current)).is_less(*elem))) {
 		++current;
 	}
@@ -1349,9 +1345,11 @@ void expairseq::drop_coeff_0_terms(epvector::iterator &first_numeric,
  *  debugging purposes. */
 bool expairseq::has_coeff_0(void) const
 {
-	for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
-		if ((*cit).coeff.is_zero())
+	epvector::const_iterator i = seq.begin(), end = seq.end();
+	while (i != end) {
+		if (i->coeff.is_zero())
 			return true;
+		++i;
 	}
 	return false;
 }
@@ -1359,12 +1357,11 @@ bool expairseq::has_coeff_0(void) const
 void expairseq::add_numerics_to_hashtab(epvector::iterator first_numeric,
 										epvector::const_iterator last_non_zero)
 {
-	if (first_numeric==seq.end()) return; // no numerics    
+	if (first_numeric == seq.end()) return; // no numerics
 	
-	epvector::iterator current = first_numeric;
-	epvector::const_iterator last = last_non_zero+1;
-	while (current!=last) {
-		sorted_insert(hashtab[hashmask],current);
+	epvector::const_iterator current = first_numeric, last = last_non_zero + 1;
+	while (current != last) {
+		sorted_insert(hashtab[hashmask], current);
 		++current;
 	}
 }
@@ -1395,41 +1392,18 @@ void expairseq::combine_same_terms(void)
 	epvector::iterator first_numeric = seq.end();
 	epvector::iterator last_non_zero = seq.end()-1;
 	
-	std::vector<bool> touched;
-	touched.reserve(seq.size());
-	for (unsigned i=0; i<seq.size(); ++i) touched[i]=false;
+	unsigned num = seq.size();
+	std::vector<bool> touched(num);
 	
 	unsigned number_of_zeroes = 0;
 	
 	GINAC_ASSERT(!has_coeff_0());
 	build_hashtab_and_combine(first_numeric,last_non_zero,touched,number_of_zeroes);
-	/*
-	cout << "in combine:" << std::endl;
-	printtree(cout,0);
-	cout << "size=" << seq.end() - seq.begin() << std::endl;
-	cout << "first_numeric=" << first_numeric - seq.begin() << std::endl;
-	cout << "last_non_zero=" << last_non_zero - seq.begin() << std::endl;
-	for (unsigned i=0; i<seq.size(); ++i) {
-		if (touched[i]) cout << i << " is touched" << std::endl;
-	}
-	cout << "end in combine" << std::endl;
-	*/
 	
 	// there should not be any terms with coeff 0 from the beginning,
 	// so it should be safe to skip this step
 	if (number_of_zeroes!=0) {
 		drop_coeff_0_terms(first_numeric,last_non_zero,touched,number_of_zeroes);
-		/*
-		cout << "in combine after drop:" << std::endl;
-		printtree(cout,0);
-		cout << "size=" << seq.end() - seq.begin() << std::endl;
-		cout << "first_numeric=" << first_numeric - seq.begin() << std::endl;
-		cout << "last_non_zero=" << last_non_zero - seq.begin() << std::endl;
-		for (unsigned i=0; i<seq.size(); ++i) {
-			if (touched[i]) cout << i << " is touched" << std::endl;
-		}
-		cout << "end in combine after drop" << std::endl;
-		*/
 	}
 	
 	add_numerics_to_hashtab(first_numeric,last_non_zero);
@@ -1460,9 +1434,9 @@ bool expairseq::is_canonical() const
 	if (hashtabsize > 0) return 1; // not canoncalized
 #endif // EXPAIRSEQ_USE_HASHTAB
 	
-	epvector::const_iterator it = seq.begin();
+	epvector::const_iterator it = seq.begin(), itend = seq.end();
 	epvector::const_iterator it_last = it;
-	for (++it; it!=seq.end(); it_last=it, ++it) {
+	for (++it; it!=itend; it_last=it, ++it) {
 		if (!((*it_last).is_less(*it) || (*it_last).is_equal(*it))) {
 			if (!is_ex_exactly_of_type((*it_last).rest,numeric) ||
 				!is_ex_exactly_of_type((*it).rest,numeric)) {

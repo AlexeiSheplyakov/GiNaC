@@ -165,7 +165,7 @@ ex color::simplify_ncmul(const exvector & v) const
 		it++;
 	}
 
-	if (s.size() == 0)
+	if (s.empty())
 		return color(su3one(), representation_label);
 	else
 		return simplified_ncmul(s);
@@ -220,7 +220,7 @@ ex su3d::eval_indexed(const basic & i) const
 	GINAC_ASSERT(is_ex_of_type(i.op(0), su3d));
 
 	// Convolutions are zero
-	if (static_cast<const indexed &>(i).get_dummy_indices().size() != 0)
+	if (!(static_cast<const indexed &>(i).get_dummy_indices().empty()))
 		return _ex0();
 
 	// Numeric evaluation
