@@ -107,8 +107,24 @@ static ex csgn_eval(const ex & x)
     return csgn(x).hold();
 }
 
+static ex csgn_series(const ex & x, const relational & rel, int order)
+{
+    const ex x_pt = x.subs(rel);
+    if (x_pt.info(info_flags::numeric)) {
+        if (ex_to_numeric(x_pt).real().is_zero())
+            throw (std::domain_error("csgn_series(): on imaginary axis"));
+        epvector seq;
+        seq.push_back(expair(csgn(x_pt), _ex0()));
+        return pseries(rel,seq);
+    }
+    epvector seq;
+    seq.push_back(expair(csgn(x_pt), _ex0()));
+    return pseries(rel,seq);
+}
+
 REGISTER_FUNCTION(csgn, eval_func(csgn_eval).
-                        evalf_func(csgn_evalf));
+                        evalf_func(csgn_evalf).
+                        series_func(csgn_series));
 
 //////////
 // dilogarithm

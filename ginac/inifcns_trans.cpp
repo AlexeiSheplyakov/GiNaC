@@ -109,16 +109,16 @@ static ex log_evalf(const ex & x)
 static ex log_eval(const ex & x)
 {
     if (x.info(info_flags::numeric)) {
+        if (x.is_equal(_ex0()))  // log(0) -> infinity
+            throw(std::domain_error("log_eval(): log(0)"));
+        if (x.info(info_flags::real) && x.info(info_flags::negative))
+            return (log(-x)+I*Pi);
         if (x.is_equal(_ex1()))  // log(1) -> 0
             return _ex0();
-        if (x.is_equal(_ex_1())) // log(-1) -> I*Pi
-            return (I*Pi);        
         if (x.is_equal(I))       // log(I) -> Pi*I/2
             return (Pi*I*_num1_2());
         if (x.is_equal(-I))      // log(-I) -> -Pi*I/2
             return (Pi*I*_num_1_2());
-        if (x.is_equal(_ex0()))  // log(0) -> infinity
-            throw(std::domain_error("log_eval(): log(0)"));
         // log(float)
         if (!x.info(info_flags::crational))
             return log_evalf(x);
@@ -139,12 +139,12 @@ static ex log_eval(const ex & x)
 static ex log_deriv(const ex & x, unsigned deriv_param)
 {
     GINAC_ASSERT(deriv_param==0);
-
+    
     // d/dx log(x) -> 1/x
     return power(x, _ex_1());
 }
 
-/*static ex log_series(const ex &x, const relational &rel, int order)
+static ex log_series(const ex &x, const relational &rel, int order)
 {
     const ex x_pt = x.subs(rel);
     if (!x_pt.info(info_flags::negative) && !x_pt.is_zero())
@@ -154,27 +154,16 @@ static ex log_deriv(const ex & x, unsigned deriv_param)
         epvector seq;
         seq.push_back(expair(log(x), _ex0()));
         return pseries(rel, seq);
-    } // the branch cut:
+    } // on the branch cut:
     const ex point = rel.rhs();
     const symbol *s = static_cast<symbol *>(rel.lhs().bp);
     const symbol foo;
     // compute the formal series:
     ex replx = series(log(x),*s==foo,order).subs(foo==point);
     epvector seq;
-    // FIXME: this is probably off by 2 or so:
     seq.push_back(expair(-I*csgn(x*I)*Pi,_ex0()));
     seq.push_back(expair(Order(_ex1()),order));
-    return series(replx + pseries(rel, seq),rel,order);
-}*/
-
-static ex log_series(const ex &x, const relational &r, int order)
-{
-	if (x.subs(r).is_zero()) {
-		epvector seq;
-		seq.push_back(expair(log(x), _ex0()));
-		return pseries(r, seq);
-	} else
-		throw do_taylor();
+    return series(replx - I*Pi + pseries(rel, seq),rel,order);
 }
 
 REGISTER_FUNCTION(log, eval_func(log_eval).

@@ -165,6 +165,9 @@ basic *pseries::duplicate() const
 void pseries::print(ostream &os, unsigned upper_precedence) const
 {
     debugmsg("pseries print", LOGLEVEL_PRINT);
+    // This could be made better, since series expansion at x==1 might print
+    // -1+2*x+Order((-1+x)^2) instead of 1+2*(-1+x)+Order((-1+x)^2), which is
+    // correct but can be rather confusing.
     convert_to_poly().print(os, upper_precedence);
 }
 

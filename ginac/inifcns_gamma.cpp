@@ -56,7 +56,7 @@ static ex lgamma_evalf(const ex & x)
  *  Knows about integer arguments and that's it.  Somebody ought to provide
  *  some good numerical evaluation some day...
  *
- *  @exception std::domain_error("lgamma_eval(): simple pole") */
+ *  @exception std::domain_error("lgamma_eval(): logarithmic pole") */
 static ex lgamma_eval(const ex & x)
 {
     if (x.info(info_flags::numeric)) {
@@ -90,20 +90,20 @@ static ex lgamma_series(const ex & x, const relational & rel, int order)
     // method:
     // Taylor series where there is no pole falls back to psi function
     // evaluation.
-    // On a pole at -m use the recurrence relation
+    // On a pole at -m we could use the recurrence relation
     //   lgamma(x) == lgamma(x+1)-log(x)
     // from which follows
     //   series(lgamma(x),x==-m,order) ==
-    //   series(lgamma(x+m+1)-log(x)...-log(x+m)),x==-m,order+1);
+    //   series(lgamma(x+m+1)-log(x)...-log(x+m)),x==-m,order);
+    // This, however, seems to fail utterly because you run into branch-cut
+    // problems.  Somebody ought to implement it some day using an asymptotic
+    // series for tgamma:
     const ex x_pt = x.subs(rel);
     if (!x_pt.info(info_flags::integer) || x_pt.info(info_flags::positive))
         throw do_taylor();  // caught by function::series()
-    // if we got here we have to care for a simple pole at -m:
-    numeric m = -ex_to_numeric(x_pt);
-    ex ser_sub = _ex0();
-    for (numeric p; p<=m; ++p)
-        ser_sub += log(x+p);
-    return (lgamma(x+m+_ex1())-ser_sub).series(rel, order);
+    // if we got here we have to care for a simple pole of tgamma(-m):
+    throw (std::domain_error("lgamma_series: please implemnt my at the poles"));
+    return _ex0();  // not reached
 }
 
 

@@ -42,8 +42,6 @@ class lst;
 // are defined in utils.h and not visible from outside.
 extern const ex & _ex0(void);     //  single ex(numeric(0))
 
-// typedef vector<ex> exvector;
-
 #define INLINE_EX_CONSTRUCTORS
 
 /** Lightweight wrapper for GiNaC's symbolic objects.  Basically all it does is

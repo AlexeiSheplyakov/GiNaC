@@ -96,9 +96,8 @@ public:
     matrix old_solve(const matrix & v) const;  // FIXME: may be removed
 protected:
     ex determinant_numeric(void) const;
-    ex determinant_minor_sparse(void) const;
-    ex determinant_minor_dense(void) const;
-    ex determinant_perm(void) const;
+    ex determinant_minor(void) const;
+    ex determinant_bareiss(bool normalize=true) const;
     int gauss_elimination(void);
     int fraction_free_elimination(void);
     int division_free_elimination(void);

@@ -93,7 +93,6 @@ static struct _stat_print {
  *  @param e  expression to search
  *  @param x  pointer to first symbol found (returned)
  *  @return "false" if no symbol was found, "true" otherwise */
-
 static bool get_first_symbol(const ex &e, const symbol *&x)
 {
     if (is_ex_exactly_of_type(e, symbol)) {
@@ -186,7 +185,6 @@ static void collect_symbols(const ex &e, sym_desc_vec &v)
  *  @param a  first multivariate polynomial
  *  @param b  second multivariate polynomial
  *  @param v  vector of sym_desc structs (filled in) */
-
 static void get_symbol_stats(const ex &a, const ex &b, sym_desc_vec &v)
 {
     collect_symbols(a.eval(), v);   // eval() to expand assigned symbols
@@ -247,7 +245,6 @@ static numeric lcmcoeff(const ex &e, const numeric &l)
  *
  *  @param e  multivariate polynomial (need not be expanded)
  *  @return LCM of denominators of coefficients */
-
 static numeric lcm_of_coefficients_denominators(const ex &e)
 {
     return lcmcoeff(e, _num1());
@@ -258,7 +255,6 @@ static numeric lcm_of_coefficients_denominators(const ex &e)
  *
  *  @param e  multivariate polynomial (need not be expanded)
  *  @param lcm  LCM to multiply in */
-
 static ex multiply_lcm(const ex &e, const numeric &lcm)
 {
 	if (is_ex_exactly_of_type(e, mul)) {
@@ -288,7 +284,6 @@ static ex multiply_lcm(const ex &e, const numeric &lcm)
  *
  *  @param e  expanded polynomial
  *  @return integer content */
-
 numeric ex::integer_content(void) const
 {
     GINAC_ASSERT(bp!=0);
@@ -349,7 +344,6 @@ numeric mul::integer_content(void) const
  *  @param check_args  check whether a and b are polynomials with rational
  *         coefficients (defaults to "true")
  *  @return quotient of a and b in Q[x] */
-
 ex quo(const ex &a, const ex &b, const symbol &x, bool check_args)
 {
     if (b.is_zero())
@@ -400,7 +394,6 @@ ex quo(const ex &a, const ex &b, const symbol &x, bool check_args)
  *  @param check_args  check whether a and b are polynomials with rational
  *         coefficients (defaults to "true")
  *  @return remainder of a(x) and b(x) in Q[x] */
-
 ex rem(const ex &a, const ex &b, const symbol &x, bool check_args)
 {
     if (b.is_zero())
@@ -452,7 +445,6 @@ ex rem(const ex &a, const ex &b, const symbol &x, bool check_args)
  *  @param check_args  check whether a and b are polynomials with rational
  *         coefficients (defaults to "true")
  *  @return pseudo-remainder of a(x) and b(x) in Z[x] */
-
 ex prem(const ex &a, const ex &b, const symbol &x, bool check_args)
 {
     if (b.is_zero())
@@ -506,14 +498,13 @@ ex prem(const ex &a, const ex &b, const symbol &x, bool check_args)
  *         coefficients (defaults to "true")
  *  @return "true" when exact division succeeds (quotient returned in q),
  *          "false" otherwise */
-
 bool divide(const ex &a, const ex &b, ex &q, bool check_args)
 {
     q = _ex0();
     if (b.is_zero())
         throw(std::overflow_error("divide: division by zero"));
-	if (a.is_zero())
-		return true;
+    if (a.is_zero())
+        return true;
     if (is_ex_exactly_of_type(b, numeric)) {
         q = a / b;
         return true;
@@ -816,7 +807,6 @@ ex ex::primpart(const symbol &x) const
  *  @param x  variable in which to compute the primitive part
  *  @param c  previously computed content part
  *  @return primitive part */
-
 ex ex::primpart(const symbol &x, const ex &c) const
 {
     if (is_zero())
@@ -1039,7 +1029,6 @@ static ex red_gcd(const ex &a, const ex &b, const symbol *x)
  *  @param x  pointer to symbol (main variable) in which to compute the GCD in
  *  @return the GCD as a new expression
  *  @see gcd */
-
 static ex sr_gcd(const ex &a, const ex &b, const symbol *x)
 {
 //clog << "sr_gcd(" << a << "," << b << ")\n";
@@ -1115,7 +1104,6 @@ static ex sr_gcd(const ex &a, const ex &b, const symbol *x)
  *  @param e  expanded multivariate polynomial
  *  @return maximum coefficient
  *  @see heur_gcd */
-
 numeric ex::max_coefficient(void) const
 {
     GINAC_ASSERT(bp!=0);
@@ -1171,7 +1159,6 @@ numeric mul::max_coefficient(void) const
  *  @param xi  modulus
  *  @return mapped polynomial
  *  @see heur_gcd */
-
 ex ex::smod(const numeric &xi) const
 {
     GINAC_ASSERT(bp!=0);
@@ -1259,7 +1246,6 @@ class gcdheu_failed {};
  *  @return the GCD as a new expression
  *  @see gcd
  *  @exception gcdheu_failed() */
-
 static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const_iterator var)
 {
 //clog << "heur_gcd(" << a << "," << b << ")\n";
@@ -1347,7 +1333,6 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
  *  @param check_args  check whether a and b are polynomials with rational
  *         coefficients (defaults to "true")
  *  @return the GCD as a new expression */
-
 ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args)
 {
 //clog << "gcd(" << a << "," << b << ")\n";
@@ -1682,7 +1667,7 @@ static ex replace_with_symbol(const ex &e, lst &sym_lst, lst &repl_lst)
     for (unsigned i=0; i<repl_lst.nops(); i++)
         if (repl_lst.op(i).is_equal(e))
             return sym_lst.op(i);
-
+    
     // Otherwise create new symbol and add to list, taking care that the
 	// replacement expression doesn't contain symbols from the sym_lst
 	// because subs() is not recursive
@@ -1704,7 +1689,7 @@ static ex replace_with_symbol(const ex &e, lst &repl_lst)
     for (unsigned i=0; i<repl_lst.nops(); i++)
         if (repl_lst.op(i).op(1).is_equal(e))
             return repl_lst.op(i).op(0);
-
+    
     // Otherwise create new symbol and add to list, taking care that the
 	// replacement expression doesn't contain symbols from the sym_lst
 	// because subs() is not recursive
@@ -2079,7 +2064,8 @@ ex numeric::to_rational(lst &repl_lst) const
         if (!is_integer())
             return replace_with_symbol(*this, repl_lst);
     } else { // complex
-        numeric re = real(), im = imag();
+        numeric re = real();
+        numeric im = imag();
         ex re_ex = re.is_rational() ? re : replace_with_symbol(re, repl_lst);
         ex im_ex = im.is_rational() ? im : replace_with_symbol(im, repl_lst);
         return re_ex + im_ex * replace_with_symbol(I, repl_lst);
@@ -2097,6 +2083,20 @@ ex power::to_rational(lst &repl_lst) const
 		return power(basis.to_rational(repl_lst), exponent);
 	else
 		return replace_with_symbol(*this, repl_lst);
+}
+
+
+/** Implementation of ex::to_rational() for expairseqs.
+ *  @see ex::to_rational */
+ex expairseq::to_rational(lst &repl_lst) const
+{
+    epvector s;
+    s.reserve(seq.size());
+    for (epvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
+        s.push_back(combine_ex_with_coeff_to_pair((*it).rest.to_rational(repl_lst),
+                                                  (*it).coeff));
+    }
+    return thisexpairseq(s, overall_coeff);
 }
 
 

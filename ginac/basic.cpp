@@ -205,6 +205,9 @@ bool basic::info(unsigned inf) const
 /** Number of operands/members. */
 unsigned basic::nops() const
 {
+    // iterating from 0 to nops() on atomic objects should be an empty loop,
+    // and accessing their elements is a range error.  Container objects should
+    // override this.
     return 0;
 }
 
