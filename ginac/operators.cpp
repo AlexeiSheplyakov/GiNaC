@@ -29,7 +29,6 @@
 #include "numeric.h"
 #include "power.h"
 #include "relational.h"
-#include "input_lexer.h"
 #include "debugmsg.h"
 #include "utils.h"
 
@@ -336,21 +335,9 @@ ostream & operator<<(ostream & os, const ex & e)
     return os;
 }
 
-/** Input (parse) expression from stream. The input grammar is similar to the
- *  GiNaC output format. If 'e' contains a list of symbols upon entry, these
- *  symbols are used in the parsed expression in all places where symbols with
- *  the same names appear. All other encountered symbols will be newly created. */
 istream & operator>>(istream & is, ex & e)
 {
-	string s;
-	getline(is, s);
-	set_lexer_string(s);
-	set_lexer_symbols(e);
-	ginac_yyrestart(NULL);
-	if (yyparse())
-		throw (std::runtime_error(get_parser_error()));
-	else
-		e = parsed_ex;
+    throw (std::logic_error("expression input from streams not implemented"));
 }
 
 #ifndef NO_NAMESPACE_GINAC

@@ -51,16 +51,31 @@ namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
 
 // Table of all used symbols
-typedef map<string, ex> sym_tab;
+struct sym_def {
+	sym_def() : predefined(false) {}
+	sym_def(const ex &s, bool predef) : sym(s), predefined(predef) {}
+	~sym_def() {}
+
+	sym_def(const sym_def &other) {sym = other.sym; predefined = other.predefined;}
+	const sym_def &operator=(const sym_def &other)
+	{
+		if (this != &other) {
+			sym = other.sym;
+			predefined = other.predefined;
+		}
+		return *this;
+	}
+
+	ex sym;
+	bool predefined;	// true = user supplied symbol, false = lexer generated symbol
+};
+typedef map<string, sym_def> sym_tab;
 static sym_tab syms;
 
 // lex input function
 static int lexer_input(char *buf, int max_size);
 #define YY_INPUT(buf, result, max_size) (result = lexer_input(buf, max_size))
 %}
-
-	/* The code output by flex doesn't work well with namespaces, so we're doing it this way */
-%option prefix="ginac_yy"
 
 	/* Abbreviations */
 D	[0-9]
@@ -77,12 +92,12 @@ AN	[0-9a-zA-Z_]
 [ \t]+			/* skip whitespace */
 
 			/* special values */
-Pi			yylval = Pi; return T_LITERAL;
-Euler			yylval = Euler; return T_LITERAL;
-Catalan			yylval = Catalan; return T_LITERAL;
-FAIL			yylval = *new fail(); return T_LITERAL;
-I			yylval = I; return T_NUMBER;
-Digits			yylval = (long)Digits; return T_DIGITS;
+Pi			ginac_yylval = Pi; return T_LITERAL;
+Euler			ginac_yylval = Euler; return T_LITERAL;
+Catalan			ginac_yylval = Catalan; return T_LITERAL;
+FAIL			ginac_yylval = *new fail(); return T_LITERAL;
+I			ginac_yylval = I; return T_NUMBER;
+Digits			ginac_yylval = (long)Digits; return T_DIGITS;
 
 			/* comparison */
 "=="			return T_EQUAL;
@@ -98,13 +113,15 @@ Digits			yylval = (long)Digits; return T_DIGITS;
 {D}+			|
 {D}+"."{D}*({E})?	|
 {D}*"."{D}+({E})?	|
-{D}+{E}			yylval = numeric(yytext); return T_NUMBER;
+{D}+{E}			ginac_yylval = numeric(yytext); return T_NUMBER;
 
 			/* symbols */
 {A}{AN}*		{
-				if (syms.find(yytext) == syms.end())
-					syms[yytext] = *(new symbol(yytext));
-				yylval = syms[yytext];
+				sym_tab::const_iterator i = syms.find(yytext);
+				if (i == syms.end()) {
+					syms[yytext] = sym_def(ginac_yylval = *(new symbol(yytext)), false);
+				} else
+					ginac_yylval = i->second.sym;
 				return T_SYMBOL;
 			}
 
@@ -162,8 +179,18 @@ void set_lexer_symbols(ex l)
 		return;
 	for (int i=0; i<l.nops(); i++) {
 		if (is_ex_exactly_of_type(l.op(i), symbol))
-			syms[ex_to_symbol(l.op(i)).getname()] = l.op(i);
+			syms[ex_to_symbol(l.op(i)).getname()] = sym_def(l.op(i), true);
 	}
+}
+
+// Check whether symbol was predefined
+bool is_lexer_symbol_predefined(const ex &s)
+{
+	sym_tab::const_iterator i = syms.find(ex_to_symbol(s).getname());
+	if (i == syms.end())
+		return false;
+	else
+		return i->second.predefined;
 }
 
 #ifndef NO_NAMESPACE_GINAC

@@ -47,16 +47,19 @@ namespace GiNaC {
 
 class ex;
 
-/** Set the input string to be parsed by yyparse(). */
+/** Set the input string to be parsed by ginac_yyparse() (used internally). */
 extern void set_lexer_string(const string &s);
 
-/** Set the list of predefined symbols for the lexer (used internally for stream input). */
+/** Set the list of predefined symbols for the lexer (used internally). */
 extern void set_lexer_symbols(ex l);
 
-/** The expression parser function (used internally for stream input). */
-extern int yyparse();
+/** Check whether lexer symbol was predefined (vs. created by the lexer, e.g. function names). */
+extern bool is_lexer_symbol_predefined(const ex &s);
 
-/** The expression returned by the parser (used internally for stream input). */
+/** The expression parser function (used internally). */
+extern int ginac_yyparse();
+
+/** The expression returned by the parser (used internally). */
 extern ex parsed_ex;
 
 /** Get error message from the parser. */

@@ -21,6 +21,7 @@
  */
 
 #include <iostream>
+#include <stdexcept>
 
 #include "ex.h"
 #include "add.h"
@@ -29,6 +30,7 @@
 #include "numeric.h"
 #include "power.h"
 #include "relational.h"
+#include "input_lexer.h"
 #include "debugmsg.h"
 #include "utils.h"
 
@@ -131,6 +133,12 @@ ex::ex(double const d)
 {
     debugmsg("ex constructor from double",LOGLEVEL_CONSTRUCT);
     construct_from_double(d);
+}
+
+ex::ex(const string &s, const ex &l)
+{
+    debugmsg("ex constructor from string,lst",LOGLEVEL_CONSTRUCT);
+    construct_from_string_and_lst(s, l);
 }
 
 #endif // ndef INLINE_EX_CONSTRUCTORS
@@ -622,6 +630,21 @@ void ex::construct_from_double(double d)
     ++bp->refcount;
     GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
     GINAC_ASSERT(bp->refcount=1);
+}
+
+void ex::construct_from_string_and_lst(const string &s, const ex &l)
+{
+    set_lexer_string(s);
+    set_lexer_symbols(l);
+    ginac_yyrestart(NULL);
+    if (ginac_yyparse())
+        throw (std::runtime_error(get_parser_error()));
+    else {
+        bp = parsed_ex.bp;
+        GINAC_ASSERT(bp!=0);
+        GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
+        ++bp->refcount;
+    }
 }
     
 //////////

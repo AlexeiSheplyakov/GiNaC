@@ -45,9 +45,6 @@ namespace GiNaC {
 
 #define YYERROR_VERBOSE 1
 
-#define yylex ginac_yylex
-#define yyerror ginac_yyerror
-
 // Parsed output expression
 ex parsed_ex;
 
@@ -90,7 +87,12 @@ input	: exp {
 	;
 
 exp	: T_NUMBER		{$$ = $1;}
-	| T_SYMBOL		{$$ = $1.eval();}
+	| T_SYMBOL {
+		if (is_lexer_symbol_predefined($1))
+			$$ = $1.eval();
+		else
+			throw (std::runtime_error("unknown symbol '" + ex_to_symbol($1).getname() + "'"));
+	}
 	| T_LITERAL		{$$ = $1;}
 	| T_DIGITS		{$$ = $1;}
 	| T_SYMBOL '(' exprseq ')' {

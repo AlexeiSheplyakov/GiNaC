@@ -205,6 +205,22 @@ public:
 ;
 #endif // def INLINE_EX_CONSTRUCTORS
 
+    /** Construct ex from string and a list of symbols. The input grammar is
+     *  similar to the GiNaC output format. All symbols to be used in the
+     *  expression must be specified in a lst in the second argument. Undefined
+     *  symbols and other parser errors will throw an exception. */
+    ex(const string &s, const ex &l)
+#ifdef INLINE_EX_CONSTRUCTORS
+        {
+            construct_from_string_and_lst(s, l);
+#ifdef OBSCURE_CINT_HACK
+            update_last_created_or_assigned_bp();
+#endif // def OBSCURE_CINT_HACK
+        }
+#else
+;
+#endif // def INLINE_EX_CONSTRUCTORS
+
     
     // functions overriding virtual functions from bases classes
     // none
@@ -329,6 +345,7 @@ private:
     void construct_from_long(long i);
     void construct_from_ulong(unsigned long i);
     void construct_from_double(double d);
+    void construct_from_string_and_lst(const string &s, const ex &l);
     void makewriteable();
 
 #ifdef OBSCURE_CINT_HACK

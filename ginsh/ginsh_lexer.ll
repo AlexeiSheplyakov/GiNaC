@@ -101,9 +101,11 @@ score			return T_SCORE;
 
 			/* symbols */
 {A}{AN}*		{
-				if (syms.find(yytext) == syms.end())
-					syms[yytext] = *(new symbol(yytext));
-				yylval = syms[yytext];
+				sym_tab::const_iterator i = syms.find(yytext);
+				if (i == syms.end()) {
+					yylval = syms[yytext] = *(new symbol(yytext));
+				} else
+					yylval = i->second;
 				return T_SYMBOL;
 			}
 
