@@ -13,5 +13,5 @@ This file records noteworthy changes.
   info_flags::integer and -::cinteger work similarly, the same
   holds for types like info_flags::rational_polynomial.
 
-
-
+0.5.0 ()
+* Expressions can be written ("archived") to files and read therefrom.
