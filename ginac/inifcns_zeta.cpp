@@ -34,65 +34,6 @@
 namespace GiNaC {
 
 //////////
-// Riemann's Zeta-function
-//////////
-
-static ex zeta1_evalf(const ex & x)
-{
-	if (is_exactly_a<numeric>(x)) {
-		try {
-			return zeta(ex_to<numeric>(x));
-		} catch (const dunno &e) { }
-	}
-	
-	return zeta(x).hold();
-}
-
-static ex zeta1_eval(const ex & x)
-{
-	if (x.info(info_flags::numeric)) {
-		const numeric &y = ex_to<numeric>(x);
-		// trap integer arguments:
-		if (y.is_integer()) {
-			if (y.is_zero())
-				return _ex_1_2;
-			if (y.is_equal(_num1))
-				throw(std::domain_error("zeta(1): infinity"));
-			if (y.info(info_flags::posint)) {
-				if (y.info(info_flags::odd))
-					return zeta(x).hold();
-				else
-					return abs(bernoulli(y))*pow(Pi,y)*pow(_num2,y-_num1)/factorial(y);
-			} else {
-				if (y.info(info_flags::odd))
-					return -bernoulli(_num1-y)/(_num1-y);
-				else
-					return _ex0;
-			}
-		}
-		// zeta(float)
-		if (y.info(info_flags::numeric) && !y.info(info_flags::crational))
-			return zeta1_evalf(x);
-	}
-	return zeta(x).hold();
-}
-
-static ex zeta1_deriv(const ex & x, unsigned deriv_param)
-{
-	GINAC_ASSERT(deriv_param==0);
-	
-	return zeta(_ex1, x);
-}
-
-unsigned zeta1_SERIAL::serial =
-	function::register_new(function_options("zeta").
-	                       eval_func(zeta1_eval).
-	                       evalf_func(zeta1_evalf).
-	                       derivative_func(zeta1_deriv).
-	                       latex_name("\\zeta").
-	                       overloaded(2));
-
-//////////
 // Derivatives of Riemann's Zeta-function  zeta(0,x)==zeta(x)
 //////////
 

@@ -89,7 +89,7 @@ DECLARE_FUNCTION_1P(Li2)
 DECLARE_FUNCTION_1P(Li3)
 
 // overloading at work: we cannot use the macros here
-/** Riemann's Zeta-function. */
+/** Multiple zeta value including Riemann's zeta-function. */
 class zeta1_SERIAL { public: static unsigned serial; };
 template<typename T1>
 inline function zeta(const T1 & p1) {
