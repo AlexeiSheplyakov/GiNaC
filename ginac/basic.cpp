@@ -57,7 +57,6 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(basic, void,
  *  tinfo_key and the hash value. */
 basic::basic(const basic & other) : tinfo_key(other.tinfo_key), flags(other.flags & ~status_flags::dynallocated), hashvalue(other.hashvalue)
 {
-	GINAC_ASSERT(typeid(*this) == typeid(other));
 }
 
 /** basic assignment operator: the other object might be of a derived class. */

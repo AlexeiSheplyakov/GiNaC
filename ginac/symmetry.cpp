@@ -55,25 +55,25 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(symmetry, basic,
 // default constructor
 //////////
 
-symmetry::symmetry() : type(none)
+symmetry::symmetry() : inherited(TINFO_symmetry), type(none)
 {
-	tinfo_key = TINFO_symmetry;
+	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
 //////////
 // other constructors
 //////////
 
-symmetry::symmetry(unsigned i) : type(none)
+symmetry::symmetry(unsigned i) : inherited(TINFO_symmetry), type(none)
 {
 	indices.insert(i);
-	tinfo_key = TINFO_symmetry;
+	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
-symmetry::symmetry(symmetry_type t, const symmetry &c1, const symmetry &c2) : type(t)
+symmetry::symmetry(symmetry_type t, const symmetry &c1, const symmetry &c2) : inherited(TINFO_symmetry), type(t)
 {
 	add(c1); add(c2);
-	tinfo_key = TINFO_symmetry;
+	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
 //////////
