@@ -1449,6 +1449,7 @@ static ex frac_cancel(const ex &n, const ex &d)
 	}
 
 	// Return result as list
+//clog << " returns num = " << num << ", den = " << den << ", pre_factor = " << pre_factor << endl;
     return (new lst(num * pre_factor.numer(), den * pre_factor.denom()))->setflag(status_flags::dynallocated);
 }
 
@@ -1479,7 +1480,7 @@ ex add::normal(lst &sym_lst, lst &repl_lst, int level) const
 			// split it into numerator and denominator
 			GINAC_ASSERT(ex_to_numeric(ex_to_add(n.op(0)).overall_coeff).is_rational());
 			numeric overall = ex_to_numeric(ex_to_add(n.op(0)).overall_coeff);
-            o.push_back((new lst(overall.numer(), overall.denom()))->setflag(status_flags::dynallocated));
+            o.push_back((new lst(overall.numer(), overall.denom() * n.op(1)))->setflag(status_flags::dynallocated));
         } else
             o.push_back(n);
         it++;
@@ -1491,10 +1492,13 @@ ex add::normal(lst &sym_lst, lst &repl_lst, int level) const
     // Determine common denominator
     ex den = _ex1();
     exvector::const_iterator ait = o.begin(), aitend = o.end();
+//clog << "add::normal uses the following summands:\n";
     while (ait != aitend) {
+//clog << " num = " << ait->op(0) << ", den = " << ait->op(1) << endl;
         den = lcm(ait->op(1), den, false);
         ait++;
     }
+//clog << " common denominator = " << den << endl;
 
     // Add fractions
     if (den.is_equal(_ex1())) {
@@ -1516,7 +1520,7 @@ ex add::normal(lst &sym_lst, lst &repl_lst, int level) const
                 // should not happen
                 throw(std::runtime_error("invalid expression in add::normal, division failed"));
             }
-            num_seq.push_back(ait->op(0) * q);
+            num_seq.push_back((ait->op(0) * q).expand());
         }
         ex num = (new add(num_seq))->setflag(status_flags::dynallocated);
 
