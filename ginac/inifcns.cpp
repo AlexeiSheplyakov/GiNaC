@@ -158,12 +158,14 @@ static ex Order_eval(const ex & x)
 	return Order(x).hold();
 }
 
-static ex Order_series(const ex & x, const symbol & s, const ex & point, int order)
+static ex Order_series(const ex & x, const relational & r, int order)
 {
 	// Just wrap the function into a pseries object
 	epvector new_seq;
-	new_seq.push_back(expair(Order(_ex1()), numeric(min(x.ldegree(s), order))));
-	return pseries(s, point, new_seq);
+    GINAC_ASSERT(is_ex_exactly_of_type(r.lhs(),symbol));
+    const symbol *s = static_cast<symbol *>(r.lhs().bp);
+	new_seq.push_back(expair(Order(_ex1()), numeric(min(x.ldegree(*s), order))));
+	return pseries(r, new_seq);
 }
 
 // Differentiation is handled in function::derivative because of its special requirements

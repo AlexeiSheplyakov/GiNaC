@@ -1622,7 +1622,7 @@ ex pseries::normal(lst &sym_lst, lst &repl_lst, int level) const
         new_seq.push_back(expair(it->rest.normal(), it->coeff));
         it++;
     }
-    ex n = pseries(var, point, new_seq);
+    ex n = pseries(relational(var,point), new_seq);
 	return (new lst(replace_with_symbol(n, sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
 }
 

@@ -254,8 +254,8 @@ static unsigned exam_differentiation6(void)
     symbol x("x");
     ex e, d, ed;
     
-    e = sin(x).series(x, 0, 8);
-    d = cos(x).series(x, 0, 7);
+    e = sin(x).series(x==0, 8);
+    d = cos(x).series(x==0, 7);
     ed = e.diff(x);
     ed = series_to_poly(ed);
     d = series_to_poly(d);

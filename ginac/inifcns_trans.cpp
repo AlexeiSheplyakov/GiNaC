@@ -144,12 +144,12 @@ static ex log_deriv(const ex & x, unsigned deriv_param)
     return power(x, _ex_1());
 }
 
-static ex log_series(const ex & x, const symbol & s, const ex & pt, int order)
+static ex log_series(const ex &x, const relational &r, int order)
 {
-	if (x.subs(s == pt).is_zero()) {
+	if (x.subs(r).is_zero()) {
 		epvector seq;
 		seq.push_back(expair(log(x), _ex0()));
-		return pseries(s, pt, seq);
+		return pseries(r, seq);
 	} else
 		throw do_taylor();
 }
@@ -395,16 +395,16 @@ static ex tan_deriv(const ex & x, unsigned deriv_param)
     return (_ex1()+power(tan(x),_ex2()));
 }
 
-static ex tan_series(const ex & x, const symbol & s, const ex & pt, int order)
+static ex tan_series(const ex &x, const relational &r, int order)
 {
     // method:
     // Taylor series where there is no pole falls back to tan_deriv.
     // On a pole simply expand sin(x)/cos(x).
-    const ex x_pt = x.subs(s==pt);
+    const ex x_pt = x.subs(r);
     if (!(2*x_pt/Pi).info(info_flags::odd))
         throw do_taylor();  // caught by function::series()
     // if we got here we have to care for a simple pole
-    return (sin(x)/cos(x)).series(s, pt, order+2);
+    return (sin(x)/cos(x)).series(r, order+2);
 }
 
 REGISTER_FUNCTION(tan, eval_func(tan_eval).
@@ -752,16 +752,16 @@ static ex tanh_deriv(const ex & x, unsigned deriv_param)
     return _ex1()-power(tanh(x),_ex2());
 }
 
-static ex tanh_series(const ex & x, const symbol & s, const ex & pt, int order)
+static ex tanh_series(const ex &x, const relational &r, int order)
 {
     // method:
     // Taylor series where there is no pole falls back to tanh_deriv.
     // On a pole simply expand sinh(x)/cosh(x).
-    const ex x_pt = x.subs(s==pt);
+    const ex x_pt = x.subs(r);
     if (!(2*I*x_pt/Pi).info(info_flags::odd))
         throw do_taylor();  // caught by function::series()
     // if we got here we have to care for a simple pole
-    return (sinh(x)/cosh(x)).series(s, pt, order+2);
+    return (sinh(x)/cosh(x)).series(r, order+2);
 }
 
 REGISTER_FUNCTION(tanh, eval_func(tanh_eval).

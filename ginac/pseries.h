@@ -50,7 +50,7 @@ protected:
 
     // other constructors
 public:
-    pseries(const ex &var_, const ex &point_, const epvector &ops_);
+    pseries(const ex &rel_, const epvector &ops_);
 
     // functions overriding virtual functions from base classes
 public:
@@ -66,7 +66,7 @@ public:
     ex collect(const symbol &s) const;
     ex eval(int level=0) const;
     ex evalf(int level=0) const;
-    ex series(const symbol & s, const ex & p, int order) const;
+    ex series(const relational & r, int order) const;
     ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
     ex subs(const lst & ls, const lst & lr) const;
 protected:

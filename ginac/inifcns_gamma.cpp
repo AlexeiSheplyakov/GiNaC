@@ -104,7 +104,7 @@ static ex Gamma_deriv(const ex & x, unsigned deriv_param)
 }
 
 
-static ex Gamma_series(const ex & x, const symbol & s, const ex & pt, int order)
+static ex Gamma_series(const ex & x, const relational & r, int order)
 {
     // method:
     // Taylor series where there is no pole falls back to psi function
@@ -114,7 +114,7 @@ static ex Gamma_series(const ex & x, const symbol & s, const ex & pt, int order)
     // from which follows
     //   series(Gamma(x),x,-m,order) ==
     //   series(Gamma(x+m+1)/(x*(x+1)*...*(x+m)),x,-m,order+1);
-    const ex x_pt = x.subs(s==pt);
+    const ex x_pt = x.subs(r);
     if (!x_pt.info(info_flags::integer) || x_pt.info(info_flags::positive))
         throw do_taylor();  // caught by function::series()
     // if we got here we have to care for a simple pole at -m:
@@ -122,7 +122,7 @@ static ex Gamma_series(const ex & x, const symbol & s, const ex & pt, int order)
     ex ser_denom = _ex1();
     for (numeric p; p<=m; ++p)
         ser_denom *= x+p;
-    return (Gamma(x+m+_ex1())/ser_denom).series(s, pt, order+1);
+    return (Gamma(x+m+_ex1())/ser_denom).series(r, order+1);
 }
 
 
@@ -199,36 +199,38 @@ static ex Beta_deriv(const ex & x, const ex & y, unsigned deriv_param)
 }
 
 
-static ex Beta_series(const ex & x, const ex & y, const symbol & s, const ex & pt, int order)
+static ex Beta_series(const ex & x, const ex & y, const relational & r, int order)
 {
     // method:
     // Taylor series where there is no pole of one of the Gamma functions
     // falls back to Beta function evaluation.  Otherwise, fall back to
     // Gamma series directly.
     // FIXME: this could need some testing, maybe it's wrong in some cases?
-    const ex x_pt = x.subs(s==pt);
-    const ex y_pt = y.subs(s==pt);
+    const ex x_pt = x.subs(r);
+    const ex y_pt = y.subs(r);
+    GINAC_ASSERT(is_ex_exactly_of_type(r.lhs(),symbol));
+    const symbol *s = static_cast<symbol *>(r.lhs().bp);
     ex x_ser, y_ser, xy_ser;
     if ((!x_pt.info(info_flags::integer) || x_pt.info(info_flags::positive)) &&
         (!y_pt.info(info_flags::integer) || y_pt.info(info_flags::positive)))
         throw do_taylor();  // caught by function::series()
     // trap the case where x is on a pole directly:
     if (x.info(info_flags::integer) && !x.info(info_flags::positive))
-        x_ser = Gamma(x+s).series(s,pt,order);
+        x_ser = Gamma(x+*s).series(r,order);
     else
-        x_ser = Gamma(x).series(s,pt,order);
+        x_ser = Gamma(x).series(r,order);
     // trap the case where y is on a pole directly:
     if (y.info(info_flags::integer) && !y.info(info_flags::positive))
-        y_ser = Gamma(y+s).series(s,pt,order);
+        y_ser = Gamma(y+*s).series(r,order);
     else
-        y_ser = Gamma(y).series(s,pt,order);
+        y_ser = Gamma(y).series(r,order);
     // trap the case where y is on a pole directly:
     if ((x+y).info(info_flags::integer) && !(x+y).info(info_flags::positive))
-        xy_ser = Gamma(y+x+s).series(s,pt,order);
+        xy_ser = Gamma(y+x+*s).series(r,order);
     else
-        xy_ser = Gamma(y+x).series(s,pt,order);
+        xy_ser = Gamma(y+x).series(r,order);
     // compose the result:
-    return (x_ser*y_ser/xy_ser).series(s,pt,order);
+    return (x_ser*y_ser/xy_ser).series(r,order);
 }
 
 
@@ -304,7 +306,7 @@ static ex psi1_deriv(const ex & x, unsigned deriv_param)
     return psi(_ex1(), x);
 }
 
-static ex psi1_series(const ex & x, const symbol & s, const ex & pt, int order)
+static ex psi1_series(const ex & x, const relational & r, int order)
 {
     // method:
     // Taylor series where there is no pole falls back to polygamma function
@@ -314,7 +316,7 @@ static ex psi1_series(const ex & x, const symbol & s, const ex & pt, int order)
     // from which follows
     //   series(psi(x),x,-m,order) ==
     //   series(psi(x+m+1) - 1/x - 1/(x+1) - 1/(x+m)),x,-m,order);
-    const ex x_pt = x.subs(s==pt);
+    const ex x_pt = x.subs(r);
     if (!x_pt.info(info_flags::integer) || x_pt.info(info_flags::positive))
         throw do_taylor();  // caught by function::series()
     // if we got here we have to care for a simple pole at -m:
@@ -322,7 +324,7 @@ static ex psi1_series(const ex & x, const symbol & s, const ex & pt, int order)
     ex recur;
     for (numeric p; p<=m; ++p)
         recur += power(x+p,_ex_1());
-    return (psi(x+m+_ex1())-recur).series(s, pt, order);
+    return (psi(x+m+_ex1())-recur).series(r, order);
 }
 
 const unsigned function_index_psi1 =
@@ -424,7 +426,7 @@ static ex psi2_deriv(const ex & n, const ex & x, unsigned deriv_param)
     return psi(n+_ex1(), x);
 }
 
-static ex psi2_series(const ex & n, const ex & x, const symbol & s, const ex & pt, int order)
+static ex psi2_series(const ex & n, const ex & x, const relational & r, int order)
 {
     // method:
     // Taylor series where there is no pole falls back to polygamma function
@@ -435,7 +437,7 @@ static ex psi2_series(const ex & n, const ex & x, const symbol & s, const ex & p
     //   series(psi(x),x,-m,order) == 
     //   series(psi(x+m+1) - (-1)^n * n! * ((x)^(-n-1) + (x+1)^(-n-1) + ...
     //                                      ... + (x+m)^(-n-1))),x,-m,order);
-    const ex x_pt = x.subs(s==pt);
+    const ex x_pt = x.subs(r);
     if (!x_pt.info(info_flags::integer) || x_pt.info(info_flags::positive))
         throw do_taylor();  // caught by function::series()
     // if we got here we have to care for a pole of order n+1 at -m:
@@ -444,7 +446,7 @@ static ex psi2_series(const ex & n, const ex & x, const symbol & s, const ex & p
     for (numeric p; p<=m; ++p)
         recur += power(x+p,-n+_ex_1());
     recur *= factorial(n)*power(_ex_1(),n);
-    return (psi(n, x+m+_ex1())-recur).series(s, pt, order);
+    return (psi(n, x+m+_ex1())-recur).series(r, order);
 }
 
 const unsigned function_index_psi2 =

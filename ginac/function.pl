@@ -1,5 +1,3 @@
-#!/usr/bin/perl -w
-
 $maxargs=13;
 
 sub generate_seq {
@@ -155,7 +153,7 @@ $typedef_derivative_funcp=generate(
 'const ex &','');
 
 $typedef_series_funcp=generate(
-'typedef ex (* series_funcp_${N})(${SEQ1}, const symbol &, const ex &, int);'."\n",
+'typedef ex (* series_funcp_${N})(${SEQ1}, const relational &, int);'."\n",
 'const ex &','');
 
 $eval_func_interface=generate('    function_options & eval_func(eval_funcp_${N} e);'."\n",'','');
@@ -205,9 +203,9 @@ $series_switch_statement=generate(
     <<'END_OF_SERIES_SWITCH_STATEMENT','seq[${N}-1]','');
     case ${N}:
         try {
-            res = ((series_funcp_${N})(registered_functions()[serial].series_f))(${SEQ1},s,point,order);
+            res = ((series_funcp_${N})(registered_functions()[serial].series_f))(${SEQ1},r,order);
         } catch (do_taylor) {
-            res = basic::series(s, point, order);
+            res = basic::series(r, order);
         }
         return res;
         break;
@@ -479,7 +477,7 @@ public:
     ex expand(unsigned options=0) const;
     ex eval(int level=0) const;
     ex evalf(int level=0) const;
-    ex series(const symbol & s, const ex & point, int order) const;
+    ex series(const relational & r, int order) const;
     ex thisexprseq(const exvector & v) const;
     ex thisexprseq(exvector * vp) const;
 protected:
@@ -947,12 +945,12 @@ ex function::thisexprseq(exvector * vp) const
 
 /** Implementation of ex::series for functions.
  *  \@see ex::series */
-ex function::series(const symbol & s, const ex & point, int order) const
+ex function::series(const relational & r, int order) const
 {
     GINAC_ASSERT(serial<registered_functions().size());
 
     if (registered_functions()[serial].series_f==0) {
-        return basic::series(s, point, order);
+        return basic::series(r, order);
     }
     ex res;
     switch (registered_functions()[serial].nparams) {

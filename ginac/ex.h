@@ -250,9 +250,9 @@ public:
     ex eval(int level = 0) const;
     ex evalf(int level = 0) const;
     ex diff(const symbol & s, unsigned nth = 1) const;
-    ex series(const symbol & s, const ex & point, int order = 6) const;
+    ex series(const ex & r, int order) const;
 #ifdef CINT_CONVERSION_WORKAROUND
-    ex series(const symbol & s, const basic & point, int order = 6) const { return series(s,ex(point),order); }
+    ex series(const basic & r, int order) const { return series(ex(r),order); }
 #endif // def CINT_CONVERSION_WORKAROUND
     ex subs(const lst & ls, const lst & lr) const;
     ex subs(const ex & e) const;
@@ -413,8 +413,8 @@ inline ex evalf(const ex & thisex, int level = 0)
 inline ex diff(const ex & thisex, const symbol & s, unsigned nth = 1)
 { return thisex.diff(s, nth); }
 
-inline ex series(const ex & thisex, const symbol & s, const ex & point, int order = 6)
-{ return thisex.series(s, point, order); }
+inline ex series(const ex & thisex, const ex & r, int order)
+{ return thisex.series(r, order); }
 
 inline ex subs(const ex & thisex, const ex & e)
 { return thisex.subs(e); }

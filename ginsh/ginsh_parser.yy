@@ -420,23 +420,10 @@ static ex f_rem(const exprseq &e)
 	return rem(e[0], e[1], ex_to_symbol(e[2]));
 }
 
-static ex f_series2(const exprseq &e)
+static ex f_series(const exprseq &e)
 {
-	CHECK_ARG(1, symbol, series);
-	return e[0].series(ex_to_symbol(e[1]), ex(0));
-}
-
-static ex f_series3(const exprseq &e)
-{
-	CHECK_ARG(1, symbol, series);
-	return e[0].series(ex_to_symbol(e[1]), e[2]);
-}
-
-static ex f_series4(const exprseq &e)
-{
-	CHECK_ARG(1, symbol, series);
-	CHECK_ARG(3, numeric, series);
-	return e[0].series(ex_to_symbol(e[1]), e[2], ex_to_numeric(e[3]).to_int());
+	CHECK_ARG(2, numeric, series);
+	return e[0].series(e[1], ex_to_numeric(e[2]).to_int());
 }
 
 static ex f_sqrfree(const exprseq &e)
@@ -529,9 +516,7 @@ static const fcn_init builtin_fcns[] = {
 	{"primpart", fcn_desc(f_primpart, 2)},
 	{"quo", fcn_desc(f_quo, 3)},
 	{"rem", fcn_desc(f_rem, 3)},
-	{"series", fcn_desc(f_series2, 2)},
-	{"series", fcn_desc(f_series3, 3)},
-	{"series", fcn_desc(f_series4, 4)},
+	{"series", fcn_desc(f_series, 3)},
 	{"sqrfree", fcn_desc(f_sqrfree, 2)},
 	{"sqrt", fcn_desc(f_sqrt, 1)},
 	{"subs", fcn_desc(f_subs2, 2)},

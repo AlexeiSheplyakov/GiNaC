@@ -44,6 +44,7 @@ class ex;
 class symbol;
 class lst;
 class numeric;
+class relational;
 class archive_node;
 
 //typedef vector<ex> exvector;
@@ -137,7 +138,7 @@ public: // only const functions please (may break reference counting)
     virtual ex collect(const symbol & s) const;
     virtual ex eval(int level=0) const;
     virtual ex evalf(int level=0) const;
-    virtual ex series(const symbol & s, const ex & point, int order) const;
+    virtual ex series(const relational & r, int order) const;
     virtual ex subs(const lst & ls, const lst & lr) const;
     virtual ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
     virtual numeric integer_content(void) const;

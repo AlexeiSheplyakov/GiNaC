@@ -26,7 +26,7 @@ static symbol x("x");
 
 static unsigned check_series(const ex &e, const ex &point, const ex &d, int order = 8)
 {
-    ex es = e.series(x, point, order);
+    ex es = e.series(x==point, order);
     ex ep = ex_to_pseries(es).convert_to_poly();
     if (!(ep - d).is_zero()) {
         clog << "series expansion of " << e << " at " << point
@@ -107,7 +107,7 @@ static unsigned exam_series2(void)
     unsigned result = 0;
     ex e, d;
     
-    e = pow(sin(x), -1).series(x, 0, 8) + pow(sin(-x), -1).series(x, 0, 12);
+    e = pow(sin(x), -1).series(x==0, 8) + pow(sin(-x), -1).series(x==0, 12);
     d = Order(pow(x, 6));
     result += check_series(e, 0, d);
     
@@ -120,7 +120,7 @@ static unsigned exam_series3(void)
     unsigned result = 0;
     ex e, d;
     
-    e = sin(x).series(x, 0, 8) * pow(sin(x), -1).series(x, 0, 12);
+    e = sin(x).series(x==0, 8) * pow(sin(x), -1).series(x==0, 12);
     d = 1 + Order(pow(x, 7));
     result += check_series(e, 0, d);
     

@@ -1,5 +1,3 @@
-#!/usr/bin/perl -w
-
 if (($#ARGV!=0) and ($#ARGV!=1)) {
     die 'usage: container.pl type [maxargs] (type=lst or exprseq)';
 }

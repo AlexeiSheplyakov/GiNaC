@@ -787,14 +787,11 @@ inline ex evalf(basic const & x, int y=0) {
 inline ex diff(basic const & x, symbol const & y, int z=1) {
     return diff(ex(x),(y),z);
 }
-inline ex series(basic const & x, symbol const & y, ex const & z, int zz=6) {
-    return series(ex(x),(y),(z),zz);
+inline ex series(const basic & x, const relational & y, int z) {
+    return series(ex(x),ex(y),(z));
 }
-inline ex series(ex const & x, symbol const & y, basic const & z, int zz=6) {
-    return series(ex(x),(y),ex(z),zz);
-}
-inline ex series(basic const & x, symbol const & y, basic const & z, int zz=6) {
-    return series(ex(x),(y),ex(z),zz);
+inline ex series(const basic & x, const symbol & y, int z) {
+    return series(ex(x),ex(y),(z));
 }
 // fixes for ex subs(x,y)
 inline ex subs(ex const & x, basic const & y) {

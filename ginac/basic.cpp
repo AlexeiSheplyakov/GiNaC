@@ -343,11 +343,16 @@ ex basic::derivative(const symbol & s) const
     throw(std::logic_error("differentiation not supported by this type"));
 }
 
+/** Returns order relation between two objects of same type.  Needs to be
+ *  implemented by each class. */
 int basic::compare_same_type(const basic & other) const
 {
     return compare_pointers(this, &other);
 }
 
+/** Returns true if two objects of same type are equal.  Normally needs
+ *  not be reimplemented as long as it wasn't overwritten by some parent
+ *  class, since it just calls complare_same_type(). */
 bool basic::is_equal_same_type(const basic & other) const
 {
     return compare_same_type(other)==0;

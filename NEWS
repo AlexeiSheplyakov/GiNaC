@@ -1,10 +1,13 @@
 This file records noteworthy changes.
 
 0.6.0 (...)
-* Important interface changes:
-  gamma() -> Gamma()
-  EulerGamma -> gamma
-  beta() -> Beta()
+* IMPORTANT: Several interface changes make programs written with GiNaC 
+  much clearer but break compatibility with older versions:
+  - f(x).series(x,p[,o]) -> f(x).series(x==p,o)
+  - series(f(x),x,p[,o]) -> series(f(x),x==p,o)
+  - gamma() -> Gamma()
+  - EulerGamma -> gamma
+  - beta() -> Beta()
 
 0.5.4 (15 March 2000)
 * Some algorithms in class matrix (notably determinant) were replaced by

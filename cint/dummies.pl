@@ -188,9 +188,8 @@ inline_single_function_2p('ex','collect','basic const &','ex','symbol const &','
 inline_single_function_2p_with_defarg('ex','eval','int','0');
 inline_single_function_2p_with_defarg('ex','evalf','int','0');
 inline_single_function_3p_with_defarg('ex','diff','basic const &','ex','symbol const &','','int','1');
-inline_single_function_4p_with_defarg('ex','series','basic const &','ex','symbol const &','','ex const &','','int','6');
-inline_single_function_4p_with_defarg('ex','series','ex const &','ex','symbol const &','','basic const &','ex','int','6');
-inline_single_function_4p_with_defarg('ex','series','basic const &','ex','symbol const &','','basic const &','ex','int','6');
+inline_single_function_3p('ex','series','const basic &','ex','const relational &','ex','int','');
+inline_single_function_3p('ex','series','const basic &','ex','const symbol &','ex','int','');
 inline_function_2p('ex','subs');
 inline_single_function_3p('ex','subs','basic const &','ex','lst const &','','lst const &','');
 inline_single_function_2p('ex','op','basic const &','ex','int','');

@@ -27,7 +27,7 @@ unsigned Gammaseries(unsigned order)
     unsigned result = 0;
     symbol x;
     
-    ex myseries = series(Gamma(x),x,0,order);
+    ex myseries = series(Gamma(x),x==0,order);
     // compute the last coefficient numerically:
     ex last_coeff = myseries.coeff(x,order-1).evalf();
     // compute a bound for that coefficient using a variation of the leading
