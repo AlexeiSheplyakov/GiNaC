@@ -492,7 +492,6 @@ bool tensepsilon::contract_with(exvector::iterator self, exvector::iterator othe
 	if (is_ex_exactly_of_type(other->op(0), tensepsilon) && num+1 == other->nops()) {
 
 		// Contraction of two epsilon tensors is a determinant
-		ex dim = ex_to<idx>(self->op(1)).get_dim();
 		bool variance = is_a<varidx>(self->op(1));
 		matrix M(num, num);
 		for (int i=0; i<num; i++) {

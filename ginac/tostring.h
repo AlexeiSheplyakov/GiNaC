@@ -32,7 +32,7 @@ template<class T>
 std::string ToString(const T & t)
 {
 	std::ostringstream buf;
-	buf << t << std::ends;
+	buf << t;
 	return buf.str();
 }
 
