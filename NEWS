@@ -1,6 +1,6 @@
 This file records noteworthy changes.
 
-0.9.5 (<date>)
+1.0.0 (6 November 2001)
 * Some internal reorganization resulting in a general speed-up.
 * The last 3 evaluated expressions in ginsh are now referred to with the
   tokens '%', '%%' and '%%%'. The old '"', '""' and '"""' remain for
