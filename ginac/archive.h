@@ -27,11 +27,7 @@
 
 #include <string>
 #include <vector>
-
-namespace std {
-	class ostream;
-	class istream;
-}
+#include <iostream>
 
 #ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {

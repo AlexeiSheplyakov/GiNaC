@@ -487,10 +487,10 @@ bool scalar_products::is_defined(const simp_lor & v1, const simp_lor & v2) const
 
 ex scalar_products::evaluate(const simp_lor & v1, const simp_lor & v2) const
 {
-	if (v1.compare_same_type(v2)>0) {
-		return evaluate(v2,v1);
-	}
-	return spm.find(make_key(v1,v2))->second;
+	if (v1.compare_same_type(v2)>0)
+		return evaluate(v2, v1);
+	
+	return (*spm.find(make_key(v1,v2))).second;
 }
 
 void scalar_products::debugprint(void) const

@@ -81,11 +81,10 @@ const ex & ex::operator=(const ex & other)
 	GINAC_ASSERT(other.bp!=0);
 	GINAC_ASSERT(other.bp->flags & status_flags::dynallocated);
 	++other.bp->refcount;
-	basic * tmpbp=other.bp;
-	if (--bp->refcount==0) {
-			delete bp;
-	}
-	bp=tmpbp;
+	basic * tmpbp = other.bp;
+	if (--bp->refcount==0)
+		delete bp;
+	bp = tmpbp;
 	return *this;
 }
 
@@ -465,7 +464,7 @@ void ex::makewriteable()
 		--bp->refcount;
 		bp = bp2;
 	}
-	GINAC_ASSERT(bp->refcount == 1);
+	GINAC_ASSERT(bp->refcount==1);
 }
 
 void ex::construct_from_basic(const basic & other)
@@ -525,21 +524,13 @@ void ex::construct_from_int(int i)
 		bp->setflag(status_flags::dynallocated);
 		++bp->refcount;
 		GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
-		GINAC_ASSERT(bp->refcount=1);
+		GINAC_ASSERT(bp->refcount==1);
 	}
 }
 	
 void ex::construct_from_uint(unsigned int i)
 {
 	switch (i) {  // some tiny efficiency-hack
-	case -2:
-		bp = _ex_2().bp;
-		++bp->refcount;
-		break;
-	case -1:
-		bp = _ex_1().bp;
-		++bp->refcount;
-		break;
 	case 0:
 		bp = _ex0().bp;
 		++bp->refcount;
@@ -557,7 +548,7 @@ void ex::construct_from_uint(unsigned int i)
 		bp->setflag(status_flags::dynallocated);
 		++bp->refcount;
 		GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
-		GINAC_ASSERT(bp->refcount=1);
+		GINAC_ASSERT(bp->refcount==1);
 	}
 }
 	
@@ -589,21 +580,13 @@ void ex::construct_from_long(long i)
 		bp->setflag(status_flags::dynallocated);
 		++bp->refcount;
 		GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
-		GINAC_ASSERT(bp->refcount=1);
+		GINAC_ASSERT(bp->refcount==1);
 	}
 }
 	
 void ex::construct_from_ulong(unsigned long i)
 {
 	switch (i) {  // some tiny efficiency-hack
-	case -2:
-		bp = _ex_2().bp;
-		++bp->refcount;
-		break;
-	case -1:
-		bp = _ex_1().bp;
-		++bp->refcount;
-		break;
 	case 0:
 		bp = _ex0().bp;
 		++bp->refcount;
@@ -621,7 +604,7 @@ void ex::construct_from_ulong(unsigned long i)
 		bp->setflag(status_flags::dynallocated);
 		++bp->refcount;
 		GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
-		GINAC_ASSERT(bp->refcount=1);
+		GINAC_ASSERT(bp->refcount==1);
 	}
 }
 	
@@ -631,7 +614,7 @@ void ex::construct_from_double(double d)
 	bp->setflag(status_flags::dynallocated);
 	++bp->refcount;
 	GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
-	GINAC_ASSERT(bp->refcount=1);
+	GINAC_ASSERT(bp->refcount==1);
 }
 
 void ex::construct_from_string_and_lst(const std::string &s, const ex &l)

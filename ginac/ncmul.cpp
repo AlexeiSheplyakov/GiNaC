@@ -179,7 +179,6 @@ void ncmul::print(std::ostream & os, unsigned upper_precedence) const
 void ncmul::printraw(std::ostream & os) const
 {
 	debugmsg("ncmul printraw",LOGLEVEL_PRINT);
-
 	os << "%(";
 	for (exvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
 		(*it).bp->printraw(os);
@@ -189,7 +188,7 @@ void ncmul::printraw(std::ostream & os) const
 	os << ")";
 }
 
-void ncmul::printcsrc(std::ostream & os, unsigned upper_precedence) const
+void ncmul::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
 {
 	debugmsg("ncmul print csrc",LOGLEVEL_PRINT);
 	exvector::const_iterator it;

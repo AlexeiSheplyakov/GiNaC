@@ -91,8 +91,8 @@ public:
 #else
 ;
 #endif // def INLINE_BASIC_CONSTRUCTORS
-
-	virtual const basic & operator=(const basic & other);
+	
+	const basic & operator=(const basic & other);
 	
 protected:
 	void copy(const basic & other)

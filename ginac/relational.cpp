@@ -291,12 +291,12 @@ ex relational::eval(int level) const
 
 ex relational::evalf(int level) const
 {
-	if (level==1) {
+	if (level==1)
 		return *this;
-	}
-	if (level == -max_recursion_level) {
+	
+	if (level==-max_recursion_level)
 		throw(std::runtime_error("max recursion level reached"));
-	}
+	
 	return (new relational(lh.eval(level-1),rh.eval(level-1),o))->setflag(status_flags::dynallocated);
 }
 
@@ -315,18 +315,16 @@ int relational::compare_same_type(const basic & other) const
 	int cmpval;
 	
 	if (o == oth.o) {
-		cmpval=lh.compare(oth.lh);
-		if (cmpval==0) {
+		cmpval = lh.compare(oth.lh);
+		if (cmpval==0)
 			return rh.compare(oth.rh);
-		} else {
+		else
 			return cmpval;
-		}
 	}
-	if (o<oth.o) {
+	if (o<oth.o)
 		return -1;
-	} else {
+	else
 		return 1;
-	}
 }
 
 unsigned relational::return_type(void) const
@@ -366,34 +364,28 @@ relational::operator bool() const
 	// please note that (a<b) == false does not imply (a>=b) == true
 	// a false result means the comparison is either false or undecidable
 	// (except for !=, where true means unequal or undecidable)
-	ex df=lh-rh;
-	if (!is_ex_exactly_of_type(df,numeric)) {
-		return o==not_equal ? true : false; // cannot decide on non-numerical results
-	}
-	int cmpval=ex_to_numeric(df).compare(_num0());
+	ex df = lh-rh;
+	if (!is_ex_exactly_of_type(df,numeric))
+		// cannot decide on non-numerical results
+		return o==not_equal ? true : false;
+	
+	int cmpval = ex_to_numeric(df).compare(_num0());
 	switch (o) {
 	case equal:
 		return cmpval==0;
-		break;
 	case not_equal:
 		return cmpval!=0;
-		break;
 	case less:
 		return cmpval<0;
-		break;
 	case less_or_equal:
 		return cmpval<=0;
-		break;
 	case greater:
 		return cmpval>0;
-		break;
 	case greater_or_equal:
 		return cmpval>=0;
-		break;
 	default:
 		throw(std::logic_error("invalid relational operator"));
 	}
-	return 0;
 }
 
 //////////

@@ -125,7 +125,7 @@ inline const symbol &ex_to_symbol(const ex &e)
 
 // wrapper functions around member functions
 inline void unassign(symbol & symarg)
-{ return symarg.unassign(); }
+{ symarg.unassign(); }
 
 inline int degree(const symbol & a, const symbol & s)
 { return a.degree(s); }

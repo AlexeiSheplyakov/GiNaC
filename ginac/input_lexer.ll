@@ -125,7 +125,7 @@ Digits			ginac_yylval = (long)Digits; return T_DIGITS;
 				if (i == syms.end()) {
 					syms[yytext] = sym_def(ginac_yylval = *(new symbol(yytext)), false);
 				} else
-					ginac_yylval = i->second.sym;
+					ginac_yylval = (*i).second.sym;
 				return T_SYMBOL;
 			}
 
@@ -194,7 +194,7 @@ bool is_lexer_symbol_predefined(const ex &s)
 	if (i == syms.end())
 		return false;
 	else
-		return i->second.predefined;
+		return (*i).second.predefined;
 }
 
 #ifndef NO_NAMESPACE_GINAC

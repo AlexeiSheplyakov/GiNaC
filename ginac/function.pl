@@ -131,14 +131,12 @@ $evalf_switch_statement=generate(
 	<<'END_OF_EVALF_SWITCH_STATEMENT','eseq[${N}-1]','');
 	case ${N}:
 		return ((evalf_funcp_${N})(registered_functions()[serial].evalf_f))(${SEQ1});
-		break;
 END_OF_EVALF_SWITCH_STATEMENT
 
 $diff_switch_statement=generate(
 	<<'END_OF_DIFF_SWITCH_STATEMENT','seq[${N}-1]','');
 	case ${N}:
 		return ((derivative_funcp_${N})(registered_functions()[serial].derivative_f))(${SEQ1},diff_param);
-		break;
 END_OF_DIFF_SWITCH_STATEMENT
 
 $series_switch_statement=generate(
@@ -150,7 +148,6 @@ $series_switch_statement=generate(
 			res = basic::series(r, order, options);
 		}
 		return res;
-		break;
 END_OF_SERIES_SWITCH_STATEMENT
 
 $eval_func_implementation=generate(
@@ -889,7 +886,7 @@ ex function::thisexprseq(exvector * vp) const
 
 /** Implementation of ex::series for functions.
  *  \@see ex::series */
-ex function::series(const relational & r, int order, unsigned options = 0) const
+ex function::series(const relational & r, int order, unsigned options) const
 {
 	GINAC_ASSERT(serial<registered_functions().size());
 
@@ -1003,7 +1000,7 @@ ex function::pderivative(unsigned diff_param) const // partial differentiation
 	GINAC_ASSERT(serial<registered_functions().size());
 	
 	if (registered_functions()[serial].derivative_f==0) {
-		return Derivative(*this, lst(diff_param));
+		return Derivative(*this, lst(ex(diff_param)));
 	}
 	switch (registered_functions()[serial].nparams) {
 		// the following lines have been generated for max. ${maxargs} parameters

@@ -225,7 +225,6 @@ numeric::numeric(double d) : basic(TINFO_numeric)
 	        status_flags::hash_calculated);
 }
 
-
 /** ctor from C-style string.  It also accepts complex numbers in GiNaC
  *  notation like "2+5*I". */
 numeric::numeric(const char *s) : basic(TINFO_numeric)
@@ -246,8 +245,7 @@ numeric::numeric(const char *s) : basic(TINFO_numeric)
 		bool imaginary = false;
 		delim = ss.find_first_of(std::string("+-"),1);
 		// Do we have an exponent marker like "31.415E-1"?  If so, hop on!
-		if (delim != std::string::npos
-		 && ss.at(delim-1) == 'E')
+		if ((delim != std::string::npos) && (ss.at(delim-1) == 'E'))
 			delim = ss.find_first_of(std::string("+-"),delim+1);
 		term = ss.substr(0,delim);
 		if (delim != std::string::npos)
@@ -282,7 +280,8 @@ numeric::numeric(const char *s) : basic(TINFO_numeric)
 	} while(delim != std::string::npos);
 	calchash();
 	setflag(status_flags::evaluated |
-	        status_flags::hash_calculated);
+			status_flags::expanded |
+			status_flags::hash_calculated);
 }
 
 /** Ctor from CLN types.  This is for the initiated user or internal use
@@ -1004,7 +1003,6 @@ bool numeric::operator<(const numeric & other) const
 	if (this->is_real() && other.is_real())
 		return (The(::cl_R)(*value) < The(::cl_R)(*other.value));  // -> CLN
 	throw std::invalid_argument("numeric::operator<(): complex inequality");
-	return false;  // make compiler shut up
 }
 
 /** Numerical comparison: less or equal.
@@ -1026,7 +1024,6 @@ bool numeric::operator>(const numeric & other) const
 	if (this->is_real() && other.is_real())
 		return (The(::cl_R)(*value) > The(::cl_R)(*other.value));  // -> CLN
 	throw std::invalid_argument("numeric::operator>(): complex inequality");
-	return false;  // make compiler shut up
 }
 
 /** Numerical comparison: greater or equal.
@@ -1037,7 +1034,6 @@ bool numeric::operator>=(const numeric & other) const
 	if (this->is_real() && other.is_real())
 		return (The(::cl_R)(*value) >= The(::cl_R)(*other.value));  // -> CLN
 	throw std::invalid_argument("numeric::operator>=(): complex inequality");
-	return false;  // make compiler shut up
 }
 
 /** Converts numeric types to machine's int.  You should check with
@@ -1754,7 +1750,7 @@ numeric mod(const numeric & a, const numeric & b)
 numeric smod(const numeric & a, const numeric & b)
 {
 	if (a.is_integer() && b.is_integer()) {
-		cl_I b2 = The(::cl_I)(ceiling1(The(::cl_I)(*b.value) / 2)) - 1;
+		cl_I b2 = The(::cl_I)(ceiling1(The(::cl_I)(*b.value) >> 1)) - 1;
 		return ::mod(The(::cl_I)(*a.value) + b2, The(::cl_I)(*b.value)) - b2;
 	} else
 		return _num0();  // Throw?

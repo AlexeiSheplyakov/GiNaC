@@ -393,7 +393,7 @@ matrix matrix::mul(const matrix & other) const
  *  @exception range_error (index out of range) */
 const ex & matrix::operator() (unsigned ro, unsigned co) const
 {
-	if (ro<0 || ro>=row || co<0 || co>=col)
+	if (ro>=row || co>=col)
 		throw (std::range_error("matrix::operator(): index out of range"));
 
 	return m[ro*col+co];
@@ -405,9 +405,9 @@ const ex & matrix::operator() (unsigned ro, unsigned co) const
  *  @exception range_error (index out of range) */
 matrix & matrix::set(unsigned ro, unsigned co, ex value)
 {
-	if (ro<0 || ro>=row || co<0 || co>=col)
+	if (ro>=row || co>=col)
 		throw (std::range_error("matrix::set(): index out of range"));
-	
+    
 	ensure_if_modifiable();
 	m[ro*col+co] = value;
 	return *this;

@@ -68,7 +68,7 @@ public:
 	basic * duplicate() const;
 	void print(std::ostream & os, unsigned upper_precedence) const;
 	void printraw(std::ostream & os) const;
-	void printcsrc(std::ostream & os, unsigned upper_precedence) const;
+	void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence = 0) const;
 	bool info(unsigned inf) const;
 	int degree(const symbol & s) const;
 	int ldegree(const symbol & s) const;

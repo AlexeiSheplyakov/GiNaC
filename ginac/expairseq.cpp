@@ -23,7 +23,6 @@
 #include <algorithm>
 #include <string>
 #include <stdexcept>
-#include <cmath>
 
 #include "expairseq.h"
 #include "lst.h"
