@@ -633,6 +633,10 @@ static const fcn_help_init builtin_help[] = {
 	{"zeta", "zeta function\nzeta(x) is Riemann's zeta function, zeta(n,x) its nth derivative"},
 	{"Li2", "dilogarithm"},
 	{"Li3", "trilogarithm"},
+	{"Li", "(multiple) polylogarithm"},
+	{"S", "Nielsen's generalized polylogarithm"},
+	{"H", "harmonic polylogarithm"},
+	{"mZeta", "multiple zeta value"},
 	{"Order", "order term function (for truncated power series)"},
 	{"Derivative", "inert differential operator"},
 	{NULL, NULL}	// End marker
