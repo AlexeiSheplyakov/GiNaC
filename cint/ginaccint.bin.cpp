@@ -16,9 +16,7 @@
 #include "config.h"
 #include <list>
 
-#ifndef NO_NAMESPACE_GINAC
 using namespace GiNaC;
-#endif // ndef NO_NAMESPACE_GINAC
 
 extern "C" G__value G__exec_tempfile G__P((char *file));
 extern "C" void G__store_undo_position(void);
@@ -348,12 +346,9 @@ void initialize_cint(void)
 {
 	G__init_cint("cint");    /* initialize cint */
 	
-#ifndef NO_NAMESPACE_GINAC
 	exec_tempfile("using namespace GiNaC;");
-#endif // ndef NO_NAMESPACE_GINAC
-	
 	exec_tempfile("ex LAST,LLAST,LLLAST;\n");
-	exec_tempfile("bool ginac_cint_internal_redirect_output=false;\n");
+	exec_tempfile("bool ginac_cint_internal_redirect_output = false;\n");
 	exec_tempfile("ofstream ginac_cint_internal_fout;\n");
 }    
 
