@@ -464,8 +464,10 @@ static unsigned test_tree(const node (*tree_generator)(unsigned=0))
 		return 1;
 	} else if (result.ldegree(x)!=-vertices || result.degree(x)!=0) {
 		clog << "The antipode was miscalculated\nAntipode==" << result
-		     << "\nshould run from x^(" << -vertices << ") to x^(0) but it runs from x^("
-		     << result.ldegree(x) << ") to x^(" << result.degree(x) << ")" << endl;
+		     << "\nshould run from " << x << "^(" << -vertices << ") to "
+		     << x << "^(0)" << "but it runs from " << x << "^("
+		     << result.ldegree(x) << ")" << "to " << x << "^("
+		     << result.degree(x) << ")" << endl;
 		return 1;
 	}
 	return 0;
