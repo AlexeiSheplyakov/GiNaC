@@ -24,5 +24,5 @@ times_LDADD = ../ginac/libginac.la
 
 INCLUDES = -I$(srcdir)/../ginac -I../ginac
 
-CLEANFILES = exams.out checks.out times.out
+CLEANFILES = exams.out checks.out times.out exam.gar
 EXTRA_DIST = exams.ref checks.ref times.ref run_exams run_checks run_times

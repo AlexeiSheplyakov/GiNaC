@@ -9,6 +9,7 @@ YFLAGS = -d
 
 man_MANS = ginsh.1
 
+CLEANFILES = ginsh_fcn_help.h ginsh_op_help.h
 EXTRA_DIST = ginsh_parser.h ginsh_fcn_help.sed ginsh_op_help.sed
 
 # files created by sed scripts
