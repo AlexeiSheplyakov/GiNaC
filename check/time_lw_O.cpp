@@ -23,78 +23,103 @@
 
 #include "times.h"
 
-static const bool do_test = true;  // set to true in order to run this beast
+static const bool do_test2 = false;  // set to true in order to run this beast
 
-static unsigned test1()
+static const symbol a1("a1"), a2("a2"), a3("a3"), a4("a4"), a5("a5"), a6("a6");
+static const symbol b1("b1"), b2("b2"), b3("b3"), b4("b4"), b5("b5"), b6("b6");
+static const symbol c1("c1"), c2("c2"), c3("c3"), c4("c4"), c5("c5"), c6("c6");
+
+static const ex det1()
 {
-	symbol a1("a1"), a2("a2"), a3("a3"), a4("a4"), a5("a5"), a6("a6");
-	symbol b1("b1"), b2("b2"), b3("b3"), b4("b4"), b5("b5"), b6("b6");
-	symbol c1("c1"), c2("c2"), c3("c3"), c4("c4"), c5("c5"), c6("c6");
-	ex w1[15][15] = {
-		{a6, a5, a4, a3, a2, a1, 0,  0,  0,  0,  0,  0,  0,  0,  0 },
-		{0,  0,  a6, 0,  a5, a4, 0,  a3, a2, a1, 0,  0,  0,  0,  0 },
-		{0,  a6, 0,  a5, a4, 0,  a3, a2, a1, 0,  0,  0,  0,  0,  0 },
-		{0,  0,  0,  a6, 0,  0,  a5, a4, 0,  0,  a3, a2, a1, 0,  0 },
-		{0,  0,  0,  0,  a6, 0,  0,  a5, a4, 0,  0,  a3, a2, a1, 0 },
-		{0,  0,  0,  0,  0,  a6, 0,  0,  a5, a4, 0,  0,  a3, a2, a1},
-		{0,  0,  0,  b6, 0,  0,  b5, b4, 0,  0,  b3, b2, b1, 0,  0 },
-		{0,  0,  0,  0,  b6, 0,  0,  b5, b4, 0,  0,  b3, b2, b1, 0 },
-		{0,  b6, 0,  b5, b4, 0,  b3, b2, b1, 0,  0,  0,  0,  0,  0 },
-		{0,  0,  b6, 0,  b5, b4, 0,  b3, b2, b1, 0,  0,  0,  0,  0 },
-		{0,  0,  0,  0,  0,  b6, 0,  0,  b5, b4, 0,  0,  b3, b2, b1},
-		{0,  0,  0,  0,  0,  c6, 0,  0,  c5, c4, 0,  0,  c3, c2, c1},
-		{0,  0,  c6, 0,  c5, c4, 0,  c3, c2, c1, 0,  0,  0,  0,  0 },
-		{0,  c6, 0,  c5, c4, 0,  c3, c2, c1, 0,  0,  0,  0,  0,  0 },
-		{0,  0,  0,  0,  c6, 0,  0,  c5, c4, 0,  0,  c3, c2, c1, 0 }
-	};
-	ex w2[15][15] = {
-		{b6, b5, b4, b3, b2, b1, 0,  0,  0,  0,  0,  0,  0,  0,  0 },
-		{0,  0,  b6, 0,  b5, b4, 0,  b3, b2, b1, 0,  0,  0,  0,  0 },
-		{0,  b6, 0,  b5, b4, 0,  b3, b2, b1, 0,  0,  0,  0,  0,  0 },
-		{0,  0,  0,  b6, 0,  0,  b5, b4, 0,  0,  b3, b2, b1, 0,  0 },
-		{0,  0,  0,  0,  b6, 0,  0,  b5, b4, 0,  0,  b3, b2, b1, 0 },
-		{0,  0,  0,  0,  0,  b6, 0,  0,  b5, b4, 0,  0,  b3, b2, b1},
-		{0,  0,  0,  c6, 0,  0,  c5, c4, 0,  0,  c3, c2, c1, 0,  0 },
-		{0,  0,  0,  0,  c6, 0,  0,  c5, c4, 0,  0,  c3, c2, c1, 0 },
-		{0,  c6, 0,  c5, c4, 0,  c3, c2, c1, 0,  0,  0,  0,  0,  0 },
-		{0,  0,  c6, 0,  c5, c4, 0,  c3, c2, c1, 0,  0,  0,  0,  0 },
-		{0,  0,  0,  0,  0,  c6, 0,  0,  c5, c4, 0,  0,  c3, c2, c1},
-		{0,  0,  0,  0,  0,  a6, 0,  0,  a5, a4, 0,  0,  a3, a2, a1},
-		{0,  0,  a6, 0,  a5, a4, 0,  a3, a2, a1, 0,  0,  0,  0,  0 },
-		{0,  a6, 0,  a5, a4, 0,  a3, a2, a1, 0,  0,  0,  0,  0,  0 },
-		{0,  0,  0,  0,  a6, 0,  0,  a5, a4, 0,  0,  a3, a2, a1, 0 }
-	};
-	ex w3[15][15] = {
-		{c6, c5, c4, c3, c2, c1, 0,  0,  0,  0,  0,  0,  0,  0,  0 },
-		{0,  0,  c6, 0,  c5, c4, 0,  c3, c2, c1, 0,  0,  0,  0,  0 },
-		{0,  c6, 0,  c5, c4, 0,  c3, c2, c1, 0,  0,  0,  0,  0,  0 },
-		{0,  0,  0,  c6, 0,  0,  c5, c4, 0,  0,  c3, c2, c1, 0,  0 },
-		{0,  0,  0,  0,  c6, 0,  0,  c5, c4, 0,  0,  c3, c2, c1, 0 },
-		{0,  0,  0,  0,  0,  c6, 0,  0,  c5, c4, 0,  0,  c3, c2, c1},
-		{0,  0,  0,  a6, 0,  0,  a5, a4, 0,  0,  a3, a2, a1, 0,  0 },
-		{0,  0,  0,  0,  a6, 0,  0,  a5, a4, 0,  0,  a3, a2, a1, 0 },
-		{0,  a6, 0,  a5, a4, 0,  a3, a2, a1, 0,  0,  0,  0,  0,  0 },
-		{0,  0,  a6, 0,  a5, a4, 0,  a3, a2, a1, 0,  0,  0,  0,  0 },
-		{0,  0,  0,  0,  0,  a6, 0,  0,  a5, a4, 0,  0,  a3, a2, a1},
-		{0,  0,  0,  0,  0,  b6, 0,  0,  b5, b4, 0,  0,  b3, b2, b1},
-		{0,  0,  b6, 0,  b5, b4, 0,  b3, b2, b1, 0,  0,  0,  0,  0 },
-		{0,  b6, 0,  b5, b4, 0,  b3, b2, b1, 0,  0,  0,  0,  0,  0 },
-		{0,  0,  0,  0,  b6, 0,  0,  b5, b4, 0,  0,  b3, b2, b1, 0 }
-	};
-	matrix d1(15,15), d2(15,15), d3(15,15);
-	for (unsigned r=0; r<15; ++r) {
-		for (unsigned c=0; c<15; ++c) {
-			d1.set(r,c,w1[r][c]);
-			d2.set(r,c,w2[r][c]);
-			d3.set(r,c,w3[r][c]);
-		}
-	}
-	unsigned nops1 = nops(d1.determinant());  cout << '.' << flush;
-	unsigned nops2 = nops(d2.determinant());  cout << '.' << flush;
-	unsigned nops3 = nops(d3.determinant());  cout << '.' << flush;
-	
+	matrix d1(15,15);
+	d1 = a6, a5, a4, a3, a2, a1, 0,  0,  0,  0,  0,  0,  0,  0,  0,
+	     0,  0,  a6, 0,  a5, a4, 0,  a3, a2, a1, 0,  0,  0,  0,  0,
+	     0,  a6, 0,  a5, a4, 0,  a3, a2, a1, 0,  0,  0,  0,  0,  0,
+	     0,  0,  0,  a6, 0,  0,  a5, a4, 0,  0,  a3, a2, a1, 0,  0,
+	     0,  0,  0,  0,  a6, 0,  0,  a5, a4, 0,  0,  a3, a2, a1, 0,
+	     0,  0,  0,  0,  0,  a6, 0,  0,  a5, a4, 0,  0,  a3, a2, a1,
+	     0,  0,  0,  b6, 0,  0,  b5, b4, 0,  0,  b3, b2, b1, 0,  0,
+	     0,  0,  0,  0,  b6, 0,  0,  b5, b4, 0,  0,  b3, b2, b1, 0,
+	     0,  b6, 0,  b5, b4, 0,  b3, b2, b1, 0,  0,  0,  0,  0,  0,
+	     0,  0,  b6, 0,  b5, b4, 0,  b3, b2, b1, 0,  0,  0,  0,  0,
+	     0,  0,  0,  0,  0,  b6, 0,  0,  b5, b4, 0,  0,  b3, b2, b1,
+	     0,  0,  0,  0,  0,  c6, 0,  0,  c5, c4, 0,  0,  c3, c2, c1,
+	     0,  0,  c6, 0,  c5, c4, 0,  c3, c2, c1, 0,  0,  0,  0,  0,
+	     0,  c6, 0,  c5, c4, 0,  c3, c2, c1, 0,  0,  0,  0,  0,  0,
+	     0,  0,  0,  0,  c6, 0,  0,  c5, c4, 0,  0,  c3, c2, c1, 0;
+
+	return d1.determinant();
+}
+
+static const ex det2()
+{
+	matrix d2(15,15);
+	d2 = b6, b5, b4, b3, b2, b1, 0,  0,  0,  0,  0,  0,  0,  0,  0,
+	     0,  0,  b6, 0,  b5, b4, 0,  b3, b2, b1, 0,  0,  0,  0,  0,
+	     0,  b6, 0,  b5, b4, 0,  b3, b2, b1, 0,  0,  0,  0,  0,  0,
+	     0,  0,  0,  b6, 0,  0,  b5, b4, 0,  0,  b3, b2, b1, 0,  0,
+	     0,  0,  0,  0,  b6, 0,  0,  b5, b4, 0,  0,  b3, b2, b1, 0,
+	     0,  0,  0,  0,  0,  b6, 0,  0,  b5, b4, 0,  0,  b3, b2, b1,
+	     0,  0,  0,  c6, 0,  0,  c5, c4, 0,  0,  c3, c2, c1, 0,  0,
+	     0,  0,  0,  0,  c6, 0,  0,  c5, c4, 0,  0,  c3, c2, c1, 0,
+	     0,  c6, 0,  c5, c4, 0,  c3, c2, c1, 0,  0,  0,  0,  0,  0,
+	     0,  0,  c6, 0,  c5, c4, 0,  c3, c2, c1, 0,  0,  0,  0,  0,
+	     0,  0,  0,  0,  0,  c6, 0,  0,  c5, c4, 0,  0,  c3, c2, c1,
+	     0,  0,  0,  0,  0,  a6, 0,  0,  a5, a4, 0,  0,  a3, a2, a1,
+	     0,  0,  a6, 0,  a5, a4, 0,  a3, a2, a1, 0,  0,  0,  0,  0,
+	     0,  a6, 0,  a5, a4, 0,  a3, a2, a1, 0,  0,  0,  0,  0,  0,
+	     0,  0,  0,  0,  a6, 0,  0,  a5, a4, 0,  0,  a3, a2, a1, 0;
+
+	return d2.determinant();
+}
+
+static const ex det3()
+{
+	matrix d3(15,15);
+	d3 = c6, c5, c4, c3, c2, c1, 0,  0,  0,  0,  0,  0,  0,  0,  0,
+	     0,  0,  c6, 0,  c5, c4, 0,  c3, c2, c1, 0,  0,  0,  0,  0,
+	     0,  c6, 0,  c5, c4, 0,  c3, c2, c1, 0,  0,  0,  0,  0,  0,
+	     0,  0,  0,  c6, 0,  0,  c5, c4, 0,  0,  c3, c2, c1, 0,  0,
+	     0,  0,  0,  0,  c6, 0,  0,  c5, c4, 0,  0,  c3, c2, c1, 0,
+	     0,  0,  0,  0,  0,  c6, 0,  0,  c5, c4, 0,  0,  c3, c2, c1,
+	     0,  0,  0,  a6, 0,  0,  a5, a4, 0,  0,  a3, a2, a1, 0,  0,
+	     0,  0,  0,  0,  a6, 0,  0,  a5, a4, 0,  0,  a3, a2, a1, 0,
+	     0,  a6, 0,  a5, a4, 0,  a3, a2, a1, 0,  0,  0,  0,  0,  0,
+	     0,  0,  a6, 0,  a5, a4, 0,  a3, a2, a1, 0,  0,  0,  0,  0,
+	     0,  0,  0,  0,  0,  a6, 0,  0,  a5, a4, 0,  0,  a3, a2, a1,
+	     0,  0,  0,  0,  0,  b6, 0,  0,  b5, b4, 0,  0,  b3, b2, b1,
+	     0,  0,  b6, 0,  b5, b4, 0,  b3, b2, b1, 0,  0,  0,  0,  0,
+	     0,  b6, 0,  b5, b4, 0,  b3, b2, b1, 0,  0,  0,  0,  0,  0,
+	     0,  0,  0,  0,  b6, 0,  0,  b5, b4, 0,  0,  b3, b2, b1, 0;
+
+	return d3.determinant();
+}
+
+// The results of test_O1 will be needed for test_O2:
+static ex d1, d2, d3;
+
+static unsigned test_O1()
+{
+	d1 = det1();  cout << '.' << flush;
+	d2 = det2();  cout << '.' << flush;
+	d3 = det3();  cout << '.' << flush;
+	unsigned nops1 = nops(d1);
+	unsigned nops2 = nops(d2);
+	unsigned nops3 = nops(d3);
+
 	if ((nops1 != 37490) || (nops2 != 37490) || (nops3 != 37490)) {
 		clog << "Determinants were miscalculated" << endl;
+		return 1;
+	}
+	return 0;
+}
+
+static unsigned test_O2()
+{
+	const ex gcd1 = gcd( d1, d2 );  cout << '.' << flush;
+	const ex resultant = gcd( gcd1, d3 );  cout << '.' << flush;
+	if (nops(resultant) != 21894) {
+		clog << "Resultant was miscalculated" << endl;
 		return 1;
 	}
 	return 0;
@@ -106,29 +131,43 @@ unsigned time_lw_O()
 	unsigned count = 0;
 	timer rolex;
 	double time = .0;
-	
+
 	cout << "timing Lewis-Wester test O1 (three 15x15 dets)" << flush;
 	clog << "-------Lewis-Wester test O1 (three 15x15 dets):" << endl;
-	
-	if (do_test) {
-		rolex.start();
-		// correct for very small times:
-		do {
-			result = test1();
-			++count;
-		} while ((time=rolex.read())<0.1 && !result);
-		
+
+	rolex.start();
+	// correct for very small times:
+	do {
+		result = test_O1();
+		++count;
+	} while ((time=rolex.read())<0.1 && !result);
+
+	if (!result) {
+		cout << " passed ";
+		clog << "(no output)" << endl;
+	} else {
+		cout << " failed ";
+	}
+	cout << int(1000*(time/(3*count)))*0.001 << "s (average)" << endl;
+
+	cout << "timing Lewis-Wester test O2 (Resultant)" << flush;
+	clog << "-------Lewis-Wester test O2 (Resultant):" << endl;
+
+	if (do_test2) {
+		rolex.reset();
+		result += test_O2();
+
 		if (!result) {
 			cout << " passed ";
 			clog << "(no output)" << endl;
 		} else {
 			cout << " failed ";
 		}
-		cout << int(1000*(time/(3*count)))*0.001 << "s (average)" << endl;
+		cout << int(1000*rolex.read())*0.001 << "s (combined)" << endl;
 	} else {
 		cout << " disabled" << endl;
 		clog << "(no output)" << endl;
 	}
-	
+
 	return result;
 }
