@@ -36,6 +36,7 @@
 #include "lst.h"
 #include "archive.h"
 #include "utils.h"
+#include "integral.h"
 
 namespace GiNaC {
 
@@ -520,6 +521,13 @@ exvector power::get_free_indices() const
 		return really_free;
 	} else
 		return basis_indices;
+}
+
+exvector integral::get_free_indices() const
+{
+	if (a.get_free_indices().size() || b.get_free_indices().size())
+		throw (std::runtime_error("integral::get_free_indices: boundary values should not have free indices"));
+	return f.get_free_indices();
 }
 
 /** Rename dummy indices in an expression.

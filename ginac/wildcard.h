@@ -75,6 +75,9 @@ inline ex wild(unsigned label = 0)
 	return wildcard(label);
 }
 
+/** Check whether x has a wildcard anywhere as a subexpression. */
+bool haswild(const ex & x);
+
 } // namespace GiNaC
 
 #endif // ndef __GINAC_WILDCARD_H__

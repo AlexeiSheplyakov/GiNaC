@@ -136,6 +136,7 @@ public: // only const functions please (may break reference counting)
 	virtual ex eval(int level = 0) const;
 	virtual ex evalf(int level = 0) const;
 	virtual ex evalm() const;
+	virtual ex eval_integ() const;
 protected:
 	virtual ex eval_ncmul(const exvector & v) const;
 public:
