@@ -1,14 +1,15 @@
 This file records noteworthy changes.
 
-0.7.0 ()
+0.7.0 (15 December 2000)
 * Requires CLN 1.1 now.  Class numeric doesn't use an indirect pointer to the
   actual representation any more.  This is a speedup.
 * mul::expand() was reengineered to not allocate temporary excess memory.
 * Non-integer powers of a symbol are treated as constants by (l)degree() and
-  coeff(). Using these functions on an expression containing such powers used
-  to fail with an internal error message. The side-effect is that collect()
+  coeff().  Using these functions on an expression containing such powers used
+  to fail with an internal error message.  The side-effect is that collect()
   can be used on expressions which are not polynomials.
 * Added a man page for the ginac-config script.
+* Ctor of numeric from char* honors Digits.
 
 0.6.4 (10 August 2000)
 * Complete revamp of methods in class matrix.  Some redundant (and poor)
