@@ -410,7 +410,7 @@ void numeric::print(ostream & os, unsigned upper_precedence) const
     debugmsg("numeric print", LOGLEVEL_PRINT);
     if (this->is_real()) {
         // case 1, real:  x  or  -x
-        if ((precedence<=upper_precedence) && (!this->is_pos_integer())) {
+        if ((precedence<=upper_precedence) && (!this->is_nonneg_integer())) {
             os << "(";
             print_real_number(os, The(cl_R)(*value));
             os << ")";
