@@ -4809,8 +4809,17 @@ GiNaC contains the following predefined mathematical functions:
 @item @code{Li2(x)}
 @tab Dilogarithm
 @cindex @code{Li2()}
+@item @code{Li(n, x)}
+@tab classical polylogarithm as well as multiple polylogarithm
+@cindex @code{Li()}
+@item @code{S(n, p, x)}
+@tab Nielsen's generalized polylogarithm
+@cindex @code{S()}
+@item @code{H(n, x)}
+@tab harmonic polylogarithm
+@cindex @code{H()}
 @item @code{zeta(x)}
-@tab Riemann's zeta function
+@tab Riemann's zeta function as well as multiple zeta value
 @cindex @code{zeta()}
 @item @code{zeta(n, x)}
 @tab derivatives of Riemann's zeta function
@@ -4838,21 +4847,6 @@ GiNaC contains the following predefined mathematical functions:
 @item @code{Order(x)}
 @tab order term function in truncated power series
 @cindex @code{Order()}
-@item @code{Li(n, x)}
-@tab polylogarithm
-@cindex @code{Li()}
-@item @code{S(n, p, x)}
-@tab Nielsen's generalized polylogarithm
-@cindex @code{S()}
-@item @code{H(m_lst, x)}
-@tab harmonic polylogarithm
-@cindex @code{H()}
-@item @code{Li(m_lst, x_lst)}
-@tab multiple polylogarithm
-@cindex @code{Li()}
-@item @code{mZeta(m_lst)}
-@tab multiple zeta value
-@cindex @code{mZeta()}
 @end multitable
 @end cartouche
 
@@ -4872,6 +4866,25 @@ serious CAS.  It is to be expected that future revisions of the C++
 standard incorporate these functions in the complex domain in a manner
 compatible with C99.
 
+@cindex nested sums
+The functions @code{Li}, @code{S}, @code{H} and @code{zeta} share certain
+properties and are refered to as nested sums functions, because they all
+have a uniform representation as nested sums (for mathematical details and
+conventions see @emph{S.Moch, P.Uwer, S.Weinzierl hep-ph/0110083}).
+@code{Li} and @code{zeta} can take @code{lst}s as arguments, in which case
+they represent not classical polylogarithms or simple zeta functions but
+multiple polylogarithms or multiple zeta values respectively (note that the two
+@code{lst}s for @code{Li} must have the same length). The first parameter
+of the harmonic polylogarithm can also be a @code{lst}.
+For all these functions the arguments in the @code{lst}s are expected to be
+in the same order as they appear in the nested sums representation
+(note that this convention differs from the one in the aforementioned paper 
+in the cases of @code{Li} and @code{zeta}).
+If you want to numerically evaluate the functions, the parameters @code{n}
+and @code{p} as well as @code{x} in the case of @code{zeta} must all be
+positive integers (or @code{lst}s containing them). The multiple polylogarithm
+has the additional restriction that the second parameter must only
+contain arguments with an absolute value smaller than one.
 
 @node Solving Linear Systems of Equations, Input/Output, Built-in Functions, Methods and Functions
 @c    node-name, next, previous, up
