@@ -1171,6 +1171,8 @@ They are created by simply using the C++ operators @code{==}, @code{!=},
 @xref{Built-in functions}, for examples where various applications of
 the @code{.subs()} method show how objects of class relational are used
 as arguments.  There they provide an intuitive syntax for substitutions.
+They can also used for creating systems of equations that are to be
+solved for unknown variables.
 
 
 @node Archiving, Important Algorithms, Relations, Basic Concepts
@@ -1302,7 +1304,7 @@ would require @code{A=x+1; subs(A,x==2);} (after proper declaration of
 @code{A:=x^2+3; coeff(A,x,0);} (GiNaC: @code{A=pow(x,2)+3;
 coeff(A,x,0);}) it is clear that MapleV is not trying to be consistent
 here.  Also, users of MuPAD will in most cases feel more comfortable
-with GiNaC's convention.  All function wrappers are always implemented
+with GiNaC's convention.  All function wrappers are implemented
 as simple inline functions which just call the corresponding method and
 are only provided for users uncomfortable with OO who are dead set to
 avoid method invocations.  Generally, nested function wrappers are much
@@ -1898,9 +1900,11 @@ compiled and executed.  You cannot play with expressions interactively.
 However, such an extension is not inherently forbidden by design.  In
 fact, two interactive interfaces are possible: First, a shell that
 exposes GiNaC's types to a command line can readily be written (the tiny
-@command{ginsh} that is part of the distribution being an example) and
-second, as a more consistent approach we are working on an integration
-with the @acronym{CINT} C++ interpreter.
+@command{ginsh} that is part of the distribution being an example).
+Second, as a more consistent approach, an interactive interface to the
+@acronym{CINT} C++ interpreter is under development (called
+@acronym{GiNaC-cint}) that will allow an interactive interface
+consistent with the C++ language.
 
 @item
 advanced features: GiNaC cannot compete with a program like
@@ -2264,7 +2268,7 @@ name of the executable
 
 @item
 If you move the GiNaC package from its installed location,
-you will need either need to modify @command{ginac-config} script
+you will either need to modify @command{ginac-config} script
 manually to point to the new location or rebuild GiNaC.
 
 @end itemize
