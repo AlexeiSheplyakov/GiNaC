@@ -115,6 +115,7 @@ void process_tempfile(string const & command)
 {
 #ifdef OBSCURE_CINT_HACK
     static G__value ref_symbol = exec_tempfile("symbol ginac_cint_internal_symbol; ginac_cint_internal_symbol;");
+    static G__value ref_constant = exec_tempfile("constant ginac_cint_internal_constant; ginac_cint_internal_constant;");
     static G__value ref_function = exec_tempfile("sin(ginac_cint_internal_symbol);");
     static G__value ref_power = exec_tempfile("power(ex(ginac_cint_internal_symbol),ex(ginac_cint_internal_symbol));");
     static G__value ref_numeric = exec_tempfile("numeric ginac_cint_internal_numeric; ginac_cint_internal_numeric;");
@@ -151,12 +152,14 @@ void process_tempfile(string const & command)
                       +"LAST="+varname+";\n"
                       +"cout << \""+varname+" = \" << "+varname+" << endl << endl;");
     } else if (TYPES_EQUAL(retval,ref_symbol)||
+               TYPES_EQUAL(retval,ref_constant)||
                TYPES_EQUAL(retval,ref_function)||
                TYPES_EQUAL(retval,ref_power)||
                TYPES_EQUAL(retval,ref_numeric)) {
         if (!basic_type_warning_already_displayed) {
-            cout << "WARNING: The return value of the last expression you entered was a symbol," << endl
-                 << "function, power or numeric, which cannot be safely displayed." << endl
+	    cout << endl
+                 <<"WARNING: The return value of the last expression you entered was a symbol," << endl
+                 << "constant, function, power or numeric, which cannot be safely displayed." << endl
                  << "To force the output, cast it explicitly to type 'ex' or use 'cout'," << endl
                  << "for example (assume 'x' is a symbol):" << endl
                  << PROMPT "ex(x);" << endl

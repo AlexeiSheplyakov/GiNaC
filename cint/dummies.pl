@@ -198,6 +198,10 @@ inline_function_1p('ex','lhs');
 inline_function_1p('ex','rhs');
 inline_function_1p('bool','is_zero');
 
+# fixes for simp_lor.h
+inline_function_2p('simp_lor','lor_g');
+inline_single_function_2p('simp_lor','lor_vec','const string &','','const basic &','ex');
+
 close OUT;
 
 # Create a file containing stubs that may be necessary because Cint always

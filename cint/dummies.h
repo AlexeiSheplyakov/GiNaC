@@ -822,3 +822,17 @@ inline ex rhs(basic const & x) {
 inline bool is_zero(basic const & x) {
     return is_zero(ex(x));
 }
+// fixes for simp_lor lor_g(x,y)
+inline simp_lor lor_g(ex const & x, basic const & y) {
+    return lor_g((x),ex(y));
+}
+inline simp_lor lor_g(basic const & x, ex const & y) {
+    return lor_g(ex(x),(y));
+}
+inline simp_lor lor_g(basic const & x, basic const & y) {
+    return lor_g(ex(x),ex(y));
+}
+
+inline simp_lor lor_vec(const string & x, const basic & y) {
+    return lor_vec((x),ex(y));
+}
