@@ -161,23 +161,15 @@ static unsigned edyn_check(void)
 	L.set(0, 1, -beta*gamma);
 	L.set(1, 0, -beta*gamma);
 	L.set(1, 1, gamma);
-	L.set(2, 2, 1);
-	L.set(3, 3, 1);
+	L.set(2, 2, 1); L.set(3, 3, 1);
 
 	// Electromagnetic field tensor
-	matrix F(4, 4);
-	F.set(0, 1, -Ex);
-	F.set(1, 0, Ex);
-	F.set(0, 2, -Ey);
-	F.set(2, 0, Ey);
-	F.set(0, 3, -Ez);
-	F.set(3, 0, Ez);
-	F.set(1, 2, -Bz);
-	F.set(2, 1, Bz);
-	F.set(1, 3, By);
-	F.set(3, 1, -By);
-	F.set(2, 3, -Bx);
-	F.set(3, 2, Bx);
+	matrix F(4, 4, lst(
+		 0, -Ex, -Ey, -Ez,
+		Ex,   0, -Bz,  By,
+		Ey,  Bz,   0, -Bx,
+		Ez, -By,  Bx // 0
+	));
 
 	// Indices
 	symbol s_mu("mu"), s_nu("nu"), s_rho("rho"), s_sigma("sigma");
@@ -185,8 +177,8 @@ static unsigned edyn_check(void)
 
 	// Apply transformation law of second rank tensor
 	ex e = (indexed(L, mu, rho.toggle_variance())
-	   * indexed(L, nu, sigma.toggle_variance())
-	   * indexed(F, rho, sigma)).simplify_indexed();
+	      * indexed(L, nu, sigma.toggle_variance())
+	      * indexed(F, rho, sigma)).simplify_indexed();
 
 	// Extract transformed electric and magnetic fields
 	ex Ex_p = e.subs(lst(mu == 1, nu == 0)).normal();
@@ -207,11 +199,7 @@ static unsigned edyn_check(void)
 	// Test 2: check energy density and Poynting vector of electromagnetic field
 
 	// Minkowski metric
-	matrix eta(4, 4);
-	eta.set(0, 0, 1);
-	eta.set(1, 1, -1);
-	eta.set(2, 2, -1);
-	eta.set(3, 3, -1);
+	ex eta = diag_matrix(lst(1, -1, -1, -1));
 
 	// Covariant field tensor
 	ex F_mu_nu = (indexed(eta, mu.toggle_variance(), rho.toggle_variance())
