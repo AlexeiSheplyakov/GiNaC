@@ -461,7 +461,7 @@ static ex Li_evalf(const ex& x1, const ex& x2)
 				return Li(x1, x2).hold();
 			}
 			conv *= x2.op(i);
-			if (conv >= 1) {
+			if (abs(conv) >= 1) {
 				return Li(x1, x2).hold();
 			}
 		}
@@ -2033,25 +2033,25 @@ static ex H_eval(const ex& m_, const ex& x)
 	if ((x == _ex1) && (*(--m.end()) != _ex0)) {
 		return convert_H_to_zeta(m);
 	}
-	if (step == 0) {
-		if (pos1 == _ex0) {
-			// all zero
-			if (x == _ex0) {
-				return H(m_, x).hold();
-			}
-			return pow(log(x), m.nops()) / factorial(m.nops());
-		} else {
-			// all (minus) one
-			return pow(-pos1*log(1-pos1*x), m.nops()) / factorial(m.nops());
-		}
-	} else if ((step == 1) && (pos1 == _ex0)){
-		// convertible to S
-		if (pos2 == _ex1) {
-			return S(n, p, x);
-		} else {
-			return pow(-1, p) * S(n, p, -x);
-		}
-	}
+//	if (step == 0) {
+//		if (pos1 == _ex0) {
+//			// all zero
+//			if (x == _ex0) {
+//				return H(m_, x).hold();
+//			}
+//			return pow(log(x), m.nops()) / factorial(m.nops());
+//		} else {
+//			// all (minus) one
+//			return pow(-pos1*log(1-pos1*x), m.nops()) / factorial(m.nops());
+//		}
+//	} else if ((step == 1) && (pos1 == _ex0)){
+//		// convertible to S
+//		if (pos2 == _ex1) {
+//			return S(n, p, x);
+//		} else {
+//			return pow(-1, p) * S(n, p, -x);
+//		}
+//	}
 	if (x == _ex0) {
 		return _ex0;
 	}
