@@ -363,13 +363,13 @@ bool su3d::contract_with(exvector::iterator self, exvector::iterator other, exve
 		exvector free_indices, dummy_indices;
 		find_free_and_dummy(all_indices, free_indices, dummy_indices);
 
-		// d.abc*d.abc=40/3
+		// d.abc d.abc = 40/3
 		if (dummy_indices.size() == 3) {
 			*self = numeric(40, 3);
 			*other = _ex1();
 			return true;
 
-		// d.akl*d.bkl=5/3*delta.ab
+		// d.akl d.bkl = 5/3 delta.ab
 		} else if (dummy_indices.size() == 2) {
 			exvector a;
 			back_insert_iterator<exvector> ita(a);
@@ -378,6 +378,25 @@ bool su3d::contract_with(exvector::iterator self, exvector::iterator other, exve
 			GINAC_ASSERT(a.size() == 2);
 			*self = numeric(5, 3) * delta_tensor(a[0], a[1]);
 			*other = _ex1();
+			return true;
+		}
+
+	} else if (is_ex_exactly_of_type(other->op(0), su3t)) {
+
+		// d.abc T.b T.c = 5/6 T.a
+		if (other+1 != v.end()
+		 && is_ex_exactly_of_type(other[1].op(0), su3t)
+		 && ex_to_indexed(*self).has_dummy_index_for(other[1].op(1))) {
+
+			exvector self_indices = ex_to_indexed(*self).get_indices();
+			exvector dummy_indices;
+			dummy_indices.push_back(other[0].op(1));
+			dummy_indices.push_back(other[1].op(1));
+			int sig;
+			ex a = permute_free_index_to_front(self_indices, dummy_indices, sig);
+			*self = numeric(5, 6);
+			other[0] = color_T(a, ex_to_color(other[0]).get_representation_label());
+			other[1] = _ex1();
 			return true;
 		}
 	}
@@ -399,19 +418,38 @@ bool su3f::contract_with(exvector::iterator self, exvector::iterator other, exve
 		exvector dummy_indices;
 		dummy_indices = ex_to_indexed(*self).get_dummy_indices(ex_to_indexed(*other));
 
-		// f.abc*f.abc=24
+		// f.abc f.abc = 24
 		if (dummy_indices.size() == 3) {
 			*self = 24;
 			*other = _ex1();
 			return true;
 
-		// f.akl*f.bkl=3*delta.ab
+		// f.akl f.bkl = 3 delta.ab
 		} else if (dummy_indices.size() == 2) {
 			int sign1, sign2;
 			ex a = permute_free_index_to_front(ex_to_indexed(*self).get_indices(), dummy_indices, sign1);
 			ex b = permute_free_index_to_front(ex_to_indexed(*other).get_indices(), dummy_indices, sign2);
 			*self = sign1 * sign2 * 3 * delta_tensor(a, b);
 			*other = _ex1();
+			return true;
+		}
+
+	} else if (is_ex_exactly_of_type(other->op(0), su3t)) {
+
+		// f.abc T.b T.c = 3/2 I T.a
+		if (other+1 != v.end()
+		 && is_ex_exactly_of_type(other[1].op(0), su3t)
+		 && ex_to_indexed(*self).has_dummy_index_for(other[1].op(1))) {
+
+			exvector self_indices = ex_to_indexed(*self).get_indices();
+			exvector dummy_indices;
+			dummy_indices.push_back(other[0].op(1));
+			dummy_indices.push_back(other[1].op(1));
+			int sig;
+			ex a = permute_free_index_to_front(self_indices, dummy_indices, sig);
+			*self = numeric(3, 2) * sig * I;
+			other[0] = color_T(a, ex_to_color(other[0]).get_representation_label());
+			other[1] = _ex1();
 			return true;
 		}
 	}

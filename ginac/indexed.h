@@ -184,6 +184,10 @@ public:
 	 *  another indexed object. */
 	exvector get_dummy_indices(const indexed & other) const;
 
+	/** Check whether the object has an index that forms a dummy index pair
+	 *  with a given index. */
+	bool has_dummy_index_for(const ex & i) const;
+
 protected:
 	void printindices(const print_context & c, unsigned level) const;
 	void assert_all_indices_of_type_idx(void) const;

@@ -389,24 +389,62 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 			if ((num & 1) == 0 || num == 3)
 				return _ex0();
 
+			// Tr gamma5 gamma.mu gamma.nu gamma.rho gamma.sigma = 4I * epsilon(mu, nu, rho, sigma)
+			if (num == 5)
+				return trONE * I * eps0123(e.op(1).op(1), e.op(2).op(1), e.op(3).op(1), e.op(4).op(1));
+
+			// Tr gamma5 gamma.mu1 gamma.mu2 gamma.mu3 gamma.mu4 gamma.mu5 gamma.mu6 = ...
+			if (num == 7) {
+				ex i1 = e.op(1).op(1), i2 = e.op(2).op(1),
+				   i3 = e.op(3).op(1), i4 = e.op(4).op(1),
+				   i5 = e.op(5).op(1), i6 = e.op(6).op(1);
+				return trONE * I * (lorentz_g(i1, i2) * eps0123(i3, i4, i5, i6)
+				                  - lorentz_g(i1, i3) * eps0123(i2, i4, i5, i6)
+				                  + lorentz_g(i1, i4) * eps0123(i2, i3, i5, i6)
+				                  - lorentz_g(i1, i5) * eps0123(i2, i3, i4, i6)
+				                  + lorentz_g(i1, i6) * eps0123(i2, i3, i4, i5)
+				                  + lorentz_g(i2, i3) * eps0123(i1, i4, i5, i6)
+				                  - lorentz_g(i2, i4) * eps0123(i1, i3, i5, i6)
+				                  + lorentz_g(i2, i5) * eps0123(i1, i3, i4, i6)
+				                  - lorentz_g(i2, i6) * eps0123(i1, i3, i4, i5)
+				                  + lorentz_g(i3, i4) * eps0123(i1, i2, i5, i6)
+				                  - lorentz_g(i3, i5) * eps0123(i1, i2, i4, i6)
+				                  + lorentz_g(i3, i6) * eps0123(i1, i2, i4, i5)
+				                  + lorentz_g(i4, i5) * eps0123(i1, i2, i3, i6)
+				                  - lorentz_g(i4, i6) * eps0123(i1, i2, i3, i5)
+				                  + lorentz_g(i5, i6) * eps0123(i1, i2, i3, i4));
+			}
+
 			// Tr gamma5 S_2k =
 			//   I/4! * epsilon0123.mu1.mu2.mu3.mu4 * Tr gamma.mu1 gamma.mu2 gamma.mu3 gamma.mu4 S_2k
-			ex dim = ex_to_idx(e.op(1).op(1)).get_dim();
-			varidx mu1((new symbol)->setflag(status_flags::dynallocated), dim),
-			       mu2((new symbol)->setflag(status_flags::dynallocated), dim),
-			       mu3((new symbol)->setflag(status_flags::dynallocated), dim),
-			       mu4((new symbol)->setflag(status_flags::dynallocated), dim);
-			exvector v;
-			v.reserve(num + 3);
-			v.push_back(dirac_gamma(mu1, rl));
-			v.push_back(dirac_gamma(mu2, rl));
-			v.push_back(dirac_gamma(mu3, rl));
-			v.push_back(dirac_gamma(mu4, rl));
-			for (int i=1; i<num; i++)
-				v.push_back(e.op(i));
-
-			return (eps0123(mu1.toggle_variance(), mu2.toggle_variance(), mu3.toggle_variance(), mu4.toggle_variance()) *
-			        dirac_trace(ncmul(v), rl, trONE)).simplify_indexed() * I / 24;
+			ex result;
+			for (int i=1; i<num-3; i++) {
+				ex idx1 = e.op(i).op(1);
+				for (int j=i+1; j<num-2; j++) {
+					ex idx2 = e.op(j).op(1);
+					for (int k=j+1; k<num-1; k++) {
+						ex idx3 = e.op(k).op(1);
+						for (int l=k+1; l<num; l++) {
+							ex idx4 = e.op(l).op(1);
+							vector<int> iv;
+							iv.reserve(num-1);
+							exvector v;
+							v.reserve(num-1);
+							iv.push_back(i); iv.push_back(j); iv.push_back(k); iv.push_back(l);
+							for (int n=1; n<num; n++) {
+								if (n == i || n == j || n == k || n == l)
+									continue;
+								iv.push_back(n);
+								v.push_back(e.op(n));
+							}
+							int sign = permutation_sign(iv);
+							result += sign * eps0123(idx1, idx2, idx3, idx4)
+							        * dirac_trace(ncmul(v), rl, trONE);
+						}
+					}
+				}
+			}
+			return result * I;
 
 		} else { // no gamma5
 
@@ -418,7 +456,13 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 			if (num == 2)
 				return trONE * lorentz_g(e.op(0).op(1), e.op(1).op(1));
 
-			// Traces of 4 or more gammas are computed recursively:
+			// Tr gamma.mu gamma.nu gamma.rho gamma.sig = 4 (g.mu.nu g.rho.sig + g.nu.rho g.mu.sig - g.mu.rho g.nu.sig
+			if (num == 4)
+				return trONE * (lorentz_g(e.op(0).op(1), e.op(1).op(1)) * lorentz_g(e.op(2).op(1), e.op(3).op(1))
+				              + lorentz_g(e.op(1).op(1), e.op(2).op(1)) * lorentz_g(e.op(0).op(1), e.op(3).op(1))
+				              - lorentz_g(e.op(0).op(1), e.op(2).op(1)) * lorentz_g(e.op(1).op(1), e.op(3).op(1)));
+
+			// Traces of 6 or more gammas are computed recursively:
 			// Tr gamma.mu1 gamma.mu2 ... gamma.mun =
 			//   + g.mu1.mu2 * Tr gamma.mu3 ... gamma.mun
 			//   - g.mu1.mu3 * Tr gamma.mu2 gamma.mu4 ... gamma.mun

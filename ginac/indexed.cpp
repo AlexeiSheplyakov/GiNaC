@@ -479,6 +479,17 @@ exvector indexed::get_dummy_indices(const indexed & other) const
 	return dummy_indices;
 }
 
+bool indexed::has_dummy_index_for(const ex & i) const
+{
+	exvector::const_iterator it = seq.begin() + 1, itend = seq.end();
+	while (it != itend) {
+		if (is_dummy_pair(*it, i))
+			return true;
+		it++;
+	}
+	return false;
+}
+
 exvector indexed::get_free_indices(void) const
 {
 	exvector free_indices, dummy_indices;
@@ -632,6 +643,8 @@ try_again:
 		if (!is_ex_of_type(*it1, indexed))
 			continue;
 
+		bool first_noncommutative = (it1->return_type() != return_types::commutative);
+
 		// Indexed factor found, get free indices and look for contraction
 		// candidates
 		exvector free1, dummy1;
@@ -642,6 +655,8 @@ try_again:
 
 			if (!is_ex_of_type(*it2, indexed))
 				continue;
+
+			bool second_noncommutative = (it2->return_type() != return_types::commutative);
 
 			// Find free indices of second factor and merge them with free
 			// indices of first factor
@@ -685,7 +700,7 @@ try_again:
 			}
 			if (contracted) {
 contraction_done:
-				if (non_commutative
+				if (first_noncommutative || second_noncommutative
 				 || is_ex_exactly_of_type(*it1, add) || is_ex_exactly_of_type(*it2, add)
 				 || is_ex_exactly_of_type(*it1, mul) || is_ex_exactly_of_type(*it2, mul)
 				 || is_ex_exactly_of_type(*it1, ncmul) || is_ex_exactly_of_type(*it2, ncmul)) {
