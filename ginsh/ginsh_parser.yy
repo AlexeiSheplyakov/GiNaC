@@ -145,7 +145,7 @@ line	: ';'
 			long i = ex_to_numeric(e).to_long();
 			cout << i << endl;
 			cout << "#o" << oct << i << endl;
-			cout << "#x" << hex << i << endl;
+			cout << "#x" << hex << i << dec << endl;
 		} catch (exception &e) {
 			cerr << e.what() << endl;
 			YYERROR;
