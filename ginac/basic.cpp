@@ -80,14 +80,7 @@ const basic & basic::operator=(const basic & other)
 
 // protected
 
-#if 0
-void basic::copy(const basic & other)
-{
-    flags=other.flags & ~ status_flags::dynallocated;
-    hashvalue=other.hashvalue;
-    tinfo_key=other.tinfo_key;
-}
-#endif
+// none (all inlined)
 
 //////////
 // other constructors
@@ -254,32 +247,38 @@ bool basic::has(const ex & other) const
     return false;
 }
 
+/** Return degree of highest power in symbol s. */
 int basic::degree(const symbol & s) const
 {
     return 0;
 }
 
+/** Return degree of lowest power in symbol s. */
 int basic::ldegree(const symbol & s) const
 {
     return 0;
 }
 
+/** Return coefficient of degree n in symbol s. */
 ex basic::coeff(const symbol & s, int n) const
 {
     return n==0 ? *this : _ex0();
 }
 
+/** Sort expression in terms of powers of some symbol.
+ *  @param s symbol to sort in. */
 ex basic::collect(const symbol & s) const
 {
     ex x;
-    int ldeg=ldegree(s);
-    int deg=degree(s);
+    int ldeg = this->ldegree(s);
+    int deg = this->degree(s);
     for (int n=ldeg; n<=deg; n++) {
-        x += coeff(s,n)*power(s,n);
+        x += this->coeff(s,n)*power(s,n);
     }
     return x;
 }
 
+/* Perform automatic symbolic evaluations on expression. */
 ex basic::eval(int level) const
 {
     return this->hold();
@@ -291,6 +290,7 @@ ex basic::evalf(int level) const
     return *this;
 }
 
+/* Substitute a set of symbols. */
 ex basic::subs(const lst & ls, const lst & lr) const
 {
     return *this;
@@ -382,6 +382,8 @@ unsigned basic::calchash(void) const
     return v;
 }
 
+/** Expand expression, i.e. multiply it out and return the result as a new
+ *  expression. */
 ex basic::expand(unsigned options) const
 {
     return this->setflag(status_flags::expanded);
@@ -394,13 +396,13 @@ ex basic::expand(unsigned options) const
 
 // public
 
+/** Substitute symbols in expression and return the result as a new expression.
+ *  There are two valid types of replacement arguments: 1) a relational like
+ *  symbol==ex and 2) a list of relationals lst(symbol1==ex1,symbol2==ex2,...),
+ *  which is converted to subs(lst(symbol1,symbol2,...),lst(ex1,ex2,...)).
+ *  In addition, an object of class idx can be used instead of a symbol. */
 ex basic::subs(const ex & e) const
 {
-    // accept 2 types of replacement expressions:
-    //   - symbol==ex
-    //   - lst(symbol1==ex1,symbol2==ex2,...)
-    // convert to subs(lst(symbol1,symbol2,...),lst(ex1,ex2,...))
-    // additionally, idx can be used instead of symbol
     if (e.info(info_flags::relation_equal)) {
         return subs(lst(e));
     }
@@ -477,6 +479,7 @@ int basic::compare(const basic & other) const
     return cmpval;
 }
 
+/** Test for equality. */
 bool basic::is_equal(const basic & other) const
 {
     unsigned hash_this = gethash();
@@ -496,6 +499,8 @@ bool basic::is_equal(const basic & other) const
 
 // protected
 
+/** Stop further evaluation.
+ *  @see basic::eval */
 const basic & basic::hold(void) const
 {
     return setflag(status_flags::evaluated);
@@ -514,8 +519,8 @@ void basic::ensure_if_modifiable(void) const
 
 // protected
 
-unsigned basic::precedence=70;
-unsigned basic::delta_indent=4;
+unsigned basic::precedence = 70;
+unsigned basic::delta_indent = 4;
 
 //////////
 // global constants

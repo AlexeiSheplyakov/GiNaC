@@ -554,14 +554,14 @@ ex add::expand(unsigned options) const
 
 // protected
 
-unsigned add::precedence=40;
+unsigned add::precedence = 40;
 
 //////////
 // global constants
 //////////
 
 const add some_add;
-const type_info & typeid_add=typeid(some_add);
+const type_info & typeid_add = typeid(some_add);
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

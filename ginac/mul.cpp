@@ -798,7 +798,7 @@ epvector * mul::expandchildren(unsigned options) const
 
 // protected
 
-unsigned mul::precedence=50;
+unsigned mul::precedence = 50;
 
 
 //////////
@@ -806,7 +806,7 @@ unsigned mul::precedence=50;
 //////////
 
 const mul some_mul;
-const type_info & typeid_mul=typeid(some_mul);
+const type_info & typeid_mul = typeid(some_mul);
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

@@ -597,10 +597,10 @@ ex power::expand(unsigned options) const
 // non-virtual functions in this class
 //////////
 
+/** expand a^n where a is an add and n is an integer.
+ *  @see power::expand */
 ex power::expand_add(const add & a, int n) const
 {
-    // expand a^n where a is an add and n is an integer
-    
     if (n==2)
         return expand_add_2(a);
     
@@ -692,10 +692,11 @@ ex power::expand_add(const add & a, int n) const
     return (new add(sum))->setflag(status_flags::dynallocated);
 }
 
+
+/** Special case of power::expand. Expands a^2 where a is an add.
+ *  @see power::expand_add */
 ex power::expand_add_2(const add & a) const
 {
-    // special case: expand a^2 where a is an add
-
     epvector sum;
     unsigned a_nops=a.nops();
     sum.reserve((a_nops*(a_nops+1))/2);
@@ -755,13 +756,12 @@ ex power::expand_add_2(const add & a) const
     return (new add(sum))->setflag(status_flags::dynallocated);
 }
 
+/** Expand m^n where m is a mul and n is and integer
+ *  @see power::expand */
 ex power::expand_mul(const mul & m, const numeric & n) const
 {
-    // expand m^n where m is a mul and n is and integer
-
-    if (n.is_equal(_num0())) {
+    if (n.is_equal(_num0()))
         return _ex1();
-    }
     
     epvector distrseq;
     distrseq.reserve(m.seq.size());
@@ -828,7 +828,7 @@ ex power::expand_noncommutative(const ex & basis, const numeric & exponent,
 
 // protected
 
-unsigned power::precedence=60;
+unsigned power::precedence = 60;
 
 //////////
 // global constants

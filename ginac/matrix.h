@@ -96,8 +96,8 @@ public:
     matrix old_solve(const matrix & v) const;  // FIXME: may be removed
 protected:
     ex determinant_numeric(void) const;
-    ex determinant_symbolic_minor(void) const;
-    ex determinant_symbolic_perm(void) const;
+    ex determinant_minor(void) const;
+    ex determinant_perm(void) const;
     int gauss_elimination(void);
     int fraction_free_elimination(void);
     int pivot(unsigned ro, bool symbolic=true);

@@ -463,9 +463,9 @@ ex matrix::determinant(void) const
         det = determinant_numeric();
     else
         if (normal_flag)
-            det = determinant_symbolic_minor().normal();
+            det = determinant_minor().normal();
         else
-            det = determinant_symbolic_minor();
+            det = determinant_minor(); // is already expanded!
     
     return det;
 }
@@ -825,7 +825,7 @@ ex matrix::determinant_numeric(void) const
  *  This routine is only called internally by matrix::determinant(). The
  *  algorithm is very bad for symbolic matrices since it returns expressions
  *  that are quite hard to expand. */
-/*ex matrix::determinant_symbolic_leverrier(const matrix & M)
+/*ex matrix::determinant_leverrier(const matrix & M)
  *{
  *    GINAC_ASSERT(M.rows()==M.cols());  // cannot happen, just in case...
  *    
@@ -854,8 +854,9 @@ ex matrix::determinant_numeric(void) const
  *  polynomials and also for matrices of dense univariate polynomials if the
  *  matrix' dimesion is larger than 7.
  *
+ *  @return the determinant as a new expression (in expanded form)
  *  @see matrix::determinant() */
-ex matrix::determinant_symbolic_minor(void) const
+ex matrix::determinant_minor(void) const
 {
     // for small matrices the algorithm does not make any sense:
     if (this->row==1)
@@ -886,9 +887,9 @@ ex matrix::determinant_symbolic_minor(void) const
     //     }
     //     // recurse down and care for sign:
     //     if (r1%2)
-    //         det -= m[r1*col] * minorM.determinant_symbolic_minor();
+    //         det -= m[r1*col] * minorM.determinant_minor();
     //     else
-    //         det += m[r1*col] * minorM.determinant_symbolic_minor();
+    //         det += m[r1*col] * minorM.determinant_minor();
     // }
     // return det.expand();
     // What happens is that while proceeding down many of the minors are
@@ -967,7 +968,7 @@ ex matrix::determinant_symbolic_minor(void) const
 
 /** Determinant built by application of the full permutation group.  This
  *  routine is only called internally by matrix::determinant(). */
-ex matrix::determinant_symbolic_perm(void) const
+ex matrix::determinant_perm(void) const
 {
     if (rows()==1)  // speed things up
         return m[0];
