@@ -51,11 +51,11 @@ also depending on optimization.  To give you a rough idea of what you
 have to expect the following table may be helpful.  It was measured on
 an Athlon/800MHz with "enough" memory:
 
-step:         | GCC optimization level:  | comment:
-              |  -O0   |  -O1   |  -O2   |
---------------+--------+--------+--------+-------------------------------
-make          |   ~4m  |   ~5m  |   ~6m  | building shared and static lib
-make check    |  ~20m  |  ~11m  |  ~12m  | largely due to compilation
+step          | GCC optimization  | comment
+              |   -O1   |   -O2   |
+--------------+---------+---------+----------------------------------------
+make          |   ~6m   |   ~8m   | shared and static library
+make check    |   ~8m   |  ~12m   | largely due to compilation
 
 
 COMMON PROBLEMS
