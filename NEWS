@@ -13,7 +13,7 @@ This file records noteworthy changes.
   info_flags::integer and -::cinteger work similarly, the same
   holds for types like info_flags::rational_polynomial.
 
-0.5.0 (?? February 2000)
+0.5.0 (7 February 2000)
 * Expressions can be written ("archived") to files and read therefrom.
 * Addition of GiNaC-cint, which lets you write complete programs in
   an interactive shell-like manner in your favoured programming
