@@ -181,7 +181,7 @@ public:
     void print(ostream & os, unsigned upper_precedence=0) const;
     void printtree(ostream & os, unsigned indent) const;
     bool info(unsigned inf) const;
-    int nops() const;
+    unsigned nops() const;
     ex & let_op(int const i);
     ex expand(unsigned options=0) const;
     bool has(ex const & other) const;
@@ -544,7 +544,7 @@ void ${CONTAINER}::printtree(ostream & os, unsigned indent) const
 
 // ${CONTAINER}::info() will be implemented by user elsewhere";
 
-int ${CONTAINER}::nops() const
+unsigned ${CONTAINER}::nops() const
 {
     return seq.size();
 }

@@ -519,7 +519,7 @@ void function::printtree(ostream & os, unsigned indent) const
        << ", hash=" << hashvalue << " (0x" << hex << hashvalue << dec << ")"
        << ", flags=" << flags
        << ", nops=" << nops() << endl;
-    for (int i=0; i<nops(); ++i) {
+    for (unsigned i=0; i<nops(); ++i) {
         seq[i].printtree(os,indent+delta_indent);
     }
     os << string(indent+delta_indent,' ') << "=====" << endl;
