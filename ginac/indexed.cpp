@@ -330,9 +330,19 @@ ex indexed::eval(int level) const
 	if (level > 1)
 		return indexed(symmetry, evalchildren(level));
 
+	const ex &base = seq[0];
+
 	// If the base object is 0, the whole object is 0
-	if (seq[0].is_zero())
+	if (base.is_zero())
 		return _ex0();
+
+	// If the base object is a product, pull out the numeric factor
+	if (is_ex_exactly_of_type(base, mul) && is_ex_exactly_of_type(base.op(base.nops() - 1), numeric)) {
+		exvector v = seq;
+		ex f = ex_to_numeric(base.op(base.nops() - 1));
+		v[0] = seq[0] / f;
+		return f * thisexprseq(v);
+	}
 
 	// Canonicalize indices according to the symmetry properties
 	if (seq.size() > 2 && (symmetry != unknown && symmetry != mixed)) {
@@ -347,7 +357,7 @@ ex indexed::eval(int level) const
 	}
 
 	// Let the class of the base object perform additional evaluations
-	return seq[0].bp->eval_indexed(*this);
+	return base.bp->eval_indexed(*this);
 }
 
 ex indexed::thisexprseq(const exvector & v) const

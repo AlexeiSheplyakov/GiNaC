@@ -437,7 +437,7 @@ ex metric_tensor(const ex & i1, const ex & i2)
 	if (!is_ex_of_type(i1, varidx) || !is_ex_of_type(i2, varidx))
 		throw(std::invalid_argument("indices of metric tensor must be of type varidx"));
 
-	return indexed(tensmetric(), i1, i2);
+	return indexed(tensmetric(), indexed::symmetric, i1, i2);
 }
 
 ex lorentz_g(const ex & i1, const ex & i2, bool pos_sig)

@@ -135,9 +135,9 @@ inline const tensor &ex_to_tensor(const ex &e)
  *  @return newly constructed delta tensor */
 ex delta_tensor(const ex & i1, const ex & i2);
 
-/** Create a metric tensor with specified indices. The indices must be of
- *  class varidx or a subclass. A metric tensor with one covariant and one
- *  contravariant index is equivalent to the delta tensor.
+/** Create a symmetric metric tensor with specified indices. The indices
+ *  must be of class varidx or a subclass. A metric tensor with one
+ *  covariant and one contravariant index is equivalent to the delta tensor.
  *
  *  @param i1 First index
  *  @param i2 Second index
