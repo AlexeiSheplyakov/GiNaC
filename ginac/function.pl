@@ -365,7 +365,7 @@ template<> inline bool is_exactly_a<function>(const basic & obj)
 }
 
 #define is_ex_the_function(OBJ, FUNCNAME) \\
-	(is_exactly_a<GiNaC::function>(OBJ) && ex_to<GiNaC::function>(OBJ).get_serial() == function_index_##FUNCNAME)
+	(GiNaC::is_exactly_a<GiNaC::function>(OBJ) && GiNaC::ex_to<GiNaC::function>(OBJ).get_serial() == function_index_##FUNCNAME)
 
 } // namespace GiNaC
 
