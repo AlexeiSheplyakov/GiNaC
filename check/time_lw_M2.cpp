@@ -30,7 +30,7 @@ static unsigned test(void)
 	// Determinant of a sparse matrix that comes up in graph theory:
 	symbol x1("x1"), x2("x2"), x3("x3"), x4("x4"), x5("x5");
 	symbol x6("x6"), x7("x7"), x8("x8"), x9("x9"), xA("xA");
-	static ex w[101][21] = {
+	ex w[101][21] = {
 	    { 1, 1, 1, 12, x9, 22, x8, 32, x7, 42, x6, 52, x5, 62, x4, 72, x3, 82, x2, 92, x1 },
 	    { 2, 2, 1, 13, x9, 23, x8, 33, x7, 43, x6, 53, x5, 63, x4, 73, x3, 83, x2, 93, x1 },
 	    { 3, 3, 1, 14, x9, 24, x8, 34, x7, 44, x6, 54, x5, 64, x4, 74, x3, 84, x2, 94, x1 },
