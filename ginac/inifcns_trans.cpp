@@ -31,6 +31,7 @@
 #include "power.h"
 #include "relational.h"
 #include "symbol.h"
+#include "pseries.h"
 #include "utils.h"
 
 #ifndef NO_NAMESPACE_GINAC
@@ -143,9 +144,20 @@ static ex log_deriv(const ex & x, unsigned deriv_param)
     return power(x, _ex_1());
 }
 
+static ex log_series(const ex & x, const symbol & s, const ex & pt, int order)
+{
+	if (x.subs(s == pt).is_zero()) {
+		epvector seq;
+		seq.push_back(expair(log(x), _ex0()));
+		return pseries(s, pt, seq);
+	} else
+		throw do_taylor();
+}
+
 REGISTER_FUNCTION(log, eval_func(log_eval).
                        evalf_func(log_evalf).
-                       derivative_func(log_deriv));
+                       derivative_func(log_deriv).
+                       series_func(log_series));
 
 //////////
 // sine (trigonometric function)

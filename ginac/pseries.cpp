@@ -763,7 +763,13 @@ ex pseries::series(const symbol & s, const ex & p, int order) const
 ex ex::series(const symbol &s, const ex &point, int order) const
 {
     GINAC_ASSERT(bp!=0);
-    return bp->series(s, point, order);
+	ex e;
+	try {
+	    e = bp->series(s, point, order);
+	} catch (exception &x) {
+		throw (std::logic_error(string("unable to compute series (") + x.what() + ")"));
+	}
+	return e;
 }
 
 
