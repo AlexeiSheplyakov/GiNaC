@@ -1,8 +1,8 @@
 /** @file inifcns_nstdsums.cpp
  *
  *  Implementation of some special functions that have a representation as nested sums.
- *  
- *  The functions are: 
+ *
+ *  The functions are:
  *    classical polylogarithm              Li(n,x)
  *    multiple polylogarithm               Li(lst(m_1,...,m_k),lst(x_1,...,x_k))
  *    nielsen's generalized polylogarithm  S(n,p,x)
@@ -11,32 +11,32 @@
  *    alternating Euler sum                zeta(m,s) or zeta(lst(m_1,...,m_k),lst(s_1,...,s_k))
  *
  *  Some remarks:
- *    
+ *
  *    - All formulae used can be looked up in the following publications:
  *      [Kol] Nielsen's Generalized Polylogarithms, K.S.Kolbig, SIAM J.Math.Anal. 17 (1986), pp. 1232-1258.
- *    	[Cra] Fast Evaluation of Multiple Zeta Sums, R.E.Crandall, Math.Comp. 67 (1998), pp. 1163-1172.
- *    	[ReV] Harmonic Polylogarithms, E.Remiddi, J.A.M.Vermaseren, Int.J.Mod.Phys. A15 (2000), pp. 725-754
- *    	[BBB] Special Values of Multiple Polylogarithms, J.Borwein, D.Bradley, D.Broadhurst, P.Lisonek, Trans.Amer.Math.Soc. 353/3 (2001), pp. 907-941
+ *      [Cra] Fast Evaluation of Multiple Zeta Sums, R.E.Crandall, Math.Comp. 67 (1998), pp. 1163-1172.
+ *      [ReV] Harmonic Polylogarithms, E.Remiddi, J.A.M.Vermaseren, Int.J.Mod.Phys. A15 (2000), pp. 725-754
+ *      [BBB] Special Values of Multiple Polylogarithms, J.Borwein, D.Bradley, D.Broadhurst, P.Lisonek, Trans.Amer.Math.Soc. 353/3 (2001), pp. 907-941
  *
  *    - The order of parameters and arguments of Li and zeta is defined according to the nested sums
- *      representation. The parameters for H are understood as in [ReV]. They can be in expanded --- only 
+ *      representation. The parameters for H are understood as in [ReV]. They can be in expanded --- only
  *      0, 1 and -1 --- or in compactified --- a string with zeros in front of 1 or -1 is written as a single
- *      number --- notation. 
- *    	
+ *      number --- notation.
+ *
  *    - Except for the multiple polylogarithm all functions can be nummerically evaluated with arguments in
  *      the whole complex plane. Multiple polylogarithms evaluate only if for each argument x_i the product
  *      x_1 * x_2 * ... * x_i is smaller than one. The parameters for Li, zeta and S must be positive integers.
  *      If you want to have an alternating Euler sum, you have to give the signs of the parameters as a
  *      second argument s to zeta(m,s) containing 1 and -1.
- *      
+ *
  *    - The calculation of classical polylogarithms is speed up by using Bernoulli numbers and 
  *      look-up tables. S uses look-up tables as well. The zeta function applies the algorithms in
  *      [Cra] and [BBB] for speed up.
- *      
+ *
  *    - The functions have no series expansion into nested sums. To do this, you have to convert these functions
  *      into the appropriate objects from the nestedsums library, do the expansion and convert the
- *      result back. 
- *      
+ *      result back.
+ *
  *    - Numerical testing of this implementation has been performed by doing a comparison of results
  *      between this software and the commercial M.......... 4.1. Multiple zeta values have been checked
  *      by means of evaluations into simple zeta values. Harmonic polylogarithms have been checked by
@@ -313,7 +313,7 @@ cln::cl_N Li_projection(int n, const cln::cl_N& x, const cln::float_format_t& pr
 			cln::cl_N result = -cln::expt(cln::log(x), n-1) * cln::log(1-x) / cln::factorial(n-1);
 			for (int j=0; j<n-1; j++) {
 				result = result + (S_num(n-j-1, 1, 1).to_cl_N() - S_num(1, n-j-1, 1-x).to_cl_N())
-					* cln::expt(cln::log(x), j) / cln::factorial(j);
+				                  * cln::expt(cln::log(x), j) / cln::factorial(j);
 			}
 			return result;
 		}
@@ -373,7 +373,7 @@ numeric Li_num(int n, const numeric& x)
 		cln::cl_N add;
 		for (int j=0; j<n-1; j++) {
 			add = add + (1+cln::expt(cln::cl_I(-1),n-j)) * (1-cln::expt(cln::cl_I(2),1-n+j))
-					* Li_num(n-j,1).to_cl_N() * cln::expt(cln::log(-value),j) / cln::factorial(j);
+			            * Li_num(n-j,1).to_cl_N() * cln::expt(cln::log(-value),j) / cln::factorial(j);
 		}
 		result = result - add;
 		return result;
@@ -428,6 +428,9 @@ cln::cl_N multipleLi_do_sum(const std::vector<int>& s, const std::vector<cln::cl
 	return t[0];
 }
 
+// forward declaration for Li_eval()
+lst convert_parameter_Li_to_H(const lst& m, const lst& x, ex& pf);
+
 
 } // end of anonymous namespace
 
@@ -452,14 +455,14 @@ static ex Li_evalf(const ex& x1, const ex& x2)
 		ex conv = 1;
 		for (int i=0; i<x1.nops(); i++) {
 			if (!x1.op(i).info(info_flags::posint)) {
-				return Li(x1,x2).hold();
+				return Li(x1, x2).hold();
 			}
 			if (!is_a<numeric>(x2.op(i))) {
-				return Li(x1,x2).hold();
+				return Li(x1, x2).hold();
 			}
 			conv *= x2.op(i);
-			if ((conv > 1) || ((conv == 1) && (x1.op(0) == 1))) {
-				return Li(x1,x2).hold();
+			if (conv >= 1) {
+				return Li(x1, x2).hold();
 			}
 		}
 
@@ -477,45 +480,118 @@ static ex Li_evalf(const ex& x1, const ex& x2)
 }
 
 
-static ex Li_eval(const ex& x1, const ex& x2)
+static ex Li_eval(const ex& m_, const ex& x_)
 {
-	if (x2.is_zero()) {
-		return _ex0;
-	}
-	else {
-		if (x2.info(info_flags::numeric) && (!x2.info(info_flags::crational)))
-			return Li_num(ex_to<numeric>(x1).to_int(), ex_to<numeric>(x2));
-		if (is_a<lst>(x2)) {
-			for (int i=0; i<x2.nops(); i++) {
-				if (!is_a<numeric>(x2.op(i))) {
-					return Li(x1,x2).hold();
-				}
-			}
-			return Li(x1,x2).evalf();
+	if (m_.nops() < 2) {
+		ex m;
+		if (is_a<lst>(m_)) {
+			m = m_.op(0);
+		} else {
+			m = m_;
 		}
-		return Li(x1,x2).hold();
+		ex x;
+		if (is_a<lst>(x_)) {
+			x = x_.op(0);
+		} else {
+			x = x_;
+		}
+		if (x == _ex0) {
+			return _ex0;
+		}
+		if (x == _ex1) {
+			return zeta(m);
+		}
+		if (x == _ex_1) {
+			return (pow(2,1-m)-1) * zeta(m);
+		}
+		if (m == _ex1) {
+			return -log(1-x);
+		}
+		if (m.info(info_flags::posint) && x.info(info_flags::numeric) && (!x.info(info_flags::crational))) {
+			return Li_num(ex_to<numeric>(m).to_int(), ex_to<numeric>(x));
+		}
+	} else {
+		bool ish = true;
+		bool iszeta = true;
+		bool iszero = false;
+		bool doevalf = false;
+		bool doevalfveto = true;
+		const lst& m = ex_to<lst>(m_);
+		const lst& x = ex_to<lst>(x_);
+		lst::const_iterator itm = m.begin();
+		lst::const_iterator itx = x.begin();
+		for (; itm != m.end(); itm++, itx++) {
+			if (!(*itm).info(info_flags::posint)) {
+				return Li(m_, x_).hold();
+			}
+			if ((*itx != _ex1) && (*itx != _ex_1)) {
+				if (itx != x.begin()) {
+					ish = false;
+				}
+				iszeta = false;
+			}
+			if (*itx == _ex0) {
+				iszero = true;
+			}
+			if (!(*itx).info(info_flags::numeric)) {
+				doevalfveto = false;
+			}
+			if (!(*itx).info(info_flags::crational)) {
+				doevalf = true;
+			}
+		}
+		if (iszeta) {
+			return zeta(m_, x_);
+		}
+		if (iszero) {
+			return _ex0;
+		}
+		if (ish) {
+			ex pf;
+			lst newm = convert_parameter_Li_to_H(m, x, pf);
+			return pf * H(newm, x[0]);
+		}
+		if (doevalfveto && doevalf) {
+			return Li(m_, x_).evalf();
+		}
 	}
+	return Li(m_, x_).hold();
 }
 
 
-static ex Li_series(const ex& x1, const ex& x2, const relational& rel, int order, unsigned options)
+static ex Li_series(const ex& m, const ex& x, const relational& rel, int order, unsigned options)
 {
 	epvector seq;
-	seq.push_back(expair(Li(x1,x2), 0));
-	return pseries(rel,seq);
+	seq.push_back(expair(Li(m, x), 0));
+	return pseries(rel, seq);
 }
 
 
-static ex Li_deriv(const ex& x1, const ex& x2, unsigned deriv_param)
+static ex Li_deriv(const ex& m_, const ex& x_, unsigned deriv_param)
 {
 	GINAC_ASSERT(deriv_param < 2);
 	if (deriv_param == 0) {
 		return _ex0;
 	}
-	if (x1 > 0) {
-		return Li(x1-1, x2) / x2;
+	if (m_.nops() > 1) {
+		throw std::runtime_error("don't know how to derivate multiple polylogarithm!");
+	}
+	ex m;
+	if (is_a<lst>(m_)) {
+		m = m_.op(0);
 	} else {
-		return 1/(1-x2);
+		m = m_;
+	}
+	ex x;
+	if (is_a<lst>(x_)) {
+		x = x_.op(0);
+	} else {
+		x = x_;
+	}
+	if (m > 0) {
+		return Li(m-1, x) / x;
+	} else {
+		return 1/(1-x);
 	}
 }
 
@@ -555,12 +631,12 @@ static void Li_print_latex(const ex& m_, const ex& x_, const print_context& c)
 
 
 REGISTER_FUNCTION(Li,
-		evalf_func(Li_evalf).
-		eval_func(Li_eval).
-		series_func(Li_series).
-		derivative_func(Li_deriv).
-		print_func<print_latex>(Li_print_latex).
-		do_not_evalf_params());
+                  evalf_func(Li_evalf).
+                  eval_func(Li_eval).
+                  series_func(Li_series).
+                  derivative_func(Li_deriv).
+                  print_func<print_latex>(Li_print_latex).
+                  do_not_evalf_params());
 
 
 //////////////////////////////////////////////////////////////////////
@@ -680,24 +756,24 @@ cln::cl_N C(int n, int p)
 				if (k & 1) {
 					if (j & 1) {
 						result = result + cln::factorial(n+k-1)
-							* cln::expt(cln::pi(),2*j) * S_num(n+k-2*j,p-k,1).to_cl_N()
-							/ (cln::factorial(k) * cln::factorial(n-1) * cln::factorial(2*j));
+						                  * cln::expt(cln::pi(),2*j) * S_num(n+k-2*j,p-k,1).to_cl_N()
+						                  / (cln::factorial(k) * cln::factorial(n-1) * cln::factorial(2*j));
 					}
 					else {
 						result = result - cln::factorial(n+k-1)
-							* cln::expt(cln::pi(),2*j) * S_num(n+k-2*j,p-k,1).to_cl_N()
-							/ (cln::factorial(k) * cln::factorial(n-1) * cln::factorial(2*j));
+						                  * cln::expt(cln::pi(),2*j) * S_num(n+k-2*j,p-k,1).to_cl_N()
+						                  / (cln::factorial(k) * cln::factorial(n-1) * cln::factorial(2*j));
 					}
 				}
 				else {
 					if (j & 1) {
 						result = result - cln::factorial(n+k-1) * cln::expt(cln::pi(),2*j) * S_num(n+k-2*j,p-k,1).to_cl_N()
-							/ (cln::factorial(k) * cln::factorial(n-1) * cln::factorial(2*j));
+						                  / (cln::factorial(k) * cln::factorial(n-1) * cln::factorial(2*j));
 					}
 					else {
 						result = result + cln::factorial(n+k-1)
-							* cln::expt(cln::pi(),2*j) * S_num(n+k-2*j,p-k,1).to_cl_N()
-							/ (cln::factorial(k) * cln::factorial(n-1) * cln::factorial(2*j));
+						                  * cln::expt(cln::pi(),2*j) * S_num(n+k-2*j,p-k,1).to_cl_N()
+						                  / (cln::factorial(k) * cln::factorial(n-1) * cln::factorial(2*j));
 					}
 				}
 			}
@@ -799,13 +875,13 @@ cln::cl_N S_projection(int n, int p, const cln::cl_N& x, const cln::float_format
 	if (cln::abs(cln::realpart(x)) > cln::cl_F("0.5")) {
 
 		cln::cl_N result = cln::expt(cln::cl_I(-1),p) * cln::expt(cln::log(x),n)
-			* cln::expt(cln::log(1-x),p) / cln::factorial(n) / cln::factorial(p);
+		                   * cln::expt(cln::log(1-x),p) / cln::factorial(n) / cln::factorial(p);
 
 		for (int s=0; s<n; s++) {
 			cln::cl_N res2;
 			for (int r=0; r<p; r++) {
 				res2 = res2 + cln::expt(cln::cl_I(-1),r) * cln::expt(cln::log(1-x),r)
-					* S_do_sum(p-r,n-s,1-x,prec) / cln::factorial(r);
+				              * S_do_sum(p-r,n-s,1-x,prec) / cln::factorial(r);
 			}
 			result = result + cln::expt(cln::log(x),s) * (S_num(n-s,p,1).to_cl_N() - res2) / cln::factorial(s);
 		}
@@ -836,7 +912,7 @@ numeric S_num(int n, int p, const numeric& x)
 		for (int nu=0; nu<n; nu++) {
 			for (int rho=0; rho<=p; rho++) {
 				result = result + b_k(n-nu-1) * b_k(p-rho) * a_k(nu+rho+1)
-					* cln::factorial(nu+rho+1) / cln::factorial(rho) / cln::factorial(nu+1);
+				                  * cln::factorial(nu+rho+1) / cln::factorial(rho) / cln::factorial(nu+1);
 			}
 		}
 		result = result * cln::expt(cln::cl_I(-1),n+p-1);
@@ -866,13 +942,13 @@ numeric S_num(int n, int p, const numeric& x)
 	if (cln::realpart(value) < -0.5) {
 
 		cln::cl_N result = cln::expt(cln::cl_I(-1),p) * cln::expt(cln::log(value),n)
-			* cln::expt(cln::log(1-value),p) / cln::factorial(n) / cln::factorial(p);
+		                   * cln::expt(cln::log(1-value),p) / cln::factorial(n) / cln::factorial(p);
 
 		for (int s=0; s<n; s++) {
 			cln::cl_N res2;
 			for (int r=0; r<p; r++) {
 				res2 = res2 + cln::expt(cln::cl_I(-1),r) * cln::expt(cln::log(1-value),r)
-					* S_num(p-r,n-s,1-value).to_cl_N() / cln::factorial(r);
+				              * S_num(p-r,n-s,1-value).to_cl_N() / cln::factorial(r);
 			}
 			result = result + cln::expt(cln::log(value),s) * (S_num(n-s,p,1).to_cl_N() - res2) / cln::factorial(s);
 		}
@@ -888,8 +964,8 @@ numeric S_num(int n, int p, const numeric& x)
 		for (int s=0; s<p; s++) {
 			for (int r=0; r<=s; r++) {
 				result = result + cln::expt(cln::cl_I(-1),s) * cln::expt(cln::log(-value),r) * cln::factorial(n+s-r-1)
-					/ cln::factorial(r) / cln::factorial(s-r) / cln::factorial(n-1)
-					* S_num(n+s-r,p-s,cln::recip(value)).to_cl_N();
+				                  / cln::factorial(r) / cln::factorial(s-r) / cln::factorial(n-1)
+				                  * S_num(n+s-r,p-s,cln::recip(value)).to_cl_N();
 			}
 		}
 		result = result * cln::expt(cln::cl_I(-1),n);
@@ -922,46 +998,57 @@ numeric S_num(int n, int p, const numeric& x)
 //////////////////////////////////////////////////////////////////////
 
 
-static ex S_evalf(const ex& x1, const ex& x2, const ex& x3)
+static ex S_evalf(const ex& n, const ex& p, const ex& x)
 {
-	if (is_a<numeric>(x1) && is_a<numeric>(x2) && is_a<numeric>(x3)) {
-		return S_num(ex_to<numeric>(x1).to_int(), ex_to<numeric>(x2).to_int(), ex_to<numeric>(x3));
+	if (n.info(info_flags::posint) && p.info(info_flags::posint) && is_a<numeric>(x)) {
+		return S_num(ex_to<numeric>(n).to_int(), ex_to<numeric>(p).to_int(), ex_to<numeric>(x));
 	}
-	return S(x1,x2,x3).hold();
+	return S(n, p, x).hold();
 }
 
 
-static ex S_eval(const ex& x1, const ex& x2, const ex& x3)
+static ex S_eval(const ex& n, const ex& p, const ex& x)
 {
-	if (x2 == 1) {
-		return Li(x1+1,x3);
+	if (n.info(info_flags::posint) && p.info(info_flags::posint)) {
+		if (x == 0) {
+			return _ex0;
+		}
+		if (x == 1) {
+			lst m(n+1);
+			for (int i=ex_to<numeric>(p).to_int()-1; i>0; i--) {
+				m.append(1);
+			}
+			return zeta(m);
+		}
+		if (p == 1) {
+			return Li(n+1, x);
+		}
+		if (x.info(info_flags::numeric) && (!x.info(info_flags::crational))) {
+			return S_num(ex_to<numeric>(n).to_int(), ex_to<numeric>(p).to_int(), ex_to<numeric>(x));
+		}
 	}
-	if (x3.info(info_flags::numeric) && (!x3.info(info_flags::crational)) && 
-			x1.info(info_flags::posint) && x2.info(info_flags::posint)) {
-		return S_num(ex_to<numeric>(x1).to_int(), ex_to<numeric>(x2).to_int(), ex_to<numeric>(x3));
-	}
-	return S(x1,x2,x3).hold();
+	return S(n, p, x).hold();
 }
 
 
-static ex S_series(const ex& x1, const ex& x2, const ex& x3, const relational& rel, int order, unsigned options)
+static ex S_series(const ex& n, const ex& p, const ex& x, const relational& rel, int order, unsigned options)
 {
 	epvector seq;
-	seq.push_back(expair(S(x1,x2,x3), 0));
-	return pseries(rel,seq);
+	seq.push_back(expair(S(n, p, x), 0));
+	return pseries(rel, seq);
 }
 
 
-static ex S_deriv(const ex& x1, const ex& x2, const ex& x3, unsigned deriv_param)
+static ex S_deriv(const ex& n, const ex& p, const ex& x, unsigned deriv_param)
 {
 	GINAC_ASSERT(deriv_param < 3);
 	if (deriv_param < 2) {
 		return _ex0;
 	}
-	if (x1 > 0) {
-		return S(x1-1, x2, x3) / x3;
+	if (n > 0) {
+		return S(n-1, p, x) / x;
 	} else {
-		return S(x1, x2-1, x3) / (1-x3);
+		return S(n, p-1, x) / (1-x);
 	}
 }
 
@@ -979,12 +1066,12 @@ static void S_print_latex(const ex& n, const ex& p, const ex& x, const print_con
 
 
 REGISTER_FUNCTION(S,
-		evalf_func(S_evalf).
-		eval_func(S_eval).
-		series_func(S_series).
-		derivative_func(S_deriv).
-		print_func<print_latex>(S_print_latex).
-		do_not_evalf_params());
+                  evalf_func(S_evalf).
+                  eval_func(S_eval).
+                  series_func(S_series).
+                  derivative_func(S_deriv).
+                  print_func<print_latex>(S_print_latex).
+                  do_not_evalf_params());
 
 
 //////////////////////////////////////////////////////////////////////
@@ -1148,7 +1235,7 @@ struct map_trafo_H_reduce_trailing_zeros : public map_function
 			if (name == "H") {
 				lst parameter;
 				if (is_a<lst>(e.op(0))) {
-						parameter = ex_to<lst>(e.op(0));
+					parameter = ex_to<lst>(e.op(0));
 				} else {
 					parameter = lst(e.op(0));
 				}
@@ -1210,32 +1297,32 @@ struct map_trafo_H_reduce_trailing_zeros : public map_function
 
 
 // returns an expression with zeta functions corresponding to the parameter list for H
-ex convert_H_to_zeta(const lst& l)
+ex convert_H_to_zeta(const lst& m)
 {
 	symbol xtemp("xtemp");
 	map_trafo_H_reduce_trailing_zeros filter;
 	map_trafo_H_convert_to_zeta filter2;
-	return filter2(filter(H(l, xtemp).hold())).subs(xtemp == 1);
+	return filter2(filter(H(m, xtemp).hold())).subs(xtemp == 1);
 }
 
 
 // convert signs form Li to H representation
-// not used yet!
-lst convert_parameter_Li_to_H(const lst& l, ex& pf)
+lst convert_parameter_Li_to_H(const lst& m, const lst& x, ex& pf)
 {
 	lst res;
-	lst::const_iterator it = l.begin();
-	ex signum = *it;
-	pf = *it;
-	res.append(*it);
-	it++;
-	while (it != l.end()) {
-		signum = *it * signum;
-		res.append(signum);
+	lst::const_iterator itm = m.begin();
+	lst::const_iterator itx = ++x.begin();
+	ex signum = _ex1;
+	pf = _ex1;
+	res.append(*itm);
+	itm++;
+	while (itx != x.end()) {
+		signum *= *itx;
 		pf *= signum;
-		it++;
+		res.append((*itm) * signum);
+		itm++;
+		itx++;
 	}
-
 	return res;
 }
 
@@ -1504,8 +1591,8 @@ struct map_trafo_H_1overx : public map_function
 					}
 					if (allthesame) {
 						map_trafo_H_mult unify;
-						return unify((pow(H(lst(-1),1/arg).hold() - H(lst(0),1/arg).hold(), parameter.nops()) / 
-									factorial(parameter.nops())).expand());
+						return unify((pow(H(lst(-1),1/arg).hold() - H(lst(0),1/arg).hold(), parameter.nops())
+						       / factorial(parameter.nops())).expand());
 					}
 				} else {
 					for (int i=1; i<parameter.nops(); i++) {
@@ -1516,8 +1603,8 @@ struct map_trafo_H_1overx : public map_function
 					}
 					if (allthesame) {
 						map_trafo_H_mult unify;
-						return unify((pow(H(lst(1),1/arg).hold() + H(lst(0),1/arg).hold() - I*Pi, parameter.nops()) / 
-							factorial(parameter.nops())).expand());
+						return unify((pow(H(lst(1),1/arg).hold() + H(lst(0),1/arg).hold() - I*Pi, parameter.nops())
+						       / factorial(parameter.nops())).expand());
 					}
 				}
 
@@ -1615,8 +1702,8 @@ struct map_trafo_H_1mxt1px : public map_function
 					}
 					if (allthesame) {
 						map_trafo_H_mult unify;
-						return unify((pow(-H(lst(1),(1-arg)/(1+arg)).hold() - H(lst(-1),(1-arg)/(1+arg)).hold(), parameter.nops()) / 
-									factorial(parameter.nops())).expand());
+						return unify((pow(-H(lst(1),(1-arg)/(1+arg)).hold() - H(lst(-1),(1-arg)/(1+arg)).hold(), parameter.nops())
+						       / factorial(parameter.nops())).expand());
 					}
 				} else if (parameter.op(0) == -1) {
 					for (int i=1; i<parameter.nops(); i++) {
@@ -1627,8 +1714,8 @@ struct map_trafo_H_1mxt1px : public map_function
 					}
 					if (allthesame) {
 						map_trafo_H_mult unify;
-						return unify((pow(log(2) - H(lst(-1),(1-arg)/(1+arg)).hold(), parameter.nops()) / 
-									factorial(parameter.nops())).expand());
+						return unify((pow(log(2) - H(lst(-1),(1-arg)/(1+arg)).hold(), parameter.nops())
+						       / factorial(parameter.nops())).expand());
 					}
 				} else {
 					for (int i=1; i<parameter.nops(); i++) {
@@ -1639,8 +1726,8 @@ struct map_trafo_H_1mxt1px : public map_function
 					}
 					if (allthesame) {
 						map_trafo_H_mult unify;
-						return unify((pow(-log(2) - H(lst(0),(1-arg)/(1+arg)).hold() + H(lst(-1),(1-arg)/(1+arg)).hold(), parameter.nops()) / 
-							factorial(parameter.nops())).expand());
+						return unify((pow(-log(2) - H(lst(0),(1-arg)/(1+arg)).hold() + H(lst(-1),(1-arg)/(1+arg)).hold(), parameter.nops())
+						       / factorial(parameter.nops())).expand());
 					}
 				}
 
@@ -1862,54 +1949,157 @@ static ex H_evalf(const ex& x1, const ex& x2)
 }
 
 
-static ex H_eval(const ex& x1, const ex& x2)
+static ex H_eval(const ex& m_, const ex& x)
 {
-	if (x2 == 0) {
-		return 0;
+	lst m;
+	if (is_a<lst>(m_)) {
+		m = ex_to<lst>(m_);
+	} else {
+		m = lst(m_);
 	}
-//TODO
-//	if (x2 == 1) {
-//		return zeta(x1);
-//	}
-//	if (x1.nops() == 1) {
-//		return Li(x1.op(0), x2);
-//	}
-	if (x2.info(info_flags::numeric) && (!x2.info(info_flags::crational))) {
-		return H(x1,x2).evalf();
+	if (m.nops() == 0) {
+		return _ex1;
 	}
-	return H(x1,x2).hold();
+	ex pos1;
+	ex pos2;
+	ex n;
+	ex p;
+	int step = 0;
+	if (*m.begin() > _ex1) {
+		step++;
+		pos1 = _ex0;
+		pos2 = _ex1;
+		n = *m.begin()-1;
+		p = _ex1;
+	} else if (*m.begin() < _ex_1) {
+		step++;
+		pos1 = _ex0;
+		pos2 = _ex_1;
+		n = -*m.begin()-1;
+		p = _ex1;
+	} else if (*m.begin() == _ex0) {
+		pos1 = _ex0;
+		n = _ex1;
+	} else {
+		pos1 = *m.begin();
+		p = _ex1;
+	}
+	for (lst::const_iterator it = ++m.begin(); it != m.end(); it++) {
+		if ((*it).info(info_flags::integer)) {
+			if (step == 0) {
+				if (*it > _ex1) {
+					if (pos1 == _ex0) {
+						step = 1;
+						pos2 = _ex1;
+						n += *it-1;
+						p = _ex1;
+					} else {
+						step = 2;
+					}
+				} else if (*it < _ex_1) {
+					if (pos1 == _ex0) {
+						step = 1;
+						pos2 = _ex_1;
+						n += -*it-1;
+						p = _ex1;
+					} else {
+						step = 2;
+					}
+				} else {
+					if (*it != pos1) {
+						step = 1;
+						pos2 = *it;
+					}
+					if (*it == _ex0) {
+						n++;
+					} else {
+						p++;
+					}
+				}
+			} else if (step == 1) {
+				if (*it != pos2) {
+					step = 2;
+				} else {
+					if (*it == _ex0) {
+						n++;
+					} else {
+						p++;
+					}
+				}
+			}
+		} else {
+			// if some m_i is not an integer
+			return H(m_, x).hold();
+		}
+	}
+	if ((x == _ex1) && (*(--m.end()) != _ex0)) {
+		return convert_H_to_zeta(m);
+	}
+	if (step == 0) {
+		if (pos1 == _ex0) {
+			// all zero
+			if (x == _ex0) {
+				return H(m_, x).hold();
+			}
+			return pow(log(x), m.nops()) / factorial(m.nops());
+		} else {
+			// all (minus) one
+			return pow(-pos1*log(1-pos1*x), m.nops()) / factorial(m.nops());
+		}
+	} else if ((step == 1) && (pos1 == _ex0)){
+		// convertible to S
+		if (pos2 == _ex1) {
+			return S(n, p, x);
+		} else {
+			return pow(-1, p) * S(n, p, -x);
+		}
+	}
+	if (x == _ex0) {
+		return _ex0;
+	}
+	if (x.info(info_flags::numeric) && (!x.info(info_flags::crational))) {
+		return H(m_, x).evalf();
+	}
+	return H(m_, x).hold();
 }
 
 
-static ex H_series(const ex& x1, const ex& x2, const relational& rel, int order, unsigned options)
+static ex H_series(const ex& m, const ex& x, const relational& rel, int order, unsigned options)
 {
 	epvector seq;
-	seq.push_back(expair(H(x1,x2), 0));
-	return pseries(rel,seq);
+	seq.push_back(expair(H(m, x), 0));
+	return pseries(rel, seq);
 }
 
 
-static ex H_deriv(const ex& x1, const ex& x2, unsigned deriv_param)
+static ex H_deriv(const ex& m_, const ex& x, unsigned deriv_param)
 {
 	GINAC_ASSERT(deriv_param < 2);
 	if (deriv_param == 0) {
 		return _ex0;
 	}
-	if (is_a<lst>(x1)) {
-		lst newparameter = ex_to<lst>(x1);
-		if (x1.op(0) == 1) {
-			newparameter.remove_first();
-			return 1/(1-x2) * H(newparameter, x2);
-		} else {
-			newparameter[0]--;
-			return H(newparameter, x2).hold() / x2;
-		}
+	lst m;
+	if (is_a<lst>(m_)) {
+		m = ex_to<lst>(m_);
 	} else {
-		if (x1 == 1) {
-			return 1/(1-x2);
-		} else {
-			return H(x1-1, x2).hold() / x2;
-		}
+		m = lst(m_);
+	}
+	ex mb = *m.begin();
+	if (mb > _ex1) {
+		m[0]--;
+		return H(m, x) / x;
+	}
+	if (mb < _ex_1) {
+		m[0]++;
+		return H(m, x) / x;
+	}
+	m.remove_first();
+	if (mb == _ex1) {
+		return 1/(1-x) * H(m, x);
+	} else if (mb == _ex_1) {
+		return 1/(1+x) * H(m, x);
+	} else {
+		return H(m, x) / x;
 	}
 }
 
@@ -1937,23 +2127,23 @@ static void H_print_latex(const ex& m_, const ex& x, const print_context& c)
 
 
 REGISTER_FUNCTION(H,
-		evalf_func(H_evalf).
-		eval_func(H_eval).
-		series_func(H_series).
-		derivative_func(H_deriv).
-		print_func<print_latex>(H_print_latex).
-		do_not_evalf_params());
+                  evalf_func(H_evalf).
+                  eval_func(H_eval).
+                  series_func(H_series).
+                  derivative_func(H_deriv).
+                  print_func<print_latex>(H_print_latex).
+                  do_not_evalf_params());
 
 
 // takes a parameter list for H and returns an expression with corresponding multiple polylogarithms
-ex convert_H_to_Li(const ex& parameterlst, const ex& arg)
+ex convert_H_to_Li(const ex& m, const ex& x)
 {
 	map_trafo_H_reduce_trailing_zeros filter;
 	map_trafo_H_convert_to_Li filter2;
-	if (is_a<lst>(parameterlst)) {
-		return filter2(filter(H(parameterlst, arg).hold())).eval();
+	if (is_a<lst>(m)) {
+		return filter2(filter(H(m, x).hold())).eval();
 	} else {
-		return filter2(filter(H(lst(parameterlst), arg).hold())).eval();
+		return filter2(filter(H(lst(m), x).hold())).eval();
 	}
 }
 
@@ -2293,12 +2483,12 @@ cln::cl_N zeta_do_Hoelder_convolution(const std::vector<int>& m_, const std::vec
 		if (m_p.size() == 0) break;
 
 		res = res + signum * multipleLi_do_sum(m_p, s_p) * multipleLi_do_sum(m_q, s_q);
-		
+
 	} while (true);
 
 	// last term
 	res = res + signum * multipleLi_do_sum(m_q, s_q);
-	
+
 	return res;
 }
 
@@ -2350,7 +2540,7 @@ static ex zeta1_evalf(const ex& x)
 			return numeric(zeta_do_sum_simple(r));
 		}
 	}
-		
+
 	// single zeta value
 	if (is_exactly_a<numeric>(x) && (x != 1)) {
 		try {
@@ -2362,28 +2552,28 @@ static ex zeta1_evalf(const ex& x)
 }
 
 
-static ex zeta1_eval(const ex& x)
+static ex zeta1_eval(const ex& m)
 {
-	if (is_exactly_a<lst>(x)) {
-		if (x.nops() == 1) {
-			return zeta(x.op(0));
+	if (is_exactly_a<lst>(m)) {
+		if (m.nops() == 1) {
+			return zeta(m.op(0));
 		}
-		return zeta(x).hold();
+		return zeta(m).hold();
 	}
 
-	if (x.info(info_flags::numeric)) {
-		const numeric& y = ex_to<numeric>(x);
+	if (m.info(info_flags::numeric)) {
+		const numeric& y = ex_to<numeric>(m);
 		// trap integer arguments:
 		if (y.is_integer()) {
 			if (y.is_zero()) {
 				return _ex_1_2;
 			}
 			if (y.is_equal(_num1)) {
-				return zeta(x).hold();
+				return zeta(m).hold();
 			}
 			if (y.info(info_flags::posint)) {
 				if (y.info(info_flags::odd)) {
-					return zeta(x).hold();
+					return zeta(m).hold();
 				} else {
 					return abs(bernoulli(y)) * pow(Pi, y) * pow(_num2, y-_num1) / factorial(y);
 				}
@@ -2396,53 +2586,52 @@ static ex zeta1_eval(const ex& x)
 			}
 		}
 		// zeta(float)
-		if (y.info(info_flags::numeric) && !y.info(info_flags::crational))
-			return zeta1_evalf(x);
+		if (y.info(info_flags::numeric) && !y.info(info_flags::crational)) {
+			return zeta1_evalf(m);
+		}
 	}
-	return zeta(x).hold();
+	return zeta(m).hold();
 }
 
 
-static ex zeta1_deriv(const ex& x, unsigned deriv_param)
+static ex zeta1_deriv(const ex& m, unsigned deriv_param)
 {
 	GINAC_ASSERT(deriv_param==0);
 
-	if (is_exactly_a<lst>(x)) {
+	if (is_exactly_a<lst>(m)) {
 		return _ex0;
 	} else {
-		return zeta(_ex1, x);
+		return zetaderiv(_ex1, m);
 	}
 }
 
 
-static void zeta1_print_latex(const ex& x, const print_context& c)
+static void zeta1_print_latex(const ex& m_, const print_context& c)
 {
 	c.s << "\\zeta(";
-	if (is_a<lst>(x)) {
-		lst arg;
-		arg = ex_to<lst>(x);
-		lst::const_iterator it = arg.begin();
+	if (is_a<lst>(m_)) {
+		const lst& m = ex_to<lst>(m_);
+		lst::const_iterator it = m.begin();
 		(*it).print(c);
 		it++;
-		for (; it != arg.end(); it++) {
+		for (; it != m.end(); it++) {
 			c.s << ",";
 			(*it).print(c);
 		}
 	} else {
-		x.print(c);
+		m_.print(c);
 	}
 	c.s << ")";
 }
 
 
-unsigned zeta1_SERIAL::serial =
-			function::register_new(function_options("zeta").
-						evalf_func(zeta1_evalf).
-						eval_func(zeta1_eval).
-						derivative_func(zeta1_deriv).
-						print_func<print_latex>(zeta1_print_latex).
-						do_not_evalf_params().
-						overloaded(2));
+unsigned zeta1_SERIAL::serial = function::register_new(function_options("zeta").
+                                evalf_func(zeta1_evalf).
+                                eval_func(zeta1_eval).
+                                derivative_func(zeta1_deriv).
+                                print_func<print_latex>(zeta1_print_latex).
+                                do_not_evalf_params().
+                                overloaded(2));
 
 
 //////////////////////////////////////////////////////////////////////
@@ -2494,96 +2683,92 @@ static ex zeta2_evalf(const ex& x, const ex& s)
 		// use Hoelder convolution
 		return numeric(zeta_do_Hoelder_convolution(xi, si));
 	}
-		
+
 	return zeta(x, s).hold();
 }
 
 
-static ex zeta2_eval(const ex& x, const ex& s)
+static ex zeta2_eval(const ex& m, const ex& s_)
 {
-	if (is_exactly_a<lst>(s)) {
-		const lst& l = ex_to<lst>(s);
-		lst::const_iterator it = l.begin();
-		while (it != l.end()) {
-			if ((*it).info(info_flags::negative)) {
-				return zeta(x, s).hold();
+	if (is_exactly_a<lst>(s_)) {
+		const lst& s = ex_to<lst>(s_);
+		for (lst::const_iterator it = s.begin(); it != s.end(); it++) {
+			if ((*it).info(info_flags::positive)) {
+				continue;
 			}
-			it++;
+			return zeta(m, s_).hold();
 		}
-		return zeta(x);
-	} else {
-		if (s.info(info_flags::positive)) {
-			return zeta(x);
-		}
+		return zeta(m);
+	} else if (s_.info(info_flags::positive)) {
+		return zeta(m);
 	}
 
-	return zeta(x, s).hold();
+	return zeta(m, s_).hold();
 }
 
 
-static ex zeta2_deriv(const ex& x, const ex& s, unsigned deriv_param)
+static ex zeta2_deriv(const ex& m, const ex& s, unsigned deriv_param)
 {
 	GINAC_ASSERT(deriv_param==0);
 
-	if (is_exactly_a<lst>(x)) {
+	if (is_exactly_a<lst>(m)) {
 		return _ex0;
 	} else {
-		if ((is_exactly_a<lst>(s) && (s.op(0) > 0)) || (s > 0)) {
-			return zeta(_ex1, x);
+		if ((is_exactly_a<lst>(s) && s.op(0).info(info_flags::positive)) || s.info(info_flags::positive)) {
+			return zetaderiv(_ex1, m);
 		}
 		return _ex0;
 	}
 }
 
 
-static void zeta2_print_latex(const ex& x, const ex& s, const print_context& c)
+static void zeta2_print_latex(const ex& m_, const ex& s_, const print_context& c)
 {
-	lst arg;
-	if (is_a<lst>(x)) {
-		arg = ex_to<lst>(x);
+	lst m;
+	if (is_a<lst>(m_)) {
+		m = ex_to<lst>(m_);
 	} else {
-		arg = lst(x);
+		m = lst(m_);
 	}
-	lst sig;
-	if (is_a<lst>(s)) {
-		sig = ex_to<lst>(s);
+	lst s;
+	if (is_a<lst>(s_)) {
+		s = ex_to<lst>(s_);
 	} else {
-		sig = lst(s);
+		s = lst(s_);
 	}
 	c.s << "\\zeta(";
-	lst::const_iterator itarg = arg.begin();
-	lst::const_iterator itsig = sig.begin();
-	if (*itsig < 0) {
+	lst::const_iterator itm = m.begin();
+	lst::const_iterator its = s.begin();
+	if (*its < 0) {
 		c.s << "\\overline{";
-		(*itarg).print(c);
+		(*itm).print(c);
 		c.s << "}";
 	} else {
-		(*itarg).print(c);
+		(*itm).print(c);
 	}
-	itsig++;
-	itarg++;
-	for (; itarg != arg.end(); itarg++, itsig++) {
+	its++;
+	itm++;
+	for (; itm != m.end(); itm++, its++) {
 		c.s << ",";
-		if (*itsig < 0) {
+		if (*its < 0) {
 			c.s << "\\overline{";
-			(*itarg).print(c);
+			(*itm).print(c);
 			c.s << "}";
 		} else {
-			(*itarg).print(c);
+			(*itm).print(c);
 		}
 	}
 	c.s << ")";
 }
 
 
-unsigned zeta2_SERIAL::serial =
-			function::register_new(function_options("zeta").
-						evalf_func(zeta2_evalf).
-						eval_func(zeta2_eval).
-						derivative_func(zeta2_deriv).
-						print_func<print_latex>(zeta2_print_latex).
-						do_not_evalf_params().
-						overloaded(2));
+unsigned zeta2_SERIAL::serial = function::register_new(function_options("zeta").
+                                evalf_func(zeta2_evalf).
+                                eval_func(zeta2_eval).
+                                derivative_func(zeta2_deriv).
+                                print_func<print_latex>(zeta2_print_latex).
+                                do_not_evalf_params().
+                                overloaded(2));
 
 
 } // namespace GiNaC
