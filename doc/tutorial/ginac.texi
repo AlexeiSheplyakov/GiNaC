@@ -1250,6 +1250,9 @@ Indexed expressions in GiNaC are constructed of two special types of objects,
 
 @itemize @bullet
 
+@cindex contravariant
+@cindex covariant
+@cindex variance
 @item Index objects are of class @code{idx} or a subclass. Every index has
 a @dfn{value} and a @dfn{dimension} (which is the dimension of the space
 the index lives in) which can both be arbitrary expressions but are usually
@@ -1481,6 +1484,7 @@ simplifications:
 @end example
 
 @cindex @code{get_free_indices()}
+@cindex Dummy index
 @subsection Dummy indices
 
 GiNaC treats certain symbolic index pairs as @dfn{dummy indices} meaning
@@ -2251,6 +2255,39 @@ int main()
     ex P_lcm = lcm(P_a, P_b);
     // 4*x*y^2 + 13*y*x*z + 20*y^3 + 81*y^2*z + 67*y*z^2 + 3*x*z^2 + 12*z^3
 @}
+@end example
+
+
+@subsection Square-free decomposition
+@cindex square-free decomposition
+@cindex factorization
+@cindex @code{sqrfree()}
+
+GiNaC still lacks proper factorization support.  Some form of
+factorization is, however, easily implemented by noting that factors
+appearing in a polynomial with power two or more also appear in the
+derivative and hence can easily be found by computing the GCD of the
+original polynomial and its derivatives.  Any system has an interface
+for this so called square-free factorization.  So we provide one, too:
+@example
+ex sqrfree(const ex & a, const lst & l = lst());
+@end example
+Here is an example that by the way illustrates how the result may depend
+on the order of differentiation:
+@example
+    ...
+    symbol x("x"), y("y");
+    ex BiVarPol = expand(pow(x-2*y*x,3) * pow(x+y,2) * (x-y));
+
+    cout << sqrfree(BiVarPol, lst(x,y)) << endl;
+     // -> (y+x)^2*(-1+6*y+8*y^3-12*y^2)*(y-x)*x^3
+
+    cout << sqrfree(BiVarPol, lst(y,x)) << endl;
+     // -> (1-2*y)^3*(y+x)^2*(-y+x)*x^3
+
+    cout << sqrfree(BiVarPol) << endl;
+     // -> depending on luck, any of the above
+    ...
 @end example
 
 
