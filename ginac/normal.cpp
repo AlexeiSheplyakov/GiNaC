@@ -1910,7 +1910,7 @@ static ex frac_cancel(const ex &n, const ex &d)
 ex add::normal(lst &sym_lst, lst &repl_lst, int level) const
 {
 	if (level == 1)
-		return (new lst(*this, _ex1()))->setflag(status_flags::dynallocated);
+		return (new lst(replace_with_symbol(*this, sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
 	else if (level == -max_recursion_level)
 		throw(std::runtime_error("max recursion level reached"));
 
@@ -1991,7 +1991,7 @@ ex add::normal(lst &sym_lst, lst &repl_lst, int level) const
 ex mul::normal(lst &sym_lst, lst &repl_lst, int level) const
 {
 	if (level == 1)
-		return (new lst(*this, _ex1()))->setflag(status_flags::dynallocated);
+		return (new lst(replace_with_symbol(*this, sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
 	else if (level == -max_recursion_level)
 		throw(std::runtime_error("max recursion level reached"));
 
@@ -2022,7 +2022,7 @@ ex mul::normal(lst &sym_lst, lst &repl_lst, int level) const
 ex power::normal(lst &sym_lst, lst &repl_lst, int level) const
 {
 	if (level == 1)
-		return (new lst(*this, _ex1()))->setflag(status_flags::dynallocated);
+		return (new lst(replace_with_symbol(*this, sym_lst, repl_lst), _ex1()))->setflag(status_flags::dynallocated);
 	else if (level == -max_recursion_level)
 		throw(std::runtime_error("max recursion level reached"));
 
