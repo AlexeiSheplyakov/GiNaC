@@ -23,6 +23,12 @@
 
 #include "checks.h"
 
+#if defined(HAVE_SSTREAM)
+#  include <sstream>
+#else
+#  include <strstream>
+#endif
+
 static unsigned check_matrix_solve(unsigned m, unsigned n, unsigned p,
 								   unsigned degree)
 {
@@ -49,9 +55,15 @@ static unsigned check_matrix_solve(unsigned m, unsigned n, unsigned p,
 	matrix X(n,p);
 	for (unsigned i=0; i<n; ++i) {
 		for (unsigned j=0; j<p; ++j) {
+#if defined(HAVE_SSTREAM)
+			ostringstream buf;
+			buf << "x" << i << j << ends;
+			x.push_back(symbol(buf.str()));
+#else
 			char buf[4];
 			ostrstream(buf,sizeof(buf)) << i << j << ends;
 			x.push_back(symbol(string("x")+buf));
+#endif
 			X.set(i,j,x[p*i+j]);
 		}
 	}
@@ -101,10 +113,17 @@ static unsigned check_inifcns_lsolve(unsigned n)
 		vector<symbol> a;
 		vector<symbol> x;
 		for (unsigned i=0; i<n; ++i) {
+#if defined(HAVE_SSTREAM)
+			ostringstream buf;
+			buf << i << ends;
+			a.push_back(symbol(string("a")+buf.str()));
+			x.push_back(symbol(string("x")+buf.str()));
+#else
 			char buf[3];
 			ostrstream(buf,sizeof(buf)) << i << ends;
 			a.push_back(symbol(string("a")+buf));
 			x.push_back(symbol(string("x")+buf));
+#endif
 		}
 		lst eqns;  // equation list
 		lst vars;  // variable list
