@@ -1,6 +1,8 @@
 This file records noteworthy changes.
 
 0.8.3 (<date>)
+* Symbols can have a LaTeX name, e.g. symbol s("s", "\\sigma");
+* LaTeX output of indexed objects is much nicer.
 * Fix some build-problems (with recent libreadline).
 
 0.8.2 (24 April 2001)

@@ -34,7 +34,7 @@ AC_SUBST(GINACLIB_VERSION)
 dnl GiNaC archive file version information.
 dnl
 dnl If properties have been added, ARCHIVE_VERSION += 1, ARCHIVE_AGE += 1.
-dnl If backwards compatibility has been broken, ARCHIVE_AGE to 0.
+dnl If backwards compatibility has been broken, set ARCHIVE_AGE to 0.
 dnl
 dnl The version number in newly created archives will be ARCHIVE_VERSION.
 dnl Archives version (ARCHIVE_VERSION-ARCHIVE_AGE) thru ARCHIVE_VERSION can
