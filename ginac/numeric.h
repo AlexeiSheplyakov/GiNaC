@@ -168,6 +168,7 @@ public:
 	int to_int(void) const;
 	long to_long(void) const;
 	double to_double(void) const;
+	cln::cl_N to_cl_N(void) const;
 	const numeric real(void) const;
 	const numeric imag(void) const;
 	const numeric numer(void) const;
@@ -175,7 +176,6 @@ public:
 	int int_length(void) const;
 	// converting routines for interfacing with CLN:
 	numeric(const cln::cl_N & z);
-	operator cln::cl_N() const;
 
 // member variables
 
@@ -283,6 +283,15 @@ inline bool is_cinteger(const numeric & x)
 
 inline bool is_crational(const numeric & x)
 { return x.is_crational(); }
+
+inline int to_int(const numeric & x)
+{ return x.to_int(); }
+
+inline long to_long(const numeric & x)
+{ return x.to_long(); }
+
+inline double to_double(const numeric & x)
+{ return x.to_double(); }
 
 inline const numeric real(const numeric & x)
 { return x.real(); }

@@ -24,10 +24,17 @@
 #include "ex.h"
 #include "numeric.h"
 #include "utils.h"
+#include "version.h"
 
 #ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
+
+/* Version information buried into the library */
+const int version_major = GINACLIB_MAJOR_VERSION;
+const int version_minor = GINACLIB_MINOR_VERSION;
+const int version_micro = GINACLIB_MICRO_VERSION;
+
 
 /** ctor for pole_error exception class. */
 pole_error::pole_error(const std::string& what_arg, int degree)

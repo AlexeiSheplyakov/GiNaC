@@ -1140,6 +1140,15 @@ double numeric::to_double(void) const
 }
 
 
+/** Returns a new CLN object of type cl_N, representing the value of *this.
+ *  This method may be used when mixing GiNaC and CLN in one project.
+ */
+cln::cl_N numeric::to_cl_N(void) const
+{
+	return cln::cl_N(cln::the<cln::cl_N>(value));
+}
+
+
 /** Real part of a number. */
 const numeric numeric::real(void) const
 {
@@ -1229,15 +1238,6 @@ int numeric::int_length(void) const
 }
 
 
-/** Returns a new CLN object of type cl_N, representing the value of *this.
- *  This method is useful for casting when mixing GiNaC and CLN in one project.
- */
-numeric::operator cln::cl_N() const
-{
-	return cln::cl_N(cln::the<cln::cl_N>(value));
-}
-
-
 //////////
 // static member variables
 //////////
@@ -1262,7 +1262,7 @@ const numeric I = numeric(cln::complex(cln::cl_I(0),cln::cl_I(1)));
  *  @return  arbitrary precision numerical exp(x). */
 const numeric exp(const numeric & x)
 {
-	return cln::exp(cln::cl_N(x));
+	return cln::exp(x.to_cl_N());
 }
 
 
@@ -1275,7 +1275,7 @@ const numeric log(const numeric & z)
 {
 	if (z.is_zero())
 		throw pole_error("log(): logarithmic pole",0);
-	return cln::log(cln::cl_N(z));
+	return cln::log(z.to_cl_N());
 }
 
 
@@ -1284,7 +1284,7 @@ const numeric log(const numeric & z)
  *  @return  arbitrary precision numerical sin(x). */
 const numeric sin(const numeric & x)
 {
-	return cln::sin(cln::cl_N(x));
+	return cln::sin(x.to_cl_N());
 }
 
 
@@ -1293,7 +1293,7 @@ const numeric sin(const numeric & x)
  *  @return  arbitrary precision numerical cos(x). */
 const numeric cos(const numeric & x)
 {
-	return cln::cos(cln::cl_N(x));
+	return cln::cos(x.to_cl_N());
 }
 
 
@@ -1302,7 +1302,7 @@ const numeric cos(const numeric & x)
  *  @return  arbitrary precision numerical tan(x). */
 const numeric tan(const numeric & x)
 {
-	return cln::tan(cln::cl_N(x));
+	return cln::tan(x.to_cl_N());
 }
 	
 
@@ -1311,7 +1311,7 @@ const numeric tan(const numeric & x)
  *  @return  arbitrary precision numerical asin(x). */
 const numeric asin(const numeric & x)
 {
-	return cln::asin(cln::cl_N(x));
+	return cln::asin(x.to_cl_N());
 }
 
 
@@ -1320,7 +1320,7 @@ const numeric asin(const numeric & x)
  *  @return  arbitrary precision numerical acos(x). */
 const numeric acos(const numeric & x)
 {
-	return cln::acos(cln::cl_N(x));
+	return cln::acos(x.to_cl_N());
 }
 	
 
@@ -1335,7 +1335,7 @@ const numeric atan(const numeric & x)
 	    x.real().is_zero() &&
 	    abs(x.imag()).is_equal(_num1()))
 		throw pole_error("atan(): logarithmic pole",0);
-	return cln::atan(cln::cl_N(x));
+	return cln::atan(x.to_cl_N());
 }
 
 
@@ -1347,8 +1347,8 @@ const numeric atan(const numeric & x)
 const numeric atan(const numeric & y, const numeric & x)
 {
 	if (x.is_real() && y.is_real())
-		return cln::atan(cln::the<cln::cl_R>(cln::cl_N(x)),
-		                 cln::the<cln::cl_R>(cln::cl_N(y)));
+		return cln::atan(cln::the<cln::cl_R>(x.to_cl_N()),
+		                 cln::the<cln::cl_R>(y.to_cl_N()));
 	else
 		throw std::invalid_argument("atan(): complex argument");        
 }
@@ -1359,7 +1359,7 @@ const numeric atan(const numeric & y, const numeric & x)
  *  @return  arbitrary precision numerical sinh(x). */
 const numeric sinh(const numeric & x)
 {
-	return cln::sinh(cln::cl_N(x));
+	return cln::sinh(x.to_cl_N());
 }
 
 
@@ -1368,7 +1368,7 @@ const numeric sinh(const numeric & x)
  *  @return  arbitrary precision numerical cosh(x). */
 const numeric cosh(const numeric & x)
 {
-	return cln::cosh(cln::cl_N(x));
+	return cln::cosh(x.to_cl_N());
 }
 
 
@@ -1377,7 +1377,7 @@ const numeric cosh(const numeric & x)
  *  @return  arbitrary precision numerical tanh(x). */
 const numeric tanh(const numeric & x)
 {
-	return cln::tanh(cln::cl_N(x));
+	return cln::tanh(x.to_cl_N());
 }
 	
 
@@ -1386,7 +1386,7 @@ const numeric tanh(const numeric & x)
  *  @return  arbitrary precision numerical asinh(x). */
 const numeric asinh(const numeric & x)
 {
-	return cln::asinh(cln::cl_N(x));
+	return cln::asinh(x.to_cl_N());
 }
 
 
@@ -1395,7 +1395,7 @@ const numeric asinh(const numeric & x)
  *  @return  arbitrary precision numerical acosh(x). */
 const numeric acosh(const numeric & x)
 {
-	return cln::acosh(cln::cl_N(x));
+	return cln::acosh(x.to_cl_N());
 }
 
 
@@ -1404,7 +1404,7 @@ const numeric acosh(const numeric & x)
  *  @return  arbitrary precision numerical atanh(x). */
 const numeric atanh(const numeric & x)
 {
-	return cln::atanh(cln::cl_N(x));
+	return cln::atanh(x.to_cl_N());
 }
 
 
@@ -1489,7 +1489,7 @@ const numeric Li2(const numeric & x)
 	// what is the desired float format?
 	// first guess: default format
 	cln::float_format_t prec = cln::default_float_format;
-	const cln::cl_N value = cln::cl_N(x);
+	const cln::cl_N value = x.to_cl_N();
 	// second guess: the argument's format
 	if (!x.real().is_rational())
 		prec = cln::float_format(cln::the<cln::cl_F>(cln::realpart(value)));
@@ -1505,7 +1505,7 @@ const numeric Li2(const numeric & x)
 		       - cln::zeta(2, prec)
 		       - Li2_projection(cln::recip(value), prec));
 	else
-		return Li2_projection(cln::cl_N(x), prec);
+		return Li2_projection(x.to_cl_N(), prec);
 }
 
 
@@ -1519,8 +1519,8 @@ const numeric zeta(const numeric & x)
 	// being an exact zero for CLN, which can be tested and then we can just
 	// pass the number casted to an int:
 	if (x.is_real()) {
-		const int aux = (int)(cln::double_approx(cln::the<cln::cl_R>(cln::cl_N(x))));
-		if (cln::zerop(cln::cl_N(x)-aux))
+		const int aux = (int)(cln::double_approx(cln::the<cln::cl_R>(x.to_cl_N())));
+		if (cln::zerop(x.to_cl_N()-aux))
 			return cln::zeta(aux);
 	}
 	std::clog << "zeta(" << x
@@ -1734,7 +1734,7 @@ const numeric fibonacci(const numeric & n)
 	
 	cln::cl_I u(0);
 	cln::cl_I v(1);
-	cln::cl_I m = cln::the<cln::cl_I>(cln::cl_N(n)) >> 1L;  // floor(n/2);
+	cln::cl_I m = cln::the<cln::cl_I>(n.to_cl_N()) >> 1L;  // floor(n/2);
 	for (uintL bit=cln::integer_length(m); bit>0; --bit) {
 		// Since a squaring is cheaper than a multiplication, better use
 		// three squarings instead of one multiplication and two squarings.
@@ -1760,7 +1760,7 @@ const numeric fibonacci(const numeric & n)
 /** Absolute value. */
 const numeric abs(const numeric& x)
 {
-	return cln::abs(cln::cl_N(x));
+	return cln::abs(x.to_cl_N());
 }
 
 
@@ -1774,8 +1774,8 @@ const numeric abs(const numeric& x)
 const numeric mod(const numeric & a, const numeric & b)
 {
 	if (a.is_integer() && b.is_integer())
-		return cln::mod(cln::the<cln::cl_I>(cln::cl_N(a)),
-		                cln::the<cln::cl_I>(cln::cl_N(b)));
+		return cln::mod(cln::the<cln::cl_I>(a.to_cl_N()),
+		                cln::the<cln::cl_I>(b.to_cl_N()));
 	else
 		return _num0();
 }
@@ -1788,9 +1788,9 @@ const numeric mod(const numeric & a, const numeric & b)
 const numeric smod(const numeric & a, const numeric & b)
 {
 	if (a.is_integer() && b.is_integer()) {
-		const cln::cl_I b2 = cln::ceiling1(cln::the<cln::cl_I>(cln::cl_N(b)) >> 1) - 1;
-		return cln::mod(cln::the<cln::cl_I>(cln::cl_N(a)) + b2,
-		                cln::the<cln::cl_I>(cln::cl_N(b))) - b2;
+		const cln::cl_I b2 = cln::ceiling1(cln::the<cln::cl_I>(b.to_cl_N()) >> 1) - 1;
+		return cln::mod(cln::the<cln::cl_I>(a.to_cl_N()) + b2,
+		                cln::the<cln::cl_I>(b.to_cl_N())) - b2;
 	} else
 		return _num0();
 }
@@ -1805,8 +1805,8 @@ const numeric smod(const numeric & a, const numeric & b)
 const numeric irem(const numeric & a, const numeric & b)
 {
 	if (a.is_integer() && b.is_integer())
-		return cln::rem(cln::the<cln::cl_I>(cln::cl_N(a)),
-		                cln::the<cln::cl_I>(cln::cl_N(b)));
+		return cln::rem(cln::the<cln::cl_I>(a.to_cl_N()),
+		                cln::the<cln::cl_I>(b.to_cl_N()));
 	else
 		return _num0();
 }
@@ -1822,8 +1822,8 @@ const numeric irem(const numeric & a, const numeric & b)
 const numeric irem(const numeric & a, const numeric & b, numeric & q)
 {
 	if (a.is_integer() && b.is_integer()) {
-		const cln::cl_I_div_t rem_quo = cln::truncate2(cln::the<cln::cl_I>(cln::cl_N(a)),
-		                                               cln::the<cln::cl_I>(cln::cl_N(b)));
+		const cln::cl_I_div_t rem_quo = cln::truncate2(cln::the<cln::cl_I>(a.to_cl_N()),
+		                                               cln::the<cln::cl_I>(b.to_cl_N()));
 		q = rem_quo.quotient;
 		return rem_quo.remainder;
 	} else {
@@ -1840,8 +1840,8 @@ const numeric irem(const numeric & a, const numeric & b, numeric & q)
 const numeric iquo(const numeric & a, const numeric & b)
 {
 	if (a.is_integer() && b.is_integer())
-		return truncate1(cln::the<cln::cl_I>(cln::cl_N(a)),
-	                     cln::the<cln::cl_I>(cln::cl_N(b)));
+		return truncate1(cln::the<cln::cl_I>(a.to_cl_N()),
+	                     cln::the<cln::cl_I>(b.to_cl_N()));
 	else
 		return _num0();
 }
@@ -1856,8 +1856,8 @@ const numeric iquo(const numeric & a, const numeric & b)
 const numeric iquo(const numeric & a, const numeric & b, numeric & r)
 {
 	if (a.is_integer() && b.is_integer()) {
-		const cln::cl_I_div_t rem_quo = cln::truncate2(cln::the<cln::cl_I>(cln::cl_N(a)),
-		                                               cln::the<cln::cl_I>(cln::cl_N(b)));
+		const cln::cl_I_div_t rem_quo = cln::truncate2(cln::the<cln::cl_I>(a.to_cl_N()),
+		                                               cln::the<cln::cl_I>(b.to_cl_N()));
 		r = rem_quo.remainder;
 		return rem_quo.quotient;
 	} else {
@@ -1874,8 +1874,8 @@ const numeric iquo(const numeric & a, const numeric & b, numeric & r)
 const numeric gcd(const numeric & a, const numeric & b)
 {
 	if (a.is_integer() && b.is_integer())
-		return cln::gcd(cln::the<cln::cl_I>(cln::cl_N(a)),
-		                cln::the<cln::cl_I>(cln::cl_N(b)));
+		return cln::gcd(cln::the<cln::cl_I>(a.to_cl_N()),
+		                cln::the<cln::cl_I>(b.to_cl_N()));
 	else
 		return _num1();
 }
@@ -1888,8 +1888,8 @@ const numeric gcd(const numeric & a, const numeric & b)
 const numeric lcm(const numeric & a, const numeric & b)
 {
 	if (a.is_integer() && b.is_integer())
-		return cln::lcm(cln::the<cln::cl_I>(cln::cl_N(a)),
-		                cln::the<cln::cl_I>(cln::cl_N(b)));
+		return cln::lcm(cln::the<cln::cl_I>(a.to_cl_N()),
+		                cln::the<cln::cl_I>(b.to_cl_N()));
 	else
 		return a.mul(b);
 }
@@ -1905,7 +1905,7 @@ const numeric lcm(const numeric & a, const numeric & b)
  *  where imag(z)>0. */
 const numeric sqrt(const numeric & z)
 {
-	return cln::sqrt(cln::cl_N(z));
+	return cln::sqrt(z.to_cl_N());
 }
 
 
@@ -1914,7 +1914,7 @@ const numeric isqrt(const numeric & x)
 {
 	if (x.is_integer()) {
 		cln::cl_I root;
-		cln::isqrt(cln::the<cln::cl_I>(cln::cl_N(x)), &root);
+		cln::isqrt(cln::the<cln::cl_I>(x.to_cl_N()), &root);
 		return root;
 	} else
 		return _num0();

@@ -28,4 +28,12 @@
 #define GINACLIB_MINOR_VERSION @GINACLIB_MINOR_VERSION@
 #define GINACLIB_MICRO_VERSION @GINACLIB_MICRO_VERSION@
 
+namespace GiNaC {
+
+extern const int version_major;
+extern const int version_minor;
+extern const int version_micro;
+
+} // namespace GiNaC
+
 #endif // ndef __GINAC_VERSION_H__
