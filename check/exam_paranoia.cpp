@@ -220,8 +220,8 @@ static unsigned exam_paranoia8(void)
             clog << "normal(-x/(x+1)) returns " << f << " instead of -x/(x+1)\n";
             ++result;
         }
-    } catch (const exception &e) {
-        clog << "normal(-x/(x+1) throws " << e.what() << endl;
+    } catch (const exception &err) {
+        clog << "normal(-x/(x+1) throws " << err.what() << endl;
         ++result;
     }
     return result;
@@ -265,8 +265,8 @@ static unsigned exam_paranoia10(void)
             clog << "2^(3/2) erroneously returned " << r << " instead of 2*sqrt(2)" << endl;
             ++result;
         }
-    } catch (const exception &e) {
-        clog << "2^(3/2) throws " << e.what() << endl;
+    } catch (const exception &err) {
+        clog << "2^(3/2) throws " << err.what() << endl;
         ++result;
     }
     return result;
@@ -305,10 +305,35 @@ static unsigned exam_paranoia12(void)
 	ex d = 4;
 
 	if (!(f - d).expand().is_zero()) {
-		clog << "normal(" << e << ") returns " << f << " instead of " << d << endl;
+		clog << "normal(" << e << ") returns " << f
+             << " instead of " << d << endl;
 		++result;
 	}
 	return result;
+}
+
+// This one called numeric(0).inverse() in heur_gcd().
+static unsigned exam_paranoia13(void)
+{
+    unsigned result = 0;
+    symbol a("a"), b("b"), c("c");
+    
+    ex e = c - (b*a-c*a)/(4-a);
+    ex f;
+    ex d = (b*a-4*c)/(a-4);
+    try {
+        f = e.normal();
+        if (!(f - d).expand().is_zero()) {
+            clog << "normal(" << e << ") returns " << f
+                 << " instead of " << d << endl;
+            ++result;
+        }
+    } catch (const exception & err) {
+        clog << "normal(" << e << ") cought an exception: "
+             << err.what() << endl;
+        ++result;
+    }
+    return result;
 }
 
 unsigned exam_paranoia(void)
@@ -330,6 +355,7 @@ unsigned exam_paranoia(void)
     result += exam_paranoia10();  cout << '.' << flush;
     result += exam_paranoia11();  cout << '.' << flush;
     result += exam_paranoia12();  cout << '.' << flush;
+    result += exam_paranoia13();  cout << '.' << flush;
     
     if (!result) {
         cout << " passed " << endl;
