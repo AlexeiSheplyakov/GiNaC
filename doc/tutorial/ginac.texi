@@ -364,7 +364,7 @@ lambda^2-3*lambda+11
 [[1,1],[2,-1]]
 > A+2*M;
 [[1,1],[2,-1]]+2*[[1,3],[-3,2]]
-> evalm(");
+> evalm(%);
 [[3,7],[-4,3]]
 > B = [ [0, 0, a], [b, 1, -b], [-1/a, 0, 0] ];
 > evalm(B^(2^12345));
@@ -406,7 +406,7 @@ x^(-1)-1/3*x+Order(x^2)
 > series(tgamma(x),x==0,3);
 x^(-1)-Euler+(1/12*Pi^2+1/2*Euler^2)*x+
 (-1/3*zeta(3)-1/12*Pi^2*Euler-1/6*Euler^3)*x^2+Order(x^3)
-> evalf(");
+> evalf(%);
 x^(-1)-0.5772156649015328606+(0.9890559953279725555)*x
 -(0.90747907608088628905)*x^2+Order(x^3)
 > series(tgamma(2*sin(x)-2),x==Pi/2,6);
@@ -414,7 +414,7 @@ x^(-1)-0.5772156649015328606+(0.9890559953279725555)*x
 -Euler-1/12+Order((x-1/2*Pi)^3)
 @end example
 
-Here we have made use of the @command{ginsh}-command @code{"} to pop the
+Here we have made use of the @command{ginsh}-command @code{%} to pop the
 previously evaluated element from @command{ginsh}'s internal stack.
 
 If you ever wanted to convert units in C or C++ and found this is
@@ -3166,7 +3166,7 @@ the list. @code{find()} returns false if no matches were found (in
   (Note the absence of "x".)
 > expand((sin(x)+sin(y))*(a+b));
 sin(y)*a+sin(x)*b+sin(x)*a+sin(y)*b
-> find(",sin($1));
+> find(%,sin($1));
 @{sin(y),sin(x)@}
 @end example
 
@@ -5629,7 +5629,7 @@ AC_PROG_CXX
 AC_PROG_INSTALL
 AC_LANG_CPLUSPLUS
 
-AM_PATH_GINAC(0.7.0, [
+AM_PATH_GINAC(0.9.0, [
   LIBS="$LIBS $GINACLIB_LIBS"
   CPPFLAGS="$CPPFLAGS $GINACLIB_CPPFLAGS"  
 ], AC_MSG_ERROR([need to have GiNaC installed]))

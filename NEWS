@@ -2,6 +2,9 @@ This file records noteworthy changes.
 
 0.9.5 (<date>)
 * Some internal reorganization resulting in a general speed-up.
+* The last 3 evaluated expressions in ginsh are now referred to with the
+  tokens '%', '%%' and '%%%'. The old '"', '""' and '"""' remain for
+  compatibility but may be removed in a future version of GiNaC.
 
 0.9.4 (20 September 2001)
 * Functions have better support for external scripting languages.

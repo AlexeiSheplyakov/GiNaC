@@ -88,6 +88,9 @@ score			return T_SCORE;
 \"			return T_QUOTE;
 \"\"			return T_QUOTE2;
 \"\"\"			return T_QUOTE3;
+\%			return T_QUOTE;
+\%\%			return T_QUOTE2;
+\%\%\%			return T_QUOTE3;
 
 			/* numbers */
 {D}+			|
