@@ -1447,9 +1447,10 @@ ex lst_to_matrix(const lst & l)
 	for (i=0; i<rows; i++)
 		if (l.op(i).nops() > cols)
 			cols = l.op(i).nops();
-	
+
 	// Allocate and fill matrix
 	matrix &m = *new matrix(rows, cols);
+	m.setflag(status_flags::dynallocated);
 	for (i=0; i<rows; i++)
 		for (j=0; j<cols; j++)
 			if (l.op(i).nops() > j)
@@ -1464,6 +1465,7 @@ ex diag_matrix(const lst & l)
 	unsigned dim = l.nops();
 
 	matrix &m = *new matrix(dim, dim);
+	m.setflag(status_flags::dynallocated);
 	for (unsigned i=0; i<dim; i++)
 		m.set(i, i, l.op(i));
 
