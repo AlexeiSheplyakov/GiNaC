@@ -1,11 +1,11 @@
 General Information
 ===================
 
-GiNaC (which stands for "GiNaC is not a computer algebra system) is a
-C++ library for symbolic mathematical calculations. It is designed to
-allow the creation of integrated systems that embed symbolic manipulations
-together with more established areas of computer science (like computation-
-intense numeric applications, graphical interfaces, etc.) under one roof.
+GiNaC (which stands for "GiNaC is Not a CAS (computer algebra system)) is a
+C++ library for symbolic mathematical calculations. It is designed to allow
+the creation of integrated systems that embed symbolic manipulations together
+with more established areas of computer science (like computation-intense
+numeric applications, graphical interfaces, etc.) under one roof.
 
 The official ftp site is:
   ftp://ftpthep.physik.uni-mainz.de/pub/GiNaC/
