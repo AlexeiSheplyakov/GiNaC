@@ -24,10 +24,17 @@
 #ifndef __GINAC_UTILS_H__
 #define __GINAC_UTILS_H__
 
-#include <strstream>
+#include "config.h"
+
 #include <string>
 #include <stdexcept>
-#include "config.h"
+#if defined(HAVE_SSTREAM)
+#include <sstream>
+#elif defined(HAVE_STRSTREAM)
+#include <strstream>
+#else
+#error Need either sstream or strstream
+#endif
 #include "assertion.h"
 
 namespace GiNaC {
@@ -36,9 +43,15 @@ namespace GiNaC {
 template<class T>
 std::string ToString(const T & t)
 {
+#if defined(HAVE_SSTREAM)
+	std::ostringstream buf;
+	buf << t << std::ends;
+	return buf.str();
+#else
 	char buf[256];
 	std::ostrstream(buf,sizeof(buf)) << t << std::ends;
 	return buf;
+#endif
 }
 
 /** Exception class thrown by classes which provide their own series expansion

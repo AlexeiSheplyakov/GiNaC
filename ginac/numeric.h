@@ -23,7 +23,6 @@
 #ifndef __GINAC_NUMERIC_H__
 #define __GINAC_NUMERIC_H__
 
-#include <strstream>
 #include "basic.h"
 #include "ex.h"
 
