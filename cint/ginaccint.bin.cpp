@@ -24,6 +24,8 @@ string ToString(const T & t)
 }
 
 basic * ex::last_created_or_assigned_bp=0;
+basic * ex::dummy_bp=0;
+long ex::last_created_or_assigned_exp=0;
 
 #endif // def OBSCURE_CINT_HACK
 
@@ -122,19 +124,26 @@ void process_tempfile(string const & command)
     
     static unsigned out_count = 0;
     if (TYPES_EQUAL(retval,ref_ex)) {
-        if (ex::last_created_or_assigned_bp_can_be_converted_to_ex()) {
-            string varname = "Out"+ToString(++out_count);
+        string varname = "Out"+ToString(++out_count);
+        if (retval.obj.i!=ex::last_created_or_assigned_exp) {
+            // an ex was returned, but this is not the ex which was created last
+            // => this is not a temporary ex, but one that resides safely in memory
+            
+            // cout << "warning: using ex from retval (experimental)" << endl;
+            ex::dummy_bp=((ex *)(void *)(retval.obj.i))->bp;
+            exec_tempfile("ex "+varname+"(*ex::dummy_bp);");
+        } else if (ex::last_created_or_assigned_bp_can_be_converted_to_ex()) {
             //string varfill;
             //for (int i=4-int(log10(out_count)); i>0; --i)
             //    varfill += ' ';
-            exec_tempfile("ex "+varname+"(*ex::last_created_or_assigned_bp);\n"
-                          +"LLLAST=LLAST;\n"
-                          +"LLAST=LAST;\n"
-                          +"LAST="+varname+";\n"
-                          +"cout << \""+varname+" = \" << "+varname+" << endl << endl;");
+            exec_tempfile("ex "+varname+"(*ex::last_created_or_assigned_bp);");
         } else {
             cout << "warning: last_created_or_assigned_bp modified 0 or not evaluated or not dynallocated" << endl;
         }
+        exec_tempfile(string()+"LLLAST=LLAST;\n"
+                      +"LLAST=LAST;\n"
+                      +"LAST="+varname+";\n"
+                      +"cout << \""+varname+" = \" << "+varname+" << endl << endl;");
     }
 #endif // def OBSCURE_CINT_HACK
 }
