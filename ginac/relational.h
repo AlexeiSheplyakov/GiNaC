@@ -45,36 +45,51 @@ public:
 		greater_or_equal
 	};
 	
-	// other ctors
+	// other constructors
 public:
 	relational(const ex & lhs, const ex & rhs, operators oper=equal);
 	
 	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
-	unsigned precedence(void) const {return 20;}
+	unsigned precedence() const {return 20;}
 	bool info(unsigned inf) const;
-	unsigned nops() const;
-	ex & let_op(int i);
+	size_t nops() const;
+	ex op(size_t i) const;
+	ex map(map_function & f) const;
+	ex subs(const lst & ls, const lst & lr, unsigned options = 0) const;
 	ex eval(int level=0) const;
-	ex subs(const lst & ls, const lst & lr, bool no_pattern = false) const;
-	ex simplify_ncmul(const exvector & v) const;
 
 protected:
+	ex eval_ncmul(const exvector & v) const;
 	bool match_same_type(const basic & other) const;
-	unsigned return_type(void) const;
-	unsigned return_type_tinfo(void) const;
-	unsigned calchash(void) const;
+	unsigned return_type() const;
+	unsigned return_type_tinfo() const;
+	unsigned calchash() const;
 
 	// new virtual functions which can be overridden by derived classes
 public:
-	virtual ex lhs(void) const;
-	virtual ex rhs(void) const;
+	virtual ex lhs() const;
+	virtual ex rhs() const;
 
 	// non-virtual functions in this class
-public:
-	operator bool(void) const;
+private:
+	// For conversions to boolean, as would be used in an if conditional,
+	// implicit conversions from bool to int have a large number of
+	// undesirable side effects.  The following safe_bool type enables
+	// use of relational objects in conditionals without those side effects
+	struct safe_bool_helper {
+		void nonnull() {};
+	};
+
+	typedef void (safe_bool_helper::*safe_bool)();
 	
+	safe_bool make_safe_bool(bool) const;
+
+public:
+	operator safe_bool() const;
+	safe_bool operator!() const;
+
 // member variables
 	
 protected:
@@ -89,6 +104,12 @@ protected:
 template<> inline bool is_exactly_a<relational>(const basic & obj)
 {
 	return obj.tinfo()==TINFO_relational;
+}
+
+// inlined functions for efficiency
+inline relational::safe_bool relational::operator!() const
+{
+	return make_safe_bool(!static_cast<bool>(*this));
 }
 
 } // namespace GiNaC

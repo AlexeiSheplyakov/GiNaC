@@ -59,24 +59,9 @@ typedef std::vector<epplist> epplistvector; ///< vector of epplist
  *  multiplication, which is the reason why there is this base class. */
 class expairseq : public basic
 {
-	GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(expairseq, basic)
+	GINAC_DECLARE_REGISTERED_CLASS(expairseq, basic)
 
-// member functions
-
-	// default ctor, dtor, copy ctor, assignment operator and helpers
-public:
-	expairseq() : basic(TINFO_expairseq)
-#if EXPAIRSEQ_USE_HASHTAB
-	                                    , hashtabsize(0)
-#endif // EXPAIRSEQ_USE_HASHTAB
-	{ }
-	~expairseq() { destroy(false); }
-	expairseq(const expairseq & other);
-	const expairseq & operator=(const expairseq & other);
-protected:
-	void copy(const expairseq & other);
-	void destroy(bool call_parent);
-	// other ctors
+	// other constructors
 public:
 	expairseq(const ex & lh, const ex & rh);
 	expairseq(const exvector & v);
@@ -85,23 +70,21 @@ public:
 	
 	// functions overriding virtual functions from base classes
 public:
-	basic * duplicate() const;
 	void print(const print_context & c, unsigned level = 0) const;
-	unsigned precedence(void) const {return 10;}
+	unsigned precedence() const {return 10;}
 	bool info(unsigned inf) const;
-	unsigned nops() const;
-	ex op(int i) const;
-	ex & let_op(int i);
+	size_t nops() const;
+	ex op(size_t i) const;
 	ex map(map_function & f) const;
 	ex eval(int level=0) const;
 	ex to_rational(lst &repl_lst) const;
+	ex to_polynomial(lst &repl_lst) const;
 	bool match(const ex & pattern, lst & repl_lst) const;
-	ex subs(const lst & ls, const lst & lr, bool no_pattern = false) const;
+	ex subs(const lst & ls, const lst & lr, unsigned options = 0) const;
 protected:
-	int compare_same_type(const basic & other) const;
 	bool is_equal_same_type(const basic & other) const;
-	unsigned return_type(void) const;
-	unsigned calchash(void) const;
+	unsigned return_type() const;
+	unsigned calchash() const;
 	ex expand(unsigned options=0) const;
 	
 	// new virtual functions which can be overridden by derived classes
@@ -120,7 +103,7 @@ protected:
 												   const ex & c) const;
 	virtual ex recombine_pair_to_ex(const expair & p) const;
 	virtual bool expair_needs_further_processing(epp it);
-	virtual ex default_overall_coeff(void) const;
+	virtual ex default_overall_coeff() const;
 	virtual void combine_overall_coeff(const ex & c);
 	virtual void combine_overall_coeff(const ex & c1, const ex & c2);
 	virtual bool can_make_flat(const expair & p) const;
@@ -137,13 +120,13 @@ protected:
 	void construct_from_epvector(const epvector & v);
 	void make_flat(const exvector & v);
 	void make_flat(const epvector & v);
-	void canonicalize(void);
-	void combine_same_terms_sorted_seq(void);
+	void canonicalize();
+	void combine_same_terms_sorted_seq();
 #if EXPAIRSEQ_USE_HASHTAB
-	void combine_same_terms(void);
+	void combine_same_terms();
 	unsigned calc_hashtabsize(unsigned sz) const;
 	unsigned calc_hashindex(const ex & e) const;
-	void shrink_hashtab(void);
+	void shrink_hashtab();
 	void remove_hashtab_entry(epvector::const_iterator element);
 	void move_hashtab_entry(epvector::const_iterator oldpos,
 	                        epvector::iterator newpos);
@@ -156,14 +139,14 @@ protected:
 	                        epvector::iterator & last_non_zero,
 	                        vector<bool> & touched,
 	                        unsigned & number_of_zeroes);
-	bool has_coeff_0(void) const;
+	bool has_coeff_0() const;
 	void add_numerics_to_hashtab(epvector::iterator first_numeric,
 	                             epvector::const_iterator last_non_zero);
 #endif // EXPAIRSEQ_USE_HASHTAB
 	bool is_canonical() const;
 	epvector * expandchildren(unsigned options) const;
 	epvector * evalchildren(int level) const;
-	epvector * subschildren(const lst & ls, const lst & lr, bool no_pattern = false) const;
+	epvector * subschildren(const lst & ls, const lst & lr, unsigned options = 0) const;
 	
 // member variables
 	

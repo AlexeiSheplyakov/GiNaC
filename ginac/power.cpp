@@ -23,6 +23,7 @@
 #include <vector>
 #include <iostream>
 #include <stdexcept>
+#include <limits>
 
 #include "power.h"
 #include "expairseq.h"
@@ -31,10 +32,12 @@
 #include "ncmul.h"
 #include "numeric.h"
 #include "constant.h"
+#include "operators.h"
 #include "inifcns.h" // for log() in power::derivative()
 #include "matrix.h"
 #include "indexed.h"
 #include "symbol.h"
+#include "lst.h"
 #include "print.h"
 #include "archive.h"
 #include "utils.h"
@@ -46,22 +49,13 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(power, basic)
 typedef std::vector<int> intvector;
 
 //////////
-// default ctor, dtor, copy ctor, assignment operator and helpers
+// default constructor
 //////////
 
 power::power() : inherited(TINFO_power) { }
 
-void power::copy(const power & other)
-{
-	inherited::copy(other);
-	basis = other.basis;
-	exponent = other.exponent;
-}
-
-DEFAULT_DESTROY(power)
-
 //////////
-// other ctors
+// other constructors
 //////////
 
 // all inlined
@@ -70,7 +64,7 @@ DEFAULT_DESTROY(power)
 // archiving
 //////////
 
-power::power(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+power::power(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
 {
 	n.find_ex("basis", basis, sym_lst);
 	n.find_ex("exponent", exponent, sym_lst);
@@ -225,14 +219,13 @@ bool power::info(unsigned inf) const
 	return inherited::info(inf);
 }
 
-unsigned power::nops() const
+size_t power::nops() const
 {
 	return 2;
 }
 
-ex & power::let_op(int i)
+ex power::op(size_t i) const
 {
-	GINAC_ASSERT(i>=0);
 	GINAC_ASSERT(i<2);
 
 	return i==0 ? basis : exponent;
@@ -247,7 +240,7 @@ int power::degree(const ex & s) const
 {
 	if (is_equal(ex_to<basic>(s)))
 		return 1;
-	else if (is_ex_exactly_of_type(exponent, numeric) && ex_to<numeric>(exponent).is_integer()) {
+	else if (is_exactly_a<numeric>(exponent) && ex_to<numeric>(exponent).is_integer()) {
 		if (basis.is_equal(s))
 			return ex_to<numeric>(exponent).to_int();
 		else
@@ -262,7 +255,7 @@ int power::ldegree(const ex & s) const
 {
 	if (is_equal(ex_to<basic>(s)))
 		return 1;
-	else if (is_ex_exactly_of_type(exponent, numeric) && ex_to<numeric>(exponent).is_integer()) {
+	else if (is_exactly_a<numeric>(exponent) && ex_to<numeric>(exponent).is_integer()) {
 		if (basis.is_equal(s))
 			return ex_to<numeric>(exponent).to_int();
 		else
@@ -285,7 +278,7 @@ ex power::coeff(const ex & s, int n) const
 			return _ex0;
 	} else {
 		// basis equal to s
-		if (is_ex_exactly_of_type(exponent, numeric) && ex_to<numeric>(exponent).is_integer()) {
+		if (is_exactly_a<numeric>(exponent) && ex_to<numeric>(exponent).is_integer()) {
 			// integer exponent
 			int int_exp = ex_to<numeric>(exponent).to_int();
 			if (n == int_exp)
@@ -331,11 +324,11 @@ ex power::eval(int level) const
 	const numeric *num_basis;
 	const numeric *num_exponent;
 	
-	if (is_ex_exactly_of_type(ebasis, numeric)) {
+	if (is_exactly_a<numeric>(ebasis)) {
 		basis_is_numerical = true;
 		num_basis = &ex_to<numeric>(ebasis);
 	}
-	if (is_ex_exactly_of_type(eexponent, numeric)) {
+	if (is_exactly_a<numeric>(eexponent)) {
 		exponent_is_numerical = true;
 		num_exponent = &ex_to<numeric>(eexponent);
 	}
@@ -426,11 +419,11 @@ ex power::eval(int level) const
 		// ^(^(x,c1),c2) -> ^(x,c1*c2)
 		// (c1, c2 numeric(), c2 integer or -1 < c1 <= 1,
 		// case c1==1 should not happen, see below!)
-		if (is_ex_exactly_of_type(ebasis,power)) {
+		if (is_exactly_a<power>(ebasis)) {
 			const power & sub_power = ex_to<power>(ebasis);
 			const ex & sub_basis = sub_power.basis;
 			const ex & sub_exponent = sub_power.exponent;
-			if (is_ex_exactly_of_type(sub_exponent,numeric)) {
+			if (is_exactly_a<numeric>(sub_exponent)) {
 				const numeric & num_sub_exponent = ex_to<numeric>(sub_exponent);
 				GINAC_ASSERT(num_sub_exponent!=numeric(1));
 				if (num_exponent->is_integer() || (abs(num_sub_exponent) - _num1).is_negative())
@@ -439,13 +432,13 @@ ex power::eval(int level) const
 		}
 	
 		// ^(*(x,y,z),c1) -> *(x^c1,y^c1,z^c1) (c1 integer)
-		if (num_exponent->is_integer() && is_ex_exactly_of_type(ebasis,mul)) {
+		if (num_exponent->is_integer() && is_exactly_a<mul>(ebasis)) {
 			return expand_mul(ex_to<mul>(ebasis), *num_exponent);
 		}
 	
 		// ^(*(...,x;c1),c2) -> *(^(*(...,x;1),c2),c1^c2)  (c1, c2 numeric(), c1>0)
 		// ^(*(...,x;c1),c2) -> *(^(*(...,x;-1),c2),(-c1)^c2)  (c1, c2 numeric(), c1<0)
-		if (is_ex_exactly_of_type(ebasis,mul)) {
+		if (is_exactly_a<mul>(ebasis)) {
 			GINAC_ASSERT(!num_exponent->is_integer()); // should have been handled above
 			const mul & mulref = ex_to<mul>(ebasis);
 			if (!mulref.overall_coeff.is_equal(_ex1)) {
@@ -476,7 +469,7 @@ ex power::eval(int level) const
 		// ^(nc,c1) -> ncmul(nc,nc,...) (c1 positive integer, unless nc is a matrix)
 		if (num_exponent->is_pos_integer() &&
 		    ebasis.return_type() != return_types::commutative &&
-		    !is_ex_of_type(ebasis,matrix)) {
+		    !is_a<matrix>(ebasis)) {
 			return ncmul(exvector(num_exponent->to_int(), ebasis), true);
 		}
 	}
@@ -510,33 +503,47 @@ ex power::evalf(int level) const
 	return power(ebasis,eexponent);
 }
 
-ex power::evalm(void) const
+ex power::evalm() const
 {
 	const ex ebasis = basis.evalm();
 	const ex eexponent = exponent.evalm();
-	if (is_ex_of_type(ebasis,matrix)) {
-		if (is_ex_of_type(eexponent,numeric)) {
+	if (is_a<matrix>(ebasis)) {
+		if (is_exactly_a<numeric>(eexponent)) {
 			return (new matrix(ex_to<matrix>(ebasis).pow(eexponent)))->setflag(status_flags::dynallocated);
 		}
 	}
 	return (new power(ebasis, eexponent))->setflag(status_flags::dynallocated);
 }
 
-ex power::subs(const lst & ls, const lst & lr, bool no_pattern) const
-{
-	const ex &subsed_basis = basis.subs(ls, lr, no_pattern);
-	const ex &subsed_exponent = exponent.subs(ls, lr, no_pattern);
+// from mul.cpp
+extern bool tryfactsubs(const ex &, const ex &, int &, lst &);
 
-	if (are_ex_trivially_equal(basis, subsed_basis)
-	 && are_ex_trivially_equal(exponent, subsed_exponent))
-		return basic::subs(ls, lr, no_pattern);
-	else
-		return power(subsed_basis, subsed_exponent).basic::subs(ls, lr, no_pattern);
+ex power::subs(const lst & ls, const lst & lr, unsigned options) const
+{	
+	const ex &subsed_basis = basis.subs(ls, lr, options);
+	const ex &subsed_exponent = exponent.subs(ls, lr, options);
+
+	if (!are_ex_trivially_equal(basis, subsed_basis)
+	 || !are_ex_trivially_equal(exponent, subsed_exponent)) 
+		return power(subsed_basis, subsed_exponent).subs_one_level(ls, lr, options);
+
+	if (!(options & subs_options::subs_algebraic))
+		return subs_one_level(ls, lr, options);
+
+	lst::const_iterator its, itr;
+	for (its = ls.begin(), itr = lr.begin(); its != ls.end(); ++its, ++itr) {
+		int nummatches = std::numeric_limits<int>::max();
+		lst repls;
+		if (tryfactsubs(*this, *its, nummatches, repls))
+			return (ex_to<basic>((*this) * power(itr->subs(ex(repls), subs_options::subs_no_pattern) / its->subs(ex(repls), subs_options::subs_no_pattern), nummatches))).subs_one_level(ls, lr, options);
+	}
+
+	return subs_one_level(ls, lr, options);
 }
 
-ex power::simplify_ncmul(const exvector & v) const
+ex power::eval_ncmul(const exvector & v) const
 {
-	return inherited::simplify_ncmul(v);
+	return inherited::eval_ncmul(v);
 }
 
 // protected
@@ -572,12 +579,12 @@ int power::compare_same_type(const basic & other) const
 		return exponent.compare(o.exponent);
 }
 
-unsigned power::return_type(void) const
+unsigned power::return_type() const
 {
 	return basis.return_type();
 }
    
-unsigned power::return_type_tinfo(void) const
+unsigned power::return_type_tinfo() const
 {
 	return basis.return_type_tinfo();
 }
@@ -591,7 +598,7 @@ ex power::expand(unsigned options) const
 	const ex expanded_exponent = exponent.expand(options);
 	
 	// x^(a+b) -> x^a * x^b
-	if (is_ex_exactly_of_type(expanded_exponent, add)) {
+	if (is_exactly_a<add>(expanded_exponent)) {
 		const add &a = ex_to<add>(expanded_exponent);
 		exvector distrseq;
 		distrseq.reserve(a.seq.size() + 1);
@@ -606,7 +613,7 @@ ex power::expand(unsigned options) const
 		if (ex_to<numeric>(a.overall_coeff).is_integer()) {
 			const numeric &num_exponent = ex_to<numeric>(a.overall_coeff);
 			int int_exponent = num_exponent.to_int();
-			if (int_exponent > 0 && is_ex_exactly_of_type(expanded_basis, add))
+			if (int_exponent > 0 && is_exactly_a<add>(expanded_basis))
 				distrseq.push_back(expand_add(ex_to<add>(expanded_basis), int_exponent));
 			else
 				distrseq.push_back(power(expanded_basis, a.overall_coeff));
@@ -618,7 +625,7 @@ ex power::expand(unsigned options) const
 		return r.expand();
 	}
 	
-	if (!is_ex_exactly_of_type(expanded_exponent, numeric) ||
+	if (!is_exactly_a<numeric>(expanded_exponent) ||
 		!ex_to<numeric>(expanded_exponent).is_integer()) {
 		if (are_ex_trivially_equal(basis,expanded_basis) && are_ex_trivially_equal(exponent,expanded_exponent)) {
 			return this->hold();
@@ -632,11 +639,11 @@ ex power::expand(unsigned options) const
 	int int_exponent = num_exponent.to_int();
 	
 	// (x+y)^n, n>0
-	if (int_exponent > 0 && is_ex_exactly_of_type(expanded_basis,add))
+	if (int_exponent > 0 && is_exactly_a<add>(expanded_basis))
 		return expand_add(ex_to<add>(expanded_basis), int_exponent);
 	
 	// (x*y)^n -> x^n * y^n
-	if (is_ex_exactly_of_type(expanded_basis,mul))
+	if (is_exactly_a<mul>(expanded_basis))
 		return expand_mul(ex_to<mul>(expanded_basis), num_exponent);
 	
 	// cannot expand further
@@ -663,7 +670,7 @@ ex power::expand_add(const add & a, int n) const
 	if (n==2)
 		return expand_add_2(a);
 
-	const int m = a.nops();
+	const size_t m = a.nops();
 	exvector result;
 	// The number of terms will be the number of combinatorial compositions,
 	// i.e. the number of unordered arrangement of m nonnegative integers
@@ -675,7 +682,7 @@ ex power::expand_add(const add & a, int n) const
 	intvector upper_limit(m-1);
 	int l;
 
-	for (int l=0; l<m-1; ++l) {
+	for (size_t l=0; l<m-1; ++l) {
 		k[l] = 0;
 		k_cum[l] = 0;
 		upper_limit[l] = n;
@@ -693,7 +700,7 @@ ex power::expand_add(const add & a, int n) const
 			             !is_exactly_a<add>(ex_to<power>(b).basis) ||
 			             !is_exactly_a<mul>(ex_to<power>(b).basis) ||
 			             !is_exactly_a<power>(ex_to<power>(b).basis));
-			if (is_ex_exactly_of_type(b,mul))
+			if (is_exactly_a<mul>(b))
 				term.push_back(expand_mul(ex_to<mul>(b),numeric(k[l])));
 			else
 				term.push_back(power(b,k[l]));
@@ -707,7 +714,7 @@ ex power::expand_add(const add & a, int n) const
 		             !is_exactly_a<add>(ex_to<power>(b).basis) ||
 		             !is_exactly_a<mul>(ex_to<power>(b).basis) ||
 		             !is_exactly_a<power>(ex_to<power>(b).basis));
-		if (is_ex_exactly_of_type(b,mul))
+		if (is_exactly_a<mul>(b))
 			term.push_back(expand_mul(ex_to<mul>(b),numeric(n-k_cum[m-2])));
 		else
 			term.push_back(power(b,n-k_cum[m-2]));
@@ -731,10 +738,10 @@ ex power::expand_add(const add & a, int n) const
 		// recalc k_cum[] and upper_limit[]
 		k_cum[l] = (l==0 ? k[0] : k_cum[l-1]+k[l]);
 
-		for (int i=l+1; i<m-1; ++i)
+		for (size_t i=l+1; i<m-1; ++i)
 			k_cum[i] = k_cum[i-1]+k[i];
 
-		for (int i=l+1; i<m-1; ++i)
+		for (size_t i=l+1; i<m-1; ++i)
 			upper_limit[i] = n-k_cum[i-1];
 	}
 
@@ -748,7 +755,7 @@ ex power::expand_add(const add & a, int n) const
 ex power::expand_add_2(const add & a) const
 {
 	epvector sum;
-	unsigned a_nops = a.nops();
+	size_t a_nops = a.nops();
 	sum.reserve((a_nops*(a_nops+1))/2);
 	epvector::const_iterator last = a.seq.end();
 
@@ -766,8 +773,8 @@ ex power::expand_add_2(const add & a) const
 		             !is_exactly_a<mul>(ex_to<power>(r).basis) ||
 		             !is_exactly_a<power>(ex_to<power>(r).basis));
 		
-		if (are_ex_trivially_equal(c,_ex1)) {
-			if (is_ex_exactly_of_type(r,mul)) {
+		if (c.is_equal(_ex1)) {
+			if (is_exactly_a<mul>(r)) {
 				sum.push_back(expair(expand_mul(ex_to<mul>(r),_num2),
 				                     _ex1));
 			} else {
@@ -775,7 +782,7 @@ ex power::expand_add_2(const add & a) const
 				                     _ex1));
 			}
 		} else {
-			if (is_ex_exactly_of_type(r,mul)) {
+			if (is_exactly_a<mul>(r)) {
 				sum.push_back(a.combine_ex_with_coeff_to_pair(expand_mul(ex_to<mul>(r),_num2),
 				                     ex_to<numeric>(c).power_dyn(_num2)));
 			} else {
@@ -783,7 +790,7 @@ ex power::expand_add_2(const add & a) const
 				                     ex_to<numeric>(c).power_dyn(_num2)));
 			}
 		}
-			
+
 		for (epvector::const_iterator cit1=cit0+1; cit1!=last; ++cit1) {
 			const ex & r1 = cit1->rest;
 			const ex & c1 = cit1->coeff;
@@ -823,7 +830,7 @@ ex power::expand_mul(const mul & m, const numeric & n) const
 	epvector::const_iterator last = m.seq.end();
 	epvector::const_iterator cit = m.seq.begin();
 	while (cit!=last) {
-		if (is_ex_exactly_of_type(cit->rest,numeric)) {
+		if (is_exactly_a<numeric>(cit->rest)) {
 			distrseq.push_back(m.combine_pair_with_coeff_to_pair(*cit, n));
 		} else {
 			// it is safe not to call mul::combine_pair_with_coeff_to_pair()

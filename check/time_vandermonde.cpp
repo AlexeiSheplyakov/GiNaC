@@ -61,7 +61,7 @@ static unsigned vandermonde_det(unsigned size)
 	return result;
 }
 
-unsigned time_vandermonde(void)
+unsigned time_vandermonde()
 {
 	unsigned result = 0;
 	

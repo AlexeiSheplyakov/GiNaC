@@ -51,16 +51,16 @@ public:
 
 	// functions overriding virtual functions from base classes
 protected:
+	ex eval_ncmul(const exvector & v) const;
 	bool match_same_type(const basic & other) const;
-	ex simplify_ncmul(const exvector & v) const;
-	ex thisexprseq(const exvector & v) const;
-	ex thisexprseq(exvector * vp) const;
-	unsigned return_type(void) const { return return_types::noncommutative; }
-	unsigned return_type_tinfo(void) const { return TINFO_color + representation_label; }
+	ex thiscontainer(const exvector & v) const;
+	ex thiscontainer(exvector * vp) const;
+	unsigned return_type() const { return return_types::noncommutative; }
+	unsigned return_type_tinfo() const { return TINFO_color + representation_label; }
 
 	// non-virtual functions in this class
 public:
-	unsigned char get_representation_label(void) const {return representation_label;}
+	unsigned char get_representation_label() const {return representation_label;}
 
 	// member variables
 private:

@@ -27,6 +27,7 @@
 #include "idx.h"
 #include "ncmul.h"
 #include "symmetry.h"
+#include "operators.h"
 #include "numeric.h"
 #include "mul.h"
 #include "power.h" // for sqrt()
@@ -44,7 +45,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(su3f, tensor)
 GINAC_IMPLEMENT_REGISTERED_CLASS(su3d, tensor)
 
 //////////
-// default ctor, dtor, copy ctor, assignment operator and helpers
+// default constructors
 //////////
 
 color::color() : representation_label(0)
@@ -52,17 +53,10 @@ color::color() : representation_label(0)
 	tinfo_key = TINFO_color;
 }
 
-void color::copy(const color & other)
-{
-	inherited::copy(other);
-	representation_label = other.representation_label;
-}
-
-DEFAULT_DESTROY(color)
-DEFAULT_CTORS(su3one)
-DEFAULT_CTORS(su3t)
-DEFAULT_CTORS(su3f)
-DEFAULT_CTORS(su3d)
+DEFAULT_CTOR(su3one)
+DEFAULT_CTOR(su3t)
+DEFAULT_CTOR(su3f)
+DEFAULT_CTOR(su3d)
 
 //////////
 // other constructors
@@ -98,7 +92,7 @@ color::color(unsigned char rl, exvector * vp) : inherited(sy_none(), vp), repres
 // archiving
 //////////
 
-color::color(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+color::color(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
 {
 	unsigned rl;
 	n.find_unsigned("label", rl);
@@ -154,7 +148,7 @@ DEFAULT_PRINT(su3d, "d")
 
 /** Perform automatic simplification on noncommutative product of color
  *  objects. This removes superfluous ONEs. */
-ex color::simplify_ncmul(const exvector & v) const
+ex color::eval_ncmul(const exvector & v) const
 {
 	exvector s;
 	s.reserve(v.size());
@@ -162,7 +156,7 @@ ex color::simplify_ncmul(const exvector & v) const
 	// Remove superfluous ONEs
 	exvector::const_iterator it = v.begin(), itend = v.end();
 	while (it != itend) {
-		if (!is_ex_of_type(it->op(0), su3one))
+		if (!is_a<su3one>(it->op(0)))
 			s.push_back(*it);
 		it++;
 	}
@@ -170,15 +164,15 @@ ex color::simplify_ncmul(const exvector & v) const
 	if (s.empty())
 		return color(su3one(), representation_label);
 	else
-		return simplified_ncmul(s);
+		return hold_ncmul(s);
 }
 
-ex color::thisexprseq(const exvector & v) const
+ex color::thiscontainer(const exvector & v) const
 {
 	return color(representation_label, v);
 }
 
-ex color::thisexprseq(exvector * vp) const
+ex color::thiscontainer(exvector * vp) const
 {
 	return color(representation_label, vp);
 }
@@ -306,7 +300,7 @@ bool su3t::contract_with(exvector::iterator self, exvector::iterator other, exve
 	GINAC_ASSERT(is_a<su3t>(self->op(0)));
 	unsigned char rl = ex_to<color>(*self).get_representation_label();
 
-	if (is_ex_exactly_of_type(other->op(0), su3t)) {
+	if (is_exactly_a<su3t>(other->op(0))) {
 
 		// Contraction only makes sense if the represenation labels are equal
 		GINAC_ASSERT(is_a<color>(*other));
@@ -321,7 +315,7 @@ bool su3t::contract_with(exvector::iterator self, exvector::iterator other, exve
 
 		// T.a T.b T.a = -1/6 T.b
 		} else if (other - self == 2
-		        && is_ex_of_type(self[1], color)) {
+		        && is_a<color>(self[1])) {
 			*self = numeric(-1, 6);
 			*other = _ex1;
 			return true;
@@ -330,7 +324,7 @@ bool su3t::contract_with(exvector::iterator self, exvector::iterator other, exve
 		} else {
 			exvector::iterator it = self + 1;
 			while (it != other) {
-				if (!is_ex_of_type(*it, color)) {
+				if (!is_a<color>(*it)) {
 					return false;
 				}
 				it++;
@@ -360,7 +354,7 @@ bool su3d::contract_with(exvector::iterator self, exvector::iterator other, exve
 	GINAC_ASSERT(self->nops() == 4);
 	GINAC_ASSERT(is_a<su3d>(self->op(0)));
 
-	if (is_ex_exactly_of_type(other->op(0), su3d)) {
+	if (is_exactly_a<su3d>(other->op(0))) {
 
 		// Find the dummy indices of the contraction
 		exvector self_indices = ex_to<indexed>(*self).get_indices();
@@ -388,11 +382,11 @@ bool su3d::contract_with(exvector::iterator self, exvector::iterator other, exve
 			return true;
 		}
 
-	} else if (is_ex_exactly_of_type(other->op(0), su3t)) {
+	} else if (is_exactly_a<su3t>(other->op(0))) {
 
 		// d.abc T.b T.c = 5/6 T.a
 		if (other+1 != v.end()
-		 && is_ex_exactly_of_type(other[1].op(0), su3t)
+		 && is_exactly_a<su3t>(other[1].op(0))
 		 && ex_to<indexed>(*self).has_dummy_index_for(other[1].op(1))) {
 
 			exvector self_indices = ex_to<indexed>(*self).get_indices();
@@ -419,7 +413,7 @@ bool su3f::contract_with(exvector::iterator self, exvector::iterator other, exve
 	GINAC_ASSERT(self->nops() == 4);
 	GINAC_ASSERT(is_a<su3f>(self->op(0)));
 
-	if (is_ex_exactly_of_type(other->op(0), su3f)) { // f*d is handled by su3d class
+	if (is_exactly_a<su3f>(other->op(0))) { // f*d is handled by su3d class
 
 		// Find the dummy indices of the contraction
 		exvector dummy_indices;
@@ -441,11 +435,11 @@ bool su3f::contract_with(exvector::iterator self, exvector::iterator other, exve
 			return true;
 		}
 
-	} else if (is_ex_exactly_of_type(other->op(0), su3t)) {
+	} else if (is_exactly_a<su3t>(other->op(0))) {
 
 		// f.abc T.b T.c = 3/2 I T.a
 		if (other+1 != v.end()
-		 && is_ex_exactly_of_type(other[1].op(0), su3t)
+		 && is_exactly_a<su3t>(other[1].op(0))
 		 && ex_to<indexed>(*self).has_dummy_index_for(other[1].op(1))) {
 
 			exvector self_indices = ex_to<indexed>(*self).get_indices();
@@ -475,7 +469,7 @@ ex color_ONE(unsigned char rl)
 
 ex color_T(const ex & a, unsigned char rl)
 {
-	if (!is_ex_of_type(a, idx))
+	if (!is_a<idx>(a))
 		throw(std::invalid_argument("indices of color_T must be of type idx"));
 	if (!ex_to<idx>(a).get_dim().is_equal(8))
 		throw(std::invalid_argument("index dimension for color_T must be 8"));
@@ -485,7 +479,7 @@ ex color_T(const ex & a, unsigned char rl)
 
 ex color_f(const ex & a, const ex & b, const ex & c)
 {
-	if (!is_ex_of_type(a, idx) || !is_ex_of_type(b, idx) || !is_ex_of_type(c, idx))
+	if (!is_a<idx>(a) || !is_a<idx>(b) || !is_a<idx>(c))
 		throw(std::invalid_argument("indices of color_f must be of type idx"));
 	if (!ex_to<idx>(a).get_dim().is_equal(8) || !ex_to<idx>(b).get_dim().is_equal(8) || !ex_to<idx>(c).get_dim().is_equal(8))
 		throw(std::invalid_argument("index dimension for color_f must be 8"));
@@ -495,7 +489,7 @@ ex color_f(const ex & a, const ex & b, const ex & c)
 
 ex color_d(const ex & a, const ex & b, const ex & c)
 {
-	if (!is_ex_of_type(a, idx) || !is_ex_of_type(b, idx) || !is_ex_of_type(c, idx))
+	if (!is_a<idx>(a) || !is_a<idx>(b) || !is_a<idx>(c))
 		throw(std::invalid_argument("indices of color_d must be of type idx"));
 	if (!ex_to<idx>(a).get_dim().is_equal(8) || !ex_to<idx>(b).get_dim().is_equal(8) || !ex_to<idx>(c).get_dim().is_equal(8))
 		throw(std::invalid_argument("index dimension for color_d must be 8"));
@@ -517,19 +511,19 @@ static bool is_color_tinfo(unsigned ti, unsigned char rl)
 
 ex color_trace(const ex & e, unsigned char rl)
 {
-	if (is_ex_of_type(e, color)) {
+	if (is_a<color>(e)) {
 
 		if (ex_to<color>(e).get_representation_label() == rl
-		 && is_ex_of_type(e.op(0), su3one))
+		 && is_a<su3one>(e.op(0)))
 			return _ex3;
 		else
 			return _ex0;
 
-	} else if (is_ex_exactly_of_type(e, mul)) {
+	} else if (is_exactly_a<mul>(e)) {
 
 		// Trace of product: pull out non-color factors
 		ex prod = _ex1;
-		for (unsigned i=0; i<e.nops(); i++) {
+		for (size_t i=0; i<e.nops(); i++) {
 			const ex &o = e.op(i);
 			if (is_color_tinfo(o.return_type_tinfo(), rl))
 				prod *= color_trace(o, rl);
@@ -538,17 +532,17 @@ ex color_trace(const ex & e, unsigned char rl)
 		}
 		return prod;
 
-	} else if (is_ex_exactly_of_type(e, ncmul)) {
+	} else if (is_exactly_a<ncmul>(e)) {
 
 		if (!is_color_tinfo(e.return_type_tinfo(), rl))
 			return _ex0;
 
 		// Expand product, if necessary
 		ex e_expanded = e.expand();
-		if (!is_ex_of_type(e_expanded, ncmul))
+		if (!is_a<ncmul>(e_expanded))
 			return color_trace(e_expanded, rl);
 
-		unsigned num = e.nops();
+		size_t num = e.nops();
 
 		if (num == 2) {
 
@@ -572,7 +566,7 @@ ex color_trace(const ex & e, unsigned char rl)
 
 			exvector v1;
 			v1.reserve(num - 2);
-			for (unsigned i=0; i<num-2; i++)
+			for (size_t i=0; i<num-2; i++)
 				v1.push_back(e.op(i));
 
 			exvector v2 = v1;

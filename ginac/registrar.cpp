@@ -21,6 +21,7 @@
  */
 
 #include <string>
+#include <map>
 #include <stdexcept>
 
 #include "registrar.h"
@@ -30,26 +31,41 @@ namespace GiNaC {
 registered_class_info *first_registered_class = NULL;
 
 /** Find registered_class_info strucure by class name. */
-static inline registered_class_info *find_registered_class_info(const std::string &class_name)
+static const registered_class_info *find_registered_class_info(const std::string &class_name)
 {
-	registered_class_info *p = first_registered_class;
-	while (p) {
-		if (class_name == p->name)
-			return p;
-		p = p->next;
+	// Use a map for faster lookup. The registered_class_info list doesn't
+	// change at run-time, so it's sufficient to construct the map once
+	// on the first trip through this function.
+	typedef std::map<std::string, const registered_class_info *> name_map_type;
+	static name_map_type name_map;
+	static bool name_map_initialized = false;
+
+	if (!name_map_initialized) {
+		// Construct map
+		const registered_class_info *p = first_registered_class;
+		while (p) {
+			name_map[p->name] = p;
+			p = p->next;
+		}
+		name_map_initialized = true;
 	}
-	throw (std::runtime_error("class '" + class_name + "' not registered"));
+
+	name_map_type::const_iterator it = name_map.find(class_name);
+	if (it == name_map.end())
+		throw (std::runtime_error("class '" + class_name + "' not registered"));
+	else
+		return it->second;
 }
 
 unsigned int find_tinfo_key(const std::string &class_name)
 {
-	registered_class_info *p = find_registered_class_info(class_name);
+	const registered_class_info *p = find_registered_class_info(class_name);
 	return p->tinfo_key;
 }
 
 unarch_func find_unarch_func(const std::string &class_name)
 {
-	registered_class_info *p = find_registered_class_info(class_name);
+	const registered_class_info *p = find_registered_class_info(class_name);
 	return p->unarchive;
 }
 

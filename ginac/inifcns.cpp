@@ -30,6 +30,7 @@
 #include "matrix.h"
 #include "mul.h"
 #include "power.h"
+#include "operators.h"
 #include "relational.h"
 #include "pseries.h"
 #include "symbol.h"
@@ -52,7 +53,7 @@ static ex abs_evalf(const ex & arg)
 
 static ex abs_eval(const ex & arg)
 {
-	if (is_ex_exactly_of_type(arg, numeric))
+	if (is_exactly_a<numeric>(arg))
 		return abs(ex_to<numeric>(arg));
 	else
 		return abs(arg).hold();
@@ -76,11 +77,11 @@ static ex csgn_evalf(const ex & arg)
 
 static ex csgn_eval(const ex & arg)
 {
-	if (is_ex_exactly_of_type(arg, numeric))
+	if (is_exactly_a<numeric>(arg))
 		return csgn(ex_to<numeric>(arg));
 	
-	else if (is_ex_exactly_of_type(arg, mul) &&
-	         is_ex_of_type(arg.op(arg.nops()-1),numeric)) {
+	else if (is_exactly_a<mul>(arg) &&
+	         is_exactly_a<numeric>(arg.op(arg.nops()-1))) {
 		numeric oc = ex_to<numeric>(arg.op(arg.nops()-1));
 		if (oc.is_real()) {
 			if (oc > 0)
@@ -323,7 +324,7 @@ static ex Li2_series(const ex &x, const relational &rel, int order, unsigned opt
 			seq.push_back(expair(Li2(x_pt), _ex0));
 			// compute the intermediate terms:
 			ex replarg = series(Li2(x), s==foo, order);
-			for (unsigned i=1; i<replarg.nops()-1; ++i)
+			for (size_t i=1; i<replarg.nops()-1; ++i)
 				seq.push_back(expair((replarg.op(i)/power(s-foo,i)).series(foo==point,1,options).op(0).subs(foo==s),i));
 			// append an order term:
 			seq.push_back(expair(Order(_ex1), replarg.nops()-1));
@@ -365,7 +366,7 @@ static ex factorial_evalf(const ex & x)
 
 static ex factorial_eval(const ex & x)
 {
-	if (is_ex_exactly_of_type(x, numeric))
+	if (is_exactly_a<numeric>(x))
 		return factorial(ex_to<numeric>(x));
 	else
 		return factorial(x).hold();
@@ -385,7 +386,7 @@ static ex binomial_evalf(const ex & x, const ex & y)
 
 static ex binomial_eval(const ex & x, const ex &y)
 {
-	if (is_ex_exactly_of_type(x, numeric) && is_ex_exactly_of_type(y, numeric))
+	if (is_exactly_a<numeric>(x) && is_exactly_a<numeric>(y))
 		return binomial(ex_to<numeric>(x), ex_to<numeric>(y));
 	else
 		return binomial(x, y).hold();
@@ -400,16 +401,16 @@ REGISTER_FUNCTION(binomial, eval_func(binomial_eval).
 
 static ex Order_eval(const ex & x)
 {
-	if (is_ex_exactly_of_type(x, numeric)) {
+	if (is_exactly_a<numeric>(x)) {
 		// O(c) -> O(1) or 0
 		if (!x.is_zero())
 			return Order(_ex1).hold();
 		else
 			return _ex0;
-	} else if (is_ex_exactly_of_type(x, mul)) {
+	} else if (is_exactly_a<mul>(x)) {
 		const mul &m = ex_to<mul>(x);
 		// O(c*expr) -> O(expr)
-		if (is_ex_exactly_of_type(m.op(m.nops() - 1), numeric))
+		if (is_exactly_a<numeric>(m.op(m.nops() - 1)))
 			return Order(x / m.op(m.nops() - 1)).hold();
 	}
 	return Order(x).hold();
@@ -453,7 +454,7 @@ ex lsolve(const ex &eqns, const ex &symbols, unsigned options)
 	if (!eqns.info(info_flags::list)) {
 		throw(std::invalid_argument("lsolve(): 1st argument must be a list"));
 	}
-	for (unsigned i=0; i<eqns.nops(); i++) {
+	for (size_t i=0; i<eqns.nops(); i++) {
 		if (!eqns.op(i).info(info_flags::relation_equal)) {
 			throw(std::invalid_argument("lsolve(): 1st argument must be a list of equations"));
 		}
@@ -461,7 +462,7 @@ ex lsolve(const ex &eqns, const ex &symbols, unsigned options)
 	if (!symbols.info(info_flags::list)) {
 		throw(std::invalid_argument("lsolve(): 2nd argument must be a list"));
 	}
-	for (unsigned i=0; i<symbols.nops(); i++) {
+	for (size_t i=0; i<symbols.nops(); i++) {
 		if (!symbols.op(i).info(info_flags::symbol)) {
 			throw(std::invalid_argument("lsolve(): 2nd argument must be a list of symbols"));
 		}
@@ -472,10 +473,10 @@ ex lsolve(const ex &eqns, const ex &symbols, unsigned options)
 	matrix rhs(eqns.nops(),1);
 	matrix vars(symbols.nops(),1);
 	
-	for (unsigned r=0; r<eqns.nops(); r++) {
+	for (size_t r=0; r<eqns.nops(); r++) {
 		const ex eq = eqns.op(r).op(0)-eqns.op(r).op(1); // lhs-rhs==0
 		ex linpart = eq;
-		for (unsigned c=0; c<symbols.nops(); c++) {
+		for (size_t c=0; c<symbols.nops(); c++) {
 			const ex co = eq.coeff(ex_to<symbol>(symbols.op(c)),1);
 			linpart -= co*symbols.op(c);
 			sys(r,c) = co;
@@ -485,7 +486,7 @@ ex lsolve(const ex &eqns, const ex &symbols, unsigned options)
 	}
 	
 	// test if system is linear and fill vars matrix
-	for (unsigned i=0; i<symbols.nops(); i++) {
+	for (size_t i=0; i<symbols.nops(); i++) {
 		vars(i,0) = symbols.op(i);
 		if (sys.has(symbols.op(i)))
 			throw(std::logic_error("lsolve: system is not linear"));
@@ -506,7 +507,7 @@ ex lsolve(const ex &eqns, const ex &symbols, unsigned options)
 	
 	// return list of equations of the form lst(var1==sol1,var2==sol2,...)
 	lst sollist;
-	for (unsigned i=0; i<symbols.nops(); i++)
+	for (size_t i=0; i<symbols.nops(); i++)
 		sollist.append(symbols.op(i)==solution(i,0));
 	
 	return sollist;
@@ -514,7 +515,7 @@ ex lsolve(const ex &eqns, const ex &symbols, unsigned options)
 
 /* Force inclusion of functions from inifcns_gamma and inifcns_zeta
  * for static lib (so ginsh will see them). */
-unsigned force_include_tgamma = function_index_tgamma;
-unsigned force_include_zeta1 = function_index_zeta1;
+unsigned force_include_tgamma = tgamma_SERIAL::serial;
+unsigned force_include_zeta1 = zeta1_SERIAL::serial;
 
 } // namespace GiNaC

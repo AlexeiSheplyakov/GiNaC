@@ -1,7 +1,8 @@
 /** @file check_lsolve.cpp
  *
  *  These test routines do some simple checks on solving linear systems of
- *  symbolic equations. */
+ *  symbolic equations.  They are a well-tried resource for cross-checking
+ *  the underlying symbolic manipulations. */
 
 /*
  *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
@@ -96,7 +97,7 @@ static unsigned check_inifcns_lsolve(unsigned n)
 {
 	unsigned result = 0;
 	
-	for (int repetition=0; repetition<100; ++repetition) {
+	for (int repetition=0; repetition<200; ++repetition) {
 		// create two size n vectors of symbols, one for the coefficients
 		// a[0],..,a[n], one for indeterminates x[0]..x[n]:
 		vector<symbol> a;
@@ -155,7 +156,7 @@ static unsigned check_inifcns_lsolve(unsigned n)
 	return result;
 }
 
-unsigned check_lsolve(void)
+unsigned check_lsolve()
 {
 	unsigned result = 0;
 	
@@ -163,23 +164,23 @@ unsigned check_lsolve(void)
 	clog << "---------linear solve:" << endl;
 	
 	// solve some numeric linear systems
-	for (unsigned n=1; n<12; ++n)
+	for (unsigned n=1; n<14; ++n)
 		result += check_matrix_solve(n, n, 1, 0);
 	cout << '.' << flush;
 	// solve some underdetermined numeric systems
-	for (unsigned n=1; n<12; ++n)
+	for (unsigned n=1; n<14; ++n)
 		result += check_matrix_solve(n+1, n, 1, 0);
 	cout << '.' << flush;
 	// solve some overdetermined numeric systems
-	for (unsigned n=1; n<12; ++n)
+	for (unsigned n=1; n<14; ++n)
 		result += check_matrix_solve(n, n+1, 1, 0);
 	cout << '.' << flush;
 	// solve some multiple numeric systems
-	for (unsigned n=1; n<12; ++n)
+	for (unsigned n=1; n<14; ++n)
 		result += check_matrix_solve(n, n, n/3+1, 0);
 	cout << '.' << flush;
 	// solve some symbolic linear systems
-	for (unsigned n=1; n<7; ++n)
+	for (unsigned n=1; n<8; ++n)
 		result += check_matrix_solve(n, n, 1, 2);
 	cout << '.' << flush;
 	

@@ -32,6 +32,7 @@
 #include "power.h"
 #include "relational.h"
 #include "symmetry.h"
+#include "operators.h"
 #include "lst.h"
 #include "print.h"
 #include "archive.h"
@@ -42,21 +43,13 @@ namespace GiNaC {
 GINAC_IMPLEMENT_REGISTERED_CLASS(indexed, exprseq)
 
 //////////
-// default ctor, dtor, copy ctor, assignment operator and helpers
+// default constructor
 //////////
 
 indexed::indexed() : symtree(sy_none())
 {
 	tinfo_key = TINFO_indexed;
 }
-
-void indexed::copy(const indexed & other)
-{
-	inherited::copy(other);
-	symtree = other.symtree;
-}
-
-DEFAULT_DESTROY(indexed)
 
 //////////
 // other constructors
@@ -143,7 +136,7 @@ indexed::indexed(const symmetry & symm, exvector * vp) : inherited(vp), symtree(
 // archiving
 //////////
 
-indexed::indexed(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+indexed::indexed(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
 {
 	if (!n.find_ex("symmetry", symtree, sym_lst)) {
 		// GiNaC versions <= 0.9.0 had an unsigned "symmetry" property
@@ -250,11 +243,11 @@ ex indexed::eval(int level) const
 		return _ex0;
 
 	// If the base object is a product, pull out the numeric factor
-	if (is_ex_exactly_of_type(base, mul) && is_ex_exactly_of_type(base.op(base.nops() - 1), numeric)) {
+	if (is_exactly_a<mul>(base) && is_exactly_a<numeric>(base.op(base.nops() - 1))) {
 		exvector v(seq);
 		ex f = ex_to<numeric>(base.op(base.nops() - 1));
 		v[0] = seq[0] / f;
-		return f * thisexprseq(v);
+		return f * thiscontainer(v);
 	}
 
 	// Canonicalize indices according to the symmetry properties
@@ -266,7 +259,7 @@ ex indexed::eval(int level) const
 			// Something has changed while sorting indices, more evaluations later
 			if (sig == 0)
 				return _ex0;
-			return ex(sig) * thisexprseq(v);
+			return ex(sig) * thiscontainer(v);
 		}
 	}
 
@@ -274,12 +267,12 @@ ex indexed::eval(int level) const
 	return ex_to<basic>(base).eval_indexed(*this);
 }
 
-ex indexed::thisexprseq(const exvector & v) const
+ex indexed::thiscontainer(const exvector & v) const
 {
 	return indexed(ex_to<symmetry>(symtree), v);
 }
 
-ex indexed::thisexprseq(exvector * vp) const
+ex indexed::thiscontainer(exvector * vp) const
 {
 	return indexed(ex_to<symmetry>(symtree), vp);
 }
@@ -288,15 +281,15 @@ ex indexed::expand(unsigned options) const
 {
 	GINAC_ASSERT(seq.size() > 0);
 
-	if ((options & expand_options::expand_indexed) && is_ex_exactly_of_type(seq[0], add)) {
+	if ((options & expand_options::expand_indexed) && is_exactly_a<add>(seq[0])) {
 
 		// expand_indexed expands (a+b).i -> a.i + b.i
 		const ex & base = seq[0];
 		ex sum = _ex0;
-		for (unsigned i=0; i<base.nops(); i++) {
+		for (size_t i=0; i<base.nops(); i++) {
 			exvector s = seq;
 			s[0] = base.op(i);
-			sum += thisexprseq(s).expand();
+			sum += thiscontainer(s).expand();
 		}
 		return sum;
 
@@ -327,7 +320,7 @@ void indexed::printindices(const print_context & c, unsigned level) const
 			bool covariant = true;
 
 			while (it != itend) {
-				bool cur_covariant = (is_ex_of_type(*it, varidx) ? ex_to<varidx>(*it).is_covariant() : true);
+				bool cur_covariant = (is_a<varidx>(*it) ? ex_to<varidx>(*it).is_covariant() : true);
 				if (first || cur_covariant != covariant) { // Variance changed
 					// The empty {} prevents indices from ending up on top of each other
 					if (!first)
@@ -359,18 +352,18 @@ void indexed::printindices(const print_context & c, unsigned level) const
 /** Check whether all indices are of class idx and validate the symmetry
  *  tree. This function is used internally to make sure that all constructed
  *  indexed objects really carry indices and not some other classes. */
-void indexed::validate(void) const
+void indexed::validate() const
 {
 	GINAC_ASSERT(seq.size() > 0);
 	exvector::const_iterator it = seq.begin() + 1, itend = seq.end();
 	while (it != itend) {
-		if (!is_ex_of_type(*it, idx))
+		if (!is_a<idx>(*it))
 			throw(std::invalid_argument("indices of indexed object must be of type idx"));
 		it++;
 	}
 
 	if (!symtree.is_zero()) {
-		if (!is_ex_exactly_of_type(symtree, symmetry))
+		if (!is_exactly_a<symmetry>(symtree))
 			throw(std::invalid_argument("symmetry of indexed object must be of type symmetry"));
 		const_cast<symmetry &>(ex_to<symmetry>(symtree)).validate(seq.size() - 1);
 	}
@@ -414,13 +407,13 @@ static bool indices_consistent(const exvector & v1, const exvector & v2)
 	return equal(v1.begin(), v1.end(), v2.begin(), idx_is_equal_ignore_dim());
 }
 
-exvector indexed::get_indices(void) const
+exvector indexed::get_indices() const
 {
 	GINAC_ASSERT(seq.size() >= 1);
 	return exvector(seq.begin() + 1, seq.end());
 }
 
-exvector indexed::get_dummy_indices(void) const
+exvector indexed::get_dummy_indices() const
 {
 	exvector free_indices, dummy_indices;
 	find_free_and_dummy(seq.begin() + 1, seq.end(), free_indices, dummy_indices);
@@ -448,17 +441,17 @@ bool indexed::has_dummy_index_for(const ex & i) const
 	return false;
 }
 
-exvector indexed::get_free_indices(void) const
+exvector indexed::get_free_indices() const
 {
 	exvector free_indices, dummy_indices;
 	find_free_and_dummy(seq.begin() + 1, seq.end(), free_indices, dummy_indices);
 	return free_indices;
 }
 
-exvector add::get_free_indices(void) const
+exvector add::get_free_indices() const
 {
 	exvector free_indices;
-	for (unsigned i=0; i<nops(); i++) {
+	for (size_t i=0; i<nops(); i++) {
 		if (i == 0)
 			free_indices = op(i).get_free_indices();
 		else {
@@ -470,11 +463,11 @@ exvector add::get_free_indices(void) const
 	return free_indices;
 }
 
-exvector mul::get_free_indices(void) const
+exvector mul::get_free_indices() const
 {
 	// Concatenate free indices of all factors
 	exvector un;
-	for (unsigned i=0; i<nops(); i++) {
+	for (size_t i=0; i<nops(); i++) {
 		exvector free_indices_of_factor = op(i).get_free_indices();
 		un.insert(un.end(), free_indices_of_factor.begin(), free_indices_of_factor.end());
 	}
@@ -485,11 +478,11 @@ exvector mul::get_free_indices(void) const
 	return free_indices;
 }
 
-exvector ncmul::get_free_indices(void) const
+exvector ncmul::get_free_indices() const
 {
 	// Concatenate free indices of all factors
 	exvector un;
-	for (unsigned i=0; i<nops(); i++) {
+	for (size_t i=0; i<nops(); i++) {
 		exvector free_indices_of_factor = op(i).get_free_indices();
 		un.insert(un.end(), free_indices_of_factor.begin(), free_indices_of_factor.end());
 	}
@@ -500,7 +493,7 @@ exvector ncmul::get_free_indices(void) const
 	return free_indices;
 }
 
-exvector power::get_free_indices(void) const
+exvector power::get_free_indices() const
 {
 	// Return free indices of basis
 	return basis.get_free_indices();
@@ -516,8 +509,8 @@ exvector power::get_free_indices(void) const
  *    by the function */
 static ex rename_dummy_indices(const ex & e, exvector & global_dummy_indices, exvector & local_dummy_indices)
 {
-	unsigned global_size = global_dummy_indices.size(),
-	         local_size = local_dummy_indices.size();
+	size_t global_size = global_dummy_indices.size(),
+	       local_size = local_dummy_indices.size();
 
 	// Any local dummy indices at all?
 	if (local_size == 0)
@@ -527,7 +520,7 @@ static ex rename_dummy_indices(const ex & e, exvector & global_dummy_indices, ex
 
 		// More local indices than we encountered before, add the new ones
 		// to the global set
-		int old_global_size = global_size;
+		size_t old_global_size = global_size;
 		int remaining = local_size - global_size;
 		exvector::const_iterator it = local_dummy_indices.begin(), itend = local_dummy_indices.end();
 		while (it != itend && remaining > 0) {
@@ -545,19 +538,21 @@ static ex rename_dummy_indices(const ex & e, exvector & global_dummy_indices, ex
 	}
 	GINAC_ASSERT(local_size <= global_size);
 
-	// Construct lists of index symbols
-	exlist local_syms, global_syms;
-	for (unsigned i=0; i<local_size; i++)
+	// Construct vectors of index symbols
+	exvector local_syms, global_syms;
+	local_syms.reserve(local_size);
+	global_syms.reserve(local_size);
+	for (size_t i=0; i<local_size; i++)
 		local_syms.push_back(local_dummy_indices[i].op(0));
 	shaker_sort(local_syms.begin(), local_syms.end(), ex_is_less(), ex_swap());
-	for (unsigned i=0; i<local_size; i++) // don't use more global symbols than necessary
+	for (size_t i=0; i<local_size; i++) // don't use more global symbols than necessary
 		global_syms.push_back(global_dummy_indices[i].op(0));
 	shaker_sort(global_syms.begin(), global_syms.end(), ex_is_less(), ex_swap());
 
 	// Remove common indices
-	exlist local_uniq, global_uniq;
-	set_difference(local_syms.begin(), local_syms.end(), global_syms.begin(), global_syms.end(), std::back_insert_iterator<exlist>(local_uniq), ex_is_less());
-	set_difference(global_syms.begin(), global_syms.end(), local_syms.begin(), local_syms.end(), std::back_insert_iterator<exlist>(global_uniq), ex_is_less());
+	exvector local_uniq, global_uniq;
+	set_difference(local_syms.begin(), local_syms.end(), global_syms.begin(), global_syms.end(), std::back_insert_iterator<exvector>(local_uniq), ex_is_less());
+	set_difference(global_syms.begin(), global_syms.end(), local_syms.begin(), local_syms.end(), std::back_insert_iterator<exvector>(global_uniq), ex_is_less());
 
 	// Replace remaining non-common local index symbols by global ones
 	if (local_uniq.empty())
@@ -565,7 +560,7 @@ static ex rename_dummy_indices(const ex & e, exvector & global_dummy_indices, ex
 	else {
 		while (global_uniq.size() > local_uniq.size())
 			global_uniq.pop_back();
-		return e.subs(lst(local_uniq), lst(global_uniq));
+		return e.subs(lst(local_uniq.begin(), local_uniq.end()), lst(global_uniq.begin(), global_uniq.end()));
 	}
 }
 
@@ -649,27 +644,27 @@ ex simplify_indexed_product(const ex & e, exvector & free_indices, exvector & du
 {
 	// Remember whether the product was commutative or noncommutative
 	// (because we chop it into factors and need to reassemble later)
-	bool non_commutative = is_ex_exactly_of_type(e, ncmul);
+	bool non_commutative = is_exactly_a<ncmul>(e);
 
 	// Collect factors in an exvector, store squares twice
 	exvector v;
 	v.reserve(e.nops() * 2);
 
-	if (is_ex_exactly_of_type(e, power)) {
+	if (is_exactly_a<power>(e)) {
 		// We only get called for simple squares, split a^2 -> a*a
 		GINAC_ASSERT(e.op(1).is_equal(_ex2));
 		v.push_back(e.op(0));
 		v.push_back(e.op(0));
 	} else {
-		for (unsigned i=0; i<e.nops(); i++) {
+		for (size_t i=0; i<e.nops(); i++) {
 			ex f = e.op(i);
-			if (is_ex_exactly_of_type(f, power) && f.op(1).is_equal(_ex2)) {
+			if (is_exactly_a<power>(f) && f.op(1).is_equal(_ex2)) {
 				v.push_back(f.op(0));
 	            v.push_back(f.op(0));
-			} else if (is_ex_exactly_of_type(f, ncmul)) {
+			} else if (is_exactly_a<ncmul>(f)) {
 				// Noncommutative factor found, split it as well
 				non_commutative = true; // everything becomes noncommutative, ncmul will sort out the commutative factors later
-				for (unsigned j=0; j<f.nops(); j++)
+				for (size_t j=0; j<f.nops(); j++)
 					v.push_back(f.op(j));
 			} else
 				v.push_back(f);
@@ -683,7 +678,7 @@ ex simplify_indexed_product(const ex & e, exvector & free_indices, exvector & du
 	for (it1 = v.begin(); it1 != next_to_last; it1++) {
 
 try_again:
-		if (!is_ex_of_type(*it1, indexed))
+		if (!is_a<indexed>(*it1))
 			continue;
 
 		bool first_noncommutative = (it1->return_type() != return_types::commutative);
@@ -696,7 +691,7 @@ try_again:
 		exvector::iterator it2;
 		for (it2 = it1 + 1; it2 != itend; it2++) {
 
-			if (!is_ex_of_type(*it2, indexed))
+			if (!is_a<indexed>(*it2))
 				continue;
 
 			bool second_noncommutative = (it2->return_type() != return_types::commutative);
@@ -710,15 +705,32 @@ try_again:
 			// Check whether the two factors share dummy indices
 			exvector free, dummy;
 			find_free_and_dummy(un, free, dummy);
-			unsigned num_dummies = dummy.size();
+			size_t num_dummies = dummy.size();
 			if (num_dummies == 0)
 				continue;
 
 			// At least one dummy index, is it a defined scalar product?
 			bool contracted = false;
 			if (free.empty()) {
-				if (sp.is_defined(*it1, *it2)) {
-					*it1 = sp.evaluate(*it1, *it2);
+
+				// Find minimal dimension of all indices of both factors
+				exvector::const_iterator dit = ex_to<indexed>(*it1).seq.begin() + 1, ditend = ex_to<indexed>(*it1).seq.end();
+				ex dim = ex_to<idx>(*dit).get_dim();
+				++dit;
+				for (; dit != ditend; ++dit) {
+					dim = minimal_dim(dim, ex_to<idx>(*dit).get_dim());
+				}
+				dit = ex_to<indexed>(*it2).seq.begin() + 1;
+				ditend = ex_to<indexed>(*it2).seq.end();
+				for (; dit != ditend; ++dit) {
+					dim = minimal_dim(dim, ex_to<idx>(*dit).get_dim());
+				}
+
+				// User-defined scalar product?
+				if (sp.is_defined(*it1, *it2, dim)) {
+
+					// Yes, substitute it
+					*it1 = sp.evaluate(*it1, *it2, dim);
 					*it2 = _ex1;
 					goto contraction_done;
 				}
@@ -735,14 +747,14 @@ try_again:
 			if (contracted) {
 contraction_done:
 				if (first_noncommutative || second_noncommutative
-				 || is_ex_exactly_of_type(*it1, add) || is_ex_exactly_of_type(*it2, add)
-				 || is_ex_exactly_of_type(*it1, mul) || is_ex_exactly_of_type(*it2, mul)
-				 || is_ex_exactly_of_type(*it1, ncmul) || is_ex_exactly_of_type(*it2, ncmul)) {
+				 || is_exactly_a<add>(*it1) || is_exactly_a<add>(*it2)
+				 || is_exactly_a<mul>(*it1) || is_exactly_a<mul>(*it2)
+				 || is_exactly_a<ncmul>(*it1) || is_exactly_a<ncmul>(*it2)) {
 
 					// One of the factors became a sum or product:
 					// re-expand expression and run again
 					// Non-commutative products are always re-expanded to give
-					// simplify_ncmul() the chance to re-order and canonicalize
+					// eval_ncmul() the chance to re-order and canonicalize
 					// the product
 					ex r = (non_commutative ? ex(ncmul(v, true)) : ex(mul(v)));
 					return simplify_indexed(r, free_indices, dummy_indices, sp);
@@ -762,7 +774,7 @@ contraction_done:
 	exvector un, individual_dummy_indices;
 	for (it1 = v.begin(), itend = v.end(); it1 != itend; ++it1) {
 		exvector free_indices_of_factor;
-		if (is_ex_of_type(*it1, indexed)) {
+		if (is_a<indexed>(*it1)) {
 			exvector dummy_indices_of_factor;
 			find_free_and_dummy(ex_to<indexed>(*it1).seq.begin() + 1, ex_to<indexed>(*it1).seq.end(), free_indices_of_factor, dummy_indices_of_factor);
 			individual_dummy_indices.insert(individual_dummy_indices.end(), dummy_indices_of_factor.begin(), dummy_indices_of_factor.end());
@@ -790,7 +802,7 @@ contraction_done:
 
 		// Iterate over all indexed objects in the product
 		for (it1 = v.begin(), itend = v.end(); it1 != itend; ++it1) {
-			if (!is_ex_of_type(*it1, indexed))
+			if (!is_a<indexed>(*it1))
 				continue;
 
 			if (reposition_dummy_indices(*it1, variant_dummy_indices, moved_indices))
@@ -808,10 +820,11 @@ contraction_done:
 	// indices, so if the symmetrization vanishes, the whole expression is
 	// zero. This detects things like eps.i.j.k * p.j * p.k = 0.
 	if (local_dummy_indices.size() >= 2) {
-		lst dummy_syms;
-		for (exvector::size_type i=0; i<local_dummy_indices.size(); i++)
-			dummy_syms.append(local_dummy_indices[i].op(0));
-		if (r.symmetrize(dummy_syms).is_zero()) {
+		exvector dummy_syms;
+		dummy_syms.reserve(local_dummy_indices.size());
+		for (exvector::const_iterator it = local_dummy_indices.begin(); it != local_dummy_indices.end(); ++it)
+			dummy_syms.push_back(it->op(0));
+		if (symmetrize(r, dummy_syms).is_zero()) {
 			free_indices.clear();
 			return _ex0;
 		}
@@ -821,8 +834,8 @@ contraction_done:
 	r = rename_dummy_indices(r, dummy_indices, local_dummy_indices);
 
 	// Product of indexed object with a scalar?
-	if (is_ex_exactly_of_type(r, mul) && r.nops() == 2
-	 && is_ex_exactly_of_type(r.op(1), numeric) && is_ex_of_type(r.op(0), indexed))
+	if (is_exactly_a<mul>(r) && r.nops() == 2
+	 && is_exactly_a<numeric>(r.op(1)) && is_a<indexed>(r.op(0)))
 		return ex_to<basic>(r.op(0).op(0)).scalar_mul_indexed(r.op(0), ex_to<numeric>(r.op(1)));
 	else
 		return r;
@@ -852,7 +865,7 @@ class symminfo {
 public:
 	symminfo() : num(0) {}
 
-	symminfo(const ex & symmterm_, const ex & orig_, unsigned num_) : orig(orig_), num(num_)
+	symminfo(const ex & symmterm_, const ex & orig_, size_t num_) : orig(orig_), num(num_)
 	{
 		if (is_exactly_a<mul>(symmterm_) && is_exactly_a<numeric>(symmterm_.op(symmterm_.nops()-1))) {
 			coeff = symmterm_.op(symmterm_.nops()-1);
@@ -866,7 +879,7 @@ public:
 	ex symmterm;  /**< symmetrized term */
 	ex coeff;     /**< coefficient of symmetrized term */
 	ex orig;      /**< original term */
-	unsigned num; /**< how many symmetrized terms resulted from the original term */
+	size_t num; /**< how many symmetrized terms resulted from the original term */
 };
 
 class symminfo_is_less_by_symmterm {
@@ -893,7 +906,7 @@ ex simplify_indexed(const ex & e, exvector & free_indices, exvector & dummy_indi
 
 	// Simplification of single indexed object: just find the free indices
 	// and perform dummy index renaming/repositioning
-	if (is_ex_of_type(e_expanded, indexed)) {
+	if (is_a<indexed>(e_expanded)) {
 
 		// Find the dummy indices
 		const indexed &i = ex_to<indexed>(e_expanded);
@@ -918,12 +931,12 @@ ex simplify_indexed(const ex & e, exvector & free_indices, exvector & dummy_indi
 
 	// Simplification of sum = sum of simplifications, check consistency of
 	// free indices in each term
-	if (is_ex_exactly_of_type(e_expanded, add)) {
+	if (is_exactly_a<add>(e_expanded)) {
 		bool first = true;
 		ex sum;
 		free_indices.clear();
 
-		for (unsigned i=0; i<e_expanded.nops(); i++) {
+		for (size_t i=0; i<e_expanded.nops(); i++) {
 			exvector free_indices_of_term;
 			ex term = simplify_indexed(e_expanded.op(i), free_indices_of_term, dummy_indices, sp);
 			if (!term.is_zero()) {
@@ -938,7 +951,7 @@ ex simplify_indexed(const ex & e, exvector & free_indices, exvector & dummy_indi
 						s << exprseq(free_indices) << " vs. " << exprseq(free_indices_of_term);
 						throw (std::runtime_error(s.str()));
 					}
-					if (is_ex_of_type(sum, indexed) && is_ex_of_type(term, indexed))
+					if (is_a<indexed>(sum) && is_a<indexed>(term))
 						sum = ex_to<basic>(sum.op(0)).add_indexed(sum, term);
 					else
 						sum += term;
@@ -953,21 +966,22 @@ ex simplify_indexed(const ex & e, exvector & free_indices, exvector & dummy_indi
 		}
 
 		// More than one term and more than one dummy index?
-		int num_terms_orig = (is_exactly_a<add>(sum) ? sum.nops() : 1);
+		size_t num_terms_orig = (is_exactly_a<add>(sum) ? sum.nops() : 1);
 		if (num_terms_orig < 2 || dummy_indices.size() < 2)
 			return sum;
 
-		// Yes, construct list of all dummy index symbols
-		lst dummy_syms;
-		for (exvector::size_type i=0; i<dummy_indices.size(); i++)
-			dummy_syms.append(dummy_indices[i].op(0));
+		// Yes, construct vector of all dummy index symbols
+		exvector dummy_syms;
+		dummy_syms.reserve(dummy_indices.size());
+		for (exvector::const_iterator it = dummy_indices.begin(); it != dummy_indices.end(); ++it)
+			dummy_syms.push_back(it->op(0));
 
 		// Chop the sum into terms and symmetrize each one over the dummy
 		// indices
 		std::vector<terminfo> terms;
-		for (unsigned i=0; i<sum.nops(); i++) {
+		for (size_t i=0; i<sum.nops(); i++) {
 			const ex & term = sum.op(i);
-			ex term_symm = term.symmetrize(dummy_syms);
+			ex term_symm = symmetrize(term, dummy_syms);
 			if (term_symm.is_zero())
 				continue;
 			terms.push_back(terminfo(term, term_symm));
@@ -979,7 +993,7 @@ ex simplify_indexed(const ex & e, exvector & free_indices, exvector & dummy_indi
 		// Combine equal symmetrized terms
 		std::vector<terminfo> terms_pass2;
 		for (std::vector<terminfo>::const_iterator i=terms.begin(); i!=terms.end(); ) {
-			unsigned num = 1;
+			size_t num = 1;
 			std::vector<terminfo>::const_iterator j = i + 1;
 			while (j != terms.end() && j->symm == i->symm) {
 				num++;
@@ -997,8 +1011,8 @@ ex simplify_indexed(const ex & e, exvector & free_indices, exvector & dummy_indi
 		std::vector<symminfo> sy;
 		for (std::vector<terminfo>::const_iterator i=terms_pass2.begin(); i!=terms_pass2.end(); ++i) {
 			if (is_exactly_a<add>(i->symm)) {
-				unsigned num = i->symm.nops();
-				for (unsigned j=0; j<num; j++)
+				size_t num = i->symm.nops();
+				for (size_t j=0; j<num; j++)
 					sy.push_back(symminfo(i->symm.op(j), i->orig, num));
 			} else
 				sy.push_back(symminfo(i->symm, i->orig, 1));
@@ -1045,7 +1059,7 @@ ex simplify_indexed(const ex & e, exvector & free_indices, exvector & dummy_indi
 			for (std::vector<symminfo>::const_iterator i=sy_pass2.begin(); i!=sy_pass2.end(); ) {
 
 				// How many symmetrized terms of this original term are left?
-				unsigned num = 1;
+				size_t num = 1;
 				std::vector<symminfo>::const_iterator j = i + 1;
 				while (j != sy_pass2.end() && j->orig == i->orig) {
 					num++;
@@ -1077,9 +1091,9 @@ ex simplify_indexed(const ex & e, exvector & free_indices, exvector & dummy_indi
 	}
 
 	// Simplification of products
-	if (is_ex_exactly_of_type(e_expanded, mul)
-	 || is_ex_exactly_of_type(e_expanded, ncmul)
-	 || (is_ex_exactly_of_type(e_expanded, power) && is_ex_of_type(e_expanded.op(0), indexed) && e_expanded.op(1).is_equal(_ex2)))
+	if (is_exactly_a<mul>(e_expanded)
+	 || is_exactly_a<ncmul>(e_expanded)
+	 || (is_exactly_a<power>(e_expanded) && is_a<indexed>(e_expanded.op(0)) && e_expanded.op(1).is_equal(_ex2)))
 		return simplify_indexed_product(e_expanded, free_indices, dummy_indices, sp);
 
 	// Cannot do anything
@@ -1092,7 +1106,7 @@ ex simplify_indexed(const ex & e, exvector & free_indices, exvector & dummy_indi
  *  the free indices in sums are consistent.
  *
  *  @return simplified expression */
-ex ex::simplify_indexed(void) const
+ex ex::simplify_indexed() const
 {
 	exvector free_indices, dummy_indices;
 	scalar_products sp;
@@ -1113,19 +1127,19 @@ ex ex::simplify_indexed(const scalar_products & sp) const
 }
 
 /** Symmetrize expression over its free indices. */
-ex ex::symmetrize(void) const
+ex ex::symmetrize() const
 {
 	return GiNaC::symmetrize(*this, get_free_indices());
 }
 
 /** Antisymmetrize expression over its free indices. */
-ex ex::antisymmetrize(void) const
+ex ex::antisymmetrize() const
 {
 	return GiNaC::antisymmetrize(*this, get_free_indices());
 }
 
 /** Symmetrize expression by cyclic permutation over its free indices. */
-ex ex::symmetrize_cyclic(void) const
+ex ex::symmetrize_cyclic() const
 {
 	return GiNaC::symmetrize_cyclic(*this, get_free_indices());
 }
@@ -1134,65 +1148,101 @@ ex ex::symmetrize_cyclic(void) const
 // helper classes
 //////////
 
-void scalar_products::add(const ex & v1, const ex & v2, const ex & sp)
+spmapkey::spmapkey(const ex & v1_, const ex & v2_, const ex & dim_) : dim(dim_)
 {
-	spm[make_key(v1, v2)] = sp;
-}
+	// If indexed, extract base objects
+	ex s1 = is_a<indexed>(v1_) ? v1_.op(0) : v1_;
+	ex s2 = is_a<indexed>(v2_) ? v2_.op(0) : v2_;
 
-void scalar_products::add_vectors(const lst & l)
-{
-	// Add all possible pairs of products
-	unsigned num = l.nops();
-	for (unsigned i=0; i<num; i++) {
-		ex a = l.op(i);
-		for (unsigned j=0; j<num; j++) {
-			ex b = l.op(j);
-			add(a, b, a*b);
-		}
+	// Enforce canonical order in pair
+	if (s1.compare(s2) > 0) {
+		v1 = s2;
+		v2 = s1;
+	} else {
+		v1 = s1;
+		v2 = s2;
 	}
 }
 
-void scalar_products::clear(void)
+bool spmapkey::operator==(const spmapkey &other) const
+{
+	if (!v1.is_equal(other.v1))
+		return false;
+	if (!v2.is_equal(other.v2))
+		return false;
+	if (is_a<wildcard>(dim) || is_a<wildcard>(other.dim))
+		return true;
+	else
+		return dim.is_equal(other.dim);
+}
+
+bool spmapkey::operator<(const spmapkey &other) const
+{
+	int cmp = v1.compare(other.v1);
+	if (cmp)
+		return cmp < 0;
+	cmp = v2.compare(other.v2);
+	if (cmp)
+		return cmp < 0;
+
+	// Objects are equal, now check dimensions
+	if (is_a<wildcard>(dim) || is_a<wildcard>(other.dim))
+		return false;
+	else
+		return dim.compare(other.dim) < 0;
+}
+
+void spmapkey::debugprint() const
+{
+	std::cerr << "(" << v1 << "," << v2 << "," << dim << ")";
+}
+
+void scalar_products::add(const ex & v1, const ex & v2, const ex & sp)
+{
+	spm[spmapkey(v1, v2)] = sp;
+}
+
+void scalar_products::add(const ex & v1, const ex & v2, const ex & dim, const ex & sp)
+{
+	spm[spmapkey(v1, v2, dim)] = sp;
+}
+
+void scalar_products::add_vectors(const lst & l, const ex & dim)
+{
+	// Add all possible pairs of products
+	for (lst::const_iterator it1 = l.begin(); it1 != l.end(); ++it1)
+		for (lst::const_iterator it2 = l.begin(); it2 != l.end(); ++it2)
+			add(*it1, *it2, *it1 * *it2);
+}
+
+void scalar_products::clear()
 {
 	spm.clear();
 }
 
 /** Check whether scalar product pair is defined. */
-bool scalar_products::is_defined(const ex & v1, const ex & v2) const
+bool scalar_products::is_defined(const ex & v1, const ex & v2, const ex & dim) const
 {
-	return spm.find(make_key(v1, v2)) != spm.end();
+	return spm.find(spmapkey(v1, v2, dim)) != spm.end();
 }
 
 /** Return value of defined scalar product pair. */
-ex scalar_products::evaluate(const ex & v1, const ex & v2) const
+ex scalar_products::evaluate(const ex & v1, const ex & v2, const ex & dim) const
 {
-	return spm.find(make_key(v1, v2))->second;
+	return spm.find(spmapkey(v1, v2, dim))->second;
 }
 
-void scalar_products::debugprint(void) const
+void scalar_products::debugprint() const
 {
 	std::cerr << "map size=" << spm.size() << std::endl;
 	spmap::const_iterator i = spm.begin(), end = spm.end();
 	while (i != end) {
 		const spmapkey & k = i->first;
-		std::cerr << "item key=(" << k.first << "," << k.second;
-		std::cerr << "), value=" << i->second << std::endl;
+		std::cerr << "item key=";
+		k.debugprint();
+		std::cerr << ", value=" << i->second << std::endl;
 		++i;
 	}
-}
-
-/** Make key from object pair. */
-spmapkey scalar_products::make_key(const ex & v1, const ex & v2)
-{
-	// If indexed, extract base objects
-	ex s1 = is_ex_of_type(v1, indexed) ? v1.op(0) : v1;
-	ex s2 = is_ex_of_type(v2, indexed) ? v2.op(0) : v2;
-
-	// Enforce canonical order in pair
-	if (s1.compare(s2) > 0)
-		return spmapkey(s2, s1);
-	else
-		return spmapkey(s1, s2);
 }
 
 } // namespace GiNaC

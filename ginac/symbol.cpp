@@ -35,56 +35,30 @@ namespace GiNaC {
 GINAC_IMPLEMENT_REGISTERED_CLASS(symbol, basic)
 
 //////////
-// default ctor, dtor, copy ctor, assignment operator and helpers
+// default constructor
 //////////
 
-symbol::symbol() : inherited(TINFO_symbol), serial(next_serial++)
+symbol::symbol()
+ : inherited(TINFO_symbol), asexinfop(new assigned_ex_info), serial(next_serial++), name(autoname_prefix() + ToString(serial)), TeX_name(name)
 {
-	name = TeX_name = autoname_prefix()+ToString(serial);
-	asexinfop = new assigned_ex_info;
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
-/** For use by copy ctor and assignment operator. */
-void symbol::copy(const symbol & other)
-{
-	inherited::copy(other);
-	name = other.name;
-	TeX_name = other.TeX_name;
-	serial = other.serial;
-	asexinfop = other.asexinfop;
-	++(asexinfop->refcount);
-}
-
-void symbol::destroy(bool call_parent)
-{
-	if (--asexinfop->refcount == 0)
-		delete asexinfop;
-	if (call_parent)
-		inherited::destroy(call_parent);
-}
-
 //////////
-// other ctors
+// other constructors
 //////////
 
 // public
 
-symbol::symbol(const std::string & initname) : inherited(TINFO_symbol)
+symbol::symbol(const std::string & initname)
+ : inherited(TINFO_symbol), asexinfop(new assigned_ex_info), serial(next_serial++), name(initname), TeX_name(default_TeX_name())
 {
-	name = initname;
-	TeX_name = default_TeX_name();
-	serial = next_serial++;
-	asexinfop = new assigned_ex_info;
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
-symbol::symbol(const std::string & initname, const std::string & texname) : inherited(TINFO_symbol)
+symbol::symbol(const std::string & initname, const std::string & texname)
+ : inherited(TINFO_symbol), asexinfop(new assigned_ex_info), serial(next_serial++), name(initname), TeX_name(texname)
 {
-	name = initname;
-	TeX_name = texname;
-	serial = next_serial++;
-	asexinfop = new assigned_ex_info;
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
@@ -93,27 +67,29 @@ symbol::symbol(const std::string & initname, const std::string & texname) : inhe
 //////////
 
 /** Construct object from archive_node. */
-symbol::symbol(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+symbol::symbol(const archive_node &n, lst &sym_lst)
+ : inherited(n, sym_lst), asexinfop(new assigned_ex_info), serial(next_serial++)
 {
-	serial = next_serial++;
 	if (!(n.find_string("name", name)))
 		name = autoname_prefix() + ToString(serial);
 	if (!(n.find_string("TeXname", TeX_name)))
 		TeX_name = default_TeX_name();
-	asexinfop = new assigned_ex_info;
 	setflag(status_flags::evaluated);
 }
 
 /** Unarchive the object. */
-ex symbol::unarchive(const archive_node &n, const lst &sym_lst)
+ex symbol::unarchive(const archive_node &n, lst &sym_lst)
 {
 	ex s = (new symbol(n, sym_lst))->setflag(status_flags::dynallocated);
-	
+
 	// If symbol is in sym_lst, return the existing symbol
-	for (unsigned i=0; i<sym_lst.nops(); i++) {
-		if (is_ex_of_type(sym_lst.op(i), symbol) && (ex_to<symbol>(sym_lst.op(i)).name == ex_to<symbol>(s).name))
-			return sym_lst.op(i);
+	for (lst::const_iterator it = sym_lst.begin(); it != sym_lst.end(); ++it) {
+		if (is_a<symbol>(*it) && (ex_to<symbol>(*it).name == ex_to<symbol>(s).name))
+			return *it;
 	}
+
+	// Otherwise add new symbol to list and return it
+	sym_lst.append(s);
 	return s;
 }
 
@@ -211,12 +187,9 @@ bool symbol::is_equal_same_type(const basic & other) const
 	return serial==o->serial;
 }
 
-unsigned symbol::calchash(void) const
+unsigned symbol::calchash() const
 {
-	// this is where the schoolbook method
-	// (golden_ratio_hash(tinfo()) ^ serial)
-	// is not good enough yet...
-	hashvalue = golden_ratio_hash(golden_ratio_hash(tinfo()) ^ serial);
+	hashvalue = golden_ratio_hash(tinfo() ^ serial);
 	setflag(status_flags::hash_calculated);
 	return hashvalue;
 }
@@ -235,15 +208,15 @@ unsigned symbol::calchash(void) const
 
 void symbol::assign(const ex & value)
 {
-	asexinfop->is_assigned = 1;
+	asexinfop->is_assigned = true;
 	asexinfop->assigned_expression = value;
 	clearflag(status_flags::evaluated | status_flags::expanded);
 }
 
-void symbol::unassign(void)
+void symbol::unassign()
 {
 	if (asexinfop->is_assigned) {
-		asexinfop->is_assigned = 0;
+		asexinfop->is_assigned = false;
 		asexinfop->assigned_expression = _ex0;
 	}
 	setflag(status_flags::evaluated | status_flags::expanded);
@@ -253,14 +226,14 @@ void symbol::unassign(void)
 
 /** Symbols not constructed with a string get one assigned using this
  *  prefix and a number. */
-std::string & symbol::autoname_prefix(void)
+std::string & symbol::autoname_prefix()
 {
 	static std::string *s = new std::string("symbol");
 	return *s;
 }
 
 /** Return default TeX name for symbol. This recognizes some greek letters. */
-std::string symbol::default_TeX_name(void) const
+std::string symbol::default_TeX_name() const
 {
 	if (name=="alpha"        || name=="beta"         || name=="gamma"
 	 || name=="delta"        || name=="epsilon"      || name=="varepsilon"
@@ -294,7 +267,7 @@ unsigned symbol::next_serial = 0;
 //////////
 
 /** Default ctor.  Defaults to unassigned. */
-symbol::assigned_ex_info::assigned_ex_info(void) : is_assigned(0), refcount(1)
+symbol::assigned_ex_info::assigned_ex_info() : is_assigned(false)
 {
 }
 

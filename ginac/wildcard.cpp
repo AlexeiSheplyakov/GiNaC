@@ -32,38 +32,31 @@ namespace GiNaC {
 GINAC_IMPLEMENT_REGISTERED_CLASS(wildcard, basic)
 
 //////////
-// default ctor, dtor, copy ctor, assignment operator and helpers
+// default constructor
 //////////
 
-wildcard::wildcard() : label(0)
+wildcard::wildcard() : inherited(TINFO_wildcard), label(0)
 {
-	tinfo_key = TINFO_wildcard;
+	setflag(status_flags::evaluated | status_flags::expanded);
 }
-
-void wildcard::copy(const wildcard & other)
-{
-	inherited::copy(other);
-	label = other.label;
-}
-
-DEFAULT_DESTROY(wildcard)
 
 //////////
 // other constructors
 //////////
 
-wildcard::wildcard(unsigned l) : label(l)
+wildcard::wildcard(unsigned l) : inherited(TINFO_wildcard), label(l)
 {
-	tinfo_key = TINFO_wildcard;
+	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
 //////////
 // archiving
 //////////
 
-wildcard::wildcard(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+wildcard::wildcard(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
 {
 	n.find_unsigned("label", label);
+	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
 void wildcard::archive(archive_node &n) const
@@ -101,7 +94,7 @@ void wildcard::print(const print_context & c, unsigned level) const
 		c.s << "$" << label;
 }
 
-unsigned wildcard::calchash(void) const
+unsigned wildcard::calchash() const
 {
 	// this is where the schoolbook method
 	// (golden_ratio_hash(tinfo()) ^ label)

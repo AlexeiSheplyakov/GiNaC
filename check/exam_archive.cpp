@@ -24,7 +24,7 @@
 
 #include <fstream>
 
-unsigned exam_archive(void)
+unsigned exam_archive()
 {
 	unsigned result = 0;
 	

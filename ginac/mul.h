@@ -36,7 +36,7 @@ class mul : public expairseq
 	friend class ncmul;
 	friend class power;
 	
-	// other ctors
+	// other constructors
 public:
 	mul(const ex & lh, const ex & rh);
 	mul(const exvector & v);
@@ -48,26 +48,25 @@ public:
 	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
-	unsigned precedence(void) const {return 50;}
+	unsigned precedence() const {return 50;}
 	bool info(unsigned inf) const;
 	int degree(const ex & s) const;
 	int ldegree(const ex & s) const;
 	ex coeff(const ex & s, int n = 1) const;
 	ex eval(int level=0) const;
 	ex evalf(int level=0) const;
-	ex evalm(void) const;
+	ex evalm() const;
 	ex series(const relational & s, int order, unsigned options = 0) const;
 	ex normal(lst &sym_lst, lst &repl_lst, int level = 0) const;
-	numeric integer_content(void) const;
+	numeric integer_content() const;
 	ex smod(const numeric &xi) const;
-	numeric max_coefficient(void) const;
-	exvector get_free_indices(void) const;
-	ex simplify_ncmul(const exvector & v) const;
+	numeric max_coefficient() const;
+	exvector get_free_indices() const;
 protected:
 	ex derivative(const symbol & s) const;
-	bool is_equal_same_type(const basic & other) const;
-	unsigned return_type(void) const;
-	unsigned return_type_tinfo(void) const;
+	ex eval_ncmul(const exvector & v) const;
+	unsigned return_type() const;
+	unsigned return_type_tinfo() const;
 	ex thisexpairseq(const epvector & v, const ex & oc) const;
 	ex thisexpairseq(epvector * vp, const ex & oc) const;
 	expair split_ex_to_pair(const ex & e) const;
@@ -75,7 +74,7 @@ protected:
 	expair combine_pair_with_coeff_to_pair(const expair & p, const ex & c) const;
 	ex recombine_pair_to_ex(const expair & p) const;
 	bool expair_needs_further_processing(epp it);
-	ex default_overall_coeff(void) const;
+	ex default_overall_coeff() const;
 	void combine_overall_coeff(const ex & c);
 	void combine_overall_coeff(const ex & c1, const ex & c2);
 	bool can_make_flat(const expair & p) const;
@@ -85,6 +84,8 @@ protected:
 	// none
 	
 	// non-virtual functions in this class
+public:
+	ex algebraic_subs_mul(const lst & ls, const lst & lr, unsigned options) const;
 protected:
 	epvector * expandchildren(unsigned options) const;
 };

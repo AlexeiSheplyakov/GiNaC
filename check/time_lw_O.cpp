@@ -25,7 +25,7 @@
 
 static const bool do_test = true;  // set to true in order to run this beast
 
-static unsigned test1(void)
+static unsigned test1()
 {
 	symbol a1("a1"), a2("a2"), a3("a3"), a4("a4"), a5("a5"), a6("a6");
 	symbol b1("b1"), b2("b2"), b3("b3"), b4("b4"), b5("b5"), b6("b6");
@@ -100,7 +100,7 @@ static unsigned test1(void)
 	return 0;
 }
 
-unsigned time_lw_O(void)
+unsigned time_lw_O()
 {
 	unsigned result = 0;
 	unsigned count = 0;

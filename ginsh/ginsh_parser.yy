@@ -50,7 +50,7 @@ static char *orig_basic_word_break_characters;
 static const char *orig_basic_word_break_characters;
 #endif
 
-// Expression stack for ", "" and """
+// Expression stack for %, %% and %%%
 static void push(const ex &e);
 static ex exstack[3];
 
@@ -356,9 +356,9 @@ static ex f_determinant(const exprseq &e)
 
 static ex f_diag(const exprseq &e)
 {
-	unsigned dim = e.nops();
+	size_t dim = e.nops();
 	matrix &m = *new matrix(dim, dim);
-	for (unsigned i=0; i<dim; i++)
+	for (size_t i=0; i<dim; i++)
 		m.set(i, i, e.op(i));
 	return m;
 }

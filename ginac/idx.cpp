@@ -28,6 +28,7 @@
 #include "symbol.h"
 #include "lst.h"
 #include "relational.h"
+#include "operators.h"
 #include "print.h"
 #include "archive.h"
 #include "utils.h"
@@ -39,7 +40,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(varidx, idx)
 GINAC_IMPLEMENT_REGISTERED_CLASS(spinidx, varidx)
 
 //////////
-// default ctor, dtor, copy ctor, assignment operator and helpers
+// default constructor
 //////////
 
 idx::idx() : inherited(TINFO_idx) {}
@@ -53,29 +54,6 @@ spinidx::spinidx() : dotted(false)
 {
 	tinfo_key = TINFO_spinidx;
 }
-
-void idx::copy(const idx & other)
-{
-	inherited::copy(other);
-	value = other.value;
-	dim = other.dim;
-}
-
-void varidx::copy(const varidx & other)
-{
-	inherited::copy(other);
-	covariant = other.covariant;
-}
-
-void spinidx::copy(const spinidx & other)
-{
-	inherited::copy(other);
-	dotted = other.dotted;
-}
-
-DEFAULT_DESTROY(idx)
-DEFAULT_DESTROY(varidx)
-DEFAULT_DESTROY(spinidx)
 
 //////////
 // other constructors
@@ -102,18 +80,18 @@ spinidx::spinidx(const ex & v, const ex & d, bool cov, bool dot) : inherited(v, 
 // archiving
 //////////
 
-idx::idx(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+idx::idx(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
 {
 	n.find_ex("value", value, sym_lst);
 	n.find_ex("dim", dim, sym_lst);
 }
 
-varidx::varidx(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+varidx::varidx(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
 {
 	n.find_bool("covariant", covariant);
 }
 
-spinidx::spinidx(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+spinidx::spinidx(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
 {
 	n.find_bool("dotted", dotted);
 }
@@ -147,7 +125,7 @@ DEFAULT_UNARCHIVE(spinidx)
 
 void idx::print(const print_context & c, unsigned level) const
 {
-	if (is_of_type(c, print_tree)) {
+	if (is_a<print_tree>(c)) {
 
 		c.s << std::string(level, ' ') << class_name()
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
@@ -168,6 +146,11 @@ void idx::print(const print_context & c, unsigned level) const
 		value.print(c);
 		if (need_parens)
 			c.s << ")";
+		if (c.options & print_options::print_index_dimensions) {
+			c.s << "[";
+			dim.print(c);
+			c.s << "]";
+		}
 		if (is_a<print_latex>(c))
 			c.s << "}";
 	}
@@ -175,7 +158,7 @@ void idx::print(const print_context & c, unsigned level) const
 
 void varidx::print(const print_context & c, unsigned level) const
 {
-	if (is_of_type(c, print_tree)) {
+	if (is_a<print_tree>(c)) {
 
 		c.s << std::string(level, ' ') << class_name()
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
@@ -200,6 +183,11 @@ void varidx::print(const print_context & c, unsigned level) const
 		value.print(c);
 		if (need_parens)
 			c.s << ")";
+		if (c.options & print_options::print_index_dimensions) {
+			c.s << "[";
+			dim.print(c);
+			c.s << "]";
+		}
 		if (is_a<print_latex>(c))
 			c.s << "}";
 	}
@@ -207,7 +195,7 @@ void varidx::print(const print_context & c, unsigned level) const
 
 void spinidx::print(const print_context & c, unsigned level) const
 {
-	if (is_of_type(c, print_tree)) {
+	if (is_a<print_tree>(c)) {
 
 		c.s << std::string(level, ' ') << class_name()
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
@@ -220,7 +208,7 @@ void spinidx::print(const print_context & c, unsigned level) const
 
 	} else {
 
-		bool is_tex = is_of_type(c, print_latex);
+		bool is_tex = is_a<print_latex>(c);
 		if (is_tex) {
 			if (covariant)
 				c.s << "_{";
@@ -258,16 +246,25 @@ bool idx::info(unsigned inf) const
 	return inherited::info(inf);
 }
 
-unsigned idx::nops() const
+size_t idx::nops() const
 {
 	// don't count the dimension as that is not really a sub-expression
 	return 1;
 }
 
-ex & idx::let_op(int i)
+ex idx::op(size_t i) const
 {
 	GINAC_ASSERT(i == 0);
 	return value;
+}
+
+ex idx::map(map_function & f) const
+{
+	idx *copy = duplicate();
+	copy->setflag(status_flags::dynallocated);
+	copy->clearflag(status_flags::hash_calculated);
+	copy->value = f(value);
+	return *copy;
 }
 
 /** Returns order relation between two indices of the same type. The order
@@ -303,6 +300,7 @@ int varidx::compare_same_type(const basic & other) const
 	// Check variance last so dummy indices will end up next to each other
 	if (covariant != o.covariant)
 		return covariant ? -1 : 1;
+
 	return 0;
 }
 
@@ -313,6 +311,7 @@ bool varidx::match_same_type(const basic & other) const
 
 	if (covariant != o.covariant)
 		return false;
+
 	return inherited::match_same_type(other);
 }
 
@@ -349,32 +348,33 @@ ex idx::evalf(int level) const
 	return *this;
 }
 
-ex idx::subs(const lst & ls, const lst & lr, bool no_pattern) const
+ex idx::subs(const lst & ls, const lst & lr, unsigned options) const
 {
 	GINAC_ASSERT(ls.nops() == lr.nops());
 
 	// First look for index substitutions
-	for (unsigned i=0; i<ls.nops(); i++) {
-		if (is_equal(ex_to<basic>(ls.op(i)))) {
+	lst::const_iterator its, itr;
+	for (its = ls.begin(), itr = lr.begin(); its != ls.end(); ++its, ++itr) {
+		if (is_equal(ex_to<basic>(*its))) {
 
 			// Substitution index->index
-			if (is_a<idx>(lr.op(i)))
-				return lr.op(i);
+			if (is_a<idx>(*itr))
+				return *itr;
 
 			// Otherwise substitute value
-			idx *i_copy = static_cast<idx *>(duplicate());
-			i_copy->value = lr.op(i);
+			idx *i_copy = duplicate();
+			i_copy->value = *itr;
 			i_copy->clearflag(status_flags::hash_calculated);
 			return i_copy->setflag(status_flags::dynallocated);
 		}
 	}
 
 	// None, substitute objects in value (not in dimension)
-	const ex &subsed_value = value.subs(ls, lr, no_pattern);
+	const ex &subsed_value = value.subs(ls, lr, options);
 	if (are_ex_trivially_equal(value, subsed_value))
 		return *this;
 
-	idx *i_copy = static_cast<idx *>(duplicate());
+	idx *i_copy = duplicate();
 	i_copy->value = subsed_value;
 	i_copy->clearflag(status_flags::hash_calculated);
 	return i_copy->setflag(status_flags::dynallocated);
@@ -396,8 +396,7 @@ bool idx::is_dummy_pair_same_type(const basic & other) const
 {
 	const idx &o = static_cast<const idx &>(other);
 
-	// Only pure symbols form dummy pairs, numeric indices and expressions
-	// like "2n+1" don't
+	// Only pure symbols form dummy pairs, "2n+1" doesn't
 	if (!is_a<symbol>(value))
 		return false;
 
@@ -442,7 +441,7 @@ bool spinidx::is_dummy_pair_same_type(const basic & other) const
 
 ex idx::replace_dim(const ex & new_dim) const
 {
-	idx *i_copy = static_cast<idx *>(duplicate());
+	idx *i_copy = duplicate();
 	i_copy->dim = new_dim;
 	i_copy->clearflag(status_flags::hash_calculated);
 	return i_copy->setflag(status_flags::dynallocated);
@@ -453,25 +452,25 @@ ex idx::minimal_dim(const idx & other) const
 	return GiNaC::minimal_dim(dim, other.dim);
 }
 
-ex varidx::toggle_variance(void) const
+ex varidx::toggle_variance() const
 {
-	varidx *i_copy = static_cast<varidx *>(duplicate());
+	varidx *i_copy = duplicate();
 	i_copy->covariant = !i_copy->covariant;
 	i_copy->clearflag(status_flags::hash_calculated);
 	return i_copy->setflag(status_flags::dynallocated);
 }
 
-ex spinidx::toggle_dot(void) const
+ex spinidx::toggle_dot() const
 {
-	spinidx *i_copy = static_cast<spinidx *>(duplicate());
+	spinidx *i_copy = duplicate();
 	i_copy->dotted = !i_copy->dotted;
 	i_copy->clearflag(status_flags::hash_calculated);
 	return i_copy->setflag(status_flags::dynallocated);
 }
 
-ex spinidx::toggle_variance_dot(void) const
+ex spinidx::toggle_variance_dot() const
 {
-	spinidx *i_copy = static_cast<spinidx *>(duplicate());
+	spinidx *i_copy = duplicate();
 	i_copy->covariant = !i_copy->covariant;
 	i_copy->dotted = !i_copy->dotted;
 	i_copy->clearflag(status_flags::hash_calculated);

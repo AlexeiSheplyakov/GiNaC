@@ -23,6 +23,7 @@
 #include <iostream>
 
 #include "fderivative.h"
+#include "operators.h"
 #include "print.h"
 #include "archive.h"
 #include "utils.h"
@@ -32,21 +33,13 @@ namespace GiNaC {
 GINAC_IMPLEMENT_REGISTERED_CLASS(fderivative, function)
 
 //////////
-// default ctor, dtor, copy ctor, assignment operator and helpers
+// default constructor
 //////////
 
 fderivative::fderivative()
 {
 	tinfo_key = TINFO_fderivative;
 }
-
-void fderivative::copy(const fderivative & other)
-{
-	inherited::copy(other);
-	parameter_set = other.parameter_set;
-}
-
-DEFAULT_DESTROY(fderivative)
 
 //////////
 // other constructors
@@ -72,7 +65,7 @@ fderivative::fderivative(unsigned ser, const paramset & params, exvector * vp) :
 // archiving
 //////////
 
-fderivative::fderivative(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+fderivative::fderivative(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
 {
 	unsigned i = 0;
 	while (true) {
@@ -116,7 +109,7 @@ void fderivative::print(const print_context & c, unsigned level) const
 			c.s << *i++ << ",";
 		c.s << *i << std::endl;
 		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
-		for (unsigned i=0; i<seq.size(); ++i)
+		for (size_t i=0; i<seq.size(); ++i)
 			seq[i].print(c, level + delta_indent);
 		c.s << std::string(level + delta_indent, ' ') << "=====" << std::endl;
 
@@ -164,12 +157,12 @@ ex fderivative::series(const relational & r, int order, unsigned options) const
 	return basic::series(r, order, options);
 }
 
-ex fderivative::thisexprseq(const exvector & v) const
+ex fderivative::thiscontainer(const exvector & v) const
 {
 	return fderivative(serial, parameter_set, v);
 }
 
-ex fderivative::thisexprseq(exvector * vp) const
+ex fderivative::thiscontainer(exvector * vp) const
 {
 	return fderivative(serial, parameter_set, vp);
 }
@@ -179,7 +172,7 @@ ex fderivative::thisexprseq(exvector * vp) const
 ex fderivative::derivative(const symbol & s) const
 {
 	ex result;
-	for (unsigned i=0; i!=seq.size(); i++) {
+	for (size_t i=0; i<seq.size(); i++) {
 		ex arg_diff = seq[i].diff(s);
 		if (!arg_diff.is_zero()) {
 			paramset ps = parameter_set;

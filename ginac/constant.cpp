@@ -36,44 +36,24 @@ namespace GiNaC {
 GINAC_IMPLEMENT_REGISTERED_CLASS(constant, basic)
 
 //////////
-// default ctor, dtor, copy ctor, assignment operator and helpers
+// default constructor
 //////////
 
 // public
 
-constant::constant() : basic(TINFO_constant), ef(0), number(0), serial(next_serial++) {}
-
-// protected
-
-/** For use by copy ctor and assignment operator. */
-void constant::copy(const constant & other)
+constant::constant() : basic(TINFO_constant), ef(0), serial(next_serial++)
 {
-	inherited::copy(other);
-	name = other.name;
-	TeX_name = other.TeX_name;
-	serial = other.serial;
-	ef = other.ef;
-	if (other.number != 0)
-		number = new numeric(*other.number);
-	else
-		number = 0;
-}
-
-void constant::destroy(bool call_parent)
-{
-	delete number;
-	if (call_parent)
-		inherited::destroy(call_parent);
+	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
 //////////
-// other ctors
+// other constructors
 //////////
 
 // public
 
 constant::constant(const std::string & initname, evalffunctype efun, const std::string & texname)
-  : basic(TINFO_constant), name(initname), ef(efun), number(0), serial(next_serial++)
+  : basic(TINFO_constant), name(initname), ef(efun), serial(next_serial++)
 {
 	if (texname.empty())
 		TeX_name = "\\mbox{" + name + "}";
@@ -83,7 +63,7 @@ constant::constant(const std::string & initname, evalffunctype efun, const std::
 }
 
 constant::constant(const std::string & initname, const numeric & initnumber, const std::string & texname)
-  : basic(TINFO_constant), name(initname), ef(0), number(new numeric(initnumber)), serial(next_serial++)
+  : basic(TINFO_constant), name(initname), ef(0), number(initnumber), serial(next_serial++)
 {
 	if (texname.empty())
 		TeX_name = "\\mbox{" + name + "}";
@@ -96,9 +76,9 @@ constant::constant(const std::string & initname, const numeric & initnumber, con
 // archiving
 //////////
 
-constant::constant(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst) {}
+constant::constant(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst) {}
 
-ex constant::unarchive(const archive_node &n, const lst &sym_lst)
+ex constant::unarchive(const archive_node &n, lst &sym_lst)
 {
 	// Find constant by name (!! this is bad: 'twould be better if there
 	// was a list of all global constants that we could search)
@@ -149,8 +129,8 @@ ex constant::evalf(int level) const
 {
 	if (ef!=0) {
 		return ef();
-	} else if (number != 0) {
-		return number->evalf();
+	} else {
+		return number.evalf();
 	}
 	return *this;
 }
@@ -184,14 +164,12 @@ bool constant::is_equal_same_type(const basic & other) const
 	return serial == o.serial;
 }
 
-unsigned constant::calchash(void) const
+unsigned constant::calchash() const
 {
 	hashvalue = golden_ratio_hash(tinfo() ^ serial);
-	// mask out numeric hashes:
-	hashvalue &= 0x7FFFFFFFU;
-	
+
 	setflag(status_flags::hash_calculated);
-	
+
 	return hashvalue;
 }
 

@@ -32,6 +32,7 @@
 #include "symmetry.h"
 #include "lst.h"
 #include "relational.h"
+#include "operators.h"
 #include "mul.h"
 #include "print.h"
 #include "archive.h"
@@ -47,7 +48,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(diracgammaL, tensor)
 GINAC_IMPLEMENT_REGISTERED_CLASS(diracgammaR, tensor)
 
 //////////
-// default ctor, dtor, copy ctor, assignment operator and helpers
+// default constructors
 //////////
 
 clifford::clifford() : representation_label(0)
@@ -55,18 +56,11 @@ clifford::clifford() : representation_label(0)
 	tinfo_key = TINFO_clifford;
 }
 
-void clifford::copy(const clifford & other)
-{
-	inherited::copy(other);
-	representation_label = other.representation_label;
-}
-
-DEFAULT_DESTROY(clifford)
-DEFAULT_CTORS(diracone)
-DEFAULT_CTORS(diracgamma)
-DEFAULT_CTORS(diracgamma5)
-DEFAULT_CTORS(diracgammaL)
-DEFAULT_CTORS(diracgammaR)
+DEFAULT_CTOR(diracone)
+DEFAULT_CTOR(diracgamma)
+DEFAULT_CTOR(diracgamma5)
+DEFAULT_CTOR(diracgammaL)
+DEFAULT_CTOR(diracgammaR)
 
 //////////
 // other constructors
@@ -103,7 +97,7 @@ clifford::clifford(unsigned char rl, exvector * vp) : inherited(sy_none(), vp), 
 // archiving
 //////////
 
-clifford::clifford(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+clifford::clifford(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
 {
 	unsigned rl;
 	n.find_unsigned("label", rl);
@@ -295,7 +289,7 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 /** Perform automatic simplification on noncommutative product of clifford
  *  objects. This removes superfluous ONEs, permutes gamma5/L/R's to the front
  *  and removes squares of gamma objects. */
-ex clifford::simplify_ncmul(const exvector & v) const
+ex clifford::eval_ncmul(const exvector & v) const
 {
 	exvector s;
 	s.reserve(v.size());
@@ -453,17 +447,17 @@ ex clifford::simplify_ncmul(const exvector & v) const
 	if (s.empty())
 		return clifford(diracone(), representation_label) * sign;
 	if (something_changed)
-		return nonsimplified_ncmul(s) * sign;
+		return reeval_ncmul(s) * sign;
 	else
-		return simplified_ncmul(s) * sign;
+		return hold_ncmul(s) * sign;
 }
 
-ex clifford::thisexprseq(const exvector & v) const
+ex clifford::thiscontainer(const exvector & v) const
 {
 	return clifford(representation_label, v);
 }
 
-ex clifford::thisexprseq(exvector * vp) const
+ex clifford::thiscontainer(exvector * vp) const
 {
 	return clifford(representation_label, vp);
 }
@@ -500,16 +494,6 @@ ex dirac_gammaR(unsigned char rl)
 	return clifford(diracgammaR(), rl);
 }
 
-ex dirac_gamma6(unsigned char rl)
-{
-	return clifford(diracone(), rl) + clifford(diracgamma5(), rl);
-}
-
-ex dirac_gamma7(unsigned char rl)
-{
-	return clifford(diracone(), rl) - clifford(diracgamma5(), rl);
-}
-
 ex dirac_slash(const ex & e, const ex & dim, unsigned char rl)
 {
 	// Slashed vectors are actually stored as a clifford object with the
@@ -534,13 +518,13 @@ static bool is_clifford_tinfo(unsigned ti)
 
 /** Take trace of a string of an even number of Dirac gammas given a vector
  *  of indices. */
-static ex trace_string(exvector::const_iterator ix, unsigned num)
+static ex trace_string(exvector::const_iterator ix, size_t num)
 {
 	// Tr gamma.mu gamma.nu = 4 g.mu.nu
 	if (num == 2)
 		return lorentz_g(ix[0], ix[1]);
 
-	// Tr gamma.mu gamma.nu gamma.rho gamma.sig = 4 (g.mu.nu g.rho.sig + g.nu.rho g.mu.sig - g.mu.rho g.nu.sig
+	// Tr gamma.mu gamma.nu gamma.rho gamma.sig = 4 (g.mu.nu g.rho.sig + g.nu.rho g.mu.sig - g.mu.rho g.nu.sig )
 	else if (num == 4)
 		return lorentz_g(ix[0], ix[1]) * lorentz_g(ix[2], ix[3])
 		     + lorentz_g(ix[1], ix[2]) * lorentz_g(ix[0], ix[3])
@@ -556,8 +540,8 @@ static ex trace_string(exvector::const_iterator ix, unsigned num)
 	exvector v(num - 2);
 	int sign = 1;
 	ex result;
-	for (unsigned i=1; i<num; i++) {
-		for (unsigned n=1, j=0; n<num; n++) {
+	for (size_t i=1; i<num; i++) {
+		for (size_t n=1, j=0; n<num; n++) {
 			if (n == i)
 				continue;
 			v[j++] = ix[n];
@@ -582,11 +566,11 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 		else
 			return _ex0;
 
-	} else if (is_ex_exactly_of_type(e, mul)) {
+	} else if (is_exactly_a<mul>(e)) {
 
 		// Trace of product: pull out non-clifford factors
 		ex prod = _ex1;
-		for (unsigned i=0; i<e.nops(); i++) {
+		for (size_t i=0; i<e.nops(); i++) {
 			const ex &o = e.op(i);
 			if (is_clifford_tinfo(o.return_type_tinfo(), rl))
 				prod *= dirac_trace(o, rl, trONE);
@@ -595,7 +579,7 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 		}
 		return prod;
 
-	} else if (is_ex_exactly_of_type(e, ncmul)) {
+	} else if (is_exactly_a<ncmul>(e)) {
 
 		if (!is_clifford_tinfo(e.return_type_tinfo(), rl))
 			return _ex0;
@@ -610,7 +594,7 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 
 		// gamma5 gets moved to the front so this check is enough
 		bool has_gamma5 = is_a<diracgamma5>(e.op(0).op(0));
-		unsigned num = e.nops();
+		size_t num = e.nops();
 
 		if (has_gamma5) {
 
@@ -634,23 +618,23 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 			//   I/4! * epsilon0123.mu1.mu2.mu3.mu4 * Tr gamma.mu1 gamma.mu2 gamma.mu3 gamma.mu4 S_2k
 			// (the epsilon is always 4-dimensional)
 			exvector ix(num-1), bv(num-1);
-			for (unsigned i=1; i<num; i++)
+			for (size_t i=1; i<num; i++)
 				base_and_index(e.op(i), bv[i-1], ix[i-1]);
 			num--;
 			int *iv = new int[num];
 			ex result;
-			for (unsigned i=0; i<num-3; i++) {
+			for (size_t i=0; i<num-3; i++) {
 				ex idx1 = ix[i];
-				for (unsigned j=i+1; j<num-2; j++) {
+				for (size_t j=i+1; j<num-2; j++) {
 					ex idx2 = ix[j];
-					for (unsigned k=j+1; k<num-1; k++) {
+					for (size_t k=j+1; k<num-1; k++) {
 						ex idx3 = ix[k];
-						for (unsigned l=k+1; l<num; l++) {
+						for (size_t l=k+1; l<num; l++) {
 							ex idx4 = ix[l];
 							iv[0] = i; iv[1] = j; iv[2] = k; iv[3] = l;
 							exvector v;
 							v.reserve(num - 4);
-							for (unsigned n=0, t=4; n<num; n++) {
+							for (size_t n=0, t=4; n<num; n++) {
 								if (n == i || n == j || n == k || n == l)
 									continue;
 								iv[t++] = n;
@@ -681,7 +665,7 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 			}
 
 			exvector iv(num), bv(num);
-			for (unsigned i=0; i<num; i++)
+			for (size_t i=0; i<num; i++)
 				base_and_index(e.op(i), bv[i], iv[i]);
 
 			return trONE * (trace_string(iv.begin(), num) * mul(bv)).simplify_indexed();
@@ -702,19 +686,20 @@ ex canonicalize_clifford(const ex & e)
 	// Scan for any ncmul objects
 	lst srl;
 	ex aux = e.to_rational(srl);
-	for (unsigned i=0; i<srl.nops(); i++) {
+	for (size_t i=0; i<srl.nops(); i++) {
 
-		ex lhs = srl.op(i).lhs();
-		ex rhs = srl.op(i).rhs();
+		ex o = srl.op(i);
+		ex lhs = o.lhs();
+		ex rhs = o.rhs();
 
-		if (is_ex_exactly_of_type(rhs, ncmul)
+		if (is_exactly_a<ncmul>(rhs)
 		 && rhs.return_type() == return_types::noncommutative
 		 && is_clifford_tinfo(rhs.return_type_tinfo())) {
 
 			// Expand product, if necessary
 			ex rhs_expanded = rhs.expand();
 			if (!is_a<ncmul>(rhs_expanded)) {
-				srl.let_op(i) = (lhs == canonicalize_clifford(rhs_expanded));
+				srl[i] = (lhs == canonicalize_clifford(rhs_expanded));
 				continue;
 
 			} else if (!is_a<clifford>(rhs.op(0)))
@@ -722,7 +707,7 @@ ex canonicalize_clifford(const ex & e)
 
 			exvector v;
 			v.reserve(rhs.nops());
-			for (unsigned j=0; j<rhs.nops(); j++)
+			for (size_t j=0; j<rhs.nops(); j++)
 				v.push_back(rhs.op(j));
 
 			// Stupid recursive bubble sort because we only want to swap adjacent gammas
@@ -741,7 +726,7 @@ ex canonicalize_clifford(const ex & e)
 					it[0] = save1;
 					it[1] = save0;
 					sum -= ncmul(v, true);
-					srl.let_op(i) = (lhs == canonicalize_clifford(sum));
+					srl[i] = (lhs == canonicalize_clifford(sum));
 					goto next_sym;
 				}
 				++it;

@@ -29,9 +29,10 @@
 %{
 #include <stdexcept>
 
-#include "input_lexer.h"
 #include "ex.h"
+#include "input_lexer.h"
 #include "relational.h"
+#include "operators.h"
 #include "symbol.h"
 #include "lst.h"
 #include "power.h"

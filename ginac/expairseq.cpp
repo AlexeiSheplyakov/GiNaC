@@ -33,6 +33,7 @@
 #include "wildcard.h"
 #include "print.h"
 #include "archive.h"
+#include "operators.h"
 #include "utils.h"
 
 #if EXPAIRSEQ_USE_HASHTAB
@@ -42,7 +43,7 @@
 namespace GiNaC {
 
 	
-GINAC_IMPLEMENT_REGISTERED_CLASS_NO_CTORS(expairseq, basic)
+GINAC_IMPLEMENT_REGISTERED_CLASS(expairseq, basic)
 
 //////////
 // helper classes
@@ -58,31 +59,23 @@ public:
 };
 
 //////////
-// default ctor, dtor, copy ctor, assignment operator and helpers
+// default constructor
 //////////
 
 // public
 
-expairseq::expairseq(const expairseq &other)
-{
-	copy(other);
-}
-
-const expairseq &expairseq::operator=(const expairseq &other)
-{
-	if (this != &other) {
-		destroy(true);
-		copy(other);
-	}
-	return *this;
-}
+expairseq::expairseq() : inherited(TINFO_expairseq)
+#if EXPAIRSEQ_USE_HASHTAB
+                                                   , hashtabsize(0)
+#endif // EXPAIRSEQ_USE_HASHTAB
+{}
 
 // protected
 
+#if 0
 /** For use by copy ctor and assignment operator. */
 void expairseq::copy(const expairseq &other)
 {
-	inherited::copy(other);
 	seq = other.seq;
 	overall_coeff = other.overall_coeff;
 #if EXPAIRSEQ_USE_HASHTAB
@@ -104,11 +97,10 @@ void expairseq::copy(const expairseq &other)
 	}
 #endif // EXPAIRSEQ_USE_HASHTAB
 }
-
-DEFAULT_DESTROY(expairseq)
+#endif
 
 //////////
-// other ctors
+// other constructors
 //////////
 
 expairseq::expairseq(const ex &lh, const ex &rh) : inherited(TINFO_expairseq)
@@ -145,16 +137,12 @@ expairseq::expairseq(epvector *vp, const ex &oc)
 // archiving
 //////////
 
-expairseq::expairseq(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+expairseq::expairseq(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
 #if EXPAIRSEQ_USE_HASHTAB
 	, hashtabsize(0)
 #endif
 {
-
 	for (unsigned int i=0; true; i++) {
-
-	canonicalize();
-	GINAC_ASSERT(is_canonical());
 		ex rest;
 		ex coeff;
 		if (n.find_ex("rest", rest, sym_lst, i) && n.find_ex("coeff", coeff, sym_lst, i))
@@ -162,7 +150,11 @@ expairseq::expairseq(const archive_node &n, const lst &sym_lst) : inherited(n, s
 		else
 			break;
 	}
+
 	n.find_ex("overall_coeff", overall_coeff, sym_lst);
+
+	canonicalize();
+	GINAC_ASSERT(is_canonical());
 }
 
 void expairseq::archive(archive_node &n) const
@@ -185,14 +177,9 @@ DEFAULT_UNARCHIVE(expairseq)
 
 // public
 
-basic *expairseq::duplicate() const
-{
-	return new expairseq(*this);
-}
-
 void expairseq::print(const print_context &c, unsigned level) const
 {
-	if (is_of_type(c, print_tree)) {
+	if (is_a<print_tree>(c)) {
 
 		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
 
@@ -200,8 +187,8 @@ void expairseq::print(const print_context &c, unsigned level) const
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 		    << ", nops=" << nops()
 		    << std::endl;
-		unsigned num = seq.size();
-		for (unsigned i=0; i<num; ++i) {
+		size_t num = seq.size();
+		for (size_t i=0; i<num; ++i) {
 			seq[i].rest.print(c, level + delta_indent);
 			seq[i].coeff.print(c, level + delta_indent);
 			if (i != num - 1)
@@ -279,7 +266,7 @@ bool expairseq::info(unsigned inf) const
 	return inherited::info(inf);
 }
 
-unsigned expairseq::nops() const
+size_t expairseq::nops() const
 {
 	if (overall_coeff.is_equal(default_overall_coeff()))
 		return seq.size();
@@ -287,17 +274,12 @@ unsigned expairseq::nops() const
 		return seq.size()+1;
 }
 
-ex expairseq::op(int i) const
+ex expairseq::op(size_t i) const
 {
-	if (unsigned(i)<seq.size())
+	if (i < seq.size())
 		return recombine_pair_to_ex(seq[i]);
 	GINAC_ASSERT(!overall_coeff.is_equal(default_overall_coeff()));
 	return overall_coeff;
-}
-
-ex &expairseq::let_op(int i)
-{
-	throw(std::logic_error("let_op not defined for expairseq and derived classes (add,mul,...)"));
 }
 
 ex expairseq::map(map_function &f) const
@@ -341,8 +323,8 @@ bool expairseq::match(const ex & pattern, lst & repl_lst) const
 		// expression", like "*" above) is present
 		bool has_global_wildcard = false;
 		ex global_wildcard;
-		for (unsigned int i=0; i<pattern.nops(); i++) {
-			if (is_ex_exactly_of_type(pattern.op(i), wildcard)) {
+		for (size_t i=0; i<pattern.nops(); i++) {
+			if (is_exactly_a<wildcard>(pattern.op(i))) {
 				has_global_wildcard = true;
 				global_wildcard = pattern.op(i);
 				break;
@@ -355,12 +337,12 @@ bool expairseq::match(const ex & pattern, lst & repl_lst) const
 		// Chop into terms
 		exvector ops;
 		ops.reserve(nops());
-		for (unsigned i=0; i<nops(); i++)
+		for (size_t i=0; i<nops(); i++)
 			ops.push_back(op(i));
 
 		// Now, for every term of the pattern, look for a matching term in
 		// the expression and remove the match
-		for (unsigned i=0; i<pattern.nops(); i++) {
+		for (size_t i=0; i<pattern.nops(); i++) {
 			ex p = pattern.op(i);
 			if (has_global_wildcard && p.is_equal(global_wildcard))
 				continue;
@@ -381,15 +363,15 @@ found:		;
 			// Assign all the remaining terms to the global wildcard (unless
 			// it has already been matched before, in which case the matches
 			// must be equal)
-			unsigned num = ops.size();
+			size_t num = ops.size();
 			epvector *vp = new epvector();
 			vp->reserve(num);
-			for (unsigned i=0; i<num; i++)
+			for (size_t i=0; i<num; i++)
 				vp->push_back(split_ex_to_pair(ops[i]));
 			ex rest = thisexpairseq(vp, default_overall_coeff());
-			for (unsigned i=0; i<repl_lst.nops(); i++) {
-				if (repl_lst.op(i).op(0).is_equal(global_wildcard))
-					return rest.is_equal(repl_lst.op(i).op(1));
+			for (lst::const_iterator it = repl_lst.begin(); it != repl_lst.end(); ++it) {
+				if (it->op(0).is_equal(global_wildcard))
+					return rest.is_equal(it->op(1));
 			}
 			repl_lst.append(global_wildcard == rest);
 			return true;
@@ -404,13 +386,15 @@ found:		;
 	return inherited::match(pattern, repl_lst);
 }
 
-ex expairseq::subs(const lst &ls, const lst &lr, bool no_pattern) const
+ex expairseq::subs(const lst &ls, const lst &lr, unsigned options) const
 {
-	epvector *vp = subschildren(ls, lr, no_pattern);
+	epvector *vp = subschildren(ls, lr, options);
 	if (vp)
 		return ex_to<basic>(thisexpairseq(vp, overall_coeff));
+	else if ((options & subs_options::subs_algebraic) && is_exactly_a<mul>(*this))
+		return static_cast<const mul *>(this)->algebraic_subs_mul(ls, lr, options);
 	else
-		return basic::subs(ls, lr, no_pattern);
+		return subs_one_level(ls, lr, options);
 }
 
 // protected
@@ -545,30 +529,28 @@ bool expairseq::is_equal_same_type(const basic &other) const
 #endif // EXPAIRSEQ_USE_HASHTAB
 }
 
-unsigned expairseq::return_type(void) const
+unsigned expairseq::return_type() const
 {
 	return return_types::noncommutative_composite;
 }
 
-unsigned expairseq::calchash(void) const
+unsigned expairseq::calchash() const
 {
 	unsigned v = golden_ratio_hash(this->tinfo());
-	epvector::const_iterator i = seq.begin(), end = seq.end();
+	epvector::const_iterator i = seq.begin();
+	const epvector::const_iterator end = seq.end();
 	while (i != end) {
-#if !EXPAIRSEQ_USE_HASHTAB
-		v = rotate_left_31(v); // rotation would spoil commutativity
-#endif // EXPAIRSEQ_USE_HASHTAB
 		v ^= i->rest.gethash();
 #if !EXPAIRSEQ_USE_HASHTAB
-		v = rotate_left_31(v);
+		// rotation spoils commutativity!
+		v = rotate_left(v);
 		v ^= i->coeff.gethash();
-#endif // EXPAIRSEQ_USE_HASHTAB
+#endif // !EXPAIRSEQ_USE_HASHTAB
 		++i;
 	}
-	
+
 	v ^= overall_coeff.gethash();
-	v &= 0x7FFFFFFFU;
-	
+
 	// store calculated hash value only if object is already evaluated
 	if (flags &status_flags::evaluated) {
 		setflag(status_flags::hash_calculated);
@@ -685,7 +667,7 @@ bool expairseq::expair_needs_further_processing(epp it)
 	return false;
 }
 
-ex expairseq::default_overall_coeff(void) const
+ex expairseq::default_overall_coeff() const
 {
 	return _ex0;
 }
@@ -781,8 +763,8 @@ void expairseq::construct_from_2_ex(const ex &lh, const ex &rh)
 	hashtabsize = 0;
 #endif // EXPAIRSEQ_USE_HASHTAB
 	
-	if (is_ex_exactly_of_type(lh,numeric)) {
-		if (is_ex_exactly_of_type(rh,numeric)) {
+	if (is_exactly_a<numeric>(lh)) {
+		if (is_exactly_a<numeric>(rh)) {
 			combine_overall_coeff(lh);
 			combine_overall_coeff(rh);
 		} else {
@@ -790,7 +772,7 @@ void expairseq::construct_from_2_ex(const ex &lh, const ex &rh)
 			seq.push_back(split_ex_to_pair(rh));
 		}
 	} else {
-		if (is_ex_exactly_of_type(rh,numeric)) {
+		if (is_exactly_a<numeric>(rh)) {
 			combine_overall_coeff(rh);
 			seq.push_back(split_ex_to_pair(lh));
 		} else {
@@ -877,7 +859,7 @@ void expairseq::construct_from_expairseq_ex(const expairseq &s,
 											const ex &e)
 {
 	combine_overall_coeff(s.overall_coeff);
-	if (is_ex_exactly_of_type(e,numeric)) {
+	if (is_exactly_a<numeric>(e)) {
 		combine_overall_coeff(e);
 		seq = s.seq;
 		return;
@@ -1002,7 +984,7 @@ void expairseq::make_flat(const exvector &v)
 				++cit_s;
 			}
 		} else {
-			if (is_ex_exactly_of_type(*cit,numeric))
+			if (is_exactly_a<numeric>(*cit))
 				combine_overall_coeff(*cit);
 			else
 				seq.push_back(split_ex_to_pair(*cit));
@@ -1061,7 +1043,7 @@ void expairseq::make_flat(const epvector &v)
 }
 
 /** Brings this expairseq into a sorted (canonical) form. */
-void expairseq::canonicalize(void)
+void expairseq::canonicalize()
 {
 	std::sort(seq.begin(), seq.end(), expair_rest_is_less());
 }
@@ -1070,7 +1052,7 @@ void expairseq::canonicalize(void)
 /** Compact a presorted expairseq by combining all matching expairs to one
  *  each.  On an add object, this is responsible for 2*x+3*x+y -> 5*x+y, for
  *  instance. */
-void expairseq::combine_same_terms_sorted_seq(void)
+void expairseq::combine_same_terms_sorted_seq()
 {
 	if (seq.size()<2)
 		return;
@@ -1127,7 +1109,7 @@ unsigned expairseq::calc_hashtabsize(unsigned sz) const
 	size = nearest_power_of_2/hashtabfactor;
 	if (size<minhashtabsize)
 		return 0;
-	GINAC_ASSERT(hashtabsize<=0x8000000U); // really max size due to 31 bit hashing
+
 	// hashtabsize must be a power of 2
 	GINAC_ASSERT((1U << log2(size))==size);
 	return size;
@@ -1136,21 +1118,19 @@ unsigned expairseq::calc_hashtabsize(unsigned sz) const
 unsigned expairseq::calc_hashindex(const ex &e) const
 {
 	// calculate hashindex
-	unsigned hash = e.gethash();
 	unsigned hashindex;
-	if (is_a_numeric_hash(hash)) {
+	if (is_a<numeric>(e)) {
 		hashindex = hashmask;
 	} else {
-		hashindex = hash &hashmask;
+		hashindex = e.gethash() & hashmask;
 		// last hashtab entry is reserved for numerics
 		if (hashindex==hashmask) hashindex = 0;
 	}
-	GINAC_ASSERT(hashindex>=0);
 	GINAC_ASSERT((hashindex<hashtabsize)||(hashtabsize==0));
 	return hashindex;
 }
 
-void expairseq::shrink_hashtab(void)
+void expairseq::shrink_hashtab()
 {
 	unsigned new_hashtabsize;
 	while (hashtabsize!=(new_hashtabsize=calc_hashtabsize(seq.size()))) {
@@ -1254,7 +1234,7 @@ void expairseq::build_hashtab_and_combine(epvector::iterator &first_numeric,
 	epp current = seq.begin();
 
 	while (current!=first_numeric) {
-		if (is_ex_exactly_of_type(current->rest,numeric)) {
+		if (is_exactly_a<numeric>(current->rest)) {
 			--first_numeric;
 			iter_swap(current,first_numeric);
 		} else {
@@ -1300,7 +1280,7 @@ void expairseq::drop_coeff_0_terms(epvector::iterator &first_numeric,
 	// move terms with coeff 0 to end and remove them from hashtab
 	// check only those elements which have been touched
 	epp current = seq.begin();
-	unsigned i = 0;
+	size_t i = 0;
 	while (current!=first_numeric) {
 		if (!touched[i]) {
 			++current;
@@ -1347,7 +1327,7 @@ void expairseq::drop_coeff_0_terms(epvector::iterator &first_numeric,
 /** True if one of the coeffs vanishes, otherwise false.
  *  This would be an invariant violation, so this should only be used for
  *  debugging purposes. */
-bool expairseq::has_coeff_0(void) const
+bool expairseq::has_coeff_0() const
 {
 	epvector::const_iterator i = seq.begin(), end = seq.end();
 	while (i != end) {
@@ -1370,7 +1350,7 @@ void expairseq::add_numerics_to_hashtab(epvector::iterator first_numeric,
 	}
 }
 
-void expairseq::combine_same_terms(void)
+void expairseq::combine_same_terms()
 {
 	// combine same terms, drop term with coeff 0, move numerics to end
 	
@@ -1396,7 +1376,7 @@ void expairseq::combine_same_terms(void)
 	epvector::iterator first_numeric = seq.end();
 	epvector::iterator last_non_zero = seq.end()-1;
 	
-	unsigned num = seq.size();
+	size_t num = seq.size();
 	std::vector<bool> touched(num);
 	
 	unsigned number_of_zeroes = 0;
@@ -1442,11 +1422,11 @@ bool expairseq::is_canonical() const
 	epvector::const_iterator it_last = it;
 	for (++it; it!=itend; it_last=it, ++it) {
 		if (!(it_last->is_less(*it) || it_last->is_equal(*it))) {
-			if (!is_ex_exactly_of_type(it_last->rest,numeric) ||
-				!is_ex_exactly_of_type(it->rest,numeric)) {
+			if (!is_exactly_a<numeric>(it_last->rest) ||
+				!is_exactly_a<numeric>(it->rest)) {
 				// double test makes it easier to set a breakpoint...
-				if (!is_ex_exactly_of_type(it_last->rest,numeric) ||
-					!is_ex_exactly_of_type(it->rest,numeric)) {
+				if (!is_exactly_a<numeric>(it_last->rest) ||
+					!is_exactly_a<numeric>(it->rest)) {
 					printpair(std::clog, *it_last, 0);
 					std::clog << ">";
 					printpair(std::clog, *it, 0);
@@ -1566,7 +1546,7 @@ epvector * expairseq::evalchildren(int level) const
  *  @see expairseq::subs()
  *  @return pointer to epvector containing pairs after application of subs,
  *    or NULL pointer if no members were changed. */
-epvector * expairseq::subschildren(const lst &ls, const lst &lr, bool no_pattern) const
+epvector * expairseq::subschildren(const lst &ls, const lst &lr, unsigned options) const
 {
 	GINAC_ASSERT(ls.nops()==lr.nops());
 
@@ -1574,11 +1554,12 @@ epvector * expairseq::subschildren(const lst &ls, const lst &lr, bool no_pattern
 	// is a product or power. In this case we have to recombine the pairs
 	// because the numeric coefficients may be part of the search pattern.
 	bool complex_subs = false;
-	for (unsigned i=0; i<ls.nops(); ++i)
-		if (is_ex_exactly_of_type(ls.op(i), mul) || is_ex_exactly_of_type(ls.op(i), power)) {
+	for (lst::const_iterator it = ls.begin(); it != ls.end(); ++it) {
+		if (is_exactly_a<mul>(*it) || is_exactly_a<power>(*it)) {
 			complex_subs = true;
 			break;
 		}
+	}
 
 	if (complex_subs) {
 
@@ -1587,7 +1568,7 @@ epvector * expairseq::subschildren(const lst &ls, const lst &lr, bool no_pattern
 		while (cit != last) {
 
 			const ex &orig_ex = recombine_pair_to_ex(*cit);
-			const ex &subsed_ex = orig_ex.subs(ls, lr, no_pattern);
+			const ex &subsed_ex = orig_ex.subs(ls, lr, options);
 			if (!are_ex_trivially_equal(orig_ex, subsed_ex)) {
 
 				// Something changed, copy seq, subs and return it
@@ -1603,7 +1584,7 @@ epvector * expairseq::subschildren(const lst &ls, const lst &lr, bool no_pattern
 
 				// Copy rest
 				while (cit != last) {
-					s->push_back(split_ex_to_pair(recombine_pair_to_ex(*cit).subs(ls, lr, no_pattern)));
+					s->push_back(split_ex_to_pair(recombine_pair_to_ex(*cit).subs(ls, lr, options)));
 					++cit;
 				}
 				return s;
@@ -1618,7 +1599,7 @@ epvector * expairseq::subschildren(const lst &ls, const lst &lr, bool no_pattern
 		epvector::const_iterator cit = seq.begin(), last = seq.end();
 		while (cit != last) {
 
-			const ex &subsed_ex = cit->rest.subs(ls, lr, no_pattern);
+			const ex &subsed_ex = cit->rest.subs(ls, lr, options);
 			if (!are_ex_trivially_equal(cit->rest, subsed_ex)) {
 			
 				// Something changed, copy seq, subs and return it
@@ -1634,7 +1615,7 @@ epvector * expairseq::subschildren(const lst &ls, const lst &lr, bool no_pattern
 
 				// Copy rest
 				while (cit != last) {
-					s->push_back(combine_ex_with_coeff_to_pair(cit->rest.subs(ls, lr, no_pattern),
+					s->push_back(combine_ex_with_coeff_to_pair(cit->rest.subs(ls, lr, options),
 					                                           cit->coeff));
 					++cit;
 				}

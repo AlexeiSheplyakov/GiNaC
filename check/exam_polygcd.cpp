@@ -29,7 +29,7 @@ static symbol x("x"), z("z");
 static symbol y[MAX_VARIABLES];
 
 // GCD = 1
-static unsigned poly_gcd1(void)
+static unsigned poly_gcd1()
 {
 	for (int v=1; v<=MAX_VARIABLES; v++) {
 		ex e1 = x;
@@ -51,7 +51,7 @@ static unsigned poly_gcd1(void)
 }
 
 // Linearly dense quartic inputs with quadratic GCDs
-static unsigned poly_gcd2(void)
+static unsigned poly_gcd2()
 {
 	for (int v=1; v<=MAX_VARIABLES; v++) {
 		ex e1 = x;
@@ -74,7 +74,7 @@ static unsigned poly_gcd2(void)
 }
 
 // Sparse GCD and inputs where degrees are proportional to the number of variables
-static unsigned poly_gcd3(void)
+static unsigned poly_gcd3()
 {
 	for (int v=1; v<=MAX_VARIABLES; v++) {
 		ex e1 = pow(x, v + 1);
@@ -94,7 +94,7 @@ static unsigned poly_gcd3(void)
 }
 
 // Variation of case 3; major performance degradation with PRS
-static unsigned poly_gcd3p(void)
+static unsigned poly_gcd3p()
 {
 	for (int v=1; v<=MAX_VARIABLES; v++) {
 		ex e1 = pow(x, v + 1);
@@ -117,7 +117,7 @@ static unsigned poly_gcd3p(void)
 }
 
 // Quadratic non-monic GCD; f and g have other quadratic factors
-static unsigned poly_gcd4(void)
+static unsigned poly_gcd4()
 {
 	for (int v=1; v<=MAX_VARIABLES; v++) {
 		ex e1 = pow(x, 2) * pow(y[0], 2);
@@ -142,7 +142,7 @@ static unsigned poly_gcd4(void)
 }
 
 // Completely dense non-monic quadratic inputs with dense non-monic linear GCDs
-static unsigned poly_gcd5(void)
+static unsigned poly_gcd5()
 {
 	for (int v=1; v<=MAX_VARIABLES; v++) {
 		ex e1 = x + 1;
@@ -167,7 +167,7 @@ static unsigned poly_gcd5(void)
 }
 
 // Sparse non-monic quadratic inputs with linear GCDs
-static unsigned poly_gcd5p(void)
+static unsigned poly_gcd5p()
 {
 	for (int v=1; v<=MAX_VARIABLES; v++) {
 		ex e1 = x;
@@ -187,7 +187,7 @@ static unsigned poly_gcd5p(void)
 }
 
 // Trivariate inputs with increasing degrees
-static unsigned poly_gcd6(void)
+static unsigned poly_gcd6()
 {
 	symbol y("y");
 
@@ -205,7 +205,7 @@ static unsigned poly_gcd6(void)
 }
 
 // Trivariate polynomials whose GCD has common factors with its cofactors
-static unsigned poly_gcd7(void)
+static unsigned poly_gcd7()
 {
 	symbol y("y");
 	ex p = x - y * z + 1;
@@ -226,7 +226,7 @@ static unsigned poly_gcd7(void)
 	return 0;
 }
 
-unsigned exam_polygcd(void)
+unsigned exam_polygcd()
 {
 	unsigned result = 0;
 	

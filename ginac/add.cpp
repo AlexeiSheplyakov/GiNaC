@@ -25,8 +25,9 @@
 
 #include "add.h"
 #include "mul.h"
-#include "matrix.h"
 #include "archive.h"
+#include "operators.h"
+#include "matrix.h"
 #include "utils.h"
 
 namespace GiNaC {
@@ -34,16 +35,13 @@ namespace GiNaC {
 GINAC_IMPLEMENT_REGISTERED_CLASS(add, expairseq)
 
 //////////
-// default ctor, dtor, copy ctor, assignment operator and helpers
+// default constructor
 //////////
 
 add::add()
 {
 	tinfo_key = TINFO_add;
 }
-
-DEFAULT_COPY(add)
-DEFAULT_DESTROY(add)
 
 //////////
 // other constructors
@@ -163,7 +161,7 @@ void add::print(const print_context & c, unsigned level) const
 
 		c.s << class_name() << '(';
 		op(0).print(c);
-		for (unsigned i=1; i<nops(); ++i) {
+		for (size_t i=1; i<nops(); ++i) {
 			c.s << ',';
 			op(i).print(c);
 		}
@@ -331,7 +329,7 @@ ex add::eval(int level) const
 	epvector::const_iterator i = seq.begin(), end = seq.end();
 	while (i != end) {
 		GINAC_ASSERT(!is_exactly_a<add>(i->rest));
-		if (is_ex_exactly_of_type(i->rest,numeric))
+		if (is_exactly_a<numeric>(i->rest))
 			dbgprint();
 		GINAC_ASSERT(!is_exactly_a<numeric>(i->rest));
 		++i;
@@ -357,7 +355,7 @@ ex add::eval(int level) const
 	return this->hold();
 }
 
-ex add::evalm(void) const
+ex add::evalm() const
 {
 	// Evaluate children first and add up all matrices. Stop if there's one
 	// term that is not a matrix.
@@ -372,7 +370,7 @@ ex add::evalm(void) const
 	while (it != itend) {
 		const ex &m = recombine_pair_to_ex(*it).evalm();
 		s->push_back(split_ex_to_pair(m));
-		if (is_ex_of_type(m, matrix)) {
+		if (is_a<matrix>(m)) {
 			if (first_term) {
 				sum = ex_to<matrix>(m);
 				first_term = false;
@@ -390,12 +388,12 @@ ex add::evalm(void) const
 		return (new add(s, overall_coeff))->setflag(status_flags::dynallocated);
 }
 
-ex add::simplify_ncmul(const exvector & v) const
+ex add::eval_ncmul(const exvector & v) const
 {
 	if (seq.empty())
-		return inherited::simplify_ncmul(v);
+		return inherited::eval_ncmul(v);
 	else
-		return seq.begin()->rest.simplify_ncmul(v);
+		return seq.begin()->rest.eval_ncmul(v);
 }    
 
 // protected
@@ -423,12 +421,7 @@ int add::compare_same_type(const basic & other) const
 	return inherited::compare_same_type(other);
 }
 
-bool add::is_equal_same_type(const basic & other) const
-{
-	return inherited::is_equal_same_type(other);
-}
-
-unsigned add::return_type(void) const
+unsigned add::return_type() const
 {
 	if (seq.empty())
 		return return_types::commutative;
@@ -436,7 +429,7 @@ unsigned add::return_type(void) const
 		return seq.begin()->rest.return_type();
 }
    
-unsigned add::return_type_tinfo(void) const
+unsigned add::return_type_tinfo() const
 {
 	if (seq.empty())
 		return tinfo_key;
@@ -456,7 +449,7 @@ ex add::thisexpairseq(epvector * vp, const ex & oc) const
 
 expair add::split_ex_to_pair(const ex & e) const
 {
-	if (is_ex_exactly_of_type(e,mul)) {
+	if (is_exactly_a<mul>(e)) {
 		const mul &mulref(ex_to<mul>(e));
 		const ex &numfactor = mulref.overall_coeff;
 		mul *mulcopyp = new mul(mulref);
@@ -473,7 +466,7 @@ expair add::combine_ex_with_coeff_to_pair(const ex & e,
 										  const ex & c) const
 {
 	GINAC_ASSERT(is_exactly_a<numeric>(c));
-	if (is_ex_exactly_of_type(e, mul)) {
+	if (is_exactly_a<mul>(e)) {
 		const mul &mulref(ex_to<mul>(e));
 		const ex &numfactor = mulref.overall_coeff;
 		mul *mulcopyp = new mul(mulref);
@@ -481,14 +474,14 @@ expair add::combine_ex_with_coeff_to_pair(const ex & e,
 		mulcopyp->clearflag(status_flags::evaluated);
 		mulcopyp->clearflag(status_flags::hash_calculated);
 		mulcopyp->setflag(status_flags::dynallocated);
-		if (are_ex_trivially_equal(c, _ex1))
+		if (c.is_equal(_ex1))
 			return expair(*mulcopyp, numfactor);
-		else if (are_ex_trivially_equal(numfactor, _ex1))
+		else if (numfactor.is_equal(_ex1))
 			return expair(*mulcopyp, c);
 		else
 			return expair(*mulcopyp, ex_to<numeric>(numfactor).mul_dyn(ex_to<numeric>(c)));
-	} else if (is_ex_exactly_of_type(e, numeric)) {
-		if (are_ex_trivially_equal(c, _ex1))
+	} else if (is_exactly_a<numeric>(e)) {
+		if (c.is_equal(_ex1))
 			return expair(e, _ex1);
 		return expair(ex_to<numeric>(e).mul_dyn(ex_to<numeric>(c)), _ex1);
 	}
@@ -501,7 +494,7 @@ expair add::combine_pair_with_coeff_to_pair(const expair & p,
 	GINAC_ASSERT(is_exactly_a<numeric>(p.coeff));
 	GINAC_ASSERT(is_exactly_a<numeric>(c));
 
-	if (is_ex_exactly_of_type(p.rest,numeric)) {
+	if (is_exactly_a<numeric>(p.rest)) {
 		GINAC_ASSERT(ex_to<numeric>(p.coeff).is_equal(_num1)); // should be normalized
 		return expair(ex_to<numeric>(p.rest).mul_dyn(ex_to<numeric>(c)),_ex1);
 	}

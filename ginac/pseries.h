@@ -36,17 +36,16 @@ class pseries : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS(pseries, basic)
 
-	// other ctors
+	// other constructors
 public:
 	pseries(const ex &rel_, const epvector &ops_);
 
 	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
-	unsigned precedence(void) const {return 38;} // for clarity just below add::precedence
-	unsigned nops(void) const;
-	ex op(int i) const;
-	ex &let_op(int i);
+	unsigned precedence() const {return 38;} // for clarity just below add::precedence
+	size_t nops() const;
+	ex op(size_t i) const;
 	int degree(const ex &s) const;
 	int ldegree(const ex &s) const;
 	ex coeff(const ex &s, int n = 1) const;
@@ -54,7 +53,7 @@ public:
 	ex eval(int level=0) const;
 	ex evalf(int level=0) const;
 	ex series(const relational & r, int order, unsigned options = 0) const;
-	ex subs(const lst & ls, const lst & lr, bool no_pattern = false) const;
+	ex subs(const lst & ls, const lst & lr, unsigned options = 0) const;
 	ex normal(lst &sym_lst, lst &repl_lst, int level = 0) const;
 	ex expand(unsigned options = 0) const;
 protected:
@@ -63,10 +62,10 @@ protected:
 	// non-virtual functions in this class
 public:
 	/** Get the expansion variable. */
-	ex get_var(void) const {return var;}
+	ex get_var() const {return var;}
 
 	/** Get the expansion point. */
-	ex get_point(void) const {return point;}
+	ex get_point() const {return point;}
 
 	/** Convert the pseries object to an ordinary polynomial.
 	 *
@@ -78,11 +77,11 @@ public:
 	bool is_compatible_to(const pseries &other) const {return var.is_equal(other.var) && point.is_equal(other.point);}
 
 	/** Check whether series has the value zero. */
-	bool is_zero(void) const {return seq.size() == 0;}
+	bool is_zero() const {return seq.size() == 0;}
 
 	/** Returns true if there is no order term, i.e. the series terminates and
 	 *  false otherwise. */
-	bool is_terminating(void) const;
+	bool is_terminating() const;
 
 	ex add_series(const pseries &other) const;
 	ex mul_const(const numeric &other) const;

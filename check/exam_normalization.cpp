@@ -35,7 +35,7 @@ static unsigned check_normal(const ex &e, const ex &d)
 	return 0;
 }
 
-static unsigned exam_normal1(void)
+static unsigned exam_normal1()
 {
 	unsigned result = 0;
 	ex e, d;
@@ -62,7 +62,7 @@ static unsigned exam_normal1(void)
 	return result;
 }
 
-static unsigned exam_normal2(void)
+static unsigned exam_normal2()
 {
 	unsigned result = 0;
 	ex e, d;
@@ -101,7 +101,7 @@ static unsigned exam_normal2(void)
 	return result;
 }
 
-static unsigned exam_normal3(void)
+static unsigned exam_normal3()
 {
 	unsigned result = 0;
 	ex e, d;
@@ -124,7 +124,7 @@ static unsigned exam_normal3(void)
 	return result;
 }
 
-static unsigned exam_normal4(void)
+static unsigned exam_normal4()
 {
 	unsigned result = 0;
 	ex e, d;
@@ -157,7 +157,7 @@ static unsigned exam_normal4(void)
 	return result;
 }
 
-unsigned exam_normalization(void)
+unsigned exam_normalization()
 {
 	unsigned result = 0;
 	

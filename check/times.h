@@ -23,7 +23,6 @@
 #ifndef CHECKS_H
 #define CHECKS_H
 
-#include <sys/resource.h>
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
@@ -33,18 +32,7 @@
 using namespace std;
 using namespace GiNaC;
 
-class timer {
-public:
-	timer();
-	void start(void);
-	void stop(void);
-	void reset(void);
-	double read(void);
-	bool running(void);
-private:
-	bool on;
-	struct rusage used1, used2;
-};
+#include "timer.h"
 
 // prototypes for all individual timings should be unsigned fcn():
 unsigned time_dennyfliegner();

@@ -23,7 +23,7 @@
 
 #include "times.h"
 
-static unsigned test(void)
+static unsigned test()
 {
 	// This is a pattern that comes up in graph theory:
 	const unsigned n = 10;
@@ -51,7 +51,7 @@ static unsigned test(void)
 	return 0;
 }
 
-unsigned time_lw_P(void)
+unsigned time_lw_P()
 {
 	unsigned result = 0;
 	unsigned count = 0;

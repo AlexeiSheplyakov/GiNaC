@@ -23,7 +23,7 @@
 
 #include "exams.h"
 
-static unsigned exam_powerlaws1(void)
+static unsigned exam_powerlaws1()
 {
 	// (x^a)^b = x^(a*b)
 	
@@ -100,7 +100,7 @@ static unsigned exam_powerlaws1(void)
 	return 0;
 }
 
-static unsigned exam_powerlaws2(void)
+static unsigned exam_powerlaws2()
 {
 	// (a*x)^b = a^b * x^b
 	
@@ -198,7 +198,7 @@ static unsigned exam_powerlaws2(void)
 	return 0;
 }
 
-static unsigned exam_powerlaws3(void)
+static unsigned exam_powerlaws3()
 {
 	// numeric evaluation
 
@@ -237,7 +237,7 @@ static unsigned exam_powerlaws3(void)
 	return 0;
 }
 
-static unsigned exam_powerlaws4(void)
+static unsigned exam_powerlaws4()
 {
 	// test for mul::eval()
 	
@@ -262,7 +262,7 @@ static unsigned exam_powerlaws4(void)
 	return 0;
 }
 
-static unsigned exam_powerlaws5(void)
+static unsigned exam_powerlaws5()
 {
 	// cabinet of slightly pathological cases
 	
@@ -284,7 +284,7 @@ static unsigned exam_powerlaws5(void)
 	return 0;
 }
 
-unsigned exam_powerlaws(void)
+unsigned exam_powerlaws()
 {
 	unsigned result = 0;
 	

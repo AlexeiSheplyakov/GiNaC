@@ -39,7 +39,7 @@ pole_error::pole_error(const std::string& what_arg, int degree)
 	: domain_error(what_arg), deg(degree) { }
 
 /** Return the degree of the pole_error exception class. */
-int pole_error::degree(void) const
+int pole_error::degree() const
 {
 	return deg;
 }
@@ -187,6 +187,7 @@ const ex _ex_1_4= _num_1_4;
 
 // static numeric 0
 const numeric *_num0_p;
+const basic *_num0_bp;
 const numeric &_num0 = *_num0_p;
 const ex _ex0 = _num0;
 
@@ -340,6 +341,7 @@ library_init::library_init()
 		_num_1_3_p= reinterpret_cast<const numeric*>(&((new numeric(-1,3))->setflag(status_flags::dynallocated)));
 		_num_1_4_p= reinterpret_cast<const numeric*>(&((new numeric(-1,4))->setflag(status_flags::dynallocated)));
 		_num0_p   = reinterpret_cast<const numeric*>(&((new numeric(0))->setflag(status_flags::dynallocated)));
+		_num0_bp  = _num0_p;
 		_num1_4_p = reinterpret_cast<const numeric*>(&((new numeric(1,4))->setflag(status_flags::dynallocated)));
 		_num1_3_p = reinterpret_cast<const numeric*>(&((new numeric(1,3))->setflag(status_flags::dynallocated)));
 		_num1_2_p = reinterpret_cast<const numeric*>(&((new numeric(1,2))->setflag(status_flags::dynallocated)));
@@ -384,10 +386,10 @@ library_init::~library_init()
 
 // member functions
 
-	// default ctor, dtor, copy ctor, assignment operator and helpers
+	// default constructor, destructor, copy constructor and assignment operator
 	// none
 
-	// other ctors
+	// other constructors
 	// none
 
 	// functions overriding virtual functions from base classes
@@ -408,14 +410,14 @@ library_init::~library_init()
 
 
 //////////
-// default ctor, dtor, copy ctor, assignment operator and helpers
+// default constructor, destructor, copy constructor and assignment operator
 //////////
 
 // public
 // protected
 
 //////////
-// other ctors
+// other constructors
 //////////
 
 // public

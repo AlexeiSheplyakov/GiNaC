@@ -33,8 +33,8 @@ class ncmul : public exprseq
 	GINAC_DECLARE_REGISTERED_CLASS(ncmul, exprseq)
 
 	friend class power;
-	friend ex nonsimplified_ncmul(const exvector & v);
-	friend ex simplified_ncmul(const exvector & v);
+	friend ex reeval_ncmul(const exvector & v);
+	friend ex hold_ncmul(const exvector & v);
 
 // member functions
 
@@ -54,38 +54,39 @@ public:
 	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
-	unsigned precedence(void) const {return 50;}
+	unsigned precedence() const {return 50;}
 	bool info(unsigned inf) const;
 	int degree(const ex & s) const;
 	int ldegree(const ex & s) const;
 	ex expand(unsigned options=0) const;
 	ex coeff(const ex & s, int n=1) const;
 	ex eval(int level=0) const;
-	ex evalm(void) const;
-	exvector get_free_indices(void) const;
-	ex thisexprseq(const exvector & v) const;
-	ex thisexprseq(exvector * vp) const;
+	ex evalm() const;
+	exvector get_free_indices() const;
+	ex thiscontainer(const exvector & v) const;
+	ex thiscontainer(exvector * vp) const;
+
 protected:
 	ex derivative(const symbol & s) const;
-	unsigned return_type(void) const;
-	unsigned return_type_tinfo(void) const;
+	unsigned return_type() const;
+	unsigned return_type_tinfo() const;
 	
 	// new virtual functions which can be overridden by derived classes
 	// none
 
 	// non-virtual functions in this class
 protected:
-	unsigned count_factors(const ex & e) const;
+	size_t count_factors(const ex & e) const;
 	void append_factors(exvector & v, const ex & e) const;
 	exvector expandchildren(unsigned options) const;
 public:
-	const exvector & get_factors(void) const;
+	const exvector & get_factors() const;
 };
 
 // friend funtions 
 
-ex nonsimplified_ncmul(const exvector & v);
-ex simplified_ncmul(const exvector & v);
+ex reeval_ncmul(const exvector & v);
+ex hold_ncmul(const exvector & v);
 
 // utility functions
 

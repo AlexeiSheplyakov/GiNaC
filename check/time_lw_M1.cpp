@@ -23,7 +23,7 @@
 
 #include "times.h"
 
-static unsigned test(void)
+static unsigned test()
 {
 	// Determinant of a sparse matrix that comes up in graph theory:
 	symbol x1("x1"), x2("x2"), x3("x3"), x4("x4"), x5("x5");
@@ -73,7 +73,7 @@ static unsigned test(void)
 	return 0;
 }
 
-unsigned time_lw_M1(void)
+unsigned time_lw_M1()
 {
 	unsigned result = 0;
 	unsigned count = 0;

@@ -23,7 +23,7 @@
 
 #include "times.h"
 
-static unsigned test(void)
+static unsigned test()
 {
 	numeric x(13*17*31);
 	numeric y(13*19*29);
@@ -41,7 +41,7 @@ static unsigned test(void)
 	return 0;
 }
 
-unsigned time_lw_C(void)
+unsigned time_lw_C()
 {
 	unsigned result = 0;
 	unsigned count = 0;

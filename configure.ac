@@ -19,10 +19,10 @@ dnl autoconf sees "AC_MAJOR_VERSION" and complains about an undefined macro
 dnl (don't we all *love* M4?)...
 
 GINACLIB_MAJOR_VERSION=1
-GINACLIB_MINOR_VERSION=0
-GINACLIB_MICRO_VERSION=14
-GINACLIB_INTERFACE_AGE=1
-GINACLIB_BINARY_AGE=14
+GINACLIB_MINOR_VERSION=2
+GINACLIB_MICRO_VERSION=0
+GINACLIB_INTERFACE_AGE=0
+GINACLIB_BINARY_AGE=0
 GINACLIB_VERSION=$GINACLIB_MAJOR_VERSION.$GINACLIB_MINOR_VERSION.$GINACLIB_MICRO_VERSION
 
 AC_SUBST(GINACLIB_MAJOR_VERSION)
@@ -115,6 +115,7 @@ AC_CHECK_HEADER(sstream, , GINAC_ERROR([The standard <sstream> header file could
 AC_CHECK_HEADER(typeinfo, , GINAC_ERROR([The standard <typeinfo> header file could not be found.]))
 AC_CHECK_HEADER(stdexcept, , GINAC_ERROR([The standard <stdexcept> header file could not be found.]))
 AC_CHECK_HEADER(algorithm, , GINAC_ERROR([The standard <algorithm> header file could not be found.]))
+AC_CHECK_HEADER(limits, , GINAC_ERROR([The standard <limits> header file could not be found.]))
 
 dnl We need to have Bruno Haible's CLN installed.
 dnl (CLN versions >= 1.1.0 must have installed cln.m4 at a visible place,

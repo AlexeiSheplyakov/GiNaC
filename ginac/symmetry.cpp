@@ -27,6 +27,7 @@
 #include "symmetry.h"
 #include "lst.h"
 #include "numeric.h" // for factorial()
+#include "operators.h"
 #include "print.h"
 #include "archive.h"
 #include "utils.h"
@@ -50,23 +51,13 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(symmetry, basic)
 */
 
 //////////
-// default ctor, dtor, copy ctor, assignment operator and helpers
+// default constructor
 //////////
 
 symmetry::symmetry() : type(none)
 {
 	tinfo_key = TINFO_symmetry;
 }
-
-void symmetry::copy(const symmetry & other)
-{
-	inherited::copy(other);
-	type = other.type;
-	indices = other.indices;
-	children = other.children;
-}
-
-DEFAULT_DESTROY(symmetry)
 
 //////////
 // other constructors
@@ -89,7 +80,7 @@ symmetry::symmetry(symmetry_type t, const symmetry &c1, const symmetry &c2) : ty
 //////////
 
 /** Construct object from archive_node. */
-symmetry::symmetry(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+symmetry::symmetry(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
 {
 	unsigned t;
 	if (!(n.find_unsigned("type", t)))
@@ -204,8 +195,8 @@ void symmetry::print(const print_context & c, unsigned level) const
 				default: c.s << '?'; break;
 			}
 			c.s << '(';
-			unsigned num = children.size();
-			for (unsigned i=0; i<num; i++) {
+			size_t num = children.size();
+			for (size_t i=0; i<num; i++) {
 				children[i].print(c);
 				if (i != num - 1)
 					c.s << ",";
@@ -356,10 +347,8 @@ static ex symm(const ex & e, exvector::const_iterator first, exvector::const_ite
 	if (num < 2)
 		return e;
 
-	// Transform object vector to a list
-	exlist iv_lst;
-	iv_lst.insert(iv_lst.begin(), first, last);
-	lst orig_lst(iv_lst, true);
+	// Transform object vector to a lst (for subs())
+	lst orig_lst(first, last);
 
 	// Create index vectors for permutation
 	unsigned *iv = new unsigned[num], *iv2;
@@ -405,10 +394,8 @@ ex symmetrize_cyclic(const ex & e, exvector::const_iterator first, exvector::con
 	if (num < 2)
 		return e;
 
-	// Transform object vector to a list
-	exlist iv_lst;
-	iv_lst.insert(iv_lst.begin(), first, last);
-	lst orig_lst(iv_lst, true);
+	// Transform object vector to a lst (for subs())
+	lst orig_lst(first, last);
 	lst new_lst = orig_lst;
 
 	// Loop over all cyclic permutations (the first permutation, which is
@@ -425,20 +412,14 @@ ex symmetrize_cyclic(const ex & e, exvector::const_iterator first, exvector::con
 /** Symmetrize expression over a list of objects (symbols, indices). */
 ex ex::symmetrize(const lst & l) const
 {
-	exvector v;
-	v.reserve(l.nops());
-	for (unsigned i=0; i<l.nops(); i++)
-		v.push_back(l.op(i));
+	exvector v(l.begin(), l.end());
 	return symm(*this, v.begin(), v.end(), false);
 }
 
 /** Antisymmetrize expression over a list of objects (symbols, indices). */
 ex ex::antisymmetrize(const lst & l) const
 {
-	exvector v;
-	v.reserve(l.nops());
-	for (unsigned i=0; i<l.nops(); i++)
-		v.push_back(l.op(i));
+	exvector v(l.begin(), l.end());
 	return symm(*this, v.begin(), v.end(), true);
 }
 
@@ -446,10 +427,7 @@ ex ex::antisymmetrize(const lst & l) const
  *  (symbols, indices). */
 ex ex::symmetrize_cyclic(const lst & l) const
 {
-	exvector v;
-	v.reserve(l.nops());
-	for (unsigned i=0; i<l.nops(); i++)
-		v.push_back(l.op(i));
+	exvector v(l.begin(), l.end());
 	return GiNaC::symmetrize_cyclic(*this, v.begin(), v.end());
 }
 

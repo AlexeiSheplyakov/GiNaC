@@ -79,7 +79,7 @@ static unsigned test(unsigned n)
 	return result;
 }
 
-unsigned time_lw_IJKL(void)
+unsigned time_lw_IJKL()
 {
 	unsigned result = 0;
 	

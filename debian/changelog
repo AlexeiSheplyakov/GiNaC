@@ -1,32 +1,15 @@
-ginac (1.0.14-1) unstable; urgency=low
+ginac (1.1.0-1) unstable; urgency=low
 
-  * New upstream (bugfix only) release.
+  * New upstream release; binary incompatible, so it's libginac1.1 now.
+  * Adjusted to Standards-Version 3.5.8.
 
- -- Christian Bauer <cbauer@ginac.de>  Sat,  1 Mar 2003 17:29:13 +0100
-
-ginac (1.0.13-1) unstable; urgency=low
-
-  * New upstream (bugfix only) release.
-
- -- Christian Bauer <cbauer@ginac.de>  Mon, 27 Jan 2003 17:56:07 +0100
-
-ginac (1.0.12-1) unstable; urgency=low
-
-  * New upstream (bugfix only) release.
-
- -- Christian Bauer <cbauer@ginac.de>  Thu, 31 Oct 2002 16:21:05 +0100
+ -- Richard Kreckel <kreckel@ginac.de>  Thu,  4 Apr 2003 12:11:21 +0200
 
 ginac (1.0.11-1) unstable; urgency=low
 
   * New upstream (bugfix only) release.
 
- -- Richard Kreckel <kreckel@ginac.de>  Wed, 18 Sep 2002 16:45:05 +0200
-
-ginac (1.0.10-1) unstable; urgency=low
-
-  * New upstream (bugfix only) release.
-
- -- Richard Kreckel <kreckel@ginac.de>  Wed, 24 Jul 2002 18:03:00 +0200
+ -- Richard Kreckel <kreckel@ginac.de>  Wed, 18 Sep 2002 16:45:05 +0100
 
 ginac (1.0.8-1) unstable; urgency=low
 

@@ -27,7 +27,7 @@
 
 /* Simple and maybe somewhat pointless consistency tests of assorted tests and
  * conversions. */
-static unsigned exam_numeric1(void)
+static unsigned exam_numeric1()
 {
 	unsigned result = 0;
 	numeric test_int1(42);
@@ -112,7 +112,7 @@ static unsigned exam_numeric1(void)
  * Implementing a workaround sadly introduced another bug on May 28th 1999
  * that was fixed on May 31st.  The workaround turned out to be stupid and
  * the original bug in CLN was finally killed on September 2nd. */
-static unsigned exam_numeric2(void)
+static unsigned exam_numeric2()
 {
 	unsigned result = 0;
 	
@@ -151,7 +151,7 @@ static unsigned exam_numeric2(void)
 
 /* Assorted tests to ensure some crucial functions behave exactly as specified
  * in the documentation. */
-static unsigned exam_numeric3(void)
+static unsigned exam_numeric3()
 {
 	unsigned result = 0;
 	numeric calc_rem, calc_quo;
@@ -269,7 +269,7 @@ static unsigned exam_numeric3(void)
 
 /* Now we perform some less trivial checks about several functions which should
  * return exact numbers if possible. */
-static unsigned exam_numeric4(void)
+static unsigned exam_numeric4()
 {
 	unsigned result = 0;
 	bool passed;
@@ -300,7 +300,7 @@ static unsigned exam_numeric4(void)
 
 /* This test examines that simplifications of the form 5^(3/2) -> 5*5^(1/2)
  * are carried out properly. */
-static unsigned exam_numeric5(void)
+static unsigned exam_numeric5()
 {
 	unsigned result = 0;
 	
@@ -319,7 +319,7 @@ static unsigned exam_numeric5(void)
 
 /* This test checks whether the numeric output/parsing routines are
    consistent. */
-static unsigned exam_numeric6(void)
+static unsigned exam_numeric6()
 {
 	unsigned result = 0;
 
@@ -373,7 +373,7 @@ static unsigned exam_numeric6(void)
 	return result;
 }
 
-unsigned exam_numeric(void)
+unsigned exam_numeric()
 {
 	unsigned result = 0;
 	

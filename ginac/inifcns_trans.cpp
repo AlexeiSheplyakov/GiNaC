@@ -29,6 +29,7 @@
 #include "constant.h"
 #include "numeric.h"
 #include "power.h"
+#include "operators.h"
 #include "relational.h"
 #include "symbol.h"
 #include "pseries.h"
@@ -140,14 +141,6 @@ static ex log_deriv(const ex & x, unsigned deriv_param)
 	// d/dx log(x) -> 1/x
 	return power(x, _ex_1);
 }
-
-// This is a strange workaround for a compiliation problem with the try statement
-// below.  With -O1 the exception is not caucht properly as of GCC-2.95.2, at
-// least on i386.  Version 2.95.4 seems to have fixed this silly problem, though.
-// Funnily, with a simple extern declaration here it mysteriously works again.
-#if defined(__GNUC__) && (__GNUC__==2)
-extern "C" int putchar(int);
-#endif
 
 static ex log_series(const ex &arg,
                      const relational &rel,

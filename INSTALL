@@ -6,11 +6,11 @@ one of the following FTP-sites:
   * <ftp://ftp.santafe.edu/pub/gnu/>,
   * <ftp://ftp.ilog.fr/pub/Users/haible/gnu/> or
   * <ftp://ftpthep.physik.uni-mainz.de/pub/gnu/>.
-You will also need a decent ANSI-compliant C++-compiler.  We use
-`post-EGCS' GCC, i.e GCC >= 2.95 for development so if you have a
-different compiler you are on your own.  Note that you may have to use
-the same compiler you compiled CLN with because of differing
-name-mangling schemes.
+You will also need a decent ANSI-compliant C++-compiler.  We recommend
+the C++ compiler from the GNU compiler collection, GCC >= 3.0.  If you
+have a different or older compiler you are on your own.  Note that you
+may have to use the same compiler you compiled CLN with because of
+differing name-mangling schemes.
 
 
 INSTALLATION
@@ -25,9 +25,10 @@ As with any autoconfiguring GNU software, installation is as easy as this:
  # make install
 
 Known to work with:
-  - Linux on x86, Alpha and Sparc using GCC 2-95.x.
+  - Linux on x86, Alpha and Sparc using GCC 3.0.x, 3.1 and 3.2.
 Known not to work with:
-  - GCC 2.7.x or earlier because proper exception support is missing there.
+  - GCC 2.96 or earlier because proper exception and standard library support
+    is missing there.
 
 The "configure" script can be given a number of options to enable and
 disable various features. For a complete list, type:
@@ -67,8 +68,7 @@ Problems with CLN
 You should use at least CLN-1.1, since during the development of
 GiNaC various bugs have been discovered and fixed in earlier versions.
 Please install CLN properly on your system before continuing with
-GiNaC.  When using GCC3 as compiler please use at least CLN-1.1.1
-since some parts of GiNaC won't build with CLN-1.1.
+GiNaC.
 
 Problems with building ginsh
 ----------------------------
@@ -86,12 +86,4 @@ Problems with missing standard header files
 Building GiNaC requires many standard header files.  If you get a
 configure error complaining about such missing files your compiler and
 library are probably not up to date enough and it's no worth
-continuing.  If the only file missing is <sstream>, however, there is
-a solution.  GCC-2.95.2 and earlier don't ship with this file.  A
-working implementation has been available since GCC-2.95.3.  GCC-3.0
-and later have an even better, fully standard-conforming
-implementation, by default.  If you are stuck with GCC-2.95.2 or
-earlier and you cannot upgrade your compiler we recommend obtaining
-the libstdc++-v2 <sstream> header written by Magnus Fromreide.  It was
-posted to the gcc-patches mailing list on November 21 2000:
-<http://gcc.gnu.org/ml/gcc-patches/2000-11/msg01152.html>.
+continuing.

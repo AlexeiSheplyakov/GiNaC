@@ -28,7 +28,7 @@
 // The very first pair of historic problems had its roots in power.cpp and was
 // finally resolved on April 27th 1999. (Fixing the first on April 23rd
 // actually introduced the second.)
-static unsigned exam_paranoia1(void)
+static unsigned exam_paranoia1()
 {
 	unsigned result = 0;
 	symbol x("x"), y("y"), z("z");
@@ -59,7 +59,7 @@ static unsigned exam_paranoia1(void)
 // And here the second oops which showed up until May 17th 1999.  It had to do
 // with lexicographic canonicalization and thus showed up only if the variables
 // had the names as given here:
-static unsigned exam_paranoia2(void)
+static unsigned exam_paranoia2()
 {
 	unsigned result = 0;
 	symbol x("x"), y("y"), z("z");
@@ -95,7 +95,7 @@ static unsigned exam_paranoia2(void)
 // The third bug was introduced on May 18th 1999, discovered on May 19 and
 // fixed that same day.  It worked when x was substituted by 1 but not with
 // other numbers:
-static unsigned exam_paranoia3(void)
+static unsigned exam_paranoia3()
 {
 	unsigned result = 0;
 	symbol x("x"), y("y");
@@ -124,7 +124,7 @@ static unsigned exam_paranoia3(void)
 }
 
 // The fourth bug was also discovered on May 19th 1999 and fixed immediately:
-static unsigned exam_paranoia4(void)
+static unsigned exam_paranoia4()
 {
 	unsigned result = 0;
 	symbol x("x");
@@ -149,7 +149,7 @@ static unsigned exam_paranoia4(void)
 }
 
 // The fifth oops was discovered on May 20th 1999 and fixed a day later:
-static unsigned exam_paranoia5(void)
+static unsigned exam_paranoia5()
 {
 	unsigned result = 0;
 	symbol x("x"), y("y");
@@ -168,7 +168,7 @@ static unsigned exam_paranoia5(void)
 }
 
 // This one was discovered on Jun 1st 1999 and fixed the same day:
-static unsigned exam_paranoia6(void)
+static unsigned exam_paranoia6()
 {
 	unsigned result = 0;
 	symbol x("x");
@@ -186,7 +186,7 @@ static unsigned exam_paranoia6(void)
 
 // This one was introduced on June 1st 1999 by some aggressive manual
 // optimization. Discovered and fixed on June 2nd.
-static unsigned exam_paranoia7(void)
+static unsigned exam_paranoia7()
 {
 	unsigned result = 0;
 	symbol x("x"), y("y");
@@ -206,7 +206,7 @@ static unsigned exam_paranoia7(void)
 // This one was a result of the rewrite of mul::max_coefficient when we
 // introduced the overall_coefficient field in expairseq objects on Oct 1st
 // 1999. Fixed on Oct 4th.
-static unsigned exam_paranoia8(void)
+static unsigned exam_paranoia8()
 {
 	unsigned result = 0;
 	symbol x("x");
@@ -232,7 +232,7 @@ static unsigned exam_paranoia8(void)
 // Z[X]. multiply_lcm() forgot to multiply the x-linear term with the LCM of
 // the coefficient's denominators (2 in this case).  Introduced on Jan 25th
 // 2000 and fixed on Jan 31th.
-static unsigned exam_paranoia9(void)
+static unsigned exam_paranoia9()
 {
 	unsigned result = 0;
 	symbol x("x");
@@ -251,7 +251,7 @@ static unsigned exam_paranoia9(void)
 // and on Feb 13th 2000 I found out that things like 2^(3/2) throw an exception
 // "power::eval(): pow(0,0) is undefined" instead of simplifying to 2*2^(1/2).
 // It was fixed that same day.
-static unsigned exam_paranoia10(void)
+static unsigned exam_paranoia10()
 {
 	unsigned result = 0;
 	
@@ -276,7 +276,7 @@ static unsigned exam_paranoia10(void)
 // add::normal() forgot to multiply the denominator of the overall_coeff of
 // its expanded and normalized children with the denominator of the expanded
 // child (did you get this? Well, never mind...). Fixed on Feb 21th 2000.
-static unsigned exam_paranoia11(void)
+static unsigned exam_paranoia11()
 {
 	unsigned result = 0;
 	symbol x("x");
@@ -295,7 +295,7 @@ static unsigned exam_paranoia11(void)
 // This one returned 0 because add::normal() incorrectly assumed that if the
 // common denominator is 1, all the denominators would be 1 (they can in fact
 // be +/-1). Fixed on Aug 2nd 2000.
-static unsigned exam_paranoia12(void)
+static unsigned exam_paranoia12()
 {
 	unsigned result = 0;
 	symbol x("x");
@@ -314,7 +314,7 @@ static unsigned exam_paranoia12(void)
 
 // This one caused a division by 0 because heur_gcd() didn't check its
 // input polynomials against 0. Fixed on Aug 4th 2000.
-static unsigned exam_paranoia13(void)
+static unsigned exam_paranoia13()
 {
 	unsigned result = 0;
 	symbol a("a"), b("b"), c("c");
@@ -338,7 +338,7 @@ static unsigned exam_paranoia13(void)
 
 // A bug introduced on July 19, 2001. quo() and rem() would sometimes call
 // vector::reserve() with a negative argument. Fixed on Dec 20, 2001.
-static unsigned exam_paranoia14(void)
+static unsigned exam_paranoia14()
 {
 	unsigned result = 0;
 	symbol x("x");
@@ -354,7 +354,7 @@ static unsigned exam_paranoia14(void)
 
 // Under certain conditions, power::expand_add_2() could produce non-canonical
 // numeric expairs. Fixed on Oct 24, 2002.
-static unsigned exam_paranoia15(void)
+static unsigned exam_paranoia15()
 {
 	unsigned result = 0;
 
@@ -370,7 +370,7 @@ static unsigned exam_paranoia15(void)
 	return result;
 }
 
-unsigned exam_paranoia(void)
+unsigned exam_paranoia()
 {
 	unsigned result = 0;
 	

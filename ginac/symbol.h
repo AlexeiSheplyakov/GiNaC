@@ -26,6 +26,7 @@
 #include <string>
 #include "basic.h"
 #include "ex.h"
+#include "ptr.h"
 
 namespace GiNaC {
 
@@ -38,21 +39,23 @@ namespace GiNaC {
 class symbol : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS(symbol, basic)
-	
+
 // types
 	
-	/** Symbols as keys to expressions - this is deprecated. */
+	/** Symbols as keys to expressions - only for ginsh. */
 	class assigned_ex_info {
+		friend class ptr<assigned_ex_info>;
 	public:
 		assigned_ex_info();     ///< Default ctor
 		bool is_assigned;       ///< True if there is an expression assigned
 		ex assigned_expression; ///< The actual expression
-		unsigned refcount;      ///< Reference counter
+	private:
+		size_t refcount;        ///< Reference counter, managed by ptr<assigned_ex_info>
 	};
-	
+
 // member functions
 	
-	// other ctors
+	// other constructors
 public:
 	explicit symbol(const std::string & initname);
 	explicit symbol(const std::string & initname, const std::string & texname);
@@ -64,30 +67,32 @@ public:
 	ex eval(int level = 0) const;
 	ex evalf(int level = 0) const { return *this; } // overwrites basic::evalf() for performance reasons
 	ex series(const relational & s, int order, unsigned options = 0) const;
+	ex subs(const lst & ls, const lst & lr, unsigned options = 0) const { return subs_one_level(ls, lr, options); } // overwrites basic::subs() for performance reasons
 	ex normal(lst &sym_lst, lst &repl_lst, int level = 0) const;
 	ex to_rational(lst &repl_lst) const;
+	ex to_polynomial(lst &repl_lst) const;
 protected:
 	ex derivative(const symbol & s) const;
 	bool is_equal_same_type(const basic & other) const;
-	unsigned calchash(void) const;
+	unsigned calchash() const;
 	
 	// non-virtual functions in this class
 public:
 	void assign(const ex & value);
-	void unassign(void);
+	void unassign();
 	void set_name(const std::string & n) { name = n; }
-	std::string get_name(void) const { return name; }
+	std::string get_name() const { return name; }
 private:
-	std::string & autoname_prefix(void);
-	std::string default_TeX_name(void) const;
+	std::string & autoname_prefix();
+	std::string default_TeX_name() const;
 
 // member variables
 
 protected:
-	assigned_ex_info * asexinfop;   ///< ptr to assigned expression, deprecated
-	unsigned serial;       ///< unique serial number for comparison
-	std::string name;      ///< printname of this symbol
-	std::string TeX_name;  ///< LaTeX name of this symbol
+	ptr<assigned_ex_info> asexinfop; ///< assigned expression, only for private use by ginsh
+	unsigned serial;                 ///< unique serial number for comparison
+	std::string name;                ///< printname of this symbol
+	std::string TeX_name;            ///< LaTeX name of this symbol
 private:
 	static unsigned next_serial;
 };

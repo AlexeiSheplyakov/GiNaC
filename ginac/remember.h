@@ -41,9 +41,9 @@ class remember_table_entry {
 public:
 	remember_table_entry(function const & f, ex const & r);
 	bool is_equal(function const & f) const;
-	ex get_result(void) const { return result; }
-	unsigned long get_last_access(void) const { return last_access; }
-	unsigned long get_successful_hits(void) const { return successful_hits; };
+	ex get_result() const { return result; }
+	unsigned long get_last_access() const { return last_access; }
+	unsigned long get_successful_hits() const { return successful_hits; };
 
 protected:
 	unsigned hashvalue;
@@ -86,11 +86,11 @@ public:
 	remember_table(unsigned s, unsigned as, unsigned strat);
 	bool lookup_entry(function const & f, ex & result) const;
 	void add_entry(function const & f, ex const & result);
-	void clear_all_entries(void);
+	void clear_all_entries();
 	void show_statistics(std::ostream & os, unsigned level) const;
-	static std::vector<remember_table> & remember_tables(void);
+	static std::vector<remember_table> & remember_tables();
 protected:
-	void init_table(void);
+	void init_table();
 	unsigned table_size;
 	unsigned max_assoc_size;
 	unsigned remember_strategy;

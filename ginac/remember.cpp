@@ -44,8 +44,8 @@ bool remember_table_entry::is_equal(function const & f) const
 {
 	GINAC_ASSERT(f.seq.size()==seq.size());
 	if (f.gethash()!=hashvalue) return false;
-	unsigned num = seq.size();
-	for (unsigned i=0; i<num; ++i)
+	size_t num = seq.size();
+	for (size_t i=0; i<num; ++i)
 		if (!seq[i].is_equal(f.seq[i])) return false;
 	++last_access = access_counter;
 	++successful_hits;
@@ -168,20 +168,20 @@ void remember_table::add_entry(function const & f, ex const & result)
 	operator[](entry).add_entry(f,result);
 }        
 
-void remember_table::clear_all_entries(void)
+void remember_table::clear_all_entries()
 {
 	clear();
 	init_table();
 }
 
-void remember_table::init_table(void)
+void remember_table::init_table()
 {
 	reserve(table_size);
 	for (unsigned i=0; i<table_size; ++i)
 		push_back(remember_table_list(max_assoc_size,remember_strategy));
 }
 
-std::vector<remember_table> & remember_table::remember_tables(void)
+std::vector<remember_table> & remember_table::remember_tables()
 {
 	static std::vector<remember_table> * rt = new std::vector<remember_table>;
 	return *rt;

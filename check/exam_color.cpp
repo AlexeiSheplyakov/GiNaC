@@ -44,7 +44,7 @@ static unsigned check_equal_simplify(const ex &e1, const ex &e2)
 	return 0;
 }
 
-static unsigned color_check1(void)
+static unsigned color_check1()
 {
 	// checks general identities and contractions of the structure constants
 
@@ -78,7 +78,7 @@ static unsigned color_check1(void)
 	return result;
 }
 
-static unsigned color_check2(void)
+static unsigned color_check2()
 {
 	// checks general identities and contractions of the generators
 
@@ -107,7 +107,7 @@ static unsigned color_check2(void)
 	return result;
 }
 
-static unsigned color_check3(void)
+static unsigned color_check3()
 {
 	// checks traces
 
@@ -128,7 +128,7 @@ static unsigned color_check3(void)
 	return result;
 }
 
-unsigned exam_color(void)
+unsigned exam_color()
 {
 	unsigned result = 0;
 	

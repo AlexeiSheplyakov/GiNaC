@@ -56,7 +56,7 @@ static unsigned test(unsigned n)
 	return 0;
 }
 
-unsigned time_lw_H(void)
+unsigned time_lw_H()
 {
 	unsigned result = 0;
 	unsigned count = 0;

@@ -41,7 +41,7 @@ protected:
 
 	// functions overriding virtual functions from base classes
 protected:
-	unsigned return_type(void) const { return return_types::noncommutative_composite; }
+	unsigned return_type() const { return return_types::noncommutative_composite; }
 
 	// non-virtual functions in this class
 public:
@@ -140,7 +140,7 @@ public:
 	// member variables
 private:
 	bool minkowski; /**< If true, tensor is in Minkowski-type space. Otherwise it is in a Euclidean space. */
-	bool pos_sig;  /**< If true, the metric is assumed to be diag(-1,1,1...). Otherwise it is diag(1,-1,-1,...). This is only relevant if minkowski = true. */
+	bool pos_sig;   /**< If true, the metric is assumed to be diag(-1,1,1...). Otherwise it is diag(1,-1,-1,...). This is only relevant if minkowski = true. */
 };
 
 

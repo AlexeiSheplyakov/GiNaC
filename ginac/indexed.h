@@ -26,6 +26,7 @@
 #include <map>
 
 #include "exprseq.h"
+#include "wildcard.h"
 
 namespace GiNaC {
 
@@ -144,16 +145,16 @@ public:
 	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
-	unsigned precedence(void) const {return 55;}
+	unsigned precedence() const {return 55;}
 	bool info(unsigned inf) const;
 	ex eval(int level = 0) const;
-	exvector get_free_indices(void) const;
+	exvector get_free_indices() const;
 
 protected:
 	ex derivative(const symbol & s) const;
-	ex thisexprseq(const exvector & v) const;
-	ex thisexprseq(exvector * vp) const;
-	unsigned return_type(void) const { return return_types::commutative; }
+	ex thiscontainer(const exvector & v) const;
+	ex thiscontainer(exvector * vp) const;
+	unsigned return_type() const { return return_types::commutative; }
 	ex expand(unsigned options = 0) const;
 
 	// new virtual functions which can be overridden by derived classes
@@ -166,10 +167,10 @@ public:
 	bool all_index_values_are(unsigned inf) const;
 
 	/** Return a vector containing the object's indices. */
-	exvector get_indices(void) const;
+	exvector get_indices() const;
 
 	/** Return a vector containing the dummy indices of the object, if any. */
-	exvector get_dummy_indices(void) const;
+	exvector get_dummy_indices() const;
 
 	/** Return a vector containing the dummy indices in the contraction with
 	 *  another indexed object. */
@@ -180,11 +181,11 @@ public:
 	bool has_dummy_index_for(const ex & i) const;
 
 	/** Return symmetry properties. */
-	ex get_symmetry(void) const {return symtree;}
+	ex get_symmetry() const {return symtree;}
 
 protected:
 	void printindices(const print_context & c, unsigned level) const;
-	void validate(void) const;
+	void validate() const;
 
 	// member variables
 protected:
@@ -192,17 +193,21 @@ protected:
 };
 
 
-typedef std::pair<ex, ex> spmapkey;
+class spmapkey {
+public:
+	spmapkey() : dim(wild()) {}
+	spmapkey(const ex & v1, const ex & v2, const ex & dim = wild());
 
-struct spmapkey_is_less {
-	bool operator() (const spmapkey &p, const spmapkey &q) const 
-	{
-		int cmp = p.first.compare(q.first);
-		return ((cmp<0) || (!(cmp>0) && p.second.compare(q.second)<0));
-	}
+	bool operator==(const spmapkey &other) const;
+	bool operator<(const spmapkey &other) const;
+
+	void debugprint() const;
+
+protected:
+	ex v1, v2, dim;
 };
 
-typedef std::map<spmapkey, ex, spmapkey_is_less> spmap;
+typedef std::map<spmapkey, ex> spmap;
 
 /** Helper class for storing information about known scalar products which
  *  are to be automatically replaced by simplify_indexed().
@@ -213,21 +218,22 @@ public:
 	/** Register scalar product pair and its value. */
 	void add(const ex & v1, const ex & v2, const ex & sp);
 
+	/** Register scalar product pair and its value for a specific space dimension. */
+	void add(const ex & v1, const ex & v2, const ex & dim, const ex & sp);
+
 	/** Register list of vectors. This adds all possible pairs of products
 	 *  a.i * b.i with the value a*b (note that this is not a scalar vector
 	 *  product but an ordinary product of scalars). */
-	void add_vectors(const lst & l);
+	void add_vectors(const lst & l, const ex & dim = wild());
 
 	/** Clear all registered scalar products. */
-	void clear(void);
+	void clear();
 
-	bool is_defined(const ex & v1, const ex & v2) const;
-	ex evaluate(const ex & v1, const ex & v2) const;
-	void debugprint(void) const;
+	bool is_defined(const ex & v1, const ex & v2, const ex & dim) const;
+	ex evaluate(const ex & v1, const ex & v2, const ex & dim) const;
+	void debugprint() const;
 
-private:
-	static spmapkey make_key(const ex & v1, const ex & v2);
-
+protected:
 	spmap spm; /*< Map from defined scalar product pairs to their values */
 };
 

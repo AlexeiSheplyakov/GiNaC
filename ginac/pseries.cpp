@@ -31,6 +31,7 @@
 #include "mul.h"
 #include "power.h"
 #include "relational.h"
+#include "operators.h"
 #include "symbol.h"
 #include "print.h"
 #include "archive.h"
@@ -42,20 +43,10 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(pseries, basic)
 
 
 /*
- *  Default ctor, dtor, copy ctor, assignment operator and helpers
+ *  Default constructor
  */
 
 pseries::pseries() : inherited(TINFO_pseries) { }
-
-void pseries::copy(const pseries &other)
-{
-	inherited::copy(other);
-	seq = other.seq;
-	var = other.var;
-	point = other.point;
-}
-
-DEFAULT_DESTROY(pseries)
 
 
 /*
@@ -84,7 +75,7 @@ pseries::pseries(const ex &rel_, const epvector &ops_) : basic(TINFO_pseries), s
  *  Archiving
  */
 
-pseries::pseries(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+pseries::pseries(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
 {
 	for (unsigned int i=0; true; ++i) {
 		ex rest;
@@ -125,8 +116,8 @@ void pseries::print(const print_context & c, unsigned level) const
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 		    << std::endl;
 		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
-		unsigned num = seq.size();
-		for (unsigned i=0; i<num; ++i) {
+		size_t num = seq.size();
+		for (size_t i=0; i<num; ++i) {
 			seq[i].rest.print(c, level + delta_indent);
 			seq[i].coeff.print(c, level + delta_indent);
 			c.s << std::string(level + delta_indent, ' ') << "-----" << std::endl;
@@ -140,8 +131,8 @@ void pseries::print(const print_context & c, unsigned level) const
 		c.s << ',';
 		point.print(c);
 		c.s << "),[";
-		unsigned num = seq.size();
-		for (unsigned i=0; i<num; ++i) {
+		size_t num = seq.size();
+		for (size_t i=0; i<num; ++i) {
 			if (i)
 				c.s << ',';
 			c.s << '(';
@@ -253,22 +244,18 @@ int pseries::compare_same_type(const basic & other) const
 }
 
 /** Return the number of operands including a possible order term. */
-unsigned pseries::nops(void) const
+size_t pseries::nops() const
 {
 	return seq.size();
 }
 
 /** Return the ith term in the series when represented as a sum. */
-ex pseries::op(int i) const
+ex pseries::op(size_t i) const
 {
-	if (i < 0 || unsigned(i) >= seq.size())
+	if (i >= seq.size())
 		throw (std::out_of_range("op() out of range"));
-	return seq[i].rest * power(var - point, seq[i].coeff);
-}
 
-ex &pseries::let_op(int i)
-{
-	throw (std::logic_error("let_op not defined for pseries"));
+	return seq[i].rest * power(var - point, seq[i].coeff);
 }
 
 /** Return degree of highest power of the series.  This is usually the exponent
@@ -409,13 +396,13 @@ ex pseries::evalf(int level) const
 	return (new pseries(relational(var,point), new_seq))->setflag(status_flags::dynallocated | status_flags::evaluated);
 }
 
-ex pseries::subs(const lst & ls, const lst & lr, bool no_pattern) const
+ex pseries::subs(const lst & ls, const lst & lr, unsigned options) const
 {
 	// If expansion variable is being substituted, convert the series to a
 	// polynomial and do the substitution there because the result might
 	// no longer be a power series
 	if (ls.has(var))
-		return convert_to_poly(true).subs(ls, lr, no_pattern);
+		return convert_to_poly(true).subs(ls, lr, options);
 	
 	// Otherwise construct a new series with substituted coefficients and
 	// expansion point
@@ -423,10 +410,10 @@ ex pseries::subs(const lst & ls, const lst & lr, bool no_pattern) const
 	newseq.reserve(seq.size());
 	epvector::const_iterator it = seq.begin(), itend = seq.end();
 	while (it != itend) {
-		newseq.push_back(expair(it->rest.subs(ls, lr, no_pattern), it->coeff));
+		newseq.push_back(expair(it->rest.subs(ls, lr, options), it->coeff));
 		++it;
 	}
-	return (new pseries(relational(var,point.subs(ls, lr, no_pattern)), newseq))->setflag(status_flags::dynallocated);
+	return (new pseries(relational(var,point.subs(ls, lr, options)), newseq))->setflag(status_flags::dynallocated);
 }
 
 /** Implementation of ex::expand() for a power series.  It expands all the
@@ -499,7 +486,7 @@ ex pseries::convert_to_poly(bool no_order) const
 	return e;
 }
 
-bool pseries::is_terminating(void) const
+bool pseries::is_terminating() const
 {
 	return seq.empty() || !is_order_function((seq.end()-1)->rest);
 }
@@ -943,11 +930,10 @@ ex pseries::series(const relational & r, int order, unsigned options) const
  *  @return an expression holding a pseries object */
 ex ex::series(const ex & r, int order, unsigned options) const
 {
-	GINAC_ASSERT(bp!=0);
 	ex e;
 	relational rel_;
 	
-	if (is_exactly_a<relational>(r))
+	if (is_a<relational>(r))
 		rel_ = ex_to<relational>(r);
 	else if (is_a<symbol>(r))
 		rel_ = relational(r,_ex0);

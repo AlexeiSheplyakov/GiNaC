@@ -23,7 +23,7 @@
 
 #include "times.h"
 
-static unsigned test(void)
+static unsigned test()
 {
 	for (int i=1; i<=99; ++i)
 		factorial(1000+i)/factorial(900+i);
@@ -36,7 +36,7 @@ static unsigned test(void)
 	return 0;
 }
 
-unsigned time_lw_A(void)
+unsigned time_lw_A()
 {
 	unsigned result = 0;
 	unsigned count = 0;

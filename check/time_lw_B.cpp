@@ -23,7 +23,7 @@
 
 #include "times.h"
 
-static unsigned test(void)
+static unsigned test()
 {
 	numeric s;
 	
@@ -37,7 +37,7 @@ static unsigned test(void)
 	return 0;
 }
 
-unsigned time_lw_B(void)
+unsigned time_lw_B()
 {
 	unsigned result = 0;
 	unsigned count = 0;

@@ -41,7 +41,7 @@ class power : public basic
 	
 // member functions
 	
-	// other ctors
+	// other constructors
 public:
 	power(const ex & lh, const ex & rh) : inherited(TINFO_power), basis(lh), exponent(rh) {}
 	template<typename T> power(const ex & lh, const T & rh) : inherited(TINFO_power), basis(lh), exponent(rh) {}
@@ -49,27 +49,28 @@ public:
 	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
-	unsigned precedence(void) const {return 60;}
+	unsigned precedence() const {return 60;}
 	bool info(unsigned inf) const;
-	unsigned nops() const;
-	ex & let_op(int i);
+	size_t nops() const;
+	ex op(size_t i) const;
 	ex map(map_function & f) const;
 	int degree(const ex & s) const;
 	int ldegree(const ex & s) const;
 	ex coeff(const ex & s, int n = 1) const;
 	ex eval(int level=0) const;
 	ex evalf(int level=0) const;
-	ex evalm(void) const;
+	ex evalm() const;
 	ex series(const relational & s, int order, unsigned options = 0) const;
-	ex subs(const lst & ls, const lst & lr, bool no_pattern = false) const;
+	ex subs(const lst & ls, const lst & lr, unsigned options = 0) const;
 	ex normal(lst &sym_lst, lst &repl_lst, int level = 0) const;
 	ex to_rational(lst &repl_lst) const;
-	exvector get_free_indices(void) const;
-	ex simplify_ncmul(const exvector & v) const;
+	ex to_polynomial(lst &repl_lst) const;
+	exvector get_free_indices() const;
 protected:
 	ex derivative(const symbol & s) const;
-	unsigned return_type(void) const;
-	unsigned return_type_tinfo(void) const;
+	ex eval_ncmul(const exvector & v) const;
+	unsigned return_type() const;
+	unsigned return_type_tinfo() const;
 	ex expand(unsigned options = 0) const;
 	
 	// new virtual functions which can be overridden by derived classes

@@ -90,16 +90,21 @@ DECLARE_FUNCTION_1P(Li3)
 
 // overloading at work: we cannot use the macros here
 /** Riemann's Zeta-function. */
-extern const unsigned function_index_zeta1;
+class zeta1_SERIAL { public: static unsigned serial; };
 template<typename T1>
 inline function zeta(const T1 & p1) {
-	return function(function_index_zeta1, ex(p1));
+	return function(zeta1_SERIAL::serial, ex(p1));
 }
 /** Derivatives of Riemann's Zeta-function. */
-extern const unsigned function_index_zeta2;
+class zeta2_SERIAL { public: static unsigned serial; };
 template<typename T1, typename T2>
 inline function zeta(const T1 & p1, const T2 & p2) {
-	return function(function_index_zeta2, ex(p1), ex(p2));
+	return function(zeta2_SERIAL::serial, ex(p1), ex(p2));
+}
+class zeta_SERIAL;
+template<> inline bool is_the_function<class zeta_SERIAL>(const ex & x)
+{
+	return is_the_function<zeta1_SERIAL>(x) || is_the_function<zeta2_SERIAL>(x);
 }
 
 /** Gamma-function. */
@@ -111,16 +116,21 @@ DECLARE_FUNCTION_2P(beta)
 
 // overloading at work: we cannot use the macros here
 /** Psi-function (aka digamma-function). */
-extern const unsigned function_index_psi1;
+class psi1_SERIAL { public: static unsigned serial; };
 template<typename T1>
 inline function psi(const T1 & p1) {
-	return function(function_index_psi1, ex(p1));
+	return function(psi1_SERIAL::serial, ex(p1));
 }
 /** Derivatives of Psi-function (aka polygamma-functions). */
-extern const unsigned function_index_psi2;
+class psi2_SERIAL { public: static unsigned serial; };
 template<typename T1, typename T2>
 inline function psi(const T1 & p1, const T2 & p2) {
-	return function(function_index_psi2, ex(p1), ex(p2));
+	return function(psi2_SERIAL::serial, ex(p1), ex(p2));
+}
+class psi_SERIAL;
+template<> inline bool is_the_function<class psi_SERIAL>(const ex & x)
+{
+	return is_the_function<psi1_SERIAL>(x) || is_the_function<psi2_SERIAL>(x);
 }
 	
 /** Factorial function. */
@@ -132,7 +142,7 @@ DECLARE_FUNCTION_2P(binomial)
 /** Order term function (for truncated power series). */
 DECLARE_FUNCTION_1P(Order)
 
-ex lsolve(const ex &eqns, const ex &symbols, unsigned options = determinant_algo::automatic);
+ex lsolve(const ex &eqns, const ex &symbols, unsigned options = solve_algo::automatic);
 
 /** Check whether a function is the Order (O(n)) function. */
 inline bool is_order_function(const ex & e)

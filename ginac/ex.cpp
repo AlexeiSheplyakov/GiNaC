@@ -37,7 +37,7 @@
 namespace GiNaC {
 
 //////////
-// other ctors
+// other constructors
 //////////
 
 // none (all inlined)
@@ -55,34 +55,23 @@ namespace GiNaC {
  *  @see print_context */
 void ex::print(const print_context & c, unsigned level) const
 {
-	GINAC_ASSERT(bp!=0);
 	bp->print(c, level);
 }
 
-/** Print expression to stream in a tree-like format suitable for debugging. */
-void ex::printtree(std::ostream & os) const
-{
-	GINAC_ASSERT(bp!=0);
-	bp->print(print_tree(os));
-}
-
 /** Little wrapper arount print to be called within a debugger. */
-void ex::dbgprint(void) const
+void ex::dbgprint() const
 {
-	GINAC_ASSERT(bp!=0);
 	bp->dbgprint();
 }
 
 /** Little wrapper arount printtree to be called within a debugger. */
-void ex::dbgprinttree(void) const
+void ex::dbgprinttree() const
 {
-	GINAC_ASSERT(bp!=0);
 	bp->dbgprinttree();
 }
 
 ex ex::expand(unsigned options) const
 {
-	GINAC_ASSERT(bp!=0);
 	if (options == 0 && (bp->flags & status_flags::expanded)) // The "expanded" flag only covers the standard options; someone might want to re-expand with different options
 		return *bp;
 	else
@@ -96,8 +85,6 @@ ex ex::expand(unsigned options) const
  *  @return partial derivative as a new expression */
 ex ex::diff(const symbol & s, unsigned nth) const
 {
-	GINAC_ASSERT(bp!=0);
-
 	if (!nth)
 		return *this;
 	else
@@ -124,46 +111,65 @@ bool ex::find(const ex & pattern, lst & found) const
 		return true;
 	}
 	bool any_found = false;
-	for (unsigned i=0; i<nops(); i++)
+	for (size_t i=0; i<nops(); i++)
 		if (op(i).find(pattern, found))
 			any_found = true;
 	return any_found;
 }
 
-ex ex::operator[](const ex & index) const
+/** Traverse expression tree with given visitor, preorder traversal. */
+void ex::traverse_preorder(visitor & v) const
 {
-	GINAC_ASSERT(bp!=0);
-	return (*bp)[index];
+	accept(v);
+
+	size_t n = nops();
+	for (size_t i = 0; i < n; ++i)
+		op(i).traverse_preorder(v);
 }
 
-ex ex::operator[](int i) const
+/** Traverse expression tree with given visitor, postorder traversal. */
+void ex::traverse_postorder(visitor & v) const
 {
-	GINAC_ASSERT(bp!=0);
-	return (*bp)[i];
+	size_t n = nops();
+	for (size_t i = 0; i < n; ++i)
+		op(i).traverse_postorder(v);
+
+	accept(v);
 }
 
 /** Return modifyable operand/member at position i. */
-ex & ex::let_op(int i)
+ex & ex::let_op(size_t i)
 {
 	makewriteable();
-	GINAC_ASSERT(bp!=0);
 	return bp->let_op(i);
 }
 
-/** Left hand side of relational expression. */
-ex ex::lhs(void) const
+ex & ex::operator[](const ex & index)
 {
-	if (!is_ex_of_type(*this,relational))
+	makewriteable();
+	return (*bp)[index];
+}
+
+ex & ex::operator[](size_t i)
+{
+	makewriteable();
+	return (*bp)[i];
+}
+
+/** Left hand side of relational expression. */
+ex ex::lhs() const
+{
+	if (!is_a<relational>(*this))
 		throw std::runtime_error("ex::lhs(): not a relation");
-	return (*static_cast<relational *>(bp)).lhs();
+	return bp->op(0);
 }
 
 /** Right hand side of relational expression. */
-ex ex::rhs(void) const
+ex ex::rhs() const
 {
-	if (!is_ex_of_type(*this,relational))
+	if (!is_a<relational>(*this))
 		throw std::runtime_error("ex::rhs(): not a relation");
-	return (*static_cast<relational *>(bp)).rhs();
+	return bp->op(1);
 }
 
 // private
@@ -172,419 +178,285 @@ ex ex::rhs(void) const
  *  unlinking the object and creating an unshared copy of it. */
 void ex::makewriteable()
 {
-	GINAC_ASSERT(bp!=0);
 	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
-	if (bp->refcount > 1) {
-		basic * bp2 = bp->duplicate();
-		++bp2->refcount;
-		bp2->setflag(status_flags::dynallocated);
-		--bp->refcount;
-		bp = bp2;
-	}
-	GINAC_ASSERT(bp->refcount==1);
+	bp.makewritable();
+	GINAC_ASSERT(bp->refcount == 1);
 }
 
-/** Ctor from basic implementation.
+/** Helper function for the ex-from-basic constructor. This is where GiNaC's
+ *  automatic evaluator and memory management are implemented.
  *  @see ex::ex(const basic &) */
-void ex::construct_from_basic(const basic & other)
+ptr<basic> ex::construct_from_basic(const basic & other)
 {
 	if (!(other.flags & status_flags::evaluated)) {
-		const ex & tmpex = other.eval(1); // evaluate only one (top) level
-		bp = tmpex.bp;
-		GINAC_ASSERT(bp->flags & status_flags::dynallocated);
-		++bp->refcount;
+
+		// The object is not yet evaluated, so call eval() to evaluate
+		// the top level. This will return either
+		//  a) the original object with status_flags::evaluated set (when the
+		//     eval() implementation calls hold())
+		// or
+		//  b) a different expression.
+		//
+		// eval() returns an ex, not a basic&, so this will go through
+		// construct_from_basic() a second time. In case a) we end up in
+		// the "else" branch below. In case b) we end up here again and
+		// apply eval() once more. The recursion stops when eval() calls
+		// hold() or returns an object that already has its "evaluated"
+		// flag set, such as a symbol or a numeric.
+		const ex & tmpex = other.eval(1);
+
+		// Eventually, the eval() recursion goes through the "else" branch
+		// below, which assures that the object pointed to by tmpex.bp is
+		// allocated on the heap (either it was already on the heap or it
+		// is a heap-allocated duplicate of another object).
+		GINAC_ASSERT(tmpex.bp->flags & status_flags::dynallocated); 
+
+		// If the original object is not referenced but heap-allocated,
+		// it means that eval() hit case b) above. The original object is
+		// no longer needed (it evaluated into something different), so we
+		// delete it (because nobody else will).
 		if ((other.refcount==0) && (other.flags & status_flags::dynallocated))
-			delete &const_cast<basic &>(other);
+			delete &other; // yes, you can apply delete to a const pointer
+
+		// We can't return a basic& here because the tmpex is destroyed as
+		// soon as we leave the function, which would deallocate the
+		// evaluated object.
+		return tmpex.bp;
+
 	} else {
+
+		// The easy case: making an "ex" out of an evaluated object.
 		if (other.flags & status_flags::dynallocated) {
-			// ok, it is already on the heap, so just copy bp:
-			bp = &const_cast<basic &>(other);
+
+			// The object is already heap-allocated, so we can just make
+			// another reference to it.
+			return ptr<basic>(const_cast<basic &>(other));
+
 		} else {
-			// create a duplicate on the heap:
-			bp = other.duplicate();
+
+			// The object is not heap-allocated, so we create a duplicate
+			// on the heap.
+			basic *bp = other.duplicate();
 			bp->setflag(status_flags::dynallocated);
+			GINAC_ASSERT(bp->refcount == 0);
+			return bp;
 		}
-		GINAC_ASSERT(bp!=0);
-		++bp->refcount;
 	}
-	GINAC_ASSERT(bp!=0);
-	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
 }
 
-void ex::construct_from_int(int i)
+basic & ex::construct_from_int(int i)
 {
 	switch (i) {  // prefer flyweights over new objects
 	case -12:
-		bp = (basic*)_num_12_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num_12);
 	case -11:
-		bp = (basic*)_num_11_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num_11);
 	case -10:
-		bp = (basic*)_num_10_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num_10);
 	case -9:
-		bp = (basic*)_num_9_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num_9);
 	case -8:
-		bp = (basic*)_num_8_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num_8);
 	case -7:
-		bp = (basic*)_num_7_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num_7);
 	case -6:
-		bp = (basic*)_num_6_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num_6);
 	case -5:
-		bp = (basic*)_num_5_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num_5);
 	case -4:
-		bp = (basic*)_num_4_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num_4);
 	case -3:
-		bp = (basic*)_num_3_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num_3);
 	case -2:
-		bp = (basic*)_num_2_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num_2);
 	case -1:
-		bp = (basic*)_num_1_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num_1);
 	case 0:
-		bp = (basic*)_num0_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num0);
 	case 1:
-		bp = (basic*)_num1_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num1);
 	case 2:
-		bp = (basic*)_num2_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num2);
 	case 3:
-		bp = (basic*)_num3_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num3);
 	case 4:
-		bp = (basic*)_num4_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num4);
 	case 5:
-		bp = (basic*)_num5_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num5);
 	case 6:
-		bp = (basic*)_num6_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num6);
 	case 7:
-		bp = (basic*)_num7_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num7);
 	case 8:
-		bp = (basic*)_num8_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num8);
 	case 9:
-		bp = (basic*)_num9_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num9);
 	case 10:
-		bp = (basic*)_num10_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num10);
 	case 11:
-		bp = (basic*)_num11_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num11);
 	case 12:
-		bp = (basic*)_num12_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num12);
 	default:
-		bp = new numeric(i);
+		basic *bp = new numeric(i);
 		bp->setflag(status_flags::dynallocated);
-		++bp->refcount;
-		GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
-		GINAC_ASSERT(bp->refcount==1);
+		GINAC_ASSERT(bp->refcount == 0);
+		return *bp;
 	}
 }
 	
-void ex::construct_from_uint(unsigned int i)
+basic & ex::construct_from_uint(unsigned int i)
 {
 	switch (i) {  // prefer flyweights over new objects
 	case 0:
-		bp = (basic*)_num0_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num0);
 	case 1:
-		bp = (basic*)_num1_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num1);
 	case 2:
-		bp = (basic*)_num2_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num2);
 	case 3:
-		bp = (basic*)_num3_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num3);
 	case 4:
-		bp = (basic*)_num4_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num4);
 	case 5:
-		bp = (basic*)_num5_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num5);
 	case 6:
-		bp = (basic*)_num6_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num6);
 	case 7:
-		bp = (basic*)_num7_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num7);
 	case 8:
-		bp = (basic*)_num8_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num8);
 	case 9:
-		bp = (basic*)_num9_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num9);
 	case 10:
-		bp = (basic*)_num10_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num10);
 	case 11:
-		bp = (basic*)_num11_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num11);
 	case 12:
-		bp = (basic*)_num12_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num12);
 	default:
-		bp = new numeric(i);
+		basic *bp = new numeric(i);
 		bp->setflag(status_flags::dynallocated);
-		++bp->refcount;
-		GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
-		GINAC_ASSERT(bp->refcount==1);
+		GINAC_ASSERT(bp->refcount == 0);
+		return *bp;
 	}
 }
 	
-void ex::construct_from_long(long i)
+basic & ex::construct_from_long(long i)
 {
 	switch (i) {  // prefer flyweights over new objects
 	case -12:
-		bp = (basic*)_num_12_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num_12);
 	case -11:
-		bp = (basic*)_num_11_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num_11);
 	case -10:
-		bp = (basic*)_num_10_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num_10);
 	case -9:
-		bp = (basic*)_num_9_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num_9);
 	case -8:
-		bp = (basic*)_num_8_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num_8);
 	case -7:
-		bp = (basic*)_num_7_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num_7);
 	case -6:
-		bp = (basic*)_num_6_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num_6);
 	case -5:
-		bp = (basic*)_num_5_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num_5);
 	case -4:
-		bp = (basic*)_num_4_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num_4);
 	case -3:
-		bp = (basic*)_num_3_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num_3);
 	case -2:
-		bp = (basic*)_num_2_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num_2);
 	case -1:
-		bp = (basic*)_num_1_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num_1);
 	case 0:
-		bp = (basic*)_num0_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num0);
 	case 1:
-		bp = (basic*)_num1_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num1);
 	case 2:
-		bp = (basic*)_num2_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num2);
 	case 3:
-		bp = (basic*)_num3_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num3);
 	case 4:
-		bp = (basic*)_num4_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num4);
 	case 5:
-		bp = (basic*)_num5_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num5);
 	case 6:
-		bp = (basic*)_num6_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num6);
 	case 7:
-		bp = (basic*)_num7_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num7);
 	case 8:
-		bp = (basic*)_num8_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num8);
 	case 9:
-		bp = (basic*)_num9_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num9);
 	case 10:
-		bp = (basic*)_num10_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num10);
 	case 11:
-		bp = (basic*)_num11_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num11);
 	case 12:
-		bp = (basic*)_num12_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num12);
 	default:
-		bp = new numeric(i);
+		basic *bp = new numeric(i);
 		bp->setflag(status_flags::dynallocated);
-		++bp->refcount;
-		GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
-		GINAC_ASSERT(bp->refcount==1);
+		GINAC_ASSERT(bp->refcount == 0);
+		return *bp;
 	}
 }
 	
-void ex::construct_from_ulong(unsigned long i)
+basic & ex::construct_from_ulong(unsigned long i)
 {
 	switch (i) {  // prefer flyweights over new objects
 	case 0:
-		bp = (basic*)_num0_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num0);
 	case 1:
-		bp = (basic*)_num1_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num1);
 	case 2:
-		bp = (basic*)_num2_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num2);
 	case 3:
-		bp = (basic*)_num3_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num3);
 	case 4:
-		bp = (basic*)_num4_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num4);
 	case 5:
-		bp = (basic*)_num5_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num5);
 	case 6:
-		bp = (basic*)_num6_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num6);
 	case 7:
-		bp = (basic*)_num7_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num7);
 	case 8:
-		bp = (basic*)_num8_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num8);
 	case 9:
-		bp = (basic*)_num9_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num9);
 	case 10:
-		bp = (basic*)_num10_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num10);
 	case 11:
-		bp = (basic*)_num11_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num11);
 	case 12:
-		bp = (basic*)_num12_p;
-		++bp->refcount;
-		break;
+		return const_cast<numeric &>(_num12);
 	default:
-		bp = new numeric(i);
+		basic *bp = new numeric(i);
 		bp->setflag(status_flags::dynallocated);
-		++bp->refcount;
-		GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
-		GINAC_ASSERT(bp->refcount==1);
+		GINAC_ASSERT(bp->refcount == 0);
+		return *bp;
 	}
 }
 	
-void ex::construct_from_double(double d)
+basic & ex::construct_from_double(double d)
 {
-	bp = new numeric(d);
+	basic *bp = new numeric(d);
 	bp->setflag(status_flags::dynallocated);
-	++bp->refcount;
-	GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
-	GINAC_ASSERT(bp->refcount==1);
+	GINAC_ASSERT(bp->refcount == 0);
+	return *bp;
 }
 
-void ex::construct_from_string_and_lst(const std::string &s, const ex &l)
+ptr<basic> ex::construct_from_string_and_lst(const std::string &s, const ex &l)
 {
 	set_lexer_string(s);
 	set_lexer_symbols(l);
 	ginac_yyrestart(NULL);
 	if (ginac_yyparse())
 		throw (std::runtime_error(get_parser_error()));
-	else {
-		bp = parsed_ex.bp;
-		GINAC_ASSERT(bp!=0);
-		GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
-		++bp->refcount;
-	}
+	else
+		return parsed_ex.bp;
 }
 	
 //////////

@@ -24,7 +24,7 @@
 #include "exams.h"
 
 /* Assorted tests on other transcendental functions. */
-static unsigned inifcns_consist_trans(void)
+static unsigned inifcns_consist_trans()
 {
 	unsigned result = 0;
 	symbol x("x");
@@ -116,7 +116,7 @@ static unsigned inifcns_consist_trans(void)
 
 /* Simple tests on the tgamma function.  We stuff in arguments where the results
  * exists in closed form and check if it's ok. */
-static unsigned inifcns_consist_gamma(void)
+static unsigned inifcns_consist_gamma()
 {
 	unsigned result = 0;
 	ex e;
@@ -161,7 +161,7 @@ static unsigned inifcns_consist_gamma(void)
 
 /* Simple tests on the Psi-function (aka polygamma-function).  We stuff in
    arguments where the result exists in closed form and check if it's ok. */
-static unsigned inifcns_consist_psi(void)
+static unsigned inifcns_consist_psi()
 {
 	unsigned result = 0;
 	symbol x;
@@ -183,7 +183,7 @@ static unsigned inifcns_consist_psi(void)
 /* Simple tests on the Riemann Zeta function.  We stuff in arguments where the
  * result exists in closed form and check if it's ok.  Of course, this checks
  * the Bernoulli numbers as a side effect. */
-static unsigned inifcns_consist_zeta(void)
+static unsigned inifcns_consist_zeta()
 {
 	unsigned result = 0;
 	ex e;
@@ -208,7 +208,7 @@ static unsigned inifcns_consist_zeta(void)
 	return result;
 }
 
-unsigned exam_inifcns(void)
+unsigned exam_inifcns()
 {
 	unsigned result = 0;
 	

@@ -55,7 +55,7 @@ static unsigned check_equal_simplify(const ex &e1, const ex &e2, const scalar_pr
 	return 0;
 }
 
-static unsigned delta_check(void)
+static unsigned delta_check()
 {
 	// checks identities of the delta tensor
 
@@ -81,7 +81,7 @@ static unsigned delta_check(void)
 	return result;
 }
 
-static unsigned metric_check(void)
+static unsigned metric_check()
 {
 	// checks identities of the metric tensor
 
@@ -114,7 +114,7 @@ static unsigned metric_check(void)
 	return result;
 }
 
-static unsigned epsilon_check(void)
+static unsigned epsilon_check()
 {
 	// checks identities of the epsilon tensor
 
@@ -153,7 +153,7 @@ REGISTER_FUNCTION(symm_fcn, set_symmetry(sy_symm(0, 1)));
 DECLARE_FUNCTION_2P(anti_fcn)
 REGISTER_FUNCTION(anti_fcn, set_symmetry(sy_anti(0, 1)));
 
-static unsigned symmetry_check(void)
+static unsigned symmetry_check()
 {
 	// check symmetric/antisymmetric objects
 
@@ -202,7 +202,7 @@ static unsigned symmetry_check(void)
 	return result;
 }
 
-static unsigned scalar_product_check(void)
+static unsigned scalar_product_check()
 {
 	// check scalar product replacement
 
@@ -225,7 +225,7 @@ static unsigned scalar_product_check(void)
 	return result;
 }
 
-static unsigned edyn_check(void)
+static unsigned edyn_check()
 {
 	// Relativistic electrodynamics
 
@@ -312,7 +312,7 @@ static unsigned edyn_check(void)
 	return result;
 }
 
-static unsigned spinor_check(void)
+static unsigned spinor_check()
 {
 	// check identities of the spinor metric
 
@@ -347,7 +347,7 @@ static unsigned spinor_check(void)
 	return result;
 }
 
-static unsigned dummy_check(void)
+static unsigned dummy_check()
 {
 	// check dummy index renaming/repositioning
 
@@ -380,7 +380,7 @@ static unsigned dummy_check(void)
 	return result;
 }
 
-unsigned exam_indexed(void)
+unsigned exam_indexed()
 {
 	unsigned result = 0;
 	

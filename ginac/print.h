@@ -28,17 +28,34 @@
 
 namespace GiNaC {
 
+
+/*
+ *  The following classes remain publicly visible for compatibility
+ *  reasons only. New code should use the iostream manipulators defined
+ *  in operators.h instead.
+ */
+
+
+/** Flags to control the behavior of a print_context. */
+class print_options {
+public:
+	enum {
+		print_index_dimensions = 0x0001 ///< print the dimensions of indices
+	};
+};
+
+
 /** Context for default (ginsh-parsable) output. */
 class print_context
 {
 public:
 	print_context();
-	print_context(std::ostream &);
+	print_context(std::ostream &, unsigned options = 0);
+	virtual ~print_context() {}
+	virtual print_context * duplicate() const {return new print_context(*this);}
 
 	std::ostream & s; /**< stream to output to */
-private:
-	// dummy virtual function to make the class polymorphic
-	virtual void dummy(void) {}
+	unsigned options; /**< option flags */
 };
 
 /** Context for latex-parsable output. */
@@ -46,7 +63,8 @@ class print_latex : public print_context
 {
 public:
 	print_latex();
-	print_latex(std::ostream &);
+	print_latex(std::ostream &, unsigned options = 0);
+	print_context * duplicate() const {return new print_latex(*this);}
 };
 
 /** Context for python pretty-print output. */
@@ -54,7 +72,8 @@ class print_python : public print_context
 {
 public:
 	print_python();
-	print_python(std::ostream &);
+	print_python(std::ostream &, unsigned options = 0);
+	print_context * duplicate() const {return new print_python(*this);}
 };
 
 /** Context for python-parsable output. */
@@ -62,7 +81,8 @@ class print_python_repr : public print_context
 {
 public:
 	print_python_repr();
-	print_python_repr(std::ostream &);
+	print_python_repr(std::ostream &, unsigned options = 0);
+	print_context * duplicate() const {return new print_python_repr(*this);}
 };
 
 /** Context for tree-like output for debugging. */
@@ -70,7 +90,9 @@ class print_tree : public print_context
 {
 public:
 	print_tree(unsigned d = 4);
-	print_tree(std::ostream &, unsigned d = 4);
+	print_tree(std::ostream &, unsigned options = 0, unsigned d = 4);
+	print_context * duplicate() const {return new print_tree(*this);}
+
 	const unsigned delta_indent; /**< size of indentation step */
 };
 
@@ -79,7 +101,8 @@ class print_csrc : public print_context
 {
 public:
 	print_csrc();
-	print_csrc(std::ostream &);
+	print_csrc(std::ostream &, unsigned options = 0);
+	print_context * duplicate() const {return new print_csrc(*this);}
 };
 
 /** Context for C source output using float precision. */
@@ -87,7 +110,8 @@ class print_csrc_float : public print_csrc
 {
 public:
 	print_csrc_float();
-	print_csrc_float(std::ostream &);
+	print_csrc_float(std::ostream &, unsigned options = 0);
+	print_context * duplicate() const {return new print_csrc_float(*this);}
 };
 
 /** Context for C source output using double precision. */
@@ -95,7 +119,8 @@ class print_csrc_double : public print_csrc
 {
 public:
 	print_csrc_double();
-	print_csrc_double(std::ostream &);
+	print_csrc_double(std::ostream &, unsigned options = 0);
+	print_context * duplicate() const {return new print_csrc_double(*this);}
 };
 
 /** Context for C source output using CLN numbers. */
@@ -103,7 +128,8 @@ class print_csrc_cl_N : public print_csrc
 {
 public:
 	print_csrc_cl_N();
-	print_csrc_cl_N(std::ostream &);
+	print_csrc_cl_N(std::ostream &, unsigned options = 0);
+	print_context * duplicate() const {return new print_csrc_cl_N(*this);}
 };
 
 /** Check if obj is a T, including base classes. */

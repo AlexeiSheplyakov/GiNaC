@@ -1,6 +1,6 @@
 /** @file structure.h
  *
- *  Interface to 'abstract' class structure. */
+ *  Wrapper template for making GiNaC classes out of C++ structures. */
 
 /*
  *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
@@ -23,36 +23,244 @@
 #ifndef __GINAC_STRUCTURE_H__
 #define __GINAC_STRUCTURE_H__
 
-#include "basic.h"
+#include <functional>
+
+#include "ex.h"
+#include "print.h"
 
 namespace GiNaC {
 
-struct registered_structure_info {
-	const char * name;
+extern unsigned next_structure_tinfo_key;
+
+
+/** Comparison policy: all structures of one type are equal */
+template <class T>
+class compare_all_equal {
+protected:
+	static bool struct_is_equal(const T * t1, const T * t2) { return true; }
+	static int struct_compare(const T * t1, const T * t2) { return 0; }
+
+	// disallow destruction of structure through a compare_all_equal*
+protected:
+	~compare_all_equal() {}
 };
 
-/** The class structure is used to implement user defined classes
-	with named members which behave similar to ordinary C structs.
-	structure is an 'abstract' base class (it is possible but not
-	meaningful to make instances), the user defined structures
-	will be create by the perl script structure.pl */
 
-class structure : public basic
-{
+/** Comparison policy: use std::equal_to/std::less (defaults to operators
+ *  == and <) to compare structures. */
+template <class T>
+class compare_std_less {
+protected:
+	static bool struct_is_equal(const T * t1, const T * t2)
+	{
+		return std::equal_to<T>()(*t1, *t2);
+	}
+
+	static int struct_compare(const T * t1, const T * t2)
+	{
+		if (std::less<T>()(*t1, *t2))
+			return -1;
+		else if (std::less<T>()(*t2, *t1))
+			return 1;
+		else
+			return 0;
+	}
+
+	// disallow destruction of structure through a compare_std_less*
+protected:
+	~compare_std_less() {}
+};
+
+
+/** Comparison policy: use bit-wise comparison to compare structures. */
+template <class T>
+class compare_bitwise {
+protected:
+	static bool struct_is_equal(const T * t1, const T * t2)
+	{
+		const char * cp1 = reinterpret_cast<const char *>(t1);
+		const char * cp2 = reinterpret_cast<const char *>(t2);
+
+		return std::equal(cp1, cp1 + sizeof(T), cp2);
+	}
+
+	static int struct_compare(const T * t1, const T * t2)
+	{
+		const unsigned char * cp1 = reinterpret_cast<const unsigned char *>(t1);
+		const unsigned char * cp2 = reinterpret_cast<const unsigned char *>(t2);
+		typedef std::pair<const unsigned char *, const unsigned char *> cppair;
+
+		cppair res = std::mismatch(cp1, cp1 + sizeof(T), cp2);
+
+		if (res.first == cp1 + sizeof(T))
+			return 0;
+		else if (*res.first < *res.second)
+			return -1;
+		else
+			return 1;
+	}
+
+	// disallow destruction of structure through a compare_bitwise*
+protected:
+	~compare_bitwise() {}
+};
+
+
+// Select default comparison policy
+template <class T, template <class> class ComparisonPolicy = compare_all_equal> class structure;
+
+
+/** Wrapper template for making GiNaC classes out of C++ structures. */
+template <class T, template <class> class ComparisonPolicy>
+class structure : public basic, public ComparisonPolicy<T> {
 	GINAC_DECLARE_REGISTERED_CLASS(structure, basic)
-	
+
+	// helpers
+	static unsigned get_tinfo() { return reg_info.tinfo_key; }
+	static const char *get_class_name() { return "structure"; }
+
+	// constructors
+public:
+	/** Construct structure as a copy of a given C++ structure. */
+	structure(const T & t) : inherited(get_tinfo()), obj(t) { }
+
 	// functions overriding virtual functions from base classes
+	// All these are just defaults that can be specialized by the user
 public:
-	void print(const print_context & c, unsigned level=0) const;
+	// evaluation
+	ex eval(int level = 0) const { return hold(); }
+	ex evalf(int level = 0) const { return inherited::evalf(level); }
+	ex evalm() const { return inherited::evalm(); }
 protected:
-	bool is_equal_same_type(const basic & other) const;
-	
+	ex eval_ncmul(const exvector & v) const { return hold_ncmul(v); }
+public:
+	ex eval_indexed(const basic & i) const { return i.hold(); }
+
+	// printing
+	void print(const print_context & c, unsigned level = 0) const { inherited::print(c, level); }
+	unsigned precedence() const { return 70; }
+
+	// info
+	bool info(unsigned inf) const { return false; }
+
+	// operand access
+	size_t nops() const { return 0; }
+	ex op(size_t i) const { return inherited::op(i); }
+	ex operator[](const ex & index) const { return inherited::operator[](index); }
+	ex operator[](size_t i) const { return inherited::operator[](i); }
+	ex & let_op(size_t i) { return inherited::let_op(i); }
+	ex & operator[](const ex & index) { return inherited::operator[](index); }
+	ex & operator[](size_t i) { return inherited::operator[](i); }
+
+	// pattern matching
+	bool has(const ex & other) const { return inherited::has(other); }
+	bool match(const ex & pattern, lst & repl_lst) const { return inherited::match(pattern, repl_lst); }
+protected:
+	bool match_same_type(const basic & other) const { return true; }
+public:
+
+	// substitutions
+	ex subs(const lst & ls, const lst & lr, unsigned options = 0) const { return inherited::subs(ls, lr, options); }
+
+	// function mapping
+	ex map(map_function & f) const { return inherited::map(f); }
+
+	// degree/coeff
+	int degree(const ex & s) const { return inherited::degree(s); }
+	int ldegree(const ex & s) const { return inherited::ldegree(s); }
+	ex coeff(const ex & s, int n = 1) const { return inherited::coeff(s, n); }
+
+	// expand/collect
+	ex expand(unsigned options = 0) const { return inherited::expand(options); }
+	ex collect(const ex & s, bool distributed = false) const { return inherited::collect(s, distributed); }
+
+	// differentiation and series expansion
+protected:
+	ex derivative(const symbol & s) const { return inherited::derivative(s); }
+public:
+	ex series(const relational & r, int order, unsigned options = 0) const { return inherited::series(r, order, options); }
+
+	// rational functions
+	ex normal(lst & sym_lst, lst & repl_lst, int level = 0) const { return inherited::normal(sym_lst, repl_lst, level); }
+	ex to_rational(lst & repl_lst) const { return inherited::to_rational(repl_lst); }
+	ex to_polynomial(lst & repl_lst) const { return inherited::to_polynomial(repl_lst); }
+
+	// polynomial algorithms
+	numeric integer_content() const { return 1; }
+	ex smod(const numeric & xi) const { return *this; }
+	numeric max_coefficient() const { return 1; }
+
+	// indexed objects
+	exvector get_free_indices() const { return exvector(); }
+	ex add_indexed(const ex & self, const ex & other) const { return self + other; }
+	ex scalar_mul_indexed(const ex & self, const numeric & other) const { return self * other; }
+	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const { return false; }
+
+	// noncommutativity
+	unsigned return_type() const { return return_types::commutative; }
+	unsigned return_type_tinfo() const { return tinfo(); }
+
+protected:
+	bool is_equal_same_type(const basic & other) const
+	{
+		GINAC_ASSERT(is_a<structure>(other));
+		const structure & o = static_cast<const structure &>(other);
+
+		return struct_is_equal(&obj, &o.obj);
+	}
+
+	unsigned calchash() const { return inherited::calchash(); }
+
 	// non-virtual functions in this class
-protected:
-	static std::vector<registered_structure_info> & registered_structures(void);
 public:
-	static unsigned register_new(const char * nm);
+	// access to embedded structure
+	const T *operator->() const { return &obj; }
+	T &get_struct() { return obj; }
+	const T &get_struct() const { return obj; }
+
+private:
+	T obj;
 };
+
+
+/** Default constructor */
+template <class T, template <class> class CP>
+structure<T, CP>::structure() : inherited(get_tinfo()) { }
+
+/** Construct object from archive_node. */
+template <class T, template <class> class CP>
+structure<T, CP>::structure(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst) {}
+
+/** Unarchive the object. */
+template <class T, template <class> class CP>
+ex structure<T, CP>::unarchive(const archive_node &n, lst &sym_lst)
+{
+	return (new structure(n, sym_lst))->setflag(status_flags::dynallocated);
+}
+
+/** Archive the object. */
+template <class T, template <class> class CP>
+void structure<T, CP>::archive(archive_node &n) const
+{
+	inherited::archive(n);
+}
+
+/** Compare two structures of the same type. */
+template <class T, template <class> class CP>
+int structure<T, CP>::compare_same_type(const basic & other) const
+{
+	GINAC_ASSERT(is_a<structure>(other));
+	const structure & o = static_cast<const structure &>(other);
+
+	return struct_compare(&obj, &o.obj);
+}
+
+template <class T, template <class> class CP>
+registered_class_info structure<T, CP>::reg_info(structure::get_class_name(), "basic", next_structure_tinfo_key++, &structure::unarchive);
+
+template <class T, template <class> class CP>
+const char *structure<T, CP>::class_name() const { return reg_info.name; }
+
 
 } // namespace GiNaC
 

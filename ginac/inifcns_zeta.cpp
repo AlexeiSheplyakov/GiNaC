@@ -28,6 +28,7 @@
 #include "numeric.h"
 #include "power.h"
 #include "symbol.h"
+#include "operators.h"
 #include "utils.h"
 
 namespace GiNaC {
@@ -83,7 +84,7 @@ static ex zeta1_deriv(const ex & x, unsigned deriv_param)
 	return zeta(_ex1, x);
 }
 
-const unsigned function_index_zeta1 =
+unsigned zeta1_SERIAL::serial =
 	function::register_new(function_options("zeta").
 	                       eval_func(zeta1_eval).
 	                       evalf_func(zeta1_evalf).
@@ -118,7 +119,7 @@ static ex zeta2_deriv(const ex & n, const ex & x, unsigned deriv_param)
 	return zeta(n+1,x);
 }
 
-const unsigned function_index_zeta2 =
+unsigned zeta2_SERIAL::serial =
 	function::register_new(function_options("zeta").
 	                       eval_func(zeta2_eval).
 	                       derivative_func(zeta2_deriv).

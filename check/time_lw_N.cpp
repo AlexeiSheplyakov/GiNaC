@@ -26,7 +26,7 @@
 
 static const bool do_test = false;  // set to true in order to run this beast
 
-static unsigned test(void)
+static unsigned test()
 {
 	symbol p11("p11"), p12("p12"), p21("p21"), p22("p22");
 	symbol a12("a12"), a21("a21"), a22("a22");
@@ -52,7 +52,7 @@ static unsigned test(void)
 	return 0;
 }
 
-unsigned time_lw_N(void)
+unsigned time_lw_N()
 {
 	unsigned result = 0;
 	unsigned count = 0;

@@ -24,17 +24,20 @@
 #define __GINAC_REGISTRAR_H__
 
 #include <string>
+#include <list>
 
 namespace GiNaC {
 
 class registered_class_info;
 class ex;
 class archive_node;
-class lst;
+
+template <template <class> class> class container;
+typedef container<std::list> lst;
 
 
 /** Unarchiving function (static member function of every GiNaC class). */
-typedef ex (*unarch_func)(const archive_node &n, const lst &sym_lst);
+typedef ex (*unarch_func)(const archive_node &n, lst &sym_lst);
 
 
 /** Head of list of all registered_class_info structures. */
@@ -63,11 +66,18 @@ struct registered_class_info {
 #define GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(classname, supername) \
 public: \
 	typedef supername inherited; \
-	static registered_class_info reg_info; \
-	virtual const char *class_name(void) const; \
-	classname(const archive_node &n, const lst &sym_lst); \
-	virtual void archive(archive_node &n) const; \
-	static ex unarchive(const archive_node &n, const lst &sym_lst);
+	\
+	static GiNaC::registered_class_info reg_info; \
+	virtual const char *class_name() const; \
+	\
+	classname(const GiNaC::archive_node &n, GiNaC::lst &sym_lst); \
+	virtual void archive(GiNaC::archive_node &n) const; \
+	static GiNaC::ex unarchive(const GiNaC::archive_node &n, GiNaC::lst &sym_lst); \
+	\
+	class visitor { \
+	public: \
+		virtual void visit(const classname &) = 0; \
+	};
 
 /** Macro for inclusion in the declaration of each registered class.
  *  It declares some functions that are common to all classes derived
@@ -77,38 +87,25 @@ public: \
 	GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(classname, supername) \
 public: \
 	classname(); \
-	~classname() { destroy(false); } \
-	classname(const classname & other); \
-	const classname & operator=(const classname & other); \
-	basic * duplicate() const; \
+	classname * duplicate() const { return new classname(*this); } \
+	\
+	void accept(GiNaC::visitor & v) const \
+	{ \
+		if (visitor *p = dynamic_cast<visitor *>(&v)) \
+			p->visit(*this); \
+		else \
+			inherited::accept(v); \
+	} \
 protected: \
-	void copy(const classname & other); \
-	void destroy(bool call_parent); \
-	int compare_same_type(const basic & other) const; \
+	int compare_same_type(const GiNaC::basic & other) const; \
 private:
 
-/** Primary macro for inclusion in the implementation of each registered class. */
-#define GINAC_IMPLEMENT_REGISTERED_CLASS_NO_CTORS(classname, supername) \
-	registered_class_info classname::reg_info(#classname, #supername, TINFO_##classname, &classname::unarchive); \
-	const char *classname::class_name(void) const {return reg_info.name;}
-
 /** Macro for inclusion in the implementation of each registered class.
- *  It implements some functions that are the same in all classes derived
- *  from 'basic' (such as the assignment operator). */
+ *  It defines some members that are the same in all classes derived from
+ *  'basic'. */
 #define GINAC_IMPLEMENT_REGISTERED_CLASS(classname, supername) \
-	GINAC_IMPLEMENT_REGISTERED_CLASS_NO_CTORS(classname, supername) \
-classname::classname(const classname & other) { copy(other); } \
-const classname & classname::operator=(const classname & other) \
-{ \
-	if (this != &other) { \
-		destroy(true); \
-		copy(other); \
-	} \
-	return *this; \
-} \
-basic * classname::duplicate() const { \
-	return new classname(*this); \
-}
+	GiNaC::registered_class_info classname::reg_info(#classname, #supername, TINFO_##classname, &classname::unarchive); \
+	const char *classname::class_name() const {return reg_info.name;}
 
 
 /** Find TINFO_* key by class name. */

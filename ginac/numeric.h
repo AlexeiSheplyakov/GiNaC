@@ -26,6 +26,8 @@
 #include "basic.h"
 #include "ex.h"
 
+#include <stdexcept>
+
 #include <cln/number.h>
 // forward decln of cln::cl_N, since cln/complex_class.h is not included:
 namespace cln { class cl_N; }
@@ -62,6 +64,17 @@ private:
 	static bool too_late;               ///< Already one object present
 };
 
+
+/** Exception class thrown when a singularity is encountered. */
+class pole_error : public std::domain_error {
+public:
+	explicit pole_error(const std::string& what_arg, int degree);
+	int degree() const;
+private:
+	int deg;
+};
+
+
 /** This class is a wrapper around CLN-numbers within the GiNaC class
  *  hierarchy. Objects of this type may directly be created by the user.*/
 class numeric : public basic
@@ -70,7 +83,7 @@ class numeric : public basic
 	
 // member functions
 	
-	// other ctors
+	// other constructors
 public:
 	numeric(int i);
 	numeric(unsigned int i);
@@ -83,7 +96,7 @@ public:
 	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
-	unsigned precedence(void) const {return 30;}
+	unsigned precedence() const {return 30;}
 	bool info(unsigned inf) const;
 	int degree(const ex & s) const;
 	int ldegree(const ex & s) const;
@@ -91,17 +104,19 @@ public:
 	bool has(const ex &other) const;
 	ex eval(int level = 0) const;
 	ex evalf(int level = 0) const;
+	ex subs(const lst & ls, const lst & lr, unsigned options = 0) const { return subs_one_level(ls, lr, options); } // overwrites basic::subs() for performance reasons
 	ex normal(lst &sym_lst, lst &repl_lst, int level = 0) const;
 	ex to_rational(lst &repl_lst) const;
-	numeric integer_content(void) const;
+	ex to_polynomial(lst &repl_lst) const;
+	numeric integer_content() const;
 	ex smod(const numeric &xi) const;
-	numeric max_coefficient(void) const;
+	numeric max_coefficient() const;
 protected:
 	/** Implementation of ex::diff for a numeric always returns 0.
 	 *  @see ex::diff */
 	ex derivative(const symbol &s) const { return 0; }
 	bool is_equal_same_type(const basic &other) const;
-	unsigned calchash(void) const;
+	unsigned calchash() const;
 	
 	// new virtual functions which can be overridden by derived classes
 	// (none)
@@ -124,38 +139,38 @@ public:
 	const numeric & operator=(unsigned long i);
 	const numeric & operator=(double d);
 	const numeric & operator=(const char *s);
-	const numeric inverse(void) const;
-	int csgn(void) const;
+	const numeric inverse() const;
+	int csgn() const;
 	int compare(const numeric &other) const;
 	bool is_equal(const numeric &other) const;
-	bool is_zero(void) const;
-	bool is_positive(void) const;
-	bool is_negative(void) const;
-	bool is_integer(void) const;
-	bool is_pos_integer(void) const;
-	bool is_nonneg_integer(void) const;
-	bool is_even(void) const;
-	bool is_odd(void) const;
-	bool is_prime(void) const;
-	bool is_rational(void) const;
-	bool is_real(void) const;
-	bool is_cinteger(void) const;
-	bool is_crational(void) const;
+	bool is_zero() const;
+	bool is_positive() const;
+	bool is_negative() const;
+	bool is_integer() const;
+	bool is_pos_integer() const;
+	bool is_nonneg_integer() const;
+	bool is_even() const;
+	bool is_odd() const;
+	bool is_prime() const;
+	bool is_rational() const;
+	bool is_real() const;
+	bool is_cinteger() const;
+	bool is_crational() const;
 	bool operator==(const numeric &other) const;
 	bool operator!=(const numeric &other) const;
 	bool operator<(const numeric &other) const;
 	bool operator<=(const numeric &other) const;
 	bool operator>(const numeric &other) const;
 	bool operator>=(const numeric &other) const;
-	int to_int(void) const;
-	long to_long(void) const;
-	double to_double(void) const;
-	cln::cl_N to_cl_N(void) const;
-	const numeric real(void) const;
-	const numeric imag(void) const;
-	const numeric numer(void) const;
-	const numeric denom(void) const;
-	int int_length(void) const;
+	int to_int() const;
+	long to_long() const;
+	double to_double() const;
+	cln::cl_N to_cl_N() const;
+	const numeric real() const;
+	const numeric imag() const;
+	const numeric numer() const;
+	const numeric denom() const;
+	int int_length() const;
 	// converting routines for interfacing with CLN:
 	numeric(const cln::cl_N &z);
 
@@ -165,13 +180,11 @@ protected:
 	cln::cl_number value;
 };
 
+
 // global constants
 
 extern const numeric I;
 extern _numeric_digits Digits;
-
-// deprecated macro, for internal use only
-#define is_a_numeric_hash(x) ((x)&0x80000000U)
 
 // global functions
 
@@ -282,9 +295,9 @@ inline const numeric denom(const numeric &x)
 
 // numeric evaluation functions for class constant objects:
 
-ex PiEvalf(void);
-ex EulerEvalf(void);
-ex CatalanEvalf(void);
+ex PiEvalf();
+ex EulerEvalf();
+ex CatalanEvalf();
 
 
 // utility functions

@@ -1,7 +1,6 @@
-/** @file fail.cpp
+/** @file lst.cpp
  *
- *  Implementation of class signaling failure of operation. Considered
- *  somewhat obsolete (most of this can be replaced by exceptions). */
+ *  Implementation of GiNaC's lst. */
 
 /*
  *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
@@ -21,34 +20,19 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <iostream>
-
-#include "fail.h"
-#include "print.h"
-#include "archive.h"
-#include "utils.h"
+#include "lst.h"
 
 namespace GiNaC {
 
-GINAC_IMPLEMENT_REGISTERED_CLASS(fail, basic)
+GINAC_IMPLEMENT_REGISTERED_CLASS(lst, basic)
 
-//////////
-// default constructor
-//////////
-
-DEFAULT_CTOR(fail)
-
-//////////
-// archiving
-//////////
-
-DEFAULT_ARCHIVING(fail)
-
-//////////
-// functions overriding virtual functions from base classes
-//////////
-
-DEFAULT_COMPARE(fail)
-DEFAULT_PRINT(fail, "FAIL")
+/** Specialization of container::info() for lst. */
+bool lst::info(unsigned inf) const
+{
+	if (inf == info_flags::list)
+		return true;
+	else
+		return inherited::info(inf);
+}
 
 } // namespace GiNaC

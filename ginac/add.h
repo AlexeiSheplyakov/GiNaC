@@ -46,25 +46,24 @@ public:
 	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
-	unsigned precedence(void) const {return 40;}
+	unsigned precedence() const {return 40;}
 	bool info(unsigned inf) const;
 	int degree(const ex & s) const;
 	int ldegree(const ex & s) const;
 	ex coeff(const ex & s, int n=1) const;
 	ex eval(int level=0) const;
-	ex evalm(void) const;
+	ex evalm() const;
 	ex series(const relational & r, int order, unsigned options = 0) const;
 	ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
-	numeric integer_content(void) const;
+	numeric integer_content() const;
 	ex smod(const numeric &xi) const;
-	numeric max_coefficient(void) const;
-	exvector get_free_indices(void) const;
-	ex simplify_ncmul(const exvector & v) const;
+	numeric max_coefficient() const;
+	exvector get_free_indices() const;
+	ex eval_ncmul(const exvector & v) const;
 protected:
 	ex derivative(const symbol & s) const;
-	bool is_equal_same_type(const basic & other) const;
-	unsigned return_type(void) const;
-	unsigned return_type_tinfo(void) const;
+	unsigned return_type() const;
+	unsigned return_type_tinfo() const;
 	ex thisexpairseq(const epvector & v, const ex & oc) const;
 	ex thisexpairseq(epvector * vp, const ex & oc) const;
 	expair split_ex_to_pair(const ex & e) const;

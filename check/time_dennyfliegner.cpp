@@ -53,7 +53,7 @@ static unsigned expand_subs(unsigned size)
 	return result;
 }
 
-unsigned time_dennyfliegner(void)
+unsigned time_dennyfliegner()
 {
 	unsigned result = 0;
 	

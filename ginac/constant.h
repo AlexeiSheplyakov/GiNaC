@@ -29,7 +29,7 @@
 
 namespace GiNaC {
 
-typedef ex (*evalffunctype)(void);
+typedef ex (*evalffunctype)();
 	
 /** This class holds constants, symbols with specific numerical value. Each
  *  object of this class must either provide their own function to evaluate it
@@ -41,7 +41,7 @@ class constant : public basic
 	
 // member functions
 	
-	// other ctors
+	// other constructors
 public:
 	constant(const std::string & initname, evalffunctype efun = 0, const std::string & texname = std::string());
 	constant(const std::string & initname, const numeric & initnumber, const std::string & texname = std::string());
@@ -53,7 +53,7 @@ public:
 protected:
 	ex derivative(const symbol & s) const;
 	bool is_equal_same_type(const basic & other) const;
-	unsigned calchash(void) const;
+	unsigned calchash() const;
 	
 	// new virtual functions which can be overridden by derived classes
 	// none
@@ -67,7 +67,7 @@ private:
 	std::string name;     ///< printname of this constant
 	std::string TeX_name; ///< LaTeX name
 	evalffunctype ef;
-	numeric *number;      ///< numerical value this constant evalf()s to
+	ex number;            ///< numerical value this constant evalf()s to
 	unsigned serial;      ///< unique serial number for comparison
 	static unsigned next_serial;
 };

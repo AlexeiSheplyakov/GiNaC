@@ -32,8 +32,10 @@
 #include "lst.h"
 #include "idx.h"
 #include "indexed.h"
+#include "add.h"
 #include "power.h"
 #include "symbol.h"
+#include "operators.h"
 #include "normal.h"
 #include "print.h"
 #include "archive.h"
@@ -44,7 +46,7 @@ namespace GiNaC {
 GINAC_IMPLEMENT_REGISTERED_CLASS(matrix, basic)
 
 //////////
-// default ctor, dtor, copy ctor, assignment operator and helpers:
+// default constructor
 //////////
 
 /** Default ctor.  Initializes to 1 x 1-dimensional zero-matrix. */
@@ -53,18 +55,8 @@ matrix::matrix() : inherited(TINFO_matrix), row(1), col(1)
 	m.push_back(_ex0);
 }
 
-void matrix::copy(const matrix & other)
-{
-	inherited::copy(other);
-	row = other.row;
-	col = other.col;
-	m = other.m;  // STL's vector copying invoked here
-}
-
-DEFAULT_DESTROY(matrix)
-
 //////////
-// other ctors
+// other constructors
 //////////
 
 // public
@@ -94,12 +86,13 @@ matrix::matrix(unsigned r, unsigned c, const lst & l)
 {
 	m.resize(r*c, _ex0);
 
-	for (unsigned i=0; i<l.nops(); i++) {
-		unsigned x = i % c;
-		unsigned y = i / c;
+	size_t i = 0;
+	for (lst::const_iterator it = l.begin(); it != l.end(); ++it, ++i) {
+		size_t x = i % c;
+		size_t y = i / c;
 		if (y >= r)
 			break; // matrix smaller than list: throw away excessive elements
-		m[y*c+x] = l.op(i);
+		m[y*c+x] = *it;
 	}
 }
 
@@ -107,7 +100,7 @@ matrix::matrix(unsigned r, unsigned c, const lst & l)
 // archiving
 //////////
 
-matrix::matrix(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+matrix::matrix(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
 {
 	if (!(n.find_unsigned("row", row)) || !(n.find_unsigned("col", col)))
 		throw (std::runtime_error("unknown matrix dimensions in archive"));
@@ -192,23 +185,25 @@ void matrix::print(const print_context & c, unsigned level) const
 }
 
 /** nops is defined to be rows x columns. */
-unsigned matrix::nops() const
+size_t matrix::nops() const
 {
-	return row*col;
+	return static_cast<size_t>(row) * static_cast<size_t>(col);
 }
 
 /** returns matrix entry at position (i/col, i%col). */
-ex matrix::op(int i) const
+ex matrix::op(size_t i) const
 {
+	GINAC_ASSERT(i<nops());
+	
 	return m[i];
 }
 
-/** returns matrix entry at position (i/col, i%col). */
-ex & matrix::let_op(int i)
+/** returns writable matrix entry at position (i/col, i%col). */
+ex & matrix::let_op(size_t i)
 {
-	GINAC_ASSERT(i>=0);
 	GINAC_ASSERT(i<nops());
 	
+	ensure_if_modifiable();
 	return m[i];
 }
 
@@ -234,14 +229,14 @@ ex matrix::eval(int level) const
 											   status_flags::evaluated);
 }
 
-ex matrix::subs(const lst & ls, const lst & lr, bool no_pattern) const
-{
+ex matrix::subs(const lst & ls, const lst & lr, unsigned options) const
+{	
 	exvector m2(row * col);
 	for (unsigned r=0; r<row; ++r)
 		for (unsigned c=0; c<col; ++c)
-			m2[r*col+c] = m[r*col+c].subs(ls, lr, no_pattern);
+			m2[r*col+c] = m[r*col+c].subs(ls, lr, options);
 
-	return matrix(row, col, m2).basic::subs(ls, lr, no_pattern);
+	return matrix(row, col, m2).subs_one_level(ls, lr, options);
 }
 
 // protected
@@ -367,7 +362,7 @@ ex matrix::add_indexed(const ex & self, const ex & other) const
 	GINAC_ASSERT(self.nops() == 2 || self.nops() == 3);
 
 	// Only add two matrices
-	if (is_ex_of_type(other.op(0), matrix)) {
+	if (is_a<matrix>(other.op(0))) {
 		GINAC_ASSERT(other.nops() == 2 || other.nops() == 3);
 
 		const matrix &self_matrix = ex_to<matrix>(self.op(0));
@@ -418,7 +413,7 @@ bool matrix::contract_with(exvector::iterator self, exvector::iterator other, ex
 	GINAC_ASSERT(is_a<matrix>(self->op(0)));
 
 	// Only contract with other matrices
-	if (!is_ex_of_type(other->op(0), matrix))
+	if (!is_a<matrix>(other->op(0)))
 		return false;
 
 	GINAC_ASSERT(other->nops() == 2 || other->nops() == 3);
@@ -607,7 +602,7 @@ matrix matrix::pow(const ex & expn) const
 	if (col!=row)
 		throw (std::logic_error("matrix::pow(): matrix not square"));
 	
-	if (is_ex_exactly_of_type(expn, numeric)) {
+	if (is_exactly_a<numeric>(expn)) {
 		// Integer cases are computed by successive multiplication, using the
 		// obvious shortcut of storing temporaries, like A^4 == (A*A)*(A*A).
 		if (expn.info(info_flags::integer)) {
@@ -675,7 +670,7 @@ ex & matrix::operator() (unsigned ro, unsigned co)
 
 /** Transposed of an m x n matrix, producing a new n x m matrix object that
  *  represents the transposed. */
-matrix matrix::transpose(void) const
+matrix matrix::transpose() const
 {
 	exvector trans(this->cols()*this->rows());
 	
@@ -832,7 +827,7 @@ ex matrix::determinant(unsigned algo) const
  *
  *  @return    the sum of diagonal elements
  *  @exception logic_error (matrix not square) */
-ex matrix::trace(void) const
+ex matrix::trace() const
 {
 	if (row != col)
 		throw (std::logic_error("matrix::trace(): matrix not square"));
@@ -877,6 +872,7 @@ ex matrix::charpoly(const symbol & lambda) const
 	// trapped and we use Leverrier's algorithm which goes as row^3 for
 	// every coefficient.  The expensive part is the matrix multiplication.
 	if (numeric_flag) {
+
 		matrix B(*this);
 		ex c = B.trace();
 		ex poly = power(lambda,row)-c*power(lambda,row-1);
@@ -884,20 +880,22 @@ ex matrix::charpoly(const symbol & lambda) const
 			for (unsigned j=0; j<row; ++j)
 				B.m[j*col+j] -= c;
 			B = this->mul(B);
-			c = B.trace()/ex(i+1);
+			c = B.trace() / ex(i+1);
 			poly -= c*power(lambda,row-i-1);
 		}
 		if (row%2)
 			return -poly;
 		else
 			return poly;
+
+	} else {
+	
+		matrix M(*this);
+		for (unsigned r=0; r<col; ++r)
+			M.m[r*col+r] -= lambda;
+	
+		return M.determinant().collect(lambda);
 	}
-	
-	matrix M(*this);
-	for (unsigned r=0; r<col; ++r)
-		M.m[r*col+r] -= lambda;
-	
-	return M.determinant().collect(lambda);
 }
 
 
@@ -906,7 +904,7 @@ ex matrix::charpoly(const symbol & lambda) const
  *  @return    the inverted matrix
  *  @exception logic_error (matrix not square)
  *  @exception runtime_error (singular matrix) */
-matrix matrix::inverse(void) const
+matrix matrix::inverse() const
 {
 	if (row != col)
 		throw (std::logic_error("matrix::inverse(): matrix not square"));
@@ -1057,7 +1055,7 @@ matrix matrix::solve(const matrix & vars,
  *
  *  @return the determinant as a new expression (in expanded form)
  *  @see matrix::determinant() */
-ex matrix::determinant_minor(void) const
+ex matrix::determinant_minor() const
 {
 	// for small matrices the algorithm does not make any sense:
 	const unsigned n = this->cols();
@@ -1290,7 +1288,7 @@ int matrix::fraction_free_elimination(const bool det)
 	//
 	// Bareiss (fraction-free) elimination in addition divides that element
 	// by m[k-1](k-1,k-1) for k>1, where it can be shown by means of the
-	// Sylvester determinant that this really divides m[k+1](r,c).
+	// Sylvester identity that this really divides m[k+1](r,c).
 	//
 	// We also allow rational functions where the original prove still holds.
 	// However, we must care for numerator and denominator separately and
@@ -1449,34 +1447,45 @@ int matrix::pivot(unsigned ro, unsigned co, bool symbolic)
 
 ex lst_to_matrix(const lst & l)
 {
+	lst::const_iterator itr, itc;
+
 	// Find number of rows and columns
-	unsigned rows = l.nops(), cols = 0, i, j;
-	for (i=0; i<rows; i++)
-		if (l.op(i).nops() > cols)
-			cols = l.op(i).nops();
+	size_t rows = l.nops(), cols = 0;
+	for (itr = l.begin(); itr != l.end(); ++itr) {
+		if (!is_a<lst>(*itr))
+			throw (std::invalid_argument("lst_to_matrix: argument must be a list of lists"));
+		if (itr->nops() > cols)
+			cols = itr->nops();
+	}
 
 	// Allocate and fill matrix
 	matrix &M = *new matrix(rows, cols);
 	M.setflag(status_flags::dynallocated);
-	for (i=0; i<rows; i++)
-		for (j=0; j<cols; j++)
-			if (l.op(i).nops() > j)
-				M(i, j) = l.op(i).op(j);
-			else
-				M(i, j) = _ex0;
+
+	unsigned i;
+	for (itr = l.begin(), i = 0; itr != l.end(); ++itr, ++i) {
+		unsigned j;
+		for (itc = ex_to<lst>(*itr).begin(), j = 0; itc != ex_to<lst>(*itr).end(); ++itc, ++j)
+			M(i, j) = *itc;
+	}
+
 	return M;
 }
 
 ex diag_matrix(const lst & l)
 {
-	unsigned dim = l.nops();
+	lst::const_iterator it;
+	size_t dim = l.nops();
 
-	matrix &m = *new matrix(dim, dim);
-	m.setflag(status_flags::dynallocated);
-	for (unsigned i=0; i<dim; i++)
-		m(i, i) = l.op(i);
+	// Allocate and fill matrix
+	matrix &M = *new matrix(dim, dim);
+	M.setflag(status_flags::dynallocated);
 
-	return m;
+	unsigned i;
+	for (it = l.begin(), i = 0; it != l.end(); ++it, ++i)
+		M(i, i) = *it;
+
+	return M;
 }
 
 ex unit_matrix(unsigned r, unsigned c)

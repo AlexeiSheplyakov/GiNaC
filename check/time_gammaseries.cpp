@@ -43,7 +43,7 @@ unsigned tgammaseries(unsigned order)
 	return result;
 }
 
-unsigned time_gammaseries(void)
+unsigned time_gammaseries()
 {
 	unsigned result = 0;
 

@@ -23,7 +23,7 @@
 #include <stdexcept>
 #include "exams.h"
 
-static unsigned matrix_determinants(void)
+static unsigned matrix_determinants()
 {
 	unsigned result = 0;
 	ex det;
@@ -110,7 +110,7 @@ static unsigned matrix_determinants(void)
 	return result;
 }
 
-static unsigned matrix_invert1(void)
+static unsigned matrix_invert1()
 {
 	unsigned result = 0;
 	matrix m(1,1);
@@ -128,7 +128,7 @@ static unsigned matrix_invert1(void)
 	return result;
 }
 
-static unsigned matrix_invert2(void)
+static unsigned matrix_invert2()
 {
 	unsigned result = 0;
 	matrix m(2,2);
@@ -150,7 +150,7 @@ static unsigned matrix_invert2(void)
 	return result;
 }
 
-static unsigned matrix_invert3(void)
+static unsigned matrix_invert3()
 {
 	unsigned result = 0;
 	matrix m(3,3);
@@ -180,7 +180,7 @@ static unsigned matrix_invert3(void)
 	return result;
 }
 
-static unsigned matrix_solve2(void)
+static unsigned matrix_solve2()
 {
 	// check the solution of the multiple system A*X = B:
 	//	 [ 1  2 -1 ] [ x0 y0 ]   [ 4 0 ]
@@ -216,7 +216,7 @@ static unsigned matrix_solve2(void)
 	return result;
 }
 
-static unsigned matrix_evalm(void)
+static unsigned matrix_evalm()
 {
 	unsigned result = 0;
 
@@ -241,7 +241,7 @@ static unsigned matrix_evalm(void)
 	return result;
 }
 
-static unsigned matrix_misc(void)
+static unsigned matrix_misc()
 {
 	unsigned result = 0;
 	matrix m1(2,2);
@@ -292,7 +292,7 @@ static unsigned matrix_misc(void)
 	return result;
 }
 
-unsigned exam_matrices(void)
+unsigned exam_matrices()
 {
 	unsigned result = 0;
 	

@@ -23,7 +23,7 @@
 
 #include "times.h"
 
-static unsigned test(void)
+static unsigned test()
 {
 	// create the matrix from test P...
 	const unsigned n = 10;
@@ -64,7 +64,7 @@ static unsigned test(void)
 	return 0;
 }
 
-unsigned time_lw_Pprime(void)
+unsigned time_lw_Pprime()
 {
 	unsigned result = 0;
 	unsigned count = 0;

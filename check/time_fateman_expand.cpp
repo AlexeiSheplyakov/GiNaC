@@ -25,7 +25,7 @@
 
 #include "times.h"
 
-static unsigned test(void)
+static unsigned test()
 {
 	unsigned result = 0;
 	const symbol x("x"), y("y"), z("z");
@@ -42,7 +42,7 @@ static unsigned test(void)
 	return result;
 }
 
-unsigned time_fateman_expand(void)
+unsigned time_fateman_expand()
 {
 	unsigned result = 0;
 	unsigned count = 0;

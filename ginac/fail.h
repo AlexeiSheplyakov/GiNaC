@@ -36,7 +36,7 @@ class fail : public basic
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 protected:
-	unsigned return_type(void) const { return return_types::noncommutative_composite; };
+	unsigned return_type() const { return return_types::noncommutative_composite; };
 };
 
 /** Specialization of is_exactly_a<fail>(obj) for fail objects. */

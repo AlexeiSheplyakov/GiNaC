@@ -1,7 +1,6 @@
-/** @file lst_suppl.cpp
+/** @file exprseq.h
  *
- *  Supplement to lst.cpp, contains the parts which were not automatically
- *  generated. */
+ *  Definition of GiNaC's exprseq. */
 
 /*
  *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
@@ -21,14 +20,29 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "lst.h"
+#ifndef __GINAC_EXPRSEQ_H__
+#define __GINAC_EXPRSEQ_H__
+
+#include <vector>
+
+#include "container.h"
 
 namespace GiNaC {
 
-bool lst::info(unsigned inf) const
+typedef container<std::vector> exprseq;
+
+/** Specialization of container::get_tinfo() for exprseq. */
+inline unsigned exprseq::get_tinfo() { return TINFO_exprseq; }
+
+// defined in exprseq.cpp
+template<> bool exprseq::info(unsigned inf) const;
+
+/** Specialization of is_exactly_a<exprseq>(obj) for exprseq objects. */
+template<> inline bool is_exactly_a<exprseq>(const basic & obj)
 {
-	if (inf==info_flags::list) return true;
-	return basic::info(inf);
+	return obj.tinfo() == TINFO_exprseq;
 }
 
 } // namespace GiNaC
+
+#endif // ndef __GINAC_EXPRSEQ_H__

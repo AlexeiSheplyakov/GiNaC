@@ -1,7 +1,6 @@
-/** @file fail.cpp
+/** @file lst.h
  *
- *  Implementation of class signaling failure of operation. Considered
- *  somewhat obsolete (most of this can be replaced by exceptions). */
+ *  Definition of GiNaC's lst. */
 
 /*
  *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
@@ -21,34 +20,35 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <iostream>
+#ifndef __GINAC_LST_H__
+#define __GINAC_LST_H__
 
-#include "fail.h"
-#include "print.h"
-#include "archive.h"
-#include "utils.h"
+#include <list>
+
+#include "container.h"
 
 namespace GiNaC {
 
-GINAC_IMPLEMENT_REGISTERED_CLASS(fail, basic)
+typedef container<std::list> lst;
 
-//////////
-// default constructor
-//////////
+/** Specialization of container::get_tinfo() for lst. */
+inline unsigned lst::get_tinfo() { return TINFO_lst; }
 
-DEFAULT_CTOR(fail)
+/** Specialization of container::get_open_delim() for lst. */
+inline char lst::get_open_delim() { return '{'; }
 
-//////////
-// archiving
-//////////
+/** Specialization of container::get_close_delim() for lst. */
+inline char lst::get_close_delim() { return '}'; }
 
-DEFAULT_ARCHIVING(fail)
+// defined in lst.cpp
+template<> bool lst::info(unsigned inf) const;
 
-//////////
-// functions overriding virtual functions from base classes
-//////////
-
-DEFAULT_COMPARE(fail)
-DEFAULT_PRINT(fail, "FAIL")
+/** Specialization of is_exactly_a<lst>(obj) for lst objects. */
+template<> inline bool is_exactly_a<lst>(const basic & obj)
+{
+	return obj.tinfo() == TINFO_lst;
+}
 
 } // namespace GiNaC
+
+#endif // ndef __GINAC_LST_H__

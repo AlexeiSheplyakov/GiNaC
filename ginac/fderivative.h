@@ -64,8 +64,8 @@ public:
 	ex eval(int level = 0) const;
 	ex evalf(int level = 0) const;
 	ex series(const relational & r, int order, unsigned options = 0) const;
-	ex thisexprseq(const exvector & v) const;
-	ex thisexprseq(exvector * vp) const;
+	ex thiscontainer(const exvector & v) const;
+	ex thiscontainer(exvector * vp) const;
 protected:
 	ex derivative(const symbol & s) const;
 	bool is_equal_same_type(const basic & other) const;

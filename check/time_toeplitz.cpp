@@ -63,7 +63,7 @@ static unsigned toeplitz_det(unsigned size)
 	return result;
 }
 
-unsigned time_toeplitz(void)
+unsigned time_toeplitz()
 {
 	unsigned result = 0;
 

@@ -87,9 +87,6 @@ score			return T_SCORE;
 ">="			return T_GREATEREQ;
 
 			/* last 1..3 expressions */
-\"			return T_QUOTE;
-\"\"			return T_QUOTE2;
-\"\"\"			return T_QUOTE3;
 \%			return T_QUOTE;
 \%\%			return T_QUOTE2;
 \%\%\%			return T_QUOTE3;

@@ -45,9 +45,7 @@ static unsigned check_diff(const ex &e, const symbol &x,
 		clog << "derivative of " << e << " by " << x << " returned "
 		     << ed << " instead of " << d << endl;
 		clog << "returned:" << endl;
-		ed.printtree(clog);
-		clog << endl << "instead of" << endl;
-		d.printtree(clog);
+		clog << tree << ed << "instead of\n" << d << dflt;
 
 		return 1;
 	}
@@ -55,7 +53,7 @@ static unsigned check_diff(const ex &e, const symbol &x,
 }
 
 // Simple (expanded) polynomials
-static unsigned exam_differentiation1(void)
+static unsigned exam_differentiation1()
 {
 	unsigned result = 0;
 	symbol x("x"), y("y");
@@ -86,7 +84,7 @@ static unsigned exam_differentiation1(void)
 }
 
 // Trigonometric functions
-static unsigned exam_differentiation2(void)
+static unsigned exam_differentiation2()
 {
 	unsigned result = 0;
 	symbol x("x"), y("y"), a("a"), b("b");
@@ -135,7 +133,7 @@ static unsigned exam_differentiation2(void)
 }
 	
 // exp function
-static unsigned exam_differentiation3(void)
+static unsigned exam_differentiation3()
 {
 	unsigned result = 0;
 	symbol x("x"), y("y"), a("a"), b("b");
@@ -163,7 +161,7 @@ static unsigned exam_differentiation3(void)
 }
 
 // log functions
-static unsigned exam_differentiation4(void)
+static unsigned exam_differentiation4()
 {
 	unsigned result = 0;
 	symbol x("x"), y("y"), a("a"), b("b");
@@ -193,7 +191,7 @@ static unsigned exam_differentiation4(void)
 }
 
 // Functions with two variables
-static unsigned exam_differentiation5(void)
+static unsigned exam_differentiation5()
 {
 	unsigned result = 0;
 	symbol x("x"), y("y"), a("a"), b("b");
@@ -214,7 +212,7 @@ static unsigned exam_differentiation5(void)
 }
 
 // Series
-static unsigned exam_differentiation6(void)
+static unsigned exam_differentiation6()
 {
 	symbol x("x");
 	ex e, d, ed;
@@ -234,7 +232,7 @@ static unsigned exam_differentiation6(void)
 }
 
 // Hashing can help a lot, if differentiation is done cleverly
-static unsigned exam_differentiation7(void)
+static unsigned exam_differentiation7()
 {
 	symbol x("x");
 	ex P = x + pow(x,3);
@@ -257,7 +255,7 @@ static unsigned exam_differentiation7(void)
 	return 0;
 }
 
-unsigned exam_differentiation(void)
+unsigned exam_differentiation()
 {
 	unsigned result = 0;
 	

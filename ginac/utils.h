@@ -27,27 +27,15 @@
 #include "config.h"
 
 #include <string>
-#include <stdexcept>
+#include <functional>
+
 #include "assertion.h"
 
 namespace GiNaC {
 
-/** Exception class thrown by classes which provide their own series expansion
- *  to signal that ordinary Taylor expansion is safe. */
-class do_taylor {};
-
 /** Exception class thrown by functions to signal unimplemented functionality
  *  so the expression may just be .hold() */
 class dunno {};
-
-/** Exception class thrown when a singularity is encountered. */
-class pole_error : public std::domain_error {
-public:
-	explicit pole_error(const std::string& what_arg, int degree);
-	int degree(void) const;
-private:
-	int deg;
-};
 
 // some compilers (e.g. cygwin) define a macro log2, causing confusion
 #ifndef log2
@@ -56,55 +44,46 @@ unsigned log2(unsigned n);
 
 /** Compare two pointers (just to establish some sort of canonical order).
  *  @return -1, 0, or 1 */
-inline int compare_pointers(const void * a, const void * b)
+template <class T>
+inline int compare_pointers(const T * a, const T * b)
 {
-	if (a<b)
+	// '<' is not defined for pointers that don't point to the same array,
+	// but std::less is.
+	if (std::less<const T *>()(a, b))
 		return -1;
-	else if (a>b)
+	else if (std::less<const T *>()(b, a))
 		return 1;
 	return 0;
 }
 
-/** Rotate lower 31 bits of unsigned value by one bit to the left
- *  (upper bit gets cleared). */
-inline unsigned rotate_left_31(unsigned n)
+/** Rotate bits of unsigned value by one bit to the left. */
+inline unsigned rotate_left(unsigned n)
 {
-	// clear highest bit and shift 1 bit to the left
-	n = (n & 0x7FFFFFFFU) << 1;
-	
-	// overflow? clear highest bit and set lowest bit
-	if (n & 0x80000000U)
-		n = (n & 0x7FFFFFFFU) | 0x00000001U;
-	
-	GINAC_ASSERT(n<0x80000000U);
-	
-	return n;
+	return (n & 0x80000000U) ? (n << 1 | 0x00000001U) : (n << 1);
 }
 
-/** Golden ratio hash function for the 31 least significant bits. */
+/** Truncated multiplication with golden ratio, for computing hash values. */
 inline unsigned golden_ratio_hash(unsigned n)
 {
-	// This function requires arithmetic with at least 64 significant bits
+	// This function works much better when fast arithmetic with at
+	// least 64 significant bits is available.
 #if SIZEOF_LONG >= 8
 	// So 'long' has 64 bits.  Excellent!  We prefer it because it might be
 	// more efficient than 'long long'.
-	unsigned long l = n * 0x4f1bbcddL;
-	return (l & 0x7fffffffU) ^ (l >> 32);
+	unsigned long l = n * 0x4f1bbcddUL;
+	return (unsigned)l;
 #elif SIZEOF_LONG_LONG >= 8
 	// This requires 'long long' (or an equivalent 64 bit type)---which is,
 	// unfortunately, not ANSI-C++-compliant.
 	// (Yet C99 demands it, which is reason for hope.)
-	unsigned long long l = n * 0x4f1bbcddL;
-	return (l & 0x7fffffffU) ^ (l >> 32);
-#elif SIZEOF_LONG_DOUBLE > 8
-	// If 'long double' is bigger than 64 bits, we assume that the mantissa
-	// has at least 64 bits. This is not guaranteed but it's a good guess.
-	// Unfortunately, it may lead to horribly slow code.
-	const static long double golden_ratio = .618033988749894848204586834370;
-	long double m = golden_ratio * n;
-	return unsigned((m - int(m)) * 0x80000000);
+	unsigned long long l = n * 0x4f1bbcddULL;
+	return (unsigned)l;
 #else
-#error "No 64 bit data type. You lose."
+	// Without a type with 64 significant bits do the multiplication manually
+	// by splitting n up into the lower and upper two bytes.
+	const unsigned n0 = (n & 0x0000ffffU);
+	const unsigned n1 = (n & 0xffff0000U) >> 16;
+	return (n0 * 0x0000bcddU) + ((n1 * 0x0000bcddU + n0 * 0x00004f1bU) << 16);
 #endif
 }
 
@@ -304,7 +283,6 @@ again:
 // the library but should not be used outside it since it is
 // potentially confusing.
 
-class numeric;
 class ex;
 
 extern const numeric *_num_120_p;
@@ -380,6 +358,7 @@ extern const numeric *_num_1_4_p;
 extern const numeric &_num_1_4;
 extern const ex _ex_1_4;
 extern const numeric *_num0_p;
+extern const basic *_num0_bp;
 extern const numeric &_num0;
 extern const ex _ex0;
 extern const numeric *_num1_4_p;
@@ -458,32 +437,17 @@ extern const ex _ex120;
 
 // Helper macros for class implementations (mostly useful for trivial classes)
 
-#define DEFAULT_COPY(classname) \
-void classname::copy(const classname & other) \
-{ \
-	inherited::copy(other); \
-}
-
-#define DEFAULT_DESTROY(classname) \
-void classname::destroy(bool call_parent) \
-{ \
-	if (call_parent) \
-		inherited::destroy(call_parent); \
-}
-
-#define DEFAULT_CTORS(classname) \
-classname::classname() : inherited(TINFO_##classname) {} \
-DEFAULT_COPY(classname) \
-DEFAULT_DESTROY(classname)
+#define DEFAULT_CTOR(classname) \
+classname::classname() : inherited(TINFO_##classname) {}
 
 #define DEFAULT_UNARCHIVE(classname) \
-ex classname::unarchive(const archive_node &n, const lst &sym_lst) \
+ex classname::unarchive(const archive_node &n, lst &sym_lst) \
 { \
 	return (new classname(n, sym_lst))->setflag(status_flags::dynallocated); \
 }
 
 #define DEFAULT_ARCHIVING(classname) \
-classname::classname(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst) {} \
+classname::classname(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst) {} \
 DEFAULT_UNARCHIVE(classname) \
 void classname::archive(archive_node &n) const \
 { \
@@ -516,21 +480,6 @@ void classname::print(const print_context & c, unsigned level) const \
 	else \
 		c.s << text; \
 }
-
-// Obsolete convenience macros.  TO BE PHASED OUT SOON!
-// Use the inlined template functions in basic.h instead.  (FIXME: remove them)
-
-#define is_of_type(OBJ,TYPE) \
-	(dynamic_cast<const TYPE *>(&OBJ)!=0)
-
-#define is_exactly_of_type(OBJ,TYPE) \
-	((OBJ).tinfo()==GiNaC::TINFO_##TYPE)
-
-#define is_ex_of_type(OBJ,TYPE) \
-	(dynamic_cast<const TYPE *>((OBJ).bp)!=0)
-
-#define is_ex_exactly_of_type(OBJ,TYPE) \
-	((*(OBJ).bp).tinfo()==GiNaC::TINFO_##TYPE)
 
 } // namespace GiNaC
 

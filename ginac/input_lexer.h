@@ -60,7 +60,7 @@ extern void set_lexer_symbols(ex l);
 extern bool is_lexer_symbol_predefined(const ex &s);
 
 /** The expression parser function (used internally). */
-extern int ginac_yyparse();
+extern int ginac_yyparse(void);
 
 /** The expression returned by the parser (used internally). */
 extern ex parsed_ex;

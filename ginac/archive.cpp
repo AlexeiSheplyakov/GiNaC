@@ -26,6 +26,7 @@
 #include "archive.h"
 #include "registrar.h"
 #include "ex.h"
+#include "lst.h"
 #include "config.h"
 #include "tostring.h"
 
@@ -49,18 +50,19 @@ void archive::archive_ex(const ex &e, const char *name)
  *  @return ID of archived node */
 archive_node_id archive::add_node(const archive_node &n)
 {
-	// Search for node in nodes vector
-	std::vector<archive_node>::const_iterator i = nodes.begin(), iend = nodes.end();
-	archive_node_id id = 0;
-	while (i != iend) {
-		if (i->has_same_ex_as(n))
-			return id;
-		i++; id++;
+	// Look if expression is known to be in some node already.
+	if (n.has_ex()) {
+		mapit i = exprtable.find(n.get_ex());
+		if (i != exprtable.end())
+			return i->second;
+		nodes.push_back(n);
+		exprtable[n.get_ex()] = nodes.size() - 1;
+		return nodes.size() - 1;
 	}
 
 	// Not found, add archive_node to nodes vector
 	nodes.push_back(n);
-	return id;
+	return nodes.size()-1;
 }
 
 
@@ -89,7 +91,8 @@ ex archive::unarchive_ex(const lst &sym_lst, const char *name) const
 
 found:
 	// Recursively unarchive all nodes, starting at the root node
-	return nodes[i->root].unarchive(sym_lst);
+	lst sym_lst_copy = sym_lst;
+	return nodes[i->root].unarchive(sym_lst_copy);
 }
 
 ex archive::unarchive_ex(const lst &sym_lst, unsigned index) const
@@ -98,7 +101,8 @@ ex archive::unarchive_ex(const lst &sym_lst, unsigned index) const
 		throw (std::range_error("index of archived expression out of range"));
 
 	// Recursively unarchive all nodes, starting at the root node
-	return nodes[exprs[index].root].unarchive(sym_lst);
+	lst sym_lst_copy = sym_lst;
+	return nodes[exprs[index].root].unarchive(sym_lst_copy);
 }
 
 ex archive::unarchive_ex(const lst &sym_lst, std::string &name, unsigned index) const
@@ -110,10 +114,11 @@ ex archive::unarchive_ex(const lst &sym_lst, std::string &name, unsigned index) 
 	name = unatomize(exprs[index].name);
 
 	// Recursively unarchive all nodes, starting at the root node
-	return nodes[exprs[index].root].unarchive(sym_lst);
+	lst sym_lst_copy = sym_lst;
+	return nodes[exprs[index].root].unarchive(sym_lst_copy);
 }
 
-unsigned archive::num_expressions(void) const
+unsigned archive::num_expressions() const
 {
 	return exprs.size();
 }
@@ -316,18 +321,11 @@ const std::string &archive::unatomize(archive_atom id) const
 }
 
 
-/** Copy constructor of archive_node. */
-archive_node::archive_node(const archive_node &other)
-  : a(other.a), props(other.props), has_expression(other.has_expression), e(other.e)
-{
-}
-
-
 /** Assignment operator of archive_node. */
 const archive_node &archive_node::operator=(const archive_node &other)
 {
 	if (this != &other) {
-		a = other.a;
+		// archive &a member doesn't get copied
 		props = other.props;
 		has_expression = other.has_expression;
 		e = other.e;
@@ -432,7 +430,7 @@ bool archive_node::find_string(const std::string &name, std::string &ret, unsign
 	return false;
 }
 
-bool archive_node::find_ex(const std::string &name, ex &ret, const lst &sym_lst, unsigned index) const
+bool archive_node::find_ex(const std::string &name, ex &ret, lst &sym_lst, unsigned index) const
 {
 	archive_atom name_atom = a.atomize(name);
 	std::vector<property>::const_iterator i = props.begin(), iend = props.end();
@@ -493,7 +491,7 @@ void archive_node::get_properties(propinfovector &v) const
 
 
 /** Convert archive node to GiNaC expression. */
-ex archive_node::unarchive(const lst &sym_lst) const
+ex archive_node::unarchive(lst &sym_lst) const
 {
 	// Already unarchived? Then return cached unarchived expression.
 	if (has_expression)
@@ -512,45 +510,23 @@ ex archive_node::unarchive(const lst &sym_lst) const
 }
 
 
-/** Assignment operator of property_info. */
-const archive_node::property_info &archive_node::property_info::operator=(const property_info &other)
-{
-	if (this != &other) {
-		type = other.type;
-		name = other.name;
-		count = other.count;
-	}
-	return *this;
-}
-
-/** Assignment operator of property. */
-const archive_node::property &archive_node::property::operator=(const property &other)
-{
-	if (this != &other) {
-		type = other.type;
-		name = other.name;
-		value = other.value;
-	}
-	return *this;
-}
-
-
-void archive::clear(void)
+void archive::clear()
 {
 	atoms.clear();
 	exprs.clear();
 	nodes.clear();
+	exprtable.clear();
 }
 
 
 /** Delete cached unarchived expressions in all archive_nodes (mainly for debugging). */
-void archive::forget(void)
+void archive::forget()
 {
 	for_each(nodes.begin(), nodes.end(), std::mem_fun_ref(&archive_node::forget));
 }
 
 /** Delete cached unarchived expressions from node (for debugging). */
-void archive_node::forget(void)
+void archive_node::forget()
 {
 	has_expression = false;
 	e = 0;
@@ -624,7 +600,7 @@ void archive_node::printraw(std::ostream &os) const
 
 /** Create a dummy archive.  The intention is to fill archive_node's default
  *  ctor, which is currently a Cint-requirement. */
-archive* archive_node::dummy_ar_creator(void)
+archive* archive_node::dummy_ar_creator()
 {
 	static archive* some_ar = new archive;
 	return some_ar;

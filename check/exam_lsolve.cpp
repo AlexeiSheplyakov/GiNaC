@@ -22,7 +22,7 @@
 
 #include "exams.h"
 
-static unsigned exam_lsolve1(void)
+static unsigned exam_lsolve1()
 {
 	// A trivial example.
 	unsigned result = 0;
@@ -40,7 +40,7 @@ static unsigned exam_lsolve1(void)
 	return result;
 }
 
-static unsigned exam_lsolve2a(void)
+static unsigned exam_lsolve2a()
 {
 	// An example from the Maple online help.
 	unsigned result = 0;
@@ -68,7 +68,7 @@ static unsigned exam_lsolve2a(void)
 	return result;
 }
 
-static unsigned exam_lsolve2b(void)
+static unsigned exam_lsolve2b()
 {
 	// A boring example from Mathematica's online help.
 	unsigned result = 0;
@@ -96,7 +96,7 @@ static unsigned exam_lsolve2b(void)
 	return result;
 }
 
-static unsigned exam_lsolve2c(void)
+static unsigned exam_lsolve2c()
 {
 	// A more interesting example from the Maple online help.
 	unsigned result = 0;
@@ -124,7 +124,7 @@ static unsigned exam_lsolve2c(void)
 	return result;
 }
 
-static unsigned exam_lsolve2S(void)
+static unsigned exam_lsolve2S()
 {
 	// A degenerate example that went wrong in GiNaC 0.6.2.
 	unsigned result = 0;
@@ -152,7 +152,7 @@ static unsigned exam_lsolve2S(void)
 	return result;
 }
 
-static unsigned exam_lsolve3S(void)
+static unsigned exam_lsolve3S()
 {
 	// A degenerate example that went wrong while trying to improve elimination
 	unsigned result = 0;
@@ -183,7 +183,7 @@ static unsigned exam_lsolve3S(void)
 	return result;
 }
 
-unsigned exam_lsolve(void)
+unsigned exam_lsolve()
 {
 	unsigned result = 0;
 	

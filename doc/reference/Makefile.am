@@ -48,7 +48,7 @@ reference.ps: latex latex/reference.ps
 ginacreferencedir = `test -z "@REFERENCE_TARGETS@" || echo @datadir@/doc/GiNaC/reference`
 ginacreference_DATA = @REFERENCE_TARGETS@
 
-CLEANFILES = *.html *.gif doxygen.css *.ps latex/*
+CLEANFILES = *.html *.png doxygen.css *.ps latex/*
 EXTRA_DIST = DoxyfileHTML DoxyfileTEX Doxyfooter
 
 install-data-local:
@@ -61,7 +61,7 @@ install-data-local:
 	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p"; \
 	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p; \
 	done
-	@for p in `echo $(srcdir)/*.gif | sed -e 's,[^ ]*/,,g' -e 's,\*\.gif,,'`; do \
+	@for p in `echo $(srcdir)/*.png | sed -e 's,[^ ]*/,,g' -e 's,\*\.png,,'`; do \
 	  echo " $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p"; \
 	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(ginacreferencedir)/$$p; \
 	done
@@ -69,4 +69,4 @@ install-data-local:
 uninstall-local:
 	rm -f $(DESTDIR)$(ginacreferencedir)/doxygen.css
 	rm -f $(DESTDIR)$(ginacreferencedir)/*.html
-	rm -f $(DESTDIR)$(ginacreferencedir)/*.gif
+	rm -f $(DESTDIR)$(ginacreferencedir)/*.png

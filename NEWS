@@ -1,12 +1,40 @@
 This file records noteworthy changes.
 
-1.0.15 (<date>)
-* Added on-line help and Tab-completion for print(), iprint(), print_latex()
-  and print_csrc() in ginsh.
-* Fixed a bug in the unarchiving of sums and products: terms were not
-  reordered in a canonical way.
-* Fixed a bug in normal()/numer_denom(): denominator was not made unit
-  normal if it was a simple number
+1.2.0 (<insert date>)
+* Added a structure<T> template class for the easy creation of user-defined
+  algebraic classes.
+* Many internal reorganizations and optimizations.
+* Caveats for class implementors:
+   - basic::copy() and basic::destroy() are gone; classes derived from
+     basic can use the defaults for the assignment operator and copy
+     constructor.
+   - basic::subs() now descends into subexpressions (if accessible via
+     nops()/op()/let_op()). If you have a custom implementation of subs()
+     that calls basic::subs() after substituting subexpressions, this needs
+     to be changed to a call to subs_one_level().
+
+1.1.0 (3 April 2003)
+* Removed deprecated macros is_ex_a, is_ex_exactly_a and friends for good.
+* The scalar_products mechanism allows the specification of an index dimension.
+* Removed dirac_gamma6/7().
+* Added ex::to_polynomial().
+* subs() accepts an optional "options" argument. The option
+  subs_option::subs_algebraic enables "smart" substitutions in products and
+  powers.
+* Added stream manipulators "dflt", "latex", "python", "python_repr", "tree",
+  "csrc", "csrc_float", "csrc_double", "csrc_cl_N", "index_dimensions" and
+  "no_index_dimensions" to control the output format. Calling basic::print()
+  directly is now deprecated.
+* Made the hashing more simple and efficient.
+* Caveats for class implementors:
+   - basic::subs(): third argument changed from "bool" to "unsigned"
+   - unarchiving constructor and basic::unarchive(): "const" removed from
+     second argument
+   - basic::let_op() should only be implemented if write access to
+     subexpressions is desired
+   - simplify_ncmul() renamed to eval_ncmul()
+   - simplified_ncmul() renamed to hold_ncmul()
+   - nonsimplified_ncmul() renamed to reeval_ncmul()
 
 1.0.14 (1 March 2003)
 * Improved the C-source output: complex numbers are printed correctly (using

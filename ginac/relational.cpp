@@ -24,6 +24,7 @@
 #include <stdexcept>
 
 #include "relational.h"
+#include "operators.h"
 #include "numeric.h"
 #include "print.h"
 #include "archive.h"
@@ -34,23 +35,13 @@ namespace GiNaC {
 GINAC_IMPLEMENT_REGISTERED_CLASS(relational, basic)
 
 //////////
-// default ctor, dtor, copy ctor, assignment operator and helpers
+// default constructor
 //////////
 
 relational::relational() : basic(TINFO_relational) {}
 
-void relational::copy(const relational & other)
-{
-	basic::copy(other);
-	lh=other.lh;
-	rh=other.rh;
-	o=other.o;
-}
-
-DEFAULT_DESTROY(relational)
-
 //////////
-// other ctors
+// other constructors
 //////////
 
 // public
@@ -61,7 +52,7 @@ relational::relational(const ex & lhs, const ex & rhs, operators oper) : basic(T
 // archiving
 //////////
 
-relational::relational(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+relational::relational(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
 {
 	unsigned int opi;
 	if (!(n.find_unsigned("op", opi)))
@@ -159,17 +150,21 @@ bool relational::info(unsigned inf) const
 	return 0;
 }
 
-unsigned relational::nops() const
+size_t relational::nops() const
 {
 	return 2;
 }
 
-ex & relational::let_op(int i)
+ex relational::op(size_t i) const
 {
-	GINAC_ASSERT(i>=0);
 	GINAC_ASSERT(i<2);
 
 	return i==0 ? lh : rh;
+}
+
+ex relational::map(map_function & f) const
+{
+	return (new relational(f(lh), f(rh), o))->setflag(status_flags::dynallocated);
 }
 
 ex relational::eval(int level) const
@@ -183,20 +178,20 @@ ex relational::eval(int level) const
 	return (new relational(lh.eval(level-1),rh.eval(level-1),o))->setflag(status_flags::dynallocated | status_flags::evaluated);
 }
 
-ex relational::subs(const lst & ls, const lst & lr, bool no_pattern) const
+ex relational::subs(const lst & ls, const lst & lr, unsigned options) const
 {
-	const ex & subsed_lh = lh.subs(ls, lr, no_pattern);
-	const ex & subsed_rh = rh.subs(ls, lr, no_pattern);
+	const ex & subsed_lh = lh.subs(ls, lr, options);
+	const ex & subsed_rh = rh.subs(ls, lr, options);
 
 	if (!are_ex_trivially_equal(lh, subsed_lh) || !are_ex_trivially_equal(rh, subsed_rh))
-		return relational(subsed_lh, subsed_rh, o).basic::subs(ls, lr, no_pattern);
+		return relational(subsed_lh, subsed_rh, o).subs_one_level(ls, lr, options);
 	else
-		return basic::subs(ls, lr, no_pattern);
+		return subs_one_level(ls, lr, options);
 }
 
-ex relational::simplify_ncmul(const exvector & v) const
+ex relational::eval_ncmul(const exvector & v) const
 {
-	return lh.simplify_ncmul(v);
+	return lh.eval_ncmul(v);
 }
 
 // protected
@@ -242,25 +237,25 @@ bool relational::match_same_type(const basic & other) const
 	return o == oth.o;
 }
 
-unsigned relational::return_type(void) const
+unsigned relational::return_type() const
 {
 	GINAC_ASSERT(lh.return_type()==rh.return_type());
 	return lh.return_type();
 }
    
-unsigned relational::return_type_tinfo(void) const
+unsigned relational::return_type_tinfo() const
 {
 	GINAC_ASSERT(lh.return_type_tinfo()==rh.return_type_tinfo());
 	return lh.return_type_tinfo();
 }
 
-unsigned relational::calchash(void) const
+unsigned relational::calchash() const
 {
 	unsigned v = golden_ratio_hash(tinfo());
 	unsigned lhash = lh.gethash();
 	unsigned rhash = rh.gethash();
 
-	v = rotate_left_31(v);
+	v = rotate_left(v);
 	switch(o) {
 		case equal:
 		case not_equal:
@@ -281,11 +276,8 @@ unsigned relational::calchash(void) const
 			lhash = rhash;
 			break;
 	}
-	v = rotate_left_31(v);
+	v = rotate_left(v);
 	v ^= lhash;
-
-	// mask out numeric hashes:
-	v &= 0x7FFFFFFFU;
 
 	// store calculated hash value only if object is already evaluated
 	if (flags & status_flags::evaluated) {
@@ -301,13 +293,13 @@ unsigned relational::calchash(void) const
 //////////
 
 /** Left hand side of relational. */
-ex relational::lhs(void) const
+ex relational::lhs() const
 {
 	return lh;
 }
 
 /** Right hand side of relational. */
-ex relational::rhs(void) const
+ex relational::rhs() const
 {
 	return rh;    
 }
@@ -316,31 +308,36 @@ ex relational::rhs(void) const
 // non-virtual functions in this class
 //////////
 
-/** Cast the relational into a boolean, mainly for evaluation within an 
+relational::safe_bool relational::make_safe_bool(bool cond) const
+{
+	return cond? &safe_bool_helper::nonnull : 0;
+}
+
+/** Cast the relational into a boolean, mainly for evaluation within an
  *  if-statement.  Note that (a<b) == false does not imply (a>=b) == true in
  *  the general symbolic case.  A false result means the comparison is either
  *  false or undecidable (except of course for !=, where true means either
  *  unequal or undecidable). */
-relational::operator bool() const
+relational::operator relational::safe_bool() const
 {
 	const ex df = lh-rh;
-	if (!is_ex_exactly_of_type(df,numeric))
+	if (!is_exactly_a<numeric>(df))
 		// cannot decide on non-numerical results
-		return o==not_equal ? true : false;
-	
+		return o==not_equal ? make_safe_bool(true) : make_safe_bool(false);
+
 	switch (o) {
 		case equal:
-			return ex_to<numeric>(df).is_zero();
+			return make_safe_bool(ex_to<numeric>(df).is_zero());
 		case not_equal:
-			return !ex_to<numeric>(df).is_zero();
+			return make_safe_bool(!ex_to<numeric>(df).is_zero());
 		case less:
-			return ex_to<numeric>(df)<_num0;
+			return make_safe_bool(ex_to<numeric>(df)<_num0);
 		case less_or_equal:
-			return ex_to<numeric>(df)<=_num0;
+			return make_safe_bool(ex_to<numeric>(df)<=_num0);
 		case greater:
-			return ex_to<numeric>(df)>_num0;
+			return make_safe_bool(ex_to<numeric>(df)>_num0);
 		case greater_or_equal:
-			return ex_to<numeric>(df)>=_num0;
+			return make_safe_bool(ex_to<numeric>(df)>=_num0);
 		default:
 			throw(std::logic_error("invalid relational operator"));
 	}

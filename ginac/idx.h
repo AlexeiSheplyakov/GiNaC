@@ -50,10 +50,11 @@ public:
 public:
 	void print(const print_context & c, unsigned level = 0) const;
 	bool info(unsigned inf) const;
-	unsigned nops() const;
-	ex & let_op(int i);
+	size_t nops() const;
+	ex op(size_t i) const;
+	ex map(map_function & f) const;
 	ex evalf(int level = 0) const;
-	ex subs(const lst & ls, const lst & lr, bool no_pattern = false) const;
+	ex subs(const lst & ls, const lst & lr, unsigned options = 0) const;
 
 protected:
 	ex derivative(const symbol & s) const;
@@ -68,22 +69,22 @@ public:
 	// non-virtual functions in this class
 public:
 	/** Get value of index. */
-	ex get_value(void) const {return value;}
+	ex get_value() const {return value;}
 
 	/** Check whether the index is numeric. */
-	bool is_numeric(void) const {return is_exactly_a<numeric>(value);}
+	bool is_numeric() const {return is_exactly_a<numeric>(value);}
 
 	/** Check whether the index is symbolic. */
-	bool is_symbolic(void) const {return !is_exactly_a<numeric>(value);}
+	bool is_symbolic() const {return !is_exactly_a<numeric>(value);}
 
 	/** Get dimension of index space. */
-	ex get_dim(void) const {return dim;}
+	ex get_dim() const {return dim;}
 
 	/** Check whether the dimension is numeric. */
-	bool is_dim_numeric(void) const {return is_exactly_a<numeric>(dim);}
+	bool is_dim_numeric() const {return is_exactly_a<numeric>(dim);}
 
 	/** Check whether the dimension is symbolic. */
-	bool is_dim_symbolic(void) const {return !is_exactly_a<numeric>(dim);}
+	bool is_dim_symbolic() const {return !is_exactly_a<numeric>(dim);}
 
 	/** Make a new index with the same value but a different dimension. */
 	ex replace_dim(const ex & new_dim) const;
@@ -125,13 +126,13 @@ protected:
 	// non-virtual functions in this class
 public:
 	/** Check whether the index is covariant. */
-	bool is_covariant(void) const {return covariant;}
+	bool is_covariant() const {return covariant;}
 
 	/** Check whether the index is contravariant (not covariant). */
-	bool is_contravariant(void) const {return !covariant;}
+	bool is_contravariant() const {return !covariant;}
 
 	/** Make a new index with the same value but the opposite variance. */
-	ex toggle_variance(void) const;
+	ex toggle_variance() const;
 
 	// member variables
 protected:
@@ -170,18 +171,18 @@ protected:
 	// non-virtual functions in this class
 public:
 	/** Check whether the index is dotted. */
-	bool is_dotted(void) const {return dotted;}
+	bool is_dotted() const {return dotted;}
 
 	/** Check whether the index is not dotted. */
-	bool is_undotted(void) const {return !dotted;}
+	bool is_undotted() const {return !dotted;}
 
 	/** Make a new index with the same value and variance but the opposite
 	 *  dottedness. */
-	ex toggle_dot(void) const;
+	ex toggle_dot() const;
 
 	/** Make a new index with the same value but opposite variance and
 	 *  dottedness. */
-	ex toggle_variance_dot(void) const;
+	ex toggle_variance_dot() const;
 
 	// member variables
 protected:
@@ -248,7 +249,7 @@ inline void find_dummy_indices(const exvector & v, exvector & out_dummy)
 }
 
 /** Count the number of dummy index pairs in an index vector. */
-inline unsigned count_dummy_indices(const exvector & v)
+inline size_t count_dummy_indices(const exvector & v)
 {
 	exvector free_indices, dummy_indices;
 	find_free_and_dummy(v.begin(), v.end(), free_indices, dummy_indices);
@@ -256,7 +257,7 @@ inline unsigned count_dummy_indices(const exvector & v)
 }
 
 /** Count the number of dummy index pairs in an index vector. */
-inline unsigned count_free_indices(const exvector & v)
+inline size_t count_free_indices(const exvector & v)
 {
 	exvector free_indices, dummy_indices;
 	find_free_and_dummy(v.begin(), v.end(), free_indices, dummy_indices);

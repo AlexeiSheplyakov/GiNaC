@@ -20,6 +20,9 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <iostream>
+#include <iomanip>
+
 #include "operators.h"
 #include "numeric.h"
 #include "add.h"
@@ -272,17 +275,150 @@ const relational operator>=(const ex & lh, const ex & rh)
 	return relational(lh,rh,relational::greater_or_equal);
 }
 
-// input/output stream operators
+// input/output stream operators and manipulators
+
+static int my_ios_index()
+{
+	static int i = std::ios_base::xalloc();
+	return i;
+}
+
+// Stream format gets copied or destroyed
+static void my_ios_callback(std::ios_base::event ev, std::ios_base & s, int i)
+{
+	print_context *p = static_cast<print_context *>(s.pword(i));
+	if (ev == std::ios_base::erase_event) {
+		delete p;
+		s.pword(i) = 0;
+	} else if (ev == std::ios_base::copyfmt_event && p != 0)
+		s.pword(i) = p->duplicate();
+}
+
+enum {
+	callback_registered = 1
+};
+
+// Get print_context associated with stream, may return 0 if no context has
+// been associated yet
+static inline print_context *get_print_context(std::ios_base & s)
+{
+	return static_cast<print_context *>(s.pword(my_ios_index()));
+}
+
+// Set print_context associated with stream, retain options
+static void set_print_context(std::ios_base & s, const print_context & c)
+{
+	int i = my_ios_index();
+	long flags = s.iword(i);
+	if (!(flags & callback_registered)) {
+		s.register_callback(my_ios_callback, i);
+		s.iword(i) = flags | callback_registered;
+	}
+	print_context *p = static_cast<print_context *>(s.pword(i));
+	unsigned options = p ? p->options : c.options;
+	delete p;
+	p = c.duplicate();
+	p->options = options;
+	s.pword(i) = p;
+}
+
+// Get options for print_context associated with stream
+static inline unsigned get_print_options(std::ios_base & s)
+{
+	print_context *p = get_print_context(s);
+	return p ? p->options : 0;
+}
+
+// Set options for print_context associated with stream
+static void set_print_options(std::ostream & s, unsigned options)
+{
+	print_context *p = get_print_context(s);
+	if (p == 0)
+		set_print_context(s, print_context(s, options));
+	else
+		p->options = options;
+}
 
 std::ostream & operator<<(std::ostream & os, const ex & e)
 {
-	e.print(print_context(os));
+	print_context *p = get_print_context(os);
+	if (p == 0)
+		e.print(print_context(os));
+	else
+		e.print(*p);
 	return os;
 }
 
 std::istream & operator>>(std::istream & is, ex & e)
 {
 	throw (std::logic_error("expression input from streams not implemented"));
+}
+
+std::ostream & dflt(std::ostream & os)
+{
+	set_print_context(os, print_context(os));
+	set_print_options(os, 0);
+	return os;
+}
+
+std::ostream & latex(std::ostream & os)
+{
+	set_print_context(os, print_latex(os));
+	return os;
+}
+
+std::ostream & python(std::ostream & os)
+{
+	set_print_context(os, print_python(os));
+	return os;
+}
+
+std::ostream & python_repr(std::ostream & os)
+{
+	set_print_context(os, print_python_repr(os));
+	return os;
+}
+
+std::ostream & tree(std::ostream & os)
+{
+	set_print_context(os, print_tree(os));
+	return os;
+}
+
+std::ostream & csrc(std::ostream & os)
+{
+	set_print_context(os, print_csrc_double(os));
+	return os;
+}
+
+std::ostream & csrc_float(std::ostream & os)
+{
+	set_print_context(os, print_csrc_float(os));
+	return os;
+}
+
+std::ostream & csrc_double(std::ostream & os)
+{
+	set_print_context(os, print_csrc_double(os));
+	return os;
+}
+
+std::ostream & csrc_cl_N(std::ostream & os)
+{
+	set_print_context(os, print_csrc_cl_N(os));
+	return os;
+}
+
+std::ostream & index_dimensions(std::ostream & os)
+{
+	set_print_options(os, get_print_options(os) | print_options::print_index_dimensions);
+	return os;
+}
+
+std::ostream & no_index_dimensions(std::ostream & os)
+{
+	set_print_options(os, get_print_options(os) & ~print_options::print_index_dimensions);
+	return os;
 }
 
 } // namespace GiNaC

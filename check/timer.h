@@ -1,7 +1,6 @@
-/** @file exprseq_suppl.cpp
+/** @file timer.h
  *
- *  Supplement to exprseq.cpp, contains the parts which were not automatically
- *  generated. */
+ *  A simple stop watch class. */
 
 /*
  *  GiNaC Copyright (C) 1999-2003 Johannes Gutenberg University Mainz, Germany
@@ -21,24 +20,22 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "exprseq.h"
-#include "ex.h"
+#ifndef TIMER_H
+#define TIMER_H
 
-namespace GiNaC {
+#include <sys/resource.h>
 
-bool exprseq::info(unsigned inf) const
-{
-	if (inf==info_flags::exprseq)
-		return 1;
-	return basic::info(inf);
-}
+class timer {
+public:
+	timer();
+	void start();
+	void stop();
+	void reset();
+	double read();
+	bool running();
+private:
+	bool on;
+	struct rusage used1, used2;
+};
 
-ex & exprseq::let_op(int i)
-{
-	GINAC_ASSERT(i>=0);
-	GINAC_ASSERT(i<nops());
-	
-	return seq[i];
-}
-
-} // namespace GiNaC
+#endif // ndef TIMER_H

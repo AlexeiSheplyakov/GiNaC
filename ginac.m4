@@ -91,7 +91,7 @@ dnl match the version of the headers and the version built into the library, too
    prototype for exit() that conflicts with the one in stdlib.h */
 extern "C" int system(const char *);
 
-int main(void)
+int main()
 {
     int major, minor, micro;
     char *tmp_version;

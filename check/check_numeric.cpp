@@ -25,7 +25,7 @@
 
 /* Simple and maybe somewhat pointless consistency tests of assorted tests and
  * conversions. */
-static unsigned check_numeric1(void)
+static unsigned check_numeric1()
 {
 	unsigned result = 0;
 	bool errorflag = false;
@@ -53,7 +53,7 @@ static unsigned check_numeric1(void)
 	return result;
 }
 
-static unsigned check_numeric2(void)
+static unsigned check_numeric2()
 {
 	unsigned result = 0;
 	bool errorflag = false;
@@ -105,7 +105,7 @@ static unsigned check_numeric2(void)
 	return result;
 }
 
-unsigned check_numeric(void)
+unsigned check_numeric()
 {
 	unsigned result = 0;
 	

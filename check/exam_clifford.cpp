@@ -44,7 +44,7 @@ static unsigned check_equal_simplify(const ex &e1, const ex &e2)
 	return 0;
 }
 
-static unsigned clifford_check1(void)
+static unsigned clifford_check1()
 {
 	// checks general identities and contractions
 
@@ -80,7 +80,7 @@ static unsigned clifford_check1(void)
 	return result;
 }
 
-static unsigned clifford_check2(void)
+static unsigned clifford_check2()
 {
 	// checks identities relating to gamma5
 
@@ -99,7 +99,7 @@ static unsigned clifford_check2(void)
 	return result;
 }
 
-static unsigned clifford_check3(void)
+static unsigned clifford_check3()
 {
 	// checks traces
 
@@ -187,7 +187,7 @@ static unsigned clifford_check3(void)
 	return result;
 }
 
-static unsigned clifford_check4(void)
+static unsigned clifford_check4()
 {
 	// simplify_indexed()/dirac_trace() cross-checks
 
@@ -221,7 +221,7 @@ static unsigned clifford_check4(void)
 	return result;
 }
 
-static unsigned clifford_check5(void)
+static unsigned clifford_check5()
 {
 	// canonicalize_clifford() checks
 
@@ -249,7 +249,7 @@ static unsigned clifford_check5(void)
 	return result;
 }
 
-unsigned exam_clifford(void)
+unsigned exam_clifford()
 {
 	unsigned result = 0;
 	

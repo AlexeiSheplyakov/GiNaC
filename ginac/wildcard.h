@@ -45,11 +45,11 @@ public:
 	bool match(const ex & pattern, lst & repl_lst) const;
 
 protected:
-	unsigned calchash(void) const;
+	unsigned calchash() const;
 
 	// non-virtual functions in this class
 public:
-	unsigned get_label(void) const {return label;}
+	unsigned get_label() const {return label;}
 
 	// member variables
 private:

@@ -20,34 +20,38 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "times.h"
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <unistd.h>
 
-timer::timer(void) : on(false)
+#include "timer.h"
+
+timer::timer() : on(false)
 {
 	getrusage(RUSAGE_SELF, &used1);
 	getrusage(RUSAGE_SELF, &used2);
 }
 
-void timer::start(void)
+void timer::start()
 {
 	on = true;
 	getrusage(RUSAGE_SELF, &used1);
 	getrusage(RUSAGE_SELF, &used2);
 }
 
-void timer::stop(void)
+void timer::stop()
 {
 	on = false;
 	getrusage(RUSAGE_SELF, &used2);
 }
 
-void timer::reset(void)
+void timer::reset()
 {
 	getrusage(RUSAGE_SELF, &used1);
 	getrusage(RUSAGE_SELF, &used2);
 }
 
-double timer::read(void)
+double timer::read()
 {
 	double elapsed;
 	if (this->running())
@@ -60,7 +64,7 @@ double timer::read(void)
 	return 0.01*int(elapsed*100+0.5);
 }
 
-bool timer::running(void)
+bool timer::running()
 {
 	return on;
 }

@@ -23,7 +23,7 @@
 
 #include "times.h"
 
-static unsigned test(void)
+static unsigned test()
 {
 	symbol x("x");
 	symbol y("y");
@@ -41,7 +41,7 @@ static unsigned test(void)
 	return 0;
 }
 
-unsigned time_lw_G(void)
+unsigned time_lw_G()
 {
 	unsigned result = 0;
 	unsigned count = 0;

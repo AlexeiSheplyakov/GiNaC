@@ -34,6 +34,7 @@
 #include "lst.h"
 #include "ncmul.h"
 #include "relational.h"
+#include "operators.h"
 #include "wildcard.h"
 #include "print.h"
 #include "archive.h"
@@ -41,44 +42,56 @@
 
 namespace GiNaC {
 
-GINAC_IMPLEMENT_REGISTERED_CLASS_NO_CTORS(basic, void)
+GINAC_IMPLEMENT_REGISTERED_CLASS(basic, void)
 
 //////////
-// default ctor, dtor, copy ctor, assignment operator and helpers
+// default constructor, destructor, copy constructor and assignment operator
 //////////
 
 // public
 
-basic::basic(const basic & other) : tinfo_key(TINFO_basic), flags(0), refcount(0)
+/** basic copy constructor: implicitly assumes that the other class is of
+ *  the exact same type (as it's used by duplicate()), so it can copy the
+ *  tinfo_key and the hash value. */
+basic::basic(const basic & other) : tinfo_key(other.tinfo_key), flags(other.flags & ~status_flags::dynallocated), hashvalue(other.hashvalue), refcount(0)
 {
-	copy(other);
+	GINAC_ASSERT(typeid(*this) == typeid(other));
 }
 
+/** basic assignment operator: the other object might be of a derived class. */
 const basic & basic::operator=(const basic & other)
 {
-	if (this != &other) {
-		destroy(true);
-		copy(other);
+	unsigned fl = other.flags & ~status_flags::dynallocated;
+	if (tinfo_key != other.tinfo_key) {
+		// The other object is of a derived class, so clear the flags as they
+		// might no longer apply (especially hash_calculated). Oh, and don't
+		// copy the tinfo_key: it is already set correctly for this object.
+		flags = 0;
+	} else {
+		// The objects are of the exact same class, so copy the hash value.
+		hashvalue = other.hashvalue;
 	}
+	flags = fl;
+	refcount = 0;
 	return *this;
 }
 
 // protected
 
-// none (all conditionally inlined)
+// none (all inlined)
 
 //////////
-// other ctors
+// other constructors
 //////////
 
-// none (all conditionally inlined)
+// none (all inlined)
 
 //////////
 // archiving
 //////////
 
 /** Construct object from archive_node. */
-basic::basic(const archive_node &n, const lst &sym_lst) : flags(0), refcount(0)
+basic::basic(const archive_node &n, lst &sym_lst) : flags(0), refcount(0)
 {
 	// Reconstruct tinfo_key from class name
 	std::string class_name;
@@ -109,13 +122,13 @@ void basic::archive(archive_node &n) const
  *               level for placing parentheses and formatting */
 void basic::print(const print_context & c, unsigned level) const
 {
-	if (is_of_type(c, print_tree)) {
+	if (is_a<print_tree>(c)) {
 
 		c.s << std::string(level, ' ') << class_name()
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 		    << ", nops=" << nops()
 		    << std::endl;
-		for (unsigned i=0; i<nops(); ++i)
+		for (size_t i=0; i<nops(); ++i)
 			op(i).print(c, level + static_cast<const print_tree &>(c).delta_indent);
 
 	} else
@@ -127,8 +140,9 @@ void basic::print(const print_context & c, unsigned level) const
  *  debugger because it might not know what cout is.  This method can be
  *  invoked with no argument and it will simply print to stdout.
  *
- *  @see basic::print */
-void basic::dbgprint(void) const
+ *  @see basic::print
+ *  @see basic::dbgprinttree */
+void basic::dbgprint() const
 {
 	this->print(std::cerr);
 	std::cerr << std::endl;
@@ -136,25 +150,16 @@ void basic::dbgprint(void) const
 
 /** Little wrapper around printtree to be called within a debugger.
  *
- *  @see basic::dbgprint
- *  @see basic::printtree */
-void basic::dbgprinttree(void) const
+ *  @see basic::dbgprint */
+void basic::dbgprinttree() const
 {
 	this->print(print_tree(std::cerr));
 }
 
 /** Return relative operator precedence (for parenthizing output). */
-unsigned basic::precedence(void) const
+unsigned basic::precedence() const
 {
 	return 70;
-}
-
-/** Create a new copy of this on the heap.  One can think of this as simulating
- *  a virtual copy constructor which is needed for instance by the refcounted
- *  construction of an ex from a basic. */
-basic * basic::duplicate() const
-{
-	return new basic(*this);
 }
 
 /** Information about the object.
@@ -167,7 +172,7 @@ bool basic::info(unsigned inf) const
 }
 
 /** Number of operands/members. */
-unsigned basic::nops() const
+size_t basic::nops() const
 {
 	// iterating from 0 to nops() on atomic objects should be an empty loop,
 	// and accessing their elements is a range error.  Container objects should
@@ -176,28 +181,42 @@ unsigned basic::nops() const
 }
 
 /** Return operand/member at position i. */
-ex basic::op(int i) const
+ex basic::op(size_t i) const
 {
-	return (const_cast<basic *>(this))->let_op(i);
+	throw(std::range_error(std::string("basic::op(): ") + class_name() + std::string(" has no operands")));
 }
 
 /** Return modifyable operand/member at position i. */
-ex & basic::let_op(int i)
+ex & basic::let_op(size_t i)
 {
-	throw(std::out_of_range("op() out of range"));
+	ensure_if_modifiable();
+	throw(std::range_error(std::string("basic::let_op(): ") + class_name() + std::string(" has no operands")));
 }
 
 ex basic::operator[](const ex & index) const
 {
-	if (is_ex_exactly_of_type(index,numeric))
-		return op(ex_to<numeric>(index).to_int());
+	if (is_exactly_a<numeric>(index))
+		return op(static_cast<size_t>(ex_to<numeric>(index).to_int()));
 
-	throw(std::invalid_argument("non-numeric indices not supported by this type"));
+	throw(std::invalid_argument(std::string("non-numeric indices not supported by ") + class_name()));
 }
 
-ex basic::operator[](int i) const
+ex basic::operator[](size_t i) const
 {
 	return op(i);
+}
+
+ex & basic::operator[](const ex & index)
+{
+	if (is_exactly_a<numeric>(index))
+		return let_op(ex_to<numeric>(index).to_int());
+
+	throw(std::invalid_argument(std::string("non-numeric indices not supported by ") + class_name()));
+}
+
+ex & basic::operator[](size_t i)
+{
+	return let_op(i);
 }
 
 /** Test for occurrence of a pattern.  An object 'has' a pattern if it matches
@@ -209,7 +228,7 @@ bool basic::has(const ex & pattern) const
 	lst repl_lst;
 	if (match(pattern, repl_lst))
 		return true;
-	for (unsigned i=0; i<nops(); i++)
+	for (size_t i=0; i<nops(); i++)
 		if (op(i).has(pattern))
 			return true;
 	
@@ -220,17 +239,16 @@ bool basic::has(const ex & pattern) const
  *  sub-expressions (one level only, not recursively). */
 ex basic::map(map_function & f) const
 {
-	unsigned num = nops();
+	size_t num = nops();
 	if (num == 0)
 		return *this;
 
 	basic *copy = duplicate();
 	copy->setflag(status_flags::dynallocated);
 	copy->clearflag(status_flags::hash_calculated | status_flags::expanded);
-	ex e(*copy);
-	for (unsigned i=0; i<num; i++)
-		e.let_op(i) = f(e.op(i));
-	return e.eval();
+	for (size_t i=0; i<num; i++)
+		copy->let_op(i) = f(copy->op(i));
+	return *copy;
 }
 
 /** Return degree of highest power in object s. */
@@ -260,7 +278,7 @@ ex basic::coeff(const ex & s, int n) const
 ex basic::collect(const ex & s, bool distributed) const
 {
 	ex x;
-	if (is_ex_of_type(s, lst)) {
+	if (is_a<lst>(s)) {
 
 		// List of objects specified
 		if (s.nops() == 0)
@@ -271,7 +289,7 @@ ex basic::collect(const ex & s, bool distributed) const
 		else if (distributed) {
 
 			// Get lower/upper degree of all symbols in list
-			int num = s.nops();
+			size_t num = s.nops();
 			struct sym_info {
 				ex sym;
 				int ldeg, deg;
@@ -280,7 +298,7 @@ ex basic::collect(const ex & s, bool distributed) const
 			};
 			sym_info *si = new sym_info[num];
 			ex c = *this;
-			for (int i=0; i<num; i++) {
+			for (size_t i=0; i<num; i++) {
 				si[i].sym = s.op(i);
 				si[i].ldeg = si[i].cnt = this->ldegree(si[i].sym);
 				si[i].deg = this->degree(si[i].sym);
@@ -291,14 +309,14 @@ ex basic::collect(const ex & s, bool distributed) const
 
 				// Calculate coeff*x1^c1*...*xn^cn
 				ex y = _ex1;
-				for (int i=0; i<num; i++) {
+				for (size_t i=0; i<num; i++) {
 					int cnt = si[i].cnt;
 					y *= power(si[i].sym, cnt);
 				}
 				x += y * si[num - 1].coeff;
 
 				// Increment counters
-				int n = num - 1;
+				size_t n = num - 1;
 				while (true) {
 					++si[n].cnt;
 					if (si[n].cnt <= si[n].deg) {
@@ -308,7 +326,7 @@ ex basic::collect(const ex & s, bool distributed) const
 							c = *this;
 						else
 							c = si[n - 1].coeff;
-						for (int i=n; i<num; i++)
+						for (size_t i=n; i<num; i++)
 							c = si[i].coeff = c.coeff(si[i].sym, si[i].cnt);
 						break;
 					}
@@ -325,8 +343,13 @@ done:		delete[] si;
 
 			// Recursive form
 			x = *this;
-			for (int n=s.nops()-1; n>=0; n--)
+			size_t n = s.nops() - 1;
+			while (true) {
 				x = x.collect(s[n]);
+				if (n == 0)
+					break;
+				n--;
+			}
 		}
 
 	} else {
@@ -344,7 +367,7 @@ done:		delete[] si;
 ex basic::eval(int level) const
 {
 	// There is nothing to do for basic objects:
-	return this->hold();
+	return hold();
 }
 
 /** Function object to be applied by basic::evalf(). */
@@ -377,7 +400,7 @@ struct evalm_map_function : public map_function {
 } map_evalm;
 
 /** Evaluate sums, products and integer powers of matrices. */
-ex basic::evalm(void) const
+ex basic::evalm() const
 {
 	if (nops() == 0)
 		return *this;
@@ -459,14 +482,14 @@ bool basic::match(const ex & pattern, lst & repl_lst) const
 	Bog is the king of Pattern.
 */
 
-	if (is_ex_exactly_of_type(pattern, wildcard)) {
+	if (is_exactly_a<wildcard>(pattern)) {
 
 		// Wildcard matches anything, but check whether we already have found
 		// a match for that wildcard first (if so, it the earlier match must
 		// be the same expression)
-		for (unsigned i=0; i<repl_lst.nops(); i++) {
-			if (repl_lst.op(i).op(0).is_equal(pattern))
-				return is_equal(ex_to<basic>(repl_lst.op(i).op(1)));
+		for (lst::const_iterator it = repl_lst.begin(); it != repl_lst.end(); ++it) {
+			if (it->op(0).is_equal(pattern))
+				return is_equal(ex_to<basic>(it->op(1)));
 		}
 		repl_lst.append(pattern == *this);
 		return true;
@@ -491,7 +514,7 @@ bool basic::match(const ex & pattern, lst & repl_lst) const
 			return false;
 
 		// Otherwise the subexpressions must match one-to-one
-		for (unsigned i=0; i<nops(); i++)
+		for (size_t i=0; i<nops(); i++)
 			if (!op(i).match(pattern.op(i), repl_lst))
 				return false;
 
@@ -500,26 +523,62 @@ bool basic::match(const ex & pattern, lst & repl_lst) const
 	}
 }
 
-/** Substitute a set of objects by arbitrary expressions. The ex returned
- *  will already be evaluated. */
-ex basic::subs(const lst & ls, const lst & lr, bool no_pattern) const
+/** Helper function for subs(). Does not recurse into subexpressions. */
+ex basic::subs_one_level(const lst & ls, const lst & lr, unsigned options) const
 {
 	GINAC_ASSERT(ls.nops() == lr.nops());
 
-	if (no_pattern) {
-		for (unsigned i=0; i<ls.nops(); i++) {
-			if (is_equal(ex_to<basic>(ls.op(i))))
-				return lr.op(i);
+	lst::const_iterator its, itr;
+
+	if (options & subs_options::subs_no_pattern) {
+		for (its = ls.begin(), itr = lr.begin(); its != ls.end(); ++its, ++itr) {
+			if (is_equal(ex_to<basic>(*its)))
+				return *itr;
 		}
 	} else {
-		for (unsigned i=0; i<ls.nops(); i++) {
+		for (its = ls.begin(), itr = lr.begin(); its != ls.end(); ++its, ++itr) {
 			lst repl_lst;
-			if (match(ex_to<basic>(ls.op(i)), repl_lst))
-				return lr.op(i).subs(repl_lst, true); // avoid infinite recursion when re-substituting the wildcards
+			if (match(ex_to<basic>(*its), repl_lst))
+				return itr->subs(repl_lst, options | subs_options::subs_no_pattern); // avoid infinite recursion when re-substituting the wildcards
 		}
 	}
 
 	return *this;
+}
+
+/** Substitute a set of objects by arbitrary expressions. The ex returned
+ *  will already be evaluated. */
+ex basic::subs(const lst & ls, const lst & lr, unsigned options) const
+{
+	size_t num = nops();
+	if (num) {
+
+		// Substitute in subexpressions
+		for (size_t i=0; i<num; i++) {
+			const ex & orig_op = op(i);
+			const ex & subsed_op = orig_op.subs(ls, lr, options);
+			if (!are_ex_trivially_equal(orig_op, subsed_op)) {
+
+				// Something changed, clone the object
+				basic *copy = duplicate();
+				copy->setflag(status_flags::dynallocated);
+				copy->clearflag(status_flags::hash_calculated | status_flags::expanded);
+
+				// Substitute the changed operand
+				copy->let_op(i++) = subsed_op;
+
+				// Substitute the other operands
+				for (; i<num; i++)
+					copy->let_op(i) = op(i).subs(ls, lr, options);
+
+				// Perform substitutions on the new object as a whole
+				return copy->subs_one_level(ls, lr, options);
+			}
+		}
+	}
+
+	// Nothing changed or no subexpressions
+	return subs_one_level(ls, lr, options);
 }
 
 /** Default interface of nth derivative ex::diff(s, n).  It should be called
@@ -549,14 +608,14 @@ ex basic::diff(const symbol & s, unsigned nth) const
 }
 
 /** Return a vector containing the free indices of an expression. */
-exvector basic::get_free_indices(void) const
+exvector basic::get_free_indices() const
 {
 	return exvector(); // return an empty exvector
 }
 
-ex basic::simplify_ncmul(const exvector & v) const
+ex basic::eval_ncmul(const exvector & v) const
 {
-	return simplified_ncmul(v);
+	return hold_ncmul(v);
 }
 
 // protected
@@ -619,12 +678,12 @@ bool basic::match_same_type(const basic & other) const
 	return true;
 }
 
-unsigned basic::return_type(void) const
+unsigned basic::return_type() const
 {
 	return return_types::commutative;
 }
 
-unsigned basic::return_type_tinfo(void) const
+unsigned basic::return_type_tinfo() const
 {
 	return tinfo();
 }
@@ -635,17 +694,14 @@ unsigned basic::return_type_tinfo(void) const
  *  members.  For this reason it is well suited for container classes but
  *  atomic classes should override this implementation because otherwise they
  *  would all end up with the same hashvalue. */
-unsigned basic::calchash(void) const
+unsigned basic::calchash() const
 {
 	unsigned v = golden_ratio_hash(tinfo());
-	for (unsigned i=0; i<nops(); i++) {
-		v = rotate_left_31(v);
+	for (size_t i=0; i<nops(); i++) {
+		v = rotate_left(v);
 		v ^= (const_cast<basic *>(this))->op(i).gethash();
 	}
-	
-	// mask out numeric hashes:
-	v &= 0x7FFFFFFFU;
-	
+
 	// store calculated hash value only if object is already evaluated
 	if (flags & status_flags::evaluated) {
 		setflag(status_flags::hash_calculated);
@@ -686,77 +742,67 @@ ex basic::expand(unsigned options) const
  *  replacement arguments: 1) a relational like object==ex and 2) a list of
  *  relationals lst(object1==ex1,object2==ex2,...), which is converted to
  *  subs(lst(object1,object2,...),lst(ex1,ex2,...)). */
-ex basic::subs(const ex & e, bool no_pattern) const
+ex basic::subs(const ex & e, unsigned options) const
 {
 	if (e.info(info_flags::relation_equal)) {
-		return subs(lst(e), no_pattern);
+		return subs(lst(e), options);
 	}
 	if (!e.info(info_flags::list)) {
 		throw(std::invalid_argument("basic::subs(ex): argument must be a list"));
 	}
+
+	// Split list into two
 	lst ls;
 	lst lr;
-	for (unsigned i=0; i<e.nops(); i++) {
-		ex r = e.op(i);
+	GINAC_ASSERT(is_a<lst>(e));
+	for (lst::const_iterator it = ex_to<lst>(e).begin(); it != ex_to<lst>(e).end(); ++it) {
+		ex r = *it;
 		if (!r.info(info_flags::relation_equal)) {
 			throw(std::invalid_argument("basic::subs(ex): argument must be a list of equations"));
 		}
 		ls.append(r.op(0));
 		lr.append(r.op(1));
 	}
-	return subs(ls, lr, no_pattern);
+	return subs(ls, lr, options);
 }
 
-/** Compare objects to establish canonical ordering.
+/** Compare objects syntactically to establish canonical ordering.
  *  All compare functions return: -1 for *this less than other, 0 equal,
  *  1 greater. */
 int basic::compare(const basic & other) const
 {
-	unsigned hash_this = gethash();
-	unsigned hash_other = other.gethash();
-	
+	const unsigned hash_this = gethash();
+	const unsigned hash_other = other.gethash();
 	if (hash_this<hash_other) return -1;
 	if (hash_this>hash_other) return 1;
-	
-	unsigned typeid_this = tinfo();
-	unsigned typeid_other = other.tinfo();
-	
-	if (typeid_this<typeid_other) {
+
+	const unsigned typeid_this = tinfo();
+	const unsigned typeid_other = other.tinfo();
+	if (typeid_this==typeid_other) {
+		GINAC_ASSERT(typeid(*this)==typeid(other));
+// 		int cmpval = compare_same_type(other);
+// 		if (cmpval!=0) {
+// 			std::cout << "hash collision, same type: " 
+// 			          << *this << " and " << other << std::endl;
+// 			this->print(print_tree(std::cout));
+// 			std::cout << " and ";
+// 			other.print(print_tree(std::cout));
+// 			std::cout << std::endl;
+// 		}
+// 		return cmpval;
+		return compare_same_type(other);
+	} else {
 // 		std::cout << "hash collision, different types: " 
 // 		          << *this << " and " << other << std::endl;
 // 		this->print(print_tree(std::cout));
 // 		std::cout << " and ";
 // 		other.print(print_tree(std::cout));
 // 		std::cout << std::endl;
-		return -1;
+		return (typeid_this<typeid_other ? -1 : 1);
 	}
-	if (typeid_this>typeid_other) {
-// 		std::cout << "hash collision, different types: " 
-// 		          << *this << " and " << other << std::endl;
-// 		this->print(print_tree(std::cout));
-// 		std::cout << " and ";
-// 		other.print(print_tree(std::cout));
-// 		std::cout << std::endl;
-		return 1;
-	}
-	
-	GINAC_ASSERT(typeid(*this)==typeid(other));
-	
-// 	int cmpval = compare_same_type(other);
-// 	if ((cmpval!=0) && (hash_this<0x80000000U)) {
-// 		std::cout << "hash collision, same type: " 
-// 		          << *this << " and " << other << std::endl;
-// 		this->print(print_tree(std::cout));
-// 		std::cout << " and ";
-// 		other.print(print_tree(std::cout));
-// 		std::cout << std::endl;
-// 	}
-// 	return cmpval;
-	
-	return compare_same_type(other);
 }
 
-/** Test for equality.
+/** Test for syntactic equality.
  *  This is only a quick test, meaning objects should be in the same domain.
  *  You might have to .expand(), .normal() objects first, depending on the
  *  domain of your computation, to get a more reliable answer.
@@ -779,18 +825,18 @@ bool basic::is_equal(const basic & other) const
 /** Stop further evaluation.
  *
  *  @see basic::eval */
-const basic & basic::hold(void) const
+const basic & basic::hold() const
 {
 	return setflag(status_flags::evaluated);
 }
 
 /** Ensure the object may be modified without hurting others, throws if this
  *  is not the case. */
-void basic::ensure_if_modifiable(void) const
+void basic::ensure_if_modifiable() const
 {
-	if (this->refcount>1)
+	if (refcount > 1)
 		throw(std::runtime_error("cannot modify multiply referenced object"));
-	clearflag(status_flags::hash_calculated);
+	clearflag(status_flags::hash_calculated | status_flags::evaluated);
 }
 
 //////////

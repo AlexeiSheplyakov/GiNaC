@@ -35,7 +35,7 @@ class matrix : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS(matrix, basic)
 	
-	// other ctors
+	// other constructors
 public:
 	matrix(unsigned r, unsigned c);
 	matrix(unsigned r, unsigned c, const exvector & m2);
@@ -44,12 +44,12 @@ public:
 	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
-	unsigned nops() const;
-	ex op(int i) const;
-	ex & let_op(int i);
+	size_t nops() const;
+	ex op(size_t i) const;
+	ex & let_op(size_t i);
 	ex eval(int level=0) const;
-	ex evalm(void) const {return *this;}
-	ex subs(const lst & ls, const lst & lr, bool no_pattern = false) const;
+	ex evalm() const {return *this;}
+	ex subs(const lst & ls, const lst & lr, unsigned options = 0) const;
 	ex eval_indexed(const basic & i) const;
 	ex add_indexed(const ex & self, const ex & other) const;
 	ex scalar_mul_indexed(const ex & self, const numeric & other) const;
@@ -57,13 +57,13 @@ public:
 
 protected:
 	bool match_same_type(const basic & other) const;
-	unsigned return_type(void) const { return return_types::noncommutative; };
+	unsigned return_type() const { return return_types::noncommutative; };
 	
 	// non-virtual functions in this class
 public:
-	unsigned rows(void) const        /// Get number of rows.
+	unsigned rows() const        /// Get number of rows.
 		{ return row; }
-	unsigned cols(void) const        /// Get number of columns.
+	unsigned cols() const        /// Get number of columns.
 		{ return col; }
 	matrix add(const matrix & other) const;
 	matrix sub(const matrix & other) const;
@@ -74,15 +74,15 @@ public:
 	const ex & operator() (unsigned ro, unsigned co) const;
 	ex & operator() (unsigned ro, unsigned co);
 	matrix & set(unsigned ro, unsigned co, const ex & value) { (*this)(ro, co) = value; return *this; }
-	matrix transpose(void) const;
+	matrix transpose() const;
 	ex determinant(unsigned algo = determinant_algo::automatic) const;
-	ex trace(void) const;
+	ex trace() const;
 	ex charpoly(const symbol & lambda) const;
-	matrix inverse(void) const;
+	matrix inverse() const;
 	matrix solve(const matrix & vars, const matrix & rhs,
 	             unsigned algo = solve_algo::automatic) const;
 protected:
-	ex determinant_minor(void) const;
+	ex determinant_minor() const;
 	int gauss_elimination(const bool det = false);
 	int division_free_elimination(const bool det = false);
 	int fraction_free_elimination(const bool det = false);
@@ -98,7 +98,7 @@ protected:
 
 // wrapper functions around member functions
 
-inline unsigned nops(const matrix & m)
+inline size_t nops(const matrix & m)
 { return m.nops(); }
 
 inline ex expand(const matrix & m, unsigned options = 0)

@@ -23,9 +23,9 @@
 
 #include "times.h"
 
-static const bool do_test = false;  // set to true in order to run this beast
+static const bool do_test = true;  // set to true in order to run this beast
 
-static unsigned test(void)
+static unsigned test()
 {
 	// same matrix as in test P:
 	const unsigned n = 10;
@@ -54,7 +54,7 @@ static unsigned test(void)
 	return 0;
 }
 
-unsigned time_lw_Q(void)
+unsigned time_lw_Q()
 {
 	unsigned result = 0;
 	unsigned count = 0;

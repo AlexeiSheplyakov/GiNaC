@@ -27,9 +27,10 @@
 #include <functional>
 
 #include "basic.h"
-#include "operators.h"
+#include "ptr.h"
 
 namespace GiNaC {
+
 
 /** Helper class to initialize the library.  There must be one static object
  *  of this class in every object file that makes use of our flyweights in
@@ -49,15 +50,7 @@ private:
 /** For construction of flyweights, etc. */
 static library_init library_initializer;
 
-// Current versions of Cint don't link data declared extern within functions.
-// FIXME: Fix Cint and later remove this from here.
-#if defined(G__CINTVERSION)
-extern const class numeric *_num0_p;
-#endif
 
-
-class symbol;
-class lst;
 class scalar_products;
 
 
@@ -73,15 +66,15 @@ class ex
 	template<class T> friend bool is_a(const ex &);
 	template<class T> friend bool is_exactly_a(const ex &);
 	
-// member functions
-	
-	// default ctor, dtor, copy ctor, assignment operator and helpers
+	// default constructor, copy constructor and assignment operator
 public:
 	ex();
-	~ex();
+#ifdef OBSCURE_CINT_HACK
 	ex(const ex & other);
 	ex & operator=(const ex & other);
-	// other ctors
+#endif
+
+	// other constructors
 public:
 	ex(const basic & other);
 	ex(int i);
@@ -101,90 +94,125 @@ public:
 	/** Efficiently swap the contents of two expressions. */
 	void swap(ex & other)
 	{
-		GINAC_ASSERT(bp!=0);
 		GINAC_ASSERT(bp->flags & status_flags::dynallocated);
-		GINAC_ASSERT(other.bp!=0);
 		GINAC_ASSERT(other.bp->flags & status_flags::dynallocated);
-	
-		basic * tmpbp = bp;
-		bp = other.bp;
-		other.bp = tmpbp;
+		bp.swap(other.bp);
 	}
 
+	// evaluation
+	ex eval(int level = 0) const { return bp->eval(level); }
+	ex evalf(int level = 0) const { return bp->evalf(level); }
+	ex evalm() const { return bp->evalm(); }
+	ex eval_ncmul(const exvector & v) const { return bp->eval_ncmul(v); }
+
+	// printing
 	void print(const print_context & c, unsigned level = 0) const;
-	void printtree(std::ostream & os) const;
-	void dbgprint(void) const;
-	void dbgprinttree(void) const;
+	void dbgprint() const;
+	void dbgprinttree() const;
+
+	// info
 	bool info(unsigned inf) const { return bp->info(inf); }
-	unsigned nops() const { return bp->nops(); }
-	ex expand(unsigned options=0) const;
+
+	// operand access
+	size_t nops() const { return bp->nops(); }
+	ex op(size_t i) const { return bp->op(i); }
+	ex operator[](const ex & index) const { return (*bp)[index]; }
+	ex operator[](size_t i) const { return (*bp)[i]; }
+	ex & let_op(size_t i);
+	ex & operator[](const ex & index);
+	ex & operator[](size_t i);
+	ex lhs() const;
+	ex rhs() const;
+
+	// pattern matching
 	bool has(const ex & pattern) const { return bp->has(pattern); }
+	bool find(const ex & pattern, lst & found) const;
+	bool match(const ex & pattern) const;
+	bool match(const ex & pattern, lst & repl_lst) const { return bp->match(pattern, repl_lst); }
+
+	// substitutions
+	ex subs(const lst & ls, const lst & lr, unsigned options = 0) const { return bp->subs(ls, lr, options); }
+	ex subs(const ex & e, unsigned options = 0) const { return bp->subs(e, options); }
+
+	// function mapping
 	ex map(map_function & f) const { return bp->map(f); }
 	ex map(ex (*f)(const ex & e)) const;
-	bool find(const ex & pattern, lst & found) const;
+
+	// visitors and tree traversal
+	void accept(visitor & v) const { bp->accept(v); }
+	void traverse_preorder(visitor & v) const;
+	void traverse_postorder(visitor & v) const;
+	void traverse(visitor & v) const { traverse_preorder(v); }
+
+	// degree/coeff
 	int degree(const ex & s) const { return bp->degree(s); }
 	int ldegree(const ex & s) const { return bp->ldegree(s); }
 	ex coeff(const ex & s, int n = 1) const { return bp->coeff(s, n); }
 	ex lcoeff(const ex & s) const { return coeff(s, degree(s)); }
 	ex tcoeff(const ex & s) const { return coeff(s, ldegree(s)); }
-	ex numer(void) const;
-	ex denom(void) const;
-	ex numer_denom(void) const;
-	ex unit(const symbol &x) const;
-	ex content(const symbol &x) const;
-	numeric integer_content(void) const;
-	ex primpart(const symbol &x) const;
-	ex primpart(const symbol &x, const ex &cont) const;
-	ex normal(int level = 0) const;
-	ex to_rational(lst &repl_lst) const { return bp->to_rational(repl_lst); }
-	ex smod(const numeric &xi) const { return bp->smod(xi); }
-	numeric max_coefficient(void) const;
+
+	// expand/collect
+	ex expand(unsigned options=0) const;
 	ex collect(const ex & s, bool distributed = false) const { return bp->collect(s, distributed); }
-	ex eval(int level = 0) const { return bp->eval(level); }
-	ex evalf(int level = 0) const { return bp->evalf(level); }
-	ex evalm(void) const { return bp->evalm(); }
+
+	// differentiation and series expansion
 	ex diff(const symbol & s, unsigned nth = 1) const;
 	ex series(const ex & r, int order, unsigned options = 0) const;
-	bool match(const ex & pattern) const;
-	bool match(const ex & pattern, lst & repl_lst) const { return bp->match(pattern, repl_lst); }
-	ex subs(const lst & ls, const lst & lr, bool no_pattern = false) const { return bp->subs(ls, lr, no_pattern); }
-	ex subs(const ex & e, bool no_pattern = false) const { return bp->subs(e, no_pattern); }
-	exvector get_free_indices(void) const { return bp->get_free_indices(); }
-	ex simplify_indexed(void) const;
+
+	// rational functions
+	ex normal(int level = 0) const;
+	ex to_rational(lst &repl_lst) const;
+	ex to_polynomial(lst &repl_lst) const;
+	ex numer() const;
+	ex denom() const;
+	ex numer_denom() const;
+
+	// polynomial algorithms
+	ex unit(const symbol &x) const;
+	ex content(const symbol &x) const;
+	numeric integer_content() const;
+	ex primpart(const symbol &x) const;
+	ex primpart(const symbol &x, const ex &cont) const;
+	ex smod(const numeric &xi) const { return bp->smod(xi); }
+	numeric max_coefficient() const;
+
+	// indexed objects
+	exvector get_free_indices() const { return bp->get_free_indices(); }
+	ex simplify_indexed() const;
 	ex simplify_indexed(const scalar_products & sp) const;
-	ex symmetrize(void) const;
-	ex symmetrize(const lst & l) const;
-	ex antisymmetrize(void) const;
-	ex antisymmetrize(const lst & l) const;
-	ex symmetrize_cyclic(void) const;
-	ex symmetrize_cyclic(const lst & l) const;
-	ex simplify_ncmul(const exvector & v) const { return bp->simplify_ncmul(v); }
-	ex operator[](const ex & index) const;
-	ex operator[](int i) const;
-	ex op(int i) const { return bp->op(i); }
-	ex & let_op(int i);
-	ex lhs(void) const;
-	ex rhs(void) const;
+
+	// comparison
 	int compare(const ex & other) const;
 	bool is_equal(const ex & other) const;
-	bool is_zero(void) const { extern const ex _ex0; return is_equal(_ex0); }
+	bool is_zero() const { extern const ex _ex0; return is_equal(_ex0); }
 	
-	unsigned return_type(void) const { return bp->return_type(); }
-	unsigned return_type_tinfo(void) const { return bp->return_type_tinfo(); }
-	unsigned gethash(void) const { return bp->gethash(); }
+	// symmetry
+	ex symmetrize() const;
+	ex symmetrize(const lst & l) const;
+	ex antisymmetrize() const;
+	ex antisymmetrize(const lst & l) const;
+	ex symmetrize_cyclic() const;
+	ex symmetrize_cyclic(const lst & l) const;
+
+	// noncommutativity
+	unsigned return_type() const { return bp->return_type(); }
+	unsigned return_type_tinfo() const { return bp->return_type_tinfo(); }
+
+	unsigned gethash() const { return bp->gethash(); }
+
 private:
-	void construct_from_basic(const basic & other);
-	void construct_from_int(int i);
-	void construct_from_uint(unsigned int i);
-	void construct_from_long(long i);
-	void construct_from_ulong(unsigned long i);
-	void construct_from_double(double d);
-	void construct_from_string_and_lst(const std::string &s, const ex &l);
+	static ptr<basic> construct_from_basic(const basic & other);
+	static basic & construct_from_int(int i);
+	static basic & construct_from_uint(unsigned int i);
+	static basic & construct_from_long(long i);
+	static basic & construct_from_ulong(unsigned long i);
+	static basic & construct_from_double(double d);
+	static ptr<basic> construct_from_string_and_lst(const std::string &s, const ex &l);
 	void makewriteable();
 
 #ifdef OBSCURE_CINT_HACK
 public:
-	static bool last_created_or_assigned_bp_can_be_converted_to_ex(void)
+	static bool last_created_or_assigned_bp_can_be_converted_to_ex()
 	{
 		if (last_created_or_assigned_bp==0) return false;
 		if ((last_created_or_assigned_bp->flags &
@@ -194,25 +222,21 @@ public:
 		return true;
 	}
 protected:
-	void update_last_created_or_assigned_bp(void)
+	void update_last_created_or_assigned_bp()
 	{
-		if (last_created_or_assigned_bp!=0) {
-			if (--last_created_or_assigned_bp->refcount == 0) {
-				delete last_created_or_assigned_bp;
-			}
-		}
 		last_created_or_assigned_bp = bp;
-		++last_created_or_assigned_bp->refcount;
 		last_created_or_assigned_exp = (long)(void *)(this);
 	}
 #endif // def OBSCURE_CINT_HACK
 
 // member variables
 
-public:
-	basic *bp;      ///< pointer to basic object managed by this, direct manipulation deprecated
+private:
+	ptr<basic> bp;      ///< pointer to basic object managed by this
+
 #ifdef OBSCURE_CINT_HACK
-	static basic * last_created_or_assigned_bp;
+public:
+	static ptr<basic> last_created_or_assigned_bp;
 	static basic * dummy_bp;
 	static long last_created_or_assigned_exp;
 #endif // def OBSCURE_CINT_HACK
@@ -221,115 +245,96 @@ public:
 
 // performance-critical inlined method implementations
 
+// This needs to be a basic* because we don't know that numeric is derived
+// from basic and we need a basic& for the ex default constructor
+extern const basic *_num0_bp;
+
 inline
-ex::ex()
+ex::ex() : bp(*const_cast<basic *>(_num0_bp))
 {
-	extern const class numeric *_num0_p;
-	bp = (basic*)_num0_p;
-	GINAC_ASSERT(bp!=0);
 	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
-	++bp->refcount;
 #ifdef OBSCURE_CINT_HACK
 	update_last_created_or_assigned_bp();
 #endif // def OBSCURE_CINT_HACK
 }
 
-inline
-ex::~ex()
-{
-	GINAC_ASSERT(bp!=0);
-	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
-	if (--bp->refcount == 0)
-		delete bp;
-}
-
+#ifdef OBSCURE_CINT_HACK
 inline
 ex::ex(const ex & other) : bp(other.bp)
 {
-	GINAC_ASSERT(bp!=0);
 	GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
-	++bp->refcount;
-#ifdef OBSCURE_CINT_HACK
 	update_last_created_or_assigned_bp();
-#endif // def OBSCURE_CINT_HACK
 }
 
 inline
 ex & ex::operator=(const ex & other)
 {
-	GINAC_ASSERT(bp!=0);
 	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
-	GINAC_ASSERT(other.bp!=0);
 	GINAC_ASSERT(other.bp->flags & status_flags::dynallocated);
-	// NB: must first increment other.bp->refcount, since other might be *this.
-	++other.bp->refcount;
-	if (--bp->refcount==0)
-		delete bp;
 	bp = other.bp;
-#ifdef OBSCURE_CINT_HACK
 	update_last_created_or_assigned_bp();
-#endif // def OBSCURE_CINT_HACK
 	return *this;
 }
+#endif // def OBSCURE_CINT_HACK
 
 inline
-ex::ex(const basic & other)
+ex::ex(const basic & other) : bp(construct_from_basic(other))
 {
-	construct_from_basic(other);
+	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
 #ifdef OBSCURE_CINT_HACK
 	update_last_created_or_assigned_bp();
 #endif // def OBSCURE_CINT_HACK
 }
 
 inline
-ex::ex(int i)
+ex::ex(int i) : bp(construct_from_int(i))
 {
-	construct_from_int(i);
+	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
 #ifdef OBSCURE_CINT_HACK
 	update_last_created_or_assigned_bp();
 #endif // def OBSCURE_CINT_HACK
 }
 
 inline
-ex::ex(unsigned int i)
+ex::ex(unsigned int i) : bp(construct_from_uint(i))
 {
-	construct_from_uint(i);
+	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
 #ifdef OBSCURE_CINT_HACK
 	update_last_created_or_assigned_bp();
 #endif // def OBSCURE_CINT_HACK
 }
 
 inline
-ex::ex(long i)
+ex::ex(long i) : bp(construct_from_long(i))
 {
-	construct_from_long(i);
+	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
 #ifdef OBSCURE_CINT_HACK
 	update_last_created_or_assigned_bp();
 #endif // def OBSCURE_CINT_HACK
 }
 
 inline
-ex::ex(unsigned long i)
+ex::ex(unsigned long i) : bp(construct_from_ulong(i))
 {
-	construct_from_ulong(i);
+	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
 #ifdef OBSCURE_CINT_HACK
 	update_last_created_or_assigned_bp();
 #endif // def OBSCURE_CINT_HACK
 }
 
 inline
-ex::ex(double const d)
+ex::ex(double const d) : bp(construct_from_double(d))
 {
-	construct_from_double(d);
+	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
 #ifdef OBSCURE_CINT_HACK
 	update_last_created_or_assigned_bp();
 #endif // def OBSCURE_CINT_HACK
 }
 
 inline
-ex::ex(const std::string &s, const ex &l)
+ex::ex(const std::string &s, const ex &l) : bp(construct_from_string_and_lst(s, l))
 {
-	construct_from_string_and_lst(s, l);
+	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
 #ifdef OBSCURE_CINT_HACK
 	update_last_created_or_assigned_bp();
 #endif // def OBSCURE_CINT_HACK
@@ -338,9 +343,7 @@ ex::ex(const std::string &s, const ex &l)
 inline
 int ex::compare(const ex & other) const
 {
-	GINAC_ASSERT(bp!=0);
-	GINAC_ASSERT(other.bp!=0);
-	if (bp==other.bp)  // trivial case: both expressions point to same basic
+	if (bp == other.bp)  // trivial case: both expressions point to same basic
 		return 0;
 	return bp->compare(*other.bp);
 }
@@ -348,9 +351,7 @@ int ex::compare(const ex & other) const
 inline
 bool ex::is_equal(const ex & other) const
 {
-	GINAC_ASSERT(bp!=0);
-	GINAC_ASSERT(other.bp!=0);
-	if (bp==other.bp)  // trivial case: both expressions point to same basic
+	if (bp == other.bp)  // trivial case: both expressions point to same basic
 		return true;
 	return bp->is_equal(*other.bp);
 }
@@ -368,7 +369,7 @@ inline bool are_ex_trivially_equal(const ex &e1, const ex &e2)
 }
 
 // wrapper functions around member functions
-inline unsigned nops(const ex & thisex)
+inline size_t nops(const ex & thisex)
 { return thisex.nops(); }
 
 inline ex expand(const ex & thisex, unsigned options = 0)
@@ -404,6 +405,9 @@ inline ex normal(const ex & thisex, int level=0)
 inline ex to_rational(const ex & thisex, lst & repl_lst)
 { return thisex.to_rational(repl_lst); }
 
+inline ex to_polynomial(const ex & thisex, lst & repl_lst)
+{ return thisex.to_polynomial(repl_lst); }
+
 inline ex collect(const ex & thisex, const ex & s, bool distributed = false)
 { return thisex.collect(s, distributed); }
 
@@ -425,11 +429,11 @@ inline ex series(const ex & thisex, const ex & r, int order, unsigned options = 
 inline bool match(const ex & thisex, const ex & pattern, lst & repl_lst)
 { return thisex.match(pattern, repl_lst); }
 
-inline ex subs(const ex & thisex, const ex & e)
-{ return thisex.subs(e); }
+inline ex subs(const ex & thisex, const ex & e, unsigned options = 0)
+{ return thisex.subs(e, options); }
 
-inline ex subs(const ex & thisex, const lst & ls, const lst & lr)
-{ return thisex.subs(ls, lr); }
+inline ex subs(const ex & thisex, const lst & ls, const lst & lr, unsigned options = 0)
+{ return thisex.subs(ls, lr, options); }
 
 inline ex simplify_indexed(const ex & thisex)
 { return thisex.simplify_indexed(); }
@@ -455,7 +459,7 @@ inline ex symmetrize_cyclic(const ex & thisex)
 inline ex symmetrize_cyclic(const ex & thisex, const lst & l)
 { return thisex.symmetrize_cyclic(l); }
 
-inline ex op(const ex & thisex, int i)
+inline ex op(const ex & thisex, size_t i)
 { return thisex.op(i); }
 
 inline ex lhs(const ex & thisex)
@@ -469,6 +473,7 @@ inline bool is_zero(const ex & thisex)
 
 inline void swap(ex & e1, ex & e2)
 { e1.swap(e2); }
+
 
 // This makes STL algorithms use the more efficient swap operation for ex objects
 inline void iter_swap(std::vector<ex>::iterator i1, std::vector<ex>::iterator i2)

@@ -24,7 +24,7 @@
 #include "exams.h"
 
 #define VECSIZE 30
-static unsigned exam_expand_subs(void)
+static unsigned exam_expand_subs()
 {
 	unsigned result = 0;
 	symbol a[VECSIZE];
@@ -51,7 +51,7 @@ static unsigned exam_expand_subs(void)
  *  2)  expand e
  *  3)  substitute a0 by -a1 in e
  *  after which e should return 0 (without expanding). */
-static unsigned exam_expand_subs2(void)
+static unsigned exam_expand_subs2()
 {
 	unsigned result = 0;
 	symbol a("a"), b("b");
@@ -69,7 +69,7 @@ static unsigned exam_expand_subs2(void)
 	return result;
 }
 
-static unsigned exam_expand_power(void)
+static unsigned exam_expand_power()
 {
 	unsigned result = 0;
 	symbol x("x"), a("a"), b("b");
@@ -86,7 +86,7 @@ static unsigned exam_expand_power(void)
 	return result;
 }
 
-static unsigned exam_sqrfree(void)
+static unsigned exam_sqrfree()
 {
 	unsigned result = 0;
 	symbol x("x"), y("y");
@@ -133,7 +133,7 @@ static unsigned exam_sqrfree(void)
  * When somebody screws up the operators this routine will most probably fail
  * to compile.  Unfortunately we can only test the stuff that is allowed, not
  * what is forbidden (e.g. e1+e2 = 42) since that must not compile.  :-(   */
-static unsigned exam_operator_semantics(void)
+static unsigned exam_operator_semantics()
 {
 	unsigned result = 0;
 	ex e1, e2;
@@ -200,7 +200,7 @@ static unsigned exam_operator_semantics(void)
 }
 
 /* This checks whether subs() works as intended in some special cases. */
-static unsigned exam_subs(void)
+static unsigned exam_subs()
 {
 	unsigned result = 0;
 	symbol x("x");
@@ -226,7 +226,45 @@ static unsigned exam_subs(void)
 	return result;
 }
 
-unsigned exam_misc(void)
+/* Joris van der Hoeven (he of TeXmacs fame) is a funny guy.  He has his own
+ * ideas what a symbolic system should do.  Let's make sure we won't disappoint
+ * him some day.  Incidentally, this seems to always have worked. */
+static unsigned exam_joris()
+{
+	unsigned result = 0;
+	symbol x("x");
+
+	ex e = expand(pow(x, x-1) * x);
+	if (e != pow(x, x)) {
+		clog << "x^(x-1)*x did not expand to x^x.  Please call Joris!" << endl;
+		++result;
+	}
+
+	return result;
+}
+
+/* Test Chris Dams' algebraic substitutions. */
+static unsigned exam_subs_algebraic()
+{
+	unsigned result = 0;
+	symbol x("x"), y("y");
+
+	ex e = ex(x*x*x*y*y).subs(x*y==2, subs_options::subs_algebraic);
+	if (e != 4*x) {
+		clog << "(x^3*y^2).subs(x*y==2,subs_options::subs_algebraic) erroneously returned " << e << endl;
+		++result;
+	}
+
+	e = ex(x*x*x*x*x).subs(x*x==y, subs_options::subs_algebraic);
+	if (e != y*y*x) {
+		clog << "x^5.subs(x^2==y,subs_options::subs_algebraic) erroneously returned " << e << endl;
+		++result;
+	}
+	
+	return result;
+}
+
+unsigned exam_misc()
 {
 	unsigned result = 0;
 	
@@ -239,6 +277,8 @@ unsigned exam_misc(void)
 	result += exam_sqrfree(); cout << '.' << flush;
 	result += exam_operator_semantics(); cout << '.' << flush;
 	result += exam_subs(); cout << '.' << flush;
+	result += exam_joris(); cout << '.' << flush;
+	result += exam_subs_algebraic(); cout << '.' << flush;
 	
 	if (!result) {
 		cout << " passed " << endl;

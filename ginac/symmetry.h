@@ -83,7 +83,7 @@ public:
 	void validate(unsigned n);
 
 	/** Check whether this node actually represents any kind of symmetry. */
-	bool has_symmetry(void) const {return type != none || !children.empty(); }
+	bool has_symmetry() const {return type != none || !children.empty(); }
 
 	// member variables
 private:
@@ -100,22 +100,22 @@ private:
 
 // global functions
 
-inline symmetry sy_none(void) { return symmetry(); }
+inline symmetry sy_none() { return symmetry(); }
 inline symmetry sy_none(const symmetry &c1, const symmetry &c2) { return symmetry(symmetry::none, c1, c2); }
 inline symmetry sy_none(const symmetry &c1, const symmetry &c2, const symmetry &c3) { return symmetry(symmetry::none, c1, c2).add(c3); }
 inline symmetry sy_none(const symmetry &c1, const symmetry &c2, const symmetry &c3, const symmetry &c4) { return symmetry(symmetry::none, c1, c2).add(c3).add(c4); }
 
-inline symmetry sy_symm(void) { symmetry s; s.set_type(symmetry::symmetric); return s; }
+inline symmetry sy_symm() { symmetry s; s.set_type(symmetry::symmetric); return s; }
 inline symmetry sy_symm(const symmetry &c1, const symmetry &c2) { return symmetry(symmetry::symmetric, c1, c2); }
 inline symmetry sy_symm(const symmetry &c1, const symmetry &c2, const symmetry &c3) { return symmetry(symmetry::symmetric, c1, c2).add(c3); }
 inline symmetry sy_symm(const symmetry &c1, const symmetry &c2, const symmetry &c3, const symmetry &c4) { return symmetry(symmetry::symmetric, c1, c2).add(c3).add(c4); }
 
-inline symmetry sy_anti(void) { symmetry s; s.set_type(symmetry::antisymmetric); return s; }
+inline symmetry sy_anti() { symmetry s; s.set_type(symmetry::antisymmetric); return s; }
 inline symmetry sy_anti(const symmetry &c1, const symmetry &c2) { return symmetry(symmetry::antisymmetric, c1, c2); }
 inline symmetry sy_anti(const symmetry &c1, const symmetry &c2, const symmetry &c3) { return symmetry(symmetry::antisymmetric, c1, c2).add(c3); }
 inline symmetry sy_anti(const symmetry &c1, const symmetry &c2, const symmetry &c3, const symmetry &c4) { return symmetry(symmetry::antisymmetric, c1, c2).add(c3).add(c4); }
 
-inline symmetry sy_cycl(void) { symmetry s; s.set_type(symmetry::cyclic); return s; }
+inline symmetry sy_cycl() { symmetry s; s.set_type(symmetry::cyclic); return s; }
 inline symmetry sy_cycl(const symmetry &c1, const symmetry &c2) { return symmetry(symmetry::cyclic, c1, c2); }
 inline symmetry sy_cycl(const symmetry &c1, const symmetry &c2, const symmetry &c3) { return symmetry(symmetry::cyclic, c1, c2).add(c3); }
 inline symmetry sy_cycl(const symmetry &c1, const symmetry &c2, const symmetry &c3, const symmetry &c4) { return symmetry(symmetry::cyclic, c1, c2).add(c3).add(c4); }

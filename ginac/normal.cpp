@@ -39,6 +39,7 @@
 #include "numeric.h"
 #include "power.h"
 #include "relational.h"
+#include "operators.h"
 #include "matrix.h"
 #include "pseries.h"
 #include "symbol.h"
@@ -96,7 +97,7 @@ static bool get_first_symbol(const ex &e, const symbol *&x)
 		x = &ex_to<symbol>(e);
 		return true;
 	} else if (is_exactly_a<add>(e) || is_exactly_a<mul>(e)) {
-		for (unsigned i=0; i<e.nops(); i++)
+		for (size_t i=0; i<e.nops(); i++)
 			if (get_first_symbol(e.op(i), x))
 				return true;
 	} else if (is_exactly_a<power>(e)) {
@@ -137,7 +138,7 @@ struct sym_desc {
 	int max_deg;
 
 	/** Maximum number of terms of leading coefficient of symbol in both polynomials */
-	int max_lcnops;
+	size_t max_lcnops;
 
 	/** Commparison operator for sorting */
 	bool operator<(const sym_desc &x) const
@@ -172,7 +173,7 @@ static void collect_symbols(const ex &e, sym_desc_vec &v)
 	if (is_a<symbol>(e)) {
 		add_symbol(&ex_to<symbol>(e), v);
 	} else if (is_exactly_a<add>(e) || is_exactly_a<mul>(e)) {
-		for (unsigned i=0; i<e.nops(); i++)
+		for (size_t i=0; i<e.nops(); i++)
 			collect_symbols(e.op(i), v);
 	} else if (is_exactly_a<power>(e)) {
 		collect_symbols(e.op(0), v);
@@ -208,6 +209,7 @@ static void get_symbol_stats(const ex &a, const ex &b, sym_desc_vec &v)
 		++it;
 	}
 	std::sort(v.begin(), v.end());
+
 #if 0
 	std::clog << "Symbols:\n";
 	it = v.begin(); itend = v.end();
@@ -232,12 +234,12 @@ static numeric lcmcoeff(const ex &e, const numeric &l)
 		return lcm(ex_to<numeric>(e).denom(), l);
 	else if (is_exactly_a<add>(e)) {
 		numeric c = _num1;
-		for (unsigned i=0; i<e.nops(); i++)
+		for (size_t i=0; i<e.nops(); i++)
 			c = lcmcoeff(e.op(i), c);
 		return lcm(c, l);
 	} else if (is_exactly_a<mul>(e)) {
 		numeric c = _num1;
-		for (unsigned i=0; i<e.nops(); i++)
+		for (size_t i=0; i<e.nops(); i++)
 			c *= lcmcoeff(e.op(i), _num1);
 		return lcm(c, l);
 	} else if (is_exactly_a<power>(e)) {
@@ -269,10 +271,10 @@ static numeric lcm_of_coefficients_denominators(const ex &e)
 static ex multiply_lcm(const ex &e, const numeric &lcm)
 {
 	if (is_exactly_a<mul>(e)) {
-		unsigned num = e.nops();
+		size_t num = e.nops();
 		exvector v; v.reserve(num + 1);
 		numeric lcm_accum = _num1;
-		for (unsigned i=0; i<e.nops(); i++) {
+		for (size_t i=0; i<num; i++) {
 			numeric op_lcm = lcmcoeff(e.op(i), _num1);
 			v.push_back(multiply_lcm(e.op(i), op_lcm));
 			lcm_accum *= op_lcm;
@@ -280,9 +282,9 @@ static ex multiply_lcm(const ex &e, const numeric &lcm)
 		v.push_back(lcm / lcm_accum);
 		return (new mul(v))->setflag(status_flags::dynallocated);
 	} else if (is_exactly_a<add>(e)) {
-		unsigned num = e.nops();
+		size_t num = e.nops();
 		exvector v; v.reserve(num);
-		for (unsigned i=0; i<num; i++)
+		for (size_t i=0; i<num; i++)
 			v.push_back(multiply_lcm(e.op(i), lcm));
 		return (new add(v))->setflag(status_flags::dynallocated);
 	} else if (is_exactly_a<power>(e)) {
@@ -300,23 +302,22 @@ static ex multiply_lcm(const ex &e, const numeric &lcm)
  *
  *  @param e  expanded polynomial
  *  @return integer content */
-numeric ex::integer_content(void) const
+numeric ex::integer_content() const
 {
-	GINAC_ASSERT(bp!=0);
 	return bp->integer_content();
 }
 
-numeric basic::integer_content(void) const
+numeric basic::integer_content() const
 {
 	return _num1;
 }
 
-numeric numeric::integer_content(void) const
+numeric numeric::integer_content() const
 {
 	return abs(*this);
 }
 
-numeric add::integer_content(void) const
+numeric add::integer_content() const
 {
 	epvector::const_iterator it = seq.begin();
 	epvector::const_iterator itend = seq.end();
@@ -332,7 +333,7 @@ numeric add::integer_content(void) const
 	return c;
 }
 
-numeric mul::integer_content(void) const
+numeric mul::integer_content() const
 {
 #ifdef DO_GINAC_ASSERT
 	epvector::const_iterator it = seq.begin();
@@ -922,206 +923,6 @@ ex ex::primpart(const symbol &x, const ex &c) const
  *  GCD of multivariate polynomials
  */
 
-/** Compute GCD of polynomials in Q[X] using the Euclidean algorithm (not
- *  really suited for multivariate GCDs). This function is only provided for
- *  testing purposes.
- *
- *  @param a  first multivariate polynomial
- *  @param b  second multivariate polynomial
- *  @param x  pointer to symbol (main variable) in which to compute the GCD in
- *  @return the GCD as a new expression
- *  @see gcd */
-
-static ex eu_gcd(const ex &a, const ex &b, const symbol *x)
-{
-//std::clog << "eu_gcd(" << a << "," << b << ")\n";
-
-	// Sort c and d so that c has higher degree
-	ex c, d;
-	int adeg = a.degree(*x), bdeg = b.degree(*x);
-	if (adeg >= bdeg) {
-		c = a;
-		d = b;
-	} else {
-		c = b;
-		d = a;
-	}
-
-	// Normalize in Q[x]
-	c = c / c.lcoeff(*x);
-	d = d / d.lcoeff(*x);
-
-	// Euclidean algorithm
-	ex r;
-	for (;;) {
-//std::clog << " d = " << d << endl;
-		r = rem(c, d, *x, false);
-		if (r.is_zero())
-			return d / d.lcoeff(*x);
-		c = d;
-		d = r;
-	}
-}
-
-
-/** Compute GCD of multivariate polynomials using the Euclidean PRS algorithm
- *  with pseudo-remainders ("World's Worst GCD Algorithm", staying in Z[X]).
- *  This function is only provided for testing purposes.
- *
- *  @param a  first multivariate polynomial
- *  @param b  second multivariate polynomial
- *  @param x  pointer to symbol (main variable) in which to compute the GCD in
- *  @return the GCD as a new expression
- *  @see gcd */
-
-static ex euprem_gcd(const ex &a, const ex &b, const symbol *x)
-{
-//std::clog << "euprem_gcd(" << a << "," << b << ")\n";
-
-	// Sort c and d so that c has higher degree
-	ex c, d;
-	int adeg = a.degree(*x), bdeg = b.degree(*x);
-	if (adeg >= bdeg) {
-		c = a;
-		d = b;
-	} else {
-		c = b;
-		d = a;
-	}
-
-	// Calculate GCD of contents
-	ex gamma = gcd(c.content(*x), d.content(*x), NULL, NULL, false);
-
-	// Euclidean algorithm with pseudo-remainders
-	ex r;
-	for (;;) {
-//std::clog << " d = " << d << endl;
-		r = prem(c, d, *x, false);
-		if (r.is_zero())
-			return d.primpart(*x) * gamma;
-		c = d;
-		d = r;
-	}
-}
-
-
-/** Compute GCD of multivariate polynomials using the primitive Euclidean
- *  PRS algorithm (complete content removal at each step). This function is
- *  only provided for testing purposes.
- *
- *  @param a  first multivariate polynomial
- *  @param b  second multivariate polynomial
- *  @param x  pointer to symbol (main variable) in which to compute the GCD in
- *  @return the GCD as a new expression
- *  @see gcd */
-
-static ex peu_gcd(const ex &a, const ex &b, const symbol *x)
-{
-//std::clog << "peu_gcd(" << a << "," << b << ")\n";
-
-	// Sort c and d so that c has higher degree
-	ex c, d;
-	int adeg = a.degree(*x), bdeg = b.degree(*x);
-	int ddeg;
-	if (adeg >= bdeg) {
-		c = a;
-		d = b;
-		ddeg = bdeg;
-	} else {
-		c = b;
-		d = a;
-		ddeg = adeg;
-	}
-
-	// Remove content from c and d, to be attached to GCD later
-	ex cont_c = c.content(*x);
-	ex cont_d = d.content(*x);
-	ex gamma = gcd(cont_c, cont_d, NULL, NULL, false);
-	if (ddeg == 0)
-		return gamma;
-	c = c.primpart(*x, cont_c);
-	d = d.primpart(*x, cont_d);
-
-	// Euclidean algorithm with content removal
-	ex r;
-	for (;;) {
-//std::clog << " d = " << d << endl;
-		r = prem(c, d, *x, false);
-		if (r.is_zero())
-			return gamma * d;
-		c = d;
-		d = r.primpart(*x);
-	}
-}
-
-
-/** Compute GCD of multivariate polynomials using the reduced PRS algorithm.
- *  This function is only provided for testing purposes.
- *
- *  @param a  first multivariate polynomial
- *  @param b  second multivariate polynomial
- *  @param x  pointer to symbol (main variable) in which to compute the GCD in
- *  @return the GCD as a new expression
- *  @see gcd */
-
-static ex red_gcd(const ex &a, const ex &b, const symbol *x)
-{
-//std::clog << "red_gcd(" << a << "," << b << ")\n";
-
-	// Sort c and d so that c has higher degree
-	ex c, d;
-	int adeg = a.degree(*x), bdeg = b.degree(*x);
-	int cdeg, ddeg;
-	if (adeg >= bdeg) {
-		c = a;
-		d = b;
-		cdeg = adeg;
-		ddeg = bdeg;
-	} else {
-		c = b;
-		d = a;
-		cdeg = bdeg;
-		ddeg = adeg;
-	}
-
-	// Remove content from c and d, to be attached to GCD later
-	ex cont_c = c.content(*x);
-	ex cont_d = d.content(*x);
-	ex gamma = gcd(cont_c, cont_d, NULL, NULL, false);
-	if (ddeg == 0)
-		return gamma;
-	c = c.primpart(*x, cont_c);
-	d = d.primpart(*x, cont_d);
-
-	// First element of divisor sequence
-	ex r, ri = _ex1;
-	int delta = cdeg - ddeg;
-
-	for (;;) {
-		// Calculate polynomial pseudo-remainder
-//std::clog << " d = " << d << endl;
-		r = prem(c, d, *x, false);
-		if (r.is_zero())
-			return gamma * d.primpart(*x);
-		c = d;
-		cdeg = ddeg;
-
-		if (!divide(r, pow(ri, delta), d, false))
-			throw(std::runtime_error("invalid expression in red_gcd(), division failed"));
-		ddeg = d.degree(*x);
-		if (ddeg == 0) {
-			if (is_exactly_a<numeric>(r))
-				return gamma;
-			else
-				return gamma * r.primpart(*x);
-		}
-
-		ri = c.expand().lcoeff(*x);
-		delta = cdeg - ddeg;
-	}
-}
-
-
 /** Compute GCD of multivariate polynomials using the subresultant PRS
  *  algorithm. This function is used internally by gcd().
  *
@@ -1133,7 +934,6 @@ static ex red_gcd(const ex &a, const ex &b, const symbol *x)
 
 static ex sr_gcd(const ex &a, const ex &b, sym_desc_vec::const_iterator var)
 {
-//std::clog << "sr_gcd(" << a << "," << b << ")\n";
 #if STATISTICS
 	sr_gcd_called++;
 #endif
@@ -1165,22 +965,20 @@ static ex sr_gcd(const ex &a, const ex &b, sym_desc_vec::const_iterator var)
 		return gamma;
 	c = c.primpart(x, cont_c);
 	d = d.primpart(x, cont_d);
-//std::clog << " content " << gamma << " removed, continuing with sr_gcd(" << c << "," << d << ")\n";
 
 	// First element of subresultant sequence
 	ex r = _ex0, ri = _ex1, psi = _ex1;
 	int delta = cdeg - ddeg;
 
 	for (;;) {
+
 		// Calculate polynomial pseudo-remainder
-//std::clog << " start of loop, psi = " << psi << ", calculating pseudo-remainder...\n";
-//std::clog << " d = " << d << endl;
 		r = prem(c, d, x, false);
 		if (r.is_zero())
 			return gamma * d.primpart(x);
+
 		c = d;
 		cdeg = ddeg;
-//std::clog << " dividing...\n";
 		if (!divide_in_z(r, ri * pow(psi, delta), d, var))
 			throw(std::runtime_error("invalid expression in sr_gcd(), division failed"));
 		ddeg = d.degree(x);
@@ -1192,7 +990,6 @@ static ex sr_gcd(const ex &a, const ex &b, sym_desc_vec::const_iterator var)
 		}
 
 		// Next element of subresultant sequence
-//std::clog << " calculating next subresultant...\n";
 		ri = c.expand().lcoeff(x);
 		if (delta == 1)
 			psi = ri;
@@ -1209,25 +1006,24 @@ static ex sr_gcd(const ex &a, const ex &b, sym_desc_vec::const_iterator var)
  *  @param e  expanded multivariate polynomial
  *  @return maximum coefficient
  *  @see heur_gcd */
-numeric ex::max_coefficient(void) const
+numeric ex::max_coefficient() const
 {
-	GINAC_ASSERT(bp!=0);
 	return bp->max_coefficient();
 }
 
 /** Implementation ex::max_coefficient().
  *  @see heur_gcd */
-numeric basic::max_coefficient(void) const
+numeric basic::max_coefficient() const
 {
 	return _num1;
 }
 
-numeric numeric::max_coefficient(void) const
+numeric numeric::max_coefficient() const
 {
 	return abs(*this);
 }
 
-numeric add::max_coefficient(void) const
+numeric add::max_coefficient() const
 {
 	epvector::const_iterator it = seq.begin();
 	epvector::const_iterator itend = seq.end();
@@ -1244,7 +1040,7 @@ numeric add::max_coefficient(void) const
 	return cur_max;
 }
 
-numeric mul::max_coefficient(void) const
+numeric mul::max_coefficient() const
 {
 #ifdef DO_GINAC_ASSERT
 	epvector::const_iterator it = seq.begin();
@@ -1346,7 +1142,6 @@ class gcdheu_failed {};
  *  @exception gcdheu_failed() */
 static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const_iterator var)
 {
-//std::clog << "heur_gcd(" << a << "," << b << ")\n";
 #if STATISTICS
 	heur_gcd_called++;
 #endif
@@ -1387,7 +1182,6 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 	// 6 tries maximum
 	for (int t=0; t<6; t++) {
 		if (xi.int_length() * maxdeg > 100000) {
-//std::clog << "giving up heur_gcd, xi.int_length = " << xi.int_length() << ", maxdeg = " << maxdeg << std::endl;
 			throw gcdheu_failed();
 		}
 
@@ -1412,34 +1206,6 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 				else
 					return g;
 			}
-#if 0
-			cp = interpolate(cp, xi, x);
-			if (divide_in_z(cp, p, g, var)) {
-				if (divide_in_z(g, q, cb ? *cb : dummy, var)) {
-					g *= gc;
-					if (ca)
-						*ca = cp;
-					ex lc = g.lcoeff(x);
-					if (is_exactly_a<numeric>(lc) && ex_to<numeric>(lc).is_negative())
-						return -g;
-					else
-						return g;
-				}
-			}
-			cq = interpolate(cq, xi, x);
-			if (divide_in_z(cq, q, g, var)) {
-				if (divide_in_z(g, p, ca ? *ca : dummy, var)) {
-					g *= gc;
-					if (cb)
-						*cb = cq;
-					ex lc = g.lcoeff(x);
-					if (is_exactly_a<numeric>(lc) && ex_to<numeric>(lc).is_negative())
-						return -g;
-					else
-						return g;
-				}
-			}
-#endif
 		}
 
 		// Next evaluation point
@@ -1459,7 +1225,6 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
  *  @return the GCD as a new expression */
 ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args)
 {
-//std::clog << "gcd(" << a << "," << b << ")\n";
 #if STATISTICS
 	gcd_called++;
 #endif
@@ -1493,11 +1258,11 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args)
 		if (is_exactly_a<mul>(b) && b.nops() > a.nops())
 			goto factored_b;
 factored_a:
-		unsigned num = a.nops();
+		size_t num = a.nops();
 		exvector g; g.reserve(num);
 		exvector acc_ca; acc_ca.reserve(num);
 		ex part_b = b;
-		for (unsigned i=0; i<num; i++) {
+		for (size_t i=0; i<num; i++) {
 			ex part_ca, part_cb;
 			g.push_back(gcd(a.op(i), part_b, &part_ca, &part_cb, check_args));
 			acc_ca.push_back(part_ca);
@@ -1512,11 +1277,11 @@ factored_a:
 		if (is_exactly_a<mul>(a) && a.nops() > b.nops())
 			goto factored_a;
 factored_b:
-		unsigned num = b.nops();
+		size_t num = b.nops();
 		exvector g; g.reserve(num);
 		exvector acc_cb; acc_cb.reserve(num);
 		ex part_a = a;
-		for (unsigned i=0; i<num; i++) {
+		for (size_t i=0; i<num; i++) {
 			ex part_ca, part_cb;
 			g.push_back(gcd(part_a, b.op(i), &part_ca, &part_cb, check_args));
 			acc_cb.push_back(part_cb);
@@ -1621,20 +1386,17 @@ factored_b:
 	int min_ldeg = std::min(ldeg_a,ldeg_b);
 	if (min_ldeg > 0) {
 		ex common = power(x, min_ldeg);
-//std::clog << "trivial common factor " << common << std::endl;
 		return gcd((aex / common).expand(), (bex / common).expand(), ca, cb, false) * common;
 	}
 
 	// Try to eliminate variables
 	if (var->deg_a == 0) {
-//std::clog << "eliminating variable " << x << " from b" << std::endl;
 		ex c = bex.content(x);
 		ex g = gcd(aex, c, ca, cb, false);
 		if (cb)
 			*cb *= bex.unit(x) * bex.primpart(x, c);
 		return g;
 	} else if (var->deg_b == 0) {
-//std::clog << "eliminating variable " << x << " from a" << std::endl;
 		ex c = aex.content(x);
 		ex g = gcd(c, bex, ca, cb, false);
 		if (ca)
@@ -1642,25 +1404,17 @@ factored_b:
 		return g;
 	}
 
-	ex g;
-#if 1
 	// Try heuristic algorithm first, fall back to PRS if that failed
+	ex g;
 	try {
 		g = heur_gcd(aex, bex, ca, cb, var);
 	} catch (gcdheu_failed) {
 		g = fail();
 	}
 	if (is_exactly_a<fail>(g)) {
-//std::clog << "heuristics failed" << std::endl;
 #if STATISTICS
 		heur_gcd_failed++;
 #endif
-#endif
-//		g = heur_gcd(aex, bex, ca, cb, var);
-//		g = eu_gcd(aex, bex, &x);
-//		g = euprem_gcd(aex, bex, &x);
-//		g = peu_gcd(aex, bex, &x);
-//		g = red_gcd(aex, bex, &x);
 		g = sr_gcd(aex, bex, var);
 		if (g.is_equal(_ex1)) {
 			// Keep cofactors factored if possible
@@ -1674,7 +1428,6 @@ factored_b:
 			if (cb)
 				divide(bex, g, *cb, false);
 		}
-#if 1
 	} else {
 		if (g.is_equal(_ex1)) {
 			// Keep cofactors factored if possible
@@ -1684,7 +1437,7 @@ factored_b:
 				*cb = b;
 		}
 	}
-#endif
+
 	return g;
 }
 
@@ -1800,7 +1553,7 @@ ex sqrfree(const ex &a, const lst &l)
 	}
 
 	// Find the symbol to factor in at this stage
-	if (!is_ex_of_type(args.op(0), symbol))
+	if (!is_a<symbol>(args.op(0)))
 		throw (std::runtime_error("sqrfree(): invalid factorization variable"));
 	const symbol &x = ex_to<symbol>(args.op(0));
 
@@ -1865,15 +1618,15 @@ ex sqrfree_parfrac(const ex & a, const symbol & x)
 	// Factorize denominator and compute cofactors
 	exvector yun = sqrfree_yun(denom, x);
 //clog << "yun factors: " << exprseq(yun) << endl;
-	unsigned num_yun = yun.size();
+	size_t num_yun = yun.size();
 	exvector factor; factor.reserve(num_yun);
 	exvector cofac; cofac.reserve(num_yun);
-	for (unsigned i=0; i<num_yun; i++) {
+	for (size_t i=0; i<num_yun; i++) {
 		if (!yun[i].is_equal(_ex1)) {
-			for (unsigned j=0; j<=i; j++) {
+			for (size_t j=0; j<=i; j++) {
 				factor.push_back(pow(yun[i], j+1));
 				ex prod = _ex1;
-				for (unsigned k=0; k<num_yun; k++) {
+				for (size_t k=0; k<num_yun; k++) {
 					if (k == i)
 						prod *= pow(yun[k], i-j);
 					else
@@ -1883,7 +1636,7 @@ ex sqrfree_parfrac(const ex & a, const symbol & x)
 			}
 		}
 	}
-	unsigned num_factors = factor.size();
+	size_t num_factors = factor.size();
 //clog << "factors  : " << exprseq(factor) << endl;
 //clog << "cofactors: " << exprseq(cofac) << endl;
 
@@ -1892,7 +1645,7 @@ ex sqrfree_parfrac(const ex & a, const symbol & x)
 	matrix sys(max_denom_deg + 1, num_factors);
 	matrix rhs(max_denom_deg + 1, 1);
 	for (int i=0; i<=max_denom_deg; i++) {
-		for (unsigned j=0; j<num_factors; j++)
+		for (size_t j=0; j<num_factors; j++)
 			sys(i, j) = cofac[j].coeff(x, i);
 		rhs(i, 0) = red_numer.coeff(x, i);
 	}
@@ -1901,13 +1654,13 @@ ex sqrfree_parfrac(const ex & a, const symbol & x)
 
 	// Solve resulting linear system
 	matrix vars(num_factors, 1);
-	for (unsigned i=0; i<num_factors; i++)
+	for (size_t i=0; i<num_factors; i++)
 		vars(i, 0) = symbol();
 	matrix sol = sys.solve(vars, rhs);
 
 	// Sum up decomposed fractions
 	ex sum = 0;
-	for (unsigned i=0; i<num_factors; i++)
+	for (size_t i=0; i<num_factors; i++)
 		sum += sol(i, 0) / factor[i];
 
 	return red_poly + sum;
@@ -1934,9 +1687,10 @@ ex sqrfree_parfrac(const ex & a, const symbol & x)
 static ex replace_with_symbol(const ex &e, lst &sym_lst, lst &repl_lst)
 {
 	// Expression already in repl_lst? Then return the assigned symbol
-	for (unsigned i=0; i<repl_lst.nops(); i++)
-		if (repl_lst.op(i).is_equal(e))
-			return sym_lst.op(i);
+	lst::const_iterator its, itr;
+	for (its = sym_lst.begin(), itr = repl_lst.begin(); itr != repl_lst.end(); ++its, ++itr)
+		if (itr->is_equal(e))
+			return *its;
 	
 	// Otherwise create new symbol and add to list, taking care that the
 	// replacement expression doesn't contain symbols from the sym_lst
@@ -1952,13 +1706,14 @@ static ex replace_with_symbol(const ex &e, lst &sym_lst, lst &repl_lst)
 /** Create a symbol for replacing the expression "e" (or return a previously
  *  assigned symbol). An expression of the form "symbol == expression" is added
  *  to repl_lst and the symbol is returned.
- *  @see basic::to_rational */
+ *  @see basic::to_rational
+ *  @see basic::to_polynomial */
 static ex replace_with_symbol(const ex &e, lst &repl_lst)
 {
 	// Expression already in repl_lst? Then return the assigned symbol
-	for (unsigned i=0; i<repl_lst.nops(); i++)
-		if (repl_lst.op(i).op(1).is_equal(e))
-			return repl_lst.op(i).op(0);
+	for (lst::const_iterator it = repl_lst.begin(); it != repl_lst.end(); ++it)
+		if (it->op(1).is_equal(e))
+			return it->op(0);
 	
 	// Otherwise create new symbol and add to list, taking care that the
 	// replacement expression doesn't contain symbols from the sym_lst
@@ -2288,7 +2043,7 @@ ex ex::normal(int level) const
  *
  *  @see ex::normal
  *  @return numerator */
-ex ex::numer(void) const
+ex ex::numer() const
 {
 	lst sym_lst, repl_lst;
 
@@ -2308,7 +2063,7 @@ ex ex::numer(void) const
  *
  *  @see ex::normal
  *  @return denominator */
-ex ex::denom(void) const
+ex ex::denom() const
 {
 	lst sym_lst, repl_lst;
 
@@ -2328,7 +2083,7 @@ ex ex::denom(void) const
  *
  *  @see ex::normal
  *  @return a list [numerator, denominator] */
-ex ex::numer_denom(void) const
+ex ex::numer_denom() const
 {
 	lst sym_lst, repl_lst;
 
@@ -2344,7 +2099,7 @@ ex ex::numer_denom(void) const
 
 
 /** Rationalization of non-rational functions.
- *  This function converts a general expression to a rational polynomial
+ *  This function converts a general expression to a rational function
  *  by replacing all non-rational subexpressions (like non-rational numbers,
  *  non-integer powers or functions like sin(), cos() etc.) to temporary
  *  symbols. This makes it possible to use functions like gcd() and divide()
@@ -2357,7 +2112,25 @@ ex ex::numer_denom(void) const
  *
  *  @param repl_lst collects a list of all temporary symbols and their replacements
  *  @return rationalized expression */
+ex ex::to_rational(lst &repl_lst) const
+{
+	return bp->to_rational(repl_lst);
+}
+
+ex ex::to_polynomial(lst &repl_lst) const
+{
+	return bp->to_polynomial(repl_lst);
+}
+
+
+/** Default implementation of ex::to_rational(). This replaces the object with
+ *  a temporary symbol. */
 ex basic::to_rational(lst &repl_lst) const
+{
+	return replace_with_symbol(*this, repl_lst);
+}
+
+ex basic::to_polynomial(lst &repl_lst) const
 {
 	return replace_with_symbol(*this, repl_lst);
 }
@@ -2366,6 +2139,13 @@ ex basic::to_rational(lst &repl_lst) const
 /** Implementation of ex::to_rational() for symbols. This returns the
  *  unmodified symbol. */
 ex symbol::to_rational(lst &repl_lst) const
+{
+	return *this;
+}
+
+/** Implementation of ex::to_polynomial() for symbols. This returns the
+ *  unmodified symbol. */
+ex symbol::to_polynomial(lst &repl_lst) const
 {
 	return *this;
 }
@@ -2389,12 +2169,40 @@ ex numeric::to_rational(lst &repl_lst) const
 	return *this;
 }
 
+/** Implementation of ex::to_polynomial() for a numeric. It splits complex
+ *  numbers into re+I*im and replaces I and non-integer real numbers with a
+ *  temporary symbol. */
+ex numeric::to_polynomial(lst &repl_lst) const
+{
+	if (is_real()) {
+		if (!is_integer())
+			return replace_with_symbol(*this, repl_lst);
+	} else { // complex
+		numeric re = real();
+		numeric im = imag();
+		ex re_ex = re.is_integer() ? re : replace_with_symbol(re, repl_lst);
+		ex im_ex = im.is_integer() ? im : replace_with_symbol(im, repl_lst);
+		return re_ex + im_ex * replace_with_symbol(I, repl_lst);
+	}
+	return *this;
+}
+
 
 /** Implementation of ex::to_rational() for powers. It replaces non-integer
  *  powers by temporary symbols. */
 ex power::to_rational(lst &repl_lst) const
 {
 	if (exponent.info(info_flags::integer))
+		return power(basis.to_rational(repl_lst), exponent);
+	else
+		return replace_with_symbol(*this, repl_lst);
+}
+
+/** Implementation of ex::to_polynomial() for powers. It replaces non-posint
+ *  powers by temporary symbols. */
+ex power::to_polynomial(lst &repl_lst) const
+{
+	if (exponent.info(info_flags::posint))
 		return power(basis.to_rational(repl_lst), exponent);
 	else
 		return replace_with_symbol(*this, repl_lst);
@@ -2419,6 +2227,24 @@ ex expairseq::to_rational(lst &repl_lst) const
 	return thisexpairseq(s, default_overall_coeff());
 }
 
+/** Implementation of ex::to_polynomial() for expairseqs. */
+ex expairseq::to_polynomial(lst &repl_lst) const
+{
+	epvector s;
+	s.reserve(seq.size());
+	epvector::const_iterator i = seq.begin(), end = seq.end();
+	while (i != end) {
+		s.push_back(split_ex_to_pair(recombine_pair_to_ex(*i).to_polynomial(repl_lst)));
+		++i;
+	}
+	ex oc = overall_coeff.to_polynomial(repl_lst);
+	if (oc.info(info_flags::numeric))
+		return thisexpairseq(s, overall_coeff);
+	else
+		s.push_back(combine_ex_with_coeff_to_pair(oc, _ex1));
+	return thisexpairseq(s, default_overall_coeff());
+}
+
 
 /** Remove the common factor in the terms of a sum 'e' by calculating the GCD,
  *  and multiply it into the expression 'factor' (which needs to be initialized
@@ -2427,13 +2253,13 @@ static ex find_common_factor(const ex & e, ex & factor, lst & repl)
 {
 	if (is_exactly_a<add>(e)) {
 
-		unsigned num = e.nops();
+		size_t num = e.nops();
 		exvector terms; terms.reserve(num);
 		ex gc;
 
 		// Find the common GCD
-		for (unsigned i=0; i<num; i++) {
-			ex x = e.op(i).to_rational(repl);
+		for (size_t i=0; i<num; i++) {
+			ex x = e.op(i).to_polynomial(repl);
 
 			if (is_exactly_a<add>(x) || is_exactly_a<mul>(x)) {
 				ex f = 1;
@@ -2456,16 +2282,16 @@ static ex find_common_factor(const ex & e, ex & factor, lst & repl)
 		factor *= gc;
 
 		// Now divide all terms by the GCD
-		for (unsigned i=0; i<num; i++) {
+		for (size_t i=0; i<num; i++) {
 			ex x;
 
 			// Try to avoid divide() because it expands the polynomial
 			ex &t = terms[i];
 			if (is_exactly_a<mul>(t)) {
-				for (unsigned j=0; j<t.nops(); j++) {
+				for (size_t j=0; j<t.nops(); j++) {
 					if (t.op(j).is_equal(gc)) {
 						exvector v; v.reserve(t.nops());
-						for (unsigned k=0; k<t.nops(); k++) {
+						for (size_t k=0; k<t.nops(); k++) {
 							if (k == j)
 								v.push_back(_ex1);
 							else
@@ -2485,21 +2311,17 @@ term_done:	;
 
 	} else if (is_exactly_a<mul>(e)) {
 
-		unsigned num = e.nops();
+		size_t num = e.nops();
 		exvector v; v.reserve(num);
 
-		for (unsigned i=0; i<num; i++)
+		for (size_t i=0; i<num; i++)
 			v.push_back(find_common_factor(e.op(i), factor, repl));
 
 		return (new mul(v))->setflag(status_flags::dynallocated);
 
 	} else if (is_exactly_a<power>(e)) {
 
-		ex x = e.to_rational(repl);
-		if (is_exactly_a<power>(x) && x.op(1).info(info_flags::negative))
-			return replace_with_symbol(x, repl);
-		else
-			return x;
+		return e.to_polynomial(repl);
 
 	} else
 		return e;

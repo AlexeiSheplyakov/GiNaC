@@ -84,8 +84,8 @@ public:
 	vertex(ijpair ij = ijpair(0,0)) : indices(ij) { }
 	void increment_indices(const ijpair &ind) { indices.first += ind.first; indices.second += ind.second; }
 	virtual ~vertex() { }
-	virtual vertex* copy(void) const = 0;
-	virtual ijpair get_increment(void) const { return indices; }
+	virtual vertex* copy() const = 0;
+	virtual ijpair get_increment() const { return indices; }
 	virtual const ex evaluate(const symbol &x, const unsigned grad) const = 0;
 	bool operator==(const vertex &v) const { return (indices==v.indices); }
 	bool operator<(const vertex &v) const { return (indices<v.indices); }
@@ -100,8 +100,8 @@ protected:
 class Sigma : public vertex {
 public:
 	Sigma(ijpair ij = ijpair(0,0)) : vertex(ij) { }
-	vertex* copy(void) const { return new Sigma(*this); }
-	ijpair get_increment(void) const { return ijpair(indices.first+indices.second+1, 0); }
+	vertex* copy() const { return new Sigma(*this); }
+	ijpair get_increment() const { return ijpair(indices.first+indices.second+1, 0); }
 	const ex evaluate(const symbol &x, const unsigned grad) const;
 private:
 };
@@ -132,8 +132,8 @@ const ex Sigma::evaluate(const symbol &x, const unsigned grad) const
 class Sigma_flipped : public Sigma {
 public:
 	Sigma_flipped(ijpair ij = ijpair(0,0)) : Sigma(ij) { }
-	vertex* copy(void) const { return new Sigma_flipped(*this); }
-	ijpair get_increment(void) const { return ijpair(0, indices.first+indices.second+1); }
+	vertex* copy() const { return new Sigma_flipped(*this); }
+	ijpair get_increment() const { return ijpair(0, indices.first+indices.second+1); }
 	const ex evaluate(const symbol &x, const unsigned grad) const { return Sigma::evaluate(x, grad); }
 private:
 };
@@ -145,8 +145,8 @@ private:
 class Gamma : public vertex {
 public:
 	Gamma(ijpair ij = ijpair(0,0)) : vertex(ij) { }
-	vertex* copy(void) const { return new Gamma(*this); }
-  	ijpair get_increment(void) const { return ijpair(indices.first+indices.second+1, 0); }
+	vertex* copy() const { return new Gamma(*this); }
+  	ijpair get_increment() const { return ijpair(indices.first+indices.second+1, 0); }
 	const ex evaluate(const symbol &x, const unsigned grad) const;
 private:
 };
@@ -179,7 +179,7 @@ const ex Gamma::evaluate(const symbol &x, const unsigned grad) const
 class Vacuum : public vertex {
 public:
 	Vacuum(ijpair ij = ijpair(0,0)) : vertex(ij) { }
-	vertex* copy(void) const { return new Vacuum(*this); }
+	vertex* copy() const { return new Vacuum(*this); }
 	ijpair get_increment() const { return ijpair(0, indices.first+indices.second+1); }
 	const ex evaluate(const symbol &x, const unsigned grad) const;
 private:
@@ -218,7 +218,7 @@ public:
 	~node() { delete vert; }
 	void add_child(const node &, bool = false);
 	const ex evaluate(const symbol &x, unsigned grad) const;
-	unsigned total_edges(void) const;
+	unsigned total_edges() const;
 	bool operator==(const node &) const;
 	bool operator<(const node &) const;
 private:
@@ -274,7 +274,7 @@ const ex node::evaluate(const symbol &x, unsigned grad) const
 	return (product * vert->evaluate(x,grad));
 }
 
-unsigned node::total_edges(void) const
+unsigned node::total_edges() const
 {
 	unsigned accu = 0;
 	for (multiset<child>::const_iterator i=children.begin(); i!=children.end(); ++i) {
@@ -473,7 +473,7 @@ static unsigned test_tree(const node (*tree_generator)(unsigned=0))
 	return 0;
 }
 
-unsigned time_antipode(void)
+unsigned time_antipode()
 {
 	unsigned result = 0;
 	timer jaeger_le_coultre;

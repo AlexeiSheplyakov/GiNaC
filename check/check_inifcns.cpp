@@ -24,7 +24,7 @@
 #include "checks.h"
 
 /* Some tests on the sine trigonometric function. */
-static unsigned inifcns_check_sin(void)
+static unsigned inifcns_check_sin()
 {
 	unsigned result = 0;
 	bool errorflag = false;
@@ -79,7 +79,7 @@ static unsigned inifcns_check_sin(void)
 }
 
 /* Simple tests on the cosine trigonometric function. */
-static unsigned inifcns_check_cos(void)
+static unsigned inifcns_check_cos()
 {
 	unsigned result = 0;
 	bool errorflag;
@@ -133,7 +133,7 @@ static unsigned inifcns_check_cos(void)
 }
 
 /* Simple tests on the tangent trigonometric function. */
-static unsigned inifcns_check_tan(void)
+static unsigned inifcns_check_tan()
 {
 	unsigned result = 0;
 	bool errorflag;
@@ -162,7 +162,7 @@ static unsigned inifcns_check_tan(void)
 }
 
 /* Simple tests on the dilogarithm function. */
-static unsigned inifcns_check_Li2(void)
+static unsigned inifcns_check_Li2()
 {
 	// NOTE: this can safely be removed once CLN supports dilogarithms and
 	// checks them itself.
@@ -190,7 +190,7 @@ static unsigned inifcns_check_Li2(void)
 	return result;
 }
 
-unsigned check_inifcns(void)
+unsigned check_inifcns()
 {
 	unsigned result = 0;
 

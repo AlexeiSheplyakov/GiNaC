@@ -52,16 +52,16 @@ public:
 	void print(const print_context & c, unsigned level = 0) const;
 
 protected:
-	ex simplify_ncmul(const exvector & v) const;
+	ex eval_ncmul(const exvector & v) const;
 	bool match_same_type(const basic & other) const;
-	ex thisexprseq(const exvector & v) const;
-	ex thisexprseq(exvector * vp) const;
-	unsigned return_type(void) const { return return_types::noncommutative; }
-	unsigned return_type_tinfo(void) const { return TINFO_clifford + representation_label; }
+	ex thiscontainer(const exvector & v) const;
+	ex thiscontainer(exvector * vp) const;
+	unsigned return_type() const { return return_types::noncommutative; }
+	unsigned return_type_tinfo() const { return TINFO_clifford + representation_label; }
 
 	// non-virtual functions in this class
 public:
-	unsigned char get_representation_label(void) const {return representation_label;}
+	unsigned char get_representation_label() const {return representation_label;}
 
 	// member variables
 private:
@@ -166,10 +166,6 @@ ex dirac_gammaL(unsigned char rl = 0);
  *  @param rl Representation label
  *  @return newly constructed object */
 ex dirac_gammaR(unsigned char rl = 0);
-
-// These functions are deprecated. Use dirac_gammaL/R() instead.
-ex dirac_gamma6(unsigned char rl = 0);
-ex dirac_gamma7(unsigned char rl = 0);
 
 /** Create a term of the form e_mu * gamma~mu with a unique index mu.
  *

@@ -39,10 +39,9 @@ sub generate {
 $declare_function_macro = generate(
 	<<'END_OF_DECLARE_FUNCTION_MACRO','typename T${N}','const T${N} & p${N}','GiNaC::ex(p${N})');
 #define DECLARE_FUNCTION_${N}P(NAME) \\
-extern const unsigned function_index_##NAME; \\
-template<${SEQ1}> \\
-inline const GiNaC::function NAME(${SEQ2}) { \\
-	return GiNaC::function(function_index_##NAME, ${SEQ3}); \\
+class NAME##_SERIAL { public: static unsigned serial; }; \\
+template<${SEQ1}> const GiNaC::function NAME(${SEQ2}) { \\
+	return GiNaC::function(NAME##_SERIAL::serial, ${SEQ3}); \\
 }
 
 END_OF_DECLARE_FUNCTION_MACRO
@@ -197,7 +196,7 @@ $declare_function_macro
 // end of generated lines
 
 #define REGISTER_FUNCTION(NAME,OPT) \\
-const unsigned function_index_##NAME= \\
+unsigned NAME##_SERIAL::serial = \\
 	GiNaC::function::register_new(GiNaC::function_options(#NAME).OPT);
 
 namespace GiNaC {
@@ -224,6 +223,7 @@ typedef ex (* evalf_funcp_exvector)(const exvector &);
 typedef ex (* derivative_funcp_exvector)(const exvector &, unsigned);
 typedef ex (* series_funcp_exvector)(const exvector &, const relational &, int, unsigned);
 
+
 class function_options
 {
 	friend class function;
@@ -232,7 +232,7 @@ public:
 	function_options();
 	function_options(std::string const & n, std::string const & tn=std::string());
 	~function_options();
-	void initialize(void);
+	void initialize();
 	function_options & set_name(std::string const & n, std::string const & tn=std::string());
 	function_options & latex_name(std::string const & tn);
 // the following lines have been generated for max. ${maxargs} parameters
@@ -247,15 +247,15 @@ $series_func_interface
 	function_options & series_func(series_funcp_exvector s);
 
 	function_options & set_return_type(unsigned rt, unsigned rtt=0);
-	function_options & do_not_evalf_params(void);
+	function_options & do_not_evalf_params();
 	function_options & remember(unsigned size, unsigned assoc_size=0,
 	                            unsigned strategy=remember_strategies::delete_never);
 	function_options & overloaded(unsigned o);
 	function_options & set_symmetry(const symmetry & s);
 	void test_and_set_nparams(unsigned n);
-	std::string get_name(void) const { return name; }
-	unsigned get_nparams(void) const { return nparams; }
-	bool has_derivative(void) const { return derivative_f != NULL; }
+	std::string get_name() const { return name; }
+	unsigned get_nparams() const { return nparams; }
+	bool has_derivative() const { return derivative_f != NULL; }
 
 protected:
 	std::string name;
@@ -289,6 +289,12 @@ protected:
 	ex symtree;
 };
 
+
+/** Exception class thrown by classes which provide their own series expansion
+ *  to signal that ordinary Taylor expansion is safe. */
+class do_taylor {};
+
+
 /** The class function is used to implement builtin functions like sin, cos...
 	and user defined functions */
 class function : public exprseq
@@ -297,7 +303,7 @@ class function : public exprseq
 
 	// CINT has a linking problem
 #ifndef __MAKECINT__
-	friend void ginsh_get_ginac_functions(void);
+	friend void ginsh_get_ginac_functions();
 #endif // def __MAKECINT__
 
 	friend class remember_table_entry;
@@ -306,7 +312,7 @@ class function : public exprseq
 
 // member functions
 
-	// other ctors
+	// other constructors
 public:
 	function(unsigned ser);
 	// the following lines have been generated for max. ${maxargs} parameters
@@ -319,20 +325,20 @@ $constructors_interface
 	// functions overriding virtual functions from base classes
 public:
 	void print(const print_context & c, unsigned level = 0) const;
-	unsigned precedence(void) const {return 70;}
+	unsigned precedence() const {return 70;}
 	ex expand(unsigned options=0) const;
 	ex eval(int level=0) const;
 	ex evalf(int level=0) const;
-	unsigned calchash(void) const;
+	unsigned calchash() const;
 	ex series(const relational & r, int order, unsigned options = 0) const;
-	ex thisexprseq(const exvector & v) const;
-	ex thisexprseq(exvector * vp) const;
+	ex thiscontainer(const exvector & v) const;
+	ex thiscontainer(exvector * vp) const;
 protected:
 	ex derivative(const symbol & s) const;
 	bool is_equal_same_type(const basic & other) const;
 	bool match_same_type(const basic & other) const;
-	unsigned return_type(void) const;
-	unsigned return_type_tinfo(void) const;
+	unsigned return_type() const;
+	unsigned return_type_tinfo() const;
 	
 	// new virtual functions which can be overridden by derived classes
 	// none
@@ -340,15 +346,15 @@ protected:
 	// non-virtual functions in this class
 protected:
 	ex pderivative(unsigned diff_param) const; // partial differentiation
-	static std::vector<function_options> & registered_functions(void);
+	static std::vector<function_options> & registered_functions();
 	bool lookup_remember_table(ex & result) const;
 	void store_remember_table(ex const & result) const;
 public:
 	static unsigned register_new(function_options const & opt);
 	static unsigned current_serial;
 	static unsigned find_function(const std::string &name, unsigned nparams);
-	unsigned get_serial(void) const {return serial;}
-	std::string get_name(void) const;
+	unsigned get_serial() const {return serial;}
+	std::string get_name() const;
 
 // member variables
 
@@ -364,8 +370,15 @@ template<> inline bool is_exactly_a<function>(const basic & obj)
 	return obj.tinfo()==TINFO_function;
 }
 
-#define is_ex_the_function(OBJ, FUNCNAME) \\
-	(GiNaC::is_exactly_a<GiNaC::function>(OBJ) && GiNaC::ex_to<GiNaC::function>(OBJ).get_serial() == function_index_##FUNCNAME)
+template <typename T>
+inline bool is_the_function(const ex & x)
+{
+	return is_exactly_a<function>(x)
+	    && ex_to<function>(x).get_serial() == T::serial;
+}
+
+// Check whether OBJ is the specified symbolic function.
+#define is_ex_the_function(OBJ, FUNCNAME) (GiNaC::is_the_function<FUNCNAME##_SERIAL>(OBJ))
 
 } // namespace GiNaC
 
@@ -406,6 +419,7 @@ $implementation=<<END_OF_IMPLEMENTATION;
 #include <list>
 
 #include "function.h"
+#include "operators.h"
 #include "fderivative.h"
 #include "ex.h"
 #include "lst.h"
@@ -439,7 +453,7 @@ function_options::~function_options()
 	// nothing to clean up at the moment
 }
 
-void function_options::initialize(void)
+void function_options::initialize()
 {
 	set_name("unnamed_function","\\\\mbox{unnamed}");
 	nparams = 0;
@@ -512,7 +526,7 @@ function_options & function_options::set_return_type(unsigned rt, unsigned rtt)
 	return *this;
 }
 
-function_options & function_options::do_not_evalf_params(void)
+function_options & function_options::do_not_evalf_params()
 {
 	evalf_params_first = false;
 	return *this;
@@ -549,7 +563,7 @@ void function_options::test_and_set_nparams(unsigned n)
 		// we do not throw an exception here because this code is
 		// usually executed before main(), so the exception could not
 		// caught anyhow
-		std::cerr << "WARNING: number of parameters ("
+		std::cerr << "WARNING: " << name << "(): number of parameters ("
 		          << n << ") differs from number set before (" 
 		          << nparams << ")" << std::endl;
 	}
@@ -562,7 +576,7 @@ unsigned function::current_serial = 0;
 GINAC_IMPLEMENT_REGISTERED_CLASS(function, exprseq)
 
 //////////
-// default ctor, dtor, copy ctor, assignment operator and helpers
+// default constructor
 //////////
 
 // public
@@ -572,22 +586,8 @@ function::function() : serial(0)
 	tinfo_key = TINFO_function;
 }
 
-// protected
-
-void function::copy(const function & other)
-{
-	inherited::copy(other);
-	serial = other.serial;
-}
-
-void function::destroy(bool call_parent)
-{
-	if (call_parent)
-		inherited::destroy(call_parent);
-}
-
 //////////
-// other ctors
+// other constructors
 //////////
 
 // public
@@ -627,7 +627,7 @@ function::function(unsigned ser, exvector * vp)
 //////////
 
 /** Construct object from archive_node. */
-function::function(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+function::function(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
 {
 	// Find serial number by function name
 	std::string s;
@@ -647,7 +647,7 @@ function::function(const archive_node &n, const lst &sym_lst) : inherited(n, sym
 }
 
 /** Unarchive the object. */
-ex function::unarchive(const archive_node &n, const lst &sym_lst)
+ex function::unarchive(const archive_node &n, lst &sym_lst)
 {
 	return (new function(n, sym_lst))->setflag(status_flags::dynallocated);
 }
@@ -670,7 +670,7 @@ void function::print(const print_context & c, unsigned level) const
 {
 	GINAC_ASSERT(serial<registered_functions().size());
 
-	if (is_of_type(c, print_tree)) {
+	if (is_a<print_tree>(c)) {
 
 		c.s << std::string(level, ' ') << class_name() << " "
 		    << registered_functions()[serial].name
@@ -678,16 +678,16 @@ void function::print(const print_context & c, unsigned level) const
 		    << ", nops=" << nops()
 		    << std::endl;
 		unsigned delta_indent = static_cast<const print_tree &>(c).delta_indent;
-		for (unsigned i=0; i<seq.size(); ++i)
+		for (size_t i=0; i<seq.size(); ++i)
 			seq[i].print(c, level + delta_indent);
 		c.s << std::string(level + delta_indent, ' ') << "=====" << std::endl;
 
-	} else if (is_of_type(c, print_csrc)) {
+	} else if (is_a<print_csrc>(c)) {
 
 		// Print function name in lowercase
 		std::string lname = registered_functions()[serial].name;
-		unsigned num = lname.size();
-		for (unsigned i=0; i<num; i++)
+		size_t num = lname.size();
+		for (size_t i=0; i<num; i++)
 			lname[i] = tolower(lname[i]);
 		c.s << lname << "(";
 
@@ -701,7 +701,7 @@ void function::print(const print_context & c, unsigned level) const
 		}
 		c.s << ")";
 
-	} else if (is_of_type(c, print_latex)) {
+	} else if (is_a<print_latex>(c)) {
 		c.s << registered_functions()[serial].TeX_name;
 		printseq(c, '(', ',', ')', exprseq::precedence(), function::precedence());
 	} else {
@@ -739,7 +739,7 @@ ex function::eval(int level) const
 			// Something has changed while sorting arguments, more evaluations later
 			if (sig == 0)
 				return _ex0;
-			return ex(sig) * thisexprseq(v);
+			return ex(sig) * thiscontainer(v);
 		}
 	}
 
@@ -805,14 +805,14 @@ ${evalf_switch_statement}
 	throw(std::logic_error("function::evalf(): invalid nparams"));
 }
 
-unsigned function::calchash(void) const
+unsigned function::calchash() const
 {
 	unsigned v = golden_ratio_hash(golden_ratio_hash(tinfo()) ^ serial);
-	for (unsigned i=0; i<nops(); i++) {
-		v = rotate_left_31(v);
+	for (size_t i=0; i<nops(); i++) {
+		v = rotate_left(v);
 		v ^= this->op(i).gethash();
 	}
-	v &= 0x7FFFFFFFU;
+
 	if (flags & status_flags::evaluated) {
 		setflag(status_flags::hash_calculated);
 		hashvalue = v;
@@ -820,12 +820,12 @@ unsigned function::calchash(void) const
 	return v;
 }
 
-ex function::thisexprseq(const exvector & v) const
+ex function::thiscontainer(const exvector & v) const
 {
 	return function(serial,v);
 }
 
-ex function::thisexprseq(exvector * vp) const
+ex function::thiscontainer(exvector * vp) const
 {
 	return function(serial,vp);
 }
@@ -866,14 +866,14 @@ ex function::derivative(const symbol & s) const
 {
 	ex result;
 
-	if (serial == function_index_Order) {
+	if (serial == Order_SERIAL::serial) {
 		// Order Term function only differentiates the argument
 		return Order(seq[0].diff(s));
 	} else {
 		// Chain rule
 		ex arg_diff;
-		unsigned num = seq.size();
-		for (unsigned i=0; i<num; i++) {
+		size_t num = seq.size();
+		for (size_t i=0; i<num; i++) {
 			arg_diff = seq[i].diff(s);
 			// We apply the chain rule only when it makes sense.  This is not
 			// just for performance reasons but also to allow functions to
@@ -889,7 +889,7 @@ ex function::derivative(const symbol & s) const
 
 int function::compare_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_of_type(other, function));
+	GINAC_ASSERT(is_a<function>(other));
 	const function & o = static_cast<const function &>(other);
 
 	if (serial != o.serial)
@@ -900,7 +900,7 @@ int function::compare_same_type(const basic & other) const
 
 bool function::is_equal_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_of_type(other, function));
+	GINAC_ASSERT(is_a<function>(other));
 	const function & o = static_cast<const function &>(other);
 
 	if (serial != o.serial)
@@ -911,13 +911,13 @@ bool function::is_equal_same_type(const basic & other) const
 
 bool function::match_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_of_type(other, function));
+	GINAC_ASSERT(is_a<function>(other));
 	const function & o = static_cast<const function &>(other);
 
 	return serial == o.serial;
 }
 
-unsigned function::return_type(void) const
+unsigned function::return_type() const
 {
 	const function_options &opt = registered_functions()[serial];
 
@@ -934,7 +934,7 @@ unsigned function::return_type(void) const
 	}
 }
 
-unsigned function::return_type_tinfo(void) const
+unsigned function::return_type_tinfo() const
 {
 	const function_options &opt = registered_functions()[serial];
 
@@ -982,7 +982,7 @@ ${diff_switch_statement}
 	throw(std::logic_error("function::pderivative(): no diff function defined"));
 }
 
-std::vector<function_options> & function::registered_functions(void)
+std::vector<function_options> & function::registered_functions()
 {
 	static std::vector<function_options> * rf = new std::vector<function_options>;
 	return *rf;
@@ -1002,8 +1002,8 @@ void function::store_remember_table(ex const & result) const
 
 unsigned function::register_new(function_options const & opt)
 {
-	unsigned same_name = 0;
-	for (unsigned i=0; i<registered_functions().size(); ++i) {
+	size_t same_name = 0;
+	for (size_t i=0; i<registered_functions().size(); ++i) {
 		if (registered_functions()[i].name==opt.name) {
 			++same_name;
 		}
@@ -1043,7 +1043,7 @@ unsigned function::find_function(const std::string &name, unsigned nparams)
 }
 
 /** Return the print name of the function. */
-std::string function::get_name(void) const
+std::string function::get_name() const
 {
 	GINAC_ASSERT(serial<registered_functions().size());
 	return registered_functions()[serial].name;

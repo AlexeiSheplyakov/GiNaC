@@ -30,6 +30,7 @@
 #include "numeric.h"
 #include "power.h"
 #include "relational.h"
+#include "operators.h"
 #include "symbol.h"
 #include "symmetry.h"
 #include "utils.h"
@@ -230,6 +231,10 @@ static ex beta_evalf(const ex & x, const ex & y)
 
 static ex beta_eval(const ex & x, const ex & y)
 {
+	if (x.is_equal(_ex1))
+		return 1/y;
+	if (y.is_equal(_ex1))
+		return 1/x;
 	if (x.info(info_flags::numeric) && y.info(info_flags::numeric)) {
 		// treat all problematic x and y that may not be passed into tgamma,
 		// because they would throw there although beta(x,y) is well-defined
@@ -417,7 +422,7 @@ static ex psi1_series(const ex & arg,
 	return (psi(arg+m+_ex1)-recur).series(rel, order, options);
 }
 
-const unsigned function_index_psi1 =
+unsigned psi1_SERIAL::serial =
 	function::register_new(function_options("psi").
 	                       eval_func(psi1_eval).
 	                       evalf_func(psi1_evalf).
@@ -545,7 +550,7 @@ static ex psi2_series(const ex & n,
 	return (psi(n, arg+m+_ex1)-recur).series(rel, order, options);
 }
 
-const unsigned function_index_psi2 =
+unsigned psi2_SERIAL::serial =
 	function::register_new(function_options("psi").
 	                       eval_func(psi2_eval).
 	                       evalf_func(psi2_evalf).

@@ -28,10 +28,10 @@
 #include <iosfwd>
 #include <string>
 #include <vector>
+#include <map>
 
 namespace GiNaC {
 
-class lst;
 class archive;
 
 
@@ -65,10 +65,6 @@ public:
 	struct property_info {
 		property_info() {}
 		property_info(property_type t, const std::string &n, unsigned c = 1) : type(t), name(n), count(c) {}
-		~property_info() {}
-
-		property_info(const property_info &other) : type(other.type), name(other.name), count(other.count) {}
-		const property_info &operator=(const property_info &other);
 
 		property_type type;	/**< Data type of property. */
 		std::string name;   /**< Name of property. */
@@ -79,9 +75,7 @@ public:
 	archive_node() : a(*dummy_ar_creator()), has_expression(false) {} // hack for cint which always requires a default constructor
 	archive_node(archive &ar) : a(ar), has_expression(false) {}
 	archive_node(archive &ar, const ex &expr);
-	~archive_node() {}
 
-	archive_node(const archive_node &other);
 	const archive_node &operator=(const archive_node &other);
 
 	/** Add property of type "bool" to node. */
@@ -110,7 +104,7 @@ public:
 
 	/** Retrieve property of type "ex" from node.
 	 *  @return "true" if property was found, "false" otherwise */
-	bool find_ex(const std::string &name, ex &ret, const lst &sym_lst, unsigned index = 0) const;
+	bool find_ex(const std::string &name, ex &ret, lst &sym_lst, unsigned index = 0) const;
 
 	/** Retrieve property of type "ex" from node, returning the node of
 	 *  the sub-expression. */
@@ -119,23 +113,21 @@ public:
 	/** Return vector of properties stored in node. */
 	void get_properties(propinfovector &v) const;
 
-	ex unarchive(const lst &sym_lst) const;
+	ex unarchive(lst &sym_lst) const;
 	bool has_same_ex_as(const archive_node &other) const;
+	bool has_ex() const {return has_expression;}
+	ex get_ex() const {return e;}
 
-	void forget(void);
+	void forget();
 	void printraw(std::ostream &os) const;
 
 private:
-	static archive* dummy_ar_creator(void);
+	static archive* dummy_ar_creator();
 
 	/** Archived property (data type, name and associated data) */
 	struct property {
 		property() {}
 		property(archive_atom n, property_type t, unsigned v) : type(t), name(n), value(v) {}
-		~property() {}
-
-		property(const property &other) : type(other.type), name(other.name), value(other.value) {}
-		const property &operator=(const property &other);
 
 		property_type type; /**< Data type of property. */
 		archive_atom name;  /**< Name of property. */
@@ -199,18 +191,18 @@ public:
 	ex unarchive_ex(const lst &sym_lst, std::string &name, unsigned index = 0) const;
 
 	/** Return number of archived expressions. */
-	unsigned num_expressions(void) const;
+	unsigned num_expressions() const;
 
 	/** Return reference to top node of an expression specified by index. */
 	const archive_node &get_top_node(unsigned index = 0) const;
 
 	/** Clear all archived expressions. */
-	void clear(void);
+	void clear();
 
 	archive_node_id add_node(const archive_node &n);
 	archive_node &get_node(archive_node_id id);
 
-	void forget(void);
+	void forget();
 	void printraw(std::ostream &os) const;
 
 private:
@@ -236,6 +228,10 @@ public:
 private:
 	/** Vector of atomized strings (using a vector allows faster unarchiving). */
 	mutable std::vector<std::string> atoms;
+
+	/** Map of stored expressions to nodes for faster archiving */
+	typedef std::map<ex, archive_node_id, ex_is_less>::iterator mapit;
+	mutable std::map<ex, archive_node_id, ex_is_less> exprtable;
 };
 
 
