@@ -5603,6 +5603,10 @@ J.H. Davenport, Y. Siret, and E. Tournier, ISBN 0-12-204230-1, 1988,
 Academic Press, London
 
 @item
+@cite{The Art of Computer Programming, Vol 2: Seminumerical Algorithms},
+D.E. Knuth, ISBN 0-201-89684-2, 1998, Addison Wesley
+
+@item
 @cite{The Role of gamma5 in Dimensional Regularization}, D. Kreimer, hep-ph/9401354
 
 @end itemize
