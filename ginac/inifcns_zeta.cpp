@@ -30,9 +30,7 @@
 #include "symbol.h"
 #include "utils.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 //////////
 // Riemann's Zeta-function
@@ -120,6 +118,4 @@ const unsigned function_index_zeta2 =
 	                       derivative_func(zeta2_deriv).
 	                       overloaded(2));
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

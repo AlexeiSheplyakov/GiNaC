@@ -28,48 +28,47 @@
 #include "ex.h"
 #include "archive.h"
 #include "debugmsg.h"
+#include "utils.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(constant, basic)
 
 //////////
-// default constructor, destructor, copy constructor assignment operator and helpers
+// default ctor, dtor, copy ctor assignment operator and helpers
 //////////
 
 // public
 
 constant::constant() : basic(TINFO_constant), name(""), ef(0), number(0), serial(next_serial++)
 {
-	debugmsg("constant default constructor",LOGLEVEL_CONSTRUCT);
+	debugmsg("constant default ctor",LOGLEVEL_CONSTRUCT);
 }
 
 // protected
 
+/** For use by copy ctor and assignment operator. */
 void constant::copy(const constant & other)
 {
-	basic::copy(other);
-	name=other.name;
-	serial=other.serial;
-	ef=other.ef;
-	if (other.number != 0) {
+	inherited::copy(other);
+	name = other.name;
+	serial = other.serial;
+	ef = other.ef;
+	if (other.number != 0)
 		number = new numeric(*other.number);
-	} else {
+	else
 		number = 0;
-	}
 }
 
 void constant::destroy(bool call_parent)
 {
 	delete number;
 	if (call_parent)
-		basic::destroy(call_parent);
+		inherited::destroy(call_parent);
 }
 
 //////////
-// other constructors
+// other ctors
 //////////
 
 // public
@@ -77,13 +76,15 @@ void constant::destroy(bool call_parent)
 constant::constant(const std::string & initname, evalffunctype efun)
   : basic(TINFO_constant), name(initname), ef(efun), number(0), serial(next_serial++)
 {
-	debugmsg("constant constructor from string, function",LOGLEVEL_CONSTRUCT);
+	debugmsg("constant ctor from string, function",LOGLEVEL_CONSTRUCT);
+	setflag(status_flags::evaluated);
 }
 
 constant::constant(const std::string & initname, const numeric & initnumber)
   : basic(TINFO_constant), name(initname), ef(0), number(new numeric(initnumber)), serial(next_serial++)
 {
-	debugmsg("constant constructor from string, numeric",LOGLEVEL_CONSTRUCT);
+	debugmsg("constant ctor from string, numeric",LOGLEVEL_CONSTRUCT);
+	setflag(status_flags::evaluated);
 }
 
 //////////
@@ -93,7 +94,7 @@ constant::constant(const std::string & initname, const numeric & initnumber)
 /** Construct object from archive_node. */
 constant::constant(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("constant constructor from archive_node", LOGLEVEL_CONSTRUCT);
+	debugmsg("constant ctor from archive_node", LOGLEVEL_CONSTRUCT);
 }
 
 /** Unarchive the object. */
@@ -161,7 +162,7 @@ ex constant::evalf(int level) const
 	if (ef!=0) {
 		return ef();
 	} else if (number != 0) {
-		return *number;
+		return number->evalf();
 	}
 	return *this;
 }
@@ -193,6 +194,17 @@ bool constant::is_equal_same_type(const basic & other) const
 	return serial==o->serial;
 }
 
+unsigned constant::calchash(void) const
+{
+	hashvalue = golden_ratio_hash(tinfo() ^ serial);
+	// mask out numeric hashes:
+	hashvalue &= 0x7FFFFFFFU;
+	
+	setflag(status_flags::hash_calculated);
+	
+	return hashvalue;
+}
+
 //////////
 // new virtual functions which can be overridden by derived classes
 //////////
@@ -209,7 +221,7 @@ bool constant::is_equal_same_type(const basic & other) const
 // static member variables
 //////////
 
-unsigned constant::next_serial=0;
+unsigned constant::next_serial = 0;
 
 //////////
 // global constants
@@ -225,6 +237,4 @@ const constant Euler("Euler", EulerEvalf);
 /** Catalan's constant. (0.91597...)  Diverts straight into CLN for evalf(). */
 const constant Catalan("Catalan", CatalanEvalf);
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

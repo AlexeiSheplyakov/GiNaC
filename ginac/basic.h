@@ -34,12 +34,10 @@
 #include "tinfos.h"
 #include "assertion.h"
 #include "registrar.h"
+/*#include "debugmsg.h"*/
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
-class basic;
 class ex;
 class symbol;
 class lst;
@@ -50,74 +48,53 @@ class archive_node;
 // Cint doesn't like vector<..,default_alloc> but malloc_alloc is
 // unstandardized and not supported by newer GCCs.
 #if defined(__GNUC__) && ((__GNUC__ == 2) && (__GNUC_MINOR__ < 97))
-typedef std::vector<ex,malloc_alloc> exvector;
+  typedef std::vector<ex,malloc_alloc> exvector;
 #else
-typedef std::vector<ex> exvector;
+  typedef std::vector<ex> exvector;
 #endif
-
-#define INLINE_BASIC_CONSTRUCTORS
 
 /** This class is the ABC (abstract base class) of GiNaC's class hierarchy.
  *  It is responsible for the reference counting. */
 class basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(basic, void)
-
+	
 	friend class ex;
-
+	
 // member functions
-
-	// default constructor, destructor, copy constructor assignment operator and helpers
+	
+	// default ctor, dtor, copy ctor assignment operator and helpers
 public:
-	basic()
-#ifdef INLINE_BASIC_CONSTRUCTORS
-	        : tinfo_key(TINFO_basic), flags(0), refcount(0)
+	basic() : tinfo_key(TINFO_basic), flags(0), refcount(0)
 	{
+		/* debugmsg("basic default ctor", LOGLEVEL_CONSTRUCT); */
 	}
-#else
-;
-#endif // def INLINE_BASIC_CONSTRUCTORS
-
+	/** basic dtor, virtual because class ex will delete objects via ptr. */
 	virtual ~basic()
-#ifdef INLINE_BASIC_CONSTRUCTORS
 	{
-		destroy(0);
+		/* debugmsg("basic dtor", LOGLEVEL_DESTRUCT); */
+		destroy(false);
 		GINAC_ASSERT((!(flags & status_flags::dynallocated))||(refcount==0));
 	}
-#else
-;
-#endif // def INLINE_BASIC_CONSTRUCTORS
-
-	basic(const basic & other)
-#ifdef INLINE_BASIC_CONSTRUCTORS
-	{
-		copy(other);
-	}
-#else
-;
-#endif // def INLINE_BASIC_CONSTRUCTORS
-
+	basic(const basic & other);
 	const basic & operator=(const basic & other);
-
 protected:
+	/** For use by copy ctor and assignment operator. */
 	void copy(const basic & other)
 	{
 		flags = other.flags & ~status_flags::dynallocated;
 		hashvalue = other.hashvalue;
 		tinfo_key = other.tinfo_key;
 	}
-	void destroy(bool call_parent) {}
-
-	// other constructors
-	basic(unsigned ti)
-#ifdef INLINE_BASIC_CONSTRUCTORS
-	                   : tinfo_key(ti), flags(0), refcount(0)
+	/** For use by dtor and assignment operator. */
+	virtual void destroy(bool call_parent) { }
+	
+	// other ctors
+	/** ctor with specified tinfo_key */
+	basic(unsigned ti) : tinfo_key(ti), flags(0), refcount(0)
 	{
+		/* debugmsg("basic ctor with tinfo_key", LOGLEVEL_CONSTRUCT); */
 	}
-#else
-;
-#endif // def INLINE_BASIC_CONSTRUCTORS
-
 	// functions overriding virtual functions from bases classes
 	// none
 	
@@ -159,8 +136,8 @@ protected: // non-const functions should be called from class ex only
 	virtual unsigned return_type(void) const;
 	virtual unsigned return_type_tinfo(void) const;
 	virtual unsigned calchash(void) const;
-	virtual ex expand(unsigned options=0) const;
-
+	virtual ex expand(unsigned options = 0) const;
+	
 	// non-virtual functions in this class
 public:
 	ex subs(const ex & e) const;
@@ -168,23 +145,25 @@ public:
 	int compare(const basic & other) const;
 	bool is_equal(const basic & other) const;
 	const basic & hold(void) const;
-	unsigned gethash(void) const {if (flags & status_flags::hash_calculated) return hashvalue; else return calchash();}
+	unsigned gethash(void) const { if (flags & status_flags::hash_calculated) return hashvalue; else return calchash(); }
 	unsigned tinfo(void) const {return tinfo_key;}
+	/** Set some status_flags. */
 	const basic & setflag(unsigned f) const {flags |= f; return *this;}
+	/** Clear some status_flags. */
 	const basic & clearflag(unsigned f) const {flags &= ~f; return *this;}
 protected:
 	void ensure_if_modifiable(void) const;
-
+	
 // member variables
 	
 protected:
-	unsigned tinfo_key;
-	mutable unsigned flags;
-	mutable unsigned hashvalue;
-	static unsigned precedence;
-	static unsigned delta_indent;
+	unsigned tinfo_key;                 ///< typeinfo
+	mutable unsigned flags;             ///< of type status_flags
+	mutable unsigned hashvalue;         ///< hash value
+	static unsigned precedence;         ///< precedence for printing parens
+	static unsigned delta_indent;       ///< precedence for printtree
 private:
-	unsigned refcount;
+	unsigned refcount;                  ///< Number of reference counts
 };
 
 // global variables
@@ -192,8 +171,6 @@ private:
 extern int max_recursion_level;
 
 // convenience macros
-
-#ifndef NO_NAMESPACE_GINAC
 
 /** Check if OBJ is a TYPE, including base classes. */
 #define is_of_type(OBJ,TYPE) \
@@ -211,24 +188,6 @@ extern int max_recursion_level;
 #define is_ex_exactly_of_type(OBJ,TYPE) \
 	((*(OBJ).bp).tinfo()==GiNaC::TINFO_##TYPE)
 
-#else // ndef NO_NAMESPACE_GINAC
-
-#define is_of_type(OBJ,TYPE) \
-	(dynamic_cast<const TYPE *>(&OBJ)!=0)
-
-#define is_exactly_of_type(OBJ,TYPE) \
-	((OBJ).tinfo()==TINFO_##TYPE)
-
-#define is_ex_of_type(OBJ,TYPE) \
-	(dynamic_cast<const TYPE *>((OBJ).bp)!=0)
-
-#define is_ex_exactly_of_type(OBJ,TYPE) \
-	((*(OBJ).bp).tinfo()==TINFO_##TYPE)
-
-#endif // ndef NO_NAMESPACE_GINAC
-
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_BASIC_H__

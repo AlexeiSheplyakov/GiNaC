@@ -27,9 +27,7 @@
 #include <vector>
 #include <list>
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 class function;
 class ex;
@@ -97,8 +95,6 @@ protected:
 	unsigned remember_strategy;
 };      
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_REMEMBER_H__

@@ -30,37 +30,23 @@
 #include "debugmsg.h"
 #include "utils.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 GINAC_IMPLEMENT_REGISTERED_CLASS_NO_CTORS(symbol, basic)
 
 //////////
-// default constructor, destructor, copy constructor assignment operator and helpers
+// default ctor, dtor, copy ctor assignment operator and helpers
 //////////
 
-symbol::symbol() : inherited(TINFO_symbol)
+symbol::symbol() : inherited(TINFO_symbol), serial(next_serial++)
 {
-	debugmsg("symbol default constructor", LOGLEVEL_CONSTRUCT);
-	serial = next_serial++;
+	debugmsg("symbol default ctor", LOGLEVEL_CONSTRUCT);
 	name = autoname_prefix()+ToString(serial);
 	asexinfop = new assigned_ex_info;
-	setflag(status_flags::evaluated);
+	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
-symbol::~symbol()
-{
-	debugmsg("symbol destructor", LOGLEVEL_DESTRUCT);
-	destroy(0);
-}
-
-symbol::symbol(const symbol & other)
-{
-	debugmsg("symbol copy constructor", LOGLEVEL_CONSTRUCT);
-	copy(other);
-}
-
+/** For use by copy ctor and assignment operator. */
 void symbol::copy(const symbol & other)
 {
 	inherited::copy(other);
@@ -72,33 +58,31 @@ void symbol::copy(const symbol & other)
 
 void symbol::destroy(bool call_parent)
 {
-	if (--asexinfop->refcount == 0) {
+	if (--asexinfop->refcount == 0)
 		delete asexinfop;
-	}
-	if (call_parent) {
+	if (call_parent)
 		inherited::destroy(call_parent);
-	}
 }
 
-// how should the following be interpreted?
-// symbol x;
-// symbol y;
-// x=y;
-// probably as: x=ex(y);
-
 //////////
-// other constructors
+// other ctors
 //////////
 
 // public
 
+symbol::symbol(const symbol & other)
+{
+	debugmsg("symbol copy ctor", LOGLEVEL_CONSTRUCT);
+	copy(other);
+}
+
 symbol::symbol(const std::string & initname) : inherited(TINFO_symbol)
 {
-	debugmsg("symbol constructor from string", LOGLEVEL_CONSTRUCT);
+	debugmsg("symbol ctor from string", LOGLEVEL_CONSTRUCT);
 	name = initname;
 	serial = next_serial++;
 	asexinfop = new assigned_ex_info;
-	setflag(status_flags::evaluated);
+	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
 //////////
@@ -108,7 +92,7 @@ symbol::symbol(const std::string & initname) : inherited(TINFO_symbol)
 /** Construct object from archive_node. */
 symbol::symbol(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("symbol constructor from archive_node", LOGLEVEL_CONSTRUCT);
+	debugmsg("symbol ctor from archive_node", LOGLEVEL_CONSTRUCT);
 	serial = next_serial++;
 	if (!(n.find_string("name", name)))
 		name = autoname_prefix() + ToString(serial);
@@ -120,7 +104,7 @@ symbol::symbol(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst
 ex symbol::unarchive(const archive_node &n, const lst &sym_lst)
 {
 	ex s = (new symbol(n, sym_lst))->setflag(status_flags::dynallocated);
-
+	
 	// If symbol is in sym_lst, return the existing symbol
 	for (unsigned i=0; i<sym_lst.nops(); i++) {
 		if (is_ex_of_type(sym_lst.op(i), symbol) && (ex_to_symbol(sym_lst.op(i)).name == ex_to_symbol(s).name))
@@ -185,11 +169,10 @@ bool symbol::info(unsigned inf) const
 	    inf==info_flags::cinteger_polynomial ||
 	    inf==info_flags::rational_polynomial ||
 	    inf==info_flags::crational_polynomial ||
-	    inf==info_flags::rational_function) {
+	    inf==info_flags::rational_function)
 		return true;
-	} else {
+	else
 		return inherited::info(inf);
-	}
 }
 
 ex symbol::expand(unsigned options) const
@@ -199,8 +182,10 @@ ex symbol::expand(unsigned options) const
 
 bool symbol::has(const ex & other) const
 {
-	if (is_equal(*other.bp)) return true;
-	return false;
+	if (this->is_equal(*other.bp))
+		return true;
+	else
+		return false;
 }
 
 int symbol::degree(const symbol & s) const
@@ -215,26 +200,23 @@ int symbol::ldegree(const symbol & s) const
 
 ex symbol::coeff(const symbol & s, int n) const
 {
-	if (compare_same_type(s)==0) {
+	if (compare_same_type(s)==0)
 		return n==1 ? _ex1() : _ex0();
-	} else {
+	else
 		return n==0 ? *this : _ex0();
-	}
 }
 
 ex symbol::eval(int level) const
 {
-	if (level == -max_recursion_level) {
+	if (level == -max_recursion_level)
 		throw(std::runtime_error("max recursion level reached"));
-	}
 	
 	if (asexinfop->is_assigned) {
 		setflag(status_flags::evaluated);
-		if (level==1) {
+		if (level==1)
 			return (asexinfop->assigned_expression);
-		} else {
+		else
 			return (asexinfop->assigned_expression).eval(level);
-		}
 	} else {
 		return this->hold();
 	}
@@ -244,15 +226,15 @@ ex symbol::subs(const lst & ls, const lst & lr) const
 {
 	GINAC_ASSERT(ls.nops()==lr.nops());
 #ifdef DO_GINAC_ASSERT
-	for (unsigned i=0; i<ls.nops(); i++) {
+	for (unsigned i=0; i<ls.nops(); i++)
 		GINAC_ASSERT(is_ex_exactly_of_type(ls.op(i),symbol)||
-			   is_ex_of_type(ls.op(i),idx));
-	}
+		             is_ex_of_type(ls.op(i),idx));
 #endif // def DO_GINAC_ASSERT
 
 	for (unsigned i=0; i<ls.nops(); i++) {
 		if (is_ex_exactly_of_type(ls.op(i),symbol)) {
-			if (compare_same_type(ex_to_symbol(ls.op(i)))==0) return lr.op(i);
+			if (compare_same_type(ex_to_symbol(ls.op(i)))==0)
+				return lr.op(i);
 		}
 	}
 	return *this;
@@ -266,11 +248,10 @@ ex symbol::subs(const lst & ls, const lst & lr) const
  *  @see ex::diff */
 ex symbol::derivative(const symbol & s) const
 {
-	if (compare_same_type(s)) {
+	if (compare_same_type(s))
 		return _ex0();
-	} else {
+	else
 		return _ex1();
-	}
 }
 
 int symbol::compare_same_type(const basic & other) const
@@ -300,8 +281,10 @@ unsigned symbol::return_type_tinfo(void) const
 
 unsigned symbol::calchash(void) const
 {
-	// return golden_ratio_hash(tinfo()) ^ serial;
-	hashvalue=golden_ratio_hash(golden_ratio_hash(0x55555555U ^ serial));
+	// this is where the schoolbook method
+	// (golden_ratio_hash(tinfo()) ^ serial)
+	// is not good enough yet...
+	hashvalue = golden_ratio_hash(golden_ratio_hash(tinfo()) ^ serial);
 	setflag(status_flags::hash_calculated);
 	return hashvalue;
 }
@@ -320,25 +303,27 @@ unsigned symbol::calchash(void) const
 
 void symbol::assign(const ex & value)
 {
-	asexinfop->is_assigned=1;
-	asexinfop->assigned_expression=value;
-	clearflag(status_flags::evaluated);
+	asexinfop->is_assigned = 1;
+	asexinfop->assigned_expression = value;
+	clearflag(status_flags::evaluated | status_flags::expanded);
 }
 
 void symbol::unassign(void)
 {
 	if (asexinfop->is_assigned) {
-		asexinfop->is_assigned=0;
-		asexinfop->assigned_expression=_ex0();
+		asexinfop->is_assigned = 0;
+		asexinfop->assigned_expression = _ex0();
 	}
-	setflag(status_flags::evaluated);
+	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
 // private
 
+/** Symbols not constructed with a string get one assigned using this
+ *  prefix and a number. */
 std::string & symbol::autoname_prefix(void)
 {
-	static std::string * s=new std::string("symbol");
+	static std::string *s = new std::string("symbol");
 	return *s;
 }
 
@@ -348,9 +333,7 @@ std::string & symbol::autoname_prefix(void)
 
 // private
 
-unsigned symbol::next_serial=0;
-
-// std::string const symbol::autoname_prefix="symbol";
+unsigned symbol::next_serial = 0;
 
 //////////
 // subclass assigned_ex_info
@@ -361,6 +344,4 @@ symbol::assigned_ex_info::assigned_ex_info(void) : is_assigned(0), refcount(1)
 {
 }
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

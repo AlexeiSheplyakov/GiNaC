@@ -27,9 +27,7 @@
 #include "basic.h"
 #include "ex.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 /** Basic CAS symbol.  It has a name because it must know how to output itself.
  *  It may be assigned an expression, but this feature is only intended for
@@ -40,33 +38,37 @@ namespace GiNaC {
 class symbol : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(symbol, basic)
-
+	
 // types
-
-	/** Symbols as keys to expressions. */
+	
+	/** Symbols as keys to expressions - this is deprecated. */
 	class assigned_ex_info {
 	public:
-		assigned_ex_info();     //! Default ctor
-		bool is_assigned;       //! True if there is an expression assigned
-		ex assigned_expression; //! The actual expression
-		unsigned refcount;      //! Yet another refcounter. PLEASE EXPLAIN!
+		assigned_ex_info();     ///< Default ctor
+		bool is_assigned;       ///< True if there is an expression assigned
+		ex assigned_expression; ///< The actual expression
+		unsigned refcount;      ///< Reference counter
 	};
 	
 // member functions
-
-	// default constructor, destructor, copy constructor assignment operator and helpers
+	
+	// default ctor, dtor, copy ctor assignment operator and helpers
 public:
 	symbol();
-	~symbol();
+	~symbol()
+	{
+		/*debugmsg("symbol dtor", LOGLEVEL_DESTRUCT);*/
+		destroy(false);
+	}
 	symbol(const symbol & other);
 protected:
 	void copy(const symbol & other); 
 	void destroy(bool call_parent);
-
-	// other constructors
+	
+	// other ctors
 public:
 	explicit symbol(const std::string & initname);
-
+	
 	// functions overriding virtual functions from base classes
 public:
 	basic * duplicate() const;
@@ -105,18 +107,20 @@ private:
 // member variables
 
 protected:
-	assigned_ex_info * asexinfop;
-	unsigned serial;  //!< unique serial number for comparision
-	std::string name;
+	assigned_ex_info * asexinfop;   ///< ptr to assigned expression, deprecated
+	unsigned serial;    ///< unique serial number for comparison
+	std::string name;   ///< printname of this symbol
 private:
 	static unsigned next_serial;
 };
+
 
 // utility functions
 inline const symbol &ex_to_symbol(const ex &e)
 {
 	return static_cast<const symbol &>(*e.bp);
 }
+
 
 // wrapper functions around member functions
 inline void unassign(symbol & symarg)
@@ -128,8 +132,6 @@ inline int degree(const symbol & a, const symbol & s)
 inline int ldegree(const symbol & a, const symbol & s)
 { return a.ldegree(s); }
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_SYMBOL_H__

@@ -40,9 +40,7 @@
 #include "utils.h"
 #include "config.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(lortensor, indexed)
 
@@ -554,7 +552,7 @@ ex simplify_lortensor_mul(const ex & m)
 ex simplify_lortensor(const ex & e)
 {
 	// all simplification is done on expanded objects
-	ex e_expanded=e.expand();
+	ex e_expanded = e.expand();
 
 	// simplification of sum=sum of simplifications
 	if (is_ex_exactly_of_type(e_expanded,add)) {
@@ -574,6 +572,4 @@ ex simplify_lortensor(const ex & e)
 	return e_expanded;
 }
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

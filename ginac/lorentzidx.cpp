@@ -29,9 +29,7 @@
 #include "utils.h"
 #include "debugmsg.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(lorentzidx, idx)
 
@@ -296,6 +294,4 @@ ex Dim(void)
 	return *d;
 }
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

@@ -34,15 +34,12 @@
 #include "symbol.h"
 #include "normal.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(matrix, basic)
 
 //////////
-// default constructor, destructor, copy constructor, assignment operator
-// and helpers:
+// default ctor, dtor, copy ctor, assignment operator and helpers:
 //////////
 
 // public
@@ -50,12 +47,13 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(matrix, basic)
 /** Default ctor.  Initializes to 1 x 1-dimensional zero-matrix. */
 matrix::matrix() : inherited(TINFO_matrix), row(1), col(1)
 {
-	debugmsg("matrix default constructor",LOGLEVEL_CONSTRUCT);
+	debugmsg("matrix default ctor",LOGLEVEL_CONSTRUCT);
 	m.push_back(_ex0());
 }
 
 // protected
 
+/** For use by copy ctor and assignment operator. */
 void matrix::copy(const matrix & other)
 {
 	inherited::copy(other);
@@ -70,7 +68,7 @@ void matrix::destroy(bool call_parent)
 }
 
 //////////
-// other constructors
+// other ctors
 //////////
 
 // public
@@ -82,7 +80,7 @@ void matrix::destroy(bool call_parent)
 matrix::matrix(unsigned r, unsigned c)
   : inherited(TINFO_matrix), row(r), col(c)
 {
-	debugmsg("matrix constructor from unsigned,unsigned",LOGLEVEL_CONSTRUCT);
+	debugmsg("matrix ctor from unsigned,unsigned",LOGLEVEL_CONSTRUCT);
 	m.resize(r*c, _ex0());
 }
 
@@ -92,7 +90,7 @@ matrix::matrix(unsigned r, unsigned c)
 matrix::matrix(unsigned r, unsigned c, const exvector & m2)
   : inherited(TINFO_matrix), row(r), col(c), m(m2)
 {
-	debugmsg("matrix constructor from unsigned,unsigned,exvector",LOGLEVEL_CONSTRUCT);
+	debugmsg("matrix ctor from unsigned,unsigned,exvector",LOGLEVEL_CONSTRUCT);
 }
 
 //////////
@@ -102,7 +100,7 @@ matrix::matrix(unsigned r, unsigned c, const exvector & m2)
 /** Construct object from archive_node. */
 matrix::matrix(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("matrix constructor from archive_node", LOGLEVEL_CONSTRUCT);
+	debugmsg("matrix ctor from archive_node", LOGLEVEL_CONSTRUCT);
 	if (!(n.find_unsigned("row", row)) || !(n.find_unsigned("col", col)))
 		throw (std::runtime_error("unknown matrix dimensions in archive"));
 	m.reserve(row * col);
@@ -1192,6 +1190,4 @@ ex lst_to_matrix(const ex &l)
 	return m;
 }
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

@@ -26,153 +26,62 @@
 #include "ex.h"
 #include "numeric.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 /** A pair of expressions.
- *  This similar to, but slightly extended STL's pair<> but we need to account
- *  for methods like .compare() */
+ *  This is similar to STL's pair<>.  It is slightly extended since we need to
+ *  account for methods like .compare().  Also, since this is meant for use by
+ *  class expairseq it must satisfy the invariance that the member coeff must
+ *  be of type numeric. */
 class expair
 {
 public:
-	expair() {}
-	~expair() {}
-
+	expair() : rest(0), coeff(1) { }
+	~expair() { }
 	expair(const expair & other) : rest(other.rest), coeff(other.coeff)
 	{
 		GINAC_ASSERT(is_ex_exactly_of_type(coeff,numeric));
 	}
-
 	const expair & operator=(const expair & other)
 	{
 		if (this != &other) {
-			rest=other.rest;
-			coeff=other.coeff;
+			rest = other.rest;
+			coeff = other.coeff;
 		}
 		return *this;
 	}
-
+	
+	/** Construct an expair from two ex. */
 	expair(const ex & r, const ex & c) : rest(r), coeff(c)
 	{
 		GINAC_ASSERT(is_ex_exactly_of_type(coeff,numeric));
 	}
 	
-	bool is_numeric_with_coeff_1(void) const
-	{
-		GINAC_ASSERT(is_ex_exactly_of_type(coeff,numeric));
-		return is_ex_exactly_of_type(rest,numeric)
-	            && (coeff.is_equal(ex(1)));
-	}
-
+	/** Member-wise check for canonical ordering equality. */
 	bool is_equal(const expair & other) const
 	{
 		return (rest.is_equal(other.rest) && coeff.is_equal(other.coeff));
 	}
-
+	
+	/** Member-wise check for canonical ordering lessness. */
 	bool is_less(const expair & other) const 
 	{
-		return (rest.compare(other.rest)<0)
-		    || (!(other.rest.compare(rest)<0) && (coeff.compare(other.coeff)<0));
+		int restcmp = rest.compare(other.rest);
+		return ((restcmp<0) ||
+		        (!(restcmp>0) && (coeff.compare(other.coeff)<0)));
 	}
-
+	
+	/** Member-wise check for canonical ordering. */
 	int compare(const expair & other) const
 	{
-		int cmpval=rest.compare(other.rest);
-		if (cmpval!=0) return cmpval;
-		cmpval=coeff.compare(other.coeff);
-		return cmpval;
+		int restcmp = rest.compare(other.rest);
+		if (restcmp!=0)
+			return restcmp;
+		else
+			return coeff.compare(other.coeff);
 	}
-
-	bool is_less_old2(const expair & other) const 
-	{
-		/*
-		bool this_numeric_with_coeff_1=is_numeric_with_coeff_1();
-		bool other_numeric_with_coeff_1=other.is_numeric_with_coeff_1();
-		if (this_numeric_with_coeff_1) {
-			if (other_numeric_with_coeff_1) {
-				// both have coeff 1: compare rests
-				return rest.compare(other.rest)<0;
-			}
-			// only this has coeff 1: >
-			return false;
-		} else if (other_numeric_with_coeff_1) {
-			// only other has coeff 1: <
-			return true;
-		}
-		return (rest.compare(other.rest)<0)
-		    || (!(other.rest.compare(rest)<0) && (coeff.compare(other.coeff)<0));
-		*/
-		if (is_ex_exactly_of_type(rest,numeric) &&
-			is_ex_exactly_of_type(other.rest,numeric)) {
-			if (coeff.is_equal(ex(1))) {
-				if ((other.coeff).is_equal(ex(1))) {
-					// both have coeff 1: compare rests
-					return rest.compare(other.rest)<0;
-				}
-				// only this has coeff 1: >
-				return false;
-			} else if ((other.coeff).is_equal(ex(1))) {
-				// only other has coeff 1: <
-				return true;
-			}
-			// neither has coeff 1: usual compare        
-		}
-		return (rest.compare(other.rest)<0)
-		    || (!(other.rest.compare(rest)<0) && (coeff.compare(other.coeff)<0));
-	}
-
-	int compare_old2(const expair & other) const
-	{
-		if (is_ex_exactly_of_type(rest,numeric) &&
-			is_ex_exactly_of_type(other.rest,numeric)) {
-			if ((coeff).is_equal(ex(1))) {
-				if ((other.coeff).is_equal(ex(1))) {
-					// both have coeff 1: compare rests
-					return rest.compare(other.rest);
-				}
-				// only this has coeff 1: >
-				return 1;
-			} else if ((other.coeff).is_equal(ex(1))) {
-				// only other has coeff 1: <
-				return -1;
-			}
-			// neither has coeff 1: usual compare        
-		}
-		/*
-		bool this_numeric_with_coeff_1=is_numeric_with_coeff_1();
-		bool other_numeric_with_coeff_1=other.is_numeric_with_coeff_1();
-		if (this_numeric_with_coeff_1) {
-			if (other_numeric_with_coeff_1) {
-				// both have coeff 1: compare rests
-				return rest.compare(other.rest);
-			}
-			// only this has coeff 1: >
-			return 1;
-		} else if (other_numeric_with_coeff_1) {
-			// only other has coeff 1: <
-			return -1;
-			// neither has coeff 1: usual compare        
-		}
-		*/
-		int cmpval=rest.compare(other.rest);
-		if (cmpval!=0) return cmpval;
-		return coeff.compare(other.coeff);
-	}
-
-	bool is_less_old(const expair & other) const 
-	{
-		return (rest.compare(other.rest)<0)
-		    || (!(other.rest.compare(rest)<0) && (coeff.compare(other.coeff)<0));
-	}
-	int compare_old(const expair & other) const
-	{
-		int cmpval=rest.compare(other.rest);
-		if (cmpval!=0) return cmpval;
-		cmpval=coeff.compare(other.coeff);
-		return cmpval;
-	}
-
+	
+	/** Output to ostream in ugly raw format. */
 	void printraw(std::ostream & os) const
 	{
 		os << "expair(";
@@ -181,31 +90,29 @@ public:
 		coeff.printraw(os);
 		os << ")";
 	}
-
-	ex rest;
-	ex coeff;
+	
+	/** True if this is of the form (numeric,ex(1)). */
+	bool is_canonical_numeric(void) const
+	{
+		GINAC_ASSERT(is_ex_exactly_of_type(coeff,numeric));
+		return (is_ex_exactly_of_type(rest,numeric) &&
+		        (coeff.is_equal(1)));
+	}
+	
+	ex rest;    ///< first member of pair, an arbitrary expression
+	ex coeff;   ///< second member of pair, must be numeric
 };
 
+/** Function object for insertion into third argument of STL's sort() etc. */
 class expair_is_less
 {
 public:
-	bool operator()(const expair & lh, const expair & rh) const
+	bool operator()(const expair &lh, const expair &rh) const
 	{
 		return lh.is_less(rh);
 	}
 };
 
-class expair_is_less_old
-{
-public:
-	bool operator()(const expair & lh, const expair & rh) const
-	{
-		return lh.is_less_old(rh);
-	}
-};
-
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_EXPAIR_H__

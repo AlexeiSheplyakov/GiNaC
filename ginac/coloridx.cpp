@@ -27,9 +27,7 @@
 #include "utils.h"
 #include "debugmsg.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(coloridx, idx)
 
@@ -212,6 +210,4 @@ int coloridx::compare_same_type(const basic & other) const
 	return inherited::compare_same_type(other);
 }
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

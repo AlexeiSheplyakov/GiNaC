@@ -30,11 +30,9 @@
 #include "config.h"
 #include "assertion.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
-// This should be obsoleted once <sstream> is widely available.
+// This should be obsoleted once <sstream> is widely deployed.
 template<class T>
 std::string ToString(const T & t)
 {
@@ -61,94 +59,58 @@ private:
 unsigned log2(unsigned n);
 #endif
 
-int compare_pointers(const void * a, const void * b);
+/** Compare two pointers (just to establish some sort of canonical order).
+ *  @return -1, 0, or 1 */
+inline int compare_pointers(const void * a, const void * b)
+{
+	if (a<b)
+		return -1;
+	else if (a>b)
+		return 1;
+	return 0;
+}
 
 /** Rotate lower 31 bits of unsigned value by one bit to the left
- *  (upper bits get cleared). */
+ *  (upper bit gets cleared). */
 inline unsigned rotate_left_31(unsigned n)
 {
 	// clear highest bit and shift 1 bit to the left
-	n=(n & 0x7FFFFFFFU) << 1;
-
+	n = (n & 0x7FFFFFFFU) << 1;
+	
 	// overflow? clear highest bit and set lowest bit
-	if (n & 0x80000000U) {
-		n=(n & 0x7FFFFFFFU) | 0x00000001U;
-	}
+	if (n & 0x80000000U)
+		n = (n & 0x7FFFFFFFU) | 0x00000001U;
+	
 	GINAC_ASSERT(n<0x80000000U);
-
+	
 	return n;
 }
 
-/** Golden ratio hash function. */
+/** Golden ratio hash function for the 31 least significant bits. */
 inline unsigned golden_ratio_hash(unsigned n)
 {
 	// This function requires arithmetic with at least 64 significant bits
-#if SIZEOF_LONG_DOUBLE > 8
-	// If "long double" is bigger than 64 bits, we assume that the mantissa
-	// has at least 64 bits. This is not guaranteed but it's a good guess.
-	const static long double golden_ratio = .618033988749894848204586834370;
-	long double m = golden_ratio * n;
-	return unsigned((m - int(m)) * 0x80000000);
-#elif SIZEOF_LONG >= 8
-	// "long" has 64 bits, so we prefer it because it might be more efficient
-	// than "long long"
+#if SIZEOF_LONG >= 8
+	// So 'long' has 64 bits.  Excellent!  We prefer it because it might be
+	// more efficient than 'long long'.
 	unsigned long l = n * 0x4f1bbcddL;
 	return (l & 0x7fffffffU) ^ (l >> 32);
 #elif SIZEOF_LONG_LONG >= 8
-	// This requires ´long long´ (or an equivalent 64 bit type)---which is,
-	// unfortunately, not ANSI-compliant:
-	unsigned long long l = n * 0x4f1bbcddLL;
+	// This requires 'long long' (or an equivalent 64 bit type)---which is,
+	// unfortunately, not ANSI-C++-compliant.
+	// (Yet C99 demands it, which is reason for hope.)
+	unsigned long long l = n * 0x4f1bbcddL;
 	return (l & 0x7fffffffU) ^ (l >> 32);
+#elif SIZEOF_LONG_DOUBLE > 8
+	// If 'long double' is bigger than 64 bits, we assume that the mantissa
+	// has at least 64 bits. This is not guaranteed but it's a good guess.
+	// Unfortunately, it may lead to horribly slow code.
+	const static long double golden_ratio = .618033988749894848204586834370;
+	long double m = golden_ratio * n;
+	return unsigned((m - int(m)) * 0x80000000);
 #else
 #error "No 64 bit data type. You lose."
 #endif
-}
-
-// modified from stl_algo.h: always do com(*first1,*first2) instead of comp(*first2,*first1)
-template <class InputIterator1, class InputIterator2, class OutputIterator, class Compare>
-OutputIterator mymerge(InputIterator1 first1, InputIterator1 last1,
-                       InputIterator2 first2, InputIterator2 last2,
-                       OutputIterator result, Compare comp) {
-	while (first1 != last1 && first2 != last2) {
-		if (comp(*first1, *first2)) {
-			*result = *first1;
-			++first1;
-		}
-		else {
-			*result = *first2;
-			++first2;
-		}
-		++result;
-	}
-	return copy(first2, last2, copy(first1, last1, result));
-}
-
-// like merge(), but three lists with *last2<*first3
-template <class InputIterator1, class InputIterator2, class InputIterator3,
-          class OutputIterator, class Compare>
-OutputIterator mymerge3(InputIterator1 first1, InputIterator1 last1,
-                        InputIterator2 first2, InputIterator2 last2,
-                        InputIterator3 first3, InputIterator3 last3,
-                        OutputIterator result, Compare comp) {
-	while (first1 != last1 && first2 != last2) {
-		if (comp(*first1, *first2)) {
-			*result = *first1;
-			++first1;
-		}
-		else {
-			*result = *first2;
-			++first2;
-		}
-		++result;
-	}
-	
-	if (first1==last1) {
-		// list1 empty, copy rest of list2, then list3
-		return copy(first3, last3, copy(first2, last2, result));
-	} else {
-		// list2 empty, merge rest of list1 with list3
-		return mymerge(first1,last1,first3,last3,result,comp);
-	}
 }
 
 // Compute the sign of a permutation of a vector of things.
@@ -281,8 +243,6 @@ const ex & _ex60(void);
 const numeric & _num120(void);    //  120
 const ex & _ex120(void);
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_UTILS_H__

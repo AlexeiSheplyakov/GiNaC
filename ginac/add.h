@@ -25,28 +25,25 @@
 
 #include "expairseq.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 /** Sum of expressions. */
 class add : public expairseq
 {
 	GINAC_DECLARE_REGISTERED_CLASS(add, expairseq)
-
+	
 	friend class mul;
 	friend class ncmul;
 	friend class power;
-
+	
 	// other constructors
 public:
 	add(const ex & lh, const ex & rh);
 	add(const exvector & v);
 	add(const epvector & v);
-	//add(const epvector & v, bool do_not_canonicalize=0);
 	add(const epvector & v, const ex & oc);
 	add(epvector * vp, const ex & oc);
-
+	
 	// functions overriding virtual functions from bases classes
 public:
 	void print(std::ostream & os, unsigned upper_precedence=0) const;
@@ -73,9 +70,9 @@ protected:
 	ex thisexpairseq(epvector * vp, const ex & oc) const;
 	expair split_ex_to_pair(const ex & e) const;
 	expair combine_ex_with_coeff_to_pair(const ex & e,
-										 const ex & c) const;
+	                                     const ex & c) const;
 	expair combine_pair_with_coeff_to_pair(const expair & p,
-										   const ex & c) const;
+	                                       const ex & c) const;
 	ex recombine_pair_to_ex(const expair & p) const;
 	ex expand(unsigned options=0) const;
 	
@@ -97,8 +94,6 @@ inline const add &ex_to_add(const ex &e)
 	return static_cast<const add &>(*e.bp);
 }
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_ADD_H__

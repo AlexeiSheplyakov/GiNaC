@@ -31,9 +31,7 @@
 #include "indexed.h"
 #include "lorentzidx.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 typedef std::pair<std::string,std::string> strstrpair;
 typedef std::pair<strstrpair,lorentzidx> spmapkey;
@@ -142,8 +140,6 @@ simp_lor lor_vec(const std::string & n, const ex & mu);
 ex simplify_simp_lor_mul(const ex & m, const scalar_products & sp);
 ex simplify_simp_lor(const ex & e, const scalar_products & sp=scalar_products());
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef _SIMP__GINAC_LOR_H__

@@ -34,9 +34,7 @@
 #include "pseries.h"
 #include "utils.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 //////////
 // exponential function
@@ -1055,6 +1053,4 @@ REGISTER_FUNCTION(atanh, eval_func(atanh_eval).
                          series_func(atanh_series));
 
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

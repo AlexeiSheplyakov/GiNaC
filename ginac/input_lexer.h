@@ -43,9 +43,7 @@ extern char *ginac_yytext;
 extern char ginac_yytext[];
 #endif
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 class ex;
 
@@ -67,8 +65,6 @@ extern ex parsed_ex;
 /** Get error message from the parser. */
 extern std::string get_parser_error(void);
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_INPUT_LEXER_H__

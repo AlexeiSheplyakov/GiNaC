@@ -27,9 +27,7 @@
 #include <vector>
 #include "idx.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 
 /** Class of indices for Lorentz tensors, to tell them apart from other
@@ -91,8 +89,6 @@ inline const lorentzidx &ex_to_lorentzidx(const ex &e)
 
 ex Dim(void);
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_LORENTZIDX_H__

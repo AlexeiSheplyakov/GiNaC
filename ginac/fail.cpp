@@ -25,21 +25,19 @@
 #include "archive.h"
 #include "debugmsg.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(fail, basic)
 
 //////////
-// default constructor, destructor, copy constructor assignment operator and helpers
+// default ctor, dtor, copy ctor assignment operator and helpers
 //////////
 
 // public
 
 fail::fail() : inherited(TINFO_fail)
 {
-	debugmsg("fail default constructor",LOGLEVEL_CONSTRUCT);
+	debugmsg("fail default ctor",LOGLEVEL_CONSTRUCT);
 }
 
 // protected
@@ -61,7 +59,7 @@ void fail::destroy(bool call_parent)
 /** Construct object from archive_node. */
 fail::fail(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("fail constructor from archive_node", LOGLEVEL_CONSTRUCT);
+	debugmsg("fail ctor from archive_node", LOGLEVEL_CONSTRUCT);
 }
 
 /** Unarchive the object. */
@@ -102,6 +100,4 @@ int fail::compare_same_type(const basic & other) const
 	return 0;
 }
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

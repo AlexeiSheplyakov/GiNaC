@@ -32,9 +32,7 @@
 #include "debugmsg.h"
 #include "utils.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(ncmul, exprseq)
 
@@ -596,7 +594,7 @@ const exvector & ncmul::get_factors(void) const
 
 // protected
 
-unsigned ncmul::precedence=50;
+unsigned ncmul::precedence = 50;
 
 //////////
 // friend functions
@@ -618,6 +616,4 @@ ex simplified_ncmul(const exvector & v)
 	                               status_flags::evaluated);
 }
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

@@ -25,70 +25,65 @@
 
 #include <vector>
 #include <list>
-
 // CINT needs <algorithm> to work properly with <vector> and <list>
 #include <algorithm>
 
 #include "expair.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
-//#define EXPAIRSEQ_USE_HASHTAB
+/** Using hash tables can potentially enhance the asymptotic behaviour of
+ *  combining n terms into one large sum (or n terms into one large product)
+ *  from O(n*log(n)) to about O(n).  There are, however, several drawbacks.
+ *  The constant in front of O(n) is quite large, when copying such an object
+ *  one also has to copy the has table, comparison is quite expensive because
+ *  there is no ordering any more, it doesn't help at all when combining two
+ *  expairseqs because due to the presorted nature the behaviour would be
+ *  O(n) anyways, the code is quite messy, etc, etc.  The code is here as
+ *  an example for following generations to tinker with. */
+#define EXPAIRSEQ_USE_HASHTAB 0
 
-typedef std::vector<expair> epvector;
-typedef epvector::iterator epviter;
-
-inline void iter_swap(epvector::iterator it1, epvector::iterator it2)
-{
-	(*it1).rest.swap((*it2).rest);
-	(*it1).coeff.swap((*it2).coeff);
-}
-
-typedef epvector::iterator epp;
-typedef std::list<epp> epplist;
-typedef std::vector<epplist> epplistvector;
+typedef std::vector<expair> epvector;       ///< expair-vector
+typedef epvector::iterator epviter;         ///< expair-vector iterator
+typedef epvector::iterator epp;             ///< expair-vector pointer
+typedef std::list<epp> epplist;             ///< list of expair-vector pointers
+typedef std::vector<epplist> epplistvector; ///< vector of epplist
 
 /** A sequence of class expair.
  *  This is used for time-critical classes like sums and products of terms
  *  since handling a list of coeff and rest is much faster than handling a
- *  list of products or powers, respectively. (Incidentally, Maple does it
- *  the same way.) */
+ *  list of products or powers, respectively. (Not incidentally, Maple does it
+ *  the same way, maybe others too.)  The semantics is (at least) twofold:
+ *  one for addition and one for multiplication and several methods have to
+ *  be overridden by derived classes to reflect the change in semantics.
+ *  However, most functionality turns out to be shared between addition and
+ *  multiplication, which is the reason why there is this base class. */
 class expairseq : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(expairseq, basic)
 
 // member functions
 
-	// default constructor, destructor, copy constructor assignment operator and helpers
+	// default ctor, dtor, copy ctor assignment operator and helpers
 public:
 	expairseq() : basic(TINFO_expairseq)
-#ifdef EXPAIRSEQ_USE_HASHTAB
+#if EXPAIRSEQ_USE_HASHTAB
 	                                    , hashtabsize(0)
-#endif // def EXPAIRSEQ_USE_HASHTAB
-	{
-	}
-	~expairseq()
-	{
-		destroy(0);
-	}
+#endif // EXPAIRSEQ_USE_HASHTAB
+	{ }
+	~expairseq() { destroy(false); }
 	expairseq(const expairseq & other);
 	const expairseq & operator=(const expairseq & other);
 protected:
 	void copy(const expairseq & other);
-	void destroy(bool call_parent)
-	{
-		if (call_parent) basic::destroy(call_parent);
-	};
-
-	// other constructors
+	void destroy(bool call_parent);
+	// other ctors
 public:
 	expairseq(const ex & lh, const ex & rh);
 	expairseq(const exvector & v);
 	expairseq(const epvector & v, const ex & oc);
 	expairseq(epvector * vp, const ex & oc); // vp will be deleted
-
+	
 	// functions overriding virtual functions from bases classes
 public:
 	basic * duplicate() const;
@@ -111,7 +106,7 @@ protected:
 	unsigned return_type(void) const;
 	unsigned calchash(void) const;
 	ex expand(unsigned options=0) const;
-
+	
 	// new virtual functions which can be overridden by derived classes
 protected:
 	virtual ex thisexpairseq(const epvector & v, const ex & oc) const;
@@ -145,11 +140,9 @@ protected:
 	void construct_from_epvector(const epvector & v);
 	void make_flat(const exvector & v);
 	void make_flat(const epvector & v);
-	epvector * bubblesort(epvector::iterator itbegin, epvector::iterator itend);
-	epvector * mergesort(epvector::iterator itbegin, epvector::iterator itend);
 	void canonicalize(void);
 	void combine_same_terms_sorted_seq(void);
-#ifdef EXPAIRSEQ_USE_HASHTAB
+#if EXPAIRSEQ_USE_HASHTAB
 	void combine_same_terms(void);
 	unsigned calc_hashtabsize(unsigned sz) const;
 	unsigned calc_hashindex(const ex & e) const;
@@ -169,7 +162,7 @@ protected:
 	bool has_coeff_0(void) const;
 	void add_numerics_to_hashtab(epvector::iterator first_numeric,
 	                             epvector::const_iterator last_non_zero);
-#endif // def EXPAIRSEQ_USE_HASHTAB
+#endif // EXPAIRSEQ_USE_HASHTAB
 	bool is_canonical() const;
 	epvector * expandchildren(unsigned options) const;
 	epvector * evalchildren(int level) const;
@@ -184,14 +177,14 @@ protected:
 	epvector seq;
 	ex overall_coeff;
 	static unsigned precedence;
-#ifdef EXPAIRSEQ_USE_HASHTAB
+#if EXPAIRSEQ_USE_HASHTAB
 	epplistvector hashtab;
 	unsigned hashtabsize;
 	unsigned hashmask;
 	static unsigned maxhashtabsize;
 	static unsigned minhashtabsize;
 	static unsigned hashtabfactor;
-#endif // def EXPAIRSEQ_USE_HASHTAB
+#endif // EXPAIRSEQ_USE_HASHTAB
 };
 
 // utility functions
@@ -200,8 +193,6 @@ inline const expairseq &ex_to_expairseq(const ex &e)
 	return static_cast<const expairseq &>(*e.bp);
 }
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_EXPAIRSEQ_H__

@@ -1,7 +1,7 @@
 /** @file exprseq_suppl.cpp
  *
- *  Supplement to exprseq.cpp, contains the parts which were
- *  not automatically generated. */
+ *  Supplement to exprseq.cpp, contains the parts which were not automatically
+ *  generated. */
 
 /*
  *  GiNaC Copyright (C) 1999-2001 Johannes Gutenberg University Mainz, Germany
@@ -24,9 +24,7 @@
 #include "exprseq.h"
 #include "ex.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 bool exprseq::info(unsigned inf) const
 {
@@ -39,10 +37,8 @@ ex & exprseq::let_op(int i)
 {
 	GINAC_ASSERT(i>=0);
 	GINAC_ASSERT(i<nops());
-
+	
 	return seq[i];
 }
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

@@ -28,21 +28,19 @@
 #include "utils.h"
 #include "debugmsg.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(relational, basic)
 
 //////////
-// default constructor, destructor, copy constructor assignment operator and helpers
+// default ctor, dtor, copy ctor assignment operator and helpers
 //////////
 
 // public
 
 relational::relational() : basic(TINFO_relational)
 {
-	debugmsg("relational default constructor",LOGLEVEL_CONSTRUCT);
+	debugmsg("relational default ctor",LOGLEVEL_CONSTRUCT);
 }
 
 // protected
@@ -61,14 +59,14 @@ void relational::destroy(bool call_parent)
 }
 
 //////////
-// other constructors
+// other ctors
 //////////
 
 // public
 
 relational::relational(const ex & lhs, const ex & rhs, operators oper) : basic(TINFO_relational)
 {
-	debugmsg("relational constructor ex,ex,operator",LOGLEVEL_CONSTRUCT);
+	debugmsg("relational ctor ex,ex,operator",LOGLEVEL_CONSTRUCT);
 	lh=lhs;
 	rh=rhs;
 	o=oper;
@@ -81,7 +79,7 @@ relational::relational(const ex & lhs, const ex & rhs, operators oper) : basic(T
 /** Construct object from archive_node. */
 relational::relational(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("relational constructor from archive_node", LOGLEVEL_CONSTRUCT);
+	debugmsg("relational ctor from archive_node", LOGLEVEL_CONSTRUCT);
 	unsigned int opi;
 	if (!(n.find_unsigned("op", opi)))
 		throw (std::runtime_error("unknown relational operator in archive"));
@@ -252,12 +250,12 @@ ex & relational::let_op(int i)
 	
 ex relational::eval(int level) const
 {
-	if (level==1) {
+	if (level==1)
 		return this->hold();
-	}
-	if (level == -max_recursion_level) {
+	
+	if (level == -max_recursion_level)
 		throw(std::runtime_error("max recursion level reached"));
-	}
+	
 	return (new relational(lh.eval(level-1),rh.eval(level-1),o))->setflag(status_flags::dynallocated | status_flags::evaluated);
 }
 
@@ -366,8 +364,6 @@ relational::operator bool() const
 
 // protected
 
-unsigned relational::precedence=20;
+unsigned relational::precedence = 20;
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

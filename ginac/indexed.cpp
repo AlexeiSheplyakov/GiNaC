@@ -27,9 +27,7 @@
 #include "idx.h"
 #include "debugmsg.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(indexed, exprseq)
 
@@ -310,6 +308,4 @@ bool indexed::all_of_type_idx(void) const
 	return true;
 }
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

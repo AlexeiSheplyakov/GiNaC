@@ -63,14 +63,12 @@
 #include <cln/complex_ring.h>
 #include <cln/numtheory.h>
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif  // ndef NO_NAMESPACE_GINAC
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(numeric, basic)
 
 //////////
-// default constructor, destructor, copy constructor assignment
+// default ctor, dtor, copy ctor assignment
 // operator and helpers
 //////////
 
@@ -79,36 +77,34 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(numeric, basic)
 /** default ctor. Numerically it initializes to an integer zero. */
 numeric::numeric() : basic(TINFO_numeric)
 {
-	debugmsg("numeric default constructor", LOGLEVEL_CONSTRUCT);
+	debugmsg("numeric default ctor", LOGLEVEL_CONSTRUCT);
 	value = cln::cl_I(0);
-	calchash();
-	setflag(status_flags::evaluated |
-	        status_flags::expanded |
-	        status_flags::hash_calculated);
+	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
 // protected
 
-void numeric::copy(const numeric & other)
+/** For use by copy ctor and assignment operator. */
+void numeric::copy(const numeric &other)
 {
-	basic::copy(other);
+	inherited::copy(other);
 	value = other.value;
 }
 
 void numeric::destroy(bool call_parent)
 {
-	if (call_parent) basic::destroy(call_parent);
+	if (call_parent) inherited::destroy(call_parent);
 }
 
 //////////
-// other constructors
+// other ctors
 //////////
 
 // public
 
 numeric::numeric(int i) : basic(TINFO_numeric)
 {
-	debugmsg("numeric constructor from int",LOGLEVEL_CONSTRUCT);
+	debugmsg("numeric ctor from int",LOGLEVEL_CONSTRUCT);
 	// Not the whole int-range is available if we don't cast to long
 	// first.  This is due to the behaviour of the cl_I-ctor, which
 	// emphasizes efficiency.  However, if the integer is small enough, 
@@ -118,16 +114,13 @@ numeric::numeric(int i) : basic(TINFO_numeric)
 		value = cln::cl_I(i);
 	else
 		value = cln::cl_I((long) i);
-	calchash();
-	setflag(status_flags::evaluated |
-	        status_flags::expanded |
-	        status_flags::hash_calculated);
+	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
 
 numeric::numeric(unsigned int i) : basic(TINFO_numeric)
 {
-	debugmsg("numeric constructor from uint",LOGLEVEL_CONSTRUCT);
+	debugmsg("numeric ctor from uint",LOGLEVEL_CONSTRUCT);
 	// Not the whole uint-range is available if we don't cast to ulong
 	// first.  This is due to the behaviour of the cl_I-ctor, which
 	// emphasizes efficiency.  However, if the integer is small enough, 
@@ -137,32 +130,23 @@ numeric::numeric(unsigned int i) : basic(TINFO_numeric)
 		value = cln::cl_I(i);
 	else
 		value = cln::cl_I((unsigned long) i);
-	calchash();
-	setflag(status_flags::evaluated |
-	        status_flags::expanded |
-	        status_flags::hash_calculated);
+	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
 
 numeric::numeric(long i) : basic(TINFO_numeric)
 {
-	debugmsg("numeric constructor from long",LOGLEVEL_CONSTRUCT);
+	debugmsg("numeric ctor from long",LOGLEVEL_CONSTRUCT);
 	value = cln::cl_I(i);
-	calchash();
-	setflag(status_flags::evaluated |
-	        status_flags::expanded |
-	        status_flags::hash_calculated);
+	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
 
 numeric::numeric(unsigned long i) : basic(TINFO_numeric)
 {
-	debugmsg("numeric constructor from ulong",LOGLEVEL_CONSTRUCT);
+	debugmsg("numeric ctor from ulong",LOGLEVEL_CONSTRUCT);
 	value = cln::cl_I(i);
-	calchash();
-	setflag(status_flags::evaluated |
-	        status_flags::expanded |
-	        status_flags::hash_calculated);
+	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
 /** Ctor for rational numerics a/b.
@@ -170,35 +154,30 @@ numeric::numeric(unsigned long i) : basic(TINFO_numeric)
  *  @exception overflow_error (division by zero) */
 numeric::numeric(long numer, long denom) : basic(TINFO_numeric)
 {
-	debugmsg("numeric constructor from long/long",LOGLEVEL_CONSTRUCT);
+	debugmsg("numeric ctor from long/long",LOGLEVEL_CONSTRUCT);
 	if (!denom)
 		throw std::overflow_error("division by zero");
 	value = cln::cl_I(numer) / cln::cl_I(denom);
-	calchash();
-	setflag(status_flags::evaluated |
-	        status_flags::expanded |
-	        status_flags::hash_calculated);
+	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
 
 numeric::numeric(double d) : basic(TINFO_numeric)
 {
-	debugmsg("numeric constructor from double",LOGLEVEL_CONSTRUCT);
+	debugmsg("numeric ctor from double",LOGLEVEL_CONSTRUCT);
 	// We really want to explicitly use the type cl_LF instead of the
 	// more general cl_F, since that would give us a cl_DF only which
 	// will not be promoted to cl_LF if overflow occurs:
 	value = cln::cl_float(d, cln::default_float_format);
-	calchash();
-	setflag(status_flags::evaluated |
-	        status_flags::expanded |
-	        status_flags::hash_calculated);
+	setflag(status_flags::evaluated | status_flags::expanded);
 }
+
 
 /** ctor from C-style string.  It also accepts complex numbers in GiNaC
  *  notation like "2+5*I". */
 numeric::numeric(const char *s) : basic(TINFO_numeric)
 {
-	debugmsg("numeric constructor from string",LOGLEVEL_CONSTRUCT);
+	debugmsg("numeric ctor from string",LOGLEVEL_CONSTRUCT);
 	cln::cl_N ctorval = 0;
 	// parse complex numbers (functional but not completely safe, unfortunately
 	// std::string does not understand regexpese):
@@ -270,22 +249,17 @@ numeric::numeric(const char *s) : basic(TINFO_numeric)
 		}
 	} while(delim != std::string::npos);
 	value = ctorval;
-	calchash();
-	setflag(status_flags::evaluated |
-			status_flags::expanded |
-			status_flags::hash_calculated);
+	setflag(status_flags::evaluated | status_flags::expanded);
 }
+
 
 /** Ctor from CLN types.  This is for the initiated user or internal use
  *  only. */
-numeric::numeric(const cln::cl_N & z) : basic(TINFO_numeric)
+numeric::numeric(const cln::cl_N &z) : basic(TINFO_numeric)
 {
-	debugmsg("numeric constructor from cl_N", LOGLEVEL_CONSTRUCT);
+	debugmsg("numeric ctor from cl_N", LOGLEVEL_CONSTRUCT);
 	value = z;
-	calchash();
-	setflag(status_flags::evaluated |
-	        status_flags::expanded |
-	        status_flags::hash_calculated);
+	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
 //////////
@@ -295,7 +269,7 @@ numeric::numeric(const cln::cl_N & z) : basic(TINFO_numeric)
 /** Construct object from archive_node. */
 numeric::numeric(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("numeric constructor from archive_node", LOGLEVEL_CONSTRUCT);
+	debugmsg("numeric ctor from archive_node", LOGLEVEL_CONSTRUCT);
 	cln::cl_N ctorval = 0;
 
 	// Read number as string
@@ -327,10 +301,7 @@ numeric::numeric(const archive_node &n, const lst &sym_lst) : inherited(n, sym_l
 		}
 	}
 	value = ctorval;
-	calchash();
-	setflag(status_flags::evaluated |
-	        status_flags::expanded |
-	        status_flags::hash_calculated);
+	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
 /** Unarchive the object. */
@@ -388,7 +359,7 @@ void numeric::archive(archive_node &n) const
  *  want to visibly distinguish from cl_LF.
  *
  *  @see numeric::print() */
-static void print_real_number(std::ostream & os, const cln::cl_R & num)
+static void print_real_number(std::ostream &os, const cln::cl_R &num)
 {
 	cln::cl_print_flags ourflags;
 	if (cln::instanceof(num, cln::cl_RA_ring)) {
@@ -408,7 +379,7 @@ static void print_real_number(std::ostream & os, const cln::cl_R & num)
  *  with the other routines and produces something compatible to ginsh input.
  *  
  *  @see print_real_number() */
-void numeric::print(std::ostream & os, unsigned upper_precedence) const
+void numeric::print(std::ostream &os, unsigned upper_precedence) const
 {
 	debugmsg("numeric print", LOGLEVEL_PRINT);
 	cln::cl_R r = cln::realpart(cln::the<cln::cl_N>(value));
@@ -473,7 +444,7 @@ void numeric::print(std::ostream & os, unsigned upper_precedence) const
 }
 
 
-void numeric::printraw(std::ostream & os) const
+void numeric::printraw(std::ostream &os) const
 {
 	// The method printraw doesn't do much, it simply uses CLN's operator<<()
 	// for output, which is ugly but reliable. e.g: 2+2i
@@ -482,7 +453,7 @@ void numeric::printraw(std::ostream & os) const
 }
 
 
-void numeric::printtree(std::ostream & os, unsigned indent) const
+void numeric::printtree(std::ostream &os, unsigned indent) const
 {
 	debugmsg("numeric printtree", LOGLEVEL_PRINT);
 	os << std::string(indent,' ') << cln::the<cln::cl_N>(value)
@@ -493,7 +464,7 @@ void numeric::printtree(std::ostream & os, unsigned indent) const
 }
 
 
-void numeric::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
+void numeric::printcsrc(std::ostream &os, unsigned type, unsigned upper_precedence) const
 {
 	debugmsg("numeric print csrc", LOGLEVEL_PRINT);
 	std::ios::fmtflags oldflags = os.flags();
@@ -579,11 +550,11 @@ bool numeric::info(unsigned inf) const
  *  results:  (2+I).has(-2) -> true.  But this is consistent, since we also
  *  would like to have (-2+I).has(2) -> true and we want to think about the
  *  sign as a multiplicative factor. */
-bool numeric::has(const ex & other) const
+bool numeric::has(const ex &other) const
 {
 	if (!is_exactly_of_type(*other.bp, numeric))
 		return false;
-	const numeric & o = static_cast<numeric &>(const_cast<basic &>(*other.bp));
+	const numeric &o = static_cast<numeric &>(const_cast<basic &>(*other.bp));
 	if (this->is_equal(o) || this->is_equal(-o))
 		return true;
 	if (o.imag().is_zero())  // e.g. scan for 3 in -3*I
@@ -620,30 +591,21 @@ ex numeric::evalf(int level) const
 {
 	// level can safely be discarded for numeric objects.
 	return numeric(cln::cl_float(1.0, cln::default_float_format) *
-				   (cln::the<cln::cl_N>(value)));
+	               (cln::the<cln::cl_N>(value)));
 }
 
 // protected
 
-/** Implementation of ex::diff() for a numeric. It always returns 0.
- *
- *  @see ex::diff */
-ex numeric::derivative(const symbol & s) const
-{
-	return _ex0();
-}
-
-
-int numeric::compare_same_type(const basic & other) const
+int numeric::compare_same_type(const basic &other) const
 {
 	GINAC_ASSERT(is_exactly_of_type(other, numeric));
-	const numeric & o = static_cast<numeric &>(const_cast<basic &>(other));
+	const numeric &o = static_cast<numeric &>(const_cast<basic &>(other));
 	
 	return this->compare(o);
 }
 
 
-bool numeric::is_equal_same_type(const basic & other) const
+bool numeric::is_equal_same_type(const basic &other) const
 {
 	GINAC_ASSERT(is_exactly_of_type(other,numeric));
 	const numeric *o = static_cast<const numeric *>(&other);
@@ -657,6 +619,7 @@ unsigned numeric::calchash(void) const
 	// Use CLN's hashcode.  Warning: It depends only on the number's value, not
 	// its type or precision (i.e. a true equivalence relation on numbers).  As
 	// a consequence, 3 and 3.0 share the same hashvalue.
+	setflag(status_flags::hash_calculated);
 	return (hashvalue = cln::equal_hashcode(cln::the<cln::cl_N>(value)) | 0x80000000U);
 }
 
@@ -674,8 +637,8 @@ unsigned numeric::calchash(void) const
 // public
 
 /** Numerical addition method.  Adds argument to *this and returns result as
- *  a new numeric object. */
-const numeric numeric::add(const numeric & other) const
+ *  a numeric object. */
+const numeric numeric::add(const numeric &other) const
 {
 	// Efficiency shortcut: trap the neutral element by pointer.
 	static const numeric * _num0p = &_num0();
@@ -689,16 +652,16 @@ const numeric numeric::add(const numeric & other) const
 
 
 /** Numerical subtraction method.  Subtracts argument from *this and returns
- *  result as a new numeric object. */
-const numeric numeric::sub(const numeric & other) const
+ *  result as a numeric object. */
+const numeric numeric::sub(const numeric &other) const
 {
 	return numeric(cln::the<cln::cl_N>(value)-cln::the<cln::cl_N>(other.value));
 }
 
 
 /** Numerical multiplication method.  Multiplies *this and argument and returns
- *  result as a new numeric object. */
-const numeric numeric::mul(const numeric & other) const
+ *  result as a numeric object. */
+const numeric numeric::mul(const numeric &other) const
 {
 	// Efficiency shortcut: trap the neutral element by pointer.
 	static const numeric * _num1p = &_num1();
@@ -712,10 +675,10 @@ const numeric numeric::mul(const numeric & other) const
 
 
 /** Numerical division method.  Divides *this by argument and returns result as
- *  a new numeric object.
+ *  a numeric object.
  *
  *  @exception overflow_error (division by zero) */
-const numeric numeric::div(const numeric & other) const
+const numeric numeric::div(const numeric &other) const
 {
 	if (cln::zerop(cln::the<cln::cl_N>(other.value)))
 		throw std::overflow_error("numeric::div(): division by zero");
@@ -723,7 +686,9 @@ const numeric numeric::div(const numeric & other) const
 }
 
 
-const numeric numeric::power(const numeric & other) const
+/** Numerical exponentiation.  Raises *this to the power given as argument and
+ *  returns result as a numeric object. */
+const numeric numeric::power(const numeric &other) const
 {
 	// Efficiency shortcut: trap the neutral exponent by pointer.
 	static const numeric * _num1p = &_num1();
@@ -744,7 +709,7 @@ const numeric numeric::power(const numeric & other) const
 }
 
 
-const numeric & numeric::add_dyn(const numeric & other) const
+const numeric &numeric::add_dyn(const numeric &other) const
 {
 	// Efficiency shortcut: trap the neutral element by pointer.
 	static const numeric * _num0p = &_num0();
@@ -758,14 +723,14 @@ const numeric & numeric::add_dyn(const numeric & other) const
 }
 
 
-const numeric & numeric::sub_dyn(const numeric & other) const
+const numeric &numeric::sub_dyn(const numeric &other) const
 {
 	return static_cast<const numeric &>((new numeric(cln::the<cln::cl_N>(value)-cln::the<cln::cl_N>(other.value)))->
 										setflag(status_flags::dynallocated));
 }
 
 
-const numeric & numeric::mul_dyn(const numeric & other) const
+const numeric &numeric::mul_dyn(const numeric &other) const
 {
 	// Efficiency shortcut: trap the neutral element by pointer.
 	static const numeric * _num1p = &_num1();
@@ -779,7 +744,7 @@ const numeric & numeric::mul_dyn(const numeric & other) const
 }
 
 
-const numeric & numeric::div_dyn(const numeric & other) const
+const numeric &numeric::div_dyn(const numeric &other) const
 {
 	if (cln::zerop(cln::the<cln::cl_N>(other.value)))
 		throw std::overflow_error("division by zero");
@@ -788,7 +753,7 @@ const numeric & numeric::div_dyn(const numeric & other) const
 }
 
 
-const numeric & numeric::power_dyn(const numeric & other) const
+const numeric &numeric::power_dyn(const numeric &other) const
 {
 	// Efficiency shortcut: trap the neutral exponent by pointer.
 	static const numeric * _num1p=&_num1();
@@ -810,37 +775,37 @@ const numeric & numeric::power_dyn(const numeric & other) const
 }
 
 
-const numeric & numeric::operator=(int i)
+const numeric &numeric::operator=(int i)
 {
 	return operator=(numeric(i));
 }
 
 
-const numeric & numeric::operator=(unsigned int i)
+const numeric &numeric::operator=(unsigned int i)
 {
 	return operator=(numeric(i));
 }
 
 
-const numeric & numeric::operator=(long i)
+const numeric &numeric::operator=(long i)
 {
 	return operator=(numeric(i));
 }
 
 
-const numeric & numeric::operator=(unsigned long i)
+const numeric &numeric::operator=(unsigned long i)
 {
 	return operator=(numeric(i));
 }
 
 
-const numeric & numeric::operator=(double d)
+const numeric &numeric::operator=(double d)
 {
 	return operator=(numeric(d));
 }
 
 
-const numeric & numeric::operator=(const char * s)
+const numeric &numeric::operator=(const char * s)
 {
 	return operator=(numeric(s));
 }
@@ -859,7 +824,7 @@ const numeric numeric::inverse(void) const
  *  csgn(x)==0 for x==0, csgn(x)==1 for Re(x)>0 or Re(x)=0 and Im(x)>0,
  *  csgn(x)==-1 for Re(x)<0 or Re(x)=0 and Im(x)<0.
  *
- *  @see numeric::compare(const numeric & other) */
+ *  @see numeric::compare(const numeric &other) */
 int numeric::csgn(void) const
 {
 	if (cln::zerop(cln::the<cln::cl_N>(value)))
@@ -886,7 +851,7 @@ int numeric::csgn(void) const
  *
  *  @return csgn(*this-other)
  *  @see numeric::csgn(void) */
-int numeric::compare(const numeric & other) const
+int numeric::compare(const numeric &other) const
 {
 	// Comparing two real numbers?
 	if (cln::instanceof(value, cln::cl_R_ring) &&
@@ -904,7 +869,7 @@ int numeric::compare(const numeric & other) const
 }
 
 
-bool numeric::is_equal(const numeric & other) const
+bool numeric::is_equal(const numeric &other) const
 {
 	return cln::equal(cln::the<cln::cl_N>(value),cln::the<cln::cl_N>(other.value));
 }
@@ -994,13 +959,13 @@ bool numeric::is_real(void) const
 }
 
 
-bool numeric::operator==(const numeric & other) const
+bool numeric::operator==(const numeric &other) const
 {
 	return equal(cln::the<cln::cl_N>(value), cln::the<cln::cl_N>(other.value));
 }
 
 
-bool numeric::operator!=(const numeric & other) const
+bool numeric::operator!=(const numeric &other) const
 {
 	return !equal(cln::the<cln::cl_N>(value), cln::the<cln::cl_N>(other.value));
 }
@@ -1039,7 +1004,7 @@ bool numeric::is_crational(void) const
 /** Numerical comparison: less.
  *
  *  @exception invalid_argument (complex inequality) */ 
-bool numeric::operator<(const numeric & other) const
+bool numeric::operator<(const numeric &other) const
 {
 	if (this->is_real() && other.is_real())
 		return (cln::the<cln::cl_R>(value) < cln::the<cln::cl_R>(other.value));
@@ -1050,7 +1015,7 @@ bool numeric::operator<(const numeric & other) const
 /** Numerical comparison: less or equal.
  *
  *  @exception invalid_argument (complex inequality) */ 
-bool numeric::operator<=(const numeric & other) const
+bool numeric::operator<=(const numeric &other) const
 {
 	if (this->is_real() && other.is_real())
 		return (cln::the<cln::cl_R>(value) <= cln::the<cln::cl_R>(other.value));
@@ -1061,7 +1026,7 @@ bool numeric::operator<=(const numeric & other) const
 /** Numerical comparison: greater.
  *
  *  @exception invalid_argument (complex inequality) */ 
-bool numeric::operator>(const numeric & other) const
+bool numeric::operator>(const numeric &other) const
 {
 	if (this->is_real() && other.is_real())
 		return (cln::the<cln::cl_R>(value) > cln::the<cln::cl_R>(other.value));
@@ -1072,7 +1037,7 @@ bool numeric::operator>(const numeric & other) const
 /** Numerical comparison: greater or equal.
  *
  *  @exception invalid_argument (complex inequality) */  
-bool numeric::operator>=(const numeric & other) const
+bool numeric::operator>=(const numeric &other) const
 {
 	if (this->is_real() && other.is_real())
 		return (cln::the<cln::cl_R>(value) >= cln::the<cln::cl_R>(other.value));
@@ -1220,14 +1185,15 @@ unsigned numeric::precedence = 30;
 //////////
 
 /** Imaginary unit.  This is not a constant but a numeric since we are
- *  natively handing complex numbers anyways. */
+ *  natively handing complex numbers anyways, so in each expression containing
+ *  an I it is automatically eval'ed away anyhow. */
 const numeric I = numeric(cln::complex(cln::cl_I(0),cln::cl_I(1)));
 
 
 /** Exponential function.
  *
  *  @return  arbitrary precision numerical exp(x). */
-const numeric exp(const numeric & x)
+const numeric exp(const numeric &x)
 {
 	return cln::exp(x.to_cl_N());
 }
@@ -1238,7 +1204,7 @@ const numeric exp(const numeric & x)
  *  @param z complex number
  *  @return  arbitrary precision numerical log(x).
  *  @exception pole_error("log(): logarithmic pole",0) */
-const numeric log(const numeric & z)
+const numeric log(const numeric &z)
 {
 	if (z.is_zero())
 		throw pole_error("log(): logarithmic pole",0);
@@ -1249,7 +1215,7 @@ const numeric log(const numeric & z)
 /** Numeric sine (trigonometric function).
  *
  *  @return  arbitrary precision numerical sin(x). */
-const numeric sin(const numeric & x)
+const numeric sin(const numeric &x)
 {
 	return cln::sin(x.to_cl_N());
 }
@@ -1258,7 +1224,7 @@ const numeric sin(const numeric & x)
 /** Numeric cosine (trigonometric function).
  *
  *  @return  arbitrary precision numerical cos(x). */
-const numeric cos(const numeric & x)
+const numeric cos(const numeric &x)
 {
 	return cln::cos(x.to_cl_N());
 }
@@ -1267,7 +1233,7 @@ const numeric cos(const numeric & x)
 /** Numeric tangent (trigonometric function).
  *
  *  @return  arbitrary precision numerical tan(x). */
-const numeric tan(const numeric & x)
+const numeric tan(const numeric &x)
 {
 	return cln::tan(x.to_cl_N());
 }
@@ -1276,7 +1242,7 @@ const numeric tan(const numeric & x)
 /** Numeric inverse sine (trigonometric function).
  *
  *  @return  arbitrary precision numerical asin(x). */
-const numeric asin(const numeric & x)
+const numeric asin(const numeric &x)
 {
 	return cln::asin(x.to_cl_N());
 }
@@ -1285,7 +1251,7 @@ const numeric asin(const numeric & x)
 /** Numeric inverse cosine (trigonometric function).
  *
  *  @return  arbitrary precision numerical acos(x). */
-const numeric acos(const numeric & x)
+const numeric acos(const numeric &x)
 {
 	return cln::acos(x.to_cl_N());
 }
@@ -1296,7 +1262,7 @@ const numeric acos(const numeric & x)
  *  @param z complex number
  *  @return atan(z)
  *  @exception pole_error("atan(): logarithmic pole",0) */
-const numeric atan(const numeric & x)
+const numeric atan(const numeric &x)
 {
 	if (!x.is_real() &&
 	    x.real().is_zero() &&
@@ -1311,7 +1277,7 @@ const numeric atan(const numeric & x)
  *  @param x real number
  *  @param y real number
  *  @return atan(y/x) */
-const numeric atan(const numeric & y, const numeric & x)
+const numeric atan(const numeric &y, const numeric &x)
 {
 	if (x.is_real() && y.is_real())
 		return cln::atan(cln::the<cln::cl_R>(x.to_cl_N()),
@@ -1324,7 +1290,7 @@ const numeric atan(const numeric & y, const numeric & x)
 /** Numeric hyperbolic sine (trigonometric function).
  *
  *  @return  arbitrary precision numerical sinh(x). */
-const numeric sinh(const numeric & x)
+const numeric sinh(const numeric &x)
 {
 	return cln::sinh(x.to_cl_N());
 }
@@ -1333,7 +1299,7 @@ const numeric sinh(const numeric & x)
 /** Numeric hyperbolic cosine (trigonometric function).
  *
  *  @return  arbitrary precision numerical cosh(x). */
-const numeric cosh(const numeric & x)
+const numeric cosh(const numeric &x)
 {
 	return cln::cosh(x.to_cl_N());
 }
@@ -1342,7 +1308,7 @@ const numeric cosh(const numeric & x)
 /** Numeric hyperbolic tangent (trigonometric function).
  *
  *  @return  arbitrary precision numerical tanh(x). */
-const numeric tanh(const numeric & x)
+const numeric tanh(const numeric &x)
 {
 	return cln::tanh(x.to_cl_N());
 }
@@ -1351,7 +1317,7 @@ const numeric tanh(const numeric & x)
 /** Numeric inverse hyperbolic sine (trigonometric function).
  *
  *  @return  arbitrary precision numerical asinh(x). */
-const numeric asinh(const numeric & x)
+const numeric asinh(const numeric &x)
 {
 	return cln::asinh(x.to_cl_N());
 }
@@ -1360,7 +1326,7 @@ const numeric asinh(const numeric & x)
 /** Numeric inverse hyperbolic cosine (trigonometric function).
  *
  *  @return  arbitrary precision numerical acosh(x). */
-const numeric acosh(const numeric & x)
+const numeric acosh(const numeric &x)
 {
 	return cln::acosh(x.to_cl_N());
 }
@@ -1369,14 +1335,14 @@ const numeric acosh(const numeric & x)
 /** Numeric inverse hyperbolic tangent (trigonometric function).
  *
  *  @return  arbitrary precision numerical atanh(x). */
-const numeric atanh(const numeric & x)
+const numeric atanh(const numeric &x)
 {
 	return cln::atanh(x.to_cl_N());
 }
 
 
-/*static cln::cl_N Li2_series(const ::cl_N & x,
-                            const ::float_format_t & prec)
+/*static cln::cl_N Li2_series(const ::cl_N &x,
+                            const ::float_format_t &prec)
 {
 	// Note: argument must be in the unit circle
 	// This is very inefficient unless we have fast floating point Bernoulli
@@ -1403,8 +1369,8 @@ const numeric atanh(const numeric & x)
 
 /** Numeric evaluation of Dilogarithm within circle of convergence (unit
  *  circle) using a power series. */
-static cln::cl_N Li2_series(const cln::cl_N & x,
-                            const cln::float_format_t & prec)
+static cln::cl_N Li2_series(const cln::cl_N &x,
+                            const cln::float_format_t &prec)
 {
 	// Note: argument must be in the unit circle
 	cln::cl_N aug, acc;
@@ -1422,8 +1388,8 @@ static cln::cl_N Li2_series(const cln::cl_N & x,
 }
 
 /** Folds Li2's argument inside a small rectangle to enhance convergence. */
-static cln::cl_N Li2_projection(const cln::cl_N & x,
-                                const cln::float_format_t & prec)
+static cln::cl_N Li2_projection(const cln::cl_N &x,
+                                const cln::float_format_t &prec)
 {
 	const cln::cl_R re = cln::realpart(x);
 	const cln::cl_R im = cln::imagpart(x);
@@ -1448,7 +1414,7 @@ static cln::cl_N Li2_projection(const cln::cl_N & x,
  *  continuous with quadrant IV.
  *
  *  @return  arbitrary precision numerical Li2(x). */
-const numeric Li2(const numeric & x)
+const numeric Li2(const numeric &x)
 {
 	if (x.is_zero())
 		return _num0();
@@ -1478,7 +1444,7 @@ const numeric Li2(const numeric & x)
 
 /** Numeric evaluation of Riemann's Zeta function.  Currently works only for
  *  integer arguments. */
-const numeric zeta(const numeric & x)
+const numeric zeta(const numeric &x)
 {
 	// A dirty hack to allow for things like zeta(3.0), since CLN currently
 	// only knows about integer arguments and zeta(3).evalf() automatically
@@ -1491,7 +1457,7 @@ const numeric zeta(const numeric & x)
 			return cln::zeta(aux);
 	}
 	std::clog << "zeta(" << x
-			  << "): Does anybody know good way to calculate this numerically?"
+			  << "): Does anybody know a good way to calculate this numerically?"
 			  << std::endl;
 	return numeric(0);
 }
@@ -1499,17 +1465,17 @@ const numeric zeta(const numeric & x)
 
 /** The Gamma function.
  *  This is only a stub! */
-const numeric lgamma(const numeric & x)
+const numeric lgamma(const numeric &x)
 {
 	std::clog << "lgamma(" << x
-	          << "): Does anybody know good way to calculate this numerically?"
+	          << "): Does anybody know a good way to calculate this numerically?"
 	          << std::endl;
 	return numeric(0);
 }
-const numeric tgamma(const numeric & x)
+const numeric tgamma(const numeric &x)
 {
 	std::clog << "tgamma(" << x
-	          << "): Does anybody know good way to calculate this numerically?"
+	          << "): Does anybody know a good way to calculate this numerically?"
 	          << std::endl;
 	return numeric(0);
 }
@@ -1517,10 +1483,10 @@ const numeric tgamma(const numeric & x)
 
 /** The psi function (aka polygamma function).
  *  This is only a stub! */
-const numeric psi(const numeric & x)
+const numeric psi(const numeric &x)
 {
 	std::clog << "psi(" << x
-	          << "): Does anybody know good way to calculate this numerically?"
+	          << "): Does anybody know a good way to calculate this numerically?"
 	          << std::endl;
 	return numeric(0);
 }
@@ -1528,10 +1494,10 @@ const numeric psi(const numeric & x)
 
 /** The psi functions (aka polygamma functions).
  *  This is only a stub! */
-const numeric psi(const numeric & n, const numeric & x)
+const numeric psi(const numeric &n, const numeric &x)
 {
 	std::clog << "psi(" << n << "," << x
-	          << "): Does anybody know good way to calculate this numerically?"
+	          << "): Does anybody know a good way to calculate this numerically?"
 	          << std::endl;
 	return numeric(0);
 }
@@ -1541,7 +1507,7 @@ const numeric psi(const numeric & n, const numeric & x)
  *
  *  @param n  integer argument >= 0
  *  @exception range_error (argument must be integer >= 0) */
-const numeric factorial(const numeric & n)
+const numeric factorial(const numeric &n)
 {
 	if (!n.is_nonneg_integer())
 		throw std::range_error("numeric::factorial(): argument must be integer >= 0");
@@ -1555,9 +1521,9 @@ const numeric factorial(const numeric & n)
  *  @param n  integer argument >= -1
  *  @return n!! == n * (n-2) * (n-4) * ... * ({1|2}) with 0!! == (-1)!! == 1
  *  @exception range_error (argument must be integer >= -1) */
-const numeric doublefactorial(const numeric & n)
+const numeric doublefactorial(const numeric &n)
 {
-	if (n == numeric(-1))
+	if (n.is_equal(_num_1()))
 		return _num1();
 	
 	if (!n.is_nonneg_integer())
@@ -1571,7 +1537,7 @@ const numeric doublefactorial(const numeric & n)
  *  integer n and k and positive n this is the number of ways of choosing k
  *  objects from n distinct objects.  If n is negative, the formula
  *  binomial(n,k) == (-1)^k*binomial(k-n-1,k) is used to compute the result. */
-const numeric binomial(const numeric & n, const numeric & k)
+const numeric binomial(const numeric &n, const numeric &k)
 {
 	if (n.is_integer() && k.is_integer()) {
 		if (n.is_nonneg_integer()) {
@@ -1594,7 +1560,7 @@ const numeric binomial(const numeric & n, const numeric & k)
  *
  *  @return the nth Bernoulli number (a rational number).
  *  @exception range_error (argument must be integer >= 0) */
-const numeric bernoulli(const numeric & nn)
+const numeric bernoulli(const numeric &nn)
 {
 	if (!nn.is_integer() || nn.is_negative())
 		throw std::range_error("numeric::bernoulli(): argument must be integer >= 0");
@@ -1671,7 +1637,7 @@ const numeric bernoulli(const numeric & nn)
  *  @param n an integer
  *  @return the nth Fibonacci number F(n) (an integer number)
  *  @exception range_error (argument must be an integer) */
-const numeric fibonacci(const numeric & n)
+const numeric fibonacci(const numeric &n)
 {
 	if (!n.is_integer())
 		throw std::range_error("numeric::fibonacci(): argument must be integer");
@@ -1738,7 +1704,7 @@ const numeric abs(const numeric& x)
  *
  *  @return a mod b in the range [0,abs(b)-1] with sign of b if both are
  *  integer, 0 otherwise. */
-const numeric mod(const numeric & a, const numeric & b)
+const numeric mod(const numeric &a, const numeric &b)
 {
 	if (a.is_integer() && b.is_integer())
 		return cln::mod(cln::the<cln::cl_I>(a.to_cl_N()),
@@ -1752,7 +1718,7 @@ const numeric mod(const numeric & a, const numeric & b)
  *  Equivalent to Maple's mods.
  *
  *  @return a mod b in the range [-iquo(abs(m)-1,2), iquo(abs(m),2)]. */
-const numeric smod(const numeric & a, const numeric & b)
+const numeric smod(const numeric &a, const numeric &b)
 {
 	if (a.is_integer() && b.is_integer()) {
 		const cln::cl_I b2 = cln::ceiling1(cln::the<cln::cl_I>(b.to_cl_N()) >> 1) - 1;
@@ -1769,7 +1735,7 @@ const numeric smod(const numeric & a, const numeric & b)
  *  sign of a or is zero.
  *
  *  @return remainder of a/b if both are integer, 0 otherwise. */
-const numeric irem(const numeric & a, const numeric & b)
+const numeric irem(const numeric &a, const numeric &b)
 {
 	if (a.is_integer() && b.is_integer())
 		return cln::rem(cln::the<cln::cl_I>(a.to_cl_N()),
@@ -1786,7 +1752,7 @@ const numeric irem(const numeric & a, const numeric & b)
  *
  *  @return remainder of a/b and quotient stored in q if both are integer,
  *  0 otherwise. */
-const numeric irem(const numeric & a, const numeric & b, numeric & q)
+const numeric irem(const numeric &a, const numeric &b, numeric &q)
 {
 	if (a.is_integer() && b.is_integer()) {
 		const cln::cl_I_div_t rem_quo = cln::truncate2(cln::the<cln::cl_I>(a.to_cl_N()),
@@ -1804,7 +1770,7 @@ const numeric irem(const numeric & a, const numeric & b, numeric & q)
  *  Equivalent to Maple's iquo as far as sign conventions are concerned.
  *  
  *  @return truncated quotient of a/b if both are integer, 0 otherwise. */
-const numeric iquo(const numeric & a, const numeric & b)
+const numeric iquo(const numeric &a, const numeric &b)
 {
 	if (a.is_integer() && b.is_integer())
 		return truncate1(cln::the<cln::cl_I>(a.to_cl_N()),
@@ -1820,7 +1786,7 @@ const numeric iquo(const numeric & a, const numeric & b)
  *
  *  @return truncated quotient of a/b and remainder stored in r if both are
  *  integer, 0 otherwise. */
-const numeric iquo(const numeric & a, const numeric & b, numeric & r)
+const numeric iquo(const numeric &a, const numeric &b, numeric &r)
 {
 	if (a.is_integer() && b.is_integer()) {
 		const cln::cl_I_div_t rem_quo = cln::truncate2(cln::the<cln::cl_I>(a.to_cl_N()),
@@ -1838,7 +1804,7 @@ const numeric iquo(const numeric & a, const numeric & b, numeric & r)
  *   
  *  @return  The GCD of two numbers if both are integer, a numerical 1
  *  if they are not. */
-const numeric gcd(const numeric & a, const numeric & b)
+const numeric gcd(const numeric &a, const numeric &b)
 {
 	if (a.is_integer() && b.is_integer())
 		return cln::gcd(cln::the<cln::cl_I>(a.to_cl_N()),
@@ -1852,7 +1818,7 @@ const numeric gcd(const numeric & a, const numeric & b)
  *   
  *  @return  The LCM of two numbers if both are integer, the product of those
  *  two numbers if they are not. */
-const numeric lcm(const numeric & a, const numeric & b)
+const numeric lcm(const numeric &a, const numeric &b)
 {
 	if (a.is_integer() && b.is_integer())
 		return cln::lcm(cln::the<cln::cl_I>(a.to_cl_N()),
@@ -1870,14 +1836,14 @@ const numeric lcm(const numeric & a, const numeric & b)
  *  @return square root of z. Branch cut along negative real axis, the negative
  *  real axis itself where imag(z)==0 and real(z)<0 belongs to the upper part
  *  where imag(z)>0. */
-const numeric sqrt(const numeric & z)
+const numeric sqrt(const numeric &z)
 {
 	return cln::sqrt(z.to_cl_N());
 }
 
 
 /** Integer numeric square root. */
-const numeric isqrt(const numeric & x)
+const numeric isqrt(const numeric &x)
 {
 	if (x.is_integer()) {
 		cln::cl_I root;
@@ -1909,13 +1875,15 @@ ex CatalanEvalf(void)
 }
 
 
+/** _numeric_digits default ctor, checking for singleton invariance. */
 _numeric_digits::_numeric_digits()
   : digits(17)
 {
 	// It initializes to 17 digits, because in CLN float_format(17) turns out
 	// to be 61 (<64) while float_format(18)=65.  The reason is we want to
 	// have a cl_LF instead of cl_SF, cl_FF or cl_DF.
-	assert(!too_late);
+	if (too_late)
+		throw(std::runtime_error("I told you not to do instantiate me!"));
 	too_late = true;
 	cln::default_float_format = cln::float_format(17);
 }
@@ -1939,14 +1907,14 @@ _numeric_digits::operator long()
 
 
 /** Append global Digits object to ostream. */
-void _numeric_digits::print(std::ostream & os) const
+void _numeric_digits::print(std::ostream &os) const
 {
 	debugmsg("_numeric_digits print", LOGLEVEL_PRINT);
 	os << digits;
 }
 
 
-std::ostream& operator<<(std::ostream& os, const _numeric_digits & e)
+std::ostream& operator<<(std::ostream &os, const _numeric_digits &e)
 {
 	e.print(os);
 	return os;
@@ -1965,6 +1933,4 @@ bool _numeric_digits::too_late = false;
  *  assignment from C++ unsigned ints and evaluated like any built-in type. */
 _numeric_digits Digits;
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

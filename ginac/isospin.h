@@ -26,9 +26,7 @@
 #include <string>
 #include "indexed.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 /** Base class for isospin object */
 class isospin : public indexed
@@ -74,8 +72,6 @@ inline const isospin &ex_to_isospin(const ex &e)
 	return static_cast<const isospin &>(*e.bp);
 }
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_ISOSPIN_H__

@@ -26,9 +26,7 @@
 #include "function.h"
 #include "ex.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 /** Absolute value. */
 DECLARE_FUNCTION_1P(abs)
@@ -142,8 +140,6 @@ inline bool is_order_function(const ex & e)
 	return is_ex_the_function(e, Order);
 }
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_INIFCNS_H__

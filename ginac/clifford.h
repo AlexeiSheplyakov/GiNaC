@@ -26,9 +26,7 @@
 #include <string>
 #include "lortensor.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 
 /** This class holds an object representing an element of the Clifford
@@ -79,8 +77,6 @@ inline const clifford &ex_to_clifford(const ex &e)
 
 clifford clifford_gamma(const ex & mu);
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_CLIFFORD_H__

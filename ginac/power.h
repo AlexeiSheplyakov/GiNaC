@@ -26,9 +26,7 @@
 #include "basic.h"
 #include "ex.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 class numeric;
 class add;
@@ -38,16 +36,16 @@ class add;
 class power : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS(power, basic)
-
+	
 	friend class mul;
-
+	
 // member functions
-
-	// other constructors
+	
+	// other ctors
 public:
 	power(const ex & lh, const ex & rh);
 	power(const ex & lh, const numeric & rh);
-
+	
 	// functions overriding virtual functions from bases classes
 public:
 	void print(std::ostream & os, unsigned upper_precedence = 0) const;
@@ -84,9 +82,9 @@ protected:
 	//ex expand_commutative_3(const ex & basis, const numeric & exponent,
 	//                        unsigned options) const;
 	//ex expand_noncommutative(const ex & basis, const numeric & exponent, unsigned options) const;
-
+	
 // member variables
-
+	
 protected:
 	ex basis;
 	ex exponent;
@@ -106,14 +104,13 @@ inline const power &ex_to_power(const ex &e)
  *  @param b the basis expression
  *  @param e the exponent expression */
 inline ex pow(const ex & b, const ex & e)
-{ return power(b,e); }
+{
+	return power(b, e);
+}
 
-/** Square root expression.  Returns a power-object with exponent 1/2 as a new
- *  expression.  */
+/** Square root expression.  Returns a power-object with exponent 1/2. */
 ex sqrt(const ex & a);
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_POWER_H__

@@ -28,9 +28,7 @@
 #include "basic.h"
 #include "ex.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 
 /** This class holds one index of an indexed object. Indices can be symbolic
@@ -105,8 +103,6 @@ unsigned subs_index_in_exvector(exvector & v, const ex & is, const ex & ir);
 ex subs_indices(const ex & e, const exvector & idxv_contra, const exvector & idxv_co);
 unsigned count_index(const ex & e, const ex & i);
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_IDX_H__

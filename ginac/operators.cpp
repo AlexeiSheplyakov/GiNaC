@@ -20,21 +20,14 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <iostream>
-#include <stdexcept>
-
 #include "operators.h"
-#include "basic.h"
-#include "ex.h"
 #include "numeric.h"
 #include "power.h"
 #include "relational.h"
 #include "debugmsg.h"
 #include "utils.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 // binary arithmetic operators ex with ex
 
@@ -101,25 +94,25 @@ numeric operator/(const numeric & lh, const numeric & rh)
 const ex & operator+=(ex & lh, const ex & rh)
 {
 	debugmsg("operator+=(ex,ex)",LOGLEVEL_OPERATOR);
-	return (lh=lh+rh);
+	return (lh=lh.exadd(rh));
 }
 
 const ex & operator-=(ex & lh, const ex & rh)
 {
 	debugmsg("operator-=(ex,ex)",LOGLEVEL_OPERATOR);
-	return (lh=lh-rh);
+	return (lh=lh.exadd(rh.exmul(_ex_1())));
 }
 
 const ex & operator*=(ex & lh, const ex & rh)
 {
 	debugmsg("operator*=(ex,ex)",LOGLEVEL_OPERATOR);
-	return (lh=lh*rh);
+	return (lh=lh.exmul(rh));
 }
 
 const ex & operator/=(ex & lh, const ex & rh)
 {
 	debugmsg("operator/=(ex,ex)",LOGLEVEL_OPERATOR);
-	return (lh=lh/rh);
+	return (lh=lh.exmul(power(rh,_ex_1())));
 }
 
 const ex & operator%=(ex & lh, const ex & rh)
@@ -178,14 +171,14 @@ numeric operator+(const numeric & lh)
 numeric operator-(const numeric & lh)
 {
 	debugmsg("operator-(numeric)",LOGLEVEL_OPERATOR);
-	return _num_1()*lh;
+	return _num_1().mul(lh);
 }
 
 /** Numeric prefix increment.  Adds 1 and returns incremented number. */
 numeric& operator++(numeric & rh)
 {
 	debugmsg("operator++(numeric)",LOGLEVEL_OPERATOR);
-	rh = rh+_num1();
+	rh = rh.add(_num1());
 	return rh;
 }
 
@@ -193,7 +186,7 @@ numeric& operator++(numeric & rh)
 numeric& operator--(numeric & rh)
 {
 	debugmsg("operator--(numeric)",LOGLEVEL_OPERATOR);
-	rh = rh-_num1();
+	rh = rh.add(_num_1());
 	return rh;
 }
 
@@ -202,8 +195,8 @@ numeric& operator--(numeric & rh)
 numeric operator++(numeric & lh, int)
 {
 	debugmsg("operator++(numeric,int)",LOGLEVEL_OPERATOR);
-	numeric tmp = lh;
-	lh = lh+_num1();
+	numeric tmp(lh);
+	lh = lh.add(_num1());
 	return tmp;
 }
 
@@ -212,8 +205,8 @@ numeric operator++(numeric & lh, int)
 numeric operator--(numeric & lh, int)
 {
 	debugmsg("operator--(numeric,int)",LOGLEVEL_OPERATOR);
-	numeric tmp = lh;
-	lh = lh-_num1();
+	numeric tmp(lh);
+	lh = lh.add(_num_1());
 	return tmp;
 }
 
@@ -268,6 +261,4 @@ std::istream & operator>>(std::istream & is, ex & e)
 	throw (std::logic_error("expression input from streams not implemented"));
 }
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

@@ -23,14 +23,14 @@
 #ifndef __GINAC_ASSERTION_H__
 #define __GINAC_ASSERTION_H__
 
-extern "C" {
-#include <assert.h>
-}
+#include <cassert>
 
 #if !defined(GINAC_ASSERT)
 #if defined(DO_GINAC_ASSERT)
+/** Assertion macro for checking invariances. */
 #define GINAC_ASSERT(X) assert(X)
 #else
+/** Assertion macro for checking invariances. */
 #define GINAC_ASSERT(X) ((void)0)
 #endif
 #endif

@@ -26,17 +26,15 @@
 
 #include "basic.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 class fail : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS(fail, basic)
-
-	// other constructors
+	
+	// other ctors
 	// none
-
+	
 	// functions overriding virtual functions from bases classes
 public:
 	void print(std::ostream & os, unsigned upper_precedence=0) const;
@@ -46,16 +44,14 @@ protected:
 	
 	// new virtual functions which can be overridden by derived classes
 	// none
-
+	
 	// non-virtual functions in this class
 	// none
-
+	
 	// member variables
 	// none
 };
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_FAIL_H__

@@ -30,26 +30,25 @@
 #include "debugmsg.h"
 #include "utils.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(mul, expairseq)
 
 //////////
-// default constructor, destructor, copy constructor assignment operator and helpers
+// default ctor, dctor, copy ctor assignment operator and helpers
 //////////
 
 // public
 
 mul::mul()
 {
-	debugmsg("mul default constructor",LOGLEVEL_CONSTRUCT);
+	debugmsg("mul default ctor",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_mul;
 }
 
 // protected
 
+/** For use by copy ctor and assignment operator. */
 void mul::copy(const mul & other)
 {
 	inherited::copy(other);
@@ -61,14 +60,14 @@ void mul::destroy(bool call_parent)
 }
 
 //////////
-// other constructors
+// other ctors
 //////////
 
 // public
 
 mul::mul(const ex & lh, const ex & rh)
 {
-	debugmsg("mul constructor from ex,ex",LOGLEVEL_CONSTRUCT);
+	debugmsg("mul ctor from ex,ex",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_mul;
 	overall_coeff = _ex1();
 	construct_from_2_ex(lh,rh);
@@ -77,7 +76,7 @@ mul::mul(const ex & lh, const ex & rh)
 
 mul::mul(const exvector & v)
 {
-	debugmsg("mul constructor from exvector",LOGLEVEL_CONSTRUCT);
+	debugmsg("mul ctor from exvector",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_mul;
 	overall_coeff = _ex1();
 	construct_from_exvector(v);
@@ -86,7 +85,7 @@ mul::mul(const exvector & v)
 
 mul::mul(const epvector & v)
 {
-	debugmsg("mul constructor from epvector",LOGLEVEL_CONSTRUCT);
+	debugmsg("mul ctor from epvector",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_mul;
 	overall_coeff = _ex1();
 	construct_from_epvector(v);
@@ -95,7 +94,7 @@ mul::mul(const epvector & v)
 
 mul::mul(const epvector & v, const ex & oc)
 {
-	debugmsg("mul constructor from epvector,ex",LOGLEVEL_CONSTRUCT);
+	debugmsg("mul ctor from epvector,ex",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_mul;
 	overall_coeff = oc;
 	construct_from_epvector(v);
@@ -104,7 +103,7 @@ mul::mul(const epvector & v, const ex & oc)
 
 mul::mul(epvector * vp, const ex & oc)
 {
-	debugmsg("mul constructor from epvector *,ex",LOGLEVEL_CONSTRUCT);
+	debugmsg("mul ctor from epvector *,ex",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_mul;
 	GINAC_ASSERT(vp!=0);
 	overall_coeff = oc;
@@ -115,7 +114,7 @@ mul::mul(epvector * vp, const ex & oc)
 
 mul::mul(const ex & lh, const ex & mh, const ex & rh)
 {
-	debugmsg("mul constructor from ex,ex,ex",LOGLEVEL_CONSTRUCT);
+	debugmsg("mul ctor from ex,ex,ex",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_mul;
 	exvector factors;
 	factors.reserve(3);
@@ -134,7 +133,7 @@ mul::mul(const ex & lh, const ex & mh, const ex & rh)
 /** Construct object from archive_node. */
 mul::mul(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("mul constructor from archive_node", LOGLEVEL_CONSTRUCT);
+	debugmsg("mul ctor from archive_node", LOGLEVEL_CONSTRUCT);
 }
 
 /** Unarchive the object. */
@@ -159,7 +158,7 @@ void mul::print(std::ostream & os, unsigned upper_precedence) const
 {
 	debugmsg("mul print",LOGLEVEL_PRINT);
 	if (precedence<=upper_precedence) os << "(";
-	bool first=true;
+	bool first = true;
 	// first print the overall numeric coefficient:
 	numeric coeff = ex_to_numeric(overall_coeff);
 	if (coeff.csgn()==-1) os << '-';
@@ -276,8 +275,6 @@ bool mul::info(unsigned inf) const
 	return inherited::info(inf);
 }
 
-typedef std::vector<int> intvector;
-
 int mul::degree(const symbol & s) const
 {
 	int deg_sum = 0;
@@ -342,54 +339,53 @@ ex mul::eval(int level) const
 	//                  *(+(x,y,...);c) -> *(+(*(x,c),*(y,c),...)) (c numeric())
 	//                  *(x;1) -> x
 	//                  *(;c) -> c
-
+	
 	debugmsg("mul eval",LOGLEVEL_MEMBER_FUNCTION);
-
-	epvector * evaled_seqp=evalchildren(level);
+	
+	epvector * evaled_seqp = evalchildren(level);
 	if (evaled_seqp!=0) {
 		// do more evaluation later
 		return (new mul(evaled_seqp,overall_coeff))->
-				   setflag(status_flags::dynallocated);
+		           setflag(status_flags::dynallocated);
 	}
-
+	
 #ifdef DO_GINAC_ASSERT
 	for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
-		GINAC_ASSERT((!is_ex_exactly_of_type((*cit).rest,mul))||
-			   (!(ex_to_numeric((*cit).coeff).is_integer())));
-		GINAC_ASSERT(!((*cit).is_numeric_with_coeff_1()));
-		if (is_ex_exactly_of_type(recombine_pair_to_ex(*cit),numeric)) {
-			printtree(cerr,0);
-		}
+		GINAC_ASSERT((!is_ex_exactly_of_type((*cit).rest,mul)) ||
+		             (!(ex_to_numeric((*cit).coeff).is_integer())));
+		GINAC_ASSERT(!(cit->is_canonical_numeric()));
+		if (is_ex_exactly_of_type(recombine_pair_to_ex(*cit),numeric))
+		    printtree(std::cerr,0);
 		GINAC_ASSERT(!is_ex_exactly_of_type(recombine_pair_to_ex(*cit),numeric));
 		/* for paranoia */
-		expair p=split_ex_to_pair(recombine_pair_to_ex(*cit));
+		expair p = split_ex_to_pair(recombine_pair_to_ex(*cit));
 		GINAC_ASSERT(p.rest.is_equal((*cit).rest));
 		GINAC_ASSERT(p.coeff.is_equal((*cit).coeff));
 		/* end paranoia */
 	}
 #endif // def DO_GINAC_ASSERT
-
+	
 	if (flags & status_flags::evaluated) {
 		GINAC_ASSERT(seq.size()>0);
-		GINAC_ASSERT((seq.size()>1)||!overall_coeff.is_equal(_ex1()));
+		GINAC_ASSERT(seq.size()>1 || !overall_coeff.is_equal(_ex1()));
 		return *this;
 	}
-
-	int seq_size=seq.size();
+	
+	int seq_size = seq.size();
 	if (overall_coeff.is_equal(_ex0())) {
 		// *(...,x;0) -> 0
 		return _ex0();
 	} else if (seq_size==0) {
 		// *(;c) -> c
 		return overall_coeff;
-	} else if ((seq_size==1)&&overall_coeff.is_equal(_ex1())) {
+	} else if (seq_size==1 && overall_coeff.is_equal(_ex1())) {
 		// *(x;1) -> x
 		return recombine_pair_to_ex(*(seq.begin()));
 	} else if ((seq_size==1) &&
 	           is_ex_exactly_of_type((*seq.begin()).rest,add) &&
 	           ex_to_numeric((*seq.begin()).coeff).is_equal(_num1())) {
 		// *(+(x,y,...);c) -> +(*(x,c),*(y,c),...) (c numeric(), no powers of +())
-		const add & addref=ex_to_add((*seq.begin()).rest);
+		const add & addref = ex_to_add((*seq.begin()).rest);
 		epvector distrseq;
 		distrseq.reserve(addref.seq.size());
 		for (epvector::const_iterator cit=addref.seq.begin(); cit!=addref.seq.end(); ++cit) {
@@ -429,9 +425,8 @@ exvector mul::get_indices(void) const
 	for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
 		exvector subiv=(*cit).rest.get_indices();
 		iv.reserve(iv.size()+subiv.size());
-		for (exvector::const_iterator cit2=subiv.begin(); cit2!=subiv.end(); ++cit2) {
+		for (exvector::const_iterator cit2=subiv.begin(); cit2!=subiv.end(); ++cit2)
 			iv.push_back(*cit2);
-		}
 	}
 	return iv;
 }
@@ -476,11 +471,11 @@ unsigned mul::return_type(void) const
 		// mul without factors: should not happen, but commutes
 		return return_types::commutative;
 	}
-
+	
 	bool all_commutative = 1;
 	unsigned rt;
 	epvector::const_iterator cit_noncommutative_element; // point to first found nc element
-
+	
 	for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
 		rt=(*cit).rest.return_type();
 		if (rt==return_types::noncommutative_composite) return rt; // one ncc -> mul also ncc
@@ -503,15 +498,13 @@ unsigned mul::return_type(void) const
    
 unsigned mul::return_type_tinfo(void) const
 {
-	if (seq.size()==0) {
-		// mul without factors: should not happen
-		return tinfo_key;
-	}
+	if (seq.size()==0)
+		return tinfo_key;  // mul without factors: should not happen
+	
 	// return type_info of first noncommutative element
 	for (epvector::const_iterator cit=seq.begin(); cit!=seq.end(); ++cit) {
-		if ((*cit).rest.return_type()==return_types::noncommutative) {
+		if ((*cit).rest.return_type()==return_types::noncommutative)
 			return (*cit).rest.return_type_tinfo();
-		}
 	}
 	// no noncommutative element found, should not happen
 	return tinfo_key;
@@ -530,10 +523,9 @@ ex mul::thisexpairseq(epvector * vp, const ex & oc) const
 expair mul::split_ex_to_pair(const ex & e) const
 {
 	if (is_ex_exactly_of_type(e,power)) {
-		const power & powerref=ex_to_power(e);
-		if (is_ex_exactly_of_type(powerref.exponent,numeric)) {
+		const power & powerref = ex_to_power(e);
+		if (is_ex_exactly_of_type(powerref.exponent,numeric))
 			return expair(powerref.basis,powerref.exponent);
-		}
 	}
 	return expair(e,_ex1());
 }
@@ -577,14 +569,14 @@ bool mul::expair_needs_further_processing(epp it)
 	if (is_ex_exactly_of_type((*it).rest,mul) &&
 		ex_to_numeric((*it).coeff).is_integer()) {
 		// combined pair is product with integer power -> expand it
-		*it=split_ex_to_pair(recombine_pair_to_ex(*it));
+		*it = split_ex_to_pair(recombine_pair_to_ex(*it));
 		return true;
 	}
 	if (is_ex_exactly_of_type((*it).rest,numeric)) {
 		expair ep=split_ex_to_pair(recombine_pair_to_ex(*it));
 		if (!ep.is_equal(*it)) {
 			// combined pair is a numeric power which can be simplified
-			*it=ep;
+			*it = ep;
 			return true;
 		}
 		if (ex_to_numeric((*it).coeff).is_equal(_num1())) {
@@ -630,7 +622,6 @@ ex mul::expand(unsigned options) const
 		return *this;
 	
 	exvector sub_expanded_seq;
-	intvector positions_of_adds;
 	
 	epvector * expanded_seqp = expandchildren(options);
 	
@@ -641,7 +632,7 @@ ex mul::expand(unsigned options) const
 	non_adds.reserve(expanded_seq.size());
 	epvector::const_iterator cit = expanded_seq.begin();
 	epvector::const_iterator last = expanded_seq.end();
-	ex last_expanded=_ex1();
+	ex last_expanded = _ex1();
 	while (cit!=last) {
 		if (is_ex_exactly_of_type((*cit).rest,add) &&
 			((*cit).coeff.is_equal(_ex1()))) {
@@ -699,6 +690,14 @@ ex mul::expand(unsigned options) const
 // non-virtual functions in this class
 //////////
 
+
+/** Member-wise expand the expairs representing this sequence.  This must be
+ *  overridden from expairseq::expandchildren() and done iteratively in order
+ *  to allow for early cancallations and thus safe memory.
+ *
+ *  @see mul::expand()
+ *  @return pointer to epvector containing expanded representation or zero
+ *  pointer, if sequence is unchanged. */
 epvector * mul::expandchildren(unsigned options) const
 {
 	epvector::const_iterator last = seq.end();
@@ -709,7 +708,7 @@ epvector * mul::expandchildren(unsigned options) const
 		if (!are_ex_trivially_equal(factor,expanded_factor)) {
 			
 			// something changed, copy seq, eval and return it
-			epvector *s=new epvector;
+			epvector *s = new epvector;
 			s->reserve(seq.size());
 			
 			// copy parts of seq which are known not to have changed
@@ -733,7 +732,7 @@ epvector * mul::expandchildren(unsigned options) const
 	
 	return 0; // nothing has changed
 }
-   
+
 //////////
 // static member variables
 //////////
@@ -742,6 +741,4 @@ epvector * mul::expandchildren(unsigned options) const
 
 unsigned mul::precedence = 50;
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

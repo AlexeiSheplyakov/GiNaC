@@ -23,9 +23,7 @@
 #ifndef __GINAC_FLAGS_H__
 #define __GINAC_FLAGS_H__
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 class expand_options {
 public:
@@ -46,11 +44,11 @@ public:
 class determinant_algo {
 public:
 	enum {
-		automatic,                      //! Let the system choose
-		gauss,                          //! Gauss elimiation
-		divfree,                        //! Division-free elimination
-		laplace,                        //! Laplace (or minor) elimination
-		bareiss                         //! Bareiss fraction-free elimination
+		automatic,                      ///< Let the system choose
+		gauss,                          ///< Gauss elimiation
+		divfree,                        ///< Division-free elimination
+		laplace,                        ///< Laplace (or minor) elimination
+		bareiss                         ///< Bareiss fraction-free elimination
 	};
 };
 
@@ -58,21 +56,22 @@ public:
 class solve_algo {
 public:
 	enum {
-		automatic,                      //! Let the system choose
-		gauss,                          //! Gauss elimiation
-		divfree,                        //! Division-free elimination
-		bareiss                         //! Bareiss fraction-free elimination
+		automatic,                      ///< Let the system choose
+		gauss,                          ///< Gauss elimiation
+		divfree,                        ///< Division-free elimination
+		bareiss                         ///< Bareiss fraction-free elimination
 	};
 };
 
-/** Flags to store information about the stato of an object. */
+/** Flags to store information about the state of an object.
+ *  @see basic::flags */
 class status_flags {
 public:
 	enum {
-		dynallocated    = 0x0001,       //! Heap-allocated (i.e. created by new)
-		evaluated       = 0x0002,       //! .eval() has already done its job
-		expanded        = 0x0004,       //! .expand() has already done its job
-		hash_calculated = 0x0008        //! .calchash() has already done its job
+		dynallocated    = 0x0001,       ///< Heap-allocated (i.e. created by new if we want to be clever and bypass the stack)
+		evaluated       = 0x0002,       ///< .eval() has already done its job
+		expanded        = 0x0004,       ///< .expand() has already done its job
+		hash_calculated = 0x0008        ///< .calchash() has already done its job
 	};
 };
 
@@ -162,15 +161,13 @@ public:
 class remember_strategies {
 public:
 	enum {
-		delete_never,   //! Let table grow undefinitely, not recommmended, but currently default
-		delete_lru,     //! Least recently used
-		delete_lfu,     //! Least frequently used
-		delete_cyclic   //! First (oldest) one in list
+		delete_never,   ///< Let table grow undefinitely
+		delete_lru,     ///< Least recently used
+		delete_lfu,     ///< Least frequently used
+		delete_cyclic   ///< First (oldest) one in list
 	};
 };
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_FLAGS_H__

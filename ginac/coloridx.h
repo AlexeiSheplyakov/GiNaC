@@ -28,9 +28,7 @@
 #include "idx.h"
 #include "ex.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 
 /** Class of indices for color algebra objects, to tell them apart from
@@ -75,8 +73,6 @@ inline const coloridx &ex_to_coloridx(const ex &e)
 	return static_cast<const coloridx &>(*e.bp);
 }
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_COLORIDX_H__

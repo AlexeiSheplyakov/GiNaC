@@ -33,9 +33,7 @@
 #include "symbol.h"
 #include "utils.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 //////////
 // Logarithm of Gamma function
@@ -546,6 +544,4 @@ const unsigned function_index_psi2 =
 	                       overloaded(2));
 
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

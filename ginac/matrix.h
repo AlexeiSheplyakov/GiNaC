@@ -27,20 +27,18 @@
 #include "basic.h"
 #include "ex.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 /** Symbolic matrices. */
 class matrix : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS(matrix, basic)
-
-	// other constructors
+	
+	// other ctors
 public:
 	matrix(unsigned r, unsigned c);
 	matrix(unsigned r, unsigned c, const exvector & m2);
-   
+	
 	// functions overriding virtual functions from bases classes
 public:
 	void print(std::ostream & os, unsigned upper_precedence=0) const;
@@ -60,9 +58,9 @@ protected:
 	
 	// non-virtual functions in this class
 public:
-	unsigned rows(void) const        //! Get number of rows.
+	unsigned rows(void) const        /// Get number of rows.
 		{ return row; }
-	unsigned cols(void) const        //! Get number of columns.
+	unsigned cols(void) const        /// Get number of columns.
 		{ return col; }
 	matrix add(const matrix & other) const;
 	matrix sub(const matrix & other) const;
@@ -85,9 +83,9 @@ protected:
 	
 // member variables
 protected:
-	unsigned row;             /**< number of rows      */
-	unsigned col;             /**< number of columns   */
-	exvector m;               /**< representation (cols indexed first) */
+	unsigned row;             ///< number of rows
+	unsigned col;             ///< number of columns
+	exvector m;               ///< representation (cols indexed first)
 	static unsigned precedence;
 };
 
@@ -138,8 +136,6 @@ inline const matrix &ex_to_matrix(const ex &e)
 
 extern ex lst_to_matrix(const ex &l);
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_MATRIX_H__

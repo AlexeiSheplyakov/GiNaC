@@ -23,7 +23,14 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "ex.h"
+#if defined(VERBOSE)
+#  define GINAC_CONDITIONAL_INLINE
+#  include "ex.h"
+#  undef GINAC_CONDITIONAL_INLINE
+#else
+#  include "ex.h"
+#endif
+
 #include "add.h"
 #include "mul.h"
 #include "ncmul.h"
@@ -34,113 +41,13 @@
 #include "debugmsg.h"
 #include "utils.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 //////////
-// default constructor, destructor, copy constructor assignment operator and helpers
+// other ctors
 //////////
 
-// public
-
-#ifndef INLINE_EX_CONSTRUCTORS
-
-ex::ex() : bp(_ex0().bp)
-{
-	debugmsg("ex default constructor",LOGLEVEL_CONSTRUCT);
-	GINAC_ASSERT(_ex0().bp!=0);
-	GINAC_ASSERT(_ex0().bp->flags & status_flags::dynallocated);
-	GINAC_ASSERT(bp!=0);
-	++bp->refcount;
-}
-
-ex::~ex()
-{
-	debugmsg("ex destructor",LOGLEVEL_DESTRUCT);
-	GINAC_ASSERT(bp!=0);
-	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
-	if (--bp->refcount == 0) {
-		delete bp;
-	}
-}
-
-ex::ex(const ex & other) : bp(other.bp)
-{
-	debugmsg("ex copy constructor",LOGLEVEL_CONSTRUCT);
-	GINAC_ASSERT(bp!=0);
-	GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
-	++bp->refcount;
-}
-
-const ex & ex::operator=(const ex & other)
-{
-	debugmsg("ex operator=",LOGLEVEL_ASSIGNMENT);
-	GINAC_ASSERT(bp!=0);
-	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
-	GINAC_ASSERT(other.bp!=0);
-	GINAC_ASSERT(other.bp->flags & status_flags::dynallocated);
-	++other.bp->refcount;
-	basic * tmpbp = other.bp;
-	if (--bp->refcount==0)
-		delete bp;
-	bp = tmpbp;
-	return *this;
-}
-
-#endif // ndef INLINE_EX_CONSTRUCTORS
-
-//////////
-// other constructors
-//////////
-
-// public
-
-#ifndef INLINE_EX_CONSTRUCTORS
-
-ex::ex(const basic & other)
-{
-	debugmsg("ex constructor from basic",LOGLEVEL_CONSTRUCT);
-	construct_from_basic(other);
-}
-
-ex::ex(int i)
-{
-	debugmsg("ex constructor from int",LOGLEVEL_CONSTRUCT);
-	construct_from_int(i);
-}
-
-ex::ex(unsigned int i)
-{
-	debugmsg("ex constructor from unsigned int",LOGLEVEL_CONSTRUCT);
-	construct_from_uint(i);
-}
-
-ex::ex(long i)
-{
-	debugmsg("ex constructor from long",LOGLEVEL_CONSTRUCT);
-	construct_from_long(i);
-}
-
-ex::ex(unsigned long i)
-{
-	debugmsg("ex constructor from unsigned long",LOGLEVEL_CONSTRUCT);
-	construct_from_ulong(i);
-}
-
-ex::ex(double const d)
-{
-	debugmsg("ex constructor from double",LOGLEVEL_CONSTRUCT);
-	construct_from_double(d);
-}
-
-ex::ex(const std::string &s, const ex &l)
-{
-	debugmsg("ex constructor from string,lst",LOGLEVEL_CONSTRUCT);
-	construct_from_string_and_lst(s, l);
-}
-
-#endif // ndef INLINE_EX_CONSTRUCTORS
+// none (all inlined)
 
 //////////
 // functions overriding virtual functions from bases classes
@@ -160,7 +67,7 @@ ex::ex(const std::string &s, const ex &l)
 
 // public
 
-/** Swap the contents of two expressions. */
+/** Efficiently swap the contents of two expressions. */
 void ex::swap(ex & other)
 {
 	debugmsg("ex swap",LOGLEVEL_MEMBER_FUNCTION);
@@ -170,9 +77,9 @@ void ex::swap(ex & other)
 	GINAC_ASSERT(other.bp!=0);
 	GINAC_ASSERT(other.bp->flags & status_flags::dynallocated);
 	
-	basic * tmpbp=bp;
-	bp=other.bp;
-	other.bp=tmpbp;
+	basic * tmpbp = bp;
+	bp = other.bp;
+	other.bp = tmpbp;
 }
 
 /** Output formatted to be useful as ginsh input. */
@@ -183,6 +90,7 @@ void ex::print(std::ostream & os, unsigned upper_precedence) const
 	bp->print(os,upper_precedence);
 }
 
+/** Unreadable output with detailed type information. */
 void ex::printraw(std::ostream & os) const
 {
 	debugmsg("ex printraw",LOGLEVEL_PRINT);
@@ -192,6 +100,7 @@ void ex::printraw(std::ostream & os) const
 	os << ")";
 }
 
+/** Very detailed and unreadable output with type information and all this. */
 void ex::printtree(std::ostream & os, unsigned indent) const
 {
 	debugmsg("ex printtree",LOGLEVEL_PRINT);
@@ -391,32 +300,6 @@ ex ex::rhs(void) const
 	return (*static_cast<relational *>(bp)).rhs();
 }
 
-#ifndef INLINE_EX_CONSTRUCTORS
-int ex::compare(const ex & other) const
-{
-	GINAC_ASSERT(bp!=0);
-	GINAC_ASSERT(other.bp!=0);
-	if (bp==other.bp) {
-		// special case: both expression point to same basic, trivially equal
-		return 0; 
-	}
-	return bp->compare(*other.bp);
-}
-#endif // ndef INLINE_EX_CONSTRUCTORS
-
-#ifndef INLINE_EX_CONSTRUCTORS
-bool ex::is_equal(const ex & other) const
-{
-	GINAC_ASSERT(bp!=0);
-	GINAC_ASSERT(other.bp!=0);
-	// if both expression point to same basic they are trivially equal
-	if (bp==other.bp)
-		return true;
-	
-	return bp->is_equal(*other.bp);
-}
-#endif // ndef INLINE_EX_CONSTRUCTORS
-
 unsigned ex::return_type(void) const
 {
 	GINAC_ASSERT(bp!=0);
@@ -452,6 +335,8 @@ ex ex::exncmul(const ex & rh) const
 
 // private
 
+/** Make this ex writable (if more than one ex handle the same basic) by 
+ *  unlinking the object and creating an unshared copy of it. */
 void ex::makewriteable()
 {
 	debugmsg("ex makewriteable",LOGLEVEL_MEMBER_FUNCTION);
@@ -467,21 +352,22 @@ void ex::makewriteable()
 	GINAC_ASSERT(bp->refcount==1);
 }
 
+/** Ctor from basic implementation.
+ *  @see ex::ex(const basic &) */
 void ex::construct_from_basic(const basic & other)
 {
 	if ((other.flags & status_flags::evaluated)==0) {
-		// cf. copy constructor
+		// cf. copy ctor
 		const ex & tmpex = other.eval(1); // evaluate only one (top) level
 		bp = tmpex.bp;
 		GINAC_ASSERT(bp!=0);
 		GINAC_ASSERT(bp->flags & status_flags::dynallocated);
 		++bp->refcount;
-		if ((other.flags & status_flags::dynallocated)&&(other.refcount==0)) {
+		if ((other.flags & status_flags::dynallocated)&&(other.refcount==0))
 			delete &const_cast<basic &>(other);
-		}
 	} else {
 		if (other.flags & status_flags::dynallocated) {
-			// it's on the heap, so just copy bp:
+			// ok, it is already on the heap, so just copy bp:
 			bp = &const_cast<basic &>(other);
 		} else {
 			// create a duplicate on the heap:
@@ -651,6 +537,4 @@ void ex::construct_from_string_and_lst(const std::string &s, const ex &l)
 // none
 
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

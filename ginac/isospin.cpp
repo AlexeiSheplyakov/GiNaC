@@ -31,9 +31,7 @@
 #include "utils.h"
 #include "debugmsg.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(isospin, indexed)
 
@@ -214,9 +212,7 @@ std::string & isospin::autoname_prefix(void)
 
 // private
 
-unsigned isospin::next_serial=0;
+unsigned isospin::next_serial = 0;
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 

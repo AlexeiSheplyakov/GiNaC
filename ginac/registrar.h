@@ -25,9 +25,7 @@
 
 #include <string>
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 class registered_class_info;
 class ex;
@@ -61,6 +59,7 @@ struct registered_class_info {
 };
 
 
+/** Primary macro for inclusion in the implementation of each registered class. */
 #define GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(classname, supername) \
 public: \
 	typedef supername inherited; \
@@ -78,7 +77,7 @@ public: \
 	GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(classname, supername) \
 public: \
 	classname(); \
-	~classname(); \
+	~classname() { /*debugmsg(#classname " dtor", LOGLEVEL_DESTRUCT);*/ destroy(false); } \
 	classname(const classname & other); \
 	const classname & operator=(const classname & other); \
 	basic * duplicate() const; \
@@ -88,38 +87,32 @@ protected: \
 	int compare_same_type(const basic & other) const; \
 private:
 
+/** Primary macro for inclusion in the implementation of each registered class. */
 #define GINAC_IMPLEMENT_REGISTERED_CLASS_NO_CTORS(classname, supername) \
 	registered_class_info classname::reg_info(#classname, #supername, TINFO_##classname, &classname::unarchive); \
 	const char *classname::class_name(void) const {return reg_info.name;}
 
 /** Macro for inclusion in the implementation of each registered class.
  *  It implements some functions that are the same in all classes derived
- *  from 'basic' (such as the destructor, the copy constructor and the
- *  assignment operator). */
+ *  from 'basic' (such as the assignment operator). */
 #define GINAC_IMPLEMENT_REGISTERED_CLASS(classname, supername) \
 	GINAC_IMPLEMENT_REGISTERED_CLASS_NO_CTORS(classname, supername) \
-classname::~classname() \
-{ \
-	debugmsg(#classname " destructor", LOGLEVEL_DESTRUCT); \
-	destroy(false); \
-} \
 classname::classname(const classname & other) \
 { \
-	debugmsg(#classname " copy constructor", LOGLEVEL_CONSTRUCT); \
+	/*debugmsg(#classname " copy ctor", LOGLEVEL_CONSTRUCT);*/ \
 	copy(other); \
 } \
 const classname & classname::operator=(const classname & other) \
 { \
-	debugmsg(#classname " operator=", LOGLEVEL_ASSIGNMENT); \
+	/*debugmsg(#classname " operator=", LOGLEVEL_ASSIGNMENT);*/ \
 	if (this != &other) { \
 		destroy(true); \
 		copy(other); \
 	} \
 	return *this; \
 } \
-basic * classname::duplicate() const \
-{ \
-	debugmsg(#classname " duplicate", LOGLEVEL_DUPLICATE); \
+basic * classname::duplicate() const { \
+	/*debugmsg(#classname " duplicate", LOGLEVEL_DUPLICATE);*/ \
 	return new classname(*this); \
 }
 
@@ -131,8 +124,6 @@ extern unsigned int find_tinfo_key(const std::string &class_name);
 extern unarch_func find_unarch_func(const std::string &class_name);
 
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_REGISTRAR_H__

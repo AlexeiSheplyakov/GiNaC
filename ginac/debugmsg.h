@@ -44,7 +44,7 @@
 // #define LOGMASK (LOGLEVEL_PRINT | LOGLEVEL_ASSIGNMENT | LOGLEVEL_OPERATOR | LOGLEVEL_DUPLICATE | LOGLEVEL_OPERATOR | LOGLEVEL_MEMBER_FUNCTION | LOGLEVEL_NONMEMBER_FUNCTION)
 
 #ifdef VERBOSE
-#define debugmsg(msg, loglevel) if ((loglevel) & ~LOGMASK) std::clog << (msg) << endl;
+#define debugmsg(msg, loglevel) if ((loglevel) & ~LOGMASK) std::clog << (msg) << std::endl;
 #else
 #define debugmsg(msg, loglevel)
 #endif // def VERBOSE

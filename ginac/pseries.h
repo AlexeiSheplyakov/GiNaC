@@ -26,9 +26,7 @@
 #include "basic.h"
 #include "expairseq.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 /** This class holds a extended truncated power series (positive and negative
  *  integer powers). It consists of expression coefficients (only non-zero
@@ -38,7 +36,7 @@ class pseries : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS(pseries, basic)
 
-	// other constructors
+	// other ctors
 public:
 	pseries(const ex &rel_, const epvector &ops_);
 
@@ -118,8 +116,6 @@ inline bool is_terminating(const pseries & s)
 	return s.is_terminating();
 }
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_SERIES_H__

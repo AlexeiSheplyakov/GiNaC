@@ -23,7 +23,6 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <stdexcept>
 #include <algorithm>
 #include <map>
 
@@ -45,9 +44,7 @@
 #include "symbol.h"
 #include "utils.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 // If comparing expressions (ex::compare()) is fast, you can set this to 1.
 // Some routines like quo(), rem() and gcd() will then return a quick answer
@@ -621,9 +618,10 @@ typedef std::pair<ex, ex> ex2;
 typedef std::pair<ex, bool> exbool;
 
 struct ex2_less {
-	bool operator() (const ex2 p, const ex2 q) const 
+	bool operator() (const ex2 &p, const ex2 &q) const 
 	{
-		return p.first.compare(q.first) < 0 || (!(q.first.compare(p.first) < 0) && p.second.compare(q.second) < 0);        
+		int cmp = p.first.compare(q.first);
+		return ((cmp<0) || (!(cmp>0) && p.second.compare(q.second)<0));
 	}
 };
 
@@ -1183,6 +1181,8 @@ numeric ex::max_coefficient(void) const
 	return bp->max_coefficient();
 }
 
+/** Implementation ex::max_coefficient().
+ *  @see heur_gcd */
 numeric basic::max_coefficient(void) const
 {
 	return _num1();
@@ -1245,11 +1245,7 @@ ex basic::smod(const numeric &xi) const
 
 ex numeric::smod(const numeric &xi) const
 {
-#ifndef NO_NAMESPACE_GINAC
 	return GiNaC::smod(*this, xi);
-#else // ndef NO_NAMESPACE_GINAC
-	return ::smod(*this, xi);
-#endif // ndef NO_NAMESPACE_GINAC
 }
 
 ex add::smod(const numeric &xi) const
@@ -1260,21 +1256,13 @@ ex add::smod(const numeric &xi) const
 	epvector::const_iterator itend = seq.end();
 	while (it != itend) {
 		GINAC_ASSERT(!is_ex_exactly_of_type(it->rest,numeric));
-#ifndef NO_NAMESPACE_GINAC
 		numeric coeff = GiNaC::smod(ex_to_numeric(it->coeff), xi);
-#else // ndef NO_NAMESPACE_GINAC
-		numeric coeff = ::smod(ex_to_numeric(it->coeff), xi);
-#endif // ndef NO_NAMESPACE_GINAC
 		if (!coeff.is_zero())
 			newseq.push_back(expair(it->rest, coeff));
 		it++;
 	}
 	GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
-#ifndef NO_NAMESPACE_GINAC
 	numeric coeff = GiNaC::smod(ex_to_numeric(overall_coeff), xi);
-#else // ndef NO_NAMESPACE_GINAC
-	numeric coeff = ::smod(ex_to_numeric(overall_coeff), xi);
-#endif // ndef NO_NAMESPACE_GINAC
 	return (new add(newseq,coeff))->setflag(status_flags::dynallocated);
 }
 
@@ -1290,11 +1278,7 @@ ex mul::smod(const numeric &xi) const
 #endif // def DO_GINAC_ASSERT
 	mul * mulcopyp=new mul(*this);
 	GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
-#ifndef NO_NAMESPACE_GINAC
 	mulcopyp->overall_coeff = GiNaC::smod(ex_to_numeric(overall_coeff),xi);
-#else // ndef NO_NAMESPACE_GINAC
-	mulcopyp->overall_coeff = ::smod(ex_to_numeric(overall_coeff),xi);
-#endif // ndef NO_NAMESPACE_GINAC
 	mulcopyp->clearflag(status_flags::evaluated);
 	mulcopyp->clearflag(status_flags::hash_calculated);
 	return mulcopyp->setflag(status_flags::dynallocated);
@@ -2064,8 +2048,8 @@ ex power::normal(lst &sym_lst, lst &repl_lst, int level) const
 }
 
 
-/** Implementation of ex::normal() for pseries. It normalizes each coefficient and
- *  replaces the series by a temporary symbol.
+/** Implementation of ex::normal() for pseries. It normalizes each coefficient
+ *  and replaces the series by a temporary symbol.
  *  @see ex::normal */
 ex pseries::normal(lst &sym_lst, lst &repl_lst, int level) const
 {
@@ -2244,6 +2228,4 @@ ex ex::to_rational(lst &repl_lst) const
 }
 
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

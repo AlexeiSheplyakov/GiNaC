@@ -35,19 +35,17 @@
 #include "utils.h"
 #include "debugmsg.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(pseries, basic)
 
 /*
- *  Default constructor, destructor, copy constructor, assignment operator and helpers
+ *  Default ctor, dtor, copy ctor, assignment operator and helpers
  */
 
 pseries::pseries() : basic(TINFO_pseries)
 {
-	debugmsg("pseries default constructor", LOGLEVEL_CONSTRUCT);
+	debugmsg("pseries default ctor", LOGLEVEL_CONSTRUCT);
 }
 
 void pseries::copy(const pseries &other)
@@ -66,7 +64,7 @@ void pseries::destroy(bool call_parent)
 
 
 /*
- *  Other constructors
+ *  Other ctors
  */
 
 /** Construct pseries from a vector of coefficients and powers.
@@ -80,7 +78,7 @@ void pseries::destroy(bool call_parent)
  *  @return newly constructed pseries */
 pseries::pseries(const ex &rel_, const epvector &ops_) : basic(TINFO_pseries), seq(ops_)
 {
-	debugmsg("pseries constructor from ex,epvector", LOGLEVEL_CONSTRUCT);
+	debugmsg("pseries ctor from ex,epvector", LOGLEVEL_CONSTRUCT);
 	GINAC_ASSERT(is_ex_exactly_of_type(rel_, relational));
 	GINAC_ASSERT(is_ex_exactly_of_type(rel_.lhs(),symbol));
 	point = rel_.rhs();
@@ -95,7 +93,7 @@ pseries::pseries(const ex &rel_, const epvector &ops_) : basic(TINFO_pseries), s
 /** Construct object from archive_node. */
 pseries::pseries(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("pseries constructor from archive_node", LOGLEVEL_CONSTRUCT);
+	debugmsg("pseries ctor from archive_node", LOGLEVEL_CONSTRUCT);
 	for (unsigned int i=0; true; ++i) {
 		ex rest;
 		ex coeff;
@@ -411,8 +409,7 @@ ex pseries::subs(const lst & ls, const lst & lr) const
 
 
 /** Implementation of ex::expand() for a power series.  It expands all the
- *  terms individually and returns the resulting series as a new pseries.
- *  @see ex::diff */
+ *  terms individually and returns the resulting series as a new pseries. */
 ex pseries::expand(unsigned options) const
 {
 	epvector newseq;
@@ -453,10 +450,6 @@ ex pseries::derivative(const symbol & s) const
 }
 
 
-/*
- *  Construct ordinary polynomial out of series
- */
-
 /** Convert a pseries object to an ordinary polynomial.
  *
  *  @param no_order flag: discard higher order terms */
@@ -476,6 +469,7 @@ ex pseries::convert_to_poly(bool no_order) const
 	return e;
 }
 
+
 /** Returns true if there is no order term, i.e. the series terminates and
  *  false otherwise. */
 bool pseries::is_terminating(void) const
@@ -485,7 +479,7 @@ bool pseries::is_terminating(void) const
 
 
 /*
- *  Implementation of series expansion
+ *  Implementations of series expansion
  */
 
 /** Default implementation of ex::series(). This performs Taylor expansion.
@@ -780,6 +774,18 @@ ex pseries::power_const(const numeric &p, int deg) const
 	// a constant, just consider A2(x) = A(x)*x^m, with some integer m and
 	// repeat the above derivation.  The leading power of C2(x) = A2(x)^2 is
 	// then of course x^(p*m) but the recurrence formula still holds.
+	
+	if (seq.size()==0) {
+		// as a spacial case, handle the empty (zero) series honoring the
+		// usual power laws such as implemented in power::eval()
+		if (p.real().is_zero())
+			throw (std::domain_error("pseries::power_const(): pow(0,I) is undefined"));
+		else if (p.real().is_negative())
+			throw (pole_error("pseries::power_const(): division by zero",1));
+		else
+			return *this;
+	}
+	
 	const symbol *s = static_cast<symbol *>(var.bp);
 	int ldeg = ldegree(*s);
 	
@@ -932,6 +938,4 @@ ex ex::series(const ex & r, int order, unsigned options) const
 
 unsigned pseries::precedence = 38;  // for clarity just below add::precedence
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

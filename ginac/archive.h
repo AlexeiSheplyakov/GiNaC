@@ -29,9 +29,7 @@
 #include <vector>
 #include <iostream>
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 class lst;
 class archive;
@@ -183,8 +181,6 @@ std::ostream &operator<<(std::ostream &os, const archive &ar);
 std::istream &operator>>(std::istream &is, archive &ar);
 
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_ARCHIVE_H__

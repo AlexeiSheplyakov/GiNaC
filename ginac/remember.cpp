@@ -27,9 +27,7 @@
 #include "utils.h"
 #include "remember.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 //////////
 // class remember_table_entry
@@ -53,7 +51,7 @@ bool remember_table_entry::is_equal(function const & f) const
 	return true;
 }
 
-unsigned long remember_table_entry::access_counter=0;
+unsigned long remember_table_entry::access_counter = 0;
 
 //////////
 // class remember_table_list
@@ -68,8 +66,8 @@ remember_table_list::remember_table_list(unsigned as, unsigned strat)
 
 void remember_table_list::add_entry(function const & f, ex const & result)
 {
-	if ((max_assoc_size!=0)&&
-		(remember_strategy!=remember_strategies::delete_never)&&
+	if ((max_assoc_size!=0) &&
+		(remember_strategy!=remember_strategies::delete_never) &&
 		(size()>=max_assoc_size)) {
 		// table is full, we must delete an older entry
 		GINAC_ASSERT(size()>0); // there must be at least one entry
@@ -147,7 +145,7 @@ remember_table::remember_table(unsigned s, unsigned as, unsigned strat)
 {
 	// we keep max_assoc_size and remember_strategy if we need to clear
 	// all entries
-
+	
 	// use some power of 2 next to s
 	table_size = 1 << log2(s);
 	init_table();
@@ -186,6 +184,4 @@ std::vector<remember_table> & remember_table::remember_tables(void)
 	return *rt;
 }
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

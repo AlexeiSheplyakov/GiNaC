@@ -150,15 +150,13 @@ ${input_structure}
 
 #include "structure.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 class ${STRUCTURE} : public structure
 {
 // member functions
 
-	// default constructor, destructor, copy constructor assignment operator and helpers
+	// default ctor, dtor, copy ctor assignment operator and helpers
 public:
 	${STRUCTURE}();
 	~${STRUCTURE}();
@@ -168,7 +166,7 @@ protected:
 	void copy(${STRUCTURE} const & other);
 	void destroy(bool call_parent);
 
-	// other constructors
+	// other ctors
 public:
 	${STRUCTURE}(${constructor_arglist});
 
@@ -217,9 +215,7 @@ extern const unsigned tinfo_${STRUCTURE};
 
 #define ex_to_${STRUCTURE}(X) (static_cast<${STRUCTURE} const &>(*(X).bp))
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef _${STRUCTURE_UC}_H_
 
@@ -258,19 +254,17 @@ ${input_structure}
 
 #include "${STRUCTURE}.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 //////////
-// default constructor, destructor, copy constructor assignment operator and helpers
+// default ctor, destructor, copy ctor assignment operator and helpers
 //////////
 
 // public
 
 ${STRUCTURE}::${STRUCTURE}()
 {
-	debugmsg("${STRUCTURE} default constructor",LOGLEVEL_CONSTRUCT);
+	debugmsg("${STRUCTURE} default ctor",LOGLEVEL_CONSTRUCT);
 	tinfo_key=tinfo_${STRUCTURE};
 }
 
@@ -282,7 +276,7 @@ ${STRUCTURE}::~${STRUCTURE}()
 
 ${STRUCTURE}::${STRUCTURE}(${STRUCTURE} const & other)
 {
-	debugmsg("${STRUCTURE} copy constructor",LOGLEVEL_CONSTRUCT);
+	debugmsg("${STRUCTURE} copy ctor",LOGLEVEL_CONSTRUCT);
 	copy(other);
 }
 
@@ -310,7 +304,7 @@ void ${STRUCTURE}::destroy(bool call_parent)
 }
 
 //////////
-// other constructors
+// other ctors
 //////////
 
 // public
@@ -318,7 +312,7 @@ void ${STRUCTURE}::destroy(bool call_parent)
 ${STRUCTURE}::${STRUCTURE}(${constructor_arglist}) 
 	: ${constructor_statements}
 {
-	debugmsg("${STRUCTURE} constructor from children", LOGLEVEL_CONSTRUCT);
+	debugmsg("${STRUCTURE} ctor from children", LOGLEVEL_CONSTRUCT);
 	tinfo_key=tinfo_${STRUCTURE};
 }
 
@@ -513,9 +507,7 @@ const ${STRUCTURE} some_${STRUCTURE};
 const type_info & typeid_${STRUCTURE}=typeid(some_${STRUCTURE});
 const unsigned tinfo_${STRUCTURE}=structure::register_new("${STRUCTURE}");
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 END_OF_IMPLEMENTATION
 

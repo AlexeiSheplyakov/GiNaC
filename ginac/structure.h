@@ -25,9 +25,7 @@
 
 #include "basic.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 struct registered_structure_info {
 	const char * name;
@@ -42,8 +40,8 @@ struct registered_structure_info {
 class structure : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS(structure, basic)
-
-	// other constructors
+	
+	// other ctors
 	// none
 
 	// functions overriding virtual functions from bases classes
@@ -69,8 +67,6 @@ public:
 
 };
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_STRUCTURE_H__

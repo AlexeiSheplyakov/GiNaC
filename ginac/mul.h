@@ -25,20 +25,18 @@
 
 #include "expairseq.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 /** Product of expressions. */
 class mul : public expairseq
 {
 	GINAC_DECLARE_REGISTERED_CLASS(mul, expairseq)
-
+	
 	friend class add;
 	friend class ncmul;
 	friend class power;
-
-	// other constructors
+	
+	// other ctors
 public:
 	mul(const ex & lh, const ex & rh);
 	mul(const exvector & v);
@@ -46,7 +44,7 @@ public:
 	mul(const epvector & v, const ex & oc);
 	mul(epvector * vp, const ex & oc);
 	mul(const ex & lh, const ex & mh, const ex & rh);
-
+	
 	// functions overriding virtual functions from bases classes
 public:
 	void print(std::ostream & os, unsigned upper_precedence) const;
@@ -87,13 +85,13 @@ protected:
 	
 	// new virtual functions which can be overridden by derived classes
 	// none
-
+	
 	// non-virtual functions in this class
 protected:
 	epvector * expandchildren(unsigned options) const;
-
+	
 // member variables
-
+	
 protected:
 	static unsigned precedence;
 };
@@ -104,8 +102,6 @@ inline const mul &ex_to_mul(const ex &e)
 	return static_cast<const mul &>(*e.bp);
 }
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_MUL_H__

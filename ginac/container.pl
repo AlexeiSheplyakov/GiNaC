@@ -132,7 +132,7 @@ $constructors_implementation=generate(
 	<<'END_OF_CONSTRUCTORS_IMPLEMENTATION','const ex & param${N}',', ','	seq.push_back(param${N});',"\n");
 ${CONTAINER}::${CONTAINER}(${SEQ1}) : basic(TINFO_${CONTAINER})
 {
-	debugmsg(\"${CONTAINER} constructor from ${N}*ex\",LOGLEVEL_CONSTRUCT);
+	debugmsg(\"${CONTAINER} ctor from ${N}*ex\",LOGLEVEL_CONSTRUCT);
 	RESERVE(seq,${N});
 ${SEQ2}
 }
@@ -183,9 +183,7 @@ $interface=<<END_OF_INTERFACE;
 #include "basic.h"
 #include "ex.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 
 // Cint does not like ${STLHEADER}<..,default_alloc> but malloc_alloc is
@@ -263,9 +261,7 @@ inline ${CONTAINER} &ex_to_nonconst_${CONTAINER}(const ex &e)
 	return static_cast<${CONTAINER} &>(*e.bp);
 }
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_${CONTAINER_UC}_H__
 
@@ -313,23 +309,21 @@ $implementation=<<END_OF_IMPLEMENTATION;
 #include "archive.h"
 #include "debugmsg.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(${CONTAINER}, basic)
 
 ${RESERVE_IMPLEMENTATION}
 
 //////////
-// default constructor, destructor, copy constructor assignment operator and helpers
+// default ctor, dtor, copy ctor assignment operator and helpers
 //////////
 
 // public
 
 ${CONTAINER}::${CONTAINER}() : basic(TINFO_${CONTAINER})
 {
-	debugmsg("${CONTAINER} default constructor",LOGLEVEL_CONSTRUCT);
+	debugmsg("${CONTAINER} default ctor",LOGLEVEL_CONSTRUCT);
 }
 
 // protected
@@ -347,14 +341,14 @@ void ${CONTAINER}::destroy(bool call_parent)
 }
 
 //////////
-// other constructors
+// other ctors
 //////////
 
 // public
 
 ${CONTAINER}::${CONTAINER}(${STLT} const & s, bool discardable) :  basic(TINFO_${CONTAINER})
 {
-	debugmsg("${CONTAINER} constructor from ${STLT}", LOGLEVEL_CONSTRUCT);
+	debugmsg("${CONTAINER} ctor from ${STLT}", LOGLEVEL_CONSTRUCT);
 	if (discardable) {
 		seq.swap(const_cast<${STLT} &>(s));
 	} else {
@@ -364,7 +358,7 @@ ${CONTAINER}::${CONTAINER}(${STLT} const & s, bool discardable) :  basic(TINFO_$
 
 ${CONTAINER}::${CONTAINER}(${STLT} * vp) : basic(TINFO_${CONTAINER})
 {
-	debugmsg("${CONTAINER} constructor from ${STLT} *",LOGLEVEL_CONSTRUCT);
+	debugmsg("${CONTAINER} ctor from ${STLT} *",LOGLEVEL_CONSTRUCT);
 	GINAC_ASSERT(vp!=0);
 	seq.swap(*vp);
 	delete vp;
@@ -379,7 +373,7 @@ ${constructors_implementation}
 /** Construct object from archive_node. */
 ${CONTAINER}::${CONTAINER}(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("${CONTAINER} constructor from archive_node", LOGLEVEL_CONSTRUCT);
+	debugmsg("${CONTAINER} ctor from archive_node", LOGLEVEL_CONSTRUCT);
 	for (unsigned int i=0; true; i++) {
 		ex e;
 		if (n.find_ex("seq", e, sym_lst, i))
@@ -753,7 +747,7 @@ ${STLT} * ${CONTAINER}::subschildren(const lst & ls, const lst & lr) const
 
 // protected
 
-unsigned ${CONTAINER}::precedence=10;
+unsigned ${CONTAINER}::precedence = 10;
 
 //////////
 // global constants
@@ -762,9 +756,7 @@ unsigned ${CONTAINER}::precedence=10;
 const ${CONTAINER} some_${CONTAINER};
 const std::type_info & typeid_${CONTAINER} = typeid(some_${CONTAINER});
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 END_OF_IMPLEMENTATION
 

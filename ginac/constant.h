@@ -25,10 +25,9 @@
 
 #include <string>
 #include "basic.h"
+#include "ex.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 typedef ex (*evalffunctype)(void);
 	
@@ -39,38 +38,39 @@ typedef ex (*evalffunctype)(void);
 class constant : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS(constant, basic)
-
+	
 // member functions
-
-	// other constructors
+	
+	// other ctors
 public:
-	constant(const std::string & initname, evalffunctype efun=0);
+	constant(const std::string & initname, evalffunctype efun = 0);
 	constant(const std::string & initname, const numeric & initnumber);
-
+	
 	// functions overriding virtual functions from bases classes
 public:
-	void print(std::ostream & os, unsigned upper_precedence=0) const;
+	void print(std::ostream & os, unsigned upper_precedence = 0) const;
 	void printraw(std::ostream & os) const;
 	void printtree(std::ostream & os, unsigned indent) const;
-	void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence=0) const;
-	ex evalf(int level=0) const;
+	void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence = 0) const;
+	ex evalf(int level = 0) const;
 protected:
 	ex derivative(const symbol & s) const;
 	bool is_equal_same_type(const basic & other) const;
+	unsigned calchash(void) const;
 	
 	// new virtual functions which can be overridden by derived classes
 	// none
-
+	
 	// non-virtual functions in this class
 	// none
-
+	
 // member variables
-
+	
 private:
-	std::string name;
+	std::string name;   ///< printname of this constant
 	evalffunctype ef;
-	numeric * number;
-	unsigned serial;  //!  unique serial number for comparision
+	numeric *number;    ///< numerical value this constant evalf()s to
+	unsigned serial;    ///< unique serial number for comparison
 	static unsigned next_serial;
 };
 
@@ -78,8 +78,12 @@ extern const constant Pi;
 extern const constant Catalan;
 extern const constant Euler;
 
-#ifndef NO_NAMESPACE_GINAC
+// utility functions
+inline const constant &ex_to_constant(const ex &e)
+{
+	return static_cast<const constant &>(*e.bp);
+}
+
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_CONSTANT_H__

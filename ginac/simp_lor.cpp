@@ -35,9 +35,7 @@
 #include "debugmsg.h"
 #include "utils.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(simp_lor, indexed)
 
@@ -436,7 +434,7 @@ ex simplify_simp_lor_mul(const ex & m, const scalar_products & sp)
 ex simplify_simp_lor(const ex & e, const scalar_products & sp)
 {
 	// all simplification is done on expanded objects
-	ex e_expanded=e.expand();
+	ex e_expanded = e.expand();
 
 	// simplification of sum=sum of simplifications
 	if (is_ex_exactly_of_type(e_expanded,add)) {
@@ -507,6 +505,4 @@ spmapkey scalar_products::make_key(const simp_lor & v1, const simp_lor & v2)
 	return spmapkey(strstrpair(v1.name,v2.name),anon);
 }
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

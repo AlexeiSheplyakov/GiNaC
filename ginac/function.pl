@@ -34,7 +34,7 @@ sub generate {
 	return generate_from_to($template,$seq_template1,$seq_template2,1,$maxargs);
 }
 
-$declare_function_macro_namespace = <<'END_OF_DECLARE_FUNCTION_1_AND_2P_MACRO_NAMESPACE';
+$declare_function_macro = <<'END_OF_DECLARE_FUNCTION_1_AND_2P_MACRO';
 #define DECLARE_FUNCTION_1P(NAME) \
 extern const unsigned function_index_##NAME; \
 inline GiNaC::function NAME(const GiNaC::ex & p1) { \
@@ -46,41 +46,17 @@ inline GiNaC::function NAME(const GiNaC::ex & p1, const GiNaC::ex & p2) { \
 	return GiNaC::function(function_index_##NAME, p1, p2); \
 }
 
-END_OF_DECLARE_FUNCTION_1_AND_2P_MACRO_NAMESPACE
+END_OF_DECLARE_FUNCTION_1_AND_2P_MACRO
 
-$declare_function_macro_namespace .= generate_from_to(
-	<<'END_OF_DECLARE_FUNCTION_MACRO_NAMESPACE','const GiNaC::ex & p${N}','p${N}',3,$maxargs);
+$declare_function_macro .= generate_from_to(
+	<<'END_OF_DECLARE_FUNCTION_MACRO','const GiNaC::ex & p${N}','p${N}',3,$maxargs);
 #define DECLARE_FUNCTION_${N}P(NAME) \\
 extern const unsigned function_index_##NAME; \\
 inline GiNaC::function NAME(${SEQ1}) { \\
 	return GiNaC::function(function_index_##NAME, ${SEQ2}); \\
 }
 
-END_OF_DECLARE_FUNCTION_MACRO_NAMESPACE
-
-$declare_function_macro_no_namespace = <<'END_OF_DECLARE_FUNCTION_1_AND_2P_MACRO_NO_NAMESPACE';
-#define DECLARE_FUNCTION_1P(NAME) \
-extern const unsigned function_index_##NAME; \
-inline function NAME(const ex & p1) { \
-	return function(function_index_##NAME, p1); \
-}
-#define DECLARE_FUNCTION_2P(NAME) \
-extern const unsigned function_index_##NAME; \
-inline function NAME(const ex & p1, const ex & p2) { \
-	return function(function_index_##NAME, p1, p2); \
-}
-
-END_OF_DECLARE_FUNCTION_1_AND_2P_MACRO_NO_NAMESPACE
-
-$declare_function_macro_no_namespace .= generate_from_to(
-	<<'END_OF_DECLARE_FUNCTION_MACRO_NO_NAMESPACE','const ex & p${N}','p${N}',3,$maxargs);
-#define DECLARE_FUNCTION_${N}P(NAME) \\
-extern const unsigned function_index_##NAME; \\
-inline function NAME(${SEQ1}) { \\
-	return function(function_index_##NAME, ${SEQ2}); \\
-}
-
-END_OF_DECLARE_FUNCTION_MACRO_NO_NAMESPACE
+END_OF_DECLARE_FUNCTION_MACRO
 
 $typedef_eval_funcp=generate(
 'typedef ex (* eval_funcp_${N})(${SEQ1});'."\n",
@@ -115,7 +91,7 @@ $constructors_implementation=generate(
 function::function(unsigned ser, ${SEQ1})
 	: exprseq(${SEQ2}), serial(ser)
 {
-	debugmsg(\"function constructor from unsigned,${N}*ex\",LOGLEVEL_CONSTRUCT);
+	debugmsg(\"function ctor from unsigned,${N}*ex\",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_function;
 }
 END_OF_CONSTRUCTORS_IMPLEMENTATION
@@ -228,21 +204,9 @@ $interface=<<END_OF_INTERFACE;
 
 #include "exprseq.h"
 
-#ifndef NO_NAMESPACE_GINAC
-
 // the following lines have been generated for max. ${maxargs} parameters
-$declare_function_macro_namespace
+$declare_function_macro
 // end of generated lines
-
-#else // ndef NO_NAMESPACE_GINAC
-
-// the following lines have been generated for max. ${maxargs} parameters
-$declare_function_macro_no_namespace
-// end of generated lines
-
-#endif // ndef NO_NAMESPACE_GINAC
-
-#ifndef NO_NAMESPACE_GINAC
 
 #define REGISTER_FUNCTION(NAME,OPT) \\
 const unsigned function_index_##NAME= \\
@@ -256,22 +220,6 @@ const unsigned function_index_##NAME= \\
 	                              derivative_func(D). \\
 	                              series_func(S));
 
-#else // ndef NO_NAMESPACE_GINAC
-
-#define REGISTER_FUNCTION(NAME,OPT) \\
-const unsigned function_index_##NAME= \\
-	function::register_new(function_options(#NAME).OPT);
-
-#define REGISTER_FUNCTION_OLD(NAME,E,EF,D,S) \\
-const unsigned function_index_##NAME= \\
-	function::register_new(function_options(#NAME). \\
-	                       eval_func(E). \\
-	                       evalf_func(EF). \\
-	                       derivative_func(D). \\
-	                       series_func(S));
-
-#endif // ndef NO_NAMESPACE_GINAC
-
 #define BEGIN_TYPECHECK \\
 bool automatic_typecheck=true;
 
@@ -280,21 +228,10 @@ if (!is_ex_exactly_of_type(VAR,TYPE)) { \\
 	automatic_typecheck=false; \\
 } else
 
-#ifndef NO_NAMESPACE_GINAC
-
 #define TYPECHECK_INTEGER(VAR) \\
 if (!(VAR).info(GiNaC::info_flags::integer)) { \\
 	automatic_typecheck=false; \\
 } else
-
-#else // ndef NO_NAMESPACE_GINAC
-
-#define TYPECHECK_INTEGER(VAR) \\
-if (!(VAR).info(info_flags::integer)) { \\
-	automatic_typecheck=false; \\
-} else
-
-#endif // ndef NO_NAMESPACE_GINAC
 
 #define END_TYPECHECK(RV) \\
 {} \\
@@ -302,9 +239,7 @@ if (!automatic_typecheck) { \\
 	return RV.hold(); \\
 }
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 class function;
 
@@ -386,7 +321,7 @@ class function : public exprseq
 
 // member functions
 
-	// other constructors
+	// other ctors
 public:
 	function(unsigned ser);
 	// the following lines have been generated for max. ${maxargs} parameters
@@ -405,6 +340,7 @@ public:
 	ex expand(unsigned options=0) const;
 	ex eval(int level=0) const;
 	ex evalf(int level=0) const;
+	unsigned calchash(void) const;
 	ex series(const relational & r, int order, unsigned options = 0) const;
 	ex thisexprseq(const exvector & v) const;
 	ex thisexprseq(exvector * vp) const;
@@ -440,26 +376,15 @@ inline const function &ex_to_function(const ex &e)
 	return static_cast<const function &>(*e.bp);
 }
 
-#ifndef NO_NAMESPACE_GINAC
-
 #define is_ex_the_function(OBJ, FUNCNAME) \\
 	(is_ex_exactly_of_type(OBJ, function) && static_cast<GiNaC::function *>(OBJ.bp)->getserial() == function_index_##FUNCNAME)
-
-#else // ndef NO_NAMESPACE_GINAC
-
-#define is_ex_the_function(OBJ, FUNCNAME) \\
-	(is_ex_exactly_of_type(OBJ, function) && static_cast<function *>(OBJ.bp)->getserial() == function_index_##FUNCNAME)
-
-#endif // ndef NO_NAMESPACE_GINAC
 
 // global constants
 
 extern const function some_function;
 extern const std::type_info & typeid_function;
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_FUNCTION_H__
 
@@ -505,9 +430,7 @@ $implementation=<<END_OF_IMPLEMENTATION;
 #include "debugmsg.h"
 #include "remember.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 //////////
 // helper class function_options
@@ -607,14 +530,14 @@ void function_options::test_and_set_nparams(unsigned n)
 GINAC_IMPLEMENT_REGISTERED_CLASS(function, exprseq)
 
 //////////
-// default constructor, destructor, copy constructor assignment operator and helpers
+// default ctor, dtor, copy ctor assignment operator and helpers
 //////////
 
 // public
 
 function::function() : serial(0)
 {
-	debugmsg("function default constructor",LOGLEVEL_CONSTRUCT);
+	debugmsg("function default ctor",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_function;
 }
 
@@ -632,14 +555,14 @@ void function::destroy(bool call_parent)
 }
 
 //////////
-// other constructors
+// other ctors
 //////////
 
 // public
 
 function::function(unsigned ser) : serial(ser)
 {
-	debugmsg("function constructor from unsigned",LOGLEVEL_CONSTRUCT);
+	debugmsg("function ctor from unsigned",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_function;
 }
 
@@ -649,21 +572,21 @@ $constructors_implementation
 
 function::function(unsigned ser, const exprseq & es) : exprseq(es), serial(ser)
 {
-	debugmsg("function constructor from unsigned,exprseq",LOGLEVEL_CONSTRUCT);
+	debugmsg("function ctor from unsigned,exprseq",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_function;
 }
 
 function::function(unsigned ser, const exvector & v, bool discardable) 
   : exprseq(v,discardable), serial(ser)
 {
-	debugmsg("function constructor from string,exvector,bool",LOGLEVEL_CONSTRUCT);
+	debugmsg("function ctor from string,exvector,bool",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_function;
 }
 
 function::function(unsigned ser, exvector * vp) 
   : exprseq(vp), serial(ser)
 {
-	debugmsg("function constructor from unsigned,exvector *",LOGLEVEL_CONSTRUCT);
+	debugmsg("function ctor from unsigned,exvector *",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_function;
 }
 
@@ -674,7 +597,7 @@ function::function(unsigned ser, exvector * vp)
 /** Construct object from archive_node. */
 function::function(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("function constructor from archive_node", LOGLEVEL_CONSTRUCT);
+	debugmsg("function ctor from archive_node", LOGLEVEL_CONSTRUCT);
 
 	// Find serial number by function name
 	std::string s;
@@ -832,6 +755,21 @@ ${evalf_switch_statement}
 		// end of generated lines
 	}
 	throw(std::logic_error("function::evalf(): invalid nparams"));
+}
+
+unsigned function::calchash(void) const
+{
+	unsigned v = golden_ratio_hash(golden_ratio_hash(tinfo()) ^ serial);
+	for (unsigned i=0; i<nops(); i++) {
+		v = rotate_left_31(v);
+		v ^= this->op(i).gethash();
+	}
+	v &= 0x7FFFFFFFU;
+	if (flags & status_flags::evaluated) {
+		setflag(status_flags::hash_calculated);
+		hashvalue = v;
+	}
+	return v;
 }
 
 ex function::thisexprseq(const exvector & v) const
@@ -1043,9 +981,7 @@ unsigned function::find_function(const std::string &name, unsigned nparams)
 const function some_function;
 const std::type_info & typeid_function=typeid(some_function);
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 END_OF_IMPLEMENTATION
 

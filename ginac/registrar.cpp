@@ -25,9 +25,7 @@
 
 #include "registrar.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 registered_class_info *first_registered_class = NULL;
 
@@ -56,6 +54,4 @@ unarch_func find_unarch_func(const std::string &class_name)
 }
 
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

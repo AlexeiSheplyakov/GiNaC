@@ -30,9 +30,7 @@
 #include "utils.h"
 #include "debugmsg.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(idx, basic)
 
@@ -527,6 +525,4 @@ ex subs_indices(const ex & e, const exvector & idxv_subs, const exvector & idxv_
 	return res;
 }
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

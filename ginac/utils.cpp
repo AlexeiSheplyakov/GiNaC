@@ -26,9 +26,7 @@
 #include "utils.h"
 #include "version.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 /* Version information buried into the library */
 const int version_major = GINACLIB_MAJOR_VERSION;
@@ -55,22 +53,11 @@ int pole_error::degree(void) const
 unsigned log2(unsigned n)
 {
 	unsigned k;
-	for (k = 0; n > 1; n >>= 1) ++k;
+	for (k = 0; n > 1; n >>= 1)
+		++k;
 	return k;
 }
 #endif
-
-/** Compare two pointers (just to establish some sort of canonical order).
- *  @return -1, 0, or 1 */
-int compare_pointers(const void * a, const void * b)
-{
-	if (a<b) {
-		return -1;
-	} else if (a>b) {
-		return 1;
-	}
-	return 0;
-}
 
 /** Append one exvector to another */
 void append_exvector_to_exvector(exvector & dest, const exvector & source)
@@ -774,10 +761,10 @@ const ex & _ex120(void)
 
 // member functions
 
-	// default constructor, destructor, copy constructor assignment operator and helpers
+	// default ctor, dtor, copy ctor assignment operator and helpers
 	// none
 
-	// other constructors
+	// other ctors
 	// none
 
 	// functions overriding virtual functions from bases classes
@@ -798,14 +785,14 @@ const ex & _ex120(void)
 
 
 //////////
-// default constructor, destructor, copy constructor assignment operator and helpers
+// default ctor, dtor, copy ctor assignment operator and helpers
 //////////
 
 // public
 // protected
 
 //////////
-// other constructors
+// other ctors
 //////////
 
 // public
@@ -844,6 +831,4 @@ const ex & _ex120(void)
 // none
 
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

@@ -23,23 +23,18 @@
 #ifndef __GINAC_EX_H__
 #define __GINAC_EX_H__
 
-#include <iostream>
 #include "basic.h"
 #include "operators.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
-
-class ex;
-class symbol;
-class lst;
 
 // Sorry, this is the only constant to pollute the global scope, the other ones
 // are defined in utils.h and not visible from outside.
-extern const ex & _ex0(void);     //  single ex(numeric(0))
+class ex;
+extern const ex & _ex0(void);     ///<  single ex(numeric(0))
 
-#define INLINE_EX_CONSTRUCTORS
+class symbol;
+class lst;
 
 /** Lightweight wrapper for GiNaC's symbolic objects.  Basically all it does is
  *  to hold a pointer to the other objects, manage the reference counting and
@@ -47,168 +42,28 @@ extern const ex & _ex0(void);     //  single ex(numeric(0))
 class ex
 {
 	friend class basic;
-
+	
 // member functions
-
-	// default constructor, destructor, copy constructor assignment operator and helpers
+	
+	// default ctor, dtor, copy ctor assignment operator and helpers
 public:
-	ex()
-#ifdef INLINE_EX_CONSTRUCTORS
-	     : bp(_ex0().bp)
-	{
-		GINAC_ASSERT(_ex0().bp!=0);
-		GINAC_ASSERT(_ex0().bp->flags & status_flags::dynallocated);
-		GINAC_ASSERT(bp!=0);
-		++bp->refcount;
-#ifdef OBSCURE_CINT_HACK
-		update_last_created_or_assigned_bp();
-#endif // def OBSCURE_CINT_HACK
-	}
-#else
-;
-#endif // def INLINE_EX_CONSTRUCTORS
-
-	~ex()
-#ifdef INLINE_EX_CONSTRUCTORS
-	{
-		GINAC_ASSERT(bp!=0);
-		GINAC_ASSERT(bp->flags & status_flags::dynallocated);
-		if (--bp->refcount == 0) {
-			delete bp;
-		}
-	}
-#else
-;
-#endif // def INLINE_EX_CONSTRUCTORS
-		
-	ex(const ex & other)
-#ifdef INLINE_EX_CONSTRUCTORS
-	                     : bp(other.bp)
-	{
-		GINAC_ASSERT(bp!=0);
-		GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
-		++bp->refcount;
-#ifdef OBSCURE_CINT_HACK
-		update_last_created_or_assigned_bp();
-#endif // def OBSCURE_CINT_HACK
-	}
-#else
-;
-#endif // def INLINE_EX_CONSTRUCTORS
-		
-	const ex & operator=(const ex & other)
-#ifdef INLINE_EX_CONSTRUCTORS
-	{
-		GINAC_ASSERT(bp!=0);
-		GINAC_ASSERT(bp->flags & status_flags::dynallocated);
-		GINAC_ASSERT(other.bp!=0);
-		GINAC_ASSERT(other.bp->flags & status_flags::dynallocated);
-		++other.bp->refcount;
-		basic * tmpbp=other.bp;
-		if (--bp->refcount==0) {
-			delete bp;
-		}
-		bp=tmpbp;
-#ifdef OBSCURE_CINT_HACK
-		update_last_created_or_assigned_bp();
-#endif // def OBSCURE_CINT_HACK
-		return *this;
-	}
-#else
-;
-#endif // def INLINE_EX_CONSTRUCTORS
-
-
-	// other constructors
+	ex();
+	~ex();
+	ex(const ex & other);
+	const ex & operator=(const ex & other);
+	// other ctors
 public:
-	ex(const basic & other)
-#ifdef INLINE_EX_CONSTRUCTORS
-	{
-		construct_from_basic(other);
-#ifdef OBSCURE_CINT_HACK
-		update_last_created_or_assigned_bp();
-#endif // def OBSCURE_CINT_HACK
-	}
-#else
-;
-#endif // def INLINE_EX_CONSTRUCTORS
-	
-	ex(int i)
-#ifdef INLINE_EX_CONSTRUCTORS
-	{
-		construct_from_int(i);
-#ifdef OBSCURE_CINT_HACK
-		update_last_created_or_assigned_bp();
-#endif // def OBSCURE_CINT_HACK
-	}
-#else
-;
-#endif // def INLINE_EX_CONSTRUCTORS
-
-	ex(unsigned int i)
-#ifdef INLINE_EX_CONSTRUCTORS
-	{
-		construct_from_uint(i);
-#ifdef OBSCURE_CINT_HACK
-		update_last_created_or_assigned_bp();
-#endif // def OBSCURE_CINT_HACK
-	}
-#else
-;
-#endif // def INLINE_EX_CONSTRUCTORS
-	
-	ex(long i)
-#ifdef INLINE_EX_CONSTRUCTORS
-	{
-		construct_from_long(i);
-#ifdef OBSCURE_CINT_HACK
-		update_last_created_or_assigned_bp();
-#endif // def OBSCURE_CINT_HACK
-	}
-#else
-;
-#endif // def INLINE_EX_CONSTRUCTORS
-
-	ex(unsigned long i)
-#ifdef INLINE_EX_CONSTRUCTORS
-	{
-		construct_from_ulong(i);
-#ifdef OBSCURE_CINT_HACK
-		update_last_created_or_assigned_bp();
-#endif // def OBSCURE_CINT_HACK
-	}
-#else
-;
-#endif // def INLINE_EX_CONSTRUCTORS
-	
-	ex(double const d)
-#ifdef INLINE_EX_CONSTRUCTORS
-	{
-		construct_from_double(d);
-#ifdef OBSCURE_CINT_HACK
-		update_last_created_or_assigned_bp();
-#endif // def OBSCURE_CINT_HACK
-	}
-#else
-;
-#endif // def INLINE_EX_CONSTRUCTORS
-
+	ex(const basic & other);
+	ex(int i);
+	ex(unsigned int i);
+	ex(long i);
+	ex(unsigned long i);
+	ex(double const d);
 	/** Construct ex from string and a list of symbols. The input grammar is
 	 *  similar to the GiNaC output format. All symbols to be used in the
 	 *  expression must be specified in a lst in the second argument. Undefined
 	 *  symbols and other parser errors will throw an exception. */
-	ex(const std::string &s, const ex &l)
-#ifdef INLINE_EX_CONSTRUCTORS
-	{
-		construct_from_string_and_lst(s, l);
-#ifdef OBSCURE_CINT_HACK
-		update_last_created_or_assigned_bp();
-#endif // def OBSCURE_CINT_HACK
-	}
-#else
-;
-#endif // def INLINE_EX_CONSTRUCTORS
-
+	ex(const std::string &s, const ex &l);
 	
 	// functions overriding virtual functions from bases classes
 	// none
@@ -260,40 +115,14 @@ public:
 	ex & let_op(int i);
 	ex lhs(void) const;
 	ex rhs(void) const;
-	int compare(const ex & other) const
-#ifdef INLINE_EX_CONSTRUCTORS
-	{
-		GINAC_ASSERT(bp!=0);
-		GINAC_ASSERT(other.bp!=0);
-		if (bp==other.bp) {
-			// special case: both expression point to same basic, trivially equal
-			return 0; 
-		}
-		return bp->compare(*other.bp);
-	}
-#else
-;
-#endif // def INLINE_EX_CONSTRUCTORS
-	bool is_equal(const ex & other) const
-#ifdef INLINE_EX_CONSTRUCTORS
-	{
-		GINAC_ASSERT(bp!=0);
-		GINAC_ASSERT(other.bp!=0);
-		if (bp==other.bp) {
-			// special case: both expression point to same basic, trivially equal
-			return true; 
-		}
-		return bp->is_equal(*other.bp);
-	}
-#else
-;
-#endif // def INLINE_EX_CONSTRUCTORS
-	bool is_zero(void) const {return compare(_ex0())==0;};
-		
+	int compare(const ex & other) const;
+	bool is_equal(const ex & other) const;
+	bool is_zero(void) const { return is_equal(_ex0()); }
+	
 	unsigned return_type(void) const;
 	unsigned return_type_tinfo(void) const;
 	unsigned gethash(void) const;
-
+	
 	ex exadd(const ex & rh) const;
 	ex exmul(const ex & rh) const;
 	ex exncmul(const ex & rh) const;
@@ -326,22 +155,169 @@ protected:
 				delete last_created_or_assigned_bp;
 			}
 		}
-		last_created_or_assigned_bp=bp;
+		last_created_or_assigned_bp = bp;
 		++last_created_or_assigned_bp->refcount;
-		last_created_or_assigned_exp=(long)(void *)(this);
+		last_created_or_assigned_exp = (long)(void *)(this);
 	}
 #endif // def OBSCURE_CINT_HACK
 
 // member variables
 
 public:
-	basic *bp;
+	basic *bp;      ///< pointer to basic object managed by this
 #ifdef OBSCURE_CINT_HACK
 	static basic * last_created_or_assigned_bp;
 	static basic * dummy_bp;
 	static long last_created_or_assigned_exp;
 #endif // def OBSCURE_CINT_HACK
 };
+
+
+// performance-critical inlined method implementations
+
+inline
+ex::ex() : bp(_ex0().bp)
+{
+	/*debugmsg("ex default ctor",LOGLEVEL_CONSTRUCT);*/
+	GINAC_ASSERT(_ex0().bp!=0);
+	GINAC_ASSERT(_ex0().bp->flags & status_flags::dynallocated);
+	GINAC_ASSERT(bp!=0);
+	++bp->refcount;
+#ifdef OBSCURE_CINT_HACK
+	update_last_created_or_assigned_bp();
+#endif // def OBSCURE_CINT_HACK
+}
+
+inline
+ex::~ex()
+{
+	/*debugmsg("ex dtor",LOGLEVEL_DESTRUCT);*/
+	GINAC_ASSERT(bp!=0);
+	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
+	if (--bp->refcount == 0)
+		delete bp;
+}
+
+inline
+ex::ex(const ex & other) : bp(other.bp)
+{
+	/*debugmsg("ex copy ctor",LOGLEVEL_CONSTRUCT);*/
+	GINAC_ASSERT(bp!=0);
+	GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
+	++bp->refcount;
+#ifdef OBSCURE_CINT_HACK
+	update_last_created_or_assigned_bp();
+#endif // def OBSCURE_CINT_HACK
+}
+
+inline
+const ex & ex::operator=(const ex & other)
+{
+	/*debugmsg("ex operator=",LOGLEVEL_ASSIGNMENT);*/
+	GINAC_ASSERT(bp!=0);
+	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
+	GINAC_ASSERT(other.bp!=0);
+	GINAC_ASSERT(other.bp->flags & status_flags::dynallocated);
+	if (--bp->refcount==0)
+		delete bp;
+	++other.bp->refcount;
+	bp = other.bp;
+#ifdef OBSCURE_CINT_HACK
+	update_last_created_or_assigned_bp();
+#endif // def OBSCURE_CINT_HACK
+	return *this;
+}
+
+inline
+ex::ex(const basic & other)
+{
+	/*debugmsg("ex ctor from basic",LOGLEVEL_CONSTRUCT);*/
+	construct_from_basic(other);
+#ifdef OBSCURE_CINT_HACK
+	update_last_created_or_assigned_bp();
+#endif // def OBSCURE_CINT_HACK
+}
+
+inline
+ex::ex(int i)
+{
+	/*debugmsg("ex ctor from int",LOGLEVEL_CONSTRUCT);*/
+	construct_from_int(i);
+#ifdef OBSCURE_CINT_HACK
+	update_last_created_or_assigned_bp();
+#endif // def OBSCURE_CINT_HACK
+}
+
+inline
+ex::ex(unsigned int i)
+{
+	/*debugmsg("ex ctor from unsigned int",LOGLEVEL_CONSTRUCT);*/
+	construct_from_uint(i);
+#ifdef OBSCURE_CINT_HACK
+	update_last_created_or_assigned_bp();
+#endif // def OBSCURE_CINT_HACK
+}
+
+inline
+ex::ex(long i)
+{
+	/*debugmsg("ex ctor from long",LOGLEVEL_CONSTRUCT);*/
+	construct_from_long(i);
+#ifdef OBSCURE_CINT_HACK
+	update_last_created_or_assigned_bp();
+#endif // def OBSCURE_CINT_HACK
+}
+
+inline
+ex::ex(unsigned long i)
+{
+	/*debugmsg("ex ctor from unsigned long",LOGLEVEL_CONSTRUCT);*/
+	construct_from_ulong(i);
+#ifdef OBSCURE_CINT_HACK
+	update_last_created_or_assigned_bp();
+#endif // def OBSCURE_CINT_HACK
+}
+
+inline
+ex::ex(double const d)
+{
+	/*debugmsg("ex ctor from double",LOGLEVEL_CONSTRUCT);*/
+	construct_from_double(d);
+#ifdef OBSCURE_CINT_HACK
+	update_last_created_or_assigned_bp();
+#endif // def OBSCURE_CINT_HACK
+}
+
+inline
+ex::ex(const std::string &s, const ex &l)
+{
+	/*debugmsg("ex ctor from string,lst",LOGLEVEL_CONSTRUCT);*/
+	construct_from_string_and_lst(s, l);
+#ifdef OBSCURE_CINT_HACK
+	update_last_created_or_assigned_bp();
+#endif // def OBSCURE_CINT_HACK
+}
+
+inline
+int ex::compare(const ex & other) const
+{
+	GINAC_ASSERT(bp!=0);
+	GINAC_ASSERT(other.bp!=0);
+	if (bp==other.bp)  // trivial case: both expressions point to same basic
+		return 0;
+	return bp->compare(*other.bp);
+}
+
+inline
+bool ex::is_equal(const ex & other) const
+{
+	GINAC_ASSERT(bp!=0);
+	GINAC_ASSERT(other.bp!=0);
+	if (bp==other.bp)  // trivial case: both expressions point to same basic
+		return true;
+	return bp->is_equal(*other.bp);
+}
+
 
 // utility functions
 inline bool are_ex_trivially_equal(const ex &e1, const ex &e2)
@@ -416,9 +392,6 @@ inline bool is_zero(const ex & thisex)
 inline void swap(ex & e1, ex & e2)
 { e1.swap(e2); }
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_EX_H__
-

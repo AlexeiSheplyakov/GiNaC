@@ -29,9 +29,7 @@
 #include "indexed.h"
 #include "lorentzidx.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 
 /** This class holds an object carrying Lorentz indices (of class
@@ -48,8 +46,8 @@ class lortensor : public indexed
 	friend lortensor lortensor_delta(const ex & mu, const ex & nu);
 	friend lortensor lortensor_epsilon(const ex & mu, const ex & nu,
 									   const ex & rho, const ex & sigma);
-	friend lortensor lortensor_vector(const string & n, const ex & mu);
-	friend lortensor lortensor_symbolic(const string & name, const exvector & iv);
+	friend lortensor lortensor_vector(const std::string & n, const ex & mu);
+	friend lortensor lortensor_symbolic(const std::string & name, const exvector & iv);
 
 	friend ex simplify_lortensor_mul(const ex & m);
 	friend ex simplify_lortensor(const ex & e);
@@ -130,14 +128,12 @@ lortensor lortensor_g(const ex & mu, const ex & nu);
 lortensor lortensor_delta(const ex & mu, const ex & nu);
 lortensor lortensor_epsilon(const ex & mu, const ex & nu,
                             const ex & rho, const ex & sigma);
-lortensor lortensor_vector(const string & n, const ex & mu);
-lortensor lortensor_symbolic(const string & name, const exvector & iv);
+lortensor lortensor_vector(const std::string & n, const ex & mu);
+lortensor lortensor_symbolic(const std::string & name, const exvector & iv);
 
 ex simplify_lortensor_mul(const ex & m);
 ex simplify_lortensor(const ex & e);
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_LORTENSOR_H__

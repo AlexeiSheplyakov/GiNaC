@@ -1,7 +1,7 @@
 /** @file lst_suppl.cpp
  *
- *  Supplement to lst.cpp, contains the parts which were
- *  not automatically generated. */
+ *  Supplement to lst.cpp, contains the parts which were not automatically
+ *  generated. */
 
 /*
  *  GiNaC Copyright (C) 1999-2001 Johannes Gutenberg University Mainz, Germany
@@ -23,9 +23,7 @@
 
 #include "lst.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 bool lst::info(unsigned inf) const
 {
@@ -33,6 +31,4 @@ bool lst::info(unsigned inf) const
 	return basic::info(inf);
 }
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

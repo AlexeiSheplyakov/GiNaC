@@ -29,9 +29,7 @@
 #include "config.h"
 #include "utils.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 
 /** Archive an expression.
@@ -591,6 +589,4 @@ archive* archive_node::dummy_ar_creator(void)
 }
 
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

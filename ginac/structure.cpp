@@ -26,21 +26,19 @@
 #include "archive.h"
 #include "debugmsg.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(structure, basic)
 
 //////////
-// default constructor, destructor, copy constructor assignment operator and helpers
+// default ctor, dtor, copy ctor assignment operator and helpers
 //////////
 
 // public
 
 structure::structure()
 {
-	debugmsg("structure default constructor",LOGLEVEL_CONSTRUCT);
+	debugmsg("structure default ctor",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_structure;
 }
 
@@ -57,7 +55,7 @@ void structure::destroy(bool call_parent)
 }
 
 //////////
-// other constructors
+// other ctors
 //////////
 
 // none
@@ -69,7 +67,7 @@ void structure::destroy(bool call_parent)
 /** Construct object from archive_node. */
 structure::structure(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
 {
-	debugmsg("structure constructor from archive_node", LOGLEVEL_CONSTRUCT);
+	debugmsg("structure ctor from archive_node", LOGLEVEL_CONSTRUCT);
 }
 
 /** Unarchive the object. */
@@ -162,6 +160,4 @@ unsigned structure::register_new(const char * nm)
 	return registered_structures().size()-1;
 }
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC

@@ -35,38 +35,21 @@
 #include "utils.h"
 #include "debugmsg.h"
 
-#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_NAMESPACE_GINAC
 
 GINAC_IMPLEMENT_REGISTERED_CLASS_NO_CTORS(basic, void)
 
 //////////
-// default constructor, destructor, copy constructor assignment operator and helpers
+// default ctor, dtor, copy ctor assignment operator and helpers
 //////////
 
 // public
 
-#ifndef INLINE_BASIC_CONSTRUCTORS
-basic::basic() : flags(0), refcount(0), tinfo_key(TINFO_BASIC)
+basic::basic(const basic & other) : tinfo_key(TINFO_basic), flags(0), refcount(0)
 {
-	debugmsg("basic default constructor", LOGLEVEL_CONSTRUCT);
-	// nothing to do
-}
-
-basic::~basic() 
-{
-	debugmsg("basic destructor", LOGLEVEL_DESTRUCT);
-	destroy(false);
-	GINAC_ASSERT((!(flags & status_flags::dynallocated))||(refcount==0));
-}
-
-basic::basic(const basic & other) : flags(0), refcount(0), tinfo_key(TINFO_BASIC)
-{
-	debugmsg("basic copy constructor", LOGLEVEL_CONSTRUCT);
+	debugmsg("basic copy ctor", LOGLEVEL_CONSTRUCT);
 	copy(other);
 }
-#endif
 
 const basic & basic::operator=(const basic & other)
 {
@@ -80,19 +63,13 @@ const basic & basic::operator=(const basic & other)
 
 // protected
 
-// none (all inlined)
+// none (all conditionally inlined)
 
 //////////
-// other constructors
+// other ctors
 //////////
 
-#ifndef INLINE_BASIC_CONSTRUCTORS
-basic::basic(unsigned ti) : flags(0), refcount(0), tinfo_key(ti)
-{
-	debugmsg("basic constructor with tinfo_key", LOGLEVEL_CONSTRUCT);
-	// nothing to do
-}
-#endif
+// none (all conditionally inlined)
 
 //////////
 // archiving
@@ -101,7 +78,7 @@ basic::basic(unsigned ti) : flags(0), refcount(0), tinfo_key(ti)
 /** Construct object from archive_node. */
 basic::basic(const archive_node &n, const lst &sym_lst) : flags(0), refcount(0)
 {
-	debugmsg("basic constructor from archive_node", LOGLEVEL_CONSTRUCT);
+	debugmsg("basic ctor from archive_node", LOGLEVEL_CONSTRUCT);
 
 	// Reconstruct tinfo_key from class name
 	std::string class_name;
@@ -135,14 +112,15 @@ void basic::archive(archive_node &n) const
 
 // public
 
-/** Output to stream formatted to be useful as ginsh input. */
+/** Output to ostream formatted as parsable (as in ginsh) input.
+ *  Generally, superfluous parenthesis should be avoided as far as possible. */
 void basic::print(std::ostream & os, unsigned upper_precedence) const
 {
 	debugmsg("basic print",LOGLEVEL_PRINT);
 	os << "[basic object]";
 }
 
-/** Output to stream in ugly raw format, so brave developers can have a look
+/** Output to ostream in ugly raw format, so brave developers can have a look
  *  at the underlying structure. */
 void basic::printraw(std::ostream & os) const
 {
@@ -150,7 +128,7 @@ void basic::printraw(std::ostream & os) const
 	os << "[basic object]";
 }
 
-/** Output to stream formatted in tree- (indented-) form, so developers can
+/** Output to ostream formatted in tree- (indented-) form, so developers can
  *  have a look at the underlying structure. */
 void basic::printtree(std::ostream & os, unsigned indent) const
 {
@@ -165,7 +143,7 @@ void basic::printtree(std::ostream & os, unsigned indent) const
 	}
 }
 
-/** Output to stream formatted as C-source.
+/** Output to ostream formatted as C-source.
  *
  *  @param os a stream for output
  *  @param type variable type (one of the csrc_types)
@@ -178,13 +156,13 @@ void basic::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedenc
 
 /** Little wrapper arount print to be called within a debugger.
  *  This is needed because you cannot call foo.print(cout) from within the
- *  debugger because it might not know what cout is.  This method can be invoked
- *  with no argument and it will simply print to stdout.
+ *  debugger because it might not know what cout is.  This method can be
+ *  invoked with no argument and it will simply print to stdout.
  *
  *  @see basic::print*/
 void basic::dbgprint(void) const
 {
-	print(std::cerr);
+	this->print(std::cerr);
 	std::cerr << std::endl;
 }
 
@@ -194,9 +172,12 @@ void basic::dbgprint(void) const
  *  @see basic::printtree */
 void basic::dbgprinttree(void) const
 {
-	printtree(std::cerr,0);
+	this->printtree(std::cerr,0);
 }
 
+/** Create a new copy of this on the heap.  One can think of this as simulating
+ *  a virtual copy constructor which is needed for instance by the refcounted
+ *  construction of an ex from a basic. */
 basic * basic::duplicate() const
 {
 	debugmsg("basic duplicate",LOGLEVEL_DUPLICATE);
@@ -208,7 +189,8 @@ basic * basic::duplicate() const
  *  @see class info_flags */
 bool basic::info(unsigned inf) const
 {
-	return false; // all possible properties are false for basic objects
+	// all possible properties are false for basic objects
+	return false;
 }
 
 /** Number of operands/members. */
@@ -246,16 +228,19 @@ ex basic::operator[](int i) const
 }
 
 /** Search ocurrences.  An object  'has' an expression if it is the expression
- *  itself or one of the children 'has' it. */
+ *  itself or one of the children 'has' it.  As a consequence (according to
+ *  the definition of children) given e=x+y+z, e.has(x) is true but e.has(x+y)
+ *  is false. */
 bool basic::has(const ex & other) const
 {
 	GINAC_ASSERT(other.bp!=0);
 	if (is_equal(*other.bp)) return true;
 	if (nops()>0) {
-		for (unsigned i=0; i<nops(); i++) {
-			if (op(i).has(other)) return true;
-		}
+		for (unsigned i=0; i<nops(); i++)
+			if (op(i).has(other))
+				return true;
 	}
+	
 	return false;
 }
 
@@ -282,15 +267,13 @@ ex basic::coeff(const symbol & s, int n) const
 ex basic::collect(const symbol & s) const
 {
 	ex x;
-	int ldeg = this->ldegree(s);
-	int deg = this->degree(s);
-	for (int n=ldeg; n<=deg; n++) {
+	for (int n=this->ldegree(s); n<=this->degree(s); n++)
 		x += this->coeff(s,n)*power(s,n);
-	}
+	
 	return x;
 }
 
-/* Perform automatic symbolic evaluations on expression. */
+/** Perform automatic non-interruptive symbolic evaluation on expression. */
 ex basic::eval(int level) const
 {
 	// There is nothing to do for basic objects:
@@ -304,7 +287,8 @@ ex basic::evalf(int level) const
 	return *this;
 }
 
-/* Substitute a set of symbols. */
+/** Substitute a set of symbols by arbitrary expressions. The ex returned
+ *  will already be evaluated. */
 ex basic::subs(const lst & ls, const lst & lr) const
 {
 	return *this;
@@ -357,8 +341,10 @@ ex basic::derivative(const symbol & s) const
 	throw(std::logic_error("differentiation not supported by this type"));
 }
 
-/** Returns order relation between two objects of same type.  Needs to be
- *  implemented by each class. */
+/** Returns order relation between two objects of same type.  This needs to be
+ *  implemented by each class. It may never return anything else than 0,
+ *  signalling equality, or +1 and -1 signalling inequality and determining
+ *  the canonical ordering. */
 int basic::compare_same_type(const basic & other) const
 {
 	return compare_pointers(this, &other);
@@ -366,10 +352,12 @@ int basic::compare_same_type(const basic & other) const
 
 /** Returns true if two objects of same type are equal.  Normally needs
  *  not be reimplemented as long as it wasn't overwritten by some parent
- *  class, since it just calls complare_same_type(). */
+ *  class, since it just calls compare_same_type().  The reason why this
+ *  function exists is that sometimes it is easier to determine equality
+ *  than an order relation and then it can be overridden. */
 bool basic::is_equal_same_type(const basic & other) const
 {
-	return compare_same_type(other)==0;
+	return this->compare_same_type(other)==0;
 }
 
 unsigned basic::return_type(void) const
@@ -382,20 +370,27 @@ unsigned basic::return_type_tinfo(void) const
 	return tinfo();
 }
 
+/** Compute the hash value of an object and if it makes sense to store it in
+ *  the objects status_flags, do so.  The method inherited from class basic
+ *  computes a hash value based on the type and hash values of possible
+ *  members.  For this reason it is well suited for container classes but
+ *  atomic classes should override this implementation because otherwise they
+ *  would all end up with the same hashvalue. */
 unsigned basic::calchash(void) const
 {
-	unsigned v=golden_ratio_hash(tinfo());
+	unsigned v = golden_ratio_hash(tinfo());
 	for (unsigned i=0; i<nops(); i++) {
-		v=rotate_left_31(v);
+		v = rotate_left_31(v);
 		v ^= (const_cast<basic *>(this))->op(i).gethash();
 	}
-
-	v = v & 0x7FFFFFFFU;
+	
+	// mask out numeric hashes:
+	v &= 0x7FFFFFFFU;
 	
 	// store calculated hash value only if object is already evaluated
 	if (flags & status_flags::evaluated) {
 		setflag(status_flags::hash_calculated);
-		hashvalue=v;
+		hashvalue = v;
 	}
 
 	return v;
@@ -445,89 +440,86 @@ ex basic::subs(const ex & e) const
 	return subs(ls,lr);
 }
 
-/** Compare objects to establish canonical order.
+/** Compare objects to establish canonical ordering.
  *  All compare functions return: -1 for *this less than other, 0 equal,
  *  1 greater. */
 int basic::compare(const basic & other) const
 {
 	unsigned hash_this = gethash();
 	unsigned hash_other = other.gethash();
-
+	
 	if (hash_this<hash_other) return -1;
 	if (hash_this>hash_other) return 1;
-
+	
 	unsigned typeid_this = tinfo();
 	unsigned typeid_other = other.tinfo();
-
+	
 	if (typeid_this<typeid_other) {
-		/*
-		cout << "hash collision, different types: " 
-			 << *this << " and " << other << endl;
-		this->printraw(cout);
-		cout << " and ";
-		other.printraw(cout);
-		cout << endl;
-		*/
+// 		std::cout << "hash collision, different types: " 
+// 		          << *this << " and " << other << std::endl;
+// 		this->printraw(std::cout);
+// 		std::cout << " and ";
+// 		other.printraw(std::cout);
+// 		std::cout << std::endl;
 		return -1;
 	}
 	if (typeid_this>typeid_other) {
-		/*
-		cout << "hash collision, different types: " 
-			 << *this << " and " << other << endl;
-		this->printraw(cout);
-		cout << " and ";
-		other.printraw(cout);
-		cout << endl;
-		*/
+// 		std::cout << "hash collision, different types: " 
+// 		          << *this << " and " << other << std::endl;
+// 		this->printraw(std::cout);
+// 		std::cout << " and ";
+// 		other.printraw(std::cout);
+// 		std::cout << std::endl;
 		return 1;
 	}
-
+	
 	GINAC_ASSERT(typeid(*this)==typeid(other));
-
-	int cmpval=compare_same_type(other);
-	if ((cmpval!=0)&&(hash_this<0x80000000U)) {
-		/*
-		cout << "hash collision, same type: " 
-			 << *this << " and " << other << endl;
-		this->printraw(cout);
-		cout << " and ";
-		other.printraw(cout);
-		cout << endl;
-		*/
+	
+	int cmpval = compare_same_type(other);
+	if ((cmpval!=0) && (hash_this<0x80000000U)) {
+// 		std::cout << "hash collision, same type: " 
+// 		          << *this << " and " << other << std::endl;
+// 		this->printraw(std::cout);
+// 		std::cout << " and ";
+// 		other.printraw(std::cout);
+// 		std::cout << std::endl;
 	}
 	return cmpval;
 }
 
-/** Test for equality. */
+/** Test for equality.
+ *  This is only a quick test, meaning objects should be in the same domain.
+ *  You might have to .expand(), .normal() objects first, depending on the
+ *  domain of your computation, to get a more reliable answer.
+ *
+ *  @see is_equal_same_type */
 bool basic::is_equal(const basic & other) const
 {
-	unsigned hash_this = gethash();
-	unsigned hash_other = other.gethash();
-
-	if (hash_this!=hash_other) return false;
-
-	unsigned typeid_this = tinfo();
-	unsigned typeid_other = other.tinfo();
-
-	if (typeid_this!=typeid_other) return false;
-
+	if (this->gethash()!=other.gethash())
+		return false;
+	if (this->tinfo()!=other.tinfo())
+		return false;
+	
 	GINAC_ASSERT(typeid(*this)==typeid(other));
-
-	return is_equal_same_type(other);
+	
+	return this->is_equal_same_type(other);
 }
 
 // protected
 
 /** Stop further evaluation.
+ *
  *  @see basic::eval */
 const basic & basic::hold(void) const
 {
-	return setflag(status_flags::evaluated);
+	return this->setflag(status_flags::evaluated);
 }
 
+/** Ensure the object may be modified without hurting others, throws if this
+ *  is not the case. */
 void basic::ensure_if_modifiable(void) const
 {
-	if (refcount>1)
+	if (this->refcount>1)
 		throw(std::runtime_error("cannot modify multiply referenced object"));
 }
 
@@ -544,8 +536,6 @@ unsigned basic::delta_indent = 4;
 // global variables
 //////////
 
-int max_recursion_level=1024;
+int max_recursion_level = 1024;
 
-#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_NAMESPACE_GINAC
