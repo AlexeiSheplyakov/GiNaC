@@ -11,6 +11,7 @@ This file records noteworthy changes.
   indexed objects like (a+b).i -> a.i + b.i
 * Renamed get_indices() to get_free_indices(), which no longer returns
   dummy indices and checks the consistency of indices in sums.
+* sqrfree() factorization fixed and improved syntactically.
 * subs() works on matrices.
 
 0.7.3 (28 February 2001)

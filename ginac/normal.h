@@ -26,6 +26,8 @@
 #ifndef __GINAC_NORMAL_H__
 #define __GINAC_NORMAL_H__
 
+#include "lst.h"
+
 namespace GiNaC {
 
 class ex;
@@ -50,7 +52,7 @@ extern ex gcd(const ex &a, const ex &b, ex *ca = NULL, ex *cb = NULL, bool check
 extern ex lcm(const ex &a, const ex &b, bool check_args = true);
 
 // Square-free factorization of a polynomial a(x)
-extern ex sqrfree(const ex &a, const symbol &x);
+extern ex sqrfree(const ex &a, const lst &l = lst());
 
 } // namespace GiNaC
 

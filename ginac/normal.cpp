@@ -1691,70 +1691,85 @@ ex lcm(const ex &a, const ex &b, bool check_args)
  *  Square-free factorization
  */
 
-// Univariate GCD of polynomials in Q[x] (used internally by sqrfree()).
-// a and b can be multivariate polynomials but they are treated as univariate polynomials in x.
-static ex univariate_gcd(const ex &a, const ex &b, const symbol &x)
-{
-	if (a.is_zero())
-		return b;
-	if (b.is_zero())
-		return a;
-	if (a.is_equal(_ex1()) || b.is_equal(_ex1()))
-		return _ex1();
-	if (is_ex_of_type(a, numeric) && is_ex_of_type(b, numeric))
-		return gcd(ex_to_numeric(a), ex_to_numeric(b));
-	if (!a.info(info_flags::rational_polynomial) || !b.info(info_flags::rational_polynomial))
-		throw(std::invalid_argument("univariate_gcd: arguments must be polynomials over the rationals"));
-
-	// Euclidean algorithm
-	ex c, d, r;
-	if (a.degree(x) >= b.degree(x)) {
-		c = a;
-		d = b;
-	} else {
-		c = b;
-		d = a;
-	}
-	for (;;) {
-		r = rem(c, d, x, false);
-		if (r.is_zero())
-			break;
-		c = d;
-		d = r;
-	}
-	return d / d.lcoeff(x);
-}
-
-
 /** Compute square-free factorization of multivariate polynomial a(x) using
- *  Yun´s algorithm.
+ *  Yun´s algorithm.  Used internally by sqrfree().
  *
- * @param a  multivariate polynomial
- * @param x  variable to factor in
- * @return factored polynomial */
-ex sqrfree(const ex &a, const symbol &x)
+ *  @param a  multivariate polynomial over Z[X], treated here as univariate
+ *            polynomial in x.
+ *  @param x  variable to factor in
+ *  @return   vector of factors sorted in ascending degree */
+exvector sqrfree_yun(const ex &a, const symbol &x)
 {
-	int i = 1;
-	ex res = _ex1();
-	ex b = a.diff(x);
-	ex c = univariate_gcd(a, b, x);
-	ex w;
-	if (c.is_equal(_ex1())) {
-		w = a;
-	} else {
-		w = quo(a, c, x);
-		ex y = quo(b, c, x);
-		ex z = y - w.diff(x);
-		while (!z.is_zero()) {
-			ex g = univariate_gcd(w, z, x);
-			res *= power(g, i);
-			w = quo(w, g, x);
-			y = quo(z, g, x);
-			z = y - w.diff(x);
-			i++;
-		}
+	int i = 0;
+	exvector res;
+	ex w = a;
+	ex z = w.diff(x);
+	ex g = gcd(w, z);
+	if (g.is_equal(_ex1())) {
+		res.push_back(a);
+		return res;
 	}
-	return res * power(w, i);
+	ex y;
+	do {
+		w = quo(w, g, x);
+		y = quo(z, g, x);
+		z = y - w.diff(x);
+		g = gcd(w, z);
+		res.push_back(g);
+		++i;
+	} while (!z.is_zero());
+	return res;
+}
+/** Compute square-free factorization of multivariate polynomial in Q[X].
+ *
+ *  @param a  multivariate polynomial over Q[X]
+ *  @param x  lst of variables to factor in, may be left empty for autodetection
+ *  @return   polynomail a in square-free factored form. */
+ex sqrfree(const ex &a, const lst &l)
+{
+	if (is_ex_of_type(a,numeric) ||     // algorithm does not trap a==0
+	    is_ex_of_type(a,symbol))        // shortcut
+		return a;
+	// If no lst of variables to factorize in was specified we have to
+	// invent one now.  Maybe one can optimize here by reversing the order
+	// or so, I don't know.
+	lst args;
+	if (l.nops()==0) {
+		sym_desc_vec sdv;
+		get_symbol_stats(a, _ex0(), sdv);
+		for (sym_desc_vec::iterator it=sdv.begin(); it!=sdv.end(); ++it)
+			args.append(*it->sym);
+	} else {
+		args = l;
+	}
+	// Find the symbol to factor in at this stage
+	if (!is_ex_of_type(args.op(0), symbol))
+		throw (std::runtime_error("sqrfree(): invalid factorization variable"));
+	const symbol x = ex_to_symbol(args.op(0));
+	// convert the argument from something in Q[X] to something in Z[X]
+	numeric lcm = lcm_of_coefficients_denominators(a);
+	ex tmp = multiply_lcm(a,lcm);
+	// find the factors
+	exvector factors = sqrfree_yun(tmp,x);
+	// construct the next list of symbols with the first element popped
+	lst newargs;
+	for (int i=1; i<args.nops(); ++i)
+		newargs.append(args.op(i));
+	// recurse down the factors in remaining vars
+	if (newargs.nops()>0) {
+		for (exvector::iterator i=factors.begin(); i!=factors.end(); ++i)
+			*i = sqrfree(*i, newargs);
+	}
+	// Done with recursion, now construct the final result
+	ex result = _ex1();
+	exvector::iterator it = factors.begin();
+	for (int p = 1; it!=factors.end(); ++it, ++p)
+		result *= power(*it, p);
+	// Yun's algorithm does not account for constant factors.  (For
+	// univariate polynomials it works only in the monic case.)  We can
+	// correct this by inserting what has been lost back into the result:
+	result = result * quo(tmp, result, x);
+	return result *	lcm.inverse();
 }
 
 

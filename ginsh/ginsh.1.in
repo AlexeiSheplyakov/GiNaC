@@ -319,7 +319,7 @@ detail here. Please refer to the GiNaC documentation.
 .BI series( expression ", " relation-or-symbol ", " order )
 \- series expansion
 .br
-.BI sqrfree( expression ", " symbol )
+.BI sqrfree( "expression [" ", " symbol-list] )
 \- square-free factorization of a polynomial
 .br
 .BI sqrt( expression )
