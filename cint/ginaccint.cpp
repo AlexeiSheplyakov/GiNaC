@@ -122,12 +122,12 @@ void process_tempfile(string const & command)
     static unsigned out_count=0;
     if (TYPES_EQUAL(retval,ref_ex)) {
         if (ex::last_created_or_assigned_bp_can_be_converted_to_ex()) {
-            string varname="Out"+ToString(++out_count);
+            string varname="out"+ToString(++out_count);
             exec_tempfile("ex "+varname+"(*ex::last_created_or_assigned_bp);\n"
                           +"LLLAST=LLAST;\n"
                           +"LLAST=LAST;\n"
                           +"LAST="+varname+";\n"
-                          +"cout << \""+varname+" = \" << "+varname+" << endl << endl;"); 
+                          +"cout << \""+varname+"   \" << "+varname+" << endl << endl;"); 
         } else {
             cout << "warning: last_created_or_assigned_bp modified 0 or not evaluated or not dynallocated" << endl;
         }
@@ -137,7 +137,13 @@ void process_tempfile(string const & command)
 
 void greeting(void)
 {
-    cout << "Welcome to GiNaCcint V0.2" << endl << endl;
+    cout << "Welcome to GiNaC-cint V" << VERSION << endl;
+    cout << "This software is provided \"as is\" without any warranty.  Copyright of Cint is" << endl
+         << "owned by Agilent Technologies Japan and Masaharu Goto.  Registration is" << endl
+         << "  __,  _______  requested, at this moment, for commercial use.  Send e-mail to" << endl
+         << " (__) *       | <MXJ02154@niftyserve.or.jp>.  The registration is free." << endl
+         << "  ._) i N a C | The GiNaC framework is Copyright by Johannes Gutenberg Univ." << endl
+         << "<-------------' Germany and licensed under the terms and conditions of the GPL." << endl << endl;
     cout << "To quit, type 'quit;', 'exit;', 'bye;', '.q', '.quit', '.exit' or '.bye'" << endl;
 }
 
@@ -159,7 +165,7 @@ int main(void)
     bool quit=false;
     bool next_command_is_function=false;    
     while (!quit) {
-        strcpy(prompt,"GiNaCcint> ");
+        strcpy(prompt,"GiNaC> ");
         int open_braces=0;
         bool end_of_command=false;
         string command;
@@ -196,7 +202,7 @@ int main(void)
                     end_of_command=true;
                 }
             }
-            strcpy(prompt,"  (more) > ");
+            strcpy(prompt,"     > ");
         }
         string stripped_command=strip_whitespace(command);
         if ((stripped_command=="quit;")||

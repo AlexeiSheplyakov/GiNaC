@@ -28,9 +28,9 @@
 #include "utils.h"
 #include "debugmsg.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(lorentzidx, idx)
 
@@ -146,7 +146,7 @@ ex lorentzidx::unarchive(const archive_node &n, const lst &sym_lst)
 
     if (ex_to_lorentzidx(s).symbolic) {
         // If lorentzidx is in sym_lst, return the existing lorentzidx
-        for (int i=0; i<sym_lst.nops(); i++) {
+        for (unsigned i=0; i<sym_lst.nops(); i++) {
             if (is_ex_of_type(sym_lst.op(i), lorentzidx) && (ex_to_lorentzidx(sym_lst.op(i)).name == ex_to_lorentzidx(s).name))
                 return sym_lst.op(i);
         }
@@ -294,6 +294,6 @@ lorentzidx lorentzidx::create_anonymous_representative(void) const
 const lorentzidx some_lorentzidx;
 const type_info & typeid_lorentzidx=typeid(some_lorentzidx);
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC

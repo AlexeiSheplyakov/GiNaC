@@ -26,9 +26,9 @@
 #include "basic.h"
 #include "expairseq.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 /** This class holds a extended truncated power series (positive and negative
  *  integer powers). It consists of expression coefficients (only non-zero
@@ -119,8 +119,8 @@ inline ex series_to_poly(const ex &e)
 	return (static_cast<const pseries &>(*e.bp).convert_to_poly(true));
 }
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_SERIES_H__

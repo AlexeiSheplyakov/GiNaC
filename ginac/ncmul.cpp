@@ -32,9 +32,9 @@
 #include "debugmsg.h"
 #include "utils.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(ncmul, exprseq)
 
@@ -653,6 +653,6 @@ ex simplified_ncmul(const exvector & v)
                                    status_flags::evaluated);
 }
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC

@@ -26,9 +26,9 @@
 #include <string>
 #include "exprseq.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 /** Base class for non-commutative indexed objects */
 class indexed : public exprseq
@@ -99,8 +99,8 @@ inline const indexed &ex_to_indexed(const ex &e)
 	return static_cast<const indexed &>(*e.bp);
 }
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_INDEXED_H__

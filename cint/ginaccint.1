@@ -1,0 +1,129 @@
+.TH ginaccint 1 "January, 2000" "GiNaC"
+.SH NAME
+GiNaC-cint \- An interactive interface for GiNaC based on the Cint C/C++ interpreter
+.SH SYNPOSIS
+.B ginaccint
+.SH DESCRIPTION
+.B ginaccint
+is an interactive frontend for the GiNaC symbolic computation
+framework.  It is a tool that lets you write interactive programs in
+C++ that directly make use of GiNaC's classes and thus a more complete
+replacement for traditional interactive computer algebra systems than
+\fBginsh\fP(1) is.  Programs may be composed as scripts and later compiled
+with the native compiler and linked into the system.
+.SH USAGE
+.SS INPUT FORMAT
+After startup, ginsh displays a prompt signifying that it is ready to
+accept your input. All C++ statements are valid as input, extended by
+GiNaC's numeric or symbolic expressions.  E.g.
+.BR fibonacci(24)/1104; 
+returns a GiNaC object of class
+.BR ex,
+, which in this case represents the numeric 42.  Symbols are declared by 
+statements as
+.nf 
+GiNaC> symbol x("x"), y("y"), z;
+.fi
+which defines two named symbols and an anonymous one for later usage.
+All GiNaC methods and functions are available as they would be typed
+in C++.  It is not necessary to explicitly invoke a print command as
+the last expression is automatically printed:
+.nf
+GiNaC> pow(x+y,4).expand();
+out2 = x^4+4*x^3*y+6*x^2*y^2+4*x*y^3+y^4
+.fi
+Statements are generally closed by either when a closing brace 
+.RB ( } )
+matches the first opening brace
+.RB ( { ) 
+or a semicolon
+.RB ( ; )
+is encountered.
+
+
+.SS FUNCTION DEFINITIONS
+GiNaC-cint must be put into a special mode in order to define a
+function.  This is done with the command
+.RB .function .
+After that any function definition in valid C++ syntax may be typed
+in.  It becomes immediatly available for usage.
+
+.SH EXAMPLES
+.nf
+GiNaC> symbol x("x"), y("y"), z("z");
+GiNaC> ex a = pow(x,2)-x-2;
+GiNaC> ex b = pow(x+1,2);
+GiNaC> ex s = a/b;
+GiNaC> s.diff(x);
+out1   -2*(1+x)^(-3)*(-2-x+x^2)+(-1+2*x)*(1+x)^(-2)
+GiNaC> s.normal();
+out2   (-2+x)*(1+x)^(-1)
+GiNaC> .function
+next expression can be a function definition
+GiNaC> ex EulerNumber(unsigned n)
+     > {
+     >     symbol x;
+     >     ex generator = pow(cosh(x),-1);
+     >     return generator.diff(x,n).subs(x==0);
+     > }
+creating file /tmp/ginac26197caa
+GiNaC> EulerNumber(42);
+out3   -10364622733519612119397957304745185976310201
+GiNaC> quit;
+.fi
+
+.SH BUGS
+Cint accepts most of K&R and ANSI C/C++ language construct but not
+perfect.  In fact, Cint is not aimed to be a 100% ANSI/ISO compliant
+C/C++ language processor.  It rather is a portable script language
+environment which is close enough to the standard C++.  See the file 
+.BR limitati.txt
+in your Cint distribution.  Please take the time to track down any bug
+you encounter as far as possible and contact Masaharu Goto
+<MXJ02154@niftyserve.or.jp> for Cint-related bugs and
+<ginac-bugs@ginac.de> for any bugs in the GiNaC engine.
+
+.SH AUTHOR
+.TP
+The GiNaC Group:
+.br
+Christian Bauer <Christian.Bauer@uni-mainz.de>
+.br
+Alexander Frink <Alexander.Frink@uni-mainz.de>
+.br
+Richard Kreckel <Richard.Kreckel@uni-mainz.de>
+.SH SEE ALSO
+GiNaC Tutorial \- An open framework for symbolic computation within the
+C++ programming language
+.PP
+CLN \- A Class Library for Numbers, Bruno Haible
+.PP
+\fBginsh\fP(1)
+.SH COPYRIGHT
+.SS CINT COPYRIGHT
+Copyright \(co of Cint and associated tools are owned by Agilent
+Technologies Japan Company and the author.  Acknowledgement to the
+author by e-mail is recommended at installation.  Source code, binary
+executable or library of Cint and associated tools can be used,
+modified and distributed free of charge for any purpose provided that
+the copyright notice appear in all copies and that both that copyright
+notice and this permission notice appear in documentation.
+Registration is requested, at this moment, for commercial use.  Send
+e-mail to the author <MXJ02154@niftyserve.or.jp>.  The registration is
+free.
+.SS GINAC COPYRIGHT
+Copyright \(co 1999-2000 Johannes Gutenberg Universit\(:at Mainz, Germany
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.

@@ -35,9 +35,9 @@
 #include "assertion.h"
 #include "registrar.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 class basic;
 class ex;
@@ -190,7 +190,7 @@ extern int max_recursion_level;
 
 // convenience macros
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 
 #define is_of_type(OBJ,TYPE) \
     (dynamic_cast<TYPE *>(const_cast<GiNaC::basic *>(&OBJ))!=0)
@@ -204,7 +204,7 @@ extern int max_recursion_level;
 #define is_ex_exactly_of_type(OBJ,TYPE) \
     ((*(OBJ).bp).tinfo()==GiNaC::TINFO_##TYPE)
 
-#else // ndef NO_GINAC_NAMESPACE
+#else // ndef NO_NAMESPACE_GINAC
 
 #define is_of_type(OBJ,TYPE) \
     (dynamic_cast<TYPE *>(const_cast<basic *>(&OBJ))!=0)
@@ -218,10 +218,10 @@ extern int max_recursion_level;
 #define is_ex_exactly_of_type(OBJ,TYPE) \
     ((*(OBJ).bp).tinfo()==TINFO_##TYPE)
 
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_BASIC_H__

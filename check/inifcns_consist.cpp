@@ -23,9 +23,9 @@
 
 #include <ginac/ginac.h>
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 using namespace GiNaC;
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 /* Some tests on the sine trigonometric function. */
 static unsigned inifcns_consist_sin(void)

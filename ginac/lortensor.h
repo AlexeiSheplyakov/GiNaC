@@ -30,9 +30,9 @@
 #include "indexed.h"
 #include "lorentzidx.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 /** Base class for lortensor object */
 class lortensor : public indexed
@@ -42,7 +42,7 @@ class lortensor : public indexed
     // friend lortensor lortensor_delta(const ex & mu, const ex & nu);
     friend lortensor lortensor_epsilon(const ex & mu, const ex & nu,
                                        const ex & rho, const ex & sigma);
-    friend lortensor lortensor_rankn(const string & n, const exvector & iv);
+    // friend lortensor lortensor_rankn(const string & n, const exvector & iv);
     friend lortensor lortensor_rank1(const string & n, const ex & mu);
     friend lortensor lortensor_rank2(const string & n, const ex & mu, const ex & nu);
     friend ex simplify_lortensor_mul(const ex & m);
@@ -125,8 +125,8 @@ private:
 
 // global constants
 
-    extern const lortensor some_lortensor;
-    extern const type_info & typeid_lortensor;
+extern const lortensor some_lortensor;
+extern const type_info & typeid_lortensor;
 
 // utility functions
     
@@ -145,8 +145,8 @@ ex simplify_lortensor_mul(const ex & m);
 ex simplify_lortensor(const ex & e);
 ex Dim(void);    
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_LORTENSOR_H__

@@ -26,9 +26,9 @@
 
 #include "basic.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 class fail : public basic
 {
@@ -71,8 +71,8 @@ protected:
 extern const fail some_fail;
 extern const type_info & typeid_fail;
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_FAIL_H__

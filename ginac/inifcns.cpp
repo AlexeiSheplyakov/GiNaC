@@ -37,9 +37,9 @@
 #include "symbol.h"
 #include "utils.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 //////////
 // absolute value
@@ -281,6 +281,6 @@ ex ncpower(const ex &basis, unsigned exponent)
 unsigned force_include_gamma = function_index_gamma;
 unsigned force_include_zeta1 = function_index_zeta1;
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC

@@ -31,9 +31,9 @@
 #include "debugmsg.h"
 #include "utils.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -95,58 +95,45 @@ const ex & ex::operator=(const ex & other)
 // public
 
 #ifndef INLINE_EX_CONSTRUCTORS
+
 ex::ex(const basic & other)
 {
     debugmsg("ex constructor from basic",LOGLEVEL_CONSTRUCT);
     construct_from_basic(other);
 }
-#endif
 
 ex::ex(int i)
 {
     debugmsg("ex constructor from int",LOGLEVEL_CONSTRUCT);
-    switch (i) {  // some tiny efficiency-hack (FIXME: is this ok?)
-        case -1:
-            bp = _ex_1().bp;
-            ++bp->refcount;
-            break;
-        case 0:
-            bp = _ex0().bp;
-            ++bp->refcount;
-            break;
-        case 1:
-            bp = _ex1().bp;
-            ++bp->refcount;
-            break;
-        default:
-            construct_from_basic(numeric(i));
-    }
+    construct_from_int(i);
 }
 
 ex::ex(unsigned int i)
 {
     debugmsg("ex constructor from unsigned int",LOGLEVEL_CONSTRUCT);
-    construct_from_basic(numeric(i));
+    construct_from_uint(i);
 }
 
 ex::ex(long i)
 {
     debugmsg("ex constructor from long",LOGLEVEL_CONSTRUCT);
-    construct_from_basic(numeric(i));
+    construct_from_long(i);
 }
 
 ex::ex(unsigned long i)
 {
     debugmsg("ex constructor from unsigned long",LOGLEVEL_CONSTRUCT);
-    construct_from_basic(numeric(i));
+    construct_from_ulong(i);
 }
 
 ex::ex(double const d)
 {
     debugmsg("ex constructor from double",LOGLEVEL_CONSTRUCT);
-    construct_from_basic(numeric(d));
+    construct_from_double(d);
 }
-    
+
+#endif // ndef INLINE_EX_CONSTRUCTORS
+
 //////////
 // functions overriding virtual functions from bases classes
 //////////
@@ -507,14 +494,14 @@ void ex::makewriteable()
     GINAC_ASSERT(bp!=0);
     GINAC_ASSERT(bp->flags & status_flags::dynallocated);
     if (bp->refcount > 1) {
-        basic * bp2=bp->duplicate();
+        basic * bp2 = bp->duplicate();
         ++bp2->refcount;
         bp2->setflag(status_flags::dynallocated);
         --bp->refcount;
-        bp=bp2;
+        bp = bp2;
     }
     GINAC_ASSERT(bp->refcount == 1);
-}    
+}
 
 void ex::construct_from_basic(const basic & other)
 {
@@ -530,9 +517,9 @@ void ex::construct_from_basic(const basic & other)
         }
     } else {
         if (other.flags & status_flags::dynallocated) {
-            bp=&const_cast<basic &>(other);
+            bp = &const_cast<basic &>(other);
         } else {
-            bp=other.duplicate();
+            bp = other.duplicate();
             bp->setflag(status_flags::dynallocated);
         }
         GINAC_ASSERT(bp!=0);
@@ -543,6 +530,143 @@ void ex::construct_from_basic(const basic & other)
     GINAC_ASSERT(bp->flags & status_flags::dynallocated);
 }
 
+void ex::construct_from_int(int i)
+{
+    switch (i) {  // some tiny efficiency-hack
+    case -2:
+        bp = _ex_2().bp;
+        ++bp->refcount;
+        break;
+    case -1:
+        bp = _ex_1().bp;
+        ++bp->refcount;
+        break;
+    case 0:
+        bp = _ex0().bp;
+        ++bp->refcount;
+        break;
+    case 1:
+        bp = _ex1().bp;
+        ++bp->refcount;
+        break;
+    case 2:
+        bp = _ex2().bp;
+        ++bp->refcount;
+        break;
+    default:
+        bp = new numeric(i);
+        bp->setflag(status_flags::dynallocated);
+        ++bp->refcount;
+        GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
+        GINAC_ASSERT(bp->refcount=1);
+    }
+}
+    
+void ex::construct_from_uint(unsigned int i)
+{
+    switch (i) {  // some tiny efficiency-hack
+    case -2:
+        bp = _ex_2().bp;
+        ++bp->refcount;
+        break;
+    case -1:
+        bp = _ex_1().bp;
+        ++bp->refcount;
+        break;
+    case 0:
+        bp = _ex0().bp;
+        ++bp->refcount;
+        break;
+    case 1:
+        bp = _ex1().bp;
+        ++bp->refcount;
+        break;
+    case 2:
+        bp = _ex2().bp;
+        ++bp->refcount;
+        break;
+    default:
+        bp = new numeric(i);
+        bp->setflag(status_flags::dynallocated);
+        ++bp->refcount;
+        GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
+        GINAC_ASSERT(bp->refcount=1);
+    }
+}
+    
+void ex::construct_from_long(long i)
+{
+    switch (i) {  // some tiny efficiency-hack
+    case -2:
+        bp = _ex_2().bp;
+        ++bp->refcount;
+        break;
+    case -1:
+        bp = _ex_1().bp;
+        ++bp->refcount;
+        break;
+    case 0:
+        bp = _ex0().bp;
+        ++bp->refcount;
+        break;
+    case 1:
+        bp = _ex1().bp;
+        ++bp->refcount;
+        break;
+    case 2:
+        bp = _ex2().bp;
+        ++bp->refcount;
+        break;
+    default:
+        bp = new numeric(i);
+        bp->setflag(status_flags::dynallocated);
+        ++bp->refcount;
+        GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
+        GINAC_ASSERT(bp->refcount=1);
+    }
+}
+    
+void ex::construct_from_ulong(unsigned long i)
+{
+    switch (i) {  // some tiny efficiency-hack
+    case -2:
+        bp = _ex_2().bp;
+        ++bp->refcount;
+        break;
+    case -1:
+        bp = _ex_1().bp;
+        ++bp->refcount;
+        break;
+    case 0:
+        bp = _ex0().bp;
+        ++bp->refcount;
+        break;
+    case 1:
+        bp = _ex1().bp;
+        ++bp->refcount;
+        break;
+    case 2:
+        bp = _ex2().bp;
+        ++bp->refcount;
+        break;
+    default:
+        bp = new numeric(i);
+        bp->setflag(status_flags::dynallocated);
+        ++bp->refcount;
+        GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
+        GINAC_ASSERT(bp->refcount=1);
+    }
+}
+    
+void ex::construct_from_double(double d)
+{
+    bp = new numeric(d);
+    bp->setflag(status_flags::dynallocated);
+    ++bp->refcount;
+    GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
+    GINAC_ASSERT(bp->refcount=1);
+}
+    
 //////////
 // static member variables
 //////////
@@ -562,6 +686,6 @@ void ex::construct_from_basic(const basic & other)
 // none
 
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC

@@ -25,9 +25,9 @@
 
 #include <string>
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 class registered_class_info;
 class ex;
@@ -65,13 +65,8 @@ struct registered_class_info {
 #define GINAC_DECLARE_REGISTERED_CLASS(classname, supername) \
 public: \
     typedef supername inherited; \
-\
-	/** This structure stores information about the class. */ \
     static registered_class_info reg_info; \
-\
-	/** Return pointer to class name. */ \
     virtual const char *class_name(void) const; \
-\
     classname(const archive_node &n, const lst &sym_lst); \
     virtual void archive(archive_node &n) const; \
     static ex unarchive(const archive_node &n, const lst &sym_lst); \
@@ -90,8 +85,8 @@ extern unsigned int find_tinfo_key(const string &class_name);
 extern unarch_func find_unarch_func(const string &class_name);
 
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_REGISTRAR_H__

@@ -29,9 +29,9 @@
 #include "debugmsg.h"
 #include "utils.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(add, expairseq)
 
@@ -555,6 +555,6 @@ unsigned add::precedence=40;
 const add some_add;
 const type_info & typeid_add=typeid(some_add);
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC

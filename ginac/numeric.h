@@ -30,9 +30,9 @@
 class cl_N;     // We want to include cln.h only in numeric.cpp in order to 
                 // avoid namespace pollution and keep compile-time low.
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 #define HASHVALUE_NUMERIC 0x80000001U
 
@@ -127,6 +127,7 @@ public:
     void printtree(ostream & os, unsigned indent) const;
     void printcsrc(ostream & os, unsigned type, unsigned precedence=0) const;
     bool info(unsigned inf) const;
+    ex eval(int level=0) const;
     ex evalf(int level=0) const;
     ex diff(const symbol & s) const;
     ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
@@ -323,13 +324,10 @@ ex EulerGammaEvalf(void);
 ex CatalanEvalf(void);
 
 // utility functions
-inline const numeric &ex_to_numeric(const ex &e)
-{
-    return static_cast<const numeric &>(*e.bp);
-}
+const numeric &ex_to_numeric(const ex &e);
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_NUMERIC_H__

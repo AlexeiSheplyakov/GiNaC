@@ -28,9 +28,9 @@
 #include "utils.h"
 #include "debugmsg.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(relational, basic)
 
@@ -406,6 +406,6 @@ unsigned relational::precedence=20;
 const relational some_relational;
 const type_info & typeid_relational=typeid(some_relational);
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC

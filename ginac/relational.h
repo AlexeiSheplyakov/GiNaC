@@ -26,9 +26,9 @@
 #include "basic.h"
 #include "ex.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 /** This class holds a relation consisting of two expressions and a logical
  *  relation between them. */
@@ -106,8 +106,8 @@ inline const relational &ex_to_relational(const ex &e)
 	return static_cast<const relational &>(*e.bp);
 }
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_RELATIONAL_H__

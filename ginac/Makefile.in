@@ -70,6 +70,7 @@ DLLTOOL = @DLLTOOL@
 DOXYGEN = @DOXYGEN@
 DVIPS = @DVIPS@
 FIG2DEV = @FIG2DEV@
+GINACCINTDIR = @GINACCINTDIR@
 GINACLIB_BINARY_AGE = @GINACLIB_BINARY_AGE@
 GINACLIB_CPPFLAGS = @GINACLIB_CPPFLAGS@
 GINACLIB_INTERFACE_AGE = @GINACLIB_INTERFACE_AGE@
@@ -82,6 +83,7 @@ GINSH_LIBS = @GINSH_LIBS@
 LATEX = @LATEX@
 LD = @LD@
 LEX = @LEX@
+LIBGINACCINT = @LIBGINACCINT@
 LIBTOOL = @LIBTOOL@
 LN_S = @LN_S@
 LT_AGE = @LT_AGE@
@@ -292,7 +294,7 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$/$$file $(distdir)/$$file; \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \

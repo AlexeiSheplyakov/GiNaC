@@ -73,9 +73,9 @@
 #include <cl_numtheory.h>
 #endif  // def HAVE_CLN_CLN_H
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif  // ndef NO_GINAC_NAMESPACE
+#endif  // ndef NO_NAMESPACE_GINAC
 
 // linker has no problems finding text symbols for numerator or denominator
 //#define SANE_LINKER
@@ -522,6 +522,13 @@ bool numeric::info(unsigned inf) const
         return is_prime();
     }
     return false;
+}
+
+ex numeric::eval(int level) const
+{
+    // Warning: if this is ever gonna do something, the ex ctors from all kinds
+    // of numbers should be checking for status_flags::evaluated.
+    return this->hold();
 }
 
 /** Cast numeric into a floating-point object.  For example exact numeric(1) is
@@ -1651,10 +1658,20 @@ ostream& operator<<(ostream& os, const _numeric_digits & e)
 
 bool _numeric_digits::too_late = false;
 
+
+//////////
+// utility functions
+//////////
+
+const numeric &ex_to_numeric(const ex &e)
+{
+    return static_cast<const numeric &>(*e.bp);
+}
+
 /** Accuracy in decimal digits.  Only object of this type!  Can be set using
  *  assignment from C++ unsigned ints and evaluated like any built-in type. */
 _numeric_digits Digits;
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC

@@ -31,9 +31,9 @@
 #include "symbol.h"
 #include "utils.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 //////////
 // Riemann's Zeta-function
@@ -112,6 +112,6 @@ static ex zeta2_diff(const ex & n, const ex & x, unsigned diff_param)
 
 const unsigned function_index_zeta2 = function::register_new("zeta", zeta2_eval, NULL, zeta2_diff, NULL);
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC

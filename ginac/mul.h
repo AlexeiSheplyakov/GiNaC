@@ -25,9 +25,9 @@
 
 #include "expairseq.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 /** Product of expressions. */
 class mul : public expairseq
@@ -123,8 +123,8 @@ inline const mul &ex_to_mul(const ex &e)
 	return static_cast<const mul &>(*e.bp);
 }
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_MUL_H__

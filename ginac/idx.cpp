@@ -30,9 +30,9 @@
 #include "utils.h"
 #include "debugmsg.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(idx, basic)
 
@@ -149,7 +149,7 @@ ex idx::unarchive(const archive_node &n, const lst &sym_lst)
 
     if (ex_to_idx(s).symbolic) {
         // If idx is in sym_lst, return the existing idx
-        for (int i=0; i<sym_lst.nops(); i++) {
+        for (unsigned i=0; i<sym_lst.nops(); i++) {
             if (is_ex_of_type(sym_lst.op(i), idx) && (ex_to_idx(sym_lst.op(i)).name == ex_to_idx(s).name))
                 return sym_lst.op(i);
         }
@@ -497,6 +497,6 @@ ex subs_indices(const ex & e, const exvector & idxv_subs,
     return res;
 }
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC

@@ -130,9 +130,9 @@ $interface=<<END_OF_INTERFACE;
 #include "basic.h"
 #include "ex.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 // typedef ${STLHEADER}<ex> ${STLT};
 typedef ${STLHEADER}<ex,malloc_alloc> ${STLT}; // CINT does not like ${STLHEADER}<...,default_alloc>
@@ -231,9 +231,9 @@ inline const ${CONTAINER} &ex_to_${CONTAINER}(const ex &e)
     return static_cast<const ${CONTAINER} &>(*e.bp);
 }
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_${CONTAINER_UC}_H__
 
@@ -280,9 +280,9 @@ $implementation=<<END_OF_IMPLEMENTATION;
 #include "archive.h"
 #include "debugmsg.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(${CONTAINER}, basic)
 
@@ -896,9 +896,9 @@ unsigned ${CONTAINER}::precedence=10;
 const ${CONTAINER} some_${CONTAINER};
 const type_info & typeid_${CONTAINER}=typeid(some_${CONTAINER});
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 END_OF_IMPLEMENTATION
 

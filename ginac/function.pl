@@ -171,31 +171,31 @@ $interface=<<END_OF_INTERFACE;
 
 #include "exprseq.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 
 // the following lines have been generated for max. ${maxargs} parameters
 $declare_function_macro_namespace
 // end of generated lines
 
-#else // ndef NO_GINAC_NAMESPACE
+#else // ndef NO_NAMESPACE_GINAC
 
 // the following lines have been generated for max. ${maxargs} parameters
 $declare_function_macro_no_namespace
 // end of generated lines
 
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 
 #define REGISTER_FUNCTION(NAME,E,EF,D,S) \\
 const unsigned function_index_##NAME=GiNaC::function::register_new(#NAME,E,EF,D,S);
 
-#else // ndef NO_GINAC_NAMESPACE
+#else // ndef NO_NAMESPACE_GINAC
 
 #define REGISTER_FUNCTION(NAME,E,EF,D,S) \\
 const unsigned function_index_##NAME=function::register_new(#NAME,E,EF,D,S);
 
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 #define BEGIN_TYPECHECK \\
 bool automatic_typecheck=true;
@@ -205,21 +205,21 @@ if (!is_ex_exactly_of_type(VAR,TYPE)) { \\
     automatic_typecheck=false; \\
 } else
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 
 #define TYPECHECK_INTEGER(VAR) \\
 if (!(VAR).info(GiNaC::info_flags::integer)) { \\
     automatic_typecheck=false; \\
 } else
 
-#else // ndef NO_GINAC_NAMESPACE
+#else // ndef NO_NAMESPACE_GINAC
 
 #define TYPECHECK_INTEGER(VAR) \\
 if (!(VAR).info(info_flags::integer)) { \\
     automatic_typecheck=false; \\
 } else
 
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 #define END_TYPECHECK(RV) \\
 {} \\
@@ -227,9 +227,9 @@ if (!automatic_typecheck) { \\
     return RV.hold(); \\
 }
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 class function;
 
@@ -327,26 +327,26 @@ protected:
 
 // utility macros
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 
 #define is_ex_the_function(OBJ, FUNCNAME) \\
     (is_ex_exactly_of_type(OBJ, function) && static_cast<GiNaC::function *>(OBJ.bp)->getserial() == function_index_##FUNCNAME)
 
-#else // ndef NO_GINAC_NAMESPACE
+#else // ndef NO_NAMESPACE_GINAC
 
 #define is_ex_the_function(OBJ, FUNCNAME) \\
     (is_ex_exactly_of_type(OBJ, function) && static_cast<function *>(OBJ.bp)->getserial() == function_index_##FUNCNAME)
 
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 // global constants
 
 extern const function some_function;
 extern const type_info & typeid_function;
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_FUNCTION_H__
 
@@ -388,9 +388,9 @@ $implementation=<<END_OF_IMPLEMENTATION;
 #include "utils.h"
 #include "debugmsg.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(function, exprseq)
 
@@ -752,9 +752,9 @@ $register_new_implementation
 const function some_function;
 const type_info & typeid_function=typeid(some_function);
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 END_OF_IMPLEMENTATION
 

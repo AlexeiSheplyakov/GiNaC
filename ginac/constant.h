@@ -26,9 +26,9 @@
 #include <string>
 #include "basic.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 typedef ex (*evalffunctype)(void);
     
@@ -97,8 +97,8 @@ extern const constant Pi;
 extern const constant Catalan;
 extern const constant EulerGamma;
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_CONSTANT_H__

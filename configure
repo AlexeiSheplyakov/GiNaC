@@ -544,10 +544,10 @@ fi
 
 
 GINACLIB_MAJOR_VERSION=0
-GINACLIB_MINOR_VERSION=4
-GINACLIB_MICRO_VERSION=1
+GINACLIB_MINOR_VERSION=5
+GINACLIB_MICRO_VERSION=0
 GINACLIB_INTERFACE_AGE=0
-GINACLIB_BINARY_AGE=1
+GINACLIB_BINARY_AGE=0
 GINACLIB_VERSION=$GINACLIB_MAJOR_VERSION.$GINACLIB_MINOR_VERSION.$GINACLIB_MICRO_VERSION
 
 
@@ -2853,13 +2853,24 @@ fi
 
 
 
+LIBGINACCINT=
+GINACCINTDIR=
 if [ "x$with_cint" != "xno" ]; then
-  echo "with_cint is set to: $with_cint"
-  CINTSYSDIR=$with_cint
+  if [ "x$enable_static" != "xyes" ]; then
+    { echo "configure: error: currently GiNaC-cint needs to build a static libginac" 1>&2; exit 1; }
+  fi
+  if [ "x$with_cint" = "xyes" ]; then
+    if [ "x$CINTSYSDIR" = "x" ]; then
+      { echo "configure: error: please export \$CINTSYSDIR or specify --with-cint=CINTSYSDIR" 1>&2; exit 1; }
+    fi
+  else
+    CINTSYSDIR=$with_cint
+    export CINTSYSDIR
+  fi
   # Extract the first word of "cint", so it can be a program name with args.
 set dummy cint; ac_word=$2
 echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:2863: checking for $ac_word" >&5
+echo "configure:2874: checking for $ac_word" >&5
 if eval "test \"`echo '$''{'ac_cv_path_CINT'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -2895,7 +2906,7 @@ fi
   # Extract the first word of "makecint", so it can be a program name with args.
 set dummy makecint; ac_word=$2
 echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:2899: checking for $ac_word" >&5
+echo "configure:2910: checking for $ac_word" >&5
 if eval "test \"`echo '$''{'ac_cv_path_MAKECINT'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -2928,12 +2939,23 @@ else
   echo "$ac_t""no" 1>&6
 fi
 
-  if [ "$cint" -a "$makecint" ]; then
-    echo "$ac_t""Configuring GiNaC-cint" 1>&6
+  if [ "$CINT" -a "$MAKECINT" ]; then
+    echo "$ac_t""creating cint/Makefile" 1>&6
+    (cd cint && \
+    $MAKECINT -mk Makefile.makecint -o ginaccint -m \
+      -D OBSCURE_CINT_HACK -D NO_NAMESPACE_GINAC \
+      -I .. -I $CINTSYSDIR -m -H ../ginac/ginac.h dummies.h \
+      -C++ dummies.cpp -C++ ginaccint.cpp \
+      -l ./libginac.a -lcln -cint -M0x10; \
+    cd ..)
+    LIBGINACCINT="libginac.a"
+    GINACCINTDIR="cint"
   else
     { echo "configure: error: Cannot configure GiNaC-cint" 1>&2; exit 1; }
   fi
 fi
+
+
 
 trap '' 1 2 15
 cat > confcache <<\EOF
@@ -3047,6 +3069,7 @@ tools/Makefile
 doc/Makefile
 doc/tutorial/Makefile
 doc/reference/Makefile
+cint/Makefile
  config.h" | sed "s/:[^ ]*//g"` conftest*; exit 1' 1 2 15
 EOF
 cat >> $CONFIG_STATUS <<EOF
@@ -3140,6 +3163,8 @@ s%@TUTORIAL_TARGETS@%$TUTORIAL_TARGETS%g
 s%@REFERENCE_TARGETS@%$REFERENCE_TARGETS%g
 s%@CINT@%$CINT%g
 s%@MAKECINT@%$MAKECINT%g
+s%@LIBGINACCINT@%$LIBGINACCINT%g
+s%@GINACCINTDIR@%$GINACCINTDIR%g
 
 CEOF
 EOF
@@ -3191,6 +3216,7 @@ tools/Makefile
 doc/Makefile
 doc/tutorial/Makefile
 doc/reference/Makefile
+cint/Makefile
 "}
 EOF
 cat >> $CONFIG_STATUS <<\EOF

@@ -27,9 +27,9 @@
 #include "basic.h"
 #include "operators.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 class ex;
 class expand_options;
@@ -38,7 +38,9 @@ class status_flags;
 class symbol;
 class lst;
 
-extern const ex & _ex0(void);  /* FIXME: should this pollute headers? */
+// Sorry, this is the only constant to pollute the global scope, the other ones
+// are defined in utils.h and not visible from outside.
+extern const ex & _ex0(void);     //  single ex(numeric(0))
 
 // typedef vector<ex> exvector;
 
@@ -135,12 +137,67 @@ public:
 ;
 #endif // def INLINE_EX_CONSTRUCTORS
     
-    ex(int i);
-    ex(unsigned int i);
-    ex(long i);
-    ex(unsigned long i);
-    ex(double const d);
+    ex(int i)
+#ifdef INLINE_EX_CONSTRUCTORS
+        {
+            construct_from_int(i);
+#ifdef OBSCURE_CINT_HACK
+            update_last_created_or_assigned_bp();
+#endif // def OBSCURE_CINT_HACK
+        }
+#else
+;
+#endif // def INLINE_EX_CONSTRUCTORS
 
+    ex(unsigned int i)
+#ifdef INLINE_EX_CONSTRUCTORS
+        {
+            construct_from_uint(i);
+#ifdef OBSCURE_CINT_HACK
+            update_last_created_or_assigned_bp();
+#endif // def OBSCURE_CINT_HACK
+        }
+#else
+;
+#endif // def INLINE_EX_CONSTRUCTORS
+    
+    ex(long i)
+#ifdef INLINE_EX_CONSTRUCTORS
+        {
+            construct_from_long(i);
+#ifdef OBSCURE_CINT_HACK
+            update_last_created_or_assigned_bp();
+#endif // def OBSCURE_CINT_HACK
+        }
+#else
+;
+#endif // def INLINE_EX_CONSTRUCTORS
+
+    ex(unsigned long i)
+#ifdef INLINE_EX_CONSTRUCTORS
+        {
+            construct_from_ulong(i);
+#ifdef OBSCURE_CINT_HACK
+            update_last_created_or_assigned_bp();
+#endif // def OBSCURE_CINT_HACK
+        }
+#else
+;
+#endif // def INLINE_EX_CONSTRUCTORS
+    
+    ex(double const d)
+#ifdef INLINE_EX_CONSTRUCTORS
+        {
+            construct_from_double(d);
+#ifdef OBSCURE_CINT_HACK
+            update_last_created_or_assigned_bp();
+#endif // def OBSCURE_CINT_HACK
+        }
+#else
+;
+#endif // def INLINE_EX_CONSTRUCTORS
+
+    
     // functions overriding virtual functions from bases classes
     // none
     
@@ -227,6 +284,11 @@ public:
     ex exncmul(const ex & rh) const;
 private:
     void construct_from_basic(const basic & other);
+    void construct_from_int(int i);
+    void construct_from_uint(unsigned int i);
+    void construct_from_long(long i);
+    void construct_from_ulong(unsigned long i);
+    void construct_from_double(double d);
     void makewriteable();
 
 #ifdef OBSCURE_CINT_HACK
@@ -320,9 +382,9 @@ inline ex subs(const ex & thisex, const lst & ls, const lst & lr)
 inline void swap(ex & e1, ex & e2)
 { e1.swap(e2); }
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_EX_H__
 

@@ -1,11 +1,24 @@
 Prerequisites
 =============
 
-GiNaC requires the CLN library by Bruno Haible, available at
-<ftp://ftp.santafe.eu/pub/gnu/> or <ftp://ftp.ilog.fr/pub/Users/haible/gnu/>.
-You will also need a good C++ compiler adhering to the ANSI standard (we 
-used gcc for development so if you have a different compiler you are on 
-your own).
+GiNaC requires the CLN library by Bruno Haible, available at either
+one of the following FTP-sites:
+  * <ftp://ftp.santafe.edu/pub/gnu/>,
+  * <ftp://ftp.ilog.fr/pub/Users/haible/gnu/> or
+  * <ftp://ftpthep.physik.uni-mainz.de/pub/gnu/>.
+You will also need a decent ANSI-compliant C++-compiler.  We use
+`post-EGCS' GCC, i.e GCC >= 2.95 for development so if you have a
+different compiler you are on your own.  Note that you may have to use
+the same compiler you compiled CLN with because of differing
+name-mangling schemes.
+
+Optionally, GiNaC may work together with Masaharu Goto's C++
+interpreter cint (which requires that you register for commercial
+use).  You may obtain it from
+  * <ftp://root.cern.ch/root/>.
+Install it by following the instructions included in Cint's
+distribution before trying to compile GiNaC-cint.  (See section
+`Working with the Cint C++ interpreter' below.)
 
 
 Installation
@@ -60,3 +73,11 @@ To protect you, the "configure" script checks for a feature that was
 added in V1.0.3 so it won't continue with earlier versions anyhow.
 Please install CLN properly on your system before continuing with
 GiNaC.
+
+
+Working with the Cint C++ interpreter
+=====================================
+
+You need to specify
+  --with-cint=$CINTSYSDIR
+...

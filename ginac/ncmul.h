@@ -25,9 +25,9 @@
 
 #include "exprseq.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 /** Non-commutative product of expressions. */
 class ncmul : public exprseq
@@ -118,8 +118,8 @@ inline const ncmul &ex_to_ncmul(const ex &e)
 	return static_cast <const ncmul &>(*e.bp);
 }
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_NCMUL_H__

@@ -23,9 +23,9 @@
 #ifndef __GINAC_TINFOS_H__
 #define __GINAC_TINFOS_H__
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 const unsigned TINFO_basic        = 0x00000001U;
 
@@ -70,8 +70,8 @@ const unsigned TINFO_idx          = 0x000d0001U;
 const unsigned TINFO_coloridx     = 0x000d1001U;
 const unsigned TINFO_lorentzidx   = 0x000d1002U;
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_TINFOS_H__

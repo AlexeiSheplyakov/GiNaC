@@ -3,7 +3,7 @@
  *  Archiving of GiNaC expressions. */
 
 /*
- *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -29,9 +29,9 @@
 #include "config.h"
 #include "utils.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 
 /** Archive an expression.
@@ -206,6 +206,7 @@ ostream &operator<<(ostream &os, const archive_node &n)
 		write_unsigned(os, n.props[i].name);
 		write_unsigned(os, n.props[i].value);
 	}
+    return os;
 }
 
 /** Write archive to binary data stream. */
@@ -237,6 +238,7 @@ ostream &operator<<(ostream &os, const archive &ar)
 	write_unsigned(os, num_nodes);
 	for (unsigned int i=0; i<num_nodes; i++)
 		os << ar.nodes[i];
+    return os;
 }
 
 /** Read archive_node from binary data stream. */
@@ -250,6 +252,7 @@ istream &operator>>(istream &is, archive_node &n)
 		n.props[i].name = read_unsigned(is);
 		n.props[i].value = read_unsigned(is);
 	}
+    return is;
 }
 
 /** Read archive from binary data stream. */
@@ -284,6 +287,7 @@ istream &operator>>(istream &is, archive &ar)
 	ar.nodes.resize(num_nodes, ar);
 	for (unsigned int i=0; i<num_nodes; i++)
 		is >> ar.nodes[i];
+    return is;
 }
 
 
@@ -576,7 +580,15 @@ void archive_node::printraw(ostream &os) const
 	}
 }
 
+/** Create a dummy archive.  The intention is to fill archive_node's default ctor,
+ *  which is currently a Cint-requirement. */
+archive* archive_node::dummy_ar_creator(void)
+{
+    static archive* some_ar = new archive;
+    return some_ar;
+}
 
-#ifndef NO_GINAC_NAMESPACE
+
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC

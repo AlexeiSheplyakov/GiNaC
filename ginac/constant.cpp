@@ -29,9 +29,9 @@
 #include "archive.h"
 #include "debugmsg.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(constant, basic)
 
@@ -241,6 +241,6 @@ const constant EulerGamma("EulerGamma", EulerGammaEvalf);
  *  Diverts straight into CLN for evalf(). */
 const constant Catalan("Catalan", CatalanEvalf);
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC

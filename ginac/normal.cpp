@@ -47,9 +47,9 @@
 #include "symbol.h"
 #include "utils.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 // If comparing expressions (ex::compare()) is fast, you can set this to 1.
 // Some routines like quo(), rem() and gcd() will then return a quick answer
@@ -228,12 +228,12 @@ static ex multiply_lcm(const ex &e, const ex &lcm)
 {
 	if (is_ex_exactly_of_type(e, mul)) {
 		ex c = _ex1();
-		for (int i=0; i<e.nops(); i++)
+		for (unsigned i=0; i<e.nops(); i++)
 			c *= multiply_lcm(e.op(i), lcmcoeff(e.op(i), _num1()));
 		return c;
 	} else if (is_ex_exactly_of_type(e, add)) {
 		ex c = _ex0();
-		for (int i=0; i<e.nops(); i++)
+		for (unsigned i=0; i<e.nops(); i++)
 			c += multiply_lcm(e.op(i), lcm);
 		return c;
 	} else if (is_ex_exactly_of_type(e, power)) {
@@ -939,11 +939,11 @@ ex basic::smod(const numeric &xi) const
 
 ex numeric::smod(const numeric &xi) const
 {
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
     return GiNaC::smod(*this, xi);
-#else // ndef NO_GINAC_NAMESPACE
+#else // ndef NO_NAMESPACE_GINAC
     return ::smod(*this, xi);
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 }
 
 ex add::smod(const numeric &xi) const
@@ -954,21 +954,21 @@ ex add::smod(const numeric &xi) const
     epvector::const_iterator itend = seq.end();
     while (it != itend) {
         GINAC_ASSERT(!is_ex_exactly_of_type(it->rest,numeric));
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
         numeric coeff = GiNaC::smod(ex_to_numeric(it->coeff), xi);
-#else // ndef NO_GINAC_NAMESPACE
+#else // ndef NO_NAMESPACE_GINAC
         numeric coeff = ::smod(ex_to_numeric(it->coeff), xi);
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
         if (!coeff.is_zero())
             newseq.push_back(expair(it->rest, coeff));
         it++;
     }
     GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
     numeric coeff = GiNaC::smod(ex_to_numeric(overall_coeff), xi);
-#else // ndef NO_GINAC_NAMESPACE
+#else // ndef NO_NAMESPACE_GINAC
     numeric coeff = ::smod(ex_to_numeric(overall_coeff), xi);
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
     return (new add(newseq,coeff))->setflag(status_flags::dynallocated);
 }
 
@@ -984,11 +984,11 @@ ex mul::smod(const numeric &xi) const
 #endif // def DO_GINAC_ASSERT
     mul * mulcopyp=new mul(*this);
     GINAC_ASSERT(is_ex_exactly_of_type(overall_coeff,numeric));
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
     mulcopyp->overall_coeff = GiNaC::smod(ex_to_numeric(overall_coeff),xi);
-#else // ndef NO_GINAC_NAMESPACE
+#else // ndef NO_NAMESPACE_GINAC
     mulcopyp->overall_coeff = ::smod(ex_to_numeric(overall_coeff),xi);
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
     mulcopyp->clearflag(status_flags::evaluated);
     mulcopyp->clearflag(status_flags::hash_calculated);
     return mulcopyp->setflag(status_flags::dynallocated);
@@ -1104,7 +1104,7 @@ factored_a:
 		ex g = _ex1();
 		ex acc_ca = _ex1();
 		ex part_b = b;
-		for (int i=0; i<a.nops(); i++) {
+		for (unsigned i=0; i<a.nops(); i++) {
 			ex part_ca, part_cb;
 			g *= gcd(a.op(i), part_b, &part_ca, &part_cb, check_args);
 			acc_ca *= part_ca;
@@ -1122,7 +1122,7 @@ factored_b:
 		ex g = _ex1();
 		ex acc_cb = _ex1();
 		ex part_a = a;
-		for (int i=0; i<b.nops(); i++) {
+		for (unsigned i=0; i<b.nops(); i++) {
 			ex part_ca, part_cb;
 			g *= gcd(part_a, b.op(i), &part_ca, &part_cb, check_args);
 			acc_cb *= part_cb;
@@ -1568,6 +1568,6 @@ ex ex::normal(int level) const
         return e;
 }
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC

@@ -3,7 +3,7 @@
  *  Archiving of GiNaC expressions. */
 
 /*
- *  GiNaC Copyright (C) 1999 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -31,9 +31,9 @@
 class ostream;
 class istream;
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 class lst;
 class archive;
@@ -55,6 +55,7 @@ class archive_node
 	friend istream &operator>>(istream &is, archive_node &ar);
 
 public:
+	archive_node() : a(*dummy_ar_creator()), has_expression(false) {}
 	archive_node(archive &ar) : a(ar), has_expression(false) {}
 	archive_node(archive &ar, const ex &expr);
 	~archive_node() {}
@@ -80,6 +81,8 @@ public:
 	void printraw(ostream &os) const;
 
 private:
+	static archive* dummy_ar_creator(void);
+
 	/** Property data types */
 	enum property_type {
 		PTYPE_BOOL,
@@ -182,8 +185,8 @@ ostream &operator<<(ostream &os, const archive &ar);
 istream &operator>>(istream &is, archive &ar);
 
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_ARCHIVE_H__

@@ -29,9 +29,9 @@
 #include "utils.h"
 #include "debugmsg.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -213,6 +213,6 @@ unsigned clifford::next_serial=0;
 const clifford some_clifford;
 const type_info & typeid_clifford=typeid(some_clifford);
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC

@@ -28,9 +28,9 @@
 #include "basic.h"
 #include "ex.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 class idx : public basic
 {
@@ -115,8 +115,8 @@ ex subs_indices(const ex & e, const exvector & idxv_contra,
                 const exvector & idxv_co);
 unsigned count_index(const ex & e, const ex & i);
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_IDX_H__

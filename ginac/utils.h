@@ -29,9 +29,9 @@
 #include "config.h"
 #include "assertion.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 template<class T>
 string ToString(T const & t)
@@ -242,8 +242,8 @@ const ex & _ex60(void);
 const numeric & _num120(void);    //  120
 const ex & _ex120(void);
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_UTILS_H__

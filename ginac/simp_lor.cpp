@@ -35,9 +35,9 @@
 #include "debugmsg.h"
 #include "utils.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -516,6 +516,6 @@ spmapkey scalar_products::make_key(const simp_lor & v1, const simp_lor & v2)
     return spmapkey(strstrpair(v1.name,v2.name),anon);
 }
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC

@@ -31,9 +31,9 @@
 
 #include "expair.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 //#define EXPAIRSEQ_USE_HASHTAB
 
@@ -202,8 +202,8 @@ inline const expairseq &ex_to_expairseq(const ex &e)
 	return static_cast<const expairseq &>(*e.bp);
 }
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 #endif // ndef __GINAC_EXPAIRSEQ_H__

@@ -31,9 +31,9 @@
 #include "utils.h"
 #include "debugmsg.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(isospin, indexed)
 
@@ -123,7 +123,7 @@ ex isospin::unarchive(const archive_node &n, const lst &sym_lst)
     ex s = (new isospin(n, sym_lst))->setflag(status_flags::dynallocated);
 
     // If isospin is in sym_lst, return the existing isospin
-    for (int i=0; i<sym_lst.nops(); i++) {
+    for (unsigned i=0; i<sym_lst.nops(); i++) {
         if (is_ex_of_type(sym_lst.op(i), isospin) && (ex_to_isospin(sym_lst.op(i)).name == ex_to_isospin(s).name))
             return sym_lst.op(i);
     }
@@ -251,7 +251,7 @@ unsigned isospin::next_serial=0;
 const isospin some_isospin;
 const type_info & typeid_isospin=typeid(some_isospin);
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 

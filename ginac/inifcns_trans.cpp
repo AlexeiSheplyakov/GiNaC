@@ -33,9 +33,9 @@
 #include "symbol.h"
 #include "utils.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 //////////
 // exponential function
@@ -850,6 +850,6 @@ static ex atanh_diff(const ex & x, unsigned diff_param)
 
 REGISTER_FUNCTION(atanh, atanh_eval, atanh_evalf, atanh_diff, NULL);
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC

@@ -41,9 +41,9 @@
 #include "symbol.h"
 #include "utils.h"
 
-#ifndef NO_GINAC_NAMESPACE
+#ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -463,7 +463,7 @@ ex simplify_lortensor(const ex & e)
     // simplification of sum=sum of simplifications
     if (is_ex_exactly_of_type(e_expanded,add)) {
         ex sum=_ex0();
-        for (int i=0; i<e_expanded.nops(); ++i) {
+        for (unsigned i=0; i<e_expanded.nops(); ++i) {
             sum += simplify_lortensor(e_expanded.op(i));
         }
         return sum;
@@ -484,6 +484,13 @@ ex Dim(void)
     return *d;
 }
 
-#ifndef NO_GINAC_NAMESPACE
+//////////
+// global constants
+//////////
+
+const lortensor some_lortensor;
+const type_info & typeid_lortensor=typeid(some_lortensor);
+
+#ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
-#endif // ndef NO_GINAC_NAMESPACE
+#endif // ndef NO_NAMESPACE_GINAC
