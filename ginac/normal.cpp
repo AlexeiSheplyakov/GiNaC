@@ -2069,12 +2069,19 @@ static ex frac_cancel(const ex &n, const ex &d)
 
 	// Make denominator unit normal (i.e. coefficient of first symbol
 	// as defined by get_first_symbol() is made positive)
-	const symbol *x;
-	if (get_first_symbol(den, x)) {
-		GINAC_ASSERT(is_exactly_a<numeric>(den.unit(*x)));
-		if (ex_to<numeric>(den.unit(*x)).is_negative()) {
+	if (is_exactly_a<numeric>(den)) {
+		if (ex_to<numeric>(den).is_negative()) {
 			num *= _ex_1;
 			den *= _ex_1;
+		}
+	} else {
+		const symbol *x;
+		if (get_first_symbol(den, x)) {
+			GINAC_ASSERT(is_exactly_a<numeric>(den.unit(*x)));
+			if (ex_to<numeric>(den.unit(*x)).is_negative()) {
+				num *= _ex_1;
+				den *= _ex_1;
+			}
 		}
 	}
 
