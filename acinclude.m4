@@ -86,8 +86,10 @@ if test "x${ginac_error}" = "xyes"; then
     if test "x${ginac_warning_txt}" != "x"; then
         echo "${ginac_warning_txt}"
     fi
-    echo "deleting cache ${cache_file}"
-    rm -f $cache_file
+    if test "x$cache_file" != "x/dev/null"; then
+        echo "deleting cache ${cache_file}"
+        rm -f $cache_file
+    fi
     else 
         if test x$ginac_warning = xyes; then
             echo "=== The following minor problems have been detected by configure."
