@@ -23,6 +23,8 @@
 
 #include "exams.h"
 
+#include <sstream>
+
 /* Simple and maybe somewhat pointless consistency tests of assorted tests and
  * conversions. */
 static unsigned exam_numeric1(void)
@@ -315,6 +317,62 @@ static unsigned exam_numeric5(void)
 	return result;
 }
 
+/* This test checks whether the numeric output/parsing routines are
+   consistent. */
+static unsigned exam_numeric6(void)
+{
+	unsigned result = 0;
+
+	symbol sym("sym");
+	vector<ex> test_numbers;
+	test_numbers.push_back(numeric(0));			// zero
+	test_numbers.push_back(numeric(1));			// one
+	test_numbers.push_back(numeric(-1));		// minus one
+	test_numbers.push_back(numeric(42));		// positive integer
+	test_numbers.push_back(numeric(-42));		// negative integer
+	test_numbers.push_back(numeric(14,3));		// positive rational
+	test_numbers.push_back(numeric(-14,3));		// negative rational
+	test_numbers.push_back(numeric(3.141));		// positive decimal
+	test_numbers.push_back(numeric(-3.141));	// negative decimal
+	test_numbers.push_back(numeric(0.1974));	// positive decimal, leading zero
+	test_numbers.push_back(numeric(-0.1974));	// negative decimal, leading zero
+	test_numbers.push_back(sym);				// symbol
+
+	for (vector<ex>::const_iterator br=test_numbers.begin(); br<test_numbers.end(); ++br) {
+		for (vector<ex>::const_iterator bi=test_numbers.begin(); bi<test_numbers.end(); ++bi) {
+
+			for (vector<ex>::const_iterator er=test_numbers.begin(); er<test_numbers.end(); ++er) {
+				for (vector<ex>::const_iterator ei=test_numbers.begin(); ei<test_numbers.end(); ++ei) {
+
+					// Construct expression, don't test invalid ones
+					ex base = (*br) + (*bi)*I, exponent = (*er) + (*ei)*I, x;
+					try {
+						x = pow(base, exponent);
+					} catch (...) {
+						continue;
+					}
+
+					// Print to string
+					std::ostringstream s;
+					s << x;
+
+					// Read back expression from string
+					string x_as_string = s.str();
+					ex x_again(x_as_string, lst(sym));
+
+					// They should be equal
+					if (!x_again.is_equal(x)) {
+						clog << x << " was read back as " << x_again << endl;
+						++result;
+					}
+				}
+			}
+		}
+	}
+
+	return result;
+}
+
 unsigned exam_numeric(void)
 {
 	unsigned result = 0;
@@ -327,6 +385,7 @@ unsigned exam_numeric(void)
 	result += exam_numeric3();  cout << '.' << flush;
 	result += exam_numeric4();  cout << '.' << flush;
 	result += exam_numeric5();  cout << '.' << flush;
+	result += exam_numeric6();  cout << '.' << flush;
 	
 	if (!result) {
 		cout << " passed " << endl;
