@@ -26,6 +26,7 @@
 #include "mul.h"
 #include "add.h"
 #include "power.h"
+#include "matrix.h"
 #include "archive.h"
 #include "debugmsg.h"
 #include "utils.h"
@@ -402,6 +403,45 @@ ex mul::evalf(int level) const
 		                                          (*it).coeff));
 	}
 	return mul(s,overall_coeff.evalf(level));
+}
+
+ex mul::evalm(void) const
+{
+	// numeric*matrix
+	if (seq.size() == 1 && is_ex_of_type(seq[0].rest, matrix))
+		return ex_to_matrix(seq[0].rest).mul(ex_to_numeric(overall_coeff));
+
+	// Evaluate children first, look whether there are any matrices at all
+	// (there can be either no matrices or one matrix; if there were more
+	// than one matrix, it would be a non-commutative product)
+	epvector *s = new epvector;
+	s->reserve(seq.size());
+
+	bool have_matrix = false;
+	epvector::iterator the_matrix;
+
+	epvector::const_iterator it = seq.begin(), itend = seq.end();
+	while (it != itend) {
+		const ex &m = recombine_pair_to_ex(*it).evalm();
+		s->push_back(split_ex_to_pair(m));
+		if (is_ex_of_type(m, matrix)) {
+			have_matrix = true;
+			the_matrix = s->end() - 1;
+		}
+		it++;
+	}
+
+	if (have_matrix) {
+
+		// The product contained a matrix. We will multiply all other factors
+		// into that matrix.
+		matrix m = ex_to_matrix(the_matrix->rest);
+		s->erase(the_matrix);
+		ex scalar = (new mul(s, overall_coeff))->setflag(status_flags::dynallocated);
+		return m.mul_scalar(scalar);
+
+	} else
+		return (new mul(s, overall_coeff))->setflag(status_flags::dynallocated);
 }
 
 ex mul::simplify_ncmul(const exvector & v) const

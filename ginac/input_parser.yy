@@ -52,7 +52,7 @@ static std::string parser_error;
 
 /* Tokens (T_LITERAL means a literal value returned by the parser, but not
    of class numeric or symbol (e.g. a constant or the FAIL object)) */
-%token T_NUMBER T_SYMBOL T_LITERAL T_DIGITS T_EQUAL T_NOTEQ T_LESSEQ T_GREATEREQ T_MATRIX_BEGIN T_MATRIX_END
+%token T_NUMBER T_SYMBOL T_LITERAL T_DIGITS T_EQUAL T_NOTEQ T_LESSEQ T_GREATEREQ
 
 /* Operator precedence and associativity */
 %right '='
@@ -112,8 +112,8 @@ exp	: T_NUMBER		{$$ = $1;}
 	| exp '^' exp		{$$ = pow($1, $3);}
 	| exp '!'		{$$ = factorial($1);}
 	| '(' exp ')'		{$$ = $2;}
-	| '[' list_or_empty ']'	{$$ = $2;}
-	| T_MATRIX_BEGIN matrix T_MATRIX_END	{$$ = lst_to_matrix(ex_to_lst($2));}
+	| '{' list_or_empty '}'	{$$ = $2;}
+	| '[' matrix ']'	{$$ = lst_to_matrix(ex_to_lst($2));}
 	;
 
 exprseq	: exp			{$$ = exprseq($1);}
@@ -128,8 +128,8 @@ list	: exp			{$$ = lst($1);}
 	| list ',' exp		{lst l(static_cast<lst &>(*($1.bp))); $$ = l.append($3);}
 	;
 
-matrix	: T_MATRIX_BEGIN row T_MATRIX_END		{$$ = lst($2);}
-	| matrix ',' T_MATRIX_BEGIN row	T_MATRIX_END	{lst l(static_cast<lst &>(*($1.bp))); $$ = l.append($4);}
+matrix	: '[' row ']'		{$$ = lst($2);}
+	| matrix ',' '[' row ']' {lst l(static_cast<lst &>(*($1.bp))); $$ = l.append($4);}
 	;
 
 row	: exp			{$$ = lst($1);}

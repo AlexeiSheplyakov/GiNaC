@@ -49,6 +49,7 @@ public:
 	ex expand(unsigned options=0) const;
 	ex eval(int level=0) const;
 	ex evalf(int level=0) const;
+	ex evalm(void) const {return *this;}
 	ex subs(const lst & ls, const lst & lr, bool no_pattern = false) const;
 	ex eval_indexed(const basic & i) const;
 	ex add_indexed(const ex & self, const ex & other) const;
@@ -69,6 +70,7 @@ public:
 	matrix sub(const matrix & other) const;
 	matrix mul(const matrix & other) const;
 	matrix mul(const numeric & other) const;
+	matrix mul_scalar(const ex & other) const;
 	const ex & operator() (unsigned ro, unsigned co) const;
 	matrix & set(unsigned ro, unsigned co, ex value);
 	matrix transpose(void) const;

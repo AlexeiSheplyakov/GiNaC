@@ -35,8 +35,8 @@ if ($type eq 'exprseq') {
 	$reserve=0;
 	$prepend=1;
 	$let_op=1;
-	$open_bracket='[';
-	$close_bracket=']';
+	$open_bracket='{';
+	$close_bracket='}';
 
 } else {
 	die "invalid type $type";
@@ -210,6 +210,7 @@ public:
 	bool info(unsigned inf) const;
 	unsigned nops() const;
 	ex & let_op(int i);
+	ex map(map_func f) const;
 	ex expand(unsigned options=0) const;
 	ex eval(int level=0) const;
 	ex evalf(int level=0) const;
@@ -429,6 +430,17 @@ unsigned ${CONTAINER}::nops() const
 }
 
 ${LET_OP_IMPLEMENTATION}
+
+ex ${CONTAINER}::map(map_func f) const
+{
+	${STLT} s;
+	RESERVE(s,seq.size());
+	for (${STLT}::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
+		s.push_back(f(*it));
+	}
+
+	return this${CONTAINER}(s);
+}
 
 ex ${CONTAINER}::expand(unsigned options) const
 {

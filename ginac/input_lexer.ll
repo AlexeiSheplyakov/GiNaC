@@ -101,10 +101,6 @@ Digits			ginac_yylval = (long)Digits; return T_DIGITS;
 "<="			return T_LESSEQ;
 ">="			return T_GREATEREQ;
 
-			/* matrix delimiters */
-\[\[			return T_MATRIX_BEGIN;
-\]\]			return T_MATRIX_END;
-
 			/* numbers */
 {D}+			|
 "#"{D}+"R"{AN}+		|

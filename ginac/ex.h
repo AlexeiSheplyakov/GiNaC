@@ -84,6 +84,7 @@ public:
 	unsigned nops() const { return bp->nops(); }
 	ex expand(unsigned options=0) const;
 	bool has(const ex & other) const { return bp->has(other); }
+	ex map(map_func f) const { return bp->map(f); }
 	int degree(const ex & s) const { return bp->degree(s); }
 	int ldegree(const ex & s) const { return bp->ldegree(s); }
 	ex coeff(const ex & s, int n = 1) const { return bp->coeff(s, n); }
@@ -104,6 +105,7 @@ public:
 	ex collect(const ex & s, bool distributed = false) const { return bp->collect(s, distributed); }
 	ex eval(int level = 0) const { return bp->eval(level); }
 	ex evalf(int level = 0) const { return bp->evalf(level); }
+	ex evalm(void) const { return bp->evalm(); }
 	ex diff(const symbol & s, unsigned nth = 1) const;
 	ex series(const ex & r, int order, unsigned options = 0) const;
 	bool match(const ex & pattern) const;
@@ -373,6 +375,9 @@ inline ex eval(const ex & thisex, int level = 0)
 
 inline ex evalf(const ex & thisex, int level = 0)
 { return thisex.evalf(level); }
+
+inline ex evalm(const ex & thisex)
+{ return thisex.evalm(); }
 
 inline ex diff(const ex & thisex, const symbol & s, unsigned nth = 1)
 { return thisex.diff(s, nth); }

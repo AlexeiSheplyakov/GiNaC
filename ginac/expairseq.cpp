@@ -299,6 +299,20 @@ ex &expairseq::let_op(int i)
 	throw(std::logic_error("let_op not defined for expairseq and derived classes (add,mul,...)"));
 }
 
+ex expairseq::map(map_func f) const
+{
+	epvector *v = new epvector;
+	v->reserve(seq.size());
+
+	epvector::const_iterator cit = seq.begin(), last = seq.end();
+	while (cit != last) {
+		v->push_back(split_ex_to_pair(f(recombine_pair_to_ex(*cit))));
+		cit++;
+	}
+
+	return thisexpairseq(v, f(overall_coeff));
+}
+
 ex expairseq::eval(int level) const
 {
 	if ((level==1) && (flags &status_flags::evaluated))

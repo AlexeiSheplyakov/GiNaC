@@ -156,23 +156,23 @@ void matrix::print(const print_context & c, unsigned level) const
 
 	} else {
 
-		c.s << "[[ ";
+		c.s << "[";
 		for (unsigned y=0; y<row-1; ++y) {
-			c.s << "[[";
+			c.s << "[";
 			for (unsigned x=0; x<col-1; ++x) {
 				m[y*col+x].print(c);
 				c.s << ",";
 			}
 			m[col*(y+1)-1].print(c);
-			c.s << "]], ";
+			c.s << "],";
 		}
-		c.s << "[[";
+		c.s << "[";
 		for (unsigned x=0; x<col-1; ++x) {
 			m[(row-1)*col+x].print(c);
 			c.s << ",";
 		}
 		m[row*col-1].print(c);
-		c.s << "]] ]]";
+		c.s << "]]";
 
 	}
 }
@@ -588,6 +588,19 @@ matrix matrix::mul(const matrix & other) const
 
 /** Product of matrix and scalar. */
 matrix matrix::mul(const numeric & other) const
+{
+	exvector prod(row * col);
+
+	for (unsigned r=0; r<row; ++r)
+		for (unsigned c=0; c<col; ++c)
+			prod[r*col+c] = m[r*col+c] * other;
+
+	return matrix(row, col, prod);
+}
+
+
+/** Product of matrix and scalar expression. */
+matrix matrix::mul_scalar(const ex & other) const
 {
 	exvector prod(row * col);
 

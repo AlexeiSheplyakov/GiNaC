@@ -509,20 +509,6 @@ ex lsolve(const ex &eqns, const ex &symbols)
 	return sollist;
 }
 
-/** non-commutative power. */
-ex ncpow(const ex & basis, unsigned exponent)
-{
-	if (exponent == 0)
-		return _ex1();
-
-	exvector v;
-	v.reserve(exponent);
-	for (unsigned i=0; i<exponent; ++i)
-		v.push_back(basis);
-
-	return ncmul(v, true);
-}
-
 // Symmetrize/antisymmetrize over a vector of objects
 static ex symm(const ex & e, exvector::const_iterator first, exvector::const_iterator last, bool asymmetric)
 {

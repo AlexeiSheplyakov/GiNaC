@@ -25,6 +25,7 @@
 
 #include "add.h"
 #include "mul.h"
+#include "matrix.h"
 #include "archive.h"
 #include "debugmsg.h"
 #include "utils.h"
@@ -334,6 +335,38 @@ ex add::eval(int level) const
 		return recombine_pair_to_ex(*(seq.begin()));
 	}
 	return this->hold();
+}
+
+ex add::evalm(void) const
+{
+	// Evaluate children first and add up all matrices. Stop if there's one
+	// term that is not a matrix.
+	epvector *s = new epvector;
+	s->reserve(seq.size());
+
+	bool all_matrices = true;
+	bool first_term = true;
+	matrix sum;
+
+	epvector::const_iterator it = seq.begin(), itend = seq.end();
+	while (it != itend) {
+		const ex &m = recombine_pair_to_ex(*it).evalm();
+		s->push_back(split_ex_to_pair(m));
+		if (is_ex_of_type(m, matrix)) {
+			if (first_term) {
+				sum = ex_to_matrix(m);
+				first_term = false;
+			} else
+				sum = sum.add(ex_to_matrix(m));
+		} else
+			all_matrices = false;
+		it++;
+	}
+
+	if (all_matrices)
+		return sum + overall_coeff;
+	else
+		return (new add(s, overall_coeff))->setflag(status_flags::dynallocated);
 }
 
 ex add::simplify_ncmul(const exvector & v) const

@@ -28,9 +28,9 @@
 #include "expairseq.h"
 #include "add.h"
 #include "mul.h"
+#include "ncmul.h"
 #include "numeric.h"
 #include "inifcns.h"
-#include "relational.h"
 #include "symbol.h"
 #include "print.h"
 #include "archive.h"
@@ -68,7 +68,6 @@ DEFAULT_DESTROY(power)
 power::power(const ex & lh, const ex & rh) : basic(TINFO_power), basis(lh), exponent(rh)
 {
 	debugmsg("power ctor from ex,ex",LOGLEVEL_CONSTRUCT);
-	GINAC_ASSERT(basis.return_type()==return_types::commutative);
 }
 
 /** Ctor from an ex and a bare numeric.  This is somewhat more efficient than
@@ -76,7 +75,6 @@ power::power(const ex & lh, const ex & rh) : basic(TINFO_power), basis(lh), expo
 power::power(const ex & lh, const numeric & rh) : basic(TINFO_power), basis(lh), exponent(rh)
 {
 	debugmsg("power ctor from ex,numeric",LOGLEVEL_CONSTRUCT);
-	GINAC_ASSERT(basis.return_type()==return_types::commutative);
 }
 
 //////////
@@ -243,6 +241,11 @@ ex & power::let_op(int i)
 	return i==0 ? basis : exponent;
 }
 
+ex power::map(map_func f) const
+{
+	return (new power(f(basis), f(exponent)))->setflag(status_flags::dynallocated);
+}
+
 int power::degree(const ex & s) const
 {
 	if (is_exactly_of_type(*exponent.bp,numeric)) {
@@ -320,17 +323,17 @@ ex power::eval(int level) const
 	const ex & ebasis    = level==1 ? basis    : basis.eval(level-1);
 	const ex & eexponent = level==1 ? exponent : exponent.eval(level-1);
 	
-	bool basis_is_numerical = 0;
-	bool exponent_is_numerical = 0;
+	bool basis_is_numerical = false;
+	bool exponent_is_numerical = false;
 	numeric * num_basis;
 	numeric * num_exponent;
 	
 	if (is_exactly_of_type(*ebasis.bp,numeric)) {
-		basis_is_numerical = 1;
+		basis_is_numerical = true;
 		num_basis = static_cast<numeric *>(ebasis.bp);
 	}
 	if (is_exactly_of_type(*eexponent.bp,numeric)) {
-		exponent_is_numerical = 1;
+		exponent_is_numerical = true;
 		num_exponent = static_cast<numeric *>(eexponent.bp);
 	}
 	
@@ -360,88 +363,96 @@ ex power::eval(int level) const
 	if (ebasis.is_equal(_ex1()))
 		return _ex1();
 	
-	if (basis_is_numerical && exponent_is_numerical) {
+	if (exponent_is_numerical) {
+
 		// ^(c1,c2) -> c1^c2 (c1, c2 numeric(),
 		// except if c1,c2 are rational, but c1^c2 is not)
-		bool basis_is_crational = num_basis->is_crational();
-		bool exponent_is_crational = num_exponent->is_crational();
-		numeric res = num_basis->power(*num_exponent);
+		if (basis_is_numerical) {
+			bool basis_is_crational = num_basis->is_crational();
+			bool exponent_is_crational = num_exponent->is_crational();
+			numeric res = num_basis->power(*num_exponent);
 		
-		if ((!basis_is_crational || !exponent_is_crational)
-			|| res.is_crational()) {
-			return res;
-		}
-		GINAC_ASSERT(!num_exponent->is_integer());  // has been handled by now
-		// ^(c1,n/m) -> *(c1^q,c1^(n/m-q)), 0<(n/m-h)<1, q integer
-		if (basis_is_crational && exponent_is_crational
-			&& num_exponent->is_real()
-			&& !num_exponent->is_integer()) {
-			numeric n = num_exponent->numer();
-			numeric m = num_exponent->denom();
-			numeric r;
-			numeric q = iquo(n, m, r);
-			if (r.is_negative()) {
-				r = r.add(m);
-				q = q.sub(_num1());
+			if ((!basis_is_crational || !exponent_is_crational)
+				|| res.is_crational()) {
+				return res;
 			}
-			if (q.is_zero())  // the exponent was in the allowed range 0<(n/m)<1
-				return this->hold();
-			else {
-				epvector res;
-				res.push_back(expair(ebasis,r.div(m)));
-				return (new mul(res,ex(num_basis->power_dyn(q))))->setflag(status_flags::dynallocated | status_flags::evaluated);
+			GINAC_ASSERT(!num_exponent->is_integer());  // has been handled by now
+
+			// ^(c1,n/m) -> *(c1^q,c1^(n/m-q)), 0<(n/m-h)<1, q integer
+			if (basis_is_crational && exponent_is_crational
+				&& num_exponent->is_real()
+				&& !num_exponent->is_integer()) {
+				numeric n = num_exponent->numer();
+				numeric m = num_exponent->denom();
+				numeric r;
+				numeric q = iquo(n, m, r);
+				if (r.is_negative()) {
+					r = r.add(m);
+					q = q.sub(_num1());
+				}
+				if (q.is_zero())  // the exponent was in the allowed range 0<(n/m)<1
+					return this->hold();
+				else {
+					epvector res;
+					res.push_back(expair(ebasis,r.div(m)));
+					return (new mul(res,ex(num_basis->power_dyn(q))))->setflag(status_flags::dynallocated | status_flags::evaluated);
+				}
 			}
 		}
-	}
 	
-	// ^(^(x,c1),c2) -> ^(x,c1*c2)
-	// (c1, c2 numeric(), c2 integer or -1 < c1 <= 1,
-	// case c1==1 should not happen, see below!)
-	if (exponent_is_numerical && is_ex_exactly_of_type(ebasis,power)) {
-		const power & sub_power = ex_to_power(ebasis);
-		const ex & sub_basis = sub_power.basis;
-		const ex & sub_exponent = sub_power.exponent;
-		if (is_ex_exactly_of_type(sub_exponent,numeric)) {
-			const numeric & num_sub_exponent = ex_to_numeric(sub_exponent);
-			GINAC_ASSERT(num_sub_exponent!=numeric(1));
-			if (num_exponent->is_integer() || abs(num_sub_exponent)<1)
-				return power(sub_basis,num_sub_exponent.mul(*num_exponent));
+		// ^(^(x,c1),c2) -> ^(x,c1*c2)
+		// (c1, c2 numeric(), c2 integer or -1 < c1 <= 1,
+		// case c1==1 should not happen, see below!)
+		if (is_ex_exactly_of_type(ebasis,power)) {
+			const power & sub_power = ex_to_power(ebasis);
+			const ex & sub_basis = sub_power.basis;
+			const ex & sub_exponent = sub_power.exponent;
+			if (is_ex_exactly_of_type(sub_exponent,numeric)) {
+				const numeric & num_sub_exponent = ex_to_numeric(sub_exponent);
+				GINAC_ASSERT(num_sub_exponent!=numeric(1));
+				if (num_exponent->is_integer() || (abs(num_sub_exponent) - _num1()).is_negative())
+					return power(sub_basis,num_sub_exponent.mul(*num_exponent));
+			}
 		}
-	}
 	
-	// ^(*(x,y,z),c1) -> *(x^c1,y^c1,z^c1) (c1 integer)
-	if (exponent_is_numerical && num_exponent->is_integer() &&
-		is_ex_exactly_of_type(ebasis,mul)) {
-		return expand_mul(ex_to_mul(ebasis), *num_exponent);
-	}
+		// ^(*(x,y,z),c1) -> *(x^c1,y^c1,z^c1) (c1 integer)
+		if (num_exponent->is_integer() && is_ex_exactly_of_type(ebasis,mul)) {
+			return expand_mul(ex_to_mul(ebasis), *num_exponent);
+		}
 	
-	// ^(*(...,x;c1),c2) -> ^(*(...,x;1),c2)*c1^c2 (c1, c2 numeric(), c1>0)
-	// ^(*(...,x,c1),c2) -> ^(*(...,x;-1),c2)*(-c1)^c2 (c1, c2 numeric(), c1<0)
-	if (exponent_is_numerical && is_ex_exactly_of_type(ebasis,mul)) {
-		GINAC_ASSERT(!num_exponent->is_integer()); // should have been handled above
-		const mul & mulref = ex_to_mul(ebasis);
-		if (!mulref.overall_coeff.is_equal(_ex1())) {
-			const numeric & num_coeff = ex_to_numeric(mulref.overall_coeff);
-			if (num_coeff.is_real()) {
-				if (num_coeff.is_positive()) {
-					mul * mulp = new mul(mulref);
-					mulp->overall_coeff = _ex1();
-					mulp->clearflag(status_flags::evaluated);
-					mulp->clearflag(status_flags::hash_calculated);
-					return (new mul(power(*mulp,exponent),
-					                power(num_coeff,*num_exponent)))->setflag(status_flags::dynallocated);
-				} else {
-					GINAC_ASSERT(num_coeff.compare(_num0())<0);
-					if (num_coeff.compare(_num_1())!=0) {
+		// ^(*(...,x;c1),c2) -> ^(*(...,x;1),c2)*c1^c2 (c1, c2 numeric(), c1>0)
+		// ^(*(...,x,c1),c2) -> ^(*(...,x;-1),c2)*(-c1)^c2 (c1, c2 numeric(), c1<0)
+		if (is_ex_exactly_of_type(ebasis,mul)) {
+			GINAC_ASSERT(!num_exponent->is_integer()); // should have been handled above
+			const mul & mulref = ex_to_mul(ebasis);
+			if (!mulref.overall_coeff.is_equal(_ex1())) {
+				const numeric & num_coeff = ex_to_numeric(mulref.overall_coeff);
+				if (num_coeff.is_real()) {
+					if (num_coeff.is_positive()) {
 						mul * mulp = new mul(mulref);
-						mulp->overall_coeff = _ex_1();
+						mulp->overall_coeff = _ex1();
 						mulp->clearflag(status_flags::evaluated);
 						mulp->clearflag(status_flags::hash_calculated);
 						return (new mul(power(*mulp,exponent),
-						                power(abs(num_coeff),*num_exponent)))->setflag(status_flags::dynallocated);
+						                power(num_coeff,*num_exponent)))->setflag(status_flags::dynallocated);
+					} else {
+						GINAC_ASSERT(num_coeff.compare(_num0())<0);
+						if (num_coeff.compare(_num_1())!=0) {
+							mul * mulp = new mul(mulref);
+							mulp->overall_coeff = _ex_1();
+							mulp->clearflag(status_flags::evaluated);
+							mulp->clearflag(status_flags::hash_calculated);
+							return (new mul(power(*mulp,exponent),
+							                power(abs(num_coeff),*num_exponent)))->setflag(status_flags::dynallocated);
+						}
 					}
 				}
 			}
+		}
+
+		// ^(nc,c1) -> ncmul(nc,nc,...) (c1 positive integer)
+		if (num_exponent->is_pos_integer() && ebasis.return_type() != return_types::commutative) {
+			return ncmul(exvector(num_exponent->to_int(), ebasis), true);
 		}
 	}
 	

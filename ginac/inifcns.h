@@ -133,9 +133,6 @@ DECLARE_FUNCTION_2P(Derivative)
 
 ex lsolve(const ex &eqns, const ex &symbols);
 
-/** Power of non-commutative basis. */
-ex ncpow(const ex & basis, unsigned exponent);
-
 /** Symmetrize expression over a set of objects (symbols, indices). */
 ex symmetrize(const ex & e, exvector::const_iterator first, exvector::const_iterator last);
 

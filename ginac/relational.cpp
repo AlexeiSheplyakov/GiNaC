@@ -171,6 +171,11 @@ ex & relational::let_op(int i)
 
 	return i==0 ? lh : rh;
 }
+
+ex relational::map(map_func f) const
+{
+	return (new relational(f(lh), f(rh), o))->setflag(status_flags::dynallocated);
+}
 	
 ex relational::eval(int level) const
 {

@@ -28,6 +28,7 @@
 #include "ex.h"
 #include "add.h"
 #include "mul.h"
+#include "matrix.h"
 #include "print.h"
 #include "archive.h"
 #include "debugmsg.h"
@@ -432,6 +433,36 @@ ex ncmul::eval(int level) const
 										  status_flags::evaluated);
 }
 
+ex ncmul::evalm(void) const
+{
+	// Evaluate children first
+	exvector *s = new exvector;
+	s->reserve(seq.size());
+	exvector::const_iterator it = seq.begin(), itend = seq.end();
+	while (it != itend) {
+		s->push_back(it->evalm());
+		it++;
+	}
+
+	// If there are only matrices, simply multiply them
+	it = s->begin(); itend = s->end();
+	if (is_ex_of_type(*it, matrix)) {
+		matrix prod(ex_to_matrix(*it));
+		it++;
+		while (it != itend) {
+			if (!is_ex_of_type(*it, matrix))
+				goto no_matrix;
+			prod = prod.mul(ex_to_matrix(*it));
+			it++;
+		}
+		delete s;
+		return prod;
+	}
+
+no_matrix:
+	return (new ncmul(s))->setflag(status_flags::dynallocated);
+}
+
 ex ncmul::thisexprseq(const exvector & v) const
 {
 	return (new ncmul(v))->setflag(status_flags::dynallocated);
@@ -518,9 +549,10 @@ exvector ncmul::expandchildren(unsigned options) const
 {
 	exvector s;
 	s.reserve(seq.size());
-
-	for (exvector::const_iterator it=seq.begin(); it!=seq.end(); ++it) {
-		s.push_back((*it).expand(options));
+	exvector::const_iterator it = seq.begin(), itend = seq.end();
+	while (it != itend) {
+		s.push_back(it->expand(options));
+		it++;
 	}
 	return s;
 }

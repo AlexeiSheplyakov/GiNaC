@@ -54,6 +54,8 @@ class print_context;
   typedef std::vector<ex> exvector;
 #endif
 
+typedef ex (*map_func)(const ex & e);
+
 /** This class is the ABC (abstract base class) of GiNaC's class hierarchy.
  *  It is responsible for the reference counting. */
 class basic
@@ -111,12 +113,14 @@ public: // only const functions please (may break reference counting)
 	virtual ex operator[](const ex & index) const;
 	virtual ex operator[](int i) const;
 	virtual bool has(const ex & other) const;
+	virtual ex map(map_func f) const;
 	virtual int degree(const ex & s) const;
 	virtual int ldegree(const ex & s) const;
 	virtual ex coeff(const ex & s, int n = 1) const;
 	virtual ex collect(const ex & s, bool distributed = false) const;
 	virtual ex eval(int level = 0) const;
 	virtual ex evalf(int level = 0) const;
+	virtual ex evalm(void) const;
 	virtual ex series(const relational & r, int order, unsigned options = 0) const;
 	virtual bool match(const ex & pattern, lst & repl_lst) const;
 	virtual ex subs(const lst & ls, const lst & lr, bool no_pattern = false) const;

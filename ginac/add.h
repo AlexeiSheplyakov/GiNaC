@@ -53,6 +53,7 @@ public:
 	int ldegree(const ex & s) const;
 	ex coeff(const ex & s, int n=1) const;
 	ex eval(int level=0) const;
+	ex evalm(void) const;
 	ex series(const relational & r, int order, unsigned options = 0) const;
 	ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
 	numeric integer_content(void) const;

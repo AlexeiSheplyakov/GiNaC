@@ -221,14 +221,30 @@ bool basic::has(const ex & other) const
 {
 	GINAC_ASSERT(other.bp!=0);
 	lst repl_lst;
-	if (match(*other.bp, repl_lst)) return true;
-	if (nops()>0) {
-		for (unsigned i=0; i<nops(); i++)
-			if (op(i).has(other))
-				return true;
-	}
+	if (match(*other.bp, repl_lst))
+		return true;
+	for (unsigned i=0; i<nops(); i++)
+		if (op(i).has(other))
+			return true;
 	
 	return false;
+}
+
+/** Construct new expression by applying the specified function to all
+ *  sub-expressions. */
+ex basic::map(map_func f) const
+{
+	unsigned num = nops();
+	if (num == 0)
+		return *this;
+
+	basic *copy = duplicate();
+	copy->setflag(status_flags::dynallocated);
+	copy->clearflag(status_flags::hash_calculated);
+	ex e(*copy);
+	for (unsigned i=0; i<num; i++)
+		e.let_op(i) = f(e.op(i));
+	return e.eval();
 }
 
 /** Return degree of highest power in object s. */
@@ -345,6 +361,16 @@ ex basic::evalf(int level) const
 {
 	// There is nothing to do for basic objects:
 	return *this;
+}
+
+/** Evaluate sums and products of matrices. */
+ex basic::evalm(void) const
+{
+	unsigned num = nops();
+	if (num == 0)
+		return *this;
+	else
+		return map(GiNaC::evalm);
 }
 
 /** Perform automatic symbolic evaluations on indexed expression that

@@ -93,6 +93,7 @@ public:
 	unsigned nops() const;
 	ex op(int i) const;
 	ex & let_op(int i);
+	ex map(map_func f) const;
 	ex eval(int level=0) const;
 	ex evalf(int level=0) const;
 	ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
