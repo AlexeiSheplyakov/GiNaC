@@ -211,7 +211,7 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 
 	ex dim = ex_to<idx>(self->op(1)).get_dim();
 	if (other->nops() > 1)
-		dim = minimal_dim(dim, ex_to<idx>(self->op(1)).get_dim());
+		dim = minimal_dim(dim, ex_to<idx>(other->op(1)).get_dim());
 
 	if (is_a<clifford>(*other)) {
 
