@@ -1,6 +1,6 @@
 ginac (0.8.3-1) unstable; urgency=low
 
-  * New upstream release.
+  * New upstream release; closes #97136.
 
  -- Richard Kreckel <kreckel@ginac.de>  Thu, 10 May 2001 22:17:15 +0200
 
