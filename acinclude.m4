@@ -4,6 +4,37 @@ dnl additions' names with AC_ but with GINAC_ in order to steer clear of
 dnl future trouble.
 dnl ===========================================================================
 
+dnl Usage: GINAC_RLVERSION
+dnl The maintainers of libreadline are complete morons: they don't care a shit
+dnl about compatiblilty (which is not so bad by itself) and at the same time 
+dnl they don't export the version to the preprocessor so we could kluge around 
+dnl incomatiblities.  The only reliable way to figure out the version is by 
+dnl checking the extern variable rl_library_version at runtime.  &#@$%*!
+AC_DEFUN(GINAC_RLVERSION,
+[AC_CACHE_CHECK([for version of libreadline], ginac_cv_rlversion, [
+AC_TRY_RUN([
+#include <stdio.h>
+#include <sys/types.h>
+#include <readline/readline.h>
+
+main()
+{
+    FILE *fd;
+    fd = fopen("conftest.out", "w");
+    fprintf(fd, "%s\n", rl_library_version);
+    fclose(fd);
+    exit(0);
+}], ginac_cv_rlversion=`cat 'conftest.out'`, ginac_cv_rlversion='unknown', ginac_cv_rlversion='4.2')
+if test "x${ginac_cv_rlversion}" != "xunknown"; then
+  RLVERSION_MAJOR=`echo ${ginac_cv_rlversion} | sed -e 's/\([[0-9]]\)\.\([[0-9]]\)/\1/'`
+  AC_DEFINE_UNQUOTED(GINAC_RLVERSION_MAJOR, $RLVERSION_MAJOR)
+  RLVERSION_MINOR=`echo ${ginac_cv_rlversion} | sed -e 's/\([[0-9]]\)\.\([[0-9]]\)/\2/'`
+  AC_DEFINE_UNQUOTED(GINAC_RLVERSION_MINOR, $RLVERSION_MINOR)
+else
+  GINAC_WARNING([I could not run a test of libreadline (needed for building ginsh ginsh).])
+fi
+])])
+
 dnl Usage: GINAC_TERMCAP
 dnl libreadline is based on the termcap functions.
 dnl Some systems have tgetent(), tgetnum(), tgetstr(), tgetflag(), tputs(),

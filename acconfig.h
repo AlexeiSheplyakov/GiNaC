@@ -26,6 +26,12 @@
 /* GiNaC archive file version age.  */
 #undef ARCHIVE_AGE
 
+/* Major version of libreadline.  */
+#undef GINAC_RLVERSION_MAJOR
+
+/* Minor version of libreadline.  */
+#undef GINAC_RLVERSION_MINOR
+
 
 /* Leave that blank line there!!  Autoheader needs it.
    If you're adding to this file, keep in mind:
