@@ -8,10 +8,15 @@
 #include "config.h"
 #include <list>
 
+#ifndef NO_NAMESPACE_GINAC
+using namespace GiNaC;
+#endif // ndef NO_NAMESPACE_GINAC
+
 extern "C" G__value G__exec_tempfile G__P((char *file));
 extern "C" void G__store_undo_position(void);
 
-#define PROMPT "GiNaC> "
+#define PROMPT1 "GiNaC> "
+#define PROMPT2 "     > "
 
 #ifdef OBSCURE_CINT_HACK
 
@@ -31,23 +36,22 @@ long ex::last_created_or_assigned_exp=0;
 
 #endif // def OBSCURE_CINT_HACK
 
+G__value exec_tempfile(string const & command);
+char * process_permanentfile(string const & command);
+void process_tempfile(string const & command);
+void greeting(void);
+void helpmessage(void);
+string preprocess(char const * const line, bool & comment, bool & single_quote,
+                  bool & double_quote, unsigned & open_braces);
+void cleanup(void);
+void sigterm_handler(int n);
+void initialize(void);
+bool readlines(istream * is, string & allcommands);
+bool readfile(string const & filename, string & allcommands);
+void savefile(string const & filename, string const & allcommands);
+
 typedef list<char *> cplist;
-
 cplist filenames;
-
-void cleanup(void)
-{
-    for (cplist::iterator it=filenames.begin(); it!=filenames.end(); ++it) {
-        cout << "removing file " << *it << endl;
-        remove(*it);
-        free(*it);
-    }
-}
-
-void sigterm_handler(int n)
-{
-    exit(1);
-}
 
 G__value exec_tempfile(string const & command)
 {
@@ -130,9 +134,9 @@ void process_tempfile(string const & command)
                  << "constant, function, power or numeric, which cannot be safely displayed." << endl
                  << "To force the output, cast it explicitly to type 'ex' or use 'cout'," << endl
                  << "for example (assume 'x' is a symbol):" << endl
-                 << PROMPT "ex(x);" << endl
+                 << PROMPT1 "ex(x);" << endl
                  << "OutX = x" << endl << endl
-                 << PROMPT "cout << x << endl;" << endl
+                 << PROMPT1 "cout << x << endl;" << endl
                  << "x" << endl << endl
                  << "This warning will not be shown again." << endl;
             basic_type_warning_already_displayed=true;
@@ -150,10 +154,27 @@ void greeting(void)
          << " (__) *       | <MXJ02154@niftyserve.or.jp>.  The registration is free." << endl
          << "  ._) i N a C | The GiNaC framework is Copyright by Johannes Gutenberg Univ.," << endl
          << "<-------------' Germany and licensed under the terms and conditions of the GPL." << endl
+         << "Type .help for help." << endl
          << endl;
 }
 
-string preprocess(char const * line, bool & comment, bool & single_quote,
+void helpmessage(void)
+{
+    cout << "GiNaC-cint recognizes some special commands which start with a dot:" << endl << endl
+         << "  .q, .quit, .exit, .bye   quit GiNaC-cint" << endl
+         << "  .help                    the text you are currently reading" << endl
+         << "  .function                define the body of a function (necessary due to a" << endl
+         << "                           cint limitation)" << endl
+         << "  .cint                    switch to cint interactive mode (see cint" << endl
+         << "                           documentation for further details)" << endl
+         << "  .read filename           read a file from disk and execute it in GiNaC-cint" << endl
+         << "                           (recursive call is possible)" << endl
+         << "  .save filename           save the commands you have entered so far in a file" << endl << endl
+         << "Additionally you can exit GiNaC-cint with quit; exit; or bye;" << endl
+         << endl;
+}
+
+string preprocess(char const * const line, bool & comment, bool & single_quote,
                   bool & double_quote, unsigned & open_braces)
 {
     // "preprocess" the line entered to be able to decide if the command shall be
@@ -189,6 +210,7 @@ string preprocess(char const * line, bool & comment, bool & single_quote,
                 comment=true;
             } else {
                 preprocessed += '/';
+                preprocessed += line[pos];
             }
         } else if (asterisk) {
             // last character was a *, test if /
@@ -253,12 +275,23 @@ string preprocess(char const * line, bool & comment, bool & single_quote,
     
     return preprocessed;
 }
-                
-int main(void) 
-{
-    char *line;
-    char prompt[G__ONELINE];
 
+void cleanup(void)
+{
+    for (cplist::iterator it=filenames.begin(); it!=filenames.end(); ++it) {
+        cout << "removing file " << *it << endl;
+        remove(*it);
+        free(*it);
+    }
+}
+
+void sigterm_handler(int n)
+{
+    exit(1);
+}
+
+void initialize(void)
+{
     if (isatty(0))
         greeting();
 
@@ -270,22 +303,39 @@ int main(void)
     // no longer needed as of cint 5.14.31
     // exec_tempfile("#include <string>\n");
 
+#ifndef NO_NAMESPACE_GINAC
+    exec_tempfile("using namespace GiNaC;");
+#endif // ndef NO_NAMESPACE_GINAC
+    
     exec_tempfile("ex LAST,LLAST,LLLAST;\n");
+}    
+
+bool readlines(istream * is, string & allcommands)
+{
+    char const * line;
+    char prompt[G__ONELINE];
+    string linebuffer;
     
     bool quit = false;
+    bool eof = false;
     bool next_command_is_function=false;
     bool single_quote=false;
     bool double_quote=false;
     bool comment=false;
     unsigned open_braces=0;
 
-    while (!quit) {
-        strcpy(prompt,PROMPT);
+    while ((!quit)&&(!eof)) {
+        strcpy(prompt,PROMPT1);
         bool end_of_command = false;
         string command;
         string preprocessed;
         while (!end_of_command) {
-            line = G__input(prompt);
+            if (is==NULL) {
+                line = G__input(prompt);
+            } else {
+                getline(*is,linebuffer);
+                line=linebuffer.c_str();
+            }
             command += line;
             command += "\n";
             preprocessed += preprocess(line,comment,single_quote,double_quote,open_braces);
@@ -299,7 +349,7 @@ int main(void)
                     end_of_command=true;
                 }
             }
-            strcpy(prompt,"     > ");
+            strcpy(prompt,PROMPT2);
         }
         if ((preprocessed=="quit;")||
             (preprocessed=="exit;")||
@@ -317,6 +367,13 @@ int main(void)
             cout << "'h' for help, 'q' to quit, '{ statements }' or 'p [expression]' to evaluate" << endl;
             G__pause();
             cout << "back from cint" << endl;
+        } else if (preprocessed==".help") {
+            helpmessage();
+        } else if (preprocessed.substr(0,5)==".read") {
+            quit=readfile(preprocessed.substr(5),allcommands);
+        } else if (preprocessed.substr(0,5)==".save") {
+            command = "// "+command; // we do not want the .save command itself in saved files
+            savefile(preprocessed.substr(5),allcommands);
         /* test for more special commands
         } else if (preprocessed==".xyz") {
             cout << "special command (TBD): " << command << endl;
@@ -330,6 +387,75 @@ int main(void)
                 process_tempfile(command);
             }
         }
+        if (is!=NULL) {
+            // test for end of file if reading from a stream
+            eof=is->eof();
+        } else {
+            // save commands only when reading from keyboard
+            allcommands += command;
+        }
+
+    }
+    return quit;
+}    
+
+bool readfile(string const & filename, string & allcommands)
+{
+    cout << "Reading commands from file " << filename << "." << endl;
+    bool quit=false;
+    ifstream fin;
+    fin.open(filename.c_str());
+    if (fin.good()) {
+        quit=readlines(&fin,allcommands);
+    } else {
+        cout << "Cannot open " << filename << " for reading." << endl;
+    }
+    fin.close();
+    return quit;
+}
+
+void savefile(string const & filename, string const & allcommands)
+{
+    cout << "Saving commands to file " << filename << "." << endl;
+    ofstream fout;
+    fout.open(filename.c_str());
+    if (fout.good()) {
+        fout << allcommands;
+        if (!fout.good()) {
+            cout << "Cannot save commands to " << filename << "." << endl;
+        }
+    } else {
+        cout << "Cannot open " << filename << " for writing." << endl;
+    }
+    fout.close();
+}
+
+int main(int argc, char ** argv) 
+{
+    string allcommands;
+    initialize();
+
+    bool quit=false;
+    bool argsexist=argc>1;
+
+    if (argsexist) {
+        allcommands="/* Files given as command line arguments:\n";
+    }
+    
+    argc--; argv++;
+    while (argc && !quit) {
+        allcommands += *argv;
+        allcommands += "\n";
+        quit=readfile(*argv,allcommands);
+        argc--; argv++;
+    }
+
+    if (argsexist) {
+        allcommands += "*/\n";
+    }
+
+    if (!quit) {
+        readlines(NULL,allcommands);
     }
 
     return 0;

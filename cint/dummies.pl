@@ -44,6 +44,9 @@ $opening=<<END_OF_OPENING;
  *  Please do not modify it directly, edit the perl script instead!
  */
 
+#if (!defined(G_CINTVERSION)) || (G_CINTVERSION < 501437)
+// this dummy file seems to be no longer needed for cint >= 5.14.37
+
 END_OF_OPENING
 
 print OUT $opening;
@@ -200,6 +203,8 @@ inline_function_1p('bool','is_zero');
 # fixes for simp_lor.h
 inline_function_2p('simp_lor','lor_g');
 inline_single_function_2p('simp_lor','lor_vec','const string &','','const basic &','ex');
+
+print OUT "\n#endif // (!defined(G_CINTVERSION)) || (G_CINTVERSION < 501437)\n";
 
 close OUT;
 

@@ -5,6 +5,9 @@
  *  Please do not modify it directly, edit the perl script instead!
  */
 
+#if (!defined(G_CINTVERSION)) || (G_CINTVERSION < 501437)
+// this dummy file seems to be no longer needed for cint >= 5.14.37
+
 // fixes for function sin(x)
 inline function sin(symbol const & x) { return sin(ex(x)); }
 inline function sin(function const & x) { return sin(ex(x)); }
@@ -833,3 +836,5 @@ inline simp_lor lor_g(basic const & x, basic const & y) {
 inline simp_lor lor_vec(const string & x, const basic & y) {
     return lor_vec((x),ex(y));
 }
+
+#endif // (!defined(G_CINTVERSION)) || (G_CINTVERSION < 501437)
