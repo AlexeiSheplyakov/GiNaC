@@ -213,18 +213,6 @@ ex epsilon_tensor(const ex & i1, const ex & i2, const ex & i3);
  *  @return newly constructed epsilon tensor */
 ex lorentz_eps(const ex & i1, const ex & i2, const ex & i3, const ex & i4, bool pos_sig = false);
 
-/** Create an epsilon tensor in a 4-dimensional projection of a D-dimensional
- *  Minkowski space. It vanishes whenever one of the indices is not in the
- *  set {0, 1, 2, 3}.
- *
- *  @param i1 First index
- *  @param i2 Second index
- *  @param i3 Third index
- *  @param i4 Fourth index
- *  @param pos_sig Whether the signature of the metric is positive
- *  @return newly constructed epsilon tensor */
-ex eps0123(const ex & i1, const ex & i2, const ex & i3, const ex & i4, bool pos_sig = false);
-
 } // namespace GiNaC
 
 #endif // ndef __GINAC_TENSOR_H__

@@ -409,7 +409,7 @@ bool idx::is_dummy_pair_same_type(const basic & other) const
 	if (dim.is_equal(o.dim))
 		return true;
 
-	return (dim < o.dim || dim > o.dim);
+	return (dim < o.dim || dim > o.dim || (is_a<numeric>(dim) && is_a<symbol>(o.dim)) || (is_a<symbol>(dim) && is_a<numeric>(o.dim)));
 }
 
 bool varidx::is_dummy_pair_same_type(const basic & other) const
@@ -449,9 +449,9 @@ ex idx::replace_dim(const ex & new_dim) const
 
 ex idx::minimal_dim(const idx & other) const
 {
-	if (dim.is_equal(other.dim) || dim < other.dim)
+	if (dim.is_equal(other.dim) || dim < other.dim || (is_a<numeric>(dim) && is_a<symbol>(other.dim)))
 		return dim;
-	else if (dim > other.dim)
+	else if (dim > other.dim || (is_a<symbol>(dim) && is_a<numeric>(other.dim)))
 		return other.dim;
 	else
 		throw (std::runtime_error("idx::minimal_dim: index dimensions cannot be ordered"));

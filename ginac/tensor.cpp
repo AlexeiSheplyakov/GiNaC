@@ -179,9 +179,14 @@ ex tensdelta::eval_indexed(const basic & i) const
 	const idx & i1 = ex_to<idx>(i.op(1));
 	const idx & i2 = ex_to<idx>(i.op(2));
 
-	// Trace of delta tensor is the dimension of the space
-	if (is_dummy_pair(i1, i2))
-		return i1.get_dim();
+	// Trace of delta tensor is the (effective) dimension of the space
+	if (is_dummy_pair(i1, i2)) {
+		try {
+			return i1.minimal_dim(i2);
+		} catch (std::exception &e) {
+			return i.hold();
+		}
+	}
 
 	// Numeric evaluation
 	if (static_cast<const indexed &>(i).all_index_values_are(info_flags::integer)) {
@@ -333,9 +338,15 @@ again:
 
 				// Contraction found, remove this tensor and substitute the
 				// index in the second object
-				*self = _ex1;
-				*other = other->subs(other_idx == *free_idx);
-				return true;
+				try {
+					// minimal_dim() throws an exception when index dimensions are not comparable
+					ex min_dim = self_idx->minimal_dim(other_idx);
+					*self = _ex1;
+					*other = other->subs(other_idx == free_idx->replace_dim(min_dim));
+					return true;
+				} catch (std::exception &e) {
+					return false;
+				}
 			}
 		}
 	}
@@ -576,18 +587,6 @@ ex lorentz_eps(const ex & i1, const ex & i2, const ex & i3, const ex & i4, bool 
 		throw(std::runtime_error("index dimension of epsilon tensor must match number of indices"));
 
 	return indexed(tensepsilon(true, pos_sig), sy_anti(), i1, i2, i3, i4);
-}
-
-ex eps0123(const ex & i1, const ex & i2, const ex & i3, const ex & i4, bool pos_sig)
-{
-	if (!is_ex_of_type(i1, varidx) || !is_ex_of_type(i2, varidx) || !is_ex_of_type(i3, varidx) || !is_ex_of_type(i4, varidx))
-		throw(std::invalid_argument("indices of epsilon tensor must be of type varidx"));
-
-	ex dim = ex_to<idx>(i1).get_dim();
-	if (dim.is_equal(4))
-		return lorentz_eps(i1, i2, i3, i4, pos_sig);
-	else
-		return indexed(tensepsilon(true, pos_sig), sy_anti(), i1, i2, i3, i4);
 }
 
 } // namespace GiNaC

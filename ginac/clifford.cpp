@@ -501,17 +501,19 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 				return _ex0;
 
 			// Tr gamma5 gamma.mu gamma.nu gamma.rho gamma.sigma = 4I * epsilon(mu, nu, rho, sigma)
+			// (the epsilon is always 4-dimensional)
 			if (num == 5) {
 				ex b1, i1, b2, i2, b3, i3, b4, i4;
 				base_and_index(e.op(1), b1, i1);
 				base_and_index(e.op(2), b2, i2);
 				base_and_index(e.op(3), b3, i3);
 				base_and_index(e.op(4), b4, i4);
-				return trONE * I * (eps0123(i1, i2, i3, i4) * b1 * b2 * b3 * b4).simplify_indexed();
+				return trONE * I * (lorentz_eps(ex_to<idx>(i1).replace_dim(_ex4), ex_to<idx>(i2).replace_dim(_ex4), ex_to<idx>(i3).replace_dim(_ex4), ex_to<idx>(i4).replace_dim(_ex4)) * b1 * b2 * b3 * b4).simplify_indexed();
 			}
 
 	   		// Tr gamma5 S_2k =
 			//   I/4! * epsilon0123.mu1.mu2.mu3.mu4 * Tr gamma.mu1 gamma.mu2 gamma.mu3 gamma.mu4 S_2k
+			// (the epsilon is always 4-dimensional)
 			exvector ix(num-1), bv(num-1);
 			for (unsigned i=1; i<num; i++)
 				base_and_index(e.op(i), bv[i-1], ix[i-1]);
@@ -536,7 +538,7 @@ ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 								v.push_back(ix[n]);
 							}
 							int sign = permutation_sign(iv, iv + num);
-							result += sign * eps0123(idx1, idx2, idx3, idx4)
+							result += sign * lorentz_eps(ex_to<idx>(idx1).replace_dim(_ex4), ex_to<idx>(idx2).replace_dim(_ex4), ex_to<idx>(idx3).replace_dim(_ex4), ex_to<idx>(idx4).replace_dim(_ex4))
 							        * trace_string(v.begin(), num - 4);
 						}
 					}

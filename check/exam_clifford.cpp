@@ -156,7 +156,7 @@ static unsigned clifford_check3(void)
 	  + dim * dirac_gamma5() * dirac_gamma(nu) * dirac_gamma(rho) * dirac_gamma(sig) * dirac_gamma(kap);
 	e = dirac_trace(e).simplify_indexed();
 	e = (e / (dim - 4)).normal();
-	result += check_equal(e, 8 * I * eps0123(nu, rho, sig, kap));
+	result += check_equal(e, 8 * I * lorentz_eps(nu.replace_dim(4), rho.replace_dim(4), sig.replace_dim(4), kap.replace_dim(4)));
 
 	// one-loop vacuum polarization in QED
 	e = dirac_gamma(mu) *
