@@ -96,9 +96,9 @@ public:
 #else
 ;
 #endif // def INLINE_BASIC_CONSTRUCTORS
-	
+
 	const basic & operator=(const basic & other);
-	
+
 protected:
 	void copy(const basic & other)
 	{

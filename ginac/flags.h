@@ -34,6 +34,7 @@ public:
 	};
 };
 
+/** Flags to control series expansion. */
 class series_options {
 public:
 	enum {
@@ -41,34 +42,37 @@ public:
 	};
 };
 
+/** Switch to control algorithm for determinant computation. */
 class determinant_algo {
 public:
 	enum {
-		automatic,
-		gauss,
-		divfree,
-		laplace,
-		bareiss
+		automatic,                      //! Let the system choose
+		gauss,                          //! Gauss elimiation
+		divfree,                        //! Division-free elimination
+		laplace,                        //! Laplace (or minor) elimination
+		bareiss                         //! Bareiss fraction-free elimination
 	};
 };
 
+/** Switch to control algorithm for linear system solving. */
 class solve_algo {
 public:
 	enum {
-		automatic,
-		gauss,
-		divfree,
-		bareiss
+		automatic,                      //! Let the system choose
+		gauss,                          //! Gauss elimiation
+		divfree,                        //! Division-free elimination
+		bareiss                         //! Bareiss fraction-free elimination
 	};
 };
 
+/** Flags to store information about the stato of an object. */
 class status_flags {
 public:
 	enum {
-		dynallocated    = 0x0001,
-		evaluated       = 0x0002,
-		expanded        = 0x0004,
-		hash_calculated = 0x0008
+		dynallocated    = 0x0001,       //! Heap-allocated (i.e. created by new)
+		evaluated       = 0x0002,       //! .eval() has already done its job
+		expanded        = 0x0004,       //! .expand() has already done its job
+		hash_calculated = 0x0008        //! .calchash() has already done its job
 	};
 };
 
@@ -153,13 +157,15 @@ public:
 	};
 };
 
+/** Strategies how to clean up the function remember cache.
+ *  @see remember_table */
 class remember_strategies {
 public:
 	enum {
-		delete_never, // let table grow undefinitely, not recommmended, but currently default
-		delete_lru,   // least recently used
-		delete_lfu,   // least frequently used
-		delete_cyclic // first (oldest) one in list
+		delete_never,   //! Let table grow undefinitely, not recommmended, but currently default
+		delete_lru,     //! Least recently used
+		delete_lfu,     //! Least frequently used
+		delete_cyclic   //! First (oldest) one in list
 	};
 };
 

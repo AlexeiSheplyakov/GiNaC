@@ -59,7 +59,6 @@ void constant::copy(const constant & other)
 	} else {
 		number = 0;
 	}
-	// fct_assigned=other.fct_assigned;
 }
 
 void constant::destroy(bool call_parent)

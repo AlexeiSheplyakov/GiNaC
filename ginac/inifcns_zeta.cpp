@@ -24,7 +24,6 @@
 #include <stdexcept>
 
 #include "inifcns.h"
-#include "ex.h"
 #include "constant.h"
 #include "numeric.h"
 #include "power.h"

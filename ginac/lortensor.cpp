@@ -31,7 +31,6 @@
 #include "add.h"
 #include "mul.h"
 #include "debugmsg.h"
-#include "flags.h"
 #include "lst.h"
 #include "lortensor.h"
 #include "operators.h"

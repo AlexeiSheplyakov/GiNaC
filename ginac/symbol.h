@@ -46,10 +46,10 @@ class symbol : public basic
 	/** Symbols as keys to expressions. */
 	class assigned_ex_info {
 	public:
-		assigned_ex_info();     //!< Default ctor
-		bool is_assigned;       //!< True if there is an expression assigned
-		ex assigned_expression; //!< The actual expression
-		unsigned refcount;      //!< Yet another refcounter. PLEASE EXPLAIN!
+		assigned_ex_info();     //! Default ctor
+		bool is_assigned;       //! True if there is an expression assigned
+		ex assigned_expression; //! The actual expression
+		unsigned refcount;      //! Yet another refcounter. PLEASE EXPLAIN!
 	};
 	
 // member functions

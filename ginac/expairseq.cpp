@@ -191,7 +191,7 @@ void expairseq::archive(archive_node &n) const
 	while (i != iend) {
 		n.add_ex("rest", i->rest);
 		n.add_ex("coeff", i->coeff);
-		i++;
+		++i;
 	}
 	n.add_ex("overall_coeff", overall_coeff);
 }
@@ -271,7 +271,7 @@ void expairseq::printtree(std::ostream & os, unsigned indent) const
 			for (epplist::const_iterator it=hashtab[i].begin();
 				 it!=hashtab[i].end(); ++it) {
 				os << *it-seq.begin() << " ";
-				this_bin_fill++;
+				++this_bin_fill;
 			}
 			os << std::endl;
 			cum_fill += this_bin_fill;
@@ -914,7 +914,7 @@ void expairseq::make_flat(const exvector & v)
 	cit=v.begin();
 	while (cit!=citend) {
 		if (cit->bp->tinfo()==tinfo()) {
-			nexpairseqs++;
+			++nexpairseqs;
 			noperands+=ex_to_expairseq(*cit).seq.size();
 		}
 		++cit;
@@ -965,7 +965,7 @@ void expairseq::make_flat(const epvector & v)
 	cit = v.begin();
 	while (cit!=citend) {
 		if (cit->rest.bp->tinfo()==tinfo()) {
-			nexpairseqs++;
+			++nexpairseqs;
 			noperands += ex_to_expairseq((*cit).rest).seq.size();
 		}
 		++cit;
@@ -1090,7 +1090,7 @@ void expairseq::canonicalize(void)
 			do {
 				last_numeric--;
 			} while (is_ex_exactly_of_type((*last_numeric).rest,numeric));
-			last_numeric++;
+			++last_numeric;
 			sort(last_numeric,seq.end(),expair_is_less());
 		}
 	}
@@ -1197,11 +1197,11 @@ unsigned expairseq::calc_hashindex(const ex & e) const
 	unsigned hash=e.gethash();
 	unsigned hashindex;
 	if (is_a_numeric_hash(hash)) {
-		hashindex=hashmask;
+		hashindex = hashmask;
 	} else {
-		hashindex=hash & hashmask;
+		hashindex = hash & hashmask;
 		// last hashtab entry is reserved for numerics
-		if (hashindex==hashmask) hashindex=0;
+		if (hashindex==hashmask) hashindex = 0;
 	}
 	GINAC_ASSERT(hashindex>=0);
 	GINAC_ASSERT((hashindex<hashtabsize)||(hashtabsize==0));
@@ -1215,22 +1215,21 @@ void expairseq::shrink_hashtab(void)
 		GINAC_ASSERT(new_hashtabsize<hashtabsize);
 		if (new_hashtabsize==0) {
 			hashtab.clear();
-			hashtabsize=0;
+			hashtabsize = 0;
 			canonicalize();
 			return;
 		}
 		
 		// shrink by a factor of 2
 		unsigned half_hashtabsize=hashtabsize/2;
-		for (unsigned i=0; i<half_hashtabsize-1; ++i) {
+		for (unsigned i=0; i<half_hashtabsize-1; ++i)
 			hashtab[i].merge(hashtab[i+half_hashtabsize],epp_is_less());
-		}
 		// special treatment for numeric hashes
 		hashtab[0].merge(hashtab[half_hashtabsize-1],epp_is_less());
-		hashtab[half_hashtabsize-1]=hashtab[hashtabsize-1];
+		hashtab[half_hashtabsize-1] = hashtab[hashtabsize-1];
 		hashtab.resize(half_hashtabsize);
-		hashtabsize=half_hashtabsize;
-		hashmask=hashtabsize-1;
+		hashtabsize = half_hashtabsize;
+		hashmask = hashtabsize-1;
 	}
 }
 
@@ -1239,16 +1238,16 @@ void expairseq::remove_hashtab_entry(epvector::const_iterator element)
 	if (hashtabsize==0) return; // nothing to do
 	
 	// calculate hashindex of element to be deleted
-	unsigned hashindex=calc_hashindex((*element).rest);
+	unsigned hashindex = calc_hashindex((*element).rest);
 
 	// find it in hashtab and remove it
-	epplist & eppl=hashtab[hashindex];
-	epplist::iterator epplit=eppl.begin();
-	bool erased=false;
+	epplist & eppl = hashtab[hashindex];
+	epplist::iterator epplit = eppl.begin();
+	bool erased = false;
 	while (epplit!=eppl.end()) {
 		if (*epplit == element) {
 			eppl.erase(epplit);
-			erased=true;
+			erased = true;
 			break;
 		}
 		++epplit;
@@ -1258,14 +1257,14 @@ void expairseq::remove_hashtab_entry(epvector::const_iterator element)
 		cout << "tried to erase " << element-seq.begin() << std::endl;
 		cout << "size " << seq.end()-seq.begin() << std::endl;
 
-		unsigned hashindex=calc_hashindex((*element).rest);
-		epplist & eppl=hashtab[hashindex];
+		unsigned hashindex = calc_hashindex((*element).rest);
+		epplist & eppl = hashtab[hashindex];
 		epplist::iterator epplit=eppl.begin();
 		bool erased=false;
 		while (epplit!=eppl.end()) {
 			if (*epplit == element) {
 				eppl.erase(epplit);
-				erased=true;
+				erased = true;
 				break;
 			}
 			++epplit;
@@ -1284,7 +1283,7 @@ void expairseq::move_hashtab_entry(epvector::const_iterator oldpos,
 	unsigned hashindex=calc_hashindex((*newpos).rest);
 
 	// find it in hashtab and modify it
-	epplist & eppl=hashtab[hashindex];
+	epplist & eppl = hashtab[hashindex];
 	epplist::iterator epplit=eppl.begin();
 	while (epplit!=eppl.end()) {
 		if (*epplit == oldpos) {
@@ -1298,7 +1297,7 @@ void expairseq::move_hashtab_entry(epvector::const_iterator oldpos,
 
 void expairseq::sorted_insert(epplist & eppl, epp elem)
 {
-	epplist::iterator current=eppl.begin();
+	epplist::iterator current = eppl.begin();
 	while ((current!=eppl.end())&&((*(*current)).is_less(*elem))) {
 		++current;
 	}
@@ -1430,10 +1429,10 @@ void expairseq::combine_same_terms(void)
 	// combine same terms, drop term with coeff 0, move numerics to end
 	
 	// calculate size of hashtab
-	hashtabsize=calc_hashtabsize(seq.size());
+	hashtabsize = calc_hashtabsize(seq.size());
 
 	// hashtabsize is a power of 2
-	hashmask=hashtabsize-1;
+	hashmask = hashtabsize-1;
 
 	// allocate hashtab
 	hashtab.clear();
@@ -1455,7 +1454,7 @@ void expairseq::combine_same_terms(void)
 	touched.reserve(seq.size());
 	for (unsigned i=0; i<seq.size(); ++i) touched[i]=false;
 
-	unsigned number_of_zeroes=0;
+	unsigned number_of_zeroes = 0;
 
 	GINAC_ASSERT(!has_coeff_0());
 	build_hashtab_and_combine(first_numeric,last_non_zero,touched,number_of_zeroes);
@@ -1688,7 +1687,7 @@ epvector * expairseq::subschildren(const lst & ls, const lst & lr) const
 		if (!are_ex_trivially_equal((*cit).rest,subsed_ex)) {
 			
 			// something changed, copy seq, subs and return it
-			epvector *s=new epvector;
+			epvector *s = new epvector;
 			s->reserve(seq.size());
 			
 			// copy parts of seq which are known not to have changed

@@ -32,9 +32,6 @@ namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
 
 class ex;
-class expand_options;
-class status_flags;
-
 class symbol;
 class lst;
 

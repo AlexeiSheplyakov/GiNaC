@@ -70,8 +70,7 @@ private:
 	std::string name;
 	evalffunctype ef;
 	numeric * number;
-	// bool fct_assigned;
-	unsigned serial;  //!< unique serial number for comparision
+	unsigned serial;  //!  unique serial number for comparision
 	static unsigned next_serial;
 };
 

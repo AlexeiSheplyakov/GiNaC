@@ -143,7 +143,7 @@ void basic::print(std::ostream & os, unsigned upper_precedence) const
 }
 
 /** Output to stream in ugly raw format, so brave developers can have a look
- * at the underlying structure. */
+ *  at the underlying structure. */
 void basic::printraw(std::ostream & os) const
 {
 	debugmsg("basic printraw",LOGLEVEL_PRINT);
@@ -176,14 +176,22 @@ void basic::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedenc
 	debugmsg("basic print csrc", LOGLEVEL_PRINT);
 }
 
-/** Little wrapper arount print to be called within a debugger. */
+/** Little wrapper arount print to be called within a debugger.
+ *  This is needed because you cannot call foo.print(cout) from within the
+ *  debugger because it might not know what cout is.  This method can be invoked
+ *  with no argument and it will simply print to stdout.
+ *
+ *  @see basic::print*/
 void basic::dbgprint(void) const
 {
 	print(std::cerr);
 	std::cerr << std::endl;
 }
 
-/** Little wrapper arount printtree to be called within a debugger. */
+/** Little wrapper arount printtree to be called within a debugger.
+ *
+ *  @see basic::dbgprint
+ *  @see basic::printtree */
 void basic::dbgprinttree(void) const
 {
 	printtree(std::cerr,0);
@@ -519,9 +527,8 @@ const basic & basic::hold(void) const
 
 void basic::ensure_if_modifiable(void) const
 {
-	if (refcount>1) {
+	if (refcount>1)
 		throw(std::runtime_error("cannot modify multiply referenced object"));
-	}
 }
 
 //////////

@@ -136,10 +136,11 @@ void pseries::print(std::ostream &os, unsigned upper_precedence) const
 {
 	debugmsg("pseries print", LOGLEVEL_PRINT);
 	if (precedence<=upper_precedence) os << "(";
+	// objects of type pseries must not have any zero entries, so the
+	// trivial (zero) pseries needs a special treatment here:
+	if (seq.size()==0)
+		os << '0';
 	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i) {
-		// omit zero terms
-		if (i->rest.is_zero())
-			continue;
 		// print a sign, if needed
 		if (i!=seq.begin())
 			os << '+';
@@ -177,9 +178,8 @@ void pseries::printraw(std::ostream &os) const
 {
 	debugmsg("pseries printraw", LOGLEVEL_PRINT);
 	os << "pseries(" << var << ";" << point << ";";
-	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i) {
+	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i)
 		os << "(" << (*i).rest << "," << (*i).coeff << "),";
-	}
 	os << ")";
 }
 
@@ -302,6 +302,13 @@ int pseries::ldegree(const symbol &s) const
 	}
 }
 
+/** Return coefficient of degree n in power series if s is the expansion
+ *  variable.  If the expansion point is nonzero, by definition the n=1
+ *  coefficient in s of a+b*(s-z)+c*(s-z)^2+Order((s-z)^3) is b (assuming
+ *  the expansion took place in the s in the first place).
+ *  If s is not the expansion variable, an attempt is made to convert the
+ *  series to a polynomial and return the corresponding coefficient from
+ *  there. */
 ex pseries::coeff(const symbol &s, int n) const
 {
 	if (var.is_equal(s)) {
@@ -333,7 +340,7 @@ ex pseries::coeff(const symbol &s, int n) const
 		return convert_to_poly().coeff(s, n);
 }
 
-
+/** Does nothing. */
 ex pseries::collect(const symbol &s) const
 {
 	return *this;
@@ -410,8 +417,11 @@ ex pseries::expand(unsigned options) const
 {
 	epvector newseq;
 	newseq.reserve(seq.size());
-	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i)
-		newseq.push_back(expair(i->rest.expand(), i->coeff));
+	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i) {
+		ex restexp = i->rest.expand();
+		if (!restexp.is_zero())
+			newseq.push_back(expair(restexp, i->coeff));
+	}
 	return (new pseries(relational(var,point), newseq))
 	        ->setflag(status_flags::dynallocated | status_flags::expanded);
 }

@@ -25,7 +25,6 @@
 #include <stdexcept>
 
 #include "inifcns.h"
-#include "ex.h"
 #include "constant.h"
 #include "pseries.h"
 #include "numeric.h"

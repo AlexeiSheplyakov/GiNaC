@@ -440,11 +440,11 @@ ex add::thisexpairseq(epvector * vp, const ex & oc) const
 expair add::split_ex_to_pair(const ex & e) const
 {
 	if (is_ex_exactly_of_type(e,mul)) {
-		const mul & mulref=ex_to_mul(e);
-		ex numfactor=mulref.overall_coeff;
-		// mul * mulcopyp=static_cast<mul *>(mulref.duplicate());
-		mul * mulcopyp=new mul(mulref);
-		mulcopyp->overall_coeff=_ex1();
+		const mul & mulref = ex_to_mul(e);
+		ex numfactor = mulref.overall_coeff;
+		// mul * mulcopyp = static_cast<mul *>(mulref.duplicate());
+		mul * mulcopyp = new mul(mulref);
+		mulcopyp->overall_coeff = _ex1();
 		mulcopyp->clearflag(status_flags::evaluated);
 		mulcopyp->clearflag(status_flags::hash_calculated);
 		return expair(mulcopyp->setflag(status_flags::dynallocated),numfactor);
@@ -456,26 +456,24 @@ expair add::combine_ex_with_coeff_to_pair(const ex & e,
 										  const ex & c) const
 {
 	GINAC_ASSERT(is_ex_exactly_of_type(c, numeric));
-	ex one = _ex1();
 	if (is_ex_exactly_of_type(e, mul)) {
 		const mul &mulref = ex_to_mul(e);
 		ex numfactor = mulref.overall_coeff;
 		mul *mulcopyp = new mul(mulref);
-		mulcopyp->overall_coeff = one;
+		mulcopyp->overall_coeff = _ex1();
 		mulcopyp->clearflag(status_flags::evaluated);
 		mulcopyp->clearflag(status_flags::hash_calculated);
 		mulcopyp->setflag(status_flags::dynallocated);
-		if (are_ex_trivially_equal(c, one)) {
+		if (are_ex_trivially_equal(c, _ex1())) {
 			return expair(*mulcopyp, numfactor);
-		} else if (are_ex_trivially_equal(numfactor, one)) {
+		} else if (are_ex_trivially_equal(numfactor, _ex1())) {
 			return expair(*mulcopyp, c);
 		}
 		return expair(*mulcopyp, ex_to_numeric(numfactor).mul_dyn(ex_to_numeric(c)));
 	} else if (is_ex_exactly_of_type(e, numeric)) {
-		if (are_ex_trivially_equal(c, one)) {
-			return expair(e, one);
-		}
-		return expair(ex_to_numeric(e).mul_dyn(ex_to_numeric(c)), one);
+		if (are_ex_trivially_equal(c, _ex1()))
+			return expair(e, _ex1());
+		return expair(ex_to_numeric(e).mul_dyn(ex_to_numeric(c)), _ex1());
 	}
 	return expair(e, c);
 }
