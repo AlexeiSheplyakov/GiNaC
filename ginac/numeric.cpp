@@ -403,25 +403,19 @@ void numeric::print(const print_context & c, unsigned level) const
 		} else {
 			if (cln::zerop(r)) {
 				// case 2, imaginary:  y*I  or  -y*I
-				if ((precedence() <= level) && (i < 0)) {
-					if (i == -1) {
-						c.s << par_open+imag_sym+par_close;
-					} else {
+				if (i==1)
+					c.s << imag_sym;
+				else {
+					if (precedence()<=level)
 						c.s << par_open;
+					if (i == -1)
+						c.s << "-" << imag_sym;
+					else {
 						print_real_number(c, i);
-						c.s << mul_sym+imag_sym+par_close;
+						c.s << mul_sym+imag_sym;
 					}
-				} else {
-					if (i == 1) {
-						c.s << imag_sym;
-					} else {
-						if (i == -1) {
-							c.s << "-" << imag_sym;
-						} else {
-							print_real_number(c, i);
-							c.s << mul_sym+imag_sym;
-						}
-					}
+					if (precedence()<=level)
+						c.s << par_close;
 				}
 			} else {
 				// case 3, complex:  x+y*I  or  x-y*I  or  -x+y*I  or  -x-y*I
