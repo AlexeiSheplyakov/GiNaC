@@ -13,7 +13,7 @@ Group: Libraries
 Source: ftp://ftpthep.physik.uni-mainz.de/pub/GiNaC/GiNaC-%{ver}.tar.gz
 BuildRoot: /tmp/GiNaC-%{PACKAGE_VERSION}-root
 Packager: Christian Bauer <Christian.Bauer@uni-mainz.de>
-URL: http://wwwthep.physik.uni-mainz.de/GiNaC/
+URL: http://www.ginac.de/
 Docdir: %{prefix}/doc
 
 %description
