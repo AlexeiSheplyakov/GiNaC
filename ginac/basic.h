@@ -208,6 +208,11 @@ public:
 
 protected:
 	void ensure_if_modifiable() const;
+
+private:
+	void do_print(const print_context & c, unsigned level) const;
+	void do_print_tree(const print_tree & c, unsigned level) const;
+	void do_print_python_repr(const print_python_repr & c, unsigned level) const;
 	
 	// member variables
 protected:

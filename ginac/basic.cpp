@@ -36,13 +36,15 @@
 #include "relational.h"
 #include "operators.h"
 #include "wildcard.h"
-#include "print.h"
 #include "archive.h"
 #include "utils.h"
 
 namespace GiNaC {
 
-GINAC_IMPLEMENT_REGISTERED_CLASS(basic, void)
+GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(basic, void,
+  print_func<print_context>(&basic::do_print).
+  print_func<print_tree>(&basic::do_print_tree).
+  print_func<print_python_repr>(&basic::do_print_python_repr))
 
 //////////
 // default constructor, destructor, copy constructor and assignment operator
@@ -116,23 +118,74 @@ void basic::archive(archive_node &n) const
 
 // public
 
-/** Output to stream.
+/** Output to stream. This performs double dispatch on the dynamic type of
+ *  *this and the dynamic type of the supplied print context.
  *  @param c print context object that describes the output formatting
  *  @param level value that is used to identify the precedence or indentation
  *               level for placing parentheses and formatting */
 void basic::print(const print_context & c, unsigned level) const
 {
-	if (is_a<print_tree>(c)) {
+	// Double dispatch on object type and print_context type
+	const registered_class_info * reg_info = &get_class_info();
+	const print_context_class_info * pc_info = &c.get_class_info();
 
-		c.s << std::string(level, ' ') << class_name()
-		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
-		    << ", nops=" << nops()
-		    << std::endl;
-		for (size_t i=0; i<nops(); ++i)
-			op(i).print(c, level + static_cast<const print_tree &>(c).delta_indent);
+next_class:
+	const std::vector<print_functor> & pdt = reg_info->options.get_print_dispatch_table();
 
-	} else
-		c.s << "[" << class_name() << " object]";
+next_context:
+	unsigned id = pc_info->options.get_id();
+	if (id >= pdt.size() || !(pdt[id].is_valid())) {
+
+		// Method not found, try parent print_context class
+		const print_context_class_info * parent_pc_info = pc_info->get_parent();
+		if (parent_pc_info) {
+			pc_info = parent_pc_info;
+			goto next_context;
+		}
+
+		// Method still not found, try parent class
+		const registered_class_info * parent_reg_info = reg_info->get_parent();
+		if (parent_reg_info) {
+			reg_info = parent_reg_info;
+			pc_info = &c.get_class_info();
+			goto next_class;
+		}
+
+		// Method still not found. This shouldn't happen because basic (the
+		// base class of the algebraic hierarchy) registers a method for
+		// print_context (the base class of the print context hierarchy),
+		// so if we end up here, there's something wrong with the class
+		// registry.
+		throw (std::runtime_error(std::string("basic::print(): method for ") + class_name() + "/" + c.class_name() + " not found"));
+
+	} else {
+
+		// Call method
+		pdt[id](*this, c, level);
+	}
+}
+
+/** Default output to stream. */
+void basic::do_print(const print_context & c, unsigned level) const
+{
+	c.s << "[" << class_name() << " object]";
+}
+
+/** Tree output to stream. */
+void basic::do_print_tree(const print_tree & c, unsigned level) const
+{
+	c.s << std::string(level, ' ') << class_name()
+	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+	    << ", nops=" << nops()
+	    << std::endl;
+	for (size_t i=0; i<nops(); ++i)
+		op(i).print(c, level + c.delta_indent);
+}
+
+/** Python parsable output to stream. */
+void basic::do_print_python_repr(const print_python_repr & c, unsigned level) const
+{
+	c.s << class_name() << "()";
 }
 
 /** Little wrapper around print to be called within a debugger.
@@ -156,7 +209,7 @@ void basic::dbgprinttree() const
 	this->print(print_tree(std::cerr));
 }
 
-/** Return relative operator precedence (for parenthizing output). */
+/** Return relative operator precedence (for parenthezing output). */
 unsigned basic::precedence() const
 {
 	return 70;

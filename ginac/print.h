@@ -25,6 +25,7 @@
 
 #include <iosfwd>
 #include <string>
+#include <memory>
 
 #include "class_info.h"
 
@@ -67,6 +68,7 @@ public:
 public: \
 	typedef supername inherited; \
 	friend class function_options; \
+	friend class registered_class_options; \
 private: \
 	static GiNaC::print_context_class_info reg_info; \
 public: \
@@ -175,6 +177,94 @@ public:
 template <class T>
 inline bool is_a(const print_context & obj)
 { return dynamic_cast<const T *>(&obj) != 0; }
+
+
+class basic;
+
+/** Base class for print_functor handlers */
+class print_functor_impl {
+public:
+	virtual ~print_functor_impl() {}
+	virtual print_functor_impl *duplicate() const = 0;
+	virtual void operator()(const basic & obj, const print_context & c, unsigned level) const = 0;
+};
+
+/** print_functor handler for pointer-to-functions of class T, context type C */
+template <class T, class C>
+class print_ptrfun_handler : public print_functor_impl {
+public:
+	typedef void (*F)(const T &, const C &, unsigned);
+
+	print_ptrfun_handler(F f_) : f(f_) {}
+	print_ptrfun_handler *duplicate() const { return new print_ptrfun_handler(*this); }
+
+	void operator()(const basic & obj, const print_context & c, unsigned level) const
+	{
+		// Call the supplied function
+		f(dynamic_cast<const T &>(obj), dynamic_cast<const C &>(c), level);
+	}
+
+private:
+	F f;
+};
+
+/** print_functor handler for member functions of class T, context type C */
+template <class T, class C>
+class print_memfun_handler : public print_functor_impl {
+public:
+	typedef void (T::*F)(const C & c, unsigned level);
+
+	print_memfun_handler(F f_) : f(f_) {}
+	print_memfun_handler *duplicate() const { return new print_memfun_handler(*this); }
+
+	void operator()(const basic & obj, const print_context & c, unsigned level) const
+	{
+		// Call the supplied member function
+		return (dynamic_cast<const T &>(obj).*f)(dynamic_cast<const C &>(c), level);
+	}
+
+private:
+	F f;
+};
+
+/** This class represents a print method for a certain algebraic class and
+ *  print_context type. Its main purpose is to hide the difference between
+ *  member functions and nonmember functions behind one unified operator()
+ *  interface. print_functor has value semantics and acts as a smart pointer
+ *  (with deep copy) to a class derived from print_functor_impl which
+ *  implements the actual function call. */
+class print_functor {
+public:
+	print_functor() : impl(0) {}
+	print_functor(const print_functor & other) : impl(other.impl.get() ? other.impl->duplicate() : 0) {}
+	print_functor(std::auto_ptr<print_functor_impl> impl_) : impl(impl_) {}
+
+	template <class T, class C>
+	print_functor(void f(const T &, const C &, unsigned)) : impl(new print_ptrfun_handler<T, C>(f)) {}
+
+	template <class T, class C>
+	print_functor(void (T::*f)(const C &, unsigned)) : impl(new print_memfun_handler<T, C>(f)) {}
+
+	print_functor & operator=(const print_functor & other)
+	{
+		if (this != &other) {
+			print_functor_impl *p = other.impl.get();
+			impl.reset(p ? other.impl->duplicate() : 0);
+		}
+		return *this;
+	}
+
+	void operator()(const basic & obj, const print_context & c, unsigned level) const
+	{
+		(*impl)(obj, c, level);
+	}
+
+	bool is_valid() const { return impl.get(); }
+
+private:
+	std::auto_ptr<print_functor_impl> impl;
+};
+
 
 } // namespace GiNaC
 

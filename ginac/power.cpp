@@ -89,7 +89,7 @@ static void print_sym_pow(const print_context & c, const symbol &x, int exp)
 {
 	// Optimal output of integer powers of symbols to aid compiler CSE.
 	// C.f. ISO/IEC 14882:1998, section 1.9 [intro execution], paragraph 15
-	// to learn why such a parenthisation is really necessary.
+	// to learn why such a parenthesation is really necessary.
 	if (exp == 1) {
 		x.print(c);
 	} else if (exp == 2) {

@@ -25,8 +25,10 @@
 
 #include <string>
 #include <list>
+#include <vector>
 
 #include "class_info.h"
+#include "print.h"
 
 namespace GiNaC {
 
@@ -51,12 +53,42 @@ public:
 	const char *get_parent_name() const { return parent_name; }
 	unsigned get_id() const { return tinfo_key; }
 	unarch_func get_unarch_func() const { return unarchive; }
+	const std::vector<print_functor> &get_print_dispatch_table() const { return print_dispatch_table; }
+
+	template <class Ctx, class T, class C>
+	registered_class_options & print_func(void f(const T &, const C & c, unsigned))
+	{
+		set_print_func(Ctx::reg_info.options.get_id(), f);
+		return *this;
+	}
+
+	template <class Ctx, class T, class C>
+	registered_class_options & print_func(void (T::*f)(const C &, unsigned))
+	{
+		set_print_func(Ctx::reg_info.options.get_id(), f);
+		return *this;
+	}
+
+	template <class Ctx>
+	registered_class_options & print_func(const print_functor & f)
+	{
+		set_print_func(Ctx::reg_info.options.get_id(), f);
+		return *this;
+	}
 
 private:
+	void set_print_func(unsigned id, const print_functor & f)
+	{
+		if (id >= print_dispatch_table.size())
+			print_dispatch_table.resize(id + 1);
+		print_dispatch_table[id] = f;
+	}
+
 	const char *name;         /**< Class name. */
 	const char *parent_name;  /**< Name of superclass. */
 	unsigned tinfo_key;       /**< TINFO_* key. */
 	unarch_func unarchive;    /**< Pointer to unarchiving function. */
+	std::vector<print_functor> print_dispatch_table; /**< Method table for print() dispatch */
 };
 
 typedef class_info<registered_class_options> registered_class_info;
