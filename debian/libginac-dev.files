@@ -6,3 +6,4 @@ usr/bin/ginac-config
 usr/share/man/man1/ginac-config*
 usr/share/info/ginac*
 usr/share/aclocal/ginac.m4
+usr/lib/pkgconfig/ginac.pc
