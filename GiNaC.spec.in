@@ -10,10 +10,12 @@ Copyright: GPL
 Group: System Environment/Libraries
 Source: ftp://ftpthep.physik.uni-mainz.de/pub/GiNaC/%{name}-%{version}.tar.gz
 URL: http://www.ginac.de/
+Packager: Christian Bauer <cbauer@ginac.de>
 Prereq: /sbin/install-info
-#Requires: cln
 BuildRoot: %{_tmppath}/%{name}-root
 Prefix: %{_prefix}
+
+Requires: cln >= 1.0.3
 
 %description
 GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is an
@@ -26,7 +28,7 @@ easy-to-use CAS-like interface to GiNaC for non-programmers.
 %package devel
 Summary: Libraries, includes and more to develop GiNaC applications
 Group: Development/Libraries
-Requires: %{name}
+Requires: %{name} = %{version}
 
 %description devel
 GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is an
@@ -40,7 +42,7 @@ develop GiNaC applications.
 %setup -q
 
 %build
-./configure --prefix=%{_prefix}
+CFLAGS=${RPM_OPT_FLAGS} CXXFLAGS=${RPM_OPT_FLAGS} ./configure --prefix=%{_prefix} --mandir=%{_mandir} --infodir=%{_infodir}
 if [ -x /usr/bin/getconf ] ; then
   NCPU=$(/usr/bin/getconf _NPROCESSORS_ONLN)
   if [ $NCPU -eq 0 ] ; then
@@ -55,8 +57,7 @@ make
 
 %install
 rm -rf ${RPM_BUILD_ROOT}
-mkdir -p ${RPM_BUILD_ROOT}%{_infodir}
-make prefix=%{_prefix} DESTDIR=${RPM_BUILD_ROOT} install
+make DESTDIR=${RPM_BUILD_ROOT} install-strip
 gzip -9nf ${RPM_BUILD_ROOT}%{_infodir}/ginac.info*
 
 %clean
@@ -73,7 +74,7 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %preun devel
 if [ "$1" = 0 ]; then
-  /sbin/install-info --del %{_infodir}/ginac.info.gz %{_infodir}/dir
+  /sbin/install-info --delete %{_infodir}/ginac.info.gz %{_infodir}/dir
 fi
 
 %files
@@ -90,7 +91,7 @@ fi
 %{_libdir}/*.a
 %{_libdir}/*.la
 %{_libdir}/*.so
-%{_includedir}/*
+%{_includedir}/*.h
 %{_infodir}/*.info*
 %{_mandir}/man1/ginac-config.1
 %{_bindir}/ginac-config
