@@ -1810,7 +1810,7 @@ const numeric mod(const numeric &a, const numeric &b)
 /** Modulus (in symmetric representation).
  *  Equivalent to Maple's mods.
  *
- *  @return a mod b in the range [-iquo(abs(m)-1,2), iquo(abs(m),2)]. */
+ *  @return a mod b in the range [-iquo(abs(b)-1,2), iquo(abs(b),2)]. */
 const numeric smod(const numeric &a, const numeric &b)
 {
 	if (a.is_integer() && b.is_integer()) {
