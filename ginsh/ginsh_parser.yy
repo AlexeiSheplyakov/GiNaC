@@ -298,9 +298,9 @@ static ex f_determinant(const exprseq &e)
 
 static ex f_diag(const exprseq &e)
 {
-	int dim = e.nops();
+	unsigned dim = e.nops();
 	matrix &m = *new matrix(dim, dim);
-	for (int i=0; i<dim; i++)
+	for (unsigned i=0; i<dim; i++)
 		m.set(i, i, e.op(i));
 	return m;
 }
@@ -378,7 +378,7 @@ static ex f_op(const exprseq &e)
 {
 	CHECK_ARG(1, numeric, op);
 	int n = ex_to_numeric(e[1]).to_int();
-	if (n < 0 || n >= e[0].nops())
+	if (n < 0 || n >= (int)e[0].nops())
 		throw(std::out_of_range("second argument to op() is out of range"));
 	return e[0].op(n);
 }
@@ -665,7 +665,7 @@ static ex lst2matrix(const ex &l)
 		throw(std::logic_error("internal error: argument to lst2matrix() is not a list"));
 
 	// Find number of rows and columns
-	int rows = l.nops(), cols = 0, i, j;
+	unsigned rows = l.nops(), cols = 0, i, j;
 	for (i=0; i<rows; i++)
 		if (l.op(i).nops() > cols)
 			cols = l.op(i).nops();
@@ -732,9 +732,9 @@ int main(int argc, char **argv)
 	// Print banner in interactive mode
 	if (isatty(0)) {
 		cout << "ginsh - GiNaC Interactive Shell (" << PACKAGE << " " << VERSION << ")\n";
-		cout << "Copyright (C) 1999 Johannes Gutenberg Universitaet Mainz, Germany\n";
-		cout << "This is free software, and you are welcome to redistribute it\n";
-		cout << "under certain conditions; see the file COPYING for details.\n";
+		cout << "Copyright (C) 1999-2000 Johannes Gutenberg University Mainz, Germany\n";
+		cout << "This is free software with ABSOLUTELY NO WARRANTY.  You are welcome to\n";
+		cout << "redistribute it under certain conditions; see the file COPYING for details.\n";
 		cout << "Type ?? for a list of help topics.\n";
 	}
 
@@ -758,20 +758,21 @@ int main(int argc, char **argv)
 	insert_fcn_help("atan2", "inverse tangent function with two arguments");
 	insert_fcn_help("atanh", "inverse hyperbolic tangent function");
 	insert_fcn_help("beta", "beta function");
+	insert_fcn_help("binomial", "binomial function");
 	insert_fcn_help("cos", "cosine function");
 	insert_fcn_help("cosh", "hyperbolic cosine function");
-	insert_fcn_help("psi", "polygamma function");
+	insert_fcn_help("exp", "exponential function");
+	insert_fcn_help("factorial", "factorial function");
+	insert_fcn_help("gamma", "gamma function");
+	insert_fcn_help("log", "natural logarithm");
+	insert_fcn_help("psi", "psi function\npsi(x) is the digamma function, psi(n,x) the nth polygamma function");
 	insert_fcn_help("sin", "sine function");
 	insert_fcn_help("sinh", "hyperbolic sine function");
 	insert_fcn_help("tan", "tangent function");
 	insert_fcn_help("tanh", "hyperbolic tangent function");
-	insert_fcn_help("exp", "exponential function");
-	insert_fcn_help("log", "natural logarithm");
+	insert_fcn_help("zeta", "zeta function\nzeta(x) is Riemann's zeta function, zeta(n,x) its nth derivative");
 	insert_fcn_help("Li2", "dilogarithm");
 	insert_fcn_help("Li3", "trilogarithm");
-	insert_fcn_help("binomial", "binomial function");
-	insert_fcn_help("factorial", "factorial function");
-	insert_fcn_help("gamma", "gamma function");
 	insert_fcn_help("Order", "order term function (for truncated power series)");
 
 	// Init readline completer
