@@ -160,15 +160,15 @@ static unsigned clifford_check3(void)
 
 	// one-loop vacuum polarization in QED
 	e = dirac_gamma(mu) *
-	    (dirac_slash(l, dim) + dirac_slash(q, dim) + m * dirac_ONE()) *
+	    (dirac_slash(l, dim) + dirac_slash(q, 4) + m * dirac_ONE()) *
 	    dirac_gamma(mu.toggle_variance()) *
 	    (dirac_slash(l, dim) + m * dirac_ONE());
 	e = dirac_trace(e).simplify_indexed(sp);
 	result += check_equal(e, 4*((2-dim)*l*l + (2-dim)*ldotq + dim*m*m).expand());
 
-	e = dirac_slash(q, dim) *
-	    (dirac_slash(l, dim) + dirac_slash(q, dim) + m * dirac_ONE()) *
-	    dirac_slash(q, dim) *
+	e = dirac_slash(q, 4) *
+	    (dirac_slash(l, dim) + dirac_slash(q, 4) + m * dirac_ONE()) *
+	    dirac_slash(q, 4) *
 	    (dirac_slash(l, dim) + m * dirac_ONE());
 	e = dirac_trace(e).simplify_indexed(sp);
 	result += check_equal(e, 4*(2*ldotq*ldotq + q*q*ldotq - q*q*l*l + q*q*m*m).expand());
