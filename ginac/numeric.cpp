@@ -938,13 +938,13 @@ bool numeric::is_real(void) const
 
 bool numeric::operator==(const numeric &other) const
 {
-	return equal(cln::the<cln::cl_N>(value), cln::the<cln::cl_N>(other.value));
+	return cln::equal(cln::the<cln::cl_N>(value), cln::the<cln::cl_N>(other.value));
 }
 
 
 bool numeric::operator!=(const numeric &other) const
 {
-	return !equal(cln::the<cln::cl_N>(value), cln::the<cln::cl_N>(other.value));
+	return !cln::equal(cln::the<cln::cl_N>(value), cln::the<cln::cl_N>(other.value));
 }
 
 
@@ -1114,7 +1114,7 @@ const numeric numeric::denom(void) const
 	if (this->is_integer())
 		return _num1();
 	
-	if (instanceof(value, cln::cl_RA_ring))
+	if (cln::instanceof(value, cln::cl_RA_ring))
 		return numeric(cln::denominator(cln::the<cln::cl_RA>(value)));
 	
 	if (!this->is_real()) {  // complex case, handle Q(i):
@@ -1750,8 +1750,8 @@ const numeric irem(const numeric &a, const numeric &b, numeric &q)
 const numeric iquo(const numeric &a, const numeric &b)
 {
 	if (a.is_integer() && b.is_integer())
-		return truncate1(cln::the<cln::cl_I>(a.to_cl_N()),
-	                     cln::the<cln::cl_I>(b.to_cl_N()));
+		return cln::truncate1(cln::the<cln::cl_I>(a.to_cl_N()),
+	                          cln::the<cln::cl_I>(b.to_cl_N()));
 	else
 		return _num0();
 }

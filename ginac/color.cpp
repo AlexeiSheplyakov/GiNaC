@@ -71,7 +71,7 @@ DEFAULT_CTORS(su3d)
 /** Construct object without any color index. This constructor is for
  *  internal use only. Use the color_ONE() function instead.
  *  @see color_ONE */
-color::color(const ex & b, unsigned rl = 0) : inherited(b), representation_label(rl)
+color::color(const ex & b, unsigned rl) : inherited(b), representation_label(rl)
 {
 	debugmsg("color constructor from ex,unsigned", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_color;
@@ -80,7 +80,7 @@ color::color(const ex & b, unsigned rl = 0) : inherited(b), representation_label
 /** Construct object with one color index. This constructor is for internal
  *  use only. Use the color_T() function instead.
  *  @see color_T */
-color::color(const ex & b, const ex & i1, unsigned rl = 0) : inherited(b, i1), representation_label(rl)
+color::color(const ex & b, const ex & i1, unsigned rl) : inherited(b, i1), representation_label(rl)
 {
 	debugmsg("color constructor from ex,ex,unsigned", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_color;

@@ -43,10 +43,7 @@ class structure : public basic
 	
 	// functions overriding virtual functions from bases classes
 public:
-	void printraw(std::ostream & os) const; 
-	void print(std::ostream & os, unsigned upper_precedence=0) const;
-	void printtree(std::ostream & os, unsigned indent) const;
-	void printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence=0) const;
+	void print(const print_context & c, unsigned level=0) const;
 protected:
 	bool is_equal_same_type(const basic & other) const;
 	

@@ -26,6 +26,7 @@
 #include "archive.h"
 #include "debugmsg.h"
 #include "utils.h"
+#include "print.h"
 
 namespace GiNaC {
 
@@ -47,33 +48,18 @@ DEFAULT_ARCHIVING(structure)
 // functions overriding virtual functions from bases classes
 //////////
 
-void structure::printraw(std::ostream & os) const
-{
-	debugmsg("structure printraw",LOGLEVEL_PRINT);
-
-	os << class_name() << "(hash=" << hashvalue << ",flags=" << flags << ")";
-}
-
-void structure::print(std::ostream & os, unsigned upper_precedence) const
+void structure::print(const print_context & c, unsigned level) const
 {
 	debugmsg("structure print",LOGLEVEL_PRINT);
 
-	os << class_name() << "()";
-}
+	if (is_of_type(c, print_tree)) {
 
-void structure::printtree(std::ostream & os, unsigned indent) const
-{
-	debugmsg("structure printtree",LOGLEVEL_PRINT);
+		c.s << std::string(level, ' ') << class_name()
+		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
+		    << std::endl;
 
-	os << std::string(indent,' ') << class_name() << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
-	   << std::endl;
-}
-
-void structure::printcsrc(std::ostream & os, unsigned type, unsigned upper_precedence) const
-{
-	debugmsg("structure print csrc",LOGLEVEL_PRINT);
-
-	os << "structure()";
+	} else
+		c.s << class_name() << "()";
 }
 
 // protected
