@@ -604,12 +604,6 @@ inline bool is_zero(const ex & thisex)
 inline void swap(ex & e1, ex & e2)
 { e1.swap(e2); }
 
-
-// This makes STL algorithms use the more efficient swap operation for ex objects
-inline void iter_swap(std::vector<ex>::iterator i1, std::vector<ex>::iterator i2)
-{ i1->swap(*i2); }
-
-
 /* Function objects for STL sort() etc. */
 struct ex_is_less : public std::binary_function<ex, ex, bool> {
 	bool operator() (const ex &lh, const ex &rh) const { return lh.compare(rh) < 0; }
@@ -722,5 +716,32 @@ inline const T &ex_to(const ex &e)
 }
 
 } // namespace GiNaC
+
+
+// Specializations of Standard Library algorithms
+namespace std {
+
+/** Specialization of std::swap() for ex objects. */
+template <>
+inline void swap(GiNaC::ex &a, GiNaC::ex &b)
+{
+	a.swap(b);
+}
+
+/** Specialization of std::iter_swap() for vector<ex> iterators. */
+template <>
+inline void iter_swap(vector<GiNaC::ex>::iterator i1, vector<GiNaC::ex>::iterator i2)
+{
+	i1->swap(*i2);
+}
+
+/** Specialization of std::iter_swap() for list<ex> iterators. */
+template <>
+inline void iter_swap(list<GiNaC::ex>::iterator i1, list<GiNaC::ex>::iterator i2)
+{
+	i1->swap(*i2);
+}
+
+} // namespace std
 
 #endif // ndef __GINAC_EX_H__
