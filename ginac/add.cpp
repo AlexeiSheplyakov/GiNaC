@@ -284,18 +284,16 @@ int add::ldegree(const ex & s) const
 ex add::coeff(const ex & s, int n) const
 {
 	epvector coeffseq;
-	coeffseq.reserve(seq.size());
-
+	
 	epvector::const_iterator it=seq.begin();
 	while (it!=seq.end()) {
-		coeffseq.push_back(combine_ex_with_coeff_to_pair((*it).rest.coeff(s,n),
-		                                                 (*it).coeff));
+		ex restcoeff = it->rest.coeff(s,n);
+		if (!restcoeff.is_zero())
+			coeffseq.push_back(combine_ex_with_coeff_to_pair(restcoeff,it->coeff));
 		++it;
 	}
-	if (n==0) {
-		return (new add(coeffseq,overall_coeff))->setflag(status_flags::dynallocated);
-	}
-	return (new add(coeffseq))->setflag(status_flags::dynallocated);
+	
+	return (new add(coeffseq, n==0 ? overall_coeff : default_overall_coeff()))->setflag(status_flags::dynallocated);
 }
 
 ex add::eval(int level) const
