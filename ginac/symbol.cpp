@@ -165,14 +165,17 @@ void symbol::do_print_python_repr(const print_python_repr & c, unsigned level) c
 
 bool symbol::info(unsigned inf) const
 {
-	if (inf==info_flags::symbol) return true;
-	if (inf==info_flags::polynomial ||
-	    inf==info_flags::integer_polynomial ||
-	    inf==info_flags::cinteger_polynomial ||
-	    inf==info_flags::rational_polynomial ||
-	    inf==info_flags::crational_polynomial ||
-	    inf==info_flags::rational_function)
+	if (inf == info_flags::symbol)
 		return true;
+	if (inf == info_flags::polynomial ||
+	    inf == info_flags::integer_polynomial ||
+	    inf == info_flags::cinteger_polynomial ||
+	    inf == info_flags::rational_polynomial ||
+	    inf == info_flags::crational_polynomial ||
+	    inf == info_flags::rational_function)
+		return true;
+	if (inf == info_flags::real)
+		return domain == symbol_options::real;
 	else
 		return inherited::info(inf);
 }
