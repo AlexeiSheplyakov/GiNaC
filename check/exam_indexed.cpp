@@ -337,7 +337,7 @@ static unsigned spinor_check(void)
 
 static unsigned dummy_check(void)
 {
-	// check dummy index renaming
+	// check dummy index renaming/repositioning
 
 	unsigned result = 0;
 
@@ -354,6 +354,15 @@ static unsigned dummy_check(void)
 	result += check_equal_simplify(e, 0);
 
 	e = indexed(p, mu, mu.toggle_variance()) - indexed(p, nu, nu.toggle_variance());
+	result += check_equal_simplify(e, 0);
+
+	e = indexed(p, mu.toggle_variance(), nu, mu) * indexed(q, i)
+	  - indexed(p, mu, nu, mu.toggle_variance()) * indexed(q, i);
+	result += check_equal_simplify(e, 0);
+
+	e = indexed(p, mu, mu.toggle_variance()) - indexed(p, nu.toggle_variance(), nu);
+	result += check_equal_simplify(e, 0);
+	e = indexed(p, mu.toggle_variance(), mu) - indexed(p, nu, nu.toggle_variance());
 	result += check_equal_simplify(e, 0);
 
 	return result;

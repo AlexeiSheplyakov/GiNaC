@@ -493,7 +493,7 @@ exvector power::get_free_indices(void) const
 
 /** Rename dummy indices in an expression.
  *
- *  @param e Expression to be worked on
+ *  @param e Expression to work on
  *  @param local_dummy_indices The set of dummy indices that appear in the
  *    expression "e"
  *  @param global_dummy_indices The set of dummy indices that have appeared
@@ -552,6 +552,72 @@ static ex rename_dummy_indices(const ex & e, exvector & global_dummy_indices, ex
 			global_uniq.pop_back();
 		return e.subs(lst(local_uniq), lst(global_uniq));
 	}
+}
+
+/** Given a set of indices, extract those of class varidx. */
+static void find_variant_indices(const exvector & v, exvector & variant_indices)
+{
+	exvector::const_iterator it1, itend;
+	for (it1 = v.begin(), itend = v.end(); it1 != itend; ++it1) {
+		if (is_exactly_a<varidx>(*it1))
+			variant_indices.push_back(*it1);
+	}
+}
+
+/** Raise/lower dummy indices in a single indexed objects to canonicalize their
+ *  variance.
+ *
+ *  @param e Object to work on
+ *  @param variant_dummy_indices The set of indices that might need repositioning (will be changed by this function)
+ *  @param moved_indices The set of indices that have been repositioned (will be changed by this function)
+ *  @return true if 'e' was changed */
+bool reposition_dummy_indices(ex & e, exvector & variant_dummy_indices, exvector & moved_indices)
+{
+	bool something_changed = false;
+
+	// If a dummy index is encountered for the first time in the
+	// product, pull it up, otherwise, pull it down
+	exvector::const_iterator it2, it2start, it2end;
+	for (it2start = ex_to<indexed>(e).seq.begin(), it2end = ex_to<indexed>(e).seq.end(), it2 = it2start + 1; it2 != it2end; ++it2) {
+		if (!is_exactly_a<varidx>(*it2))
+			continue;
+
+		exvector::iterator vit, vitend;
+		for (vit = variant_dummy_indices.begin(), vitend = variant_dummy_indices.end(); vit != vitend; ++vit) {
+			if (it2->op(0).is_equal(vit->op(0))) {
+				if (ex_to<varidx>(*it2).is_covariant()) {
+					e = e.subs(lst(
+						*it2 == ex_to<varidx>(*it2).toggle_variance(),
+						ex_to<varidx>(*it2).toggle_variance() == *it2
+					));
+					something_changed = true;
+					it2 = ex_to<indexed>(e).seq.begin() + (it2 - it2start);
+					it2start = ex_to<indexed>(e).seq.begin();
+					it2end = ex_to<indexed>(e).seq.end();
+				}
+				moved_indices.push_back(*vit);
+				variant_dummy_indices.erase(vit);
+				goto next_index;
+			}
+		}
+
+		for (vit = moved_indices.begin(), vitend = moved_indices.end(); vit != vitend; ++vit) {
+			if (it2->op(0).is_equal(vit->op(0))) {
+				if (ex_to<varidx>(*it2).is_contravariant()) {
+					e = e.subs(*it2 == ex_to<varidx>(*it2).toggle_variance());
+					something_changed = true;
+					it2 = ex_to<indexed>(e).seq.begin() + (it2 - it2start);
+					it2start = ex_to<indexed>(e).seq.begin();
+					it2end = ex_to<indexed>(e).seq.end();
+				}
+				goto next_index;
+			}
+		}
+
+next_index: ;
+	}
+
+	return something_changed;
 }
 
 /* Ordering that only compares the base expressions of indexed objects. */
@@ -695,10 +761,7 @@ contraction_done:
 
 	// Filter out the dummy indices with variance
 	exvector variant_dummy_indices;
-	for (it1 = local_dummy_indices.begin(), itend = local_dummy_indices.end(); it1 != itend; ++it1) {
-		if (is_exactly_a<varidx>(*it1))
-			variant_dummy_indices.push_back(*it1);
-	}
+	find_variant_indices(local_dummy_indices, variant_dummy_indices);
 
 	// Any indices with variance present at all?
 	if (!variant_dummy_indices.empty()) {
@@ -715,46 +778,8 @@ contraction_done:
 			if (!is_ex_of_type(*it1, indexed))
 				continue;
 
-			ex new_it1;
-			bool it1_dirty = false; // It this is true, then new_it1 holds a new value for *it1
-
-			// If a dummy index is encountered for the first time in the
-			// product, pull it up, otherwise, pull it down
-			exvector::iterator it2, it2end;
-			for (it2 = const_cast<indexed &>(ex_to<indexed>(*it1)).seq.begin(), it2end = const_cast<indexed &>(ex_to<indexed>(*it1)).seq.end(); it2 != it2end; ++it2) {
-				if (!is_exactly_a<varidx>(*it2))
-					continue;
-
-				exvector::iterator vit, vitend;
-				for (vit = variant_dummy_indices.begin(), vitend = variant_dummy_indices.end(); vit != vitend; ++vit) {
-					if (it2->op(0).is_equal(vit->op(0))) {
-						if (ex_to<varidx>(*it2).is_covariant()) {
-							new_it1 = (it1_dirty ? new_it1 : *it1).subs(*it2 == ex_to<varidx>(*it2).toggle_variance());
-							it1_dirty = true;
-							something_changed = true;
-						}
-						moved_indices.push_back(*vit);
-						variant_dummy_indices.erase(vit);
-						goto next_index;
-					}
-				}
-
-				for (vit = moved_indices.begin(), vitend = moved_indices.end(); vit != vitend; ++vit) {
-					if (it2->op(0).is_equal(vit->op(0))) {
-						if (ex_to<varidx>(*it2).is_contravariant()) {
-							new_it1 = (it1_dirty ? new_it1 : *it1).subs(*it2 == ex_to<varidx>(*it2).toggle_variance());
-							it1_dirty = true;
-							something_changed = true;
-						}
-						goto next_index;
-					}
-				}
-
-next_index:		;
-			}
-
-			if (it1_dirty)
-				*it1 = new_it1;
+			if (reposition_dummy_indices(*it1, variant_dummy_indices, moved_indices))
+				something_changed = true;
 		}
 	}
 
@@ -795,11 +820,27 @@ ex simplify_indexed(const ex & e, exvector & free_indices, exvector & dummy_indi
 	ex e_expanded = e.expand();
 
 	// Simplification of single indexed object: just find the free indices
-	// and perform dummy index renaming
+	// and perform dummy index renaming/repositioning
 	if (is_ex_of_type(e_expanded, indexed)) {
+
+		// Find the dummy indices
 		const indexed &i = ex_to<indexed>(e_expanded);
 		exvector local_dummy_indices;
 		find_free_and_dummy(i.seq.begin() + 1, i.seq.end(), free_indices, local_dummy_indices);
+
+		// Filter out the dummy indices with variance
+		exvector variant_dummy_indices;
+		find_variant_indices(local_dummy_indices, variant_dummy_indices);
+
+		// Any indices with variance present at all?
+		if (!variant_dummy_indices.empty()) {
+
+			// Yes, reposition them
+			exvector moved_indices;
+			reposition_dummy_indices(e_expanded, variant_dummy_indices, moved_indices);
+		}
+
+		// Rename the dummy indices
 		return rename_dummy_indices(e_expanded, dummy_indices, local_dummy_indices);
 	}
 

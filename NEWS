@@ -3,7 +3,7 @@ This file records noteworthy changes.
 1.0.9 (<date>)
 * simplify_indexed() now raises/lowers dummy indices to canonicalize the index
   variance. This allows some simplifications that weren't possible before,
-  like eps~a.b~c~d*X.a*X~b -> 0.
+  like eps~a.b~c~d*X.a*X~b -> 0 and X.a~a-X~a.a -> 0.
 
 1.0.8 (31 March 2002)
 * Improvements in memory usage of the expand() methods.
