@@ -146,10 +146,17 @@ public:
 	const basic & hold(void) const;
 	unsigned gethash(void) const { if (flags & status_flags::hash_calculated) return hashvalue; else return calchash(); }
 	unsigned tinfo(void) const {return tinfo_key;}
+
 	/** Set some status_flags. */
 	const basic & setflag(unsigned f) const {flags |= f; return *this;}
+
 	/** Clear some status_flags. */
 	const basic & clearflag(unsigned f) const {flags &= ~f; return *this;}
+
+	/** Get relative precedence level (useful for implementing pretty-printed
+	 *  output). */
+	unsigned get_precedence(void) const {return precedence;}
+
 protected:
 	void ensure_if_modifiable(void) const;
 	
