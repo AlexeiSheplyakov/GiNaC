@@ -580,33 +580,64 @@ ex power::expand(unsigned options) const
 		return *this;
 	
 	ex expanded_basis = basis.expand(options);
-	
-	if (!is_ex_exactly_of_type(exponent,numeric) ||
-		!ex_to_numeric(exponent).is_integer()) {
-		if (are_ex_trivially_equal(basis,expanded_basis)) {
+	ex expanded_exponent = exponent.expand(options);
+
+	// x^(a+b) -> x^a * x^b
+	if (is_ex_exactly_of_type(expanded_exponent, add)) {
+		const add &a = ex_to_add(expanded_exponent);
+		exvector distrseq;
+		distrseq.reserve(a.seq.size() + 1);
+		epvector::const_iterator last = a.seq.end();
+		epvector::const_iterator cit = a.seq.begin();
+		while (cit!=last) {
+			distrseq.push_back(power(expanded_basis, a.recombine_pair_to_ex(*cit)));
+			cit++;
+		}
+
+		// Make sure that e.g. (x+y)^(2+a) expands the (x+y)^2 factor
+		if (ex_to_numeric(a.overall_coeff).is_integer()) {
+			const numeric &num_exponent = ex_to_numeric(a.overall_coeff);
+			int int_exponent = num_exponent.to_int();
+			if (int_exponent > 0 && is_ex_exactly_of_type(expanded_basis, add))
+				distrseq.push_back(expand_add(ex_to_add(expanded_basis), int_exponent));
+			else
+				distrseq.push_back(power(expanded_basis, a.overall_coeff));
+		} else
+			distrseq.push_back(power(expanded_basis, a.overall_coeff));
+
+		// Make sure that e.g. (x+y)^(1+a) -> x*(x+y)^a + y*(x+y)^a
+		ex r = (new mul(distrseq))->setflag(status_flags::dynallocated);
+		return r.expand();
+	}
+
+	if (!is_ex_exactly_of_type(expanded_exponent, numeric) ||
+		!ex_to_numeric(expanded_exponent).is_integer()) {
+		if (are_ex_trivially_equal(basis,expanded_basis) && are_ex_trivially_equal(exponent,expanded_exponent)) {
 			return this->hold();
 		} else {
-			return (new power(expanded_basis,exponent))->setflag(status_flags::dynallocated | status_flags::expanded);
+			return (new power(expanded_basis,expanded_exponent))->setflag(status_flags::dynallocated | status_flags::expanded);
 		}
 	}
 	
 	// integer numeric exponent
-	const numeric & num_exponent = ex_to_numeric(exponent);
+	const numeric & num_exponent = ex_to_numeric(expanded_exponent);
 	int int_exponent = num_exponent.to_int();
 	
+	// (x+y)^n, n>0
 	if (int_exponent > 0 && is_ex_exactly_of_type(expanded_basis,add)) {
 		return expand_add(ex_to_add(expanded_basis), int_exponent);
 	}
 	
+	// (x*y)^n -> x^n * y^n
 	if (is_ex_exactly_of_type(expanded_basis,mul)) {
 		return expand_mul(ex_to_mul(expanded_basis), num_exponent);
 	}
 	
 	// cannot expand further
-	if (are_ex_trivially_equal(basis,expanded_basis)) {
+	if (are_ex_trivially_equal(basis,expanded_basis) && are_ex_trivially_equal(exponent,expanded_exponent)) {
 		return this->hold();
 	} else {
-		return (new power(expanded_basis,exponent))->setflag(status_flags::dynallocated | status_flags::expanded);
+		return (new power(expanded_basis,expanded_exponent))->setflag(status_flags::dynallocated | status_flags::expanded);
 	}
 }
 
