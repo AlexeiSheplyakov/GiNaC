@@ -136,7 +136,8 @@ void mul::print(const print_context & c, unsigned level) const
 
 	} else if (is_of_type(c, print_csrc)) {
 
-		c.s << "(";
+		if (precedence <= level)
+			c.s << "(";
 
 		if (!overall_coeff.is_equal(_ex1())) {
 			overall_coeff.bp->print(c, precedence);
