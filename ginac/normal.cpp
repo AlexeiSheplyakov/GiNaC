@@ -298,7 +298,9 @@ static ex multiply_lcm(const ex &e, const numeric &lcm)
 
 
 /** Compute the integer content (= GCD of all numeric coefficients) of an
- *  expanded polynomial.
+ *  expanded polynomial. For a polynomial with rational coefficients, this
+ *  returns g/l where g is the GCD of the coefficients' numerators and l
+ *  is the LCM of the coefficients' denominators.
  *
  *  @return integer content */
 numeric ex::integer_content() const
@@ -320,16 +322,18 @@ numeric add::integer_content() const
 {
 	epvector::const_iterator it = seq.begin();
 	epvector::const_iterator itend = seq.end();
-	numeric c = _num0;
+	numeric c = _num0, l = _num1;
 	while (it != itend) {
 		GINAC_ASSERT(!is_exactly_a<numeric>(it->rest));
 		GINAC_ASSERT(is_exactly_a<numeric>(it->coeff));
-		c = gcd(ex_to<numeric>(it->coeff), c);
+		c = gcd(ex_to<numeric>(it->coeff).numer(), c);
+		l = lcm(ex_to<numeric>(it->coeff).denom(), l);
 		it++;
 	}
 	GINAC_ASSERT(is_exactly_a<numeric>(overall_coeff));
-	c = gcd(ex_to<numeric>(overall_coeff),c);
-	return c;
+	c = gcd(ex_to<numeric>(overall_coeff).numer(), c);
+	l = lcm(ex_to<numeric>(overall_coeff).denom(), l);
+	return c/l;
 }
 
 numeric mul::integer_content() const
@@ -812,7 +816,7 @@ static bool divide_in_z(const ex &a, const ex &b, ex &q, sym_desc_vec::const_ite
  */
 
 /** Compute unit part (= sign of leading coefficient) of a multivariate
- *  polynomial in Z[x]. The product of unit part, content part, and primitive
+ *  polynomial in Q[x]. The product of unit part, content part, and primitive
  *  part is the polynomial itself.
  *
  *  @param x  variable in which to compute the unit part
@@ -834,7 +838,7 @@ ex ex::unit(const ex &x) const
 
 
 /** Compute content part (= unit normal GCD of all coefficients) of a
- *  multivariate polynomial in Z[x].  The product of unit part, content part,
+ *  multivariate polynomial in Q[x]. The product of unit part, content part,
  *  and primitive part is the polynomial itself.
  *
  *  @param x  variable in which to compute the content part
@@ -850,7 +854,8 @@ ex ex::content(const ex &x) const
 	if (e.is_zero())
 		return _ex0;
 
-	// First, try the integer content
+	// First, divide out the integer content (which we can calculate very efficiently).
+	// If the leading coefficient of the quotient is an integer, we are done.
 	ex c = e.integer_content();
 	ex r = e / c;
 	ex lcoeff = r.lcoeff(x);
@@ -858,18 +863,18 @@ ex ex::content(const ex &x) const
 		return c;
 
 	// GCD of all coefficients
-	int deg = e.degree(x);
-	int ldeg = e.ldegree(x);
+	int deg = r.degree(x);
+	int ldeg = r.ldegree(x);
 	if (deg == ldeg)
-		return e.lcoeff(x) / e.unit(x);
-	c = _ex0;
+		return lcoeff * c;
+	ex cont = _ex0;
 	for (int i=ldeg; i<=deg; i++)
-		c = gcd(e.coeff(x, i), c, NULL, NULL, false);
-	return c;
+		cont = gcd(r.coeff(x, i), cont, NULL, NULL, false);
+	return cont * c;
 }
 
 
-/** Compute primitive part of a multivariate polynomial in Z[x].
+/** Compute primitive part of a multivariate polynomial in Q[x].
  *  The product of unit part, content part, and primitive part is the
  *  polynomial itself.
  *
@@ -894,7 +899,7 @@ ex ex::primpart(const ex &x) const
 }
 
 
-/** Compute primitive part of a multivariate polynomial in Z[x] when the
+/** Compute primitive part of a multivariate polynomial in Q[x] when the
  *  content part is already known. This function is faster in computing the
  *  primitive part than the previous function.
  *
