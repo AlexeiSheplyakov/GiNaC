@@ -366,13 +366,15 @@ polynomials):
 
 @example
 > a = x^4 + 2*x^2*y^2 + 4*x^3*y + 12*x*y^3 - 3*y^4;
--3*y^4+x^4+12*x*y^3+2*x^2*y^2+4*x^3*y
+12*x*y^3+2*x^2*y^2+4*x^3*y-3*y^4+x^4
 > b = x^2 + 4*x*y - y^2;
--y^2+x^2+4*x*y
+4*x*y-y^2+x^2
 > expand(a*b);
-3*y^6+x^6-24*x*y^5+43*x^2*y^4+16*x^3*y^3+17*x^4*y^2+8*x^5*y
-> collect(a*b,x);
-3*y^6+48*x*y^4+2*x^2*y^2+x^4*(-y^2+x^2+4*x*y)+4*x^3*y*(-y^2+x^2+4*x*y)
+8*x^5*y+17*x^4*y^2+43*x^2*y^4-24*x*y^5+16*x^3*y^3+3*y^6+x^6
+> collect(a+b,x);
+4*x^3*y-y^2-3*y^4+(12*y^3+4*y)*x+x^4+x^2*(1+2*y^2)
+> collect(a+b,y);
+12*x*y^3-3*y^4+(-1+2*x^2)*y^2+(4*x+4*x^3)*y+x^2+x^4
 > normal(a/b);
 3*y^2+x^2
 @end example
@@ -664,6 +666,7 @@ meta-class for storing all mathematical objects.
 * Mathematical functions::       Mathematical functions.
 * Relations::                    Equality, Inequality and all that.
 * Indexed objects::              Handling indexed quantities.
+* Non-commutative objects::      Algebras with non-commutative products.
 @end menu
 
 
@@ -744,6 +747,7 @@ $\pi$
 @item @code{numeric} @tab All kinds of numbers, @math{42}, @math{7/3*I}, @math{3.14159}@dots{}
 @item @code{add} @tab Sums like @math{x+y} or @math{a-(2*b)+3}
 @item @code{mul} @tab Products like @math{x*y} or @math{2*a^2*(x+y+z)/b}
+@item @code{ncmul} @tab Products of non-commutative objects
 @item @code{power} @tab Exponentials such as @math{x^2}, @math{a^b}, 
 @tex
 $\sqrt{2}$
@@ -761,6 +765,7 @@ $\sqrt{2}$
 @item @code{tensor} @tab Special tensor like the delta and metric tensors
 @item @code{idx} @tab Index of an indexed object
 @item @code{varidx} @tab Index with variance
+@item @code{spinidx} @tab Index with variance and dot (used in Weyl-van-der-Waerden spinor formalism)
 @end multitable
 @end cartouche
 
@@ -1227,7 +1232,7 @@ however, that @code{==} here does not perform any simplifications, hence
 @code{expand()} must be called explicitly.
 
 
-@node Indexed objects, Methods and Functions, Relations, Basic Concepts
+@node Indexed objects, Non-commutative objects, Relations, Basic Concepts
 @c    node-name, next, previous, up
 @section Indexed objects
 
@@ -1257,7 +1262,8 @@ Indexed expressions in GiNaC are constructed of two special types of objects,
 a @dfn{value} and a @dfn{dimension} (which is the dimension of the space
 the index lives in) which can both be arbitrary expressions but are usually
 a number or a simple symbol. In addition, indices of class @code{varidx} have
-a @dfn{variance} (they can be co- or contravariant).
+a @dfn{variance} (they can be co- or contravariant), and indices of class
+@code{spinidx} have a variance and can be @dfn{dotted} or @dfn{undotted}.
 
 @item Indexed objects are of class @code{indexed} or a subclass. They
 contain a @dfn{base expression} (which is the expression being indexed), and
@@ -1266,10 +1272,11 @@ one or more indices.
 @end itemize
 
 @strong{Note:} when printing expressions, covariant indices and indices
-without variance are denoted @samp{.i} while contravariant indices are denoted
-@samp{~i}. In the following, we are going to use that notation in the text
-so instead of @math{A^i_jk} we will write @samp{A~i.j.k}. Index dimensions
-are not visible in the output.
+without variance are denoted @samp{.i} while contravariant indices are
+denoted @samp{~i}. Dotted indices have a @samp{*} in front of the index
+value. In the following, we are going to use that notation in the text so
+instead of @math{A^i_jk} we will write @samp{A~i.j.k}. Index dimensions are
+not visible in the output.
 
 A simple example shall illustrate the concepts:
 
@@ -1407,6 +1414,50 @@ ex varidx::toggle_variance(void);
 which makes a new index with the same value and dimension but the opposite
 variance. By using it you only have to define the index once.
 
+@cindex @code{spinidx} (class)
+The @code{spinidx} class provides dotted and undotted variant indices, as
+used in the Weyl-van-der-Waerden spinor formalism:
+
+@example
+    ...
+    symbol K("K"), C_sym("C"), D_sym("D");
+    spinidx C(C_sym, 2), D(D_sym);          // default is 2-dimensional,
+                                            // contravariant, undotted
+    spinidx C_co(C_sym, 2, true);           // covariant index
+    spinidx D_dot(D_sym, 2, false, true);   // contravariant, dotted
+    spinidx D_co_dot(D_sym, 2, true, true); // covariant, dotted
+
+    cout << indexed(K, C, D) << endl;
+     // -> K~C~D
+    cout << indexed(K, C_co, D_dot) << endl;
+     // -> K.C~*D
+    cout << indexed(K, D_co_dot, D) << endl;
+     // -> K.*D~D
+    ...
+@end example
+
+A @code{spinidx} is a @code{varidx} with an additional flag that marks it as
+dotted or undotted. The default is undotted but this can be overridden by
+supplying a fourth argument to the @code{spinidx} constructor. The two
+methods
+
+@example
+bool spinidx::is_dotted(void);
+bool spinidx::is_undotted(void);
+@end example
+
+allow you to check whether or not a @code{spinidx} object is dotted (use
+@code{ex_to_spinidx()} to get the object reference from an expression).
+Finally, the two methods
+
+@example
+ex spinidx::toggle_dot(void);
+ex spinidx::toggle_variance_dot(void);
+@end example
+
+create a new index with the same value and dimension but opposite dottedness
+and the same or opposite variance.
+
 @subsection Substituting indices
 
 @cindex @code{subs()}
@@ -1495,7 +1546,8 @@ dummy nor free indices.
 To be recognized as a dummy index pair, the two indices must be of the same
 class and dimension and their value must be the same single symbol (an index
 like @samp{2*n+1} is never a dummy index). If the indices are of class
-@code{varidx}, they must also be of opposite variance.
+@code{varidx} they must also be of opposite variance; if they are of class
+@code{spinidx} they must be both dotted or both undotted.
 
 The method @code{.get_free_indices()} returns a vector containing the free
 indices of an expression. It also checks that the free indices of the terms
@@ -1691,6 +1743,50 @@ It is created with the function @code{lorentz_g()} (although it is output as
 @}
 @end example
 
+@cindex @code{spinor_metric()}
+@subsubsection Spinor metric tensor
+
+The function @code{spinor_metric()} creates an antisymmetric tensor with
+two indices that is used to raise/lower indices of 2-component spinors.
+It is output as @samp{eps}:
+
+@example
+@{
+    symbol psi("psi");
+
+    spinidx A(symbol("A")), B(symbol("B")), C(symbol("C"));
+    ex A_co = A.toggle_variance(), B_co = B.toggle_variance();
+
+    e = spinor_metric(A, B) * indexed(psi, B_co);
+    cout << e.simplify_indexed() << endl;
+     // -> psi~A
+
+    e = spinor_metric(A, B) * indexed(psi, A_co);
+    cout << e.simplify_indexed() << endl;
+     // -> -psi~B
+
+    e = spinor_metric(A_co, B_co) * indexed(psi, B);
+    cout << e.simplify_indexed() << endl;
+     // -> -psi.A
+
+    e = spinor_metric(A_co, B_co) * indexed(psi, A);
+    cout << e.simplify_indexed() << endl;
+     // -> psi.B
+
+    e = spinor_metric(A_co, B_co) * spinor_metric(A, B);
+    cout << e.simplify_indexed() << endl;
+     // -> 2
+
+    e = spinor_metric(A_co, B_co) * spinor_metric(B, C);
+    cout << e.simplify_indexed() << endl;
+     // -> -delta.A~C
+@}
+@end example
+
+The matrix representation of the spinor metric is @code{[[ [[ 0, 1 ]], [[ -1, 0 ]]}.
+
+@cindex @code{epsilon_tensor()}
+@cindex @code{lorentz_eps()}
 @subsubsection Epsilon tensor
 
 The epsilon tensor is totally antisymmetric, its number of indices is equal
@@ -1757,7 +1853,366 @@ one form for @samp{F} and explicitly multiply it with a matrix representation
 of the metric tensor.
 
 
-@node Methods and Functions, Information About Expressions, Indexed objects, Top
+@node Non-commutative objects, Methods and Functions, Indexed objects, Basic Concepts
+@c    node-name, next, previous, up
+@section Non-commutative objects
+
+GiNaC is equipped to handle certain non-commutative algebras. Three classes of
+non-commutative objects are built-in which are mostly of use in high energy
+physics:
+
+@itemize
+@item Clifford (Dirac) algebra (class @code{clifford})
+@item su(3) Lie algebra (class @code{color})
+@item Matrices (unindexed) (class @code{matrix})
+@end itemize
+
+The @code{clifford} and @code{color} classes are subclasses of
+@code{indexed} because the elements of these algebras ususally carry
+indices.
+
+Unlike most computer algebra systems, GiNaC does not primarily provide an
+operator (often denoted @samp{&*}) for representing inert products of
+arbitrary objects. Rather, non-commutativity in GiNaC is a property of the
+classes of objects involved, and non-commutative products are formed with
+the usual @samp{*} operator, as are ordinary products. GiNaC is capable of
+figuring out by itself which objects commute and will group the factors
+by their class. Consider this example:
+
+@example
+    ...
+    varidx mu(symbol("mu"), 4), nu(symbol("nu"), 4);
+    idx a(symbol("a"), 8), b(symbol("b"), 8);
+    ex e = -dirac_gamma(mu) * (2*color_T(a)) * 8 * color_T(b) * dirac_gamma(nu);
+    cout << e << endl;
+     // -> -16*(gamma~mu*gamma~nu)*(T.a*T.b)
+    ...
+@end example
+
+As can be seen, GiNaC pulls out the overall commutative factor @samp{-16} and
+groups the non-commutative factors (the gammas and the su(3) generators)
+together while preserving the order of factors within each class (because
+Clifford objects commute with color objects). The resulting expression is a
+@emph{commutative} product with two factors that are themselves non-commutative
+products (@samp{gamma~mu*gamma~nu} and @samp{T.a*T.b}). For clarification,
+parentheses are placed around the non-commutative products in the output.
+
+@cindex @code{ncmul} (class)
+Non-commutative products are internally represented by objects of the class
+@code{ncmul}, as opposed to commutative products which are handled by the
+@code{mul} class. You will normally not have to worry about this distinction,
+though.
+
+The advantage of this approach is that you never have to worry about using
+(or forgetting to use) a special operator when constructing non-commutative
+expressions. Also, non-commutative products in GiNaC are more intelligent
+than in other computer algebra systems; they can, for example, automatically
+canonicalize themselves according to rules specified in the implementation
+of the non-commutative classes. The drawback is that to work with other than
+the built-in algebras you have to implement new classes yourself. Symbols
+always commute and it's not possible to construct non-commutative products
+using symbols to represent the algebra elements or generators. User-defined
+functions can, however, be specified as being non-commutative.
+
+@cindex @code{return_type()}
+@cindex @code{return_type_tinfo()}
+Information about the commutativity of an object or expression can be
+obtained with the two member functions
+
+@example
+unsigned ex::return_type(void) const;
+unsigned ex::return_type_tinfo(void) const;
+@end example
+
+The @code{return_type()} function returns one of three values (defined in
+the header file @file{flags.h}), corresponding to three categories of
+expressions in GiNaC:
+
+@itemize
+@item @code{return_types::commutative}: Commutes with everything. Most GiNaC
+  classes are of this kind.
+@item @code{return_types::noncommutative}: Non-commutative, belonging to a
+  certain class of non-commutative objects which can be determined with the
+  @code{return_type_tinfo()} method. Expressions of this category commute
+  with everything except @code{noncommutative} expressions of the same
+  class.
+@item @code{return_types::noncommutative_composite}: Non-commutative, composed
+  of non-commutative objects of different classes. Expressions of this
+  category don't commute with any other @code{noncommutative} or
+  @code{noncommutative_composite} expressions.
+@end itemize
+
+The value returned by the @code{return_type_tinfo()} method is valid only
+when the return type of the expression is @code{noncommutative}. It is a
+value that is unique to the class of the object and usually one of the
+constants in @file{tinfos.h}, or derived therefrom.
+
+Here are a couple of examples:
+
+@cartouche
+@multitable @columnfractions 0.33 0.33 0.34
+@item @strong{Expression} @tab @strong{@code{return_type()}} @tab @strong{@code{return_type_tinfo()}}
+@item @code{42} @tab @code{commutative} @tab -
+@item @code{2*x-y} @tab @code{commutative} @tab -
+@item @code{dirac_ONE()} @tab @code{noncommutative} @tab @code{TINFO_clifford}
+@item @code{dirac_gamma(mu)*dirac_gamma(nu)} @tab @code{noncommutative} @tab @code{TINFO_clifford}
+@item @code{2*color_T(a)} @tab @code{noncommutative} @tab @code{TINFO_color}
+@item @code{dirac_ONE()*color_T(a)} @tab @code{noncommutative_composite} @tab -
+@end multitable
+@end cartouche
+
+Note: the @code{return_type_tinfo()} of Clifford objects is only equal to
+@code{TINFO_clifford} for objects with a representation label of zero.
+Other representation labels yield a different @code{return_type_tinfo()},
+but it's the same for any two objects with the same label. This is also true
+for color objects.
+
+
+@cindex @code{clifford} (class)
+@subsection Clifford algebra
+
+@cindex @code{dirac_gamma()}
+Clifford algebra elements (also called Dirac gamma matrices, although GiNaC
+doesn't treat them as matrices) are designated as @samp{gamma~mu} and satisfy
+@samp{gamma~mu*gamma~nu + gamma~nu*gamma~mu = 2*eta~mu~nu} where @samp{eta~mu~nu}
+is the Minkowski metric tensor. Dirac gammas are constructed by the function
+
+@example
+ex dirac_gamma(const ex & mu, unsigned char rl = 0);
+@end example
+
+which takes two arguments: the index and a @dfn{representation label} in the
+range 0 to 255 which is used to distinguish elements of different Clifford
+algebras (this is also called a @dfn{spin line index}). Gammas with different
+labels commute with each other. The dimension of the index can be 4 or (in
+the framework of dimensional regularization) any symbolic value. Spinor
+indices on Dirac gammas are not supported in GiNaC.
+
+@cindex @code{dirac_ONE()}
+The unity element of a Clifford algebra is constructed by
+
+@example
+ex dirac_ONE(unsigned char rl = 0);
+@end example
+
+@cindex @code{dirac_gamma5()}
+and there's a special element @samp{gamma5} that commutes with all other
+gammas and in 4 dimensions equals @samp{gamma~0 gamma~1 gamma~2 gamma~3},
+provided by
+
+@example
+ex dirac_gamma5(unsigned char rl = 0);
+@end example
+
+@cindex @code{dirac_gamma6()}
+@cindex @code{dirac_gamma7()}
+The two additional functions
+
+@example
+ex dirac_gamma6(unsigned char rl = 0);
+ex dirac_gamma7(unsigned char rl = 0);
+@end example
+
+return @code{dirac_ONE(rl) + dirac_gamma5(rl)} and @code{dirac_ONE(rl) - dirac_gamma5(rl)},
+respectively.
+
+@cindex @code{dirac_slash()}
+Finally, the function
+
+@example
+ex dirac_slash(const ex & e, const ex & dim, unsigned char rl = 0);
+@end example
+
+creates a term of the form @samp{e.mu gamma~mu} with a new and unique index
+whose dimension is given by the @code{dim} argument.
+
+The @code{simplify_indexed()} function performs contractions in gamma strings
+if possible, for example
+
+@example
+@{
+    ...
+    symbol a("a"), b("b"), D("D");
+    varidx mu(symbol("mu"), D);
+    ex e = dirac_gamma(mu) * dirac_slash(a, D)
+         * dirac_gamma(mu.toggle_variance());
+    cout << e << endl;
+     // -> (gamma~mu*gamma~symbol10*gamma.mu)*a.symbol10
+    e = e.simplify_indexed();
+    cout << e << endl;
+     // -> -gamma~symbol10*a.symbol10*D+2*gamma~symbol10*a.symbol10
+    cout << e.subs(D == 4) << endl;
+     // -> -2*gamma~symbol10*a.symbol10
+     // [ == -2 * dirac_slash(a, D) ]
+    ...
+@}
+@end example
+
+@cindex @code{dirac_trace()}
+To calculate the trace of an expression containing strings of Dirac gammas
+you use the function
+
+@example
+ex dirac_trace(const ex & e, unsigned char rl = 0);
+@end example
+
+This function takes the trace of all gammas with the specified representation
+label; gammas with other labels are left standing. The @code{dirac_trace()}
+function is a linear functional that is equal to the usual trace only in
+@math{D = 4} dimensions. In particular, the functional is not cyclic in
+@math{D != 4} dimensions when acting on expressions containing @samp{gamma5},
+so it's not a proper trace. This @samp{gamma5} scheme is described in greater
+detail in @cite{The Role of gamma5 in Dimensional Regularization}.
+
+The value of the trace itself is also usually different in 4 and in
+@math{D != 4} dimensions:
+
+@example
+@{
+    // 4 dimensions
+    varidx mu(symbol("mu"), 4), nu(symbol("nu"), 4), rho(symbol("rho"), 4);
+    ex e = dirac_gamma(mu) * dirac_gamma(nu) *
+           dirac_gamma(mu.toggle_variance()) * dirac_gamma(rho);
+    cout << dirac_trace(e).simplify_indexed() << endl;
+     // -> -8*eta~rho~nu
+@}
+...
+@{
+    // D dimensions
+    symbol D("D");
+    varidx mu(symbol("mu"), D), nu(symbol("nu"), D), rho(symbol("rho"), D);
+    ex e = dirac_gamma(mu) * dirac_gamma(nu) *
+           dirac_gamma(mu.toggle_variance()) * dirac_gamma(rho);
+    cout << dirac_trace(e).simplify_indexed() << endl;
+     // -> 8*eta~rho~nu-4*eta~rho~nu*D
+@}
+@end example
+
+Here is an example for using @code{dirac_trace()} to compute a value that
+appears in the calculation of the one-loop vacuum polarization amplitude in
+QED:
+
+@example
+@{
+    symbol q("q"), l("l"), m("m"), ldotq("ldotq"), D("D");
+    varidx mu(symbol("mu"), D), nu(symbol("nu"), D);
+
+    scalar_products sp;
+    sp.add(l, l, pow(l, 2));
+    sp.add(l, q, ldotq);
+
+    ex e = dirac_gamma(mu) *
+           (dirac_slash(l, D) + dirac_slash(q, D) + m * dirac_ONE()) *    
+           dirac_gamma(mu.toggle_variance()) *
+           (dirac_slash(l, D) + m * dirac_ONE());   
+    e = dirac_trace(e).simplify_indexed(sp);
+    e = e.collect(lst(l, ldotq, m), true);
+    cout << e << endl;
+     // -> (8-4*D)*l^2+(8-4*D)*ldotq+4*D*m^2
+@}
+@end example
+
+
+@cindex @code{color} (class)
+@subsection Color algebra
+
+@cindex @code{color_T()}
+For computations in quantum chromodynamics, GiNaC implements the base elements
+and structure constants of the su(3) Lie algebra (color algebra). The base
+elements @math{T_a} are constructed by the function
+
+@example
+ex color_T(const ex & a, unsigned char rl = 0);
+@end example
+
+which takes two arguments: the index and a @dfn{representation label} in the
+range 0 to 255 which is used to distinguish elements of different color
+algebras. Objects with different labels commute with each other. The
+dimension of the index must be exactly 8 and it should be of class @code{idx},
+not @code{varidx}.
+
+@cindex @code{color_ONE()}
+The unity element of a color algebra is constructed by
+
+@example
+ex color_ONE(unsigned char rl = 0);
+@end example
+
+@cindex @code{color_d()}
+@cindex @code{color_f()}
+and the functions
+
+@example
+ex color_d(const ex & a, const ex & b, const ex & c);
+ex color_f(const ex & a, const ex & b, const ex & c);
+@end example
+
+create the symmetric and antisymmetric structure constants @math{d_abc} and
+@math{f_abc} which satisfy @math{@{T_a, T_b@} = 1/3 delta_ab + d_abc T_c}
+and @math{[T_a, T_b] = i f_abc T_c}.
+
+@cindex @code{color_h()}
+There's an additional function
+
+@example
+ex color_h(const ex & a, const ex & b, const ex & c);
+@end example
+
+which returns the linear combination @samp{color_d(a, b, c)+I*color_f(a, b, c)}.
+
+The function @code{simplify_indexed()} performs some simplifications on
+expressions containing color objects:
+
+@example
+@{
+    ...
+    idx a(symbol("a"), 8), b(symbol("b"), 8), c(symbol("c"), 8),
+        k(symbol("k"), 8), l(symbol("l"), 8);
+
+    e = color_d(a, b, l) * color_f(a, b, k);
+    cout << e.simplify_indexed() << endl;
+     // -> 0
+
+    e = color_d(a, b, l) * color_d(a, b, k);
+    cout << e.simplify_indexed() << endl;
+     // -> 5/3*delta.k.l
+
+    e = color_f(l, a, b) * color_f(a, b, k);
+    cout << e.simplify_indexed() << endl;
+     // -> 3*delta.k.l
+
+    e = color_h(a, b, c) * color_h(a, b, c);
+    cout << e.simplify_indexed() << endl;
+     // -> -32/3
+
+    e = color_T(k) * color_T(a) * color_T(b) * color_T(k);
+    cout << e.simplify_indexed() << endl;
+     // -> 1/4*delta.b.a*ONE-1/6*T.a*T.b
+    ...
+@end example
+
+@cindex @code{color_trace()}
+To calculate the trace of an expression containing color objects you use the
+function
+
+@example
+ex color_trace(const ex & e, unsigned char rl = 0);
+@end example
+
+This function takes the trace of all color @samp{T} objects with the
+specified representation label; @samp{T}s with other labels are left
+standing. For example:
+
+@example
+    ...
+    e = color_trace(4 * color_T(a) * color_T(b) * color_T(c));
+    cout << e << endl;
+     // -> -I*f.a.c.b+d.a.c.b
+@}
+@end example
+
+
+@node Methods and Functions, Information About Expressions, Non-commutative objects, Top
 @c    node-name, next, previous, up
 @chapter Methods and Functions
 @cindex polynomial
@@ -1819,14 +2274,18 @@ avoided.
 @cindex @code{ex_to_@dots{}}
 @cindex @code{Converting ex to other classes}
 @cindex @code{info()}
+@cindex @code{return_type()}
+@cindex @code{return_type_tinfo()}
 
 Sometimes it's useful to check whether a given expression is a plain number,
 a sum, a polynomial with integer coefficients, or of some other specific type.
-GiNaC provides two functions for this (the first one is actually a macro):
+GiNaC provides a couple of functions for this (the first one is actually a macro):
 
 @example
 bool is_ex_of_type(const ex & e, TYPENAME t);
 bool ex::info(unsigned flag);
+unsigned ex::return_type(void) const;
+unsigned ex::return_type_tinfo(void) const;
 @end example
 
 When the test made by @code{is_ex_of_type()} returns true, it is safe to
@@ -1934,6 +2393,11 @@ table:
 @tab @dots{}an algebraic object (@math{sqrt(2)}, @math{sqrt(x)-1})
 @end multitable
 @end cartouche
+
+To determine whether an expression is commutative or non-commutative and if
+so, with which other expressions it would commute, you use the methods
+@code{return_type()} and @code{return_type_tinfo()}. @xref{Non-commutative objects},
+for an explanation of these.
 
 
 @subsection Accessing subexpressions
@@ -2109,11 +2573,16 @@ being polynomials in the remaining variables.  The method
 @code{collect()} accomplishes this task:
 
 @example
-ex ex::collect(const ex & s);
+ex ex::collect(const ex & s, bool distributed = false);
 @end example
 
+The first argument to @code{collect()} can also be a list of objects in which
+case the result is either a recursively collected polynomial, or a polynomial
+in a distributed form with terms like @math{c*x1^e1*...*xn^en}, as specified
+by the @code{distributed} flag.
+
 Note that the original polynomial needs to be in expanded form in order
-to be able to find the coefficients properly.
+for @code{collect()} to be able to find the coefficients properly.
 
 @subsection Degree and coefficients
 @cindex @code{degree()}
@@ -2800,7 +3269,11 @@ function.
 Another useful output format is for LaTeX parsing in mathematical mode.
 It is rather similar to the default @code{print_context} but provides
 some braces needed by LaTeX for delimiting boxes and also converts some
-common objects to conventional LaTeX names.  The code snippet
+common objects to conventional LaTeX names. It is possible to give symbols
+a special name for LaTeX output by supplying it as a second argument to
+the @code{symbol} constructor.
+
+For example, the code snippet
 
 @example
     // ...
@@ -4335,6 +4808,9 @@ and George Labahn, ISBN 0-7923-9259-0, 1992, Kluwer Academic Publishers, Norwell
 @cite{Computer Algebra: Systems and Algorithms for Algebraic Computation},
 J.H. Davenport, Y. Siret, and E. Tournier, ISBN 0-12-204230-1, 1988, 
 Academic Press, London
+
+@item
+@cite{The Role of gamma5 in Dimensional Regularization}, D. Kreimer, hep-ph/9401354
 
 @end itemize
 
