@@ -1,5 +1,8 @@
 This file records noteworthy changes.
 
+1.0.8 (31 March 2002)
+* Improvements in memory usage of the expand() methods.
+
 1.0.7 (18 March 2002)
 * Fixed LaTeX output of indexed and matrix objects.
 * Fixed matrix::pow(n) for n==0 and added helper functions to create unit
