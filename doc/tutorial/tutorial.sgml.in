@@ -124,8 +124,8 @@ int main()
 <para>Assuming the file is called <literal>hello.cc</literal>, on 
 our system we can compile and run it like this:</para>
 <screen>
-<prompt>sysprompt></prompt> c++ hello.cc -o hello -lcln -lginac
-<prompt>sysprompt></prompt> ./hello
+<prompt>$</prompt> c++ hello.cc -o hello -lcln -lginac
+<prompt>$</prompt> ./hello
 355687428096000*x*y+20922789888000*y^2+6402373705728000*x^2
 </screen>
 </example>
@@ -305,7 +305,7 @@ x^(-1)-1/3*x+Order(x^2)
 easily installed on your system by three steps: configuration, build,
 installation.</para>
 
-<sect1 id="ind123"><title id="CLN-main">Prerequistes</title>
+<sect1><title id="CLN-main">Prerequistes</title>
 
 <para>In order to install GiNaC on your system, some prerequistes need
 to be met.  First of all, you need to have a C++-compiler adhering to
@@ -404,18 +404,18 @@ your login shell.)
 configure-script</title> <para>Simple configuration for a site-wide
 GiNaC library assuming everything is in default paths:</para>
 <screen>
-<prompt>sysprompt></prompt> export CXXFLAGS="-Wall -O2"
-<prompt>sysprompt></prompt> ./configure --enable-shared
+<prompt>$</prompt> export CXXFLAGS="-Wall -O2"
+<prompt>$</prompt> ./configure
 </screen>
-<para>Configuration for a private GiNaC library with several
+<para>Configuration for a private static GiNaC library with several
 components sitting in custom places (site-wide <literal>GCC</literal>
 and private <literal>CLN</literal>):</para>
 <screen>
-<prompt>sysprompt></prompt> export CXX=/usr/local/gnu/bin/c++
-<prompt>sysprompt></prompt> export CPPFLAGS="${CPPFLAGS} -I${HOME}/include"
-<prompt>sysprompt></prompt> export CXXFLAGS="${CXXFLAGS} -ggdb -Wall -ansi -pedantic -O2"
-<prompt>sysprompt></prompt> export LDFLAGS="${LDFLAGS} -L${HOME}/lib"
-<prompt>sysprompt></prompt> ./configure --enable-shared --prefix=${HOME}
+<prompt>$</prompt> export CXX=/usr/local/gnu/bin/c++
+<prompt>$</prompt> export CPPFLAGS="${CPPFLAGS} -I${HOME}/include"
+<prompt>$</prompt> export CXXFLAGS="${CXXFLAGS} -ggdb -Wall -ansi -pedantic -O2"
+<prompt>$</prompt> export LDFLAGS="${LDFLAGS} -L${HOME}/lib"
+<prompt>$</prompt> ./configure --disable-shared --prefix=${HOME}
 </screen>
 </example>
 </para>
@@ -433,11 +433,11 @@ suite by typing <literal>make check</literal>.  This will compile some
 sample programs, run them and compare the output to reference output.
 Each of the checks should return a message <literal>passed</literal>
 together with the CPU time used for that particular test.  If it does
-not, something went wrong.  This is mostly intended to be a check if
-something was broken during the development, but not a sanity check of
-your system.  Another intent is to allow people to fiddle around with
-optimization.  If <literal>CLN</literal> was installed all right this
-step is unlikely to return any errors.</para>
+not, something went wrong.  This is mostly intended to be a QA-check
+if something was broken during the development, but not a sanity check
+of your system.  Another intent is to allow people to fiddle around
+with optimization.  If <literal>CLN</literal> was installed all right
+this step is unlikely to return any errors.</para>
 
 </sect1>
 
@@ -687,15 +687,20 @@ interpretation differs.  </para>
 <sect1><title>Symbols</title>
 
 <para>Symbols are for symbolic manipulation what atoms are for
-chemistry.  You can declare objects of type symbol as any other object
-simply by saying <literal>symbol x,y;</literal>.  There is, however, a
-catch in here having to do with the fact that C++ is a compiled
-language.  The information about the symbol's name is thrown away by
-the compiler but at a later stage you may want to print expressions
-holding your symbols.  In order to avoid confusion GiNaC's symbols are
-able to know their own name.  This is accomplished by declaring its
-name for output at construction time in the fashion <literal>symbol
-x("x");</literal>.</para>
+chemistry.  You can declare objects of class <literal>symbol</literal>
+as any other object simply by saying <literal>symbol x,y;</literal>.
+There is, however, a catch in here having to do with the fact that C++
+is a compiled language.  The information about the symbol's name is
+thrown away by the compiler but at a later stage you may want to print
+expressions holding your symbols.  In order to avoid confusion GiNaC's
+symbols are able to know their own name.  This is accomplished by
+declaring its name for output at construction time in the fashion
+<literal>symbol x("x");</literal>.  If you declare a symbol using the
+default constructor (i.e. without string-argument) the system will
+deal out a unique name.  That name may not be suitable for printing
+but for internal routines when no output is desired it is often
+enough.  We'll come across examples of such symbols later in this
+tutorial.  </para>
 
 <para>Although symbols can be assigned expressions for internal
 reasons, you should not do it (and we are not going to tell you how it
@@ -1042,7 +1047,7 @@ explicitly, results in the same canonical form.</para>
 
 <sect1><title>Built-in Functions</title>
 
-<para>This chapter is not here yet</para>
+<para>This section is not here yet</para>
 
 
 
@@ -1187,7 +1192,7 @@ not within the user's sphere of influence.</para>
 
 </sect1>
 
-<sect1 id="gcd-main"><title>Polynomial Arithmetic</title>
+<sect1><title>Polynomial Arithmetic</title>
 
 <sect2><title>GCD and LCM</title>
 
@@ -1237,11 +1242,38 @@ int main()
 <sect2><title>The <function>normal</function> method</title>
 
 <para>While in common symbolic code <function>gcd()</function> and
-<function>lcm()</function> are not too heavily used, some basic
-simplification occurs frequently.  Therefore
-<function>.normal()</function>, which provides some basic form of
-simplification, has become a method of class <literal>ex</literal>,
-just like <literal>.expand()</literal>.</para>
+<function>lcm()</function> are not too heavily used, simplification
+occurs frequently.  Therefore <function>.normal()</function>, which
+provides some basic form of simplification, has become a method of
+class <literal>ex</literal>, just like <literal>.expand()</literal>.
+It converts a rational function into an equivalent rational function
+where numererator and denominator are coprime.  This means, it finds
+the GCD of numerator and denominator and cancels it.  If it encounters
+some object which does not belong to the domain of rationals (a
+function for instance), that object is replaced by a temporary symbol.
+This means that both expressions <literal>t1</literal> and
+<literal>t2</literal> are indeed simplified in this little program:
+<example><title>Cancellation of polynomial GCD (with obstacles)</title>
+<programlisting>
+#include &lt;ginac/ginac.h&gt;
+using namespace GiNaC;
+
+int main()
+{
+    symbol x("x");
+    ex t1 = (pow(x,2) + 2*x + 1)/(x + 1);
+    ex t2 = (pow(sin(x),2) + 2*sin(x) + 1)/(sin(x) + 1);
+    cout &lt;&lt; "t1 is " &lt;&lt; t1.normal() &lt;&lt; endl;
+    cout &lt;&lt; "t2 is " &lt;&lt; t2.normal() &lt;&lt; endl;
+    // ...
+}
+</programlisting>
+</example>
+
+Of course this works for multivariate polynomials too, so the ratio of
+the sample-polynomials from the section about GCD and LCM above would
+be normalized to <literal>P_a/P_b</literal> =
+<literal>(4*y+z)/(y+3*z)</literal>.</para>
 
 </sect2>
 
@@ -1249,7 +1281,9 @@ just like <literal>.expand()</literal>.</para>
 
 <sect1><title>Symbolic Differentiation</title>
 
-<para>
+<para>GiNaC's objects know how to differentiate themselves.  Thus, a
+polynomial (class <literal>add</literal>) knows that its derivative is
+the sum of the derivatives of all the monomials:
 <example><title>Simple polynomial differentiation</title>
 <programlisting>
 #include &lt;ginac/ginac.h&gt;
@@ -1267,21 +1301,48 @@ int main()
 }
 </programlisting>
 </example>
-</para>
+If a second integer parameter <emphasis>n</emphasis> is given the
+<function>diff</function> method returns the <emphasis>n</emphasis>th
+derivative.</para>
 
-<para>
-<example><title>Differentiation with nontrivial functions</title>
+<para>If <emphasis>every</emphasis> object and every function is told
+what its derivative is, all derivatives of composed objects can be
+calculated using the chain rule and the product rule.  Consider, for
+instance the expression <literal>1/cosh(x)</literal>.  Since the
+derivative of <literal>cosh(x)</literal> is <literal>sinh(x)</literal>
+and the derivative of <literal>pow(x,-1)</literal> is
+<literal>-pow(x,-2)</literal> GiNaC can readily compute the
+composition.  It turns out that the composition is the generating
+function for Euler Numbers, i.e. the so called
+<emphasis>n</emphasis>th Euler number is the coefficient of
+<literal>x^n/n!</literal> in the expansion of
+<literal>1/cosh(x)</literal>.  We may use this identity to code a
+function that generates Euler numbers in just three lines:
+<example><title>Differentiation with nontrivial functions: Euler numbers</title>
 <programlisting>
 #include &lt;ginac/ginac.h&gt;
 using namespace GiNaC;
 
+ex EulerNumber(unsigned n)
+{
+    symbol x;
+    ex generator = pow(cosh(x),-1);
+    return generator.diff(x,n).subs(x==0);
+}
+
 int main()
 {
-    // To Be Done...
+    for (unsigned i=0; i&lt;11; i+=2)
+        cout &lt;&lt; EulerNumber(i) &lt;&lt; endl;
+    return 0;
 }
 </programlisting>
 </example>
-</para>
+When you run it, it produces the sequence <literal>1</literal>,
+<literal>-1</literal>, <literal>5</literal>, <literal>-61</literal>,
+<literal>1385</literal>, <literal>-50521</literal>.  We increment the
+loop variable <literal>i</literal> by two since all odd Euler numbers
+vanish anyways.</para>
 
 </sect1>
 
@@ -1311,7 +1372,7 @@ int main()
     MySeries = MyExpr2.series(x, point, 7);
     cout &lt;&lt; MyExpr2 &lt;&lt; " == " &lt;&lt; MySeries
          &lt;&lt; " for small " &lt;&lt; x &lt;&lt; endl;
-    \\ ...
+    // ...
 }
 </programlisting>
 </example>
@@ -1324,8 +1385,8 @@ wonderful formula <literal>Pi==16*atan(1/5)-4*atan(1/239)</literal>.
 We may expand the arcus tangent around <literal>0</literal> and insert
 the fractions <literal>1/5</literal> and <literal>1/239</literal>.
 But, as we have seen, a series in GiNaC carries an order term with it.
-The preprocessor-macro <literal>series_to_poly</literal> may be used
-to strip this off:
+The function <literal>series_to_poly</literal> may be used to strip 
+this off:
 <example><title>Series expansion using M&eacute;chain's formula for 
 <literal>Pi</literal></title>
 <programlisting>
@@ -1592,25 +1653,5 @@ language.</para>
 
 </bibliodiv>
 </bibliography>
-
-
-<index id="index">
-<title>Index</title>
-
-<indexentry>
-  <primaryie linkends="CLN-main">CLN</primaryie>
-  <secondaryie linkends="ind123">obtaining</secondaryie>
-</indexentry>
-
-<indexentry id="ind-gcd">
-  <primaryie linkends="gcd-main">gcd</primaryie>
-</indexentry>
-
-<indexentry>
-  <primaryie>lcm</primaryie>
-  <seeie linkend="ind-gcd">gcd</seeie>
-</indexentry>
-
-</index>
 
 </book>
