@@ -4,29 +4,40 @@ PREREQUISITES
 GiNaC requires the CLN library by Bruno Haible installed on your system.
 It is available from <ftp://ftpthep.physik.uni-mainz.de/pub/gnu/>.
 
-You will also need a decent ANSI-compliant C++-compiler.  We recommend
-the C++ compiler from the GNU compiler collection, GCC >= 3.0.  If you
-have a different or older compiler you are on your own.  Note that you
-may have to use the same compiler you compiled CLN with because of
-differing name-mangling schemes.
+You will also need a decent ANSI-compliant C++-compiler. We recommend the
+C++ compiler from the GNU compiler collection, GCC >= 3.0. If you have a
+different or older compiler you are on your own. Note that you may have to
+use the same compiler you compiled CLN with because of differing
+name-mangling schemes.
+
+Known to work with:
+ - Linux on x86, Alpha and Sparc using GCC 3.0.x, 3.1 and 3.2.
+
+Known not to work with:
+ - GCC 2.96 or earlier because proper exception and standard library support
+   is missing there.
 
 
 INSTALLATION
 ============
 
-As with any autoconfiguring GNU software, installation is as easy as this:
+To install from a source .tar.bz2 distribution:
 
  $ ./configure
  $ make
- $ make check
-[become root if necessary]
+ [become root if necessary]
  # make install
 
-Known to work with:
-  - Linux on x86, Alpha and Sparc using GCC 3.0.x, 3.1 and 3.2.
-Known not to work with:
-  - GCC 2.96 or earlier because proper exception and standard library support
-    is missing there.
+To install from CVS:
+
+ $ cvs -d :pserver:anoncvs@cvsthep.physik.uni-mainz.de:/home/cvs login
+ [enter "anoncvs" as the password]
+ $ cvs -d :pserver:anoncvs@cvsthep.physik.uni-mainz.de:/home/cvs co GiNaC
+ $ cd GiNaC
+ $ ./autogen.sh
+ $ make
+ [become root if necessary]
+ # make install
 
 To build the GiNaC tutorial and reference manual in HTML, DVI, PostScript,
 or PDF formats, use one of
@@ -36,8 +47,14 @@ or PDF formats, use one of
  $ make ps
  $ make pdf
 
-The "configure" script can be given a number of options to enable and
-disable various features. For a complete list, type:
+To compile and run GiNaC's test and benchmark suite and check whether the
+library works correctly you can use
+
+ $ make check
+
+The "configure" script (and "autogen.sh", which invokes "configure") can be
+given a number of options to enable and disable various features. For a
+complete list, type:
 
  $ ./configure --help
 
@@ -53,11 +70,11 @@ A few of the more important ones:
 More detailed installation instructions can be found in the documentation,
 in the doc/ directory.
 
-The time the "make" step takes depends heavily on optimization levels.
-Large amounts of memory (>128MB) will be required by the compiler,
-also depending on optimization.  To give you a rough idea of what you
-have to expect the following table may be helpful.  It was measured on
-an Athlon/800MHz with "enough" memory:
+The time the "make" step takes depends heavily on optimization levels. Large
+amounts of memory (>128MB) will be required by the compiler, also depending
+on optimization. To give you a rough idea of what you have to expect the
+following table may be helpful. It was measured on an Athlon/800MHz with
+"enough" memory:
 
 step          | GCC optimization  | comment
               |   -O1   |   -O2   |
@@ -72,25 +89,23 @@ COMMON PROBLEMS
 Problems with CLN
 -----------------
 
-You should use at least CLN-1.1, since during the development of
-GiNaC various bugs have been discovered and fixed in earlier versions.
-Please install CLN properly on your system before continuing with
-GiNaC.
+You should use at least CLN-1.1, since during the development of GiNaC
+various bugs have been discovered and fixed in earlier versions. Please
+install CLN properly on your system before continuing with GiNaC.
 
-Problems with building ginsh
-----------------------------
+Problems building ginsh
+-----------------------
 
 The most common reason why this doesn't succeed is the absence of
-libreadline and/or the corresponding header files.  Depending on what
-your system/distribution is, you will have to install a package called
-libreadline and maybe libreadline-dev.  If your system's vendor
-doesn't supply such packages, go to <ftp://ftp.gnu.org/gnu/readline/>
-and compile it yourself.
+libreadline and/or the corresponding header files. Depending on what your
+system/distribution is, you will have to install a package called
+libreadline and maybe libreadline-dev. If your system's vendor doesn't
+supply such packages, go to <ftp://ftp.gnu.org/gnu/readline/> and compile
+it yourself.
 
 Problems with missing standard header files
 -------------------------------------------
 
-Building GiNaC requires many standard header files.  If you get a
-configure error complaining about such missing files your compiler and
-library are probably not up to date enough and it's no worth
-continuing.
+Building GiNaC requires many standard header files. If you get a configure
+error complaining about such missing files your compiler and library are
+probably not up to date enough and it's no worth continuing.
