@@ -784,10 +784,15 @@ ex mul::series(const relational & r, int order, unsigned options) const
 	const epvector::const_iterator itbeg = seq.begin();
 	const epvector::const_iterator itend = seq.end();
 	for (epvector::const_iterator it=itbeg; it!=itend; ++it) {
-		
+
 		ex buf = recombine_pair_to_ex(*it);
-		
-		int real_ldegree = buf.expand().ldegree(sym-r.rhs());
+
+		int real_ldegree = 0;
+		try {
+			real_ldegree = buf.expand().ldegree(sym-r.rhs());
+		}
+		catch (std::runtime_error) {}
+
 		if (real_ldegree == 0) {
 			int orderloop = 0;
 			do {
@@ -800,7 +805,13 @@ ex mul::series(const relational & r, int order, unsigned options) const
 	}
 
 	int degsum = std::accumulate(ldegrees.begin(), ldegrees.end(), 0);
-		
+
+	if (degsum>order) {
+		epvector epv;
+		epv.push_back(expair(Order(_ex1), order));
+		return (new pseries(r, epv))->setflag(status_flags::dynallocated);
+	}
+
 	// Multiply with remaining terms
 	std::vector<int>::const_iterator itd = ldegrees.begin();
 	for (epvector::const_iterator it=itbeg; it!=itend; ++it, ++itd) {
