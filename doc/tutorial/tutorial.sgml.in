@@ -1,7 +1,7 @@
 <!DOCTYPE Book PUBLIC "-//Davenport//DTD DocBook V3.0//EN">
 
 <book>
-<title>GiNaC Tutorial</title>
+<title>GiNaC Tutorial MAJOR_VERSION.MINOR_VERSION</title>
 <bookinfo>
 <subtitle>An open framework for symbolic computation within the C++ programming language</subtitle>
 <bookbiblio>
@@ -655,35 +655,54 @@ two classes and motivate the use of pairs in sums and products here.</para>
 <sect2><title>Digression: Internal representation of products and sums</title>
 
 <para>Although it should be completely transparent for the user of
-GiNaC a short discussion of this topic helps understanding the sources
-and also explains performance to a large degree.  Consider the
-symbolic expression <literal>(a+2*b-c)*d</literal>, which could
-naively be represented by a tree of linear containers for addition and
-multiplication together with atomic leaves of symbols and integer
-numbers in this fashion:
+GiNaC a short discussion of this topic helps to understand the sources
+and also explain performance to a large degree.  Consider the symbolic
+expression
+<emphasis>2*d<superscript>3</superscript>*(4*a+5*b-3)</emphasis>,
+which could naively be represented by a tree of linear containers for
+addition and multiplication, one container for exponentiation with
+base and exponent and some atomic leaves of symbols and numbers in
+this fashion:
 <figure id="repres-naive-id" float="1">
-<title>Naive internal representation of <emphasis>d(a+2*b-c)</emphasis></title>
+<title>Naive internal representation-tree for <emphasis>2*d<superscript>3</superscript>*(4*a+5*b-3)</emphasis></title>
   <graphic align="center" fileref="rep_naive.graext" format="GRAEXT"></graphic>
 </figure>
 However, doing so results in a rather deeply nested tree which will
-quickly become rather slow to manipulate.  If we represent the sum
+quickly become inefficient to manipulate.  If we represent the sum
 instead as a sequence of terms, each having a purely numeric
-coefficient, the tree becomes much more flat.
+multiplicative coefficient and the multiplication as a sequence of
+terms, each having a numeric exponent, the tree becomes much more
+flat.
 <figure id="repres-pair-id" float="1">
-<title>Better internal representation of <emphasis>d(a+2*b-c)</emphasis></title>
+<title>Pair-wise internal representation-tree for <emphasis>2*d<superscript>3</superscript>*(4*a+5*b-3)</emphasis></title>
   <graphic align="center" fileref="rep_pair.graext" format="GRAEXT"></graphic>
 </figure>
-The number <literal>1</literal> under the symbol <literal>d</literal>
-is a hint that multiplication objects can be treated similarly where
-the coeffiecients are interpreted as <emphasis>exponents</emphasis>
+The number <literal>3</literal> above the symbol <literal>d</literal>
+shows that <literal>mul</literal> objects are treated similarly where
+the coefficients are interpreted as <emphasis>exponents</emphasis>
 now.  Addition of sums of terms or multiplication of products with
-numerical exponents can be made very efficient with a
-pair-representation.  Internally, this handling is done by most CAS in
+numerical exponents can be coded to be very efficient with such a
+pair-representation.  Internally, this handling is done by many CAS in
 this way.  It typically speeds up manipulations by an order of
-magnitude.  Now it should be clear, why both classes
-<literal>add</literal> and <literal>mul</literal> are derived from the
-same abstract class: the representation is the same, only the
-interpretation differs.  </para>
+magnitude.  The overall multiplicative factor <literal>2</literal> and
+the additive term <literal>-3</literal> look somewhat cumbersome in
+this representation, however, since they are still carrying a trivial
+exponent and multiplicative factor <literal>1</literal> respectively.
+Within GiNaC, this is avoided by adding a field that carries overall
+numeric coefficient.
+<figure id="repres-real-id" float="1">
+<title>Realistic picture of GiNaC's representation-tree for <emphasis>2*d<superscript>3</superscript>*(4*a+5*b-3)</emphasis></title>
+  <graphic align="center" fileref="rep_real.graext" format="GRAEXT"></graphic>
+</figure>
+This also allows for a better handling of numeric radicals, since
+<literal>sqrt(2)</literal> can now be carried along calculations.  Now
+it should be clear, why both classes <literal>add</literal> and
+<literal>mul</literal> are derived from the same abstract class: the
+data representation is the same, only the semantics differs.  In the
+class hierarchy, methods for polynomial expansion and such are
+reimplemented for <literal>add</literal> and <literal>mul</literal>,
+but the data structure is inherited from
+<literal>expairseq</literal>.</para>
 
 </sect1>
 
@@ -703,7 +722,20 @@ default constructor (i.e. without string-argument) the system will
 deal out a unique name.  That name may not be suitable for printing
 but for internal routines when no output is desired it is often
 enough.  We'll come across examples of such symbols later in this
-tutorial.  </para>
+tutorial.</para>
+
+<para>This implies that the stings passed to symbols at construction
+time may not be used for comparing two of them.  It is perfectly
+legitimate to write <literal>symbol x("x"),y("x");</literal> but it is
+likely to lead into trouble.  Here, <literal>x</literal> and
+<literal>y</literal> are different symbols and statements like
+<literal>x-y</literal> will not be simplified to zero although the
+output <literal>x-x</literal> looks funny.  Such output may also occur
+when there are two different symbols in two scopes, for instance when
+you call a function that declares a symbol with a name already
+existent in a symbol in the calling function.  Again, comparing them
+(using <literal>operator==</literal> for instance) will always reveal
+their difference.  Watch out, please.</para>
 
 <para>Although symbols can be assigned expressions for internal
 reasons, you should not do it (and we are not going to tell you how it
@@ -825,6 +857,11 @@ in 60 digits:
 </screen>
 </para>
 
+<para>It should be clear that objects of class
+<literal>numeric</literal> should be used for constructing numbers or
+for doing arithmetic with them.  The objects one deals with most of
+the time are the polymorphic expressions <literal>ex</literal>.</para>
+
 <sect2><title>Tests on numbers</title>
 
 <para>Once you have declared some numbers, assigned them to
@@ -841,12 +878,16 @@ with some multiple of its denominator and check what comes out:
 #include &lt;ginac/ginac.h&gt;
 using namespace GiNaC;
 
+// some very important constants:
+const numeric twentyone(21);
+const numeric ten(10);
+const numeric fife(5);
+
 int main()
 {
-    numeric twentyone(21);
-    numeric ten(10);
-    numeric answer(21,5);
+    numeric answer = twentyone;
 
+    answer /= five;
     cout &lt;&lt; answer.is_integer() &lt;&lt; endl;  // false, it's 21/5
     answer *= ten;
     cout &lt;&lt; answer.is_integer() &lt;&lt; endl;  // true, it's 42 now!
@@ -856,17 +897,18 @@ int main()
 </example>
 
 Note that the variable <literal>answer</literal> is constructed here
-as an integer but in an intermediate step it holds a rational number
-represented as integer numerator and integer denominator.  When
-multiplied by 10, the denominator becomes unity and the result is
-automatically converted to a pure integer again.  Internally, the
-underlying <literal>CLN</literal> is responsible for this behaviour
-and we refer the reader to <literal>CLN</literal>'s documentation.
-Suffice to say that the same behaviour applies to complex numbers as
-well as return values of certain functions.  Complex numbers are
-automatically converted to real numbers if the imaginary part becomes
-zero.  The full set of tests that can be applied is listed in the
-following table.
+as an integer by <literal>numeric</literal>'s copy constructor but in
+an intermediate step it holds a rational number represented as integer
+numerator and integer denominator.  When multiplied by 10, the
+denominator becomes unity and the result is automatically converted to
+a pure integer again.  Internally, the underlying
+<literal>CLN</literal> is responsible for this behaviour and we refer
+the reader to <literal>CLN</literal>'s documentation.  Suffice to say
+that the same behaviour applies to complex numbers as well as return
+values of certain functions.  Complex numbers are automatically
+converted to real numbers if the imaginary part becomes zero.  The
+full set of tests that can be applied is listed in the following
+table.
 
 <informaltable colsep="0" frame="topbot" pgwide="1">
 <tgroup cols="2">
@@ -1060,9 +1102,39 @@ explicitly, results in the same canonical form.</para>
 
 <sect1><title>Built-in Functions</title>
 
-<para>This section is not here yet</para>
+<para>There are quite a number of useful functions built into GiNaC.
+They are all objects of class <literal>function</literal>.  They
+accept one or more expressions as arguments and return one expression.
+If the arguments are not numerical, the evaluation of the functions
+may be halted, as it does in the next example:
+<example><title>Evaluation of built-in functions</title>
+<programlisting>
+#include &lt;ginac/ginac.h&gt;
+using namespace GiNaC;
 
-
+int main()
+{
+    symbol x("x"), y("y");
+    
+    ex foo = x+y/2;
+    cout &lt;&lt; "gamma(" &lt;&lt; foo &lt;&lt; ") -> " &lt;&lt; gamma(foo) &lt;&lt; endl;
+    ex bar = foo.subs(y==1);
+    cout &lt;&lt; "gamma(" &lt;&lt; bar &lt;&lt; ") -> " &lt;&lt; gamma(bar) &lt;&lt; endl;
+    ex foobar= bar.subs(x==7);
+    cout &lt;&lt; "gamma(" &lt;&lt; foobar &lt;&lt; ") -> " &lt;&lt; gamma(foobar) &lt;&lt; endl;
+    // ...
+}
+</programlisting>
+<para>This program will type out two times a function and then an
+expression that may be really useful:
+<screen>
+gamma(x+(1/2)*y) -> gamma(x+(1/2)*y)
+gamma(x+1/2) -> gamma(x+1/2)
+gamma(15/2) -> (135135/128)*Pi^(1/2)
+</screen></para>
+</example>
+Most of these functions can be differentiated, series expanded so on.
+Read the next chapter in order to learn more about this..</para>
 
 </sect1>
 
@@ -1453,8 +1525,8 @@ int main()
 <para>By reading so far you should have gotten a fairly good
 understanding of GiNaC's design-patterns.  From here on you should
 start reading the sources.  All we can do now is issue some
-recommendations how to tackle the many open ends the system still
-has in order to fulfill everybody's dreams.</para>
+recommendations how to tackle GiNaC's many loose ends in order to
+fulfill everybody's dreams.</para>
 
 <sect1><title>What doesn't belong into GiNaC</title>
 

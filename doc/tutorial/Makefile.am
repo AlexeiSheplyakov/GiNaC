@@ -5,7 +5,7 @@
 # some regexpese to tutorial.sgml prior to parsing it, in order to allow for
 # different graphics output.  This seems to be an ugly limitation of docbook...
 
-FIG = classhierarchy.fig rep_naive.fig rep_pair.fig
+FIG = classhierarchy.fig rep_naive.fig rep_pair.fig rep_real.fig
 PNG = $(addsuffix .png, $(basename $(FIG)))
 EPS = $(addsuffix .eps, $(basename $(FIG)))
 
@@ -32,7 +32,10 @@ JADEARGS_HTML = -t sgml -d /usr/lib/sgml/stylesheet/dsssl/docbook/nwalsh/html/do
 
 index.html: tutorial.sgml.in $(PNG)
 	@if [ "${JADE}" ]; then \
-	  sed -e 's/graext/png/g' -e 's/GRAEXT/GIF/g' tutorial.sgml.in > tutorial.sgml; \
+	  sed -e "s/MAJOR_VERSION/${GINACLIB_MAJOR_VERSION}/" \
+	      -e "s/MINOR_VERSION/${GINACLIB_MINOR_VERSION}/" \
+	      -e 's/graext/png/g' \
+	      -e 's/GRAEXT/GIF/g' tutorial.sgml.in > tutorial.sgml; \
 	  echo "Running ${JADE} ${JADEARGS_HTML} tutorial.sgml..."; \
 	  ${JADE} ${JADEARGS_HTML} tutorial.sgml; \
 	  if [ -f book1.html ]; then mv book1.html index.html; fi; \
@@ -42,7 +45,10 @@ index.html: tutorial.sgml.in $(PNG)
 
 tutorial.tex: tutorial.sgml.in $(EPS)
 	@if [ "${JADE}" -a "${LATEX}" ]; then \
-	  sed -e 's/graext/eps/g' -e 's/GRAEXT/EPS/g' tutorial.sgml.in > tutorial.sgml; \
+	  sed -e "s/MAJOR_VERSION/${GINACLIB_MAJOR_VERSION}/" \
+	      -e "s/MINOR_VERSION/${GINACLIB_MINOR_VERSION}/" \
+	      -e 's/graext/eps/g' \
+	      -e 's/GRAEXT/EPS/g' tutorial.sgml.in > tutorial.sgml; \
 	  echo "Running ${JADE} ${JADEARGS_TEX} tutorial.sgml..."; \
 	  ${JADE} ${JADEARGS_TEX} tutorial.sgml ; \
 	else \
