@@ -2091,8 +2091,8 @@ The easiest way to print an expression is to write it to a stream:
 @example
 @{
     symbol x("x");
-    ex e = 7+4.2*pow(x,2);
-    cout << e << endl;    // prints '7+4.2*x^2'
+    ex e = 4.5+pow(x,2)*3/2;
+    cout << e << endl;    // prints '4.5+3/2*x^2'
     // ...
 @end example
 
@@ -2123,9 +2123,9 @@ and mostly affect the way in which floating point numbers are written:
 The above example will produce (note the @code{x^2} being converted to @code{x*x}):
 
 @example
-float f = 4.200000e+00*(x*x)+7.000000e+00;
-double d = 4.200000e+00*(x*x)+7.000000e+00;
-cl_N n = cl_F("4.2000000000000001776")*(x*x)+cl_F("7.0");
+float f = (3.000000e+00/2.000000e+00)*(x*x)+4.500000e+00;
+double d = (3.000000e+00/2.000000e+00)*(x*x)+4.500000e+00;
+cl_N n = (cl_F("3.0")/cl_F("2.0"))*(x*x)+cl_F("4.5");
 @end example
 
 Finally, there are the two methods @code{printraw()} and @code{printtree()} intended for GiNaC
@@ -2142,16 +2142,16 @@ debugging purposes:
 produces
 
 @example
-ex(+((power(ex(symbol(name=x,serial=1,hash=150875740,flags=11)),ex(numeric(2)),hash=2,flags=3),numeric(4.2000000000000001776L0)),,hash=0,flags=3))
+ex(+((power(ex(symbol(name=x,serial=1,hash=150875740,flags=11)),ex(numeric(2)),hash=2,flags=3),numeric(3/2)),,hash=0,flags=3))
 
 type=Q25GiNaC3add, hash=0 (0x0), flags=3, nops=2
     power: hash=2 (0x2), flags=3
         x (symbol): serial=1, hash=150875740 (0x8fe2e5c), flags=11
         2 (numeric): hash=2147483714 (0x80000042), flags=11
-    4.2000000000000001776L0 (numeric): hash=3006477126 (0xb3333346), flags=11
+    3/2 (numeric): hash=2147483745 (0x80000061), flags=11
     -----
     overall_coeff
-    7 (numeric): hash=2147483763 (0x80000073), flags=11
+    4.5L0 (numeric): hash=2147483723 (0x8000004b), flags=11
     =====
 @end example
 
