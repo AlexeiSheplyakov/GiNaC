@@ -67,7 +67,7 @@ unsigned time_dennyfliegner()
 	sizes.push_back(50);
 	sizes.push_back(100);
 	sizes.push_back(200);
-	sizes.push_back(500);
+	sizes.push_back(400);
 	
 	for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i) {
 		breitling.start();
