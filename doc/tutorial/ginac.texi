@@ -2164,7 +2164,7 @@ one or more indices.
 
 @end itemize
 
-@strong{Note:} when printing expressions, covariant indices and indices
+@strong{Please notice:} when printing expressions, covariant indices and indices
 without variance are denoted @samp{.i} while contravariant indices are
 denoted @samp{~i}. Dotted indices have a @samp{*} in front of the index
 value. In the following, we are going to use that notation in the text so
@@ -3014,7 +3014,7 @@ The unity element of a Clifford algebra is constructed by
 ex dirac_ONE(unsigned char rl = 0);
 @end example
 
-@strong{Note:} You must always use @code{dirac_ONE()} when referring to
+@strong{Please notice:} You must always use @code{dirac_ONE()} when referring to
 multiples of the unity element, even though it's customary to omit it.
 E.g. instead of @code{dirac_gamma(mu)*(dirac_slash(q,4)+m)} you have to
 write @code{dirac_gamma(mu)*(dirac_slash(q,4)+m*dirac_ONE())}. Otherwise,
@@ -3380,7 +3380,7 @@ The unity element of a color algebra is constructed by
 ex color_ONE(unsigned char rl = 0);
 @end example
 
-@strong{Note:} You must always use @code{color_ONE()} when referring to
+@strong{Please notice:} You must always use @code{color_ONE()} when referring to
 multiples of the unity element, even though it's customary to omit it.
 E.g. instead of @code{color_T(a)*(color_T(b)*indexed(X,b)+1)} you have to
 write @code{color_T(a)*(color_T(b)*indexed(X,b)+color_ONE())}. Otherwise,
@@ -7474,7 +7474,7 @@ constructor.
 by GiNaC to establish a canonical sort order for terms. It returns 0, +1 or
 -1, depending on the relative order of this object and the @code{other}
 object. If it returns 0, the objects are considered equal.
-@strong{Note:} This has nothing to do with the (numeric) ordering
+@strong{Please notice:} This has nothing to do with the (numeric) ordering
 relationship expressed by @code{<}, @code{>=} etc (which cannot be defined
 for non-numeric classes). For example, @code{numeric(1).compare_same_type(numeric(2))}
 may return +1 even though 1 is clearly smaller than 2. Every GiNaC class
