@@ -35,7 +35,8 @@ namespace GiNaC {
  *  elements from different Lie algebra representations (only objects with
  *  the same label "interact" with each other). These objects implement an
  *  abstract representation of the group, not a specific matrix
- *  representation. */
+ *  representation. The indices used for color objects should not have a
+ *  variance. */
 class color : public indexed
 {
 	GINAC_DECLARE_REGISTERED_CLASS(color, indexed)
@@ -92,8 +93,8 @@ class su3f : public tensor
 	// functions overriding virtual functions from bases classes
 public:
 	void print(std::ostream & os, unsigned upper_precedence=0) const;
-//	ex eval_indexed(const basic & i) const;
-//	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
+	ex eval_indexed(const basic & i) const;
+	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
 };
 
 /** This class represents the tensor of symmetric su(3) structure constants. */
@@ -104,8 +105,8 @@ class su3d : public tensor
 	// functions overriding virtual functions from bases classes
 public:
 	void print(std::ostream & os, unsigned upper_precedence=0) const;
-//	ex eval_indexed(const basic & i) const;
-//	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
+	ex eval_indexed(const basic & i) const;
+	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
 };
 
 

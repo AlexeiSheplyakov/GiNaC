@@ -179,6 +179,15 @@ ex tensdelta::eval_indexed(const basic & i) const
 	if (is_dummy_pair(i1, i2))
 		return i1.get_dim();
 
+	// Numeric evaluation
+	if (static_cast<const indexed &>(i).all_index_values_are(info_flags::integer)) {
+		int n1 = ex_to_numeric(i1.get_value()).to_int(), n2 = ex_to_numeric(i2.get_value()).to_int();
+		if (n1 == n2)
+			return _ex1();
+		else
+			return _ex0();
+	}
+
 	// No further simplifications
 	return i.hold();
 }

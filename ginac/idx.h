@@ -141,6 +141,57 @@ bool is_dummy_pair(const idx & i1, const idx & i2);
 /** Check whether two expressions form a dummy index pair. */
 bool is_dummy_pair(const ex & e1, const ex & e2);
 
+/** Given a vector of indices, split them into two vectors, one containing
+ *  the free indices, the other containing the dummy indices (numeric
+ *  indices are neither free nor dummy ones).
+ *
+ *  @param it Pointer to start of index vector
+ *  @param itend Pointer to end of index vector
+ *  @param out_free Vector of free indices (returned, sorted)
+ *  @param out_dummy Vector of dummy indices (returned, sorted) */
+void find_free_and_dummy(exvector::const_iterator it, exvector::const_iterator itend, exvector & out_free, exvector & out_dummy);
+
+/** Given a vector of indices, split them into two vectors, one containing
+ *  the free indices, the other containing the dummy indices (numeric
+ *  indices are neither free nor dummy ones).
+ *
+ *  @param v Index vector
+ *  @param out_free Vector of free indices (returned, sorted)
+ *  @param out_dummy Vector of dummy indices (returned, sorted) */
+inline void find_free_and_dummy(const exvector & v, exvector & out_free, exvector & out_dummy)
+{
+	find_free_and_dummy(v.begin(), v.end(), out_free, out_dummy);
+}
+
+/** Given a vector of indices, find the dummy indices.
+ *
+ *  @param v Index vector
+ *  @param out_dummy Vector of dummy indices (returned, sorted) */
+inline void find_dummy_indices(const exvector & v, exvector & out_dummy)
+{
+	exvector free_indices;
+	find_free_and_dummy(v.begin(), v.end(), free_indices, out_dummy);
+}
+
+/** Count the number of dummy index pairs in an index vector. */
+inline unsigned count_dummy_indices(const exvector & v)
+{
+	exvector free_indices, dummy_indices;
+	find_free_and_dummy(v.begin(), v.end(), free_indices, dummy_indices);
+	return dummy_indices.size();
+}
+
+/** Count the number of dummy index pairs in an index vector. */
+inline unsigned count_free_indices(const exvector & v)
+{
+	exvector free_indices, dummy_indices;
+	find_free_and_dummy(v.begin(), v.end(), free_indices, dummy_indices);
+	return free_indices.size();
+}
+
+/** Given two index vectors, find those indices that appear in the first
+ *  vector but not in the second one (asymmetric set difference). */
+exvector index_set_difference(const exvector & set1, const exvector & set2);
 
 } // namespace GiNaC
 

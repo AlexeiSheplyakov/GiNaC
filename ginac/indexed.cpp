@@ -445,48 +445,6 @@ void indexed::assert_all_indices_of_type_idx(void) const
 // global functions
 //////////
 
-/** Given a vector of indices, split them into two vectors, one containing
- *  the free indices, the other containing the dummy indices. */
-static void find_free_and_dummy(exvector::const_iterator it, exvector::const_iterator itend, exvector & out_free, exvector & out_dummy)
-{
-	out_free.clear();
-	out_dummy.clear();
-
-	// No indices? Then do nothing
-	if (it == itend)
-		return;
-
-	// Only one index? Then it is a free one if it's not numeric
-	if (itend - it == 1) {
-		if (ex_to_idx(*it).is_symbolic())
-			out_free.push_back(*it);
-		return;
-	}
-
-	// Sort index vector. This will cause dummy indices come to lie next
-	// to each other (because the sort order is defined to guarantee this).
-	exvector v(it, itend);
-	sort_index_vector(v);
-
-	// Find dummy pairs and free indices
-	it = v.begin(); itend = v.end();
-	exvector::const_iterator last = it++;
-	while (it != itend) {
-		if (is_dummy_pair(*it, *last)) {
-			out_dummy.push_back(*last);
-			it++;
-			if (it == itend)
-				return;
-		} else {
-			if (!it->is_equal(*last) && ex_to_idx(*last).is_symbolic())
-				out_free.push_back(*last);
-		}
-		last = it++;
-	}
-	if (ex_to_idx(*last).is_symbolic())
-		out_free.push_back(*last);
-}
-
 /** Check whether two sorted index vectors are consistent (i.e. equal). */
 static bool indices_consistent(const exvector & v1, const exvector & v2)
 {
@@ -505,10 +463,26 @@ static bool indices_consistent(const exvector & v1, const exvector & v2)
 	return true;
 }
 
+exvector indexed::get_indices(void) const
+{
+	GINAC_ASSERT(seq.size() >= 1);
+	return exvector(seq.begin() + 1, seq.end());
+}
+
 exvector indexed::get_dummy_indices(void) const
 {
 	exvector free_indices, dummy_indices;
 	find_free_and_dummy(seq.begin() + 1, seq.end(), free_indices, dummy_indices);
+	return dummy_indices;
+}
+
+exvector indexed::get_dummy_indices(const indexed & other) const
+{
+	exvector indices = get_free_indices();
+	exvector other_indices = other.get_free_indices();
+	indices.insert(indices.end(), other_indices.begin(), other_indices.end());
+	exvector dummy_indices;
+	find_dummy_indices(indices, dummy_indices);
 	return dummy_indices;
 }
 
@@ -545,7 +519,7 @@ exvector mul::get_free_indices(void) const
 
 	// And remove the dummy indices
 	exvector free_indices, dummy_indices;
-	find_free_and_dummy(un.begin(), un.end(), free_indices, dummy_indices);
+	find_free_and_dummy(un, free_indices, dummy_indices);
 	return free_indices;
 }
 
@@ -560,7 +534,7 @@ exvector ncmul::get_free_indices(void) const
 
 	// And remove the dummy indices
 	exvector free_indices, dummy_indices;
-	find_free_and_dummy(un.begin(), un.end(), free_indices, dummy_indices);
+	find_free_and_dummy(un, free_indices, dummy_indices);
 	return free_indices;
 }
 
@@ -596,7 +570,7 @@ ex simplify_indexed_product(const ex & e, exvector & free_indices, const scalar_
 			} else if (is_ex_exactly_of_type(f, ncmul)) {
 				// Noncommutative factor found, split it as well
 				non_commutative = true; // everything becomes noncommutative, ncmul will sort out the commutative factors later
-				for (int j=0; j<f.nops(); i++)
+				for (int j=0; j<f.nops(); j++)
 					v.push_back(f.op(j));
 			} else
 				v.push_back(f);
@@ -624,7 +598,7 @@ try_again:
 			exvector un(ex_to_indexed(*it1).seq.begin() + 1, ex_to_indexed(*it1).seq.end());
 			un.insert(un.end(), ex_to_indexed(*it2).seq.begin() + 1, ex_to_indexed(*it2).seq.end());
 			exvector free, dummy;
-			find_free_and_dummy(un.begin(), un.end(), free, dummy);
+			find_free_and_dummy(un, free, dummy);
 			if (dummy.size() == 0)
 				continue;
 
@@ -677,7 +651,7 @@ try_again:
 		}
 		it1++;
 	}
-	find_free_and_dummy(un.begin(), un.end(), free_indices, dummy_indices);
+	find_free_and_dummy(un, free_indices, dummy_indices);
 
 	ex r;
 	if (something_changed) {

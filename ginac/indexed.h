@@ -173,8 +173,15 @@ public:
 	 *  @see class info_flags */
 	bool all_index_values_are(unsigned inf) const;
 
+	/** Return a vector containing the object's indices. */
+	exvector get_indices(void) const;
+
 	/** Return a vector containing the dummy indices of the object, if any. */
 	exvector get_dummy_indices(void) const;
+
+	/** Return a vector containing the dummy indices in the contraction with
+	 *  another indexed object. */
+	exvector get_dummy_indices(const indexed & other) const;
 
 protected:
 	void printrawindices(std::ostream & os) const;

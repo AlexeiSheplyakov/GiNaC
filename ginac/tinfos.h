@@ -73,6 +73,7 @@ const unsigned TINFO_su3t          = 0x000e1009U;
 const unsigned TINFO_su3f          = 0x000e100aU;
 const unsigned TINFO_su3d          = 0x000e100bU;
 const unsigned TINFO_diracgamma    = 0x000e100cU;
+const unsigned TINFO_diracone      = 0x000e100dU;
 
 } // namespace GiNaC
 

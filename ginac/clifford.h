@@ -38,6 +38,7 @@ class clifford : public indexed
 
 	// other constructors
 public:
+	clifford(const ex & b);
 	clifford(const ex & b, const ex & mu);
 
 	// internal constructors
@@ -54,6 +55,17 @@ protected:
 };
 
 
+/** This class represents the Clifford algebra unity element. */
+class diracone : public tensor
+{
+	GINAC_DECLARE_REGISTERED_CLASS(diracone, tensor)
+
+	// functions overriding virtual functions from bases classes
+public:
+	void print(std::ostream & os, unsigned upper_precedence=0) const;
+};
+
+
 /** This class represents the Dirac gamma Lorentz vector. */
 class diracgamma : public tensor
 {
@@ -62,6 +74,7 @@ class diracgamma : public tensor
 	// functions overriding virtual functions from bases classes
 public:
 	void print(std::ostream & os, unsigned upper_precedence=0) const;
+	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
 };
 
 
@@ -71,6 +84,11 @@ inline const clifford &ex_to_clifford(const ex &e)
 	return static_cast<const clifford &>(*e.bp);
 }
 
+
+/** Create a Clifford unity object.
+ *
+ *  @return newly constructed object */
+ex dirac_one(void);
 
 /** Create a Dirac gamma object.
  *

@@ -33,6 +33,7 @@
 namespace GiNaC {
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(clifford, indexed)
+GINAC_IMPLEMENT_REGISTERED_CLASS(diracone, tensor)
 GINAC_IMPLEMENT_REGISTERED_CLASS(diracgamma, tensor)
 
 //////////
@@ -47,6 +48,7 @@ clifford::clifford()
 
 DEFAULT_COPY(clifford)
 DEFAULT_DESTROY(clifford)
+DEFAULT_CTORS(diracone)
 DEFAULT_CTORS(diracgamma)
 
 //////////
@@ -60,6 +62,15 @@ clifford::clifford(const ex & b, const ex & mu) : inherited(b, mu)
 {
 	debugmsg("clifford constructor from ex,ex", LOGLEVEL_CONSTRUCT);
 	GINAC_ASSERT(is_ex_of_type(mu, varidx));
+	tinfo_key = TINFO_clifford;
+}
+
+/** Construct object without any indices. This constructor is for internal
+ *  use only. Use the dirac_one() function instead.
+ *  @see dirac_one */
+clifford::clifford(const ex & b) : inherited(b)
+{
+	debugmsg("clifford constructor from ex", LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_clifford;
 }
 
@@ -80,6 +91,7 @@ clifford::clifford(exvector * vp) : inherited(indexed::unknown, vp)
 //////////
 
 DEFAULT_ARCHIVING(clifford)
+DEFAULT_ARCHIVING(diracone)
 DEFAULT_ARCHIVING(diracgamma)
 
 //////////
@@ -91,15 +103,57 @@ int clifford::compare_same_type(const basic & other) const
 	return inherited::compare_same_type(other);
 }
 
+DEFAULT_COMPARE(diracone)
 DEFAULT_COMPARE(diracgamma)
+DEFAULT_PRINT(diracone, "ONE")
 DEFAULT_PRINT(diracgamma, "gamma")
 
+/** Contraction of a gamma matrix with something else. */
+bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const
+{
+	GINAC_ASSERT(is_ex_of_type(*self, indexed));
+	GINAC_ASSERT(is_ex_of_type(*other, indexed));
+	GINAC_ASSERT(is_ex_of_type(self->op(0), diracgamma));
+
+	if (is_ex_of_type(other->op(0), diracgamma)) {
+
+		// gamma~mu*gamma.mu = dim*ONE
+		if (other - self == 1) {
+			*self = ex_to_idx(self->op(1)).get_dim();
+			*other = dirac_one();
+			return true;
+
+		// gamma~mu*gamma~alpha*gamma.mu = (2-dim)*gamma~alpha
+		} else if (other - self == 2) {
+			*self = 2 - ex_to_idx(self->op(1)).get_dim();
+			*other = _ex1();
+			return true;
+		}
+	}
+
+	return false;
+}
+
 /** Perform automatic simplification on noncommutative product of clifford
- *  objects. */
+ *  objects. This removes superfluous ONEs. */
 ex clifford::simplify_ncmul(const exvector & v) const
 {
-	//!! to be implemented
-	return nonsimplified_ncmul(v);
+	exvector s;
+	s.reserve(v.size());
+
+	exvector::const_iterator it = v.begin(), itend = v.end();
+	while (it != itend) {
+		if (!is_ex_of_type(it->op(0), diracone))
+			s.push_back(*it);
+		it++;
+	}
+
+	if (s.size() == 0)
+		return clifford(diracone());
+	else if (s.size() == v.size())
+		return simplified_ncmul(v);
+	else
+		return simplified_ncmul(s);
 }
 
 ex clifford::thisexprseq(const exvector & v) const
@@ -116,10 +170,16 @@ ex clifford::thisexprseq(exvector * vp) const
 // global functions
 //////////
 
+ex dirac_one(void)
+{
+	return clifford(diracone());
+}
+
 ex dirac_gamma(const ex & mu)
 {
 	if (!is_ex_of_type(mu, varidx))
 		throw(std::invalid_argument("index of Dirac gamma must be of type varidx"));
+
 	return clifford(diracgamma(), mu);
 }
 
