@@ -39,8 +39,6 @@ namespace cln { class cl_N; }
 
 namespace GiNaC {
 
-#define HASHVALUE_NUMERIC 0x80000001U
-
 /** This class is used to instantiate a global singleton object Digits
  *  which behaves just like Maple's Digits.  We need an object rather 
  *  than a dumber basic type since as a side-effect we let it change
