@@ -155,7 +155,7 @@ static unsigned symmetry_check(void)
 	unsigned result = 0;
 
 	idx i(symbol("i"), 3), j(symbol("j"), 3), k(symbol("k"), 3), l(symbol("l"), 3);
-	symbol A("A"), B("B");
+	symbol A("A"), B("B"), C("C");
 	ex e;
 
 	result += check_equal(indexed(A, sy_symm(), i, j), indexed(A, sy_symm(), j, i));
@@ -186,6 +186,9 @@ static unsigned symmetry_check(void)
 	e = indexed(A, sy_anti(), i, j, k, l);
 	result += check_equal(symmetrize(e), 0);
 	result += check_equal(antisymmetrize(e), e);
+
+	e = (indexed(A, sy_anti(), i, j, k, l) * (indexed(B, j) * indexed(C, k) + indexed(B, k) * indexed(C, j)) + indexed(B, i, l)).expand();
+	result += check_equal_simplify(e, indexed(B, i, l));
 
 	return result;
 }

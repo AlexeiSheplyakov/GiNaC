@@ -870,6 +870,27 @@ ex simplify_indexed(const ex & e, exvector & free_indices, exvector & dummy_indi
 			}
 		}
 
+		if (sum.is_zero()) {
+			free_indices.clear();
+			return sum;
+		}
+
+		// Symmetrizing over the dummy indices may cancel terms
+		int num_terms_orig = (is_a<add>(sum) ? sum.nops() : 1);
+		if (num_terms_orig > 1 && dummy_indices.size() >= 2) {
+			lst dummy_syms;
+			for (int i=0; i<dummy_indices.size(); i++)
+				dummy_syms.append(dummy_indices[i].op(0));
+			ex sum_symm = sum.symmetrize(dummy_syms);
+			if (sum_symm.is_zero()) {
+				free_indices.clear();
+				return _ex0;
+			}
+			int num_terms = (is_a<add>(sum_symm) ? sum_symm.nops() : 1);
+			if (num_terms < num_terms_orig)
+				return sum_symm;
+		}
+
 		return sum;
 	}
 
