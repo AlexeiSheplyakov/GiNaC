@@ -23,17 +23,32 @@
 
 #include "times.h"
 
-static unsigned test(void)
+static unsigned test(unsigned n)
 {
-	matrix h80(80,80);
+	matrix hilbert(n,n);
 	
-	for (unsigned r=0; r<80; ++r)
-		for (unsigned c=0; c<80; ++c)
-			h80.set(r,c,numeric(1,r+c+1));
-	ex det = h80.determinant();
+	for (unsigned r=0; r<n; ++r)
+		for (unsigned c=0; c<n; ++c)
+			hilbert.set(r,c,numeric(1,r+c+1));
+	ex det = hilbert.determinant();
 	
-	if (abs(det.evalf()-numeric(".10097939769690107E-3789"))>numeric("1.E-3800")) {
-		clog << "determinant of 80x80 erroneously returned " << det << endl;
+	// The closed form of the determinant of n x n Hilbert matrices is:
+	//
+	//      n-1   /                      n-1                 \
+	//     ----- |                      -----                 |
+	//      | |  | pow(factorial(r),2)   | |    hilbert(r,c)  |
+	//      | |  |                       | |                  |   
+	//     r = 0  \                     c = 0                /
+	
+	ex hilbdet = 1;
+	for (unsigned r=0; r<n; ++r) {
+		hilbdet *= pow(factorial(numeric(r)),2);
+		for (unsigned c=0; c<n; ++c)
+			hilbdet *= hilbert(r,c);
+	}
+	
+	if (det != hilbdet) {
+		clog << "determinant of " << n << "x" << n << " erroneously returned " << det << endl;
 		return 1;
 	}
 	return 0;
@@ -52,7 +67,7 @@ unsigned time_lw_H(void)
 	rolex.start();
 	// correct for very small times:
 	do {
-		result = test();
+		result = test(80);
 		++count;
 	} while ((time=rolex.read())<0.1 && !result);
 	cout << '.' << flush;
