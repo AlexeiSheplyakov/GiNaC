@@ -78,9 +78,18 @@ protected:
 };
 
 // utility functions
+
+/** Return the add object handled by an ex.
+ *  This is unsafe: you need to check the type first. */
 inline const add &ex_to_add(const ex &e)
 {
 	return static_cast<const add &>(*e.bp);
+}
+
+/** Specialization of is_exactly_a<add>(obj) for add objects. */
+template<> inline bool is_exactly_a<add>(const basic & obj)
+{
+	return obj.tinfo()==TINFO_add;
 }
 
 } // namespace GiNaC

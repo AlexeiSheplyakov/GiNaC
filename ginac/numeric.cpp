@@ -370,39 +370,39 @@ void numeric::print(const print_context & c, unsigned level) const
 {
 	debugmsg("numeric print", LOGLEVEL_PRINT);
 
-	if (is_of_type(c, print_tree)) {
+	if (is_a<print_tree>(c)) {
 
 		c.s << std::string(level, ' ') << cln::the<cln::cl_N>(value)
 		    << " (" << class_name() << ")"
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 		    << std::endl;
 
-	} else if (is_of_type(c, print_csrc)) {
+	} else if (is_a<print_csrc>(c)) {
 
 		std::ios::fmtflags oldflags = c.s.flags();
 		c.s.setf(std::ios::scientific);
 		if (this->is_rational() && !this->is_integer()) {
 			if (compare(_num0()) > 0) {
 				c.s << "(";
-				if (is_of_type(c, print_csrc_cl_N))
+				if (is_a<print_csrc_cl_N>(c))
 					c.s << "cln::cl_F(\"" << numer().evalf() << "\")";
 				else
 					c.s << numer().to_double();
 			} else {
 				c.s << "-(";
-				if (is_of_type(c, print_csrc_cl_N))
+				if (is_a<print_csrc_cl_N>(c))
 					c.s << "cln::cl_F(\"" << -numer().evalf() << "\")";
 				else
 					c.s << -numer().to_double();
 			}
 			c.s << "/";
-			if (is_of_type(c, print_csrc_cl_N))
+			if (is_a<print_csrc_cl_N>(c))
 				c.s << "cln::cl_F(\"" << denom().evalf() << "\")";
 			else
 				c.s << denom().to_double();
 			c.s << ")";
 		} else {
-			if (is_of_type(c, print_csrc_cl_N))
+			if (is_a<print_csrc_cl_N>(c))
 				c.s << "cln::cl_F(\"" << evalf() << "\")";
 			else
 				c.s << to_double();
@@ -410,10 +410,10 @@ void numeric::print(const print_context & c, unsigned level) const
 		c.s.flags(oldflags);
 
 	} else {
-		const std::string par_open  = is_of_type(c, print_latex) ? "{(" : "(";
-		const std::string par_close = is_of_type(c, print_latex) ? ")}" : ")";
-		const std::string imag_sym  = is_of_type(c, print_latex) ? "i" : "I";
-		const std::string mul_sym   = is_of_type(c, print_latex) ? " " : "*";
+		const std::string par_open  = is_a<print_latex>(c) ? "{(" : "(";
+		const std::string par_close = is_a<print_latex>(c) ? ")}" : ")";
+		const std::string imag_sym  = is_a<print_latex>(c) ? "i" : "I";
+		const std::string mul_sym   = is_a<print_latex>(c) ? " " : "*";
 		const cln::cl_R r = cln::realpart(cln::the<cln::cl_N>(value));
 		const cln::cl_R i = cln::imagpart(cln::the<cln::cl_N>(value));
 		if (cln::zerop(i)) {

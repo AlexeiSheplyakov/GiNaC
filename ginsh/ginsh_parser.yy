@@ -298,7 +298,7 @@ static ex f_sqrfree1(const exprseq &e) {return sqrfree(e[0]);}
 static ex f_subs2(const exprseq &e) {return e[0].subs(e[1]);}
 static ex f_tcoeff(const exprseq &e) {return e[0].tcoeff(e[1]);}
 
-#define CHECK_ARG(num, type, fcn) if (!is_ex_of_type(e[num], type)) throw(std::invalid_argument("argument " #num " to " #fcn "() must be a " #type))
+#define CHECK_ARG(num, type, fcn) if (!is_a<type>(e[num])) throw(std::invalid_argument("argument " #num " to " #fcn "() must be a " #type))
 
 static ex f_charpoly(const exprseq &e)
 {

@@ -88,6 +88,11 @@ public:
 	  : print_csrc(os) {}
 };
 
+/** Check if obj is a T, including base classes. */
+template <class T>
+inline bool is_a(const print_context & obj)
+{ return dynamic_cast<const T *>(&obj)!=0; }
+
 } // namespace GiNaC
 
 #endif // ndef __GINAC_BASIC_H__

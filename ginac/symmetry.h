@@ -167,6 +167,14 @@ inline ex symmetrize_cyclic(const ex & e, const exvector & v)
 	return symmetrize(e, v.begin(), v.end());
 }
 
+// utility functions
+
+/** Specialization of is_exactly_a<symmetry>(obj) for symmetry objects. */
+template<> inline bool is_exactly_a<symmetry>(const basic & obj)
+{
+	return obj.tinfo()==TINFO_symmetry;
+}
+
 } // namespace GiNaC
 
 #endif // ndef __GINAC_SYMMETRY_H__

@@ -133,9 +133,18 @@ inline matrix inverse(const matrix & m)
 { return m.inverse(); }
 
 // utility functions
+
+/** Return the matrix object handled by an ex.
+ *  This is unsafe: you need to check the type first. */
 inline const matrix &ex_to_matrix(const ex &e)
 {
 	return static_cast<const matrix &>(*e.bp);
+}
+
+/** Specialization of is_exactly_a<matrix>(obj) for matrix objects. */
+template<> inline bool is_exactly_a<matrix>(const basic & obj)
+{
+	return obj.tinfo()==TINFO_matrix;
 }
 
 /** Convert list of lists to matrix. */

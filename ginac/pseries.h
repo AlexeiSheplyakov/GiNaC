@@ -107,10 +107,16 @@ protected:
  *
  *  @param e expression
  *  @return reference to pseries object
- *  @see is_ex_of_type */
+ *  @see is_a<> */
 inline const pseries &ex_to_pseries(const ex &e)
 {
 	return static_cast<const pseries &>(*e.bp);
+}
+
+/** Specialization of is_exactly_a<pseries>(obj) for pseries objects. */
+template<> inline bool is_exactly_a<pseries>(const basic & obj)
+{
+	return obj.tinfo()==TINFO_pseries;
 }
 
 /** Convert the pseries object embedded in an expression to an ordinary
@@ -119,7 +125,7 @@ inline const pseries &ex_to_pseries(const ex &e)
  *
  *  @param e expression
  *  @return polynomial expression
- *  @see is_ex_of_type
+ *  @see is_a<>
  *  @see pseries::convert_to_poly */
 inline ex series_to_poly(const ex &e)
 {

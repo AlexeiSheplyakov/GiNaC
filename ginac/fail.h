@@ -39,6 +39,12 @@ protected:
 	unsigned return_type(void) const { return return_types::noncommutative_composite; };
 };
 
+/** Specialization of is_exactly_a<fail>(obj) for fail objects. */
+template<> inline bool is_exactly_a<fail>(const basic & obj)
+{
+	return obj.tinfo()==TINFO_fail;
+}
+
 } // namespace GiNaC
 
 #endif // ndef __GINAC_FAIL_H__

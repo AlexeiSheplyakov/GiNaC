@@ -174,19 +174,44 @@ protected:
 
 
 // utility functions
+
+/** Return the idx object handled by an ex.
+ *  This is unsafe: you need to check the type first. */
 inline const idx &ex_to_idx(const ex & e)
 {
 	return static_cast<const idx &>(*e.bp);
 }
 
+/** Return the varidx object handled by an ex.
+ *  This is unsafe: you need to check the type first. */
 inline const varidx &ex_to_varidx(const ex & e)
 {
 	return static_cast<const varidx &>(*e.bp);
 }
 
+/** Return the spinidx object handled by an ex.
+ *  This is unsafe: you need to check the type first. */
 inline const spinidx &ex_to_spinidx(const ex & e)
 {
 	return static_cast<const spinidx &>(*e.bp);
+}
+
+/** Specialization of is_exactly_a<idx>(obj) for idx objects. */
+template<> inline bool is_exactly_a<idx>(const basic & obj)
+{
+        return obj.tinfo()==TINFO_idx;
+}
+
+/** Specialization of is_exactly_a<varidx>(obj) for varidx objects. */
+template<> inline bool is_exactly_a<varidx>(const basic & obj)
+{
+        return obj.tinfo()==TINFO_varidx;
+}
+
+/** Specialization of is_exactly_a<spinidx>(obj) for spinidx objects. */
+template<> inline bool is_exactly_a<spinidx>(const basic & obj)
+{
+        return obj.tinfo()==TINFO_spinidx;
 }
 
 /** Check whether two indices form a dummy pair. */

@@ -224,7 +224,7 @@ const unsigned function_index_##NAME= \\
 bool automatic_typecheck=true;
 
 #define TYPECHECK(VAR,TYPE) \\
-if (!is_ex_exactly_of_type(VAR,TYPE)) { \\
+if (!is_exactly_a<TYPE>(VAR)) { \\
 	automatic_typecheck=false; \\
 } else
 
@@ -379,9 +379,17 @@ protected:
 };
 
 // utility functions/macros
+/** Return the object of type function handled by an ex.
+ *  This is unsafe: you need to check the type first. */
 inline const function &ex_to_function(const ex &e)
 {
 	return static_cast<const function &>(*e.bp);
+}
+
+/** Specialization of is_exactly_a<function>(obj) for objects of type function. */
+template<> inline bool is_exactly_a<function>(const basic & obj)
+{
+	return obj.tinfo()==TINFO_function;
 }
 
 #define is_ex_the_function(OBJ, FUNCNAME) \\

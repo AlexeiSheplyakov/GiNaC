@@ -131,11 +131,11 @@ void mul::print(const print_context & c, unsigned level) const
 {
 	debugmsg("mul print", LOGLEVEL_PRINT);
 
-	if (is_of_type(c, print_tree)) {
+	if (is_a<print_tree>(c)) {
 
 		inherited::print(c, level);
 
-	} else if (is_of_type(c, print_csrc)) {
+	} else if (is_a<print_csrc>(c)) {
 
 		if (precedence() <= level)
 			c.s << "(";
@@ -151,7 +151,7 @@ void mul::print(const print_context & c, unsigned level) const
 
 			// If the first argument is a negative integer power, it gets printed as "1.0/<expr>"
 			if (it == seq.begin() && ex_to_numeric(it->coeff).is_integer() && it->coeff.compare(_num0()) < 0) {
-				if (is_of_type(c, print_csrc_cl_N))
+				if (is_a<print_csrc_cl_N>(c))
 					c.s << "recip(";
 				else
 					c.s << "1.0/";
@@ -181,7 +181,7 @@ void mul::print(const print_context & c, unsigned level) const
 	} else {
 
 		if (precedence() <= level) {
-			if (is_of_type(c, print_latex))
+			if (is_a<print_latex>(c))
 				c.s << "{(";
 			else
 				c.s << "(";
@@ -206,7 +206,7 @@ void mul::print(const print_context & c, unsigned level) const
 				else
 					coeff.print(c, precedence());
 			}
-			if (is_of_type(c, print_latex))
+			if (is_a<print_latex>(c))
 				c.s << ' ';
 			else
 				c.s << '*';
@@ -216,7 +216,7 @@ void mul::print(const print_context & c, unsigned level) const
 		epvector::const_iterator it = seq.begin(), itend = seq.end();
 		while (it != itend) {
 			if (!first) {
-				if (is_of_type(c, print_latex))
+				if (is_a<print_latex>(c))
 					c.s << ' ';
 				else
 					c.s << '*';
@@ -228,7 +228,7 @@ void mul::print(const print_context & c, unsigned level) const
 		}
 
 		if (precedence() <= level) {
-			if (is_of_type(c, print_latex))
+			if (is_a<print_latex>(c))
 				c.s << ")}";
 			else
 				c.s << ")";
@@ -655,7 +655,7 @@ ex mul::expand(unsigned options) const
 	non_adds.reserve(expanded_seq.size());
 	epvector::const_iterator cit = expanded_seq.begin();
 	epvector::const_iterator last = expanded_seq.end();
-	ex last_expanded = _ex1();
+	ex last_expanded(_ex1());
 	while (cit!=last) {
 		if (is_ex_exactly_of_type((*cit).rest,add) &&
 			((*cit).coeff.is_equal(_ex1()))) {

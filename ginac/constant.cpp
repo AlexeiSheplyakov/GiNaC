@@ -140,11 +140,11 @@ void constant::print(const print_context & c, unsigned level) const
 {
 	debugmsg("constant print", LOGLEVEL_PRINT);
 
-	if (is_of_type(c, print_tree)) {
+	if (is_a<print_tree>(c)) {
 		c.s << std::string(level, ' ') << name << " (" << class_name() << ")"
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
 		    << std::endl;
-	} else if (is_of_type(c, print_latex))
+	} else if (is_a<print_latex>(c))
 		c.s << TeX_name;
 	else
 		c.s << name;

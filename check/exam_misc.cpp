@@ -191,7 +191,7 @@ static unsigned exam_operator_semantics(void)
 	// (which incidentally was severely broken from version 0.7.3 to 0.8.2).
 	ex selfprobe = numeric("65536");
 	selfprobe = selfprobe;
-	if (!is_ex_exactly_of_type(selfprobe, numeric)) {
+	if (!is_exactly_a<numeric>(selfprobe)) {
 		clog << "ex (of numeric) after self-assignment became " << selfprobe << endl;
 		++result;
 	}

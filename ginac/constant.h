@@ -80,9 +80,18 @@ extern const constant Catalan;
 extern const constant Euler;
 
 // utility functions
+
+/** Return the constant object handled by an ex.
+ *  This is unsafe: you need to check the type first. */
 inline const constant &ex_to_constant(const ex &e)
 {
 	return static_cast<const constant &>(*e.bp);
+}
+
+/** Specialization of is_exactly_a<constant>(obj) for constant objects. */
+template<> inline bool is_exactly_a<constant>(const basic & obj)
+{
+	return obj.tinfo()==TINFO_constant;
 }
 
 } // namespace GiNaC

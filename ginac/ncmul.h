@@ -88,9 +88,18 @@ ex nonsimplified_ncmul(const exvector & v);
 ex simplified_ncmul(const exvector & v);
 
 // utility functions
+
+/** Return the ncmul object handled by an ex.
+ *  This is unsafe: you need to check the type first. */
 inline const ncmul &ex_to_ncmul(const ex &e)
 {
 	return static_cast <const ncmul &>(*e.bp);
+}
+
+/** Specialization of is_exactly_a<ncmul>(obj) for ncmul objects. */
+template<> inline bool is_exactly_a<ncmul>(const basic & obj)
+{
+	return obj.tinfo()==TINFO_ncmul;
 }
 
 } // namespace GiNaC

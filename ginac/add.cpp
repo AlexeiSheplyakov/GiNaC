@@ -116,11 +116,11 @@ void add::print(const print_context & c, unsigned level) const
 {
 	debugmsg("add print", LOGLEVEL_PRINT);
 
-	if (is_of_type(c, print_tree)) {
+	if (is_a<print_tree>(c)) {
 
 		inherited::print(c, level);
 
-	} else if (is_of_type(c, print_csrc)) {
+	} else if (is_a<print_csrc>(c)) {
 
 		if (precedence() <= level)
 			c.s << "(";
@@ -152,7 +152,7 @@ void add::print(const print_context & c, unsigned level) const
 		
 			// Separator is "+", except if the following expression would have a leading minus sign
 			it++;
-			if (it != itend && !(it->coeff.compare(_num0()) < 0 || (it->coeff.compare(_num1()) == 0 && is_ex_exactly_of_type(it->rest, numeric) && it->rest.compare(_num0()) < 0)))
+			if (it != itend && !(it->coeff.compare(_num0()) < 0 || (it->coeff.compare(_num1()) == 0 && is_exactly_a<numeric>(it->rest) && it->rest.compare(_num0()) < 0)))
 				c.s << "+";
 		}
 	
@@ -168,7 +168,7 @@ void add::print(const print_context & c, unsigned level) const
 	} else {
 
 		if (precedence() <= level) {
-			if (is_of_type(c, print_latex))
+			if (is_a<print_latex>(c))
 				c.s << "{(";
 			else
 				c.s << "(";
@@ -179,7 +179,7 @@ void add::print(const print_context & c, unsigned level) const
 
 		// First print the overall numeric coefficient, if present
 		if (!overall_coeff.is_zero()) {
-			if (!is_of_type(c, print_tree))
+			if (!is_a<print_tree>(c))
 				overall_coeff.print(c, 0);
 			else
 				overall_coeff.print(c, precedence());
@@ -209,7 +209,7 @@ void add::print(const print_context & c, unsigned level) const
 					else
 						coeff.print(c, precedence());
 				}
-				if (is_of_type(c, print_latex))
+				if (is_a<print_latex>(c))
 					c.s << ' ';
 				else
 					c.s << '*';
@@ -219,7 +219,7 @@ void add::print(const print_context & c, unsigned level) const
 		}
 
 		if (precedence() <= level) {
-			if (is_of_type(c, print_latex))
+			if (is_a<print_latex>(c))
 				c.s << ")}";
 			else
 				c.s << ")";
@@ -427,7 +427,7 @@ expair add::split_ex_to_pair(const ex & e) const
 {
 	if (is_ex_exactly_of_type(e,mul)) {
 		const mul &mulref = ex_to_mul(e);
-		ex numfactor = mulref.overall_coeff;
+		ex numfactor(mulref.overall_coeff);
 		mul *mulcopyp = new mul(mulref);
 		mulcopyp->overall_coeff = _ex1();
 		mulcopyp->clearflag(status_flags::evaluated);
@@ -444,7 +444,7 @@ expair add::combine_ex_with_coeff_to_pair(const ex & e,
 	GINAC_ASSERT(is_ex_exactly_of_type(c, numeric));
 	if (is_ex_exactly_of_type(e, mul)) {
 		const mul &mulref = ex_to_mul(e);
-		ex numfactor = mulref.overall_coeff;
+		ex numfactor(mulref.overall_coeff);
 		mul *mulcopyp = new mul(mulref);
 		mulcopyp->overall_coeff = _ex1();
 		mulcopyp->clearflag(status_flags::evaluated);

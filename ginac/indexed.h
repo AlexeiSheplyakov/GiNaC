@@ -233,9 +233,18 @@ private:
 
 
 // utility functions
+
+/** Return the indexed object handled by an ex.
+ *  This is unsafe: you need to check the type first. */
 inline const indexed &ex_to_indexed(const ex &e)
 {
 	return static_cast<const indexed &>(*e.bp);
+}
+
+/** Specialization of is_exactly_a<indexed>(obj) for indexed objects. */
+template<> inline bool is_exactly_a<indexed>(const basic & obj)
+{
+	return obj.tinfo()==TINFO_indexed;
 }
 
 } // namespace GiNaC

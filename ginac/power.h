@@ -92,9 +92,18 @@ protected:
 };
 
 // utility functions
+
+/** Return the power object handled by an ex.
+ *  This is unsafe: you need to check the type first. */
 inline const power &ex_to_power(const ex &e)
 {
 	return static_cast<const power &>(*e.bp);
+}
+
+/** Efficient specialization of is_exactly_a<power>(obj) for power objects. */
+template<> inline bool is_exactly_a<power>(const basic & obj)
+{
+	return obj.tinfo()==TINFO_power;
 }
 
 // wrapper functions

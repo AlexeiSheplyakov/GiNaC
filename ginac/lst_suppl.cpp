@@ -27,7 +27,7 @@ namespace GiNaC {
 
 bool lst::info(unsigned inf) const
 {
-	if (inf==info_flags::list) return 1;
+	if (inf==info_flags::list) return true;
 	return basic::info(inf);
 }
 

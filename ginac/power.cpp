@@ -30,6 +30,7 @@
 #include "mul.h"
 #include "ncmul.h"
 #include "numeric.h"
+#include "constant.h"
 #include "inifcns.h" // for log() in power::derivative()
 #include "matrix.h"
 #include "symbol.h"
@@ -132,21 +133,21 @@ void power::print(const print_context & c, unsigned level) const
 {
 	debugmsg("power print", LOGLEVEL_PRINT);
 
-	if (is_of_type(c, print_tree)) {
+	if (is_a<print_tree>(c)) {
 
 		inherited::print(c, level);
 
-	} else if (is_of_type(c, print_csrc)) {
+	} else if (is_a<print_csrc>(c)) {
 
 		// Integer powers of symbols are printed in a special, optimized way
 		if (exponent.info(info_flags::integer)
-		 && (is_ex_exactly_of_type(basis, symbol) || is_ex_exactly_of_type(basis, constant))) {
+		 && (is_exactly_a<symbol>(basis) || is_exactly_a<constant>(basis))) {
 			int exp = ex_to_numeric(exponent).to_int();
 			if (exp > 0)
 				c.s << '(';
 			else {
 				exp = -exp;
-				if (is_of_type(c, print_csrc_cl_N))
+				if (is_a<print_csrc_cl_N>(c))
 					c.s << "recip(";
 				else
 					c.s << "1.0/(";
@@ -156,7 +157,7 @@ void power::print(const print_context & c, unsigned level) const
 
 		// <expr>^-1 is printed as "1.0/<expr>" or with the recip() function of CLN
 		} else if (exponent.compare(_num_1()) == 0) {
-			if (is_of_type(c, print_csrc_cl_N))
+			if (is_a<print_csrc_cl_N>(c))
 				c.s << "recip(";
 			else
 				c.s << "1.0/(";
@@ -165,7 +166,7 @@ void power::print(const print_context & c, unsigned level) const
 
 		// Otherwise, use the pow() or expt() (CLN) functions
 		} else {
-			if (is_of_type(c, print_csrc_cl_N))
+			if (is_a<print_csrc_cl_N>(c))
 				c.s << "expt(";
 			else
 				c.s << "pow(";
@@ -178,31 +179,31 @@ void power::print(const print_context & c, unsigned level) const
 	} else {
 
 		if (exponent.is_equal(_ex1_2())) {
-			if (is_of_type(c, print_latex))
+			if (is_a<print_latex>(c))
 				c.s << "\\sqrt{";
 			else
 				c.s << "sqrt(";
 			basis.print(c);
-			if (is_of_type(c, print_latex))
+			if (is_a<print_latex>(c))
 				c.s << '}';
 			else
 				c.s << ')';
 		} else {
 			if (precedence() <= level) {
-				if (is_of_type(c, print_latex))
+				if (is_a<print_latex>(c))
 					c.s << "{(";
 				else
 					c.s << "(";
 			}
 			basis.print(c, precedence());
 			c.s << '^';
-			if (is_of_type(c, print_latex))
+			if (is_a<print_latex>(c))
 				c.s << '{';
 			exponent.print(c, precedence());
-			if (is_of_type(c, print_latex))
+			if (is_a<print_latex>(c))
 				c.s << '}';
 			if (precedence() <= level) {
-				if (is_of_type(c, print_latex))
+				if (is_a<print_latex>(c))
 					c.s << ")}";
 				else
 					c.s << ')';

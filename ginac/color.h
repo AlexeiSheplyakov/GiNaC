@@ -115,11 +115,19 @@ public:
 
 
 // global functions
+
+/** Return the color object handled by an ex.
+ *  This is unsafe: you need to check the type first. */
 inline const color &ex_to_color(const ex &e)
 {
 	return static_cast<const color &>(*e.bp);
 }
 
+/** Specialization of is_exactly_a<color>(obj) for color objects. */
+template<> inline bool is_exactly_a<color>(const basic & obj)
+{
+	return obj.tinfo()==TINFO_color;
+}
 
 /** Create the su(3) unity element. This is an indexed object, although it
  *  has no indices.

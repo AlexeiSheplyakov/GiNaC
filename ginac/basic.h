@@ -176,23 +176,44 @@ private:
 
 extern int max_recursion_level;
 
-// convenience macros
+// Obsolete convenience macros.  To be phased out soon!
+// Use the inlined template functions below instead of these macros.
 
-/** Check if OBJ is a TYPE, including base classes. */
 #define is_of_type(OBJ,TYPE) \
 	(dynamic_cast<const TYPE *>(&OBJ)!=0)
 
-/** Check if OBJ is a TYPE, not including base classes. */
 #define is_exactly_of_type(OBJ,TYPE) \
 	((OBJ).tinfo()==GiNaC::TINFO_##TYPE)
 
-/** Check if ex is a handle to a TYPE, including base classes. */
 #define is_ex_of_type(OBJ,TYPE) \
 	(dynamic_cast<const TYPE *>((OBJ).bp)!=0)
 
-/** Check if ex is a handle to a TYPE, not including base classes. */
 #define is_ex_exactly_of_type(OBJ,TYPE) \
 	((*(OBJ).bp).tinfo()==GiNaC::TINFO_##TYPE)
+
+// convenience type checker template functions
+
+/** Check if obj is a T, including base classes. */
+template <class T>
+inline bool is_a(const basic & obj)
+{ return dynamic_cast<const T *>(&obj)!=0; }
+
+/** Check if obj is a T, not including base classes.  This one is just an
+ *  inefficient default.  It should in all time-critical cases be overridden
+ *  by template specializations that don't create a temporary. */
+template <class T>
+inline bool is_exactly_a(const class basic & obj)
+{ const T foo; return foo.tinfo()==obj.tinfo(); }
+
+/** Check if ex is a handle to a T, including base classes. */
+template <class T>
+inline bool is_a(const ex & obj)
+{ return is_a<T>(*obj.bp); }
+
+/** Check if ex is a handle to a T, not including base classes. */
+template <class T>
+inline bool is_exactly_a(const ex & obj)
+{ return is_exactly_a<T>(*obj.bp); }
 
 } // namespace GiNaC
 

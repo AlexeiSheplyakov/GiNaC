@@ -246,9 +246,18 @@ protected:
 };
 
 // utility functions
+
+/** Return the ${CONTAINER} object handled by an ex.
+ *  This is unsafe: you need to check the type first. */
 inline const ${CONTAINER} &ex_to_${CONTAINER}(const ex &e)
 {
 	return static_cast<const ${CONTAINER} &>(*e.bp);
+}
+
+/** Specialization of is_exactly_a<${CONTAINER}>(obj) for ${CONTAINER} objects. */
+template<> inline bool is_exactly_a<${CONTAINER}>(const basic & obj)
+{
+	return obj.tinfo()==TINFO_${CONTAINER};
 }
 
 inline ${CONTAINER} &ex_to_nonconst_${CONTAINER}(const ex &e)
@@ -406,7 +415,7 @@ void ${CONTAINER}::print(const print_context & c, unsigned level) const
 {
 	debugmsg("${CONTAINER} print", LOGLEVEL_PRINT);
 
-	if (is_of_type(c, print_tree)) {
+	if (is_a<print_tree>(c)) {
 
 		c.s << std::string(level, ' ') << class_name()
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
@@ -494,7 +503,7 @@ ex ${CONTAINER}::subs(const lst & ls, const lst & lr, bool no_pattern) const
 
 int ${CONTAINER}::compare_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_of_type(other,${CONTAINER}));
+	GINAC_ASSERT(is_a<${CONTAINER}>(other));
 	${CONTAINER} const & o=static_cast<${CONTAINER} const &>
 									(const_cast<basic &>(other));
 	int cmpval;
@@ -515,13 +524,12 @@ int ${CONTAINER}::compare_same_type(const basic & other) const
 
 bool ${CONTAINER}::is_equal_same_type(const basic & other) const
 {
-	GINAC_ASSERT(is_of_type(other,${CONTAINER}));
-	${CONTAINER} const & o=static_cast<${CONTAINER} const &>
-									(const_cast<basic &>(other));
+	GINAC_ASSERT(is_a<${CONTAINER}>(other));
+	${CONTAINER} const & o = static_cast<${CONTAINER} const &>(const_cast<basic &>(other));
 	if (seq.size()!=o.seq.size()) return false;
 
-	${STLT}::const_iterator it1=seq.begin();
-	${STLT}::const_iterator it2=o.seq.begin();
+	${STLT}::const_iterator it1 = seq.begin();
+	${STLT}::const_iterator it2 = o.seq.begin();
 
 	for (; it1!=seq.end(); ++it1, ++it2) {
 		if (!(*it1).is_equal(*it2)) return false;

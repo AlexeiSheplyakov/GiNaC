@@ -115,11 +115,19 @@ private:
 
 
 // utility functions
+
+/** Return the symbol object handled by an ex.
+ *  This is unsafe: you need to check the type first. */
 inline const symbol &ex_to_symbol(const ex &e)
 {
 	return static_cast<const symbol &>(*e.bp);
 }
 
+/** Specialization of is_exactly_a<symbol>(obj) for symbol objects. */
+template<> inline bool is_exactly_a<symbol>(const basic & obj)
+{
+	return obj.tinfo()==TINFO_symbol;
+}
 
 // wrapper functions around member functions
 inline void unassign(symbol & symarg)

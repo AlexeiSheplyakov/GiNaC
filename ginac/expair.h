@@ -41,7 +41,7 @@ public:
 	~expair() { }
 	expair(const expair & other) : rest(other.rest), coeff(other.coeff)
 	{
-		GINAC_ASSERT(is_ex_exactly_of_type(coeff,numeric));
+		GINAC_ASSERT(is_exactly_a<numeric>(coeff));
 	}
 	const expair & operator=(const expair & other)
 	{
@@ -55,7 +55,7 @@ public:
 	/** Construct an expair from two ex. */
 	expair(const ex & r, const ex & c) : rest(r), coeff(c)
 	{
-		GINAC_ASSERT(is_ex_exactly_of_type(coeff,numeric));
+		GINAC_ASSERT(is_exactly_a<numeric>(coeff));
 	}
 	
 	/** Member-wise check for canonical ordering equality. */
@@ -93,7 +93,7 @@ public:
 	/** True if this is of the form (numeric,ex(1)). */
 	bool is_canonical_numeric(void) const
 	{
-		GINAC_ASSERT(is_ex_exactly_of_type(coeff,numeric));
+		GINAC_ASSERT(is_exactly_a<numeric>(coeff));
 		return (is_ex_exactly_of_type(rest,numeric) &&
 		        (coeff.is_equal(1)));
 	}

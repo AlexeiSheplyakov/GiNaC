@@ -16,6 +16,11 @@ This file records noteworthy changes.
 * Generalized map() to take a function object instead of a function pointer.
   This allows passing an arbitrary number of additional state to the
   function being called.
+* Supplement some (now deprecated) macros by inlined template functions:
+  - is_of_type(foo, type) -> is_a<type>(foo)
+  - is_ex_of_type(foo, type) -> is_a<type>(foo)
+  - is_exaclty_of_type(foo, type) -> is_exaclty_a<type>(foo)
+  - is_ex_exaclty_of_type(foo, type) -> is_exaclty_a<type>(foo)
 
 0.9.0 (7 June 2001)
 * In the output and in ginsh, lists are now delimited by { } braces, and

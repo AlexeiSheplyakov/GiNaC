@@ -476,7 +476,7 @@ int classname::compare_same_type(const basic & other) const \
 void classname::print(const print_context & c, unsigned level) const \
 { \
 	debugmsg(#classname " print", LOGLEVEL_PRINT); \
-	if (is_of_type(c, print_tree)) \
+	if (is_a<print_tree>(c)) \
 		inherited::print(c, level); \
 	else \
 		c.s << text; \
@@ -486,9 +486,9 @@ void classname::print(const print_context & c, unsigned level) const \
 void classname::print(const print_context & c, unsigned level) const \
 { \
 	debugmsg(#classname " print", LOGLEVEL_PRINT); \
-	if (is_of_type(c, print_tree)) \
+	if (is_a<print_tree>(c)) \
 		inherited::print(c, level); \
-	else if (is_of_type(c, print_latex)) \
+	else if (is_a<print_latex>(c)) \
 		c.s << latex; \
 	else \
 		c.s << text; \

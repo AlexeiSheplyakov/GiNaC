@@ -75,7 +75,7 @@ static unsigned check_numeric2(void)
 			ex radical = pow(ex(num)/ex(den),ex(nm));
 			numeric floating = pow(num/den,nm);
 			// test the result:
-			if (is_ex_of_type(radical,numeric)) {
+			if (is_a<numeric>(radical)) {
 				clog << "(" << num << "/" << den << ")^(" << nm
 				     << ") should have been a product, instead it's "
 				     << radical << endl;

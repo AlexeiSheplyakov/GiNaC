@@ -90,9 +90,18 @@ protected:
 };
 
 // utility functions
+
+/** Return the mul object handled by an ex.
+ *  This is unsafe: you need to check the type first. */
 inline const mul &ex_to_mul(const ex &e)
 {
 	return static_cast<const mul &>(*e.bp);
+}
+
+/** Specialization of is_exactly_a<mul>(obj) for mul objects. */
+template<> inline bool is_exactly_a<mul>(const basic & obj)
+{
+	return obj.tinfo()==TINFO_mul;
 }
 
 } // namespace GiNaC

@@ -126,7 +126,7 @@ void pseries::print(const print_context & c, unsigned level) const
 {
 	debugmsg("pseries print", LOGLEVEL_PRINT);
 
-	if (is_of_type(c, print_tree)) {
+	if (is_a<print_tree>(c)) {
 
 		c.s << std::string(level, ' ') << class_name()
 		    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
@@ -145,8 +145,8 @@ void pseries::print(const print_context & c, unsigned level) const
 		if (precedence() <= level)
 			c.s << "(";
 		
-		std::string par_open = is_of_type(c, print_latex) ? "{(" : "(";
-		std::string par_close = is_of_type(c, print_latex) ? ")}" : ")";
+		std::string par_open = is_a<print_latex>(c) ? "{(" : "(";
+		std::string par_close = is_a<print_latex>(c) ? ")}" : ")";
 		
 		// objects of type pseries must not have any zero entries, so the
 		// trivial (zero) pseries needs a special treatment here:
@@ -168,7 +168,7 @@ void pseries::print(const print_context & c, unsigned level) const
 				}
 				// print 'coeff', something like (x-1)^42
 				if (!i->coeff.is_zero()) {
-					if (is_of_type(c, print_latex))
+					if (is_a<print_latex>(c))
 						c.s << ' ';
 					else
 						c.s << '*';
@@ -185,7 +185,7 @@ void pseries::print(const print_context & c, unsigned level) const
 							i->coeff.print(c);
 							c.s << par_close;
 						} else {
-							if (is_of_type(c, print_latex)) {
+							if (is_a<print_latex>(c)) {
 								c.s << '{';
 								i->coeff.print(c);
 								c.s << '}';
