@@ -3,12 +3,7 @@ dnl Process this file with autoconf to produce a configure script.
 AC_INIT(ginac/basic.cpp)
 AC_PREREQ(2.13)
 
-dnl Configure options
-AC_ARG_ENABLE(html-doc, [  --enable-html-doc       build HTML documentation [default=yes]], , enable_html_doc=yes)
-AC_ARG_ENABLE(ps-doc,   [  --enable-ps-doc         build PostScript documentation [default=yes]], , enable_ps_doc=yes)
-AC_ARG_WITH(cint, [  --with-cint=CINTSYSDIR  build GiNaC-cint C++ interpreter [default=no]], , with_cint=no)
-
-dnl GiNaC library version information
+dnl GiNaC library version information.
 dnl
 dnl Making releases:
 dnl   GINACLIB_MICRO_VERSION += 1;
@@ -36,9 +31,9 @@ AC_SUBST(GINACLIB_INTERFACE_AGE)
 AC_SUBST(GINACLIB_BINARY_AGE)
 AC_SUBST(GINACLIB_VERSION)
 
-dnl GiNaC archive file version information
+dnl GiNaC archive file version information.
 dnl
-dnl If properties have been added, ARCHIVE_VERSION += 1.
+dnl If properties have been added, ARCHIVE_VERSION += 1, ARCHIVE_AGE += 1.
 dnl If backwards compatibility has been broken, ARCHIVE_AGE to 0.
 dnl
 dnl The version number in newly created archives will be ARCHIVE_VERSION.
@@ -64,14 +59,12 @@ AC_SUBST(LT_CURRENT)
 AC_SUBST(LT_REVISION)
 AC_SUBST(LT_AGE)
 
-dnl This defines PACKAGE and VERSION
+dnl This defines PACKAGE and VERSION.
 AM_CONFIG_HEADER(config.h)
 AM_INIT_AUTOMAKE([GiNaC], $GINACLIB_VERSION)
 AM_MAINTAINER_MODE
 
-dnl ===========================================================================
-dnl Check for the compiler and all the utilities needed for the build:
-dnl ===========================================================================
+dnl Check for the compiler and all the utilities needed for the build.
 AC_PROG_CXX
 AC_PROG_CXXCPP
 AC_PROG_INSTALL
@@ -79,15 +72,20 @@ AM_PROG_LIBTOOL
 AM_PROG_LEX
 AC_PROG_YACC
 
-dnl Check for data types which are needed by the hash function (golden_ratio_hash)
+dnl Configure options.
+AC_ARG_ENABLE(html-doc, [  --enable-html-doc       build HTML documentation [default=yes]], , enable_html_doc=yes)
+AC_ARG_ENABLE(ps-doc,   [  --enable-ps-doc         build PostScript documentation [default=yes]], , enable_ps_doc=yes)
+AC_ARG_WITH(cint, [  --with-cint=CINTSYSDIR  build GiNaC-cint C++ interpreter [default=no]], , with_cint=no)
+
+dnl Check for data types which are needed by the hash function (golden_ratio_hash).
 AC_CHECK_SIZEOF(long, 4)
 AC_CHECK_SIZEOF(long long, 8)
 AC_CHECK_SIZEOF(long double, 12)
 
-dnl Switch to C++ language mode for the following libraries and headers:
+dnl Switch to C++ language mode for the following libraries and headers.
 AC_LANG_CPLUSPLUS
 
-dnl Check for stuff needed for building the GiNaC interactive shell (ginsh):
+dnl Check for stuff needed for building the GiNaC interactive shell (ginsh).
 AC_CHECK_HEADERS(unistd.h)
 AC_CHECK_HEADERS(readline/readline.h readline/history.h)
 save_LIBS=$LIBS
