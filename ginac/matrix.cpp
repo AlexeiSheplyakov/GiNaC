@@ -381,6 +381,41 @@ ex matrix::eval_indexed(const basic & i) const
 	return i.hold();
 }
 
+/** Sum of two indexed matrices. */
+ex matrix::add_indexed(const ex & self, const ex & other) const
+{
+	GINAC_ASSERT(is_ex_of_type(self, indexed));
+	GINAC_ASSERT(is_ex_of_type(other, indexed));
+	GINAC_ASSERT(self.nops() == 2 || self.nops() == 3);
+
+	// Only add two matrices
+	if (is_ex_of_type(other.op(0), matrix)) {
+		GINAC_ASSERT(other.nops() == 2 || other.nops() == 3);
+
+		const matrix &self_matrix = ex_to_matrix(self.op(0));
+		const matrix &other_matrix = ex_to_matrix(other.op(0));
+
+		if (self.nops() == 2 && other.nops() == 2) { // vector + vector
+
+			if (self_matrix.row == other_matrix.row)
+				return indexed(self_matrix.add(other_matrix), self.op(1));
+			else if (self_matrix.row == other_matrix.col)
+				return indexed(self_matrix.add(other_matrix.transpose()), self.op(1));
+
+		} else if (self.nops() == 3 && other.nops() == 3) { // matrix + matrix
+
+			if (self.op(1).is_equal(other.op(1)) && self.op(2).is_equal(other.op(2)))
+				return indexed(self_matrix.add(other_matrix), self.op(1), self.op(2));
+			else if (self.op(1).is_equal(other.op(2)) && self.op(2).is_equal(other.op(1)))
+				return indexed(self_matrix.add(other_matrix.transpose()), self.op(1), self.op(2));
+
+		}
+	}
+
+	// Don't know what to do, return unevaluated sum
+	return self + other;
+}
+
 /** Contraction of an indexed matrix with something else. */
 bool matrix::contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const
 {

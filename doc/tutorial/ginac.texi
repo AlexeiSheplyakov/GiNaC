@@ -1724,7 +1724,8 @@ tensor).
 @subsection Linear algebra
 
 The @code{matrix} class can be used with indices to do some simple linear
-algebra (products of vectors and matrices, traces and scalar products):
+algebra (sums and products of vectors and matrices, traces and scalar
+products):
 
 @example
 @{
@@ -1743,20 +1744,20 @@ algebra (products of vectors and matrices, traces and scalar products):
     cout << e.simplify_indexed() << endl;
      // -> [[ [[2*y+x]], [[4*y+3*x]] ]].i
 
-    e = indexed(A, i, j) * indexed(X, i);
+    e = indexed(A, i, j) * indexed(X, i) + indexed(X, j);
     cout << e.simplify_indexed() << endl;
-     // -> [[ [[3*y+x,4*y+2*x]] ]].j
+     // -> [[ [[3*y+2*x,5*y+2*x]] ]].j
 @}
 @end example
 
-You can of course obtain the same results with the @code{matrix::mul()}
-and @code{matrix::trace()} methods but with indices you don't have to
-worry about transposing matrices.
+You can of course obtain the same results with the @code{matrix::add()},
+@code{matrix::mul()} and @code{matrix::trace()} methods but with indices you
+don't have to worry about transposing matrices.
 
 Matrix indices always start at 0 and their dimension must match the number
 of rows/columns of the matrix. Matrices with one row or one column are
 vectors and can have one or two indices (it doesn't matter whether it's a
-row or a columnt vector). Other matrices must have two indices.
+row or a column vector). Other matrices must have two indices.
 
 You should be careful when using indices with variance on matrices. GiNaC
 doesn't look at the variance and doesn't know that @samp{F~mu~nu} and

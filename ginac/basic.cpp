@@ -297,16 +297,31 @@ ex basic::eval_indexed(const basic & i) const
 	return i.hold();
 }
 
+/** Add two indexed expressions. They are guaranteed to be of class indexed
+ *  (or a subclass) and their indices are compatible. This function is used
+ *  internally by simplify_indexed().
+ *
+ *  @param self First indexed expression; it's base object is *this
+ *  @param other Second indexed expression
+ *  @return sum of self and other 
+ *  @see ex::simplify_indexed() */
+ex basic::add_indexed(const ex & self, const ex & other) const
+{
+	return self + other;
+}
+
 /** Try to contract two indexed expressions that appear in the same product. 
  *  If a contraction exists, the function overwrites one or both of the
  *  expressions and returns true. Otherwise it returns false. It is
  *  guaranteed that both expressions are of class indexed (or a subclass)
- *  and that at least one dummy index has been found.
+ *  and that at least one dummy index has been found. This functions is
+ *  used internally by simplify_indexed().
  *
  *  @param self Pointer to first indexed expression; it's base object is *this
  *  @param other Pointer to second indexed expression
  *  @param v The complete vector of factors
- *  @return true if the contraction was successful, false otherwise */
+ *  @return true if the contraction was successful, false otherwise
+ *  @see ex::simplify_indexed() */
 bool basic::contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const
 {
 	// Do nothing
