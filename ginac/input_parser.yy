@@ -57,7 +57,7 @@ ex attach_index(const ex & base, ex i, bool covariant);
 
 /* Tokens (T_LITERAL means a literal value returned by the parser, but not
    of class numeric or symbol (e.g. a constant or the FAIL object)) */
-%token T_NUMBER T_SYMBOL T_LITERAL T_DIGITS T_EQUAL T_NOTEQ T_LESSEQ T_GREATEREQ
+%token T_EOF T_NUMBER T_SYMBOL T_LITERAL T_DIGITS T_EQUAL T_NOTEQ T_LESSEQ T_GREATEREQ
 
 /* Operator precedence and associativity */
 %right '='
@@ -78,7 +78,7 @@ ex attach_index(const ex & base, ex i, bool covariant);
  */
 
 %%
-input	: exp {
+input	: exp T_EOF {
 		try {
 			parsed_ex = $1;
 			YYACCEPT;
@@ -87,7 +87,6 @@ input	: exp {
 			YYERROR;
 		}
 	}
-	| error		{yyclearin; yyerrok;}
 	;
 
 exp	: T_NUMBER		{$$ = $1;}

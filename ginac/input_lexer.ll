@@ -87,7 +87,7 @@ AN	[0-9a-zA-Z_]
  */
 
 %%
-[ \t]+			/* skip whitespace */
+[ \t\n]+		/* skip whitespace */
 
 			/* special values */
 Pi			ginac_yylval = Pi; return T_LITERAL;
@@ -122,6 +122,9 @@ Digits			ginac_yylval = (long)Digits; return T_DIGITS;
 					ginac_yylval = (*i).second.sym;
 				return T_SYMBOL;
 			}
+
+			/* end of input */
+<<EOF>>			return T_EOF;
 
 			/* everything else */
 .			return *yytext;
