@@ -197,7 +197,7 @@ numeric::numeric(long numer, long denom) : basic(TINFO_numeric)
 {
     debugmsg("numeric constructor from long/long",LOGLEVEL_CONSTRUCT);
     if (!denom)
-        throw (std::overflow_error("division by zero"));
+        throw std::overflow_error("division by zero");
     value = new ::cl_I(numer);
     *value = *value / ::cl_I(denom);
     calchash();
@@ -716,7 +716,7 @@ numeric numeric::mul(const numeric & other) const
 numeric numeric::div(const numeric & other) const
 {
     if (::zerop(*other.value))
-        throw (std::overflow_error("division by zero"));
+        throw std::overflow_error("division by zero");
     return numeric((*value)/(*other.value));
 }
 
@@ -727,11 +727,11 @@ numeric numeric::power(const numeric & other) const
         return *this;
     if (::zerop(*value)) {
         if (::zerop(*other.value))
-            throw (std::domain_error("numeric::eval(): pow(0,0) is undefined"));
+            throw std::domain_error("numeric::eval(): pow(0,0) is undefined");
         else if (::zerop(::realpart(*other.value)))
-            throw (std::domain_error("numeric::eval(): pow(0,I) is undefined"));
+            throw std::domain_error("numeric::eval(): pow(0,I) is undefined");
         else if (::minusp(::realpart(*other.value)))
-            throw (std::overflow_error("numeric::eval(): division by zero"));
+            throw std::overflow_error("numeric::eval(): division by zero");
         else
             return _num0();
     }
@@ -771,7 +771,7 @@ const numeric & numeric::mul_dyn(const numeric & other) const
 const numeric & numeric::div_dyn(const numeric & other) const
 {
     if (::zerop(*other.value))
-        throw (std::overflow_error("division by zero"));
+        throw std::overflow_error("division by zero");
     return static_cast<const numeric &>((new numeric((*value)/(*other.value)))->
                                         setflag(status_flags::dynallocated));
 }
@@ -783,11 +783,11 @@ const numeric & numeric::power_dyn(const numeric & other) const
         return *this;
     if (::zerop(*value)) {
         if (::zerop(*other.value))
-            throw (std::domain_error("numeric::eval(): pow(0,0) is undefined"));
+            throw std::domain_error("numeric::eval(): pow(0,0) is undefined");
         else if (::zerop(::realpart(*other.value)))
-            throw (std::domain_error("numeric::eval(): pow(0,I) is undefined"));
+            throw std::domain_error("numeric::eval(): pow(0,I) is undefined");
         else if (::minusp(::realpart(*other.value)))
-            throw (std::overflow_error("numeric::eval(): division by zero"));
+            throw std::overflow_error("numeric::eval(): division by zero");
         else
             return _num0();
     }
@@ -993,7 +993,7 @@ bool numeric::operator<(const numeric & other) const
 {
     if (this->is_real() && other.is_real())
         return (The(::cl_R)(*value) < The(::cl_R)(*other.value));  // -> CLN
-    throw (std::invalid_argument("numeric::operator<(): complex inequality"));
+    throw std::invalid_argument("numeric::operator<(): complex inequality");
     return false;  // make compiler shut up
 }
 
@@ -1004,7 +1004,7 @@ bool numeric::operator<=(const numeric & other) const
 {
     if (this->is_real() && other.is_real())
         return (The(::cl_R)(*value) <= The(::cl_R)(*other.value));  // -> CLN
-    throw (std::invalid_argument("numeric::operator<=(): complex inequality"));
+    throw std::invalid_argument("numeric::operator<=(): complex inequality");
     return false;  // make compiler shut up
 }
 
@@ -1015,7 +1015,7 @@ bool numeric::operator>(const numeric & other) const
 {
     if (this->is_real() && other.is_real())
         return (The(::cl_R)(*value) > The(::cl_R)(*other.value));  // -> CLN
-    throw (std::invalid_argument("numeric::operator>(): complex inequality"));
+    throw std::invalid_argument("numeric::operator>(): complex inequality");
     return false;  // make compiler shut up
 }
 
@@ -1026,7 +1026,7 @@ bool numeric::operator>=(const numeric & other) const
 {
     if (this->is_real() && other.is_real())
         return (The(::cl_R)(*value) >= The(::cl_R)(*other.value));  // -> CLN
-    throw (std::invalid_argument("numeric::operator>=(): complex inequality"));
+    throw std::invalid_argument("numeric::operator>=(): complex inequality");
     return false;  // make compiler shut up
 }
 
@@ -1225,11 +1225,11 @@ const numeric exp(const numeric & x)
  *
  *  @param z complex number
  *  @return  arbitrary precision numerical log(x).
- *  @exception overflow_error (logarithmic singularity) */
+ *  @exception pole_error("log(): logarithmic pole",0) */
 const numeric log(const numeric & z)
 {
     if (z.is_zero())
-        throw (std::overflow_error("log(): logarithmic singularity"));
+        throw pole_error("log(): logarithmic pole",0);
     return ::log(*z.value);  // -> CLN
 }
 
@@ -1283,13 +1283,13 @@ const numeric acos(const numeric & x)
  *
  *  @param z complex number
  *  @return atan(z)
- *  @exception overflow_error (logarithmic singularity) */
+ *  @exception pole_error("atan(): logarithmic pole",0) */
 const numeric atan(const numeric & x)
 {
     if (!x.is_real() &&
         x.real().is_zero() &&
-        !abs(x.imag()).is_equal(_num1()))
-        throw (std::overflow_error("atan(): logarithmic singularity"));
+        abs(x.imag()).is_equal(_num1()))
+        throw pole_error("atan(): logarithmic pole",0);
     return ::atan(*x.value);  // -> CLN
 }
 
@@ -1304,7 +1304,7 @@ const numeric atan(const numeric & y, const numeric & x)
     if (x.is_real() && y.is_real())
         return ::atan(::realpart(*x.value), ::realpart(*y.value));  // -> CLN
     else
-        throw (std::invalid_argument("numeric::atan(): complex argument"));        
+        throw std::invalid_argument("atan(): complex argument");        
 }
 
 
@@ -1530,7 +1530,7 @@ const numeric psi(const numeric & n, const numeric & x)
 const numeric factorial(const numeric & n)
 {
     if (!n.is_nonneg_integer())
-        throw (std::range_error("numeric::factorial(): argument must be integer >= 0"));
+        throw std::range_error("numeric::factorial(): argument must be integer >= 0");
     return numeric(::factorial(n.to_int()));  // -> CLN
 }
 
@@ -1547,7 +1547,7 @@ const numeric doublefactorial(const numeric & n)
         return _num1();
     }
     if (!n.is_nonneg_integer()) {
-        throw (std::range_error("numeric::doublefactorial(): argument must be integer >= -1"));
+        throw std::range_error("numeric::doublefactorial(): argument must be integer >= -1");
     }
     return numeric(::doublefactorial(n.to_int()));  // -> CLN
 }
@@ -1571,7 +1571,7 @@ const numeric binomial(const numeric & n, const numeric & k)
     }
     
     // should really be gamma(n+1)/gamma(r+1)/gamma(n-r+1) or a suitable limit
-    throw (std::range_error("numeric::binomial(): don´t know how to evaluate that."));
+    throw std::range_error("numeric::binomial(): don´t know how to evaluate that.");
 }
 
 
@@ -1583,7 +1583,7 @@ const numeric binomial(const numeric & n, const numeric & k)
 const numeric bernoulli(const numeric & nn)
 {
     if (!nn.is_integer() || nn.is_negative())
-        throw (std::range_error("numeric::bernoulli(): argument must be integer >= 0"));
+        throw std::range_error("numeric::bernoulli(): argument must be integer >= 0");
     
     // Method:
     //
@@ -1660,7 +1660,7 @@ const numeric bernoulli(const numeric & nn)
 const numeric fibonacci(const numeric & n)
 {
     if (!n.is_integer())
-        throw (std::range_error("numeric::fibonacci(): argument must be integer"));
+        throw std::range_error("numeric::fibonacci(): argument must be integer");
     // Method:
     //
     // This is based on an implementation that can be found in CLN's example
