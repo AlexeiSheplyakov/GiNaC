@@ -104,9 +104,10 @@ YACC = @YACC@
 
 bin_PROGRAMS = ginaccint.bin
 bin_SCRIPTS = ginaccint
-# noinst_LTLIBRARIES = ../ginac/libginac.la
 ginaccint_bin_SOURCES = ginaccint.bin.cpp
 man_MANS = ginaccint.1
+
+EXTRA_DIST = $(man_MANS)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES =  ginaccint

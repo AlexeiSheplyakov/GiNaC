@@ -2,12 +2,13 @@
 
 bin_PROGRAMS = ginaccint.bin
 bin_SCRIPTS = ginaccint
-# noinst_LTLIBRARIES = ../ginac/libginac.la
 ginaccint_bin_SOURCES = ginaccint.bin.cpp
 man_MANS = ginaccint.1
 
 ginaccint.bin: ginaccint.bin.cpp
 	(export CINTSYSDIR=$(CINTSYSDIR); $(MAKE) -f Makefile.makecint PATH=$(PATH):$(CINTSYSDIR))
+
+EXTRA_DIST = $(man_MANS)
 
 # Force targets clean and distclean to call Makecint's own Makefile
 makecint_clean:
