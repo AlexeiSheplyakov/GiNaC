@@ -839,6 +839,8 @@ ex power::expand_mul(const mul & m, const numeric & n) const
 
 	epvector distrseq;
 	distrseq.reserve(m.seq.size());
+	bool need_reexpand = false;
+
 	epvector::const_iterator last = m.seq.end();
 	epvector::const_iterator cit = m.seq.begin();
 	while (cit!=last) {
@@ -847,11 +849,22 @@ ex power::expand_mul(const mul & m, const numeric & n) const
 		} else {
 			// it is safe not to call mul::combine_pair_with_coeff_to_pair()
 			// since n is an integer
-			distrseq.push_back(expair(cit->rest, ex_to<numeric>(cit->coeff).mul(n)));
+			numeric new_coeff = ex_to<numeric>(cit->coeff).mul(n);
+			if (is_exactly_a<add>(cit->rest) && new_coeff.is_pos_integer()) {
+				// this happens when e.g. (a+b)^(1/2) gets squared and
+				// the resulting product needs to be reexpanded
+				need_reexpand = true;
+			}
+			distrseq.push_back(expair(cit->rest, new_coeff));
 		}
 		++cit;
 	}
-	return (new mul(distrseq, ex_to<numeric>(m.overall_coeff).power_dyn(n)))->setflag(status_flags::dynallocated);
+
+	const mul & result = static_cast<const mul &>((new mul(distrseq, ex_to<numeric>(m.overall_coeff).power_dyn(n)))->setflag(status_flags::dynallocated));
+	if (need_reexpand)
+		return ex(result).expand();
+	else
+		return result.setflag(status_flags::expanded);
 }
 
 } // namespace GiNaC

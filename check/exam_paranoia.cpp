@@ -370,6 +370,41 @@ static unsigned exam_paranoia15()
 	return result;
 }
 
+// Expanding products containing powers of sums could return results that
+// were not fully expanded. Fixed on Dec 10, 2003.
+static unsigned exam_paranoia16()
+{
+	unsigned result = 0;
+	symbol a("a"), b("b"), c("c"), d("d");
+	ex e1, e2, e3;
+
+	e1 = pow(1+a*sqrt(b+c), 2);
+	e2 = e1.expand();
+
+	if (e2.has(pow(a, 2)*(b+c))) {
+		clog << "expand(" << e1 << ") didn't fully expand\n";
+		++result;
+	}
+
+	e1 = (d*sqrt(a+b)+a*sqrt(c+d))*(b*sqrt(a+b)+a*sqrt(c+d));
+	e2 = e1.expand();
+
+	if (e2.has(pow(a, 2)*(c+d))) {
+		clog << "expand(" << e1 << ") didn't fully expand\n";
+		++result;
+	}
+
+	e1 = (a+sqrt(b+c))*sqrt(b+c)*(d+sqrt(b+c));
+	e2 = e1.expand();
+
+	if (e2.has(a*(b+c))) {
+		clog << "expand(" << e1 << ") didn't fully expand\n";
+		++result;
+	}
+
+	return result;
+}
+
 unsigned exam_paranoia()
 {
 	unsigned result = 0;
@@ -392,6 +427,7 @@ unsigned exam_paranoia()
 	result += exam_paranoia13();  cout << '.' << flush;
 	result += exam_paranoia14();  cout << '.' << flush;
 	result += exam_paranoia15();  cout << '.' << flush;
+	result += exam_paranoia16();  cout << '.' << flush;
 	
 	if (!result) {
 		cout << " passed " << endl;
