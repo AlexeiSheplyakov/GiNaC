@@ -57,7 +57,7 @@ DISABLE_INDEX        = NO
 # If the EXTRACT_ALL tag is set to YES all classes and functions will be
 # included in the documentation, even if no documentation was available.
 
-EXTRACT_ALL          = NO
+EXTRACT_ALL          = YES
 
 # If the EXTRACT_PRIVATE tag is set to YES all private members of a class
 # will be included in the documentation.
@@ -142,7 +142,7 @@ CASE_SENSE_NAMES     = YES
 # will generate a verbatim copy of the header file for each class for
 # which an include is specified. Set to NO to disable this.
 
-VERBATIM_HEADERS     = YES
+VERBATIM_HEADERS     = NO
 
 # If the JAVADOC_AUTOBRIEF tag is set to YES (the default) then Doxygen
 # will interpret the first line (until the first dot) of a JavaDoc-style
@@ -282,7 +282,7 @@ GENERATE_HTMLHELP    = NO
 # of all compounds will be generated. Enable this if the project
 # contains a lot of classes, structs, unions or interfaces.
 
-ALPHABETICAL_INDEX   = NO
+ALPHABETICAL_INDEX   = YES
 
 # If the alphabetical index is enabled (see ALPHABETICAL_INDEX) then
 # the COLS_IN_ALPHA_INDEX tag can be used to specify the number of columns
@@ -389,7 +389,7 @@ INCLUDE_PATH         =
 # or name=definition (no spaces). If the definition and the = are 
 # omitted =1 is assumed.
 
-PREDEFINED           =
+PREDEFINED           = NO_GINAC_NAMESPACE
 
 # If the EXPAND_ONLY_PREDEF and MACRO_EXPANSION tags are both set to YES
 # then the macro expansion is limited to the macros specified with the
