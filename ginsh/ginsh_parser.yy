@@ -125,15 +125,15 @@ line	: ';'
 		try {
 			push($1);
 		} catch (exception &e) {
-			cerr << e.what() << endl;
+			std::cerr << e.what() << endl;
 			YYERROR;
 		}
 	}
 	| T_PRINT '(' exp ')' ';' {
 		try {
-			$3.printtree(cout);
+			$3.print(print_tree(std::cout));
 		} catch (exception &e) {
-			cerr << e.what() << endl;
+			std::cerr << e.what() << endl;
 			YYERROR;
 		}
 	}
