@@ -153,7 +153,8 @@ numeric::numeric(int i) : basic(TINFO_numeric)
     // emphasizes efficiency:
     value = new ::cl_I((long) i);
     calchash();
-    setflag(status_flags::evaluated|
+    setflag(status_flags::evaluated |
+            status_flags::expanded |
             status_flags::hash_calculated);
 }
 
@@ -166,7 +167,8 @@ numeric::numeric(unsigned int i) : basic(TINFO_numeric)
     // emphasizes efficiency:
     value = new ::cl_I((unsigned long)i);
     calchash();
-    setflag(status_flags::evaluated|
+    setflag(status_flags::evaluated |
+            status_flags::expanded |
             status_flags::hash_calculated);
 }
 
@@ -176,7 +178,8 @@ numeric::numeric(long i) : basic(TINFO_numeric)
     debugmsg("numeric constructor from long",LOGLEVEL_CONSTRUCT);
     value = new ::cl_I(i);
     calchash();
-    setflag(status_flags::evaluated|
+    setflag(status_flags::evaluated |
+            status_flags::expanded |
             status_flags::hash_calculated);
 }
 
@@ -186,7 +189,8 @@ numeric::numeric(unsigned long i) : basic(TINFO_numeric)
     debugmsg("numeric constructor from ulong",LOGLEVEL_CONSTRUCT);
     value = new ::cl_I(i);
     calchash();
-    setflag(status_flags::evaluated|
+    setflag(status_flags::evaluated |
+            status_flags::expanded |
             status_flags::hash_calculated);
 }
 
@@ -201,7 +205,8 @@ numeric::numeric(long numer, long denom) : basic(TINFO_numeric)
     value = new ::cl_I(numer);
     *value = *value / ::cl_I(denom);
     calchash();
-    setflag(status_flags::evaluated|
+    setflag(status_flags::evaluated |
+            status_flags::expanded |
             status_flags::hash_calculated);
 }
 
@@ -215,7 +220,8 @@ numeric::numeric(double d) : basic(TINFO_numeric)
     value = new cl_N;
     *value = cl_float(d, cl_default_float_format);
     calchash();
-    setflag(status_flags::evaluated|
+    setflag(status_flags::evaluated |
+            status_flags::expanded |
             status_flags::hash_calculated);
 }
 
@@ -286,7 +292,8 @@ numeric::numeric(const cl_N & z) : basic(TINFO_numeric)
     debugmsg("numeric constructor from cl_N", LOGLEVEL_CONSTRUCT);
     value = new ::cl_N(z);
     calchash();
-    setflag(status_flags::evaluated|
+    setflag(status_flags::evaluated |
+            status_flags::expanded |
             status_flags::hash_calculated);
 }
 
@@ -329,7 +336,8 @@ numeric::numeric(const archive_node &n, const lst &sym_lst) : inherited(n, sym_l
         }
     }
     calchash();
-    setflag(status_flags::evaluated|
+    setflag(status_flags::evaluated |
+            status_flags::expanded |
             status_flags::hash_calculated);
 }
 

@@ -2411,7 +2411,7 @@ enough to know how to differentiate.  But if the function you want to
 implement does have a pole somewhere in the complex plane, you need to
 write another method for Laurent expansion around that point.
 
-Now that all the ingrediences for @code{cos} have been set up, we need
+Now that all the ingredients for @code{cos} have been set up, we need
 to tell the system about it.  This is done by a macro and we are not
 going to descibe how it expands, please consult your preprocessor if you
 are curious:

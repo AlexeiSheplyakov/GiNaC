@@ -67,40 +67,19 @@ static unsigned exam_differentiation1(void)
     e = (e1 * e2).expand();
     
     // d e / dx:
-    d = 121 - 55*pow(x,-2) - 66*pow(x,-3) - 30*pow(x,-3)*pow(y,-2)
-        - 42*pow(x,-3)*pow(y,-1) - 78*pow(x,-3)*y
-        - 102*pow(x,-3)*pow(y,2) - 25*pow(x,-2) * pow(y,-2)
-        - 35*pow(x,-2)*pow(y,-1) - 65*pow(x,-2)*y
-        - 85*pow(x,-2)*pow(y,2) + 77*pow(y,-1) + 143*y + 187*pow(y,2)
-        + 130*x*pow(y,-2) + 182*pow(y,-1)*x + 338*x*y + 442*x*pow(y,2)
-        + 55*pow(y,-2) + 286*x;
+    d = ex("121-55/x^2-66/x^3-30/x^3/y^2-42/x^3/y-78/x^3*y-102/x^3*y^2-25/x^2/y^2-35/x^2/y-65/x^2*y-85/x^2*y^2+77/y+143*y+187*y^2+130*x/y^2+182/y*x+338*x*y+442*x*y^2+55/y^2+286*x",lst(x,y));
     result += check_diff(e, x, d);
     
     // d e / dy:
-    d = 91 - 30*pow(x,-2)*pow(y,-3) - 21*pow(x,-2)*pow(y,-2)
-        + 39*pow(x,-2) + 102*pow(x,-2)*y - 50*pow(x,-1)*pow(y,-3)
-        - 35*pow(x,-1)*pow(y,-2) + 65*pow(x,-1) + 170*pow(x,-1)*y
-        - 77*pow(y,-2)*x + 143*x + 374*x*y - 130*pow(y,-3)*pow(x,2)
-        - 91*pow(y,-2)*pow(x,2) + 169*pow(x,2) + 442*pow(x,2)*y
-        - 110*pow(y,-3)*x - 70*pow(y,-3) + 238*y - 49*pow(y,-2);
+    d = ex("91-30/x^2/y^3-21/x^2/y^2+39/x^2+102/x^2*y-50/x/y^3-35/x/y^2+65/x+170/x*y-77*x/y^2+143*x+374*x*y-130/y^3*x^2-91/y^2*x^2+169*x^2+442*x^2*y-110/y^3*x-70/y^3+238*y-49/y^2",lst(x,y));
     result += check_diff(e, y, d);
     
     // d^2 e / dx^2:
-    d = 286 + 90*pow(x,-4)*pow(y,-2) + 126*pow(x,-4)*pow(y,-1)
-        + 234*pow(x,-4)*y + 306*pow(x,-4)*pow(y,2)
-        + 50*pow(x,-3)*pow(y,-2) + 70*pow(x,-3)*pow(y,-1)
-        + 130*pow(x,-3)*y + 170*pow(x,-3)*pow(y,2)
-        + 130*pow(y,-2) + 182*pow(y,-1) + 338*y + 442*pow(y,2)
-        + 198*pow(x,-4) + 110*pow(x,-3);
+    d = ex("286+90/x^4/y^2+126/x^4/y+234/x^4*y+306/x^4*y^2+50/x^3/y^2+70/x^3/y+130/x^3*y+170/x^3*y^2+130/y^2+182/y+338*y+442*y^2+198/x^4+110/x^3",lst(x,y));
     result += check_diff(e, x, d, 2);
     
     // d^2 e / dy^2:
-    d = 238 + 90*pow(x,-2)*pow(y,-4) + 42*pow(x,-2)*pow(y,-3)
-        + 102*pow(x,-2) + 150*pow(x,-1)*pow(y,-4)
-        + 70*pow(x,-1)*pow(y,-3) + 170*pow(x,-1) + 330*x*pow(y,-4)
-        + 154*x*pow(y,-3) + 374*x + 390*pow(x,2)*pow(y,-4)
-        + 182*pow(x,2)*pow(y,-3) + 442*pow(x,2) + 210*pow(y,-4)
-        + 98*pow(y,-3);
+    d = ex("238+90/x^2/y^4+42/x^2/y^3+102/x^2+150/x/y^4+70/x/y^3+170/x+330*x/y^4+154*x/y^3+374*x+390*x^2/y^4+182*x^2/y^3+442*x^2+210/y^4+98/y^3",lst(x,y));
     result += check_diff(e, y, d, 2);
     
     return result;

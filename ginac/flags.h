@@ -43,7 +43,17 @@ class determinant_algo {
 public:
     enum { automatic,
            gauss,
+           divfree,
            laplace,
+           bareiss
+         };
+};
+
+class solve_algo {
+public:
+    enum { automatic,
+           gauss,
+           divfree,
            bareiss
          };
 };

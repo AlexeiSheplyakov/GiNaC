@@ -580,8 +580,8 @@ void archive_node::printraw(std::ostream &os) const
 	}
 }
 
-/** Create a dummy archive.  The intention is to fill archive_node's default ctor,
- *  which is currently a Cint-requirement. */
+/** Create a dummy archive.  The intention is to fill archive_node's default
+ *  ctor, which is currently a Cint-requirement. */
 archive* archive_node::dummy_ar_creator(void)
 {
     static archive* some_ar = new archive;

@@ -31,20 +31,23 @@
 static unsigned expand_subs(unsigned size)
 {
     unsigned result = 0;
-    symbol a1("a1");
-    symbol a[VECSIZE];
+    // create a vector of size symbols named "a0", "a1", ...
+    vector<symbol> a;
+    for (unsigned i=0; i<size; ++i) {
+        char buf[4];
+        ostrstream(buf,sizeof(buf)) << i << ends;
+        a.push_back(symbol(string("a")+buf));
+    }
     ex e, aux;
     
-    a[1] = a1;
-    for (unsigned i=0; i<size; ++i) {
+    for (unsigned i=0; i<size; ++i)
         e = e + a[i];
-    }
     
     // prepare aux so it will swallow anything but a1^2:
     aux = -e + a[0] + a[1];
-    e = expand(subs(expand(pow(e, 2)), a[0] == aux));
+    e = pow(e,2).expand().subs(a[0]==aux).expand();
     
-    if (e != pow(a1,2)) {
+    if (e != pow(a[1],2)) {
         clog << "Denny Fliegner's quick consistency check erroneously returned "
              << e << "." << endl;
         ++result;

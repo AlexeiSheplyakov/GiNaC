@@ -86,8 +86,8 @@ static unsigned exam_lsolve2b(void)
     ex sol_y = sol.op(1).rhs();  // rhs of solution for second variable (y)
     
     // It should have returned [x==43/17,y==-10/17]
-    if (!(sol_x - numeric(43,17)).is_zero() ||
-        !(sol_y - numeric(-10,17)).is_zero()) {
+    if ((sol_x != numeric(43,17)) ||
+        (sol_y != numeric(-10,17))) {
         ++result;
         clog << "solution of the system " << eqns << " for " << vars
              << " erroneously returned " << sol << endl;
@@ -114,8 +114,8 @@ static unsigned exam_lsolve2c(void)
     ex sol_y = sol.op(1).rhs();  // rhs of solution for second variable (y)
     
     // It should have returned [x==-3/2*I,y==-1/2]
-    if (!(sol_x - numeric(-3,2)*I).is_zero() ||
-        !(sol_y - numeric(-1,2)).is_zero()) {
+    if ((sol_x != numeric(-3,2)*I) ||
+        (sol_y != numeric(-1,2))) {
         ++result;
         clog << "solution of the system " << eqns << " for " << vars
              << " erroneously returned " << sol << endl;
@@ -142,8 +142,39 @@ static unsigned exam_lsolve2S(void)
     ex sol_y = sol.op(1).rhs();  // rhs of solution for second variable (y)
     
     // It should have returned [x==x,y==t]
-    if (!(sol_x - x).is_zero() ||
-        !(sol_y - t).is_zero()) {
+    if ((sol_x != x) ||
+        (sol_y != t)) {
+        ++result;
+        clog << "solution of the system " << eqns << " for " << vars
+             << " erroneously returned " << sol << endl;
+    }
+    
+    return result;
+}
+
+static unsigned exam_lsolve3S(void)
+{
+    // A degenerate example that went wrong while trying to improve elimination
+    unsigned result = 0;
+    symbol b("b"), c("c");
+    symbol x("x"), y("y"), z("z");
+    lst eqns, vars;
+    ex sol;
+    
+    // Create the linear system [y+z==b,-y+z==c] with one additional row...
+    eqns.append(ex(0)==ex(0)).append(b==z+y).append(c==z-y);
+    // ...to be solved for [x,y,z]...
+    vars.append(x).append(y).append(z);
+    // ...and solve it:
+    sol = lsolve(eqns, vars);
+    ex sol_x = sol.op(0).rhs();  // rhs of solution for first variable (x)
+    ex sol_y = sol.op(1).rhs();  // rhs of solution for second variable (y)
+    ex sol_z = sol.op(2).rhs();  // rhs of solution for third variable (z)
+    
+    // It should have returned [x==x,y==t,]
+    if ((sol_x != x) ||
+        (sol_y != (b-c)/2) ||
+        (sol_z != (b+c)/2)) {
         ++result;
         clog << "solution of the system " << eqns << " for " << vars
              << " erroneously returned " << sol << endl;
@@ -164,6 +195,7 @@ unsigned exam_lsolve(void)
     result += exam_lsolve2b();  cout << '.' << flush;
     result += exam_lsolve2c();  cout << '.' << flush;
     result += exam_lsolve2S();  cout << '.' << flush;
+    result += exam_lsolve3S();  cout << '.' << flush;
     
     if (!result) {
         cout << " passed " << endl;

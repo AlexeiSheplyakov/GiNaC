@@ -433,7 +433,7 @@ ex lsolve(const ex &eqns, const ex &symbols)
     // solve a system of linear equations
     if (eqns.info(info_flags::relation_equal)) {
         if (!symbols.info(info_flags::symbol))
-            throw(std::invalid_argument("lsolve: 2nd argument must be a symbol"));
+            throw(std::invalid_argument("lsolve(): 2nd argument must be a symbol"));
         ex sol=lsolve(lst(eqns),lst(symbols));
         
         GINAC_ASSERT(sol.nops()==1);
@@ -444,19 +444,19 @@ ex lsolve(const ex &eqns, const ex &symbols)
     
     // syntax checks
     if (!eqns.info(info_flags::list)) {
-        throw(std::invalid_argument("lsolve: 1st argument must be a list"));
+        throw(std::invalid_argument("lsolve(): 1st argument must be a list"));
     }
     for (unsigned i=0; i<eqns.nops(); i++) {
         if (!eqns.op(i).info(info_flags::relation_equal)) {
-            throw(std::invalid_argument("lsolve: 1st argument must be a list of equations"));
+            throw(std::invalid_argument("lsolve(): 1st argument must be a list of equations"));
         }
     }
     if (!symbols.info(info_flags::list)) {
-        throw(std::invalid_argument("lsolve: 2nd argument must be a list"));
+        throw(std::invalid_argument("lsolve(): 2nd argument must be a list"));
     }
     for (unsigned i=0; i<symbols.nops(); i++) {
         if (!symbols.op(i).info(info_flags::symbol)) {
-            throw(std::invalid_argument("lsolve: 2nd argument must be a list of symbols"));
+            throw(std::invalid_argument("lsolve(): 2nd argument must be a list of symbols"));
         }
     }
     
@@ -473,7 +473,7 @@ ex lsolve(const ex &eqns, const ex &symbols)
             linpart -= co*symbols.op(c);
             sys.set(r,c,co);
         }
-        linpart=linpart.expand();
+        linpart = linpart.expand();
         rhs.set(r,0,-linpart);
     }
     
@@ -486,32 +486,21 @@ ex lsolve(const ex &eqns, const ex &symbols)
             throw(std::logic_error("lsolve: system is not linear"));
     }
     
-    //matrix solution=sys.solve(rhs);
     matrix solution;
     try {
-        solution = sys.fraction_free_elim(vars,rhs);
+        solution = sys.solve(vars,rhs);
     } catch (const runtime_error & e) {
-        // probably singular matrix (or other error)
-        // return empty solution list
-        // cerr << e.what() << endl;
+        // Probably singular matrix or otherwise overdetermined system:
+        // It is consistent to return an empty list
         return lst();
-    }
+    }    
+    GINAC_ASSERT(solution.cols()==1);
+    GINAC_ASSERT(solution.rows()==symbols.nops());
     
-    // return a list of equations
-    if (solution.cols()!=1) {
-        throw(std::runtime_error("lsolve: strange number of columns returned from matrix::solve"));
-    }
-    if (solution.rows()!=symbols.nops()) {
-        cout << "symbols.nops()=" << symbols.nops() << endl;
-        cout << "solution.rows()=" << solution.rows() << endl;
-        throw(std::runtime_error("lsolve: strange number of rows returned from matrix::solve"));
-    }
-    
-    // return list of the form lst(var1==sol1,var2==sol2,...)
+    // return list of equations of the form lst(var1==sol1,var2==sol2,...)
     lst sollist;
-    for (unsigned i=0; i<symbols.nops(); i++) {
+    for (unsigned i=0; i<symbols.nops(); i++)
         sollist.append(symbols.op(i)==solution(i,0));
-    }
     
     return sollist;
 }

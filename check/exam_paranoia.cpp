@@ -318,15 +318,21 @@ static unsigned exam_paranoia13(void)
 {
     unsigned result = 0;
 	symbol a("a"), b("b"), c("c");
-
+    
 	ex e = (b*a-c*a)/(4-a);
-	ex f = e.normal();
 	ex d = (c*a-b*a)/(a-4);
-
-	if (!(f - d).expand().is_zero()) {
-		clog << "normal(" << e << ") returns " << f << " instead of " << d << endl;
-		++result;
-	}
+    
+    try {
+        ex f = e.normal();    
+        if (!(f - d).expand().is_zero()) {
+            clog << "normal(" << e << ") returns " << f
+                 << " instead of " << d << endl;
+            ++result;
+        }
+    } catch (const exception &err) {
+        clog << "normal(" << e << ") throws " << err.what() << endl;
+        ++result;
+    }
 	return result;
 }
 

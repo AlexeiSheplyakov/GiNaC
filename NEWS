@@ -1,5 +1,12 @@
 This file records noteworthy changes.
 
+0.6.4 (10 August 2000)
+* Complete revamp of methods in class matrix.  Some redundant (and poor)
+  implementations of elimination schemes were thrown out.  The code is now
+  highly orthogonal, more flexible and much more efficient.
+* Some long standing and quite nasty bugs were discovered and fixed in the
+  following functions: add::normal(), heur_gcd(), sr_gcd() and Order_eval().
+
 0.6.3 (25 July 2000)
 * Derivatives are now assembled in a slightly different manner (i.e. they
   might 'look' different on first sight).  Under certain circumstances this

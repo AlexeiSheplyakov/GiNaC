@@ -525,11 +525,10 @@ ex power::derivative(const symbol & s) const
 {
     if (exponent.info(info_flags::real)) {
         // D(b^r) = r * b^(r-1) * D(b) (faster than the formula below)
-        //return mul(mul(exponent, power(basis, exponent - _ex1())), basis.diff(s));
         epvector newseq;
         newseq.reserve(2);
         newseq.push_back(expair(basis, exponent - _ex1()));
-        newseq.push_back(expair(basis.diff(s),_ex1()));
+        newseq.push_back(expair(basis.diff(s), _ex1()));
         return mul(newseq, exponent);
     } else {
         // D(b^e) = b^e * (D(e)*ln(b) + e*D(b)/b)

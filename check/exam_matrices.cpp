@@ -180,6 +180,42 @@ static unsigned matrix_invert3(void)
     return result;
 }
 
+static unsigned matrix_solve2(void)
+{
+    // check the solution of the multiple system A*X = B:
+    //     [ 1  2 -1 ] [ x0 y0 ]   [ 4 0 ]
+    //     [ 1  4 -2 ]*[ x1 y1 ] = [ 7 0 ]
+    //     [ a -2  2 ] [ x2 y2 ]   [ a 4 ]
+    unsigned result = 0;
+    symbol a("a");
+    symbol x0("x0"), x1("x1"), x2("x2");
+    symbol y0("y0"), y1("y1"), y2("y2");
+    matrix A(3,3);
+    A.set(0,0,1).set(0,1,2).set(0,2,-1);
+    A.set(1,0,1).set(1,1,4).set(1,2,-2);
+    A.set(2,0,a).set(2,1,-2).set(2,2,2);
+    matrix B(3,2);
+    B.set(0,0,4).set(1,0,7).set(2,0,a);
+    B.set(0,1,0).set(1,1,0).set(2,1,4);
+    matrix X(3,2);
+    X.set(0,0,x0).set(1,0,x1).set(2,0,x2);
+    X.set(0,1,y0).set(1,1,y1).set(2,1,y2);
+    matrix cmp(3,2);
+    cmp.set(0,0,1).set(1,0,3).set(2,0,3);
+    cmp.set(0,1,0).set(1,1,2).set(2,1,4);
+    matrix sol(A.solve(X, B));
+    for (unsigned ro=0; ro<3; ++ro)
+        for (unsigned co=0; co<2; ++co)
+            if (cmp(ro,co) != sol(ro,co))
+                result = 1;
+    if (result) {
+        clog << "Solving " << A << " * " << X << " == " << B << endl
+             << "erroneously returned " << sol << endl;
+    }
+    
+    return result;
+}
+
 static unsigned matrix_misc(void)
 {
     unsigned result = 0;
@@ -242,6 +278,7 @@ unsigned exam_matrices(void)
     result += matrix_invert1();  cout << '.' << flush;
     result += matrix_invert2();  cout << '.' << flush;
     result += matrix_invert3();  cout << '.' << flush;
+    result += matrix_solve2();  cout << '.' << flush;
     result += matrix_misc();  cout << '.' << flush;
     
     if (!result) {

@@ -71,7 +71,7 @@ int main()
         } else {
             cout << "(" << result << " individual failures)" << endl;
         }
-        cout << "please check check.out against check.ref for more details."
+        cout << "please check checks.out against check.ref for more details."
              << endl << "happy debugging!" << endl;
     }
     

@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <strstream>
 #include <vector>
+using namespace std;
 
 #include "ginac.h"
 

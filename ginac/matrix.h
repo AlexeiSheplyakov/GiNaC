@@ -87,19 +87,18 @@ public:
     const ex & operator() (unsigned ro, unsigned co) const;
     matrix & set(unsigned ro, unsigned co, ex value);
     matrix transpose(void) const;
-    ex determinant(unsigned options = determinant_algo::automatic) const;
+    ex determinant(unsigned algo = determinant_algo::automatic) const;
     ex trace(void) const;
     ex charpoly(const symbol & lambda) const;
     matrix inverse(void) const;
-    matrix fraction_free_elim(const matrix & vars, const matrix & v) const;
-    matrix solve(const matrix & vars, const matrix & rhs) const;
-    matrix old_solve(const matrix & v) const;  // FIXME: may be removed
+    matrix solve(const matrix & vars, const matrix & rhs,
+                 unsigned algo = solve_algo::automatic) const;
 protected:
     ex determinant_minor(void) const;
-    int gauss_elimination(void);
-    int division_free_elimination(void);
-    int fraction_free_elimination(bool det = false);
-    int pivot(unsigned ro, bool symbolic=true);
+    int gauss_elimination(const bool det = false);
+    int division_free_elimination(const bool det = false);
+    int fraction_free_elimination(const bool det = false);
+    int pivot(unsigned ro, unsigned co, bool symbolic = true);
     
 // member variables
 protected:
