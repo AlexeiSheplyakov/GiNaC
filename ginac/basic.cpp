@@ -808,10 +808,16 @@ ex basic::expand(unsigned options) const
  *  1 greater. */
 int basic::compare(const basic & other) const
 {
+#ifdef GINAC_COMPARE_STATISTICS
+	compare_statistics.total_basic_compares++;
+#endif
 	const unsigned hash_this = gethash();
 	const unsigned hash_other = other.gethash();
 	if (hash_this<hash_other) return -1;
 	if (hash_this>hash_other) return 1;
+#ifdef GINAC_COMPARE_STATISTICS
+	compare_statistics.compare_same_hashvalue++;
+#endif
 
 	const unsigned typeid_this = tinfo();
 	const unsigned typeid_other = other.tinfo();
@@ -827,6 +833,9 @@ int basic::compare(const basic & other) const
 // 			std::cout << std::endl;
 // 		}
 // 		return cmpval;
+#ifdef GINAC_COMPARE_STATISTICS
+		compare_statistics.compare_same_type++;
+#endif
 		return compare_same_type(other);
 	} else {
 // 		std::cout << "hash collision, different types: " 
@@ -847,13 +856,22 @@ int basic::compare(const basic & other) const
  *  @see is_equal_same_type */
 bool basic::is_equal(const basic & other) const
 {
+#ifdef GINAC_COMPARE_STATISTICS
+	compare_statistics.total_basic_is_equals++;
+#endif
 	if (this->gethash()!=other.gethash())
 		return false;
+#ifdef GINAC_COMPARE_STATISTICS
+	compare_statistics.is_equal_same_hashvalue++;
+#endif
 	if (this->tinfo()!=other.tinfo())
 		return false;
 	
 	GINAC_ASSERT(typeid(*this)==typeid(other));
 	
+#ifdef GINAC_COMPARE_STATISTICS
+	compare_statistics.is_equal_same_type++;
+#endif
 	return is_equal_same_type(other);
 }
 
@@ -881,5 +899,28 @@ void basic::ensure_if_modifiable() const
 //////////
 
 int max_recursion_level = 1024;
+
+
+#ifdef GINAC_COMPARE_STATISTICS
+compare_statistics_t::~compare_statistics_t()
+{
+	std::clog << "ex::compare() called " << total_compares << " times" << std::endl;
+	std::clog << "nontrivial compares: " << nontrivial_compares << " times" << std::endl;
+	std::clog << "basic::compare() called " << total_basic_compares << " times" << std::endl;
+	std::clog << "same hashvalue in compare(): " << compare_same_hashvalue << " times" << std::endl;
+	std::clog << "compare_same_type() called " << compare_same_type << " times" << std::endl;
+	std::clog << std::endl;
+	std::clog << "ex::is_equal() called " << total_is_equals << " times" << std::endl;
+	std::clog << "nontrivial is_equals: " << nontrivial_is_equals << " times" << std::endl;
+	std::clog << "basic::is_equal() called " << total_basic_is_equals << " times" << std::endl;
+	std::clog << "same hashvalue in is_equal(): " << is_equal_same_hashvalue << " times" << std::endl;
+	std::clog << "is_equal_same_type() called " << is_equal_same_type << " times" << std::endl;
+	std::clog << std::endl;
+	std::clog << "basic::gethash() called " << total_gethash << " times" << std::endl;
+	std::clog << "used cached hashvalue " << gethash_cached << " times" << std::endl;
+}
+
+compare_statistics_t compare_statistics;
+#endif
 
 } // namespace GiNaC

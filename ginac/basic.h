@@ -49,6 +49,38 @@ typedef std::vector<ex> exvector;
 typedef std::map<ex, ex, ex_is_less> exmap;
 
 
+// Define this to enable some statistical output for comparisons and hashing
+#undef GINAC_COMPARE_STATISTICS
+
+#ifdef GINAC_COMPARE_STATISTICS
+class compare_statistics_t {
+public:
+	compare_statistics_t()
+	 : total_compares(0), nontrivial_compares(0), total_basic_compares(0), compare_same_hashvalue(0), compare_same_type(0),
+	   total_is_equals(0), nontrivial_is_equals(0), total_basic_is_equals(0), is_equal_same_hashvalue(0), is_equal_same_type(0),
+	   total_gethash(0), gethash_cached(0) {}
+	~compare_statistics_t();
+
+	unsigned long total_compares;
+	unsigned long nontrivial_compares;
+	unsigned long total_basic_compares;
+	unsigned long compare_same_hashvalue;
+	unsigned long compare_same_type;
+
+	unsigned long total_is_equals;
+	unsigned long nontrivial_is_equals;
+	unsigned long total_basic_is_equals;
+	unsigned long is_equal_same_hashvalue;
+	unsigned long is_equal_same_type;
+
+	unsigned long total_gethash;
+	unsigned long gethash_cached;
+};
+
+extern compare_statistics_t compare_statistics;
+#endif
+
+
 /** Function object for map(). */
 struct map_function {
 	typedef const ex & argument_type;
@@ -212,7 +244,22 @@ public:
 	int compare(const basic & other) const;
 	bool is_equal(const basic & other) const;
 	const basic & hold() const;
-	unsigned gethash() const { if (flags & status_flags::hash_calculated) return hashvalue; else return calchash(); }
+
+	unsigned gethash() const
+	{
+#ifdef GINAC_COMPARE_STATISTICS
+		compare_statistics.total_gethash++;
+#endif
+		if (flags & status_flags::hash_calculated) {
+#ifdef GINAC_COMPARE_STATISTICS
+			compare_statistics.gethash_cached++;
+#endif
+			return hashvalue;
+		} else {
+			return calchash();
+		}
+	}
+
 	unsigned tinfo() const {return tinfo_key;}
 
 	/** Set some status_flags. */
