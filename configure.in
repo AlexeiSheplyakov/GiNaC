@@ -87,13 +87,15 @@ AC_LANG_CPLUSPLUS
 
 dnl Check for stuff needed for building the GiNaC interactive shell (ginsh).
 AC_CHECK_HEADERS(unistd.h)
-AC_CHECK_HEADER(readline/readline.h, ,
-  GINAC_WARNING([I could not find the header file readline/readline.h (needed for ginsh).]))
-AC_CHECK_HEADER(readline/history.h, ,
-  GINAC_WARNING([I could not find the header file readline/history.h (needed for ginsh).]))
+AC_CHECK_HEADERS(readline/readline.h readline/history.h)
+if test "x${ac_cv_header_readline_readline_h}" != "xyes" -o "x${ac_cv_header_readline_history_h}" != "xyes"; then
+  GINAC_WARNING([I could not find the headers for libreadline (needed for building ginsh).])
+fi
 save_LIBS=$LIBS
-AC_CHECK_LIB(readline, readline, ,
-  GINAC_WARNING([I could not find libreadline (needed by ginsh).]))
+AC_CHECK_LIB(readline, readline)
+if test "x${ac_cv_lib_readline_readline}" != "xyes"; then
+  GINAC_WARNING([I could not find libreadline (needed by ginsh).])
+fi
 GINSH_LIBS=$LIBS
 LIBS=$save_LIBS
 AC_SUBST(GINSH_LIBS)
@@ -132,13 +134,13 @@ AC_PATH_PROG(FIG2DEV, fig2dev, "")
 dnl Determine which documentation shall be built
 TUTORIAL_TARGETS=
 REFERENCE_TARGETS=
-if [[ "x$enable_html_doc" = "xyes" ]]; then
+if test "x${enable_html_doc}" = "xyes"; then
   TUTORIAL_TARGETS="$TUTORIAL_TARGETS ginac.html"
   if [[ "$DOXYGEN" ]]; then
     REFERENCE_TARGETS="$REFERENCE_TARGETS index.html"
   fi
 fi
-if [[ "x$enable_ps_doc" = "xyes" ]]; then
+if test "x${enable_ps_doc}" = "xyes"; then
   TUTORIAL_TARGETS="$TUTORIAL_TARGETS ginac.ps"
   if [[ "$DOXYGEN" ]]; then
     REFERENCE_TARGETS="$REFERENCE_TARGETS reference.ps"
@@ -150,12 +152,12 @@ AC_SUBST(REFERENCE_TARGETS)
 dnl Configure GiNaC-cint
 LIBGINACCINT=
 GINACCINTDIR=
-if [[ "x$with_cint" != "xno" ]]; then
-  if [[ "x$enable_static" != "xyes" ]]; then
+if test "x$with_cint" != "xno"; then
+  if test "x$enable_static" != "xyes"; then
     AC_MSG_ERROR([currently GiNaC-cint needs to build a static libginac])
   fi
-  if [[ "x$with_cint" = "xyes" ]]; then
-    if [[ "x$CINTSYSDIR" = "x" ]]; then
+  if test "x$with_cint" = "xyes"; then
+    if test "x$CINTSYSDIR" = "x"; then
       AC_MSG_ERROR([please export \$CINTSYSDIR or specify --with-cint=CINTSYSDIR])
     fi
   else

@@ -2270,19 +2270,21 @@ else
 fi
 done
 
-ac_safe=`echo "readline/readline.h" | sed 'y%./+-%__p_%'`
-echo $ac_n "checking for readline/readline.h""... $ac_c" 1>&6
-echo "configure:2276: checking for readline/readline.h" >&5
+for ac_hdr in readline/readline.h readline/history.h
+do
+ac_safe=`echo "$ac_hdr" | sed 'y%./+-%__p_%'`
+echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
+echo "configure:2278: checking for $ac_hdr" >&5
 if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 2281 "configure"
+#line 2283 "configure"
 #include "confdefs.h"
-#include <readline/readline.h>
+#include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:2286: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:2288: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -2298,57 +2300,26 @@ rm -f conftest*
 fi
 if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
   echo "$ac_t""yes" 1>&6
-  :
-else
-  echo "$ac_t""no" 1>&6
-
-ginac_warning_txt="$ginac_warning_txt
-== I could not find the header file readline/readline.h (needed for ginsh).
-"
-ginac_warning=yes
-fi
-
-ac_safe=`echo "readline/history.h" | sed 'y%./+-%__p_%'`
-echo $ac_n "checking for readline/history.h""... $ac_c" 1>&6
-echo "configure:2314: checking for readline/history.h" >&5
-if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  cat > conftest.$ac_ext <<EOF
-#line 2319 "configure"
-#include "confdefs.h"
-#include <readline/history.h>
+    ac_tr_hdr=HAVE_`echo $ac_hdr | sed 'y%abcdefghijklmnopqrstuvwxyz./-%ABCDEFGHIJKLMNOPQRSTUVWXYZ___%'`
+  cat >> confdefs.h <<EOF
+#define $ac_tr_hdr 1
 EOF
-ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:2324: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
-ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
-if test -z "$ac_err"; then
-  rm -rf conftest*
-  eval "ac_cv_header_$ac_safe=yes"
-else
-  echo "$ac_err" >&5
-  echo "configure: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  rm -rf conftest*
-  eval "ac_cv_header_$ac_safe=no"
-fi
-rm -f conftest*
-fi
-if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
-  echo "$ac_t""yes" 1>&6
-  :
+ 
 else
   echo "$ac_t""no" 1>&6
+fi
+done
 
+if test "x${ac_cv_header_readline_readline_h}" != "xyes" -o "x${ac_cv_header_readline_history_h}" != "xyes"; then
+  
 ginac_warning_txt="$ginac_warning_txt
-== I could not find the header file readline/history.h (needed for ginsh).
+== I could not find the headers for libreadline (needed for building ginsh).
 "
 ginac_warning=yes
 fi
-
 save_LIBS=$LIBS
 echo $ac_n "checking for readline in -lreadline""... $ac_c" 1>&6
-echo "configure:2352: checking for readline in -lreadline" >&5
+echo "configure:2323: checking for readline in -lreadline" >&5
 ac_lib_var=`echo readline'_'readline | sed 'y%./+-%__p_%'`
 if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
@@ -2356,7 +2327,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lreadline  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 2360 "configure"
+#line 2331 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 #ifdef __cplusplus
@@ -2370,7 +2341,7 @@ int main() {
 readline()
 ; return 0; }
 EOF
-if { (eval echo configure:2374: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:2345: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -2395,19 +2366,21 @@ EOF
 
 else
   echo "$ac_t""no" 1>&6
+fi
 
+if test "x${ac_cv_lib_readline_readline}" != "xyes"; then
+  
 ginac_warning_txt="$ginac_warning_txt
 == I could not find libreadline (needed by ginsh).
 "
 ginac_warning=yes
 fi
-
 GINSH_LIBS=$LIBS
 LIBS=$save_LIBS
 
 
 echo $ac_n "checking for cout in -lstdc++""... $ac_c" 1>&6
-echo "configure:2411: checking for cout in -lstdc++" >&5
+echo "configure:2384: checking for cout in -lstdc++" >&5
 ac_lib_var=`echo stdc++'_'cout | sed 'y%./+-%__p_%'`
 if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
@@ -2415,7 +2388,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lstdc++  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 2419 "configure"
+#line 2392 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 #ifdef __cplusplus
@@ -2429,7 +2402,7 @@ int main() {
 cout()
 ; return 0; }
 EOF
-if { (eval echo configure:2433: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:2406: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -2461,17 +2434,17 @@ for ac_hdr in iostream vector map string list typeinfo iterator stdexcept algori
 do
 ac_safe=`echo "$ac_hdr" | sed 'y%./+-%__p_%'`
 echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
-echo "configure:2465: checking for $ac_hdr" >&5
+echo "configure:2438: checking for $ac_hdr" >&5
 if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 2470 "configure"
+#line 2443 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:2475: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:2448: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -2502,17 +2475,17 @@ for ac_hdr in sstream strstream
 do
 ac_safe=`echo "$ac_hdr" | sed 'y%./+-%__p_%'`
 echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
-echo "configure:2506: checking for $ac_hdr" >&5
+echo "configure:2479: checking for $ac_hdr" >&5
 if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 2511 "configure"
+#line 2484 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:2516: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:2489: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -2544,17 +2517,17 @@ done
 do
 ac_safe=`echo "$ac_hdr" | sed 'y%./+-%__p_%'`
 echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
-echo "configure:2548: checking for $ac_hdr" >&5
+echo "configure:2521: checking for $ac_hdr" >&5
 if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 2553 "configure"
+#line 2526 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:2558: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:2531: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -2581,17 +2554,17 @@ for ac_hdr in cln.h
 do
 ac_safe=`echo "$ac_hdr" | sed 'y%./+-%__p_%'`
 echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
-echo "configure:2585: checking for $ac_hdr" >&5
+echo "configure:2558: checking for $ac_hdr" >&5
 if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 2590 "configure"
+#line 2563 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:2595: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:2568: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -2626,7 +2599,7 @@ done
 
 
     echo $ac_n "checking for doublefactorial in -lcln""... $ac_c" 1>&6
-echo "configure:2630: checking for doublefactorial in -lcln" >&5
+echo "configure:2603: checking for doublefactorial in -lcln" >&5
     saved_LIBS="${LIBS}"
     if eval "test \"`echo '$''{'ginac_cv_lib_cln_link'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
@@ -2635,14 +2608,14 @@ else
         case "${ac_cv_header_cln_cln_h}" in
         "yes")
             cat > conftest.$ac_ext <<EOF
-#line 2639 "configure"
+#line 2612 "configure"
 #include "confdefs.h"
 #include <cln/cln.h>
 int main() {
 doublefactorial(2);
 ; return 0; }
 EOF
-if { (eval echo configure:2646: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:2619: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   ginac_cv_lib_cln_link="-lcln"
 else
@@ -2655,14 +2628,14 @@ rm -f conftest*
             ;;
         *)
             cat > conftest.$ac_ext <<EOF
-#line 2659 "configure"
+#line 2632 "configure"
 #include "confdefs.h"
 #include <cln.h>
 int main() {
 doublefactorial(2);
 ; return 0; }
 EOF
-if { (eval echo configure:2666: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:2639: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   ginac_cv_lib_cln_link="-lcln"
 else
@@ -2703,7 +2676,7 @@ GINACLIB_LIBS=$LIBS
 # Extract the first word of "doxygen", so it can be a program name with args.
 set dummy doxygen; ac_word=$2
 echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:2707: checking for $ac_word" >&5
+echo "configure:2680: checking for $ac_word" >&5
 if eval "test \"`echo '$''{'ac_cv_path_DOXYGEN'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -2739,7 +2712,7 @@ fi
 # Extract the first word of "latex", so it can be a program name with args.
 set dummy latex; ac_word=$2
 echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:2743: checking for $ac_word" >&5
+echo "configure:2716: checking for $ac_word" >&5
 if eval "test \"`echo '$''{'ac_cv_path_LATEX'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -2775,7 +2748,7 @@ fi
 # Extract the first word of "makeindex", so it can be a program name with args.
 set dummy makeindex; ac_word=$2
 echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:2779: checking for $ac_word" >&5
+echo "configure:2752: checking for $ac_word" >&5
 if eval "test \"`echo '$''{'ac_cv_path_MAKEINDEX'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -2811,7 +2784,7 @@ fi
 # Extract the first word of "dvips", so it can be a program name with args.
 set dummy dvips; ac_word=$2
 echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:2815: checking for $ac_word" >&5
+echo "configure:2788: checking for $ac_word" >&5
 if eval "test \"`echo '$''{'ac_cv_path_DVIPS'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -2847,7 +2820,7 @@ fi
 # Extract the first word of "fig2dev", so it can be a program name with args.
 set dummy fig2dev; ac_word=$2
 echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:2851: checking for $ac_word" >&5
+echo "configure:2824: checking for $ac_word" >&5
 if eval "test \"`echo '$''{'ac_cv_path_FIG2DEV'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -2883,13 +2856,13 @@ fi
 
 TUTORIAL_TARGETS=
 REFERENCE_TARGETS=
-if [ "x$enable_html_doc" = "xyes" ]; then
+if test "x${enable_html_doc}" = "xyes"; then
   TUTORIAL_TARGETS="$TUTORIAL_TARGETS ginac.html"
   if [ "$DOXYGEN" ]; then
     REFERENCE_TARGETS="$REFERENCE_TARGETS index.html"
   fi
 fi
-if [ "x$enable_ps_doc" = "xyes" ]; then
+if test "x${enable_ps_doc}" = "xyes"; then
   TUTORIAL_TARGETS="$TUTORIAL_TARGETS ginac.ps"
   if [ "$DOXYGEN" ]; then
     REFERENCE_TARGETS="$REFERENCE_TARGETS reference.ps"
@@ -2900,12 +2873,12 @@ fi
 
 LIBGINACCINT=
 GINACCINTDIR=
-if [ "x$with_cint" != "xno" ]; then
-  if [ "x$enable_static" != "xyes" ]; then
+if test "x$with_cint" != "xno"; then
+  if test "x$enable_static" != "xyes"; then
     { echo "configure: error: currently GiNaC-cint needs to build a static libginac" 1>&2; exit 1; }
   fi
-  if [ "x$with_cint" = "xyes" ]; then
-    if [ "x$CINTSYSDIR" = "x" ]; then
+  if test "x$with_cint" = "xyes"; then
+    if test "x$CINTSYSDIR" = "x"; then
       { echo "configure: error: please export \$CINTSYSDIR or specify --with-cint=CINTSYSDIR" 1>&2; exit 1; }
     fi
   else
@@ -2915,7 +2888,7 @@ if [ "x$with_cint" != "xno" ]; then
   # Extract the first word of "cint", so it can be a program name with args.
 set dummy cint; ac_word=$2
 echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:2919: checking for $ac_word" >&5
+echo "configure:2892: checking for $ac_word" >&5
 if eval "test \"`echo '$''{'ac_cv_path_CINT'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -2951,7 +2924,7 @@ fi
   # Extract the first word of "makecint", so it can be a program name with args.
 set dummy makecint; ac_word=$2
 echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:2955: checking for $ac_word" >&5
+echo "configure:2928: checking for $ac_word" >&5
 if eval "test \"`echo '$''{'ac_cv_path_MAKECINT'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else

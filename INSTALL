@@ -85,7 +85,10 @@ libreadline and/or the corresponding header files.  Depending on what
 your system/distribution is, you will have to install a package called
 libreadline and maybe libreadline-dev.  If your system's vendor
 doesn't supply such packages, go to <ftp://ftp.gnu.org/gnu/readline/>
-and compile it yourself.  After that it should work fine.
+and compile it yourself.  After that it should work fine.  
+
+If you want to build a completely static ginsh and your compiler still
+complains about unresolved objects try linking with libncurses, too.
 
 
 Working with the Cint C++ interpreter
