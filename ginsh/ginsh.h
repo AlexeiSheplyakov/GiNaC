@@ -29,6 +29,8 @@
 #include <map>
 #include <string>
 
+using namespace std;
+
 #ifdef HAVE_READLINE_READLINE_H
 extern "C" {
 #include <readline/readline.h>
