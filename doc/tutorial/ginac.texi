@@ -1731,25 +1731,28 @@ static ex cos_eval_method(const ex & x)
 @cindex @code{hold()}
 @cindex evaluation
 The last line returns @code{cos(x)} if we don't know what else to do and
-stops a potential recursive evaluation by saying @code{.hold()}.  We
+stops a potential recursive evaluation by saying @code{.hold()}, which
+sets a flag to the expression signalint that it has been evaluated.  We
 should also implement a method for numerical evaluation and since we are
 lazy we sweep the problem under the rug by calling someone else's
 function that does so, in this case the one in class @code{numeric}:
 
 @example
-static ex cos_evalf_method(const ex & x)
+static ex cos_evalf(const ex & x)
 @{
-    return sin(ex_to_numeric(x));
+    return cos(ex_to_numeric(x));
 @}
 @end example
 
-Differentiation will surely turn up and so we need to tell
-@code{sin} how to differentiate itself:
+Differentiation will surely turn up and so we need to tell @code{cos}
+what the first derivative is (higher derivatives (@code{.diff(x,3)} for
+instance are then handled automatically by @code{basic::diff} and
+@code{ex::diff}):
 
 @example
-static ex cos_diff_method(const ex & x, unsigned diff_param)
+static ex cos_derive(const ex & x, unsigned diff_param)
 @{
-    return cos(x);
+    return -sin(x);
 @}
 @end example
 
@@ -1768,20 +1771,21 @@ going to descibe how it expands, please consult your preprocessor if you
 are curious:
 
 @example
-REGISTER_FUNCTION(cos, cos_eval_method, cos_evalf_method, cos_diff, NULL);
+REGISTER_FUNCTION(cos, cos_eval, cos_evalf, cos_derive, NULL);
 @end example
 
-The first argument is the function's name, the second, third and fourth
-bind the corresponding methods to this objects and the fifth is a slot
-for inserting a method for series expansion.  (If set to @code{NULL} it
-defaults to simple Taylor expansion, which is correct if there are no
-poles involved.  The way GiNaC handles poles in case there are any is
-best understood by studying one of the examples, like the Gamma function
-for instance.  In essence the function first checks if there is a pole
-at the evaluation point and falls back to Taylor expansion if there
-isn't.  Then, the pole is regularized by some suitable transformation.)
-Also, the new function needs to be declared somewhere.  This may also be
-done by a convenient preprocessor macro:
+The first argument is the function's name used for calling it and for
+output.  The second, third and fourth bind the corresponding methods to
+this objects and the fifth is a slot for inserting a method for series
+expansion.  (If set to @code{NULL} it defaults to simple Taylor
+expansion, which is correct if there are no poles involved.  The way
+GiNaC handles poles in case there are any is best understood by studying
+one of the examples, like the Gamma function for instance.  In essence
+the function first checks if there is a pole at the evaluation point and
+falls back to Taylor expansion if there isn't.  Then, the pole is
+regularized by some suitable transformation.)  Also, the new function
+needs to be declared somewhere.  This may also be done by a convenient
+preprocessor macro:
 
 @example
 DECLARE_FUNCTION_1P(cos)
