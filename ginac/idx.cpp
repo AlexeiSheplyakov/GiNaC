@@ -449,12 +449,7 @@ ex idx::replace_dim(const ex & new_dim) const
 
 ex idx::minimal_dim(const idx & other) const
 {
-	if (dim.is_equal(other.dim) || dim < other.dim || (is_exactly_a<numeric>(dim) && is_a<symbol>(other.dim)))
-		return dim;
-	else if (dim > other.dim || (is_a<symbol>(dim) && is_exactly_a<numeric>(other.dim)))
-		return other.dim;
-	else
-		throw (std::runtime_error("idx::minimal_dim: index dimensions cannot be ordered"));
+	return GiNaC::minimal_dim(dim, other.dim);
 }
 
 ex varidx::toggle_variance(void) const
@@ -543,6 +538,16 @@ void find_free_and_dummy(exvector::const_iterator it, exvector::const_iterator i
 	}
 	if (ex_to<idx>(*last).is_symbolic())
 		out_free.push_back(*last);
+}
+
+ex minimal_dim(const ex & dim1, const ex & dim2)
+{
+	if (dim1.is_equal(dim2) || dim1 < dim2 || (is_exactly_a<numeric>(dim1) && is_a<symbol>(dim2)))
+		return dim1;
+	else if (dim1 > dim2 || (is_a<symbol>(dim1) && is_exactly_a<numeric>(dim2)))
+		return dim2;
+	else
+		throw (std::runtime_error("minimal_dim(): index dimensions cannot be ordered"));
 }
 
 } // namespace GiNaC

@@ -208,10 +208,11 @@ bool diracgamma::contract_with(exvector::iterator self, exvector::iterator other
 	GINAC_ASSERT(is_a<indexed>(*other));
 	GINAC_ASSERT(is_a<diracgamma>(self->op(0)));
 	unsigned char rl = ex_to<clifford>(*self).get_representation_label();
-	ex dim = ex_to<idx>(self->op(1)).get_dim();
 
-      if (other->nops() > 1)
-              dim = minimal_dim(dim, ex_to<idx>(self->op(1)).get_dim());
+	ex dim = ex_to<idx>(self->op(1)).get_dim();
+	if (other->nops() > 1)
+		dim = minimal_dim(dim, ex_to<idx>(self->op(1)).get_dim());
+
 	if (is_a<clifford>(*other)) {
 
 		// Contraction only makes sense if the represenation labels are equal

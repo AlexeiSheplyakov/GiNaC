@@ -263,6 +263,11 @@ inline unsigned count_free_indices(const exvector & v)
 	return free_indices.size();
 }
 
+/** Return the minimum of two index dimensions. If this is undecidable,
+ *  throw an exception. Numeric dimensions are always considered "smaller"
+ *  than symbolic dimensions. */
+ex minimal_dim(const ex & dim1, const ex & dim2);
+
 } // namespace GiNaC
 
 #endif // ndef __GINAC_IDX_H__
