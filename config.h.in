@@ -69,9 +69,6 @@
 /* Define if you have the readline library (-lreadline).  */
 #undef HAVE_LIBREADLINE
 
-/* Define if you have the stdc++ library (-lstdc++).  */
-#undef HAVE_LIBSTDC__
-
 /* Name of package */
 #undef PACKAGE
 

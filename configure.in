@@ -102,11 +102,6 @@ GINSH_LIBS=$LIBS
 LIBS=$save_LIBS
 AC_SUBST(GINSH_LIBS)
 
-dnl Make sure the following libraries work by testing for symbols therein. 
-dnl They are automatically added the the variable $LIBS and thus passed into
-dnl the Makefile:
-AC_CHECK_LIB(stdc++, cout)
-
 dnl Make sure all the necessary new-style headers are installed on the system.
 dnl If one of them cannot be found the system is probably not ANSI-conform
 dnl enough so trying the .h-style headers is a waste of time.
