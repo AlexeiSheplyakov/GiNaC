@@ -11,8 +11,9 @@ dnl even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 dnl PARTICULAR PURPOSE.
 
 dnl ===========================================================================
-dnl Additional macros used to configure GiNaC.  We don't start additions' names
-dnl with AC_ but with GINAC_ in order to avoid future trouble.
+dnl Additional macros used to configure GiNaC.  We don't start our own 
+dnl additions' names with AC_ but with GINAC_ in order to steer clear of
+dnl future trouble.
 dnl ===========================================================================
 
 dnl Generally, it is a bad idea to put specialized header files for a library
