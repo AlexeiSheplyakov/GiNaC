@@ -72,6 +72,23 @@ static unsigned exam_expand_subs2(void)
 	return result;
 }
 
+static unsigned exam_expand_power(void)
+{
+	unsigned result = 0;
+	symbol x("x"), a("a"), b("b");
+	ex e;
+	
+	e = pow(x,pow(a+b,2)-pow(a,2)-pow(b,2)-a*b*2).expand();
+	
+	if (e != 1) {
+		clog << "e = pow(x,pow(a+b,2)-pow(a,2)-pow(b,2)-a*b*2).expand(); erroneously returned "
+		     << e << " instead of simplifying to 1." << endl;
+		++result;
+	}
+	
+	return result;
+}
+
 unsigned exam_misc(void)
 {
 	unsigned result = 0;
@@ -81,6 +98,7 @@ unsigned exam_misc(void)
 	
 	result += exam_expand_subs();  cout << '.' << flush;
 	result += exam_expand_subs2();  cout << '.' << flush;
+	result += exam_expand_power(); cout << '.' << flush;
 	
 	if (!result) {
 		cout << " passed " << endl;
