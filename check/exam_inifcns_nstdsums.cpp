@@ -155,6 +155,14 @@ static unsigned inifcns_test_HLi()
 
 	Digits = digitsbuf;
 
+	// conjugate test
+	numeric cdif = ex_to<numeric>(H(lst(2,2,1),5.0-5.0*I) - H(lst(2,2,1),5.0+5.0*I));
+	numeric cadd = ex_to<numeric>(H(lst(2,2,1),5.0-5.0*I) + H(lst(2,2,1),5.0+5.0*I));
+	if ((cdif.real() > prec) || (cadd.imag() > prec)) {
+		clog << "complex conjugation test of H({2,2,1},5.0-5.0*I) seems to be wrong: " << cdif << " " << cadd << endl;
+		result++;
+	}
+
 	return result;
 }
 
