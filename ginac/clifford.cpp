@@ -1078,12 +1078,13 @@ ex lst_to_clifford(const ex & v, const ex & mu, const ex & metr, unsigned char r
 static ex get_clifford_comp(const ex & e, const ex & c) 
 {
 	pointer_to_map_function_1arg<const ex &> fcn(get_clifford_comp, c);
+	int ival = ex_to<numeric>(ex_to<varidx>(c.op(1)).get_value()).to_int();
 		
-	if (is_a<add>(e)) 
+	if (is_a<add>(e) || is_a<lst>(e) // || is_a<pseries>(e) || is_a<integral>(e)
+		|| is_a<matrix>(e)) 
 		return e.map(fcn);
 	else if (is_a<ncmul>(e) || is_a<mul>(e)) {
-		//find a Clifford unit with the same metric, delete it and substitute its index
-		int ival = ex_to<numeric>(ex_to<varidx>(c.op(1)).get_value()).to_int();
+		// find a Clifford unit with the same metric, delete it and substitute its index
 		size_t ind = e.nops() + 1;
 		for (size_t j = 0; j < e.nops(); j++) 
 			if (is_a<clifford>(e.op(j)) && ex_to<clifford>(c).same_metric(e.op(j)))
@@ -1093,26 +1094,39 @@ static ex get_clifford_comp(const ex & e, const ex & c)
 					throw(std::invalid_argument("Expression is a Clifford multi-vector"));
 		if (ind < e.nops()) {
 			ex S = 1;
+			bool same_value_index, found_dummy;
+			same_value_index = ( ex_to<varidx>(e.op(ind).op(1)).is_numeric()
+								 &&  (ival == ex_to<numeric>(ex_to<varidx>(e.op(ind).op(1)).get_value()).to_int()) );
+			found_dummy = same_value_index;
 			for(size_t j=0; j < e.nops(); j++)
-				if (j != ind) {
-					exvector ind_vec = ex_to<indexed>(e.op(j)).get_dummy_indices(ex_to<indexed>(e.op(ind)));
-					if (ind_vec.size() > 0) {
-						exvector::const_iterator it = ind_vec.begin(), itend = ind_vec.end();
-						while (it != itend) {
-							S = S * e.op(j).subs(lst(ex_to<varidx>(*it) == ival, ex_to<varidx>(*it).toggle_variance() == ival), subs_options::no_pattern);
-							it++;
-						}
-					} else
+				if (j != ind) 
+					if (same_value_index) 
 						S = S * e.op(j);
-				}
-			return S;
+					else {
+						exvector ind_vec = ex_to<indexed>(e.op(j)).get_dummy_indices(ex_to<indexed>(e.op(ind)));
+						if (ind_vec.size() > 0) {
+							found_dummy = true;
+							exvector::const_iterator it = ind_vec.begin(), itend = ind_vec.end();
+							while (it != itend) {
+								S = S * e.op(j).subs(lst(ex_to<varidx>(*it) == ival, ex_to<varidx>(*it).toggle_variance() == ival), subs_options::no_pattern);
+								++it;
+							}
+						} else
+							S = S * e.op(j);
+					}
+			return (found_dummy ? S : 0);
 		} else
 			throw(std::invalid_argument("Expression is not a Clifford vector to the given units"));
 	} else if (e.is_zero()) 
 		return e;
-	else 
-		throw(std::invalid_argument("Expression is not handlable as a Clifford vector"));
-	
+	else if (is_a<clifford>(e) && ex_to<clifford>(e).same_metric(c))
+		if ( ex_to<varidx>(e.op(1)).is_numeric() &&
+			 (ival != ex_to<numeric>(ex_to<varidx>(e.op(1)).get_value()).to_int()) )
+			return 0;
+		else 
+			return 1;
+	else
+		throw(std::invalid_argument("Expression is not usable as a Clifford vector"));
 }
 
 
@@ -1147,11 +1161,13 @@ ex clifford_moebius_map(const ex & a, const ex & b, const ex & c, const ex & d, 
 {
 	ex x, D;
 	if (is_a<indexed>(G)) 
-		D = ex_to<varidx>(G.op(1));
+		D = ex_to<varidx>(G.op(1)).get_dim();
+	else if (is_a<matrix>(G)) 
+		D = ex_to<matrix>(G).rows();
 	else
-		throw(std::invalid_argument("metric should be an indexed object"));
+		throw(std::invalid_argument("metric should be an indexed object or matrix"));
 	
-	varidx mu ((new symbol)->setflag(status_flags::dynallocated), ex_to<varidx>(D).get_dim());
+	varidx mu((new symbol)->setflag(status_flags::dynallocated), D);
 		   
 	if (! is_a<matrix>(v) && ! is_a<lst>(v))
 		throw(std::invalid_argument("parameter v should be either vector or list"));
@@ -1161,4 +1177,14 @@ ex clifford_moebius_map(const ex & a, const ex & b, const ex & c, const ex & d, 
 	ex cu = clifford_unit(mu, G);
 	return clifford_to_lst(e, cu, false);
 }
+
+ex clifford_moebius_map(const ex & M, const ex & v, const ex & G) 
+{
+	if (is_a<matrix>(M)) 
+		return clifford_moebius_map(ex_to<matrix>(M)(0,0), ex_to<matrix>(M)(0,1), 
+						ex_to<matrix>(M)(1,0), ex_to<matrix>(M)(1,1), v, G);
+	else
+		throw(std::invalid_argument("parameter M should be a matrix"));
+}
+
 } // namespace GiNaC

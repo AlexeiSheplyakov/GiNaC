@@ -317,6 +317,15 @@ lst clifford_to_lst(const ex & e, const ex & c, bool algebraic=true);
  *  @param v Vector to be transformed
  *  @param G Metric of the surrounding space */
 ex clifford_moebius_map(const ex & a, const ex & b, const ex & c, const ex & d, const ex & v, const ex & G);
+
+/** The second form of Moebius transformations defined by a 2x2 Clifford matrix M
+ *  This function takes the transformation matrix M as a single entity.
+ * 
+ *  @param M the defining matrix
+ *  @param v Vector to be transformed
+ *  @param G Metric of the surrounding space */
+ex clifford_moebius_map(const ex & M, const ex & v, const ex & G);
+
 } // namespace GiNaC
 
 #endif // ndef __GINAC_CLIFFORD_H__
