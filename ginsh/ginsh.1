@@ -1,0 +1,408 @@
+.TH ginsh 1 "October, 1999" "GiNaC"
+.SH NAME
+ginsh \- GiNaC Interactive Shell
+.SH SYNPOSIS
+.B ginsh
+.SH DESCRIPTION
+.B ginsh
+is an interactive frontend for the GiNaC symbolic computation framework.
+It is intended as a tool for testing and experimenting with GiNaC's
+features, not as a replacement for traditional interactive computer
+algebra systems. Although it can do many things these traditional systems
+can do, ginsh provides no programming constructs like loops or conditional
+expressions. If you need this functionality you are advised to write
+your program in C++, using the "native" GiNaC class framework.
+.SH USAGE
+.SS INPUT FORMAT
+After startup, ginsh displays a prompt ("> ") signifying that it is ready
+to accept your input. Acceptable input are numeric or symbolic expressions
+consisting of numbers (e.g.
+.BR 42 ", " 2/3 " or " 0.17 ),
+symbols (e.g.
+.BR x " or " result ),
+mathematical operators like
+.BR + " and  " * ,
+and functions (e.g.
+.BR sin " or " normal ).
+ginsh will evaluate the expression and print the result to stdout. Every
+input expression must be terminated by a semicolon
+.RB ( ; ),
+and it is possible to enter multiple expressions on one line. Whitespace
+(spaces, tabs, newlines) can be applied freely between tokens. To quit ginsh,
+enter
+.BR quit " or " exit ,
+or type an EOF (Ctrl-D) at the prompt.
+.SS NUMBERS
+ginsh accepts numbers in all formats accepted by CLN (the Class Library for
+Numbers, that is the foundation of GiNaC's numerics). This includes arbitrary
+precision integers and rationals as well as floating point numbers in standard
+or scientific notation (e.g.
+.BR 1.2E6 ).
+The general rule is that if a number contains a decimal point
+.RB ( . ),
+it is an (inexact) floating point number; otherwise it is an (exact) integer or
+rational.
+.SS SYMBOLS
+Symbols are made up of a string of alphanumeric characters and the underscore
+.RB ( _ ),
+with the first character being non-numeric. E.g.
+.BR a " and " mu_1
+are acceptable symbol names, while
+.B 2pi
+is not. It is possible to use symbols with the same names as functions (e.g.
+.BR sin );
+ginsh is able to distinguish between the two.
+.PP
+Symbols can be assigned values by entering
+.RS
+.IB symbol " = " expression ;
+.RE
+.PP
+To unassign the value of an assigned symbol, type
+.RS
+.BI unassign(' symbol ');
+.RE
+.PP
+Assigned symbols are automatically evaluated (= replaced by their assigned value)
+when they are used. To refer to the unevaluated symbol, put single quotes
+.RB ( ' )
+around the name, as demonstrated for the "unassign" command above.
+.PP
+The following symbols are pre-defined constants that cannot be assigned
+a value by the user:
+.RS
+.TP 8m
+.B Pi
+Archimedes' Constant
+.TP
+.B Catalan
+Catalan's Constant
+.TP
+.B EulerGamma
+Euler-Mascheroni Constant
+.TP
+.B I
+(-1)^1/2
+.TP
+.B FAIL
+an object of the GiNaC "fail" class
+.RE
+.PP
+There is also the special
+.RS
+.B Digits
+.RE
+symbol that controls the numeric precision of calculations with inexact numbers.
+Assigning an integer value to digits will change the precision to the given
+number of decimal places.
+.SS LAST PRINTED EXPRESSIONS
+ginsh provides the three special symbols
+.RS
+", "" and """
+.RE
+that refer to the last, second last, and third last printed expression, respectively.
+These are handy if you want to use the results of previous computations in a new
+expression.
+.SS OPERATORS
+ginsh provides the following operators, listed in falling order of precedence:
+.RS
+.TP 8m
+.B !
+postfix factorial
+.TP
+.B ^
+powering
+.TP
+.B +
+unary plus
+.TP
+.B \-
+unary minus
+.TP
+.B *
+multiplication
+.TP
+.B %
+non-commutative multiplication
+.TP
+.B /
+division
+.TP
+.B +
+addition
+.TP
+.B \-
+subtraction
+.TP
+.B <
+less than
+.TP
+.B >
+greater than
+.TP
+.B <=
+less or equal
+.TP
+.B >=
+greater or equal
+.TP
+.B ==
+equal
+.TP
+.B !=
+not equal
+.TP
+.B =
+symbol assignment
+.RE
+.PP
+All binary operators are left-associative, with the exception of
+.BR ^ " and " =
+which are right-associative. The result of the assignment operator
+.RB ( = )
+is its right-hand side, so it's possible to assign multiple symbols in one
+expression (e.g.
+.BR "a = b = c = 2;" ).
+.SS LISTS
+Lists are used by the
+.B subs
+and
+.B lsolve
+functions. A list consists of an opening square bracket
+.RB ( [ ),
+a (possibly empty) comma-separated sequence of expressions, and a closing square
+bracket
+.RB ( ] ).
+.SS MATRICES
+A matrix consists of an opening double square bracket
+.RB ( [[ ),
+a non-empty comma-separated sequence of matrix rows, and a closing double square
+bracket
+.RB ( ]] ).
+Each matrix row consists of an opening double square bracket
+.RB ( [[ ),
+a non-empty comma-separated sequence of expressions, and a closing double square
+bracket
+.RB ( ]] ).
+If the rows of a matrix are not of the same length, the width of the matrix
+becomes that of the longest row and shorter rows are filled up at the end
+with elements of value zero.
+.SS FUNCTIONS
+A function call in ginsh has the form
+.RS
+.IB name ( arguments )
+.RE
+where
+.I arguments
+is a comma-separated sequence of expressions. ginsh provides a couple of built-in
+functions and also "imports" all symbolic functions defined by GiNaC and additional
+libraries. There is no way to define your own functions other than linking ginsh
+against a library that defines symbolic GiNaC functions.
+.PP
+ginsh provides Tab-completion on function names: if you type the first part of
+a function name, hitting Tab will complete the name if possible. If the part you
+typed is not unique, hitting Tab again will display a list of matching functions.
+Hitting Tab twice at the prompt will display the list of all available functions.
+.PP
+A list of the built-in functions follows. They nearly all work as the
+respective GiNaC methods of the same name, so I will not describe them in
+detail here. Please refer to the GiNaC documentation.
+.PP
+.RS
+.BI beta( expression ", " expression )
+.br
+.BI charpoly( matrix ", " symbol )
+.br
+.BI coeff( expression ", " symbol ", " number )
+.br
+.BI collect( expression ", " symbol )
+.br
+.BI content( expression ", " symbol )
+.br
+.BI degree( expression ", " symbol )
+.br
+.BI denom( expression )
+.br
+.BI determinant( matrix )
+.br
+.BI diag( expression... )
+.br
+.BI diff( expression ", " "symbol [" ", " number] )
+.br
+.BI divide( expression ", " expression )
+.br
+.BI eval( "expression [" ", " number] )
+.br
+.BI evalf( "expression [" ", " number] )
+.br
+.BI expand( expression )
+.br
+.BI gcd( expression ", " expression )
+.br
+.BI has( expression ", " expression )
+.br
+.BI inverse( matrix )
+.br
+.BI is( relation )
+\- returns "1" if the
+.I relation
+is true, "0" otherwise (false or undecided)
+.br
+.BI lcm( expression ", " expression )
+.br
+.BI lcoeff( expression ", " symbol )
+.br
+.BI ldegree( expression ", " symbol )
+.br
+.BI lsolve( list ", " list )
+.br
+.BI nops( expression )
+.br
+.BI normal( "expression [" ", " number] )
+.br
+.BI numer( expression )
+.br
+.BI op( expression ", " number )
+.br
+.BI power( expression ", " expression )
+.br
+.BI prem( expression ", " expression ", " symbol )
+.br
+.BI primpart( expression ", " symbol )
+.br
+.BI quo( expression ", " expression ", " symbol )
+.br
+.BI rem( expression ", " expression ", " symbol )
+.br
+.BI series( expression ", " "symbol [" ", " "number [" ", " number]] )
+.br
+.BI sqrfree( expression ", " symbol )
+.br
+.BI sqrt( expression )
+.br
+.BI subs( expression ", " relation-or-list )
+.br
+.BI subs( expression ", " list ", " list )
+.br
+.BI tcoeff( expression ", " symbol )
+.br
+.BI time( expression )
+\- returns the time in seconds needed to evaluate the given
+.I expression
+.br
+.BI trace( matrix )
+.br
+.BI transpose( matrix )
+.br
+.BI unassign( symbol )
+.br
+.BI unit( expression ", " symbol )
+.RE
+.SS SPECIAL COMMANDS
+To exit ginsh, enter
+.RS
+.B quit
+.RE
+or
+.RS
+.B exit
+.RE
+.PP
+The command
+.RS
+.BI print( expression );
+.RE
+will print a dump of GiNaC's internal representation for the given
+.IR expression .
+This is useful for debugging and for learning about GiNaC internals.
+.PP
+Finally, the shell escape
+.RS
+.B !
+.RI [ "command  " [ arguments ]]
+.RE
+passes the given
+.I command
+and optionally
+.I arguments
+to the shell for execution. With this method, you can execute shell commands
+from within ginsh without having to quit.
+.SH EXAMPLES
+.nf
+> a = x^2\-x\-2;
+\-x+x^2\-2
+> b = (x+1)^2;
+(x+1)^2
+> s = a/b;
+(x+1)^(\-2)*(\-x+x^2\-2)
+> diff(s, x);
+(2*x\-1)*(x+1)^(\-2)\-2*(x+1)^(\-3)*(\-x+x^2\-2)
+> normal(s);
+(x\-2)*(x+1)^(\-1)
+> x = 3^50;
+717897987691852588770249
+> s;
+717897987691852588770247/717897987691852588770250
+> Digits = 40;
+40
+> evalf(s);
+0.999999999999999999999995821133292704384960990679L0
+> unassign('x');
+x
+> s;
+(x+1)^(\-2)*(\-x+x^2\-2)
+> lsolve([3*x+5*y == 7], [x, y]);
+[x==\-5/3*y+7/3,y==y]
+> lsolve([3*x+5*y == 7, \-2*x+10*y == \-5], [x, y]);
+[x==19/8,y==\-1/40]
+> M = [[ [[a, b]], [[c, d]] ]];
+[[ [[\-x+x^2\-2,(x+1)^2]], [[c,d]] ]]
+> determinant(M);
+\-2*d\-2*x*c\-x^2*c\-x*d+x^2*d\-c
+> collect(", x);
+(\-d\-2*c)*x+(d\-c)*x^2\-2*d\-c
+> quit
+.fi
+.SH DIAGNOSTICS
+.TP
+.RI "parse error at " foo
+You entered something which ginsh was unable to parse. Please check the syntax
+of your input and try again.
+.TP
+.RI "argument " num " to " function " must be a " type
+The argument number
+.I num
+to the given
+.I function
+must be of a certain type (e.g. a symbol, or a list). The first argument has
+number 0, the second argument number 1, etc.
+.SH AUTHOR
+.TP
+The GiNaC Group:
+.br
+Christian Bauer <Christian.Bauer@uni-mainz.de>
+.br
+Alexander Frink <Alexander.Frink@uni-mainz.de>
+.br
+Richard B. Kreckel <Richard.Kreckel@uni-mainz.de>
+.SH SEE ALSO
+GiNaC Tutorial \- An open framework for symbolic computation within the
+C++ programming language
+.PP
+CLN \- A Class Library for Numbers, Bruno Haible
+.SH COPYRIGHT
+Copyright \(co 1999 Johannes Gutenberg Universit\(:at Mainz, Germany
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.

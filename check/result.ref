@@ -1,0 +1,28 @@
+---------several ex-bugs just out of pure paranoia:
+(no output)
+---------output of numeric types:
+Using 200 digits
+Pi evalfs to: 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679821480865132823066470938446095505822317253594081284811174502841027019385211055596446229489549303819644L0
+Catalan evalfs to: 0.9159655941772190150546035149323841107741493742816721342664981196217630197762547694793565129261151062485744226191961995790358988033258590594315947374811584069953320287733194605190387274781640878659090247L0
+EulerGamma evalfs to: 0.577215664901532860606512090082402431042159335939923598805767234884867726777664670936947063291746749514631447249807082480960504014486542836224173997644923536253500333742937337737673942792595258247094916L0
+Complex integers: {(0,0)=0} {(1,0)=1} {(1,1)=1+I} {(0,1)=I} {(-1,1)=-1+I} {(-1,0)=-1} {(-1,-1)=-1-I} {(0,-1)=-I} {(1,-1)=1-I} 
+---------consistency of numeric types:
+(no output)
+---------power laws:
+(no output)
+---------commutative expansion and substitution:
+(no output)
+---------consistency of symbolic functions:
+(no output)
+---------symbolic differentiation:
+(no output)
+---------polynomial GCD computation:
+(no output)
+---------rational function normalization:
+(no output)
+---------symbolic matrix manipulations:
+(no output)
+---------linear solve:
+(no output)
+---------series expansion:
+(no output)

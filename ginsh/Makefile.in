@@ -1,0 +1,82 @@
+# This is the prototype Makefile for ginsh.
+SHELL = /bin/sh
+
+# Not every make knows what CXX is, so we inherit it together with some other
+# values from configure which checks it anyways:
+CXX = @CXX@
+CXXFLAGS = @CXXFLAGS@
+CPPFLAGS = @CPPFLAGS@ -I../ -I../include
+DEFS = @DEFS@
+LIBS = @LIBS@ @LEXLIB@
+LDFLAGS = @LDFLAGS@
+LEX = @LEX@
+YACC = @YACC@
+
+# Here come the usual install directories in GNU-configure fashion:
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+mandir = @mandir@
+man1dir = ${mandir}/man1
+
+# This must be empty if configure couldn't find it in ${PATH}:
+MAKEDEPEND = @MAKEDEPEND@
+
+# Autoconf macro AC_PROC_INSTALL sets these:
+INSTALL = @INSTALL@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@ -s
+
+OBJECTS=y.tab.o @LEX_OUTPUT_ROOT@.o ../src/*.o
+
+all:	depend ginsh
+
+ginsh:	${OBJECTS}
+	${CXX} ${CXXFLAGS} ${LDFLAGS} ${OBJECTS} ${LIBS} -o ginsh
+
+# Targets for installation in install directories.
+install: ginsh installdirs
+	${INSTALL_PROGRAM} ginsh ${bindir}/ginsh
+	-${INSTALL_DATA} ginsh.1 ${man1dir}/ginsh.1
+
+installdirs:
+	${SHELL} mkinstalldirs ${bindir} ${man1dir}
+
+# Targets for cleaning up. (clean deletes files created by built, distclean
+# deletes files created by configuration, uninstall removes all files related
+# to ginsh from the system.)
+clean:
+	rm -f y.tab.c y.tab.h @LEX_OUTPUT_ROOT@.c
+	rm -f *.o *.lo core ginsh
+
+distclean: clean
+	rm -f config.status config.log config.cache config.h Makefile Makefile.bak
+
+uninstall:
+	rm -f ${bindir}/ginsh
+	rm -f ${man1dir}/ginsh.1
+
+# If Todd Brunhoff's makedepend is installed (it may not---it's part of X11);
+# then call it; else wait for trouble ahead; fi;    # :-)
+depend:
+	@if [ ${MAKEDEPEND} ]; then \
+		echo "calling ${MAKEDEPEND}"; \
+		${MAKEDEPEND} -Y. -Y../include *.cpp 2> /dev/null; \
+	fi
+
+# Special dummy targets:
+.PHONY: clean distclean depend all install uninstall check doc
+.SUFFIXES: .o .c .h .y .l
+
+# Suffix rules:
+.c.o :
+	${CXX} ${CPPFLAGS} ${CXXFLAGS} ${DEFS} -c $<
+
+# Explicit rules:
+y.tab.c y.tab.h: ginsh.y
+	$(YACC) -d ginsh.y
+
+@LEX_OUTPUT_ROOT@.c: ginsh.l
+	$(LEX) ginsh.l
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.

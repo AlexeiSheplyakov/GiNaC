@@ -1,0 +1,27 @@
+Installation:
+=============
+
+As with any autoconfiguring GNU software, installation is as easy as this:
+
+sysprompt> ./configure
+sysprompt> make
+sysprompt> make check
+sysprompt> make install
+
+Known to work with:
+  - Linux/x86, EGCS-1.1.2 or GCC 2-95.
+
+The "make" step takes about 10 minutes, on a 586 DX / 133 MHz / 64 MB or
+about 2 minutes on a P-III /550 MHz / 512 MB.
+
+More detailed installation instructions can be found in the documentation,
+in the doc/ directory.
+
+
+Problems with CLN:
+==================
+
+You should use at least CLN V1.0.2, since all earlier ones are
+somewhat buggy.  Even V1.0.1 has a few problems and GiNaC will not
+support older versions.  Please install it properly on your system
+before continuing with GiNaC.

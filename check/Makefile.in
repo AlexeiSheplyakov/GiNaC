@@ -1,0 +1,58 @@
+# This is the Makefile for GiNaC's consistency checks.
+
+# Not every make knows what CXX is, so we inherit it together with some other
+# values from configure which checks it anyways:
+CXX = @CXX@
+CXXFLAGS = @CXXFLAGS@
+CPPFLAGS = @CPPFLAGS@ -I../include
+DEFS = @DEFS@
+LIBS = @LIBS@
+LDFLAGS = @LDFLAGS@
+
+# Here come the usual install directories in GNU-configure fashion:
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+libdir = @libdir@
+includedir = @includedir@
+
+# This must be empty unless the user has called configure with --enable-shared:
+shared = @shared@
+
+OBJECTS = paranoia_check.o numeric_output.o numeric_consist.o powerlaws.o \
+          expand_subs.o inifcns_consist.o differentiation.o poly_gcd.o \
+          normalization.o lsolve_onedim.o matrix_checks.o series_expansion.o \
+          fcntimer.o main.o
+
+all: 
+	echo "Please call it with 'make check' from top-level Makefile."
+	echo "Alternatively, you can use this Makefile's targets {shared|static}check"
+	echo "depending on your personal preferences and which lib you built."
+
+sharedcheck: ${OBJECTS} ../src/.libs/libginac.so
+	${CXX} ${LDFLAGS} ${OBJECTS} -Wl,--rpath -Wl,../src/.libs -L../src/.libs -lginac ${LIBS} -o main
+	@echo -n "Running "
+	./main 2> result.out
+	@echo -n "comparing output: "
+	cmp result.ref result.out
+
+staticcheck: ${OBJECTS} ../src/.libs/libginac.a
+	${CXX} ${LDFLAGS} ${OBJECTS} ../src/.libs/libginac.a ${LIBS} -o main
+	@echo -n "Running "
+	./main 2> result.out
+	@echo -n "comparing output: "
+	cmp result.ref result.out
+
+# Special dummy targets:
+.PHONY: clean distclean all sharedcheck staticcheck
+.SUFFIXES: .o .cpp
+.SILENT: all
+
+clean:
+	rm -f *.o main core result.out
+
+distclean: clean
+	rm -f Makefile
+
+# Suffix rules:
+.cpp.o :
+	${CXX} ${CPPFLAGS} ${CXXFLAGS} ${DEFS} -c $<

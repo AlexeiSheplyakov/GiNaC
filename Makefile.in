@@ -1,0 +1,115 @@
+# This is the prototype Makefile for the GiNaC package. 
+
+# Not every make knows what CXX is, so we inherit it together with some other
+# values from configure which checks it anyways:
+CXX = @CXX@
+CXXFLAGS = @CXXFLAGS@
+CPPFLAGS = @CPPFLAGS@
+DEFS = @DEFS@
+LIBS = @LIBS@
+LDFLAGS = @LDFLAGS@
+
+# Here come the usual install directories in GNU-configure fashion:
+srcdir = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+libdir = @libdir@
+includedir = @includedir@/GiNaC
+
+# This must be empty unless the user has called configure with --enable-shared:
+shared = @shared@
+
+# The version-number is tracked in configure.in only:
+LIBGINACVER = @LibGiNaC_Ver@
+
+# Autoconf macro AC_PROC_INSTALL sets these:
+INSTALL = @INSTALL@
+INSTALL_DATA = @INSTALL_DATA@
+
+all: 	lib ginsh
+	echo "now type make install"
+
+src/libginac.la:
+	cd src; ${MAKE} libginac.la
+
+src/.libs/libginac.a:
+	cd src; ${MAKE} .libs/libginac.a
+
+lib:
+	cd src; ${MAKE} all
+
+# Target for running a test-suite across the library:
+check:
+	if [ "${shared}" ]; then \
+		${MAKE} sharedcheck; \
+	else \
+		${MAKE} staticcheck; \
+	fi
+
+sharedcheck: src/libginac.la
+	cd check; ${MAKE} sharedcheck
+
+staticcheck: src/.libs/libginac.a
+	cd check; ${MAKE} staticcheck
+
+# Target for making the Ginac INteractive SHell ginsh:
+ginsh:
+	cd ginsh; ${MAKE} all
+
+# Targets for installation in install directories.  The user-visible target
+# `install' determines which one to call (static lib only or both shared and
+# static lib).
+install: 
+	@ if [ "${shared}" ]; then \
+		${MAKE} shlibinst; \
+	else \
+		${MAKE} libinst; \
+	fi
+	${INSTALL} -d ${includedir}
+	${INSTALL_DATA} include/* ${includedir}/
+	cd ginsh; ${MAKE} install
+	cd doc; ${MAKE} install
+
+shlibinst: libginac.la
+	${INSTALL} -d ${libdir}
+	${LIBTOOL} install libginac.la ${libdir}/libginac.la
+	${LIBTOOL} -n --finish ${libdir}
+
+libinst: .libs/libginac.a
+	${INSTALL} -d ${libdir}
+	${INSTALL_DATA} .libs/libginac.a ${libdir}/libginac.a
+
+# Targets for cleaning up. (clean deletes files created by built, distclean
+# deletes files created by configuration, uninstall removes all files related
+# to GiNaC from the system.)
+clean:
+	cd src; ${MAKE} clean
+	cd check; ${MAKE} clean
+	cd ginsh; ${MAKE} clean
+
+distclean: clean
+	cd src; ${MAKE} distclean
+	cd check; ${MAKE} distclean
+	cd ginsh; ${MAKE} distclean
+	rm -f config.status config.log config.cache config.h Makefile
+
+uninstall:
+	rm -f ${libdir}/libginac.*
+	rm -rf ${includedir}
+	cd ginsh; ${MAKE} uninstall
+	cd doc; ${MAKE} uninstall
+
+# Convenient targets for those who wish to extend on the documentation:
+doc:
+	cd doc; ${MAKE} all
+reference:
+	cd doc; ${MAKE} reference
+tutorial:
+	cd doc; ${MAKE} tutorial
+
+# Special dummy targets:
+.PHONY: clean distclean all install uninstall check ginsh doc
+.SUFFIXES: .o .lo .cpp
+.SILENT: all check sharedcheck staticcheck doc reference tutorial
+
