@@ -41,7 +41,7 @@ esac
 	echo
 	echo "**Error**: Missing aclocal. The version of automake"
 	echo "installed doesn't appear recent enough."
-	echo "Get ftp://ftp.gnu.org/pub/gnu/automake-1.3.tar.gz"
+	echo "Get ftp://ftp.gnu.org/pub/gnu/automake-1.4.tar.gz"
 	echo "(or a newer version if it is available)"
 	DIE=1
 }
