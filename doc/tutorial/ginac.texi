@@ -3617,28 +3617,32 @@ GiNaC still lacks proper factorization support.  Some form of
 factorization is, however, easily implemented by noting that factors
 appearing in a polynomial with power two or more also appear in the
 derivative and hence can easily be found by computing the GCD of the
-original polynomial and its derivatives.  Any system has an interface
-for this so called square-free factorization.  So we provide one, too:
+original polynomial and its derivatives.  Any decent system has an
+interface for this so called square-free factorization.  So we provide
+one, too:
 @example
 ex sqrfree(const ex & a, const lst & l = lst());
 @end example
-Here is an example that by the way illustrates how the result may depend
-on the order of differentiation:
+Here is an example that by the way illustrates how the exact form of the
+result may slightly depend on the order of differentiation, calling for
+some care with subsequent processing of the result:
 @example
     ...
     symbol x("x"), y("y");
-    ex BiVarPol = expand(pow(x-2*y*x,3) * pow(x+y,2) * (x-y));
+    ex BiVarPol = expand(pow(2-2*y,3) * pow(1+x*y,2) * pow(x-2*y,2) * (x+y));
 
     cout << sqrfree(BiVarPol, lst(x,y)) << endl;
-     // -> (y+x)^2*(-1+6*y+8*y^3-12*y^2)*(y-x)*x^3
+     // -> 8*(1-y)^3*(y*x^2-2*y+x*(1-2*y^2))^2*(y+x)
 
     cout << sqrfree(BiVarPol, lst(y,x)) << endl;
-     // -> (1-2*y)^3*(y+x)^2*(-y+x)*x^3
+     // -> 8*(1-y)^3*(-y*x^2+2*y+x*(-1+2*y^2))^2*(y+x)
 
     cout << sqrfree(BiVarPol) << endl;
      // -> depending on luck, any of the above
     ...
 @end example
+Note also, how factors with the same exponents are not fully factorized
+with this method.
 
 
 @node Rational Expressions, Symbolic Differentiation, Polynomial Arithmetic, Methods and Functions
