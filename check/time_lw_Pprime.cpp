@@ -72,7 +72,7 @@ unsigned time_lw_Pprime(void)
 	double time = .0;
 	
 	cout << "timing Lewis-Wester test P' (det of less sparse rank 101)" << flush;
-	clog << "-------Lewis-Wester test P' (det of less sparse rank 101)" << endl;
+	clog << "-------Lewis-Wester test P' (det of less sparse rank 101):" << endl;
 	
 	rolex.start();
 	// correct for very small times:

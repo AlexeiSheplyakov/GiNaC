@@ -49,7 +49,7 @@ unsigned time_lw_C(void)
 	double time = .0;
 	
 	cout << "timing Lewis-Wester test C (gcd of big integers)" << flush;
-	clog << "-------Lewis-Wester test C (gcd of big integers)" << endl;
+	clog << "-------Lewis-Wester test C (gcd of big integers):" << endl;
 	
 	rolex.start();
 	// correct for very small times:

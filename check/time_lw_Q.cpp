@@ -62,7 +62,7 @@ unsigned time_lw_Q(void)
 	double time = .0;
 	
 	cout << "timing Lewis-Wester test Q (charpoly(P))" << flush;
-	clog << "-------Lewis-Wester test Q (charpoly(P))" << endl;
+	clog << "-------Lewis-Wester test Q (charpoly(P)):" << endl;
 	
 	if (do_test) {
 		rolex.start();

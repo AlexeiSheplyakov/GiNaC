@@ -45,7 +45,7 @@ unsigned time_lw_B(void)
 	double time = .0;
 	
 	cout << "timing Lewis-Wester test B (sum of rational numbers)" << flush;
-	clog << "-------Lewis-Wester test B (sum of rational numbers)" << endl;
+	clog << "-------Lewis-Wester test B (sum of rational numbers):" << endl;
 	
 	rolex.start();
 	// correct for very small times:

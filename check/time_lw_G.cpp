@@ -49,7 +49,7 @@ unsigned time_lw_G(void)
 	double time = .0;
 	
 	cout << "timing Lewis-Wester test G (gcd of 3-var polys)" << flush;
-	clog << "-------Lewis-Wester test G (gcd of 3-var polys)" << endl;
+	clog << "-------Lewis-Wester test G (gcd of 3-var polys):" << endl;
 	
 	rolex.start();
 	// correct for very small times:

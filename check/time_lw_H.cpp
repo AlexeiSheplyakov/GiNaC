@@ -64,7 +64,7 @@ unsigned time_lw_H(void)
 	double time = .0;
 	
 	cout << "timing Lewis-Wester test H (det of 80x80 Hilbert)" << flush;
-	clog << "-------Lewis-Wester test H (det of 80x80 Hilbert)" << endl;
+	clog << "-------Lewis-Wester test H (det of 80x80 Hilbert):" << endl;
 	
 	rolex.start();
 	// correct for very small times:

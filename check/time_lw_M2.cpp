@@ -157,7 +157,7 @@ unsigned time_lw_M2(void)
 	double time = .0;
 	
 	cout << "timing Lewis-Wester test M2 (101x101 sparse, det)" << flush;
-	clog << "-------Lewis-Wester test M2 (101x101 sparse, det)" << endl;
+	clog << "-------Lewis-Wester test M2 (101x101 sparse, det):" << endl;
 	
 	if (do_test) {
 		piaget.start();

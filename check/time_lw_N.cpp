@@ -60,7 +60,7 @@ unsigned time_lw_N(void)
 	double time = .0;
 	
 	cout << "timing Lewis-Wester test N (poly at rational fcns)" << flush;
-	clog << "-------Lewis-Wester test N (poly at rational fcns)" << endl;
+	clog << "-------Lewis-Wester test N (poly at rational fcns):" << endl;
 	
 	if (do_test) {
 		tag_heuer.start();

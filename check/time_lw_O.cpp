@@ -108,7 +108,7 @@ unsigned time_lw_O(void)
 	double time = .0;
 	
 	cout << "timing Lewis-Wester test O1 (three 15x15 dets)" << flush;
-	clog << "-------Lewis-Wester test O1 (three 15x15 dets)" << endl;
+	clog << "-------Lewis-Wester test O1 (three 15x15 dets):" << endl;
 	
 	if (do_test) {
 		rolex.start();

@@ -49,7 +49,7 @@ unsigned time_lw_E(void)
 	double time = .0;
 	
 	cout << "timing Lewis-Wester test E (normalized sum of rational fcns)" << flush;
-	clog << "-------Lewis-Wester test E (normalized sum of rational fcns)" << endl;
+	clog << "-------Lewis-Wester test E (normalized sum of rational fcns):" << endl;
 	
 	rolex.start();
 	// correct for very small times:

@@ -6,45 +6,47 @@
 (no output)
 -------determinant of polyvariate symbolic Toeplitz matrices:
 (no output)
--------Lewis-Wester test A (divide factorials)
+-------Lewis-Wester test A (divide factorials):
 (no output)
--------Lewis-Wester test B (sum of rational numbers)
+-------Lewis-Wester test B (sum of rational numbers):
 (no output)
--------Lewis-Wester test C (gcd of big integers)
+-------Lewis-Wester test C (gcd of big integers):
 (no output)
--------Lewis-Wester test D (normalized sum of rational fcns)
+-------Lewis-Wester test D (normalized sum of rational fcns):
 (no output)
--------Lewis-Wester test E (normalized sum of rational fcns)
+-------Lewis-Wester test E (normalized sum of rational fcns):
 (no output)
--------Lewis-Wester test F (gcd of 2-var polys)
+-------Lewis-Wester test F (gcd of 2-var polys):
 (no output)
--------Lewis-Wester test G (gcd of 3-var polys)
+-------Lewis-Wester test G (gcd of 3-var polys):
 (no output)
--------Lewis-Wester test H (det of 80x80 Hilbert)
+-------Lewis-Wester test H (det of 80x80 Hilbert):
 (no output)
--------Lewis-Wester test I (invert rank 40 Hilbert)
+-------Lewis-Wester test I (invert rank 40 Hilbert):
 (no output)
--------Lewis-Wester test J (check rank 40 Hilbert)
+-------Lewis-Wester test J (check rank 40 Hilbert):
 (no output)
--------Lewis-Wester test K (invert rank 70 Hilbert)
+-------Lewis-Wester test K (invert rank 70 Hilbert):
 (no output)
--------Lewis-Wester test L (check rank 70 Hilbert)
+-------Lewis-Wester test L (check rank 70 Hilbert):
 (no output)
--------Lewis-Wester test M1 (26x26 sparse, det)
+-------Lewis-Wester test M1 (26x26 sparse, det):
 (no output)
--------Lewis-Wester test M2 (101x101 sparse, det)
+-------Lewis-Wester test M2 (101x101 sparse, det):
 (no output)
--------Lewis-Wester test N (poly at rational fcns)
+-------Lewis-Wester test N (poly at rational fcns):
 (no output)
--------Lewis-Wester test O1 (three 15x15 dets)
+-------Lewis-Wester test O1 (three 15x15 dets):
 (no output)
--------Lewis-Wester test P (det of sparse rank 101)
+-------Lewis-Wester test P (det of sparse rank 101):
 (no output)
--------Lewis-Wester test P' (det of less sparse rank 101)
+-------Lewis-Wester test P' (det of less sparse rank 101):
 (no output)
--------Lewis-Wester test Q (charpoly(P))
+-------Lewis-Wester test Q (charpoly(P)):
 (no output)
--------Lewis-Wester test Q' (charpoly(P'))
+-------Lewis-Wester test Q' (charpoly(P')):
 (no output)
--------computation of antipodes in Yukawa theory
+-------computation of antipodes in Yukawa theory:
+(no output)
+-------Fateman's polynomial expand benchmark:
 (no output)

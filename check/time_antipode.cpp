@@ -479,7 +479,7 @@ unsigned time_antipode(void)
 	timer jaeger_le_coultre;
 	
 	cout << "timing computation of antipodes in Yukawa theory" << flush;
-	clog << "-------computation of antipodes in Yukawa theory" << endl;
+	clog << "-------computation of antipodes in Yukawa theory:" << endl;
 	
 	if (do_test) {
 		jaeger_le_coultre.start();

@@ -44,7 +44,7 @@ unsigned time_lw_A(void)
 	double time = .0;
 	
 	cout << "timing Lewis-Wester test A (divide factorials)" << flush;
-	clog << "-------Lewis-Wester test A (divide factorials)" << endl;
+	clog << "-------Lewis-Wester test A (divide factorials):" << endl;
 	
 	rolex.start();
 	// correct for very small times:

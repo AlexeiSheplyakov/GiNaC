@@ -81,7 +81,7 @@ unsigned time_lw_M1(void)
 	double time = .0;
 	
 	cout << "timing Lewis-Wester test M1 (26x26 sparse, det)" << flush;
-	clog << "-------Lewis-Wester test M1 (26x26 sparse, det)" << endl;
+	clog << "-------Lewis-Wester test M1 (26x26 sparse, det):" << endl;
 	
 	rolex.start();
 	// correct for very small times:
