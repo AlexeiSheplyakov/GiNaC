@@ -148,7 +148,7 @@ bool clifford::match_same_type(const basic & other) const
 	return representation_label == o.representation_label;
 }
 
-void clifford::print(const print_context & c, unsigned level = 0) const
+void clifford::print(const print_context & c, unsigned level) const
 {
 	if (!is_a<diracgamma5>(seq[0]) && !is_a<diracgamma>(seq[0]) && !is_a<diracone>(seq[0])) {
 
