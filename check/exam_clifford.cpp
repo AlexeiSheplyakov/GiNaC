@@ -94,6 +94,27 @@ static unsigned clifford_check2(void)
 	return result;
 }
 
+static unsigned clifford_check3(void)
+{
+	// checks traces
+
+	unsigned result = 0;
+
+	symbol dim("D"), m("m"), q("q");
+	varidx mu(symbol("mu"), dim), nu(symbol("nu"), dim);
+	scalar_products sp;
+	ex e;
+
+	sp.add(q, q, pow(q, 2));
+
+	e = pow(m, 2) * indexed(q, mu) * indexed(q, nu)
+	  * dirac_gamma(mu.toggle_variance()) * dirac_gamma(nu.toggle_variance());
+	e = dirac_trace(e).simplify_indexed(sp);
+	result += check_equal(e, 4*pow(m, 2)*pow(q, 2));
+
+	return result;
+}
+
 unsigned exam_clifford(void)
 {
 	unsigned result = 0;
@@ -103,6 +124,7 @@ unsigned exam_clifford(void)
 
 	result += clifford_check1();  cout << '.' << flush;
 	result += clifford_check2();  cout << '.' << flush;
+	result += clifford_check3();  cout << '.' << flush;
 	
 	if (!result) {
 		cout << " passed " << endl;
