@@ -63,8 +63,7 @@ same column on the screen, to make it look more tidy and clear.
 
 Here is an example that features both indentation and alignment:
 
-class person
-{
+class person {
 	string name;  // person's full name
 	int age;      // age in years
 };
@@ -94,8 +93,7 @@ that we had done both indentation and alignment with Tabs, with a tab-size
 of 8:
 
 |-------|-------|-------|-------|-------|-------|------- <- tab stops
-class person
-{
+class person {
 ::::::::string name;::::// person's full name
 ::::::::int age;::::::::// age in years
 };
@@ -103,8 +101,7 @@ class person
 Now somebody who prefers a tab-size of 4 looks at the code:
 
 |---|---|---|---|---|---|---|---|---|---|---|---|---|--- <- tab stops
-class person
-{
+class person {
 ::::string name;::::// person's full name
 ::::int age;::::// age in years
 };
@@ -132,8 +129,7 @@ This is how our class definition should be entered using this scheme
 (remember, ':' are Tabs, '.' are Spaces):
 
 |-------|-------|-------|-------|-------|-------|------- <- tab stops
-class person
-{
+class person {
 ::::::::string name;..// person's full name
 ::::::::int age;......// age in years
 };
@@ -142,8 +138,7 @@ class person
 tab-size, and it still looks good:
 
 |---|---|---|---|---|---|---|---|---|---|---|---|---|--- <- tab stops
-class person
-{
+class person {
 ::::string name;..// person's full name
 ::::int age;......// age in years
 };
@@ -238,7 +233,7 @@ whitespace.
 
 One word: K&R, also known as "One True Brace Style", suitably extended for
 C++. The opening brace goes at the end of the line, except for function
-bodies and classes. Really short functions can be written in one single line.
+bodies. Really short functions can be written in one single line.
 
 	if (a == b) {
 		// do something
@@ -284,8 +279,7 @@ bodies and classes. Really short functions can be written in one single line.
 		// catchall
 	}
 
-	class foo
-	{
+	class foo {
 	public:
 		foo(int i) : x(i)
 		{
