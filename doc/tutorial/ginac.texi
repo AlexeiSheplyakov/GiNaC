@@ -101,7 +101,7 @@ The motivation behind GiNaC derives from the observation that most
 present day computer algebra systems (CAS) are linguistically and
 semantically impoverished.  Although they are quite powerful tools for
 learning math and solving particular problems they lack modern
-linguistical structures that allow for the creation of large-scale
+linguistic structures that allow for the creation of large-scale
 projects.  GiNaC is an attempt to overcome this situation by extending a
 well established and standardized computer language (C++) by some
 fundamental symbolic capabilities, thus allowing for integrated systems
@@ -548,7 +548,7 @@ $ ./configure
 
 And here is a configuration for a private static GiNaC library with
 several components sitting in custom places (site-wide @acronym{GCC} and
-private @acronym{CLN}).  The compiler is pursuaded to be picky and full
+private @acronym{CLN}).  The compiler is persuaded to be picky and full
 assertions and debugging information are switched on:
 
 @example
@@ -598,7 +598,7 @@ machine catches fire.  Another quite important intent is to allow people
 to fiddle around with optimization.
 
 Generally, the top-level Makefile runs recursively to the
-subdirectories.  It is therfore safe to go into any subdirectory
+subdirectories.  It is therefore safe to go into any subdirectory
 (@code{doc/}, @code{ginsh/}, @dots{}) and simply type @code{make}
 @var{target} there in case something went wrong.
 
@@ -811,7 +811,7 @@ When using GiNaC it is useful to arrange for exceptions to be catched in
 the main program even if you don't want to do any special error handling.
 Otherwise whenever an error occurs in GiNaC, it will be delegated to the
 default exception handler of your C++ compiler's run-time system which
-ususally only aborts the program without giving any information what went
+usually only aborts the program without giving any information what went
 wrong.
 
 Here is an example for a @code{main()} function that catches and prints
@@ -1028,8 +1028,8 @@ holds a rational number represented as integer numerator and integer
 denominator.  When multiplied by 10, the denominator becomes unity and
 the result is automatically converted to a pure integer again.
 Internally, the underlying @acronym{CLN} is responsible for this
-behaviour and we refer the reader to @acronym{CLN}'s documentation.
-Suffice to say that the same behaviour applies to complex numbers as
+behavior and we refer the reader to @acronym{CLN}'s documentation.
+Suffice to say that the same behavior applies to complex numbers as
 well as return values of certain functions.  Complex numbers are
 automatically converted to real numbers if the imaginary part becomes
 zero.  The full set of tests that can be applied is listed in the
@@ -1138,7 +1138,7 @@ interpret this as @code{x^(a^b)}.
 Also, expressions involving integer exponents are very frequently used,
 which makes it even more dangerous to overload @code{^} since it is then
 hard to distinguish between the semantics as exponentiation and the one
-for exclusive or.  (It would be embarassing to return @code{1} where one
+for exclusive or.  (It would be embarrassing to return @code{1} where one
 has requested @code{2^3}.)
 @end itemize
 
@@ -1278,7 +1278,7 @@ It must be noted that these pseudofunctions are created by inline
 functions, where the argument list is templated.  This means that
 whenever you call @code{GiNaC::sin(1)} it is equivalent to
 @code{sin(ex(1))} and will therefore not result in a floating point
-numeber.  Unless of course the function prototype is explicitly
+number.  Unless of course the function prototype is explicitly
 overridden -- which is the case for arguments of type @code{numeric}
 (not wrapped inside an @code{ex}).  Hence, in order to obtain a floating
 point number of class @code{numeric} you should call
@@ -1552,7 +1552,7 @@ the symbol @code{A} as its base expression and the two indices @code{i} and
 @code{j}.
 
 Note the difference between the indices @code{i} and @code{j} which are of
-class @code{idx}, and the index values which are the sybols @code{i_sym}
+class @code{idx}, and the index values which are the symbols @code{i_sym}
 and @code{j_sym}. The indices of indexed objects cannot directly be symbols
 or numbers but must be index objects. For example, the following is not
 correct and will raise an exception:
@@ -1928,7 +1928,7 @@ that performs some more expensive operations:
 @itemize
 @item it checks the consistency of free indices in sums in the same way
   @code{get_free_indices()} does
-@item it tries to give dumy indices that appear in different terms of a sum
+@item it tries to give dummy indices that appear in different terms of a sum
   the same name to allow simplifications like @math{a_i*b_i-a_j*b_j=0}
 @item it (symbolically) calculates all possible dummy index summations/contractions
   with the predefined tensors (this will be explained in more detail in the
@@ -2119,7 +2119,7 @@ The matrix representation of the spinor metric is @code{[[0, 1], [-1, 0]]}.
 The epsilon tensor is totally antisymmetric, its number of indices is equal
 to the dimension of the index space (the indices must all be of the same
 numeric dimension), and @samp{eps.1.2.3...} (resp. @samp{eps~0~1~2...}) is
-defined to be 1. Its behaviour with indices that have a variance also
+defined to be 1. Its behavior with indices that have a variance also
 depends on the signature of the metric. Epsilon tensors are output as
 @samp{eps}.
 
@@ -2216,7 +2216,7 @@ physics:
 @end itemize
 
 The @code{clifford} and @code{color} classes are subclasses of
-@code{indexed} because the elements of these algebras ususally carry
+@code{indexed} because the elements of these algebras usually carry
 indices. The @code{matrix} class is described in more detail in
 @ref{Matrices}.
 
@@ -2848,7 +2848,7 @@ expressions), so something like @code{(pow(x,2)+x)/x==x+1} will return
 
 Actually, if you construct an expression like @code{a == b}, this will be
 represented by an object of the @code{relational} class (@pxref{Relations})
-which is not evaluated until (explicitly or implicitely) cast to a @code{bool}.
+which is not evaluated until (explicitly or implicitly) cast to a @code{bool}.
 
 There are also two methods
 
@@ -3042,7 +3042,7 @@ account for their commutativity and associativity:
 
 In general, having more than one single wildcard as a term of a sum or a
 factor of a product (such as @samp{a+$0+$1}) will lead to unpredictable or
-amgiguous results.
+ambiguous results.
 
 Here are some examples in @command{ginsh} to demonstrate how it works (the
 @code{match()} function in @command{ginsh} returns @samp{FAIL} if the
@@ -3364,7 +3364,7 @@ to the factorized polynomial @math{(x + 5*y + 4*z)*(4*y + z)}.  Other
 representations are the recursive ones where one collects for exponents
 in one of the three variable.  Since the factors are themselves
 polynomials in the remaining two variables the procedure can be
-repeated.  In our expample, two possibilities would be @math{(4*y + z)*x
+repeated.  In our example, two possibilities would be @math{(4*y + z)*x
 + 20*y^2 + 21*y*z + 4*z^2} and @math{20*y^2 + (21*z + 4*x)*y + 4*z^2 +
 x*z}.
 
@@ -3814,6 +3814,7 @@ When you run it, it produces the sequence @code{1}, @code{-1}, @code{5},
 @cindex Taylor expansion
 @cindex Laurent expansion
 @cindex @code{pseries} (class)
+@cindex @code{Order()}
 
 Expressions know how to expand themselves as a Taylor series or (more
 generally) a Laurent series.  As in most conventional Computer Algebra
@@ -3975,62 +3976,89 @@ GiNaC contains the following predefined mathematical functions:
 @item @strong{Name} @tab @strong{Function}
 @item @code{abs(x)}
 @tab absolute value
+@cindex @code{abs()}
 @item @code{csgn(x)}
 @tab complex sign
+@cindex @code{csgn()}
 @item @code{sqrt(x)}
 @tab square root (not a GiNaC function, rather an alias for @code{pow(x, numeric(1, 2))})
+@cindex @code{sqrt()}
 @item @code{sin(x)}
 @tab sine
+@cindex @code{sin()}
 @item @code{cos(x)}
 @tab cosine
+@cindex @code{cos()}
 @item @code{tan(x)}
 @tab tangent
+@cindex @code{tan()}
 @item @code{asin(x)}
 @tab inverse sine
+@cindex @code{asin()}
 @item @code{acos(x)}
 @tab inverse cosine
+@cindex @code{acos()}
 @item @code{atan(x)}
 @tab inverse tangent
+@cindex @code{atan()}
 @item @code{atan2(y, x)}
 @tab inverse tangent with two arguments
 @item @code{sinh(x)}
 @tab hyperbolic sine
+@cindex @code{sinh()}
 @item @code{cosh(x)}
 @tab hyperbolic cosine
+@cindex @code{cosh()}
 @item @code{tanh(x)}
 @tab hyperbolic tangent
+@cindex @code{tanh()}
 @item @code{asinh(x)}
 @tab inverse hyperbolic sine
+@cindex @code{asinh()}
 @item @code{acosh(x)}
 @tab inverse hyperbolic cosine
+@cindex @code{acosh()}
 @item @code{atanh(x)}
 @tab inverse hyperbolic tangent
+@cindex @code{atanh()}
 @item @code{exp(x)}
 @tab exponential function
+@cindex @code{exp()}
 @item @code{log(x)}
 @tab natural logarithm
+@cindex @code{log()}
 @item @code{Li2(x)}
 @tab Dilogarithm
+@cindex @code{Li2()}
 @item @code{zeta(x)}
 @tab Riemann's zeta function
+@cindex @code{zeta()}
 @item @code{zeta(n, x)}
 @tab derivatives of Riemann's zeta function
 @item @code{tgamma(x)}
 @tab Gamma function
+@cindex @code{tgamma()}
+@cindex Gamma function
 @item @code{lgamma(x)}
 @tab logarithm of Gamma function
+@cindex @code{lgamma()}
 @item @code{beta(x, y)}
 @tab Beta function (@code{tgamma(x)*tgamma(y)/tgamma(x+y)})
+@cindex @code{beta()}
 @item @code{psi(x)}
 @tab psi (digamma) function
+@cindex @code{psi()}
 @item @code{psi(n, x)}
 @tab derivatives of psi function (polygamma functions)
 @item @code{factorial(n)}
 @tab factorial function
+@cindex @code{factorial()}
 @item @code{binomial(n, m)}
 @tab binomial coefficients
+@cindex @code{binomial()}
 @item @code{Order(x)}
 @tab order term function in truncated power series
+@cindex @code{Order()}
 @end multitable
 @end cartouche
 
@@ -4349,7 +4377,7 @@ create new symbols with that name. E.g. if you hadn't included @code{x} in
 the @code{syms} list above, the @code{ex1.subs(x == 2)} statement would
 have had no effect because the @code{x} in @code{ex1} would have been a
 different symbol than the @code{x} which was defined at the beginning of
-the program, altough both would appear as @samp{x} when printed.
+the program, although both would appear as @samp{x} when printed.
 
 You can also use the information stored in an @code{archive} object to
 output expressions in a format suitable for exact reconstruction. The
@@ -4468,7 +4496,7 @@ GiNaC makes this even more clear: it doesn't even attempt to provide a
 language.  There are no loops or conditional expressions in
 @command{ginsh}, it is merely a window into the library for the
 programmer to test stuff (or to show off).  Still, the design of a
-complete CAS with a language of its own, graphical capabilites and all
+complete CAS with a language of its own, graphical capabilities and all
 this on top of GiNaC is possible and is without doubt a nice project for
 the future.
 
@@ -4552,7 +4580,7 @@ write another method for Laurent expansion around that point.
 
 Now that all the ingredients for @code{cos} have been set up, we need
 to tell the system about it.  This is done by a macro and we are not
-going to descibe how it expands, please consult your preprocessor if you
+going to describe how it expands, please consult your preprocessor if you
 are curious:
 
 @example
@@ -4698,7 +4726,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(mystring, basic)
 @end example
 
 The @code{GINAC_DECLARE_REGISTERED_CLASS} and @code{GINAC_IMPLEMENT_REGISTERED_CLASS}
-macros are defined in @file{registrar.h}. They take the name of the class
+macros are defined in @file{registrar.h}.  They take the name of the class
 and its direct superclass as arguments and insert all required declarations
 for the RTTI system. The @code{GINAC_DECLARE_REGISTERED_CLASS} should be
 the first line after the opening brace of the class definition. The
@@ -4707,10 +4735,10 @@ source (at global scope, of course, not inside a function).
 
 @code{GINAC_DECLARE_REGISTERED_CLASS} contains, among other things the
 declarations of the default and copy constructor, the destructor, the
-assignment operator and a couple of other functions that are required. It
+assignment operator and a couple of other functions that are required.  It
 also defines a type @code{inherited} which refers to the superclass so you
 don't have to modify your code every time you shuffle around the class
-hierarchy. @code{GINAC_IMPLEMENT_REGISTERED_CLASS} implements the copy
+hierarchy.  @code{GINAC_IMPLEMENT_REGISTERED_CLASS} implements the copy
 constructor, the destructor and the assignment operator.
 
 Now there are nine member functions we have to implement to get a working
@@ -4780,7 +4808,7 @@ The golden rule is that in all constructors you have to set the
 it will be set by the constructor of the superclass and all hell will break
 loose in the RTTI. For your convenience, the @code{basic} class provides
 a constructor that takes a @code{tinfo_key} value, which we are using here
-(remember that in our case @code{inherited = basic}). If the superclass
+(remember that in our case @code{inherited = basic}).  If the superclass
 didn't have such a constructor, we would have to set the @code{tinfo_key}
 to the right value manually.
 
@@ -4800,13 +4828,13 @@ void mystring::destroy(bool call_parent)
 @}
 @end example
 
-This function is where we free all dynamically allocated resources. We don't
-have any so we're not doing anything here, but if we had, for example, used
-a C-style @code{char *} to store our string, this would be the place to
-@code{delete[]} the string storage. If @code{call_parent} is true, we have
-to call the @code{destroy()} function of the superclass after we're done
-(to mimic C++'s automatic invocation of superclass destructors where
-@code{destroy()} is called from outside a destructor).
+This function is where we free all dynamically allocated resources.  We
+don't have any so we're not doing anything here, but if we had, for
+example, used a C-style @code{char *} to store our string, this would be
+the place to @code{delete[]} the string storage. If @code{call_parent}
+is true, we have to call the @code{destroy()} function of the superclass
+after we're done (to mimic C++'s automatic invocation of superclass
+destructors where @code{destroy()} is called from outside a destructor).
 
 The @code{copy()} function just copies over the member variables from
 another object:
@@ -4820,7 +4848,7 @@ void mystring::copy(const mystring &other)
 @end example
 
 We can simply overwrite the member variables here. There's no need to worry
-about dynamically allocated storage. The assignment operator (which is
+about dynamically allocated storage.  The assignment operator (which is
 automatically defined by @code{GINAC_IMPLEMENT_REGISTERED_CLASS}, as you
 recall) calls @code{destroy()} before it calls @code{copy()}. You have to
 explicitly call the @code{copy()} function of the superclass here so
@@ -4828,7 +4856,7 @@ all the member variables will get copied.
 
 Next are the three functions for archiving. You have to implement them even
 if you don't plan to use archives, but the minimum required implementation
-is really simple. First, the archiving function:
+is really simple.  First, the archiving function:
 
 @example
 void mystring::archive(archive_node &n) const
@@ -4841,7 +4869,7 @@ void mystring::archive(archive_node &n) const
 The only thing that is really required is calling the @code{archive()}
 function of the superclass. Optionally, you can store all information you
 deem necessary for representing the object into the passed
-@code{archive_node}. We are just storing our string here. For more
+@code{archive_node}.  We are just storing our string here. For more
 information on how the archiving works, consult the @file{archive.h} header
 file.
 
@@ -4869,14 +4897,14 @@ ex mystring::unarchive(const archive_node &n, const lst &sym_lst)
 @}
 @end example
 
-You don't have to understand how exactly this works. Just copy these four
-lines into your code literally (replacing the class name, of course). It
-calls the unarchiving constructor of the class and unless you are doing
-something very special (like matching @code{archive_node}s to global
-objects) you don't need a different implementation. For those who are
-interested: setting the @code{dynallocated} flag puts the object under
-the control of GiNaC's garbage collection. It will get deleted automatically
-once it is no longer referenced.
+You don't have to understand how exactly this works. Just copy these
+four lines into your code literally (replacing the class name, of
+course).  It calls the unarchiving constructor of the class and unless
+you are doing something very special (like matching @code{archive_node}s
+to global objects) you don't need a different implementation. For those
+who are interested: setting the @code{dynallocated} flag puts the object
+under the control of GiNaC's garbage collection.  It will get deleted
+automatically once it is no longer referenced.
 
 Our @code{compare_same_type()} function uses a provided function to compare
 the string members:
@@ -5004,6 +5032,7 @@ concatenation. You would have to implement this yourself.
 @subsection Automatic evaluation
 
 @cindex @code{hold()}
+@cindex @code{eval()}
 @cindex evaluation
 When dealing with objects that are just a little more complicated than the
 simple string objects we have implemented, chances are that you will want to
@@ -5040,13 +5069,13 @@ ex mystring::eval(int level) const
 @end example
 
 The @code{level} argument is used to limit the recursion depth of the
-evaluation. We don't have any subexpressions in the @code{mystring} class
-so we are not concerned with this. If we had, we would call the @code{eval()}
-functions of the subexpressions with @code{level - 1} as the argument if
-@code{level != 1}. The @code{hold()} member function sets a flag in the
-object that prevents further evaluation. Otherwise we might end up in an
-endless loop. When you want to return the object unmodified, use
-@code{return this->hold();}.
+evaluation.  We don't have any subexpressions in the @code{mystring}
+class so we are not concerned with this.  If we had, we would call the
+@code{eval()} functions of the subexpressions with @code{level - 1} as
+the argument if @code{level != 1}.  The @code{hold()} member function
+sets a flag in the object that prevents further evaluation.  Otherwise
+we might end up in an endless loop.  When you want to return the object
+unmodified, use @code{return this->hold();}.
 
 Let's confirm that it works:
 
@@ -5094,7 +5123,7 @@ other, traditional Computer Algebra Systems, like @emph{Maple},
 disadvantages over these systems.
 
 @menu
-* Advantages::                       Stengths of the GiNaC approach.
+* Advantages::                       Strengths of the GiNaC approach.
 * Disadvantages::                    Weaknesses of the GiNaC approach.
 * Why C++?::                         Attractiveness of C++.
 @end menu
@@ -5159,7 +5188,7 @@ together (called @acronym{GiNaC-cint}) that allows an interactive
 scripting interface consistent with the C++ language.
 
 @item
-seemless integration: it is somewhere between difficult and impossible
+seamless integration: it is somewhere between difficult and impossible
 to call CAS functions from within a program written in C++ or any other
 programming language and vice versa.  With GiNaC, your symbolic routines
 are part of your program.  You can easily call third party libraries,
@@ -5246,7 +5275,7 @@ any other programming language.
 @cindex garbage collection
 An expression is extremely light-weight since internally it works like a
 handle to the actual representation and really holds nothing more than a
-pointer to some other object. What this means in practice is that
+pointer to some other object.  What this means in practice is that
 whenever you create two @code{ex} and set the second equal to the first
 no copying process is involved. Instead, the copying takes place as soon
 as you try to change the second.  Consider the simple sequence of code:
@@ -5687,15 +5716,19 @@ and George Labahn, ISBN 0-7923-9259-0, 1992, Kluwer Academic Publishers, Norwell
 
 @item
 @cite{Computer Algebra: Systems and Algorithms for Algebraic Computation},
-J.H. Davenport, Y. Siret, and E. Tournier, ISBN 0-12-204230-1, 1988, 
+James H. Davenport, Yvon Siret, and Evelyne Tournier, ISBN 0-12-204230-1, 1988, 
 Academic Press, London
 
 @item
-@cite{The Art of Computer Programming, Vol 2: Seminumerical Algorithms},
-D.E. Knuth, ISBN 0-201-89684-2, 1998, Addison Wesley
+@cite{Computer Algebra Systems - A Practical Guide},
+Michael J. Wester (editor), ISBN 0-471-98353-5, 1999, Wiley, Chichester
 
 @item
-@cite{The Role of gamma5 in Dimensional Regularization}, D. Kreimer, hep-ph/9401354
+@cite{The Art of Computer Programming, Vol 2: Seminumerical Algorithms},
+Donald E. Knuth, ISBN 0-201-89684-2, 1998, Addison Wesley
+
+@item
+@cite{The Role of gamma5 in Dimensional Regularization}, Dirk Kreimer, hep-ph/9401354
 
 @end itemize
 
