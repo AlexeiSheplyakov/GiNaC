@@ -189,7 +189,7 @@ public:
     ex eval(int level=0) const;
     ex evalf(int level=0) const;
     ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
-    ex diff(const symbol & s) const;
+    ex derivative(const symbol & s) const;
     ex subs(const lst & ls, const lst & lr) const;
 protected:
     int compare_same_type(const basic & other) const;
@@ -634,7 +634,7 @@ ex ${CONTAINER}::normal(lst &sym_lst, lst &repl_lst, int level) const
     return n.bp->basic::normal(sym_lst,repl_lst,level);
 }
 
-ex ${CONTAINER}::diff(const symbol & s) const
+ex ${CONTAINER}::derivative(const symbol & s) const
 {
     return this${CONTAINER}(diffchildren(s));
 }

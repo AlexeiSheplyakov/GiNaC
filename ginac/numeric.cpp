@@ -545,6 +545,14 @@ ex numeric::evalf(int level) const
 
 // protected
 
+/** Implementation of ex::diff() for a numeric. It always returns 0.
+ *
+ *  @see ex::diff */
+ex numeric::derivative(const symbol & s) const
+{
+    return _ex0();
+}
+
 int numeric::compare_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_exactly_of_type(other, numeric));
@@ -634,8 +642,14 @@ numeric numeric::power(const numeric & other) const
     static const numeric * _num1p=&_num1();
     if (&other==_num1p)
         return *this;
-    if (::zerop(*value) && other.is_real() && ::minusp(realpart(*other.value)))
-        throw (std::overflow_error("division by zero"));
+    if (::zerop(*value)) {
+        if (::zerop(*other.value))
+            throw (std::domain_error("numeric::eval(): pow(0,0) is undefined"));
+        else if (other.is_real() && !::plusp(realpart(*other.value)))
+            throw (std::overflow_error("numeric::eval(): division by zero"));
+        else
+            return _num0();
+    }
     return numeric(::expt(*value,*other.value));
 }
 
@@ -682,8 +696,14 @@ const numeric & numeric::power_dyn(const numeric & other) const
     static const numeric * _num1p=&_num1();
     if (&other==_num1p)
         return *this;
-    if (::zerop(*value) && other.is_real() && ::minusp(realpart(*other.value)))
-        throw (std::overflow_error("division by zero"));
+    if (::zerop(*value)) {
+        if (::zerop(*other.value))
+            throw (std::domain_error("numeric::eval(): pow(0,0) is undefined"));
+        else if (other.is_real() && !::plusp(realpart(*other.value)))
+            throw (std::overflow_error("numeric::eval(): division by zero"));
+        else
+            return _num0();
+    }
     return static_cast<const numeric &>((new numeric(::expt(*value,*other.value)))->
                                         setflag(status_flags::dynallocated));
 }
@@ -1658,15 +1678,6 @@ ostream& operator<<(ostream& os, const _numeric_digits & e)
 
 bool _numeric_digits::too_late = false;
 
-
-//////////
-// utility functions
-//////////
-
-const numeric &ex_to_numeric(const ex &e)
-{
-    return static_cast<const numeric &>(*e.bp);
-}
 
 /** Accuracy in decimal digits.  Only object of this type!  Can be set using
  *  assignment from C++ unsigned ints and evaluated like any built-in type. */

@@ -102,9 +102,9 @@ public:
     ex eval(int level=0) const;
     ex evalf(int level=0) const;
     ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
-    ex diff(const symbol & s) const;
     ex subs(const lst & ls, const lst & lr) const;
 protected:
+    ex derivative(const symbol & s) const;
     int compare_same_type(const basic & other) const;
     bool is_equal_same_type(const basic & other) const;
     unsigned return_type(void) const;

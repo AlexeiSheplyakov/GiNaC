@@ -34,7 +34,7 @@ namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
 
 template<class T>
-string ToString(T const & t)
+string ToString(const T & t)
 {
     char buf[256];
     ostrstream(buf,sizeof(buf)) << t << ends;

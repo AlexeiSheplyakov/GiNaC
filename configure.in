@@ -163,10 +163,10 @@ if [[ "x$with_cint" != "xno" ]]; then
   if [[ "$CINT" -a "$MAKECINT" ]]; then
     AC_MSG_RESULT([creating cint/Makefile])
     (cd cint && \
-    $MAKECINT -mk Makefile.makecint -o ginaccint -m \
+    $MAKECINT -mk Makefile.makecint -o ginaccint.bin -m \
       -D OBSCURE_CINT_HACK -D NO_NAMESPACE_GINAC \
       -I .. -I $CINTSYSDIR -m -H ../ginac/ginac.h dummies.h \
-      -C++ dummies.cpp -C++ ginaccint.cpp \
+      -C++ dummies.cpp -C++ ginaccint.bin.cpp \
       -l ./libginac.a -lcln -cint -M0x10; \
     cd ..)
     LIBGINACCINT="libginac.a"
@@ -175,6 +175,7 @@ if [[ "x$with_cint" != "xno" ]]; then
     AC_MSG_ERROR([Cannot configure GiNaC-cint])
   fi
 fi
+AC_SUBST(CINTSYSDIR)
 AC_SUBST(LIBGINACCINT)
 AC_SUBST(GINACCINTDIR)
 
@@ -191,5 +192,6 @@ doc/Makefile
 doc/tutorial/Makefile
 doc/reference/Makefile
 cint/Makefile
-], [chmod +x ginac-config])
+cint/ginaccint
+], [chmod +x ginac-config cint/ginaccint])
 echo "Configuration done. Now type \"make\"."

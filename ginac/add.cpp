@@ -414,6 +414,14 @@ ex add::simplify_ncmul(const exvector & v) const
 
 // protected
 
+/** Implementation of ex::diff() for a sum. It differentiates each term.
+ *  @see ex::diff */
+ex add::derivative(const symbol & s) const
+{
+    // D(a+b+c)=D(a)+D(b)+D(c)
+    return (new add(diffchildren(s)))->setflag(status_flags::dynallocated);
+}
+
 int add::compare_same_type(const basic & other) const
 {
     return inherited::compare_same_type(other);

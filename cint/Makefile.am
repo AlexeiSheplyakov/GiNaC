@@ -1,19 +1,19 @@
 ## Process this file with automake to produce Makefile.in
 
-bin_PROGRAMS = ginaccint
-noinst_LIBRARIES = libginac.a
-ginaccint_SOURCES = ginaccint.cpp dummies.cpp dummies.h
+bin_PROGRAMS = ginaccint.bin ginaccint
+noinst_LTLIBRARIES = libginac.la
+ginaccint_bin_SOURCES = ginaccint.bin.cpp dummies.cpp dummies.h
 man_MANS = ginaccint.1
 
 # Build a modified library in the ginac-subdir and put it into the cint-subdir:
-libginac.a:
+libginac.la:
 	(cd ../ginac && \
 	  $(MAKE) clean; \
 	  $(MAKE) CXXFLAGS="$$CXXFLAGS -DNO_NAMESPACE_GINAC" && \
 	  $(MAKE) install-libLTLIBRARIES prefix=`pwd`/../cint libdir=`pwd`/../cint && \
 	  $(MAKE) clean)
 
-ginaccint: libginac.a ginaccint.cpp
+ginaccint.bin: libginac.la ginaccint.bin.cpp
 	$(MAKE) -f Makefile.makecint
 
 EXTRA_DIST = dummies.pl
@@ -23,4 +23,9 @@ $(srcdir)/dummies.h $(srcdir)/dummies.cpp: $(srcdir)/dummies.pl
 	cd $(srcdir) && perl dummies.pl
 
 # Force build of headers before compilation
-$(srcdir)/ginaccint.cpp: $(srcdir)/dummies.h
+$(srcdir)/ginaccint.bin.cpp: $(srcdir)/dummies.h
+
+# Force make clean to call Makecint's own Makefile
+makecint_clean:
+	(if [ -f Makefile.makecint ]; then $(MAKE) -f Makefile.makecint clean; fi)
+clean: makecint_clean

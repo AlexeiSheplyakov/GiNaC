@@ -40,13 +40,29 @@ or a semicolon
 .RB ( ; )
 is encountered.
 
+.SS SPECIAL COMMANDS
+.IP "\fB.cint\fR"
+Switch to cint interactive mode.
+.IP "\fB.function\fR"
 
-.SS FUNCTION DEFINITIONS
-GiNaC-cint must be put into a special mode in order to define a
-function.  This is done with the command
-.RB .function .
-After that any function definition in valid C++ syntax may be typed
-in.  It becomes immediatly available for usage.
+Allow a function definition in interactive mode.  GiNaC-cint must be
+put into a special mode in order to define a function. After that any
+function definition in valid C++ syntax may be typed in.  It becomes
+immediatly available for usage.
+
+.IP "\fBquit;\fR"
+Exit from GiNaC-Cint.  Same as 
+.BR "exit;" ,
+.BR "bye;" ,
+.BR ".q" ,
+.BR ".quit" ,
+.BR ".exit " or
+.BR ".bye" .
+
+.IP "\fBOut\fP\fInum\fP"
+Returns the expression whose output was marked
+.BR "\fBOut\fP\fInum\fP" 
+as a handle.
 
 .SH EXAMPLES
 .nf
@@ -55,20 +71,32 @@ GiNaC> ex a = pow(x,2)-x-2;
 GiNaC> ex b = pow(x+1,2);
 GiNaC> ex s = a/b;
 GiNaC> s.diff(x);
-out1   -2*(1+x)^(-3)*(-2-x+x^2)+(-1+2*x)*(1+x)^(-2)
+Out1 = -2*(1+x)^(-3)*(-2-x+x^2)+(-1+2*x)*(1+x)^(-2)
 GiNaC> s.normal();
-out2   (-2+x)*(1+x)^(-1)
+Out2 = (-2+x)*(1+x)^(-1)
+GiNaC> for (int i=2; i<20; i+=2) {
+     >     cout << "B(" << i << ") == " << bernoulli(i) << endl;
+     > }
+B(2)==1/6
+B(4)==-1/30
+B(6)==1/42
+B(8)==-1/30
+B(10)==5/66
+B(12)==-691/2730
+B(14)==7/6
+B(16)==-3617/510
+B(18)==43867/798
 GiNaC> .function
 next expression can be a function definition
 GiNaC> ex EulerNumber(unsigned n)
      > {
      >     symbol x;
-     >     ex generator = pow(cosh(x),-1);
+     >     const ex generator = pow(cosh(x),-1);
      >     return generator.diff(x,n).subs(x==0);
      > }
 creating file /tmp/ginac26197caa
 GiNaC> EulerNumber(42);
-out3   -10364622733519612119397957304745185976310201
+Out3 = -10364622733519612119397957304745185976310201
 GiNaC> quit;
 .fi
 
@@ -85,13 +113,17 @@ you encounter as far as possible and contact Masaharu Goto
 
 .SH AUTHOR
 .TP
-The GiNaC Group:
+The GiNaC Group
 .br
 Christian Bauer <Christian.Bauer@uni-mainz.de>
 .br
 Alexander Frink <Alexander.Frink@uni-mainz.de>
 .br
 Richard Kreckel <Richard.Kreckel@uni-mainz.de>
+.TP
+Agilent Technologies Japan
+.br
+Masaharu Goto <MXJ02154@niftyserve.or.jp>
 .SH SEE ALSO
 GiNaC Tutorial \- An open framework for symbolic computation within the
 C++ programming language

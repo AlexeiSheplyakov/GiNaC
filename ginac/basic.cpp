@@ -293,6 +293,27 @@ ex basic::subs(const lst & ls, const lst & lr) const
     return *this;
 }
 
+/** Default interface of nth derivative ex::diff(s, n).  It should be called
+ *  instead of ::derivative(s) for first derivatives and for nth derivatives it
+ *  just recurses down.
+ *
+ *  @param s symbol to differentiate in
+ *  @param nth order of differentiation
+ *  @see ex::diff */
+ex basic::diff(const symbol & s, unsigned nth) const
+{
+    // FIXME: Check if it is evaluated!
+    if (!nth)
+        return ex(*this);
+    ex ndiff = derivative(s);
+    while (!ndiff.is_zero() &&    // stop differentiating zeroes
+           nth>1) {
+        ndiff = ndiff.diff(s);
+        --nth;
+    }
+    return ndiff;
+}
+
 exvector basic::get_indices(void) const
 {
     return exvector(); // return an empty exvector
@@ -304,6 +325,15 @@ ex basic::simplify_ncmul(const exvector & v) const
 }
 
 // protected
+
+/** Default implementation of ex::diff(). It simply throws an error message.
+ *
+ *  @exception logic_error (differentiation not supported by this type)
+ *  @see ex::diff */
+ex basic::derivative(const symbol & s) const
+{
+    throw(std::logic_error("differentiation not supported by this type"));
+}
 
 int basic::compare_same_type(const basic & other) const
 {
@@ -348,6 +378,7 @@ ex basic::expand(unsigned options) const
 {
     return this->setflag(status_flags::expanded);
 }
+
 
 //////////
 // non-virtual functions in this class

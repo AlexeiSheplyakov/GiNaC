@@ -74,14 +74,14 @@ static ex zeta1_eval(const ex & x)
     return zeta(x).hold();
 }
 
-static ex zeta1_diff(const ex & x, unsigned diff_param)
+static ex zeta1_deriv(const ex & x, unsigned deriv_param)
 {
-    GINAC_ASSERT(diff_param==0);
+    GINAC_ASSERT(deriv_param==0);
     
     return zeta(_ex1(), x);
 }
 
-const unsigned function_index_zeta1 = function::register_new("zeta", zeta1_eval, zeta1_evalf, zeta1_diff, NULL);
+const unsigned function_index_zeta1 = function::register_new("zeta", zeta1_eval, zeta1_evalf, zeta1_deriv, NULL);
 
 //////////
 // Derivatives of Riemann's Zeta-function  zeta(0,x)==zeta(x)
@@ -98,11 +98,11 @@ static ex zeta2_eval(const ex & n, const ex & x)
     return zeta(n, x).hold();
 }
 
-static ex zeta2_diff(const ex & n, const ex & x, unsigned diff_param)
+static ex zeta2_deriv(const ex & n, const ex & x, unsigned deriv_param)
 {
-    GINAC_ASSERT(diff_param<2);
+    GINAC_ASSERT(deriv_param<2);
     
-    if (diff_param==0) {
+    if (deriv_param==0) {
         // d/dn zeta(n,x)
         throw(std::logic_error("cannot diff zeta(n,x) with respect to n"));
     }
@@ -110,7 +110,7 @@ static ex zeta2_diff(const ex & n, const ex & x, unsigned diff_param)
     return zeta(n+1,x);
 }
 
-const unsigned function_index_zeta2 = function::register_new("zeta", zeta2_eval, NULL, zeta2_diff, NULL);
+const unsigned function_index_zeta2 = function::register_new("zeta", zeta2_eval, NULL, zeta2_deriv, NULL);
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

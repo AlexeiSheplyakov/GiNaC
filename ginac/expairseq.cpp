@@ -372,6 +372,14 @@ ex expairseq::subs(const lst & ls, const lst & lr) const
 
 // protected
 
+/** Implementation of ex::diff() for an expairseq. It differentiates all elements of the
+ *  sequence.
+ *  @see ex::diff */
+ex expairseq::derivative(const symbol & s) const
+{
+    return thisexpairseq(diffchildren(s),overall_coeff);
+}
+
 int expairseq::compare_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_of_type(other, expairseq));

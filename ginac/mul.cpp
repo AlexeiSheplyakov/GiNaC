@@ -462,6 +462,24 @@ ex mul::simplify_ncmul(const exvector & v) const
 
 // protected
 
+/** Implementation of ex::diff() for a product. It applies the product rule.
+ *  @see ex::diff */
+ex mul::derivative(const symbol & s) const
+{
+    exvector new_seq;
+    new_seq.reserve(seq.size());
+
+    // D(a*b*c)=D(a)*b*c+a*D(b)*c+a*b*D(c)
+    for (unsigned i=0; i!=seq.size(); i++) {
+        epvector sub_seq=seq;
+        sub_seq[i] = split_ex_to_pair(sub_seq[i].coeff*
+                                      power(sub_seq[i].rest,sub_seq[i].coeff-1)*
+                                      sub_seq[i].rest.diff(s));
+        new_seq.push_back((new mul(sub_seq,overall_coeff))->setflag(status_flags::dynallocated));
+    }
+    return (new add(new_seq))->setflag(status_flags::dynallocated);
+}
+
 int mul::compare_same_type(const basic & other) const
 {
     return inherited::compare_same_type(other);

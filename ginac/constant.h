@@ -65,8 +65,8 @@ public:
     void printtree(ostream & os, unsigned indent) const;
     void printcsrc(ostream & os, unsigned type, unsigned upper_precedence=0) const;
     ex evalf(int level=0) const;
-    ex diff(const symbol & s) const;
 protected:
+    ex derivative(const symbol & s) const;
     int compare_same_type(const basic & other) const;
     bool is_equal_same_type(const basic & other) const;
     

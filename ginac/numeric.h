@@ -129,12 +129,12 @@ public:
     bool info(unsigned inf) const;
     ex eval(int level=0) const;
     ex evalf(int level=0) const;
-    ex diff(const symbol & s) const;
     ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
     numeric integer_content(void) const;
     ex smod(const numeric &xi) const;
     numeric max_coefficient(void) const;
 protected:
+    ex derivative(const symbol & s) const;
     int compare_same_type(const basic & other) const;
     bool is_equal_same_type(const basic & other) const;
     unsigned calchash(void) const {
@@ -323,8 +323,13 @@ ex PiEvalf(void);
 ex EulerGammaEvalf(void);
 ex CatalanEvalf(void);
 
+
 // utility functions
-const numeric &ex_to_numeric(const ex &e);
+inline const numeric &ex_to_numeric(const ex &e)
+{
+    return static_cast<const numeric &>(*e.bp);
+}
+
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

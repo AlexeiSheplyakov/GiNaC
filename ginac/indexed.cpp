@@ -221,6 +221,13 @@ exvector indexed::get_indices(void) const
 
 // protected
 
+/** Implementation of ex::diff() for an indexed object. It always returns 0.
+ *  @see ex::diff */
+ex indexed::derivative(const symbol & s) const
+{
+        return _ex0();
+}
+
 int indexed::compare_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_of_type(other,indexed));

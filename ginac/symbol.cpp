@@ -259,6 +259,19 @@ ex symbol::subs(const lst & ls, const lst & lr) const
 
 // protected
 
+/** Implementation of ex::diff() for single differentiation of a symbol.
+ *  It returns 1 or 0.
+ *
+ *  @see ex::diff */
+ex symbol::derivative(const symbol & s) const
+{
+    if (compare_same_type(s)) {
+        return _ex0();
+    } else {
+        return _ex1();
+    }
+}
+
 int symbol::compare_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_of_type(other,symbol));

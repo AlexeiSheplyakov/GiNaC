@@ -374,6 +374,21 @@ ex ex::evalf(int level) const
     return bp->evalf(level);
 }
 
+/** Compute partial derivative of an expression.
+ *
+ *  @param s  symbol by which the expression is derived
+ *  @param nth  order of derivative (default 1)
+ *  @return partial derivative as a new expression */
+ex ex::diff(const symbol & s, unsigned nth) const
+{
+    GINAC_ASSERT(bp!=0);
+
+    if (!nth)
+        return *this;
+    else
+        return bp->diff(s, nth);
+}
+
 ex ex::subs(const lst & ls, const lst & lr) const
 {
     GINAC_ASSERT(bp!=0);

@@ -80,15 +80,15 @@ static ex exp_eval(const ex & x)
     return exp(x).hold();
 }
 
-static ex exp_diff(const ex & x, unsigned diff_param)
+static ex exp_deriv(const ex & x, unsigned deriv_param)
 {
-    GINAC_ASSERT(diff_param==0);
+    GINAC_ASSERT(deriv_param==0);
 
     // d/dx exp(x) -> exp(x)
     return exp(x);
 }
 
-REGISTER_FUNCTION(exp, exp_eval, exp_evalf, exp_diff, NULL);
+REGISTER_FUNCTION(exp, exp_eval, exp_evalf, exp_deriv, NULL);
 
 //////////
 // natural logarithm
@@ -133,15 +133,15 @@ static ex log_eval(const ex & x)
     return log(x).hold();
 }
 
-static ex log_diff(const ex & x, unsigned diff_param)
+static ex log_deriv(const ex & x, unsigned deriv_param)
 {
-    GINAC_ASSERT(diff_param==0);
+    GINAC_ASSERT(deriv_param==0);
 
     // d/dx log(x) -> 1/x
     return power(x, _ex_1());
 }
 
-REGISTER_FUNCTION(log, log_eval, log_evalf, log_diff, NULL);
+REGISTER_FUNCTION(log, log_eval, log_evalf, log_deriv, NULL);
 
 //////////
 // sine (trigonometric function)
@@ -212,15 +212,15 @@ static ex sin_eval(const ex & x)
     return sin(x).hold();
 }
 
-static ex sin_diff(const ex & x, unsigned diff_param)
+static ex sin_deriv(const ex & x, unsigned deriv_param)
 {
-    GINAC_ASSERT(diff_param==0);
+    GINAC_ASSERT(deriv_param==0);
     
     // d/dx sin(x) -> cos(x)
     return cos(x);
 }
 
-REGISTER_FUNCTION(sin, sin_eval, sin_evalf, sin_diff, NULL);
+REGISTER_FUNCTION(sin, sin_eval, sin_evalf, sin_deriv, NULL);
 
 //////////
 // cosine (trigonometric function)
@@ -291,15 +291,15 @@ static ex cos_eval(const ex & x)
     return cos(x).hold();
 }
 
-static ex cos_diff(const ex & x, unsigned diff_param)
+static ex cos_deriv(const ex & x, unsigned deriv_param)
 {
-    GINAC_ASSERT(diff_param==0);
+    GINAC_ASSERT(deriv_param==0);
 
     // d/dx cos(x) -> -sin(x)
     return _ex_1()*sin(x);
 }
 
-REGISTER_FUNCTION(cos, cos_eval, cos_evalf, cos_diff, NULL);
+REGISTER_FUNCTION(cos, cos_eval, cos_evalf, cos_deriv, NULL);
 
 //////////
 // tangent (trigonometric function)
@@ -367,9 +367,9 @@ static ex tan_eval(const ex & x)
     return tan(x).hold();
 }
 
-static ex tan_diff(const ex & x, unsigned diff_param)
+static ex tan_deriv(const ex & x, unsigned deriv_param)
 {
-    GINAC_ASSERT(diff_param==0);
+    GINAC_ASSERT(deriv_param==0);
     
     // d/dx tan(x) -> 1+tan(x)^2;
     return (_ex1()+power(tan(x),_ex2()));
@@ -378,7 +378,7 @@ static ex tan_diff(const ex & x, unsigned diff_param)
 static ex tan_series(const ex & x, const symbol & s, const ex & pt, int order)
 {
     // method:
-    // Taylor series where there is no pole falls back to tan_diff.
+    // Taylor series where there is no pole falls back to tan_deriv.
     // On a pole simply expand sin(x)/cos(x).
     const ex x_pt = x.subs(s==pt);
     if (!(2*x_pt/Pi).info(info_flags::odd))
@@ -387,7 +387,7 @@ static ex tan_series(const ex & x, const symbol & s, const ex & pt, int order)
     return (sin(x)/cos(x)).series(s, pt, order+2);
 }
 
-REGISTER_FUNCTION(tan, tan_eval, tan_evalf, tan_diff, tan_series);
+REGISTER_FUNCTION(tan, tan_eval, tan_evalf, tan_deriv, tan_series);
 
 //////////
 // inverse sine (arc sine)
@@ -428,15 +428,15 @@ static ex asin_eval(const ex & x)
     return asin(x).hold();
 }
 
-static ex asin_diff(const ex & x, unsigned diff_param)
+static ex asin_deriv(const ex & x, unsigned deriv_param)
 {
-    GINAC_ASSERT(diff_param==0);
+    GINAC_ASSERT(deriv_param==0);
     
     // d/dx asin(x) -> 1/sqrt(1-x^2)
     return power(1-power(x,_ex2()),_ex_1_2());
 }
 
-REGISTER_FUNCTION(asin, asin_eval, asin_evalf, asin_diff, NULL);
+REGISTER_FUNCTION(asin, asin_eval, asin_evalf, asin_deriv, NULL);
 
 //////////
 // inverse cosine (arc cosine)
@@ -477,15 +477,15 @@ static ex acos_eval(const ex & x)
     return acos(x).hold();
 }
 
-static ex acos_diff(const ex & x, unsigned diff_param)
+static ex acos_deriv(const ex & x, unsigned deriv_param)
 {
-    GINAC_ASSERT(diff_param==0);
+    GINAC_ASSERT(deriv_param==0);
     
     // d/dx acos(x) -> -1/sqrt(1-x^2)
     return _ex_1()*power(1-power(x,_ex2()),_ex_1_2());
 }
 
-REGISTER_FUNCTION(acos, acos_eval, acos_evalf, acos_diff, NULL);
+REGISTER_FUNCTION(acos, acos_eval, acos_evalf, acos_deriv, NULL);
 
 //////////
 // inverse tangent (arc tangent)
@@ -514,15 +514,15 @@ static ex atan_eval(const ex & x)
     return atan(x).hold();
 }    
 
-static ex atan_diff(const ex & x, unsigned diff_param)
+static ex atan_deriv(const ex & x, unsigned deriv_param)
 {
-    GINAC_ASSERT(diff_param==0);
+    GINAC_ASSERT(deriv_param==0);
 
     // d/dx atan(x) -> 1/(1+x^2)
     return power(_ex1()+power(x,_ex2()), _ex_1());
 }
 
-REGISTER_FUNCTION(atan, atan_eval, atan_evalf, atan_diff, NULL);
+REGISTER_FUNCTION(atan, atan_eval, atan_evalf, atan_deriv, NULL);
 
 //////////
 // inverse tangent (atan2(y,x))
@@ -548,11 +548,11 @@ static ex atan2_eval(const ex & y, const ex & x)
     return atan2(y,x).hold();
 }    
 
-static ex atan2_diff(const ex & y, const ex & x, unsigned diff_param)
+static ex atan2_deriv(const ex & y, const ex & x, unsigned deriv_param)
 {
-    GINAC_ASSERT(diff_param<2);
+    GINAC_ASSERT(deriv_param<2);
     
-    if (diff_param==0) {
+    if (deriv_param==0) {
         // d/dy atan(y,x)
         return x*power(power(x,_ex2())+power(y,_ex2()),_ex_1());
     }
@@ -560,7 +560,7 @@ static ex atan2_diff(const ex & y, const ex & x, unsigned diff_param)
     return -y*power(power(x,_ex2())+power(y,_ex2()),_ex_1());
 }
 
-REGISTER_FUNCTION(atan2, atan2_eval, atan2_evalf, atan2_diff, NULL);
+REGISTER_FUNCTION(atan2, atan2_eval, atan2_evalf, atan2_deriv, NULL);
 
 //////////
 // hyperbolic sine (trigonometric function)
@@ -604,15 +604,15 @@ static ex sinh_eval(const ex & x)
     return sinh(x).hold();
 }
 
-static ex sinh_diff(const ex & x, unsigned diff_param)
+static ex sinh_deriv(const ex & x, unsigned deriv_param)
 {
-    GINAC_ASSERT(diff_param==0);
+    GINAC_ASSERT(deriv_param==0);
     
     // d/dx sinh(x) -> cosh(x)
     return cosh(x);
 }
 
-REGISTER_FUNCTION(sinh, sinh_eval, sinh_evalf, sinh_diff, NULL);
+REGISTER_FUNCTION(sinh, sinh_eval, sinh_evalf, sinh_deriv, NULL);
 
 //////////
 // hyperbolic cosine (trigonometric function)
@@ -656,15 +656,15 @@ static ex cosh_eval(const ex & x)
     return cosh(x).hold();
 }
 
-static ex cosh_diff(const ex & x, unsigned diff_param)
+static ex cosh_deriv(const ex & x, unsigned deriv_param)
 {
-    GINAC_ASSERT(diff_param==0);
+    GINAC_ASSERT(deriv_param==0);
     
     // d/dx cosh(x) -> sinh(x)
     return sinh(x);
 }
 
-REGISTER_FUNCTION(cosh, cosh_eval, cosh_evalf, cosh_diff, NULL);
+REGISTER_FUNCTION(cosh, cosh_eval, cosh_evalf, cosh_deriv, NULL);
 
 //////////
 // hyperbolic tangent (trigonometric function)
@@ -708,9 +708,9 @@ static ex tanh_eval(const ex & x)
     return tanh(x).hold();
 }
 
-static ex tanh_diff(const ex & x, unsigned diff_param)
+static ex tanh_deriv(const ex & x, unsigned deriv_param)
 {
-    GINAC_ASSERT(diff_param==0);
+    GINAC_ASSERT(deriv_param==0);
     
     // d/dx tanh(x) -> 1-tanh(x)^2
     return _ex1()-power(tanh(x),_ex2());
@@ -719,7 +719,7 @@ static ex tanh_diff(const ex & x, unsigned diff_param)
 static ex tanh_series(const ex & x, const symbol & s, const ex & pt, int order)
 {
     // method:
-    // Taylor series where there is no pole falls back to tanh_diff.
+    // Taylor series where there is no pole falls back to tanh_deriv.
     // On a pole simply expand sinh(x)/cosh(x).
     const ex x_pt = x.subs(s==pt);
     if (!(2*I*x_pt/Pi).info(info_flags::odd))
@@ -728,7 +728,7 @@ static ex tanh_series(const ex & x, const symbol & s, const ex & pt, int order)
     return (sinh(x)/cosh(x)).series(s, pt, order+2);
 }
 
-REGISTER_FUNCTION(tanh, tanh_eval, tanh_evalf, tanh_diff, tanh_series);
+REGISTER_FUNCTION(tanh, tanh_eval, tanh_evalf, tanh_deriv, tanh_series);
 
 //////////
 // inverse hyperbolic sine (trigonometric function)
@@ -757,15 +757,15 @@ static ex asinh_eval(const ex & x)
     return asinh(x).hold();
 }
 
-static ex asinh_diff(const ex & x, unsigned diff_param)
+static ex asinh_deriv(const ex & x, unsigned deriv_param)
 {
-    GINAC_ASSERT(diff_param==0);
+    GINAC_ASSERT(deriv_param==0);
     
     // d/dx asinh(x) -> 1/sqrt(1+x^2)
     return power(_ex1()+power(x,_ex2()),_ex_1_2());
 }
 
-REGISTER_FUNCTION(asinh, asinh_eval, asinh_evalf, asinh_diff, NULL);
+REGISTER_FUNCTION(asinh, asinh_eval, asinh_evalf, asinh_deriv, NULL);
 
 //////////
 // inverse hyperbolic cosine (trigonometric function)
@@ -800,15 +800,15 @@ static ex acosh_eval(const ex & x)
     return acosh(x).hold();
 }
 
-static ex acosh_diff(const ex & x, unsigned diff_param)
+static ex acosh_deriv(const ex & x, unsigned deriv_param)
 {
-    GINAC_ASSERT(diff_param==0);
+    GINAC_ASSERT(deriv_param==0);
     
     // d/dx acosh(x) -> 1/(sqrt(x-1)*sqrt(x+1))
     return power(x+_ex_1(),_ex_1_2())*power(x+_ex1(),_ex_1_2());
 }
 
-REGISTER_FUNCTION(acosh, acosh_eval, acosh_evalf, acosh_diff, NULL);
+REGISTER_FUNCTION(acosh, acosh_eval, acosh_evalf, acosh_deriv, NULL);
 
 //////////
 // inverse hyperbolic tangent (trigonometric function)
@@ -840,15 +840,15 @@ static ex atanh_eval(const ex & x)
     return atanh(x).hold();
 }
 
-static ex atanh_diff(const ex & x, unsigned diff_param)
+static ex atanh_deriv(const ex & x, unsigned deriv_param)
 {
-    GINAC_ASSERT(diff_param==0);
+    GINAC_ASSERT(deriv_param==0);
     
     // d/dx atanh(x) -> 1/(1-x^2)
     return power(_ex1()-power(x,_ex2()),_ex_1());
 }
 
-REGISTER_FUNCTION(atanh, atanh_eval, atanh_evalf, atanh_diff, NULL);
+REGISTER_FUNCTION(atanh, atanh_eval, atanh_evalf, atanh_deriv, NULL);
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC

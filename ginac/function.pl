@@ -296,11 +296,11 @@ public:
     ex expand(unsigned options=0) const;
     ex eval(int level=0) const;
     ex evalf(int level=0) const;
-    ex diff(const symbol & s) const;
     ex series(const symbol & s, const ex & point, int order) const;
     ex thisexprseq(const exvector & v) const;
     ex thisexprseq(exvector * vp) const;
 protected:
+    ex derivative(const symbol & s) const;
     int compare_same_type(const basic & other) const;
     bool is_equal_same_type(const basic & other) const;
     unsigned return_type(void) const;
@@ -311,7 +311,7 @@ protected:
     
     // non-virtual functions in this class
 protected:
-    ex pdiff(unsigned diff_param) const; // partial differentiation
+    ex pderivative(unsigned diff_param) const; // partial differentiation
     static vector<registered_function_info> & registered_functions(void);
 public:
     // the following lines have been generated for max. ${maxargs} parameters
@@ -385,6 +385,7 @@ $implementation=<<END_OF_IMPLEMENTATION;
 #include "function.h"
 #include "ex.h"
 #include "archive.h"
+#include "inifcns.h"
 #include "utils.h"
 #include "debugmsg.h"
 
@@ -664,6 +665,34 @@ ${series_switch_statement}
 
 // protected
 
+
+/** Implementation of ex::diff() for functions. It applies the chain rule,
+ *  except for the Order term function.
+ *  \@see ex::diff */
+ex function::derivative(const symbol & s) const
+{
+    ex result;
+    
+    if (serial==function_index_Order) {
+        // Order Term function only differentiates the argument
+        return Order(seq[0].diff(s));
+    } else {
+        // Chain rule
+        ex arg_diff;
+        for (unsigned i=0; i!=seq.size(); i++) {
+            arg_diff = seq[i].diff(s);
+            // We apply the chain rule only when it makes sense.  This is not
+            // just for performance reasons but also to allow functions to
+            // throw when differentiated with respect to one of its arguments
+            // without running into trouble with our automatic full
+            // differentiation:
+            if (!arg_diff.is_zero())
+                result += pderivative(i)*arg_diff;
+        }
+    }
+    return result;
+}
+
 int function::compare_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_of_type(other, function));
@@ -712,19 +741,19 @@ unsigned function::return_type_tinfo(void) const
 
 // protected
 
-ex function::pdiff(unsigned diff_param) const // partial differentiation
+ex function::pderivative(unsigned diff_param) const // partial differentiation
 {
     GINAC_ASSERT(serial<registered_functions().size());
     
     if (registered_functions()[serial].d==0) {
-        throw(std::logic_error(string("function::pdiff(") + registered_functions()[serial].name + "): no diff function defined"));
+        throw(std::logic_error(string("function::pderivative(") + registered_functions()[serial].name + "): no diff function defined"));
     }
     switch (registered_functions()[serial].nparams) {
         // the following lines have been generated for max. ${maxargs} parameters
 ${diff_switch_statement}
         // end of generated lines
     }        
-    throw(std::logic_error("function::pdiff(): no diff function defined"));
+    throw(std::logic_error("function::pderivative(): no diff function defined"));
 }
 
 vector<registered_function_info> & function::registered_functions(void)

@@ -75,12 +75,12 @@ public:
     ex expand(unsigned options=0) const;
     ex coeff(const symbol & s, int n=1) const;
     ex eval(int level=0) const;
-    ex diff(const symbol & s) const;
     ex subs(const lst & ls, const lst & lr) const;
     exvector get_indices(void) const;
     ex thisexprseq(const exvector & v) const;
     ex thisexprseq(exvector * vp) const;
 protected:
+    ex derivative(const symbol & s) const;
     int compare_same_type(const basic & other) const;
     unsigned return_type(void) const;
     unsigned return_type_tinfo(void) const;

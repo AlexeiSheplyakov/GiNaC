@@ -191,6 +191,14 @@ ex constant::evalf(int level) const
 
 // protected
 
+/** Implementation of ex::diff() for a constant. It always returns 0.
+ *
+ *  @see ex::diff */
+ex constant::derivative(const symbol & s) const
+{
+    return _ex0();
+}
+
 int constant::compare_same_type(const basic & other) const
 {
     GINAC_ASSERT(is_exactly_of_type(other, constant));

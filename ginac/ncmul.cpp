@@ -538,6 +538,13 @@ ex ncmul::thisexprseq(exvector * vp) const
 
 // protected
 
+/** Implementation of ex::diff() for a non-commutative product. It always returns 0.
+ *  @see ex::diff */
+ex ncmul::derivative(const symbol & s) const
+{
+    return _ex0();
+}
+
 int ncmul::compare_same_type(const basic & other) const
 {
     return inherited::compare_same_type(other);

@@ -1,8 +1,8 @@
 ## Process this file with automake to produce Makefile.in
 
 lib_LTLIBRARIES = libginac.la
-libginac_la_SOURCES = add.cpp archive.cpp basic.cpp constant.cpp diff.cpp \
-  ex.cpp expairseq.cpp exprseq.cpp fail.cpp function.cpp inifcns.cpp \
+libginac_la_SOURCES = add.cpp archive.cpp basic.cpp constant.cpp ex.cpp \
+  expairseq.cpp exprseq.cpp fail.cpp function.cpp inifcns.cpp \
   inifcns_trans.cpp inifcns_zeta.cpp inifcns_gamma.cpp matrix.cpp mul.cpp \
   normal.cpp numeric.cpp operators.cpp power.cpp registrar.cpp relational.cpp \
   symbol.cpp pseries.cpp utils.cpp ncmul.cpp clifford.cpp structure.cpp \

@@ -1,0 +1,13 @@
+#! /bin/sh
+
+binprog=`basename $0`".bin"
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+bindir=@bindir@
+config_cintsysdir=@CINTSYSDIR@
+
+if [ "x$CINTSYSDIR" = "x" ]; then
+  CINTSYSDIR=$config_cintsysdir
+  export CINTSYSDIR
+fi
+exec ${bindir}/${binprog}

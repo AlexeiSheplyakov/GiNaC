@@ -29,6 +29,7 @@
 #include "add.h"
 #include "mul.h"
 #include "numeric.h"
+#include "inifcns.h"
 #include "relational.h"
 #include "symbol.h"
 #include "archive.h"
@@ -353,7 +354,10 @@ ex power::eval(int level) const
 
     // ^(x,0) -> 1 (0^0 also handled here)
     if (eexponent.is_zero())
-        return _ex1();
+        if (ebasis.is_zero())
+            throw (std::domain_error("power::eval(): pow(0,0) is undefined"));
+        else
+            return _ex1();
 
     // ^(x,1) -> x
     if (eexponent.is_equal(_ex1()))
@@ -513,6 +517,21 @@ ex power::simplify_ncmul(const exvector & v) const
 }
 
 // protected
+
+/** Implementation of ex::diff() for a power.
+ *  @see ex::diff */
+ex power::derivative(const symbol & s) const
+{
+    if (exponent.info(info_flags::real)) {
+        // D(b^r) = r * b^(r-1) * D(b) (faster than the formula below)
+        return mul(mul(exponent, power(basis, exponent - _ex1())), basis.diff(s));
+    } else {
+        // D(b^e) = b^e * (D(e)*ln(b) + e*D(b)/b)
+        return mul(power(basis, exponent),
+                   add(mul(exponent.diff(s), log(basis)),
+                       mul(mul(exponent, basis.diff(s)), power(basis, -1))));
+    }
+}
 
 int power::compare_same_type(const basic & other) const
 {

@@ -137,7 +137,6 @@ public: // only const functions please (may break reference counting)
     virtual ex collect(const symbol & s) const;
     virtual ex eval(int level=0) const;
     virtual ex evalf(int level=0) const;
-    virtual ex diff(const symbol & s) const;
     virtual ex series(const symbol & s, const ex & point, int order) const;
     virtual ex subs(const lst & ls, const lst & lr) const;
     virtual ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
@@ -147,6 +146,7 @@ public: // only const functions please (may break reference counting)
     virtual exvector get_indices(void) const;
     virtual ex simplify_ncmul(const exvector & v) const;
 protected: // non-const functions should be called from class ex only
+    virtual ex derivative(const symbol & s) const;
     virtual int compare_same_type(const basic & other) const;
     virtual bool is_equal_same_type(const basic & other) const;
     virtual unsigned return_type(void) const;
@@ -157,6 +157,7 @@ protected: // non-const functions should be called from class ex only
     // non-virtual functions in this class
 public:
     ex subs(const ex & e) const;
+    ex diff(const symbol & s, unsigned nth=1) const;
     int compare(const basic & other) const;
     bool is_equal(const basic & other) const;
     const basic & hold(void) const;

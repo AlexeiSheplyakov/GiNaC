@@ -298,6 +298,32 @@ ex pseries::subs(const lst & ls, const lst & lr) const
     return (new pseries(var, point.subs(ls, lr), new_seq))->setflag(status_flags::dynallocated);
 }
 
+/** Implementation of ex::diff() for a power series.  It treats the series as a
+ *  polynomial.
+ *  @see ex::diff */
+ex pseries::derivative(const symbol & s) const
+{
+    if (s == var) {
+        epvector new_seq;
+        epvector::const_iterator it = seq.begin(), itend = seq.end();
+        
+        // FIXME: coeff might depend on var
+        while (it != itend) {
+            if (is_order_function(it->rest)) {
+                new_seq.push_back(expair(it->rest, it->coeff - 1));
+            } else {
+                ex c = it->rest * it->coeff;
+                if (!c.is_zero())
+                    new_seq.push_back(expair(c, it->coeff - 1));
+            }
+            it++;
+        }
+        return pseries(var, point, new_seq);
+    } else {
+        return *this;
+    }
+}
+
 
 /*
  *  Construct ordinary polynomial out of series

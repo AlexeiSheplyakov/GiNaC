@@ -81,11 +81,11 @@ public:
     int ldegree(const symbol & s) const;
     ex coeff(const symbol & s, int n = 1) const;
     ex eval(int level = 0) const;
-    ex diff(const symbol & s) const;
     ex series(const symbol & s, const ex & point, int order) const;
     ex normal(lst &sym_lst, lst &repl_lst, int level=0) const;
     ex subs(const lst & ls, const lst & lr) const;
 protected:
+    ex derivative(const symbol & s) const;
     int compare_same_type(const basic & other) const;
     bool is_equal_same_type(const basic & other) const;
     unsigned return_type(void) const;
@@ -96,7 +96,6 @@ protected:
 public:
     void assign(const ex & value);
     void unassign(void);
-    ex diff(const symbol & s, unsigned nth) const;
     void setname(const string & n) {name=n;}
     string getname(void) const {return name;}
 private:

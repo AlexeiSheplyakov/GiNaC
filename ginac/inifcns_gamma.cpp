@@ -94,9 +94,9 @@ static ex gamma_eval(const ex & x)
 }    
 
 
-static ex gamma_diff(const ex & x, unsigned diff_param)
+static ex gamma_deriv(const ex & x, unsigned deriv_param)
 {
-    GINAC_ASSERT(diff_param==0);
+    GINAC_ASSERT(deriv_param==0);
     
     // d/dx  log(gamma(x)) -> psi(x)
     // d/dx  gamma(x) -> psi(x)*gamma(x)
@@ -126,7 +126,7 @@ static ex gamma_series(const ex & x, const symbol & s, const ex & pt, int order)
 }
 
 
-REGISTER_FUNCTION(gamma, gamma_eval, gamma_evalf, gamma_diff, gamma_series);
+REGISTER_FUNCTION(gamma, gamma_eval, gamma_evalf, gamma_deriv, gamma_series);
 
 
 //////////
@@ -181,16 +181,16 @@ static ex beta_eval(const ex & x, const ex & y)
 }
 
 
-static ex beta_diff(const ex & x, const ex & y, unsigned diff_param)
+static ex beta_deriv(const ex & x, const ex & y, unsigned deriv_param)
 {
-    GINAC_ASSERT(diff_param<2);
+    GINAC_ASSERT(deriv_param<2);
     ex retval;
     
     // d/dx beta(x,y) -> (psi(x)-psi(x+y)) * beta(x,y)
-    if (diff_param==0)
+    if (deriv_param==0)
         retval = (psi(x)-psi(x+y))*beta(x,y);
     // d/dy beta(x,y) -> (psi(y)-psi(x+y)) * beta(x,y)
-    if (diff_param==1)
+    if (deriv_param==1)
         retval = (psi(y)-psi(x+y))*beta(x,y);
     return retval;
 }
@@ -229,7 +229,7 @@ static ex beta_series(const ex & x, const ex & y, const symbol & s, const ex & p
 }
 
 
-REGISTER_FUNCTION(beta, beta_eval, beta_evalf, beta_diff, beta_series);
+REGISTER_FUNCTION(beta, beta_eval, beta_evalf, beta_deriv, beta_series);
 
 
 //////////
@@ -290,9 +290,9 @@ static ex psi1_eval(const ex & x)
     return psi(x).hold();
 }
 
-static ex psi1_diff(const ex & x, unsigned diff_param)
+static ex psi1_deriv(const ex & x, unsigned deriv_param)
 {
-    GINAC_ASSERT(diff_param==0);
+    GINAC_ASSERT(deriv_param==0);
     
     // d/dx psi(x) -> psi(1,x)
     return psi(_ex1(), x);
@@ -319,7 +319,7 @@ static ex psi1_series(const ex & x, const symbol & s, const ex & pt, int order)
     return (psi(x+m+_ex1())-recur).series(s, pt, order);
 }
 
-const unsigned function_index_psi1 = function::register_new("psi", psi1_eval, psi1_evalf, psi1_diff, psi1_series);
+const unsigned function_index_psi1 = function::register_new("psi", psi1_eval, psi1_evalf, psi1_deriv, psi1_series);
 
 //////////
 // Psi-functions (aka polygamma-functions)  psi(0,x)==psi(x)
@@ -400,11 +400,11 @@ static ex psi2_eval(const ex & n, const ex & x)
     return psi(n, x).hold();
 }    
 
-static ex psi2_diff(const ex & n, const ex & x, unsigned diff_param)
+static ex psi2_deriv(const ex & n, const ex & x, unsigned deriv_param)
 {
-    GINAC_ASSERT(diff_param<2);
+    GINAC_ASSERT(deriv_param<2);
     
-    if (diff_param==0) {
+    if (deriv_param==0) {
         // d/dn psi(n,x)
         throw(std::logic_error("cannot diff psi(n,x) with respect to n"));
     }
@@ -435,7 +435,7 @@ static ex psi2_series(const ex & n, const ex & x, const symbol & s, const ex & p
     return (psi(n, x+m+_ex1())-recur).series(s, pt, order);
 }
 
-const unsigned function_index_psi2 = function::register_new("psi", psi2_eval, psi2_evalf, psi2_diff, psi2_series);
+const unsigned function_index_psi2 = function::register_new("psi", psi2_eval, psi2_evalf, psi2_deriv, psi2_series);
 
 #ifndef NO_NAMESPACE_GINAC
 } // namespace GiNaC
