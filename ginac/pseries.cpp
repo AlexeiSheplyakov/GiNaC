@@ -952,11 +952,13 @@ ex power::series(const relational & r, int order, unsigned options) const
 	}
 
 	// Is the expression of type something^(-int)?
-	if (!must_expand_basis && !exponent.info(info_flags::negint) && !is_a<add>(basis))
+	if (!must_expand_basis && !exponent.info(info_flags::negint)
+	 && (!is_a<add>(basis) || !is_a<numeric>(exponent)))
 		return basic::series(r, order, options);
 
 	// Is the expression of type 0^something?
-	if (!must_expand_basis && !basis.subs(r, subs_options::no_pattern).is_zero() && !is_a<add>(basis))
+	if (!must_expand_basis && !basis.subs(r, subs_options::no_pattern).is_zero()
+	 && (!is_a<add>(basis) || !is_a<numeric>(exponent)))
 		return basic::series(r, order, options);
 
 	// Singularity encountered, is the basis equal to (var - point)?
