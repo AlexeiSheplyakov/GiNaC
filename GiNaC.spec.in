@@ -21,12 +21,9 @@ Requires: cln >= 1.1
 GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is an
 open framework for symbolic computation within the C++ programming language.
 
-It includes the ginsh ("GiNaC interactive shell") which provides a simple and
-easy-to-use CAS-like interface to GiNaC for non-programmers.
-
 
 %package devel
-Summary: Libraries, includes and more to develop GiNaC applications
+Summary: GiNaC development libraries and header files
 Group: Development/Libraries
 Requires: %{name} = %{version}
 
@@ -34,8 +31,22 @@ Requires: %{name} = %{version}
 GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is an
 open framework for symbolic computation within the C++ programming language.
 
-This is the libraries, include files and other resources you can use to
-develop GiNaC applications.
+This package contains the libraries, include files and other resources you
+use to develop GiNaC applications.
+
+
+%package utils
+Summary: GiNaC-related utilities
+Group: System Environment/Libraries
+Requires: %{name} = %{version}
+
+%description utils
+GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is an
+open framework for symbolic computation within the C++ programming language.
+
+This package includes the ginsh ("GiNaC interactive shell") which provides a
+simple and easy-to-use CAS-like interface to GiNaC for non-programmers, and
+the tool "viewgar" which displays the contents of GiNaC archives.
 
 
 %prep
@@ -81,10 +92,6 @@ fi
 %defattr(-,root,root)
 %doc AUTHORS COPYING ChangeLog NEWS README
 %{_libdir}/*.so.*
-%{_bindir}/ginsh
-%{_bindir}/viewgar
-%{_mandir}/man1/ginsh.1*
-%{_mandir}/man1/viewgar.1*
 
 %files devel
 %defattr(-,root,root)
@@ -97,7 +104,17 @@ fi
 %{_bindir}/ginac-config
 %{_datadir}/aclocal/*
 
+%files utils
+%defattr(-,root,root)
+%{_bindir}/ginsh
+%{_bindir}/viewgar
+%{_mandir}/man1/ginsh.1*
+%{_mandir}/man1/viewgar.1*
+
 %changelog
+* Thu Nov  1 2001 Christian Bauer <Christian.Bauer@uni-mainz.de>
+- moved ginsh and viewgar to "utils" package
+
 * Thu Oct  5 2000 Christian Bauer <Christian.Bauer@uni-mainz.de>
 - cleaned up a bit
 
