@@ -62,7 +62,6 @@ AC_SUBST(LT_AGE)
 dnl This defines PACKAGE and VERSION.
 AM_CONFIG_HEADER(config.h)
 AM_INIT_AUTOMAKE([GiNaC], $GINACLIB_VERSION)
-AM_MAINTAINER_MODE
 
 dnl Check for the compiler and all the utilities needed for the build.
 AC_PROG_CXX
