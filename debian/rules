@@ -72,7 +72,7 @@ binary-common:
 	dh_compress
 	dh_fixperms
 	dh_makeshlibs
-	dh_shlibdeps --libpackage=libginac1.1 -l debian/libginac1.1/usr/lib
+	dh_shlibdeps --libpackage=libginac1.2 -l debian/libginac1.2/usr/lib
 	dh_gencontrol
 	dh_installdeb
 	dh_md5sums
