@@ -659,6 +659,74 @@ ex mul::expand(unsigned options) const
 	
 	exvector sub_expanded_seq;
 	intvector positions_of_adds;
+	
+	epvector * expanded_seqp = expandchildren(options);
+	
+	const epvector & expanded_seq = expanded_seqp==0 ? seq : *expanded_seqp;
+	
+	int number_of_adds = 0;
+	epvector non_adds;
+	non_adds.reserve(expanded_seq.size());
+	epvector::const_iterator cit=expanded_seq.begin();
+	epvector::const_iterator last = expanded_seq.end();
+	ex last_expanded=_ex1();
+	while (cit!=last) {
+		if (is_ex_exactly_of_type((*cit).rest,add) &&
+			((*cit).coeff.is_equal(_ex1()))) {
+			++number_of_adds;
+			if (is_ex_exactly_of_type(last_expanded,add)) {
+				// expand adds
+				add const & add1=ex_to_add(last_expanded);
+				add const & add2=ex_to_add((*cit).rest);
+				int n1=add1.nops();
+				int n2=add2.nops();
+				exvector distrseq;
+				distrseq.reserve(n1*n2);
+				for (int i1=0; i1<n1; ++i1) {
+					for (int i2=0; i2<n2; ++i2) {
+						distrseq.push_back(add1.op(i1)*add2.op(i2));
+					}
+				}
+				last_expanded=(new add(distrseq))->setflag(status_flags::dynallocated | status_flags::expanded);
+			} else {
+				non_adds.push_back(split_ex_to_pair(last_expanded));
+				last_expanded=(*cit).rest;
+			}
+		} else {
+			non_adds.push_back(*cit);
+		}
+		++cit;
+	}
+
+	if (is_ex_exactly_of_type(last_expanded,add)) {
+		//ex factors=(new mul(non_adds,overall_coeff))->
+		//	       setflag(status_flags::dynallocated | status_flags::expanded);
+		add const & finaladd=ex_to_add(last_expanded);
+		exvector distrseq;
+		int n=finaladd.nops();
+		distrseq.reserve(n);
+		for (int i=0; i<n; ++i) {
+			//distrseq.push_back(factors*finaladd.op(i));
+			epvector factors=non_adds;
+			factors.push_back(split_ex_to_pair(finaladd.op(i)));
+			distrseq.push_back((new mul(factors,overall_coeff))->setflag(status_flags::dynallocated | status_flags::expanded));
+		}
+		return ((new add(distrseq))->
+		       setflag(status_flags::dynallocated | status_flags::expanded));
+	}
+	non_adds.push_back(split_ex_to_pair(last_expanded));
+	return (new mul(non_adds,overall_coeff))->
+	       setflag(status_flags::dynallocated | status_flags::expanded);
+}
+
+/*
+ex mul::expand(unsigned options) const
+{
+	if (flags & status_flags::expanded)
+		return *this;
+	
+	exvector sub_expanded_seq;
+	intvector positions_of_adds;
 	intvector number_of_add_operands;
 	
 	epvector * expanded_seqp = expandchildren(options);
@@ -726,7 +794,8 @@ ex mul::expand(unsigned options) const
 	return (new add(distrseq))->setflag(status_flags::dynallocated |
 										status_flags::expanded);
 }
-
+*/
+  
 //////////
 // new virtual functions which can be overridden by derived classes
 //////////
