@@ -144,8 +144,10 @@ ex dirac_slash(const ex & e, const ex & dim, unsigned char rl = 0);
  *  In particular, the functional is not always cyclic in D != 4 dimensions
  *  when gamma5 is involved.
  *
- *  @param rl Representation label */
-ex dirac_trace(const ex & e, unsigned char rl = 0);
+ *  @param e Expression to take the trace of
+ *  @param rl Representation label
+ *  @param trONE Expression to be returned as the trace of the unit matrix */
+ex dirac_trace(const ex & e, unsigned char rl = 0, const ex & trONE = 4);
 
 
 } // namespace GiNaC

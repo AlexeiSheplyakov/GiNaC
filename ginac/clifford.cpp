@@ -25,6 +25,7 @@
 #include "idx.h"
 #include "ncmul.h"
 #include "symbol.h"
+#include "numeric.h" // for I
 #include "print.h"
 #include "archive.h"
 #include "debugmsg.h"
@@ -336,13 +337,13 @@ static bool is_clifford_tinfo(unsigned ti, unsigned char rl)
 	return ti == (TINFO_clifford + rl);
 }
 
-ex dirac_trace(const ex & e, unsigned char rl)
+ex dirac_trace(const ex & e, unsigned char rl, const ex & trONE)
 {
 	if (is_ex_of_type(e, clifford)) {
 
 		if (ex_to_clifford(e).get_representation_label() == rl
 		 && is_ex_of_type(e.op(0), diracone))
-			return _ex4();
+			return trONE;
 		else
 			return _ex0();
 
@@ -351,7 +352,7 @@ ex dirac_trace(const ex & e, unsigned char rl)
 		// Trace of sum = sum of traces
 		ex sum = _ex0();
 		for (unsigned i=0; i<e.nops(); i++)
-			sum += dirac_trace(e.op(i), rl);
+			sum += dirac_trace(e.op(i), rl, trONE);
 		return sum;
 
 	} else if (is_ex_exactly_of_type(e, mul)) {
@@ -362,7 +363,7 @@ ex dirac_trace(const ex & e, unsigned char rl)
 			const ex &o = e.op(i);
 			unsigned ti = o.return_type_tinfo();
 			if (is_clifford_tinfo(o.return_type_tinfo(), rl))
-				prod *= dirac_trace(o, rl);
+				prod *= dirac_trace(o, rl, trONE);
 			else
 				prod *= o;
 		}
@@ -376,7 +377,7 @@ ex dirac_trace(const ex & e, unsigned char rl)
 		// Expand product, if necessary
 		ex e_expanded = e.expand();
 		if (!is_ex_of_type(e_expanded, ncmul))
-			return dirac_trace(e_expanded, rl);
+			return dirac_trace(e_expanded, rl, trONE);
 
 		// gamma5 gets moved to the front so this check is enough
 		bool has_gamma5 = is_ex_of_type(e.op(0).op(0), diracgamma5);
@@ -390,7 +391,7 @@ ex dirac_trace(const ex & e, unsigned char rl)
 				return _ex0();
 
 			// Tr gamma5 S_2k =
-			//   epsilon0123.mu1.mu2.mu3.mu4 * Tr gamma.mu1 gamma.mu2 gamma.mu3 gamma.mu4 S_2k
+			//   I/4! * epsilon0123.mu1.mu2.mu3.mu4 * Tr gamma.mu1 gamma.mu2 gamma.mu3 gamma.mu4 S_2k
 			ex dim = ex_to_idx(e.op(1).op(1)).get_dim();
 			varidx mu1((new symbol)->setflag(status_flags::dynallocated), dim),
 			       mu2((new symbol)->setflag(status_flags::dynallocated), dim),
@@ -406,7 +407,7 @@ ex dirac_trace(const ex & e, unsigned char rl)
 				v.push_back(e.op(i));
 
 			return (eps0123(mu1.toggle_variance(), mu2.toggle_variance(), mu3.toggle_variance(), mu4.toggle_variance()) *
-			        dirac_trace(ncmul(v), rl)).simplify_indexed() / 24;
+			        dirac_trace(ncmul(v), rl, trONE)).simplify_indexed() * I / 24;
 
 		} else { // no gamma5
 
@@ -416,7 +417,7 @@ ex dirac_trace(const ex & e, unsigned char rl)
 
 			// Tr gamma.mu gamma.nu = 4 g.mu.nu
 			if (num == 2)
-				return 4 * lorentz_g(e.op(0).op(1), e.op(1).op(1));
+				return trONE * lorentz_g(e.op(0).op(1), e.op(1).op(1));
 
 			// Traces of 4 or more gammas are computed recursively:
 			// Tr gamma.mu1 gamma.mu2 ... gamma.mun =
@@ -435,7 +436,7 @@ ex dirac_trace(const ex & e, unsigned char rl)
 						continue;
 					v[j++] = e.op(n);
 				}
-				result += sign * lorentz_g(ix1, e.op(i).op(1)) * dirac_trace(ncmul(v), rl);
+				result += sign * lorentz_g(ix1, e.op(i).op(1)) * dirac_trace(ncmul(v), rl, trONE);
 				sign = -sign;
 			}
 			return result;
