@@ -1,5 +1,9 @@
 This file records noteworthy changes.
 
+1.0.3 (<date>)
+* Fixed a bug where quo() would call vector::reserve() with a negative
+  argument.
+
 1.0.2 (19 December 2001)
 * Input parser recognizes "sqrt()", which is also used in the output.
 * divide(a,b,q) only modifies q if the division succeeds; also, divide(a,b,a)
