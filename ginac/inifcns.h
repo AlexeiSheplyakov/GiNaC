@@ -142,6 +142,18 @@ DECLARE_FUNCTION_2P(binomial)
 /** Order term function (for truncated power series). */
 DECLARE_FUNCTION_1P(Order)
 
+/** Polylogarithm and multiple polylogarithm. */
+DECLARE_FUNCTION_2P(Li)
+
+/** Nielsen's generalized polylogarithm. */
+DECLARE_FUNCTION_3P(S)
+
+/** Harmonic polylogarithm. */
+DECLARE_FUNCTION_2P(H)
+
+/** Multiple zeta value. */
+DECLARE_FUNCTION_1P(mZeta)
+ 
 ex lsolve(const ex &eqns, const ex &symbols, unsigned options = solve_algo::automatic);
 
 /** Check whether a function is the Order (O(n)) function. */

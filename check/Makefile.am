@@ -11,7 +11,7 @@ exams_SOURCES = exam_paranoia.cpp exam_numeric.cpp exam_powerlaws.cpp \
   exam_inifcns.cpp exam_differentiation.cpp exam_polygcd.cpp \
   exam_normalization.cpp exam_pseries.cpp exam_matrices.cpp exam_lsolve.cpp \
   exam_indexed.cpp exam_color.cpp exam_clifford.cpp exam_archive.cpp \
-  exam_misc.cpp exams.cpp exams.h
+  exam_misc.cpp exam_inifcns_nstdsums.cpp exams.cpp exams.h
 exams_LDADD = ../ginac/libginac.la
 
 times_SOURCES = time_dennyfliegner.cpp time_gammaseries.cpp \
@@ -25,5 +25,5 @@ times_LDADD = ../ginac/libginac.la
 
 INCLUDES = -I$(srcdir)/../ginac -I../ginac
 
-CLEANFILES = exams.out checks.out times.out exam.gar
+CLEANFILES = exams.out checks.out times.out exam.gar exam_inifcns_nstdsums_data
 EXTRA_DIST = exams.ref checks.ref times.ref run_exams run_checks run_times
