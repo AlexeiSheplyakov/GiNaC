@@ -69,10 +69,8 @@ protected:
 	ex thisexpairseq(const epvector & v, const ex & oc) const;
 	ex thisexpairseq(epvector * vp, const ex & oc) const;
 	expair split_ex_to_pair(const ex & e) const;
-	expair combine_ex_with_coeff_to_pair(const ex & e,
-										 const ex & c) const;
-	expair combine_pair_with_coeff_to_pair(const expair & p,
-										   const ex & c) const;
+	expair combine_ex_with_coeff_to_pair(const ex & e, const ex & c) const;
+	expair combine_pair_with_coeff_to_pair(const expair & p, const ex & c) const;
 	ex recombine_pair_to_ex(const expair & p) const;
 	bool expair_needs_further_processing(epp it);
 	ex default_overall_coeff(void) const;
