@@ -2381,28 +2381,29 @@ ex dirac_ONE(unsigned char rl = 0);
 multiples of the unity element, even though it's customary to omit it.
 E.g. instead of @code{dirac_gamma(mu)*(dirac_slash(q,4)+m)} you have to
 write @code{dirac_gamma(mu)*(dirac_slash(q,4)+m*dirac_ONE())}. Otherwise,
-GiNaC may produce incorrect results.
+GiNaC will complain and/or produce incorrect results.
 
 @cindex @code{dirac_gamma5()}
-There's a special element @samp{gamma5} that commutes with all other
-gammas and in 4 dimensions equals @samp{gamma~0 gamma~1 gamma~2 gamma~3},
-provided by
+There is a special element @samp{gamma5} that commutes with all other
+gammas, has a unit square, and in 4 dimensions equals
+@samp{gamma~0 gamma~1 gamma~2 gamma~3}, provided by
 
 @example
 ex dirac_gamma5(unsigned char rl = 0);
 @end example
 
-@cindex @code{dirac_gamma6()}
-@cindex @code{dirac_gamma7()}
-The two additional functions
+@cindex @code{dirac_gammaL()}
+@cindex @code{dirac_gammaR()}
+The chiral projectors @samp{(1+/-gamma5)/2} are also available as proper
+objects, constructed by
 
 @example
-ex dirac_gamma6(unsigned char rl = 0);
-ex dirac_gamma7(unsigned char rl = 0);
+ex dirac_gammaL(unsigned char rl = 0);
+ex dirac_gammaR(unsigned char rl = 0);
 @end example
 
-return @code{dirac_ONE(rl) + dirac_gamma5(rl)} and @code{dirac_ONE(rl) - dirac_gamma5(rl)},
-respectively.
+They observe the relations @samp{gammaL^2 = gammaL}, @samp{gammaR^2 = gammaR},
+and @samp{gammaL gammaR = gammaR gammaL = 0}.
 
 @cindex @code{dirac_slash()}
 Finally, the function
@@ -2417,9 +2418,11 @@ with a unique index whose dimension is given by the @code{dim} argument).
 Such slashed expressions are printed with a trailing backslash, e.g. @samp{e\}.
 
 In products of dirac gammas, superfluous unity elements are automatically
-removed, squares are replaced by their values and @samp{gamma5} is
-anticommuted to the front. The @code{simplify_indexed()} function performs
-contractions in gamma strings, for example
+removed, squares are replaced by their values, and @samp{gamma5}, @samp{gammaL}
+and @samp{gammaR} are moved to the front.
+
+The @code{simplify_indexed()} function performs contractions in gamma strings,
+for example
 
 @example
 @{
