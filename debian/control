@@ -3,7 +3,7 @@ Section: math
 Priority: optional
 Maintainer: Richard Kreckel <kreckel@ginac.de>
 Build-Depends: debhelper (>= 4.0.0), libcln-dev, libgmp3-dev, libreadline4-dev, flex, bison
-Standards-Version: 3.6.0
+Standards-Version: 3.6.1
 
 Package: libginac1.2
 Architecture: any
