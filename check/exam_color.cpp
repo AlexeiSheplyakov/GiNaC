@@ -1,0 +1,99 @@
+/** @file exam_color.cpp
+ *
+ *  Here we test GiNaC's color objects (su(3) Lie algebra). */
+
+/*
+ *  GiNaC Copyright (C) 1999-2001 Johannes Gutenberg University Mainz, Germany
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+#include "exams.h"
+
+static unsigned check_equal(const ex &e1, const ex &e2)
+{
+	ex e = e1 - e2;
+	if (!e.is_zero()) {
+		clog << e1 << "-" << e2 << " erroneously returned "
+		     << e << " instead of 0" << endl;
+		return 1;
+	}
+	return 0;
+}
+
+static unsigned check_equal_simplify(const ex &e1, const ex &e2)
+{
+	ex e = simplify_indexed(e1) - e2;
+	if (!e.is_zero()) {
+		clog << "simplify_indexed(" << e1 << ")-" << e2 << " erroneously returned "
+		     << e << " instead of 0" << endl;
+		return 1;
+	}
+	return 0;
+}
+
+static unsigned color_check1(void)
+{
+	// checks general identities and contractions
+
+	unsigned result = 0;
+
+	idx a(symbol("a"), 8), b(symbol("b"), 8), c(symbol("c"), 8), d(symbol("d"), 8);
+
+	// structure constants
+	result += check_equal(color_d(a, c, a), 0);
+	result += check_equal_simplify(color_d(a, b, c) * color_d(b, d, c), numeric(5,3) * delta_tensor(a, d));
+	result += check_equal_simplify(color_d(idx(5, 8), b, c) * color_d(b, idx(5, 8), c), numeric(5,3));
+	result += check_equal_simplify(color_d(a, b, c) * color_d(b, c, a), numeric(40,3));
+	result += check_equal_simplify(color_d(a, b, c) * color_f(b, d, c), 0);
+	result += check_equal_simplify(color_d(a, b, c) * color_f(b, c, a), 0);
+	result += check_equal_simplify(color_f(a, b, c) * color_f(b, c, a), 24);
+	result += check_equal_simplify(color_f(a, b, c) * color_f(b, d, c), -3 * delta_tensor(a, d));
+	result += check_equal_simplify(color_h(a, b, c) * color_h(a, b, c), numeric(-32,3));
+	result += check_equal_simplify(color_h(a, b, c) * color_h(b, a, c), numeric(112,3));
+
+    ex e = color_h(a, b, c) * color_h(a, b, c);
+    ex sum = 0;
+	for (int i=1; i<9; i++)
+	    for (int j=1; j<9; j++)
+	        for (int k=1; k<9; k++)
+                sum += e.subs(lst(a == i, b == j, c == k));
+	if (!sum.is_equal(numeric(-32,3))) {
+		clog << "numeric contraction of " << e << " erroneously returned "
+		     << sum << " instead of -32/3" << endl;
+		result++;
+	}
+
+	return result;
+}
+
+unsigned exam_color(void)
+{
+	unsigned result = 0;
+	
+	cout << "examining color objects" << flush;
+	clog << "----------color objects:" << endl;
+
+	result += color_check1();  cout << '.' << flush;
+	
+	if (!result) {
+		cout << " passed " << endl;
+		clog << "(no output)" << endl;
+	} else {
+		cout << " failed " << endl;
+	}
+	
+	return result;
+}
