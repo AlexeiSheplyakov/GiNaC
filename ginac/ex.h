@@ -121,13 +121,6 @@ public:
 ;
 #endif // def INLINE_EX_CONSTRUCTORS
 
-#ifdef CINT_CONVERSION_WORKAROUND
-    // workaround to fix the missing automatic derived->basic->ex conversion
-    const ex & operator=(const basic & other)
-        {
-            return *this=ex(other);
-        }
-#endif // def CINT_CONVERSION_WORKAROUND 
 
     // other constructors
 public:
@@ -239,9 +232,6 @@ public:
     unsigned nops() const;
     ex expand(unsigned options=0) const;
     bool has(const ex & other) const;
-#ifdef CINT_CONVERSION_WORKAROUND
-    bool has(basic const & other) const { return has(ex(other)); }
-#endif // def CINT_CONVERSION_WORKAROUND
     int degree(const symbol & s) const;
     int ldegree(const symbol & s) const;
     ex coeff(const symbol & s, int n=1) const;
@@ -254,9 +244,6 @@ public:
     numeric integer_content(void) const;
     ex primpart(const symbol &x) const;
     ex primpart(const symbol &x, const ex &cont) const;
-#ifdef CINT_CONVERSION_WORKAROUND
-    ex primpart(const symbol &x, const basic &cont) const { return primpart(x,ex(cont)); }
-#endif // def CINT_CONVERSION_WORKAROUND
     ex normal(int level = 0) const;
     ex to_rational(lst &repl_lst) const;
     ex smod(const numeric &xi) const;
@@ -266,20 +253,11 @@ public:
     ex evalf(int level = 0) const;
     ex diff(const symbol & s, unsigned nth = 1) const;
     ex series(const ex & r, int order) const;
-#ifdef CINT_CONVERSION_WORKAROUND
-    ex series(const basic & r, int order) const { return series(ex(r),order); }
-#endif // def CINT_CONVERSION_WORKAROUND
     ex subs(const lst & ls, const lst & lr) const;
     ex subs(const ex & e) const;
-#ifdef CINT_CONVERSION_WORKAROUND
-    ex subs(const basic & e) const { return subs(ex(e)); }
-#endif // def CINT_CONVERSION_WORKAROUND
     exvector get_indices(void) const;
     ex simplify_ncmul(const exvector & v) const;
     ex operator[](const ex & index) const;
-#ifdef CINT_CONVERSION_WORKAROUND
-    ex operator[](const basic & index) const { return operator[](ex(index)); }
-#endif // def CINT_CONVERSION_WORKAROUND
     ex operator[](int i) const;
     ex op(int i) const;
     ex & let_op(int i);
@@ -299,9 +277,6 @@ public:
 #else
 ;
 #endif // def INLINE_EX_CONSTRUCTORS
-#ifdef CINT_CONVERSION_WORKAROUND
-    int compare(const basic & other) const { return compare(ex(other)); }
-#endif // def CINT_CONVERSION_WORKAROUND
     bool is_equal(const ex & other) const
 #ifdef INLINE_EX_CONSTRUCTORS
         {
@@ -316,9 +291,6 @@ public:
 #else
 ;
 #endif // def INLINE_EX_CONSTRUCTORS
-#ifdef CINT_CONVERSION_WORKAROUND
-    bool is_equal(const basic & other) const { return is_equal(ex(other)); }
-#endif // def CINT_CONVERSION_WORKAROUND
     bool is_zero(void) const {return compare(_ex0())==0;};
         
     unsigned return_type(void) const;
@@ -326,17 +298,8 @@ public:
     unsigned gethash(void) const;
 
     ex exadd(const ex & rh) const;
-#ifdef CINT_CONVERSION_WORKAROUND
-    ex exadd(const basic & rh) const { return exadd(ex(rh)); }
-#endif // def CINT_CONVERSION_WORKAROUND
     ex exmul(const ex & rh) const;
-#ifdef CINT_CONVERSION_WORKAROUND
-    ex exmul(const basic & rh) const { return exmul(ex(rh)); }
-#endif // def CINT_CONVERSION_WORKAROUND
     ex exncmul(const ex & rh) const;
-#ifdef CINT_CONVERSION_WORKAROUND
-    ex exncmul(const basic & rh) const { return exncmul(ex(rh)); }
-#endif // def CINT_CONVERSION_WORKAROUND
 private:
     void construct_from_basic(const basic & other);
     void construct_from_int(int i);

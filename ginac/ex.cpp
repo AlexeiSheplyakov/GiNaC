@@ -482,8 +482,10 @@ void ex::construct_from_basic(const basic & other)
         }
     } else {
         if (other.flags & status_flags::dynallocated) {
+            // it's on the heap, so just copy bp:
             bp = &const_cast<basic &>(other);
         } else {
+            // create a duplicate on the heap:
             bp = other.duplicate();
             bp->setflag(status_flags::dynallocated);
         }

@@ -35,33 +35,6 @@ sub generate {
 }
 
 $declare_function_macro_namespace = <<'END_OF_DECLARE_FUNCTION_1_AND_2P_MACRO_NAMESPACE';
-#ifdef CINT_CONVERSION_WORKAROUND
-
-#define DECLARE_FUNCTION_1P(NAME) \
-extern const unsigned function_index_##NAME; \
-inline GiNaC::function NAME(const GiNaC::ex & p1) { \
-    return GiNaC::function(function_index_##NAME, p1); \
-} \
-inline GiNaC::function NAME(const GiNaC::basic & p1) { \
-    return GiNaC::function(function_index_##NAME, GiNaC::ex(p1)); \
-}
-#define DECLARE_FUNCTION_2P(NAME) \
-extern const unsigned function_index_##NAME; \
-inline GiNaC::function NAME(const GiNaC::ex & p1, const GiNaC::ex & p2) { \
-    return GiNaC::function(function_index_##NAME, p1, p2); \
-} \
-inline GiNaC::function NAME(const GiNaC::basic & p1, const GiNaC::ex & p2) { \
-    return GiNaC::function(function_index_##NAME, GiNaC::ex(p1), p2); \
-} \
-inline GiNaC::function NAME(const GiNaC::ex & p1, const GiNaC::basic & p2) { \
-    return GiNaC::function(function_index_##NAME, p1, GiNaC::ex(p2)); \
-} \
-inline GiNaC::function NAME(const GiNaC::basic & p1, const GiNaC::basic & p2) { \
-    return GiNaC::function(function_index_##NAME, GiNaC::ex(p1), GiNaC::ex(p2)); \
-}
-
-#else // def CINT_CONVERSION_WORKAROUND
-
 #define DECLARE_FUNCTION_1P(NAME) \
 extern const unsigned function_index_##NAME; \
 inline GiNaC::function NAME(const GiNaC::ex & p1) { \
@@ -72,8 +45,6 @@ extern const unsigned function_index_##NAME; \
 inline GiNaC::function NAME(const GiNaC::ex & p1, const GiNaC::ex & p2) { \
     return GiNaC::function(function_index_##NAME, p1, p2); \
 }
-
-#endif // def CINT_CONVERSION_WORKAROUND
 
 END_OF_DECLARE_FUNCTION_1_AND_2P_MACRO_NAMESPACE
 
@@ -88,33 +59,6 @@ inline GiNaC::function NAME(${SEQ1}) { \\
 END_OF_DECLARE_FUNCTION_MACRO_NAMESPACE
 
 $declare_function_macro_no_namespace = <<'END_OF_DECLARE_FUNCTION_1_AND_2P_MACRO_NO_NAMESPACE';
-#ifdef CINT_CONVERSION_WORKAROUND
-
-#define DECLARE_FUNCTION_1P(NAME) \
-extern const unsigned function_index_##NAME; \
-inline function NAME(const ex & p1) { \
-    return function(function_index_##NAME, p1); \
-} \
-inline function NAME(const basic & p1) { \
-    return function(function_index_##NAME, ex(p1)); \
-}
-#define DECLARE_FUNCTION_2P(NAME) \
-extern const unsigned function_index_##NAME; \
-inline function NAME(const ex & p1, const ex & p2) { \
-    return function(function_index_##NAME, p1, p2); \
-} \
-inline function NAME(const basic & p1, const ex & p2) { \
-    return function(function_index_##NAME, ex(p1), p2); \
-} \
-inline function NAME(const ex & p1, const basic & p2) { \
-    return function(function_index_##NAME, p1, ex(p2)); \
-} \
-inline function NAME(const basic & p1, const basic & p2) { \
-    return function(function_index_##NAME, ex(p1), ex(p2)); \
-}
-
-#else // def CINT_CONVERSION_WORKAROUND
-
 #define DECLARE_FUNCTION_1P(NAME) \
 extern const unsigned function_index_##NAME; \
 inline function NAME(const ex & p1) { \
@@ -125,8 +69,6 @@ extern const unsigned function_index_##NAME; \
 inline function NAME(const ex & p1, const ex & p2) { \
     return function(function_index_##NAME, p1, p2); \
 }
-
-#endif // def CINT_CONVERSION_WORKAROUND
 
 END_OF_DECLARE_FUNCTION_1_AND_2P_MACRO_NO_NAMESPACE
 

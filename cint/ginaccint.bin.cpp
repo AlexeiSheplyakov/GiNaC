@@ -160,8 +160,7 @@ void process_tempfile(string const & command)
 #endif // def OBSCURE_CINT_HACK
     return;
 }
-//----+----#----+----#----+----#----+----#----+----#----+----#----+----#----+----#
-//  __,  _______  Cint: Copyright 1995-2000 Masaharu Goto and Agilent Technologies, JP." << endl
+
 void greeting(void)
 {
     cout << "Welcome to GiNaC-cint (" << PACKAGE << " V" << VERSION << ")" << endl;

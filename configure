@@ -3060,7 +3060,7 @@ fi
     echo "$ac_t""creating cint/Makefile" 1>&6
     (cd cint && \
     $MAKECINT -mk Makefile.makecint -o ginaccint.bin -m \
-      -D OBSCURE_CINT_HACK -cc "$CXXFLAGS" \
+      -D OBSCURE_CINT_HACK "$CPPFLAGS" -cc "$CXXFLAGS" \
       -I .. -I $CINTSYSDIR -m -H ../ginac/ginac.h \
       -C++ ginaccint.bin.cpp \
       -l -L../ginac/.libs -lginac -lcln \

@@ -256,13 +256,6 @@ numeric isqrt(const numeric & x);
 numeric gcd(const numeric & a, const numeric & b);
 numeric lcm(const numeric & a, const numeric & b);
 
-/** Exception thrown by numeric members to signal failure */
-struct numeric_fail
-{
-    int failval;
-    numeric_fail(int n) { failval = n; }
-};
-
 // wrapper functions around member functions
 inline numeric pow(const numeric & x, const numeric & y)
 { return x.power(y); }
