@@ -45,18 +45,6 @@ class coloridx : public idx
 
 	friend class color;
 
-// member functions
-
-	// default constructor, destructor, copy constructor assignment operator and helpers
-public:
-	coloridx();
-	~coloridx();
-	coloridx (const coloridx & other);
-	const coloridx & operator=(const coloridx & other);
-protected:
-	void copy(const coloridx & other);
-	void destroy(bool call_parent);
-
 	// other constructors
 public:
 	explicit coloridx(bool cov);

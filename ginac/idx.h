@@ -40,16 +40,6 @@ class idx : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS(idx, basic)
 
-	// default constructor, destructor, copy constructor assignment operator and helpers
-public:
-	idx();
-	~idx();
-	idx (const idx & other);
-	const idx & operator=(const idx & other);
-protected:
-	void copy(const idx & other);
-	void destroy(bool call_parent);
-
 	// other constructors
 public:
 	explicit idx(bool cov);

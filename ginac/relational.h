@@ -47,18 +47,6 @@ public:
 		greater_or_equal
 	};
 	
-// member functions
-
-	// default constructor, destructor, copy constructor assignment operator and helpers
-public:
-	relational();
-	~relational();
-	relational(const relational & other);
-	const relational & operator=(const relational & other);
-protected:
-	void copy(const relational & other);
-	void destroy(bool call_parent);
-
 	// other constructors
 public:
 	relational(const ex & lhs, const ex & rhs, operators oper=equal);

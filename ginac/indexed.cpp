@@ -45,28 +45,6 @@ indexed::indexed()
 	tinfo_key=TINFO_indexed;
 }
 
-indexed::~indexed()
-{
-	debugmsg("indexed destructor",LOGLEVEL_DESTRUCT);
-	destroy(false);
-}
-
-indexed::indexed(const indexed & other)
-{
-	debugmsg("indexed copy constructor",LOGLEVEL_CONSTRUCT);
-	copy (other);
-}
-
-const indexed & indexed::operator=(const indexed & other)
-{
-	debugmsg("indexed operator=",LOGLEVEL_ASSIGNMENT);
-	if (this != &other) {
-		destroy(true);
-		copy(other);
-	}
-	return *this;
-}
-
 // protected
 
 void indexed::copy(const indexed & other)

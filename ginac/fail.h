@@ -34,16 +34,6 @@ class fail : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS(fail, basic)
 
-	// default constructor, destructor, copy constructor assignment operator and helpers
-public:
-	fail();
-	~fail();
-	fail(const fail & other);
-	const fail & operator=(const fail & other);
-protected:
-	void copy(const fail & other);
-	void destroy(bool call_parent);
-
 	// other constructors
 	// none
 
@@ -62,8 +52,8 @@ protected:
 	// non-virtual functions in this class
 	// none
 
-// member variables
-// none
+	// member variables
+	// none
 };
 
 #ifndef NO_NAMESPACE_GINAC

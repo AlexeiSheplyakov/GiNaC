@@ -48,28 +48,6 @@ mul::mul()
 	tinfo_key = TINFO_mul;
 }
 
-mul::~mul()
-{
-	debugmsg("mul destructor",LOGLEVEL_DESTRUCT);
-	destroy(false);
-}
-
-mul::mul(const mul & other)
-{
-	debugmsg("mul copy constructor",LOGLEVEL_CONSTRUCT);
-	copy(other);
-}
-
-const mul & mul::operator=(const mul & other)
-{
-	debugmsg("mul operator=",LOGLEVEL_ASSIGNMENT);
-	if (this != &other) {
-		destroy(true);
-		copy(other);
-	}
-	return *this;
-}
-
 // protected
 
 void mul::copy(const mul & other)

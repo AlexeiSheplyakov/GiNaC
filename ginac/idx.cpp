@@ -49,28 +49,6 @@ idx::idx() : inherited(TINFO_idx), symbolic(true), covariant(false)
 	name=autoname_prefix()+ToString(serial);
 }
 
-idx::~idx() 
-{
-	debugmsg("idx destructor",LOGLEVEL_DESTRUCT);
-	destroy(false);
-}
-
-idx::idx(const idx & other)
-{
-	debugmsg("idx copy constructor",LOGLEVEL_CONSTRUCT);
-	copy(other);
-}
-
-const idx & idx::operator=(const idx & other)
-{
-	debugmsg("idx operator=",LOGLEVEL_ASSIGNMENT);
-	if (this != &other) {
-		destroy(true);
-		copy(other);
-	}
-	return *this;
-}
-
 // protected
 
 void idx::copy(const idx & other)

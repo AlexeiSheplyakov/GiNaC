@@ -36,18 +36,6 @@ class indexed : public exprseq
 {
 	GINAC_DECLARE_REGISTERED_CLASS(indexed, exprseq)
 
-// member functions
-
-	// default constructor, destructor, copy constructor assignment operator and helpers
-public:
-	indexed();
-	~indexed();
-	indexed(const indexed & other);
-	const indexed & operator=(const indexed & other);
-protected:
-	void copy(const indexed & other); 
-	void destroy(bool call_parent);
-
 	// other constructors
 public:
 	indexed(const ex & i1);

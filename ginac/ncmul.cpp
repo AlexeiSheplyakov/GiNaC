@@ -50,28 +50,6 @@ ncmul::ncmul()
 	tinfo_key = TINFO_ncmul;
 }
 
-ncmul::~ncmul()
-{
-	debugmsg("ncmul destructor",LOGLEVEL_DESTRUCT);
-	destroy(false);
-}
-
-ncmul::ncmul(const ncmul & other)
-{
-	debugmsg("ncmul copy constructor",LOGLEVEL_CONSTRUCT);
-	copy(other);
-}
-
-const ncmul & ncmul::operator=(const ncmul & other)
-{
-	debugmsg("ncmul operator=",LOGLEVEL_ASSIGNMENT);
-	if (this != &other) {
-		destroy(true);
-		copy(other);
-	}
-	return *this;
-}
-
 // protected
 
 void ncmul::copy(const ncmul & other)

@@ -48,28 +48,6 @@ clifford::clifford()
 	tinfo_key = TINFO_clifford;
 }
 
-clifford::~clifford()
-{
-	debugmsg("clifford destructor",LOGLEVEL_DESTRUCT);
-	destroy(false);
-}
-
-clifford::clifford(const clifford & other)
-{
-	debugmsg("clifford copy constructor",LOGLEVEL_CONSTRUCT);
-	copy(other);
-}
-
-const clifford & clifford::operator=(const clifford & other)
-{
-	debugmsg("clifford operator=",LOGLEVEL_ASSIGNMENT);
-	if (this != &other) {
-		destroy(true);
-		copy(other);
-	}
-	return *this;
-}
-
 // protected
 
 void clifford::copy(const clifford & other)

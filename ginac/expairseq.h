@@ -57,7 +57,7 @@ typedef std::vector<epplist> epplistvector;
  *  the same way.) */
 class expairseq : public basic
 {
-	GINAC_DECLARE_REGISTERED_CLASS(expairseq, basic)
+	GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(expairseq, basic)
 
 // member functions
 

@@ -40,16 +40,6 @@ class ncmul : public exprseq
 
 // member functions
 
-	// default constructor, destructor, copy constructor assignment operator and helpers
-public:
-	ncmul();
-	~ncmul();
-	ncmul(const ncmul & other);
-	const ncmul & operator=(const ncmul & other);
-protected:
-	void copy(const ncmul & other);
-	void destroy(bool call_parent);
-
 	// other constructors
 public:
 	ncmul(const ex & lh, const ex & rh);

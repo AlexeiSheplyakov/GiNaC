@@ -38,18 +38,6 @@ class mul : public expairseq
 	friend class ncmul;
 	friend class power;
 
-// member functions
-
-	// default constructor, destructor, copy constructor assignment operator and helpers
-public:
-	mul();
-	~mul();
-	mul(const mul & other);
-	const mul & operator=(const mul & other);
-protected:
-	void copy(const mul & other);
-	void destroy(bool call_parent);
-
 	// other constructors
 public:
 	mul(const ex & lh, const ex & rh);

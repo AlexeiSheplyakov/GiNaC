@@ -38,7 +38,7 @@ namespace GiNaC {
 #error "FIXME: expair_needs_further_processing not yet implemented for hashtabs, sorry. A.F."
 #endif // def EXPAIRSEQ_USE_HASHTAB
 
-GINAC_IMPLEMENT_REGISTERED_CLASS(expairseq, basic)
+GINAC_IMPLEMENT_REGISTERED_CLASS_NO_CTORS(expairseq, basic)
 
 //////////
 // helper classes

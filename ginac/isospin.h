@@ -35,18 +35,6 @@ class isospin : public indexed
 {
 	GINAC_DECLARE_REGISTERED_CLASS(isospin, indexed)
 
-// member functions
-
-	// default constructor, destructor, copy constructor assignment operator and helpers
-public:
-	isospin();
-	~isospin();
-	isospin(const isospin & other);
-	const isospin & operator=(const isospin & other);
-protected:
-	void copy(const isospin & other); 
-	void destroy(bool call_parent);
-
 	// other constructors
 public:
 	explicit isospin(const std::string & initname);

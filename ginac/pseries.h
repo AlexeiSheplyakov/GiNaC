@@ -38,16 +38,6 @@ class pseries : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS(pseries, basic)
 
-	// default constructor, destructor, copy constructor, assignment operator and helpers
-public:
-	pseries();
-	~pseries();
-	pseries(const pseries &other);
-	const pseries &operator=(const pseries &other);
-protected:
-	void copy(const pseries &other);
-	void destroy(bool call_parent);
-
 	// other constructors
 public:
 	pseries(const ex &rel_, const epvector &ops_);

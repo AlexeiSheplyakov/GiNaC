@@ -60,28 +60,6 @@ lortensor::lortensor() : inherited(TINFO_lortensor), type(invalid)
 	name=autoname_prefix()+ToString(serial);
 }
 
-lortensor::~lortensor()
-{
-	debugmsg("lortensor destructor",LOGLEVEL_DESTRUCT);
-	destroy(false);
-}
-
-lortensor::lortensor(const lortensor & other)
-{
-	debugmsg("lortensor copy constructor",LOGLEVEL_CONSTRUCT);
-	copy (other);
-}
-
-const lortensor & lortensor::operator=(const lortensor & other)
-{
-	debugmsg("lortensor operator=",LOGLEVEL_ASSIGNMENT);
-	if (this != & other) {
-		destroy(true);
-		copy(other);
-	}
-	return *this;
-}
-
 //protected
 
 void lortensor::copy(const lortensor & other)
@@ -350,7 +328,7 @@ ex lortensor::eval(int level) const
 				return _ex0();
 			}
 		} else if (idx1.is_symbolic() && idx1.is_co_contra_pair(idx2)) {
-			return Dim() - 2;
+			return Dim();
 		}
 	}
 	return this -> hold();

@@ -43,16 +43,6 @@ class power : public basic
 
 // member functions
 
-	// default constructor, destructor, copy constructor assignment operator and helpers
-public:
-	power();
-	~power();
-	power(const power & other);
-	const power & operator=(const power & other);
-protected:
-	void copy(const power & other);
-	void destroy(bool call_parent);
-
 	// other constructors
 public:
 	power(const ex & lh, const ex & rh);

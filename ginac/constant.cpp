@@ -46,18 +46,6 @@ constant::constant() : basic(TINFO_constant), name(""), ef(0), number(0), serial
 	debugmsg("constant default constructor",LOGLEVEL_CONSTRUCT);
 }
 
-constant::~constant()
-{
-	debugmsg("constant destructor",LOGLEVEL_DESTRUCT);
-	destroy(0);
-}
-
-constant::constant(const constant & other)
-{
-	debugmsg("constant copy constructor",LOGLEVEL_CONSTRUCT);
-	copy(other);
-}
-
 // protected
 
 void constant::copy(const constant & other)

@@ -47,28 +47,6 @@ add::add()
 	tinfo_key = TINFO_add;
 }
 
-add::~add()
-{
-	debugmsg("add destructor",LOGLEVEL_DESTRUCT);
-	destroy(false);
-}
-
-add::add(const add & other)
-{
-	debugmsg("add copy constructor",LOGLEVEL_CONSTRUCT);
-	copy(other);
-}
-
-const add & add::operator=(const add & other)
-{
-	debugmsg("add operator=",LOGLEVEL_ASSIGNMENT);
-	if (this != &other) {
-		destroy(true);
-		copy(other);
-	}
-	return *this;
-}
-
 // protected
 
 void add::copy(const add & other)

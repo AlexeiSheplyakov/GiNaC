@@ -34,7 +34,7 @@
 namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
 
-GINAC_IMPLEMENT_REGISTERED_CLASS(symbol, basic)
+GINAC_IMPLEMENT_REGISTERED_CLASS_NO_CTORS(symbol, basic)
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers

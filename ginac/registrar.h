@@ -61,22 +61,54 @@ struct registered_class_info {
 };
 
 
-/** Macro for inclusion in the declaration of each registered class. */
-#define GINAC_DECLARE_REGISTERED_CLASS(classname, supername) \
+#define GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(classname, supername) \
 public: \
 	typedef supername inherited; \
 	static registered_class_info reg_info; \
 	virtual const char *class_name(void) const; \
 	classname(const archive_node &n, const lst &sym_lst); \
 	virtual void archive(archive_node &n) const; \
-	static ex unarchive(const archive_node &n, const lst &sym_lst); \
+	static ex unarchive(const archive_node &n, const lst &sym_lst);
+
+/** Macro for inclusion in the declaration of each registered class. */
+#define GINAC_DECLARE_REGISTERED_CLASS(classname, supername) \
+	GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(classname, supername) \
+public: \
+	classname(); \
+	~classname(); \
+	classname(const classname & other); \
+	const classname & operator=(const classname & other); \
+protected: \
+	void copy(const classname & other); \
+	void destroy(bool call_parent); \
 private:
 
-/** Macro for inclusion in the implementation of each registered class. */
-#define GINAC_IMPLEMENT_REGISTERED_CLASS(classname, supername) \
+#define GINAC_IMPLEMENT_REGISTERED_CLASS_NO_CTORS(classname, supername) \
 	registered_class_info classname::reg_info(#classname, #supername, TINFO_##classname, &classname::unarchive); \
 	const char *classname::class_name(void) const {return reg_info.name;}
 
+/** Macro for inclusion in the implementation of each registered class. */
+#define GINAC_IMPLEMENT_REGISTERED_CLASS(classname, supername) \
+	GINAC_IMPLEMENT_REGISTERED_CLASS_NO_CTORS(classname, supername) \
+classname::~classname() \
+{ \
+	debugmsg(#classname " destructor", LOGLEVEL_DESTRUCT); \
+	destroy(false); \
+} \
+classname::classname(const classname & other) \
+{ \
+	debugmsg(#classname " copy constructor", LOGLEVEL_CONSTRUCT); \
+	copy(other); \
+} \
+const classname & classname::operator=(const classname & other) \
+{ \
+	debugmsg(#classname " operator=", LOGLEVEL_ASSIGNMENT); \
+	if (this != &other) { \
+		destroy(true); \
+		copy(other); \
+	} \
+	return *this; \
+}
 
 /** Find TINFO_* key by class name. */
 extern unsigned int find_tinfo_key(const std::string &class_name);

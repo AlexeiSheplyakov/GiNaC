@@ -87,28 +87,6 @@ numeric::numeric() : basic(TINFO_numeric)
 	        status_flags::hash_calculated);
 }
 
-numeric::~numeric()
-{
-	debugmsg("numeric destructor" ,LOGLEVEL_DESTRUCT);
-	destroy(false);
-}
-
-numeric::numeric(const numeric & other)
-{
-	debugmsg("numeric copy constructor", LOGLEVEL_CONSTRUCT);
-	copy(other);
-}
-
-const numeric & numeric::operator=(const numeric & other)
-{
-	debugmsg("numeric operator=", LOGLEVEL_ASSIGNMENT);
-	if (this != &other) {
-		destroy(true);
-		copy(other);
-	}
-	return *this;
-}
-
 // protected
 
 void numeric::copy(const numeric & other)

@@ -67,16 +67,6 @@ public:
 
 // member functions
 
-	// default constructor, destructor, copy constructor assignment operator and helpers
-public:
-	lortensor();
-	~lortensor();
-	lortensor(const lortensor & other);
-	const lortensor & operator=(const lortensor & other);
-protected:
-	void copy(const lortensor & other);
-	void destroy(bool call_parent);
-
 	// other constructors
 protected:
 	lortensor(lortensor_types const lt, const std::string & n);

@@ -39,7 +39,7 @@ namespace GiNaC {
  *  first place. */
 class symbol : public basic
 {
-	GINAC_DECLARE_REGISTERED_CLASS(symbol, basic)
+	GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(symbol, basic)
 
 // types
 

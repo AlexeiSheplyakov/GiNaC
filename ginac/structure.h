@@ -41,17 +41,7 @@ struct registered_structure_info {
 
 class structure : public basic
 {
-// member functions
-
-	// default constructor, destructor, copy constructor assignment operator and helpers
-public:
-	structure();
-	~structure();
-	structure(const structure & other);
-	const structure & operator=(const structure & other);
-protected:
-	void copy(const structure & other);
-	void destroy(bool call_parent);
+	GINAC_DECLARE_REGISTERED_CLASS(structure, basic)
 
 	// other constructors
 	// none

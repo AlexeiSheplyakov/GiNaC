@@ -50,28 +50,6 @@ pseries::pseries() : basic(TINFO_pseries)
 	debugmsg("pseries default constructor", LOGLEVEL_CONSTRUCT);
 }
 
-pseries::~pseries()
-{
-	debugmsg("pseries destructor", LOGLEVEL_DESTRUCT);
-	destroy(false);
-}
-
-pseries::pseries(const pseries &other)
-{
-	debugmsg("pseries copy constructor", LOGLEVEL_CONSTRUCT);
-	copy(other);
-}
-
-const pseries &pseries::operator=(const pseries & other)
-{
-	debugmsg("pseries operator=", LOGLEVEL_ASSIGNMENT);
-	if (this != &other) {
-		destroy(true);
-		copy(other);
-	}
-	return *this;
-}
-
 void pseries::copy(const pseries &other)
 {
 	inherited::copy(other);

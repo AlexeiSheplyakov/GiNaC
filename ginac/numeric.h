@@ -73,21 +73,7 @@ class numeric : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS(numeric, basic)
 
-// friends
-// (none)
-
 // member functions
-
-	// default constructor, destructor, copy constructor assignment
-	// operator and helpers
-public:
-	numeric();
-	~numeric();
-	numeric(const numeric & other);
-	const numeric & operator=(const numeric & other);
-protected:
-	void copy(const numeric & other);
-	void destroy(bool call_parent);
 
 	// other constructors
 public:

@@ -49,28 +49,6 @@ lorentzidx::lorentzidx() : orthogonal_only(false), dim_parallel_space(0)
 	tinfo_key = TINFO_lorentzidx;
 }
 
-lorentzidx::~lorentzidx() 
-{
-	debugmsg("lorentzidx destructor",LOGLEVEL_DESTRUCT);
-	destroy(false);
-}
-
-lorentzidx::lorentzidx(const lorentzidx & other)
-{
-	debugmsg("lorentzidx copy constructor",LOGLEVEL_CONSTRUCT);
-	copy(other);
-}
-
-const lorentzidx & lorentzidx::operator=(const lorentzidx & other)
-{
-	debugmsg("lorentzidx operator=",LOGLEVEL_ASSIGNMENT);
-	if (this != &other) {
-		destroy(true);
-		copy(other);
-	}
-	return *this;
-}
-
 // protected
 
 void lorentzidx::copy(const lorentzidx & other)

@@ -201,15 +201,6 @@ class ${CONTAINER} : public basic
 	GINAC_DECLARE_REGISTERED_CLASS(${CONTAINER}, basic)
 
 public:
-	${CONTAINER}();
-	~${CONTAINER}();
-	${CONTAINER}(${CONTAINER} const & other);
-	${CONTAINER} const & operator=(${CONTAINER} const & other);
-protected:
-	void copy(${CONTAINER} const & other);
-	void destroy(bool call_parent);
-
-public:
 	${CONTAINER}(${STLT} const & s, bool discardable=0);
 	${CONTAINER}(${STLT} * vp); // vp will be deleted
 ${constructors_interface}
@@ -341,28 +332,6 @@ ${RESERVE_IMPLEMENTATION}
 ${CONTAINER}::${CONTAINER}() : basic(TINFO_${CONTAINER})
 {
 	debugmsg("${CONTAINER} default constructor",LOGLEVEL_CONSTRUCT);
-}
-
-${CONTAINER}::~${CONTAINER}()
-{
-	debugmsg("${CONTAINER} destructor",LOGLEVEL_DESTRUCT);
-	destroy(false);
-}
-
-${CONTAINER}::${CONTAINER}(${CONTAINER} const & other)
-{
-	debugmsg("${CONTAINER} copy constructor",LOGLEVEL_CONSTRUCT);
-	copy(other);
-}
-
-${CONTAINER} const & ${CONTAINER}::operator=(${CONTAINER} const & other)
-{
-	debugmsg("${CONTAINER} operator=",LOGLEVEL_ASSIGNMENT);
-	if (this != &other) {
-		destroy(true);
-		copy(other);
-	}
-	return *this;
 }
 
 // protected

@@ -23,11 +23,14 @@
 #include <string>
 
 #include "structure.h"
+#include "archive.h"
 #include "debugmsg.h"
 
 #ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
+
+GINAC_IMPLEMENT_REGISTERED_CLASS(structure, basic)
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -39,28 +42,6 @@ structure::structure()
 {
 	debugmsg("structure default constructor",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_structure;
-}
-
-structure::~structure()
-{
-	debugmsg("structure destructor",LOGLEVEL_DESTRUCT);
-	destroy(false);
-}
-
-structure::structure(const structure & other)
-{
-	debugmsg("structure copy constructor",LOGLEVEL_CONSTRUCT);
-	copy(other);
-}
-
-const structure & structure::operator=(const structure & other)
-{
-	debugmsg("structure operator=",LOGLEVEL_ASSIGNMENT);
-	if (this != &other) {
-		destroy(true);
-		copy(other);
-	}
-	return *this;
 }
 
 // protected
@@ -80,6 +61,28 @@ void structure::destroy(bool call_parent)
 //////////
 
 // none
+
+//////////
+// archiving
+//////////
+
+/** Construct object from archive_node. */
+structure::structure(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+{
+	debugmsg("structure constructor from archive_node", LOGLEVEL_CONSTRUCT);
+}
+
+/** Unarchive the object. */
+ex structure::unarchive(const archive_node &n, const lst &sym_lst)
+{
+	return (new structure(n, sym_lst))->setflag(status_flags::dynallocated);
+}
+
+/** Archive the object. */
+void structure::archive(archive_node &n) const
+{
+	inherited::archive(n);
+}
 
 //////////
 // structures overriding virtual structures from bases classes

@@ -48,16 +48,6 @@ class lorentzidx : public idx
 
 // member functions
 
-	// default constructor, destructor, copy constructor assignment operator and helpers
-public:
-	lorentzidx();
-	~lorentzidx();
-	lorentzidx (const lorentzidx & other);
-	const lorentzidx & operator=(const lorentzidx & other);
-protected:
-	void copy(const lorentzidx & other);
-	void destroy(bool call_parent);
-
 	// other constructors
 public:
 	explicit lorentzidx(bool cov, bool oonly=false, unsigned dimp=0);

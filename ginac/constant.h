@@ -42,16 +42,6 @@ class constant : public basic
 
 // member functions
 
-	// default constructor, destructor, copy constructor assignment operator and helpers
-public:
-	constant();
-	~constant();
-	constant(const constant & other);
-	// const constant & operator=(const constant & other); /* it's pervert! */
-protected:
-	void copy(const constant & other);
-	void destroy(bool call_parent);
-
 	// other constructors
 public:
 	constant(const std::string & initname, evalffunctype efun=0);

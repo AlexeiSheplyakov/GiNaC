@@ -42,18 +42,6 @@ class clifford : public lortensor
 
 	friend clifford clifford_gamma(const ex & mu);
 
-// member functions
-
-	// default constructor, destructor, copy constructor assignment operator and helpers
-public:
-	clifford();
-	~clifford();
-	clifford(const clifford & other);
-	const clifford & operator=(const clifford & other);
-protected:
-	void copy(const clifford & other); 
-	void destroy(bool call_parent);
-
 	// other constructors
 public:
 	clifford(const std::string & n, const ex & mu);

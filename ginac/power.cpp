@@ -55,28 +55,6 @@ power::power() : basic(TINFO_power)
 	debugmsg("power default constructor",LOGLEVEL_CONSTRUCT);
 }
 
-power::~power()
-{
-	debugmsg("power destructor",LOGLEVEL_DESTRUCT);
-	destroy(false);
-}
-
-power::power(const power & other)
-{
-	debugmsg("power copy constructor",LOGLEVEL_CONSTRUCT);
-	copy(other);
-}
-
-const power & power::operator=(const power & other)
-{
-	debugmsg("power operator=",LOGLEVEL_ASSIGNMENT);
-	if (this != &other) {
-		destroy(true);
-		copy(other);
-	}
-	return *this;
-}
-
 // protected
 
 void power::copy(const power & other)

@@ -54,28 +54,6 @@ matrix::matrix() : inherited(TINFO_matrix), row(1), col(1)
 	m.push_back(_ex0());
 }
 
-matrix::~matrix()
-{
-	debugmsg("matrix destructor",LOGLEVEL_DESTRUCT);
-	destroy(false);
-}
-
-matrix::matrix(const matrix & other)
-{
-	debugmsg("matrix copy constructor",LOGLEVEL_CONSTRUCT);
-	copy(other);
-}
-
-const matrix & matrix::operator=(const matrix & other)
-{
-	debugmsg("matrix operator=",LOGLEVEL_ASSIGNMENT);
-	if (this != &other) {
-		destroy(true);
-		copy(other);
-	}
-	return *this;
-}
-
 // protected
 
 void matrix::copy(const matrix & other)

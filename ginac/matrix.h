@@ -36,21 +36,6 @@ class matrix : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS(matrix, basic)
 
-// friends
-// (none)
-// member functions
-
-	// default constructor, destructor, copy constructor, assignment operator
-	// and helpers:
-public:
-	matrix();
-	~matrix();
-	matrix(const matrix & other);
-	const matrix & operator=(const matrix & other);
-protected:
-	void copy(const matrix & other);
-	void destroy(bool call_parent);
-
 	// other constructors
 public:
 	matrix(unsigned r, unsigned c);

@@ -45,28 +45,6 @@ relational::relational() : basic(TINFO_relational)
 	debugmsg("relational default constructor",LOGLEVEL_CONSTRUCT);
 }
 
-relational::~relational()
-{
-	debugmsg("relational destructor",LOGLEVEL_DESTRUCT);
-	destroy(false);
-}
-
-relational::relational(const relational & other)
-{
-	debugmsg("relational copy constructor",LOGLEVEL_CONSTRUCT);
-	copy(other);
-}
-
-const relational & relational::operator=(const relational & other)
-{
-	debugmsg("relational operator=",LOGLEVEL_ASSIGNMENT);
-	if (this != &other) {
-		destroy(true);
-		copy(other);
-	}
-	return *this;
-}
-
 // protected
 
 void relational::copy(const relational & other)

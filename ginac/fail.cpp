@@ -42,28 +42,6 @@ fail::fail() : inherited(TINFO_fail)
 	debugmsg("fail default constructor",LOGLEVEL_CONSTRUCT);
 }
 
-fail::~fail()
-{
-	debugmsg("fail destructor",LOGLEVEL_DESTRUCT);
-	destroy(false);
-}
-
-fail::fail(const fail & other)
-{
-	debugmsg("fail copy constructor",LOGLEVEL_CONSTRUCT);
-	copy(other);
-}
-
-const fail & fail::operator=(const fail & other)
-{
-	debugmsg("fail operator=",LOGLEVEL_ASSIGNMENT);
-	if (this != &other) {
-		destroy(true);
-		copy(other);
-	}
-	return *this;
-}
-
 // protected
 
 void fail::copy(const fail & other)

@@ -47,28 +47,6 @@ coloridx::coloridx()
 	tinfo_key=TINFO_coloridx;
 }
 
-coloridx::~coloridx() 
-{
-	debugmsg("coloridx destructor",LOGLEVEL_DESTRUCT);
-	destroy(false);
-}
-
-coloridx::coloridx(const coloridx & other)
-{
-	debugmsg("coloridx copy constructor",LOGLEVEL_CONSTRUCT);
-	copy(other);
-}
-
-const coloridx & coloridx::operator=(const coloridx & other)
-{
-	debugmsg("coloridx operator=",LOGLEVEL_ASSIGNMENT);
-	if (this != &other) {
-		destroy(true);
-		copy(other);
-	}
-	return *this;
-}
-
 // protected
 
 void coloridx::copy(const coloridx & other)

@@ -94,16 +94,6 @@ public:
 	
 // member functions
 
-	// default constructor, destructor, copy constructor assignment operator and helpers
-public:
-	color();
-	~color();
-	color(const color & other);
-	const color & operator=(const color & other);
-protected:
-	void copy(const color & other); 
-	void destroy(bool call_parent);
-
 	// other constructors
 protected:
 	color(color_types const t, unsigned rl=0);

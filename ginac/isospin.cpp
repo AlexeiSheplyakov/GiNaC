@@ -51,28 +51,6 @@ isospin::isospin()
 	tinfo_key=TINFO_isospin;
 }
 
-isospin::~isospin()
-{
-	debugmsg("isospin destructor",LOGLEVEL_DESTRUCT);
-	destroy(false);
-}
-
-isospin::isospin(const isospin & other)
-{
-	debugmsg("isospin copy constructor",LOGLEVEL_CONSTRUCT);
-	copy (other);
-}
-
-const isospin & isospin::operator=(const isospin & other)
-{
-	debugmsg("isospin operator=",LOGLEVEL_ASSIGNMENT);
-	if (this != &other) {
-		destroy(true);
-		copy(other);
-	}
-	return *this;
-}
-
 // protected
 
 void isospin::copy(const isospin & other)

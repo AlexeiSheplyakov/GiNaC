@@ -61,7 +61,7 @@ typedef std::vector<ex> exvector;
  *  It is responsible for the reference counting. */
 class basic
 {
-	GINAC_DECLARE_REGISTERED_CLASS(basic, void)
+	GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(basic, void)
 
 	friend class ex;
 

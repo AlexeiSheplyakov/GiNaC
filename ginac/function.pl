@@ -386,16 +386,6 @@ class function : public exprseq
 
 // member functions
 
-	// default constructor, destructor, copy constructor assignment operator and helpers
-public:
-	function();
-	~function();
-	function(const function & other);
-	const function & operator=(const function & other);
-protected:
-	void copy(const function & other);
-	void destroy(bool call_parent);
-
 	// other constructors
 public:
 	function(unsigned ser);
@@ -628,28 +618,6 @@ function::function() : serial(0)
 {
 	debugmsg("function default constructor",LOGLEVEL_CONSTRUCT);
 	tinfo_key = TINFO_function;
-}
-
-function::~function()
-{
-	debugmsg("function destructor",LOGLEVEL_DESTRUCT);
-	destroy(false);
-}
-
-function::function(const function & other)
-{
-	debugmsg("function copy constructor",LOGLEVEL_CONSTRUCT);
-	copy(other);
-}
-
-const function & function::operator=(const function & other)
-{
-	debugmsg("function operator=",LOGLEVEL_ASSIGNMENT);
-	if (this != &other) {
-		destroy(true);
-		copy(other);
-	}
-	return *this;
 }
 
 // protected

@@ -54,28 +54,6 @@ color::color() : inherited(TINFO_color), type(invalid), representation_label(0)
 	debugmsg("color default constructor",LOGLEVEL_CONSTRUCT);
 }
 
-color::~color()
-{
-	debugmsg("color destructor",LOGLEVEL_DESTRUCT);
-	destroy(false);
-}
-
-color::color(const color & other)
-{
-	debugmsg("color copy constructor",LOGLEVEL_CONSTRUCT);
-	copy (other);
-}
-
-const color & color::operator=(const color & other)
-{
-	debugmsg("color operator=",LOGLEVEL_ASSIGNMENT);
-	if (this != &other) {
-		destroy(true);
-		copy(other);
-	}
-	return *this;
-}
-
 // protected
 
 void color::copy(const color & other)

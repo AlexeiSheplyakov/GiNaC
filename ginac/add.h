@@ -38,18 +38,6 @@ class add : public expairseq
 	friend class ncmul;
 	friend class power;
 
-// member functions
-
-	// default constructor, destructor, copy constructor assignment operator and helpers
-public:
-	add();
-	~add();
-	add(const add & other);
-	const add & operator=(const add & other);
-protected:
-	void copy(const add & other);
-	void destroy(bool call_parent);
-
 	// other constructors
 public:
 	add(const ex & lh, const ex & rh);

@@ -31,12 +31,15 @@
 #include "simp_lor.h"
 #include "ex.h"
 #include "mul.h"
+#include "archive.h"
 #include "debugmsg.h"
 #include "utils.h"
 
 #ifndef NO_NAMESPACE_GINAC
 namespace GiNaC {
 #endif // ndef NO_NAMESPACE_GINAC
+
+GINAC_IMPLEMENT_REGISTERED_CLASS(simp_lor, indexed)
 
 //////////
 // default constructor, destructor, copy constructor assignment operator and helpers
@@ -48,28 +51,6 @@ simp_lor::simp_lor() : type(invalid)
 {
 	debugmsg("simp_lor default constructor",LOGLEVEL_CONSTRUCT);
 	tinfo_key=TINFO_simp_lor;
-}
-
-simp_lor::~simp_lor()
-{
-	debugmsg("simp_lor destructor",LOGLEVEL_DESTRUCT);
-	destroy(false);
-}
-
-simp_lor::simp_lor(const simp_lor & other)
-{
-	debugmsg("simp_lor copy constructor",LOGLEVEL_CONSTRUCT);
-	copy (other);
-}
-
-const simp_lor & simp_lor::operator=(const simp_lor & other)
-{
-	debugmsg("simp_lor operator=",LOGLEVEL_ASSIGNMENT);
-	if (this != &other) {
-		destroy(true);
-		copy(other);
-	}
-	return *this;
 }
 
 // protected
@@ -131,6 +112,36 @@ simp_lor::simp_lor(simp_lor_types const t, const std::string & n, exvector * ivp
 	tinfo_key=TINFO_simp_lor;
 	GINAC_ASSERT(all_of_type_lorentzidx());
 }
+
+//////////
+// archiving
+//////////
+
+/** Construct object from archive_node. */
+simp_lor::simp_lor(const archive_node &n, const lst &sym_lst) : inherited(n, sym_lst)
+{
+	debugmsg("simp_lor constructor from archive_node", LOGLEVEL_CONSTRUCT);
+	unsigned int ty;
+	if (!(n.find_unsigned("type", ty)))
+		throw (std::runtime_error("unknown simp_lor type in archive"));
+	type = (simp_lor_types)ty;
+	n.find_string("name", name);
+}
+
+/** Unarchive the object. */
+ex simp_lor::unarchive(const archive_node &n, const lst &sym_lst)
+{
+	return (new simp_lor(n, sym_lst))->setflag(status_flags::dynallocated);
+}
+
+/** Archive the object. */
+void simp_lor::archive(archive_node &n) const
+{
+	inherited::archive(n);
+	n.add_unsigned("type", type);
+	n.add_string("name", name);
+}
+
 
 //////////
 // functions overriding virtual functions from bases classes
