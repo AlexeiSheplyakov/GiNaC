@@ -337,7 +337,7 @@ ex expairseq::subs(const lst &ls, const lst &lr) const
 {
 	epvector *vp = subschildren(ls,lr);
 	if (vp==0)
-		return *this;
+		return inherited::subs(ls, lr);
 	
 	return thisexpairseq(vp,overall_coeff);
 }

@@ -166,18 +166,6 @@ DEFAULT_PRINT(tensmetric, "g")
 DEFAULT_PRINT(minkmetric, "eta")
 DEFAULT_PRINT(tensepsilon, "eps")
 
-ex tensor::subs(const lst & ls, const lst & lr) const
-{
-	GINAC_ASSERT(ls.nops() == lr.nops());
-
-	for (unsigned i=0; i<ls.nops(); i++) {
-		if (is_ex_of_type(ls.op(i), tensor) &&
-		    compare_same_type(ex_to_tensor(ls.op(i)))==0)
-			return lr.op(i);
-	}
-	return *this;
-}
-
 /** Automatic symbolic evaluation of an indexed delta tensor. */
 ex tensdelta::eval_indexed(const basic & i) const
 {

@@ -476,7 +476,7 @@ ex power::subs(const lst & ls, const lst & lr) const
 
 	if (are_ex_trivially_equal(basis,subsed_basis)&&
 		are_ex_trivially_equal(exponent,subsed_exponent)) {
-		return *this;
+		return inherited::subs(ls, lr);
 	}
 	
 	return power(subsed_basis, subsed_exponent);

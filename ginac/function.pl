@@ -345,7 +345,6 @@ public:
 	ex evalf(int level=0) const;
 	unsigned calchash(void) const;
 	ex series(const relational & r, int order, unsigned options = 0) const;
-	ex subs(const lst & ls, const lst & lr) const;
 	ex thisexprseq(const exvector & v) const;
 	ex thisexprseq(exvector * vp) const;
 protected:
@@ -820,19 +819,6 @@ ${series_switch_statement}
 		// end of generated lines
 	}
 	throw(std::logic_error("function::series(): invalid nparams"));
-}
-
-ex function::subs(const lst & ls, const lst & lr) const
-{
-	GINAC_ASSERT(ls.nops() == lr.nops());
-
-	for (unsigned i=0; i<ls.nops(); i++) {
-		if (is_ex_of_type(ls.op(i), function) &&
-		    compare_same_type(ex_to_function(ls.op(i)))==0)
-			return lr.op(i);
-	}
-
-	return inherited::subs(ls, lr);
 }
 
 // protected

@@ -31,10 +31,6 @@
 #include "symbol.h"
 #include "lst.h"
 #include "ncmul.h"
-#include "idx.h"
-#include "indexed.h"
-#include "tensor.h"
-#include "function.h"
 #include "archive.h"
 #include "utils.h"
 #include "debugmsg.h"
@@ -341,10 +337,17 @@ bool basic::contract_with(exvector::iterator self, exvector::iterator other, exv
 	return false;
 }
 
-/** Substitute a set of symbols by arbitrary expressions. The ex returned
+/** Substitute a set of objects by arbitrary expressions. The ex returned
  *  will already be evaluated. */
 ex basic::subs(const lst & ls, const lst & lr) const
 {
+	GINAC_ASSERT(ls.nops() == lr.nops());
+
+	for (unsigned i=0; i<ls.nops(); i++) {
+		if (is_equal(*ls.op(i).bp))
+			return lr.op(i);
+	}
+
 	return *this;
 }
 
@@ -466,11 +469,11 @@ ex basic::expand(unsigned options) const
 
 // public
 
-/** Substitute objects (symbols, indices, tensors, functions, indexed) in
- *  expression and return the result as a new expression.  There are two
- *  valid types of replacement arguments: 1) a relational like object==ex
- *  and 2) a list of relationals lst(object1==ex1,object2==ex2,...), which
- *  is converted to subs(lst(object1,object2,...),lst(ex1,ex2,...)). */
+/** Substitute objects in an expression (syntactic substitution) and return
+ *  the result as a new expression.  There are two valid types of
+ *  replacement arguments: 1) a relational like object==ex and 2) a list of
+ *  relationals lst(object1==ex1,object2==ex2,...), which is converted to
+ *  subs(lst(object1,object2,...),lst(ex1,ex2,...)). */
 ex basic::subs(const ex & e) const
 {
 	if (e.info(info_flags::relation_equal)) {
@@ -482,20 +485,14 @@ ex basic::subs(const ex & e) const
 	lst ls;
 	lst lr;
 	for (unsigned i=0; i<e.nops(); i++) {
-		if (!e.op(i).info(info_flags::relation_equal)) {
+		ex r = e.op(i);
+		if (!r.info(info_flags::relation_equal)) {
 			throw(std::invalid_argument("basic::subs(ex): argument must be a list or equations"));
 		}
-		ex s = e.op(i).op(0);
-		ex r = e.op(i).op(1);
-		if (!is_ex_of_type(s, symbol) && !is_ex_of_type(s, idx) &&
-		    !is_ex_of_type(s, tensor) && !is_ex_of_type(s, function) &&
-			!is_ex_of_type(s, indexed)) {
-			throw(std::invalid_argument("basic::subs(ex): lhs must be a symbol, idx, tensor, function or indexed"));
-		}
-		ls.append(s);
-		lr.append(r);
+		ls.append(r.op(0));
+		lr.append(r.op(1));
 	}
-	return subs(ls,lr);
+	return subs(ls, lr);
 }
 
 /** Compare objects to establish canonical ordering.

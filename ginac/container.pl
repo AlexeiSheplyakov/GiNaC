@@ -502,9 +502,9 @@ ex ${CONTAINER}::derivative(const symbol & s) const
 ex ${CONTAINER}::subs(const lst & ls, const lst & lr) const
 {
 	${STLT} * vp=subschildren(ls,lr);
-	if (vp==0) {
-		return *this;
-	}
+	if (vp==0)
+		return inherited::subs(ls, lr);
+
 	return this${CONTAINER}(vp);
 }
 

@@ -369,19 +369,6 @@ ex indexed::coeff(const ex & s, int n) const
 		return n==0 ? ex(*this) : _ex0();
 }
 
-ex indexed::subs(const lst & ls, const lst & lr) const
-{
-	GINAC_ASSERT(ls.nops() == lr.nops());
-
-	for (unsigned i=0; i<ls.nops(); i++) {
-		if (is_ex_of_type(ls.op(i), indexed) &&
-		    compare_same_type(ex_to_indexed(ls.op(i)))==0)
-			return lr.op(i);
-	}
-
-	return inherited::subs(ls, lr);
-}
-
 ex indexed::thisexprseq(const exvector & v) const
 {
 	return indexed(symmetry, v);
