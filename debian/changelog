@@ -1,8 +1,8 @@
-ginac (0.7.1-1) unstable; urgency=low
+ginac (0.7.3-1) unstable; urgency=low
 
   * Initial Debian release.
 
- -- Richard Kreckel <kreckel@ginac.de>  Mon, 31 Jan 2001 17:00:31 +0100
+ -- Richard Kreckel <kreckel@ginac.de>  Wed, 28 Feb 2001 17:00:31 +0100
 
 Local variables:
 mode: debian-changelog
