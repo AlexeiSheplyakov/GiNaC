@@ -322,8 +322,10 @@ static void print_real_number(const print_context & c, const cln::cl_R &x)
 		    !is_a<print_latex>(c)) {
 			cln::print_real(c.s, ourflags, x);
 		} else {  // rational output in LaTeX context
+			if (x < 0)
+				c.s << "-";
 			c.s << "\\frac{";
-			cln::print_real(c.s, ourflags, cln::numerator(cln::the<cln::cl_RA>(x)));
+			cln::print_real(c.s, ourflags, cln::abs(cln::numerator(cln::the<cln::cl_RA>(x))));
 			c.s << "}{";
 			cln::print_real(c.s, ourflags, cln::denominator(cln::the<cln::cl_RA>(x)));
 			c.s << '}';
