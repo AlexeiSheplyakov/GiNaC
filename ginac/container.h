@@ -187,7 +187,7 @@ public:
 	}
 
 	container(const ex & p1, const ex & p2, const ex & p3,
-	                   const ex & p4) : inherited(get_tinfo())
+	          const ex & p4) : inherited(get_tinfo())
 	{
 		setflag(get_default_flags());
 		reserve(this->seq, 4);

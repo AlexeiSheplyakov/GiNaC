@@ -459,7 +459,7 @@ ex clifford::eval_ncmul(const exvector & v) const
 	bool something_changed = false;
 	int sign = 1;
 
-	// Anticommute gamma5/L/R's to the front
+	// Anticommutate gamma5/L/R's to the front
 	if (s.size() >= 2) {
 		exvector::iterator first = s.begin(), next_to_last = s.end() - 2;
 		while (true) {

@@ -672,7 +672,7 @@ int mul::compare_same_type(const basic & other) const
 unsigned mul::return_type() const
 {
 	if (seq.empty()) {
-		// mul without factors: should not happen, but commutes
+		// mul without factors: should not happen, but commutates
 		return return_types::commutative;
 	}
 	

@@ -190,6 +190,9 @@ ex ncmul::expand(unsigned options) const
 
 int ncmul::degree(const ex & s) const
 {
+	if (is_equal(ex_to<basic>(s)))
+		return 1;
+
 	// Sum up degrees of factors
 	int deg_sum = 0;
 	exvector::const_iterator i = seq.begin(), end = seq.end();
@@ -202,6 +205,9 @@ int ncmul::degree(const ex & s) const
 
 int ncmul::ldegree(const ex & s) const
 {
+	if (is_equal(ex_to<basic>(s)))
+		return 1;
+
 	// Sum up degrees of factors
 	int deg_sum = 0;
 	exvector::const_iterator i = seq.begin(), end = seq.end();
@@ -214,6 +220,9 @@ int ncmul::ldegree(const ex & s) const
 
 ex ncmul::coeff(const ex & s, int n) const
 {
+	if (is_equal(ex_to<basic>(s)))
+		return n==1 ? _ex1 : _ex0;
+
 	exvector coeffseq;
 	coeffseq.reserve(seq.size());
 
@@ -535,7 +544,7 @@ unsigned ncmul::return_type() const
 		++i;
 	}
 	// all factors checked
-	GINAC_ASSERT(!all_commutative); // not all factors should commute, because this is a ncmul();
+	GINAC_ASSERT(!all_commutative); // not all factors should commutate, because this is a ncmul();
 	return all_commutative ? return_types::commutative : return_types::noncommutative;
 }
    
