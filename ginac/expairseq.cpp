@@ -402,7 +402,7 @@ ex expairseq::subs(const lst &ls, const lst &lr, bool no_pattern) const
 {
 	epvector *vp = subschildren(ls, lr, no_pattern);
 	if (vp)
-		return ex_to<basic>(thisexpairseq(vp, overall_coeff)).basic::subs(ls, lr, no_pattern);
+		return ex_to<basic>(thisexpairseq(vp, overall_coeff));
 	else
 		return basic::subs(ls, lr, no_pattern);
 }
