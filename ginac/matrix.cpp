@@ -944,11 +944,14 @@ int matrix::gauss_elimination(const bool det)
 			if (indx > 0)
 				sign = -sign;
 			for (unsigned r2=r0+1; r2<m; ++r2) {
-				ex piv = this->m[r2*n+r1] / this->m[r0*n+r1];
-				for (unsigned c=r1+1; c<n; ++c) {
-					this->m[r2*n+c] -= piv * this->m[r0*n+c];
-					if (!this->m[r2*n+c].info(info_flags::numeric))
-						this->m[r2*n+c] = this->m[r2*n+c].normal();
+				if (!this->m[r2*n+r1].is_zero()) {
+					// there is something to do in this row
+					ex piv = this->m[r2*n+r1] / this->m[r0*n+r1];
+					for (unsigned c=r1+1; c<n; ++c) {
+						this->m[r2*n+c] -= piv * this->m[r0*n+c];
+						if (!this->m[r2*n+c].info(info_flags::numeric))
+							this->m[r2*n+c] = this->m[r2*n+c].normal();
+					}
 				}
 				// fill up left hand side with zeros
 				for (unsigned c=0; c<=r1; ++c)
