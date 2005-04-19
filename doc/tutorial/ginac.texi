@@ -2658,7 +2658,7 @@ representation @code{diag(1, 1, 1, ...)}. It is constructed by the function
         k(symbol("k"), 3), l(symbol("l"), 3);
 
     ex e = indexed(A, i, j) * indexed(B, k, l)
-         * delta_tensor(i, k) * delta_tensor(j, l) << endl;
+         * delta_tensor(i, k) * delta_tensor(j, l);
     cout << e.simplify_indexed() << endl;
      // -> B.i.j*A.i.j
 
