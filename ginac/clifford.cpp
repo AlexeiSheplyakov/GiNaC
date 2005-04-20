@@ -200,7 +200,7 @@ void clifford::do_print_dflt(const print_dflt & c, unsigned level) const
 {
 	// dirac_slash() object is printed differently
 	if (is_dirac_slash(seq[0])) {
-		seq[0].print(c, level);
+		seq[0].print(c, precedence());
 		c.s << "\\";
 	} else
 		this->print_dispatch<inherited>(c, level);
@@ -211,7 +211,7 @@ void clifford::do_print_latex(const print_latex & c, unsigned level) const
 	// dirac_slash() object is printed differently
 	if (is_dirac_slash(seq[0])) {
 		c.s << "{";
-		seq[0].print(c, level);
+		seq[0].print(c, precedence());
 		c.s << "\\hspace{-1.0ex}/}";
 	} else {
 		c.s << "\\clifford[" << int(representation_label) << "]";

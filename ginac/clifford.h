@@ -52,6 +52,8 @@ public:
 	clifford(unsigned char rl, const ex & metr, std::auto_ptr<exvector> vp);
 
 	// functions overriding virtual functions from base classes
+public:
+	unsigned precedence() const { return 65; }
 protected:
 	ex eval_ncmul(const exvector & v) const;
 	bool match_same_type(const basic & other) const;
