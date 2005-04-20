@@ -126,7 +126,7 @@ clifford::clifford(unsigned char rl, const ex & metr, std::auto_ptr<exvector> vp
 // archiving
 //////////
 
-clifford::clifford(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
+clifford::clifford(const archive_node & n, lst & sym_lst) : inherited(n, sym_lst)
 {
 	unsigned rl;
 	n.find_unsigned("label", rl);
@@ -134,7 +134,7 @@ clifford::clifford(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
 	n.find_ex("metric", metric, sym_lst);
 }
 
-void clifford::archive(archive_node &n) const
+void clifford::archive(archive_node & n) const
 {
 	inherited::archive(n);
 	n.add_unsigned("label", representation_label);
@@ -155,7 +155,7 @@ DEFAULT_ARCHIVING(diracgammaR)
 
 ex clifford::get_metric(const ex & i, const ex & j) const
 {
-	return indexed(metric, i, j);
+	return indexed(metric, symmetric2(), i, j);
 }
 
 bool clifford::same_metric(const ex & other) const
