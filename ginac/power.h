@@ -30,6 +30,7 @@ namespace GiNaC {
 
 class numeric;
 class add;
+class mul;
 
 /** This class holds a two-component object, a basis and and exponent
  *  representing exponentiation. */
