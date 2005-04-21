@@ -467,6 +467,17 @@ static ex factorial_eval(const ex & x)
 		return factorial(x).hold();
 }
 
+static void factorial_print_dflt_latex(const ex & x, const print_context & c)
+{
+	if (is_exactly_a<symbol>(x) ||
+	    is_exactly_a<constant>(x) ||
+		is_exactly_a<function>(x)) {
+		x.print(c); c.s << "!";
+	} else {
+		c.s << "("; x.print(c); c.s << ")!";
+	}
+}
+
 static ex factorial_conjugate(const ex & x)
 {
 	return factorial(x);
@@ -474,6 +485,8 @@ static ex factorial_conjugate(const ex & x)
 
 REGISTER_FUNCTION(factorial, eval_func(factorial_eval).
                              evalf_func(factorial_evalf).
+                             print_func<print_dflt>(factorial_print_dflt_latex).
+                             print_func<print_latex>(factorial_print_dflt_latex).
                              conjugate_func(factorial_conjugate));
 
 //////////
