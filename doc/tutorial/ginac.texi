@@ -3507,6 +3507,11 @@ create the symmetric and antisymmetric structure constants @math{d_abc} and
 @math{f_abc} which satisfy @math{@{T_a, T_b@} = 1/3 delta_ab + d_abc T_c}
 and @math{[T_a, T_b] = i f_abc T_c}.
 
+These functions evaluate to their numerical values,
+if you supply numeric indices to them. The index values should be in
+the range from 1 to 8, not from 0 to 7. This departure from usual conventions
+goes along better with the notations used in physical literature.
+
 @cindex @code{color_h()}
 There's an additional function
 
