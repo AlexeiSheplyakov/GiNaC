@@ -1247,11 +1247,7 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 			ex dummy;
 			if (divide_in_z(p, g, ca ? *ca : dummy, var) && divide_in_z(q, g, cb ? *cb : dummy, var)) {
 				g *= gc;
-				ex lc = g.lcoeff(x);
-				if (is_exactly_a<numeric>(lc) && ex_to<numeric>(lc).is_negative())
-					return -g;
-				else
-					return g;
+				return g;
 			}
 		}
 
