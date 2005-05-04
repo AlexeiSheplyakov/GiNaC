@@ -5143,7 +5143,8 @@ The functions @code{gcd()} and @code{lcm()} accept two expressions
 @code{a} and @code{b} as arguments and return a new expression, their
 greatest common divisor or least common multiple, respectively.  If the
 polynomials @code{a} and @code{b} are coprime @code{gcd(a,b)} returns 1
-and @code{lcm(a,b)} returns the product of @code{a} and @code{b}.
+and @code{lcm(a,b)} returns the product of @code{a} and @code{b}. Note that all
+the coefficients must be rationals.
 
 @example
 #include <ginac/ginac.h>
