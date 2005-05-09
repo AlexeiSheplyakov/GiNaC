@@ -81,7 +81,7 @@ static unsigned exam_normal2()
 	result += check_normal(e, d);
 	
 	e = (pow(x, 2) - pow(y, 2)) / pow(x-y, 3);
-	d = (x + y) / (pow(x, 2) + pow(y, 2) - x * y * 2);
+	d = (x + y) / pow(x - y, 2);
 	result += check_normal(e, d);
 	
 	e = (pow(x, -1) + x) / (pow(x , 2) * 2 + 2);
@@ -90,7 +90,7 @@ static unsigned exam_normal2()
 	
 	// Fraction cancellation with rational coefficients
 	e = (pow(x, 2) - pow(y, 2)) / pow(x/2 - y/2, 3);
-	d = (8 * x + 8 * y) / (pow(x, 2) + pow(y, 2) - x * y * 2);
+	d = (8 * x + 8 * y) / pow(x - y, 2);
 	result += check_normal(e, d);
 	
 	// Fraction cancellation with rational coefficients
