@@ -30,6 +30,7 @@
 #include "mul.h"
 #include "matrix.h"
 #include "archive.h"
+#include "indexed.h"
 #include "utils.h"
 
 namespace GiNaC {
@@ -167,10 +168,25 @@ ex ncmul::expand(unsigned options) const
 
 	intvector k(number_of_adds);
 
+	/* Rename indices in the static members of the product */
+	exvector expanded_seq_mod;
+	size_t j = 0;
+	size_t i;
+	for (i=0; i<expanded_seq.size(); i++) {
+		if (i == positions_of_adds[j]) {
+			expanded_seq_mod.push_back(_ex1);
+			j++;
+		} else {
+			expanded_seq_mod.push_back(rename_dummy_indices_uniquely(ncmul(expanded_seq_mod), expanded_seq[i]));
+		}
+	}
+
 	while (true) {
-		exvector term = expanded_seq;
-		for (size_t i=0; i<number_of_adds; i++)
-			term[positions_of_adds[i]] = expanded_seq[positions_of_adds[i]].op(k[i]);
+		exvector term = expanded_seq_mod;
+		for (i=0; i<number_of_adds; i++) {
+			term[positions_of_adds[i]] = rename_dummy_indices_uniquely(ncmul(term), expanded_seq[positions_of_adds[i]].op(k[i]));
+		}
+
 		distrseq.push_back((new ncmul(term, true))->
 		                    setflag(status_flags::dynallocated | (options == 0 ? status_flags::expanded : 0)));
 

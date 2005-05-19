@@ -35,8 +35,10 @@
 #include "operators.h"
 #include "lst.h"
 #include "archive.h"
+#include "symbol.h"
 #include "utils.h"
 #include "integral.h"
+#include "matrix.h"
 
 namespace GiNaC {
 
@@ -669,16 +671,15 @@ struct ex_base_is_less : public std::binary_function<ex, ex, bool> {
 	}
 };
 
-/** Simplify product of indexed expressions (commutative, noncommutative and
- *  simple squares), return list of free indices. */
-ex simplify_indexed_product(const ex & e, exvector & free_indices, exvector & dummy_indices, const scalar_products & sp)
+/* An auxiliary function used by simplify_indexed() and expand_dummy_sum() 
+ * It returns an exvector of factors from the supplied product */
+static void product_to_exvector(const ex & e, exvector & v, bool & non_commutative)
 {
 	// Remember whether the product was commutative or noncommutative
 	// (because we chop it into factors and need to reassemble later)
-	bool non_commutative = is_exactly_a<ncmul>(e);
+	non_commutative = is_exactly_a<ncmul>(e);
 
 	// Collect factors in an exvector, store squares twice
-	exvector v;
 	v.reserve(e.nops() * 2);
 
 	if (is_exactly_a<power>(e)) {
@@ -691,7 +692,7 @@ ex simplify_indexed_product(const ex & e, exvector & free_indices, exvector & du
 			ex f = e.op(i);
 			if (is_exactly_a<power>(f) && f.op(1).is_equal(_ex2)) {
 				v.push_back(f.op(0));
-	            v.push_back(f.op(0));
+				v.push_back(f.op(0));
 			} else if (is_exactly_a<ncmul>(f)) {
 				// Noncommutative factor found, split it as well
 				non_commutative = true; // everything becomes noncommutative, ncmul will sort out the commutative factors later
@@ -701,6 +702,19 @@ ex simplify_indexed_product(const ex & e, exvector & free_indices, exvector & du
 				v.push_back(f);
 		}
 	}
+}
+
+/** Simplify product of indexed expressions (commutative, noncommutative and
+ *  simple squares), return list of free indices. */
+ex simplify_indexed_product(const ex & e, exvector & free_indices, exvector & dummy_indices, const scalar_products & sp)
+{
+	// Collect factors in an exvector
+	exvector v;
+
+	// Remember whether the product was commutative or noncommutative
+	// (because we chop it into factors and need to reassemble later)
+	bool non_commutative;
+	product_to_exvector(e, v, non_commutative);
 
 	// Perform contractions
 	bool something_changed = false;
@@ -1275,6 +1289,109 @@ void scalar_products::debugprint() const
 		k.debugprint();
 		std::cerr << ", value=" << i->second << std::endl;
 		++i;
+	}
+}
+
+/** Returns all dummy indices from the exvector */
+exvector get_all_dummy_indices(const ex & e)
+{
+	exvector p;
+	bool nc;
+	product_to_exvector(e, p, nc);
+	exvector::const_iterator ip = p.begin(), ipend = p.end();
+	exvector v, v1;
+	while (ip != ipend) {
+		if (is_a<indexed>(*ip)) {
+			v1 = ex_to<indexed>(*ip).get_dummy_indices();
+			v.insert(v.end(), v1.begin(), v1.end());
+			exvector::const_iterator ip1 = ip+1;
+			while (ip1 != ipend) {
+				if (is_a<indexed>(*ip1)) {
+					v1 = ex_to<indexed>(*ip).get_dummy_indices(ex_to<indexed>(*ip1));
+					v.insert(v.end(), v1.begin(), v1.end());
+				}
+				++ip1;
+			}
+		}
+		++ip;
+	}
+	return v;
+}
+
+ex rename_dummy_indices_uniquely(const ex & a, const ex & b)
+{
+	exvector va = get_all_dummy_indices(a), vb = get_all_dummy_indices(b), common_indices;
+	set_intersection(va.begin(), va.end(), vb.begin(), vb.end(), std::back_insert_iterator<exvector>(common_indices), ex_is_less());
+	if (common_indices.empty()) {
+		return b;
+	} else {
+		exvector new_indices, old_indices;
+		old_indices.reserve(2*common_indices.size());
+		new_indices.reserve(2*common_indices.size());
+		exvector::const_iterator ip = common_indices.begin(), ipend = common_indices.end();
+		while (ip != ipend) {
+			if (is_a<varidx>(*ip)) {
+				varidx mu((new symbol)->setflag(status_flags::dynallocated), ex_to<varidx>(*ip).get_dim(), ex_to<varidx>(*ip).is_covariant());
+				old_indices.push_back(*ip);
+				new_indices.push_back(mu);
+				old_indices.push_back(ex_to<varidx>(*ip).toggle_variance());
+				new_indices.push_back(mu.toggle_variance());
+			} else {
+				old_indices.push_back(*ip);
+				new_indices.push_back(idx((new symbol)->setflag(status_flags::dynallocated), ex_to<varidx>(*ip).get_dim()));
+			}
+			++ip;
+		}
+		return b.subs(lst(old_indices.begin(), old_indices.end()), lst(new_indices.begin(), new_indices.end()), subs_options::no_pattern);
+	}
+}
+
+ex expand_dummy_sum(const ex & e, bool subs_idx)
+{
+	ex e_expanded = e.expand();
+	pointer_to_map_function_1arg<bool> fcn(expand_dummy_sum, subs_idx);
+	if (is_a<add>(e_expanded) || is_a<lst>(e_expanded) || is_a<matrix>(e_expanded)) {
+		return e_expanded.map(fcn);
+	} else if (is_a<ncmul>(e_expanded) || is_a<mul>(e_expanded) || is_a<power>(e_expanded)) {
+		exvector v = get_all_dummy_indices(e_expanded);
+		exvector::const_iterator it = v.begin(), itend = v.end();
+		while (it != itend) {
+			varidx nu = ex_to<varidx>(*it);
+			if (nu.is_dim_numeric()) {
+				ex en = 0;
+				for (int i=0; i < ex_to<numeric>(nu.get_dim()).to_int(); i++) {
+					if (is_a<varidx>(nu) && !subs_idx) {
+						en += e_expanded.subs(lst(nu == varidx(i, nu.get_dim(), true), nu.toggle_variance() == varidx(i, nu.get_dim())));
+					} else {
+						en += e_expanded.subs(lst(nu == idx(i, nu.get_dim()), nu.toggle_variance() == idx(i, nu.get_dim())));
+					}
+				}
+				return expand_dummy_sum(en, subs_idx);
+			} 
+			++it;
+		}
+		return e;
+	} else if (is_a<indexed>(e_expanded)) {
+		exvector v = ex_to<indexed>(e_expanded).get_dummy_indices();
+		exvector::const_iterator it = v.begin(), itend = v.end();
+		while (it != itend) {
+			varidx nu = ex_to<varidx>(*it);
+			if (nu.is_dim_numeric()) {
+				ex en = 0;
+				for (int i=0; i < ex_to<numeric>(nu.get_dim()).to_int(); i++) {
+					if (is_a<varidx>(nu) && !subs_idx) {
+						en += e_expanded.subs(lst(nu == varidx(i, nu.get_dim(), true), nu.toggle_variance() == varidx(i, nu.get_dim())));
+					} else {
+						en += e_expanded.subs(lst(nu == idx(i, nu.get_dim()), nu.toggle_variance() == idx(i, nu.get_dim())));
+					}
+				}
+				return expand_dummy_sum(en, subs_idx);
+			} 
+			++it;
+		}
+		return e;
+	} else {
+		return e;
 	}
 }
 

@@ -30,6 +30,7 @@
 #include "power.h"
 #include "operators.h"
 #include "matrix.h"
+#include "indexed.h"
 #include "lst.h"
 #include "archive.h"
 #include "utils.h"
@@ -904,11 +905,12 @@ ex mul::expand(unsigned options) const
 					for (epvector::const_iterator i2=add2begin; i2!=add2end; ++i2) {
 						// Don't push_back expairs which might have a rest that evaluates to a numeric,
 						// since that would violate an invariant of expairseq:
-						const ex rest = (new mul(i1->rest, i2->rest))->setflag(status_flags::dynallocated);
-						if (is_exactly_a<numeric>(rest))
+						const ex rest = (new mul(i1->rest, rename_dummy_indices_uniquely(i1->rest, i2->rest)))->setflag(status_flags::dynallocated);
+						if (is_exactly_a<numeric>(rest)) {
 							oc += ex_to<numeric>(rest).mul(ex_to<numeric>(i1->coeff).mul(ex_to<numeric>(i2->coeff)));
-						else
+						} else {
 							distrseq.push_back(expair(rest, ex_to<numeric>(i1->coeff).mul_dyn(ex_to<numeric>(i2->coeff))));
+						}
 					}
 					tmp_accu += (new add(distrseq, oc))->setflag(status_flags::dynallocated);
 				}
@@ -934,11 +936,11 @@ ex mul::expand(unsigned options) const
 
 		for (size_t i=0; i<n; ++i) {
 			epvector factors = non_adds;
-			factors.push_back(split_ex_to_pair(last_expanded.op(i)));
+			factors.push_back(split_ex_to_pair(rename_dummy_indices_uniquely(mul(non_adds), last_expanded.op(i))));
 			ex term = (new mul(factors, overall_coeff))->setflag(status_flags::dynallocated);
-			if (can_be_further_expanded(term))
+			if (can_be_further_expanded(term)) {
 				distrseq.push_back(term.expand());
-			else {
+			} else {
 				if (options == 0)
 					ex_to<basic>(term).setflag(status_flags::expanded);
 				distrseq.push_back(term);

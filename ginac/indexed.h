@@ -250,6 +250,23 @@ template<> inline bool is_exactly_a<indexed>(const basic & obj)
 	return obj.tinfo()==TINFO_indexed;
 }
 
+/** Returns all dummy indices from the expression */
+exvector get_all_dummy_indices(const ex & e);
+
+/** Returns b with all dummy indices, which are common with a, renamed */
+ex rename_dummy_indices_uniquely(const ex & a, const ex & b);
+
+/** This function returns the given expression with expanded sums
+ *  for all dummy index summations, where the dimensionality of 
+ *  the dummy index is numeric.
+ *  Optionally all indices with a variance will be substituted by 
+ *  indices with the corresponding numeric values without variance.
+ *
+ *  @param e the given expression
+ *  @param subs_idx indicates if variance of dummy indixes should be neglected
+ */
+ex expand_dummy_sum(const ex & e, bool subs_idx = false);
+
 } // namespace GiNaC
 
 #endif // ndef __GINAC_INDEXED_H__

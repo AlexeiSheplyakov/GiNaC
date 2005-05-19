@@ -853,8 +853,17 @@ ex power::expand_mul(const mul & m, const numeric & n, unsigned options, bool fr
 {
 	GINAC_ASSERT(n.is_integer());
 
-	if (n.is_zero())
+	if (n.is_zero()) {
 		return _ex1;
+	}
+
+	// Leave it to multiplication since dummy indices have to be renamed
+	if (get_all_dummy_indices(m).size() > 0) {
+		ex result = m;
+		for (int i=1; i < n.to_int(); i++)
+			result *= rename_dummy_indices_uniquely(m,m);
+		return result;
+	}
 
 	epvector distrseq;
 	distrseq.reserve(m.seq.size());
