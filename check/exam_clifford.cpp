@@ -22,11 +22,13 @@
 
 #include "exams.h"
 
+const numeric half(1, 2);
+
 static unsigned check_equal(const ex &e1, const ex &e2)
 {
-	ex e = e1 - e2;
+	ex e = normal(e1 - e2);
 	if (!e.is_zero()) {
-		clog << e1 << "-" << e2 << " erroneously returned "
+		clog << "(" << e1 << ") - (" << e2 << ") erroneously returned "
 		     << e << " instead of 0" << endl;
 		return 1;
 	}
@@ -35,14 +37,54 @@ static unsigned check_equal(const ex &e1, const ex &e2)
 
 static unsigned check_equal_simplify(const ex &e1, const ex &e2)
 {
-	ex e = simplify_indexed(e1) - e2;
+	ex e = normal(simplify_indexed(e1) - e2);
 	if (!e.is_zero()) {
-		clog << "simplify_indexed(" << e1 << ")-" << e2 << " erroneously returned "
-		     << e << " instead of 0" << endl;
+		clog << "simplify_indexed(" << e1 << ") - (" << e2 << ") erroneously returned "
+			 << e << " instead of 0" << endl;
 		return 1;
 	}
 	return 0;
 }
+
+static unsigned check_equal_lst(const ex & e1, const ex & e2)
+{
+	for(int i = 0; i++; i < e1.nops()) {
+		ex e = e1.op(i) - e2.op(i);
+		if (!e.is_zero()) {
+			clog << "(" << e1 << ") - (" << e2 << ") erroneously returned "
+			     << e << " instead of 0 (in the entry " << i  << ")" << endl;
+			return 1;
+		}
+	}
+	return 0;
+}
+
+static unsigned check_equal_simplify_term(const ex & e1, const ex & e2, varidx & mu)
+{
+	ex e = expand_dummy_sum(normal(simplify_indexed(e1) - e2), true);
+
+ 	for (int j=0; j<4; j++) {
+		ex esub = e.subs(lst(mu == idx(j, mu.get_dim()), mu.toggle_variance() == idx(j, mu.get_dim())));
+		if (!(canonicalize_clifford(esub).is_zero())) {
+			clog << "simplify_indexed(" << e1 << ") - (" << e2 << ") erroneously returned "
+				 << canonicalize_clifford(esub) << " instead of 0 for mu=" << j << endl;
+			return 1;
+		}
+	}
+	return 0;
+}
+
+static unsigned check_equal_simplify_term2(const ex & e1, const ex & e2)
+{
+ 	ex e = expand_dummy_sum(normal(simplify_indexed(e1) - e2), true);
+	if (!(canonicalize_clifford(e).is_zero())) {
+		clog << "simplify_indexed(" << e1 << ") - (" << e2 << ") erroneously returned "
+			 << canonicalize_clifford(e) << " instead of 0" << endl;
+		return 1;
+	}
+	return 0;
+}
+
 
 static unsigned clifford_check1()
 {
@@ -262,106 +304,163 @@ static unsigned clifford_check5()
 	return result;
 }
 
+
 static unsigned clifford_check6(const matrix & A)
 {
 	varidx v(symbol("v"), 4), nu(symbol("nu"), 4), mu(symbol("mu"), 4),
 	       psi(symbol("psi"),4), lam(symbol("lambda"), 4),
 	       xi(symbol("xi"), 4),  rho(symbol("rho"),4);
 
-	ex G = A;
+	matrix A_symm(4,4), A2(4, 4);
+	A_symm = A.add(A.transpose()).mul(half);
+	A2 = A_symm.mul(A_symm);
 
-	matrix A2(4, 4);
-	A2 = A.mul(A);
 	ex e, e1;
-
+	bool anticommuting = ex_to<clifford>(clifford_unit(nu, A)).is_anticommuting();
 	int result = 0;
 
 	// checks general identities and contractions for clifford_unit
-	e = dirac_ONE() * clifford_unit(mu, G) * dirac_ONE();
-	result += check_equal(e, clifford_unit(mu, G));
+	e = dirac_ONE(2) * clifford_unit(mu, A, 2) * dirac_ONE(2);
+	result += check_equal(e, clifford_unit(mu, A, 2));
 
-	e = clifford_unit(varidx(2, 4), G) * clifford_unit(varidx(1, 4), G)
-	  * clifford_unit(varidx(1, 4), G) * clifford_unit(varidx(2, 4), G);
+	e = clifford_unit(idx(2, 4), A) * clifford_unit(idx(1, 4), A)
+	  * clifford_unit(idx(1, 4), A) * clifford_unit(idx(2, 4), A);
 	result += check_equal(e, A(1, 1) * A(2, 2) * dirac_ONE());
 
-	e = clifford_unit(nu, G) * clifford_unit(nu.toggle_variance(), G);
+	e = clifford_unit(varidx(2, 4), A) * clifford_unit(varidx(1, 4), A)
+	  * clifford_unit(varidx(1, 4), A) * clifford_unit(varidx(2, 4), A);
+	result += check_equal(e, A(1, 1) * A(2, 2) * dirac_ONE());
+
+	e = clifford_unit(nu, A) * clifford_unit(nu.toggle_variance(), A);
 	result += check_equal_simplify(e, A.trace() * dirac_ONE());
 
-	e = clifford_unit(nu, G) * clifford_unit(nu, G);
-	result += check_equal_simplify(e, indexed(G, sy_symm(), nu, nu) * dirac_ONE());
+	e = clifford_unit(nu, A) * clifford_unit(nu, A);
+	result += check_equal_simplify(e, indexed(A_symm, sy_symm(), nu, nu) * dirac_ONE());
 
-	e = clifford_unit(nu, G) * clifford_unit(nu.toggle_variance(), G) * clifford_unit(mu, G);
-	result += check_equal_simplify(e, A.trace() * clifford_unit(mu, G));
+	e = clifford_unit(nu, A) * clifford_unit(nu.toggle_variance(), A) * clifford_unit(mu, A);
+	result += check_equal_simplify(e, A.trace() * clifford_unit(mu, A));
 
-	e = clifford_unit(nu, G) * clifford_unit(mu, G) * clifford_unit(nu.toggle_variance(), G);
-	result += check_equal_simplify(e, 2*indexed(G, sy_symm(), mu, mu)*clifford_unit(mu, G) - A.trace()*clifford_unit(mu, G));
+	e = clifford_unit(nu, A) * clifford_unit(mu, A) * clifford_unit(nu.toggle_variance(), A);
+	if (anticommuting)
+		result += check_equal_simplify(e, 2*indexed(A_symm, sy_symm(), mu, mu)*clifford_unit(mu, A) - A.trace()*clifford_unit(mu, A));
+	
+	result += check_equal_simplify_term(e,  2 * indexed(A_symm, sy_symm(), nu.toggle_variance(), mu) *clifford_unit(nu, A)-A.trace()*clifford_unit(mu, A), mu);
 
-	e = clifford_unit(nu, G) * clifford_unit(nu.toggle_variance(), G)
-	  * clifford_unit(mu, G) * clifford_unit(mu.toggle_variance(), G);
+	e = clifford_unit(nu, A) * clifford_unit(nu.toggle_variance(), A)
+	  * clifford_unit(mu, A) * clifford_unit(mu.toggle_variance(), A);
 	result += check_equal_simplify(e, pow(A.trace(), 2) * dirac_ONE());
 
-	e = clifford_unit(mu, G) * clifford_unit(nu, G)
-	  * clifford_unit(nu.toggle_variance(), G) * clifford_unit(mu.toggle_variance(), G);
+	e = clifford_unit(mu, A) * clifford_unit(nu, A)
+	  * clifford_unit(nu.toggle_variance(), A) * clifford_unit(mu.toggle_variance(), A);
 	result += check_equal_simplify(e, pow(A.trace(), 2)  * dirac_ONE());
 
-	e = clifford_unit(mu, G) * clifford_unit(nu, G)
-	  * clifford_unit(mu.toggle_variance(), G) * clifford_unit(nu.toggle_variance(), G);
-	result += check_equal_simplify(e, 2*A2.trace()*dirac_ONE() - pow(A.trace(), 2)*dirac_ONE());
+	e = clifford_unit(mu, A) * clifford_unit(nu, A)
+	  * clifford_unit(mu.toggle_variance(), A) * clifford_unit(nu.toggle_variance(), A);
+	if (anticommuting) 
+		result += check_equal_simplify(e, 2*A2.trace()*dirac_ONE() - pow(A.trace(), 2)*dirac_ONE());
 
-	e = clifford_unit(mu.toggle_variance(), G) * clifford_unit(nu, G)
-	  * clifford_unit(mu, G) * clifford_unit(nu.toggle_variance(), G);
-	result += check_equal_simplify(e, 2*A2.trace()*dirac_ONE() - pow(A.trace(), 2)*dirac_ONE());
+	result += check_equal_simplify_term2(e, 2*indexed(A_symm, sy_symm(), nu.toggle_variance(), mu.toggle_variance()) * clifford_unit(mu, A) * clifford_unit(nu, A) - pow(A.trace(), 2)*dirac_ONE());
 
-	e = clifford_unit(nu.toggle_variance(), G) * clifford_unit(rho.toggle_variance(), G)
-	  * clifford_unit(mu, G) * clifford_unit(rho, G) * clifford_unit(nu, G);
-	e = e.simplify_indexed().collect(clifford_unit(mu, G));
-	result += check_equal(e, (pow(A.trace(), 2)+4-4*A.trace()*indexed(A, mu, mu)) * clifford_unit(mu, G));
+	e = clifford_unit(mu.toggle_variance(), A) * clifford_unit(nu, A)
+	  * clifford_unit(mu, A) * clifford_unit(nu.toggle_variance(), A);
+	if (anticommuting) {
+		result += check_equal_simplify(e, 2*A2.trace()*dirac_ONE() - pow(A.trace(), 2)*dirac_ONE());
+		e1 = remove_dirac_ONE(simplify_indexed(e));
+		result += check_equal(e1, 2*A2.trace() - pow(A.trace(), 2));
+	}
 
-	e = clifford_unit(nu.toggle_variance(), G) * clifford_unit(rho, G)
-	  * clifford_unit(mu, G) * clifford_unit(rho.toggle_variance(), G) * clifford_unit(nu, G);
-	e = e.simplify_indexed().collect(clifford_unit(mu, G));
-	result += check_equal(e, (pow(A.trace(), 2)+4-4*A.trace()*indexed(A, mu, mu))* clifford_unit(mu, G));
+	result += check_equal_simplify_term2(e, 2*indexed(A_symm, nu, mu) * clifford_unit(mu.toggle_variance(), A) * clifford_unit(nu.toggle_variance(), A) - pow(A.trace(), 2)*dirac_ONE());
 
-	// canonicalize_clifford() checks
-	e = clifford_unit(mu, G) * clifford_unit(nu, G) + clifford_unit(nu, G) * clifford_unit(mu, G);
-	result += check_equal(canonicalize_clifford(e), 2*dirac_ONE()*indexed(G, sy_symm(), mu, nu));
+	e = clifford_unit(nu.toggle_variance(), A) * clifford_unit(rho.toggle_variance(), A)
+	  * clifford_unit(mu, A) * clifford_unit(rho, A) * clifford_unit(nu, A);
+	e = e.simplify_indexed().collect(clifford_unit(mu, A));
+	if (anticommuting)
+		result += check_equal(e, (4*indexed(A2, sy_symm(), mu, mu) - 4 * indexed(A_symm, sy_symm(), mu, mu)*A.trace() +pow(A.trace(), 2)) * clifford_unit(mu, A));
+	
+	result += check_equal_simplify_term(e, 4* indexed(A_symm, sy_symm(), nu.toggle_variance(),  rho)*indexed(A_symm, sy_symm(), rho.toggle_variance(), mu) *clifford_unit(nu, A) 
+	                                    - 2*A.trace() * (clifford_unit(rho, A) * indexed(A_symm, sy_symm(), rho.toggle_variance(), mu) 
+	                                                     + clifford_unit(nu, A) * indexed(A_symm, sy_symm(), nu.toggle_variance(), mu)) + pow(A.trace(),2)* clifford_unit(mu, A), mu);
 
-	e = (clifford_unit(mu, G) * clifford_unit(nu, G) * clifford_unit(lam, G)
-	   + clifford_unit(nu, G) * clifford_unit(lam, G) * clifford_unit(mu, G)
-	   + clifford_unit(lam, G) * clifford_unit(mu, G) * clifford_unit(nu, G)
-	   - clifford_unit(nu, G) * clifford_unit(mu, G) * clifford_unit(lam, G)
-	   - clifford_unit(lam, G) * clifford_unit(nu, G) * clifford_unit(mu, G)
-	   - clifford_unit(mu, G) * clifford_unit(lam, G) * clifford_unit(nu, G)) / 6
-	  + indexed(G, sy_symm(), mu, nu) * clifford_unit(lam, G)
-	  - indexed(G, sy_symm(), mu, lam) * clifford_unit(nu, G)
-	  + indexed(G, sy_symm(), nu, lam) * clifford_unit(mu, G)
-	  - clifford_unit(mu, G) * clifford_unit(nu, G) * clifford_unit(lam, G);
+	e = clifford_unit(nu.toggle_variance(), A) * clifford_unit(rho, A)
+	  * clifford_unit(mu, A) * clifford_unit(rho.toggle_variance(), A) * clifford_unit(nu, A);
+	e = e.simplify_indexed().collect(clifford_unit(mu, A));
+	if (anticommuting)
+		result += check_equal(e, (4*indexed(A2, sy_symm(), mu, mu) - 4*indexed(A_symm, sy_symm(), mu, mu)*A.trace() +pow(A.trace(), 2))* clifford_unit(mu, A));
+	
+	result += check_equal_simplify_term(e, 4* indexed(A_symm, sy_symm(), nu.toggle_variance(),  rho)*indexed(A_symm, sy_symm(), rho.toggle_variance(), mu) *clifford_unit(nu, A) 
+	                                    - 2*A.trace() * (clifford_unit(rho, A) * indexed(A_symm, sy_symm(), rho.toggle_variance(), mu) 
+	                                                     + clifford_unit(nu, A) * indexed(A_symm, sy_symm(), nu.toggle_variance(), mu)) + pow(A.trace(),2)* clifford_unit(mu, A), mu);
+
+	e = clifford_unit(mu, A) * clifford_unit(nu, A) + clifford_unit(nu, A) * clifford_unit(mu, A);
+	result += check_equal(canonicalize_clifford(e), 2*dirac_ONE()*indexed(A_symm, sy_symm(), mu, nu));
+
+	e = (clifford_unit(mu, A) * clifford_unit(nu, A) * clifford_unit(lam, A)
+		 + clifford_unit(nu, A) * clifford_unit(lam, A) * clifford_unit(mu, A)
+		 + clifford_unit(lam, A) * clifford_unit(mu, A) * clifford_unit(nu, A)
+		 - clifford_unit(nu, A) * clifford_unit(mu, A) * clifford_unit(lam, A)
+		 - clifford_unit(lam, A) * clifford_unit(nu, A) * clifford_unit(mu, A)
+		 - clifford_unit(mu, A) * clifford_unit(lam, A) * clifford_unit(nu, A)) / 6
+		+ indexed(A_symm, sy_symm(), mu, nu) * clifford_unit(lam, A)
+		- indexed(A_symm, sy_symm(), mu, lam) * clifford_unit(nu, A)
+		+ indexed(A_symm, sy_symm(), nu, lam) * clifford_unit(mu, A)
+		- clifford_unit(mu, A) * clifford_unit(nu, A) * clifford_unit(lam, A);
 	result += check_equal(canonicalize_clifford(e), 0);
 
 	// lst_to_clifford() and clifford_inverse()  check
-	symbol x("x"), y("y"), t("t"), z("z");
+	realsymbol x("x"), y("y"), t("t"), z("z");
 	
-	ex c = clifford_unit(nu, G, 1);
-	e = lst_to_clifford(lst(t, x, y, z), mu, G, 1) * lst_to_clifford(lst(1, 2, 3, 4), c);
+	ex c = clifford_unit(nu, A, 1);
+	e = lst_to_clifford(lst(t, x, y, z), mu, A, 1) * lst_to_clifford(lst(1, 2, 3, 4), c);
 	e1 = clifford_inverse(e);
-	result += check_equal((e*e1).simplify_indexed().normal(), dirac_ONE(1));
+	result += check_equal_lst((e*e1).simplify_indexed(), dirac_ONE(1));
+
+	// Moebius map (both forms) checks for symmetric metrics only 
+	matrix M1(2, 2),  M2(2, 2);
+	c = clifford_unit(nu, A);
+	
+	e = clifford_moebius_map(0, dirac_ONE(), 
+							 dirac_ONE(), 0, lst(t, x, y, z), A); // this is just the inversion
+	M1 = 0, dirac_ONE(),
+		dirac_ONE(), 0;
+	e1 = clifford_moebius_map(M1, lst(t, x, y, z), A); // the inversion again
+	result += check_equal_lst(e, e1);
+	
+	e1 = clifford_to_lst(clifford_inverse(lst_to_clifford(lst(t, x, y, z), mu, A)), c);
+	result += check_equal_lst(e, e1);
+	
+	e = clifford_moebius_map(dirac_ONE(), lst_to_clifford(lst(1, 2, 3, 4), nu, A), 
+							 0, dirac_ONE(), lst(t, x, y, z), A); //this is just a shift
+	M2 = dirac_ONE(), lst_to_clifford(lst(1, 2, 3, 4), c),
+		0, dirac_ONE();
+	e1 = clifford_moebius_map(M2, lst(t, x, y, z), c); // the same shift
+	result += check_equal_lst(e, e1);
+		
+	result += check_equal(e, lst(t+1, x+2, y+3, z+4));
+	
+	// Check the group law for Moebius maps 
+	e = clifford_moebius_map(M1, ex_to<lst>(e1), c); //composition of M1 and M2
+	e1 = clifford_moebius_map(M1.mul(M2), lst(t, x, y, z), c); // the product M1*M2
+	result += check_equal_lst(e, e1);
 
 	return result;
 }
 
-static unsigned clifford_check7()
+
+static unsigned clifford_check7(const ex & G, const symbol & dim)
 {
 	// checks general identities and contractions
 
 	unsigned result = 0;
 
-	symbol dim("D");
 	varidx mu(symbol("mu"), dim), nu(symbol("nu"), dim), rho(symbol("rho"), dim),
 	       psi(symbol("psi"),dim), lam(symbol("lambda"), dim), xi(symbol("xi"), dim);
 
-	ex e;
+	ex e, G_base;
 
-	ex G = minkmetric();
+	if (is_a<indexed>(G))
+		G_base = G.op(0);
+	else
+		G_base = G;
 
 	e = dirac_ONE() * dirac_ONE();
 	result += check_equal(e, dirac_ONE());
@@ -386,22 +485,38 @@ static unsigned clifford_check7()
 	e = e.simplify_indexed().collect(clifford_unit(mu, G));
 	result += check_equal(e, pow(2 - dim, 2).expand() * clifford_unit(mu, G));
 
-	// canonicalize_clifford() checks
-	e = clifford_unit(mu, G) * clifford_unit(nu, G) + clifford_unit(nu, G) * clifford_unit(mu, G);
-	result += check_equal(canonicalize_clifford(e), 2*dirac_ONE()*indexed(G, sy_symm(), mu, nu));
-
-	e = (clifford_unit(mu, G) * clifford_unit(nu, G) * clifford_unit(lam, G)
-	   + clifford_unit(nu, G) * clifford_unit(lam, G) * clifford_unit(mu, G)
-	   + clifford_unit(lam, G) * clifford_unit(mu, G) * clifford_unit(nu, G)
-	   - clifford_unit(nu, G) * clifford_unit(mu, G) * clifford_unit(lam, G)
-	   - clifford_unit(lam, G) * clifford_unit(nu, G) * clifford_unit(mu, G)
-	   - clifford_unit(mu, G) * clifford_unit(lam, G) * clifford_unit(nu, G)) / 6
-	  + indexed(G, sy_symm(), mu, nu) * clifford_unit(lam, G)
-	  - indexed(G, sy_symm(), mu, lam) * clifford_unit(nu, G)
-	  + indexed(G, sy_symm(), nu, lam) * clifford_unit(mu, G)
-	  - clifford_unit(mu, G) * clifford_unit(nu, G) * clifford_unit(lam, G);
-	result += check_equal(canonicalize_clifford(e), 0);
-
+	// canonicalize_clifford() checks, only for symmetric metrics
+	if (ex_to<symmetry>(ex_to<indexed>(ex_to<clifford>(clifford_unit(mu, G)).get_metric()).get_symmetry()).has_symmetry()) {
+		e = clifford_unit(mu, G) * clifford_unit(nu, G) + clifford_unit(nu, G) * clifford_unit(mu, G);
+		result += check_equal(canonicalize_clifford(e), 2*dirac_ONE()*indexed(G_base, sy_symm(), nu, mu));
+		
+		e = (clifford_unit(mu, G) * clifford_unit(nu, G) * clifford_unit(lam, G)
+			 + clifford_unit(nu, G) * clifford_unit(lam, G) * clifford_unit(mu, G)
+			 + clifford_unit(lam, G) * clifford_unit(mu, G) * clifford_unit(nu, G)
+			 - clifford_unit(nu, G) * clifford_unit(mu, G) * clifford_unit(lam, G)
+			 - clifford_unit(lam, G) * clifford_unit(nu, G) * clifford_unit(mu, G)
+			 - clifford_unit(mu, G) * clifford_unit(lam, G) * clifford_unit(nu, G)) / 6
+			+ indexed(G_base, sy_symm(), mu, nu) * clifford_unit(lam, G)
+			- indexed(G_base, sy_symm(), mu, lam) * clifford_unit(nu, G)
+			+ indexed(G_base, sy_symm(), nu, lam) * clifford_unit(mu, G)
+			- clifford_unit(mu, G) * clifford_unit(nu, G) * clifford_unit(lam, G);
+		result += check_equal(canonicalize_clifford(e), 0);
+	} else {
+		e = clifford_unit(mu, G) * clifford_unit(nu, G) + clifford_unit(nu, G) * clifford_unit(mu, G);
+		result += check_equal(canonicalize_clifford(e), dirac_ONE()*(indexed(G_base, mu, nu) + indexed(G_base, nu, mu)));
+		
+		e = (clifford_unit(mu, G) * clifford_unit(nu, G) * clifford_unit(lam, G)
+			 + clifford_unit(nu, G) * clifford_unit(lam, G) * clifford_unit(mu, G)
+			 + clifford_unit(lam, G) * clifford_unit(mu, G) * clifford_unit(nu, G)
+			 - clifford_unit(nu, G) * clifford_unit(mu, G) * clifford_unit(lam, G)
+			 - clifford_unit(lam, G) * clifford_unit(nu, G) * clifford_unit(mu, G)
+			 - clifford_unit(mu, G) * clifford_unit(lam, G) * clifford_unit(nu, G)) / 6
+			+ half * (indexed(G_base,  mu, nu) + indexed(G_base,  nu, mu)) * clifford_unit(lam, G)
+			- half * (indexed(G_base, mu, lam) + indexed(G_base, lam, mu)) * clifford_unit(nu, G)
+			+ half * (indexed(G_base, nu, lam) + indexed(G_base, lam, nu)) * clifford_unit(mu, G)
+			- clifford_unit(mu, G) * clifford_unit(nu, G) * clifford_unit(lam, G);
+		result += check_equal(canonicalize_clifford(e), 0);
+	}
 	return result;
 }
 
@@ -418,32 +533,52 @@ unsigned exam_clifford()
 	result += clifford_check4(); cout << '.' << flush;
 	result += clifford_check5(); cout << '.' << flush;
 
+	// anticommuting, symmetric examples
+	result += clifford_check6(ex_to<matrix>(diag_matrix(lst(-1, 1, 1, 1)))); cout << '.' << flush;
+	result += clifford_check6(ex_to<matrix>(diag_matrix(lst(-1, -1, -1, -1)))); cout << '.' << flush;
+	result += clifford_check6(ex_to<matrix>(diag_matrix(lst(-1, 1, 1, -1)))); cout << '.' << flush;
+	result += clifford_check6(ex_to<matrix>(diag_matrix(lst(-1, 0, 1, -1)))); cout << '.' << flush;
+	result += clifford_check6(ex_to<matrix>(diag_matrix(lst(-3, 0, 2, -1)))); cout << '.' << flush;
+
+	realsymbol s("s"), t("t"); // symbolic entries in matric
+	result += clifford_check6(ex_to<matrix>(diag_matrix(lst(-1, 1, s, t)))); cout << '.' << flush;
+
 	matrix A(4, 4);
-	A = -1, 0, 0, 0,
-	     0, 1, 0, 0,
-	     0, 0, 1, 0,
-	     0, 0, 0, 1;
+	A = 1, 0, 0, 0, // anticommuting, not symmetric, Tr=0
+		0, -1, 0, 0,
+		0, 0, 0, -1,
+		0, 0, 1, 0; 
 	result += clifford_check6(A); cout << '.' << flush;
 
-	A = -1, 0, 0, 0,
-	     0,-1, 0, 0,
-	     0, 0,-1, 0,
-	     0, 0, 0,-1;
-	result += clifford_check6(A); cout << '.' << flush;
-	
-	A = -1, 0, 0, 0,
-	     0, 1, 0, 0,
-	     0, 0, 1, 0,
-	     0, 0, 0,-1;
+	A = 1, 0, 0, 0, // anticommuting, not symmetric, Tr=2
+		0, 1, 0, 0,
+		0, 0, 0, -1,
+		0, 0, 1, 0; 
 	result += clifford_check6(A); cout << '.' << flush;
 
-	A = -1, 0, 0, 0,
-	     0, 0, 0, 0,
-	     0, 0, 1, 0,
-	     0, 0, 0,-1;
+	A = 1, 0, 0, 0, // not anticommuting, symmetric, Tr=0
+		0, -1, 0, 0,
+		0, 0, 0, -1,
+		0, 0, -1, 0; 
 	result += clifford_check6(A); cout << '.' << flush;
 
-	result += clifford_check7(); cout << '.' << flush;
+	A = 1, 0, 0, 0, // not anticommuting, symmetric, Tr=2
+		0, 1, 0, 0,
+		0, 0, 0, -1,
+		0, 0, -1, 0; 
+	result += clifford_check6(A); cout << '.' << flush;
+
+	A = 1, 1, 0, 0, // not anticommuting, not symmetric, Tr=4
+		0, 1, 1, 0,
+		0, 0, 1, 1,
+		0, 0, 0, 1; 
+	result += clifford_check6(A); cout << '.' << flush;
+
+	symbol dim("D");
+	result += clifford_check7(minkmetric(), dim); cout << '.' << flush;
+
+	varidx chi(symbol("chi"), dim), xi(symbol("xi"), dim);
+	result += clifford_check7(lorentz_g(xi, chi), dim); cout << '.' << flush;
 
 	if (!result) {
 		cout << " passed " << endl;

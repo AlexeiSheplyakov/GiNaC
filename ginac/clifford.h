@@ -44,12 +44,12 @@ class clifford : public indexed
 
 	// other constructors
 public:
-	clifford(const ex & b, unsigned char rl = 0);
-	clifford(const ex & b, const ex & mu,  const ex & metr, unsigned char rl = 0);
+	clifford(const ex & b, unsigned char rl = 0, bool anticommut = false);
+	clifford(const ex & b, const ex & mu,  const ex & metr, unsigned char rl = 0, bool anticommut = false);
 
 	// internal constructors
-	clifford(unsigned char rl, const ex & metr, const exvector & v, bool discardable = false);
-	clifford(unsigned char rl, const ex & metr, std::auto_ptr<exvector> vp);
+	clifford(unsigned char rl, const ex & metr, bool anticommut, const exvector & v, bool discardable = false);
+	clifford(unsigned char rl, const ex & metr, bool anticommut, std::auto_ptr<exvector> vp);
 
 	// functions overriding virtual functions from base classes
 public:
@@ -66,8 +66,9 @@ protected:
 public:
 	unsigned char get_representation_label() const { return representation_label; }
 	ex get_metric() const { return metric; }
-	ex get_metric(const ex & i, const ex & j) const;
+	ex get_metric(const ex & i, const ex & j, bool symmetrised = false) const;
 	bool same_metric(const ex & other) const;
+	bool is_anticommuting() const { return anticommuting; } //**< See the member variable anticommuting */
 
 protected:
 	void do_print_dflt(const print_dflt & c, unsigned level) const;
@@ -76,7 +77,8 @@ protected:
 	// member variables
 private:
 	unsigned char representation_label; /**< Representation label to distinguish independent spin lines */
-	ex metric;
+	ex metric; /**< Metric of the space, all constructors make it an indexed object */
+	bool anticommuting; /**< Simplifications for anticommuting units is much simpler and we need this info readily available */
 };
 
 
@@ -193,10 +195,10 @@ ex dirac_ONE(unsigned char rl = 0);
 /** Create a Clifford unit object.
  *
  *  @param mu Index (must be of class varidx or a derived class)
- *  @param metr Metric (should be of class tensmetric or a derived class, or a matrix)
+ *  @param metr Metric (should be indexed, tensmetric or a derived class, or a matrix)
  *  @param rl Representation label
  *  @return newly constructed Clifford unit object */
-ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl = 0);
+ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl = 0, bool anticommuting = false);
 
 /** Create a Dirac gamma object.
  *
@@ -280,10 +282,18 @@ inline ex clifford_star(const ex & e) { return e.conjugate(); }
 /** Replaces dirac_ONE's (with a representation_label no less than rl) in e with 1.
  *  For the default value rl = 0 remove all of them. Aborts if e contains any 
  *  clifford_unit with representation_label to be removed.
- *  
+ *
  *  @param e Expression to be processed
- *  @param rl Value of representation label */
-ex remove_dirac_ONE(const ex & e, unsigned char rl = 0);
+ *  @param rl Value of representation label 
+ *  @param options Defines some internal use */
+ex remove_dirac_ONE(const ex & e, unsigned char rl = 0, unsigned options = 0);
+
+/** Returns the maximal representation label of a clifford object 
+ *  if e contains at least one, otherwise returns -1 
+ *
+ *  @param e Expression to be processed
+ *  @ignore_ONE defines if clifford_ONE should be ignored in the search*/
+char clifford_max_label(const ex & e, bool ignore_ONE = false);
 
 /** Calculation of the norm in the Clifford algebra. */
 ex clifford_norm(const ex & e);
@@ -295,11 +305,11 @@ ex clifford_inverse(const ex & e);
  *
  *  @param v List or vector of coordinates
  *  @param mu Index (must be of class varidx or a derived class)
- *  @param metr Metric (should be of class tensmetric or a derived class, or a matrix)
+ *  @param metr Metric (should be indexed, tensmetric or a derived class, or a matrix)
  *  @param rl Representation label
  *  @param e Clifford unit object
  *  @return Clifford vector with given components */
-ex lst_to_clifford(const ex & v, const ex & mu,  const ex & metr, unsigned char rl = 0);
+ex lst_to_clifford(const ex & v, const ex & mu,  const ex & metr, unsigned char rl = 0, bool anticommuting = false);
 ex lst_to_clifford(const ex & v, const ex & e);
 
 /** An inverse function to lst_to_clifford(). For given Clifford vector extracts
@@ -327,8 +337,9 @@ lst clifford_to_lst(const ex & e, const ex & c, bool algebraic=true);
  *  @param v Vector to be transformed
  *  @param G Metric of the surrounding space, may be a Clifford unit then the next parameter is ignored
  *  @param rl Representation label 
+ *  @param anticommuting indicates if Clifford units anticommutes
  *  @return List of components of the transformed vector*/
-ex clifford_moebius_map(const ex & a, const ex & b, const ex & c, const ex & d, const ex & v, const ex & G, unsigned char rl = 0);
+ex clifford_moebius_map(const ex & a, const ex & b, const ex & c, const ex & d, const ex & v, const ex & G, unsigned char rl = 0, bool anticommuting = false);
 
 /** The second form of Moebius transformations defined by a 2x2 Clifford matrix M
  *  This function takes the transformation matrix M as a single entity.
@@ -337,8 +348,9 @@ ex clifford_moebius_map(const ex & a, const ex & b, const ex & c, const ex & d, 
  *  @param v Vector to be transformed
  *  @param G Metric of the surrounding space, may be a Clifford unit then the next parameter is ignored
  *  @param rl Representation label 
+ *  @param anticommuting indicates if Clifford units anticommutes
  *  @return List of components of the transformed vector*/
-ex clifford_moebius_map(const ex & M, const ex & v, const ex & G, unsigned char rl = 0);
+ex clifford_moebius_map(const ex & M, const ex & v, const ex & G, unsigned char rl = 0, bool anticommuting = false);
 
 } // namespace GiNaC
 

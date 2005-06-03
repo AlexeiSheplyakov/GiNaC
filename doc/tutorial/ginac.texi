@@ -2567,6 +2567,47 @@ of a sum are consistent:
 @}
 @end example
 
+@cindex @code{expand_dummy_sum()}
+A dummy index summation like 
+@tex
+$ a_i b^i$
+@end tex
+@ifnottex
+a.i b~i
+@end ifnottex
+can be expanded for indices with numeric
+dimensions (e.g. 3)  into the explicit sum like
+@tex
+$a_1b^1+a_2b^2+a_3b^3 $.
+@end tex
+@ifnottex
+a.1 b~1 + a.2 b~2 + a.3 b~3.
+@end ifnottex
+This is performed by the function
+
+@example
+    ex expand_dummy_sum(const ex & e, bool subs_idx = false);
+@end example
+
+which takes an expression @code{e} and returns the expanded sum for all
+dummy indices with numeric dimensions. If the parameter @code{subs_idx}
+is set to @code{true} then all substitutions are made by @code{idx} class
+indices, i.e. without variance. In this case the above sum 
+@tex
+$ a_i b^i$
+@end tex
+@ifnottex
+a.i b~i
+@end ifnottex
+will be expanded to
+@tex
+$a_1b_1+a_2b_2+a_3b_3 $.
+@end tex
+@ifnottex
+a.1 b.1 + a.2 b.2 + a.3 b.3.
+@end ifnottex
+
+
 @cindex @code{simplify_indexed()}
 @subsection Simplifying indexed expressions
 
@@ -3189,27 +3230,51 @@ generators
 @end tex 
 satisfying the identities 
 @tex
-$e_i e_j + e_j e_i = M(i, j) $
+$e_i e_j + e_j e_i = M(i, j) + M(j, i) $
 @end tex
 @ifnottex
-e~i e~j + e~j e~i = M(i, j)
+e~i e~j + e~j e~i = M(i, j) + M(j, i) 
 @end ifnottex
-for some matrix (@code{metric})
-@math{M(i, j)}, which may be non-symmetric and containing symbolic
-entries. Such generators are created by the function
+for some bilinear form (@code{metric})
+@math{M(i, j)}, which may be non-symmetric (see arXiv:math.QA/9911180) 
+and contain symbolic entries. Such generators are created by the
+function 
 
 @example
-    ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl = 0);
+    ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl = 0, 
+                                bool anticommuting = false);    
 @end example
 
 where @code{mu} should be a @code{varidx} class object indexing the
-generators, @code{metr} defines the metric @math{M(i, j)} and can be
+generators, an index @code{mu} with a numeric value may be of type
+@code{idx} as well.
+Parameter @code{metr} defines the metric @math{M(i, j)} and can be
 represented by a square @code{matrix}, @code{tensormetric} or @code{indexed} class
-object, optional parameter @code{rl} allows to distinguish different
-Clifford algebras (which will commute with each other). Note that the call
-@code{clifford_unit(mu, minkmetric())} creates something very close to
-@code{dirac_gamma(mu)}. The method @code{clifford::get_metric()} returns a
-metric defining this Clifford number.
+object. Optional parameter @code{rl} allows to distinguish different
+Clifford algebras, which will commute with each other. The last
+optional parameter @code{anticommuting} defines if the anticommuting
+assumption (i.e.
+@tex
+$e_i e_j + e_j e_i = 0$)
+@end tex
+@ifnottex
+e~i e~j + e~j e~i = 0)
+@end ifnottex
+will be used for contraction of Clifford units. If the @code{metric} is
+supplied by a @code{matrix} object, then the value of
+@code{anticommuting} is calculated automatically and the supplied one
+will be ignored. One can overcome this by giving @code{metric} through
+matrix wrapped into an @code{indexed} object.
+
+Note that the call @code{clifford_unit(mu, minkmetric())} creates
+something very close to @code{dirac_gamma(mu)}, although
+@code{dirac_gamma} have more efficient simplification mechanism. 
+@cindex @code{clifford::get_metric()}
+The method @code{clifford::get_metric()} returns a metric defining this
+Clifford number.
+@cindex @code{clifford::is_anticommuting()}
+The method @code{clifford::is_anticommuting()} returns the
+@code{anticommuting} property of a unit.
 
 If the matrix @math{M(i, j)} is in fact symmetric you may prefer to create
 the Clifford algebra units with a call like that
@@ -3218,7 +3283,9 @@ the Clifford algebra units with a call like that
     ex e = clifford_unit(mu, indexed(M, sy_symm(), i, j));
 @end example
 
-since this may yield some further automatic simplifications.
+since this may yield some further automatic simplifications. Again, for a
+metric defined through a @code{matrix} such a symmetry is detected
+automatically. 
 
 Individual generators of a Clifford algebra can be accessed in several
 ways. For example 
@@ -3243,7 +3310,8 @@ will produce four anti-commuting generators of a Clifford algebra with propertie
 $e_0^2=1 $, $e_1^2=-1$,  $e_2^2=0$ and $e_3^2=s$.
 @end tex
 @ifnottex
-@code{pow(e0, 2) = 1},  @code{pow(e1, 2) = -1},   @code{pow(e2, 2) = 0} and   @code{pow(e3, 2) = s}. 
+@code{pow(e0, 2) = 1}, @code{pow(e1, 2) = -1}, @code{pow(e2, 2) = 0} and
+@code{pow(e3, 2) = s}.
 @end ifnottex
 
 @cindex @code{lst_to_clifford()}
@@ -3251,7 +3319,7 @@ A similar effect can be achieved from the function
 
 @example
     ex lst_to_clifford(const ex & v, const ex & mu,  const ex & metr,
-                       unsigned char rl = 0);
+                       unsigned char rl = 0, bool anticommuting = false);
     ex lst_to_clifford(const ex & v, const ex & e);
 @end example
 
@@ -3273,7 +3341,7 @@ $v^0 e_0 + v^1 e_1 + ... + v^n e_n$
 with @samp{e.k}
 directly supplied in the second form of the procedure. In the first form
 the Clifford unit @samp{e.k} is generated by the call of
-@code{clifford_unit(mu, metr, rl)}. The previous code may be rewritten
+@code{clifford_unit(mu, metr, rl, anticommuting)}. The previous code may be rewritten
 with the help of @code{lst_to_clifford()} as follows
 
 @example
@@ -3321,7 +3389,7 @@ $(e c_k + c_k e)/c_k^2$. If $c_k^2$
 @ifnottex
 @samp{(e c.k + c.k e)/pow(c.k, 2)}.   If @samp{pow(c.k, 2)} 
 @end ifnottex
-is zero or is not a @code{numeric} for some @samp{k}
+is zero or is not @code{numeric} for some @samp{k}
 then the method will be automatically changed to symbolic. The same effect
 is obtained by the assignment (@code{algebraic = false}) in the procedure call.
 
@@ -3410,30 +3478,44 @@ expression by the function
 The function @code{canonicalize_clifford()} works for a
 generic Clifford algebra in a similar way as for Dirac gammas.
 
-The last provided function is
+The next provided function is
 
 @cindex @code{clifford_moebius_map()}
 @example
     ex clifford_moebius_map(const ex & a, const ex & b, const ex & c,
                             const ex & d, const ex & v, const ex & G,
-                            unsigned char rl = 0);
+                            unsigned char rl = 0, bool anticommuting = false);
     ex clifford_moebius_map(const ex & M, const ex & v, const ex & G,
-                            unsigned char rl = 0);
+                            unsigned char rl = 0, bool anticommuting = false);
 @end example 
 
 It takes a list or vector @code{v} and makes the Moebius (conformal or
 linear-fractional) transformation @samp{v -> (av+b)/(cv+d)} defined by
 the matrix @samp{M = [[a, b], [c, d]]}. The parameter @code{G} defines
-the metric of the surrounding (pseudo-)Euclidean space. This can be a
-matrix or a Clifford unit, in the later case the parameter @code{rl} is
-ignored even if supplied.  The returned value of this function is a list
-of components of the resulting vector.
+the metric of the surrounding (pseudo-)Euclidean space. This can be an
+indexed object, tensormetric, matrix or a Clifford unit, in the later
+case the optional parameters @code{rl} and @code{anticommuting} are ignored
+even if supplied.  The returned value of this function is a list of
+components of the resulting vector.
 
-LaTeX output for Clifford units looks like @code{\clifford[1]@{e@}^@{@{\nu@}@}},
-where @code{1} is the @code{representation_label} and @code{\nu} is the
-index of the corresponding unit. This provides a flexible typesetting
-with a suitable defintion of the @code{\clifford} command. For example, the
-definition 
+@cindex @code{clifford_max_label()}
+Finally the function
+
+@example
+char clifford_max_label(const ex & e, bool ignore_ONE = false);
+@end example
+
+can detect a presence of Clifford objects in the expression @code{e}: if
+such objects are found it returns the maximal
+@code{representation_label} of them, otherwise @code{-1}. The optional
+parameter @code{ignore_ONE} indicates if @code{dirac_ONE} objects should
+be ignored during the search.
+ 
+LaTeX output for Clifford units looks like
+@code{\clifford[1]@{e@}^@{@{\nu@}@}}, where @code{1} is the
+@code{representation_label} and @code{\nu} is the index of the
+corresponding unit. This provides a flexible typesetting with a suitable
+defintion of the @code{\clifford} command. For example, the definition
 @example
     \newcommand@{\clifford@}[1][]@{@}
 @end example
