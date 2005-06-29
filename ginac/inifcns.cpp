@@ -339,7 +339,7 @@ static ex Li2_series(const ex &x, const relational &rel, int order, unsigned opt
 			ex ser;
 			// manually construct the primitive expansion
 			for (int i=1; i<order; ++i)
-				ser += pow(s,i) / pow(numeric(i), _num2);
+				ser += pow(s,i) / pow(numeric(i), *_num2_p);
 			// substitute the argument's series expansion
 			ser = ser.subs(s==x.series(rel, order), subs_options::no_pattern);
 			// maybe that was terminating, so add a proper order term
@@ -503,14 +503,14 @@ static ex binomial_sym(const ex & x, const numeric & y)
 	if (y.is_integer()) {
 		if (y.is_nonneg_integer()) {
 			const unsigned N = y.to_int();
-			if (N == 0) return _num0;
+			if (N == 0) return _ex0;
 			if (N == 1) return x;
 			ex t = x.expand();
 			for (unsigned i = 2; i <= N; ++i)
 				t = (t * (x + i - y - 1)).expand() / i;
 			return t;
 		} else
-			return _num0;
+			return _ex0;
 	}
 
 	return binomial(x, y).hold();

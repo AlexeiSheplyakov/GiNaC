@@ -233,14 +233,14 @@ static numeric lcmcoeff(const ex &e, const numeric &l)
 	if (e.info(info_flags::rational))
 		return lcm(ex_to<numeric>(e).denom(), l);
 	else if (is_exactly_a<add>(e)) {
-		numeric c = _num1;
+		numeric c = *_num1_p;
 		for (size_t i=0; i<e.nops(); i++)
 			c = lcmcoeff(e.op(i), c);
 		return lcm(c, l);
 	} else if (is_exactly_a<mul>(e)) {
-		numeric c = _num1;
+		numeric c = *_num1_p;
 		for (size_t i=0; i<e.nops(); i++)
-			c *= lcmcoeff(e.op(i), _num1);
+			c *= lcmcoeff(e.op(i), *_num1_p);
 		return lcm(c, l);
 	} else if (is_exactly_a<power>(e)) {
 		if (is_a<symbol>(e.op(0)))
@@ -260,7 +260,7 @@ static numeric lcmcoeff(const ex &e, const numeric &l)
  *  @return LCM of denominators of coefficients */
 static numeric lcm_of_coefficients_denominators(const ex &e)
 {
-	return lcmcoeff(e, _num1);
+	return lcmcoeff(e, *_num1_p);
 }
 
 /** Bring polynomial from Q[X] to Z[X] by multiplying in the previously
@@ -273,9 +273,9 @@ static ex multiply_lcm(const ex &e, const numeric &lcm)
 	if (is_exactly_a<mul>(e)) {
 		size_t num = e.nops();
 		exvector v; v.reserve(num + 1);
-		numeric lcm_accum = _num1;
+		numeric lcm_accum = *_num1_p;
 		for (size_t i=0; i<num; i++) {
-			numeric op_lcm = lcmcoeff(e.op(i), _num1);
+			numeric op_lcm = lcmcoeff(e.op(i), *_num1_p);
 			v.push_back(multiply_lcm(e.op(i), op_lcm));
 			lcm_accum *= op_lcm;
 		}
@@ -310,7 +310,7 @@ numeric ex::integer_content() const
 
 numeric basic::integer_content() const
 {
-	return _num1;
+	return *_num1_p;
 }
 
 numeric numeric::integer_content() const
@@ -322,7 +322,7 @@ numeric add::integer_content() const
 {
 	epvector::const_iterator it = seq.begin();
 	epvector::const_iterator itend = seq.end();
-	numeric c = _num0, l = _num1;
+	numeric c = *_num0_p, l = *_num1_p;
 	while (it != itend) {
 		GINAC_ASSERT(!is_exactly_a<numeric>(it->rest));
 		GINAC_ASSERT(is_exactly_a<numeric>(it->coeff));
@@ -730,24 +730,24 @@ static bool divide_in_z(const ex &a, const ex &b, ex &q, sym_desc_vec::const_ite
 	// Compute values at evaluation points 0..adeg
 	vector<numeric> alpha; alpha.reserve(adeg + 1);
 	exvector u; u.reserve(adeg + 1);
-	numeric point = _num0;
+	numeric point = *_num0_p;
 	ex c;
 	for (i=0; i<=adeg; i++) {
 		ex bs = b.subs(x == point, subs_options::no_pattern);
 		while (bs.is_zero()) {
-			point += _num1;
+			point += *_num1_p;
 			bs = b.subs(x == point, subs_options::no_pattern);
 		}
 		if (!divide_in_z(a.subs(x == point, subs_options::no_pattern), bs, c, var+1))
 			return false;
 		alpha.push_back(point);
 		u.push_back(c);
-		point += _num1;
+		point += *_num1_p;
 	}
 
 	// Compute inverses
 	vector<numeric> rcp; rcp.reserve(adeg + 1);
-	rcp.push_back(_num0);
+	rcp.push_back(*_num0_p);
 	for (k=1; k<=adeg; k++) {
 		numeric product = alpha[k] - alpha[0];
 		for (i=1; i<k; i++)
@@ -1062,7 +1062,7 @@ numeric ex::max_coefficient() const
  *  @see heur_gcd */
 numeric basic::max_coefficient() const
 {
-	return _num1;
+	return *_num1_p;
 }
 
 numeric numeric::max_coefficient() const
@@ -1222,9 +1222,9 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 	numeric mq = q.max_coefficient();
 	numeric xi;
 	if (mp > mq)
-		xi = mq * _num2 + _num2;
+		xi = mq * (*_num2_p) + (*_num2_p);
 	else
-		xi = mp * _num2 + _num2;
+		xi = mp * (*_num2_p) + (*_num2_p);
 
 	// 6 tries maximum
 	for (int t=0; t<6; t++) {
@@ -1898,7 +1898,7 @@ static ex frac_cancel(const ex &n, const ex &d)
 {
 	ex num = n;
 	ex den = d;
-	numeric pre_factor = _num1;
+	numeric pre_factor = *_num1_p;
 
 //std::clog << "frac_cancel num = " << num << ", den = " << den << std::endl;
 

@@ -64,249 +64,200 @@ int library_init::count = 0;
 
 // static numeric -120
 const numeric *_num_120_p;
-const numeric &_num_120 = *_num_120_p;
-const ex _ex_120 = _num_120;
+const ex _ex_120 = _ex_120;
 
 // static numeric -60
 const numeric *_num_60_p;
-const numeric &_num_60 = *_num_60_p;
-const ex _ex_60 = _num_60;
+const ex _ex_60 = _ex_60;
 
 // static numeric -48
 const numeric *_num_48_p;
-const numeric &_num_48 = *_num_48_p;
-const ex _ex_48 = _num_48;
+const ex _ex_48 = _ex_48;
 
 // static numeric -30
 const numeric *_num_30_p;
-const numeric &_num_30 = *_num_30_p;
-const ex _ex_30 = _num_30;
+const ex _ex_30 = _ex_30;
 
 // static numeric -25
 const numeric *_num_25_p;
-const numeric &_num_25 = *_num_25_p;
-const ex _ex_25 = _num_25;
+const ex _ex_25 = _ex_25;
 
 // static numeric -24
 const numeric *_num_24_p;
-const numeric &_num_24 = *_num_24_p;
-const ex _ex_24 = _num_24;
+const ex _ex_24 = _ex_24;
 
 // static numeric -20
 const numeric *_num_20_p;
-const numeric &_num_20 = *_num_20_p;
-const ex _ex_20 = _num_20;
+const ex _ex_20 = _ex_20;
 
 // static numeric -18
 const numeric *_num_18_p;
-const numeric &_num_18 = *_num_18_p;
-const ex _ex_18 = _num_18;
+const ex _ex_18 = _ex_18;
 
 // static numeric -15
 const numeric *_num_15_p;
-const numeric &_num_15 = *_num_15_p;
-const ex _ex_15 = _num_15;
+const ex _ex_15 = _ex_15;
 
 // static numeric -12
 const numeric *_num_12_p;
-const numeric &_num_12 = *_num_12_p;
-const ex _ex_12 = _num_12;
+const ex _ex_12 = _ex_12;
 
 // static numeric -11
 const numeric *_num_11_p;
-const numeric &_num_11 = *_num_11_p;
-const ex _ex_11 = _num_11;
+const ex _ex_11 = _ex_11;
 
 // static numeric -10
 const numeric *_num_10_p;
-const numeric &_num_10 = *_num_10_p;
-const ex _ex_10 = _num_10;
+const ex _ex_10 = _ex_10;
 
 // static numeric -9
 const numeric *_num_9_p;
-const numeric &_num_9 = *_num_9_p;
-const ex _ex_9 = _num_9;
+const ex _ex_9 = _ex_9;
 
 // static numeric -8
 const numeric *_num_8_p;
-const numeric &_num_8 = *_num_8_p;
-const ex _ex_8 = _num_8;
+const ex _ex_8 = _ex_8;
 
 // static numeric -7
 const numeric *_num_7_p;
-const numeric &_num_7 = *_num_7_p;
-const ex _ex_7 = _num_7;
+const ex _ex_7 = _ex_7;
 
 // static numeric -6
 const numeric *_num_6_p;
-const numeric &_num_6 = *_num_6_p;
-const ex _ex_6 = _num_6;
+const ex _ex_6 = _ex_6;
 
 // static numeric -5
 const numeric *_num_5_p;
-const numeric &_num_5 = *_num_5_p;
-const ex _ex_5 = _num_5;
+const ex _ex_5 = _ex_5;
 
 // static numeric -4
 const numeric *_num_4_p;
-const numeric &_num_4 = *_num_4_p;
-const ex _ex_4 = _num_4;
+const ex _ex_4 = _ex_4;
 
 // static numeric -3
 const numeric *_num_3_p;
-const numeric &_num_3 = *_num_3_p;
-const ex _ex_3 = _num_3;
+const ex _ex_3 = _ex_3;
 
 // static numeric -2
 const numeric *_num_2_p;
-const numeric &_num_2 = *_num_2_p;
-const ex _ex_2 = _num_2;
+const ex _ex_2 = _ex_2;
 
 // static numeric -1
 const numeric *_num_1_p;
-const numeric &_num_1 = *_num_1_p;
-const ex _ex_1 = _num_1;
+const ex _ex_1 = _ex_1;
 
 // static numeric -1/2
 const numeric *_num_1_2_p;
-const numeric &_num_1_2= *_num_1_2_p;
-const ex _ex_1_2= _num_1_2;
+const ex _ex_1_2= _ex_1_2;
 
 // static numeric -1/3
 const numeric *_num_1_3_p;
-const numeric &_num_1_3= *_num_1_3_p;
-const ex _ex_1_3= _num_1_3;
+const ex _ex_1_3= _ex_1_3;
 
 // static numeric -1/4
 const numeric *_num_1_4_p;
-const numeric &_num_1_4= *_num_1_4_p;
-const ex _ex_1_4= _num_1_4;
+const ex _ex_1_4= _ex_1_4;
 
 // static numeric 0
 const numeric *_num0_p;
 const basic *_num0_bp;
-const numeric &_num0 = *_num0_p;
-const ex _ex0 = _num0;
+const ex _ex0 = _ex0;
 
 // static numeric 1/4
 const numeric *_num1_4_p;
-const numeric &_num1_4 = *_num1_4_p;
-const ex _ex1_4 = _num1_4;
+const ex _ex1_4 = _ex1_4;
 
 // static numeric 1/3
 const numeric *_num1_3_p;
-const numeric &_num1_3 = *_num1_3_p;
-const ex _ex1_3 = _num1_3;
+const ex _ex1_3 = _ex1_3;
 
 // static numeric 1/2
 const numeric *_num1_2_p;
-const numeric &_num1_2 = *_num1_2_p;
-const ex _ex1_2 = _num1_2;
+const ex _ex1_2 = _ex1_2;
 
 // static numeric 1
 const numeric *_num1_p;
-const numeric &_num1 = *_num1_p;
-const ex _ex1 = _num1;
+const ex _ex1 = _ex1;
 
 // static numeric 2
 const numeric *_num2_p;
-const numeric &_num2 = *_num2_p;
-const ex _ex2 = _num2;
+const ex _ex2 = _ex2;
 
 // static numeric 3
 const numeric *_num3_p;
-const numeric &_num3 = *_num3_p;
-const ex _ex3 = _num3;
+const ex _ex3 = _ex3;
 
 // static numeric 4
 const numeric *_num4_p;
-const numeric &_num4 = *_num4_p;
-const ex _ex4 = _num4;
+const ex _ex4 = _ex4;
 
 // static numeric 5
 const numeric *_num5_p;
-const numeric &_num5 = *_num5_p;
-const ex _ex5 = _num5;
+const ex _ex5 = _ex5;
 
 // static numeric 6
 const numeric *_num6_p;
-const numeric &_num6 = *_num6_p;
-const ex _ex6 = _num6;
+const ex _ex6 = _ex6;
 
 // static numeric 7
 const numeric *_num7_p;
-const numeric &_num7 = *_num7_p;
-const ex _ex7 = _num7;
+const ex _ex7 = _ex7;
 
 // static numeric 8
 const numeric *_num8_p;
-const numeric &_num8 = *_num8_p;
-const ex _ex8 = _num8;
+const ex _ex8 = _ex8;
 
 // static numeric 9
 const numeric *_num9_p;
-const numeric &_num9 = *_num9_p;
-const ex _ex9 = _num9;
+const ex _ex9 = _ex9;
 
 // static numeric 10
 const numeric *_num10_p;
-const numeric &_num10 = *_num10_p;
-const ex _ex10 = _num10;
+const ex _ex10 = _ex10;
 
 // static numeric 11
 const numeric *_num11_p;
-const numeric &_num11 = *_num11_p;
-const ex _ex11 = _num11;
+const ex _ex11 = _ex11;
 
 // static numeric 12
 const numeric *_num12_p;
-const numeric &_num12 = *_num12_p;
-const ex _ex12 = _num12;
+const ex _ex12 = _ex12;
 
 // static numeric 15
 const numeric *_num15_p;
-const numeric &_num15 = *_num15_p;
-const ex _ex15 = _num15;
+const ex _ex15 = _ex15;
 
 // static numeric 18
 const numeric *_num18_p;
-const numeric &_num18 = *_num18_p;
-const ex _ex18 = _num18;
+const ex _ex18 = _ex18;
 
 // static numeric 20
 const numeric *_num20_p;
-const numeric &_num20 = *_num20_p;
-const ex _ex20 = _num20;
+const ex _ex20 = _ex20;
 
 // static numeric 24
 const numeric *_num24_p;
-const numeric &_num24 = *_num24_p;
-const ex _ex24 = _num24;
+const ex _ex24 = _ex24;
 
 // static numeric 25
 const numeric *_num25_p;
-const numeric &_num25 = *_num25_p;
-const ex _ex25 = _num25;
+const ex _ex25 = _ex25;
 
 // static numeric 30
 const numeric *_num30_p;
-const numeric &_num30 = *_num30_p;
-const ex _ex30 = _num30;
+const ex _ex30 = _ex30;
 
 // static numeric 48
 const numeric *_num48_p;
-const numeric &_num48 = *_num48_p;
-const ex _ex48 = _num48;
+const ex _ex48 = _ex48;
 
 // static numeric 60
 const numeric *_num60_p;
-const numeric &_num60 = *_num60_p;
-const ex _ex60 = _num60;
+const ex _ex60 = _ex60;
 
 // static numeric 120
 const numeric *_num120_p;
-const numeric &_num120 = *_num120_p;
-const ex _ex120 = _num120;
+const ex _ex120 = _ex120;
 
 /** Ctor of static initialization helpers.  The fist call to this is going
  *  to initialize the library, the others do nothing. */
@@ -363,6 +314,56 @@ library_init::library_init()
 		(_num48_p = new numeric(48))->setflag(status_flags::dynallocated);
 		(_num60_p = new numeric(60))->setflag(status_flags::dynallocated);
 		(_num120_p = new numeric(120))->setflag(status_flags::dynallocated);
+
+		new((void*)&_ex_120) ex(*_num_120_p);
+		new((void*)&_ex_60) ex(*_num_60_p);
+		new((void*)&_ex_48) ex(*_num_48_p);
+		new((void*)&_ex_30) ex(*_num_30_p);
+		new((void*)&_ex_25) ex(*_num_25_p);
+		new((void*)&_ex_24) ex(*_num_24_p);
+		new((void*)&_ex_20) ex(*_num_20_p);
+		new((void*)&_ex_18) ex(*_num_18_p);
+		new((void*)&_ex_15) ex(*_num_15_p);
+		new((void*)&_ex_12) ex(*_num_12_p);
+		new((void*)&_ex_11) ex(*_num_11_p);
+		new((void*)&_ex_10) ex(*_num_10_p);
+		new((void*)&_ex_9) ex(*_num_9_p);
+		new((void*)&_ex_8) ex(*_num_8_p);
+		new((void*)&_ex_7) ex(*_num_7_p);
+		new((void*)&_ex_6) ex(*_num_6_p);
+		new((void*)&_ex_5) ex(*_num_5_p);
+		new((void*)&_ex_4) ex(*_num_4_p);
+		new((void*)&_ex_3) ex(*_num_3_p);
+		new((void*)&_ex_2) ex(*_num_2_p);
+		new((void*)&_ex_1) ex(*_num_1_p);
+		new((void*)&_ex_1_2) ex(*_num_1_2_p);
+		new((void*)&_ex_1_3) ex(*_num_1_3_p);
+		new((void*)&_ex_1_4) ex(*_num_1_4_p);
+		new((void*)&_ex0) ex(*_num0_p);
+		new((void*)&_ex1_4) ex(*_num1_4_p);
+		new((void*)&_ex1_3) ex(*_num1_3_p);
+		new((void*)&_ex1_2) ex(*_num1_2_p);
+		new((void*)&_ex1) ex(*_num1_p);
+		new((void*)&_ex2) ex(*_num2_p);
+		new((void*)&_ex3) ex(*_num3_p);
+		new((void*)&_ex4) ex(*_num4_p);
+		new((void*)&_ex5) ex(*_num5_p);
+		new((void*)&_ex6) ex(*_num6_p);
+		new((void*)&_ex7) ex(*_num7_p);
+		new((void*)&_ex8) ex(*_num8_p);
+		new((void*)&_ex9) ex(*_num9_p);
+		new((void*)&_ex10) ex(*_num10_p);
+		new((void*)&_ex11) ex(*_num11_p);
+		new((void*)&_ex12) ex(*_num12_p);
+		new((void*)&_ex15) ex(*_num15_p);
+		new((void*)&_ex18) ex(*_num18_p);
+		new((void*)&_ex20) ex(*_num20_p);
+		new((void*)&_ex24) ex(*_num24_p);
+		new((void*)&_ex25) ex(*_num25_p);
+		new((void*)&_ex30) ex(*_num30_p);
+		new((void*)&_ex48) ex(*_num48_p);
+		new((void*)&_ex60) ex(*_num60_p);
+		new((void*)&_ex120) ex(*_num120_p);
 
 		// Initialize print context class info (this is not strictly necessary
 		// but we do it anyway to make print_context_class_info::dump_hierarchy()

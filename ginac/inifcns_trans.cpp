@@ -59,14 +59,14 @@ static ex exp_eval(const ex & x)
 	// exp(n*Pi*I/2) -> {+1|+I|-1|-I}
 	const ex TwoExOverPiI=(_ex2*x)/(Pi*I);
 	if (TwoExOverPiI.info(info_flags::integer)) {
-		const numeric z = mod(ex_to<numeric>(TwoExOverPiI),_num4);
-		if (z.is_equal(_num0))
+		const numeric z = mod(ex_to<numeric>(TwoExOverPiI),*_num4_p);
+		if (z.is_equal(*_num0_p))
 			return _ex1;
-		if (z.is_equal(_num1))
+		if (z.is_equal(*_num1_p))
 			return ex(I);
-		if (z.is_equal(_num2))
+		if (z.is_equal(*_num2_p))
 			return _ex_1;
-		if (z.is_equal(_num3))
+		if (z.is_equal(*_num3_p))
 			return ex(-I);
 	}
 
@@ -116,9 +116,9 @@ static ex log_eval(const ex & x)
 		if (x.is_equal(_ex1))  // log(1) -> 0
 			return _ex0;
 		if (x.is_equal(I))       // log(I) -> Pi*I/2
-			return (Pi*I*_num1_2);
+			return (Pi*I*_ex1_2);
 		if (x.is_equal(-I))      // log(-I) -> -Pi*I/2
-			return (Pi*I*_num_1_2);
+			return (Pi*I*_ex_1_2);
 
 		// log(float) -> float
 		if (!x.info(info_flags::crational))
@@ -262,33 +262,33 @@ static ex sin_eval(const ex & x)
 	const ex SixtyExOverPi = _ex60*x/Pi;
 	ex sign = _ex1;
 	if (SixtyExOverPi.info(info_flags::integer)) {
-		numeric z = mod(ex_to<numeric>(SixtyExOverPi),_num120);
-		if (z>=_num60) {
+		numeric z = mod(ex_to<numeric>(SixtyExOverPi),*_num120_p);
+		if (z>=*_num60_p) {
 			// wrap to interval [0, Pi)
-			z -= _num60;
+			z -= *_num60_p;
 			sign = _ex_1;
 		}
-		if (z>_num30) {
+		if (z>*_num30_p) {
 			// wrap to interval [0, Pi/2)
-			z = _num60-z;
+			z = *_num60_p-z;
 		}
-		if (z.is_equal(_num0))  // sin(0)       -> 0
+		if (z.is_equal(*_num0_p))  // sin(0)       -> 0
 			return _ex0;
-		if (z.is_equal(_num5))  // sin(Pi/12)   -> sqrt(6)/4*(1-sqrt(3)/3)
+		if (z.is_equal(*_num5_p))  // sin(Pi/12)   -> sqrt(6)/4*(1-sqrt(3)/3)
 			return sign*_ex1_4*sqrt(_ex6)*(_ex1+_ex_1_3*sqrt(_ex3));
-		if (z.is_equal(_num6))  // sin(Pi/10)   -> sqrt(5)/4-1/4
+		if (z.is_equal(*_num6_p))  // sin(Pi/10)   -> sqrt(5)/4-1/4
 			return sign*(_ex1_4*sqrt(_ex5)+_ex_1_4);
-		if (z.is_equal(_num10)) // sin(Pi/6)    -> 1/2
+		if (z.is_equal(*_num10_p)) // sin(Pi/6)    -> 1/2
 			return sign*_ex1_2;
-		if (z.is_equal(_num15)) // sin(Pi/4)    -> sqrt(2)/2
+		if (z.is_equal(*_num15_p)) // sin(Pi/4)    -> sqrt(2)/2
 			return sign*_ex1_2*sqrt(_ex2);
-		if (z.is_equal(_num18)) // sin(3/10*Pi) -> sqrt(5)/4+1/4
+		if (z.is_equal(*_num18_p)) // sin(3/10*Pi) -> sqrt(5)/4+1/4
 			return sign*(_ex1_4*sqrt(_ex5)+_ex1_4);
-		if (z.is_equal(_num20)) // sin(Pi/3)    -> sqrt(3)/2
+		if (z.is_equal(*_num20_p)) // sin(Pi/3)    -> sqrt(3)/2
 			return sign*_ex1_2*sqrt(_ex3);
-		if (z.is_equal(_num25)) // sin(5/12*Pi) -> sqrt(6)/4*(1+sqrt(3)/3)
+		if (z.is_equal(*_num25_p)) // sin(5/12*Pi) -> sqrt(6)/4*(1+sqrt(3)/3)
 			return sign*_ex1_4*sqrt(_ex6)*(_ex1+_ex1_3*sqrt(_ex3));
-		if (z.is_equal(_num30)) // sin(Pi/2)    -> 1
+		if (z.is_equal(*_num30_p)) // sin(Pi/2)    -> 1
 			return sign;
 	}
 
@@ -350,33 +350,33 @@ static ex cos_eval(const ex & x)
 	const ex SixtyExOverPi = _ex60*x/Pi;
 	ex sign = _ex1;
 	if (SixtyExOverPi.info(info_flags::integer)) {
-		numeric z = mod(ex_to<numeric>(SixtyExOverPi),_num120);
-		if (z>=_num60) {
+		numeric z = mod(ex_to<numeric>(SixtyExOverPi),*_num120_p);
+		if (z>=*_num60_p) {
 			// wrap to interval [0, Pi)
-			z = _num120-z;
+			z = *_num120_p-z;
 		}
-		if (z>=_num30) {
+		if (z>=*_num30_p) {
 			// wrap to interval [0, Pi/2)
-			z = _num60-z;
+			z = *_num60_p-z;
 			sign = _ex_1;
 		}
-		if (z.is_equal(_num0))  // cos(0)       -> 1
+		if (z.is_equal(*_num0_p))  // cos(0)       -> 1
 			return sign;
-		if (z.is_equal(_num5))  // cos(Pi/12)   -> sqrt(6)/4*(1+sqrt(3)/3)
+		if (z.is_equal(*_num5_p))  // cos(Pi/12)   -> sqrt(6)/4*(1+sqrt(3)/3)
 			return sign*_ex1_4*sqrt(_ex6)*(_ex1+_ex1_3*sqrt(_ex3));
-		if (z.is_equal(_num10)) // cos(Pi/6)    -> sqrt(3)/2
+		if (z.is_equal(*_num10_p)) // cos(Pi/6)    -> sqrt(3)/2
 			return sign*_ex1_2*sqrt(_ex3);
-		if (z.is_equal(_num12)) // cos(Pi/5)    -> sqrt(5)/4+1/4
+		if (z.is_equal(*_num12_p)) // cos(Pi/5)    -> sqrt(5)/4+1/4
 			return sign*(_ex1_4*sqrt(_ex5)+_ex1_4);
-		if (z.is_equal(_num15)) // cos(Pi/4)    -> sqrt(2)/2
+		if (z.is_equal(*_num15_p)) // cos(Pi/4)    -> sqrt(2)/2
 			return sign*_ex1_2*sqrt(_ex2);
-		if (z.is_equal(_num20)) // cos(Pi/3)    -> 1/2
+		if (z.is_equal(*_num20_p)) // cos(Pi/3)    -> 1/2
 			return sign*_ex1_2;
-		if (z.is_equal(_num24)) // cos(2/5*Pi)  -> sqrt(5)/4-1/4x
+		if (z.is_equal(*_num24_p)) // cos(2/5*Pi)  -> sqrt(5)/4-1/4x
 			return sign*(_ex1_4*sqrt(_ex5)+_ex_1_4);
-		if (z.is_equal(_num25)) // cos(5/12*Pi) -> sqrt(6)/4*(1-sqrt(3)/3)
+		if (z.is_equal(*_num25_p)) // cos(5/12*Pi) -> sqrt(6)/4*(1-sqrt(3)/3)
 			return sign*_ex1_4*sqrt(_ex6)*(_ex1+_ex_1_3*sqrt(_ex3));
-		if (z.is_equal(_num30)) // cos(Pi/2)    -> 0
+		if (z.is_equal(*_num30_p)) // cos(Pi/2)    -> 0
 			return _ex0;
 	}
 
@@ -438,29 +438,29 @@ static ex tan_eval(const ex & x)
 	const ex SixtyExOverPi = _ex60*x/Pi;
 	ex sign = _ex1;
 	if (SixtyExOverPi.info(info_flags::integer)) {
-		numeric z = mod(ex_to<numeric>(SixtyExOverPi),_num60);
-		if (z>=_num60) {
+		numeric z = mod(ex_to<numeric>(SixtyExOverPi),*_num60_p);
+		if (z>=*_num60_p) {
 			// wrap to interval [0, Pi)
-			z -= _num60;
+			z -= *_num60_p;
 		}
-		if (z>=_num30) {
+		if (z>=*_num30_p) {
 			// wrap to interval [0, Pi/2)
-			z = _num60-z;
+			z = *_num60_p-z;
 			sign = _ex_1;
 		}
-		if (z.is_equal(_num0))  // tan(0)       -> 0
+		if (z.is_equal(*_num0_p))  // tan(0)       -> 0
 			return _ex0;
-		if (z.is_equal(_num5))  // tan(Pi/12)   -> 2-sqrt(3)
+		if (z.is_equal(*_num5_p))  // tan(Pi/12)   -> 2-sqrt(3)
 			return sign*(_ex2-sqrt(_ex3));
-		if (z.is_equal(_num10)) // tan(Pi/6)    -> sqrt(3)/3
+		if (z.is_equal(*_num10_p)) // tan(Pi/6)    -> sqrt(3)/3
 			return sign*_ex1_3*sqrt(_ex3);
-		if (z.is_equal(_num15)) // tan(Pi/4)    -> 1
+		if (z.is_equal(*_num15_p)) // tan(Pi/4)    -> 1
 			return sign;
-		if (z.is_equal(_num20)) // tan(Pi/3)    -> sqrt(3)
+		if (z.is_equal(*_num20_p)) // tan(Pi/3)    -> sqrt(3)
 			return sign*sqrt(_ex3);
-		if (z.is_equal(_num25)) // tan(5/12*Pi) -> 2+sqrt(3)
+		if (z.is_equal(*_num25_p)) // tan(5/12*Pi) -> 2+sqrt(3)
 			return sign*(sqrt(_ex3)+_ex2);
-		if (z.is_equal(_num30)) // tan(Pi/2)    -> infinity
+		if (z.is_equal(*_num30_p)) // tan(Pi/2)    -> infinity
 			throw (pole_error("tan_eval(): simple pole",1));
 	}
 
@@ -548,7 +548,7 @@ static ex asin_eval(const ex & x)
 
 		// asin(1) -> Pi/2
 		if (x.is_equal(_ex1))
-			return _num1_2*Pi;
+			return _ex1_2*Pi;
 
 		// asin(-1/2) -> -Pi/6
 		if (x.is_equal(_ex_1_2))
@@ -556,7 +556,7 @@ static ex asin_eval(const ex & x)
 
 		// asin(-1) -> -Pi/2
 		if (x.is_equal(_ex_1))
-			return _num_1_2*Pi;
+			return _ex_1_2*Pi;
 
 		// asin(float) -> float
 		if (!x.info(info_flags::crational))

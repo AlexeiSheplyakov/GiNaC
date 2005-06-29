@@ -129,8 +129,8 @@ void mul::print_overall_coeff(const print_context & c, const char *mul_sym) cons
 	const numeric &coeff = ex_to<numeric>(overall_coeff);
 	if (coeff.csgn() == -1)
 		c.s << '-';
-	if (!coeff.is_equal(_num1) &&
-		!coeff.is_equal(_num_1)) {
+	if (!coeff.is_equal(*_num1_p) &&
+		!coeff.is_equal(*_num_1_p)) {
 		if (coeff.is_rational()) {
 			if (coeff.is_negative())
 				(-coeff).print(c);
@@ -422,7 +422,7 @@ ex mul::eval(int level) const
 		return recombine_pair_to_ex(*(seq.begin()));
 	} else if ((seq_size==1) &&
 	           is_exactly_a<add>((*seq.begin()).rest) &&
-	           ex_to<numeric>((*seq.begin()).coeff).is_equal(_num1)) {
+	           ex_to<numeric>((*seq.begin()).coeff).is_equal(*_num1_p)) {
 		// *(+(x,y,...);c) -> +(*(x,c),*(y,c),...) (c numeric(), no powers of +())
 		const add & addref = ex_to<add>((*seq.begin()).rest);
 		std::auto_ptr<epvector> distrseq(new epvector);
@@ -767,7 +767,7 @@ expair mul::combine_pair_with_coeff_to_pair(const expair & p,
 	
 ex mul::recombine_pair_to_ex(const expair & p) const
 {
-	if (ex_to<numeric>(p.coeff).is_equal(_num1)) 
+	if (ex_to<numeric>(p.coeff).is_equal(*_num1_p)) 
 		return p.rest;
 	else
 		return (new power(p.rest,p.coeff))->setflag(status_flags::dynallocated);
@@ -822,7 +822,7 @@ bool mul::can_make_flat(const expair & p) const
 	// this assertion will probably fail somewhere
 	// it would require a more careful make_flat, obeying the power laws
 	// probably should return true only if p.coeff is integer
-	return ex_to<numeric>(p.coeff).is_equal(_num1);
+	return ex_to<numeric>(p.coeff).is_equal(*_num1_p);
 }
 
 bool mul::can_be_further_expanded(const ex & e)

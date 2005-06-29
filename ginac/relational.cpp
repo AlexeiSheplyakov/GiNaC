@@ -338,13 +338,13 @@ relational::operator relational::safe_bool() const
 		case not_equal:
 			return make_safe_bool(!ex_to<numeric>(df).is_zero());
 		case less:
-			return make_safe_bool(ex_to<numeric>(df)<_num0);
+			return make_safe_bool(ex_to<numeric>(df)<(*_num0_p));
 		case less_or_equal:
-			return make_safe_bool(ex_to<numeric>(df)<=_num0);
+			return make_safe_bool(ex_to<numeric>(df)<=(*_num0_p));
 		case greater:
-			return make_safe_bool(ex_to<numeric>(df)>_num0);
+			return make_safe_bool(ex_to<numeric>(df)>(*_num0_p));
 		case greater_or_equal:
-			return make_safe_bool(ex_to<numeric>(df)>=_num0);
+			return make_safe_bool(ex_to<numeric>(df)>=(*_num0_p));
 		default:
 			throw(std::logic_error("invalid relational operator"));
 	}

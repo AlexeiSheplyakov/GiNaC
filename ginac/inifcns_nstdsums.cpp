@@ -3537,18 +3537,18 @@ static ex zeta1_eval(const ex& m)
 			if (y.is_zero()) {
 				return _ex_1_2;
 			}
-			if (y.is_equal(_num1)) {
+			if (y.is_equal(*_num1_p)) {
 				return zeta(m).hold();
 			}
 			if (y.info(info_flags::posint)) {
 				if (y.info(info_flags::odd)) {
 					return zeta(m).hold();
 				} else {
-					return abs(bernoulli(y)) * pow(Pi, y) * pow(_num2, y-_num1) / factorial(y);
+					return abs(bernoulli(y)) * pow(Pi, y) * pow(*_num2_p, y-(*_num1_p)) / factorial(y);
 				}
 			} else {
 				if (y.info(info_flags::odd)) {
-					return -bernoulli(_num1-y) / (_num1-y);
+					return -bernoulli((*_num1_p)-y) / ((*_num1_p)-y);
 				} else {
 					return _ex0;
 				}

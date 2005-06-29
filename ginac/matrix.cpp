@@ -647,12 +647,12 @@ matrix matrix::pow(const ex & expn) const
 			// that this is not entirely optimal but close to optimal and
 			// "better" algorithms are much harder to implement.  (See Knuth,
 			// TAoCP2, section "Evaluation of Powers" for a good discussion.)
-			while (b!=_num1) {
+			while (b!=*_num1_p) {
 				if (b.is_odd()) {
 					C = C.mul(A);
 					--b;
 				}
-				b /= _num2;  // still integer.
+				b /= *_num2_p;  // still integer.
 				A = A.mul(A);
 			}
 			return A.mul(C);

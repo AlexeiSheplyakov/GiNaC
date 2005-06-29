@@ -448,7 +448,7 @@ ex power::eval(int level) const
 			if (is_exactly_a<numeric>(sub_exponent)) {
 				const numeric & num_sub_exponent = ex_to<numeric>(sub_exponent);
 				GINAC_ASSERT(num_sub_exponent!=numeric(1));
-				if (num_exponent->is_integer() || (abs(num_sub_exponent) - _num1).is_negative())
+				if (num_exponent->is_integer() || (abs(num_sub_exponent) - (*_num1_p)).is_negative())
 					return power(sub_basis,num_sub_exponent.mul(*num_exponent));
 			}
 		}
@@ -474,8 +474,8 @@ ex power::eval(int level) const
 						return (new mul(power(*mulp,exponent),
 						                power(num_coeff,*num_exponent)))->setflag(status_flags::dynallocated);
 					} else {
-						GINAC_ASSERT(num_coeff.compare(_num0)<0);
-						if (!num_coeff.is_equal(_num_1)) {
+						GINAC_ASSERT(num_coeff.compare(*_num0_p)<0);
+						if (!num_coeff.is_equal(*_num_1_p)) {
 							mul *mulp = new mul(mulref);
 							mulp->overall_coeff = _ex_1;
 							mulp->clearflag(status_flags::evaluated);
@@ -806,7 +806,7 @@ ex power::expand_add_2(const add & a, unsigned options) const
 		
 		if (c.is_equal(_ex1)) {
 			if (is_exactly_a<mul>(r)) {
-				sum.push_back(expair(expand_mul(ex_to<mul>(r), _num2, options, true),
+				sum.push_back(expair(expand_mul(ex_to<mul>(r), *_num2_p, options, true),
 				                     _ex1));
 			} else {
 				sum.push_back(expair((new power(r,_ex2))->setflag(status_flags::dynallocated),
@@ -814,11 +814,11 @@ ex power::expand_add_2(const add & a, unsigned options) const
 			}
 		} else {
 			if (is_exactly_a<mul>(r)) {
-				sum.push_back(a.combine_ex_with_coeff_to_pair(expand_mul(ex_to<mul>(r), _num2, options, true),
-				                     ex_to<numeric>(c).power_dyn(_num2)));
+				sum.push_back(a.combine_ex_with_coeff_to_pair(expand_mul(ex_to<mul>(r), *_num2_p, options, true),
+				                     ex_to<numeric>(c).power_dyn(*_num2_p)));
 			} else {
 				sum.push_back(a.combine_ex_with_coeff_to_pair((new power(r,_ex2))->setflag(status_flags::dynallocated),
-				                     ex_to<numeric>(c).power_dyn(_num2)));
+				                     ex_to<numeric>(c).power_dyn(*_num2_p)));
 			}
 		}
 
@@ -826,7 +826,7 @@ ex power::expand_add_2(const add & a, unsigned options) const
 			const ex & r1 = cit1->rest;
 			const ex & c1 = cit1->coeff;
 			sum.push_back(a.combine_ex_with_coeff_to_pair((new mul(r,r1))->setflag(status_flags::dynallocated),
-			                                              _num2.mul(ex_to<numeric>(c)).mul_dyn(ex_to<numeric>(c1))));
+			                                              _num2_p->mul(ex_to<numeric>(c)).mul_dyn(ex_to<numeric>(c1))));
 		}
 	}
 	
@@ -836,10 +836,10 @@ ex power::expand_add_2(const add & a, unsigned options) const
 	if (!a.overall_coeff.is_zero()) {
 		epvector::const_iterator i = a.seq.begin(), end = a.seq.end();
 		while (i != end) {
-			sum.push_back(a.combine_pair_with_coeff_to_pair(*i, ex_to<numeric>(a.overall_coeff).mul_dyn(_num2)));
+			sum.push_back(a.combine_pair_with_coeff_to_pair(*i, ex_to<numeric>(a.overall_coeff).mul_dyn(*_num2_p)));
 			++i;
 		}
-		sum.push_back(expair(ex_to<numeric>(a.overall_coeff).power_dyn(_num2),_ex1));
+		sum.push_back(expair(ex_to<numeric>(a.overall_coeff).power_dyn(*_num2_p),_ex1));
 	}
 	
 	GINAC_ASSERT(sum.size()==(a_nops*(a_nops+1))/2);

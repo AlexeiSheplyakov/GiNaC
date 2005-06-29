@@ -133,8 +133,8 @@ void add::print_add(const print_context & c, const char *openbrace, const char *
 			if (coeff.csgn() == -1) c.s << '-';
 			first = false;
 		}
-		if (!coeff.is_equal(_num1) &&
-		    !coeff.is_equal(_num_1)) {
+		if (!coeff.is_equal(*_num1_p) &&
+		    !coeff.is_equal(*_num_1_p)) {
 			if (coeff.is_rational()) {
 				if (coeff.is_negative())
 					(-coeff).print(c);
@@ -181,11 +181,11 @@ void add::do_print_csrc(const print_csrc & c, unsigned level) const
 		} else if (it->coeff.is_equal(_ex_1)) {
 			c.s << "-";
 			it->rest.print(c, precedence());
-		} else if (ex_to<numeric>(it->coeff).numer().is_equal(_num1)) {
+		} else if (ex_to<numeric>(it->coeff).numer().is_equal(*_num1_p)) {
 			it->rest.print(c, precedence());
 			c.s << "/";
 			ex_to<numeric>(it->coeff).denom().print(c, precedence());
-		} else if (ex_to<numeric>(it->coeff).numer().is_equal(_num_1)) {
+		} else if (ex_to<numeric>(it->coeff).numer().is_equal(*_num_1_p)) {
 			c.s << "-";
 			it->rest.print(c, precedence());
 			c.s << "/";
@@ -200,7 +200,7 @@ void add::do_print_csrc(const print_csrc & c, unsigned level) const
 		++it;
 		if (it != itend
 		 && (is_a<print_csrc_cl_N>(c) || !it->coeff.info(info_flags::real)  // sign inside ctor arguments
-		  || !(it->coeff.info(info_flags::negative) || (it->coeff.is_equal(_num1) && is_exactly_a<numeric>(it->rest) && it->rest.info(info_flags::negative)))))
+		  || !(it->coeff.info(info_flags::negative) || (it->coeff.is_equal(*_num1_p) && is_exactly_a<numeric>(it->rest) && it->rest.info(info_flags::negative)))))
 			c.s << "+";
 	}
 	
@@ -531,7 +531,7 @@ expair add::combine_pair_with_coeff_to_pair(const expair & p,
 	GINAC_ASSERT(is_exactly_a<numeric>(c));
 
 	if (is_exactly_a<numeric>(p.rest)) {
-		GINAC_ASSERT(ex_to<numeric>(p.coeff).is_equal(_num1)); // should be normalized
+		GINAC_ASSERT(ex_to<numeric>(p.coeff).is_equal(*_num1_p)); // should be normalized
 		return expair(ex_to<numeric>(p.rest).mul_dyn(ex_to<numeric>(c)),_ex1);
 	}
 
@@ -540,7 +540,7 @@ expair add::combine_pair_with_coeff_to_pair(const expair & p,
 	
 ex add::recombine_pair_to_ex(const expair & p) const
 {
-	if (ex_to<numeric>(p.coeff).is_equal(_num1))
+	if (ex_to<numeric>(p.coeff).is_equal(*_num1_p))
 		return p.rest;
 	else
 		return (new mul(p.rest,p.coeff))->setflag(status_flags::dynallocated);

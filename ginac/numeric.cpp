@@ -238,6 +238,7 @@ numeric::numeric(const cln::cl_N &z) : basic(TINFO_numeric)
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
+
 //////////
 // archiving
 //////////
@@ -760,7 +761,7 @@ const numeric numeric::power(const numeric &other) const
 {
 	// Shortcut for efficiency and numeric stability (as in 1.0 exponent):
 	// trap the neutral exponent.
-	if (&other==_num1_p || cln::equal(other.value,_num1.value))
+	if (&other==_num1_p || cln::equal(other.value,_num1_p->value))
 		return *this;
 	
 	if (cln::zerop(value)) {
@@ -771,7 +772,7 @@ const numeric numeric::power(const numeric &other) const
 		else if (cln::minusp(cln::realpart(other.value)))
 			throw std::overflow_error("numeric::eval(): division by zero");
 		else
-			return _num0;
+			return *_num0_p;
 	}
 	return numeric(cln::expt(value, other.value));
 }
@@ -857,7 +858,7 @@ const numeric &numeric::power_dyn(const numeric &other) const
 	// Efficiency shortcut: trap the neutral exponent (first try by pointer, then
 	// try harder, since calls to cln::expt() below may return amazing results for
 	// floating point exponent 1.0).
-	if (&other==_num1_p || cln::equal(other.value, _num1.value))
+	if (&other==_num1_p || cln::equal(other.value, _num1_p->value))
 		return *this;
 	
 	if (cln::zerop(value)) {
@@ -868,7 +869,7 @@ const numeric &numeric::power_dyn(const numeric &other) const
 		else if (cln::minusp(cln::realpart(other.value)))
 			throw std::overflow_error("numeric::eval(): division by zero");
 		else
-			return _num0;
+			return *_num0_p;
 	}
 	return static_cast<const numeric &>((new numeric(cln::expt(value, other.value)))->
 	                                     setflag(status_flags::dynallocated));
@@ -1237,7 +1238,7 @@ const numeric numeric::numer() const
 const numeric numeric::denom() const
 {
 	if (cln::instanceof(value, cln::cl_I_ring))
-		return _num1;  // integer case
+		return *_num1_p;  // integer case
 	
 	if (cln::instanceof(value, cln::cl_RA_ring))
 		return numeric(cln::denominator(cln::the<cln::cl_RA>(value)));
@@ -1246,7 +1247,7 @@ const numeric numeric::denom() const
 		const cln::cl_RA r = cln::the<cln::cl_RA>(cln::realpart(value));
 		const cln::cl_RA i = cln::the<cln::cl_RA>(cln::imagpart(value));
 		if (cln::instanceof(r, cln::cl_I_ring) && cln::instanceof(i, cln::cl_I_ring))
-			return _num1;
+			return *_num1_p;
 		if (cln::instanceof(r, cln::cl_I_ring) && cln::instanceof(i, cln::cl_RA_ring))
 			return numeric(cln::denominator(i));
 		if (cln::instanceof(r, cln::cl_RA_ring) && cln::instanceof(i, cln::cl_I_ring))
@@ -1255,7 +1256,7 @@ const numeric numeric::denom() const
 			return numeric(cln::lcm(cln::denominator(r), cln::denominator(i)));
 	}
 	// at least one float encountered
-	return _num1;
+	return *_num1_p;
 }
 
 
@@ -1359,7 +1360,7 @@ const numeric atan(const numeric &x)
 {
 	if (!x.is_real() &&
 	    x.real().is_zero() &&
-	    abs(x.imag()).is_equal(_num1))
+	    abs(x.imag()).is_equal(*_num1_p))
 		throw pole_error("atan(): logarithmic pole",0);
 	return cln::atan(x.to_cl_N());
 }
@@ -1510,7 +1511,7 @@ static cln::cl_N Li2_projection(const cln::cl_N &x,
 const numeric Li2(const numeric &x)
 {
 	if (x.is_zero())
-		return _num0;
+		return *_num0_p;
 	
 	// what is the desired float format?
 	// first guess: default format
@@ -1601,8 +1602,8 @@ const numeric factorial(const numeric &n)
  *  @exception range_error (argument must be integer >= -1) */
 const numeric doublefactorial(const numeric &n)
 {
-	if (n.is_equal(_num_1))
-		return _num1;
+	if (n.is_equal(*_num_1_p))
+		return *_num1_p;
 	
 	if (!n.is_nonneg_integer())
 		throw std::range_error("numeric::doublefactorial(): argument must be integer >= -1");
@@ -1619,12 +1620,12 @@ const numeric binomial(const numeric &n, const numeric &k)
 {
 	if (n.is_integer() && k.is_integer()) {
 		if (n.is_nonneg_integer()) {
-			if (k.compare(n)!=1 && k.compare(_num0)!=-1)
+			if (k.compare(n)!=1 && k.compare(*_num0_p)!=-1)
 				return numeric(cln::binomial(n.to_int(),k.to_int()));
 			else
-				return _num0;
+				return *_num0_p;
 		} else {
-			return _num_1.power(k)*binomial(k-n-_num1,k);
+			return _num_1_p->power(k)*binomial(k-n-(*_num1_p),k);
 		}
 	}
 	
@@ -1681,9 +1682,9 @@ const numeric bernoulli(const numeric &nn)
 
 	// the special cases not covered by the algorithm below
 	if (n & 1)
-		return (n==1) ? _num_1_2 : _num0;
+		return (n==1) ? (*_num_1_2_p) : (*_num0_p);
 	if (!n)
-		return _num1;
+		return *_num1_p;
 
 	// store nonvanishing Bernoulli numbers here
 	static std::vector< cln::cl_RA > results;
@@ -1751,7 +1752,7 @@ const numeric fibonacci(const numeric &n)
 	// hence
 	//      F(2n+2) = F(n+1)*(2*F(n) + F(n+1))
 	if (n.is_zero())
-		return _num0;
+		return *_num0_p;
 	if (n.is_negative())
 		if (n.is_even())
 			return -fibonacci(-n);
@@ -1803,7 +1804,7 @@ const numeric mod(const numeric &a, const numeric &b)
 		return cln::mod(cln::the<cln::cl_I>(a.to_cl_N()),
 		                cln::the<cln::cl_I>(b.to_cl_N()));
 	else
-		return _num0;
+		return *_num0_p;
 }
 
 
@@ -1818,7 +1819,7 @@ const numeric smod(const numeric &a, const numeric &b)
 		return cln::mod(cln::the<cln::cl_I>(a.to_cl_N()) + b2,
 		                cln::the<cln::cl_I>(b.to_cl_N())) - b2;
 	} else
-		return _num0;
+		return *_num0_p;
 }
 
 
@@ -1837,7 +1838,7 @@ const numeric irem(const numeric &a, const numeric &b)
 		return cln::rem(cln::the<cln::cl_I>(a.to_cl_N()),
 		                cln::the<cln::cl_I>(b.to_cl_N()));
 	else
-		return _num0;
+		return *_num0_p;
 }
 
 
@@ -1859,8 +1860,8 @@ const numeric irem(const numeric &a, const numeric &b, numeric &q)
 		q = rem_quo.quotient;
 		return rem_quo.remainder;
 	} else {
-		q = _num0;
-		return _num0;
+		q = *_num0_p;
+		return *_num0_p;
 	}
 }
 
@@ -1878,7 +1879,7 @@ const numeric iquo(const numeric &a, const numeric &b)
 		return cln::truncate1(cln::the<cln::cl_I>(a.to_cl_N()),
 	                          cln::the<cln::cl_I>(b.to_cl_N()));
 	else
-		return _num0;
+		return *_num0_p;
 }
 
 
@@ -1899,8 +1900,8 @@ const numeric iquo(const numeric &a, const numeric &b, numeric &r)
 		r = rem_quo.remainder;
 		return rem_quo.quotient;
 	} else {
-		r = _num0;
-		return _num0;
+		r = *_num0_p;
+		return *_num0_p;
 	}
 }
 
@@ -1915,7 +1916,7 @@ const numeric gcd(const numeric &a, const numeric &b)
 		return cln::gcd(cln::the<cln::cl_I>(a.to_cl_N()),
 		                cln::the<cln::cl_I>(b.to_cl_N()));
 	else
-		return _num1;
+		return *_num1_p;
 }
 
 
@@ -1955,7 +1956,7 @@ const numeric isqrt(const numeric &x)
 		cln::isqrt(cln::the<cln::cl_I>(x.to_cl_N()), &root);
 		return root;
 	} else
-		return _num0;
+		return *_num0_p;
 }
 
 

@@ -175,7 +175,7 @@ const numeric operator+(const numeric & lh)
 
 const numeric operator-(const numeric & lh)
 {
-	return _num_1.mul(lh);
+	return _num_1_p->mul(lh);
 }
 
 
@@ -214,14 +214,14 @@ const ex operator--(ex & lh, int)
 /** Numeric prefix increment.  Adds 1 and returns incremented number. */
 numeric& operator++(numeric & rh)
 {
-	rh = rh.add(_num1);
+	rh = rh.add(*_num1_p);
 	return rh;
 }
 
 /** Numeric prefix decrement.  Subtracts 1 and returns decremented number. */
 numeric& operator--(numeric & rh)
 {
-	rh = rh.add(_num_1);
+	rh = rh.add(*_num_1_p);
 	return rh;
 }
 
@@ -230,7 +230,7 @@ numeric& operator--(numeric & rh)
 const numeric operator++(numeric & lh, int)
 {
 	numeric tmp(lh);
-	lh = lh.add(_num1);
+	lh = lh.add(*_num1_p);
 	return tmp;
 }
 
@@ -239,7 +239,7 @@ const numeric operator++(numeric & lh, int)
 const numeric operator--(numeric & lh, int)
 {
 	numeric tmp(lh);
-	lh = lh.add(_num_1);
+	lh = lh.add(*_num_1_p);
 	return tmp;
 }
 
