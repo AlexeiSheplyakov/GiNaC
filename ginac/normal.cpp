@@ -714,6 +714,31 @@ static bool divide_in_z(const ex &a, const ex &b, ex &q, sym_desc_vec::const_ite
 	}
 #endif
 
+	if (is_exactly_a<power>(b)) {
+		const ex& bb(b.op(0));
+		ex qbar = a;
+		int exp_b = ex_to<numeric>(b.op(1)).to_int();
+		for (int i=exp_b; i>0; i--) {
+			if (!divide_in_z(qbar, bb, q, var))
+				return false;
+			qbar = q;
+		}
+		return true;
+	}
+
+	if (is_exactly_a<mul>(b)) {
+		ex qbar = a;
+		for (const_iterator itrb = b.begin(); itrb != b.end(); ++itrb) {
+			sym_desc_vec sym_stats;
+			get_symbol_stats(a, *itrb, sym_stats);
+			if (!divide_in_z(qbar, *itrb, q, sym_stats.begin()))
+				return false;
+
+			qbar = q;
+		}
+		return true;
+	}
+
 	// Main symbol
 	const ex &x = var->sym;
 
@@ -1477,6 +1502,26 @@ factored_b:
 		return a;
 	}
 #endif
+
+	if (is_a<symbol>(aex)) {
+		if (! bex.subs(aex==_ex0, subs_options::no_pattern).is_zero()) {
+			if (ca)
+				*ca = a;
+			if (cb)
+				*cb = b;
+			return _ex1;
+		}
+	}
+
+	if (is_a<symbol>(bex)) {
+		if (! aex.subs(bex==_ex0, subs_options::no_pattern).is_zero()) {
+			if (ca)
+				*ca = a;
+			if (cb)
+				*cb = b;
+			return _ex1;
+		}
+	}
 
 	// Gather symbol statistics
 	sym_desc_vec sym_stats;
@@ -2459,8 +2504,16 @@ term_done:	;
 		return (new mul(v))->setflag(status_flags::dynallocated);
 
 	} else if (is_exactly_a<power>(e)) {
-
-		return e.to_polynomial(repl);
+		const ex e_exp(e.op(1));
+		if (e_exp.info(info_flags::posint)) {
+			ex eb = e.op(0).to_polynomial(repl);
+			ex factor_local(_ex1);
+			ex pre_res = find_common_factor(eb, factor_local, repl);
+			factor *= power(factor_local, e_exp);
+			return power(pre_res, e_exp);
+			
+		} else
+			return e.to_polynomial(repl);
 
 	} else
 		return e;
@@ -2471,7 +2524,7 @@ term_done:	;
  *  'a*(b*x+b*y)' to 'a*b*(x+y)'. */
 ex collect_common_factors(const ex & e)
 {
-	if (is_exactly_a<add>(e) || is_exactly_a<mul>(e)) {
+	if (is_exactly_a<add>(e) || is_exactly_a<mul>(e) || is_exactly_a<power>(e)) {
 
 		exmap repl;
 		ex factor = 1;
