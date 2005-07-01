@@ -1,35 +1,38 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT
-AC_CONFIG_SRCDIR(ginac/basic.cpp)
-AC_PREREQ(2.50)
-
 dnl GiNaC library version information.
 dnl
 dnl Making releases:
-dnl   GINACLIB_MICRO_VERSION += 1;
-dnl   GINACLIB_INTERFACE_AGE += 1;
-dnl   GINACLIB_BINARY_AGE += 1;
-dnl if any functions have been added, set GINACLIB_INTERFACE_AGE to 0.
+dnl   ginac_micro_version += 1;
+dnl   ginac_interface_age += 1;
+dnl   ginac_binary_age += 1;
+dnl if any functions have been added, set ginac_interface_age to 0.
 dnl if backwards compatibility has been broken,
-dnl set GINACLIB_BINARY_AGE and GINACLIB_INTERFACE_AGE to 0.
-dnl
-dnl NOTE: these can't be renamed to GINAC_MAJOR_VERSION etc. because
-dnl autoconf sees "AC_MAJOR_VERSION" and complains about an undefined macro
-dnl (don't we all *love* M4?)...
+dnl set ginac_binary_age and ginac_interface_age to 0.
 
-GINACLIB_MAJOR_VERSION=1
-GINACLIB_MINOR_VERSION=4
-GINACLIB_MICRO_VERSION=0
-GINACLIB_INTERFACE_AGE=0
-GINACLIB_BINARY_AGE=0
-GINACLIB_VERSION=$GINACLIB_MAJOR_VERSION.$GINACLIB_MINOR_VERSION.$GINACLIB_MICRO_VERSION
+m4_define([ginac_major_version], [1])
+m4_define([ginac_minor_version], [4])
+m4_define([ginac_micro_version], [0])
+m4_define([ginac_version], [ginac_major_version.ginac_minor_version.ginac_micro_version])
+m4_define([ginac_release], [ginac_major_version.ginac_minor_version])
+m4_define([ginac_interface_age], [0])
+m4_define([ginac_binary_age], [0])
 
+AC_INIT([GiNaC], ginac_version, [<ginac-bugs@ginac.de>])
+AC_PREREQ(2.52)
+AC_CONFIG_SRCDIR(ginac/basic.cpp)
+AC_CONFIG_HEADERS(config.h)
+dnl This defines PACKAGE and VERSION.
+AM_INIT_AUTOMAKE([gnu 1.7 dist-bzip2])
+
+dnl Process GiNaC version information
+GINACLIB_MAJOR_VERSION=ginac_major_version
+GINACLIB_MINOR_VERSION=ginac_minor_version
+GINACLIB_MICRO_VERSION=ginac_micro_version
+GINACLIB_VERSION=ginac_version
 AC_SUBST(GINACLIB_MAJOR_VERSION)
 AC_SUBST(GINACLIB_MINOR_VERSION)
 AC_SUBST(GINACLIB_MICRO_VERSION)
-AC_SUBST(GINACLIB_INTERFACE_AGE)
-AC_SUBST(GINACLIB_BINARY_AGE)
 AC_SUBST(GINACLIB_VERSION)
 
 dnl GiNaC archive file version information.
@@ -50,19 +53,15 @@ AC_DEFINE_UNQUOTED(ARCHIVE_VERSION, $ARCHIVE_VERSION, [Current GiNaC archive fil
 AC_DEFINE_UNQUOTED(ARCHIVE_AGE, $ARCHIVE_AGE, [GiNaC archive file version age])
 
 dnl libtool versioning
-LT_RELEASE=$GINACLIB_MAJOR_VERSION.$GINACLIB_MINOR_VERSION
-LT_CURRENT=`expr $GINACLIB_MICRO_VERSION - $GINACLIB_INTERFACE_AGE`
-LT_REVISION=$GINACLIB_INTERFACE_AGE
-LT_AGE=`expr $GINACLIB_BINARY_AGE - $GINACLIB_INTERFACE_AGE`
+m4_define([lt_revision], [ginac_interface_age])
+m4_define([lt_current], [m4_eval(ginac_micro_version - ginac_interface_age)])
+m4_define([lt_age], [m4_eval(ginac_binary_age - ginac_interface_age)])
+LT_VERSION_INFO="lt_current:lt_revision:lt_age"
+LT_RELEASE="ginac_release"
 
+AC_SUBST(LT_VERSION_INFO)
 AC_SUBST(LT_RELEASE)
-AC_SUBST(LT_CURRENT)
-AC_SUBST(LT_REVISION)
-AC_SUBST(LT_AGE)
 
-dnl This defines PACKAGE and VERSION.
-AM_CONFIG_HEADER(config.h)
-AM_INIT_AUTOMAKE([GiNaC], $GINACLIB_VERSION)
 
 dnl Check for the compiler and all the utilities needed for the build.
 AC_PROG_CXX

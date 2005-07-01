@@ -2,9 +2,6 @@
 SUBDIRS = ginac check ginsh tools doc
 DIST_SUBDIRS = ginac check ginsh tools doc
 
-# Requires automake 1.4
-AUTOMAKE_OPTIONS = 1.4
-
 # GiNaC runtime configuration script
 bin_SCRIPTS = ginac-config
 BUILT_SOURCES = ginac-config
