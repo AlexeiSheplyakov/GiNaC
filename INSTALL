@@ -11,11 +11,14 @@ use the same compiler you compiled CLN with because of differing
 name-mangling schemes.
 
 Known to work with:
- - Linux on x86, Alpha and Sparc using GCC 3.0.x, 3.1 and 3.2.
+ - Linux on x86, Alpha and Sparc using GCC 3.x and 4.0.
 
 Known not to work with:
  - GCC 2.96 or earlier because proper exception and standard library support
    is missing there.
+
+If you install from CVS, you also need GNU autoconf (>=2.52) and
+automake (>=1.4) to be installed.
 
 
 INSTALLATION
@@ -34,7 +37,7 @@ To install from CVS:
  [enter "anoncvs" as the password]
  $ cvs -d :pserver:anoncvs@cvsthep.physik.uni-mainz.de:/home/cvs co GiNaC
  $ cd GiNaC
- $ ./autogen.sh
+ $ autoreconf -i
  $ make
  [become root if necessary]
  # make install
