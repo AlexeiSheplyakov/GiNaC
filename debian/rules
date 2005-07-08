@@ -1,86 +1,20 @@
 #!/usr/bin/make -f
+include /usr/share/cdbs/1/rules/buildcore.mk
+include /usr/share/cdbs/1/class/autotools.mk
+include /usr/share/cdbs/1/rules/debhelper.mk
+export DH_COMPAT
 
-# Uncomment this to turn on verbose mode.
-#export DH_VERBOSE=1
-
-# This is the debhelper compatability version to use.
-export DH_COMPAT=4
-# This has to be exported to make some magic below work.
-export DH_OPTIONS
-
-# These are used for cross-compiling and for saving the configure script
-# from having to guess our platform (since we know it already)
-DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
-DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
-
-
-ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-	export CXXFLAGS = -O0
-else
-	export CXXFLAGS = -O2 -finline-limit=1200
-endif
-ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
-	INSTALL_PROGRAM += -s
+ifeq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+	CXXFLAGS += -finline-limit=1200
 endif
 
-config.status: configure
-	dh_testdir
-	# Add here commands to configure the package.
-	# The Makefile is removed on error in order to prevent the build at this early stage.
-	./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info || rm -f Makefile
+# 1.4.1-1-blah (Debian version) ==> 1.4 (LT_RELEASE)
+GINAC_RELEASE := $(shell echo $(DEB_VERSION) | cut -f 1,2 -d . )
+GINACLIB := libginac$(GINAC_RELEASE)
 
-build: build-arch
+DEB_DH_MAKESHLIBS_ARGS := -V"$(GINACLIB) (>= $(GINAC_RELEASE).0)"
+DEB_DH_SHLIBDEPS_ARGS := --libpackage=$(GINACLIB) -l debian/$(GINACLIB)/usr/lib
+DEB_DH_STRIP_ARGS := --dbg-package=$(GINACLIB)
+# menu entry for ginsh
+DEB_INSTALL_MENU_ginac-tools := debian/ginac-tools.menu
 
-build-arch: build-arch-stamp
-build-arch-stamp:  config.status
-	# Add here commands to compile the arch part of the package.
-	$(MAKE)
-
-clean:
-	dh_testdir
-	dh_testroot
-	rm -f build-arch-stamp config-stamp
-	-$(MAKE) distclean
-	dh_clean
-
-install: install-arch
-install-arch:
-	dh_testdir
-	dh_testroot
-	dh_clean -k -a
-	dh_installdirs -a
-	# Add here commands to install the arch part of the package into 
-	# debian/tmp.
-	$(MAKE) install prefix=$(CURDIR)/debian/tmp/usr
-	mkdir -p $(CURDIR)/debian/tmp/usr/share/pixmaps
-	cp $(CURDIR)/debian/ginac.xpm $(CURDIR)/debian/tmp/usr/share/pixmaps/
-
-# Must not depend on anything. This is to be called by
-# binary-arch/binary-multi
-# in another 'make' thread.
-binary-common:
-	dh_testdir
-	dh_testroot
-	dh_installdocs
-	dh_installmenu
-	dh_installman
-	dh_installinfo
-	dh_installchangelogs ChangeLog
-	dh_movefiles
-	dh_link
-	dh_strip
-	dh_compress
-	dh_fixperms
-	dh_makeshlibs
-	dh_shlibdeps --libpackage=libginac1.4 -l debian/libginac1.4/usr/lib
-	dh_gencontrol
-	dh_installdeb
-	dh_md5sums
-	dh_builddeb
-
-# Build architecture dependant packages using the common target.
-binary-arch: build-arch install-arch
-	$(MAKE) -f debian/rules DH_OPTIONS=-a binary-common
-
-binary: binary-arch
-.PHONY: build clean binary-arch binary install install-arch 
