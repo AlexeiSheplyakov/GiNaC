@@ -1,0 +1,5 @@
+debian/tmp/usr/bin/ginsh
+debian/tmp/usr/bin/viewgar
+debian/tmp/usr/share/man/man1/ginsh*
+debian/tmp/usr/share/man/man1/viewgar*
+debian/ginac.xpm usr/share/pixmaps
