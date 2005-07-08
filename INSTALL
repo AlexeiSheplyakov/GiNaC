@@ -17,8 +17,8 @@ Known not to work with:
  - GCC 2.96 or earlier because proper exception and standard library support
    is missing there.
 
-If you install from CVS, you also need GNU autoconf (>=2.52) and
-automake (>=1.4) to be installed.
+If you install from CVS, you also need GNU autoconf (>=2.59) and
+automake (>=1.7) to be installed.
 
 
 INSTALLATION
