@@ -17,6 +17,7 @@ Requires(post): /sbin/install-info
 Requires(preun): /sbin/install-info
 Requires: cln >= 1.1
 BuildRequires: cln-devel >= 1.1 gcc-c++ readline-devel
+Obsoletes: GiNaC
 
 %description
 GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is an
@@ -27,6 +28,7 @@ open framework for symbolic computation within the C++ programming language.
 Summary: GiNaC development libraries and header files
 Group: Development/Libraries
 Requires: %{name} = %{version}-%{release} cln-devel
+Obsoletes: GiNaC-devel
 
 %description devel
 GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is an
@@ -40,6 +42,7 @@ use to develop GiNaC applications.
 Summary: GiNaC-related utilities
 Group: System Environment/Libraries
 Requires: %{name} = %{version}-%{release}
+Obsoletes: GiNaC-utils
 
 %description utils
 GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is an
@@ -101,7 +104,11 @@ fi
 %{_mandir}/man1/viewgar.1*
 
 %changelog
-* Thu Jul 30 2005 Christian Bauer <Christian.Bauer@uni-mainz.de>
+* Mon Jul 11 2005 Christian Bauer <Christian.Bauer@uni-mainz.de>
+- name of package changed from "GiNaC" to "ginac"; added "Obsoletes:"
+  directives
+
+* Thu Jun 30 2005 Christian Bauer <Christian.Bauer@uni-mainz.de>
 - included some updates from the Fedora Extras spec file:
   - "Copyright:" -> "License:"
   - Fixed broken install-info command
