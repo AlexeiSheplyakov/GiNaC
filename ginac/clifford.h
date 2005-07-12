@@ -45,11 +45,11 @@ class clifford : public indexed
 	// other constructors
 public:
 	clifford(const ex & b, unsigned char rl = 0, bool anticommut = false);
-	clifford(const ex & b, const ex & mu,  const ex & metr, unsigned char rl = 0, bool anticommut = false);
+	clifford(const ex & b, const ex & mu,  const ex & metr, unsigned char rl = 0, bool anticommut = false, int comm_sign = -1);
 
 	// internal constructors
-	clifford(unsigned char rl, const ex & metr, bool anticommut, const exvector & v, bool discardable = false);
-	clifford(unsigned char rl, const ex & metr, bool anticommut, std::auto_ptr<exvector> vp);
+	clifford(unsigned char rl, const ex & metr, bool anticommut, int comm_sign, const exvector & v, bool discardable = false);
+	clifford(unsigned char rl, const ex & metr, bool anticommut, int comm_sign, std::auto_ptr<exvector> vp);
 
 	// functions overriding virtual functions from base classes
 public:
@@ -66,21 +66,32 @@ protected:
 public:
 	unsigned char get_representation_label() const { return representation_label; }
 	ex get_metric() const { return metric; }
-	ex get_metric(const ex & i, const ex & j, bool symmetrised = false) const;
+	virtual ex get_metric(const ex & i, const ex & j, bool symmetrised = false) const;
 	bool same_metric(const ex & other) const;
 	bool is_anticommuting() const { return anticommuting; } //**< See the member variable anticommuting */
+	int get_commutator_sign() const { return commutator_sign; } //**< See the member variable commutator_sign */
+
+	inline size_t nops() const {return inherited::nops() + 1; }
+	ex op(size_t i) const;
+	ex & let_op(size_t i);
+	ex subs(const exmap & m, unsigned options = 0) const { clifford c = ex_to<clifford>(inherited::subs(m, options)); c.metric_subs(m, options); return c;}
+	ex subs(const lst & ls, const lst & lr, unsigned options = 0) const { clifford c = ex_to<clifford>(ex(*this).subs(ls, lr, options)); c.metric_subs(ls, lr, options); return c;}
+	ex subs(const ex & e, unsigned options = 0) const{ clifford c = ex_to<clifford>(ex(*this).subs(e, options)); c.metric_subs(e, options); return c;};
 
 protected:
 	void do_print_dflt(const print_dflt & c, unsigned level) const;
 	void do_print_latex(const print_latex & c, unsigned level) const;
+	void metric_subs(const exmap & m, unsigned options = 0) { metric = metric.subs(m, options); }
+	void metric_subs(const lst & ls, const lst & lr, unsigned options = 0) { metric = metric.subs(ls, lr, options); }
+	void metric_subs(const ex & e, unsigned options = 0) { metric = metric.subs(e, options); }
 
 	// member variables
-private:
+protected:
 	unsigned char representation_label; /**< Representation label to distinguish independent spin lines */
 	ex metric; /**< Metric of the space, all constructors make it an indexed object */
 	bool anticommuting; /**< Simplifications for anticommuting units is much simpler and we need this info readily available */
+	int commutator_sign; /**< It is the sign in the definition e~i e~j +/- e~j e~i = B(i, j) + B(j, i)*/
 };
-
 
 /** This class represents the Clifford algebra unity element. */
 class diracone : public tensor
