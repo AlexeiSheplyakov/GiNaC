@@ -704,7 +704,7 @@ ex power::expand_add(const add & a, int n, unsigned options) const
 	const size_t m = a.nops();
 	exvector result;
 	// The number of terms will be the number of combinatorial compositions,
-	// i.e. the number of unordered arrangement of m nonnegative integers
+	// i.e. the number of unordered arrangements of m nonnegative integers
 	// which sum up to n.  It is frequently written as C_n(m) and directly
 	// related with binomial coefficients:
 	result.reserve(binomial(numeric(n+m-1), numeric(m-1)).to_int());
