@@ -113,6 +113,7 @@ public: \
 	class visitor { \
 	public: \
 		virtual void visit(const classname &) = 0; \
+		virtual ~visitor() {}; \
 	};
 
 /** Macro for inclusion in the declaration of each registered class.
