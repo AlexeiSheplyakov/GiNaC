@@ -123,7 +123,7 @@ bool haswild(const ex & x)
 {
 	if (is_a<wildcard>(x))
 		return true;
-	for (int i=0; i<x.nops(); ++i)
+	for (size_t i=0; i<x.nops(); ++i)
 		if (haswild(x.op(i)))
 			return true;
 	return false;

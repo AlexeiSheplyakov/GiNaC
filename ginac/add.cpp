@@ -401,7 +401,7 @@ ex add::evalm() const
 ex add::conjugate() const
 {
 	exvector *v = 0;
-	for (int i=0; i<nops(); ++i) {
+	for (size_t i=0; i<nops(); ++i) {
 		if (v) {
 			v->push_back(op(i).conjugate());
 			continue;
@@ -412,7 +412,7 @@ ex add::conjugate() const
 			continue;
 		v = new exvector;
 		v->reserve(nops());
-		for (int j=0; j<i; ++j)
+		for (size_t j=0; j<i; ++j)
 			v->push_back(op(j));
 		v->push_back(ccterm);
 	}
