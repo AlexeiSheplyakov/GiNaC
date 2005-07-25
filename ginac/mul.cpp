@@ -849,7 +849,6 @@ ex mul::expand(unsigned options) const
 	// with the next one that is found while collecting the factors which are
 	// not sums
 	ex last_expanded = _ex1;
-	bool need_reexpand = false;
 
 	epvector non_adds;
 	non_adds.reserve(expanded_seq.size());
