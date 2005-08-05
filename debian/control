@@ -3,7 +3,7 @@ Section: math
 Priority: optional
 Maintainer: Richard Kreckel <kreckel@ginac.de>
 Build-Depends: cdbs (>= 0.4.28), debhelper (>= 4.0.0), libcln-dev, libgmp3-dev, libreadline5-dev, flex, bison
-Standards-Version: 3.6.1
+Standards-Version: 3.6.2
 
 Package: libginac1.4
 Architecture: any
@@ -36,6 +36,7 @@ Package: ginac-tools
 Architecture: any
 Section: math
 Depends: ${shlibs:Depends}
+Recommends: doc-base
 Description: Some tools for the GiNaC framework
  GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is a
  library for doing symbolic (i.e. non-numeric) computation directly in the C++
@@ -55,9 +56,9 @@ Description: The GiNaC framework (debugging symbols)
  library for doing symbolic (i.e. non-numeric) computation directly in the C++
  programming language.
  .
- This package provides unstripped shared object with debugging symbols. The
+ This package provides an unstripped shared library with debugging symbols. The
  library is installed in /usr/lib/debug and will be automatically used by
  gdb while debugging programs using the GiNaC library. Most people will not
  need this package. For detailed information about GiNaC see
- <http://www.ginac.de/>
+ <http://www.ginac.de/>.
 
