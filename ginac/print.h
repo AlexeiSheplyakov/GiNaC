@@ -216,7 +216,7 @@ private:
 template <class T, class C>
 class print_memfun_handler : public print_functor_impl {
 public:
-	typedef void (T::*F)(const C & c, unsigned level);
+	typedef void (T::*F)(const C & c, unsigned level) const;
 
 	print_memfun_handler(F f_) : f(f_) {}
 	print_memfun_handler *duplicate() const { return new print_memfun_handler(*this); }
@@ -247,7 +247,7 @@ public:
 	print_functor(void f(const T &, const C &, unsigned)) : impl(new print_ptrfun_handler<T, C>(f)) {}
 
 	template <class T, class C>
-	print_functor(void (T::*f)(const C &, unsigned)) : impl(new print_memfun_handler<T, C>(f)) {}
+	print_functor(void (T::*f)(const C &, unsigned) const) : impl(new print_memfun_handler<T, C>(f)) {}
 
 	print_functor & operator=(const print_functor & other)
 	{
