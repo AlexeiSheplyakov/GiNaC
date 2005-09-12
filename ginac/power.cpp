@@ -858,7 +858,7 @@ ex power::expand_mul(const mul & m, const numeric & n, unsigned options, bool fr
 	}
 
 	// Leave it to multiplication since dummy indices have to be renamed
-	if (get_all_dummy_indices(m).size() > 0) {
+	if (get_all_dummy_indices(m).size() > 0 && n.is_positive()) {
 		ex result = m;
 		for (int i=1; i < n.to_int(); i++)
 			result *= rename_dummy_indices_uniquely(m,m);
