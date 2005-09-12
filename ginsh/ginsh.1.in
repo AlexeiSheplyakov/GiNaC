@@ -293,6 +293,9 @@ detail here. Please refer to the GiNaC documentation.
 .BI find( expression ", " pattern )
 \- returns a list of all occurrences of a pattern in an expression
 .br
+.BI fsolve( expression ", " symbol ", " number ", " number )
+\- numerically find root of a real-valued function within an interval
+.br
 .BI gcd( expression ", " expression )
 \- greatest common divisor
 .br

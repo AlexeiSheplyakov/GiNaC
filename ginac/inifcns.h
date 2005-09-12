@@ -23,6 +23,7 @@
 #ifndef __GINAC_INIFCNS_H__
 #define __GINAC_INIFCNS_H__
 
+#include "numeric.h"
 #include "function.h"
 #include "ex.h"
 
@@ -177,6 +178,17 @@ DECLARE_FUNCTION_2P(binomial)
 DECLARE_FUNCTION_1P(Order)
 
 ex lsolve(const ex &eqns, const ex &symbols, unsigned options = solve_algo::automatic);
+
+/** Find a real root of real-valued function f(x) numerically within a given
+ *  interval. The function must change sign across interval. Uses Newton-
+ *  Raphson method combined with bisection in order to guarantee convergence.
+ *
+ *  @param f  Function f(x)
+ *  @param x  Symbol f(x)
+ *  @param x1  lower interval limit
+ *  @param x2  upper interval limit
+ *  @exception runtime_error (if interval is invalid). */
+const numeric fsolve(const ex& f, const symbol& x, const numeric& x1, const numeric& x2);
 
 /** Check whether a function is the Order (O(n)) function. */
 inline bool is_order_function(const ex & e)

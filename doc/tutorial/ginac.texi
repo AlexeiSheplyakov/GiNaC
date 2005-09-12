@@ -417,6 +417,27 @@ x^(-1)-0.5772156649015328606+(0.9890559953279725555)*x
 Here we have made use of the @command{ginsh}-command @code{%} to pop the
 previously evaluated element from @command{ginsh}'s internal stack.
 
+Often, functions don't have roots in closed form.  Nevertheless, it's
+quite easy to compute a solution numerically, to arbitrary precision:
+
+@cindex fsolve
+@example
+> Digits=50:
+> fsolve(cos(x)-x,x,0,2);
+0.7390851332151606416553120876738734040134117589007574649658
+> f=exp(sin(x))-x:
+> X=fsolve(f,x,-10,10);
+2.2191071489137460325957851882042901681753665565320678854155
+> subs(f,x==X);
+-6.372367644529809108115521591070847222364418220770475144296E-58
+@end example
+
+Notice how the final result above differs slightly from zero by about
+@math{6*10^(-58)}.  This is because with 50 decimal digits precision the
+root cannot be represented more accurately than @code{X}.  Such
+inaccuracies are to be expected when computing with finite floating
+point values.
+
 If you ever wanted to convert units in C or C++ and found this is
 cumbersome, here is the solution.  Symbolic types can always be used as
 tags for different types of objects.  Converting from wrong units to the

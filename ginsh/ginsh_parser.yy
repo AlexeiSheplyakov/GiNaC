@@ -411,6 +411,14 @@ static ex f_find(const exprseq &e)
 	return found;
 }
 
+static ex f_fsolve(const exprseq &e)
+{
+	CHECK_ARG(1, symbol, fsolve);
+	CHECK_ARG(2, numeric, fsolve);
+	CHECK_ARG(3, numeric, fsolve);
+	return fsolve(e[0], ex_to<symbol>(e[1]), ex_to<numeric>(e[2]), ex_to<numeric>(e[3]));
+}
+
 static ex f_integer_content(const exprseq &e)
 {
 	return e[0].expand().integer_content();
@@ -588,6 +596,7 @@ static const fcn_init builtin_fcns[] = {
 	{"eval_integ", f_eval_integ, 1},
 	{"expand", f_expand, 1},
 	{"find", f_find, 2},
+	{"fsolve", f_fsolve, 4},
 	{"gcd", f_gcd, 2},
 	{"has", f_has, 2},
 	{"integer_content", f_integer_content, 1},

@@ -663,6 +663,100 @@ ex lsolve(const ex &eqns, const ex &symbols, unsigned options)
 	return sollist;
 }
 
+//////////
+// Find real root of f(x) numerically
+//////////
+
+const numeric
+fsolve(const ex& f, const symbol& x, const numeric& x1, const numeric& x2)
+{
+	if (!x1.is_real() || !x2.is_real()) {
+		throw std::runtime_error("fsolve(): interval not bounded by real numbers");
+	}
+	if (x1==x2) {
+		throw std::runtime_error("fsolve(): vanishing interval");
+	}
+	// xx[0] == left interval limit, xx[1] == right interval limit.
+	// fx[0] == f(xx[0]), fx[1] == f(xx[1]).
+	// We keep the root bracketed: xx[0]<xx[1] and fx[0]*fx[1]<0.
+	numeric xx[2] = { x1<x2 ? x1 : x2,
+	                  x1<x2 ? x2 : x1 };
+	const ex fx_[2] = { f.subs(x==xx[0]).evalf(),
+	                    f.subs(x==xx[1]).evalf() };
+	if (!is_a<numeric>(fx_[0]) || !is_a<numeric>(fx_[1])) {
+		throw std::runtime_error("fsolve(): function does not evaluate numerically");
+	}
+	numeric fx[2] = { ex_to<numeric>(fx_[0]),
+	                  ex_to<numeric>(fx_[1]) };
+	if (!fx[0].is_real() || !fx[1].is_real()) {
+		throw std::runtime_error("fsolve(): function evaluates to complex values at interval boundaries");
+	}
+	if (fx[0]*fx[1]>=0) {
+		throw std::runtime_error("fsolve(): function does not change sign at interval boundaries");
+	}
+
+	// The Newton-Raphson method has quadratic convergence!  Simply put, it
+	// replaces x with x-f(x)/f'(x) at each step.  -f/f' is the delta:
+	const ex ff = normal(-f/f.diff(x));
+	int side = 0;  // Start at left interval limit.
+	numeric xxprev;
+	numeric fxprev;
+	do {
+		xxprev = xx[side];
+		fxprev = fx[side];
+		xx[side] += ex_to<numeric>(ff.subs(x==xx[side]).evalf());
+		fx[side] = ex_to<numeric>(f.subs(x==xx[side]).evalf());
+		if ((side==0 && xx[0]<xxprev) || (side==1 && xx[1]>xxprev) || xx[0]>xx[1]) {
+			// Oops, Newton-Raphson method shot out of the interval.
+			// Restore, and try again with the other side instead!
+			xx[side] = xxprev;
+			fx[side] = fxprev;
+			side = !side;
+			xxprev = xx[side];
+			fxprev = fx[side];
+			xx[side] += ex_to<numeric>(ff.subs(x==xx[side]).evalf());
+			fx[side] = ex_to<numeric>(f.subs(x==xx[side]).evalf());
+		}
+		if ((fx[side]<0 && fx[!side]<0) || (fx[side]>0 && fx[!side]>0)) {
+			// Oops, the root isn't bracketed any more.
+			// Restore, and perform a bisection!
+			xx[side] = xxprev;
+			fx[side] = fxprev;
+
+			// Ah, the bisection! Bisections converge linearly. Unfortunately,
+			// they occur pretty often when Newton-Raphson arrives at an x too
+			// close to the result on one side of the interval and
+			// f(x-f(x)/f'(x)) turns out to have the same sign as f(x) due to
+			// precision errors! Recall that this function does not have a
+			// precision goal as one of its arguments but instead relies on
+			// x converging to a fixed point. We speed up the (safe but slow)
+			// bisection method by mixing in a dash of the (unsafer but faster)
+			// secant method: Instead of splitting the interval at the
+			// arithmetic mean (bisection), we split it nearer to the root as
+			// determined by the secant between the values xx[0] and xx[1].
+			// Don't set the secant_weight to one because that could disturb
+			// the convergence in some corner cases!
+			static const double secant_weight = 0.96875;  // == 31/32 < 1
+			numeric xxmid = (1-secant_weight)*0.5*(xx[0]+xx[1])
+			    + secant_weight*(xx[0]+fx[0]*(xx[0]-xx[1])/(fx[1]-fx[0]));
+			numeric fxmid = ex_to<numeric>(f.subs(x==xxmid).evalf());
+			if (fxmid.is_zero()) {
+				// Luck strikes...
+				return xxmid;
+			}
+			if ((fxmid<0 && fx[side]>0) || (fxmid>0 && fx[side]<0)) {
+				side = !side;
+			}
+			xxprev = xx[side];
+			fxprev = fx[side];
+			xx[side] = xxmid;
+			fx[side] = fxmid;
+		}
+	} while (xxprev!=xx[side]);
+	return xxprev;
+}
+
+
 /* Force inclusion of functions from inifcns_gamma and inifcns_zeta
  * for static lib (so ginsh will see them). */
 unsigned force_include_tgamma = tgamma_SERIAL::serial;
