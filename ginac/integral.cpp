@@ -248,7 +248,7 @@ ex adaptivesimpson(const ex & x, const ex & a, const ex & b, const ex & f, const
 	fbvec[i] = subsvalue(x, b, f);
 	svec[i] = hvec[i]*(favec[i]+4*fcvec[i]+fbvec[i])/3;
 	lvec[i] = 1;
-	errorvec[i] = integral::relative_integration_error*svec[i];
+	errorvec[i] = error*svec[i];
 
 	while (i>0) {
 		ex fd = subsvalue(x, avec[i]+hvec[i]/2, f);
@@ -261,7 +261,7 @@ ex adaptivesimpson(const ex & x, const ex & a, const ex & b, const ex & f, const
 		ex nu4 = fbvec[i];
 		ex nu5 = hvec[i];
 		// hopefully prevents a crash if the function is zero sometimes.
-		ex nu6 = max(errorvec[i], (s1+s2)*integral::relative_integration_error);
+		ex nu6 = max(errorvec[i], (s1+s2)*error);
 		ex nu7 = svec[i];
 		int nu8 = lvec[i];
 		--i;
