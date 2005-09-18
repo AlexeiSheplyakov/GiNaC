@@ -1910,7 +1910,7 @@ much work if an expression contains the same integral multiple times,
 a lookup table is used.
 
 If you know that an expression holds an integral, you can get the
-integration variable, the left boundary, right boundary and integrant by
+integration variable, the left boundary, right boundary and integrand by
 respectively calling @code{.op(0)}, @code{.op(1)}, @code{.op(2)}, and
 @code{.op(3)}. Differentiating integrals with respect to variables works
 as expected. Note that it makes no sense to differentiate an integral

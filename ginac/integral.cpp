@@ -210,8 +210,31 @@ ex subsvalue(const ex & var, const ex & value, const ex & fun)
 	ex result = fun.subs(var==value).evalf();
 	if (is_a<numeric>(result))
 		return result;
-	throw logic_error("integrant does not evaluate to numeric");
+	throw logic_error("integrand does not evaluate to numeric");
 }
+
+struct error_and_integral
+{
+	error_and_integral(const ex &err, const ex &integ)
+		:error(err), integral(integ){}
+	ex error;
+	ex integral;
+};
+
+struct error_and_integral_is_less
+{
+	bool operator()(const error_and_integral &e1,const error_and_integral &e2)
+	{
+		int c = e1.integral.compare(e2.integral);
+		if(c < 0)
+			return true;
+		if(c > 0)
+			return false;
+		return ex_is_less()(e1.error, e2.error);
+	}
+};
+
+typedef map<error_and_integral, ex, error_and_integral_is_less> lookup_map;
 
 /** Numeric integration routine based upon the "Adaptive Quadrature" one
   * in "Numerical Analysis" by Burden and Faires. Parameters are integration
@@ -220,13 +243,21 @@ ex subsvalue(const ex & var, const ex & value, const ex & fun)
   * after substituting the integration variable by a number. Another thing
   * to note is that this implementation is no good at integrating functions
   * with discontinuities. */
-ex adaptivesimpson(const ex & x, const ex & a, const ex & b, const ex & f, const ex & error)
+ex adaptivesimpson(const ex & x, const ex & a_in, const ex & b_in, const ex & f, const ex & error)
 {
-	// use lookup table to be potentially much faster.
-	static exmap lookup;
+	// Check whether boundaries and error are numbers.
+	ex a = is_exactly_a<numeric>(a_in) ? a_in : a_in.evalf();
+	ex b = is_exactly_a<numeric>(b_in) ? b_in : b_in.evalf();
+	if(!is_exactly_a<numeric>(a) || !is_exactly_a<numeric>(b))
+		throw std::runtime_error("For numerical integration the boundaries of the integral should evalf into numbers.");
+	if(!is_exactly_a<numeric>(error))
+		throw std::runtime_error("For numerical integration the error should be a number.");
+
+	// Use lookup table to be potentially much faster.
+	static lookup_map lookup;
 	static symbol ivar("ivar");
 	ex lookupex = integral(ivar,a,b,f.subs(x==ivar));
-	exmap::iterator emi = lookup.find(lookupex);
+	lookup_map::iterator emi = lookup.find(error_and_integral(error, lookupex));
 	if (emi!=lookup.end())
 		return emi->second;
 
@@ -291,7 +322,7 @@ ex adaptivesimpson(const ex & x, const ex & a, const ex & b, const ex & f, const
 		}
 	}
 
-	lookup[lookupex]=app;
+	lookup[error_and_integral(error, lookupex)]=app;
 	return app;
 }
 
