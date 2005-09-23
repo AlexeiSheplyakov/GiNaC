@@ -730,12 +730,12 @@ ex matrix::determinant(unsigned algo) const
 	unsigned sparse_count = 0;  // counts non-zero elements
 	exvector::const_iterator r = m.begin(), rend = m.end();
 	while (r != rend) {
+		if (!r->info(info_flags::numeric))
+			numeric_flag = false;
 		exmap srl;  // symbol replacement list
 		ex rtest = r->to_rational(srl);
 		if (!rtest.is_zero())
 			++sparse_count;
-		if (!rtest.info(info_flags::numeric))
-			numeric_flag = false;
 		if (!rtest.info(info_flags::crational_polynomial) &&
 			 rtest.info(info_flags::rational_function))
 			normal_flag = true;
