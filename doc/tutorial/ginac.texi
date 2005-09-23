@@ -423,7 +423,7 @@ quite easy to compute a solution numerically, to arbitrary precision:
 @cindex fsolve
 @example
 > Digits=50:
-> fsolve(cos(x)-x,x,0,2);
+> fsolve(cos(x)==x,x,0,2);
 0.7390851332151606416553120876738734040134117589007574649658
 > f=exp(sin(x))-x:
 > X=fsolve(f,x,-10,10);
