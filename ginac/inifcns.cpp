@@ -668,7 +668,7 @@ ex lsolve(const ex &eqns, const ex &symbols, unsigned options)
 //////////
 
 const numeric
-fsolve(const ex& f, const symbol& x, const numeric& x1, const numeric& x2)
+fsolve(const ex& f_in, const symbol& x, const numeric& x1, const numeric& x2)
 {
 	if (!x1.is_real() || !x2.is_real()) {
 		throw std::runtime_error("fsolve(): interval not bounded by real numbers");
@@ -681,6 +681,12 @@ fsolve(const ex& f, const symbol& x, const numeric& x1, const numeric& x2)
 	// We keep the root bracketed: xx[0]<xx[1] and fx[0]*fx[1]<0.
 	numeric xx[2] = { x1<x2 ? x1 : x2,
 	                  x1<x2 ? x2 : x1 };
+	ex f;
+	if (is_a<relational>(f_in)) {
+		f = f_in.lhs()-f_in.rhs();
+	} else {
+		f = f_in;
+	}
 	const ex fx_[2] = { f.subs(x==xx[0]).evalf(),
 	                    f.subs(x==xx[1]).evalf() };
 	if (!is_a<numeric>(fx_[0]) || !is_a<numeric>(fx_[1])) {
@@ -736,7 +742,7 @@ fsolve(const ex& f, const symbol& x, const numeric& x1, const numeric& x2)
 			// determined by the secant between the values xx[0] and xx[1].
 			// Don't set the secant_weight to one because that could disturb
 			// the convergence in some corner cases!
-			static const double secant_weight = 0.96875;  // == 31/32 < 1
+			static const double secant_weight = 0.984375;  // == 63/64 < 1
 			numeric xxmid = (1-secant_weight)*0.5*(xx[0]+xx[1])
 			    + secant_weight*(xx[0]+fx[0]*(xx[0]-xx[1])/(fx[1]-fx[0]));
 			numeric fxmid = ex_to<numeric>(f.subs(x==xxmid).evalf());
