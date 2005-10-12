@@ -2839,10 +2839,16 @@ static ex H_evalf(const ex& x1, const ex& x2)
 			}
 		}
 
-		// since the transformations produce a lot of terms, they are only efficient for
-		// argument near one.
-		// no transformation needed -> do summation
-		if (cln::abs(x) < 0.95) {
+		// check for the applicability of transformations
+		// 
+		// first condition: since the transformations produce a lot of terms,
+		//   they are only efficient for argument near the boundary |x| = 1, then no
+		//   transformation is needed
+		// second condition: veto for region around +-I to avoid endless recursion
+		//   with the (1-x)/(1+x) transformation. 1.198 is sqrt(1.4142) is the
+		//   boundary of the problematic transformation.
+		//   
+		if (cln::abs(x) < 0.95 || (cln::abs(x) < 1 && cln::abs(x-1) >= 1.198)) {
 			lst m_lst;
 			lst s_lst;
 			ex pf;
