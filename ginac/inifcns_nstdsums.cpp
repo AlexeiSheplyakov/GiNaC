@@ -2414,6 +2414,37 @@ ex trafo_H_1tx_prepend_zero(const ex& e, const ex& arg)
 }
 
 
+// do integration [ReV] (49)
+// put parameter 1 in front of existing parameters
+ex trafo_H_prepend_one(const ex& e, const ex& arg)
+{
+	ex h;
+	std::string name;
+	if (is_a<function>(e)) {
+		name = ex_to<function>(e).get_name();
+	}
+	if (name == "H") {
+		h = e;
+	} else {
+		for (int i=0; i<e.nops(); i++) {
+			if (is_a<function>(e.op(i))) {
+				std::string name = ex_to<function>(e.op(i)).get_name();
+				if (name == "H") {
+					h = e.op(i);
+				}
+			}
+		}
+	}
+	if (h != 0) {
+		lst newparameter = ex_to<lst>(h.op(0));
+		newparameter.prepend(1);
+		return e.subs(h == H(newparameter, h.op(1)).hold());
+	} else {
+		return e * H(lst(1),1-arg).hold();
+	}
+}
+
+
 // do integration [ReV] (55)
 // put parameter -1 in front of existing parameters
 ex trafo_H_1tx_prepend_minusone(const ex& e, const ex& arg)
@@ -2507,6 +2538,109 @@ ex trafo_H_1mxt1px_prepend_one(const ex& e, const ex& arg)
 		return (e * H(lst(1),(1-arg)/(1+arg)).hold()).expand();
 	}
 }
+
+
+// do x -> 1-x transformation
+struct map_trafo_H_1mx : public map_function
+{
+	ex operator()(const ex& e)
+	{
+		if (is_a<add>(e) || is_a<mul>(e)) {
+			return e.map(*this);
+		}
+		
+		if (is_a<function>(e)) {
+			std::string name = ex_to<function>(e).get_name();
+			if (name == "H") {
+
+				lst parameter = ex_to<lst>(e.op(0));
+				ex arg = e.op(1);
+
+				// special cases if all parameters are either 0, 1 or -1
+				bool allthesame = true;
+				if (parameter.op(0) == 0) {
+					for (int i=1; i<parameter.nops(); i++) {
+						if (parameter.op(i) != 0) {
+							allthesame = false;
+							break;
+						}
+					}
+					if (allthesame) {
+						lst newparameter;
+						for (int i=parameter.nops(); i>0; i--) {
+							newparameter.append(0);
+						}
+						return pow(-1, parameter.nops()) * H(newparameter, 1-arg).hold();
+					}
+				} else if (parameter.op(0) == -1) {
+					throw std::runtime_error("map_trafo_H_1mx: cannot handle weights equal -1!");
+				} else {
+					for (int i=1; i<parameter.nops(); i++) {
+						if (parameter.op(i) != 1) {
+							allthesame = false;
+							break;
+						}
+					}
+					if (allthesame) {
+						lst newparameter;
+						for (int i=parameter.nops(); i>0; i--) {
+							newparameter.append(1);
+						}
+						return pow(-1, parameter.nops()) * H(newparameter, 1-arg).hold();
+					}
+				}
+
+				lst newparameter = parameter;
+				newparameter.remove_first();
+
+				if (parameter.op(0) == 0) {
+
+					// leading zero
+					ex res = convert_H_to_zeta(parameter);
+					//ex res = convert_from_RV(parameter, 1).subs(H(wild(1),wild(2))==zeta(wild(1)));
+					map_trafo_H_1mx recursion;
+					ex buffer = recursion(H(newparameter, arg).hold());
+					if (is_a<add>(buffer)) {
+						for (int i=0; i<buffer.nops(); i++) {
+							res -= trafo_H_prepend_one(buffer.op(i), arg);
+						}
+					} else {
+						res -= trafo_H_prepend_one(buffer, arg);
+					}
+					return res;
+
+				} else {
+
+					// leading one
+					map_trafo_H_1mx recursion;
+					map_trafo_H_mult unify;
+					ex res;
+					int firstzero = 0;
+					while (parameter.op(firstzero) == 1) {
+						firstzero++;
+					}
+					for (int i=firstzero-1; i<parameter.nops()-1; i++) {
+						lst newparameter;
+						int j=0;
+						for (; j<=i; j++) {
+							newparameter.append(parameter[j+1]);
+						}
+						newparameter.append(1);
+						for (; j<parameter.nops()-1; j++) {
+							newparameter.append(parameter[j+1]);
+						}
+						res -= H(newparameter, arg).hold();
+					}
+					return (unify((-H(lst(0), 1-arg).hold() * recursion(H(newparameter, arg).hold())).expand()) +
+							recursion(res)) / firstzero;
+
+				}
+
+			}
+		}
+		return e;
+	}
+};
 
 
 // do x -> 1/x transformation
@@ -2822,6 +2956,7 @@ static ex H_evalf(const ex& x1, const ex& x2)
 			return filter(H(x1, xtemp).hold()).subs(xtemp==x2).evalf();
 		}
 		// ... and expand parameter notation
+		bool has_minus_one = false;
 		lst m;
 		for (lst::const_iterator it = morg.begin(); it != morg.end(); it++) {
 			if (*it > 1) {
@@ -2829,26 +2964,19 @@ static ex H_evalf(const ex& x1, const ex& x2)
 					m.append(0);
 				}
 				m.append(1);
-			} else if (*it < -1) {
+			} else if (*it <= -1) {
 				for (ex count=*it+1; count < 0; count++) {
 					m.append(0);
 				}
 				m.append(-1);
+				has_minus_one = true;
 			} else {
 				m.append(*it);
 			}
 		}
 
-		// check for the applicability of transformations
-		// 
-		// first condition: since the transformations produce a lot of terms,
-		//   they are only efficient for argument near the boundary |x| = 1, then no
-		//   transformation is needed
-		// second condition: veto for region around +-I to avoid endless recursion
-		//   with the (1-x)/(1+x) transformation. 1.198 is sqrt(1.4142) is the
-		//   boundary of the problematic transformation.
-		//   
-		if (cln::abs(x) < 0.95 || (cln::abs(x) < 1 && cln::abs(x-1) >= 1.198)) {
+		// do summation
+		if (cln::abs(x) < 0.95) {
 			lst m_lst;
 			lst s_lst;
 			ex pf;
@@ -2877,6 +3005,7 @@ static ex H_evalf(const ex& x1, const ex& x2)
 			}
 		}
 
+		symbol xtemp("xtemp");
 		ex res = 1;	
 		
 		// ensure that the realpart of the argument is positive
@@ -2890,14 +3019,8 @@ static ex H_evalf(const ex& x1, const ex& x2)
 			}
 		}
 
-		// choose transformations
-		symbol xtemp("xtemp");
-		if (cln::abs(x-1) < 1.4142) {
-			// x -> (1-x)/(1+x)
-			map_trafo_H_1mxt1px trafo;
-			res *= trafo(H(m, xtemp));
-		} else {
-			// x -> 1/x
+		// x -> 1/x
+		if (cln::abs(x) >= 2.0) {
 			map_trafo_H_1overx trafo;
 			res *= trafo(H(m, xtemp));
 			if (cln::imagpart(x) <= 0) {
@@ -2905,17 +3028,25 @@ static ex H_evalf(const ex& x1, const ex& x2)
 			} else {
 				res = res.subs(H_polesign == I*Pi);
 			}
+			return res.subs(xtemp == numeric(x)).evalf();
 		}
-
-		// simplify result
-// TODO
-//		map_trafo_H_convert converter;
-//		res = converter(res).expand();
-//		lst ll;
-//		res.find(H(wild(1),wild(2)), ll);
-//		res.find(zeta(wild(1)), ll);
-//		res.find(zeta(wild(1),wild(2)), ll);
-//		res = res.collect(ll);
+		
+		// check transformations for 0.95 <= |x| < 2.0
+		
+		// |(1-x)/(1+x)| < 0.9 -> circular area with center=9,53+0i and radius=9.47
+		if (cln::abs(x-9.53) <= 9.47) {
+			// x -> (1-x)/(1+x)
+			map_trafo_H_1mxt1px trafo;
+			res *= trafo(H(m, xtemp));
+		} else {
+			// x -> 1-x
+			if (has_minus_one) {
+				map_trafo_H_convert_to_Li filter;
+				return filter(H(m, numeric(x)).hold()).evalf();
+			}
+			map_trafo_H_1mx trafo;
+			res *= trafo(H(m, xtemp));
+		}
 
 		return res.subs(xtemp == numeric(x)).evalf();
 	}
