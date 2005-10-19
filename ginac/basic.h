@@ -83,6 +83,7 @@ extern compare_statistics_t compare_statistics;
 
 /** Function object for map(). */
 struct map_function {
+	virtual ~map_function() {}
 	typedef const ex & argument_type;
 	typedef ex result_type;
 	virtual ex operator()(const ex & e) = 0;
