@@ -1504,9 +1504,37 @@ static ex Li_eval(const ex& m_, const ex& x_)
 
 static ex Li_series(const ex& m, const ex& x, const relational& rel, int order, unsigned options)
 {
-	epvector seq;
-	seq.push_back(expair(Li(m, x), 0));
-	return pseries(rel, seq);
+	if (is_a<lst>(m) || is_a<lst>(x)) {
+		// multiple polylog
+		epvector seq;
+		seq.push_back(expair(Li(m, x), 0));
+		return pseries(rel, seq);
+	}
+	
+	// classical polylog
+	const ex x_pt = x.subs(rel, subs_options::no_pattern);
+	if (m.info(info_flags::numeric) && x_pt.info(info_flags::numeric)) {
+		// First special case: x==0 (derivatives have poles)
+		if (x_pt.is_zero()) {
+			const symbol s;
+			ex ser;
+			// manually construct the primitive expansion
+			for (int i=1; i<order; ++i)
+				ser += pow(s,i) / pow(numeric(i), m);
+			// substitute the argument's series expansion
+			ser = ser.subs(s==x.series(rel, order), subs_options::no_pattern);
+			// maybe that was terminating, so add a proper order term
+			epvector nseq;
+			nseq.push_back(expair(Order(_ex1), order));
+			ser += pseries(rel, nseq);
+			// reexpanding it will collapse the series again
+			return ser.series(rel, order);
+		}
+		// TODO special cases: x==1 (branch point) and x real, >=1 (branch cut)
+		throw std::runtime_error("Li_series: don't know how to do the series expansion at this point!");
+	}
+	// all other cases should be safe, by now:
+	throw do_taylor();  // caught by function::series()
 }
 
 
@@ -1988,9 +2016,48 @@ static ex S_eval(const ex& n, const ex& p, const ex& x)
 
 static ex S_series(const ex& n, const ex& p, const ex& x, const relational& rel, int order, unsigned options)
 {
-	epvector seq;
-	seq.push_back(expair(S(n, p, x), 0));
-	return pseries(rel, seq);
+	if (p == _ex1) {
+		return Li(n+1, x).series(rel, order, options);
+	}
+
+	const ex x_pt = x.subs(rel, subs_options::no_pattern);
+	if (n.info(info_flags::posint) && p.info(info_flags::posint) && x_pt.info(info_flags::numeric)) {
+		// First special case: x==0 (derivatives have poles)
+		if (x_pt.is_zero()) {
+			const symbol s;
+			ex ser;
+			// manually construct the primitive expansion
+			// subsum = Euler-Zagier-Sum is needed
+			// dirty hack (slow ...) calculation of subsum:
+			std::vector<ex> presubsum, subsum;
+			subsum.push_back(0);
+			for (int i=1; i<order-1; ++i) {
+				subsum.push_back(subsum[i-1] + numeric(1, i));
+			}
+			for (int depth=2; depth<p; ++depth) {
+				presubsum = subsum;
+				for (int i=1; i<order-1; ++i) {
+					subsum[i] = subsum[i-1] + numeric(1, i) * presubsum[i-1];
+				}
+			}
+				
+			for (int i=1; i<order; ++i) {
+				ser += pow(s,i) / pow(numeric(i), n+1) * subsum[i-1];
+			}
+			// substitute the argument's series expansion
+			ser = ser.subs(s==x.series(rel, order), subs_options::no_pattern);
+			// maybe that was terminating, so add a proper order term
+			epvector nseq;
+			nseq.push_back(expair(Order(_ex1), order));
+			ser += pseries(rel, nseq);
+			// reexpanding it will collapse the series again
+			return ser.series(rel, order);
+		}
+		// TODO special cases: x==1 (branch point) and x real, >=1 (branch cut)
+		throw std::runtime_error("S_series: don't know how to do the series expansion at this point!");
+	}
+	// all other cases should be safe, by now:
+	throw do_taylor();  // caught by function::series()
 }
 
 
