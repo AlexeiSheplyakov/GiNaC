@@ -18,7 +18,7 @@ m4_define([ginac_release], [ginac_major_version.ginac_minor_version])
 m4_define([ginac_interface_age], [0])
 m4_define([ginac_binary_age], [0])
 
-AC_INIT([GiNaC], ginac_version, [<ginac-bugs@ginac.de>])
+AC_INIT([GiNaC], ginac_version, [<ginac-list@ginac.de>])
 AC_PREREQ(2.52)
 AC_CONFIG_SRCDIR(ginac/basic.cpp)
 AC_CONFIG_HEADERS(config.h)

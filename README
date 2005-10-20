@@ -18,7 +18,7 @@ A mailing list is located at:
 
 You need to be subscribed to be able to post to the list. To subscribe,
 please follow the instructions on
-  http://thep.physik.uni-mainz.de/mailman/listinfo/ginac-list
+  https://www.cebix.net/mailman/listinfo/ginac-list
 
 See http://www.ginac.de/Lists.html for the list policy.
 
@@ -33,7 +33,7 @@ How to report bugs
 ==================
 
 If you have identified a bug in GiNaC you are welcome to send a detailed
-bug report to <ginac-bugs@ginac.de>.  Please think about your bug!  This
+bug report to <ginac-list@ginac.de>.  Please think about your bug!  This
 means that you should include
 
 * Information about your system

@@ -33,11 +33,12 @@ To install from a source .tar.bz2 distribution:
 
 To install from CVS:
 
- $ cvs -d :pserver:anoncvs@cvsthep.physik.uni-mainz.de:/home/cvs login
+ $ cvs -d :pserver:anoncvs@cvs.ginac.de:/home/cvs/GiNaC login
  [enter "anoncvs" as the password]
- $ cvs -d :pserver:anoncvs@cvsthep.physik.uni-mainz.de:/home/cvs co GiNaC
+ $ cvs -d :pserver:anoncvs@cvs.ginac.de:/home/cvs/GiNaC co GiNaC
  $ cd GiNaC
  $ autoreconf -i
+ $ ./configure
  $ make
  [become root if necessary]
  # make install

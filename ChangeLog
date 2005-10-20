@@ -1,6 +1,6 @@
 This file is not yet operational.  Eventually it should record all changes.
 Till then, you are advised to resort to our CVS server where all changes are
 logged.  This is how to get anonymous read-only access:
-$ cvs -d :pserver:anoncvs@cvsthep.physik.uni-mainz.de:/home/cvs login
+$ cvs -d :pserver:anoncvs@cvs.ginac.de:/home/cvs/GiNaC login
 enter the password `anoncvs'
-$ cvs -d :pserver:anoncvs@cvsthep.physik.uni-mainz.de:/home/cvs -z 9 co GiNaC
+$ cvs -d :pserver:anoncvs@cvs.ginac.de:/home/cvs/GiNaC -z 9 co GiNaC
