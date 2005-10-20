@@ -233,6 +233,13 @@ inline ex unit_matrix(unsigned x)
  *  The base name for LaTeX output is specified separately. */
 extern ex symbolic_matrix(unsigned r, unsigned c, const std::string & base_name, const std::string & tex_base_name);
 
+/** Return the reduced matrix that is formed by deleting the rth row and cth
+ *  column of matrix m. The determinant of the result is the Minor r, c. */
+extern ex reduced_matrix(const matrix& m, unsigned r, unsigned c);
+
+/** Return the nr times nc submatrix starting at position r, c of matrix m. */
+extern ex sub_matrix(const matrix&m, unsigned r, unsigned nr, unsigned c, unsigned nc);
+
 /** Create an r times c matrix of newly generated symbols consisting of the
  *  given base name plus the numeric row/column position of each element. */
 inline ex symbolic_matrix(unsigned r, unsigned c, const std::string & base_name)

@@ -1598,4 +1598,52 @@ ex symbolic_matrix(unsigned r, unsigned c, const std::string & base_name, const 
 	return M;
 }
 
+ex reduced_matrix(const matrix& m, unsigned r, unsigned c)
+{
+	if (r+1>m.rows() || c+1>m.cols() || m.cols()<2 || m.rows()<2)
+		throw std::runtime_error("minor_matrix(): index out of bounds");
+
+	const unsigned rows = m.rows()-1;
+	const unsigned cols = m.cols()-1;
+	matrix &M = *new matrix(rows, cols);
+	M.setflag(status_flags::dynallocated | status_flags::evaluated);
+
+	unsigned ro = 0;
+	unsigned ro2 = 0;
+	while (ro2<rows) {
+		if (ro==r)
+			++ro;
+		unsigned co = 0;
+		unsigned co2 = 0;
+		while (co2<cols) {
+			if (co==c)
+				++co;
+			M(ro2,co2) = m(ro, co);
+			++co;
+			++co2;
+		}
+		++ro;
+		++ro2;
+	}
+
+	return M;
+}
+
+ex sub_matrix(const matrix&m, unsigned r, unsigned nr, unsigned c, unsigned nc)
+{
+	if (r+nr>m.rows() || c+nc>m.cols())
+		throw std::runtime_error("sub_matrix(): index out of bounds");
+
+	matrix &M = *new matrix(nr, nc);
+	M.setflag(status_flags::dynallocated | status_flags::evaluated);
+
+	for (unsigned ro=0; ro<nr; ++ro) {
+		for (unsigned co=0; co<nc; ++co) {
+			M(ro,co) = m(ro+r,co+c);
+		}
+	}
+
+	return M;
+}
+
 } // namespace GiNaC

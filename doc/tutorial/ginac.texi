@@ -1974,6 +1974,38 @@ by @samp{c}) unit matrix. And finally, @code{symbolic_matrix} constructs a
 matrix filled with newly generated symbols made of the specified base name
 and the position of each element in the matrix.
 
+Matrices often arise by omitting elements of another matrix. For
+instance, the submatrix @code{S} of a matrix @code{M} takes a
+rectangular block from @code{M}. The reduced matrix @code{R} is defined
+by removing one row and one column from a matrix @code{M}. (The
+determinant of a reduced matrix is called a @emph{Minor} of @code{M} and
+can be used for computing the inverse using Cramer's rule.)
+
+@cindex @code{sub_matrix()}
+@cindex @code{reduced_matrix()}
+@example
+ex sub_matrix(const matrix&m, unsigned r, unsigned nr, unsigned c, unsigned nc);
+ex reduced_matrix(const matrix& m, unsigned r, unsigned c);
+@end example
+
+The function @code{sub_matrix()} takes a row offset @code{r} and a
+column offset @code{c} and takes a block of @code{nr} rows and @code{nc}
+columns. The function @code{reduced_matrix()} has two integer arguments
+that specify which row and column to remove:
+
+@example
+@{
+    matrix m(3,3);
+    m = 11, 12, 13,
+        21, 22, 23,
+        31, 32, 33;
+    cout << reduced_matrix(m, 1, 1) << endl;
+    // -> [[11,13],[31,33]]
+    cout << sub_matrix(m, 1, 2, 1, 2) << endl;
+    // -> [[22,23],[32,33]]
+@}
+@end example
+
 Matrix elements can be accessed and set using the parenthesis (function call)
 operator:
 
