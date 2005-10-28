@@ -73,10 +73,6 @@ class ex {
 	// default constructor, copy constructor and assignment operator
 public:
 	ex() throw();
-#ifdef OBSCURE_CINT_HACK
-	ex(const ex & other);
-	ex & operator=(const ex & other);
-#endif
 
 	// other constructors
 public:
@@ -232,36 +228,10 @@ private:
 	void makewriteable();
 	void share(const ex & other) const;
 
-#ifdef OBSCURE_CINT_HACK
-public:
-	static bool last_created_or_assigned_bp_can_be_converted_to_ex()
-	{
-		if (last_created_or_assigned_bp==0) return false;
-		if ((last_created_or_assigned_bp->flags &
-			 status_flags::dynallocated)==0) return false;
-		if ((last_created_or_assigned_bp->flags &
-			 status_flags::evaluated)==0) return false;
-		return true;
-	}
-protected:
-	void update_last_created_or_assigned_bp()
-	{
-		last_created_or_assigned_bp = bp;
-		last_created_or_assigned_exp = (long)(void *)(this);
-	}
-#endif // def OBSCURE_CINT_HACK
-
 // member variables
 
 private:
 	mutable ptr<basic> bp;  ///< pointer to basic object managed by this
-
-#ifdef OBSCURE_CINT_HACK
-public:
-	static ptr<basic> last_created_or_assigned_bp;
-	static basic * dummy_bp;
-	static long last_created_or_assigned_exp;
-#endif // def OBSCURE_CINT_HACK
 };
 
 
@@ -275,91 +245,48 @@ inline
 ex::ex() throw() : bp(*const_cast<basic *>(_num0_bp))
 {
 	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
-#ifdef OBSCURE_CINT_HACK
-	update_last_created_or_assigned_bp();
-#endif // def OBSCURE_CINT_HACK
 }
-
-#ifdef OBSCURE_CINT_HACK
-inline
-ex::ex(const ex & other) : bp(other.bp)
-{
-	GINAC_ASSERT((bp->flags) & status_flags::dynallocated);
-	update_last_created_or_assigned_bp();
-}
-
-inline
-ex & ex::operator=(const ex & other)
-{
-	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
-	GINAC_ASSERT(other.bp->flags & status_flags::dynallocated);
-	bp = other.bp;
-	update_last_created_or_assigned_bp();
-	return *this;
-}
-#endif // def OBSCURE_CINT_HACK
 
 inline
 ex::ex(const basic & other) : bp(construct_from_basic(other))
 {
 	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
-#ifdef OBSCURE_CINT_HACK
-	update_last_created_or_assigned_bp();
-#endif // def OBSCURE_CINT_HACK
 }
 
 inline
 ex::ex(int i) : bp(construct_from_int(i))
 {
 	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
-#ifdef OBSCURE_CINT_HACK
-	update_last_created_or_assigned_bp();
-#endif // def OBSCURE_CINT_HACK
 }
 
 inline
 ex::ex(unsigned int i) : bp(construct_from_uint(i))
 {
 	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
-#ifdef OBSCURE_CINT_HACK
-	update_last_created_or_assigned_bp();
-#endif // def OBSCURE_CINT_HACK
 }
 
 inline
 ex::ex(long i) : bp(construct_from_long(i))
 {
 	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
-#ifdef OBSCURE_CINT_HACK
-	update_last_created_or_assigned_bp();
-#endif // def OBSCURE_CINT_HACK
 }
 
 inline
 ex::ex(unsigned long i) : bp(construct_from_ulong(i))
 {
 	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
-#ifdef OBSCURE_CINT_HACK
-	update_last_created_or_assigned_bp();
-#endif // def OBSCURE_CINT_HACK
 }
 
 inline
 ex::ex(double const d) : bp(construct_from_double(d))
 {
 	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
-#ifdef OBSCURE_CINT_HACK
-	update_last_created_or_assigned_bp();
-#endif // def OBSCURE_CINT_HACK
 }
 
 inline
 ex::ex(const std::string &s, const ex &l) : bp(construct_from_string_and_lst(s, l))
 {
 	GINAC_ASSERT(bp->flags & status_flags::dynallocated);
-#ifdef OBSCURE_CINT_HACK
-	update_last_created_or_assigned_bp();
-#endif // def OBSCURE_CINT_HACK
 }
 
 inline
@@ -396,7 +323,7 @@ bool ex::is_equal(const ex & other) const
 #ifdef GINAC_COMPARE_STATISTICS
 	compare_statistics.nontrivial_is_equals++;
 #endif
-    const bool equal = bp->is_equal(*other.bp);
+	const bool equal = bp->is_equal(*other.bp);
 #if 0
 	if (equal) {
 		// Expressions point to different, but equal, trees: conserve
