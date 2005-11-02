@@ -29,14 +29,16 @@
 timer::timer() : on(false)
 {
 	getrusage(RUSAGE_SELF, &used1);
-	getrusage(RUSAGE_SELF, &used2);
+	used2.ru_utime = used1.ru_utime;
+	used2.ru_stime = used1.ru_stime;
 }
 
 void timer::start()
 {
 	on = true;
 	getrusage(RUSAGE_SELF, &used1);
-	getrusage(RUSAGE_SELF, &used2);
+	used2.ru_utime = used1.ru_utime;
+	used2.ru_stime = used1.ru_stime;
 }
 
 void timer::stop()
@@ -48,19 +50,20 @@ void timer::stop()
 void timer::reset()
 {
 	getrusage(RUSAGE_SELF, &used1);
-	getrusage(RUSAGE_SELF, &used2);
+	used2.ru_utime = used1.ru_utime;
+	used2.ru_stime = used1.ru_stime;
 }
 
 double timer::read()
 {
 	double elapsed;
-	if (this->running())
+	if (running())
 		getrusage(RUSAGE_SELF, &used2);
 	elapsed = ((used2.ru_utime.tv_sec - used1.ru_utime.tv_sec) +
-			   (used2.ru_stime.tv_sec - used1.ru_stime.tv_sec) +
-			   (used2.ru_utime.tv_usec - used1.ru_utime.tv_usec) / 1e6 +
-			   (used2.ru_stime.tv_usec - used1.ru_stime.tv_usec) / 1e6);
-	// round to 10ms for safety:
+	           (used2.ru_stime.tv_sec - used1.ru_stime.tv_sec) +
+	           (used2.ru_utime.tv_usec - used1.ru_utime.tv_usec) * 1e-6 +
+	           (used2.ru_stime.tv_usec - used1.ru_stime.tv_usec) * 1e-6);
+	// Results more accurate than 10ms are pointless:
 	return 0.01*int(elapsed*100+0.5);
 }
 
