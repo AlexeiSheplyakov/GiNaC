@@ -82,6 +82,7 @@ AC_LANG([C++])
 
 dnl Check for stuff needed for building the GiNaC interactive shell (ginsh).
 AC_CHECK_HEADERS(unistd.h)
+GINAC_HAVE_RUSAGE
 AC_CHECK_HEADERS(readline/readline.h readline/history.h)
 if test "x${ac_cv_header_readline_readline_h}" != "xyes" -o "x${ac_cv_header_readline_history_h}" != "xyes"; then
   GINAC_WARNING([I could not find the headers for libreadline (needed for building ginsh).])
@@ -111,6 +112,9 @@ AC_CHECK_HEADER(typeinfo, , GINAC_ERROR([The standard <typeinfo> header file cou
 AC_CHECK_HEADER(stdexcept, , GINAC_ERROR([The standard <stdexcept> header file could not be found.]))
 AC_CHECK_HEADER(algorithm, , GINAC_ERROR([The standard <algorithm> header file could not be found.]))
 AC_CHECK_HEADER(limits, , GINAC_ERROR([The standard <limits> header file could not be found.]))
+if test "x$CONFIG_RUSAGE" = "xno"; then
+    AC_CHECK_HEADER(ctime, , GINAC_ERROR([The standard <ctime> header file could not be found.]))
+fi
 
 dnl We need to have Bruno Haible's CLN installed.
 dnl (CLN versions >= 1.1.0 must have installed cln.m4 at a visible place,

@@ -28,8 +28,11 @@
 
 %{
 #include "config.h"
-
+#ifdef HAVE_RUSAGE
 #include <sys/resource.h>
+#else
+#include <ctime>
+#endif
 
 #if HAVE_UNISTD_H
 #include <sys/types.h>
@@ -61,7 +64,23 @@ static void push(const ex &e);
 static ex exstack[3];
 
 // Start and end time for the time() function
+#ifdef HAVE_RUSAGE
 static struct rusage start_time, end_time;
+#define START_TIMER getrusage(RUSAGE_SELF, &start_time);
+#define STOP_TIMER getrusage(RUSAGE_SELF, &end_time);
+#define PRINT_TIME_USED cout << \
+   (end_time.ru_utime.tv_sec - start_time.ru_utime.tv_sec) + \
+       (end_time.ru_stime.tv_sec - start_time.ru_stime.tv_sec) + \
+       double(end_time.ru_utime.tv_usec - start_time.ru_utime.tv_usec) / 1e6 + \
+       double(end_time.ru_stime.tv_usec - start_time.ru_stime.tv_usec) / 1e6 \
+                       << 's' << endl;
+#else
+static std::clock_t start_time, end_time;
+#define START_TIMER start_time = std::clock();
+#define STOP_TIMER end_time = std::clock();
+#define PRINT_TIME_USED \
+  cout << double(end_time - start_time)/CLOCKS_PER_SEC << 's' << endl;
+#endif
 
 // Table of functions (a multimap, because one function may appear with different
 // numbers of parameters)
@@ -210,13 +229,7 @@ line	: ';'
 	}
 	| T_REAL_SYMBOLS { symboltype = domain::real; }
 	| T_COMPLEX_SYMBOLS { symboltype = domain::complex; }
-	| T_TIME {getrusage(RUSAGE_SELF, &start_time);} '(' exp ')' {
-		getrusage(RUSAGE_SELF, &end_time);
-		cout << (end_time.ru_utime.tv_sec - start_time.ru_utime.tv_sec) +
-			(end_time.ru_stime.tv_sec - start_time.ru_stime.tv_sec) +
-			 double(end_time.ru_utime.tv_usec - start_time.ru_utime.tv_usec) / 1e6 +
-			 double(end_time.ru_stime.tv_usec - start_time.ru_stime.tv_usec) / 1e6 << 's' << endl;
-	}
+	| T_TIME { START_TIMER } '(' exp ')' { STOP_TIMER PRINT_TIME_USED }
 	| error ';'		{yyclearin; yyerrok;}
 	| error ':'		{yyclearin; yyerrok;}
 	;

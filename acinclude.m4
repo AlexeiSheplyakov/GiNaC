@@ -100,3 +100,22 @@ else
     fi
     echo "Configuration of GiNaC $VERSION done. Now type \"make\"."
 fi])
+
+AC_DEFUN([GINAC_HAVE_RUSAGE],
+[AC_CACHE_CHECK([whether struct rusage is declared in <sys/resource.h>],
+ac_cv_have_rusage,
+ [AC_TRY_COMPILE([#include <sys/times.h>
+                  #include <sys/resource.h>],
+                  [struct rusage resUsage;
+                   getrusage(RUSAGE_SELF, &resUsage);
+                   return 0;],
+                 [ac_cv_have_rusage=yes],
+                 [ac_cv_have_rusage=no])
+])
+CONFIG_RUSAGE="no"
+if test "$ac_cv_have_rusage" = yes; then
+  CONFIG_RUSAGE="yes"
+  AC_DEFINE(HAVE_RUSAGE,,[define if struct rusage declared in <sys/resource.h>])
+fi
+AC_SUBST(CONFIG_RUSAGE)
+])

@@ -20,50 +20,83 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <sys/time.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+#ifdef HAVE_RUSAGE
 #include <sys/resource.h>
 #include <unistd.h>
+#include <sys/time.h>
+#else
+#include <ctime>
+#endif
 
 #include "timer.h"
 
 timer::timer() : on(false)
 {
+#ifdef HAVE_RUSAGE
 	getrusage(RUSAGE_SELF, &used1);
 	used2.ru_utime = used1.ru_utime;
 	used2.ru_stime = used1.ru_stime;
+#else
+	used1 = clock();
+	used2 = used1;
+#endif
 }
 
 void timer::start()
 {
 	on = true;
+#ifdef HAVE_RUSAGE
 	getrusage(RUSAGE_SELF, &used1);
 	used2.ru_utime = used1.ru_utime;
 	used2.ru_stime = used1.ru_stime;
+#else
+	used1 = clock();
+	used2 = used1;
+#endif
 }
 
 void timer::stop()
 {
 	on = false;
+#ifdef HAVE_RUSAGE
 	getrusage(RUSAGE_SELF, &used2);
+#else
+	used2 = clock();
+#endif
 }
 
 void timer::reset()
 {
+#ifdef HAVE_RUSAGE
 	getrusage(RUSAGE_SELF, &used1);
 	used2.ru_utime = used1.ru_utime;
 	used2.ru_stime = used1.ru_stime;
+#else
+	used1 = clock();
+	used2 = used1;
+#endif
 }
 
 double timer::read()
 {
 	double elapsed;
+#ifdef HAVE_RUSAGE
 	if (running())
 		getrusage(RUSAGE_SELF, &used2);
 	elapsed = ((used2.ru_utime.tv_sec - used1.ru_utime.tv_sec) +
 	           (used2.ru_stime.tv_sec - used1.ru_stime.tv_sec) +
 	           (used2.ru_utime.tv_usec - used1.ru_utime.tv_usec) * 1e-6 +
 	           (used2.ru_stime.tv_usec - used1.ru_stime.tv_usec) * 1e-6);
+#else
+	if (running())
+		used2 = clock();
+	elapsed = double(used2 - used1)/CLOCKS_PER_SEC;
+#endif
 	// Results more accurate than 10ms are pointless:
+	return elapsed;
 	return 0.01*int(elapsed*100+0.5);
 }
 

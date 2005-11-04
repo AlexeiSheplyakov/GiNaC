@@ -23,7 +23,14 @@
 #ifndef TIMER_H
 #define TIMER_H
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+#ifdef HAVE_RUSAGE
 #include <sys/resource.h>
+#else
+#include <ctime>
+#endif
 
 class timer {
 public:
@@ -35,7 +42,11 @@ public:
 	bool running();
 private:
 	bool on;
+#ifdef HAVE_RUSAGE
 	struct rusage used1, used2;
+#else
+	std::clock_t used1, used2;
+#endif
 };
 
 #endif // ndef TIMER_H
