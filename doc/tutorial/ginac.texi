@@ -3808,7 +3808,6 @@ avoided.
 * Built-in Functions::              List of predefined mathematical functions.
 * Multiple polylogarithms::
 * Complex Conjugation::
-* Built-in Functions::              List of predefined mathematical functions.
 * Solving Linear Systems of Equations::
 * Input/Output::                    Input and output of expressions.
 @end menu
