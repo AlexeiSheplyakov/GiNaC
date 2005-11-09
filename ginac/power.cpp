@@ -381,6 +381,10 @@ ex power::eval(int level) const
 	if (ebasis.is_equal(_ex1))
 		return _ex1;
 
+	// power of a function calculated by separate rules defined for this function
+	if (is_exactly_a<function>(ebasis))
+		return ex_to<function>(ebasis).power(eexponent);
+
 	if (exponent_is_numerical) {
 
 		// ^(c1,c2) -> c1^c2  (c1, c2 numeric(),

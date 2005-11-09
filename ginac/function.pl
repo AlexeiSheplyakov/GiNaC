@@ -83,6 +83,10 @@ $typedef_derivative_funcp=generate(
 'typedef ex (* derivative_funcp_${N})(${SEQ1}, unsigned);'."\n",
 'const ex &','','');
 
+$typedef_power_funcp=generate(
+'typedef ex (* power_funcp_${N})(${SEQ1}, const ex &);'."\n",
+'const ex &','','');
+
 $typedef_series_funcp=generate(
 'typedef ex (* series_funcp_${N})(${SEQ1}, const relational &, int, unsigned);'."\n",
 'const ex &','','');
@@ -98,6 +102,8 @@ $evalf_func_interface=generate('    function_options & evalf_func(evalf_funcp_${
 $conjugate_func_interface=generate('    function_options & conjugate_func(conjugate_funcp_${N} d);'."\n",'','','');
 
 $derivative_func_interface=generate('    function_options & derivative_func(derivative_funcp_${N} d);'."\n",'','','');
+
+$power_func_interface=generate('    function_options & power_func(power_funcp_${N} d);'."\n",'','','');
 
 $series_func_interface=generate('    function_options & series_func(series_funcp_${N} s);'."\n",'','','');
 
@@ -148,6 +154,12 @@ $diff_switch_statement=generate(
 	case ${N}:
 		return ((derivative_funcp_${N})(opt.derivative_f))(${SEQ1},diff_param);
 END_OF_DIFF_SWITCH_STATEMENT
+
+$power_switch_statement=generate(
+	<<'END_OF_POWER_SWITCH_STATEMENT','seq[${N}-1]','','');
+	case ${N}:
+		return ((power_funcp_${N})(opt.power_f))(${SEQ1},power_param);
+END_OF_POWER_SWITCH_STATEMENT
 
 $series_switch_statement=generate(
 	<<'END_OF_SERIES_SWITCH_STATEMENT','seq[${N}-1]','','');
@@ -206,6 +218,16 @@ function_options & function_options::derivative_func(derivative_funcp_${N} d)
 	return *this;
 }
 END_OF_DERIVATIVE_FUNC_IMPLEMENTATION
+
+$power_func_implementation=generate(
+	<<'END_OF_POWER_FUNC_IMPLEMENTATION','','','');
+function_options & function_options::power_func(power_funcp_${N} d)
+{
+	test_and_set_nparams(${N});
+	power_f = power_funcp(d);
+	return *this;
+}
+END_OF_POWER_FUNC_IMPLEMENTATION
 
 $series_func_implementation=generate(
 	<<'END_OF_SERIES_FUNC_IMPLEMENTATION','','','');
@@ -272,6 +294,7 @@ typedef ex (* eval_funcp)();
 typedef ex (* evalf_funcp)();
 typedef ex (* conjugate_funcp)();
 typedef ex (* derivative_funcp)();
+typedef ex (* power_funcp)();
 typedef ex (* series_funcp)();
 typedef void (* print_funcp)();
 
@@ -280,6 +303,7 @@ $typedef_eval_funcp
 $typedef_evalf_funcp
 $typedef_conjugate_funcp
 $typedef_derivative_funcp
+$typedef_power_funcp
 $typedef_series_funcp
 $typedef_print_funcp
 // end of generated lines
@@ -290,6 +314,7 @@ typedef ex (* eval_funcp_exvector)(const exvector &);
 typedef ex (* evalf_funcp_exvector)(const exvector &);
 typedef ex (* conjugate_funcp_exvector)(const exvector &);
 typedef ex (* derivative_funcp_exvector)(const exvector &, unsigned);
+typedef ex (* power_funcp_exvector)(const exvector &, const ex &);
 typedef ex (* series_funcp_exvector)(const exvector &, const relational &, int, unsigned);
 typedef void (* print_funcp_exvector)(const exvector &, const print_context &);
 
@@ -313,6 +338,7 @@ $eval_func_interface
 $evalf_func_interface
 $conjugate_func_interface
 $derivative_func_interface
+$power_func_interface
 $series_func_interface
 $print_func_interface
 // end of generated lines
@@ -320,6 +346,7 @@ $print_func_interface
 	function_options & evalf_func(evalf_funcp_exvector ef);
 	function_options & conjugate_func(conjugate_funcp_exvector d);
 	function_options & derivative_func(derivative_funcp_exvector d);
+	function_options & power_func(power_funcp_exvector d);
 	function_options & series_func(series_funcp_exvector s);
 
 	template <class Ctx> function_options & print_func(print_funcp_exvector p)
@@ -341,6 +368,7 @@ $print_func_interface
 
 protected:
 	bool has_derivative() const { return derivative_f != NULL; }
+	bool has_power() const { return power_f != NULL; }
 	void test_and_set_nparams(unsigned n);
 	void set_print_func(unsigned id, print_funcp f);
 
@@ -353,6 +381,7 @@ protected:
 	evalf_funcp evalf_f;
 	conjugate_funcp conjugate_f;
 	derivative_funcp derivative_f;
+	power_funcp power_f;
 	series_funcp series_f;
 	std::vector<print_funcp> print_dispatch_table;
 
@@ -371,6 +400,7 @@ protected:
 	bool evalf_use_exvector_args;
 	bool conjugate_use_exvector_args;
 	bool derivative_use_exvector_args;
+	bool power_use_exvector_args;
 	bool series_use_exvector_args;
 	bool print_use_exvector_args;
 
@@ -441,6 +471,7 @@ protected:
 	bool lookup_remember_table(ex & result) const;
 	void store_remember_table(ex const & result) const;
 public:
+	ex power(const ex & exp) const;
 	static unsigned register_new(function_options const & opt);
 	static unsigned current_serial;
 	static unsigned find_function(const std::string &name, unsigned nparams);
@@ -516,6 +547,7 @@ $implementation=<<END_OF_IMPLEMENTATION;
 #include "lst.h"
 #include "symmetry.h"
 #include "print.h"
+#include "power.h"
 #include "archive.h"
 #include "inifcns.h"
 #include "tostring.h"
@@ -555,13 +587,14 @@ void function_options::initialize()
 {
 	set_name("unnamed_function", "\\\\mbox{unnamed}");
 	nparams = 0;
-	eval_f = evalf_f = conjugate_f = derivative_f = series_f = 0;
+	eval_f = evalf_f = conjugate_f = derivative_f = power_f = series_f = 0;
 	evalf_params_first = true;
 	use_return_type = false;
 	eval_use_exvector_args = false;
 	evalf_use_exvector_args = false;
 	conjugate_use_exvector_args = false;
 	derivative_use_exvector_args = false;
+	power_use_exvector_args = false;
 	series_use_exvector_args = false;
 	print_use_exvector_args = false;
 	use_remember = false;
@@ -591,6 +624,7 @@ $eval_func_implementation
 $evalf_func_implementation
 $conjugate_func_implementation
 $derivative_func_implementation
+$power_func_implementation
 $series_func_implementation
 // end of generated lines
 
@@ -616,6 +650,12 @@ function_options& function_options::derivative_func(derivative_funcp_exvector d)
 {
 	derivative_use_exvector_args = true;
 	derivative_f = derivative_funcp(d);
+	return *this;
+}
+function_options& function_options::power_func(power_funcp_exvector d)
+{
+	power_use_exvector_args = true;
+	power_f = power_funcp(d);
 	return *this;
 }
 function_options& function_options::series_func(series_funcp_exvector s)
@@ -1141,6 +1181,27 @@ ${diff_switch_statement}
 		// end of generated lines
 	}
 	throw(std::logic_error("function::pderivative(): no diff function defined"));
+}
+
+ex function::power(const ex & power_param) const // power of function
+{
+	GINAC_ASSERT(serial<registered_functions().size());
+	const function_options &opt = registered_functions()[serial];
+	
+	// No derivative defined? Then return abstract derivative object
+	if (opt.power_f == NULL)
+		return (new power::power(*this, power_param))->setflag(status_flags::dynallocated |
+	                                               status_flags::evaluated);
+
+	current_serial = serial;
+	if (opt.power_use_exvector_args)
+		return ((power_funcp_exvector)(opt.power_f))(seq,  power_param);
+	switch (opt.nparams) {
+		// the following lines have been generated for max. ${maxargs} parameters
+${power_switch_statement}
+		// end of generated lines
+	}
+	throw(std::logic_error("function::power(): no power function defined"));
 }
 
 std::vector<function_options> & function::registered_functions()

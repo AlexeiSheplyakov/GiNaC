@@ -107,13 +107,21 @@ static ex abs_conjugate(const ex & arg)
 	return abs(arg);
 }
 
+static ex abs_power(const ex & arg, const ex & exp)
+{
+	if (arg.is_equal(arg.conjugate()) && is_a<numeric>(exp) && ex_to<numeric>(exp).is_even())
+		return power(arg, exp);
+	else
+		return power(abs(arg), exp).hold();
+}
+
 REGISTER_FUNCTION(abs, eval_func(abs_eval).
                        evalf_func(abs_evalf).
                        print_func<print_latex>(abs_print_latex).
                        print_func<print_csrc_float>(abs_print_csrc_float).
                        print_func<print_csrc_double>(abs_print_csrc_float).
-                       conjugate_func(abs_conjugate));
-
+                       conjugate_func(abs_conjugate).
+                       power_func(abs_power));
 
 //////////
 // Complex sign
