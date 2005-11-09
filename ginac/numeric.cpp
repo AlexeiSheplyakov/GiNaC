@@ -631,15 +631,22 @@ bool numeric::has(const ex &other) const
 	const numeric &o = ex_to<numeric>(other);
 	if (this->is_equal(o) || this->is_equal(-o))
 		return true;
-	if (o.imag().is_zero())  // e.g. scan for 3 in -3*I
-		return (this->real().is_equal(o) || this->imag().is_equal(o) ||
-		        this->real().is_equal(-o) || this->imag().is_equal(-o));
+	if (o.imag().is_zero()) {   // e.g. scan for 3 in -3*I
+		if (!this->real().is_equal(*_num0_p))
+			if (this->real().is_equal(o) || this->real().is_equal(-o))
+				return true;
+		if (!this->imag().is_equal(*_num0_p))
+			if (this->imag().is_equal(o) || this->imag().is_equal(-o))
+				return true;
+		return false;
+	}
 	else {
 		if (o.is_equal(I))  // e.g scan for I in 42*I
 			return !this->is_real();
 		if (o.real().is_zero())  // e.g. scan for 2*I in 2*I+1
-			return (this->real().has(o*I) || this->imag().has(o*I) ||
-			        this->real().has(-o*I) || this->imag().has(-o*I));
+			if (!this->imag().is_equal(*_num0_p))
+				if (this->imag().is_equal(o*I) || this->imag().is_equal(-o*I))
+					return true;
 	}
 	return false;
 }
