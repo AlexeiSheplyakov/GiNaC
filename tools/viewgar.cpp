@@ -46,7 +46,7 @@ int main(int argc, char **argv)
 				dump_mode = true;
 				--argc; ++argv;
 			}
-			std::ifstream f(*argv);
+			std::ifstream f(*argv, std::ios_base::binary);
 			archive ar;
 			f >> ar;
 			if (dump_mode) {

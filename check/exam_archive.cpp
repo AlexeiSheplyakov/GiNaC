@@ -54,12 +54,12 @@ unsigned exam_archive()
 	archive ar;
 	ar.archive_ex(e, "expr 1");
 	{
-		std::ofstream fout("exam.gar");
+		std::ofstream fout("exam.gar", std::ios_base::binary);
 		fout << ar;
 	}
 	ar.clear();
 	{
-		std::ifstream fin("exam.gar");
+		std::ifstream fin("exam.gar", std::ios_base::binary);
 		fin >> ar;
 	}
 	f = ar.unarchive_ex(lst(x, y, mu, dim), "expr 1");
