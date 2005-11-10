@@ -27,6 +27,7 @@
 #include "ex.h"
 
 #include <stdexcept>
+#include <vector>
 
 #include <cln/complex.h>
 
@@ -38,6 +39,12 @@
 #endif
 
 namespace GiNaC {
+
+/** Function pointer to implement callbacks in the case 'Digits' gets changed.
+ *  Main purpose of such callbacks is to adjust look-up tables of certain
+ *  functions to the new precision. Parameter contains the signed difference
+ *  between new Digits and old Digits. */
+typedef void (* digits_changed_callback)(long);
 
 /** This class is used to instantiate a global singleton object Digits
  *  which behaves just like Maple's Digits.  We need an object rather 
@@ -55,11 +62,14 @@ public:
 	_numeric_digits();
 	_numeric_digits& operator=(long prec);
 	operator long();
-	void print(std::ostream &os) const;
+	void print(std::ostream& os) const;
+	void add_callback(digits_changed_callback callback);
 // member variables
 private:
 	long digits;                        ///< Number of decimal digits
 	static bool too_late;               ///< Already one object present
+	// Holds a list of functions that get called when digits is changed.
+	std::vector<digits_changed_callback> callbacklist;
 };
 
 

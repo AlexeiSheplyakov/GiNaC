@@ -1999,14 +1999,25 @@ _numeric_digits::_numeric_digits()
 		throw(std::runtime_error("I told you not to do instantiate me!"));
 	too_late = true;
 	cln::default_float_format = cln::float_format(17);
+
+	// add callbacks for built-in functions
+	// like ... add_callback(Li_lookuptable);
 }
 
 
 /** Assign a native long to global Digits object. */
 _numeric_digits& _numeric_digits::operator=(long prec)
 {
+	long digitsdiff = prec - digits;
 	digits = prec;
-	cln::default_float_format = cln::float_format(prec); 
+	cln::default_float_format = cln::float_format(prec);
+
+	// call registered callbacks
+	std::vector<digits_changed_callback>::const_iterator it = callbacklist.begin(),	end = callbacklist.end();
+	for (; it != end; ++it) {
+		(*it)(digitsdiff);
+	}
+
 	return *this;
 }
 
@@ -2023,6 +2034,13 @@ _numeric_digits::operator long()
 void _numeric_digits::print(std::ostream &os) const
 {
 	os << digits;
+}
+
+
+/** Add a new callback function. */
+void _numeric_digits::add_callback(digits_changed_callback callback)
+{
+	callbacklist.push_back(callback);
 }
 
 
