@@ -153,7 +153,8 @@ protected:
 	ex derivative(const symbol & s) const;
 	ex thiscontainer(const exvector & v) const;
 	ex thiscontainer(std::auto_ptr<exvector> vp) const;
-	unsigned return_type() const { return return_types::commutative; }
+	unsigned return_type() const;
+	unsigned return_type_tinfo() const { return op(0).return_type_tinfo(); }
 	ex expand(unsigned options = 0) const;
 
 	// new virtual functions which can be overridden by derived classes
@@ -255,6 +256,9 @@ exvector get_all_dummy_indices(const ex & e);
 
 /** Returns b with all dummy indices, which are common with a, renamed */
 ex rename_dummy_indices_uniquely(const ex & a, const ex & b);
+
+/** Same as above, where va and vb contain the indices of a and b and are sorted */
+ex rename_dummy_indices_uniquely(const exvector & va, const exvector & vb, const ex & b);
 
 /** This function returns the given expression with expanded sums
  *  for all dummy index summations, where the dimensionality of 

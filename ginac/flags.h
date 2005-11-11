@@ -43,7 +43,8 @@ public:
 		algebraic = 0x0002,              ///< enable algebraic substitutions
 		subs_algebraic = 0x0002,  // for backwards compatibility
 		pattern_is_product = 0x0004,     ///< used internally by expairseq::subschildren()
-		pattern_is_not_product = 0x0008  ///< used internally by expairseq::subschildren()
+		pattern_is_not_product = 0x0008, ///< used internally by expairseq::subschildren()
+		no_index_renaming = 0x0010
 	};
 };
 

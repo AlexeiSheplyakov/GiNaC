@@ -109,6 +109,7 @@ public:
 
 	// non-virtual functions in this class
 protected:
+	unsigned return_type() const { return return_types::commutative; }
 	void do_print(const print_context & c, unsigned level) const;
 	void do_print_latex(const print_latex & c, unsigned level) const;
 };
@@ -125,6 +126,7 @@ public:
 
 	// non-virtual functions in this class
 protected:
+	unsigned return_type() const { return return_types::commutative; }
 	void do_print(const print_context & c, unsigned level) const;
 	void do_print_latex(const print_latex & c, unsigned level) const;
 };

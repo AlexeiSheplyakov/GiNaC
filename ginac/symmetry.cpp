@@ -427,7 +427,7 @@ static ex symm(const ex & e, exvector::const_iterator first, exvector::const_ite
 		lst new_lst;
 		for (unsigned i=0; i<num; i++)
 			new_lst.append(orig_lst.op(iv[i]));
-		ex term = e.subs(orig_lst, new_lst, subs_options::no_pattern);
+		ex term = e.subs(orig_lst, new_lst, subs_options::no_pattern|subs_options::no_index_renaming);
 		if (asymmetric) {
 			memcpy(iv2, iv, num * sizeof(unsigned));
 			term *= permutation_sign(iv2, iv2 + num);
@@ -468,7 +468,7 @@ ex symmetrize_cyclic(const ex & e, exvector::const_iterator first, exvector::con
 	for (unsigned i=0; i<num-1; i++) {
 		ex perm = new_lst.op(0);
 		new_lst.remove_first().append(perm);
-		sum += e.subs(orig_lst, new_lst, subs_options::no_pattern);
+		sum += e.subs(orig_lst, new_lst, subs_options::no_pattern|subs_options::no_index_renaming);
 	}
 	return sum / num;
 }

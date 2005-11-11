@@ -4278,13 +4278,17 @@ contain the same number of elements). Using this form, you would write
 @end example
 
 The optional last argument to @code{subs()} is a combination of
-@code{subs_options} flags. There are two options available:
+@code{subs_options} flags. There are three options available:
 @code{subs_options::no_pattern} disables pattern matching, which makes
 large @code{subs()} operations significantly faster if you are not using
 patterns. The second option, @code{subs_options::algebraic} enables
 algebraic substitutions in products and powers.
 @ref{Pattern Matching and Advanced Substitutions}, for more information
-about patterns and algebraic substitutions.
+about patterns and algebraic substitutions. The third option,
+@code{subs_options::no_index_renaming} disables the feature that dummy
+indices are renamed if the subsitution could give a result in which a
+dummy index occurs more than two times. This is sometimes necessary if
+you want to use @code{subs()} to rename your dummy indices.
 
 @code{subs()} performs syntactic substitution of any complete algebraic
 object; it does not try to match sub-expressions as is demonstrated by the
