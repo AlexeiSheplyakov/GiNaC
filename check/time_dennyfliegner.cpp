@@ -64,10 +64,10 @@ unsigned time_dennyfliegner()
 	vector<double> times;
 	timer breitling;
 	
-	sizes.push_back(50);
 	sizes.push_back(100);
 	sizes.push_back(200);
 	sizes.push_back(400);
+	sizes.push_back(800);
 	
 	for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i) {
 		breitling.start();
@@ -85,10 +85,10 @@ unsigned time_dennyfliegner()
 	// print the report:
 	cout << endl << "	size:  ";
 	for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i)
-		cout << '\t' << (*i);
+		cout << '\t' << *i;
 	cout << endl << "	time/s:";
 	for (vector<double>::iterator i=times.begin(); i!=times.end(); ++i)
-		cout << '\t' << int(1000*(*i))*0.001;
+		cout << '\t' << *i;
 	cout << endl;
 	
 	return result;

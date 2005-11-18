@@ -148,7 +148,7 @@ unsigned time_lw_O()
 	} else {
 		cout << " failed ";
 	}
-	cout << int(1000*(time/(3*count)))*0.001 << "s (average)" << endl;
+	cout << time/(3*count) << "s (average)" << endl;
 
 	cout << "timing Lewis-Wester test O2 (Resultant)" << flush;
 	clog << "-------Lewis-Wester test O2 (Resultant):" << endl;
@@ -163,7 +163,7 @@ unsigned time_lw_O()
 		} else {
 			cout << " failed ";
 		}
-		cout << int(1000*rolex.read())*0.001 << "s (combined)" << endl;
+		cout << rolex.read() << "s (combined)" << endl;
 	} else {
 		cout << " disabled" << endl;
 		clog << "(no output)" << endl;

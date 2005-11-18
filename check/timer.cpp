@@ -86,18 +86,15 @@ double timer::read()
 #ifdef HAVE_RUSAGE
 	if (running())
 		getrusage(RUSAGE_SELF, &used2);
-	elapsed = ((used2.ru_utime.tv_sec - used1.ru_utime.tv_sec) +
-	           (used2.ru_stime.tv_sec - used1.ru_stime.tv_sec) +
-	           (used2.ru_utime.tv_usec - used1.ru_utime.tv_usec) * 1e-6 +
-	           (used2.ru_stime.tv_usec - used1.ru_stime.tv_usec) * 1e-6);
+	return ((used2.ru_utime.tv_sec - used1.ru_utime.tv_sec) +
+	        (used2.ru_stime.tv_sec - used1.ru_stime.tv_sec) +
+	        (used2.ru_utime.tv_usec - used1.ru_utime.tv_usec) * 1e-6 +
+	        (used2.ru_stime.tv_usec - used1.ru_stime.tv_usec) * 1e-6);
 #else
 	if (running())
 		used2 = clock();
-	elapsed = double(used2 - used1)/CLOCKS_PER_SEC;
+	return double(used2 - used1)/CLOCKS_PER_SEC;
 #endif
-	// Results more accurate than 10ms are pointless:
-	return elapsed;
-	return 0.01*int(elapsed*100+0.5);
 }
 
 bool timer::running()

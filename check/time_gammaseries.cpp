@@ -54,10 +54,10 @@ unsigned time_gammaseries()
 	vector<double> times;
 	timer omega;
 
-	sizes.push_back(10);
-	sizes.push_back(15);
 	sizes.push_back(20);
 	sizes.push_back(25);
+	sizes.push_back(30);
+	sizes.push_back(35);
 
 	for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i) {
 		omega.start();
@@ -75,10 +75,10 @@ unsigned time_gammaseries()
 	// print the report:
 	cout << endl << "	order: ";
 	for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i)
-		cout << '\t' << (*i);
+		cout << '\t' << *i;
 	cout << endl << "	time/s:";
 	for (vector<double>::iterator i=times.begin(); i!=times.end(); ++i)
-		cout << '\t' << int(1000*(*i))*0.001;
+		cout << '\t' << *i;
 	cout << endl;
 	
 	return result;

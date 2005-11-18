@@ -40,11 +40,10 @@
  */
 void randomify_symbol_serials()
 {
-	srand((unsigned)time(NULL));
+	srand(time(NULL));
 	const int m = rand() % 666;
 	for (int s=0; s<m; ++s ) {
-		symbol* tmp = new symbol;
-		delete tmp;
+		symbol("dummy");
 	}
 }
 
@@ -53,6 +52,9 @@ int main()
 	randomify_symbol_serials();
 
 	unsigned result = 0;
+
+	// For all timings:
+	cout << setprecision(2) << showpoint;
 	
 #define TIME(which) \
 try { \

@@ -72,10 +72,10 @@ unsigned time_vandermonde()
 	vector<double> times;
 	timer swatch;
 	
-	sizes.push_back(6);
 	sizes.push_back(8);
 	sizes.push_back(10);
 	sizes.push_back(12);
+	sizes.push_back(14);
 	
 	for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i) {
 		int count = 1;
@@ -102,7 +102,7 @@ unsigned time_vandermonde()
 		cout << '\t' << *i << 'x' << *i;
 	cout << endl << "	time/s:";
 	for (vector<double>::iterator i=times.begin(); i!=times.end(); ++i)
-		cout << '\t' << int(1000*(*i))*0.001;
+		cout << '\t' << *i;
 	cout << endl;
 	
 	return result;

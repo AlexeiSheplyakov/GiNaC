@@ -97,7 +97,7 @@ unsigned time_lw_M1()
 	} else {
 		cout << " failed ";
 	}
-	cout << int(1000*(time/count))*0.001 << 's' << endl;
+	cout << time/count << 's' << endl;
 	
 	return result;
 }

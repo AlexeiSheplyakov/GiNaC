@@ -496,7 +496,7 @@ unsigned time_antipode()
 		} else {
 			cout << " failed ";
 		}
-		cout << int(1000*jaeger_le_coultre.read())*0.001 << "s (total)" << endl;
+		cout << jaeger_le_coultre.read() << "s (total)" << endl;
 	} else {
 		cout << " disabled" << endl;
 		clog << "(no output)" << endl;

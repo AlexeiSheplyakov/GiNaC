@@ -174,7 +174,7 @@ unsigned time_lw_M2()
 		} else {
 			cout << " failed ";
 		}
-		cout << int(1000*(time/count))*0.001 << 's' << endl;
+		cout << time/count << 's' << endl;
 	} else {
 		cout << " disabled" << endl;
 		clog << "(no output)" << endl;

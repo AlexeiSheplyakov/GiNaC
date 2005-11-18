@@ -29,7 +29,7 @@ static unsigned toeplitz_det(unsigned size)
 {
 	unsigned result = 0;
 	const symbol a("a"), b("b");
-	ex p[9] = {ex("a",lst(a,b)),
+	ex p[10] = {ex("a",lst(a,b)),
 	           ex("b",lst(a,b)),
 	           ex("a+b",lst(a,b)),
 	           ex("a^2+a*b+b^2",lst(a,b)),
@@ -37,7 +37,8 @@ static unsigned toeplitz_det(unsigned size)
 	           ex("a^4+a^3*b+a^2*b^2+a*b^3+b^4",lst(a,b)),
 	           ex("a^5+a^4*b+a^3*b^2-a^2*b^3+a*b^4+b^5",lst(a,b)),
 	           ex("a^6+a^5*b+a^4*b^2+a^3*b^3+a^2*b^4+a*b^5+b^6",lst(a,b)),
-	           ex("a^7+a^6*b+a^5*b^2+a^4*b^3-a^3*b^4+a^2*b^5+a*b^6+b^7",lst(a,b))
+	           ex("a^7+a^6*b+a^5*b^2+a^4*b^3-a^3*b^4+a^2*b^5+a*b^6+b^7",lst(a,b)),
+	           ex("a^8+a^7*b+a^6*b^2+a^5*b^3+a^4*b^4+a^3*b^5+a^2*b^6+a*b^7+b^8",lst(a,b))
 	};
 
 	// construct Toeplitz matrix (diagonal structure: [[x,y,z],[y,x,y],[z,y,x]]):
@@ -74,10 +75,10 @@ unsigned time_toeplitz()
 	vector<double> times;
 	timer longines;
 
-	sizes.push_back(6);
 	sizes.push_back(7);
 	sizes.push_back(8);
 	sizes.push_back(9);
+	sizes.push_back(10);
 
 	for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i) {
 		int count = 1;
@@ -104,7 +105,7 @@ unsigned time_toeplitz()
 		cout << '\t' << *i << 'x' << *i;
 	cout << endl << "	time/s:";
 	for (vector<double>::iterator i=times.begin(); i!=times.end(); ++i)
-		cout << '\t' << int(1000*(*i))*0.001;
+		cout << '\t' << *i;
 	cout << endl;
 
 	return result;

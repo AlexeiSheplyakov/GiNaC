@@ -45,7 +45,7 @@ static unsigned test(unsigned n)
 	Hinv = H.inverse();
 	cout << ". passed ";
 	clog << "(no output)" << endl;
-	cout << int(1000*cartier.read())*0.001 << 's' << endl;
+	cout << cartier.read() << 's' << endl;
 	
 	// check result:
 	name = (n==40?'J':(n==70?'L':'?'));
@@ -75,7 +75,7 @@ static unsigned test(unsigned n)
 		cout << ". failed ";
 		++result;
 	}
-	cout << int(1000*cartier.read())*0.001 << 's' << endl;
+	cout << cartier.read() << 's' << endl;
 	return result;
 }
 
