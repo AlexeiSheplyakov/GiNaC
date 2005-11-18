@@ -895,16 +895,33 @@ ex mul::expand(unsigned options) const
 				// Compute the new overall coefficient and put it together:
 				ex tmp_accu = (new add(distrseq, add1.overall_coeff*add2.overall_coeff))->setflag(status_flags::dynallocated);
 
+				exvector add1_dummy_indices, add2_dummy_indices, add_indices;
+
+				for (epvector::const_iterator i=add1begin; i!=add1end; ++i) {
+					add_indices = get_all_dummy_indices(i->rest);
+					add1_dummy_indices.insert(add1_dummy_indices.end(), add_indices.begin(), add_indices.end());
+				}
+				for (epvector::const_iterator i=add2begin; i!=add2end; ++i) {
+					add_indices = get_all_dummy_indices(i->rest);
+					add2_dummy_indices.insert(add2_dummy_indices.end(), add_indices.begin(), add_indices.end());
+				}
+
+				sort(add1_dummy_indices.begin(), add1_dummy_indices.end(), ex_is_less());
+				sort(add2_dummy_indices.begin(), add2_dummy_indices.end(), ex_is_less());
+				lst dummy_subs = rename_dummy_indices_uniquely(add1_dummy_indices, add2_dummy_indices);
+
 				// Multiply explicitly all non-numeric terms of add1 and add2:
-				for (epvector::const_iterator i1=add1begin; i1!=add1end; ++i1) {
+				for (epvector::const_iterator i2=add2begin; i2!=add2end; ++i2) {
 					// We really have to combine terms here in order to compactify
 					// the result.  Otherwise it would become waayy tooo bigg.
 					numeric oc;
 					distrseq.clear();
-					for (epvector::const_iterator i2=add2begin; i2!=add2end; ++i2) {
+					ex i2_new = (dummy_subs.op(0).nops()>0? 
+								 i2->rest.subs((lst)dummy_subs.op(0), (lst)dummy_subs.op(1), subs_options::no_pattern) : i2->rest);
+					for (epvector::const_iterator i1=add1begin; i1!=add1end; ++i1) {
 						// Don't push_back expairs which might have a rest that evaluates to a numeric,
 						// since that would violate an invariant of expairseq:
-						const ex rest = (new mul(i1->rest, rename_dummy_indices_uniquely(i1->rest, i2->rest)))->setflag(status_flags::dynallocated);
+						const ex rest = (new mul(i1->rest, i2_new))->setflag(status_flags::dynallocated);
 						if (is_exactly_a<numeric>(rest)) {
 							oc += ex_to<numeric>(rest).mul(ex_to<numeric>(i1->coeff).mul(ex_to<numeric>(i2->coeff)));
 						} else {
@@ -932,10 +949,12 @@ ex mul::expand(unsigned options) const
 		size_t n = last_expanded.nops();
 		exvector distrseq;
 		distrseq.reserve(n);
+		exvector va = get_all_dummy_indices(mul(non_adds));
+		sort(va.begin(), va.end(), ex_is_less());
 
 		for (size_t i=0; i<n; ++i) {
 			epvector factors = non_adds;
-			factors.push_back(split_ex_to_pair(rename_dummy_indices_uniquely(mul(non_adds), last_expanded.op(i))));
+			factors.push_back(split_ex_to_pair(rename_dummy_indices_uniquely(va, last_expanded.op(i))));
 			ex term = (new mul(factors, overall_coeff))->setflag(status_flags::dynallocated);
 			if (can_be_further_expanded(term)) {
 				distrseq.push_back(term.expand());

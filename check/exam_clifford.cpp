@@ -48,9 +48,9 @@ static unsigned check_equal_simplify(const ex &e1, const ex &e2)
 
 static unsigned check_equal_lst(const ex & e1, const ex & e2)
 {
-	for(int i = 0; i++; i < e1.nops()) {
+	for (unsigned int i = 0; i < e1.nops(); i++) {
 		ex e = e1.op(i) - e2.op(i);
-		if (!e.is_zero()) {
+		if (!e.normal().is_zero()) {
 			clog << "(" << e1 << ") - (" << e2 << ") erroneously returned "
 			     << e << " instead of 0 (in the entry " << i  << ")" << endl;
 			return 1;
@@ -314,7 +314,7 @@ static unsigned clifford_check6(const matrix & A)
 	matrix A_symm(4,4), A2(4, 4);
 	A_symm = A.add(A.transpose()).mul(half);
 	A2 = A_symm.mul(A_symm);
-
+	
 	ex e, e1;
 	bool anticommuting = ex_to<clifford>(clifford_unit(nu, A)).is_anticommuting();
 	int result = 0;
@@ -412,7 +412,7 @@ static unsigned clifford_check6(const matrix & A)
 	ex c = clifford_unit(nu, A, 1);
 	e = lst_to_clifford(lst(t, x, y, z), mu, A, 1) * lst_to_clifford(lst(1, 2, 3, 4), c);
 	e1 = clifford_inverse(e);
-	result += check_equal_lst((e*e1).simplify_indexed(), dirac_ONE(1));
+	result += check_equal((e*e1).simplify_indexed(), dirac_ONE(1));
 
 	// Moebius map (both forms) checks for symmetric metrics only 
 	matrix M1(2, 2),  M2(2, 2);

@@ -1374,12 +1374,12 @@ exvector get_all_dummy_indices(const ex & e)
 	return v;
 }
 
-ex rename_dummy_indices_uniquely(const exvector & va, const exvector & vb, const ex & b)
+lst rename_dummy_indices_uniquely(const exvector & va, const exvector & vb)
 {
 	exvector common_indices;
 	set_intersection(va.begin(), va.end(), vb.begin(), vb.end(), std::back_insert_iterator<exvector>(common_indices), ex_is_less());
 	if (common_indices.empty()) {
-		return b;
+		return lst(lst(), lst());
 	} else {
 		exvector new_indices, old_indices;
 		old_indices.reserve(2*common_indices.size());
@@ -1408,17 +1408,57 @@ ex rename_dummy_indices_uniquely(const exvector & va, const exvector & vb, const
 			}
 			++ip;
 		}
-		return b.subs(lst(old_indices.begin(), old_indices.end()), lst(new_indices.begin(), new_indices.end()), subs_options::no_pattern);
+		return lst(lst(old_indices.begin(), old_indices.end()), lst(new_indices.begin(), new_indices.end()));
 	}
+}
+
+ex rename_dummy_indices_uniquely(const exvector & va, const exvector & vb, const ex & b)
+{
+	lst indices_subs = rename_dummy_indices_uniquely(va, vb);
+	return (indices_subs.op(0).nops()>0 ? b.subs((lst)indices_subs.op(0), (lst)indices_subs.op(1), subs_options::no_pattern) : b);
 }
 
 ex rename_dummy_indices_uniquely(const ex & a, const ex & b)
 {
 	exvector va = get_all_dummy_indices(a);
-	exvector vb = get_all_dummy_indices(b);
-	sort(va.begin(), va.end(), ex_is_less());
-	sort(vb.begin(), vb.end(), ex_is_less());
-	return rename_dummy_indices_uniquely(va, vb, b);
+	if (va.size() > 0) {
+		exvector vb = get_all_dummy_indices(b);
+		if (vb.size() > 0) {
+			sort(va.begin(), va.end(), ex_is_less());
+			sort(vb.begin(), vb.end(), ex_is_less());
+			lst indices_subs = rename_dummy_indices_uniquely(va, vb);
+			if (indices_subs.op(0).nops() > 0)
+				return b.subs((lst)indices_subs.op(0), (lst)indices_subs.op(1), subs_options::no_pattern);
+		}
+	}
+	return b;
+}
+
+ex rename_dummy_indices_uniquely(exvector & va, const ex & b, bool modify_va)
+{
+	if (va.size() > 0) {
+		exvector vb = get_all_dummy_indices(b);
+		if (vb.size() > 0) {
+			sort(vb.begin(), vb.end(), ex_is_less());
+			lst indices_subs = rename_dummy_indices_uniquely(va, vb);
+			if (indices_subs.op(0).nops() > 0) {
+				if (modify_va) {
+					for (lst::const_iterator i = ex_to<lst>(indices_subs.op(1)).begin(); i != ex_to<lst>(indices_subs.op(1)).end(); ++i)
+						va.push_back(*i);
+					exvector uncommon_indices;
+					set_difference(vb.begin(), vb.end(), indices_subs.op(0).begin(), indices_subs.op(0).end(), std::back_insert_iterator<exvector>(uncommon_indices), ex_is_less());
+					exvector::const_iterator ip = uncommon_indices.begin(), ipend = uncommon_indices.end();
+					while (ip != ipend) {
+						va.push_back(*ip);
+						++ip;
+					}
+					sort(va.begin(), va.end(), ex_is_less());
+				}
+				return b.subs((lst)indices_subs.op(0), (lst)indices_subs.op(1), subs_options::no_pattern);
+			}
+		}
+	}
+	return b;
 }
 
 ex expand_dummy_sum(const ex & e, bool subs_idx)

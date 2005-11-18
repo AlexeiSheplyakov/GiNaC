@@ -171,20 +171,21 @@ ex ncmul::expand(unsigned options) const
 	/* Rename indices in the static members of the product */
 	exvector expanded_seq_mod;
 	size_t j = 0;
-	size_t i;
-	for (i=0; i<expanded_seq.size(); i++) {
+	exvector va;
+
+	for (size_t i=0; i<expanded_seq.size(); i++) {
 		if (i == positions_of_adds[j]) {
 			expanded_seq_mod.push_back(_ex1);
 			j++;
 		} else {
-			expanded_seq_mod.push_back(rename_dummy_indices_uniquely(ncmul(expanded_seq_mod), expanded_seq[i]));
+			expanded_seq_mod.push_back(rename_dummy_indices_uniquely(va, expanded_seq[i], true));
 		}
 	}
 
 	while (true) {
 		exvector term = expanded_seq_mod;
-		for (i=0; i<number_of_adds; i++) {
-			term[positions_of_adds[i]] = rename_dummy_indices_uniquely(ncmul(term), expanded_seq[positions_of_adds[i]].op(k[i]));
+		for (size_t i=0; i<number_of_adds; i++) {
+			term[positions_of_adds[i]] = rename_dummy_indices_uniquely(va, expanded_seq[positions_of_adds[i]].op(k[i]), true);
 		}
 
 		distrseq.push_back((new ncmul(term, true))->

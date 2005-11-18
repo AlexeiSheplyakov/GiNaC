@@ -254,11 +254,19 @@ template<> inline bool is_exactly_a<indexed>(const basic & obj)
 /** Returns all dummy indices from the expression */
 exvector get_all_dummy_indices(const ex & e);
 
+/** Returns b with all dummy indices, which are listed in va, renamed 
+ *  if modify_va is set to TRUE all dummy indices of b will be appended to va */
+ex rename_dummy_indices_uniquely(exvector & va, const ex & b, bool modify_va = false);
+
 /** Returns b with all dummy indices, which are common with a, renamed */
 ex rename_dummy_indices_uniquely(const ex & a, const ex & b);
 
 /** Same as above, where va and vb contain the indices of a and b and are sorted */
 ex rename_dummy_indices_uniquely(const exvector & va, const exvector & vb, const ex & b);
+
+/** Similar to above, where va and vb are the same and the return value is a list of two lists 
+ *  for substitution in b */
+lst rename_dummy_indices_uniquely(const exvector & va, const exvector & vb);
 
 /** This function returns the given expression with expanded sums
  *  for all dummy index summations, where the dimensionality of 
