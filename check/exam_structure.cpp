@@ -47,6 +47,8 @@ inline ex make_sprod(const ex & l, const ex & r)
 	return sprod(sprod_s(l, r));
 }
 
+namespace GiNaC {
+
 template <> void sprod::print(const print_context & c, unsigned level) const
 {
 	const sprod_s & sp = get_struct();
@@ -62,6 +64,8 @@ template <> ex sprod::eval(int level) const
 	else
 		return make_sprod(sp.right, sp.left);
 }
+
+}  // namespace GiNaC
 
 unsigned exam_structure()
 {
