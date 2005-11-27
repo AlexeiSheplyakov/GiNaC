@@ -738,6 +738,9 @@ template<class T> ex idx_symmetrization(const ex& r,const exvector& local_dummy_
 	return q;
 }
 
+// Forward declaration needed in absence of friend injection, C.f. [namespace.memdef]:
+ex simplify_indexed(const ex & e, exvector & free_indices, exvector & dummy_indices, const scalar_products & sp);
+
 /** Simplify product of indexed expressions (commutative, noncommutative and
  *  simple squares), return list of free indices. */
 ex simplify_indexed_product(const ex & e, exvector & free_indices, exvector & dummy_indices, const scalar_products & sp)
