@@ -1,0 +1,33 @@
+\input texinfo  @c -*-texinfo-*-
+@c %**start of header
+@setfilename ginac-examples.info
+@settitle GiNaC Examples
+@afourpaper
+@c For `info' only.
+@paragraphindent 0
+@c For TeX only.
+@iftex
+@c I hate putting "@noindent" in front of every paragraph.
+@parindent=0pt
+@end iftex
+@c %**end of header
+@ifnottex
+@node Top
+@end ifnottex
+
+@finalout
+@c finalout prevents ugly black rectangles on overfull hbox lines
+
+@majorheading GiNaC Examples
+
+This is a collection of code examples using GiNaC.
+
+@contents
+
+@chapter Input / Output
+
+@section Archiving expressions @uref{archive1.cpp, (source)}
+
+Two expression are stored in an archive on the disk and are restored again.
+
+@bye

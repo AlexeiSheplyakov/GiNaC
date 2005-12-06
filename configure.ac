@@ -155,6 +155,7 @@ ginsh/ginsh.1
 tools/Makefile
 tools/viewgar.1
 doc/Makefile
+doc/examples/Makefile
 doc/tutorial/Makefile
 doc/reference/Makefile
 doc/reference/DoxyfileHTML
