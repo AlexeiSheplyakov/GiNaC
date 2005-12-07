@@ -116,6 +116,16 @@ if test "x$CONFIG_RUSAGE" = "xno"; then
     AC_CHECK_HEADER(ctime, , GINAC_ERROR([The standard <ctime> header file could not be found.]))
 fi
 
+dnl Check for dl library (needed for GiNaC::compile).
+AC_CHECK_LIB(dl, dlopen,
+	[
+		DL_LIBS="-ldl"
+		AC_SUBST(DL_LIBS)
+		AC_DEFINE(HAVE_LIBDL, 1, [set to 1 if you have a working libdl installed.])
+	], 
+	GINAC_WARNING([libdl not found. GiNaC::compile will be disabled.]))
+LIBS="$LIBS $DL_LIBS"
+
 dnl We need to have Bruno Haible's CLN installed.
 dnl (CLN versions >= 1.1.0 must have installed cln.m4 at a visible place,
 dnl which provides this macro):
@@ -154,6 +164,7 @@ ginsh/Makefile
 ginsh/ginsh.1
 tools/Makefile
 tools/viewgar.1
+tools/ginac-excompiler
 doc/Makefile
 doc/examples/Makefile
 doc/tutorial/Makefile

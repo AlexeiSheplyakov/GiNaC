@@ -30,4 +30,11 @@ This is a collection of code examples using GiNaC.
 
 Two expression are stored in an archive on the disk and are restored again.
 
+@chapter Monte Carlo Integration
+
+@section Using VEGAS from CUBA @uref{compile1.cpp, (source)}
+
+An expression in two variables is integrated by using VEGAS from the
+@uref{http://www.feynarts.de/cuba/, CUBA library}.
+
 @bye
