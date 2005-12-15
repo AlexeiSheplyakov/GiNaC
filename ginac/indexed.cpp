@@ -795,27 +795,29 @@ try_again:
 			bool contracted = false;
 			if (free.empty()) {
 
-				// Find minimal dimension of all indices of both factors
-				exvector::const_iterator dit = ex_to<indexed>(*it1).seq.begin() + 1, ditend = ex_to<indexed>(*it1).seq.end();
-				ex dim = ex_to<idx>(*dit).get_dim();
-				++dit;
-				for (; dit != ditend; ++dit) {
-					dim = minimal_dim(dim, ex_to<idx>(*dit).get_dim());
-				}
-				dit = ex_to<indexed>(*it2).seq.begin() + 1;
-				ditend = ex_to<indexed>(*it2).seq.end();
-				for (; dit != ditend; ++dit) {
-					dim = minimal_dim(dim, ex_to<idx>(*dit).get_dim());
-				}
+				try {
+					// Find minimal dimension of all indices of both factors
+					exvector::const_iterator dit = ex_to<indexed>(*it1).seq.begin() + 1, ditend = ex_to<indexed>(*it1).seq.end();
+					ex dim = ex_to<idx>(*dit).get_dim();
+					++dit;
+					for (; dit != ditend; ++dit) {
+						dim = minimal_dim(dim, ex_to<idx>(*dit).get_dim());
+					}
+					dit = ex_to<indexed>(*it2).seq.begin() + 1;
+					ditend = ex_to<indexed>(*it2).seq.end();
+					for (; dit != ditend; ++dit) {
+						dim = minimal_dim(dim, ex_to<idx>(*dit).get_dim());
+					}
 
-				// User-defined scalar product?
-				if (sp.is_defined(*it1, *it2, dim)) {
+					// User-defined scalar product?
+					if (sp.is_defined(*it1, *it2, dim)) {
 
-					// Yes, substitute it
-					*it1 = sp.evaluate(*it1, *it2, dim);
-					*it2 = _ex1;
-					goto contraction_done;
-				}
+						// Yes, substitute it
+						*it1 = sp.evaluate(*it1, *it2, dim);
+						*it2 = _ex1;
+						goto contraction_done;
+					}
+				} catch (const std::runtime_error&) {}
 			}
 
 			// Try to contract the first one with the second one
