@@ -520,22 +520,6 @@ struct is_summation_idx : public std::unary_function<ex, bool> {
 	}
 };
 
-exvector power::get_free_indices() const
-{
-	// Get free indices of basis
-	exvector basis_indices = basis.get_free_indices();
-
-	if (exponent.info(info_flags::even)) {
-		// If the exponent is an even number, then any "free" index that
-		// forms a dummy pair with itself is actually a summation index
-		exvector really_free;
-		std::remove_copy_if(basis_indices.begin(), basis_indices.end(),
-		                    std::back_inserter(really_free), is_summation_idx());
-		return really_free;
-	} else
-		return basis_indices;
-}
-
 exvector integral::get_free_indices() const
 {
 	if (a.get_free_indices().size() || b.get_free_indices().size())
@@ -793,31 +777,21 @@ try_again:
 
 			// At least one dummy index, is it a defined scalar product?
 			bool contracted = false;
-			if (free.empty()) {
+			if (free.empty() && it1->nops()==2 && it2->nops()==2) {
 
-				try {
-					// Find minimal dimension of all indices of both factors
-					exvector::const_iterator dit = ex_to<indexed>(*it1).seq.begin() + 1, ditend = ex_to<indexed>(*it1).seq.end();
-					ex dim = ex_to<idx>(*dit).get_dim();
-					++dit;
-					for (; dit != ditend; ++dit) {
-						dim = minimal_dim(dim, ex_to<idx>(*dit).get_dim());
-					}
-					dit = ex_to<indexed>(*it2).seq.begin() + 1;
-					ditend = ex_to<indexed>(*it2).seq.end();
-					for (; dit != ditend; ++dit) {
-						dim = minimal_dim(dim, ex_to<idx>(*dit).get_dim());
-					}
+				ex dim = minimal_dim(
+					ex_to<idx>(it1->op(1)).get_dim(),
+					ex_to<idx>(it2->op(1)).get_dim()
+				);
 
-					// User-defined scalar product?
-					if (sp.is_defined(*it1, *it2, dim)) {
+				// User-defined scalar product?
+				if (sp.is_defined(*it1, *it2, dim)) {
 
-						// Yes, substitute it
-						*it1 = sp.evaluate(*it1, *it2, dim);
-						*it2 = _ex1;
-						goto contraction_done;
-					}
-				} catch (const std::runtime_error&) {}
+					// Yes, substitute it
+					*it1 = sp.evaluate(*it1, *it2, dim);
+					*it2 = _ex1;
+					goto contraction_done;
+				}
 			}
 
 			// Try to contract the first one with the second one
@@ -1353,6 +1327,46 @@ void scalar_products::debugprint() const
 	}
 }
 
+exvector get_all_dummy_indices_safely(const ex & e)
+{
+	if (is_a<indexed>(e))
+		return ex_to<indexed>(e).get_dummy_indices();
+	else if (is_a<power>(e) && e.op(1)==2) {
+		return e.op(0).get_free_indices();
+	}	
+	else if (is_a<mul>(e) || is_a<ncmul>(e)) {
+		exvector dummies;
+		exvector free_indices;
+		for (int i=0; i<e.nops(); ++i) {
+			exvector dummies_of_factor = get_all_dummy_indices_safely(e.op(i));
+			dummies.insert(dummies.end(), dummies_of_factor.begin(),
+				dummies_of_factor.end());
+			exvector free_of_factor = e.op(i).get_free_indices();
+			free_indices.insert(free_indices.begin(), free_of_factor.begin(),
+				free_of_factor.end());
+		}
+		exvector free_out, dummy_out;
+		find_free_and_dummy(free_indices.begin(), free_indices.end(), free_out,
+			dummy_out);
+		dummies.insert(dummies.end(), dummy_out.begin(), dummy_out.end());
+		return dummies;
+	}
+	else if(is_a<add>(e)) {
+		exvector result;
+		for(int i=0; i<e.nops(); ++i) {
+			exvector dummies_of_term = get_all_dummy_indices_safely(e.op(i));
+			sort(dummies_of_term.begin(), dummies_of_term.end());
+			exvector new_vec;
+			set_union(result.begin(), result.end(), dummies_of_term.begin(),
+				dummies_of_term.end(), std::back_inserter<exvector>(new_vec),
+				ex_is_less());
+			result.swap(new_vec);
+		}
+		return result;
+	}
+	return exvector();
+}
+
 /** Returns all dummy indices from the exvector */
 exvector get_all_dummy_indices(const ex & e)
 {
@@ -1420,20 +1434,20 @@ lst rename_dummy_indices_uniquely(const exvector & va, const exvector & vb)
 ex rename_dummy_indices_uniquely(const exvector & va, const exvector & vb, const ex & b)
 {
 	lst indices_subs = rename_dummy_indices_uniquely(va, vb);
-	return (indices_subs.op(0).nops()>0 ? b.subs((lst)indices_subs.op(0), (lst)indices_subs.op(1), subs_options::no_pattern) : b);
+	return (indices_subs.op(0).nops()>0 ? b.subs(ex_to<lst>(indices_subs.op(0)), ex_to<lst>(indices_subs.op(1)), subs_options::no_pattern|subs_options::no_index_renaming) : b);
 }
 
 ex rename_dummy_indices_uniquely(const ex & a, const ex & b)
 {
-	exvector va = get_all_dummy_indices(a);
+	exvector va = get_all_dummy_indices_safely(a);
 	if (va.size() > 0) {
-		exvector vb = get_all_dummy_indices(b);
+		exvector vb = get_all_dummy_indices_safely(b);
 		if (vb.size() > 0) {
 			sort(va.begin(), va.end(), ex_is_less());
 			sort(vb.begin(), vb.end(), ex_is_less());
 			lst indices_subs = rename_dummy_indices_uniquely(va, vb);
 			if (indices_subs.op(0).nops() > 0)
-				return b.subs((lst)indices_subs.op(0), (lst)indices_subs.op(1), subs_options::no_pattern);
+				return b.subs(ex_to<lst>(indices_subs.op(0)), ex_to<lst>(indices_subs.op(1)), subs_options::no_pattern|subs_options::no_index_renaming);
 		}
 	}
 	return b;
@@ -1442,7 +1456,7 @@ ex rename_dummy_indices_uniquely(const ex & a, const ex & b)
 ex rename_dummy_indices_uniquely(exvector & va, const ex & b, bool modify_va)
 {
 	if (va.size() > 0) {
-		exvector vb = get_all_dummy_indices(b);
+		exvector vb = get_all_dummy_indices_safely(b);
 		if (vb.size() > 0) {
 			sort(vb.begin(), vb.end(), ex_is_less());
 			lst indices_subs = rename_dummy_indices_uniquely(va, vb);
@@ -1459,7 +1473,7 @@ ex rename_dummy_indices_uniquely(exvector & va, const ex & b, bool modify_va)
 					}
 					sort(va.begin(), va.end(), ex_is_less());
 				}
-				return b.subs((lst)indices_subs.op(0), (lst)indices_subs.op(1), subs_options::no_pattern);
+				return b.subs(ex_to<lst>(indices_subs.op(0)), ex_to<lst>(indices_subs.op(1)), subs_options::no_pattern|subs_options::no_index_renaming);
 			}
 		}
 	}

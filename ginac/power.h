@@ -65,7 +65,6 @@ public:
 	ex normal(exmap & repl, exmap & rev_lookup, int level = 0) const;
 	ex to_rational(exmap & repl) const;
 	ex to_polynomial(exmap & repl) const;
-	exvector get_free_indices() const;
 	ex conjugate() const;
 protected:
 	ex derivative(const symbol & s) const;

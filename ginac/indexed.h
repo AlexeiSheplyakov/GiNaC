@@ -254,6 +254,10 @@ template<> inline bool is_exactly_a<indexed>(const basic & obj)
 /** Returns all dummy indices from the expression */
 exvector get_all_dummy_indices(const ex & e);
 
+/** More reliable version of the form. The former assumes that e is an
+  * expanded epxression. */
+exvector get_all_dummy_indices_safely(const ex & e);
+
 /** Returns b with all dummy indices, which are listed in va, renamed 
  *  if modify_va is set to TRUE all dummy indices of b will be appended to va */
 ex rename_dummy_indices_uniquely(exvector & va, const ex & b, bool modify_va = false);

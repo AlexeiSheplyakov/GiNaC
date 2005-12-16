@@ -1626,7 +1626,7 @@ safe_inserter::safe_inserter(const ex&e, const bool disable_renaming)
 	if(disable_renaming)
 		dodummies=false;
 	if(dodummies) {
-		dummy_indices = get_all_dummy_indices(e);
+		dummy_indices = get_all_dummy_indices_safely(e);
 		sort(dummy_indices.begin(), dummy_indices.end(), ex_is_less());
 	}
 }
@@ -1645,13 +1645,13 @@ void safe_inserter::insert_new_pair(const expair &p, const ex &orig_ex)
 		epv->push_back(p);
 		return;
 	}
-	exvector dummies_of_factor = get_all_dummy_indices(p.rest);
+	exvector dummies_of_factor = get_all_dummy_indices_safely(p.rest);
 	if(dummies_of_factor.size() == 0) {
 		epv->push_back(p);
 		return;
 	}
 	sort(dummies_of_factor.begin(), dummies_of_factor.end(), ex_is_less());
-	exvector dummies_of_orig_ex = get_all_dummy_indices(orig_ex);
+	exvector dummies_of_orig_ex = get_all_dummy_indices_safely(orig_ex);
 	sort(dummies_of_orig_ex.begin(), dummies_of_orig_ex.end(), ex_is_less());
 	exvector new_dummy_indices;
 	new_dummy_indices.reserve(dummy_indices.size());
