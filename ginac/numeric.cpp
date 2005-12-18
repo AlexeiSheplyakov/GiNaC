@@ -1708,7 +1708,7 @@ const numeric bernoulli(const numeric &nn)
 	results.reserve(n/2);
 	for (unsigned p=next_r; p<=n;  p+=2) {
 		cln::cl_I  c = 1;  // seed for binonmial coefficients
-		cln::cl_RA b = cln::cl_RA(1-p)/2;
+		cln::cl_RA b = cln::cl_RA(p-1)/-2;
 		const unsigned p3 = p+3;
 		const unsigned pm = p-2;
 		unsigned i, k, p_2;
