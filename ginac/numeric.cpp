@@ -1709,19 +1709,19 @@ const numeric bernoulli(const numeric &nn)
 	for (unsigned p=next_r; p<=n;  p+=2) {
 		cln::cl_I  c = 1;  // seed for binonmial coefficients
 		cln::cl_RA b = cln::cl_RA(p-1)/-2;
-		const unsigned p3 = p+3;
-		const unsigned pm = p-2;
-		unsigned i, k, p_2;
-		// test if intermediate unsigned int can be represented by immediate
-		// objects by CLN (i.e. < 2^29 for 32 Bit machines, see <cln/object.h>)
+		// The CLN manual says: "The conversion from `unsigned int' works only
+		// if the argument is < 2^29" (This is for 32 Bit machines. More
+		// generally, cl_value_len is the limiting exponent of 2. We must make
+		// sure that no intermediates are created which exceed this value. The
+		// largest intermediate is (p+3-2*k)*(p/2-k+1) <= (p^2+p)/2.
 		if (p < (1UL<<cl_value_len/2)) {
-			for (i=2, k=1, p_2=p/2; i<=pm; i+=2, ++k, --p_2) {
-				c = cln::exquo(c * ((p3-i) * p_2), (i-1)*k);
+			for (unsigned k=1; k<=p/2-1; ++k) {
+				c = cln::exquo(c * ((p+3-2*k) * (p/2-k+1)), (2*k-1)*k);
 				b = b + c*results[k-1];
 			}
 		} else {
-			for (i=2, k=1, p_2=p/2; i<=pm; i+=2, ++k, --p_2) {
-				c = cln::exquo((c * (p3-i)) * p_2, cln::cl_I(i-1)*k);
+			for (unsigned k=1; k<=p/2-1; ++k) {
+				c = cln::exquo((c * (p+3-2*k)) * (p/2-k+1), cln::cl_I(2*k-1)*k);
 				b = b + c*results[k-1];
 			}
  		}
