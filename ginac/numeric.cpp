@@ -107,7 +107,7 @@ numeric::numeric(unsigned int i) : basic(TINFO_numeric)
 	// emphasizes efficiency.  However, if the integer is small enough
 	// we save space and dereferences by using an immediate type.
 	// (C.f. <cln/object.h>)
-	if (i < (1U << (cl_value_len-1)))
+	if (i < (1UL << (cl_value_len-1)))
 		value = cln::cl_I(i);
 	else
 		value = cln::cl_I(static_cast<unsigned long>(i));
