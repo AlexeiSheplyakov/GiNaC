@@ -7857,7 +7857,7 @@ ex e = mystring("Hello, world!");
 cout << is_a<mystring>(e) << endl;
  // -> 1 (true)
 
-cout << e.bp->class_name() << endl;
+cout << ex_to<basic>(e).class_name() << endl;
  // -> mystring
 @end example
 
