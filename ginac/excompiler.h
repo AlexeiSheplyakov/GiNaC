@@ -4,7 +4,7 @@
  *  fast numerical integration. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,12 +25,10 @@
 #define __GINAC_EXCOMPILER_H__
 
 #include "basic.h"
-#include "config.h"
 #include "ex.h"
 
 namespace GiNaC {
 
-#ifdef HAVE_LIBDL
 
 typedef double (*FP_dim1) (double);
 
@@ -40,7 +38,6 @@ typedef void (*FP_cuba) (const int*, const double[], const int*, double[]);
 
 FP_cuba compile(const lst& exprs, const lst& syms);
 
-#endif
 
 } // namespace GiNaC
 

@@ -30,6 +30,7 @@
 #include <string>
 #include <vector>
 
+#include "config.h"
 #include "ex.h"
 #include "lst.h"
 #include "operators.h"
@@ -163,6 +164,20 @@ FP_cuba compile(const lst& exprs, const lst& syms)
 	_exc.add(module, strsofile);
 
 	return (FP_cuba) dlsym(module, "compiled_ex");
+}
+
+#elif
+
+FP_dim1 compile(const ex& expr, const symbol& sym)
+{
+	throw std::runtime_error("compile has been disabled because of missing libdl!");
+	return NULL;
+}
+
+FP_cuba compile(const lst& exprs, const lst& syms)
+{
+	throw std::runtime_error("compile has been disabled because of missing libdl!");
+	return NULL;
 }
 
 #endif
