@@ -559,6 +559,42 @@ bool tryfactsubs(const ex & origfactor, const ex & patternfactor, int & nummatch
 	return true;
 }
 
+/** Checks wheter e matches to the pattern pat and the (possibly to be updated
+  * list of replacements repls. This matching is in the sense of algebraic
+  * substitutions. Matching starts with pat.op(factor) of the pattern because
+  * the factors before this one have already been matched. The (possibly
+  * updated) number of matches is in nummatches. subsed[i] is true for factors
+  * that already have been replaced by previous substitutions and matched[i]
+  * is true for factors that have been matched by the current match.
+  */
+bool algebraic_match_mul_with_mul(const mul &e, const ex &pat, lst &repls,
+		int factor, int &nummatches, const std::vector<bool> &subsed,
+		std::vector<bool> &matched)
+{
+	if (factor == pat.nops())
+		return true;
+
+	for (size_t i=0; i<e.nops(); ++i) {
+		if(subsed[i] || matched[i])
+			continue;
+		lst newrepls = repls;
+		int newnummatches = nummatches;
+		if (tryfactsubs(e.op(i), pat.op(factor), newnummatches, newrepls)) {
+			matched[i] = true;
+			if (algebraic_match_mul_with_mul(e, pat, newrepls, factor+1,
+					newnummatches, subsed, matched)) {
+				repls = newrepls;
+				nummatches = newnummatches;
+				return true;
+			}
+			else
+				matched[i] = false;
+		}
+	}
+
+	return false;
+}
+
 ex mul::algebraic_subs_mul(const exmap & m, unsigned options) const
 {	
 	std::vector<bool> subsed(seq.size(), false);
@@ -567,29 +603,13 @@ ex mul::algebraic_subs_mul(const exmap & m, unsigned options) const
 	for (exmap::const_iterator it = m.begin(); it != m.end(); ++it) {
 
 		if (is_exactly_a<mul>(it->first)) {
-
+retry1:
 			int nummatches = std::numeric_limits<int>::max();
 			std::vector<bool> currsubsed(seq.size(), false);
 			bool succeed = true;
 			lst repls;
-
-			for (size_t j=0; j<it->first.nops(); j++) {
-				bool found=false;
-				for (size_t k=0; k<nops(); k++) {
-					if (currsubsed[k] || subsed[k])
-						continue;
-					if (tryfactsubs(op(k), it->first.op(j), nummatches, repls)) {
-						currsubsed[k] = true;
-						found = true;
-						break;
-					}
-				}
-				if (!found) {
-					succeed = false;
-					break;
-				}
-			}
-			if (!succeed)
+			
+			if(!algebraic_match_mul_with_mul(*this, it->first, repls, 0, nummatches, subsed, currsubsed))
 				continue;
 
 			bool foundfirstsubsedfactor = false;
@@ -604,9 +624,10 @@ ex mul::algebraic_subs_mul(const exmap & m, unsigned options) const
 					subsed[j] = true;
 				}
 			}
+			goto retry1;
 
 		} else {
-
+retry2:
 			int nummatches = std::numeric_limits<int>::max();
 			lst repls;
 
@@ -614,6 +635,7 @@ ex mul::algebraic_subs_mul(const exmap & m, unsigned options) const
 				if (!subsed[j] && tryfactsubs(op(j), it->first, nummatches, repls)) {
 					subsed[j] = true;
 					subsresult[j] = op(j) * power(it->second.subs(ex(repls), subs_options::no_pattern) / it->first.subs(ex(repls), subs_options::no_pattern), nummatches);
+					goto retry2;
 				}
 			}
 		}
