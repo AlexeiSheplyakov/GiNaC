@@ -206,6 +206,21 @@ ex & clifford::let_op(size_t i)
 		return inherited::let_op(i);
 }
 
+ex clifford::subs(const exmap & m, unsigned options) const
+{
+	ex subsed = inherited::subs(m, options);
+	if(is_a<clifford>(subsed)) {
+		ex prevmetric = ex_to<clifford>(subsed).metric;
+		ex newmetric = prevmetric.subs(m, options);
+		if(!are_ex_trivially_equal(prevmetric, newmetric)) {
+			clifford c = ex_to<clifford>(subsed);
+			c.metric = newmetric;
+			subsed = c;
+		}
+	}
+	return subsed;
+}
+
 int clifford::compare_same_type(const basic & other) const
 {
 	GINAC_ASSERT(is_a<clifford>(other));

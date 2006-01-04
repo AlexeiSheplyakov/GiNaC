@@ -74,16 +74,11 @@ public:
 	inline size_t nops() const {return inherited::nops() + 1; }
 	ex op(size_t i) const;
 	ex & let_op(size_t i);
-	ex subs(const exmap & m, unsigned options = 0) const { clifford c = ex_to<clifford>(inherited::subs(m, options)); c.metric_subs(m, options); return c;}
-	ex subs(const lst & ls, const lst & lr, unsigned options = 0) const { clifford c = ex_to<clifford>(ex(*this).subs(ls, lr, options)); c.metric_subs(ls, lr, options); return c;}
-	ex subs(const ex & e, unsigned options = 0) const{ clifford c = ex_to<clifford>(ex(*this).subs(e, options)); c.metric_subs(e, options); return c;};
+	ex subs(const exmap & m, unsigned options = 0) const;
 
 protected:
 	void do_print_dflt(const print_dflt & c, unsigned level) const;
 	void do_print_latex(const print_latex & c, unsigned level) const;
-	void metric_subs(const exmap & m, unsigned options = 0) { metric = metric.subs(m, options); }
-	void metric_subs(const lst & ls, const lst & lr, unsigned options = 0) { metric = metric.subs(ls, lr, options); }
-	void metric_subs(const ex & e, unsigned options = 0) { metric = metric.subs(e, options); }
 
 	// member variables
 protected:
