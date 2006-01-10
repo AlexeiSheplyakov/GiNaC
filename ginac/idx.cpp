@@ -415,7 +415,7 @@ bool idx::is_dummy_pair_same_type(const basic & other) const
 	if (dim.is_equal(o.dim))
 		return true;
 
-	return (dim < o.dim || dim > o.dim || (is_exactly_a<numeric>(dim) && is_a<symbol>(o.dim)) || (is_a<symbol>(dim) && is_exactly_a<numeric>(o.dim)));
+	return is_exactly_a<numeric>(dim) || is_exactly_a<numeric>(o.dim);
 }
 
 bool varidx::is_dummy_pair_same_type(const basic & other) const
@@ -548,9 +548,9 @@ void find_free_and_dummy(exvector::const_iterator it, exvector::const_iterator i
 
 ex minimal_dim(const ex & dim1, const ex & dim2)
 {
-	if (dim1.is_equal(dim2) || dim1 < dim2 || (is_exactly_a<numeric>(dim1) && is_a<symbol>(dim2)))
+	if (dim1.is_equal(dim2) || dim1 < dim2 || (is_exactly_a<numeric>(dim1) && !is_a<numeric>(dim2)))
 		return dim1;
-	else if (dim1 > dim2 || (is_a<symbol>(dim1) && is_exactly_a<numeric>(dim2)))
+	else if (dim1 > dim2 || (!is_a<numeric>(dim1) && is_exactly_a<numeric>(dim2)))
 		return dim2;
 	else {
 		std::ostringstream s;
