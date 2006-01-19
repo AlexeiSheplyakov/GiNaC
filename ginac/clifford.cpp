@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's clifford algebra (Dirac gamma) objects. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -76,7 +76,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(diracgammaR, tensor,
 
 clifford::clifford() : representation_label(0), metric(0), anticommuting(true), commutator_sign(-1)
 {
-	tinfo_key = TINFO_clifford;
+	tinfo_key = &clifford::tinfo_static;
 }
 
 DEFAULT_CTOR(diracone)
@@ -95,7 +95,7 @@ DEFAULT_CTOR(diracgammaR)
  *  @see dirac_ONE */
 clifford::clifford(const ex & b, unsigned char rl, bool anticommut) : inherited(b), representation_label(rl), metric(0), anticommuting(anticommut), commutator_sign(-1)
 {
-	tinfo_key = TINFO_clifford;
+	tinfo_key = &clifford::tinfo_static;
 }
 
 /** Construct object with one Lorentz index. This constructor is for internal
@@ -105,17 +105,17 @@ clifford::clifford(const ex & b, unsigned char rl, bool anticommut) : inherited(
 clifford::clifford(const ex & b, const ex & mu, const ex & metr, unsigned char rl, bool anticommut, int comm_sign) : inherited(b, mu), representation_label(rl), metric(metr), anticommuting(anticommut), commutator_sign(comm_sign)
 {
 	GINAC_ASSERT(is_a<varidx>(mu));
-	tinfo_key = TINFO_clifford;
+	tinfo_key = &clifford::tinfo_static;
 }
 
 clifford::clifford(unsigned char rl, const ex & metr, bool anticommut, int comm_sign, const exvector & v, bool discardable) : inherited(not_symmetric(), v, discardable), representation_label(rl), metric(metr), anticommuting(anticommut), commutator_sign(comm_sign)
 {
-	tinfo_key = TINFO_clifford;
+	tinfo_key = &clifford::tinfo_static;
 }
 
 clifford::clifford(unsigned char rl, const ex & metr, bool anticommut, int comm_sign, std::auto_ptr<exvector> vp) : inherited(not_symmetric(), vp), representation_label(rl), metric(metr), anticommuting(anticommut), commutator_sign(comm_sign)
 {
-	tinfo_key = TINFO_clifford;
+	tinfo_key = &clifford::tinfo_static;
 }
 
 //////////
@@ -837,24 +837,17 @@ ex dirac_slash(const ex & e, const ex & dim, unsigned char rl)
 }
 
 /** Check whether a given tinfo key (as returned by return_type_tinfo()
- *  is that of a clifford object with the specified representation label. */
-static bool is_clifford_tinfo(unsigned ti, unsigned char rl)
-{
-	return ti == (TINFO_clifford + rl);
-}
-
-/** Check whether a given tinfo key (as returned by return_type_tinfo()
  *  is that of a clifford object (with an arbitrary representation label). */
-static bool is_clifford_tinfo(unsigned ti)
+static bool is_clifford_tinfo(const basic* ti)
 {
-	return (ti & ~0xff) == TINFO_clifford;
+	return ti->tinfo() == &clifford::tinfo_static;
 }
 
 /** Extract representation label from tinfo key (as returned by
  *  return_type_tinfo()). */
-static unsigned char get_representation_label(unsigned ti)
+static unsigned char get_representation_label(const basic* ti)
 {
-	return ti & 0xff;
+	return ((clifford*)ti)->get_representation_label();
 }
 
 /** Take trace of a string of an even number of Dirac gammas given a vector

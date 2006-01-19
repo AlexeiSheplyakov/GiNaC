@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's symmetry definitions. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(symmetry, basic,
 // default constructor
 //////////
 
-symmetry::symmetry() : inherited(TINFO_symmetry), type(none)
+symmetry::symmetry() : inherited(&symmetry::tinfo_static), type(none)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
@@ -64,13 +64,13 @@ symmetry::symmetry() : inherited(TINFO_symmetry), type(none)
 // other constructors
 //////////
 
-symmetry::symmetry(unsigned i) : inherited(TINFO_symmetry), type(none)
+symmetry::symmetry(unsigned i) : inherited(&symmetry::tinfo_static), type(none)
 {
 	indices.insert(i);
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
-symmetry::symmetry(symmetry_type t, const symmetry &c1, const symmetry &c2) : inherited(TINFO_symmetry), type(t)
+symmetry::symmetry(symmetry_type t, const symmetry &c1, const symmetry &c2) : inherited(&symmetry::tinfo_static), type(t)
 {
 	add(c1); add(c2);
 	setflag(status_flags::evaluated | status_flags::expanded);

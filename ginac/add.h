@@ -3,7 +3,7 @@
  *  Interface to GiNaC's sums of expressions. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -63,7 +63,7 @@ public:
 protected:
 	ex derivative(const symbol & s) const;
 	unsigned return_type() const;
-	unsigned return_type_tinfo() const;
+	const basic* return_type_tinfo() const;
 	ex thisexpairseq(const epvector & v, const ex & oc) const;
 	ex thisexpairseq(std::auto_ptr<epvector> vp, const ex & oc) const;
 	expair split_ex_to_pair(const ex & e) const;
@@ -82,14 +82,6 @@ protected:
 	void do_print_csrc(const print_csrc & c, unsigned level) const;
 	void do_print_python_repr(const print_python_repr & c, unsigned level) const;
 };
-
-// utility functions
-
-/** Specialization of is_exactly_a<add>(obj) for add objects. */
-template<> inline bool is_exactly_a<add>(const basic & obj)
-{
-	return obj.tinfo()==TINFO_add;
-}
 
 } // namespace GiNaC
 

@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's symbolic exponentiation (basis^exponent). */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ typedef std::vector<int> intvector;
 // default constructor
 //////////
 
-power::power() : inherited(TINFO_power) { }
+power::power() : inherited(&power::tinfo_static) { }
 
 //////////
 // other constructors
@@ -619,7 +619,7 @@ unsigned power::return_type() const
 	return basis.return_type();
 }
 
-unsigned power::return_type_tinfo() const
+const basic* power::return_type_tinfo() const
 {
 	return basis.return_type_tinfo();
 }

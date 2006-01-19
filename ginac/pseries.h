@@ -3,7 +3,7 @@
  *  Interface to class for extended truncated power series. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -115,12 +115,6 @@ protected:
 
 
 // utility functions
-
-/** Specialization of is_exactly_a<pseries>(obj) for pseries objects. */
-template<> inline bool is_exactly_a<pseries>(const basic & obj)
-{
-	return obj.tinfo()==TINFO_pseries;
-}
 
 /** Convert the pseries object embedded in an expression to an ordinary
  *  polynomial in the expansion variable. The result is undefined if the

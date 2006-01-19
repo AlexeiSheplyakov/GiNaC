@@ -2,7 +2,7 @@
 
 #  function.pl options: \$maxargs=${maxargs}
 # 
-#  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+#  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
 # 
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -126,7 +126,7 @@ $constructors_implementation=generate(
 function::function(unsigned ser, ${SEQ1})
 	: exprseq(${SEQ2}), serial(ser)
 {
-	tinfo_key = TINFO_function;
+	tinfo_key = &function::tinfo_static;
 }
 END_OF_CONSTRUCTORS_IMPLEMENTATION
 
@@ -356,7 +356,7 @@ $print_func_interface
 		return *this;
 	}
 
-	function_options & set_return_type(unsigned rt, unsigned rtt=0);
+	function_options & set_return_type(unsigned rt);
 	function_options & do_not_evalf_params();
 	function_options & remember(unsigned size, unsigned assoc_size=0,
 	                            unsigned strategy=remember_strategies::delete_never);
@@ -389,7 +389,7 @@ protected:
 
 	bool use_return_type;
 	unsigned return_type;
-	unsigned return_type_tinfo;
+	const basic* return_type_tinfo;
 
 	bool use_remember;
 	unsigned remember_size;
@@ -459,7 +459,7 @@ protected:
 	bool is_equal_same_type(const basic & other) const;
 	bool match_same_type(const basic & other) const;
 	unsigned return_type() const;
-	unsigned return_type_tinfo() const;
+	const basic* return_type_tinfo() const;
 	
 	// new virtual functions which can be overridden by derived classes
 	// none
@@ -485,12 +485,6 @@ protected:
 };
 
 // utility functions/macros
-
-/** Specialization of is_exactly_a<function>(obj) for objects of type function. */
-template<> inline bool is_exactly_a<function>(const basic & obj)
-{
-	return obj.tinfo()==TINFO_function;
-}
 
 template <typename T>
 inline bool is_the_function(const ex & x)
@@ -665,11 +659,10 @@ function_options& function_options::series_func(series_funcp_exvector s)
 	return *this;
 }
 
-function_options & function_options::set_return_type(unsigned rt, unsigned rtt)
+function_options & function_options::set_return_type(unsigned rt)
 {
 	use_return_type = true;
 	return_type = rt;
-	return_type_tinfo = rtt;
 	return *this;
 }
 
@@ -737,7 +730,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(function, exprseq)
 
 function::function() : serial(0)
 {
-	tinfo_key = TINFO_function;
+	tinfo_key = &function::tinfo_static;
 }
 
 //////////
@@ -748,7 +741,7 @@ function::function() : serial(0)
 
 function::function(unsigned ser) : serial(ser)
 {
-	tinfo_key = TINFO_function;
+	tinfo_key = &function::tinfo_static;
 }
 
 // the following lines have been generated for max. ${maxargs} parameters
@@ -757,7 +750,7 @@ $constructors_implementation
 
 function::function(unsigned ser, const exprseq & es) : exprseq(es), serial(ser)
 {
-	tinfo_key = TINFO_function;
+	tinfo_key = &function::tinfo_static;
 
 	// Force re-evaluation even if the exprseq was already evaluated
 	// (the exprseq copy constructor copies the flags)
@@ -767,13 +760,13 @@ function::function(unsigned ser, const exprseq & es) : exprseq(es), serial(ser)
 function::function(unsigned ser, const exvector & v, bool discardable) 
   : exprseq(v,discardable), serial(ser)
 {
-	tinfo_key = TINFO_function;
+	tinfo_key = &function::tinfo_static;
 }
 
 function::function(unsigned ser, std::auto_ptr<exvector> vp) 
   : exprseq(vp), serial(ser)
 {
-	tinfo_key = TINFO_function;
+	tinfo_key = &function::tinfo_static;
 }
 
 //////////
@@ -982,7 +975,7 @@ ${evalf_switch_statement}
 
 unsigned function::calchash() const
 {
-	unsigned v = golden_ratio_hash(golden_ratio_hash(tinfo()) ^ serial);
+	unsigned v = golden_ratio_hash(golden_ratio_hash((unsigned)tinfo()) ^ serial);
 	for (size_t i=0; i<nops(); i++) {
 		v = rotate_left(v);
 		v ^= this->op(i).gethash();
@@ -1133,19 +1126,19 @@ unsigned function::return_type() const
 	}
 }
 
-unsigned function::return_type_tinfo() const
+const basic* function::return_type_tinfo() const
 {
 	GINAC_ASSERT(serial<registered_functions().size());
 	const function_options &opt = registered_functions()[serial];
 
 	if (opt.use_return_type) {
 		// Return type was explicitly specified
-		return opt.return_type_tinfo;
+		return this;
 	} else {
 		// Default behavior is to use the return type of the first
 		// argument. Thus, exp() of a matrix behaves like a matrix, etc.
 		if (seq.empty())
-			return tinfo_key;
+			return this;
 		else
 			return seq.begin()->return_type_tinfo();
 	}

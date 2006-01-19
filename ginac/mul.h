@@ -3,7 +3,7 @@
  *  Interface to GiNaC's products of expressions. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@ protected:
 	ex derivative(const symbol & s) const;
 	ex eval_ncmul(const exvector & v) const;
 	unsigned return_type() const;
-	unsigned return_type_tinfo() const;
+	const basic* return_type_tinfo() const;
 	ex thisexpairseq(const epvector & v, const ex & oc) const;
 	ex thisexpairseq(std::auto_ptr<epvector> vp, const ex & oc) const;
 	expair split_ex_to_pair(const ex & e) const;
@@ -94,14 +94,6 @@ protected:
 	static bool can_be_further_expanded(const ex & e);
 	std::auto_ptr<epvector> expandchildren(unsigned options) const;
 };
-
-// utility functions
-
-/** Specialization of is_exactly_a<mul>(obj) for mul objects. */
-template<> inline bool is_exactly_a<mul>(const basic & obj)
-{
-	return obj.tinfo()==TINFO_mul;
-}
 
 } // namespace GiNaC
 

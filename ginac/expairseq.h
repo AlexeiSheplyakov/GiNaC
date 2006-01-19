@@ -3,7 +3,7 @@
  *  Interface to sequences of expression pairs. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -169,14 +169,6 @@ protected:
 	static unsigned hashtabfactor;
 #endif // EXPAIRSEQ_USE_HASHTAB
 };
-
-// utility functions
-
-/** Specialization of is_exactly_a<expairseq>(obj) for expairseq objects. */
-template<> inline bool is_exactly_a<expairseq>(const basic & obj)
-{
-	return obj.tinfo()==TINFO_expairseq;
-}
 
 } // namespace GiNaC
 

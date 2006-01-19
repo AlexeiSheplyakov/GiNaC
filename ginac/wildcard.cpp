@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's wildcard objects. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(wildcard, basic,
 // default constructor
 //////////
 
-wildcard::wildcard() : inherited(TINFO_wildcard), label(0)
+wildcard::wildcard() : inherited(&wildcard::tinfo_static), label(0)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
@@ -46,7 +46,7 @@ wildcard::wildcard() : inherited(TINFO_wildcard), label(0)
 // other constructors
 //////////
 
-wildcard::wildcard(unsigned l) : inherited(TINFO_wildcard), label(l)
+wildcard::wildcard(unsigned l) : inherited(&wildcard::tinfo_static), label(l)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
@@ -106,7 +106,7 @@ unsigned wildcard::calchash() const
 	// this is where the schoolbook method
 	// (golden_ratio_hash(tinfo()) ^ label)
 	// is not good enough yet...
-	hashvalue = golden_ratio_hash(golden_ratio_hash(tinfo()) ^ label);
+	hashvalue = golden_ratio_hash(golden_ratio_hash((unsigned)tinfo()) ^ label);
 	setflag(status_flags::hash_calculated);
 	return hashvalue;
 }

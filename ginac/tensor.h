@@ -37,7 +37,7 @@ class tensor : public basic
 
 	// other constructors
 protected:
-	tensor(unsigned ti) : inherited(ti) {}
+	tensor(tinfo_t ti) : inherited(ti) {}
 
 	// functions overriding virtual functions from base classes
 protected:

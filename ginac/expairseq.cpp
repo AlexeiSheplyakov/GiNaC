@@ -3,7 +3,7 @@
  *  Implementation of sequences of expression pairs. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -67,7 +67,7 @@ public:
 
 // public
 
-expairseq::expairseq() : inherited(TINFO_expairseq)
+expairseq::expairseq() : inherited(&expairseq::tinfo_static)
 #if EXPAIRSEQ_USE_HASHTAB
                                                    , hashtabsize(0)
 #endif // EXPAIRSEQ_USE_HASHTAB
@@ -106,20 +106,20 @@ void expairseq::copy(const expairseq &other)
 // other constructors
 //////////
 
-expairseq::expairseq(const ex &lh, const ex &rh) : inherited(TINFO_expairseq)
+expairseq::expairseq(const ex &lh, const ex &rh) : inherited(&expairseq::tinfo_static)
 {
 	construct_from_2_ex(lh,rh);
 	GINAC_ASSERT(is_canonical());
 }
 
-expairseq::expairseq(const exvector &v) : inherited(TINFO_expairseq)
+expairseq::expairseq(const exvector &v) : inherited(&expairseq::tinfo_static)
 {
 	construct_from_exvector(v);
 	GINAC_ASSERT(is_canonical());
 }
 
 expairseq::expairseq(const epvector &v, const ex &oc)
-  : inherited(TINFO_expairseq), overall_coeff(oc)
+  : inherited(&expairseq::tinfo_static), overall_coeff(oc)
 {
 	GINAC_ASSERT(is_a<numeric>(oc));
 	construct_from_epvector(v);
@@ -127,7 +127,7 @@ expairseq::expairseq(const epvector &v, const ex &oc)
 }
 
 expairseq::expairseq(std::auto_ptr<epvector> vp, const ex &oc)
-  : inherited(TINFO_expairseq), overall_coeff(oc)
+  : inherited(&expairseq::tinfo_static), overall_coeff(oc)
 {
 	GINAC_ASSERT(vp.get()!=0);
 	GINAC_ASSERT(is_a<numeric>(oc));
@@ -571,7 +571,7 @@ unsigned expairseq::return_type() const
 
 unsigned expairseq::calchash() const
 {
-	unsigned v = golden_ratio_hash(this->tinfo());
+	unsigned v = golden_ratio_hash((unsigned)this->tinfo());
 	epvector::const_iterator i = seq.begin();
 	const epvector::const_iterator end = seq.end();
 	while (i != end) {
@@ -861,6 +861,7 @@ void expairseq::construct_from_2_expairseq(const expairseq &s1,
 	
 	while (first1!=last1 && first2!=last2) {
 		int cmpval = (*first1).rest.compare((*first2).rest);
+
 		if (cmpval==0) {
 			// combine terms
 			const numeric &newcoeff = ex_to<numeric>(first1->coeff).

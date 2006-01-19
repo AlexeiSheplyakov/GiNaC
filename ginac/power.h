@@ -3,7 +3,7 @@
  *  Interface to GiNaC's symbolic exponentiation (basis^exponent). */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -44,8 +44,8 @@ class power : public basic
 	
 	// other constructors
 public:
-	power(const ex & lh, const ex & rh) : inherited(TINFO_power), basis(lh), exponent(rh) {}
-	template<typename T> power(const ex & lh, const T & rh) : inherited(TINFO_power), basis(lh), exponent(rh) {}
+	power(const ex & lh, const ex & rh) : inherited(&power::tinfo_static), basis(lh), exponent(rh) {}
+	template<typename T> power(const ex & lh, const T & rh) : inherited(&power::tinfo_static), basis(lh), exponent(rh) {}
 	
 	// functions overriding virtual functions from base classes
 public:
@@ -70,7 +70,7 @@ protected:
 	ex derivative(const symbol & s) const;
 	ex eval_ncmul(const exvector & v) const;
 	unsigned return_type() const;
-	unsigned return_type_tinfo() const;
+	const basic* return_type_tinfo() const;
 	ex expand(unsigned options = 0) const;
 	
 	// new virtual functions which can be overridden by derived classes
@@ -95,14 +95,6 @@ protected:
 	ex basis;
 	ex exponent;
 };
-
-// utility functions
-
-/** Efficient specialization of is_exactly_a<power>(obj) for power objects. */
-template<> inline bool is_exactly_a<power>(const basic & obj)
-{
-	return obj.tinfo()==TINFO_power;
-}
 
 // wrapper functions
 

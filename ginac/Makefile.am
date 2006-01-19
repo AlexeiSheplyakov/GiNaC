@@ -7,7 +7,7 @@ libginac_la_SOURCES = add.cpp archive.cpp basic.cpp clifford.cpp color.cpp \
   inifcns_trans.cpp inifcns_gamma.cpp inifcns_nstdsums.cpp \
   integral.cpp lst.cpp matrix.cpp mul.cpp ncmul.cpp normal.cpp numeric.cpp \
   operators.cpp power.cpp registrar.cpp relational.cpp remember.cpp \
-  pseries.cpp print.cpp structure.cpp symbol.cpp symmetry.cpp tensor.cpp \
+  pseries.cpp print.cpp symbol.cpp symmetry.cpp tensor.cpp \
   utils.cpp wildcard.cpp input_parser.yy input_lexer.ll \
   input_lexer.h remember.h tostring.h utils.h
 libginac_la_LDFLAGS = -version-info $(LT_VERSION_INFO) -release $(LT_RELEASE)
@@ -17,7 +17,7 @@ ginacinclude_HEADERS = ginac.h add.h archive.h assertion.h basic.h class_info.h 
   exprseq.h fail.h fderivative.h flags.h function.h hash_map.h idx.h indexed.h \
   inifcns.h integral.h lst.h matrix.h mul.h ncmul.h normal.h numeric.h operators.h \
   power.h print.h pseries.h ptr.h registrar.h relational.h structure.h \
-  symbol.h symmetry.h tensor.h tinfos.h version.h wildcard.h
+  symbol.h symmetry.h tensor.h version.h wildcard.h
 AM_LFLAGS = -Pginac_yy -olex.yy.c
 AM_YFLAGS = -p ginac_yy -d
 EXTRA_DIST = function.pl input_parser.h version.h.in

@@ -3,7 +3,7 @@
  *  Wrapper template for making GiNaC classes out of STL containers. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -137,7 +137,7 @@ public:
 
 protected:
 	// helpers
-	static unsigned get_tinfo() { return TINFO_fail; }
+	static tinfo_t get_tinfo() { return NULL; }
 	static unsigned get_default_flags() { return 0; }
 	static char get_open_delim() { return '('; }
 	static char get_close_delim() { return ')'; }

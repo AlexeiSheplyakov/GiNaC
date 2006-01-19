@@ -3,7 +3,7 @@
  *  Interface to relations between expressions. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -63,7 +63,7 @@ protected:
 	ex eval_ncmul(const exvector & v) const;
 	bool match_same_type(const basic & other) const;
 	unsigned return_type() const;
-	unsigned return_type_tinfo() const;
+	const basic* return_type_tinfo() const;
 	unsigned calchash() const;
 
 	// new virtual functions which can be overridden by derived classes
@@ -102,12 +102,6 @@ protected:
 };
 
 // utility functions
-
-/** Specialization of is_exactly_a<relational>(obj) for relational objects. */
-template<> inline bool is_exactly_a<relational>(const basic & obj)
-{
-	return obj.tinfo()==TINFO_relational;
-}
 
 // inlined functions for efficiency
 inline relational::safe_bool relational::operator!() const

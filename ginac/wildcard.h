@@ -63,12 +63,6 @@ private:
 
 // utility functions
 
-/** Specialization of is_exactly_a<wildcard>(obj) for wildcard objects. */
-template<> inline bool is_exactly_a<wildcard>(const basic & obj)
-{
-        return obj.tinfo()==TINFO_wildcard;
-}
-
 /** Create a wildcard object with the specified label. */
 inline ex wild(unsigned label = 0)
 {

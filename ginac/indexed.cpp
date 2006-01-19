@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's indexed expressions. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(indexed, exprseq,
 
 indexed::indexed() : symtree(not_symmetric())
 {
-	tinfo_key = TINFO_indexed;
+	tinfo_key = &indexed::tinfo_static;
 }
 
 //////////
@@ -62,79 +62,79 @@ indexed::indexed() : symtree(not_symmetric())
 
 indexed::indexed(const ex & b) : inherited(b), symtree(not_symmetric())
 {
-	tinfo_key = TINFO_indexed;
+	tinfo_key = &indexed::tinfo_static;
 	validate();
 }
 
 indexed::indexed(const ex & b, const ex & i1) : inherited(b, i1), symtree(not_symmetric())
 {
-	tinfo_key = TINFO_indexed;
+	tinfo_key = &indexed::tinfo_static;
 	validate();
 }
 
 indexed::indexed(const ex & b, const ex & i1, const ex & i2) : inherited(b, i1, i2), symtree(not_symmetric())
 {
-	tinfo_key = TINFO_indexed;
+	tinfo_key = &indexed::tinfo_static;
 	validate();
 }
 
 indexed::indexed(const ex & b, const ex & i1, const ex & i2, const ex & i3) : inherited(b, i1, i2, i3), symtree(not_symmetric())
 {
-	tinfo_key = TINFO_indexed;
+	tinfo_key = &indexed::tinfo_static;
 	validate();
 }
 
 indexed::indexed(const ex & b, const ex & i1, const ex & i2, const ex & i3, const ex & i4) : inherited(b, i1, i2, i3, i4), symtree(not_symmetric())
 {
-	tinfo_key = TINFO_indexed;
+	tinfo_key = &indexed::tinfo_static;
 	validate();
 }
 
 indexed::indexed(const ex & b, const symmetry & symm, const ex & i1, const ex & i2) : inherited(b, i1, i2), symtree(symm)
 {
-	tinfo_key = TINFO_indexed;
+	tinfo_key = &indexed::tinfo_static;
 	validate();
 }
 
 indexed::indexed(const ex & b, const symmetry & symm, const ex & i1, const ex & i2, const ex & i3) : inherited(b, i1, i2, i3), symtree(symm)
 {
-	tinfo_key = TINFO_indexed;
+	tinfo_key = &indexed::tinfo_static;
 	validate();
 }
 
 indexed::indexed(const ex & b, const symmetry & symm, const ex & i1, const ex & i2, const ex & i3, const ex & i4) : inherited(b, i1, i2, i3, i4), symtree(symm)
 {
-	tinfo_key = TINFO_indexed;
+	tinfo_key = &indexed::tinfo_static;
 	validate();
 }
 
 indexed::indexed(const ex & b, const exvector & v) : inherited(b), symtree(not_symmetric())
 {
 	seq.insert(seq.end(), v.begin(), v.end());
-	tinfo_key = TINFO_indexed;
+	tinfo_key = &indexed::tinfo_static;
 	validate();
 }
 
 indexed::indexed(const ex & b, const symmetry & symm, const exvector & v) : inherited(b), symtree(symm)
 {
 	seq.insert(seq.end(), v.begin(), v.end());
-	tinfo_key = TINFO_indexed;
+	tinfo_key = &indexed::tinfo_static;
 	validate();
 }
 
 indexed::indexed(const symmetry & symm, const exprseq & es) : inherited(es), symtree(symm)
 {
-	tinfo_key = TINFO_indexed;
+	tinfo_key = &indexed::tinfo_static;
 }
 
 indexed::indexed(const symmetry & symm, const exvector & v, bool discardable) : inherited(v, discardable), symtree(symm)
 {
-	tinfo_key = TINFO_indexed;
+	tinfo_key = &indexed::tinfo_static;
 }
 
 indexed::indexed(const symmetry & symm, std::auto_ptr<exvector> vp) : inherited(vp), symtree(symm)
 {
-	tinfo_key = TINFO_indexed;
+	tinfo_key = &indexed::tinfo_static;
 }
 
 //////////
@@ -297,7 +297,7 @@ ex indexed::eval(int level) const
 		return f * thiscontainer(v);
 	}
 
-	if(this->tinfo()==TINFO_indexed && seq.size()==1)
+	if(this->tinfo()==&indexed::tinfo_static && seq.size()==1)
 		return base;
 
 	// Canonicalize indices according to the symmetry properties

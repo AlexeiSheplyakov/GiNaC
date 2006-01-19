@@ -3,7 +3,7 @@
  *  Definition of GiNaC's lst. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ namespace GiNaC {
 typedef container<std::list> lst;
 
 /** Specialization of container::get_tinfo() for lst. */
-template<> inline unsigned lst::get_tinfo() { return TINFO_lst; }
+template<> inline tinfo_t lst::get_tinfo() { return &lst::tinfo_static; }
 
 /** Specialization of container::get_default_flags() for lst. */
 template<> inline unsigned lst::get_default_flags() { return status_flags::not_shareable; }
@@ -45,12 +45,6 @@ template<> inline char lst::get_close_delim() { return '}'; }
 
 // defined in lst.cpp
 template<> bool lst::info(unsigned inf) const;
-
-/** Specialization of is_exactly_a<lst>(obj) for lst objects. */
-template<> inline bool is_exactly_a<lst>(const basic & obj)
-{
-	return obj.tinfo() == TINFO_lst;
-}
 
 } // namespace GiNaC
 

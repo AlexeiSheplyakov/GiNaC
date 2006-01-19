@@ -4,7 +4,7 @@
  *  somewhat obsolete (most of this can be replaced by exceptions). */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -40,12 +40,6 @@ protected:
 protected:
 	void do_print(const print_context & c, unsigned level) const;
 };
-
-/** Specialization of is_exactly_a<fail>(obj) for fail objects. */
-template<> inline bool is_exactly_a<fail>(const basic & obj)
-{
-	return obj.tinfo()==TINFO_fail;
-}
 
 } // namespace GiNaC
 

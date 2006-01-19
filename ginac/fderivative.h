@@ -3,7 +3,7 @@
  *  Interface to abstract derivatives of functions. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -80,14 +80,6 @@ protected:
 protected:
 	paramset parameter_set; /**< Set of parameter numbers with respect to which to take the derivative */
 };
-
-// utility functions
-
-/** Specialization of is_exactly_a<T>(obj) for derivatives. */
-template<> inline bool is_exactly_a<fderivative>(const basic & obj)
-{
-	return obj.tinfo()==TINFO_fderivative;
-}
 
 } // namespace GiNaC
 

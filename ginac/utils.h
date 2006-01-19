@@ -4,7 +4,7 @@
  *  of any interest to the user of the library. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -391,7 +391,7 @@ extern const ex _ex120;
 // Helper macros for class implementations (mostly useful for trivial classes)
 
 #define DEFAULT_CTOR(classname) \
-classname::classname() : inherited(TINFO_##classname) { setflag(status_flags::evaluated | status_flags::expanded); }
+classname::classname() : inherited(&classname::tinfo_static) { setflag(status_flags::evaluated | status_flags::expanded); }
 
 #define DEFAULT_UNARCHIVE(classname) \
 ex classname::unarchive(const archive_node &n, lst &sym_lst) \

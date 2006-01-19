@@ -3,7 +3,7 @@
  *  Definition of GiNaC's exprseq. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -32,16 +32,10 @@ namespace GiNaC {
 typedef container<std::vector> exprseq;
 
 /** Specialization of container::get_tinfo() for exprseq. */
-template<> inline unsigned exprseq::get_tinfo() { return TINFO_exprseq; }
+template<> inline tinfo_t exprseq::get_tinfo() { return &exprseq::tinfo_static; }
 
 // defined in exprseq.cpp
 template<> bool exprseq::info(unsigned inf) const;
-
-/** Specialization of is_exactly_a<exprseq>(obj) for exprseq objects. */
-template<> inline bool is_exactly_a<exprseq>(const basic & obj)
-{
-	return obj.tinfo() == TINFO_exprseq;
-}
 
 } // namespace GiNaC
 

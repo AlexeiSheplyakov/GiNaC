@@ -3,7 +3,7 @@
  *  Interface to GiNaC's ABC. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -30,7 +30,6 @@
 #include <algorithm>
 
 #include "flags.h"
-#include "tinfos.h"
 #include "ptr.h"
 #include "assertion.h"
 #include "registrar.h"
@@ -47,7 +46,6 @@ class print_context;
 
 typedef std::vector<ex> exvector;
 typedef std::map<ex, ex, ex_is_less> exmap;
-
 
 // Define this to enable some statistical output for comparisons and hashing
 #undef GINAC_COMPARE_STATISTICS
@@ -108,7 +106,7 @@ class basic : public refcounted
 	
 	// default constructor, destructor, copy constructor and assignment operator
 protected:
-	basic() : tinfo_key(TINFO_basic), flags(0) {}
+	basic() : tinfo_key(&tinfo_static), flags(0) {}
 
 public:
 	/** basic destructor, virtual because class ex will delete objects of
@@ -123,7 +121,7 @@ public:
 protected:
 	/** Constructor with specified tinfo_key (used by derived classes instead
 	 *  of the default constructor to avoid assigning tinfo_key twice). */
-	basic(unsigned ti) : tinfo_key(ti), flags(0) {}
+	basic(tinfo_t ti) : tinfo_key(ti), flags(0) {}
 	
 	// new virtual functions which can be overridden by derived classes
 public: // only const functions please (may break reference counting)
@@ -214,7 +212,7 @@ public:
 
 	// noncommutativity
 	virtual unsigned return_type() const;
-	virtual unsigned return_type_tinfo() const;
+	virtual const basic* return_type_tinfo() const;
 
 	// complex conjugation
 	virtual ex conjugate() const;
@@ -262,7 +260,7 @@ public:
 		}
 	}
 
-	unsigned tinfo() const {return tinfo_key;}
+	tinfo_t tinfo() const {return tinfo_key;}
 
 	/** Set some status_flags. */
 	const basic & setflag(unsigned f) const {flags |= f; return *this;}
@@ -279,7 +277,7 @@ protected:
 	
 	// member variables
 protected:
-	unsigned tinfo_key;                 ///< typeinfo
+	tinfo_t tinfo_key;                  ///< type info
 	mutable unsigned flags;             ///< of type status_flags
 	mutable unsigned hashvalue;         ///< hash value
 };
@@ -299,13 +297,11 @@ inline bool is_a(const basic &obj)
 	return dynamic_cast<const T *>(&obj) != 0;
 }
 
-/** Check if obj is a T, not including base classes.  This one is just an
- *  inefficient default.  It should in all time-critical cases be overridden
- *  by template specializations that use the TINFO_* constants directly. */
+/** Check if obj is a T, not including base classes. */
 template <class T>
-inline bool is_exactly_a(const basic &obj)
+inline bool is_exactly_a(const basic & obj)
 {
-	return obj.tinfo() == T::get_class_info_static().options.get_id();
+	return obj.tinfo() == &T::tinfo_static;
 }
 
 } // namespace GiNaC

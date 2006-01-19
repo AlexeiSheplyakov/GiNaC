@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's non-commutative products of expressions. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -28,6 +28,8 @@
 #include "ex.h"
 #include "add.h"
 #include "mul.h"
+#include "clifford.h"
+#include "color.h"
 #include "matrix.h"
 #include "archive.h"
 #include "indexed.h"
@@ -48,7 +50,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(ncmul, exprseq,
 
 ncmul::ncmul()
 {
-	tinfo_key = TINFO_ncmul;
+	tinfo_key = &ncmul::tinfo_static;
 }
 
 //////////
@@ -59,40 +61,40 @@ ncmul::ncmul()
 
 ncmul::ncmul(const ex & lh, const ex & rh) : inherited(lh,rh)
 {
-	tinfo_key = TINFO_ncmul;
+	tinfo_key = &ncmul::tinfo_static;
 }
 
 ncmul::ncmul(const ex & f1, const ex & f2, const ex & f3) : inherited(f1,f2,f3)
 {
-	tinfo_key = TINFO_ncmul;
+	tinfo_key = &ncmul::tinfo_static;
 }
 
 ncmul::ncmul(const ex & f1, const ex & f2, const ex & f3,
              const ex & f4) : inherited(f1,f2,f3,f4)
 {
-	tinfo_key = TINFO_ncmul;
+	tinfo_key = &ncmul::tinfo_static;
 }
 
 ncmul::ncmul(const ex & f1, const ex & f2, const ex & f3,
              const ex & f4, const ex & f5) : inherited(f1,f2,f3,f4,f5)
 {
-	tinfo_key = TINFO_ncmul;
+	tinfo_key = &ncmul::tinfo_static;
 }
 
 ncmul::ncmul(const ex & f1, const ex & f2, const ex & f3,
              const ex & f4, const ex & f5, const ex & f6) : inherited(f1,f2,f3,f4,f5,f6)
 {
-	tinfo_key = TINFO_ncmul;
+	tinfo_key = &ncmul::tinfo_static;
 }
 
 ncmul::ncmul(const exvector & v, bool discardable) : inherited(v,discardable)
 {
-	tinfo_key = TINFO_ncmul;
+	tinfo_key = &ncmul::tinfo_static;
 }
 
 ncmul::ncmul(std::auto_ptr<exvector> vp) : inherited(vp)
 {
-	tinfo_key = TINFO_ncmul;
+	tinfo_key = &ncmul::tinfo_static;
 }
 
 //////////
@@ -339,7 +341,7 @@ ex ncmul::eval(int level) const
 	
 	// ncmul(x) -> x
 	if (assocseq.size()==1) return *(seq.begin());
-
+ 
 	// ncmul() -> 1
 	if (assocseq.empty()) return _ex1;
 
@@ -397,19 +399,32 @@ ex ncmul::eval(int level) const
 
 		size_t assoc_num = assocseq.size();
 		exvectorvector evv;
-		unsignedvector rttinfos;
+		std::vector<const basic*> rttinfos;
 		evv.reserve(assoc_num);
 		rttinfos.reserve(assoc_num);
 
 		cit = assocseq.begin(), citend = assocseq.end();
 		while (cit != citend) {
-			unsigned ti = cit->return_type_tinfo();
+			const basic* ti = cit->return_type_tinfo();
 			size_t rtt_num = rttinfos.size();
 			// search type in vector of known types
 			for (i=0; i<rtt_num; ++i) {
-				if (ti == rttinfos[i]) {
-					evv[i].push_back(*cit);
-					break;
+				tinfo_t tinf = ti->tinfo();
+				if (tinf == rttinfos[i]->tinfo()) {
+					if (tinf == &clifford::tinfo_static) {
+						if (((clifford*)ti)->get_representation_label() == ((clifford*)rttinfos[i])->get_representation_label()) {
+							evv[i].push_back(*cit);
+							break;
+						}
+					} else if (tinf == &color::tinfo_static) {
+						if (((color*)ti)->get_representation_label() == ((color*)rttinfos[i])->get_representation_label()) {
+							evv[i].push_back(*cit);
+							break;
+						}
+					} else {
+						evv[i].push_back(*cit);
+						break;
+					}
 				}
 			}
 			if (i >= rtt_num) {
@@ -433,8 +448,9 @@ ex ncmul::eval(int level) const
 #endif // def DO_GINAC_ASSERT
 		
 		// if all elements are of same type, simplify the string
-		if (evv_num == 1)
+		if (evv_num == 1) {
 			return evv[0][0].eval_ncmul(evv[0]);
+		}
 		
 		exvector splitseq;
 		splitseq.reserve(evv_num);
@@ -493,7 +509,7 @@ ex ncmul::conjugate() const
 		return exprseq::conjugate();
 	}
 
-	if ((return_type_tinfo() & 0xffffff00U) != TINFO_clifford) {
+	if (return_type_tinfo()->tinfo() != &clifford::tinfo_static) {
 		return exprseq::conjugate();
 	}
 
@@ -553,9 +569,22 @@ unsigned ncmul::return_type() const
 		}
 		if ((rt == return_types::noncommutative) && (!all_commutative)) {
 			// another nc element found, compare type_infos
-			if (noncommutative_element->return_type_tinfo() != i->return_type_tinfo()) {
-				// diffent types -> mul is ncc
-				return return_types::noncommutative_composite;
+			if (noncommutative_element->return_type_tinfo()->tinfo() == &clifford::tinfo_static) {
+				if (i->return_type_tinfo()->tinfo() != &clifford::tinfo_static ||
+				    ((clifford*)(noncommutative_element->return_type_tinfo()))->get_representation_label() !=
+				    ((clifford*)(i->return_type_tinfo()))->get_representation_label()) {
+					// diffent types -> mul is ncc
+					return return_types::noncommutative_composite;
+				}
+			} else if (noncommutative_element->return_type_tinfo()->tinfo() == &color::tinfo_static) {
+				if (i->return_type_tinfo()->tinfo() != &color::tinfo_static ||
+				    ((color*)(noncommutative_element->return_type_tinfo()))->get_representation_label() !=
+				    ((color*)(i->return_type_tinfo()))->get_representation_label()) {
+					// diffent types -> mul is ncc
+					return return_types::noncommutative_composite;
+				}
+			} else if (noncommutative_element->return_type_tinfo()->tinfo() != i->return_type_tinfo()->tinfo()) {
+					return return_types::noncommutative_composite;
 			}
 		}
 		++i;
@@ -565,10 +594,10 @@ unsigned ncmul::return_type() const
 	return all_commutative ? return_types::commutative : return_types::noncommutative;
 }
    
-unsigned ncmul::return_type_tinfo() const
+const basic* ncmul::return_type_tinfo() const
 {
 	if (seq.empty())
-		return tinfo_key;
+		return this;
 
 	// return type_info of first noncommutative element
 	exvector::const_iterator i = seq.begin(), end = seq.end();
@@ -579,7 +608,7 @@ unsigned ncmul::return_type_tinfo() const
 	}
 
 	// no noncommutative element found, should not happen
-	return tinfo_key;
+	return this;
 }
 
 //////////

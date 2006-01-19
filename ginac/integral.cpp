@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's symbolic  integral. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -48,7 +48,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(integral, basic,
 //////////
 
 integral::integral()
-		: inherited(TINFO_integral),
+		: inherited(&integral::tinfo_static),
 		x((new symbol())->setflag(status_flags::dynallocated))
 {}
 
@@ -59,7 +59,7 @@ integral::integral()
 // public
 
 integral::integral(const ex & x_, const ex & a_, const ex & b_, const ex & f_)
-		: inherited(TINFO_integral), x(x_), a(a_), b(b_), f(f_)
+		: inherited(&integral::tinfo_static), x(x_), a(a_), b(b_), f(f_)
 {
 	if (!is_a<symbol>(x)) {
 		throw(std::invalid_argument("first argument of integral must be of type symbol"));
@@ -436,7 +436,7 @@ unsigned integral::return_type() const
 	return f.return_type();
 }
 
-unsigned integral::return_type_tinfo() const
+const basic* integral::return_type_tinfo() const
 {
 	return f.return_type_tinfo();
 }

@@ -3,7 +3,7 @@
  *  Interface to GiNaC's color (SU(3) Lie algebra) objects. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ protected:
 	ex thiscontainer(const exvector & v) const;
 	ex thiscontainer(std::auto_ptr<exvector> vp) const;
 	unsigned return_type() const { return return_types::noncommutative; }
-	unsigned return_type_tinfo() const { return TINFO_color + representation_label; }
+	const basic* return_type_tinfo() const { return this; }
 
 	// non-virtual functions in this class
 public:
@@ -133,12 +133,6 @@ protected:
 
 
 // global functions
-
-/** Specialization of is_exactly_a<color>(obj) for color objects. */
-template<> inline bool is_exactly_a<color>(const basic & obj)
-{
-	return obj.tinfo()==TINFO_color;
-}
 
 /** Create the su(3) unity element. This is an indexed object, although it
  *  has no indices.

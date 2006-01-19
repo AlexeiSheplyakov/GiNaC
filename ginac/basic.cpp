@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's ABC. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -775,9 +775,9 @@ unsigned basic::return_type() const
 	return return_types::commutative;
 }
 
-unsigned basic::return_type_tinfo() const
+const basic* basic::return_type_tinfo() const
 {
-	return tinfo();
+	return this;
 }
 
 /** Compute the hash value of an object and if it makes sense to store it in
@@ -788,7 +788,7 @@ unsigned basic::return_type_tinfo() const
  *  would all end up with the same hashvalue. */
 unsigned basic::calchash() const
 {
-	unsigned v = golden_ratio_hash(tinfo());
+	unsigned v = golden_ratio_hash((unsigned)tinfo());
 	for (size_t i=0; i<nops(); i++) {
 		v = rotate_left(v);
 		v ^= this->op(i).gethash();
@@ -845,8 +845,8 @@ int basic::compare(const basic & other) const
 	compare_statistics.compare_same_hashvalue++;
 #endif
 
-	const unsigned typeid_this = tinfo();
-	const unsigned typeid_other = other.tinfo();
+	const tinfo_t typeid_this = tinfo();
+	const tinfo_t typeid_other = other.tinfo();
 	if (typeid_this==typeid_other) {
 		GINAC_ASSERT(typeid(*this)==typeid(other));
 // 		int cmpval = compare_same_type(other);

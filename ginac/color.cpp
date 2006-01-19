@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's color (SU(3) Lie algebra) objects. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(su3d, tensor,
 
 color::color() : representation_label(0)
 {
-	tinfo_key = TINFO_color;
+	tinfo_key = &color::tinfo_static;
 }
 
 DEFAULT_CTOR(su3one)
@@ -78,7 +78,7 @@ DEFAULT_CTOR(su3d)
  *  @see color_ONE */
 color::color(const ex & b, unsigned char rl) : inherited(b), representation_label(rl)
 {
-	tinfo_key = TINFO_color;
+	tinfo_key = &color::tinfo_static;
 }
 
 /** Construct object with one color index. This constructor is for internal
@@ -86,17 +86,17 @@ color::color(const ex & b, unsigned char rl) : inherited(b), representation_labe
  *  @see color_T */
 color::color(const ex & b, const ex & i1, unsigned char rl) : inherited(b, i1), representation_label(rl)
 {
-	tinfo_key = TINFO_color;
+	tinfo_key = &color::tinfo_static;
 }
 
 color::color(unsigned char rl, const exvector & v, bool discardable) : inherited(not_symmetric(), v, discardable), representation_label(rl)
 {
-	tinfo_key = TINFO_color;
+	tinfo_key = &color::tinfo_static;
 }
 
 color::color(unsigned char rl, std::auto_ptr<exvector> vp) : inherited(not_symmetric(), vp), representation_label(rl)
 {
-	tinfo_key = TINFO_color;
+	tinfo_key = &color::tinfo_static;
 }
 
 //////////
@@ -521,24 +521,17 @@ ex color_h(const ex & a, const ex & b, const ex & c)
 }
 
 /** Check whether a given tinfo key (as returned by return_type_tinfo()
- *  is that of a color object with the specified representation label. */
-static bool is_color_tinfo(unsigned ti, unsigned char rl)
-{
-	return ti == (TINFO_color + rl);
-}
-
-/** Check whether a given tinfo key (as returned by return_type_tinfo()
  *  is that of a color object (with an arbitrary representation label). */
-static bool is_color_tinfo(unsigned ti)
+static bool is_color_tinfo(const basic* ti)
 {
-	return (ti & ~0xff) == TINFO_color;
+	return ti->tinfo() == &color::tinfo_static;
 }
 
 /** Extract representation label from tinfo key (as returned by
  *  return_type_tinfo()). */
-static unsigned char get_representation_label(unsigned ti)
+static unsigned char get_representation_label(const basic* ti)
 {
-	return ti & 0xff;
+	return ((color*)ti)->get_representation_label();
 }
 
 ex color_trace(const ex & e, const std::set<unsigned char> & rls)

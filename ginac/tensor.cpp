@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's special tensors. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -64,7 +64,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(tensepsilon, tensor,
 // constructors
 //////////
 
-tensor::tensor() : inherited(TINFO_tensor)
+tensor::tensor() : inherited(&tensor::tinfo_static)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
@@ -74,27 +74,27 @@ DEFAULT_CTOR(tensmetric)
 
 minkmetric::minkmetric() : pos_sig(false)
 {
-	tinfo_key = TINFO_minkmetric;
+	tinfo_key = &minkmetric::tinfo_static;
 }
 
 spinmetric::spinmetric()
 {
-	tinfo_key = TINFO_spinmetric;
+	tinfo_key = &spinmetric::tinfo_static;
 }
 
 minkmetric::minkmetric(bool ps) : pos_sig(ps)
 {
-	tinfo_key = TINFO_minkmetric;
+	tinfo_key = &minkmetric::tinfo_static;
 }
 
 tensepsilon::tensepsilon() : minkowski(false), pos_sig(false)
 {
-	tinfo_key = TINFO_tensepsilon;
+	tinfo_key = &tensepsilon::tinfo_static;
 }
 
 tensepsilon::tensepsilon(bool mink, bool ps) : minkowski(mink), pos_sig(ps)
 {
-	tinfo_key = TINFO_tensepsilon;
+	tinfo_key = &tensepsilon::tinfo_static;
 }
 
 //////////

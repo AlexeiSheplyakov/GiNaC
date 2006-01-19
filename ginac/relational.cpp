@@ -3,7 +3,7 @@
  *  Implementation of relations between expressions */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(relational, basic,
 // default constructor
 //////////
 
-relational::relational() : basic(TINFO_relational) {}
+relational::relational() : basic(&relational::tinfo_static) {}
 
 //////////
 // other constructors
@@ -48,7 +48,7 @@ relational::relational() : basic(TINFO_relational) {}
 
 // public
 
-relational::relational(const ex & lhs, const ex & rhs, operators oper) : basic(TINFO_relational), lh(lhs), rh(rhs), o(oper) {}
+relational::relational(const ex & lhs, const ex & rhs, operators oper) : basic(&relational::tinfo_static), lh(lhs), rh(rhs), o(oper) {}
 
 //////////
 // archiving
@@ -250,7 +250,7 @@ unsigned relational::return_type() const
 	return lh.return_type();
 }
    
-unsigned relational::return_type_tinfo() const
+const basic* relational::return_type_tinfo() const
 {
 	GINAC_ASSERT(lh.return_type_tinfo()==rh.return_type_tinfo());
 	return lh.return_type_tinfo();
@@ -258,7 +258,7 @@ unsigned relational::return_type_tinfo() const
 
 unsigned relational::calchash() const
 {
-	unsigned v = golden_ratio_hash(tinfo());
+	unsigned v = golden_ratio_hash((unsigned)tinfo());
 	unsigned lhash = lh.gethash();
 	unsigned rhash = rh.gethash();
 

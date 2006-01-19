@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's products of expressions. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -27,6 +27,8 @@
 
 #include "mul.h"
 #include "add.h"
+#include "color.h"
+#include "clifford.h"
 #include "power.h"
 #include "operators.h"
 #include "matrix.h"
@@ -51,7 +53,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(mul, expairseq,
 
 mul::mul()
 {
-	tinfo_key = TINFO_mul;
+	tinfo_key = &mul::tinfo_static;
 }
 
 //////////
@@ -62,7 +64,7 @@ mul::mul()
 
 mul::mul(const ex & lh, const ex & rh)
 {
-	tinfo_key = TINFO_mul;
+	tinfo_key = &mul::tinfo_static;
 	overall_coeff = _ex1;
 	construct_from_2_ex(lh,rh);
 	GINAC_ASSERT(is_canonical());
@@ -70,7 +72,7 @@ mul::mul(const ex & lh, const ex & rh)
 
 mul::mul(const exvector & v)
 {
-	tinfo_key = TINFO_mul;
+	tinfo_key = &mul::tinfo_static;
 	overall_coeff = _ex1;
 	construct_from_exvector(v);
 	GINAC_ASSERT(is_canonical());
@@ -78,7 +80,7 @@ mul::mul(const exvector & v)
 
 mul::mul(const epvector & v)
 {
-	tinfo_key = TINFO_mul;
+	tinfo_key = &mul::tinfo_static;
 	overall_coeff = _ex1;
 	construct_from_epvector(v);
 	GINAC_ASSERT(is_canonical());
@@ -86,7 +88,7 @@ mul::mul(const epvector & v)
 
 mul::mul(const epvector & v, const ex & oc)
 {
-	tinfo_key = TINFO_mul;
+	tinfo_key = &mul::tinfo_static;
 	overall_coeff = oc;
 	construct_from_epvector(v);
 	GINAC_ASSERT(is_canonical());
@@ -94,7 +96,7 @@ mul::mul(const epvector & v, const ex & oc)
 
 mul::mul(std::auto_ptr<epvector> vp, const ex & oc)
 {
-	tinfo_key = TINFO_mul;
+	tinfo_key = &mul::tinfo_static;
 	GINAC_ASSERT(vp.get()!=0);
 	overall_coeff = oc;
 	construct_from_epvector(*vp);
@@ -103,7 +105,7 @@ mul::mul(std::auto_ptr<epvector> vp, const ex & oc)
 
 mul::mul(const ex & lh, const ex & mh, const ex & rh)
 {
-	tinfo_key = TINFO_mul;
+	tinfo_key = &mul::tinfo_static;
 	exvector factors;
 	factors.reserve(3);
 	factors.push_back(lh);
@@ -714,9 +716,22 @@ unsigned mul::return_type() const
 		}
 		if ((rt == return_types::noncommutative) && (!all_commutative)) {
 			// another nc element found, compare type_infos
-			if (noncommutative_element->rest.return_type_tinfo() != i->rest.return_type_tinfo()) {
-				// diffent types -> mul is ncc
-				return return_types::noncommutative_composite;
+			if (noncommutative_element->rest.return_type_tinfo()->tinfo() == &clifford::tinfo_static) {
+				if (i->rest.return_type_tinfo()->tinfo() != &clifford::tinfo_static ||
+				    ((clifford*)(noncommutative_element->rest.return_type_tinfo()))->get_representation_label() !=
+				    ((clifford*)(i->rest.return_type_tinfo()))->get_representation_label()) {
+					// diffent types -> mul is ncc
+					return return_types::noncommutative_composite;
+				}
+			} else if (noncommutative_element->rest.return_type_tinfo()->tinfo() == &color::tinfo_static) {
+				if (i->rest.return_type_tinfo()->tinfo() != &color::tinfo_static ||
+				    ((color*)(noncommutative_element->rest.return_type_tinfo()))->get_representation_label() !=
+				    ((color*)(i->rest.return_type_tinfo()))->get_representation_label()) {
+					// diffent types -> mul is ncc
+					return return_types::noncommutative_composite;
+				}
+			} else if (noncommutative_element->rest.return_type_tinfo()->tinfo() != i->rest.return_type_tinfo()->tinfo()) {
+					return return_types::noncommutative_composite;
 			}
 		}
 		++i;
@@ -725,10 +740,10 @@ unsigned mul::return_type() const
 	return all_commutative ? return_types::commutative : return_types::noncommutative;
 }
    
-unsigned mul::return_type_tinfo() const
+const basic* mul::return_type_tinfo() const
 {
 	if (seq.empty())
-		return tinfo_key;  // mul without factors: should not happen
+		return this;  // mul without factors: should not happen
 	
 	// return type_info of first noncommutative element
 	epvector::const_iterator i = seq.begin(), end = seq.end();
@@ -738,7 +753,7 @@ unsigned mul::return_type_tinfo() const
 		++i;
 	}
 	// no noncommutative element found, should not happen
-	return tinfo_key;
+	return this;
 }
 
 ex mul::thisexpairseq(const epvector & v, const ex & oc) const

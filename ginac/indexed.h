@@ -3,7 +3,7 @@
  *  Interface to GiNaC's indexed expressions. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -154,7 +154,7 @@ protected:
 	ex thiscontainer(const exvector & v) const;
 	ex thiscontainer(std::auto_ptr<exvector> vp) const;
 	unsigned return_type() const;
-	unsigned return_type_tinfo() const { return op(0).return_type_tinfo(); }
+	const basic* return_type_tinfo() const { return op(0).return_type_tinfo(); }
 	ex expand(unsigned options = 0) const;
 
 	// new virtual functions which can be overridden by derived classes
@@ -244,12 +244,6 @@ protected:
 
 
 // utility functions
-
-/** Specialization of is_exactly_a<indexed>(obj) for indexed objects. */
-template<> inline bool is_exactly_a<indexed>(const basic & obj)
-{
-	return obj.tinfo()==TINFO_indexed;
-}
 
 /** Returns all dummy indices from the expression */
 exvector get_all_dummy_indices(const ex & e);

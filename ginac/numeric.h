@@ -3,7 +3,7 @@
  *  Makes the interface to the underlying bignum package available. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -316,14 +316,6 @@ ex PiEvalf();
 ex EulerEvalf();
 ex CatalanEvalf();
 
-
-// utility functions
-
-/** Specialization of is_exactly_a<numeric>(obj) for numeric objects. */
-template<> inline bool is_exactly_a<numeric>(const basic & obj)
-{
-	return obj.tinfo()==TINFO_numeric;
-}
 
 } // namespace GiNaC
 

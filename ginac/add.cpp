@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's sums of expressions. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(add, expairseq,
 
 add::add()
 {
-	tinfo_key = TINFO_add;
+	tinfo_key = &add::tinfo_static;
 }
 
 //////////
@@ -58,7 +58,7 @@ add::add()
 
 add::add(const ex & lh, const ex & rh)
 {
-	tinfo_key = TINFO_add;
+	tinfo_key = &add::tinfo_static;
 	overall_coeff = _ex0;
 	construct_from_2_ex(lh,rh);
 	GINAC_ASSERT(is_canonical());
@@ -66,7 +66,7 @@ add::add(const ex & lh, const ex & rh)
 
 add::add(const exvector & v)
 {
-	tinfo_key = TINFO_add;
+	tinfo_key = &add::tinfo_static;
 	overall_coeff = _ex0;
 	construct_from_exvector(v);
 	GINAC_ASSERT(is_canonical());
@@ -74,7 +74,7 @@ add::add(const exvector & v)
 
 add::add(const epvector & v)
 {
-	tinfo_key = TINFO_add;
+	tinfo_key = &add::tinfo_static;
 	overall_coeff = _ex0;
 	construct_from_epvector(v);
 	GINAC_ASSERT(is_canonical());
@@ -82,7 +82,7 @@ add::add(const epvector & v)
 
 add::add(const epvector & v, const ex & oc)
 {
-	tinfo_key = TINFO_add;
+	tinfo_key = &add::tinfo_static;
 	overall_coeff = oc;
 	construct_from_epvector(v);
 	GINAC_ASSERT(is_canonical());
@@ -90,7 +90,7 @@ add::add(const epvector & v, const ex & oc)
 
 add::add(std::auto_ptr<epvector> vp, const ex & oc)
 {
-	tinfo_key = TINFO_add;
+	tinfo_key = &add::tinfo_static;
 	GINAC_ASSERT(vp.get()!=0);
 	overall_coeff = oc;
 	construct_from_epvector(*vp);
@@ -465,10 +465,10 @@ unsigned add::return_type() const
 		return seq.begin()->rest.return_type();
 }
 
-unsigned add::return_type_tinfo() const
+const basic* add::return_type_tinfo() const
 {
 	if (seq.empty())
-		return tinfo_key;
+		return this;
 	else
 		return seq.begin()->rest.return_type_tinfo();
 }

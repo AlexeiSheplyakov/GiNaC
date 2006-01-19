@@ -3,7 +3,7 @@
  *  Implementation of abstract derivatives of functions. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(fderivative, function,
 
 fderivative::fderivative()
 {
-	tinfo_key = TINFO_fderivative;
+	tinfo_key = &fderivative::tinfo_static;
 }
 
 //////////
@@ -49,17 +49,17 @@ fderivative::fderivative()
 fderivative::fderivative(unsigned ser, unsigned param, const exvector & args) : function(ser, args)
 {
 	parameter_set.insert(param);
-	tinfo_key = TINFO_fderivative;
+	tinfo_key = &fderivative::tinfo_static;
 }
 
 fderivative::fderivative(unsigned ser, const paramset & params, const exvector & args) : function(ser, args), parameter_set(params)
 {
-	tinfo_key = TINFO_fderivative;
+	tinfo_key = &fderivative::tinfo_static;
 }
 
 fderivative::fderivative(unsigned ser, const paramset & params, std::auto_ptr<exvector> vp) : function(ser, vp), parameter_set(params)
 {
-	tinfo_key = TINFO_fderivative;
+	tinfo_key = &fderivative::tinfo_static;
 }
 
 //////////

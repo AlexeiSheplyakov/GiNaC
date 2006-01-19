@@ -3,7 +3,7 @@
  *  Interface to GiNaC's light-weight expression handles. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -213,7 +213,7 @@ public:
 
 	// noncommutativity
 	unsigned return_type() const { return bp->return_type(); }
-	unsigned return_type_tinfo() const { return bp->return_type_tinfo(); }
+	const basic* return_type_tinfo() const { return bp->return_type_tinfo(); }
 
 	unsigned gethash() const { return bp->gethash(); }
 

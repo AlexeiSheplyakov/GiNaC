@@ -7,7 +7,7 @@
  *  of special functions or implement the interface to the bignum package. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -73,7 +73,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(numeric, basic,
 //////////
 
 /** default ctor. Numerically it initializes to an integer zero. */
-numeric::numeric() : basic(TINFO_numeric)
+numeric::numeric() : basic(&numeric::tinfo_static)
 {
 	value = cln::cl_I(0);
 	setflag(status_flags::evaluated | status_flags::expanded);
@@ -85,7 +85,7 @@ numeric::numeric() : basic(TINFO_numeric)
 
 // public
 
-numeric::numeric(int i) : basic(TINFO_numeric)
+numeric::numeric(int i) : basic(&numeric::tinfo_static)
 {
 	// Not the whole int-range is available if we don't cast to long
 	// first.  This is due to the behaviour of the cl_I-ctor, which
@@ -100,7 +100,7 @@ numeric::numeric(int i) : basic(TINFO_numeric)
 }
 
 
-numeric::numeric(unsigned int i) : basic(TINFO_numeric)
+numeric::numeric(unsigned int i) : basic(&numeric::tinfo_static)
 {
 	// Not the whole uint-range is available if we don't cast to ulong
 	// first.  This is due to the behaviour of the cl_I-ctor, which
@@ -115,14 +115,14 @@ numeric::numeric(unsigned int i) : basic(TINFO_numeric)
 }
 
 
-numeric::numeric(long i) : basic(TINFO_numeric)
+numeric::numeric(long i) : basic(&numeric::tinfo_static)
 {
 	value = cln::cl_I(i);
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
 
-numeric::numeric(unsigned long i) : basic(TINFO_numeric)
+numeric::numeric(unsigned long i) : basic(&numeric::tinfo_static)
 {
 	value = cln::cl_I(i);
 	setflag(status_flags::evaluated | status_flags::expanded);
@@ -132,7 +132,7 @@ numeric::numeric(unsigned long i) : basic(TINFO_numeric)
 /** Constructor for rational numerics a/b.
  *
  *  @exception overflow_error (division by zero) */
-numeric::numeric(long numer, long denom) : basic(TINFO_numeric)
+numeric::numeric(long numer, long denom) : basic(&numeric::tinfo_static)
 {
 	if (!denom)
 		throw std::overflow_error("division by zero");
@@ -141,7 +141,7 @@ numeric::numeric(long numer, long denom) : basic(TINFO_numeric)
 }
 
 
-numeric::numeric(double d) : basic(TINFO_numeric)
+numeric::numeric(double d) : basic(&numeric::tinfo_static)
 {
 	// We really want to explicitly use the type cl_LF instead of the
 	// more general cl_F, since that would give us a cl_DF only which
@@ -153,7 +153,7 @@ numeric::numeric(double d) : basic(TINFO_numeric)
 
 /** ctor from C-style string.  It also accepts complex numbers in GiNaC
  *  notation like "2+5*I". */
-numeric::numeric(const char *s) : basic(TINFO_numeric)
+numeric::numeric(const char *s) : basic(&numeric::tinfo_static)
 {
 	cln::cl_N ctorval = 0;
 	// parse complex numbers (functional but not completely safe, unfortunately
@@ -232,7 +232,7 @@ numeric::numeric(const char *s) : basic(TINFO_numeric)
 
 /** Ctor from CLN types.  This is for the initiated user or internal use
  *  only. */
-numeric::numeric(const cln::cl_N &z) : basic(TINFO_numeric)
+numeric::numeric(const cln::cl_N &z) : basic(&numeric::tinfo_static)
 {
 	value = z;
 	setflag(status_flags::evaluated | status_flags::expanded);

@@ -3,7 +3,7 @@
  *  Interface to GiNaC's indices. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -206,24 +206,6 @@ protected:
 
 
 // utility functions
-
-/** Specialization of is_exactly_a<idx>(obj) for idx objects. */
-template<> inline bool is_exactly_a<idx>(const basic & obj)
-{
-        return obj.tinfo()==TINFO_idx;
-}
-
-/** Specialization of is_exactly_a<varidx>(obj) for varidx objects. */
-template<> inline bool is_exactly_a<varidx>(const basic & obj)
-{
-        return obj.tinfo()==TINFO_varidx;
-}
-
-/** Specialization of is_exactly_a<spinidx>(obj) for spinidx objects. */
-template<> inline bool is_exactly_a<spinidx>(const basic & obj)
-{
-        return obj.tinfo()==TINFO_spinidx;
-}
 
 /** Check whether two indices form a dummy pair. */
 bool is_dummy_pair(const idx & i1, const idx & i2);

@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's indices. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -53,23 +53,23 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(spinidx, varidx,
 // default constructor
 //////////
 
-idx::idx() : inherited(TINFO_idx) {}
+idx::idx() : inherited(&idx::tinfo_static) {}
 
 varidx::varidx() : covariant(false)
 {
-	tinfo_key = TINFO_varidx;
+	tinfo_key = &varidx::tinfo_static;
 }
 
 spinidx::spinidx() : dotted(false)
 {
-	tinfo_key = TINFO_spinidx;
+	tinfo_key = &spinidx::tinfo_static;
 }
 
 //////////
 // other constructors
 //////////
 
-idx::idx(const ex & v, const ex & d) : inherited(TINFO_idx), value(v), dim(d)
+idx::idx(const ex & v, const ex & d) : inherited(&idx::tinfo_static), value(v), dim(d)
 {
 	if (is_dim_numeric())
 		if (!dim.info(info_flags::posint))
@@ -78,12 +78,12 @@ idx::idx(const ex & v, const ex & d) : inherited(TINFO_idx), value(v), dim(d)
 
 varidx::varidx(const ex & v, const ex & d, bool cov) : inherited(v, d), covariant(cov)
 {
-	tinfo_key = TINFO_varidx;
+	tinfo_key = &varidx::tinfo_static;
 }
 
 spinidx::spinidx(const ex & v, const ex & d, bool cov, bool dot) : inherited(v, d, cov), dotted(dot)
 {
-	tinfo_key = TINFO_spinidx;
+	tinfo_key = &spinidx::tinfo_static;
 }
 
 //////////
@@ -338,7 +338,7 @@ unsigned idx::calchash() const
 	// hash keys. That is, the hash values must not depend on the index
 	// dimensions or other attributes (variance etc.).
 	// The compare_same_type() methods will take care of the rest.
-	unsigned v = golden_ratio_hash(tinfo());
+	unsigned v = golden_ratio_hash((unsigned)tinfo());
 	v = rotate_left(v);
 	v ^= value.gethash();
 

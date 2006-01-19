@@ -3,7 +3,7 @@
  *  Wrapper template for making GiNaC classes out of C++ structures. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -32,8 +32,6 @@
 #include "print.h"
 
 namespace GiNaC {
-
-extern unsigned next_structure_tinfo_key;
 
 
 /** Comparison policy: all structures of one type are equal */
@@ -119,8 +117,9 @@ class structure : public basic, public ComparisonPolicy<T> {
 	GINAC_DECLARE_REGISTERED_CLASS(structure, basic)
 
 	// helpers
-	static unsigned get_tinfo() { return reg_info.options.get_id(); }
+	static tinfo_t get_tinfo() { return reg_info.options.get_id(); }
 	static const char *get_class_name() { return "structure"; }
+	static tinfo_t next_structure_tinfo_key() { return new tinfo_static_t; }
 
 	// constructors
 public:
@@ -201,7 +200,7 @@ public:
 
 	// noncommutativity
 	unsigned return_type() const { return return_types::commutative; }
-	unsigned return_type_tinfo() const { return tinfo(); }
+	const basic* return_type_tinfo() const { return this; }
 
 protected:
 	bool is_equal_same_type(const basic & other) const
@@ -220,7 +219,6 @@ public:
 	const T *operator->() const { return &obj; }
 	T &get_struct() { return obj; }
 	const T &get_struct() const { return obj; }
-
 private:
 	T obj;
 };
@@ -259,7 +257,7 @@ int structure<T, CP>::compare_same_type(const basic & other) const
 }
 
 template <class T, template <class> class CP>
-registered_class_info structure<T, CP>::reg_info = registered_class_info(registered_class_options(structure::get_class_name(), "basic", next_structure_tinfo_key++, &structure::unarchive));
+registered_class_info structure<T, CP>::reg_info = registered_class_info(registered_class_options(structure::get_class_name(), "basic", structure::next_structure_tinfo_key(), &structure::unarchive));
 
 
 } // namespace GiNaC

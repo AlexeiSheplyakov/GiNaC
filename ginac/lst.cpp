@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's lst. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 
 namespace GiNaC {
 
-template <> GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(lst, basic,
+template <> GINAC_IMPLEMENT_REGISTERED_CLASS_OPT_T(lst, basic,
   print_func<print_context>(&lst::do_print).
   print_func<print_tree>(&lst::do_print_tree))
 

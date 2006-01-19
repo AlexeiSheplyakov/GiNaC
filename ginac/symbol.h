@@ -3,7 +3,7 @@
  *  Interface to GiNaC's symbolic objects. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -57,9 +57,9 @@ class symbol : public basic
 	// other constructors
 public:
 	explicit symbol(const std::string & initname, unsigned domain = domain::complex);
+	symbol(const std::string & initname, unsigned rt, unsigned domain);
 	symbol(const std::string & initname, const std::string & texname, unsigned domain = domain::complex);
-	symbol(const std::string & initname, unsigned rt, unsigned rtt, unsigned domain = domain::complex);
-	symbol(const std::string & initname, const std::string & texname, unsigned rt, unsigned rtt, unsigned domain = domain::complex);
+	symbol(const std::string & initname, const std::string & texname, unsigned rt, unsigned domain);
 	
 	// functions overriding virtual functions from base classes
 public:
@@ -72,7 +72,6 @@ public:
 	ex to_rational(exmap & repl) const;
 	ex to_polynomial(exmap & repl) const;
 	unsigned return_type() const { return ret_type; }
-	unsigned return_type_tinfo() const { return ret_type_tinfo; }
 	ex conjugate() const;
 protected:
 	ex derivative(const symbol & s) const;
@@ -104,7 +103,6 @@ protected:
 	std::string TeX_name;            ///< LaTeX name of this symbol
 	unsigned domain;                 ///< domain of symbol, complex (default) or real
 	unsigned ret_type;               ///< value returned by return_type()
-	unsigned ret_type_tinfo;         ///< value returned by return_type_tinfo()
 private:
 	static unsigned next_serial;
 };
@@ -118,23 +116,17 @@ public:
 	realsymbol();
 	explicit realsymbol(const std::string & initname, unsigned domain = domain::real);
 	realsymbol(const std::string & initname, const std::string & texname, unsigned domain = domain::real);
-	realsymbol(const std::string & initname, unsigned rt, unsigned rtt, unsigned domain = domain::real);
-	realsymbol(const std::string & initname, const std::string & texname, unsigned rt, unsigned rtt, unsigned domain = domain::real);
+	realsymbol(const std::string & initname, unsigned rt, unsigned domain = domain::real);
+	realsymbol(const std::string & initname, const std::string & texname, unsigned rt, unsigned domain = domain::real);
 };
 
 
 // utility functions
 
-/** Specialization of is_exactly_a<symbol>(obj) for symbol objects. */
-template<> inline bool is_exactly_a<symbol>(const basic & obj)
-{
-	return obj.tinfo() == TINFO_symbol;
-}
-
 /** Specialization of is_exactly_a<realsymbol>(obj) for realsymbol objects. */
 template<> inline bool is_exactly_a<realsymbol>(const basic & obj)
 {
-	return (obj.tinfo() == TINFO_symbol) && (static_cast<const symbol &>(obj).get_domain() == domain::real);
+	return (obj.tinfo() == &symbol::tinfo_static) && (static_cast<const symbol &>(obj).get_domain() == domain::real);
 }
 
 // wrapper functions around member functions

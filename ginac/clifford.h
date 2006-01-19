@@ -3,7 +3,7 @@
  *  Interface to GiNaC's clifford algebra (Dirac gamma) objects. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -60,7 +60,7 @@ protected:
 	ex thiscontainer(const exvector & v) const;
 	ex thiscontainer(std::auto_ptr<exvector> vp) const;
 	unsigned return_type() const { return return_types::noncommutative; }
-	unsigned return_type_tinfo() const { return TINFO_clifford + representation_label; }
+	const basic* return_type_tinfo() const { return this; }
 
 	// non-virtual functions in this class
 public:
@@ -107,7 +107,7 @@ class cliffordunit : public tensor
 
 	// other constructors
 protected:
-	cliffordunit(unsigned ti) : inherited(ti) {}
+	cliffordunit(tinfo_t ti) : inherited(ti) {}
                                                                                                     
 	// functions overriding virtual functions from base classes
 public:
@@ -185,12 +185,6 @@ protected:
 
 
 // global functions
-
-/** Specialization of is_exactly_a<clifford>(obj) for clifford objects. */
-template<> inline bool is_exactly_a<clifford>(const basic & obj)
-{
-	return obj.tinfo()==TINFO_clifford;
-}
 
 /** Create a Clifford unity object.
  *
