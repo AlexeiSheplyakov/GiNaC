@@ -286,13 +286,13 @@ ex & basic::operator[](size_t i)
  *  the pattern itself or one of the children 'has' it.  As a consequence
  *  (according to the definition of children) given e=x+y+z, e.has(x) is true
  *  but e.has(x+y) is false. */
-bool basic::has(const ex & pattern) const
+bool basic::has(const ex & pattern, unsigned options) const
 {
 	lst repl_lst;
 	if (match(pattern, repl_lst))
 		return true;
 	for (size_t i=0; i<nops(); i++)
-		if (op(i).has(pattern))
+		if (op(i).has(pattern, options))
 			return true;
 	
 	return false;
@@ -788,7 +788,7 @@ const basic* basic::return_type_tinfo() const
  *  would all end up with the same hashvalue. */
 unsigned basic::calchash() const
 {
-	unsigned v = golden_ratio_hash((unsigned)tinfo());
+	unsigned v = golden_ratio_hash((p_int)tinfo());
 	for (size_t i=0; i<nops(); i++) {
 		v = rotate_left(v);
 		v ^= this->op(i).gethash();

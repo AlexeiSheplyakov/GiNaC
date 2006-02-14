@@ -155,7 +155,7 @@ public:
 	ex & operator[](size_t i) { return inherited::operator[](i); }
 
 	// pattern matching
-	bool has(const ex & other) const { return inherited::has(other); }
+	bool has(const ex & other, unsigned options = 0) const { return inherited::has(other, options); }
 	bool match(const ex & pattern, lst & repl_lst) const { return inherited::match(pattern, repl_lst); }
 protected:
 	bool match_same_type(const basic & other) const { return true; }

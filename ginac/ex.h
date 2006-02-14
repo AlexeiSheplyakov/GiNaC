@@ -138,7 +138,7 @@ public:
 	ex conjugate() const { return bp->conjugate(); }
 
 	// pattern matching
-	bool has(const ex & pattern) const { return bp->has(pattern); }
+	bool has(const ex & pattern, unsigned options = 0) const { return bp->has(pattern, options); }
 	bool find(const ex & pattern, lst & found) const;
 	bool match(const ex & pattern) const;
 	bool match(const ex & pattern, lst & repl_lst) const { return bp->match(pattern, repl_lst); }
@@ -684,8 +684,8 @@ inline ex expand(const ex & thisex, unsigned options = 0)
 inline ex conjugate(const ex & thisex)
 { return thisex.conjugate(); }
 
-inline bool has(const ex & thisex, const ex & pattern)
-{ return thisex.has(pattern); }
+inline bool has(const ex & thisex, const ex & pattern, unsigned options = 0)
+{ return thisex.has(pattern, options); }
 
 inline bool find(const ex & thisex, const ex & pattern, lst & found)
 { return thisex.find(pattern, found); }

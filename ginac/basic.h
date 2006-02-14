@@ -160,7 +160,7 @@ public:
 	virtual ex & operator[](size_t i);
 
 	// pattern matching
-	virtual bool has(const ex & other) const;
+	virtual bool has(const ex & other, unsigned options = 0) const;
 	virtual bool match(const ex & pattern, lst & repl_lst) const;
 protected:
 	virtual bool match_same_type(const basic & other) const;

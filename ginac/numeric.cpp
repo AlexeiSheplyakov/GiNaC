@@ -624,7 +624,7 @@ ex numeric::coeff(const ex & s, int n) const
  *  results:  (2+I).has(-2) -> true.  But this is consistent, since we also
  *  would like to have (-2+I).has(2) -> true and we want to think about the
  *  sign as a multiplicative factor. */
-bool numeric::has(const ex &other) const
+bool numeric::has(const ex &other, unsigned options) const
 {
 	if (!is_exactly_a<numeric>(other))
 		return false;

@@ -541,6 +541,30 @@ ex power::evalm() const
 	return (new power(ebasis, eexponent))->setflag(status_flags::dynallocated);
 }
 
+bool power::has(const ex & other, unsigned options) const
+{
+	if (!(options & has_options::algebraic))
+		return basic::has(other, options);
+	if (!is_a<power>(other))
+		return basic::has(other, options);
+	if (!exponent.info(info_flags::integer)
+			|| !other.op(1).info(info_flags::integer))
+		return basic::has(other, options);
+	if (exponent.info(info_flags::posint)
+			&& other.op(1).info(info_flags::posint)
+			&& ex_to<numeric>(exponent).to_int()
+					> ex_to<numeric>(other.op(1)).to_int()
+			&& basis.match(other.op(0)))
+		return true;
+	if (exponent.info(info_flags::negint)
+			&& other.op(1).info(info_flags::negint)
+			&& ex_to<numeric>(exponent).to_int()
+					< ex_to<numeric>(other.op(1)).to_int()
+			&& basis.match(other.op(0)))
+		return true;
+	return basic::has(other, options);
+}
+
 // from mul.cpp
 extern bool tryfactsubs(const ex &, const ex &, int &, lst &);
 

@@ -258,7 +258,7 @@ const basic* relational::return_type_tinfo() const
 
 unsigned relational::calchash() const
 {
-	unsigned v = golden_ratio_hash((unsigned)tinfo());
+	unsigned v = golden_ratio_hash((p_int)tinfo());
 	unsigned lhash = lh.gethash();
 	unsigned rhash = rh.gethash();
 

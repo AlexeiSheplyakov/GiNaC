@@ -34,6 +34,14 @@ public:
 	};
 };
 
+/** Flags to control the behavior of has(). */
+class has_options {
+public:
+	enum {
+		algebraic = 0x0001,              ///< enable algebraic matching
+	};
+};
+
 /** Flags to control the behavior of subs(). */
 class subs_options {
 public:

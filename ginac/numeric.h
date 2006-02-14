@@ -108,7 +108,7 @@ public:
 	int degree(const ex & s) const;
 	int ldegree(const ex & s) const;
 	ex coeff(const ex & s, int n = 1) const;
-	bool has(const ex &other) const;
+	bool has(const ex &other, unsigned options = 0) const;
 	ex eval(int level = 0) const;
 	ex evalf(int level = 0) const;
 	ex subs(const exmap & m, unsigned options = 0) const { return subs_one_level(m, options); } // overwrites basic::subs() for performance reasons

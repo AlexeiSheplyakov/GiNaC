@@ -64,8 +64,18 @@ inline unsigned rotate_left(unsigned n)
 	return (n & 0x80000000U) ? (n << 1 | 0x00000001U) : (n << 1);
 }
 
+#if SIZEOF_VOID_P == SIZEOF_INT
+typedef unsigned int p_int;
+#elif SIZEOF_VOID_P == SIZEOF_LONG
+typedef unsigned long p_int;
+#elif SIZEOF_VOID_P == SIZEOF_LONG_LONG
+typedef unsigned long long p_int;
+#else
+typedef unsigned long p_int;
+#endif
+
 /** Truncated multiplication with golden ratio, for computing hash values. */
-inline unsigned golden_ratio_hash(unsigned n)
+inline unsigned golden_ratio_hash(p_int n)
 {
 	// This function works much better when fast arithmetic with at
 	// least 64 significant bits is available.

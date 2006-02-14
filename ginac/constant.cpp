@@ -177,7 +177,7 @@ bool constant::is_equal_same_type(const basic & other) const
 
 unsigned constant::calchash() const
 {
-	hashvalue = golden_ratio_hash((unsigned)tinfo() ^ serial);
+	hashvalue = golden_ratio_hash((p_int)tinfo() ^ serial);
 
 	setflag(status_flags::hash_calculated);
 

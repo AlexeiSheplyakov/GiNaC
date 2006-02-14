@@ -571,7 +571,7 @@ unsigned expairseq::return_type() const
 
 unsigned expairseq::calchash() const
 {
-	unsigned v = golden_ratio_hash((unsigned)this->tinfo());
+	unsigned v = golden_ratio_hash((p_int)this->tinfo());
 	epvector::const_iterator i = seq.begin();
 	const epvector::const_iterator end = seq.end();
 	while (i != end) {

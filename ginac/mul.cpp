@@ -597,6 +597,22 @@ bool algebraic_match_mul_with_mul(const mul &e, const ex &pat, lst &repls,
 	return false;
 }
 
+bool mul::has(const ex & pattern, unsigned options) const
+{
+	if(!(options&has_options::algebraic))
+		return basic::has(pattern,options);
+	if(is_a<mul>(pattern)) {
+		lst repls;
+		int nummatches = std::numeric_limits<int>::max();
+		std::vector<bool> subsed(seq.size(), false);
+		std::vector<bool> matched(seq.size(), false);
+		if(algebraic_match_mul_with_mul(*this, pattern, repls, 0, nummatches,
+				subsed, matched))
+			return true;
+	}
+	return basic::has(pattern, options);
+}
+
 ex mul::algebraic_subs_mul(const exmap & m, unsigned options) const
 {	
 	std::vector<bool> subsed(seq.size(), false);
