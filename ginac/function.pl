@@ -975,7 +975,7 @@ ${evalf_switch_statement}
 
 unsigned function::calchash() const
 {
-	unsigned v = golden_ratio_hash(golden_ratio_hash((unsigned)tinfo()) ^ serial);
+	unsigned v = golden_ratio_hash(golden_ratio_hash((p_int)tinfo()) ^ serial);
 	for (size_t i=0; i<nops(); i++) {
 		v = rotate_left(v);
 		v ^= this->op(i).gethash();
