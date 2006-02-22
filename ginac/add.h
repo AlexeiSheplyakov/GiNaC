@@ -63,7 +63,7 @@ public:
 protected:
 	ex derivative(const symbol & s) const;
 	unsigned return_type() const;
-	const basic* return_type_tinfo() const;
+	tinfo_t return_type_tinfo() const;
 	ex thisexpairseq(const epvector & v, const ex & oc) const;
 	ex thisexpairseq(std::auto_ptr<epvector> vp, const ex & oc) const;
 	expair split_ex_to_pair(const ex & e) const;

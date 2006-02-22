@@ -69,7 +69,7 @@ public:
 protected:
 	ex derivative(const symbol & s) const;
 	unsigned return_type() const;
-	const basic* return_type_tinfo() const;
+	tinfo_t return_type_tinfo() const;
 	
 	// new virtual functions which can be overridden by derived classes
 	// none

@@ -57,9 +57,10 @@ class symbol : public basic
 	// other constructors
 public:
 	explicit symbol(const std::string & initname, unsigned domain = domain::complex);
-	symbol(const std::string & initname, unsigned rt, unsigned domain);
 	symbol(const std::string & initname, const std::string & texname, unsigned domain = domain::complex);
 	symbol(const std::string & initname, const std::string & texname, unsigned rt, unsigned domain);
+	symbol(const std::string & initname, unsigned rt, tinfo_t rtt, unsigned domain = domain::complex);
+	symbol(const std::string & initname, const std::string & texname, unsigned rt, tinfo_t rtt, unsigned domain = domain::complex);
 	
 	// functions overriding virtual functions from base classes
 public:
@@ -72,6 +73,7 @@ public:
 	ex to_rational(exmap & repl) const;
 	ex to_polynomial(exmap & repl) const;
 	unsigned return_type() const { return ret_type; }
+	tinfo_t return_type_tinfo() const { return ret_type_tinfo; }
 	ex conjugate() const;
 protected:
 	ex derivative(const symbol & s) const;
@@ -103,6 +105,7 @@ protected:
 	std::string TeX_name;            ///< LaTeX name of this symbol
 	unsigned domain;                 ///< domain of symbol, complex (default) or real
 	unsigned ret_type;               ///< value returned by return_type()
+	tinfo_t ret_type_tinfo;         ///< value returned by return_type_tinfo()
 private:
 	static unsigned next_serial;
 };
@@ -116,8 +119,8 @@ public:
 	realsymbol();
 	explicit realsymbol(const std::string & initname, unsigned domain = domain::real);
 	realsymbol(const std::string & initname, const std::string & texname, unsigned domain = domain::real);
-	realsymbol(const std::string & initname, unsigned rt, unsigned domain = domain::real);
-	realsymbol(const std::string & initname, const std::string & texname, unsigned rt, unsigned domain = domain::real);
+	realsymbol(const std::string & initname, unsigned rt, tinfo_t rtt, unsigned domain = domain::real);
+	realsymbol(const std::string & initname, const std::string & texname, unsigned rt, tinfo_t rtt, unsigned domain = domain::real);
 };
 
 

@@ -27,8 +27,6 @@
 
 #include "mul.h"
 #include "add.h"
-#include "color.h"
-#include "clifford.h"
 #include "power.h"
 #include "operators.h"
 #include "matrix.h"
@@ -732,21 +730,8 @@ unsigned mul::return_type() const
 		}
 		if ((rt == return_types::noncommutative) && (!all_commutative)) {
 			// another nc element found, compare type_infos
-			if (noncommutative_element->rest.return_type_tinfo()->tinfo() == &clifford::tinfo_static) {
-				if (i->rest.return_type_tinfo()->tinfo() != &clifford::tinfo_static ||
-				    ((clifford*)(noncommutative_element->rest.return_type_tinfo()))->get_representation_label() !=
-				    ((clifford*)(i->rest.return_type_tinfo()))->get_representation_label()) {
-					// diffent types -> mul is ncc
-					return return_types::noncommutative_composite;
-				}
-			} else if (noncommutative_element->rest.return_type_tinfo()->tinfo() == &color::tinfo_static) {
-				if (i->rest.return_type_tinfo()->tinfo() != &color::tinfo_static ||
-				    ((color*)(noncommutative_element->rest.return_type_tinfo()))->get_representation_label() !=
-				    ((color*)(i->rest.return_type_tinfo()))->get_representation_label()) {
-					// diffent types -> mul is ncc
-					return return_types::noncommutative_composite;
-				}
-			} else if (noncommutative_element->rest.return_type_tinfo()->tinfo() != i->rest.return_type_tinfo()->tinfo()) {
+			if (noncommutative_element->rest.return_type_tinfo() != i->rest.return_type_tinfo()) {
+					// different types -> mul is ncc
 					return return_types::noncommutative_composite;
 			}
 		}
@@ -756,7 +741,7 @@ unsigned mul::return_type() const
 	return all_commutative ? return_types::commutative : return_types::noncommutative;
 }
    
-const basic* mul::return_type_tinfo() const
+tinfo_t mul::return_type_tinfo() const
 {
 	if (seq.empty())
 		return this;  // mul without factors: should not happen

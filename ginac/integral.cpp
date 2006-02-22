@@ -436,7 +436,7 @@ unsigned integral::return_type() const
 	return f.return_type();
 }
 
-const basic* integral::return_type_tinfo() const
+tinfo_t integral::return_type_tinfo() const
 {
 	return f.return_type_tinfo();
 }

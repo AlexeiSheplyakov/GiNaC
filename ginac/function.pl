@@ -356,7 +356,7 @@ $print_func_interface
 		return *this;
 	}
 
-	function_options & set_return_type(unsigned rt);
+	function_options & set_return_type(unsigned rt, tinfo_t rtt=NULL);
 	function_options & do_not_evalf_params();
 	function_options & remember(unsigned size, unsigned assoc_size=0,
 	                            unsigned strategy=remember_strategies::delete_never);
@@ -389,7 +389,7 @@ protected:
 
 	bool use_return_type;
 	unsigned return_type;
-	const basic* return_type_tinfo;
+	tinfo_t return_type_tinfo;
 
 	bool use_remember;
 	unsigned remember_size;
@@ -459,7 +459,7 @@ protected:
 	bool is_equal_same_type(const basic & other) const;
 	bool match_same_type(const basic & other) const;
 	unsigned return_type() const;
-	const basic* return_type_tinfo() const;
+	tinfo_t return_type_tinfo() const;
 	
 	// new virtual functions which can be overridden by derived classes
 	// none
@@ -659,10 +659,11 @@ function_options& function_options::series_func(series_funcp_exvector s)
 	return *this;
 }
 
-function_options & function_options::set_return_type(unsigned rt)
+function_options & function_options::set_return_type(unsigned rt, tinfo_t rtt)
 {
 	use_return_type = true;
 	return_type = rt;
+	return_type_tinfo = rtt;
 	return *this;
 }
 
@@ -1126,14 +1127,14 @@ unsigned function::return_type() const
 	}
 }
 
-const basic* function::return_type_tinfo() const
+tinfo_t function::return_type_tinfo() const
 {
 	GINAC_ASSERT(serial<registered_functions().size());
 	const function_options &opt = registered_functions()[serial];
 
 	if (opt.use_return_type) {
 		// Return type was explicitly specified
-		return this;
+		return opt.return_type_tinfo;
 	} else {
 		// Default behavior is to use the return type of the first
 		// argument. Thus, exp() of a matrix behaves like a matrix, etc.

@@ -45,7 +45,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(symbol, basic,
 // symbol
 
 symbol::symbol()
- : inherited(&symbol::tinfo_static), asexinfop(new assigned_ex_info), serial(next_serial++), name(autoname_prefix() + ToString(serial)), TeX_name(name), ret_type(return_types::commutative), domain(domain::complex)
+ : inherited(&symbol::tinfo_static), asexinfop(new assigned_ex_info), serial(next_serial++), name(autoname_prefix() + ToString(serial)), TeX_name(name), ret_type(return_types::commutative), ret_type_tinfo(&symbol::tinfo_static), domain(domain::complex)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
@@ -66,25 +66,25 @@ realsymbol::realsymbol()
 // symbol
 
 symbol::symbol(const std::string & initname, unsigned domain)
- : inherited(&symbol::tinfo_static), asexinfop(new assigned_ex_info), serial(next_serial++), name(initname), TeX_name(default_TeX_name()), ret_type(return_types::commutative), domain(domain)
+ : inherited(&symbol::tinfo_static), asexinfop(new assigned_ex_info), serial(next_serial++), name(initname), TeX_name(default_TeX_name()), ret_type(return_types::commutative), ret_type_tinfo(&symbol::tinfo_static), domain(domain)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
-symbol::symbol(const std::string & initname, unsigned rt, unsigned domain)
- : inherited(&symbol::tinfo_static), asexinfop(new assigned_ex_info), serial(next_serial++), name(initname), TeX_name(default_TeX_name()), ret_type(rt), domain(domain)
+symbol::symbol(const std::string & initname, unsigned rt, tinfo_t rtt, unsigned domain)
+ : inherited(&symbol::tinfo_static), asexinfop(new assigned_ex_info), serial(next_serial++), name(initname), TeX_name(default_TeX_name()), ret_type(rt), ret_type_tinfo(rtt), domain(domain)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
 symbol::symbol(const std::string & initname, const std::string & texname, unsigned domain)
- : inherited(&symbol::tinfo_static), asexinfop(new assigned_ex_info), serial(next_serial++), name(initname), TeX_name(texname), ret_type(return_types::commutative), domain(domain)
+ : inherited(&symbol::tinfo_static), asexinfop(new assigned_ex_info), serial(next_serial++), name(initname), TeX_name(texname), ret_type(return_types::commutative), ret_type_tinfo(&symbol::tinfo_static), domain(domain)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
-symbol::symbol(const std::string & initname, const std::string & texname, unsigned rt, unsigned domain)
- : inherited(&symbol::tinfo_static), asexinfop(new assigned_ex_info), serial(next_serial++), name(initname), TeX_name(texname), ret_type(rt), domain(domain)
+symbol::symbol(const std::string & initname, const std::string & texname, unsigned rt, tinfo_t rtt, unsigned domain)
+ : inherited(&symbol::tinfo_static), asexinfop(new assigned_ex_info), serial(next_serial++), name(initname), TeX_name(texname), ret_type(rt), ret_type_tinfo(rtt), domain(domain)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
@@ -97,11 +97,11 @@ realsymbol::realsymbol(const std::string & initname, unsigned domain)
 realsymbol::realsymbol(const std::string & initname, const std::string & texname, unsigned domain)
  : symbol(initname, texname, domain) { }
 
-realsymbol::realsymbol(const std::string & initname, unsigned rt, unsigned domain)
- : symbol(initname, rt, domain) { }
+realsymbol::realsymbol(const std::string & initname, unsigned rt, tinfo_t rtt, unsigned domain)
+ : symbol(initname, rt, rtt, domain) { }
 
-realsymbol::realsymbol(const std::string & initname, const std::string & texname, unsigned rt, unsigned domain)
- : symbol(initname, texname, rt, domain) { }
+realsymbol::realsymbol(const std::string & initname, const std::string & texname, unsigned rt, tinfo_t rtt, unsigned domain)
+ : symbol(initname, texname, rt, rtt, domain) { }
 
 //////////
 // archiving

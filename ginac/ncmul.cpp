@@ -29,7 +29,6 @@
 #include "add.h"
 #include "mul.h"
 #include "clifford.h"
-#include "color.h"
 #include "matrix.h"
 #include "archive.h"
 #include "indexed.h"
@@ -399,32 +398,19 @@ ex ncmul::eval(int level) const
 
 		size_t assoc_num = assocseq.size();
 		exvectorvector evv;
-		std::vector<const basic*> rttinfos;
+		std::vector<tinfo_t> rttinfos;
 		evv.reserve(assoc_num);
 		rttinfos.reserve(assoc_num);
 
 		cit = assocseq.begin(), citend = assocseq.end();
 		while (cit != citend) {
-			const basic* ti = cit->return_type_tinfo();
+			tinfo_t ti = cit->return_type_tinfo();
 			size_t rtt_num = rttinfos.size();
 			// search type in vector of known types
 			for (i=0; i<rtt_num; ++i) {
-				tinfo_t tinf = ti->tinfo();
-				if (tinf == rttinfos[i]->tinfo()) {
-					if (tinf == &clifford::tinfo_static) {
-						if (((clifford*)ti)->get_representation_label() == ((clifford*)rttinfos[i])->get_representation_label()) {
-							evv[i].push_back(*cit);
-							break;
-						}
-					} else if (tinf == &color::tinfo_static) {
-						if (((color*)ti)->get_representation_label() == ((color*)rttinfos[i])->get_representation_label()) {
-							evv[i].push_back(*cit);
-							break;
-						}
-					} else {
-						evv[i].push_back(*cit);
-						break;
-					}
+				if(ti == rttinfos[i]) {
+					evv[i].push_back(*cit);
+					break;
 				}
 			}
 			if (i >= rtt_num) {
@@ -509,7 +495,7 @@ ex ncmul::conjugate() const
 		return exprseq::conjugate();
 	}
 
-	if (return_type_tinfo()->tinfo() != &clifford::tinfo_static) {
+	if (!is_clifford_tinfo(return_type_tinfo())) {
 		return exprseq::conjugate();
 	}
 
@@ -569,23 +555,8 @@ unsigned ncmul::return_type() const
 		}
 		if ((rt == return_types::noncommutative) && (!all_commutative)) {
 			// another nc element found, compare type_infos
-			if (noncommutative_element->return_type_tinfo()->tinfo() == &clifford::tinfo_static) {
-				if (i->return_type_tinfo()->tinfo() != &clifford::tinfo_static ||
-				    ((clifford*)(noncommutative_element->return_type_tinfo()))->get_representation_label() !=
-				    ((clifford*)(i->return_type_tinfo()))->get_representation_label()) {
-					// diffent types -> mul is ncc
+			if(noncommutative_element->return_type_tinfo() != i->return_type_tinfo())
 					return return_types::noncommutative_composite;
-				}
-			} else if (noncommutative_element->return_type_tinfo()->tinfo() == &color::tinfo_static) {
-				if (i->return_type_tinfo()->tinfo() != &color::tinfo_static ||
-				    ((color*)(noncommutative_element->return_type_tinfo()))->get_representation_label() !=
-				    ((color*)(i->return_type_tinfo()))->get_representation_label()) {
-					// diffent types -> mul is ncc
-					return return_types::noncommutative_composite;
-				}
-			} else if (noncommutative_element->return_type_tinfo()->tinfo() != i->return_type_tinfo()->tinfo()) {
-					return return_types::noncommutative_composite;
-			}
 		}
 		++i;
 	}
@@ -594,7 +565,7 @@ unsigned ncmul::return_type() const
 	return all_commutative ? return_types::commutative : return_types::noncommutative;
 }
    
-const basic* ncmul::return_type_tinfo() const
+tinfo_t ncmul::return_type_tinfo() const
 {
 	if (seq.empty())
 		return this;

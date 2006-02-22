@@ -39,6 +39,8 @@ namespace GiNaC {
 
 GINAC_IMPLEMENT_REGISTERED_CLASS(color, indexed)
 
+const tinfo_static_t color::return_type_tinfo_static[256] = {{}};
+
 GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(su3one, tensor,
   print_func<print_dflt>(&su3one::do_print).
   print_func<print_latex>(&su3one::do_print_latex))
@@ -522,16 +524,17 @@ ex color_h(const ex & a, const ex & b, const ex & c)
 
 /** Check whether a given tinfo key (as returned by return_type_tinfo()
  *  is that of a color object (with an arbitrary representation label). */
-static bool is_color_tinfo(const basic* ti)
+static bool is_color_tinfo(tinfo_t ti)
 {
-	return ti->tinfo() == &color::tinfo_static;
+	p_int start_loc=(p_int)&color::return_type_tinfo_static;
+	return (p_int)ti>=start_loc && (p_int)ti<start_loc+256;
 }
 
 /** Extract representation label from tinfo key (as returned by
  *  return_type_tinfo()). */
-static unsigned char get_representation_label(const basic* ti)
+static unsigned char get_representation_label(tinfo_t ti)
 {
-	return ((color*)ti)->get_representation_label();
+	return (unsigned char)((p_int)ti-(p_int)&color::return_type_tinfo_static);
 }
 
 ex color_trace(const ex & e, const std::set<unsigned char> & rls)

@@ -200,7 +200,7 @@ public:
 
 	// noncommutativity
 	unsigned return_type() const { return return_types::commutative; }
-	const basic* return_type_tinfo() const { return this; }
+	tinfo_t return_type_tinfo() const { return this; }
 
 protected:
 	bool is_equal_same_type(const basic & other) const

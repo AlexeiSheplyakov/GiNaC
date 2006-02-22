@@ -71,7 +71,7 @@ protected:
 	ex derivative(const symbol & s) const;
 	ex eval_ncmul(const exvector & v) const;
 	unsigned return_type() const;
-	const basic* return_type_tinfo() const;
+	tinfo_t return_type_tinfo() const;
 	ex expand(unsigned options = 0) const;
 	
 	// new virtual functions which can be overridden by derived classes

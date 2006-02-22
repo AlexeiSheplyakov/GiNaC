@@ -588,6 +588,9 @@ ex epsilon_tensor(const ex & i1, const ex & i2)
 	if (!ex_to<idx>(i1).get_dim().is_equal(_ex2))
 		throw(std::runtime_error("index dimension of epsilon tensor must match number of indices"));
 
+	if(is_a<wildcard>(i1.op(0))||is_a<wildcard>(i2.op(0)))
+		return indexed(epsilon, antisymmetric2(), i1, i2).hold();
+
 	return indexed(epsilon, antisymmetric2(), i1, i2);
 }
 
@@ -603,6 +606,9 @@ ex epsilon_tensor(const ex & i1, const ex & i2, const ex & i3)
 		throw(std::invalid_argument("all indices of epsilon tensor must have the same dimension"));
 	if (!ex_to<idx>(i1).get_dim().is_equal(_ex3))
 		throw(std::runtime_error("index dimension of epsilon tensor must match number of indices"));
+
+	if(is_a<wildcard>(i1.op(0))||is_a<wildcard>(i2.op(0))||is_a<wildcard>(i3.op(0)))
+		return indexed(epsilon, antisymmetric3(), i1, i2, i3).hold();
 
 	return indexed(epsilon, antisymmetric3(), i1, i2, i3);
 }
@@ -620,6 +626,9 @@ ex lorentz_eps(const ex & i1, const ex & i2, const ex & i3, const ex & i4, bool 
 		throw(std::invalid_argument("all indices of epsilon tensor must have the same dimension"));
 	if (!ex_to<idx>(i1).get_dim().is_equal(_ex4))
 		throw(std::runtime_error("index dimension of epsilon tensor must match number of indices"));
+
+	if(is_a<wildcard>(i1.op(0))||is_a<wildcard>(i2.op(0))||is_a<wildcard>(i3.op(0))||is_a<wildcard>(i4.op(0)))
+		return indexed(pos_sig ? epsilon_pos : epsilon_neg, antisymmetric4(), i1, i2, i3, i4).hold();
 
 	return indexed(pos_sig ? epsilon_pos : epsilon_neg, antisymmetric4(), i1, i2, i3, i4);
 }

@@ -465,7 +465,7 @@ unsigned add::return_type() const
 		return seq.begin()->rest.return_type();
 }
 
-const basic* add::return_type_tinfo() const
+tinfo_t add::return_type_tinfo() const
 {
 	if (seq.empty())
 		return this;

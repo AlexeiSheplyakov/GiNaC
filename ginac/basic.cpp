@@ -775,9 +775,9 @@ unsigned basic::return_type() const
 	return return_types::commutative;
 }
 
-const basic* basic::return_type_tinfo() const
+tinfo_t basic::return_type_tinfo() const
 {
-	return this;
+	return tinfo_key;
 }
 
 /** Compute the hash value of an object and if it makes sense to store it in

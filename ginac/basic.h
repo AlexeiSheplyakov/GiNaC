@@ -212,7 +212,7 @@ public:
 
 	// noncommutativity
 	virtual unsigned return_type() const;
-	virtual const basic* return_type_tinfo() const;
+	virtual tinfo_t return_type_tinfo() const;
 
 	// complex conjugation
 	virtual ex conjugate() const;

@@ -41,6 +41,8 @@ namespace GiNaC {
 class color : public indexed
 {
 	GINAC_DECLARE_REGISTERED_CLASS(color, indexed)
+public:
+	static const tinfo_static_t return_type_tinfo_static[256];
 
 	// other constructors
 public:
@@ -58,7 +60,7 @@ protected:
 	ex thiscontainer(const exvector & v) const;
 	ex thiscontainer(std::auto_ptr<exvector> vp) const;
 	unsigned return_type() const { return return_types::noncommutative; }
-	const basic* return_type_tinfo() const { return this; }
+	tinfo_t return_type_tinfo() const { return color::return_type_tinfo_static+representation_label; }
 
 	// non-virtual functions in this class
 public:

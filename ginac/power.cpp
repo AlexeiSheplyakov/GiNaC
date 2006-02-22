@@ -643,7 +643,7 @@ unsigned power::return_type() const
 	return basis.return_type();
 }
 
-const basic* power::return_type_tinfo() const
+tinfo_t power::return_type_tinfo() const
 {
 	return basis.return_type_tinfo();
 }

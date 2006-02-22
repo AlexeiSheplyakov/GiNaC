@@ -46,6 +46,8 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(clifford, indexed,
   print_func<print_dflt>(&clifford::do_print_dflt).
   print_func<print_latex>(&clifford::do_print_latex))
 
+const tinfo_static_t clifford::return_type_tinfo_static[256] = {{}};
+
 GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(diracone, tensor,
   print_func<print_dflt>(&diracone::do_print).
   print_func<print_latex>(&diracone::do_print_latex))
@@ -838,16 +840,17 @@ ex dirac_slash(const ex & e, const ex & dim, unsigned char rl)
 
 /** Check whether a given tinfo key (as returned by return_type_tinfo()
  *  is that of a clifford object (with an arbitrary representation label). */
-static bool is_clifford_tinfo(const basic* ti)
+bool is_clifford_tinfo(tinfo_t ti)
 {
-	return ti->tinfo() == &clifford::tinfo_static;
+	p_int start_loc=(p_int)&clifford::return_type_tinfo_static;
+	return (p_int)ti>=start_loc && (p_int)ti<start_loc+256;
 }
 
 /** Extract representation label from tinfo key (as returned by
  *  return_type_tinfo()). */
-static unsigned char get_representation_label(const basic* ti)
+static unsigned char get_representation_label(tinfo_t ti)
 {
-	return ((clifford*)ti)->get_representation_label();
+	return (unsigned char)((p_int)ti-(p_int)&clifford::return_type_tinfo_static);
 }
 
 /** Take trace of a string of an even number of Dirac gammas given a vector
