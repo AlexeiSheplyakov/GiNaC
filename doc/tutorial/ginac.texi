@@ -3011,10 +3011,8 @@ expressions. Also, non-commutative products in GiNaC are more intelligent
 than in other computer algebra systems; they can, for example, automatically
 canonicalize themselves according to rules specified in the implementation
 of the non-commutative classes. The drawback is that to work with other than
-the built-in algebras you have to implement new classes yourself. Symbols
-always commutate and it's not possible to construct non-commutative products
-using symbols to represent the algebra elements or generators. User-defined
-functions can, however, be specified as being non-commutative.
+the built-in algebras you have to implement new classes yourself. Both
+symbols and user-defined functions can be specified as being non-commutative.
 
 @cindex @code{return_type()}
 @cindex @code{return_type_tinfo()}
