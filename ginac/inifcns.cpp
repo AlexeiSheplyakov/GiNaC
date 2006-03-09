@@ -124,6 +124,82 @@ REGISTER_FUNCTION(abs, eval_func(abs_eval).
                        power_func(abs_power));
 
 //////////
+// Step function
+//////////
+
+static ex step_evalf(const ex & arg)
+{
+	if (is_exactly_a<numeric>(arg))
+		return step(ex_to<numeric>(arg));
+	
+	return step(arg).hold();
+}
+
+static ex step_eval(const ex & arg)
+{
+	if (is_exactly_a<numeric>(arg))
+		return step(ex_to<numeric>(arg));
+	
+	else if (is_exactly_a<mul>(arg) &&
+	         is_exactly_a<numeric>(arg.op(arg.nops()-1))) {
+		numeric oc = ex_to<numeric>(arg.op(arg.nops()-1));
+		if (oc.is_real()) {
+			if (oc > 0)
+				// step(42*x) -> step(x)
+				return step(arg/oc).hold();
+			else
+				// step(-42*x) -> step(-x)
+				return step(-arg/oc).hold();
+		}
+		if (oc.real().is_zero()) {
+			if (oc.imag() > 0)
+				// step(42*I*x) -> step(I*x)
+				return step(I*arg/oc).hold();
+			else
+				// step(-42*I*x) -> step(-I*x)
+				return step(-I*arg/oc).hold();
+		}
+	}
+	
+	return step(arg).hold();
+}
+
+static ex step_series(const ex & arg,
+                      const relational & rel,
+                      int order,
+                      unsigned options)
+{
+	const ex arg_pt = arg.subs(rel, subs_options::no_pattern);
+	if (arg_pt.info(info_flags::numeric)
+	    && ex_to<numeric>(arg_pt).real().is_zero()
+	    && !(options & series_options::suppress_branchcut))
+		throw (std::domain_error("step_series(): on imaginary axis"));
+	
+	epvector seq;
+	seq.push_back(expair(step(arg_pt), _ex0));
+	return pseries(rel,seq);
+}
+
+static ex step_power(const ex & arg, const ex & exp)
+{
+	if (exp.info(info_flags::positive))
+		return step(arg);
+	
+	return power(step(arg), exp).hold();
+}
+
+static ex step_conjugate(const ex& arg)
+{
+	return step(arg);
+}
+
+REGISTER_FUNCTION(step, eval_func(step_eval).
+                        evalf_func(step_evalf).
+                        series_func(step_series).
+                        conjugate_func(step_conjugate).
+                        power_func(step_power));
+
+//////////
 // Complex sign
 //////////
 

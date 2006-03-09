@@ -927,6 +927,18 @@ const numeric numeric::inverse() const
 	return numeric(cln::recip(value));
 }
 
+/** Return the step function of a numeric. The imaginary part of it is
+ *  ignored because the step function is generally considered real but
+ *  a numeric may develop a small imaginary part due to rounding errors.
+ */
+numeric numeric::step() const
+{	cln::cl_R r = cln::realpart(value);
+	if(cln::zerop(r))
+		return numeric(1,2);
+	if(cln::plusp(r))
+		return 1;
+	return 0;
+}
 
 /** Return the complex half-plane (left or right) in which the number lies.
  *  csgn(x)==0 for x==0, csgn(x)==1 for Re(x)>0 or Re(x)=0 and Im(x)>0,

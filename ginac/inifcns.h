@@ -35,6 +35,9 @@ DECLARE_FUNCTION_1P(conjugate_function)
 /** Absolute value. */
 DECLARE_FUNCTION_1P(abs)
 	
+/** Step function. */
+DECLARE_FUNCTION_1P(step)
+
 /** Complex sign. */
 DECLARE_FUNCTION_1P(csgn)
 

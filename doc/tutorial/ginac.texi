@@ -1393,6 +1393,8 @@ evaluated immediately:
 @cindex @code{imag()}
 @item @code{csgn(z)}
 @tab complex sign (returns an @code{int})
+@item @code{step(x)}
+@tab step function (returns a @code{numeric})
 @item @code{numer(z)}
 @tab numerator of rational or complex rational number
 @item @code{denom(z)}
@@ -5698,12 +5700,15 @@ GiNaC contains the following predefined mathematical functions:
 @item @code{abs(x)}
 @tab absolute value
 @cindex @code{abs()}
+@item @code{step(x)}
+@tab step function
+@cindex @code{step()}
 @item @code{csgn(x)}
 @tab complex sign
 @cindex @code{conjugate()}
 @item @code{conjugate(x)}
 @tab complex conjugation
-@cindex @code{csgn()}
+@cindex @code{conjugate()}
 @item @code{sqrt(x)}
 @tab square root (not a GiNaC function, rather an alias for @code{pow(x, numeric(1, 2))})
 @cindex @code{sqrt()}
