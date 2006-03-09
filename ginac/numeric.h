@@ -148,7 +148,7 @@ public:
 	const numeric & operator=(double d);
 	const numeric & operator=(const char *s);
 	const numeric inverse() const;
-	numeric step() const;
+	int step() const;
 	int csgn() const;
 	int compare(const numeric &other) const;
 	bool is_equal(const numeric &other) const;
@@ -251,7 +251,7 @@ inline const numeric pow(const numeric &x, const numeric &y)
 inline const numeric inverse(const numeric &x)
 { return x.inverse(); }
 
-inline numeric step(const numeric &x)
+inline int step(const numeric &x)
 { return x.step(); }
 
 inline int csgn(const numeric &x)
