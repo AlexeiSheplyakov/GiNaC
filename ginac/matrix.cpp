@@ -580,10 +580,11 @@ matrix matrix::mul(const matrix & other) const
 	
 	for (unsigned r1=0; r1<this->rows(); ++r1) {
 		for (unsigned c=0; c<this->cols(); ++c) {
+			// Quick test: can we shortcut?
 			if (m[r1*col+c].is_zero())
 				continue;
 			for (unsigned r2=0; r2<other.cols(); ++r2)
-				prod[r1*other.col+r2] += (m[r1*col+c] * other.m[c*other.col+r2]).expand();
+				prod[r1*other.col+r2] += (m[r1*col+c] * other.m[c*other.col+r2]);
 		}
 	}
 	return matrix(row, other.col, prod);
