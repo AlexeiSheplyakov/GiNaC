@@ -66,7 +66,7 @@ public:
 		property_info() {}
 		property_info(property_type t, const std::string &n, unsigned c = 1) : type(t), name(n), count(c) {}
 
-		property_type type;	/**< Data type of property. */
+		property_type type; /**< Data type of property. */
 		std::string name;   /**< Name of property. */
 		unsigned count;     /**< Number of occurrences. */
 	};
@@ -131,7 +131,7 @@ private:
 
 		property_type type; /**< Data type of property. */
 		archive_atom name;  /**< Name of property. */
-		unsigned value; /**< Stored value. */
+		unsigned value;     /**< Stored value. */
 	};
 
 	/** Reference to the archive to which this node belongs. */
@@ -217,8 +217,8 @@ private:
 		archived_ex() {}
 		archived_ex(archive_atom n, archive_node_id node) : name(n), root(node) {}
 
-		archive_atom name;		/**< Name of expression. */
-		archive_node_id root;	/**< ID of root node. */
+		archive_atom name;     /**< Name of expression. */
+		archive_node_id root;  /**< ID of root node. */
 	};
 
 	/** Vector of archived expression descriptors. */
