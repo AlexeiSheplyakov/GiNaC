@@ -180,14 +180,6 @@ static ex step_series(const ex & arg,
 	return pseries(rel,seq);
 }
 
-static ex step_power(const ex & arg, const ex & exp)
-{
-	if (exp.info(info_flags::positive))
-		return step(arg);
-	
-	return power(step(arg), exp).hold();
-}
-
 static ex step_conjugate(const ex& arg)
 {
 	return step(arg);
@@ -196,8 +188,7 @@ static ex step_conjugate(const ex& arg)
 REGISTER_FUNCTION(step, eval_func(step_eval).
                         evalf_func(step_evalf).
                         series_func(step_series).
-                        conjugate_func(step_conjugate).
-                        power_func(step_power));
+                        conjugate_func(step_conjugate));
 
 //////////
 // Complex sign

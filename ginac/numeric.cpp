@@ -931,10 +931,10 @@ const numeric numeric::inverse() const
  *  ignored because the step function is generally considered real but
  *  a numeric may develop a small imaginary part due to rounding errors.
  */
-int numeric::step() const
+numeric numeric::step() const
 {	cln::cl_R r = cln::realpart(value);
 	if(cln::zerop(r))
-		return 1;
+		return numeric(1,2);
 	if(cln::plusp(r))
 		return 1;
 	return 0;

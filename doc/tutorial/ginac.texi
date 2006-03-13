@@ -1394,7 +1394,7 @@ evaluated immediately:
 @item @code{csgn(z)}
 @tab complex sign (returns an @code{int})
 @item @code{step(x)}
-@tab step function (returns an @code{int})
+@tab step function (returns an @code{numeric})
 @item @code{numer(z)}
 @tab numerator of rational or complex rational number
 @item @code{denom(z)}
