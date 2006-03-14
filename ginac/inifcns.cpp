@@ -252,10 +252,23 @@ static ex csgn_conjugate(const ex& arg)
 	return csgn(arg);
 }
 
+static ex csgn_power(const ex & arg, const ex & exp)
+{
+	if (is_a<numeric>(exp) && exp.info(info_flags::positive) && ex_to<numeric>(exp).is_integer()) {
+		if (ex_to<numeric>(exp).is_odd())
+			return csgn(arg);
+		else
+			return power(csgn(arg), _ex2).hold();
+	} else
+		return power(csgn(arg), exp).hold();
+}
+
+
 REGISTER_FUNCTION(csgn, eval_func(csgn_eval).
                         evalf_func(csgn_evalf).
                         series_func(csgn_series).
-                        conjugate_func(csgn_conjugate));
+                        conjugate_func(csgn_conjugate).
+                        power_func(csgn_power));
 
 
 //////////
