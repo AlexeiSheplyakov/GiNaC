@@ -603,6 +603,11 @@ bool numeric::info(unsigned inf) const
 	return false;
 }
 
+bool numeric::is_polynomial(const ex & var) const
+{
+	return true;
+}
+
 int numeric::degree(const ex & s) const
 {
 	return 0;

@@ -180,6 +180,7 @@ public:
 	}
 
 	// degree/coeff
+	virtual bool is_polynomial(const ex & var) const;
 	virtual int degree(const ex & s) const;
 	virtual int ldegree(const ex & s) const;
 	virtual ex coeff(const ex & s, int n = 1) const;

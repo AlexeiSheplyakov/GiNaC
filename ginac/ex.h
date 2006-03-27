@@ -159,6 +159,7 @@ public:
 	void traverse(visitor & v) const { traverse_preorder(v); }
 
 	// degree/coeff
+	bool is_polynomial(const ex & vars) const;
 	int degree(const ex & s) const { return bp->degree(s); }
 	int ldegree(const ex & s) const { return bp->ldegree(s); }
 	ex coeff(const ex & s, int n = 1) const { return bp->coeff(s, n); }
@@ -689,6 +690,9 @@ inline bool has(const ex & thisex, const ex & pattern, unsigned options = 0)
 
 inline bool find(const ex & thisex, const ex & pattern, lst & found)
 { return thisex.find(pattern, found); }
+
+inline bool is_polynomial(const ex & thisex, const ex & vars)
+{ return thisex.is_polynomial(vars); }
 
 inline int degree(const ex & thisex, const ex & s)
 { return thisex.degree(s); }

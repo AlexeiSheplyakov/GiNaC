@@ -226,6 +226,11 @@ ex symbol::conjugate() const
 	}
 }
 
+bool symbol::is_polynomial(const ex & var) const
+{
+	return true;
+}
+
 // protected
 
 /** Implementation of ex::diff() for single differentiation of a symbol.

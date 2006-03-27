@@ -258,6 +258,15 @@ ex power::map(map_function & f) const
 		return *this;
 }
 
+bool power::is_polynomial(const ex & var) const
+{
+	if (exponent.has(var))
+		return false;
+	if (!exponent.info(info_flags::nonnegint))
+		return false;
+	return basis.is_polynomial(var);
+}
+
 int power::degree(const ex & s) const
 {
 	if (is_equal(ex_to<basic>(s)))

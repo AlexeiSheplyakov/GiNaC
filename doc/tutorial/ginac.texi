@@ -905,7 +905,7 @@ int main()
 
 @node The Class Hierarchy, Symbols, Error handling, Basic Concepts
 @c    node-name, next, previous, up
-@section The Class Hierarchy
+@section The class hierarchy
 
 GiNaC's class hierarchy consists of several classes representing
 mathematical objects, all of which (except for @code{ex} and some
@@ -4172,7 +4172,7 @@ after @code{other}.
 
 @node Numerical Evaluation, Substituting Expressions, Information About Expressions, Methods and Functions
 @c    node-name, next, previous, up
-@section Numerical Evaluation
+@section Numerical evaluation
 @cindex @code{evalf()}
 
 GiNaC keeps algebraic expressions, numbers and constants in their exact form.
@@ -4612,7 +4612,7 @@ and not for locating @code{x+y} within @code{x+y+z}.
 
 @node Applying a Function on Subexpressions, Visitors and Tree Traversal, Pattern Matching and Advanced Substitutions, Methods and Functions
 @c    node-name, next, previous, up
-@section Applying a Function on Subexpressions
+@section Applying a function on subexpressions
 @cindex tree traversal
 @cindex @code{map()}
 
@@ -4757,7 +4757,7 @@ argument. You can not use functions like @samp{diff()}, @samp{op()},
 
 @node Visitors and Tree Traversal, Polynomial Arithmetic, Applying a Function on Subexpressions, Methods and Functions
 @c    node-name, next, previous, up
-@section Visitors and Tree Traversal
+@section Visitors and tree traversal
 @cindex tree traversal
 @cindex @code{visitor} (class)
 @cindex @code{accept()}
@@ -4980,6 +4980,22 @@ lst gather_indices(const ex & e)
 @node Polynomial Arithmetic, Rational Expressions, Visitors and Tree Traversal, Methods and Functions
 @c    node-name, next, previous, up
 @section Polynomial arithmetic
+
+@subsection Testing whether an expression is a polynomial
+@cindex @code{is_polynomial()}
+
+Testing whether an expression is a polynomial in one or more variables
+can be done with the method
+@example
+bool ex::is_polynomial(const ex & vars) const;
+@end example
+In the case of more than
+one variable, the variables are given as a list.
+
+@example
+(x*y*sin(y)).is_polynomial(x)         // Returns true.
+(x*y*sin(y)).is_polynomial(lst(x,y))  // Returns false.
+@end example
 
 @subsection Expanding and collecting
 @cindex @code{expand()}
@@ -5987,7 +6003,7 @@ J.Vollinga, S.Weinzierl, hep-ph/0410259
 
 @node Complex Conjugation, Solving Linear Systems of Equations, Multiple polylogarithms, Methods and Functions
 @c    node-name, next, previous, up
-@section Complex Conjugation
+@section Complex conjugation
 @c
 @cindex @code{conjugate()}
 
@@ -6021,7 +6037,7 @@ change this behavior, you have to supply a specialized conjugation method for yo
 
 @node Solving Linear Systems of Equations, Input/Output, Complex Conjugation, Methods and Functions
 @c    node-name, next, previous, up
-@section Solving Linear Systems of Equations
+@section Solving linear systems of equations
 @cindex @code{lsolve()}
 
 The function @code{lsolve()} provides a convenient wrapper around some

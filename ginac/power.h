@@ -54,6 +54,7 @@ public:
 	size_t nops() const;
 	ex op(size_t i) const;
 	ex map(map_function & f) const;
+	bool is_polynomial(const ex & var) const;
 	int degree(const ex & s) const;
 	int ldegree(const ex & s) const;
 	ex coeff(const ex & s, int n = 1) const;

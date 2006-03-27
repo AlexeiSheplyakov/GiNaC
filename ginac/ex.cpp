@@ -240,6 +240,20 @@ ex ex::rhs() const
 	return bp->op(1);
 }
 
+/** Check whether expression is a polynomial. */
+bool ex::is_polynomial(const ex & vars) const
+{
+	if (is_a<lst>(vars)) {
+		const lst & varlst = ex_to<lst>(vars);
+		for (lst::const_iterator i=varlst.begin(); i!=varlst.end(); ++i)
+			if (!bp->is_polynomial(*i))
+				return false;
+		return true;
+	}
+	else
+		return bp->is_polynomial(vars);
+}
+
 // private
 
 /** Make this ex writable (if more than one ex handle the same basic) by 

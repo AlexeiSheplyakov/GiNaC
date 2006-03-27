@@ -325,6 +325,12 @@ ex basic::map(map_function & f) const
 		return *this;
 }
 
+/** Check whether this is a polynomial in the given variables. */
+bool basic::is_polynomial(const ex & var) const
+{
+	return !has(var) || is_equal(ex_to<basic>(var));
+}
+
 /** Return degree of highest power in object s. */
 int basic::degree(const ex & s) const
 {

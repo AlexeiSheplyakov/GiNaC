@@ -49,6 +49,7 @@ public:
 	// functions overriding virtual functions from base classes
 public:
 	ex evalf(int level = 0) const;
+	bool is_polynomial(const ex & var) const;
 protected:
 	ex derivative(const symbol & s) const;
 	bool is_equal_same_type(const basic & other) const;

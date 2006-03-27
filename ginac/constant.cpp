@@ -146,6 +146,11 @@ ex constant::evalf(int level) const
 	return *this;
 }
 
+bool constant::is_polynomial(const ex & var) const
+{
+	return true;
+}
+
 // protected
 
 /** Implementation of ex::diff() for a constant always returns 0.

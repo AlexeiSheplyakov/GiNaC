@@ -27,6 +27,7 @@
 
 #include "expairseq.h"
 #include "lst.h"
+#include "add.h"
 #include "mul.h"
 #include "power.h"
 #include "relational.h"
@@ -345,6 +346,17 @@ ex expairseq::conjugate() const
 		delete newepv;
 	}
 	return result;
+}
+
+bool expairseq::is_polynomial(const ex & var) const
+{
+	if (!is_exactly_a<add>(*this) && !is_exactly_a<mul>(*this))
+		return basic::is_polynomial(var);
+	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i) {
+		if (!(i->rest).is_polynomial(var))
+			return false;
+	}
+	return true;
 }
 
 bool expairseq::match(const ex & pattern, lst & repl_lst) const
