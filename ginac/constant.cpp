@@ -44,7 +44,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(constant, basic,
 
 // public
 
-constant::constant() : basic(&constant::tinfo_static), ef(0), serial(next_serial++)
+constant::constant() : basic(&constant::tinfo_static), ef(0), serial(next_serial++), domain(domain::complex)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
@@ -55,8 +55,8 @@ constant::constant() : basic(&constant::tinfo_static), ef(0), serial(next_serial
 
 // public
 
-constant::constant(const std::string & initname, evalffunctype efun, const std::string & texname)
-  : basic(&constant::tinfo_static), name(initname), ef(efun), serial(next_serial++)
+constant::constant(const std::string & initname, evalffunctype efun, const std::string & texname, unsigned dm)
+  : basic(&constant::tinfo_static), name(initname), ef(efun), serial(next_serial++), domain(dm)
 {
 	if (texname.empty())
 		TeX_name = "\\mbox{" + name + "}";
@@ -65,8 +65,8 @@ constant::constant(const std::string & initname, evalffunctype efun, const std::
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
-constant::constant(const std::string & initname, const numeric & initnumber, const std::string & texname)
-  : basic(&constant::tinfo_static), name(initname), ef(0), number(initnumber), serial(next_serial++)
+constant::constant(const std::string & initname, const numeric & initnumber, const std::string & texname, unsigned dm)
+  : basic(&constant::tinfo_static), name(initname), ef(0), number(initnumber), serial(next_serial++), domain(dm)
 {
 	if (texname.empty())
 		TeX_name = "\\mbox{" + name + "}";
@@ -134,6 +134,16 @@ void constant::do_print_python_repr(const print_python_repr & c, unsigned level)
 	if (TeX_name != "\\mbox{" + name + "}")
 		c.s << ",TeX_name='" << TeX_name << "'";
 	c.s << ')';
+}
+
+bool constant::info(unsigned inf) const
+{
+	if (inf == info_flags::polynomial)
+		return true;
+	if (inf == info_flags::real)
+		return domain == domain::real;
+	else
+		return inherited::info(inf);
 }
 
 ex constant::evalf(int level) const
@@ -212,13 +222,13 @@ unsigned constant::next_serial = 0;
 //////////
 
 /**  Pi. (3.14159...)  Diverts straight into CLN for evalf(). */
-const constant Pi("Pi", PiEvalf, "\\pi");
+const constant Pi("Pi", PiEvalf, "\\pi", domain::real);
 
 /** Euler's constant. (0.57721...)  Sometimes called Euler-Mascheroni constant.
  *  Diverts straight into CLN for evalf(). */
-const constant Euler("Euler", EulerEvalf, "\\gamma_E");
+const constant Euler("Euler", EulerEvalf, "\\gamma_E", domain::real);
 
 /** Catalan's constant. (0.91597...)  Diverts straight into CLN for evalf(). */
-const constant Catalan("Catalan", CatalanEvalf, "G");
+const constant Catalan("Catalan", CatalanEvalf, "G", domain::real);
 
 } // namespace GiNaC

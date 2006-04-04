@@ -3886,7 +3886,7 @@ table:
 @item @code{numeric}
 @tab @dots{}a number (same as @code{is_a<numeric>(...)})
 @item @code{real}
-@tab @dots{}a real integer, rational or float (i.e. is not complex)
+@tab @dots{}a real number, symbol or constant (i.e. is not complex)
 @item @code{rational}
 @tab @dots{}an exact rational number (integers are rational, too)
 @item @code{integer}

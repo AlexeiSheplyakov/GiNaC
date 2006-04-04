@@ -128,14 +128,8 @@ static ex log_eval(const ex & x)
 	// log(exp(t)) -> t (if -Pi < t.imag() <= Pi):
 	if (is_ex_the_function(x, exp)) {
 		const ex &t = x.op(0);
-		if (is_a<symbol>(t) && t.info(info_flags::real)) {
+		if (t.info(info_flags::real))
 			return t;
-		}
-		if (t.info(info_flags::numeric)) {
-			const numeric &nt = ex_to<numeric>(t);
-			if (nt.is_real())
-				return t;
-		}
 	}
 	
 	return log(x).hold();

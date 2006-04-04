@@ -43,11 +43,12 @@ class constant : public basic
 	
 	// other constructors
 public:
-	constant(const std::string & initname, evalffunctype efun = 0, const std::string & texname = std::string());
-	constant(const std::string & initname, const numeric & initnumber, const std::string & texname = std::string());
+	constant(const std::string & initname, evalffunctype efun = 0, const std::string & texname = std::string(), unsigned domain = domain::complex);
+	constant(const std::string & initname, const numeric & initnumber, const std::string & texname = std::string(), unsigned domain = domain::complex);
 	
 	// functions overriding virtual functions from base classes
 public:
+	bool info(unsigned inf) const;
 	ex evalf(int level = 0) const;
 	bool is_polynomial(const ex & var) const;
 protected:
@@ -70,6 +71,7 @@ private:
 	ex number;            ///< numerical value this constant evalf()s to
 	unsigned serial;      ///< unique serial number for comparison
 	static unsigned next_serial;
+	unsigned domain;      ///< numerical value this constant evalf()s to
 };
 
 extern const constant Pi;
