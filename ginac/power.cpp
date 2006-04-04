@@ -620,7 +620,7 @@ ex power::conjugate() const
  *  @see ex::diff */
 ex power::derivative(const symbol & s) const
 {
-	if (exponent.info(info_flags::real)) {
+	if (is_a<numeric>(exponent)) {
 		// D(b^r) = r * b^(r-1) * D(b) (faster than the formula below)
 		epvector newseq;
 		newseq.reserve(2);
