@@ -2388,6 +2388,8 @@ ex power::to_polynomial(exmap & repl) const
 {
 	if (exponent.info(info_flags::posint))
 		return power(basis.to_rational(repl), exponent);
+	else if (exponent.info(info_flags::negint))
+		return power(replace_with_symbol(power(basis, _ex_1), repl), -exponent);
 	else
 		return replace_with_symbol(*this, repl);
 }
