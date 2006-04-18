@@ -2,7 +2,6 @@
 include /usr/share/cdbs/1/rules/buildcore.mk
 include /usr/share/cdbs/1/class/autotools.mk
 include /usr/share/cdbs/1/rules/debhelper.mk
-export DH_COMPAT
 
 ifeq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 	CXXFLAGS += -finline-limit=1200

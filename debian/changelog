@@ -1,3 +1,65 @@
+ginac (1.3.4-1) unstable; urgency=low
+
+  * New upstream (bugfix only) release.
+  * debian/*: Fixate DH_COMPAT to level 4.
+
+ -- Richard Kreckel <kreckel@ginac.de>  Mon, 17 Apr 2006 22:25:48 +0200
+
+ginac (1.3.3-6) unstable; urgency=low
+
+  * Incorporate some fixes for gcc-4.1 from CVS; closes: #356241.
+
+ -- Richard Kreckel <kreckel@ginac.de>  Sun, 12 Mar 2006 23:37:12 +0100
+
+ginac (1.3.3-5) unstable; urgency=low
+
+  * Trigger recompile: last time, recompilation against libcln4 failed on
+    some targets.
+  * Changed package description; ...GiNaC *symbolic* framework...
+
+ -- Richard Kreckel <kreckel@ginac.de>  Sat, 17 Dec 2005 09:32:47 +0100
+
+ginac (1.3.3-4) unstable; urgency=low
+
+  * Recompile against libcln4.
+
+ -- Richard Kreckel <kreckel@ginac.de>  Sun, 27 Nov 2005 21:34:37 +0100
+
+ginac (1.3.3-3) unstable; urgency=low
+
+  * Add Replaces-field for the c2-libraries to control; closes: #340716.
+
+ -- Richard Kreckel <kreckel@ginac.de>  Fri, 25 Nov 2005 23:03:41 +0100
+
+ginac (1.3.3-2) unstable; urgency=low
+
+  * Changed libname to c2a; rebuild with new libstdc++6; closes: #339172.
+
+ -- Richard Kreckel <kreckel@ginac.de>  Thu, 17 Nov 2005 21:34:12 +0100
+
+ginac (1.3.3-1) unstable; urgency=low
+
+  * New upstream release.
+  * I've no idea what I'm doing but I guess it closes: #336301.
+
+ -- Richard Kreckel <kreckel@ginac.de>  Mon, 31 Oct 2005 23:03:47 +0100
+
+ginac (1.3.2-2) unstable; urgency=low
+
+  * Adjusted to Standards-Version 3.6.2.
+  * Add a patch to ginac/print.h for g++-4.0.2; closes: #325841.
+
+ -- Richard Kreckel <kreckel@ginac.de>  Thu,  1 Sep 2005 21:55:47 +0200
+
+ginac (1.3.2-1) unstable; urgency=low
+
+  * New upstream (bugfix only) release; closes: #298400.
+  * debian/*: Use upstream's simpler structure using CDBS.
+  * debian/control: add c2 to library package name.
+  * Build against new libcln using gcc-4 ABI.
+
+ -- Richard Kreckel <kreckel@ginac.de>  Mon, 25 July 2005 23:24:26 +0200
+
 ginac (1.3.0-2) unstable; urgency=low
 
   * Apply an upstream patch fixing static initialization order fiasco.
