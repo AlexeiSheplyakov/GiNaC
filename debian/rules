@@ -1,5 +1,5 @@
 #!/usr/bin/make -f
-include /usr/share/cdbs/1/rules/buildcore.mk
+
 include /usr/share/cdbs/1/class/autotools.mk
 include /usr/share/cdbs/1/rules/debhelper.mk
 
@@ -13,7 +13,5 @@ GINACLIB := libginac$(GINAC_RELEASE)
 
 DEB_DH_MAKESHLIBS_ARGS := -V"$(GINACLIB) (>= $(GINAC_RELEASE).0)"
 DEB_DH_SHLIBDEPS_ARGS := --libpackage=$(GINACLIB) -l debian/$(GINACLIB)/usr/lib
-DEB_DH_STRIP_ARGS := --dbg-package=$(GINACLIB)
-# menu entry for ginsh
-DEB_INSTALL_MENU_ginac-tools := debian/ginac-tools.menu
-
+DEB_DBG_PACKAGE_ALL =
+DEB_DBG_PACKAGE_$(GINACLIB) = $(GINACLIB)-dbg
