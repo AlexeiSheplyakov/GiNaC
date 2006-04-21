@@ -56,6 +56,8 @@ public:
 	ex normal(exmap & repl, exmap & rev_lookup, int level = 0) const;
 	ex expand(unsigned options = 0) const;
 	ex conjugate() const;
+	ex real_part() const;
+	ex imag_part() const;
 	ex eval_integ() const;
 protected:
 	ex derivative(const symbol & s) const;

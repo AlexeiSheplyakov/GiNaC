@@ -508,6 +508,16 @@ ex ncmul::conjugate() const
 	return (new ncmul(ev, true))->setflag(status_flags::dynallocated).eval();
 }
 
+ex ncmul::real_part() const
+{
+	return basic::real_part();
+}
+
+ex ncmul::imag_part() const
+{
+	return basic::imag_part();
+}
+
 // protected
 
 /** Implementation of ex::diff() for a non-commutative product. It applies

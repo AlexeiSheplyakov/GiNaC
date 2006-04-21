@@ -55,6 +55,8 @@ public:
 	bool has(const ex & other, unsigned options = 0) const;
 	ex eval(int level=0) const;
 	ex evalf(int level=0) const;
+	ex real_part() const;
+	ex imag_part() const;
 	ex evalm() const;
 	ex series(const relational & s, int order, unsigned options = 0) const;
 	ex normal(exmap & repl, exmap & rev_lookup, int level = 0) const;
@@ -79,6 +81,7 @@ protected:
 	void combine_overall_coeff(const ex & c1, const ex & c2);
 	bool can_make_flat(const expair & p) const;
 	ex expand(unsigned options=0) const;
+	void find_real_imag(ex&, ex&) const;
 	
 	// new virtual functions which can be overridden by derived classes
 	// none

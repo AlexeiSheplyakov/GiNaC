@@ -51,6 +51,9 @@ public:
 	bool info(unsigned inf) const;
 	ex evalf(int level = 0) const;
 	bool is_polynomial(const ex & var) const;
+	ex conjugate() const;
+	ex real_part() const;
+	ex imag_part() const;
 protected:
 	ex derivative(const symbol & s) const;
 	bool is_equal_same_type(const basic & other) const;

@@ -39,6 +39,7 @@
 #include "utils.h"
 #include "integral.h"
 #include "matrix.h"
+#include "inifcns.h"
 
 namespace GiNaC {
 
@@ -315,6 +316,20 @@ ex indexed::eval(int level) const
 
 	// Let the class of the base object perform additional evaluations
 	return ex_to<basic>(base).eval_indexed(*this);
+}
+
+ex indexed::real_part() const
+{
+	if(op(0).info(info_flags::real))
+		return *this;
+	return real_part_function(*this).hold();
+}
+
+ex indexed::imag_part() const
+{
+	if(op(0).info(info_flags::real))
+		return 0;
+	return imag_part_function(*this).hold();
 }
 
 ex indexed::thiscontainer(const exvector & v) const

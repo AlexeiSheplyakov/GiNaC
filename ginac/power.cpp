@@ -40,6 +40,7 @@
 #include "lst.h"
 #include "archive.h"
 #include "utils.h"
+#include "relational.h"
 
 namespace GiNaC {
 
@@ -613,6 +614,59 @@ ex power::conjugate() const
 	}
 	return (new power(newbasis, newexponent))->setflag(status_flags::dynallocated);
 }
+
+ex power::real_part() const
+{
+	if (exponent.info(info_flags::integer)) {
+		ex basis_real = basis.real_part();
+		if (basis_real == basis)
+			return *this;
+		realsymbol a("a"),b("b");
+		ex result;
+		if (exponent.info(info_flags::posint))
+			result = power(a+I*b,exponent);
+		else
+			result = power(a/(a*a+b*b)-I*b/(a*a+b*b),-exponent);
+		result = result.expand();
+		result = result.real_part();
+		result = result.subs(lst( a==basis_real, b==basis.imag_part() ));
+		return result;
+	}
+	
+	ex a = basis.real_part();
+	ex b = basis.imag_part();
+	ex c = exponent.real_part();
+	ex d = exponent.imag_part();
+	return power(abs(basis),c)*exp(-d*atan2(b,a))*cos(c*atan2(b,a)+d*log(abs(basis)));
+}
+
+ex power::imag_part() const
+{
+	if (exponent.info(info_flags::integer)) {
+		ex basis_real = basis.real_part();
+		if (basis_real == basis)
+			return 0;
+		realsymbol a("a"),b("b");
+		ex result;
+		if (exponent.info(info_flags::posint))
+			result = power(a+I*b,exponent);
+		else
+			result = power(a/(a*a+b*b)-I*b/(a*a+b*b),-exponent);
+		result = result.expand();
+		result = result.imag_part();
+		result = result.subs(lst( a==basis_real, b==basis.imag_part() ));
+		return result;
+	}
+	
+	ex a=basis.real_part();
+	ex b=basis.imag_part();
+	ex c=exponent.real_part();
+	ex d=exponent.imag_part();
+	return
+		power(abs(basis),c)*exp(-d*atan2(b,a))*sin(c*atan2(b,a)+d*log(abs(basis)));
+}
+
+// protected
 
 // protected
 

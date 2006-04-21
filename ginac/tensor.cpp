@@ -141,6 +141,22 @@ DEFAULT_COMPARE(tensdelta)
 DEFAULT_COMPARE(tensmetric)
 DEFAULT_COMPARE(spinmetric)
 
+bool tensdelta::info(unsigned inf) const
+{
+	if(inf == info_flags::real)
+		return true;
+
+	return false;
+}
+
+bool tensmetric::info(unsigned inf) const
+{
+	if(inf == info_flags::real)
+		return true;
+
+	return false;
+}
+
 int minkmetric::compare_same_type(const basic & other) const
 {
 	GINAC_ASSERT(is_a<minkmetric>(other));
@@ -150,6 +166,14 @@ int minkmetric::compare_same_type(const basic & other) const
 		return pos_sig ? -1 : 1;
 	else
 		return inherited::compare_same_type(other);
+}
+
+bool minkmetric::info(unsigned inf) const
+{
+	if(inf == info_flags::real)
+		return true;
+
+	return false;
 }
 
 int tensepsilon::compare_same_type(const basic & other) const
@@ -163,6 +187,22 @@ int tensepsilon::compare_same_type(const basic & other) const
 		return pos_sig ? -1 : 1;
 	else
 		return inherited::compare_same_type(other);
+}
+
+bool tensepsilon::info(unsigned inf) const
+{
+	if(inf == info_flags::real)
+		return true;
+
+	return false;
+}
+
+bool spinmetric::info(unsigned inf) const
+{
+	if(inf == info_flags::real)
+		return true;
+
+	return false;
 }
 
 DEFAULT_PRINT_LATEX(tensdelta, "delta", "\\delta")

@@ -215,8 +215,10 @@ public:
 	virtual unsigned return_type() const;
 	virtual tinfo_t return_type_tinfo() const;
 
-	// complex conjugation
+	// functions for complex expressions
 	virtual ex conjugate() const;
+	virtual ex real_part() const;
+	virtual ex imag_part() const;
 
 	// functions that should be called from class ex only
 protected:

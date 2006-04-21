@@ -262,6 +262,24 @@ ex matrix::conjugate() const
 	return *this;
 }
 
+ex matrix::real_part() const
+{
+	exvector v;
+	v.reserve(m.size());
+	for (exvector::const_iterator i=m.begin(); i!=m.end(); ++i)
+		v.push_back(i->real_part());
+	return matrix(row, col, v);
+}
+
+ex matrix::imag_part() const
+{
+	exvector v;
+	v.reserve(m.size());
+	for (exvector::const_iterator i=m.begin(); i!=m.end(); ++i)
+		v.push_back(i->imag_part());
+	return matrix(row, col, v);
+}
+
 // protected
 
 int matrix::compare_same_type(const basic & other) const

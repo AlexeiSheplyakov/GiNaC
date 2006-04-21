@@ -79,20 +79,20 @@ framework for symbolic computation within the C++ programming language.
 
 @menu
 * Introduction::                 GiNaC's purpose.
-* A Tour of GiNaC::              A quick tour of the library.
+* A tour of GiNaC::              A quick tour of the library.
 * Installation::                 How to install the package.
-* Basic Concepts::               Description of fundamental classes.
-* Methods and Functions::        Algorithms for symbolic manipulations.
+* Basic concepts::               Description of fundamental classes.
+* Methods and functions::        Algorithms for symbolic manipulations.
 * Extending GiNaC::              How to extend the library.
-* A Comparison With Other CAS::  Compares GiNaC to traditional CAS.
-* Internal Structures::          Description of some internal structures.
-* Package Tools::                Configuring packages to work with GiNaC.
+* A comparison with other CAS::  Compares GiNaC to traditional CAS.
+* Internal structures::          Description of some internal structures.
+* Package tools::                Configuring packages to work with GiNaC.
 * Bibliography::
-* Concept Index::
+* Concept index::
 @end menu
 
 
-@node Introduction, A Tour of GiNaC, Top, Top
+@node Introduction, A tour of GiNaC, Top, Top
 @c    node-name, next, previous, up
 @chapter Introduction
 @cindex history of GiNaC
@@ -154,7 +154,7 @@ Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 MA 02110-1301, USA.
 
 
-@node A Tour of GiNaC, How to use it from within C++, Introduction, Top
+@node A tour of GiNaC, How to use it from within C++, Introduction, Top
 @c    node-name, next, previous, up
 @chapter A Tour of GiNaC
 
@@ -168,7 +168,7 @@ leaves many open questions.
 @end menu
 
 
-@node How to use it from within C++, What it can do for you, A Tour of GiNaC, A Tour of GiNaC
+@node How to use it from within C++, What it can do for you, A tour of GiNaC, A tour of GiNaC
 @c    node-name, next, previous, up
 @section How to use it from within C++
 
@@ -206,7 +206,7 @@ $ ./hello
 355687428096000*x*y+20922789888000*y^2+6402373705728000*x^2
 @end example
 
-(@xref{Package Tools}, for tools that help you when creating a software
+(@xref{Package tools}, for tools that help you when creating a software
 package that uses GiNaC.)
 
 @cindex Hermite polynomial
@@ -256,7 +256,7 @@ the @command{ginsh}, a simple GiNaC interactive shell that provides a
 convenient window into GiNaC's capabilities.
 
 
-@node What it can do for you, Installation, How to use it from within C++, A Tour of GiNaC
+@node What it can do for you, Installation, How to use it from within C++, A tour of GiNaC
 @c    node-name, next, previous, up
 @section What it can do for you
 
@@ -638,7 +638,7 @@ subdirectories.  It is therefore safe to go into any subdirectory
 @var{target} there in case something went wrong.
 
 
-@node Installing GiNaC, Basic Concepts, Building GiNaC, Installation
+@node Installing GiNaC, Basic concepts, Building GiNaC, Installation
 @c    node-name, next, previous, up
 @section Installing GiNaC
 @cindex installation
@@ -691,9 +691,9 @@ do it by hand since you now know where all the files went during
 installation.}.
 
 
-@node Basic Concepts, Expressions, Installing GiNaC, Top
+@node Basic concepts, Expressions, Installing GiNaC, Top
 @c    node-name, next, previous, up
-@chapter Basic Concepts
+@chapter Basic concepts
 
 This chapter will describe the different fundamental objects that can be
 handled by GiNaC.  But before doing so, it is worthwhile introducing you
@@ -704,7 +704,7 @@ meta-class for storing all mathematical objects.
 * Expressions::                  The fundamental GiNaC class.
 * Automatic evaluation::         Evaluation and canonicalization.
 * Error handling::               How the library reports errors.
-* The Class Hierarchy::          Overview of GiNaC's classes.
+* The class hierarchy::          Overview of GiNaC's classes.
 * Symbols::                      Symbolic objects.
 * Numbers::                      Numerical objects.
 * Constants::                    Pre-defined constants.
@@ -716,11 +716,11 @@ meta-class for storing all mathematical objects.
 * Matrices::                     Matrices.
 * Indexed objects::              Handling indexed quantities.
 * Non-commutative objects::      Algebras with non-commutative products.
-* Hash Maps::                    A faster alternative to std::map<>.
+* Hash maps::                    A faster alternative to std::map<>.
 @end menu
 
 
-@node Expressions, Automatic evaluation, Basic Concepts, Basic Concepts
+@node Expressions, Automatic evaluation, Basic concepts, Basic concepts
 @c    node-name, next, previous, up
 @section Expressions
 @cindex expression (class @code{ex})
@@ -742,7 +742,7 @@ ex MyEx5 = MyEx4 + 1;               // similar to above
 
 Expressions are handles to other more fundamental objects, that often
 contain other expressions thus creating a tree of expressions
-(@xref{Internal Structures}, for particular examples).  Most methods on
+(@xref{Internal structures}, for particular examples).  Most methods on
 @code{ex} therefore run top-down through such an expression tree.  For
 example, the method @code{has()} scans recursively for occurrences of
 something inside an expression.  Thus, if you have declared @code{MyEx4}
@@ -769,11 +769,11 @@ as @code{std::set<ex, ex_is_less>}.
 Unsorted containers such as @code{std::vector<>} and @code{std::list<>}
 don't pose a problem. A @code{std::vector<ex>} works as expected.
 
-@xref{Information About Expressions}, for more about comparing and ordering
+@xref{Information about expressions}, for more about comparing and ordering
 expressions.
 
 
-@node Automatic evaluation, Error handling, Expressions, Basic Concepts
+@node Automatic evaluation, Error handling, Expressions, Basic concepts
 @c    node-name, next, previous, up
 @section Automatic evaluation and canonicalization of expressions
 @cindex evaluation
@@ -847,7 +847,7 @@ transform expressions, like @code{subs()} or @code{normal()}, automatically
 re-evaluate their results.
 
 
-@node Error handling, The Class Hierarchy, Automatic evaluation, Basic Concepts
+@node Error handling, The class hierarchy, Automatic evaluation, Basic concepts
 @c    node-name, next, previous, up
 @section Error handling
 @cindex exceptions
@@ -903,7 +903,7 @@ int main()
 @end example
 
 
-@node The Class Hierarchy, Symbols, Error handling, Basic Concepts
+@node The class hierarchy, Symbols, Error handling, Basic concepts
 @c    node-name, next, previous, up
 @section The class hierarchy
 
@@ -929,7 +929,7 @@ features.  An example is @code{expairseq}, a container for a sequence of
 pairs each consisting of one expression and a number (@code{numeric}).
 What @emph{is} visible to the user are the derived classes @code{add}
 and @code{mul}, representing sums and products.  @xref{Internal
-Structures}, where these two classes are described in more detail.  The
+structures}, where these two classes are described in more detail.  The
 following table shortly summarizes what kinds of mathematical objects
 are stored in the different classes:
 
@@ -977,7 +977,7 @@ $\sin 2x$
 @end cartouche
 
 
-@node Symbols, Numbers, The Class Hierarchy, Basic Concepts
+@node Symbols, Numbers, The class hierarchy, Basic concepts
 @c    node-name, next, previous, up
 @section Symbols
 @cindex @code{symbol} (class)
@@ -1128,7 +1128,7 @@ definitions.
 As we said, the names of symbols primarily serve for purposes of expression
 output. But there are actually two instances where GiNaC uses the names for
 identifying symbols: When constructing an expression from a string, and when
-recreating an expression from an archive (@pxref{Input/Output}).
+recreating an expression from an archive (@pxref{Input/output}).
 
 In addition to its name, a symbol may contain a special string that is used
 in LaTeX output:
@@ -1137,7 +1137,7 @@ symbol x("x", "\\Box");
 @end example
 
 This creates a symbol that is printed as "@code{x}" in normal output, but
-as "@code{\Box}" in LaTeX code (@xref{Input/Output}, for more
+as "@code{\Box}" in LaTeX code (@xref{Input/output}, for more
 information about the different output formats of expressions in GiNaC).
 GiNaC automatically creates proper LaTeX code for symbols having names of
 greek letters (@samp{alpha}, @samp{mu}, etc.).
@@ -1147,12 +1147,12 @@ Symbols in GiNaC can't be assigned values. If you need to store results of
 calculations and give them a name, use C++ variables of type @code{ex}.
 If you want to replace a symbol in an expression with something else, you
 can invoke the expression's @code{.subs()} method
-(@pxref{Substituting Expressions}).
+(@pxref{Substituting expressions}).
 
 @cindex @code{realsymbol()}
 By default, symbols are expected to stand in for complex values, i.e. they live
 in the complex domain.  As a consequence, operations like complex conjugation,
-for example (@pxref{Complex Conjugation}), do @emph{not} evaluate if applied
+for example (@pxref{Complex expressions}), do @emph{not} evaluate if applied
 to such symbols. Likewise @code{log(exp(x))} does not evaluate to @code{x},
 because of the unknown imaginary part of @code{x}.
 On the other hand, if you are sure that your symbols will hold only real values, you
@@ -1161,7 +1161,7 @@ the domain of the symbol. Instead of @code{symbol x("x");} you can write
 @code{realsymbol x("x");} to tell GiNaC that @code{x} stands in for real values.
 
 
-@node Numbers, Constants, Symbols, Basic Concepts
+@node Numbers, Constants, Symbols, Basic concepts
 @c    node-name, next, previous, up
 @section Numbers
 @cindex @code{numeric} (class)
@@ -1511,7 +1511,7 @@ rational number will return a floating-point approximation. Both
 part of complex numbers.
 
 
-@node Constants, Fundamental containers, Numbers, Basic Concepts
+@node Constants, Fundamental containers, Numbers, Basic concepts
 @c    node-name, next, previous, up
 @section Constants
 @cindex @code{constant} (class)
@@ -1541,7 +1541,7 @@ The predefined known constants are:
 @end cartouche
 
 
-@node Fundamental containers, Lists, Constants, Basic Concepts
+@node Fundamental containers, Lists, Constants, Basic concepts
 @c    node-name, next, previous, up
 @section Sums, products and powers
 @cindex polynomial
@@ -1612,7 +1612,7 @@ and safe simplifications are carried out like transforming
 @code{3*x+4-x} to @code{2*x+4}.
 
 
-@node Lists, Mathematical functions, Fundamental containers, Basic Concepts
+@node Lists, Mathematical functions, Fundamental containers, Basic concepts
 @c    node-name, next, previous, up
 @section Lists of expressions
 @cindex @code{lst} (class)
@@ -1777,7 +1777,7 @@ elements with @code{unique()}:
 @end example
 
 
-@node Mathematical functions, Relations, Lists, Basic Concepts
+@node Mathematical functions, Relations, Lists, Basic concepts
 @c    node-name, next, previous, up
 @section Mathematical functions
 @cindex @code{function} (class)
@@ -1786,7 +1786,7 @@ elements with @code{unique()}:
 
 There are quite a number of useful functions hard-wired into GiNaC.  For
 instance, all trigonometric and hyperbolic functions are implemented
-(@xref{Built-in Functions}, for a complete list).
+(@xref{Built-in functions}, for a complete list).
 
 These functions (better called @emph{pseudofunctions}) are all objects
 of class @code{function}.  They accept one or more expressions as
@@ -1829,7 +1829,7 @@ point number of class @code{numeric} you should call
 wrapped inside an @code{ex}.
 
 
-@node Relations, Integrals, Mathematical functions, Basic Concepts
+@node Relations, Integrals, Mathematical functions, Basic concepts
 @c    node-name, next, previous, up
 @section Relations
 @cindex @code{relational} (class)
@@ -1855,7 +1855,7 @@ conversion from @code{relational} to @code{bool} takes place.  Note,
 however, that @code{==} here does not perform any simplifications, hence
 @code{expand()} must be called explicitly.
 
-@node Integrals, Matrices, Relations, Basic Concepts
+@node Integrals, Matrices, Relations, Basic concepts
 @c    node-name, next, previous, up
 @section Integrals
 @cindex @code{integral} (class)
@@ -1916,7 +1916,7 @@ respectively calling @code{.op(0)}, @code{.op(1)}, @code{.op(2)}, and
 as expected. Note that it makes no sense to differentiate an integral
 with respect to the integration variable.
 
-@node Matrices, Indexed objects, Integrals, Basic Concepts
+@node Matrices, Indexed objects, Integrals, Basic concepts
 @c    node-name, next, previous, up
 @section Matrices
 @cindex @code{matrix} (class)
@@ -2180,7 +2180,7 @@ contain some of the indeterminates from @code{vars}.  If the system is
 overdetermined, an exception is thrown.
 
 
-@node Indexed objects, Non-commutative objects, Matrices, Basic Concepts
+@node Indexed objects, Non-commutative objects, Matrices, Basic concepts
 @c    node-name, next, previous, up
 @section Indexed objects
 
@@ -2329,7 +2329,7 @@ bool idx::is_dim_symbolic();
 
 for checking whether the value and dimension are numeric or symbolic
 (non-numeric). Using the @code{info()} method of an index (see @ref{Information
-About Expressions}) returns information about the index value.
+about expressions}) returns information about the index value.
 
 @cindex @code{varidx} (class)
 If you need co- and contravariant indices, use the @code{varidx} class:
@@ -2420,7 +2420,7 @@ and the same or opposite variance.
 Sometimes you will want to substitute one symbolic index with another
 symbolic or numeric index, for example when calculating one specific element
 of a tensor expression. This is done with the @code{.subs()} method, as it
-is done for symbols (see @ref{Substituting Expressions}).
+is done for symbols (see @ref{Substituting expressions}).
 
 You have two possibilities here. You can either substitute the whole index
 by another index or expression:
@@ -2956,7 +2956,7 @@ one form for @samp{F} and explicitly multiply it with a matrix representation
 of the metric tensor.
 
 
-@node Non-commutative objects, Hash Maps, Indexed objects, Basic Concepts
+@node Non-commutative objects, Hash maps, Indexed objects, Basic concepts
 @c    node-name, next, previous, up
 @section Non-commutative objects
 
@@ -3717,7 +3717,7 @@ example:
 @end example
 
 
-@node Hash Maps, Methods and Functions, Non-commutative objects, Basic Concepts
+@node Hash maps, Methods and functions, Non-commutative objects, Basic concepts
 @c    node-name, next, previous, up
 @section Hash Maps
 @cindex hash maps
@@ -3753,9 +3753,9 @@ table
 @end itemize
 
 
-@node Methods and Functions, Information About Expressions, Hash Maps, Top
+@node Methods and functions, Information about expressions, Hash maps, Top
 @c    node-name, next, previous, up
-@chapter Methods and Functions
+@chapter Methods and functions
 @cindex polynomial
 
 In this chapter the most important algorithms provided by GiNaC will be
@@ -3794,26 +3794,26 @@ method on class @code{ex} and sometimes calling a function cannot be
 avoided.
 
 @menu
-* Information About Expressions::
-* Numerical Evaluation::
-* Substituting Expressions::
-* Pattern Matching and Advanced Substitutions::
-* Applying a Function on Subexpressions::
-* Visitors and Tree Traversal::
-* Polynomial Arithmetic::           Working with polynomials.
-* Rational Expressions::            Working with rational functions.
-* Symbolic Differentiation::
-* Series Expansion::                Taylor and Laurent expansion.
+* Information about expressions::
+* Numerical evaluation::
+* Substituting expressions::
+* Pattern matching and advanced substitutions::
+* Applying a function on subexpressions::
+* Visitors and tree traversal::
+* Polynomial arithmetic::           Working with polynomials.
+* Rational expressions::            Working with rational functions.
+* Symbolic differentiation::
+* Series expansion::                Taylor and Laurent expansion.
 * Symmetrization::
-* Built-in Functions::              List of predefined mathematical functions.
+* Built-in functions::              List of predefined mathematical functions.
 * Multiple polylogarithms::
-* Complex Conjugation::
-* Solving Linear Systems of Equations::
-* Input/Output::                    Input and output of expressions.
+* Complex expressions::
+* Solving linear systems of equations::
+* Input/output::                    Input and output of expressions.
 @end menu
 
 
-@node Information About Expressions, Numerical Evaluation, Methods and Functions, Methods and Functions
+@node Information about expressions, Numerical evaluation, Methods and functions, Methods and functions
 @c    node-name, next, previous, up
 @section Getting information about expressions
 
@@ -3840,7 +3840,7 @@ unsigned ex::return_type_tinfo() const;
 
 When the test made by @code{is_a<T>()} returns true, it is safe to call
 one of the functions @code{ex_to<T>()}, where @code{T} is one of the
-class names (@xref{The Class Hierarchy}, for a list of all classes). For
+class names (@xref{The class hierarchy}, for a list of all classes). For
 example, assuming @code{e} is an @code{ex}:
 
 @example
@@ -3854,7 +3854,7 @@ example, assuming @code{e} is an @code{ex}:
 
 @code{is_a<T>(e)} allows you to check whether the top-level object of
 an expression @samp{e} is an instance of the GiNaC class @samp{T}
-(@xref{The Class Hierarchy}, for a list of all classes). This is most useful,
+(@xref{The class hierarchy}, for a list of all classes). This is most useful,
 e.g., for checking whether an expression is a number, a sum, or a product:
 
 @example
@@ -4170,7 +4170,7 @@ if @code{*this} sorts before @code{other}, and @math{1} if @code{*this} sorts
 after @code{other}.
 
 
-@node Numerical Evaluation, Substituting Expressions, Information About Expressions, Methods and Functions
+@node Numerical evaluation, Substituting expressions, Information about expressions, Methods and functions
 @c    node-name, next, previous, up
 @section Numerical evaluation
 @cindex @code{evalf()}
@@ -4210,7 +4210,7 @@ call @code{evalf()} followed by @code{numeric::to_double()}, like this:
 @end example
 
 
-@node Substituting Expressions, Pattern Matching and Advanced Substitutions, Numerical Evaluation, Methods and Functions
+@node Substituting expressions, Pattern matching and advanced substitutions, Numerical evaluation, Methods and functions
 @c    node-name, next, previous, up
 @section Substituting expressions
 @cindex @code{subs()}
@@ -4283,7 +4283,7 @@ The optional last argument to @code{subs()} is a combination of
 large @code{subs()} operations significantly faster if you are not using
 patterns. The second option, @code{subs_options::algebraic} enables
 algebraic substitutions in products and powers.
-@ref{Pattern Matching and Advanced Substitutions}, for more information
+@ref{Pattern matching and advanced substitutions}, for more information
 about patterns and algebraic substitutions. The third option,
 @code{subs_options::no_index_renaming} disables the feature that dummy
 indices are renamed if the subsitution could give a result in which a
@@ -4317,7 +4317,7 @@ A more powerful form of substitution using wildcards is described in the
 next section.
 
 
-@node Pattern Matching and Advanced Substitutions, Applying a Function on Subexpressions, Substituting Expressions, Methods and Functions
+@node Pattern matching and advanced substitutions, Applying a function on subexpressions, Substituting expressions, Methods and functions
 @c    node-name, next, previous, up
 @section Pattern matching and advanced substitutions
 @cindex @code{wildcard} (class)
@@ -4610,7 +4610,7 @@ return @code{x^(-1)*c^2*z}. Note that this only works for multiplications
 and not for locating @code{x+y} within @code{x+y+z}.
 
 
-@node Applying a Function on Subexpressions, Visitors and Tree Traversal, Pattern Matching and Advanced Substitutions, Methods and Functions
+@node Applying a function on subexpressions, Visitors and tree traversal, Pattern matching and advanced substitutions, Methods and functions
 @c    node-name, next, previous, up
 @section Applying a function on subexpressions
 @cindex tree traversal
@@ -4755,7 +4755,7 @@ argument. You can not use functions like @samp{diff()}, @samp{op()},
 @end example
 
 
-@node Visitors and Tree Traversal, Polynomial Arithmetic, Applying a Function on Subexpressions, Methods and Functions
+@node Visitors and tree traversal, Polynomial arithmetic, Applying a function on subexpressions, Methods and functions
 @c    node-name, next, previous, up
 @section Visitors and tree traversal
 @cindex tree traversal
@@ -4977,7 +4977,7 @@ lst gather_indices(const ex & e)
 @end example
 
 
-@node Polynomial Arithmetic, Rational Expressions, Visitors and Tree Traversal, Methods and Functions
+@node Polynomial arithmetic, Rational expressions, Visitors and tree traversal, Methods and functions
 @c    node-name, next, previous, up
 @section Polynomial arithmetic
 
@@ -5351,7 +5351,7 @@ Note also, how factors with the same exponents are not fully factorized
 with this method.
 
 
-@node Rational Expressions, Symbolic Differentiation, Polynomial Arithmetic, Methods and Functions
+@node Rational expressions, Symbolic differentiation, Polynomial arithmetic, Methods and functions
 @c    node-name, next, previous, up
 @section Rational expressions
 
@@ -5477,7 +5477,7 @@ The following more useful example will print @samp{sin(x)-cos(x)}:
 @end example
 
 
-@node Symbolic Differentiation, Series Expansion, Rational Expressions, Methods and Functions
+@node Symbolic differentiation, Series expansion, Rational expressions, Methods and functions
 @c    node-name, next, previous, up
 @section Symbolic differentiation
 @cindex differentiation
@@ -5543,7 +5543,7 @@ When you run it, it produces the sequence @code{1}, @code{-1}, @code{5},
 @code{i} by two since all odd Euler numbers vanish anyways.
 
 
-@node Series Expansion, Symmetrization, Symbolic Differentiation, Methods and Functions
+@node Series expansion, Symmetrization, Symbolic differentiation, Methods and functions
 @c    node-name, next, previous, up
 @section Series expansion
 @cindex @code{series()}
@@ -5656,7 +5656,7 @@ program, it will type out:
 @end example
 
 
-@node Symmetrization, Built-in Functions, Series Expansion, Methods and Functions
+@node Symmetrization, Built-in functions, Series expansion, Methods and functions
 @c    node-name, next, previous, up
 @section Symmetrization
 @cindex @code{symmetrize()}
@@ -5702,7 +5702,7 @@ almost any kind of object (anything that is @code{subs()}able):
 @}
 @end example
 
-@node Built-in Functions, Multiple polylogarithms, Symmetrization, Methods and Functions
+@node Built-in functions, Multiple polylogarithms, Symmetrization, Methods and functions
 @c    node-name, next, previous, up
 @section Predefined mathematical functions
 @c
@@ -5724,7 +5724,12 @@ GiNaC contains the following predefined mathematical functions:
 @cindex @code{conjugate()}
 @item @code{conjugate(x)}
 @tab complex conjugation
-@cindex @code{conjugate()}
+@cindex @code{real_part()}
+@item @code{real_part(x)}
+@tab real part
+@cindex @code{imag_part()}
+@item @code{imag_part(x)}
+@tab imaginary part
 @item @code{sqrt(x)}
 @tab square root (not a GiNaC function, rather an alias for @code{pow(x, numeric(1, 2))})
 @cindex @code{sqrt()}
@@ -5841,7 +5846,7 @@ serious CAS.  It is to be expected that future revisions of the C++
 standard incorporate these functions in the complex domain in a manner
 compatible with C99.
 
-@node Multiple polylogarithms, Complex Conjugation, Built-in Functions, Methods and Functions
+@node Multiple polylogarithms, Complex expressions, Built-in functions, Methods and functions
 @c    node-name, next, previous, up
 @subsection Multiple polylogarithms
 
@@ -6001,21 +6006,32 @@ J.Borwein, D.Bradley, D.Broadhurst, P.Lisonek, Trans.Amer.Math.Soc. 353/3 (2001)
 @cite{Numerical Evaluation of Multiple Polylogarithms}, 
 J.Vollinga, S.Weinzierl, hep-ph/0410259
 
-@node Complex Conjugation, Solving Linear Systems of Equations, Multiple polylogarithms, Methods and Functions
+@node Complex expressions, Solving linear systems of equations, Multiple polylogarithms, Methods and functions
 @c    node-name, next, previous, up
-@section Complex conjugation
+@section Complex expressions
 @c
 @cindex @code{conjugate()}
 
-The method
+For dealing with complex expressions there are the methods
 
 @example
 ex ex::conjugate();
+ex ex::real_part();
+ex ex::imag_part();
 @end example
 
-returns the complex conjugate of the expression. For all built-in functions and objects the
-conjugation gives the expected results:
+that return respectively the complex conjugate, the real part and the
+imaginary part of an expression. Complex conjugation works as expected
+for all built-in functinos and objects. Taking real and imaginary
+parts has not yet been implemented for all built-in functions. In cases where
+it is not known how to conjugate or take a real/imaginary part one
+of the functions @code{conjugate}, @code{real_part} or @code{imag_part}
+is returned. For instance, in case of a complex symbol @code{x}
+(symbols are complex by default), one could not simplify
+@code{conjugate(x)}. In the case of strings of gamma matrices,
+the @code{conjugate} method takes the Dirac conjugate.
 
+For example,
 @example
 @{
     varidx a(symbol("a"), 4), b(symbol("b"), 4);
@@ -6029,13 +6045,14 @@ conjugation gives the expected results:
 @}
 @end example
 
-For symbols in the complex domain the conjugation can not be evaluated and the GiNaC function
-@code{conjugate} is returned. GiNaC functions conjugate by applying the conjugation to their
-arguments. This is the default strategy. If you want to define your own functions and want to
-change this behavior, you have to supply a specialized conjugation method for your function
-(see @ref{Symbolic functions} and the GiNaC source-code for @code{abs} as an example).
+If you declare your own GiNaC functions, then they will conjugate themselves
+by conjugating their arguments. This is the default strategy. If you want to
+change this behavior, you have to supply a specialized conjugation method
+for your function (see @ref{Symbolic functions} and the GiNaC source-code
+for @code{abs} as an example). Also, specialized methods can be provided
+to take real and imaginary parts of user-defined functions.
 
-@node Solving Linear Systems of Equations, Input/Output, Complex Conjugation, Methods and Functions
+@node Solving linear systems of equations, Input/output, Complex expressions, Methods and functions
 @c    node-name, next, previous, up
 @section Solving linear systems of equations
 @cindex @code{lsolve()}
@@ -6051,7 +6068,7 @@ ex lsolve(const ex & eqns, const ex & symbols,
 
 Here, @code{eqns} is a @code{lst} of equalities (i.e. class
 @code{relational}) while @code{symbols} is a @code{lst} of
-indeterminates.  (@xref{The Class Hierarchy}, for an exposition of class
+indeterminates.  (@xref{The class hierarchy}, for an exposition of class
 @code{lst}).
 
 It returns the @code{lst} of solutions as an expression.  As an example,
@@ -6076,7 +6093,7 @@ to @code{lsolve()}: it accepts the same parameters as
 around that method.
 
 
-@node Input/Output, Extending GiNaC, Solving Linear Systems of Equations, Methods and Functions
+@node Input/output, Extending GiNaC, Solving linear systems of equations, Methods and functions
 @c    node-name, next, previous, up
 @section Input and output of expressions
 @cindex I/O
@@ -6518,7 +6535,7 @@ Be warned, however, that the set of properties and their meaning for each
 class may change between GiNaC versions.
 
 
-@node Extending GiNaC, What does not belong into GiNaC, Input/Output, Top
+@node Extending GiNaC, What does not belong into GiNaC, Input/output, Top
 @c    node-name, next, previous, up
 @chapter Extending GiNaC
 
@@ -6876,7 +6893,7 @@ code for the @code{psi()} function (@file{inifcns.h} and
 @section GiNaC's expression output system
 
 GiNaC allows the output of expressions in a variety of different formats
-(@pxref{Input/Output}). This section will explain how expression output
+(@pxref{Input/output}). This section will explain how expression output
 is implemented internally, and how to define your own output formats or
 change the output format of built-in algebraic objects. You will also want
 to read this section if you plan to write your own algebraic classes or
@@ -7558,7 +7575,7 @@ Note that the unarchiving constructor is @code{sprod::structure} and not
 @code{sprod::unarchive()} function.
 
 
-@node Adding classes, A Comparison With Other CAS, Structures, Extending GiNaC
+@node Adding classes, A comparison with other CAS, Structures, Extending GiNaC
 @c    node-name, next, previous, up
 @section Adding classes
 
@@ -8066,7 +8083,7 @@ should become a need.
 That's it. May the source be with you!
 
 
-@node A Comparison With Other CAS, Advantages, Adding classes, Top
+@node A comparison with other CAS, Advantages, Adding classes, Top
 @c    node-name, next, previous, up
 @chapter A Comparison With Other CAS
 @cindex advocacy
@@ -8082,7 +8099,7 @@ disadvantages over these systems.
 * Why C++?::                         Attractiveness of C++.
 @end menu
 
-@node Advantages, Disadvantages, A Comparison With Other CAS, A Comparison With Other CAS
+@node Advantages, Disadvantages, A comparison with other CAS, A comparison with other CAS
 @c    node-name, next, previous, up
 @section Advantages
 
@@ -8162,7 +8179,7 @@ speed with other CAS.
 @end itemize
 
 
-@node Disadvantages, Why C++?, Advantages, A Comparison With Other CAS
+@node Disadvantages, Why C++?, Advantages, A comparison with other CAS
 @c    node-name, next, previous, up
 @section Disadvantages
 
@@ -8197,7 +8214,7 @@ yet ANSI compliant, support all needed features.
 @end itemize
 
 
-@node Why C++?, Internal Structures, Disadvantages, A Comparison With Other CAS
+@node Why C++?, Internal structures, Disadvantages, A comparison with other CAS
 @c    node-name, next, previous, up
 @section Why C++?
 
@@ -8214,16 +8231,16 @@ Furthermore, the main developers are more familiar with C++ than with
 any other programming language.
 
 
-@node Internal Structures, Expressions are reference counted, Why C++? , Top
+@node Internal structures, Expressions are reference counted, Why C++? , Top
 @c    node-name, next, previous, up
-@appendix Internal Structures
+@appendix Internal structures
 
 @menu
 * Expressions are reference counted::
 * Internal representation of products and sums::
 @end menu
 
-@node Expressions are reference counted, Internal representation of products and sums, Internal Structures, Internal Structures
+@node Expressions are reference counted, Internal representation of products and sums, Internal structures, Internal structures
 @c    node-name, next, previous, up
 @appendixsection Expressions are reference counted
 
@@ -8312,7 +8329,7 @@ Marshall Cline.  Chapter 16 covers this issue and presents an
 implementation which is pretty close to the one in GiNaC.
 
 
-@node Internal representation of products and sums, Package Tools, Expressions are reference counted, Internal Structures
+@node Internal representation of products and sums, Package tools, Expressions are reference counted, Internal structures
 @c    node-name, next, previous, up
 @appendixsection Internal representation of products and sums
 
@@ -8380,9 +8397,9 @@ expansion and the like are reimplemented for @code{add} and @code{mul},
 but the data structure is inherited from @code{expairseq}.
 
 
-@node Package Tools, ginac-config, Internal representation of products and sums, Top
+@node Package tools, ginac-config, Internal representation of products and sums, Top
 @c    node-name, next, previous, up
-@appendix Package Tools
+@appendix Package tools
 
 If you are creating a software package that uses the GiNaC library,
 setting the correct command line options for the compiler and linker
@@ -8394,7 +8411,7 @@ can be difficult. GiNaC includes two tools to make this process easier.
 @end menu
 
 
-@node ginac-config, AM_PATH_GINAC, Package Tools, Package Tools
+@node ginac-config, AM_PATH_GINAC, Package tools, Package tools
 @c    node-name, next, previous, up
 @section @command{ginac-config}
 @cindex ginac-config
@@ -8441,7 +8458,7 @@ Not only is the form using @command{ginac-config} easier to type, it will
 work on any system, no matter how GiNaC was configured.
 
 
-@node AM_PATH_GINAC, Configure script options, ginac-config, Package Tools
+@node AM_PATH_GINAC, Configure script options, ginac-config, Package tools
 @c    node-name, next, previous, up
 @section @samp{AM_PATH_GINAC}
 @cindex AM_PATH_GINAC
@@ -8654,7 +8671,7 @@ $ make install
 @end example
 
 
-@node Bibliography, Concept Index, Example package, Top
+@node Bibliography, Concept index, Example package, Top
 @c    node-name, next, previous, up
 @appendix Bibliography
 
@@ -8699,9 +8716,9 @@ ISBN 3-540-66572-2, 2001, Springer, Heidelberg
 @end itemize
 
 
-@node Concept Index, , Bibliography, Top
+@node Concept index, , Bibliography, Top
 @c    node-name, next, previous, up
-@unnumbered Concept Index
+@unnumbered Concept index
 
 @printindex cp
 

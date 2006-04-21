@@ -121,6 +121,8 @@ public:
 	ex scalar_mul_indexed(const ex & self, const numeric & other) const;
 	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
 	ex conjugate() const;
+	ex real_part() const;
+	ex imag_part() const;
 
 protected:
 	bool match_same_type(const basic & other) const;

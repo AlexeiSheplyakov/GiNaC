@@ -120,6 +120,8 @@ public:
 	ex smod(const numeric &xi) const;
 	numeric max_coefficient() const;
 	ex conjugate() const;
+	ex real_part() const;
+	ex imag_part() const;
 protected:
 	/** Implementation of ex::diff for a numeric always returns 0.
 	 *  @see ex::diff */

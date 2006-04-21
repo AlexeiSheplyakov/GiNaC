@@ -68,6 +68,8 @@ public:
 	ex to_rational(exmap & repl) const;
 	ex to_polynomial(exmap & repl) const;
 	ex conjugate() const;
+	ex real_part() const;
+	ex imag_part() const;
 protected:
 	ex derivative(const symbol & s) const;
 	ex eval_ncmul(const exvector & v) const;

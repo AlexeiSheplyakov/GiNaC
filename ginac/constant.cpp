@@ -29,6 +29,7 @@
 #include "ex.h"
 #include "archive.h"
 #include "utils.h"
+#include "inifcns.h"
 
 namespace GiNaC {
 
@@ -159,6 +160,27 @@ ex constant::evalf(int level) const
 bool constant::is_polynomial(const ex & var) const
 {
 	return true;
+}
+
+ex constant::conjugate() const
+{
+	if ( domain == domain::real )
+		return *this;
+	return conjugate_function(*this).hold();
+}
+
+ex constant::real_part() const
+{
+	if ( domain == domain::real )
+		return *this;
+	return real_part_function(*this).hold();
+}
+
+ex constant::imag_part() const
+{
+	if ( domain == domain::real )
+		return 0;
+	return imag_part_function(*this).hold();
 }
 
 // protected

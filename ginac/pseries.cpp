@@ -412,19 +412,51 @@ ex pseries::evalf(int level) const
 
 ex pseries::conjugate() const
 {
+	if(!var.info(info_flags::real))
+		return conjugate_function(*this).hold();
+
 	epvector * newseq = conjugateepvector(seq);
-	ex newvar = var.conjugate();
 	ex newpoint = point.conjugate();
 
-	if (!newseq	&& are_ex_trivially_equal(newvar, var) && are_ex_trivially_equal(point, newpoint)) {
+	if (!newseq	&& are_ex_trivially_equal(point, newpoint)) {
 		return *this;
 	}
 
-	ex result = (new pseries(newvar==newpoint, newseq ? *newseq : seq))->setflag(status_flags::dynallocated);
+	ex result = (new pseries(var==newpoint, newseq ? *newseq : seq))->setflag(status_flags::dynallocated);
 	if (newseq) {
 		delete newseq;
 	}
 	return result;
+}
+
+ex pseries::real_part() const
+{
+	if(!var.info(info_flags::real))
+		return real_part_function(*this).hold();
+	ex newpoint = point.real_part();
+	if(newpoint != point)
+		return real_part_function(*this).hold();
+
+	epvector v;
+	v.reserve(seq.size());
+	for(epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i)
+		v.push_back(expair((i->rest).real_part(), i->coeff));
+	return (new pseries(var==point, v))->setflag(status_flags::dynallocated);
+}
+
+ex pseries::imag_part() const
+{
+	if(!var.info(info_flags::real))
+		return imag_part_function(*this).hold();
+	ex newpoint = point.real_part();
+	if(newpoint != point)
+		return imag_part_function(*this).hold();
+
+	epvector v;
+	v.reserve(seq.size());
+	for(epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i)
+		v.push_back(expair((i->rest).imag_part(), i->coeff));
+	return (new pseries(var==point, v))->setflag(status_flags::dynallocated);
 }
 
 ex pseries::eval_integ() const

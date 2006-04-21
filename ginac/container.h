@@ -394,6 +394,28 @@ protected:
 		return *this;
 	}
 
+	ex real_part() const
+	{
+		STLT cont;
+		reserve(cont, nops());
+		const_iterator b = begin();
+		const_iterator e = end();
+		for(const_iterator i=b; i!=e; ++i)
+			cont.push_back(i->real_part());
+		return thiscontainer(cont);
+	}
+
+	ex imag_part() const
+	{
+		STLT cont;
+		reserve(cont, nops());
+		const_iterator b = begin();
+		const_iterator e = end();
+		for(const_iterator i=b; i!=e; ++i)
+			cont.push_back(i->imag_part());
+		return thiscontainer(cont);
+	}
+
 	bool is_equal_same_type(const basic & other) const;
 
 	// new virtual functions which can be overridden by derived classes

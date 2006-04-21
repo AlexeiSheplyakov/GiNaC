@@ -31,13 +31,19 @@ namespace GiNaC {
 
 /** Complex conjugate. */
 DECLARE_FUNCTION_1P(conjugate_function)
+
+/** Real part. */
+DECLARE_FUNCTION_1P(real_part_function)
+
+/** Imaginary part. */
+DECLARE_FUNCTION_1P(imag_part_function)
 	
 /** Absolute value. */
 DECLARE_FUNCTION_1P(abs)
 	
 /** Step function. */
 DECLARE_FUNCTION_1P(step)
-
+	
 /** Complex sign. */
 DECLARE_FUNCTION_1P(csgn)
 

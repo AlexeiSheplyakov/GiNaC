@@ -89,9 +89,21 @@ static ex exp_deriv(const ex & x, unsigned deriv_param)
 	return exp(x);
 }
 
+static ex exp_real_part(const ex & x)
+{
+	return exp(GiNaC::real_part(x))*cos(GiNaC::imag_part(x));
+}
+
+static ex exp_imag_part(const ex & x)
+{
+	return exp(GiNaC::real_part(x))*sin(GiNaC::imag_part(x));
+}
+
 REGISTER_FUNCTION(exp, eval_func(exp_eval).
                        evalf_func(exp_evalf).
                        derivative_func(exp_deriv).
+                       real_part_func(exp_real_part).
+                       imag_part_func(exp_imag_part).
                        latex_name("\\exp"));
 
 //////////
@@ -232,10 +244,22 @@ static ex log_series(const ex &arg,
 	throw do_taylor();  // caught by function::series()
 }
 
+static ex log_real_part(const ex & x)
+{
+	return log(abs(x));
+}
+
+static ex log_imag_part(const ex & x)
+{
+	return atan2(GiNaC::imag_part(x), GiNaC::real_part(x));
+}
+
 REGISTER_FUNCTION(log, eval_func(log_eval).
                        evalf_func(log_evalf).
                        derivative_func(log_deriv).
                        series_func(log_series).
+                       real_part_func(log_real_part).
+                       imag_part_func(log_imag_part).
                        latex_name("\\ln"));
 
 //////////
@@ -321,9 +345,21 @@ static ex sin_deriv(const ex & x, unsigned deriv_param)
 	return cos(x);
 }
 
+static ex sin_real_part(const ex & x)
+{
+	return cosh(GiNaC::imag_part(x))*sin(GiNaC::real_part(x));
+}
+
+static ex sin_imag_part(const ex & x)
+{
+	return sinh(GiNaC::imag_part(x))*cos(GiNaC::real_part(x));
+}
+
 REGISTER_FUNCTION(sin, eval_func(sin_eval).
                        evalf_func(sin_evalf).
                        derivative_func(sin_deriv).
+                       real_part_func(sin_real_part).
+                       imag_part_func(sin_imag_part).
                        latex_name("\\sin"));
 
 //////////
@@ -409,9 +445,21 @@ static ex cos_deriv(const ex & x, unsigned deriv_param)
 	return -sin(x);
 }
 
+static ex cos_real_part(const ex & x)
+{
+	return cosh(GiNaC::imag_part(x))*cos(GiNaC::real_part(x));
+}
+
+static ex cos_imag_part(const ex & x)
+{
+	return -sinh(GiNaC::imag_part(x))*sin(GiNaC::real_part(x));
+}
+
 REGISTER_FUNCTION(cos, eval_func(cos_eval).
                        evalf_func(cos_evalf).
                        derivative_func(cos_deriv).
+                       real_part_func(cos_real_part).
+                       imag_part_func(cos_imag_part).
                        latex_name("\\cos"));
 
 //////////
@@ -494,6 +542,20 @@ static ex tan_deriv(const ex & x, unsigned deriv_param)
 	return (_ex1+power(tan(x),_ex2));
 }
 
+static ex tan_real_part(const ex & x)
+{
+	ex a = GiNaC::real_part(x);
+	ex b = GiNaC::imag_part(x);
+	return tan(a)/(1+power(tan(a),2)*power(tan(b),2));
+}
+
+static ex tan_imag_part(const ex & x)
+{
+	ex a = GiNaC::real_part(x);
+	ex b = GiNaC::imag_part(x);
+	return tanh(b)/(1+power(tan(a),2)*power(tan(b),2));
+}
+
 static ex tan_series(const ex &x,
                      const relational &rel,
                      int order,
@@ -514,6 +576,8 @@ REGISTER_FUNCTION(tan, eval_func(tan_eval).
                        evalf_func(tan_evalf).
                        derivative_func(tan_deriv).
                        series_func(tan_series).
+                       real_part_func(tan_real_part).
+                       imag_part_func(tan_imag_part).
                        latex_name("\\tan"));
 
 //////////
@@ -896,9 +960,21 @@ static ex sinh_deriv(const ex & x, unsigned deriv_param)
 	return cosh(x);
 }
 
+static ex sinh_real_part(const ex & x)
+{
+	return sinh(GiNaC::real_part(x))*cos(GiNaC::imag_part(x));
+}
+
+static ex sinh_imag_part(const ex & x)
+{
+	return cosh(GiNaC::real_part(x))*sin(GiNaC::imag_part(x));
+}
+
 REGISTER_FUNCTION(sinh, eval_func(sinh_eval).
                         evalf_func(sinh_evalf).
                         derivative_func(sinh_deriv).
+                        real_part_func(sinh_real_part).
+                        imag_part_func(sinh_imag_part).
                         latex_name("\\sinh"));
 
 //////////
@@ -961,9 +1037,21 @@ static ex cosh_deriv(const ex & x, unsigned deriv_param)
 	return sinh(x);
 }
 
+static ex cosh_real_part(const ex & x)
+{
+	return cosh(GiNaC::real_part(x))*cos(GiNaC::imag_part(x));
+}
+
+static ex cosh_imag_part(const ex & x)
+{
+	return sinh(GiNaC::real_part(x))*sin(GiNaC::imag_part(x));
+}
+
 REGISTER_FUNCTION(cosh, eval_func(cosh_eval).
                         evalf_func(cosh_evalf).
                         derivative_func(cosh_deriv).
+                        real_part_func(cosh_real_part).
+                        imag_part_func(cosh_imag_part).
                         latex_name("\\cosh"));
 
 //////////
@@ -1042,10 +1130,26 @@ static ex tanh_series(const ex &x,
 	return (sinh(x)/cosh(x)).series(rel, order, options);
 }
 
+static ex tanh_real_part(const ex & x)
+{
+	ex a = GiNaC::real_part(x);
+	ex b = GiNaC::imag_part(x);
+	return tanh(a)/(1+power(tanh(a),2)*power(tan(b),2));
+}
+
+static ex tanh_imag_part(const ex & x)
+{
+	ex a = GiNaC::real_part(x);
+	ex b = GiNaC::imag_part(x);
+	return tan(b)/(1+power(tanh(a),2)*power(tan(b),2));
+}
+
 REGISTER_FUNCTION(tanh, eval_func(tanh_eval).
                         evalf_func(tanh_evalf).
                         derivative_func(tanh_deriv).
                         series_func(tanh_series).
+                        real_part_func(tanh_real_part).
+                        imag_part_func(tanh_imag_part).
                         latex_name("\\tanh"));
 
 //////////

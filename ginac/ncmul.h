@@ -65,6 +65,8 @@ public:
 	ex thiscontainer(const exvector & v) const;
 	ex thiscontainer(std::auto_ptr<exvector> vp) const;
 	ex conjugate() const;
+	ex real_part() const;
+	ex imag_part() const;
 
 protected:
 	ex derivative(const symbol & s) const;

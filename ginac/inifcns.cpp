@@ -66,11 +66,113 @@ static ex conjugate_conjugate(const ex & arg)
 	return arg;
 }
 
+static ex conjugate_real_part(const ex & arg)
+{
+	return arg.real_part();
+}
+
+static ex conjugate_imag_part(const ex & arg)
+{
+	return -arg.imag_part();
+}
+
 REGISTER_FUNCTION(conjugate_function, eval_func(conjugate_eval).
                                       evalf_func(conjugate_evalf).
                                       print_func<print_latex>(conjugate_print_latex).
                                       conjugate_func(conjugate_conjugate).
+                                      real_part_func(conjugate_real_part).
+                                      imag_part_func(conjugate_imag_part).
                                       set_name("conjugate","conjugate"));
+
+//////////
+// real part
+//////////
+
+static ex real_part_evalf(const ex & arg)
+{
+	if (is_exactly_a<numeric>(arg)) {
+		return ex_to<numeric>(arg).real();
+	}
+	return real_part_function(arg).hold();
+}
+
+static ex real_part_eval(const ex & arg)
+{
+	return arg.real_part();
+}
+
+static void real_part_print_latex(const ex & arg, const print_context & c)
+{
+	c.s << "\\Re"; arg.print(c); c.s << "";
+}
+
+static ex real_part_conjugate(const ex & arg)
+{
+	return real_part_function(arg).hold();
+}
+
+static ex real_part_real_part(const ex & arg)
+{
+	return real_part_function(arg).hold();
+}
+
+static ex real_part_imag_part(const ex & arg)
+{
+	return 0;
+}
+
+REGISTER_FUNCTION(real_part_function, eval_func(real_part_eval).
+                                      evalf_func(real_part_evalf).
+                                      print_func<print_latex>(real_part_print_latex).
+                                      conjugate_func(real_part_conjugate).
+                                      real_part_func(real_part_real_part).
+                                      imag_part_func(real_part_imag_part).
+                                      set_name("real_part","real_part"));
+
+//////////
+// imag part
+//////////
+
+static ex imag_part_evalf(const ex & arg)
+{
+	if (is_exactly_a<numeric>(arg)) {
+		return ex_to<numeric>(arg).imag();
+	}
+	return imag_part_function(arg).hold();
+}
+
+static ex imag_part_eval(const ex & arg)
+{
+	return arg.imag_part();
+}
+
+static void imag_part_print_latex(const ex & arg, const print_context & c)
+{
+	c.s << "\\Im"; arg.print(c); c.s << "";
+}
+
+static ex imag_part_conjugate(const ex & arg)
+{
+	return imag_part_function(arg).hold();
+}
+
+static ex imag_part_real_part(const ex & arg)
+{
+	return imag_part_function(arg).hold();
+}
+
+static ex imag_part_imag_part(const ex & arg)
+{
+	return 0;
+}
+
+REGISTER_FUNCTION(imag_part_function, eval_func(imag_part_eval).
+                                      evalf_func(imag_part_evalf).
+                                      print_func<print_latex>(imag_part_print_latex).
+                                      conjugate_func(imag_part_conjugate).
+                                      real_part_func(imag_part_real_part).
+                                      imag_part_func(imag_part_imag_part).
+                                      set_name("imag_part","imag_part"));
 
 //////////
 // absolute value
@@ -107,6 +209,16 @@ static ex abs_conjugate(const ex & arg)
 	return abs(arg);
 }
 
+static ex abs_real_part(const ex & arg)
+{
+	return abs(arg).hold();
+}
+
+static ex abs_imag_part(const ex& arg)
+{
+	return 0;
+}
+
 static ex abs_power(const ex & arg, const ex & exp)
 {
 	if (arg.is_equal(arg.conjugate()) && is_a<numeric>(exp) && ex_to<numeric>(exp).is_even())
@@ -121,6 +233,8 @@ REGISTER_FUNCTION(abs, eval_func(abs_eval).
                        print_func<print_csrc_float>(abs_print_csrc_float).
                        print_func<print_csrc_double>(abs_print_csrc_float).
                        conjugate_func(abs_conjugate).
+                       real_part_func(abs_real_part).
+                       imag_part_func(abs_imag_part).
                        power_func(abs_power));
 
 //////////
@@ -182,13 +296,25 @@ static ex step_series(const ex & arg,
 
 static ex step_conjugate(const ex& arg)
 {
-	return step(arg);
+	return step(arg).hold();
+}
+
+static ex step_real_part(const ex& arg)
+{
+	return step(arg).hold();
+}
+
+static ex step_imag_part(const ex& arg)
+{
+	return 0;
 }
 
 REGISTER_FUNCTION(step, eval_func(step_eval).
                         evalf_func(step_evalf).
                         series_func(step_series).
-                        conjugate_func(step_conjugate));
+                        conjugate_func(step_conjugate).
+								real_part_func(step_real_part).
+								imag_part_func(step_imag_part));
 
 //////////
 // Complex sign
@@ -249,7 +375,17 @@ static ex csgn_series(const ex & arg,
 
 static ex csgn_conjugate(const ex& arg)
 {
-	return csgn(arg);
+	return csgn(arg).hold();
+}
+
+static ex csgn_real_part(const ex& arg)
+{
+	return csgn(arg).hold();
+}
+
+static ex csgn_imag_part(const ex& arg)
+{
+	return 0;
 }
 
 static ex csgn_power(const ex & arg, const ex & exp)
@@ -268,6 +404,8 @@ REGISTER_FUNCTION(csgn, eval_func(csgn_eval).
                         evalf_func(csgn_evalf).
                         series_func(csgn_series).
                         conjugate_func(csgn_conjugate).
+                        real_part_func(csgn_real_part).
+                        imag_part_func(csgn_imag_part).
                         power_func(csgn_power));
 
 
@@ -345,7 +483,17 @@ static ex eta_series(const ex & x, const ex & y,
 
 static ex eta_conjugate(const ex & x, const ex & y)
 {
-	return -eta(x,y);
+	return -eta(x, y);
+}
+
+static ex eta_real_part(const ex & x, const ex & y)
+{
+	return 0;
+}
+
+static ex eta_imag_part(const ex & x, const ex & y)
+{
+	return -I*eta(x, y).hold();
 }
 
 REGISTER_FUNCTION(eta, eval_func(eta_eval).
@@ -353,7 +501,9 @@ REGISTER_FUNCTION(eta, eval_func(eta_eval).
                        series_func(eta_series).
                        latex_name("\\eta").
                        set_symmetry(sy_symm(0, 1)).
-                       conjugate_func(eta_conjugate));
+                       conjugate_func(eta_conjugate).
+                       real_part_func(eta_real_part).
+                       imag_part_func(eta_imag_part));
 
 
 //////////
@@ -568,14 +718,26 @@ static void factorial_print_dflt_latex(const ex & x, const print_context & c)
 
 static ex factorial_conjugate(const ex & x)
 {
-	return factorial(x);
+	return factorial(x).hold();
+}
+
+static ex factorial_real_part(const ex & x)
+{
+	return factorial(x).hold();
+}
+
+static ex factorial_imag_part(const ex & x)
+{
+	return 0;
 }
 
 REGISTER_FUNCTION(factorial, eval_func(factorial_eval).
                              evalf_func(factorial_evalf).
                              print_func<print_dflt>(factorial_print_dflt_latex).
                              print_func<print_latex>(factorial_print_dflt_latex).
-                             conjugate_func(factorial_conjugate));
+                             conjugate_func(factorial_conjugate).
+                             real_part_func(factorial_real_part).
+                             imag_part_func(factorial_imag_part));
 
 //////////
 // binomial
@@ -620,12 +782,24 @@ static ex binomial_eval(const ex & x, const ex &y)
 // function, also complex conjugation should be changed (or rather, deleted).
 static ex binomial_conjugate(const ex & x, const ex & y)
 {
-	return binomial(x,y);
+	return binomial(x,y).hold();
+}
+
+static ex binomial_real_part(const ex & x, const ex & y)
+{
+	return binomial(x,y).hold();
+}
+
+static ex binomial_imag_part(const ex & x, const ex & y)
+{
+	return 0;
 }
 
 REGISTER_FUNCTION(binomial, eval_func(binomial_eval).
                             evalf_func(binomial_evalf).
-                            conjugate_func(binomial_conjugate));
+                            conjugate_func(binomial_conjugate).
+                            real_part_func(binomial_real_part).
+                            imag_part_func(binomial_imag_part));
 
 //////////
 // Order term function (for truncated power series)
@@ -660,7 +834,19 @@ static ex Order_series(const ex & x, const relational & r, int order, unsigned o
 
 static ex Order_conjugate(const ex & x)
 {
-	return Order(x);
+	return Order(x).hold();
+}
+
+static ex Order_real_part(const ex & x)
+{
+	return Order(x).hold();
+}
+
+static ex Order_imag_part(const ex & x)
+{
+	if(x.info(info_flags::real))
+		return 0;
+	return Order(x).hold();
 }
 
 // Differentiation is handled in function::derivative because of its special requirements
@@ -668,7 +854,9 @@ static ex Order_conjugate(const ex & x)
 REGISTER_FUNCTION(Order, eval_func(Order_eval).
                          series_func(Order_series).
                          latex_name("\\mathcal{O}").
-                         conjugate_func(Order_conjugate));
+                         conjugate_func(Order_conjugate).
+                         real_part_func(Order_real_part).
+                         imag_part_func(Order_imag_part));
 
 //////////
 // Solve linear system

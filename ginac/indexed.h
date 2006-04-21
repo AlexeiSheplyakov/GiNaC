@@ -147,6 +147,8 @@ public:
 	unsigned precedence() const {return 55;}
 	bool info(unsigned inf) const;
 	ex eval(int level = 0) const;
+	ex real_part() const;
+	ex imag_part() const;
 	exvector get_free_indices() const;
 
 protected:

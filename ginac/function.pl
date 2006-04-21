@@ -79,6 +79,14 @@ $typedef_conjugate_funcp=generate(
 'typedef ex (* conjugate_funcp_${N})(${SEQ1});'."\n",
 'const ex &','','');
 
+$typedef_real_part_funcp=generate(
+'typedef ex (* real_part_funcp_${N})(${SEQ1});'."\n",
+'const ex &','','');
+
+$typedef_imag_part_funcp=generate(
+'typedef ex (* imag_part_funcp_${N})(${SEQ1});'."\n",
+'const ex &','','');
+
 $typedef_derivative_funcp=generate(
 'typedef ex (* derivative_funcp_${N})(${SEQ1}, unsigned);'."\n",
 'const ex &','','');
@@ -100,6 +108,10 @@ $eval_func_interface=generate('    function_options & eval_func(eval_funcp_${N} 
 $evalf_func_interface=generate('    function_options & evalf_func(evalf_funcp_${N} ef);'."\n",'','','');
 
 $conjugate_func_interface=generate('    function_options & conjugate_func(conjugate_funcp_${N} d);'."\n",'','','');
+
+$real_part_func_interface=generate('    function_options & real_part_func(real_part_funcp_${N} d);'."\n",'','','');
+
+$imag_part_func_interface=generate('    function_options & imag_part_func(imag_part_funcp_${N} d);'."\n",'','','');
 
 $derivative_func_interface=generate('    function_options & derivative_func(derivative_funcp_${N} d);'."\n",'','','');
 
@@ -147,6 +159,18 @@ $conjugate_switch_statement=generate(
 	<<'END_OF_DIFF_SWITCH_STATEMENT','seq[${N}-1]','','');
 	case ${N}:
 		return ((conjugate_funcp_${N})(opt.conjugate_f))(${SEQ1});
+END_OF_DIFF_SWITCH_STATEMENT
+
+$real_part_switch_statement=generate(
+	<<'END_OF_DIFF_SWITCH_STATEMENT','seq[${N}-1]','','');
+	case ${N}:
+		return ((real_part_funcp_${N})(opt.real_part_f))(${SEQ1});
+END_OF_DIFF_SWITCH_STATEMENT
+
+$imag_part_switch_statement=generate(
+	<<'END_OF_DIFF_SWITCH_STATEMENT','seq[${N}-1]','','');
+	case ${N}:
+		return ((imag_part_funcp_${N})(opt.imag_part_f))(${SEQ1});
 END_OF_DIFF_SWITCH_STATEMENT
 
 $diff_switch_statement=generate(
@@ -208,6 +232,26 @@ function_options & function_options::conjugate_func(conjugate_funcp_${N} c)
 	return *this;
 }
 END_OF_CONJUGATE_FUNC_IMPLEMENTATION
+
+$real_part_func_implementation=generate(
+	<<'END_OF_REAL_PART_FUNC_IMPLEMENTATION','','','');
+function_options & function_options::real_part_func(real_part_funcp_${N} c)
+{
+	test_and_set_nparams(${N});
+	real_part_f = real_part_funcp(c);
+	return *this;
+}
+END_OF_REAL_PART_FUNC_IMPLEMENTATION
+
+$imag_part_func_implementation=generate(
+	<<'END_OF_IMAG_PART_FUNC_IMPLEMENTATION','','','');
+function_options & function_options::imag_part_func(imag_part_funcp_${N} c)
+{
+	test_and_set_nparams(${N});
+	imag_part_f = imag_part_funcp(c);
+	return *this;
+}
+END_OF_IMAG_PART_FUNC_IMPLEMENTATION
 
 $derivative_func_implementation=generate(
 	<<'END_OF_DERIVATIVE_FUNC_IMPLEMENTATION','','','');
@@ -293,6 +337,8 @@ class symmetry;
 typedef ex (* eval_funcp)();
 typedef ex (* evalf_funcp)();
 typedef ex (* conjugate_funcp)();
+typedef ex (* real_part_funcp)();
+typedef ex (* imag_part_funcp)();
 typedef ex (* derivative_funcp)();
 typedef ex (* power_funcp)();
 typedef ex (* series_funcp)();
@@ -302,6 +348,8 @@ typedef void (* print_funcp)();
 $typedef_eval_funcp
 $typedef_evalf_funcp
 $typedef_conjugate_funcp
+$typedef_real_part_funcp
+$typedef_imag_part_funcp
 $typedef_derivative_funcp
 $typedef_power_funcp
 $typedef_series_funcp
@@ -313,6 +361,8 @@ $typedef_print_funcp
 typedef ex (* eval_funcp_exvector)(const exvector &);
 typedef ex (* evalf_funcp_exvector)(const exvector &);
 typedef ex (* conjugate_funcp_exvector)(const exvector &);
+typedef ex (* real_part_funcp_exvector)(const exvector &);
+typedef ex (* imag_part_funcp_exvector)(const exvector &);
 typedef ex (* derivative_funcp_exvector)(const exvector &, unsigned);
 typedef ex (* power_funcp_exvector)(const exvector &, const ex &);
 typedef ex (* series_funcp_exvector)(const exvector &, const relational &, int, unsigned);
@@ -337,6 +387,8 @@ public:
 $eval_func_interface
 $evalf_func_interface
 $conjugate_func_interface
+$real_part_func_interface
+$imag_part_func_interface
 $derivative_func_interface
 $power_func_interface
 $series_func_interface
@@ -345,6 +397,8 @@ $print_func_interface
 	function_options & eval_func(eval_funcp_exvector e);
 	function_options & evalf_func(evalf_funcp_exvector ef);
 	function_options & conjugate_func(conjugate_funcp_exvector d);
+	function_options & real_part_func(real_part_funcp_exvector d);
+	function_options & imag_part_func(imag_part_funcp_exvector d);
 	function_options & derivative_func(derivative_funcp_exvector d);
 	function_options & power_func(power_funcp_exvector d);
 	function_options & series_func(series_funcp_exvector s);
@@ -380,6 +434,8 @@ protected:
 	eval_funcp eval_f;
 	evalf_funcp evalf_f;
 	conjugate_funcp conjugate_f;
+	real_part_funcp real_part_f;
+	imag_part_funcp imag_part_f;
 	derivative_funcp derivative_f;
 	power_funcp power_f;
 	series_funcp series_f;
@@ -399,6 +455,8 @@ protected:
 	bool eval_use_exvector_args;
 	bool evalf_use_exvector_args;
 	bool conjugate_use_exvector_args;
+	bool real_part_use_exvector_args;
+	bool imag_part_use_exvector_args;
 	bool derivative_use_exvector_args;
 	bool power_use_exvector_args;
 	bool series_use_exvector_args;
@@ -454,6 +512,8 @@ public:
 	ex thiscontainer(const exvector & v) const;
 	ex thiscontainer(std::auto_ptr<exvector> vp) const;
 	ex conjugate() const;
+	ex real_part() const;
+	ex imag_part() const;
 protected:
 	ex derivative(const symbol & s) const;
 	bool is_equal_same_type(const basic & other) const;
@@ -581,12 +641,15 @@ void function_options::initialize()
 {
 	set_name("unnamed_function", "\\\\mbox{unnamed}");
 	nparams = 0;
-	eval_f = evalf_f = conjugate_f = derivative_f = power_f = series_f = 0;
+	eval_f = evalf_f = real_part_f = imag_part_f = conjugate_f = derivative_f
+		= power_f = series_f = 0;
 	evalf_params_first = true;
 	use_return_type = false;
 	eval_use_exvector_args = false;
 	evalf_use_exvector_args = false;
 	conjugate_use_exvector_args = false;
+	real_part_use_exvector_args = false;
+	imag_part_use_exvector_args = false;
 	derivative_use_exvector_args = false;
 	power_use_exvector_args = false;
 	series_use_exvector_args = false;
@@ -617,6 +680,8 @@ function_options & function_options::latex_name(std::string const & tn)
 $eval_func_implementation
 $evalf_func_implementation
 $conjugate_func_implementation
+$real_part_func_implementation
+$imag_part_func_implementation
 $derivative_func_implementation
 $power_func_implementation
 $series_func_implementation
@@ -640,6 +705,19 @@ function_options& function_options::conjugate_func(conjugate_funcp_exvector c)
 	conjugate_f = conjugate_funcp(c);
 	return *this;
 }
+function_options& function_options::real_part_func(real_part_funcp_exvector c)
+{
+	real_part_use_exvector_args = true;
+	real_part_f = real_part_funcp(c);
+	return *this;
+}
+function_options& function_options::imag_part_func(imag_part_funcp_exvector c)
+{
+	imag_part_use_exvector_args = true;
+	imag_part_f = imag_part_funcp(c);
+	return *this;
+}
+
 function_options& function_options::derivative_func(derivative_funcp_exvector d)
 {
 	derivative_use_exvector_args = true;
@@ -1047,6 +1125,46 @@ ${conjugate_switch_statement}
 		// end of generated lines
 	}
 	throw(std::logic_error("function::conjugate(): invalid nparams"));
+}
+
+/** Implementation of ex::real_part for functions. */
+ex function::real_part() const
+{
+	GINAC_ASSERT(serial<registered_functions().size());
+	const function_options & opt = registered_functions()[serial];
+
+	if (opt.real_part_f==0)
+		return basic::real_part();
+
+	if (opt.real_part_use_exvector_args)
+		return ((real_part_funcp_exvector)(opt.real_part_f))(seq);
+
+	switch (opt.nparams) {
+		// the following lines have been generated for max. ${maxargs} parameters
+${real_part_switch_statement}
+		// end of generated lines
+	}
+	throw(std::logic_error("function::real_part(): invalid nparams"));
+}
+
+/** Implementation of ex::imag_part for functions. */
+ex function::imag_part() const
+{
+	GINAC_ASSERT(serial<registered_functions().size());
+	const function_options & opt = registered_functions()[serial];
+
+	if (opt.imag_part_f==0)
+		return basic::imag_part();
+
+	if (opt.imag_part_use_exvector_args)
+		return ((imag_part_funcp_exvector)(opt.imag_part_f))(seq);
+
+	switch (opt.nparams) {
+		// the following lines have been generated for max. ${maxargs} parameters
+${imag_part_switch_statement}
+		// end of generated lines
+	}
+	throw(std::logic_error("function::imag_part(): invalid nparams"));
 }
 
 // protected

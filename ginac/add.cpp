@@ -424,6 +424,36 @@ ex add::conjugate() const
 	return *this;
 }
 
+ex add::real_part() const
+{
+	epvector v;
+	v.reserve(seq.size());
+	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i)
+		if ((i->coeff).info(info_flags::real))
+			v.push_back(expair((i->rest).real_part(), i->coeff));
+		else {
+			ex rp=recombine_pair_to_ex(*i).real_part();
+			v.push_back(split_ex_to_pair(rp));
+		}
+	return (new add(v, overall_coeff.real_part()))
+		-> setflag(status_flags::dynallocated);
+}
+
+ex add::imag_part() const
+{
+	epvector v;
+	v.reserve(seq.size());
+	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i)
+		if ((i->coeff).info(info_flags::real))
+			v.push_back(expair((i->rest).imag_part(), i->coeff));
+		else {
+			ex ip=recombine_pair_to_ex(*i).imag_part();
+			v.push_back(split_ex_to_pair(ip));
+		}
+	return (new add(v, overall_coeff.imag_part()))
+		-> setflag(status_flags::dynallocated);
+}
+
 ex add::eval_ncmul(const exvector & v) const
 {
 	if (seq.empty())

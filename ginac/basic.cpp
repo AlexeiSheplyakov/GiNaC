@@ -38,6 +38,7 @@
 #include "wildcard.h"
 #include "archive.h"
 #include "utils.h"
+#include "inifcns.h"
 
 namespace GiNaC {
 
@@ -709,6 +710,16 @@ exvector basic::get_free_indices() const
 ex basic::conjugate() const
 {
 	return *this;
+}
+
+ex basic::real_part() const
+{
+	return real_part_function(*this).hold();
+}
+
+ex basic::imag_part() const
+{
+	return imag_part_function(*this).hold();
 }
 
 ex basic::eval_ncmul(const exvector & v) const

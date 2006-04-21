@@ -220,10 +220,24 @@ ex symbol::eval(int level) const
 ex symbol::conjugate() const
 {
 	if (this->domain == domain::complex) {
-		return GiNaC::conjugate_function(*this).hold();
+		return conjugate_function(*this).hold();
 	} else {
 		return *this;
 	}
+}
+
+ex symbol::real_part() const
+{
+	if (domain == domain::real)
+		return *this;
+	return real_part_function(*this).hold();
+}
+
+ex symbol::imag_part() const
+{
+	if (domain == domain::real)
+		return 0;
+	return imag_part_function(*this).hold();
 }
 
 bool symbol::is_polynomial(const ex & var) const

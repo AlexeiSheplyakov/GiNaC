@@ -75,6 +75,8 @@ public:
 	unsigned return_type() const { return ret_type; }
 	tinfo_t return_type_tinfo() const { return ret_type_tinfo; }
 	ex conjugate() const;
+	ex real_part() const;
+	ex imag_part() const;
 	bool is_polynomial(const ex & var) const;
 protected:
 	ex derivative(const symbol & s) const;

@@ -461,6 +461,41 @@ ex mul::evalf(int level) const
 	return mul(s, overall_coeff.evalf(level));
 }
 
+void mul::find_real_imag(ex & rp, ex & ip) const
+{
+	rp = overall_coeff.real_part();
+	ip = overall_coeff.imag_part();
+	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i) {
+		ex factor = recombine_pair_to_ex(*i);
+		ex new_rp = factor.real_part();
+		ex new_ip = factor.imag_part();
+		if(new_ip.is_zero()) {
+			rp *= new_rp;
+			ip *= new_rp;
+		} else {
+			ex temp = rp*new_rp - ip*new_ip;
+			ip = ip*new_rp + rp*new_ip;
+			rp = temp;
+		}
+	}
+	rp = rp.expand();
+	ip = ip.expand();
+}
+
+ex mul::real_part() const
+{
+	ex rp, ip;
+	find_real_imag(rp, ip);
+	return rp;
+}
+
+ex mul::imag_part() const
+{
+	ex rp, ip;
+	find_real_imag(rp, ip);
+	return ip;
+}
+
 ex mul::evalm() const
 {
 	// numeric*matrix

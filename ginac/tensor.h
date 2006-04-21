@@ -60,6 +60,7 @@ class tensdelta : public tensor
 
 	// functions overriding virtual functions from base classes
 public:
+	bool info(unsigned inf) const;
 	ex eval_indexed(const basic & i) const;
 	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
 
@@ -80,6 +81,7 @@ class tensmetric : public tensor
 
 	// functions overriding virtual functions from base classes
 public:
+	bool info(unsigned inf) const;
 	ex eval_indexed(const basic & i) const;
 	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
 
@@ -104,6 +106,7 @@ public:
 
 	// functions overriding virtual functions from base classes
 public:
+	bool info(unsigned inf) const;
 	ex eval_indexed(const basic & i) const;
 
 	// non-virtual functions in this class
@@ -128,6 +131,7 @@ class spinmetric : public tensmetric
 
 	// functions overriding virtual functions from base classes
 public:
+	bool info(unsigned inf) const;
 	ex eval_indexed(const basic & i) const;
 	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
 
@@ -151,6 +155,7 @@ public:
 
 	// functions overriding virtual functions from base classes
 public:
+	bool info(unsigned inf) const;
 	ex eval_indexed(const basic & i) const;
 	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
 

@@ -687,6 +687,16 @@ ex numeric::conjugate() const
 	return numeric(cln::conjugate(this->value));
 }
 
+ex numeric::real_part() const
+{
+	return numeric(cln::realpart(value));
+}
+
+ex numeric::imag_part() const
+{
+	return numeric(cln::imagpart(value));
+}
+
 // protected
 
 int numeric::compare_same_type(const basic &other) const

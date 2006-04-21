@@ -58,6 +58,8 @@ public:
 	ex smod(const numeric &xi) const;
 	numeric max_coefficient() const;
 	ex conjugate() const;
+	ex real_part() const;
+	ex imag_part() const;
 	exvector get_free_indices() const;
 	ex eval_ncmul(const exvector & v) const;
 protected:

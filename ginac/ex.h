@@ -134,8 +134,10 @@ public:
 	ex lhs() const;
 	ex rhs() const;
 
-	// complex conjugation
+	// function for complex expressions
 	ex conjugate() const { return bp->conjugate(); }
+	ex real_part() const { return bp->real_part(); }
+	ex imag_part() const { return bp->imag_part(); }
 
 	// pattern matching
 	bool has(const ex & pattern, unsigned options = 0) const { return bp->has(pattern, options); }
@@ -684,6 +686,12 @@ inline ex expand(const ex & thisex, unsigned options = 0)
 
 inline ex conjugate(const ex & thisex)
 { return thisex.conjugate(); }
+
+inline ex real_part(const ex & thisex)
+{ return thisex.real_part(); }
+
+inline ex imag_part(const ex & thisex)
+{ return thisex.imag_part(); }
 
 inline bool has(const ex & thisex, const ex & pattern, unsigned options = 0)
 { return thisex.has(pattern, options); }
