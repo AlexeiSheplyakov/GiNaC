@@ -1,3 +1,10 @@
+ginac (1.4.0-1) unstable; urgency=low
+
+  * New upstream release; binary incompatible, so it's libginac1.4 now.
+  * debian/*: Streamlining by Peter Eisentraut <petere@debian.org>.
+
+ -- Richard Kreckel <kreckel@ginac.de>  <DATE>
+
 ginac (1.3.4-1) unstable; urgency=low
 
   * New upstream (bugfix only) release.
