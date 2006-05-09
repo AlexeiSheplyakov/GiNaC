@@ -855,6 +855,52 @@ public:
 	ex operator()(const ex & e) { return ptr(e, arg1, arg2, arg3); }
 };
 
+template<class C>
+class pointer_to_member_to_map_function_0args : public map_function {
+protected:
+	ex (C::*ptr)(const ex &);
+	C &c;
+public:
+	explicit pointer_to_member_to_map_function_0args(ex (C::*member)(const ex &), C &obj) : ptr(member), c(obj) {}
+	ex operator()(const ex & e) { return (c.*ptr)(e); }
+};
+
+template<class C, class T1>
+class pointer_to_member_to_map_function_1args : public map_function {
+protected:
+	ex (C::*ptr)(const ex &, T1);
+	C &c;
+	T1 arg1;
+public:
+	explicit pointer_to_member_to_map_function_1args(ex (C::*member)(const ex &, T1), C &obj, T1 a1) : ptr(member), c(obj), arg1(a1) {}
+	ex operator()(const ex & e) { return (c.*ptr)(e, arg1); }
+};
+
+template<class C, class T1, class T2>
+class pointer_to_member_to_map_function_2args : public map_function {
+protected:
+	ex (C::*ptr)(const ex &, T1, T2);
+	C &c;
+	T1 arg1;
+	T2 arg2;
+public:
+	explicit pointer_to_member_to_map_function_2args(ex (C::*member)(const ex&, T1, T2), C &obj, T1 a1, T2 a2) : ptr(member), c(obj), arg1(a1), arg2(a2) {}
+	ex operator()(const ex & e) { return (c.*ptr)(e, arg1, arg2); }
+};
+
+template<class C, class T1, class T2, class T3>
+class pointer_to_member_to_map_function_3args : public map_function {
+protected:
+	ex (C::*ptr)(const ex &, T1, T2, T3);
+	C &c;
+	T1 arg1;
+	T2 arg2;
+	T3 arg3;
+public:
+	explicit pointer_to_member_to_map_function_3args(ex (C::*member)(const ex &, T1, T2, T3), C &obj, T1 a1, T2 a2, T3 a3) : ptr(member), c(obj), arg1(a1), arg2(a2), arg3(a3) {}
+	ex operator()(const ex & e) { return (c.*ptr)(e, arg1, arg2, arg3); }
+};
+
 inline ex ex::map(ex f(const ex &)) const
 {
 	pointer_to_map_function fcn(f);
