@@ -856,23 +856,23 @@ public:
 };
 
 template<class C>
-class pointer_to_member_to_map_function_0args : public map_function {
+class pointer_to_member_to_map_function : public map_function {
 protected:
 	ex (C::*ptr)(const ex &);
 	C &c;
 public:
-	explicit pointer_to_member_to_map_function_0args(ex (C::*member)(const ex &), C &obj) : ptr(member), c(obj) {}
+	explicit pointer_to_member_to_map_function(ex (C::*member)(const ex &), C &obj) : ptr(member), c(obj) {}
 	ex operator()(const ex & e) { return (c.*ptr)(e); }
 };
 
 template<class C, class T1>
-class pointer_to_member_to_map_function_1args : public map_function {
+class pointer_to_member_to_map_function_1arg : public map_function {
 protected:
 	ex (C::*ptr)(const ex &, T1);
 	C &c;
 	T1 arg1;
 public:
-	explicit pointer_to_member_to_map_function_1args(ex (C::*member)(const ex &, T1), C &obj, T1 a1) : ptr(member), c(obj), arg1(a1) {}
+	explicit pointer_to_member_to_map_function_1arg(ex (C::*member)(const ex &, T1), C &obj, T1 a1) : ptr(member), c(obj), arg1(a1) {}
 	ex operator()(const ex & e) { return (c.*ptr)(e, arg1); }
 };
 
