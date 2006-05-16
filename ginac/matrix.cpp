@@ -1527,6 +1527,16 @@ int matrix::pivot(unsigned ro, unsigned co, bool symbolic)
 	return k;
 }
 
+/** Function to check that all elements of the matrix are zero.
+ */
+bool matrix::is_zero_matrix() const
+{
+	for (exvector::const_iterator i=m.begin(); i!=m.end(); ++i) 
+		if(!(i->is_zero()))
+			return false;
+	return true;
+}
+
 ex lst_to_matrix(const lst & l)
 {
 	lst::const_iterator itr, itc;

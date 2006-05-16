@@ -28,6 +28,7 @@
 #include "mul.h"
 #include "ncmul.h"
 #include "numeric.h"
+#include "matrix.h"
 #include "power.h"
 #include "lst.h"
 #include "relational.h"
@@ -252,6 +253,17 @@ bool ex::is_polynomial(const ex & vars) const
 	}
 	else
 		return bp->is_polynomial(vars);
+}
+
+/** Check whether expression is zero or zero matrix. */
+bool ex::is_zero_matrix() const
+{
+	if (is_zero())
+		return  true;
+	else {
+		ex e = evalm();
+		return is_a<matrix>(e) && ex_to<matrix>(e).is_zero_matrix();
+	}
 }
 
 // private

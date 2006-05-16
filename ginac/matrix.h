@@ -151,6 +151,7 @@ public:
 	matrix solve(const matrix & vars, const matrix & rhs,
 	             unsigned algo = solve_algo::automatic) const;
 	unsigned rank() const;
+	bool is_zero_matrix() const;
 protected:
 	ex determinant_minor() const;
 	int gauss_elimination(const bool det = false);

@@ -205,6 +205,7 @@ public:
 	int compare(const ex & other) const;
 	bool is_equal(const ex & other) const;
 	bool is_zero() const { extern const ex _ex0; return is_equal(_ex0); }
+	bool is_zero_matrix() const;
 	
 	// symmetry
 	ex symmetrize() const;

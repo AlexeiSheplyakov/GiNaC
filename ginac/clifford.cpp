@@ -1053,7 +1053,7 @@ ex canonicalize_clifford(const ex & e_)
 	pointer_to_map_function fcn(canonicalize_clifford);
 
 	if (is_a<matrix>(e_)    // || is_a<pseries>(e) || is_a<integral>(e)
-		|| is_a<lst>(e_)) {
+		|| e_.info(info_flags::list)) {
 		return e_.map(fcn);
 	} else {
 		ex e=simplify_indexed(e_);
@@ -1120,7 +1120,7 @@ ex clifford_prime(const ex & e)
 	if (is_a<clifford>(e) && is_a<cliffordunit>(e.op(0))) {
 		return -e;
 	} else if (is_a<add>(e) || is_a<ncmul>(e) || is_a<mul>(e) //|| is_a<pseries>(e) || is_a<integral>(e)
-			   || is_a<matrix>(e) || is_a<lst>(e)) {
+			   || is_a<matrix>(e) || e.info(info_flags::list)) {
 		return e.map(fcn);
 	} else if (is_a<power>(e)) {
 		return pow(clifford_prime(e.op(0)), e.op(1));
@@ -1145,7 +1145,7 @@ ex remove_dirac_ONE(const ex & e, unsigned char rl, unsigned options)
 		else 
 			throw(std::invalid_argument("remove_dirac_ONE(): expression is a non-scalar Clifford number!"));
 	} else if (is_a<add>(e1) || is_a<ncmul>(e1) || is_a<mul>(e1)  
-			   || is_a<matrix>(e1) || is_a<lst>(e1)) {
+			   || is_a<matrix>(e1) || e1.info(info_flags::list)) {
 		if (options & 3) // is a child or was already expanded
 			return e1.map(fcn);
 		else
@@ -1227,8 +1227,8 @@ ex lst_to_clifford(const ex & v, const ex & e) {
 				else
 					throw(std::invalid_argument("lst_to_clifford(): dimensions of vector and clifford unit mismatch"));
 			} else
-				throw(std::invalid_argument("lst_to_clifford(): first argument should be a vector vector"));
-		} else if (is_a<lst>(v)) {
+				throw(std::invalid_argument("lst_to_clifford(): first argument should be a vector (nx1 or 1xn matrix)"));
+		} else if (v.info(info_flags::list)) {
 			if (dim == ex_to<lst>(v).nops())
 				return indexed(matrix(dim, 1, ex_to<lst>(v)), ex_to<varidx>(mu).toggle_variance()) * e;
 			else
@@ -1246,7 +1246,7 @@ static ex get_clifford_comp(const ex & e, const ex & c)
 	pointer_to_map_function_1arg<const ex &> fcn(get_clifford_comp, c);
 	int ival = ex_to<numeric>(ex_to<varidx>(c.op(1)).get_value()).to_int();
 		
-	if (is_a<add>(e) || is_a<lst>(e) // || is_a<pseries>(e) || is_a<integral>(e)
+	if (is_a<add>(e) || e.info(info_flags::list) // || is_a<pseries>(e) || is_a<integral>(e)
 		|| is_a<matrix>(e)) 
 		return e.map(fcn);
 	else if (is_a<ncmul>(e) || is_a<mul>(e)) {
@@ -1335,7 +1335,7 @@ ex clifford_moebius_map(const ex & a, const ex & b, const ex & c, const ex & d, 
 {
 	ex x, D, cu;
 	
-	if (! is_a<matrix>(v) && ! is_a<lst>(v))
+	if (! is_a<matrix>(v) && ! v.info(info_flags::list))
 		throw(std::invalid_argument("clifford_moebius_map(): parameter v should be either vector or list"));
 	
 	if (is_a<clifford>(G)) {
@@ -1352,8 +1352,8 @@ ex clifford_moebius_map(const ex & a, const ex & b, const ex & c, const ex & d, 
 	}
 	
 	x = lst_to_clifford(v, cu); 
-	ex e = simplify_indexed(canonicalize_clifford((a * x + b) * clifford_inverse(c * x + d)));
-	return clifford_to_lst(e, cu, false);
+	ex e = clifford_to_lst(simplify_indexed(canonicalize_clifford((a * x + b) * clifford_inverse(c * x + d))), cu, false);
+	return (is_a<matrix>(v) ? matrix(ex_to<matrix>(v).rows(), ex_to<matrix>(v).cols(), ex_to<lst>(e)) : e);
 }
 
 ex clifford_moebius_map(const ex & M, const ex & v, const ex & G, unsigned char rl, bool anticommuting)

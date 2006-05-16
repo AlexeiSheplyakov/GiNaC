@@ -2053,6 +2053,12 @@ Here are a couple of examples for constructing matrices:
 @}
 @end example
 
+@cindex @code{is_zero_matrix()} 
+The method @code{matrix::is_zero_matrix()} returns @code{true} only if
+all entries of the matrix are zeros. There is also method
+@code{ex::is_zero_matrix()} which returns @code{true} only if the
+expression is zero or a zero matrix.
+
 @cindex @code{transpose()}
 There are three ways to do arithmetic with matrices. The first (and most
 direct one) is to use the methods provided by the @code{matrix} class:
@@ -3545,9 +3551,10 @@ linear-fractional) transformation @samp{v -> (av+b)/(cv+d)} defined by
 the matrix @samp{M = [[a, b], [c, d]]}. The parameter @code{G} defines
 the metric of the surrounding (pseudo-)Euclidean space. This can be an
 indexed object, tensormetric, matrix or a Clifford unit, in the later
-case the optional parameters @code{rl} and @code{anticommuting} are ignored
-even if supplied.  The returned value of this function is a list of
-components of the resulting vector.
+case the optional parameters @code{rl} and @code{anticommuting} are
+ignored even if supplied.  Depending from the type of @code{v} the
+returned value of this function is either a vector or a list holding vector's
+components.
 
 @cindex @code{clifford_max_label()}
 Finally the function
@@ -4097,7 +4104,8 @@ bool ex::is_zero();
 @end example
 
 for checking whether one expression is equal to another, or equal to zero,
-respectively.
+respectively. See also the method @code{ex::is_zero_matrix()}, 
+@pxref{Matrices}. 
 
 
 @subsection Ordering expressions
