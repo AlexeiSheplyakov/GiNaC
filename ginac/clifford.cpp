@@ -158,29 +158,39 @@ ex clifford::get_metric(const ex & i, const ex & j, bool symmetrised) const
 	if (is_a<indexed>(metric)) {
 		if (symmetrised && !(ex_to<symmetry>(ex_to<indexed>(metric).get_symmetry()).has_symmetry())) {
 			if (is_a<matrix>(metric.op(0))) {
-				return indexed((ex_to<matrix>(metric.op(0)).add(ex_to<matrix>(metric.op(0)).transpose())).mul(numeric(1,2)),
+				return indexed((ex_to<matrix>(metric.op(0)).add(ex_to<matrix>(metric.op(0)).transpose())).mul(numeric(1, 2)),
 				               symmetric2(), i, j);
 			} else {
 				return simplify_indexed(indexed(metric.op(0)*_ex1_2, i, j) + indexed(metric.op(0)*_ex1_2, j, i));
 			}
 		} else {
-			//return indexed(metric.op(0), ex_to<symmetry>(ex_to<indexed>(metric).get_symmetry()), i, j);
 			return metric.subs(lst(metric.op(1) == i, metric.op(2) == j), subs_options::no_pattern);
 		}
 	} else {
-		// should not really happen since all constructors but clifford() make the metric an indexed object
-		return indexed(metric, i, j);
+		exvector indices = metric.get_free_indices();
+		if (symmetrised)
+			return _ex1_2*simplify_indexed(metric.subs(lst(indices[0] == i, indices[1] == j), subs_options::no_pattern)
+									+ metric.subs(lst(indices[0] == j, indices[1] == i), subs_options::no_pattern));
+		else
+			return metric.subs(lst(indices[0] == i, indices[1] == j), subs_options::no_pattern);
 	}
 }
 
 bool clifford::same_metric(const ex & other) const
 {
-	if (is_a<clifford>(other)) {
-		return same_metric(ex_to<clifford>(other).get_metric());
-	} else if (is_a<indexed>(other)) {
-		return get_metric(other.op(1), other.op(2)).is_equal(other);
-	} else
-		return false;
+	ex metr;
+	if (is_a<clifford>(other)) 
+		metr = ex_to<clifford>(other).get_metric();
+	else 
+		metr = other;
+
+	if (is_a<indexed>(metr))
+		return metr.op(0).is_equal(get_metric().op(0));
+	else {
+		exvector indices = metr.get_free_indices();
+		return  (indices.size() == 2) 
+			&& simplify_indexed(get_metric(indices[0], indices[1])-metr).is_zero();
+	}
 }
 
 //////////
@@ -436,7 +446,7 @@ static int find_same_metric(exvector & v, ex & c)
 		    && ex_to<varidx>(c.op(1)) == ex_to<indexed>(v[i]).get_indices()[1])
 		    || (ex_to<varidx>(c.op(1)).toggle_variance() == ex_to<indexed>(v[i]).get_indices()[0]
 		    && ex_to<varidx>(c.op(1)).toggle_variance() == ex_to<indexed>(v[i]).get_indices()[1]))) {
-			return i; // the index of the found
+			return i; // the index of the found term
 		}
 	}
 	return -1; //nothing found
@@ -758,17 +768,10 @@ ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl, bool anticomm
 	if (ex_to<idx>(mu).is_symbolic() && !is_a<varidx>(mu))
 		throw(std::invalid_argument("clifford_unit(): symbolic index of Clifford unit must be of type varidx (not idx)"));
 
-	if (is_a<indexed>(metr)) {
-		exvector indices = ex_to<indexed>(metr).get_indices();
-		if ((indices.size() == 2) && is_a<varidx>(indices[0]) && is_a<varidx>(indices[1])) {
-			return clifford(unit, mu, metr, rl, anticommuting);
-		} else {
-			throw(std::invalid_argument("clifford_unit(): metric for Clifford unit must be indexed exactly by two indices of same type as the given index"));
-		}
-	} else if (is_a<tensor>(metr)) {
-		static varidx xi((new symbol)->setflag(status_flags::dynallocated), ex_to<varidx>(mu).get_dim()),
-			chi((new symbol)->setflag(status_flags::dynallocated), ex_to<varidx>(mu).get_dim());
-		return clifford(unit, mu, indexed(metr, xi, chi), rl, anticommuting);
+	exvector indices = metr.get_free_indices();
+
+	if ((indices.size() == 2) && is_a<varidx>(indices[0]) && is_a<varidx>(indices[1])) {
+		return clifford(unit, mu, metr, rl, anticommuting);
 	} else if (is_a<matrix>(metr)) {
 		matrix M = ex_to<matrix>(metr);
 		unsigned n = M.rows();
@@ -792,9 +795,12 @@ ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl, bool anticomm
 		} else {
 			throw(std::invalid_argument("clifford_unit(): metric for Clifford unit must be a square matrix with the same dimensions as index"));
 		}
-	} else {
-		throw(std::invalid_argument("clifford_unit(): metric for Clifford unit must be of type indexed, tensor or matrix"));
-	}
+	} else if (indices.size() == 0) { // a tensor or other expression without indices
+		static varidx xi((new symbol)->setflag(status_flags::dynallocated), ex_to<varidx>(mu).get_dim()),
+			chi((new symbol)->setflag(status_flags::dynallocated), ex_to<varidx>(mu).get_dim());
+		return clifford(unit, mu, indexed(metr, xi, chi), rl, anticommuting);
+	}  else 
+		throw(std::invalid_argument("clifford_unit(): metric for Clifford unit must be of type tensor, matrix or an expression with two free indices"));
 }
 
 ex dirac_gamma(const ex & mu, unsigned char rl)

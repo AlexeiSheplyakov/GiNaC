@@ -3307,7 +3307,11 @@ generators, an index @code{mu} with a numeric value may be of type
 @code{idx} as well.
 Parameter @code{metr} defines the metric @math{M(i, j)} and can be
 represented by a square @code{matrix}, @code{tensormetric} or @code{indexed} class
-object. Optional parameter @code{rl} allows to distinguish different
+object. In fact, any expression either with two free indices or without
+indices at all is admitted as @code{metr}. In the later case an @code{indexed}
+object with two newly created indices with @code{metr} as its
+@code{op(0)} will be used.
+Optional parameter @code{rl} allows to distinguish different
 Clifford algebras, which will commute with each other. The last
 optional parameter @code{anticommuting} defines if the anticommuting
 assumption (i.e.
