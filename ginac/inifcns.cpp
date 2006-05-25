@@ -190,8 +190,14 @@ static ex abs_eval(const ex & arg)
 {
 	if (is_exactly_a<numeric>(arg))
 		return abs(ex_to<numeric>(arg));
-	else
-		return abs(arg).hold();
+
+	if (arg.info(info_flags::nonnegative))
+		return arg;
+
+	if (is_ex_the_function(arg, abs))
+		return arg;
+
+	return abs(arg).hold();
 }
 
 static void abs_print_latex(const ex & arg, const print_context & c)

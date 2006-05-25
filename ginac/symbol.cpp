@@ -196,7 +196,9 @@ bool symbol::info(unsigned inf) const
 	    inf == info_flags::rational_function)
 		return true;
 	if (inf == info_flags::real)
-		return domain == domain::real;
+		return domain==domain::real || domain==domain::positive;
+	if (inf == info_flags::nonnegative)
+		return domain == domain::positive;
 	else
 		return inherited::info(inf);
 }
@@ -228,14 +230,14 @@ ex symbol::conjugate() const
 
 ex symbol::real_part() const
 {
-	if (domain == domain::real)
+	if (domain==domain::real || domain==domain::positive)
 		return *this;
 	return real_part_function(*this).hold();
 }
 
 ex symbol::imag_part() const
 {
-	if (domain == domain::real)
+	if (domain==domain::real || domain==domain::positive)
 		return 0;
 	return imag_part_function(*this).hold();
 }

@@ -246,11 +246,15 @@ static ex log_series(const ex &arg,
 
 static ex log_real_part(const ex & x)
 {
+	if (x.info(info_flags::nonnegative))
+		return log(x).hold();
 	return log(abs(x));
 }
 
 static ex log_imag_part(const ex & x)
 {
+	if (x.info(info_flags::nonnegative))
+		return 0;
 	return atan2(GiNaC::imag_part(x), GiNaC::real_part(x));
 }
 

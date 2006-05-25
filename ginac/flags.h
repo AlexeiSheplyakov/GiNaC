@@ -61,7 +61,8 @@ class domain {
 public:
 	enum {
 		complex,
-		real
+		real,
+		positive
 	};
 };
 
@@ -196,7 +197,7 @@ public:
 class info_flags {
 public:
 	enum {
-		// answered by class numeric
+		// answered by class numeric and symbols/constants in particular domains
 		numeric,
 		real,
 		rational,

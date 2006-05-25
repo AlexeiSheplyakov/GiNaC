@@ -142,7 +142,9 @@ bool constant::info(unsigned inf) const
 	if (inf == info_flags::polynomial)
 		return true;
 	if (inf == info_flags::real)
-		return domain == domain::real;
+		return domain==domain::real || domain==domain::positive ;
+	if (inf==info_flags::positive || inf==info_flags::nonnegative)
+		return domain == domain::positive;
 	else
 		return inherited::info(inf);
 }
@@ -164,21 +166,21 @@ bool constant::is_polynomial(const ex & var) const
 
 ex constant::conjugate() const
 {
-	if ( domain == domain::real )
+	if ( domain==domain::real || domain==domain::positive )
 		return *this;
 	return conjugate_function(*this).hold();
 }
 
 ex constant::real_part() const
 {
-	if ( domain == domain::real )
+	if ( domain==domain::real || domain==domain::positive )
 		return *this;
 	return real_part_function(*this).hold();
 }
 
 ex constant::imag_part() const
 {
-	if ( domain == domain::real )
+	if ( domain==domain::real || domain==domain::positive )
 		return 0;
 	return imag_part_function(*this).hold();
 }
@@ -244,13 +246,13 @@ unsigned constant::next_serial = 0;
 //////////
 
 /**  Pi. (3.14159...)  Diverts straight into CLN for evalf(). */
-const constant Pi("Pi", PiEvalf, "\\pi", domain::real);
+const constant Pi("Pi", PiEvalf, "\\pi", domain::positive);
 
 /** Euler's constant. (0.57721...)  Sometimes called Euler-Mascheroni constant.
  *  Diverts straight into CLN for evalf(). */
-const constant Euler("Euler", EulerEvalf, "\\gamma_E", domain::real);
+const constant Euler("Euler", EulerEvalf, "\\gamma_E", domain::positive);
 
 /** Catalan's constant. (0.91597...)  Diverts straight into CLN for evalf(). */
-const constant Catalan("Catalan", CatalanEvalf, "G", domain::real);
+const constant Catalan("Catalan", CatalanEvalf, "G", domain::positive);
 
 } // namespace GiNaC

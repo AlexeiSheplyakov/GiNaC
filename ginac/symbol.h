@@ -132,7 +132,10 @@ public:
 /** Specialization of is_exactly_a<realsymbol>(obj) for realsymbol objects. */
 template<> inline bool is_exactly_a<realsymbol>(const basic & obj)
 {
-	return (obj.tinfo() == &symbol::tinfo_static) && (static_cast<const symbol &>(obj).get_domain() == domain::real);
+	if (obj.tinfo() != &symbol::tinfo_static)
+		return false;
+	unsigned domain = static_cast<const symbol &>(obj).get_domain();
+	return domain==domain::real || domain==domain::positive;
 }
 
 // wrapper functions around member functions
