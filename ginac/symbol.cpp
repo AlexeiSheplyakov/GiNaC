@@ -57,6 +57,13 @@ realsymbol::realsymbol()
 	domain = domain::real;
 }
 
+// possymbol
+
+possymbol::possymbol()
+{
+	domain = domain::positive;
+}
+
 //////////
 // other constructors
 //////////
@@ -101,6 +108,20 @@ realsymbol::realsymbol(const std::string & initname, unsigned rt, tinfo_t rtt, u
  : symbol(initname, rt, rtt, domain) { }
 
 realsymbol::realsymbol(const std::string & initname, const std::string & texname, unsigned rt, tinfo_t rtt, unsigned domain)
+ : symbol(initname, texname, rt, rtt, domain) { }
+
+// possymbol
+	
+possymbol::possymbol(const std::string & initname, unsigned domain)
+ : symbol(initname, domain) { }
+
+possymbol::possymbol(const std::string & initname, const std::string & texname, unsigned domain)
+ : symbol(initname, texname, domain) { }
+
+possymbol::possymbol(const std::string & initname, unsigned rt, tinfo_t rtt, unsigned domain)
+ : symbol(initname, rt, rtt, domain) { }
+
+possymbol::possymbol(const std::string & initname, const std::string & texname, unsigned rt, tinfo_t rtt, unsigned domain)
  : symbol(initname, texname, rt, rtt, domain) { }
 
 //////////

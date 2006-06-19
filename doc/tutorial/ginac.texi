@@ -1155,10 +1155,16 @@ in the complex domain.  As a consequence, operations like complex conjugation,
 for example (@pxref{Complex expressions}), do @emph{not} evaluate if applied
 to such symbols. Likewise @code{log(exp(x))} does not evaluate to @code{x},
 because of the unknown imaginary part of @code{x}.
-On the other hand, if you are sure that your symbols will hold only real values, you
-would like to have such functions evaluated. Therefore GiNaC allows you to specify
+On the other hand, if you are sure that your symbols will hold only real
+values, you would like to have such functions evaluated. Therefore GiNaC
+allows you to specify
 the domain of the symbol. Instead of @code{symbol x("x");} you can write
 @code{realsymbol x("x");} to tell GiNaC that @code{x} stands in for real values.
+
+@cindex @code{possymbol()}
+Furthermore, it is also possible to declare a symbol as positive. This will,
+for instance, enable the automatic simplification of @code{abs(x)} into 
+@code{x}. This is done by declaying the symbol as @code{possymbol x("x");}.
 
 
 @node Numbers, Constants, Symbols, Basic concepts

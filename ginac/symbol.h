@@ -41,6 +41,7 @@ class symbol : public basic
 	GINAC_DECLARE_REGISTERED_CLASS(symbol, basic)
 
 	friend class realsymbol;
+	friend class possymbol;
 
 // types
 	
@@ -127,6 +128,19 @@ public:
 };
 
 
+/** Specialization of symbol to real domain */
+class possymbol : public symbol
+{
+	// constructors
+public:
+	possymbol();
+	explicit possymbol(const std::string & initname, unsigned domain = domain::positive);
+	possymbol(const std::string & initname, const std::string & texname, unsigned domain = domain::positive);
+	possymbol(const std::string & initname, unsigned rt, tinfo_t rtt, unsigned domain = domain::positive);
+	possymbol(const std::string & initname, const std::string & texname, unsigned rt, tinfo_t rtt, unsigned domain = domain::positive);
+};
+
+
 // utility functions
 
 /** Specialization of is_exactly_a<realsymbol>(obj) for realsymbol objects. */
@@ -136,6 +150,15 @@ template<> inline bool is_exactly_a<realsymbol>(const basic & obj)
 		return false;
 	unsigned domain = static_cast<const symbol &>(obj).get_domain();
 	return domain==domain::real || domain==domain::positive;
+}
+
+/** Specialization of is_exactly_a<possymbol>(obj) for possymbol objects. */
+template<> inline bool is_exactly_a<possymbol>(const basic & obj)
+{
+	if (obj.tinfo() != &symbol::tinfo_static)
+		return false;
+	unsigned domain = static_cast<const symbol &>(obj).get_domain();
+	return domain == domain::positive;
 }
 
 // wrapper functions around member functions
