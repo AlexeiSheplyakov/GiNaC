@@ -84,6 +84,7 @@ public:
 protected:
 	void do_print(const print_context & c, unsigned level) const;
 	void do_print_tree(const print_tree & c, unsigned level) const;
+	unsigned calchash() const;
 
 	// member variables
 private:

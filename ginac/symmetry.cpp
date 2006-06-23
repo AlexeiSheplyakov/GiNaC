@@ -142,9 +142,67 @@ int symmetry::compare_same_type(const basic & other) const
 {
 	GINAC_ASSERT(is_a<symmetry>(other));
 
-	// All symmetry trees are equal. They are not supposed to appear in
-	// ordinary expressions anyway...
+	// For archiving purposes we need to have an ordering of symmetries.
+	const symmetry &othersymm = ex_to<symmetry>(other);
+
+	// Compare type.
+	if (type > othersymm.type)
+		return 1;
+	if (type < othersymm.type)
+		return -1;
+
+	// Compare the index set.
+	size_t this_size = indices.size();
+	size_t that_size = othersymm.indices.size();
+	if (this_size > that_size)
+		return 1;
+	if (this_size < that_size)
+		return -1;
+	typedef std::set<unsigned>::iterator set_it;
+	set_it end = indices.end();
+	for (set_it i=indices.begin(),j=othersymm.indices.begin(); i!=end; ++i,++j) {
+		if(*i < *j)
+			return 1;
+		if(*i > *j)
+			return -1;
+	}
+
+	// Compare the children.
+	if (children.size() > othersymm.children.size())
+		return 1;
+	if (children.size() < othersymm.children.size())
+		return -1;
+	for (size_t i=0; i<children.size(); ++i) {
+		int cmpval = ex_to<symmetry>(children[i])
+			.compare_same_type(ex_to<symmetry>(othersymm.children[i]));
+		if (cmpval)
+			return cmpval;
+	}
+
 	return 0;
+}
+
+unsigned symmetry::calchash() const
+{
+	unsigned v = golden_ratio_hash((p_int)tinfo());
+
+	if (type == none) {
+		v = rotate_left(v);
+		v ^= *(indices.begin());
+	} else {
+		for (exvector::const_iterator i=children.begin(); i!=children.end(); ++i)
+		{
+			v = rotate_left(v);
+			v ^= i->gethash();
+		}
+	}
+
+	if (flags & status_flags::evaluated) {
+		setflag(status_flags::hash_calculated);
+		hashvalue = v;
+	}
+
+	return v;
 }
 
 void symmetry::do_print(const print_context & c, unsigned level) const
