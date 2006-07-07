@@ -678,6 +678,10 @@ struct ex_swap : public std::binary_function<ex, ex, void> {
 	void operator() (ex &lh, ex &rh) const { lh.swap(rh); }
 };
 
+// Make it possible to print exvectors and exmaps
+std::ostream & operator<<(std::ostream & os, const exvector & e);
+std::ostream & operator<<(std::ostream & os, const exmap & e);
+
 // wrapper functions around member functions
 inline size_t nops(const ex & thisex)
 { return thisex.nops(); }

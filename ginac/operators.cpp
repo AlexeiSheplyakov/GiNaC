@@ -350,6 +350,65 @@ std::ostream & operator<<(std::ostream & os, const ex & e)
 	return os;
 }
 
+std::ostream & operator<<(std::ostream & os, const exvector & e)
+{
+	print_context *p = get_print_context(os);
+	exvector::const_iterator i = e.begin();
+	exvector::const_iterator vend = e.end();
+
+	if (i==vend) {
+		os << "[]";
+		return os;
+	}
+
+	os << "[";
+	while (true) {
+		if (p == 0)
+			i -> print(print_dflt(os));
+		else
+			i -> print(*p);
+		++i;
+		if (i==vend)
+			break;
+		os << ",";
+	}
+	os << "]";
+
+	return os;
+}
+
+std::ostream & operator<<(std::ostream & os, const exmap & e)
+{
+	print_context *p = get_print_context(os);
+	exmap::const_iterator i = e.begin();
+	exmap::const_iterator mend = e.end();
+
+	if (i==mend) {
+		os << "{}";
+		return os;
+	}
+
+	os << "{";
+	while (true) {
+		if (p == 0)
+			i->first.print(print_dflt(os));
+		else
+			i->first.print(*p);
+		os << "==";
+		if (p == 0)
+			i->second.print(print_dflt(os));
+		else
+			i->second.print(*p);
+		++i;
+		if( i==mend )
+			break;
+		os << ",";
+	}
+	os << "}";
+
+	return os;
+}
+
 std::istream & operator>>(std::istream & is, ex & e)
 {
 	throw (std::logic_error("expression input from streams not implemented"));
