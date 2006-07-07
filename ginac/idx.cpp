@@ -365,7 +365,7 @@ ex idx::subs(const exmap & m, unsigned options) const
 	if (it != m.end()) {
 
 		// Substitution index->index
-		if (is_a<idx>(it->second))
+		if (is_a<idx>(it->second) || (options & subs_options::really_subs_idx))
 			return it->second;
 
 		// Otherwise substitute value
