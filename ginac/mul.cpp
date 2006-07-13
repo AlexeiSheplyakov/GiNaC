@@ -971,11 +971,11 @@ ex mul::expand(unsigned options) const
 				exvector add1_dummy_indices, add2_dummy_indices, add_indices;
 
 				for (epvector::const_iterator i=add1begin; i!=add1end; ++i) {
-					add_indices = get_all_dummy_indices(i->rest);
+					add_indices = get_all_dummy_indices_safely(i->rest);
 					add1_dummy_indices.insert(add1_dummy_indices.end(), add_indices.begin(), add_indices.end());
 				}
 				for (epvector::const_iterator i=add2begin; i!=add2end; ++i) {
-					add_indices = get_all_dummy_indices(i->rest);
+					add_indices = get_all_dummy_indices_safely(i->rest);
 					add2_dummy_indices.insert(add2_dummy_indices.end(), add_indices.begin(), add_indices.end());
 				}
 
@@ -1022,7 +1022,7 @@ ex mul::expand(unsigned options) const
 		size_t n = last_expanded.nops();
 		exvector distrseq;
 		distrseq.reserve(n);
-		exvector va = get_all_dummy_indices(mul(non_adds));
+		exvector va = get_all_dummy_indices_safely(mul(non_adds));
 		sort(va.begin(), va.end(), ex_is_less());
 
 		for (size_t i=0; i<n; ++i) {
