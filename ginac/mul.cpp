@@ -84,20 +84,20 @@ mul::mul(const epvector & v)
 	GINAC_ASSERT(is_canonical());
 }
 
-mul::mul(const epvector & v, const ex & oc)
+mul::mul(const epvector & v, const ex & oc, bool do_index_renaming)
 {
 	tinfo_key = &mul::tinfo_static;
 	overall_coeff = oc;
-	construct_from_epvector(v);
+	construct_from_epvector(v, do_index_renaming);
 	GINAC_ASSERT(is_canonical());
 }
 
-mul::mul(std::auto_ptr<epvector> vp, const ex & oc)
+mul::mul(std::auto_ptr<epvector> vp, const ex & oc, bool do_index_renaming)
 {
 	tinfo_key = &mul::tinfo_static;
 	GINAC_ASSERT(vp.get()!=0);
 	overall_coeff = oc;
-	construct_from_epvector(*vp);
+	construct_from_epvector(*vp, do_index_renaming);
 	GINAC_ASSERT(is_canonical());
 }
 
@@ -594,7 +594,7 @@ bool tryfactsubs(const ex & origfactor, const ex & patternfactor, int & nummatch
 	return true;
 }
 
-/** Checks wheter e matches to the pattern pat and the (possibly to be updated
+/** Checks wheter e matches to the pattern pat and the (possibly to be updated)
   * list of replacements repls. This matching is in the sense of algebraic
   * substitutions. Matching starts with pat.op(factor) of the pattern because
   * the factors before this one have already been matched. The (possibly
@@ -650,6 +650,8 @@ ex mul::algebraic_subs_mul(const exmap & m, unsigned options) const
 {	
 	std::vector<bool> subsed(seq.size(), false);
 	exvector subsresult(seq.size());
+	ex divide_by = 1;
+	ex multiply_by = 1;
 
 	for (exmap::const_iterator it = m.begin(); it != m.end(); ++it) {
 
@@ -663,30 +665,30 @@ retry1:
 			if(!algebraic_match_mul_with_mul(*this, it->first, repls, 0, nummatches, subsed, currsubsed))
 				continue;
 
-			bool foundfirstsubsedfactor = false;
-			for (size_t j=0; j<subsed.size(); j++) {
-				if (currsubsed[j]) {
-					if (foundfirstsubsedfactor)
-						subsresult[j] = op(j);
-					else {
-						foundfirstsubsedfactor = true;
-						subsresult[j] = op(j) * power(it->second.subs(ex(repls), subs_options::no_pattern) / it->first.subs(ex(repls), subs_options::no_pattern), nummatches);
-					}
+			for (size_t j=0; j<subsed.size(); j++)
+				if (currsubsed[j])
 					subsed[j] = true;
-				}
-			}
+			ex subsed_pattern
+				= it->first.subs(ex(repls), subs_options::no_pattern);
+			divide_by *= power(subsed_pattern, nummatches);
+			ex subsed_result
+				= it->second.subs(ex(repls), subs_options::no_pattern);
+			multiply_by *= power(subsed_result, nummatches);
 			goto retry1;
 
 		} else {
-retry2:
-			int nummatches = std::numeric_limits<int>::max();
-			lst repls;
 
 			for (size_t j=0; j<this->nops(); j++) {
-				if (!subsed[j] && tryfactsubs(op(j), it->first, nummatches, repls)) {
+				int nummatches = std::numeric_limits<int>::max();
+				lst repls;
+				if (!subsed[j] && tryfactsubs(op(j), it->first, nummatches, repls)){
 					subsed[j] = true;
-					subsresult[j] = op(j) * power(it->second.subs(ex(repls), subs_options::no_pattern) / it->first.subs(ex(repls), subs_options::no_pattern), nummatches);
-					goto retry2;
+					ex subsed_pattern
+						= it->first.subs(ex(repls), subs_options::no_pattern);
+					divide_by *= power(subsed_pattern, nummatches);
+					ex subsed_result
+						= it->second.subs(ex(repls), subs_options::no_pattern);
+					multiply_by *= power(subsed_result, nummatches);
 				}
 			}
 		}
@@ -702,15 +704,7 @@ retry2:
 	if (!subsfound)
 		return subs_one_level(m, options | subs_options::algebraic);
 
-	exvector ev; ev.reserve(nops());
-	for (size_t i=0; i<nops(); i++) {
-		if (subsed[i])
-			ev.push_back(subsresult[i]);
-		else
-			ev.push_back(op(i));
-	}
-
-	return (new mul(ev))->setflag(status_flags::dynallocated);
+	return ((*this)/divide_by)*multiply_by;
 }
 
 // protected
@@ -792,14 +786,14 @@ tinfo_t mul::return_type_tinfo() const
 	return this;
 }
 
-ex mul::thisexpairseq(const epvector & v, const ex & oc) const
+ex mul::thisexpairseq(const epvector & v, const ex & oc, bool do_index_renaming) const
 {
-	return (new mul(v, oc))->setflag(status_flags::dynallocated);
+	return (new mul(v, oc, do_index_renaming))->setflag(status_flags::dynallocated);
 }
 
-ex mul::thisexpairseq(std::auto_ptr<epvector> vp, const ex & oc) const
+ex mul::thisexpairseq(std::auto_ptr<epvector> vp, const ex & oc, bool do_index_renaming) const
 {
-	return (new mul(vp, oc))->setflag(status_flags::dynallocated);
+	return (new mul(vp, oc, do_index_renaming))->setflag(status_flags::dynallocated);
 }
 
 expair mul::split_ex_to_pair(const ex & e) const

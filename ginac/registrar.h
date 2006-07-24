@@ -101,7 +101,7 @@ typedef class_info<registered_class_options> registered_class_info;
 #define GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(classname, supername) \
 public: \
 	typedef supername inherited; \
-    static const tinfo_static_t tinfo_static; \
+    static const GiNaC::tinfo_static_t tinfo_static; \
 private: \
 	static GiNaC::registered_class_info reg_info; \
 public: \
@@ -145,19 +145,19 @@ private:
 /** Macro for inclusion in the implementation of each registered class. */
 #define GINAC_IMPLEMENT_REGISTERED_CLASS(classname, supername) \
 	GiNaC::registered_class_info classname::reg_info = GiNaC::registered_class_info(GiNaC::registered_class_options(#classname, #supername, &classname::tinfo_static, &classname::unarchive)); \
-	const tinfo_static_t classname::tinfo_static = {};
+	const GiNaC::tinfo_static_t classname::tinfo_static = {};
 
 /** Macro for inclusion in the implementation of each registered class.
  *  Additional options can be specified. */
 #define GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(classname, supername, options) \
 	GiNaC::registered_class_info classname::reg_info = GiNaC::registered_class_info(GiNaC::registered_class_options(#classname, #supername, &classname::tinfo_static, &classname::unarchive).options); \
-	const tinfo_static_t classname::tinfo_static = {};
+	const GiNaC::tinfo_static_t classname::tinfo_static = {};
 
 /** Macro for inclusion in the implementation of each registered class.
  *  Additional options can be specified. */
 #define GINAC_IMPLEMENT_REGISTERED_CLASS_OPT_T(classname, supername, options) \
 	GiNaC::registered_class_info classname::reg_info = GiNaC::registered_class_info(GiNaC::registered_class_options(#classname, #supername, &classname::tinfo_static, &classname::unarchive).options); \
-	template<> const tinfo_static_t classname::tinfo_static = {};
+	template<> const GiNaC::tinfo_static_t classname::tinfo_static = {};
 
 
 /** Find type information key by class name. */

@@ -41,8 +41,8 @@ public:
 	mul(const ex & lh, const ex & rh);
 	mul(const exvector & v);
 	mul(const epvector & v);
-	mul(const epvector & v, const ex & oc);
-	mul(std::auto_ptr<epvector> vp, const ex & oc);
+	mul(const epvector & v, const ex & oc, bool do_index_renaming = false);
+	mul(std::auto_ptr<epvector> vp, const ex & oc, bool do_index_renaming = false);
 	mul(const ex & lh, const ex & mh, const ex & rh);
 	
 	// functions overriding virtual functions from base classes
@@ -69,8 +69,8 @@ protected:
 	ex eval_ncmul(const exvector & v) const;
 	unsigned return_type() const;
 	tinfo_t return_type_tinfo() const;
-	ex thisexpairseq(const epvector & v, const ex & oc) const;
-	ex thisexpairseq(std::auto_ptr<epvector> vp, const ex & oc) const;
+	ex thisexpairseq(const epvector & v, const ex & oc, bool do_index_renaming = false) const;
+	ex thisexpairseq(std::auto_ptr<epvector> vp, const ex & oc, bool do_index_renaming = false) const;
 	expair split_ex_to_pair(const ex & e) const;
 	expair combine_ex_with_coeff_to_pair(const ex & e, const ex & c) const;
 	expair combine_pair_with_coeff_to_pair(const expair & p, const ex & c) const;

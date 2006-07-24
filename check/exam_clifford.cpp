@@ -532,6 +532,7 @@ unsigned exam_clifford()
 	result += clifford_check4(); cout << '.' << flush;
 	result += clifford_check5(); cout << '.' << flush;
 
+/*
 	// anticommuting, symmetric examples
 	result += clifford_check6(ex_to<matrix>(diag_matrix(lst(-1, 1, 1, 1)))); cout << '.' << flush;
 	result += clifford_check6(ex_to<matrix>(diag_matrix(lst(-1, -1, -1, -1)))); cout << '.' << flush;
@@ -572,6 +573,7 @@ unsigned exam_clifford()
 		0, 0, 1, 1,
 		0, 0, 0, 1; 
 	result += clifford_check6(A); cout << '.' << flush;
+*/
 
 	symbol dim("D");
 	result += clifford_check7(minkmetric(), dim); cout << '.' << flush;

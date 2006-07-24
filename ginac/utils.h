@@ -58,12 +58,6 @@ inline int compare_pointers(const T * a, const T * b)
 	return 0;
 }
 
-/** Rotate bits of unsigned value by one bit to the left. */
-inline unsigned rotate_left(unsigned n)
-{
-	return (n & 0x80000000U) ? (n << 1 | 0x00000001U) : (n << 1);
-}
-
 #if SIZEOF_VOID_P == SIZEOF_INT
 typedef unsigned int p_int;
 #elif SIZEOF_VOID_P == SIZEOF_LONG

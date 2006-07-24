@@ -28,7 +28,7 @@
 
 namespace GiNaC {
 
-/** Product of expressions. */
+/** Symbolic integral. */
 class integral : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS(integral, basic)

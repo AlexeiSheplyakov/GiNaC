@@ -119,20 +119,20 @@ expairseq::expairseq(const exvector &v) : inherited(&expairseq::tinfo_static)
 	GINAC_ASSERT(is_canonical());
 }
 
-expairseq::expairseq(const epvector &v, const ex &oc)
+expairseq::expairseq(const epvector &v, const ex &oc, bool do_index_renaming)
   : inherited(&expairseq::tinfo_static), overall_coeff(oc)
 {
 	GINAC_ASSERT(is_a<numeric>(oc));
-	construct_from_epvector(v);
+	construct_from_epvector(v, do_index_renaming);
 	GINAC_ASSERT(is_canonical());
 }
 
-expairseq::expairseq(std::auto_ptr<epvector> vp, const ex &oc)
+expairseq::expairseq(std::auto_ptr<epvector> vp, const ex &oc, bool do_index_renaming)
   : inherited(&expairseq::tinfo_static), overall_coeff(oc)
 {
 	GINAC_ASSERT(vp.get()!=0);
 	GINAC_ASSERT(is_a<numeric>(oc));
-	construct_from_epvector(*vp);
+	construct_from_epvector(*vp, do_index_renaming);
 	GINAC_ASSERT(is_canonical());
 }
 
@@ -294,9 +294,9 @@ ex expairseq::map(map_function &f) const
 	}
 
 	if (overall_coeff.is_equal(default_overall_coeff()))
-		return thisexpairseq(v, default_overall_coeff());
+		return thisexpairseq(v, default_overall_coeff(), true);
 	else
-		return thisexpairseq(v, f(overall_coeff));
+		return thisexpairseq(v, f(overall_coeff), true);
 }
 
 /** Perform coefficient-wise automatic term rewriting rules in this class. */
@@ -447,7 +447,7 @@ ex expairseq::subs(const exmap & m, unsigned options) const
 {
 	std::auto_ptr<epvector> vp = subschildren(m, options);
 	if (vp.get())
-		return ex_to<basic>(thisexpairseq(vp, overall_coeff));
+		return ex_to<basic>(thisexpairseq(vp, overall_coeff, true));
 	else if ((options & subs_options::algebraic) && is_exactly_a<mul>(*this))
 		return static_cast<const mul *>(this)->algebraic_subs_mul(m, options);
 	else
@@ -642,14 +642,14 @@ ex expairseq::expand(unsigned options) const
  *  ctor because the name (add, mul,...) is unknown on the expaiseq level.  In
  *  order for this trick to work a derived class must of course override this
  *  definition. */
-ex expairseq::thisexpairseq(const epvector &v, const ex &oc) const
+ex expairseq::thisexpairseq(const epvector &v, const ex &oc, bool do_index_renaming) const
 {
-	return expairseq(v, oc);
+	return expairseq(v, oc, do_index_renaming);
 }
 
-ex expairseq::thisexpairseq(std::auto_ptr<epvector> vp, const ex &oc) const
+ex expairseq::thisexpairseq(std::auto_ptr<epvector> vp, const ex &oc, bool do_index_renaming) const
 {
-	return expairseq(vp, oc);
+	return expairseq(vp, oc, do_index_renaming);
 }
 
 void expairseq::printpair(const print_context & c, const expair & p, unsigned upper_precedence) const
@@ -781,7 +781,7 @@ void expairseq::construct_from_2_ex(const ex &lh, const ex &rh)
 			} else {
 #endif // EXPAIRSEQ_USE_HASHTAB
 				if(is_a<mul>(lh))
-				{	
+				{
 					ex newrh=rename_dummy_indices_uniquely(lh, rh);
 					construct_from_2_expairseq(ex_to<expairseq>(lh),
 					                           ex_to<expairseq>(newrh));
@@ -999,14 +999,14 @@ void expairseq::construct_from_exvector(const exvector &v)
 #endif // EXPAIRSEQ_USE_HASHTAB
 }
 
-void expairseq::construct_from_epvector(const epvector &v)
+void expairseq::construct_from_epvector(const epvector &v, bool do_index_renaming)
 {
 	// simplifications: +(a,+(b,c),d) -> +(a,b,c,d) (associativity)
 	//                  +(d,b,c,a) -> +(a,b,c,d) (canonicalization)
 	//                  +(...,x,*(x,c1),*(x,c2)) -> +(...,*(x,1+c1+c2)) (c1, c2 numeric())
 	//                  (same for (+,*) -> (*,^)
 
-	make_flat(v);
+	make_flat(v, do_index_renaming);
 #if EXPAIRSEQ_USE_HASHTAB
 	combine_same_terms();
 #else
@@ -1014,6 +1014,61 @@ void expairseq::construct_from_epvector(const epvector &v)
 	combine_same_terms_sorted_seq();
 #endif // EXPAIRSEQ_USE_HASHTAB
 }
+
+// Class to handle the renaming of dummy indices. It holds a vector of
+// indices that are being used in the expression so-far. If the same
+// index occurs again as a dummy index in a factor, it is to be renamed.
+// Unless dummy index renaming was swichted of, of course ;-) .
+class make_flat_inserter
+{
+	public:
+		make_flat_inserter(const epvector &epv, bool b): do_renaming(b)
+		{
+			if (!do_renaming)
+				return;
+			for (epvector::const_iterator i=epv.begin(); i!=epv.end(); ++i)
+				if(are_ex_trivially_equal(i->coeff, _ex1))
+					combine_indices(i->rest.get_free_indices());
+		}
+		make_flat_inserter(const exvector &v, bool b): do_renaming(b)
+		{
+			if (!do_renaming)
+				return;
+			for (exvector::const_iterator i=v.begin(); i!=v.end(); ++i)
+				combine_indices(i->get_free_indices());
+		}
+		ex handle_factor(const ex &x, const ex &coeff)
+		{
+			if (!do_renaming)
+				return x;
+			exvector dummies_of_factor;
+			if (coeff == _ex1)
+				dummies_of_factor = get_all_dummy_indices_safely(x);
+			else if (coeff == _ex2)
+				dummies_of_factor = x.get_free_indices();
+			else
+				return x;
+			if (dummies_of_factor.size() == 0)
+				return x;
+			sort(dummies_of_factor.begin(), dummies_of_factor.end(), ex_is_less());
+			ex new_factor = rename_dummy_indices_uniquely(used_indices,
+				dummies_of_factor, x);
+			combine_indices(dummies_of_factor);
+			return new_factor;
+		}
+	private:
+		void combine_indices(const exvector &dummies_of_factor)
+		{
+			exvector new_dummy_indices;
+			set_union(used_indices.begin(), used_indices.end(),
+				dummies_of_factor.begin(), dummies_of_factor.end(),
+				std::back_insert_iterator<exvector>(new_dummy_indices), ex_is_less());
+			used_indices.swap(new_dummy_indices);
+		}
+		bool do_renaming;
+		exvector used_indices;
+};
+
 
 /** Combine this expairseq with argument exvector.
  *  It cares for associativity as well as for special handling of numerics. */
@@ -1039,35 +1094,25 @@ void expairseq::make_flat(const exvector &v)
 	seq.reserve(v.size()+noperands-nexpairseqs);
 	
 	// copy elements and split off numerical part
-	exvector dummy_indices;
+	make_flat_inserter mf(v, this->tinfo()==&mul::tinfo_static);
 	cit = v.begin();
 	while (cit!=v.end()) {
 		if (ex_to<basic>(*cit).tinfo()==this->tinfo()) {
-			const expairseq *subseqref;
-			ex newfactor;
-			if(is_a<mul>(*cit))
-			{
-				exvector dummies_of_factor = get_all_dummy_indices(*cit);
-				sort(dummies_of_factor.begin(), dummies_of_factor.end(), ex_is_less());
-				newfactor = rename_dummy_indices_uniquely(dummy_indices, dummies_of_factor, *cit);
-				subseqref = &(ex_to<expairseq>(newfactor));
-				exvector new_dummy_indices;
-				set_union(dummy_indices.begin(), dummy_indices.end(), dummies_of_factor.begin(), dummies_of_factor.end(), std::back_insert_iterator<exvector>(new_dummy_indices), ex_is_less());
-				dummy_indices.swap(new_dummy_indices);
-			}
-			else
-				subseqref = &ex_to<expairseq>(*cit);
-			combine_overall_coeff(subseqref->overall_coeff);
-			epvector::const_iterator cit_s = subseqref->seq.begin();
-			while (cit_s!=subseqref->seq.end()) {
+			ex newfactor = mf.handle_factor(*cit, _ex1);
+			const expairseq &subseqref = ex_to<expairseq>(newfactor);
+			combine_overall_coeff(subseqref.overall_coeff);
+			epvector::const_iterator cit_s = subseqref.seq.begin();
+			while (cit_s!=subseqref.seq.end()) {
 				seq.push_back(*cit_s);
 				++cit_s;
 			}
 		} else {
 			if (is_exactly_a<numeric>(*cit))
 				combine_overall_coeff(*cit);
-			else
-				seq.push_back(split_ex_to_pair(*cit));
+			else {
+				ex newfactor = mf.handle_factor(*cit, _ex1);
+				seq.push_back(split_ex_to_pair(newfactor));
+			}
 		}
 		++cit;
 	}
@@ -1075,7 +1120,7 @@ void expairseq::make_flat(const exvector &v)
 
 /** Combine this expairseq with argument epvector.
  *  It cares for associativity as well as for special handling of numerics. */
-void expairseq::make_flat(const epvector &v)
+void expairseq::make_flat(const epvector &v, bool do_index_renaming)
 {
 	epvector::const_iterator cit;
 	
@@ -1095,13 +1140,15 @@ void expairseq::make_flat(const epvector &v)
 	
 	// reserve seq and coeffseq which will hold all operands
 	seq.reserve(v.size()+noperands-nexpairseqs);
+	make_flat_inserter mf(v, do_index_renaming);
 	
 	// copy elements and split off numerical part
 	cit = v.begin();
 	while (cit!=v.end()) {
 		if (ex_to<basic>(cit->rest).tinfo()==this->tinfo() &&
 		    this->can_make_flat(*cit)) {
-			const expairseq &subseqref = ex_to<expairseq>(cit->rest);
+			ex newrest = mf.handle_factor(cit->rest, cit->coeff);
+			const expairseq &subseqref = ex_to<expairseq>(newrest);
 			combine_overall_coeff(ex_to<numeric>(subseqref.overall_coeff),
 			                                    ex_to<numeric>(cit->coeff));
 			epvector::const_iterator cit_s = subseqref.seq.begin();
@@ -1114,9 +1161,15 @@ void expairseq::make_flat(const epvector &v)
 			}
 		} else {
 			if (cit->is_canonical_numeric())
-				combine_overall_coeff(cit->rest);
-			else
-				seq.push_back(*cit);
+				combine_overall_coeff(mf.handle_factor(cit->rest, _ex1));
+			else {
+				ex rest = cit->rest;
+				ex newrest = mf.handle_factor(rest, cit->coeff);
+				if (are_ex_trivially_equal(newrest, rest))
+					seq.push_back(*cit);
+				else
+					seq.push_back(expair(newrest, cit->coeff));
+			}
 		}
 		++cit;
 	}
@@ -1624,68 +1677,6 @@ std::auto_ptr<epvector> expairseq::evalchildren(int level) const
 	return std::auto_ptr<epvector>(0); // signalling nothing has changed
 }
 
-class safe_inserter
-{
-	public:
-		safe_inserter(const ex&, const bool disable_renaming=false);
-		std::auto_ptr<epvector> getseq(){return epv;}
-		void insert_old_pair(const expair &p)
-		{
-			epv->push_back(p);
-		}
-		void insert_new_pair(const expair &p, const ex &orig_ex);
-	private:
-		std::auto_ptr<epvector> epv;
-		bool dodummies;
-		exvector dummy_indices;
-		void update_dummy_indices(const exvector&);
-};
-
-safe_inserter::safe_inserter(const ex&e, const bool disable_renaming)
-		:epv(new epvector)
-{
-	epv->reserve(e.nops());
-	dodummies=is_a<mul>(e);
-	if(disable_renaming)
-		dodummies=false;
-	if(dodummies) {
-		dummy_indices = get_all_dummy_indices_safely(e);
-		sort(dummy_indices.begin(), dummy_indices.end(), ex_is_less());
-	}
-}
-
-void safe_inserter::update_dummy_indices(const exvector &v)
-{
-	exvector new_dummy_indices;
-	set_union(dummy_indices.begin(), dummy_indices.end(), v.begin(), v.end(),
-		std::back_insert_iterator<exvector>(new_dummy_indices), ex_is_less());
-	dummy_indices.swap(new_dummy_indices);
-}
-
-void safe_inserter::insert_new_pair(const expair &p, const ex &orig_ex)
-{
-	if(!dodummies) {
-		epv->push_back(p);
-		return;
-	}
-	exvector dummies_of_factor = get_all_dummy_indices_safely(p.rest);
-	if(dummies_of_factor.size() == 0) {
-		epv->push_back(p);
-		return;
-	}
-	sort(dummies_of_factor.begin(), dummies_of_factor.end(), ex_is_less());
-	exvector dummies_of_orig_ex = get_all_dummy_indices_safely(orig_ex);
-	sort(dummies_of_orig_ex.begin(), dummies_of_orig_ex.end(), ex_is_less());
-	exvector new_dummy_indices;
-	new_dummy_indices.reserve(dummy_indices.size());
-	set_difference(dummy_indices.begin(), dummy_indices.end(), dummies_of_orig_ex.begin(), dummies_of_orig_ex.end(),
-		std::back_insert_iterator<exvector>(new_dummy_indices), ex_is_less());
-	dummy_indices.swap(new_dummy_indices);
-	ex newfactor = rename_dummy_indices_uniquely(dummy_indices, dummies_of_factor, p.rest);
-	update_dummy_indices(dummies_of_factor);
-	epv -> push_back(expair(newfactor, p.coeff));
-}
-
 /** Member-wise substitute in this sequence.
  *
  *  @see expairseq::subs()
@@ -1720,27 +1711,22 @@ std::auto_ptr<epvector> expairseq::subschildren(const exmap & m, unsigned option
 			if (!are_ex_trivially_equal(orig_ex, subsed_ex)) {
 
 				// Something changed, copy seq, subs and return it
-				safe_inserter s(*this, options & subs_options::no_index_renaming);
+				std::auto_ptr<epvector> s(new epvector);
+				s->reserve(seq.size());
 
 				// Copy parts of seq which are known not to have changed
-				for(epvector::const_iterator i=seq.begin(); i!=cit; ++i)
-					s.insert_old_pair(*i);
+				s->insert(s->begin(), seq.begin(), cit);
 
 				// Copy first changed element
-				s.insert_new_pair(split_ex_to_pair(subsed_ex), orig_ex);
+				s->push_back(split_ex_to_pair(subsed_ex));
 				++cit;
 
 				// Copy rest
 				while (cit != last) {
-					ex orig_ex = recombine_pair_to_ex(*cit);
-					ex subsed_ex = orig_ex.subs(m, options);
-					if(are_ex_trivially_equal(orig_ex, subsed_ex))
-						s.insert_old_pair(*cit);
-					else
-						s.insert_new_pair(split_ex_to_pair(subsed_ex), orig_ex);
+					s->push_back(split_ex_to_pair(recombine_pair_to_ex(*cit).subs(m, options)));
 					++cit;
 				}
-				return s.getseq();
+				return s;
 			}
 
 			++cit;
@@ -1756,27 +1742,22 @@ std::auto_ptr<epvector> expairseq::subschildren(const exmap & m, unsigned option
 			if (!are_ex_trivially_equal(cit->rest, subsed_ex)) {
 			
 				// Something changed, copy seq, subs and return it
-				safe_inserter s(*this, options & subs_options::no_index_renaming);
+				std::auto_ptr<epvector> s(new epvector);
+				s->reserve(seq.size());
 
 				// Copy parts of seq which are known not to have changed
-				for(epvector::const_iterator i=seq.begin(); i!=cit; ++i)
-					s.insert_old_pair(*i);
+				s->insert(s->begin(), seq.begin(), cit);
 			
 				// Copy first changed element
-				s.insert_new_pair(combine_ex_with_coeff_to_pair(subsed_ex, cit->coeff), cit->rest);
+				s->push_back(combine_ex_with_coeff_to_pair(subsed_ex, cit->coeff));
 				++cit;
 
 				// Copy rest
 				while (cit != last) {
-					const ex &orig_ex = cit->rest;
-					const ex &subsed_ex = cit->rest.subs(m, options);
-					if(are_ex_trivially_equal(orig_ex, subsed_ex))
-						s.insert_old_pair(*cit);
-					else
-						s.insert_new_pair(combine_ex_with_coeff_to_pair(subsed_ex, cit->coeff), orig_ex);
+					s->push_back(combine_ex_with_coeff_to_pair(cit->rest.subs(m, options), cit->coeff));
 					++cit;
 				}
-				return s.getseq();
+				return s;
 			}
 
 			++cit;

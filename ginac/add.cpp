@@ -503,12 +503,14 @@ tinfo_t add::return_type_tinfo() const
 		return seq.begin()->rest.return_type_tinfo();
 }
 
-ex add::thisexpairseq(const epvector & v, const ex & oc) const
+// Note: do_index_renaming is ignored because it makes no sense for an add.
+ex add::thisexpairseq(const epvector & v, const ex & oc, bool do_index_renaming) const
 {
 	return (new add(v,oc))->setflag(status_flags::dynallocated);
 }
 
-ex add::thisexpairseq(std::auto_ptr<epvector> vp, const ex & oc) const
+// Note: do_index_renaming is ignored because it makes no sense for an add.
+ex add::thisexpairseq(std::auto_ptr<epvector> vp, const ex & oc, bool do_index_renaming) const
 {
 	return (new add(vp,oc))->setflag(status_flags::dynallocated);
 }

@@ -70,8 +70,8 @@ class expairseq : public basic
 public:
 	expairseq(const ex & lh, const ex & rh);
 	expairseq(const exvector & v);
-	expairseq(const epvector & v, const ex & oc);
-	expairseq(std::auto_ptr<epvector>, const ex & oc);
+	expairseq(const epvector & v, const ex & oc, bool do_index_renaming = false);
+	expairseq(std::auto_ptr<epvector>, const ex & oc, bool do_index_renaming = false);
 	
 	// functions overriding virtual functions from base classes
 public:
@@ -95,8 +95,8 @@ protected:
 	
 	// new virtual functions which can be overridden by derived classes
 protected:
-	virtual ex thisexpairseq(const epvector & v, const ex & oc) const;
-	virtual ex thisexpairseq(std::auto_ptr<epvector> vp, const ex & oc) const;
+	virtual ex thisexpairseq(const epvector & v, const ex & oc, bool do_index_renaming = false) const;
+	virtual ex thisexpairseq(std::auto_ptr<epvector> vp, const ex & oc, bool do_index_renaming = false) const;
 	virtual void printseq(const print_context & c, char delim,
 	                      unsigned this_precedence,
 	                      unsigned upper_precedence) const;
@@ -125,9 +125,9 @@ protected:
 	void construct_from_expairseq_ex(const expairseq & s,
 	                                 const ex & e);
 	void construct_from_exvector(const exvector & v);
-	void construct_from_epvector(const epvector & v);
+	void construct_from_epvector(const epvector & v, bool do_index_renaming = false);
 	void make_flat(const exvector & v);
-	void make_flat(const epvector & v);
+	void make_flat(const epvector & v, bool do_index_renaming = false);
 	void canonicalize();
 	void combine_same_terms_sorted_seq();
 #if EXPAIRSEQ_USE_HASHTAB
