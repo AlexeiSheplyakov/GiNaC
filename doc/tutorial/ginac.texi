@@ -2729,11 +2729,7 @@ arithmetic class, you just pass it to @code{simplify_indexed()}):
 The @code{scalar_products} object @code{sp} acts as a storage for the
 scalar products added to it with the @code{.add()} method. This method
 takes three arguments: the two expressions of which the scalar product is
-taken, and the expression to replace it with. After @code{sp.add(A, B, 0)},
-@code{simplify_indexed()} will replace all scalar products of indexed
-objects that have the symbols @code{A} and @code{B} as base expressions
-with the single value 0. The number, type and dimension of the indices
-don't matter; @samp{A~mu~nu*B.mu.nu} would also be replaced by 0.
+taken, and the expression to replace it with.
 
 @cindex @code{expand()}
 The example above also illustrates a feature of the @code{expand()} method:

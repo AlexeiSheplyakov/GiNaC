@@ -884,7 +884,7 @@ ex lsolve(const ex &eqns, const ex &symbols, unsigned options)
 	
 	// syntax checks
 	if (!eqns.info(info_flags::list)) {
-		throw(std::invalid_argument("lsolve(): 1st argument must be a list"));
+		throw(std::invalid_argument("lsolve(): 1st argument must be a list or an equation"));
 	}
 	for (size_t i=0; i<eqns.nops(); i++) {
 		if (!eqns.op(i).info(info_flags::relation_equal)) {
@@ -892,7 +892,7 @@ ex lsolve(const ex &eqns, const ex &symbols, unsigned options)
 		}
 	}
 	if (!symbols.info(info_flags::list)) {
-		throw(std::invalid_argument("lsolve(): 2nd argument must be a list"));
+		throw(std::invalid_argument("lsolve(): 2nd argument must be a list or a symbol"));
 	}
 	for (size_t i=0; i<symbols.nops(); i++) {
 		if (!symbols.op(i).info(info_flags::symbol)) {

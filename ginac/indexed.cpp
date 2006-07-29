@@ -1501,44 +1501,33 @@ ex expand_dummy_sum(const ex & e, bool subs_idx)
 	pointer_to_map_function_1arg<bool> fcn(expand_dummy_sum, subs_idx);
 	if (is_a<add>(e_expanded) || is_a<lst>(e_expanded) || is_a<matrix>(e_expanded)) {
 		return e_expanded.map(fcn);
-	} else if (is_a<ncmul>(e_expanded) || is_a<mul>(e_expanded) || is_a<power>(e_expanded)) {
-		exvector v = get_all_dummy_indices(e_expanded);
-		exvector::const_iterator it = v.begin(), itend = v.end();
-		while (it != itend) {
-			varidx nu = ex_to<varidx>(*it);
-			if (nu.is_dim_numeric()) {
+	} else if (is_a<ncmul>(e_expanded) || is_a<mul>(e_expanded) || is_a<power>(e_expanded) || is_a<indexed>(e_expanded)) {
+		exvector v;
+		if (is_a<indexed>(e_expanded))
+			v = ex_to<indexed>(e_expanded).get_dummy_indices();
+		else
+			v = get_all_dummy_indices(e_expanded);
+		ex result = e_expanded;
+		for(exvector::const_iterator it=v.begin(); it!=v.end(); ++it) {
+			ex nu = *it;
+			if (ex_to<idx>(nu).get_dim().info(info_flags::nonnegint)) {
+				int idim = ex_to<numeric>(ex_to<idx>(nu).get_dim()).to_int();
 				ex en = 0;
-				for (int i=0; i < ex_to<numeric>(nu.get_dim()).to_int(); i++) {
-					if (is_a<varidx>(nu) && !subs_idx) {
-						en += e_expanded.subs(lst(nu == varidx(i, nu.get_dim(), true), nu.toggle_variance() == varidx(i, nu.get_dim())));
+				for (int i=0; i < idim; i++) {
+					if (subs_idx && is_a<varidx>(nu)) {
+						ex other = ex_to<varidx>(nu).toggle_variance();
+						en += result.subs(lst(
+							nu == idx(i, idim),
+							other == idx(i, idim)
+						));
 					} else {
-						en += e_expanded.subs(lst(nu == idx(i, nu.get_dim()), nu.toggle_variance() == idx(i, nu.get_dim())));
+						en += result.subs( nu.op(0) == i );
 					}
 				}
-				return expand_dummy_sum(en, subs_idx);
-			} 
-			++it;
+				result = en;
+			}
 		}
-		return e;
-	} else if (is_a<indexed>(e_expanded)) {
-		exvector v = ex_to<indexed>(e_expanded).get_dummy_indices();
-		exvector::const_iterator it = v.begin(), itend = v.end();
-		while (it != itend) {
-			varidx nu = ex_to<varidx>(*it);
-			if (nu.is_dim_numeric()) {
-				ex en = 0;
-				for (int i=0; i < ex_to<numeric>(nu.get_dim()).to_int(); i++) {
-					if (is_a<varidx>(nu) && !subs_idx) {
-						en += e_expanded.subs(lst(nu == varidx(i, nu.get_dim(), true), nu.toggle_variance() == varidx(i, nu.get_dim())));
-					} else {
-						en += e_expanded.subs(lst(nu == idx(i, nu.get_dim()), nu.toggle_variance() == idx(i, nu.get_dim())));
-					}
-				}
-				return expand_dummy_sum(en, subs_idx);
-			} 
-			++it;
-		}
-		return e;
+		return result;
 	} else {
 		return e;
 	}

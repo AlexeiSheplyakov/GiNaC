@@ -129,6 +129,7 @@ template <template <class> class C>
 class container : public basic, public container_storage<C> {
 	GINAC_DECLARE_REGISTERED_CLASS(container, basic)
 
+protected:
 	typedef typename container_storage<C>::STLT STLT;
 
 public:
