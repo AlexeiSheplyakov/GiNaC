@@ -43,6 +43,10 @@ dnl When both libtermcap and libncurses exist, we prefer the latter, because
 dnl libtermcap is being phased out.
 AC_DEFUN([GINAC_TERMCAP],
 [LIBTERMCAP=
+case $host_os in
+*mingw32*)
+ ;; dnl no termcap libraries are necessary (need hacked libreadline)
+*)
 AC_CHECK_FUNCS(tgetent)
 if test "x$ac_cv_func_tgetent" = "xyes"; then
     :
@@ -52,6 +56,8 @@ else
         AC_CHECK_LIB(termcap, tgetent, LIBTERMCAP="-ltermcap")
     fi
 fi
+;;
+esac
 AC_SUBST(LIBTERMCAP)
 ])
 

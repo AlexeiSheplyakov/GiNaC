@@ -2,6 +2,7 @@
 
 TESTS = run_exams run_checks run_times
 check_PROGRAMS = exams checks times
+TESTS_ENVIRONMENT = EXEEXT=$(EXEEXT) srcdir=$(srcdir)
 
 checks_SOURCES =  check_numeric.cpp check_inifcns.cpp check_matrices.cpp \
   check_lsolve.cpp genex.cpp checks.cpp checks.h

@@ -1,4 +1,4 @@
 #! /bin/sh
 echo "GiNaC will now run through some basic timings:"
-./times 2>times.out
+./times${EXEEXT} 2>times.out
 cmp ${srcdir}/times.ref times.out
