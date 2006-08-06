@@ -35,7 +35,7 @@ namespace GiNaC {
 class ex;
 class archive_node;
 
-template <template <class> class> class container;
+template <template <class T, class = std::allocator<T> > class> class container;
 typedef container<std::list> lst;
 
 /** Definitions for the tinfo mechanism. */
