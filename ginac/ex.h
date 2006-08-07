@@ -65,10 +65,11 @@ class const_preorder_iterator;
 class const_postorder_iterator;
 
 
-/** Lightweight wrapper for GiNaC's symbolic objects.  Basically all it does is
- *  to hold a pointer to the other objects, manage the reference counting and
- *  provide methods for manipulation of these objects.  (Some people call such
- *  a thing a proxy class.) */
+/** Lightweight wrapper for GiNaC's symbolic objects.  It holds a pointer to
+ *  the other object in order to do garbage collection by the method of
+ *  reference counting.  I.e., it is a smart pointer.  Also, the constructor
+ *  ex::ex(const basic & other) calls the methods that do automatic
+ *  evaluation.  E.g., x-x turns automatically into 0. */
 class ex {
 	friend class archive_node;
 	friend inline bool are_ex_trivially_equal(const ex &, const ex &);
