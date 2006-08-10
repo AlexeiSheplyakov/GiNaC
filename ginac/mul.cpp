@@ -218,8 +218,12 @@ void mul::do_print_csrc(const print_csrc & c, unsigned level) const
 		c.s << "(";
 
 	if (!overall_coeff.is_equal(_ex1)) {
-		overall_coeff.print(c, precedence());
-		c.s << "*";
+		if (overall_coeff.is_equal(_ex_1))
+			c.s << "-";
+		else {
+			overall_coeff.print(c, precedence());
+			c.s << "*";
+		}
 	}
 
 	// Print arguments, separated by "*" or "/"
