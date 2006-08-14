@@ -1,45 +1,42 @@
 ## Process this file with automake to produce Makefile.in
 
+FIG = classhierarchy.fig repnaive.fig reppair.fig repreal.fig
+TXT = $(addsuffix .txt, $(basename $(FIG)))
+info_TEXINFOS =
 AM_MAKEINFOHTMLFLAGS = --no-split
 
+if CONFIG_TEX
+if CONFIG_FIG2DEV
+
 # Graphics file conversion
-FIG = classhierarchy.fig repnaive.fig reppair.fig repreal.fig
 PNG = $(addsuffix .png, $(basename $(FIG)))
 EPS = $(addsuffix .eps, $(basename $(FIG)))
 PDF = $(addsuffix .pdf, $(basename $(FIG)))
-TXT = $(addsuffix .txt, $(basename $(FIG)))
 
 SUFFIXES = .fig .png .eps .txt
 
 .fig.eps:
-	@if [ "${FIG2DEV}" ]; then \
 	  echo "Running ${FIG2DEV} -L eps -m 0.9 $< $@..."; \
-	  ${FIG2DEV} -L eps -m 0.9 $< $@; \
-	else \
-	  echo "warning: fig2dev was not found by configure"; \
-	fi
+	  ${FIG2DEV} -L eps -m 0.9 $< $@;
 
 .fig.pdf:
-	@if [ "${FIG2DEV}" ]; then \
 	  echo "Running ${FIG2DEV} -L pdf -m 0.9 $< $@..."; \
-	  ${FIG2DEV} -L pdf -m 0.9 $< $@; \
-	else \
-	  echo "warning: fig2dev was not found by configure"; \
-	fi
+	  ${FIG2DEV} -L pdf -m 0.9 $< $@
 
 .fig.png:
-	@if [ "${FIG2DEV}" ]; then \
-	  echo "Running ${FIG2DEV} -L png $< $@..."; \
-	  ${FIG2DEV} -L png $< $@; \
-	else \
-	  echo "warning: fig2dev was not found by configure"; \
-	fi
+	@echo "Running ${FIG2DEV} -L png $< $@..."; \
+	  ${FIG2DEV} -L png $< $@
 
-info_TEXINFOS = ginac.texi
+
+info_TEXINFOS += ginac.texi
 
 ginac.pdf: $(PDF)
 ginac.dvi: $(EPS)
 ginac.html: $(PNG)
-
 CLEANFILES = $(EPS) $(PDF) $(PNG)
+## CONFIG_FIG2DEV
+endif
+## CONFIG_TEX
+endif
+
 EXTRA_DIST = $(FIG) $(TXT)

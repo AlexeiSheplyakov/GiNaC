@@ -10,6 +10,10 @@ different or older compiler you are on your own. Note that you may have to
 use the same compiler you compiled CLN with because of differing
 name-mangling schemes.
 
+To build the GiNaC tutorial and reference manual the doxygen utility
+(it can be downloaded from http://www.stack.nl/~dimitri/doxygen) and
+TeX are necessary.
+
 Known to work with:
  - Linux on x86, Alpha and Sparc using GCC 3.x and 4.0.
 
