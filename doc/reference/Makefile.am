@@ -26,7 +26,8 @@ latex::
 
 latex/reference.tex:
 	@echo "Running ${DOXYGEN} DoxyfileTEX..."; \
-	  ${DOXYGEN} DoxyfileTEX
+	  ${DOXYGEN} DoxyfileTEX; \
+	  mv latex/refman.tex latex/reference.tex
 
 latex/reference.dvi: latex/reference.tex
 	@set -e ;\
