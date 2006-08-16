@@ -47,8 +47,7 @@ notice identical to this one.
 @title GiNaC @value{VERSION}
 @subtitle An open framework for symbolic computation within the C++ programming language
 @subtitle @value{UPDATED}
-@author The GiNaC Group:
-@author Christian Bauer, Alexander Frink, Richard Kreckel, Jens Vollinga
+@author @uref{http://www.ginac.de}
 
 @page
 @vskip 0pt plus 1filll
