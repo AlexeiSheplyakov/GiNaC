@@ -687,6 +687,7 @@ struct ex_swap : public std::binary_function<ex, ex, void> {
 
 // Make it possible to print exvectors and exmaps
 std::ostream & operator<<(std::ostream & os, const exvector & e);
+std::ostream & operator<<(std::ostream & os, const exset & e);
 std::ostream & operator<<(std::ostream & os, const exmap & e);
 
 // wrapper functions around member functions

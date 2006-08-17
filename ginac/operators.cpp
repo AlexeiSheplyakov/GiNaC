@@ -377,6 +377,33 @@ std::ostream & operator<<(std::ostream & os, const exvector & e)
 	return os;
 }
 
+std::ostream & operator<<(std::ostream & os, const exset & e)
+{
+	print_context *p = get_print_context(os);
+	exset::const_iterator i = e.begin();
+	exset::const_iterator send = e.end();
+
+	if (i==send) {
+		os << "<>";
+		return os;
+	}
+
+	os << "<";
+	while (true) {
+		if (p == 0)
+			i->print(print_dflt(os));
+		else
+			i->print(*p);
+		++i;
+		if (i == send)
+			break;
+		os << ",";
+	}
+	os << ">";
+
+	return os;
+}
+
 std::ostream & operator<<(std::ostream & os, const exmap & e)
 {
 	print_context *p = get_print_context(os);

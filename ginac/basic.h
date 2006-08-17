@@ -25,6 +25,7 @@
 
 #include <cstddef> // for size_t
 #include <vector>
+#include <set>
 #include <map>
 // CINT needs <algorithm> to work properly with <vector>
 #include <algorithm>
@@ -45,6 +46,7 @@ class archive_node;
 class print_context;
 
 typedef std::vector<ex> exvector;
+typedef std::set<ex, ex_is_less> exset;
 typedef std::map<ex, ex, ex_is_less> exmap;
 
 // Define this to enable some statistical output for comparisons and hashing
