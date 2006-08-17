@@ -92,10 +92,16 @@ numeric::numeric(int i) : basic(&numeric::tinfo_static)
 	// emphasizes efficiency.  However, if the integer is small enough
 	// we save space and dereferences by using an immediate type.
 	// (C.f. <cln/object.h>)
+	// The #if clause prevents compiler warnings on 64bit machines where the
+	// comparision is always true.
+#if cl_value_len >= 32
+	value = cln::cl_I(i);
+#else
 	if (i < (1L << (cl_value_len-1)) && i >= -(1L << (cl_value_len-1)))
 		value = cln::cl_I(i);
 	else
 		value = cln::cl_I(static_cast<long>(i));
+#endif
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
@@ -107,10 +113,16 @@ numeric::numeric(unsigned int i) : basic(&numeric::tinfo_static)
 	// emphasizes efficiency.  However, if the integer is small enough
 	// we save space and dereferences by using an immediate type.
 	// (C.f. <cln/object.h>)
+	// The #if clause prevents compiler warnings on 64bit machines where the
+	// comparision is always true.
+#if cl_value_len >= 32
+	value = cln::cl_I(i);
+#else
 	if (i < (1UL << (cl_value_len-1)))
 		value = cln::cl_I(i);
 	else
 		value = cln::cl_I(static_cast<unsigned long>(i));
+#endif
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
