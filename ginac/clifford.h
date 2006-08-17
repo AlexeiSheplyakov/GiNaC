@@ -46,12 +46,12 @@ public:
 
 	// other constructors
 public:
-	clifford(const ex & b, unsigned char rl = 0, bool anticommut = false);
-	clifford(const ex & b, const ex & mu,  const ex & metr, unsigned char rl = 0, bool anticommut = false, int comm_sign = -1);
+	clifford(const ex & b, unsigned char rl = 0);
+	clifford(const ex & b, const ex & mu,  const ex & metr, unsigned char rl = 0, int comm_sign = -1);
 
 	// internal constructors
-	clifford(unsigned char rl, const ex & metr, bool anticommut, int comm_sign, const exvector & v, bool discardable = false);
-	clifford(unsigned char rl, const ex & metr, bool anticommut, int comm_sign, std::auto_ptr<exvector> vp);
+	clifford(unsigned char rl, const ex & metr, int comm_sign, const exvector & v, bool discardable = false);
+	clifford(unsigned char rl, const ex & metr, int comm_sign, std::auto_ptr<exvector> vp);
 
 	// functions overriding virtual functions from base classes
 public:
@@ -70,7 +70,6 @@ public:
 	ex get_metric() const { return metric; }
 	virtual ex get_metric(const ex & i, const ex & j, bool symmetrised = false) const;
 	bool same_metric(const ex & other) const;
-	bool is_anticommuting() const { return anticommuting; } //**< See the member variable anticommuting */
 	int get_commutator_sign() const { return commutator_sign; } //**< See the member variable commutator_sign */
 
 	inline size_t nops() const {return inherited::nops() + 1; }
@@ -86,7 +85,6 @@ protected:
 protected:
 	unsigned char representation_label; /**< Representation label to distinguish independent spin lines */
 	ex metric; /**< Metric of the space, all constructors make it an indexed object */
-	bool anticommuting; /**< Simplifications for anticommuting units is much simpler and we need this info readily available */
 	int commutator_sign; /**< It is the sign in the definition e~i e~j +/- e~j e~i = B(i, j) + B(j, i)*/
 };
 
@@ -206,7 +204,7 @@ ex dirac_ONE(unsigned char rl = 0);
  *  @param metr Metric (should be indexed, tensmetric or a derived class, or a matrix)
  *  @param rl Representation label
  *  @return newly constructed Clifford unit object */
-ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl = 0, bool anticommuting = false);
+ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl = 0);
 
 /** Create a Dirac gamma object.
  *
@@ -317,7 +315,7 @@ ex clifford_inverse(const ex & e);
  *  @param rl Representation label
  *  @param e Clifford unit object
  *  @return Clifford vector with given components */
-ex lst_to_clifford(const ex & v, const ex & mu,  const ex & metr, unsigned char rl = 0, bool anticommuting = false);
+ex lst_to_clifford(const ex & v, const ex & mu,  const ex & metr, unsigned char rl = 0);
 ex lst_to_clifford(const ex & v, const ex & e);
 
 /** An inverse function to lst_to_clifford(). For given Clifford vector extracts
@@ -345,9 +343,8 @@ lst clifford_to_lst(const ex & e, const ex & c, bool algebraic=true);
  *  @param v Vector to be transformed
  *  @param G Metric of the surrounding space, may be a Clifford unit then the next parameter is ignored
  *  @param rl Representation label 
- *  @param anticommuting indicates if Clifford units anticommutes
  *  @return List of components of the transformed vector*/
-ex clifford_moebius_map(const ex & a, const ex & b, const ex & c, const ex & d, const ex & v, const ex & G, unsigned char rl = 0, bool anticommuting = false);
+ex clifford_moebius_map(const ex & a, const ex & b, const ex & c, const ex & d, const ex & v, const ex & G, unsigned char rl = 0);
 
 /** The second form of Moebius transformations defined by a 2x2 Clifford matrix M
  *  This function takes the transformation matrix M as a single entity.
@@ -356,9 +353,8 @@ ex clifford_moebius_map(const ex & a, const ex & b, const ex & c, const ex & d, 
  *  @param v Vector to be transformed
  *  @param G Metric of the surrounding space, may be a Clifford unit then the next parameter is ignored
  *  @param rl Representation label 
- *  @param anticommuting indicates if Clifford units anticommutes
  *  @return List of components of the transformed vector*/
-ex clifford_moebius_map(const ex & M, const ex & v, const ex & G, unsigned char rl = 0, bool anticommuting = false);
+ex clifford_moebius_map(const ex & M, const ex & v, const ex & G, unsigned char rl = 0);
 
 } // namespace GiNaC
 

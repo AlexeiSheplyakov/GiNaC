@@ -318,7 +318,6 @@ static unsigned clifford_check6(const matrix & A)
 	A2 = A_symm.mul(A_symm);
 	
 	ex e, e1;
-	bool anticommuting = ex_to<clifford>(clifford_unit(nu, A)).is_anticommuting();
 	int result = 0;
 
 	// checks general identities and contractions for clifford_unit
@@ -343,8 +342,6 @@ static unsigned clifford_check6(const matrix & A)
 	result += check_equal_simplify(e, A.trace() * clifford_unit(mu, A));
 
 	e = clifford_unit(nu, A) * clifford_unit(mu, A) * clifford_unit(nu.toggle_variance(), A);
-	if (anticommuting)
-		result += check_equal_simplify(e, 2*indexed(A_symm, sy_symm(), mu, mu)*clifford_unit(mu, A) - A.trace()*clifford_unit(mu, A));
 	
 	result += check_equal_simplify_term(e,  2 * indexed(A_symm, sy_symm(), nu.toggle_variance(), mu) *clifford_unit(nu, A)-A.trace()*clifford_unit(mu, A), mu);
 
@@ -358,26 +355,17 @@ static unsigned clifford_check6(const matrix & A)
 
 	e = clifford_unit(mu, A) * clifford_unit(nu, A)
 	  * clifford_unit(mu.toggle_variance(), A) * clifford_unit(nu.toggle_variance(), A);
-	if (anticommuting) 
-		result += check_equal_simplify(e, 2*A2.trace()*dirac_ONE() - pow(A.trace(), 2)*dirac_ONE());
 
 	result += check_equal_simplify_term2(e, 2*indexed(A_symm, sy_symm(), nu.toggle_variance(), mu.toggle_variance()) * clifford_unit(mu, A) * clifford_unit(nu, A) - pow(A.trace(), 2)*dirac_ONE());
 
 	e = clifford_unit(mu.toggle_variance(), A) * clifford_unit(nu, A)
 	  * clifford_unit(mu, A) * clifford_unit(nu.toggle_variance(), A);
-	if (anticommuting) {
-		result += check_equal_simplify(e, 2*A2.trace()*dirac_ONE() - pow(A.trace(), 2)*dirac_ONE());
-		e1 = remove_dirac_ONE(simplify_indexed(e));
-		result += check_equal(e1, 2*A2.trace() - pow(A.trace(), 2));
-	}
 
 	result += check_equal_simplify_term2(e, 2*indexed(A_symm, nu, mu) * clifford_unit(mu.toggle_variance(), A) * clifford_unit(nu.toggle_variance(), A) - pow(A.trace(), 2)*dirac_ONE());
 
 	e = clifford_unit(nu.toggle_variance(), A) * clifford_unit(rho.toggle_variance(), A)
 	  * clifford_unit(mu, A) * clifford_unit(rho, A) * clifford_unit(nu, A);
 	e = e.simplify_indexed().collect(clifford_unit(mu, A));
-	if (anticommuting)
-		result += check_equal(e, (4*indexed(A2, sy_symm(), mu, mu) - 4 * indexed(A_symm, sy_symm(), mu, mu)*A.trace() +pow(A.trace(), 2)) * clifford_unit(mu, A));
 	
 	result += check_equal_simplify_term(e, 4* indexed(A_symm, sy_symm(), nu.toggle_variance(),  rho)*indexed(A_symm, sy_symm(), rho.toggle_variance(), mu) *clifford_unit(nu, A) 
 	                                    - 2*A.trace() * (clifford_unit(rho, A) * indexed(A_symm, sy_symm(), rho.toggle_variance(), mu) 
@@ -386,8 +374,6 @@ static unsigned clifford_check6(const matrix & A)
 	e = clifford_unit(nu.toggle_variance(), A) * clifford_unit(rho, A)
 	  * clifford_unit(mu, A) * clifford_unit(rho.toggle_variance(), A) * clifford_unit(nu, A);
 	e = e.simplify_indexed().collect(clifford_unit(mu, A));
-	if (anticommuting)
-		result += check_equal(e, (4*indexed(A2, sy_symm(), mu, mu) - 4*indexed(A_symm, sy_symm(), mu, mu)*A.trace() +pow(A.trace(), 2))* clifford_unit(mu, A));
 	
 	result += check_equal_simplify_term(e, 4* indexed(A_symm, sy_symm(), nu.toggle_variance(),  rho)*indexed(A_symm, sy_symm(), rho.toggle_variance(), mu) *clifford_unit(nu, A) 
 	                                    - 2*A.trace() * (clifford_unit(rho, A) * indexed(A_symm, sy_symm(), rho.toggle_variance(), mu) 
@@ -532,7 +518,6 @@ unsigned exam_clifford()
 	result += clifford_check4(); cout << '.' << flush;
 	result += clifford_check5(); cout << '.' << flush;
 
-/*
 	// anticommuting, symmetric examples
 	result += clifford_check6(ex_to<matrix>(diag_matrix(lst(-1, 1, 1, 1)))); cout << '.' << flush;
 	result += clifford_check6(ex_to<matrix>(diag_matrix(lst(-1, -1, -1, -1)))); cout << '.' << flush;
@@ -573,7 +558,6 @@ unsigned exam_clifford()
 		0, 0, 1, 1,
 		0, 0, 0, 1; 
 	result += clifford_check6(A); cout << '.' << flush;
-*/
 
 	symbol dim("D");
 	result += clifford_check7(minkmetric(), dim); cout << '.' << flush;
