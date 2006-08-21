@@ -335,8 +335,11 @@ ex ncmul::eval(int level) const
 	exvector assocseq;
 	assocseq.reserve(factors);
 	cit = evaledseq.begin();
+	make_flat_inserter mf(evaledseq, true);
 	while (cit != citend)
-		append_factors(assocseq, *cit++);
+	{	ex factor = mf.handle_factor(*(cit++), 1);
+		append_factors(assocseq, factor);
+	}
 	
 	// ncmul(x) -> x
 	if (assocseq.size()==1) return *(seq.begin());

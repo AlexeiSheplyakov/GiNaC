@@ -1022,61 +1022,6 @@ void expairseq::construct_from_epvector(const epvector &v, bool do_index_renamin
 #endif // EXPAIRSEQ_USE_HASHTAB
 }
 
-// Class to handle the renaming of dummy indices. It holds a vector of
-// indices that are being used in the expression so-far. If the same
-// index occurs again as a dummy index in a factor, it is to be renamed.
-// Unless dummy index renaming was swichted of, of course ;-) .
-class make_flat_inserter
-{
-	public:
-		make_flat_inserter(const epvector &epv, bool b): do_renaming(b)
-		{
-			if (!do_renaming)
-				return;
-			for (epvector::const_iterator i=epv.begin(); i!=epv.end(); ++i)
-				if(are_ex_trivially_equal(i->coeff, _ex1))
-					combine_indices(i->rest.get_free_indices());
-		}
-		make_flat_inserter(const exvector &v, bool b): do_renaming(b)
-		{
-			if (!do_renaming)
-				return;
-			for (exvector::const_iterator i=v.begin(); i!=v.end(); ++i)
-				combine_indices(i->get_free_indices());
-		}
-		ex handle_factor(const ex &x, const ex &coeff)
-		{
-			if (!do_renaming)
-				return x;
-			exvector dummies_of_factor;
-			if (coeff == _ex1)
-				dummies_of_factor = get_all_dummy_indices_safely(x);
-			else if (coeff == _ex2)
-				dummies_of_factor = x.get_free_indices();
-			else
-				return x;
-			if (dummies_of_factor.size() == 0)
-				return x;
-			sort(dummies_of_factor.begin(), dummies_of_factor.end(), ex_is_less());
-			ex new_factor = rename_dummy_indices_uniquely(used_indices,
-				dummies_of_factor, x);
-			combine_indices(dummies_of_factor);
-			return new_factor;
-		}
-	private:
-		void combine_indices(const exvector &dummies_of_factor)
-		{
-			exvector new_dummy_indices;
-			set_union(used_indices.begin(), used_indices.end(),
-				dummies_of_factor.begin(), dummies_of_factor.end(),
-				std::back_insert_iterator<exvector>(new_dummy_indices), ex_is_less());
-			used_indices.swap(new_dummy_indices);
-		}
-		bool do_renaming;
-		exvector used_indices;
-};
-
-
 /** Combine this expairseq with argument exvector.
  *  It cares for associativity as well as for special handling of numerics. */
 void expairseq::make_flat(const exvector &v)
@@ -1101,7 +1046,7 @@ void expairseq::make_flat(const exvector &v)
 	seq.reserve(v.size()+noperands-nexpairseqs);
 	
 	// copy elements and split off numerical part
-	make_flat_inserter mf(v, this->tinfo()==&mul::tinfo_static);
+	make_flat_inserter mf(v, this->tinfo() == &mul::tinfo_static);
 	cit = v.begin();
 	while (cit!=v.end()) {
 		if (ex_to<basic>(*cit).tinfo()==this->tinfo()) {
