@@ -1,45 +1,69 @@
+#include <ctime>
 #include <iostream>
 using namespace std;
 #include <ginac/ginac.h>
 using namespace GiNaC;
-// Yes, we are using CUBA (should be installed on the system!)
-#include "cuba.h"
+
+/*
+ * Demonstrates the use of compile_ex.
+ *
+ * Compiles a small expression as C code via compile_ex and evaluates the
+ * expression numerically. The evalation speed is timed and compared to the
+ * evaluation of the original GiNaC expression.
+ *
+ */
 
 int main()
 {
-	// Let the user enter a expression
-	symbol x("x"), y("y");
-	string s;
-	cout << "Enter an expression containing 'x' and/or 'y': ";
-	cin >> s;
-	// Expression now in expr
-	ex expr(s, lst(x,y));
+	// Define some expression
+	symbol x("x");
+	ex expr = sin(x);
  
-	cout << "start integration of " << expr << " ..." << endl;
+	// Some variables for timing
+	time_t start, end;
+	double cpu_time_used;
 
-	// Some definitions for VEGAS 
-	#define NDIM 2
-	#define NCOMP 1
-	#define EPSREL 1e-3
-	#define EPSABS 1e-12
-	#define VERBOSE 0
-	#define MINEVAL 0
-	#define MAXEVAL 50000
-	#define NSTART 1000
-	#define NINCREASE 500
+	// Our function pointer that points to the compiled ex
+	FUNCP_1P fp;
+	compile_ex(expr, x, fp);
 
-	// Some variables for VEGAS
-	int comp, nregions, neval, fail;
-	double integral[NCOMP], error[NCOMP], prob[NCOMP];
+	// Do some (not necessarily meaningful ;-)) numerical stuff ...
 
-	// Starting VEGAS
-	// By invocation of compile() the expression in expr is converted into the
-	// appropriate function pointer
-	Vegas(NDIM, NCOMP, compile(lst(expr), lst(x,y)), EPSREL, EPSABS, VERBOSE,
-	      MINEVAL, MAXEVAL, NSTART, NINCREASE, &neval, &fail, integral, error, prob);
+	cout << "Doing numerics with compile_ex ..." << endl;
 
-	// Show the result
-	cout << "result: " << integral[0] << endl;
+	// First using compile_ex
+	{
+		double result;
+		double point = 0.2;
+		start = clock();
+		for (int i=0; i<100000; ++i) {
+			point += 0.001;
+			result += fp(point);
+		}
+		end = clock();
+
+		// Show the result
+		cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+		cout << "result = " << result << " in " << cpu_time_used << " seconds" << endl;
+	}
+
+	cout << "Doing numerics without compile_ex ..." << endl;
+
+	// Then without compile_ex
+	{
+		ex result;
+		ex point = 0.2;
+		start = clock();
+		for (int i=0; i<100000; ++i) {
+			point += 0.001;
+			result += sin(point);
+		}
+		end = clock();
+
+		// Show the other result
+		cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+		cout << "result = " << result << " in " << cpu_time_used << " seconds" << endl;
+	}
 
 	return 0;
 }
