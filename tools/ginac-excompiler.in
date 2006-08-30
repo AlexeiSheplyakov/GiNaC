@@ -1,3 +1,2 @@
 #!/bin/sh
-@CC@ -x c -fPIC -o $1.o -c $1
-@CC@ -shared -o $1.so $1.o
+@CC@ -x c -fPIC -shared -o $1.so $1
