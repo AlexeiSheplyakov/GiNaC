@@ -32,9 +32,17 @@ Two expression are stored in an archive on the disk and are restored again.
 
 @chapter Monte Carlo Integration
 
-@section Using VEGAS from CUBA @uref{compile1.cpp, (source)}
+@section Example showing compile_ex @uref{compile1.cpp, (source)}
+
+Simple example showing compile_ex with one free variable. Timing between CLN and C double numerics is done.
+
+@section Using VEGAS from CUBA @uref{compile2.cpp, (source)}
 
 An expression in two variables is integrated by using VEGAS from the
 @uref{http://www.feynarts.de/cuba/, CUBA library}.
+
+@section Example showing link_ex @uref{compile3.cpp, (source)}
+
+Demonstrates the use of link_ex. Program has to be called more than once to see the effect.
 
 @bye
