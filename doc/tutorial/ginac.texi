@@ -6156,6 +6156,7 @@ you can output to a temporary @code{ostringstream} like this:
     // ...
 @end example
 
+@anchor{csrc printing}
 @cindex @code{csrc}
 @cindex @code{csrc_float}
 @cindex @code{csrc_double}
@@ -6353,6 +6354,127 @@ int main()
 @}
 @end example
 
+@subsection Compiling expressions to C function pointers
+@cindex compiling expressions
+
+Numerical evaluation of algebraic expressions is seamlessly integrated into
+GiNaC by help of the CLN library. While CLN allows for very fast arbitrary
+precision numerics, which is more than sufficient for most users, sometimes only
+the speed of built-in floating point numbers is fast enough, e.g. for Monte
+Carlo integration. The only viable option then is the following: print the
+expression in C syntax format, manually add necessary C code, compile that
+program and run is as a separate application. This is not only cumbersome and
+involves a lot of manual intervention, but it also separates the algebraic and
+the numerical evaluation into different execution stages.
+
+GiNaC offers a couple of functions that help to avoid these inconveniences and
+problems. The functions automatically perform the printing of a GiNaC expression
+and the subsequent compiling of its associated C code. The created object code
+is then dynamically linked to the currently running program. A function pointer
+to the C function that performs the numerical evaluation is returned and can be
+used instantly. This all happens automatically, no user intervention is needed.
+
+The following example demonstrates the use of @code{compile_ex}:
+
+@example
+    // ...
+    symbol x("x");
+    ex myexpr = sin(x) / x;
+
+    FUNCP_1P fp;
+    compile_ex(myexpr, x, fp);
+
+    cout << fp(3.2) << endl;
+    // ...
+@end example
+
+The function @code{compile_ex} is called with the expression to be compiled and
+its only free variable @code{x}. Upon successful completion the third parameter
+contains a valid function pointer to the corresponding C code module. If called
+like in the last line only built-in double precision numerics is involved.
+
+@cindex FUNCP_1P
+@cindex FUNCP_2P
+@cindex FUNCP_CUBA
+The function pointer has to be defined in advance. GiNaC offers three function
+pointer types at the moment:
+
+@example
+    typedef double (*FUNCP_1P) (double);
+    typedef double (*FUNCP_2P) (double, double);
+    typedef void (*FUNCP_CUBA) (const int*, const double[], const int*, double[]);
+@end example
+
+@cindex CUBA library
+@cindex Monte Carlo integration
+@code{FUNCP_2P} allows for two variables in the expression. @code{FUNCP_CUBA} is
+the correct type to be used with the CUBA library
+(@uref{http://www.feynarts/cuba}) for numerical integrations. The details for the
+parameters of @code{FUNCP_CUBA} are explained in the CUBA manual.
+
+@cindex compile_ex
+For every function pointer type there is a matching @code{compile_ex} available:
+
+@example
+    void compile_ex(const ex& expr, const symbol& sym, FUNCP_1P& fp,
+                    const std::string filename = "");
+    void compile_ex(const ex& expr, const symbol& sym1, const symbol& sym2,
+                    FUNCP_2P& fp, const std::string filename = "");
+    void compile_ex(const lst& exprs, const lst& syms, FUNCP_CUBA& fp,
+                    const std::string filename = "");
+@end example
+
+When the last parameter @code{filename} is not supplied, @code{compile_ex} will
+choose a unique random name for the intermediate source and object files it
+produces. On program termination these files will be deleted. If one wishes to
+keep the C code and the object files, one can supply the @code{filename}
+parameter. The intermediate files will use that filename and will not be
+deleted.
+
+@cindex link_ex
+@code{link_ex} is a function that allows to dynamically link an existing object
+file and to make it available via a function pointer. This is useful if you
+have already used @code{compile_ex} on an expression and want to avoid the
+compilation step to be performed over and over again when you restart your
+program. The precondition for this is of course, that you have chosen a
+filename when you did call @code{compile_ex}. For every above mentioned
+function pointer type there exists a corresponding @code{link_ex} function:
+
+@example
+    void link_ex(const std::string filename, FUNCP_1P& fp);
+    void link_ex(const std::string filename, FUNCP_2P& fp);
+    void link_ex(const std::string filename, FUNCP_CUBA& fp);
+@end example
+
+The complete filename (including the suffix @code{.so}) of the object file has
+to be supplied.
+
+The function
+
+@cindex unlink_ex
+@example
+    void unlink_ex(const std::string filename);
+@end example
+
+is supplied for the rare cases when one wishes to close the dynamically linked
+object files directly and have the intermediate files (only if filename has not
+been given) deleted. Normally one doesn't need this function, because all the
+clean-up will be done automatically upon (regular) program termination.
+
+All the described functions will throw an exception in case they cannot perform
+correctly, like for example when writing the file or starting the compiler
+fails. Since internally the same printing methods as described in section
+@ref{csrc printing} are used, only functions and objects that are available in
+standard C will compile successfully (that excludes polylogarithms for example
+at the moment). Another precondition for success is, of course, that it must be
+possible to evaluate the expression numerically. No free variables despite the
+ones supplied to @code{compile_ex} should appear in the expression.
+
+@cindex ginac-excompiler
+@code{compile_ex} uses the shell script @code{ginac-excompiler} to start the C
+compiler and produce the object files. This shell script comes with GiNaC and
+will be installed together with GiNaC in the configured @code{$PREFIX/bin}
+directory.
 
 @subsection Archiving
 @cindex @code{archive} (class)
