@@ -80,6 +80,8 @@ public:
 
 	/** Check whether this node actually represents any kind of symmetry. */
 	bool has_symmetry() const {return type != none || !children.empty(); }
+	/** Check whether this node involves a cyclic symmetry. */
+	bool has_cyclic() const;
 
 protected:
 	void do_print(const print_context & c, unsigned level) const;

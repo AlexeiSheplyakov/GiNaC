@@ -266,6 +266,18 @@ void symmetry::do_print_tree(const print_tree & c, unsigned level) const
 // non-virtual functions in this class
 //////////
 
+bool symmetry::has_cyclic() const
+{
+	if (type == cyclic)
+		return true;
+
+	for (exvector::const_iterator i=children.begin(); i!=children.end(); ++i)
+		if (ex_to<symmetry>(*i).has_cyclic())
+			return true;
+
+	return false;
+}
+
 symmetry &symmetry::add(const symmetry &c)
 {
 	// All children must have the same number of indices
