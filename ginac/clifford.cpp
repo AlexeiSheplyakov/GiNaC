@@ -712,14 +712,14 @@ ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl)
 
 	exvector indices = metr.get_free_indices();
 
-	if ((indices.size() == 2) && is_a<varidx>(indices[0]) && is_a<varidx>(indices[1])) {
+	if (indices.size() == 2) {
 		return clifford(unit, mu, metr, rl);
 	} else if (is_a<matrix>(metr)) {
 		matrix M = ex_to<matrix>(metr);
 		unsigned n = M.rows();
 		bool symmetric = true;
 
-		static varidx xi((new symbol)->setflag(status_flags::dynallocated), n),
+		static idx xi((new symbol)->setflag(status_flags::dynallocated), n),
 			chi((new symbol)->setflag(status_flags::dynallocated), n);
 		if ((n ==  M.cols()) && (n == ex_to<idx>(mu).get_dim())) {
 			for (unsigned i = 0; i < n; i++) {
@@ -734,8 +734,8 @@ ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl)
 			throw(std::invalid_argument("clifford_unit(): metric for Clifford unit must be a square matrix with the same dimensions as index"));
 		}
 	} else if (indices.size() == 0) { // a tensor or other expression without indices
-		static varidx xi((new symbol)->setflag(status_flags::dynallocated), ex_to<varidx>(mu).get_dim()),
-			chi((new symbol)->setflag(status_flags::dynallocated), ex_to<varidx>(mu).get_dim());
+		static varidx xi((new symbol)->setflag(status_flags::dynallocated), ex_to<idx>(mu).get_dim()),
+			chi((new symbol)->setflag(status_flags::dynallocated), ex_to<idx>(mu).get_dim());
 		return clifford(unit, mu, indexed(metr, xi, chi), rl);
 	}  else 
 		throw(std::invalid_argument("clifford_unit(): metric for Clifford unit must be of type tensor, matrix or an expression with two free indices"));
@@ -1292,14 +1292,16 @@ ex clifford_moebius_map(const ex & a, const ex & b, const ex & c, const ex & d, 
 	if (is_a<clifford>(G)) {
 		cu = G;
 	} else {
-		if (is_a<indexed>(G)) 
-			D = ex_to<varidx>(G.op(1)).get_dim();
-		else if (is_a<matrix>(G)) 
+		if (is_a<indexed>(G)) {
+			D = ex_to<idx>(G.op(1)).get_dim();
+			varidx mu((new symbol)->setflag(status_flags::dynallocated), D);
+			cu = clifford_unit(mu, G, rl);
+		} else if (is_a<matrix>(G)) {
 			D = ex_to<matrix>(G).rows(); 
-		else throw(std::invalid_argument("clifford_moebius_map(): metric should be an indexed object, matrix, or a Clifford unit"));
+			idx mu((new symbol)->setflag(status_flags::dynallocated), D);
+			cu = clifford_unit(mu, G, rl);
+		} else throw(std::invalid_argument("clifford_moebius_map(): metric should be an indexed object, matrix, or a Clifford unit"));
 		
-		varidx mu((new symbol)->setflag(status_flags::dynallocated), D);
-		cu = clifford_unit(mu, G, rl);
 	}
 	
 	x = lst_to_clifford(v, cu); 
