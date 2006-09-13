@@ -352,6 +352,27 @@ bool archive_node::has_same_ex_as(const archive_node &other) const
 	return e.bp == other.e.bp;
 }
 
+archive_node::archive_node_cit
+		archive_node::find_first(const std::string &name) const
+{	
+	archive_atom name_atom = a.atomize(name);
+	for (archive_node_cit i=props.begin(); i!=props.end(); ++i)
+		if (i->name == name_atom)
+			return i;
+	return props.end();;
+}
+
+archive_node::archive_node_cit
+		archive_node::find_last(const std::string &name) const
+{
+	archive_atom name_atom = a.atomize(name);
+	for (archive_node_cit i=props.end(); i!=props.begin();) {
+		--i;
+		if (i->name == name_atom)
+			return i;
+	}
+	return props.end();
+}
 
 void archive_node::add_bool(const std::string &name, bool value)
 {
@@ -379,7 +400,7 @@ void archive_node::add_ex(const std::string &name, const ex &value)
 bool archive_node::find_bool(const std::string &name, bool &ret, unsigned index) const
 {
 	archive_atom name_atom = a.atomize(name);
-	std::vector<property>::const_iterator i = props.begin(), iend = props.end();
+	archive_node_cit i = props.begin(), iend = props.end();
 	unsigned found_index = 0;
 	while (i != iend) {
 		if (i->type == PTYPE_BOOL && i->name == name_atom) {
@@ -397,7 +418,7 @@ bool archive_node::find_bool(const std::string &name, bool &ret, unsigned index)
 bool archive_node::find_unsigned(const std::string &name, unsigned &ret, unsigned index) const
 {
 	archive_atom name_atom = a.atomize(name);
-	std::vector<property>::const_iterator i = props.begin(), iend = props.end();
+	archive_node_cit i = props.begin(), iend = props.end();
 	unsigned found_index = 0;
 	while (i != iend) {
 		if (i->type == PTYPE_UNSIGNED && i->name == name_atom) {
@@ -415,7 +436,7 @@ bool archive_node::find_unsigned(const std::string &name, unsigned &ret, unsigne
 bool archive_node::find_string(const std::string &name, std::string &ret, unsigned index) const
 {
 	archive_atom name_atom = a.atomize(name);
-	std::vector<property>::const_iterator i = props.begin(), iend = props.end();
+	archive_node_cit i = props.begin(), iend = props.end();
 	unsigned found_index = 0;
 	while (i != iend) {
 		if (i->type == PTYPE_STRING && i->name == name_atom) {
@@ -430,10 +451,16 @@ bool archive_node::find_string(const std::string &name, std::string &ret, unsign
 	return false;
 }
 
+void archive_node::find_ex_by_loc(archive_node_cit loc, ex &ret, lst &sym_lst)
+		const
+{
+	ret = a.get_node(loc->value).unarchive(sym_lst);
+}
+
 bool archive_node::find_ex(const std::string &name, ex &ret, lst &sym_lst, unsigned index) const
 {
 	archive_atom name_atom = a.atomize(name);
-	std::vector<property>::const_iterator i = props.begin(), iend = props.end();
+	archive_node_cit i = props.begin(), iend = props.end();
 	unsigned found_index = 0;
 	while (i != iend) {
 		if (i->type == PTYPE_NODE && i->name == name_atom) {
@@ -451,7 +478,7 @@ bool archive_node::find_ex(const std::string &name, ex &ret, lst &sym_lst, unsig
 const archive_node &archive_node::find_ex_node(const std::string &name, unsigned index) const
 {
 	archive_atom name_atom = a.atomize(name);
-	std::vector<property>::const_iterator i = props.begin(), iend = props.end();
+	archive_node_cit i = props.begin(), iend = props.end();
 	unsigned found_index = 0;
 	while (i != iend) {
 		if (i->type == PTYPE_NODE && i->name == name_atom) {
@@ -468,7 +495,7 @@ const archive_node &archive_node::find_ex_node(const std::string &name, unsigned
 void archive_node::get_properties(propinfovector &v) const
 {
 	v.clear();
-	std::vector<property>::const_iterator i = props.begin(), iend = props.end();
+	archive_node_cit i = props.begin(), iend = props.end();
 	while (i != iend) {
 		property_type type = i->type;
 		std::string name = a.unatomize(i->name);
@@ -583,7 +610,7 @@ void archive_node::printraw(std::ostream &os) const
 		os << "\n";
 
 	// Dump properties
-	std::vector<property>::const_iterator i = props.begin(), iend = props.end();
+	archive_node_cit i = props.begin(), iend = props.end();
 	while (i != iend) {
 		os << "  ";
 		switch (i->type) {

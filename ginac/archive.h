@@ -72,6 +72,17 @@ public:
 	};
 	typedef std::vector<property_info> propinfovector;
 
+	/** Archived property (data type, name and associated data) */
+	struct property {
+		property() {}
+		property(archive_atom n, property_type t, unsigned v) : type(t), name(n), value(v) {}
+
+		property_type type; /**< Data type of property. */
+		archive_atom name;  /**< Name of property. */
+		unsigned value;     /**< Stored value. */
+	};
+	typedef std::vector<property>::const_iterator archive_node_cit;
+
 	archive_node() : a(*dummy_ar_creator()), has_expression(false) {} // hack for cint which always requires a default constructor
 	archive_node(archive &ar) : a(ar), has_expression(false) {}
 	archive_node(archive &ar, const ex &expr);
@@ -102,9 +113,19 @@ public:
 	 *  @return "true" if property was found, "false" otherwise */
 	bool find_string(const std::string &name, std::string &ret, unsigned index = 0) const;
 
+	/** Find the location in the vector of properties of the first/last
+    *  property with a given name. */
+	archive_node_cit find_first(const std::string &name) const;
+	archive_node_cit find_last(const std::string &name) const;
+
 	/** Retrieve property of type "ex" from node.
 	 *  @return "true" if property was found, "false" otherwise */
 	bool find_ex(const std::string &name, ex &ret, lst &sym_lst, unsigned index = 0) const;
+
+	/** Retrieve property of type "ex" from the node if it is known
+    *  that this node in fact contains such a property at the given
+    *  location. This is much more efficient than the preceding function. */
+	void find_ex_by_loc(archive_node_cit loc, ex &ret, lst &sym_lst) const;
 
 	/** Retrieve property of type "ex" from node, returning the node of
 	 *  the sub-expression. */
@@ -123,16 +144,6 @@ public:
 
 private:
 	static archive* dummy_ar_creator();
-
-	/** Archived property (data type, name and associated data) */
-	struct property {
-		property() {}
-		property(archive_atom n, property_type t, unsigned v) : type(t), name(n), value(v) {}
-
-		property_type type; /**< Data type of property. */
-		archive_atom name;  /**< Name of property. */
-		unsigned value;     /**< Stored value. */
-	};
 
 	/** Reference to the archive to which this node belongs. */
 	archive &a;

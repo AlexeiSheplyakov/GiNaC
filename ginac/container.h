@@ -487,12 +487,14 @@ container<C>::container(const archive_node &n, lst &sym_lst) : inherited(n, sym_
 {
 	setflag(get_default_flags());
 
-	for (unsigned int i=0; true; i++) {
+	archive_node::archive_node_cit first = n.find_first("seq");
+	archive_node::archive_node_cit last = n.find_last("seq");
+	++last;
+	reserve(this->seq, last - first);
+	for (archive_node::archive_node_cit i=first; i<last; ++i) {
 		ex e;
-		if (n.find_ex("seq", e, sym_lst, i))
-			this->seq.push_back(e);
-		else
-			break;
+		n.find_ex_by_loc(i, e, sym_lst);
+		this->seq.push_back(e);
 	}
 }
 

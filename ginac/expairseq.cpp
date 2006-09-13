@@ -145,13 +145,17 @@ expairseq::expairseq(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst
 	, hashtabsize(0)
 #endif
 {
-	for (unsigned int i=0; true; i++) {
+	archive_node::archive_node_cit first = n.find_first("rest");
+	archive_node::archive_node_cit last = n.find_last("coeff");
+	++last;
+	seq.reserve((last-first)/2);
+
+	for (archive_node::archive_node_cit loc = first; loc < last;) {
 		ex rest;
 		ex coeff;
-		if (n.find_ex("rest", rest, sym_lst, i) && n.find_ex("coeff", coeff, sym_lst, i))
-			seq.push_back(expair(rest, coeff));
-		else
-			break;
+		n.find_ex_by_loc(loc++, rest, sym_lst);
+		n.find_ex_by_loc(loc++, coeff, sym_lst);
+		seq.push_back(expair(rest, coeff));
 	}
 
 	n.find_ex("overall_coeff", overall_coeff, sym_lst);

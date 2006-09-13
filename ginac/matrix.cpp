@@ -113,12 +113,13 @@ matrix::matrix(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
 	if (!(n.find_unsigned("row", row)) || !(n.find_unsigned("col", col)))
 		throw (std::runtime_error("unknown matrix dimensions in archive"));
 	m.reserve(row * col);
-	for (unsigned int i=0; true; i++) {
+	archive_node::archive_node_cit first = n.find_first("m");
+	archive_node::archive_node_cit last = n.find_last("m");
+	++last;
+	for (archive_node::archive_node_cit i=first; i<last; ++i) {
 		ex e;
-		if (n.find_ex("m", e, sym_lst, i))
-			m.push_back(e);
-		else
-			break;
+		n.find_ex_by_loc(i, e, sym_lst);
+		m.push_back(e);
 	}
 }
 
