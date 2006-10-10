@@ -663,7 +663,6 @@ ex mul::algebraic_subs_mul(const exmap & m, unsigned options) const
 retry1:
 			int nummatches = std::numeric_limits<int>::max();
 			std::vector<bool> currsubsed(seq.size(), false);
-			bool succeed = true;
 			lst repls;
 			
 			if(!algebraic_match_mul_with_mul(*this, it->first, repls, 0, nummatches, subsed, currsubsed))
