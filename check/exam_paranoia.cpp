@@ -437,6 +437,33 @@ static unsigned exam_paranoia16()
 	return result;
 }
 
+// Bug in reposition_dummy_indices() could result in correct expression
+// turned into one with inconsistent indices. Fixed on Aug 29, 2006
+static unsigned exam_paranoia17()
+{
+	varidx mu1(symbol("mu1"), 4);
+	varidx mu2(symbol("mu2"), 4);
+	varidx mu3(symbol("mu3"), 4);
+	varidx mu4(symbol("mu4"), 4);
+	varidx mu5(symbol("mu5"), 4);
+	varidx mu6(symbol("mu6"), 4);
+
+	exvector ev2;
+	ev2.push_back(mu3.toggle_variance());
+	ev2.push_back(mu6);
+	ev2.push_back(mu5.toggle_variance());
+	ev2.push_back(mu6.toggle_variance());
+	ev2.push_back(mu5);
+	ev2.push_back(mu3); 
+	// notice: all indices are contracted ...
+
+	ex test_cycl = indexed(symbol("A"), sy_cycl(), ev2);
+	test_cycl = test_cycl.simplify_indexed();
+	// ... so there should be zero free indices in the end.
+	return test_cycl.get_free_indices().size();
+}
+
+
 unsigned exam_paranoia()
 {
 	unsigned result = 0;
@@ -460,6 +487,7 @@ unsigned exam_paranoia()
 	result += exam_paranoia14();  cout << '.' << flush;
 	result += exam_paranoia15();  cout << '.' << flush;
 	result += exam_paranoia16();  cout << '.' << flush;
+	result += exam_paranoia17();  cout << '.' << flush;
 	
 	if (!result) {
 		cout << " passed " << endl;

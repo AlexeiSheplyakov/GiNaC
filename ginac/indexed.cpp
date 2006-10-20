@@ -639,60 +639,60 @@ bool reposition_dummy_indices(ex & e, exvector & variant_dummy_indices, exvector
 {
 	bool something_changed = false;
 
-	// Canonicalize wrt indices that are dummies within e. I.e., their
-	// symbol occurs twice in an index of e. This is only done if there
-	// is a cyclic symmetry because in that case it may happen that after
-	// raising/lowering an index the indices get reshuffled by ::eval in
-	// such a way that the iterators no longer point to the right objects.
-	if (ex_to<symmetry>(ex_to<indexed>(e).get_symmetry()).has_cyclic()) {
-		// Get dummy pairs of varidxes within the indexed object in e.
-		exvector local_var_dummies;
-		local_var_dummies.reserve(e.nops()/2);
-		for (size_t i=1; i<e.nops(); ++i) {
-			if (!is_a<varidx>(e.op(i)))
-				continue;
-			for (size_t j=i+1; j<e.nops(); ++j) {
-				if (is_dummy_pair(e.op(i), e.op(j))) {
-					local_var_dummies.push_back(e.op(i));
-					for (exvector::iterator k = variant_dummy_indices.begin();
-							k!=variant_dummy_indices.end(); ++k) {
-						if (e.op(i).op(0) == k->op(0)) {
-							variant_dummy_indices.erase(k);
-							break;
-						}
+	// Find dummy symbols that occur twice in the same indexed object.
+	exvector local_var_dummies;
+	local_var_dummies.reserve(e.nops()/2);
+	for (size_t i=1; i<e.nops(); ++i) {
+		if (!is_a<varidx>(e.op(i)))
+			continue;
+		for (size_t j=i+1; j<e.nops(); ++j) {
+			if (is_dummy_pair(e.op(i), e.op(j))) {
+				local_var_dummies.push_back(e.op(i));
+				for (exvector::iterator k = variant_dummy_indices.begin();
+						k!=variant_dummy_indices.end(); ++k) {
+					if (e.op(i).op(0) == k->op(0)) {
+						variant_dummy_indices.erase(k);
+						break;
 					}
-					break;
 				}
+				break;
 			}
 		}
-		// Try all posibilities of raising/lowering and keep the least one in
-		// the sense of ex_is_less.
-		ex optimal_e = e;
-		size_t numpossibs = 1 << local_var_dummies.size();
-		for (size_t i=0; i<numpossibs; ++i) {
-			ex try_e = e;
-			for (size_t j=0; j<local_var_dummies.size(); ++j) {
-				exmap m;
-				if (1<<j & i) {
-					ex curr_idx = local_var_dummies[j];
-					ex curr_toggle = ex_to<varidx>(curr_idx).toggle_variance();
-					m[curr_idx] = curr_toggle;
-					m[curr_toggle] = curr_idx;
-				}
-				try_e = e.subs(m, subs_options::no_pattern);
-			}
-			if(ex_is_less()(try_e, optimal_e))
-			{	optimal_e = try_e;
-				something_changed = true;
-			}
-		}
-		e = optimal_e;
 	}
+
+	// In the case where a dummy symbol occurs twice in the same indexed object
+	// we try all posibilities of raising/lowering and keep the least one in
+	// the sense of ex_is_less.
+	ex optimal_e = e;
+	size_t numpossibs = 1 << local_var_dummies.size();
+	for (size_t i=0; i<numpossibs; ++i) {
+		ex try_e = e;
+		for (size_t j=0; j<local_var_dummies.size(); ++j) {
+			exmap m;
+			if (1<<j & i) {
+				ex curr_idx = local_var_dummies[j];
+				ex curr_toggle = ex_to<varidx>(curr_idx).toggle_variance();
+				m[curr_idx] = curr_toggle;
+				m[curr_toggle] = curr_idx;
+			}
+			try_e = e.subs(m, subs_options::no_pattern);
+		}
+		if(ex_is_less()(try_e, optimal_e))
+		{	optimal_e = try_e;
+			something_changed = true;
+		}
+	}
+	e = optimal_e;
+
+	if (!is_a<indexed>(e))
+		return true;
+
+	exvector seq = ex_to<indexed>(e).seq;
 
 	// If a dummy index is encountered for the first time in the
 	// product, pull it up, otherwise, pull it down
-	exvector::const_iterator it2, it2start, it2end;
-	for (it2start = ex_to<indexed>(e).seq.begin(), it2end = ex_to<indexed>(e).seq.end(), it2 = it2start + 1; it2 != it2end; ++it2) {
+	for (exvector::iterator it2 = seq.begin()+1, it2end = seq.end();
+			it2 != it2end; ++it2) {
 		if (!is_exactly_a<varidx>(*it2))
 			continue;
 
@@ -700,14 +700,20 @@ bool reposition_dummy_indices(ex & e, exvector & variant_dummy_indices, exvector
 		for (vit = variant_dummy_indices.begin(), vitend = variant_dummy_indices.end(); vit != vitend; ++vit) {
 			if (it2->op(0).is_equal(vit->op(0))) {
 				if (ex_to<varidx>(*it2).is_covariant()) {
-					e = e.subs(lst(
-						*it2 == ex_to<varidx>(*it2).toggle_variance(),
-						ex_to<varidx>(*it2).toggle_variance() == *it2
-					), subs_options::no_pattern);
+					/*
+					 * N.B. we don't want to use
+					 *
+					 *  e = e.subs(lst(
+					 *  *it2 == ex_to<varidx>(*it2).toggle_variance(),
+					 *  ex_to<varidx>(*it2).toggle_variance() == *it2
+					 *  ), subs_options::no_pattern);
+					 *
+					 * since this can trigger non-trivial repositioning of indices,
+					 * e.g. due to non-trivial symmetry properties of e, thus
+					 * invalidating iterators
+					 */
+					*it2 = ex_to<varidx>(*it2).toggle_variance();
 					something_changed = true;
-					it2 = ex_to<indexed>(e).seq.begin() + (it2 - it2start);
-					it2start = ex_to<indexed>(e).seq.begin();
-					it2end = ex_to<indexed>(e).seq.end();
 				}
 				moved_indices.push_back(*vit);
 				variant_dummy_indices.erase(vit);
@@ -718,11 +724,8 @@ bool reposition_dummy_indices(ex & e, exvector & variant_dummy_indices, exvector
 		for (vit = moved_indices.begin(), vitend = moved_indices.end(); vit != vitend; ++vit) {
 			if (it2->op(0).is_equal(vit->op(0))) {
 				if (ex_to<varidx>(*it2).is_contravariant()) {
-					e = e.subs(*it2 == ex_to<varidx>(*it2).toggle_variance(), subs_options::no_pattern);
+					*it2 = ex_to<varidx>(*it2).toggle_variance();
 					something_changed = true;
-					it2 = ex_to<indexed>(e).seq.begin() + (it2 - it2start);
-					it2start = ex_to<indexed>(e).seq.begin();
-					it2end = ex_to<indexed>(e).seq.end();
 				}
 				goto next_index;
 			}
@@ -730,6 +733,9 @@ bool reposition_dummy_indices(ex & e, exvector & variant_dummy_indices, exvector
 
 next_index: ;
 	}
+
+	if (something_changed)
+		e = ex_to<indexed>(e).thiscontainer(seq);
 
 	return something_changed;
 }
