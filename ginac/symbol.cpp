@@ -218,7 +218,7 @@ bool symbol::info(unsigned inf) const
 		return true;
 	if (inf == info_flags::real)
 		return domain==domain::real || domain==domain::positive;
-	if (inf == info_flags::nonnegative)
+	if (inf == info_flags::positive || inf == info_flags::nonnegative)
 		return domain == domain::positive;
 	else
 		return inherited::info(inf);
