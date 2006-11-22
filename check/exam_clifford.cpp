@@ -339,8 +339,8 @@ template <typename IDX> unsigned clifford_check6(const matrix &A)
 	e = dirac_ONE(2) * clifford_unit(mu, A, 2) * dirac_ONE(2);
 	result += check_equal(e, clifford_unit(mu, A, 2));
 
-	e = clifford_unit(idx(2, 4), A) * clifford_unit(idx(1, 4), A)
-	  * clifford_unit(idx(1, 4), A) * clifford_unit(idx(2, 4), A);
+	e = clifford_unit(IDX(2, 4), A) * clifford_unit(IDX(1, 4), A)
+	  * clifford_unit(IDX(1, 4), A) * clifford_unit(IDX(2, 4), A);
 	result += check_equal(e, A(1, 1) * A(2, 2) * dirac_ONE());
 
 	e = clifford_unit(IDX(2, 4), A) * clifford_unit(IDX(1, 4), A)
