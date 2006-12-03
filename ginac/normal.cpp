@@ -6,7 +6,7 @@
  *  computation, square-free factorization and rational function normalization. */
 
 /*
- *  GiNaC Copyright (C) 1999-2005 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2006 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -1589,11 +1589,51 @@ factored_b:
 		}
 	}
 
+	if (is_exactly_a<numeric>(aex)) {
+		numeric bcont = bex.integer_content();
+		numeric g = gcd(ex_to<numeric>(aex), bcont);
+		if (ca)
+			*ca = ex_to<numeric>(aex)/g;
+		if (cb)
+	 		*cb = bex/g;
+		return g;
+	}
+
+	if (is_exactly_a<numeric>(bex)) {
+		numeric acont = aex.integer_content();
+		numeric g = gcd(ex_to<numeric>(bex), acont);
+		if (ca)
+			*ca = aex/g;
+		if (cb)
+			*cb = ex_to<numeric>(bex)/g;
+		return g;
+	}
+
 	// Gather symbol statistics
 	sym_desc_vec sym_stats;
 	get_symbol_stats(a, b, sym_stats);
 
-	// The symbol with least degree is our main variable
+	// The symbol with least degree which is contained in both polynomials
+	// is our main variable
+	sym_desc_vec::iterator vari = sym_stats.begin();
+	while ((vari != sym_stats.end()) && 
+	       (((vari->ldeg_b == 0) && (vari->deg_b == 0)) ||
+	        ((vari->ldeg_a == 0) && (vari->deg_a == 0))))
+		vari++;
+
+	// No common symbols at all, just return 1:
+	if (vari == sym_stats.end()) {
+		// N.B: keep cofactors factored
+		if (ca)
+			*ca = a;
+		if (cb)
+			*cb = b;
+		return _ex1;
+	}
+	// move symbols which contained only in one of the polynomials
+	// to the end:
+	rotate(sym_stats.begin(), vari, sym_stats.end());
+
 	sym_desc_vec::const_iterator var = sym_stats.begin();
 	const ex &x = var->sym;
 
@@ -1607,14 +1647,14 @@ factored_b:
 	}
 
 	// Try to eliminate variables
-	if (var->deg_a == 0) {
+	if (var->deg_a == 0 && var->deg_b != 0 ) {
 		ex bex_u, bex_c, bex_p;
 		bex.unitcontprim(x, bex_u, bex_c, bex_p);
 		ex g = gcd(aex, bex_c, ca, cb, false);
 		if (cb)
 			*cb *= bex_u * bex_p;
 		return g;
-	} else if (var->deg_b == 0) {
+	} else if (var->deg_b == 0 && var->deg_a != 0) {
 		ex aex_u, aex_c, aex_p;
 		aex.unitcontprim(x, aex_u, aex_c, aex_p);
 		ex g = gcd(aex_c, bex, ca, cb, false);
