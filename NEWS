@@ -1,5 +1,48 @@
 This file records noteworthy changes.
 
+1.4.0 (<date>)
+* Better worst case behavior in heuristic gcd [Alexei Sheplyakov].
+* ...<please continue here>...
+
+1.3.5 (17 August 2006)
+* Re-built bison related files that caused bugs with gcc 4.
+* Fixed bugs in fderivative::match_same_type(), expairseq::match(),
+  expand_dummy_sum(), and expairseq::map().
+* Fixed template specialization for class container to be gcc 4.2 compliant.
+* Output in csrc mode is now -x instead of -1.0*x.
+* Fixed tutorial and reference generation in html/pdf/ps format.
+* Modified autotool configuration to allow for compilation on MinGW.
+* Debian packaging files updated.
+
+1.3.4 (12 April 2006)
+* More general index dimensions are now possible.
+* Improved algebraic substitutions.
+* Fixed wrong matching in .has(). 
+* Fixed bug in differentiation of a power.
+* collect_common_factors also works with negative powers of common factors now.
+* Code clean-up and preparations for upcoming cln 1.2.
+
+1.3.3 (24 October 2005)
+* Fixed bug occuring in algebraic substitutions with expressions involving
+  indices.
+* Fixed bug that selected the wrong algorithm for determinants of purely
+  numeric matrices with at least one floating point element.
+* Fixed bug in function H that caused an infinite recursion for arguments
+  around +-I.
+* Fixed const-correctness in printing handler for GCC 4.0.2.
+* Made lookup in adaptivesimpson precision-aware.
+* Added series expansion for functions (classical) Li and S around x==0.
+* Added fsolve() numerical univariate real-valued function solver.
+* Added functions sub_matrix() and reduced_matrix().
+* Small cleanups. Less warnings with latest GCC.
+
+1.3.2 (10 July 2005)
+* GCD avoids to produce expanded expressions.
+* Fixed bug in expanding expressions containing dummy indices.
+* Fixed static initialization order bug.
+* collect_common_factors now works with powers.
+* Modernized configuration scripts.
+
 1.3.1 (04 May 2005)
 * integral() and eval_integ() can be used from ginsh.
 * Integrals can be series-expanded.
