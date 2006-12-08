@@ -221,7 +221,7 @@ static ex beta_evalf(const ex & x, const ex & y)
 {
 	if (is_exactly_a<numeric>(x) && is_exactly_a<numeric>(y)) {
 		try {
-			return tgamma(ex_to<numeric>(x))*tgamma(ex_to<numeric>(y))/tgamma(ex_to<numeric>(x+y));
+			return exp(lgamma(ex_to<numeric>(x))+lgamma(ex_to<numeric>(y))-lgamma(ex_to<numeric>(x+y)));
 		} catch (const dunno &e) { }
 	}
 	

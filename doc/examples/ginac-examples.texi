@@ -45,4 +45,11 @@ An expression in two variables is integrated by using VEGAS from the
 
 Demonstrates the use of link_ex. Program has to be called more than once to see the effect.
 
+@chapter Lanczos Approximation
+
+The program lanczos.cpp calculates coefficients for use in the Lanczos
+approximation of the gamma function. The Lanczos approximation is used by
+the function inside GiNaC that approximates the gamma function numerically.
+See the comments in the source file for more information.
+
 @bye
