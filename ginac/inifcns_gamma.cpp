@@ -54,8 +54,7 @@ static ex lgamma_evalf(const ex & x)
 
 
 /** Evaluation of lgamma(x), the natural logarithm of the Gamma function.
- *  Knows about integer arguments and that's it.  Somebody ought to provide
- *  some good numerical evaluation some day...
+ *  Handles integer arguments as a special case.
  *
  *  @exception GiNaC::pole_error("lgamma_eval(): logarithmic pole",0) */
 static ex lgamma_eval(const ex & x)
@@ -69,7 +68,8 @@ static ex lgamma_eval(const ex & x)
 			else
 				throw (pole_error("lgamma_eval(): logarithmic pole",0));
 		}
-		//  lgamma_evalf should be called here once it becomes available
+		if (!ex_to<numeric>(x).is_rational())
+			return lgamma(ex_to<numeric>(x));
 	}
 	
 	return lgamma(x).hold();
@@ -165,7 +165,8 @@ static ex tgamma_eval(const ex & x)
 				return (pow(*_num_2_p, n).div(doublefactorial(n.mul(*_num2_p).sub(*_num1_p))))*sqrt(Pi);
 			}
 		}
-		//  tgamma_evalf should be called here once it becomes available
+		if (!ex_to<numeric>(x).is_rational())
+			return tgamma(ex_to<numeric>(x));
 	}
 	
 	return tgamma(x).hold();
@@ -262,7 +263,8 @@ static ex beta_eval(const ex & x, const ex & y)
 		    (nx+ny).is_integer() &&
 		   !(nx+ny).is_positive())
 			 return _ex0;
-		// beta_evalf should be called here once it becomes available
+		if (!ex_to<numeric>(x).is_rational() || !ex_to<numeric>(x).is_rational())
+			return evalf(beta(x, y).hold());
 	}
 	
 	return beta(x,y).hold();
