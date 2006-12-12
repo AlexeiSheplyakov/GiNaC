@@ -30,6 +30,7 @@
 #include "ex.h"
 #include "numeric.h"
 #include "power.h"
+#include "add.h"
 #include "symbol.h"
 #include "lst.h"
 #include "ncmul.h"
@@ -369,56 +370,32 @@ ex basic::collect(const ex & s, bool distributed) const
 
 		else if (distributed) {
 
-			// Get lower/upper degree of all symbols in list
-			size_t num = s.nops();
-			struct sym_info {
-				ex sym;
-				int ldeg, deg;
-				int cnt;  // current degree, 'counter'
-				ex coeff; // coefficient for degree 'cnt'
-			};
-			sym_info *si = new sym_info[num];
-			ex c = *this;
-			for (size_t i=0; i<num; i++) {
-				si[i].sym = s.op(i);
-				si[i].ldeg = si[i].cnt = this->ldegree(si[i].sym);
-				si[i].deg = this->degree(si[i].sym);
-				c = si[i].coeff = c.coeff(si[i].sym, si[i].cnt);
+			x = this->expand();
+			if (! is_a<add>(x))
+				return x; 
+			const lst& l(ex_to<lst>(s));
+
+			exmap cmap;
+			cmap[_ex1] = _ex0;
+			for (const_iterator xi=x.begin(); xi!=x.end(); ++xi) {
+				ex key = _ex1;
+				ex pre_coeff = *xi;
+				for (lst::const_iterator li=l.begin(); li!=l.end(); ++li) {
+					int cexp = pre_coeff.degree(*li);
+					pre_coeff = pre_coeff.coeff(*li, cexp);
+					key *= pow(*li, cexp);
+				}
+				exmap::iterator ci = cmap.find(key);
+				if (ci != cmap.end())
+					ci->second += pre_coeff;
+				else
+					cmap.insert(exmap::value_type(key, pre_coeff));
 			}
 
-			while (true) {
-
-				// Calculate coeff*x1^c1*...*xn^cn
-				ex y = _ex1;
-				for (size_t i=0; i<num; i++) {
-					int cnt = si[i].cnt;
-					y *= power(si[i].sym, cnt);
-				}
-				x += y * si[num - 1].coeff;
-
-				// Increment counters
-				size_t n = num - 1;
-				while (true) {
-					++si[n].cnt;
-					if (si[n].cnt <= si[n].deg) {
-						// Update coefficients
-						ex c;
-						if (n == 0)
-							c = *this;
-						else
-							c = si[n - 1].coeff;
-						for (size_t i=n; i<num; i++)
-							c = si[i].coeff = c.coeff(si[i].sym, si[i].cnt);
-						break;
-					}
-					if (n == 0)
-						goto done;
-					si[n].cnt = si[n].ldeg;
-					n--;
-				}
-			}
-
-done:		delete[] si;
+			exvector resv;
+			for (exmap::const_iterator mi=cmap.begin(); mi != cmap.end(); ++mi)
+				resv.push_back((mi->first)*(mi->second));
+			return (new add(resv))->setflag(status_flags::dynallocated);
 
 		} else {
 
