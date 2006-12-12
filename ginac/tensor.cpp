@@ -395,6 +395,8 @@ bool tensor::replace_contr_index(exvector::iterator self, exvector::iterator oth
 again:
 	if (self_idx->is_symbolic()) {
 		for (size_t i=1; i<other->nops(); i++) {
+			if (! is_a<idx>(other->op(i)))
+				continue;
 			const idx &other_idx = ex_to<idx>(other->op(i));
 			if (is_dummy_pair(*self_idx, other_idx)) {
 
