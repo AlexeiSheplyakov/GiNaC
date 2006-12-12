@@ -471,7 +471,13 @@ namespace {
 // performs the actual series summation for multiple polylogarithms
 cln::cl_N multipleLi_do_sum(const std::vector<int>& s, const std::vector<cln::cl_N>& x)
 {
+	// ensure all x <> 0.
+	for (std::vector<cln::cl_N>::const_iterator it = x.begin(); it != x.end(); ++it) {
+		if ( *it == 0 ) return cln::cl_float(0, cln::float_format(Digits));
+	}
+
 	const int j = s.size();
+	bool flag_accidental_zero = false;
 
 	std::vector<cln::cl_N> t(j);
 	cln::cl_F one = cln::cl_float(1, cln::float_format(Digits));
@@ -480,19 +486,13 @@ cln::cl_N multipleLi_do_sum(const std::vector<int>& s, const std::vector<cln::cl
 	int q = 0;
 	do {
 		t0buf = t[0];
-		// do it once ...
 		q++;
 		t[j-1] = t[j-1] + cln::expt(x[j-1], q) / cln::expt(cln::cl_I(q),s[j-1]) * one;
 		for (int k=j-2; k>=0; k--) {
+			flag_accidental_zero = cln::zerop(t[k+1]);
 			t[k] = t[k] + t[k+1] * cln::expt(x[k], q+j-1-k) / cln::expt(cln::cl_I(q+j-1-k), s[k]);
 		}
-		// ... and do it again (to avoid premature drop out due to special arguments)
-		q++;
-		t[j-1] = t[j-1] + cln::expt(x[j-1], q) / cln::expt(cln::cl_I(q),s[j-1]) * one;
-		for (int k=j-2; k>=0; k--) {
-			t[k] = t[k] + t[k+1] * cln::expt(x[k], q+j-1-k) / cln::expt(cln::cl_I(q+j-1-k), s[k]);
-		}
-	} while (t[0] != t0buf);
+	} while ( (t[0] != t0buf) || flag_accidental_zero );
 
 	return t[0];
 }
