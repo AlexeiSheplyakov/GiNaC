@@ -290,6 +290,30 @@ static unsigned inifcns_test_LiG()
 }
 
 
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//  legacy exam - checking for historical bugs
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+
+static unsigned inifcns_test_legacy()
+{
+	Digits = 17;
+	ex prec = 5 * pow(10, -(int)Digits);
+
+	unsigned result = 0;
+
+	ex r1 = zeta(lst(1,1,1,1,1,1),lst(-1,-1,-1,1,1,1));
+	if ((r1.evalf() - numeric("-0.0012588769028204890704")) > prec) {
+		clog << "zeta({1,1,1,1,1,1},{-1,-1,-1,1,1,1}) seems to be wrong." << endl;
+		result++;
+	}
+
+	return result;
+}
+
+
 unsigned exam_inifcns_nstdsums(void)
 {
 	unsigned result = 0;
@@ -300,6 +324,7 @@ unsigned exam_inifcns_nstdsums(void)
 	result += inifcns_test_S();
 	result += inifcns_test_HLi();
 	result += inifcns_test_LiG();
+	result += inifcns_test_legacy();
 	
 	return result;
 }
