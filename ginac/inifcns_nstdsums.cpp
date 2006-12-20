@@ -1911,7 +1911,7 @@ numeric S_num(int n, int p, const numeric& x)
 		prec = cln::float_format(cln::the<cln::cl_F>(cln::imagpart(value)));
 
 	// [Kol] (5.3)
-	if ((cln::realpart(value) < -0.5) || (n == 0)) {
+	if ((cln::realpart(value) < -0.5) || (n == 0) || ((cln::abs(value) <= 1) && (cln::abs(value) > 0.95))) {
 
 		cln::cl_N result = cln::expt(cln::cl_I(-1),p) * cln::expt(cln::log(value),n)
 		                   * cln::expt(cln::log(1-value),p) / cln::factorial(n) / cln::factorial(p);
@@ -2635,7 +2635,7 @@ struct map_trafo_H_1mx : public map_function
 					if (allthesame) {
 						lst newparameter;
 						for (int i=parameter.nops(); i>0; i--) {
-							newparameter.append(0);
+							newparameter.append(1);
 						}
 						return pow(-1, parameter.nops()) * H(newparameter, 1-arg).hold();
 					}
@@ -2651,7 +2651,7 @@ struct map_trafo_H_1mx : public map_function
 					if (allthesame) {
 						lst newparameter;
 						for (int i=parameter.nops(); i>0; i--) {
-							newparameter.append(1);
+							newparameter.append(0);
 						}
 						return pow(-1, parameter.nops()) * H(newparameter, 1-arg).hold();
 					}
@@ -2681,7 +2681,7 @@ struct map_trafo_H_1mx : public map_function
 					// leading one
 					map_trafo_H_1mx recursion;
 					map_trafo_H_mult unify;
-					ex res;
+					ex res = H(lst(1), arg).hold() * H(newparameter, arg).hold();
 					int firstzero = 0;
 					while (parameter.op(firstzero) == 1) {
 						firstzero++;
@@ -2698,11 +2698,9 @@ struct map_trafo_H_1mx : public map_function
 						}
 						res -= H(newparameter, arg).hold();
 					}
-					return (unify((-H(lst(0), 1-arg).hold() * recursion(H(newparameter, arg).hold())).expand()) +
-							recursion(res)) / firstzero;
-
+					res = recursion(res).expand() / firstzero;
+					return unify(res);
 				}
-
 			}
 		}
 		return e;
