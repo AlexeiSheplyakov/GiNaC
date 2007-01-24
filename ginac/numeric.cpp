@@ -31,6 +31,7 @@
 #include <string>
 #include <sstream>
 #include <limits>
+#include <cstdlib>
 
 #include "numeric.h"
 #include "ex.h"
