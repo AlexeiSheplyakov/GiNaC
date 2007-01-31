@@ -335,6 +335,7 @@ ex power::coeff(const ex & s, int n) const
  *  - ^(0,c) -> 0 or exception  (depending on the real part of c)
  *  - ^(1,x) -> 1
  *  - ^(c1,c2) -> *(c1^n,c1^(c2-n))  (so that 0<(c2-n)<1, try to evaluate roots, possibly in numerator and denominator of c1)
+ *  - ^(^(x,c1),c2) -> ^(x,c1*c2)  if x is positive and c1 is real.
  *  - ^(^(x,c1),c2) -> ^(x,c1*c2)  (c2 integer or -1 < c1 <= 1, case c1=1 should not happen, see below!)
  *  - ^(*(x,y,z),c) -> *(x^c,y^c,z^c)  (if c integer)
  *  - ^(*(x,c1),c2) -> ^(x,c2)*c1^c2  (c1>0)
@@ -394,6 +395,10 @@ ex power::eval(int level) const
 	// power of a function calculated by separate rules defined for this function
 	if (is_exactly_a<function>(ebasis))
 		return ex_to<function>(ebasis).power(eexponent);
+
+	// Turn (x^c)^d into x^(c*d) in the case that x is positive and c is real.
+	if (is_exactly_a<power>(ebasis) && ebasis.op(0).info(info_flags::positive) && ebasis.op(1).info(info_flags::real))
+		return power(ebasis.op(0), ebasis.op(1) * eexponent);
 
 	if (exponent_is_numerical) {
 
@@ -966,19 +971,13 @@ ex power::expand_mul(const mul & m, const numeric & n, unsigned options, bool fr
 	epvector::const_iterator last = m.seq.end();
 	epvector::const_iterator cit = m.seq.begin();
 	while (cit!=last) {
-		if (is_exactly_a<numeric>(cit->rest)) {
-			distrseq.push_back(m.combine_pair_with_coeff_to_pair(*cit, n));
-		} else {
-			// it is safe not to call mul::combine_pair_with_coeff_to_pair()
-			// since n is an integer
-			numeric new_coeff = ex_to<numeric>(cit->coeff).mul(n);
-			if (from_expand && is_exactly_a<add>(cit->rest) && new_coeff.is_pos_integer()) {
-				// this happens when e.g. (a+b)^(1/2) gets squared and
-				// the resulting product needs to be reexpanded
-				need_reexpand = true;
-			}
-			distrseq.push_back(expair(cit->rest, new_coeff));
+		expair p = m.combine_pair_with_coeff_to_pair(*cit, n);
+		if (from_expand && is_exactly_a<add>(cit->rest) && ex_to<numeric>(p.coeff).is_pos_integer()) {
+			// this happens when e.g. (a+b)^(1/2) gets squared and
+			// the resulting product needs to be reexpanded
+			need_reexpand = true;
 		}
+		distrseq.push_back(p);
 		++cit;
 	}
 
