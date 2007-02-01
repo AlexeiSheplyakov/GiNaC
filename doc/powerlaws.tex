@@ -151,7 +151,19 @@ Hence
 & = & x^{ab} \mbox{ q.e.d.}
 \end{eqnarray}
 
-proof contributed by Adam Strzebonski from Wolfram Research
-({\tt adams@wolfram.com}) in newsgroup {\tt sci.math.symbolic}.
+Proof contributed by Adam Strzebonski ({\tt adams@wolfram.com}) from
+Wolfram Research in newsgroup {\tt sci.math.symbolic}.
+
+\subsubsection{$x$ positive, $a$ real and $b$ arbitrary complex}
+We have
+\begin{equation}
+(x^a)^b = e^{b\log e^{a\log x}}.
+\end{equation}
+Because $a$ is real and $x$ is positive, $a\log x$ is real. From this
+it follows that $\log e^{a\log x} = a\log x$. I.e, we see that
+\begin{equation}
+(x^a)^b = e^{ba\log x} = x^{ab}.
+\end{equation}
+Qed.
 
 \end{document}
