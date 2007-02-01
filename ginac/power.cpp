@@ -943,7 +943,7 @@ ex power::expand_add_2(const add & a, unsigned options) const
 	return (new add(sum))->setflag(status_flags::dynallocated | status_flags::expanded);
 }
 
-/** Expand factors of m in m^n where m is a mul and n is and integer.
+/** Expand factors of m in m^n where m is a mul and n is an integer.
  *  @see power::expand */
 ex power::expand_mul(const mul & m, const numeric & n, unsigned options, bool from_expand) const
 {
