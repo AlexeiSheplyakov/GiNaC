@@ -24,8 +24,15 @@ int main()
     fprintf(fd, "%s\n", rl_library_version);
     fclose(fd);
     return 0;
-}], ginac_cv_rlversion=`cat 'conftest.out'`, ginac_cv_rlversion='unknown', ginac_cv_rlversion='4.2')])
+}], [
+dnl Some non-GNU readline implementations have non-numeric rl_library_version
+ginac_cv_rlversion=`sed -e 's/[^0-9.]//g' 'conftest.out'`], [ ginac_cv_rlversion='unknown'], [ ginac_cv_rlversion='4.2'])])
+if test -z "$ginac_cv_rlversion"; then
+	GINAC_WARNING([Unsupported version of libreadline.])
+	ginac_cv_rlversion='unknown'
+fi
 if test "x${ginac_cv_rlversion}" != "xunknown"; then
+	AC_DEFINE(REALLY_HAVE_LIBREADLINE, ,[Define if GNU libreadline is installed])
   RL_VERSION_MAJOR=`echo ${ginac_cv_rlversion} | sed -e 's/\([[0-9]]*\)\.\([[0-9]]*\).*/\1/'`
   AC_DEFINE_UNQUOTED(GINAC_RL_VERSION_MAJOR, $RL_VERSION_MAJOR, [Major version of installed readline library.])
   RL_VERSION_MINOR=`echo ${ginac_cv_rlversion} | sed -e 's/\([[0-9]]*\)\.\([[0-9]]*\).*/\2/'`

@@ -104,12 +104,13 @@ install CLN properly on your system before continuing with GiNaC.
 Problems building ginsh
 -----------------------
 
-The most common reason why this doesn't succeed is the absence of
+The most common reason why this doesn't succeed is the absence of GNU
 libreadline and/or the corresponding header files. Depending on what your
 system/distribution is, you will have to install a package called
 libreadline and maybe libreadline-dev. If your system's vendor doesn't
 supply such packages, go to <ftp://ftp.gnu.org/gnu/readline/> and compile
-it yourself.
+it yourself. Note that non-GNU versions of libreadline (in particular
+one shipped with Mac OS X) are not supported at the moment.
 
 Problems with missing standard header files
 -------------------------------------------

@@ -45,6 +45,7 @@
 
 #define YYERROR_VERBOSE 1
 
+#ifdef REALLY_HAVE_LIBREADLINE
 // Original readline settings
 static int orig_completion_append_character;
 #if (GINAC_RL_VERSION_MAJOR < 4) || (GINAC_RL_VERSION_MAJOR == 4 && GINAC_RL_VERSION_MINOR < 2)
@@ -58,6 +59,7 @@ static const char *orig_basic_word_break_characters;
 #else
 #define GINAC_RL_COMPLETER_CAST(a) (a)
 #endif
+#endif // REALLY_HAVE_LIBREADLINE
 
 // Expression stack for %, %% and %%%
 static void push(const ex &e);
@@ -850,6 +852,7 @@ static char *fcn_generator(const char *text, int state)
 	return NULL;
 }
 
+#ifdef REALLY_HAVE_LIBREADLINE
 static char **fcn_completion(const char *text, int start, int end)
 {
 	if (rl_line_buffer[0] == '!') {
@@ -874,6 +877,7 @@ static char **fcn_completion(const char *text, int start, int end)
 #endif
 	}
 }
+#endif // REALLY_HAVE_LIBREADLINE
 
 void greeting(void)
 {
@@ -917,6 +921,7 @@ int main(int argc, char **argv)
 	insert_help("print_latex", "print_latex(expression) - prints a LaTeX representation of the given expression");
 	insert_help("print_csrc", "print_csrc(expression) - prints a C source code representation of the given expression");
 
+#ifdef REALLY_HAVE_LIBREADLINE
 	// Init readline completer
 	rl_readline_name = argv[0];
 #if (GINAC_RL_VERSION_MAJOR < 4) || (GINAC_RL_VERSION_MAJOR == 4 && GINAC_RL_VERSION_MINOR < 2)
@@ -926,6 +931,7 @@ int main(int argc, char **argv)
 #endif
 	orig_completion_append_character = rl_completion_append_character;
 	orig_basic_word_break_characters = rl_basic_word_break_characters;
+#endif
 
 	// Init input file list, open first file
 	num_files = argc - 1;
