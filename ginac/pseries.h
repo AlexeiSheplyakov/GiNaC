@@ -59,6 +59,7 @@ public:
 	ex real_part() const;
 	ex imag_part() const;
 	ex eval_integ() const;
+	ex evalm() const;
 protected:
 	ex derivative(const symbol & s) const;
 
