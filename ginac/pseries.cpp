@@ -1100,7 +1100,10 @@ ex power::series(const relational & r, int order, unsigned options) const
 	}
 	const ex& sym = r.lhs();
 	// find existing minimal degree
-	int real_ldegree = basis.expand().ldegree(sym-r.rhs());
+	ex eb = basis.expand();
+	int real_ldegree = 0;
+	if (eb.info(info_flags::rational_function))
+		real_ldegree = eb.ldegree(sym-r.rhs());
 	if (real_ldegree == 0) {
 		int orderloop = 0;
 		do {
