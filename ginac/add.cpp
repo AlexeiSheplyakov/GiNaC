@@ -429,11 +429,14 @@ ex add::real_part() const
 	epvector v;
 	v.reserve(seq.size());
 	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i)
-		if ((i->coeff).info(info_flags::real))
-			v.push_back(expair((i->rest).real_part(), i->coeff));
-		else {
+		if ((i->coeff).info(info_flags::real)) {
+			ex rp = (i->rest).real_part();
+			if (!rp.is_zero())
+				v.push_back(expair(rp, i->coeff));
+		} else {
 			ex rp=recombine_pair_to_ex(*i).real_part();
-			v.push_back(split_ex_to_pair(rp));
+			if (!rp.is_zero())
+				v.push_back(split_ex_to_pair(rp));
 		}
 	return (new add(v, overall_coeff.real_part()))
 		-> setflag(status_flags::dynallocated);
@@ -444,11 +447,14 @@ ex add::imag_part() const
 	epvector v;
 	v.reserve(seq.size());
 	for (epvector::const_iterator i=seq.begin(); i!=seq.end(); ++i)
-		if ((i->coeff).info(info_flags::real))
-			v.push_back(expair((i->rest).imag_part(), i->coeff));
-		else {
+		if ((i->coeff).info(info_flags::real)) {
+			ex ip = (i->rest).imag_part();
+			if (!ip.is_zero())
+				v.push_back(expair(ip, i->coeff));
+		} else {
 			ex ip=recombine_pair_to_ex(*i).imag_part();
-			v.push_back(split_ex_to_pair(ip));
+			if (!ip.is_zero())
+				v.push_back(split_ex_to_pair(ip));
 		}
 	return (new add(v, overall_coeff.imag_part()))
 		-> setflag(status_flags::dynallocated);
