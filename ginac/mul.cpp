@@ -315,7 +315,11 @@ int mul::degree(const ex & s) const
 	epvector::const_iterator i = seq.begin(), end = seq.end();
 	while (i != end) {
 		if (ex_to<numeric>(i->coeff).is_integer())
-			deg_sum += i->rest.degree(s) * ex_to<numeric>(i->coeff).to_int();
+			deg_sum += recombine_pair_to_ex(*i).degree(s);
+		else {
+			if (i->rest.has(s))
+				throw std::runtime_error("mul::degree() undefined degree because of non-integer exponent");
+		}
 		++i;
 	}
 	return deg_sum;
@@ -328,7 +332,11 @@ int mul::ldegree(const ex & s) const
 	epvector::const_iterator i = seq.begin(), end = seq.end();
 	while (i != end) {
 		if (ex_to<numeric>(i->coeff).is_integer())
-			deg_sum += i->rest.ldegree(s) * ex_to<numeric>(i->coeff).to_int();
+			deg_sum += recombine_pair_to_ex(*i).ldegree(s);
+		else {
+			if (i->rest.has(s))
+				throw std::runtime_error("mul::ldegree() undefined degree because of non-integer exponent");
+		}
 		++i;
 	}
 	return deg_sum;

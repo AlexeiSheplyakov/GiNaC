@@ -7733,9 +7733,8 @@ The RTTI in GiNaC is based on two mechanisms:
 
 @item
 The @code{basic} class declares a member variable @code{tinfo_key} which
-holds an unsigned integer that identifies the object's class. These numbers
-are defined in the @file{tinfos.h} header file for the built-in GiNaC
-classes. They all start with @code{TINFO_}.
+holds a variable of @code{tinfo_t} type (which is actually just
+@code{const void*}) that identifies the object's class.
 
 @item
 By means of some clever tricks with static members, GiNaC maintains a list
@@ -7770,17 +7769,6 @@ using namespace std;
 
 #include <ginac/ginac.h>
 using namespace GiNaC;
-@end example
-
-The first thing we have to do is to define a @code{tinfo_key} for our new
-class. This can be any arbitrary unsigned number that is not already taken
-by one of the existing classes but it's better to come up with something
-that is unlikely to clash with keys that might be added in the future. The
-numbers in @file{tinfos.h} are modeled somewhat after the class hierarchy
-which is not a requirement but we are going to stick with this scheme:
-
-@example
-const unsigned TINFO_mystring = 0x42420001U;
 @end example
 
 Now we can write down the class declaration. The class stores a C++
@@ -7866,11 +7854,14 @@ which are the two constructors we declared.
 Let's proceed step-by-step. The default constructor looks like this:
 
 @example
-mystring::mystring() : inherited(TINFO_mystring) @{@}
+mystring::mystring() : inherited(&mystring::tinfo_static) @{@}
 @end example
 
 The golden rule is that in all constructors you have to set the
-@code{tinfo_key} member to the @code{TINFO_*} value of your class. Otherwise
+@code{tinfo_key} member to the @code{&your_class_name::tinfo_static}
+@footnote{each GiNaC class has static member called tinfo_static.
+This member is declared by the GINAC_DECLARE_REGISTERED_CLASS macros
+and defined by the GINAC_IMPLEMENT_REGISTERED_CLASS macros}. Otherwise
 it will be set by the constructor of the superclass and all hell will break
 loose in the RTTI. For your convenience, the @code{basic} class provides
 a constructor that takes a @code{tinfo_key} value, which we are using here
@@ -7960,8 +7951,8 @@ all relevant member variables.
 Now the only thing missing is our two new constructors:
 
 @example
-mystring::mystring(const string &s) : inherited(TINFO_mystring), str(s) @{@}
-mystring::mystring(const char *s) : inherited(TINFO_mystring), str(s) @{@}
+mystring::mystring(const string &s) : inherited(&mystring::tinfo_static), str(s) @{@}
+mystring::mystring(const char *s) : inherited(&mystring::tinfo_static), str(s) @{@}
 @end example
 
 No surprises here. We set the @code{str} member from the argument and
@@ -8100,7 +8091,7 @@ public:
 ex mystring::eval(int level) const
 @{
     string new_str;
-    for (int i=0; i<str.length(); i++) @{
+    for (size_t i=0; i<str.length(); i++) @{
         char c = str[i];
         if (c >= 'A' && c <= 'Z') 
             new_str += tolower(c);
@@ -8197,6 +8188,28 @@ can always extract the bare object from an @code{ex} by stripping the
 should become a need.
 
 That's it. May the source be with you!
+
+@subsection Upgrading extension classes from older version of GiNaC
+
+If you got some extension classes for GiNaC 1.3.X some changes are
+necessary in order to make your code work with GiNaC 1.4.
+
+@itemize @bullet
+@item constructors which set @code{tinfo_key} such as
+
+@example
+myclass::myclass() : inherited(TINFO_myclass) @{@}
+@end example
+
+need to be rewritten as
+
+@example
+myclass::myclass() : inherited(&myclass::tinfo_static) @{@}
+@end example
+
+@item TINO_myclass is not necessary any more and can be removed.
+
+@end itemize
 
 
 @node A comparison with other CAS, Advantages, Adding classes, Top
