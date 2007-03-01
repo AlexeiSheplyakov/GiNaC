@@ -272,8 +272,10 @@ std::istream &operator>>(std::istream &is, archive &ar)
 	// Read atoms
 	unsigned num_atoms = read_unsigned(is);
 	ar.atoms.resize(num_atoms);
-	for (unsigned i=0; i<num_atoms; i++)
+	for (unsigned i=0; i<num_atoms; i++) {
 		getline(is, ar.atoms[i], '\0');
+		ar.inverse_atoms[ar.atoms[i]] = i;
+	}
 
 	// Read expressions
 	unsigned num_exprs = read_unsigned(is);
@@ -297,17 +299,15 @@ std::istream &operator>>(std::istream &is, archive &ar)
  *  represents the string). */
 archive_atom archive::atomize(const std::string &s) const
 {
-	// Search for string in atoms vector
-	std::vector<std::string>::const_iterator i = atoms.begin(), iend = atoms.end();
-	archive_atom id = 0;
-	while (i != iend) {
-		if (*i == s)
-			return id;
-		i++; id++;
-	}
+	// Search for string in inverse_atoms map.
+	inv_at_cit i = inverse_atoms.find(s);
+	if (i!=inverse_atoms.end())
+		return i->second;
 
 	// Not found, add to atoms vector
+	archive_atom id = atoms.size();
 	atoms.push_back(s);
+	inverse_atoms[s] = id;
 	return id;
 }
 
@@ -540,6 +540,7 @@ ex archive_node::unarchive(lst &sym_lst) const
 void archive::clear()
 {
 	atoms.clear();
+	inverse_atoms.clear();
 	exprs.clear();
 	nodes.clear();
 	exprtable.clear();

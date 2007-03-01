@@ -242,6 +242,11 @@ public:
 private:
 	/** Vector of atomized strings (using a vector allows faster unarchiving). */
 	mutable std::vector<std::string> atoms;
+	/** The map of from strings to indices of the atoms vectors allows for
+	 *  faster archiving.
+	 */
+	typedef std::map<std::string, archive_atom>::const_iterator inv_at_cit;
+	mutable std::map<std::string, archive_atom> inverse_atoms;
 
 	/** Map of stored expressions to nodes for faster archiving */
 	typedef std::map<ex, archive_node_id, ex_is_less>::iterator mapit;
