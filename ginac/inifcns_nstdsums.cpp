@@ -980,9 +980,8 @@ ex G_numeric(const lst& x, const lst& s, const ex& y)
 	for (lst::const_iterator it = x.begin(); it != x.end(); ++it) {
 		if (!(*it).is_zero()) {
 			++depth;
-			if (abs(*it) - y < -pow(10,-Digits+2)) {
+			if (abs(*it) - y < -pow(10,-Digits+1)) {
 				need_trafo = true;
-				break;
 			}
 			if (abs((abs(*it) - y)/y) < 0.01) {
 				need_hoelder = true;
@@ -994,6 +993,58 @@ ex G_numeric(const lst& x, const lst& s, const ex& y)
 	}
 	if (depth == 1 && !need_trafo) {
 		return -Li(x.nops(), y / x.op(x.nops()-1)).evalf();
+	}
+	
+	// do acceleration transformation (hoelder convolution [BBB])
+	if (need_hoelder) {
+		
+		ex result;
+		const int size = x.nops();
+		lst newx;
+		for (lst::const_iterator it = x.begin(); it != x.end(); ++it) {
+			newx.append(*it / y);
+		}
+		
+		for (int r=0; r<=size; ++r) {
+			ex buffer = pow(-1, r);
+			ex p = 2;
+			bool adjustp;
+			do {
+				adjustp = false;
+				for (lst::const_iterator it = newx.begin(); it != newx.end(); ++it) {
+					if (*it == 1/p) {
+						p += (3-p)/2; 
+						adjustp = true;
+						continue;
+					}
+				}
+			} while (adjustp);
+			ex q = p / (p-1);
+			lst qlstx;
+			lst qlsts;
+			for (int j=r; j>=1; --j) {
+				qlstx.append(1-newx.op(j-1));
+				if (newx.op(j-1).info(info_flags::real) && newx.op(j-1) > 1 && newx.op(j-1) <= 2) {
+					qlsts.append( s.op(j-1));
+				} else {
+					qlsts.append( -s.op(j-1));
+				}
+			}
+			if (qlstx.nops() > 0) {
+				buffer *= G_numeric(qlstx, qlsts, 1/q);
+			}
+			lst plstx;
+			lst plsts;
+			for (int j=r+1; j<=size; ++j) {
+				plstx.append(newx.op(j-1));
+				plsts.append(s.op(j-1));
+			}
+			if (plstx.nops() > 0) {
+				buffer *= G_numeric(plstx, plsts, 1/p);
+			}
+			result += buffer;
+		}
+		return result;
 	}
 	
 	// convergence transformation
@@ -1071,58 +1122,6 @@ ex G_numeric(const lst& x, const lst& s, const ex& y)
 		return result;
 	}
 
-	// do acceleration transformation (hoelder convolution [BBB])
-	if (need_hoelder) {
-		
-		ex result;
-		const int size = x.nops();
-		lst newx;
-		for (lst::const_iterator it = x.begin(); it != x.end(); ++it) {
-			newx.append(*it / y);
-		}
-		
-		for (int r=0; r<=size; ++r) {
-			ex buffer = pow(-1, r);
-			ex p = 2;
-			bool adjustp;
-			do {
-				adjustp = false;
-				for (lst::const_iterator it = newx.begin(); it != newx.end(); ++it) {
-					if (*it == 1/p) {
-						p += (3-p)/2; 
-						adjustp = true;
-						continue;
-					}
-				}
-			} while (adjustp);
-			ex q = p / (p-1);
-			lst qlstx;
-			lst qlsts;
-			for (int j=r; j>=1; --j) {
-				qlstx.append(1-newx.op(j-1));
-				if (newx.op(j-1).info(info_flags::real) && newx.op(j-1) > 1 && newx.op(j-1) <= 2) {
-					qlsts.append( s.op(j-1));
-				} else {
-					qlsts.append( -s.op(j-1));
-				}
-			}
-			if (qlstx.nops() > 0) {
-				buffer *= G_numeric(qlstx, qlsts, 1/q);
-			}
-			lst plstx;
-			lst plsts;
-			for (int j=r+1; j<=size; ++j) {
-				plstx.append(newx.op(j-1));
-				plsts.append(s.op(j-1));
-			}
-			if (plstx.nops() > 0) {
-				buffer *= G_numeric(plstx, plsts, 1/p);
-			}
-			result += buffer;
-		}
-		return result;
-	}
-	
 	// do summation
 	lst newx;
 	lst m;
@@ -3098,7 +3097,7 @@ static ex H_evalf(const ex& x1, const ex& x2)
 		
 		// check transformations for 0.95 <= |x| < 2.0
 		
-		// |(1-x)/(1+x)| < 0.9 -> circular area with center=9,53+0i and radius=9.47
+		// |(1-x)/(1+x)| < 0.9 -> circular area with center=9.53+0i and radius=9.47
 		if (cln::abs(x-9.53) <= 9.47) {
 			// x -> (1-x)/(1+x)
 			map_trafo_H_1mxt1px trafo;
