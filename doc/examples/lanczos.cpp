@@ -48,170 +48,117 @@
  * MA  02110-1301 USA
  */
 
-#include <ginac/ginac.h>
+#include <vector>
+#include <cstddef> // for size_t
 #include <iostream>
+#include <cln/io.h>
+#include <cln/number.h>
+#include <cln/integer.h>
+#include <cln/rational.h>
+#include <cln/real.h>
+#include <cln/real_io.h>
+#include <cln/complex.h>
 
 using namespace std;
-using namespace GiNaC;
-
-/*
- * Double factorial function.
- */
-ex doublefact(int i)
-{	if (i==0 || i==-1)
-		return 1;
-	if (i>0)
-		return i*doublefact(i-2);
-	cout << "function doublefact called with wrong argument" << endl;
-	exit(1);
-}
+using namespace cln;
 
 /*
  * Chebyshev polynomial coefficient matrix as far as is required for
  * the Lanczos approximation.
  */
-void initialize_C_vec(vector<exvector> &C, int size)
-{	C.reserve(size);
-	for (int i=0; i<size; ++i)
-		C.push_back(exvector(size, 0));
-	C[1][1] = 1;
-	C[2][2] = 1;
-	for (int i=3; i<size; i+=2)
+void calc_chebyshev(vector<vector<cl_I> >& C, const size_t size)
+{	
+	C.reserve(size);
+	for (size_t i=0; i<size; ++i)
+		C.push_back(vector<cl_I>(size, 0));
+	C[1][1] = cl_I(1);
+	C[2][2] = cl_I(1);
+	for (size_t i=3; i<size; i+=2)
 		C[i][1] = -C[i-2][1];
-	for (int i=3; i<size; ++i)
+	for (size_t i=3; i<size; ++i)
 		C[i][i] = 2*C[i-1][i-1];
-	for (int j=2; j<size; ++j)
-		for (int i=j+2; i<size; i+=2)
+	for (size_t j=2; j<size; ++j)
+		for (size_t i=j+2; i<size; i+=2)
 			C[i][j] = 2*C[i-1][j-1] - C[i-2][j];
 }
 
 /*
  * The coefficients p_n(g) that occur in the Lanczos approximation.
  */
-ex p(int k, ex g, const vector<exvector> &C)
-{	ex result = 0;
-	for (int a=0; a<=k; ++a)
-		result += 2*C[2*k+1][2*a+1]/sqrt(Pi)*doublefact(2*a-1)
-			*power(2*a+2*g+1, -a-ex(1)/2)*exp(a+g+ex(1)/2);
+const cl_F p(const size_t k, const cl_F& g, const vector<vector<cln::cl_I> >& C)
+{	
+	const float_format_t prec = float_format(g);
+	const cl_F sqrtPi = sqrt(pi(prec));
+	cl_F result = cl_float(0, prec);
+
+	result = result + 
+		(2*C[2*k+1][1])*recip(sqrtPi)*
+		recip(sqrt(2*g+1))*exp(g+cl_RA(1)/2);
+
+	for (size_t a=1; a <= k; ++a)
+		result = result + 
+			(2*C[2*k+1][2*a+1]*doublefactorial(2*a-1))*recip(sqrtPi)*
+			recip(expt(2*cl_I(a)+2*g+1, a))*recip(sqrt(2*cl_I(a)+2*g+1))*
+			exp(cl_I(a)+g+cl_RA(1)/2);
 	return result;
 }
 
 /*
- * Check wheter x is of the form 1/(z+n) where z is given by the second
- * argument and n should be a positive integer that is returned as the
- * third argument. If x is not of this form, false is returned.
+ * Calculate coefficients that occurs in the expression for the
+ * Lanczos approximation of order n.
  */
-bool is_z_pole(const ex &x, const ex &z, ex &n)
-{	if (!is_a<power>(x))
-		return false;
-	if (x.op(1) != -1)
-		return false;
-	ex denom = x.op(0);
-	if (!is_a<add>(denom))
-		return false;
-	if (denom.nops() != 2)
-		return false;
-	if (denom.op(0) != z)
-		return false;
-	if (!denom.op(1).info(info_flags::posint))
-		return false;
-	n = denom.op(1);
-	return true;
-}
+void calc_lanczos_coeffs(vector<cl_F>& lanc, const cln::cl_F& g)
+{	
+	const size_t n = lanc.size();
+	vector<vector<cln::cl_I> > C;
+	calc_chebyshev(C, 2*n+2);
+	
+	// \Pi_{i=1}^n (z-i+1)/(z+i) = \Pi_{i=1}^n (1 - (2i-1)/(z+i))
+	// Such a product can be rewritten as multivariate polynomial \in
+	// Q[1/(z+1),...1/(z+n)] of degree 1. To store coefficients of this
+	// polynomial we use vector<cl_I>, so the set of such polynomials is
+	// stored as
+	vector<vector<cln::cl_I> > fractions(n);
+	
+	// xi = 1/(z+i)
+	fractions[0] = vector<cl_I>(1);
+	fractions[0][0] = cl_I(1);
+	fractions[1] = fractions[0];
+	fractions[1].push_back(cl_I(-1)); // 1 - 1/(z+1)
 
-/*
- * Simplify the expression x by applying the rules
- *
- *    1/(z+n)/(z+m) = 1/(n-m)/(z+m) - 1/(n-m)/(z+n);
- *    z^m/(z+n) = z^(m-1) - n*z^(m-1)/(z+n)
- *
- * as often as possible, where z is given as an argument to the function
- * and n and m are arbitrary positive numbers.
- */
-ex poles_simplify(const ex &x, const ex &z)
-{	if (is_a<mul>(x))
-	{	for (int i=0; i<x.nops(); ++i)
-		{	ex arg1;
-			if (!is_z_pole(x.op(i), z, arg1))
-				continue;
-			for (int j=i+1; j<x.nops(); ++j)
-			{	ex arg2;
-				if (!is_z_pole(x.op(j), z, arg2))
-					continue;
-				ex result = x/x.op(i)/(arg1-arg2)-x/x.op(j)/(arg1-arg2);
-				result = poles_simplify(result, z);
-				return result;
-			}
-		}
-		ex result = expand(x);
-		if (is_a<add>(result))
-			return poles_simplify(result, z);
-		for (int i=0; i<x.nops(); ++i)
-		{	ex arg1;
-			if (!is_z_pole(x.op(i), z, arg1))
-				continue;
-			for (int j=0; j<x.nops(); ++j)
-			{	ex expon = 0;
-				if (is_a<power>(x.op(j)) && x.op(j).op(0)==z
-						&& x.op(j).op(1).info(info_flags::posint))
-					expon = x.op(j).op(1);
-				if (x.op(j) == z)
-					expon = 1;
-				if (expon == 0)
-					continue;
-				ex result = x/x.op(i)/z - arg1*x/z;
-				result = poles_simplify(result, z);
-				return result;
-			}
-		}
-		return x;
-	}
-	if (is_a<add>(x))
-	{	pointer_to_map_function_1arg<const ex&> mf(poles_simplify, z);
-		return x.map(mf);
-	}
-	return x;
-}
+	for (size_t i=2; i<n; ++i)
+	{	
+		// next = previous*(1 - (2*i-1)*xi) = 
+		// previous - (2*i-1)*xi - (2i-1)*(previous-1)*xi
+		// Such representation is convenient since previous contains only
+		// only x1...x[i-1]
 
-/*
- * Calculate the expression A_g(z) that occurs in the expression for the
- * Lanczos approximation of order n. This is returned as an expression of
- * the form
- *
- *    A_g(z) = coeff[0] + coeff[1]/(z+1) + coeff[2]/(z+2) + ...
- *                + coeff[N-1]/(z+N-1).
- */
-ex A(const ex &g, const ex &z, int n)
-{	vector<exvector> C;
-	initialize_C_vec(C, 2*n+2);
-	ex result = evalf(p(0, g, C))/2;
-	ex fraction = 1;
-	for (int i=1; i<n; ++i)
-	{	fraction *= (z-i+1)/(z+i);
-		fraction = poles_simplify(fraction, z);
-		result += evalf(p(i, g, C))*fraction;
-	}
-	result = poles_simplify(result, z);
-	return result;
-}
-
-/*
- * The exvector coeffs should contain order elements and these are set to
- * the coefficients that belong to the Lanczos approximation of the gamma
- * function at the given order.
- */
-void calc_lanczos_coeffs(exvector &coeffs, double g_val, int order)
-{	symbol g("g"), z("z");
-	ex result = A(g, z, order);
-	result = result.subs(g==g_val);
-	for (int i=0; i<result.nops(); ++i)
-	{	if (is_a<numeric>(result.op(i)))
-			coeffs[0] = result.op(i);
-		else
-		{	ex n;
-			is_z_pole(result.op(i).op(0), z, n);
-			coeffs[ex_to<numeric>(n).to_int()] = result.op(i).op(1);
+		fractions[i] = fractions[i-1];
+		fractions[i].push_back(-cl_I(2*i-1)); // - (2*i-1)*xi
+		// Now add -(2i+1)*(previous-1)*xi using formula
+		// 1/(z+j)*1/(z+i) = 1/(i-j)*(1/(z+j) - 1/(z+i)), that is
+		// xj*xi = 1/(i-j)(xj - xi)
+		for (size_t j=1; j < i; j++) {
+			cl_I curr = - exquo(cl_I(2*i-1)*fractions[i-1][j], cl_I(i-j));
+			fractions[i][j] = fractions[i][j] + curr;
+			fractions[i][i] = fractions[i][i] - curr; 
+			// N.B. i-th polynomial has (i+1) non-zero coefficients
 		}
+	}
+
+	vector<cl_F> p_cache(n);
+	for (size_t i=0; i < n; i++)
+		p_cache[i] = p(i, g, C);
+
+	lanc[0] = p_cache[0]/2;
+
+	float_format_t prec = float_format(g);
+	// A = p(i, g, C)*fraction[i] = p(i, g, C)*F[i][j]*xj,
+	for (size_t j=1; j < n; ++j) {
+		lanc[j] = cl_float(0, prec);
+		lanc[0] = lanc[0] + p_cache[j];
+		for (size_t i=j; i < n; i++)
+			lanc[j] = lanc[j] + p_cache[i]*fractions[i][j];
 	}
 }
 
@@ -219,14 +166,19 @@ void calc_lanczos_coeffs(exvector &coeffs, double g_val, int order)
  * Calculate Gamma(z) using the Lanczos approximation with parameter g and
  * coefficients stored in the exvector coeffs.
  */
-ex calc_gamma(const ex &z, const ex &g, exvector &coeffs)
-{	if (real_part(evalf(z)) < 0.5)
-		 return evalf(Pi/sin(Pi*z)/calc_gamma(1-z, g, coeffs));
-	ex A = coeffs[0];
-	for (int i=1; i<coeffs.size(); ++i)
-		A += evalf(coeffs[i]/(z-1+i));
-	ex result = sqrt(2*Pi)*power(z+g-ex(1)/2, z-ex(1)/2)*exp(-(z+g-ex(1)/2))*A;
-	return evalf(result);
+const cl_N calc_gamma(const cl_N& z, const cl_F& g, const vector<cl_F>& lanc)
+{	
+	const cl_F thePi = pi(float_format(g)); 
+	// XXX: need to check if z is floating-point and precision of z
+	// matches one of g
+	if (realpart(z) < 0.5)
+		return (thePi/sin(thePi*z))/calc_gamma(1-z, g, lanc);
+	cl_N A = lanc[0];
+	for (size_t i=1; i < lanc.size(); ++i)
+		A = A + lanc[i]/(z-1+i);
+	cl_N result = sqrt(2*thePi)*expt(z+g-cl_RA(1)/2, z-cl_RA(1)/2)*
+		            exp(-(z+g-cl_RA(1)/2))*A;
+	return result;
 }
 
 void usage(char *progname)
@@ -234,27 +186,18 @@ void usage(char *progname)
 	exit(0);
 }
 
-void read_options(int argc, char**argv, int &order)
+void read_options(int argc, char**argv, int &order, int& digits)
 {  int c;
    while((c=getopt(argc,argv,"n:D:"))!=-1)
    {  if(c=='n')
          order = atoi(optarg);
       else if (c=='D')
-         Digits = atoi(optarg);
+         digits = atoi(optarg);
       else
          usage(argv[0]);
    }
    if(optind!=argc)
       usage(argv[0]);
-}
-
-/*
- * Do something stupid to the number x in order to round it to the current
- * numer of digits. Does somebody know a better way to do this? In that case,
- * please fix me.
- */
-ex round(const ex &x)
-{	return ex_to<numeric>(x).add(numeric("0.0"));
 }
 
 int main(int argc, char *argv[])
@@ -263,30 +206,33 @@ int main(int argc, char *argv[])
  * Handle command line options.
  */
 	int order = 10;
-	read_options(argc, argv, order);
+	int digits_ini = 17;
+	read_options(argc, argv, order, digits_ini);
+	float_format_t prec = float_format(digits_ini);
+	const cl_F thePi = pi(prec);
 /*
  * Calculate coefficients.
  */
-	const int g_val = order;
-	exvector coeffs(order);
-	calc_lanczos_coeffs(coeffs, g_val, order);
+	const cl_F g_val = cl_float(order, prec);
+	vector<cl_F> coeffs(order);
+	calc_lanczos_coeffs(coeffs, g_val);
 /*
  * Determine the accuracy by comparing Gamma(1/2) to sqrt(Pi).
  */
-	ex gamma_half = calc_gamma(ex(1)/2, g_val, coeffs);
-	ex digits = -log(abs((gamma_half - sqrt(Pi)))/sqrt(Pi))/log(10.0);
-	digits = evalf(digits);
-	int i_digits = int(ex_to<numeric>(digits).to_double());
-	if (digits < 1)
+	cl_N gamma_half = calc_gamma(cl_float(cl_RA(1)/2, prec), g_val, coeffs);
+	cl_F digits = (ln(thePi)/2 - ln(abs(gamma_half - sqrt(thePi))))/ln(cl_float(10, prec));
+	int i_digits = cl_I_to_int(floor1(digits));
+	if (digits < cl_I(1))
 		cout << "Forget it, this is waaaaaaay too inaccurate." << endl;
 	else
 		cout << "Reliable digits: " << i_digits << endl;
 /*
  * Print the coefficients.
  */
-	Digits = i_digits + 10; // Don't print too many spurious digits.
-	for (int i=0; i<coeffs.size(); ++i)
-		cout << "coeffs_" << order << "[" << i << "] = numeric(\""
-		     << round(coeffs[i]) << "\");"<< endl;
+	for (size_t i=0; i<coeffs.size(); ++i) {
+		cout << "coeffs_" << order << "[" << i << "] = \"";
+		cout << coeffs[i];
+		cout << "\";" << endl;
+	}
 	return 0;
 }
