@@ -6,9 +6,6 @@ includedir=@includedir@
 Name: GiNaC
 Description: C++ library for symbolic calculations
 Version: @VERSION@
-# uncomment this when a pkg-config'd cln exists
-# CAUTION: this will merge in the cln libs and cflags which are already in
-#          GINACLIB_LIBS and GINACLIB_CPPFLAGS
-#Requires: cln >= 1.1.0
-Libs: -L${libdir} -lginac @GINACLIB_LIBS@
-Cflags: -I${includedir} @GINACLIB_CPPFLAGS@
+Requires: cln >= 1.1.13
+Libs: -L${libdir} -lginac
+Cflags: -I${includedir}
