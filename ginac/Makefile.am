@@ -11,6 +11,7 @@ libginac_la_SOURCES = add.cpp archive.cpp basic.cpp clifford.cpp color.cpp \
   utils.cpp wildcard.cpp input_parser.yy input_lexer.ll \
   input_lexer.h remember.h tostring.h utils.h
 libginac_la_LDFLAGS = -version-info $(LT_VERSION_INFO) -release $(LT_RELEASE)
+libginac_la_LIBADD = $(DL_LIBS)
 ginacincludedir = $(includedir)/ginac
 ginacinclude_HEADERS = ginac.h add.h archive.h assertion.h basic.h class_info.h \
   clifford.h color.h constant.h container.h ex.h excompiler.h expair.h expairseq.h \

@@ -92,9 +92,6 @@ fi
 %{_libdir}/pkgconfig/ginac.pc
 %{_includedir}/ginac
 %{_infodir}/*.info*
-%{_mandir}/man1/ginac-config.1*
-%{_bindir}/ginac-config
-%{_datadir}/aclocal/ginac.m4
 
 %files utils
 %defattr(-,root,root)
