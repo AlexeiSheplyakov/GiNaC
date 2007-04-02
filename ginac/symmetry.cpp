@@ -23,6 +23,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <functional>
+#include <limits>
 
 #include "symmetry.h"
 #include "lst.h"
@@ -431,7 +432,7 @@ int canonicalize(exvector::iterator v, const symmetry &symm)
 {
 	// Less than two elements? Then do nothing
 	if (symm.indices.size() < 2)
-		return INT_MAX;
+		return std::numeric_limits<int>::max();
 
 	// Canonicalize children first
 	bool something_changed = false;
@@ -442,7 +443,7 @@ int canonicalize(exvector::iterator v, const symmetry &symm)
 		int child_sign = canonicalize(v, ex_to<symmetry>(*first));
 		if (child_sign == 0)
 			return 0;
-		if (child_sign != INT_MAX) {
+		if (child_sign != std::numeric_limits<int>::max()) {
 			something_changed = true;
 			sign *= child_sign;
 		}
@@ -469,7 +470,7 @@ int canonicalize(exvector::iterator v, const symmetry &symm)
 		default:
 			break;
 	}
-	return something_changed ? sign : INT_MAX;
+	return something_changed ? sign : std::numeric_limits<int>::max();
 }
 
 

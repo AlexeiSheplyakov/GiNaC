@@ -593,6 +593,7 @@ $implementation=<<END_OF_IMPLEMENTATION;
 #include <string>
 #include <stdexcept>
 #include <list>
+#include <limits>
 
 #include "function.h"
 #include "operators.h"
@@ -983,7 +984,7 @@ ex function::eval(int level) const
 		exvector v = seq;
 		GINAC_ASSERT(is_a<symmetry>(opt.symtree));
 		int sig = canonicalize(v.begin(), ex_to<symmetry>(opt.symtree));
-		if (sig != INT_MAX) {
+		if (sig != std::numeric_limits<int>::max()) {
 			// Something has changed while sorting arguments, more evaluations later
 			if (sig == 0)
 				return _ex0;

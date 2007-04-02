@@ -139,7 +139,7 @@ const symmetry & antisymmetric4();
  *  @param v Start of expression vector
  *  @param symm Root node of symmetry tree
  *  @return the overall sign introduced by the reordering (+1, -1 or 0)
- *          or INT_MAX if nothing changed */
+ *          or numeric_limits<int>::max() if nothing changed */
 extern int canonicalize(exvector::iterator v, const symmetry &symm);
 
 /** Symmetrize expression over a set of objects (symbols, indices). */

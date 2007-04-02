@@ -223,7 +223,7 @@ struct error_and_integral
 
 struct error_and_integral_is_less
 {
-	bool operator()(const error_and_integral &e1,const error_and_integral &e2)
+	bool operator()(const error_and_integral &e1,const error_and_integral &e2) const
 	{
 		int c = e1.integral.compare(e2.integral);
 		if(c < 0)

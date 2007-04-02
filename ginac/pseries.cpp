@@ -23,6 +23,7 @@
 
 #include <numeric>
 #include <stdexcept>
+#include <limits>
 
 #include "pseries.h"
 #include "add.h"
@@ -292,7 +293,7 @@ int pseries::degree(const ex &s) const
 		epvector::const_iterator it = seq.begin(), itend = seq.end();
 		if (it == itend)
 			return 0;
-		int max_pow = INT_MIN;
+		int max_pow = std::numeric_limits<int>::min();
 		while (it != itend) {
 			int pow = it->rest.degree(s);
 			if (pow > max_pow)
@@ -320,7 +321,7 @@ int pseries::ldegree(const ex &s) const
 		epvector::const_iterator it = seq.begin(), itend = seq.end();
 		if (it == itend)
 			return 0;
-		int min_pow = INT_MAX;
+		int min_pow = std::numeric_limits<int>::max();
 		while (it != itend) {
 			int pow = it->rest.ldegree(s);
 			if (pow < min_pow)
@@ -718,7 +719,7 @@ ex pseries::add_series(const pseries &other) const
 	epvector::const_iterator b = other.seq.begin();
 	epvector::const_iterator a_end = seq.end();
 	epvector::const_iterator b_end = other.seq.end();
-	int pow_a = INT_MAX, pow_b = INT_MAX;
+	int pow_a = std::numeric_limits<int>::max(), pow_b = std::numeric_limits<int>::max();
 	for (;;) {
 		// If a is empty, fill up with elements from b and stop
 		if (a == a_end) {
@@ -851,8 +852,8 @@ ex pseries::mul_series(const pseries &other) const
 	int cdeg_min = a_min + b_min;
 	int cdeg_max = a_max + b_max;
 	
-	int higher_order_a = INT_MAX;
-	int higher_order_b = INT_MAX;
+	int higher_order_a = std::numeric_limits<int>::max();
+	int higher_order_b = std::numeric_limits<int>::max();
 	if (is_order_function(coeff(var, a_max)))
 		higher_order_a = a_max + b_min;
 	if (is_order_function(other.coeff(var, b_max)))
@@ -873,7 +874,7 @@ ex pseries::mul_series(const pseries &other) const
 		if (!co.is_zero())
 			new_seq.push_back(expair(co, numeric(cdeg)));
 	}
-	if (higher_order_c < INT_MAX)
+	if (higher_order_c < std::numeric_limits<int>::max())
 		new_seq.push_back(expair(Order(_ex1), numeric(higher_order_c)));
 	return pseries(relational(var, point), new_seq);
 }

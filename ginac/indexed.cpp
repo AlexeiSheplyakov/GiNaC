@@ -23,6 +23,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <limits>
 
 #include "indexed.h"
 #include "idx.h"
@@ -306,7 +307,7 @@ ex indexed::eval(int level) const
 		exvector v = seq;
 		GINAC_ASSERT(is_exactly_a<symmetry>(symtree));
 		int sig = canonicalize(v.begin() + 1, ex_to<symmetry>(symtree));
-		if (sig != INT_MAX) {
+		if (sig != std::numeric_limits<int>::max()) {
 			// Something has changed while sorting indices, more evaluations later
 			if (sig == 0)
 				return _ex0;
