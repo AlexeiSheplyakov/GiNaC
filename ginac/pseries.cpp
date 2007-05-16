@@ -892,10 +892,13 @@ ex mul::series(const relational & r, int order, unsigned options) const
 		
 	// holds ldegrees of the series of individual factors
 	std::vector<int> ldegrees;
+	std::vector<bool> ldegree_redo;
 
 	// find minimal degrees
 	const epvector::const_iterator itbeg = seq.begin();
 	const epvector::const_iterator itend = seq.end();
+	// first round: obtain a bound up to which minimal degrees have to be
+	// considered
 	for (epvector::const_iterator it=itbeg; it!=itend; ++it) {
 
 		ex expon = it->coeff;
@@ -909,19 +912,61 @@ ex mul::series(const relational & r, int order, unsigned options) const
 		}
 
 		int real_ldegree = 0;
+		bool flag_redo = false;
 		try {
 			real_ldegree = buf.expand().ldegree(sym-r.rhs());
 		} catch (std::runtime_error) {}
 
 		if (real_ldegree == 0) {
+			if ( factor < 0 ) {
+				// This case must terminate, otherwise we would have division by
+				// zero.
+				int orderloop = 0;
+				do {
+					orderloop++;
+					real_ldegree = buf.series(r, orderloop, options).ldegree(sym);
+				} while (real_ldegree == orderloop);
+			} else {
+				// Here it is possible that buf does not have a ldegree, therefore
+				// check only if ldegree is negative, otherwise reconsider the case
+				// in the second round.
+				real_ldegree = buf.series(r, 0, options).ldegree(sym);
+				if (real_ldegree == 0)
+					flag_redo = true;
+			}
+		}
+
+		ldegrees.push_back(factor * real_ldegree);
+		ldegree_redo.push_back(flag_redo);
+	}
+
+	int degbound = order-std::accumulate(ldegrees.begin(), ldegrees.end(), 0);
+	// Second round: determine the remaining positive ldegrees by the series
+	// method.
+	// here we can ignore ldegrees larger than degbound
+	size_t j = 0;
+	for (epvector::const_iterator it=itbeg; it!=itend; ++it) {
+		if ( ldegree_redo[j] ) {
+			ex expon = it->coeff;
+			int factor = 1;
+			ex buf;
+			if (expon.info(info_flags::integer)) {
+				buf = it->rest;
+				factor = ex_to<numeric>(expon).to_int();
+			} else {
+				buf = recombine_pair_to_ex(*it);
+			}
+			int real_ldegree = 0;
 			int orderloop = 0;
 			do {
 				orderloop++;
 				real_ldegree = buf.series(r, orderloop, options).ldegree(sym);
-			} while (real_ldegree == orderloop);
+			} while ((real_ldegree == orderloop)
+					&& ( factor*real_ldegree < degbound));
+			ldegrees[j] = factor * real_ldegree;
+			degbound -= factor * real_ldegree;
 		}
-
-		ldegrees.push_back(factor * real_ldegree);
+		j++;
 	}
 
 	int degsum = std::accumulate(ldegrees.begin(), ldegrees.end(), 0);

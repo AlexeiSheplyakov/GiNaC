@@ -348,6 +348,18 @@ static unsigned exam_series12()
 	return result;
 }
 
+// Test of the patch of Stefan Weinzierl that prevents an infinite loop if
+// a factor in a product is a complicated way of writing zero.
+static unsigned exam_series13()
+{
+	unsigned result = 0;
+
+	ex e = pow(2,x)*( 1/x*(-(1+x)/(1-x)) + (1+x)/x/(1-x));
+	ex d = Order(x);
+	result += check_series(e,0,d,1);
+
+	return result;
+}
 
 unsigned exam_pseries()
 {
@@ -368,6 +380,7 @@ unsigned exam_pseries()
 	result += exam_series10();  cout << '.' << flush;
 	result += exam_series11();  cout << '.' << flush;
 	result += exam_series12();  cout << '.' << flush;
+	result += exam_series13();  cout << '.' << flush;
 	
 	if (!result) {
 		cout << " passed " << endl;
