@@ -37,6 +37,7 @@ namespace GiNaC {
 GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(idx, basic,
   print_func<print_context>(&idx::do_print).
   print_func<print_latex>(&idx::do_print_latex).
+  print_func<print_csrc>(&idx::do_print_csrc).
   print_func<print_tree>(&idx::do_print_tree))
 
 GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(varidx, idx,
@@ -159,6 +160,16 @@ void idx::do_print_latex(const print_latex & c, unsigned level) const
 	c.s << "{";
 	print_index(c, level);
 	c.s << "}";
+}
+
+void idx::do_print_csrc(const print_csrc & c, unsigned level) const
+{
+	c.s << "[";
+	if (value.info(info_flags::integer))
+		c.s << ex_to<numeric>(value).to_int();
+	else
+		value.print(c);
+	c.s << "]";
 }
 
 void idx::do_print_tree(const print_tree & c, unsigned level) const
