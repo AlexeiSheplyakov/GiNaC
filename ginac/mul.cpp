@@ -446,9 +446,62 @@ ex mul::eval(int level) const
 		}
 		return (new add(distrseq,
 		                ex_to<numeric>(addref.overall_coeff).
-		                mul_dyn(ex_to<numeric>(overall_coeff))))
-		      ->setflag(status_flags::dynallocated | status_flags::evaluated);
+		                mul_dyn(ex_to<numeric>(overall_coeff)))
+		       )->setflag(status_flags::dynallocated | status_flags::evaluated);
+	} else if (seq_size >= 2) {
+		// Strip the content and the unit part from each term. Thus
+		// things like (-x+a)*(3*x-3*a) automagically turn into - 3*(x-a)2
+
+		epvector::const_iterator last = seq.end();
+		epvector::const_iterator i = seq.begin();
+		while (i!=last) {
+			if (! (is_a<add>(i->rest) && i->coeff.is_equal(_ex1))) {
+				// power::eval has such a rule, no need to handle powers here
+				++i;
+				continue;
+			}
+
+			// XXX: What is the best way to check if the polynomial is a primitive? 
+			numeric c = i->rest.integer_content();
+			const numeric& lead_coeff =
+				ex_to<numeric>(ex_to<add>(i->rest).seq.begin()->coeff).div_dyn(c);
+			const bool canonicalizable = lead_coeff.is_integer();
+
+			// XXX: The main variable is chosen in a random way, so this code 
+			// does NOT transform the term into the canonical form (thus, in some
+			// very unlucky event it can even loop forever). Hopefully the main
+			// variable will be the same for all terms in *this
+			const bool unit_normal = lead_coeff.is_pos_integer();
+			if ((c == *_num1_p) && ((! canonicalizable) || unit_normal)) {
+				++i;
+				continue;
+			}
+
+			std::auto_ptr<epvector> s(new epvector);
+			s->reserve(seq.size());
+
+			epvector::const_iterator j=seq.begin();
+			while (j!=i) {
+				s->push_back(*j);
+				++j;
+			}
+
+			if (! unit_normal) {
+				c = c.mul(*_num_1_p);
+			}
+			const ex primitive = (i->rest)/c;
+			s->push_back(expair(primitive, _ex1));
+			++j;
+
+			while (j!=last) {
+				s->push_back(*j);
+				++j;
+			}
+			return (new mul(s, ex_to<numeric>(overall_coeff).mul_dyn(c))
+			       )->setflag(status_flags::dynallocated);
+		}
 	}
+
 	return this->hold();
 }
 

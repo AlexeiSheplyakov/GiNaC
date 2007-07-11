@@ -354,7 +354,8 @@ static unsigned exam_series13()
 {
 	unsigned result = 0;
 
-	ex e = pow(2,x)*( 1/x*(-(1+x)/(1-x)) + (1+x)/x/(1-x));
+	ex e = (new mul(pow(2,x), (1/x*(-(1+x)/(1-x)) + (1+x)/x/(1-x)))
+	       )->setflag(status_flags::evaluated);
 	ex d = Order(x);
 	result += check_series(e,0,d,1);
 
