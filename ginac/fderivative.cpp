@@ -31,6 +31,7 @@ namespace GiNaC {
 
 GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(fderivative, function,
   print_func<print_context>(&fderivative::do_print).
+  print_func<print_csrc>(&fderivative::do_print_csrc).
   print_func<print_tree>(&fderivative::do_print_tree))
 
 //////////
@@ -106,9 +107,21 @@ void fderivative::do_print(const print_context & c, unsigned level) const
 	c.s << "D[";
 	paramset::const_iterator i = parameter_set.begin(), end = parameter_set.end();
 	--end;
-	while (i != end)
+	while (i != end) {
 		c.s << *i++ << ",";
+	}
 	c.s << *i << "](" << registered_functions()[serial].name << ")";
+	printseq(c, '(', ',', ')', exprseq::precedence(), function::precedence());
+}
+
+void fderivative::do_print_csrc(const print_csrc & c, unsigned level) const
+{
+	c.s << "D_";
+	paramset::const_iterator i = parameter_set.begin(), end = parameter_set.end();
+	--end;
+	while (i != end)
+		c.s << *i++ << "_";
+	c.s << *i << "_" << registered_functions()[serial].name;
 	printseq(c, '(', ',', ')', exprseq::precedence(), function::precedence());
 }
 
