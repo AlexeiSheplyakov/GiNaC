@@ -265,8 +265,21 @@ void clifford::do_print_dflt(const print_dflt & c, unsigned level) const
 	if (is_dirac_slash(seq[0])) {
 		seq[0].print(c, precedence());
 		c.s << "\\";
-	} else
-		this->print_dispatch<inherited>(c, level);
+	} else { // We do not print representation label if it is 0
+		if (representation_label == 0) {
+			this->print_dispatch<inherited>(c, level);
+		} else { // otherwise we put it before indices in square brackets; the code is borrowed from indexed.cpp 
+			if (precedence() <= level) {
+				c.s << '(';
+			}
+			seq[0].print(c, precedence());
+			c.s << '[' << int(representation_label) << ']';
+			printindices(c, level);
+			if (precedence() <= level) {
+				c.s << ')';
+			}
+		}
+	}
 }
 
 void clifford::do_print_latex(const print_latex & c, unsigned level) const
