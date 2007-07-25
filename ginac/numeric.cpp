@@ -1397,11 +1397,11 @@ const numeric acos(const numeric &x)
 }
 	
 
-/** Arcustangent.
+/** Numeric arcustangent.
  *
  *  @param x complex number
  *  @return atan(x)
- *  @exception pole_error("atan(): logarithmic pole",0) */
+ *  @exception pole_error("atan(): logarithmic pole",0) if x==I or x==-I. */
 const numeric atan(const numeric &x)
 {
 	if (!x.is_real() &&
@@ -1412,18 +1412,36 @@ const numeric atan(const numeric &x)
 }
 
 
-/** Arcustangent.
+/** Numeric arcustangent of two arguments, analytically continued in a suitable way.
  *
- *  @param x real number
- *  @param y real number
- *  @return atan(y/x) */
+ *  @param y complex number
+ *  @param x complex number
+ *  @return -I*log((x+I*y)/sqrt(x^2+y^2)), which is equal to atan(y/x) if y and
+ *    x are both real.
+ *  @exception pole_error("atan(): logarithmic pole",0) if y/x==+I or y/x==-I. */
 const numeric atan(const numeric &y, const numeric &x)
 {
+	if (x.is_zero() && y.is_zero())
+		return *_num0_p;
 	if (x.is_real() && y.is_real())
 		return cln::atan(cln::the<cln::cl_R>(x.to_cl_N()),
 		                 cln::the<cln::cl_R>(y.to_cl_N()));
-	else
-		throw std::invalid_argument("atan(): complex argument");        
+
+	// Compute -I*log((x+I*y)/sqrt(x^2+y^2))
+	//      == -I*log((x+I*y)/sqrt((x+I*y)*(x-I*y)))
+	// Do not "simplify" this to -I/2*log((x+I*y)/(x-I*y))) or likewise.
+	// The branch cuts are easily messed up.
+	const cln::cl_N aux_p = x.to_cl_N()+cln::complex(0,1)*y.to_cl_N();
+	if (cln::zerop(aux_p)) {
+		// x+I*y==0 => y/x==I, so this is a pole (we have x!=0).
+		throw pole_error("atan(): logarithmic pole",0);
+	}
+	const cln::cl_N aux_m = x.to_cl_N()-cln::complex(0,1)*y.to_cl_N();
+	if (cln::zerop(aux_m)) {
+		// x-I*y==0 => y/x==-I, so this is a pole (we have x!=0).
+		throw pole_error("atan(): logarithmic pole",0);
+	}
+	return cln::complex(0,-1)*cln::log(aux_p/cln::sqrt(aux_p*aux_m));
 }
 
 
