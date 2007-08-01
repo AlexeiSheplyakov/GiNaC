@@ -1324,11 +1324,10 @@ ex clifford_moebius_map(const ex & a, const ex & b, const ex & c, const ex & d, 
 
 ex clifford_moebius_map(const ex & M, const ex & v, const ex & G, unsigned char rl)
 {
-	if (is_a<matrix>(M)) 
-		return clifford_moebius_map(ex_to<matrix>(M)(0,0), ex_to<matrix>(M)(0,1),
-		                            ex_to<matrix>(M)(1,0), ex_to<matrix>(M)(1,1), v, G, rl);
+	if (is_a<matrix>(M) && (ex_to<matrix>(M).rows() == 2) && (ex_to<matrix>(M).cols() == 2)) 
+		return clifford_moebius_map(M.op(0), M.op(1), M.op(2), M.op(3), v, G, rl);
 	else
-		throw(std::invalid_argument("clifford_moebius_map(): parameter M should be a matrix"));
+		throw(std::invalid_argument("clifford_moebius_map(): parameter M should be a 2x2 matrix"));
 }
 
 } // namespace GiNaC
