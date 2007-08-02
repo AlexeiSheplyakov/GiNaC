@@ -1,10 +1,46 @@
 This file records noteworthy changes.
 
 1.4.0 (<date>)
+* New tinfo mechanism.
+* Removed rtt from class symbol.
+* Faster archiving by adding a map from strings to indices in the atoms vector.
+* Improved unarchiving: algorithms order N instead of order N^2.
+* Added compile function, excompiler class.
+* Added exset type.
+* Added step function to GiNaCs built-in functions.
+* Added is_polynomial() method.
+* Added real_part() and imag_part() methods.
+* Added matrix::is_zero_matrix() method.
+* Added evalm() method to pseries class.
+* Improved dummy index renaming.
+* Many improvements for class clifford.
+* New flag for positive symbols/numbers, added possymbol class.
+* Added programming examples in doc/examples
 
-1.3.6 (<date>)
-* Better worst case behavior in heuristic gcd [Alexei Sheplyakov].
-* ...<please continue here>...
+1.3.8 (<date>)
+* Drop support of ginac-config and ginac.m4. Please use pkg-config instead.
+* atan2(y,x) branch cut correction.
+* Fixed bug in series expansion.
+* Additional transformations for mul and power.
+* Clifford units now honor representation labels.
+* Correct csrc output for idx and fderivative.
+* Improved handling of convergence transformationis for Li/G.
+* Fix compilation issues with prereleases of GCC 4.3.
+
+1.3.7 (05 February 2007)
+* Fixed bug in expansion of power.
+* Fixed bugs in functions S() (infinite loop), H() and zeta() (wrong results).
+* Rebuilt bison related files with bison version 2.3 (fixes parse error bugs).
+* Improved power::eval().
+* Improved libreadline detection.
+
+1.3.6 (13 December 2006)
+* Better worst case behavior in heuristic gcd.
+* Improved collecting for sparse multivariate polynomials.
+* Improved collect_common_factors.
+* Fixed bug in numerical evaluation of multiple polylogs.
+* Fixed numerical integration of complex functions.
+* Fixed bug in tensor::replace_contr_index().
 
 1.3.5 (17 August 2006)
 * Re-built bison related files that caused bugs with gcc 4.
