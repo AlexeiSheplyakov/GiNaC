@@ -266,6 +266,9 @@ inline bool is_zero(const numeric &x)
 inline bool is_positive(const numeric &x)
 { return x.is_positive(); }
 
+inline bool is_negative(const numeric &x)
+{ return x.is_negative(); }
+
 inline bool is_integer(const numeric &x)
 { return x.is_integer(); }
 
