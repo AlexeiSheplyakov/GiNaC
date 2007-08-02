@@ -1019,7 +1019,7 @@ internally such anonymous symbols can be quite useful, however).
 Now, here is one important property of GiNaC that differentiates it from
 other computer algebra programs you may have used: GiNaC does @emph{not} use
 the names of symbols to tell them apart, but a (hidden) serial number that
-is unique for each newly created @code{symbol} object. In you want to use
+is unique for each newly created @code{symbol} object. If you want to use
 one and the same symbol in different places in your program, you must only
 create one @code{symbol} object and pass that around. If you create another
 symbol, even if it has the same name, GiNaC will treat it as a different
@@ -1164,7 +1164,7 @@ the domain of the symbol. Instead of @code{symbol x("x");} you can write
 @cindex @code{possymbol()}
 Furthermore, it is also possible to declare a symbol as positive. This will,
 for instance, enable the automatic simplification of @code{abs(x)} into 
-@code{x}. This is done by declaying the symbol as @code{possymbol x("x");}.
+@code{x}. This is done by declaring the symbol as @code{possymbol x("x");}.
 
 
 @node Numbers, Constants, Symbols, Basic concepts
@@ -1335,7 +1335,7 @@ int main()
 @end example
 
 Note that the variable @code{answer} is constructed here as an integer
-by @code{numeric}'s copy constructor but in an intermediate step it
+by @code{numeric}'s copy constructor, but in an intermediate step it
 holds a rational number represented as integer numerator and integer
 denominator.  When multiplied by 10, the denominator becomes unity and
 the result is automatically converted to a pure integer again.
@@ -1353,6 +1353,8 @@ can be applied is listed in the following table.
 @tab @dots{}equal to zero
 @item @code{.is_positive()}
 @tab @dots{}not complex and greater than 0
+@item @code{.is_negative()}
+@tab @dots{}not complex and smaller than 0
 @item @code{.is_integer()}
 @tab @dots{}a (non-complex) integer
 @item @code{.is_pos_integer()}
@@ -1375,6 +1377,8 @@ can be applied is listed in the following table.
 @tab @dots{}an exact (complex) rational number (such as @math{2/3+7/2*I})
 @end multitable
 @end cartouche
+
+@page
 
 @subsection Numeric functions
 
@@ -1532,7 +1536,7 @@ specific number when the method @code{.evalf()} is called.
 The predefined known constants are:
 
 @cartouche
-@multitable @columnfractions .14 .30 .56
+@multitable @columnfractions .14 .32 .54
 @item @strong{Name} @tab @strong{Common Name} @tab @strong{Numerical Value (to 35 digits)}
 @item @code{Pi}
 @tab Archimedes' constant
@@ -1907,7 +1911,7 @@ return the integral unevaluated. The function that performs the numerical
 evaluation, is also available as
 @example
 ex adaptivesimpson(const ex & x, const ex & a, const ex & b, const ex & f,
-const ex & error)
+                   const ex & error)
 @end example
 This function will throw an exception if the maximum depth is exceeded. The
 last parameter of the function is optional and defaults to the
@@ -2688,7 +2692,7 @@ ex ex::simplify_indexed(const scalar_products & sp);
 
 that performs some more expensive operations:
 
-@itemize
+@itemize @bullet
 @item it checks the consistency of free indices in sums in the same way
   @code{get_free_indices()} does
 @item it tries to give dummy indices that appear in different terms of a sum
@@ -3038,7 +3042,7 @@ The @code{return_type()} function returns one of three values (defined in
 the header file @file{flags.h}), corresponding to three categories of
 expressions in GiNaC:
 
-@itemize
+@itemize @bullet
 @item @code{return_types::commutative}: Commutates with everything. Most GiNaC
   classes are of this kind.
 @item @code{return_types::noncommutative}: Non-commutative, belonging to a
@@ -3054,8 +3058,8 @@ expressions in GiNaC:
 
 The value returned by the @code{return_type_tinfo()} method is valid only
 when the return type of the expression is @code{noncommutative}. It is a
-value that is unique to the class of the object and usually one of the
-constants in @file{tinfos.h}, or derived therefrom.
+value that is unique to the class of the object, but may vary every time a
+GiNaC program is being run (it is dynamically assigned on start-up).
 
 Here are a couple of examples:
 
@@ -3204,14 +3208,20 @@ ordinary matrix trace only in @math{D = 4} dimensions. In particular, the
 functional is not cyclic in
 @tex $D \ne 4$
 @end tex
+@ifnottex
+@math{D != 4}
+@end ifnottex
 dimensions when acting on
 expressions containing @samp{gamma5}, so it's not a proper trace. This
-@samp{gamma5} scheme is described in greater detail in
-@cite{The Role of gamma5 in Dimensional Regularization}.
+@samp{gamma5} scheme is described in greater detail in the article
+@cite{The Role of gamma5 in Dimensional Regularization} (@ref{Bibliography}).
 
 The value of the trace itself is also usually different in 4 and in
 @tex $D \ne 4$
 @end tex
+@ifnottex
+@math{D != 4}
+@end ifnottex
 dimensions:
 
 @example
@@ -3280,16 +3290,21 @@ You can use this to compare two expressions or for further simplifications:
 @subsubsection A generic Clifford algebra
 
 A generic Clifford algebra, i.e. a
-@tex
-$2^n$
+@tex $2^n$
 @end tex
+@ifnottex
+2^n
+@end ifnottex
 dimensional algebra with
 generators 
 @tex $e_k$
 @end tex 
+@ifnottex
+e_k
+@end ifnottex
 satisfying the identities 
 @tex
-$e_i e_j + e_j e_i = M(i, j) + M(j, i) $
+$e_i e_j + e_j e_i = M(i, j) + M(j, i)$
 @end tex
 @ifnottex
 e~i e~j + e~j e~i = M(i, j) + M(j, i) 
@@ -3560,7 +3575,7 @@ LaTeX output for Clifford units looks like
 @code{\clifford[1]@{e@}^@{@{\nu@}@}}, where @code{1} is the
 @code{representation_label} and @code{\nu} is the index of the
 corresponding unit. This provides a flexible typesetting with a suitable
-defintion of the @code{\clifford} command. For example, the definition
+definition of the @code{\clifford} command. For example, the definition
 @example
     \newcommand@{\clifford@}[1][]@{@}
 @end example
@@ -4278,10 +4293,10 @@ The optional last argument to @code{subs()} is a combination of
 large @code{subs()} operations significantly faster if you are not using
 patterns. The second option, @code{subs_options::algebraic} enables
 algebraic substitutions in products and powers.
-@ref{Pattern matching and advanced substitutions}, for more information
+@xref{Pattern matching and advanced substitutions}, for more information
 about patterns and algebraic substitutions. The third option,
 @code{subs_options::no_index_renaming} disables the feature that dummy
-indices are renamed if the subsitution could give a result in which a
+indices are renamed if the substitution could give a result in which a
 dummy index occurs more than two times. This is sometimes necessary if
 you want to use @code{subs()} to rename your dummy indices.
 
@@ -4349,7 +4364,7 @@ Some examples for patterns:
 
 Notes:
 
-@itemize
+@itemize @bullet
 @item Wildcards behave like symbols and are subject to the same algebraic
   rules. E.g., @samp{$0+2*$0} is automatically transformed to @samp{3*$0}.
 @item As shown in the last example, to use wildcards for indices you have to
@@ -4591,7 +4606,7 @@ The last example would be written in C++ in this way:
 Both @code{has()} and @code{subs()} take an optional argument to pass them
 extra options. This section describes what happens if you give the former
 the option @code{has_options::algebraic} or the latter
-@code{subs:options::algebraic}. In that case the matching condition for
+@code{subs_options::algebraic}. In that case the matching condition for
 powers and multiplications is changed in such a way that they become
 more intuitive. Intuition says that @code{x*y} is a part of @code{x*y*z}.
 If you use these options you will find that
@@ -4601,7 +4616,9 @@ often as is possible without getting negative exponents. For example
 @code{(x^5*y^2*z).subs(x^2*y^2==c, subs_options::algebraic)} will return
 @code{x*c^2*z}. This also works with negative powers:
 @code{(x^(-3)*y^(-2)*z).subs(1/(x*y)==c, subs_options::algebraic)} will
-return @code{x^(-1)*c^2*z}. Note that this only works for multiplications
+return @code{x^(-1)*c^2*z}. 
+
+@strong{Note:} this only works for multiplications
 and not for locating @code{x+y} within @code{x+y+z}.
 
 
@@ -5587,6 +5604,9 @@ value of Archimedes' constant
 @tex
 $\pi$
 @end tex
+@ifnottex
+@math{Pi}
+@end ifnottex
 (for which there already exists the built-in constant @code{Pi}) 
 using John Machin's amazing formula
 @tex
@@ -5696,6 +5716,8 @@ almost any kind of object (anything that is @code{subs()}able):
      // -> 1/3*@{a,b,c@}+1/3*@{b,c,a@}+1/3*@{c,a,b@}
 @}
 @end example
+
+@page
 
 @node Built-in functions, Multiple polylogarithms, Symmetrization, Methods and functions
 @c    node-name, next, previous, up
@@ -5892,11 +5914,20 @@ ${\rm H\;\!}_{m_1,m_2,\ldots,m_k}(x)$ and
 @tex
 $\zeta(m_1,m_2,\ldots,m_k)$.
 @end tex
+@ifnottex
+@command{\mbox@{Li@}_@{m_1,m_2,...,m_k@}(x_1,x_2,...,x_k)},
+@command{\mbox@{S@}_@{n,p@}(x)},
+@command{\mbox@{H@}_@{m_1,m_2,...,m_k@}(x)} and 
+@command{\zeta(m_1,m_2,...,m_k)} (with the dots replaced by actual parameters).
+@end ifnottex
 If @code{zeta} is an alternating zeta sum, i.e. @code{zeta(m,s)}, the indices with negative sign
 are printed with a line above, e.g.
 @tex
 $\zeta(5,\overline{2})$.
 @end tex
+@ifnottex
+@command{\zeta(5,\overline@{2@})}.
+@end ifnottex
 The order of indices and arguments in the GiNaC @code{lst}s and in the output is the same.
 
 Definitions and analytical as well as numerical properties of multiple polylogarithms
@@ -5916,8 +5947,13 @@ ${\rm Li\;\!}_{2,1}(1,1) = \zeta(2,1) = \zeta(3)$, but
 @tex
 $\zeta(1,2)$ evaluates to infinity.
 @end tex
-So in comparison to the referenced publications the order of indices and arguments for @code{Li}
-is reversed.
+@ifnottex
+@code{Li_@{m_1,m_2,m_3@}(x,1,1) = H_@{m_1,m_2,m_3@}(x)} and 
+@code{Li_@{2,1@}(1,1) = zeta(2,1) = zeta(3)}, but
+@code{zeta(1,2)} evaluates to infinity.
+@end ifnottex
+So in comparison to the older ones of the referenced publications the order of
+indices and arguments for @code{Li} is reversed.
 
 The functions only evaluate if the indices are integers greater than zero, except for the indices
 @code{s} in @code{zeta} and @code{G} as well as @code{m} in @code{H}. Since @code{s}
@@ -5928,11 +5964,17 @@ corresponding arguments @code{a}, it must contain 1 or -1, e.g.
 @tex
 $\zeta(\overline{3},4)$
 @end tex
+@ifnottex
+@command{zeta(\overline@{3@},4)}
+@end ifnottex
 and
 @code{G(lst(a,b), lst(-1,1), c)} means
 @tex
 $G(a-0\epsilon,b+0\epsilon;c)$.
 @end tex
+@ifnottex
+@command{G(a-0\epsilon,b+0\epsilon;c)}.
+@end ifnottex
 The definition of @code{H} allows indices to be 0, 1 or -1 (in expanded notation) or equally to
 be any integer (in compact notation). With GiNaC expanded and compact notation can be mixed,
 e.g. @code{lst(0,0,-1,0,1,0,0)}, @code{lst(0,0,-1,2,0,0)} and @code{lst(-3,2,0,0)} are equivalent as
@@ -5983,6 +6025,9 @@ unevaluated, e.g.
 @tex
 $\zeta(1)$.
 @end tex
+@ifnottex
+@command{zeta(1)}.
+@end ifnottex
 In long expressions this helps a lot with debugging, because you can easily spot
 the divergencies. But on the other hand, you have to make sure for yourself, that no illegal
 cancellations of divergencies happen.
@@ -6017,7 +6062,7 @@ ex ex::imag_part();
 
 that return respectively the complex conjugate, the real part and the
 imaginary part of an expression. Complex conjugation works as expected
-for all built-in functinos and objects. Taking real and imaginary
+for all built-in functions and objects. Taking real and imaginary
 parts has not yet been implemented for all built-in functions. In cases where
 it is not known how to conjugate or take a real/imaginary part one
 of the functions @code{conjugate}, @code{real_part} or @code{imag_part}
@@ -7782,8 +7827,8 @@ class mystring : public basic
     GINAC_DECLARE_REGISTERED_CLASS(mystring, basic)
   
 public:
-    mystring(const string &s);
-    mystring(const char *s);
+    mystring(const string & s);
+    mystring(const char * s);
 
 private:
     string str;
@@ -7818,23 +7863,23 @@ class:
 @code{mystring()}, the default constructor.
 
 @item
-@code{void archive(archive_node &n)}, the archiving function. This stores all
+@code{void archive(archive_node & n)}, the archiving function. This stores all
 information needed to reconstruct an object of this class inside an
 @code{archive_node}.
 
 @item
-@code{mystring(const archive_node &n, lst &sym_lst)}, the unarchiving
+@code{mystring(const archive_node & n, lst & sym_lst)}, the unarchiving
 constructor. This constructs an instance of the class from the information
 found in an @code{archive_node}.
 
 @item
-@code{ex unarchive(const archive_node &n, lst &sym_lst)}, the static
+@code{ex unarchive(const archive_node & n, lst & sym_lst)}, the static
 unarchiving function. It constructs a new instance by calling the unarchiving
 constructor.
 
 @item
 @cindex @code{compare_same_type()}
-@code{int compare_same_type(const basic &other)}, which is used internally
+@code{int compare_same_type(const basic & other)}, which is used internally
 by GiNaC to establish a canonical sort order for terms. It returns 0, +1 or
 -1, depending on the relative order of this object and the @code{other}
 object. If it returns 0, the objects are considered equal.
@@ -7847,7 +7892,7 @@ objects for which no reasonable algebraic ordering relationship can be
 defined.
 
 @item
-And, of course, @code{mystring(const string &s)} and @code{mystring(const char *s)}
+And, of course, @code{mystring(const string & s)} and @code{mystring(const char * s)}
 which are the two constructors we declared.
 
 @end itemize
@@ -7879,7 +7924,7 @@ if you don't plan to use archives, but the minimum required implementation
 is really simple.  First, the archiving function:
 
 @example
-void mystring::archive(archive_node &n) const
+void mystring::archive(archive_node & n) const
 @{
     inherited::archive(n);
     n.add_string("string", str);
@@ -7897,7 +7942,7 @@ The unarchiving constructor is basically the inverse of the archiving
 function:
 
 @example
-mystring::mystring(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
+mystring::mystring(const archive_node & n, lst & sym_lst) : inherited(n, sym_lst)
 @{
     n.find_string("string", str);
 @}
@@ -7911,7 +7956,7 @@ by the unarchiving constructor of the @code{basic} class.
 Finally, the unarchiving function:
 
 @example
-ex mystring::unarchive(const archive_node &n, lst &sym_lst)
+ex mystring::unarchive(const archive_node & n, lst & sym_lst)
 @{
     return (new mystring(n, sym_lst))->setflag(status_flags::dynallocated);
 @}
@@ -7930,7 +7975,7 @@ Our @code{compare_same_type()} function uses a provided function to compare
 the string members:
 
 @example
-int mystring::compare_same_type(const basic &other) const
+int mystring::compare_same_type(const basic & other) const
 @{
     const mystring &o = static_cast<const mystring &>(other);
     int cmpval = str.compare(o.str);
@@ -7952,8 +7997,10 @@ all relevant member variables.
 Now the only thing missing is our two new constructors:
 
 @example
-mystring::mystring(const string &s) : inherited(&mystring::tinfo_static), str(s) @{@}
-mystring::mystring(const char *s) : inherited(&mystring::tinfo_static), str(s) @{@}
+mystring::mystring(const string & s)
+    : inherited(&mystring::tinfo_static), str(s) @{@}
+mystring::mystring(const char * s)
+    : inherited(&mystring::tinfo_static), str(s) @{@}
 @end example
 
 No surprises here. We set the @code{str} member from the argument and
@@ -7989,11 +8036,11 @@ class mystring : public basic
 @{
     ...
 protected:
-    void do_print(const print_context &c, unsigned level = 0) const;
+    void do_print(const print_context & c, unsigned level = 0) const;
     ...
 @};
 
-void mystring::do_print(const print_context &c, unsigned level) const
+void mystring::do_print(const print_context & c, unsigned level) const
 @{
     // print_context::s is a reference to an ostream
     c.s << '\"' << str << '\"';
@@ -8138,7 +8185,7 @@ required but will make operations with objects of the class more efficient:
 @cindex @code{is_equal_same_type()}
 @example
 unsigned calchash() const;
-bool is_equal_same_type(const basic &other) const;
+bool is_equal_same_type(const basic & other) const;
 @end example
 
 The @code{calchash()} method returns an @code{unsigned} hash value for the
