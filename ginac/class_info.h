@@ -24,6 +24,7 @@
 #define __GINAC_CLASS_INFO_H__
 
 #include <cstddef> // for size_t
+#include <cstring>
 #include <vector>
 #include <map>
 #include <string>
@@ -179,7 +180,7 @@ void class_info<OPT>::identify_parents()
 		for (class_info *p = first; p; p = p->next) {
 			const char *parent_name = p->options.get_parent_name();
 			for (class_info *q = first; q; q = q->next) {
-				if (strcmp(q->options.get_name(), parent_name) == 0) {
+				if (std::strcmp(q->options.get_name(), parent_name) == 0) {
 					p->parent = q;
 					break;
 				}
