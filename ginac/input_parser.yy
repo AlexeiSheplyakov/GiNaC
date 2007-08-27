@@ -105,6 +105,10 @@ exp	: T_NUMBER		{$$ = $1;}
 			if ($3.nops() != 1)
 				throw (std::runtime_error("too many arguments to sqrt()"));
 			$$ = sqrt($3.op(0));
+		} else if (n == "pow" || n == "power") {
+		  if ($3.nops() != 2) 
+			  throw std::invalid_argument("wrong number of arguments to pow()");
+			$$ = power($3.op(0), $3.op(0));
 		} else {
 			unsigned i = function::find_function(n, $3.nops());
 			$$ = function(i, ex_to<exprseq>($3)).eval(1);
