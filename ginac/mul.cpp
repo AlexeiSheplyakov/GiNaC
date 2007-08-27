@@ -34,6 +34,7 @@
 #include "lst.h"
 #include "archive.h"
 #include "utils.h"
+#include "compiler.h"
 
 namespace GiNaC {
 
@@ -422,7 +423,7 @@ ex mul::eval(int level) const
 		return *this;
 	}
 	
-	int seq_size = seq.size();
+	size_t seq_size = seq.size();
 	if (overall_coeff.is_zero()) {
 		// *(...,x;0) -> 0
 		return _ex0;
@@ -448,14 +449,18 @@ ex mul::eval(int level) const
 		                ex_to<numeric>(addref.overall_coeff).
 		                mul_dyn(ex_to<numeric>(overall_coeff)))
 		       )->setflag(status_flags::dynallocated | status_flags::evaluated);
-	} else if (seq_size >= 2) {
+	} else if ((seq_size >= 2) && (! (flags & status_flags::expanded))) {
 		// Strip the content and the unit part from each term. Thus
 		// things like (-x+a)*(3*x-3*a) automagically turn into - 3*(x-a)2
 
 		epvector::const_iterator last = seq.end();
 		epvector::const_iterator i = seq.begin();
+		epvector::const_iterator j = seq.begin();
+		std::auto_ptr<epvector> s(new epvector);
+		numeric oc = *_num1_p;
+		bool something_changed = false;
 		while (i!=last) {
-			if (! (is_a<add>(i->rest) && i->coeff.is_equal(_ex1))) {
+			if (likely(! (is_a<add>(i->rest) && i->coeff.is_equal(_ex1)))) {
 				// power::eval has such a rule, no need to handle powers here
 				++i;
 				continue;
@@ -472,32 +477,47 @@ ex mul::eval(int level) const
 			// very unlucky event it can even loop forever). Hopefully the main
 			// variable will be the same for all terms in *this
 			const bool unit_normal = lead_coeff.is_pos_integer();
-			if ((c == *_num1_p) && ((! canonicalizable) || unit_normal)) {
+			if (likely((c == *_num1_p) && ((! canonicalizable) || unit_normal))) {
 				++i;
 				continue;
 			}
 
-			std::auto_ptr<epvector> s(new epvector);
-			s->reserve(seq.size());
+			if (! something_changed) {
+				s->reserve(seq_size);
+				something_changed = true;
+			}
 
-			epvector::const_iterator j=seq.begin();
-			while (j!=i) {
+			while ((j!=i) && (j!=last)) {
 				s->push_back(*j);
 				++j;
 			}
 
-			if (! unit_normal) {
+			if (! unit_normal)
 				c = c.mul(*_num_1_p);
-			}
-			const ex primitive = (i->rest)/c;
-			s->push_back(expair(primitive, _ex1));
-			++j;
 
+			oc = oc.mul(c);
+
+			// divide add by the number in place to save at least 2 .eval() calls
+			const add& addref = ex_to<add>(i->rest);
+			add* primitive = new add(addref);
+			primitive->setflag(status_flags::dynallocated);
+			primitive->clearflag(status_flags::hash_calculated);
+			primitive->overall_coeff = ex_to<numeric>(primitive->overall_coeff).div_dyn(c);
+			for (epvector::iterator ai = primitive->seq.begin();
+					ai != primitive->seq.end(); ++ai)
+				ai->coeff = ex_to<numeric>(ai->coeff).div_dyn(c);
+			
+			s->push_back(expair(*primitive, _ex1));
+
+			++i;
+			++j;
+		}
+		if (something_changed) {
 			while (j!=last) {
 				s->push_back(*j);
 				++j;
 			}
-			return (new mul(s, ex_to<numeric>(overall_coeff).mul_dyn(c))
+			return (new mul(s, ex_to<numeric>(overall_coeff).mul_dyn(oc))
 			       )->setflag(status_flags::dynallocated);
 		}
 	}

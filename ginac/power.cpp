@@ -41,6 +41,7 @@
 #include "archive.h"
 #include "utils.h"
 #include "relational.h"
+#include "compiler.h"
 
 namespace GiNaC {
 
@@ -482,25 +483,29 @@ ex power::eval(int level) const
 
 		// (2*x + 6*y)^(-4) -> 1/16*(x + 3*y)^(-4)
 		if (num_exponent->is_integer() && is_exactly_a<add>(ebasis)) {
-			const numeric icont = ebasis.integer_content();
+			numeric icont = ebasis.integer_content();
 			const numeric& lead_coeff = 
 				ex_to<numeric>(ex_to<add>(ebasis).seq.begin()->coeff).div_dyn(icont);
 
 			const bool canonicalizable = lead_coeff.is_integer();
 			const bool unit_normal = lead_coeff.is_pos_integer();
+			if (canonicalizable && (! unit_normal))
+				icont = icont.mul(*_num_1_p);
+			
+			if (canonicalizable && (icont != *_num1_p)) {
+				const add& addref = ex_to<add>(ebasis);
+				add* addp = new add(addref);
+				addp->setflag(status_flags::dynallocated);
+				addp->clearflag(status_flags::hash_calculated);
+				addp->overall_coeff = ex_to<numeric>(addp->overall_coeff).div_dyn(icont);
+				for (epvector::iterator i = addp->seq.begin(); i != addp->seq.end(); ++i)
+					i->coeff = ex_to<numeric>(i->coeff).div_dyn(icont);
 
-			if (icont != *_num1_p) {
-				return (new mul(power(ebasis/icont, *num_exponent), power(icont, *num_exponent))
-				       )->setflag(status_flags::dynallocated);
-			}
-
-			if (canonicalizable && (! unit_normal)) {
-				if (num_exponent->is_even()) {
-					return power(-ebasis, *num_exponent);
-				} else {
-					return (new mul(power(-ebasis, *num_exponent), *_num_1_p)
-					       )->setflag(status_flags::dynallocated);
-				}
+				const numeric c = icont.power(*num_exponent);
+				if (likely(c != *_num1_p))
+					return (new mul(power(*addp, *num_exponent), c))->setflag(status_flags::dynallocated);
+				else
+					return power(*addp, *num_exponent);
 			}
 		}
 
