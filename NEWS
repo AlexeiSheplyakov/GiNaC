@@ -26,6 +26,9 @@ This file records noteworthy changes.
 * Correct csrc output for idx and fderivative.
 * Improved handling of convergence transformationis for Li/G.
 * Fix compilation issues with prereleases of GCC 4.3.
+* info_flags::expanded added.
+* input_parser also accepts pow().
+* texinfo.tex removed from package.
 
 1.3.7 (05 February 2007)
 * Fixed bug in expansion of power.
