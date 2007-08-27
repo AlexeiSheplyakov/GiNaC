@@ -1183,13 +1183,20 @@ ex lst_to_clifford(const ex & v, const ex & e) {
 			if (min == 1) {
 				if (dim == max)
 					return indexed(v, mu_toggle) * e;
-				else
+				else if (max - dim == 1) {
+					if (ex_to<matrix>(v).cols() > ex_to<matrix>(v).rows())
+						return v.op(0) * dirac_ONE(ex_to<clifford>(e).get_representation_label()) + indexed(sub_matrix(ex_to<matrix>(v), 0, 1, 1, dim), mu_toggle) * e;
+					else 
+						return v.op(0) * dirac_ONE(ex_to<clifford>(e).get_representation_label()) + indexed(sub_matrix(ex_to<matrix>(v), 1, dim, 0, 1), mu_toggle) * e;
+ 				} else
 					throw(std::invalid_argument("lst_to_clifford(): dimensions of vector and clifford unit mismatch"));
 			} else
 				throw(std::invalid_argument("lst_to_clifford(): first argument should be a vector (nx1 or 1xn matrix)"));
 		} else if (v.info(info_flags::list)) {
 			if (dim == ex_to<lst>(v).nops())
 				return indexed(matrix(dim, 1, ex_to<lst>(v)), mu_toggle) * e;
+			else if (ex_to<lst>(v).nops() - dim == 1)
+				return v.op(0) * dirac_ONE(ex_to<clifford>(e).get_representation_label()) + indexed(sub_matrix(matrix(dim+1, 1, ex_to<lst>(v)), 1, dim, 0, 1), mu_toggle) * e;
 			else
 				throw(std::invalid_argument("lst_to_clifford(): list length and dimension of clifford unit mismatch"));
 		} else
@@ -1274,19 +1281,28 @@ lst clifford_to_lst(const ex & e, const ex & c, bool algebraic)
 				or (not is_a<numeric>(pow(c.subs(mu == i, subs_options::no_pattern), 2))))
 				algebraic = false;
 	lst V; 
+	ex v0 = remove_dirac_ONE(canonicalize_clifford(e+clifford_prime(e)).normal())/2;
+	if (not v0.is_zero())
+		V.append(v0);
+	ex e1 = canonicalize_clifford(e - v0 * dirac_ONE(ex_to<clifford>(c).get_representation_label())); 
 	if (algebraic) {
 		for (unsigned int i = 0; i < D; i++) 
 			V.append(remove_dirac_ONE(
-						simplify_indexed(canonicalize_clifford(e * c.subs(mu == i, subs_options::no_pattern) +  c.subs(mu == i, subs_options::no_pattern) * e))
+						simplify_indexed(canonicalize_clifford(e1 * c.subs(mu == i, subs_options::no_pattern) +  c.subs(mu == i, subs_options::no_pattern) * e1))
 						/ (2*pow(c.subs(mu == i, subs_options::no_pattern), 2))));
 	} else {
-		ex e1 = canonicalize_clifford(e);
 		try {
 			for (unsigned int i = 0; i < D; i++) 
 				V.append(get_clifford_comp(e1, c.subs(c.op(1) == i, subs_options::no_pattern)));
 		} catch  (std::exception &p) {
 			/* Try to expand dummy summations to simplify the expression*/
-			e1 = canonicalize_clifford(expand_dummy_sum(e1, true));
+			e1 = canonicalize_clifford(expand_dummy_sum(e, true));
+			V.remove_all();
+			v0 = remove_dirac_ONE(canonicalize_clifford(e1+clifford_prime(e1)).normal())/2;
+			if (not v0.is_zero()) {
+				V.append(v0);
+				e1 = canonicalize_clifford(e1 - v0 * dirac_ONE(ex_to<clifford>(c).get_representation_label())); 
+			}
 			for (unsigned int i = 0; i < D; i++) 
 				V.append(get_clifford_comp(e1, c.subs(c.op(1) == i, subs_options::no_pattern)));
 		}

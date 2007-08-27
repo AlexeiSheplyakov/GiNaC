@@ -410,12 +410,22 @@ template <typename IDX> unsigned clifford_check6(const matrix &A)
 	result += check_equal(canonicalize_clifford(e), 0);
 
 /* lst_to_clifford() and clifford_inverse()  check*/
-	realsymbol x("x"), y("y"), t("t"), z("z");
+	realsymbol s("s"), t("t"), x("x"), y("y"), z("z");
 
 	ex c = clifford_unit(nu, A, 1);
 	e = lst_to_clifford(lst(t, x, y, z), mu, A, 1) * lst_to_clifford(lst(1, 2, 3, 4), c);
 	e1 = clifford_inverse(e);
 	result += check_equal_simplify_term2((e*e1).simplify_indexed(), dirac_ONE(1));
+
+/* lst_to_clifford() and clifford_to_lst()  check for vectors*/
+	e = lst(t, x, y, z);
+	result += check_equal_lst(clifford_to_lst(lst_to_clifford(e, c), c, false), e);
+	result += check_equal_lst(clifford_to_lst(lst_to_clifford(e, c), c, true), e);
+
+/* lst_to_clifford() and clifford_to_lst()  check for pseudovectors*/
+	e = lst(s, t, x, y, z);
+	result += check_equal_lst(clifford_to_lst(lst_to_clifford(e, c), c, false), e);
+	result += check_equal_lst(clifford_to_lst(lst_to_clifford(e, c), c, true), e);
 
 /* Moebius map (both forms) checks for symmetric metrics only */
 	matrix M1(2, 2),  M2(2, 2);
