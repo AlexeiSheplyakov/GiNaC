@@ -267,6 +267,8 @@ void expairseq::do_print_tree(const print_tree & c, unsigned level) const
 
 bool expairseq::info(unsigned inf) const
 {
+	if (inf == info_flags::expanded)
+		return (flags & status_flags::expanded);
 	return inherited::info(inf);
 }
 

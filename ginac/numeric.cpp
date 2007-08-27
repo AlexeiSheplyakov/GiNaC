@@ -576,6 +576,7 @@ bool numeric::info(unsigned inf) const
 		case info_flags::numeric:
 		case info_flags::polynomial:
 		case info_flags::rational_function:
+		case info_flags::expanded:
 			return true;
 		case info_flags::real:
 			return is_real();

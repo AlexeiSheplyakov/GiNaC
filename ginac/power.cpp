@@ -231,6 +231,8 @@ bool power::info(unsigned inf) const
 		case info_flags::algebraic:
 			return !exponent.info(info_flags::integer) ||
 			       basis.info(inf);
+		case info_flags::expanded:
+			return (flags & status_flags::expanded);
 	}
 	return inherited::info(inf);
 }

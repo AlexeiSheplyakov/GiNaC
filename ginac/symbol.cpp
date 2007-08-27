@@ -214,7 +214,8 @@ bool symbol::info(unsigned inf) const
 	    inf == info_flags::cinteger_polynomial ||
 	    inf == info_flags::rational_polynomial ||
 	    inf == info_flags::crational_polynomial ||
-	    inf == info_flags::rational_function)
+	    inf == info_flags::rational_function ||
+			inf == info_flags::expanded)
 		return true;
 	if (inf == info_flags::real)
 		return domain==domain::real || domain==domain::positive;
