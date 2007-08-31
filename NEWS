@@ -1,6 +1,6 @@
 This file records noteworthy changes.
 
-1.4.0 (<date>)
+1.4.0 (31 August 2007)
 * New tinfo mechanism.
 * Removed rtt from class symbol.
 * Faster archiving by adding a map from strings to indices in the atoms vector.
@@ -17,7 +17,7 @@ This file records noteworthy changes.
 * New flag for positive symbols/numbers, added possymbol class.
 * Added programming examples in doc/examples
 
-1.3.8 (<date>)
+1.3.8 (28 August 2007)
 * Drop support of ginac-config and ginac.m4. Please use pkg-config instead.
 * atan2(y,x) branch cut correction.
 * Fixed bug in series expansion.
