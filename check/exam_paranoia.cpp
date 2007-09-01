@@ -283,7 +283,7 @@ static unsigned exam_paranoia11()
 
 	ex e = ((-5-2*x)-((2-5*x)/(-2+x))*(3+2*x))/(5-4*x);
 	ex f = e.normal();
-	ex d = (4+10*x+8*pow(x,2))/(x-2)/(5-4*x);
+	ex d = normal((4+10*x+8*pow(x,2))/(x-2)/(5-4*x));
 
 	if (!(f - d).expand().is_zero()) {
 		clog << "normal(" << e << ") returns " << f << " instead of " << d << endl;
