@@ -2,12 +2,16 @@
 
 EXFILES = archive1.cpp
 
-TEXINFO_TEX = ../tutorial/texinfo.tex
+TEXI = ginac-examples.texi
 
-info_TEXINFOS = ginac-examples.texi
+info_TEXINFOS = $(TEXI)
+
+TXT = $(addsuffix .txt, $(basename $(TEXI)))
 
 all: $(EXFILES)
-	${MAKEINFO} --no-split --no-headers $(srcdir)/ginac-examples.texi > ginac-examples.txt
-	${MAKEINFO} --no-split --html $(srcdir)/ginac-examples.texi
+	${MAKEINFO} --no-split --no-headers $(srcdir)/$(TEXI) > $(TXT)
+	${MAKEINFO} --no-split --html $(srcdir)/$(TEXI)
+
+CLEANFILES = $(TXT)
 
 EXTRA_DIST = $(EXFILES)
