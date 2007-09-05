@@ -1,6 +1,6 @@
 ?package(ginac-tools):\
   needs="text"\
-  section="Apps/Math"\
+  section="Applications/Science/Mathematics"\
   title="Ginsh"\
   longtitle="Ginsh - GiNaC interactive shell"\
   command="/usr/bin/ginsh" \

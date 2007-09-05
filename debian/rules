@@ -4,7 +4,7 @@ include /usr/share/cdbs/1/class/autotools.mk
 include /usr/share/cdbs/1/rules/debhelper.mk
 
 ifeq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-	CXXFLAGS += -finline-limit=1200
+CXXFLAGS += -finline-limit=1200
 endif
 
 # 1.4.1-1-blah (Debian version) ==> 1.4 (LT_RELEASE)
