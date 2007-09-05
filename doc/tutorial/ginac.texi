@@ -7823,7 +7823,8 @@ Now we will start implementing a new class @code{mystring} that allows
 placing character strings in algebraic expressions (this is not very useful,
 but it's just an example). This class will be a direct subclass of
 @code{basic}. You can use this sample implementation as a starting point
-for your own classes.
+for your own classes @footnote{The self-contained source for this example is
+included in GiNaC, see the @file{doc/examples/mystring.cpp} file.}.
 
 The code snippets given here assume that you have included some header files
 as follows:
