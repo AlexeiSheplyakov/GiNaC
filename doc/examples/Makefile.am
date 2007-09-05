@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-EXFILES = archive1.cpp
+EXFILES = archive1.cpp compile1.cpp compile2.cpp compile3.cpp lanczos.cpp
 
 TEXI = ginac-examples.texi
 
