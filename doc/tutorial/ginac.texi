@@ -15,6 +15,7 @@
 
 @include version.texi
 
+@dircategory Mathematics
 @direntry
 * ginac: (ginac).                   C++ library for symbolic computation.
 @end direntry
