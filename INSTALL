@@ -60,9 +60,8 @@ library works correctly you can use
 
  $ make check
 
-The "configure" script (and "autogen.sh", which invokes "configure") can be
-given a number of options to enable and disable various features. For a
-complete list, type:
+The "configure" script can be given a number of options to enable and
+disable various features. For a complete list, type:
 
  $ ./configure --help
 
