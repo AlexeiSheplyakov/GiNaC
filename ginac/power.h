@@ -88,6 +88,7 @@ protected:
 	void do_print_csrc(const print_csrc & c, unsigned level) const;
 	void do_print_python(const print_python & c, unsigned level) const;
 	void do_print_python_repr(const print_python_repr & c, unsigned level) const;
+	void do_print_csrc_cl_N(const print_csrc_cl_N & c, unsigned level) const;
 
 	ex expand_add(const add & a, int n, unsigned options) const;
 	ex expand_add_2(const add & a, unsigned options) const;

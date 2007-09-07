@@ -50,7 +50,8 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(power, basic,
   print_func<print_latex>(&power::do_print_latex).
   print_func<print_csrc>(&power::do_print_csrc).
   print_func<print_python>(&power::do_print_python).
-  print_func<print_python_repr>(&power::do_print_python_repr))
+  print_func<print_python_repr>(&power::do_print_python_repr).
+  print_func<print_csrc_cl_N>(&power::do_print_csrc_cl_N))
 
 typedef std::vector<int> intvector;
 
@@ -162,6 +163,21 @@ static void print_sym_pow(const print_context & c, const symbol &x, int exp)
 	}
 }
 
+void power::do_print_csrc_cl_N(const print_csrc_cl_N& c, unsigned level) const
+{
+	if (exponent.is_equal(_ex_1)) {
+		c.s << "recip(";
+		basis.print(c);
+		c.s << ')';
+		return;
+	}
+	c.s << "expt(";
+	basis.print(c);
+	c.s << ", ";
+	exponent.print(c);
+	c.s << ')';
+}
+
 void power::do_print_csrc(const print_csrc & c, unsigned level) const
 {
 	// Integer powers of symbols are printed in a special, optimized way
@@ -172,29 +188,20 @@ void power::do_print_csrc(const print_csrc & c, unsigned level) const
 			c.s << '(';
 		else {
 			exp = -exp;
-			if (is_a<print_csrc_cl_N>(c))
-				c.s << "recip(";
-			else
-				c.s << "1.0/(";
+			c.s << "1.0/(";
 		}
 		print_sym_pow(c, ex_to<symbol>(basis), exp);
 		c.s << ')';
 
 	// <expr>^-1 is printed as "1.0/<expr>" or with the recip() function of CLN
 	} else if (exponent.is_equal(_ex_1)) {
-		if (is_a<print_csrc_cl_N>(c))
-			c.s << "recip(";
-		else
-			c.s << "1.0/(";
+		c.s << "1.0/(";
 		basis.print(c);
 		c.s << ')';
 
-	// Otherwise, use the pow() or expt() (CLN) functions
+	// Otherwise, use the pow() function
 	} else {
-		if (is_a<print_csrc_cl_N>(c))
-			c.s << "expt(";
-		else
-			c.s << "pow(";
+		c.s << "pow(";
 		basis.print(c);
 		c.s << ',';
 		exponent.print(c);

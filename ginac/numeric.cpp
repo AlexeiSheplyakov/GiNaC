@@ -399,6 +399,40 @@ static void print_real_csrc(const print_context & c, const cln::cl_R & x)
 	}
 }
 
+template<typename T1, typename T2> 
+static inline bool coerce(T1& dst, const T2& arg);
+
+/** 
+ * @brief Check if CLN integer can be converted into int
+ *
+ * @sa http://www.ginac.de/pipermail/cln-list/2006-October/000248.html
+ */
+template<>
+static inline bool coerce<int, cln::cl_I>(int& dst, const cln::cl_I& arg)
+{
+	static const cln::cl_I cl_max_int = 
+		(cln::cl_I)(long)(std::numeric_limits<int>::max());
+	static const cln::cl_I cl_min_int =
+		(cln::cl_I)(long)(std::numeric_limits<int>::min());
+	if ((arg >= cl_min_int) && (arg <= cl_max_int)) {
+		dst = cl_I_to_int(arg);
+		return true;
+	}
+	return false;
+}
+
+template<>
+static inline bool coerce<unsigned int, cln::cl_I>(unsigned int& dst, const cln::cl_I& arg)
+{
+	static const cln::cl_I cl_max_uint = 
+		(cln::cl_I)(unsigned long)(std::numeric_limits<unsigned int>::max());
+	if ((! minusp(arg)) && (arg <= cl_max_uint)) {
+		dst = cl_I_to_uint(arg);
+		return true;
+	}
+	return false;
+}
+
 /** Helper function to print real number in C++ source format using cl_N types.
  *
  *  @see numeric::print() */
@@ -406,11 +440,20 @@ static void print_real_cl_N(const print_context & c, const cln::cl_R & x)
 {
 	if (cln::instanceof(x, cln::cl_I_ring)) {
 
-		// Integer number
-		c.s << "cln::cl_I(\"";
-		print_real_number(c, x);
-		c.s << "\")";
-
+    int dst;
+    // fixnum 
+    if (coerce(dst, cln::the<cln::cl_I>(x))) {
+      // can be converted to native int
+      if (dst < 0)
+        c.s << "(-" << dst << ")";
+      else
+        c.s << dst;
+    } else {
+      // bignum
+      c.s << "cln::cl_I(\"";
+      print_real_number(c, x);
+      c.s << "\")";
+    }
 	} else if (cln::instanceof(x, cln::cl_RA_ring)) {
 
 		// Rational number

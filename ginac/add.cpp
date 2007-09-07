@@ -23,6 +23,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <limits>
+#include <string>
 
 #include "add.h"
 #include "mul.h"
@@ -172,37 +173,32 @@ void add::do_print_csrc(const print_csrc & c, unsigned level) const
 	if (precedence() <= level)
 		c.s << "(";
 	
-	// Print arguments, separated by "+"
+	// Print arguments, separated by "+" or "-"
 	epvector::const_iterator it = seq.begin(), itend = seq.end();
+	char separator = ' ';
 	while (it != itend) {
 		
-		// If the coefficient is -1, it is replaced by a single minus sign
-		if (it->coeff.is_equal(_ex1)) {
+		// If the coefficient is negative, separator is "-"
+		if (it->coeff.is_equal(_ex_1) || 
+			ex_to<numeric>(it->coeff).numer().is_equal(*_num_1_p))
+			separator = '-';
+		c.s << separator;
+		if (it->coeff.is_equal(_ex1) || it->coeff.is_equal(_ex_1)) {
 			it->rest.print(c, precedence());
-		} else if (it->coeff.is_equal(_ex_1)) {
-			c.s << "-";
+		} else if (ex_to<numeric>(it->coeff).numer().is_equal(*_num1_p) ||
+				 ex_to<numeric>(it->coeff).numer().is_equal(*_num_1_p))
+		{
 			it->rest.print(c, precedence());
-		} else if (ex_to<numeric>(it->coeff).numer().is_equal(*_num1_p)) {
-			it->rest.print(c, precedence());
-			c.s << "/";
-			ex_to<numeric>(it->coeff).denom().print(c, precedence());
-		} else if (ex_to<numeric>(it->coeff).numer().is_equal(*_num_1_p)) {
-			c.s << "-";
-			it->rest.print(c, precedence());
-			c.s << "/";
+			c.s << '/';
 			ex_to<numeric>(it->coeff).denom().print(c, precedence());
 		} else {
 			it->coeff.print(c, precedence());
-			c.s << "*";
+			c.s << '*';
 			it->rest.print(c, precedence());
 		}
 		
-		// Separator is "+", except if the following expression would have a leading minus sign or the sign is sitting in parenthesis (as in a ctor)
 		++it;
-		if (it != itend
-		 && (is_a<print_csrc_cl_N>(c) || !it->coeff.info(info_flags::real)  // sign inside ctor arguments
-		  || !(it->coeff.info(info_flags::negative) || (it->coeff.is_equal(*_num1_p) && is_exactly_a<numeric>(it->rest) && it->rest.info(info_flags::negative)))))
-			c.s << "+";
+		separator = '+';
 	}
 	
 	if (!overall_coeff.is_zero()) {
