@@ -772,6 +772,9 @@ tinfo_t power::return_type_tinfo() const
 
 ex power::expand(unsigned options) const
 {
+	if (is_a<symbol>(basis) && exponent.info(info_flags::integer))
+		return (new power(*this))->setflag(status_flags::dynallocated | status_flags::expanded);
+
 	if (options == 0 && (flags & status_flags::expanded))
 		return *this;
 	
