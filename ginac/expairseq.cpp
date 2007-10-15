@@ -812,8 +812,8 @@ void expairseq::construct_from_2_ex(const ex &lh, const ex &rh)
 				construct_from_2_ex_via_exvector(lh,rh);
 			} else {
 #endif // EXPAIRSEQ_USE_HASHTAB
-				if(is_a<mul>(lh))
-				{
+				if (is_a<mul>(lh) && lh.info(info_flags::has_indices) && 
+					rh.info(info_flags::has_indices)) {
 					ex newrh=rename_dummy_indices_uniquely(lh, rh);
 					construct_from_2_expairseq(ex_to<expairseq>(lh),
 					                           ex_to<expairseq>(newrh));
@@ -1057,6 +1057,7 @@ void expairseq::make_flat(const exvector &v)
 	// and their cumulative number of operands
 	int nexpairseqs = 0;
 	int noperands = 0;
+	bool do_idx_rename = false;
 	
 	cit = v.begin();
 	while (cit!=v.end()) {
@@ -1064,6 +1065,9 @@ void expairseq::make_flat(const exvector &v)
 			++nexpairseqs;
 			noperands += ex_to<expairseq>(*cit).seq.size();
 		}
+		if (is_a<mul>(*this) && (!do_idx_rename) &&
+				cit->info(info_flags::has_indices))
+			do_idx_rename = true;
 		++cit;
 	}
 	
@@ -1071,7 +1075,7 @@ void expairseq::make_flat(const exvector &v)
 	seq.reserve(v.size()+noperands-nexpairseqs);
 	
 	// copy elements and split off numerical part
-	make_flat_inserter mf(v, this->tinfo() == &mul::tinfo_static);
+	make_flat_inserter mf(v, do_idx_rename);
 	cit = v.begin();
 	while (cit!=v.end()) {
 		if (ex_to<basic>(*cit).tinfo()==this->tinfo()) {
@@ -1105,6 +1109,7 @@ void expairseq::make_flat(const epvector &v, bool do_index_renaming)
 	// and their cumulative number of operands
 	int nexpairseqs = 0;
 	int noperands = 0;
+	bool really_need_rename_inds = false;
 	
 	cit = v.begin();
 	while (cit!=v.end()) {
@@ -1112,8 +1117,12 @@ void expairseq::make_flat(const epvector &v, bool do_index_renaming)
 			++nexpairseqs;
 			noperands += ex_to<expairseq>(cit->rest).seq.size();
 		}
+		if ((!really_need_rename_inds) && is_a<mul>(*this) &&
+				cit->rest.info(info_flags::has_indices))
+			really_need_rename_inds = true;
 		++cit;
 	}
+	do_index_renaming = do_index_renaming && really_need_rename_inds;
 	
 	// reserve seq and coeffseq which will hold all operands
 	seq.reserve(v.size()+noperands-nexpairseqs);
