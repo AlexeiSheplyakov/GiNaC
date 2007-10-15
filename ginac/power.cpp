@@ -241,6 +241,21 @@ bool power::info(unsigned inf) const
 			       basis.info(inf);
 		case info_flags::expanded:
 			return (flags & status_flags::expanded);
+		case info_flags::has_indices: {
+			if (flags & status_flags::has_indices)
+				return true;
+			else if (flags & status_flags::has_no_indices)
+				return false;
+			else if (basis.info(info_flags::has_indices)) {
+				setflag(status_flags::has_indices);
+				clearflag(status_flags::has_no_indices);
+				return true;
+			} else {
+				clearflag(status_flags::has_indices);
+				setflag(status_flags::has_no_indices);
+				return false;
+			}
+		}
 	}
 	return inherited::info(inf);
 }

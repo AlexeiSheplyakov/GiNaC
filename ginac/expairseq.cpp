@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <string>
 #include <stdexcept>
+#include <iterator>
 
 #include "expairseq.h"
 #include "lst.h"
@@ -267,8 +268,26 @@ void expairseq::do_print_tree(const print_tree & c, unsigned level) const
 
 bool expairseq::info(unsigned inf) const
 {
-	if (inf == info_flags::expanded)
-		return (flags & status_flags::expanded);
+	switch(inf) {
+		case info_flags::expanded:
+			return (flags & status_flags::expanded);
+		case info_flags::has_indices: {
+			if (flags & status_flags::has_indices)
+				return true;
+			else if (flags & status_flags::has_no_indices)
+				return false;
+			for (epvector::const_iterator i = seq.begin(); i != seq.end(); ++i) {
+				if (i->rest.info(info_flags::has_indices)) {
+					this->setflag(status_flags::has_indices);
+					this->clearflag(status_flags::has_no_indices);
+					return true;
+				}
+			}
+			this->clearflag(status_flags::has_indices);
+			this->setflag(status_flags::has_no_indices);
+			return false;
+		}
+	}
 	return inherited::info(inf);
 }
 

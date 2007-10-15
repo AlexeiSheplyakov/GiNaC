@@ -207,22 +207,25 @@ void symbol::do_print_python_repr(const print_python_repr & c, unsigned level) c
 
 bool symbol::info(unsigned inf) const
 {
-	if (inf == info_flags::symbol)
-		return true;
-	if (inf == info_flags::polynomial ||
-	    inf == info_flags::integer_polynomial ||
-	    inf == info_flags::cinteger_polynomial ||
-	    inf == info_flags::rational_polynomial ||
-	    inf == info_flags::crational_polynomial ||
-	    inf == info_flags::rational_function ||
-			inf == info_flags::expanded)
-		return true;
-	if (inf == info_flags::real)
-		return domain==domain::real || domain==domain::positive;
-	if (inf == info_flags::positive || inf == info_flags::nonnegative)
-		return domain == domain::positive;
-	else
-		return inherited::info(inf);
+	switch (inf) {
+		case info_flags::symbol:
+		case info_flags::polynomial:
+		case info_flags::integer_polynomial: 
+		case info_flags::cinteger_polynomial: 
+		case info_flags::rational_polynomial: 
+		case info_flags::crational_polynomial: 
+		case info_flags::rational_function: 
+		case info_flags::expanded:
+			return true;
+		case info_flags::real:
+			return domain == domain::real || domain == domain::positive;
+		case info_flags::positive:
+		case info_flags::nonnegative:
+			return domain == domain::positive;
+		case info_flags::has_indices:
+			return false;
+	}
+	return inherited::info(inf);
 }
 
 ex symbol::eval(int level) const

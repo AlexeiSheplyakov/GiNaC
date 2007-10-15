@@ -234,8 +234,11 @@ void spinidx::do_print_tree(const print_tree & c, unsigned level) const
 
 bool idx::info(unsigned inf) const
 {
-	if (inf == info_flags::idx)
-		return true;
+	switch(inf) {
+		case info_flags::idx:
+		case info_flags::has_indices:
+			return true;
+	}
 	return inherited::info(inf);
 }
 
