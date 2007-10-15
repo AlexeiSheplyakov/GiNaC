@@ -1002,7 +1002,13 @@ ex mul::expand(unsigned options) const
 			return (new mul(*this))->setflag(status_flags::dynallocated | status_flags::expanded);
 	}
 
-	const bool skip_idx_rename = ! info(info_flags::has_indices);
+	// do not rename indices if the object has no indices at all
+	if ((!(options & expand_options::expand_rename_idx)) && 
+			this->info(info_flags::has_indices))
+		options |= expand_options::expand_rename_idx;
+
+	const bool skip_idx_rename = !(options & expand_options::expand_rename_idx);
+
 	// First, expand the children
 	std::auto_ptr<epvector> expanded_seqp = expandchildren(options);
 	const epvector & expanded_seq = (expanded_seqp.get() ? *expanded_seqp : seq);

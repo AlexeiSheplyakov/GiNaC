@@ -1010,8 +1010,13 @@ ex power::expand_mul(const mul & m, const numeric & n, unsigned options, bool fr
 		return _ex1;
 	}
 
+	// do not bother to rename indices if there are no any.
+	if ((!(options & expand_options::expand_rename_idx)) 
+			&& m.info(info_flags::has_indices))
+		options |= expand_options::expand_rename_idx;
 	// Leave it to multiplication since dummy indices have to be renamed
-	if (get_all_dummy_indices(m).size() > 0 && n.is_positive()) {
+	if ((options & expand_options::expand_rename_idx) &&
+		(get_all_dummy_indices(m).size() > 0) && n.is_positive()) {
 		ex result = m;
 		exvector va = get_all_dummy_indices(m);
 		sort(va.begin(), va.end(), ex_is_less());
