@@ -992,6 +992,7 @@ bool mul::can_be_further_expanded(const ex & e)
 
 ex mul::expand(unsigned options) const
 {
+	const bool skip_idx_rename = ! info(info_flags::has_indices);
 	// First, expand the children
 	std::auto_ptr<epvector> expanded_seqp = expandchildren(options);
 	const epvector & expanded_seq = (expanded_seqp.get() ? *expanded_seqp : seq);
@@ -1047,28 +1048,34 @@ ex mul::expand(unsigned options) const
 				ex tmp_accu = (new add(distrseq, add1.overall_coeff*add2.overall_coeff))->setflag(status_flags::dynallocated);
 
 				exvector add1_dummy_indices, add2_dummy_indices, add_indices;
+				lst dummy_subs;
 
-				for (epvector::const_iterator i=add1begin; i!=add1end; ++i) {
-					add_indices = get_all_dummy_indices_safely(i->rest);
-					add1_dummy_indices.insert(add1_dummy_indices.end(), add_indices.begin(), add_indices.end());
-				}
-				for (epvector::const_iterator i=add2begin; i!=add2end; ++i) {
-					add_indices = get_all_dummy_indices_safely(i->rest);
-					add2_dummy_indices.insert(add2_dummy_indices.end(), add_indices.begin(), add_indices.end());
-				}
+				if (!skip_idx_rename) {
+					for (epvector::const_iterator i=add1begin; i!=add1end; ++i) {
+						add_indices = get_all_dummy_indices_safely(i->rest);
+						add1_dummy_indices.insert(add1_dummy_indices.end(), add_indices.begin(), add_indices.end());
+					}
+					for (epvector::const_iterator i=add2begin; i!=add2end; ++i) {
+						add_indices = get_all_dummy_indices_safely(i->rest);
+						add2_dummy_indices.insert(add2_dummy_indices.end(), add_indices.begin(), add_indices.end());
+					}
 
-				sort(add1_dummy_indices.begin(), add1_dummy_indices.end(), ex_is_less());
-				sort(add2_dummy_indices.begin(), add2_dummy_indices.end(), ex_is_less());
-				lst dummy_subs = rename_dummy_indices_uniquely(add1_dummy_indices, add2_dummy_indices);
+					sort(add1_dummy_indices.begin(), add1_dummy_indices.end(), ex_is_less());
+					sort(add2_dummy_indices.begin(), add2_dummy_indices.end(), ex_is_less());
+					dummy_subs = rename_dummy_indices_uniquely(add1_dummy_indices, add2_dummy_indices);
+				}
 
 				// Multiply explicitly all non-numeric terms of add1 and add2:
 				for (epvector::const_iterator i2=add2begin; i2!=add2end; ++i2) {
 					// We really have to combine terms here in order to compactify
 					// the result.  Otherwise it would become waayy tooo bigg.
-					numeric oc;
-					distrseq.clear();
-					ex i2_new = (dummy_subs.op(0).nops()>0? 
-								 i2->rest.subs((lst)dummy_subs.op(0), (lst)dummy_subs.op(1), subs_options::no_pattern) : i2->rest);
+					numeric oc(*_num0_p);
+					epvector distrseq2;
+					distrseq2.reserve(add1.seq.size());
+					const ex i2_new = (skip_idx_rename || (dummy_subs.op(0).nops() == 0) ?
+							i2->rest :
+							i2->rest.subs(ex_to<lst>(dummy_subs.op(0)), 
+								ex_to<lst>(dummy_subs.op(1)), subs_options::no_pattern));
 					for (epvector::const_iterator i1=add1begin; i1!=add1end; ++i1) {
 						// Don't push_back expairs which might have a rest that evaluates to a numeric,
 						// since that would violate an invariant of expairseq:
@@ -1076,13 +1083,12 @@ ex mul::expand(unsigned options) const
 						if (is_exactly_a<numeric>(rest)) {
 							oc += ex_to<numeric>(rest).mul(ex_to<numeric>(i1->coeff).mul(ex_to<numeric>(i2->coeff)));
 						} else {
-							distrseq.push_back(expair(rest, ex_to<numeric>(i1->coeff).mul_dyn(ex_to<numeric>(i2->coeff))));
+							distrseq2.push_back(expair(rest, ex_to<numeric>(i1->coeff).mul_dyn(ex_to<numeric>(i2->coeff))));
 						}
 					}
-					tmp_accu += (new add(distrseq, oc))->setflag(status_flags::dynallocated);
-				}
+					tmp_accu += (new add(distrseq2, oc))->setflag(status_flags::dynallocated);
+				} 
 				last_expanded = tmp_accu;
-
 			} else {
 				if (!last_expanded.is_equal(_ex1))
 					non_adds.push_back(split_ex_to_pair(last_expanded));
@@ -1100,12 +1106,18 @@ ex mul::expand(unsigned options) const
 		size_t n = last_expanded.nops();
 		exvector distrseq;
 		distrseq.reserve(n);
-		exvector va = get_all_dummy_indices_safely(mul(non_adds));
-		sort(va.begin(), va.end(), ex_is_less());
+		exvector va;
+		if (! skip_idx_rename) {
+			va = get_all_dummy_indices_safely(mul(non_adds));
+			sort(va.begin(), va.end(), ex_is_less());
+		}
 
 		for (size_t i=0; i<n; ++i) {
 			epvector factors = non_adds;
-			factors.push_back(split_ex_to_pair(rename_dummy_indices_uniquely(va, last_expanded.op(i))));
+			if (skip_idx_rename)
+				factors.push_back(split_ex_to_pair(last_expanded.op(i)));
+			else
+				factors.push_back(split_ex_to_pair(rename_dummy_indices_uniquely(va, last_expanded.op(i))));
 			ex term = (new mul(factors, overall_coeff))->setflag(status_flags::dynallocated);
 			if (can_be_further_expanded(term)) {
 				distrseq.push_back(term.expand());
