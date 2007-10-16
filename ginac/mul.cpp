@@ -994,12 +994,14 @@ bool mul::can_be_further_expanded(const ex & e)
 ex mul::expand(unsigned options) const
 {
 	{
-  	// trivial case: expanding the monomial (~ 30% of all calls)
+	// trivial case: expanding the monomial (~ 30% of all calls)
 		epvector::const_iterator i = seq.begin(), seq_end = seq.end();
 		while ((i != seq.end()) &&  is_a<symbol>(i->rest) && i->coeff.info(info_flags::integer))
 			++i;
-		if (i == seq_end)
-			return (new mul(*this))->setflag(status_flags::dynallocated | status_flags::expanded);
+		if (i == seq_end) {
+			setflag(status_flags::expanded);
+			return *this;
+		}
 	}
 
 	// do not rename indices if the object has no indices at all
