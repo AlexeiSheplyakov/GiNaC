@@ -32,7 +32,9 @@
 #include <string>
 #include <vector>
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 
 #ifdef HAVE_LIBDL
 #include <dlfcn.h>
@@ -302,7 +304,7 @@ void unlink_ex(const std::string filename)
 	global_excompiler.unlink(filename);
 }
 
-#elif // def HAVE_LIBDL
+#else // def HAVE_LIBDL
 
 /*
  * In case no working libdl has been found by configure, the following function
