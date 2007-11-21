@@ -506,8 +506,8 @@ ex power::eval(int level) const
 		// (2*x + 6*y)^(-4) -> 1/16*(x + 3*y)^(-4)
 		if (num_exponent->is_integer() && is_exactly_a<add>(ebasis)) {
 			numeric icont = ebasis.integer_content();
-			const numeric& lead_coeff = 
-				ex_to<numeric>(ex_to<add>(ebasis).seq.begin()->coeff).div_dyn(icont);
+			const numeric lead_coeff = 
+				ex_to<numeric>(ex_to<add>(ebasis).seq.begin()->coeff).div(icont);
 
 			const bool canonicalizable = lead_coeff.is_integer();
 			const bool unit_normal = lead_coeff.is_pos_integer();

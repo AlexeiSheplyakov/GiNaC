@@ -1280,11 +1280,7 @@ ex ex::series(const ex & r, int order, unsigned options) const
 	else
 		throw (std::logic_error("ex::series(): expansion point has unknown type"));
 	
-	try {
-		e = bp->series(rel_, order, options);
-	} catch (std::exception &x) {
-		throw (std::logic_error(std::string("unable to compute series (") + x.what() + ")"));
-	}
+	e = bp->series(rel_, order, options);
 	return e;
 }
 

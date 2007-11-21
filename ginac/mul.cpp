@@ -469,8 +469,8 @@ ex mul::eval(int level) const
 
 			// XXX: What is the best way to check if the polynomial is a primitive? 
 			numeric c = i->rest.integer_content();
-			const numeric& lead_coeff =
-				ex_to<numeric>(ex_to<add>(i->rest).seq.begin()->coeff).div_dyn(c);
+			const numeric lead_coeff =
+				ex_to<numeric>(ex_to<add>(i->rest).seq.begin()->coeff).div(c);
 			const bool canonicalizable = lead_coeff.is_integer();
 
 			// XXX: The main variable is chosen in a random way, so this code 
