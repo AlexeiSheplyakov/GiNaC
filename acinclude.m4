@@ -26,7 +26,7 @@ int main()
     return 0;
 }], [
 dnl Some non-GNU readline implementations have non-numeric rl_library_version
-ginac_cv_rlversion=`sed -e 's/[^0-9.]//g' 'conftest.out'`], [ ginac_cv_rlversion='unknown'], [ ginac_cv_rlversion='4.2'])])
+ginac_cv_rlversion=`sed -e 's/[[^0-9.]]//g' 'conftest.out'`], [ ginac_cv_rlversion='unknown'], [ ginac_cv_rlversion='4.2'])])
 if test -z "$ginac_cv_rlversion"; then
 	GINAC_WARNING([Unsupported version of libreadline.])
 	ginac_cv_rlversion='unknown'
