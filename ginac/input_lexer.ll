@@ -119,7 +119,9 @@ Digits			ginac_yylval = (long)Digits; return T_DIGITS;
 {A}{AN}*		{
 				sym_tab::const_iterator i = syms.find(yytext);
 				if (i == syms.end()) {
-					syms[yytext] = sym_def(ginac_yylval = *(new symbol(yytext)), false);
+					symbol tmp(yytext);
+					ginac_yylval = tmp;
+					syms[yytext] = sym_def(tmp, false);
 				} else
 					ginac_yylval = (*i).second.sym;
 				return T_SYMBOL;
