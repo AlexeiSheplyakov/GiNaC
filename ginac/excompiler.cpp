@@ -110,7 +110,7 @@ public:
 	{
 		if (filename.empty()) {
 			// fill filename with unique random word
-			const char* filename_pattern = "GiNaCXXXXXX";
+			const char* filename_pattern = "./GiNaCXXXXXX";
 			char* new_filename = new char[strlen(filename_pattern)+1];
 			strcpy(new_filename, filename_pattern);
 			if (!mktemp(new_filename)) {
