@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
 	const symbol x("x"), y("y");
 	const lst syms(x, y);
 	// parser-generated symbol => memory leak.
-	static const char* str[] = { "x2+2*x*y + cos(x)", "Li2(x/y) + log(y/x)" };
+	static const char* str[] = { "x²+2*x*y + cos(x)", "Li2(x/y) + log(y/x)" };
 	
 	// depends on the amount of the available VM, compiler options, etc.
 	const unsigned N_max = 500000;
