@@ -408,7 +408,7 @@ static inline bool coerce(T1& dst, const T2& arg);
  * @sa http://www.ginac.de/pipermail/cln-list/2006-October/000248.html
  */
 template<>
-static inline bool coerce<int, cln::cl_I>(int& dst, const cln::cl_I& arg)
+inline bool coerce<int, cln::cl_I>(int& dst, const cln::cl_I& arg)
 {
 	static const cln::cl_I cl_max_int = 
 		(cln::cl_I)(long)(std::numeric_limits<int>::max());
@@ -422,7 +422,7 @@ static inline bool coerce<int, cln::cl_I>(int& dst, const cln::cl_I& arg)
 }
 
 template<>
-static inline bool coerce<unsigned int, cln::cl_I>(unsigned int& dst, const cln::cl_I& arg)
+inline bool coerce<unsigned int, cln::cl_I>(unsigned int& dst, const cln::cl_I& arg)
 {
 	static const cln::cl_I cl_max_uint = 
 		(cln::cl_I)(unsigned long)(std::numeric_limits<unsigned int>::max());
