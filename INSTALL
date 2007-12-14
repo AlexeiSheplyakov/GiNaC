@@ -10,6 +10,9 @@ different or older compiler you are on your own. Note that you may have to
 use the same compiler you compiled CLN with because of differing
 name-mangling schemes.
 
+The pkg-config utility is required for configuration, it can be downloaded
+from <http://pkg-config.freedesktop.org/>.
+
 To build the GiNaC tutorial and reference manual the doxygen utility
 (it can be downloaded from http://www.stack.nl/~dimitri/doxygen) and
 TeX are necessary.
@@ -21,8 +24,8 @@ Known not to work with:
  - GCC 2.96 or earlier because proper exception and standard library support
    is missing there.
 
-If you install from CVS, you also need GNU autoconf (>=2.59) and
-automake (>=1.7) to be installed.
+If you install from CVS, you also need GNU autoconf (>=2.59), automake (>=1.7),
+libtool (>= 1.5), bison (>= 2.3), flex (>= 2.5.33) to be installed.
 
 
 INSTALLATION
@@ -30,18 +33,6 @@ INSTALLATION
 
 To install from a source .tar.bz2 distribution:
 
- $ ./configure
- $ make
- [become root if necessary]
- # make install
-
-To install from CVS:
-
- $ cvs -d :pserver:anoncvs@cvs.ginac.de:/home/cvs/GiNaC login
- [enter "anoncvs" as the password]
- $ cvs -d :pserver:anoncvs@cvs.ginac.de:/home/cvs/GiNaC co GiNaC
- $ cd GiNaC
- $ autoreconf -i
  $ ./configure
  $ make
  [become root if necessary]
@@ -89,6 +80,32 @@ step          | GCC optimization  | comment
 make          |   ~6m   |   ~8m   | shared and static library
 make check    |   ~8m   |  ~12m   | largely due to compilation
 
+
+To install from CVS
+===================
+
+First, download the code:
+
+ $ cvs -d :pserver:anoncvs@cvs.ginac.de:/home/cvs/GiNaC login
+ [enter "anoncvs" as the password]
+ $ cvs -d :pserver:anoncvs@cvs.ginac.de:/home/cvs/GiNaC co GiNaC
+ $ cd GiNaC
+
+Secondly, make sure all required software is installed. This is *really*
+important step. If some package is missing, the `configure' script might
+be misgenerated, see e.g. this discussion:
+<http://www.ginac.de/pipermail/ginac-list/2007-November/001263.html>
+
+Finally, run
+
+ $ autoreconf -i
+
+to generate the `configure' script, and proceed in a standard way, i.e.
+
+ $ ./configure
+ $ make
+ [become root if necessary]
+ # make install
 
 COMMON PROBLEMS
 ===============
