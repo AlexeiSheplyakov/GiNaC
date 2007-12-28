@@ -39,7 +39,7 @@ public:
 class has_options {
 public:
 	enum {
-		algebraic = 0x0001,              ///< enable algebraic matching
+		algebraic = 0x0001              ///< enable algebraic matching
 	};
 };
 
