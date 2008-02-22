@@ -3,7 +3,7 @@
  *  Implementation of symbolic matrices */
 
 /*
- *  GiNaC Copyright (C) 1999-2007 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -222,7 +222,7 @@ ex matrix::eval(int level) const
 			m2[r*col+c] = m[r*col+c].eval(level);
 	
 	return (new matrix(row, col, m2))->setflag(status_flags::dynallocated |
-											   status_flags::evaluated);
+	                                           status_flags::evaluated);
 }
 
 ex matrix::subs(const exmap & mp, unsigned options) const
@@ -1414,18 +1414,27 @@ int matrix::fraction_free_elimination(const bool det)
 	
 	unsigned r0 = 0;
 	for (unsigned c0=0; c0<n && r0<m-1; ++c0) {
-		int indx = tmp_n.pivot(r0, c0, true);
-		if (indx==-1) {
+		// When trying to find a pivot, we should try a bit harder than expand().
+		// Searching the first non-zero element in-place here instead of calling
+		// pivot() allows us to do no more substitutions and back-substitutions
+		// than are actually necessary.
+		int indx = r0;
+		while ((indx<m) &&
+		       (tmp_n[indx*n+c0].subs(srl, subs_options::no_pattern).expand().is_zero()))
+			++indx;
+		if (indx==m) {
+			// all elements in column c0 below row r0 vanish
 			sign = 0;
 			if (det)
 				return 0;
-		}
-		if (indx>=0) {
-			if (indx>0) {
+		} else {
+			if (indx>r0) {
+				// Matrix needs pivoting, swap rows r0 and indx of tmp_n and tmp_d.
 				sign = -sign;
-				// tmp_n's rows r0 and indx were swapped, do the same in tmp_d:
-				for (unsigned c=c0; c<n; ++c)
+				for (unsigned c=c0; c<n; ++c) {
+					tmp_n.m[n*indx+c].swap(tmp_n.m[n*r0+c]);
 					tmp_d.m[n*indx+c].swap(tmp_d.m[n*r0+c]);
+				}
 			}
 			for (unsigned r2=r0+1; r2<m; ++r2) {
 				for (unsigned c=c0+1; c<n; ++c) {

@@ -1,5 +1,8 @@
 This file records noteworthy changes.
 
+1.5.0 (<date>)
+* Improved lsolve() of systems containing non-numeric coefficients.
+
 1.4.0 (31 August 2007)
 * New tinfo mechanism.
 * Removed rtt from class symbol.
