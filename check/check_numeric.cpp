@@ -21,7 +21,11 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "checks.h"
+#include <iostream>
+#include <cstdlib> // rand()
+#include "ginac.h"
+using namespace std;
+using namespace GiNaC;
 
 /* Simple and maybe somewhat pointless consistency tests of assorted tests and
  * conversions. */
@@ -115,12 +119,10 @@ unsigned check_numeric()
 	result += check_numeric1();  cout << '.' << flush;
 	result += check_numeric2();  cout << '.' << flush;
 	
-	if (!result) {
-		cout << " passed " << endl;
-		clog << "(no output)" << endl;
-	} else {
-		cout << " failed " << endl;
-	}
-	
 	return result;
+}
+
+int main(int argc, char** argv)
+{
+	return check_numeric();
 }

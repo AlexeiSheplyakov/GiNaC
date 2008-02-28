@@ -21,7 +21,12 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "times.h"
+#include <iostream>
+#include <vector>
+#include "ginac.h"
+#include "timer.h"
+using namespace std;
+using namespace GiNaC;
 
 static unsigned test()
 {
@@ -72,7 +77,6 @@ unsigned time_lw_Pprime()
 	double time = .0;
 	
 	cout << "timing Lewis-Wester test P' (det of less sparse rank 101)" << flush;
-	clog << "-------Lewis-Wester test P' (det of less sparse rank 101):" << endl;
 	
 	rolex.start();
 	// correct for very small times:
@@ -81,14 +85,16 @@ unsigned time_lw_Pprime()
 		++count;
 	} while ((time=rolex.read())<0.1 && !result);
 	cout << '.' << flush;
-	
-	if (!result) {
-		cout << " passed ";
-		clog << "(no output)" << endl;
-	} else {
-		cout << " failed ";
-	}
 	cout << time/count << 's' << endl;
 	
 	return result;
+}
+
+extern void randomify_symbol_serials();
+
+int main(int argc, char** argv)
+{
+	randomify_symbol_serials();
+	cout << setprecision(2) << showpoint;
+	return time_lw_Pprime();
 }

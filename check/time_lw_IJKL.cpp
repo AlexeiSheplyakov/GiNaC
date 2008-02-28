@@ -21,7 +21,12 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "times.h"
+#include <iostream>
+#include <vector>
+#include "ginac.h"
+#include "timer.h"
+using namespace std;
+using namespace GiNaC;
 
 static unsigned test(unsigned n)
 {
@@ -31,8 +36,6 @@ static unsigned test(unsigned n)
 	
 	cout << "timing Lewis-Wester test " << name
 	     << " (invert rank " << n << " Hilbert)" << flush;
-	clog << "-------Lewis-Wester test " << name
-	     << " (invert rank " << n << " Hilbert):" << endl;
 	
 	// Create a rank n Hilbert matrix:
 	matrix H(n,n);
@@ -44,7 +47,6 @@ static unsigned test(unsigned n)
 	matrix Hinv(n,n);
 	Hinv = H.inverse();
 	cout << ". passed ";
-	clog << "(no output)" << endl;
 	cout << cartier.read() << 's' << endl;
 	
 	// check result:
@@ -52,8 +54,6 @@ static unsigned test(unsigned n)
 	
 	cout << "timing Lewis-Wester test " << name
 	     << " (check rank " << n << " Hilbert)" << flush;
-	clog << "-------Lewis-Wester test " << name
-	     << " (check rank " << n << " Hilbert):" << endl;
 	
 	cartier.reset();
 	matrix identity = H.mul(Hinv);
@@ -68,13 +68,8 @@ static unsigned test(unsigned n)
 					correct = false;
 			}
 		}
-	if (correct) {
-		cout << ". passed ";
-		clog << "(no output)" << endl;
-	} else {
-		cout << ". failed ";
+	if (!correct)
 		++result;
-	}
 	cout << cartier.read() << 's' << endl;
 	return result;
 }
@@ -89,4 +84,13 @@ unsigned time_lw_IJKL()
 	result += test(70);
 	
 	return result;
+}
+
+extern void randomify_symbol_serials();
+
+int main(int argc, char** argv)
+{
+	randomify_symbol_serials();
+	cout << setprecision(2) << showpoint;
+	return time_lw_IJKL();
 }

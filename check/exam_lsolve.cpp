@@ -20,7 +20,10 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "exams.h"
+#include <iostream>
+#include "ginac.h"
+using namespace std;
+using namespace GiNaC;
 
 static unsigned exam_lsolve1()
 {
@@ -188,7 +191,6 @@ unsigned exam_lsolve()
 	unsigned result = 0;
 	
 	cout << "examining linear solve" << flush;
-	clog << "----------linear solve:" << endl;
 	
 	result += exam_lsolve1();  cout << '.' << flush;
 	result += exam_lsolve2a();  cout << '.' << flush;
@@ -197,12 +199,10 @@ unsigned exam_lsolve()
 	result += exam_lsolve2S();  cout << '.' << flush;
 	result += exam_lsolve3S();  cout << '.' << flush;
 	
-	if (!result) {
-		cout << " passed " << endl;
-		clog << "(no output)" << endl;
-	} else {
-		cout << " failed " << endl;
-	}
-	
 	return result;
+}
+
+int main(int argc, char** argv)
+{
+	return exam_lsolve();
 }

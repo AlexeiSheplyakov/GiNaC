@@ -20,7 +20,12 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "times.h"
+#include <iostream>
+#include <vector>
+#include "ginac.h"
+#include "timer.h"
+using namespace std;
+using namespace GiNaC;
 
 template <class T>
 static void run_timing(unsigned size, double &time_insert, double &time_find, double &time_erase)
@@ -67,7 +72,6 @@ unsigned time_hashmap()
 	unsigned result = 0;
 
 	cout << "timing hash map operations" << flush;
-	clog << "-------hash map operations:" << endl;
 
 	unsigned s[] = {10000, 50000, 100000, 500000};
 	vector<unsigned> sizes(s, s+sizeof(s)/sizeof(*s));
@@ -88,13 +92,6 @@ unsigned time_hashmap()
 		cout << '.' << flush;
 	}
 
-	if (!result) {
-		cout << " passed ";
-		clog << "(no output)" << endl;
-	} else {
-		cout << " failed ";
-	}
-
 	// print the report:
 	cout << endl << "          size:\t";
 	copy(sizes.begin(), sizes.end(), ostream_iterator<unsigned>(cout, "\t"));
@@ -107,4 +104,13 @@ unsigned time_hashmap()
 	cout << endl;
 
 	return result;
+}
+
+extern void randomify_symbol_serials();
+
+int main(int argc, char** argv)
+{
+	randomify_symbol_serials();
+	cout << setprecision(2) << showpoint;
+	return time_hashmap();
 }

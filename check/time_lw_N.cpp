@@ -22,7 +22,12 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "times.h"
+#include <iostream>
+#include <vector>
+#include "ginac.h"
+#include "timer.h"
+using namespace std;
+using namespace GiNaC;
 
 static const bool do_test = false;  // set to true in order to run this beast
 
@@ -60,7 +65,6 @@ unsigned time_lw_N()
 	double time = .0;
 	
 	cout << "timing Lewis-Wester test N (poly at rational fcns)" << flush;
-	clog << "-------Lewis-Wester test N (poly at rational fcns):" << endl;
 	
 	if (do_test) {
 		tag_heuer.start();
@@ -70,18 +74,19 @@ unsigned time_lw_N()
 			++count;
 		} while ((time=tag_heuer.read())<0.1 && !result);
 		cout << '.' << flush;
-		
-		if (!result) {
-			cout << " passed ";
-			clog << "(no output)" << endl;
-		} else {
-			cout << " failed ";
-		}
 		cout << time/count << 's' << endl;
 	} else {
 		cout << " disabled" << endl;
-		clog << "(no output)" << endl;
 	}
 	
 	return result;
+}
+
+extern void randomify_symbol_serials();
+
+int main(int argc, char** argv)
+{
+	randomify_symbol_serials();
+	cout << setprecision(2) << showpoint;
+	return time_lw_N();
 }

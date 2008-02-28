@@ -22,8 +22,15 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "checks.h"
+#include <iostream>
 #include <sstream>
+#include <cstdlib> // rand()
+#include "ginac.h"
+using namespace std;
+using namespace GiNaC;
+
+extern const ex 
+dense_univariate_poly(const symbol & x, unsigned degree);
 
 static unsigned check_matrix_solve(unsigned m, unsigned n, unsigned p,
 								   unsigned degree)
@@ -161,7 +168,6 @@ unsigned check_lsolve()
 	unsigned result = 0;
 	
 	cout << "checking linear solve" << flush;
-	clog << "---------linear solve:" << endl;
 	
 	// solve some numeric linear systems
 	for (unsigned n=1; n<14; ++n)
@@ -191,12 +197,10 @@ unsigned check_lsolve()
 	result += check_inifcns_lsolve(5);  cout << '.' << flush;
 	result += check_inifcns_lsolve(6);  cout << '.' << flush;
 		
-	if (!result) {
-		cout << " passed " << endl;
-		clog << "(no output)" << endl;
-	} else {
-		cout << " failed " << endl;
-	}
-	
 	return result;
+}
+
+int main(int argc, char** argv)
+{
+	return check_lsolve();
 }

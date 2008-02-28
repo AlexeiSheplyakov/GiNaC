@@ -20,7 +20,10 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "exams.h"
+#include <iostream>
+#include "ginac.h"
+using namespace std;
+using namespace GiNaC;
 
 
 struct sprod_s {
@@ -72,7 +75,6 @@ unsigned exam_structure()
 	unsigned result = 0;
 
 	cout << "examining structure template" << flush;
-	clog << "----------structure template:" << endl;
 
 	symbol x("x"), y("y");
 	ex e;
@@ -91,14 +93,10 @@ unsigned exam_structure()
 		++result;
 	}
 
-	cout << '.' << flush;
-
-	if (!result) {
-		cout << " passed " << endl;
-		clog << "(no output)" << endl;
-	} else {
-		cout << " failed " << endl;
-	}
-
 	return result;
+}
+
+int main(int argc, char** argv)
+{
+	return exam_structure();
 }

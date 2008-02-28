@@ -23,7 +23,10 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "exams.h"
+#include <iostream>
+#include "ginac.h"
+using namespace std;
+using namespace GiNaC;
 
 // The very first pair of historic problems had its roots in power.cpp and was
 // finally resolved on April 27th 1999. (Fixing the first on April 23rd
@@ -469,7 +472,6 @@ unsigned exam_paranoia()
 	unsigned result = 0;
 	
 	cout << "examining several historic failures just out of paranoia" << flush;
-	clog << "----------several historic failures:" << endl;
 	
 	result += exam_paranoia1();  cout << '.' << flush;
 	result += exam_paranoia2();  cout << '.' << flush;
@@ -489,12 +491,10 @@ unsigned exam_paranoia()
 	result += exam_paranoia16();  cout << '.' << flush;
 	result += exam_paranoia17();  cout << '.' << flush;
 	
-	if (!result) {
-		cout << " passed " << endl;
-		clog << "(no output)" << endl;
-	} else {
-		cout << " failed " << endl;
-	}
-	
 	return result;
+}
+
+int main(int argc, char** argv)
+{
+	return exam_paranoia();
 }

@@ -20,7 +20,10 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "exams.h"
+#include <iostream>
+#include "ginac.h"
+using namespace std;
+using namespace GiNaC;
 
 static symbol x("x");
 
@@ -367,7 +370,6 @@ unsigned exam_pseries()
 	unsigned result = 0;
 	
 	cout << "examining series expansion" << flush;
-	clog << "----------series expansion:" << endl;
 	
 	result += exam_series1();  cout << '.' << flush;
 	result += exam_series2();  cout << '.' << flush;
@@ -383,11 +385,10 @@ unsigned exam_pseries()
 	result += exam_series12();  cout << '.' << flush;
 	result += exam_series13();  cout << '.' << flush;
 	
-	if (!result) {
-		cout << " passed " << endl;
-		clog << "(no output)" << endl;
-	} else {
-		cout << " failed " << endl;
-	}
 	return result;
+}
+
+int main(int argc, char** argv)
+{
+	return exam_pseries();
 }

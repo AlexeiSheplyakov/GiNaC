@@ -22,7 +22,18 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "checks.h"
+#include <iostream>
+#include <cstdlib> // rand(), RAND_MAX
+#include "ginac.h"
+using namespace std;
+using namespace GiNaC;
+
+extern const ex 
+sparse_tree(const symbol & x, const symbol & y, const symbol & z,
+	    int level, bool trig = false, bool rational = true,
+	    bool complex = false);
+extern const ex 
+dense_univariate_poly(const symbol & x, unsigned degree);
 
 /* determinants of some sparse symbolic matrices with coefficients in
  * an integral domain. */
@@ -200,7 +211,6 @@ unsigned check_matrices()
 	unsigned result = 0;
 	
 	cout << "checking symbolic matrix manipulations" << flush;
-	clog << "---------symbolic matrix manipulations:" << endl;
 	
 	result += integdom_matrix_determinants();  cout << '.' << flush;
 	result += rational_matrix_determinants();  cout << '.' << flush;
@@ -208,12 +218,10 @@ unsigned check_matrices()
 	result += compare_matrix_determinants();  cout << '.' << flush;
 	result += symbolic_matrix_inverse();  cout << '.' << flush;
 	
-	if (!result) {
-		cout << " passed " << endl;
-		clog << "(no output)" << endl;
-	} else {
-		cout << " failed " << endl;
-	}
-	
 	return result;
+}
+
+int main(int argc, char** argv)
+{
+	return check_matrices();
 }

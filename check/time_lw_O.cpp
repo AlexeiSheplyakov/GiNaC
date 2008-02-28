@@ -21,7 +21,12 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "times.h"
+#include <iostream>
+#include <vector>
+#include "ginac.h"
+#include "timer.h"
+using namespace std;
+using namespace GiNaC;
 
 static const bool do_test2 = false;  // set to true in order to run this beast
 
@@ -133,7 +138,6 @@ unsigned time_lw_O()
 	double time = .0;
 
 	cout << "timing Lewis-Wester test O1 (three 15x15 dets)" << flush;
-	clog << "-------Lewis-Wester test O1 (three 15x15 dets):" << endl;
 
 	rolex.start();
 	// correct for very small times:
@@ -142,32 +146,30 @@ unsigned time_lw_O()
 		++count;
 	} while ((time=rolex.read())<0.1 && !result);
 
-	if (!result) {
-		cout << " passed ";
-		clog << "(no output)" << endl;
-	} else {
-		cout << " failed ";
-	}
+	if (result)
+		return result;
+	
 	cout << time/(3*count) << "s (average)" << endl;
 
 	cout << "timing Lewis-Wester test O2 (Resultant)" << flush;
-	clog << "-------Lewis-Wester test O2 (Resultant):" << endl;
 
 	if (do_test2) {
 		rolex.reset();
 		result += test_O2();
 
-		if (!result) {
-			cout << " passed ";
-			clog << "(no output)" << endl;
-		} else {
-			cout << " failed ";
-		}
 		cout << rolex.read() << "s (combined)" << endl;
 	} else {
 		cout << " disabled" << endl;
-		clog << "(no output)" << endl;
 	}
 
 	return result;
+}
+
+extern void randomify_symbol_serials();
+
+int main(int argc, char** argv)
+{
+	randomify_symbol_serials();
+	cout << setprecision(2) << showpoint;
+	return time_lw_O();
 }

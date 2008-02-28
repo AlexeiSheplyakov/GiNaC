@@ -21,7 +21,11 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "times.h"
+#include <iostream>
+#include "ginac.h"
+#include "timer.h"
+using namespace std;
+using namespace GiNaC;
 
 static const bool do_test = false;  // set to true in order to run this beast
 
@@ -157,7 +161,6 @@ unsigned time_lw_M2()
 	double time = .0;
 	
 	cout << "timing Lewis-Wester test M2 (101x101 sparse, det)" << flush;
-	clog << "-------Lewis-Wester test M2 (101x101 sparse, det):" << endl;
 	
 	if (do_test) {
 		piaget.start();
@@ -167,18 +170,19 @@ unsigned time_lw_M2()
 			++count;
 		} while ((time=piaget.read())<0.1 && !result);
 		cout << '.' << flush;
-		
-		if (!result) {
-			cout << " passed ";
-			clog << "(no output)" << endl;
-		} else {
-			cout << " failed ";
-		}
 		cout << time/count << 's' << endl;
 	} else {
 		cout << " disabled" << endl;
-		clog << "(no output)" << endl;
 	}
 	
 	return result;
+}
+
+extern void randomify_symbol_serials();
+
+int main(int argc, char** argv)
+{
+	randomify_symbol_serials();
+	cout << setprecision(2) << showpoint;
+	return time_lw_M2();
 }

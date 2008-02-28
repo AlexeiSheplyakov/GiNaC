@@ -20,7 +20,10 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "exams.h"
+#include <iostream>
+#include "ginac.h"
+using namespace std;
+using namespace GiNaC;
 
 unsigned exam_hashmap()
 {
@@ -28,7 +31,6 @@ unsigned exam_hashmap()
 	unsigned N = 100;
 
 	cout << "examining hash maps" << flush;
-	clog << "----------hash maps:" << endl;
 
 	// Create empty container
 	exhashmap<unsigned> M1;
@@ -279,15 +281,12 @@ unsigned exam_hashmap()
 		clog << "count(4*x^y) returns " << n << " instead of 1" << endl;
 		++result;
 	}
-
 	cout << '.' << flush;
 
-	if (!result) {
-		cout << " passed " << endl;
-		clog << "(no output)" << endl;
-	} else {
-		cout << " failed " << endl;
-	}
-
 	return result;
+}
+
+int main(int argc, char** argv)
+{
+	return exam_hashmap();
 }

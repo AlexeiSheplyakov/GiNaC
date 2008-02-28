@@ -33,13 +33,16 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "times.h"
 #include <utility>
 #include <vector>
 #include <set>
 #include <map>
 #include <typeinfo>
 #include <stdexcept>
+#include "timer.h"
+#include "ginac.h"
+using namespace std;
+using namespace GiNaC;
 
 // whether to run this beast or not:
 static const bool do_test = true;
@@ -479,7 +482,6 @@ unsigned time_antipode()
 	timer jaeger_le_coultre;
 	
 	cout << "timing computation of antipodes in Yukawa theory" << flush;
-	clog << "-------computation of antipodes in Yukawa theory:" << endl;
 	
 	if (do_test) {
 		jaeger_le_coultre.start();
@@ -490,17 +492,18 @@ unsigned time_antipode()
 		result += test_tree(tree5);  cout << '.' << flush;
 		result += test_tree(tree6);  cout << '.' << flush;
 		
-		if (!result) {
-			cout << " passed ";
-			clog << "(no output)" << endl;
-		} else {
-			cout << " failed ";
-		}
 		cout << jaeger_le_coultre.read() << "s (total)" << endl;
 	} else {
 		cout << " disabled" << endl;
-		clog << "(no output)" << endl;
 	}
-	
 	return result;
+}
+
+extern void randomify_symbol_serials();
+
+int main(int argc, char** argv)
+{
+	randomify_symbol_serials();
+	cout << setprecision(2) << showpoint;
+	return time_antipode();
 }

@@ -21,9 +21,12 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "exams.h"
-
+#include <iostream>
 #include <fstream>
+#include "ginac.h"
+using namespace std;
+using namespace GiNaC;
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -292,19 +295,16 @@ unsigned exam_inifcns_nstdsums(void)
 	unsigned result = 0;
 	
 	cout << "examining consistency of nestedsums functions" << flush;
-	clog << "----------consistency of nestedsums functions:" << endl;
 	
 	result += inifcns_test_zeta();
 	result += inifcns_test_S();
 	result += inifcns_test_HLi();
 	result += inifcns_test_LiG();
 	
-	if (!result) {
-		cout << " passed " << endl;
-		clog << "(no output)" << endl;
-	} else {
-		cout << " failed " << endl;
-	}
-	
 	return result;
+}
+
+int main(int argc, char** argv)
+{
+	return exam_inifcns_nstdsums();
 }

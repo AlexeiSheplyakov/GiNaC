@@ -1,4 +1,0 @@
-#! /bin/sh
-echo "GiNaC will now run through some rather costly random consistency checks:"
-./checks${EXEEXT} 2>checks.out
-cmp ${srcdir}/checks.ref checks.out

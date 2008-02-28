@@ -21,7 +21,11 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "checks.h"
+#include <iostream>
+#include <cstdlib> // rand()
+#include "ginac.h"
+using namespace std;
+using namespace GiNaC;
 
 /* Some tests on the sine trigonometric function. */
 static unsigned inifcns_check_sin()
@@ -195,19 +199,16 @@ unsigned check_inifcns()
 	unsigned result = 0;
 
 	cout << "checking consistency of symbolic functions" << flush;
-	clog << "---------consistency of symbolic functions:" << endl;
 	
 	result += inifcns_check_sin();  cout << '.' << flush;
 	result += inifcns_check_cos();  cout << '.' << flush;
 	result += inifcns_check_tan();  cout << '.' << flush;
 	result += inifcns_check_Li2();  cout << '.' << flush;
 	
-	if (!result) {
-		cout << " passed " << endl;
-		clog << "(no output)" << endl;
-	} else {
-		cout << " failed " << endl;
-	}
-	
 	return result;
+}
+
+int main(int argc, char** argv)
+{
+	return check_inifcns();
 }

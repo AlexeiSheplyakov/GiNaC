@@ -20,7 +20,10 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "exams.h"
+#include <iostream>
+#include "ginac.h"
+using namespace std;
+using namespace GiNaC;
 
 static unsigned check_equal(const ex &e1, const ex &e2)
 {
@@ -392,7 +395,6 @@ unsigned exam_indexed()
 	unsigned result = 0;
 	
 	cout << "examining indexed objects" << flush;
-	clog << "----------indexed objects:" << endl;
 
 	result += delta_check();  cout << '.' << flush;
 	result += metric_check();  cout << '.' << flush;
@@ -403,12 +405,10 @@ unsigned exam_indexed()
 	result += spinor_check(); cout << '.' << flush;
 	result += dummy_check(); cout << '.' << flush;
 	
-	if (!result) {
-		cout << " passed " << endl;
-		clog << "(no output)" << endl;
-	} else {
-		cout << " failed " << endl;
-	}
-	
 	return result;
+}
+
+int main(int argc, char** argv)
+{
+	return exam_indexed();
 }

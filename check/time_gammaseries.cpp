@@ -20,7 +20,12 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "times.h"
+#include <iostream>
+#include <vector>
+#include "ginac.h"
+#include "timer.h"
+using namespace std;
+using namespace GiNaC;
 
 unsigned tgammaseries(unsigned order)
 {
@@ -48,7 +53,6 @@ unsigned time_gammaseries()
 	unsigned result = 0;
 
 	cout << "timing Laurent series expansion of Gamma function" << flush;
-	clog << "-------Laurent series expansion of Gamma function:" << endl;
 
 	vector<unsigned> sizes;
 	vector<double> times;
@@ -66,12 +70,6 @@ unsigned time_gammaseries()
 		cout << '.' << flush;
 	}
 
-	if (!result) {
-		cout << " passed ";
-		clog << "(no output)" << endl;
-	} else {
-		cout << " failed ";
-	}
 	// print the report:
 	cout << endl << "	order: ";
 	for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i)
@@ -82,4 +80,13 @@ unsigned time_gammaseries()
 	cout << endl;
 	
 	return result;
+}
+
+extern void randomify_symbol_serials();
+
+int main(int argc, char** argv)
+{
+	randomify_symbol_serials();
+	cout << setprecision(2) << showpoint;
+	return time_gammaseries();
 }

@@ -21,7 +21,10 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "exams.h"
+#include <iostream>
+#include "ginac.h"
+using namespace std;
+using namespace GiNaC;
 
 /* Assorted tests on other transcendental functions. */
 static unsigned inifcns_consist_trans()
@@ -217,19 +220,16 @@ unsigned exam_inifcns()
 	unsigned result = 0;
 	
 	cout << "examining consistency of symbolic functions" << flush;
-	clog << "----------consistency of symbolic functions:" << endl;
 	
 	result += inifcns_consist_trans();  cout << '.' << flush;
 	result += inifcns_consist_gamma();  cout << '.' << flush;
 	result += inifcns_consist_psi();  cout << '.' << flush;
 	result += inifcns_consist_zeta();  cout << '.' << flush;
 	
-	if (!result) {
-		cout << " passed " << endl;
-		clog << "(no output)" << endl;
-	} else {
-		cout << " failed " << endl;
-	}
-	
 	return result;
+}
+
+int main(int argc, char** argv)
+{
+	return exam_inifcns();
 }

@@ -20,7 +20,10 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "exams.h"
+#include <iostream>
+#include "ginac.h"
+using namespace std;
+using namespace GiNaC;
 
 static symbol w("w"), x("x"), y("y"), z("z");
 
@@ -219,7 +222,6 @@ unsigned exam_normalization()
 	unsigned result = 0;
 	
 	cout << "examining rational function normalization" << flush;
-	clog << "----------rational function normalization:" << endl;
 	
 	result += exam_normal1(); cout << '.' << flush;
 	result += exam_normal2(); cout << '.' << flush;
@@ -227,12 +229,10 @@ unsigned exam_normalization()
 	result += exam_normal4(); cout << '.' << flush;
 	result += exam_content(); cout << '.' << flush;
 	
-	if (!result) {
-		cout << " passed " << endl;
-		clog << "(no output)" << endl;
-	} else {
-		cout << " failed " << endl;
-	}
-	
 	return result;
+}
+
+int main(int argc, char** argv)
+{
+	return exam_normalization();
 }

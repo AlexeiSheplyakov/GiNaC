@@ -20,7 +20,10 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "exams.h"
+#include <iostream>
+#include "ginac.h"
+using namespace std;
+using namespace GiNaC;
 
 static unsigned check_equal(const ex &e1, const ex &e2)
 {
@@ -145,18 +148,15 @@ unsigned exam_color()
 	unsigned result = 0;
 	
 	cout << "examining color objects" << flush;
-	clog << "----------color objects:" << endl;
 
 	result += color_check1();  cout << '.' << flush;
 	result += color_check2();  cout << '.' << flush;
 	result += color_check3();  cout << '.' << flush;
 	
-	if (!result) {
-		cout << " passed " << endl;
-		clog << "(no output)" << endl;
-	} else {
-		cout << " failed " << endl;
-	}
-	
 	return result;
+}
+
+int main(int argc, char** argv)
+{
+	return exam_color();
 }

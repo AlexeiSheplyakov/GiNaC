@@ -20,8 +20,10 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-
-#include "exams.h"
+#include <iostream>
+#include "ginac.h"
+using namespace std;
+using namespace GiNaC;
 
 #define VECSIZE 30
 static unsigned exam_expand_subs()
@@ -291,7 +293,6 @@ unsigned exam_misc()
 	unsigned result = 0;
 	
 	cout << "examining miscellaneous other things" << flush;
-	clog << "----------miscellaneous other things:" << endl;
 	
 	result += exam_expand_subs();  cout << '.' << flush;
 	result += exam_expand_subs2();  cout << '.' << flush;
@@ -302,12 +303,10 @@ unsigned exam_misc()
 	result += exam_joris(); cout << '.' << flush;
 	result += exam_subs_algebraic(); cout << '.' << flush;
 	
-	if (!result) {
-		cout << " passed " << endl;
-		clog << "(no output)" << endl;
-	} else {
-		cout << " failed " << endl;
-	}
-	
 	return result;
+}
+
+int main(int argc, char** argv)
+{
+	return exam_misc();
 }

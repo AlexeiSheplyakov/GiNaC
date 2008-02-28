@@ -1,4 +1,0 @@
-#! /bin/sh
-echo "GiNaC will now take an exam with specific input (like a pupils' exam):"
-./exams${EXEEXT} 2>exams.out
-cmp ${srcdir}/exams.ref exams.out

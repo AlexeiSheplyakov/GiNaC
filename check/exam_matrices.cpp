@@ -21,7 +21,10 @@
  */
 
 #include <stdexcept>
-#include "exams.h"
+#include <iostream>
+#include "ginac.h"
+using namespace std;
+using namespace GiNaC;
 
 static unsigned matrix_determinants()
 {
@@ -337,7 +340,6 @@ unsigned exam_matrices()
 	unsigned result = 0;
 	
 	cout << "examining symbolic matrix manipulations" << flush;
-	clog << "----------symbolic matrix manipulations:" << endl;
 	
 	result += matrix_determinants();  cout << '.' << flush;
 	result += matrix_invert1();  cout << '.' << flush;
@@ -348,12 +350,10 @@ unsigned exam_matrices()
 	result += matrix_rank();  cout << "." << flush;
 	result += matrix_misc();  cout << '.' << flush;
 	
-	if (!result) {
-		cout << " passed " << endl;
-		clog << "(no output)" << endl;
-	} else {
-		cout << " failed " << endl;
-	}
-	
 	return result;
+}
+
+int main(int argc, char** argv)
+{
+	return exam_matrices();
 }

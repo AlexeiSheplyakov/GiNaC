@@ -21,9 +21,12 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "exams.h"
-
+#include <iostream>
 #include <sstream>
+#include "ginac.h"
+using namespace std;
+using namespace GiNaC;
+
 
 /* Simple and maybe somewhat pointless consistency tests of assorted tests and
  * conversions. */
@@ -378,7 +381,6 @@ unsigned exam_numeric()
 	unsigned result = 0;
 	
 	cout << "examining consistency of numeric types" << flush;
-	clog << "----------consistency of numeric types:" << endl;
 	
 	result += exam_numeric1();  cout << '.' << flush;
 	result += exam_numeric2();  cout << '.' << flush;
@@ -387,12 +389,10 @@ unsigned exam_numeric()
 	result += exam_numeric5();  cout << '.' << flush;
 	result += exam_numeric6();  cout << '.' << flush;
 	
-	if (!result) {
-		cout << " passed " << endl;
-		clog << "(no output)" << endl;
-	} else {
-		cout << " failed " << endl;
-	}
-	
 	return result;
+}
+
+int main(int argc, char** argv)
+{
+	return exam_numeric();
 }

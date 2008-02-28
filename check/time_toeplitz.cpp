@@ -23,7 +23,12 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "times.h"
+#include <iostream>
+#include <vector>
+#include "ginac.h"
+#include "timer.h"
+using namespace std;
+using namespace GiNaC;
 
 static unsigned toeplitz_det(unsigned size)
 {
@@ -69,7 +74,6 @@ unsigned time_toeplitz()
 	unsigned result = 0;
 
 	cout << "timing determinant of polyvariate symbolic Toeplitz matrices" << flush;
-	clog << "-------determinant of polyvariate symbolic Toeplitz matrices:" << endl;
 
 	vector<unsigned> sizes;
 	vector<double> times;
@@ -93,12 +97,6 @@ unsigned time_toeplitz()
 		cout << '.' << flush;
 	}
 
-	if (!result) {
-		cout << " passed ";
-		clog << "(no output)" << endl;
-	} else {
-		cout << " failed ";
-	}
 	// print the report:
 	cout << endl << "	dim:   ";
 	for (vector<unsigned>::iterator i=sizes.begin(); i!=sizes.end(); ++i)
@@ -109,4 +107,13 @@ unsigned time_toeplitz()
 	cout << endl;
 
 	return result;
+}
+
+extern void randomify_symbol_serials();
+
+int main(int argc, char** argv)
+{
+	randomify_symbol_serials();
+	cout << setprecision(2) << showpoint;
+	return time_toeplitz();
 }
