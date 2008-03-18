@@ -44,6 +44,13 @@ class dunno {};
 
 unsigned log2(unsigned n);
 
+/** Rotate bits of unsigned value by one bit to the left.
+  * This can be necesary if the user wants to define its own hashes. */
+inline unsigned rotate_left(unsigned n)
+{
+	return (n & 0x80000000U) ? (n << 1 | 0x00000001U) : (n << 1);
+}
+
 /** Compare two pointers (just to establish some sort of canonical order).
  *  @return -1, 0, or 1 */
 template <class T>
