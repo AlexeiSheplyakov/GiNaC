@@ -125,12 +125,21 @@ install CLN properly on your system before continuing with GiNaC.
 Problems building ginsh
 -----------------------
 
-The most common reason why this doesn't succeed is the absence of GNU
-libreadline and/or the corresponding header files. Depending on what your
-system/distribution is, you will have to install a package called
-libreadline and maybe libreadline-dev. If your system's vendor doesn't
-supply such packages, go to <ftp://ftp.gnu.org/gnu/readline/> and compile
-it yourself. Note that non-GNU versions of libreadline (in particular
+The GiNaC interactive shell, ginsh, makes use of GNU readline to provide 
+command line editing and history. If readline library and/or headers are
+missing on your system, the configure script will issue a warning. In this
+case you have two options:
+
+1) (the easiest) If you don't intend to use ginsh (i.e. if you need GiNaC
+library to compile some piece of software), ignore it. ginsh builds just
+fine without readline (obviously, it won't support the command line history
+and editing).
+
+2) Install GNU readline and run the configure script once again. Depending on
+what your system/distribution is, you will have to install a package called
+libreadline and libreadline-dev (or readline-devel). If your system's vendor
+doesn't supply such packages, go to <ftp://ftp.gnu.org/gnu/readline/> and
+compile it yourself. Note that non-GNU versions of libreadline (in particular
 one shipped with Mac OS X) are not supported at the moment.
 
 Problems with missing standard header files
