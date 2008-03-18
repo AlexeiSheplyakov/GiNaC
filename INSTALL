@@ -5,7 +5,7 @@ GiNaC requires the CLN library by Bruno Haible installed on your system.
 It is available from <ftp://ftpthep.physik.uni-mainz.de/pub/gnu/>.
 
 You will also need a decent ANSI-compliant C++-compiler. We recommend the
-C++ compiler from the GNU compiler collection, GCC >= 3.0. If you have a
+C++ compiler from the GNU compiler collection, GCC >= 3.4. If you have a
 different or older compiler you are on your own. Note that you may have to
 use the same compiler you compiled CLN with because of differing
 name-mangling schemes.
@@ -18,9 +18,14 @@ To build the GiNaC tutorial and reference manual the doxygen utility
 TeX are necessary.
 
 Known to work with:
- - Linux on x86, Alpha and Sparc using GCC 3.x and 4.0.
+ - Linux on x86 and x86_64 using GCC 3.4, 4.0, 4.1, and 4.2.
+ - Linux on Alpha using GCC 3.4.
+ - Solaris on Sparc using GCC 3.4.
+ - Windows on x86 using GCC 3.4 (MinGW)
 
 Known not to work with:
+ - GCC 4.3.0 due to the compiler bug,
+   see <http://gcc.gnu.org/bugzilla/show_bug.cgi?id=35548>.
  - GCC 2.96 or earlier because proper exception and standard library support
    is missing there.
 
