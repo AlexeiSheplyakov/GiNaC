@@ -1379,7 +1379,7 @@ const numeric I = numeric(cln::complex(cln::cl_I(0),cln::cl_I(1)));
  *  @return  arbitrary precision numerical exp(x). */
 const numeric exp(const numeric &x)
 {
-	return cln::exp(x.to_cl_N());
+	return numeric(cln::exp(x.to_cl_N()));
 }
 
 
@@ -1392,7 +1392,7 @@ const numeric log(const numeric &x)
 {
 	if (x.is_zero())
 		throw pole_error("log(): logarithmic pole",0);
-	return cln::log(x.to_cl_N());
+	return numeric(cln::log(x.to_cl_N()));
 }
 
 
@@ -1401,7 +1401,7 @@ const numeric log(const numeric &x)
  *  @return  arbitrary precision numerical sin(x). */
 const numeric sin(const numeric &x)
 {
-	return cln::sin(x.to_cl_N());
+	return numeric(cln::sin(x.to_cl_N()));
 }
 
 
@@ -1410,7 +1410,7 @@ const numeric sin(const numeric &x)
  *  @return  arbitrary precision numerical cos(x). */
 const numeric cos(const numeric &x)
 {
-	return cln::cos(x.to_cl_N());
+	return numeric(cln::cos(x.to_cl_N()));
 }
 
 
@@ -1419,7 +1419,7 @@ const numeric cos(const numeric &x)
  *  @return  arbitrary precision numerical tan(x). */
 const numeric tan(const numeric &x)
 {
-	return cln::tan(x.to_cl_N());
+	return numeric(cln::tan(x.to_cl_N()));
 }
 	
 
@@ -1428,7 +1428,7 @@ const numeric tan(const numeric &x)
  *  @return  arbitrary precision numerical asin(x). */
 const numeric asin(const numeric &x)
 {
-	return cln::asin(x.to_cl_N());
+	return numeric(cln::asin(x.to_cl_N()));
 }
 
 
@@ -1437,7 +1437,7 @@ const numeric asin(const numeric &x)
  *  @return  arbitrary precision numerical acos(x). */
 const numeric acos(const numeric &x)
 {
-	return cln::acos(x.to_cl_N());
+	return numeric(cln::acos(x.to_cl_N()));
 }
 	
 
@@ -1452,7 +1452,7 @@ const numeric atan(const numeric &x)
 	    x.real().is_zero() &&
 	    abs(x.imag()).is_equal(*_num1_p))
 		throw pole_error("atan(): logarithmic pole",0);
-	return cln::atan(x.to_cl_N());
+	return numeric(cln::atan(x.to_cl_N()));
 }
 
 
@@ -1468,8 +1468,8 @@ const numeric atan(const numeric &y, const numeric &x)
 	if (x.is_zero() && y.is_zero())
 		return *_num0_p;
 	if (x.is_real() && y.is_real())
-		return cln::atan(cln::the<cln::cl_R>(x.to_cl_N()),
-		                 cln::the<cln::cl_R>(y.to_cl_N()));
+		return numeric(cln::atan(cln::the<cln::cl_R>(x.to_cl_N()),
+		                 cln::the<cln::cl_R>(y.to_cl_N())));
 
 	// Compute -I*log((x+I*y)/sqrt(x^2+y^2))
 	//      == -I*log((x+I*y)/sqrt((x+I*y)*(x-I*y)))
@@ -1485,7 +1485,7 @@ const numeric atan(const numeric &y, const numeric &x)
 		// x-I*y==0 => y/x==-I, so this is a pole (we have x!=0).
 		throw pole_error("atan(): logarithmic pole",0);
 	}
-	return cln::complex(0,-1)*cln::log(aux_p/cln::sqrt(aux_p*aux_m));
+	return numeric(cln::complex(0,-1)*cln::log(aux_p/cln::sqrt(aux_p*aux_m)));
 }
 
 
@@ -1494,7 +1494,7 @@ const numeric atan(const numeric &y, const numeric &x)
  *  @return  arbitrary precision numerical sinh(x). */
 const numeric sinh(const numeric &x)
 {
-	return cln::sinh(x.to_cl_N());
+	return numeric(cln::sinh(x.to_cl_N()));
 }
 
 
@@ -1503,7 +1503,7 @@ const numeric sinh(const numeric &x)
  *  @return  arbitrary precision numerical cosh(x). */
 const numeric cosh(const numeric &x)
 {
-	return cln::cosh(x.to_cl_N());
+	return numeric(cln::cosh(x.to_cl_N()));
 }
 
 
@@ -1512,7 +1512,7 @@ const numeric cosh(const numeric &x)
  *  @return  arbitrary precision numerical tanh(x). */
 const numeric tanh(const numeric &x)
 {
-	return cln::tanh(x.to_cl_N());
+	return numeric(cln::tanh(x.to_cl_N()));
 }
 	
 
@@ -1521,7 +1521,7 @@ const numeric tanh(const numeric &x)
  *  @return  arbitrary precision numerical asinh(x). */
 const numeric asinh(const numeric &x)
 {
-	return cln::asinh(x.to_cl_N());
+	return numeric(cln::asinh(x.to_cl_N()));
 }
 
 
@@ -1530,7 +1530,7 @@ const numeric asinh(const numeric &x)
  *  @return  arbitrary precision numerical acosh(x). */
 const numeric acosh(const numeric &x)
 {
-	return cln::acosh(x.to_cl_N());
+	return numeric(cln::acosh(x.to_cl_N()));
 }
 
 
@@ -1539,7 +1539,7 @@ const numeric acosh(const numeric &x)
  *  @return  arbitrary precision numerical atanh(x). */
 const numeric atanh(const numeric &x)
 {
-	return cln::atanh(x.to_cl_N());
+	return numeric(cln::atanh(x.to_cl_N()));
 }
 
 
