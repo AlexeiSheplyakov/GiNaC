@@ -379,15 +379,14 @@ cln::cl_N Li_projection(int n, const cln::cl_N& x, const cln::float_format_t& pr
 	}
 }
 
-
 // helper function for classical polylog Li
-numeric Lin_numeric(int n, const numeric& x)
+const cln::cl_N Lin_numeric(const int n, const cln::cl_N& x)
 {
 	if (n == 1) {
 		// just a log
-		return -cln::log(1-x.to_cl_N());
+		return -cln::log(1-x);
 	}
-	if (x.is_zero()) {
+	if (zerop(x)) {
 		return 0;
 	}
 	if (x == 1) {
@@ -398,12 +397,11 @@ numeric Lin_numeric(int n, const numeric& x)
 		// [Kol] (2.22)
 		return -(1-cln::expt(cln::cl_I(2),1-n)) * cln::zeta(n);
 	}
-	if (abs(x.real()) < 0.4 && abs(abs(x)-1) < 0.01) {
-		cln::cl_N x_ = ex_to<numeric>(x).to_cl_N();
-		cln::cl_N result = -cln::expt(cln::log(x_), n-1) * cln::log(1-x_) / cln::factorial(n-1);
+	if (cln::abs(realpart(x)) < 0.4 && cln::abs(cln::abs(x)-1) < 0.01) {
+		cln::cl_N result = -cln::expt(cln::log(x), n-1) * cln::log(1-x) / cln::factorial(n-1);
 		for (int j=0; j<n-1; j++) {
-			result = result + (S_num(n-j-1, 1, 1) - S_num(1, n-j-1, 1-x_))
-				* cln::expt(cln::log(x_), j) / cln::factorial(j);
+			result = result + (S_num(n-j-1, 1, 1) - S_num(1, n-j-1, 1-x))
+				* cln::expt(cln::log(x), j) / cln::factorial(j);
 		}
 		return result;
 	}
@@ -411,11 +409,11 @@ numeric Lin_numeric(int n, const numeric& x)
 	// what is the desired float format?
 	// first guess: default format
 	cln::float_format_t prec = cln::default_float_format;
-	const cln::cl_N value = x.to_cl_N();
+	const cln::cl_N value = x;
 	// second guess: the argument's format
-	if (!x.real().is_rational())
+	if (!instanceof(realpart(x), cln::cl_RA_ring))
 		prec = cln::float_format(cln::the<cln::cl_F>(cln::realpart(value)));
-	else if (!x.imag().is_rational())
+	else if (!instanceof(imagpart(x), cln::cl_RA_ring))
 		prec = cln::float_format(cln::the<cln::cl_F>(cln::imagpart(value)));
 	
 	// [Kol] (5.15)
@@ -441,7 +439,7 @@ numeric Lin_numeric(int n, const numeric& x)
 		cln::cl_N add;
 		for (int j=0; j<n-1; j++) {
 			add = add + (1+cln::expt(cln::cl_I(-1),n-j)) * (1-cln::expt(cln::cl_I(2),1-n+j))
-			            * Lin_numeric(n-j,1).to_cl_N() * cln::expt(cln::log(-value),j) / cln::factorial(j);
+			            * Lin_numeric(n-j,1) * cln::expt(cln::log(-value),j) / cln::factorial(j);
 		}
 		result = result - add;
 		return result;
@@ -1380,12 +1378,18 @@ static ex Li_evalf(const ex& m_, const ex& x_)
 	// classical polylogs
 	if (m_.info(info_flags::posint)) {
 		if (x_.info(info_flags::numeric)) {
-			return Lin_numeric(ex_to<numeric>(m_).to_int(), ex_to<numeric>(x_));
+			int m__ = ex_to<numeric>(m_).to_int();
+			const cln::cl_N x__ = ex_to<numeric>(x_).to_cl_N();
+			const cln::cl_N result = Lin_numeric(m__, x__);
+			return numeric(result);
 		} else {
 			// try to numerically evaluate second argument
 			ex x_val = x_.evalf();
 			if (x_val.info(info_flags::numeric)) {
-				return Lin_numeric(ex_to<numeric>(m_).to_int(), ex_to<numeric>(x_val));
+				int m__ = ex_to<numeric>(m_).to_int();
+				const cln::cl_N x__ = ex_to<numeric>(x_val).to_cl_N();
+				const cln::cl_N result = Lin_numeric(m__, x__);
+				return numeric(result);
 			}
 		}
 	}
@@ -1499,7 +1503,10 @@ static ex Li_eval(const ex& m_, const ex& x_)
 		}
 	}
 	if (m_.info(info_flags::posint) && x_.info(info_flags::numeric) && !x_.info(info_flags::crational)) {
-		return Lin_numeric(ex_to<numeric>(m_).to_int(), ex_to<numeric>(x_));
+		int m__ = ex_to<numeric>(m_).to_int();
+		const cln::cl_N x__ = ex_to<numeric>(x_).to_cl_N();
+		const cln::cl_N result = Lin_numeric(m__, x__);
+		return numeric(result);
 	}
 
 	return Li(m_, x_).hold();
