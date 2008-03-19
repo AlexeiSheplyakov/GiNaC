@@ -184,7 +184,7 @@ public:
 	const numeric denom() const;
 	int int_length() const;
 	// converting routines for interfacing with CLN:
-	numeric(const cln::cl_N &z);
+	explicit numeric(const cln::cl_N &z);
 
 protected:
 	void print_numeric(const print_context & c, const char *par_open, const char *par_close, const char *imag_sym, const char *mul_sym, unsigned level) const;
