@@ -1977,7 +1977,7 @@ static const cln::float_format_t guess_precision(const cln::cl_N& x)
  *  sufficiently many or sufficiently accurate, more can be calculated
  *  using the program doc/examples/lanczos.cpp. In that case, be sure to
  *  read the comments in that file. */
-const cln::cl_N lgamma_(const cln::cl_N &x)
+const cln::cl_N lgamma(const cln::cl_N &x)
 {
 	cln::float_format_t prec = guess_precision(x);
 	lanczos_coeffs lc;
@@ -1985,7 +1985,7 @@ const cln::cl_N lgamma_(const cln::cl_N &x)
 		cln::cl_N pi_val = cln::pi(prec);
 		if (realpart(x) < 0.5)
 			return cln::log(pi_val) - cln::log(sin(pi_val*x))
-				- lgamma_(1 - x);
+				- lgamma(1 - x);
 		cln::cl_N A = lc.calc_lanczos_A(x);
 		cln::cl_N temp = x + lc.get_order() - cln::cl_N(1)/2;
    	cln::cl_N result = log(cln::cl_I(2)*pi_val)/2
@@ -2001,18 +2001,18 @@ const cln::cl_N lgamma_(const cln::cl_N &x)
 const numeric lgamma(const numeric &x)
 {
 	const cln::cl_N x_ = x.to_cl_N();
-	const cln::cl_N result = lgamma_(x_);
+	const cln::cl_N result = lgamma(x_);
 	return numeric(result);
 }
 
-const cln::cl_N tgamma_(const cln::cl_N &x)
+const cln::cl_N tgamma(const cln::cl_N &x)
 {
 	cln::float_format_t prec = guess_precision(x);
 	lanczos_coeffs lc;
 	if (lc.sufficiently_accurate(prec)) {
 		cln::cl_N pi_val = cln::pi(prec);
 		if (realpart(x) < 0.5)
-			return pi_val/(cln::sin(pi_val*x))/tgamma_(1 - x);
+			return pi_val/(cln::sin(pi_val*x))/tgamma(1 - x);
 		cln::cl_N A = lc.calc_lanczos_A(x);
 		cln::cl_N temp = x + lc.get_order() - cln::cl_N(1)/2;
    	cln::cl_N result
@@ -2027,7 +2027,7 @@ const cln::cl_N tgamma_(const cln::cl_N &x)
 const numeric tgamma(const numeric &x)
 {
 	const cln::cl_N x_ = x.to_cl_N();
-	const cln::cl_N result = tgamma_(x_);
+	const cln::cl_N result = tgamma(x_);
 	return numeric(result);
 }
 
