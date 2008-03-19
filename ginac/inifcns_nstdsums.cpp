@@ -320,7 +320,7 @@ cln::cl_N Lin_do_sum_Xn(int n, const cln::cl_N& x)
 
 
 // forward declaration needed by function Li_projection and C below
-numeric S_num(int n, int p, const numeric& x);
+const cln::cl_N S_num(int n, int p, const cln::cl_N& x);
 
 
 // helper function for classical polylog Li
@@ -371,7 +371,7 @@ cln::cl_N Li_projection(int n, const cln::cl_N& x, const cln::float_format_t& pr
 		} else {
 			cln::cl_N result = -cln::expt(cln::log(x), n-1) * cln::log(1-x) / cln::factorial(n-1);
 			for (int j=0; j<n-1; j++) {
-				result = result + (S_num(n-j-1, 1, 1).to_cl_N() - S_num(1, n-j-1, 1-x).to_cl_N())
+				result = result + (S_num(n-j-1, 1, 1) - S_num(1, n-j-1, 1-x))
 				                  * cln::expt(cln::log(x), j) / cln::factorial(j);
 			}
 			return result;
@@ -402,7 +402,7 @@ numeric Lin_numeric(int n, const numeric& x)
 		cln::cl_N x_ = ex_to<numeric>(x).to_cl_N();
 		cln::cl_N result = -cln::expt(cln::log(x_), n-1) * cln::log(1-x_) / cln::factorial(n-1);
 		for (int j=0; j<n-1; j++) {
-			result = result + (S_num(n-j-1, 1, 1).to_cl_N() - S_num(1, n-j-1, 1-x_).to_cl_N())
+			result = result + (S_num(n-j-1, 1, 1) - S_num(1, n-j-1, 1-x_))
 				* cln::expt(cln::log(x_), j) / cln::factorial(j);
 		}
 		return result;
@@ -1720,10 +1720,10 @@ cln::cl_N C(int n, int p)
 			if (k == 0) {
 				if (n & 1) {
 					if (j & 1) {
-						result = result - 2 * cln::expt(cln::pi(),2*j) * S_num(n-2*j,p,1).to_cl_N() / cln::factorial(2*j);
+						result = result - 2 * cln::expt(cln::pi(),2*j) * S_num(n-2*j,p,1) / cln::factorial(2*j);
 					}
 					else {
-						result = result + 2 * cln::expt(cln::pi(),2*j) * S_num(n-2*j,p,1).to_cl_N() / cln::factorial(2*j);
+						result = result + 2 * cln::expt(cln::pi(),2*j) * S_num(n-2*j,p,1) / cln::factorial(2*j);
 					}
 				}
 			}
@@ -1731,23 +1731,23 @@ cln::cl_N C(int n, int p)
 				if (k & 1) {
 					if (j & 1) {
 						result = result + cln::factorial(n+k-1)
-						                  * cln::expt(cln::pi(),2*j) * S_num(n+k-2*j,p-k,1).to_cl_N()
+						                  * cln::expt(cln::pi(),2*j) * S_num(n+k-2*j,p-k,1)
 						                  / (cln::factorial(k) * cln::factorial(n-1) * cln::factorial(2*j));
 					}
 					else {
 						result = result - cln::factorial(n+k-1)
-						                  * cln::expt(cln::pi(),2*j) * S_num(n+k-2*j,p-k,1).to_cl_N()
+						                  * cln::expt(cln::pi(),2*j) * S_num(n+k-2*j,p-k,1)
 						                  / (cln::factorial(k) * cln::factorial(n-1) * cln::factorial(2*j));
 					}
 				}
 				else {
 					if (j & 1) {
-						result = result - cln::factorial(n+k-1) * cln::expt(cln::pi(),2*j) * S_num(n+k-2*j,p-k,1).to_cl_N()
+						result = result - cln::factorial(n+k-1) * cln::expt(cln::pi(),2*j) * S_num(n+k-2*j,p-k,1)
 						                  / (cln::factorial(k) * cln::factorial(n-1) * cln::factorial(2*j));
 					}
 					else {
 						result = result + cln::factorial(n+k-1)
-						                  * cln::expt(cln::pi(),2*j) * S_num(n+k-2*j,p-k,1).to_cl_N()
+						                  * cln::expt(cln::pi(),2*j) * S_num(n+k-2*j,p-k,1)
 						                  / (cln::factorial(k) * cln::factorial(n-1) * cln::factorial(2*j));
 					}
 				}
@@ -1870,7 +1870,7 @@ cln::cl_N S_projection(int n, int p, const cln::cl_N& x, const cln::float_format
 				res2 = res2 + cln::expt(cln::cl_I(-1),r) * cln::expt(cln::log(1-x),r)
 				              * S_do_sum(p-r,n-s,1-x,prec) / cln::factorial(r);
 			}
-			result = result + cln::expt(cln::log(x),s) * (S_num(n-s,p,1).to_cl_N() - res2) / cln::factorial(s);
+			result = result + cln::expt(cln::log(x),s) * (S_num(n-s,p,1) - res2) / cln::factorial(s);
 		}
 
 		return result;
@@ -1881,7 +1881,7 @@ cln::cl_N S_projection(int n, int p, const cln::cl_N& x, const cln::float_format
 
 
 // helper function for S(n,p,x)
-numeric S_num(int n, int p, const numeric& x)
+const cln::cl_N S_num(int n, int p, const cln::cl_N& x)
 {
 	if (x == 1) {
 		if (n == 1) {
@@ -1917,11 +1917,11 @@ numeric S_num(int n, int p, const numeric& x)
 	// what is the desired float format?
 	// first guess: default format
 	cln::float_format_t prec = cln::default_float_format;
-	const cln::cl_N value = x.to_cl_N();
+	const cln::cl_N value = x;
 	// second guess: the argument's format
-	if (!x.real().is_rational())
+	if (!instanceof(realpart(value), cln::cl_RA_ring))
 		prec = cln::float_format(cln::the<cln::cl_F>(cln::realpart(value)));
-	else if (!x.imag().is_rational())
+	else if (!instanceof(imagpart(value), cln::cl_RA_ring))
 		prec = cln::float_format(cln::the<cln::cl_F>(cln::imagpart(value)));
 
 	// [Kol] (5.3)
@@ -1934,9 +1934,9 @@ numeric S_num(int n, int p, const numeric& x)
 			cln::cl_N res2;
 			for (int r=0; r<p; r++) {
 				res2 = res2 + cln::expt(cln::cl_I(-1),r) * cln::expt(cln::log(1-value),r)
-				              * S_num(p-r,n-s,1-value).to_cl_N() / cln::factorial(r);
+				              * S_num(p-r,n-s,1-value) / cln::factorial(r);
 			}
-			result = result + cln::expt(cln::log(value),s) * (S_num(n-s,p,1).to_cl_N() - res2) / cln::factorial(s);
+			result = result + cln::expt(cln::log(value),s) * (S_num(n-s,p,1) - res2) / cln::factorial(s);
 		}
 
 		return result;
@@ -1951,7 +1951,7 @@ numeric S_num(int n, int p, const numeric& x)
 			for (int r=0; r<=s; r++) {
 				result = result + cln::expt(cln::cl_I(-1),s) * cln::expt(cln::log(-value),r) * cln::factorial(n+s-r-1)
 				                  / cln::factorial(r) / cln::factorial(s-r) / cln::factorial(n-1)
-				                  * S_num(n+s-r,p-s,cln::recip(value)).to_cl_N();
+				                  * S_num(n+s-r,p-s,cln::recip(value));
 			}
 		}
 		result = result * cln::expt(cln::cl_I(-1),n);
@@ -1987,12 +1987,18 @@ numeric S_num(int n, int p, const numeric& x)
 static ex S_evalf(const ex& n, const ex& p, const ex& x)
 {
 	if (n.info(info_flags::posint) && p.info(info_flags::posint)) {
+		const int n_ = ex_to<numeric>(n).to_int();
+		const int p_ = ex_to<numeric>(p).to_int();
 		if (is_a<numeric>(x)) {
-			return S_num(ex_to<numeric>(n).to_int(), ex_to<numeric>(p).to_int(), ex_to<numeric>(x));
+			const cln::cl_N x_ = ex_to<numeric>(x).to_cl_N();
+			const cln::cl_N result = S_num(n_, p_, x_);
+			return numeric(result);
 		} else {
 			ex x_val = x.evalf();
 			if (is_a<numeric>(x_val)) {
-				return S_num(ex_to<numeric>(n).to_int(), ex_to<numeric>(p).to_int(), ex_to<numeric>(x_val));
+				const cln::cl_N x_val_ = ex_to<numeric>(x_val).to_cl_N();
+				const cln::cl_N result = S_num(n_, p_, x_val_);
+				return numeric(result);
 			}
 		}
 	}
@@ -2017,7 +2023,11 @@ static ex S_eval(const ex& n, const ex& p, const ex& x)
 			return Li(n+1, x);
 		}
 		if (x.info(info_flags::numeric) && (!x.info(info_flags::crational))) {
-			return S_num(ex_to<numeric>(n).to_int(), ex_to<numeric>(p).to_int(), ex_to<numeric>(x));
+			int n_ = ex_to<numeric>(n).to_int();
+			int p_ = ex_to<numeric>(p).to_int();
+			const cln::cl_N x_ = ex_to<numeric>(x).to_cl_N();
+			const cln::cl_N result = S_num(n_, p_, x_);
+			return numeric(result);
 		}
 	}
 	if (n.is_zero()) {
