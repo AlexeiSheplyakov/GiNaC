@@ -2161,7 +2161,7 @@ const numeric bernoulli(const numeric &nn)
 		next_r = 4;
 	}
 	if (n<next_r)
-		return results[n/2-1];
+		return numeric(results[n/2-1]);
 
 	results.reserve(n/2);
 	for (unsigned p=next_r; p<=n;  p+=2) {
@@ -2186,7 +2186,7 @@ const numeric bernoulli(const numeric &nn)
 		results.push_back(-b/(p+1));
 	}
 	next_r = n+2;
-	return results[n/2-1];
+	return numeric(results[n/2-1]);
 }
 
 
@@ -2243,9 +2243,9 @@ const numeric fibonacci(const numeric &n)
 	if (n.is_even())
 		// Here we don't use the squaring formula because one multiplication
 		// is cheaper than two squarings.
-		return u * ((v << 1) - u);
+		return numeric(u * ((v << 1) - u));
 	else
-		return cln::square(u) + cln::square(v);    
+		return numeric(cln::square(u) + cln::square(v)); 
 }
 
 
@@ -2363,7 +2363,7 @@ const numeric iquo(const numeric &a, const numeric &b, numeric &r)
 		const cln::cl_I_div_t rem_quo = cln::truncate2(cln::the<cln::cl_I>(a.to_cl_N()),
 		                                               cln::the<cln::cl_I>(b.to_cl_N()));
 		r = numeric(rem_quo.remainder);
-		return rem_quo.quotient;
+		return numeric(rem_quo.quotient);
 	} else {
 		r = *_num0_p;
 		return *_num0_p;
