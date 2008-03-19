@@ -1611,24 +1611,24 @@ static cln::cl_N Li2_projection(const cln::cl_N &x,
 	return Li2_series(x, prec);
 }
 
+
 /** Numeric evaluation of Dilogarithm.  The domain is the entire complex plane,
  *  the branch cut lies along the positive real axis, starting at 1 and
  *  continuous with quadrant IV.
  *
  *  @return  arbitrary precision numerical Li2(x). */
-const numeric Li2(const numeric &x)
+const cln::cl_N Li2_(const cln::cl_N& value)
 {
-	if (x.is_zero())
-		return *_num0_p;
+	if (zerop(value))
+		return 0;
 	
 	// what is the desired float format?
 	// first guess: default format
 	cln::float_format_t prec = cln::default_float_format;
-	const cln::cl_N value = x.to_cl_N();
 	// second guess: the argument's format
-	if (!x.real().is_rational())
+	if (!instanceof(realpart(value), cln::cl_RA_ring))
 		prec = cln::float_format(cln::the<cln::cl_F>(cln::realpart(value)));
-	else if (!x.imag().is_rational())
+	else if (!instanceof(imagpart(value), cln::cl_RA_ring))
 		prec = cln::float_format(cln::the<cln::cl_F>(cln::imagpart(value)));
 	
 	if (value==1)  // may cause trouble with log(1-x)
@@ -1640,7 +1640,16 @@ const numeric Li2(const numeric &x)
 		       - cln::zeta(2, prec)
 		       - Li2_projection(cln::recip(value), prec));
 	else
-		return Li2_projection(x.to_cl_N(), prec);
+		return Li2_projection(value, prec);
+}
+
+const numeric Li2(const numeric &x)
+{
+	const cln::cl_N x_ = x.to_cl_N();
+	if (zerop(x_))
+		return *_num0_p;
+	const cln::cl_N result = Li2_(x_);
+	return numeric(result);
 }
 
 
@@ -1656,7 +1665,7 @@ const numeric zeta(const numeric &x)
 	if (x.is_real()) {
 		const int aux = (int)(cln::double_approx(cln::the<cln::cl_R>(x.to_cl_N())));
 		if (cln::zerop(x.to_cl_N()-aux))
-			return cln::zeta(aux);
+			return numeric(cln::zeta(aux));
 	}
 	throw dunno();
 }
@@ -2219,7 +2228,7 @@ const numeric fibonacci(const numeric &n)
 /** Absolute value. */
 const numeric abs(const numeric& x)
 {
-	return cln::abs(x.to_cl_N());
+	return numeric(cln::abs(x.to_cl_N()));
 }
 
 
@@ -2233,8 +2242,8 @@ const numeric abs(const numeric& x)
 const numeric mod(const numeric &a, const numeric &b)
 {
 	if (a.is_integer() && b.is_integer())
-		return cln::mod(cln::the<cln::cl_I>(a.to_cl_N()),
-		                cln::the<cln::cl_I>(b.to_cl_N()));
+		return numeric(cln::mod(cln::the<cln::cl_I>(a.to_cl_N()),
+		                cln::the<cln::cl_I>(b.to_cl_N())));
 	else
 		return *_num0_p;
 }
@@ -2248,8 +2257,8 @@ const numeric smod(const numeric &a, const numeric &b)
 {
 	if (a.is_integer() && b.is_integer()) {
 		const cln::cl_I b2 = cln::ceiling1(cln::the<cln::cl_I>(b.to_cl_N()) >> 1) - 1;
-		return cln::mod(cln::the<cln::cl_I>(a.to_cl_N()) + b2,
-		                cln::the<cln::cl_I>(b.to_cl_N())) - b2;
+		return numeric(cln::mod(cln::the<cln::cl_I>(a.to_cl_N()) + b2,
+		                cln::the<cln::cl_I>(b.to_cl_N())) - b2);
 	} else
 		return *_num0_p;
 }
@@ -2267,8 +2276,8 @@ const numeric irem(const numeric &a, const numeric &b)
 	if (b.is_zero())
 		throw std::overflow_error("numeric::irem(): division by zero");
 	if (a.is_integer() && b.is_integer())
-		return cln::rem(cln::the<cln::cl_I>(a.to_cl_N()),
-		                cln::the<cln::cl_I>(b.to_cl_N()));
+		return numeric(cln::rem(cln::the<cln::cl_I>(a.to_cl_N()),
+		                cln::the<cln::cl_I>(b.to_cl_N())));
 	else
 		return *_num0_p;
 }
@@ -2289,8 +2298,8 @@ const numeric irem(const numeric &a, const numeric &b, numeric &q)
 	if (a.is_integer() && b.is_integer()) {
 		const cln::cl_I_div_t rem_quo = cln::truncate2(cln::the<cln::cl_I>(a.to_cl_N()),
 		                                               cln::the<cln::cl_I>(b.to_cl_N()));
-		q = rem_quo.quotient;
-		return rem_quo.remainder;
+		q = numeric(rem_quo.quotient);
+		return numeric(rem_quo.remainder);
 	} else {
 		q = *_num0_p;
 		return *_num0_p;
@@ -2308,8 +2317,8 @@ const numeric iquo(const numeric &a, const numeric &b)
 	if (b.is_zero())
 		throw std::overflow_error("numeric::iquo(): division by zero");
 	if (a.is_integer() && b.is_integer())
-		return cln::truncate1(cln::the<cln::cl_I>(a.to_cl_N()),
-	                          cln::the<cln::cl_I>(b.to_cl_N()));
+		return numeric(cln::truncate1(cln::the<cln::cl_I>(a.to_cl_N()),
+	                          cln::the<cln::cl_I>(b.to_cl_N())));
 	else
 		return *_num0_p;
 }
@@ -2329,7 +2338,7 @@ const numeric iquo(const numeric &a, const numeric &b, numeric &r)
 	if (a.is_integer() && b.is_integer()) {
 		const cln::cl_I_div_t rem_quo = cln::truncate2(cln::the<cln::cl_I>(a.to_cl_N()),
 		                                               cln::the<cln::cl_I>(b.to_cl_N()));
-		r = rem_quo.remainder;
+		r = numeric(rem_quo.remainder);
 		return rem_quo.quotient;
 	} else {
 		r = *_num0_p;
@@ -2345,8 +2354,8 @@ const numeric iquo(const numeric &a, const numeric &b, numeric &r)
 const numeric gcd(const numeric &a, const numeric &b)
 {
 	if (a.is_integer() && b.is_integer())
-		return cln::gcd(cln::the<cln::cl_I>(a.to_cl_N()),
-		                cln::the<cln::cl_I>(b.to_cl_N()));
+		return numeric(cln::gcd(cln::the<cln::cl_I>(a.to_cl_N()),
+		                cln::the<cln::cl_I>(b.to_cl_N())));
 	else
 		return *_num1_p;
 }
@@ -2359,8 +2368,8 @@ const numeric gcd(const numeric &a, const numeric &b)
 const numeric lcm(const numeric &a, const numeric &b)
 {
 	if (a.is_integer() && b.is_integer())
-		return cln::lcm(cln::the<cln::cl_I>(a.to_cl_N()),
-		                cln::the<cln::cl_I>(b.to_cl_N()));
+		return numeric(cln::lcm(cln::the<cln::cl_I>(a.to_cl_N()),
+		                cln::the<cln::cl_I>(b.to_cl_N())));
 	else
 		return a.mul(b);
 }
@@ -2376,7 +2385,7 @@ const numeric lcm(const numeric &a, const numeric &b)
  *  where imag(x)>0. */
 const numeric sqrt(const numeric &x)
 {
-	return cln::sqrt(x.to_cl_N());
+	return numeric(cln::sqrt(x.to_cl_N()));
 }
 
 
@@ -2386,7 +2395,7 @@ const numeric isqrt(const numeric &x)
 	if (x.is_integer()) {
 		cln::cl_I root;
 		cln::isqrt(cln::the<cln::cl_I>(x.to_cl_N()), &root);
-		return root;
+		return numeric(root);
 	} else
 		return *_num0_p;
 }
