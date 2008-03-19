@@ -1962,24 +1962,34 @@ lanczos_coeffs::lanczos_coeffs()
 	coeffs[3].swap(coeffs_120);
 }
 
+static const cln::float_format_t guess_precision(const cln::cl_N& x)
+{
+	cln::float_format_t prec = cln::default_float_format;
+	if (!instanceof(realpart(x), cln::cl_RA_ring))
+		prec = cln::float_format(cln::the<cln::cl_F>(realpart(x)));
+	if (!instanceof(imagpart(x), cln::cl_RA_ring))
+		prec = cln::float_format(cln::the<cln::cl_F>(imagpart(x)));
+	return prec;
+}
 
 /** The Gamma function.
  *  Use the Lanczos approximation. If the coefficients used here are not
  *  sufficiently many or sufficiently accurate, more can be calculated
  *  using the program doc/examples/lanczos.cpp. In that case, be sure to
  *  read the comments in that file. */
-const numeric lgamma(const numeric &x)
+const cln::cl_N lgamma_(const cln::cl_N &x)
 {
+	cln::float_format_t prec = guess_precision(x);
 	lanczos_coeffs lc;
-	if (lc.sufficiently_accurate(Digits)) {
-		cln::cl_N pi_val = cln::pi(cln::default_float_format);
-		if (x.real() < 0.5)
-			return log(pi_val) - log(sin(pi_val*x.to_cl_N()))
-				- lgamma(numeric(1).sub(x));
-		cln::cl_N A = lc.calc_lanczos_A(x.to_cl_N());
-		cln::cl_N temp = x.to_cl_N() + lc.get_order() - cln::cl_N(1)/2;
+	if (lc.sufficiently_accurate(prec)) {
+		cln::cl_N pi_val = cln::pi(prec);
+		if (realpart(x) < 0.5)
+			return cln::log(pi_val) - cln::log(sin(pi_val*x))
+				- lgamma_(1 - x);
+		cln::cl_N A = lc.calc_lanczos_A(x);
+		cln::cl_N temp = x + lc.get_order() - cln::cl_N(1)/2;
    	cln::cl_N result = log(cln::cl_I(2)*pi_val)/2
-		              + (x.to_cl_N()-cln::cl_N(1)/2)*log(temp)
+		              + (x-cln::cl_N(1)/2)*log(temp)
 		              - temp
 		              + log(A);
    	return result;
@@ -1988,17 +1998,25 @@ const numeric lgamma(const numeric &x)
 		throw dunno();
 }
 
-const numeric tgamma(const numeric &x)
+const numeric lgamma(const numeric &x)
 {
+	const cln::cl_N x_ = x.to_cl_N();
+	const cln::cl_N result = lgamma_(x_);
+	return numeric(result);
+}
+
+const cln::cl_N tgamma_(const cln::cl_N &x)
+{
+	cln::float_format_t prec = guess_precision(x);
 	lanczos_coeffs lc;
-	if (lc.sufficiently_accurate(Digits)) {
-		cln::cl_N pi_val = cln::pi(cln::default_float_format);
-		if (x.real() < 0.5)
-			return pi_val/(sin(pi_val*x))/(tgamma(numeric(1).sub(x)).to_cl_N());
-		cln::cl_N A = lc.calc_lanczos_A(x.to_cl_N());
-		cln::cl_N temp = x.to_cl_N() + lc.get_order() - cln::cl_N(1)/2;
+	if (lc.sufficiently_accurate(prec)) {
+		cln::cl_N pi_val = cln::pi(prec);
+		if (realpart(x) < 0.5)
+			return pi_val/(cln::sin(pi_val*x))/tgamma_(1 - x);
+		cln::cl_N A = lc.calc_lanczos_A(x);
+		cln::cl_N temp = x + lc.get_order() - cln::cl_N(1)/2;
    	cln::cl_N result
-			= sqrt(cln::cl_I(2)*pi_val) * expt(temp, x.to_cl_N()-cln::cl_N(1)/2)
+			= sqrt(cln::cl_I(2)*pi_val) * expt(temp, x - cln::cl_N(1)/2)
 			  * exp(-temp) * A;
    	return result;
 	}
@@ -2006,6 +2024,12 @@ const numeric tgamma(const numeric &x)
 		throw dunno();
 }
 
+const numeric tgamma(const numeric &x)
+{
+	const cln::cl_N x_ = x.to_cl_N();
+	const cln::cl_N result = tgamma_(x_);
+	return numeric(result);
+}
 
 /** The psi function (aka polygamma function).
  *  This is only a stub! */
