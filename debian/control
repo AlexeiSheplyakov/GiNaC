@@ -3,7 +3,7 @@ Section: math
 Priority: optional
 Maintainer: Richard Kreckel <kreckel@ginac.de>
 Build-Depends: cdbs (>= 0.4.28), debhelper (>= 5), libcln-dev, libgmp3-dev, libreadline5-dev, pkg-config (>= 0.18)
-Standards-Version: 3.7.2.2
+Standards-Version: 3.7.3.0
 
 Package: libginac1.4
 Architecture: any
@@ -21,8 +21,8 @@ Description: The GiNaC symbolic framework (runtime library)
 Package: libginac-dev
 Architecture: any
 Section: libdevel
-Depends: libginac1.4 (= ${Source-Version}), libc6-dev, g++, libcln-dev
-Recommends: info | info-browser, libginac1.4-dbg (= ${Source-Version})
+Depends: libginac1.4 (= ${binary:Version}), libc6-dev, g++, libcln-dev
+Recommends: info | info-browser, libginac1.4-dbg (= ${binary:Version})
 Suggests: ginac-tools
 Description: The GiNaC symbolic framework (development files)
  GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is a
@@ -50,7 +50,7 @@ Package: libginac1.4-dbg
 Architecture: any
 Section: libdevel
 Priority: extra
-Depends: libginac1.4 (= ${Source-Version})
+Depends: libginac1.4 (= ${binary:Version})
 Recommends: gdb (>= 6.3)
 Description: The GiNaC symbolic framework (debugging symbols)
  GiNaC (which stands for "GiNaC is Not a CAS (Computer Algebra System)") is a

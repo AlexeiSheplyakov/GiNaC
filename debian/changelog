@@ -1,3 +1,9 @@
+ginac (1.4.1-1) unstable; urgency=low
+
+  * New upstream (bugfix only) release.
+
+ -- Richard Kreckel <kreckel@ginac.de>  Tue, 27 Nov 2007 23:14:59 +0100
+
 ginac (1.4.0-1) unstable; urgency=low
 
   * New upstream release; binary incompatible, so it's libginac1.4 now;
