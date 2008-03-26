@@ -921,7 +921,12 @@ To get an idea about what kinds of symbolic composites may be built we
 have a look at the most important classes in the class hierarchy and
 some of the relations among the classes:
 
+@ifnotinfo
 @image{classhierarchy}
+@end ifnotinfo
+@ifinfo
+<PICTURE MISSING>
+@end ifinfo
 
 The abstract classes shown here (the ones without drop-shadow) are of no
 interest for the user.  They are used internally in order to avoid code
@@ -8551,7 +8556,12 @@ addition and multiplication, one container for exponentiation with base
 and exponent and some atomic leaves of symbols and numbers in this
 fashion:
 
+@ifnotinfo
 @image{repnaive}
+@end ifnotinfo
+@ifinfo
+<PICTURE MISSING>
+@end ifinfo
 
 @cindex pair-wise representation
 However, doing so results in a rather deeply nested tree which will
@@ -8562,7 +8572,12 @@ spirit we can store the multiplication as a sequence of terms, each
 having a numeric exponent and a possibly complicated base, the tree
 becomes much more flat:
 
+@ifnotinfo
 @image{reppair}
+@end ifnotinfo
+@ifinfo
+<PICTURE MISSING>
+@end ifinfo
 
 The number @code{3} above the symbol @code{d} shows that @code{mul}
 objects are treated similarly where the coefficients are interpreted as
@@ -8584,7 +8599,12 @@ $2d^3 \left( 4a + 5b - 3 \right)$:
 @math{2*d^3*(4*a+5*b-3)}:
 @end ifnottex
 
+@ifnotinfo
 @image{repreal}
+@end ifnotinfo
+@ifinfo
+<PICTURE MISSING>
+@end ifinfo
 
 @cindex radical
 This also allows for a better handling of numeric radicals, since
