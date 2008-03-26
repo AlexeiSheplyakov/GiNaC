@@ -924,6 +924,9 @@ some of the relations among the classes:
 @ifnotinfo
 @image{classhierarchy}
 @end ifnotinfo
+@ifinfo
+<PICTURE MISSING>
+@end ifinfo
 
 The abstract classes shown here (the ones without drop-shadow) are of no
 interest for the user.  They are used internally in order to avoid code
@@ -8556,6 +8559,9 @@ fashion:
 @ifnotinfo
 @image{repnaive}
 @end ifnotinfo
+@ifinfo
+<PICTURE MISSING>
+@end ifinfo
 
 @cindex pair-wise representation
 However, doing so results in a rather deeply nested tree which will
@@ -8569,6 +8575,9 @@ becomes much more flat:
 @ifnotinfo
 @image{reppair}
 @end ifnotinfo
+@ifinfo
+<PICTURE MISSING>
+@end ifinfo
 
 The number @code{3} above the symbol @code{d} shows that @code{mul}
 objects are treated similarly where the coefficients are interpreted as
@@ -8593,6 +8602,9 @@ $2d^3 \left( 4a + 5b - 3 \right)$:
 @ifnotinfo
 @image{repreal}
 @end ifnotinfo
+@ifinfo
+<PICTURE MISSING>
+@end ifinfo
 
 @cindex radical
 This also allows for a better handling of numeric radicals, since
