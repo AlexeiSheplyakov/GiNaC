@@ -8,11 +8,12 @@ TEXI = ginac-examples.texi
 info_TEXINFOS = $(TEXI)
 
 TXT = $(addsuffix .txt, $(basename $(TEXI)))
+HTML = $(addsuffix .html, $(basename $(TEXI)))
 
 all: $(EXFILES)
 	${MAKEINFO} --no-split --no-headers $(srcdir)/$(TEXI) > $(TXT)
 	${MAKEINFO} --no-split --html $(srcdir)/$(TEXI)
 
-CLEANFILES = $(TXT)
+CLEANFILES = $(TXT) $(HTML)
 
 EXTRA_DIST = $(EXFILES)

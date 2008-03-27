@@ -216,3 +216,5 @@ time_fateman_expand_SOURCES = time_fateman_expand.cpp \
 time_fateman_expand_LDADD = ../ginac/libginac.la
 
 AM_CPPFLAGS = -I$(srcdir)/../ginac -I../ginac
+
+CLEANFILES = exam.gar

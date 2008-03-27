@@ -1,7 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
 FIG = classhierarchy.fig repnaive.fig reppair.fig repreal.fig
-TXT = $(addsuffix .txt, $(basename $(FIG)))
 info_TEXINFOS =
 AM_MAKEINFOHTMLFLAGS = --no-split
 
@@ -13,7 +12,7 @@ PNG = $(addsuffix .png, $(basename $(FIG)))
 EPS = $(addsuffix .eps, $(basename $(FIG)))
 PDF = $(addsuffix .pdf, $(basename $(FIG)))
 
-SUFFIXES = .fig .png .eps .txt
+SUFFIXES = .fig .png .eps
 
 .fig.eps:
 	  echo "Running ${FIG2DEV} -L eps -m 0.9 $< $@..."; \
@@ -39,4 +38,4 @@ endif
 ## CONFIG_TEX
 endif
 
-EXTRA_DIST = $(FIG) $(TXT)
+EXTRA_DIST = $(FIG)
