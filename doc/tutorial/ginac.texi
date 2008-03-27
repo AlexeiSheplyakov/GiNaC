@@ -24,7 +24,7 @@
 This is a tutorial that documents GiNaC @value{VERSION}, an open
 framework for symbolic computation within the C++ programming language.
 
-Copyright (C) 1999-2007 Johannes Gutenberg University Mainz, Germany
+Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
 
 Permission is granted to make and distribute verbatim copies of
 this manual provided the copyright notice and this permission notice
@@ -52,7 +52,7 @@ notice identical to this one.
 
 @page
 @vskip 0pt plus 1filll
-Copyright @copyright{} 1999-2007 Johannes Gutenberg University Mainz, Germany
+Copyright @copyright{} 1999-2008 Johannes Gutenberg University Mainz, Germany
 @sp 2
 Permission is granted to make and distribute verbatim copies of
 this manual provided the copyright notice and this permission notice
@@ -135,7 +135,7 @@ the near future.
 
 @section License
 The GiNaC framework for symbolic computation within the C++ programming
-language is Copyright @copyright{} 1999-2007 Johannes Gutenberg
+language is Copyright @copyright{} 1999-2008 Johannes Gutenberg
 University Mainz, Germany.
 
 This program is free software; you can redistribute it and/or
