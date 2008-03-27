@@ -7,7 +7,7 @@ ifeq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 CXXFLAGS += -finline-limit=1200
 endif
 
-# 1.4.1-1-blah (Debian version) ==> 1.4 (LT_RELEASE)
+# 1.5.1-1-blah (Debian version) ==> 1.5 (LT_RELEASE)
 GINAC_RELEASE := $(shell echo $(DEB_VERSION) | cut -f 1,2 -d . )
 GINACLIB := libginac$(GINAC_RELEASE)
 
