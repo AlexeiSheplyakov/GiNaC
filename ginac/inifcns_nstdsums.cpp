@@ -489,7 +489,6 @@ cln::cl_N multipleLi_do_sum(const std::vector<int>& s, const std::vector<cln::cl
 		q++;
 		t[j-1] = t[j-1] + cln::expt(x[j-1], q) / cln::expt(cln::cl_I(q),s[j-1]) * one;
 		for (int k=j-2; k>=0; k--) {
-			flag_accidental_zero = cln::zerop(t[k+1]);
 			t[k] = t[k] + t[k+1] * cln::expt(x[k], q+j-1-k) / cln::expt(cln::cl_I(q+j-1-k), s[k]);
 		}
 		q++;
@@ -498,7 +497,7 @@ cln::cl_N multipleLi_do_sum(const std::vector<int>& s, const std::vector<cln::cl
 			flag_accidental_zero = cln::zerop(t[k+1]);
 			t[k] = t[k] + t[k+1] * cln::expt(x[k], q+j-1-k) / cln::expt(cln::cl_I(q+j-1-k), s[k]);
 		}
-	} while ( (t[0] != t0buf) || flag_accidental_zero );
+	} while ( (t[0] != t0buf) || cln::zerop(t[0]) || flag_accidental_zero );
 
 	return t[0];
 }
@@ -1810,10 +1809,20 @@ cln::cl_N b_k(int k)
 // helper function for S(n,p,x)
 cln::cl_N S_do_sum(int n, int p, const cln::cl_N& x, const cln::float_format_t& prec)
 {
+	static cln::float_format_t oldprec = cln::default_float_format;
+
 	if (p==1) {
 		return Li_projection(n+1, x, prec);
 	}
-	
+
+	// precision has changed, we need to clear lookup table Yn
+	if ( oldprec != prec ) {
+		Yn.clear();
+		ynsize = 0;
+		ynlength = 100;
+		oldprec = prec;
+	}
+		
 	// check if precalculated values are sufficient
 	if (p > ynsize+1) {
 		for (int i=ynsize; i<p-1; i++) {
