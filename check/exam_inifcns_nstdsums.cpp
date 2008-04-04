@@ -310,6 +310,57 @@ static unsigned inifcns_test_legacy()
 		result++;
 	}
 
+	ex x1 = exp(2*Pi*I/13).evalf();
+	ex x2 = exp(24*Pi*I/13).evalf();
+  	ex r2 = Li(lst(2),lst(x1)).hold().evalf();
+	ex r3 = Li(lst(2),lst(x2)).hold().evalf();
+	if ( abs(r2-conjugate(r3)) > prec ) {
+		clog << "Legacy test 2 seems to be wrong." << endl;
+		result++;
+	}
+
+  	ex x3 = exp(5*Pi*I/3).evalf();
+	ex r4 = Li(lst(3),lst(x3)).hold().evalf();
+	if ( abs(r4 - numeric("0.40068563438653142847-0.95698384815740185713*I")) > prec ) {
+		clog << "Legacy test 3 seems to be wrong." << endl;
+		result++;
+	}
+
+	Digits = 100;
+	prec = 5 * pow(10, -(int)Digits);
+	ex x0 = 1.;
+	   x1 = exp(Pi*I/3).evalf();
+	   x2 = exp(2*Pi*I/3).evalf();
+	   x3 = -1.;
+	ex x4 = exp(4*Pi*I/3).evalf();
+	ex x5 = exp(5*Pi*I/3).evalf();
+
+	ex r5 = Li(lst(1,1,1,1),lst(x2,x4,x3,x0)).hold().evalf();
+	ex r6 = Li(lst(1,1,1,1),lst(x4,x2,x3,x0)).hold().evalf();
+	if ( abs(r5-conjugate(r6)) > prec ) {
+		clog << "Legacy test 4 seems to be wrong." << endl;
+		result++;
+	}
+
+	ex r7 = Li(lst(1,2,1),lst(x3,x2,x4)).hold().evalf()
+		+Li(lst(1,1,2),lst(x3,x2,x4)).hold().evalf()
+		+Li(lst(1,1,1,1),lst(x3,x0,x2,x4)).hold().evalf()
+		+Li(lst(1,1,1,1),lst(x3,x2,x0,x4)).hold().evalf()
+		+Li(lst(1,1,1,1),lst(x3,x2,x4,x0)).hold().evalf()
+		+Li(lst(1,2,1),lst(x2,x1,x0)).hold().evalf()
+		+Li(lst(1,1,2),lst(x2,x3,x4)).hold().evalf()
+		+Li(lst(1,1,1,1),lst(x2,x4,x3,x0)).hold().evalf()
+		+Li(lst(1,1,1,1),lst(x2,x3,x4,x0)).hold().evalf()
+		+Li(lst(1,1,1,1),lst(x2,x3,x0,x4)).hold().evalf()
+		+Li(lst(2,2),lst(x5,x4)).hold().evalf()
+		+Li(lst(2,1,1),lst(x5,x0,x4)).hold().evalf()
+		+Li(lst(2,1,1),lst(x5,x4,x0)).hold().evalf()
+		-Li(lst(1,1),lst(x3,x0)).hold().evalf()*Li(lst(1,1),lst(x2,x4)).hold().evalf();
+	if ( abs(r7) > prec ) {
+		clog << "Legacy test 5 seems to be wrong." << endl;
+		result++;
+	}
+
 	return result;
 }
 
