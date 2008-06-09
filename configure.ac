@@ -85,22 +85,7 @@ AC_LANG([C++])
 dnl Check for stuff needed for building the GiNaC interactive shell (ginsh).
 AC_CHECK_HEADERS(unistd.h)
 GINAC_HAVE_RUSAGE
-AC_CHECK_HEADERS(readline/readline.h readline/history.h)
-if test "x${ac_cv_header_readline_readline_h}" != "xyes" -o "x${ac_cv_header_readline_history_h}" != "xyes"; then
-  GINAC_WARNING([I could not find the headers for libreadline (needed for building ginsh).])
-fi
-GINAC_TERMCAP
-save_LIBS=$LIBS
-LIBS="$LIBTERMCAP $LIBS"
-AC_CHECK_LIB(readline, readline)
-if test "x${ac_cv_lib_readline_readline}" = "xyes"; then
-  GINAC_LIB_READLINE_VERSION
-else
-  GINAC_WARNING([I could not find libreadline (needed by ginsh).])
-fi
-GINSH_LIBS=$LIBS
-LIBS=$save_LIBS
-AC_SUBST(GINSH_LIBS)
+GINAC_READLINE
 
 dnl Make sure all the necessary standard headers are installed on the system.
 AC_CHECK_HEADER(iosfwd, , GINAC_ERROR([The standard <iosfwd> header file could not be found.]))
