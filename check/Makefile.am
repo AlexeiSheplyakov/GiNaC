@@ -6,6 +6,7 @@ CHECKS = check_numeric \
 	 check_lsolve 
 
 EXAMS = exam_paranoia \
+	exam_heur_gcd \
 	exam_numeric \
 	exam_powerlaws  \
 	exam_inifcns \
@@ -66,6 +67,9 @@ check_lsolve_LDADD = ../ginac/libginac.la
 
 exam_paranoia_SOURCES = exam_paranoia.cpp
 exam_paranoia_LDADD = ../ginac/libginac.la
+
+exam_heur_gcd_SOURCES = heur_gcd_bug.cpp 
+exam_heur_gcd_LDADD = ../ginac/libginac.la
 
 exam_numeric_SOURCES = exam_numeric.cpp
 exam_numeric_LDADD = ../ginac/libginac.la

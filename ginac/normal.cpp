@@ -1268,17 +1268,19 @@ class gcdheu_failed {};
  *  polynomials and an iterator to the first element of the sym_desc vector
  *  passed in. This function is used internally by gcd().
  *
- *  @param a  first multivariate polynomial (expanded)
- *  @param b  second multivariate polynomial (expanded)
+ *  @param a  first integer multivariate polynomial (expanded)
+ *  @param b  second integer multivariate polynomial (expanded)
  *  @param ca  cofactor of polynomial a (returned), NULL to suppress
  *             calculation of cofactor
  *  @param cb  cofactor of polynomial b (returned), NULL to suppress
  *             calculation of cofactor
  *  @param var iterator to first element of vector of sym_desc structs
- *  @return the GCD as a new expression
+ *  @param res the GCD (returned)
+ *  @return true if GCD was computed, false otherwise.
  *  @see gcd
  *  @exception gcdheu_failed() */
-static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const_iterator var)
+static bool heur_gcd_z(ex& res, const ex &a, const ex &b, ex *ca, ex *cb,
+	               sym_desc_vec::const_iterator var)
 {
 #if STATISTICS
 	heur_gcd_called++;
@@ -1286,7 +1288,7 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 
 	// Algorithm only works for non-vanishing input polynomials
 	if (a.is_zero() || b.is_zero())
-		return (new fail())->setflag(status_flags::dynallocated);
+		return false;
 
 	// GCD of two numeric values -> CLN
 	if (is_exactly_a<numeric>(a) && is_exactly_a<numeric>(b)) {
@@ -1295,7 +1297,8 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 			*ca = ex_to<numeric>(a) / g;
 		if (cb)
 			*cb = ex_to<numeric>(b) / g;
-		return g;
+		res = g;
+		return true;
 	}
 
 	// The first symbol is our main variable
@@ -1325,9 +1328,13 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 
 		// Apply evaluation homomorphism and calculate GCD
 		ex cp, cq;
-		ex gamma = heur_gcd(p.subs(x == xi, subs_options::no_pattern), q.subs(x == xi, subs_options::no_pattern), &cp, &cq, var+1).expand();
-		if (!is_exactly_a<fail>(gamma)) {
-
+		ex gamma;
+		bool found = heur_gcd_z(gamma,
+			                p.subs(x == xi, subs_options::no_pattern),
+			                q.subs(x == xi, subs_options::no_pattern),
+				        &cp, &cq, var+1);
+		if (found) {
+			gamma = gamma.expand();
 			// Reconstruct polynomial from GCD of mapped polynomials
 			ex g = interpolate(gamma, xi, x, maxdeg);
 
@@ -1338,14 +1345,73 @@ static ex heur_gcd(const ex &a, const ex &b, ex *ca, ex *cb, sym_desc_vec::const
 			ex dummy;
 			if (divide_in_z(p, g, ca ? *ca : dummy, var) && divide_in_z(q, g, cb ? *cb : dummy, var)) {
 				g *= gc;
-				return g;
+				res = g;
+				return true;
 			}
 		}
 
 		// Next evaluation point
 		xi = iquo(xi * isqrt(isqrt(xi)) * numeric(73794), numeric(27011));
 	}
-	return (new fail())->setflag(status_flags::dynallocated);
+	return false;
+}
+
+/** Compute GCD of multivariate polynomials using the heuristic GCD algorithm.
+ *  get_symbol_stats() must have been called previously with the input
+ *  polynomials and an iterator to the first element of the sym_desc vector
+ *  passed in. This function is used internally by gcd().
+ *
+ *  @param a  first rational multivariate polynomial (expanded)
+ *  @param b  second rational multivariate polynomial (expanded)
+ *  @param ca  cofactor of polynomial a (returned), NULL to suppress
+ *             calculation of cofactor
+ *  @param cb  cofactor of polynomial b (returned), NULL to suppress
+ *             calculation of cofactor
+ *  @param var iterator to first element of vector of sym_desc structs
+ *  @param res the GCD (returned)
+ *  @return true if GCD was computed, false otherwise.
+ *  @see heur_gcd_z
+ *  @see gcd
+ */
+static bool heur_gcd(ex& res, const ex& a, const ex& b, ex *ca, ex *cb,
+	             sym_desc_vec::const_iterator var)
+{
+	if (a.info(info_flags::integer_polynomial) && 
+	    b.info(info_flags::integer_polynomial)) {
+		try {
+			return heur_gcd_z(res, a, b, ca, cb, var);
+		} catch (gcdheu_failed) {
+			return false;
+		}
+	}
+
+	// convert polynomials to Z[X]
+	const numeric a_lcm = lcm_of_coefficients_denominators(a);
+	const numeric ab_lcm = lcmcoeff(b, a_lcm);
+
+	const ex ai = a*ab_lcm;
+	const ex bi = b*ab_lcm;
+	if (!ai.info(info_flags::integer_polynomial))
+		throw std::logic_error("heur_gcd: not an integer polynomial [1]");
+
+	if (!bi.info(info_flags::integer_polynomial))
+		throw std::logic_error("heur_gcd: not an integer polynomial [2]");
+
+	bool found = false;
+	try {
+		found = heur_gcd_z(res, ai, bi, ca, cb, var);
+	} catch (gcdheu_failed) {
+		return false;
+	}
+	
+	// GCD is not unique, it's defined up to a unit (i.e. invertible
+	// element). If the coefficient ring is a field, every its element is
+	// invertible, so one can multiply the polynomial GCD with any element
+	// of the coefficient field. We use this ambiguity to make cofactors
+	// integer polynomials.
+	if (found)
+		res /= ab_lcm;
+	return found;
 }
 
 
@@ -1665,12 +1731,8 @@ factored_b:
 
 	// Try heuristic algorithm first, fall back to PRS if that failed
 	ex g;
-	try {
-		g = heur_gcd(aex, bex, ca, cb, var);
-	} catch (gcdheu_failed) {
-		g = fail();
-	}
-	if (is_exactly_a<fail>(g)) {
+	bool found = heur_gcd(g, aex, bex, ca, cb, var);
+	if (!found) {
 #if STATISTICS
 		heur_gcd_failed++;
 #endif
