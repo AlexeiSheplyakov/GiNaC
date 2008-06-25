@@ -570,8 +570,6 @@ unsigned exam_clifford()
 	result += clifford_check6<varidx>(ex_to<matrix>(diag_matrix(lst(-1, 0, 1, -1))))+clifford_check6<idx>(ex_to<matrix>(diag_matrix(lst(-1, 0, 1, -1))));; cout << '.' << flush;
 	result += clifford_check6<varidx>(ex_to<matrix>(diag_matrix(lst(-3, 0, 2, -1))))+clifford_check6<idx>(ex_to<matrix>(diag_matrix(lst(-3, 0, 2, -1))));; cout << '.' << flush;
 
-	return result;
-
 	realsymbol s("s"), t("t"); // symbolic entries in matric
 	result += clifford_check6<varidx>(ex_to<matrix>(diag_matrix(lst(-1, 1, s, t))))+clifford_check6<idx>(ex_to<matrix>(diag_matrix(lst(-1, 1, s, t))));; cout << '.' << flush;
 
