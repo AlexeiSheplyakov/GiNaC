@@ -507,6 +507,7 @@ public:
 	ex expand(unsigned options=0) const;
 	ex eval(int level=0) const;
 	ex evalf(int level=0) const;
+	ex eval_ncmul(const exvector & v) const;
 	unsigned calchash() const;
 	ex series(const relational & r, int order, unsigned options = 0) const;
 	ex thiscontainer(const exvector & v) const;
@@ -1051,6 +1052,16 @@ ${evalf_switch_statement}
 		// end of generated lines
 	}
 	throw(std::logic_error("function::evalf(): invalid nparams"));
+}
+
+/**
+ *  This method is defined to be in line with behaviour of function::return_type()
+ */
+ex function::eval_ncmul(const exvector & v) const
+{
+	// If this function is called then the list of arguments is non-empty
+	// and the first argument is non-commutative, see  function::return_type()
+	return seq.begin()->eval_ncmul(v);
 }
 
 unsigned function::calchash() const

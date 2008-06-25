@@ -718,7 +718,8 @@ ex dirac_ONE(unsigned char rl)
 
 ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl)
 {
-	static ex unit = (new cliffordunit)->setflag(status_flags::dynallocated);
+	//static ex unit = (new cliffordunit)->setflag(status_flags::dynallocated);
+	ex unit = (new cliffordunit)->setflag(status_flags::dynallocated);
 
 	if (!is_a<idx>(mu))
 		throw(std::invalid_argument("clifford_unit(): index of Clifford unit must be of type idx or varidx"));
@@ -732,7 +733,9 @@ ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl)
 		unsigned n = M.rows();
 		bool symmetric = true;
 
-		static idx xi((new symbol)->setflag(status_flags::dynallocated), n),
+		//static idx xi((new symbol)->setflag(status_flags::dynallocated), n),
+		//	chi((new symbol)->setflag(status_flags::dynallocated), n);
+		idx xi((new symbol)->setflag(status_flags::dynallocated), n),
 			chi((new symbol)->setflag(status_flags::dynallocated), n);
 		if ((n ==  M.cols()) && (n == ex_to<idx>(mu).get_dim())) {
 			for (unsigned i = 0; i < n; i++) {
@@ -747,7 +750,9 @@ ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl)
 			throw(std::invalid_argument("clifford_unit(): metric for Clifford unit must be a square matrix with the same dimensions as index"));
 		}
 	} else if (indices.size() == 0) { // a tensor or other expression without indices
-		static varidx xi((new symbol)->setflag(status_flags::dynallocated), ex_to<idx>(mu).get_dim()),
+		//static varidx xi((new symbol)->setflag(status_flags::dynallocated), ex_to<idx>(mu).get_dim()),
+		//	chi((new symbol)->setflag(status_flags::dynallocated), ex_to<idx>(mu).get_dim());
+		varidx xi((new symbol)->setflag(status_flags::dynallocated), ex_to<idx>(mu).get_dim()),
 			chi((new symbol)->setflag(status_flags::dynallocated), ex_to<idx>(mu).get_dim());
 		return clifford(unit, mu, indexed(metr, xi, chi), rl);
 	}  else 

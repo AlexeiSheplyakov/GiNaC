@@ -537,6 +537,19 @@ static unsigned clifford_check7(const ex & G, const symbol & dim)
 	return result;
 }
 
+static unsigned clifford_check8()
+{
+	unsigned result = 0;
+
+	realsymbol a("a");
+	varidx mu(symbol("mu", "\\mu"), 1);
+
+	ex e = clifford_unit(mu, diag_matrix(lst(-1))), e0 = e.subs(mu==0);
+	result += ( exp(a*e0)*e0*e0 == -exp(e0*a) ) ? 0 : 1;
+
+	return result;
+}
+
 unsigned exam_clifford()
 {
 	unsigned result = 0;
@@ -556,6 +569,8 @@ unsigned exam_clifford()
 	result += clifford_check6<idx>(ex_to<matrix>(diag_matrix(lst(-1, 1, 1, -1))))+clifford_check6<idx>(ex_to<matrix>(diag_matrix(lst(-1, 1, 1, -1))));; cout << '.' << flush;
 	result += clifford_check6<varidx>(ex_to<matrix>(diag_matrix(lst(-1, 0, 1, -1))))+clifford_check6<idx>(ex_to<matrix>(diag_matrix(lst(-1, 0, 1, -1))));; cout << '.' << flush;
 	result += clifford_check6<varidx>(ex_to<matrix>(diag_matrix(lst(-3, 0, 2, -1))))+clifford_check6<idx>(ex_to<matrix>(diag_matrix(lst(-3, 0, 2, -1))));; cout << '.' << flush;
+
+	return result;
 
 	realsymbol s("s"), t("t"); // symbolic entries in matric
 	result += clifford_check6<varidx>(ex_to<matrix>(diag_matrix(lst(-1, 1, s, t))))+clifford_check6<idx>(ex_to<matrix>(diag_matrix(lst(-1, 1, s, t))));; cout << '.' << flush;
@@ -601,6 +616,8 @@ unsigned exam_clifford()
 
 	result += clifford_check7(indexed(-2*minkmetric(), sy_symm(), xi, chi), dim); cout << '.' << flush;
 	result += clifford_check7(-2*delta_tensor(xi, chi), dim); cout << '.' << flush;
+
+	result += clifford_check8(); cout << '.' << flush;
 
 	return result;
 }
