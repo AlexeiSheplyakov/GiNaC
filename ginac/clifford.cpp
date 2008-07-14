@@ -716,6 +716,17 @@ ex dirac_ONE(unsigned char rl)
 	return clifford(ONE, rl);
 }
 
+static unsigned get_dim_uint(const ex& e)
+{
+	if (!is_a<idx>(e))
+		throw std::invalid_argument("get_dim_uint: argument is not an index");
+	ex dim = ex_to<idx>(e).get_dim();
+	if (!dim.info(info_flags::posint))
+		throw std::invalid_argument("get_dim_uint: dimension of index should be a positive integer");
+	unsigned d = ex_to<numeric>(dim).to_int();
+	return d;
+}
+
 ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl)
 {
 	//static ex unit = (new cliffordunit)->setflag(status_flags::dynallocated);
@@ -737,10 +748,10 @@ ex clifford_unit(const ex & mu, const ex & metr, unsigned char rl)
 		//	chi((new symbol)->setflag(status_flags::dynallocated), n);
 		idx xi((new symbol)->setflag(status_flags::dynallocated), n),
 			chi((new symbol)->setflag(status_flags::dynallocated), n);
-		if ((n ==  M.cols()) && (n == ex_to<idx>(mu).get_dim())) {
+		if ((n ==  M.cols()) && (n == get_dim_uint(mu))) {
 			for (unsigned i = 0; i < n; i++) {
 				for (unsigned j = i+1; j < n; j++) {
-					if (M(i, j) != M(j, i)) {
+					if (!M(i, j).is_equal(M(j, i))) {
 						symmetric = false;
 					}
 				}
@@ -1175,7 +1186,7 @@ ex lst_to_clifford(const ex & v, const ex & e) {
 		ex mu = e.op(1);
 		ex mu_toggle
 			= is_a<varidx>(mu) ? ex_to<varidx>(mu).toggle_variance() : mu;
-		unsigned dim = (ex_to<numeric>(ex_to<idx>(mu).get_dim())).to_int();
+		unsigned dim = get_dim_uint(mu);
 
 		if (is_a<matrix>(v)) {
 			if (ex_to<matrix>(v).cols() > ex_to<matrix>(v).rows()) {
