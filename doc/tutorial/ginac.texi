@@ -2327,12 +2327,12 @@ get an error message from this but you will probably not be able to do
 anything useful with it.
 
 @cindex @code{get_value()}
-@cindex @code{get_dimension()}
+@cindex @code{get_dim()}
 The methods
 
 @example
 ex idx::get_value();
-ex idx::get_dimension();
+ex idx::get_dim();
 @end example
 
 return the value and dimension of an @code{idx} object. If you have an index
