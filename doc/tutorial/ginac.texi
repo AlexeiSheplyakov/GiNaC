@@ -4420,10 +4420,7 @@ This function returns @code{true} when the expression matches the pattern
 and @code{false} if it doesn't. If used in the second form, the actual
 subexpressions matched by the wildcards get returned in the @code{repls}
 object as a list of relations of the form @samp{wildcard == expression}.
-If @code{match()} returns false, the state of @code{repls} is undefined.
-For reproducible results, the list should be empty when passed to
-@code{match()}, but it is also possible to find similarities in multiple
-expressions by passing in the result of a previous match.
+If @code{match()} returns false,  @code{repls} remains unmodified.
 
 The matching algorithm works as follows:
 
