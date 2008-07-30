@@ -1,0 +1,48 @@
+/**
+ * @file numeric_archive.cpp Check for a bug in numeric::archive
+ *
+ * numeric::archive used to fail if the real part of a complex number
+ * is a rational number and the imaginary part is a floating point one.
+ */
+#include <cln/cln.h>
+#include <iostream>
+#include <stdexcept>
+#include <vector>
+#include <iterator>
+#include <algorithm>
+#include <sstream>
+#include "ginac.h"
+using namespace cln;
+using namespace GiNaC;
+
+struct archive_unarchive_check
+{
+	cl_N operator()(const cl_N& n) const
+	{
+		ex e = numeric(n);
+		archive ar;
+		ar.archive_ex(e, "test");
+		lst l;
+		ex check = ar.unarchive_ex(l, "test");
+		if (!check.is_equal(e)) {
+			std::ostringstream s;
+			s << __FILE__ << ':' << __LINE__ << ": expected: " << e << ", got " << check;
+			throw std::logic_error(s.str());
+		}
+		return n;
+	}
+};
+
+int main(int argc, char** argv)
+{
+	const cl_I one(1);
+	std::cout << "checking if numeric::archive handles complex numbers properly" << std::endl;
+	const cl_R three_fp = cl_float(3.0, default_float_format);
+	std::vector<cl_N> numbers;
+	numbers.push_back(complex(one, three_fp));
+	numbers.push_back(complex(three_fp, one));
+	numbers.push_back(complex(three_fp, three_fp));
+	numbers.push_back(complex(one, one));
+	std::for_each(numbers.begin(), numbers.end(), archive_unarchive_check());
+	return 0;
+}

@@ -255,36 +255,80 @@ numeric::numeric(const cln::cl_N &z) : basic(&numeric::tinfo_static)
 // archiving
 //////////
 
+/** 
+ * Construct a floating point number from sign, mantissa, and exponent 
+ */
+static const cln::cl_F make_real_float(const cln::cl_idecoded_float& dec)
+{
+	cln::cl_F x = cln::cl_float(dec.mantissa, cln::default_float_format);
+	x = cln::scale_float(x, dec.exponent);
+	cln::cl_F sign = cln::cl_float(dec.sign, cln::default_float_format);
+	x = cln::float_sign(sign, x);
+	return x;
+}
+
+/** 
+ * Read serialized floating point number 
+ */
+static const cln::cl_F read_real_float(std::istream& s)
+{
+	cln::cl_idecoded_float dec;
+	s >> dec.sign >> dec.mantissa >> dec.exponent;
+	const cln::cl_F x = make_real_float(dec);
+	return x;
+}
+
 numeric::numeric(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
 {
-	cln::cl_N ctorval = 0;
-
+	value = 0;
+	
 	// Read number as string
 	std::string str;
 	if (n.find_string("number", str)) {
 		std::istringstream s(str);
-		cln::cl_idecoded_float re, im;
+		cln::cl_R re, im;
 		char c;
 		s.get(c);
 		switch (c) {
-			case 'R':    // Integer-decoded real number
-				s >> re.sign >> re.mantissa >> re.exponent;
-				ctorval = re.sign * re.mantissa * cln::expt(cln::cl_float(2.0, cln::default_float_format), re.exponent);
+			case 'R':
+				// real FP (floating point) number
+				re = read_real_float(s);
+				value = re;
 				break;
-			case 'C':    // Integer-decoded complex number
-				s >> re.sign >> re.mantissa >> re.exponent;
-				s >> im.sign >> im.mantissa >> im.exponent;
-				ctorval = cln::complex(re.sign * re.mantissa * cln::expt(cln::cl_float(2.0, cln::default_float_format), re.exponent),
-				                       im.sign * im.mantissa * cln::expt(cln::cl_float(2.0, cln::default_float_format), im.exponent));
+			case 'C':
+				// both real and imaginary part are FP numbers
+				re = read_real_float(s);
+				im = read_real_float(s); 
+				value = cln::complex(re, im);
 				break;
-			default:    // Ordinary number
+			case 'H':
+				// real part is a rational number,
+				// imaginary part is a FP number
+				s >> re;
+				im = read_real_float(s);
+				value = cln::complex(re, im);
+				break;
+			case 'J':
+				// real part is a FP number,
+				// imaginary part is a rational number
+				re = read_real_float(s);
+				s >> im;
+				value = cln::complex(re, im);
+				break;
+			default:
+				// both real and imaginary parts are rational
 				s.putback(c);
-				s >> ctorval;
+				s >> value;
 				break;
 		}
 	}
-	value = ctorval;
 	setflag(status_flags::evaluated | status_flags::expanded);
+}
+
+static void write_real_float(std::ostream& s, const cln::cl_R& n)
+{
+	const cln::cl_idecoded_float dec = cln::integer_decode_float(cln::the<cln::cl_F>(n));
+	s << dec.sign << ' ' << dec.mantissa << ' ' << dec.exponent;
 }
 
 void numeric::archive(archive_node &n) const
@@ -292,23 +336,39 @@ void numeric::archive(archive_node &n) const
 	inherited::archive(n);
 
 	// Write number as string
+	
+	const cln::cl_R re = cln::realpart(value);
+	const cln::cl_R im = cln::imagpart(value);
+	const bool re_rationalp = cln::instanceof(re, cln::cl_RA_ring);
+	const bool im_rationalp = cln::instanceof(im, cln::cl_RA_ring);
+
+	// Non-rational numbers are written in an integer-decoded format
+	// to preserve the precision
 	std::ostringstream s;
-	if (this->is_crational())
+	if (re_rationalp && im_rationalp)
 		s << value;
-	else {
-		// Non-rational numbers are written in an integer-decoded format
-		// to preserve the precision
-		if (this->is_real()) {
-			cln::cl_idecoded_float re = cln::integer_decode_float(cln::the<cln::cl_F>(value));
-			s << "R";
-			s << re.sign << " " << re.mantissa << " " << re.exponent;
-		} else {
-			cln::cl_idecoded_float re = cln::integer_decode_float(cln::the<cln::cl_F>(cln::realpart(cln::the<cln::cl_N>(value))));
-			cln::cl_idecoded_float im = cln::integer_decode_float(cln::the<cln::cl_F>(cln::imagpart(cln::the<cln::cl_N>(value))));
-			s << "C";
-			s << re.sign << " " << re.mantissa << " " << re.exponent << " ";
-			s << im.sign << " " << im.mantissa << " " << im.exponent;
-		}
+	else if (zerop(im)) {
+		// real FP (floating point) number
+		s << 'R';
+		write_real_float(s, re);
+	} else if (re_rationalp) {
+		s << 'H'; // just any unique character
+		// real part is a rational number,
+		// imaginary part is a FP number
+		s << re << ' ';
+		write_real_float(s, im);
+	} else if (im_rationalp) {
+		s << 'J';
+		// real part is a FP number,
+		// imaginary part is a rational number
+		write_real_float(s, re);
+		s << ' ' << im;
+	} else  {
+		// both real and imaginary parts are floating point
+		s << 'C';
+		write_real_float(s, re);
+		s << ' ';
+		write_real_float(s, im);
 	}
 	n.add_string("number", s.str());
 }

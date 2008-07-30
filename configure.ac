@@ -44,8 +44,8 @@ dnl The version number in newly created archives will be ARCHIVE_VERSION.
 dnl Archives version (ARCHIVE_VERSION-ARCHIVE_AGE) thru ARCHIVE_VERSION can
 dnl be read by this version of the GiNaC library.
 
-ARCHIVE_VERSION=2
-ARCHIVE_AGE=2
+ARCHIVE_VERSION=3
+ARCHIVE_AGE=3
 
 AC_SUBST(ARCHIVE_VERSION)
 AC_SUBST(ARCHIVE_AGE)
