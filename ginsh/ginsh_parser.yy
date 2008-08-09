@@ -330,6 +330,7 @@ static ex f_evalf1(const exprseq &e) {return e[0].evalf();}
 static ex f_evalm(const exprseq &e) {return e[0].evalm();}
 static ex f_eval_integ(const exprseq &e) {return e[0].eval_integ();}
 static ex f_expand(const exprseq &e) {return e[0].expand();}
+static ex f_factor(const exprseq &e) {return factor(e[0]);}
 static ex f_gcd(const exprseq &e) {return gcd(e[0], e[1]);}
 static ex f_has(const exprseq &e) {return e[0].has(e[1]) ? ex(1) : ex(0);}
 static ex f_lcm(const exprseq &e) {return lcm(e[0], e[1]);}
@@ -610,6 +611,7 @@ static const fcn_init builtin_fcns[] = {
 	{"evalm", f_evalm, 1},
 	{"eval_integ", f_eval_integ, 1},
 	{"expand", f_expand, 1},
+	{"factor", f_factor, 1},
 	{"find", f_find, 2},
 	{"fsolve", f_fsolve, 4},
 	{"gcd", f_gcd, 2},

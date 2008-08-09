@@ -66,6 +66,8 @@
 #include "color.h"
 #include "clifford.h"
 
+#include "factor.h"
+
 #include "excompiler.h"
 
 #ifdef __MAKECINT__

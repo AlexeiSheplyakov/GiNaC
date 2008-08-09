@@ -290,6 +290,9 @@ detail here. Please refer to the GiNaC documentation.
 .BI expand( expression )
 \- expands an expression
 .br
+.BI factor( expression )
+\- factorizes an expression (univariate)
+.br
 .BI find( expression ", " pattern )
 \- returns a list of all occurrences of a pattern in an expression
 .br

@@ -3,7 +3,7 @@
 lib_LTLIBRARIES = libginac.la
 libginac_la_SOURCES = add.cpp archive.cpp basic.cpp clifford.cpp color.cpp \
   constant.cpp ex.cpp excompiler.cpp expair.cpp expairseq.cpp exprseq.cpp \
-  fail.cpp fderivative.cpp function.cpp idx.cpp indexed.cpp inifcns.cpp \
+  fail.cpp factor.cpp fderivative.cpp function.cpp idx.cpp indexed.cpp inifcns.cpp \
   inifcns_trans.cpp inifcns_gamma.cpp inifcns_nstdsums.cpp \
   integral.cpp lst.cpp matrix.cpp mul.cpp ncmul.cpp normal.cpp numeric.cpp \
   operators.cpp power.cpp registrar.cpp relational.cpp remember.cpp \
@@ -15,7 +15,7 @@ libginac_la_LIBADD = $(DL_LIBS)
 ginacincludedir = $(includedir)/ginac
 ginacinclude_HEADERS = ginac.h add.h archive.h assertion.h basic.h class_info.h \
   clifford.h color.h constant.h container.h ex.h excompiler.h expair.h expairseq.h \
-  exprseq.h fail.h fderivative.h flags.h function.h hash_map.h idx.h indexed.h \
+  exprseq.h fail.h factor.h fderivative.h flags.h function.h hash_map.h idx.h indexed.h \
   inifcns.h integral.h lst.h matrix.h mul.h ncmul.h normal.h numeric.h operators.h \
   power.h print.h pseries.h ptr.h registrar.h relational.h structure.h \
   symbol.h symmetry.h tensor.h version.h wildcard.h
