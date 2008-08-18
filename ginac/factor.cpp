@@ -574,9 +574,10 @@ static void sqrfree_main(const UniPoly& a, UniFactorVec& fvec)
 			gcd(w, c, y);
 			div(w, y, z);
 			if ( !is_one(z) ) {
-				UniFactor uf(z, i++);
+				UniFactor uf(z, i);
 				fvec.factors.push_back(uf);
 			}
+			++i;
 			w = y;
 			UniPoly cbuf(a.R);
 			div(c, y, cbuf);
@@ -1026,7 +1027,7 @@ static ex factor_univariate(const ex& poly, const ex& x)
 			UniPoly modpoly(R, prim, x);
 			UniFactorVec sqrfree_ufv;
 			squarefree(modpoly, sqrfree_ufv);
-			if ( sqrfree_ufv.factors.size() == 1 ) break;
+			if ( sqrfree_ufv.factors.size() == 1 && sqrfree_ufv.factors.front().exp == 1 ) break;
 		}
 		p = next_prime(p);
 		R = find_modint_ring(p);
