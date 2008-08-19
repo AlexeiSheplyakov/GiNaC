@@ -388,9 +388,58 @@ library_init::library_init()
 library_init::~library_init()
 {
 	if (--count==0) {
-		// In theory, we would have to clean up here.  But since we were
-		// only initializing memory in the ctor and that memory is reclaimed
-		// anyways by the OS when the program exits, we skip this.
+		// It's really necessary to clean up, since the program
+		// lifetime might not be the same as libginac.{so,dll} one
+		// (e.g. consider // dlopen/dlsym/dlclose sequence).
+		delete _num120_p;
+		delete _num_120_p;
+		delete _num60_p;
+		delete _num_60_p;
+		delete _num48_p;
+		delete _num_48_p;
+		delete _num30_p;
+		delete _num_30_p;
+		delete _num25_p;
+		delete _num_25_p;
+		delete _num24_p;
+		delete _num_24_p;
+		delete _num20_p;
+		delete _num_20_p;
+		delete _num18_p;
+		delete _num_18_p;
+		delete _num15_p;
+		delete _num_15_p;
+		delete _num12_p;
+		delete _num_12_p;
+		delete _num11_p;
+		delete _num_11_p;
+		delete _num10_p;
+		delete _num_10_p;
+		delete _num9_p;
+		delete _num_9_p;
+		delete _num8_p;
+		delete _num_8_p;
+		delete _num7_p;
+		delete _num_7_p;
+		delete _num6_p;
+		delete _num_6_p;
+		delete _num5_p;
+		delete _num_5_p;
+		delete _num4_p;
+		delete _num_4_p;
+		delete _num3_p;
+		delete _num_3_p;
+		delete _num2_p;
+		delete _num_2_p;
+		delete _num1_p;
+		delete _num_1_p;
+		delete _num1_2_p;
+		delete _num_1_2_p;
+		delete _num1_3_p;
+		delete _num_1_3_p;
+		delete _num1_4_p;
+		delete _num_1_4_p;
+		delete _num0_p;
 	}
 }
 
