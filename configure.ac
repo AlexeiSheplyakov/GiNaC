@@ -149,6 +149,10 @@ AM_CONDITIONAL(CONFIG_TEX, [test ! \( -z "$LATEX" -o -z $"PDFLATEX" -o -z "$MAKE
 AC_PATH_PROG(FIG2DEV, fig2dev, "")
 AM_CONDITIONAL(CONFIG_FIG2DEV, [test ! -z "$FIG2DEV"])
 
+dnl generate boilerplate code for the (new) parser.
+dnl Only developers need this tool.
+AC_PATH_PROG(AUTOGEN, autogen, "")
+
 dnl Output makefiles etc.
 AC_CONFIG_FILES([
 Makefile
