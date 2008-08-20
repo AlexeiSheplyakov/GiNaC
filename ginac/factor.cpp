@@ -700,19 +700,32 @@ static void q_matrix(const UniPoly& a, Matrix& Q)
 {
 	unsigned int n = a.degree();
 	unsigned int q = cl_I_to_uint(a.R->modulus);
-	vector<cl_MI> r(n, a.R->zero());
-	r[0] = a.R->one();
-	Q.set_row(0, r);
-	unsigned int max = (n-1) * q;
-	for ( size_t m=1; m<=max; ++m ) {
-		cl_MI rn_1 = r.back();
-		for ( size_t i=n-1; i>0; --i ) {
-			r[i] = r[i-1] - rn_1 * a[i];
+// fast and buggy
+//	vector<cl_MI> r(n, a.R->zero());
+//	r[0] = a.R->one();
+//	Q.set_row(0, r);
+//	unsigned int max = (n-1) * q;
+//	for ( size_t m=1; m<=max; ++m ) {
+//		cl_MI rn_1 = r.back();
+//		for ( size_t i=n-1; i>0; --i ) {
+//			r[i] = r[i-1] - rn_1 * a[i];
+//		}
+//		r[0] = -rn_1 * a[0];
+//		if ( (m % q) == 0 ) {
+//			Q.set_row(m/q, r);
+//		}
+//	}
+// slow and (hopefully) correct
+	for ( size_t i=0; i<n; ++i ) {
+		UniPoly qk(a.R);
+		qk.set(i*q, a.R->one());
+		UniPoly r(a.R);
+		rem(qk, a, r);
+		Vec rvec;
+		for ( size_t j=0; j<n; ++j ) {
+			rvec.push_back(r[j]);
 		}
-		r[0] = -rn_1 * a[0];
-		if ( (m % q) == 0 ) {
-			Q.set_row(m/q, r);
-		}
+		Q.set_row(i, rvec);
 	}
 }
 
@@ -795,7 +808,12 @@ static void berlekamp(const UniPoly& a, UniPolyVec& upv)
 					*u = uo;
 				}
 				factors.push_back(g);
-				++size;
+				size = 0;
+				list<UniPoly>::const_iterator i = factors.begin(), end = factors.end();
+				while ( i != end ) {
+					if ( i->degree() ) ++size; 
+					++i;
+				}
 				if ( size == k ) {
 					list<UniPoly>::const_iterator i = factors.begin(), end = factors.end();
 					while ( i != end ) {
@@ -803,9 +821,9 @@ static void berlekamp(const UniPoly& a, UniPolyVec& upv)
 					}
 					return;
 				}
-				if ( u->degree() < nur.degree() ) {
-					break;
-				}
+//				if ( u->degree() < nur.degree() ) {
+//					break;
+//				}
 			}
 		}
 		if ( ++r == k ) {
@@ -1107,6 +1125,7 @@ static ex factor_univariate(const ex& poly, const ex& x)
 					mf.factors = newfactors2;
 					mf.poly = answer.op(1);
 					tocheck.push(mf);
+					break;
 				}
 			}
 			else {
