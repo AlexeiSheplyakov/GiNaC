@@ -45,6 +45,7 @@ $(srcdir)/parser/builtin_fcns.cpp: $(srcdir)/parser/builtin_fcns.def $(srcdir)/p
 	else \
 		echo "*** ERROR: the \"$@\" file does not exist, and AutoGen is not installed on your system"; \
 		echo "***        Please install AutoGen (http://www.gnu.org/software/autogen)"; \
+		exit 1; \
 	fi
 		
 
