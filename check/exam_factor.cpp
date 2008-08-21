@@ -83,10 +83,15 @@ static unsigned exam_factor1()
 	result += check_factor(e);
 
 	e = ex("x*(2+x^2)*(1+x+x^3+x^2+x^6+x^5+x^4)*(1+x)^2*(1-x+x^2)^2*(-1+x)", syms);
-
 	result += check_factor(e);
 
 	e = ex("(x+4+x^2-x^3+43*x^4)*(x+1-x^2-3*x^3+4*x^4)", syms);
+	result += check_factor(e);
+
+	e = ex("-x^2*(x-1)*(1+x^2)", syms);
+	result += check_factor(e);
+
+	e = x;
 	result += check_factor(e);
 
 	return result;

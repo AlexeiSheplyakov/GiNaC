@@ -888,7 +888,7 @@ static ex hensel_univar(const ex& a_, const ex& x, unsigned int p, const UniPoly
 	for ( int i=a.degree(x); i>=a.ldegree(x); --i ) {
 		maxcoeff += pow(abs(a.coeff(x, i)),2);
 	}
-	cl_I normmc = ceiling1(the<cl_F>(cln::sqrt(ex_to<numeric>(maxcoeff).to_cl_N())));
+	cl_I normmc = ceiling1(the<cl_R>(cln::sqrt(ex_to<numeric>(maxcoeff).to_cl_N())));
 	unsigned int maxdegree = (u1_.degree() > w1_.degree()) ? u1_.degree() : w1_.degree();
 	unsigned int B = cl_I_to_uint(normmc * expt_pos(cl_I(2), maxdegree));
 
@@ -1232,6 +1232,9 @@ ex factor(const ex& poly)
 			}
 		}
 		return res;
+	}
+	if ( is_a<symbol>(sfpoly) ) {
+		return poly;
 	}
 	// case: (polynomial)
 	ex f = factor_sqrfree(sfpoly);
