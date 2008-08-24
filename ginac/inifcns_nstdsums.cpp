@@ -518,16 +518,12 @@ cln::cl_N mLi_do_summation(const lst& m, const lst& x)
 lst convert_parameter_Li_to_H(const lst& m, const lst& x, ex& pf);
 
 
-// holding dummy-symbols for the G/Li transformations
-std::vector<ex> gsyms;
-
-
 // type used by the transformation functions for G
 typedef std::vector<int> Gparameter;
 
 
 // G_eval1-function for G transformations
-ex G_eval1(int a, int scale)
+ex G_eval1(int a, int scale, const exvector& gsyms)
 {
 	if (a != 0) {
 		const ex& scs = gsyms[std::abs(scale)];
@@ -544,7 +540,7 @@ ex G_eval1(int a, int scale)
 
 
 // G_eval-function for G transformations
-ex G_eval(const Gparameter& a, int scale)
+ex G_eval(const Gparameter& a, int scale, const exvector& gsyms)
 {
 	// check for properties of G
 	ex sc = gsyms[std::abs(scale)];
@@ -578,7 +574,7 @@ ex G_eval(const Gparameter& a, int scale)
 		for (; it != a.end(); ++it) {
 			short_a.push_back(*it);
 		}
-		ex result = G_eval1(a.front(), scale) * G_eval(short_a, scale);
+		ex result = G_eval1(a.front(), scale, gsyms) * G_eval(short_a, scale, gsyms);
 		it = short_a.begin();
 		for (int i=1; i<count_ones; ++i) {
 			++it;
@@ -596,14 +592,14 @@ ex G_eval(const Gparameter& a, int scale)
 			for (; it2 != short_a.end(); ++it2) {
 				newa.push_back(*it2);	
 			}
-			result -= G_eval(newa, scale);
+			result -= G_eval(newa, scale, gsyms);
 		}
 		return result / count_ones;
 	}
 
 	// G({1,...,1};y) -> G({1};y)^k / k!
 	if (all_ones && a.size() > 1) {
-		return pow(G_eval1(a.front(),scale), count_ones) / factorial(count_ones);
+		return pow(G_eval1(a.front(),scale, gsyms), count_ones) / factorial(count_ones);
 	}
 
 	// G({0,...,0};y) -> log(y)^k / k!
@@ -696,7 +692,7 @@ Gparameter prepare_pending_integrals(const Gparameter& pending_integrals, int sc
 
 
 // handles trailing zeroes for an otherwise convergent integral
-ex trailing_zeros_G(const Gparameter& a, int scale)
+ex trailing_zeros_G(const Gparameter& a, int scale, const exvector& gsyms)
 {
 	bool convergent;
 	int depth, trailing_zeros;
@@ -708,23 +704,23 @@ ex trailing_zeros_G(const Gparameter& a, int scale)
 	if ((trailing_zeros > 0) && (depth > 0)) {
 		ex result;
 		Gparameter new_a(a.begin(), a.end()-1);
-		result += G_eval1(0, scale) * trailing_zeros_G(new_a, scale);
+		result += G_eval1(0, scale, gsyms) * trailing_zeros_G(new_a, scale, gsyms);
 		for (Gparameter::const_iterator it = a.begin(); it != last; ++it) {
 			Gparameter new_a(a.begin(), it);
 			new_a.push_back(0);
 			new_a.insert(new_a.end(), it, a.end()-1);
-			result -= trailing_zeros_G(new_a, scale);
+			result -= trailing_zeros_G(new_a, scale, gsyms);
 		}
 
 		return result / trailing_zeros;
 	} else {
-		return G_eval(a, scale);
+		return G_eval(a, scale, gsyms);
 	}
 }
 
 
 // G transformation [VSW] (57),(58)
-ex depth_one_trafo_G(const Gparameter& pending_integrals, const Gparameter& a, int scale)
+ex depth_one_trafo_G(const Gparameter& pending_integrals, const Gparameter& a, int scale, const exvector& gsyms)
 {
 	// pendint = ( y1, b1, ..., br )
 	//       a = ( 0, ..., 0, amin )
@@ -755,15 +751,21 @@ ex depth_one_trafo_G(const Gparameter& pending_integrals, const Gparameter& a, i
 			result -= I*Pi;
 		}
 		if (psize) {
-			result *= trailing_zeros_G(convert_pending_integrals_G(pending_integrals), pending_integrals.front());
+			result *= trailing_zeros_G(convert_pending_integrals_G(pending_integrals),
+				                   pending_integrals.front(),
+						   gsyms);
 		}
 		
 		// G(y2_{-+}; sr)
-		result += trailing_zeros_G(convert_pending_integrals_G(new_pending_integrals), new_pending_integrals.front());
+		result += trailing_zeros_G(convert_pending_integrals_G(new_pending_integrals),
+			                   new_pending_integrals.front(),
+					   gsyms);
 		
 		// G(0; sr)
 		new_pending_integrals.back() = 0;
-		result -= trailing_zeros_G(convert_pending_integrals_G(new_pending_integrals), new_pending_integrals.front());
+		result -= trailing_zeros_G(convert_pending_integrals_G(new_pending_integrals),
+			                   new_pending_integrals.front(),
+					   gsyms);
 
 		return result;
 	}
@@ -775,14 +777,16 @@ ex depth_one_trafo_G(const Gparameter& pending_integrals, const Gparameter& a, i
 	//term zeta_m
 	result -= zeta(a.size());
 	if (psize) {
-		result *= trailing_zeros_G(convert_pending_integrals_G(pending_integrals), pending_integrals.front());
+		result *= trailing_zeros_G(convert_pending_integrals_G(pending_integrals),
+			                   pending_integrals.front(),
+					   gsyms);
 	}
 	
 	// term int_0^sr dt/t G_{m-1}( (1/y2)_{+-}; 1/t )
 	//    = int_0^sr dt/t G_{m-1}( t_{+-}; y2 )
 	Gparameter new_a(a.begin()+1, a.end());
 	new_pending_integrals.push_back(0);
-	result -= depth_one_trafo_G(new_pending_integrals, new_a, scale);
+	result -= depth_one_trafo_G(new_pending_integrals, new_a, scale, gsyms);
 	
 	// term int_0^y2 dt/t G_{m-1}( (1/y2)_{+-}; 1/t )
 	//    = int_0^y2 dt/t G_{m-1}( t_{+-}; y2 )
@@ -790,10 +794,12 @@ ex depth_one_trafo_G(const Gparameter& pending_integrals, const Gparameter& a, i
 	new_pending_integrals_2.push_back(scale);
 	new_pending_integrals_2.push_back(0);
 	if (psize) {
-		result += trailing_zeros_G(convert_pending_integrals_G(pending_integrals), pending_integrals.front())
-		          * depth_one_trafo_G(new_pending_integrals_2, new_a, scale);
+		result += trailing_zeros_G(convert_pending_integrals_G(pending_integrals),
+			                   pending_integrals.front(),
+					   gsyms)
+		          * depth_one_trafo_G(new_pending_integrals_2, new_a, scale, gsyms);
 	} else {
-		result += depth_one_trafo_G(new_pending_integrals_2, new_a, scale);
+		result += depth_one_trafo_G(new_pending_integrals_2, new_a, scale, gsyms);
 	}
 
 	return result;
@@ -802,11 +808,13 @@ ex depth_one_trafo_G(const Gparameter& pending_integrals, const Gparameter& a, i
 
 // forward declaration
 ex shuffle_G(const Gparameter & a0, const Gparameter & a1, const Gparameter & a2,
-	     const Gparameter& pendint, const Gparameter& a_old, int scale);
+	     const Gparameter& pendint, const Gparameter& a_old, int scale,
+	     const exvector& gsyms);
 
 
 // G transformation [VSW]
-ex G_transform(const Gparameter& pendint, const Gparameter& a, int scale)
+ex G_transform(const Gparameter& pendint, const Gparameter& a, int scale,
+	       const exvector& gsyms)
 {
 	// main recursion routine
 	//
@@ -832,10 +840,12 @@ ex G_transform(const Gparameter& pendint, const Gparameter& a, int scale)
 		if (a.size() == 0) {
 		  result = 1;
 		} else {
-		  result = G_eval(a, scale);
+		  result = G_eval(a, scale, gsyms);
 		}
 		if (pendint.size() > 0) {
-		  result *= trailing_zeros_G(convert_pending_integrals_G(pendint), pendint.front());
+		  result *= trailing_zeros_G(convert_pending_integrals_G(pendint),
+			                     pendint.front(),
+					     gsyms);
 		} 
 		return result;
 	}
@@ -844,12 +854,12 @@ ex G_transform(const Gparameter& pendint, const Gparameter& a, int scale)
 	if (trailing_zeros > 0) {
 		ex result;
 		Gparameter new_a(a.begin(), a.end()-1);
-		result += G_eval1(0, scale) * G_transform(pendint, new_a, scale);
+		result += G_eval1(0, scale, gsyms) * G_transform(pendint, new_a, scale, gsyms);
 		for (Gparameter::const_iterator it = a.begin(); it != firstzero; ++it) {
 			Gparameter new_a(a.begin(), it);
 			new_a.push_back(0);
 			new_a.insert(new_a.end(), it, a.end()-1);
-			result -= G_transform(pendint, new_a, scale);
+			result -= G_transform(pendint, new_a, scale, gsyms);
 		}
 		return result / trailing_zeros;
 	}
@@ -857,15 +867,17 @@ ex G_transform(const Gparameter& pendint, const Gparameter& a, int scale)
 	// convergence case
 	if (convergent) {
 		if (pendint.size() > 0) {
-			return G_eval(convert_pending_integrals_G(pendint), pendint.front()) * G_eval(a, scale);
+			return G_eval(convert_pending_integrals_G(pendint),
+				      pendint.front(), gsyms)*
+				G_eval(a, scale, gsyms);
 		} else {
-			return G_eval(a, scale);
+			return G_eval(a, scale, gsyms);
 		}
 	}
 
 	// call basic transformation for depth equal one
 	if (depth == 1) {
-		return depth_one_trafo_G(pendint, a, scale);
+		return depth_one_trafo_G(pendint, a, scale, gsyms);
 	}
 
 	// do recursion
@@ -880,9 +892,10 @@ ex G_transform(const Gparameter& pendint, const Gparameter& a, int scale)
 		Gparameter a1(a.begin(),min_it+1);
 		Gparameter a2(min_it+1,a.end());
 
-		ex result = G_transform(pendint,a2,scale)*G_transform(empty,a1,scale);
+		ex result = G_transform(pendint, a2, scale, gsyms)*
+			G_transform(empty, a1, scale, gsyms);
 
-		result -= shuffle_G(empty,a1,a2,pendint,a,scale);
+		result -= shuffle_G(empty, a1, a2, pendint, a, scale, gsyms);
 		return result;
 	}
 
@@ -893,9 +906,10 @@ ex G_transform(const Gparameter& pendint, const Gparameter& a, int scale)
 	Gparameter new_pendint = prepare_pending_integrals(pendint, a[min_it_pos]);
 	Gparameter new_a = a;
 	new_a[min_it_pos] = 0;
-	ex result = G_transform(empty, new_a, scale);
+	ex result = G_transform(empty, new_a, scale, gsyms);
 	if (pendint.size() > 0) {
-		result *= trailing_zeros_G(convert_pending_integrals_G(pendint), pendint.front());
+		result *= trailing_zeros_G(convert_pending_integrals_G(pendint),
+			                   pendint.front(), gsyms);
 	}
 
 	// other terms
@@ -904,29 +918,33 @@ ex G_transform(const Gparameter& pendint, const Gparameter& a, int scale)
 	if (changeit != new_a.begin()) {
 		// smallest in the middle
 		new_pendint.push_back(*changeit);
-		result -= trailing_zeros_G(convert_pending_integrals_G(new_pendint), new_pendint.front())
-			* G_transform(empty, new_a, scale);
+		result -= trailing_zeros_G(convert_pending_integrals_G(new_pendint),
+			                   new_pendint.front(), gsyms)*
+			G_transform(empty, new_a, scale, gsyms);
 		int buffer = *changeit;
 		*changeit = *min_it;
-		result += G_transform(new_pendint, new_a, scale);
+		result += G_transform(new_pendint, new_a, scale, gsyms);
 		*changeit = buffer;
 		new_pendint.pop_back();
 		--changeit;
 		new_pendint.push_back(*changeit);
-		result += trailing_zeros_G(convert_pending_integrals_G(new_pendint), new_pendint.front())
-			* G_transform(empty, new_a, scale);
+		result += trailing_zeros_G(convert_pending_integrals_G(new_pendint),
+			                   new_pendint.front(), gsyms)*
+			G_transform(empty, new_a, scale, gsyms);
 		*changeit = *min_it;
-		result -= G_transform(new_pendint, new_a, scale);
+		result -= G_transform(new_pendint, new_a, scale, gsyms);
 	} else {
 		// smallest at the front
 		new_pendint.push_back(scale);
-		result += trailing_zeros_G(convert_pending_integrals_G(new_pendint), new_pendint.front())
-			* G_transform(empty, new_a, scale);
+		result += trailing_zeros_G(convert_pending_integrals_G(new_pendint),
+			                   new_pendint.front(), gsyms)*
+			G_transform(empty, new_a, scale, gsyms);
 		new_pendint.back() =  *changeit;
-		result -= trailing_zeros_G(convert_pending_integrals_G(new_pendint), new_pendint.front())
-			* G_transform(empty, new_a, scale);
+		result -= trailing_zeros_G(convert_pending_integrals_G(new_pendint),
+			                   new_pendint.front(), gsyms)*
+			G_transform(empty, new_a, scale, gsyms);
 		*changeit = *min_it;
-		result += G_transform(new_pendint, new_a, scale);
+		result += G_transform(new_pendint, new_a, scale, gsyms);
 	}
 	return result;
 }
@@ -935,27 +953,28 @@ ex G_transform(const Gparameter& pendint, const Gparameter& a, int scale)
 // shuffles the two parameter list a1 and a2 and calls G_transform for every term except
 // for the one that is equal to a_old
 ex shuffle_G(const Gparameter & a0, const Gparameter & a1, const Gparameter & a2,
-	     const Gparameter& pendint, const Gparameter& a_old, int scale) 
+	     const Gparameter& pendint, const Gparameter& a_old, int scale,
+	     const exvector& gsyms) 
 {
 	if (a1.size()==0 && a2.size()==0) {
 		// veto the one configuration we don't want
 		if ( a0 == a_old ) return 0;
 
-		return G_transform(pendint,a0,scale);
+		return G_transform(pendint, a0, scale, gsyms);
 	}
 
 	if (a2.size()==0) {
 		Gparameter empty;
 		Gparameter aa0 = a0;
 		aa0.insert(aa0.end(),a1.begin(),a1.end());
-		return shuffle_G(aa0,empty,empty,pendint,a_old,scale);
+		return shuffle_G(aa0, empty, empty, pendint, a_old, scale, gsyms);
 	}
 
 	if (a1.size()==0) {
 		Gparameter empty;
 		Gparameter aa0 = a0;
 		aa0.insert(aa0.end(),a2.begin(),a2.end());
-		return shuffle_G(aa0,empty,empty,pendint,a_old,scale);
+		return shuffle_G(aa0, empty, empty, pendint, a_old, scale, gsyms);
 	}
 
 	Gparameter a1_removed(a1.begin()+1,a1.end());
@@ -967,8 +986,8 @@ ex shuffle_G(const Gparameter & a0, const Gparameter & a1, const Gparameter & a2
 	a01.push_back( a1[0] );
 	a02.push_back( a2[0] );
 
-	return shuffle_G(a01,a1_removed,a2,pendint,a_old,scale)
-	     + shuffle_G(a02,a1,a2_removed,pendint,a_old,scale);
+	return shuffle_G(a01, a1_removed, a2, pendint, a_old, scale, gsyms)
+	     + shuffle_G(a02, a1, a2_removed, pendint, a_old, scale, gsyms);
 }
 
 
@@ -1067,7 +1086,8 @@ ex G_numeric(const lst& x, const lst& s, const ex& y)
 
 		// generate missing dummy-symbols
 		int i = 1;
-		gsyms.clear();
+		// holding dummy-symbols for the G/Li transformations
+		exvector gsyms;
 		gsyms.push_back(symbol("GSYMS_ERROR"));
 		ex lastentry;
 		for (std::multimap<ex,int>::const_iterator it = sortmap.begin(); it != sortmap.end(); ++it) {
@@ -1117,7 +1137,7 @@ ex G_numeric(const lst& x, const lst& s, const ex& y)
 
 		// do transformation
 		Gparameter pendint;
-		ex result = G_transform(pendint, a, scale);
+		ex result = G_transform(pendint, a, scale, gsyms);
 		// replace dummy symbols with their values
 		result = result.eval().expand();
 		result = result.subs(subslst).evalf();
