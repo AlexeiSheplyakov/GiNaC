@@ -1602,33 +1602,36 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args, unsigned optio
 	// Try heuristic algorithm first, fall back to PRS if that failed
 	ex g;
 	bool found = heur_gcd(g, aex, bex, ca, cb, var);
-	if (!found) {
-#if STATISTICS
-		heur_gcd_failed++;
-#endif
-		g = sr_gcd(aex, bex, var);
+	if (found) {
+		// heur_gcd have already computed cofactors...
 		if (g.is_equal(_ex1)) {
-			// Keep cofactors factored if possible
-			if (ca)
-				*ca = a;
-			if (cb)
-				*cb = b;
-		} else {
-			if (ca)
-				divide(aex, g, *ca, false);
-			if (cb)
-				divide(bex, g, *cb, false);
-		}
-	} else {
-		if (g.is_equal(_ex1)) {
-			// Keep cofactors factored if possible
+			// ... but we want to keep them factored if possible.
 			if (ca)
 				*ca = a;
 			if (cb)
 				*cb = b;
 		}
+		return g;
 	}
+#if STATISTICS
+	else {
+		heur_gcd_failed++;
+	}
+#endif
 
+	g = sr_gcd(aex, bex, var);
+	if (g.is_equal(_ex1)) {
+		// Keep cofactors factored if possible
+		if (ca)
+			*ca = a;
+		if (cb)
+			*cb = b;
+	} else {
+		if (ca)
+			divide(aex, g, *ca, false);
+		if (cb)
+			divide(bex, g, *cb, false);
+	}
 	return g;
 }
 
