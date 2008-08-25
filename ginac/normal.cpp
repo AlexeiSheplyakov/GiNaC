@@ -1465,12 +1465,14 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args, unsigned optio
 	}
 
 	// Partially factored cases (to avoid expanding large expressions)
-	if (is_exactly_a<mul>(a) || is_exactly_a<mul>(b))
-		return gcd_pf_mul(a, b, ca, cb, check_args);
+	if (!(options & gcd_options::no_part_factored)) {
+		if (is_exactly_a<mul>(a) || is_exactly_a<mul>(b))
+			return gcd_pf_mul(a, b, ca, cb, check_args);
 #if FAST_COMPARE
-	if (is_exactly_a<power>(a) || is_exactly_a<power>(b))
-		return gcd_pf_pow(a, b, ca, cb, check_args);
+		if (is_exactly_a<power>(a) || is_exactly_a<power>(b))
+			return gcd_pf_pow(a, b, ca, cb, check_args);
 #endif
+	}
 
 	// Some trivial cases
 	ex aex = a.expand(), bex = b.expand();
@@ -1601,23 +1603,25 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args, unsigned optio
 
 	// Try heuristic algorithm first, fall back to PRS if that failed
 	ex g;
-	bool found = heur_gcd(g, aex, bex, ca, cb, var);
-	if (found) {
-		// heur_gcd have already computed cofactors...
-		if (g.is_equal(_ex1)) {
-			// ... but we want to keep them factored if possible.
-			if (ca)
-				*ca = a;
-			if (cb)
-				*cb = b;
+	if (!(options & gcd_options::no_heur_gcd)) {
+		bool found = heur_gcd(g, aex, bex, ca, cb, var);
+		if (found) {
+			// heur_gcd have already computed cofactors...
+			if (g.is_equal(_ex1)) {
+				// ... but we want to keep them factored if possible.
+				if (ca)
+					*ca = a;
+				if (cb)
+					*cb = b;
+			}
+			return g;
 		}
-		return g;
-	}
 #if STATISTICS
-	else {
-		heur_gcd_failed++;
-	}
+		else {
+			heur_gcd_failed++;
+		}
 #endif
+	}
 
 	g = sr_gcd(aex, bex, var);
 	if (g.is_equal(_ex1)) {
