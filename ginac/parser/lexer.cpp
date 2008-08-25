@@ -129,5 +129,19 @@ void lexer::switch_input(std::istream* in)
 	c = ' ';
 }
 
+/// Symbolic name of current token (for error reporting)
+std::string lexer::tok2str(const int tok) const
+{
+	switch (tok) {
+		case lexer::token_type::identifier:
+		case lexer::token_type::number:
+			return std::string("\"") + str + "\"";
+		case lexer::token_type::eof:
+			return std::string("EOF");
+		default:
+			return std::string("\"") + char(tok) + "\"";
+	}
+}
+
 } // namespace GiNaC
 

@@ -30,7 +30,7 @@ ex parser::parse_identifier_expr()
 				break;
 
 			if (token != ',')
-				throw std::invalid_argument("Expected ')' or ',' in argument list");
+				Parse_error("expected ')' or ',' in argument list");
 
 			get_next_tok();
 		}
@@ -40,9 +40,8 @@ ex parser::parse_identifier_expr()
 	prototype the_prototype = make_pair(name, args.size());
 	prototype_table::const_iterator reader = funcs.find(the_prototype);
 	if (reader == funcs.end()) {
-		bail_out(std::invalid_argument,
-			"no function \"" << name << "\" with " << args.size()
-			<< " arguments");
+		Parse_error_("no function \"" << name << "\" with " <<
+			     args.size() << " arguments");
 	}
 	ex ret = reader->second(args);
 	return ret;
@@ -55,7 +54,7 @@ ex parser::parse_paren_expr()
 	ex e = parse_expression();
 
 	if (token != ')')
-		throw std::invalid_argument("parser::parse_paren_expr: expected ')'");
+		Parse_error("expected ')'");
 	get_next_tok();  // eat ).
 	return e;
 }
@@ -74,10 +73,7 @@ ex parser::parse_unary_expr(const int s)
 		case '+':
 			return v;
 		default:
-			throw std::invalid_argument(
-					std::string(__func__)
-					+ ": invalid unary operator \""
-					+ char(s) + "\"");
+			Parse_error_("invalid unary operator \"" << char(s) << "\"");
 	}
 }
 
@@ -98,12 +94,8 @@ ex parser::parse_primary()
 		case lexer::token_type::literal:
 			 return parse_literal_expr();
 		case lexer::token_type::eof:
-			 bail_out(std::invalid_argument, "got EOF while parsing the expression");
 		default:
-			 bail_out(std::invalid_argument, "unknown token " <<
-				token << " (\"" << 
-				(token ? std::string("") + char(token) : "NULL")
-				<< "\")");
+			 Parse_error("unexpected token");
 	}
 }
 

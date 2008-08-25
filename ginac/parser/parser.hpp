@@ -9,6 +9,18 @@ namespace GiNaC
 
 class lexer;
 
+class parse_error : public std::invalid_argument
+{
+public:
+	const std::size_t line;
+	const std::size_t column;
+	parse_error(const std::string& what_,
+		    const std::size_t line_ = 0,
+		    const std::size_t column_ = 0) throw () :
+		std::invalid_argument(what_), line(line_), column(column_)
+	{ }
+};
+
 /**
  * Recursive descent parser for GiNaC expressions.
  */
