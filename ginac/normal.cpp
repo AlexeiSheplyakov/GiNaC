@@ -1639,56 +1639,64 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args, unsigned optio
 	return g;
 }
 
+// gcd helper to handle partially factored polynomials (to avoid expanding
+// large expressions). Both arguments should be powers.
+static ex gcd_pf_pow_pow(const ex& a, const ex& b, ex* ca, ex* cb)
+{
+	ex p = a.op(0);
+	const ex& exp_a = a.op(1);
+	ex pb = b.op(0);
+	const ex& exp_b = b.op(1);
+	if (p.is_equal(pb)) {
+		// a = p^n, b = p^m, gcd = p^min(n, m)
+		if (exp_a < exp_b) {
+			if (ca)
+				*ca = _ex1;
+			if (cb)
+				*cb = power(p, exp_b - exp_a);
+			return power(p, exp_a);
+		} else {
+			if (ca)
+				*ca = power(p, exp_a - exp_b);
+			if (cb)
+				*cb = _ex1;
+			return power(p, exp_b);
+		}
+	} else {
+		ex p_co, pb_co;
+		ex p_gcd = gcd(p, pb, &p_co, &pb_co, false);
+		if (p_gcd.is_equal(_ex1)) {
+			// a(x) = p(x)^n, b(x) = p_b(x)^m, gcd (p, p_b) = 1 ==>
+			// gcd(a,b) = 1
+			if (ca)
+				*ca = a;
+			if (cb)
+				*cb = b;
+			return _ex1;
+			// XXX: do I need to check for p_gcd = -1?
+		} else {
+			// there are common factors:
+			// a(x) = g(x)^n A(x)^n, b(x) = g(x)^m B(x)^m ==>
+			// gcd(a, b) = g(x)^n gcd(A(x)^n, g(x)^(n-m) B(x)^m
+			if (exp_a < exp_b) {
+				return power(p_gcd, exp_a)*
+					gcd(power(p_co, exp_a), power(p_gcd, exp_b-exp_a)*power(pb_co, exp_b), ca, cb, false);
+			} else {
+				return power(p_gcd, exp_b)*
+					gcd(power(p_gcd, exp_a - exp_b)*power(p_co, exp_a), power(pb_co, exp_b), ca, cb, false);
+			}
+		} // p_gcd.is_equal(_ex1)
+	} // p.is_equal(pb)
+}
+
 static ex gcd_pf_pow(const ex& a, const ex& b, ex* ca, ex* cb)
 {
 	if (is_exactly_a<power>(a)) {
 		ex p = a.op(0);
 		const ex& exp_a = a.op(1);
-		if (is_exactly_a<power>(b)) {
-			ex pb = b.op(0);
-			const ex& exp_b = b.op(1);
-			if (p.is_equal(pb)) {
-				// a = p^n, b = p^m, gcd = p^min(n, m)
-				if (exp_a < exp_b) {
-					if (ca)
-						*ca = _ex1;
-					if (cb)
-						*cb = power(p, exp_b - exp_a);
-					return power(p, exp_a);
-				} else {
-					if (ca)
-						*ca = power(p, exp_a - exp_b);
-					if (cb)
-						*cb = _ex1;
-					return power(p, exp_b);
-				}
-			} else {
-				ex p_co, pb_co;
-				ex p_gcd = gcd(p, pb, &p_co, &pb_co, false);
-				if (p_gcd.is_equal(_ex1)) {
-					// a(x) = p(x)^n, b(x) = p_b(x)^m, gcd (p, p_b) = 1 ==>
-					// gcd(a,b) = 1
-					if (ca)
-						*ca = a;
-					if (cb)
-						*cb = b;
-					return _ex1;
-					// XXX: do I need to check for p_gcd = -1?
-				} else {
-					// there are common factors:
-					// a(x) = g(x)^n A(x)^n, b(x) = g(x)^m B(x)^m ==>
-					// gcd(a, b) = g(x)^n gcd(A(x)^n, g(x)^(n-m) B(x)^m
-					if (exp_a < exp_b) {
-						return power(p_gcd, exp_a)*
-							gcd(power(p_co, exp_a), power(p_gcd, exp_b-exp_a)*power(pb_co, exp_b), ca, cb, false);
-					} else {
-						return power(p_gcd, exp_b)*
-							gcd(power(p_gcd, exp_a - exp_b)*power(p_co, exp_a), power(pb_co, exp_b), ca, cb, false);
-					}
-				} // p_gcd.is_equal(_ex1)
-			} // p.is_equal(pb)
-
-		} else {
+		if (is_exactly_a<power>(b))
+			return gcd_pf_pow_pow(a, b, ca, cb);
+		else {
 			if (p.is_equal(b)) {
 				// a = p^n, b = p, gcd = p
 				if (ca)
