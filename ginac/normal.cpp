@@ -1746,45 +1746,29 @@ static ex gcd_pf_pow(const ex& a, const ex& b, ex* ca, ex* cb, bool check_args)
 
 static ex gcd_pf_mul(const ex& a, const ex& b, ex* ca, ex* cb, bool check_args)
 {
-	if (is_exactly_a<mul>(a)) {
-		if (is_exactly_a<mul>(b) && b.nops() > a.nops())
-			goto factored_b;
-factored_a:
-		size_t num = a.nops();
-		exvector g; g.reserve(num);
-		exvector acc_ca; acc_ca.reserve(num);
-		ex part_b = b;
-		for (size_t i=0; i<num; i++) {
-			ex part_ca, part_cb;
-			g.push_back(gcd(a.op(i), part_b, &part_ca, &part_cb, check_args));
-			acc_ca.push_back(part_ca);
-			part_b = part_cb;
-		}
-		if (ca)
-			*ca = (new mul(acc_ca))->setflag(status_flags::dynallocated);
-		if (cb)
-			*cb = part_b;
-		return (new mul(g))->setflag(status_flags::dynallocated);
-	} else if (is_exactly_a<mul>(b)) {
-		if (is_exactly_a<mul>(a) && a.nops() > b.nops())
-			goto factored_a;
-factored_b:
-		size_t num = b.nops();
-		exvector g; g.reserve(num);
-		exvector acc_cb; acc_cb.reserve(num);
-		ex part_a = a;
-		for (size_t i=0; i<num; i++) {
-			ex part_ca, part_cb;
-			g.push_back(gcd(part_a, b.op(i), &part_ca, &part_cb, check_args));
-			acc_cb.push_back(part_cb);
-			part_a = part_ca;
-		}
-		if (ca)
-			*ca = part_a;
-		if (cb)
-			*cb = (new mul(acc_cb))->setflag(status_flags::dynallocated);
-		return (new mul(g))->setflag(status_flags::dynallocated);
+	if (is_exactly_a<mul>(a) && is_exactly_a<mul>(b)
+		                 && (b.nops() >  a.nops()))
+		return gcd_pf_mul(b, a, cb, ca, check_args);
+
+	if (is_exactly_a<mul>(b) && (!is_exactly_a<mul>(a)))
+		return gcd_pf_mul(b, a, cb, ca, check_args);
+
+	GINAC_ASSERT(is_exactly_a<mul>(a));
+	size_t num = a.nops();
+	exvector g; g.reserve(num);
+	exvector acc_ca; acc_ca.reserve(num);
+	ex part_b = b;
+	for (size_t i=0; i<num; i++) {
+		ex part_ca, part_cb;
+		g.push_back(gcd(a.op(i), part_b, &part_ca, &part_cb, check_args));
+		acc_ca.push_back(part_ca);
+		part_b = part_cb;
 	}
+	if (ca)
+		*ca = (new mul(acc_ca))->setflag(status_flags::dynallocated);
+	if (cb)
+		*cb = part_b;
+	return (new mul(g))->setflag(status_flags::dynallocated);
 }
 
 /** Compute LCM (Least Common Multiple) of multivariate polynomials in Z[X].
