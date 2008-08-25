@@ -126,6 +126,7 @@ void lexer::switch_input(std::istream* in)
 	input = in;
 	line_num = 0;
 	column = 0;
+	c = ' ';
 }
 
 } // namespace GiNaC
