@@ -1691,65 +1691,39 @@ static ex gcd_pf_pow_pow(const ex& a, const ex& b, ex* ca, ex* cb)
 
 static ex gcd_pf_pow(const ex& a, const ex& b, ex* ca, ex* cb)
 {
-	if (is_exactly_a<power>(a)) {
-		ex p = a.op(0);
-		const ex& exp_a = a.op(1);
-		if (is_exactly_a<power>(b))
-			return gcd_pf_pow_pow(a, b, ca, cb);
-		else {
-			if (p.is_equal(b)) {
-				// a = p^n, b = p, gcd = p
-				if (ca)
-					*ca = power(p, a.op(1) - 1);
-				if (cb)
-					*cb = _ex1;
-				return p;
-			} 
+	if (is_exactly_a<power>(a) && is_exactly_a<power>(b))
+		return gcd_pf_pow_pow(a, b, ca, cb);
 
-			ex p_co, bpart_co;
-			ex p_gcd = gcd(p, b, &p_co, &bpart_co, false);
+	if (is_exactly_a<power>(b) && (! is_exactly_a<power>(a)))
+		return gcd_pf_pow(b, a, cb, ca);
 
-			if (p_gcd.is_equal(_ex1)) {
-				// a(x) = p(x)^n, gcd(p, b) = 1 ==> gcd(a, b) = 1
-				if (ca)
-					*ca = a;
-				if (cb)
-					*cb = b;
-				return _ex1;
-			} else {
-				// a(x) = g(x)^n A(x)^n, b(x) = g(x) B(x) ==> gcd(a, b) = g(x) gcd(g(x)^(n-1) A(x)^n, B(x))
-				return p_gcd*gcd(power(p_gcd, exp_a-1)*power(p_co, exp_a), bpart_co, ca, cb, false);
-			}
-		} // is_exactly_a<power>(b)
+	GINAC_ASSERT(is_exactly_a<power>(a));
 
-	} else if (is_exactly_a<power>(b)) {
-		ex p = b.op(0);
-		if (p.is_equal(a)) {
-			// a = p, b = p^n, gcd = p
-			if (ca)
-				*ca = _ex1;
-			if (cb)
-				*cb = power(p, b.op(1) - 1);
-			return p;
-		}
+	ex p = a.op(0);
+	const ex& exp_a = a.op(1);
+	if (p.is_equal(b)) {
+		// a = p^n, b = p, gcd = p
+		if (ca)
+			*ca = power(p, a.op(1) - 1);
+		if (cb)
+			*cb = _ex1;
+		return p;
+	} 
 
-		ex p_co, apart_co;
-		const ex& exp_b(b.op(1));
-		ex p_gcd = gcd(a, p, &apart_co, &p_co, false);
-		if (p_gcd.is_equal(_ex1)) {
-			// b=p(x)^n, gcd(a, p) = 1 ==> gcd(a, b) == 1
-			if (ca)
-				*ca = a;
-			if (cb)
-				*cb = b;
-			return _ex1;
-		} else {
-			// there are common factors:
-			// a(x) = g(x) A(x), b(x) = g(x)^n B(x)^n ==> gcd = g(x) gcd(g(x)^(n-1) A(x)^n, B(x))
+	ex p_co, bpart_co;
+	ex p_gcd = gcd(p, b, &p_co, &bpart_co, false);
 
-			return p_gcd*gcd(apart_co, power(p_gcd, exp_b-1)*power(p_co, exp_b), ca, cb, false);
-		} // p_gcd.is_equal(_ex1)
+	// a(x) = p(x)^n, gcd(p, b) = 1 ==> gcd(a, b) = 1
+	if (p_gcd.is_equal(_ex1)) {
+		if (ca)
+			*ca = a;
+		if (cb)
+			*cb = b;
+		return _ex1;
 	}
+	// a(x) = g(x)^n A(x)^n, b(x) = g(x) B(x) ==> gcd(a, b) = g(x) gcd(g(x)^(n-1) A(x)^n, B(x))
+	ex rg = gcd(power(p_gcd, exp_a-1)*power(p_co, exp_a), bpart_co, ca, cb, false);
+	return p_gcd*rg;
 }
 
 static ex gcd_pf_mul(const ex& a, const ex& b, ex* ca, ex* cb)
