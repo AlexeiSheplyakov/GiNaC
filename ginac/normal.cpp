@@ -1419,6 +1419,10 @@ static bool heur_gcd(ex& res, const ex& a, const ex& b, ex *ca, ex *cb,
 // large expressions). At least one of the arguments should be a power.
 static ex gcd_pf_pow(const ex& a, const ex& b, ex* ca, ex* cb, bool check_args);
 
+// gcd helper to handle partially factored polynomials (to avoid expanding
+// large expressions). At least one of the arguments should be a product.
+static ex gcd_pf_mul(const ex& a, const ex& b, ex* ca, ex* cb, bool check_args);
+
 /** Compute GCD (Greatest Common Divisor) of multivariate polynomials a(X)
  *  and b(X) in Z[X]. Optionally also compute the cofactors of a and b,
  *  defined by a = ca * gcd(a, b) and b = cb * gcd(a, b).
@@ -1461,46 +1465,8 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args, unsigned optio
 	}
 
 	// Partially factored cases (to avoid expanding large expressions)
-	if (is_exactly_a<mul>(a)) {
-		if (is_exactly_a<mul>(b) && b.nops() > a.nops())
-			goto factored_b;
-factored_a:
-		size_t num = a.nops();
-		exvector g; g.reserve(num);
-		exvector acc_ca; acc_ca.reserve(num);
-		ex part_b = b;
-		for (size_t i=0; i<num; i++) {
-			ex part_ca, part_cb;
-			g.push_back(gcd(a.op(i), part_b, &part_ca, &part_cb, check_args));
-			acc_ca.push_back(part_ca);
-			part_b = part_cb;
-		}
-		if (ca)
-			*ca = (new mul(acc_ca))->setflag(status_flags::dynallocated);
-		if (cb)
-			*cb = part_b;
-		return (new mul(g))->setflag(status_flags::dynallocated);
-	} else if (is_exactly_a<mul>(b)) {
-		if (is_exactly_a<mul>(a) && a.nops() > b.nops())
-			goto factored_a;
-factored_b:
-		size_t num = b.nops();
-		exvector g; g.reserve(num);
-		exvector acc_cb; acc_cb.reserve(num);
-		ex part_a = a;
-		for (size_t i=0; i<num; i++) {
-			ex part_ca, part_cb;
-			g.push_back(gcd(part_a, b.op(i), &part_ca, &part_cb, check_args));
-			acc_cb.push_back(part_cb);
-			part_a = part_ca;
-		}
-		if (ca)
-			*ca = part_a;
-		if (cb)
-			*cb = (new mul(acc_cb))->setflag(status_flags::dynallocated);
-		return (new mul(g))->setflag(status_flags::dynallocated);
-	}
-
+	if (is_exactly_a<mul>(a) || is_exactly_a<mul>(b))
+		return gcd_pf_mul(a, b, ca, cb, check_args);
 #if FAST_COMPARE
 	if (is_exactly_a<power>(a) || is_exactly_a<power>(b))
 		return gcd_pf_pow(a, b, ca, cb, check_args);
@@ -1768,6 +1734,49 @@ static ex gcd_pf_pow(const ex& a, const ex& b, ex* ca, ex* cb, bool check_args)
 
 			return p_gcd*gcd(apart_co, power(p_gcd, exp_b-1)*power(p_co, exp_b), ca, cb, false);
 		} // p_gcd.is_equal(_ex1)
+	}
+}
+
+static ex gcd_pf_mul(const ex& a, const ex& b, ex* ca, ex* cb, bool check_args)
+{
+	if (is_exactly_a<mul>(a)) {
+		if (is_exactly_a<mul>(b) && b.nops() > a.nops())
+			goto factored_b;
+factored_a:
+		size_t num = a.nops();
+		exvector g; g.reserve(num);
+		exvector acc_ca; acc_ca.reserve(num);
+		ex part_b = b;
+		for (size_t i=0; i<num; i++) {
+			ex part_ca, part_cb;
+			g.push_back(gcd(a.op(i), part_b, &part_ca, &part_cb, check_args));
+			acc_ca.push_back(part_ca);
+			part_b = part_cb;
+		}
+		if (ca)
+			*ca = (new mul(acc_ca))->setflag(status_flags::dynallocated);
+		if (cb)
+			*cb = part_b;
+		return (new mul(g))->setflag(status_flags::dynallocated);
+	} else if (is_exactly_a<mul>(b)) {
+		if (is_exactly_a<mul>(a) && a.nops() > b.nops())
+			goto factored_a;
+factored_b:
+		size_t num = b.nops();
+		exvector g; g.reserve(num);
+		exvector acc_cb; acc_cb.reserve(num);
+		ex part_a = a;
+		for (size_t i=0; i<num; i++) {
+			ex part_ca, part_cb;
+			g.push_back(gcd(part_a, b.op(i), &part_ca, &part_cb, check_args));
+			acc_cb.push_back(part_cb);
+			part_a = part_ca;
+		}
+		if (ca)
+			*ca = part_a;
+		if (cb)
+			*cb = (new mul(acc_cb))->setflag(status_flags::dynallocated);
+		return (new mul(g))->setflag(status_flags::dynallocated);
 	}
 }
 
