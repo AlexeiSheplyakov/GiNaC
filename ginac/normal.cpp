@@ -1426,7 +1426,7 @@ static bool heur_gcd(ex& res, const ex& a, const ex& b, ex *ca, ex *cb,
  *  @param check_args  check whether a and b are polynomials with rational
  *         coefficients (defaults to "true")
  *  @return the GCD as a new expression */
-ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args)
+ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args, unsigned options)
 {
 #if STATISTICS
 	gcd_called++;

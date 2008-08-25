@@ -30,6 +30,28 @@
 
 namespace GiNaC {
 
+/**
+ * Flags to control the behaviour of gcd() and friends
+ */
+struct gcd_options
+{
+	enum {
+		/**
+		 * Usually GiNaC tries heuristic GCD algorithm before PRS.
+		 * Some people don't like this, so here's a flag to disable it.
+		 */
+		no_heur_gcd = 2,
+		/**
+		 * GiNaC tries to avoid expanding expressions when computing
+		 * GCDs. This is a good idea, but some people dislike it.
+		 * Hence the flag to disable special handling of partially
+		 * factored polynomials. DON'T SET THIS unless you *really*
+		 * know what are you doing!
+		 */
+		no_part_factored = 4
+	};
+};
+
 class ex;
 class symbol;
 
@@ -52,7 +74,8 @@ extern ex sprem(const ex &a, const ex &b, const ex &x, bool check_args = true);
 extern bool divide(const ex &a, const ex &b, ex &q, bool check_args = true);
 
 // Polynomial GCD in Z[X], cofactors are returned in ca and cb, if desired
-extern ex gcd(const ex &a, const ex &b, ex *ca = NULL, ex *cb = NULL, bool check_args = true);
+extern ex gcd(const ex &a, const ex &b, ex *ca = NULL, ex *cb = NULL,
+	      bool check_args = true, unsigned options = 0);
 
 // Polynomial LCM in Z[X]
 extern ex lcm(const ex &a, const ex &b, bool check_args = true);
