@@ -1417,11 +1417,11 @@ static bool heur_gcd(ex& res, const ex& a, const ex& b, ex *ca, ex *cb,
 
 // gcd helper to handle partially factored polynomials (to avoid expanding
 // large expressions). At least one of the arguments should be a power.
-static ex gcd_pf_pow(const ex& a, const ex& b, ex* ca, ex* cb, bool check_args);
+static ex gcd_pf_pow(const ex& a, const ex& b, ex* ca, ex* cb);
 
 // gcd helper to handle partially factored polynomials (to avoid expanding
 // large expressions). At least one of the arguments should be a product.
-static ex gcd_pf_mul(const ex& a, const ex& b, ex* ca, ex* cb, bool check_args);
+static ex gcd_pf_mul(const ex& a, const ex& b, ex* ca, ex* cb);
 
 /** Compute GCD (Greatest Common Divisor) of multivariate polynomials a(X)
  *  and b(X) in Z[X]. Optionally also compute the cofactors of a and b,
@@ -1467,10 +1467,10 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args, unsigned optio
 	// Partially factored cases (to avoid expanding large expressions)
 	if (!(options & gcd_options::no_part_factored)) {
 		if (is_exactly_a<mul>(a) || is_exactly_a<mul>(b))
-			return gcd_pf_mul(a, b, ca, cb, check_args);
+			return gcd_pf_mul(a, b, ca, cb);
 #if FAST_COMPARE
 		if (is_exactly_a<power>(a) || is_exactly_a<power>(b))
-			return gcd_pf_pow(a, b, ca, cb, check_args);
+			return gcd_pf_pow(a, b, ca, cb);
 #endif
 	}
 
@@ -1639,7 +1639,7 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args, unsigned optio
 	return g;
 }
 
-static ex gcd_pf_pow(const ex& a, const ex& b, ex* ca, ex* cb, bool check_args)
+static ex gcd_pf_pow(const ex& a, const ex& b, ex* ca, ex* cb)
 {
 	if (is_exactly_a<power>(a)) {
 		ex p = a.op(0);
@@ -1664,7 +1664,7 @@ static ex gcd_pf_pow(const ex& a, const ex& b, ex* ca, ex* cb, bool check_args)
 				}
 			} else {
 				ex p_co, pb_co;
-				ex p_gcd = gcd(p, pb, &p_co, &pb_co, check_args);
+				ex p_gcd = gcd(p, pb, &p_co, &pb_co, false);
 				if (p_gcd.is_equal(_ex1)) {
 					// a(x) = p(x)^n, b(x) = p_b(x)^m, gcd (p, p_b) = 1 ==>
 					// gcd(a,b) = 1
@@ -1744,14 +1744,14 @@ static ex gcd_pf_pow(const ex& a, const ex& b, ex* ca, ex* cb, bool check_args)
 	}
 }
 
-static ex gcd_pf_mul(const ex& a, const ex& b, ex* ca, ex* cb, bool check_args)
+static ex gcd_pf_mul(const ex& a, const ex& b, ex* ca, ex* cb)
 {
 	if (is_exactly_a<mul>(a) && is_exactly_a<mul>(b)
 		                 && (b.nops() >  a.nops()))
-		return gcd_pf_mul(b, a, cb, ca, check_args);
+		return gcd_pf_mul(b, a, cb, ca);
 
 	if (is_exactly_a<mul>(b) && (!is_exactly_a<mul>(a)))
-		return gcd_pf_mul(b, a, cb, ca, check_args);
+		return gcd_pf_mul(b, a, cb, ca);
 
 	GINAC_ASSERT(is_exactly_a<mul>(a));
 	size_t num = a.nops();
@@ -1760,7 +1760,7 @@ static ex gcd_pf_mul(const ex& a, const ex& b, ex* ca, ex* cb, bool check_args)
 	ex part_b = b;
 	for (size_t i=0; i<num; i++) {
 		ex part_ca, part_cb;
-		g.push_back(gcd(a.op(i), part_b, &part_ca, &part_cb, check_args));
+		g.push_back(gcd(a.op(i), part_b, &part_ca, &part_cb, false));
 		acc_ca.push_back(part_ca);
 		part_b = part_cb;
 	}
