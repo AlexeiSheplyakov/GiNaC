@@ -1415,6 +1415,10 @@ static bool heur_gcd(ex& res, const ex& a, const ex& b, ex *ca, ex *cb,
 }
 
 
+// gcd helper to handle partially factored polynomials (to avoid expanding
+// large expressions). At least one of the arguments should be a power.
+static ex gcd_pf_pow(const ex& a, const ex& b, ex* ca, ex* cb, bool check_args);
+
 /** Compute GCD (Greatest Common Divisor) of multivariate polynomials a(X)
  *  and b(X) in Z[X]. Optionally also compute the cofactors of a and b,
  *  defined by a = ca * gcd(a, b) and b = cb * gcd(a, b).
@@ -1498,108 +1502,8 @@ factored_b:
 	}
 
 #if FAST_COMPARE
-	// Input polynomials of the form poly^n are sometimes also trivial
-	if (is_exactly_a<power>(a)) {
-		ex p = a.op(0);
-		const ex& exp_a = a.op(1);
-		if (is_exactly_a<power>(b)) {
-			ex pb = b.op(0);
-			const ex& exp_b = b.op(1);
-			if (p.is_equal(pb)) {
-				// a = p^n, b = p^m, gcd = p^min(n, m)
-				if (exp_a < exp_b) {
-					if (ca)
-						*ca = _ex1;
-					if (cb)
-						*cb = power(p, exp_b - exp_a);
-					return power(p, exp_a);
-				} else {
-					if (ca)
-						*ca = power(p, exp_a - exp_b);
-					if (cb)
-						*cb = _ex1;
-					return power(p, exp_b);
-				}
-			} else {
-				ex p_co, pb_co;
-				ex p_gcd = gcd(p, pb, &p_co, &pb_co, check_args);
-				if (p_gcd.is_equal(_ex1)) {
-					// a(x) = p(x)^n, b(x) = p_b(x)^m, gcd (p, p_b) = 1 ==>
-					// gcd(a,b) = 1
-					if (ca)
-						*ca = a;
-					if (cb)
-						*cb = b;
-					return _ex1;
-					// XXX: do I need to check for p_gcd = -1?
-				} else {
-					// there are common factors:
-					// a(x) = g(x)^n A(x)^n, b(x) = g(x)^m B(x)^m ==>
-					// gcd(a, b) = g(x)^n gcd(A(x)^n, g(x)^(n-m) B(x)^m
-					if (exp_a < exp_b) {
-						return power(p_gcd, exp_a)*
-							gcd(power(p_co, exp_a), power(p_gcd, exp_b-exp_a)*power(pb_co, exp_b), ca, cb, false);
-					} else {
-						return power(p_gcd, exp_b)*
-							gcd(power(p_gcd, exp_a - exp_b)*power(p_co, exp_a), power(pb_co, exp_b), ca, cb, false);
-					}
-				} // p_gcd.is_equal(_ex1)
-			} // p.is_equal(pb)
-
-		} else {
-			if (p.is_equal(b)) {
-				// a = p^n, b = p, gcd = p
-				if (ca)
-					*ca = power(p, a.op(1) - 1);
-				if (cb)
-					*cb = _ex1;
-				return p;
-			} 
-
-			ex p_co, bpart_co;
-			ex p_gcd = gcd(p, b, &p_co, &bpart_co, false);
-
-			if (p_gcd.is_equal(_ex1)) {
-				// a(x) = p(x)^n, gcd(p, b) = 1 ==> gcd(a, b) = 1
-				if (ca)
-					*ca = a;
-				if (cb)
-					*cb = b;
-				return _ex1;
-			} else {
-				// a(x) = g(x)^n A(x)^n, b(x) = g(x) B(x) ==> gcd(a, b) = g(x) gcd(g(x)^(n-1) A(x)^n, B(x))
-				return p_gcd*gcd(power(p_gcd, exp_a-1)*power(p_co, exp_a), bpart_co, ca, cb, false);
-			}
-		} // is_exactly_a<power>(b)
-
-	} else if (is_exactly_a<power>(b)) {
-		ex p = b.op(0);
-		if (p.is_equal(a)) {
-			// a = p, b = p^n, gcd = p
-			if (ca)
-				*ca = _ex1;
-			if (cb)
-				*cb = power(p, b.op(1) - 1);
-			return p;
-		}
-
-		ex p_co, apart_co;
-		const ex& exp_b(b.op(1));
-		ex p_gcd = gcd(a, p, &apart_co, &p_co, false);
-		if (p_gcd.is_equal(_ex1)) {
-			// b=p(x)^n, gcd(a, p) = 1 ==> gcd(a, b) == 1
-			if (ca)
-				*ca = a;
-			if (cb)
-				*cb = b;
-			return _ex1;
-		} else {
-			// there are common factors:
-			// a(x) = g(x) A(x), b(x) = g(x)^n B(x)^n ==> gcd = g(x) gcd(g(x)^(n-1) A(x)^n, B(x))
-
-			return p_gcd*gcd(apart_co, power(p_gcd, exp_b-1)*power(p_co, exp_b), ca, cb, false);
-		} // p_gcd.is_equal(_ex1)
-	}
+	if (is_exactly_a<power>(a) || is_exactly_a<power>(b))
+		return gcd_pf_pow(a, b, ca, cb, check_args);
 #endif
 
 	// Some trivial cases
@@ -1762,6 +1666,110 @@ factored_b:
 	return g;
 }
 
+static ex gcd_pf_pow(const ex& a, const ex& b, ex* ca, ex* cb, bool check_args)
+{
+	if (is_exactly_a<power>(a)) {
+		ex p = a.op(0);
+		const ex& exp_a = a.op(1);
+		if (is_exactly_a<power>(b)) {
+			ex pb = b.op(0);
+			const ex& exp_b = b.op(1);
+			if (p.is_equal(pb)) {
+				// a = p^n, b = p^m, gcd = p^min(n, m)
+				if (exp_a < exp_b) {
+					if (ca)
+						*ca = _ex1;
+					if (cb)
+						*cb = power(p, exp_b - exp_a);
+					return power(p, exp_a);
+				} else {
+					if (ca)
+						*ca = power(p, exp_a - exp_b);
+					if (cb)
+						*cb = _ex1;
+					return power(p, exp_b);
+				}
+			} else {
+				ex p_co, pb_co;
+				ex p_gcd = gcd(p, pb, &p_co, &pb_co, check_args);
+				if (p_gcd.is_equal(_ex1)) {
+					// a(x) = p(x)^n, b(x) = p_b(x)^m, gcd (p, p_b) = 1 ==>
+					// gcd(a,b) = 1
+					if (ca)
+						*ca = a;
+					if (cb)
+						*cb = b;
+					return _ex1;
+					// XXX: do I need to check for p_gcd = -1?
+				} else {
+					// there are common factors:
+					// a(x) = g(x)^n A(x)^n, b(x) = g(x)^m B(x)^m ==>
+					// gcd(a, b) = g(x)^n gcd(A(x)^n, g(x)^(n-m) B(x)^m
+					if (exp_a < exp_b) {
+						return power(p_gcd, exp_a)*
+							gcd(power(p_co, exp_a), power(p_gcd, exp_b-exp_a)*power(pb_co, exp_b), ca, cb, false);
+					} else {
+						return power(p_gcd, exp_b)*
+							gcd(power(p_gcd, exp_a - exp_b)*power(p_co, exp_a), power(pb_co, exp_b), ca, cb, false);
+					}
+				} // p_gcd.is_equal(_ex1)
+			} // p.is_equal(pb)
+
+		} else {
+			if (p.is_equal(b)) {
+				// a = p^n, b = p, gcd = p
+				if (ca)
+					*ca = power(p, a.op(1) - 1);
+				if (cb)
+					*cb = _ex1;
+				return p;
+			} 
+
+			ex p_co, bpart_co;
+			ex p_gcd = gcd(p, b, &p_co, &bpart_co, false);
+
+			if (p_gcd.is_equal(_ex1)) {
+				// a(x) = p(x)^n, gcd(p, b) = 1 ==> gcd(a, b) = 1
+				if (ca)
+					*ca = a;
+				if (cb)
+					*cb = b;
+				return _ex1;
+			} else {
+				// a(x) = g(x)^n A(x)^n, b(x) = g(x) B(x) ==> gcd(a, b) = g(x) gcd(g(x)^(n-1) A(x)^n, B(x))
+				return p_gcd*gcd(power(p_gcd, exp_a-1)*power(p_co, exp_a), bpart_co, ca, cb, false);
+			}
+		} // is_exactly_a<power>(b)
+
+	} else if (is_exactly_a<power>(b)) {
+		ex p = b.op(0);
+		if (p.is_equal(a)) {
+			// a = p, b = p^n, gcd = p
+			if (ca)
+				*ca = _ex1;
+			if (cb)
+				*cb = power(p, b.op(1) - 1);
+			return p;
+		}
+
+		ex p_co, apart_co;
+		const ex& exp_b(b.op(1));
+		ex p_gcd = gcd(a, p, &apart_co, &p_co, false);
+		if (p_gcd.is_equal(_ex1)) {
+			// b=p(x)^n, gcd(a, p) = 1 ==> gcd(a, b) == 1
+			if (ca)
+				*ca = a;
+			if (cb)
+				*cb = b;
+			return _ex1;
+		} else {
+			// there are common factors:
+			// a(x) = g(x) A(x), b(x) = g(x)^n B(x)^n ==> gcd = g(x) gcd(g(x)^(n-1) A(x)^n, B(x))
+
+			return p_gcd*gcd(apart_co, power(p_gcd, exp_b-1)*power(p_co, exp_b), ca, cb, false);
+		} // p_gcd.is_equal(_ex1)
+	}
+}
 
 /** Compute LCM (Least Common Multiple) of multivariate polynomials in Z[X].
  *
