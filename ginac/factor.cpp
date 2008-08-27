@@ -22,6 +22,13 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+//#define DEBUGFACTOR
+
+#ifdef DEBUGFACTOR
+#include <ostream>
+#include <ginac/ginac.h>
+using namespace GiNaC;
+#else
 #include "factor.h"
 
 #include "ex.h"
@@ -34,6 +41,7 @@
 #include "mul.h"
 #include "normal.h"
 #include "add.h"
+#endif
 
 #include <algorithm>
 #include <list>
@@ -43,13 +51,21 @@ using namespace std;
 #include <cln/cln.h>
 using namespace cln;
 
-//#define DEBUGFACTOR
+#ifdef DEBUGFACTOR
+namespace Factor {
+#else
+namespace GiNaC {
+#endif
 
 #ifdef DEBUGFACTOR
-#include <ostream>
-#endif // def DEBUGFACTOR
-
-namespace GiNaC {
+#define DCOUT(str) cout << #str << endl
+#define DCOUTVAR(var) cout << #var << ": " << var << endl
+#define DCOUT2(str,var) cout << #str << ": " << var << endl
+#else
+#define DCOUT(str)
+#define DCOUTVAR(var)
+#define DCOUT2(str,var)
+#endif
 
 namespace {
 
@@ -114,6 +130,22 @@ struct UniPoly
 				if ( !zerop(t.c) ) {
 					t.exp = i;
 					terms.push_back(t);
+				}
+			}
+		}
+	}
+	UniPoly(const cl_modint_ring& ring, const UniPoly& poly) : R(ring)
+	{ 
+		if ( R->modulus == poly.R->modulus ) {
+			terms = poly.terms;
+		}
+		else {
+			list<Term>::const_iterator i=poly.terms.begin(), end=poly.terms.end();
+			for ( ; i!=end; ++i ) {
+				terms.push_back(*i);
+				terms.back().c = R->canonhom(poly.R->retract(i->c));
+				if ( zerop(terms.back().c) ) {
+					terms.pop_back();
 				}
 			}
 		}
@@ -229,6 +261,13 @@ struct UniPoly
 			if ( zerop(i->c) ) {
 				terms.erase(i);
 			}
+		}
+	}
+	void divide(const cl_I& x)
+	{
+		list<Term>::iterator i = terms.begin(), end = terms.end();
+		for ( ; i != end; ++i ) {
+			i->c = cl_MI(R, the<cl_I>(R->retract(i->c) / x));
 		}
 	}
 	void reduce_exponents(unsigned int prime)
@@ -356,17 +395,67 @@ static UniPoly operator-(const UniPoly& a, const UniPoly& b)
 	return c;
 }
 
-static UniPoly operator-(const UniPoly& a)
+static UniPoly operator*(const UniPoly& a, const cl_MI& fac)
 {
-	list<Term>::const_iterator ia = a.terms.begin(), aend = a.terms.end();
+	unsigned int n = a.degree();
 	UniPoly c(a.R);
-	while ( ia != aend ) {
-		c.terms.push_back(*ia);
-		c.terms.back().c = -c.terms.back().c;
-		++ia;
+	Term t;
+	for ( unsigned int i=0 ; i<=n; ++i ) {
+		t.c = a[i] * fac;
+		if ( !zerop(t.c) ) {
+			t.exp = i;
+			c.terms.push_front(t);
+		}
 	}
 	return c;
 }
+
+static UniPoly operator+(const UniPoly& a, const UniPoly& b)
+{
+	list<Term>::const_iterator ia = a.terms.begin(), aend = a.terms.end();
+	list<Term>::const_iterator ib = b.terms.begin(), bend = b.terms.end();
+	UniPoly c(a.R);
+	while ( ia != aend && ib != bend ) {
+		if ( ia->exp > ib->exp ) {
+			c.terms.push_back(*ia);
+			++ia;
+		}
+		else if ( ia->exp < ib->exp ) {
+			c.terms.push_back(*ib);
+			++ib;
+		}
+		else {
+			Term t;
+			t.exp = ia->exp;
+			t.c = ia->c + ib->c;
+			if ( !zerop(t.c) ) {
+				c.terms.push_back(t);
+			}
+			++ia; ++ib;
+		}
+	}
+	while ( ia != aend ) {
+		c.terms.push_back(*ia);
+		++ia;
+	}
+	while ( ib != bend ) {
+		c.terms.push_back(*ib);
+		++ib;
+	}
+	return c;
+}
+
+// static UniPoly operator-(const UniPoly& a)
+// {
+// 	list<Term>::const_iterator ia = a.terms.begin(), aend = a.terms.end();
+// 	UniPoly c(a.R);
+// 	while ( ia != aend ) {
+// 		c.terms.push_back(*ia);
+// 		c.terms.back().c = -c.terms.back().c;
+// 		++ia;
+// 	}
+// 	return c;
+// }
 
 #ifdef DEBUGFACTOR
 ostream& operator<<(ostream& o, const UniPoly& t)
@@ -400,6 +489,17 @@ ostream& operator<<(ostream& o, const list<UniPoly>& t)
 #endif // def DEBUGFACTOR
 
 typedef vector<UniPoly> UniPolyVec;
+
+#ifdef DEBUGFACTOR
+ostream& operator<<(ostream& o, const UniPolyVec& v)
+{
+	UniPolyVec::const_iterator i = v.begin(), end = v.end();
+	while ( i != end ) {
+		o << *i++ << " , " << endl;
+	}
+	return o;
+}
+#endif // def DEBUGFACTOR
 
 struct UniFactor
 {
@@ -654,6 +754,46 @@ public:
 			i2 += c;
 		}
 	}
+	void mul_row(size_t row, const cl_MI x)
+	{
+		vector<cl_MI>::iterator i = m.begin() + row*c;
+		for ( size_t cc=0; cc<c; ++cc ) {
+			*i = *i * x;
+			++i;
+		}
+	}
+	void sub_row(size_t row1, size_t row2, const cl_MI fac)
+	{
+		vector<cl_MI>::iterator i1 = m.begin() + row1*c;
+		vector<cl_MI>::iterator i2 = m.begin() + row2*c;
+		for ( size_t cc=0; cc<c; ++cc ) {
+			*i1 = *i1 - *i2 * fac;
+			++i1;
+			++i2;
+		}
+	}
+	void switch_row(size_t row1, size_t row2)
+	{
+		cl_MI buf;
+		vector<cl_MI>::iterator i1 = m.begin() + row1*c;
+		vector<cl_MI>::iterator i2 = m.begin() + row2*c;
+		for ( size_t cc=0; cc<c; ++cc ) {
+			buf = *i1; *i1 = *i2; *i2 = buf;
+			++i1;
+			++i2;
+		}
+	}
+	bool is_col_zero(size_t col) const
+	{
+		Vec::const_iterator i = m.begin() + col;
+		for ( size_t rr=0; rr<r; ++rr ) {
+			if ( !zerop(*i) ) {
+				return false;
+			}
+			i += c;
+		}
+		return true;
+	}
 	bool is_row_zero(size_t row) const
 	{
 		Vec::const_iterator i = m.begin() + row*c;
@@ -681,6 +821,25 @@ private:
 };
 
 #ifdef DEBUGFACTOR
+Matrix operator*(const Matrix& m1, const Matrix& m2)
+{
+	const unsigned int r = m1.rowsize();
+	const unsigned int c = m2.colsize();
+	Matrix o(r,c,m1(0,0));
+
+	for ( size_t i=0; i<r; ++i ) {
+		for ( size_t j=0; j<c; ++j ) {
+			cl_MI buf;
+			buf = m1(i,0) * m2(0,j);
+			for ( size_t k=1; k<c; ++k ) {
+				buf = buf + m1(i,k)*m2(k,j);
+			}
+			o(i,j) = buf;
+		}
+	}
+	return o;
+}
+
 ostream& operator<<(ostream& o, const Matrix& m)
 {
 	vector<cl_MI>::const_iterator i = m.m.begin(), end = m.m.end();
@@ -994,6 +1153,15 @@ public:
 	size_t size() const { return n; }
 	size_t size_first() const { return n-sum; }
 	size_t size_second() const { return sum; }
+#ifdef DEBUGFACTOR
+	void get() const
+	{
+		for ( size_t i=0; i<k.size(); ++i ) {
+			cout << k[i] << " ";
+		}
+		cout << endl;
+	}
+#endif
 	bool next()
 	{
 		for ( size_t i=n-1; i>=1; --i ) {
@@ -1152,6 +1320,481 @@ struct FindSymbolsMap : public map_function {
 		return e.map(*this);
 	}
 };
+
+struct EvalPoint
+{
+	ex x;
+	int evalpoint;
+};
+
+// forward declaration
+vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex& c, const vector<EvalPoint>& I, unsigned int d, unsigned int p, unsigned int k);
+
+UniPolyVec multiterm_eea_lift(const UniPolyVec& a, const ex& x, unsigned int p, unsigned int k)
+{
+	DCOUT(multiterm_eea_lift);
+	DCOUTVAR(a);
+	DCOUTVAR(p);
+	DCOUTVAR(k);
+
+	const size_t r = a.size();
+	DCOUTVAR(r);
+	cl_modint_ring R = find_modint_ring(expt_pos(cl_I(p),k));
+	UniPoly fill(R);
+	UniPolyVec q(r-1, fill);
+	q[r-2] = a[r-1];
+	for ( size_t j=r-2; j>=1; --j ) {
+		q[j-1] = a[j] * q[j];
+	}
+	DCOUTVAR(q);
+	UniPoly beta(R);
+	beta.set(0, R->one());
+	UniPolyVec s;
+	for ( size_t j=1; j<r; ++j ) {
+		DCOUTVAR(j);
+		DCOUTVAR(beta);
+		vector<ex> mdarg(2);
+		mdarg[0] = q[j-1].to_ex(x);
+		mdarg[1] = a[j-1].to_ex(x);
+		vector<EvalPoint> empty;
+		vector<ex> exsigma = multivar_diophant(mdarg, x, beta.to_ex(x), empty, 0, p, k);
+		UniPoly sigma1(R, exsigma[0], x);
+		UniPoly sigma2(R, exsigma[1], x);
+		beta = sigma1;
+		s.push_back(sigma2);
+	}
+	s.push_back(beta);
+
+	DCOUTVAR(s);
+	DCOUT(END multiterm_eea_lift);
+	return s;
+}
+
+void eea_lift(const UniPoly& a, const UniPoly& b, const ex& x, unsigned int p, unsigned int k, UniPoly& s_, UniPoly& t_)
+{
+	DCOUT(eea_lift);
+	DCOUTVAR(a);
+	DCOUTVAR(b);
+	DCOUTVAR(x);
+	DCOUTVAR(p);
+	DCOUTVAR(k);
+
+	cl_modint_ring R = find_modint_ring(p);
+	UniPoly amod(R, a);
+	UniPoly bmod(R, b);
+	DCOUTVAR(amod);
+	DCOUTVAR(bmod);
+
+	UniPoly smod(R), tmod(R), g(R);
+	exteuclid(amod, bmod, g, smod, tmod);
+	
+	DCOUTVAR(smod);
+	DCOUTVAR(tmod);
+	DCOUTVAR(g);
+
+	cl_modint_ring Rpk = find_modint_ring(expt_pos(cl_I(p),k));
+	UniPoly s(Rpk, smod);
+	UniPoly t(Rpk, tmod);
+	DCOUTVAR(s);
+	DCOUTVAR(t);
+
+	cl_I modulus(p);
+
+	UniPoly one(Rpk);
+	one.set(0, Rpk->one());
+	for ( size_t j=1; j<k; ++j ) {
+		UniPoly e = one - a * s - b * t;
+		e.divide(modulus);
+		UniPoly c(R, e);
+		UniPoly sigmabar(R);
+		sigmabar = smod * c;
+		UniPoly taubar(R);
+		taubar = tmod * c;
+		UniPoly q(R);
+		div(sigmabar, bmod, q);
+		UniPoly sigma(R);
+		rem(sigmabar, bmod, sigma);
+		UniPoly tau(R);
+		tau = taubar + q * amod;
+		UniPoly sadd(Rpk, sigma);
+		cl_MI modmodulus(Rpk, modulus);
+		s = s + sadd * modmodulus;
+		UniPoly tadd(Rpk, tau);
+		t = t + tadd * modmodulus;
+		modulus = modulus * p;
+	}
+
+	s_ = s; t_ = t;
+
+	DCOUTVAR(s);
+	DCOUTVAR(t);
+	DCOUT2(check, a*s + b*t);
+	DCOUT(END eea_lift);
+}
+
+UniPolyVec univar_diophant(const UniPolyVec& a, const ex& x, unsigned int m, unsigned int p, unsigned int k)
+{
+	DCOUT(univar_diophant);
+	DCOUTVAR(a);
+	DCOUTVAR(x);
+	DCOUTVAR(m);
+	DCOUTVAR(p);
+	DCOUTVAR(k);
+
+	cl_modint_ring R = find_modint_ring(expt_pos(cl_I(p),k));
+
+	const size_t r = a.size();
+	UniPolyVec result;
+	if ( r > 2 ) {
+		UniPolyVec s = multiterm_eea_lift(a, x, p, k);
+		for ( size_t j=0; j<r; ++j ) {
+			ex phi = expand(pow(x,m)*s[j].to_ex(x));
+			UniPoly bmod(R, phi, x);
+			UniPoly buf(R);
+			rem(bmod, a[j], buf);
+			result.push_back(buf);
+		}
+	}
+	else {
+		UniPoly s(R), t(R);
+		eea_lift(a[1], a[0], x, p, k, s, t);
+		ex phi = expand(pow(x,m)*s.to_ex(x));
+		UniPoly bmod(R, phi, x);
+		UniPoly buf(R);
+		rem(bmod, a[0], buf);
+		result.push_back(buf);
+		UniPoly q(R);
+		div(bmod, a[0], q);
+		phi = expand(pow(x,m)*t.to_ex(x));
+		UniPoly t1mod(R, phi, x);
+		buf = t1mod + q * a[1];
+		result.push_back(buf);
+	}
+
+	DCOUTVAR(result);
+	DCOUT(END univar_diophant);
+	return result;
+}
+
+struct make_modular_map : public map_function {
+	cl_modint_ring R;
+	make_modular_map(const cl_modint_ring& R_) : R(R_) { }
+	ex operator()(const ex& e)
+	{
+		if ( is_a<add>(e) || is_a<mul>(e) ) {
+			return e.map(*this);
+		}
+		else if ( is_a<numeric>(e) ) {
+			numeric mod(R->modulus);
+			numeric halfmod = (mod-1)/2;
+			cl_MI emod = R->canonhom(the<cl_I>(ex_to<numeric>(e).to_cl_N()));
+			numeric n(R->retract(emod));
+			if ( n > halfmod ) {
+				return n-mod;
+			}
+			else {
+				return n;
+			}
+		}
+		return e;
+	}
+};
+
+static ex make_modular(const ex& e, const cl_modint_ring& R)
+{
+	make_modular_map map(R);
+	return map(e);
+}
+
+vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex& c, const vector<EvalPoint>& I, unsigned int d, unsigned int p, unsigned int k)
+{
+	vector<ex> a = a_;
+
+	DCOUT(multivar_diophant);
+#ifdef DEBUGFACTOR
+	cout << "a ";
+	for ( size_t i=0; i<a.size(); ++i ) {
+		cout << a[i] << " ";
+	}
+	cout << endl;
+#endif
+	DCOUTVAR(x);
+	DCOUTVAR(c);
+#ifdef DEBUGFACTOR
+	cout << "I ";
+	for ( size_t i=0; i<I.size(); ++i ) {
+		cout << I[i].x << "=" << I[i].evalpoint << " ";
+	}
+	cout << endl;
+#endif
+	DCOUTVAR(d);
+	DCOUTVAR(p);
+	DCOUTVAR(k);
+
+	const cl_modint_ring R = find_modint_ring(expt_pos(cl_I(p),k));
+	const size_t r = a.size();
+	const size_t nu = I.size() + 1;
+	DCOUTVAR(r);
+	DCOUTVAR(nu);
+
+	vector<ex> sigma;
+	if ( nu > 1 ) {
+		ex xnu = I.back().x;
+		int alphanu = I.back().evalpoint;
+
+		ex A = 1;
+		for ( size_t i=0; i<r; ++i ) {
+			A *= a[i];
+		}
+		vector<ex> b(r);
+		for ( size_t i=0; i<r; ++i ) {
+			b[i] = normal(A / a[i]);
+		}
+
+		vector<ex> anew = a;
+		for ( size_t i=0; i<r; ++i ) {
+			a[i] = a[i].subs(xnu == alphanu);
+		}
+		ex cnew = c.subs(xnu == alphanu);
+		vector<EvalPoint> Inew = I;
+		Inew.pop_back();
+		vector<ex> sigma = multivar_diophant(anew, x, cnew, Inew, d, p, k);
+
+		ex buf = c;
+		for ( size_t i=0; i<r; ++i ) {
+			buf -= sigma[i] * b[i];
+		}
+		ex e = buf;
+		e = make_modular(e, R);
+
+		ex monomial = 1;
+		for ( size_t m=1; m<=d; ++m ) {
+			while ( !e.is_zero() ) {
+				monomial *= (xnu - alphanu);
+				monomial = expand(monomial);
+				ex cm = e.diff(ex_to<symbol>(xnu), m).subs(xnu==alphanu) / factorial(m);
+				if ( !cm.is_zero() ) {
+					vector<ex> delta_s = multivar_diophant(anew, x, cm, Inew, d, p, k);
+					ex buf = e;
+					for ( size_t j=0; j<delta_s.size(); ++j ) {
+						delta_s[j] *= monomial;
+						sigma[j] += delta_s[j];
+						buf -= delta_s[j] * b[j];
+					}
+					e = buf;
+					e = make_modular(e, R);
+				}
+			}
+		}
+	}
+	else {
+		UniPolyVec amod;
+		for ( size_t i=0; i<a.size(); ++i ) {
+			UniPoly up(R, a[i], x);
+			amod.push_back(up);
+		}
+
+		sigma.insert(sigma.begin(), r, 0);
+		size_t nterms;
+		ex z;
+		if ( is_a<add>(c) ) {
+			nterms = c.nops();
+			z = c.op(0);
+		}
+		else {
+			nterms = 1;
+			z = c;
+		}
+		DCOUTVAR(nterms);
+		for ( size_t i=0; i<nterms; ++i ) {
+			DCOUTVAR(z);
+			int m = z.degree(x);
+			DCOUTVAR(m);
+			cl_I cm = the<cl_I>(ex_to<numeric>(z.lcoeff(x)).to_cl_N());
+			DCOUTVAR(cm);
+			UniPolyVec delta_s = univar_diophant(amod, x, m, p, k);
+			cl_MI modcm;
+			cl_I poscm = cm;
+			while ( poscm < 0 ) {
+				poscm = poscm + expt_pos(cl_I(p),k);
+			}
+			modcm = cl_MI(R, poscm);
+			DCOUTVAR(modcm);
+			for ( size_t j=0; j<delta_s.size(); ++j ) {
+				delta_s[j] = delta_s[j] * modcm;
+				sigma[j] = sigma[j] + delta_s[j].to_ex(x);
+			}
+			DCOUTVAR(delta_s);
+#ifdef DEBUGFACTOR
+			cout << "STEP " << i << " sigma ";
+			for ( size_t p=0; p<sigma.size(); ++p ) {
+				cout << sigma[p] << " ";
+			}
+			cout << endl;
+#endif
+			if ( nterms > 1 ) {
+				z = c.op(i+1);
+			}
+		}
+	}
+#ifdef DEBUGFACTOR
+	cout << "sigma ";
+	for ( size_t i=0; i<sigma.size(); ++i ) {
+		cout << sigma[i] << " ";
+	}
+	cout << endl;
+#endif
+
+	for ( size_t i=0; i<sigma.size(); ++i ) {
+		sigma[i] = make_modular(sigma[i], R);
+	}
+
+#ifdef DEBUGFACTOR
+	cout << "sigma ";
+	for ( size_t i=0; i<sigma.size(); ++i ) {
+		cout << sigma[i] << " ";
+	}
+	cout << endl;
+#endif
+	DCOUT(END multivar_diophant);
+	return sigma;
+}
+
+ex hensel_multivar(const ex& a, const ex& x, const vector<EvalPoint>& I, unsigned int p, const cl_I& l, const UniPolyVec& u, const vector<ex>& lcU)
+{
+	DCOUT(hensel_multivar);
+	DCOUTVAR(a);
+	DCOUTVAR(x);
+	DCOUTVAR(p);
+	DCOUTVAR(l);
+	DCOUTVAR(u);
+	const size_t nu = I.size() + 1;
+	const cl_modint_ring R = find_modint_ring(expt_pos(cl_I(p),l));
+
+	DCOUTVAR(nu);
+	
+	vector<ex> A(nu);
+	A[nu-1] = a;
+
+	for ( size_t j=nu; j>=2; --j ) {
+		ex x = I[j-2].x;
+		int alpha = I[j-2].evalpoint;
+		A[j-2] = A[j-1].subs(x==alpha);
+		A[j-2] = make_modular(A[j-2], R);
+	}
+
+#ifdef DEBUGFACTOR
+	cout << "A ";
+	for ( size_t i=0; i<A.size(); ++i) cout << A[i] << " ";
+	cout << endl;
+#endif
+
+	int maxdeg = a.degree(I.front().x);
+	for ( size_t i=1; i<I.size(); ++i ) {
+		int maxdeg2 = a.degree(I[i].x);
+		if ( maxdeg2 > maxdeg ) maxdeg = maxdeg2;
+	}
+	DCOUTVAR(maxdeg);
+
+	const size_t n = u.size();
+	DCOUTVAR(n);
+	vector<ex> U(n);
+	for ( size_t i=0; i<n; ++i ) {
+		U[i] = u[i].to_ex(x);
+	}
+#ifdef DEBUGFACTOR
+	cout << "U ";
+	for ( size_t i=0; i<U.size(); ++i) cout << U[i] << " ";
+	cout << endl;
+#endif
+
+	for ( size_t j=2; j<=nu; ++j ) {
+		DCOUTVAR(j);
+		vector<ex> U1 = U;
+		ex monomial = 1;
+		for ( size_t m=0; m<n; ++m) {
+			if ( lcU[m] != 1 ) {
+				ex coef = lcU[m];
+				for ( size_t i=j-1; i<nu-1; ++i ) {
+					coef = coef.subs(I[i].x == I[i].evalpoint);
+				}
+				coef = expand(coef);
+				coef = make_modular(coef, R);
+				int deg = U[m].degree(x);
+				U[m] = U[m] - U[m].lcoeff(x) * pow(x,deg) + coef * pow(x,deg);
+			}
+		}
+		ex Uprod = 1;
+		for ( size_t i=0; i<n; ++i ) {
+			Uprod *= U[i];
+		}
+		ex e = expand(A[j-1] - Uprod);
+		DCOUTVAR(e);
+
+		ex xj = I[j-2].x;
+		int alphaj = I[j-2].evalpoint;
+		size_t deg = A[j-1].degree(xj);
+		DCOUTVAR(deg);
+		for ( size_t k=1; k<=deg; ++k ) {
+			DCOUTVAR(k);
+			if ( !e.is_zero() ) {
+				DCOUTVAR(xj);
+				DCOUTVAR(alphaj);
+				monomial *= (xj - alphaj);
+				monomial = expand(monomial);
+				DCOUTVAR(monomial);
+				ex dif = e.diff(ex_to<symbol>(xj), k);
+				DCOUTVAR(dif);
+				ex c = dif.subs(xj==alphaj) / factorial(k);
+				DCOUTVAR(c);
+				if ( !c.is_zero() ) {
+					vector<EvalPoint> newI = I;
+					newI.pop_back();
+					vector<ex> deltaU = multivar_diophant(U1, x, c, newI, maxdeg, p, cl_I_to_uint(l));
+					for ( size_t i=0; i<n; ++i ) {
+						DCOUTVAR(i);
+						DCOUTVAR(deltaU[i]);
+						deltaU[i] *= monomial;
+						U[i] += deltaU[i];
+						U[i] = make_modular(U[i], R);
+					}
+					ex Uprod = 1;
+					for ( size_t i=0; i<n; ++i ) {
+						Uprod *= U[i];
+					}
+					e = expand(A[j-1] - Uprod);
+					e = make_modular(e, R);
+					DCOUTVAR(e);
+				}
+				else {
+					break;
+				}
+			}
+		}
+	}
+
+	ex acand = 1;
+	for ( size_t i=0; i<U.size(); ++i ) {
+		acand *= U[i];
+	}
+	DCOUTVAR(acand);
+	if ( expand(a-acand).is_zero() ) {
+		lst res;
+		for ( size_t i=0; i<U.size(); ++i ) {
+			res.append(U[i]);
+		}
+		return res;
+	}
+	else {
+		return lst();
+	}
+}
+
+static ex factor_multivariate(const ex& poly, const ex& x)
+{
+	// TODO
+	return 666;
+}
 
 static ex factor_sqrfree(const ex& poly)
 {
