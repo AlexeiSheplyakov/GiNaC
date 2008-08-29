@@ -3417,9 +3417,7 @@ namespace {
 
 // parameters and data for [Cra] algorithm
 const cln::cl_N lambda = cln::cl_N("319/320");
-int L1;
 int L2;
-std::vector<std::vector<cln::cl_N> > f_kj;
 std::vector<cln::cl_N> crB;
 std::vector<std::vector<cln::cl_N> > crG;
 std::vector<cln::cl_N> crX;
@@ -3493,11 +3491,9 @@ cln::cl_N crandall_Y_loop(const cln::cl_N& Sqk)
 
 
 // [Cra] section 4
-void calc_f(int maxr)
+static void calc_f(std::vector<std::vector<cln::cl_N> >& f_kj,
+	           const int maxr, const int L1)
 {
-	f_kj.clear();
-	f_kj.resize(L1);
-	
 	cln::cl_N t0, t1, t2, t3, t4;
 	int i, j, k;
 	std::vector<std::vector<cln::cl_N> >::iterator it = f_kj.begin();
@@ -3523,7 +3519,8 @@ void calc_f(int maxr)
 
 
 // [Cra] (3.1)
-cln::cl_N crandall_Z(const std::vector<int>& s)
+static cln::cl_N crandall_Z(const std::vector<int>& s,
+	                    const std::vector<std::vector<cln::cl_N> >& f_kj)
 {
 	const int j = s.size();
 
@@ -3564,6 +3561,8 @@ cln::cl_N zeta_do_sum_Crandall(const std::vector<int>& s)
 	std::vector<int> r = s;
 	const int j = r.size();
 
+	std::size_t L1;
+
 	// decide on maximal size of f_kj for crandall_Z
 	if (Digits < 50) {
 		L1 = 150;
@@ -3597,7 +3596,8 @@ cln::cl_N zeta_do_sum_Crandall(const std::vector<int>& s)
 		}
 	}
 
-	calc_f(maxr);
+	std::vector<std::vector<cln::cl_N> > f_kj(L1);
+	calc_f(f_kj, maxr, L1);
 
 	const cln::cl_N r0factorial = cln::factorial(r[0]-1);
 
@@ -3616,7 +3616,7 @@ cln::cl_N zeta_do_sum_Crandall(const std::vector<int>& s)
 		for (int q=0; q<skp1buf; q++) {
 			
 			cln::cl_N pp1 = crandall_Y_loop(Srun+q-k);
-			cln::cl_N pp2 = crandall_Z(rz);
+			cln::cl_N pp2 = crandall_Z(rz, f_kj);
 
 			rz.front()--;
 			
@@ -3632,7 +3632,7 @@ cln::cl_N zeta_do_sum_Crandall(const std::vector<int>& s)
 
 	initcX(rz);
 
-	res = (res + crandall_Y_loop(S-j)) / r0factorial + crandall_Z(rz);
+	res = (res + crandall_Y_loop(S-j)) / r0factorial + crandall_Z(rz, f_kj);
 
 	return res;
 }
