@@ -3417,11 +3417,6 @@ namespace {
 
 // parameters and data for [Cra] algorithm
 const cln::cl_N lambda = cln::cl_N("319/320");
-int L2;
-std::vector<cln::cl_N> crB;
-std::vector<std::vector<cln::cl_N> > crG;
-std::vector<cln::cl_N> crX;
-
 
 void halfcyclic_convolute(const std::vector<cln::cl_N>& a, const std::vector<cln::cl_N>& b, std::vector<cln::cl_N>& c)
 {
@@ -3436,44 +3431,39 @@ void halfcyclic_convolute(const std::vector<cln::cl_N>& a, const std::vector<cln
 
 
 // [Cra] section 4
-void initcX(const std::vector<int>& s)
+static void initcX(std::vector<cln::cl_N>& crX,
+	           const std::vector<int>& s,
+		   const int L2)
 {
-	const int k = s.size();
-
-	crX.clear();
-	crG.clear();
-	crB.clear();
-
-	for (int i=0; i<=L2; i++) {
-		crB.push_back(bernoulli(i).to_cl_N() / cln::factorial(i));
-	}
+	std::vector<cln::cl_N> crB(L2 + 1);
+	for (int i=0; i<=L2; i++)
+		crB[i] = bernoulli(i).to_cl_N() / cln::factorial(i);
 
 	int Sm = 0;
 	int Smp1 = 0;
-	for (int m=0; m<k-1; m++) {
-		std::vector<cln::cl_N> crGbuf;
-		Sm = Sm + s[m];
+	std::vector<std::vector<cln::cl_N> > crG(s.size() - 1, std::vector<cln::cl_N>(L2 + 1));
+	for (int m=0; m < s.size() - 1; m++) {
+		Sm += s[m];
 		Smp1 = Sm + s[m+1];
-		for (int i=0; i<=L2; i++) {
-			crGbuf.push_back(cln::factorial(i + Sm - m - 2) / cln::factorial(i + Smp1 - m - 2));
-		}
-		crG.push_back(crGbuf);
+		for (int i = 0; i <= L2; i++)
+			crG[m][i] = cln::factorial(i + Sm - m - 2) / cln::factorial(i + Smp1 - m - 2);
 	}
 
 	crX = crB;
 
-	for (int m=0; m<k-1; m++) {
-		std::vector<cln::cl_N> Xbuf;
-		for (int i=0; i<=L2; i++) {
-			Xbuf.push_back(crX[i] * crG[m][i]);
-		}
+	for (std::size_t m = 0; m < s.size() - 1; m++) {
+		std::vector<cln::cl_N> Xbuf(L2 + 1);
+		for (int i = 0; i <= L2; i++)
+			Xbuf[i] = crX[i] * crG[m][i];
+
 		halfcyclic_convolute(Xbuf, crB, crX);
 	}
 }
 
 
 // [Cra] section 4
-cln::cl_N crandall_Y_loop(const cln::cl_N& Sqk)
+static cln::cl_N crandall_Y_loop(const cln::cl_N& Sqk,
+	                         const std::vector<cln::cl_N>& crX)
 {
 	cln::cl_F one = cln::cl_float(1, cln::float_format(Digits));
 	cln::cl_N factor = cln::expt(lambda, Sqk);
@@ -3570,6 +3560,7 @@ cln::cl_N zeta_do_sum_Crandall(const std::vector<int>& s)
 		L1 = Digits * 3 + j*2;
 	}
 
+	std::size_t L2;
 	// decide on maximal size of crX for crandall_Y
 	if (Digits < 38) {
 		L2 = 63;
@@ -3611,11 +3602,12 @@ cln::cl_N zeta_do_sum_Crandall(const std::vector<int>& s)
 		Srun -= skp1buf;
 		r.pop_back();
 
-		initcX(r);
+		std::vector<cln::cl_N> crX;
+		initcX(crX, r, L2);
 		
 		for (int q=0; q<skp1buf; q++) {
 			
-			cln::cl_N pp1 = crandall_Y_loop(Srun+q-k);
+			cln::cl_N pp1 = crandall_Y_loop(Srun+q-k, crX);
 			cln::cl_N pp2 = crandall_Z(rz, f_kj);
 
 			rz.front()--;
@@ -3630,9 +3622,11 @@ cln::cl_N zeta_do_sum_Crandall(const std::vector<int>& s)
 	}
 	rz.insert(rz.begin(), r.back());
 
-	initcX(rz);
+	std::vector<cln::cl_N> crX;
+	initcX(crX, rz, L2);
 
-	res = (res + crandall_Y_loop(S-j)) / r0factorial + crandall_Z(rz, f_kj);
+	res = (res + crandall_Y_loop(S-j, crX)) / r0factorial
+		+ crandall_Z(rz, f_kj);
 
 	return res;
 }
