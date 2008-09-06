@@ -4,6 +4,33 @@ dnl additions' names with AC_ but with GINAC_ in order to steer clear of
 dnl future trouble.
 dnl ===========================================================================
 
+dnl Usage: GINAC_STD_CXX_HEADERS
+dnl Check for standard C++ headers, bail out if something is missing.
+AC_DEFUN([GINAC_STD_CXX_HEADERS], [
+AC_CACHE_CHECK([for standard C++ header files], [ginac_cv_std_cxx_headers], [
+	ginac_cv_std_cxx_headers="no"
+	AC_LANG_PUSH([C++])
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+		#include <iosfwd>
+		#include <iostream>
+		#include <vector>
+		#include <list>
+		#include <map>
+		#include <set>
+		#include <string>
+		#include <sstream>
+		#include <typeinfo>
+		#include <stdexcept>
+		#include <algorithm>
+		#include <limits>
+		#include <ctime>
+		]])], [ginac_cv_std_cxx_headers="yes"])
+	AC_LANG_POP([C++])])
+if test "${ginac_cv_std_cxx_headers}" != "yes"; then
+	AC_MSG_ERROR([Standard ISO C++ 98 headers are missing])
+fi
+])
+
 dnl Usage: GINAC_LIBREADLINE
 dnl
 dnl Check if GNU readline library and headers are avialable.

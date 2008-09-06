@@ -82,26 +82,13 @@ AC_CHECK_SIZEOF(void *)
 dnl Switch to C++ language mode for the following libraries and headers.
 AC_LANG([C++])
 
+dnl Make sure all the necessary standard headers are installed on the system.
+GINAC_STD_CXX_HEADERS
+
 dnl Check for stuff needed for building the GiNaC interactive shell (ginsh).
 AC_CHECK_HEADERS(unistd.h)
 GINAC_HAVE_RUSAGE
 GINAC_READLINE
-
-dnl Make sure all the necessary standard headers are installed on the system.
-AC_CHECK_HEADER(iosfwd, , GINAC_ERROR([The standard <iosfwd> header file could not be found.]))
-AC_CHECK_HEADER(iostream, , GINAC_ERROR([The standard <iostream> header file could not be found.]))
-AC_CHECK_HEADER(vector, , GINAC_ERROR([The standard <vector> header file could not be found.]))
-AC_CHECK_HEADER(list, , GINAC_ERROR([The standard <list> header file could not be found.]))
-AC_CHECK_HEADER(map, , GINAC_ERROR([The standard <map> header file could not be found.]))
-AC_CHECK_HEADER(string, , GINAC_ERROR([The standard <string> header file could not be found.]))
-AC_CHECK_HEADER(sstream, , GINAC_ERROR([The standard <sstream> header file could not be found.]))
-AC_CHECK_HEADER(typeinfo, , GINAC_ERROR([The standard <typeinfo> header file could not be found.]))
-AC_CHECK_HEADER(stdexcept, , GINAC_ERROR([The standard <stdexcept> header file could not be found.]))
-AC_CHECK_HEADER(algorithm, , GINAC_ERROR([The standard <algorithm> header file could not be found.]))
-AC_CHECK_HEADER(limits, , GINAC_ERROR([The standard <limits> header file could not be found.]))
-if test "x$CONFIG_RUSAGE" = "xno"; then
-    AC_CHECK_HEADER(ctime, , GINAC_ERROR([The standard <ctime> header file could not be found.]))
-fi
 
 DL_LIBS=""
 dnl Check for dl library (needed for GiNaC::compile).
