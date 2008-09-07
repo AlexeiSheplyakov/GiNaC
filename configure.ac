@@ -78,6 +78,14 @@ AC_LANG([C++])
 dnl Make sure all the necessary standard headers are installed on the system.
 GINAC_STD_CXX_HEADERS
 
+dnl We need to have Bruno Haible's CLN installed.
+dnl (pkg-config must have installed pkg.m4 at a visible place, which provides
+dnl this macro. CLN >= 1.1.6 must have installed cln.pc at a visible place,
+dnl which provides the actual dependency information.)
+PKG_CHECK_MODULES(CLN, cln >= 1.1.6)
+LIBS="$LIBS $CLN_LIBS"
+CPPFLAGS="$CPPFLAGS $CLN_CFLAGS"
+
 dnl Check for data types which are needed by the hash function 
 dnl (golden_ratio_hash).
 AC_CHECK_TYPE(long long)
@@ -97,13 +105,6 @@ AC_CHECK_LIB(dl, dlopen,
 	GINAC_WARNING([libdl not found. GiNaC::compile will be disabled.]))
 AC_SUBST(DL_LIBS)
 
-dnl We need to have Bruno Haible's CLN installed.
-dnl (pkg-config must have installed pkg.m4 at a visible place, which provides
-dnl this macro. CLN >= 1.1.6 must have installed cln.pc at a visible place,
-dnl which provides the actual dependency information.)
-PKG_CHECK_MODULES(CLN, cln >= 1.1.6)
-LIBS="$LIBS $CLN_LIBS"
-CPPFLAGS="$CPPFLAGS $CLN_CFLAGS"
 
 dnl Check for utilities needed by the different kinds of documentation.
 dnl Documentation needs only be built when extending it, so never mind if it
