@@ -81,24 +81,26 @@ inline unsigned golden_ratio_hash(p_int n)
 {
 	// This function works much better when fast arithmetic with at
 	// least 64 significant bits is available.
-#if SIZEOF_LONG >= 8
+	if (sizeof(long) >= 8) {
 	// So 'long' has 64 bits.  Excellent!  We prefer it because it might be
 	// more efficient than 'long long'.
 	unsigned long l = n * 0x4f1bbcddUL;
 	return (unsigned)l;
-#elif SIZEOF_LONG_LONG >= 8
+	}
+#ifdef HAVE_LONG_LONG
+	else if (sizeof(long long) >= 8) {
 	// This requires 'long long' (or an equivalent 64 bit type)---which is,
 	// unfortunately, not ANSI-C++-compliant.
 	// (Yet C99 demands it, which is reason for hope.)
 	unsigned long long l = n * 0x4f1bbcddULL;
 	return (unsigned)l;
-#else
+	}
+#endif
 	// Without a type with 64 significant bits do the multiplication manually
 	// by splitting n up into the lower and upper two bytes.
 	const unsigned n0 = (n & 0x0000ffffU);
 	const unsigned n1 = (n & 0xffff0000U) >> 16;
 	return (n0 * 0x0000bcddU) + ((n1 * 0x0000bcddU + n0 * 0x00004f1bU) << 16);
-#endif
 }
 
 /* Compute the sign of a permutation of a container, with and without an

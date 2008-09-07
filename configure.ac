@@ -71,18 +71,16 @@ AM_PROG_LIBTOOL
 AM_PROG_LEX
 AC_PROG_YACC
 
-dnl Check for data types which are needed by the hash function 
-dnl (golden_ratio_hash).
-AC_CHECK_SIZEOF(int)
-AC_CHECK_SIZEOF(long)
-AC_CHECK_SIZEOF(long long)
-AC_CHECK_SIZEOF(void *)
 
 dnl Switch to C++ language mode for the following libraries and headers.
 AC_LANG([C++])
 
 dnl Make sure all the necessary standard headers are installed on the system.
 GINAC_STD_CXX_HEADERS
+
+dnl Check for data types which are needed by the hash function 
+dnl (golden_ratio_hash).
+AC_CHECK_TYPE(long long)
 
 dnl Check for stuff needed for building the GiNaC interactive shell (ginsh).
 AC_CHECK_HEADERS(unistd.h)
