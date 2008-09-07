@@ -24,10 +24,15 @@
 #ifndef __GINAC_UTILS_H__
 #define __GINAC_UTILS_H__
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 
 #include <string>
 #include <functional>
+#ifdef HAVE_STDINT_H
+#include <stdint.h> // for uintptr_t
+#endif
 
 #include "assertion.h"
 
@@ -65,12 +70,8 @@ inline int compare_pointers(const T * a, const T * b)
 	return 0;
 }
 
-#if SIZEOF_VOID_P == SIZEOF_INT
-typedef unsigned int p_int;
-#elif SIZEOF_VOID_P == SIZEOF_LONG
-typedef unsigned long p_int;
-#elif SIZEOF_VOID_P == SIZEOF_LONG_LONG
-typedef unsigned long long p_int;
+#ifdef HAVE_STDINT_H
+typedef uintptr_t p_int;
 #else
 typedef unsigned long p_int;
 #endif
