@@ -161,3 +161,43 @@ if test "$ac_cv_have_rusage" = yes; then
 fi
 AC_SUBST(CONFIG_RUSAGE)
 ])
+
+dnl Usage: GINAC_EXCOMPILER
+dnl - Checks if dlopen is available
+dnl - Allows user to disable GiNaC::compile_ex (e.g. for security reasons)
+dnl Defines HAVE_LIBDL preprocessor macro, sets DL_LIBS and CONFIG_EXCOMPILER
+dnl variables.
+AC_DEFUN([GINAC_EXCOMPILER], [
+CONFIG_EXCOMPILER=yes
+DL_LIBS=""
+
+AC_ARG_ENABLE([excompiler], 
+	[AS_HELP_STRING([--enable-excompiler], [Enable GiNaC::compile_ex (default: yes)])],
+	[if test "$enableval" = "no"; then
+		CONFIG_EXCOMPILER="no"
+	fi],
+	[CONFIG_EXCOMPILER="yes"])
+
+case $host_os in
+	*mingw32*)
+	CONFIG_EXCOMPILER="notsupported"
+	;;
+	*)
+	;;
+esac
+
+if test "$CONFIG_EXCOMPILER" = "yes"; then
+	AC_CHECK_LIB(dl, dlopen, [
+		DL_LIBS="-ldl"
+		AC_DEFINE(HAVE_LIBDL, 1, [set to 1 if you have a working libdl installed.])],
+
+		[AC_MSG_WARN([libdl not found. GiNaC::compile_ex will be disabled.])
+		 CONFIG_EXCOMPILER="no"])
+elif test "$CONFIG_EXCOMPILER" = "no"; then
+	AC_MSG_RESULT([INFO: GiNaC::compile_ex disabled at user request.])
+else
+	AC_MSG_RESULT([INFO: GiNaC::compile_ex is not supported on $host_os.])
+fi
+AC_SUBST(DL_LIBS)
+AC_SUBST(CONFIG_EXCOMPILER)])
+

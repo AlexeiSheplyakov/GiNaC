@@ -95,16 +95,8 @@ AC_CHECK_HEADERS(unistd.h)
 GINAC_HAVE_RUSAGE
 GINAC_READLINE
 
-DL_LIBS=""
 dnl Check for dl library (needed for GiNaC::compile).
-AC_CHECK_LIB(dl, dlopen,
-	[
-		DL_LIBS="-ldl"
-		AC_DEFINE(HAVE_LIBDL, 1, [set to 1 if you have a working libdl installed.])
-	], 
-	GINAC_WARNING([libdl not found. GiNaC::compile will be disabled.]))
-AC_SUBST(DL_LIBS)
-
+GINAC_EXCOMPILER
 
 dnl Check for utilities needed by the different kinds of documentation.
 dnl Documentation needs only be built when extending it, so never mind if it
