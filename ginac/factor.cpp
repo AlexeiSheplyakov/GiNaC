@@ -1660,14 +1660,27 @@ vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex& c, con
 	return sigma;
 }
 
+#ifdef DEBUGFACTOR
+ostream& operator<<(ostream& o, const vector<EvalPoint>& v)
+{
+	for ( size_t i=0; i<v.size(); ++i ) {
+		o << "(" << v[i].x << "==" << v[i].evalpoint << ") ";
+	}
+	return o;
+}
+#endif // def DEBUGFACTOR
+
+
 ex hensel_multivar(const ex& a, const ex& x, const vector<EvalPoint>& I, unsigned int p, const cl_I& l, const UniPolyVec& u, const vector<ex>& lcU)
 {
 	DCOUT(hensel_multivar);
 	DCOUTVAR(a);
 	DCOUTVAR(x);
+	DCOUTVAR(I);
 	DCOUTVAR(p);
 	DCOUTVAR(l);
 	DCOUTVAR(u);
+	DCOUTVAR(lcU);
 	const size_t nu = I.size() + 1;
 	const cl_modint_ring R = find_modint_ring(expt_pos(cl_I(p),l));
 
@@ -1783,17 +1796,375 @@ ex hensel_multivar(const ex& a, const ex& x, const vector<EvalPoint>& I, unsigne
 		for ( size_t i=0; i<U.size(); ++i ) {
 			res.append(U[i]);
 		}
+		DCOUTVAR(res);
+		DCOUT(END hensel_multivar);
 		return res;
 	}
 	else {
+		lst res;
+		DCOUTVAR(res);
+		DCOUT(END hensel_multivar);
 		return lst();
 	}
 }
 
-static ex factor_multivariate(const ex& poly, const ex& x)
+static ex put_factors_into_lst(const ex& e)
 {
-	// TODO
-	return 666;
+	DCOUT(put_factors_into_lst);
+	DCOUTVAR(e);
+
+	lst result;
+
+	if ( is_a<numeric>(e) ) {
+		result.append(e);
+		DCOUT(END put_factors_into_lst);
+		DCOUTVAR(result);
+		return result;
+	}
+	if ( is_a<power>(e) ) {
+		result.append(1);
+		result.append(e.op(0));
+		result.append(e.op(1));
+		DCOUT(END put_factors_into_lst);
+		DCOUTVAR(result);
+		return result;
+	}
+	if ( is_a<symbol>(e) ) {
+		result.append(1);
+		result.append(e);
+		result.append(1);
+		DCOUT(END put_factors_into_lst);
+		DCOUTVAR(result);
+		return result;
+	}
+	if ( is_a<mul>(e) ) {
+		ex nfac = 1;
+		for ( size_t i=0; i<e.nops(); ++i ) {
+			ex op = e.op(i);
+			if ( is_a<numeric>(op) ) {
+				nfac = op;
+			}
+			if ( is_a<power>(op) ) {
+				result.append(op.op(0));
+				result.append(op.op(1));
+			}
+			if ( is_a<symbol>(op) || is_a<add>(op) ) {
+				result.append(op);
+				result.append(1);
+			}
+		}
+		result.prepend(nfac);
+		DCOUT(END put_factors_into_lst);
+		DCOUTVAR(result);
+		return result;
+	}
+	throw runtime_error("put_factors_into_lst: bad term.");
+}
+
+static bool checkdivisors(const lst& f, vector<numeric>& d)
+{
+	const int k = f.nops()-2;
+	numeric q, r;
+	d[0] = ex_to<numeric>(f.op(0) * f.op(f.nops()-1));
+	for ( int i=1; i<=k; ++i ) {
+		q = ex_to<numeric>(abs(f.op(i-1)));
+		for ( int j=i-1; j>=0; --j ) {
+			r = d[j];
+			do {
+				r = gcd(r, q);
+				q = q/r;
+			} while ( r != 1 );
+			if ( q == 1 ) {
+				return true;
+			}
+		}
+		d[i] = q;
+	}
+	return false;
+}
+
+static void generate_set(const ex& u, const ex& vn, const exset& syms, const ex& f, const numeric& modulus, vector<numeric>& a, vector<numeric>& d)
+{
+	const ex& x = *syms.begin();
+	bool trying = true;
+	do {
+		ex u0 = u;
+		ex vna = vn;
+		ex vnatry;
+		exset::const_iterator s = syms.begin();
+		++s;
+		for ( size_t i=0; i<a.size(); ++i ) {
+			do {
+				a[i] = mod(numeric(rand()), 2*modulus) - modulus;
+				vnatry = vna.subs(*s == a[i]);
+			} while ( vnatry == 0 );
+			vna = vnatry;
+			u0 = u0.subs(*s == a[i]);
+		}
+		if ( gcd(u0,u0.diff(ex_to<symbol>(x))) != 1 ) {
+			continue;
+		}
+		if ( is_a<numeric>(vn) ) {
+			d = a;
+			trying = false;
+		}
+		else {
+			lst fnum;
+			lst::const_iterator i = ex_to<lst>(f).begin();
+			fnum.append(*i++);
+			while ( i!=ex_to<lst>(f).end() ) {
+				ex fs = *i;
+				s = syms.begin();
+				++s;
+				for ( size_t j=0; j<a.size(); ++j ) {
+					fs = fs.subs(*s == a[j]);
+				}
+				fnum.append(fs);
+				++i; ++i;
+			}
+			ex con = u0.content(x);
+			fnum.append(con);
+			trying = checkdivisors(fnum, d);
+		}
+	} while ( trying );
+}
+
+#ifdef DEBUGFACTOR
+ostream& operator<<(ostream& o, const vector<numeric>& v)
+{
+	for ( size_t i=0; i<v.size(); ++i ) {
+		o << v[i] << " ";
+	}
+	return o;
+}
+#endif // def DEBUGFACTOR
+
+static ex factor_multivariate(const ex& poly, const exset& syms)
+{
+	DCOUT(factor_multivariate);
+	DCOUTVAR(poly);
+
+	exset::const_iterator s;
+	const ex& x = *syms.begin();
+	DCOUTVAR(x);
+
+	/* make polynomial primitive */
+	ex p = poly.expand().collect(x);
+	DCOUTVAR(p);
+	ex cont = p.lcoeff(x);
+	for ( numeric i=p.degree(x)-1; i>=p.ldegree(x); --i ) {
+		cont = gcd(cont, p.coeff(x,ex_to<numeric>(i).to_int()));
+		if ( cont == 1 ) break;
+	}
+	DCOUTVAR(cont);
+	ex pp = expand(normal(p / cont));
+	DCOUTVAR(pp);
+	if ( !is_a<numeric>(cont) ) {
+		return factor(cont) * factor(pp);
+	}
+
+	/* factor leading coefficient */
+	pp = pp.collect(x);
+	ex vn = p.lcoeff(x);
+	ex vnlst;
+	if ( is_a<numeric>(vn) ) {
+		vnlst = lst(vn);
+	}
+	else {
+		ex vnfactors = factor(vn);
+		vnlst = put_factors_into_lst(vnfactors);
+	}
+	DCOUTVAR(vnlst);
+
+	const numeric maxtrials = 3;
+	numeric modulus = (vnlst.nops()-1 > 3) ? vnlst.nops()-1 : 3;
+	numeric minimalr = -1;
+	vector<numeric> a(syms.size()-1);
+	vector<numeric> d(syms.size()-1);
+
+	while ( true ) {
+		numeric trialcount = 0;
+		ex u, delta;
+		unsigned int prime;
+		UniPolyVec uvec;
+		while ( trialcount < maxtrials ) {
+			uvec.clear();
+			generate_set(pp, vn, syms, vnlst, modulus, a, d);
+			DCOUTVAR(a);
+			DCOUTVAR(d);
+			u = pp;
+			s = syms.begin();
+			++s;
+			for ( size_t i=0; i<a.size(); ++i ) {
+				u = u.subs(*s == a[i]);
+				++s;
+			}
+			delta = u.content(x);
+
+			// determine proper prime
+			prime = 3;
+			cl_modint_ring R = find_modint_ring(prime);
+			while ( true ) {
+				if ( irem(ex_to<numeric>(u.lcoeff(x)), prime) != 0 ) {
+					UniPoly modpoly(R, u, x);
+					UniFactorVec sqrfree_ufv;
+					squarefree(modpoly, sqrfree_ufv);
+					if ( sqrfree_ufv.factors.size() == 1 && sqrfree_ufv.factors.front().exp == 1 ) break;
+				}
+				prime = next_prime(prime);
+				R = find_modint_ring(prime);
+			}
+
+			UniPoly umod(R, u, x);
+			DCOUTVAR(u);
+			factor_modular(umod, uvec);
+			DCOUTVAR(uvec);
+
+			if ( uvec.size() == 1 ) {
+				DCOUTVAR(poly);
+				DCOUT(END factor_multivariate);
+				return poly;
+			}
+
+			if ( minimalr < 0 ) {
+				minimalr = uvec.size();
+			}
+			else if ( minimalr == uvec.size() ) {
+				++trialcount;
+				++modulus;
+			}
+			else if ( minimalr > uvec.size() ) {
+				minimalr = uvec.size();
+				trialcount = 0;
+			}
+			DCOUTVAR(trialcount);
+			DCOUTVAR(minimalr);
+			if ( minimalr == 0 ) {
+				DCOUTVAR(poly);
+				DCOUT(END factor_multivariate);
+				return poly;
+			}
+		}
+
+		vector<ex> C;
+		if ( vnlst.nops() == 1 ) {
+			C.resize(uvec.size(), 1);
+		}
+		else {
+
+			vector<numeric> ftilde((vnlst.nops()-1)/2);
+			for ( size_t i=0; i<ftilde.size(); ++i ) {
+				ex ft = vnlst.op(i*2+1);
+				s = syms.begin();
+				++s;
+				for ( size_t j=0; j<a.size(); ++j ) {
+					ft = ft.subs(*s == a[j]);
+					++s;
+				}
+				ftilde[i] = ex_to<numeric>(ft);
+			}
+			DCOUTVAR(ftilde);
+
+			vector<ex> D;
+			vector<bool> fflag(ftilde.size(), false);
+			for ( size_t i=0; i<uvec.size(); ++i ) {
+				ex ui = uvec[i].to_ex(x);
+				ex Di = 1;
+				numeric coeff = ex_to<numeric>(ui.lcoeff(x));
+				for ( size_t j=0; j<ftilde.size(); ++j ) {
+					if ( numeric(coeff / ftilde[j]).is_integer() ) {
+						coeff = coeff / ftilde[j];
+						Di *= ftilde[j];
+						fflag[j] = true;
+						--j;
+					}
+				}
+				D.push_back(Di.expand());
+			}
+			for ( size_t i=0; i<fflag.size(); ++i ) {
+				if ( !fflag[i] ) {
+					--minimalr;
+					continue;
+				}
+			}
+			DCOUTVAR(D);
+
+			C.resize(D.size());
+			if ( delta == 1 ) {
+				for ( size_t i=0; i<D.size(); ++i ) {
+					ex Dtilde = D[i];
+					s = syms.begin();
+					++s;
+					for ( size_t j=0; j<a.size(); ++j ) {
+						Dtilde = Dtilde.subs(*s == a[j]);
+						++s;
+					}
+					ex Ci = D[i] * (uvec[i].to_ex(x).lcoeff(x) / Dtilde);
+					C.push_back(Ci);
+				}
+			}
+			else {
+				for ( size_t i=0; i<D.size(); ++i ) {
+					ex Dtilde = D[i];
+					s = syms.begin();
+					++s;
+					for ( size_t j=0; j<a.size(); ++j ) {
+						Dtilde = Dtilde.subs(*s == a[j]);
+						++s;
+					}
+					ex ui = uvec[i].to_ex(x);
+					ex Ci;
+					while ( true ) {
+						ex d = gcd(ui.lcoeff(x), Dtilde);
+						Ci = D[i] * ( ui.lcoeff(x) / d );
+						ui = ui * ( Dtilde[i] / d );
+						delta = delta / ( Dtilde[i] / d );
+						if ( delta == 1 ) break;
+						ui = delta * ui;
+						Ci = delta * Ci;
+						pp = pp * pow(delta, D.size()-1);
+					}
+				}
+			}
+
+		}
+
+		EvalPoint ep;
+		vector<EvalPoint> epv;
+		s = syms.begin();
+		++s;
+		for ( size_t i=0; i<a.size(); ++i ) {
+			ep.x = *s++;
+			ep.evalpoint = a[i].to_int();
+			epv.push_back(ep);
+		}
+
+		// calc bound B
+		ex maxcoeff;
+		for ( int i=u.degree(x); i>=u.ldegree(x); --i ) {
+			maxcoeff += pow(abs(u.coeff(x, i)),2);
+		}
+		cl_I normmc = ceiling1(the<cl_R>(cln::sqrt(ex_to<numeric>(maxcoeff).to_cl_N())));
+		unsigned int maxdegree = 0;
+		for ( size_t i=0; i<uvec.size(); ++i ) {
+			if ( uvec[i].degree() > maxdegree ) {
+				maxdegree = uvec[i].degree();
+			}
+		}
+		unsigned int B = cl_I_to_uint(normmc * expt_pos(cl_I(2), maxdegree));
+
+		ex res = hensel_multivar(poly, x, epv, prime, B, uvec, C);
+		if ( res != lst() ) {
+			ex result = cont;
+			for ( size_t i=0; i<res.nops(); ++i ) {
+				result *= res.op(i).content(x) * res.op(i).unit(x);
+				result *= res.op(i).primpart(x);
+			}
+			DCOUTVAR(result);
+			DCOUT(END factor_multivariate);
+			return result;
+		}
+	}
 }
 
 static ex factor_sqrfree(const ex& poly)
@@ -1806,6 +2177,7 @@ static ex factor_sqrfree(const ex& poly)
 	}
 
 	if ( findsymbols.syms.size() == 1 ) {
+		// univariate case
 		const ex& x = *(findsymbols.syms.begin());
 		if ( poly.ldegree(x) > 0 ) {
 			int ld = poly.ldegree(x);
@@ -1818,8 +2190,9 @@ static ex factor_sqrfree(const ex& poly)
 		}
 	}
 
-	// multivariate case not yet implemented!
-	throw runtime_error("multivariate case not yet implemented!");
+	// multivariate case
+	ex res = factor_multivariate(poly, findsymbols.syms);
+	return res;
 }
 
 } // anonymous namespace
