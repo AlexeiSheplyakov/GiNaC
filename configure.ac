@@ -21,7 +21,8 @@ m4_define([ginac_binary_age], [0])
 AC_INIT([GiNaC], ginac_version, [<ginac-list@ginac.de>])
 AC_PREREQ(2.59)
 AC_CONFIG_SRCDIR(ginac/basic.cpp)
-AC_CONFIG_HEADERS(config.h)
+AC_CONFIG_AUX_DIR([config])
+AC_CONFIG_HEADERS([config/config.h])
 dnl This defines PACKAGE and VERSION.
 AM_INIT_AUTOMAKE([gnu 1.7 dist-bzip2])
 
