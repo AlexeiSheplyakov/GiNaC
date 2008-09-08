@@ -94,6 +94,13 @@ static unsigned exam_factor1()
 	e = x;
 	result += check_factor(e);
 
+	// x^37 + 1
+	e = ex("(1+x)*(1+x^2-x^29-x^11-x^25-x^9-x^35+x^20-x^3+x^16-x^15-x-x^13+x^28+x^24-x^33+x^8-x^19+x^36+x^12-x^27+x^10-x^23+x^18+x^14+x^34-x^31+x^32+x^30-x^5+x^26+x^4+x^22-x^21-x^7-x^17+x^6)", syms);
+	result += check_factor(e);
+
+	e = ex("(1+4*x)*x^2*(1-4*x+16*x^2)*(3+5*x+92*x^3)", syms);
+	result += check_factor(e);
+
 	return result;
 }
 

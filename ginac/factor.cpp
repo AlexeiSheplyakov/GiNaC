@@ -1048,8 +1048,8 @@ static ex hensel_univar(const ex& a_, const ex& x, unsigned int p, const UniPoly
 		maxcoeff += pow(abs(a.coeff(x, i)),2);
 	}
 	cl_I normmc = ceiling1(the<cl_R>(cln::sqrt(ex_to<numeric>(maxcoeff).to_cl_N())));
-	unsigned int maxdegree = (u1_.degree() > w1_.degree()) ? u1_.degree() : w1_.degree();
-	unsigned int B = cl_I_to_uint(normmc * expt_pos(cl_I(2), maxdegree));
+	cl_I maxdegree = (u1_.degree() > w1_.degree()) ? u1_.degree() : w1_.degree();
+	cl_I B = normmc * expt_pos(cl_I(2), maxdegree);
 
 	// step 1
 	ex alpha = a.lcoeff(x);
@@ -1077,10 +1077,11 @@ static ex hensel_univar(const ex& a_, const ex& x, unsigned int p, const UniPoly
 	ex u = replace_lc(u1.to_ex(x), x, gamma);
 	ex w = replace_lc(w1.to_ex(x), x, alpha);
 	ex e = expand(a - u * w);
-	unsigned int modulus = p;
+	numeric modulus = p;
+	const numeric maxmodulus(2*B*gamma_ui);
 
 	// step 4
-	while ( !e.is_zero() && modulus < 2*B*gamma_ui ) {
+	while ( !e.is_zero() && modulus < maxmodulus ) {
 		ex c = e / modulus;
 		phi = expand(s.to_ex(x)*c);
 		UniPoly sigmatilde(R, phi, x);
