@@ -1219,7 +1219,12 @@ static ex G2_evalf(const ex& x_, const ex& y)
 		if (*it != _ex0) {
 			all_zero = false;
 		}
-		s.append(+1);
+		if ( !ex_to<numeric>(*it).is_real() && ex_to<numeric>(*it).imag() < 0 ) {
+			s.append(-1);
+		}
+		else {
+			s.append(+1);
+		}
 	}
 	if (all_zero) {
 		return pow(log(y), x.nops()) / factorial(x.nops());
@@ -1255,7 +1260,12 @@ static ex G2_eval(const ex& x_, const ex& y)
 		if (*it != _ex0) {
 			all_zero = false;
 		}
-		s.append(+1);
+		if ( !ex_to<numeric>(*it).is_real() && ex_to<numeric>(*it).imag() < 0 ) {
+			s.append(-1);
+		}
+		else {
+			s.append(+1);
+		}
 	}
 	if (all_zero) {
 		return pow(log(y), x.nops()) / factorial(x.nops());
@@ -1308,10 +1318,21 @@ static ex G3_evalf(const ex& x_, const ex& s_, const ex& y)
 		if (*itx != _ex0) {
 			all_zero = false;
 		}
-		if (*its >= 0) {
-			sn.append(+1);
-		} else {
-			sn.append(-1);
+		if ( ex_to<numeric>(*itx).is_real() ) {
+			if ( *its >= 0 ) {
+				sn.append(+1);
+			}
+			else {
+				sn.append(-1);
+			}
+		}
+		else {
+			if ( ex_to<numeric>(*itx).imag() > 0 ) {
+				sn.append(+1);
+			}
+			else {
+				sn.append(-1);
+			}
 		}
 	}
 	if (all_zero) {
@@ -1355,10 +1376,21 @@ static ex G3_eval(const ex& x_, const ex& s_, const ex& y)
 		if (*itx != _ex0) {
 			all_zero = false;
 		}
-		if (*its >= 0) {
-			sn.append(+1);
-		} else {
-			sn.append(-1);
+		if ( ex_to<numeric>(*itx).is_real() ) {
+			if ( *its >= 0 ) {
+				sn.append(+1);
+			}
+			else {
+				sn.append(-1);
+			}
+		}
+		else {
+			if ( ex_to<numeric>(*itx).imag() > 0 ) {
+				sn.append(+1);
+			}
+			else {
+				sn.append(-1);
+			}
 		}
 	}
 	if (all_zero) {
