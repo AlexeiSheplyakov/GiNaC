@@ -553,7 +553,7 @@ environment variable, like optimization, debugging information and
 warning levels.  If omitted, it defaults to @option{-g
 -O2}.@footnote{The @command{configure} script is itself generated from
 the file @file{configure.ac}.  It is only distributed in packaged
-releases of GiNaC.  If you got the naked sources, e.g. from CVS, you
+releases of GiNaC.  If you got the naked sources, e.g. from git, you
 must generate @command{configure} along with the various
 @file{Makefile.in} by using the @command{autoreconf} utility.  This will
 require a fair amount of support from your local toolchain, though.}
