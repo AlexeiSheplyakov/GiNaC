@@ -124,8 +124,8 @@ struct UniPoly
 		// assert: poly is in Z[x]
 		Term t;
 		for ( int i=poly.degree(x); i>=poly.ldegree(x); --i ) {
-			int coeff = ex_to<numeric>(poly.coeff(x,i)).to_int();
-			if ( coeff ) {
+			cl_I coeff = the<cl_I>(ex_to<numeric>(poly.coeff(x,i)).to_cl_N());
+			if ( !zerop(coeff) ) {
 				t.c = R->canonhom(coeff);
 				if ( !zerop(t.c) ) {
 					t.exp = i;
@@ -1057,7 +1057,7 @@ static ex hensel_univar(const ex& a_, const ex& x, unsigned int p, const UniPoly
 	if ( gamma == 0 ) {
 		gamma = alpha;
 	}
-	unsigned int gamma_ui = ex_to<numeric>(abs(gamma)).to_int();
+	numeric gamma_ui = ex_to<numeric>(abs(gamma));
 	a = a * gamma;
 	UniPoly nu1 = u1_;
 	nu1.unit_normal();
@@ -1078,7 +1078,7 @@ static ex hensel_univar(const ex& a_, const ex& x, unsigned int p, const UniPoly
 	ex w = replace_lc(w1.to_ex(x), x, alpha);
 	ex e = expand(a - u * w);
 	numeric modulus = p;
-	const numeric maxmodulus(2*B*gamma_ui);
+	const numeric maxmodulus = 2*numeric(B)*gamma_ui;
 
 	// step 4
 	while ( !e.is_zero() && modulus < maxmodulus ) {
@@ -1966,7 +1966,8 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 
 	/* factor leading coefficient */
 	pp = pp.collect(x);
-	ex vn = p.lcoeff(x);
+	ex vn = pp.lcoeff(x);
+	pp = pp.expand();
 	ex vnlst;
 	if ( is_a<numeric>(vn) ) {
 		vnlst = lst(vn);
@@ -2152,9 +2153,15 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 				maxdegree = uvec[i].degree();
 			}
 		}
-		unsigned int B = cl_I_to_uint(normmc * expt_pos(cl_I(2), maxdegree));
+		cl_I B = normmc * expt_pos(cl_I(2), maxdegree);
+		cl_I l = 1;
+		cl_I pl = prime;
+		while ( pl < B ) {
+			l += 1;
+			pl = pl * prime;
+		}
 
-		ex res = hensel_multivar(poly, x, epv, prime, B, uvec, C);
+		ex res = hensel_multivar(pp, x, epv, prime, l, uvec, C);
 		if ( res != lst() ) {
 			ex result = cont;
 			for ( size_t i=0; i<res.nops(); ++i ) {

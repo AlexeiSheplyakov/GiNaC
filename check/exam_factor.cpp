@@ -101,6 +101,29 @@ static unsigned exam_factor1()
 	e = ex("(1+4*x)*x^2*(1-4*x+16*x^2)*(3+5*x+92*x^3)", syms);
 	result += check_factor(e);
 
+	e = ex("(77+11*x^3+25*x^2+27*x+102*x^4)*(85+57*x^3+92*x^2+29*x+66*x^4)", syms);
+	result += check_factor(e);
+
+	return result;
+}
+
+static unsigned exam_factor2()
+{
+	unsigned result = 0;
+	ex e, d;
+	symbol x("x"), y("y"), z("z");
+	lst syms;
+	syms = x, y, z;
+	
+	e = ex("x+y", syms);
+	result += check_factor(e);
+
+	e = ex("x+y", syms);
+	result += check_factor(e);
+
+	e = ex("-2*(x+y)*(x-y)", syms);
+	result += check_factor(e);
+
 	return result;
 }
 
@@ -111,6 +134,7 @@ unsigned exam_factor()
 	cout << "examining polynomial factorization" << flush;
 
 	result += exam_factor1(); cout << '.' << flush;
+	result += exam_factor2(); cout << '.' << flush;
 
 	return result;
 }
