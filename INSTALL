@@ -29,7 +29,7 @@ Known not to work with:
  - GCC 2.96 or earlier because proper exception and standard library support
    is missing there.
 
-If you install from CVS, you also need GNU autoconf (>=2.59), automake (>=1.7),
+If you install from git, you also need GNU autoconf (>=2.59), automake (>=1.7),
 libtool (>= 1.5), bison (>= 2.3), flex (>= 2.5.33), autogen (>= 5.6.0) to be
 installed.
 
@@ -87,15 +87,12 @@ make          |   ~6m   |   ~8m   | shared and static library
 make check    |   ~8m   |  ~12m   | largely due to compilation
 
 
-To install from CVS
+To install from git 
 ===================
 
 First, download the code:
-
- $ cvs -d :pserver:anoncvs@cvs.ginac.de:/home/cvs/GiNaC login
- [enter "anoncvs" as the password]
- $ cvs -d :pserver:anoncvs@cvs.ginac.de:/home/cvs/GiNaC co GiNaC
- $ cd GiNaC
+ $ git clone git://www.ginac.de/ginac.git ginac
+ $ cd ginac
 
 Secondly, make sure all required software is installed. This is *really*
 important step. If some package is missing, the `configure' script might

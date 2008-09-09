@@ -7,8 +7,8 @@ TEXI = ginac-examples.texi
 
 info_TEXINFOS = $(TEXI)
 
-TXT = $(addsuffix .txt, $(basename $(TEXI)))
-HTML = $(addsuffix .html, $(basename $(TEXI)))
+TXT = ginac-examples.txt
+HTML = ginac-examples.html
 
 all: $(EXFILES)
 	${MAKEINFO} --no-split --no-headers $(srcdir)/$(TEXI) > $(TXT)

@@ -45,25 +45,23 @@
 
 #define YYERROR_VERBOSE 1
 
-#ifdef REALLY_HAVE_LIBREADLINE
+#ifdef HAVE_LIBREADLINE
 // Original readline settings
 static int orig_completion_append_character;
-#if (GINAC_RL_VERSION_MAJOR < 4) || (GINAC_RL_VERSION_MAJOR == 4 && GINAC_RL_VERSION_MINOR < 2)
-static char *orig_basic_word_break_characters;
-#else
 static const char *orig_basic_word_break_characters;
-#endif
 
-#if (GINAC_RL_VERSION_MAJOR >= 5)
+#if (RL_VERSION_MAJOR >= 5)
 #define GINAC_RL_COMPLETER_CAST(a) const_cast<char *>((a))
 #else
 #define GINAC_RL_COMPLETER_CAST(a) (a)
 #endif
-#endif // REALLY_HAVE_LIBREADLINE
+#endif // HAVE_LIBREADLINE
 
 // Expression stack for %, %% and %%%
 static void push(const ex &e);
 static ex exstack[3];
+// Assigned symbols
+static exmap assigned_symbol_table;
 
 // Start and end time for the time() function
 #ifdef HAVE_RUSAGE
@@ -237,7 +235,13 @@ line	: ';'
 	;
 
 exp	: T_NUMBER		{$$ = $1;}
-	| T_SYMBOL		{$$ = $1.eval();}
+	| T_SYMBOL		{
+		exmap::const_iterator i = assigned_symbol_table.find($1);
+		if (i == assigned_symbol_table.end())
+			$$ = $1;
+		else
+			$$ = i->second.eval();
+	}
 	| '\'' T_SYMBOL '\''	{$$ = $2;}
 	| T_LITERAL		{$$ = $1;}
 	| T_DIGITS		{$$ = $1;}
@@ -253,7 +257,7 @@ exp	: T_NUMBER		{$$ = $1;}
 		}
 	}
 	| T_DIGITS '=' T_NUMBER	{$$ = $3; Digits = ex_to<numeric>($3).to_int();}
-	| T_SYMBOL '=' exp	{$$ = $3; const_cast<symbol&>(ex_to<symbol>($1)).assign($3);}
+	| T_SYMBOL '=' exp	{$$ = $3; assigned_symbol_table[$1] = $3; }
 	| exp T_EQUAL exp	{$$ = $1 == $3;}
 	| exp T_NOTEQ exp	{$$ = $1 != $3;}
 	| exp '<' exp		{$$ = $1 < $3;}
@@ -567,7 +571,9 @@ static ex f_transpose(const exprseq &e)
 static ex f_unassign(const exprseq &e)
 {
 	CHECK_ARG(0, symbol, unassign);
-	const_cast<symbol&>(ex_to<symbol>(e[0])).unassign();
+	exmap::iterator i = assigned_symbol_table.find(e[0]);
+	if (i != assigned_symbol_table.end())
+		assigned_symbol_table.erase(i);
 	return e[0];
 }
 
@@ -854,7 +860,7 @@ static char *fcn_generator(const char *text, int state)
 	return NULL;
 }
 
-#ifdef REALLY_HAVE_LIBREADLINE
+#ifdef HAVE_LIBREADLINE
 static char **fcn_completion(const char *text, int start, int end)
 {
 	if (rl_line_buffer[0] == '!') {
@@ -862,24 +868,27 @@ static char **fcn_completion(const char *text, int start, int end)
 		rl_completion_append_character = orig_completion_append_character;
 		rl_basic_word_break_characters = orig_basic_word_break_characters;
 		rl_completer_word_break_characters = GINAC_RL_COMPLETER_CAST(rl_basic_word_break_characters);
-#if (GINAC_RL_VERSION_MAJOR < 4) || (GINAC_RL_VERSION_MAJOR == 4 && GINAC_RL_VERSION_MINOR < 2)
-		return completion_matches(const_cast<char *>(text), (CPFunction *)filename_completion_function);
-#else
 		return rl_completion_matches(text, rl_filename_completion_function);
-#endif
 	} else {
 		// Otherwise, complete function names
 		rl_completion_append_character = '(';
 		rl_basic_word_break_characters = " \t\n\"#$%&'()*+,-./:;<=>?@[\\]^`{|}~";
 		rl_completer_word_break_characters = GINAC_RL_COMPLETER_CAST(rl_basic_word_break_characters);
-#if (GINAC_RL_VERSION_MAJOR < 4) || (GINAC_RL_VERSION_MAJOR == 4 && GINAC_RL_VERSION_MINOR < 2)
-		return completion_matches(const_cast<char *>(text), (CPFunction *)fcn_generator);
-#else
 		return rl_completion_matches(text, fcn_generator);
-#endif
 	}
 }
-#endif // REALLY_HAVE_LIBREADLINE
+#endif // HAVE_LIBREADLINE
+
+static void ginsh_readline_init(char* name)
+{
+#ifdef HAVE_LIBREADLINE
+	// Init readline completer
+	rl_readline_name = name;
+	rl_attempted_completion_function = fcn_completion;
+	orig_completion_append_character = rl_completion_append_character;
+	orig_basic_word_break_characters = rl_basic_word_break_characters;
+#endif // HAVE_LIBREADLINE
+}
 
 void greeting(void)
 {
@@ -900,6 +909,7 @@ int main(int argc, char **argv)
 	// Print banner in interactive mode
 	if (isatty(0)) 
 		greeting();
+	assigned_symbol_table = exmap();
 
 	// Init function table
 	insert_fcns(builtin_fcns);
@@ -923,17 +933,7 @@ int main(int argc, char **argv)
 	insert_help("print_latex", "print_latex(expression) - prints a LaTeX representation of the given expression");
 	insert_help("print_csrc", "print_csrc(expression) - prints a C source code representation of the given expression");
 
-#ifdef REALLY_HAVE_LIBREADLINE
-	// Init readline completer
-	rl_readline_name = argv[0];
-#if (GINAC_RL_VERSION_MAJOR < 4) || (GINAC_RL_VERSION_MAJOR == 4 && GINAC_RL_VERSION_MINOR < 2)
-	rl_attempted_completion_function = (CPPFunction *)fcn_completion;
-#else
-	rl_attempted_completion_function = fcn_completion;
-#endif
-	orig_completion_append_character = rl_completion_append_character;
-	orig_basic_word_break_characters = rl_basic_word_break_characters;
-#endif
+	ginsh_readline_init(argv[0]);
 
 	// Init input file list, open first file
 	num_files = argc - 1;

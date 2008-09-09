@@ -1330,8 +1330,8 @@ ${power_switch_statement}
 
 std::vector<function_options> & function::registered_functions()
 {
-	static std::vector<function_options> * rf = new std::vector<function_options>;
-	return *rf;
+	static std::vector<function_options> rf = std::vector<function_options>();
+	return rf;
 }
 
 bool function::lookup_remember_table(ex & result) const

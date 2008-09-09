@@ -4,44 +4,73 @@ dnl additions' names with AC_ but with GINAC_ in order to steer clear of
 dnl future trouble.
 dnl ===========================================================================
 
-dnl Usage: GINAC_RLVERSION
-dnl The maintainers of libreadline are complete morons: they don't care a shit
-dnl about compatiblilty (which is not so bad by itself) and at the same time 
-dnl they don't export the version to the preprocessor so we could kluge around 
-dnl incomatiblities.  The only reliable way to figure out the version is by 
-dnl checking the extern variable rl_library_version at runtime.  &#@$%*!
-AC_DEFUN([GINAC_LIB_READLINE_VERSION],
-[AC_CACHE_CHECK([for version of libreadline], ginac_cv_rlversion, [
-AC_TRY_RUN([
-#include <stdio.h>
-#include <sys/types.h>
-#include <readline/readline.h>
-
-int main()
-{
-    FILE *fd;
-    fd = fopen("conftest.out", "w");
-    fprintf(fd, "%s\n", rl_library_version);
-    fclose(fd);
-    return 0;
-}], [
-dnl Some non-GNU readline implementations have non-numeric rl_library_version
-ginac_cv_rlversion=`sed -e 's/[[^0-9.]]//g' 'conftest.out'`], [ ginac_cv_rlversion='unknown'], [ ginac_cv_rlversion='4.2'])])
-if test -z "$ginac_cv_rlversion"; then
-	GINAC_WARNING([Unsupported version of libreadline.])
-	ginac_cv_rlversion='unknown'
-fi
-if test "x${ginac_cv_rlversion}" != "xunknown"; then
-	AC_DEFINE(REALLY_HAVE_LIBREADLINE, ,[Define if GNU libreadline is installed])
-  RL_VERSION_MAJOR=`echo ${ginac_cv_rlversion} | sed -e 's/\([[0-9]]*\)\.\([[0-9]]*\).*/\1/'`
-  AC_DEFINE_UNQUOTED(GINAC_RL_VERSION_MAJOR, $RL_VERSION_MAJOR, [Major version of installed readline library.])
-  RL_VERSION_MINOR=`echo ${ginac_cv_rlversion} | sed -e 's/\([[0-9]]*\)\.\([[0-9]]*\).*/\2/'`
-  AC_DEFINE_UNQUOTED(GINAC_RL_VERSION_MINOR, $RL_VERSION_MINOR, [Minor version of installed readline library.])
-else
-  GINAC_WARNING([I could not run a test of libreadline (needed for building ginsh).])
+dnl Usage: GINAC_STD_CXX_HEADERS
+dnl Check for standard C++ headers, bail out if something is missing.
+AC_DEFUN([GINAC_STD_CXX_HEADERS], [
+AC_CACHE_CHECK([for standard C++ header files], [ginac_cv_std_cxx_headers], [
+	ginac_cv_std_cxx_headers="no"
+	AC_LANG_PUSH([C++])
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+		#include <iosfwd>
+		#include <iostream>
+		#include <vector>
+		#include <list>
+		#include <map>
+		#include <set>
+		#include <string>
+		#include <sstream>
+		#include <typeinfo>
+		#include <stdexcept>
+		#include <algorithm>
+		#include <limits>
+		#include <ctime>
+		]])], [ginac_cv_std_cxx_headers="yes"])
+	AC_LANG_POP([C++])])
+if test "${ginac_cv_std_cxx_headers}" != "yes"; then
+	AC_MSG_ERROR([Standard ISO C++ 98 headers are missing])
 fi
 ])
 
+dnl Usage: GINAC_LIBREADLINE
+dnl
+dnl Check if GNU readline library and headers are avialable.
+dnl Defines GINSH_LIBS variable, and HAVE_LIBREADLINE,
+dnl HAVE_READLINE_READLINE_H, HAVE_READLINE_HISTORY_H preprocessor macros.
+dnl
+dnl Note: this macro rejects readline versions <= 4.2 and non-GNU
+dnl implementations.
+dnl
+AC_DEFUN([GINAC_READLINE],[
+AC_REQUIRE([GINAC_TERMCAP])
+GINSH_LIBS=""
+AC_CHECK_HEADERS(readline/readline.h readline/history.h)
+if test "x${ac_cv_header_readline_readline_h}" != "xyes" -o "x${ac_cv_header_readline_history_h}" != "xyes"; then
+	GINAC_WARNING([readline headers could not be found.])
+else
+	AC_CACHE_CHECK([for version of libreadline], [ginac_cv_rl_supported], [
+		ginac_cv_rl_supported="no"
+		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+			#include <stdio.h>
+			#include <readline/readline.h>
+			#if !defined(RL_VERSION_MAJOR) || !defined(RL_VERSION_MINOR)
+			#error "Ancient/unsupported version of readline"
+			#endif]])],
+			[ginac_cv_rl_supported="yes"])])
+	if test "x${ginac_cv_rl_supported}" != "xyes"; then
+		GINAC_WARNING([Unsupported version of readline (<= 4.2 or non-GNU).])
+	else
+		save_LIBS="$LIBS"
+		LIBS="$LIBTERMCAP $LIBS"
+		AC_CHECK_LIB(readline, readline)
+		if test "x${ac_cv_lib_readline_readline}" != "xyes"; then
+			GINAC_WARNING([libreadline could not be found.])
+		fi
+		GINSH_LIBS="$LIBS"
+		LIBS="$save_LIBS"
+	fi
+fi
+AC_SUBST(GINSH_LIBS)])
+	
 dnl Usage: GINAC_TERMCAP
 dnl libreadline is based on the termcap functions.
 dnl Some systems have tgetent(), tgetnum(), tgetstr(), tgetflag(), tputs(),
@@ -132,3 +161,43 @@ if test "$ac_cv_have_rusage" = yes; then
 fi
 AC_SUBST(CONFIG_RUSAGE)
 ])
+
+dnl Usage: GINAC_EXCOMPILER
+dnl - Checks if dlopen is available
+dnl - Allows user to disable GiNaC::compile_ex (e.g. for security reasons)
+dnl Defines HAVE_LIBDL preprocessor macro, sets DL_LIBS and CONFIG_EXCOMPILER
+dnl variables.
+AC_DEFUN([GINAC_EXCOMPILER], [
+CONFIG_EXCOMPILER=yes
+DL_LIBS=""
+
+AC_ARG_ENABLE([excompiler], 
+	[AS_HELP_STRING([--enable-excompiler], [Enable GiNaC::compile_ex (default: yes)])],
+	[if test "$enableval" = "no"; then
+		CONFIG_EXCOMPILER="no"
+	fi],
+	[CONFIG_EXCOMPILER="yes"])
+
+case $host_os in
+	*mingw32*)
+	CONFIG_EXCOMPILER="notsupported"
+	;;
+	*)
+	;;
+esac
+
+if test "$CONFIG_EXCOMPILER" = "yes"; then
+	AC_CHECK_LIB(dl, dlopen, [
+		DL_LIBS="-ldl"
+		AC_DEFINE(HAVE_LIBDL, 1, [set to 1 if you have a working libdl installed.])],
+
+		[AC_MSG_WARN([libdl not found. GiNaC::compile_ex will be disabled.])
+		 CONFIG_EXCOMPILER="no"])
+elif test "$CONFIG_EXCOMPILER" = "no"; then
+	AC_MSG_RESULT([INFO: GiNaC::compile_ex disabled at user request.])
+else
+	AC_MSG_RESULT([INFO: GiNaC::compile_ex is not supported on $host_os.])
+fi
+AC_SUBST(DL_LIBS)
+AC_SUBST(CONFIG_EXCOMPILER)])
+

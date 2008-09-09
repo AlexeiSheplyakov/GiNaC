@@ -183,8 +183,8 @@ void remember_table::init_table()
 
 std::vector<remember_table> & remember_table::remember_tables()
 {
-	static std::vector<remember_table> * rt = new std::vector<remember_table>;
-	return *rt;
+	static std::vector<remember_table> rt = std::vector<remember_table>();
+	return rt;
 }
 
 } // namespace GiNaC

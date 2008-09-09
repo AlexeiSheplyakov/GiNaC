@@ -585,12 +585,18 @@ bool basic::match(const ex & pattern, lst & repl_lst) const
 		if (!match_same_type(ex_to<basic>(pattern)))
 			return false;
 
+		// Even if the expression does not match the pattern, some of
+		// its subexpressions could match it. For example, x^5*y^(-1)
+		// does not match the pattern $0^5, but its subexpression x^5
+		// does. So, save repl_lst in order to not add bogus entries.
+		lst tmp_repl = repl_lst;
 		// Otherwise the subexpressions must match one-to-one
 		for (size_t i=0; i<nops(); i++)
-			if (!op(i).match(pattern.op(i), repl_lst))
+			if (!op(i).match(pattern.op(i), tmp_repl))
 				return false;
 
 		// Looks similar enough, match found
+		repl_lst = tmp_repl;
 		return true;
 	}
 }

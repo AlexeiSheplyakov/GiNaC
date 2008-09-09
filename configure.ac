@@ -21,7 +21,8 @@ m4_define([ginac_binary_age], [0])
 AC_INIT([GiNaC], ginac_version, [<ginac-list@ginac.de>])
 AC_PREREQ(2.59)
 AC_CONFIG_SRCDIR(ginac/basic.cpp)
-AC_CONFIG_HEADERS(config.h)
+AC_CONFIG_AUX_DIR([config])
+AC_CONFIG_HEADERS([config/config.h])
 dnl This defines PACKAGE and VERSION.
 AM_INIT_AUTOMAKE([gnu 1.7 dist-bzip2])
 
@@ -71,62 +72,12 @@ AM_PROG_LIBTOOL
 AM_PROG_LEX
 AC_PROG_YACC
 
-dnl Check for data types which are needed by the hash function 
-dnl (golden_ratio_hash).
-AC_CHECK_SIZEOF(int)
-AC_CHECK_SIZEOF(long)
-AC_CHECK_SIZEOF(long long)
-AC_CHECK_SIZEOF(long double)
-AC_CHECK_SIZEOF(void *)
 
 dnl Switch to C++ language mode for the following libraries and headers.
 AC_LANG([C++])
 
-dnl Check for stuff needed for building the GiNaC interactive shell (ginsh).
-AC_CHECK_HEADERS(unistd.h)
-GINAC_HAVE_RUSAGE
-AC_CHECK_HEADERS(readline/readline.h readline/history.h)
-if test "x${ac_cv_header_readline_readline_h}" != "xyes" -o "x${ac_cv_header_readline_history_h}" != "xyes"; then
-  GINAC_WARNING([I could not find the headers for libreadline (needed for building ginsh).])
-fi
-GINAC_TERMCAP
-save_LIBS=$LIBS
-LIBS="$LIBTERMCAP $LIBS"
-AC_CHECK_LIB(readline, readline)
-if test "x${ac_cv_lib_readline_readline}" = "xyes"; then
-  GINAC_LIB_READLINE_VERSION
-else
-  GINAC_WARNING([I could not find libreadline (needed by ginsh).])
-fi
-GINSH_LIBS=$LIBS
-LIBS=$save_LIBS
-AC_SUBST(GINSH_LIBS)
-
 dnl Make sure all the necessary standard headers are installed on the system.
-AC_CHECK_HEADER(iosfwd, , GINAC_ERROR([The standard <iosfwd> header file could not be found.]))
-AC_CHECK_HEADER(iostream, , GINAC_ERROR([The standard <iostream> header file could not be found.]))
-AC_CHECK_HEADER(vector, , GINAC_ERROR([The standard <vector> header file could not be found.]))
-AC_CHECK_HEADER(list, , GINAC_ERROR([The standard <list> header file could not be found.]))
-AC_CHECK_HEADER(map, , GINAC_ERROR([The standard <map> header file could not be found.]))
-AC_CHECK_HEADER(string, , GINAC_ERROR([The standard <string> header file could not be found.]))
-AC_CHECK_HEADER(sstream, , GINAC_ERROR([The standard <sstream> header file could not be found.]))
-AC_CHECK_HEADER(typeinfo, , GINAC_ERROR([The standard <typeinfo> header file could not be found.]))
-AC_CHECK_HEADER(stdexcept, , GINAC_ERROR([The standard <stdexcept> header file could not be found.]))
-AC_CHECK_HEADER(algorithm, , GINAC_ERROR([The standard <algorithm> header file could not be found.]))
-AC_CHECK_HEADER(limits, , GINAC_ERROR([The standard <limits> header file could not be found.]))
-if test "x$CONFIG_RUSAGE" = "xno"; then
-    AC_CHECK_HEADER(ctime, , GINAC_ERROR([The standard <ctime> header file could not be found.]))
-fi
-
-DL_LIBS=""
-dnl Check for dl library (needed for GiNaC::compile).
-AC_CHECK_LIB(dl, dlopen,
-	[
-		DL_LIBS="-ldl"
-		AC_DEFINE(HAVE_LIBDL, 1, [set to 1 if you have a working libdl installed.])
-	], 
-	GINAC_WARNING([libdl not found. GiNaC::compile will be disabled.]))
-AC_SUBST(DL_LIBS)
+GINAC_STD_CXX_HEADERS
 
 dnl We need to have Bruno Haible's CLN installed.
 dnl (pkg-config must have installed pkg.m4 at a visible place, which provides
@@ -135,6 +86,18 @@ dnl which provides the actual dependency information.)
 PKG_CHECK_MODULES(CLN, cln >= 1.1.6)
 LIBS="$LIBS $CLN_LIBS"
 CPPFLAGS="$CPPFLAGS $CLN_CFLAGS"
+
+dnl Check for data types which are needed by the hash function 
+dnl (golden_ratio_hash).
+AC_CHECK_TYPE(long long)
+
+dnl Check for stuff needed for building the GiNaC interactive shell (ginsh).
+AC_CHECK_HEADERS(unistd.h)
+GINAC_HAVE_RUSAGE
+GINAC_READLINE
+
+dnl Check for dl library (needed for GiNaC::compile).
+GINAC_EXCOMPILER
 
 dnl Check for utilities needed by the different kinds of documentation.
 dnl Documentation needs only be built when extending it, so never mind if it

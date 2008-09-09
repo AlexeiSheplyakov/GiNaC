@@ -37,6 +37,9 @@ public:
 
 		};
 	};
+	
+	/// Symbolic name of the token (for error reporting)
+	std::string tok2str(const int tok) const;
 };
 
 } // namespace GiNaC
