@@ -8,9 +8,9 @@ if CONFIG_TEX
 if CONFIG_FIG2DEV
 
 # Graphics file conversion
-PNG = $(addsuffix .png, $(basename $(FIG)))
-EPS = $(addsuffix .eps, $(basename $(FIG)))
-PDF = $(addsuffix .pdf, $(basename $(FIG)))
+PNG = classhierarchy.png repnaive.png reppair.png repreal.png
+EPS = classhierarchy.eps repnaive.eps reppair.eps repreal.eps
+PDF = classhierarchy.pdf repnaive.pdf reppair.pdf repreal.pdf
 
 SUFFIXES = .fig .png .eps
 
