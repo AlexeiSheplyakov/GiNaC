@@ -1,7 +1,45 @@
 This file records noteworthy changes.
 
 1.5.0 (<date>)
+* Added polynomial factorization.
+* Added an additional (recursive descent) expression parser.
+* gcd now allows the user to override (some of the) heuristics.
 * Improved lsolve() of systems containing non-numeric coefficients.
+* Removed implicit conversions from cl_N to numeric.
+
+1.4.4 (<DATE>)
+* Fixed a bug in the multiple polylogarithms Li/G that caused imaginary parts
+  of the arguments to be ignored. 
+* Fixed archiving of complex numbers.
+* Made the behaviour of class function more consistent with respect to
+  ncmul::eval().
+* Improved heur_gcd() so it can handle rational polynomials.
+
+1.4.3 (04 April 2008)
+* Fixed bug in numerical evaluation of multiple polylogarithms and
+  alternating multiple zeta values introduced in version 1.4.2.
+* Nielsen polylog now invalidates its lookup tables in case the precision
+  (Digits) has been changed.
+* Added new checks for recent bugs in the numerical evaluation of Li and zeta.
+
+1.4.2 (03 April 2008)
+* Fixed VPATH building of documentation.
+* Fixed bug in numerical evaluation of multiple polylogarithms for arguments
+  equal to certain roots of unity (thanks to Jianqiang Zhao).
+* Fixed check for memory leakage in parser.
+* Made internal function coerce() standard compliant.
+* Improved lsolve() of systems containing non-numeric coefficients.
+* Improved automatic test programs. Now they work on MinGW and Cygwin as well.
+
+1.4.1 (21 November 2007)
+* Fixed memory leak in ginac_yylex().
+* Fixed memory leaks in mul::eval() and power::eval().
+* Fixed macro checking for version of libreadline (Mac OS X).
+* Fixed broken preprocessor instruction in excompiler.cpp.
+* Fixed broken module loading in excompiler.cpp.
+* info(info_flags::has_indices) now works for sums and products.
+* Improved mul::expand().
+* Improved CLN output.
 
 1.4.0 (31 August 2007)
 * New tinfo mechanism.
