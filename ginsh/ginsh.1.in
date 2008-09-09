@@ -397,8 +397,8 @@ detail here. Please refer to the GiNaC documentation.
 .BI transpose( matrix )
 \- transpose of a matrix
 .br
-.BI unassign( symbol )
-\- unassign an assigned symbol
+.BI unassign( 'symbol' )
+\- unassign an assigned symbol (mind the quotes, please!)
 .br
 .BI unit( expression ", " symbol )
 \- unit part of a polynomial

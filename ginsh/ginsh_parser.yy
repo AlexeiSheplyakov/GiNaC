@@ -64,6 +64,8 @@ static const char *orig_basic_word_break_characters;
 // Expression stack for %, %% and %%%
 static void push(const ex &e);
 static ex exstack[3];
+// Assigned symbols
+static exmap assigned_symbol_table;
 
 // Start and end time for the time() function
 #ifdef HAVE_RUSAGE
@@ -237,7 +239,13 @@ line	: ';'
 	;
 
 exp	: T_NUMBER		{$$ = $1;}
-	| T_SYMBOL		{$$ = $1.eval();}
+	| T_SYMBOL		{
+		exmap::const_iterator i = assigned_symbol_table.find($1);
+		if (i == assigned_symbol_table.end())
+			$$ = $1;
+		else
+			$$ = i->second.eval();
+	}
 	| '\'' T_SYMBOL '\''	{$$ = $2;}
 	| T_LITERAL		{$$ = $1;}
 	| T_DIGITS		{$$ = $1;}
@@ -253,7 +261,7 @@ exp	: T_NUMBER		{$$ = $1;}
 		}
 	}
 	| T_DIGITS '=' T_NUMBER	{$$ = $3; Digits = ex_to<numeric>($3).to_int();}
-	| T_SYMBOL '=' exp	{$$ = $3; const_cast<symbol&>(ex_to<symbol>($1)).assign($3);}
+	| T_SYMBOL '=' exp	{$$ = $3; assigned_symbol_table[$1] = $3; }
 	| exp T_EQUAL exp	{$$ = $1 == $3;}
 	| exp T_NOTEQ exp	{$$ = $1 != $3;}
 	| exp '<' exp		{$$ = $1 < $3;}
@@ -567,7 +575,9 @@ static ex f_transpose(const exprseq &e)
 static ex f_unassign(const exprseq &e)
 {
 	CHECK_ARG(0, symbol, unassign);
-	const_cast<symbol&>(ex_to<symbol>(e[0])).unassign();
+	exmap::iterator i = assigned_symbol_table.find(e[0]);
+	if (i != assigned_symbol_table.end())
+		assigned_symbol_table.erase(i);
 	return e[0];
 }
 
@@ -900,6 +910,7 @@ int main(int argc, char **argv)
 	// Print banner in interactive mode
 	if (isatty(0)) 
 		greeting();
+	assigned_symbol_table = exmap();
 
 	// Init function table
 	insert_fcns(builtin_fcns);
