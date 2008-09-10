@@ -990,6 +990,139 @@ ex shuffle_G(const Gparameter & a0, const Gparameter & a1, const Gparameter & a2
 	     + shuffle_G(a02, a1, a2_removed, pendint, a_old, scale, gsyms);
 }
 
+// handles the transformations and the numerical evaluation of G
+// the parameter x, s and y must only contain numerics
+ex G_numeric(const lst& x, const lst& s, const ex& y);
+
+// do acceleration transformation (hoelder convolution [BBB])
+// the parameter x, s and y must only contain numerics
+ex G_do_hoelder(const lst& x, const lst& s, const ex& y)
+{
+	ex result;
+	const int size = x.nops();
+	lst newx;
+	for (lst::const_iterator it = x.begin(); it != x.end(); ++it) {
+		newx.append(*it / y);
+	}
+	
+	for (int r=0; r<=size; ++r) {
+		ex buffer = pow(-1, r);
+		ex p = 2;
+		bool adjustp;
+		do {
+			adjustp = false;
+			for (lst::const_iterator it = newx.begin(); it != newx.end(); ++it) {
+				if (*it == 1/p) {
+					p += (3-p)/2; 
+					adjustp = true;
+					continue;
+				}
+			}
+		} while (adjustp);
+		ex q = p / (p-1);
+		lst qlstx;
+		lst qlsts;
+		for (int j=r; j>=1; --j) {
+			qlstx.append(1-newx.op(j-1));
+			if (newx.op(j-1).info(info_flags::real) && newx.op(j-1) > 1 && newx.op(j-1) <= 2) {
+				qlsts.append( s.op(j-1));
+			} else {
+				qlsts.append( -s.op(j-1));
+			}
+		}
+		if (qlstx.nops() > 0) {
+			buffer *= G_numeric(qlstx, qlsts, 1/q);
+		}
+		lst plstx;
+		lst plsts;
+		for (int j=r+1; j<=size; ++j) {
+			plstx.append(newx.op(j-1));
+			plsts.append(s.op(j-1));
+		}
+		if (plstx.nops() > 0) {
+			buffer *= G_numeric(plstx, plsts, 1/p);
+		}
+		result += buffer;
+	}
+	return result;
+}
+
+// convergence transformation, used for numerical evaluation of G function.
+// the parameter x, s and y must only contain numerics
+static ex G_do_trafo(const lst& x, const lst& s, const ex& y)
+{
+	// sort (|x|<->position) to determine indices
+	std::multimap<ex,int> sortmap;
+	int size = 0;
+	for (int i=0; i<x.nops(); ++i) {
+		if (!x[i].is_zero()) {
+			sortmap.insert(std::pair<ex,int>(abs(x[i]), i));
+			++size;
+		}
+	}
+	// include upper limit (scale)
+	sortmap.insert(std::pair<ex,int>(abs(y), x.nops()));
+
+	// generate missing dummy-symbols
+	int i = 1;
+	// holding dummy-symbols for the G/Li transformations
+	exvector gsyms;
+	gsyms.push_back(symbol("GSYMS_ERROR"));
+	ex lastentry;
+	for (std::multimap<ex,int>::const_iterator it = sortmap.begin(); it != sortmap.end(); ++it) {
+		if (it != sortmap.begin()) {
+			if (it->second < x.nops()) {
+				if (x[it->second] == lastentry) {
+					gsyms.push_back(gsyms.back());
+					continue;
+				}
+			} else {
+				if (y == lastentry) {
+					gsyms.push_back(gsyms.back());
+					continue;
+				}
+			}
+		}
+		std::ostringstream os;
+		os << "a" << i;
+		gsyms.push_back(symbol(os.str()));
+		++i;
+		if (it->second < x.nops()) {
+			lastentry = x[it->second];
+		} else {
+			lastentry = y;
+		}
+	}
+
+	// fill position data according to sorted indices and prepare substitution list
+	Gparameter a(x.nops());
+	lst subslst;
+	int pos = 1;
+	int scale;
+	for (std::multimap<ex,int>::const_iterator it = sortmap.begin(); it != sortmap.end(); ++it) {
+		if (it->second < x.nops()) {
+			if (s[it->second] > 0) {
+				a[it->second] = pos;
+			} else {
+				a[it->second] = -pos;
+			}
+			subslst.append(gsyms[pos] == x[it->second]);
+		} else {
+			scale = pos;
+			subslst.append(gsyms[pos] == y);
+		}
+		++pos;
+	}
+
+	// do transformation
+	Gparameter pendint;
+	ex result = G_transform(pendint, a, scale, gsyms);
+	// replace dummy symbols with their values
+	result = result.eval().expand();
+	result = result.subs(subslst).evalf();
+	
+	return result;
+}
 
 // handles the transformations and the numerical evaluation of G
 // the parameter x, s and y must only contain numerics
@@ -1018,132 +1151,12 @@ ex G_numeric(const lst& x, const lst& s, const ex& y)
 	}
 	
 	// do acceleration transformation (hoelder convolution [BBB])
-	if (need_hoelder) {
-		
-		ex result;
-		const int size = x.nops();
-		lst newx;
-		for (lst::const_iterator it = x.begin(); it != x.end(); ++it) {
-			newx.append(*it / y);
-		}
-		
-		for (int r=0; r<=size; ++r) {
-			ex buffer = pow(-1, r);
-			ex p = 2;
-			bool adjustp;
-			do {
-				adjustp = false;
-				for (lst::const_iterator it = newx.begin(); it != newx.end(); ++it) {
-					if (*it == 1/p) {
-						p += (3-p)/2; 
-						adjustp = true;
-						continue;
-					}
-				}
-			} while (adjustp);
-			ex q = p / (p-1);
-			lst qlstx;
-			lst qlsts;
-			for (int j=r; j>=1; --j) {
-				qlstx.append(1-newx.op(j-1));
-				if (newx.op(j-1).info(info_flags::real) && newx.op(j-1) > 1 && newx.op(j-1) <= 2) {
-					qlsts.append( s.op(j-1));
-				} else {
-					qlsts.append( -s.op(j-1));
-				}
-			}
-			if (qlstx.nops() > 0) {
-				buffer *= G_numeric(qlstx, qlsts, 1/q);
-			}
-			lst plstx;
-			lst plsts;
-			for (int j=r+1; j<=size; ++j) {
-				plstx.append(newx.op(j-1));
-				plsts.append(s.op(j-1));
-			}
-			if (plstx.nops() > 0) {
-				buffer *= G_numeric(plstx, plsts, 1/p);
-			}
-			result += buffer;
-		}
-		return result;
-	}
+	if (need_hoelder)
+		return G_do_hoelder(x, s, y);
 	
 	// convergence transformation
-	if (need_trafo) {
-
-		// sort (|x|<->position) to determine indices
-		std::multimap<ex,int> sortmap;
-		int size = 0;
-		for (int i=0; i<x.nops(); ++i) {
-			if (!x[i].is_zero()) {
-				sortmap.insert(std::pair<ex,int>(abs(x[i]), i));
-				++size;
-			}
-		}
-		// include upper limit (scale)
-		sortmap.insert(std::pair<ex,int>(abs(y), x.nops()));
-
-		// generate missing dummy-symbols
-		int i = 1;
-		// holding dummy-symbols for the G/Li transformations
-		exvector gsyms;
-		gsyms.push_back(symbol("GSYMS_ERROR"));
-		ex lastentry;
-		for (std::multimap<ex,int>::const_iterator it = sortmap.begin(); it != sortmap.end(); ++it) {
-			if (it != sortmap.begin()) {
-				if (it->second < x.nops()) {
-					if (x[it->second] == lastentry) {
-						gsyms.push_back(gsyms.back());
-						continue;
-					}
-				} else {
-					if (y == lastentry) {
-						gsyms.push_back(gsyms.back());
-						continue;
-					}
-				}
-			}
-			std::ostringstream os;
-			os << "a" << i;
-			gsyms.push_back(symbol(os.str()));
-			++i;
-			if (it->second < x.nops()) {
-				lastentry = x[it->second];
-			} else {
-				lastentry = y;
-			}
-		}
-
-		// fill position data according to sorted indices and prepare substitution list
-		Gparameter a(x.nops());
-		lst subslst;
-		int pos = 1;
-		int scale;
-		for (std::multimap<ex,int>::const_iterator it = sortmap.begin(); it != sortmap.end(); ++it) {
-			if (it->second < x.nops()) {
-				if (s[it->second] > 0) {
-					a[it->second] = pos;
-				} else {
-					a[it->second] = -pos;
-				}
-				subslst.append(gsyms[pos] == x[it->second]);
-			} else {
-				scale = pos;
-				subslst.append(gsyms[pos] == y);
-			}
-			++pos;
-		}
-
-		// do transformation
-		Gparameter pendint;
-		ex result = G_transform(pendint, a, scale, gsyms);
-		// replace dummy symbols with their values
-		result = result.eval().expand();
-		result = result.subs(subslst).evalf();
-		
-		return result;
-	}
+	if (need_trafo)
+		return G_do_trafo(x, s, y);
 
 	// do summation
 	lst newx;
