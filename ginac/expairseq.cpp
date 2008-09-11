@@ -427,19 +427,9 @@ bool expairseq::match(const ex & pattern, lst & repl_lst) const
 				continue;
 			exvector::iterator it = ops.begin(), itend = ops.end();
 			while (it != itend) {
-				lst::const_iterator last_el = repl_lst.end();
-				--last_el;
 				if (it->match(p, repl_lst)) {
 					ops.erase(it);
 					goto found;
-				}
-				while(true) {
-					lst::const_iterator next_el = last_el;
-					++next_el;
-					if(next_el == repl_lst.end())
-						break;
-					else
-						repl_lst.remove_last();
 				}
 				++it;
 			}
