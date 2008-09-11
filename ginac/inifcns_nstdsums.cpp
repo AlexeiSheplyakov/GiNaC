@@ -501,19 +501,6 @@ cln::cl_N multipleLi_do_sum(const std::vector<int>& s, const std::vector<cln::cl
 }
 
 
-// converts parameter types and calls multipleLi_do_sum (convenience function for G_numeric)
-cln::cl_N mLi_do_summation(const lst& m, const lst& x)
-{
-	std::vector<int> m_int;
-	std::vector<cln::cl_N> x_cln;
-	for (lst::const_iterator itm = m.begin(), itx = x.begin(); itm != m.end(); ++itm, ++itx) {
-		m_int.push_back(ex_to<numeric>(*itm).to_int());
-		x_cln.push_back(ex_to<numeric>(*itx).to_cl_N());
-	}
-	return multipleLi_do_sum(m_int, x_cln);
-}
-
-
 // forward declaration for Li_eval()
 lst convert_parameter_Li_to_H(const lst& m, const lst& x, ex& pf);
 
@@ -992,86 +979,92 @@ ex shuffle_G(const Gparameter & a0, const Gparameter & a1, const Gparameter & a2
 
 // handles the transformations and the numerical evaluation of G
 // the parameter x, s and y must only contain numerics
-ex G_numeric(const lst& x, const lst& s, const ex& y);
+static cln::cl_N
+G_numeric(const std::vector<cln::cl_N>& x, const std::vector<int>& s,
+	  const cln::cl_N& y);
 
 // do acceleration transformation (hoelder convolution [BBB])
 // the parameter x, s and y must only contain numerics
-ex G_do_hoelder(const lst& x, const lst& s, const ex& y)
+static cln::cl_N
+G_do_hoelder(std::vector<cln::cl_N> x, /* yes, it's passed by value */
+	     const std::vector<int>& s, const cln::cl_N& y)
 {
-	ex result;
-	const int size = x.nops();
-	lst newx;
-	for (lst::const_iterator it = x.begin(); it != x.end(); ++it) {
-		newx.append(*it / y);
-	}
-	
-	for (int r=0; r<=size; ++r) {
-		ex buffer = pow(-1, r);
-		ex p = 2;
+	cln::cl_N result;
+	const std::size_t size = x.size();
+	for (std::size_t i = 0; i < size; ++i)
+		x[i] = x[i]/y;
+
+	for (std::size_t r = 0; r <= size; ++r) {
+		cln::cl_N buffer(1 & r ? -1 : 1);
+		cln::cl_RA p(2);
 		bool adjustp;
 		do {
 			adjustp = false;
-			for (lst::const_iterator it = newx.begin(); it != newx.end(); ++it) {
-				if (*it == 1/p) {
-					p += (3-p)/2; 
+			for (std::size_t i = 0; i < size; ++i) {
+				if (x[i] == cln::cl_RA(1)/p) {
+					p = p/2 + cln::cl_RA(3)/2;
 					adjustp = true;
 					continue;
 				}
 			}
 		} while (adjustp);
-		ex q = p / (p-1);
-		lst qlstx;
-		lst qlsts;
-		for (int j=r; j>=1; --j) {
-			qlstx.append(1-newx.op(j-1));
-			if (newx.op(j-1).info(info_flags::real) && newx.op(j-1) > 1 && newx.op(j-1) <= 2) {
-				qlsts.append( s.op(j-1));
+		cln::cl_RA q = p/(p-1);
+		std::vector<cln::cl_N> qlstx;
+		std::vector<int> qlsts;
+		for (std::size_t j = r; j >= 1; --j) {
+			qlstx.push_back(cln::cl_N(1) - x[j-1]);
+			if (instanceof(x[j-1], cln::cl_R_ring) &&
+			    realpart(x[j-1]) > 1 && realpart(x[j-1]) <= 2) {
+				qlsts.push_back(s[j-1]);
 			} else {
-				qlsts.append( -s.op(j-1));
+				qlsts.push_back(-s[j-1]);
 			}
 		}
-		if (qlstx.nops() > 0) {
-			buffer *= G_numeric(qlstx, qlsts, 1/q);
+		if (qlstx.size() > 0) {
+			buffer = buffer*G_numeric(qlstx, qlsts, 1/q);
 		}
-		lst plstx;
-		lst plsts;
-		for (int j=r+1; j<=size; ++j) {
-			plstx.append(newx.op(j-1));
-			plsts.append(s.op(j-1));
+		std::vector<cln::cl_N> plstx;
+		std::vector<int> plsts;
+		for (std::size_t j = r+1; j <= size; ++j) {
+			plstx.push_back(x[j-1]);
+			plsts.push_back(s[j-1]);
 		}
-		if (plstx.nops() > 0) {
-			buffer *= G_numeric(plstx, plsts, 1/p);
+		if (plstx.size() > 0) {
+			buffer = buffer*G_numeric(plstx, plsts, 1/p);
 		}
-		result += buffer;
+		result = result + buffer;
 	}
 	return result;
 }
 
 // convergence transformation, used for numerical evaluation of G function.
 // the parameter x, s and y must only contain numerics
-static ex G_do_trafo(const lst& x, const lst& s, const ex& y)
+static cln::cl_N
+G_do_trafo(const std::vector<cln::cl_N>& x, const std::vector<int>& s,
+	   const cln::cl_N& y)
 {
 	// sort (|x|<->position) to determine indices
-	std::multimap<ex,int> sortmap;
-	int size = 0;
-	for (int i=0; i<x.nops(); ++i) {
-		if (!x[i].is_zero()) {
-			sortmap.insert(std::pair<ex,int>(abs(x[i]), i));
+	typedef std::multimap<cln::cl_R, std::size_t> sortmap_t;
+	sortmap_t sortmap;
+	std::size_t size = 0;
+	for (std::size_t i = 0; i < x.size(); ++i) {
+		if (!zerop(x[i])) {
+			sortmap.insert(std::make_pair(abs(x[i]), i));
 			++size;
 		}
 	}
 	// include upper limit (scale)
-	sortmap.insert(std::pair<ex,int>(abs(y), x.nops()));
+	sortmap.insert(std::make_pair(abs(y), x.size()));
 
 	// generate missing dummy-symbols
 	int i = 1;
 	// holding dummy-symbols for the G/Li transformations
 	exvector gsyms;
 	gsyms.push_back(symbol("GSYMS_ERROR"));
-	ex lastentry;
-	for (std::multimap<ex,int>::const_iterator it = sortmap.begin(); it != sortmap.end(); ++it) {
+	cln::cl_N lastentry(0);
+	for (sortmap_t::const_iterator it = sortmap.begin(); it != sortmap.end(); ++it) {
 		if (it != sortmap.begin()) {
-			if (it->second < x.nops()) {
+			if (it->second < x.size()) {
 				if (x[it->second] == lastentry) {
 					gsyms.push_back(gsyms.back());
 					continue;
@@ -1087,7 +1080,7 @@ static ex G_do_trafo(const lst& x, const lst& s, const ex& y)
 		os << "a" << i;
 		gsyms.push_back(symbol(os.str()));
 		++i;
-		if (it->second < x.nops()) {
+		if (it->second < x.size()) {
 			lastentry = x[it->second];
 		} else {
 			lastentry = y;
@@ -1095,21 +1088,21 @@ static ex G_do_trafo(const lst& x, const lst& s, const ex& y)
 	}
 
 	// fill position data according to sorted indices and prepare substitution list
-	Gparameter a(x.nops());
-	lst subslst;
-	int pos = 1;
+	Gparameter a(x.size());
+	exmap subslst;
+	std::size_t pos = 1;
 	int scale;
-	for (std::multimap<ex,int>::const_iterator it = sortmap.begin(); it != sortmap.end(); ++it) {
-		if (it->second < x.nops()) {
+	for (sortmap_t::const_iterator it = sortmap.begin(); it != sortmap.end(); ++it) {
+		if (it->second < x.size()) {
 			if (s[it->second] > 0) {
 				a[it->second] = pos;
 			} else {
-				a[it->second] = -pos;
+				a[it->second] = -int(pos);
 			}
-			subslst.append(gsyms[pos] == x[it->second]);
+			subslst[gsyms[pos]] = numeric(x[it->second]);
 		} else {
 			scale = pos;
-			subslst.append(gsyms[pos] == y);
+			subslst[gsyms[pos]] = numeric(y);
 		}
 		++pos;
 	}
@@ -1120,35 +1113,40 @@ static ex G_do_trafo(const lst& x, const lst& s, const ex& y)
 	// replace dummy symbols with their values
 	result = result.eval().expand();
 	result = result.subs(subslst).evalf();
+	if (!is_a<numeric>(result))
+		throw std::logic_error("G_do_trafo: G_transform returned non-numeric result");
 	
-	return result;
+	cln::cl_N ret = ex_to<numeric>(result).to_cl_N();
+	return ret;
 }
 
 // handles the transformations and the numerical evaluation of G
 // the parameter x, s and y must only contain numerics
-ex G_numeric(const lst& x, const lst& s, const ex& y)
+static cln::cl_N
+G_numeric(const std::vector<cln::cl_N>& x, const std::vector<int>& s,
+	  const cln::cl_N& y)
 {
 	// check for convergence and necessary accelerations
 	bool need_trafo = false;
 	bool need_hoelder = false;
-	int depth = 0;
-	for (lst::const_iterator it = x.begin(); it != x.end(); ++it) {
-		if (!(*it).is_zero()) {
+	std::size_t depth = 0;
+	for (std::size_t i = 0; i < x.size(); ++i) {
+		if (!zerop(x[i])) {
 			++depth;
-			if (abs(*it) - y < -pow(10,-Digits+1)) {
+			const cln::cl_N x_y = abs(x[i]) - y;
+			if (instanceof(x_y, cln::cl_R_ring) &&
+			    realpart(x_y) < cln::least_negative_float(cln::float_format(Digits - 2)))
 				need_trafo = true;
-			}
-			if (abs((abs(*it) - y)/y) < 0.01) {
+
+			if (abs(abs(x[i]/y) - 1) < 0.01)
 				need_hoelder = true;
-			}
 		}
 	}
-	if (x.op(x.nops()-1).is_zero()) {
+	if (zerop(x[x.size() - 1]))
 		need_trafo = true;
-	}
-	if (depth == 1 && x.nops() == 2 && !need_trafo) {
-		return -Li(x.nops(), y / x.op(x.nops()-1)).evalf();
-	}
+
+	if (depth == 1 && x.size() == 2 && !need_trafo)
+		return - Li_projection(2, y/x[1], cln::float_format(Digits));
 	
 	// do acceleration transformation (hoelder convolution [BBB])
 	if (need_hoelder)
@@ -1159,43 +1157,48 @@ ex G_numeric(const lst& x, const lst& s, const ex& y)
 		return G_do_trafo(x, s, y);
 
 	// do summation
-	lst newx;
-	lst m;
+	std::vector<cln::cl_N> newx;
+	newx.reserve(x.size());
+	std::vector<int> m;
+	m.reserve(x.size());
 	int mcount = 1;
-	ex sign = 1;
-	ex factor = y;
-	for (lst::const_iterator it = x.begin(); it != x.end(); ++it) {
-		if ((*it).is_zero()) {
+	int sign = 1;
+	cln::cl_N factor = y;
+	for (std::size_t i = 0; i < x.size(); ++i) {
+		if (zerop(x[i])) {
 			++mcount;
 		} else {
-			newx.append(factor / (*it));
-			factor = *it;
-			m.append(mcount);
+			newx.push_back(factor/x[i]);
+			factor = x[i];
+			m.push_back(mcount);
 			mcount = 1;
 			sign = -sign;
 		}
 	}
 
-	return sign * numeric(mLi_do_summation(m, newx));
+	return sign*multipleLi_do_sum(m, newx);
 }
 
 
 ex mLi_numeric(const lst& m, const lst& x)
 {
 	// let G_numeric do the transformation
-	lst newx;
-	lst s;
-	ex factor = 1;
+	std::vector<cln::cl_N> newx;
+	newx.reserve(x.nops());
+	std::vector<int> s;
+	s.reserve(x.nops());
+	cln::cl_N factor(1);
 	for (lst::const_iterator itm = m.begin(), itx = x.begin(); itm != m.end(); ++itm, ++itx) {
 		for (int i = 1; i < *itm; ++i) {
-			newx.append(0);
-			s.append(1);
+			newx.push_back(cln::cl_N(0));
+			s.push_back(1);
 		}
-		newx.append(factor / *itx);
-		factor /= *itx;
-		s.append(1);
+		const cln::cl_N xi = ex_to<numeric>(*itx).to_cl_N();
+		newx.push_back(factor/xi);
+		factor = factor/xi;
+		s.push_back(1);
 	}
-	return pow(-1, m.nops()) * G_numeric(newx, s, _ex1);
+	return numeric(cln::cl_N(1 & m.nops() ? - 1 : 1)*G_numeric(newx, s, cln::cl_N(1)));
 }
 
 
@@ -1223,7 +1226,8 @@ static ex G2_evalf(const ex& x_, const ex& y)
 	if (x.op(0) == y) {
 		return G(x_, y).hold();
 	}
-	lst s;
+	std::vector<int> s;
+	s.reserve(x.nops());
 	bool all_zero = true;
 	for (lst::const_iterator it = x.begin(); it != x.end(); ++it) {
 		if (!(*it).info(info_flags::numeric)) {
@@ -1233,16 +1237,21 @@ static ex G2_evalf(const ex& x_, const ex& y)
 			all_zero = false;
 		}
 		if ( !ex_to<numeric>(*it).is_real() && ex_to<numeric>(*it).imag() < 0 ) {
-			s.append(-1);
+			s.push_back(-1);
 		}
 		else {
-			s.append(+1);
+			s.push_back(1);
 		}
 	}
 	if (all_zero) {
 		return pow(log(y), x.nops()) / factorial(x.nops());
 	}
-	return G_numeric(x, s, y);
+	std::vector<cln::cl_N> xv;
+	xv.reserve(x.nops());
+	for (lst::const_iterator it = x.begin(); it != x.end(); ++it)
+		xv.push_back(ex_to<numeric>(*it).to_cl_N());
+	cln::cl_N result = G_numeric(xv, s, ex_to<numeric>(y).to_cl_N());
+	return numeric(result);
 }
 
 
@@ -1260,7 +1269,8 @@ static ex G2_eval(const ex& x_, const ex& y)
 	if (x.op(0) == y) {
 		return G(x_, y).hold();
 	}
-	lst s;
+	std::vector<int> s;
+	s.reserve(x.nops());
 	bool all_zero = true;
 	bool crational = true;
 	for (lst::const_iterator it = x.begin(); it != x.end(); ++it) {
@@ -1274,10 +1284,10 @@ static ex G2_eval(const ex& x_, const ex& y)
 			all_zero = false;
 		}
 		if ( !ex_to<numeric>(*it).is_real() && ex_to<numeric>(*it).imag() < 0 ) {
-			s.append(-1);
+			s.push_back(-1);
 		}
 		else {
-			s.append(+1);
+			s.push_back(+1);
 		}
 	}
 	if (all_zero) {
@@ -1289,7 +1299,12 @@ static ex G2_eval(const ex& x_, const ex& y)
 	if (crational) {
 		return G(x_, y).hold();
 	}
-	return G_numeric(x, s, y);
+	std::vector<cln::cl_N> xv;
+	xv.reserve(x.nops());
+	for (lst::const_iterator it = x.begin(); it != x.end(); ++it)
+		xv.push_back(ex_to<numeric>(*it).to_cl_N());
+	cln::cl_N result = G_numeric(xv, s, ex_to<numeric>(y).to_cl_N());
+	return numeric(result);
 }
 
 
@@ -1319,7 +1334,8 @@ static ex G3_evalf(const ex& x_, const ex& s_, const ex& y)
 	if (x.op(0) == y) {
 		return G(x_, s_, y).hold();
 	}
-	lst sn;
+	std::vector<int> sn;
+	sn.reserve(s.nops());
 	bool all_zero = true;
 	for (lst::const_iterator itx = x.begin(), its = s.begin(); itx != x.end(); ++itx, ++its) {
 		if (!(*itx).info(info_flags::numeric)) {
@@ -1333,25 +1349,30 @@ static ex G3_evalf(const ex& x_, const ex& s_, const ex& y)
 		}
 		if ( ex_to<numeric>(*itx).is_real() ) {
 			if ( *its >= 0 ) {
-				sn.append(+1);
+				sn.push_back(1);
 			}
 			else {
-				sn.append(-1);
+				sn.push_back(-1);
 			}
 		}
 		else {
 			if ( ex_to<numeric>(*itx).imag() > 0 ) {
-				sn.append(+1);
+				sn.push_back(1);
 			}
 			else {
-				sn.append(-1);
+				sn.push_back(-1);
 			}
 		}
 	}
 	if (all_zero) {
 		return pow(log(y), x.nops()) / factorial(x.nops());
 	}
-	return G_numeric(x, sn, y);
+	std::vector<cln::cl_N> xn;
+	xn.reserve(x.nops());
+	for (lst::const_iterator it = x.begin(); it != x.end(); ++it)
+		xn.push_back(ex_to<numeric>(*it).to_cl_N());
+	cln::cl_N result = G_numeric(xn, sn, ex_to<numeric>(y).to_cl_N());
+	return numeric(result);
 }
 
 
@@ -1373,7 +1394,8 @@ static ex G3_eval(const ex& x_, const ex& s_, const ex& y)
 	if (x.op(0) == y) {
 		return G(x_, s_, y).hold();
 	}
-	lst sn;
+	std::vector<int> sn;
+	sn.reserve(s.nops());
 	bool all_zero = true;
 	bool crational = true;
 	for (lst::const_iterator itx = x.begin(), its = s.begin(); itx != x.end(); ++itx, ++its) {
@@ -1391,18 +1413,18 @@ static ex G3_eval(const ex& x_, const ex& s_, const ex& y)
 		}
 		if ( ex_to<numeric>(*itx).is_real() ) {
 			if ( *its >= 0 ) {
-				sn.append(+1);
+				sn.push_back(1);
 			}
 			else {
-				sn.append(-1);
+				sn.push_back(-1);
 			}
 		}
 		else {
 			if ( ex_to<numeric>(*itx).imag() > 0 ) {
-				sn.append(+1);
+				sn.push_back(1);
 			}
 			else {
-				sn.append(-1);
+				sn.push_back(-1);
 			}
 		}
 	}
@@ -1415,7 +1437,12 @@ static ex G3_eval(const ex& x_, const ex& s_, const ex& y)
 	if (crational) {
 		return G(x_, s_, y).hold();
 	}
-	return G_numeric(x, sn, y);
+	std::vector<cln::cl_N> xn;
+	xn.reserve(x.nops());
+	for (lst::const_iterator it = x.begin(); it != x.end(); ++it)
+		xn.push_back(ex_to<numeric>(*it).to_cl_N());
+	cln::cl_N result = G_numeric(xn, sn, ex_to<numeric>(y).to_cl_N());
+	return numeric(result);
 }
 
 
