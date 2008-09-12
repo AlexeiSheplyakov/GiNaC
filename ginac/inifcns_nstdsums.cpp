@@ -2281,7 +2281,7 @@ bool convert_parameter_H_to_Li(const lst& l, lst& m, lst& s, ex& pf)
 		}
 	}
 	if (has_negative_parameters) {
-		for (int i=0; i<m.nops(); i++) {
+		for (std::size_t i=0; i<m.nops(); i++) {
 			if (m.op(i) < 0) {
 				m.let_op(i) = -m.op(i);
 				s.append(-1);
@@ -2321,7 +2321,7 @@ struct map_trafo_H_convert_to_Li : public map_function
 					s.let_op(0) = s.op(0) * arg;
 					return pf * Li(m, s).hold();
 				} else {
-					for (int i=0; i<m.nops(); i++) {
+					for (std::size_t i=0; i<m.nops(); i++) {
 						s.append(1);
 					}
 					s.let_op(0) = s.op(0) * arg;
@@ -2403,7 +2403,7 @@ struct map_trafo_H_reduce_trailing_zeros : public map_function
 					
 					//
 					parameter.remove_last();
-					int lastentry = parameter.nops();
+					std::size_t lastentry = parameter.nops();
 					while ((lastentry > 0) && (parameter[lastentry-1] == 0)) {
 						lastentry--;
 					}
@@ -2492,9 +2492,9 @@ ex trafo_H_mult(const ex& h1, const ex& h2)
 			hlong = h2.op(0).op(0);
 		}
 	}
-	for (int i=0; i<=hlong.nops(); i++) {
+	for (std::size_t i=0; i<=hlong.nops(); i++) {
 		lst newparameter;
-		int j=0;
+		std::size_t j=0;
 		for (; j<i; j++) {
 			newparameter.append(hlong[j]);
 		}
@@ -2522,7 +2522,7 @@ struct map_trafo_H_mult : public map_function
 			ex result = 1;
 			ex firstH;
 			lst Hlst;
-			for (int pos=0; pos<e.nops(); pos++) {
+			for (std::size_t pos=0; pos<e.nops(); pos++) {
 				if (is_a<power>(e.op(pos)) && is_a<function>(e.op(pos).op(0))) {
 					std::string name = ex_to<function>(e.op(pos).op(0)).get_name();
 					if (name == "H") {
@@ -2556,7 +2556,7 @@ struct map_trafo_H_mult : public map_function
 			if (Hlst.nops() > 0) {
 				ex buffer = trafo_H_mult(firstH, Hlst.op(0));
 				result *= buffer;
-				for (int i=1; i<Hlst.nops(); i++) {
+				for (std::size_t i=1; i<Hlst.nops(); i++) {
 					result *= Hlst.op(i);
 				}
 				result = result.expand();
@@ -2584,7 +2584,7 @@ ex trafo_H_1tx_prepend_zero(const ex& e, const ex& arg)
 	if (name == "H") {
 		h = e;
 	} else {
-		for (int i=0; i<e.nops(); i++) {
+		for (std::size_t i=0; i<e.nops(); i++) {
 			if (is_a<function>(e.op(i))) {
 				std::string name = ex_to<function>(e.op(i)).get_name();
 				if (name == "H") {
@@ -2616,7 +2616,7 @@ ex trafo_H_prepend_one(const ex& e, const ex& arg)
 	if (name == "H") {
 		h = e;
 	} else {
-		for (int i=0; i<e.nops(); i++) {
+		for (std::size_t i=0; i<e.nops(); i++) {
 			if (is_a<function>(e.op(i))) {
 				std::string name = ex_to<function>(e.op(i)).get_name();
 				if (name == "H") {
@@ -2647,7 +2647,7 @@ ex trafo_H_1tx_prepend_minusone(const ex& e, const ex& arg)
 	if (name == "H") {
 		h = e;
 	} else {
-		for (int i=0; i<e.nops(); i++) {
+		for (std::size_t i=0; i<e.nops(); i++) {
 			if (is_a<function>(e.op(i))) {
 				std::string name = ex_to<function>(e.op(i)).get_name();
 				if (name == "H") {
@@ -2680,7 +2680,7 @@ ex trafo_H_1mxt1px_prepend_minusone(const ex& e, const ex& arg)
 	if (name == "H") {
 		h = e;
 	} else {
-		for (int i=0; i<e.nops(); i++) {
+		for (std::size_t i = 0; i < e.nops(); i++) {
 			if (is_a<function>(e.op(i))) {
 				std::string name = ex_to<function>(e.op(i)).get_name();
 				if (name == "H") {
@@ -2711,7 +2711,7 @@ ex trafo_H_1mxt1px_prepend_one(const ex& e, const ex& arg)
 	if (name == "H") {
 		h = e;
 	} else {
-		for (int i=0; i<e.nops(); i++) {
+		for (std::size_t i = 0; i < e.nops(); i++) {
 			if (is_a<function>(e.op(i))) {
 				std::string name = ex_to<function>(e.op(i)).get_name();
 				if (name == "H") {
@@ -2749,7 +2749,7 @@ struct map_trafo_H_1mx : public map_function
 				// special cases if all parameters are either 0, 1 or -1
 				bool allthesame = true;
 				if (parameter.op(0) == 0) {
-					for (int i=1; i<parameter.nops(); i++) {
+					for (std::size_t i = 1; i < parameter.nops(); i++) {
 						if (parameter.op(i) != 0) {
 							allthesame = false;
 							break;
@@ -2765,7 +2765,7 @@ struct map_trafo_H_1mx : public map_function
 				} else if (parameter.op(0) == -1) {
 					throw std::runtime_error("map_trafo_H_1mx: cannot handle weights equal -1!");
 				} else {
-					for (int i=1; i<parameter.nops(); i++) {
+					for (std::size_t i = 1; i < parameter.nops(); i++) {
 						if (parameter.op(i) != 1) {
 							allthesame = false;
 							break;
@@ -2791,7 +2791,7 @@ struct map_trafo_H_1mx : public map_function
 					map_trafo_H_1mx recursion;
 					ex buffer = recursion(H(newparameter, arg).hold());
 					if (is_a<add>(buffer)) {
-						for (int i=0; i<buffer.nops(); i++) {
+						for (std::size_t i = 0; i < buffer.nops(); i++) {
 							res -= trafo_H_prepend_one(buffer.op(i), arg);
 						}
 					} else {
@@ -2805,13 +2805,13 @@ struct map_trafo_H_1mx : public map_function
 					map_trafo_H_1mx recursion;
 					map_trafo_H_mult unify;
 					ex res = H(lst(1), arg).hold() * H(newparameter, arg).hold();
-					int firstzero = 0;
+					std::size_t firstzero = 0;
 					while (parameter.op(firstzero) == 1) {
 						firstzero++;
 					}
-					for (int i=firstzero-1; i<parameter.nops()-1; i++) {
+					for (std::size_t i = firstzero-1; i < parameter.nops()-1; i++) {
 						lst newparameter;
-						int j=0;
+						std::size_t j=0;
 						for (; j<=i; j++) {
 							newparameter.append(parameter[j+1]);
 						}
@@ -2850,7 +2850,7 @@ struct map_trafo_H_1overx : public map_function
 				// special cases if all parameters are either 0, 1 or -1
 				bool allthesame = true;
 				if (parameter.op(0) == 0) {
-					for (int i=1; i<parameter.nops(); i++) {
+					for (std::size_t i = 1; i < parameter.nops(); i++) {
 						if (parameter.op(i) != 0) {
 							allthesame = false;
 							break;
@@ -2860,7 +2860,7 @@ struct map_trafo_H_1overx : public map_function
 						return pow(-1, parameter.nops()) * H(parameter, 1/arg).hold();
 					}
 				} else if (parameter.op(0) == -1) {
-					for (int i=1; i<parameter.nops(); i++) {
+					for (std::size_t i = 1; i < parameter.nops(); i++) {
 						if (parameter.op(i) != -1) {
 							allthesame = false;
 							break;
@@ -2872,7 +2872,7 @@ struct map_trafo_H_1overx : public map_function
 						       / factorial(parameter.nops())).expand());
 					}
 				} else {
-					for (int i=1; i<parameter.nops(); i++) {
+					for (std::size_t i = 1; i < parameter.nops(); i++) {
 						if (parameter.op(i) != 1) {
 							allthesame = false;
 							break;
@@ -2895,7 +2895,7 @@ struct map_trafo_H_1overx : public map_function
 					map_trafo_H_1overx recursion;
 					ex buffer = recursion(H(newparameter, arg).hold());
 					if (is_a<add>(buffer)) {
-						for (int i=0; i<buffer.nops(); i++) {
+						for (std::size_t i = 0; i < buffer.nops(); i++) {
 							res += trafo_H_1tx_prepend_zero(buffer.op(i), arg);
 						}
 					} else {
@@ -2910,7 +2910,7 @@ struct map_trafo_H_1overx : public map_function
 					map_trafo_H_1overx recursion;
 					ex buffer = recursion(H(newparameter, arg).hold());
 					if (is_a<add>(buffer)) {
-						for (int i=0; i<buffer.nops(); i++) {
+						for (std::size_t i = 0; i < buffer.nops(); i++) {
 							res += trafo_H_1tx_prepend_zero(buffer.op(i), arg) - trafo_H_1tx_prepend_minusone(buffer.op(i), arg);
 						}
 					} else {
@@ -2924,13 +2924,13 @@ struct map_trafo_H_1overx : public map_function
 					map_trafo_H_1overx recursion;
 					map_trafo_H_mult unify;
 					ex res = H(lst(1), arg).hold() * H(newparameter, arg).hold();
-					int firstzero = 0;
+					std::size_t firstzero = 0;
 					while (parameter.op(firstzero) == 1) {
 						firstzero++;
 					}
-					for (int i=firstzero-1; i<parameter.nops()-1; i++) {
+					for (std::size_t i = firstzero-1; i < parameter.nops() - 1; i++) {
 						lst newparameter;
-						int j=0;
+						std::size_t j = 0;
 						for (; j<=i; j++) {
 							newparameter.append(parameter[j+1]);
 						}
@@ -2971,7 +2971,7 @@ struct map_trafo_H_1mxt1px : public map_function
 				// special cases if all parameters are either 0, 1 or -1
 				bool allthesame = true;
 				if (parameter.op(0) == 0) {
-					for (int i=1; i<parameter.nops(); i++) {
+					for (std::size_t i = 1; i < parameter.nops(); i++) {
 						if (parameter.op(i) != 0) {
 							allthesame = false;
 							break;
@@ -2983,7 +2983,7 @@ struct map_trafo_H_1mxt1px : public map_function
 						       / factorial(parameter.nops())).expand());
 					}
 				} else if (parameter.op(0) == -1) {
-					for (int i=1; i<parameter.nops(); i++) {
+					for (std::size_t i = 1; i < parameter.nops(); i++) {
 						if (parameter.op(i) != -1) {
 							allthesame = false;
 							break;
@@ -2995,7 +2995,7 @@ struct map_trafo_H_1mxt1px : public map_function
 						       / factorial(parameter.nops())).expand());
 					}
 				} else {
-					for (int i=1; i<parameter.nops(); i++) {
+					for (std::size_t i = 1; i < parameter.nops(); i++) {
 						if (parameter.op(i) != 1) {
 							allthesame = false;
 							break;
@@ -3018,7 +3018,7 @@ struct map_trafo_H_1mxt1px : public map_function
 					map_trafo_H_1mxt1px recursion;
 					ex buffer = recursion(H(newparameter, arg).hold());
 					if (is_a<add>(buffer)) {
-						for (int i=0; i<buffer.nops(); i++) {
+						for (std::size_t i = 0; i < buffer.nops(); i++) {
 							res -= trafo_H_1mxt1px_prepend_one(buffer.op(i), arg) + trafo_H_1mxt1px_prepend_minusone(buffer.op(i), arg);
 						}
 					} else {
@@ -3033,7 +3033,7 @@ struct map_trafo_H_1mxt1px : public map_function
 					map_trafo_H_1mxt1px recursion;
 					ex buffer = recursion(H(newparameter, arg).hold());
 					if (is_a<add>(buffer)) {
-						for (int i=0; i<buffer.nops(); i++) {
+						for (std::size_t i = 0; i < buffer.nops(); i++) {
 							res -= trafo_H_1mxt1px_prepend_minusone(buffer.op(i), arg);
 						}
 					} else {
@@ -3047,13 +3047,13 @@ struct map_trafo_H_1mxt1px : public map_function
 					map_trafo_H_1mxt1px recursion;
 					map_trafo_H_mult unify;
 					ex res = H(lst(1), arg).hold() * H(newparameter, arg).hold();
-					int firstzero = 0;
+					std::size_t firstzero = 0;
 					while (parameter.op(firstzero) == 1) {
 						firstzero++;
 					}
-					for (int i=firstzero-1; i<parameter.nops()-1; i++) {
+					for (std::size_t i = firstzero - 1; i < parameter.nops() - 1; i++) {
 						lst newparameter;
-						int j=0;
+						std::size_t j=0;
 						for (; j<=i; j++) {
 							newparameter.append(parameter[j+1]);
 						}
@@ -3127,7 +3127,7 @@ static ex H_evalf(const ex& x1, const ex& x2)
 			}
 		}
 
-		for (int i=0; i<x1.nops(); i++) {
+		for (std::size_t i = 0; i < x1.nops(); i++) {
 			if (!x1.op(i).info(info_flags::integer)) {
 				return H(x1, x2).hold();
 			}
@@ -3199,7 +3199,7 @@ static ex H_evalf(const ex& x1, const ex& x2)
 		// ensure that the realpart of the argument is positive
 		if (cln::realpart(x) < 0) {
 			x = -x;
-			for (int i=0; i<m.nops(); i++) {
+			for (std::size_t i = 0; i < m.nops(); i++) {
 				if (m.op(i) != 0) {
 					m.let_op(i) = -m.op(i);
 					res *= -1;
@@ -3708,7 +3708,7 @@ cln::cl_N zeta_do_Hoelder_convolution(const std::vector<int>& m_, const std::vec
 	s_p[0] = s_p[0] * cln::cl_N("1/2");
 	// convert notations
 	int sig = 1;
-	for (int i=0; i<s_.size(); i++) {
+	for (std::size_t i = 0; i < s_.size(); i++) {
 		if (s_[i] < 0) {
 			sig = -sig;
 			s_p[i] = -s_p[i];
