@@ -163,7 +163,7 @@ public:
 
 	// pattern matching
 	virtual bool has(const ex & other, unsigned options = 0) const;
-	virtual bool match(const ex & pattern, lst & repl_lst) const;
+	virtual bool match(const ex & pattern, exmap & repls) const;
 protected:
 	virtual bool match_same_type(const basic & other) const;
 public:

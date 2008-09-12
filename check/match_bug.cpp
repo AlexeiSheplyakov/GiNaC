@@ -25,11 +25,11 @@ static void failed_match_have_side_effects()
 	ex e = pow(x, 5);
 	ex pattern = pow(wild(0), -1);
 	// obviously e does NOT match the pattern
-	lst repl_lst;
-	bool match_p = e.match(pattern, repl_lst);
+	exmap repls;
+	bool match_p = e.match(pattern, repls);
 	bug_on(match_p, "match(" << e << ", " << pattern << ") says \"Yes\"");
-	bug_on(repl_lst.nops() != 0,
-		"failed match have side effects: repl_lst = " << repl_lst);
+	bug_on(repls.size() != 0,
+		"failed match have side effects: repls = " << repls);
 }
 
 /*
@@ -49,8 +49,8 @@ static void match_false_negative()
 	symbol x("x"), y("y");
 	ex e = pow(x, 5)*pow(y, -1);
 	ex pattern = pow(wild(0), -1)*pow(x, wild(2));
-	lst repl_lst;
-	bool match_p = e.match(pattern, repl_lst);
+	exmap repls;
+	bool match_p = e.match(pattern, repls);
 	bug_on(!match_p, "false negative: " << e << " did not match "
 			<< pattern);
 }

@@ -4413,14 +4413,14 @@ matches a given pattern. This is done by the function
 
 @example
 bool ex::match(const ex & pattern);
-bool ex::match(const ex & pattern, lst & repls);
+bool ex::match(const ex & pattern, exmap& repls);
 @end example
 
 This function returns @code{true} when the expression matches the pattern
 and @code{false} if it doesn't. If used in the second form, the actual
-subexpressions matched by the wildcards get returned in the @code{repls}
-object as a list of relations of the form @samp{wildcard == expression}.
-If @code{match()} returns false,  @code{repls} remains unmodified.
+subexpressions matched by the wildcards get returned in the associative
+array @code{repls} with @samp{wildcard} as a key. If @code{match()}
+returns false,  @code{repls} remains unmodified.
 
 The matching algorithm works as follows:
 
@@ -4559,7 +4559,7 @@ Again some examples in @command{ginsh} for illustration (in @command{ginsh},
 The method
 
 @example
-bool ex::find(const ex & pattern, lst & found);
+bool ex::find(const ex & pattern, exset& found);
 @end example
 
 works a bit like @code{has()} but it doesn't stop upon finding the first

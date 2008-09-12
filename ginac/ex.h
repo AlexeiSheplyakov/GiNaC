@@ -141,9 +141,9 @@ public:
 
 	// pattern matching
 	bool has(const ex & pattern, unsigned options = 0) const { return bp->has(pattern, options); }
-	bool find(const ex & pattern, lst & found) const;
+	bool find(const ex & pattern, exset& found) const;
 	bool match(const ex & pattern) const;
-	bool match(const ex & pattern, lst & repl_lst) const { return bp->match(pattern, repl_lst); }
+	bool match(const ex & pattern, exmap & repls) const { return bp->match(pattern, repls); }
 
 	// substitutions
 	ex subs(const exmap & m, unsigned options = 0) const;
@@ -702,7 +702,7 @@ inline ex imag_part(const ex & thisex)
 inline bool has(const ex & thisex, const ex & pattern, unsigned options = 0)
 { return thisex.has(pattern, options); }
 
-inline bool find(const ex & thisex, const ex & pattern, lst & found)
+inline bool find(const ex & thisex, const ex & pattern, exset& found)
 { return thisex.find(pattern, found); }
 
 inline bool is_polynomial(const ex & thisex, const ex & vars)
@@ -762,7 +762,7 @@ inline ex diff(const ex & thisex, const symbol & s, unsigned nth = 1)
 inline ex series(const ex & thisex, const ex & r, int order, unsigned options = 0)
 { return thisex.series(r, order, options); }
 
-inline bool match(const ex & thisex, const ex & pattern, lst & repl_lst)
+inline bool match(const ex & thisex, const ex & pattern, exmap& repl_lst)
 { return thisex.match(pattern, repl_lst); }
 
 inline ex simplify_indexed(const ex & thisex, unsigned options = 0)

@@ -635,7 +635,7 @@ bool power::has(const ex & other, unsigned options) const
 }
 
 // from mul.cpp
-extern bool tryfactsubs(const ex &, const ex &, int &, lst &);
+extern bool tryfactsubs(const ex &, const ex &, int &, exmap&);
 
 ex power::subs(const exmap & m, unsigned options) const
 {	
@@ -651,9 +651,13 @@ ex power::subs(const exmap & m, unsigned options) const
 
 	for (exmap::const_iterator it = m.begin(); it != m.end(); ++it) {
 		int nummatches = std::numeric_limits<int>::max();
-		lst repls;
-		if (tryfactsubs(*this, it->first, nummatches, repls))
-			return (ex_to<basic>((*this) * power(it->second.subs(ex(repls), subs_options::no_pattern) / it->first.subs(ex(repls), subs_options::no_pattern), nummatches))).subs_one_level(m, options);
+		exmap repls;
+		if (tryfactsubs(*this, it->first, nummatches, repls)) {
+			ex anum = it->second.subs(repls, subs_options::no_pattern);
+			ex aden = it->first.subs(repls, subs_options::no_pattern);
+			ex result = (*this)*power(anum/aden, nummatches);
+			return (ex_to<basic>(result)).subs_one_level(m, options);
+		}
 	}
 
 	return subs_one_level(m, options);

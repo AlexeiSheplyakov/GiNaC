@@ -84,7 +84,7 @@ public:
 	ex eval(int level=0) const;
 	ex to_rational(exmap & repl) const;
 	ex to_polynomial(exmap & repl) const;
-	bool match(const ex & pattern, lst & repl_lst) const;
+	bool match(const ex & pattern, exmap& repl_lst) const;
 	ex subs(const exmap & m, unsigned options = 0) const;
 	ex conjugate() const;
 	bool is_polynomial(const ex & var) const;

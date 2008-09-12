@@ -41,7 +41,7 @@ public:
 
 	// functions overriding virtual functions from base classes
 public:
-	bool match(const ex & pattern, lst & repl_lst) const;
+	bool match(const ex & pattern, exmap& repl_lst) const;
 
 protected:
 	unsigned calchash() const;

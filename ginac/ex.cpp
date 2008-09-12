@@ -95,7 +95,7 @@ ex ex::diff(const symbol & s, unsigned nth) const
 /** Check whether expression matches a specified pattern. */
 bool ex::match(const ex & pattern) const
 {
-	lst repl_lst;
+	exmap repl_lst;
 	return bp->match(pattern, repl_lst);
 }
 
@@ -103,12 +103,10 @@ bool ex::match(const ex & pattern) const
  *  the "found" list. If the expression itself matches the pattern, the
  *  children are not further examined. This function returns true when any
  *  matches were found. */
-bool ex::find(const ex & pattern, lst & found) const
+bool ex::find(const ex & pattern, exset& found) const
 {
 	if (match(pattern)) {
-		found.append(*this);
-		found.sort();
-		found.unique();
+		found.insert(*this);
 		return true;
 	}
 	bool any_found = false;

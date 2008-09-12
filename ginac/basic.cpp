@@ -290,7 +290,7 @@ ex & basic::operator[](size_t i)
  *  but e.has(x+y) is false. */
 bool basic::has(const ex & pattern, unsigned options) const
 {
-	lst repl_lst;
+	exmap repl_lst;
 	if (match(pattern, repl_lst))
 		return true;
 	for (size_t i=0; i<nops(); i++)
@@ -534,9 +534,9 @@ bool basic::contract_with(exvector::iterator self, exvector::iterator other, exv
 }
 
 /** Check whether the expression matches a given pattern. For every wildcard
- *  object in the pattern, an expression of the form "wildcard == matching_expression"
- *  is added to repl_lst. */
-bool basic::match(const ex & pattern, lst & repl_lst) const
+ *  object in the pattern, a pair with the wildcard as a key and matching 
+ *  expression as a value is added to repl_lst. */
+bool basic::match(const ex & pattern, exmap& repl_lst) const
 {
 /*
 	Sweet sweet shapes, sweet sweet shapes,
@@ -559,11 +559,11 @@ bool basic::match(const ex & pattern, lst & repl_lst) const
 		// Wildcard matches anything, but check whether we already have found
 		// a match for that wildcard first (if so, the earlier match must be
 		// the same expression)
-		for (lst::const_iterator it = repl_lst.begin(); it != repl_lst.end(); ++it) {
-			if (it->op(0).is_equal(pattern))
-				return is_equal(ex_to<basic>(it->op(1)));
+		for (exmap::const_iterator it = repl_lst.begin(); it != repl_lst.end(); ++it) {
+			if (it->first.is_equal(pattern))
+				return is_equal(ex_to<basic>(it->second));
 		}
-		repl_lst.append(pattern == *this);
+		repl_lst[pattern] = *this;
 		return true;
 
 	} else {
@@ -589,7 +589,7 @@ bool basic::match(const ex & pattern, lst & repl_lst) const
 		// its subexpressions could match it. For example, x^5*y^(-1)
 		// does not match the pattern $0^5, but its subexpression x^5
 		// does. So, save repl_lst in order to not add bogus entries.
-		lst tmp_repl = repl_lst;
+		exmap tmp_repl = repl_lst;
 		// Otherwise the subexpressions must match one-to-one
 		for (size_t i=0; i<nops(); i++)
 			if (!op(i).match(pattern.op(i), tmp_repl))
@@ -614,9 +614,10 @@ ex basic::subs_one_level(const exmap & m, unsigned options) const
 		return thisex;
 	} else {
 		for (it = m.begin(); it != m.end(); ++it) {
-			lst repl_lst;
+			exmap repl_lst;
 			if (match(ex_to<basic>(it->first), repl_lst))
-				return it->second.subs(repl_lst, options | subs_options::no_pattern); // avoid infinite recursion when re-substituting the wildcards
+				return it->second.subs(repl_lst, options | subs_options::no_pattern);
+			// avoid infinite recursion when re-substituting the wildcards
 		}
 	}
 
