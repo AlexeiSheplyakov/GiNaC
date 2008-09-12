@@ -1409,7 +1409,7 @@ exvector get_all_dummy_indices_safely(const ex & e)
 	else if (is_a<mul>(e) || is_a<ncmul>(e)) {
 		exvector dummies;
 		exvector free_indices;
-		for (int i=0; i<e.nops(); ++i) {
+		for (std::size_t i = 0; i < e.nops(); ++i) {
 			exvector dummies_of_factor = get_all_dummy_indices_safely(e.op(i));
 			dummies.insert(dummies.end(), dummies_of_factor.begin(),
 				dummies_of_factor.end());
@@ -1425,7 +1425,7 @@ exvector get_all_dummy_indices_safely(const ex & e)
 	}
 	else if(is_a<add>(e)) {
 		exvector result;
-		for(int i=0; i<e.nops(); ++i) {
+		for(std::size_t i = 0; i < e.nops(); ++i) {
 			exvector dummies_of_term = get_all_dummy_indices_safely(e.op(i));
 			sort(dummies_of_term.begin(), dummies_of_term.end());
 			exvector new_vec;

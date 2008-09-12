@@ -1418,7 +1418,7 @@ int matrix::fraction_free_elimination(const bool det)
 		// Searching the first non-zero element in-place here instead of calling
 		// pivot() allows us to do no more substitutions and back-substitutions
 		// than are actually necessary.
-		int indx = r0;
+		unsigned indx = r0;
 		while ((indx<m) &&
 		       (tmp_n[indx*n+c0].subs(srl, subs_options::no_pattern).expand().is_zero()))
 			++indx;

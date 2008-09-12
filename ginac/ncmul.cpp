@@ -124,7 +124,7 @@ bool ncmul::info(unsigned inf) const
 	return inherited::info(inf);
 }
 
-typedef std::vector<int> intvector;
+typedef std::vector<std::size_t> uintvector;
 
 ex ncmul::expand(unsigned options) const
 {
@@ -134,8 +134,8 @@ ex ncmul::expand(unsigned options) const
 	
 	// Now, look for all the factors that are sums and remember their
 	// position and number of terms.
-	intvector positions_of_adds(expanded_seq.size());
-	intvector number_of_add_operands(expanded_seq.size());
+	uintvector positions_of_adds(expanded_seq.size());
+	uintvector number_of_add_operands(expanded_seq.size());
 
 	size_t number_of_adds = 0;
 	size_t number_of_expanded_terms = 1;
@@ -167,7 +167,7 @@ ex ncmul::expand(unsigned options) const
 	exvector distrseq;
 	distrseq.reserve(number_of_expanded_terms);
 
-	intvector k(number_of_adds);
+	uintvector k(number_of_adds);
 
 	/* Rename indices in the static members of the product */
 	exvector expanded_seq_mod;
