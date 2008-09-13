@@ -138,6 +138,13 @@ ex parser::operator()(std::istream& input)
 	scanner->switch_input(&input);
 	get_next_tok();
 	ex ret = parse_expression();
+	// parse_expression() stops if it encounters an unknown token.
+	// This is not a bug: since the parser is recursive checking
+	// whether the next token is valid is responsibility of the caller.
+	// Hence make sure nothing is left in the stream:
+	if (token != lexer::token_type::eof)
+		Parse_error("expected EOF");
+
 	return ret;
 }
 

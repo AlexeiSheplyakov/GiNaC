@@ -58,6 +58,22 @@ static int check3(std::ostream& err_str)
 	return 0;
 }
 
+/// parser happily accepted various junk like 'x^2()+1'
+static int check4(std::ostream& err_str)
+{
+	const std::string junk("x^2()+1");
+	parser reader;
+	ex e;
+	try {
+		e = reader(junk);
+		err_str << "parser accepts junk: \"" << junk << "\"" << std::endl;
+		return 1;
+	} catch (parse_error& err) {
+		// Ok, parser rejects the nonsense.
+		return 0;
+	}
+}
+
 int main(int argc, char** argv)
 {
 	std::cout << "checking for parser bugs. " << std::flush;
@@ -66,6 +82,7 @@ int main(int argc, char** argv)
 	errors += check1(err_str);
 	errors += check2(err_str);
 	errors += check3(err_str);
+	errors += check4(err_str);
 	if (errors) {
 		std::cout << "Yes, unfortunately:" << std::endl;
 		std::cout << err_str.str();
