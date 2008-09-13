@@ -1,4 +1,5 @@
 #ifndef GINAC_PARSER_HPP_
+#define GINAC_PARSER_HPP_
 
 #include "parse_context.hpp"
 #include <stdexcept>
