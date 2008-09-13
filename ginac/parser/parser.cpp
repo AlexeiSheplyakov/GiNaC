@@ -150,9 +150,9 @@ int parser::get_next_tok()
 	return token;
 }
 
-parser::parser(const symtab& syms_, const prototype_table& funcs_,
-	       const bool strict_) : strict(strict_), funcs(funcs_),
-	syms(syms_)
+parser::parser(const symtab& syms_, const bool strict_,
+	       const prototype_table& funcs_) : strict(strict_),
+	funcs(funcs_), syms(syms_)
 {
 	scanner = new lexer();
 }

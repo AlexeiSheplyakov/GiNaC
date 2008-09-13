@@ -62,8 +62,8 @@ public:
 	 *        symbol is encountered.
 	 */
 	parser(const symtab& syms_ = symtab(),
-		const prototype_table& funcs_ = get_default_reader(),
-		const bool strict_ = false);
+		const bool strict_ = false,
+		const prototype_table& funcs_ = get_default_reader());
 	~parser();
 
 	/// parse the stream @a input
