@@ -6,7 +6,6 @@
 #include <vector>
 #include <stdexcept>
 #include "ginac.h"
-#include "parser/parser.hpp"
 #include "timer.h"
 extern void randomify_symbol_serials();
 using namespace std;

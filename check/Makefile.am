@@ -237,6 +237,6 @@ time_parser_SOURCES = time_parser.cpp \
 time_parser_LDADD = ../ginac/libginac.la
 
 
-AM_CPPFLAGS = -I$(srcdir)/../ginac -I../ginac
+AM_CPPFLAGS = -I$(srcdir)/../ginac -I../ginac -DIN_GINAC
 
 CLEANFILES = exam.gar
