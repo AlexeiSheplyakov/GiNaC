@@ -49,7 +49,7 @@ class parser
 	ex parse_number_expr();
 
 	/// unary_expr: [+-] expression
-	ex parse_unary_expr(const int c);
+	ex parse_unary_expr();
 
 	/// literal_expr: 'I' | 'Pi' | 'Euler' | 'Catalan'
 	ex parse_literal_expr();

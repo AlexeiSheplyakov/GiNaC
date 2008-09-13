@@ -60,21 +60,25 @@ ex parser::parse_paren_expr()
 }
 
 extern numeric* _num_1_p;
+extern ex _ex0;
 
 /// unary_expr: [+-] expression
-ex parser::parse_unary_expr(const int s)
+ex parser::parse_unary_expr()
 {
-	// consume '-' (or '+')
-	get_next_tok();
-	ex v = parse_expression();
-	switch (s) {
-		case '-':
-			return (new mul(v, *_num_1_p))->setflag(status_flags::dynallocated);
-		case '+':
-			return v;
-		default:
-			Parse_error_("invalid unary operator \"" << char(s) << "\"");
-	}
+	// Unlike most other parse_* method this one does NOT consume
+	// current token so parse_binop_rhs() knows what kind of operator
+	// is being parsed.
+	
+	// There are different kinds of expressions which need to be handled:
+	// -a+b 
+	// -(a) 
+	// +a
+	// +(a)
+	// Delegete the work to parse_binop_rhs(), otherwise we end up
+	// duplicating it here. 
+	ex lhs = _ex0; // silly trick
+	ex e = parse_binop_rhs(0, lhs);
+	return e;
 }
 
 /// primary: identifier_expr | number_expr | paren_expr | unary_expr 
@@ -88,9 +92,8 @@ ex parser::parse_primary()
 		case '(': 
 			 return parse_paren_expr();
 		case '-':
-			 return parse_unary_expr('-');
 		case '+':
-			 return parse_unary_expr('+');
+			 return parse_unary_expr();
 		case lexer::token_type::literal:
 			 return parse_literal_expr();
 		case lexer::token_type::eof:

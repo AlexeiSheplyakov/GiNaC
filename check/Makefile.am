@@ -8,6 +8,7 @@ CHECKS = check_numeric \
 EXAMS = exam_paranoia \
 	exam_heur_gcd \
 	match_bug \
+	parser_bugs \
 	exam_numeric_archive \
 	exam_numeric \
 	exam_powerlaws  \
@@ -77,6 +78,9 @@ exam_heur_gcd_LDADD = ../ginac/libginac.la
 
 match_bug_SOURCES = match_bug.cpp error_report.hpp
 match_bug_LDADD = ../ginac/libginac.la
+
+parser_bugs_SOURCES = parser_bugs.cpp
+parser_bugs_LDADD = ../ginac/libginac.la
 
 exam_numeric_archive_SOURCES = numeric_archive.cpp
 exam_numeric_archive_LDADD = ../ginac/libginac.la
