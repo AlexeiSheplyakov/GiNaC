@@ -76,10 +76,15 @@ public:
 	{ 
 		return syms; 
 	}
+	/// read/write access to the symbol table
+	symtab& get_syms()
+	{
+		return syms;
+	}
 
-private:
 	/// If true, throw an exception if an unknown symbol is encountered.
-	const bool strict;
+	bool strict;
+private:
 	/**
 	 * Function/ctor table, maps a prototype (which is a name and number
 	 * arguments) to a C++ function. Used for parsing identifier_expr's
