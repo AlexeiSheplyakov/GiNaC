@@ -121,6 +121,7 @@ ex parser::parse_number_expr()
 /// literal_expr: 'I' | 'Pi' | 'Euler' | 'Catalan'
 ex parser::parse_literal_expr()
 {
+	get_next_tok(); // consume the literal
 	if (scanner->str == "I")
 		return I;
 	else if (scanner->str == "Pi")

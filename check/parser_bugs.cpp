@@ -41,6 +41,23 @@ static int check2(std::ostream& err_str)
 	return 0;
 }
 
+/// parse_literal_expr forget to consume the token, so parser get
+/// very confused.
+static int check3(std::ostream& err_str)
+{
+	const std::string srep("5-(2*I)/3");
+	parser reader;
+	ex e = reader(srep);
+	ex g = numeric(5) - (numeric(2)*I)/3;
+	ex d = (e - g).expand();
+	if (!d.is_zero()) {
+		err_str << "\"" << srep << "\" was misparsed as \""
+			<< e << "\"" << std::endl;
+		return 1;
+	}
+	return 0;
+}
+
 int main(int argc, char** argv)
 {
 	std::cout << "checking for parser bugs. " << std::flush;
@@ -48,6 +65,7 @@ int main(int argc, char** argv)
 	int errors = 0;
 	errors += check1(err_str);
 	errors += check2(err_str);
+	errors += check3(err_str);
 	if (errors) {
 		std::cout << "Yes, unfortunately:" << std::endl;
 		std::cout << err_str.str();
