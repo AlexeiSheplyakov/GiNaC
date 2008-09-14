@@ -16,6 +16,7 @@ libginac_la_SOURCES = add.cpp archive.cpp basic.cpp clifford.cpp color.cpp \
   parser/builtin_fcns.cpp \
   parser/lexer.cpp \
   parser/lexer.hpp \
+  parser/parser_compat.cpp \
   parser/debug.hpp
   
 libginac_la_LDFLAGS = -version-info $(LT_VERSION_INFO) -release $(LT_RELEASE)

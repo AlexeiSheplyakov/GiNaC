@@ -553,17 +553,6 @@ basic & ex::construct_from_double(double d)
 	return *bp;
 }
 
-ptr<basic> ex::construct_from_string_and_lst(const std::string &s, const ex &l)
-{
-	set_lexer_string(s);
-	set_lexer_symbols(l);
-	ginac_yyrestart(NULL);
-	if (ginac_yyparse())
-		throw (std::runtime_error(get_parser_error()));
-	else
-		return parsed_ex.bp;
-}
-	
 //////////
 // static member variables
 //////////
