@@ -30,6 +30,13 @@ This is a collection of code examples using GiNaC.
 
 Two expression are stored in an archive on the disk and are restored again.
 
+@section Input and output of expressions
+
+@subsection Expression input @uref{derivative.cpp, (source)}
+
+Interactively input expression and compute its derivative with respect
+to the ``x'' variable.
+
 @chapter Monte Carlo Integration
 
 @section Example showing compile_ex @uref{compile1.cpp, (source)}
