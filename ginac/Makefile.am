@@ -8,8 +8,8 @@ libginac_la_SOURCES = add.cpp archive.cpp basic.cpp clifford.cpp color.cpp \
   integral.cpp lst.cpp matrix.cpp mul.cpp ncmul.cpp normal.cpp numeric.cpp \
   operators.cpp power.cpp registrar.cpp relational.cpp remember.cpp \
   pseries.cpp print.cpp symbol.cpp symmetry.cpp tensor.cpp \
-  utils.cpp wildcard.cpp input_parser.yy input_lexer.ll \
-  input_lexer.h remember.h tostring.h utils.h compiler.h \
+  utils.cpp wildcard.cpp \
+  remember.h tostring.h utils.h compiler.h \
   parser/parse_binop_rhs.cpp \
   parser/parser.cpp \
   parser/parse_context.cpp \
@@ -31,9 +31,7 @@ ginacinclude_HEADERS = ginac.h add.h archive.h assertion.h basic.h class_info.h 
   parser/parser.hpp \
   parser/parse_context.hpp
 
-AM_LFLAGS = -Pginac_yy -olex.yy.c
-AM_YFLAGS = -p ginac_yy -d
-EXTRA_DIST = function.pl input_parser.h version.h.in \
+EXTRA_DIST = function.pl version.h.in \
 parser/default_reader.tpl parser/builtin_fcns.def
 
 # Files produced by autogen(1) from templates

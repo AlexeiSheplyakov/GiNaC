@@ -32,7 +32,6 @@
 #include "power.h"
 #include "lst.h"
 #include "relational.h"
-#include "input_lexer.h"
 #include "utils.h"
 
 namespace GiNaC {
