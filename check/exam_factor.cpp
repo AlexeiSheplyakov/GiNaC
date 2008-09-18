@@ -118,10 +118,49 @@ static unsigned exam_factor2()
 	e = ex("x+y", syms);
 	result += check_factor(e);
 
-	e = ex("x+y", syms);
+	e = ex("(x^2-y+1)*(x+y)", syms);
 	result += check_factor(e);
 
 	e = ex("-2*(x+y)*(x-y)", syms);
+	result += check_factor(e);
+
+	e = ex("(16+x^2*z^3)*(-17+3*x-5*z)*(2*x+3*z)*(x-y^2-z^3)", syms);
+	result += check_factor(e);
+
+	e = ex("(x-y*z)*(x-y^2-z^3)*(x+y+z)", syms);
+	result += check_factor(e);
+	
+	e = ex("-(y^2-x+z^3)*x*(x+y+z)", syms);
+	result += check_factor(e);
+	
+	e = ex("-316*(3*x-4*z)*(2*x+3*z)*(x+y)*(-1+x)", syms);
+	result += check_factor(e);
+	
+	e = ex("(x+x^3+z^2)*(3*x-4*z)", syms);
+	result += check_factor(e);
+	
+	e = ex("250*(-3+x)*(4*z-3*x)*(x^3+z^2+x)*x", syms);
+	result += check_factor(e);
+	
+	e = ex("327*(x+z^2+x^3)*(3*x-4*z)*(-7+5*x-x^3)*(1+x+x^2)", syms);
+	result += check_factor(e);
+	
+	e = ex("x-y^2-z^3", syms);
+	result += check_factor(e);
+	
+	e = ex("-390*(7+3*x^4)*(2+x^2)*(x-z^3-y^2)", syms);
+	result += check_factor(e);
+	
+	e = ex("55*(1+x)^2*(3*x-4*z)*(1+x+x^2)*(x+x^3+z^2)", syms);
+	result += check_factor(e);
+	
+	e = ex("x+y*x-1", syms);
+	result += check_factor(e);
+	
+	e = ex("390*(-1+x^6-x)*(7+3*x^4)*(2+x^2)*(y+x)*(-1+y-x^2)*(1+x^2+x)^2", syms);
+	result += check_factor(e);
+	
+	e = ex("310*(y+x)*(-1+y-x^2)", syms);
 	result += check_factor(e);
 
 	return result;
