@@ -27,7 +27,9 @@ EXAMS = exam_paranoia \
 	exam_archive  \
 	exam_structure  \
 	exam_hashmap  \
-	exam_misc
+	exam_misc \
+	exam_mod_gcd \
+	exam_cra
 
 TIMES = time_dennyfliegner \
 	time_gammaseries \
@@ -140,6 +142,11 @@ exam_hashmap_LDADD = ../ginac/libginac.la
 exam_misc_SOURCES = exam_misc.cpp
 exam_misc_LDADD = ../ginac/libginac.la
 
+exam_mod_gcd_SOURCES = exam_mod_gcd.cpp
+exam_mod_gcd_LDADD = ../ginac/libginac.la
+
+exam_cra_SOURCES = exam_cra.cpp
+exam_cra_LDADD = ../ginac/libginac.la
 
 time_dennyfliegner_SOURCES = time_dennyfliegner.cpp \
 			     randomize_serials.cpp timer.cpp timer.h

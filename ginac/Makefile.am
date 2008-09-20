@@ -17,8 +17,20 @@ libginac_la_SOURCES = add.cpp archive.cpp basic.cpp clifford.cpp color.cpp \
   parser/lexer.cpp \
   parser/lexer.hpp \
   parser/parser_compat.cpp \
-  parser/debug.hpp
-  
+  parser/debug.hpp \
+polynomial/mod_gcd.cpp \
+polynomial/cra_garner.cpp \
+polynomial/gcd_euclid.tcc \
+polynomial/remainder.tcc \
+polynomial/normalize.tcc \
+polynomial/upoly.hpp \
+polynomial/ring_traits.hpp \
+polynomial/mod_gcd.hpp \
+polynomial/cra_garner.hpp \
+polynomial/upoly_io.hpp \
+polynomial/upoly_io.cpp \
+polynomial/debug.hpp
+
 libginac_la_LDFLAGS = -version-info $(LT_VERSION_INFO) -release $(LT_RELEASE)
 libginac_la_LIBADD = $(DL_LIBS)
 ginacincludedir = $(includedir)/ginac
