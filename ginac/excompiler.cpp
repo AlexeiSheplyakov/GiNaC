@@ -246,14 +246,14 @@ void compile_ex(const ex& expr, const symbol& sym1, const symbol& sym2, FUNCP_2P
 void compile_ex(const lst& exprs, const lst& syms, FUNCP_CUBA& fp, const std::string filename)
 {
 	lst replacements;
-	for (int count=0; count<syms.nops(); ++count) {
+	for (std::size_t count=0; count<syms.nops(); ++count) {
 		std::ostringstream s;
 		s << "a[" << count << "]";
 		replacements.append(syms.op(count) == symbol(s.str()));
 	}
 
 	std::vector<ex> expr_with_cname;
-	for (int count=0; count<exprs.nops(); ++count) {
+	for (std::size_t count=0; count<exprs.nops(); ++count) {
 		expr_with_cname.push_back(exprs.op(count).subs(replacements));
 	}
 
@@ -263,7 +263,7 @@ void compile_ex(const lst& exprs, const lst& syms, FUNCP_CUBA& fp, const std::st
 
 	ofs << "void compiled_ex(const int* an, const double a[], const int* fn, double f[])" << std::endl;
 	ofs << "{" << std::endl;
-	for (int count=0; count<exprs.nops(); ++count) {
+	for (std::size_t count=0; count<exprs.nops(); ++count) {
 		ofs << "f[" << count << "] = ";
 		expr_with_cname[count].print(GiNaC::print_csrc_double(ofs));
 		ofs << ";" << std::endl;
