@@ -1,7 +1,6 @@
 /** @file factor.h
  *
- *  Polynomial factorization routines. Implementation.
- *  Only univariate at the moment and completely non-optimized!
+ *  Polynomial factorization code.
  */
 
 /*
@@ -29,7 +28,7 @@ namespace GiNaC {
 
 class ex;
 
-extern ex factor(const ex& poly);
+extern ex factor(const ex& poly, unsigned options = 0);
 
 } // namespace GiNaC
 

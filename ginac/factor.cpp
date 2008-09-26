@@ -1,7 +1,12 @@
 /** @file factor.cpp
  *
- *  Polynomial factorization routines.
- *  Only univariate at the moment and completely non-optimized!
+ *  Polynomial factorization code (Implementation).
+ *
+ *  Algorithms used can be found in
+ *    [W1]  An Improved Multivariate Polynomial Factoring Algorithm,
+ *          P.S.Wang, Mathematics of Computation, Vol. 32, No. 144 (1978) 1215--1231.
+ *    [GCL] Algorithms for Computer Algebra,
+ *          K.O.Geddes, S.R.Czapor, G.Labahn, Springer Verlag, 1992.
  */
 
 /*
@@ -67,6 +72,10 @@ namespace GiNaC {
 #define DCOUT2(str,var)
 #endif
 
+// forward declaration
+ex factor(const ex& poly, unsigned options);
+
+// anonymous namespace to hide all utility functions
 namespace {
 
 typedef vector<cl_MI> Vec;
@@ -1310,18 +1319,6 @@ static ex factor_univariate(const ex& poly, const ex& x)
 	return unit * cont * result;
 }
 
-struct FindSymbolsMap : public map_function {
-	exset syms;
-	ex operator()(const ex& e)
-	{
-		if ( is_a<symbol>(e) ) {
-			syms.insert(e);
-			return e;
-		}
-		return e.map(*this);
-	}
-};
-
 struct EvalPoint
 {
 	ex x;
@@ -2003,10 +2000,6 @@ static bool generate_set(const ex& u, const ex& vn, const exset& syms, const ex&
 	return false;
 }
 
-#ifdef DEBUGFACTOR
-ex factor(const ex&);
-#endif
-
 static ex factor_multivariate(const ex& poly, const exset& syms)
 {
 	DCOUT(factor_multivariate);
@@ -2317,10 +2310,22 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 	}
 }
 
+struct find_symbols_map : public map_function {
+	exset syms;
+	ex operator()(const ex& e)
+	{
+		if ( is_a<symbol>(e) ) {
+			syms.insert(e);
+			return e;
+		}
+		return e.map(*this);
+	}
+};
+
 static ex factor_sqrfree(const ex& poly)
 {
 	// determine all symbols in poly
-	FindSymbolsMap findsymbols;
+	find_symbols_map findsymbols;
 	findsymbols(poly);
 	if ( findsymbols.syms.size() == 0 ) {
 		return poly;
@@ -2345,12 +2350,60 @@ static ex factor_sqrfree(const ex& poly)
 	return res;
 }
 
+struct apply_factor_map : public map_function {
+	unsigned options;
+	apply_factor_map(unsigned options_) : options(options_) { }
+	ex operator()(const ex& e)
+	{
+		if ( e.info(info_flags::polynomial) ) {
+#ifdef DEBUGFACTOR
+			return ::factor(e, options);
+#else
+			return factor(e, options);
+#endif
+		}
+		if ( is_a<add>(e) ) {
+			ex s1, s2;
+			for ( size_t i=0; i<e.nops(); ++i ) {
+				if ( e.op(i).info(info_flags::polynomial) ) {
+					s1 += e.op(i);
+				}
+				else {
+					s2 += e.op(i);
+				}
+			}
+			s1 = s1.eval();
+			s2 = s2.eval();
+#ifdef DEBUGFACTOR
+			return ::factor(s1, options) + s2.map(*this);
+#else
+			return factor(s1, options) + s2.map(*this);
+#endif
+		}
+		return e.map(*this);
+	}
+};
+
 } // anonymous namespace
 
-ex factor(const ex& poly)
+#ifdef DEBUGFACTOR
+ex factor(const ex& poly, unsigned options = 0)
+#else
+ex factor(const ex& poly, unsigned options)
+#endif
 {
+	// check arguments
+	if ( !poly.info(info_flags::polynomial) ) {
+		if ( options & factor_options::all ) {
+			options &= ~factor_options::all;
+			apply_factor_map factor_map(options);
+			return factor_map(poly);
+		}
+		return poly;
+	}
+
 	// determine all symbols in poly
-	FindSymbolsMap findsymbols;
+	find_symbols_map findsymbols;
 	findsymbols(poly);
 	if ( findsymbols.syms.size() == 0 ) {
 		return poly;
@@ -2376,6 +2429,7 @@ ex factor(const ex& poly)
 		return pow(f, sfpoly.op(1));
 	}
 	if ( is_a<mul>(sfpoly) ) {
+		// case: multiple factors
 		ex res = 1;
 		for ( size_t i=0; i<sfpoly.nops(); ++i ) {
 			const ex& t = sfpoly.op(i);

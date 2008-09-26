@@ -281,6 +281,14 @@ public:
 	};
 };
 
+/** Flags to control the polynomial factorization. */
+class factor_options {
+public:
+	enum {
+		all = 0x0001    ///< factor all polynomial subexpressions
+	};
+};
+
 } // namespace GiNaC
 
 #endif // ndef __GINAC_FLAGS_H__
