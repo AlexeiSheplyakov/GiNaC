@@ -90,7 +90,7 @@ bool remainder_in_ring(T& r, const T& a, const T& b)
 		if (zerop(r[k]))
 			continue;
 
-		const ring_t qk = div(r[k], b_lcoeff);
+		const ring_t qk = truncate1(r[k], b_lcoeff);
 
 		// Why C++ is so off-by-one prone?
 		for (std::size_t j = k, i = b.size(); i-- != 0; --j) {
