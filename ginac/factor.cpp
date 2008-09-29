@@ -78,13 +78,12 @@ ex factor(const ex& poly, unsigned options);
 // anonymous namespace to hide all utility functions
 namespace {
 
-typedef vector<cl_MI> Vec;
-typedef vector<Vec> VecVec;
+typedef vector<cl_MI> mvec;
 
 #ifdef DEBUGFACTOR
-ostream& operator<<(ostream& o, const Vec& v)
+ostream& operator<<(ostream& o, const mvec& v)
 {
-	Vec::const_iterator i = v.begin(), end = v.end();
+	mvec::const_iterator i = v.begin(), end = v.end();
 	while ( i != end ) {
 		o << *i++ << " ";
 	}
@@ -93,9 +92,9 @@ ostream& operator<<(ostream& o, const Vec& v)
 #endif // def DEBUGFACTOR
 
 #ifdef DEBUGFACTOR
-ostream& operator<<(ostream& o, const VecVec& v)
+ostream& operator<<(ostream& o, const vector<mvec>& v)
 {
-	VecVec::const_iterator i = v.begin(), end = v.end();
+	vector<mvec>::const_iterator i = v.begin(), end = v.end();
 	while ( i != end ) {
 		o << *i++ << endl;
 	}
@@ -103,406 +102,20 @@ ostream& operator<<(ostream& o, const VecVec& v)
 }
 #endif // def DEBUGFACTOR
 
-struct Term
-{
-	cl_MI c;          // coefficient
-	unsigned int exp; // exponent >=0
-};
+////////////////////////////////////////////////////////////////////////////////
+// modular univariate polynomial code
+
+typedef cl_UP_MI umod;
+typedef vector<umod> umodvec;
+
+#define COPY(to,from) from.ring()->create(degree(from)); \
+	for ( int II=0; II<=degree(from); ++II ) to.set_coeff(II, coeff(from, II)); \
+ 	to.finalize()
 
 #ifdef DEBUGFACTOR
-ostream& operator<<(ostream& o, const Term& t)
+ostream& operator<<(ostream& o, const umodvec& v)
 {
-	if ( t.exp ) {
-		o << "(" << t.c << ")x^" << t.exp;
-	}
-	else {
-		o << "(" << t.c << ")";
-	}
-	return o;
-}
-#endif // def DEBUGFACTOR
-
-struct UniPoly
-{
-	cl_modint_ring R;
-	list<Term> terms;  // highest exponent first
-
-	UniPoly(const cl_modint_ring& ring) : R(ring) { }
-	UniPoly(const cl_modint_ring& ring, const ex& poly, const ex& x) : R(ring)
-	{ 
-		// assert: poly is in Z[x]
-		Term t;
-		for ( int i=poly.degree(x); i>=poly.ldegree(x); --i ) {
-			cl_I coeff = the<cl_I>(ex_to<numeric>(poly.coeff(x,i)).to_cl_N());
-			if ( !zerop(coeff) ) {
-				t.c = R->canonhom(coeff);
-				if ( !zerop(t.c) ) {
-					t.exp = i;
-					terms.push_back(t);
-				}
-			}
-		}
-	}
-	UniPoly(const cl_modint_ring& ring, const UniPoly& poly) : R(ring)
-	{ 
-		if ( R->modulus == poly.R->modulus ) {
-			terms = poly.terms;
-		}
-		else {
-			list<Term>::const_iterator i=poly.terms.begin(), end=poly.terms.end();
-			for ( ; i!=end; ++i ) {
-				terms.push_back(*i);
-				terms.back().c = R->canonhom(poly.R->retract(i->c));
-				if ( zerop(terms.back().c) ) {
-					terms.pop_back();
-				}
-			}
-		}
-	}
-	UniPoly(const cl_modint_ring& ring, const Vec& v) : R(ring)
-	{
-		Term t;
-		for ( unsigned int i=0; i<v.size(); ++i ) {
-			if ( !zerop(v[i]) ) {
-				t.c = v[i];
-				t.exp = i;
-				terms.push_front(t);
-			}
-		}
-	}
-	unsigned int degree() const
-	{
-		if ( terms.size() ) {
-			return terms.front().exp;
-		}
-		else {
-			return 0;
-		}
-	}
-	bool zero() const { return (terms.size() == 0); }
-	const cl_MI operator[](unsigned int deg) const
-	{
-		list<Term>::const_iterator i = terms.begin(), end = terms.end();
-		for ( ; i != end; ++i ) {
-			if ( i->exp == deg ) {
-				return i->c;
-			}
-			if ( i->exp < deg ) {
-				break;
-			}
-		}
-		return R->zero();
-	}
-	void set(unsigned int deg, const cl_MI& c)
-	{
-		list<Term>::iterator i = terms.begin(), end = terms.end();
-		while ( i != end ) {
-			if ( i->exp == deg ) {
-				if ( !zerop(c) ) {
-					i->c = c;
-				}
-				else {
-					terms.erase(i);
-				}
-				return;
-			}
-			if ( i->exp < deg ) {
-				break;
-			}
-			++i;
-		}
-		if ( !zerop(c) ) {
-			Term t;
-			t.c = c;
-			t.exp = deg;
-			terms.insert(i, t);
-		}
-	}
-	ex to_ex(const ex& x, bool symmetric = true) const
-	{
-		ex r;
-		list<Term>::const_iterator i = terms.begin(), end = terms.end();
-		if ( symmetric ) {
-			numeric mod(R->modulus);
-			numeric halfmod = (mod-1)/2;
-			for ( ; i != end; ++i ) {
-				numeric n(R->retract(i->c));
-				if ( n > halfmod ) {
-					r += pow(x, i->exp) * (n-mod);
-				}
-				else {
-					r += pow(x, i->exp) * n;
-				}
-			}
-		}
-		else {
-			for ( ; i != end; ++i ) {
-				r += pow(x, i->exp) * numeric(R->retract(i->c));
-			}
-		}
-		return r;
-	}
-	void unit_normal()
-	{
-		if ( terms.size() ) {
-			if ( terms.front().c != R->one() ) {
-				list<Term>::iterator i = terms.begin(), end = terms.end();
-				cl_MI cont = i->c;
-				i->c = R->one();
-				while ( ++i != end ) {
-					i->c = div(i->c, cont);
-					if ( zerop(i->c) ) {
-						terms.erase(i);
-					}
-				}
-			}
-		}
-	}
-	cl_MI unit() const
-	{
-		return terms.front().c;
-	}
-	void divide(const cl_MI& x)
-	{
-		list<Term>::iterator i = terms.begin(), end = terms.end();
-		for ( ; i != end; ++i ) {
-			i->c = div(i->c, x);
-			if ( zerop(i->c) ) {
-				terms.erase(i);
-			}
-		}
-	}
-	void divide(const cl_I& x)
-	{
-		list<Term>::iterator i = terms.begin(), end = terms.end();
-		for ( ; i != end; ++i ) {
-			i->c = cl_MI(R, the<cl_I>(R->retract(i->c) / x));
-		}
-	}
-	void reduce_exponents(unsigned int prime)
-	{
-		list<Term>::iterator i = terms.begin(), end = terms.end();
-		while ( i != end ) {
-			if ( i->exp > 0 ) {
-				// assert: i->exp is multiple of prime
-				i->exp /= prime;
-			}
-			++i;
-		}
-	}
-	void deriv(UniPoly& d) const
-	{
-		list<Term>::const_iterator i = terms.begin(), end = terms.end();
-		while ( i != end ) {
-			if ( i->exp ) {
-				cl_MI newc = i->c * i->exp;
-				if ( !zerop(newc) ) {
-					Term t;
-					t.c = newc;
-					t.exp = i->exp-1;
-					d.terms.push_back(t);
-				}
-			}
-			++i;
-		}
-	}
-	bool operator<(const UniPoly& o) const
-	{
-		if ( terms.size() != o.terms.size() ) {
-			return terms.size() < o.terms.size();
-		}
-		list<Term>::const_iterator i1 = terms.begin(), end = terms.end();
-		list<Term>::const_iterator i2 = o.terms.begin();
-		while ( i1 != end ) {
-			if ( i1->exp != i2->exp ) {
-				return i1->exp < i2->exp;
-			}
-			if ( i1->c != i2->c ) {
-				return R->retract(i1->c) < R->retract(i2->c);
-			}
-			++i1; ++i2;
-		}
-		return true;
-	}
-	bool operator==(const UniPoly& o) const
-	{
-		if ( terms.size() != o.terms.size() ) {
-			return false;
-		}
-		list<Term>::const_iterator i1 = terms.begin(), end = terms.end();
-		list<Term>::const_iterator i2 = o.terms.begin();
-		while ( i1 != end ) {
-			if ( i1->exp != i2->exp ) {
-				return false;
-			}
-			if ( i1->c != i2->c ) {
-				return false;
-			}
-			++i1; ++i2;
-		}
-		return true;
-	}
-	bool operator!=(const UniPoly& o) const
-	{
-		bool res = !(*this == o);
-		return res;
-	}
-};
-
-static UniPoly operator*(const UniPoly& a, const UniPoly& b)
-{
-	unsigned int n = a.degree()+b.degree();
-	UniPoly c(a.R);
-	Term t;
-	for ( unsigned int i=0 ; i<=n; ++i ) {
-		t.c = a.R->zero();
-		for ( unsigned int j=0 ; j<=i; ++j ) {
-			t.c = t.c + a[j] * b[i-j];
-		}
-		if ( !zerop(t.c) ) {
-			t.exp = i;
-			c.terms.push_front(t);
-		}
-	}
-	return c;
-}
-
-static UniPoly operator-(const UniPoly& a, const UniPoly& b)
-{
-	list<Term>::const_iterator ia = a.terms.begin(), aend = a.terms.end();
-	list<Term>::const_iterator ib = b.terms.begin(), bend = b.terms.end();
-	UniPoly c(a.R);
-	while ( ia != aend && ib != bend ) {
-		if ( ia->exp > ib->exp ) {
-			c.terms.push_back(*ia);
-			++ia;
-		}
-		else if ( ia->exp < ib->exp ) {
-			c.terms.push_back(*ib);
-			c.terms.back().c = -c.terms.back().c;
-			++ib;
-		}
-		else {
-			Term t;
-			t.exp = ia->exp;
-			t.c = ia->c - ib->c;
-			if ( !zerop(t.c) ) {
-				c.terms.push_back(t);
-			}
-			++ia; ++ib;
-		}
-	}
-	while ( ia != aend ) {
-		c.terms.push_back(*ia);
-		++ia;
-	}
-	while ( ib != bend ) {
-		c.terms.push_back(*ib);
-		c.terms.back().c = -c.terms.back().c;
-		++ib;
-	}
-	return c;
-}
-
-static UniPoly operator*(const UniPoly& a, const cl_MI& fac)
-{
-	unsigned int n = a.degree();
-	UniPoly c(a.R);
-	Term t;
-	for ( unsigned int i=0 ; i<=n; ++i ) {
-		t.c = a[i] * fac;
-		if ( !zerop(t.c) ) {
-			t.exp = i;
-			c.terms.push_front(t);
-		}
-	}
-	return c;
-}
-
-static UniPoly operator+(const UniPoly& a, const UniPoly& b)
-{
-	list<Term>::const_iterator ia = a.terms.begin(), aend = a.terms.end();
-	list<Term>::const_iterator ib = b.terms.begin(), bend = b.terms.end();
-	UniPoly c(a.R);
-	while ( ia != aend && ib != bend ) {
-		if ( ia->exp > ib->exp ) {
-			c.terms.push_back(*ia);
-			++ia;
-		}
-		else if ( ia->exp < ib->exp ) {
-			c.terms.push_back(*ib);
-			++ib;
-		}
-		else {
-			Term t;
-			t.exp = ia->exp;
-			t.c = ia->c + ib->c;
-			if ( !zerop(t.c) ) {
-				c.terms.push_back(t);
-			}
-			++ia; ++ib;
-		}
-	}
-	while ( ia != aend ) {
-		c.terms.push_back(*ia);
-		++ia;
-	}
-	while ( ib != bend ) {
-		c.terms.push_back(*ib);
-		++ib;
-	}
-	return c;
-}
-
-// static UniPoly operator-(const UniPoly& a)
-// {
-// 	list<Term>::const_iterator ia = a.terms.begin(), aend = a.terms.end();
-// 	UniPoly c(a.R);
-// 	while ( ia != aend ) {
-// 		c.terms.push_back(*ia);
-// 		c.terms.back().c = -c.terms.back().c;
-// 		++ia;
-// 	}
-// 	return c;
-// }
-
-#ifdef DEBUGFACTOR
-ostream& operator<<(ostream& o, const UniPoly& t)
-{
-	list<Term>::const_iterator i = t.terms.begin(), end = t.terms.end();
-	if ( i == end ) {
-		o << "0";
-		return o;
-	}
-	for ( ; i != end; ) {
-		o << *i++;
-		if ( i != end ) {
-			o << " + ";
-		}
-	}
-	return o;
-}
-#endif // def DEBUGFACTOR
-
-#ifdef DEBUGFACTOR
-ostream& operator<<(ostream& o, const list<UniPoly>& t)
-{
-	list<UniPoly>::const_iterator i = t.begin(), end = t.end();
-	o << "{" << endl;
-	for ( ; i != end; ) {
-		o << *i++ << endl;
-	}
-	o << "}" << endl;
-	return o;
-}
-#endif // def DEBUGFACTOR
-
-typedef vector<UniPoly> UniPolyVec;
-
-#ifdef DEBUGFACTOR
-ostream& operator<<(ostream& o, const UniPolyVec& v)
-{
-	UniPolyVec::const_iterator i = v.begin(), end = v.end();
+	umodvec::const_iterator i = v.begin(), end = v.end();
 	while ( i != end ) {
 		o << *i++ << " , " << endl;
 	}
@@ -510,223 +123,239 @@ ostream& operator<<(ostream& o, const UniPolyVec& v)
 }
 #endif // def DEBUGFACTOR
 
-struct UniFactor
+static umod umod_from_ex(const ex& e, const ex& x, const cl_univpoly_modint_ring& UPR)
 {
-	UniPoly p;
-	unsigned int exp;
-
-	UniFactor(const cl_modint_ring& ring) : p(ring) { }
-	UniFactor(const UniPoly& p_, unsigned int exp_) : p(p_), exp(exp_) { }
-	bool operator<(const UniFactor& o) const
-	{
-		return p < o.p;
+	// assert: e is in Z[x]
+	int deg = e.degree(x);
+	umod p = UPR->create(deg);
+	int ldeg = e.ldegree(x);
+	for ( ; deg>=ldeg; --deg ) {
+		cl_I coeff = the<cl_I>(ex_to<numeric>(e.coeff(x, deg)).to_cl_N());
+		p.set_coeff(deg, UPR->basering()->canonhom(coeff));
 	}
-};
-
-struct UniFactorVec
-{
-	vector<UniFactor> factors;
-
-	void unique()
-	{
-		sort(factors.begin(), factors.end());
-		if ( factors.size() > 1 ) {
-			vector<UniFactor>::iterator i = factors.begin();
-			vector<UniFactor>::const_iterator cmp = factors.begin()+1;
-			vector<UniFactor>::iterator end = factors.end();
-			while ( cmp != end ) {
-				if ( i->p != cmp->p ) {
-					++i;
-					++cmp;
-				}
-				else {
-					i->exp += cmp->exp;
-					++cmp;
-				}
-			}
-			if ( i != end-1 ) {
-				factors.erase(i+1, end);
-			}
-		}
+	for ( ; deg>=0; --deg ) {
+		p.set_coeff(deg, UPR->basering()->zero());
 	}
-};
-
-#ifdef DEBUGFACTOR
-ostream& operator<<(ostream& o, const UniFactorVec& ufv)
-{
-	for ( size_t i=0; i<ufv.factors.size(); ++i ) {
-		if ( i != ufv.factors.size()-1 ) {
-			o << "*";
-		}
-		else {
-			o << " ";
-		}
-		o << "[ " << ufv.factors[i].p << " ]^" << ufv.factors[i].exp << endl;
-	}
-	return o;
+	p.finalize();
+	return p;
 }
-#endif // def DEBUGFACTOR
 
-static void rem(const UniPoly& a_, const UniPoly& b, UniPoly& c)
+static umod umod_from_ex(const ex& e, const ex& x, const cl_modint_ring& R)
 {
-	if ( a_.degree() < b.degree() ) {
-		c = a_;
-		return;
-	}
+	return umod_from_ex(e, x, find_univpoly_ring(R));
+}
 
-	unsigned int k, n;
-	n = b.degree();
-	k = a_.degree() - n;
+static umod umod_from_ex(const ex& e, const ex& x, const cl_I& modulus)
+{
+	return umod_from_ex(e, x, find_modint_ring(modulus));
+}
 
+static umod umod_from_modvec(const mvec& mv)
+{
+	size_t n = mv.size(); // assert: n>0
+	while ( n && zerop(mv[n-1]) ) --n;
+	cl_univpoly_modint_ring UPR = find_univpoly_ring(mv.front().ring());
 	if ( n == 0 ) {
-		c.terms.clear();
-		return;
+		umod p = UPR->create(-1);
+		p.finalize();
+		return p;
+	}
+	umod p = UPR->create(n-1);
+	for ( size_t i=0; i<n; ++i ) {
+		p.set_coeff(i, mv[i]);
+	}
+	p.finalize();
+	return p;
+}
+
+static umod divide(const umod& a, const cl_I& x)
+{
+	DCOUT(divide);
+	DCOUTVAR(a);
+	cl_univpoly_modint_ring UPR = a.ring();
+	cl_modint_ring R = UPR->basering();
+	int deg = degree(a);
+	umod newa = UPR->create(deg);
+	for ( int i=0; i<=deg; ++i ) {
+		cl_I c = R->retract(coeff(a, i));
+		newa.set_coeff(i, cl_MI(R, the<cl_I>(c / x)));
+	}
+	newa.finalize();
+	DCOUT(END divide);
+	return newa;
+}
+
+static ex umod_to_ex(const umod& a, const ex& x)
+{
+	ex e;
+	cl_modint_ring R = a.ring()->basering();
+	cl_I mod = R->modulus;
+	cl_I halfmod = (mod-1) >> 1;
+	for ( int i=degree(a); i>=0; --i ) {
+		cl_I n = R->retract(coeff(a, i));
+		if ( n > halfmod ) {
+			e += numeric(n-mod) * pow(x, i);
+		} else {
+			e += numeric(n) * pow(x, i);
+		}
+	}
+	return e;
+}
+
+static void unit_normal(umod& a)
+{
+	int deg = degree(a);
+	if ( deg >= 0 ) {
+		cl_MI lc = coeff(a, deg);
+		cl_MI one = a.ring()->basering()->one();
+		if ( lc != one ) {
+			umod newa = a.ring()->create(deg);
+			newa.set_coeff(deg, one);
+			for ( --deg; deg>=0; --deg ) {
+				cl_MI nc = div(coeff(a, deg), lc);
+				newa.set_coeff(deg, nc);
+			}
+			newa.finalize();
+			a = newa;
+		}
+	}
+}
+
+static umod rem(const umod& a, const umod& b)
+{
+	int k, n;
+	n = degree(b);
+	k = degree(a) - n;
+	if ( k < 0 ) {
+		umod c = COPY(c, a);
+		return c;
 	}
 
-	c = a_;
-	Term termbuf;
-
-	while ( true ) {
-		cl_MI qk = div(c[n+k], b[n]);
+	umod c = COPY(c, a);
+	do {
+		cl_MI qk = div(coeff(c, n+k), coeff(b, n));
 		if ( !zerop(qk) ) {
 			unsigned int j;
-			for ( unsigned int i=0; i<n; ++i ) {
+			for ( int i=0; i<n; ++i ) {
 				j = n + k - 1 - i;
-				c.set(j, c[j] - qk*b[j-k]);
+				c.set_coeff(j, coeff(c, j) - qk * coeff(b, j-k));
 			}
 		}
-		if ( k == 0 ) break;
-		--k;
+	} while ( k-- );
+
+	cl_MI zero = a.ring()->basering()->zero();
+	for ( int i=degree(a); i>=n; --i ) {
+		c.set_coeff(i, zero);
 	}
-	list<Term>::iterator i = c.terms.begin(), end = c.terms.end();
-	while ( i != end ) {
-		if ( i->exp <= n-1 ) {
-			break;
-		}
-		++i;
-	}
-	c.terms.erase(c.terms.begin(), i);
+
+	c.finalize();
+	return c;
 }
 
-static void div(const UniPoly& a_, const UniPoly& b, UniPoly& q)
+static umod div(const umod& a, const umod& b)
 {
-	if ( a_.degree() < b.degree() ) {
-		q.terms.clear();
-		return;
+	int k, n;
+	n = degree(b);
+	k = degree(a) - n;
+	if ( k < 0 ) {
+		umod q = a.ring()->create(-1);
+		q.finalize();
+		return q;
 	}
 
-	unsigned int k, n;
-	n = b.degree();
-	k = a_.degree() - n;
-
-	UniPoly c = a_;
-	Term termbuf;
-
-	while ( true ) {
-		cl_MI qk = div(c[n+k], b[n]);
+	umod c = COPY(c, a);
+	umod q = a.ring()->create(k);
+	do {
+		cl_MI qk = div(coeff(c, n+k), coeff(b, n));
 		if ( !zerop(qk) ) {
-			Term t;
-			t.c = qk;
-			t.exp = k;
-			q.terms.push_back(t);
+			q.set_coeff(k, qk);
 			unsigned int j;
-			for ( unsigned int i=0; i<n; ++i ) {
+			for ( int i=0; i<n; ++i ) {
 				j = n + k - 1 - i;
-				c.set(j, c[j] - qk*b[j-k]);
+				c.set_coeff(j, coeff(c, j) - qk * coeff(b, j-k));
 			}
 		}
-		if ( k == 0 ) break;
-		--k;
-	}
+	} while ( k-- );
+
+	q.finalize();
+	return q;
 }
 
-static void gcd(const UniPoly& a, const UniPoly& b, UniPoly& c)
+static umod remdiv(const umod& a, const umod& b, umod& q)
 {
-	c = a;
-	c.unit_normal();
-	UniPoly d = b;
-	d.unit_normal();
-
-	if ( c.degree() < d.degree() ) {
-		gcd(b, a, c);
-		return;
+	int k, n;
+	n = degree(b);
+	k = degree(a) - n;
+	if ( k < 0 ) {
+		q = a.ring()->create(-1);
+		q.finalize();
+		umod c = COPY(c, a);
+		return c;
 	}
 
-	while ( !d.zero() ) {
-		UniPoly r(a.R);
-		rem(c, d, r);
-		c = d;
-		d = r;
-	}
-	c.unit_normal();
-}
-
-static bool is_one(const UniPoly& w)
-{
-	if ( w.terms.size() == 1 && w[0] == w.R->one() ) {
-		return true;
-	}
-	return false;
-}
-
-static void sqrfree_main(const UniPoly& a, UniFactorVec& fvec)
-{
-	unsigned int i = 1;
-	UniPoly b(a.R);
-	a.deriv(b);
-	if ( !b.zero() ) {
-		UniPoly c(a.R), w(a.R);
-		gcd(a, b, c);
-		div(a, c, w);
-		while ( !is_one(w) ) {
-			UniPoly y(a.R), z(a.R);
-			gcd(w, c, y);
-			div(w, y, z);
-			if ( !is_one(z) ) {
-				UniFactor uf(z, i);
-				fvec.factors.push_back(uf);
+	umod c = COPY(c, a);
+	q = a.ring()->create(k);
+	do {
+		cl_MI qk = div(coeff(c, n+k), coeff(b, n));
+		if ( !zerop(qk) ) {
+			q.set_coeff(k, qk);
+			unsigned int j;
+			for ( int i=0; i<n; ++i ) {
+				j = n + k - 1 - i;
+				c.set_coeff(j, coeff(c, j) - qk * coeff(b, j-k));
 			}
-			++i;
-			w = y;
-			UniPoly cbuf(a.R);
-			div(c, y, cbuf);
-			c = cbuf;
 		}
-		if ( !is_one(c) ) {
-			unsigned int prime = cl_I_to_uint(c.R->modulus);
-			c.reduce_exponents(prime);
-			unsigned int pos = fvec.factors.size();
-			sqrfree_main(c, fvec);
-			for ( unsigned int p=pos; p<fvec.factors.size(); ++p ) {
-				fvec.factors[p].exp *= prime;
-			}
-			return;
-		}
+	} while ( k-- );
+
+	cl_MI zero = a.ring()->basering()->zero();
+	for ( int i=degree(a); i>=n; --i ) {
+		c.set_coeff(i, zero);
 	}
-	else {
-		unsigned int prime = cl_I_to_uint(a.R->modulus);
-		UniPoly amod = a;
-		amod.reduce_exponents(prime);
-		unsigned int pos = fvec.factors.size();
-		sqrfree_main(amod, fvec);
-		for ( unsigned int p=pos; p<fvec.factors.size(); ++p ) {
-			fvec.factors[p].exp *= prime;
-		}
-		return;
-	}
+
+	q.finalize();
+	c.finalize();
+	return c;
 }
 
-static void squarefree(const UniPoly& a, UniFactorVec& fvec)
+static umod gcd(const umod& a, const umod& b)
 {
-	sqrfree_main(a, fvec);
-	fvec.unique();
+	if ( degree(a) < degree(b) ) return gcd(b, a);
+
+	umod c = COPY(c, a);
+	unit_normal(c);
+	umod d = COPY(d, b);
+	unit_normal(d);
+	while ( !zerop(d) ) {
+		umod r = rem(c, d);
+		c = COPY(c, d);
+		d = COPY(d, r);
+	}
+	unit_normal(c);
+	return c;
 }
 
-class Matrix
+static bool squarefree(const umod& a)
 {
-	friend ostream& operator<<(ostream& o, const Matrix& m);
+	umod b = deriv(a);
+	if ( zerop(b) ) {
+		return false;
+	}
+	umod one = a.ring()->one();
+	umod c = gcd(a, b);
+	return c == one;
+}
+
+// END modular univariate polynomial code
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+// modular matrix
+
+class modular_matrix
+{
+	friend ostream& operator<<(ostream& o, const modular_matrix& m);
 public:
-	Matrix(size_t r_, size_t c_, const cl_MI& init) : r(r_), c(c_)
+	modular_matrix(size_t r_, size_t c_, const cl_MI& init) : r(r_), c(c_)
 	{
 		m.resize(c*r, init);
 	}
@@ -736,7 +365,7 @@ public:
 	cl_MI operator()(size_t row, size_t col) const { return m[row*c + col]; }
 	void mul_col(size_t col, const cl_MI x)
 	{
-		Vec::iterator i = m.begin() + col;
+		mvec::iterator i = m.begin() + col;
 		for ( size_t rc=0; rc<r; ++rc ) {
 			*i = *i * x;
 			i += c;
@@ -744,8 +373,8 @@ public:
 	}
 	void sub_col(size_t col1, size_t col2, const cl_MI fac)
 	{
-		Vec::iterator i1 = m.begin() + col1;
-		Vec::iterator i2 = m.begin() + col2;
+		mvec::iterator i1 = m.begin() + col1;
+		mvec::iterator i2 = m.begin() + col2;
 		for ( size_t rc=0; rc<r; ++rc ) {
 			*i1 = *i1 - *i2 * fac;
 			i1 += c;
@@ -755,8 +384,8 @@ public:
 	void switch_col(size_t col1, size_t col2)
 	{
 		cl_MI buf;
-		Vec::iterator i1 = m.begin() + col1;
-		Vec::iterator i2 = m.begin() + col2;
+		mvec::iterator i1 = m.begin() + col1;
+		mvec::iterator i2 = m.begin() + col2;
 		for ( size_t rc=0; rc<r; ++rc ) {
 			buf = *i1; *i1 = *i2; *i2 = buf;
 			i1 += c;
@@ -794,7 +423,7 @@ public:
 	}
 	bool is_col_zero(size_t col) const
 	{
-		Vec::const_iterator i = m.begin() + col;
+		mvec::const_iterator i = m.begin() + col;
 		for ( size_t rr=0; rr<r; ++rr ) {
 			if ( !zerop(*i) ) {
 				return false;
@@ -805,7 +434,7 @@ public:
 	}
 	bool is_row_zero(size_t row) const
 	{
-		Vec::const_iterator i = m.begin() + row*c;
+		mvec::const_iterator i = m.begin() + row*c;
 		for ( size_t cc=0; cc<c; ++cc ) {
 			if ( !zerop(*i) ) {
 				return false;
@@ -816,25 +445,25 @@ public:
 	}
 	void set_row(size_t row, const vector<cl_MI>& newrow)
 	{
-		Vec::iterator i1 = m.begin() + row*c;
-		Vec::const_iterator i2 = newrow.begin(), end = newrow.end();
+		mvec::iterator i1 = m.begin() + row*c;
+		mvec::const_iterator i2 = newrow.begin(), end = newrow.end();
 		for ( ; i2 != end; ++i1, ++i2 ) {
 			*i1 = *i2;
 		}
 	}
-	Vec::const_iterator row_begin(size_t row) const { return m.begin()+row*c; }
-	Vec::const_iterator row_end(size_t row) const { return m.begin()+row*c+r; }
+	mvec::const_iterator row_begin(size_t row) const { return m.begin()+row*c; }
+	mvec::const_iterator row_end(size_t row) const { return m.begin()+row*c+r; }
 private:
 	size_t r, c;
-	Vec m;
+	mvec m;
 };
 
 #ifdef DEBUGFACTOR
-Matrix operator*(const Matrix& m1, const Matrix& m2)
+modular_matrix operator*(const modular_matrix& m1, const modular_matrix& m2)
 {
 	const unsigned int r = m1.rowsize();
 	const unsigned int c = m2.colsize();
-	Matrix o(r,c,m1(0,0));
+	modular_matrix o(r,c,m1(0,0));
 
 	for ( size_t i=0; i<r; ++i ) {
 		for ( size_t j=0; j<c; ++j ) {
@@ -849,7 +478,7 @@ Matrix operator*(const Matrix& m1, const Matrix& m2)
 	return o;
 }
 
-ostream& operator<<(ostream& o, const Matrix& m)
+ostream& operator<<(ostream& o, const modular_matrix& m)
 {
 	vector<cl_MI>::const_iterator i = m.m.begin(), end = m.m.end();
 	size_t wrap = 1;
@@ -864,10 +493,13 @@ ostream& operator<<(ostream& o, const Matrix& m)
 }
 #endif // def DEBUGFACTOR
 
-static void q_matrix(const UniPoly& a, Matrix& Q)
+// END modular matrix
+////////////////////////////////////////////////////////////////////////////////
+
+static void q_matrix(const umod& a, modular_matrix& Q)
 {
-	unsigned int n = a.degree();
-	unsigned int q = cl_I_to_uint(a.R->modulus);
+	int n = degree(a);
+	unsigned int q = cl_I_to_uint(a.ring()->basering()->modulus);
 // fast and buggy
 //	vector<cl_MI> r(n, a.R->zero());
 //	r[0] = a.R->one();
@@ -884,20 +516,21 @@ static void q_matrix(const UniPoly& a, Matrix& Q)
 //		}
 //	}
 // slow and (hopefully) correct
-	for ( size_t i=0; i<n; ++i ) {
-		UniPoly qk(a.R);
-		qk.set(i*q, a.R->one());
-		UniPoly r(a.R);
-		rem(qk, a, r);
-		Vec rvec;
-		for ( size_t j=0; j<n; ++j ) {
-			rvec.push_back(r[j]);
+	cl_MI one = a.ring()->basering()->one();
+	for ( int i=0; i<n; ++i ) {
+		umod qk = a.ring()->create(i*q);
+		qk.set_coeff(i*q, one);
+		qk.finalize();
+		umod r = rem(qk, a);
+		mvec rvec;
+		for ( int j=0; j<n; ++j ) {
+			rvec.push_back(coeff(r, j));
 		}
 		Q.set_row(i, rvec);
 	}
 }
 
-static void nullspace(Matrix& M, vector<Vec>& basis)
+static void nullspace(modular_matrix& M, vector<mvec>& basis)
 {
 	const size_t n = M.rowsize();
 	const cl_MI one = M(0,0).ring()->one();
@@ -935,63 +568,63 @@ static void nullspace(Matrix& M, vector<Vec>& basis)
 	}
 	for ( size_t i=0; i<n; ++i ) {
 		if ( !M.is_row_zero(i) ) {
-			Vec nu(M.row_begin(i), M.row_end(i));
+			mvec nu(M.row_begin(i), M.row_end(i));
 			basis.push_back(nu);
 		}
 	}
 }
 
-static void berlekamp(const UniPoly& a, UniPolyVec& upv)
+static void berlekamp(const umod& a, umodvec& upv)
 {
-	Matrix Q(a.degree(), a.degree(), a.R->zero());
+	cl_modint_ring R = a.ring()->basering();
+	const umod one = a.ring()->one();
+
+	modular_matrix Q(degree(a), degree(a), R->zero());
 	q_matrix(a, Q);
-	VecVec nu;
+	vector<mvec> nu;
 	nullspace(Q, nu);
 	const unsigned int k = nu.size();
 	if ( k == 1 ) {
 		return;
 	}
 
-	list<UniPoly> factors;
+	list<umod> factors;
 	factors.push_back(a);
 	unsigned int size = 1;
 	unsigned int r = 1;
-	unsigned int q = cl_I_to_uint(a.R->modulus);
+	unsigned int q = cl_I_to_uint(R->modulus);
 
-	list<UniPoly>::iterator u = factors.begin();
+	list<umod>::iterator u = factors.begin();
 
 	while ( true ) {
 		for ( unsigned int s=0; s<q; ++s ) {
-			UniPoly g(a.R);
-			UniPoly nur(a.R, nu[r]);
-			nur.set(0, nur[0] - cl_MI(a.R, s));
-			gcd(nur, *u, g);
-			if ( !is_one(g) && g != *u ) {
-				UniPoly uo(a.R);
-				div(*u, g, uo);
-				if ( is_one(uo) ) {
+			umod nur = umod_from_modvec(nu[r]);
+			cl_MI buf = coeff(nur, 0) - cl_MI(R, s);
+			nur.set_coeff(0, buf);
+			nur.finalize();
+			umod g = gcd(nur, *u);
+			if ( g != one && g != *u ) {
+				umod uo = div(*u, g);
+				if ( uo == one ) {
 					throw logic_error("berlekamp: unexpected divisor.");
 				}
 				else {
-					*u = uo;
+					*u = COPY((*u), uo);
 				}
 				factors.push_back(g);
 				size = 0;
-				list<UniPoly>::const_iterator i = factors.begin(), end = factors.end();
+				list<umod>::const_iterator i = factors.begin(), end = factors.end();
 				while ( i != end ) {
-					if ( i->degree() ) ++size; 
+					if ( degree(*i) ) ++size; 
 					++i;
 				}
 				if ( size == k ) {
-					list<UniPoly>::const_iterator i = factors.begin(), end = factors.end();
+					list<umod>::const_iterator i = factors.begin(), end = factors.end();
 					while ( i != end ) {
 						upv.push_back(*i++);
 					}
 					return;
 				}
-//				if ( u->degree() < nur.degree() ) {
-//					break;
-//				}
 			}
 		}
 		if ( ++r == k ) {
@@ -1001,43 +634,47 @@ static void berlekamp(const UniPoly& a, UniPolyVec& upv)
 	}
 }
 
-static void factor_modular(const UniPoly& p, UniPolyVec& upv)
+static void factor_modular(const umod& p, umodvec& upv)
 {
 	berlekamp(p, upv);
 	return;
 }
 
-static void exteuclid(const UniPoly& a, const UniPoly& b, UniPoly& g, UniPoly& s, UniPoly& t)
+static void exteuclid(const umod& a, const umod& b, umod& g, umod& s, umod& t)
 {
-	if ( a.degree() < b.degree() ) {
+	if ( degree(a) < degree(b) ) {
 		exteuclid(b, a, g, t, s);
 		return;
 	}
-	UniPoly c1(a.R), c2(a.R), d1(a.R), d2(a.R), q(a.R), r(a.R), r1(a.R), r2(a.R);
-	UniPoly c = a; c.unit_normal();
-	UniPoly d = b; d.unit_normal();
-	c1.set(0, a.R->one());
-	d2.set(0, a.R->one());
-	while ( !d.zero() ) {
-		q.terms.clear();
-		div(c, d, q);
-		r = c - q * d;
-		r1 = c1 - q * d1;
-		r2 = c2 - q * d2;
-		c = d;
-		c1 = d1;
-		c2 = d2;
-		d = r;
-		d1 = r1;
-		d2 = r2;
+	umod c = COPY(c, a); unit_normal(c);
+	umod d = COPY(d, b); unit_normal(d);
+	umod c1 = a.ring()->one();
+	umod c2 = a.ring()->create(-1);
+	umod d1 = a.ring()->create(-1);
+	umod d2 = a.ring()->one();
+	while ( !zerop(d) ) {
+		umod q = div(c, d);
+		umod r = c - q * d;
+		umod r1 = c1 - q * d1;
+		umod r2 = c2 - q * d2;
+		c = COPY(c, d);
+		c1 = COPY(c1, d1);
+		c2 = COPY(c2, d2);
+		d = COPY(d, r);
+		d1 = COPY(d1, r1);
+		d2 = COPY(d2, r2);
 	}
-	g = c; g.unit_normal();
-	s = c1;
-	s.divide(a.unit());
-	s.divide(c.unit());
-	t = c2;
-	t.divide(b.unit());
-	t.divide(c.unit());
+	g = COPY(g, c); unit_normal(g);
+	s = COPY(s, c1);
+	for ( int i=0; i<=degree(s); ++i ) {
+		s.set_coeff(i, coeff(s, i) * recip(coeff(a, degree(a)) * coeff(c, degree(c))));
+	}
+	s.finalize();
+	t = COPY(t, c2);
+	for ( int i=0; i<=degree(t); ++i ) {
+		t.set_coeff(i, coeff(t, i) * recip(coeff(b, degree(b)) * coeff(c, degree(c))));
+	}
+	t.finalize();
 }
 
 static ex replace_lc(const ex& poly, const ex& x, const ex& lc)
@@ -1046,10 +683,11 @@ static ex replace_lc(const ex& poly, const ex& x, const ex& lc)
 	return r;
 }
 
-static ex hensel_univar(const ex& a_, const ex& x, unsigned int p, const UniPoly& u1_, const UniPoly& w1_, const ex& gamma_ = 0)
+static ex hensel_univar(const ex& a_, const ex& x, unsigned int p, const umod& u1_, const umod& w1_, const ex& gamma_ = 0)
 {
 	ex a = a_;
-	const cl_modint_ring& R = u1_.R;
+	const cl_univpoly_modint_ring& UPR = u1_.ring();
+	const cl_modint_ring& R = UPR->basering();
 
 	// calc bound B
 	ex maxcoeff;
@@ -1057,7 +695,7 @@ static ex hensel_univar(const ex& a_, const ex& x, unsigned int p, const UniPoly
 		maxcoeff += pow(abs(a.coeff(x, i)),2);
 	}
 	cl_I normmc = ceiling1(the<cl_R>(cln::sqrt(ex_to<numeric>(maxcoeff).to_cl_N())));
-	cl_I maxdegree = (u1_.degree() > w1_.degree()) ? u1_.degree() : w1_.degree();
+	cl_I maxdegree = (degree(u1_) > degree(w1_)) ? degree(u1_) : degree(w1_);
 	cl_I B = normmc * expt_pos(cl_I(2), maxdegree);
 
 	// step 1
@@ -1068,23 +706,25 @@ static ex hensel_univar(const ex& a_, const ex& x, unsigned int p, const UniPoly
 	}
 	numeric gamma_ui = ex_to<numeric>(abs(gamma));
 	a = a * gamma;
-	UniPoly nu1 = u1_;
-	nu1.unit_normal();
-	UniPoly nw1 = w1_;
-	nw1.unit_normal();
+	umod nu1 = COPY(nu1, u1_);
+	unit_normal(nu1);
+	umod nw1 = COPY(nw1, w1_);
+	unit_normal(nw1);
 	ex phi;
-	phi = expand(gamma * nu1.to_ex(x));
-	UniPoly u1(R, phi, x);
-	phi = expand(alpha * nw1.to_ex(x));
-	UniPoly w1(R, phi, x);
+	phi = gamma * umod_to_ex(nu1, x);
+	umod u1 = umod_from_ex(phi, x, R);
+	phi = alpha * umod_to_ex(nw1, x);
+	umod w1 = umod_from_ex(phi, x, R);
 
 	// step 2
-	UniPoly s(R), t(R), g(R);
+	umod g = UPR->create(-1);
+	umod s = UPR->create(-1);
+	umod t = UPR->create(-1);
 	exteuclid(u1, w1, g, s, t);
 
 	// step 3
-	ex u = replace_lc(u1.to_ex(x), x, gamma);
-	ex w = replace_lc(w1.to_ex(x), x, alpha);
+	ex u = replace_lc(umod_to_ex(u1, x), x, gamma);
+	ex w = replace_lc(umod_to_ex(w1, x), x, alpha);
 	ex e = expand(a - u * w);
 	numeric modulus = p;
 	const numeric maxmodulus = 2*numeric(B)*gamma_ui;
@@ -1092,18 +732,17 @@ static ex hensel_univar(const ex& a_, const ex& x, unsigned int p, const UniPoly
 	// step 4
 	while ( !e.is_zero() && modulus < maxmodulus ) {
 		ex c = e / modulus;
-		phi = expand(s.to_ex(x)*c);
-		UniPoly sigmatilde(R, phi, x);
-		phi = expand(t.to_ex(x)*c);
-		UniPoly tautilde(R, phi, x);
-		UniPoly q(R), r(R);
-		div(sigmatilde, w1, q);
-		rem(sigmatilde, w1, r);
-		UniPoly sigma = r;
-		phi = expand(tautilde.to_ex(x) + q.to_ex(x) * u1.to_ex(x));
-		UniPoly tau(R, phi, x);
-		u = expand(u + tau.to_ex(x) * modulus);
-		w = expand(w + sigma.to_ex(x) * modulus);
+		phi = expand(umod_to_ex(s, x) * c);
+		umod sigmatilde = umod_from_ex(phi, x, R);
+		phi = expand(umod_to_ex(t, x) * c);
+		umod tautilde = umod_from_ex(phi, x, R);
+		umod q = div(sigmatilde, w1);
+		umod r = rem(sigmatilde, w1);
+		umod sigma = COPY(sigma, r);
+		phi = expand(umod_to_ex(tautilde, x) + umod_to_ex(q, x) * umod_to_ex(u1, x));
+		umod tau = umod_from_ex(phi, x, R);
+		u = expand(u + umod_to_ex(tau, x) * modulus);
+		w = expand(w + umod_to_ex(sigma, x) * modulus);
 		e = expand(a - u * w);
 		modulus = modulus * p;
 	}
@@ -1190,10 +829,10 @@ private:
 	vector<int> k;
 };
 
-static void split(const UniPolyVec& factors, const Partition& part, UniPoly& a, UniPoly& b)
+static void split(const umodvec& factors, const Partition& part, umod& a, umod& b)
 {
-	a.set(0, a.R->one());
-	b.set(0, a.R->one());
+	a = factors.front().ring()->one();
+	b = factors.front().ring()->one();
 	for ( size_t i=0; i<part.size(); ++i ) {
 		if ( part[i] ) {
 			b = b * factors[i];
@@ -1207,7 +846,7 @@ static void split(const UniPolyVec& factors, const Partition& part, UniPoly& a, 
 struct ModFactors
 {
 	ex poly;
-	UniPolyVec factors;
+	umodvec factors;
 };
 
 static ex factor_univariate(const ex& poly, const ex& x)
@@ -1215,28 +854,45 @@ static ex factor_univariate(const ex& poly, const ex& x)
 	ex unit, cont, prim;
 	poly.unitcontprim(x, unit, cont, prim);
 
-	// determine proper prime
-	unsigned int p = 3;
-	cl_modint_ring R = find_modint_ring(p);
-	while ( true ) {
-		if ( irem(ex_to<numeric>(prim.lcoeff(x)), p) != 0 ) {
-			UniPoly modpoly(R, prim, x);
-			UniFactorVec sqrfree_ufv;
-			squarefree(modpoly, sqrfree_ufv);
-			if ( sqrfree_ufv.factors.size() == 1 && sqrfree_ufv.factors.front().exp == 1 ) break;
+	// determine proper prime and minimize number of modular factors
+	unsigned int p = 3, lastp;
+	cl_modint_ring R;
+	unsigned int trials = 0;
+	unsigned int minfactors = 0;
+	numeric lcoeff = ex_to<numeric>(prim.lcoeff(x));
+	umodvec factors;
+	while ( trials < 2 ) {
+		while ( true ) {
+			p = next_prime(p);
+			if ( irem(lcoeff, p) != 0 ) {
+				R = find_modint_ring(p);
+				umod modpoly = umod_from_ex(prim, x, R);
+				if ( squarefree(modpoly) ) break;
+			}
 		}
-		p = next_prime(p);
-		R = find_modint_ring(p);
-	}
 
-	// do modular factorization
-	UniPoly modpoly(R, prim, x);
-	UniPolyVec factors;
-	factor_modular(modpoly, factors);
-	if ( factors.size() <= 1 ) {
-		// irreducible for sure
-		return poly;
+		// do modular factorization
+		umod modpoly = umod_from_ex(prim, x, R);
+		umodvec trialfactors;
+		factor_modular(modpoly, trialfactors);
+		if ( trialfactors.size() <= 1 ) {
+			// irreducible for sure
+			return poly;
+		}
+
+		if ( minfactors == 0 || trialfactors.size() < minfactors ) {
+			factors = trialfactors;
+			minfactors = factors.size();
+			lastp = p;
+			trials = 1;
+		}
+		else {
+			++trials;
+		}
 	}
+	p = lastp;
+	R = find_modint_ring(p);
+	cl_univpoly_modint_ring UPR = find_univpoly_ring(R);
 
 	// lift all factor combinations
 	stack<ModFactors> tocheck;
@@ -1249,7 +905,8 @@ static ex factor_univariate(const ex& poly, const ex& x)
 		const size_t n = tocheck.top().factors.size();
 		Partition part(n);
 		while ( true ) {
-			UniPoly a(R), b(R);
+			umod a = UPR->create(-1);
+			umod b = UPR->create(-1);
 			split(tocheck.top().factors, part, a, b);
 
 			ex answer = hensel_univar(tocheck.top().poly, x, p, a, b);
@@ -1287,8 +944,8 @@ static ex factor_univariate(const ex& poly, const ex& x)
 					break;
 				}
 				else {
-					UniPolyVec newfactors1(part.size_first(), R), newfactors2(part.size_second(), R);
-					UniPolyVec::iterator i1 = newfactors1.begin(), i2 = newfactors2.begin();
+					umodvec newfactors1(part.size_first(), UPR->create(-1)), newfactors2(part.size_second(), UPR->create(-1));
+					umodvec::iterator i1 = newfactors1.begin(), i2 = newfactors2.begin();
 					for ( size_t i=0; i<n; ++i ) {
 						if ( part[i] ) {
 							*i2++ = tocheck.top().factors[i];
@@ -1325,10 +982,12 @@ struct EvalPoint
 	int evalpoint;
 };
 
+// MARK
+
 // forward declaration
 vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex& c, const vector<EvalPoint>& I, unsigned int d, unsigned int p, unsigned int k);
 
-UniPolyVec multiterm_eea_lift(const UniPolyVec& a, const ex& x, unsigned int p, unsigned int k)
+umodvec multiterm_eea_lift(const umodvec& a, const ex& x, unsigned int p, unsigned int k)
 {
 	DCOUT(multiterm_eea_lift);
 	DCOUTVAR(a);
@@ -1338,27 +997,26 @@ UniPolyVec multiterm_eea_lift(const UniPolyVec& a, const ex& x, unsigned int p, 
 	const size_t r = a.size();
 	DCOUTVAR(r);
 	cl_modint_ring R = find_modint_ring(expt_pos(cl_I(p),k));
-	UniPoly fill(R);
-	UniPolyVec q(r-1, fill);
+	cl_univpoly_modint_ring UPR = find_univpoly_ring(R);
+	umodvec q(r-1, UPR->create(-1));
 	q[r-2] = a[r-1];
 	for ( size_t j=r-2; j>=1; --j ) {
 		q[j-1] = a[j] * q[j];
 	}
 	DCOUTVAR(q);
-	UniPoly beta(R);
-	beta.set(0, R->one());
-	UniPolyVec s;
+	umod beta = UPR->one();
+	umodvec s;
 	for ( size_t j=1; j<r; ++j ) {
 		DCOUTVAR(j);
 		DCOUTVAR(beta);
 		vector<ex> mdarg(2);
-		mdarg[0] = q[j-1].to_ex(x);
-		mdarg[1] = a[j-1].to_ex(x);
+		mdarg[0] = umod_to_ex(q[j-1], x);
+		mdarg[1] = umod_to_ex(a[j-1], x);
 		vector<EvalPoint> empty;
-		vector<ex> exsigma = multivar_diophant(mdarg, x, beta.to_ex(x), empty, 0, p, k);
-		UniPoly sigma1(R, exsigma[0], x);
-		UniPoly sigma2(R, exsigma[1], x);
-		beta = sigma1;
+		vector<ex> exsigma = multivar_diophant(mdarg, x, umod_to_ex(beta, x), empty, 0, p, k);
+		umod sigma1 = umod_from_ex(exsigma[0], x, R);
+		umod sigma2 = umod_from_ex(exsigma[1], x, R);
+		beta = COPY(beta, sigma1);
 		s.push_back(sigma2);
 	}
 	s.push_back(beta);
@@ -1368,7 +1026,21 @@ UniPolyVec multiterm_eea_lift(const UniPolyVec& a, const ex& x, unsigned int p, 
 	return s;
 }
 
-void eea_lift(const UniPoly& a, const UniPoly& b, const ex& x, unsigned int p, unsigned int k, UniPoly& s_, UniPoly& t_)
+void change_modulus(umod& out, const umod& in)
+{
+	// ASSERT: out and in have same degree
+	if ( out.ring() == in.ring() ) {
+		out = COPY(out, in);
+	}
+	else {
+		for ( int i=0; i<=degree(in); ++i ) {
+			out.set_coeff(i, out.ring()->basering()->canonhom(in.ring()->basering()->retract(coeff(in, i))));
+		}
+		out.finalize();
+	}
+}
+
+void eea_lift(const umod& a, const umod& b, const ex& x, unsigned int p, unsigned int k, umod& s_, umod& t_)
 {
 	DCOUT(eea_lift);
 	DCOUTVAR(a);
@@ -1378,46 +1050,59 @@ void eea_lift(const UniPoly& a, const UniPoly& b, const ex& x, unsigned int p, u
 	DCOUTVAR(k);
 
 	cl_modint_ring R = find_modint_ring(p);
-	UniPoly amod(R, a);
-	UniPoly bmod(R, b);
+	cl_univpoly_modint_ring UPR = find_univpoly_ring(R);
+	umod amod = UPR->create(degree(a));
+	DCOUTVAR(a);
+	change_modulus(amod, a);
+	umod bmod = UPR->create(degree(b));
+	change_modulus(bmod, b);
 	DCOUTVAR(amod);
 	DCOUTVAR(bmod);
 
-	UniPoly smod(R), tmod(R), g(R);
+	umod g = UPR->create(-1);
+	umod smod = UPR->create(-1);
+	umod tmod = UPR->create(-1);
 	exteuclid(amod, bmod, g, smod, tmod);
 	
 	DCOUTVAR(smod);
 	DCOUTVAR(tmod);
 	DCOUTVAR(g);
+	DCOUTVAR(a);
 
 	cl_modint_ring Rpk = find_modint_ring(expt_pos(cl_I(p),k));
-	UniPoly s(Rpk, smod);
-	UniPoly t(Rpk, tmod);
+	cl_univpoly_modint_ring UPRpk = find_univpoly_ring(Rpk);
+	umod s = UPRpk->create(degree(smod));
+	change_modulus(s, smod);
+	umod t = UPRpk->create(degree(tmod));
+	change_modulus(t, tmod);
 	DCOUTVAR(s);
 	DCOUTVAR(t);
 
 	cl_I modulus(p);
+	DCOUTVAR(a);
 
-	UniPoly one(Rpk);
-	one.set(0, Rpk->one());
+	umod one = UPRpk->one();
 	for ( size_t j=1; j<k; ++j ) {
-		UniPoly e = one - a * s - b * t;
-		e.divide(modulus);
-		UniPoly c(R, e);
-		UniPoly sigmabar(R);
-		sigmabar = smod * c;
-		UniPoly taubar(R);
-		taubar = tmod * c;
-		UniPoly q(R);
-		div(sigmabar, bmod, q);
-		UniPoly sigma(R);
-		rem(sigmabar, bmod, sigma);
-		UniPoly tau(R);
-		tau = taubar + q * amod;
-		UniPoly sadd(Rpk, sigma);
+		DCOUTVAR(a);
+		umod e = one - a * s - b * t;
+		DCOUTVAR(one);
+		DCOUTVAR(a*s);
+		DCOUTVAR(b*t);
+		DCOUTVAR(e);
+		e = divide(e, modulus);
+		umod c = UPR->create(degree(e));
+		change_modulus(c, e);
+		umod sigmabar = smod * c;
+		umod taubar = tmod * c;
+		umod q = div(sigmabar, bmod);
+		umod sigma = rem(sigmabar, bmod);
+		umod tau = taubar + q * amod;
+		umod sadd = UPRpk->create(degree(sigma));
+		change_modulus(sadd, sigma);
 		cl_MI modmodulus(Rpk, modulus);
 		s = s + sadd * modmodulus;
-		UniPoly tadd(Rpk, tau);
+		umod tadd = UPRpk->create(degree(tau));
+		change_modulus(tadd, tau);
 		t = t + tadd * modmodulus;
 		modulus = modulus * p;
 	}
@@ -1430,7 +1115,7 @@ void eea_lift(const UniPoly& a, const UniPoly& b, const ex& x, unsigned int p, u
 	DCOUT(END eea_lift);
 }
 
-UniPolyVec univar_diophant(const UniPolyVec& a, const ex& x, unsigned int m, unsigned int p, unsigned int k)
+umodvec univar_diophant(const umodvec& a, const ex& x, unsigned int m, unsigned int p, unsigned int k)
 {
 	DCOUT(univar_diophant);
 	DCOUTVAR(a);
@@ -1440,33 +1125,32 @@ UniPolyVec univar_diophant(const UniPolyVec& a, const ex& x, unsigned int m, uns
 	DCOUTVAR(k);
 
 	cl_modint_ring R = find_modint_ring(expt_pos(cl_I(p),k));
+	cl_univpoly_modint_ring UPR = find_univpoly_ring(R);
 
 	const size_t r = a.size();
-	UniPolyVec result;
+	umodvec result;
 	if ( r > 2 ) {
-		UniPolyVec s = multiterm_eea_lift(a, x, p, k);
+		umodvec s = multiterm_eea_lift(a, x, p, k);
 		for ( size_t j=0; j<r; ++j ) {
-			ex phi = expand(pow(x,m)*s[j].to_ex(x));
-			UniPoly bmod(R, phi, x);
-			UniPoly buf(R);
-			rem(bmod, a[j], buf);
+			ex phi = expand(pow(x,m) * umod_to_ex(s[j], x));
+			umod bmod = umod_from_ex(phi, x, R);
+			umod buf = rem(bmod, a[j]);
 			result.push_back(buf);
 		}
 	}
 	else {
-		UniPoly s(R), t(R);
+		umod s = UPR->create(-1);
+		umod t = UPR->create(-1);
 		eea_lift(a[1], a[0], x, p, k, s, t);
-		ex phi = expand(pow(x,m)*s.to_ex(x));
-		UniPoly bmod(R, phi, x);
-		UniPoly buf(R);
-		rem(bmod, a[0], buf);
+		ex phi = expand(pow(x,m) * umod_to_ex(s, x));
+		umod bmod = umod_from_ex(phi, x, R);
+		umod buf = rem(bmod, a[0]);
 		result.push_back(buf);
-		UniPoly q(R);
-		div(bmod, a[0], q);
-		phi = expand(pow(x,m)*t.to_ex(x));
-		UniPoly t1mod(R, phi, x);
-		buf = t1mod + q * a[1];
-		result.push_back(buf);
+		umod q = div(bmod, a[0]);
+		phi = expand(pow(x,m) * umod_to_ex(t, x));
+		umod t1mod = umod_from_ex(phi, x, R);
+		umod buf2 = t1mod + q * a[1];
+		result.push_back(buf2);
 	}
 
 	DCOUTVAR(result);
@@ -1596,9 +1280,9 @@ vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex& c, con
 	}
 	else {
 		DCOUT(uniterm left);
-		UniPolyVec amod;
+		umodvec amod;
 		for ( size_t i=0; i<a.size(); ++i ) {
-			UniPoly up(R, a[i], x);
+			umod up = umod_from_ex(a[i], x, R);
 			amod.push_back(up);
 		}
 
@@ -1620,7 +1304,7 @@ vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex& c, con
 			DCOUTVAR(m);
 			cl_I cm = the<cl_I>(ex_to<numeric>(z.lcoeff(x)).to_cl_N());
 			DCOUTVAR(cm);
-			UniPolyVec delta_s = univar_diophant(amod, x, m, p, k);
+			umodvec delta_s = univar_diophant(amod, x, m, p, k);
 			cl_MI modcm;
 			cl_I poscm = cm;
 			while ( poscm < 0 ) {
@@ -1630,7 +1314,7 @@ vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex& c, con
 			DCOUTVAR(modcm);
 			for ( size_t j=0; j<delta_s.size(); ++j ) {
 				delta_s[j] = delta_s[j] * modcm;
-				sigma[j] = sigma[j] + delta_s[j].to_ex(x);
+				sigma[j] = sigma[j] + umod_to_ex(delta_s[j], x);
 			}
 			DCOUTVAR(delta_s);
 #ifdef DEBUGFACTOR
@@ -1679,7 +1363,7 @@ ostream& operator<<(ostream& o, const vector<EvalPoint>& v)
 #endif // def DEBUGFACTOR
 
 
-ex hensel_multivar(const ex& a, const ex& x, const vector<EvalPoint>& I, unsigned int p, const cl_I& l, const UniPolyVec& u, const vector<ex>& lcU)
+ex hensel_multivar(const ex& a, const ex& x, const vector<EvalPoint>& I, unsigned int p, const cl_I& l, const umodvec& u, const vector<ex>& lcU)
 {
 	DCOUT(hensel_multivar);
 	DCOUTVAR(a);
@@ -1721,7 +1405,7 @@ ex hensel_multivar(const ex& a, const ex& x, const vector<EvalPoint>& I, unsigne
 	DCOUTVAR(n);
 	vector<ex> U(n);
 	for ( size_t i=0; i<n; ++i ) {
-		U[i] = u[i].to_ex(x);
+		U[i] = umod_to_ex(u[i], x);
 	}
 #ifdef DEBUGFACTOR
 	cout << "U ";
@@ -2086,11 +1770,8 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 			DCOUTVAR(u.lcoeff(x));
 			while ( true ) {
 				if ( irem(ex_to<numeric>(u.lcoeff(x)), prime) != 0 ) {
-					UniPoly modpoly(R, u, x);
-					UniFactorVec sqrfree_ufv;
-					squarefree(modpoly, sqrfree_ufv);
-					DCOUTVAR(sqrfree_ufv);
-					if ( sqrfree_ufv.factors.size() == 1 && sqrfree_ufv.factors.front().exp == 1 ) break;
+					umod modpoly = umod_from_ex(u, x, R);
+					if ( squarefree(modpoly) ) break;
 				}
 				prime = next_prime(prime);
 				DCOUTVAR(prime);
@@ -2288,10 +1969,10 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 			pl = pl * prime;
 		}
 
-		UniPolyVec uvec;
+		umodvec uvec;
 		cl_modint_ring R = find_modint_ring(expt_pos(cl_I(prime),l));
 		for ( size_t i=0; i<(ufaclst.nops()-1)/2; ++i ) {
-			UniPoly newu(R, ufaclst.op(i*2+1), x);
+			umod newu = umod_from_ex(ufaclst.op(i*2+1), x, R);
 			uvec.push_back(newu);
 		}
 		DCOUTVAR(uvec);
