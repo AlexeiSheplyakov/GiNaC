@@ -78,8 +78,7 @@ normalize_in_ring(T& x, typename T::value_type* content_ = 0, int* unit_ = 0)
 		return something_changed;
 	}
 	
-	lcoeff(x) = one;
-	for (std::size_t i = x.size() - 1; i-- != 0; )
+	for (std::size_t i = x.size(); i-- != 0; )
 		x[i] = exquo(x[i], content);
 
 	if (content_)
