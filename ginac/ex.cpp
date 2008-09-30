@@ -32,7 +32,6 @@
 #include "power.h"
 #include "lst.h"
 #include "relational.h"
-#include "input_lexer.h"
 #include "utils.h"
 
 namespace GiNaC {
@@ -95,7 +94,7 @@ ex ex::diff(const symbol & s, unsigned nth) const
 /** Check whether expression matches a specified pattern. */
 bool ex::match(const ex & pattern) const
 {
-	lst repl_lst;
+	exmap repl_lst;
 	return bp->match(pattern, repl_lst);
 }
 
@@ -103,12 +102,10 @@ bool ex::match(const ex & pattern) const
  *  the "found" list. If the expression itself matches the pattern, the
  *  children are not further examined. This function returns true when any
  *  matches were found. */
-bool ex::find(const ex & pattern, lst & found) const
+bool ex::find(const ex & pattern, exset& found) const
 {
 	if (match(pattern)) {
-		found.append(*this);
-		found.sort();
-		found.unique();
+		found.insert(*this);
 		return true;
 	}
 	bool any_found = false;
@@ -555,17 +552,6 @@ basic & ex::construct_from_double(double d)
 	return *bp;
 }
 
-ptr<basic> ex::construct_from_string_and_lst(const std::string &s, const ex &l)
-{
-	set_lexer_string(s);
-	set_lexer_symbols(l);
-	ginac_yyrestart(NULL);
-	if (ginac_yyparse())
-		throw (std::runtime_error(get_parser_error()));
-	else
-		return parsed_ex.bp;
-}
-	
 //////////
 // static member variables
 //////////

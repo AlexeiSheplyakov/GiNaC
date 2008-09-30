@@ -4,23 +4,28 @@
 namespace GiNaC
 {
 
-const symbol&
+symbol
 find_or_insert_symbol(const std::string& name, symtab& syms, const bool strict)
 {
 	symtab::const_iterator p = syms.find(name);
-	if (p != syms.end())
-		return p->second.first;
+	if (p != syms.end()) {
+		if (is_a<symbol>(p->second))
+			return ex_to<symbol>(p->second);
+		else
+			throw std::invalid_argument(
+				std::string("find_or_insert_symbol: name \"")
+				+ name + "\" does not correspond to a symbol");
+	}
+
 
 	if (strict)
 		throw std::invalid_argument(
 				std::string("find_or_insert_symbol: symbol \"") 
 				+ name + "\" not found");
 
-	// false means this symbol was created by parser 
-	const std::pair<symbol, bool> tmp = std::make_pair(symbol(name), false);
-
-	symtab::iterator i = syms.insert(symtab::value_type(name, tmp)).first;
-	return i->second.first;
+	const symbol sy(name);
+	syms[name] = sy;
+	return sy;
 }
 
 }

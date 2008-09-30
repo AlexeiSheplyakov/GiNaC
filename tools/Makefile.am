@@ -6,7 +6,7 @@ viewgar_LDADD = ../ginac/libginac.la
 
 bin_SCRIPTS = ginac-excompiler
 
-INCLUDES = -I$(srcdir)/../ginac -I../ginac
+AM_CPPFLAGS = -I$(srcdir)/../ginac -I../ginac -DIN_GINAC
 
 man_MANS = viewgar.1
 

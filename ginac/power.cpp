@@ -635,7 +635,7 @@ bool power::has(const ex & other, unsigned options) const
 }
 
 // from mul.cpp
-extern bool tryfactsubs(const ex &, const ex &, int &, lst &);
+extern bool tryfactsubs(const ex &, const ex &, int &, exmap&);
 
 ex power::subs(const exmap & m, unsigned options) const
 {	
@@ -651,9 +651,13 @@ ex power::subs(const exmap & m, unsigned options) const
 
 	for (exmap::const_iterator it = m.begin(); it != m.end(); ++it) {
 		int nummatches = std::numeric_limits<int>::max();
-		lst repls;
-		if (tryfactsubs(*this, it->first, nummatches, repls))
-			return (ex_to<basic>((*this) * power(it->second.subs(ex(repls), subs_options::no_pattern) / it->first.subs(ex(repls), subs_options::no_pattern), nummatches))).subs_one_level(m, options);
+		exmap repls;
+		if (tryfactsubs(*this, it->first, nummatches, repls)) {
+			ex anum = it->second.subs(repls, subs_options::no_pattern);
+			ex aden = it->first.subs(repls, subs_options::no_pattern);
+			ex result = (*this)*power(anum/aden, nummatches);
+			return (ex_to<basic>(result)).subs_one_level(m, options);
+		}
 	}
 
 	return subs_one_level(m, options);
@@ -864,7 +868,6 @@ ex power::expand_add(const add & a, int n, unsigned options) const
 	intvector k(m-1);
 	intvector k_cum(m-1); // k_cum[l]:=sum(i=0,l,k[l]);
 	intvector upper_limit(m-1);
-	int l;
 
 	for (size_t l=0; l<m-1; ++l) {
 		k[l] = 0;
@@ -875,7 +878,7 @@ ex power::expand_add(const add & a, int n, unsigned options) const
 	while (true) {
 		exvector term;
 		term.reserve(m+1);
-		for (l=0; l<m-1; ++l) {
+		for (std::size_t l = 0; l < m - 1; ++l) {
 			const ex & b = a.op(l);
 			GINAC_ASSERT(!is_exactly_a<add>(b));
 			GINAC_ASSERT(!is_exactly_a<power>(b) ||
@@ -890,7 +893,7 @@ ex power::expand_add(const add & a, int n, unsigned options) const
 				term.push_back(power(b,k[l]));
 		}
 
-		const ex & b = a.op(l);
+		const ex & b = a.op(m - 1);
 		GINAC_ASSERT(!is_exactly_a<add>(b));
 		GINAC_ASSERT(!is_exactly_a<power>(b) ||
 		             !is_exactly_a<numeric>(ex_to<power>(b).exponent) ||
@@ -904,7 +907,7 @@ ex power::expand_add(const add & a, int n, unsigned options) const
 			term.push_back(power(b,n-k_cum[m-2]));
 
 		numeric f = binomial(numeric(n),numeric(k[0]));
-		for (l=1; l<m-1; ++l)
+		for (std::size_t l = 1; l < m - 1; ++l)
 			f *= binomial(numeric(n-k_cum[l-1]),numeric(k[l]));
 
 		term.push_back(f);
@@ -912,12 +915,19 @@ ex power::expand_add(const add & a, int n, unsigned options) const
 		result.push_back(ex((new mul(term))->setflag(status_flags::dynallocated)).expand(options));
 
 		// increment k[]
-		l = m-2;
-		while ((l>=0) && ((++k[l])>upper_limit[l])) {
+		bool done = false;
+		std::size_t l = m - 2;
+		while ((++k[l]) > upper_limit[l]) {
 			k[l] = 0;
-			--l;
+			if (l != 0)
+				--l;
+			else {
+				done = true;
+				break;
+			}
 		}
-		if (l<0) break;
+		if (done)
+			break;
 
 		// recalc k_cum[] and upper_limit[]
 		k_cum[l] = (l==0 ? k[0] : k_cum[l-1]+k[l]);

@@ -1,4 +1,5 @@
 #ifndef GINAC_PARSER_HPP_
+#define GINAC_PARSER_HPP_
 
 #include "parse_context.hpp"
 #include <stdexcept>
@@ -48,7 +49,7 @@ class parser
 	ex parse_number_expr();
 
 	/// unary_expr: [+-] expression
-	ex parse_unary_expr(const int c);
+	ex parse_unary_expr();
 
 	/// literal_expr: 'I' | 'Pi' | 'Euler' | 'Catalan'
 	ex parse_literal_expr();
@@ -61,8 +62,8 @@ public:
 	 *        symbol is encountered.
 	 */
 	parser(const symtab& syms_ = symtab(),
-		const prototype_table& funcs_ = get_default_reader(),
-		const bool strict_ = false);
+		const bool strict_ = false,
+		const prototype_table& funcs_ = get_default_reader());
 	~parser();
 
 	/// parse the stream @a input
@@ -75,10 +76,15 @@ public:
 	{ 
 		return syms; 
 	}
+	/// read/write access to the symbol table
+	symtab& get_syms()
+	{
+		return syms;
+	}
 
-private:
 	/// If true, throw an exception if an unknown symbol is encountered.
-	const bool strict;
+	bool strict;
+private:
 	/**
 	 * Function/ctor table, maps a prototype (which is a name and number
 	 * arguments) to a C++ function. Used for parsing identifier_expr's

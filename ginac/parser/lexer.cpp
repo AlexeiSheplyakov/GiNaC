@@ -35,13 +35,23 @@ int lexer::gettok()
 			return token_type::identifier;
 	}
 
-	// Number: [0-9.]+
+	// Number: [0-9]+([.][0-9]*(eE[+-][0-9]+)*)*
 	if (isdigit(c) || c == '.') {
 		str = "";
 		do {
 			str += c;
 			c = input->get();
 		} while (isdigit(c) || c == '.');
+		if (c == 'E' || c == 'e') {
+			str += 'E';
+			c = input->get();
+			if (isdigit(c))
+				str += '+';
+			do {
+				str += c;
+				c = input->get();
+			} while (isdigit(c));
+		}
 		return token_type::number;
 	}
 

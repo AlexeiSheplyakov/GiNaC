@@ -4413,14 +4413,14 @@ matches a given pattern. This is done by the function
 
 @example
 bool ex::match(const ex & pattern);
-bool ex::match(const ex & pattern, lst & repls);
+bool ex::match(const ex & pattern, exmap& repls);
 @end example
 
 This function returns @code{true} when the expression matches the pattern
 and @code{false} if it doesn't. If used in the second form, the actual
-subexpressions matched by the wildcards get returned in the @code{repls}
-object as a list of relations of the form @samp{wildcard == expression}.
-If @code{match()} returns false,  @code{repls} remains unmodified.
+subexpressions matched by the wildcards get returned in the associative
+array @code{repls} with @samp{wildcard} as a key. If @code{match()}
+returns false,  @code{repls} remains unmodified.
 
 The matching algorithm works as follows:
 
@@ -4559,7 +4559,7 @@ Again some examples in @command{ginsh} for illustration (in @command{ginsh},
 The method
 
 @example
-bool ex::find(const ex & pattern, lst & found);
+bool ex::find(const ex & pattern, exset& found);
 @end example
 
 works a bit like @code{has()} but it doesn't stop upon finding the first
@@ -6380,22 +6380,72 @@ and have the @samp{x} and @samp{y} correspond to the symbols @code{x} and
 @code{y} you defined in your program and there is no way to specify the
 desired symbols to the @code{>>} stream input operator.
 
-Instead, GiNaC lets you construct an expression from a string, specifying the
-list of symbols to be used:
+Instead, GiNaC lets you read an expression from a stream or a string,
+specifying the mapping between the input strings and symbols to be used:
 
 @example
 @{
-    symbol x("x"), y("y");
-    ex e("2*x+sin(y)", lst(x, y));
+    symbol x, y;
+    symtab table;
+    table["x"] = x;
+    table["y"] = y;
+    parser reader(table);
+    ex e = reader("2*x+sin(y)");
 @}
 @end example
 
 The input syntax is the same as that used by @command{ginsh} and the stream
-output operator @code{<<}. The symbols in the string are matched by name to
-the symbols in the list and if GiNaC encounters a symbol not specified in
-the list it will throw an exception.
+output operator @code{<<}. Matching between the input strings and expressions
+is given by @samp{table}. The @samp{table} in this example instructs GiNaC
+to substitute any input substring ``x'' with symbol @code{x}. Likewise,
+the substring ``y'' will be replaced with symbol @code{y}. It's also possible
+to map input (sub)strings to arbitrary expressions:
 
-With this constructor, it's also easy to implement interactive GiNaC programs:
+@example
+@{
+    symbol x, y;
+    symtab table;
+    table["x"] = x+log(y)+1;
+    parser reader(table);
+    ex e = reader("5*x^3 - x^2");
+    // e = 5*(x+log(y)+1)^3 + (x+log(y)+1)^2
+@}
+@end example
+
+If no mapping is specified for a particular string GiNaC will create a symbol
+with corresponding name. Later on you can obtain all parser generated symbols
+with @code{get_syms()} method:
+
+@example
+@{
+    parser reader;
+    ex e = reader("2*x+sin(y)");
+    symtab table = reader.get_syms();
+    symbol x = reader["x"];
+    symbol y = reader["y"];
+@}
+@end example
+
+Sometimes you might want to prevent GiNaC from inserting these extra symbols
+(for example, you want treat an unexpected string in the input as an error).
+
+@example
+@{
+	symtab table;
+	table["x"] = symbol();
+	parser reader(table);
+	parser.strict = true;
+	ex e;
+	try @{
+		e = reader("2*x+sin(y)");
+	@} catch (parse_error& err) @{
+		cerr << err.what() << endl;
+		// prints "unknown symbol "y" in the input"
+	@}
+@}
+@end example
+
+With this parser, it's also easy to implement interactive GiNaC programs:
 
 @example
 #include <iostream>
@@ -6407,19 +6457,19 @@ using namespace GiNaC;
 
 int main()
 @{
-    symbol x("x");
-    string s;
+	cout << "Enter an expression containing 'x': " << flush;
+	parser reader;
 
-    cout << "Enter an expression containing 'x': ";
-    getline(cin, s);
-
-    try @{
-        ex e(s, lst(x));
-        cout << "The derivative of " << e << " with respect to x is ";
-        cout << e.diff(x) << ".\n";
-    @} catch (exception &p) @{
-        cerr << p.what() << endl;
-    @}
+	try @{
+		ex e = reader(cin);
+		symtab table = reader.get_syms();
+		symbol x = table.find("x") != table.end() ? 
+			   ex_to<symbol>(table["x"]) : symbol("x");
+		cout << "The derivative of " << e << " with respect to x is ";
+		cout << e.diff(x) << "." << endl;
+	@} catch (exception &p) @{
+		cerr << p.what() << endl;
+	@}
 @}
 @end example
 

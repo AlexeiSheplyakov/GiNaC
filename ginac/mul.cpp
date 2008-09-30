@@ -637,7 +637,7 @@ ex mul::eval_ncmul(const exvector & v) const
 	return inherited::eval_ncmul(v);
 }
 
-bool tryfactsubs(const ex & origfactor, const ex & patternfactor, int & nummatches, lst & repls)
+bool tryfactsubs(const ex & origfactor, const ex & patternfactor, int & nummatches, exmap& repls)
 {	
 	ex origbase;
 	int origexponent;
@@ -669,7 +669,7 @@ bool tryfactsubs(const ex & origfactor, const ex & patternfactor, int & nummatch
 		patternexpsign = 1;
 	}
 
-	lst saverepls = repls;
+	exmap saverepls = repls;
 	if (origexponent < patternexponent || origexpsign != patternexpsign || !origbase.match(patternbase,saverepls))
 		return false;
 	repls = saverepls;
@@ -688,7 +688,7 @@ bool tryfactsubs(const ex & origfactor, const ex & patternfactor, int & nummatch
   * that already have been replaced by previous substitutions and matched[i]
   * is true for factors that have been matched by the current match.
   */
-bool algebraic_match_mul_with_mul(const mul &e, const ex &pat, lst &repls,
+bool algebraic_match_mul_with_mul(const mul &e, const ex &pat, exmap& repls,
 		int factor, int &nummatches, const std::vector<bool> &subsed,
 		std::vector<bool> &matched)
 {
@@ -698,7 +698,7 @@ bool algebraic_match_mul_with_mul(const mul &e, const ex &pat, lst &repls,
 	for (size_t i=0; i<e.nops(); ++i) {
 		if(subsed[i] || matched[i])
 			continue;
-		lst newrepls = repls;
+		exmap newrepls = repls;
 		int newnummatches = nummatches;
 		if (tryfactsubs(e.op(i), pat.op(factor), newnummatches, newrepls)) {
 			matched[i] = true;
@@ -721,7 +721,7 @@ bool mul::has(const ex & pattern, unsigned options) const
 	if(!(options&has_options::algebraic))
 		return basic::has(pattern,options);
 	if(is_a<mul>(pattern)) {
-		lst repls;
+		exmap repls;
 		int nummatches = std::numeric_limits<int>::max();
 		std::vector<bool> subsed(seq.size(), false);
 		std::vector<bool> matched(seq.size(), false);
@@ -745,7 +745,7 @@ ex mul::algebraic_subs_mul(const exmap & m, unsigned options) const
 retry1:
 			int nummatches = std::numeric_limits<int>::max();
 			std::vector<bool> currsubsed(seq.size(), false);
-			lst repls;
+			exmap repls;
 			
 			if(!algebraic_match_mul_with_mul(*this, it->first, repls, 0, nummatches, subsed, currsubsed))
 				continue;
@@ -754,10 +754,10 @@ retry1:
 				if (currsubsed[j])
 					subsed[j] = true;
 			ex subsed_pattern
-				= it->first.subs(ex(repls), subs_options::no_pattern);
+				= it->first.subs(repls, subs_options::no_pattern);
 			divide_by *= power(subsed_pattern, nummatches);
 			ex subsed_result
-				= it->second.subs(ex(repls), subs_options::no_pattern);
+				= it->second.subs(repls, subs_options::no_pattern);
 			multiply_by *= power(subsed_result, nummatches);
 			goto retry1;
 
@@ -765,14 +765,14 @@ retry1:
 
 			for (size_t j=0; j<this->nops(); j++) {
 				int nummatches = std::numeric_limits<int>::max();
-				lst repls;
+				exmap repls;
 				if (!subsed[j] && tryfactsubs(op(j), it->first, nummatches, repls)){
 					subsed[j] = true;
 					ex subsed_pattern
-						= it->first.subs(ex(repls), subs_options::no_pattern);
+						= it->first.subs(repls, subs_options::no_pattern);
 					divide_by *= power(subsed_pattern, nummatches);
 					ex subsed_result
-						= it->second.subs(ex(repls), subs_options::no_pattern);
+						= it->second.subs(repls, subs_options::no_pattern);
 					multiply_by *= power(subsed_result, nummatches);
 				}
 			}

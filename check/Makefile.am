@@ -7,6 +7,8 @@ CHECKS = check_numeric \
 
 EXAMS = exam_paranoia \
 	exam_heur_gcd \
+	match_bug \
+	parser_bugs \
 	exam_numeric_archive \
 	exam_numeric \
 	exam_powerlaws  \
@@ -25,7 +27,9 @@ EXAMS = exam_paranoia \
 	exam_archive  \
 	exam_structure  \
 	exam_hashmap  \
-	exam_misc
+	exam_misc \
+	exam_mod_gcd \
+	exam_cra
 
 TIMES = time_dennyfliegner \
 	time_gammaseries \
@@ -73,6 +77,12 @@ exam_paranoia_LDADD = ../ginac/libginac.la
 
 exam_heur_gcd_SOURCES = heur_gcd_bug.cpp 
 exam_heur_gcd_LDADD = ../ginac/libginac.la
+
+match_bug_SOURCES = match_bug.cpp error_report.hpp
+match_bug_LDADD = ../ginac/libginac.la
+
+parser_bugs_SOURCES = parser_bugs.cpp
+parser_bugs_LDADD = ../ginac/libginac.la
 
 exam_numeric_archive_SOURCES = numeric_archive.cpp
 exam_numeric_archive_LDADD = ../ginac/libginac.la
@@ -132,6 +142,11 @@ exam_hashmap_LDADD = ../ginac/libginac.la
 exam_misc_SOURCES = exam_misc.cpp
 exam_misc_LDADD = ../ginac/libginac.la
 
+exam_mod_gcd_SOURCES = exam_mod_gcd.cpp
+exam_mod_gcd_LDADD = ../ginac/libginac.la
+
+exam_cra_SOURCES = exam_cra.cpp
+exam_cra_LDADD = ../ginac/libginac.la
 
 time_dennyfliegner_SOURCES = time_dennyfliegner.cpp \
 			     randomize_serials.cpp timer.cpp timer.h
@@ -233,6 +248,6 @@ time_parser_SOURCES = time_parser.cpp \
 time_parser_LDADD = ../ginac/libginac.la
 
 
-AM_CPPFLAGS = -I$(srcdir)/../ginac -I../ginac
+AM_CPPFLAGS = -I$(srcdir)/../ginac -I../ginac -DIN_GINAC
 
 CLEANFILES = exam.gar

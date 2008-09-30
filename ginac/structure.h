@@ -156,7 +156,7 @@ public:
 
 	// pattern matching
 	bool has(const ex & other, unsigned options = 0) const { return inherited::has(other, options); }
-	bool match(const ex & pattern, lst & repl_lst) const { return inherited::match(pattern, repl_lst); }
+	bool match(const ex & pattern, exmap& repl_lst) const { return inherited::match(pattern, repl_lst); }
 protected:
 	bool match_same_type(const basic & other) const { return true; }
 public:

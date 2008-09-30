@@ -391,7 +391,7 @@ bool expairseq::is_polynomial(const ex & var) const
 	return true;
 }
 
-bool expairseq::match(const ex & pattern, lst & repl_lst) const
+bool expairseq::match(const ex & pattern, exmap & repl_lst) const
 {
 	// This differs from basic::match() because we want "a+b+c+d" to
 	// match "d+*+b" with "*" being "a+c", and we want to honor commutativity
@@ -427,19 +427,9 @@ bool expairseq::match(const ex & pattern, lst & repl_lst) const
 				continue;
 			exvector::iterator it = ops.begin(), itend = ops.end();
 			while (it != itend) {
-				lst::const_iterator last_el = repl_lst.end();
-				--last_el;
 				if (it->match(p, repl_lst)) {
 					ops.erase(it);
 					goto found;
-				}
-				while(true) {
-					lst::const_iterator next_el = last_el;
-					++next_el;
-					if(next_el == repl_lst.end())
-						break;
-					else
-						repl_lst.remove_last();
 				}
 				++it;
 			}
@@ -458,11 +448,11 @@ found:		;
 			for (size_t i=0; i<num; i++)
 				vp->push_back(split_ex_to_pair(ops[i]));
 			ex rest = thisexpairseq(vp, default_overall_coeff());
-			for (lst::const_iterator it = repl_lst.begin(); it != repl_lst.end(); ++it) {
-				if (it->op(0).is_equal(global_wildcard))
-					return rest.is_equal(it->op(1));
+			for (exmap::const_iterator it = repl_lst.begin(); it != repl_lst.end(); ++it) {
+				if (it->first.is_equal(global_wildcard))
+					return rest.is_equal(it->second);
 			}
-			repl_lst.append(global_wildcard == rest);
+			repl_lst[global_wildcard] = rest;
 			return true;
 
 		} else {

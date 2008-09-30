@@ -60,21 +60,25 @@ ex parser::parse_paren_expr()
 }
 
 extern numeric* _num_1_p;
+extern ex _ex0;
 
 /// unary_expr: [+-] expression
-ex parser::parse_unary_expr(const int s)
+ex parser::parse_unary_expr()
 {
-	// consume '-' (or '+')
-	get_next_tok();
-	ex v = parse_expression();
-	switch (s) {
-		case '-':
-			return (new mul(v, *_num_1_p))->setflag(status_flags::dynallocated);
-		case '+':
-			return v;
-		default:
-			Parse_error_("invalid unary operator \"" << char(s) << "\"");
-	}
+	// Unlike most other parse_* method this one does NOT consume
+	// current token so parse_binop_rhs() knows what kind of operator
+	// is being parsed.
+	
+	// There are different kinds of expressions which need to be handled:
+	// -a+b 
+	// -(a) 
+	// +a
+	// +(a)
+	// Delegete the work to parse_binop_rhs(), otherwise we end up
+	// duplicating it here. 
+	ex lhs = _ex0; // silly trick
+	ex e = parse_binop_rhs(0, lhs);
+	return e;
 }
 
 /// primary: identifier_expr | number_expr | paren_expr | unary_expr 
@@ -88,9 +92,8 @@ ex parser::parse_primary()
 		case '(': 
 			 return parse_paren_expr();
 		case '-':
-			 return parse_unary_expr('-');
 		case '+':
-			 return parse_unary_expr('+');
+			 return parse_unary_expr();
 		case lexer::token_type::literal:
 			 return parse_literal_expr();
 		case lexer::token_type::eof:
@@ -118,6 +121,7 @@ ex parser::parse_number_expr()
 /// literal_expr: 'I' | 'Pi' | 'Euler' | 'Catalan'
 ex parser::parse_literal_expr()
 {
+	get_next_tok(); // consume the literal
 	if (scanner->str == "I")
 		return I;
 	else if (scanner->str == "Pi")
@@ -134,6 +138,13 @@ ex parser::operator()(std::istream& input)
 	scanner->switch_input(&input);
 	get_next_tok();
 	ex ret = parse_expression();
+	// parse_expression() stops if it encounters an unknown token.
+	// This is not a bug: since the parser is recursive checking
+	// whether the next token is valid is responsibility of the caller.
+	// Hence make sure nothing is left in the stream:
+	if (token != lexer::token_type::eof)
+		Parse_error("expected EOF");
+
 	return ret;
 }
 
@@ -150,9 +161,9 @@ int parser::get_next_tok()
 	return token;
 }
 
-parser::parser(const symtab& syms_, const prototype_table& funcs_,
-	       const bool strict_) : strict(strict_), funcs(funcs_),
-	syms(syms_)
+parser::parser(const symtab& syms_, const bool strict_,
+	       const prototype_table& funcs_) : strict(strict_),
+	funcs(funcs_), syms(syms_)
 {
 	scanner = new lexer();
 }

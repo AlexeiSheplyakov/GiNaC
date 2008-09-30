@@ -70,6 +70,12 @@
 
 #include "excompiler.h"
 
+#ifndef IN_GINAC
+#include "parser.hpp"
+#else
+#include "parser/parser.hpp"
+#endif
+
 #ifdef __MAKECINT__
 #pragma link C++ nestedclass;
 #pragma link C++ nestedtypedef;

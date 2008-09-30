@@ -426,9 +426,12 @@ static ex f_evalf2(const exprseq &e)
 
 static ex f_find(const exprseq &e)
 {
-	lst found;
+	exset found;
 	e[0].find(e[1], found);
-	return found;
+	lst l;
+	for (exset::const_iterator i = found.begin(); i != found.end(); ++i)
+		l.append(*i);
+	return l;
 }
 
 static ex f_fsolve(const exprseq &e)
@@ -478,11 +481,14 @@ static ex f_map(const exprseq &e)
 
 static ex f_match(const exprseq &e)
 {
-	lst repl_lst;
-	if (e[0].match(e[1], repl_lst))
+	exmap repls;
+	if (e[0].match(e[1], repls)) {
+		lst repl_lst;
+		for (exmap::const_iterator i = repls.begin(); i != repls.end(); ++i)
+			repl_lst.append(relational(i->first, i->second, relational::equal));
 		return repl_lst;
-	else
-		return fail();
+	}
+	throw std::runtime_error("FAIL");
 }
 
 static ex f_normal2(const exprseq &e)

@@ -11,14 +11,11 @@ namespace GiNaC
 {
 
 /**
- * Establishes correspondence between the strings and symbols.
+ * Establishes correspondence between the strings and expressions.
  * The parser will create missing symbols (if not instructed otherwise,
  * in which case it fails if the expression contains unknown symbols).
- * The .second element of pair helps to distinguish between the user
- * supplied symbols and parser generated ones. The .first is the symbol
- * itself
  */
-typedef std::map<std::string, std::pair<symbol, bool> > symtab;
+typedef std::map<std::string, ex> symtab;
 
 /**
  * Find the symbol with the @a name in the symbol table @a syms.
@@ -26,7 +23,7 @@ typedef std::map<std::string, std::pair<symbol, bool> > symtab;
  * If symbol is missing and @a strict = false, insert it, otherwise
  * throw an exception.
  */
-extern const symbol&
+extern symbol
 find_or_insert_symbol(const std::string& name, symtab& syms,
 	              const bool strict);
 
