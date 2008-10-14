@@ -10,6 +10,19 @@ static inline cln::cl_I div(const cln::cl_I& x, const cln::cl_I& y)
 	return cln::exquo(x, y);
 }
 
+/// Exact integer division.
+/// Check if y divides x, if yes put the quotient into q, otherwise don't
+/// touch q. Returns true if y divides x and false if not.
+static inline bool div(cln::cl_I& q, const cln::cl_I& x, const cln::cl_I& y)
+{
+	const cln::cl_I_div_t qr = cln::truncate2(x, y);
+	if (zerop(qr.remainder)) {
+		q = qr.quotient;
+		return true;
+	}
+	return false;
+}
+
 static inline cln::cl_I get_ring_elt(const cln::cl_I& sample, const int val)
 {
 	return cln::cl_I(val);

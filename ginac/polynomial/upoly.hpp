@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <iterator>
 #include <limits>
+#include "ring_traits.hpp"
 #include "debug.hpp"
 #include "compiler.h"
 
@@ -111,6 +112,36 @@ operator*=(T& p, const typename T::value_type& c)
 		p[i] = p[i]*c;
 	canonicalize(p);
 	return p;
+}
+
+/// Divide the polynomial @a p by the ring element @a c, put the result
+/// into @a r. If @a p is not divisible by @a c @a r is undefined.
+template<typename T> bool divide(T& r, const T& p, const typename T::value_type& c)
+{
+	if (p.empty()) {
+		r.clear();
+		return true;
+	}
+	if (r.size() != p.size())
+		r.resize(p.size());
+	bool divisible = true;
+	for (std::size_t i = p.size(); i-- != 0; ) {
+		divisible = div(r[i], p[i], c);
+		if (!divisible)
+			break;
+	}
+	return divisible;
+}
+
+template<typename T> bool divide(T& p, const typename T::value_type& c)
+{
+	if (p.empty())
+		return true;
+	T r(p.size());
+	bool divisible = divide(r, p, c);
+	if (divisible)
+		swap(p, r);
+	return divisible;
 }
 
 // Convert Z[x] -> Z/p[x]
