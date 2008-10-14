@@ -104,8 +104,18 @@ void mod_gcd(upoly& result, upoly A, upoly B)
 	ring_t q(0);
 	upoly H;
 
-	ring_t p(2);
+	int count = 0;
+	const ring_t p_threshold = ring_t(1) << (8*sizeof(void *));
+	ring_t p = isqrt(std::min(max_coeff(A), max_coeff(B)));
 	while (true) {
+		if (count >= 8) {
+			count = 0;
+			if (p < p_threshold)
+				p <<= 1;
+			else
+				p = p + (p >> 4);
+		} else 
+			++count;
 		find_next_prime(p, g);
 
 		// Map the polynomials onto Z/p[x]
