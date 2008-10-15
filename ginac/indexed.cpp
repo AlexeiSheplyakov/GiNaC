@@ -299,7 +299,7 @@ ex indexed::eval(int level) const
 		return f * thiscontainer(v);
 	}
 
-	if(this->tinfo()==&indexed::tinfo_static && seq.size()==1)
+	if((typeid(*this) == typeid(indexed)) && seq.size()==1)
 		return base;
 
 	// Canonicalize indices according to the symmetry properties
