@@ -37,13 +37,13 @@ class refcounted {
 public:
 	refcounted() throw() : refcount(0) {}
 
-	size_t add_reference() throw() { return ++refcount; }
-	size_t remove_reference() throw() { return --refcount; }
-	size_t get_refcount() const throw() { return refcount; }
-	void set_refcount(size_t r) throw() { refcount = r; }
+	unsigned int add_reference() throw() { return ++refcount; }
+	unsigned int remove_reference() throw() { return --refcount; }
+	unsigned int get_refcount() const throw() { return refcount; }
+	void set_refcount(unsigned int r) throw() { refcount = r; }
 
 private:
-	size_t refcount; ///< reference counter
+	unsigned int refcount; ///< reference counter
 };
 
 
