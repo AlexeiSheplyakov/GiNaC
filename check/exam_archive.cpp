@@ -65,7 +65,8 @@ unsigned exam_archive()
 	}
 	f = ar.unarchive_ex(lst(x, y, mu, dim), "expr 1");
 
-	if (!f.is_equal(e)) {
+	ex difference = (f - e).expand();
+	if (!difference.is_zero()) {
 		clog << "archiving/unarchiving " << e << endl
 		     << "erroneously returned " << f << endl;
 		++result;
