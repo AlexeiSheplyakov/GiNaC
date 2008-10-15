@@ -396,7 +396,7 @@ bool expairseq::match(const ex & pattern, exmap & repl_lst) const
 	// This differs from basic::match() because we want "a+b+c+d" to
 	// match "d+*+b" with "*" being "a+c", and we want to honor commutativity
 
-	if (this->tinfo() == ex_to<basic>(pattern).tinfo()) {
+	if (typeid(*this) == typeid(ex_to<basic>(pattern))) {
 
 		// Check whether global wildcard (one that matches the "rest of the
 		// expression", like "*" above) is present
@@ -793,8 +793,8 @@ void expairseq::construct_from_2_ex_via_exvector(const ex &lh, const ex &rh)
 
 void expairseq::construct_from_2_ex(const ex &lh, const ex &rh)
 {
-	if (ex_to<basic>(lh).tinfo()==this->tinfo()) {
-		if (ex_to<basic>(rh).tinfo()==this->tinfo()) {
+	if (typeid(ex_to<basic>(lh)) == typeid(*this)) {
+		if (typeid(ex_to<basic>(rh)) == typeid(*this)) {
 #if EXPAIRSEQ_USE_HASHTAB
 			unsigned totalsize = ex_to<expairseq>(lh).seq.size() +
 			                     ex_to<expairseq>(rh).seq.size();
@@ -828,7 +828,7 @@ void expairseq::construct_from_2_ex(const ex &lh, const ex &rh)
 #endif // EXPAIRSEQ_USE_HASHTAB
 			return;
 		}
-	} else if (ex_to<basic>(rh).tinfo()==this->tinfo()) {
+	} else if (typeid(ex_to<basic>(rh)) == typeid(*this)) {
 #if EXPAIRSEQ_USE_HASHTAB
 		unsigned totalsize=ex_to<expairseq>(rh).seq.size()+1;
 		if (calc_hashtabsize(totalsize)!=0) {
@@ -1051,7 +1051,7 @@ void expairseq::make_flat(const exvector &v)
 	
 	cit = v.begin();
 	while (cit!=v.end()) {
-		if (ex_to<basic>(*cit).tinfo()==this->tinfo()) {
+		if (typeid(ex_to<basic>(*cit)) == typeid(*this)) {
 			++nexpairseqs;
 			noperands += ex_to<expairseq>(*cit).seq.size();
 		}
@@ -1068,7 +1068,7 @@ void expairseq::make_flat(const exvector &v)
 	make_flat_inserter mf(v, do_idx_rename);
 	cit = v.begin();
 	while (cit!=v.end()) {
-		if (ex_to<basic>(*cit).tinfo()==this->tinfo()) {
+		if (typeid(ex_to<basic>(*cit)) == typeid(*this)) {
 			ex newfactor = mf.handle_factor(*cit, _ex1);
 			const expairseq &subseqref = ex_to<expairseq>(newfactor);
 			combine_overall_coeff(subseqref.overall_coeff);
@@ -1103,7 +1103,7 @@ void expairseq::make_flat(const epvector &v, bool do_index_renaming)
 	
 	cit = v.begin();
 	while (cit!=v.end()) {
-		if (ex_to<basic>(cit->rest).tinfo()==this->tinfo()) {
+		if (typeid(ex_to<basic>(cit->rest)) == typeid(*this)) {
 			++nexpairseqs;
 			noperands += ex_to<expairseq>(cit->rest).seq.size();
 		}
@@ -1121,7 +1121,7 @@ void expairseq::make_flat(const epvector &v, bool do_index_renaming)
 	// copy elements and split off numerical part
 	cit = v.begin();
 	while (cit!=v.end()) {
-		if (ex_to<basic>(cit->rest).tinfo()==this->tinfo() &&
+		if ((typeid(ex_to<basic>(cit->rest)) == typeid(*this)) &&
 		    this->can_make_flat(*cit)) {
 			ex newrest = mf.handle_factor(cit->rest, cit->coeff);
 			const expairseq &subseqref = ex_to<expairseq>(newrest);

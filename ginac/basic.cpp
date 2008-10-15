@@ -22,9 +22,7 @@
 
 #include <iostream>
 #include <stdexcept>
-#ifdef DO_GINAC_ASSERT
-#  include <typeinfo>
-#endif
+#include <typeinfo>
 
 #include "basic.h"
 #include "ex.h"
@@ -65,7 +63,7 @@ basic::basic(const basic & other) : tinfo_key(other.tinfo_key), flags(other.flag
 const basic & basic::operator=(const basic & other)
 {
 	unsigned fl = other.flags & ~status_flags::dynallocated;
-	if (tinfo_key != other.tinfo_key) {
+	if (typeid(*this) != typeid(other)) {
 		// The other object is of a derived class, so clear the flags as they
 		// might no longer apply (especially hash_calculated). Oh, and don't
 		// copy the tinfo_key: it is already set correctly for this object.
@@ -569,7 +567,7 @@ bool basic::match(const ex & pattern, exmap& repl_lst) const
 	} else {
 
 		// Expression must be of the same type as the pattern
-		if (tinfo() != ex_to<basic>(pattern).tinfo())
+		if (typeid(*this) != typeid(ex_to<basic>(pattern)))
 			return false;
 
 		// Number of subexpressions must match
@@ -846,10 +844,9 @@ int basic::compare(const basic & other) const
 	compare_statistics.compare_same_hashvalue++;
 #endif
 
-	const tinfo_t typeid_this = tinfo();
-	const tinfo_t typeid_other = other.tinfo();
-	if (typeid_this==typeid_other) {
-		GINAC_ASSERT(typeid(*this)==typeid(other));
+	const std::type_info& typeid_this = typeid(*this);
+	const std::type_info& typeid_other = typeid(other);
+	if (typeid_this == typeid_other) {
 // 		int cmpval = compare_same_type(other);
 // 		if (cmpval!=0) {
 // 			std::cout << "hash collision, same type: " 
@@ -871,7 +868,7 @@ int basic::compare(const basic & other) const
 // 		std::cout << " and ";
 // 		other.print(print_tree(std::cout));
 // 		std::cout << std::endl;
-		return (typeid_this<typeid_other ? -1 : 1);
+		return (typeid_this.before(typeid_other) ? -1 : 1);
 	}
 }
 
@@ -891,10 +888,8 @@ bool basic::is_equal(const basic & other) const
 #ifdef GINAC_COMPARE_STATISTICS
 	compare_statistics.is_equal_same_hashvalue++;
 #endif
-	if (this->tinfo()!=other.tinfo())
+	if (typeid(*this) != typeid(other))
 		return false;
-	
-	GINAC_ASSERT(typeid(*this)==typeid(other));
 	
 #ifdef GINAC_COMPARE_STATISTICS
 	compare_statistics.is_equal_same_type++;
