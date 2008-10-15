@@ -787,7 +787,8 @@ tinfo_t basic::return_type_tinfo() const
  *  would all end up with the same hashvalue. */
 unsigned basic::calchash() const
 {
-	unsigned v = golden_ratio_hash((p_int)tinfo());
+	const void* this_tinfo = (const void*)typeid(*this).name();
+	unsigned v = golden_ratio_hash((p_int)this_tinfo);
 	for (size_t i=0; i<nops(); i++) {
 		v = rotate_left(v);
 		v ^= this->op(i).gethash();

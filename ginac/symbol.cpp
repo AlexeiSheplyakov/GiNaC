@@ -287,7 +287,8 @@ bool symbol::is_equal_same_type(const basic & other) const
 
 unsigned symbol::calchash() const
 {
-	hashvalue = golden_ratio_hash((p_int)tinfo() ^ serial);
+	const void* this_tinfo = (const void*)typeid(*this).name();
+	hashvalue = golden_ratio_hash((p_int)this_tinfo ^ serial);
 	setflag(status_flags::hash_calculated);
 	return hashvalue;
 }

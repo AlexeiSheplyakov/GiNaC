@@ -185,7 +185,8 @@ int symmetry::compare_same_type(const basic & other) const
 
 unsigned symmetry::calchash() const
 {
-	unsigned v = golden_ratio_hash((p_int)tinfo());
+	const void* this_tinfo = (const void*)typeid(*this).name();
+	unsigned v = golden_ratio_hash((p_int)this_tinfo);
 
 	if (type == none) {
 		v = rotate_left(v);

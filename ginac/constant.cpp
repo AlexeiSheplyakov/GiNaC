@@ -216,7 +216,8 @@ bool constant::is_equal_same_type(const basic & other) const
 
 unsigned constant::calchash() const
 {
-	hashvalue = golden_ratio_hash((p_int)tinfo() ^ serial);
+	const void* typeid_this = (const void*)typeid(*this).name();
+	hashvalue = golden_ratio_hash((p_int)typeid_this ^ serial);
 
 	setflag(status_flags::hash_calculated);
 

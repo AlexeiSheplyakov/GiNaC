@@ -352,7 +352,8 @@ unsigned idx::calchash() const
 	// hash keys. That is, the hash values must not depend on the index
 	// dimensions or other attributes (variance etc.).
 	// The compare_same_type() methods will take care of the rest.
-	unsigned v = golden_ratio_hash((p_int)tinfo());
+	const void* this_tinfo = (const void*)(typeid(*this).name());
+	unsigned v = golden_ratio_hash((p_int)this_tinfo);
 	v = rotate_left(v);
 	v ^= value.gethash();
 
@@ -504,7 +505,7 @@ ex spinidx::toggle_variance_dot() const
 bool is_dummy_pair(const idx & i1, const idx & i2)
 {
 	// The indices must be of exactly the same type
-	if (i1.tinfo() != i2.tinfo())
+	if (typeid(i1) != typeid(i2))
 		return false;
 
 	// Same type, let the indices decide whether they are paired

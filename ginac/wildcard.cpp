@@ -104,9 +104,10 @@ void wildcard::do_print_python_repr(const print_python_repr & c, unsigned level)
 unsigned wildcard::calchash() const
 {
 	// this is where the schoolbook method
-	// (golden_ratio_hash(tinfo()) ^ label)
+	// (golden_ratio_hash(typeid(*this).name()) ^ label)
 	// is not good enough yet...
-	hashvalue = golden_ratio_hash(golden_ratio_hash((p_int)tinfo()) ^ label);
+	const void* this_tinfo = (const void*)typeid(*this).name();
+	hashvalue = golden_ratio_hash(golden_ratio_hash((p_int)this_tinfo) ^ label);
 	setflag(status_flags::hash_calculated);
 	return hashvalue;
 }

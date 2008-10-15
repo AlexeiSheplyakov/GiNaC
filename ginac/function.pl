@@ -1066,7 +1066,8 @@ ex function::eval_ncmul(const exvector & v) const
 
 unsigned function::calchash() const
 {
-	unsigned v = golden_ratio_hash(golden_ratio_hash((p_int)tinfo()) ^ serial);
+	const void* this_tinfo = (const void*)typeid(*this).name();
+	unsigned v = golden_ratio_hash(golden_ratio_hash((p_int)this_tinfo) ^ serial);
 	for (size_t i=0; i<nops(); i++) {
 		v = rotate_left(v);
 		v ^= this->op(i).gethash();

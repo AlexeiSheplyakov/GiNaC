@@ -258,7 +258,8 @@ tinfo_t relational::return_type_tinfo() const
 
 unsigned relational::calchash() const
 {
-	unsigned v = golden_ratio_hash((p_int)tinfo());
+	const void* this_tinfo = (const void*)typeid(*this).name();
+	unsigned v = golden_ratio_hash((p_int)this_tinfo);
 	unsigned lhash = lh.gethash();
 	unsigned rhash = rh.gethash();
 
