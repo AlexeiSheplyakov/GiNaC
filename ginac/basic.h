@@ -27,6 +27,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <typeinfo> // for typeid
 // CINT needs <algorithm> to work properly with <vector>
 #include <algorithm>
 
@@ -306,7 +307,7 @@ inline bool is_a(const basic &obj)
 template <class T>
 inline bool is_exactly_a(const basic & obj)
 {
-	return obj.tinfo() == &T::tinfo_static;
+	return typeid(T) == typeid(obj);
 }
 
 } // namespace GiNaC

@@ -24,6 +24,7 @@
 #define __GINAC_SYMBOL_H__
 
 #include <string>
+#include <typeinfo>
 #include "basic.h"
 #include "ex.h"
 #include "ptr.h"
@@ -129,7 +130,7 @@ public:
 /** Specialization of is_exactly_a<realsymbol>(obj) for realsymbol objects. */
 template<> inline bool is_exactly_a<realsymbol>(const basic & obj)
 {
-	if (obj.tinfo() != &symbol::tinfo_static)
+	if (!is_a<symbol>(obj))
 		return false;
 	unsigned domain = static_cast<const symbol &>(obj).get_domain();
 	return domain==domain::real || domain==domain::positive;
@@ -138,7 +139,7 @@ template<> inline bool is_exactly_a<realsymbol>(const basic & obj)
 /** Specialization of is_exactly_a<possymbol>(obj) for possymbol objects. */
 template<> inline bool is_exactly_a<possymbol>(const basic & obj)
 {
-	if (obj.tinfo() != &symbol::tinfo_static)
+	if (!is_a<symbol>(obj))
 		return false;
 	unsigned domain = static_cast<const symbol &>(obj).get_domain();
 	return domain == domain::positive;
