@@ -66,7 +66,7 @@ extern int num_files;
 extern char **file_list;
 
 // Table of all used symbols
-typedef map<string, symbol> sym_tab;
+typedef map<string, ex> sym_tab;
 extern sym_tab syms;
 
 // Type of symbols to generate (real or complex)

@@ -37,15 +37,10 @@ class symbol : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS(symbol, basic)
 
-	friend class realsymbol;
-	friend class possymbol;
-
-// member functions
-	
 	// other constructors
 public:
-	explicit symbol(const std::string & initname, unsigned domain = domain::complex);
-	symbol(const std::string & initname, const std::string & texname, unsigned domain = domain::complex);
+	explicit symbol(const std::string & initname);
+	symbol(const std::string & initname, const std::string & texname);
 	
 	// functions overriding virtual functions from base classes
 public:
@@ -70,7 +65,7 @@ protected:
 public:
 	void set_name(const std::string & n) { name = n; }
 	std::string get_name() const { return name; }
-	unsigned get_domain() const { return domain; }
+	virtual unsigned get_domain() const { return domain::complex; }
 protected:
 	void do_print(const print_context & c, unsigned level) const;
 	void do_print_latex(const print_latex & c, unsigned level) const;
@@ -83,7 +78,6 @@ protected:
 	unsigned serial;                 ///< unique serial number for comparison
 	std::string name;                ///< printname of this symbol
 	std::string TeX_name;            ///< LaTeX name of this symbol
-	unsigned domain;                 ///< domain of symbol, complex (default) or real
 private:
 	static unsigned next_serial;
 };
@@ -92,44 +86,33 @@ private:
 /** Specialization of symbol to real domain */
 class realsymbol : public symbol
 {
-	// constructors
 public:
 	realsymbol();
-	explicit realsymbol(const std::string & initname, unsigned domain = domain::real);
-	realsymbol(const std::string & initname, const std::string & texname, unsigned domain = domain::real);
+	explicit realsymbol(const std::string & initname);
+	realsymbol(const std::string & initname, const std::string & texname);
+
+	unsigned get_domain() const { return domain::real; }
+
+	ex conjugate() const { return *this; }
+	ex real_part() const { return *this; }
+	ex imag_part() const { return 0; }
+
+	realsymbol* duplicate() const { return new realsymbol(*this); }
 };
 
 
 /** Specialization of symbol to real domain */
-class possymbol : public symbol
+class possymbol : public realsymbol
 {
-	// constructors
 public:
 	possymbol();
-	explicit possymbol(const std::string & initname, unsigned domain = domain::positive);
-	possymbol(const std::string & initname, const std::string & texname, unsigned domain = domain::positive);
+	explicit possymbol(const std::string & initname);
+	possymbol(const std::string & initname, const std::string & texname);
+
+	unsigned get_domain() const { return domain::positive; }
+
+	possymbol* duplicate() const { return new possymbol(*this); }
 };
-
-
-// utility functions
-
-/** Specialization of is_exactly_a<realsymbol>(obj) for realsymbol objects. */
-template<> inline bool is_exactly_a<realsymbol>(const basic & obj)
-{
-	if (!is_a<symbol>(obj))
-		return false;
-	unsigned domain = static_cast<const symbol &>(obj).get_domain();
-	return domain==domain::real || domain==domain::positive;
-}
-
-/** Specialization of is_exactly_a<possymbol>(obj) for possymbol objects. */
-template<> inline bool is_exactly_a<possymbol>(const basic & obj)
-{
-	if (!is_a<symbol>(obj))
-		return false;
-	unsigned domain = static_cast<const symbol &>(obj).get_domain();
-	return domain == domain::positive;
-}
 
 } // namespace GiNaC
 

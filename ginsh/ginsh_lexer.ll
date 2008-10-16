@@ -113,9 +113,13 @@ real_symbols    return T_REAL_SYMBOLS;
 				sym_tab::const_iterator i = syms.find(yytext);
 				if (i == syms.end()) {
 					if (symboltype == domain::complex) {
-						yylval = syms[yytext] = *(new symbol(yytext));
+						symbol tmp(yytext);
+						syms[yytext] = tmp;
+						yylval = tmp;
 					} else {
-						yylval = syms[yytext] = *(new symbol(yytext, domain::real));
+						realsymbol tmp(yytext);
+						syms[yytext] = tmp;
+						yylval = tmp;
 					}
 				} else
 					yylval = i->second;

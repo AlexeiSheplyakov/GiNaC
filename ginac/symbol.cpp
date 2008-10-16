@@ -45,25 +45,18 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(symbol, basic,
 
 // symbol
 
-symbol::symbol()
- :  serial(next_serial++), name(""), TeX_name(""), domain(domain::complex)
+symbol::symbol() : serial(next_serial++), name(""), TeX_name("")
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
 // realsymbol
 
-realsymbol::realsymbol()
-{
-	domain = domain::real;
-}
+realsymbol::realsymbol() : symbol() { }
 
 // possymbol
 
-possymbol::possymbol()
-{
-	domain = domain::positive;
-}
+possymbol::possymbol() : realsymbol() { }
 
 //////////
 // other constructors
@@ -73,34 +66,31 @@ possymbol::possymbol()
 
 // symbol
 
-symbol::symbol(const std::string & initname, unsigned domain) :
-	serial(next_serial++), name(initname), TeX_name(""),
-	domain(domain)
+symbol::symbol(const std::string & initname) : serial(next_serial++),
+	name(initname), TeX_name("")
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
-symbol::symbol(const std::string & initname, const std::string & texname, unsigned domain) :
-	serial(next_serial++), name(initname), TeX_name(texname), domain(domain)
+symbol::symbol(const std::string & initname, const std::string & texname) :
+	serial(next_serial++), name(initname), TeX_name(texname)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
 // realsymbol
 	
-realsymbol::realsymbol(const std::string & initname, unsigned domain)
- : symbol(initname, domain) { }
+realsymbol::realsymbol(const std::string & initname) : symbol(initname) { }
 
-realsymbol::realsymbol(const std::string & initname, const std::string & texname, unsigned domain)
- : symbol(initname, texname, domain) { }
+realsymbol::realsymbol(const std::string & initname, const std::string & texname)
+	: symbol(initname, texname) { }
 
 // possymbol
 	
-possymbol::possymbol(const std::string & initname, unsigned domain)
- : symbol(initname, domain) { }
+possymbol::possymbol(const std::string & initname) : realsymbol(initname) { }
 
-possymbol::possymbol(const std::string & initname, const std::string & texname, unsigned domain)
- : symbol(initname, texname, domain) { }
+possymbol::possymbol(const std::string & initname, const std::string & texname) 
+	: realsymbol(initname, texname) { }
 
 //////////
 // archiving
@@ -114,8 +104,6 @@ symbol::symbol(const archive_node &n, lst &sym_lst)
 		name = std::string("");
 	if (!n.find_string("TeXname", TeX_name))
 		TeX_name = std::string("");
-	if (!n.find_unsigned("domain", domain))
-		domain = domain::complex;
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
@@ -144,8 +132,6 @@ void symbol::archive(archive_node &n) const
 		n.add_string("name", name);
 	if (!TeX_name.empty())
 		n.add_string("TeX_name", TeX_name);
-	if (domain != domain::complex)
-		n.add_unsigned("domain", domain);
 }
 
 //////////
@@ -180,7 +166,7 @@ void symbol::do_print_tree(const print_tree & c, unsigned level) const
 	c.s << std::string(level, ' ') << name << " (" << class_name() << ")" << " @" << this
 	    << ", serial=" << serial
 	    << std::hex << ", hash=0x" << hashvalue << ", flags=0x" << flags << std::dec
-	    << ", domain=" << domain
+	    << ", domain=" << get_domain()
 	    << std::endl;
 }
 
@@ -209,10 +195,10 @@ bool symbol::info(unsigned inf) const
 		case info_flags::expanded:
 			return true;
 		case info_flags::real:
-			return domain == domain::real || domain == domain::positive;
+			return get_domain() == domain::real || get_domain() == domain::positive;
 		case info_flags::positive:
 		case info_flags::nonnegative:
-			return domain == domain::positive;
+			return get_domain() == domain::positive;
 		case info_flags::has_indices:
 			return false;
 	}
@@ -221,24 +207,16 @@ bool symbol::info(unsigned inf) const
 
 ex symbol::conjugate() const
 {
-	if (this->domain == domain::complex) {
-		return conjugate_function(*this).hold();
-	} else {
-		return *this;
-	}
+	return conjugate_function(*this).hold();
 }
 
 ex symbol::real_part() const
 {
-	if (domain==domain::real || domain==domain::positive)
-		return *this;
 	return real_part_function(*this).hold();
 }
 
 ex symbol::imag_part() const
 {
-	if (domain==domain::real || domain==domain::positive)
-		return 0;
 	return imag_part_function(*this).hold();
 }
 
