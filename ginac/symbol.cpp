@@ -22,6 +22,7 @@
 
 #include <string>
 #include <stdexcept>
+#include <map>
 
 #include "symbol.h"
 #include "lst.h"
@@ -45,7 +46,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(symbol, basic,
 // symbol
 
 symbol::symbol()
- :  serial(next_serial++), name(autoname_prefix() + ToString(serial)), TeX_name(name), domain(domain::complex)
+ :  serial(next_serial++), name(""), TeX_name(""), domain(domain::complex)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
@@ -73,7 +74,7 @@ possymbol::possymbol()
 // symbol
 
 symbol::symbol(const std::string & initname, unsigned domain) :
-	serial(next_serial++), name(initname), TeX_name(default_TeX_name()),
+	serial(next_serial++), name(initname), TeX_name(""),
 	domain(domain)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
@@ -110,9 +111,9 @@ symbol::symbol(const archive_node &n, lst &sym_lst)
  : inherited(n, sym_lst), serial(next_serial++)
 {
 	if (!n.find_string("name", name))
-		name = autoname_prefix() + ToString(serial);
+		name = std::string("");
 	if (!n.find_string("TeXname", TeX_name))
-		TeX_name = default_TeX_name();
+		TeX_name = std::string("");
 	if (!n.find_unsigned("domain", domain))
 		domain = domain::complex;
 	setflag(status_flags::evaluated | status_flags::expanded);
@@ -138,8 +139,10 @@ ex symbol::unarchive(const archive_node &n, lst &sym_lst)
 void symbol::archive(archive_node &n) const
 {
 	inherited::archive(n);
-	n.add_string("name", name);
-	if (TeX_name != default_TeX_name())
+	// XXX: we should not archive anonymous symbols.
+	if (!name.empty())
+		n.add_string("name", name);
+	if (!TeX_name.empty())
 		n.add_string("TeX_name", TeX_name);
 	if (domain != domain::complex)
 		n.add_unsigned("domain", domain);
@@ -149,16 +152,27 @@ void symbol::archive(archive_node &n) const
 // functions overriding virtual functions from base classes
 //////////
 
+/** Return default TeX name for symbol. This recognizes some greek letters. */
+static const std::string& get_default_TeX_name(const std::string& name);
+
 // public
 
 void symbol::do_print(const print_context & c, unsigned level) const
 {
-	c.s << name;
+	if (!name.empty())
+		c.s << name;
+	else
+		c.s << "symbol" << serial;
 }
 
 void symbol::do_print_latex(const print_latex & c, unsigned level) const
 {
-	c.s << TeX_name;
+	if (!TeX_name.empty())
+		c.s << TeX_name;
+	else if (!name.empty())
+		c.s << get_default_TeX_name(name);
+	else
+		c.s << "symbol" << serial;
 }
 
 void symbol::do_print_tree(const print_tree & c, unsigned level) const
@@ -172,8 +186,12 @@ void symbol::do_print_tree(const print_tree & c, unsigned level) const
 
 void symbol::do_print_python_repr(const print_python_repr & c, unsigned level) const
 {
-	c.s << class_name() << "('" << name;
-	if (TeX_name != default_TeX_name())
+	c.s << class_name() << "('";
+	if (!name.empty())
+		c.s << name;
+	else
+		c.s << "symbol" << serial;
+	if (!TeX_name.empty())
 		c.s << "','" << TeX_name;
 	c.s << "')";
 }
@@ -276,34 +294,58 @@ unsigned symbol::calchash() const
 // non-virtual functions in this class
 //////////
 
-// private
-
-/** Symbols not constructed with a string get one assigned using this
- *  prefix and a number. */
-std::string& symbol::autoname_prefix()
-{
-	static std::string s("symbol");
-	return s;
-}
-
 /** Return default TeX name for symbol. This recognizes some greek letters. */
-std::string symbol::default_TeX_name() const
+static const std::string& get_default_TeX_name(const std::string& name)
 {
-	if (name=="alpha"        || name=="beta"         || name=="gamma"
-	 || name=="delta"        || name=="epsilon"      || name=="varepsilon"
-	 || name=="zeta"         || name=="eta"          || name=="theta"
-	 || name=="vartheta"     || name=="iota"         || name=="kappa"
-	 || name=="lambda"       || name=="mu"           || name=="nu"
-	 || name=="xi"           || name=="omicron"      || name=="pi"
-	 || name=="varpi"        || name=="rho"          || name=="varrho"
-	 || name=="sigma"        || name=="varsigma"     || name=="tau"
-	 || name=="upsilon"      || name=="phi"          || name=="varphi"
-	 || name=="chi"          || name=="psi"          || name=="omega"
-	 || name=="Gamma"        || name=="Delta"        || name=="Theta"
-	 || name=="Lambda"       || name=="Xi"           || name=="Pi"
-	 || name=="Sigma"        || name=="Upsilon"      || name=="Phi"
-	 || name=="Psi"          || name=="Omega")
-		return "\\" + name;
+	static std::map<std::string, std::string> standard_names;
+	static bool names_initialized = false;
+	if (!names_initialized) {
+		standard_names["alpha"] = std::string("\\alpha");
+		standard_names["beta"] = std::string("\\beta");;
+		standard_names["gamma"] = std::string("\\gamma");;
+		standard_names["delta"] = std::string("\\delta");;
+		standard_names["epsilon"] = std::string("\\epsilon");
+		standard_names["varepsilon"] = std::string("\\varepsilon");
+		standard_names["zeta"] = std::string("\\zeta");
+		standard_names["eta" ] = std::string("\\eta" );
+		standard_names["theta"] = std::string("\\theta");
+		standard_names["vartheta"] = std::string("\\vartheta");
+		standard_names["iota"] = std::string("\\iota");
+		standard_names["kappa"] = std::string("\\kappa");
+		standard_names["lambda"] = std::string("\\lambda");
+		standard_names["mu"] = std::string("\\mu");
+		standard_names["nu"] = std::string("\\nu");
+		standard_names["xi"] = std::string("\\xi");
+		standard_names["omicron"] = std::string("\\omicron");
+		standard_names["pi"] = std::string("\\pi");
+		standard_names["varpi"] = std::string("\\varpi");
+		standard_names["rho"] = std::string("\\rho");
+		standard_names["varrho"] = std::string("\\varrho");
+		standard_names["sigma"] = std::string("\\sigma");
+		standard_names["varsigma"] = std::string("\\varsigma");
+		standard_names["tau"] = std::string("\\tau");
+		standard_names["upsilon"] = std::string("\\upsilon");
+		standard_names["phi"] = std::string("\\phi");
+		standard_names["varphi"] = std::string("\\varphi");
+		standard_names["chi"] = std::string("\\chi");
+		standard_names["psi"] = std::string("\\psi");
+		standard_names["omega"] = std::string("\\omega");
+		standard_names["Gamma"] = std::string("\\Gamma");
+		standard_names["Delta"] = std::string("\\Delta");
+		standard_names["Theta"] = std::string("\\Theta");
+		standard_names["Lambda"] = std::string("\\Lambda");
+		standard_names["Xi"] = std::string("\\Xi");
+		standard_names["Pi"] = std::string("\\Pi");
+		standard_names["Sigma"] = std::string("\\Sigma");
+		standard_names["Upsilon"] = std::string("\\Upsilon");
+		standard_names["Phi"] = std::string("\\Phi");
+		standard_names["Psi"] = std::string("\\Psi");
+		standard_names["Omega"] = std::string("\\Omega");
+		names_initialized = true;
+	}
+	std::map<std::string, std::string>::const_iterator it = standard_names.find(name);
+	if (it != standard_names.end())
+		return it->second;
 	else
 		return name;
 }

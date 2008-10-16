@@ -76,9 +76,6 @@ protected:
 	void do_print_latex(const print_latex & c, unsigned level) const;
 	void do_print_tree(const print_tree & c, unsigned level) const;
 	void do_print_python_repr(const print_python_repr & c, unsigned level) const;
-private:
-	std::string & autoname_prefix();
-	std::string default_TeX_name() const;
 
 // member variables
 
