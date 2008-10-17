@@ -45,7 +45,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(symbol, basic,
 // symbol
 
 symbol::symbol()
- :  serial(next_serial++), name(autoname_prefix() + ToString(serial)), TeX_name(name), domain(domain::complex), ret_type(return_types::commutative), ret_type_tinfo(make_return_type_t<symbol>())
+ :  serial(next_serial++), name(autoname_prefix() + ToString(serial)), TeX_name(name), domain(domain::complex)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
@@ -74,30 +74,13 @@ possymbol::possymbol()
 
 symbol::symbol(const std::string & initname, unsigned domain) :
 	serial(next_serial++), name(initname), TeX_name(default_TeX_name()),
-	domain(domain), ret_type(return_types::commutative),
-	ret_type_tinfo(make_return_type_t<symbol>())
-{
-	setflag(status_flags::evaluated | status_flags::expanded);
-}
-
-symbol::symbol(const std::string & initname, unsigned rt, const return_type_t& rtt, unsigned domain) :
-	serial(next_serial++), name(initname), TeX_name(default_TeX_name()),
-	domain(domain), ret_type(rt), ret_type_tinfo(rtt)
+	domain(domain)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
 symbol::symbol(const std::string & initname, const std::string & texname, unsigned domain) :
-	serial(next_serial++), name(initname), TeX_name(texname), domain(domain),
-	ret_type(return_types::commutative), ret_type_tinfo(make_return_type_t<symbol>())
-{
-	setflag(status_flags::evaluated | status_flags::expanded);
-}
-
-symbol::symbol(const std::string & initname, const std::string & texname,
-	       unsigned rt, const return_type_t& rtt, unsigned domain) : 
-	serial(next_serial++), name(initname), TeX_name(texname),
-	domain(domain), ret_type(rt), ret_type_tinfo(rtt)
+	serial(next_serial++), name(initname), TeX_name(texname), domain(domain)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
@@ -110,12 +93,6 @@ realsymbol::realsymbol(const std::string & initname, unsigned domain)
 realsymbol::realsymbol(const std::string & initname, const std::string & texname, unsigned domain)
  : symbol(initname, texname, domain) { }
 
-realsymbol::realsymbol(const std::string & initname, unsigned rt, const return_type_t& rtt, unsigned domain)
- : symbol(initname, rt, rtt, domain) { }
-
-realsymbol::realsymbol(const std::string & initname, const std::string & texname, unsigned rt, const return_type_t& rtt, unsigned domain)
- : symbol(initname, texname, rt, rtt, domain) { }
-
 // possymbol
 	
 possymbol::possymbol(const std::string & initname, unsigned domain)
@@ -123,12 +100,6 @@ possymbol::possymbol(const std::string & initname, unsigned domain)
 
 possymbol::possymbol(const std::string & initname, const std::string & texname, unsigned domain)
  : symbol(initname, texname, domain) { }
-
-possymbol::possymbol(const std::string & initname, unsigned rt, const return_type_t& rtt, unsigned domain)
- : symbol(initname, rt, rtt, domain) { }
-
-possymbol::possymbol(const std::string & initname, const std::string & texname, unsigned rt, const return_type_t& rtt, unsigned domain)
- : symbol(initname, texname, rt, rtt, domain) { }
 
 //////////
 // archiving
@@ -144,8 +115,6 @@ symbol::symbol(const archive_node &n, lst &sym_lst)
 		TeX_name = default_TeX_name();
 	if (!n.find_unsigned("domain", domain))
 		domain = domain::complex;
-	if (!n.find_unsigned("return_type", ret_type))
-		ret_type = return_types::commutative;
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
@@ -174,8 +143,6 @@ void symbol::archive(archive_node &n) const
 		n.add_string("TeX_name", TeX_name);
 	if (domain != domain::complex)
 		n.add_unsigned("domain", domain);
-	if (ret_type != return_types::commutative)
-		n.add_unsigned("return_type", ret_type);
 }
 
 //////////
