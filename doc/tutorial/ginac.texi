@@ -7830,44 +7830,40 @@ representing tensor products is more involved but this section should give
 you enough information so you can consult the source to GiNaC's predefined
 classes if you want to implement something more complicated.
 
-@subsection GiNaC's run-time type information system
+@subsection Hierarchy of algebraic classes.
 
 @cindex hierarchy of classes
-@cindex RTTI
 All algebraic classes (that is, all classes that can appear in expressions)
 in GiNaC are direct or indirect subclasses of the class @code{basic}. So a
-@code{basic *} (which is essentially what an @code{ex} is) represents a
-generic pointer to an algebraic class. Occasionally it is necessary to find
-out what the class of an object pointed to by a @code{basic *} really is.
-Also, for the unarchiving of expressions it must be possible to find the
-@code{unarchive()} function of a class given the class name (as a string). A
-system that provides this kind of information is called a run-time type
-information (RTTI) system. The C++ language provides such a thing (see the
-standard header file @file{<typeinfo>}) but for efficiency reasons GiNaC
-implements its own, simpler RTTI.
-
-The RTTI in GiNaC is based on two mechanisms:
-
+@code{basic *} represents a generic pointer to an algebraic class. Working
+with such pointers directly is cumbersome (think of memory management), hence
+GiNaC wraps them into @code{ex} (@pxref{Expressions are reference counted}).
+To make such wrapping possible every algebraic class has to implement several
+methods. Visitors (@pxref{Visitors and tree traversal}), printing, and 
+(un)archiving (@pxref{Input/output}) require helper methods too. But don't
+worry, most of the work is simplified by the following macros (defined
+in @file{registrar.h}):
 @itemize @bullet
-
-@item
-The @code{basic} class declares a member variable @code{tinfo_key} which
-holds a variable of @code{tinfo_t} type (which is actually just
-@code{const void*}) that identifies the object's class.
-
-@item
-By means of some clever tricks with static members, GiNaC maintains a list
-of information for all classes derived from @code{basic}. The information
-available includes the class names, the @code{tinfo_key}s, and pointers
-to the unarchiving functions. This class registry is defined in the
-@file{registrar.h} header file.
-
+@item @code{GINAC_DECLARE_REGISTERED_CLASS}
+@item @code{GINAC_IMPLEMENT_REGISTERED_CLASS}
+@item @code{GINAC_IMPLEMENT_REGISTERED_CLASS_OPT}
 @end itemize
 
-The disadvantage of this proprietary RTTI implementation is that there's
-a little more to do when implementing new classes (C++'s RTTI works more
-or less automatically) but don't worry, most of the work is simplified by
-macros.
+The @code{GINAC_DECLARE_REGISTERED_CLASS} macro inserts declarations
+required for memory management, visitors, printing, and (un)archiving.
+It takes the name of the class and its direct superclass as arguments.
+The @code{GINAC_DECLARE_REGISTERED_CLASS} should be the first line after
+the opening brace of the class definition.
+
+@code{GINAC_IMPLEMENT_REGISTERED_CLASS} takes the same arguments as
+@code{GINAC_DECLARE_REGISTERED_CLASS}. It initializes certain static
+members of a class so that printing and (un)archiving works. The
+@code{GINAC_IMPLEMENT_REGISTERED_CLASS} may appear anywhere else in
+the source (at global scope, of course, not inside a function).
+
+@code{GINAC_IMPLEMENT_REGISTERED_CLASS_OPT} is a variant of
+@code{GINAC_IMPLEMENT_REGISTERED_CLASS}. It allows specifying additional
+options, such as custom printing functions.
 
 @subsection A minimalistic example
 
@@ -7911,22 +7907,10 @@ private:
 GINAC_IMPLEMENT_REGISTERED_CLASS(mystring, basic)
 @end example
 
-The @code{GINAC_DECLARE_REGISTERED_CLASS} and @code{GINAC_IMPLEMENT_REGISTERED_CLASS}
-macros are defined in @file{registrar.h}. They take the name of the class
-and its direct superclass as arguments and insert all required declarations
-for the RTTI system. The @code{GINAC_DECLARE_REGISTERED_CLASS} should be
-the first line after the opening brace of the class definition. The
-@code{GINAC_IMPLEMENT_REGISTERED_CLASS} may appear anywhere else in the
-source (at global scope, of course, not inside a function).
-
-@code{GINAC_DECLARE_REGISTERED_CLASS} contains, among other things the
-declarations of the default constructor and a couple of other functions that
-are required. It also defines a type @code{inherited} which refers to the
-superclass so you don't have to modify your code every time you shuffle around
-the class hierarchy. @code{GINAC_IMPLEMENT_REGISTERED_CLASS} registers the
-class with the GiNaC RTTI (there is also a
-@code{GINAC_IMPLEMENT_REGISTERED_CLASS_OPT} which allows specifying additional
-options for the class, and which we will be using instead in a few minutes).
+The @code{GINAC_DECLARE_REGISTERED_CLASS} macro insert declarations required
+for memory management, visitors, printing, and (un)archiving.
+@code{GINAC_IMPLEMENT_REGISTERED_CLASS} initializes certain static members
+of a class so that printing and (un)archiving works.
 
 Now there are seven member functions we have to implement to get a working
 class:
@@ -7974,20 +7958,8 @@ which are the two constructors we declared.
 Let's proceed step-by-step. The default constructor looks like this:
 
 @example
-mystring::mystring() : inherited(&mystring::tinfo_static) @{@}
+mystring::mystring() @{ @}
 @end example
-
-The golden rule is that in all constructors you have to set the
-@code{tinfo_key} member to the @code{&your_class_name::tinfo_static}
-@footnote{Each GiNaC class has a static member called tinfo_static.
-This member is declared by the GINAC_DECLARE_REGISTERED_CLASS macros
-and defined by the GINAC_IMPLEMENT_REGISTERED_CLASS macros.}. Otherwise
-it will be set by the constructor of the superclass and all hell will break
-loose in the RTTI. For your convenience, the @code{basic} class provides
-a constructor that takes a @code{tinfo_key} value, which we are using here
-(remember that in our case @code{inherited == basic}).  If the superclass
-didn't have such a constructor, we would have to set the @code{tinfo_key}
-to the right value manually.
 
 In the default constructor you should set all other member variables to
 reasonable default values (we don't need that here since our @code{str}
@@ -8071,14 +8043,11 @@ all relevant member variables.
 Now the only thing missing is our two new constructors:
 
 @example
-mystring::mystring(const string & s)
-    : inherited(&mystring::tinfo_static), str(s) @{@}
-mystring::mystring(const char * s)
-    : inherited(&mystring::tinfo_static), str(s) @{@}
+mystring::mystring(const string& s) : str(s) @{ @}
+mystring::mystring(const char* s) : str(s) @{ @}
 @end example
 
-No surprises here. We set the @code{str} member from the argument and
-remember to pass the right @code{tinfo_key} to the @code{basic} constructor.
+No surprises here. We set the @code{str} member from the argument.
 
 That's it! We now have a minimal working GiNaC class that can store
 strings in algebraic expressions. Let's confirm that the RTTI works:
@@ -8313,26 +8282,19 @@ That's it. May the source be with you!
 
 @subsection Upgrading extension classes from older version of GiNaC
 
-If you got some extension classes for GiNaC 1.3.X some changes are
-necessary in order to make your code work with GiNaC 1.4.
-
-@itemize @bullet
-@item constructors which set @code{tinfo_key} such as
-
-@example
-myclass::myclass() : inherited(TINFO_myclass) @{@}
-@end example
-
-need to be rewritten as
+GiNaC used to use custom run time type information system (RTTI). It was
+removed from GiNaC. Thus, one need to rewrite constructors which set
+@code{tinfo_key} (which does not exist any more). For example,
 
 @example
 myclass::myclass() : inherited(&myclass::tinfo_static) @{@}
 @end example
 
-@item TINO_myclass is not necessary any more and can be removed.
+need to be rewritten as
 
-@end itemize
-
+@example
+myclass::myclass() @{@}
+@end example
 
 @node A comparison with other CAS, Advantages, Adding classes, Top
 @c    node-name, next, previous, up
