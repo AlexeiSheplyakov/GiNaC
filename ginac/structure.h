@@ -117,13 +117,12 @@ class structure : public basic, public ComparisonPolicy<T> {
 	GINAC_DECLARE_REGISTERED_CLASS(structure, basic)
 
 	// helpers
-	static tinfo_t get_tinfo() { return reg_info.options.get_id(); }
 	static const char *get_class_name() { return "structure"; }
 
 	// constructors
 public:
 	/** Construct structure as a copy of a given C++ structure. */
-	structure(const T & t) : inherited(get_tinfo()), obj(t) { }
+	structure(const T & t) : obj(t) { }
 
 	// functions overriding virtual functions from base classes
 	// All these are just defaults that can be specialized by the user
@@ -231,7 +230,7 @@ private:
 
 /** Default constructor */
 template <class T, template <class> class CP>
-structure<T, CP>::structure() : inherited(get_tinfo()) { }
+structure<T, CP>::structure() { }
 
 /** Construct object from archive_node. */
 template <class T, template <class> class CP>

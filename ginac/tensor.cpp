@@ -64,7 +64,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(tensepsilon, tensor,
 // constructors
 //////////
 
-tensor::tensor() : inherited(&tensor::tinfo_static)
+tensor::tensor()
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
@@ -74,27 +74,22 @@ DEFAULT_CTOR(tensmetric)
 
 minkmetric::minkmetric() : pos_sig(false)
 {
-	tinfo_key = &minkmetric::tinfo_static;
 }
 
 spinmetric::spinmetric()
 {
-	tinfo_key = &spinmetric::tinfo_static;
 }
 
 minkmetric::minkmetric(bool ps) : pos_sig(ps)
 {
-	tinfo_key = &minkmetric::tinfo_static;
 }
 
 tensepsilon::tensepsilon() : minkowski(false), pos_sig(false)
 {
-	tinfo_key = &tensepsilon::tinfo_static;
 }
 
 tensepsilon::tensepsilon(bool mink, bool ps) : minkowski(mink), pos_sig(ps)
 {
-	tinfo_key = &tensepsilon::tinfo_static;
 }
 
 //////////

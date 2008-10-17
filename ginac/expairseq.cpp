@@ -69,9 +69,9 @@ public:
 
 // public
 
-expairseq::expairseq() : inherited(&expairseq::tinfo_static)
+expairseq::expairseq() 
 #if EXPAIRSEQ_USE_HASHTAB
-                                                   , hashtabsize(0)
+	: hashtabsize(0)
 #endif // EXPAIRSEQ_USE_HASHTAB
 {}
 
@@ -108,20 +108,20 @@ void expairseq::copy(const expairseq &other)
 // other constructors
 //////////
 
-expairseq::expairseq(const ex &lh, const ex &rh) : inherited(&expairseq::tinfo_static)
+expairseq::expairseq(const ex &lh, const ex &rh)
 {
 	construct_from_2_ex(lh,rh);
 	GINAC_ASSERT(is_canonical());
 }
 
-expairseq::expairseq(const exvector &v) : inherited(&expairseq::tinfo_static)
+expairseq::expairseq(const exvector &v)
 {
 	construct_from_exvector(v);
 	GINAC_ASSERT(is_canonical());
 }
 
 expairseq::expairseq(const epvector &v, const ex &oc, bool do_index_renaming)
-  : inherited(&expairseq::tinfo_static), overall_coeff(oc)
+  :  overall_coeff(oc)
 {
 	GINAC_ASSERT(is_a<numeric>(oc));
 	construct_from_epvector(v, do_index_renaming);
@@ -129,7 +129,7 @@ expairseq::expairseq(const epvector &v, const ex &oc, bool do_index_renaming)
 }
 
 expairseq::expairseq(std::auto_ptr<epvector> vp, const ex &oc, bool do_index_renaming)
-  : inherited(&expairseq::tinfo_static), overall_coeff(oc)
+  :  overall_coeff(oc)
 {
 	GINAC_ASSERT(vp.get()!=0);
 	GINAC_ASSERT(is_a<numeric>(oc));

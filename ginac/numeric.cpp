@@ -73,7 +73,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(numeric, basic,
 //////////
 
 /** default ctor. Numerically it initializes to an integer zero. */
-numeric::numeric() : basic(&numeric::tinfo_static)
+numeric::numeric()
 {
 	value = cln::cl_I(0);
 	setflag(status_flags::evaluated | status_flags::expanded);
@@ -85,7 +85,7 @@ numeric::numeric() : basic(&numeric::tinfo_static)
 
 // public
 
-numeric::numeric(int i) : basic(&numeric::tinfo_static)
+numeric::numeric(int i)
 {
 	// Not the whole int-range is available if we don't cast to long
 	// first.  This is due to the behaviour of the cl_I-ctor, which
@@ -106,7 +106,7 @@ numeric::numeric(int i) : basic(&numeric::tinfo_static)
 }
 
 
-numeric::numeric(unsigned int i) : basic(&numeric::tinfo_static)
+numeric::numeric(unsigned int i)
 {
 	// Not the whole uint-range is available if we don't cast to ulong
 	// first.  This is due to the behaviour of the cl_I-ctor, which
@@ -127,14 +127,14 @@ numeric::numeric(unsigned int i) : basic(&numeric::tinfo_static)
 }
 
 
-numeric::numeric(long i) : basic(&numeric::tinfo_static)
+numeric::numeric(long i)
 {
 	value = cln::cl_I(i);
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
 
-numeric::numeric(unsigned long i) : basic(&numeric::tinfo_static)
+numeric::numeric(unsigned long i)
 {
 	value = cln::cl_I(i);
 	setflag(status_flags::evaluated | status_flags::expanded);
@@ -144,7 +144,7 @@ numeric::numeric(unsigned long i) : basic(&numeric::tinfo_static)
 /** Constructor for rational numerics a/b.
  *
  *  @exception overflow_error (division by zero) */
-numeric::numeric(long numer, long denom) : basic(&numeric::tinfo_static)
+numeric::numeric(long numer, long denom)
 {
 	if (!denom)
 		throw std::overflow_error("division by zero");
@@ -153,7 +153,7 @@ numeric::numeric(long numer, long denom) : basic(&numeric::tinfo_static)
 }
 
 
-numeric::numeric(double d) : basic(&numeric::tinfo_static)
+numeric::numeric(double d)
 {
 	// We really want to explicitly use the type cl_LF instead of the
 	// more general cl_F, since that would give us a cl_DF only which
@@ -165,7 +165,7 @@ numeric::numeric(double d) : basic(&numeric::tinfo_static)
 
 /** ctor from C-style string.  It also accepts complex numbers in GiNaC
  *  notation like "2+5*I". */
-numeric::numeric(const char *s) : basic(&numeric::tinfo_static)
+numeric::numeric(const char *s)
 {
 	cln::cl_N ctorval = 0;
 	// parse complex numbers (functional but not completely safe, unfortunately
@@ -244,7 +244,7 @@ numeric::numeric(const char *s) : basic(&numeric::tinfo_static)
 
 /** Ctor from CLN types.  This is for the initiated user or internal use
  *  only. */
-numeric::numeric(const cln::cl_N &z) : basic(&numeric::tinfo_static)
+numeric::numeric(const cln::cl_N &z)
 {
 	value = z;
 	setflag(status_flags::evaluated | status_flags::expanded);

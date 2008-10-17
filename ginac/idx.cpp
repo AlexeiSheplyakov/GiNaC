@@ -54,23 +54,21 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(spinidx, varidx,
 // default constructor
 //////////
 
-idx::idx() : inherited(&idx::tinfo_static) {}
+idx::idx() {}
 
 varidx::varidx() : covariant(false)
 {
-	tinfo_key = &varidx::tinfo_static;
 }
 
 spinidx::spinidx() : dotted(false)
 {
-	tinfo_key = &spinidx::tinfo_static;
 }
 
 //////////
 // other constructors
 //////////
 
-idx::idx(const ex & v, const ex & d) : inherited(&idx::tinfo_static), value(v), dim(d)
+idx::idx(const ex & v, const ex & d) :  value(v), dim(d)
 {
 	if (is_dim_numeric())
 		if (!dim.info(info_flags::posint))
@@ -79,12 +77,10 @@ idx::idx(const ex & v, const ex & d) : inherited(&idx::tinfo_static), value(v), 
 
 varidx::varidx(const ex & v, const ex & d, bool cov) : inherited(v, d), covariant(cov)
 {
-	tinfo_key = &varidx::tinfo_static;
 }
 
 spinidx::spinidx(const ex & v, const ex & d, bool cov, bool dot) : inherited(v, d, cov), dotted(dot)
 {
-	tinfo_key = &spinidx::tinfo_static;
 }
 
 //////////

@@ -61,7 +61,6 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(su3d, tensor,
 
 color::color() : representation_label(0)
 {
-	tinfo_key = &color::tinfo_static;
 }
 
 DEFAULT_CTOR(su3one)
@@ -78,7 +77,6 @@ DEFAULT_CTOR(su3d)
  *  @see color_ONE */
 color::color(const ex & b, unsigned char rl) : inherited(b), representation_label(rl)
 {
-	tinfo_key = &color::tinfo_static;
 }
 
 /** Construct object with one color index. This constructor is for internal
@@ -86,17 +84,14 @@ color::color(const ex & b, unsigned char rl) : inherited(b), representation_labe
  *  @see color_T */
 color::color(const ex & b, const ex & i1, unsigned char rl) : inherited(b, i1), representation_label(rl)
 {
-	tinfo_key = &color::tinfo_static;
 }
 
 color::color(unsigned char rl, const exvector & v, bool discardable) : inherited(not_symmetric(), v, discardable), representation_label(rl)
 {
-	tinfo_key = &color::tinfo_static;
 }
 
 color::color(unsigned char rl, std::auto_ptr<exvector> vp) : inherited(not_symmetric(), vp), representation_label(rl)
 {
-	tinfo_key = &color::tinfo_static;
 }
 
 return_type_t color::return_type_tinfo() const

@@ -37,7 +37,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(wildcard, basic,
 // default constructor
 //////////
 
-wildcard::wildcard() : inherited(&wildcard::tinfo_static), label(0)
+wildcard::wildcard() : label(0)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
@@ -46,7 +46,7 @@ wildcard::wildcard() : inherited(&wildcard::tinfo_static), label(0)
 // other constructors
 //////////
 
-wildcard::wildcard(unsigned l) : inherited(&wildcard::tinfo_static), label(l)
+wildcard::wildcard(unsigned l) : label(l)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }

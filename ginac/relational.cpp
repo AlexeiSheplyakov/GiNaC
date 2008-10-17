@@ -40,7 +40,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(relational, basic,
 // default constructor
 //////////
 
-relational::relational() : basic(&relational::tinfo_static) {}
+relational::relational() { }
 
 //////////
 // other constructors
@@ -48,7 +48,8 @@ relational::relational() : basic(&relational::tinfo_static) {}
 
 // public
 
-relational::relational(const ex & lhs, const ex & rhs, operators oper) : basic(&relational::tinfo_static), lh(lhs), rh(rhs), o(oper) {}
+relational::relational(const ex & lhs, const ex & rhs, operators oper) :
+	lh(lhs), rh(rhs), o(oper) { }
 
 //////////
 // archiving

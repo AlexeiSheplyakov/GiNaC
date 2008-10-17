@@ -59,7 +59,7 @@ typedef std::vector<int> intvector;
 // default constructor
 //////////
 
-power::power() : inherited(&power::tinfo_static) { }
+power::power() { }
 
 //////////
 // other constructors

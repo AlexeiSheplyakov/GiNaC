@@ -49,7 +49,6 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(ncmul, exprseq,
 
 ncmul::ncmul()
 {
-	tinfo_key = &ncmul::tinfo_static;
 }
 
 //////////
@@ -60,40 +59,33 @@ ncmul::ncmul()
 
 ncmul::ncmul(const ex & lh, const ex & rh) : inherited(lh,rh)
 {
-	tinfo_key = &ncmul::tinfo_static;
 }
 
 ncmul::ncmul(const ex & f1, const ex & f2, const ex & f3) : inherited(f1,f2,f3)
 {
-	tinfo_key = &ncmul::tinfo_static;
 }
 
 ncmul::ncmul(const ex & f1, const ex & f2, const ex & f3,
              const ex & f4) : inherited(f1,f2,f3,f4)
 {
-	tinfo_key = &ncmul::tinfo_static;
 }
 
 ncmul::ncmul(const ex & f1, const ex & f2, const ex & f3,
              const ex & f4, const ex & f5) : inherited(f1,f2,f3,f4,f5)
 {
-	tinfo_key = &ncmul::tinfo_static;
 }
 
 ncmul::ncmul(const ex & f1, const ex & f2, const ex & f3,
              const ex & f4, const ex & f5, const ex & f6) : inherited(f1,f2,f3,f4,f5,f6)
 {
-	tinfo_key = &ncmul::tinfo_static;
 }
 
 ncmul::ncmul(const exvector & v, bool discardable) : inherited(v,discardable)
 {
-	tinfo_key = &ncmul::tinfo_static;
 }
 
 ncmul::ncmul(std::auto_ptr<exvector> vp) : inherited(vp)
 {
-	tinfo_key = &ncmul::tinfo_static;
 }
 
 //////////

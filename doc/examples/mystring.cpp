@@ -29,9 +29,9 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(mystring, basic,
   print_func<print_context>(&mystring::do_print))
 
 // ctors
-mystring::mystring() : inherited(&mystring::tinfo_static) { }
-mystring::mystring(const string &s) : inherited(&mystring::tinfo_static), str(s) { }
-mystring::mystring(const char *s) : inherited(&mystring::tinfo_static), str(s) { }
+mystring::mystring() { }
+mystring::mystring(const string &s) :  str(s) { }
+mystring::mystring(const char *s) :  str(s) { }
 
 // comparison
 int mystring::compare_same_type(const basic &other) const

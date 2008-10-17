@@ -48,7 +48,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(integral, basic,
 //////////
 
 integral::integral()
-		: inherited(&integral::tinfo_static),
+		: 
 		x((new symbol())->setflag(status_flags::dynallocated))
 {}
 
@@ -59,7 +59,7 @@ integral::integral()
 // public
 
 integral::integral(const ex & x_, const ex & a_, const ex & b_, const ex & f_)
-		: inherited(&integral::tinfo_static), x(x_), a(a_), b(b_), f(f_)
+		:  x(x_), a(a_), b(b_), f(f_)
 {
 	if (!is_a<symbol>(x)) {
 		throw(std::invalid_argument("first argument of integral must be of type symbol"));

@@ -44,8 +44,8 @@ class power : public basic
 	
 	// other constructors
 public:
-	power(const ex & lh, const ex & rh) : inherited(&power::tinfo_static), basis(lh), exponent(rh) {}
-	template<typename T> power(const ex & lh, const T & rh) : inherited(&power::tinfo_static), basis(lh), exponent(rh) {}
+	power(const ex & lh, const ex & rh) :  basis(lh), exponent(rh) {}
+	template<typename T> power(const ex & lh, const T & rh) :  basis(lh), exponent(rh) {}
 	
 	// functions overriding virtual functions from base classes
 public:

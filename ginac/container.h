@@ -138,14 +138,13 @@ public:
 
 protected:
 	// helpers
-	static tinfo_t get_tinfo() { return NULL; }
 	static unsigned get_default_flags() { return 0; }
 	static char get_open_delim() { return '('; }
 	static char get_close_delim() { return ')'; }
 
 	// constructors
 public:
-	container(STLT const & s, bool discardable = false) : inherited(get_tinfo())
+	container(STLT const & s, bool discardable = false)
 	{
 		setflag(get_default_flags());
 
@@ -155,32 +154,32 @@ public:
 			this->seq = s;
 	}
 
-	explicit container(std::auto_ptr<STLT> vp) : inherited(get_tinfo())
+	explicit container(std::auto_ptr<STLT> vp)
 	{
 		setflag(get_default_flags());
 		this->seq.swap(*vp);
 	}
 
 	container(exvector::const_iterator b, exvector::const_iterator e)
-	 : inherited(get_tinfo()), container_storage<C>(b, e)
+	 : container_storage<C>(b, e)
 	{
 		setflag(get_default_flags());
 	}
 
 	explicit container(const ex & p1)
-	 : inherited(get_tinfo()), container_storage<C>(1, p1)
+	 : container_storage<C>(1, p1)
 	{
 		setflag(get_default_flags());
 	}
 
-	container(const ex & p1, const ex & p2) : inherited(get_tinfo())
+	container(const ex & p1, const ex & p2)
 	{
 		setflag(get_default_flags());
 		reserve(this->seq, 2);
 		this->seq.push_back(p1); this->seq.push_back(p2);
 	}
 
-	container(const ex & p1, const ex & p2, const ex & p3) : inherited(get_tinfo())
+	container(const ex & p1, const ex & p2, const ex & p3)
 	{
 		setflag(get_default_flags());
 		reserve(this->seq, 3);
@@ -188,7 +187,7 @@ public:
 	}
 
 	container(const ex & p1, const ex & p2, const ex & p3,
-	          const ex & p4) : inherited(get_tinfo())
+	          const ex & p4)
 	{
 		setflag(get_default_flags());
 		reserve(this->seq, 4);
@@ -197,7 +196,7 @@ public:
 	}
 
 	container(const ex & p1, const ex & p2, const ex & p3,
-	          const ex & p4, const ex & p5) : inherited(get_tinfo())
+	          const ex & p4, const ex & p5)
 	{
 		setflag(get_default_flags());
 		reserve(this->seq, 5);
@@ -206,7 +205,7 @@ public:
 	}
 
 	container(const ex & p1, const ex & p2, const ex & p3,
-	          const ex & p4, const ex & p5, const ex & p6) : inherited(get_tinfo())
+	          const ex & p4, const ex & p5, const ex & p6)
 	{
 		setflag(get_default_flags());
 		reserve(this->seq, 6);
@@ -216,7 +215,7 @@ public:
 
 	container(const ex & p1, const ex & p2, const ex & p3,
 	          const ex & p4, const ex & p5, const ex & p6,
-	          const ex & p7) : inherited(get_tinfo())
+	          const ex & p7)
 	{
 		setflag(get_default_flags());
 		reserve(this->seq, 7);
@@ -227,7 +226,7 @@ public:
 
 	container(const ex & p1, const ex & p2, const ex & p3,
 	          const ex & p4, const ex & p5, const ex & p6,
-	          const ex & p7, const ex & p8) : inherited(get_tinfo())
+	          const ex & p7, const ex & p8)
 	{
 		setflag(get_default_flags());
 		reserve(this->seq, 8);
@@ -238,7 +237,7 @@ public:
 
 	container(const ex & p1, const ex & p2, const ex & p3,
 	          const ex & p4, const ex & p5, const ex & p6,
-	          const ex & p7, const ex & p8, const ex & p9) : inherited(get_tinfo())
+	          const ex & p7, const ex & p8, const ex & p9)
 	{
 		setflag(get_default_flags());
 		reserve(this->seq, 9);
@@ -250,7 +249,7 @@ public:
 	container(const ex & p1, const ex & p2, const ex & p3,
 	          const ex & p4, const ex & p5, const ex & p6,
 	          const ex & p7, const ex & p8, const ex & p9,
-	          const ex & p10) : inherited(get_tinfo())
+	          const ex & p10)
 	{
 		setflag(get_default_flags());
 		reserve(this->seq, 10);
@@ -263,7 +262,7 @@ public:
 	container(const ex & p1, const ex & p2, const ex & p3,
 	          const ex & p4, const ex & p5, const ex & p6,
 	          const ex & p7, const ex & p8, const ex & p9,
-	          const ex & p10, const ex & p11) : inherited(get_tinfo())
+	          const ex & p10, const ex & p11)
 	{
 		setflag(get_default_flags());
 		reserve(this->seq, 11);
@@ -276,7 +275,7 @@ public:
 	container(const ex & p1, const ex & p2, const ex & p3,
 	          const ex & p4, const ex & p5, const ex & p6,
 	          const ex & p7, const ex & p8, const ex & p9,
-	          const ex & p10, const ex & p11, const ex & p12) : inherited(get_tinfo())
+	          const ex & p10, const ex & p11, const ex & p12)
 	{
 		setflag(get_default_flags());
 		reserve(this->seq, 12);
@@ -290,7 +289,7 @@ public:
 	          const ex & p4, const ex & p5, const ex & p6,
 	          const ex & p7, const ex & p8, const ex & p9,
 	          const ex & p10, const ex & p11, const ex & p12,
-	          const ex & p13) : inherited(get_tinfo())
+	          const ex & p13)
 	{
 		setflag(get_default_flags());
 		reserve(this->seq, 13);
@@ -305,7 +304,7 @@ public:
 	          const ex & p4, const ex & p5, const ex & p6,
 	          const ex & p7, const ex & p8, const ex & p9,
 	          const ex & p10, const ex & p11, const ex & p12,
-	          const ex & p13, const ex & p14) : inherited(get_tinfo())
+	          const ex & p13, const ex & p14)
 	{
 		setflag(get_default_flags());
 		reserve(this->seq, 14);
@@ -320,7 +319,7 @@ public:
 	          const ex & p4, const ex & p5, const ex & p6,
 	          const ex & p7, const ex & p8, const ex & p9,
 	          const ex & p10, const ex & p11, const ex & p12,
-	          const ex & p13, const ex & p14, const ex & p15) : inherited(get_tinfo())
+	          const ex & p13, const ex & p14, const ex & p15)
 	{
 		setflag(get_default_flags());
 		reserve(this->seq, 15);
@@ -336,7 +335,7 @@ public:
 	          const ex & p7, const ex & p8, const ex & p9,
 	          const ex & p10, const ex & p11, const ex & p12,
 	          const ex & p13, const ex & p14, const ex & p15,
-	          const ex & p16) : inherited(get_tinfo())
+	          const ex & p16)
 	{
 		setflag(get_default_flags());
 		reserve(this->seq, 16);
@@ -476,7 +475,7 @@ protected:
 
 /** Default constructor */
 template <template <class T, class = std::allocator<T> > class C>
-container<C>::container() : inherited(get_tinfo())
+container<C>::container()
 {
 	setflag(get_default_flags());
 }

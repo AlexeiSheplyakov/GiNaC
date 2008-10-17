@@ -101,10 +101,6 @@ class cliffordunit : public tensor
 {
 	GINAC_DECLARE_REGISTERED_CLASS(cliffordunit, tensor)
 
-	// other constructors
-protected:
-	cliffordunit(tinfo_t ti) : inherited(ti) {}
-                                                                                                    
 	// functions overriding virtual functions from base classes
 public:
 	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;

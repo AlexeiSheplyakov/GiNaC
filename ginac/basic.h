@@ -109,7 +109,7 @@ class basic : public refcounted
 	
 	// default constructor, destructor, copy constructor and assignment operator
 protected:
-	basic() : tinfo_key(&tinfo_static), flags(0) {}
+	basic() : flags(0) {}
 
 public:
 	/** basic destructor, virtual because class ex will delete objects of
@@ -122,10 +122,6 @@ public:
 	const basic & operator=(const basic & other);
 
 protected:
-	/** Constructor with specified tinfo_key (used by derived classes instead
-	 *  of the default constructor to avoid assigning tinfo_key twice). */
-	basic(tinfo_t ti) : tinfo_key(ti), flags(0) {}
-	
 	// new virtual functions which can be overridden by derived classes
 public: // only const functions please (may break reference counting)
 
@@ -266,8 +262,6 @@ public:
 		}
 	}
 
-	tinfo_t tinfo() const {return tinfo_key;}
-
 	/** Set some status_flags. */
 	const basic & setflag(unsigned f) const {flags |= f; return *this;}
 
@@ -283,7 +277,6 @@ protected:
 	
 	// member variables
 protected:
-	tinfo_t tinfo_key;                  ///< type info
 	mutable unsigned flags;             ///< of type status_flags
 	mutable unsigned hashvalue;         ///< hash value
 };

@@ -55,7 +55,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(basic, void,
 /** basic copy constructor: implicitly assumes that the other class is of
  *  the exact same type (as it's used by duplicate()), so it can copy the
  *  tinfo_key and the hash value. */
-basic::basic(const basic & other) : tinfo_key(other.tinfo_key), flags(other.flags & ~status_flags::dynallocated), hashvalue(other.hashvalue)
+basic::basic(const basic & other) : flags(other.flags & ~status_flags::dynallocated), hashvalue(other.hashvalue)
 {
 }
 
@@ -96,9 +96,7 @@ basic::basic(const archive_node &n, lst &sym_lst) : flags(0)
 {
 	// Reconstruct tinfo_key from class name
 	std::string class_name;
-	if (n.find_string("class", class_name))
-		tinfo_key = find_tinfo_key(class_name);
-	else
+	if (!n.find_string("class", class_name))
 		throw (std::runtime_error("archive node contains no class name"));
 }
 

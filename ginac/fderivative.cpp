@@ -40,7 +40,6 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(fderivative, function,
 
 fderivative::fderivative()
 {
-	tinfo_key = &fderivative::tinfo_static;
 }
 
 //////////
@@ -50,17 +49,14 @@ fderivative::fderivative()
 fderivative::fderivative(unsigned ser, unsigned param, const exvector & args) : function(ser, args)
 {
 	parameter_set.insert(param);
-	tinfo_key = &fderivative::tinfo_static;
 }
 
 fderivative::fderivative(unsigned ser, const paramset & params, const exvector & args) : function(ser, args), parameter_set(params)
 {
-	tinfo_key = &fderivative::tinfo_static;
 }
 
 fderivative::fderivative(unsigned ser, const paramset & params, std::auto_ptr<exvector> vp) : function(ser, vp), parameter_set(params)
 {
-	tinfo_key = &fderivative::tinfo_static;
 }
 
 //////////

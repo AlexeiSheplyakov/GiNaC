@@ -53,7 +53,6 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(mul, expairseq,
 
 mul::mul()
 {
-	tinfo_key = &mul::tinfo_static;
 }
 
 //////////
@@ -64,7 +63,6 @@ mul::mul()
 
 mul::mul(const ex & lh, const ex & rh)
 {
-	tinfo_key = &mul::tinfo_static;
 	overall_coeff = _ex1;
 	construct_from_2_ex(lh,rh);
 	GINAC_ASSERT(is_canonical());
@@ -72,7 +70,6 @@ mul::mul(const ex & lh, const ex & rh)
 
 mul::mul(const exvector & v)
 {
-	tinfo_key = &mul::tinfo_static;
 	overall_coeff = _ex1;
 	construct_from_exvector(v);
 	GINAC_ASSERT(is_canonical());
@@ -80,7 +77,6 @@ mul::mul(const exvector & v)
 
 mul::mul(const epvector & v)
 {
-	tinfo_key = &mul::tinfo_static;
 	overall_coeff = _ex1;
 	construct_from_epvector(v);
 	GINAC_ASSERT(is_canonical());
@@ -88,7 +84,6 @@ mul::mul(const epvector & v)
 
 mul::mul(const epvector & v, const ex & oc, bool do_index_renaming)
 {
-	tinfo_key = &mul::tinfo_static;
 	overall_coeff = oc;
 	construct_from_epvector(v, do_index_renaming);
 	GINAC_ASSERT(is_canonical());
@@ -96,7 +91,6 @@ mul::mul(const epvector & v, const ex & oc, bool do_index_renaming)
 
 mul::mul(std::auto_ptr<epvector> vp, const ex & oc, bool do_index_renaming)
 {
-	tinfo_key = &mul::tinfo_static;
 	GINAC_ASSERT(vp.get()!=0);
 	overall_coeff = oc;
 	construct_from_epvector(*vp, do_index_renaming);
@@ -105,7 +99,6 @@ mul::mul(std::auto_ptr<epvector> vp, const ex & oc, bool do_index_renaming)
 
 mul::mul(const ex & lh, const ex & mh, const ex & rh)
 {
-	tinfo_key = &mul::tinfo_static;
 	exvector factors;
 	factors.reserve(3);
 	factors.push_back(lh);

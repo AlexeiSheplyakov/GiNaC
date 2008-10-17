@@ -45,7 +45,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(constant, basic,
 
 // public
 
-constant::constant() : basic(&constant::tinfo_static), ef(0), serial(next_serial++), domain(domain::complex)
+constant::constant() : ef(0), serial(next_serial++), domain(domain::complex)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
@@ -57,7 +57,7 @@ constant::constant() : basic(&constant::tinfo_static), ef(0), serial(next_serial
 // public
 
 constant::constant(const std::string & initname, evalffunctype efun, const std::string & texname, unsigned dm)
-  : basic(&constant::tinfo_static), name(initname), ef(efun), serial(next_serial++), domain(dm)
+  : name(initname), ef(efun), serial(next_serial++), domain(dm)
 {
 	if (texname.empty())
 		TeX_name = "\\mbox{" + name + "}";
@@ -67,7 +67,7 @@ constant::constant(const std::string & initname, evalffunctype efun, const std::
 }
 
 constant::constant(const std::string & initname, const numeric & initnumber, const std::string & texname, unsigned dm)
-  : basic(&constant::tinfo_static), name(initname), ef(0), number(initnumber), serial(next_serial++), domain(dm)
+  : name(initname), ef(0), number(initnumber), serial(next_serial++), domain(dm)
 {
 	if (texname.empty())
 		TeX_name = "\\mbox{" + name + "}";

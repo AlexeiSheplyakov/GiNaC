@@ -45,7 +45,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(symbol, basic,
 // symbol
 
 symbol::symbol()
- : inherited(&symbol::tinfo_static), serial(next_serial++), name(autoname_prefix() + ToString(serial)), TeX_name(name), domain(domain::complex), ret_type(return_types::commutative), ret_type_tinfo(make_return_type_t<symbol>())
+ :  serial(next_serial++), name(autoname_prefix() + ToString(serial)), TeX_name(name), domain(domain::complex), ret_type(return_types::commutative), ret_type_tinfo(make_return_type_t<symbol>())
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
@@ -72,26 +72,32 @@ possymbol::possymbol()
 
 // symbol
 
-symbol::symbol(const std::string & initname, unsigned domain)
- : inherited(&symbol::tinfo_static), serial(next_serial++), name(initname), TeX_name(default_TeX_name()), domain(domain), ret_type(return_types::commutative), ret_type_tinfo(make_return_type_t<symbol>())
+symbol::symbol(const std::string & initname, unsigned domain) :
+	serial(next_serial++), name(initname), TeX_name(default_TeX_name()),
+	domain(domain), ret_type(return_types::commutative),
+	ret_type_tinfo(make_return_type_t<symbol>())
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
-symbol::symbol(const std::string & initname, unsigned rt, const return_type_t& rtt, unsigned domain)
- : inherited(&symbol::tinfo_static), serial(next_serial++), name(initname), TeX_name(default_TeX_name()), domain(domain), ret_type(rt), ret_type_tinfo(rtt)
+symbol::symbol(const std::string & initname, unsigned rt, const return_type_t& rtt, unsigned domain) :
+	serial(next_serial++), name(initname), TeX_name(default_TeX_name()),
+	domain(domain), ret_type(rt), ret_type_tinfo(rtt)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
-symbol::symbol(const std::string & initname, const std::string & texname, unsigned domain)
- : inherited(&symbol::tinfo_static), serial(next_serial++), name(initname), TeX_name(texname), domain(domain), ret_type(return_types::commutative), ret_type_tinfo(make_return_type_t<symbol>())
+symbol::symbol(const std::string & initname, const std::string & texname, unsigned domain) :
+	serial(next_serial++), name(initname), TeX_name(texname), domain(domain),
+	ret_type(return_types::commutative), ret_type_tinfo(make_return_type_t<symbol>())
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
 
-symbol::symbol(const std::string & initname, const std::string & texname, unsigned rt, const return_type_t& rtt, unsigned domain)
- : inherited(&symbol::tinfo_static),  serial(next_serial++), name(initname), TeX_name(texname), domain(domain), ret_type(rt), ret_type_tinfo(rtt)
+symbol::symbol(const std::string & initname, const std::string & texname,
+	       unsigned rt, const return_type_t& rtt, unsigned domain) : 
+	serial(next_serial++), name(initname), TeX_name(texname),
+	domain(domain), ret_type(rt), ret_type_tinfo(rtt)
 {
 	setflag(status_flags::evaluated | status_flags::expanded);
 }

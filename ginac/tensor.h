@@ -35,10 +35,6 @@ class tensor : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS(tensor, basic)
 
-	// other constructors
-protected:
-	tensor(tinfo_t ti) : inherited(ti) {}
-
 	// functions overriding virtual functions from base classes
 protected:
 	unsigned return_type() const { return return_types::noncommutative_composite; }

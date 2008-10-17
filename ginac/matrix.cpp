@@ -53,7 +53,7 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(matrix, basic,
 //////////
 
 /** Default ctor.  Initializes to 1 x 1-dimensional zero-matrix. */
-matrix::matrix() : inherited(&matrix::tinfo_static), row(1), col(1), m(1, _ex0)
+matrix::matrix() : row(1), col(1), m(1, _ex0)
 {
 	setflag(status_flags::not_shareable);
 }
@@ -68,8 +68,7 @@ matrix::matrix() : inherited(&matrix::tinfo_static), row(1), col(1), m(1, _ex0)
  *
  *  @param r number of rows
  *  @param c number of cols */
-matrix::matrix(unsigned r, unsigned c)
-  : inherited(&matrix::tinfo_static), row(r), col(c), m(r*c, _ex0)
+matrix::matrix(unsigned r, unsigned c) : row(r), col(c), m(r*c, _ex0)
 {
 	setflag(status_flags::not_shareable);
 }
@@ -78,7 +77,7 @@ matrix::matrix(unsigned r, unsigned c)
 
 /** Ctor from representation, for internal use only. */
 matrix::matrix(unsigned r, unsigned c, const exvector & m2)
-  : inherited(&matrix::tinfo_static), row(r), col(c), m(m2)
+  : row(r), col(c), m(m2)
 {
 	setflag(status_flags::not_shareable);
 }
@@ -88,7 +87,7 @@ matrix::matrix(unsigned r, unsigned c, const exvector & m2)
  *  If the list has more elements than the matrix, the excessive elements are
  *  thrown away. */
 matrix::matrix(unsigned r, unsigned c, const lst & l)
-  : inherited(&matrix::tinfo_static), row(r), col(c), m(r*c, _ex0)
+  : row(r), col(c), m(r*c, _ex0)
 {
 	setflag(status_flags::not_shareable);
 

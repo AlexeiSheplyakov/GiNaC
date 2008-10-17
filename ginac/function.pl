@@ -138,7 +138,6 @@ $constructors_implementation=generate(
 function::function(unsigned ser, ${SEQ1})
 	: exprseq(${SEQ2}), serial(ser)
 {
-	tinfo_key = &function::tinfo_static;
 }
 END_OF_CONSTRUCTORS_IMPLEMENTATION
 
@@ -814,7 +813,6 @@ GINAC_IMPLEMENT_REGISTERED_CLASS(function, exprseq)
 
 function::function() : serial(0)
 {
-	tinfo_key = &function::tinfo_static;
 }
 
 //////////
@@ -825,7 +823,6 @@ function::function() : serial(0)
 
 function::function(unsigned ser) : serial(ser)
 {
-	tinfo_key = &function::tinfo_static;
 }
 
 // the following lines have been generated for max. ${maxargs} parameters
@@ -834,7 +831,6 @@ $constructors_implementation
 
 function::function(unsigned ser, const exprseq & es) : exprseq(es), serial(ser)
 {
-	tinfo_key = &function::tinfo_static;
 
 	// Force re-evaluation even if the exprseq was already evaluated
 	// (the exprseq copy constructor copies the flags)
@@ -844,13 +840,11 @@ function::function(unsigned ser, const exprseq & es) : exprseq(es), serial(ser)
 function::function(unsigned ser, const exvector & v, bool discardable) 
   : exprseq(v,discardable), serial(ser)
 {
-	tinfo_key = &function::tinfo_static;
 }
 
 function::function(unsigned ser, std::auto_ptr<exvector> vp) 
   : exprseq(vp), serial(ser)
 {
-	tinfo_key = &function::tinfo_static;
 }
 
 //////////

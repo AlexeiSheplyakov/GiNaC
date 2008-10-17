@@ -76,7 +76,6 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(diracgammaR, tensor,
 
 clifford::clifford() : representation_label(0), metric(0), commutator_sign(-1)
 {
-	tinfo_key = &clifford::tinfo_static;
 }
 
 DEFAULT_CTOR(diracone)
@@ -95,7 +94,6 @@ DEFAULT_CTOR(diracgammaR)
  *  @see dirac_ONE */
 clifford::clifford(const ex & b, unsigned char rl) : inherited(b), representation_label(rl), metric(0), commutator_sign(-1)
 {
-	tinfo_key = &clifford::tinfo_static;
 }
 
 /** Construct object with one Lorentz index. This constructor is for internal
@@ -105,17 +103,14 @@ clifford::clifford(const ex & b, unsigned char rl) : inherited(b), representatio
 clifford::clifford(const ex & b, const ex & mu, const ex & metr, unsigned char rl, int comm_sign) : inherited(b, mu), representation_label(rl), metric(metr), commutator_sign(comm_sign)
 {
 	GINAC_ASSERT(is_a<varidx>(mu));
-	tinfo_key = &clifford::tinfo_static;
 }
 
 clifford::clifford(unsigned char rl, const ex & metr, int comm_sign, const exvector & v, bool discardable) : inherited(not_symmetric(), v, discardable), representation_label(rl), metric(metr), commutator_sign(comm_sign)
 {
-	tinfo_key = &clifford::tinfo_static;
 }
 
 clifford::clifford(unsigned char rl, const ex & metr, int comm_sign, std::auto_ptr<exvector> vp) : inherited(not_symmetric(), vp), representation_label(rl), metric(metr), commutator_sign(comm_sign)
 {
-	tinfo_key = &clifford::tinfo_static;
 }
 
 return_type_t clifford::return_type_tinfo() const

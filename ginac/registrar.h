@@ -76,10 +76,6 @@ template<typename T> inline return_type_t make_return_type_t(const unsigned rl =
 	return ret;
 }
 
-/** Definitions for the tinfo mechanism. */
-typedef const void * tinfo_t;
-struct tinfo_static_t {};
-
 /** Unarchiving function (static member function of every GiNaC class). */
 typedef ex (*unarch_func)(const archive_node &n, lst &sym_lst);
 
@@ -141,7 +137,6 @@ typedef class_info<registered_class_options> registered_class_info;
 #define GINAC_DECLARE_REGISTERED_CLASS_NO_CTORS(classname, supername) \
 public: \
 	typedef supername inherited; \
-    static const GiNaC::tinfo_static_t tinfo_static; \
 private: \
 	static GiNaC::registered_class_info reg_info; \
 public: \
@@ -184,20 +179,17 @@ private:
 
 /** Macro for inclusion in the implementation of each registered class. */
 #define GINAC_IMPLEMENT_REGISTERED_CLASS(classname, supername) \
-	GiNaC::registered_class_info classname::reg_info = GiNaC::registered_class_info(GiNaC::registered_class_options(#classname, #supername, typeid(classname), &classname::unarchive)); \
-	const GiNaC::tinfo_static_t classname::tinfo_static = {};
+	GiNaC::registered_class_info classname::reg_info = GiNaC::registered_class_info(GiNaC::registered_class_options(#classname, #supername, typeid(classname), &classname::unarchive)); 
 
 /** Macro for inclusion in the implementation of each registered class.
  *  Additional options can be specified. */
 #define GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(classname, supername, options) \
-	GiNaC::registered_class_info classname::reg_info = GiNaC::registered_class_info(GiNaC::registered_class_options(#classname, #supername, typeid(classname), &classname::unarchive).options); \
-	const GiNaC::tinfo_static_t classname::tinfo_static = {};
+	GiNaC::registered_class_info classname::reg_info = GiNaC::registered_class_info(GiNaC::registered_class_options(#classname, #supername, typeid(classname), &classname::unarchive).options);
 
 /** Macro for inclusion in the implementation of each registered class.
  *  Additional options can be specified. */
 #define GINAC_IMPLEMENT_REGISTERED_CLASS_OPT_T(classname, supername, options) \
-	GiNaC::registered_class_info classname::reg_info = GiNaC::registered_class_info(GiNaC::registered_class_options(#classname, #supername, typeid(classname), &classname::unarchive).options); \
-	template<> const GiNaC::tinfo_static_t classname::tinfo_static = {};
+	GiNaC::registered_class_info classname::reg_info = GiNaC::registered_class_info(GiNaC::registered_class_options(#classname, #supername, typeid(classname), &classname::unarchive).options);
 
 
 /** Find type information key by class name. */
