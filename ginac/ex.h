@@ -217,7 +217,7 @@ public:
 
 	// noncommutativity
 	unsigned return_type() const { return bp->return_type(); }
-	tinfo_t return_type_tinfo() const { return bp->return_type_tinfo(); }
+	return_type_t return_type_tinfo() const { return bp->return_type_tinfo(); }
 
 	unsigned gethash() const { return bp->gethash(); }
 

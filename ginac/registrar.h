@@ -38,6 +38,43 @@ class archive_node;
 template <template <class T, class = std::allocator<T> > class> class container;
 typedef container<std::list> lst;
 
+/** To distinguish between different kinds of non-commutative objects */
+struct return_type_t
+{
+	/// to distinguish between non-commutative objects of different type.
+	std::type_info const* tinfo; 
+	/// to distinguish between non-commutative objects of the same type.
+	/// Think of gamma matrices with different represenation labels.
+	unsigned rl;
+
+	/// Strict weak ordering (so one can put return_type_t's into
+	/// a STL container).
+	inline bool operator<(const return_type_t& other) const
+	{
+		if (tinfo->before(*other.tinfo))
+			return true;
+		return rl < other.rl;
+	}
+	inline bool operator==(const return_type_t& other) const
+	{
+		if (*tinfo != *(other.tinfo))
+			return false;
+		return rl == other.rl;
+	}
+	inline bool operator!=(const return_type_t& other) const
+	{
+		return ! (operator==(other));
+	}
+};
+
+template<typename T> inline return_type_t make_return_type_t(const unsigned rl = 0)
+{
+	return_type_t ret;
+	ret.rl = rl;
+	ret.tinfo = &typeid(T);
+	return ret;
+}
+
 /** Definitions for the tinfo mechanism. */
 typedef const void * tinfo_t;
 struct tinfo_static_t {};

@@ -855,10 +855,10 @@ unsigned mul::return_type() const
 	return all_commutative ? return_types::commutative : return_types::noncommutative;
 }
    
-tinfo_t mul::return_type_tinfo() const
+return_type_t mul::return_type_tinfo() const
 {
 	if (seq.empty())
-		return this;  // mul without factors: should not happen
+		return make_return_type_t<mul>(); // mul without factors: should not happen
 	
 	// return type_info of first noncommutative element
 	epvector::const_iterator i = seq.begin(), end = seq.end();
@@ -868,7 +868,7 @@ tinfo_t mul::return_type_tinfo() const
 		++i;
 	}
 	// no noncommutative element found, should not happen
-	return this;
+	return make_return_type_t<mul>();
 }
 
 ex mul::thisexpairseq(const epvector & v, const ex & oc, bool do_index_renaming) const

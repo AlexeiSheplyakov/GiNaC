@@ -63,7 +63,7 @@ protected:
 	ex eval_ncmul(const exvector & v) const;
 	bool match_same_type(const basic & other) const;
 	unsigned return_type() const;
-	tinfo_t return_type_tinfo() const;
+	return_type_t return_type_tinfo() const;
 	unsigned calchash() const;
 
 	// new virtual functions which can be overridden by derived classes

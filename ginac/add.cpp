@@ -498,10 +498,10 @@ unsigned add::return_type() const
 		return seq.begin()->rest.return_type();
 }
 
-tinfo_t add::return_type_tinfo() const
+return_type_t add::return_type_tinfo() const
 {
 	if (seq.empty())
-		return this;
+		return make_return_type_t<add>();
 	else
 		return seq.begin()->rest.return_type_tinfo();
 }

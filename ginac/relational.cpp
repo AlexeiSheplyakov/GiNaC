@@ -250,7 +250,7 @@ unsigned relational::return_type() const
 	return lh.return_type();
 }
    
-tinfo_t relational::return_type_tinfo() const
+return_type_t relational::return_type_tinfo() const
 {
 	GINAC_ASSERT(lh.return_type_tinfo()==rh.return_type_tinfo());
 	return lh.return_type_tinfo();

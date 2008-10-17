@@ -156,7 +156,7 @@ protected:
 	ex thiscontainer(const exvector & v) const;
 	ex thiscontainer(std::auto_ptr<exvector> vp) const;
 	unsigned return_type() const;
-	tinfo_t return_type_tinfo() const { return op(0).return_type_tinfo(); }
+	return_type_t return_type_tinfo() const { return op(0).return_type_tinfo(); }
 	ex expand(unsigned options = 0) const;
 
 	// new virtual functions which can be overridden by derived classes

@@ -51,7 +51,7 @@ public:
 	ex expand(unsigned options = 0) const;
 	exvector get_free_indices() const;
 	unsigned return_type() const;
-	tinfo_t return_type_tinfo() const;
+	return_type_t return_type_tinfo() const;
 	ex conjugate() const;
 	ex eval_integ() const;
 protected:

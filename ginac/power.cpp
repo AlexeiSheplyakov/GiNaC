@@ -769,7 +769,7 @@ unsigned power::return_type() const
 	return basis.return_type();
 }
 
-tinfo_t power::return_type_tinfo() const
+return_type_t power::return_type_tinfo() const
 {
 	return basis.return_type_tinfo();
 }

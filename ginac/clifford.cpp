@@ -46,8 +46,6 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(clifford, indexed,
   print_func<print_dflt>(&clifford::do_print_dflt).
   print_func<print_latex>(&clifford::do_print_latex))
 
-const tinfo_static_t clifford::return_type_tinfo_static[256] = {{}};
-
 GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(diracone, tensor,
   print_func<print_dflt>(&diracone::do_print).
   print_func<print_latex>(&diracone::do_print_latex))
@@ -118,6 +116,11 @@ clifford::clifford(unsigned char rl, const ex & metr, int comm_sign, const exvec
 clifford::clifford(unsigned char rl, const ex & metr, int comm_sign, std::auto_ptr<exvector> vp) : inherited(not_symmetric(), vp), representation_label(rl), metric(metr), commutator_sign(comm_sign)
 {
 	tinfo_key = &clifford::tinfo_static;
+}
+
+return_type_t clifford::return_type_tinfo() const
+{
+	return make_return_type_t<clifford>(representation_label);
 }
 
 //////////
@@ -811,19 +814,11 @@ ex dirac_slash(const ex & e, const ex & dim, unsigned char rl)
    return clifford(e, varidx(0, dim), indexed((new minkmetric)->setflag(status_flags::dynallocated), symmetric2(), xi, chi), rl);
 }
 
-/** Check whether a given tinfo key (as returned by return_type_tinfo()
- *  is that of a clifford object (with an arbitrary representation label). */
-bool is_clifford_tinfo(tinfo_t ti)
-{
-	p_int start_loc=(p_int)&clifford::return_type_tinfo_static;
-	return (p_int)ti>=start_loc && (p_int)ti<start_loc+256;
-}
-
 /** Extract representation label from tinfo key (as returned by
  *  return_type_tinfo()). */
-static unsigned char get_representation_label(tinfo_t ti)
+static unsigned char get_representation_label(const return_type_t& ti)
 {
-	return (unsigned char)((p_int)ti-(p_int)&clifford::return_type_tinfo_static);
+	return (unsigned char)ti.rl;
 }
 
 /** Take trace of a string of an even number of Dirac gammas given a vector

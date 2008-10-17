@@ -401,13 +401,13 @@ ex ncmul::eval(int level) const
 
 		size_t assoc_num = assocseq.size();
 		exvectorvector evv;
-		std::vector<tinfo_t> rttinfos;
+		std::vector<return_type_t> rttinfos;
 		evv.reserve(assoc_num);
 		rttinfos.reserve(assoc_num);
 
 		cit = assocseq.begin(), citend = assocseq.end();
 		while (cit != citend) {
-			tinfo_t ti = cit->return_type_tinfo();
+			return_type_t ti = cit->return_type_tinfo();
 			size_t rtt_num = rttinfos.size();
 			// search type in vector of known types
 			for (i=0; i<rtt_num; ++i) {
@@ -578,10 +578,10 @@ unsigned ncmul::return_type() const
 	return all_commutative ? return_types::commutative : return_types::noncommutative;
 }
    
-tinfo_t ncmul::return_type_tinfo() const
+return_type_t ncmul::return_type_tinfo() const
 {
 	if (seq.empty())
-		return this;
+		return make_return_type_t<ncmul>();
 
 	// return type_info of first noncommutative element
 	exvector::const_iterator i = seq.begin(), end = seq.end();
@@ -592,7 +592,7 @@ tinfo_t ncmul::return_type_tinfo() const
 	}
 
 	// no noncommutative element found, should not happen
-	return this;
+	return make_return_type_t<ncmul>();
 }
 
 //////////

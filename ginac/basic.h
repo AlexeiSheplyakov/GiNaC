@@ -216,7 +216,7 @@ public:
 
 	// noncommutativity
 	virtual unsigned return_type() const;
-	virtual tinfo_t return_type_tinfo() const;
+	virtual return_type_t return_type_tinfo() const;
 
 	// functions for complex expressions
 	virtual ex conjugate() const;

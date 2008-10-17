@@ -41,9 +41,6 @@ namespace GiNaC {
 class clifford : public indexed
 {
 	GINAC_DECLARE_REGISTERED_CLASS(clifford, indexed)
-public:
-	static const tinfo_static_t return_type_tinfo_static[256];
-
 	// other constructors
 public:
 	clifford(const ex & b, unsigned char rl = 0);
@@ -62,8 +59,7 @@ protected:
 	ex thiscontainer(const exvector & v) const;
 	ex thiscontainer(std::auto_ptr<exvector> vp) const;
 	unsigned return_type() const { return return_types::noncommutative; }
-	tinfo_t return_type_tinfo() const { return clifford::return_type_tinfo_static+representation_label; }
-
+	return_type_t return_type_tinfo() const;
 	// non-virtual functions in this class
 public:
 	unsigned char get_representation_label() const { return representation_label; }
@@ -186,11 +182,14 @@ protected:
 
 // global functions
 
-/** Check whether a given tinfo key (as returned by return_type_tinfo()
+/** Check whether a given return_type_t object (as returned by return_type_tinfo()
   * is that of a clifford object (with an arbitrary representation label).
   *
   * @param ti tinfo key */
-bool is_clifford_tinfo(tinfo_t ti);
+inline bool is_clifford_tinfo(const return_type_t& ti)
+{
+	return *(ti.tinfo) == typeid(clifford);
+}
 
 /** Create a Clifford unity object.
  *

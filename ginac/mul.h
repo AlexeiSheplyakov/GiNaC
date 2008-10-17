@@ -68,7 +68,7 @@ protected:
 	ex derivative(const symbol & s) const;
 	ex eval_ncmul(const exvector & v) const;
 	unsigned return_type() const;
-	tinfo_t return_type_tinfo() const;
+	return_type_t return_type_tinfo() const;
 	ex thisexpairseq(const epvector & v, const ex & oc, bool do_index_renaming = false) const;
 	ex thisexpairseq(std::auto_ptr<epvector> vp, const ex & oc, bool do_index_renaming = false) const;
 	expair split_ex_to_pair(const ex & e) const;
