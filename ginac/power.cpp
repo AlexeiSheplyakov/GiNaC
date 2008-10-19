@@ -71,8 +71,9 @@ power::power() { }
 // archiving
 //////////
 
-power::power(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
+void power::read_archive(const archive_node &n, lst &sym_lst)
 {
+	inherited::read_archive(n, sym_lst);
 	n.find_ex("basis", basis, sym_lst);
 	n.find_ex("exponent", exponent, sym_lst);
 }
@@ -83,8 +84,6 @@ void power::archive(archive_node &n) const
 	n.add_ex("basis", basis);
 	n.add_ex("exponent", exponent);
 }
-
-DEFAULT_UNARCHIVE(power)
 
 //////////
 // functions overriding virtual functions from base classes
@@ -1060,5 +1059,7 @@ ex power::expand_mul(const mul & m, const numeric & n, unsigned options, bool fr
 		return result.setflag(status_flags::expanded);
 	return result;
 }
+
+GINAC_BIND_UNARCHIVER(power);
 
 } // namespace GiNaC

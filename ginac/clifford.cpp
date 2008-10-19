@@ -122,8 +122,9 @@ return_type_t clifford::return_type_tinfo() const
 // archiving
 //////////
 
-clifford::clifford(const archive_node & n, lst & sym_lst) : inherited(n, sym_lst)
+void clifford::read_archive(const archive_node& n, lst& sym_lst)
 {
+	inherited::read_archive(n, sym_lst);
 	unsigned rl;
 	n.find_unsigned("label", rl);
 	representation_label = rl;
@@ -140,13 +141,12 @@ void clifford::archive(archive_node & n) const
 	n.add_unsigned("commutator_sign+1", commutator_sign+1);
 }
 
-DEFAULT_UNARCHIVE(clifford)
-DEFAULT_ARCHIVING(diracone)
-DEFAULT_ARCHIVING(cliffordunit)
-DEFAULT_ARCHIVING(diracgamma)
-DEFAULT_ARCHIVING(diracgamma5)
-DEFAULT_ARCHIVING(diracgammaL)
-DEFAULT_ARCHIVING(diracgammaR)
+GINAC_BIND_UNARCHIVER(clifford);
+GINAC_BIND_UNARCHIVER(diracone);
+GINAC_BIND_UNARCHIVER(diracgamma);
+GINAC_BIND_UNARCHIVER(diracgamma5);
+GINAC_BIND_UNARCHIVER(diracgammaL);
+GINAC_BIND_UNARCHIVER(diracgammaR);
 
 
 ex clifford::get_metric(const ex & i, const ex & j, bool symmetrised) const

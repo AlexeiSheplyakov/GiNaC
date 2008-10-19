@@ -60,6 +60,10 @@ public:
 	ex imag_part() const;
 	ex eval_integ() const;
 	ex evalm() const;
+	/** Save (a.k.a. serialize) object into archive. */
+	void archive(archive_node& n) const;
+	/** Read (a.k.a. deserialize) object from archive. */
+	void read_archive(const archive_node& n, lst& syms);
 protected:
 	ex derivative(const symbol & s) const;
 
@@ -115,6 +119,7 @@ protected:
 	/** Expansion point */
 	ex point;
 };
+GINAC_DECLARE_UNARCHIVER(pseries); 
 
 
 // utility functions

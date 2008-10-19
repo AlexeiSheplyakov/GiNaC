@@ -514,6 +514,8 @@ public:
 	ex conjugate() const;
 	ex real_part() const;
 	ex imag_part() const;
+	void archive(archive_node& n) const;
+	void read_archive(const archive_node& n, lst& syms);
 protected:
 	ex derivative(const symbol & s) const;
 	bool is_equal_same_type(const basic & other) const;
@@ -543,6 +545,7 @@ public:
 protected:
 	unsigned serial;
 };
+GINAC_DECLARE_UNARCHIVER(function);
 
 // utility functions/macros
 
@@ -852,8 +855,9 @@ function::function(unsigned ser, std::auto_ptr<exvector> vp)
 //////////
 
 /** Construct object from archive_node. */
-function::function(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
+void function::read_archive(const archive_node& n, lst& sym_lst)
 {
+	inherited::read_archive(n, sym_lst);
 	// Find serial number by function name
 	std::string s;
 	if (n.find_string("name", s)) {
@@ -871,12 +875,6 @@ function::function(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
 		throw (std::runtime_error("unnamed function in archive"));
 }
 
-/** Unarchive the object. */
-ex function::unarchive(const archive_node &n, lst &sym_lst)
-{
-	return (new function(n, sym_lst))->setflag(status_flags::dynallocated);
-}
-
 /** Archive the object. */
 void function::archive(archive_node &n) const
 {
@@ -884,6 +882,8 @@ void function::archive(archive_node &n) const
 	GINAC_ASSERT(serial < registered_functions().size());
 	n.add_string("name", registered_functions()[serial].name);
 }
+
+GINAC_BIND_UNARCHIVER(function);
 
 //////////
 // functions overriding virtual functions from base classes

@@ -70,8 +70,9 @@ integral::integral(const ex & x_, const ex & a_, const ex & b_, const ex & f_)
 // archiving
 //////////
 
-integral::integral(const archive_node & n, lst & sym_lst) : inherited(n, sym_lst)
+void integral::read_archive(const archive_node& n, lst& sym_lst)
 {
+	inherited::read_archive(n, sym_lst);
 	n.find_ex("x", x, sym_lst);
 	n.find_ex("a", a, sym_lst);
 	n.find_ex("b", b, sym_lst);
@@ -86,8 +87,6 @@ void integral::archive(archive_node & n) const
 	n.add_ex("b", b);
 	n.add_ex("f", f);
 }
-
-DEFAULT_UNARCHIVE(integral)
 
 //////////
 // functions overriding virtual functions from base classes
@@ -474,4 +473,5 @@ ex integral::eval_integ() const
 	return *this;
 }
 
+GINAC_BIND_UNARCHIVER(integral);
 } // namespace GiNaC

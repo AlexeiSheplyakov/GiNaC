@@ -278,8 +278,9 @@ static const cln::cl_F read_real_float(std::istream& s)
 	return x;
 }
 
-numeric::numeric(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
+void numeric::read_archive(const archive_node &n, lst &sym_lst)
 {
+	inherited::read_archive(n, sym_lst);
 	value = 0;
 	
 	// Read number as string
@@ -324,6 +325,7 @@ numeric::numeric(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
 	}
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
+GINAC_BIND_UNARCHIVER(numeric);
 
 static void write_real_float(std::ostream& s, const cln::cl_R& n)
 {
@@ -372,8 +374,6 @@ void numeric::archive(archive_node &n) const
 	}
 	n.add_string("number", s.str());
 }
-
-DEFAULT_UNARCHIVE(numeric)
 
 //////////
 // functions overriding virtual functions from base classes

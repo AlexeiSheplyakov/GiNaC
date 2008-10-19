@@ -82,8 +82,9 @@ symmetry::symmetry(symmetry_type t, const symmetry &c1, const symmetry &c2) :  t
 //////////
 
 /** Construct object from archive_node. */
-symmetry::symmetry(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
+void symmetry::read_archive(const archive_node &n, lst &sym_lst)
 {
+	inherited::read_archive(n, sym_lst);
 	unsigned t;
 	if (!(n.find_unsigned("type", t)))
 		throw (std::runtime_error("unknown symmetry type in archive"));
@@ -110,6 +111,7 @@ symmetry::symmetry(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
 		}
 	}
 }
+GINAC_BIND_UNARCHIVER(symmetry);
 
 /** Archive the object. */
 void symmetry::archive(archive_node &n) const
@@ -132,8 +134,6 @@ void symmetry::archive(archive_node &n) const
 		}
 	}
 }
-
-DEFAULT_UNARCHIVE(symmetry)
 
 //////////
 // functions overriding virtual functions from base classes

@@ -151,6 +151,10 @@ public:
 	ex imag_part() const;
 	exvector get_free_indices() const;
 
+	/** Save (a.k.a. serialize) indexed object into archive. */
+	void archive(archive_node& n) const;
+	/** Read (a.k.a. deserialize) indexed object from archive. */
+	void read_archive(const archive_node& n, lst& syms);
 protected:
 	ex derivative(const symbol & s) const;
 	ex thiscontainer(const exvector & v) const;
@@ -198,6 +202,7 @@ protected:
 protected:
 	ex symtree; /**< Index symmetry (tree of symmetry objects) */
 };
+GINAC_DECLARE_UNARCHIVER(indexed);
 
 
 class spmapkey {

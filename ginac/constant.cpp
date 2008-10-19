@@ -80,25 +80,24 @@ constant::constant(const std::string & initname, const numeric & initnumber, con
 // archiving
 //////////
 
-constant::constant(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst) {}
-
-ex constant::unarchive(const archive_node &n, lst &sym_lst)
+void constant::read_archive(const archive_node &n, lst &sym_lst)
 {
 	// Find constant by name (!! this is bad: 'twould be better if there
 	// was a list of all global constants that we could search)
 	std::string s;
 	if (n.find_string("name", s)) {
 		if (s == Pi.name)
-			return Pi;
+			*this = Pi;
 		else if (s == Catalan.name)
-			return Catalan;
+			*this = Catalan;
 		else if (s == Euler.name)
-			return Euler;
+			*this = Euler;
 		else
 			throw (std::runtime_error("unknown constant '" + s + "' in archive"));
 	} else
 		throw (std::runtime_error("unnamed constant in archive"));
 }
+GINAC_BIND_UNARCHIVER(constant);
 
 void constant::archive(archive_node &n) const
 {

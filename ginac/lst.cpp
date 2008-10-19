@@ -21,6 +21,7 @@
  */
 
 #include "lst.h"
+#include "archive.h"
 
 namespace GiNaC {
 
@@ -36,5 +37,7 @@ template <> bool lst::info(unsigned inf) const
 	else
 		return inherited::info(inf);
 }
+
+GINAC_BIND_UNARCHIVER(lst);
 
 } // namespace GiNaC

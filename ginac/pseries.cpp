@@ -81,8 +81,9 @@ pseries::pseries(const ex &rel_, const epvector &ops_) : seq(ops_)
  *  Archiving
  */
 
-pseries::pseries(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
+void pseries::read_archive(const archive_node &n, lst &sym_lst) 
 {
+	inherited::read_archive(n, sym_lst);
 	archive_node::archive_node_cit first = n.find_first("coeff");
 	archive_node::archive_node_cit last = n.find_last("power");
 	++last;
@@ -113,7 +114,6 @@ void pseries::archive(archive_node &n) const
 	n.add_ex("point", point);
 }
 
-DEFAULT_UNARCHIVE(pseries)
 
 //////////
 // functions overriding virtual functions from base classes
@@ -1283,5 +1283,7 @@ ex ex::series(const ex & r, int order, unsigned options) const
 	e = bp->series(rel_, order, options);
 	return e;
 }
+
+GINAC_BIND_UNARCHIVER(pseries);
 
 } // namespace GiNaC

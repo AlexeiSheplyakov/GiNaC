@@ -128,7 +128,6 @@ private:
 template <template <class T, class = std::allocator<T> > class C>
 class container : public basic, public container_storage<C> {
 	GINAC_DECLARE_REGISTERED_CLASS(container, basic)
-
 protected:
 	typedef typename container_storage<C>::STLT STLT;
 
@@ -366,6 +365,33 @@ public:
 	ex eval(int level = 0) const;
 	ex subs(const exmap & m, unsigned options = 0) const;
 
+	void read_archive(const archive_node &n, lst &sym_lst) 
+	{
+		inherited::read_archive(n, sym_lst);
+		setflag(get_default_flags());
+
+		archive_node::archive_node_cit first = n.find_first("seq");
+		archive_node::archive_node_cit last = n.find_last("seq");
+		++last;
+		reserve(this->seq, last - first);
+		for (archive_node::archive_node_cit i=first; i<last; ++i) {
+			ex e;
+			n.find_ex_by_loc(i, e, sym_lst);
+			this->seq.push_back(e);
+		}
+	}
+
+	/** Archive the object. */
+	void archive(archive_node &n) const
+	{
+		inherited::archive(n);
+		const_iterator i = this->seq.begin(), end = this->seq.end();
+		while (i != end) {
+			n.add_ex("seq", *i);
+			++i;
+		}
+	}
+
 protected:
 	ex conjugate() const
 	{
@@ -480,41 +506,6 @@ container<C>::container()
 	setflag(get_default_flags());
 }
 
-/** Construct object from archive_node. */
-template <template <class T, class = std::allocator<T> > class C>
-container<C>::container(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
-{
-	setflag(get_default_flags());
-
-	archive_node::archive_node_cit first = n.find_first("seq");
-	archive_node::archive_node_cit last = n.find_last("seq");
-	++last;
-	reserve(this->seq, last - first);
-	for (archive_node::archive_node_cit i=first; i<last; ++i) {
-		ex e;
-		n.find_ex_by_loc(i, e, sym_lst);
-		this->seq.push_back(e);
-	}
-}
-
-/** Unarchive the object. */
-template <template <class T, class = std::allocator<T> > class C>
-ex container<C>::unarchive(const archive_node &n, lst &sym_lst)
-{
-	return (new container(n, sym_lst))->setflag(status_flags::dynallocated);
-}
-
-/** Archive the object. */
-template <template <class T, class = std::allocator<T> > class C>
-void container<C>::archive(archive_node &n) const
-{
-	inherited::archive(n);
-	const_iterator i = this->seq.begin(), end = this->seq.end();
-	while (i != end) {
-		n.add_ex("seq", *i);
-		++i;
-	}
-}
 
 template <template <class T, class = std::allocator<T> > class C>
 void container<C>::do_print(const print_context & c, unsigned level) const

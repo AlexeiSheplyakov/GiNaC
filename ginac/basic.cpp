@@ -92,16 +92,8 @@ const basic & basic::operator=(const basic & other)
 //////////
 
 /** Construct object from archive_node. */
-basic::basic(const archive_node &n, lst &sym_lst) : flags(0)
-{
-	// Reconstruct tinfo_key from class name
-	std::string class_name;
-	if (!n.find_string("class", class_name))
-		throw (std::runtime_error("archive node contains no class name"));
-}
-
-/** Unarchive the object. */
-DEFAULT_UNARCHIVE(basic)
+void basic::read_archive(const archive_node& n, lst& syms)
+{ }
 
 /** Archive the object. */
 void basic::archive(archive_node &n) const

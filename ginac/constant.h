@@ -26,6 +26,7 @@
 #include <string>
 #include "basic.h"
 #include "ex.h"
+#include "archive.h"
 
 namespace GiNaC {
 
@@ -38,9 +39,6 @@ typedef ex (*evalffunctype)();
 class constant : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS(constant, basic)
-	
-// member functions
-	
 	// other constructors
 public:
 	constant(const std::string & initname, evalffunctype efun = 0, const std::string & texname = std::string(), unsigned domain = domain::complex);
@@ -54,6 +52,8 @@ public:
 	ex conjugate() const;
 	ex real_part() const;
 	ex imag_part() const;
+	void archive(archive_node& n) const;
+	void read_archive(const archive_node& n, lst& syms);
 protected:
 	ex derivative(const symbol & s) const;
 	bool is_equal_same_type(const basic & other) const;
@@ -76,6 +76,7 @@ private:
 	static unsigned next_serial;
 	unsigned domain;      ///< numerical value this constant evalf()s to
 };
+GINAC_DECLARE_UNARCHIVER(constant); 
 
 extern const constant Pi;
 extern const constant Catalan;

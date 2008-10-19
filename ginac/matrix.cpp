@@ -105,22 +105,25 @@ matrix::matrix(unsigned r, unsigned c, const lst & l)
 // archiving
 //////////
 
-matrix::matrix(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
+void matrix::read_archive(const archive_node &n, lst &sym_lst)
 {
-	setflag(status_flags::not_shareable);
+	inherited::read_archive(n, sym_lst);
 
 	if (!(n.find_unsigned("row", row)) || !(n.find_unsigned("col", col)))
 		throw (std::runtime_error("unknown matrix dimensions in archive"));
 	m.reserve(row * col);
+	// XXX: default ctor inserts a zero element, we need to erase it here.
+	m.pop_back();
 	archive_node::archive_node_cit first = n.find_first("m");
 	archive_node::archive_node_cit last = n.find_last("m");
 	++last;
-	for (archive_node::archive_node_cit i=first; i<last; ++i) {
+	for (archive_node::archive_node_cit i=first; i != last; ++i) {
 		ex e;
 		n.find_ex_by_loc(i, e, sym_lst);
 		m.push_back(e);
 	}
 }
+GINAC_BIND_UNARCHIVER(matrix);
 
 void matrix::archive(archive_node &n) const
 {
@@ -133,8 +136,6 @@ void matrix::archive(archive_node &n) const
 		++i;
 	}
 }
-
-DEFAULT_UNARCHIVE(matrix)
 
 //////////
 // functions overriding virtual functions from base classes

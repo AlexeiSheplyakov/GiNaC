@@ -47,8 +47,9 @@ int mystring::compare_same_type(const basic &other) const
 }
 
 // archiving/unarchiving
-mystring::mystring(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
+void mystring::read_archive(const archive_node &n, lst &sym_lst)
 {
+	inherited::read_archive(n, sym_lst);
 	n.find_string("string", str);
 }
 

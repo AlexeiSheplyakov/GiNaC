@@ -98,6 +98,7 @@ protected:
 	static bool can_be_further_expanded(const ex & e);
 	std::auto_ptr<epvector> expandchildren(unsigned options) const;
 };
+GINAC_DECLARE_UNARCHIVER(mul);
 
 } // namespace GiNaC
 

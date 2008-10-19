@@ -97,7 +97,7 @@ add::add(std::auto_ptr<epvector> vp, const ex & oc)
 // archiving
 //////////
 
-DEFAULT_ARCHIVING(add)
+GINAC_BIND_UNARCHIVER(add);
 
 //////////
 // functions overriding virtual functions from base classes

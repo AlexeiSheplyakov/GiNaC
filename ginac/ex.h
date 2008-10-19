@@ -43,6 +43,7 @@ namespace GiNaC {
  *
  *  @see utils.cpp */
 class library_init {
+	static void init_unarchivers();
 public:
 	library_init();
 	~library_init();

@@ -66,6 +66,8 @@ public:
 	ex series(const relational & r, int order, unsigned options = 0) const;
 	ex thiscontainer(const exvector & v) const;
 	ex thiscontainer(std::auto_ptr<exvector> vp) const;
+	void archive(archive_node& n) const;
+	void read_archive(const archive_node& n, lst& syms);
 protected:
 	ex derivative(const symbol & s) const;
 	bool is_equal_same_type(const basic & other) const;
@@ -81,6 +83,7 @@ protected:
 protected:
 	paramset parameter_set; /**< Set of parameter numbers with respect to which to take the derivative */
 };
+GINAC_DECLARE_UNARCHIVER(fderivative); 
 
 } // namespace GiNaC
 

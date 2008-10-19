@@ -26,6 +26,7 @@
 #include <set>
 
 #include "ex.h"
+#include "archive.h"
 
 namespace GiNaC {
 
@@ -83,6 +84,10 @@ public:
 	/** Check whether this node involves a cyclic symmetry. */
 	bool has_cyclic() const;
 
+	/** Save (a.k.a. serialize) object into archive. */
+	void archive(archive_node& n) const;
+	/** Read (a.k.a. deserialize) object from archive. */
+	void read_archive(const archive_node& n, lst& syms);
 protected:
 	void do_print(const print_context & c, unsigned level) const;
 	void do_print_tree(const print_tree & c, unsigned level) const;
@@ -99,6 +104,7 @@ private:
 	/** Vector of child nodes. */
 	exvector children;
 };
+GINAC_DECLARE_UNARCHIVER(symmetry); 
 
 
 // global functions

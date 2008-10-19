@@ -516,6 +516,12 @@ void archive_node::get_properties(propinfovector &v) const
 	}	
 }
 
+static synthesize_func find_factory_fcn(const std::string& name)
+{
+	static unarchive_table_t the_table;
+	synthesize_func ret = the_table.find(name);
+	return ret;
+}
 
 /** Convert archive node to GiNaC expression. */
 ex archive_node::unarchive(lst &sym_lst) const
@@ -528,12 +534,48 @@ ex archive_node::unarchive(lst &sym_lst) const
 	std::string class_name;
 	if (!find_string("class", class_name))
 		throw (std::runtime_error("archive node contains no class name"));
-	unarch_func f = find_unarch_func(class_name);
 
 	// Call instantiation function
-	e = f(*this, sym_lst);
+	synthesize_func factory_fcn = find_factory_fcn(class_name);
+	ptr<basic> obj(factory_fcn());
+	obj->setflag(status_flags::dynallocated);
+	obj->read_archive(*this, sym_lst);
+	e = ex(*obj);
 	has_expression = true;
 	return e;
+}
+
+int unarchive_table_t::usecount = 0;
+unarchive_map_t* unarchive_table_t::unarch_map = 0;
+
+unarchive_table_t::unarchive_table_t()
+{
+	if (usecount == 0)
+		unarch_map = new unarchive_map_t();
+	++usecount;
+}
+
+synthesize_func unarchive_table_t::find(const std::string& classname) const
+{
+	unarchive_map_t::const_iterator i = unarch_map->find(classname);
+	if (i != unarch_map->end())
+		return i->second;
+	throw std::runtime_error(std::string("no unarchiving function for \"")
+			+ classname + "\" class");
+}
+
+void unarchive_table_t::insert(const std::string& classname, synthesize_func f)
+{
+	if (unarch_map->find(classname) != unarch_map->end())
+		throw std::runtime_error(std::string("Class \"" + classname
+					+ "\" is already registered"));
+	unarch_map->operator[](classname) = f;
+}
+
+unarchive_table_t::~unarchive_table_t()
+{
+	if (--usecount == 0)
+		delete unarch_map;
 }
 
 

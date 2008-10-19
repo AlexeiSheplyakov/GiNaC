@@ -158,6 +158,86 @@ private:
 	mutable ex e;
 };
 
+typedef basic* (*synthesize_func)();
+typedef std::map<std::string, synthesize_func> unarchive_map_t;
+
+class unarchive_table_t
+{
+	static int usecount;
+	static unarchive_map_t* unarch_map;
+public:
+	unarchive_table_t();
+	~unarchive_table_t();
+	synthesize_func find(const std::string& classname) const;
+	void insert(const std::string& classname, synthesize_func f);
+};
+static unarchive_table_t unarch_table_instance;
+
+/** Helper macros to register a class with (un)archiving (a.k.a.
+ * (de)serialization).
+ *
+ * Usage: put 
+ *
+ * GINAC_DECLARE_UNARCHIVER(myclass);
+ *
+ * into the header file (in the global or namespace scope), and
+ *
+ * GINAC_BIND_UNARCHIVER(myclass);
+ *
+ * into the source file.
+ *
+ * Effect: the `myclass' (being a class derived directly or indirectly
+ * from GiNaC::basic) can be archived and unarchived.
+ *
+ * Note: you need to use GINAC_{DECLARE,BIND}_UNARCHIVER incantations
+ * in order to make your class (un)archivable _even if your class does
+ * not overload `read_archive' method_. Sorry for inconvenience.
+ *
+ * How it works: 
+ *
+ * The `basic' class has a `read_archive' virtual method which reads an
+ * expression from archive. Derived classes can overload that method.
+ * There's a small problem, though. On unarchiving all we have is a set
+ * of named byte streams. In C++ the class name (as written in the source
+ * code) has nothing to do with its actual type. Thus, we need establish
+ * a correspondence ourselves. To do so we maintain a `class_name' =>
+ * `function_pointer' table (see the unarchive_table_t class above).
+ * Every function in this table is supposed to create a new object of
+ * the `class_name' type. The `archive_node' class uses that table to
+ * construct an object of correct type. Next it invokes read_archive
+ * virtual method of newly created object, which does the actual job.
+ *
+ * Note: this approach is very simple-minded (it does not handle classes
+ * with same names from different namespaces, multiple inheritance, etc),
+ * but it happens to work surprisingly well.
+ */
+#define GINAC_DECLARE_UNARCHIVER(classname)			\
+class classname ## _unarchiver					\
+{								\
+	static int usecount;					\
+public:								\
+	static GiNaC::basic* create();				\
+	classname ## _unarchiver();				\
+	~ classname ## _unarchiver();				\
+};								\
+static classname ## _unarchiver classname ## _unarchiver_instance
+
+#define GINAC_BIND_UNARCHIVER(classname)			\
+classname ## _unarchiver::classname ## _unarchiver()		\
+{								\
+	static GiNaC::unarchive_table_t table;			\
+	if (usecount++ == 0) {					\
+		table.insert(std::string(#classname),		\
+			&(classname ## _unarchiver::create));	\
+	}							\
+}								\
+GiNaC::basic* classname ## _unarchiver::create()		\
+{								\
+	return new classname();					\
+}								\
+classname ## _unarchiver::~ classname ## _unarchiver() { }	\
+int classname ## _unarchiver::usecount = 0
+
 
 /** This class holds archived versions of GiNaC expressions (class ex).
  *  An archive can be constructed from an expression and then written to

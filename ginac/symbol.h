@@ -28,6 +28,7 @@
 #include "basic.h"
 #include "ex.h"
 #include "ptr.h"
+#include "archive.h"
 
 namespace GiNaC {
 
@@ -36,7 +37,6 @@ namespace GiNaC {
 class symbol : public basic
 {
 	GINAC_DECLARE_REGISTERED_CLASS(symbol, basic)
-
 	// other constructors
 public:
 	explicit symbol(const std::string & initname);
@@ -56,6 +56,10 @@ public:
 	ex real_part() const;
 	ex imag_part() const;
 	bool is_polynomial(const ex & var) const;
+	/** Save (a.k.a. serialize) object into archive. */
+	void archive(archive_node& n) const;
+	/** Read (a.k.a. deserialize) object from archive. */
+	void read_archive(const archive_node& n, lst& syms);
 protected:
 	ex derivative(const symbol & s) const;
 	bool is_equal_same_type(const basic & other) const;
@@ -81,6 +85,7 @@ protected:
 private:
 	static unsigned next_serial;
 };
+GINAC_DECLARE_UNARCHIVER(symbol);
 
 
 /** Specialization of symbol to real domain */
@@ -99,6 +104,7 @@ public:
 
 	realsymbol* duplicate() const { return new realsymbol(*this); }
 };
+GINAC_DECLARE_UNARCHIVER(realsymbol);
 
 
 /** Specialization of symbol to real domain */
@@ -113,6 +119,7 @@ public:
 
 	possymbol* duplicate() const { return new possymbol(*this); }
 };
+GINAC_DECLARE_UNARCHIVER(possymbol);
 
 } // namespace GiNaC
 

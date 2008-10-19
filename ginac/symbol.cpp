@@ -96,31 +96,28 @@ possymbol::possymbol(const std::string & initname, const std::string & texname)
 // archiving
 //////////
 
-/** Construct object from archive_node. */
-symbol::symbol(const archive_node &n, lst &sym_lst)
- : inherited(n, sym_lst), serial(next_serial++)
+/** Read object from archive_node. */
+void symbol::read_archive(const archive_node &n, lst &sym_lst)
 {
-	if (!n.find_string("name", name))
-		name = std::string("");
-	if (!n.find_string("TeXname", TeX_name))
-		TeX_name = std::string("");
-	setflag(status_flags::evaluated | status_flags::expanded);
-}
-
-/** Unarchive the object. */
-ex symbol::unarchive(const archive_node &n, lst &sym_lst)
-{
-	ex s = (new symbol(n, sym_lst))->setflag(status_flags::dynallocated);
+	inherited::read_archive(n, sym_lst);
+	serial = next_serial++;
+	std::string tmp_name;
+	n.find_string("name", tmp_name);
 
 	// If symbol is in sym_lst, return the existing symbol
 	for (lst::const_iterator it = sym_lst.begin(); it != sym_lst.end(); ++it) {
-		if (is_a<symbol>(*it) && (ex_to<symbol>(*it).name == ex_to<symbol>(s).name))
-			return *it;
+		if (is_a<symbol>(*it) && (ex_to<symbol>(*it).name == tmp_name)) {
+			*this = ex_to<symbol>(*it);
+			return;
+		}
 	}
+	name = tmp_name;
+	if (!n.find_string("TeXname", TeX_name))
+		TeX_name = std::string("");
+	setflag(status_flags::evaluated | status_flags::expanded);
 
-	// Otherwise add new symbol to list and return it
-	sym_lst.append(s);
-	return s;
+	setflag(status_flags::dynallocated);
+	sym_lst.append(*this);
 }
 
 /** Archive the object. */
@@ -327,6 +324,10 @@ static const std::string& get_default_TeX_name(const std::string& name)
 	else
 		return name;
 }
+
+GINAC_BIND_UNARCHIVER(symbol);
+GINAC_BIND_UNARCHIVER(realsymbol);
+GINAC_BIND_UNARCHIVER(possymbol);
 
 //////////
 // static member variables

@@ -141,11 +141,9 @@ expairseq::expairseq(std::auto_ptr<epvector> vp, const ex &oc, bool do_index_ren
 // archiving
 //////////
 
-expairseq::expairseq(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
-#if EXPAIRSEQ_USE_HASHTAB
-	, hashtabsize(0)
-#endif
+void expairseq::read_archive(const archive_node &n, lst &sym_lst) 
 {
+	inherited::read_archive(n, sym_lst);
 	archive_node::archive_node_cit first = n.find_first("rest");
 	archive_node::archive_node_cit last = n.find_last("coeff");
 	++last;
@@ -177,7 +175,6 @@ void expairseq::archive(archive_node &n) const
 	n.add_ex("overall_coeff", overall_coeff);
 }
 
-DEFAULT_UNARCHIVE(expairseq)
 
 //////////
 // functions overriding virtual functions from base classes

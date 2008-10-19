@@ -28,14 +28,4 @@
 
 namespace GiNaC {
 
-std::type_info const* find_tinfo_key(const std::string &class_name)
-{
-	return registered_class_info::find(class_name)->options.get_id();
-}
-
-unarch_func find_unarch_func(const std::string &class_name)
-{
-	return registered_class_info::find(class_name)->options.get_unarch_func();
-}
-
 } // namespace GiNaC

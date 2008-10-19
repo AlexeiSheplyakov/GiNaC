@@ -25,6 +25,7 @@
 
 #include "basic.h"
 #include "ex.h"
+#include "archive.h"
 
 #include <stdexcept>
 #include <vector>
@@ -122,6 +123,10 @@ public:
 	ex conjugate() const;
 	ex real_part() const;
 	ex imag_part() const;
+	/** Save (a.k.a. serialize) object into archive. */
+	void archive(archive_node& n) const;
+	/** Read (a.k.a. deserialize) object from archive. */
+	void read_archive(const archive_node& n, lst& syms);
 protected:
 	/** Implementation of ex::diff for a numeric always returns 0.
 	 *  @see ex::diff */
@@ -200,6 +205,7 @@ protected:
 protected:
 	cln::cl_N value;
 };
+GINAC_DECLARE_UNARCHIVER(numeric); 
 
 
 // global constants

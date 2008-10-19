@@ -96,17 +96,12 @@ tensepsilon::tensepsilon(bool mink, bool ps) : minkowski(mink), pos_sig(ps)
 // archiving
 //////////
 
-DEFAULT_ARCHIVING(tensor)
-DEFAULT_ARCHIVING(tensdelta)
-DEFAULT_ARCHIVING(tensmetric)
-DEFAULT_ARCHIVING(spinmetric)
-DEFAULT_UNARCHIVE(minkmetric)
-DEFAULT_UNARCHIVE(tensepsilon)
-
-minkmetric::minkmetric(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
+void minkmetric::read_archive(const archive_node& n, lst& sym_lst)
 {
+	inherited::read_archive(n, sym_lst);
 	n.find_bool("pos_sig", pos_sig);
 }
+GINAC_BIND_UNARCHIVER(minkmetric);
 
 void minkmetric::archive(archive_node &n) const
 {
@@ -114,11 +109,13 @@ void minkmetric::archive(archive_node &n) const
 	n.add_bool("pos_sig", pos_sig);
 }
 
-tensepsilon::tensepsilon(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
+void tensepsilon::read_archive(const archive_node& n, lst& sym_lst)
 {
+	inherited::read_archive(n, sym_lst);
 	n.find_bool("minkowski", minkowski);
 	n.find_bool("pos_sig", pos_sig);
 }
+GINAC_BIND_UNARCHIVER(tensepsilon);
 
 void tensepsilon::archive(archive_node &n) const
 {
@@ -126,6 +123,10 @@ void tensepsilon::archive(archive_node &n) const
 	n.add_bool("minkowski", minkowski);
 	n.add_bool("pos_sig", pos_sig);
 }
+
+GINAC_BIND_UNARCHIVER(tensdelta);
+GINAC_BIND_UNARCHIVER(tensmetric);
+GINAC_BIND_UNARCHIVER(spinmetric);
 
 //////////
 // functions overriding virtual functions from base classes

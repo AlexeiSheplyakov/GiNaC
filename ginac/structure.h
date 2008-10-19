@@ -118,7 +118,6 @@ class structure : public basic, public ComparisonPolicy<T> {
 
 	// helpers
 	static const char *get_class_name() { return "structure"; }
-
 	// constructors
 public:
 	/** Construct structure as a copy of a given C++ structure. */
@@ -232,24 +231,6 @@ private:
 template <class T, template <class> class CP>
 structure<T, CP>::structure() { }
 
-/** Construct object from archive_node. */
-template <class T, template <class> class CP>
-structure<T, CP>::structure(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst) {}
-
-/** Unarchive the object. */
-template <class T, template <class> class CP>
-ex structure<T, CP>::unarchive(const archive_node &n, lst &sym_lst)
-{
-	return (new structure(n, sym_lst))->setflag(status_flags::dynallocated);
-}
-
-/** Archive the object. */
-template <class T, template <class> class CP>
-void structure<T, CP>::archive(archive_node &n) const
-{
-	inherited::archive(n);
-}
-
 /** Compare two structures of the same type. */
 template <class T, template <class> class CP>
 int structure<T, CP>::compare_same_type(const basic & other) const
@@ -261,7 +242,7 @@ int structure<T, CP>::compare_same_type(const basic & other) const
 }
 
 template <class T, template <class> class CP>
-registered_class_info structure<T, CP>::reg_info = registered_class_info(registered_class_options(structure::get_class_name(), "basic", typeid(structure<T, CP>), &structure::unarchive));
+registered_class_info structure<T, CP>::reg_info = registered_class_info(registered_class_options(structure::get_class_name(), "basic", typeid(structure<T, CP>)));
 
 
 } // namespace GiNaC

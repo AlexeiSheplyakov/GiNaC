@@ -24,6 +24,7 @@
 #define __GINAC_NCMUL_H__
 
 #include "exprseq.h"
+#include "archive.h"
 
 namespace GiNaC {
 
@@ -86,6 +87,7 @@ protected:
 public:
 	const exvector & get_factors() const;
 };
+GINAC_DECLARE_UNARCHIVER(ncmul);
 
 // friend funtions 
 

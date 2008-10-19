@@ -25,6 +25,7 @@
 
 #include "basic.h"
 #include "ex.h"
+#include "archive.h"
 
 namespace GiNaC {
 
@@ -70,6 +71,10 @@ public:
 	ex conjugate() const;
 	ex real_part() const;
 	ex imag_part() const;
+	/** Save (a.k.a. serialize) object into archive. */
+	void archive(archive_node& n) const;
+	/** Read (a.k.a. deserialize) object from archive. */
+	void read_archive(const archive_node& n, lst& syms);
 protected:
 	ex derivative(const symbol & s) const;
 	ex eval_ncmul(const exvector & v) const;
@@ -100,6 +105,7 @@ protected:
 	ex basis;
 	ex exponent;
 };
+GINAC_DECLARE_UNARCHIVER(power); 
 
 // wrapper functions
 

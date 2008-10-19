@@ -27,6 +27,7 @@
 #include <string>
 #include "basic.h"
 #include "ex.h"
+#include "archive.h"
 
 namespace GiNaC {
 
@@ -124,6 +125,10 @@ public:
 	ex real_part() const;
 	ex imag_part() const;
 
+	/** Save (a.k.a. serialize) object into archive. */
+	void archive(archive_node& n) const;
+	/** Read (a.k.a. deserialize) object from archive. */
+	void read_archive(const archive_node& n, lst& syms);
 protected:
 	bool match_same_type(const basic & other) const;
 	unsigned return_type() const { return return_types::noncommutative; };
@@ -170,6 +175,7 @@ protected:
 	unsigned col;             ///< number of columns
 	exvector m;               ///< representation (cols indexed first)
 };
+GINAC_DECLARE_UNARCHIVER(matrix); 
 
 
 // wrapper functions around member functions

@@ -103,8 +103,9 @@ return_type_t color::return_type_tinfo() const
 // archiving
 //////////
 
-color::color(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
+void color::read_archive(const archive_node& n, lst& sym_lst)
 {
+	inherited::read_archive(n, sym_lst);
 	unsigned rl;
 	n.find_unsigned("label", rl);
 	representation_label = rl;
@@ -116,11 +117,11 @@ void color::archive(archive_node &n) const
 	n.add_unsigned("label", representation_label);
 }
 
-DEFAULT_UNARCHIVE(color)
-DEFAULT_ARCHIVING(su3one)
-DEFAULT_ARCHIVING(su3t)
-DEFAULT_ARCHIVING(su3f)
-DEFAULT_ARCHIVING(su3d)
+GINAC_BIND_UNARCHIVER(color);
+GINAC_BIND_UNARCHIVER(su3one);
+GINAC_BIND_UNARCHIVER(su3t);
+GINAC_BIND_UNARCHIVER(su3f);
+GINAC_BIND_UNARCHIVER(su3d);
 
 //////////
 // functions overriding virtual functions from base classes

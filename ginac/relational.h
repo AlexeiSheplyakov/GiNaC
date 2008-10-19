@@ -25,6 +25,7 @@
 
 #include "basic.h"
 #include "ex.h"
+#include "archive.h"
 
 namespace GiNaC {
 
@@ -59,6 +60,10 @@ public:
 	ex subs(const exmap & m, unsigned options = 0) const;
 	ex eval(int level=0) const;
 
+	/** Save (a.k.a. serialize) object into archive. */
+	void archive(archive_node& n) const;
+	/** Read (a.k.a. deserialize) object from archive. */
+	void read_archive(const archive_node& n, lst& syms);
 protected:
 	ex eval_ncmul(const exvector & v) const;
 	bool match_same_type(const basic & other) const;
@@ -100,6 +105,7 @@ protected:
 	ex rh;
 	operators o;
 };
+GINAC_DECLARE_UNARCHIVER(relational); 
 
 // utility functions
 

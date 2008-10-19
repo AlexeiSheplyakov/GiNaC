@@ -25,6 +25,7 @@
 #define __GINAC_FAIL_H__
 
 #include "basic.h"
+#include "archive.h"
 
 namespace GiNaC {
 
@@ -40,6 +41,7 @@ protected:
 protected:
 	void do_print(const print_context & c, unsigned level) const;
 };
+GINAC_DECLARE_UNARCHIVER(fail);
 
 } // namespace GiNaC
 

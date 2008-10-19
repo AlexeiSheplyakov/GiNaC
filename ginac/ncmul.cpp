@@ -92,8 +92,7 @@ ncmul::ncmul(std::auto_ptr<exvector> vp) : inherited(vp)
 // archiving
 //////////
 
-DEFAULT_ARCHIVING(ncmul)
-	
+
 //////////
 // functions overriding virtual functions from base classes
 //////////
@@ -651,5 +650,7 @@ ex hold_ncmul(const exvector & v)
 		return (new ncmul(v))->setflag(status_flags::dynallocated |
 		                               status_flags::evaluated);
 }
+
+GINAC_BIND_UNARCHIVER(ncmul);
 
 } // namespace GiNaC

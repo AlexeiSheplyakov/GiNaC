@@ -87,21 +87,27 @@ spinidx::spinidx(const ex & v, const ex & d, bool cov, bool dot) : inherited(v, 
 // archiving
 //////////
 
-idx::idx(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
+void idx::read_archive(const archive_node& n, lst& sym_lst) 
 {
+	inherited::read_archive(n, sym_lst);
 	n.find_ex("value", value, sym_lst);
 	n.find_ex("dim", dim, sym_lst);
 }
+GINAC_BIND_UNARCHIVER(idx);
 
-varidx::varidx(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
+void varidx::read_archive(const archive_node& n, lst& sym_lst)
 {
+	inherited::read_archive(n, sym_lst);
 	n.find_bool("covariant", covariant);
 }
+GINAC_BIND_UNARCHIVER(varidx);
 
-spinidx::spinidx(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
+void spinidx::read_archive(const archive_node& n, lst& sym_lst)
 {
+	inherited::read_archive(n, sym_lst);
 	n.find_bool("dotted", dotted);
 }
+GINAC_BIND_UNARCHIVER(spinidx);
 
 void idx::archive(archive_node &n) const
 {
@@ -121,10 +127,6 @@ void spinidx::archive(archive_node &n) const
 	inherited::archive(n);
 	n.add_bool("dotted", dotted);
 }
-
-DEFAULT_UNARCHIVE(idx)
-DEFAULT_UNARCHIVE(varidx)
-DEFAULT_UNARCHIVE(spinidx)
 
 //////////
 // functions overriding virtual functions from base classes

@@ -25,6 +25,7 @@
 
 #include "basic.h"
 #include "ex.h"
+#include "archive.h"
 
 namespace GiNaC {
 
@@ -54,6 +55,10 @@ public:
 	return_type_t return_type_tinfo() const;
 	ex conjugate() const;
 	ex eval_integ() const;
+	/** Save (a.k.a. serialize) object into archive. */
+	void archive(archive_node& n) const;
+	/** Read (a.k.a. deserialize) object from archive. */
+	void read_archive(const archive_node& n, lst& syms);
 protected:
 	ex derivative(const symbol & s) const;
 	ex series(const relational & r, int order, unsigned options = 0) const;
@@ -74,6 +79,7 @@ private:
 	ex b;
 	ex f;
 };
+GINAC_DECLARE_UNARCHIVER(integral); 
 
 // utility functions
 

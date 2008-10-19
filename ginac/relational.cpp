@@ -55,8 +55,9 @@ relational::relational(const ex & lhs, const ex & rhs, operators oper) :
 // archiving
 //////////
 
-relational::relational(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
+void relational::read_archive(const archive_node& n, lst& sym_lst)
 {
+	inherited::read_archive(n, sym_lst);
 	unsigned int opi;
 	if (!(n.find_unsigned("op", opi)))
 		throw (std::runtime_error("unknown relational operator in archive"));
@@ -64,6 +65,7 @@ relational::relational(const archive_node &n, lst &sym_lst) : inherited(n, sym_l
 	n.find_ex("lh", lh, sym_lst);
 	n.find_ex("rh", rh, sym_lst);
 }
+GINAC_BIND_UNARCHIVER(relational);
 
 void relational::archive(archive_node &n) const
 {
@@ -72,8 +74,6 @@ void relational::archive(archive_node &n) const
 	n.add_ex("rh", rh);
 	n.add_unsigned("op", o);
 }
-
-DEFAULT_UNARCHIVE(relational)
 
 //////////
 // functions overriding virtual functions from base classes

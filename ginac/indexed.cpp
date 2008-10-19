@@ -129,8 +129,9 @@ indexed::indexed(const symmetry & symm, std::auto_ptr<exvector> vp) : inherited(
 // archiving
 //////////
 
-indexed::indexed(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
+void indexed::read_archive(const archive_node &n, lst &sym_lst)
 {
+	inherited::read_archive(n, sym_lst);
 	if (!n.find_ex("symmetry", symtree, sym_lst)) {
 		// GiNaC versions <= 0.9.0 had an unsigned "symmetry" property
 		unsigned symm = 0;
@@ -149,14 +150,13 @@ indexed::indexed(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
 		const_cast<symmetry &>(ex_to<symmetry>(symtree)).validate(seq.size() - 1);
 	}
 }
+GINAC_BIND_UNARCHIVER(indexed);
 
 void indexed::archive(archive_node &n) const
 {
 	inherited::archive(n);
 	n.add_ex("symmetry", symtree);
 }
-
-DEFAULT_UNARCHIVE(indexed)
 
 //////////
 // functions overriding virtual functions from base classes

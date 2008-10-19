@@ -113,8 +113,6 @@ mul::mul(const ex & lh, const ex & mh, const ex & rh)
 // archiving
 //////////
 
-DEFAULT_ARCHIVING(mul)
-
 //////////
 // functions overriding virtual functions from base classes
 //////////
@@ -1209,5 +1207,7 @@ std::auto_ptr<epvector> mul::expandchildren(unsigned options) const
 	
 	return std::auto_ptr<epvector>(0); // nothing has changed
 }
+
+GINAC_BIND_UNARCHIVER(mul);
 
 } // namespace GiNaC

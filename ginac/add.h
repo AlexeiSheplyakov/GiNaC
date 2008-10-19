@@ -84,6 +84,7 @@ protected:
 	void do_print_csrc(const print_csrc & c, unsigned level) const;
 	void do_print_python_repr(const print_python_repr & c, unsigned level) const;
 };
+GINAC_DECLARE_UNARCHIVER(add);
 
 } // namespace GiNaC
 

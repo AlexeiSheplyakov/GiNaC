@@ -53,6 +53,8 @@ public:
 	// functions overriding virtual functions from base classes
 public:
 	unsigned precedence() const { return 65; }
+	void archive(archive_node& n) const;
+	void read_archive(const archive_node& n, lst& sym_lst);
 protected:
 	ex eval_ncmul(const exvector & v) const;
 	bool match_same_type(const basic & other) const;
@@ -83,6 +85,7 @@ protected:
 	ex metric; /**< Metric of the space, all constructors make it an indexed object */
 	int commutator_sign; /**< It is the sign in the definition e~i e~j +/- e~j e~i = B(i, j) + B(j, i)*/
 };
+GINAC_DECLARE_UNARCHIVER(clifford); 
 
 /** This class represents the Clifford algebra unity element. */
 class diracone : public tensor
@@ -94,6 +97,7 @@ protected:
 	void do_print(const print_context & c, unsigned level) const;
 	void do_print_latex(const print_latex & c, unsigned level) const;
 };
+GINAC_DECLARE_UNARCHIVER(diracone);
 
 
 /** This class represents the Clifford algebra generators (units). */
@@ -126,6 +130,7 @@ protected:
 	void do_print(const print_context & c, unsigned level) const;
 	void do_print_latex(const print_latex & c, unsigned level) const;
 };
+GINAC_DECLARE_UNARCHIVER(diracgamma);
 
 
 /** This class represents the Dirac gamma5 object which anticommutates with
@@ -142,6 +147,7 @@ protected:
 	void do_print(const print_context & c, unsigned level) const;
 	void do_print_latex(const print_latex & c, unsigned level) const;
 };
+GINAC_DECLARE_UNARCHIVER(diracgamma5);
 
 
 /** This class represents the Dirac gammaL object which behaves like
@@ -158,6 +164,7 @@ protected:
 	void do_print(const print_context & c, unsigned level) const;
 	void do_print_latex(const print_latex & c, unsigned level) const;
 };
+GINAC_DECLARE_UNARCHIVER(diracgammaL);
 
 
 /** This class represents the Dirac gammaL object which behaves like
@@ -174,6 +181,7 @@ protected:
 	void do_print(const print_context & c, unsigned level) const;
 	void do_print_latex(const print_latex & c, unsigned level) const;
 };
+GINAC_DECLARE_UNARCHIVER(diracgammaR);
 
 
 // global functions

@@ -241,6 +241,23 @@ public:
 
 	void print_dispatch(const registered_class_info & ri, const print_context & c, unsigned level) const;
 
+	/** Save (serialize) the object into archive node.
+	 *
+	 * Losely speaking, this method turns an expression into a byte
+	 * stream (which can be saved and restored later on, or sent via
+	 * network, etc.)
+	 */
+	virtual void archive(archive_node& n) const;
+	/** Load (deserialize) the object from an archive node.
+	 *
+	 *  @note This method is essentially a constructor. However,
+	 *  constructors can't be virtual. So, if unarchiving routines
+	 *  are implemented as constructors one would need to define such
+	 *  a constructor in every class, even if all it does is simply
+	 *  calling constructor of a superclass.
+	 */
+	virtual void read_archive(const archive_node& n, lst& syms); // no const
+
 	ex subs_one_level(const exmap & m, unsigned options) const;
 	ex diff(const symbol & s, unsigned nth = 1) const;
 	int compare(const basic & other) const;

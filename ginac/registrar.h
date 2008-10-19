@@ -76,22 +76,16 @@ template<typename T> inline return_type_t make_return_type_t(const unsigned rl =
 	return ret;
 }
 
-/** Unarchiving function (static member function of every GiNaC class). */
-typedef ex (*unarch_func)(const archive_node &n, lst &sym_lst);
-
-
 /** This class stores information about a registered GiNaC class. */
 class registered_class_options {
 public:
 	registered_class_options(const char *n, const char *p, 
-		                 const std::type_info& ti,
-		                 unarch_func f)
-	 : name(n), parent_name(p), tinfo_key(&ti), unarchive(f) {}
+		                 const std::type_info& ti)
+	 : name(n), parent_name(p), tinfo_key(&ti) { }
 
 	const char *get_name() const { return name; }
 	const char *get_parent_name() const { return parent_name; }
 	std::type_info const* get_id() const { return tinfo_key; }
-	unarch_func get_unarch_func() const { return unarchive; }
 	const std::vector<print_functor> &get_print_dispatch_table() const { return print_dispatch_table; }
 
 	template <class Ctx, class T, class C>
@@ -126,7 +120,6 @@ private:
 	const char *name;         /**< Class name. */
 	const char *parent_name;  /**< Name of superclass. */
 	std::type_info const* tinfo_key;        /**< Type information key. */
-	unarch_func unarchive;    /**< Pointer to unarchiving function. */
 	std::vector<print_functor> print_dispatch_table; /**< Method table for print() dispatch */
 };
 
@@ -144,11 +137,6 @@ public: \
 	virtual const GiNaC::registered_class_info &get_class_info() const { return classname::get_class_info_static(); } \
 	virtual GiNaC::registered_class_info &get_class_info() { return classname::get_class_info_static(); } \
 	virtual const char *class_name() const { return classname::get_class_info_static().options.get_name(); } \
-	\
-	classname(const GiNaC::archive_node &n, GiNaC::lst &sym_lst); \
-	virtual void archive(GiNaC::archive_node &n) const; \
-	static GiNaC::ex unarchive(const GiNaC::archive_node &n, GiNaC::lst &sym_lst); \
-	\
 	class visitor { \
 	public: \
 		virtual void visit(const classname &) = 0; \
@@ -179,24 +167,17 @@ private:
 
 /** Macro for inclusion in the implementation of each registered class. */
 #define GINAC_IMPLEMENT_REGISTERED_CLASS(classname, supername) \
-	GiNaC::registered_class_info classname::reg_info = GiNaC::registered_class_info(GiNaC::registered_class_options(#classname, #supername, typeid(classname), &classname::unarchive)); 
+	GiNaC::registered_class_info classname::reg_info = GiNaC::registered_class_info(GiNaC::registered_class_options(#classname, #supername, typeid(classname))); 
 
 /** Macro for inclusion in the implementation of each registered class.
  *  Additional options can be specified. */
 #define GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(classname, supername, options) \
-	GiNaC::registered_class_info classname::reg_info = GiNaC::registered_class_info(GiNaC::registered_class_options(#classname, #supername, typeid(classname), &classname::unarchive).options);
+	GiNaC::registered_class_info classname::reg_info = GiNaC::registered_class_info(GiNaC::registered_class_options(#classname, #supername, typeid(classname)).options);
 
 /** Macro for inclusion in the implementation of each registered class.
  *  Additional options can be specified. */
 #define GINAC_IMPLEMENT_REGISTERED_CLASS_OPT_T(classname, supername, options) \
-	GiNaC::registered_class_info classname::reg_info = GiNaC::registered_class_info(GiNaC::registered_class_options(#classname, #supername, typeid(classname), &classname::unarchive).options);
-
-
-/** Find type information key by class name. */
-extern std::type_info const* find_tinfo_key(const std::string &class_name);
-
-/** Find unarchiving function by class name. */
-extern unarch_func find_unarch_func(const std::string &class_name);
+	GiNaC::registered_class_info classname::reg_info = GiNaC::registered_class_info(GiNaC::registered_class_options(#classname, #supername, typeid(classname)).options);
 
 
 /** Add or replace a print method. */

@@ -54,7 +54,8 @@ public:
 	ex map(map_function & f) const;
 	ex evalf(int level = 0) const;
 	ex subs(const exmap & m, unsigned options = 0) const;
-
+	void archive(archive_node& n) const;
+	void read_archive(const archive_node& n, lst& syms);
 protected:
 	ex derivative(const symbol & s) const;
 	bool match_same_type(const basic & other) const;
@@ -104,6 +105,7 @@ protected:
 	ex value; /**< Expression that constitutes the index (numeric or symbolic name) */
 	ex dim;   /**< Dimension of space (can be symbolic or numeric) */
 };
+GINAC_DECLARE_UNARCHIVER(idx); 
 
 
 /** This class holds an index with a variance (co- or contravariant). There
@@ -125,7 +127,8 @@ public:
 	// functions overriding virtual functions from base classes
 public:
 	bool is_dummy_pair_same_type(const basic & other) const;
-
+	void archive(archive_node& n) const;
+	void read_archive(const archive_node& n, lst& syms);
 protected:
 	bool match_same_type(const basic & other) const;
 
@@ -148,6 +151,7 @@ protected:
 protected:
 	bool covariant; /**< x.mu, default is contravariant: x~mu */
 };
+GINAC_DECLARE_UNARCHIVER(varidx);
 
 
 /** This class holds a spinor index that can be dotted or undotted and that
@@ -175,7 +179,8 @@ public:
 	bool is_dummy_pair_same_type(const basic & other) const;
 	// complex conjugation
 	ex conjugate() const { return toggle_dot(); }
-
+	void archive(archive_node& n) const;
+	void read_archive(const archive_node& n, lst& syms);
 protected:
 	bool match_same_type(const basic & other) const;
 
@@ -204,6 +209,7 @@ protected:
 protected:
 	bool dotted;
 };
+GINAC_DECLARE_UNARCHIVER(spinidx);
 
 
 // utility functions

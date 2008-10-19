@@ -24,6 +24,7 @@
 #define __GINAC_WILDCARD_H__
 
 #include "ex.h"
+#include "archive.h"
 
 namespace GiNaC {
 
@@ -43,6 +44,10 @@ public:
 public:
 	bool match(const ex & pattern, exmap& repl_lst) const;
 
+	/** Save (a.k.a. serialize) object into archive. */
+	void archive(archive_node& n) const;
+	/** Read (a.k.a. deserialize) object from archive. */
+	void read_archive(const archive_node& n, lst& syms);
 protected:
 	unsigned calchash() const;
 
@@ -59,6 +64,7 @@ protected:
 private:
 	unsigned label; /**< Label used to distinguish different wildcards */
 };
+GINAC_DECLARE_UNARCHIVER(wildcard);
 
 
 // utility functions

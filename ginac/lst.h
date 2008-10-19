@@ -42,6 +42,7 @@ template<> inline char lst::get_close_delim() { return '}'; }
 
 // defined in lst.cpp
 template<> bool lst::info(unsigned inf) const;
+GINAC_DECLARE_UNARCHIVER(lst);
 
 } // namespace GiNaC
 

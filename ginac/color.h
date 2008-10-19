@@ -49,6 +49,8 @@ public:
 	// internal constructors
 	color(unsigned char rl, const exvector & v, bool discardable = false);
 	color(unsigned char rl, std::auto_ptr<exvector> vp);
+	void archive(archive_node& n) const;
+	void read_archive(const archive_node& n, lst& sym_lst);
 
 	// functions overriding virtual functions from base classes
 protected:
@@ -67,6 +69,7 @@ public:
 private:
 	unsigned char representation_label; /**< Representation label to distinguish independent color matrices coming from separated fermion lines */
 };
+GINAC_DECLARE_UNARCHIVER(color); 
 
 
 /** This class represents the su(3) unity element. */
@@ -79,6 +82,7 @@ protected:
 	void do_print(const print_context & c, unsigned level) const;
 	void do_print_latex(const print_latex & c, unsigned level) const;
 };
+GINAC_DECLARE_UNARCHIVER(su3one);
 
 /** This class represents an su(3) generator. */
 class su3t : public tensor
@@ -94,6 +98,7 @@ protected:
 	void do_print(const print_context & c, unsigned level) const;
 	void do_print_latex(const print_latex & c, unsigned level) const;
 };
+GINAC_DECLARE_UNARCHIVER(su3t);
 
 /** This class represents the tensor of antisymmetric su(3) structure
  *  constants. */
@@ -112,6 +117,7 @@ protected:
 	void do_print(const print_context & c, unsigned level) const;
 	void do_print_latex(const print_latex & c, unsigned level) const;
 };
+GINAC_DECLARE_UNARCHIVER(su3f);
 
 /** This class represents the tensor of symmetric su(3) structure constants. */
 class su3d : public tensor
@@ -129,6 +135,7 @@ protected:
 	void do_print(const print_context & c, unsigned level) const;
 	void do_print_latex(const print_latex & c, unsigned level) const;
 };
+GINAC_DECLARE_UNARCHIVER(su3d);
 
 
 // global functions

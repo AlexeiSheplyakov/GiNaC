@@ -443,6 +443,8 @@ library_init::~library_init()
 	}
 }
 
+void library_init::init_unarchivers() { }
+
 // comment skeleton for header files
 
 

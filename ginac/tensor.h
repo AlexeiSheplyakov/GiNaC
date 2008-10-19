@@ -24,6 +24,7 @@
 #define __GINAC_TENSOR_H__
 
 #include "ex.h"
+#include "archive.h"
 
 namespace GiNaC {
 
@@ -66,6 +67,7 @@ protected:
 	void do_print(const print_context & c, unsigned level) const;
 	void do_print_latex(const print_latex & c, unsigned level) const;
 };
+GINAC_DECLARE_UNARCHIVER(tensdelta);
 
 
 /** This class represents a general metric tensor which can be used to
@@ -86,6 +88,7 @@ protected:
 	unsigned return_type() const { return return_types::commutative; }
 	void do_print(const print_context & c, unsigned level) const;
 };
+GINAC_DECLARE_UNARCHIVER(tensmetric);
 
 
 /** This class represents a Minkowski metric tensor. It has all the
@@ -105,6 +108,10 @@ public:
 	bool info(unsigned inf) const;
 	ex eval_indexed(const basic & i) const;
 
+	/** Save (a.k.a. serialize) object into archive. */
+	void archive(archive_node& n) const;
+	/** Read (a.k.a. deserialize) object from archive. */
+	void read_archive(const archive_node& n, lst& syms);
 	// non-virtual functions in this class
 protected:
 	unsigned return_type() const { return return_types::commutative; }
@@ -115,6 +122,7 @@ protected:
 private:
 	bool pos_sig; /**< If true, the metric is diag(-1,1,1...). Otherwise it is diag(1,-1,-1,...). */
 };
+GINAC_DECLARE_UNARCHIVER(minkmetric); 
 
 
 /** This class represents an antisymmetric spinor metric tensor which
@@ -131,11 +139,11 @@ public:
 	ex eval_indexed(const basic & i) const;
 	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
 
-	// non-virtual functions in this class
 protected:
 	void do_print(const print_context & c, unsigned level) const;
 	void do_print_latex(const print_latex & c, unsigned level) const;
 };
+GINAC_DECLARE_UNARCHIVER(spinmetric);
 
 
 /** This class represents the totally antisymmetric epsilon tensor. If
@@ -155,6 +163,10 @@ public:
 	ex eval_indexed(const basic & i) const;
 	bool contract_with(exvector::iterator self, exvector::iterator other, exvector & v) const;
 
+	/** Save (a.k.a. serialize) object into archive. */
+	void archive(archive_node& n) const;
+	/** Read (a.k.a. deserialize) object from archive. */
+	void read_archive(const archive_node& n, lst& syms);
 	// non-virtual functions in this class
 protected:
 	unsigned return_type() const { return return_types::commutative; }
@@ -166,6 +178,7 @@ private:
 	bool minkowski; /**< If true, tensor is in Minkowski-type space. Otherwise it is in a Euclidean space. */
 	bool pos_sig;   /**< If true, the metric is assumed to be diag(-1,1,1...). Otherwise it is diag(1,-1,-1,...). This is only relevant if minkowski = true. */
 };
+GINAC_DECLARE_UNARCHIVER(tensepsilon); 
 
 
 // utility functions

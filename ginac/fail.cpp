@@ -43,13 +43,12 @@ DEFAULT_CTOR(fail)
 // archiving
 //////////
 
-DEFAULT_ARCHIVING(fail)
-
 //////////
 // functions overriding virtual functions from base classes
 //////////
 
 DEFAULT_COMPARE(fail)
 DEFAULT_PRINT(fail, "FAIL")
+GINAC_BIND_UNARCHIVER(fail);
 
 } // namespace GiNaC

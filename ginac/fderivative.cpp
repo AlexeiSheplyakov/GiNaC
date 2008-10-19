@@ -63,8 +63,9 @@ fderivative::fderivative(unsigned ser, const paramset & params, std::auto_ptr<ex
 // archiving
 //////////
 
-fderivative::fderivative(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
+void fderivative::read_archive(const archive_node& n, lst& sym_lst)
 {
+	inherited::read_archive(n, sym_lst);
 	unsigned i = 0;
 	while (true) {
 		unsigned u;
@@ -75,6 +76,7 @@ fderivative::fderivative(const archive_node &n, lst &sym_lst) : inherited(n, sym
 		++i;
 	}
 }
+GINAC_BIND_UNARCHIVER(fderivative);
 
 void fderivative::archive(archive_node &n) const
 {
@@ -86,7 +88,6 @@ void fderivative::archive(archive_node &n) const
 	}
 }
 
-DEFAULT_UNARCHIVE(fderivative)
 
 //////////
 // functions overriding virtual functions from base classes

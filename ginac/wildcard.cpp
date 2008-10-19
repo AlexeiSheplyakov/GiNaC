@@ -55,19 +55,19 @@ wildcard::wildcard(unsigned l) : label(l)
 // archiving
 //////////
 
-wildcard::wildcard(const archive_node &n, lst &sym_lst) : inherited(n, sym_lst)
+void wildcard::read_archive(const archive_node& n, lst& sym_lst)
 {
+	inherited::read_archive(n, sym_lst);
 	n.find_unsigned("label", label);
 	setflag(status_flags::evaluated | status_flags::expanded);
 }
+GINAC_BIND_UNARCHIVER(wildcard);
 
 void wildcard::archive(archive_node &n) const
 {
 	inherited::archive(n);
 	n.add_unsigned("label", label);
 }
-
-DEFAULT_UNARCHIVE(wildcard)
 
 //////////
 // functions overriding virtual functions from base classes
