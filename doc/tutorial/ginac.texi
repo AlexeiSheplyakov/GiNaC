@@ -7889,7 +7889,7 @@ using namespace GiNaC;
 
 Now we can write down the class declaration. The class stores a C++
 @code{string} and the user shall be able to construct a @code{mystring}
-object from a C or C++ string:
+object from a string:
 
 @example
 class mystring : public basic
@@ -7898,7 +7898,6 @@ class mystring : public basic
   
 public:
     mystring(const string & s);
-    mystring(const char * s);
 
 private:
     string str;
@@ -7912,28 +7911,13 @@ for memory management, visitors, printing, and (un)archiving.
 @code{GINAC_IMPLEMENT_REGISTERED_CLASS} initializes certain static members
 of a class so that printing and (un)archiving works.
 
-Now there are seven member functions we have to implement to get a working
+Now there are three member functions we have to implement to get a working
 class:
 
 @itemize
 
 @item
 @code{mystring()}, the default constructor.
-
-@item
-@code{void archive(archive_node & n)}, the archiving function. This stores all
-information needed to reconstruct an object of this class inside an
-@code{archive_node}.
-
-@item
-@code{mystring(const archive_node & n, lst & sym_lst)}, the unarchiving
-constructor. This constructs an instance of the class from the information
-found in an @code{archive_node}.
-
-@item
-@code{ex unarchive(const archive_node & n, lst & sym_lst)}, the static
-unarchiving function. It constructs a new instance by calling the unarchiving
-constructor.
 
 @item
 @cindex @code{compare_same_type()}
@@ -7950,8 +7934,8 @@ objects for which no reasonable algebraic ordering relationship can be
 defined.
 
 @item
-And, of course, @code{mystring(const string & s)} and @code{mystring(const char * s)}
-which are the two constructors we declared.
+And, of course, @code{mystring(const string& s)} which is the constructor
+we declared.
 
 @end itemize
 
@@ -7964,58 +7948,6 @@ mystring::mystring() @{ @}
 In the default constructor you should set all other member variables to
 reasonable default values (we don't need that here since our @code{str}
 member gets set to an empty string automatically).
-
-Next are the three functions for archiving. You have to implement them even
-if you don't plan to use archives, but the minimum required implementation
-is really simple.  First, the archiving function:
-
-@example
-void mystring::archive(archive_node & n) const
-@{
-    inherited::archive(n);
-    n.add_string("string", str);
-@}
-@end example
-
-The only thing that is really required is calling the @code{archive()}
-function of the superclass. Optionally, you can store all information you
-deem necessary for representing the object into the passed
-@code{archive_node}.  We are just storing our string here. For more
-information on how the archiving works, consult the @file{archive.h} header
-file.
-
-The unarchiving constructor is basically the inverse of the archiving
-function:
-
-@example
-mystring::mystring(const archive_node & n, lst & sym_lst) : inherited(n, sym_lst)
-@{
-    n.find_string("string", str);
-@}
-@end example
-
-If you don't need archiving, just leave this function empty (but you must
-invoke the unarchiving constructor of the superclass). Note that we don't
-have to set the @code{tinfo_key} here because it is done automatically
-by the unarchiving constructor of the @code{basic} class.
-
-Finally, the unarchiving function:
-
-@example
-ex mystring::unarchive(const archive_node & n, lst & sym_lst)
-@{
-    return (new mystring(n, sym_lst))->setflag(status_flags::dynallocated);
-@}
-@end example
-
-You don't have to understand how exactly this works. Just copy these
-four lines into your code literally (replacing the class name, of
-course).  It calls the unarchiving constructor of the class and unless
-you are doing something very special (like matching @code{archive_node}s
-to global objects) you don't need a different implementation. For those
-who are interested: setting the @code{dynallocated} flag puts the object
-under the control of GiNaC's garbage collection.  It will get deleted
-automatically once it is no longer referenced.
 
 Our @code{compare_same_type()} function uses a provided function to compare
 the string members:
@@ -8040,11 +7972,10 @@ comparable), so the cast is safe. If this function returns 0, the two objects
 are considered equal (in the sense that @math{A-B=0}), so you should compare
 all relevant member variables.
 
-Now the only thing missing is our two new constructors:
+Now the only thing missing is our constructor:
 
 @example
 mystring::mystring(const string& s) : str(s) @{ @}
-mystring::mystring(const char* s) : str(s) @{ @}
 @end example
 
 No surprises here. We set the @code{str} member from the argument.

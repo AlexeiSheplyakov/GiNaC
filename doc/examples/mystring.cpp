@@ -14,9 +14,7 @@ class mystring : public basic
 	GINAC_DECLARE_REGISTERED_CLASS(mystring, basic)
 public:
 	mystring(const string &s);
-	mystring(const char *s);
 	ex eval(int level) const;
-
 private:
 	string str;
 
@@ -31,7 +29,6 @@ GINAC_IMPLEMENT_REGISTERED_CLASS_OPT(mystring, basic,
 // ctors
 mystring::mystring() { }
 mystring::mystring(const string &s) :  str(s) { }
-mystring::mystring(const char *s) :  str(s) { }
 
 // comparison
 int mystring::compare_same_type(const basic &other) const
@@ -44,24 +41,6 @@ int mystring::compare_same_type(const basic &other) const
 		return -1;
 	else
 		return 1;
-}
-
-// archiving/unarchiving
-void mystring::read_archive(const archive_node &n, lst &sym_lst)
-{
-	inherited::read_archive(n, sym_lst);
-	n.find_string("string", str);
-}
-
-void mystring::archive(archive_node &n) const
-{
-	inherited::archive(n);
-	n.add_string("string", str);
-}
-
-ex mystring::unarchive(const archive_node &n, lst &sym_lst)
-{
-	return (new mystring(n, sym_lst))->setflag(status_flags::dynallocated);
 }
 
 // printing
