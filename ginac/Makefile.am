@@ -29,6 +29,12 @@ polynomial/mod_gcd.hpp \
 polynomial/cra_garner.hpp \
 polynomial/upoly_io.hpp \
 polynomial/upoly_io.cpp \
+polynomial/prem_uvar.h \
+polynomial/eval_uvar.h \
+polynomial/interpolate_padic_uvar.h \
+polynomial/sr_gcd_uvar.h \
+polynomial/heur_gcd_uvar.h \
+polynomial/gcd_uvar.cpp \
 polynomial/debug.hpp
 
 libginac_la_LDFLAGS = -version-info $(LT_VERSION_INFO) -release $(LT_RELEASE)

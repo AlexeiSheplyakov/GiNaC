@@ -55,6 +55,7 @@ TIMES = time_dennyfliegner \
 	time_lw_Qprime \
 	time_antipode \
 	time_fateman_expand \
+	time_uvar_gcd \
 	time_parser
 
 TESTS = $(CHECKS) $(EXAMS) $(TIMES)
@@ -242,6 +243,9 @@ time_antipode_LDADD = ../ginac/libginac.la
 time_fateman_expand_SOURCES = time_fateman_expand.cpp \
 			      randomize_serials.cpp timer.cpp timer.h
 time_fateman_expand_LDADD = ../ginac/libginac.la
+
+time_uvar_gcd_SOURCES = time_uvar_gcd.cpp test_runner.h timer.cpp timer.h
+time_uvar_gcd_LDADD = ../ginac/libginac.la
 
 time_parser_SOURCES = time_parser.cpp \
 		      randomize_serials.cpp timer.cpp timer.h
