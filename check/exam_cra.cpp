@@ -7,6 +7,7 @@
 #include <map>
 #include <vector>
 #include <stdexcept>
+#include <limits>
 using namespace cln;
 using namespace std;
 
