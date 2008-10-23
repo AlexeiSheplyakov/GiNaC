@@ -102,12 +102,14 @@ make_random_moduli(const cln::cl_I& limit)
 	std::vector<cln::cl_I> moduli;
 	cln::cl_I prod(1);
 	cln::cl_I next = random_I(std::min(limit >> 1, cln::cl_I(128)));
+	unsigned count = 0;
 	do {
 		cln::cl_I tmp = nextprobprime(next);
 		next = tmp + random_I(cln::cl_I(10)) + 1;
 		prod = prod*tmp;
 		moduli.push_back(tmp);
-	} while (prod < limit);
+		++count;
+	} while (prod < limit || (count < 2));
 	return moduli;
 }
 

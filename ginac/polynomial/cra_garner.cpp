@@ -3,6 +3,7 @@
 #include <vector>
 #include <cstddef>
 #include "cra_garner.hpp"
+#include "compiler.h"
 
 namespace cln
 {
@@ -73,6 +74,8 @@ mixed_radix_2_ordinary(const vector<cl_I>& mixed_radix_coeffs,
 cl_I integer_cra(const vector<cl_I>& residues,
 	         const vector<cl_I>& moduli)
 {
+	if (unlikely(moduli.size() < 2))
+		throw std::invalid_argument("integer_cra: need at least 2 moduli");
 
 	vector<cl_MI> recips(moduli.size() - 1);
 	compute_recips(recips, moduli);
