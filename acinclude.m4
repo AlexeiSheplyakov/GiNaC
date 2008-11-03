@@ -187,16 +187,29 @@ case $host_os in
 esac
 
 if test "$CONFIG_EXCOMPILER" = "yes"; then
-	AC_CHECK_LIB(dl, dlopen, [
-		DL_LIBS="-ldl"
-		AC_DEFINE(HAVE_LIBDL, 1, [set to 1 if you have a working libdl installed.])],
-
-		[AC_MSG_WARN([libdl not found. GiNaC::compile_ex will be disabled.])
-		 CONFIG_EXCOMPILER="no"])
+	AC_CHECK_HEADER([dlfcn.h], [CONFIG_EXCOMPILER="yes"], [CONFIG_EXCOMPILER="no"])
 elif test "$CONFIG_EXCOMPILER" = "no"; then
-	AC_MSG_RESULT([INFO: GiNaC::compile_ex disabled at user request.])
+	AC_MSG_NOTICE([GiNaC::compile_ex disabled at user request.])
 else
-	AC_MSG_RESULT([INFO: GiNaC::compile_ex is not supported on $host_os.])
+	AC_MSG_NOTICE([GiNaC::compile_ex is not supported on $host_os.])
+fi
+	
+if test "$CONFIG_EXCOMPILER" = "yes"; then
+	dnl Some systems (GNU/Linux, Solaris) have dlopen in -ldl, some
+	dnl others (OpenBSD) -- in libc
+	found_dlopen_lib="no"
+	DL_LIBS="-ldl"
+	AC_CHECK_LIB(dl, dlopen, [found_dlopen_lib="yes"])
+	if test "$found_dlopen_lib" = "no"; then
+		DL_LIBS=""
+		AC_CHECK_FUNC(dlopen, [found_dlopen_lib="yes"])
+	fi
+	if test "$found_dlopen_lib" = "no"; then
+		CONFIG_EXCOMPILER="no"
+		AC_MSG_WARN([Could not found working dlopen(). GiNaC::compile_ex will be disabled.])
+	else
+		AC_DEFINE(HAVE_LIBDL, 1, [set to 1 if dlopen() works.])
+	fi
 fi
 AC_SUBST(DL_LIBS)
 AC_SUBST(CONFIG_EXCOMPILER)])
