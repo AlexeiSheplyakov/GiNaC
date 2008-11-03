@@ -23,6 +23,7 @@ AC_PREREQ(2.59)
 AC_CONFIG_SRCDIR(ginac/basic.cpp)
 AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_HEADERS([config/config.h])
+AC_CONFIG_MACRO_DIR([m4])
 dnl This defines PACKAGE and VERSION.
 AM_INIT_AUTOMAKE([gnu 1.7 dist-bzip2])
 
@@ -84,8 +85,14 @@ dnl (pkg-config must have installed pkg.m4 at a visible place, which provides
 dnl this macro. CLN >= 1.1.6 must have installed cln.pc at a visible place,
 dnl which provides the actual dependency information.)
 PKG_CHECK_MODULES(CLN, cln >= 1.1.6)
-LIBS="$LIBS $CLN_LIBS"
+AC_LIB_LINKFLAGS_FROM_LIBS([CLN_RPATH], [$CLN_LIBS], [1])
+LIBS="$LIBS $CLN_LIBS $CLN_RPATH"
 CPPFLAGS="$CPPFLAGS $CLN_CFLAGS"
+dnl Include proper rpath into pkg-config meta data, so
+dnl g++ `pkg-config --cflags --libs ginac`
+dnl actually works
+GINACLIB_LIBS='-L${libdir} -lginac'
+AC_LIB_LINKFLAGS_FROM_LIBS([GINACLIB_RPATH], [$GINACLIB_LIBS])
 
 dnl Check for data types which are needed by the hash function 
 dnl (golden_ratio_hash).

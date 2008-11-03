@@ -11,6 +11,7 @@ endif
 GINAC_RELEASE := $(shell echo $(DEB_VERSION) | cut -f 1,2 -d . )
 GINACLIB := libginac$(GINAC_RELEASE)
 
+DEB_CONFIGURE_EXTRA_FLAGS := --disable-rpath
 DEB_DH_MAKESHLIBS_ARGS := -V"$(GINACLIB) (>= $(GINAC_RELEASE).0)"
 DEB_DH_SHLIBDEPS_ARGS := --libpackage=$(GINACLIB) -l debian/$(GINACLIB)/usr/lib
 DEB_DBG_PACKAGE_ALL =
