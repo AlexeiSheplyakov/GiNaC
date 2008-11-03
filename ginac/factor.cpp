@@ -1,6 +1,6 @@
 /** @file factor.cpp
  *
- *  Polynomial factorization code (Implementation).
+ *  Polynomial factorization code (implementation).
  *
  *  Algorithms used can be found in
  *    [W1]  An Improved Multivariate Polynomial Factoring Algorithm,
@@ -49,6 +49,7 @@ using namespace GiNaC;
 #endif
 
 #include <algorithm>
+#include <cmath>
 #include <list>
 #include <vector>
 using namespace std;
@@ -634,8 +635,206 @@ static void berlekamp(const umod& a, umodvec& upv)
 	}
 }
 
+static umod rem_xq(int q, const umod& b)
+{
+	cl_univpoly_modint_ring UPR = b.ring();
+	cl_modint_ring R = UPR->basering();
+
+	int n = degree(b);
+	if ( n > q ) {
+		umod c = UPR->create(q);
+		c.set_coeff(q, R->one());
+		c.finalize();
+		return c;
+	}
+
+	mvec c(n+1, R->zero());
+	int k = q-n;
+	c[n] = R->one();
+	DCOUTVAR(k);
+
+	int ofs = 0;
+	do {
+		cl_MI qk = div(c[n-ofs], coeff(b, n));
+		if ( !zerop(qk) ) {
+			for ( int i=1; i<=n; ++i ) {
+				c[n-i+ofs] = c[n-i] - qk * coeff(b, n-i);
+			}
+			ofs = ofs ? 0 : 1;
+			DCOUTVAR(ofs);
+			DCOUTVAR(c);
+		}
+	} while ( k-- );
+
+	if ( ofs ) {
+		c.pop_back();
+	}
+	else {
+		c.erase(c.begin());
+	}
+	umod res = umod_from_modvec(c);
+	return res;
+}
+
+static void distinct_degree_factor(const umod& a_, umodvec& result)
+{
+	umod a = COPY(a, a_);
+
+	DCOUT(distinct_degree_factor);
+	DCOUTVAR(a);
+
+	cl_univpoly_modint_ring UPR = a.ring();
+	cl_modint_ring R = UPR->basering();
+	int q = cl_I_to_int(R->modulus);
+	int n = degree(a);
+	size_t nhalf = n/2;
+
+
+	size_t i = 1;
+	umod w = UPR->create(1);
+	w.set_coeff(1, R->one());
+	w.finalize();
+	umod x = COPY(x, w);
+
+	umodvec ai;
+
+	while ( i <= nhalf ) {
+		w = expt_pos(w, q);
+		w = rem(w, a);
+
+		ai.push_back(gcd(a, w-x));
+
+		if ( ai.back() != UPR->one() ) {
+			a = div(a, ai.back());
+			w = rem(w, a);
+		}
+
+		++i;
+	}
+
+	result = ai;
+	DCOUTVAR(result);
+	DCOUT(END distinct_degree_factor);
+}
+
+static void same_degree_factor(const umod& a, umodvec& result)
+{
+	DCOUT(same_degree_factor);
+
+	cl_univpoly_modint_ring UPR = a.ring();
+	cl_modint_ring R = UPR->basering();
+	int deg = degree(a);
+
+	umodvec buf;
+	distinct_degree_factor(a, buf);
+	int degsum = 0;
+
+	for ( size_t i=0; i<buf.size(); ++i ) {
+		if ( buf[i] != UPR->one() ) {
+			degsum += degree(buf[i]);
+			umodvec upv;
+			berlekamp(buf[i], upv);
+			for ( size_t j=0; j<upv.size(); ++j ) {
+				result.push_back(upv[j]);
+			}
+		}
+	}
+
+	if ( degsum < deg ) {
+		result.push_back(a);
+	}
+
+	DCOUTVAR(result);
+	DCOUT(END same_degree_factor);
+}
+
+static void distinct_degree_factor_BSGS(const umod& a, umodvec& result)
+{
+	DCOUT(distinct_degree_factor_BSGS);
+	DCOUTVAR(a);
+
+	cl_univpoly_modint_ring UPR = a.ring();
+	cl_modint_ring R = UPR->basering();
+	int q = cl_I_to_int(R->modulus);
+	int n = degree(a);
+
+	cl_N pm = 0.3;
+	int l = cl_I_to_int(ceiling1(the<cl_F>(expt(n, pm))));
+	DCOUTVAR(l);
+	umodvec h(l+1, UPR->create(-1));
+	umod qk = UPR->create(1);
+	qk.set_coeff(1, R->one());
+	qk.finalize();
+	h[0] = qk;
+	DCOUTVAR(h[0]);
+	for ( int i=1; i<=l; ++i ) {
+		qk = expt_pos(h[i-1], q);
+		h[i] = rem(qk, a);
+		DCOUTVAR(i);
+		DCOUTVAR(h[i]);
+	}
+
+	int m = std::ceil(((double)n)/2/l);
+	DCOUTVAR(m);
+	umodvec H(m, UPR->create(-1));
+	int ql = std::pow(q, l);
+	H[0] = COPY(H[0], h[l]);
+	DCOUTVAR(H[0]);
+	for ( int i=1; i<m; ++i ) {
+		qk = expt_pos(H[i-1], ql);
+		H[i] = rem(qk, a);
+		DCOUTVAR(i);
+		DCOUTVAR(H[i]);
+	}
+
+	umodvec I(m, UPR->create(-1));
+	for ( int i=0; i<m; ++i ) {
+		I[i] = UPR->one();
+		for ( int j=0; j<l; ++j ) {
+			I[i] = I[i] * (H[i] - h[j]);
+		}
+		DCOUTVAR(i);
+		DCOUTVAR(I[i]);
+		I[i] = rem(I[i], a);
+		DCOUTVAR(I[i]);
+	}
+
+	umodvec F(m, UPR->one());
+	umod f = COPY(f, a);
+	for ( int i=0; i<m; ++i ) {
+		DCOUTVAR(i);
+		umod g = gcd(f, I[i]); 
+		if ( g == UPR->one() ) continue;
+		F[i] = g;
+		f = div(f, g);
+		DCOUTVAR(F[i]);
+	}
+
+	result.resize(n, UPR->one());
+	if ( f != UPR->one() ) {
+		result[n] = f;
+	}
+	for ( int i=0; i<m; ++i ) {
+		DCOUTVAR(i);
+		umod f = COPY(f, F[i]);
+		for ( int j=l-1; j>=0; --j ) {
+			umod g = gcd(f, H[i]-h[j]);
+			result[l*(i+1)-j-1] = g;
+			f = div(f, g);
+		}
+	}
+
+	DCOUTVAR(result);
+	DCOUT(END distinct_degree_factor_BSGS);
+}
+
+static void cantor_zassenhaus(const umod& a, umodvec& result)
+{
+}
+
 static void factor_modular(const umod& p, umodvec& upv)
 {
+	//same_degree_factor(p, upv);
 	berlekamp(p, upv);
 	return;
 }
@@ -736,8 +935,8 @@ static ex hensel_univar(const ex& a_, const ex& x, unsigned int p, const umod& u
 		umod sigmatilde = umod_from_ex(phi, x, R);
 		phi = expand(umod_to_ex(t, x) * c);
 		umod tautilde = umod_from_ex(phi, x, R);
-		umod q = div(sigmatilde, w1);
-		umod r = rem(sigmatilde, w1);
+		umod q = UPR->create(-1);
+		umod r = remdiv(sigmatilde, w1, q);
 		umod sigma = COPY(sigma, r);
 		phi = expand(umod_to_ex(tautilde, x) + umod_to_ex(q, x) * umod_to_ex(u1, x));
 		umod tau = umod_from_ex(phi, x, R);
@@ -851,11 +1050,14 @@ struct ModFactors
 
 static ex factor_univariate(const ex& poly, const ex& x)
 {
+	DCOUT(factor_univariate);
+	DCOUTVAR(poly);
+
 	ex unit, cont, prim;
 	poly.unitcontprim(x, unit, cont, prim);
 
 	// determine proper prime and minimize number of modular factors
-	unsigned int p = 3, lastp;
+	unsigned int p = 3, lastp = 3;
 	cl_modint_ring R;
 	unsigned int trials = 0;
 	unsigned int minfactors = 0;
@@ -973,6 +1175,7 @@ static ex factor_univariate(const ex& poly, const ex& x)
 		}
 	}
 
+	DCOUT(END factor_univariate);
 	return unit * cont * result;
 }
 
@@ -1043,59 +1246,37 @@ void change_modulus(umod& out, const umod& in)
 void eea_lift(const umod& a, const umod& b, const ex& x, unsigned int p, unsigned int k, umod& s_, umod& t_)
 {
 	DCOUT(eea_lift);
-	DCOUTVAR(a);
-	DCOUTVAR(b);
-	DCOUTVAR(x);
-	DCOUTVAR(p);
-	DCOUTVAR(k);
 
 	cl_modint_ring R = find_modint_ring(p);
 	cl_univpoly_modint_ring UPR = find_univpoly_ring(R);
 	umod amod = UPR->create(degree(a));
-	DCOUTVAR(a);
 	change_modulus(amod, a);
 	umod bmod = UPR->create(degree(b));
 	change_modulus(bmod, b);
-	DCOUTVAR(amod);
-	DCOUTVAR(bmod);
 
 	umod g = UPR->create(-1);
 	umod smod = UPR->create(-1);
 	umod tmod = UPR->create(-1);
 	exteuclid(amod, bmod, g, smod, tmod);
 	
-	DCOUTVAR(smod);
-	DCOUTVAR(tmod);
-	DCOUTVAR(g);
-	DCOUTVAR(a);
-
 	cl_modint_ring Rpk = find_modint_ring(expt_pos(cl_I(p),k));
 	cl_univpoly_modint_ring UPRpk = find_univpoly_ring(Rpk);
 	umod s = UPRpk->create(degree(smod));
 	change_modulus(s, smod);
 	umod t = UPRpk->create(degree(tmod));
 	change_modulus(t, tmod);
-	DCOUTVAR(s);
-	DCOUTVAR(t);
 
 	cl_I modulus(p);
-	DCOUTVAR(a);
-
 	umod one = UPRpk->one();
 	for ( size_t j=1; j<k; ++j ) {
-		DCOUTVAR(a);
 		umod e = one - a * s - b * t;
-		DCOUTVAR(one);
-		DCOUTVAR(a*s);
-		DCOUTVAR(b*t);
-		DCOUTVAR(e);
 		e = divide(e, modulus);
 		umod c = UPR->create(degree(e));
 		change_modulus(c, e);
 		umod sigmabar = smod * c;
 		umod taubar = tmod * c;
-		umod q = div(sigmabar, bmod);
-		umod sigma = rem(sigmabar, bmod);
+		umod q = UPR->create(-1);
+		umod sigma = remdiv(sigmabar, bmod, q);
 		umod tau = taubar + q * amod;
 		umod sadd = UPRpk->create(degree(sigma));
 		change_modulus(sadd, sigma);
@@ -1109,8 +1290,6 @@ void eea_lift(const umod& a, const umod& b, const ex& x, unsigned int p, unsigne
 
 	s_ = s; t_ = t;
 
-	DCOUTVAR(s);
-	DCOUTVAR(t);
 	DCOUT2(check, a*s + b*t);
 	DCOUT(END eea_lift);
 }
@@ -1144,9 +1323,9 @@ umodvec univar_diophant(const umodvec& a, const ex& x, unsigned int m, unsigned 
 		eea_lift(a[1], a[0], x, p, k, s, t);
 		ex phi = expand(pow(x,m) * umod_to_ex(s, x));
 		umod bmod = umod_from_ex(phi, x, R);
-		umod buf = rem(bmod, a[0]);
+		umod q = UPR->create(-1);
+		umod buf = remdiv(bmod, a[0], q);
 		result.push_back(buf);
-		umod q = div(bmod, a[0]);
 		phi = expand(pow(x,m) * umod_to_ex(t, x));
 		umod t1mod = umod_from_ex(phi, x, R);
 		umod buf2 = t1mod + q * a[1];
@@ -1185,7 +1364,7 @@ struct make_modular_map : public map_function {
 static ex make_modular(const ex& e, const cl_modint_ring& R)
 {
 	make_modular_map map(R);
-	return map(e);
+	return map(e.expand());
 }
 
 vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex& c, const vector<EvalPoint>& I, unsigned int d, unsigned int p, unsigned int k)
@@ -1247,10 +1426,8 @@ vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex& c, con
 		for ( size_t i=0; i<r; ++i ) {
 			buf -= sigma[i] * b[i];
 		}
-		ex e = buf;
-		e = make_modular(e, R);
+		ex e = make_modular(buf, R);
 
-		e = e.expand();
 		DCOUTVAR(e);
 		DCOUTVAR(d);
 		ex monomial = 1;
@@ -1259,9 +1436,11 @@ vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex& c, con
 			while ( !e.is_zero() && e.has(xnu) ) {
 				monomial *= (xnu - alphanu);
 				monomial = expand(monomial);
+				DCOUTVAR(monomial);
 				DCOUTVAR(xnu);
 				DCOUTVAR(alphanu);
 				ex cm = e.diff(ex_to<symbol>(xnu), m).subs(xnu==alphanu) / factorial(m);
+				cm = make_modular(cm, R);
 				DCOUTVAR(cm);
 				if ( !cm.is_zero() ) {
 					vector<ex> delta_s = multivar_diophant(anew, x, cm, Inew, d, p, k);
@@ -1272,8 +1451,8 @@ vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex& c, con
 						sigma[j] += delta_s[j];
 						buf -= delta_s[j] * b[j];
 					}
-					e = buf.expand();
-					e = make_modular(e, R);
+					e = make_modular(buf, R);
+					DCOUTVAR(e);
 				}
 			}
 		}
@@ -1424,7 +1603,6 @@ ex hensel_multivar(const ex& a, const ex& x, const vector<EvalPoint>& I, unsigne
 				for ( size_t i=j-1; i<nu-1; ++i ) {
 					coef = coef.subs(I[i].x == I[i].evalpoint);
 				}
-				coef = expand(coef);
 				coef = make_modular(coef, R);
 				int deg = U[m].degree(x);
 				U[m] = U[m] - U[m].lcoeff(x) * pow(x,deg) + coef * pow(x,deg);
@@ -1468,7 +1646,6 @@ ex hensel_multivar(const ex& a, const ex& x, const vector<EvalPoint>& I, unsigne
 						deltaU[i] *= monomial;
 						U[i] += deltaU[i];
 						U[i] = make_modular(U[i], R);
-						U[i] = U[i].expand();
 						DCOUTVAR(U[i]);
 					}
 					ex Uprod = 1;
@@ -1477,12 +1654,9 @@ ex hensel_multivar(const ex& a, const ex& x, const vector<EvalPoint>& I, unsigne
 					}
 					DCOUTVAR(Uprod.expand());
 					DCOUTVAR(A[j-1]);
-					e = expand(A[j-1] - Uprod);
+					e = A[j-1] - Uprod;
 					e = make_modular(e, R);
 					DCOUTVAR(e);
-				}
-				else {
-					break;
 				}
 			}
 		}
@@ -1740,8 +1914,8 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 	while ( true ) {
 		numeric trialcount = 0;
 		ex u, delta;
-		unsigned int prime;
-		size_t factor_count;
+		unsigned int prime = 3;
+		size_t factor_count = 0;
 		ex ufac;
 		ex ufaclst;
 		while ( trialcount < maxtrials ) {
@@ -2005,10 +2179,13 @@ struct find_symbols_map : public map_function {
 
 static ex factor_sqrfree(const ex& poly)
 {
+	DCOUT(factor_sqrfree);
+
 	// determine all symbols in poly
 	find_symbols_map findsymbols;
 	findsymbols(poly);
 	if ( findsymbols.syms.size() == 0 ) {
+		DCOUT(END factor_sqrfree);
 		return poly;
 	}
 
@@ -2018,16 +2195,19 @@ static ex factor_sqrfree(const ex& poly)
 		if ( poly.ldegree(x) > 0 ) {
 			int ld = poly.ldegree(x);
 			ex res = factor_univariate(expand(poly/pow(x, ld)), x);
+			DCOUT(END factor_sqrfree);
 			return res * pow(x,ld);
 		}
 		else {
 			ex res = factor_univariate(poly, x);
+			DCOUT(END factor_sqrfree);
 			return res;
 		}
 	}
 
 	// multivariate case
 	ex res = factor_multivariate(poly, findsymbols.syms);
+	DCOUT(END factor_sqrfree);
 	return res;
 }
 
