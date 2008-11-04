@@ -15,6 +15,11 @@
 @node Top
 @end ifnottex
 
+@dircategory Mathematics
+@direntry
+* ginac-examples: (ginac-examples).                   C++ library for symbolic computation.
+@end direntry
+
 @finalout
 @c finalout prevents ugly black rectangles on overfull hbox lines
 
