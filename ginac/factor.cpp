@@ -27,7 +27,7 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-//#define DEBUGFACTOR
+#define DEBUGFACTOR
 
 #ifdef DEBUGFACTOR
 #include <ostream>
@@ -50,6 +50,7 @@ using namespace GiNaC;
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <list>
 #include <vector>
 using namespace std;
@@ -106,94 +107,217 @@ ostream& operator<<(ostream& o, const vector<mvec>& v)
 ////////////////////////////////////////////////////////////////////////////////
 // modular univariate polynomial code
 
-typedef cl_UP_MI umod;
-typedef vector<umod> umodvec;
+//typedef cl_UP_MI umod;
+typedef std::vector<cln::cl_MI> umodpoly;
+//typedef vector<umod> umodvec;
+typedef vector<umodpoly> upvec;
 
-#define COPY(to,from) from.ring()->create(degree(from)); \
-	for ( int II=0; II<=degree(from); ++II ) to.set_coeff(II, coeff(from, II)); \
- 	to.finalize()
+// COPY FROM UPOLY.HPP
 
-#ifdef DEBUGFACTOR
-ostream& operator<<(ostream& o, const umodvec& v)
+// CHANGED size_t -> int !!!
+template<typename T> static int degree(const T& p)
 {
-	umodvec::const_iterator i = v.begin(), end = v.end();
-	while ( i != end ) {
-		o << *i++ << " , " << endl;
-	}
-	return o;
+	return p.size() - 1;
 }
-#endif // def DEBUGFACTOR
 
-static umod umod_from_ex(const ex& e, const ex& x, const cl_univpoly_modint_ring& UPR)
+template<typename T> static typename T::value_type lcoeff(const T& p)
+{
+	return p[p.size() - 1];
+}
+
+static bool normalize_in_field(umodpoly& a)
+{
+	if (a.size() == 0)
+		return true;
+	if ( lcoeff(a) == a[0].ring()->one() ) {
+		return true;
+	}
+
+	const cln::cl_MI lc_1 = recip(lcoeff(a));
+	for (std::size_t k = a.size(); k-- != 0; )
+		a[k] = a[k]*lc_1;
+	return false;
+}
+
+template<typename T> static void
+canonicalize(T& p, const typename T::size_type hint = std::numeric_limits<typename T::size_type>::max())
+{
+	if (p.empty())
+		return;
+
+	std::size_t i = p.size() - 1;
+	// Be fast if the polynomial is already canonicalized
+	if (!zerop(p[i]))
+		return;
+
+	if (hint < p.size())
+		i = hint;
+
+	bool is_zero = false;
+	do {
+		if (!zerop(p[i])) {
+			++i;
+			break;
+		}
+		if (i == 0) {
+			is_zero = true;
+			break;
+		}
+		--i;
+	} while (true);
+
+	if (is_zero) {
+		p.clear();
+		return;
+	}
+
+	p.erase(p.begin() + i, p.end());
+}
+
+// END COPY FROM UPOLY.HPP
+
+static void expt_pos(const umodpoly& a, unsigned int q, umodpoly& b)
+{
+	throw runtime_error("expt_pos: not implemented!");
+	// code below is not correct!
+//	b.clear();
+//	if ( a.empty() ) return;
+//	b.resize(degree(a)*q+1, a[0].ring()->zero());
+//	cl_MI norm = recip(a[0]);
+//	umodpoly an = a;
+//	for ( size_t i=0; i<an.size(); ++i ) {
+//		an[i] = an[i] * norm;
+//	}
+//	b[0] = a[0].ring()->one();
+//	for ( size_t i=1; i<b.size(); ++i ) {
+//		for ( size_t j=1; j<i; ++j ) {
+//			b[i] = b[i] + ((i-j+1)*q-i-1) * a[i-j] * b[j-1];
+//		}
+//		b[i] = b[i] / i;
+//	}
+//	cl_MI corr = expt_pos(a[0], q);
+//	for ( size_t i=0; i<b.size(); ++i ) {
+//		b[i] = b[i] * corr;
+//	}
+}
+
+static umodpoly operator+(const umodpoly& a, const umodpoly& b)
+{
+	int sa = a.size();
+	int sb = b.size();
+	if ( sa >= sb ) {
+		umodpoly r(sa);
+		int i = 0;
+		for ( ; i<sb; ++i ) {
+			r[i] = a[i] + b[i];
+		}
+		for ( ; i<sa; ++i ) {
+			r[i] = a[i];
+		}
+		canonicalize(r);
+		return r;
+	}
+	else {
+		umodpoly r(sb);
+		int i = 0;
+		for ( ; i<sa; ++i ) {
+			r[i] = a[i] + b[i];
+		}
+		for ( ; i<sb; ++i ) {
+			r[i] = b[i];
+		}
+		canonicalize(r);
+		return r;
+	}
+}
+
+static umodpoly operator-(const umodpoly& a, const umodpoly& b)
+{
+	int sa = a.size();
+	int sb = b.size();
+	if ( sa >= sb ) {
+		umodpoly r(sa);
+		int i = 0;
+		for ( ; i<sb; ++i ) {
+			r[i] = a[i] - b[i];
+		}
+		for ( ; i<sa; ++i ) {
+			r[i] = a[i];
+		}
+		canonicalize(r);
+		return r;
+	}
+	else {
+		umodpoly r(sb);
+		int i = 0;
+		for ( ; i<sa; ++i ) {
+			r[i] = a[i] - b[i];
+		}
+		for ( ; i<sb; ++i ) {
+			r[i] = -b[i];
+		}
+		canonicalize(r);
+		return r;
+	}
+}
+
+static umodpoly operator*(const umodpoly& a, const umodpoly& b)
+{
+	umodpoly c;
+	if ( a.empty() || b.empty() ) return c;
+
+	int n = degree(a) + degree(b);
+	c.resize(n+1, a[0].ring()->zero());
+	for ( int i=0 ; i<=n; ++i ) {
+		for ( int j=0 ; j<=i; ++j ) {
+			if ( j > degree(a) || (i-j) > degree(b) ) continue; // TODO optimize!
+			c[i] = c[i] + a[j] * b[i-j];
+		}
+	}
+	canonicalize(c);
+	return c;
+}
+
+static umodpoly operator*(const umodpoly& a, const cl_MI& x)
+{
+	umodpoly r(a.size());
+	for ( size_t i=0; i<a.size(); ++i ) {
+		r[i] = a[i] * x;
+	}
+	canonicalize(r);
+	return r;
+}
+
+static void umodpoly_from_ex(umodpoly& ump, const ex& e, const ex& x, const cl_modint_ring& R)
 {
 	// assert: e is in Z[x]
 	int deg = e.degree(x);
-	umod p = UPR->create(deg);
+	ump.resize(deg+1);
 	int ldeg = e.ldegree(x);
 	for ( ; deg>=ldeg; --deg ) {
 		cl_I coeff = the<cl_I>(ex_to<numeric>(e.coeff(x, deg)).to_cl_N());
-		p.set_coeff(deg, UPR->basering()->canonhom(coeff));
+		ump[deg] = R->canonhom(coeff);
 	}
 	for ( ; deg>=0; --deg ) {
-		p.set_coeff(deg, UPR->basering()->zero());
+		ump[deg] = R->zero();
 	}
-	p.finalize();
-	return p;
+	canonicalize(ump);
 }
 
-static umod umod_from_ex(const ex& e, const ex& x, const cl_modint_ring& R)
+static void umodpoly_from_ex(umodpoly& ump, const ex& e, const ex& x, const cl_I& modulus)
 {
-	return umod_from_ex(e, x, find_univpoly_ring(R));
+	umodpoly_from_ex(ump, e, x, find_modint_ring(modulus));
 }
 
-static umod umod_from_ex(const ex& e, const ex& x, const cl_I& modulus)
+static ex umod_to_ex(const umodpoly& a, const ex& x)
 {
-	return umod_from_ex(e, x, find_modint_ring(modulus));
-}
-
-static umod umod_from_modvec(const mvec& mv)
-{
-	size_t n = mv.size(); // assert: n>0
-	while ( n && zerop(mv[n-1]) ) --n;
-	cl_univpoly_modint_ring UPR = find_univpoly_ring(mv.front().ring());
-	if ( n == 0 ) {
-		umod p = UPR->create(-1);
-		p.finalize();
-		return p;
-	}
-	umod p = UPR->create(n-1);
-	for ( size_t i=0; i<n; ++i ) {
-		p.set_coeff(i, mv[i]);
-	}
-	p.finalize();
-	return p;
-}
-
-static umod divide(const umod& a, const cl_I& x)
-{
-	DCOUT(divide);
-	DCOUTVAR(a);
-	cl_univpoly_modint_ring UPR = a.ring();
-	cl_modint_ring R = UPR->basering();
-	int deg = degree(a);
-	umod newa = UPR->create(deg);
-	for ( int i=0; i<=deg; ++i ) {
-		cl_I c = R->retract(coeff(a, i));
-		newa.set_coeff(i, cl_MI(R, the<cl_I>(c / x)));
-	}
-	newa.finalize();
-	DCOUT(END divide);
-	return newa;
-}
-
-static ex umod_to_ex(const umod& a, const ex& x)
-{
-	ex e;
-	cl_modint_ring R = a.ring()->basering();
+	if ( a.empty() ) return 0;
+	cl_modint_ring R = a[0].ring();
 	cl_I mod = R->modulus;
 	cl_I halfmod = (mod-1) >> 1;
+	ex e;
 	for ( int i=degree(a); i>=0; --i ) {
-		cl_I n = R->retract(coeff(a, i));
+		cl_I n = R->retract(a[i]);
 		if ( n > halfmod ) {
 			e += numeric(n-mod) * pow(x, i);
 		} else {
@@ -203,147 +327,187 @@ static ex umod_to_ex(const umod& a, const ex& x)
 	return e;
 }
 
-static void unit_normal(umod& a)
+/** Divides all coefficients of the polynomial a by the integer x.
+ *  All coefficients are supposed to be divisible by x. If they are not, the
+ *  the<cl_I> cast will raise an exception.
+ *
+ *  @param[in,out] a  polynomial of which the coefficients will be reduced by x
+ *  @param[in]     x  integer that divides the coefficients
+ */
+static void reduce_coeff(umodpoly& a, const cl_I& x)
 {
-	int deg = degree(a);
-	if ( deg >= 0 ) {
-		cl_MI lc = coeff(a, deg);
-		cl_MI one = a.ring()->basering()->one();
-		if ( lc != one ) {
-			umod newa = a.ring()->create(deg);
-			newa.set_coeff(deg, one);
-			for ( --deg; deg>=0; --deg ) {
-				cl_MI nc = div(coeff(a, deg), lc);
-				newa.set_coeff(deg, nc);
-			}
-			newa.finalize();
-			a = newa;
-		}
+	if ( a.empty() ) return;
+
+	cl_modint_ring R = a[0].ring();
+	umodpoly::iterator i = a.begin(), end = a.end();
+	for ( ; i!=end; ++i ) {
+		// cln cannot perform this division in the modular field
+		cl_I c = R->retract(*i);
+		*i = cl_MI(R, the<cl_I>(c / x));
 	}
 }
 
-static umod rem(const umod& a, const umod& b)
+/** Calculates remainder of a/b.
+ *  Assertion: a and b not empty.
+ *
+ *  @param[in]  a  polynomial dividend
+ *  @param[in]  b  polynomial divisor
+ *  @param[out] r  polynomial remainder
+ */
+static void rem(const umodpoly& a, const umodpoly& b, umodpoly& r)
 {
 	int k, n;
 	n = degree(b);
 	k = degree(a) - n;
-	if ( k < 0 ) {
-		umod c = COPY(c, a);
-		return c;
-	}
+	r = a;
+	if ( k < 0 ) return;
 
-	umod c = COPY(c, a);
 	do {
-		cl_MI qk = div(coeff(c, n+k), coeff(b, n));
+		cl_MI qk = div(r[n+k], b[n]);
 		if ( !zerop(qk) ) {
-			unsigned int j;
 			for ( int i=0; i<n; ++i ) {
-				j = n + k - 1 - i;
-				c.set_coeff(j, coeff(c, j) - qk * coeff(b, j-k));
+				unsigned int j = n + k - 1 - i;
+				r[j] = r[j] - qk * b[j-k];
 			}
 		}
 	} while ( k-- );
 
-	cl_MI zero = a.ring()->basering()->zero();
-	for ( int i=degree(a); i>=n; --i ) {
-		c.set_coeff(i, zero);
-	}
-
-	c.finalize();
-	return c;
+	fill(r.begin()+n, r.end(), a[0].ring()->zero());
+	canonicalize(r);
 }
 
-static umod div(const umod& a, const umod& b)
+/** Calculates quotient of a/b.
+ *  Assertion: a and b not empty.
+ *
+ *  @param[in]  a  polynomial dividend
+ *  @param[in]  b  polynomial divisor
+ *  @param[out] q  polynomial quotient
+ */
+static void div(const umodpoly& a, const umodpoly& b, umodpoly& q)
 {
 	int k, n;
 	n = degree(b);
 	k = degree(a) - n;
-	if ( k < 0 ) {
-		umod q = a.ring()->create(-1);
-		q.finalize();
-		return q;
-	}
+	q.clear();
+	if ( k < 0 ) return;
 
-	umod c = COPY(c, a);
-	umod q = a.ring()->create(k);
+	umodpoly r = a;
+	q.resize(k+1, a[0].ring()->zero());
 	do {
-		cl_MI qk = div(coeff(c, n+k), coeff(b, n));
+		cl_MI qk = div(r[n+k], b[n]);
 		if ( !zerop(qk) ) {
-			q.set_coeff(k, qk);
-			unsigned int j;
+			q[k] = qk;
 			for ( int i=0; i<n; ++i ) {
-				j = n + k - 1 - i;
-				c.set_coeff(j, coeff(c, j) - qk * coeff(b, j-k));
+				unsigned int j = n + k - 1 - i;
+				r[j] = r[j] - qk * b[j-k];
 			}
 		}
 	} while ( k-- );
 
-	q.finalize();
-	return q;
+	canonicalize(q);
 }
 
-static umod remdiv(const umod& a, const umod& b, umod& q)
+/** Calculates quotient and remainder of a/b.
+ *  Assertion: a and b not empty.
+ *
+ *  @param[in]  a  polynomial dividend
+ *  @param[in]  b  polynomial divisor
+ *  @param[out] r  polynomial remainder
+ *  @param[out] q  polynomial quotient
+ */
+static void remdiv(const umodpoly& a, const umodpoly& b, umodpoly& r, umodpoly& q)
 {
 	int k, n;
 	n = degree(b);
 	k = degree(a) - n;
-	if ( k < 0 ) {
-		q = a.ring()->create(-1);
-		q.finalize();
-		umod c = COPY(c, a);
-		return c;
-	}
+	q.clear();
+	r = a;
+	if ( k < 0 ) return;
 
-	umod c = COPY(c, a);
-	q = a.ring()->create(k);
+	q.resize(k+1, a[0].ring()->zero());
 	do {
-		cl_MI qk = div(coeff(c, n+k), coeff(b, n));
+		cl_MI qk = div(r[n+k], b[n]);
 		if ( !zerop(qk) ) {
-			q.set_coeff(k, qk);
-			unsigned int j;
+			q[k] = qk;
 			for ( int i=0; i<n; ++i ) {
-				j = n + k - 1 - i;
-				c.set_coeff(j, coeff(c, j) - qk * coeff(b, j-k));
+				unsigned int j = n + k - 1 - i;
+				r[j] = r[j] - qk * b[j-k];
 			}
 		}
 	} while ( k-- );
 
-	cl_MI zero = a.ring()->basering()->zero();
-	for ( int i=degree(a); i>=n; --i ) {
-		c.set_coeff(i, zero);
-	}
-
-	q.finalize();
-	c.finalize();
-	return c;
+	fill(r.begin()+n, r.end(), a[0].ring()->zero());
+	canonicalize(r);
+	canonicalize(q);
 }
 
-static umod gcd(const umod& a, const umod& b)
+/** Calculates the GCD of polynomial a and b.
+ *
+ *  @param[in]  a  polynomial
+ *  @param[in]  b  polynomial
+ *  @param[out] c  GCD
+ */
+static void gcd(const umodpoly& a, const umodpoly& b, umodpoly& c)
 {
-	if ( degree(a) < degree(b) ) return gcd(b, a);
+	if ( degree(a) < degree(b) ) return gcd(b, a, c);
 
-	umod c = COPY(c, a);
-	unit_normal(c);
-	umod d = COPY(d, b);
-	unit_normal(d);
-	while ( !zerop(d) ) {
-		umod r = rem(c, d);
-		c = COPY(c, d);
-		d = COPY(d, r);
+	c = a;
+	normalize_in_field(c);
+	umodpoly d = b;
+	normalize_in_field(d);
+	umodpoly r;
+	while ( !d.empty() ) {
+		rem(c, d, r);
+		c = d;
+		d = r;
 	}
-	unit_normal(c);
-	return c;
+	normalize_in_field(c);
 }
 
-static bool squarefree(const umod& a)
+/** Calculates the derivative of the polynomial a.
+ *  
+ *  @param[in]  a  polynomial of which to take the derivative
+ *  @param[out] d  result/derivative
+ */
+static void deriv(const umodpoly& a, umodpoly& d)
 {
-	umod b = deriv(a);
-	if ( zerop(b) ) {
-		return false;
+	d.clear();
+	if ( a.size() <= 1 ) return;
+
+	d.insert(d.begin(), a.begin()+1, a.end());
+	int max = d.size();
+	for ( int i=1; i<max; ++i ) {
+		d[i] = d[i] * (i+1);
 	}
-	umod one = a.ring()->one();
-	umod c = gcd(a, b);
-	return c == one;
+	canonicalize(d);
+}
+
+static bool unequal_one(const umodpoly& a)
+{
+	if ( a.empty() ) return true;
+	return ( a.size() != 1 || a[0] != a[0].ring()->one() );
+}
+
+static bool equal_one(const umodpoly& a)
+{
+	return ( a.size() == 1 && a[0] == a[0].ring()->one() );
+}
+
+/** Returns true if polynomial a is square free.
+ *
+ *  @param[in] a  polynomial to check
+ *  @return       true if polynomial is square free, false otherwise
+ */
+static bool squarefree(const umodpoly& a)
+{
+	umodpoly b;
+	deriv(a, b);
+	if ( b.empty() ) {
+		return true;
+	}
+	umodpoly c;
+	gcd(a, b, c);
+	return equal_one(c);
 }
 
 // END modular univariate polynomial code
@@ -497,10 +661,10 @@ ostream& operator<<(ostream& o, const modular_matrix& m)
 // END modular matrix
 ////////////////////////////////////////////////////////////////////////////////
 
-static void q_matrix(const umod& a, modular_matrix& Q)
+static void q_matrix(const umodpoly& a, modular_matrix& Q)
 {
 	int n = degree(a);
-	unsigned int q = cl_I_to_uint(a.ring()->basering()->modulus);
+	unsigned int q = cl_I_to_uint(a[0].ring()->modulus);
 // fast and buggy
 //	vector<cl_MI> r(n, a.R->zero());
 //	r[0] = a.R->one();
@@ -517,15 +681,16 @@ static void q_matrix(const umod& a, modular_matrix& Q)
 //		}
 //	}
 // slow and (hopefully) correct
-	cl_MI one = a.ring()->basering()->one();
+	cl_MI one = a[0].ring()->one();
+	cl_MI zero = a[0].ring()->zero();
 	for ( int i=0; i<n; ++i ) {
-		umod qk = a.ring()->create(i*q);
-		qk.set_coeff(i*q, one);
-		qk.finalize();
-		umod r = rem(qk, a);
-		mvec rvec;
-		for ( int j=0; j<n; ++j ) {
-			rvec.push_back(coeff(r, j));
+		umodpoly qk(i*q+1, zero);
+		qk[i*q] = one;
+		umodpoly r;
+		rem(qk, a, r);
+		mvec rvec(n, zero);
+		for ( int j=0; j<=degree(r); ++j ) {
+			rvec[j] = r[j];
 		}
 		Q.set_row(i, rvec);
 	}
@@ -575,10 +740,10 @@ static void nullspace(modular_matrix& M, vector<mvec>& basis)
 	}
 }
 
-static void berlekamp(const umod& a, umodvec& upv)
+static void berlekamp(const umodpoly& a, upvec& upv)
 {
-	cl_modint_ring R = a.ring()->basering();
-	const umod one = a.ring()->one();
+	cl_modint_ring R = a[0].ring();
+	umodpoly one(1, R->one());
 
 	modular_matrix Q(degree(a), degree(a), R->zero());
 	q_matrix(a, Q);
@@ -589,38 +754,39 @@ static void berlekamp(const umod& a, umodvec& upv)
 		return;
 	}
 
-	list<umod> factors;
+	list<umodpoly> factors;
 	factors.push_back(a);
 	unsigned int size = 1;
 	unsigned int r = 1;
 	unsigned int q = cl_I_to_uint(R->modulus);
 
-	list<umod>::iterator u = factors.begin();
+	list<umodpoly>::iterator u = factors.begin();
 
 	while ( true ) {
 		for ( unsigned int s=0; s<q; ++s ) {
-			umod nur = umod_from_modvec(nu[r]);
-			cl_MI buf = coeff(nur, 0) - cl_MI(R, s);
-			nur.set_coeff(0, buf);
-			nur.finalize();
-			umod g = gcd(nur, *u);
-			if ( g != one && g != *u ) {
-				umod uo = div(*u, g);
-				if ( uo == one ) {
+			umodpoly nur = nu[r];
+			nur[0] = nur[0] - cl_MI(R, s);
+			canonicalize(nur);
+			umodpoly g;
+			gcd(nur, *u, g);
+			if ( unequal_one(g) && g != *u ) {
+				umodpoly uo;
+				div(*u, g, uo);
+				if ( equal_one(uo) ) {
 					throw logic_error("berlekamp: unexpected divisor.");
 				}
 				else {
-					*u = COPY((*u), uo);
+					*u = uo;
 				}
 				factors.push_back(g);
 				size = 0;
-				list<umod>::const_iterator i = factors.begin(), end = factors.end();
+				list<umodpoly>::const_iterator i = factors.begin(), end = factors.end();
 				while ( i != end ) {
 					if ( degree(*i) ) ++size; 
 					++i;
 				}
 				if ( size == k ) {
-					list<umod>::const_iterator i = factors.begin(), end = factors.end();
+					list<umodpoly>::const_iterator i = factors.begin(), end = factors.end();
 					while ( i != end ) {
 						upv.push_back(*i++);
 					}
@@ -635,34 +801,30 @@ static void berlekamp(const umod& a, umodvec& upv)
 	}
 }
 
-static umod rem_xq(int q, const umod& b)
+static void rem_xq(int q, const umodpoly& b, umodpoly& c)
 {
-	cl_univpoly_modint_ring UPR = b.ring();
-	cl_modint_ring R = UPR->basering();
+	cl_modint_ring R = b[0].ring();
 
 	int n = degree(b);
 	if ( n > q ) {
-		umod c = UPR->create(q);
-		c.set_coeff(q, R->one());
-		c.finalize();
-		return c;
+		c.resize(q+1, R->zero());
+		c[q] = R->one();
+		return;
 	}
 
-	mvec c(n+1, R->zero());
+	c.clear();
+	c.resize(n+1, R->zero());
 	int k = q-n;
 	c[n] = R->one();
-	DCOUTVAR(k);
 
 	int ofs = 0;
 	do {
-		cl_MI qk = div(c[n-ofs], coeff(b, n));
+		cl_MI qk = div(c[n-ofs], b[n]);
 		if ( !zerop(qk) ) {
 			for ( int i=1; i<=n; ++i ) {
-				c[n-i+ofs] = c[n-i] - qk * coeff(b, n-i);
+				c[n-i+ofs] = c[n-i] - qk * b[n-i];
 			}
 			ofs = ofs ? 0 : 1;
-			DCOUTVAR(ofs);
-			DCOUTVAR(c);
 		}
 	} while ( k-- );
 
@@ -672,67 +834,56 @@ static umod rem_xq(int q, const umod& b)
 	else {
 		c.erase(c.begin());
 	}
-	umod res = umod_from_modvec(c);
-	return res;
+	canonicalize(c);
 }
 
-static void distinct_degree_factor(const umod& a_, umodvec& result)
+static void distinct_degree_factor(const umodpoly& a_, upvec& result)
 {
-	umod a = COPY(a, a_);
+	umodpoly a = a_;
 
-	DCOUT(distinct_degree_factor);
-	DCOUTVAR(a);
-
-	cl_univpoly_modint_ring UPR = a.ring();
-	cl_modint_ring R = UPR->basering();
+	cl_modint_ring R = a[0].ring();
 	int q = cl_I_to_int(R->modulus);
 	int n = degree(a);
 	size_t nhalf = n/2;
 
-
 	size_t i = 1;
-	umod w = UPR->create(1);
-	w.set_coeff(1, R->one());
-	w.finalize();
-	umod x = COPY(x, w);
+	umodpoly w(1, R->one());
+	umodpoly x = w;
 
-	umodvec ai;
+	upvec ai;
 
 	while ( i <= nhalf ) {
-		w = expt_pos(w, q);
-		w = rem(w, a);
+		expt_pos(w, q, w);
+		rem(w, a, w);
 
-		ai.push_back(gcd(a, w-x));
+		umodpoly buf;
+		gcd(a, w-x, buf);
+		ai.push_back(buf);
 
-		if ( ai.back() != UPR->one() ) {
-			a = div(a, ai.back());
-			w = rem(w, a);
+		if ( unequal_one(ai.back()) ) {
+			div(a, ai.back(), a);
+			rem(w, a, w);
 		}
 
 		++i;
 	}
 
 	result = ai;
-	DCOUTVAR(result);
-	DCOUT(END distinct_degree_factor);
 }
 
-static void same_degree_factor(const umod& a, umodvec& result)
+static void same_degree_factor(const umodpoly& a, upvec& result)
 {
-	DCOUT(same_degree_factor);
-
-	cl_univpoly_modint_ring UPR = a.ring();
-	cl_modint_ring R = UPR->basering();
+	cl_modint_ring R = a[0].ring();
 	int deg = degree(a);
 
-	umodvec buf;
+	upvec buf;
 	distinct_degree_factor(a, buf);
 	int degsum = 0;
 
 	for ( size_t i=0; i<buf.size(); ++i ) {
-		if ( buf[i] != UPR->one() ) {
+		if ( unequal_one(buf[i]) ) {
 			degsum += degree(buf[i]);
-			umodvec upv;
+			upvec upv;
 			berlekamp(buf[i], upv);
 			for ( size_t j=0; j<upv.size(); ++j ) {
 				result.push_back(upv[j]);
@@ -743,137 +894,118 @@ static void same_degree_factor(const umod& a, umodvec& result)
 	if ( degsum < deg ) {
 		result.push_back(a);
 	}
-
-	DCOUTVAR(result);
-	DCOUT(END same_degree_factor);
 }
 
-static void distinct_degree_factor_BSGS(const umod& a, umodvec& result)
+static void distinct_degree_factor_BSGS(const umodpoly& a, upvec& result)
 {
-	DCOUT(distinct_degree_factor_BSGS);
-	DCOUTVAR(a);
-
-	cl_univpoly_modint_ring UPR = a.ring();
-	cl_modint_ring R = UPR->basering();
+	cl_modint_ring R = a[0].ring();
 	int q = cl_I_to_int(R->modulus);
 	int n = degree(a);
 
 	cl_N pm = 0.3;
 	int l = cl_I_to_int(ceiling1(the<cl_F>(expt(n, pm))));
-	DCOUTVAR(l);
-	umodvec h(l+1, UPR->create(-1));
-	umod qk = UPR->create(1);
-	qk.set_coeff(1, R->one());
-	qk.finalize();
+	upvec h(l+1);
+	umodpoly qk(1, R->one());
 	h[0] = qk;
-	DCOUTVAR(h[0]);
 	for ( int i=1; i<=l; ++i ) {
-		qk = expt_pos(h[i-1], q);
-		h[i] = rem(qk, a);
-		DCOUTVAR(i);
-		DCOUTVAR(h[i]);
+		expt_pos(h[i-1], q, qk);
+		rem(qk, a, h[i]);
 	}
 
 	int m = std::ceil(((double)n)/2/l);
-	DCOUTVAR(m);
-	umodvec H(m, UPR->create(-1));
+	upvec H(m);
 	int ql = std::pow(q, l);
-	H[0] = COPY(H[0], h[l]);
-	DCOUTVAR(H[0]);
+	H[0] = h[l];
 	for ( int i=1; i<m; ++i ) {
-		qk = expt_pos(H[i-1], ql);
-		H[i] = rem(qk, a);
-		DCOUTVAR(i);
-		DCOUTVAR(H[i]);
+		expt_pos(H[i-1], ql, qk);
+		rem(qk, a, H[i]);
 	}
 
-	umodvec I(m, UPR->create(-1));
+	upvec I(m);
+	umodpoly one(1, R->one());
 	for ( int i=0; i<m; ++i ) {
-		I[i] = UPR->one();
+		I[i] = one;
 		for ( int j=0; j<l; ++j ) {
 			I[i] = I[i] * (H[i] - h[j]);
 		}
-		DCOUTVAR(i);
-		DCOUTVAR(I[i]);
-		I[i] = rem(I[i], a);
-		DCOUTVAR(I[i]);
+		rem(I[i], a, I[i]);
 	}
 
-	umodvec F(m, UPR->one());
-	umod f = COPY(f, a);
+	upvec F(m, one);
+	umodpoly f = a;
 	for ( int i=0; i<m; ++i ) {
-		DCOUTVAR(i);
-		umod g = gcd(f, I[i]); 
-		if ( g == UPR->one() ) continue;
+		umodpoly g;
+		gcd(f, I[i], g); 
+		if ( g == one ) continue;
 		F[i] = g;
-		f = div(f, g);
-		DCOUTVAR(F[i]);
+		div(f, g, f);
 	}
 
-	result.resize(n, UPR->one());
-	if ( f != UPR->one() ) {
+	result.resize(n, one);
+	if ( unequal_one(f) ) {
 		result[n] = f;
 	}
 	for ( int i=0; i<m; ++i ) {
-		DCOUTVAR(i);
-		umod f = COPY(f, F[i]);
+		umodpoly f = F[i];
 		for ( int j=l-1; j>=0; --j ) {
-			umod g = gcd(f, H[i]-h[j]);
+			umodpoly g;
+			gcd(f, H[i]-h[j], g);
 			result[l*(i+1)-j-1] = g;
-			f = div(f, g);
+			div(f, g, f);
 		}
 	}
-
-	DCOUTVAR(result);
-	DCOUT(END distinct_degree_factor_BSGS);
 }
 
-static void cantor_zassenhaus(const umod& a, umodvec& result)
+static void cantor_zassenhaus(const umodpoly& a, upvec& result)
 {
 }
 
-static void factor_modular(const umod& p, umodvec& upv)
+static void factor_modular(const umodpoly& p, upvec& upv)
 {
 	//same_degree_factor(p, upv);
 	berlekamp(p, upv);
 	return;
 }
 
-static void exteuclid(const umod& a, const umod& b, umod& g, umod& s, umod& t)
+static void exteuclid(const umodpoly& a, const umodpoly& b, umodpoly& g, umodpoly& s, umodpoly& t)
 {
 	if ( degree(a) < degree(b) ) {
 		exteuclid(b, a, g, t, s);
 		return;
 	}
-	umod c = COPY(c, a); unit_normal(c);
-	umod d = COPY(d, b); unit_normal(d);
-	umod c1 = a.ring()->one();
-	umod c2 = a.ring()->create(-1);
-	umod d1 = a.ring()->create(-1);
-	umod d2 = a.ring()->one();
-	while ( !zerop(d) ) {
-		umod q = div(c, d);
-		umod r = c - q * d;
-		umod r1 = c1 - q * d1;
-		umod r2 = c2 - q * d2;
-		c = COPY(c, d);
-		c1 = COPY(c1, d1);
-		c2 = COPY(c2, d2);
-		d = COPY(d, r);
-		d1 = COPY(d1, r1);
-		d2 = COPY(d2, r2);
+	umodpoly one(1, a[0].ring()->one());
+	umodpoly c = a; normalize_in_field(c);
+	umodpoly d = b; normalize_in_field(d);
+	umodpoly c1 = one;
+	umodpoly c2;
+	umodpoly d1;
+	umodpoly d2 = one;
+	while ( !d.empty() ) {
+		umodpoly q;
+		div(c, d, q);
+		umodpoly r = c - q * d;
+		umodpoly r1 = c1 - q * d1;
+		umodpoly r2 = c2 - q * d2;
+		c = d;
+		c1 = d1;
+		c2 = d2;
+		d = r;
+		d1 = r1;
+		d2 = r2;
 	}
-	g = COPY(g, c); unit_normal(g);
-	s = COPY(s, c1);
+	g = c; normalize_in_field(g);
+	s = c1;
 	for ( int i=0; i<=degree(s); ++i ) {
-		s.set_coeff(i, coeff(s, i) * recip(coeff(a, degree(a)) * coeff(c, degree(c))));
+		s[i] = s[i] * recip(a[degree(a)] * c[degree(c)]);
 	}
-	s.finalize();
-	t = COPY(t, c2);
+	canonicalize(s);
+	s = s * g;
+	t = c2;
 	for ( int i=0; i<=degree(t); ++i ) {
-		t.set_coeff(i, coeff(t, i) * recip(coeff(b, degree(b)) * coeff(c, degree(c))));
+		t[i] = t[i] * recip(b[degree(b)] * c[degree(c)]);
 	}
-	t.finalize();
+	canonicalize(t);
+	t = t * g;
 }
 
 static ex replace_lc(const ex& poly, const ex& x, const ex& lc)
@@ -882,11 +1014,10 @@ static ex replace_lc(const ex& poly, const ex& x, const ex& lc)
 	return r;
 }
 
-static ex hensel_univar(const ex& a_, const ex& x, unsigned int p, const umod& u1_, const umod& w1_, const ex& gamma_ = 0)
+static ex hensel_univar(const ex& a_, const ex& x, unsigned int p, const umodpoly& u1_, const umodpoly& w1_, const ex& gamma_ = 0)
 {
 	ex a = a_;
-	const cl_univpoly_modint_ring& UPR = u1_.ring();
-	const cl_modint_ring& R = UPR->basering();
+	const cl_modint_ring& R = u1_[0].ring();
 
 	// calc bound B
 	ex maxcoeff;
@@ -905,21 +1036,26 @@ static ex hensel_univar(const ex& a_, const ex& x, unsigned int p, const umod& u
 	}
 	numeric gamma_ui = ex_to<numeric>(abs(gamma));
 	a = a * gamma;
-	umod nu1 = COPY(nu1, u1_);
-	unit_normal(nu1);
-	umod nw1 = COPY(nw1, w1_);
-	unit_normal(nw1);
+	umodpoly nu1 = u1_;
+	normalize_in_field(nu1);
+	umodpoly nw1 = w1_;
+	normalize_in_field(nw1);
 	ex phi;
 	phi = gamma * umod_to_ex(nu1, x);
-	umod u1 = umod_from_ex(phi, x, R);
+	umodpoly u1;
+	umodpoly_from_ex(u1, phi, x, R);
 	phi = alpha * umod_to_ex(nw1, x);
-	umod w1 = umod_from_ex(phi, x, R);
+	umodpoly w1;
+	umodpoly_from_ex(w1, phi, x, R);
 
 	// step 2
-	umod g = UPR->create(-1);
-	umod s = UPR->create(-1);
-	umod t = UPR->create(-1);
+	umodpoly g;
+	umodpoly s;
+	umodpoly t;
 	exteuclid(u1, w1, g, s, t);
+	if ( unequal_one(g) ) {
+		throw logic_error("gcd(u1,w1) != 1");
+	}
 
 	// step 3
 	ex u = replace_lc(umod_to_ex(u1, x), x, gamma);
@@ -932,14 +1068,17 @@ static ex hensel_univar(const ex& a_, const ex& x, unsigned int p, const umod& u
 	while ( !e.is_zero() && modulus < maxmodulus ) {
 		ex c = e / modulus;
 		phi = expand(umod_to_ex(s, x) * c);
-		umod sigmatilde = umod_from_ex(phi, x, R);
+		umodpoly sigmatilde;
+		umodpoly_from_ex(sigmatilde, phi, x, R);
 		phi = expand(umod_to_ex(t, x) * c);
-		umod tautilde = umod_from_ex(phi, x, R);
-		umod q = UPR->create(-1);
-		umod r = remdiv(sigmatilde, w1, q);
-		umod sigma = COPY(sigma, r);
+		umodpoly tautilde;
+		umodpoly_from_ex(tautilde, phi, x, R);
+		umodpoly r, q;
+		remdiv(sigmatilde, w1, r, q);
+		umodpoly sigma = r;
 		phi = expand(umod_to_ex(tautilde, x) + umod_to_ex(q, x) * umod_to_ex(u1, x));
-		umod tau = umod_from_ex(phi, x, R);
+		umodpoly tau;
+		umodpoly_from_ex(tau, phi, x, R);
 		u = expand(u + umod_to_ex(tau, x) * modulus);
 		w = expand(w + umod_to_ex(sigma, x) * modulus);
 		e = expand(a - u * w);
@@ -1028,10 +1167,11 @@ private:
 	vector<int> k;
 };
 
-static void split(const umodvec& factors, const Partition& part, umod& a, umod& b)
+static void split(const upvec& factors, const Partition& part, umodpoly& a, umodpoly& b)
 {
-	a = factors.front().ring()->one();
-	b = factors.front().ring()->one();
+	umodpoly one(1, factors.front()[0].ring()->one());
+	a = one;
+	b = one;
 	for ( size_t i=0; i<part.size(); ++i ) {
 		if ( part[i] ) {
 			b = b * factors[i];
@@ -1045,14 +1185,11 @@ static void split(const umodvec& factors, const Partition& part, umod& a, umod& 
 struct ModFactors
 {
 	ex poly;
-	umodvec factors;
+	upvec factors;
 };
 
 static ex factor_univariate(const ex& poly, const ex& x)
 {
-	DCOUT(factor_univariate);
-	DCOUTVAR(poly);
-
 	ex unit, cont, prim;
 	poly.unitcontprim(x, unit, cont, prim);
 
@@ -1062,20 +1199,22 @@ static ex factor_univariate(const ex& poly, const ex& x)
 	unsigned int trials = 0;
 	unsigned int minfactors = 0;
 	numeric lcoeff = ex_to<numeric>(prim.lcoeff(x));
-	umodvec factors;
+	upvec factors;
 	while ( trials < 2 ) {
 		while ( true ) {
 			p = next_prime(p);
 			if ( irem(lcoeff, p) != 0 ) {
 				R = find_modint_ring(p);
-				umod modpoly = umod_from_ex(prim, x, R);
+				umodpoly modpoly;
+				umodpoly_from_ex(modpoly, prim, x, R);
 				if ( squarefree(modpoly) ) break;
 			}
 		}
 
 		// do modular factorization
-		umod modpoly = umod_from_ex(prim, x, R);
-		umodvec trialfactors;
+		umodpoly modpoly;
+		umodpoly_from_ex(modpoly, prim, x, R);
+		upvec trialfactors;
 		factor_modular(modpoly, trialfactors);
 		if ( trialfactors.size() <= 1 ) {
 			// irreducible for sure
@@ -1107,8 +1246,7 @@ static ex factor_univariate(const ex& poly, const ex& x)
 		const size_t n = tocheck.top().factors.size();
 		Partition part(n);
 		while ( true ) {
-			umod a = UPR->create(-1);
-			umod b = UPR->create(-1);
+			umodpoly a, b;
 			split(tocheck.top().factors, part, a, b);
 
 			ex answer = hensel_univar(tocheck.top().poly, x, p, a, b);
@@ -1146,8 +1284,8 @@ static ex factor_univariate(const ex& poly, const ex& x)
 					break;
 				}
 				else {
-					umodvec newfactors1(part.size_first(), UPR->create(-1)), newfactors2(part.size_second(), UPR->create(-1));
-					umodvec::iterator i1 = newfactors1.begin(), i2 = newfactors2.begin();
+					upvec newfactors1(part.size_first()), newfactors2(part.size_second());
+					upvec::iterator i1 = newfactors1.begin(), i2 = newfactors2.begin();
 					for ( size_t i=0; i<n; ++i ) {
 						if ( part[i] ) {
 							*i2++ = tocheck.top().factors[i];
@@ -1175,7 +1313,6 @@ static ex factor_univariate(const ex& poly, const ex& x)
 		}
 	}
 
-	DCOUT(END factor_univariate);
 	return unit * cont * result;
 }
 
@@ -1185,155 +1322,132 @@ struct EvalPoint
 	int evalpoint;
 };
 
-// MARK
-
 // forward declaration
 vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex& c, const vector<EvalPoint>& I, unsigned int d, unsigned int p, unsigned int k);
 
-umodvec multiterm_eea_lift(const umodvec& a, const ex& x, unsigned int p, unsigned int k)
+upvec multiterm_eea_lift(const upvec& a, const ex& x, unsigned int p, unsigned int k)
 {
-	DCOUT(multiterm_eea_lift);
-	DCOUTVAR(a);
-	DCOUTVAR(p);
-	DCOUTVAR(k);
-
 	const size_t r = a.size();
-	DCOUTVAR(r);
 	cl_modint_ring R = find_modint_ring(expt_pos(cl_I(p),k));
-	cl_univpoly_modint_ring UPR = find_univpoly_ring(R);
-	umodvec q(r-1, UPR->create(-1));
+	upvec q(r-1);
 	q[r-2] = a[r-1];
 	for ( size_t j=r-2; j>=1; --j ) {
 		q[j-1] = a[j] * q[j];
 	}
-	DCOUTVAR(q);
-	umod beta = UPR->one();
-	umodvec s;
+	umodpoly beta(1, R->one());
+	upvec s;
 	for ( size_t j=1; j<r; ++j ) {
-		DCOUTVAR(j);
-		DCOUTVAR(beta);
 		vector<ex> mdarg(2);
 		mdarg[0] = umod_to_ex(q[j-1], x);
 		mdarg[1] = umod_to_ex(a[j-1], x);
 		vector<EvalPoint> empty;
 		vector<ex> exsigma = multivar_diophant(mdarg, x, umod_to_ex(beta, x), empty, 0, p, k);
-		umod sigma1 = umod_from_ex(exsigma[0], x, R);
-		umod sigma2 = umod_from_ex(exsigma[1], x, R);
-		beta = COPY(beta, sigma1);
+		umodpoly sigma1;
+		umodpoly_from_ex(sigma1, exsigma[0], x, R);
+		umodpoly sigma2;
+		umodpoly_from_ex(sigma2, exsigma[1], x, R);
+		beta = sigma1;
 		s.push_back(sigma2);
 	}
 	s.push_back(beta);
-
-	DCOUTVAR(s);
-	DCOUT(END multiterm_eea_lift);
 	return s;
 }
 
-void change_modulus(umod& out, const umod& in)
+/**
+ *  Assert: a not empty.
+ */
+void change_modulus(const cl_modint_ring& R, umodpoly& a)
 {
-	// ASSERT: out and in have same degree
-	if ( out.ring() == in.ring() ) {
-		out = COPY(out, in);
+	if ( a.empty() ) return;
+	cl_modint_ring oldR = a[0].ring();
+	umodpoly::iterator i = a.begin(), end = a.end();
+	for ( ; i!=end; ++i ) {
+		*i = R->canonhom(oldR->retract(*i));
 	}
-	else {
-		for ( int i=0; i<=degree(in); ++i ) {
-			out.set_coeff(i, out.ring()->basering()->canonhom(in.ring()->basering()->retract(coeff(in, i))));
-		}
-		out.finalize();
-	}
+	canonicalize(a);
 }
 
-void eea_lift(const umod& a, const umod& b, const ex& x, unsigned int p, unsigned int k, umod& s_, umod& t_)
+void eea_lift(const umodpoly& a, const umodpoly& b, const ex& x, unsigned int p, unsigned int k, umodpoly& s_, umodpoly& t_)
 {
-	DCOUT(eea_lift);
-
 	cl_modint_ring R = find_modint_ring(p);
-	cl_univpoly_modint_ring UPR = find_univpoly_ring(R);
-	umod amod = UPR->create(degree(a));
-	change_modulus(amod, a);
-	umod bmod = UPR->create(degree(b));
-	change_modulus(bmod, b);
+	umodpoly amod = a;
+	change_modulus(R, amod);
+	umodpoly bmod = b;
+	change_modulus(R, bmod);
 
-	umod g = UPR->create(-1);
-	umod smod = UPR->create(-1);
-	umod tmod = UPR->create(-1);
+	umodpoly g;
+	umodpoly smod;
+	umodpoly tmod;
 	exteuclid(amod, bmod, g, smod, tmod);
-	
+	if ( unequal_one(g) ) {
+		throw logic_error("gcd(amod,bmod) != 1");
+	}
+
 	cl_modint_ring Rpk = find_modint_ring(expt_pos(cl_I(p),k));
-	cl_univpoly_modint_ring UPRpk = find_univpoly_ring(Rpk);
-	umod s = UPRpk->create(degree(smod));
-	change_modulus(s, smod);
-	umod t = UPRpk->create(degree(tmod));
-	change_modulus(t, tmod);
+	umodpoly s = smod;
+	change_modulus(Rpk, s);
+	umodpoly t = tmod;
+	change_modulus(Rpk, t);
 
 	cl_I modulus(p);
-	umod one = UPRpk->one();
+	umodpoly one(1, Rpk->one());
 	for ( size_t j=1; j<k; ++j ) {
-		umod e = one - a * s - b * t;
-		e = divide(e, modulus);
-		umod c = UPR->create(degree(e));
-		change_modulus(c, e);
-		umod sigmabar = smod * c;
-		umod taubar = tmod * c;
-		umod q = UPR->create(-1);
-		umod sigma = remdiv(sigmabar, bmod, q);
-		umod tau = taubar + q * amod;
-		umod sadd = UPRpk->create(degree(sigma));
-		change_modulus(sadd, sigma);
+		umodpoly e = one - a * s - b * t;
+		reduce_coeff(e, modulus);
+		umodpoly c = e;
+		change_modulus(R, c);
+		umodpoly sigmabar = smod * c;
+		umodpoly taubar = tmod * c;
+		umodpoly sigma, q;
+		remdiv(sigmabar, bmod, sigma, q);
+		umodpoly tau = taubar + q * amod;
+		umodpoly sadd = sigma;
+		change_modulus(Rpk, sadd);
 		cl_MI modmodulus(Rpk, modulus);
 		s = s + sadd * modmodulus;
-		umod tadd = UPRpk->create(degree(tau));
-		change_modulus(tadd, tau);
+		umodpoly tadd = tau;
+		change_modulus(Rpk, tadd);
 		t = t + tadd * modmodulus;
 		modulus = modulus * p;
 	}
 
 	s_ = s; t_ = t;
-
-	DCOUT2(check, a*s + b*t);
-	DCOUT(END eea_lift);
 }
 
-umodvec univar_diophant(const umodvec& a, const ex& x, unsigned int m, unsigned int p, unsigned int k)
+upvec univar_diophant(const upvec& a, const ex& x, unsigned int m, unsigned int p, unsigned int k)
 {
-	DCOUT(univar_diophant);
-	DCOUTVAR(a);
-	DCOUTVAR(x);
-	DCOUTVAR(m);
-	DCOUTVAR(p);
-	DCOUTVAR(k);
-
 	cl_modint_ring R = find_modint_ring(expt_pos(cl_I(p),k));
-	cl_univpoly_modint_ring UPR = find_univpoly_ring(R);
 
 	const size_t r = a.size();
-	umodvec result;
+	upvec result;
 	if ( r > 2 ) {
-		umodvec s = multiterm_eea_lift(a, x, p, k);
+		upvec s = multiterm_eea_lift(a, x, p, k);
 		for ( size_t j=0; j<r; ++j ) {
 			ex phi = expand(pow(x,m) * umod_to_ex(s[j], x));
-			umod bmod = umod_from_ex(phi, x, R);
-			umod buf = rem(bmod, a[j]);
+			umodpoly bmod;
+			umodpoly_from_ex(bmod, phi, x, R);
+			umodpoly buf;
+			rem(bmod, a[j], buf);
 			result.push_back(buf);
 		}
 	}
 	else {
-		umod s = UPR->create(-1);
-		umod t = UPR->create(-1);
+		umodpoly s;
+		umodpoly t;
 		eea_lift(a[1], a[0], x, p, k, s, t);
 		ex phi = expand(pow(x,m) * umod_to_ex(s, x));
-		umod bmod = umod_from_ex(phi, x, R);
-		umod q = UPR->create(-1);
-		umod buf = remdiv(bmod, a[0], q);
+		umodpoly bmod;
+		umodpoly_from_ex(bmod, phi, x, R);
+		umodpoly buf, q;
+		remdiv(bmod, a[0], buf, q);
 		result.push_back(buf);
 		phi = expand(pow(x,m) * umod_to_ex(t, x));
-		umod t1mod = umod_from_ex(phi, x, R);
-		umod buf2 = t1mod + q * a[1];
+		umodpoly t1mod;
+		umodpoly_from_ex(t1mod, phi, x, R);
+		umodpoly buf2 = t1mod + q * a[1];
 		result.push_back(buf2);
 	}
 
-	DCOUTVAR(result);
-	DCOUT(END univar_diophant);
 	return result;
 }
 
@@ -1371,32 +1485,9 @@ vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex& c, con
 {
 	vector<ex> a = a_;
 
-	DCOUT(multivar_diophant);
-#ifdef DEBUGFACTOR
-	cout << "a ";
-	for ( size_t i=0; i<a.size(); ++i ) {
-		cout << a[i] << " ";
-	}
-	cout << endl;
-#endif
-	DCOUTVAR(x);
-	DCOUTVAR(c);
-#ifdef DEBUGFACTOR
-	cout << "I ";
-	for ( size_t i=0; i<I.size(); ++i ) {
-		cout << I[i].x << "=" << I[i].evalpoint << " ";
-	}
-	cout << endl;
-#endif
-	DCOUTVAR(d);
-	DCOUTVAR(p);
-	DCOUTVAR(k);
-
 	const cl_modint_ring R = find_modint_ring(expt_pos(cl_I(p),k));
 	const size_t r = a.size();
 	const size_t nu = I.size() + 1;
-	DCOUTVAR(r);
-	DCOUTVAR(nu);
 
 	vector<ex> sigma;
 	if ( nu > 1 ) {
@@ -1420,7 +1511,6 @@ vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex& c, con
 		vector<EvalPoint> Inew = I;
 		Inew.pop_back();
 		sigma = multivar_diophant(anew, x, cnew, Inew, d, p, k);
-		DCOUTVAR(sigma);
 
 		ex buf = c;
 		for ( size_t i=0; i<r; ++i ) {
@@ -1428,23 +1518,15 @@ vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex& c, con
 		}
 		ex e = make_modular(buf, R);
 
-		DCOUTVAR(e);
-		DCOUTVAR(d);
 		ex monomial = 1;
 		for ( size_t m=1; m<=d; ++m ) {
-			DCOUTVAR(m);
 			while ( !e.is_zero() && e.has(xnu) ) {
 				monomial *= (xnu - alphanu);
 				monomial = expand(monomial);
-				DCOUTVAR(monomial);
-				DCOUTVAR(xnu);
-				DCOUTVAR(alphanu);
 				ex cm = e.diff(ex_to<symbol>(xnu), m).subs(xnu==alphanu) / factorial(m);
 				cm = make_modular(cm, R);
-				DCOUTVAR(cm);
 				if ( !cm.is_zero() ) {
 					vector<ex> delta_s = multivar_diophant(anew, x, cm, Inew, d, p, k);
-					DCOUTVAR(delta_s);
 					ex buf = e;
 					for ( size_t j=0; j<delta_s.size(); ++j ) {
 						delta_s[j] *= monomial;
@@ -1452,16 +1534,15 @@ vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex& c, con
 						buf -= delta_s[j] * b[j];
 					}
 					e = make_modular(buf, R);
-					DCOUTVAR(e);
 				}
 			}
 		}
 	}
 	else {
-		DCOUT(uniterm left);
-		umodvec amod;
+		upvec amod;
 		for ( size_t i=0; i<a.size(); ++i ) {
-			umod up = umod_from_ex(a[i], x, R);
+			umodpoly up;
+			umodpoly_from_ex(up, a[i], x, R);
 			amod.push_back(up);
 		}
 
@@ -1476,58 +1557,30 @@ vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex& c, con
 			nterms = 1;
 			z = c;
 		}
-		DCOUTVAR(nterms);
 		for ( size_t i=0; i<nterms; ++i ) {
-			DCOUTVAR(z);
 			int m = z.degree(x);
-			DCOUTVAR(m);
 			cl_I cm = the<cl_I>(ex_to<numeric>(z.lcoeff(x)).to_cl_N());
-			DCOUTVAR(cm);
-			umodvec delta_s = univar_diophant(amod, x, m, p, k);
+			upvec delta_s = univar_diophant(amod, x, m, p, k);
 			cl_MI modcm;
 			cl_I poscm = cm;
 			while ( poscm < 0 ) {
 				poscm = poscm + expt_pos(cl_I(p),k);
 			}
 			modcm = cl_MI(R, poscm);
-			DCOUTVAR(modcm);
 			for ( size_t j=0; j<delta_s.size(); ++j ) {
 				delta_s[j] = delta_s[j] * modcm;
 				sigma[j] = sigma[j] + umod_to_ex(delta_s[j], x);
 			}
-			DCOUTVAR(delta_s);
-#ifdef DEBUGFACTOR
-			cout << "STEP " << i << " sigma ";
-			for ( size_t p=0; p<sigma.size(); ++p ) {
-				cout << sigma[p] << " ";
-			}
-			cout << endl;
-#endif
 			if ( nterms > 1 ) {
 				z = c.op(i+1);
 			}
 		}
 	}
-#ifdef DEBUGFACTOR
-	cout << "sigma ";
-	for ( size_t i=0; i<sigma.size(); ++i ) {
-		cout << sigma[i] << " ";
-	}
-	cout << endl;
-#endif
 
 	for ( size_t i=0; i<sigma.size(); ++i ) {
 		sigma[i] = make_modular(sigma[i], R);
 	}
 
-#ifdef DEBUGFACTOR
-	cout << "sigma ";
-	for ( size_t i=0; i<sigma.size(); ++i ) {
-		cout << sigma[i] << " ";
-	}
-	cout << endl;
-#endif
-	DCOUT(END multivar_diophant);
 	return sigma;
 }
 
@@ -1542,21 +1595,11 @@ ostream& operator<<(ostream& o, const vector<EvalPoint>& v)
 #endif // def DEBUGFACTOR
 
 
-ex hensel_multivar(const ex& a, const ex& x, const vector<EvalPoint>& I, unsigned int p, const cl_I& l, const umodvec& u, const vector<ex>& lcU)
+ex hensel_multivar(const ex& a, const ex& x, const vector<EvalPoint>& I, unsigned int p, const cl_I& l, const upvec& u, const vector<ex>& lcU)
 {
-	DCOUT(hensel_multivar);
-	DCOUTVAR(a);
-	DCOUTVAR(x);
-	DCOUTVAR(I);
-	DCOUTVAR(p);
-	DCOUTVAR(l);
-	DCOUTVAR(u);
-	DCOUTVAR(lcU);
 	const size_t nu = I.size() + 1;
 	const cl_modint_ring R = find_modint_ring(expt_pos(cl_I(p),l));
 
-	DCOUTVAR(nu);
-	
 	vector<ex> A(nu);
 	A[nu-1] = a;
 
@@ -1567,36 +1610,21 @@ ex hensel_multivar(const ex& a, const ex& x, const vector<EvalPoint>& I, unsigne
 		A[j-2] = make_modular(A[j-2], R);
 	}
 
-#ifdef DEBUGFACTOR
-	cout << "A ";
-	for ( size_t i=0; i<A.size(); ++i) cout << A[i] << " ";
-	cout << endl;
-#endif
-
 	int maxdeg = a.degree(I.front().x);
 	for ( size_t i=1; i<I.size(); ++i ) {
 		int maxdeg2 = a.degree(I[i].x);
 		if ( maxdeg2 > maxdeg ) maxdeg = maxdeg2;
 	}
-	DCOUTVAR(maxdeg);
 
 	const size_t n = u.size();
-	DCOUTVAR(n);
 	vector<ex> U(n);
 	for ( size_t i=0; i<n; ++i ) {
 		U[i] = umod_to_ex(u[i], x);
 	}
-#ifdef DEBUGFACTOR
-	cout << "U ";
-	for ( size_t i=0; i<U.size(); ++i) cout << U[i] << " ";
-	cout << endl;
-#endif
 
 	for ( size_t j=2; j<=nu; ++j ) {
-		DCOUTVAR(j);
 		vector<ex> U1 = U;
 		ex monomial = 1;
-		DCOUTVAR(U);
 		for ( size_t m=0; m<n; ++m) {
 			if ( lcU[m] != 1 ) {
 				ex coef = lcU[m];
@@ -1608,55 +1636,39 @@ ex hensel_multivar(const ex& a, const ex& x, const vector<EvalPoint>& I, unsigne
 				U[m] = U[m] - U[m].lcoeff(x) * pow(x,deg) + coef * pow(x,deg);
 			}
 		}
-		DCOUTVAR(U);
 		ex Uprod = 1;
 		for ( size_t i=0; i<n; ++i ) {
 			Uprod *= U[i];
 		}
 		ex e = expand(A[j-1] - Uprod);
-		DCOUTVAR(e);
 
 		vector<EvalPoint> newI;
 		for ( size_t i=1; i<=j-2; ++i ) {
 			newI.push_back(I[i-1]);
 		}
-		DCOUTVAR(newI);
 
 		ex xj = I[j-2].x;
 		int alphaj = I[j-2].evalpoint;
 		size_t deg = A[j-1].degree(xj);
-		DCOUTVAR(deg);
 		for ( size_t k=1; k<=deg; ++k ) {
-			DCOUTVAR(k);
 			if ( !e.is_zero() ) {
-				DCOUTVAR(xj);
-				DCOUTVAR(alphaj);
 				monomial *= (xj - alphaj);
 				monomial = expand(monomial);
-				DCOUTVAR(monomial);
 				ex dif = e.diff(ex_to<symbol>(xj), k);
-				DCOUTVAR(dif);
 				ex c = dif.subs(xj==alphaj) / factorial(k);
-				DCOUTVAR(c);
 				if ( !c.is_zero() ) {
 					vector<ex> deltaU = multivar_diophant(U1, x, c, newI, maxdeg, p, cl_I_to_uint(l));
 					for ( size_t i=0; i<n; ++i ) {
-						DCOUTVAR(i);
-						DCOUTVAR(deltaU[i]);
 						deltaU[i] *= monomial;
 						U[i] += deltaU[i];
 						U[i] = make_modular(U[i], R);
-						DCOUTVAR(U[i]);
 					}
 					ex Uprod = 1;
 					for ( size_t i=0; i<n; ++i ) {
 						Uprod *= U[i];
 					}
-					DCOUTVAR(Uprod.expand());
-					DCOUTVAR(A[j-1]);
 					e = A[j-1] - Uprod;
 					e = make_modular(e, R);
-					DCOUTVAR(e);
 				}
 			}
 		}
@@ -1666,51 +1678,37 @@ ex hensel_multivar(const ex& a, const ex& x, const vector<EvalPoint>& I, unsigne
 	for ( size_t i=0; i<U.size(); ++i ) {
 		acand *= U[i];
 	}
-	DCOUTVAR(acand);
 	if ( expand(a-acand).is_zero() ) {
 		lst res;
 		for ( size_t i=0; i<U.size(); ++i ) {
 			res.append(U[i]);
 		}
-		DCOUTVAR(res);
-		DCOUT(END hensel_multivar);
 		return res;
 	}
 	else {
 		lst res;
-		DCOUTVAR(res);
-		DCOUT(END hensel_multivar);
 		return lst();
 	}
 }
 
 static ex put_factors_into_lst(const ex& e)
 {
-	DCOUT(put_factors_into_lst);
-	DCOUTVAR(e);
-
 	lst result;
 
 	if ( is_a<numeric>(e) ) {
 		result.append(e);
-		DCOUT(END put_factors_into_lst);
-		DCOUTVAR(result);
 		return result;
 	}
 	if ( is_a<power>(e) ) {
 		result.append(1);
 		result.append(e.op(0));
 		result.append(e.op(1));
-		DCOUT(END put_factors_into_lst);
-		DCOUTVAR(result);
 		return result;
 	}
 	if ( is_a<symbol>(e) || is_a<add>(e) ) {
 		result.append(1);
 		result.append(e);
 		result.append(1);
-		DCOUT(END put_factors_into_lst);
-		DCOUTVAR(result);
 		return result;
 	}
 	if ( is_a<mul>(e) ) {
@@ -1730,8 +1728,6 @@ static ex put_factors_into_lst(const ex& e)
 			}
 		}
 		result.prepend(nfac);
-		DCOUT(END put_factors_into_lst);
-		DCOUTVAR(result);
 		return result;
 	}
 	throw runtime_error("put_factors_into_lst: bad term.");
@@ -1749,53 +1745,32 @@ ostream& operator<<(ostream& o, const vector<numeric>& v)
 
 static bool checkdivisors(const lst& f, vector<numeric>& d)
 {
-	DCOUT(checkdivisors);
 	const int k = f.nops()-2;
-	DCOUTVAR(k);
-	DCOUTVAR(d.size());
 	numeric q, r;
 	d[0] = ex_to<numeric>(f.op(0) * f.op(f.nops()-1));
 	if ( d[0] == 1 && k == 1 && abs(f.op(1)) != 1 ) {
-		DCOUT(false);
-		DCOUT(END checkdivisors);
 		return false;
 	}
-	DCOUTVAR(d[0]);
 	for ( int i=1; i<=k; ++i ) {
-		DCOUTVAR(i);
-		DCOUTVAR(abs(f.op(i)));
 		q = ex_to<numeric>(abs(f.op(i)));
-		DCOUTVAR(q);
 		for ( int j=i-1; j>=0; --j ) {
 			r = d[j];
-			DCOUTVAR(r);
 			do {
 				r = gcd(r, q);
-				DCOUTVAR(r);
 				q = q/r;
-				DCOUTVAR(q);
 			} while ( r != 1 );
 			if ( q == 1 ) {
-				DCOUT(true);
-				DCOUT(END checkdivisors);
 				return true;
 			}
 		}
 		d[i] = q;
 	}
-	DCOUT(false);
-	DCOUT(END checkdivisors);
 	return false;
 }
 
 static bool generate_set(const ex& u, const ex& vn, const exset& syms, const ex& f, const numeric& modulus, vector<numeric>& a, vector<numeric>& d)
 {
 	// computation of d is actually not necessary
-	DCOUT(generate_set);
-	DCOUTVAR(u);
-	DCOUTVAR(vn);
-	DCOUTVAR(f);
-	DCOUTVAR(modulus);
 	const ex& x = *syms.begin();
 	bool trying = true;
 	do {
@@ -1805,7 +1780,6 @@ static bool generate_set(const ex& u, const ex& vn, const exset& syms, const ex&
 		exset::const_iterator s = syms.begin();
 		++s;
 		for ( size_t i=0; i<a.size(); ++i ) {
-			DCOUTVAR(*s);
 			do {
 				a[i] = mod(numeric(rand()), 2*modulus) - modulus;
 				vnatry = vna.subs(*s == a[i]);
@@ -1814,8 +1788,6 @@ static bool generate_set(const ex& u, const ex& vn, const exset& syms, const ex&
 			u0 = u0.subs(*s == a[i]);
 			++s;
 		}
-		DCOUTVAR(a);
-		DCOUTVAR(u0);
 		if ( gcd(u0,u0.diff(ex_to<symbol>(x))) != 1 ) {
 			continue;
 		}
@@ -1823,7 +1795,6 @@ static bool generate_set(const ex& u, const ex& vn, const exset& syms, const ex&
 			trying = false;
 		}
 		else {
-			DCOUT(do substitution);
 			lst fnum;
 			lst::const_iterator i = ex_to<lst>(f).begin();
 			fnum.append(*i++);
@@ -1850,34 +1821,25 @@ static bool generate_set(const ex& u, const ex& vn, const exset& syms, const ex&
 			}
 			ex con = u0.content(x);
 			fnum.append(con);
-			DCOUTVAR(fnum);
 			trying = checkdivisors(fnum, d);
 		}
 	} while ( trying );
-	DCOUT(END generate_set);
 	return false;
 }
 
 static ex factor_multivariate(const ex& poly, const exset& syms)
 {
-	DCOUT(factor_multivariate);
-	DCOUTVAR(poly);
-
 	exset::const_iterator s;
 	const ex& x = *syms.begin();
-	DCOUTVAR(x);
 
 	/* make polynomial primitive */
 	ex p = poly.expand().collect(x);
-	DCOUTVAR(p);
 	ex cont = p.lcoeff(x);
 	for ( numeric i=p.degree(x)-1; i>=p.ldegree(x); --i ) {
 		cont = gcd(cont, p.coeff(x,ex_to<numeric>(i).to_int()));
 		if ( cont == 1 ) break;
 	}
-	DCOUTVAR(cont);
 	ex pp = expand(normal(p / cont));
-	DCOUTVAR(pp);
 	if ( !is_a<numeric>(cont) ) {
 #ifdef DEBUGFACTOR
 		return ::factor(cont) * ::factor(pp);
@@ -1902,11 +1864,9 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 #endif
 		vnlst = put_factors_into_lst(vnfactors);
 	}
-	DCOUTVAR(vnlst);
 
 	const numeric maxtrials = 3;
 	numeric modulus = (vnlst.nops()-1 > 3) ? vnlst.nops()-1 : 3;
-	DCOUTVAR(modulus);
 	numeric minimalr = -1;
 	vector<numeric> a(syms.size()-1, 0);
 	vector<numeric> d((vnlst.nops()-1)/2+1, 0);
@@ -1920,13 +1880,10 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 		ex ufaclst;
 		while ( trialcount < maxtrials ) {
 			bool problem = generate_set(pp, vn, syms, vnlst, modulus, a, d);
-			DCOUTVAR(problem);
 			if ( problem ) {
 				++modulus;
 				continue;
 			}
-			DCOUTVAR(a);
-			DCOUTVAR(d);
 			u = pp;
 			s = syms.begin();
 			++s;
@@ -1935,20 +1892,17 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 				++s;
 			}
 			delta = u.content(x);
-			DCOUTVAR(u);
 
 			// determine proper prime
 			prime = 3;
-			DCOUTVAR(prime);
 			cl_modint_ring R = find_modint_ring(prime);
-			DCOUTVAR(u.lcoeff(x));
 			while ( true ) {
 				if ( irem(ex_to<numeric>(u.lcoeff(x)), prime) != 0 ) {
-					umod modpoly = umod_from_ex(u, x, R);
+					umodpoly modpoly;
+					umodpoly_from_ex(modpoly, u, x, R);
 					if ( squarefree(modpoly) ) break;
 				}
 				prime = next_prime(prime);
-				DCOUTVAR(prime);
 				R = find_modint_ring(prime);
 			}
 
@@ -1957,15 +1911,33 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 #else
 			ufac = factor(u);
 #endif
-			DCOUTVAR(ufac);
 			ufaclst = put_factors_into_lst(ufac);
-			DCOUTVAR(ufaclst);
 			factor_count = (ufaclst.nops()-1)/2;
-			DCOUTVAR(factor_count);
+
+			// veto factorization for which gcd(u_i, u_j) != 1 for all i,j
+			upvec tryu;
+			for ( size_t i=0; i<(ufaclst.nops()-1)/2; ++i ) {
+				umodpoly newu;
+				umodpoly_from_ex(newu, ufaclst.op(i*2+1), x, R);
+				tryu.push_back(newu);
+			}
+			bool veto = false;
+			for ( size_t i=0; i<tryu.size()-1; ++i ) {
+				for ( size_t j=i+1; j<tryu.size(); ++j ) {
+					umodpoly tryg;
+					gcd(tryu[i], tryu[j], tryg);
+					if ( unequal_one(tryg) ) {
+						veto = true;
+						goto escape_quickly;
+					}
+				}
+			}
+			escape_quickly: ;
+			if ( veto ) {
+				continue;
+			}
 
 			if ( factor_count <= 1 ) {
-				DCOUTVAR(poly);
-				DCOUT(END factor_multivariate);
 				return poly;
 			}
 
@@ -1980,11 +1952,7 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 				minimalr = factor_count;
 				trialcount = 0;
 			}
-			DCOUTVAR(trialcount);
-			DCOUTVAR(minimalr);
 			if ( minimalr <= 1 ) {
-				DCOUTVAR(poly);
-				DCOUT(END factor_multivariate);
 				return poly;
 			}
 		}
@@ -2001,12 +1969,10 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 			}
 			ftilde[i] = ex_to<numeric>(ft);
 		}
-		DCOUTVAR(ftilde);
 
 		vector<bool> used_flag((vnlst.nops()-1)/2+1, false);
 		vector<ex> D(factor_count, 1);
 		for ( size_t i=0; i<=factor_count; ++i ) {
-			DCOUTVAR(i);
 			numeric prefac;
 			if ( i == 0 ) {
 				prefac = ex_to<numeric>(ufaclst.op(0));
@@ -2017,22 +1983,15 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 			else {
 				prefac = ex_to<numeric>(ufaclst.op(2*(i-1)+1).lcoeff(x));
 			}
-			DCOUTVAR(prefac);
 			for ( size_t j=(vnlst.nops()-1)/2+1; j>0; --j ) {
-				DCOUTVAR(j);
-				DCOUTVAR(prefac);
-				DCOUTVAR(ftilde[j-1]);
 				if ( abs(ftilde[j-1]) == 1 ) {
 					used_flag[j-1] = true;
 					continue;
 				}
 				numeric g = gcd(prefac, ftilde[j-1]);
-				DCOUTVAR(g);
 				if ( g != 1 ) {
-					DCOUT(has_common_prime);
 					prefac = prefac / g;
 					numeric count = abs(iquo(g, ftilde[j-1]));
-					DCOUTVAR(count);
 					used_flag[j-1] = true;
 					if ( i > 0 ) {
 						if ( j == 1 ) {
@@ -2044,15 +2003,12 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 					}
 					else {
 						ftilde[j-1] = ftilde[j-1] / prefac;
-						DCOUT(BREAK);
-						DCOUTVAR(ftilde[j-1]);
 						break;
 					}
 					++j;
 				}
 			}
 		}
-		DCOUTVAR(D);
 
 		bool some_factor_unused = false;
 		for ( size_t i=0; i<used_flag.size(); ++i ) {
@@ -2062,13 +2018,10 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 			}
 		}
 		if ( some_factor_unused ) {
-			DCOUT(some factor unused!);
 			continue;
 		}
 
 		vector<ex> C(factor_count);
-		DCOUTVAR(C);
-		DCOUTVAR(delta);
 		if ( delta == 1 ) {
 			for ( size_t i=0; i<D.size(); ++i ) {
 				ex Dtilde = D[i];
@@ -2078,7 +2031,6 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 					Dtilde = Dtilde.subs(*s == a[j]);
 					++s;
 				}
-				DCOUTVAR(Dtilde);
 				C[i] = D[i] * (ufaclst.op(2*i+1).lcoeff(x) / Dtilde);
 			}
 		}
@@ -2110,7 +2062,6 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 				}
 			}
 		}
-		DCOUTVAR(C);
 
 		EvalPoint ep;
 		vector<EvalPoint> epv;
@@ -2121,7 +2072,6 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 			ep.evalpoint = a[i].to_int();
 			epv.push_back(ep);
 		}
-		DCOUTVAR(epv);
 
 		// calc bound B
 		ex maxcoeff;
@@ -2143,13 +2093,13 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 			pl = pl * prime;
 		}
 
-		umodvec uvec;
+		upvec uvec;
 		cl_modint_ring R = find_modint_ring(expt_pos(cl_I(prime),l));
 		for ( size_t i=0; i<(ufaclst.nops()-1)/2; ++i ) {
-			umod newu = umod_from_ex(ufaclst.op(i*2+1), x, R);
+			umodpoly newu;
+			umodpoly_from_ex(newu, ufaclst.op(i*2+1), x, R);
 			uvec.push_back(newu);
 		}
-		DCOUTVAR(uvec);
 
 		ex res = hensel_multivar(ufaclst.op(0)*pp, x, epv, prime, l, uvec, C);
 		if ( res != lst() ) {
@@ -2158,8 +2108,6 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 				result *= res.op(i).content(x) * res.op(i).unit(x);
 				result *= res.op(i).primpart(x);
 			}
-			DCOUTVAR(result);
-			DCOUT(END factor_multivariate);
 			return result;
 		}
 	}
@@ -2179,13 +2127,10 @@ struct find_symbols_map : public map_function {
 
 static ex factor_sqrfree(const ex& poly)
 {
-	DCOUT(factor_sqrfree);
-
 	// determine all symbols in poly
 	find_symbols_map findsymbols;
 	findsymbols(poly);
 	if ( findsymbols.syms.size() == 0 ) {
-		DCOUT(END factor_sqrfree);
 		return poly;
 	}
 
@@ -2195,19 +2140,16 @@ static ex factor_sqrfree(const ex& poly)
 		if ( poly.ldegree(x) > 0 ) {
 			int ld = poly.ldegree(x);
 			ex res = factor_univariate(expand(poly/pow(x, ld)), x);
-			DCOUT(END factor_sqrfree);
 			return res * pow(x,ld);
 		}
 		else {
 			ex res = factor_univariate(poly, x);
-			DCOUT(END factor_sqrfree);
 			return res;
 		}
 	}
 
 	// multivariate case
 	ex res = factor_multivariate(poly, findsymbols.syms);
-	DCOUT(END factor_sqrfree);
 	return res;
 }
 
