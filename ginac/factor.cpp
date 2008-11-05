@@ -27,13 +27,8 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#define DEBUGFACTOR
+//#define DEBUGFACTOR
 
-#ifdef DEBUGFACTOR
-#include <ostream>
-#include <ginac/ginac.h>
-using namespace GiNaC;
-#else
 #include "factor.h"
 
 #include "ex.h"
@@ -46,23 +41,21 @@ using namespace GiNaC;
 #include "mul.h"
 #include "normal.h"
 #include "add.h"
-#endif
 
 #include <algorithm>
 #include <cmath>
 #include <limits>
 #include <list>
 #include <vector>
+#ifdef DEBUGFACTOR
+#include <ostream>
+#endif
 using namespace std;
 
 #include <cln/cln.h>
 using namespace cln;
 
-#ifdef DEBUGFACTOR
-namespace Factor {
-#else
 namespace GiNaC {
-#endif
 
 #ifdef DEBUGFACTOR
 #define DCOUT(str) cout << #str << endl
@@ -74,35 +67,28 @@ namespace GiNaC {
 #define DCOUT2(str,var)
 #endif
 
-// forward declaration
-ex factor(const ex& poly, unsigned options);
-
 // anonymous namespace to hide all utility functions
 namespace {
 
 typedef vector<cl_MI> mvec;
-
 #ifdef DEBUGFACTOR
-ostream& operator<<(ostream& o, const mvec& v)
+ostream& operator<<(ostream& o, const vector<cl_MI>& v)
 {
-	mvec::const_iterator i = v.begin(), end = v.end();
+	vector<cl_MI>::const_iterator i = v.begin(), end = v.end();
 	while ( i != end ) {
 		o << *i++ << " ";
 	}
 	return o;
 }
-#endif // def DEBUGFACTOR
-
-#ifdef DEBUGFACTOR
-ostream& operator<<(ostream& o, const vector<mvec>& v)
+ostream& operator<<(ostream& o, const vector< vector<cl_MI> >& v)
 {
-	vector<mvec>::const_iterator i = v.begin(), end = v.end();
+	vector< vector<cl_MI> >::const_iterator i = v.begin(), end = v.end();
 	while ( i != end ) {
 		o << *i++ << endl;
 	}
 	return o;
 }
-#endif // def DEBUGFACTOR
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // modular univariate polynomial code
@@ -1594,7 +1580,6 @@ ostream& operator<<(ostream& o, const vector<EvalPoint>& v)
 }
 #endif // def DEBUGFACTOR
 
-
 ex hensel_multivar(const ex& a, const ex& x, const vector<EvalPoint>& I, unsigned int p, const cl_I& l, const upvec& u, const vector<ex>& lcU)
 {
 	const size_t nu = I.size() + 1;
@@ -1841,11 +1826,7 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 	}
 	ex pp = expand(normal(p / cont));
 	if ( !is_a<numeric>(cont) ) {
-#ifdef DEBUGFACTOR
-		return ::factor(cont) * ::factor(pp);
-#else
 		return factor(cont) * factor(pp);
-#endif
 	}
 
 	/* factor leading coefficient */
@@ -1857,11 +1838,7 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 		vnlst = lst(vn);
 	}
 	else {
-#ifdef DEBUGFACTOR
-		ex vnfactors = ::factor(vn);
-#else
 		ex vnfactors = factor(vn);
-#endif
 		vnlst = put_factors_into_lst(vnfactors);
 	}
 
@@ -1906,11 +1883,7 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 				R = find_modint_ring(prime);
 			}
 
-#ifdef DEBUGFACTOR
-			ufac = ::factor(u);
-#else
 			ufac = factor(u);
-#endif
 			ufaclst = put_factors_into_lst(ufac);
 			factor_count = (ufaclst.nops()-1)/2;
 
@@ -2159,11 +2132,7 @@ struct apply_factor_map : public map_function {
 	ex operator()(const ex& e)
 	{
 		if ( e.info(info_flags::polynomial) ) {
-#ifdef DEBUGFACTOR
-			return ::factor(e, options);
-#else
 			return factor(e, options);
-#endif
 		}
 		if ( is_a<add>(e) ) {
 			ex s1, s2;
@@ -2177,11 +2146,7 @@ struct apply_factor_map : public map_function {
 			}
 			s1 = s1.eval();
 			s2 = s2.eval();
-#ifdef DEBUGFACTOR
-			return ::factor(s1, options) + s2.map(*this);
-#else
 			return factor(s1, options) + s2.map(*this);
-#endif
 		}
 		return e.map(*this);
 	}
@@ -2189,11 +2154,7 @@ struct apply_factor_map : public map_function {
 
 } // anonymous namespace
 
-#ifdef DEBUGFACTOR
-ex factor(const ex& poly, unsigned options = 0)
-#else
 ex factor(const ex& poly, unsigned options)
-#endif
 {
 	// check arguments
 	if ( !poly.info(info_flags::polynomial) ) {
@@ -2265,3 +2226,7 @@ ex factor(const ex& poly, unsigned options)
 }
 
 } // namespace GiNaC
+
+#ifdef DEBUGFACTOR
+#include "test.h"
+#endif
