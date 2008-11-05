@@ -8213,15 +8213,15 @@ That's it. May the source be with you!
 
 @subsection Upgrading extension classes from older version of GiNaC
 
-GiNaC used to use custom run time type information system (RTTI). It was
-removed from GiNaC. Thus, one need to rewrite constructors which set
+GiNaC used to use a custom run time type information system (RTTI). It was
+removed from GiNaC. Thus, one needs to rewrite constructors which set
 @code{tinfo_key} (which does not exist any more). For example,
 
 @example
 myclass::myclass() : inherited(&myclass::tinfo_static) @{@}
 @end example
 
-need to be rewritten as
+needs to be rewritten as
 
 @example
 myclass::myclass() @{@}
