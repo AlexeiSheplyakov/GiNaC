@@ -285,7 +285,8 @@ public:
 class factor_options {
 public:
 	enum {
-		all = 0x0001    ///< factor all polynomial subexpressions
+		polynomial = 0x0000, ///< factor only expressions that are polynomials
+		all        = 0x0001  ///< factor all polynomial subexpressions
 	};
 };
 

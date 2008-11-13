@@ -1,12 +1,35 @@
 /** @file factor.cpp
  *
- *  Polynomial factorization code (implementation).
+ *  Polynomial factorization (implementation).
+ *
+ *  The interface function factor() at the end of this file is defined in the
+ *  GiNaC namespace. All other utility functions and classes are defined in an
+ *  additional anonymous namespace.
+ *
+ *  Factorization starts by doing a square free factorization and making the
+ *  coefficients integer. Then, depending on the number of free variables it
+ *  proceeds either in dedicated univariate or multivariate factorization code.
+ *
+ *  Univariate factorization does a modular factorization via Berlekamp's
+ *  algorithm and distinct degree factorization. Hensel lifting is used at the
+ *  end.
+ *  
+ *  Multivariate factorization uses the univariate factorization (applying a
+ *  evaluation homomorphism first) and Hensel lifting raises the answer to the
+ *  multivariate domain. The Hensel lifting code is completely distinct from the
+ *  code used by the univariate factorization.
  *
  *  Algorithms used can be found in
- *    [W1]  An Improved Multivariate Polynomial Factoring Algorithm,
- *          P.S.Wang, Mathematics of Computation, Vol. 32, No. 144 (1978) 1215--1231.
+ *    [Wan] An Improved Multivariate Polynomial Factoring Algorithm,
+ *          P.S.Wang,
+ *          Mathematics of Computation, Vol. 32, No. 144 (1978) 1215--1231.
  *    [GCL] Algorithms for Computer Algebra,
- *          K.O.Geddes, S.R.Czapor, G.Labahn, Springer Verlag, 1992.
+ *          K.O.Geddes, S.R.Czapor, G.Labahn,
+ *          Springer Verlag, 1992.
+ *    [Mig] Some Useful Bounds,
+ *          M.Mignotte, 
+ *          In "Computer Algebra, Symbolic and Algebraic Computation" (B.Buchberger et al., eds.),
+ *          pp. 259-263, Springer-Verlag, New York, 1982.
  */
 
 /*
@@ -61,17 +84,6 @@ namespace GiNaC {
 #define DCOUT(str) cout << #str << endl
 #define DCOUTVAR(var) cout << #var << ": " << var << endl
 #define DCOUT2(str,var) cout << #str << ": " << var << endl
-#else
-#define DCOUT(str)
-#define DCOUTVAR(var)
-#define DCOUT2(str,var)
-#endif
-
-// anonymous namespace to hide all utility functions
-namespace {
-
-typedef vector<cl_MI> mvec;
-#ifdef DEBUGFACTOR
 ostream& operator<<(ostream& o, const vector<int>& v)
 {
 	vector<int>::const_iterator i = v.begin(), end = v.end();
@@ -98,6 +110,13 @@ ostream& operator<<(ostream& o, const vector<cl_MI>& v)
 	}
 	return o;
 }
+ostream& operator<<(ostream& o, const vector<numeric>& v)
+{
+	for ( size_t i=0; i<v.size(); ++i ) {
+		o << v[i] << " ";
+	}
+	return o;
+}
 ostream& operator<<(ostream& o, const vector< vector<cl_MI> >& v)
 {
 	vector< vector<cl_MI> >::const_iterator i = v.begin(), end = v.end();
@@ -107,7 +126,14 @@ ostream& operator<<(ostream& o, const vector< vector<cl_MI> >& v)
 	}
 	return o;
 }
-#endif
+#else
+#define DCOUT(str)
+#define DCOUTVAR(var)
+#define DCOUT2(str,var)
+#endif // def DEBUGFACTOR
+
+// anonymous namespace to hide all utility functions
+namespace {
 
 ////////////////////////////////////////////////////////////////////////////////
 // modular univariate polynomial code
@@ -621,6 +647,8 @@ static bool squarefree(const umodpoly& a)
 ////////////////////////////////////////////////////////////////////////////////
 // modular matrix
 
+typedef vector<cl_MI> mvec;
+
 class modular_matrix
 {
 	friend ostream& operator<<(ostream& o, const modular_matrix& m);
@@ -770,6 +798,11 @@ ostream& operator<<(ostream& o, const modular_matrix& m)
 // END modular matrix
 ////////////////////////////////////////////////////////////////////////////////
 
+/** Calculates the Q matrix for a polynomial. Used by Berlekamp's algorithm.
+ *
+ *  @param[in]  a_  modular polynomial
+ *  @param[out] Q   Q matrix
+ */
 static void q_matrix(const umodpoly& a_, modular_matrix& Q)
 {
 	umodpoly a = a_;
@@ -793,6 +826,11 @@ static void q_matrix(const umodpoly& a_, modular_matrix& Q)
 	}
 }
 
+/** Determine the nullspace of a matrix M-1.
+ *
+ *  @param[in,out] M      matrix, will be modified
+ *  @param[out]    basis  calculated nullspace of M-1
+ */
 static void nullspace(modular_matrix& M, vector<mvec>& basis)
 {
 	const size_t n = M.rowsize();
@@ -837,11 +875,20 @@ static void nullspace(modular_matrix& M, vector<mvec>& basis)
 	}
 }
 
+/** Berlekamp's modular factorization.
+ *  
+ *  The implementation follows the algorithm in chapter 8 of [GCL].
+ *
+ *  @param[in]  a    modular polynomial
+ *  @param[out] upv  vector containing modular factors. if upv was not empty the
+ *                   new elements are added at the end
+ */
 static void berlekamp(const umodpoly& a, upvec& upv)
 {
 	cl_modint_ring R = a[0].ring();
 	umodpoly one(1, R->one());
 
+	// find nullspace of Q matrix
 	modular_matrix Q(degree(a), degree(a), R->zero());
 	q_matrix(a, Q);
 	vector<mvec> nu;
@@ -849,6 +896,7 @@ static void berlekamp(const umodpoly& a, upvec& upv)
 
 	const unsigned int k = nu.size();
 	if ( k == 1 ) {
+		// irreducible
 		return;
 	}
 
@@ -860,6 +908,7 @@ static void berlekamp(const umodpoly& a, upvec& upv)
 
 	list<umodpoly>::iterator u = factors.begin();
 
+	// calculate all gcd's
 	while ( true ) {
 		for ( unsigned int s=0; s<q; ++s ) {
 			umodpoly nur = nu[r];
@@ -899,6 +948,16 @@ static void berlekamp(const umodpoly& a, upvec& upv)
 	}
 }
 
+// modular square free factorization is not used at the moment so we deactivate
+// the code
+#if 0
+
+/** Calculates a^(1/prime).
+ *  
+ *  @param[in] a      polynomial
+ *  @param[in] prime  prime number -> exponent 1/prime
+ *  @param[in] ap     resulting polynomial
+ */
 static void expt_1_over_p(const umodpoly& a, unsigned int prime, umodpoly& ap)
 {
 	size_t newdeg = degree(a)/prime;
@@ -909,6 +968,12 @@ static void expt_1_over_p(const umodpoly& a, unsigned int prime, umodpoly& ap)
 	}
 }
 
+/** Modular square free factorization.
+ *
+ *  @param[in]  a        polynomial
+ *  @param[out] factors  modular factors
+ *  @param[out] mult     corresponding multiplicities (exponents)
+ */
 static void modsqrfree(const umodpoly& a, upvec& factors, vector<int>& mult)
 {
 	const unsigned int prime = cl_I_to_uint(a[0].ring()->modulus);
@@ -954,6 +1019,18 @@ static void modsqrfree(const umodpoly& a, upvec& factors, vector<int>& mult)
 	}
 }
 
+#endif // deactivation of square free factorization
+
+/** Distinct degree factorization (DDF).
+ *  
+ *  The implementation follows the algorithm in chapter 8 of [GCL].
+ *
+ *  @param[in]  a_         modular polynomial
+ *  @param[out] degrees    vector containing the degrees of the factors of the
+ *                         corresponding polynomials in ddfactors.
+ *  @param[out] ddfactors  vector containing polynomials which factors have the
+ *                         degree given in degrees.
+ */
 static void distinct_degree_factor(const umodpoly& a_, vector<int>& degrees, upvec& ddfactors)
 {
 	umodpoly a = a_;
@@ -995,6 +1072,16 @@ static void distinct_degree_factor(const umodpoly& a_, vector<int>& degrees, upv
 	}
 }
 
+/** Modular same degree factorization.
+ *  Same degree factorization is a kind of misnomer. It performs distinct degree
+ *  factorization, but instead of using the Cantor-Zassenhaus algorithm it
+ *  (sub-optimally) uses Berlekamp's algorithm for the factors of the same
+ *  degree.
+ *
+ *  @param[in]  a    modular polynomial
+ *  @param[out] upv  vector containing modular factors. if upv was not empty the
+ *                   new elements are added at the end
+ */
 static void same_degree_factor(const umodpoly& a, upvec& upv)
 {
 	cl_modint_ring R = a[0].ring();
@@ -1013,8 +1100,19 @@ static void same_degree_factor(const umodpoly& a, upvec& upv)
 	}
 }
 
+// Yes, we can (choose).
 #define USE_SAME_DEGREE_FACTOR
 
+/** Modular univariate factorization.
+ *
+ *  In principle, we have two algorithms at our disposal: Berlekamp's algorithm
+ *  and same degree factorization (SDF). SDF seems to be slightly faster in
+ *  almost all cases so it is activated as default.
+ *
+ *  @param[in]  p    modular polynomial
+ *  @param[out] upv  vector containing modular factors. if upv was not empty the
+ *                   new elements are added at the end
+ */
 static void factor_modular(const umodpoly& p, upvec& upv)
 {
 #ifdef USE_SAME_DEGREE_FACTOR
@@ -1024,7 +1122,7 @@ static void factor_modular(const umodpoly& p, upvec& upv)
 #endif
 }
 
-/** Calculates polynomials s and t such that a*s+b*t==1.
+/** Calculates modular polynomials s and t such that a*s+b*t==1.
  *  Assertion: a and b are relatively prime and not zero.
  *
  *  @param[in]  a  polynomial
@@ -1074,6 +1172,12 @@ static void exteuclid(const umodpoly& a, const umodpoly& b, umodpoly& s, umodpol
 	canonicalize(t);
 }
 
+/** Replaces the leading coefficient in a polynomial by a given number.
+ *
+ *  @param[in] poly  polynomial to change
+ *  @param[in] lc    new leading coefficient
+ *  @return          changed polynomial
+ */
 static upoly replace_lc(const upoly& poly, const cl_I& lc)
 {
 	if ( poly.empty() ) return poly;
@@ -1082,6 +1186,9 @@ static upoly replace_lc(const upoly& poly, const cl_I& lc)
 	return r;
 }
 
+/** Calculates the bound for the modulus.
+ *  See [Mig].
+ */
 static inline cl_I calc_bound(const ex& a, const ex& x, int maxdeg)
 {
 	cl_I maxcoeff = 0;
@@ -1096,6 +1203,9 @@ static inline cl_I calc_bound(const ex& a, const ex& x, int maxdeg)
 	return ( B > maxcoeff ) ? B : maxcoeff;
 }
 
+/** Calculates the bound for the modulus.
+ *  See [Mig].
+ */
 static inline cl_I calc_bound(const upoly& a, int maxdeg)
 {
 	cl_I maxcoeff = 0;
@@ -1110,6 +1220,18 @@ static inline cl_I calc_bound(const upoly& a, int maxdeg)
 	return ( B > maxcoeff ) ? B : maxcoeff;
 }
 
+/** Hensel lifting as used by factor_univariate().
+ *
+ *  The implementation follows the algorithm in chapter 6 of [GCL].
+ *
+ *  @param[in]  a_   primitive univariate polynomials
+ *  @param[in]  p    prime number that does not divide lcoeff(a)
+ *  @param[in]  u1_  modular factor of a (mod p)
+ *  @param[in]  w1_  modular factor of a (mod p), relatively prime to u1_,
+ *                   fulfilling  u1_*w1_ == a mod p
+ *  @param[out] u    lifted factor
+ *  @param[out] w    lifted factor, u*w = a
+ */
 static void hensel_univar(const upoly& a_, unsigned int p, const umodpoly& u1_, const umodpoly& w1_, upoly& u, upoly& w)
 {
 	upoly a = a_;
@@ -1186,6 +1308,11 @@ static void hensel_univar(const upoly& a_, unsigned int p, const umodpoly& u1_, 
 	}
 }
 
+/** Returns a new prime number.
+ *
+ *  @param[in] p  prime number
+ *  @return       next prime number after p
+ */
 static unsigned int next_prime(unsigned int p)
 {
 	static vector<unsigned int> primes;
@@ -1216,9 +1343,12 @@ static unsigned int next_prime(unsigned int p)
 	throw logic_error("next_prime: should not reach this point!");
 }
 
+/** Manages the splitting a vector of of modular factors into two partitions.
+ */
 class factor_partition
 {
 public:
+	/** Takes the vector of modular factors and initializes the first partition */
 	factor_partition(const upvec& factors_) : factors(factors_)
 	{
 		n = factors.size();
@@ -1234,9 +1364,8 @@ public:
 	size_t size() const { return n; }
 	size_t size_left() const { return n-len; }
 	size_t size_right() const { return len; }
-#ifdef DEBUGFACTOR
-	void get() const { DCOUTVAR(k); }
-#endif
+	/** Initializes the next partition.
+	    Returns true, if there is one, false otherwise. */
 	bool next()
 	{
 		if ( last == n-1 ) {
@@ -1274,7 +1403,9 @@ public:
 		split();
 		return true;
 	}
+	/** Get first partition */
 	umodpoly& left() { return lr[0]; }
+	/** Get second partition */
 	umodpoly& right() { return lr[1]; }
 private:
 	void split_cached()
@@ -1333,12 +1464,25 @@ private:
 	vector<int> k;
 };
 
+/** Contains a pair of univariate polynomial and its modular factors.
+ *  Used by factor_univariate().
+ */
 struct ModFactors
 {
 	upoly poly;
 	upvec factors;
 };
 
+/** Univariate polynomial factorization.
+ *
+ *  Modular factorization is tried for several primes to minimize the number of
+ *  modular factors. Then, Hensel lifting is performed.
+ *
+ *  @param[in]     poly   expanded square free univariate polynomial
+ *  @param[in]     x      symbol
+ *  @param[in,out] prime  prime number to start trying modular factorization with,
+ *                        output value is the prime number actually used
+ */
 static ex factor_univariate(const ex& poly, const ex& x, unsigned int& prime)
 {
 	ex unit, cont, prim_ex;
@@ -1398,8 +1542,10 @@ static ex factor_univariate(const ex& poly, const ex& x, unsigned int& prime)
 		const size_t n = tocheck.top().factors.size();
 		factor_partition part(tocheck.top().factors);
 		while ( true ) {
+			// call Hensel lifting
 			hensel_univar(tocheck.top().poly, prime, part.left(), part.right(), f1, f2);
 			if ( !f1.empty() ) {
+				// successful, update the stack and the result
 				if ( part.size_left() == 1 ) {
 					if ( part.size_right() == 1 ) {
 						result *= upoly_to_ex(f1, x) * upoly_to_ex(f2, x);
@@ -1453,7 +1599,10 @@ static ex factor_univariate(const ex& poly, const ex& x, unsigned int& prime)
 				}
 			}
 			else {
+				// not successful
 				if ( !part.next() ) {
+					// if no more combinations left, return polynomial as
+					// irreducible
 					result *= upoly_to_ex(tocheck.top().poly, x);
 					tocheck.pop();
 					break;
@@ -1465,21 +1614,51 @@ static ex factor_univariate(const ex& poly, const ex& x, unsigned int& prime)
 	return unit * cont * result;
 }
 
+/** Second interface to factor_univariate() to be used if the information about
+ *  the prime is not needed.
+ */
 static inline ex factor_univariate(const ex& poly, const ex& x)
 {
 	unsigned int prime;
 	return factor_univariate(poly, x, prime);
 }
 
+/** Represents an evaluation point (<symbol>==<integer>).
+ */
 struct EvalPoint
 {
 	ex x;
 	int evalpoint;
 };
 
+#ifdef DEBUGFACTOR
+ostream& operator<<(ostream& o, const vector<EvalPoint>& v)
+{
+	for ( size_t i=0; i<v.size(); ++i ) {
+		o << "(" << v[i].x << "==" << v[i].evalpoint << ") ";
+	}
+	return o;
+}
+#endif // def DEBUGFACTOR
+
 // forward declaration
 static vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex& c, const vector<EvalPoint>& I, unsigned int d, unsigned int p, unsigned int k);
 
+/** Utility function for multivariate Hensel lifting.
+ *
+ *  Solves the equation
+ *    s_1*b_1 + ... + s_r*b_r == 1 mod p^k
+ *  with deg(s_i) < deg(a_i)
+ *  and with given b_1 = a_1 * ... * a_{i-1} * a_{i+1} * ... * a_r
+ *
+ *  The implementation follows the algorithm in chapter 6 of [GCL].
+ *
+ *  @param[in]  a   vector of modular univariate polynomials
+ *  @param[in]  x   symbol
+ *  @param[in]  p   prime number
+ *  @param[in]  k   p^k is modulus
+ *  @return         vector of polynomials (s_i)
+ */
 static upvec multiterm_eea_lift(const upvec& a, const ex& x, unsigned int p, unsigned int k)
 {
 	const size_t r = a.size();
@@ -1508,8 +1687,10 @@ static upvec multiterm_eea_lift(const upvec& a, const ex& x, unsigned int p, uns
 	return s;
 }
 
-/**
- *  Assert: a not empty.
+/** Changes the modulus of a modular polynomial. Used by eea_lift().
+ *
+ *  @param[in]     R  new modular ring
+ *  @param[in,out] a  polynomial to change (in situ)
  */
 static void change_modulus(const cl_modint_ring& R, umodpoly& a)
 {
@@ -1522,6 +1703,20 @@ static void change_modulus(const cl_modint_ring& R, umodpoly& a)
 	canonicalize(a);
 }
 
+/** Utility function for multivariate Hensel lifting.
+ *
+ *  Solves  s*a + t*b == 1 mod p^k  given a,b.
+ *
+ *  The implementation follows the algorithm in chapter 6 of [GCL].
+ *
+ *  @param[in]  a   polynomial
+ *  @param[in]  b   polynomial
+ *  @param[in]  x   symbol
+ *  @param[in]  p   prime number
+ *  @param[in]  k   p^k is modulus
+ *  @param[out] s_  output polynomial
+ *  @param[out] t_  output polynomial
+ */
 static void eea_lift(const umodpoly& a, const umodpoly& b, const ex& x, unsigned int p, unsigned int k, umodpoly& s_, umodpoly& t_)
 {
 	cl_modint_ring R = find_modint_ring(p);
@@ -1565,6 +1760,21 @@ static void eea_lift(const umodpoly& a, const umodpoly& b, const ex& x, unsigned
 	s_ = s; t_ = t;
 }
 
+/** Utility function for multivariate Hensel lifting.
+ *
+ *  Solves the equation
+ *    s_1*b_1 + ... + s_r*b_r == x^m mod p^k
+ *  with given b_1 = a_1 * ... * a_{i-1} * a_{i+1} * ... * a_r
+ *
+ *  The implementation follows the algorithm in chapter 6 of [GCL].
+ *
+ *  @param a  vector with univariate polynomials mod p^k
+ *  @param x  symbol
+ *  @param m  exponent of x^m in the equation to solve
+ *  @param p  prime number
+ *  @param k  p^k is modulus
+ *  @return   vector of polynomials (s_i)
+ */
 static upvec univar_diophant(const upvec& a, const ex& x, unsigned int m, unsigned int p, unsigned int k)
 {
 	cl_modint_ring R = find_modint_ring(expt_pos(cl_I(p),k));
@@ -1595,6 +1805,10 @@ static upvec univar_diophant(const upvec& a, const ex& x, unsigned int m, unsign
 	return result;
 }
 
+/** Map used by function make_modular().
+ *  Finds every coefficient in a polynomial and replaces it by is value in the
+ *  given modular ring R (symmetric representation).
+ */
 struct make_modular_map : public map_function {
 	cl_modint_ring R;
 	make_modular_map(const cl_modint_ring& R_) : R(R_) { }
@@ -1619,12 +1833,36 @@ struct make_modular_map : public map_function {
 	}
 };
 
+/** Helps mimicking modular multivariate polynomial arithmetic.
+ *
+ *  @param e  expression of which to make the coefficients equal to their value
+ *            in the modular ring R (symmetric representation)
+ *  @param R  modular ring
+ *  @return   resulting expression
+ */
 static ex make_modular(const ex& e, const cl_modint_ring& R)
 {
 	make_modular_map map(R);
 	return map(e.expand());
 }
 
+/** Utility function for multivariate Hensel lifting.
+ *
+ *  Returns the polynomials s_i that fulfill
+ *    s_1*b_1 + ... + s_r*b_r == c mod <I^(d+1),p^k>
+ *  with given b_1 = a_1 * ... * a_{i-1} * a_{i+1} * ... * a_r
+ *
+ *  The implementation follows the algorithm in chapter 6 of [GCL].
+ *
+ *  @param a_  vector of multivariate factors mod p^k
+ *  @param x   symbol (equiv. x_1 in [GCL])
+ *  @param c   polynomial mod p^k
+ *  @param I   vector of evaluation points
+ *  @param d   maximum total degree of result
+ *  @param p   prime number
+ *  @param k   p^k is modulus
+ *  @return    vector of polynomials (s_i)
+ */
 static vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex& c, const vector<EvalPoint>& I,
                                     unsigned int d, unsigned int p, unsigned int k)
 {
@@ -1727,17 +1965,24 @@ static vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex&
 	return sigma;
 }
 
-#ifdef DEBUGFACTOR
-ostream& operator<<(ostream& o, const vector<EvalPoint>& v)
-{
-	for ( size_t i=0; i<v.size(); ++i ) {
-		o << "(" << v[i].x << "==" << v[i].evalpoint << ") ";
-	}
-	return o;
-}
-#endif // def DEBUGFACTOR
-
-static ex hensel_multivar(const ex& a, const ex& x, const vector<EvalPoint>& I, unsigned int p, const cl_I& l, const upvec& u, const vector<ex>& lcU)
+/** Multivariate Hensel lifting.
+ *  The implementation follows the algorithm in chapter 6 of [GCL].
+ *  Since we don't have a data type for modular multivariate polynomials, the
+ *  respective operations are done in a GiNaC::ex and the function
+ *  make_modular() is then called to make the coefficient modular p^l.
+ *
+ *  @param a    multivariate polynomial primitive in x
+ *  @param x    symbol (equiv. x_1 in [GCL])
+ *  @param I    vector of evaluation points (x_2==a_2,x_3==a_3,...)
+ *  @param p    prime number (should not divide lcoeff(a mod I))
+ *  @param l    p^l is the modulus of the lifted univariate field
+ *  @param u    vector of modular (mod p^l) factors of a mod I
+ *  @param lcU  correct leading coefficient of the univariate factors of a mod I
+ *  @return     list GiNaC::lst with lifted factors (multivariate factors of a),
+ *              empty if Hensel lifting did not succeed
+ */
+static ex hensel_multivar(const ex& a, const ex& x, const vector<EvalPoint>& I,
+                          unsigned int p, const cl_I& l, const upvec& u, const vector<ex>& lcU)
 {
 	const size_t nu = I.size() + 1;
 	const cl_modint_ring R = find_modint_ring(expt_pos(cl_I(p),l));
@@ -1833,10 +2078,13 @@ static ex hensel_multivar(const ex& a, const ex& x, const vector<EvalPoint>& I, 
 	}
 }
 
+/** Takes a factorized expression and puts the factors in a lst. The exponents
+ *  of the factors are discarded, e.g. 7*x^2*(y+1)^4 --> {7,x,y+1}. The first
+ *  element of the list is always the numeric coefficient.
+ */
 static ex put_factors_into_lst(const ex& e)
 {
 	lst result;
-
 	if ( is_a<numeric>(e) ) {
 		result.append(e);
 		return result;
@@ -1871,20 +2119,11 @@ static ex put_factors_into_lst(const ex& e)
 	throw runtime_error("put_factors_into_lst: bad term.");
 }
 
-#ifdef DEBUGFACTOR
-ostream& operator<<(ostream& o, const vector<numeric>& v)
-{
-	for ( size_t i=0; i<v.size(); ++i ) {
-		o << v[i] << " ";
-	}
-	return o;
-}
-#endif // def DEBUGFACTOR
-
-/** Checks whether in a set of numbers each has a unique prime factor.
+/** Checks a set of numbers for whether each number has a unique prime factor.
  *
  *  @param[in]  f  list of numbers to check
- *  @return        true: if number set is bad, false: otherwise
+ *  @return        true: if number set is bad, false: if set is okay (has unique
+ *                 prime factors)
  */
 static bool checkdivisors(const lst& f)
 {
@@ -1914,7 +2153,7 @@ static bool checkdivisors(const lst& f)
  *  1. lcoeff(evaluated_polynomial) does not vanish
  *  2. factors of lcoeff(evaluated_polynomial) have each a unique prime factor
  *  3. evaluated_polynomial is square free
- *  See [W1] for more details.
+ *  See [Wan] for more details.
  *
  *  @param[in]     u        multivariate polynomial to be factored
  *  @param[in]     vn       leading coefficient of u in x (x==first symbol in syms)
@@ -1931,7 +2170,7 @@ static void generate_set(const ex& u, const ex& vn, const exset& syms, const lst
 	const ex& x = *syms.begin();
 	while ( true ) {
 		++modulus;
-		/* generate a set of integers ... */
+		// generate a set of integers ...
 		u0 = u;
 		ex vna = vn;
 		ex vnatry;
@@ -1941,19 +2180,19 @@ static void generate_set(const ex& u, const ex& vn, const exset& syms, const lst
 			do {
 				a[i] = mod(numeric(rand()), 2*modulus) - modulus;
 				vnatry = vna.subs(*s == a[i]);
-				/* ... for which the leading coefficient doesn't vanish ... */
+				// ... for which the leading coefficient doesn't vanish ...
 			} while ( vnatry == 0 );
 			vna = vnatry;
 			u0 = u0.subs(*s == a[i]);
 			++s;
 		}
-		/* ... for which u0 is square free ... */
+		// ... for which u0 is square free ...
 		ex g = gcd(u0, u0.diff(ex_to<symbol>(x)));
 		if ( !is_a<numeric>(g) ) {
 			continue;
 		}
 		if ( !is_a<numeric>(vn) ) {
-			/* ... and for which the evaluated factors have each an unique prime factor */
+			// ... and for which the evaluated factors have each an unique prime factor
 			lst fnum = f;
 			fnum.let_op(0) = fnum.op(0) * u0.content(x);
 			for ( size_t i=1; i<fnum.nops(); ++i ) {
@@ -1969,7 +2208,7 @@ static void generate_set(const ex& u, const ex& vn, const exset& syms, const lst
 				continue;
 			}
 		}
-		/* ok, we have a valid set now */
+		// ok, we have a valid set now
 		return;
 	}
 }
@@ -1977,15 +2216,27 @@ static void generate_set(const ex& u, const ex& vn, const exset& syms, const lst
 // forward declaration
 static ex factor_sqrfree(const ex& poly);
 
-/**
- *  ASSERT: poly is expanded
+/** Multivariate factorization.
+ *  
+ *  The implementation is based on the algorithm described in [Wan].
+ *  An evaluation homomorphism (a set of integers) is determined that fulfills
+ *  certain criteria. The evaluated polynomial is univariate and is factorized
+ *  by factor_univariate(). The main work then is to find the correct leading
+ *  coefficients of the univariate factors. They have to correspond to the
+ *  factors of the (multivariate) leading coefficient of the input polynomial
+ *  (as defined for a specific variable x). After that the Hensel lifting can be
+ *  performed.
+ *
+ *  @param[in] poly  expanded, square free polynomial
+ *  @param[in] syms  contains the symbols in the polynomial
+ *  @return          factorized polynomial
  */
 static ex factor_multivariate(const ex& poly, const exset& syms)
 {
 	exset::const_iterator s;
 	const ex& x = *syms.begin();
 
-	/* make polynomial primitive */
+	// make polynomial primitive
 	ex p = poly.collect(x);
 	ex cont = p.lcoeff(x);
 	for ( int i=p.degree(x)-1; i>=p.ldegree(x); --i ) {
@@ -1997,7 +2248,7 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 		return factor_sqrfree(cont) * factor_sqrfree(pp);
 	}
 
-	/* factor leading coefficient */
+	// factor leading coefficient
 	ex vn = pp.collect(x).lcoeff(x);
 	ex vnlst;
 	if ( is_a<numeric>(vn) ) {
@@ -2012,7 +2263,7 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 	numeric modulus = (vnlst.nops() > 3) ? vnlst.nops() : 3;
 	vector<numeric> a(syms.size()-1, 0);
 
-	/* try now to factorize until we are successful */
+	// try now to factorize until we are successful
 	while ( true ) {
 
 		unsigned int trialcount = 0;
@@ -2022,10 +2273,10 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 		ex u, delta;
 		ex ufac, ufaclst;
 
-		/* try several evaluation points to reduce the number of modular factors */
+		// try several evaluation points to reduce the number of factors
 		while ( trialcount < maxtrials ) {
 
-			/* generate a set of valid evaluation points */
+			// generate a set of valid evaluation points
 			generate_set(pp, vn, syms, ex_to<lst>(vnlst), modulus, u, a);
 
 			ufac = factor_univariate(u, x, prime);
@@ -2034,19 +2285,19 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 			delta = ufaclst.op(0);
 
 			if ( factor_count <= 1 ) {
-				/* irreducible */
+				// irreducible
 				return poly;
 			}
 			if ( min_factor_count < 0 ) {
-				/* first time here */
+				// first time here
 				min_factor_count = factor_count;
 			}
 			else if ( min_factor_count == factor_count ) {
-				/* one less to try */
+				// one less to try
 				++trialcount;
 			}
 			else if ( min_factor_count > factor_count ) {
-				/* new minimum, reset trial counter */
+				// new minimum, reset trial counter
 				min_factor_count = factor_count;
 				trialcount = 0;
 			}
@@ -2055,11 +2306,16 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 		// determine true leading coefficients for the Hensel lifting
 		vector<ex> C(factor_count);
 		if ( is_a<numeric>(vn) ) {
+			// easy case
 			for ( size_t i=1; i<ufaclst.nops(); ++i ) {
 				C[i-1] = ufaclst.op(i).lcoeff(x);
 			}
 		}
 		else {
+			// difficult case.
+			// we use the property of the ftilde having a unique prime factor.
+			// details can be found in [Wan].
+			// calculate ftilde
 			vector<numeric> ftilde(vnlst.nops()-1);
 			for ( size_t i=0; i<ftilde.size(); ++i ) {
 				ex ft = vnlst.op(i+1);
@@ -2071,7 +2327,7 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 				}
 				ftilde[i] = ex_to<numeric>(ft);
 			}
-
+			// calculate D and C
 			vector<bool> used_flag(ftilde.size(), false);
 			vector<ex> D(factor_count, 1);
 			if ( delta == 1 ) {
@@ -2115,7 +2371,7 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 					C[i] = D[i] * prefac;
 				}
 			}
-
+			// check if something went wrong
 			bool some_factor_unused = false;
 			for ( size_t i=0; i<used_flag.size(); ++i ) {
 				if ( !used_flag[i] ) {
@@ -2127,12 +2383,15 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 				continue;
 			}
 		}
-
+		
+		// multiply the remaining content of the univariate polynomial into the
+		// first factor
 		if ( delta != 1 ) {
 			C[0] = C[0] * delta;
 			ufaclst.let_op(1) = ufaclst.op(1) * delta;
 		}
 
+		// set up evaluation points
 		EvalPoint ep;
 		vector<EvalPoint> epv;
 		s = syms.begin();
@@ -2157,12 +2416,15 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 			l = l + 1;
 			pl = pl * prime;
 		}
+		
+		// set up modular factors (mod p^l)
 		cl_modint_ring R = find_modint_ring(expt_pos(cl_I(prime),l));
 		upvec modfactors(ufaclst.nops()-1);
 		for ( size_t i=1; i<ufaclst.nops(); ++i ) {
 			umodpoly_from_ex(modfactors[i-1], ufaclst.op(i), x, R);
 		}
 
+		// try Hensel lifting
 		ex res = hensel_multivar(pp, x, epv, prime, l, modfactors, C);
 		if ( res != lst() ) {
 			ex result = cont;
@@ -2175,6 +2437,8 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 	}
 }
 
+/** Finds all symbols in an expression. Used by factor_sqrfree() and factor().
+ */
 struct find_symbols_map : public map_function {
 	exset syms;
 	ex operator()(const ex& e)
@@ -2187,6 +2451,9 @@ struct find_symbols_map : public map_function {
 	}
 };
 
+/** Factorizes a polynomial that is square free. It calls either the univariate
+ *  or the multivariate factorization functions.
+ */
 static ex factor_sqrfree(const ex& poly)
 {
 	// determine all symbols in poly
@@ -2200,6 +2467,7 @@ static ex factor_sqrfree(const ex& poly)
 		// univariate case
 		const ex& x = *(findsymbols.syms.begin());
 		if ( poly.ldegree(x) > 0 ) {
+			// pull out direct factors
 			int ld = poly.ldegree(x);
 			ex res = factor_univariate(expand(poly/pow(x, ld)), x);
 			return res * pow(x,ld);
@@ -2215,6 +2483,9 @@ static ex factor_sqrfree(const ex& poly)
 	return res;
 }
 
+/** Map used by factor() when factor_options::all is given to access all
+ *  subexpressions and to call factor() on them.
+ */
 struct apply_factor_map : public map_function {
 	unsigned options;
 	apply_factor_map(unsigned options_) : options(options_) { }
@@ -2243,6 +2514,10 @@ struct apply_factor_map : public map_function {
 
 } // anonymous namespace
 
+/** Interface function to the outside world. It checks the arguments, tries a
+ *  square free factorization, and then calls factor_sqrfree to do the hard
+ *  work.
+ */
 ex factor(const ex& poly, unsigned options)
 {
 	// check arguments

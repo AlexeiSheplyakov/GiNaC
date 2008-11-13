@@ -1,6 +1,7 @@
 /** @file factor.h
  *
- *  Polynomial factorization code.
+ *  Polynomial factorization.
+ *
  */
 
 /*
@@ -28,6 +29,18 @@ namespace GiNaC {
 
 class ex;
 
+/** Factorizes univariate and multivariate polynomials.
+ *  
+ *  The default option is factor_options::polynomial, which means that factor()
+ *  will only factorize an expression if it is a proper polynomial (i.e. the
+ *  flag info_flags::polynomial is set). Given the option factor_options::all,
+ *  factor() will factorize all subexpressions, e.g. polynomials containing
+ *  functions or polynomials inside function arguments.
+ *
+ *  @param[in] poly    expression to factorize
+ *  @param[in] option  options to influence the factorization
+ *  @return            factorized expression
+ */
 extern ex factor(const ex& poly, unsigned options = 0);
 
 } // namespace GiNaC
