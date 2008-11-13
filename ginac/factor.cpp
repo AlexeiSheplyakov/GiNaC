@@ -365,10 +365,12 @@ static void umodpoly_from_ex(umodpoly& ump, const ex& e, const ex& x, const cl_m
 	canonicalize(ump);
 }
 
+#ifdef DEBUGFACTOR
 static void umodpoly_from_ex(umodpoly& ump, const ex& e, const ex& x, const cl_I& modulus)
 {
 	umodpoly_from_ex(ump, e, x, find_modint_ring(modulus));
 }
+#endif
 
 static ex upoly_to_ex(const upoly& a, const ex& x)
 {
@@ -1337,7 +1339,7 @@ struct ModFactors
 	upvec factors;
 };
 
-static ex factor_univariate(const ex& poly, const ex& x)
+static ex factor_univariate(const ex& poly, const ex& x, unsigned int& prime)
 {
 	ex unit, cont, prim_ex;
 	poly.unitcontprim(x, unit, cont, prim_ex);
@@ -1345,18 +1347,19 @@ static ex factor_univariate(const ex& poly, const ex& x)
 	upoly_from_ex(prim, prim_ex, x);
 
 	// determine proper prime and minimize number of modular factors
-	unsigned int p = 3, lastp = 3;
+	prime = 3;
+	unsigned int lastp = prime;
 	cl_modint_ring R;
 	unsigned int trials = 0;
 	unsigned int minfactors = 0;
-	cl_I lc = lcoeff(prim);
+	cl_I lc = lcoeff(prim) * the<cl_I>(ex_to<numeric>(cont).to_cl_N());
 	upvec factors;
 	while ( trials < 2 ) {
 		umodpoly modpoly;
 		while ( true ) {
-			p = next_prime(p);
-			if ( !zerop(rem(lc, p)) ) {
-				R = find_modint_ring(p);
+			prime = next_prime(prime);
+			if ( !zerop(rem(lc, prime)) ) {
+				R = find_modint_ring(prime);
 				umodpoly_from_upoly(modpoly, prim, R);
 				if ( squarefree(modpoly) ) break;
 			}
@@ -1373,15 +1376,15 @@ static ex factor_univariate(const ex& poly, const ex& x)
 		if ( minfactors == 0 || trialfactors.size() < minfactors ) {
 			factors = trialfactors;
 			minfactors = trialfactors.size();
-			lastp = p;
+			lastp = prime;
 			trials = 1;
 		}
 		else {
 			++trials;
 		}
 	}
-	p = lastp;
-	R = find_modint_ring(p);
+	prime = lastp;
+	R = find_modint_ring(prime);
 
 	// lift all factor combinations
 	stack<ModFactors> tocheck;
@@ -1395,7 +1398,7 @@ static ex factor_univariate(const ex& poly, const ex& x)
 		const size_t n = tocheck.top().factors.size();
 		factor_partition part(tocheck.top().factors);
 		while ( true ) {
-			hensel_univar(tocheck.top().poly, p, part.left(), part.right(), f1, f2);
+			hensel_univar(tocheck.top().poly, prime, part.left(), part.right(), f1, f2);
 			if ( !f1.empty() ) {
 				if ( part.size_left() == 1 ) {
 					if ( part.size_right() == 1 ) {
@@ -1462,6 +1465,12 @@ static ex factor_univariate(const ex& poly, const ex& x)
 	return unit * cont * result;
 }
 
+static inline ex factor_univariate(const ex& poly, const ex& x)
+{
+	unsigned int prime;
+	return factor_univariate(poly, x, prime);
+}
+
 struct EvalPoint
 {
 	ex x;
@@ -1469,9 +1478,9 @@ struct EvalPoint
 };
 
 // forward declaration
-vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex& c, const vector<EvalPoint>& I, unsigned int d, unsigned int p, unsigned int k);
+static vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex& c, const vector<EvalPoint>& I, unsigned int d, unsigned int p, unsigned int k);
 
-upvec multiterm_eea_lift(const upvec& a, const ex& x, unsigned int p, unsigned int k)
+static upvec multiterm_eea_lift(const upvec& a, const ex& x, unsigned int p, unsigned int k)
 {
 	const size_t r = a.size();
 	cl_modint_ring R = find_modint_ring(expt_pos(cl_I(p),k));
@@ -1502,7 +1511,7 @@ upvec multiterm_eea_lift(const upvec& a, const ex& x, unsigned int p, unsigned i
 /**
  *  Assert: a not empty.
  */
-void change_modulus(const cl_modint_ring& R, umodpoly& a)
+static void change_modulus(const cl_modint_ring& R, umodpoly& a)
 {
 	if ( a.empty() ) return;
 	cl_modint_ring oldR = a[0].ring();
@@ -1513,7 +1522,7 @@ void change_modulus(const cl_modint_ring& R, umodpoly& a)
 	canonicalize(a);
 }
 
-void eea_lift(const umodpoly& a, const umodpoly& b, const ex& x, unsigned int p, unsigned int k, umodpoly& s_, umodpoly& t_)
+static void eea_lift(const umodpoly& a, const umodpoly& b, const ex& x, unsigned int p, unsigned int k, umodpoly& s_, umodpoly& t_)
 {
 	cl_modint_ring R = find_modint_ring(p);
 	umodpoly amod = a;
@@ -1556,7 +1565,7 @@ void eea_lift(const umodpoly& a, const umodpoly& b, const ex& x, unsigned int p,
 	s_ = s; t_ = t;
 }
 
-upvec univar_diophant(const upvec& a, const ex& x, unsigned int m, unsigned int p, unsigned int k)
+static upvec univar_diophant(const upvec& a, const ex& x, unsigned int m, unsigned int p, unsigned int k)
 {
 	cl_modint_ring R = find_modint_ring(expt_pos(cl_I(p),k));
 
@@ -1616,7 +1625,8 @@ static ex make_modular(const ex& e, const cl_modint_ring& R)
 	return map(e.expand());
 }
 
-vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex& c, const vector<EvalPoint>& I, unsigned int d, unsigned int p, unsigned int k)
+static vector<ex> multivar_diophant(const vector<ex>& a_, const ex& x, const ex& c, const vector<EvalPoint>& I,
+                                    unsigned int d, unsigned int p, unsigned int k)
 {
 	vector<ex> a = a_;
 
@@ -1727,7 +1737,7 @@ ostream& operator<<(ostream& o, const vector<EvalPoint>& v)
 }
 #endif // def DEBUGFACTOR
 
-ex hensel_multivar(const ex& a, const ex& x, const vector<EvalPoint>& I, unsigned int p, const cl_I& l, const upvec& u, const vector<ex>& lcU)
+static ex hensel_multivar(const ex& a, const ex& x, const vector<EvalPoint>& I, unsigned int p, const cl_I& l, const upvec& u, const vector<ex>& lcU)
 {
 	const size_t nu = I.size() + 1;
 	const cl_modint_ring R = find_modint_ring(expt_pos(cl_I(p),l));
@@ -1834,13 +1844,11 @@ static ex put_factors_into_lst(const ex& e)
 	if ( is_a<power>(e) ) {
 		result.append(1);
 		result.append(e.op(0));
-		result.append(e.op(1));
 		return result;
 	}
 	if ( is_a<symbol>(e) || is_a<add>(e) ) {
 		result.append(1);
 		result.append(e);
-		result.append(1);
 		return result;
 	}
 	if ( is_a<mul>(e) ) {
@@ -1852,11 +1860,9 @@ static ex put_factors_into_lst(const ex& e)
 			}
 			if ( is_a<power>(op) ) {
 				result.append(op.op(0));
-				result.append(op.op(1));
 			}
 			if ( is_a<symbol>(op) || is_a<add>(op) ) {
 				result.append(op);
-				result.append(1);
 			}
 		}
 		result.prepend(nfac);
@@ -1875,15 +1881,18 @@ ostream& operator<<(ostream& o, const vector<numeric>& v)
 }
 #endif // def DEBUGFACTOR
 
-static bool checkdivisors(const lst& f, vector<numeric>& d)
+/** Checks whether in a set of numbers each has a unique prime factor.
+ *
+ *  @param[in]  f  list of numbers to check
+ *  @return        true: if number set is bad, false: otherwise
+ */
+static bool checkdivisors(const lst& f)
 {
-	const int k = f.nops()-2;
+	const int k = f.nops();
 	numeric q, r;
-	d[0] = ex_to<numeric>(f.op(0) * f.op(f.nops()-1));
-	if ( d[0] == 1 && k == 1 && abs(f.op(1)) != 1 ) {
-		return false;
-	}
-	for ( int i=1; i<=k; ++i ) {
+	vector<numeric> d(k);
+	d[0] = ex_to<numeric>(abs(f.op(0)));
+	for ( int i=1; i<k; ++i ) {
 		q = ex_to<numeric>(abs(f.op(i)));
 		for ( int j=i-1; j>=0; --j ) {
 			r = d[j];
@@ -1900,13 +1909,30 @@ static bool checkdivisors(const lst& f, vector<numeric>& d)
 	return false;
 }
 
-static bool generate_set(const ex& u, const ex& vn, const exset& syms, const ex& f, const numeric& modulus, vector<numeric>& a, vector<numeric>& d)
+/** Generates a set of evaluation points for a multivariate polynomial.
+ *  The set fulfills the following conditions:
+ *  1. lcoeff(evaluated_polynomial) does not vanish
+ *  2. factors of lcoeff(evaluated_polynomial) have each a unique prime factor
+ *  3. evaluated_polynomial is square free
+ *  See [W1] for more details.
+ *
+ *  @param[in]     u        multivariate polynomial to be factored
+ *  @param[in]     vn       leading coefficient of u in x (x==first symbol in syms)
+ *  @param[in]     syms     set of symbols that appear in u
+ *  @param[in]     f        lst containing the factors of the leading coefficient vn
+ *  @param[in,out] modulus  integer modulus for random number generation (i.e. |a_i| < modulus)
+ *  @param[out]    u0       returns the evaluated (univariate) polynomial
+ *  @param[out]    a        returns the valid evaluation points. must have initial size equal
+ *                          number of symbols-1 before calling generate_set
+ */
+static void generate_set(const ex& u, const ex& vn, const exset& syms, const lst& f,
+                         numeric& modulus, ex& u0, vector<numeric>& a)
 {
-	// computation of d is actually not necessary
 	const ex& x = *syms.begin();
-	bool trying = true;
-	do {
-		ex u0 = u;
+	while ( true ) {
+		++modulus;
+		/* generate a set of integers ... */
+		u0 = u;
 		ex vna = vn;
 		ex vnatry;
 		exset::const_iterator s = syms.begin();
@@ -1915,71 +1941,64 @@ static bool generate_set(const ex& u, const ex& vn, const exset& syms, const ex&
 			do {
 				a[i] = mod(numeric(rand()), 2*modulus) - modulus;
 				vnatry = vna.subs(*s == a[i]);
+				/* ... for which the leading coefficient doesn't vanish ... */
 			} while ( vnatry == 0 );
 			vna = vnatry;
 			u0 = u0.subs(*s == a[i]);
 			++s;
 		}
-		if ( gcd(u0,u0.diff(ex_to<symbol>(x))) != 1 ) {
+		/* ... for which u0 is square free ... */
+		ex g = gcd(u0, u0.diff(ex_to<symbol>(x)));
+		if ( !is_a<numeric>(g) ) {
 			continue;
 		}
-		if ( is_a<numeric>(vn) ) {
-			trying = false;
-		}
-		else {
-			lst fnum;
-			lst::const_iterator i = ex_to<lst>(f).begin();
-			fnum.append(*i++);
-			bool problem = false;
-			while ( i!=ex_to<lst>(f).end() ) {
-				ex fs = *i;
-				if ( !is_a<numeric>(fs) ) {
+		if ( !is_a<numeric>(vn) ) {
+			/* ... and for which the evaluated factors have each an unique prime factor */
+			lst fnum = f;
+			fnum.let_op(0) = fnum.op(0) * u0.content(x);
+			for ( size_t i=1; i<fnum.nops(); ++i ) {
+				if ( !is_a<numeric>(fnum.op(i)) ) {
 					s = syms.begin();
 					++s;
-					for ( size_t j=0; j<a.size(); ++j ) {
-						fs = fs.subs(*s == a[j]);
-						++s;
-					}
-					if ( abs(fs) == 1 ) {
-						problem = true;
-						break;
+					for ( size_t j=0; j<a.size(); ++j, ++s ) {
+						fnum.let_op(i) = fnum.op(i).subs(*s == a[j]);
 					}
 				}
-				fnum.append(fs);
-				++i; ++i;
 			}
-			if ( problem ) {
-				return true;
+			if ( checkdivisors(fnum) ) {
+				continue;
 			}
-			ex con = u0.content(x);
-			fnum.append(con);
-			trying = checkdivisors(fnum, d);
 		}
-	} while ( trying );
-	return false;
+		/* ok, we have a valid set now */
+		return;
+	}
 }
 
+// forward declaration
+static ex factor_sqrfree(const ex& poly);
+
+/**
+ *  ASSERT: poly is expanded
+ */
 static ex factor_multivariate(const ex& poly, const exset& syms)
 {
 	exset::const_iterator s;
 	const ex& x = *syms.begin();
 
 	/* make polynomial primitive */
-	ex p = poly.expand().collect(x);
+	ex p = poly.collect(x);
 	ex cont = p.lcoeff(x);
-	for ( numeric i=p.degree(x)-1; i>=p.ldegree(x); --i ) {
-		cont = gcd(cont, p.coeff(x,ex_to<numeric>(i).to_int()));
+	for ( int i=p.degree(x)-1; i>=p.ldegree(x); --i ) {
+		cont = gcd(cont, p.coeff(x,i));
 		if ( cont == 1 ) break;
 	}
 	ex pp = expand(normal(p / cont));
 	if ( !is_a<numeric>(cont) ) {
-		return factor(cont) * factor(pp);
+		return factor_sqrfree(cont) * factor_sqrfree(pp);
 	}
 
 	/* factor leading coefficient */
-	pp = pp.collect(x);
-	ex vn = pp.lcoeff(x);
-	pp = pp.expand();
+	ex vn = pp.collect(x).lcoeff(x);
 	ex vnlst;
 	if ( is_a<numeric>(vn) ) {
 		vnlst = lst(vn);
@@ -1989,198 +2008,129 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 		vnlst = put_factors_into_lst(vnfactors);
 	}
 
-	const numeric maxtrials = 3;
-	numeric modulus = (vnlst.nops()-1 > 3) ? vnlst.nops()-1 : 3;
-	numeric minimalr = -1;
+	const unsigned int maxtrials = 3;
+	numeric modulus = (vnlst.nops() > 3) ? vnlst.nops() : 3;
 	vector<numeric> a(syms.size()-1, 0);
-	vector<numeric> d((vnlst.nops()-1)/2+1, 0);
 
+	/* try now to factorize until we are successful */
 	while ( true ) {
-		numeric trialcount = 0;
+
+		unsigned int trialcount = 0;
+		unsigned int prime;
+		int factor_count = 0;
+		int min_factor_count = -1;
 		ex u, delta;
-		unsigned int prime = 3;
-		size_t factor_count = 0;
-		ex ufac;
-		ex ufaclst;
+		ex ufac, ufaclst;
+
+		/* try several evaluation points to reduce the number of modular factors */
 		while ( trialcount < maxtrials ) {
-			bool problem = generate_set(pp, vn, syms, vnlst, modulus, a, d);
-			if ( problem ) {
-				++modulus;
-				continue;
-			}
-			u = pp;
-			s = syms.begin();
-			++s;
-			for ( size_t i=0; i<a.size(); ++i ) {
-				u = u.subs(*s == a[i]);
-				++s;
-			}
-			delta = u.content(x);
 
-			// determine proper prime
-			prime = 3;
-			cl_modint_ring R = find_modint_ring(prime);
-			while ( true ) {
-				if ( irem(ex_to<numeric>(u.lcoeff(x)), prime) != 0 ) {
-					umodpoly modpoly;
-					umodpoly_from_ex(modpoly, u, x, R);
-					if ( squarefree(modpoly) ) break;
-				}
-				prime = next_prime(prime);
-				R = find_modint_ring(prime);
-			}
+			/* generate a set of valid evaluation points */
+			generate_set(pp, vn, syms, ex_to<lst>(vnlst), modulus, u, a);
 
-			ufac = factor(u);
+			ufac = factor_univariate(u, x, prime);
 			ufaclst = put_factors_into_lst(ufac);
-			factor_count = (ufaclst.nops()-1)/2;
-
-			// veto factorization for which gcd(u_i, u_j) != 1 for all i,j
-			upvec tryu;
-			for ( size_t i=0; i<(ufaclst.nops()-1)/2; ++i ) {
-				umodpoly newu;
-				umodpoly_from_ex(newu, ufaclst.op(i*2+1), x, R);
-				tryu.push_back(newu);
-			}
-			bool veto = false;
-			for ( size_t i=0; i<tryu.size()-1; ++i ) {
-				for ( size_t j=i+1; j<tryu.size(); ++j ) {
-					umodpoly tryg;
-					gcd(tryu[i], tryu[j], tryg);
-					if ( unequal_one(tryg) ) {
-						veto = true;
-						goto escape_quickly;
-					}
-				}
-			}
-			escape_quickly: ;
-			if ( veto ) {
-				continue;
-			}
+			factor_count = ufaclst.nops()-1;
+			delta = ufaclst.op(0);
 
 			if ( factor_count <= 1 ) {
+				/* irreducible */
 				return poly;
 			}
-
-			if ( minimalr < 0 ) {
-				minimalr = factor_count;
+			if ( min_factor_count < 0 ) {
+				/* first time here */
+				min_factor_count = factor_count;
 			}
-			else if ( minimalr == factor_count ) {
+			else if ( min_factor_count == factor_count ) {
+				/* one less to try */
 				++trialcount;
-				++modulus;
 			}
-			else if ( minimalr > factor_count ) {
-				minimalr = factor_count;
+			else if ( min_factor_count > factor_count ) {
+				/* new minimum, reset trial counter */
+				min_factor_count = factor_count;
 				trialcount = 0;
 			}
-			if ( minimalr <= 1 ) {
-				return poly;
-			}
 		}
 
-		vector<numeric> ftilde((vnlst.nops()-1)/2+1);
-		ftilde[0] = ex_to<numeric>(vnlst.op(0));
-		for ( size_t i=1; i<ftilde.size(); ++i ) {
-			ex ft = vnlst.op((i-1)*2+1);
-			s = syms.begin();
-			++s;
-			for ( size_t j=0; j<a.size(); ++j ) {
-				ft = ft.subs(*s == a[j]);
-				++s;
-			}
-			ftilde[i] = ex_to<numeric>(ft);
-		}
-
-		vector<bool> used_flag((vnlst.nops()-1)/2+1, false);
-		vector<ex> D(factor_count, 1);
-		for ( size_t i=0; i<=factor_count; ++i ) {
-			numeric prefac;
-			if ( i == 0 ) {
-				prefac = ex_to<numeric>(ufaclst.op(0));
-				ftilde[0] = ftilde[0] / prefac;
-				vnlst.let_op(0) = vnlst.op(0) / prefac;
-				continue;
-			}
-			else {
-				prefac = ex_to<numeric>(ufaclst.op(2*(i-1)+1).lcoeff(x));
-			}
-			for ( size_t j=(vnlst.nops()-1)/2+1; j>0; --j ) {
-				if ( abs(ftilde[j-1]) == 1 ) {
-					used_flag[j-1] = true;
-					continue;
-				}
-				numeric g = gcd(prefac, ftilde[j-1]);
-				if ( g != 1 ) {
-					prefac = prefac / g;
-					numeric count = abs(iquo(g, ftilde[j-1]));
-					used_flag[j-1] = true;
-					if ( i > 0 ) {
-						if ( j == 1 ) {
-							D[i-1] = D[i-1] * pow(vnlst.op(0), count);
-						}
-						else {
-							D[i-1] = D[i-1] * pow(vnlst.op(2*(j-2)+1), count);
-						}
-					}
-					else {
-						ftilde[j-1] = ftilde[j-1] / prefac;
-						break;
-					}
-					++j;
-				}
-			}
-		}
-
-		bool some_factor_unused = false;
-		for ( size_t i=0; i<used_flag.size(); ++i ) {
-			if ( !used_flag[i] ) {
-				some_factor_unused = true;
-				break;
-			}
-		}
-		if ( some_factor_unused ) {
-			continue;
-		}
-
+		// determine true leading coefficients for the Hensel lifting
 		vector<ex> C(factor_count);
-		if ( delta == 1 ) {
-			for ( size_t i=0; i<D.size(); ++i ) {
-				ex Dtilde = D[i];
-				s = syms.begin();
-				++s;
-				for ( size_t j=0; j<a.size(); ++j ) {
-					Dtilde = Dtilde.subs(*s == a[j]);
-					++s;
-				}
-				C[i] = D[i] * (ufaclst.op(2*i+1).lcoeff(x) / Dtilde);
+		if ( is_a<numeric>(vn) ) {
+			for ( size_t i=1; i<ufaclst.nops(); ++i ) {
+				C[i-1] = ufaclst.op(i).lcoeff(x);
 			}
 		}
 		else {
-			for ( size_t i=0; i<D.size(); ++i ) {
-				ex Dtilde = D[i];
+			vector<numeric> ftilde(vnlst.nops()-1);
+			for ( size_t i=0; i<ftilde.size(); ++i ) {
+				ex ft = vnlst.op(i+1);
 				s = syms.begin();
 				++s;
 				for ( size_t j=0; j<a.size(); ++j ) {
-					Dtilde = Dtilde.subs(*s == a[j]);
+					ft = ft.subs(*s == a[j]);
 					++s;
 				}
-				ex ui;
-				if ( i == 0 ) {
-					ui = ufaclst.op(0);
-				}
-				else {
-					ui = ufaclst.op(2*(i-1)+1);
-				}
-				while ( true ) {
-					ex d = gcd(ui.lcoeff(x), Dtilde);
-					C[i] = D[i] * ( ui.lcoeff(x) / d );
-					ui = ui * ( Dtilde[i] / d );
-					delta = delta / ( Dtilde[i] / d );
-					if ( delta == 1 ) break;
-					ui = delta * ui;
-					C[i] = delta * C[i];
-					pp = pp * pow(delta, D.size()-1);
+				ftilde[i] = ex_to<numeric>(ft);
+			}
+
+			vector<bool> used_flag(ftilde.size(), false);
+			vector<ex> D(factor_count, 1);
+			if ( delta == 1 ) {
+				for ( int i=0; i<factor_count; ++i ) {
+					numeric prefac = ex_to<numeric>(ufaclst.op(i+1).lcoeff(x));
+					for ( int j=ftilde.size()-1; j>=0; --j ) {
+						int count = 0;
+						while ( irem(prefac, ftilde[j]) == 0 ) {
+							prefac = iquo(prefac, ftilde[j]);
+							++count;
+						}
+						if ( count ) {
+							used_flag[j] = true;
+							D[i] = D[i] * pow(vnlst.op(j+1), count);
+						}
+					}
+					C[i] = D[i] * prefac;
 				}
 			}
+			else {
+				for ( int i=0; i<factor_count; ++i ) {
+					numeric prefac = ex_to<numeric>(ufaclst.op(i+1).lcoeff(x));
+					for ( int j=ftilde.size()-1; j>=0; --j ) {
+						int count = 0;
+						while ( irem(prefac, ftilde[j]) == 0 ) {
+							prefac = iquo(prefac, ftilde[j]);
+							++count;
+						}
+						while ( irem(ex_to<numeric>(delta)*prefac, ftilde[j]) == 0 ) {
+							numeric g = gcd(prefac, ex_to<numeric>(ftilde[j]));
+							prefac = iquo(prefac, g);
+							delta = delta / (ftilde[j]/g);
+							ufaclst.let_op(i+1) = ufaclst.op(i+1) * (ftilde[j]/g);
+							++count;
+						}
+						if ( count ) {
+							used_flag[j] = true;
+							D[i] = D[i] * pow(vnlst.op(j+1), count);
+						}
+					}
+					C[i] = D[i] * prefac;
+				}
+			}
+
+			bool some_factor_unused = false;
+			for ( size_t i=0; i<used_flag.size(); ++i ) {
+				if ( !used_flag[i] ) {
+					some_factor_unused = true;
+					break;
+				}
+			}
+			if ( some_factor_unused ) {
+				continue;
+			}
+		}
+
+		if ( delta != 1 ) {
+			C[0] = C[0] * delta;
+			ufaclst.let_op(1) = ufaclst.op(1) * delta;
 		}
 
 		EvalPoint ep;
@@ -2195,9 +2145,9 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 
 		// calc bound p^l
 		int maxdeg = 0;
-		for ( size_t i=0; i<factor_count; ++i ) {
-			if ( ufaclst[2*i+1].degree(x) > maxdeg ) {
-				maxdeg = ufaclst[2*i+1].degree(x);
+		for ( int i=1; i<=factor_count; ++i ) {
+			if ( ufaclst.op(i).degree(x) > maxdeg ) {
+				maxdeg = ufaclst[i].degree(x);
 			}
 		}
 		cl_I B = 2*calc_bound(u, x, maxdeg);
@@ -2207,18 +2157,15 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 			l = l + 1;
 			pl = pl * prime;
 		}
-
-		upvec uvec;
 		cl_modint_ring R = find_modint_ring(expt_pos(cl_I(prime),l));
-		for ( size_t i=0; i<(ufaclst.nops()-1)/2; ++i ) {
-			umodpoly newu;
-			umodpoly_from_ex(newu, ufaclst.op(i*2+1), x, R);
-			uvec.push_back(newu);
+		upvec modfactors(ufaclst.nops()-1);
+		for ( size_t i=1; i<ufaclst.nops(); ++i ) {
+			umodpoly_from_ex(modfactors[i-1], ufaclst.op(i), x, R);
 		}
 
-		ex res = hensel_multivar(ufaclst.op(0)*pp, x, epv, prime, l, uvec, C);
+		ex res = hensel_multivar(pp, x, epv, prime, l, modfactors, C);
 		if ( res != lst() ) {
-			ex result = cont * ufaclst.op(0);
+			ex result = cont;
 			for ( size_t i=0; i<res.nops(); ++i ) {
 				result *= res.op(i).content(x) * res.op(i).unit(x);
 				result *= res.op(i).primpart(x);
@@ -2321,7 +2268,7 @@ ex factor(const ex& poly, unsigned options)
 	}
 
 	// make poly square free
-	ex sfpoly = sqrfree(poly, syms);
+	ex sfpoly = sqrfree(poly.expand(), syms);
 
 	// factorize the square free components
 	if ( is_a<power>(sfpoly) ) {
