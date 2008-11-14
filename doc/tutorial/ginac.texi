@@ -5354,13 +5354,7 @@ int main()
 @cindex factorization
 @cindex @code{sqrfree()}
 
-GiNaC still lacks proper factorization support.  Some form of
-factorization is, however, easily implemented by noting that factors
-appearing in a polynomial with power two or more also appear in the
-derivative and hence can easily be found by computing the GCD of the
-original polynomial and its derivatives.  Any decent system has an
-interface for this so called square-free factorization.  So we provide
-one, too:
+Square-free decomposition is available in GiNaC:
 @example
 ex sqrfree(const ex & a, const lst & l = lst());
 @end example
@@ -5385,6 +5379,57 @@ some care with subsequent processing of the result:
 Note also, how factors with the same exponents are not fully factorized
 with this method.
 
+@subsection Polynomial factorization
+@cindex factorization
+@cindex polynomial factorization
+@cindex @code{factor()}
+
+Polynomials can also be fully factored with a call to the function
+@example
+ex factor(const ex & a, unsigned int options = 0);
+@end example
+The factorization works for univariate and multivariate polynomials with
+rational coefficients. The following code snippet shows its capabilities:
+@example
+    ...
+    cout << factor(pow(x,2)-1) << endl;
+     // -> (1+x)*(-1+x)
+    cout << factor(expand((x-y*z)*(x-pow(y,2)-pow(z,3))*(x+y+z))) << endl;
+     // -> (y+z+x)*(y*z-x)*(y^2-x+z^3)
+    cout << factor(pow(x,2)-1+sin(pow(x,2)-1)) << endl;
+     // -> -1+sin(-1+x^2)+x^2
+    ...
+@end example
+The results are as expected except for the last one where no factorization
+seems to have been done. This is due to the default option
+@command{factor_options::polynomial} (equals zero) to @command{factor()}, which
+tells GiNaC to try a factorization only if the expression is a valid polynomial.
+In the shown example this is not the case, because one term is a function.
+
+There exists a second option @command{factor_options::all}, which tells GiNaC to
+ignore non-polynomial parts of an expression and also to look inside function
+arguments. With this option the example gives:
+@example
+    ...
+    cout << factor(pow(x,2)-1+sin(pow(x,2)-1), factor_options::all)
+         << endl;
+     // -> (-1+x)*(1+x)+sin((-1+x)*(1+x))
+    ...
+@end example
+GiNaC's factorization functions cannot handle algebraic extensions. Therefore
+the following example does not factor:
+@example
+    ...
+    cout << factor(pow(x,2)-2) << endl;
+     // -> -2+x^2  and not  (x-sqrt(2))*(x+sqrt(2))
+    ...
+@end example
+Factorization is useful in many applications. A lot of algorithms in computer
+algebra depend on the ability to factor a polynomial. Of course, factorization
+can also be used to simplify expressions, but it is costly and applying it to
+complicated expressions (high degrees or many terms) may consume far too much
+time. So usually, looking for a GCD at strategic points in a calculation is the
+cheaper and more appropriate alternative.
 
 @node Rational expressions, Symbolic differentiation, Polynomial arithmetic, Methods and functions
 @c    node-name, next, previous, up
@@ -8335,7 +8380,7 @@ Of course it also has some disadvantages:
 advanced features: GiNaC cannot compete with a program like
 @emph{Reduce} which exists for more than 30 years now or @emph{Maple}
 which grows since 1981 by the work of dozens of programmers, with
-respect to mathematical features.  Integration, factorization,
+respect to mathematical features.  Integration, 
 non-trivial simplifications, limits etc. are missing in GiNaC (and are
 not planned for the near future).
 
