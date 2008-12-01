@@ -4,16 +4,23 @@ This file records noteworthy changes.
 * Added polynomial factorization.
 * Added an additional (recursive descent) expression parser.
 * gcd now allows the user to override (some of the) heuristics.
+* Replaced custum RTTI by standard C++ RTTI.
+* Definition of archiving methods now optional when declaring a new GiNaC class.
+* Fixed recursion in polynomial divide that caused a significant slowdown in
+  sqrfree().
 * Improved lsolve() of systems containing non-numeric coefficients.
 * Removed implicit conversions from cl_N to numeric.
+* Improved configuration and compatibility.
 
-1.4.4 (<DATE>)
+1.4.4 (7 Nov 2008)
 * Fixed a bug in the multiple polylogarithms Li/G that caused imaginary parts
   of the arguments to be ignored. 
 * Fixed archiving of complex numbers.
 * Made the behaviour of class function more consistent with respect to
   ncmul::eval().
+* Fixed bug in power::is_polynomial.
 * Improved heur_gcd() so it can handle rational polynomials.
+* Improved build scripts.
 
 1.4.3 (04 April 2008)
 * Fixed bug in numerical evaluation of multiple polylogarithms and
