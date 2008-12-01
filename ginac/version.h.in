@@ -23,10 +23,14 @@
 #ifndef __GINAC_VERSION_H__
 #define __GINAC_VERSION_H__
 
-/* Major, minor, and micro version number of the GiNaC library. */
-#define GINACLIB_MAJOR_VERSION @GINACLIB_MAJOR_VERSION@
-#define GINACLIB_MINOR_VERSION @GINACLIB_MINOR_VERSION@
-#define GINACLIB_MICRO_VERSION @GINACLIB_MICRO_VERSION@
+/* Major version of GiNaC */
+#undef GINACLIB_MAJOR_VERSION
+
+/* Minor version of GiNaC */
+#undef GINACLIB_MINOR_VERSION
+
+/* Micro version of GiNaC */
+#undef GINACLIB_MICRO_VERSION
 
 namespace GiNaC {
 

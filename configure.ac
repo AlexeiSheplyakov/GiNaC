@@ -30,20 +30,15 @@ AC_INIT([GiNaC], ginac_version, [<ginac-list@ginac.de>])
 AC_PREREQ(2.59)
 AC_CONFIG_SRCDIR(ginac/basic.cpp)
 AC_CONFIG_AUX_DIR([config])
-AC_CONFIG_HEADERS([config/config.h])
+AC_CONFIG_HEADERS([config/config.h ginac/version.h])
 AC_CONFIG_MACRO_DIR([m4])
 dnl This defines PACKAGE and VERSION.
 AM_INIT_AUTOMAKE([gnu 1.7 dist-bzip2])
 
 dnl Process GiNaC version information
-GINACLIB_MAJOR_VERSION=ginac_major_version
-GINACLIB_MINOR_VERSION=ginac_minor_version
-GINACLIB_MICRO_VERSION=ginac_micro_version
-GINACLIB_VERSION=ginac_version
-AC_SUBST(GINACLIB_MAJOR_VERSION)
-AC_SUBST(GINACLIB_MINOR_VERSION)
-AC_SUBST(GINACLIB_MICRO_VERSION)
-AC_SUBST(GINACLIB_VERSION)
+AC_DEFINE([GINACLIB_MAJOR_VERSION], ginac_major_version, [Major version of GiNaC])
+AC_DEFINE([GINACLIB_MINOR_VERSION], ginac_minor_version, [Minor version of GiNaC])
+AC_DEFINE([GINACLIB_MICRO_VERSION], ginac_minor_version, [Micro version of GiNaC])
 
 dnl GiNaC archive file version information.
 dnl
@@ -134,7 +129,6 @@ Makefile
 GiNaC.spec
 ginac.pc
 ginac/Makefile
-ginac/version.h
 check/Makefile
 ginsh/Makefile
 ginsh/ginsh.1
