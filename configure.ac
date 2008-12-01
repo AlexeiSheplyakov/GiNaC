@@ -1,22 +1,30 @@
 dnl Process this file with autoconf to produce a configure script.
 
-dnl GiNaC library version information.
-dnl
-dnl Making releases:
-dnl   ginac_micro_version += 1;
-dnl   ginac_interface_age += 1;
-dnl   ginac_binary_age += 1;
-dnl if any functions have been added, set ginac_interface_age to 0.
-dnl if backwards compatibility has been broken,
-dnl set ginac_binary_age and ginac_interface_age to 0.
-
+dnl GiNaC version number
 m4_define([ginac_major_version], [1])
 m4_define([ginac_minor_version], [5])
 m4_define([ginac_micro_version], [0])
 m4_define([ginac_version], [ginac_major_version.ginac_minor_version.ginac_micro_version])
 m4_define([ginac_release], [ginac_major_version.ginac_minor_version])
-m4_define([ginac_interface_age], [0])
-m4_define([ginac_binary_age], [0])
+
+dnl GiNaC library version information. It has very little to do with GiNaC
+dnl version number. In particular, library version is OS dependent. 
+dnl
+dnl When making releases, do
+dnl 1. Increment ginac_lt_revision
+dnl 2. If any interfaces have been added, removed, or changed since the last
+dnl    release, increment ginac_lt_current and set ginac_lt_revision to 0.
+dnl 3. If any interfaces have been removed since the last release, set 
+dnl    ginac_lt_age to 0.
+dnl
+dnl Please note: the libtool naming scheme cannot guarantee that on all
+dnl systems, the numbering is consecutive. It only guarantees that it is
+dnl increasing. This doesn't matter, though: there is not incurred cost
+dnl for numbers that are omitted, except for shrinking the available space
+dnl of leftover numbers. Not something we need to worry about yet. ;-)
+m4_define([ginac_lt_current], [0])
+m4_define([ginac_lt_age], [0])
+m4_define([ginac_lt_revision], [0])
 
 AC_INIT([GiNaC], ginac_version, [<ginac-list@ginac.de>])
 AC_PREREQ(2.59)
@@ -55,10 +63,7 @@ AC_DEFINE_UNQUOTED(ARCHIVE_VERSION, $ARCHIVE_VERSION, [Current GiNaC archive fil
 AC_DEFINE_UNQUOTED(ARCHIVE_AGE, $ARCHIVE_AGE, [GiNaC archive file version age])
 
 dnl libtool versioning
-m4_define([lt_revision], [ginac_interface_age])
-m4_define([lt_current], [m4_eval(ginac_micro_version - ginac_interface_age)])
-m4_define([lt_age], [m4_eval(ginac_binary_age - ginac_interface_age)])
-LT_VERSION_INFO="lt_current:lt_revision:lt_age"
+LT_VERSION_INFO="ginac_lt_current:ginac_lt_revision:ginac_lt_age"
 LT_RELEASE="ginac_release"
 
 AC_SUBST(LT_VERSION_INFO)
