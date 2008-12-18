@@ -92,7 +92,7 @@ ostream& operator<<(ostream& o, const vector<int>& v)
 	}
 	return o;
 }
-ostream& operator<<(ostream& o, const vector<cl_I>& v)
+static ostream& operator<<(ostream& o, const vector<cl_I>& v)
 {
 	vector<cl_I>::const_iterator i = v.begin(), end = v.end();
 	while ( i != end ) {
@@ -101,7 +101,7 @@ ostream& operator<<(ostream& o, const vector<cl_I>& v)
 	}
 	return o;
 }
-ostream& operator<<(ostream& o, const vector<cl_MI>& v)
+static ostream& operator<<(ostream& o, const vector<cl_MI>& v)
 {
 	vector<cl_MI>::const_iterator i = v.begin(), end = v.end();
 	while ( i != end ) {
@@ -2237,13 +2237,8 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 	const ex& x = *syms.begin();
 
 	// make polynomial primitive
-	ex p = poly.collect(x);
-	ex cont = p.lcoeff(x);
-	for ( int i=p.degree(x)-1; i>=p.ldegree(x); --i ) {
-		cont = gcd(cont, p.coeff(x,i));
-		if ( cont == 1 ) break;
-	}
-	ex pp = expand(normal(p / cont));
+	ex unit, cont, pp;
+	poly.unitcontprim(x, unit, cont, pp);
 	if ( !is_a<numeric>(cont) ) {
 		return factor_sqrfree(cont) * factor_sqrfree(pp);
 	}
@@ -2427,7 +2422,7 @@ static ex factor_multivariate(const ex& poly, const exset& syms)
 		// try Hensel lifting
 		ex res = hensel_multivar(pp, x, epv, prime, l, modfactors, C);
 		if ( res != lst() ) {
-			ex result = cont;
+			ex result = cont * unit;
 			for ( size_t i=0; i<res.nops(); ++i ) {
 				result *= res.op(i).content(x) * res.op(i).unit(x);
 				result *= res.op(i).primpart(x);

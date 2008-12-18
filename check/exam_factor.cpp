@@ -41,7 +41,7 @@ static unsigned check_factor(const ex& e)
 static unsigned exam_factor1()
 {
 	unsigned result = 0;
-	ex e, d;
+	ex e;
 	symbol x("x");
 	lst syms;
 	syms.append(x);
@@ -110,7 +110,7 @@ static unsigned exam_factor1()
 static unsigned exam_factor2()
 {
 	unsigned result = 0;
-	ex e, d;
+	ex e;
 	symbol x("x"), y("y"), z("z");
 	lst syms;
 	syms = x, y, z;
@@ -166,6 +166,23 @@ static unsigned exam_factor2()
 	return result;
 }
 
+static unsigned exam_factor3()
+{
+	unsigned result = 0;
+	ex e;
+	symbol k("k"), n("n");
+	lst syms;
+	syms = k, n;
+	
+	e = ex("1/2*(-3+3*k-n)*(-2+3*k-n)*(-1+3*k-n)", syms);
+	result += check_factor(e);
+
+	e = ex("1/4*(2*k-n)*(-1+2*k-n)", syms);
+	result += check_factor(e);
+
+	return result;
+}
+
 unsigned exam_factor()
 {
 	unsigned result = 0;
@@ -174,6 +191,7 @@ unsigned exam_factor()
 
 	result += exam_factor1(); cout << '.' << flush;
 	result += exam_factor2(); cout << '.' << flush;
+	result += exam_factor3(); cout << '.' << flush;
 
 	return result;
 }
