@@ -210,7 +210,7 @@ void double_Xn()
 			}
 		}
 		// X_n
-		for (int n=2; n<Xn.size(); ++n) {
+		for (size_t n=2; n<Xn.size(); ++n) {
 			for (int i=xninitsize+1; i<=xend; ++i) {
 				if (i & 1) {
 					result = 0; // k == 0
@@ -1091,7 +1091,7 @@ G_do_trafo(const std::vector<cln::cl_N>& x, const std::vector<int>& s,
 	Gparameter a(x.size());
 	exmap subslst;
 	std::size_t pos = 1;
-	int scale;
+	int scale = pos;
 	for (sortmap_t::const_iterator it = sortmap.begin(); it != sortmap.end(); ++it) {
 		if (it->second < x.size()) {
 			if (s[it->second] > 0) {
@@ -3482,7 +3482,7 @@ static void initcX(std::vector<cln::cl_N>& crX,
 	int Sm = 0;
 	int Smp1 = 0;
 	std::vector<std::vector<cln::cl_N> > crG(s.size() - 1, std::vector<cln::cl_N>(L2 + 1));
-	for (int m=0; m < s.size() - 1; m++) {
+	for (int m=0; m < (int)s.size() - 1; m++) {
 		Sm += s[m];
 		Smp1 = Sm + s[m+1];
 		for (int i = 0; i <= L2; i++)

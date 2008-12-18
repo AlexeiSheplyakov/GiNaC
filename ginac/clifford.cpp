@@ -1224,22 +1224,27 @@ static ex get_clifford_comp(const ex & e, const ex & c)
 	else if (is_a<ncmul>(e) || is_a<mul>(e)) {
 		// find a Clifford unit with the same metric, delete it and substitute its index
 		size_t ind = e.nops() + 1;
-		for (size_t j = 0; j < e.nops(); j++) 
-			if (is_a<clifford>(e.op(j)) && ex_to<clifford>(c).same_metric(e.op(j)))
-				if (ind > e.nops()) 
+		for (size_t j = 0; j < e.nops(); j++) {
+			if (is_a<clifford>(e.op(j)) && ex_to<clifford>(c).same_metric(e.op(j))) {
+				if (ind > e.nops()) {
 					ind = j;
-				else 
+				}
+				else {
 					throw(std::invalid_argument("get_clifford_comp(): expression is a Clifford multi-vector"));
+				}
+			}
+		}
 		if (ind < e.nops()) {
 			ex S = 1;
 			bool same_value_index, found_dummy;
 			same_value_index = ( ex_to<idx>(e.op(ind).op(1)).is_numeric()
 								 &&  (ival == ex_to<numeric>(ex_to<idx>(e.op(ind).op(1)).get_value()).to_int()) );
 			found_dummy = same_value_index;
-			for(size_t j=0; j < e.nops(); j++)
-				if (j != ind) 
-					if (same_value_index) 
+			for (size_t j=0; j < e.nops(); j++) {
+				if (j != ind) {
+					if (same_value_index) {
 						S = S * e.op(j);
+					}
 					else {
 						exvector ind_vec = ex_to<indexed>(e.op(j)).get_dummy_indices(ex_to<indexed>(e.op(ind)));
 						if (ind_vec.size() > 0) {
@@ -1257,6 +1262,8 @@ static ex get_clifford_comp(const ex & e, const ex & c)
 						} else
 							S = S * e.op(j);
 					}
+				}
+			}
 			return (found_dummy ? S : 0);
 		} else
 			throw(std::invalid_argument("get_clifford_comp(): expression is not a Clifford vector to the given units"));

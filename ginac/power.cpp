@@ -376,17 +376,13 @@ ex power::eval(int level) const
 	const ex & ebasis    = level==1 ? basis    : basis.eval(level-1);
 	const ex & eexponent = level==1 ? exponent : exponent.eval(level-1);
 	
-	bool basis_is_numerical = false;
-	bool exponent_is_numerical = false;
-	const numeric *num_basis;
-	const numeric *num_exponent;
+	const numeric *num_basis = NULL;
+	const numeric *num_exponent = NULL;
 	
 	if (is_exactly_a<numeric>(ebasis)) {
-		basis_is_numerical = true;
 		num_basis = &ex_to<numeric>(ebasis);
 	}
 	if (is_exactly_a<numeric>(eexponent)) {
-		exponent_is_numerical = true;
 		num_exponent = &ex_to<numeric>(eexponent);
 	}
 	
@@ -403,7 +399,7 @@ ex power::eval(int level) const
 		return ebasis;
 
 	// ^(0,c1) -> 0 or exception  (depending on real value of c1)
-	if (ebasis.is_zero() && exponent_is_numerical) {
+	if ( ebasis.is_zero() && num_exponent ) {
 		if ((num_exponent->real()).is_zero())
 			throw (std::domain_error("power::eval(): pow(0,I) is undefined"));
 		else if ((num_exponent->real()).is_negative())
@@ -424,11 +420,11 @@ ex power::eval(int level) const
 	if (is_exactly_a<power>(ebasis) && ebasis.op(0).info(info_flags::positive) && ebasis.op(1).info(info_flags::real))
 		return power(ebasis.op(0), ebasis.op(1) * eexponent);
 
-	if (exponent_is_numerical) {
+	if ( num_exponent ) {
 
 		// ^(c1,c2) -> c1^c2  (c1, c2 numeric(),
 		// except if c1,c2 are rational, but c1^c2 is not)
-		if (basis_is_numerical) {
+		if ( num_basis ) {
 			const bool basis_is_crational = num_basis->is_crational();
 			const bool exponent_is_crational = num_exponent->is_crational();
 			if (!basis_is_crational || !exponent_is_crational) {

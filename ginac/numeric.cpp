@@ -2278,11 +2278,14 @@ const numeric fibonacci(const numeric &n)
 	//      F(2n+2) = F(n+1)*(2*F(n) + F(n+1))
 	if (n.is_zero())
 		return *_num0_p;
-	if (n.is_negative())
-		if (n.is_even())
+	if (n.is_negative()) {
+		if (n.is_even()) {
 			return -fibonacci(-n);
-		else
+		}
+		else {
 			return fibonacci(-n);
+		}
+	}
 	
 	cln::cl_I u(0);
 	cln::cl_I v(1);

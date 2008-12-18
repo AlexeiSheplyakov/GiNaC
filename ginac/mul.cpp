@@ -683,7 +683,7 @@ bool algebraic_match_mul_with_mul(const mul &e, const ex &pat, exmap& repls,
 		int factor, int &nummatches, const std::vector<bool> &subsed,
 		std::vector<bool> &matched)
 {
-	if (factor == pat.nops())
+	if (factor == (int)pat.nops())
 		return true;
 
 	for (size_t i=0; i<e.nops(); ++i) {
