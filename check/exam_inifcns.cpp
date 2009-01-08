@@ -215,6 +215,20 @@ static unsigned inifcns_consist_zeta()
 	return result;
 }
 
+static unsigned inifcns_consist_various()
+{
+	unsigned result = 0;
+	symbol n;
+	ex e;
+	
+	if ( binomial(n, 0) != 1 ) {
+		clog << "ERROR: binomial(n,0) != 1" << endl;		
+		++result;
+	}
+	
+	return result;
+}
+
 unsigned exam_inifcns()
 {
 	unsigned result = 0;
@@ -225,6 +239,7 @@ unsigned exam_inifcns()
 	result += inifcns_consist_gamma();  cout << '.' << flush;
 	result += inifcns_consist_psi();  cout << '.' << flush;
 	result += inifcns_consist_zeta();  cout << '.' << flush;
+	result += inifcns_consist_various();  cout << '.' << flush;
 	
 	return result;
 }
