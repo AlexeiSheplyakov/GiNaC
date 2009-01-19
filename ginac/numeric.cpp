@@ -2337,15 +2337,18 @@ const numeric mod(const numeric &a, const numeric &b)
 
 
 /** Modulus (in symmetric representation).
- *  Equivalent to Maple's mods.
  *
- *  @return a mod b in the range [-iquo(abs(b)-1,2), iquo(abs(b),2)]. */
-const numeric smod(const numeric &a, const numeric &b)
+ *  @return a mod b in the range [-iquo(abs(b),2), iquo(abs(b),2)]. */
+const numeric smod(const numeric &a_, const numeric &b_)
 {
-	if (a.is_integer() && b.is_integer()) {
-		const cln::cl_I b2 = cln::ceiling1(cln::the<cln::cl_I>(b.to_cl_N()) >> 1) - 1;
-		return numeric(cln::mod(cln::the<cln::cl_I>(a.to_cl_N()) + b2,
-		                cln::the<cln::cl_I>(b.to_cl_N())) - b2);
+	if (a_.is_integer() && b_.is_integer()) {
+		const cln::cl_I a = cln::the<cln::cl_I>(a_.to_cl_N());
+		const cln::cl_I b = cln::the<cln::cl_I>(b_.to_cl_N());
+		const cln::cl_I b2 = b >> 1;
+		const cln::cl_I m = cln::mod(a, b);
+		const cln::cl_I m_b = m - b;
+		const cln::cl_I ret = m > b2 ? m_b : m;
+		return numeric(ret);
 	} else
 		return *_num0_p;
 }

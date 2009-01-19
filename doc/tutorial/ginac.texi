@@ -1479,7 +1479,7 @@ evaluated immediately:
 @tab modulus in positive representation (in the range @code{[0, abs(b)-1]} with the sign of b, or zero)
 @cindex @code{mod()}
 @item @code{smod(a, b)}
-@tab modulus in symmetric representation (in the range @code{[-iquo(abs(b)-1, 2), iquo(abs(b), 2)]})
+@tab modulus in symmetric representation (in the range @code{[-iquo(abs(b), 2), iquo(abs(b), 2)]})
 @cindex @code{smod()}
 @item @code{irem(a, b)}
 @tab integer remainder (has the sign of @math{a}, or is zero)
