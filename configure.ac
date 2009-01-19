@@ -38,7 +38,7 @@ AM_INIT_AUTOMAKE([gnu 1.7 dist-bzip2])
 dnl Process GiNaC version information
 AC_DEFINE([GINACLIB_MAJOR_VERSION], ginac_major_version, [Major version of GiNaC])
 AC_DEFINE([GINACLIB_MINOR_VERSION], ginac_minor_version, [Minor version of GiNaC])
-AC_DEFINE([GINACLIB_MICRO_VERSION], ginac_minor_version, [Micro version of GiNaC])
+AC_DEFINE([GINACLIB_MICRO_VERSION], ginac_micro_version, [Micro version of GiNaC])
 
 dnl GiNaC archive file version information.
 dnl
