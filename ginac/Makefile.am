@@ -35,6 +35,24 @@ polynomial/interpolate_padic_uvar.h \
 polynomial/sr_gcd_uvar.h \
 polynomial/heur_gcd_uvar.h \
 polynomial/gcd_uvar.cpp \
+polynomial/chinrem_gcd.cpp \
+polynomial/chinrem_gcd.h \
+polynomial/collect_vargs.cpp \
+polynomial/collect_vargs.h \
+polynomial/divide_in_z_p.cpp \
+polynomial/divide_in_z_p.h \
+polynomial/euclid_gcd_wrap.h \
+polynomial/eval_point_finder.h \
+polynomial/mgcd.cpp \
+polynomial/newton_interpolate.h \
+polynomial/optimal_vars_finder.cpp \
+polynomial/optimal_vars_finder.h \
+polynomial/pgcd.cpp \
+polynomial/pgcd.h \
+polynomial/poly_cra.h \
+polynomial/primes_factory.h \
+polynomial/primpart_content.cpp \
+polynomial/smod_helpers.h \
 polynomial/debug.hpp
 
 libginac_la_LDFLAGS = -version-info $(LT_VERSION_INFO) -release $(LT_RELEASE)

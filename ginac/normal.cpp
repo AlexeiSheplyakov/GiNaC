@@ -44,6 +44,7 @@
 #include "pseries.h"
 #include "symbol.h"
 #include "utils.h"
+#include "polynomial/chinrem_gcd.h"
 
 namespace GiNaC {
 
@@ -1623,8 +1624,15 @@ ex gcd(const ex &a, const ex &b, ex *ca, ex *cb, bool check_args, unsigned optio
 		}
 #endif
 	}
+	if (options & gcd_options::use_sr_gcd) {
+		g = sr_gcd(aex, bex, var);
+	} else {
+		exvector vars;
+		for (std::size_t n = sym_stats.size(); n-- != 0; )
+			vars.push_back(sym_stats[n].sym);
+		g = chinrem_gcd(aex, bex, vars);
+	}
 
-	g = sr_gcd(aex, bex, var);
 	if (g.is_equal(_ex1)) {
 		// Keep cofactors factored if possible
 		if (ca)

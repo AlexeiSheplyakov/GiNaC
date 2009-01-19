@@ -4,6 +4,7 @@
 #include <string>
 #include <stdexcept>
 #include <sstream>
+#include "compiler.h"
 
 #define DEBUG_PREFIX __func__ << ':' << __LINE__ << ": "
 #define EXCEPTION_PREFIX std::string(__func__) + std::string(": ") +

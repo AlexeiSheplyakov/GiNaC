@@ -37,8 +37,12 @@ struct gcd_options
 {
 	enum {
 		/**
-		 * Usually GiNaC tries heuristic GCD algorithm before PRS.
-		 * Some people don't like this, so here's a flag to disable it.
+		 * Usually GiNaC tries heuristic GCD first, because typically
+		 * it's much faster than anything else. Even if heuristic
+		 * algorithm fails, the overhead is negligible w.r.t. cost
+		 * of computing the GCD by some other method. However, some
+		 * people dislike it, so here's a flag which tells GiNaC
+		 * to NOT use the heuristic algorithm.
 		 */
 		no_heur_gcd = 2,
 		/**
@@ -48,7 +52,14 @@ struct gcd_options
 		 * factored polynomials. DON'T SET THIS unless you *really*
 		 * know what are you doing!
 		 */
-		no_part_factored = 4
+		no_part_factored = 4,
+		/**
+		 * By default GiNaC uses modular GCD algorithm. Typically
+		 * it's much faster than PRS (pseudo remainder sequence)
+		 * algorithm. This flag forces GiNaC to use PRS algorithm
+		 */
+		use_sr_gcd = 8
+
 	};
 };
 
