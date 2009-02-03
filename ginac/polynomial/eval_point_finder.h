@@ -1,6 +1,6 @@
 #ifndef GINAC_PGCD_EVAL_POINT_FINDER_H
 #define GINAC_PGCD_EVAL_POINT_FINDER_H
-#include <ginac/ginac.h>
+#include "operators.h"
 #include <set>
 
 namespace GiNaC

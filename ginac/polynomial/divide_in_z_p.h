@@ -1,7 +1,7 @@
 #ifndef GINAC_CHINREM_GCD_DIVIDE_IN_Z_P_H
 #define GINAC_CHINREM_GCD_DIVIDE_IN_Z_P_H
 
-#include <ginac/ginac.h>
+#include "ex.h"
 namespace GiNaC
 {
 

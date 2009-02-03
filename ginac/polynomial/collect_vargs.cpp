@@ -3,7 +3,10 @@
 #include <algorithm>
 #include <stdexcept>
 #include <string>
-#include <ginac/ginac.h>
+#include "add.h"
+#include "mul.h"
+#include "operators.h"
+#include "power.h"
 #include "collect_vargs.h"
 #include <cln/integer.h>
 #include "smod_helpers.h"

@@ -1,3 +1,4 @@
+#include "operators.h"
 #include "chinrem_gcd.h"
 #include <cln/integer.h>
 #include "pgcd.h"

@@ -1,4 +1,6 @@
-#include <ginac/ginac.h>
+#include "add.h"
+#include "operators.h"
+#include "power.h"
 #include "smod_helpers.h"
 
 namespace GiNaC

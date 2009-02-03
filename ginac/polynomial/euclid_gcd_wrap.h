@@ -3,7 +3,11 @@
 #include "upoly.hpp"
 #include "gcd_euclid.tcc"
 #include "smod_helpers.h"
-#include <ginac/ginac.h>
+#include "add.h"
+#include "ex.h"
+#include "operators.h"
+#include "power.h"
+#include "relational.h"
 #include "debug.hpp"
 
 namespace GiNaC
