@@ -1,14 +1,14 @@
 #ifndef GINAC_PGCD_EUCLID_GCD_H
 #define GINAC_PGCD_EUCLID_GCD_H
-#include "upoly.hpp"
-#include "gcd_euclid.tcc"
+#include "upoly.h"
+#include "gcd_euclid.h"
 #include "smod_helpers.h"
 #include "add.h"
 #include "ex.h"
 #include "operators.h"
 #include "power.h"
 #include "relational.h"
-#include "debug.hpp"
+#include "debug.h"
 
 namespace GiNaC
 {

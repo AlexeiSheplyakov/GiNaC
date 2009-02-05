@@ -1,7 +1,7 @@
 #ifndef GINAC_EVAL_UPOLY_TCC
 #define GINAC_EVAL_UPOLY_TCC
-#include "upoly.hpp"
-#include "ring_traits.hpp"
+#include "upoly.h"
+#include "ring_traits.h"
 
 namespace GiNaC
 {

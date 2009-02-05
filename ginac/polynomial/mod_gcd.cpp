@@ -1,10 +1,10 @@
-#include "upoly.hpp"
-#include "gcd_euclid.tcc"
-#include "cra_garner.hpp"
+#include "upoly.h"
+#include "gcd_euclid.h"
+#include "cra_garner.h"
 #include <cln/random.h>
 #include <cln/numtheory.h>
 #include <stdexcept>
-#include "debug.hpp"
+#include "debug.h"
 
 namespace GiNaC
 {

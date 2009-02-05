@@ -6,9 +6,9 @@
 #include "operators.h"
 #include <stdexcept>
 #include <sstream>
-#include "parser.hpp"
-#include "lexer.hpp"
-#include "debug.hpp"
+#include "parser.h"
+#include "lexer.h"
+#include "debug.h"
 
 namespace GiNaC
 {

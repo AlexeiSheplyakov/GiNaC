@@ -1,4 +1,4 @@
-#include "upoly.hpp"
+#include "upoly.h"
 #include "sr_gcd_uvar.h"
 #include "heur_gcd_uvar.h"
 #include <stdexcept>

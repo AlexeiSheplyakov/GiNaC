@@ -1,8 +1,8 @@
 #ifndef GINAC_POLYNOMIAL_PREM_TCC
 #define GINAC_POLYNOMIAL_PREM_TCC
-#include "upoly.hpp"
-#include "debug.hpp"
-#include "remainder.tcc"
+#include "upoly.h"
+#include "debug.h"
+#include "remainder.h"
 
 namespace GiNaC
 {

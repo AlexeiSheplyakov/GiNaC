@@ -1,9 +1,9 @@
 #ifndef GINAC_UPOLY_REMAINDER_TCC
 #define GINAC_UPOLY_REMAINDER_TCC
-#include "upoly.hpp"
-#include "ring_traits.hpp"
-#include "upoly_io.hpp"
-#include "debug.hpp"
+#include "upoly.h"
+#include "ring_traits.h"
+#include "upoly_io.h"
+#include "debug.h"
 
 namespace GiNaC
 {

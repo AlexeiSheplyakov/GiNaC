@@ -15,7 +15,7 @@ COMMENT a part of GiNaC parser -- construct functions from a byte stream.
  *
  * autogen -T [+ (tpl-file) +] [+ (def-file) +]
  */
-#include "parse_context.hpp"
+#include "parse_context.h"
 #include "power.h"
 #include "operators.h"
 #include "inifcns.h"

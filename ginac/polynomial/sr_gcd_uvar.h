@@ -1,8 +1,8 @@
 #ifndef GINAC_UPOLY_SR_GCD_TCC
 #define GINAC_UPOLY_SR_GCD_TCC
-#include "upoly.hpp"
-#include "ring_traits.hpp"
-#include "normalize.tcc"
+#include "upoly.h"
+#include "ring_traits.h"
+#include "normalize.h"
 #include "prem_uvar.h"
 #include <limits>
 

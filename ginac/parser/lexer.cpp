@@ -1,7 +1,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
-#include "lexer.hpp"
+#include "lexer.h"
 #include "compiler.h"
 
 namespace GiNaC

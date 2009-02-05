@@ -71,9 +71,9 @@
 #include "excompiler.h"
 
 #ifndef IN_GINAC
-#include "parser.hpp"
+#include "parser.h"
 #else
-#include "parser/parser.hpp"
+#include "parser/parser.h"
 #endif
 
 #ifdef __MAKECINT__

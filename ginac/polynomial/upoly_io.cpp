@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
-#include "upoly.hpp"
-#include "upoly_io.hpp"
+#include "upoly.h"
+#include "upoly_io.h"
 #include <cln/integer_io.h>
 
 namespace GiNaC

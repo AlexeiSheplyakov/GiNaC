@@ -1,10 +1,10 @@
 #ifndef GINAC_GCD_EUCLID
 #define GINAC_GCD_EUCLID
-#include "upoly.hpp"
-#include "remainder.tcc"
-#include "normalize.tcc"
-#include "debug.hpp"
-#include "upoly_io.hpp"
+#include "upoly.h"
+#include "remainder.h"
+#include "normalize.h"
+#include "debug.h"
+#include "upoly_io.h"
 
 namespace GiNaC
 {

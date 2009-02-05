@@ -3,11 +3,11 @@
 #include <iostream>
 #include "timer.h"
 #include "ginac.h"
-#include "error_report.hpp"
+#include "error_report.h"
 #include "test_runner.h"
-#include "polynomial/remainder.tcc"
-#include "polynomial/upoly.hpp"
-#include "polynomial/mod_gcd.hpp"
+#include "polynomial/remainder.h"
+#include "polynomial/upoly.h"
+#include "polynomial/mod_gcd.h"
 using namespace GiNaC;
 
 static const std::string p1_srep("\

@@ -1,6 +1,6 @@
 #ifndef GINAC_UPOLY_INTERPOLATE_PADIC_TCC
 #define GINAC_UPOLY_INTERPOLATE_PADIC_TCC
-#include "ring_traits.hpp"
+#include "ring_traits.h"
 
 namespace cln
 {

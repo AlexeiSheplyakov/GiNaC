@@ -4,7 +4,7 @@
 #include <cln/integer_io.h>
 #include "ex.h"
 #include "numeric.h"
-#include "debug.hpp"
+#include "debug.h"
 
 namespace GiNaC
 {

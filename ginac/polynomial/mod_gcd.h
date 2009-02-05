@@ -1,6 +1,6 @@
 #ifndef GINAC_MOD_GCD_HPP
 #define GINAC_MOD_GCD_HPP
-#include "upoly.hpp"
+#include "upoly.h"
 
 namespace GiNaC
 {

@@ -1,7 +1,7 @@
 #ifndef GINAC_UPOLY_IO_HPP
 #define GINAC_UPOLY_IO_HPP
 #include <iostream>
-#include "upoly.hpp"
+#include "upoly.h"
 
 namespace GiNaC
 {

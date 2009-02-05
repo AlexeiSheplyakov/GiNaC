@@ -5,7 +5,7 @@
  * http://www.ginac.de/pipermail/ginac-devel/2006-April/000942.html
  */
 #include "ginac.h"
-#include "error_report.hpp"
+#include "error_report.h"
 #include <iostream>
 using namespace GiNaC;
 

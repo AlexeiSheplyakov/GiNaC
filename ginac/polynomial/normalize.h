@@ -1,8 +1,8 @@
 #ifndef GINAC_UPOLY_NORMALIZE_TCC
 #define GINAC_UPOLY_NORMALIZE_TCC
-#include "upoly.hpp"
-#include "ring_traits.hpp"
-#include "debug.hpp"
+#include "upoly.h"
+#include "ring_traits.h"
+#include "debug.h"
 
 namespace GiNaC
 {

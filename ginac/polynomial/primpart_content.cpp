@@ -3,7 +3,7 @@
 #include "collect_vargs.h"
 #include "euclid_gcd_wrap.h"
 #include "divide_in_z_p.h"
-#include "debug.hpp"
+#include "debug.h"
 
 namespace GiNaC
 {

@@ -8,8 +8,8 @@
 #include <stdexcept>
 #include <iterator>
 #include <limits>
-#include "ring_traits.hpp"
-#include "debug.hpp"
+#include "ring_traits.h"
+#include "debug.h"
 #include "compiler.h"
 
 namespace GiNaC

@@ -1,6 +1,6 @@
-#include "polynomial/upoly.hpp"
-#include "polynomial/upoly_io.hpp"
-#include "polynomial/mod_gcd.hpp"
+#include "polynomial/upoly.h"
+#include "polynomial/upoly_io.h"
+#include "polynomial/mod_gcd.h"
 #include "ginac.h"
 #include <cln/random.h>
 #include <string>

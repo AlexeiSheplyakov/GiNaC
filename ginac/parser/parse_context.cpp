@@ -1,4 +1,4 @@
-#include "parse_context.hpp"
+#include "parse_context.h"
 #include <sstream>
 #include <stdexcept>
 namespace GiNaC

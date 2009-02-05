@@ -4,7 +4,7 @@
 #include <cln/numtheory.h>
 #include <limits>
 #include "smod_helpers.h"
-#include "debug.hpp"
+#include "debug.h"
 
 namespace GiNaC
 {

@@ -15,19 +15,19 @@ libginac_la_SOURCES = add.cpp archive.cpp basic.cpp clifford.cpp color.cpp \
   parser/parse_context.cpp \
   parser/builtin_fcns.cpp \
   parser/lexer.cpp \
-  parser/lexer.hpp \
+  parser/lexer.h \
   parser/parser_compat.cpp \
-  parser/debug.hpp \
+  parser/debug.h \
 polynomial/mod_gcd.cpp \
 polynomial/cra_garner.cpp \
-polynomial/gcd_euclid.tcc \
-polynomial/remainder.tcc \
-polynomial/normalize.tcc \
-polynomial/upoly.hpp \
-polynomial/ring_traits.hpp \
-polynomial/mod_gcd.hpp \
-polynomial/cra_garner.hpp \
-polynomial/upoly_io.hpp \
+polynomial/gcd_euclid.h \
+polynomial/remainder.h \
+polynomial/normalize.h \
+polynomial/upoly.h \
+polynomial/ring_traits.h \
+polynomial/mod_gcd.h \
+polynomial/cra_garner.h \
+polynomial/upoly_io.h \
 polynomial/upoly_io.cpp \
 polynomial/prem_uvar.h \
 polynomial/eval_uvar.h \
@@ -53,7 +53,7 @@ polynomial/poly_cra.h \
 polynomial/primes_factory.h \
 polynomial/primpart_content.cpp \
 polynomial/smod_helpers.h \
-polynomial/debug.hpp
+polynomial/debug.h
 
 libginac_la_LDFLAGS = -version-info $(LT_VERSION_INFO) -release $(LT_RELEASE)
 libginac_la_LIBADD = $(DL_LIBS)
@@ -64,8 +64,8 @@ ginacinclude_HEADERS = ginac.h add.h archive.h assertion.h basic.h class_info.h 
   inifcns.h integral.h lst.h matrix.h mul.h ncmul.h normal.h numeric.h operators.h \
   power.h print.h pseries.h ptr.h registrar.h relational.h structure.h \
   symbol.h symmetry.h tensor.h version.h wildcard.h \
-  parser/parser.hpp \
-  parser/parse_context.hpp
+  parser/parser.h \
+  parser/parse_context.h
 
 EXTRA_DIST = function.pl version.h.in \
 parser/default_reader.tpl parser/builtin_fcns.def

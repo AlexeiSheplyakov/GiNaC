@@ -1,8 +1,8 @@
 #include <stdexcept>
 #include <sstream>
-#include "parser.hpp"
-#include "lexer.hpp"
-#include "debug.hpp"
+#include "parser.h"
+#include "lexer.h"
+#include "debug.h"
 #include "mul.h"
 #include "constant.h"
 

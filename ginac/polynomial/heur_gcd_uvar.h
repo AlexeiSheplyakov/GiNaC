@@ -1,9 +1,9 @@
 #ifndef GINAC_UPOLY_HEUR_GCD
 #define GINAC_UPOLY_HEUR_GCD
-#include "upoly.hpp"
-#include "ring_traits.hpp"
-#include "normalize.tcc"
-#include "remainder.tcc"
+#include "upoly.h"
+#include "ring_traits.h"
+#include "normalize.h"
+#include "remainder.h"
 #include "eval_uvar.h"
 #include "interpolate_padic_uvar.h"
 #include <algorithm>

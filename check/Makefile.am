@@ -79,7 +79,7 @@ exam_paranoia_LDADD = ../ginac/libginac.la
 exam_heur_gcd_SOURCES = heur_gcd_bug.cpp 
 exam_heur_gcd_LDADD = ../ginac/libginac.la
 
-match_bug_SOURCES = match_bug.cpp error_report.hpp
+match_bug_SOURCES = match_bug.cpp error_report.h
 match_bug_LDADD = ../ginac/libginac.la
 
 parser_bugs_SOURCES = parser_bugs.cpp

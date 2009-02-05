@@ -10,7 +10,7 @@
 #include "collect_vargs.h"
 #include <cln/integer.h>
 #include "smod_helpers.h"
-#include "debug.hpp"
+#include "debug.h"
 
 namespace GiNaC
 {

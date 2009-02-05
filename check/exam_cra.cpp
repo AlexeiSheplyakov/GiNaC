@@ -3,7 +3,7 @@
 #include <cln/integer_io.h>
 #include <cln/random.h>
 #include <cln/numtheory.h>
-#include "polynomial/cra_garner.hpp"
+#include "polynomial/cra_garner.h"
 #include <map>
 #include <vector>
 #include <stdexcept>

@@ -2,7 +2,7 @@
 #include <cln/modinteger.h>
 #include <vector>
 #include <cstddef>
-#include "cra_garner.hpp"
+#include "cra_garner.h"
 #include "compiler.h"
 
 namespace cln
