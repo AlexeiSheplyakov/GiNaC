@@ -3,7 +3,8 @@ This file records noteworthy changes.
 1.5.0 (<date>)
 * Added polynomial factorization.
 * Added an additional (recursive descent) expression parser.
-* gcd now allows the user to override (some of the) heuristics.
+* Faster GCD computation.
+* gcd() now allows the user to override (some of the) heuristics.
 * Replaced custum RTTI by standard C++ RTTI.
 * Definition of archiving methods now optional when declaring a new GiNaC class.
 * Fixed recursion in polynomial divide that caused a significant slowdown in
