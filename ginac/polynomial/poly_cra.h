@@ -28,7 +28,7 @@ ex chinese_remainder(const ex& e1, const cln::cl_I& q1,
 	ex v2 = (e2.smod(q2n) - v1.smod(q2n)).expand().smod(q2n);
 	const numeric q1_1(recip(q1, q2)); // 1/q_1 mod q_2
 	v2 = (v2*q1_1).smod(q2n);
-	ex ret = (v1 + v2*q1_1).expand();
+	ex ret = (v1 + v2*q1n).expand();
 	return ret;
 }
 
