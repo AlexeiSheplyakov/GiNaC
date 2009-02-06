@@ -1657,11 +1657,11 @@ gcd_sanity_check(const upoly& g, const upoly& a, const upoly& b,
 {
 	upoly r1, r2;
 	remainder_in_ring(r1, a, g);
-	bug_on(!r1.empty(), "bug: " << label << " : gcd g = \"" << g <<
+	cbug_on(!r1.empty(), "bug: " << label << " : gcd g = \"" << g <<
 		"\"does not divide a =\"" << a << "\"");
 
 	remainder_in_ring(r2, b, g);
-	bug_on(!r2.empty(), "bug: " << label << " : gcd g = \"" << g <<
+	cbug_on(!r2.empty(), "bug: " << label << " : gcd g = \"" << g <<
 		"\"does not divide b =\"" << b << "\"");
 	return true;
 }
@@ -1713,7 +1713,7 @@ struct heur_gcd_test
 			return false;
 
 		gcd_sanity_check(g, a, b, std::string("heur_gcd"));
-		bug_on(g != g_check, 
+		cbug_on(g != g_check, 
 			"modular and heuristic GCD disagree: " <<
 			"a = \"" << a << "\", b = \"" << b << "\", " <<
 			"mod_gcd = \"" << g_check << "\", " <<
@@ -1756,7 +1756,7 @@ struct sr_gcd_test
 	bool check() const
 	{
 		gcd_sanity_check(g, a, b, std::string("sr_gcd"));
-		bug_on(g != g_check, 
+		cbug_on(g != g_check, 
 			"modular and PRS GCD disagree: " <<
 			"a = \"" << a << "\", b = \"" << b << "\", " <<
 			"mod_gcd = \"" << g_check << "\", " <<
@@ -1795,7 +1795,7 @@ struct ex_sr_gcd_test
 		upoly g_gin;
 		ex2upoly(g_gin, g);
 
-		bug_on(g_gin != g_check, "modular and old PRS GCD disagree: " <<
+		cbug_on(g_gin != g_check, "modular and old PRS GCD disagree: " <<
 			"a = \"" << a << "\", b = \"" << b << "\", " <<
 			"old sr_gcd = \"" << g_gin << "\", " <<
 			"mod_gcd = \"" << g_check << "\"");

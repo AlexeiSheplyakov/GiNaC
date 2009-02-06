@@ -27,7 +27,7 @@
 #include <sstream>
 #include <stdexcept>
 
-#define bug_on(cond, what)				\
+#define cbug_on(cond, what)				\
 do {							\
 if (cond) {						\
 	std::ostringstream err_stream;			\

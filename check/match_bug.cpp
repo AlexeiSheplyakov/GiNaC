@@ -45,8 +45,8 @@ static void failed_match_have_side_effects()
 	// obviously e does NOT match the pattern
 	exmap repls;
 	bool match_p = e.match(pattern, repls);
-	bug_on(match_p, "match(" << e << ", " << pattern << ") says \"Yes\"");
-	bug_on(repls.size() != 0,
+	cbug_on(match_p, "match(" << e << ", " << pattern << ") says \"Yes\"");
+	cbug_on(repls.size() != 0,
 		"failed match have side effects: repls = " << repls);
 }
 
@@ -69,7 +69,7 @@ static void match_false_negative()
 	ex pattern = pow(wild(0), -1)*pow(x, wild(2));
 	exmap repls;
 	bool match_p = e.match(pattern, repls);
-	bug_on(!match_p, "false negative: " << e << " did not match "
+	cbug_on(!match_p, "false negative: " << e << " did not match "
 			<< pattern);
 }
 
