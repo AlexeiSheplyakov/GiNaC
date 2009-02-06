@@ -210,7 +210,7 @@ unsigned exam_hashmap()
 	}
 	if (it->second != 0) {
 		clog << "find() returned an incorrect value" << endl;
-		+result;
+		++result;
 	}
 
 	M5.erase(it);
