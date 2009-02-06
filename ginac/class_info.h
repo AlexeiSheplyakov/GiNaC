@@ -3,7 +3,7 @@
  *  Helper templates to provide per-class information for class hierarchies. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,17 +20,17 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_CLASS_INFO_H__
-#define __GINAC_CLASS_INFO_H__
+#ifndef GINAC_CLASS_INFO_H
+#define GINAC_CLASS_INFO_H
 
 #include <cstddef> // for size_t
 #include <cstring>
-#include <vector>
-#include <map>
-#include <string>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
+#include <map>
 #include <stdexcept>
+#include <string>
+#include <vector>
 
 namespace GiNaC {
 
@@ -195,4 +195,4 @@ template <class OPT> bool class_info<OPT>::parents_identified = false;
 
 } // namespace GiNaC
 
-#endif // ndef __GINAC_CLASS_INFO_H__
+#endif // ndef GINAC_CLASS_INFO_H

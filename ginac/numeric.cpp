@@ -7,7 +7,7 @@
  *  of special functions or implement the interface to the bignum package. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,18 +26,18 @@
 
 #include "config.h"
 
-#include <vector>
-#include <stdexcept>
-#include <string>
-#include <sstream>
-#include <limits>
-
 #include "numeric.h"
 #include "ex.h"
 #include "operators.h"
 #include "archive.h"
 #include "tostring.h"
 #include "utils.h"
+
+#include <limits>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 // CLN should pollute the global namespace as little as possible.  Hence, we
 // include most of it here and include only the part needed for properly

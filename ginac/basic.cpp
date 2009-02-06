@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's ABC. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,10 +20,6 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <iostream>
-#include <stdexcept>
-#include <typeinfo>
-
 #include "basic.h"
 #include "ex.h"
 #include "numeric.h"
@@ -38,6 +34,10 @@
 #include "archive.h"
 #include "utils.h"
 #include "inifcns.h"
+
+#include <iostream>
+#include <stdexcept>
+#include <typeinfo>
 
 namespace GiNaC {
 

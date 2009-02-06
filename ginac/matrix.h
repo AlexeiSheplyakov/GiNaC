@@ -3,7 +3,7 @@
  *  Interface to symbolic matrices */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,17 +20,17 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_MATRIX_H__
-#define __GINAC_MATRIX_H__
+#ifndef GINAC_MATRIX_H
+#define GINAC_MATRIX_H
 
-#include <vector>
-#include <string>
 #include "basic.h"
 #include "ex.h"
 #include "archive.h"
 
-namespace GiNaC {
+#include <string>
+#include <vector>
 
+namespace GiNaC {
 
 /** Helper template to allow initialization of matrices via an overloaded
  *  comma operator (idea stolen from Blitz++). */
@@ -250,4 +250,4 @@ inline ex symbolic_matrix(unsigned r, unsigned c, const std::string & base_name)
 
 } // namespace GiNaC
 
-#endif // ndef __GINAC_MATRIX_H__
+#endif // ndef GINAC_MATRIX_H

@@ -3,7 +3,7 @@
  *  Makes the interface to the underlying bignum package available. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,24 +20,22 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_NUMERIC_H__
-#define __GINAC_NUMERIC_H__
+#ifndef GINAC_NUMERIC_H
+#define GINAC_NUMERIC_H
 
 #include "basic.h"
 #include "ex.h"
 #include "archive.h"
 
-#include <stdexcept>
-#include <vector>
-
 #include <cln/complex.h>
-
 #if defined(G__CINTVERSION) && !defined(__MAKECINT__)
 // Cint @$#$! doesn't like forward declaring classes used for casting operators
 // so we have to include the definition of cln::cl_N here, but it is enough to
 // do so for the compiler, hence the !defined(__MAKECINT__).
   #include <cln/complex_class.h>
 #endif
+#include <stdexcept>
+#include <vector>
 
 namespace GiNaC {
 
@@ -340,4 +338,4 @@ ex CatalanEvalf();
 #pragma link off defined_in cln/complex_class.h;
 #endif
 
-#endif // ndef __GINAC_NUMERIC_H__
+#endif // ndef GINAC_NUMERIC_H

@@ -3,7 +3,7 @@
  *  Reference-counted pointer template. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,17 +20,16 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_PTR_H__
-#define __GINAC_PTR_H__
+#ifndef GINAC_PTR_H
+#define GINAC_PTR_H
+
+#include "assertion.h"
 
 #include <cstddef> // for size_t
 #include <functional>
 #include <iosfwd>
 
-#include "assertion.h"
-
 namespace GiNaC {
-
 
 /** Base class for reference-counted objects. */
 class refcounted {
@@ -166,4 +165,4 @@ template <class T> struct less< GiNaC::ptr<T> >
 
 } // namespace std
 
-#endif // ndef __GINAC_PTR_H__
+#endif // ndef GINAC_PTR_H

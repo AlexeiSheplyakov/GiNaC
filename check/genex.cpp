@@ -4,7 +4,7 @@
  *  input in the consistency checks. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,10 +21,11 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <cstdlib>
 #include "ginac.h"
-using namespace std;
 using namespace GiNaC;
+
+#include <cstdlib>
+using namespace std;
 
 /* Create a dense univariate random polynomial in x.
  * (of the form 9 - 22*a - 17*a^2 + 14*a^3 + 7*a^4 + 7a^5 if degree==5) */

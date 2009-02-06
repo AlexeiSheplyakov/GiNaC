@@ -1,11 +1,34 @@
-#include <iostream>
-#include <string>
+/** @file upoly_io.cpp
+ *
+ *  Input/Output function for univariate polynomials. */
+
+/*
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 #include "upoly.h"
 #include "upoly_io.h"
-#include <cln/integer_io.h>
 
-namespace GiNaC
-{
+#include <cln/integer_io.h>
+#include <iostream>
+#include <string>
+
+namespace GiNaC {
+
 using std::ostream;
 using std::string;
 
@@ -34,15 +57,15 @@ print(const T& p, ostream& os, const string& varname = string("x"))
 	}
 }
 
-#define DEFINE_OPERATOR_OUT(type)					\
-std::ostream& operator<<(std::ostream& os, const type& p)		\
-{									\
-	print(p, os);							\
-	return os;							\
-}									\
-void dbgprint(const type& p)						\
-{									\
-	print(p, std::cerr);						\
+#define DEFINE_OPERATOR_OUT(type)                         \
+std::ostream& operator<<(std::ostream& os, const type& p) \
+{                                                         \
+	print(p, os);                                         \
+	return os;                                            \
+}                                                         \
+void dbgprint(const type& p)                              \
+{                                                         \
+	print(p, std::cerr);                                  \
 }
 
 DEFINE_OPERATOR_OUT(upoly);
@@ -50,4 +73,3 @@ DEFINE_OPERATOR_OUT(umodpoly);
 #undef DEFINE_OPERATOR_OUT
 
 } // namespace GiNaC
-

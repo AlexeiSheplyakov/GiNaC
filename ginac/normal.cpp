@@ -6,7 +6,7 @@
  *  computation, square-free factorization and rational function normalization. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,9 +22,6 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-
-#include <algorithm>
-#include <map>
 
 #include "normal.h"
 #include "basic.h"
@@ -45,6 +42,9 @@
 #include "symbol.h"
 #include "utils.h"
 #include "polynomial/chinrem_gcd.h"
+
+#include <algorithm>
+#include <map>
 
 namespace GiNaC {
 

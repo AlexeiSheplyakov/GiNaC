@@ -3,7 +3,7 @@
  *  GiNaC's class registrar (for class basic and all classes derived from it). */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,16 +20,16 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_REGISTRAR_H__
-#define __GINAC_REGISTRAR_H__
-
-#include <string>
-#include <list>
-#include <vector>
-#include <typeinfo>
+#ifndef GINAC_REGISTRAR_H
+#define GINAC_REGISTRAR_H
 
 #include "class_info.h"
 #include "print.h"
+
+#include <list>
+#include <string>
+#include <typeinfo>
+#include <vector>
 
 namespace GiNaC {
 
@@ -197,4 +197,4 @@ extern void set_print_func(void (T::*f)(const C &, unsigned))
 
 } // namespace GiNaC
 
-#endif // ndef __GINAC_REGISTRAR_H__
+#endif // ndef GINAC_REGISTRAR_H

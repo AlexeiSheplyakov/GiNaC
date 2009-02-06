@@ -3,7 +3,7 @@
  *  Archiving of GiNaC expressions. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,15 +20,15 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_ARCHIVE_H__
-#define __GINAC_ARCHIVE_H__
+#ifndef GINAC_ARCHIVE_H
+#define GINAC_ARCHIVE_H
 
 #include "ex.h"
 
 #include <iosfwd>
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 
 namespace GiNaC {
 
@@ -337,7 +337,6 @@ private:
 std::ostream &operator<<(std::ostream &os, const archive &ar);
 std::istream &operator>>(std::istream &is, archive &ar);
 
-
 } // namespace GiNaC
 
-#endif // ndef __GINAC_ARCHIVE_H__
+#endif // ndef GINAC_ARCHIVE_H

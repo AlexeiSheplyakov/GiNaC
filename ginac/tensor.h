@@ -3,7 +3,7 @@
  *  Interface to GiNaC's special tensors. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,14 +20,13 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_TENSOR_H__
-#define __GINAC_TENSOR_H__
+#ifndef GINAC_TENSOR_H
+#define GINAC_TENSOR_H
 
 #include "ex.h"
 #include "archive.h"
 
 namespace GiNaC {
-
 
 /** This class holds one of GiNaC's predefined special tensors such as the
  *  delta and the metric tensors. They are represented without indices.
@@ -252,4 +251,4 @@ ex lorentz_eps(const ex & i1, const ex & i2, const ex & i3, const ex & i4, bool 
 
 } // namespace GiNaC
 
-#endif // ndef __GINAC_TENSOR_H__
+#endif // ndef GINAC_TENSOR_H

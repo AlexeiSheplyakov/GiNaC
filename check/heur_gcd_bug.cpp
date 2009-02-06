@@ -1,13 +1,33 @@
-/**
- * @file heur_gcd_oops.cpp Check for a bug in heur_gcd().
+/** @file heur_gcd_bug.cpp
  *
- * heur_gcd() did not check if the arguments are integer polynomials
- * (and did not convert them to integer polynomials), which lead to
- * endless loop or (even worse) wrong result.
+ *  heur_gcd_oops.cpp Check for a bug in heur_gcd().
+ *
+ *  heur_gcd() did not check if the arguments are integer polynomials
+ *  (and did not convert them to integer polynomials), which lead to
+ *  endless loop or (even worse) wrong result. */
+
+/*
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#include <iostream>
+
 #include "ginac.h"
 using namespace GiNaC;
+
+#include <iostream>
 using namespace std;
 
 int main(int argc, char** argv)
@@ -36,4 +56,3 @@ int main(int argc, char** argv)
 	}
 	return 0;
 }
-

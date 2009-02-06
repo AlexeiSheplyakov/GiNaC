@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's indices. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,10 +20,6 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <iostream>
-#include <sstream>
-#include <stdexcept>
-
 #include "idx.h"
 #include "symbol.h"
 #include "lst.h"
@@ -31,6 +27,10 @@
 #include "operators.h"
 #include "archive.h"
 #include "utils.h"
+
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
 
 namespace GiNaC {
 

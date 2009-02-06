@@ -3,7 +3,7 @@
  *  Interface to GiNaC's wildcard objects. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,14 +20,13 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_WILDCARD_H__
-#define __GINAC_WILDCARD_H__
+#ifndef GINAC_WILDCARD_H
+#define GINAC_WILDCARD_H
 
 #include "ex.h"
 #include "archive.h"
 
 namespace GiNaC {
-
 
 /** This class acts as a wildcard for subs(), match(), has() and find(). An
  *  integer label is used to identify different wildcards. */
@@ -80,4 +79,4 @@ bool haswild(const ex & x);
 
 } // namespace GiNaC
 
-#endif // ndef __GINAC_WILDCARD_H__
+#endif // ndef GINAC_WILDCARD_H

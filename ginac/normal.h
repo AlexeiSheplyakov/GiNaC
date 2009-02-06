@@ -6,7 +6,7 @@
  *  computation, square-free factorization and rational function normalization. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,8 +23,8 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_NORMAL_H__
-#define __GINAC_NORMAL_H__
+#ifndef GINAC_NORMAL_H
+#define GINAC_NORMAL_H
 
 #include "lst.h"
 
@@ -105,4 +105,4 @@ extern ex resultant(const ex & e1, const ex & e2, const ex & s);
 
 } // namespace GiNaC
 
-#endif // ndef __GINAC_NORMAL_H__
+#endif // ndef GINAC_NORMAL_H

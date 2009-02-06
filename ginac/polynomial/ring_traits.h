@@ -1,10 +1,33 @@
-#ifndef GINAC_RING_TRAITS_HPP
-#define GINAC_RING_TRAITS_HPP
+/** @file ring_traits.h
+ *
+ *  Functions for polynomial ring arithmetic. */
+
+/*
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
+#ifndef GINAC_RING_TRAITS_H
+#define GINAC_RING_TRAITS_H
+
 #include <cln/integer.h>
 #include <cln/modinteger.h>
 
-namespace cln
-{
+namespace cln {
+
 static inline cln::cl_I div(const cln::cl_I& x, const cln::cl_I& y)
 {
 	return cln::exquo(x, y);
@@ -41,5 +64,4 @@ static inline T the_one(const T& sample)
 
 } // namespace cln
 
-#endif // GINAC_RING_TRAITS_HPP
-
+#endif // GINAC_RING_TRAITS_H

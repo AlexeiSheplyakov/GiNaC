@@ -3,7 +3,7 @@
  *  Interface to GiNaC's indices. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,14 +20,13 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_IDX_H__
-#define __GINAC_IDX_H__
+#ifndef GINAC_IDX_H
+#define GINAC_IDX_H
 
 #include "ex.h"
 #include "numeric.h"
 
 namespace GiNaC {
-
 
 /** This class holds one index of an indexed object. Indices can
  *  theoretically consist of any symbolic expression but they are usually
@@ -275,4 +274,4 @@ ex minimal_dim(const ex & dim1, const ex & dim2);
 
 } // namespace GiNaC
 
-#endif // ndef __GINAC_IDX_H__
+#endif // ndef GINAC_IDX_H

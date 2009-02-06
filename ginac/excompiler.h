@@ -1,12 +1,10 @@
 /** @file excompiler.h
  *
  *  Functions to facilitate the conversion of a ex to a function pointer suited for
- *  fast numerical integration.
- *
- */
+ *  fast numerical integration. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,12 +21,12 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_EXCOMPILER_H__
-#define __GINAC_EXCOMPILER_H__
-
-#include <string>
+#ifndef GINAC_EXCOMPILER_H
+#define GINAC_EXCOMPILER_H
 
 #include "lst.h"
+
+#include <string>
 
 namespace GiNaC {
 
@@ -125,4 +123,4 @@ void unlink_ex(const std::string filename);
 
 } // namespace GiNaC
 
-#endif // ndef __GINAC_EXCOMPILER_H__
+#endif // ndef GINAC_EXCOMPILER_H

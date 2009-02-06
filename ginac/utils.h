@@ -4,7 +4,7 @@
  *  of any interest to the user of the library. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,20 +21,19 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_UTILS_H__
-#define __GINAC_UTILS_H__
+#ifndef GINAC_UTILS_H
+#define GINAC_UTILS_H
 
+#include "assertion.h"
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <string>
 #include <functional>
 #ifdef HAVE_STDINT_H
 #include <stdint.h> // for uintptr_t
 #endif
-
-#include "assertion.h"
+#include <string>
 
 namespace GiNaC {
 
@@ -429,5 +428,4 @@ void classname::do_print_latex(const print_latex & c, unsigned level) const \
 
 } // namespace GiNaC
 
-
-#endif // ndef __GINAC_UTILS_H__
+#endif // ndef GINAC_UTILS_H

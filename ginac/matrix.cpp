@@ -3,7 +3,7 @@
  *  Implementation of symbolic matrices */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,13 +20,6 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <string>
-#include <iostream>
-#include <sstream>
-#include <algorithm>
-#include <map>
-#include <stdexcept>
-
 #include "matrix.h"
 #include "numeric.h"
 #include "lst.h"
@@ -39,6 +32,13 @@
 #include "normal.h"
 #include "archive.h"
 #include "utils.h"
+
+#include <algorithm>
+#include <iostream>
+#include <map>
+#include <sstream>
+#include <stdexcept>
+#include <string>
 
 namespace GiNaC {
 

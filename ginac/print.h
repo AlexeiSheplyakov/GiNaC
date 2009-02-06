@@ -3,7 +3,7 @@
  *  Definition of helper classes for expression output. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,17 +20,16 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_PRINT_H__
-#define __GINAC_PRINT_H__
-
-#include <iosfwd>
-#include <string>
-#include <memory>
+#ifndef GINAC_PRINT_H
+#define GINAC_PRINT_H
 
 #include "class_info.h"
 
-namespace GiNaC {
+#include <iosfwd>
+#include <memory>
+#include <string>
 
+namespace GiNaC {
 
 /** This class stores information about a registered print_context class. */
 class print_context_options {
@@ -272,4 +271,4 @@ private:
 
 } // namespace GiNaC
 
-#endif // ndef __GINAC_BASIC_H__
+#endif // ndef GINAC_BASIC_H

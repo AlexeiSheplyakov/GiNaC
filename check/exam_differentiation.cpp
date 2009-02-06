@@ -3,7 +3,7 @@
  *  Tests for symbolic differentiation, including various functions. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,10 +20,11 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <iostream>
 #include "ginac.h"
-using namespace std;
 using namespace GiNaC;
+
+#include <iostream>
+using namespace std;
 
 static unsigned check_diff(const ex &e, const symbol &x,
 						   const ex &d, unsigned nth=1)

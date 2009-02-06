@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's color (SU(3) Lie algebra) objects. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,9 +20,6 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <iostream>
-#include <stdexcept>
-
 #include "color.h"
 #include "idx.h"
 #include "ncmul.h"
@@ -34,6 +31,9 @@
 #include "symbol.h"
 #include "archive.h"
 #include "utils.h"
+
+#include <iostream>
+#include <stdexcept>
 
 namespace GiNaC {
 

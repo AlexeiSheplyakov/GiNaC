@@ -3,7 +3,7 @@
  *  Interface to GiNaC's clifford algebra (Dirac gamma) objects. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,8 +20,8 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_CLIFFORD_H__
-#define __GINAC_CLIFFORD_H__
+#ifndef GINAC_CLIFFORD_H
+#define GINAC_CLIFFORD_H
 
 #include "indexed.h"
 #include "tensor.h"
@@ -31,7 +31,6 @@
 #include <set>
 
 namespace GiNaC {
-
 
 /** This class holds an object representing an element of the Clifford
  *  algebra (the Dirac gamma matrices). These objects only carry Lorentz
@@ -361,4 +360,4 @@ ex clifford_moebius_map(const ex & M, const ex & v, const ex & G, unsigned char 
 
 } // namespace GiNaC
 
-#endif // ndef __GINAC_CLIFFORD_H__
+#endif // ndef GINAC_CLIFFORD_H

@@ -6,7 +6,7 @@
  */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,26 +25,25 @@
 
 #include "excompiler.h"
 
-#include <stdexcept>
-#include <ios>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <vector>
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-
-#ifdef HAVE_LIBDL
-#include <dlfcn.h>
-#endif // def HAVE_LIBDL
 
 #include "ex.h"
 #include "lst.h"
 #include "operators.h"
 #include "relational.h"
 #include "symbol.h"
+
+#ifdef HAVE_LIBDL
+#include <dlfcn.h>
+#endif // def HAVE_LIBDL
+#include <fstream>
+#include <ios>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 namespace GiNaC {
 

@@ -3,7 +3,7 @@
  *  Interface to GiNaC's symbolic exponentiation (basis^exponent). */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,8 +20,8 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_POWER_H__
-#define __GINAC_POWER_H__
+#ifndef GINAC_POWER_H
+#define GINAC_POWER_H
 
 #include "basic.h"
 #include "ex.h"
@@ -132,4 +132,4 @@ inline ex sqrt(const ex & a)
 
 } // namespace GiNaC
 
-#endif // ndef __GINAC_POWER_H__
+#endif // ndef GINAC_POWER_H

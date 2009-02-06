@@ -1,19 +1,39 @@
-/**
- * @file numeric_archive.cpp Check for a bug in numeric::archive
+/** @file numeric_archive.cpp
  *
- * numeric::archive used to fail if the real part of a complex number
- * is a rational number and the imaginary part is a floating point one.
+ *  Check for a bug in numeric::archive
+ *
+ *  numeric::archive used to fail if the real part of a complex number
+ *  is a rational number and the imaginary part is a floating point one. */
+
+/*
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
+
+#include "ginac.h"
+using namespace GiNaC;
+
+#include <algorithm>
 #include <cln/cln.h>
 #include <iostream>
+#include <iterator>
+#include <sstream>
 #include <stdexcept>
 #include <vector>
-#include <iterator>
-#include <algorithm>
-#include <sstream>
-#include "ginac.h"
 using namespace cln;
-using namespace GiNaC;
 
 struct archive_unarchive_check
 {

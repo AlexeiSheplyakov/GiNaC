@@ -3,7 +3,7 @@
  *  Wrapper template for making GiNaC classes out of C++ structures. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,10 +20,8 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_STRUCTURE_H__
-#define __GINAC_STRUCTURE_H__
-
-#include <functional>
+#ifndef GINAC_STRUCTURE_H
+#define GINAC_STRUCTURE_H
 
 #include "ex.h"
 #include "ncmul.h"
@@ -31,8 +29,9 @@
 #include "operators.h"
 #include "print.h"
 
-namespace GiNaC {
+#include <functional>
 
+namespace GiNaC {
 
 /** Comparison policy: all structures of one type are equal */
 template <class T>
@@ -244,7 +243,6 @@ int structure<T, CP>::compare_same_type(const basic & other) const
 template <class T, template <class> class CP>
 registered_class_info structure<T, CP>::reg_info = registered_class_info(registered_class_options(structure::get_class_name(), "basic", typeid(structure<T, CP>)));
 
-
 } // namespace GiNaC
 
-#endif // ndef __GINAC_STRUCTURE_H__
+#endif // ndef GINAC_STRUCTURE_H

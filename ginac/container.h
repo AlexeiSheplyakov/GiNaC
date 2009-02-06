@@ -3,7 +3,7 @@
  *  Wrapper template for making GiNaC classes out of STL containers. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,23 +20,22 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_CONTAINER_H__
-#define __GINAC_CONTAINER_H__
-
-#include <iterator>
-#include <stdexcept>
-#include <algorithm>
-#include <vector>
-#include <list>
-#include <memory>
+#ifndef GINAC_CONTAINER_H
+#define GINAC_CONTAINER_H
 
 #include "ex.h"
 #include "print.h"
 #include "archive.h"
 #include "assertion.h"
 
-namespace GiNaC {
+#include <algorithm>
+#include <iterator>
+#include <list>
+#include <memory>
+#include <stdexcept>
+#include <vector>
 
+namespace GiNaC {
 
 /** Helper template for encapsulating the reserve() mechanics of STL containers. */
 template <template <class T, class = std::allocator<T> > class C>
@@ -772,4 +771,4 @@ std::auto_ptr<typename container<C>::STLT> container<C>::subschildren(const exma
 
 } // namespace GiNaC
 
-#endif // ndef __GINAC_CONTAINER_H__
+#endif // ndef GINAC_CONTAINER_H

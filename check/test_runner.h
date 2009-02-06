@@ -1,10 +1,34 @@
+/** @file test_runner.h
+ *
+ *  Utility functions for benchmarking. */
+
+/*
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 #ifndef GINAC_CHECK_TEST_RUNNER_H
 #define GINAC_CHECK_TEST_RUNNER_H
-#include <iostream>
-#include <cstdlib>
-#include <string>
-#include <ctime>
+
 #include "timer.h"
+
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
+#include <string>
 
 template<typename T> static void 
 run_benchmark(T& benchmark,
@@ -63,5 +87,4 @@ static int run_expensive_timings_p()
 	return value;
 }
 
-#endif // GINAC_CHECK_TEST_RUNNER_H
-
+#endif // ndef GINAC_CHECK_TEST_RUNNER_H

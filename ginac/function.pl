@@ -2,7 +2,7 @@
 
 #  function.pl options: \$maxargs=${maxargs}
 # 
-#  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+#  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
 # 
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -292,7 +292,7 @@ $interface=<<END_OF_INTERFACE;
  *  Please do not modify it directly, edit the perl script instead!
  *  function.pl options: \$maxargs=${maxargs}
  *
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -309,16 +309,15 @@ $interface=<<END_OF_INTERFACE;
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_FUNCTION_H__
-#define __GINAC_FUNCTION_H__
+#ifndef GINAC_FUNCTION_H
+#define GINAC_FUNCTION_H
 
-#include <string>
-#include <vector>
+#include "exprseq.h"
 
 // CINT needs <algorithm> to work properly with <vector>
 #include <algorithm>
-
-#include "exprseq.h"
+#include <string>
+#include <vector>
 
 // the following lines have been generated for max. ${maxargs} parameters
 $declare_function_macro
@@ -561,7 +560,7 @@ inline bool is_the_function(const ex & x)
 
 } // namespace GiNaC
 
-#endif // ndef __GINAC_FUNCTION_H__
+#endif // ndef GINAC_FUNCTION_H
 
 END_OF_INTERFACE
 

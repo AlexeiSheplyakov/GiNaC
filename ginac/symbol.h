@@ -3,7 +3,7 @@
  *  Interface to GiNaC's symbolic objects. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,15 +20,16 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_SYMBOL_H__
-#define __GINAC_SYMBOL_H__
+#ifndef GINAC_SYMBOL_H
+#define GINAC_SYMBOL_H
 
-#include <string>
-#include <typeinfo>
 #include "basic.h"
 #include "ex.h"
 #include "ptr.h"
 #include "archive.h"
+
+#include <string>
+#include <typeinfo>
 
 namespace GiNaC {
 
@@ -123,4 +124,4 @@ GINAC_DECLARE_UNARCHIVER(possymbol);
 
 } // namespace GiNaC
 
-#endif // ndef __GINAC_SYMBOL_H__
+#endif // ndef GINAC_SYMBOL_H

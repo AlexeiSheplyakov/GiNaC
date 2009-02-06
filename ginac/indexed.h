@@ -3,7 +3,7 @@
  *  Interface to GiNaC's indexed expressions. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,16 +20,15 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_INDEXED_H__
-#define __GINAC_INDEXED_H__
-
-#include <map>
+#ifndef GINAC_INDEXED_H
+#define GINAC_INDEXED_H
 
 #include "exprseq.h"
 #include "wildcard.h"
 
-namespace GiNaC {
+#include <map>
 
+namespace GiNaC {
 
 class scalar_products;
 class symmetry;
@@ -286,4 +285,4 @@ ex expand_dummy_sum(const ex & e, bool subs_idx = false);
 
 } // namespace GiNaC
 
-#endif // ndef __GINAC_INDEXED_H__
+#endif // ndef GINAC_INDEXED_H

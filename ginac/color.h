@@ -3,7 +3,7 @@
  *  Interface to GiNaC's color (SU(3) Lie algebra) objects. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,8 +20,8 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_COLOR_H__
-#define __GINAC_COLOR_H__
+#ifndef GINAC_COLOR_H
+#define GINAC_COLOR_H
 
 #include "indexed.h"
 #include "tensor.h"
@@ -29,7 +29,6 @@
 #include <set>
 
 namespace GiNaC {
-
 
 /** This class holds a generator T_a or the unity element of the Lie algebra
  *  of SU(3), as used for calculations in quantum chromodynamics. A
@@ -192,7 +191,6 @@ ex color_trace(const ex & e, const lst & rll);
  *  @param rl Representation label */
 ex color_trace(const ex & e, unsigned char rl = 0);
 
-
 } // namespace GiNaC
 
-#endif // ndef __GINAC_COLOR_H__
+#endif // ndef GINAC_COLOR_H

@@ -3,7 +3,7 @@
  *  Interface to abstract derivatives of functions. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,15 +20,14 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_FDERIVATIVE_H__
-#define __GINAC_FDERIVATIVE_H__
-
-#include <set>
+#ifndef GINAC_FDERIVATIVE_H
+#define GINAC_FDERIVATIVE_H
 
 #include "function.h"
 
-namespace GiNaC {
+#include <set>
 
+namespace GiNaC {
 
 typedef std::multiset<unsigned> paramset;
 
@@ -87,4 +86,4 @@ GINAC_DECLARE_UNARCHIVER(fderivative);
 
 } // namespace GiNaC
 
-#endif // ndef __GINAC_DERIVATIVE_H__
+#endif // ndef GINAC_DERIVATIVE_H

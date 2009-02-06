@@ -3,7 +3,7 @@
  *  Definition of expression pairs (building blocks of expairseq). */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,8 +20,8 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_EXPAIR_H__
-#define __GINAC_EXPAIR_H__
+#ifndef GINAC_EXPAIR_H
+#define GINAC_EXPAIR_H
 
 #include "ex.h"
 #include "numeric.h"
@@ -117,4 +117,4 @@ inline void iter_swap(std::vector<expair>::iterator i1, std::vector<expair>::ite
 
 } // namespace GiNaC
 
-#endif // ndef __GINAC_EXPAIR_H__
+#endif // ndef GINAC_EXPAIR_H

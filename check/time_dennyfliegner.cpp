@@ -7,7 +7,7 @@
  *  after which e should be just a1^2. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,13 +24,14 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#include "ginac.h"
+#include "timer.h"
+using namespace GiNaC;
+
 #include <iostream>
 #include <sstream>
 #include <vector>
-#include "ginac.h"
-#include "timer.h"
 using namespace std;
-using namespace GiNaC;
 
 static unsigned expand_subs(unsigned size)
 {

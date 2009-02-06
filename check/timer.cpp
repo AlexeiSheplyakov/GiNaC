@@ -3,7 +3,7 @@
  *  A simple stop watch class. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,9 +20,6 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
 #ifdef HAVE_RUSAGE
 #include <sys/resource.h>
 #include <unistd.h>
@@ -31,6 +28,9 @@
 #include <ctime>
 #endif
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "timer.h"
 
 timer::timer() : on(false)

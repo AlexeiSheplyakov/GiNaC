@@ -1,19 +1,20 @@
-/**
- * @file mul_eval_memleak.cpp Test for memory leak in {mul,power}::eval
+/** @file mul_eval_memleak.cpp
  *
- * The bug was introduced by
+ *  mul_eval_memleak.cpp Test for memory leak in {mul,power}::eval
  *
- * commit f418c6ee4d558c852e1fb95533af07a3ae43f409
- * Author: Alexei Sheplyakov <varg@theor.jinr.ru>
- * Date:   Wed Jul 11 14:34:42 2007 +0400
- * (it was commited into the official branch as
- * commit a602d34c225dceb3e53742a7b3e19a4b5e280485
- * Author: Jens Vollinga <vollinga@thep.physik.uni-mainz.de>
- * Date:   Wed Jul 11 21:07:40 2007 +0000)
+ *  The bug was introduced by
+ *
+ *  commit f418c6ee4d558c852e1fb95533af07a3ae43f409
+ *  Author: Alexei Sheplyakov <varg@theor.jinr.ru>
+ *  Date:   Wed Jul 11 14:34:42 2007 +0400
+ *  (it was commited into the official branch as
+ *  commit a602d34c225dceb3e53742a7b3e19a4b5e280485
+ *  Author: Jens Vollinga <vollinga@thep.physik.uni-mainz.de>
+ *  Date:   Wed Jul 11 21:07:40 2007 +0000)
  */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -30,12 +31,13 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <iostream>
 #include <ginac/ginac.h>
-#include <string>
-#include <stdexcept>
-using namespace std;
 using namespace GiNaC;
+
+#include <iostream>
+#include <stdexcept>
+#include <string>
+using namespace std;
 
 const unsigned check_mul_eval_memleak(const unsigned N)
 {
@@ -116,4 +118,3 @@ int main(int argc, char** argv) {
 	}
 	return 0;
 }
-

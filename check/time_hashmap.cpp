@@ -3,7 +3,7 @@
  *  Timings for exhashmap<> operations. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,12 +20,13 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <iostream>
-#include <vector>
 #include "ginac.h"
 #include "timer.h"
-using namespace std;
 using namespace GiNaC;
+
+#include <iostream>
+#include <vector>
+using namespace std;
 
 template <class T>
 static void run_timing(unsigned size, double &time_insert, double &time_find, double &time_erase)

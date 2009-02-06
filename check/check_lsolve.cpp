@@ -5,7 +5,7 @@
  *  the underlying symbolic manipulations. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,12 +22,13 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#include "ginac.h"
+using namespace GiNaC;
+
+#include <cstdlib> // for rand()
 #include <iostream>
 #include <sstream>
-#include <cstdlib> // rand()
-#include "ginac.h"
 using namespace std;
-using namespace GiNaC;
 
 extern const ex 
 dense_univariate_poly(const symbol & x, unsigned degree);

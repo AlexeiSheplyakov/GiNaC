@@ -3,7 +3,7 @@
  *  Interface to GiNaC's ABC. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,21 +20,21 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_BASIC_H__
-#define __GINAC_BASIC_H__
-
-#include <cstddef> // for size_t
-#include <vector>
-#include <set>
-#include <map>
-#include <typeinfo> // for typeid
-// CINT needs <algorithm> to work properly with <vector>
-#include <algorithm>
+#ifndef GINAC_BASIC_H
+#define GINAC_BASIC_H
 
 #include "flags.h"
 #include "ptr.h"
 #include "assertion.h"
 #include "registrar.h"
+
+// CINT needs <algorithm> to work properly with <vector>
+#include <algorithm>
+#include <cstddef> // for size_t
+#include <map>
+#include <set>
+#include <typeinfo> // for typeid
+#include <vector>
 
 namespace GiNaC {
 
@@ -322,4 +322,4 @@ inline bool is_exactly_a(const basic & obj)
 
 } // namespace GiNaC
 
-#endif // ndef __GINAC_BASIC_H__
+#endif // ndef GINAC_BASIC_H

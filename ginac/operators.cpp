@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's overloaded operators. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,9 +20,6 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <iostream>
-#include <iomanip>
-
 #include "operators.h"
 #include "numeric.h"
 #include "add.h"
@@ -32,6 +29,9 @@
 #include "relational.h"
 #include "print.h"
 #include "utils.h"
+
+#include <iomanip>
+#include <iostream>
 
 namespace GiNaC {
 

@@ -3,7 +3,7 @@
  *  Interface to GiNaC's light-weight expression handles. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,19 +20,18 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_EX_H__
-#define __GINAC_EX_H__
-
-#include <iosfwd>
-#include <iterator>
-#include <functional>
-#include <stack>
+#ifndef GINAC_EX_H
+#define GINAC_EX_H
 
 #include "basic.h"
 #include "ptr.h"
 
-namespace GiNaC {
+#include <functional>
+#include <iosfwd>
+#include <iterator>
+#include <stack>
 
+namespace GiNaC {
 
 /** Helper class to initialize the library.  There must be one static object
  *  of this class in every object file that makes use of our flyweights in
@@ -976,4 +975,4 @@ inline void iter_swap(list<GiNaC::ex>::iterator i1, list<GiNaC::ex>::iterator i2
 
 } // namespace std
 
-#endif // ndef __GINAC_EX_H__
+#endif // ndef GINAC_EX_H

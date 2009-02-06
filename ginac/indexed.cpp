@@ -3,7 +3,7 @@
  *  Implementation of GiNaC's indexed expressions. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,11 +19,6 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-
-#include <iostream>
-#include <sstream>
-#include <stdexcept>
-#include <limits>
 
 #include "indexed.h"
 #include "idx.h"
@@ -41,6 +36,11 @@
 #include "integral.h"
 #include "matrix.h"
 #include "inifcns.h"
+
+#include <iostream>
+#include <limits>
+#include <sstream>
+#include <stdexcept>
 
 namespace GiNaC {
 

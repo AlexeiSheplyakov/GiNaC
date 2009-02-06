@@ -1,11 +1,33 @@
-#ifndef GINAC_POLYNOMIAL_PREM_TCC
-#define GINAC_POLYNOMIAL_PREM_TCC
+/** @file prem_uvar.h
+ *
+ *  Function to calculate the pseudo-remainder. */
+
+/*
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
+#ifndef GINAC_POLYNOMIAL_PREM_H
+#define GINAC_POLYNOMIAL_PREM_H
+
 #include "upoly.h"
 #include "debug.h"
 #include "remainder.h"
 
-namespace GiNaC
-{
+namespace GiNaC {
 
 /// Compute the pseudo-remainder of univariate polynomials @a a and @a b
 /// Pseudo remainder \f$r(x)\f$ is defined as 
@@ -41,7 +63,6 @@ template<typename T> bool pseudoremainder(T& r, const T& a, const T& b)
 	return remainder_in_ring(r, a_, b);
 }
 
-}
+} // namespace GiNaC
 
-#endif // GINAC_POLYNOMIAL_PREM_TCC
-
+#endif // GINAC_POLYNOMIAL_PREM_H

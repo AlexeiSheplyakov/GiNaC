@@ -1,14 +1,37 @@
-#ifndef _GINAC_PARSE_CONTEXT_HPP
-#define _GINAC_PARSE_CONTEXT_HPP
-#include <string>
-#include <cstddef> // size_t
+/** @file parse_context.h
+ *
+ *  Interface to parser context. */
+
+/*
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
+#ifndef GINAC_PARSE_CONTEXT_H
+#define GINAC_PARSE_CONTEXT_H
+
 #include "ex.h"
 #include "symbol.h"
+
+#include <cstddef> // for size_t
 #include <map>
+#include <string>
 #include <utility>
 
-namespace GiNaC
-{
+namespace GiNaC {
 
 /**
  * Establishes correspondence between the strings and expressions.
@@ -69,7 +92,6 @@ typedef std::map<prototype, reader_func> prototype_table;
  */
 extern const prototype_table& get_default_reader();
 
-}
+} // namespace GiNaC
 
-#endif // _GINAC_PARSE_CONTEXT_HPP
-
+#endif // GINAC_PARSE_CONTEXT_H

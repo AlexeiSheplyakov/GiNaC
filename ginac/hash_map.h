@@ -3,7 +3,7 @@
  *  Replacement for map<> using hash tables. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,15 +20,14 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_HASH_MAP_H__
-#define __GINAC_HASH_MAP_H__
+#ifndef GINAC_HASH_MAP_H
+#define GINAC_HASH_MAP_H
 
-#include <list>
-#include <iterator>
 #include <algorithm>
 #include <functional>
+#include <iterator>
+#include <list>
 #include <utility>
-
 
 namespace GiNaC {
 
@@ -594,4 +593,4 @@ inline void swap(GiNaC::exhashmap<T, A> &lhs, GiNaC::exhashmap<T, A> &rhs)
 
 } // namespace std
 
-#endif // ndef __GINAC_HASH_MAP_H__
+#endif // ndef GINAC_HASH_MAP_H

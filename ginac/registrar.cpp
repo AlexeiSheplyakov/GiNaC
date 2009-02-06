@@ -3,7 +3,7 @@
  *  GiNaC's class registrar (for class basic and all classes derived from it). */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,11 +20,11 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <string>
+#include "registrar.h"
+
 #include <map>
 #include <stdexcept>
-
-#include "registrar.h"
+#include <string>
 
 namespace GiNaC {
 

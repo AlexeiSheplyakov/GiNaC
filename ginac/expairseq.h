@@ -3,7 +3,7 @@
  *  Interface to sequences of expression pairs. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,17 +20,17 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_EXPAIRSEQ_H__
-#define __GINAC_EXPAIRSEQ_H__
-
-#include <vector>
-#include <list>
-#include <memory>
-// CINT needs <algorithm> to work properly with <vector> and <list>
-#include <algorithm>
+#ifndef GINAC_EXPAIRSEQ_H
+#define GINAC_EXPAIRSEQ_H
 
 #include "expair.h"
 #include "indexed.h"
+
+// CINT needs <algorithm> to work properly with <vector> and <list>
+#include <algorithm>
+#include <list>
+#include <memory>
+#include <vector>
 
 namespace GiNaC {
 
@@ -231,4 +231,4 @@ class make_flat_inserter
 
 } // namespace GiNaC
 
-#endif // ndef __GINAC_EXPAIRSEQ_H__
+#endif // ndef GINAC_EXPAIRSEQ_H

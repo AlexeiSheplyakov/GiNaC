@@ -3,7 +3,7 @@
  *  Interface to GiNaC's symmetry definitions. */
 
 /*
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,16 +20,15 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_SYMMETRY_H__
-#define __GINAC_SYMMETRY_H__
-
-#include <set>
+#ifndef GINAC_SYMMETRY_H
+#define GINAC_SYMMETRY_H
 
 #include "ex.h"
 #include "archive.h"
 
-namespace GiNaC {
+#include <set>
 
+namespace GiNaC {
 
 class sy_is_less;
 class sy_swap;
@@ -179,4 +178,4 @@ inline ex symmetrize_cyclic(const ex & e, const exvector & v)
 
 } // namespace GiNaC
 
-#endif // ndef __GINAC_SYMMETRY_H__
+#endif // ndef GINAC_SYMMETRY_H
