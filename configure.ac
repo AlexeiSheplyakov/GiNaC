@@ -33,7 +33,7 @@ AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_HEADERS([config/config.h ginac/version.h])
 AC_CONFIG_MACRO_DIR([m4])
 dnl This defines PACKAGE and VERSION.
-AM_INIT_AUTOMAKE([gnu 1.7 dist-bzip2])
+AM_INIT_AUTOMAKE([gnu 1.8 dist-bzip2])
 
 dnl Process GiNaC version information
 AC_DEFINE([GINACLIB_MAJOR_VERSION], ginac_major_version, [Major version of GiNaC])
