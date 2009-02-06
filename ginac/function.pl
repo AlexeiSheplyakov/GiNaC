@@ -574,7 +574,7 @@ $implementation=<<END_OF_IMPLEMENTATION;
  *  Please do not modify it directly, edit the perl script instead!
  *  function.pl options: \$maxargs=${maxargs}
  *
- *  GiNaC Copyright (C) 1999-2008 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -591,12 +591,6 @@ $implementation=<<END_OF_IMPLEMENTATION;
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <iostream>
-#include <string>
-#include <stdexcept>
-#include <list>
-#include <limits>
-
 #include "function.h"
 #include "operators.h"
 #include "fderivative.h"
@@ -610,6 +604,12 @@ $implementation=<<END_OF_IMPLEMENTATION;
 #include "tostring.h"
 #include "utils.h"
 #include "remember.h"
+
+#include <iostream>
+#include <limits>
+#include <list>
+#include <stdexcept>
+#include <string>
 
 namespace GiNaC {
 
