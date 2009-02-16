@@ -1780,7 +1780,8 @@ struct ex_sr_gcd_test
 	const upoly& g_check;
 	unsigned options;
 	ex_sr_gcd_test(const ex& a_, const ex& b_, const upoly& g_) :
-		a(a_), b(b_), g(0), g_check(g_), options(gcd_options::no_heur_gcd)
+		a(a_), b(b_), g(0), g_check(g_), options(gcd_options::no_heur_gcd |
+				                         gcd_options::use_sr_gcd)
 	{ }
 
 	inline void run()
