@@ -1,6 +1,6 @@
 This file records noteworthy changes.
 
-1.5.0 (<date>)
+1.5.0 (17 February 2009)
 * Added polynomial factorization.
 * Added an additional (recursive descent) expression parser.
 * Faster GCD computation.
