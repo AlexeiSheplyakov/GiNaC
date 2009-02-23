@@ -603,6 +603,7 @@ $implementation=<<END_OF_IMPLEMENTATION;
 #include "inifcns.h"
 #include "tostring.h"
 #include "utils.h"
+#include "hash_seed.h"
 #include "remember.h"
 
 #include <iostream>
@@ -1062,8 +1063,7 @@ ex function::eval_ncmul(const exvector & v) const
 
 unsigned function::calchash() const
 {
-	const void* this_tinfo = (const void*)typeid(*this).name();
-	unsigned v = golden_ratio_hash(golden_ratio_hash((p_int)this_tinfo) ^ serial);
+	unsigned v = golden_ratio_hash(make_hash_seed(typeid(*this)) ^ serial);
 	for (size_t i=0; i<nops(); i++) {
 		v = rotate_left(v);
 		v ^= this->op(i).gethash();

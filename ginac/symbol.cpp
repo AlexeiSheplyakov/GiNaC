@@ -25,6 +25,7 @@
 #include "archive.h"
 #include "tostring.h"
 #include "utils.h"
+#include "hash_seed.h"
 #include "inifcns.h"
 
 #include <map>
@@ -253,8 +254,8 @@ bool symbol::is_equal_same_type(const basic & other) const
 
 unsigned symbol::calchash() const
 {
-	const void* this_tinfo = (const void*)typeid(*this).name();
-	hashvalue = golden_ratio_hash((p_int)this_tinfo ^ serial);
+	unsigned seed = make_hash_seed(typeid(*this));
+	hashvalue = golden_ratio_hash(seed ^ serial);
 	setflag(status_flags::hash_calculated);
 	return hashvalue;
 }

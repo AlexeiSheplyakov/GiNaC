@@ -23,6 +23,7 @@
 #include "wildcard.h"
 #include "archive.h"
 #include "utils.h"
+#include "hash_seed.h"
 
 #include <iostream>
 
@@ -106,8 +107,8 @@ unsigned wildcard::calchash() const
 	// this is where the schoolbook method
 	// (golden_ratio_hash(typeid(*this).name()) ^ label)
 	// is not good enough yet...
-	const void* this_tinfo = (const void*)typeid(*this).name();
-	hashvalue = golden_ratio_hash(golden_ratio_hash((p_int)this_tinfo) ^ label);
+	unsigned seed = make_hash_seed(typeid(*this));
+	hashvalue = golden_ratio_hash(seed ^ label);
 	setflag(status_flags::hash_calculated);
 	return hashvalue;
 }

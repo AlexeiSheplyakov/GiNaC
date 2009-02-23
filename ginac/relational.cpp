@@ -25,6 +25,7 @@
 #include "numeric.h"
 #include "archive.h"
 #include "utils.h"
+#include "hash_seed.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -259,8 +260,7 @@ return_type_t relational::return_type_tinfo() const
 
 unsigned relational::calchash() const
 {
-	const void* this_tinfo = (const void*)typeid(*this).name();
-	unsigned v = golden_ratio_hash((p_int)this_tinfo);
+	unsigned v = make_hash_seed(typeid(*this));
 	unsigned lhash = lh.gethash();
 	unsigned rhash = rh.gethash();
 

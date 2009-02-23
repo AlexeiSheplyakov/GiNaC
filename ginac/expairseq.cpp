@@ -30,6 +30,7 @@
 #include "archive.h"
 #include "operators.h"
 #include "utils.h"
+#include "hash_seed.h"
 #include "indexed.h"
 
 #include <algorithm>
@@ -611,8 +612,7 @@ unsigned expairseq::return_type() const
 
 unsigned expairseq::calchash() const
 {
-	const void* this_tinfo = (const void*)typeid(*this).name();
-	unsigned v = golden_ratio_hash((p_int)this_tinfo);
+	unsigned v = make_hash_seed(typeid(*this));
 	epvector::const_iterator i = seq.begin();
 	const epvector::const_iterator end = seq.end();
 	while (i != end) {
