@@ -218,8 +218,32 @@ static void expt_pos(umodpoly& a, unsigned int q)
 	}
 }
 
+template<bool COND, typename T = void> struct enable_if
+{
+	typedef T type;
+};
+
+template<typename T> struct enable_if<false, T> { /* empty */ };
+
+template<typename T> struct uvar_poly_p
+{
+	static const bool value = false;
+};
+
+template<> struct uvar_poly_p<upoly>
+{
+	static const bool value = true;
+};
+
+template<> struct uvar_poly_p<umodpoly>
+{
+	static const bool value = true;
+};
+
 template<typename T>
-static T operator+(const T& a, const T& b)
+// Don't define this for anything but univariate polynomials.
+static typename enable_if<uvar_poly_p<T>::value, T>::type
+operator+(const T& a, const T& b)
 {
 	int sa = a.size();
 	int sb = b.size();
@@ -250,7 +274,11 @@ static T operator+(const T& a, const T& b)
 }
 
 template<typename T>
-static T operator-(const T& a, const T& b)
+// Don't define this for anything but univariate polynomials. Otherwise
+// overload resolution might fail (this actually happens when compiling
+// GiNaC with g++ 3.4).
+static typename enable_if<uvar_poly_p<T>::value, T>::type
+operator-(const T& a, const T& b)
 {
 	int sa = a.size();
 	int sb = b.size();
