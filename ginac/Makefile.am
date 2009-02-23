@@ -9,7 +9,7 @@ libginac_la_SOURCES = add.cpp archive.cpp basic.cpp clifford.cpp color.cpp \
   operators.cpp power.cpp registrar.cpp relational.cpp remember.cpp \
   pseries.cpp print.cpp symbol.cpp symmetry.cpp tensor.cpp \
   utils.cpp wildcard.cpp \
-  remember.h tostring.h utils.h compiler.h \
+  remember.h tostring.h utils.h crc32.h hash_seed.h compiler.h \
   parser/parse_binop_rhs.cpp \
   parser/parser.cpp \
   parser/parse_context.cpp \

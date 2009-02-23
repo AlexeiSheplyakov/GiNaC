@@ -27,6 +27,7 @@
 #include "operators.h"
 #include "archive.h"
 #include "utils.h"
+#include "hash_seed.h"
 
 #include <iostream>
 #include <sstream>
@@ -350,8 +351,7 @@ unsigned idx::calchash() const
 	// hash keys. That is, the hash values must not depend on the index
 	// dimensions or other attributes (variance etc.).
 	// The compare_same_type() methods will take care of the rest.
-	const void* this_tinfo = (const void*)(typeid(*this).name());
-	unsigned v = golden_ratio_hash((p_int)this_tinfo);
+	unsigned v = make_hash_seed(typeid(*this));
 	v = rotate_left(v);
 	v ^= value.gethash();
 

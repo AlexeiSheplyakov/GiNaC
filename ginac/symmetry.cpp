@@ -26,6 +26,7 @@
 #include "operators.h"
 #include "archive.h"
 #include "utils.h"
+#include "hash_seed.h"
 
 #include <functional>
 #include <iostream>
@@ -185,8 +186,7 @@ int symmetry::compare_same_type(const basic & other) const
 
 unsigned symmetry::calchash() const
 {
-	const void* this_tinfo = (const void*)typeid(*this).name();
-	unsigned v = golden_ratio_hash((p_int)this_tinfo);
+	unsigned v = make_hash_seed(typeid(*this));
 
 	if (type == none) {
 		v = rotate_left(v);
