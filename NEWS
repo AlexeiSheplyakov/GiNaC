@@ -1,5 +1,9 @@
 This file records noteworthy changes.
 
+1.5.1 (25 February 2009)
+* Fixed compiling problems with GNU g++ 3.4.
+* Fixed broken RTTI on woe32.
+
 1.5.0 (17 February 2009)
 * Added polynomial factorization.
 * New, faster (recursive descent) expression parser.
