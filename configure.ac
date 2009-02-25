@@ -24,9 +24,9 @@ dnl systems, the numbering is consecutive. It only guarantees that it is
 dnl increasing. This doesn't matter, though: there is not incurred cost
 dnl for numbers that are omitted, except for shrinking the available space
 dnl of leftover numbers. Not something we need to worry about yet. ;-)
-m4_define([ginac_lt_current], [1])
-m4_define([ginac_lt_age], [1])
-m4_define([ginac_lt_revision], [0])
+m4_define([ginac_lt_current], [0])
+m4_define([ginac_lt_age], [0])
+m4_define([ginac_lt_revision], [1])
 
 AC_INIT([GiNaC], ginac_version, [<ginac-list@ginac.de>])
 AC_PREREQ(2.59)
