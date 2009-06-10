@@ -116,7 +116,7 @@ COMMON PROBLEMS
 Problems with CLN
 -----------------
 
-You should use at least CLN-1.1, since during the development of GiNaC
+You should use at least CLN-1.2.2, since during the development of GiNaC
 various bugs have been discovered and fixed in earlier versions. Please
 install CLN properly on your system before continuing with GiNaC.
 

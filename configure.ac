@@ -84,7 +84,7 @@ dnl We need to have Bruno Haible's CLN installed.
 dnl (pkg-config must have installed pkg.m4 at a visible place, which provides
 dnl this macro. CLN >= 1.1.6 must have installed cln.pc at a visible place,
 dnl which provides the actual dependency information.)
-PKG_CHECK_MODULES(CLN, cln >= 1.1.6)
+PKG_CHECK_MODULES(CLN, cln >= 1.2.2)
 AC_LIB_LINKFLAGS_FROM_LIBS([CLN_RPATH], [$CLN_LIBS], [1])
 LIBS="$LIBS $CLN_LIBS $CLN_RPATH"
 CPPFLAGS="$CPPFLAGS $CLN_CFLAGS"
