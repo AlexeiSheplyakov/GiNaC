@@ -3040,8 +3040,8 @@ Information about the commutativity of an object or expression can be
 obtained with the two member functions
 
 @example
-unsigned ex::return_type() const;
-unsigned ex::return_type_tinfo() const;
+unsigned      ex::return_type() const;
+return_type_t ex::return_type_tinfo() const;
 @end example
 
 The @code{return_type()} function returns one of three values (defined in
@@ -3062,30 +3062,26 @@ expressions in GiNaC:
   @code{noncommutative_composite} expressions.
 @end itemize
 
-The value returned by the @code{return_type_tinfo()} method is valid only
-when the return type of the expression is @code{noncommutative}. It is a
-value that is unique to the class of the object, but may vary every time a
-GiNaC program is being run (it is dynamically assigned on start-up).
+The @code{return_type_tinfo()} method returns an object of type
+@code{return_type_t} that contains information about the type of the expression
+and, if given, its representation label (see section on dirac gamma matrices for
+more details).  The objects of type @code{return_type_t} can be tested for
+equality to test whether two expressions belong to the same category and
+therefore may not commute.
 
 Here are a couple of examples:
 
 @cartouche
-@multitable @columnfractions 0.33 0.33 0.34
-@item @strong{Expression} @tab @strong{@code{return_type()}} @tab @strong{@code{return_type_tinfo()}}
-@item @code{42} @tab @code{commutative} @tab -
-@item @code{2*x-y} @tab @code{commutative} @tab -
-@item @code{dirac_ONE()} @tab @code{noncommutative} @tab @code{TINFO_clifford}
-@item @code{dirac_gamma(mu)*dirac_gamma(nu)} @tab @code{noncommutative} @tab @code{TINFO_clifford}
-@item @code{2*color_T(a)} @tab @code{noncommutative} @tab @code{TINFO_color}
-@item @code{dirac_ONE()*color_T(a)} @tab @code{noncommutative_composite} @tab -
+@multitable @columnfractions .6 .4
+@item @strong{Expression} @tab @strong{@code{return_type()}}
+@item @code{42} @tab @code{commutative}
+@item @code{2*x-y} @tab @code{commutative}
+@item @code{dirac_ONE()} @tab @code{noncommutative}
+@item @code{dirac_gamma(mu)*dirac_gamma(nu)} @tab @code{noncommutative}
+@item @code{2*color_T(a)} @tab @code{noncommutative}
+@item @code{dirac_ONE()*color_T(a)} @tab @code{noncommutative_composite}
 @end multitable
 @end cartouche
-
-Note: the @code{return_type_tinfo()} of Clifford objects is only equal to
-@code{TINFO_clifford} for objects with a representation label of zero.
-Other representation labels yield a different @code{return_type_tinfo()},
-but it's the same for any two objects with the same label. This is also true
-for color objects.
 
 A last note: With the exception of matrices, positive integer powers of
 non-commutative objects are automatically expanded in GiNaC. For example,
@@ -3870,7 +3866,7 @@ bool is_a<T>(const ex & e);
 bool is_exactly_a<T>(const ex & e);
 bool ex::info(unsigned flag);
 unsigned ex::return_type() const;
-unsigned ex::return_type_tinfo() const;
+return_type_t ex::return_type_tinfo() const;
 @end example
 
 When the test made by @code{is_a<T>()} returns true, it is safe to call
@@ -7118,15 +7114,30 @@ This tells @code{evalf()} to not recursively evaluate the parameters of the
 function before calling the @code{evalf_func()}.
 
 @example
-set_return_type(unsigned return_type, unsigned return_type_tinfo)
+set_return_type(unsigned return_type, const return_type_t * return_type_tinfo)
 @end example
 
 This allows you to explicitly specify the commutation properties of the
 function (@xref{Non-commutative objects}, for an explanation of
-(non)commutativity in GiNaC). For example, you can use
-@code{set_return_type(return_types::noncommutative, TINFO_matrix)} to make
-GiNaC treat your function like a matrix. By default, functions inherit the
-commutation properties of their first argument.
+(non)commutativity in GiNaC). For example, with an object of type
+@code{return_type_t} created like
+
+@example
+return_type_t my_type = make_return_type_t<matrix>();
+@end example
+
+you can use @code{set_return_type(return_types::noncommutative, &my_type)} to
+make GiNaC treat your function like a matrix. By default, functions inherit the
+commutation properties of their first argument. The utilized template function
+@code{make_return_type_t<>()} 
+
+@example
+template<typename T> inline return_type_t make_return_type_t(const unsigned rl = 0)
+@end example
+
+can also be called with an argument specifying the representation label of the
+non-commutative function (see section on dirac gamma matrices for more
+details).
 
 @example
 set_symmetry(const symmetry & s)
