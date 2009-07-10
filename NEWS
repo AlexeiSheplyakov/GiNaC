@@ -1,5 +1,10 @@
 This file records noteworthy changes.
 
+1.5.2 (10 July 2009)
+* Fixed documentation of return_type_info()
+* Fixed cstdio include issue.
+* GiNaC now requires at least version 1.2.2 of cln.
+
 1.5.1 (25 February 2009)
 * Fixed compiling problems with GNU g++ 3.4.
 * Work around weird C++ RTTI behaviour on woe32 so GiNaC works on MinGW again.
