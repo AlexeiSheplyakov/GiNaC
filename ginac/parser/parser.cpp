@@ -24,6 +24,7 @@
 #include "lexer.h"
 #include "debug.h"
 #include "mul.h"
+#include "function.h"
 #include "constant.h"
 
 #include <sstream>
@@ -65,7 +66,7 @@ ex parser::parse_identifier_expr()
 		Parse_error_("no function \"" << name << "\" with " <<
 			     args.size() << " arguments");
 	}
-	ex ret = reader->second(args);
+	ex ret = function(reader->second, args);
 	return ret;
 }
 
