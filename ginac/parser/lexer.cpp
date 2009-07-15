@@ -43,12 +43,12 @@ int lexer::gettok()
 	// Skip any whitespace.
 	c = skipspace(input, c, line_num);
 
-	// identifier: [a-zA-Z][a-zA-Z0-9]*
+	// identifier: [a-zA-Z][a-zA-Z0-9_]*
 	if (isalpha(c)) { 
 		str = c;
 		do {
 			c = input->get();
-			if (isalnum(c))
+			if ( isalnum(c) || c=='_' )
 				str += c;
 			else
 				break;
