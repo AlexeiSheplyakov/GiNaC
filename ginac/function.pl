@@ -1388,7 +1388,9 @@ unsigned function::find_function(const std::string &name, unsigned nparams)
 /** Return the print name of the function. */
 std::string function::get_name() const
 {
-	GINAC_ASSERT(serial<registered_functions().size());
+	if ( serial >= registered_functions().size() ) {
+		throw std::runtime_error("unknown function");
+	}
 	return registered_functions()[serial].name;
 }
 

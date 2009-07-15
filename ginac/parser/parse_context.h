@@ -82,6 +82,11 @@ typedef ex (*reader_func)(const exvector& args);
  *    number of arguments.
  * 3. User can extend the parser via custom prototype tables. It's possible
  *    to read user defined classes, create abbreviations, etc.
+ *
+ * NOTE: due to a hack that allows user defined functions to be parsed, the map
+ *       value of type reader_func is internally treated as an unsigned and not as a
+ *       function pointer!! The unsigned has to correspond to the serial number of
+ *       the defined GiNaC function.
  */
 typedef std::map<prototype, reader_func> prototype_table;
 
