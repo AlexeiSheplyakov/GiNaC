@@ -25,6 +25,7 @@
 #include "debug.h"
 #include "mul.h"
 #include "constant.h"
+#include "function.h"
 
 #include <sstream>
 #include <stdexcept>
@@ -65,7 +66,7 @@ ex parser::parse_identifier_expr()
 		Parse_error_("no function \"" << name << "\" with " <<
 			     args.size() << " arguments");
 	}
-	ex ret = reader->second(args);
+	ex ret = GiNaC::function((unsigned)reader->second, args);
 	return ret;
 }
 

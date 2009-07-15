@@ -37,11 +37,22 @@ const prototype_table& get_default_reader()
 	static bool initialized = false;
 	static prototype_table reader;
 	if (!initialized) {
-[+ FOR function +]
-		reader[make_pair("[+ (get "name") +]", [+ 
-				    (if (exist? "args") (get "args") "1")
-				 +])] = [+ (get "name") +]_reader;[+
-   ENDFOR +]
+		try {
+			for ( unsigned ser=0; ; ++ser ) {
+				GiNaC::function f(ser);
+				std::string name = f.get_name();
+				for ( std::size_t nargs=0; ; ++nargs ) {
+					try {
+						function::find_function(name, nargs);
+						prototype proto = std::pair<std::string, std::size_t>(name, nargs);
+						std::pair<prototype_table::iterator, bool> ins = reader.insert(std::pair<prototype,reader_func>(proto, (reader_func)ser));
+						if ( ins.second ) break;
+					}
+					catch ( std::runtime_error ) { }
+				}
+			}
+		}
+		catch ( std::runtime_error ) { }
 		initialized = true;
 	}
 	return reader;
