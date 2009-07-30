@@ -1,5 +1,9 @@
 This file records noteworthy changes.
 
+1.5.3 (30 July 2009)
+* The parser now understands user-defined functions by default. The identifier
+  names can now contain underscores.
+
 1.5.2 (10 July 2009)
 * Fixed documentation of return_type_info()
 * Fixed cstdio include issue.
