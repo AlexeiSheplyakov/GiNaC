@@ -66,7 +66,7 @@ ex parser::parse_identifier_expr()
 		Parse_error_("no function \"" << name << "\" with " <<
 			     args.size() << " arguments");
 	}
-	ex ret = GiNaC::function((unsigned)reader->second, args);
+	ex ret = GiNaC::function(reinterpret_cast<unsigned>(reader->second), args);
 	return ret;
 }
 
