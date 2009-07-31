@@ -37,6 +37,11 @@ const prototype_table& get_default_reader()
 	static bool initialized = false;
 	static prototype_table reader;
 	if (!initialized) {
+		[+ FOR function +]
+		reader[make_pair("[+ (get "name") +]", [+ 
+			(if (exist? "args") (get "args") "1")
+			+])] = [+ (get "name") +]_reader;[+
+		ENDFOR +]
 		try {
 			for ( unsigned ser=0; ; ++ser ) {
 				GiNaC::function f(ser);

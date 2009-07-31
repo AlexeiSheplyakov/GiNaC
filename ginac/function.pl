@@ -843,6 +843,9 @@ function::function(unsigned ser, const exprseq & es) : exprseq(es), serial(ser)
 function::function(unsigned ser, const exvector & v, bool discardable) 
   : exprseq(v,discardable), serial(ser)
 {
+	if ( ser >= registered_functions().size() ) {
+		throw std::runtime_error("function does not exist");
+	}
 }
 
 function::function(unsigned ser, std::auto_ptr<exvector> vp) 
