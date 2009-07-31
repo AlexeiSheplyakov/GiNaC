@@ -66,8 +66,16 @@ ex parser::parse_identifier_expr()
 		Parse_error_("no function \"" << name << "\" with " <<
 			     args.size() << " arguments");
 	}
-	ex ret = GiNaC::function(reinterpret_cast<unsigned>(reader->second), args);
-	return ret;
+	// dirty hack to distinguish between serial numbers of functions and real
+	// pointers.
+	ex ret;
+	try {
+		ret = GiNaC::function(reinterpret_cast<unsigned>(reader->second), args);
+	}
+	catch ( std::runtime_error ) {
+		ret = reader->second(args);
+	}
+    return ret;
 }
 
 /// paren_expr:  '(' expression ')'
