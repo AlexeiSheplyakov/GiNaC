@@ -68,14 +68,15 @@ ex parser::parse_identifier_expr()
 	}
 	// dirty hack to distinguish between serial numbers of functions and real
 	// pointers.
+	GiNaC::function* f;
 	try {
-		GiNaC::function f(reinterpret_cast<unsigned>(reader->second), args);
-		return f;
+		f = new GiNaC::function(reinterpret_cast<unsigned>(reader->second), args);
 	}
 	catch ( std::runtime_error ) {
 		ex ret = reader->second(args);
 		return ret;
 	}
+	return f->setflag(status_flags::dynallocated);
 }
 
 /// paren_expr:  '(' expression ')'
