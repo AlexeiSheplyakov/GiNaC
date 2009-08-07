@@ -70,7 +70,8 @@ ex parser::parse_identifier_expr()
 	// pointers.
 	GiNaC::function* f = NULL;
 	try {
-		f = new GiNaC::function(reinterpret_cast<unsigned>(reader->second), args);
+		unsigned serial = (unsigned)(unsigned long)(void *)(reader->second);
+		f = new GiNaC::function(serial, args);
 	}
 	catch ( std::runtime_error ) {
 		if ( f ) delete f;
