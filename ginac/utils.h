@@ -128,7 +128,9 @@ int permutation_sign(It first, It last)
 				sign = -sign;
 			} else if (!(*other < *i))
 				return 0;
-			--i; --other;
+			--i;
+			if (i != first)
+				--other;
 		}
 		if (!swapped)
 			return sign;
@@ -147,7 +149,9 @@ int permutation_sign(It first, It last)
 				sign = -sign;
 			} else if (!(*i < *other))
 				return 0;
-			++i; ++other;
+			++i;
+			if (i != last)
+				++other;
 		}
 		if (!swapped)
 			return sign;
@@ -181,7 +185,9 @@ int permutation_sign(It first, It last, Cmp comp, Swap swapit)
 				sign = -sign;
 			} else if (!comp(*other, *i))
 				return 0;
-			--i; --other;
+			--i;
+			if (i != first)
+				--other;
 		}
 		if (!swapped)
 			return sign;
@@ -200,7 +206,9 @@ int permutation_sign(It first, It last, Cmp comp, Swap swapit)
 				sign = -sign;
 			} else if (!comp(*i, *other))
 				return 0;
-			++i; ++other;
+			++i; 
+			if (i != last)
+				++other;
 		}
 		if (!swapped)
 			return sign;
@@ -232,7 +240,9 @@ void shaker_sort(It first, It last, Cmp comp, Swap swapit)
 				flag = other;
 				swapped = true;
 			}
-			--i; --other;
+			--i;
+			if (i != first)
+				--other;
 		}
 		if (!swapped)
 			return;
@@ -249,7 +259,9 @@ void shaker_sort(It first, It last, Cmp comp, Swap swapit)
 				flag = other;
 				swapped = true;
 			}
-			++i; ++other;
+			++i;
+			if (i != last)
+				++other;
 		}
 		if (!swapped)
 			return;
