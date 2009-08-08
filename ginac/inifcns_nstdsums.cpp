@@ -659,6 +659,8 @@ Gparameter::const_iterator check_parameter_G(const Gparameter& a, int scale,
 			++trailing_zeros;
 		}
 	}
+	if (lastnonzero == a.end())
+		return a.end();
 	return ++lastnonzero;
 }
 
