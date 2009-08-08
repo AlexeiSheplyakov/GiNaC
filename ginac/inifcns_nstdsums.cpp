@@ -569,11 +569,12 @@ ex G_eval(const Gparameter& a, int scale, const exvector& gsyms)
 
 			Gparameter newa;
 			Gparameter::const_iterator it2 = short_a.begin();
-			for (--it2; it2 != it;) {
-				++it2;
+			for (; it2 != it; ++it2) {
 				newa.push_back(*it2);
 			}
+			newa.push_back(*it);
 			newa.push_back(a[0]);
+			it2 = it;
 			++it2;
 			for (; it2 != short_a.end(); ++it2) {
 				newa.push_back(*it2);	
