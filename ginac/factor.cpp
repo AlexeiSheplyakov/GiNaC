@@ -691,90 +691,76 @@ public:
 	cl_MI operator()(size_t row, size_t col) const { return m[row*c + col]; }
 	void mul_col(size_t col, const cl_MI x)
 	{
-		mvec::iterator i = m.begin() + col;
 		for ( size_t rc=0; rc<r; ++rc ) {
-			*i = *i * x;
-			i += c;
+			std::size_t i = c*rc + col;
+			m[i] = m[i] * x;
 		}
 	}
 	void sub_col(size_t col1, size_t col2, const cl_MI fac)
 	{
-		mvec::iterator i1 = m.begin() + col1;
-		mvec::iterator i2 = m.begin() + col2;
 		for ( size_t rc=0; rc<r; ++rc ) {
-			*i1 = *i1 - *i2 * fac;
-			i1 += c;
-			i2 += c;
+			std::size_t i1 = col1 + c*rc;
+			std::size_t i2 = col2 + c*rc;
+			m[i1] = m[i1] - m[i2]*fac;
 		}
 	}
 	void switch_col(size_t col1, size_t col2)
 	{
-		cl_MI buf;
-		mvec::iterator i1 = m.begin() + col1;
-		mvec::iterator i2 = m.begin() + col2;
 		for ( size_t rc=0; rc<r; ++rc ) {
-			buf = *i1; *i1 = *i2; *i2 = buf;
-			i1 += c;
-			i2 += c;
+			std::size_t i1 = col1 + rc*c;
+			std::size_t i2 = col2 + rc*c;
+			std::swap(m[i1], m[i2]);
 		}
 	}
 	void mul_row(size_t row, const cl_MI x)
 	{
-		vector<cl_MI>::iterator i = m.begin() + row*c;
 		for ( size_t cc=0; cc<c; ++cc ) {
-			*i = *i * x;
-			++i;
+			std::size_t i = row*c + cc; 
+			m[i] = m[i] * x;
 		}
 	}
 	void sub_row(size_t row1, size_t row2, const cl_MI fac)
 	{
-		vector<cl_MI>::iterator i1 = m.begin() + row1*c;
-		vector<cl_MI>::iterator i2 = m.begin() + row2*c;
 		for ( size_t cc=0; cc<c; ++cc ) {
-			*i1 = *i1 - *i2 * fac;
-			++i1;
-			++i2;
+			std::size_t i1 = row1*c + cc;
+			std::size_t i2 = row2*c + cc;
+			m[i1] = m[i1] - m[i2]*fac;
 		}
 	}
 	void switch_row(size_t row1, size_t row2)
 	{
-		cl_MI buf;
-		vector<cl_MI>::iterator i1 = m.begin() + row1*c;
-		vector<cl_MI>::iterator i2 = m.begin() + row2*c;
 		for ( size_t cc=0; cc<c; ++cc ) {
-			buf = *i1; *i1 = *i2; *i2 = buf;
-			++i1;
-			++i2;
+			std::size_t i1 = row1*c + cc;
+			std::size_t i2 = row2*c + cc;
+			std::swap(m[i1], m[i2]);
 		}
 	}
 	bool is_col_zero(size_t col) const
 	{
 		mvec::const_iterator i = m.begin() + col;
 		for ( size_t rr=0; rr<r; ++rr ) {
-			if ( !zerop(*i) ) {
+			std::size_t i = col + rr*c;
+			if ( !zerop(m[i]) ) {
 				return false;
 			}
-			i += c;
 		}
 		return true;
 	}
 	bool is_row_zero(size_t row) const
 	{
-		mvec::const_iterator i = m.begin() + row*c;
 		for ( size_t cc=0; cc<c; ++cc ) {
-			if ( !zerop(*i) ) {
+			std::size_t i = row*c + cc;
+			if ( !zerop(m[i]) ) {
 				return false;
 			}
-			++i;
 		}
 		return true;
 	}
 	void set_row(size_t row, const vector<cl_MI>& newrow)
 	{
-		mvec::iterator i1 = m.begin() + row*c;
-		mvec::const_iterator i2 = newrow.begin(), end = newrow.end();
-		for ( ; i2 != end; ++i1, ++i2 ) {
-			*i1 = *i2;
+		for (std::size_t i2 = 0; i2 < newrow.size(); ++i2) {
+			std::size_t i1 = row*c + i2;
+			m[i1] = newrow[i2];
 		}
 	}
 	mvec::const_iterator row_begin(size_t row) const { return m.begin()+row*c; }
