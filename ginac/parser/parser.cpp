@@ -32,6 +32,36 @@
 
 namespace GiNaC {
 
+// <KLUDGE>
+// Find out if ptr is a pointer to a function or a specially crafted integer.
+// It's possible to distinguish between these because functions are aligned.
+// Returns true if ptr is a pointer and false otherwise.
+static bool decode_serial(unsigned& serial, const reader_func ptr)
+{
+	uintptr_t u = (uintptr_t)(void *)ptr;
+	if (u & 1) {
+		u >>= 1;
+		serial = (unsigned)u;
+		return false;
+	}
+	return true;
+}
+
+// Figures out if ptr is a pointer to function or a serial of GiNaC function.
+// In the former case calls that function, in the latter case constructs
+// GiNaC function with corresponding serial and arguments.
+static ex dispatch_reader_fcn(const reader_func ptr, const exvector& args)
+{
+	unsigned serial = 0; // dear gcc, could you please shut up?
+	bool is_ptr = decode_serial(serial, ptr);
+	if (is_ptr)
+		return ptr(args);
+	else
+		return function(serial, args);
+}
+// </KLUDGE>
+
+
 /// identifier_expr:  identifier |  identifier '(' expression* ')'
 ex parser::parse_identifier_expr()
 {
@@ -66,19 +96,10 @@ ex parser::parse_identifier_expr()
 		Parse_error_("no function \"" << name << "\" with " <<
 			     args.size() << " arguments");
 	}
-	// dirty hack to distinguish between serial numbers of functions and real
-	// pointers.
-	GiNaC::function* f = NULL;
-	try {
-		unsigned serial = (unsigned)(unsigned long)(void *)(reader->second);
-		f = new GiNaC::function(serial, args);
-	}
-	catch ( std::runtime_error ) {
-		if ( f ) delete f;
-		ex ret = reader->second(args);
-		return ret;
-	}
-	return f->setflag(status_flags::dynallocated);
+	// reader->second might be a pointer to a C++ function or a specially
+	// crafted serial of a GiNaC::function.
+	ex ret = dispatch_reader_fcn(reader->second, args);
+	return ret;
 }
 
 /// paren_expr:  '(' expression ')'

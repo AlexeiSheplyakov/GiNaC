@@ -19,6 +19,12 @@ COMMENT a part of GiNaC parser -- construct functions from a byte stream.
 #include "power.h"
 #include "operators.h"
 #include "inifcns.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+#ifdef HAVE_STDINT_H
+#include <stdint.h> // for uintptr_t
+#endif
 
 namespace GiNaC
 {
@@ -31,6 +37,31 @@ static ex [+ (get "name") +]_reader(const exvector& ev)
 		  (format '#f "~{ev[~a]~^, ~}" (sequence 0 (- nargs 1)))) +]);
 }[+ ENDFOR +]
 
+// function::registered_functions() is protected, but we need to access it
+class registered_functions_hack : public function
+{
+public:
+	static const std::vector<function_options>& get_registered_functions()
+	{
+		return function::registered_functions();
+	}
+private:
+	registered_functions_hack();
+	registered_functions_hack(const registered_functions_hack&);
+	registered_functions_hack& operator=(const registered_functions_hack&);
+};
+
+// Encode an integer into a pointer to a function. Since functions
+// are aligned (the minimal alignment depends on CPU architecture)
+// we can distinguish between pointers and integers.
+static reader_func encode_serial_as_reader_func(unsigned serial)
+{
+	uintptr_t u = (uintptr_t)serial;
+	u = (u << 1) | (uintptr_t)1;
+	reader_func ptr = reinterpret_cast<reader_func>((void *)u);
+	return ptr;
+}
+
 const prototype_table& get_default_reader()
 {
 	using std::make_pair;
@@ -42,22 +73,16 @@ const prototype_table& get_default_reader()
 			(if (exist? "args") (get "args") "1")
 			+])] = [+ (get "name") +]_reader;[+
 		ENDFOR +]
-		try {
-			for ( unsigned ser=0; ; ++ser ) {
-				GiNaC::function f(ser);
-				std::string name = f.get_name();
-				for ( std::size_t nargs=0; ; ++nargs ) {
-					try {
-						function::find_function(name, nargs);
-						prototype proto = std::pair<std::string, std::size_t>(name, nargs);
-						std::pair<prototype_table::iterator, bool> ins = reader.insert(std::pair<prototype,reader_func>(proto, (reader_func)ser));
-						if ( ins.second ) break;
-					}
-					catch ( std::runtime_error ) { }
-				}
-			}
+		std::vector<function_options>::const_iterator it =
+			registered_functions_hack::get_registered_functions().begin();
+		std::vector<function_options>::const_iterator end =
+			registered_functions_hack::get_registered_functions().end();
+		unsigned serial = 0;
+		for (; it != end; ++it) {
+			prototype proto = make_pair(it->get_name(), it->get_nparams());
+			reader[proto] = encode_serial_as_reader_func(serial);
+			++serial;
 		}
-		catch ( std::runtime_error ) { }
 		initialized = true;
 	}
 	return reader;
