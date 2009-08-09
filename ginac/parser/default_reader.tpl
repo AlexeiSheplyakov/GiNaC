@@ -89,4 +89,57 @@ const prototype_table& get_default_reader()
 	return reader;
 }
 
+const prototype_table& get_builtin_reader()
+{
+	using std::make_pair;
+	static bool initialized = false;
+	static prototype_table reader;
+	if (!initialized) {
+		[+ FOR function +]
+		reader[make_pair("[+ (get "name") +]", [+ 
+			(if (exist? "args") (get "args") "1")
+			+])] = [+ (get "name") +]_reader;[+
+		ENDFOR +]
+		enum {
+			log,
+			exp,
+			sin,
+			cos,
+			tan,
+			asin,
+			acos,
+			atan,
+			sinh,
+			cosh,
+			tanh,
+			asinh,
+			acosh,
+			atanh,
+			atan2,
+			Li2,
+			Li3,
+			zetaderiv,
+			Li,
+			S,
+			H,
+			lgamma,
+			tgamma,
+			beta,
+			factorial,
+			binomial,
+			Order,
+			NFUNCTIONS
+		};
+		std::vector<function_options>::const_iterator it =
+			registered_functions_hack::get_registered_functions().begin();
+		unsigned serial = 0;
+		for ( ; serial<NFUNCTIONS; ++it, ++serial ) {
+			prototype proto = make_pair(it->get_name(), it->get_nparams());
+			reader[proto] = encode_serial_as_reader_func(serial);
+		}
+		initialized = true;
+	}
+	return reader;
+}
+
 } // namespace GiNaC

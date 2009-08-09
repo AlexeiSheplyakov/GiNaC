@@ -93,9 +93,15 @@ typedef std::map<prototype, reader_func> prototype_table;
 /**
  * Default prototype table.
  *
- * It supports most of builtin GiNaC functions.
+ * It supports all defined GiNaC functions and "pow", "sqrt", and "power".
  */
 extern const prototype_table& get_default_reader();
+/**
+ * Builtin prototype table.
+ *
+ * It supports only the builtin GiNaC functions and "pow", "sqrt", and "power".
+ */
+extern const prototype_table& get_builtin_reader();
 
 } // namespace GiNaC
 
