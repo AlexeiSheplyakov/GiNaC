@@ -22,6 +22,7 @@ COMMENT a part of GiNaC parser -- construct functions from a byte stream.
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
 #ifdef HAVE_STDINT_H
 #include <stdint.h> // for uintptr_t
 #endif
@@ -87,5 +88,5 @@ const prototype_table& get_default_reader()
 	}
 	return reader;
 }
-} // namespace GiNaC
 
+} // namespace GiNaC
