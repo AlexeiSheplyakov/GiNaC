@@ -12,10 +12,11 @@ dnl version number. In particular, library version is OS dependent.
 dnl
 dnl When making releases, do
 dnl 1. Increment ginac_lt_revision
-dnl 2. If any interfaces have been added, removed, or changed since the last
-dnl    release, increment ginac_lt_current and set ginac_lt_revision to 0.
-dnl 3. If any interfaces have been removed since the last release, set 
-dnl    ginac_lt_age to 0.
+dnl 2. If any interfaces have been added since the last release, increment
+dnl    ginac_lt_current and set ginac_lt_revision to 0.
+dnl 3. If any interfaces have been changed or removed since the last release,
+dnl    make sure you increment ginac_minor_version above and reset both
+dnl    ginac_lt_current and ginac_lt_revision to 0.
 dnl
 dnl Please note: the libtool naming scheme cannot guarantee that on all
 dnl systems, the numbering is consecutive. It only guarantees that it is
@@ -23,7 +24,6 @@ dnl increasing. This doesn't matter, though: there is not incurred cost
 dnl for numbers that are omitted, except for shrinking the available space
 dnl of leftover numbers. Not something we need to worry about yet. ;-)
 m4_define([ginac_lt_current], [0])
-m4_define([ginac_lt_age], [0])
 m4_define([ginac_lt_revision], [0])
 
 AC_INIT([GiNaC], ginac_version, [<ginac-list@ginac.de>])
@@ -57,8 +57,9 @@ AC_SUBST(ARCHIVE_AGE)
 AC_DEFINE_UNQUOTED(ARCHIVE_VERSION, $ARCHIVE_VERSION, [Current GiNaC archive file version number])
 AC_DEFINE_UNQUOTED(ARCHIVE_AGE, $ARCHIVE_AGE, [GiNaC archive file version age])
 
-dnl libtool versioning
-LT_VERSION_INFO="ginac_lt_current:ginac_lt_revision:ginac_lt_age"
+dnl libtool versioning (We don't use libtool's age numbering since we promise
+dnl to keep the binary interface compatible if only ginac_micro_version changes.)
+LT_VERSION_INFO="ginac_lt_current:ginac_lt_revision:0"
 LT_RELEASE="ginac_release"
 
 AC_SUBST(LT_VERSION_INFO)
@@ -80,10 +81,7 @@ AC_LANG([C++])
 dnl Make sure all the necessary standard headers are installed on the system.
 GINAC_STD_CXX_HEADERS
 
-dnl We need to have Bruno Haible's CLN installed.
-dnl (pkg-config must have installed pkg.m4 at a visible place, which provides
-dnl this macro. CLN >= 1.1.6 must have installed cln.pc at a visible place,
-dnl which provides the actual dependency information.)
+dnl We need to have CLN installed.
 PKG_CHECK_MODULES(CLN, cln >= 1.2.2)
 AC_LIB_LINKFLAGS_FROM_LIBS([CLN_RPATH], [$CLN_LIBS], [1])
 LIBS="$LIBS $CLN_LIBS $CLN_RPATH"
