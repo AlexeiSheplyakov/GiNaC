@@ -1,6 +1,0 @@
-debian/tmp/usr/lib/libginac.la
-debian/tmp/usr/lib/libginac.a
-debian/tmp/usr/lib/libginac.so
-debian/tmp/usr/include/ginac/*
-debian/tmp/usr/lib/pkgconfig/ginac.pc
-debian/tmp/usr/share/info/ginac.info*
