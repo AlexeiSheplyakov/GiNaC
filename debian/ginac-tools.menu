@@ -1,7 +1,0 @@
-?package(ginac-tools):\
-  needs="text"\
-  section="Applications/Science/Mathematics"\
-  title="Ginsh"\
-  longtitle="Ginsh - GiNaC interactive shell"\
-  command="/usr/bin/ginsh" \
-  icon="/usr/share/pixmaps/ginac.xpm"
