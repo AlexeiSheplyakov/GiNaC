@@ -30,12 +30,6 @@
 #include <map>
 #include <string>
 #include <utility>
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-#ifdef HAVE_STDINT_H
-#include <stdint.h> // for uintptr_t
-#endif
 
 namespace GiNaC {
 

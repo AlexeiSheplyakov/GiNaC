@@ -26,7 +26,13 @@
 #include "mul.h"
 #include "constant.h"
 #include "function.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
+#ifdef HAVE_STDINT_H
+#include <stdint.h> // for uintptr_t
+#endif
 #include <sstream>
 #include <stdexcept>
 
