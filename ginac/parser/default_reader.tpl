@@ -19,6 +19,13 @@ COMMENT a part of GiNaC parser -- construct functions from a byte stream.
 #include "power.h"
 #include "operators.h"
 #include "inifcns.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#ifdef HAVE_STDINT_H
+#include <stdint.h> // for uintptr_t
+#endif
 
 namespace GiNaC
 {
