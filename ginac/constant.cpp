@@ -60,7 +60,7 @@ constant::constant(const std::string & initname, evalffunctype efun, const std::
   : name(initname), ef(efun), serial(next_serial++), domain(dm)
 {
 	if (texname.empty())
-		TeX_name = "\\mbox{" + name + "}";
+		TeX_name = "\\mathrm{" + name + "}";
 	else
 		TeX_name = texname;
 	setflag(status_flags::evaluated | status_flags::expanded);
@@ -70,7 +70,7 @@ constant::constant(const std::string & initname, const numeric & initnumber, con
   : name(initname), ef(0), number(initnumber), serial(next_serial++), domain(dm)
 {
 	if (texname.empty())
-		TeX_name = "\\mbox{" + name + "}";
+		TeX_name = "\\mathrm{" + name + "}";
 	else
 		TeX_name = texname;
 	setflag(status_flags::evaluated | status_flags::expanded);
@@ -131,7 +131,7 @@ void constant::do_print_latex(const print_latex & c, unsigned level) const
 void constant::do_print_python_repr(const print_python_repr & c, unsigned level) const
 {
 	c.s << class_name() << "('" << name << "'";
-	if (TeX_name != "\\mbox{" + name + "}")
+	if (TeX_name != "\\mathrm{" + name + "}")
 		c.s << ",TeX_name='" << TeX_name << "'";
 	c.s << ')';
 }
