@@ -1686,7 +1686,7 @@ static void Li_print_latex(const ex& m_, const ex& x_, const print_context& c)
 	} else {
 		x = lst(x_);
 	}
-	c.s << "\\mbox{Li}_{";
+	c.s << "\\mathrm{Li}_{";
 	lst::const_iterator itm = m.begin();
 	(*itm).print(c);
 	itm++;
@@ -2202,7 +2202,7 @@ static ex S_deriv(const ex& n, const ex& p, const ex& x, unsigned deriv_param)
 
 static void S_print_latex(const ex& n, const ex& p, const ex& x, const print_context& c)
 {
-	c.s << "\\mbox{S}_{";
+	c.s << "\\mathrm{S}_{";
 	n.print(c);
 	c.s << ",";
 	p.print(c);
@@ -3408,7 +3408,7 @@ static void H_print_latex(const ex& m_, const ex& x, const print_context& c)
 	} else {
 		m = lst(m_);
 	}
-	c.s << "\\mbox{H}_{";
+	c.s << "\\mathrm{H}_{";
 	lst::const_iterator itm = m.begin();
 	(*itm).print(c);
 	itm++;
