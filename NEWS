@@ -1,5 +1,15 @@
 This file records noteworthy changes.
 
+1.5.4 (02 November 2009)
+* Default parser now can again read in user defined classes.
+* Add mul::info() and add::info() support for numeric info_flags (GiNaC now can
+  detect that the sum or product of a number of positive expressions is again a
+  positive expression).
+* Fixed cast that caused compile error on 64bit machines.
+* Fixed incorrect uses of STL iterators.
+* Removed subdirectory debian.
+* Output LaTeX-symbols using \mathrm, instead of \mbox.
+
 1.5.3 (30 July 2009)
 * The parser now understands user-defined functions by default. The identifier
   names can now contain underscores.
