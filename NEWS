@@ -1,5 +1,8 @@
 This file records noteworthy changes.
 
+1.5.5 (04 November 2009)
+* Correct libtool versioning.
+
 1.5.4 (02 November 2009)
 * Default parser now can again read in user defined classes.
 * Add mul::info() and add::info() support for numeric info_flags (GiNaC now can

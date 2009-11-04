@@ -3,7 +3,7 @@ dnl Process this file with autoconf to produce a configure script.
 dnl GiNaC version number
 m4_define([ginac_major_version], [1])
 m4_define([ginac_minor_version], [5])
-m4_define([ginac_micro_version], [4])
+m4_define([ginac_micro_version], [5])
 m4_define([ginac_version], [ginac_major_version.ginac_minor_version.ginac_micro_version])
 m4_define([ginac_release], [ginac_major_version.ginac_minor_version])
 
