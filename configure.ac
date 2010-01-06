@@ -104,6 +104,7 @@ GINAC_READLINE
 
 dnl Check for dl library (needed for GiNaC::compile).
 GINAC_EXCOMPILER
+AM_CONDITIONAL(CONFIG_EXCOMPILER, [test "x${CONFIG_EXCOMPILER}" = "xyes"])
 
 dnl Check for utilities needed by the different kinds of documentation.
 dnl Documentation needs only be built when extending it, so never mind if it
