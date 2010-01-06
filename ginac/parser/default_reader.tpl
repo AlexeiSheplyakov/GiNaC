@@ -59,7 +59,7 @@ static reader_func encode_serial_as_reader_func(unsigned serial)
 {
 	uintptr_t u = (uintptr_t)serial;
 	u = (u << 1) | (uintptr_t)1;
-	reader_func ptr = reinterpret_cast<reader_func>((void *)u);
+	reader_func ptr = (reader_func)((void *)u);
 	return ptr;
 }
 
