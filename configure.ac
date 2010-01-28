@@ -3,7 +3,7 @@ dnl Process this file with autoconf to produce a configure script.
 dnl GiNaC version number
 m4_define([ginac_major_version], [1])
 m4_define([ginac_minor_version], [5])
-m4_define([ginac_micro_version], [5])
+m4_define([ginac_micro_version], [6])
 m4_define([ginac_version], [ginac_major_version.ginac_minor_version.ginac_micro_version])
 m4_define([ginac_release], [ginac_major_version.ginac_minor_version])
 
@@ -24,7 +24,7 @@ dnl increasing. This doesn't matter, though: there is not incurred cost
 dnl for numbers that are omitted, except for shrinking the available space
 dnl of leftover numbers. Not something we need to worry about yet. ;-)
 m4_define([ginac_lt_current], [1])
-m4_define([ginac_lt_revision], [0])
+m4_define([ginac_lt_revision], [1])
 
 AC_INIT([GiNaC], ginac_version, [<ginac-list@ginac.de>])
 AC_PREREQ(2.59)
