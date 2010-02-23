@@ -30,6 +30,7 @@ EXAMS = exam_paranoia \
 	exam_misc \
 	exam_mod_gcd \
 	bugme_chinrem_gcd \
+	pgcd_relatively_prime_bug \
 	exam_cra
 
 TIMES = time_dennyfliegner \
@@ -255,6 +256,8 @@ time_parser_LDADD = ../ginac/libginac.la
 bugme_chinrem_gcd_SOURCES = bugme_chinrem_gcd.cpp
 bugme_chinrem_gcd_LDADD = ../ginac/libginac.la
 
+pgcd_relatively_prime_bug_SOURCES = pgcd_relatively_prime_bug.cpp
+pgcd_relatively_prime_bug_LDADD = ../ginac/libginac.la
 
 AM_CPPFLAGS = -I$(srcdir)/../ginac -I../ginac -DIN_GINAC
 

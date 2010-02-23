@@ -121,6 +121,8 @@ ex pgcd(const ex& A, const ex& B, const exvector& vars, const long p)
 			// evaluation point is bad. Skip it.
 			continue;
 		}
+		if (img_gcd_deg == 0)
+			return cont_gcd;
 
 		// Image has the same degree as the previous one
 		// (or at least not higher than the limit)
@@ -145,8 +147,6 @@ ex pgcd(const ex& A, const ex& B, const exvector& vars, const long p)
 			if (divide_in_z_p(Aprim, C, dummy1, vars, p) &&
 					divide_in_z_p(Bprim, C, dummy2, vars, p))
 				return (cont_gcd*C).expand().smod(pn);
-			else if (img_gcd_deg == 0)
-				return cont_gcd;
 			// else continue building the candidate
 		} 
 	} while(true);
