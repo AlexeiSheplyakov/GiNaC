@@ -4,7 +4,7 @@
  *  This file must be processed with yacc/bison. */
 
 /*
- *  GiNaC Copyright (C) 1999-2009 Johannes Gutenberg University Mainz, Germany
+ *  GiNaC Copyright (C) 1999-2010 Johannes Gutenberg University Mainz, Germany
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -899,7 +899,7 @@ static void ginsh_readline_init(char* name)
 void greeting(void)
 {
     cout << "ginsh - GiNaC Interactive Shell (" << PACKAGE << " V" << VERSION << ")" << endl;
-    cout << "  __,  _______  Copyright (C) 1999-2009 Johannes Gutenberg University Mainz,\n"
+    cout << "  __,  _______  Copyright (C) 1999-2010 Johannes Gutenberg University Mainz,\n"
          << " (__) *       | Germany.  This is free software with ABSOLUTELY NO WARRANTY.\n"
          << "  ._) i N a C | You are welcome to redistribute it under certain conditions.\n"
          << "<-------------' For details type `warranty;'.\n" << endl;
