@@ -842,7 +842,7 @@ static ex atan2_eval(const ex & y, const ex & x)
 			return _ex1_2*Pi;
 
 		// atan(y, 0), y real and negative -> -Pi/2
-		if (y.info(info_flags::negative))
+		if (y.info(info_flags::real) && !y.is_zero())
 			return _ex_1_2*Pi;
 	}
 
