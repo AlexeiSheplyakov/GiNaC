@@ -1,5 +1,11 @@
 This file records noteworthy changes.
 
+1.5.7 (29 March 2010)
+* Fixed a bug in the GCD code (infinite loop in pgcd()).
+* Fixed a bug in atan2() (division by zero error for atan2(x,0) if x is a
+  negative and composite term).
+* Products now correctly set info_flags::negative and info_flags::negint.
+
 1.5.6 (28 January 2010)
 * Fixed compile problem with gcc 3.4.
 * Improved excompiler: The ginac-excompiler script will only be installed if
