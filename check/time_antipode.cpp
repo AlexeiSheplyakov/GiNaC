@@ -72,6 +72,7 @@ static ex div_part(const ex &exarg, const symbol &x, unsigned grad)
 /* F_ab(a, i, b, j, "x") is a common pattern in all vertex evaluators. */
 static ex F_ab(int a, int i, int b, int j, const symbol &x)
 {
+	using GiNaC::tgamma;
 	if ((i==0 && a<=0) || (j==0 && b<=0))
 		return 0;
 	else

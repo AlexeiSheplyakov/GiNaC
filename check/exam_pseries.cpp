@@ -173,6 +173,7 @@ static unsigned exam_series3()
 // Series exponentiation
 static unsigned exam_series4()
 {
+	using GiNaC::tgamma;
 	unsigned result = 0;
 	ex e, d;
 	
@@ -211,6 +212,7 @@ static unsigned exam_series5()
 // Series expansion of tgamma(-1)
 static unsigned exam_series6()
 {
+	using GiNaC::tgamma;
 	ex e = tgamma(2*x);
 	ex d = pow(x+1,-1)*numeric(1,4) +
 	       pow(x+1,0)*(numeric(3,4) -
@@ -328,6 +330,7 @@ static unsigned exam_series11()
 static unsigned exam_series12()
 {
 	using GiNaC::log;
+	using GiNaC::atanh;
 
 	unsigned result = 0;
 	ex e, d;
