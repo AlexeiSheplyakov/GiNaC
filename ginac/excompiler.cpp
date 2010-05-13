@@ -113,12 +113,12 @@ public:
 			char* new_filename = new char[strlen(filename_pattern)+1];
 			strcpy(new_filename, filename_pattern);
 			if (!mktemp(new_filename)) {
-				delete new_filename;
+				delete[] new_filename;
 				throw std::runtime_error("mktemp failed");
 			}
 			filename = std::string(new_filename);
 			ofs.open(new_filename, std::ios::out);
-			delete new_filename;
+			delete[] new_filename;
 		} else {
 			// use parameter as filename
 			ofs.open(filename.c_str(), std::ios::out);
