@@ -727,7 +727,7 @@ static void insert_fcns(const fcn_init *p)
 
 static ex f_ginac_function(const exprseq &es, int serial)
 {
-	return function(serial, es).eval(1);
+	return GiNaC::function(serial, es).eval(1);
 }
 
 // All registered GiNaC functions

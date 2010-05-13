@@ -33,13 +33,13 @@ unsigned tgammaseries(unsigned order)
 	unsigned result = 0;
 	symbol x;
 
-	ex myseries = series(tgamma(x),x==0,order);
+	ex myseries = series(GiNaC::tgamma(x),x==0,order);
 	// compute the last coefficient numerically:
 	ex last_coeff = myseries.coeff(x,order-1).evalf();
 	// compute a bound for that coefficient using a variation of the leading
 	// term in Stirling's formula:
 	ex bound = exp(-.57721566490153286*(order-1))/(order-1);
-	if (abs((last_coeff-pow(-1,order))/bound) > 1) {
+	if (abs((last_coeff-pow(-1,ex(order)))/bound) > 1) {
 		clog << "The " << order-1
 		     << "th order coefficient in the power series expansion of tgamma(0) was erroneously found to be "
 		     << last_coeff << ", violating a simple estimate." << endl;

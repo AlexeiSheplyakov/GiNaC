@@ -80,7 +80,7 @@ static unsigned inifcns_test_S()
 	int digitsbuf = Digits;
 	// precision of data
 	Digits = 22;
-	ex prec = 5 * pow(10, -(int)Digits);
+	ex prec = 5 * pow(10, -(ex)Digits);
 	
 	unsigned result = 0;
 	
@@ -125,9 +125,10 @@ static unsigned inifcns_test_S()
 
 static unsigned inifcns_test_HLi()
 {
+	using GiNaC::log;
 	int digitsbuf = Digits;
 	Digits = 17;
-	ex prec = 5 * pow(10, -(int)Digits);
+	ex prec = 5 * pow(10, -(ex)Digits);
 	numeric almostone("0.999999999999999999");
 	unsigned result = 0;
 
@@ -198,7 +199,7 @@ static unsigned inifcns_test_zeta()
 	
 	for (lst::const_iterator it = res.begin(); it != res.end(); it++) {
 		Digits = 17;
-		ex prec = 5 * pow(10, -(int)Digits);
+		ex prec = 5 * pow(10, -(ex)Digits);
 		ex diff = abs((*it).evalf());
 		if (diff > prec) {
 			clog << *it << " seems to be wrong: " << diff << endl;
@@ -207,7 +208,7 @@ static unsigned inifcns_test_zeta()
 		}
 		cout << "." << flush;
 		Digits = 40;
-		prec = 5 * pow(10, -(int)Digits);
+		prec = 5 * pow(10, -(ex)Digits);
 		diff = abs((*it).evalf());
 		if (diff > prec) {
 			clog << *it << " seems to be wrong: " << diff << endl;
@@ -234,7 +235,7 @@ static unsigned inifcns_test_LiG()
 {
 	int digitsbuf = Digits;
 	Digits = 17;
-	ex prec = 5 * pow(10, -(int)Digits);
+	ex prec = 5 * pow(10, -(ex)Digits);
 	numeric almostone("0.99999999999999999999");
 	unsigned result = 0;
 
@@ -300,7 +301,7 @@ static unsigned inifcns_test_LiG()
 static unsigned inifcns_test_legacy()
 {
 	Digits = 17;
-	ex prec = 5 * pow(10, -(int)Digits);
+	ex prec = 5 * pow(10, -(ex)Digits);
 
 	unsigned result = 0;
 
@@ -327,7 +328,7 @@ static unsigned inifcns_test_legacy()
 	}
 
 	Digits = 100;
-	prec = 5 * pow(10, -(int)Digits);
+	prec = 5 * pow(10, -(ex)Digits);
 	ex x0 = 1.;
 	   x1 = exp(Pi*I/3).evalf();
 	   x2 = exp(2*Pi*I/3).evalf();

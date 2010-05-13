@@ -31,6 +31,7 @@ using namespace std;
 static unsigned inifcns_consist_trans()
 {
 	using GiNaC::asin; using GiNaC::acos;
+	using GiNaC::asinh; using GiNaC::acosh; using GiNaC::atanh;
 
 	unsigned result = 0;
 	symbol x("x");
@@ -124,6 +125,7 @@ static unsigned inifcns_consist_trans()
  * exists in closed form and check if it's ok. */
 static unsigned inifcns_consist_gamma()
 {
+	using GiNaC::tgamma;
 	unsigned result = 0;
 	ex e;
 	
@@ -170,6 +172,7 @@ static unsigned inifcns_consist_gamma()
 static unsigned inifcns_consist_psi()
 {
 	using GiNaC::log;
+	using GiNaC::tgamma;
 
 	unsigned result = 0;
 	symbol x;
