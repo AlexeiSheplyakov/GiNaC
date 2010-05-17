@@ -134,8 +134,6 @@ ex pgcd(const ex& A, const ex& B, const exvector& vars, const long p)
 		const ex H_lcoeff = lcoeff_wrt(H, restvars);
 
 		if (H_lcoeff.is_equal(lc_gcd)) {
-			if ((Hprev-H).expand().smod(pn).is_zero())
-				continue;
 			ex C /* primitive part of H */, contH /* dummy */;
 			primpart_content(C, contH, H, vars, p);
 			// Normalize GCD so that leading coefficient is 1
