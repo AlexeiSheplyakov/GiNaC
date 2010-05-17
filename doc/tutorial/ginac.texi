@@ -6569,7 +6569,7 @@ pointer types at the moment:
 @cindex Monte Carlo integration
 @code{FUNCP_2P} allows for two variables in the expression. @code{FUNCP_CUBA} is
 the correct type to be used with the CUBA library
-(@uref{http://www.feynarts/cuba}) for numerical integrations. The details for the
+(@uref{http://www.feynarts.de/cuba}) for numerical integrations. The details for the
 parameters of @code{FUNCP_CUBA} are explained in the CUBA manual.
 
 @cindex compile_ex
