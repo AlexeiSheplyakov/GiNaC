@@ -148,8 +148,14 @@ ex_collect_to_ex(const ex_collect_t& ec, const GiNaC::exvector& vars)
 		exvector tv;
 		tv.reserve(vars.size() + 1);
 		for (std::size_t j = 0; j < vars.size(); ++j) {
-			if (ec[i].first[j] != 0)
-				tv.push_back(power(vars[j], ec[i].first[j]));
+			const exp_vector_t& exp_vector(ec[i].first);
+
+			bug_on(exp_vector.size() != vars.size(),
+				"expected " << vars.size() << " variables, "
+				"expression has " << exp_vector.size() << " instead");
+
+			if (exp_vector[j] != 0)
+				tv.push_back(power(vars[j], exp_vector[j]));
 		}
 		tv.push_back(ec[i].second);
 		ex tmp = (new mul(tv))->setflag(status_flags::dynallocated);
