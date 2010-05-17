@@ -27,6 +27,7 @@
 #include "primes_factory.h"
 #include "divide_in_z_p.h"
 #include "poly_cra.h"
+#include <numeric> // std::accumulate
 
 #include <cln/integer.h>
 
@@ -58,11 +59,14 @@ ex chinrem_gcd(const ex& A_, const ex& B_, const exvector& vars)
 	const cln::cl_I g_lc = cln::gcd(a_lc, b_lc);
 
 	const ex& x(vars.back());
-	int n = std::min(A.degree(x), B.degree(x));
+	exp_vector_t n = std::min(degree_vector(A, vars), degree_vector(B, vars));
+	const int nTot = std::accumulate(n.begin(), n.end(), 0);
 	const cln::cl_I A_max_coeff = to_cl_I(A.max_coefficient()); 
 	const cln::cl_I B_max_coeff = to_cl_I(B.max_coefficient());
-	const cln::cl_I lcoeff_limit = (cln::cl_I(1) << n)*cln::abs(g_lc)*
+
+	const cln::cl_I lcoeff_limit = (cln::cl_I(1) << nTot)*cln::abs(g_lc)*
 		std::min(A_max_coeff, B_max_coeff);
+
 
 	cln::cl_I q = 0;
 	ex H = 0;
@@ -83,8 +87,8 @@ ex chinrem_gcd(const ex& A_, const ex& B_, const exvector& vars)
 		const cln::cl_I Cp_lc = integer_lcoeff(Cp, vars);
 		const cln::cl_I nlc = smod(recip(Cp_lc, p)*g_lcp, p);
 		Cp = (Cp*numeric(nlc)).expand().smod(pnum);
-		int cp_deg = Cp.degree(x);
-		if (cp_deg == 0)
+		exp_vector_t cp_deg = degree_vector(Cp, vars);
+		if (zerop(cp_deg))
 			return numeric(g_lc);
 		if (zerop(q)) {
 			H = Cp;

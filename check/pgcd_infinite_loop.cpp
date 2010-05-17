@@ -26,12 +26,16 @@ static const string srep("\
 
 int main(int argc, char** argv)
 {
-	cout << "Checking for more pgcd() bugs (infinite loop) ... " << flush;
+	cout << "Checking for more pgcd() bugs (infinite loop, miscalculation) ... " << flush;
 	parser the_parser;
 	ex e = the_parser(srep);
 	const symbol x = ex_to<symbol>(the_parser.get_syms()["x"]);
 	ex g = gcd(e, e.diff(x));
+	ex should_be = the_parser(string("u^4*z^2"));
+	if (!(g-should_be).expand().is_zero()) {
+		cout << "GCD was miscomputed. " << flush;
+		return 1;
+	}
 	cout << "not found. " << flush;
-	cout << g << endl << flush;
 	return 0;
 }
