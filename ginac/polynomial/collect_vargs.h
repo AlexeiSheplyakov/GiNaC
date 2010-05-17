@@ -28,10 +28,34 @@
 #include <cln/integer.h>
 #include <utility> // for std::pair
 #include <vector>
+#include <algorithm> // std::lexicographical_compare
 
 namespace GiNaC {
 
 typedef std::vector<int> exp_vector_t;
+
+static inline bool operator<(const exp_vector_t& v1, const exp_vector_t& v2)
+{
+	return std::lexicographical_compare(v1.rbegin(), v1.rend(),
+					    v2.rbegin(), v2.rend());
+}
+
+static inline bool operator>(const exp_vector_t& v1, const exp_vector_t& v2)
+{
+	if (v1 == v2)
+		return false;
+	return !(v1 < v2);
+}
+
+static inline bool zerop(const exp_vector_t& v)
+{
+	for (exp_vector_t::const_reverse_iterator i = v.rbegin(); i != v.rend(); ++i) {
+		if (*i != 0) 
+			return false;
+	}
+	return true;
+}
+
 typedef std::vector<std::pair<exp_vector_t, ex> > ex_collect_t;
 
 extern void
@@ -45,6 +69,13 @@ ex_collect_to_ex(const ex_collect_t& ec, const exvector& x);
  * being univariate polynomials in R[x_n] (where R is some ring)
  */
 extern ex lcoeff_wrt(ex e, const exvector& x);
+
+
+/**
+ * Degree vector of a leading term of a multivariate polynomial.
+ * (generalization of degree(expr, var))
+ */
+extern exp_vector_t degree_vector(ex e, const exvector& vars);
 
 /**
  * Leading coefficient c \in R (where R = Z or Z_p) of a multivariate

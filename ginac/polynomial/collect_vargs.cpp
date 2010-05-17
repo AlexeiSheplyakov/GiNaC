@@ -177,6 +177,18 @@ ex lcoeff_wrt(ex e, const exvector& x)
 	return ec.rbegin()->second;
 }
 
+exp_vector_t degree_vector(ex e, const exvector& vars)
+{
+	e = e.expand();
+	exp_vector_t dvec(vars.size());
+	for (std::size_t i = vars.size(); i-- != 0; ) {
+		const int deg_i = e.degree(vars[i]);
+		e = e.coeff(vars[i], deg_i);
+		dvec[i] = deg_i;
+	}
+	return dvec;
+}
+
 cln::cl_I integer_lcoeff(const ex& e, const exvector& vars)
 {
 	ex_collect_t ec;
