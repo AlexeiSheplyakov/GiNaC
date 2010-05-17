@@ -80,7 +80,8 @@ ex pgcd(const ex& A, const ex& B, const exvector& vars, const long p)
 	const ex lc_gcd = euclid_gcd(AL, BL, mainvar, p);
 
 	// The estimate of degree of the gcd of Ab and Bb
-	int gcd_deg = std::min(degree(Aprim, mainvar), degree(Bprim, mainvar));
+	exp_vector_t gcd_deg = std::min(degree_vector(Aprim, restvars),
+					degree_vector(Bprim, restvars));
 	eval_point_finder::value_type b;
 
 	eval_point_finder find_eval_point(p);
@@ -105,8 +106,11 @@ ex pgcd(const ex& A, const ex& B, const exvector& vars, const long p)
 		const cln::cl_I correct_lc = smod(lcb_gcd*recip(Cblc, p), p);
 		Cb = (Cb*numeric(correct_lc)).smod(pn);
 
+		const exp_vector_t img_gcd_deg = degree_vector(Cb, restvars);
+		// Test for relatively prime polynomials
+		if (zerop(img_gcd_deg))
+			return cont_gcd;
 		// Test for unlucky homomorphisms
-		const int img_gcd_deg = Cb.degree(restvars.back());
 		if (img_gcd_deg < gcd_deg) {
 			// The degree decreased, previous homomorphisms were
 			// bad, so we have to start it all over.
@@ -121,8 +125,6 @@ ex pgcd(const ex& A, const ex& B, const exvector& vars, const long p)
 			// evaluation point is bad. Skip it.
 			continue;
 		}
-		if (img_gcd_deg == 0)
-			return cont_gcd;
 
 		// Image has the same degree as the previous one
 		// (or at least not higher than the limit)
