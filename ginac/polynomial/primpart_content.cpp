@@ -62,7 +62,7 @@ void primpart_content(ex& pp, ex& c, ex e, const exvector& vars,
 		// p_1(x_n) p_2(x_0, \ldots, x_{n-1})
 		c = ec.rbegin()->second;
 		ec.rbegin()->second = ex1;
-		pp = ex_collect_to_ex(ec, vars).expand().smod(numeric(p));
+		pp = ex_collect_to_ex(ec, rest_vars).expand().smod(numeric(p));
 		return;
 	}
 
