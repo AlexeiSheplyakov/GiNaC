@@ -172,7 +172,7 @@ public:
 		for (std::vector<filedesc>::iterator it = filelist.begin(); it != filelist.end();) {
 			if (it->name == filename) {
 				clean_up(it);
-				filelist.erase(it);
+				it = filelist.erase(it);
 			} else {
 				++it;
 			}
