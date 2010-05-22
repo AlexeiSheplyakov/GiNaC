@@ -6149,12 +6149,13 @@ For example,
 @}
 @end example
 
-If you declare your own GiNaC functions, then they will conjugate themselves
-by conjugating their arguments. This is the default strategy. If you want to
-change this behavior, you have to supply a specialized conjugation method
-for your function (see @ref{Symbolic functions} and the GiNaC source-code
-for @code{abs} as an example). Also, specialized methods can be provided
-to take real and imaginary parts of user-defined functions.
+If you declare your own GiNaC functions and you want to conjugate them, you
+will have to supply a specialized conjugation method for them (see
+@ref{Symbolic functions} and the GiNaC source-code for @code{abs} as an
+example). GiNaC does not automatically conjugate user-supplied functions
+by conjugating their arguments because this would be incorrect on branch
+cuts. Also, specialized methods can be provided to take real and imaginary
+parts of user-defined functions.
 
 @node Solving linear systems of equations, Input/output, Complex expressions, Methods and functions
 @c    node-name, next, previous, up
