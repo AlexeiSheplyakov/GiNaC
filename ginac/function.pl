@@ -1124,7 +1124,7 @@ ex function::conjugate() const
 	const function_options & opt = registered_functions()[serial];
 
 	if (opt.conjugate_f==0) {
-		return exprseq::conjugate();
+		return conjugate_function(*this).hold();
 	}
 
 	if (opt.conjugate_use_exvector_args) {
