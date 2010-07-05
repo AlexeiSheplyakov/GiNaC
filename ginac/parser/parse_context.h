@@ -41,12 +41,12 @@ namespace GiNaC {
 typedef std::map<std::string, ex> symtab;
 
 /**
- * Find the symbol with the @a name in the symbol table @a syms.
+ * Find the symbol (or abbreviation) with the @a name in the symbol table @a syms.
  *
  * If symbol is missing and @a strict = false, insert it, otherwise
  * throw an exception.
  */
-extern symbol
+extern ex 
 find_or_insert_symbol(const std::string& name, symtab& syms,
 	              const bool strict);
 
