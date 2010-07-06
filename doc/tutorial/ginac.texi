@@ -4637,7 +4637,7 @@ often as is possible without getting negative exponents. For example
 @code{(x^(-3)*y^(-2)*z).subs(1/(x*y)==c, subs_options::algebraic)} will
 return @code{x^(-1)*c^2*z}. 
 
-@strong{Note:} this only works for multiplications
+@strong{Please notice:} this only works for multiplications
 and not for locating @code{x+y} within @code{x+y+z}.
 
 
