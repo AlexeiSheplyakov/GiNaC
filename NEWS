@@ -1,5 +1,17 @@
 This file records noteworthy changes.
 
+1.5.8 (06 July 2010)
+* Changed default behaviour of conjugate() for user-defined functions to avoid
+  wrong evaluations. A user-defined conjugate_func must now be explicitly
+  registered.
+* Fixed: Parser now handles abbreviations as advertized in the manual.
+* Fixed two bugs in the GCD code (one infinite loop, one miscalculation).
+* Fixed dangerous iterator use.
+* Fixed a memory leak in excompiler.
+* Fixed several syntax issues wrt to gcc 4.5 and wrt to compile option -std=cxx0x.
+* Fixed a wrong URL and a texinfo problem in the manual.
+* Added degree_vector() utility function.
+
 1.5.7 (29 March 2010)
 * Fixed a bug in the GCD code (infinite loop in pgcd()).
 * Fixed a bug in atan2() (division by zero error for atan2(x,0) if x is a
