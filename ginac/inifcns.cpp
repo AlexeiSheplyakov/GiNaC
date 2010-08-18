@@ -1007,8 +1007,16 @@ fsolve(const ex& f_in, const symbol& x, const numeric& x1, const numeric& x2)
 	do {
 		xxprev = xx[side];
 		fxprev = fx[side];
-		xx[side] += ex_to<numeric>(ff.subs(x==xx[side]).evalf());
-		fx[side] = ex_to<numeric>(f.subs(x==xx[side]).evalf());
+		ex dx_ = ff.subs(x == xx[side]).evalf();
+		if (!is_a<numeric>(dx_))
+			throw std::runtime_error("fsolve(): function derivative does not evaluate numerically");
+		xx[side] += ex_to<numeric>(dx_);
+
+		ex f_x = f.subs(x == xx[side]).evalf();
+		if (!is_a<numeric>(f_x))
+			throw std::runtime_error("fsolve(): function does not evaluate numerically");
+		fx[side] = ex_to<numeric>(f_x);
+
 		if ((side==0 && xx[0]<xxprev) || (side==1 && xx[1]>xxprev) || xx[0]>xx[1]) {
 			// Oops, Newton-Raphson method shot out of the interval.
 			// Restore, and try again with the other side instead!
@@ -1017,8 +1025,16 @@ fsolve(const ex& f_in, const symbol& x, const numeric& x1, const numeric& x2)
 			side = !side;
 			xxprev = xx[side];
 			fxprev = fx[side];
-			xx[side] += ex_to<numeric>(ff.subs(x==xx[side]).evalf());
-			fx[side] = ex_to<numeric>(f.subs(x==xx[side]).evalf());
+
+			ex dx_ = ff.subs(x == xx[side]).evalf();
+			if (!is_a<numeric>(dx_))
+				throw std::runtime_error("fsolve(): function derivative does not evaluate numerically [2]");
+			xx[side] += ex_to<numeric>(dx_);
+
+			ex f_x = f.subs(x==xx[side]).evalf();
+			if (!is_a<numeric>(f_x))
+				throw std::runtime_error("fsolve(): function does not evaluate numerically [2]");
+			fx[side] = ex_to<numeric>(f_x);
 		}
 		if ((fx[side]<0 && fx[!side]<0) || (fx[side]>0 && fx[!side]>0)) {
 			// Oops, the root isn't bracketed any more.
@@ -1042,7 +1058,10 @@ fsolve(const ex& f_in, const symbol& x, const numeric& x1, const numeric& x2)
 			static const double secant_weight = 0.984375;  // == 63/64 < 1
 			numeric xxmid = (1-secant_weight)*0.5*(xx[0]+xx[1])
 			    + secant_weight*(xx[0]+fx[0]*(xx[0]-xx[1])/(fx[1]-fx[0]));
-			numeric fxmid = ex_to<numeric>(f.subs(x==xxmid).evalf());
+			ex fxmid_ = f.subs(x == xxmid).evalf();
+			if (!is_a<numeric>(fxmid_))
+				throw std::runtime_error("fsolve(): function does not evaluate numerically [3]");
+			numeric fxmid = ex_to<numeric>(fxmid_);
 			if (fxmid.is_zero()) {
 				// Luck strikes...
 				return xxmid;
