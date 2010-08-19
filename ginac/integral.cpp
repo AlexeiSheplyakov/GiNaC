@@ -188,9 +188,7 @@ ex integral::evalf(int level) const
 	// results after subsituting a number for the integration variable.
 	if (is_exactly_a<numeric>(ea) && is_exactly_a<numeric>(eb) 
 			&& is_exactly_a<numeric>(ef.subs(x==12.34).evalf())) {
-		try {
 			return adaptivesimpson(x, ea, eb, ef);
-		} catch (runtime_error &rte) {}
 	}
 
 	if (are_ex_trivially_equal(a, ea) && are_ex_trivially_equal(b, eb)
