@@ -1011,13 +1011,20 @@ fsolve(const ex& f_in, const symbol& x, const numeric& x1, const numeric& x2)
 		if (!is_a<numeric>(dx_))
 			throw std::runtime_error("fsolve(): function derivative does not evaluate numerically");
 		xx[side] += ex_to<numeric>(dx_);
-
-		ex f_x = f.subs(x == xx[side]).evalf();
-		if (!is_a<numeric>(f_x))
-			throw std::runtime_error("fsolve(): function does not evaluate numerically");
-		fx[side] = ex_to<numeric>(f_x);
-
-		if ((side==0 && xx[0]<xxprev) || (side==1 && xx[1]>xxprev) || xx[0]>xx[1]) {
+		// Now check if Newton-Raphson method shot out of the interval 
+		bool bad_shot = (side == 0 && xx[0] < xxprev) || 
+				(side == 1 && xx[1] > xxprev) || xx[0] > xx[1];
+		if (!bad_shot) {
+			// Compute f(x) only if new x is inside the interval.
+			// The function might be difficult to compute numerically
+			// or even ill defined outside the interval. Also it's
+			// a small optimization. 
+			ex f_x = f.subs(x == xx[side]).evalf();
+			if (!is_a<numeric>(f_x))
+				throw std::runtime_error("fsolve(): function does not evaluate numerically");
+			fx[side] = ex_to<numeric>(f_x);
+		}
+		if (bad_shot) {
 			// Oops, Newton-Raphson method shot out of the interval.
 			// Restore, and try again with the other side instead!
 			xx[side] = xxprev;
