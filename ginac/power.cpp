@@ -539,6 +539,7 @@ ex power::eval(int level) const
 					if (num_coeff.is_positive()) {
 						mul *mulp = new mul(mulref);
 						mulp->overall_coeff = _ex1;
+						mulp->setflag(status_flags::dynallocated);
 						mulp->clearflag(status_flags::evaluated);
 						mulp->clearflag(status_flags::hash_calculated);
 						return (new mul(power(*mulp,exponent),
@@ -548,6 +549,7 @@ ex power::eval(int level) const
 						if (!num_coeff.is_equal(*_num_1_p)) {
 							mul *mulp = new mul(mulref);
 							mulp->overall_coeff = _ex_1;
+							mulp->setflag(status_flags::dynallocated);
 							mulp->clearflag(status_flags::evaluated);
 							mulp->clearflag(status_flags::hash_calculated);
 							return (new mul(power(*mulp,exponent),
