@@ -26,7 +26,7 @@ dnl of leftover numbers. Not something we need to worry about yet. ;-)
 m4_define([ginac_lt_current], [0])
 m4_define([ginac_lt_revision], [0])
 
-AC_INIT([GiNaC], ginac_version, [<ginac-list@ginac.de>])
+AC_INIT([GiNaC], ginac_version, [ginac-list@ginac.de], [ginac], [http://www.ginac.de/])
 AC_PREREQ(2.59)
 AC_CONFIG_SRCDIR(ginac/basic.cpp)
 AC_CONFIG_AUX_DIR([config])
