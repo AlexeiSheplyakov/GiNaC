@@ -4263,7 +4263,7 @@ In the first form, @code{subs()} accepts a relational of the form
 @{
     symbol x("x"), y("y");
 
-    ex e1 = 2*x^2-4*x+3;
+    ex e1 = 2*x*x-4*x+3;
     cout << "e1(7) = " << e1.subs(x == 7) << endl;
      // -> 73
 

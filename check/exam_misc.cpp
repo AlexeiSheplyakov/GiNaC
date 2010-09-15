@@ -219,6 +219,15 @@ static unsigned exam_subs()
 		++result;
 	}
 
+	// And this used to fail in GiNaC 1.5.8 because it first substituted
+	// exp(x) -> exp(log(x)) -> x, and then substitued again x -> log(x)
+	e1 = exp(x);
+	e2 = e1.subs(x == log(x));
+	if (!e2.is_equal(x)) {
+		clog << "exp(x).subs(x==log(x)) erroneously returned " << e2 << " instead of x" << endl;
+		++result;
+	}
+
 	e1 = sin(1+sin(x));
 	e2 = e1.subs(sin(wild()) == cos(wild()));
 	if (!e2.is_equal(cos(1+cos(x)))) {
