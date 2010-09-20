@@ -114,7 +114,7 @@ ex parser::parse_binop_rhs(int expr_prec, ex& lhs)
 	}
 }
 
-extern numeric* _num_1_p;
+extern const numeric* _num_1_p;
 
 static ex make_minus_expr(const exvector& args)
 {
