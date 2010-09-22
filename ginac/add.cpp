@@ -28,6 +28,7 @@
 #include "utils.h"
 #include "clifford.h"
 #include "ncmul.h"
+#include "compiler.h"
 
 #include <iostream>
 #include <limits>
@@ -343,9 +344,6 @@ ex add::eval(int level) const
 	epvector::const_iterator i = seq.begin(), end = seq.end();
 	while (i != end) {
 		GINAC_ASSERT(!is_exactly_a<add>(i->rest));
-		if (is_exactly_a<numeric>(i->rest))
-			dbgprint();
-		GINAC_ASSERT(!is_exactly_a<numeric>(i->rest));
 		++i;
 	}
 #endif // def DO_GINAC_ASSERT
@@ -366,6 +364,33 @@ ex add::eval(int level) const
 	} else if (!overall_coeff.is_zero() && seq[0].rest.return_type() != return_types::commutative) {
 		throw (std::logic_error("add::eval(): sum of non-commutative objects has non-zero numeric term"));
 	}
+	
+	// if any terms in the sum still are purely numeric, then they are more
+	// appropriately collected into the overall coefficient
+	epvector::const_iterator last = seq.end();
+	epvector::const_iterator j = seq.begin();
+	int terms_to_collect = 0;
+	while (j != last) {
+		if (unlikely(is_a<numeric>(j->rest)))
+			++terms_to_collect;
+		++j;
+	}
+	if (terms_to_collect) {
+		std::auto_ptr<epvector> s(new epvector);
+		s->reserve(seq_size - terms_to_collect);
+		numeric oc = *_num1_p;
+		j = seq.begin();
+		while (j != last) {
+			if (unlikely(is_a<numeric>(j->rest)))
+				oc = oc.mul(ex_to<numeric>(j->rest)).mul(ex_to<numeric>(j->coeff));
+			else
+				s->push_back(*j);
+			++j;
+		}
+		return (new add(s, ex_to<numeric>(overall_coeff).add_dyn(oc)))
+		        ->setflag(status_flags::dynallocated);
+	}
+	
 	return this->hold();
 }
 

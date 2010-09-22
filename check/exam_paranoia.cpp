@@ -467,6 +467,18 @@ static unsigned exam_paranoia17()
 	return test_cycl.get_free_indices().size();
 }
 
+// Bug in add::eval() could result in numeric terms not being collected into
+// the overall coefficient. Fixed on Sep 22, 2010
+static unsigned exam_paranoia18()
+{
+	ex sqrt2 = sqrt(ex(2));
+	ex e = 1+2*(sqrt2+1)*(sqrt2-1);
+	if ( e.real_part() != 3 ) {
+		clog << "real_part(1+2*(sqrt(2)+1)*(sqrt(2)-1)) failed to evaluate to 3\n";
+		return 1;
+	}
+	return 0;
+}
 
 unsigned exam_paranoia()
 {
@@ -491,6 +503,7 @@ unsigned exam_paranoia()
 	result += exam_paranoia15();  cout << '.' << flush;
 	result += exam_paranoia16();  cout << '.' << flush;
 	result += exam_paranoia17();  cout << '.' << flush;
+	result += exam_paranoia18();  cout << '.' << flush;
 	
 	return result;
 }
