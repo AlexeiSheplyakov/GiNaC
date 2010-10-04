@@ -109,6 +109,15 @@ void symbol::read_archive(const archive_node &n, lst &sym_lst)
 	for (lst::const_iterator it = sym_lst.begin(); it != sym_lst.end(); ++it) {
 		if (is_a<symbol>(*it) && (ex_to<symbol>(*it).name == tmp_name)) {
 			*this = ex_to<symbol>(*it);
+			// XXX: This method is responsible for reading realsymbol
+			// and possymbol objects too. But
+			// basic::operator=(const basic& other)
+			// resets status_flags::evaluated if other and *this are
+			// of different types. Usually this is a good idea, but
+			// doing this for symbols is wrong (for one, nothing is
+			// going to set status_flags::evaluated, evaluation will
+			// loop forever). Therefore we need to restore flags.
+			setflag(status_flags::evaluated | status_flags::expanded);
 			return;
 		}
 	}
