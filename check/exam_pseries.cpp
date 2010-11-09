@@ -369,6 +369,23 @@ static unsigned exam_series13()
 	return result;
 }
 
+// Test if (1+x)^(1/x) can be expanded.
+static unsigned exam_series14()
+{
+	unsigned result = 0;
+
+	ex e = pow(1+x, sin(x)/x);
+	ex d = 1 + x - pow(x,3)/6 + Order(pow(x,4));
+	try {
+		result += check_series(e,0,d,4);
+	} catch (const pole_error& err) {
+		clog << "series expansion of " << e << " at 0 raised an exception." << endl;
+		++result;
+	}
+
+	return result;
+}
+
 unsigned exam_pseries()
 {
 	unsigned result = 0;
@@ -388,6 +405,7 @@ unsigned exam_pseries()
 	result += exam_series11();  cout << '.' << flush;
 	result += exam_series12();  cout << '.' << flush;
 	result += exam_series13();  cout << '.' << flush;
+	result += exam_series14();  cout << '.' << flush;
 	
 	return result;
 }
