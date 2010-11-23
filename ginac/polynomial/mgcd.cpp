@@ -30,6 +30,9 @@
 #include <numeric> // std::accumulate
 
 #include <cln/integer.h>
+#include <cln/integer_ring.h>
+#include <cln/rational.h>
+#include <cln/rational_ring.h>
 
 namespace GiNaC {
 
@@ -37,6 +40,13 @@ static cln::cl_I extract_integer_content(ex& Apr, const ex& A)
 {
 	static const cln::cl_I n1(1);
 	const numeric icont_ = A.integer_content();
+	if (cln::instanceof(icont_.to_cl_N(), cln::cl_RA_ring)) {
+		Apr = (A/icont_).expand();
+		// A is a polynomail over rationals, so GCD is defined
+		// up to arbitrary rational number.
+		return n1;
+	}
+	GINAC_ASSERT(cln::instanceof(icont_.to_cl_N(), cln::cl_I_ring));
 	const cln::cl_I icont = cln::the<cln::cl_I>(icont_.to_cl_N());
 	if (icont != 1) {
 		Apr = (A/icont_).expand();
