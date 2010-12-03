@@ -101,7 +101,7 @@ ex chinrem_gcd(const ex& A_, const ex& B_, const exvector& vars)
 		Cp = (Cp*numeric(nlc)).expand().smod(pnum);
 		exp_vector_t cp_deg = degree_vector(Cp, vars);
 		if (zerop(cp_deg))
-			return numeric(g_lc);
+			return numeric(c);
 		if (zerop(q)) {
 			H = Cp;
 			n = cp_deg;

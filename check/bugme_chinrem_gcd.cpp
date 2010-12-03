@@ -54,11 +54,24 @@ static void check_extract_integer_content()
 	ex g = chinrem_gcd(A, B);
 }
 
+static void integer_coeff_braindamage()
+{
+	parser readme;
+	ex A = readme("3*x2 + 1");
+	ex B = readme("9*x2 + 1");
+	ex g = chinrem_gcd(A, B);
+	if (!g.is_equal(ex(1))) {
+		std::cerr << "expected 1, got " << g << std::endl;
+		throw std::logic_error("chinrem_gcd miscomputed integer content");
+	}
+}
+
 int main(int argc, char** argv)
 {
 	cout << "checking for bugs in poly_cra() and friends " << flush;
 	check_poly_cra();
 	check_extract_integer_content();
+	integer_coeff_braindamage();
 	cout << "not found.";
 	return 0;
 }
