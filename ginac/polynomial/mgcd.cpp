@@ -40,21 +40,23 @@ static cln::cl_I extract_integer_content(ex& Apr, const ex& A)
 {
 	static const cln::cl_I n1(1);
 	const numeric icont_ = A.integer_content();
+	if (cln::instanceof(icont_.to_cl_N(), cln::cl_I_ring)) {
+		const cln::cl_I icont = cln::the<cln::cl_I>(icont_.to_cl_N());
+		if (icont != 1) {
+			Apr = (A/icont_).expand();
+			return icont;
+		} else {
+			Apr = A;
+			return n1;
+		}
+	}
 	if (cln::instanceof(icont_.to_cl_N(), cln::cl_RA_ring)) {
 		Apr = (A/icont_).expand();
 		// A is a polynomail over rationals, so GCD is defined
 		// up to arbitrary rational number.
 		return n1;
 	}
-	GINAC_ASSERT(cln::instanceof(icont_.to_cl_N(), cln::cl_I_ring));
-	const cln::cl_I icont = cln::the<cln::cl_I>(icont_.to_cl_N());
-	if (icont != 1) {
-		Apr = (A/icont_).expand();
-		return icont;
-	} else {
-		Apr = A;
-		return n1;
-	}
+	GINAC_ASSERT(NULL == "expected polynomial over integers or rationals");
 }
 
 ex chinrem_gcd(const ex& A_, const ex& B_, const exvector& vars)
