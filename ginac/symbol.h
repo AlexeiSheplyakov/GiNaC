@@ -69,7 +69,7 @@ protected:
 	// non-virtual functions in this class
 public:
 	void set_name(const std::string & n) { name = n; }
-	std::string get_name() const { return name; }
+	std::string get_name() const;
 	virtual unsigned get_domain() const { return domain::complex; }
 protected:
 	void do_print(const print_context & c, unsigned level) const;
@@ -81,7 +81,7 @@ protected:
 
 protected:
 	unsigned serial;                 ///< unique serial number for comparison
-	std::string name;                ///< printname of this symbol
+	mutable std::string name;        ///< printname of this symbol
 	std::string TeX_name;            ///< LaTeX name of this symbol
 private:
 	static unsigned next_serial;
@@ -108,7 +108,7 @@ public:
 GINAC_DECLARE_UNARCHIVER(realsymbol);
 
 
-/** Specialization of symbol to real domain */
+/** Specialization of symbol to real positive domain */
 class possymbol : public realsymbol
 {
 public:
