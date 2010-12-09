@@ -72,18 +72,25 @@ typedef ex (*reader_func)(const exvector& args);
  * foo(x+y, z^2, t)), it looks up such a table to find out which
  * function (or class) corresponds to the given name and has the given
  * number of the arguments.
+ *
+ * N.B.
+ *
+ * 1. The function don't have to return a (GiNaC) function or class, it
+ *    can return any expression.
+ * 2. Overloaded functions/ctors are paritally supported, i.e. there might
+ *    be several functions with the same name, but they should take different
+ *    number of arguments.
+ * 3. User can extend the parser via custom prototype tables. It's possible
+ *    to read user defined classes, create abbreviations, etc.
  */
-typedef std::map<prototype, unsigned> prototype_table;
+typedef std::map<prototype, reader_func> prototype_table;
 
 /**
- * Creates a default prototype table containing all defined GiNaC functions.
+ * Default prototype table.
  *
- * The data referenced by the return value is only created once when this
- * function is called for the first time. This might cause problems in very
- * rare stituations (i.e. if functions are added after this first call). In
- * that case, a new initialization can be forced with an "true" argument.
+ * It supports most of builtin GiNaC functions.
  */
-extern const prototype_table& get_default_reader(bool force_init = false);
+extern const prototype_table& get_default_reader();
 
 } // namespace GiNaC
 

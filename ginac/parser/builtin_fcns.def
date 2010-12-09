@@ -1,0 +1,90 @@
+Autogen definitions ginacfcns;
+
+function = { name = "log"; };
+function = { name = "exp"; };
+function = { name = "sin"; };
+function = { name = "cos"; };
+function = { name = "tan"; };
+function = { name = "asin"; };
+function = { name = "acos"; };
+function = { name = "atan"; };
+
+function = { name = "sinh"; };
+function = { name = "cosh"; };
+function = { name = "tanh"; };
+function = { name = "asinh"; };
+function = { name = "acosh"; };
+function = { name = "atanh"; };
+
+function = { 
+	name = "atan2";
+	args = 2;
+};
+
+function = { 
+	name = "Li2";
+	comment = "Dilogarithm";
+};
+
+function = {
+	name = "Li3";
+	comment = "Trilogarithm";
+};
+
+function = {
+	name = "zetaderiv";
+	comment = "Derivatives of Riemann's Zeta-function";
+	args = 2;
+};
+
+function = {
+	name = "Li";
+	args = 2;
+	comment = "Polylogarithm and multiple polylogarithm";
+};
+
+function = {
+	name =  "S";
+	args = 3;
+	comment = "Nielsen's generalized polylogarithm";
+};
+
+function = {
+	name =  "H";
+	args = 2;
+	comment = "Harmonic polylogarithm";
+};
+
+function = { name = "lgamma"; };
+function = { name = "tgamma"; };
+
+function = {
+	name = "beta";
+	args = 2;
+	comment = "Beta-function";
+};
+
+function = { name = "factorial"; };
+
+function = {
+	name = "binomial";
+	args = 2;
+};
+
+function = {
+	name = "Order";
+	comment = "Order term function (for truncated power series)";
+};
+
+/* Thease are not functions, but anyway ... */
+function = { name = "sqrt"; };
+
+function = { 
+	name = "pow";
+	args = 2;
+};
+
+function = {
+	name = "power";
+	args = 2;
+};

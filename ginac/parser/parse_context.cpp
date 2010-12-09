@@ -22,8 +22,6 @@
 
 #include "parse_context.h"
 
-#include "function.h"
-
 #include <sstream>
 #include <stdexcept>
 
@@ -44,24 +42,6 @@ find_or_insert_symbol(const std::string& name, symtab& syms, const bool strict)
 	const symbol sy(name);
 	syms[name] = sy;
 	return sy;
-}
-
-const prototype_table& get_default_reader(bool force_init)
-{
-	using std::make_pair;
-	static bool initialized = false;
-	static prototype_table reader;
-	if ( !initialized || force_init ) {
-		std::vector<function_options> flist = function::get_registered_functions();
-		std::vector<function_options>::iterator i = flist.begin(), end = flist.end();
-		for ( ; i != end; ++i ) {
-			std::string name = i->get_name();
-			unsigned narg = i->get_nparams();
-			reader[make_pair(name, narg)] = function::find_function(name, narg);
-		}
-		initialized = true;
-	}
-	return reader;
 }
 
 } // namespace GiNaC

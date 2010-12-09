@@ -536,7 +536,6 @@ public:
 	static unsigned register_new(function_options const & opt);
 	static unsigned current_serial;
 	static unsigned find_function(const std::string &name, unsigned nparams);
-	static std::vector<function_options> get_registered_functions() { return registered_functions(); };
 	unsigned get_serial() const {return serial;}
 	std::string get_name() const;
 
