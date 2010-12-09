@@ -150,12 +150,21 @@ static const std::string& get_default_TeX_name(const std::string& name);
 
 // public
 
+std::string symbol::get_name() const
+{
+	if (name.empty()) {
+		std::ostringstream s;
+		s << "symbol" << serial;
+		name = s.str();
+	}
+	return name;
+}
+
+// protected
+
 void symbol::do_print(const print_context & c, unsigned level) const
 {
-	if (!name.empty())
-		c.s << name;
-	else
-		c.s << "symbol" << serial;
+	c.s << get_name();
 }
 
 void symbol::do_print_latex(const print_latex & c, unsigned level) const
