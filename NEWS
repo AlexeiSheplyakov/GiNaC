@@ -1,5 +1,54 @@
 This file records noteworthy changes.
 
+1.5.8 (06 July 2010)
+* Changed default behaviour of conjugate() for user-defined functions to avoid
+  wrong evaluations. A user-defined conjugate_func must now be explicitly
+  registered.
+* Fixed: Parser now handles abbreviations as advertized in the manual.
+* Fixed two bugs in the GCD code (one infinite loop, one miscalculation).
+* Fixed dangerous iterator use.
+* Fixed a memory leak in excompiler.
+* Fixed several syntax issues wrt to gcc 4.5 and wrt to compile option -std=cxx0x.
+* Fixed a wrong URL and a texinfo problem in the manual.
+* Added degree_vector() utility function.
+
+1.5.7 (29 March 2010)
+* Fixed a bug in the GCD code (infinite loop in pgcd()).
+* Fixed a bug in atan2() (division by zero error for atan2(x,0) if x is a
+  negative and composite term).
+* Products now correctly set info_flags::negative and info_flags::negint.
+
+1.5.6 (28 January 2010)
+* Fixed compile problem with gcc 3.4.
+* Improved excompiler: The ginac-excompiler script will only be installed if
+  excompiler is supported and enabled.
+
+1.5.5 (04 November 2009)
+* Correct libtool versioning.
+
+1.5.4 (02 November 2009)
+* Default parser now can again read in user defined classes.
+* Add mul::info() and add::info() support for numeric info_flags (GiNaC now can
+  detect that the sum or product of a number of positive expressions is again a
+  positive expression).
+* Fixed cast that caused compile error on 64bit machines.
+* Fixed incorrect uses of STL iterators.
+* Removed subdirectory debian.
+* Output LaTeX-symbols using \mathrm, instead of \mbox.
+
+1.5.3 (30 July 2009)
+* The parser now understands user-defined functions by default. The identifier
+  names can now contain underscores.
+
+1.5.2 (10 July 2009)
+* Fixed documentation of return_type_info()
+* Fixed cstdio include issue.
+* GiNaC now requires at least version 1.2.2 of cln.
+
+1.5.1 (25 February 2009)
+* Fixed compiling problems with GNU g++ 3.4.
+* Work around weird C++ RTTI behaviour on woe32 so GiNaC works on MinGW again.
+
 1.5.0 (17 February 2009)
 * Added polynomial factorization.
 * New, faster (recursive descent) expression parser.

@@ -3,7 +3,7 @@ dnl Process this file with autoconf to produce a configure script.
 dnl GiNaC version number
 m4_define([ginac_major_version], [1])
 m4_define([ginac_minor_version], [5])
-m4_define([ginac_micro_version], [0])
+m4_define([ginac_micro_version], [8])
 m4_define([ginac_version], [ginac_major_version.ginac_minor_version.ginac_micro_version])
 m4_define([ginac_release], [ginac_major_version.ginac_minor_version])
 
@@ -12,19 +12,21 @@ dnl version number. In particular, library version is OS dependent.
 dnl
 dnl When making releases, do
 dnl 1. Increment ginac_lt_revision
-dnl 2. If any interfaces have been added since the last release, increment
-dnl    ginac_lt_current and set ginac_lt_revision to 0.
-dnl 3. If any interfaces have been changed or removed since the last release,
-dnl    make sure you increment ginac_minor_version above and reset both
-dnl    ginac_lt_current and ginac_lt_revision to 0.
+dnl 2. If any interfaces have been added, removed, or changed since the last
+dnl    release, increment ginac_lt_current and set ginac_lt_revision to 0.
+dnl 3. If any interfaces have been added since the last release, increment
+dnl    ginac_lt_age.
+dnl 4. If any interfaces have been removed since the last release, set 
+dnl    ginac_lt_age to 0.
 dnl
 dnl Please note: the libtool naming scheme cannot guarantee that on all
 dnl systems, the numbering is consecutive. It only guarantees that it is
 dnl increasing. This doesn't matter, though: there is not incurred cost
 dnl for numbers that are omitted, except for shrinking the available space
 dnl of leftover numbers. Not something we need to worry about yet. ;-)
-m4_define([ginac_lt_current], [0])
+m4_define([ginac_lt_current], [2])
 m4_define([ginac_lt_revision], [0])
+m4_define([ginac_lt_age], [2])
 
 AC_INIT([GiNaC], ginac_version, [ginac-list@ginac.de], [ginac], [http://www.ginac.de/])
 AC_PREREQ(2.59)
@@ -57,11 +59,12 @@ AC_SUBST(ARCHIVE_AGE)
 AC_DEFINE_UNQUOTED(ARCHIVE_VERSION, $ARCHIVE_VERSION, [Current GiNaC archive file version number])
 AC_DEFINE_UNQUOTED(ARCHIVE_AGE, $ARCHIVE_AGE, [GiNaC archive file version age])
 
-dnl libtool versioning (We don't use libtool's age numbering since we promise
-dnl to keep the binary interface compatible if only ginac_micro_version changes.
-dnl In effect, age==current.)
-LT_VERSION_INFO="ginac_lt_current:ginac_lt_revision:ginac_lt_current"
-LT_RELEASE="ginac_release"
+dnl libtool versioning
+LT_VERSION_INFO="ginac_lt_current:ginac_lt_revision:ginac_lt_age"
+dnl TODO: remove LT_RELEASE after ABI gets changed. We used to set
+dnl LT_RELEASE (for no good reason), omitting it right now would
+dnl result in a spurious SONAME change.
+LT_RELEASE="1.5"
 
 AC_SUBST(LT_VERSION_INFO)
 AC_SUBST(LT_RELEASE)
