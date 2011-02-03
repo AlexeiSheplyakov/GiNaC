@@ -69,7 +69,7 @@ struct compare_terms
 };
 
 template<typename T, typename CoeffCMP>
-static struct compare_terms<T, CoeffCMP>
+static compare_terms<T, CoeffCMP>
 make_compare_terms(const T& dummy, const CoeffCMP& coeff_cmp)
 {
 	return compare_terms<T, CoeffCMP>(coeff_cmp);
