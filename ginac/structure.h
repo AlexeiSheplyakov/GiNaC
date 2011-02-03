@@ -210,7 +210,7 @@ protected:
 		GINAC_ASSERT(is_a<structure>(other));
 		const structure & o = static_cast<const structure &>(other);
 
-		return struct_is_equal(&obj, &o.obj);
+		return this->struct_is_equal(&obj, &o.obj);
 	}
 
 	unsigned calchash() const { return inherited::calchash(); }
@@ -237,7 +237,7 @@ int structure<T, CP>::compare_same_type(const basic & other) const
 	GINAC_ASSERT(is_a<structure>(other));
 	const structure & o = static_cast<const structure &>(other);
 
-	return struct_compare(&obj, &o.obj);
+	return this->struct_compare(&obj, &o.obj);
 }
 
 template <class T, template <class> class CP>

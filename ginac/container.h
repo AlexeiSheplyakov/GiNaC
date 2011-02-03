@@ -173,14 +173,14 @@ public:
 	container(const ex & p1, const ex & p2)
 	{
 		setflag(get_default_flags());
-		reserve(this->seq, 2);
+		this->reserve(this->seq, 2);
 		this->seq.push_back(p1); this->seq.push_back(p2);
 	}
 
 	container(const ex & p1, const ex & p2, const ex & p3)
 	{
 		setflag(get_default_flags());
-		reserve(this->seq, 3);
+		this->reserve(this->seq, 3);
 		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 	}
 
@@ -188,7 +188,7 @@ public:
 	          const ex & p4)
 	{
 		setflag(get_default_flags());
-		reserve(this->seq, 4);
+		this->reserve(this->seq, 4);
 		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 		this->seq.push_back(p4);
 	}
@@ -197,7 +197,7 @@ public:
 	          const ex & p4, const ex & p5)
 	{
 		setflag(get_default_flags());
-		reserve(this->seq, 5);
+		this->reserve(this->seq, 5);
 		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 		this->seq.push_back(p4); this->seq.push_back(p5);
 	}
@@ -206,7 +206,7 @@ public:
 	          const ex & p4, const ex & p5, const ex & p6)
 	{
 		setflag(get_default_flags());
-		reserve(this->seq, 6);
+		this->reserve(this->seq, 6);
 		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
 	}
@@ -216,7 +216,7 @@ public:
 	          const ex & p7)
 	{
 		setflag(get_default_flags());
-		reserve(this->seq, 7);
+		this->reserve(this->seq, 7);
 		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
 		this->seq.push_back(p7);
@@ -227,7 +227,7 @@ public:
 	          const ex & p7, const ex & p8)
 	{
 		setflag(get_default_flags());
-		reserve(this->seq, 8);
+		this->reserve(this->seq, 8);
 		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
 		this->seq.push_back(p7); this->seq.push_back(p8);
@@ -238,7 +238,7 @@ public:
 	          const ex & p7, const ex & p8, const ex & p9)
 	{
 		setflag(get_default_flags());
-		reserve(this->seq, 9);
+		this->reserve(this->seq, 9);
 		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
 		this->seq.push_back(p7); this->seq.push_back(p8); this->seq.push_back(p9);
@@ -250,7 +250,7 @@ public:
 	          const ex & p10)
 	{
 		setflag(get_default_flags());
-		reserve(this->seq, 10);
+		this->reserve(this->seq, 10);
 		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
 		this->seq.push_back(p7); this->seq.push_back(p8); this->seq.push_back(p9);
@@ -263,7 +263,7 @@ public:
 	          const ex & p10, const ex & p11)
 	{
 		setflag(get_default_flags());
-		reserve(this->seq, 11);
+		this->reserve(this->seq, 11);
 		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
 		this->seq.push_back(p7); this->seq.push_back(p8); this->seq.push_back(p9);
@@ -276,7 +276,7 @@ public:
 	          const ex & p10, const ex & p11, const ex & p12)
 	{
 		setflag(get_default_flags());
-		reserve(this->seq, 12);
+		this->reserve(this->seq, 12);
 		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
 		this->seq.push_back(p7); this->seq.push_back(p8); this->seq.push_back(p9);
@@ -290,7 +290,7 @@ public:
 	          const ex & p13)
 	{
 		setflag(get_default_flags());
-		reserve(this->seq, 13);
+		this->reserve(this->seq, 13);
 		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
 		this->seq.push_back(p7); this->seq.push_back(p8); this->seq.push_back(p9);
@@ -305,7 +305,7 @@ public:
 	          const ex & p13, const ex & p14)
 	{
 		setflag(get_default_flags());
-		reserve(this->seq, 14);
+		this->reserve(this->seq, 14);
 		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
 		this->seq.push_back(p7); this->seq.push_back(p8); this->seq.push_back(p9);
@@ -320,7 +320,7 @@ public:
 	          const ex & p13, const ex & p14, const ex & p15)
 	{
 		setflag(get_default_flags());
-		reserve(this->seq, 15);
+		this->reserve(this->seq, 15);
 		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
 		this->seq.push_back(p7); this->seq.push_back(p8); this->seq.push_back(p9);
@@ -336,7 +336,7 @@ public:
 	          const ex & p16)
 	{
 		setflag(get_default_flags());
-		reserve(this->seq, 16);
+		this->reserve(this->seq, 16);
 		this->seq.push_back(p1); this->seq.push_back(p2); this->seq.push_back(p3);
 		this->seq.push_back(p4); this->seq.push_back(p5); this->seq.push_back(p6);
 		this->seq.push_back(p7); this->seq.push_back(p8); this->seq.push_back(p9);
@@ -372,7 +372,7 @@ public:
 		archive_node::archive_node_cit first = n.find_first("seq");
 		archive_node::archive_node_cit last = n.find_last("seq");
 		++last;
-		reserve(this->seq, last - first);
+		this->reserve(this->seq, last - first);
 		for (archive_node::archive_node_cit i=first; i<last; ++i) {
 			ex e;
 			n.find_ex_by_loc(i, e, sym_lst);
@@ -405,7 +405,7 @@ protected:
 				continue;
 			}
 			newcont = new STLT;
-			reserve(*newcont, this->seq.size());
+			this->reserve(*newcont, this->seq.size());
 			for (const_iterator j=this->seq.begin(); j!=i; ++j) {
 				newcont->push_back(*j);
 			}
@@ -422,7 +422,7 @@ protected:
 	ex real_part() const
 	{
 		STLT cont;
-		reserve(cont, nops());
+		this->reserve(cont, nops());
 		const_iterator b = begin();
 		const_iterator e = end();
 		for(const_iterator i=b; i!=e; ++i)
@@ -433,7 +433,7 @@ protected:
 	ex imag_part() const
 	{
 		STLT cont;
-		reserve(cont, nops());
+		this->reserve(cont, nops());
 		const_iterator b = begin();
 		const_iterator e = end();
 		for(const_iterator i=b; i!=e; ++i)
@@ -738,7 +738,7 @@ typename container<C>::STLT container<C>::evalchildren(int level) const
 		throw std::runtime_error("max recursion level reached");
 
 	STLT s;
-	reserve(s, this->seq.size());
+	this->reserve(s, this->seq.size());
 
 	--level;
 	const_iterator it = this->seq.begin(), itend = this->seq.end();
@@ -764,7 +764,7 @@ std::auto_ptr<typename container<C>::STLT> container<C>::subschildren(const exma
 
 			// copy first part of seq which hasn't changed
 			std::auto_ptr<STLT> s(new STLT(this->seq.begin(), cit));
-			reserve(*s, this->seq.size());
+			this->reserve(*s, this->seq.size());
 
 			// insert changed element
 			s->push_back(subsed_ex);
