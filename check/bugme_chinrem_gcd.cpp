@@ -57,8 +57,8 @@ static void check_extract_integer_content()
 static void integer_coeff_braindamage()
 {
 	parser readme;
-	ex A = readme("3*x2 + 1");
-	ex B = readme("9*x2 + 1");
+	ex A = readme("3*x^2 + 1");
+	ex B = readme("9*x^2 + 1");
 	ex g = chinrem_gcd(A, B);
 	if (!g.is_equal(ex(1))) {
 		std::cerr << "expected 1, got " << g << std::endl;
