@@ -18,12 +18,13 @@ To build the GiNaC tutorial and reference manual the doxygen utility
 TeX are necessary.
 
 Known to work with:
- - Linux on x86 and x86_64 using GCC 3.4, 4.0, 4.1, and 4.2.
- - Linux on Alpha using GCC 3.4.
- - Solaris on Sparc using GCC 3.4.
+ - Linux on x86 and x86_64 using 
+   - GCC 3.4, 4.0, 4.1, 4.2, 4.3.x (x >= 1), 4.4, 4.5, and 4.6
+   - Clang 2.8
  - Windows on x86 using GCC 3.4 (MinGW)
 
 Known not to work with:
+ - Clang 2.7 and earlier due to poor C++ support.
  - GCC 4.3.0 due to the compiler bug,
    see <http://gcc.gnu.org/bugzilla/show_bug.cgi?id=35548>.
  - GCC 2.96 or earlier because proper exception and standard library support
@@ -73,17 +74,16 @@ A few of the more important ones:
 More detailed installation instructions can be found in the documentation,
 in the doc/ directory.
 
-The time the "make" step takes depends heavily on optimization levels. Large
-amounts of memory (>128MB) will be required by the compiler, also depending
-on optimization. To give you a rough idea of what you have to expect the
-following table may be helpful. It was measured on an Athlon/800MHz with
-"enough" memory:
+The time the "make" step takes depends on optimization levels. To give you
+a rough idea of what you have to expect the following table may be helpful.
+It was measured on an Athlon X2/3GHz with 4Gb of RAM.
 
 step          | GCC optimization  | comment
               |   -O1   |   -O2   |
 --------------+---------+---------+----------------------------------------
-make          |   ~6m   |   ~8m   | shared and static library
-make check    |   ~8m   |  ~12m   | largely due to compilation
+make          |   ~1m   |   ~2m   | shared library only (--disable-static),
+              |         |         | parallel compilation (MAKEFLAGS=-j2)
+make check    |   ~6m   |   ~6m   | largely due to compilation
 
 
 To install from git 
