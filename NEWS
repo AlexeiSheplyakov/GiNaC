@@ -1,5 +1,20 @@
 This file records noteworthy changes.
 
+1.6.0 (?? May 2011)
+* Fixed compilation issues with clang.
+* Fixed compilation issues with VC++.
+* Fixed a segfault in fsolve() and improved its numerical algorithm.
+* Fixed several memory leaks in power::eval().
+* Fixed the substitution algorithm that led to wrong results (exp(log(x))->x).
+* Fixed a bug in add:eval() (real_part() had returned wrong results).
+* Fixed infinite loop bug when unarchiving realsymbol and possymbol.
+* Fixed bugs in the GCD code.
+* Fixed empty string bug in symbol::get_name().
+* Fixed bugs concerning STL vector sizes that can potentially cause segfaults.
+* Changed the connection between library version and package version.
+* power::series() can handle now more expressions with singularities in the exponent.
+* Added conjugate() methods to functions cosh, sinh, tanh.
+
 1.5.8 (06 July 2010)
 * Changed default behaviour of conjugate() for user-defined functions to avoid
   wrong evaluations. A user-defined conjugate_func must now be explicitly
