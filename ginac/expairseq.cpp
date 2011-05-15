@@ -371,9 +371,7 @@ ex expairseq::conjugate() const
 		return *this;
 	}
 	ex result = thisexpairseq(newepv ? *newepv : seq, x);
-	if (newepv) {
-		delete newepv;
-	}
+	delete newepv;
 	return result;
 }
 

@@ -480,6 +480,20 @@ static unsigned exam_paranoia18()
 	return 0;
 }
 
+// Bug in mul::conjugate when factors are evaluated at branch cuts, reported as
+// Sage bug #10964.
+static unsigned exam_paranoia19()
+{
+	symbol a("a");
+	ex e = conjugate(a*sqrt(ex(-2))*sqrt(ex(-3)));
+	ex c = a*conjugate(sqrt(ex(-2)))*conjugate(sqrt(ex(-3)));
+	if (!subs(e-c, a==42).is_zero()) {
+		clog << "subs(a*conjugate(sqrt(-2))*conjugate(sqrt(-3))-conjugate(a*sqrt(-2)*sqrt(-3)),a==42) failed to evaluate to 0\n";
+		return 1;
+	}
+	return 0;
+}
+
 unsigned exam_paranoia()
 {
 	unsigned result = 0;
@@ -504,6 +518,7 @@ unsigned exam_paranoia()
 	result += exam_paranoia16();  cout << '.' << flush;
 	result += exam_paranoia17();  cout << '.' << flush;
 	result += exam_paranoia18();  cout << '.' << flush;
+	result += exam_paranoia19();  cout << '.' << flush;
 	
 	return result;
 }
