@@ -19,4 +19,4 @@ ginsh_fcn_help.h: ginsh.1 $(srcdir)/ginsh_fcn_help.sed
 ginsh_op_help.h: ginsh.1 $(srcdir)/ginsh_op_help.sed
 	sed -n -f $(srcdir)/ginsh_op_help.sed <$< >$@
 
-ginsh_parser.o: ginsh_fcn_help.h ginsh_op_help.h
+ginsh_parser.o: ginsh_fcn_help.h ginsh_op_help.h ginsh_parser.h
