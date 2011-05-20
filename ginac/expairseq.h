@@ -87,7 +87,6 @@ public:
 	bool match(const ex & pattern, exmap& repl_lst) const;
 	ex subs(const exmap & m, unsigned options = 0) const;
 	ex conjugate() const;
-	bool is_polynomial(const ex & var) const;
 
 	void archive(archive_node& n) const;
 	void read_archive(const archive_node& n, lst& syms);

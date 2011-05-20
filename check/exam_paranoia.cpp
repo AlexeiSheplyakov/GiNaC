@@ -497,13 +497,19 @@ static unsigned exam_paranoia19()
 // Bug in expairseq::is_polynomial (fixed 2011-05-20).
 static unsigned exam_paranoia20()
 {
+	unsigned result = 0;
 	symbol x("x");
-	ex e = sqrt(x*x+1)*sqrt(x+1);
-	if (e.is_polynomial(x)) {
+	ex e1 = sqrt(x*x+1)*sqrt(x+1);
+	if (e1.is_polynomial(x)) {
 		clog << "sqrt(x*x+1)*sqrt(x+1) is wrongly reported to be a polynomial in x\n";
-		return 1;
+		++result;
 	}
-	return 0;
+	ex e2 = sqrt(Pi)*x;
+	if (!e2.is_polynomial(x)) {
+		clog << "sqrt(Pi)*x is wrongly reported to be no polynomial in x\n";
+		++result;
+	}
+	return result;
 }
 
 unsigned exam_paranoia()
