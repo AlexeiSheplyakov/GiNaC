@@ -61,13 +61,7 @@ AC_DEFINE_UNQUOTED(ARCHIVE_AGE, $ARCHIVE_AGE, [GiNaC archive file version age])
 
 dnl libtool versioning
 LT_VERSION_INFO="ginac_lt_current:ginac_lt_revision:ginac_lt_age"
-dnl TODO: remove LT_RELEASE after ABI gets changed. We used to set
-dnl LT_RELEASE (for no good reason), omitting it right now would
-dnl result in a spurious SONAME change.
-LT_RELEASE="1.5"
-
 AC_SUBST(LT_VERSION_INFO)
-AC_SUBST(LT_RELEASE)
 
 dnl Check for the compiler and all the utilities needed for the build.
 AC_PROG_CXX
