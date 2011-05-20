@@ -494,6 +494,18 @@ static unsigned exam_paranoia19()
 	return 0;
 }
 
+// Bug in expairseq::is_polynomial (fixed 2011-05-20).
+static unsigned exam_paranoia20()
+{
+	symbol x("x");
+	ex e = sqrt(x*x+1)*sqrt(x+1);
+	if (e.is_polynomial(x)) {
+		clog << "sqrt(x*x+1)*sqrt(x+1) is wrongly reported to be a polynomial in x\n";
+		return 1;
+	}
+	return 0;
+}
+
 unsigned exam_paranoia()
 {
 	unsigned result = 0;
@@ -519,6 +531,7 @@ unsigned exam_paranoia()
 	result += exam_paranoia17();  cout << '.' << flush;
 	result += exam_paranoia18();  cout << '.' << flush;
 	result += exam_paranoia19();  cout << '.' << flush;
+	result += exam_paranoia20();  cout << '.' << flush;
 	
 	return result;
 }
