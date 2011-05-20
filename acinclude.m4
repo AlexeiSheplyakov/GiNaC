@@ -45,7 +45,7 @@ AC_REQUIRE([GINAC_TERMCAP])
 GINSH_LIBS=""
 AC_CHECK_HEADERS(readline/readline.h readline/history.h)
 if test "x${ac_cv_header_readline_readline_h}" != "xyes" -o "x${ac_cv_header_readline_history_h}" != "xyes"; then
-	GINAC_WARNING([readline headers could not be found.])
+	GINAC_WARNING([ginsh will not compile, because readline headers could not be found.])
 else
 	AC_CACHE_CHECK([for version of libreadline], [ginac_cv_rl_supported], [
 		ginac_cv_rl_supported="no"
@@ -57,13 +57,13 @@ else
 			#endif]])],
 			[ginac_cv_rl_supported="yes"])])
 	if test "x${ginac_cv_rl_supported}" != "xyes"; then
-		GINAC_WARNING([Unsupported version of readline (<= 4.2 or non-GNU).])
+		GINAC_WARNING([ginsh will not compile, because of an unsupported version of readline (<= 4.2 or non-GNU).])
 	else
 		save_LIBS="$LIBS"
 		LIBS="$LIBTERMCAP $LIBS"
 		AC_CHECK_LIB(readline, readline)
 		if test "x${ac_cv_lib_readline_readline}" != "xyes"; then
-			GINAC_WARNING([libreadline could not be found.])
+			GINAC_WARNING([ginsh will not compile, because libreadline could not be found.])
 		fi
 		GINSH_LIBS="$LIBS"
 		LIBS="$save_LIBS"
@@ -121,6 +121,7 @@ dnl This macro displays a warning message if GINAC_ERROR or GINAC_WARNING
 dnl has occured previously.
 AC_DEFUN([GINAC_CHECK_ERRORS],[
 if test "x${ginac_error}" = "xyes"; then
+	echo
     echo "**** The following problems have been detected by configure."
     echo "**** Please check the messages below before running \"make\"."
     echo "**** (see the section 'Common Problems' in the INSTALL file)"
@@ -135,6 +136,7 @@ if test "x${ginac_error}" = "xyes"; then
     exit 1
 else 
     if test "x${ginac_warning}" = "xyes"; then
+		echo
         echo "=== The following minor problems have been detected by configure."
         echo "=== Please check the messages below before running \"make\"."
         echo "=== (see the section 'Common Problems' in the INSTALL file)"
