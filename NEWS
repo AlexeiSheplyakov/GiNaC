@@ -1,6 +1,6 @@
 This file records noteworthy changes.
 
-1.6.0 (?? May 2011)
+1.6.0 (22 May 2011)
 * Fixed compilation issues with clang.
 * Fixed compilation issues with VC++.
 * Fixed a segfault in fsolve() and improved its numerical algorithm.
@@ -11,6 +11,9 @@ This file records noteworthy changes.
 * Fixed bugs in the GCD code.
 * Fixed empty string bug in symbol::get_name().
 * Fixed bugs concerning STL vector sizes that can potentially cause segfaults.
+* Fixed a bug in is_polynomial().
+* Removed autogen dependencies.
+* Improved simplify_indexed() algorithm.
 * Changed the connection between library version and package version.
 * power::series() can handle now more expressions with singularities in the exponent.
 * Added conjugate() methods to functions cosh, sinh, tanh.
