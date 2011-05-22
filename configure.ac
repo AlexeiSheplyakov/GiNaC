@@ -126,12 +126,6 @@ AS_IF([test -z "$DOXYGEN"],
 AS_IF([test -z "$LATEX" -o -z "$PDFLATEX" -o -z "$DVIPS"],
 	  [GINAC_WARNING([Some documentation formats may not build, because latex/pdflatex/dvips is missing.])])
 	   
-dnl generate boilerplate code for the (new) parser.
-dnl Only developers need this tool.
-AC_PATH_PROG(AUTOGEN, autogen, "")
-AC_CHECK_FILE([ginac/parser/builtin_fcns.cpp], [],
-			  [AS_IF([test -z "$AUTOGEN"], [GINAC_ERROR([Source will not compile, because autogen is missing.])])])
-
 dnl Output makefiles etc.
 AC_CONFIG_FILES([
 Makefile
