@@ -1,20 +1,26 @@
-[+ AutoGen5 template .cpp +][+ 
-COMMENT a part of GiNaC parser -- construct functions from a byte stream.
-+][+
-(use-modules (ice-9 format))
+/** @file default_reader.cpp
+ *
+ *  Implementation of the default and builtin readers (part of GiNaC's parser).
+ **/
 
-(define (sequence start end . step)
-  (let ((step (if (null? step) 1 (car step))))
-    (let loop ((n start))
-      (if (> n end) '() (cons n (loop (+ step n)))))))
-+]/*
-[+ (dne " * " " * " ) +]
+/*
+ *  GiNaC Copyright (C) 1999-2011 Johannes Gutenberg University Mainz, Germany
  *
- * If you want to change this file, edit either `[+ (def-file) +]' or
- * `[+ (tpl-file) +]' file, and run the following command:
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
  *
- * autogen -T [+ (tpl-file) +] [+ (def-file) +]
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
+
 #include "parse_context.h"
 #include "power.h"
 #include "operators.h"
@@ -29,16 +35,24 @@ COMMENT a part of GiNaC parser -- construct functions from a byte stream.
 
 namespace GiNaC
 {
-[+ FOR function +]
-static ex [+ (get "name") +]_reader(const exvector& ev)
+
+static ex sqrt_reader(const exvector& ev)
 {
-	return GiNaC::[+ (get "name") +]([+
-		(let ((nargs (if (exist? "args")
-		                 (string->number (get "args")) 1)))
-		  (format '#f "~{ev[~a]~^, ~}" (sequence 0 (- nargs 1)))) +]);
-}[+ ENDFOR +]
+	return GiNaC::sqrt(ev[0]);
+}
+static ex pow_reader(const exvector& ev)
+{
+	return GiNaC::pow(ev[0], ev[1]);
+}
+static ex power_reader(const exvector& ev)
+{
+	return GiNaC::power(ev[0], ev[1]);
+}
+
 
 // function::registered_functions() is protected, but we need to access it
+// TODO: add a proper const method to the `function' class, so we don't
+// need this silly hack any more.
 class registered_functions_hack : public function
 {
 public:
@@ -69,11 +83,10 @@ const prototype_table& get_default_reader()
 	static bool initialized = false;
 	static prototype_table reader;
 	if (!initialized) {
-		[+ FOR function +]
-		reader[make_pair("[+ (get "name") +]", [+ 
-			(if (exist? "args") (get "args") "1")
-			+])] = [+ (get "name") +]_reader;[+
-		ENDFOR +]
+		
+		reader[make_pair("sqrt", 1)] = sqrt_reader;
+		reader[make_pair("pow", 2)] = pow_reader;
+		reader[make_pair("power", 2)] = power_reader;
 		std::vector<function_options>::const_iterator it =
 			registered_functions_hack::get_registered_functions().begin();
 		std::vector<function_options>::const_iterator end =
@@ -95,11 +108,10 @@ const prototype_table& get_builtin_reader()
 	static bool initialized = false;
 	static prototype_table reader;
 	if (!initialized) {
-		[+ FOR function +]
-		reader[make_pair("[+ (get "name") +]", [+ 
-			(if (exist? "args") (get "args") "1")
-			+])] = [+ (get "name") +]_reader;[+
-		ENDFOR +]
+		
+		reader[make_pair("sqrt", 1)] = sqrt_reader;
+		reader[make_pair("pow", 2)] = pow_reader;
+		reader[make_pair("power", 2)] = power_reader;
 		enum {
 			log,
 			exp,
