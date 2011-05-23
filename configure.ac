@@ -97,10 +97,6 @@ dnl Check for stuff needed for building the GiNaC interactive shell (ginsh).
 AC_CHECK_HEADERS(unistd.h)
 GINAC_HAVE_RUSAGE
 GINAC_READLINE
-AC_CHECK_FILE([ginsh/ginsh_parser.h], [],
-			  [AS_IF([test -z "$YACCEXE"], [GINAC_WARNING([ginsh will not compile, because yacc/bison is missing.])])])
-AC_CHECK_FILE([ginsh/ginsh_lexer.cc], [],
-			  [AS_IF([test x"$LEX" == x":"], [GINAC_WARNING([ginsh will not compile, because lex/flex is missing.])])])
 
 dnl Check for dl library (needed for GiNaC::compile).
 GINAC_EXCOMPILER
