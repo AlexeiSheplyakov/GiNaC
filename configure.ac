@@ -115,6 +115,10 @@ AC_PATH_PROG(DVIPS, dvips, "")
 AM_CONDITIONAL(CONFIG_TEX, [test ! \( -z "$LATEX" -o -z $"PDFLATEX" -o -z "$MAKEINDEX" -o -z "$DVIPS" \)])
 AC_PATH_PROG(FIG2DEV, fig2dev, "")
 AM_CONDITIONAL(CONFIG_FIG2DEV, [test ! -z "$FIG2DEV"])
+AS_IF([test "x$LEX" = "x:" -a ! -f $srcdir/ginsh/ginsh_lexer.cc],
+      [GINAC_WARNING([ginsh will not compile, because lex/flex is missing])])
+AS_IF([test -z "$YACCEXE" -a ! -f $srcdir/ginsh/ginsh_parser.h],
+      [GINAC_WARNING([ginsh will not compile, because yacc/bison is missing])])
 AS_IF([test -z "$FIG2DEV" -o -z "$MAKEINFO"],
 	  [GINAC_WARNING([Documentation may not build, because fig2dev/texinfo is missing.])])
 AS_IF([test -z "$DOXYGEN"],
