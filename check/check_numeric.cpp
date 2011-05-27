@@ -115,7 +115,6 @@ unsigned check_numeric()
 	unsigned result = 0;
 	
 	cout << "checking consistency of numeric types" << flush;
-	clog << "---------consistency of numeric types:" << endl;
 	
 	result += check_numeric1();  cout << '.' << flush;
 	result += check_numeric2();  cout << '.' << flush;

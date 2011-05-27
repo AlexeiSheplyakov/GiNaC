@@ -448,24 +448,6 @@ ex mul::eval(int level) const
 		           setflag(status_flags::dynallocated);
 	}
 	
-#ifdef DO_GINAC_ASSERT
-	epvector::const_iterator i = seq.begin(), end = seq.end();
-	while (i != end) {
-		GINAC_ASSERT((!is_exactly_a<mul>(i->rest)) ||
-		             (!(ex_to<numeric>(i->coeff).is_integer())));
-		GINAC_ASSERT(!(i->is_canonical_numeric()));
-		if (is_exactly_a<numeric>(recombine_pair_to_ex(*i)))
-		    print(print_tree(std::cerr));
-		GINAC_ASSERT(!is_exactly_a<numeric>(recombine_pair_to_ex(*i)));
-		/* for paranoia */
-		expair p = split_ex_to_pair(recombine_pair_to_ex(*i));
-		GINAC_ASSERT(p.rest.is_equal(i->rest));
-		GINAC_ASSERT(p.coeff.is_equal(i->coeff));
-		/* end paranoia */
-		++i;
-	}
-#endif // def DO_GINAC_ASSERT
-	
 	if (flags & status_flags::evaluated) {
 		GINAC_ASSERT(seq.size()>0);
 		GINAC_ASSERT(seq.size()>1 || !overall_coeff.is_equal(_ex1));
@@ -500,7 +482,7 @@ ex mul::eval(int level) const
 		       )->setflag(status_flags::dynallocated | status_flags::evaluated);
 	} else if ((seq_size >= 2) && (! (flags & status_flags::expanded))) {
 		// Strip the content and the unit part from each term. Thus
-		// things like (-x+a)*(3*x-3*a) automagically turn into - 3*(x-a)2
+		// things like (-x+a)*(3*x-3*a) automagically turn into - 3*(x-a)^2
 
 		epvector::const_iterator last = seq.end();
 		epvector::const_iterator i = seq.begin();
@@ -552,8 +534,7 @@ ex mul::eval(int level) const
 			primitive->setflag(status_flags::dynallocated);
 			primitive->clearflag(status_flags::hash_calculated);
 			primitive->overall_coeff = ex_to<numeric>(primitive->overall_coeff).div_dyn(c);
-			for (epvector::iterator ai = primitive->seq.begin();
-					ai != primitive->seq.end(); ++ai)
+			for (epvector::iterator ai = primitive->seq.begin(); ai != primitive->seq.end(); ++ai)
 				ai->coeff = ex_to<numeric>(ai->coeff).div_dyn(c);
 			
 			s->push_back(expair(*primitive, _ex1));
@@ -737,8 +718,8 @@ bool tryfactsubs(const ex & origfactor, const ex & patternfactor, int & nummatch
   * is true for factors that have been matched by the current match.
   */
 bool algebraic_match_mul_with_mul(const mul &e, const ex &pat, exmap& repls,
-		int factor, int &nummatches, const std::vector<bool> &subsed,
-		std::vector<bool> &matched)
+                                  int factor, int &nummatches, const std::vector<bool> &subsed,
+                                  std::vector<bool> &matched)
 {
 	GINAC_ASSERT(subsed.size() == e.nops());
 	GINAC_ASSERT(matched.size() == e.nops());
@@ -936,7 +917,7 @@ unsigned mul::return_type() const
 	// all factors checked
 	return all_commutative ? return_types::commutative : return_types::noncommutative;
 }
-   
+
 return_type_t mul::return_type_tinfo() const
 {
 	if (seq.empty())
@@ -972,7 +953,7 @@ expair mul::split_ex_to_pair(const ex & e) const
 	}
 	return expair(e,_ex1);
 }
-	
+
 expair mul::combine_ex_with_coeff_to_pair(const ex & e,
                                           const ex & c) const
 {
@@ -985,7 +966,7 @@ expair mul::combine_ex_with_coeff_to_pair(const ex & e,
 
 	return split_ex_to_pair(power(e,c));
 }
-	
+
 expair mul::combine_pair_with_coeff_to_pair(const expair & p,
                                             const ex & c) const
 {
@@ -998,7 +979,7 @@ expair mul::combine_pair_with_coeff_to_pair(const expair & p,
 
 	return split_ex_to_pair(power(recombine_pair_to_ex(p),c));
 }
-	
+
 ex mul::recombine_pair_to_ex(const expair & p) const
 {
 	if (ex_to<numeric>(p.coeff).is_equal(*_num1_p)) 
@@ -1010,20 +991,20 @@ ex mul::recombine_pair_to_ex(const expair & p) const
 bool mul::expair_needs_further_processing(epp it)
 {
 	if (is_exactly_a<mul>(it->rest) &&
-		ex_to<numeric>(it->coeff).is_integer()) {
+	    ex_to<numeric>(it->coeff).is_integer()) {
 		// combined pair is product with integer power -> expand it
 		*it = split_ex_to_pair(recombine_pair_to_ex(*it));
 		return true;
 	}
 	if (is_exactly_a<numeric>(it->rest)) {
+		if (it->coeff.is_equal(_ex1)) {
+			// pair has coeff 1 and must be moved to the end
+			return true;
+		}
 		expair ep = split_ex_to_pair(recombine_pair_to_ex(*it));
 		if (!ep.is_equal(*it)) {
 			// combined pair is a numeric power which can be simplified
 			*it = ep;
-			return true;
-		}
-		if (it->coeff.is_equal(_ex1)) {
-			// combined pair has coeff 1 and must be moved to the end
 			return true;
 		}
 	}

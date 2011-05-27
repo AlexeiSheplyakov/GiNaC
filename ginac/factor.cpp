@@ -737,7 +737,6 @@ public:
 	}
 	bool is_col_zero(size_t col) const
 	{
-		mvec::const_iterator i = m.begin() + col;
 		for ( size_t rr=0; rr<r; ++rr ) {
 			std::size_t i = col + rr*c;
 			if ( !zerop(m[i]) ) {
