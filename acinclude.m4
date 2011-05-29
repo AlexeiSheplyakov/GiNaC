@@ -4,6 +4,22 @@ dnl additions' names with AC_ but with GINAC_ in order to steer clear of
 dnl future trouble.
 dnl ===========================================================================
 
+dnl  GINAC_HEADER_GETVAL(NAME,FILE)
+dnl  ----------------------------
+dnl  Expand at autoconf time to the value of a "#define NAME" from the given
+dnl  FILE. The regexps here aren't very rugged, but are enough for us.
+dnl  /dev/null as a parameter prevents a hang if $2 is accidentally omitted.
+dnl  (shamelessly ripped from GMP, and changed prefix to GINAC_).
+
+define(GINAC_HEADER_GETVAL,
+[patsubst(patsubst(
+esyscmd([grep "^#define $1 " $2 /dev/null 2>/dev/null]),
+[^.*$1[ 	]+],[]),
+[[
+ 	]*$],[])])
+define(GINAC_GET_VERSION,
+[GINAC_HEADER_GETVAL(GINACLIB_$1_VERSION,[ginac/version.h])])
+
 dnl Usage: GINAC_STD_CXX_HEADERS
 dnl Check for standard C++ headers, bail out if something is missing.
 AC_DEFUN([GINAC_STD_CXX_HEADERS], [

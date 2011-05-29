@@ -1,9 +1,9 @@
 dnl Process this file with autoconf to produce a configure script.
 
 dnl GiNaC version number
-m4_define([ginac_major_version], [1])
-m4_define([ginac_minor_version], [6])
-m4_define([ginac_micro_version], [2])
+m4_define([ginac_major_version], GINAC_GET_VERSION([MAJOR]))
+m4_define([ginac_minor_version], GINAC_GET_VERSION([MINOR]))
+m4_define([ginac_micro_version], GINAC_GET_VERSION([MICRO]))
 m4_define([ginac_version], [ginac_major_version.ginac_minor_version.ginac_micro_version])
 m4_define([ginac_release], [ginac_major_version.ginac_minor_version])
 
@@ -32,15 +32,10 @@ AC_INIT([GiNaC], ginac_version, [ginac-list@ginac.de], [ginac], [http://www.gina
 AC_PREREQ(2.59)
 AC_CONFIG_SRCDIR(ginac/basic.cpp)
 AC_CONFIG_AUX_DIR([config])
-AC_CONFIG_HEADERS([config/config.h ginac/version.h])
+AC_CONFIG_HEADERS([config/config.h])
 AC_CONFIG_MACRO_DIR([m4])
 dnl This defines PACKAGE and VERSION.
 AM_INIT_AUTOMAKE([gnu 1.8 dist-bzip2])
-
-dnl Process GiNaC version information
-AC_DEFINE([GINACLIB_MAJOR_VERSION], ginac_major_version, [Major version of GiNaC])
-AC_DEFINE([GINACLIB_MINOR_VERSION], ginac_minor_version, [Minor version of GiNaC])
-AC_DEFINE([GINACLIB_MICRO_VERSION], ginac_micro_version, [Micro version of GiNaC])
 
 dnl GiNaC archive file version information.
 dnl

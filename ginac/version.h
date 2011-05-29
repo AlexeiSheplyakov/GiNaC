@@ -20,17 +20,17 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __GINAC_VERSION_H__
-#define __GINAC_VERSION_H__
+#ifndef GINAC_VERSION_H
+#define GINAC_VERSION_H
 
 /* Major version of GiNaC */
-#undef GINACLIB_MAJOR_VERSION
+#define GINACLIB_MAJOR_VERSION 1
 
 /* Minor version of GiNaC */
-#undef GINACLIB_MINOR_VERSION
+#define GINACLIB_MINOR_VERSION 6
 
 /* Micro version of GiNaC */
-#undef GINACLIB_MICRO_VERSION
+#define GINACLIB_MICRO_VERSION 2
 
 namespace GiNaC {
 
@@ -40,4 +40,4 @@ extern const int version_micro;
 
 } // namespace GiNaC
 
-#endif // ndef __GINAC_VERSION_H__
+#endif // ndef GINAC_VERSION_H
