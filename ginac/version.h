@@ -32,6 +32,27 @@
 /* Micro version of GiNaC */
 #define GINACLIB_MICRO_VERSION 2
 
+/*
+ * GiNaC archive file version information.
+ *
+ * The current archive version is GINACLIB_ARCHIVE_VERSION. This is
+ * the version of archives created by the current version of GiNaC.
+ * Archives version (GINACLIB_ARCHIVE_VERSION - GINACLIB_ARCHIVE_AGE)
+ * thru * GINACLIB_ARCHIVE_VERSION can be read by current version
+ * of GiNaC.
+ *
+ * Backward compatibility notes:
+ * If new properties have been added:
+ *	GINACLIB_ARCHIVE_VERSION += 1
+ *	GINACLIB_ARCHIVE_AGE += 1
+ * If backwards compatibility has been broken, i.e. some properties
+ * has been removed, or their type and/or meaning changed:
+ *	GINACLIB_ARCHIVE_VERSION += 1
+ *	GINACLIB_ARCHIVE_AGE = 0
+ */
+#define GINACLIB_ARCHIVE_VERSION 3
+#define GINACLIB_ARCHIVE_AGE 3
+
 namespace GiNaC {
 
 extern const int version_major;

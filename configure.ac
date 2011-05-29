@@ -37,23 +37,6 @@ AC_CONFIG_MACRO_DIR([m4])
 dnl This defines PACKAGE and VERSION.
 AM_INIT_AUTOMAKE([gnu 1.8 dist-bzip2])
 
-dnl GiNaC archive file version information.
-dnl
-dnl If properties have been added, ARCHIVE_VERSION += 1, ARCHIVE_AGE += 1.
-dnl If backwards compatibility has been broken, set ARCHIVE_AGE to 0.
-dnl
-dnl The version number in newly created archives will be ARCHIVE_VERSION.
-dnl Archives version (ARCHIVE_VERSION-ARCHIVE_AGE) thru ARCHIVE_VERSION can
-dnl be read by this version of the GiNaC library.
-
-ARCHIVE_VERSION=3
-ARCHIVE_AGE=3
-
-AC_SUBST(ARCHIVE_VERSION)
-AC_SUBST(ARCHIVE_AGE)
-AC_DEFINE_UNQUOTED(ARCHIVE_VERSION, $ARCHIVE_VERSION, [Current GiNaC archive file version number])
-AC_DEFINE_UNQUOTED(ARCHIVE_AGE, $ARCHIVE_AGE, [GiNaC archive file version age])
-
 dnl libtool versioning
 LT_VERSION_INFO="ginac_lt_current:ginac_lt_revision:ginac_lt_age"
 AC_SUBST(LT_VERSION_INFO)
