@@ -29,7 +29,9 @@
 %pointer
 
 %{
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 
 #include "ginsh.h"
 #include "ginsh_parser.h"
