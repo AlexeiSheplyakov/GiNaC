@@ -732,9 +732,10 @@ static ex f_ginac_function(const exprseq &es, int serial)
 
 // All registered GiNaC functions
 namespace GiNaC {
-void ginsh_get_ginac_functions(void)
+static void ginsh_get_ginac_functions(void)
 {
-	vector<function_options>::const_iterator i = function::registered_functions().begin(), end = function::registered_functions().end();
+	vector<function_options> gfv = function::get_registered_functions();
+	vector<function_options>::const_iterator i = gfv.begin(), end = gfv.end();
 	unsigned serial = 0;
 	while (i != end) {
 		fcns.insert(make_pair(i->get_name(), fcn_desc(f_ginac_function, i->get_nparams(), serial)));
