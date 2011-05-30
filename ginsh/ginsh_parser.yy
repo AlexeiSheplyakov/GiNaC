@@ -36,7 +36,7 @@
 #include <ctime>
 #endif
 
-#if HAVE_UNISTD_H
+#ifdef HAVE_UNISTD_H
 #include <sys/types.h>
 #include <unistd.h>
 #endif
@@ -901,7 +901,7 @@ static void ginsh_readline_init(char* name)
 
 void greeting(void)
 {
-    cout << "ginsh - GiNaC Interactive Shell (" << PACKAGE << " V" << VERSION << ")" << endl;
+    cout << "ginsh - GiNaC Interactive Shell (GiNaC V" << GINACLIB_VERSION << ")" << endl;
     cout << "  __,  _______  Copyright (C) 1999-2011 Johannes Gutenberg University Mainz,\n"
          << " (__) *       | Germany.  This is free software with ABSOLUTELY NO WARRANTY.\n"
          << "  ._) i N a C | You are welcome to redistribute it under certain conditions.\n"

@@ -31,7 +31,7 @@ Known not to work with:
    is missing there.
 
 If you install from git, you also need GNU autoconf (>=2.59), automake (>=1.8),
-libtool (>= 1.5), bison (>= 2.3), flex (>= 2.5.33) to be installed.
+libtool (>= 1.5), python (>= 2.5), bison (>= 2.3), flex (>= 2.5.33) to be installed.
 
 
 INSTALLATION
