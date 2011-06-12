@@ -102,7 +102,7 @@ clifford::clifford(const ex & b, unsigned char rl) : inherited(b), representatio
  *  @see dirac_gamma */
 clifford::clifford(const ex & b, const ex & mu, const ex & metr, unsigned char rl, int comm_sign) : inherited(b, mu), representation_label(rl), metric(metr), commutator_sign(comm_sign)
 {
-	GINAC_ASSERT(is_a<varidx>(mu));
+	GINAC_ASSERT(is_a<idx>(mu));
 }
 
 clifford::clifford(unsigned char rl, const ex & metr, int comm_sign, const exvector & v, bool discardable) : inherited(not_symmetric(), v, discardable), representation_label(rl), metric(metr), commutator_sign(comm_sign)
