@@ -56,7 +56,7 @@ using namespace GiNaC;
 #define YYSTYPE ex
 
 // lex functions/variables
-extern int yyerror(char *s);
+extern int yyerror(const char *s);
 extern int yylex(void);
 extern char *yytext;
 extern FILE *yyin;

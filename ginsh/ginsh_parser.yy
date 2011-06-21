@@ -304,7 +304,7 @@ row	: exp			{$$ = lst($1);}
 
 %%
 // Error print routine
-int yyerror(char *s)
+int yyerror(const char *s)
 {
 	cerr << s << " at " << yytext << endl;
 	return 0;
