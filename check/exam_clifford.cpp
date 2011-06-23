@@ -504,7 +504,8 @@ static unsigned clifford_check7(const ex & G, const symbol & dim)
 	result += check_equal(e, pow(scalar*(dim-2), 2).expand() * clifford_unit(mu, G));
 
 	// canonicalize_clifford() checks, only for symmetric metrics
-	if (ex_to<symmetry>(ex_to<indexed>(ex_to<clifford>(clifford_unit(mu, G)).get_metric()).get_symmetry()).has_symmetry()) {
+	if (is_a<indexed>(ex_to<clifford>(clifford_unit(mu, G)).get_metric()) &&
+	    ex_to<symmetry>(ex_to<indexed>(ex_to<clifford>(clifford_unit(mu, G)).get_metric()).get_symmetry()).has_symmetry()) {
 		e = clifford_unit(mu, G) * clifford_unit(nu, G) + clifford_unit(nu, G) * clifford_unit(mu, G);
 		result += check_equal(canonicalize_clifford(e), 2*dirac_ONE()*unit.get_metric(nu, mu));
 		

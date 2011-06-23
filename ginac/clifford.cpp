@@ -1228,8 +1228,7 @@ static ex get_clifford_comp(const ex & e, const ex & c)
 			if (is_a<clifford>(e.op(j)) && ex_to<clifford>(c).same_metric(e.op(j))) {
 				if (ind > e.nops()) {
 					ind = j;
-				}
-				else {
+				} else {
 					throw(std::invalid_argument("get_clifford_comp(): expression is a Clifford multi-vector"));
 				}
 			}
@@ -1240,13 +1239,16 @@ static ex get_clifford_comp(const ex & e, const ex & c)
 			same_value_index = ( ex_to<idx>(e.op(ind).op(1)).is_numeric()
 								 &&  (ival == ex_to<numeric>(ex_to<idx>(e.op(ind).op(1)).get_value()).to_int()) );
 			found_dummy = same_value_index;
+			// Run through the expression collecting all non-clifford factors
 			for (size_t j=0; j < e.nops(); j++) {
 				if (j != ind) {
 					if (same_value_index) {
 						S = S * e.op(j);
-					}
-					else {
-						exvector ind_vec = ex_to<indexed>(e.op(j)).get_dummy_indices(ex_to<indexed>(e.op(ind)));
+					} else {
+						exvector ind_vec;
+						if (is_a<indexed>(e.op(j)))
+							ind_vec = ex_to<indexed>(e.op(j)).get_dummy_indices(ex_to<indexed>(e.op(ind)));
+						
 						if (ind_vec.size() > 0) {
 							found_dummy = true;
 							exvector::const_iterator it = ind_vec.begin(), itend = ind_vec.end();
