@@ -1,5 +1,10 @@
 This file records noteworthy changes.
 
+1.6.1 (18 July 2011)
+* Fixed several internal assertions for the debug version of GiNaC.
+* More verbose report of (auto-)configuration problems.
+* Fixed a compile problem with ginsh using gcc 4.6.
+
 1.6.0 (22 May 2011)
 * Fixed compilation issues with clang.
 * Fixed compilation issues with VC++.

@@ -3,7 +3,7 @@ dnl Process this file with autoconf to produce a configure script.
 dnl GiNaC version number
 m4_define([ginac_major_version], [1])
 m4_define([ginac_minor_version], [6])
-m4_define([ginac_micro_version], [0])
+m4_define([ginac_micro_version], [1])
 m4_define([ginac_version], [ginac_major_version.ginac_minor_version.ginac_micro_version])
 m4_define([ginac_release], [ginac_major_version.ginac_minor_version])
 
@@ -25,7 +25,7 @@ dnl increasing. This doesn't matter, though: there is not incurred cost
 dnl for numbers that are omitted, except for shrinking the available space
 dnl of leftover numbers. Not something we need to worry about yet. ;-)
 m4_define([ginac_lt_current], [2])
-m4_define([ginac_lt_revision], [0])
+m4_define([ginac_lt_revision], [1])
 m4_define([ginac_lt_age], [0])
 
 AC_INIT([GiNaC], ginac_version, [ginac-list@ginac.de], [ginac], [http://www.ginac.de/])
@@ -71,6 +71,10 @@ AM_PROG_LIBTOOL
 AC_PROG_LEX
 AC_PROG_YACC
 AC_PATH_PROG(YACCEXE, $YACC, "")
+AS_IF([test "x$LEX" = "x:" -a ! -f $srcdir/ginsh/ginsh_lexer.cc],
+      [GINAC_WARNING([ginsh will not compile, because lex/flex is missing])])
+AS_IF([test -z "$YACCEXE" -a ! -f $srcdir/ginsh/ginsh_parser.h],
+      [GINAC_WARNING([ginsh will not compile, because yacc/bison is missing])])
 
 dnl Switch to C++ language mode for the following libraries and headers.
 AC_LANG([C++])
@@ -115,10 +119,6 @@ AC_PATH_PROG(DVIPS, dvips, "")
 AM_CONDITIONAL(CONFIG_TEX, [test ! \( -z "$LATEX" -o -z $"PDFLATEX" -o -z "$MAKEINDEX" -o -z "$DVIPS" \)])
 AC_PATH_PROG(FIG2DEV, fig2dev, "")
 AM_CONDITIONAL(CONFIG_FIG2DEV, [test ! -z "$FIG2DEV"])
-AS_IF([test "x$LEX" = "x:" -a ! -f $srcdir/ginsh/ginsh_lexer.cc],
-      [GINAC_WARNING([ginsh will not compile, because lex/flex is missing])])
-AS_IF([test -z "$YACCEXE" -a ! -f $srcdir/ginsh/ginsh_parser.h],
-      [GINAC_WARNING([ginsh will not compile, because yacc/bison is missing])])
 AS_IF([test -z "$FIG2DEV" -o -z "$MAKEINFO"],
 	  [GINAC_WARNING([Documentation may not build, because fig2dev/texinfo is missing.])])
 AS_IF([test -z "$DOXYGEN"],
