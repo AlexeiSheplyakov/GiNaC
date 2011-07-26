@@ -40,13 +40,20 @@ static ex sqrt_reader(const exvector& ev)
 {
 	return GiNaC::sqrt(ev[0]);
 }
+
 static ex pow_reader(const exvector& ev)
 {
 	return GiNaC::pow(ev[0], ev[1]);
 }
+
 static ex power_reader(const exvector& ev)
 {
 	return GiNaC::power(ev[0], ev[1]);
+}
+
+static ex lst_reader(const exvector& ev)
+{
+	return GiNaC::lst(ev.begin(), ev.end());
 }
 
 
@@ -87,6 +94,7 @@ const prototype_table& get_default_reader()
 		reader[make_pair("sqrt", 1)] = sqrt_reader;
 		reader[make_pair("pow", 2)] = pow_reader;
 		reader[make_pair("power", 2)] = power_reader;
+		reader[make_pair("lst", 0)] = lst_reader;
 		std::vector<function_options>::const_iterator it =
 			registered_functions_hack::get_registered_functions().begin();
 		std::vector<function_options>::const_iterator end =
@@ -112,6 +120,7 @@ const prototype_table& get_builtin_reader()
 		reader[make_pair("sqrt", 1)] = sqrt_reader;
 		reader[make_pair("pow", 2)] = pow_reader;
 		reader[make_pair("power", 2)] = power_reader;
+		reader[make_pair("lst", 0)] = lst_reader;
 		enum {
 			log,
 			exp,

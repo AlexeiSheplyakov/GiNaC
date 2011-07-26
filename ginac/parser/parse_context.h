@@ -88,7 +88,20 @@ typedef ex (*reader_func)(const exvector& args);
  *       function pointer!! The unsigned has to correspond to the serial number of
  *       the defined GiNaC function.
  */
-typedef std::map<prototype, reader_func> prototype_table;
+class PrototypeLess
+{
+public:
+	bool operator()(const prototype& p1, const prototype& p2) const
+	{
+		int s = p1.first.compare(p2.first);
+		if (s == 0) {
+			if ((p1.second == 0) || (p2.second == 0)) return false;
+			return p1.second < p2.second;
+		}
+		return s < 0;
+	}
+};
+typedef std::map<prototype, reader_func, PrototypeLess> prototype_table;
 
 /**
  * Default prototype table.
