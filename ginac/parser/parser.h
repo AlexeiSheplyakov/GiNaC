@@ -67,6 +67,9 @@ class parser
 	/// paren_expr: '(' expression ')'
 	ex parse_paren_expr();
 
+	/// lst_expr: '{' expression { ',' expression } '}'
+	ex parse_lst_expr();
+
 	/// number_expr: number
 	ex parse_number_expr();
 

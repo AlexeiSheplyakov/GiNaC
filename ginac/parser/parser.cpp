@@ -120,6 +120,34 @@ ex parser::parse_paren_expr()
 	return e;
 }
 
+/// lst_expr:  '{' expression { ',' expression } '}'
+ex parser::parse_lst_expr()
+{
+	get_next_tok();  // eat {.
+
+	lst list;
+	if (token != '}') {
+		while (true) {
+			ex e = parse_expression(); // expression();
+			list.append(e);
+
+			if (token == '}') {
+				break;
+			}
+
+			if (token != ',') {
+				Parse_error("expected '}'");
+			}
+
+			get_next_tok();  // eat ','.
+		}
+	}
+	// Eat the '}'.
+	get_next_tok();
+
+	return list;
+}
+
 extern const ex _ex0;
 
 /// unary_expr: [+-] expression
@@ -151,6 +179,8 @@ ex parser::parse_primary()
 			 return parse_number_expr();
 		case '(': 
 			 return parse_paren_expr();
+		case '{': 
+			 return parse_lst_expr();
 		case '-':
 		case '+':
 			 return parse_unary_expr();
