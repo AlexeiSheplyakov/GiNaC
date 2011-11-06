@@ -1,5 +1,11 @@
 This file records noteworthy changes.
 
+1.6.2 (6 November 2011)
+* Fixed the parser to read GiNaC::lst again.
+* Fixed a compile warning (relevant to openSUSE build).
+* Fixed a bug concerning the subsitutions in indexed expressions
+  (subs_options::no_index_renaming was ignored).
+
 1.6.1 (18 July 2011)
 * Fixed several internal assertions for the debug version of GiNaC.
 * More verbose report of (auto-)configuration problems.
