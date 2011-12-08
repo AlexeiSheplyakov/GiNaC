@@ -5912,20 +5912,19 @@ GiNaC contains the following predefined mathematical functions:
 @end cartouche
 
 @cindex branch cut
-For functions that have a branch cut in the complex plane GiNaC follows
-the conventions for C++ as defined in the ANSI standard as far as
-possible.  In particular: the natural logarithm (@code{log}) and the
-square root (@code{sqrt}) both have their branch cuts running along the
-negative real axis where the points on the axis itself belong to the
-upper part (i.e. continuous with quadrant II).  The inverse
-trigonometric and hyperbolic functions are not defined for complex
-arguments by the C++ standard, however.  In GiNaC we follow the
-conventions used by CLN, which in turn follow the carefully designed
-definitions in the Common Lisp standard.  It should be noted that this
-convention is identical to the one used by the C99 standard and by most
-serious CAS.  It is to be expected that future revisions of the C++
-standard incorporate these functions in the complex domain in a manner
-compatible with C99.
+For functions that have a branch cut in the complex plane, GiNaC
+follows the conventions of C/C++ for systems that do not support a
+signed zero.  In particular: the natural logarithm (@code{log}) and
+the square root (@code{sqrt}) both have their branch cuts running
+along the negative real axis. The @code{asin}, @code{acos}, and
+@code{atanh} functions all have two branch cuts starting at +/-1 and
+running away towards infinity along the real axis. The @code{atan} and
+@code{asinh} functions have two branch cuts starting at +/-i and
+running away towards infinity along the imaginary axis. The
+@code{acosh} function has one branch cut starting at +1 and running
+towards -infinity.  These functions are continuous as the branch cut
+is approached coming around the finite endpoint of the cut in a
+counter clockwise direction.
 
 @node Multiple polylogarithms, Complex expressions, Built-in functions, Methods and functions
 @c    node-name, next, previous, up
