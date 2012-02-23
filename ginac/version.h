@@ -32,6 +32,27 @@
 /* Micro version of GiNaC */
 #define GINACLIB_MICRO_VERSION 2
 
+// GiNaC library version information. It has very little to do with GiNaC
+// version number. In particular, library version is OS dependent. 
+//
+// When making releases, do
+// 1. Increment GINAC_LT_REVISION
+// 2. If any interfaces have been added, removed, or changed since the last
+//    release, increment GINAC_LT_CURRENT and set GINAC_LT_REVISION to 0.
+// 3. If any interfaces have been added since the last release, increment
+//    GINAC_LT_AGE.
+// 4. If any interfaces have been removed since the last release, set 
+//    GINAC_LT_AGE to 0.
+//
+// Please note: the libtool naming scheme cannot guarantee that on all
+// systems, the numbering is consecutive. It only guarantees that it is
+// increasing. This doesn't matter, though: there is not incurred cost
+// for numbers that are omitted, except for shrinking the available space
+// of leftover numbers. Not something we need to worry about yet. ;-)
+#define GINAC_LT_CURRENT  3
+#define GINAC_LT_REVISION 0
+#define GINAC_LT_AGE      1
+
 /*
  * GiNaC archive file version information.
  *

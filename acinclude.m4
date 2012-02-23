@@ -19,6 +19,8 @@ esyscmd([grep "^#define $1 " $2 /dev/null 2>/dev/null]),
  	]*$],[])])
 define(GINAC_GET_VERSION,
 [GINAC_HEADER_GETVAL(GINACLIB_$1_VERSION,[ginac/version.h])])
+define(GINAC_GET_LTVERSION,
+[GINAC_HEADER_GETVAL(GINAC_LT_$1,[ginac/version.h])])
 
 dnl Usage: GINAC_STD_CXX_HEADERS
 dnl Check for standard C++ headers, bail out if something is missing.
