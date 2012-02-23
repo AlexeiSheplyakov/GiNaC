@@ -84,7 +84,7 @@ GINAC_STD_CXX_HEADERS
 
 dnl We need to have CLN installed.
 PKG_CHECK_MODULES(CLN, cln >= 1.2.2)
-AC_LIB_LINKFLAGS_FROM_LIBS([CLN_RPATH], [$CLN_LIBS], [1])
+AC_LIB_LINKFLAGS_FROM_LIBS([CLN_RPATH], [$CLN_LIBS])
 LIBS="$LIBS $CLN_LIBS $CLN_RPATH"
 CPPFLAGS="$CPPFLAGS $CLN_CFLAGS"
 dnl Include proper rpath into pkg-config meta data, so
