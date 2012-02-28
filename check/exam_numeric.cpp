@@ -68,6 +68,11 @@ static unsigned exam_numeric1()
 		     << " erroneously not recognized as complex rational" << endl;
 		++result;
 	}
+	if (test_crat.info(info_flags::nonnegative)) {
+		clog << test_crat
+		     << " erroneously recognized as non-negative number" << endl;
+		++result;
+	}
 	
 	int i = numeric(1984).to_int();
 	if (i-1984) {

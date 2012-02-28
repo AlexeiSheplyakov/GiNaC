@@ -700,7 +700,7 @@ bool numeric::info(unsigned inf) const
 		case info_flags::negative:
 			return is_negative();
 		case info_flags::nonnegative:
-			return !is_negative();
+			return is_zero() || is_positive();
 		case info_flags::posint:
 			return is_pos_integer();
 		case info_flags::negint:
