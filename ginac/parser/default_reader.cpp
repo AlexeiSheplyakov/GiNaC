@@ -23,6 +23,7 @@
 
 #include "parse_context.h"
 #include "power.h"
+#include "lst.h"
 #include "operators.h"
 #include "inifcns.h"
 #ifdef HAVE_CONFIG_H

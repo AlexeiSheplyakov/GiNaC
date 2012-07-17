@@ -21,6 +21,7 @@
  */
 
 #include "parser.h"
+#include "lst.h"
 #include "lexer.h"
 #include "debug.h"
 #include "mul.h"
