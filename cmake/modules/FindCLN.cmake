@@ -59,7 +59,7 @@ if (CLN_INCLUDE_DIR)
 	# as the one read from the header. This prevents us from
 	# picking the wrong version of CLN (say, if several versions
 	# are installed)
-	if (PKG_CONFIG_FOUND AND NOT CLN_VERSION VERSION_EQUAL _cln_VERSION)
+	if (_cln_FOUND AND NOT CLN_VERSION VERSION_EQUAL _cln_VERSION)
 		if (NOT CLN_FIND_QUIETLY)
 			message(ERROR "pkg-config and version.h disagree, "
 				      "${_cln_VERSION} vs ${CLN_VERSION}, "
