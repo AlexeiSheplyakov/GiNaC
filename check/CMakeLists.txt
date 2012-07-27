@@ -71,7 +71,7 @@ macro(add_ginac_test thename)
 	add_executable(${thename} EXCLUDE_FROM_ALL ${${thename}_sources})
 	target_link_libraries(${thename} ginac)
 	add_dependencies(check ${thename})
-	add_test(${thename} ${thename})
+	add_test(NAME ${thename} COMMAND ${thename}${CMAKE_EXECUTABLE_SUFFIX})
 endmacro()
 
 macro(add_ginac_timing thename)
