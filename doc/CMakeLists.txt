@@ -35,6 +35,7 @@ macro(pdflatex_process texfile)
 	set(_idx ${_dirname}/${_basename}.idx)
 	set(_ind ${_dirname}/${_basename}.ind)
 	set(_pdf ${_dirname}/${_basename}.pdf)
+	set(_fixupind ${CMAKE_SOURCE_DIR}/scripts/fixupind.py)
 	add_custom_command(
 		OUTPUT ${_idx}
 		COMMAND ${PDFLATEX_COMPILER} ${texfile}
@@ -44,6 +45,7 @@ macro(pdflatex_process texfile)
 	add_custom_command(
 		OUTPUT ${_ind}
 		COMMAND ${MAKEINDEX_COMPILER} ${_idx}
+		COMMAND python ${_fixupind} ${_idx}
 		WORKING_DIRECTORY ${_dirname}
 		DEPENDS ${texfile} ${_idx}
 		COMMENT "MAKEINDEX ${_basename}.idx")

@@ -53,6 +53,7 @@ pdflatex/reference.pdf: pdflatex/reference.tex
 		cd pdflatex; \
 	  ${PDFLATEX} reference.tex ;\
 	  ${MAKEINDEX} reference.idx ;\
+	  ${PYTHON} $(top_srcdir)/scripts/fixupind.py reference.ind; \
 	  ${PDFLATEX} reference.tex
 
 reference.dvi: latex latex/reference.dvi
