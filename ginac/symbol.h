@@ -69,6 +69,7 @@ protected:
 	// non-virtual functions in this class
 public:
 	void set_name(const std::string & n) { name = n; }
+	void set_TeX_name(const std::string & n) { TeX_name = n; }
 	std::string get_name() const;
 	virtual unsigned get_domain() const { return domain::complex; }
 protected:
