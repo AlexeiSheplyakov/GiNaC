@@ -30,6 +30,7 @@ EXAMS = exam_paranoia \
 	exam_misc \
 	exam_mod_gcd \
 	bugme_chinrem_gcd \
+	factor_univariate_bug \
 	pgcd_relatively_prime_bug \
 	pgcd_infinite_loop \
 	exam_cra
@@ -256,6 +257,9 @@ time_parser_LDADD = ../ginac/libginac.la
 
 bugme_chinrem_gcd_SOURCES = bugme_chinrem_gcd.cpp
 bugme_chinrem_gcd_LDADD = ../ginac/libginac.la
+
+factor_univariate_bug_SOURCES = factor_univariate_bug.cpp
+factor_univariate_bug_LDADD = ../ginac/libginac.la
 
 pgcd_relatively_prime_bug_SOURCES = pgcd_relatively_prime_bug.cpp
 pgcd_relatively_prime_bug_LDADD = ../ginac/libginac.la

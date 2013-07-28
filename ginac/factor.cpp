@@ -1509,7 +1509,17 @@ static ex factor_univariate(const ex& poly, const ex& x, unsigned int& prime)
 	cl_modint_ring R;
 	unsigned int trials = 0;
 	unsigned int minfactors = 0;
-	cl_I lc = lcoeff(prim) * the<cl_I>(ex_to<numeric>(cont).to_cl_N());
+
+	const numeric& cont_n = ex_to<numeric>(cont);
+	cl_I i_cont;
+	if (cont_n.is_integer()) {
+		i_cont = the<cl_I>(cont_n.to_cl_N());
+	} else {
+		// poly \in Q[x] => poly = q ipoly, ipoly \in Z[x], q \in Q
+		// factor(poly) \equiv q factor(ipoly)
+		i_cont = cl_I(1);
+	}
+	cl_I lc = lcoeff(prim)*i_cont;
 	upvec factors;
 	while ( trials < 2 ) {
 		umodpoly modpoly;
