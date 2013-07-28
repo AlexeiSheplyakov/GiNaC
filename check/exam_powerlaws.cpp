@@ -69,14 +69,14 @@ static unsigned exam_powerlaws1()
 		return 1;
 	}
 	
-	ex e4 = e1.subs(lst(a==-1, b==2.5));
+	ex e4 = e1.subs(lst(a==-1, b==-2.5));
 	if (!(is_exactly_a<power>(e4) &&
 	      is_exactly_a<power>(e4.op(0)) &&
 	      is_exactly_a<symbol>(e4.op(0).op(0)) &&
 	      is_exactly_a<numeric>(e4.op(0).op(1)) &&
 	      is_exactly_a<numeric>(e4.op(1)) &&
-	      e4.is_equal(power(power(x,-1),2.5)) )) {
-		clog << "(x^a)^b, x symbolic, a==-1, b==2.5 wrong" << endl;
+	      e4.is_equal(power(power(x,-1),-2.5)) )) {
+		clog << "(x^a)^b, x symbolic, a==-1, b==-2.5 wrong" << endl;
 		clog << "returned: " << e4 << endl;
 		return 1;
 	}
