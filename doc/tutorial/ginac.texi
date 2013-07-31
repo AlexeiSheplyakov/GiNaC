@@ -8679,7 +8679,7 @@ If the required version was not found, executes @var{ACTION-IF-NOT-FOUND}.
 
 @node Configure script options, Example package, Package tools, Package tools 
 @c    node-name, next, previous, up
-@subsection Configuring a package that uses GiNaC
+@appendixsection Configuring a package that uses GiNaC
 
 The directory where the GiNaC libraries are installed needs
 to be found by your system's dynamic linkers (both compile- and run-time
@@ -8732,7 +8732,7 @@ $ ./configure
 
 @node Example package, Bibliography, Configure script options, Package tools
 @c    node-name, next, previous, up
-@subsection Example of a package using GiNaC
+@appendixsection Example of a package using GiNaC
 
 The following shows how to build a simple package using automake
 and the @samp{PKG_CHECK_MODULES} macro. The program used here is @file{simple.cpp}:
