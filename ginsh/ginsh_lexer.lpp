@@ -1,4 +1,4 @@
-/** @file ginsh_lexer.ll
+/** @file ginsh_lexer.lpp
  *
  *  Lexical analyzer definition for ginsh.
  *  This file must be processed with flex. */
@@ -34,7 +34,7 @@
 #endif
 
 #include "ginsh.h"
-#include "ginsh_parser.h"
+#include "ginsh_parser.hpp"
 
 #define YY_INPUT(buf, result, max_size) (result = ginsh_input(buf, max_size))
 
