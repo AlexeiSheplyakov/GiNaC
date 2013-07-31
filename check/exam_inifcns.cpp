@@ -219,11 +219,35 @@ static unsigned inifcns_consist_zeta()
 	return result;
 }
 
+static unsigned inifcns_consist_abs()
+{
+	unsigned result = 0;
+	realsymbol a("a"), b("b"), x("x"), y("y");
+	possymbol p("p");
+
+	if (!abs(exp(x+I*y)).eval().is_equal(exp(x)))
+		++result;
+
+	if (!abs(pow(p,a+I*b)).eval().is_equal(pow(p,a)))
+		++result;
+
+	// also checks that abs(p)=p
+	if (!abs(pow(p,a+I*b)).eval().is_equal(pow(p,a)))
+		++result;
+
+	if (!abs(pow(x+I*y,a)).eval().is_equal(pow(abs(x+I*y),a)))
+		++result;
+
+	// it is not necessary a simplification if the following is really evaluated
+	if (!abs(pow(x+I*y,a+I*b)).eval().is_equal(abs(pow(x+I*y,a+I*b))))
+		++result;
+
+}
+
 static unsigned inifcns_consist_various()
 {
 	unsigned result = 0;
 	symbol n;
-	ex e;
 	
 	if ( binomial(n, 0) != 1 ) {
 		clog << "ERROR: binomial(n,0) != 1" << endl;		
@@ -243,6 +267,7 @@ unsigned exam_inifcns()
 	result += inifcns_consist_gamma();  cout << '.' << flush;
 	result += inifcns_consist_psi();  cout << '.' << flush;
 	result += inifcns_consist_zeta();  cout << '.' << flush;
+	result += inifcns_consist_abs();  cout << '.' << flush;
 	result += inifcns_consist_various();  cout << '.' << flush;
 	
 	return result;
