@@ -224,6 +224,7 @@ static unsigned inifcns_consist_abs()
 	unsigned result = 0;
 	realsymbol a("a"), b("b"), x("x"), y("y");
 	possymbol p("p");
+	symbol z("z");
 
 	if (!abs(exp(x+I*y)).eval().is_equal(exp(x)))
 		++result;
@@ -242,6 +243,13 @@ static unsigned inifcns_consist_abs()
 	if (!abs(pow(x+I*y,a+I*b)).eval().is_equal(abs(pow(x+I*y,a+I*b))))
 		++result;
 
+	if (!abs(z.conjugate()).eval().is_equal(abs(z)))
+		++result;
+
+	if (!abs(step(z)).eval().is_equal(step(z)))
+		++result;
+
+	return result;
 }
 
 static unsigned inifcns_consist_various()
