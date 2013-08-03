@@ -196,7 +196,10 @@ public:
 		hash_calculated = 0x0008, ///< .calchash() has already done its job
 		not_shareable   = 0x0010, ///< don't share instances of this object between different expressions unless explicitly asked to (used by ex::compare())
 		has_indices	= 0x0020,
-		has_no_indices	= 0x0040  // ! (has_indices || has_no_indices) means "don't know"
+		has_no_indices	= 0x0040, // ! (has_indices || has_no_indices) means "don't know"
+		is_positive	= 0x0080,
+		is_negative	= 0x0100,
+		purely_indefinite = 0x0200  // If set in a mul, then it does not contains any terms with determined signs, used in power::expand()
 	};
 };
 
@@ -256,7 +259,10 @@ public:
 		idx,
 
 		// answered by classes numeric, symbol, add, mul, power
-		expanded
+		expanded,
+
+		// is meaningful for mul only
+		indefinite
 	};
 };
 
