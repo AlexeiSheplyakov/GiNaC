@@ -67,7 +67,7 @@ ginacinclude_HEADERS = ginac.h add.h archive.h assertion.h basic.h class_info.h 
   parser/parser.h \
   parser/parse_context.h
 
-EXTRA_DIST = version.h.in function.hppy function.cppy
+EXTRA_DIST = function.py function.hppy function.cppy
 
 BUILT_SOURCES = function.cpp function.h
 
