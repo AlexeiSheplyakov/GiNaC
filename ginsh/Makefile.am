@@ -6,7 +6,6 @@ ginsh_SOURCES = ginsh_parser.ypp ginsh_lexer.lpp ginsh.h ginsh_extensions.h
 ginsh_LDADD = ../ginac/libginac.la $(GINSH_LIBS)
 
 AM_CPPFLAGS = -I$(srcdir)/../ginac -I../ginac -DIN_GINAC
-AM_YFLAGS = -d
 
 man_MANS = ginsh.1
 
@@ -20,4 +19,9 @@ ginsh_fcn_help.h: ginsh.1.in $(srcdir)/ginsh_fcn_help.py
 ginsh_op_help.h: ginsh.1 $(srcdir)/ginsh_op_help.py
 	$(PYTHON) $(srcdir)/ginsh_op_help.py -o $@ $<
 
-ginsh_parser.o: ginsh_fcn_help.h ginsh_op_help.h ginsh_parser.cpp
+# automake <=1.11 and automake >=1.12 have different conventions for naming C++ header files
+# made by yacc.  To work with both, we write our own rule rather than using automake's.
+ginsh_parser.cpp ginsh_parser.hpp: ginsh_parser.ypp
+	$(YACC) $(YFLAGS) -o ginsh_parser.cpp --defines=ginsh_parser.hpp $<
+
+ginsh_parser.o: ginsh_fcn_help.h ginsh_op_help.h ginsh_parser.hpp

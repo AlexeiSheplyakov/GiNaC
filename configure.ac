@@ -32,9 +32,9 @@ AM_PROG_LIBTOOL
 AC_PROG_LEX
 AC_PROG_YACC
 AC_PATH_PROG(YACCEXE, $YACC, "")
-AS_IF([test "x$LEX" = "x:" -a ! -f $srcdir/ginsh/ginsh_lexer.cc],
+AS_IF([test "x$LEX" = "x:" -a ! -f $srcdir/ginsh/ginsh_lexer.cpp],
       [GINAC_WARNING([ginsh will not compile, because lex/flex is missing])])
-AS_IF([test -z "$YACCEXE" -a ! -f $srcdir/ginsh/ginsh_parser.h],
+AS_IF([test -z "$YACCEXE" -a ! -f $srcdir/ginsh/ginsh_parser.hpp],
       [GINAC_WARNING([ginsh will not compile, because yacc/bison is missing])])
 
 dnl Switch to C++ language mode for the following libraries and headers.

@@ -1,4 +1,4 @@
-/** @file ginsh_parser.yy
+/** @file ginsh_parser.ypp
  *
  *  Input grammar definition for ginsh.
  *  This file must be processed with yacc/bison. */
