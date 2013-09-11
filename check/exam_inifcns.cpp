@@ -249,6 +249,15 @@ static unsigned inifcns_consist_abs()
 	if (!abs(step(z)).eval().is_equal(step(z)))
 		++result;
 
+	if (!abs(p).info(info_flags::positive) || !abs(a).info(info_flags::real))
+		++result;
+
+	if (abs(a).info(info_flags::positive) || !abs(a).info(info_flags::real))
+		++result;
+
+	if (abs(z).info(info_flags::positive) || !abs(z).info(info_flags::real))
+		++result;
+
 	return result;
 }
 

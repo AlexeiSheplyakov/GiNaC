@@ -62,6 +62,7 @@ typedef ex (* derivative_funcp)();
 typedef ex (* power_funcp)();
 typedef ex (* series_funcp)();
 typedef void (* print_funcp)();
+typedef bool (* info_funcp)();
 
 // the following lines have been generated for max. @maxargs@ parameters
 +++ for N, args in [ ( N, seq('const ex &', N) ) for N in range(1, maxargs + 1) ]:
@@ -75,6 +76,7 @@ typedef ex (* derivative_funcp_@N@)( @args@, unsigned );
 typedef ex (* power_funcp_@N@)( @args@, const ex & );
 typedef ex (* series_funcp_@N@)( @args@, const relational &, int, unsigned );
 typedef void (* print_funcp_@N@)( @args@, const print_context & );
+typedef bool (* info_funcp_@N@)( @args@, unsigned );
 ---
 // end of generated lines
 
@@ -88,6 +90,7 @@ typedef ex (* derivative_funcp_exvector)(const exvector &, unsigned);
 typedef ex (* power_funcp_exvector)(const exvector &, const ex &);
 typedef ex (* series_funcp_exvector)(const exvector &, const relational &, int, unsigned);
 typedef void (* print_funcp_exvector)(const exvector &, const print_context &);
+typedef bool (* info_funcp_exvector)(const exvector &, unsigned);
 
 
 class function_options
@@ -159,6 +162,7 @@ protected:
 	power_funcp power_f;
 	series_funcp series_f;
 	std::vector<print_funcp> print_dispatch_table;
+	info_funcp info_f;
 
 	bool evalf_params_first;
 
@@ -181,6 +185,7 @@ protected:
 	bool power_use_exvector_args;
 	bool series_use_exvector_args;
 	bool print_use_exvector_args;
+	bool info_use_exvector_args;
 
 	unsigned functions_with_same_name;
 
@@ -232,6 +237,7 @@ public:
 	ex imag_part() const;
 	void archive(archive_node& n) const;
 	void read_archive(const archive_node& n, lst& syms);
+	bool info(unsigned inf) const;
 protected:
 	ex derivative(const symbol & s) const;
 	bool is_equal_same_type(const basic & other) const;

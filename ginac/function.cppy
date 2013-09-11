@@ -80,6 +80,7 @@ void function_options::initialize()
 	nparams = 0;
 	eval_f = evalf_f = real_part_f = imag_part_f = conjugate_f = expand_f
 		= derivative_f = power_f = series_f = 0;
+	info_f = 0;
 	evalf_params_first = true;
 	use_return_type = false;
 	eval_use_exvector_args = false;
@@ -92,6 +93,7 @@ void function_options::initialize()
 	power_use_exvector_args = false;
 	series_use_exvector_args = false;
 	print_use_exvector_args = false;
+	info_use_exvector_args = false;
 	use_remember = false;
 	functions_with_same_name = 1;
 	symtree = 0;
@@ -592,6 +594,31 @@ ex function::imag_part() const
 		// end of generated lines
 	}
 	throw(std::logic_error("function::imag_part(): invalid nparams"));
+}
+
+/** Implementation of ex::info for functions. */
+bool function::info(unsigned inf) const
+{
+	GINAC_ASSERT(serial<registered_functions().size());
+	const function_options & opt = registered_functions()[serial];
+
+	if (opt.info_f==0) {
+		return basic::info(inf);
+	}
+
+	if (opt.info_use_exvector_args) {
+		return ((info_funcp_exvector)(opt.info_f))(seq, inf);
+	}
+
+	switch (opt.nparams) {
+		// the following lines have been generated for max. @maxargs@ parameters
++++ for N in range(1, maxargs + 1):
+		case @N@:
+			return ((info_funcp_@N@)(opt.info_f))(@seq('seq[%(n)d]', N, 0)@, inf);
+---
+		// end of generated lines
+	}
+	throw(std::logic_error("function::info(): invalid nparams"));
 }
 
 // protected
