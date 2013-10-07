@@ -49,9 +49,9 @@
 // increasing. This doesn't matter, though: there is not incurred cost
 // for numbers that are omitted, except for shrinking the available space
 // of leftover numbers. Not something we need to worry about yet. ;-)
-#define GINAC_LT_CURRENT  3
+#define GINAC_LT_CURRENT  4
 #define GINAC_LT_REVISION 0
-#define GINAC_LT_AGE      1
+#define GINAC_LT_AGE      2
 
 /*
  * GiNaC archive file version information.

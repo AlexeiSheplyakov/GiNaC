@@ -57,6 +57,7 @@ typedef ex (* evalf_funcp)();
 typedef ex (* conjugate_funcp)();
 typedef ex (* real_part_funcp)();
 typedef ex (* imag_part_funcp)();
+typedef ex (* expand_funcp)();
 typedef ex (* derivative_funcp)();
 typedef ex (* power_funcp)();
 typedef ex (* series_funcp)();
@@ -69,6 +70,7 @@ typedef ex (* evalf_funcp_@N@)( @args@ );
 typedef ex (* conjugate_funcp_@N@)( @args@ );
 typedef ex (* real_part_funcp_@N@)( @args@ );
 typedef ex (* imag_part_funcp_@N@)( @args@ );
+typedef ex (* expand_funcp_@N@)( @args@, unsigned );
 typedef ex (* derivative_funcp_@N@)( @args@, unsigned );
 typedef ex (* power_funcp_@N@)( @args@, const ex & );
 typedef ex (* series_funcp_@N@)( @args@, const relational &, int, unsigned );
@@ -81,6 +83,7 @@ typedef void (* print_funcp_@N@)( @args@, const print_context & );
 +++ for fp in "eval evalf conjugate real_part imag_part".split():
 typedef ex (* @fp@_funcp_exvector)(const exvector &);
 ---
+typedef ex (* expand_funcp_exvector)(const exvector &, unsigned);
 typedef ex (* derivative_funcp_exvector)(const exvector &, unsigned);
 typedef ex (* power_funcp_exvector)(const exvector &, const ex &);
 typedef ex (* series_funcp_exvector)(const exvector &, const relational &, int, unsigned);
@@ -151,6 +154,7 @@ protected:
 	conjugate_funcp conjugate_f;
 	real_part_funcp real_part_f;
 	imag_part_funcp imag_part_f;
+	expand_funcp expand_f;
 	derivative_funcp derivative_f;
 	power_funcp power_f;
 	series_funcp series_f;
@@ -172,6 +176,7 @@ protected:
 	bool conjugate_use_exvector_args;
 	bool real_part_use_exvector_args;
 	bool imag_part_use_exvector_args;
+	bool expand_use_exvector_args;
 	bool derivative_use_exvector_args;
 	bool power_use_exvector_args;
 	bool series_use_exvector_args;
