@@ -18,7 +18,7 @@ AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_HEADERS([config/config.h])
 AC_CONFIG_MACRO_DIR([m4])
 dnl This defines PACKAGE and VERSION.
-AM_INIT_AUTOMAKE([gnu 1.8 dist-bzip2])
+AM_INIT_AUTOMAKE([gnu 1.8 dist-bzip2 subdir-objects])
 
 dnl libtool versioning
 LT_VERSION_INFO="ginac_lt_current:ginac_lt_revision:ginac_lt_age"
