@@ -6,6 +6,7 @@ set(ginac_tests
 	check_inifcns
 	check_matrices
 	check_lsolve
+	check_mul_info
 	heur_gcd_bug
 	exam_paranoia
 	exam_heur_gcd
