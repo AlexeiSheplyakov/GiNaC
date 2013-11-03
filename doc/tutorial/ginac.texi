@@ -5926,6 +5926,59 @@ towards -infinity.  These functions are continuous as the branch cut
 is approached coming around the finite endpoint of the cut in a
 counter clockwise direction.
 
+@c
+@subsection Expanding functions
+@cindex expand trancedent functions
+@cindex @code{expand_options::expand_transcendental}
+@cindex @code{expand_options::expand_function_args}
+GiNaC knows several expansion laws for trancedent functions, e.g.
+@tex
+$e^{a+b}=e^a e^b$,
+$|zw|=|z|\cdot |w|$
+@end tex
+@ifnottex
+@command{exp(a+b)=exp(a) exp(b), |zw|=|z| |w|}
+@end ifnottex
+or
+@tex
+$\log(c*d)=\log(c)+\log(d)$,
+@end tex
+@ifnottex
+@command{log(cd)=log(c)+log(d)}
+@end ifnottex
+(for positive
+@tex
+$c,\ d$
+@end tex
+@ifnottex
+@command{c, d}
+@end ifnottex
+). In order to use these rules you need to call @code{expand()} method
+with the option @code{expand_options::expand_transcendental}. Another
+relevant option is @code{expand_options::expand_function_args}. Their
+usage and interaction can be seen from the following example:
+@example
+@{
+	symbol x("x"),  y("y");
+	ex e=exp(pow(x+y,2));
+	cout << e.expand() << endl;
+	// -> exp((x+y)^2)
+	cout << e.expand(expand_options::expand_transcendental) << endl;
+	// -> exp((x+y)^2)
+	cout << e.expand(expand_options::expand_function_args) << endl;
+	// -> exp(2*x*y+x^2+y^2)
+	cout << e.expand(expand_options::expand_function_args
+			| expand_options::expand_transcendental) << endl;
+	// -> exp(y^2)*exp(2*x*y)*exp(x^2)
+@}
+@end example
+If both flags are set (as in the last call), then GiNaC tries to get
+the maximal expansion. For example, for the exponent GiNaC firstly expands
+the argument and then the function. For the logarithm and absolute value,
+GiNaC uses the opposite order: firstly expands the function and then its
+argument. Of course, a user can fine-tune this behaviour by sequential
+calls of several @code{expand()} methods with desired flags.
+
 @node Multiple polylogarithms, Complex expressions, Built-in functions, Methods and functions
 @c    node-name, next, previous, up
 @subsection Multiple polylogarithms

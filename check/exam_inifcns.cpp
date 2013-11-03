@@ -243,6 +243,10 @@ static unsigned inifcns_consist_abs()
 	if (!abs(pow(x+I*y,a+I*b)).eval().is_equal(abs(pow(x+I*y,a+I*b))))
 		++result;
 
+	// check expansion of abs
+	if (!abs(-7*z*a*p).expand(expand_options::expand_transcendental).is_equal(7*abs(z)*abs(a)*p))
+		++result;
+
 	if (!abs(z.conjugate()).eval().is_equal(abs(z)))
 		++result;
 
@@ -256,6 +260,65 @@ static unsigned inifcns_consist_abs()
 		++result;
 
 	if (abs(z).info(info_flags::positive) || !abs(z).info(info_flags::real))
+		++result;
+
+	return result;
+}
+
+static unsigned inifcns_consist_exp()
+{
+	unsigned result = 0;
+	symbol a("a"), b("b");
+
+	if (!exp(a+b).expand(expand_options::expand_transcendental).is_equal(exp(a)*exp(b)))
+		++result;
+
+	// shall not be expanded since the arg is not add
+	if (!exp(pow(a+b,2)).expand(expand_options::expand_transcendental).is_equal(exp(pow(a+b,2))))
+		++result;
+
+	// expand now
+	if (!exp(pow(a+b,2)).expand(expand_options::expand_function_args | expand_options::expand_transcendental)
+		.is_equal(exp(a*a)*exp(b*b)*exp(2*a*b)))
+		++result;
+
+	return result;
+}
+
+static unsigned inifcns_consist_log()
+{
+	unsigned result = 0;
+	symbol z("a"), w("b");
+	realsymbol a("a"), b("b");
+	possymbol p("p"), q("q");
+
+	// do not expand
+	if (!log(z*w).expand(expand_options::expand_transcendental).is_equal(log(z*w)))
+		++result;
+
+	// do not expand
+	if (!log(a*b).expand(expand_options::expand_transcendental).is_equal(log(a*b)))
+		++result;
+
+	// shall expand
+	if (!log(p*q).expand(expand_options::expand_transcendental).is_equal(log(p) + log(q)))
+		++result;
+
+	// a bit more complicated
+	ex e1 = log(-7*p*pow(q,3)*a*pow(b,2)*z*w).expand(expand_options::expand_transcendental);
+	ex e2 = log(7)+log(p)+log(pow(q,3))+log(-z*a*w*pow(b,2));
+	if (!e1.is_equal(e2))
+		++result;
+
+	if (!ex(log(pow(p,a))).is_equal(a*log(p)))
+		++result;
+
+	// shall not do for non-real powers
+	if (ex(log(pow(p,z))).is_equal(z*log(p)))
+		++result;
+
+	// shall not do for non-positive basis
+	if (ex(log(pow(a,b))).is_equal(b*log(a)))
 		++result;
 
 	return result;
@@ -285,6 +348,8 @@ unsigned exam_inifcns()
 	result += inifcns_consist_psi();  cout << '.' << flush;
 	result += inifcns_consist_zeta();  cout << '.' << flush;
 	result += inifcns_consist_abs();  cout << '.' << flush;
+	result += inifcns_consist_exp();  cout << '.' << flush;
+	result += inifcns_consist_log();  cout << '.' << flush;
 	result += inifcns_consist_various();  cout << '.' << flush;
 	
 	return result;
