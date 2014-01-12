@@ -346,7 +346,11 @@ cln::cl_N Li_projection(int n, const cln::cl_N& x, const cln::float_format_t& pr
 		} else {
 			// choose the faster algorithm
 			if (cln::abs(cln::realpart(x)) > 0.75) {
-				return -Li2_do_sum(1-x) - cln::log(x) * cln::log(1-x) + cln::zeta(2);
+				if ( x == 1 ) {
+					return cln::zeta(2);
+				} else {
+					return -Li2_do_sum(1-x) - cln::log(x) * cln::log(1-x) + cln::zeta(2);
+				}
 			} else {
 				return -Li2_do_sum_Xn(1-x) - cln::log(x) * cln::log(1-x) + cln::zeta(2);
 			}
@@ -368,7 +372,8 @@ cln::cl_N Li_projection(int n, const cln::cl_N& x, const cln::float_format_t& pr
 				return Lin_do_sum_Xn(n, x);
 			}
 		} else {
-			cln::cl_N result = -cln::expt(cln::log(x), n-1) * cln::log(1-x) / cln::factorial(n-1);
+			cln::cl_N result = 0;
+			if ( x != 1 ) result = -cln::expt(cln::log(x), n-1) * cln::log(1-x) / cln::factorial(n-1);
 			for (int j=0; j<n-1; j++) {
 				result = result + (S_num(n-j-1, 1, 1) - S_num(1, n-j-1, 1-x))
 				                  * cln::expt(cln::log(x), j) / cln::factorial(j);
