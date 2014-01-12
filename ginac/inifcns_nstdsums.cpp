@@ -1201,9 +1201,14 @@ ex mLi_numeric(const lst& m, const lst& x)
 			s.push_back(1);
 		}
 		const cln::cl_N xi = ex_to<numeric>(*itx).to_cl_N();
-		newx.push_back(factor/xi);
 		factor = factor/xi;
-		s.push_back(1);
+		newx.push_back(factor);
+		if ( !instanceof(factor, cln::cl_R_ring) && imagpart(factor) < 0 ) {
+			s.push_back(-1);
+		}
+		else {
+			s.push_back(1);
+		}
 	}
 	return numeric(cln::cl_N(1 & m.nops() ? - 1 : 1)*G_numeric(newx, s, cln::cl_N(1)));
 }
