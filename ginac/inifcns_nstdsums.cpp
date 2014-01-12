@@ -1360,11 +1360,15 @@ static ex G3_evalf(const ex& x_, const ex& s_, const ex& y)
 			all_zero = false;
 		}
 		if ( ex_to<numeric>(*itx).is_real() ) {
-			if ( *its >= 0 ) {
+			if ( ex_to<numeric>(*itx).is_positive() ) {
+				if ( *its >= 0 ) {
+					sn.push_back(1);
+				}
+				else {
+					sn.push_back(-1);
+				}
+			} else {
 				sn.push_back(1);
-			}
-			else {
-				sn.push_back(-1);
 			}
 		}
 		else {
@@ -1424,11 +1428,15 @@ static ex G3_eval(const ex& x_, const ex& s_, const ex& y)
 			all_zero = false;
 		}
 		if ( ex_to<numeric>(*itx).is_real() ) {
-			if ( *its >= 0 ) {
+			if ( ex_to<numeric>(*itx).is_positive() ) {
+				if ( *its >= 0 ) {
+					sn.push_back(1);
+				}
+				else {
+					sn.push_back(-1);
+				}
+			} else {
 				sn.push_back(1);
-			}
-			else {
-				sn.push_back(-1);
 			}
 		}
 		else {
