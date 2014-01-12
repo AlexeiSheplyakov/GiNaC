@@ -2044,7 +2044,9 @@ const cln::cl_N S_num(int n, int p, const cln::cl_N& x)
 		prec = cln::float_format(cln::the<cln::cl_F>(cln::imagpart(value)));
 
 	// [Kol] (5.3)
-	if ((cln::realpart(value) < -0.5) || (n == 0) || ((cln::abs(value) <= 1) && (cln::abs(value) > 0.95))) {
+	// the condition abs(1-value)>1 avoids an infinite recursion in the region abs(value)<=1 && abs(value)>0.95 && abs(1-value)<=1 && abs(1-value)>0.95
+	// we don't care here about abs(value)<1 && real(value)>0.5, this will be taken care of in S_projection
+	if ((cln::realpart(value) < -0.5) || (n == 0) || ((cln::abs(value) <= 1) && (cln::abs(value) > 0.95) && (cln::abs(1-value) > 1) )) {
 
 		cln::cl_N result = cln::expt(cln::cl_I(-1),p) * cln::expt(cln::log(value),n)
 		                   * cln::expt(cln::log(1-value),p) / cln::factorial(n) / cln::factorial(p);
@@ -2084,6 +2086,16 @@ const cln::cl_N S_num(int n, int p, const cln::cl_N& x)
 		result = result + cln::expt(cln::cl_I(-1),p) * res2;
 
 		return result;
+	}
+
+	if ((cln::abs(value) > 0.95) && (cln::abs(value-9.53) < 9.47)) {
+		lst m;
+		m.append(n+1);
+		for (int s=0; s<p-1; s++)
+			m.append(1);
+
+		ex res = H(m,numeric(value)).evalf();
+		return ex_to<numeric>(res).to_cl_N();
 	}
 	else {
 		return S_projection(n, p, value, prec);
@@ -3230,7 +3242,7 @@ static ex H_evalf(const ex& x1, const ex& x2)
 		// x -> 1/x
 		if (cln::abs(x) >= 2.0) {
 			map_trafo_H_1overx trafo;
-			res *= trafo(H(m, xtemp));
+			res *= trafo(H(m, xtemp).hold());
 			if (cln::imagpart(x) <= 0) {
 				res = res.subs(H_polesign == -I*Pi);
 			} else {
@@ -3245,7 +3257,7 @@ static ex H_evalf(const ex& x1, const ex& x2)
 		if (cln::abs(x-9.53) <= 9.47) {
 			// x -> (1-x)/(1+x)
 			map_trafo_H_1mxt1px trafo;
-			res *= trafo(H(m, xtemp));
+			res *= trafo(H(m, xtemp).hold());
 		} else {
 			// x -> 1-x
 			if (has_minus_one) {
@@ -3253,7 +3265,7 @@ static ex H_evalf(const ex& x1, const ex& x2)
 				return filter(H(m, numeric(x)).hold()).evalf();
 			}
 			map_trafo_H_1mx trafo;
-			res *= trafo(H(m, xtemp));
+			res *= trafo(H(m, xtemp).hold());
 		}
 
 		return res.subs(xtemp == numeric(x)).evalf();
