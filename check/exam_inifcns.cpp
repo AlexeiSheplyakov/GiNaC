@@ -310,9 +310,6 @@ static unsigned inifcns_consist_log()
 	if (!e1.is_equal(e2))
 		++result;
 
-	if (!ex(log(pow(p,a))).is_equal(a*log(p)))
-		++result;
-
 	// shall not do for non-real powers
 	if (ex(log(pow(p,z))).is_equal(z*log(p)))
 		++result;
