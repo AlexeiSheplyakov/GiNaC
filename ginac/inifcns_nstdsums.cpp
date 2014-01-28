@@ -1577,7 +1577,17 @@ static ex Li_eval(const ex& m_, const ex& x_)
 				}
 			}
 			if (is_zeta) {
-				return zeta(m_,x_);
+				lst newx;
+				for (lst::const_iterator itx = x.begin(); itx != x.end(); ++itx) {
+					GINAC_ASSERT((*itx == _ex1) || (*itx == _ex_1));
+					// XXX: 1 + 0.0*I is considered equal to 1. However
+					// the former is a not automatically converted
+					// to a real number. Do the conversion explicitly
+					// to avoid the "numeric::operator>(): complex inequality"
+					// exception (and similar problems).
+					newx.append(*itx != _ex_1 ? _ex1 : _ex_1);
+				}
+				return zeta(m_, newx);
 			}
 			if (is_H) {
 				ex prefactor;
@@ -2494,7 +2504,12 @@ lst convert_parameter_Li_to_H(const lst& m, const lst& x, ex& pf)
 	res.append(*itm);
 	itm++;
 	while (itx != x.end()) {
-		signum *= (*itx > 0) ? 1 : -1;
+		GINAC_ASSERT((*itx == _ex1) || (*itx == _ex_1));
+		// XXX: 1 + 0.0*I is considered equal to 1. However the former
+		// is not automatically converted to a real number.
+		// Do the conversion explicitly to avoid the
+		// "numeric::operator>(): complex inequality" exception.
+		signum *= (*itx != _ex_1) ? 1 : -1;
 		pf *= signum;
 		res.append((*itm) * signum);
 		itm++;
