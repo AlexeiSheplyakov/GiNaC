@@ -10,7 +10,7 @@ AM_CPPFLAGS = -I$(srcdir)/../ginac -I../ginac -DIN_GINAC
 man_MANS = ginsh.1
 
 CLEANFILES = ginsh_fcn_help.h ginsh_op_help.h
-EXTRA_DIST = ginsh_parser.ypp ginsh_fcn_help.py ginsh_op_help.py
+EXTRA_DIST = ginsh_parser.ypp ginsh_fcn_help.py ginsh_op_help.py CMakeLists.txt
 
 # files created by sed scripts
 ginsh_fcn_help.h: ginsh.1.in $(srcdir)/ginsh_fcn_help.py

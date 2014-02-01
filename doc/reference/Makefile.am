@@ -71,3 +71,4 @@ endif
 ## CONFIG_DOXYGEN
 
 CLEANFILES = reference.dvi reference.ps reference.pdf html_files/* latex/* pdflatex/*
+EXTRA_DIST = CMakeLists.txt

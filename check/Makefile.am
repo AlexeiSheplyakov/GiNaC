@@ -274,3 +274,4 @@ pgcd_infinite_loop_LDADD =  ../ginac/libginac.la
 AM_CPPFLAGS = -I$(srcdir)/../ginac -I../ginac -DIN_GINAC
 
 CLEANFILES = exam.gar
+EXTRA_DIST = CMakeLists.txt

@@ -13,4 +13,4 @@ AM_CPPFLAGS = -I$(srcdir)/../ginac -I../ginac -DIN_GINAC
 
 man_MANS = viewgar.1
 
-EXTRA_DIST = ginac-excompiler.in
+EXTRA_DIST = ginac-excompiler.in CMakeLists.txt
