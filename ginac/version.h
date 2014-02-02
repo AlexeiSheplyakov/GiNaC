@@ -51,7 +51,7 @@
 // of leftover numbers. Not something we need to worry about yet. ;-)
 #define GINAC_LT_CURRENT  4
 #define GINAC_LT_REVISION 0
-#define GINAC_LT_AGE      2
+#define GINAC_LT_AGE      0
 
 /*
  * GiNaC archive file version information.
