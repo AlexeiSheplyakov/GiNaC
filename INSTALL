@@ -11,7 +11,8 @@ use the same compiler you compiled CLN with because of differing
 name-mangling schemes.
 
 The pkg-config utility is required for configuration, it can be downloaded
-from <http://pkg-config.freedesktop.org/>.
+from <http://pkg-config.freedesktop.org/>. Also Python version >= 2.6 is
+required.
 
 To build the GiNaC tutorial and reference manual the doxygen utility
 (it can be downloaded from http://www.stack.nl/~dimitri/doxygen) and
