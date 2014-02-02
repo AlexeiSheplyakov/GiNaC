@@ -70,6 +70,7 @@ ginacinclude_HEADERS = ginac.h add.h archive.h assertion.h basic.h class_info.h 
 EXTRA_DIST = function.py function.hppy function.cppy CMakeLists.txt
 
 BUILT_SOURCES = function.cpp function.h
+EXTRA_DIST += function.cpp function.h
 
 $(srcdir)/function.cpp: function.cppy function.py
 	$(PYTHON) $(srcdir)/function.py -o $@ $<
