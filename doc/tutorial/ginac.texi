@@ -6539,7 +6539,9 @@ Sometimes you might want to prevent GiNaC from inserting these extra symbols
 @}
 @end example
 
-With this parser, it's also easy to implement interactive GiNaC programs:
+With this parser, it's also easy to implement interactive GiNaC programs.
+When running the following program interactively, remember to send an
+EOF marker after the input, e.g. by pressing Ctrl-D on an empty line:
 
 @example
 #include <iostream>
