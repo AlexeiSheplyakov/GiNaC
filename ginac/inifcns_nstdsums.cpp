@@ -1136,6 +1136,7 @@ G_numeric(const std::vector<cln::cl_N>& x, const std::vector<int>& s,
 	// check for convergence and necessary accelerations
 	bool need_trafo = false;
 	bool need_hoelder = false;
+	bool have_trailing_zero = false;
 	std::size_t depth = 0;
 	for (std::size_t i = 0; i < x.size(); ++i) {
 		if (!zerop(x[i])) {
@@ -1149,14 +1150,16 @@ G_numeric(const std::vector<cln::cl_N>& x, const std::vector<int>& s,
 				need_hoelder = true;
 		}
 	}
-	if (zerop(x[x.size() - 1]))
+	if (zerop(x[x.size() - 1])) {
+		have_trailing_zero = true;
 		need_trafo = true;
+	}
 
 	if (depth == 1 && x.size() == 2 && !need_trafo)
 		return - Li_projection(2, y/x[1], cln::float_format(Digits));
 	
 	// do acceleration transformation (hoelder convolution [BBB])
-	if (need_hoelder)
+	if (need_hoelder && !have_trailing_zero)
 		return G_do_hoelder(x, s, y);
 	
 	// convergence transformation
