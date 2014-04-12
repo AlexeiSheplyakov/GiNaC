@@ -1020,9 +1020,8 @@ G_do_hoelder(std::vector<cln::cl_N> x, /* yes, it's passed by value */
 		std::vector<int> qlsts;
 		for (std::size_t j = r; j >= 1; --j) {
 			qlstx.push_back(cln::cl_N(1) - x[j-1]);
-			if (instanceof(x[j-1], cln::cl_R_ring) &&
-			    realpart(x[j-1]) > 1 && realpart(x[j-1]) <= 2) {
-				qlsts.push_back(s[j-1]);
+			if (instanceof(x[j-1], cln::cl_R_ring) && realpart(x[j-1]) > 1) {
+				qlsts.push_back(1);
 			} else {
 				qlsts.push_back(-s[j-1]);
 			}
