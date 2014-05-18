@@ -2118,8 +2118,9 @@ static ex put_factors_into_lst(const ex& e)
 		return result;
 	}
 	if ( is_a<symbol>(e) || is_a<add>(e) ) {
-		result.append(1);
-		result.append(e);
+		ex icont(e.integer_content());
+		result.append(icont);
+		result.append(e/icont);
 		return result;
 	}
 	if ( is_a<mul>(e) ) {

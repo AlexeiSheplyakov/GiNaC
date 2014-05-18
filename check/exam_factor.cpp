@@ -184,6 +184,33 @@ static unsigned exam_factor3()
 	return result;
 }
 
+static unsigned check_factorization(const exvector& factors)
+{
+	ex e = (new mul(factors))->setflag(status_flags::dynallocated);
+	ex ef = factor(e.expand());
+	if (ef.nops() != factors.size()) {
+		clog << "wrong number of factors, expected " << factors.size() <<
+			", got " << ef.nops();
+		return 1;
+	}
+	for (size_t i = 0; i < ef.nops(); ++i) {
+		if (find(factors.begin(), factors.end(), ef.op(i)) == factors.end()) {
+			clog << "wrong factorization: term not found: " << ef.op(i);
+			return 1;
+		}
+	}
+	return 0;
+}
+
+static unsigned factor_integer_content_bug()
+{
+	parser reader;
+	exvector factors;
+	factors.push_back(reader("x+y+x*y"));
+	factors.push_back(reader("3*x+2*y"));
+	return check_factorization(factors);
+}
+
 unsigned exam_factor()
 {
 	unsigned result = 0;
@@ -193,6 +220,8 @@ unsigned exam_factor()
 	result += exam_factor1(); cout << '.' << flush;
 	result += exam_factor2(); cout << '.' << flush;
 	result += exam_factor3(); cout << '.' << flush;
+	result += factor_integer_content_bug();
+	cout << '.' << flush;
 
 	return result;
 }
