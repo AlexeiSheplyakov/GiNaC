@@ -318,6 +318,15 @@ static unsigned inifcns_consist_log()
 	if (ex(log(pow(a,b))).is_equal(b*log(a)))
 		++result;
 
+	// infinite recursion log_series
+	ex e(log(-p));
+	ex ser = ex_to<pseries>(e.series(z, 1))
+		.convert_to_poly(/* no_order = */ true);
+	if (!ser.is_equal(e)) {
+		clog << "series(" << e << ", " << z << "): wrong result" << endl;
+		++result;
+	}
+
 	return result;
 }
 
