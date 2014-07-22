@@ -5772,11 +5772,11 @@ almost any kind of object (anything that is @code{subs()}able):
     idx i(symbol("i"), 3), j(symbol("j"), 3), k(symbol("k"), 3);
     symbol A("A"), B("B"), a("a"), b("b"), c("c");
                                            
-    cout << indexed(A, i, j).symmetrize() << endl;
+    cout << ex(indexed(A, i, j)).symmetrize() << endl;
      // -> 1/2*A.j.i+1/2*A.i.j
-    cout << indexed(A, i, j, k).antisymmetrize(lst(i, j)) << endl;
+    cout << ex(indexed(A, i, j, k)).antisymmetrize(lst(i, j)) << endl;
      // -> -1/2*A.j.i.k+1/2*A.i.j.k
-    cout << lst(a, b, c).symmetrize_cyclic(lst(a, b, c)) << endl;
+    cout << ex(lst(a, b, c)).symmetrize_cyclic(lst(a, b, c)) << endl;
      // -> 1/3*@{a,b,c@}+1/3*@{b,c,a@}+1/3*@{c,a,b@}
 @}
 @end example
