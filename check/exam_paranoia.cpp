@@ -494,11 +494,11 @@ static unsigned exam_paranoia19()
 	return 0;
 }
 
-// Bug in expairseq::is_polynomial (fixed 2011-05-20).
+// Bugs in is_polynomial (fixed 2011-05-20 and 2014-07-26).
 static unsigned exam_paranoia20()
 {
 	unsigned result = 0;
-	symbol x("x");
+	symbol x("x"), y("y");
 	ex e1 = sqrt(x*x+1)*sqrt(x+1);
 	if (e1.is_polynomial(x)) {
 		clog << "sqrt(x*x+1)*sqrt(x+1) is wrongly reported to be a polynomial in x\n";
@@ -507,6 +507,16 @@ static unsigned exam_paranoia20()
 	ex e2 = sqrt(Pi)*x;
 	if (!e2.is_polynomial(x)) {
 		clog << "sqrt(Pi)*x is wrongly reported to be no polynomial in x\n";
+		++result;
+	}
+	ex e3 = sqrt(x);
+	if (!e3.is_polynomial(y)) {
+		clog << "sqrt(x) is wrongly reported to be no polynomial in y\n";
+		++result;
+	}
+	ex e4 = (1+y)/(2+x);
+	if (e4.is_polynomial(x)) {
+		clog << "(1+y)/(2+x) is wrongly reported to be a polynomial in x\n";
 		++result;
 	}
 	return result;
