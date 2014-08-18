@@ -142,6 +142,7 @@ void clifford::archive(archive_node & n) const
 }
 
 GINAC_BIND_UNARCHIVER(clifford);
+GINAC_BIND_UNARCHIVER(cliffordunit);
 GINAC_BIND_UNARCHIVER(diracone);
 GINAC_BIND_UNARCHIVER(diracgamma);
 GINAC_BIND_UNARCHIVER(diracgamma5);

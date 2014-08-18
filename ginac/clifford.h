@@ -113,6 +113,7 @@ protected:
 	void do_print(const print_context & c, unsigned level) const;
 	void do_print_latex(const print_latex & c, unsigned level) const;
 };
+GINAC_DECLARE_UNARCHIVER(cliffordunit);
 
 
 /** This class represents the Dirac gamma Lorentz vector. */
