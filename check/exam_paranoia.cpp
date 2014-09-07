@@ -522,6 +522,28 @@ static unsigned exam_paranoia20()
 	return result;
 }
 
+static unsigned is_polynomial_false_positive()
+{
+	unsigned result = 0;
+	symbol x("x"), n("n");
+	exvector nonpoly_exprs;
+	nonpoly_exprs.push_back(1/(1-x));
+	nonpoly_exprs.push_back(1/(x+1));
+	nonpoly_exprs.push_back(-1/(x-1));
+	nonpoly_exprs.push_back(1/(1-x*x));
+	nonpoly_exprs.push_back(1/(1-pow(x,n)));
+	nonpoly_exprs.push_back(x-1/(x-1));
+	for (exvector::const_iterator ep = nonpoly_exprs.begin();
+	     ep != nonpoly_exprs.end(); ++ep) {
+		if (ep->is_polynomial(x)) {
+			clog << "(" << *ep << ").is_polynomial(" << x << ") "
+			        "erroneously returned true" << endl;
+			++result;
+		}
+	}
+	return result;
+}
+
 unsigned exam_paranoia()
 {
 	unsigned result = 0;
@@ -548,6 +570,7 @@ unsigned exam_paranoia()
 	result += exam_paranoia18();  cout << '.' << flush;
 	result += exam_paranoia19();  cout << '.' << flush;
 	result += exam_paranoia20();  cout << '.' << flush;
+	result += is_polynomial_false_positive(); cout << '.' << flush;
 	
 	return result;
 }
