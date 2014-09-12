@@ -365,6 +365,33 @@ static unsigned inifcns_test_legacy()
 	return result;
 }
 
+static unsigned check_G_y_one_bug()
+{
+	exvector exprs;
+	exprs.push_back(G(lst(-1,-1, 1,-1, 0), 1));
+	exprs.push_back(G(lst(-1, 0, 1,-1, 0), 1));
+	exprs.push_back(G(lst(-1, 1,-1,-1, 0), 1));
+	exprs.push_back(G(lst(-1, 1,-1, 0, 0), 1));
+	exprs.push_back(G(lst(-1, 1,-1, 1, 0), 1));
+	exprs.push_back(G(lst(-1, 1, 0,-1, 0), 1));
+	exprs.push_back(G(lst(-1, 1, 1,-1, 0), 1));
+	exprs.push_back(G(lst( 0,-1, 1,-1, 0), 1));
+	exprs.push_back(G(lst( 0, 1, 1,-1, 0), 1));
+	unsigned err = 0;
+	for (exvector::const_iterator ep = exprs.begin(); ep != exprs.end(); ++ep) {
+		try {
+			ex val = ep->evalf();
+			if (!is_a<numeric>(val)) {
+				clog << "evalf(" << *ep << ") is not a number: " << val << endl;
+				++err;
+			}
+		} catch (std::exception& oops) {
+			clog << "evalf(" << *ep << "): got an exception" << oops.what() << endl;
+			++err;
+		}
+	}
+	return err;
+}
 
 unsigned exam_inifcns_nstdsums(void)
 {
@@ -377,6 +404,7 @@ unsigned exam_inifcns_nstdsums(void)
 	result += inifcns_test_HLi();
 	result += inifcns_test_LiG();
 	result += inifcns_test_legacy();
+	result += check_G_y_one_bug();
 	
 	return result;
 }

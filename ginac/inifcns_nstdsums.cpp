@@ -1149,16 +1149,19 @@ G_numeric(const std::vector<cln::cl_N>& x, const std::vector<int>& s,
 				need_hoelder = true;
 		}
 	}
-	if (zerop(x[x.size() - 1])) {
-		have_trailing_zero = true;
+	have_trailing_zero = zerop(x.back());
+	if (have_trailing_zero) {
 		need_trafo = true;
+		if (y != 1) {
+			need_hoelder = false;
+		}
 	}
 
 	if (depth == 1 && x.size() == 2 && !need_trafo)
 		return - Li_projection(2, y/x[1], cln::float_format(Digits));
 	
 	// do acceleration transformation (hoelder convolution [BBB])
-	if (need_hoelder && !have_trailing_zero)
+	if (need_hoelder)
 		return G_do_hoelder(x, s, y);
 	
 	// convergence transformation
