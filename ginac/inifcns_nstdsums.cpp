@@ -1043,6 +1043,25 @@ G_do_hoelder(std::vector<cln::cl_N> x, /* yes, it's passed by value */
 	return result;
 }
 
+class less_object_for_cl_N
+{
+public:
+	bool operator() (const cln::cl_N & a, const cln::cl_N & b) const
+	{
+		// absolute value?
+		if (abs(a) != abs(b))
+			return (abs(a) < abs(b)) ? true : false;
+
+		// complex phase?
+		if (phase(a) != phase(b))
+			return (phase(a) < phase(b)) ? true : false;
+
+		// equal, therefore "less" is not true
+		return false;
+	}
+};
+
+
 // convergence transformation, used for numerical evaluation of G function.
 // the parameter x, s and y must only contain numerics
 static cln::cl_N
@@ -1050,17 +1069,17 @@ G_do_trafo(const std::vector<cln::cl_N>& x, const std::vector<int>& s,
            const cln::cl_N& y, bool flag_trailing_zeros_only)
 {
 	// sort (|x|<->position) to determine indices
-	typedef std::multimap<cln::cl_R, std::size_t> sortmap_t;
+	typedef std::multimap<cln::cl_N, std::size_t, less_object_for_cl_N> sortmap_t;
 	sortmap_t sortmap;
 	std::size_t size = 0;
 	for (std::size_t i = 0; i < x.size(); ++i) {
 		if (!zerop(x[i])) {
-			sortmap.insert(std::make_pair(abs(x[i]), i));
+			sortmap.insert(std::make_pair(x[i], i));
 			++size;
 		}
 	}
 	// include upper limit (scale)
-	sortmap.insert(std::make_pair(abs(y), x.size()));
+	sortmap.insert(std::make_pair(y, x.size()));
 
 	// generate missing dummy-symbols
 	int i = 1;
