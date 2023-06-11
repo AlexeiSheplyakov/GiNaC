@@ -166,11 +166,11 @@ install(FILES ${ginaclib_public_headers} DESTINATION "${INCLUDE_INSTALL_DIR}/gin
 
 add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/function.h
-	COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/function.py -o ${CMAKE_CURRENT_BINARY_DIR}/function.h ${CMAKE_CURRENT_SOURCE_DIR}/function.hppy
+	COMMAND python2 ${CMAKE_CURRENT_SOURCE_DIR}/function.py -o ${CMAKE_CURRENT_BINARY_DIR}/function.h ${CMAKE_CURRENT_SOURCE_DIR}/function.hppy
 	DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/function.hppy ${CMAKE_CURRENT_SOURCE_DIR}/function.py)
 
 add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/function.cpp
-	COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/function.py -o ${CMAKE_CURRENT_BINARY_DIR}/function.cpp ${CMAKE_CURRENT_SOURCE_DIR}/function.cppy
+	COMMAND python2 ${CMAKE_CURRENT_SOURCE_DIR}/function.py -o ${CMAKE_CURRENT_BINARY_DIR}/function.cpp ${CMAKE_CURRENT_SOURCE_DIR}/function.cppy
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/function.h ${CMAKE_CURRENT_SOURCE_DIR}/function.cppy ${CMAKE_CURRENT_SOURCE_DIR}/function.py)
 
